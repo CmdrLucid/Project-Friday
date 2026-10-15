@@ -12,11 +12,29 @@ Folder layout next to this file (release):  tools/ docs/symbols.json recomp.json
 import hashlib, json, os, re, shlex, shutil, subprocess, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+WIN = os.name == "nt"
+os.environ.setdefault("PYTHONUTF8", "1")      # the patch tools read / write UTF-8 sources (the Windows default would be cp1252)
+
+
+def q(path):
+    """quote a path for a command string that shlex.split(posix) parses later (forward slashes also work on Windows)"""
+    return '"%s"' % path.replace("\\", "/") if WIN else shlex.quote(path)
+
+
+def rmtree(path):
+    def onerr(fn, p, exc):          # read-only files on Windows
+        try:
+            os.chmod(p, 0o700)
+            fn(p)
+        except OSError:
+            pass
+    shutil.rmtree(path, onerror=onerr)
 NAME = "Project-Friday"
 # SHA-1 of the ROM version this project is built and tested for (2 MB Genesis dump, as used on the Steam Deck)
 KNOWN_ROMS = {"24345e29427b000b90df778965dd8834300a9dde": "Landstalker (Mega Drive)"}
-DATA = os.environ.get("LANDSTALKER_DATA") or os.path.join(
-    os.environ.get("XDG_DATA_HOME") or os.path.join(os.path.expanduser("~"), ".local", "share"), "project-friday")
+DATA = os.environ.get("LANDSTALKER_DATA") or (
+    os.path.join(os.environ.get("LOCALAPPDATA") or os.path.join(os.path.expanduser("~"), "AppData", "Local"), "Project-Friday") if WIN else
+    os.path.join(os.environ.get("XDG_DATA_HOME") or os.path.join(os.path.expanduser("~"), ".local", "share"), "project-friday"))
 CONFIG = os.path.join(DATA, "config.json")
 NOTICE = ("Project-Friday builds the game on your computer from your own Landstalker ROM.\n"
           "The built game is derived from that ROM: do not give it (or the ROM) to anyone else.")
@@ -25,9 +43,23 @@ NOTICE = ("Project-Friday builds the game on your computer from your own Landsta
 # ---------------------------------------------------------------- user interface (zenity / console)
 class Ui:
     def __init__(self, gui):
-        self.gui = gui and bool(shutil.which("zenity")) and bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
+        if WIN:   # dialogs through PowerShell + Windows Forms (present on every Windows 10 / 11), progress as text in the console window
+            self.gui = gui and bool(shutil.which("powershell"))
+        else:
+            self.gui = gui and bool(shutil.which("zenity")) and bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
         self.proc = None
         self.t0 = time.time()
+
+    def _ps(self, script, **env):
+        e = dict(os.environ, **env)
+        return subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-STA", "-Command",
+                               "Add-Type -AssemblyName System.Windows.Forms; " + script], capture_output=True, text=True, env=e)
+
+    def _box(self, text, icon):
+        if WIN:
+            self._ps("[void][System.Windows.Forms.MessageBox]::Show($env:PF_MSG, 'Project-Friday', 'OK', '%s')" % icon, PF_MSG=text)
+        else:
+            subprocess.run(["zenity", "--error" if icon == "Error" else "--info", "--no-markup", "--width=480", "--title=" + NAME, "--text=" + text])
 
     def say(self, text):
         print(text, flush=True)
@@ -35,15 +67,20 @@ class Ui:
     def error(self, text):
         print("ERROR: " + text, file=sys.stderr, flush=True)
         if self.gui:
-            subprocess.run(["zenity", "--error", "--no-markup", "--width=480", "--title=" + NAME, "--text=" + text])
+            self._box(text, "Error")
 
     def info(self, text):
         print(text, flush=True)
         if self.gui:
-            subprocess.run(["zenity", "--info", "--no-markup", "--width=480", "--title=" + NAME, "--text=" + text])
+            self._box(text, "Information")
 
     def ask_rom(self, why):
         self.say(why)
+        if self.gui and WIN:
+            r = self._ps("$f = New-Object System.Windows.Forms.OpenFileDialog; $f.Title = 'Select your Landstalker ROM (.md / .bin / .gen)'; "
+                         "$f.Filter = 'Mega Drive ROM (*.md;*.bin;*.gen)|*.md;*.bin;*.gen|All files (*.*)|*.*'; "
+                         "if ($f.ShowDialog() -eq 'OK') { [Console]::Out.Write($f.FileName) }")
+            return r.stdout.strip() or None
         if self.gui:
             r = subprocess.run(["zenity", "--file-selection", "--title=Select your Landstalker ROM (.md / .bin / .gen)"],
                                capture_output=True, text=True)
@@ -54,7 +91,7 @@ class Ui:
             return None
 
     def progress_open(self, title):
-        if self.gui:
+        if self.gui and not WIN:
             self.proc = subprocess.Popen(
                 ["zenity", "--progress", "--no-markup", "--width=480", "--title=" + NAME, "--text=" + title,
                  "--percentage=0", "--auto-close"], stdin=subprocess.PIPE, text=True)
@@ -168,11 +205,11 @@ def pick_compiler(args):
         return args.cc
     if os.environ.get("CC"):
         return os.environ["CC"]
-    z = os.path.join(HERE, "vendor", "zig", "zig.exe" if os.name == "nt" else "zig")
+    z = os.path.join(HERE, "vendor", "zig", "zig.exe" if WIN else "zig")
     if os.path.isfile(z):
-        return shlex.quote(z) + " cc"
+        return q(z) + " cc" + (" -target x86_64-windows-gnu" if WIN else "")
     if shutil.which("zig"):
-        return "zig cc"
+        return "zig cc" + (" -target x86_64-windows-gnu" if WIN else "")
     for c in ("cc", "gcc", "clang"):
         if shutil.which(c):
             return c
@@ -185,6 +222,12 @@ def sdl_flags():
     if os.environ.get("SDL2_CFLAGS") is not None and os.environ.get("SDL2_LIBS") is not None:
         return os.environ["SDL2_CFLAGS"], os.environ["SDL2_LIBS"]
     inc = os.path.join(HERE, "vendor", "sdl2", "include", "SDL2")
+    if WIN:   # MinGW development package of SDL2 (include/SDL2, lib/libSDL2main.a + libSDL2.dll.a, bin/SDL2.dll is copied next to the game)
+        if not os.path.isdir(inc):
+            raise RuntimeError("vendor/sdl2 is missing in this package")
+        ld = os.path.join(HERE, "vendor", "sdl2", "lib")
+        return ("-I%s -Dmain=SDL_main" % q(inc),
+                "-L%s -lmingw32 %s %s -lm" % (q(ld), q(os.path.join(ld, "libSDL2main.a")), q(os.path.join(ld, "libSDL2.dll.a"))))
     lib = None
     if os.path.isdir(inc):
         try:
@@ -211,7 +254,7 @@ def sdl_flags():
 def patch_steps():
     """The patch / generate commands, read from build.sh so there is ONE list (lines `python3 tools/X args`)."""
     steps = []
-    for line in open(os.path.join(HERE, "build.sh")):
+    for line in open(os.path.join(HERE, "build.sh"), encoding="utf-8"):
         m = re.match(r'^python3 (tools/\S+\.py)(.*)$', line.rstrip("\n"))
         if not m:
             continue
@@ -237,7 +280,7 @@ def build(ui, rom, rom_sha, bid, cc):
     # weights (percent): prepare 3, patch/generate chain 57 (the generate step is the long one), compile 40
     ui.progress_open("Building the game from your ROM (first start only, about 5 to 25 minutes) ...")
     if os.path.isdir(work):
-        shutil.rmtree(work)
+        rmtree(work)
     os.makedirs(work)
     log = open(os.path.join(work, "build.log"), "w")
 
@@ -316,16 +359,18 @@ def build(ui, rom, rom_sha, bid, cc):
         tail = open(os.path.join(work, "build.log")).read()[-1500:]
         raise RuntimeError("Compiling failed.\n\n%s\n\nFull log: %s" % (tail, os.path.join(work, "build.log")))
     log.close()
+    if WIN:   # the game needs SDL2.dll next to it
+        shutil.copy2(os.path.join(HERE, "vendor", "sdl2", "bin", "SDL2.dll"), os.path.join(work, "out", "SDL2.dll"))
     # the generated sources are no longer needed: keep only the program (saves disk space)
-    shutil.rmtree(os.path.join(work, "src"), ignore_errors=True)
-    shutil.rmtree(os.path.join(work, ".deps"), ignore_errors=True)
-    shutil.rmtree(os.path.join(work, "out", "obj"), ignore_errors=True)
+    rmtree(os.path.join(work, "src"))
+    rmtree(os.path.join(work, ".deps"))
+    rmtree(os.path.join(work, "out", "obj"))
     open(os.path.join(work, "DONE"), "w").write(time.strftime("%Y-%m-%d %H:%M:%S\n"))
     # remove older builds
     bd = os.path.join(DATA, "builds")
     for d in os.listdir(bd):
         if os.path.join(bd, d) != work:
-            shutil.rmtree(os.path.join(bd, d), ignore_errors=True)
+            rmtree(os.path.join(bd, d))
     ui.progress(100, "Done")
     return exe
 
@@ -338,7 +383,9 @@ def selftest(cc):
         return 1
     cflags, libs = sdl_flags()
     d = tempfile.mkdtemp(prefix="pf-selftest-")
-    src, exe = os.path.join(d, "t.c"), os.path.join(d, "t")
+    src, exe = os.path.join(d, "t.c"), os.path.join(d, "t.exe" if WIN else "t")
+    if WIN and os.path.isfile(os.path.join(HERE, "vendor", "sdl2", "bin", "SDL2.dll")):
+        shutil.copy2(os.path.join(HERE, "vendor", "sdl2", "bin", "SDL2.dll"), os.path.join(d, "SDL2.dll"))
     open(src, "w").write('#include <SDL.h>\nint main(void) { return SDL_MAJOR_VERSION == 2 ? 0 : 1; }\n')
     env = dict(os.environ, ZIG_GLOBAL_CACHE_DIR=os.path.join(d, "zigcache"))
     r = subprocess.run(shlex.split(cc) + shlex.split(cflags) + [src] + shlex.split(libs) + ["-o", exe], capture_output=True, text=True, env=env)
@@ -349,7 +396,7 @@ def selftest(cc):
         print("selftest FAILED (run)")
         return 1
     print("selftest ok: compiler '%s', SDL2 headers and library work" % cc)
-    shutil.rmtree(d, ignore_errors=True)
+    rmtree(d)
     return 0
 
 
@@ -383,7 +430,7 @@ def main():
     bid = build_id(rom_sha)
     try:
         if args.rebuild:
-            shutil.rmtree(os.path.join(DATA, "builds"), ignore_errors=True)
+            rmtree(os.path.join(DATA, "builds"))
         if cc is None and not os.path.isfile(os.path.join(DATA, "builds", bid + "-" + rom_sha[:8], "DONE")):
             ui.error("No C compiler found (the release package brings its own; for a source checkout install gcc or zig).")
             return 1
@@ -399,6 +446,10 @@ def main():
     if args.build_only:
         print("built:", exe)
         return 0
+    env = dict(os.environ)
+    env.setdefault("HOME", os.path.expanduser("~"))     # the game keeps its settings in ~/.landstalker_* (Windows: the user profile)
+    if WIN:
+        return subprocess.call([exe] + game_args + [rom], env=env, cwd=os.path.dirname(exe))
     os.execv(exe, [exe] + game_args + [rom])
 
 

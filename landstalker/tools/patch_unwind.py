@@ -21,7 +21,7 @@ def rep(old, new):
     assert old in s, f"layout changed: {old[:50]!r}"
     s = s.replace(old, new, 1)
 
-rep("#include <stdio.h>\n", "#include <stdio.h>\n#include <setjmp.h>\n")
+rep("#include <stdio.h>\n", "#include <stdio.h>\n#include <setjmp.h>\n#ifdef _WIN32   /* mingw: _setjmp takes a frame argument, plain setjmp / longjmp are fine there */\n#define LK_SETJMP(b) setjmp(b)\n#define LK_LONGJMP(b, v) longjmp(b, v)\n#else\n#define LK_SETJMP(b) _setjmp(b)\n#define LK_LONGJMP(b, v) _longjmp(b, v)\n#endif\n")
 rep("static uint32_t s_expect[512];\n",
     "static uint32_t s_expect[512];\n"
     "static jmp_buf s_jb[512];     /* where each frame's call can be unwound to */\n"
@@ -31,12 +31,12 @@ rep("    if (e && r != e) {\n        if (func_table_lookup(r)) s_tail = r;",
     "        /* r is an outer frame's return address: that frame's callee was\n"
     "         * abandoned (return address dropped), unwind the C stack to it */\n"
     "        for (int i = d - 1; i >= 0 && i < 512; i--) {\n"
-    "            if (s_expect[i] == r) { s_unwind_k = i; _longjmp(s_jb[i], 1); }\n"
+    "            if (s_expect[i] == r) { s_unwind_k = i; LK_LONGJMP(s_jb[i], 1); }\n"
     "        }\n"
     "        if (func_table_lookup(r)) s_tail = r;")
 rep("    bool found = true;\n    do {\n        s_tail = 0;",
     "    bool found = true;\n"
-    "    if (s_call_depth <= 512 && _setjmp(s_jb[s_call_depth - 1]) != 0) {\n"
+    "    if (s_call_depth <= 512 && LK_SETJMP(s_jb[s_call_depth - 1]) != 0) {\n"
     "        /* unwound to this frame by func_table_rts: this call has returned */\n"
     "        s_tail = 0;\n"
     "        s_call_depth = s_unwind_k;\n"

@@ -28,6 +28,24 @@ jobs:
       - name: Build the AppImage
         run: python3 landstalker/packaging/make_appimage.py
 
+      - name: Build the Windows package (cross-built, no ROM needed)
+        run: python3 landstalker/packaging/make_windows_zip.py
+
+      - name: Check the Windows package content
+        run: |
+          python3 - <<'PY'
+          import zipfile
+          z = zipfile.ZipFile("landstalker/dist/Project-Friday-windows-x64.zip")
+          n = set(z.namelist())
+          need = ["Project-Friday/Project-Friday.exe", "Project-Friday/firstrun.py", "Project-Friday/python/python.exe",
+                  "Project-Friday/vendor/zig/zig.exe", "Project-Friday/vendor/sdl2/bin/SDL2.dll", "Project-Friday/licenses/NOTICE.txt",
+                  "Project-Friday/licenses/Genesis-Plus-GX-LICENSE.txt", "Project-Friday/vendor/genrecomp/CMakeLists.txt"]
+          missing = [x for x in need if x not in n]
+          assert not missing, missing
+          assert not any("/src/recomp/" in x for x in n), "generated code must not be in the package"
+          print("windows package ok,", len(n), "files")
+          PY
+
       - name: Self-test the AppImage (compiler + SDL2 headers, no ROM needed)
         run: |
           chmod +x landstalker/dist/Project-Friday-x86_64.AppImage
@@ -39,8 +57,10 @@ jobs:
           cd landstalker/dist
           SHA=$(sha256sum Project-Friday-x86_64.AppImage | cut -d' ' -f1)
           echo "$SHA  Project-Friday-x86_64.AppImage" > Project-Friday-x86_64.AppImage.sha256
+          WSHA=$(sha256sum Project-Friday-windows-x64.zip | cut -d' ' -f1)
+          echo "$WSHA  Project-Friday-windows-x64.zip" > Project-Friday-windows-x64.zip.sha256
           VERSION="${GITHUB_REF_NAME:-test}"
-          sed -e "s/{VERSION}/${VERSION}/" -e "s/{SHA256}/${SHA}/" ../packaging/release_notes.md > ../../release_notes.md
+          sed -e "s/{VERSION}/${VERSION}/" -e "s/{SHA256}/${SHA}/" -e "s/{WSHA256}/${WSHA}/" ../packaging/release_notes.md > ../../release_notes.md
           ls -l
 
       - name: Upload as workflow artifact (manual test runs only; a full artifact storage quota must not fail a release)
@@ -52,6 +72,8 @@ jobs:
           path: |
             landstalker/dist/Project-Friday-x86_64.AppImage
             landstalker/dist/Project-Friday-x86_64.AppImage.sha256
+            landstalker/dist/Project-Friday-windows-x64.zip
+            landstalker/dist/Project-Friday-windows-x64.zip.sha256
 
       - name: Create the GitHub release
         if: startsWith(github.ref, 'refs/tags/v')
@@ -63,6 +85,8 @@ jobs:
           gh release create "$GITHUB_REF_NAME" $PRE \
             landstalker/dist/Project-Friday-x86_64.AppImage \
             landstalker/dist/Project-Friday-x86_64.AppImage.sha256 \
+            landstalker/dist/Project-Friday-windows-x64.zip \
+            landstalker/dist/Project-Friday-windows-x64.zip.sha256 \
             --title "Project-Friday ${GITHUB_REF_NAME}" \
             --notes-file release_notes.md \
             --verify-tag

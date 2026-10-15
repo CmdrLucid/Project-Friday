@@ -16,6 +16,9 @@ core = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "shot_core.
 sdl = r'''
 /* LANDSTALKER_SHOT: SDL-free side (see tools/patch_shot.py) */
 #include <sys/stat.h>
+#ifdef _WIN32
+#include <direct.h>
+#endif
 static void lk_shot_frame(const uint8_t *framebuffer, long frame) {
     static const char *list; static int init; static const char *dir; static int scale;
     if (!init) {
@@ -28,7 +31,11 @@ static void lk_shot_frame(const uint8_t *framebuffer, long frame) {
     if (!list || !*list || !lk_shot_wanted(list, frame)) return;
     extern int lk_wide_e;                               /* LANDSTALKER_WIDE (vdp_render.c) */
     int w = 320 + 2 * lk_wide_e, h = 224; char path[700];
+#ifdef _WIN32
+    _mkdir(dir);
+#else
     mkdir(dir, 0755);
+#endif
     snprintf(path, sizeof path, "%s/shot_%06ld_w%d.png", dir, frame, w);
     printf("shot: %s %s (%dx%d, scale %d)\n", lk_shot_png(path, (const uint32_t *)framebuffer, w, h, scale) ? "wrote" : "FAILED", path, w, h, scale);
     fflush(stdout);

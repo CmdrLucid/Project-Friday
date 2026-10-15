@@ -25,10 +25,10 @@ rep("#include <stdio.h>\n",
     "    long f = platform_frame_number();\n"
     "    return f >= lo && f <= hi;\n"
     "}\n")
-rep("            if (s_expect[i] == r) { s_unwind_k = i; _longjmp(s_jb[i], 1); }",
+rep("            if (s_expect[i] == r) { s_unwind_k = i; LK_LONGJMP(s_jb[i], 1); }",
     "            if (s_expect[i] == r) {\n"
     "                if (ct_on()) fprintf(stderr, \"T %ld UNWIND depth %d -> %d (rts to $%06X)\\n\", platform_frame_number(), d, i, r);\n"
-    "                s_unwind_k = i; _longjmp(s_jb[i], 1);\n"
+    "                s_unwind_k = i; LK_LONGJMP(s_jb[i], 1);\n"
     "            }")
 rep("        s_stack[s_call_depth - 1] = m68k_addr;\n        fn();",
     "        s_stack[s_call_depth - 1] = m68k_addr;\n"
