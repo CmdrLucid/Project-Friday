@@ -97,20 +97,43 @@ def main():
 
     def comp(j):
         src, obj, fl = j
-        r = subprocess.run(cc + fl + ["-c", src, "-o", obj], capture_output=True, text=True)
+        for attempt in range(4):   # zig's compile cache can fail (seen under Wine: CacheCheckFailed, no file locking): retry, the last time with a private cache
+            env = None
+            if attempt == 3 and "CacheCheckFailed" in (r.stderr or ""):
+                import tempfile
+                pc = tempfile.mkdtemp(prefix="zigcache-")
+                env = dict(os.environ, ZIG_LOCAL_CACHE_DIR=pc, ZIG_GLOBAL_CACHE_DIR=pc)
+            r = subprocess.run(cc + fl + ["-c", src, "-o", obj], capture_output=True, text=True, env=env)
+            if env:
+                shutil.rmtree(env["ZIG_LOCAL_CACHE_DIR"], ignore_errors=True)
+            if r.returncode == 0:
+                break
         with lock:
             done[0] += 1
             if r.returncode:
                 errors.append((src, r.stderr))
             print("PROGRESS %d %d %s" % (done[0], total, os.path.basename(src)), flush=True)
 
+    if todo and "zig" in a.cc:   # warm-up: one serial compile fills zig's global cache (libc headers, runtime) before the parallel ones start (CacheCheckFailed under Wine)
+        import tempfile
+        wd = tempfile.mkdtemp(prefix="zigwarm-")
+        wsrc = os.path.join(wd, "w.c")
+        open(wsrc, "w").write("#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <setjmp.h>\n#include <math.h>\nint main(void) { return 0; }\n")
+        subprocess.run(cc + O + ["-c", wsrc, "-o", os.path.join(wd, "w.o")], capture_output=True)
+        shutil.rmtree(wd, ignore_errors=True)
     with ThreadPoolExecutor(a.jobs) as ex:
         list(ex.map(comp, todo))
+    if errors:   # second chance: the failed files one by one (no parallel cache races)
+        again = [j for j in todo if any(e[0] == j[0] for e in errors)]
+        errors.clear()
+        done[0] -= len(again)
+        for j in again:
+            comp(j)
     if errors:
         for s, e in errors[:3]:
             print("ERROR compiling %s:\n%s" % (s, e[-1500:]), file=sys.stderr)
         return 1
-    exe = os.path.join(a.out, "landstalker")
+    exe = os.path.join(a.out, "landstalker.exe" if "windows" in a.cc else "landstalker")
     print("zigbuild: linking", flush=True)
     r = subprocess.run(cc + ["-O3"] + objs + sdl_l + ["-lm", "-o", exe])
     if r.returncode:

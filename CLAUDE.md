@@ -16,4 +16,6 @@ Symbols: record every learned address with a human name in `landstalker/docs/sym
 
 Ids (room numbers, entity types, items, story flags) and ROM table addresses: look them up in `landstalker/docs/ROOMS.md`, `ENTITIES.md`, `ITEMS.md`, `FLAGS.md` (from Dinopony/landstalker-lib, see INDEX.md section 6) before guessing; add new sightings there via the import tools.
 
+Releases: tag `v*` on `main` -> GitHub Actions (`.github/workflows/release.yml`) builds `Project-Friday-x86_64.AppImage` (no ROM, nothing generated; the game is built on the user's machine from his own ROM by `landstalker/firstrun.py`); see HANDOFF section 1 + DEBUGGING 'Release session 2026-10-15'. Git: this clone uses the GitHub no-reply e-mail; the repository history was squashed on 2026-10-15 (old copy: `~/ProjectL_alt`, private, never push). Never commit game code, not even snippets.
+
 Before the last push of a session run `python3 landstalker/tools/check_docs.py -v` (0 errors) and follow the end-of-session checklist in `landstalker/docs/HANDOFF.md` (section 3b). Enable the hook in a fresh clone: `git config core.hooksPath .githooks`.

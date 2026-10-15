@@ -37,6 +37,11 @@ TABLES = [
     (0x003890, 2, 1,   "sub_3890: Friday animation DMA helper, reached by fall-through from sub_388C (interp log win9)"),
     (0x1A85C6, 2, 1,   "EnemyAI jump table start (bra.w entries EnemyAI_Bubble1_A ...; interp log dev1; expand_seeds expands the whole table, descent reaches the enemy AI code at $1A8000+)"),
     # item tables with 6-byte entries (bra.w + 2 data bytes); the code at $0085FC searches them and `jmp (a0)` into the matching entry
+    (0x013ECA, 2, 11,  "CSA_00B2 bra.b jump table j_CSA_00B2_ZakOnlyFlyUp (jsr $13ECA(pc,d0.w) in the Zak / Lara cutscene fly loop, 11 entries of 2 bytes); interp log 2026-10-15 (8 of the entries ran on the interpreter)"),
+    (0x013FB2, 2, 1,   "CSA_00B4 helper: reached by bsr.b from $013FA6 and by fall-through ($013FAC); interp log 2026-10-16"),
+    (0x0145E2, 2, 1,   "CSA_00F2 helper (same pattern as $013FB2): bsr.b from $0145DA; found by scanning the generated calls for unregistered targets 2026-10-16"),
+    (0x00E782, 2, 1,   "copy loop move.w (a0)+,(a1)+ / dbra / rts, bsr.w from NoleWarp $00E63C (unregistered call target scan 2026-10-16)"),
+    (0x019FB0, 2, 1,   "CustomRoomActions1 helper (four move.b #$7F, bra.w EndCustomRoomAction), bsr.b from $019FCC (unregistered call target scan 2026-10-16)"),
     (0x00F8C6, 2, 1,   "FadePaletteDownStep loop entry: TreeWarpFx ($00E48E) calls it with d7=$37 / a0=$FF0080 (jsr into the middle, after the moveq #$F,d7); interp log 2026-10-13 tree warp"),
     (0x0085F2, 2, 1,   "UseItemDispatch: called by bsr.w from $007756; stores the item id, searches the table, jmp (a0) / error sound (the analyzer started a bogus function at $0085F0)"),
     (0x008620, 6, 23,  "UseItemTable entries (bra.w ItemUse* + id word): $8620 .. $86A4 (ItemUseKey = $8698); 0xFFFF terminator at $86AA; interp log dev3"),

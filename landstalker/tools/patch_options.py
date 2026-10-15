@@ -305,17 +305,22 @@ static void lk_win_text(int k, const char *l, int lx, const char *v, int vx) {
 }
 static const int lk_win_cnt[4] = { 3, 6, 3, 5 };
 static int lk_win_id(int pg, int r) { return pg == 1 ? lk_ids_video[r] : pg == 2 ? lk_ids_audio[r] : lk_ids_game[r]; }
-static void lk_win_page(int pg, int sel) {   /* pg 0 = root, 1 Video, 2 Audio, 3 Gameplay; sel = selected row (0 based) */
+static void lk_win_rowtext(int pg, int r) {   /* builds the text of row r (0 = title, 1.. = options) of page pg into lk_win_stage[r] */
     static const char *title[4] = { "Options", "Video", "Audio", "Gameplay" }, *root[3] = { "Video", "Audio", "Gameplay" };
+    if (r == 0) { lk_win_text(0, title[pg], pg ? 125 : 120, NULL, 0); return; }
+    if (pg == 0) lk_win_text(r, root[r - 1], 0, ">", 250);
+    else { int id = lk_win_id(pg, r - 1); char buf[40]; snprintf(buf, sizeof buf, "< %s >", lk_opt_val(id, platform_option_get(id))); lk_win_text(r, lk_id_name[id], 0, buf, 160); }
+}
+static void lk_win_page(int pg, int sel) {   /* pg 0 = root, 1 Video, 2 Audio, 3 Gameplay; sel = selected row (0 based) */
     int r;
-    lk_win_text(0, title[pg], pg ? 125 : 120, NULL, 0);
-    for (r = 0; r < lk_win_cnt[pg]; r++) {
-        if (pg == 0) lk_win_text(r + 1, root[r], 0, ">", 250);
-        else { int id = lk_win_id(pg, r); char buf[40]; snprintf(buf, sizeof buf, "< %s >", lk_opt_val(id, platform_option_get(id))); lk_win_text(r + 1, lk_id_name[id], 0, buf, 160); }
-    }
-    lk_win_pitch = pg == 1 ? 20 : pg == 3 ? 24 : 28; lk_win_compact = pg == 1;   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
+    for (r = 0; r <= lk_win_cnt[pg]; r++) lk_win_rowtext(pg, r);
+    lk_win_pitch = (pg == 1 || pg == 3) ? 20 : 28; lk_win_compact = (pg == 1 || pg == 3);   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
     memcpy(lk_win_row, lk_win_stage, sizeof lk_win_row); lk_win_n = lk_win_cnt[pg] + 1; lk_win_sel = sel + 1;
 }
+/* UP / DOWN only move the selection frame (no text work: every text row is printed through the game's own text engine, a whole page = about 100 characters = several frames of emulated time,
+   that made the window sluggish); a value change redraws only its own row */
+static void lk_win_move(int row) { lk_win_sel = row + 1; }
+static void lk_win_value(int pg, int row) { lk_win_rowtext(pg, row + 1); memcpy(lk_win_row[row + 1], lk_win_stage[row + 1], sizeof lk_win_row[0]); }
 static void lk_fs_modal(void) {   /* options window in the file select */
     int pg = 0, row = 0, rootrow = 0, prev = bus_read8(0xFF0F8Eu), cur, e, blink = 0;
     M68kContext sv = g_m68k;
@@ -333,13 +338,13 @@ static void lk_fs_modal(void) {   /* options window in the file select */
             if (pg == 0) break;
             pg = 0; row = rootrow; blink = 0; lk_win_page(0, row); lk_snd(0x00FA9Eu); continue;
         }
-        if (e & 1) { row = (row + lk_win_cnt[pg] - 1) % lk_win_cnt[pg]; blink = 0; lk_win_page(pg, row); lk_snd(0x00FA9Eu); }
-        if (e & 2) { row = (row + 1) % lk_win_cnt[pg]; blink = 0; lk_win_page(pg, row); lk_snd(0x00FA9Eu); }
+        if (e & 1) { row = (row + lk_win_cnt[pg] - 1) % lk_win_cnt[pg]; blink = 0; lk_win_move(row); lk_snd(0x00FA9Eu); }
+        if (e & 2) { row = (row + 1) % lk_win_cnt[pg]; blink = 0; lk_win_move(row); lk_snd(0x00FA9Eu); }
         if (e & (0x20 | 0x40 | 8)) {   /* A / C / RIGHT: open the page / next value */
             if (pg == 0) { rootrow = row; pg = 1 + row; row = 0; blink = 0; lk_win_page(pg, 0); lk_snd(0x00FA54u); }
-            else { lk_opt_change(lk_win_id(pg, row), 1); blink = 0; lk_win_page(pg, row); lk_snd(0x00FA54u); }
+            else { lk_opt_change(lk_win_id(pg, row), 1); blink = 0; lk_win_value(pg, row); lk_snd(0x00FA54u); }
         }
-        if ((e & 4) && pg) { lk_opt_change(lk_win_id(pg, row), -1); blink = 0; lk_win_page(pg, row); lk_snd(0x00FA54u); }   /* LEFT: previous value */
+        if ((e & 4) && pg) { lk_opt_change(lk_win_id(pg, row), -1); blink = 0; lk_win_value(pg, row); lk_snd(0x00FA54u); }   /* LEFT: previous value */
     }
     lk_win_on = 0;
     lk_fs_bar_text();

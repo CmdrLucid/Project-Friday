@@ -23,6 +23,8 @@ This project stands on the work of others. Thank you!
 | [**lordmir/landstalker_editor**](https://github.com/lordmir/landstalker_editor) | Documentation of data formats (maps, entities, text) as a reference when checking the loaded data. |
 | [**Dinopony/landstalker-lib**](https://github.com/Dinopony/landstalker-lib) | Room names, entity types, items, story flags and ROM table offsets (`docs/ROOMS.md`, `ENTITIES.md`, `ITEMS.md`, `FLAGS.md`, imported by `tools/import_rooms.py`, `tools/import_lib_constants.py`). |
 | [**SDL2**](https://www.libsdl.org/) (zlib licence) | Window, graphics output, audio and controller input. |
+| [**Zig**](https://ziglang.org/) (MIT) | The C compiler that builds the game on your machine from your ROM (bundled in the release packages; `zig cc`, also cross-builds the Windows package). |
+| [**Python**](https://www.python.org/) (PSF licence) | Runs the launcher and the patch tools; the Windows package bundles the embeddable distribution. |
 | [**Capstone**](https://www.capstone-engine.org/) (BSD 3-clause) | 68000 disassembly in our analysis tools (`tools/disasm.py` and others). |
 
 Details and licence notes: [`landstalker/README.md`](landstalker/README.md). If you think someone is missing here, please open an issue.
