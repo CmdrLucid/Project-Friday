@@ -314,7 +314,7 @@ static void lk_win_rowtext(int pg, int r) {   /* builds the text of row r (0 = t
 static void lk_win_page(int pg, int sel) {   /* pg 0 = root, 1 Video, 2 Audio, 3 Gameplay; sel = selected row (0 based) */
     int r;
     for (r = 0; r <= lk_win_cnt[pg]; r++) lk_win_rowtext(pg, r);
-    lk_win_pitch = pg == 1 ? 20 : pg == 3 ? 22 : 28; lk_win_compact = pg == 1;   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
+    lk_win_pitch = (pg == 1 || pg == 3) ? 20 : 28; lk_win_compact = (pg == 1 || pg == 3);   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
     memcpy(lk_win_row, lk_win_stage, sizeof lk_win_row); lk_win_n = lk_win_cnt[pg] + 1; lk_win_sel = sel + 1;
 }
 /* UP / DOWN only move the selection frame (no text work: every text row is printed through the game's own text engine, a whole page = about 100 characters = several frames of emulated time,
