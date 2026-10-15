@@ -123,3 +123,4 @@
   - L1052: File select options window: sluggish selection + too large frame (user feedback 2026-10-15 night)
   - L1056: Fast Forward default Off (user wish 2026-10-15 night)
   - L1059: Log review 2026-10-15 22:37 (user play session): Zak / Lara cutscene CSA_00B2 ran on the interpreter
+  - L1064: Log review 2026-10-16 00:29: CSA_00B4 helper $013FB2 on the interpreter, scan of all unregistered call targets
