@@ -37,7 +37,7 @@ if VER not in s:
 static int lk_ff_opt = -1, lk_ff_pad, lk_ff_kb;   /* option 0 off, 1 = 2x, 2 = 3x, 3 = 4x; hold flags */
 static void lk_ff_path(char *b, size_t n) { const char *h = getenv("HOME"); snprintf(b, n, "%s/.landstalker_ffwd", h ? h : "."); }
 static void lk_ff_load(void) {
-    char p[512]; FILE *f; const char *e = getenv("LANDSTALKER_FFWD"); lk_ff_opt = 1;   /* default 2x so that R2 does something at once */
+    char p[512]; FILE *f; const char *e = getenv("LANDSTALKER_FFWD"); lk_ff_opt = 0;   /* default Off (user wish 2026-10-15); Options > Gameplay > Fast Forward turns it on */
     lk_ff_path(p, sizeof p); f = fopen(p, "r"); if (f) { int a; if (fscanf(f, "%d", &a) == 1 && a >= 0 && a < 4) lk_ff_opt = a; fclose(f); }
     if (e && *e) { int a = atoi(e); if (a >= 0 && a < 4) lk_ff_opt = a; }
 }
