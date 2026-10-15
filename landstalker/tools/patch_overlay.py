@@ -90,10 +90,10 @@ if VER2 not in s:
 int lk_win_on, lk_win_sel = -1, lk_win_blink, lk_win_n, lk_win_pitch = 28, lk_win_compact;   /* row pitch; compact = the 24 px selection frame of the Video page (like the Start menu: the full frame would enclose almost two rows) */
 uint8 lk_win_row[8][16][288];
 uint8 lk_win_cur[32][32];   /* selection frame graphic, colour indices 0 (transparent) .. 3 */   /* per row: 288 x 16 text pixels (1 = glyph), copied from the game's text buffer */
-#define LK_WIN_X 8
-#define LK_WIN_Y 4
-#define LK_WIN_W 304
-#define LK_WIN_H 170
+#define LK_WIN_X 16
+#define LK_WIN_Y 8
+#define LK_WIN_W 288
+#define LK_WIN_H 160
 static int lk_win_class(int lx, int ly) {   /* 0 outside, 1 white frame, 2 black ring, 3 purple: the look of the game's slot windows (measured on the file select screenshot) */
   static const char T[5][6] = { "TTWWW", "TWWWW", "WWWKK", "WWKKP", "WWKPP" };
   int mx = lx < LK_WIN_W - 1 - lx ? lx : LK_WIN_W - 1 - lx, my = ly < LK_WIN_H - 1 - ly ? ly : LK_WIN_H - 1 - ly;

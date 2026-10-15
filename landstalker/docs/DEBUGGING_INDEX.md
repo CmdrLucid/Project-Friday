@@ -120,3 +120,4 @@
 - L1034: Shadow over the Start menu (2026-10-14, user recording raum430)
 - L1037: Session 2026-10-15: filters, title, file select window, fast forward, quick save, difficulty (evidence summary)
 - L1043: Release session 2026-10-15 (evening / night): zig build crash, UBSan, release automation, repository reset
+  - L1052: File select options window: sluggish selection + too large frame (user feedback 2026-10-15 night)
