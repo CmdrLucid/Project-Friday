@@ -124,3 +124,4 @@
   - L1056: Fast Forward default Off (user wish 2026-10-15 night)
   - L1059: Log review 2026-10-15 22:37 (user play session): Zak / Lara cutscene CSA_00B2 ran on the interpreter
   - L1064: Log review 2026-10-16 00:29: CSA_00B4 helper $013FB2 on the interpreter, scan of all unregistered call targets
+  - L1070: Widescreen / full height off for a moment: door entry, Start menu fades, Gaia statue (user recording 2026-10-16 00:39)
