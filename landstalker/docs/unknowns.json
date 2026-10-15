@@ -759,7 +759,7 @@
   {
    "addr": "0x002304",
    "first_seen": "2026-10-10",
-   "hits": 0,
+   "hits": 1,
    "sightings": [
     {
      "type": "doc",
@@ -772,10 +772,18 @@
      "where": "DEBUGGING.md:472",
      "date": "2026-10-15",
      "snippet": "$023136 -> $002304 -> $002314 -> $0021A4, i.e. stale stack contents) -> wild jump -> interpreter runs garbage at $1A85E2 -> freeze."
+    },
+    {
+     "type": "rts",
+     "where": "journal_0.txt",
+     "date": "2026-10-15",
+     "ctx": "user play 2026-10-15 22:37, Zak / Lara cutscene CSA_00B2 (flying), 5 quick loads before; build 8ad5e18+"
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-15: 2026-10-15 22:37:53: 'RTS to $002304 (ScrollCameraPlus+0xC2) expected GameLoop+0x42' in the same cutscene session (see 0x023136); probably a stale return address left by the interpreter-run table entries; re-check after the seeds."
+   ],
    "mentions": 2,
    "class": "log-artifact"
   },
@@ -2981,7 +2989,7 @@
   {
    "addr": "0x023136",
    "first_seen": "2026-10-10",
-   "hits": 0,
+   "hits": 2,
    "sightings": [
     {
      "type": "doc",
@@ -3012,10 +3020,18 @@
      "where": "DEBUGGING.md:451",
      "date": "2026-10-15",
      "snippet": "probably a wild jump after the stack mismatches `RTS to $02539E (expected $025324)`, `$002304`, `$023136` seen in the same run -"
+    },
+    {
+     "type": "rts",
+     "where": "journal_0.txt",
+     "date": "2026-10-15",
+     "ctx": "user play 2026-10-15 22:37, Zak / Lara cutscene CSA_00B2 (flying), 5 quick loads before; build 8ad5e18+"
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-15: 2026-10-15 22:37-22:38: 'RTS to $023136 (ProcessChar_loc_23104+0x32) expected RunGameLoop+0xC / CSA_00B2+0x4E' twice, in the Zak / Lara cutscene CSA_00B2 right after 8 jump-table entries ($013ECA..) ran on the interpreter (bra.b table, now seeded 2026-10-15); stack had 5 nested RunGameLoop = 5 quick loads (by design). Check after the next play of that cutscene whether the lines are gone."
+   ],
    "mentions": 6,
    "class": "seed/table"
   },
