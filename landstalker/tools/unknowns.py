@@ -71,7 +71,8 @@ if cmd == "scan-docs":
     for e in by.values():
         e["sightings"] = [x for x in e["sightings"] if x["type"] != "doc"]; e["mentions"] = 0
     for fn in sorted(os.listdir(docs)):
-        if not fn.endswith(".md") or fn == "DEBUGGING_INDEX.md": continue
+        # DEBUGGING_INDEX.md = generated headings; ROOMS / ENTITIES / ITEMS / FLAGS = id tables from landstalker-lib (room numbers, entity types, item and flag ids, NOT addresses)
+        if not fn.endswith(".md") or fn in ("DEBUGGING_INDEX.md", "ROOMS.md", "ENTITIES.md", "ITEMS.md", "FLAGS.md"): continue
         for ln, line in enumerate(open(os.path.join(docs, fn), encoding="utf-8"), 1):
             for m in pat.finditer(line):
                 a = norm(m.group(1))
