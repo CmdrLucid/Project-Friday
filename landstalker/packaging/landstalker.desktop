@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Landstalker (Recompiled)
+Comment=Statically recompiled Landstalker (bring your own ROM)
+Exec=landstalker
+Icon=landstalker
+Categories=Game;
+Terminal=false

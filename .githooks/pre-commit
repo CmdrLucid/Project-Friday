@@ -1,0 +1,5 @@
+#!/bin/sh
+# Doc/symbol check before every commit (enable once: git config core.hooksPath .githooks)
+d="$(git rev-parse --show-toplevel)/landstalker"
+[ -f "$d/tools/check_docs.py" ] || exit 0
+python3 "$d/tools/check_docs.py" || { echo "commit blocked: fix docs/symbols.json (or git commit --no-verify)"; exit 1; }

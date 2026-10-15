@@ -1,0 +1,13 @@
+name: docs-check
+on:
+  push:
+    branches: [dev, main]
+    paths: ['landstalker/docs/**', 'landstalker/tools/check_docs.py']
+  pull_request:
+    paths: ['landstalker/docs/**', 'landstalker/tools/check_docs.py']
+jobs:
+  symbols:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 landstalker/tools/check_docs.py -v

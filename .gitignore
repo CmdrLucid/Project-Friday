@@ -1,0 +1,14 @@
+__pycache__/
+out/
+build/
+dist/
+AppDir/
+appimagetool
+*.AppImage
+*.spec
+
+landstalker/docs/symbols_auto.json
+
+# output images of tools/displaytest
+landstalker/tools/displaytest/*.ppm
+landstalker/docs/symbols_seq.json

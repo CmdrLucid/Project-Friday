@@ -1,0 +1,3 @@
+# Pinned upstream revisions for reproducible releases (tools/make_vendor.py --fetch, CI, build.sh on a fresh clone).
+# The Genesis Plus GX revision is fixed by the genrecomp commit (git submodule): c3df2d2b439c84d4ab4d2c58fb65101853485305
+genrecomp=b3900079c4ebb9d7f383bef3cd6d05e496667599

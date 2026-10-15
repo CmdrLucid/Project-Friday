@@ -1,0 +1,68 @@
+# Builds the release AppImage from the tagged source and attaches it to a GitHub release.
+# The package contains NO ROM and nothing generated from it (see landstalker/packaging/make_appimage.py), so no ROM is needed here.
+# Usage: git tag v0.4.0 && git push origin v0.4.0      (or "Run workflow" for a test build without a release)
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  appimage:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsdl2-dev squashfs-tools python3-pip
+
+      - name: Fetch genrecomp at the pinned revision (landstalker/vendor.lock)
+        run: python3 landstalker/tools/make_vendor.py --fetch
+
+      - name: Build the AppImage
+        run: python3 landstalker/packaging/make_appimage.py
+
+      - name: Self-test the AppImage (compiler + SDL2 headers, no ROM needed)
+        run: |
+          chmod +x landstalker/dist/Project-Friday-x86_64.AppImage
+          landstalker/dist/Project-Friday-x86_64.AppImage --appimage-extract-and-run --selftest
+
+      - name: Checksum and release notes
+        id: notes
+        run: |
+          cd landstalker/dist
+          SHA=$(sha256sum Project-Friday-x86_64.AppImage | cut -d' ' -f1)
+          echo "$SHA  Project-Friday-x86_64.AppImage" > Project-Friday-x86_64.AppImage.sha256
+          VERSION="${GITHUB_REF_NAME:-test}"
+          sed -e "s/{VERSION}/${VERSION}/" -e "s/{SHA256}/${SHA}/" ../packaging/release_notes.md > ../../release_notes.md
+          ls -l
+
+      - name: Upload as workflow artifact (manual test runs only; a full artifact storage quota must not fail a release)
+        if: github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: Project-Friday-AppImage
+          path: |
+            landstalker/dist/Project-Friday-x86_64.AppImage
+            landstalker/dist/Project-Friday-x86_64.AppImage.sha256
+
+      - name: Create the GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PRE=""
+          case "$GITHUB_REF_NAME" in *-*) PRE="--prerelease";; esac   # v0.4.0-rc1 -> pre-release
+          gh release create "$GITHUB_REF_NAME" $PRE \
+            landstalker/dist/Project-Friday-x86_64.AppImage \
+            landstalker/dist/Project-Friday-x86_64.AppImage.sha256 \
+            --title "Project-Friday ${GITHUB_REF_NAME}" \
+            --notes-file release_notes.md \
+            --verify-tag

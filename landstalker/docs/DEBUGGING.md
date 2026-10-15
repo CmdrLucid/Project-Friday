@@ -1,0 +1,1042 @@
+# Landstalker recomp: bring-up notes
+
+Running log of what was learned getting the recompiled build going (**start with [INDEX.md](INDEX.md)**).
+Append new findings; keep INDEX.md's catalog/status in sync. Everything here was observed on a US ROM (serial GM MK-1353 -00,
+2 MB, entry `$0005EA`).
+
+## Paths on the user's Steam Deck (do not ask again)
+
+- Project: `/home/deck/Downloads/ProjectL-claude-magical-sagan-114s2o/landstalker` (ZIP of the branch, extracted over the old folder to keep `build/`)
+- ROM: `/home/deck/Documents/NonSteamGames/landstalker/landstalker.md`
+- Recorded input: `~/session.txt`
+- Binaries: `build/landstalker`, `build/genrecomp_build/genrecomp_ref`
+- ZIP: https://github.com/cmdrlucid/projectl/archive/refs/heads/claude/magical-sagan-114s2o.zip
+- The user only has the Deck: commands are pasted into Konsole; always print progress (`echo`, `time`).
+
+## Status
+
+See [INDEX.md](INDEX.md) section 1 (kept current). This file is the chronological evidence log.
+
+## Tools (all local-only, none need committed ROM data)
+
+| Tool | Use |
+|---|---|
+| `./build.sh ROM` | generate C from ROM, patch genrecomp, build `build/landstalker` |
+| `packaging/build_appimage.sh ROM` | local AppImage (ROM-derived: do not share) |
+| `LANDSTALKER_STACK=1` | print the 68K call stack once per second |
+| `LANDSTALKER_SHOT=1` | print 3 frames as a letter grid with a colour legend |
+| `--ram-dump DIR:N` | state dump every N frames (RAM, VDP regs, CRAM, VSRAM, VRAM) |
+| `tools/vdpinfo.py DUMP` | decode one dump: display on/off, planes, palette, VRAM use |
+| `tools/traj.py REF REC [start] [end]` | Nigel X/Y/Z/fall/jump/ground/action per dump, differences marked |
+| `GENRECOMP_INPUTLOG=f` / `GENRECOMP_INPUTSCRIPT=f` | record / replay pad input (patch_inputlog.py) |
+| `GENRECOMP_CALLTRACE=lo:hi` | log every function entry (+UNWIND events) with frame number (patch_calltrace.py) |
+| `GENRECOMP_WATCH=hexaddr` | log writes to a byte with the call stack (built into genrecomp's bus.c) |
+| `GENRECOMP_ASCII="300,1000"` | print those frames as a letter grid (tools/ascii_patch.c) |
+| `GENRECOMP_LINELOG=frame` | print VDP regs at lines 0/100/207/208/223 (patch_linelog.py, now applied by build.sh) |
+| `GENRECOMP_PERLINE=0` | disable per-line rendering/HInt (A/B tests) |
+| `GENRECOMP_AUDIO_DEBUG=1` | audio device + sample peaks |
+| `tools/seed_missing.py` | called by build.sh: regenerate until no call target is missing |
+| `tools/cmpdump.py REF REC [START]` | compare two dump dirs, report the first VRAM difference |
+| `gen_seeds.py` | regenerate `recomp.json` seeds from table specs |
+| `build/genrecomp_build/genrecomp_ref ROM` | reference runner (real 68K core), play or dump |
+
+Compare workflow:
+
+    ref=/tmp/ref; rec=/tmp/rec; mkdir -p $ref $rec
+    build/genrecomp_build/genrecomp_ref --headless --frames 320 --ram-dump $ref:2 ROM
+    build/landstalker                   --headless --frames 320 --ram-dump $rec:2 ROM
+    python3 tools/cmpdump.py $ref $rec 200
+
+Dump layout: work RAM 64K | VDP regs 32 | CRAM 128 | VSRAM 128 | VRAM 64K.
+CRAM words are GPGX's packed 9-bit colour (bbbgggrrr), not 0BGR.
+
+## Things that bit us (and fixes)
+
+1. **Computed jumps are invisible to the analyzer.** `jmp T(pc,dN.w)` into a
+   table or into a run of identical instructions needs every slot seeded in
+   `recomp.json`. Tables found so far (US addresses, from
+   `lordmir/landstalker_disasm` labels, which carry their ROM address):
+
+   | Start | Entry size | Count | What |
+   |---|---|---|---|
+   | `$004AD8` | 2 | 16 | `DecompressLZ77Gfx` copy slots (Duff's device) |
+   | `$00604C` | 4 | 47 | `ProcessFloorType` `bra.w` table |
+   | `$0237DC` | 4 | 19 | string effect table |
+   | `$009702` | 2 | 7  | door size `bra.s` table |
+   | `$017918` | 4 | 104 | sprite behaviour table |
+
+   Later seeded (see "Eighth"): d-pad `$001936` x32, `CustomScriptActionTable`
+   `$0120FC` x347, `TriggerActionJumpTable` `$010D08` x145, thunk targets `$00427C`,
+   `$00433E`. Still unseeded: `DebugMenuStringTable`,
+   `j_CSA_00B2_ZakOnlyFlyUp`. Their tables use named labels, so find the address
+   from the first `func_table: no function at $XXXXXX` line and add a row to `gen_seeds.py`.
+   A symptom of a missing table is a chain of `no function at` lines followed
+   by `RTS to $000000`; fix the first miss first.
+2. **`func_table: table full`** - genrecomp's table is 4096 slots; Landstalker
+   needs more. `build.sh` raises `FUNC_TABLE_SIZE` to 16384.
+3. **Wrong colours in the window** - genrecomp creates its texture as
+   `RGBX8888`, which swaps red/blue for GPGX output. `build.sh` patches it to
+   `ARGB8888` (confirmed visually: the SEGA logo is blue/white).
+4. **Host (Steam Deck) build pitfalls:** SteamOS has no compiler and reverts
+   `/usr` changes on update. Installed packages can then be listed by pacman but
+   have missing files (`stdio.h`, `SDL2Config.cmake`...). Fix by reinstalling
+   (`sudo pacman -S glibc linux-api-headers sdl2-compat ...`) inside the same
+   session, after `sudo steamos-readonly disable`. Folder names with spaces or
+   parentheses break "Run in terminal".
+5. **Do not compare dumps frame-for-frame early on.** The recompiled build
+   loads a few frames earlier than the reference, so early frames differ in
+   timing only (palette fade one step apart, 37 bytes of counters). Compare from
+   after the first screen settles.
+
+## Ruled out: LZ77 graphics decompression
+
+Dumps at frame 274 showed the unpacked-graphics buffer (`$FF2C00`+) and VRAM
+differing, which pointed at `DecompressLZ77Gfx` (`$004AB2`). It is **not** the
+cause: `tools/lz77test` runs the exact recompiled routine on synthetic data and
+decodes 3003/3003 bytes correctly. The generated C also matches the 68K source
+line for line (jump into the copy slots, `dbmi`/`dbpl`, post-increment helpers).
+
+(Verified 2026: tools/lz77test still present; this section is historical.)
+Also seen: from frame ~300 on, only ~324 VRAM bytes and ~362 work-RAM bytes
+still differ from the reference. So the differences at 274 are largely the
+recompiled build being a few frames ahead/behind (it loads earlier at start-up),
+and the remaining real difference is small.
+
+## ROOT CAUSE of the missing title screens: (An)+ / -(An) destinations
+
+Found by comparing dumps with the reference runner, then
+`GENRECOMP_WATCH=FF2C04` to see who wrote the bad tile-map word (call stack
+ended in the title code around `$039E4A`, which uses `DecompTilemap`).
+
+genrecomp's recompiler (`generate.py`) translated memory-destination
+read-modify-write instructions (`or/and/eor/add/sub/addq/subq/neg/not`, memory
+shifts, `bset/bclr/bchg`, `Scc`, ...) with a `(An)+` or `-(An)` destination
+using `_ea_addr()`, which returned the register but never post-incremented /
+pre-decremented it. So `or.w d0,(a1)+` (the core of `DecompTilemap`'s
+`or.w d0,(a1)+` loops) OR'd every value into the same word: the tile map
+filled with `FF00`-style entries and one tile repeated across the screen.
+
+Fix: `tools/patch_generate.py` (applied by `build.sh`) records the addressing
+mode in `_ea_addr` and applies the adjustment around the statement in
+`translate_instruction` (byte ops on A7 move by 2). Verified with
+`tools/rmwtest`: 25 such instructions run on the real 68K core
+(`genrecomp_ref`) and as recompiled code give identical RAM and address
+registers (0 differing bytes); the unpatched generator differs.
+
+Ruled out on the way (all verified fine): `DecompressLZ77Gfx`
+(`tools/lz77test`), GPGX tile cache, GPGX colour table, window pixel format
+(separate real fix: ARGB8888).
+
+Lesson: when the picture is wrong but VDP registers/CRAM match, diff VRAM and
+the work-RAM buffers it was built from, then `GENRECOMP_WATCH` the first
+wrong address to find the writer.
+
+## Second recompiler bug: TRAP with inline data (sound + text)
+
+Landstalker's `trap #0` (sound), `#1` and `#2` (text) are followed by a data
+word that the handler reads through the stacked PC and then skips
+(`addq.l #2,$E(sp)`). genrecomp pushed a stale `g_m68k.pc`, so handlers read the
+wrong word, and the analyzer decoded the data word as an instruction (a value like
+`0003` is `ori.b #..,d3` and swallowed the next real instruction). Symptoms: no
+music, Start leading nowhere.
+
+Fix: `tools/patch_trap.py` (applied by `build.sh`): push the real return address,
+and `trap_data` in `recomp.json` makes the analyzer skip the data words.
+Verified with a test ROM against the real 68K core (values stored by a handler
+identical; unpatched generator wrong).
+
+Controller input: genrecomp had none; `tools/patch_runtime.py` adds SDL game
+controller support. `GENRECOMP_AUDIO_DEBUG=1` prints the audio device and sample
+peaks (first second had sound, then peak=0 = commands never arrived).
+
+## Third bug class: abandoned return addresses (text printer hang)
+
+After Start the game entered `PrintChar`/`sub_2371A` (`code/text/stringfuncs2.asm`)
+and the call stack grew to 500 (`$023660` repeated). `sub_2371A` drops its own
+return address (`movem.l (sp)+,d0`) and `bra`s back into its caller
+(`loc_23660`). Later the caller's `rts` pops an OUTER frame's address
+(`$02360C`) while the dispatcher still expects `$02365C`; with no function at
+the target it "returned" into the wrong C frame and looped forever.
+
+Fix: `tools/patch_unwind.py` (applied by `build.sh`): `func_table_call_expecting`
+keeps a `_setjmp` per frame; `func_table_rts` searches the shadow stack for an
+outer frame expecting the popped address and `_longjmp`s to it. Verified with a
+test ROM against the real core (reference `BBBB CCCC`, old runtime
+`BBBB AAAA BBBB CCCC`, patched `BBBB CCCC`).
+
+## Fourth: self-modifying jump stub in RAM (missing sprites, game exits)
+
+On the file select screen: `func_table: no function at $FF1850`. `JmpInstr1`
+(`code/include/ram.inc`) is a RAM stub; `LoadSprite`/`sub_46DC` copy the 6-byte
+`jmp (QueueDMAOp).l` or `jmp (DoDMACopy).l` thunks from ROM into it and then
+`jsr (JmpInstr1).l`. A static recompiler has no code for RAM. Fix:
+`tools/patch_ramstub.py` makes the dispatcher follow `jmp (xxx).l/.w` found at a
+missed RAM address. Verified against the real core with a synthetic ROM.
+(Sprites are loaded through this path, so this is also why the player sprite was missing.)
+
+## Fifth: no horizontal interrupts / whole-frame drawing (cut-off screen)
+
+Landstalker uses HInt (`SetTextboxHInt`, `HINT on line 184`, ...) and genrecomp
+drew the whole frame once, after the VBlank handler, and never fired HInt (the
+hint counter in the test ROM stayed 0). `tools/patch_perline.py` renders each
+scanline from the bus scanline clock and runs the GPGX H-counter, calling
+`recomp_m68k_interrupt(4)`; `GENRECOMP_PERLINE=0` restores the old behaviour for
+A/B comparisons. Test: a ROM whose HInt handler changes the backdrop at line 100:
+top of the frame black, bottom red (old runtime: one colour, 0 HInts).
+
+## Sixth: RAM thunks that point into the middle of ROM code
+
+`JumpInstr2` (`$FF1858`) is filled from ROM words at `loc_403C` (`jmp loc_433E`)
+and `loc_409E` (`jmp loc_427C`), then `jsr (JumpInstr2).l`. The ROM thunks are only
+referenced as data, so `$427C` / `$433E` were never found as entry points:
+"no function at $00427C", then garbage return addresses ($FF11E0...) and a black
+screen after choosing a save slot. Fix: seed both in `recomp.json` /
+`gen_seeds.py`. Any `func_table: no function at $XXXXXX` after the RAM-stub patch is
+a thunk target like this: look the address up and add a seed.
+
+## Seventh: viewport height stuck at 192 lines (cut-off screens, early VBlank)
+
+Symptom: the last 16+ lines of most screens black (file select bar, intro frame),
+Nigel's sprite late. Found by diffing `GENRECOMP_ASCII` pictures (reference drew
+rows 26-27, recompiled build did not) and then `GENRECOMP_LINELOG=<frame>`
+(`tools/patch_linelog.py`): reference `h=224`, recompiled `h=192`.
+
+Cause: GPGX latches `bitmap.viewport.h/w` from reg 1 / reg 12 once per frame in
+`system_frame_gen()`, which genrecomp never calls; after reset the viewport is the
+192-line Master System size. genrecomp patched the width in `genrecomp_end_frame`
+but not the height, so only 192 lines were drawn and VBlank fired at line 192.
+Fix: `tools/patch_viewport.py` latches h/w at line 0 of every frame and in
+`genrecomp_end_frame`. Test harness: h=192 before, 224 after.
+
+## Eighth: more jump tables (intro stuck, "RTS to $001704")
+
+After the viewport fix the screens are complete and Nigel animates, but the
+intro stalls: `no function at $001936 / $00194A / $012558`. They are entries of
+`bra.w` jump tables: the d-pad table (`HandleDirectionalControl`, 32 entries at
+$1936), `CustomScriptActionTable` (347 entries at $120FC; CSA_0001 is at $12100)
+and `TriggerActionJumpTable` (145 entries, base from TA_01's xref at $10D0C).
+The "RTS to $001704 (expected $0016D6)" lines were a side effect: the failed
+`jmp` left `bsr HandleDirectionalInput`'s return address on the 68K stack each
+frame. `tools/expand_seeds.py ROM recomp.json` (run by `build.sh`) reads the ROM
+and expands any seed that sits in a run of `bra.w` into the whole table, so one
+"no function at" line is enough. How to find a table's base without a ROM: label
+cross-reference comments in the disassembly (`CODE XREF: ROM:00010D0Cj`) give the
+address of an entry.
+Still unseeded: `HandleControlChars` (text control codes), `DebugMenuStringTable`,
+`j_CSA_00B2_ZakOnlyFlyUp`: seed one entry when the log names it.
+
+## Ninth: call targets silently dropped by the generator ($002458 ...)
+
+`func_table: no function at $002458` although `sub_2458` is an ordinary routine called
+by `bsr.w` (`sub_1858+AAE`). The generate step prints "Pass N: 116 cross-function targets"
+for ten passes without the count dropping: `_build_functions()` ignores any entry
+the analyzer did not decode (`func_entries & set(all_addrs)`), so those call targets
+never become functions. `tools/patch_gencross.py` decodes such targets
+(`_disassemble_block`) before rebuilding and prints what is still unresolved
+and why ("inside instruction at ...", "not decoded as code").
+Watch the generate output for `WARNING: N call targets are not functions`.
+
+**Update:** this patch alone was NOT enough: `$002458` was still missing in the user's
+build (startup log: `no function at $002458`). `tools/seed_missing.py` (called by
+`build.sh` instead of a single generate run) parses that WARNING list, adds the
+reported addresses ("decoded but not split" / "not decoded as code") to `recomp.json`
+and regenerates, up to 6 rounds; `$002458` is also seeded explicitly. Verified here
+only for plumbing (patched generate.py + a hand-made ROM, no unresolved targets).
+**Not yet seen on the real ROM:** the actual WARNING/`[seed_missing]` lines of a
+full build. Ask for the last ~40 lines of the next `./build.sh` output and record
+which targets were found.
+
+## Input record / replay, and what the scripted comparisons showed
+
+`tools/patch_inputlog.py`: `GENRECOMP_INPUTLOG=file` logs every pad change as
+`frame hexmask`; `GENRECOMP_INPUTSCRIPT=file` replays such a file (headless and
+`genrecomp_ref` too). Use it to turn a windowed session into a deterministic
+test: play in the window with INPUTLOG, then replay headless with `--ram-dump`.
+`tools/traj.py REF REC START` prints Nigel's X/Y/Z/fall/jump/ground/action from two
+dump dirs (Player struct at $FF5400; see `code/include/ram.inc`).
+
+Findings: recompiled build and reference follow the same trajectory (walk, jump,
+land, ladder), the recompiled build about 40 frames ahead (non-bus 68K instructions
+cost no cycles, loads finish sooner). The intro needs only 11 recorded input lines
+(`~/intro.txt`: Start, Start, Start, A, A); everything after is the scripted cutscene.
+Careful: a replay file that is missing or too short (e.g. a 93-byte file, or a
+binary built before patch_inputlog was in build.sh) makes both cores idle and
+REF == REC trivially, which looks like "no difference". Check for the
+`input: replaying N changes` line in both runs.
+Resolved later: Nigel not landing / repeated warp / black screen at scene 3 were the
+`$002458` stack leak (see the last section).
+
+### Gotcha: GENRECOMP_INPUTLOG truncates its file
+Any windowed run with `GENRECOMP_INPUTLOG=f` used to overwrite `f` (a 3600-frame recording was lost
+this way; a 93-byte `session.txt` replays to an idle state and makes REF == REC trivially).
+The logger now moves an existing file to `f.bak` first. Record to a new name (`~/rec_HHMM.txt`)
+and check the size (hundreds of bytes+) before replaying.
+
+## ROOT CAUSE of "walks in the air", repeated warp, black screen at scene 3: missing call target $2458
+
+Chain found with the replay + `GENRECOMP_CALLTRACE` (call trace with frame numbers):
+1. `sub_2458` ($002458, scroll/camera update after the tile loaders, called from `loc_231E` etc.) was never
+   generated ("func_table: no function at $002458" at startup, still present after patch_gencross).
+2. The generated `bsr.w sub_2458` pushes its return address ($2324) and the call fails, leaving it on the
+   68K stack. Later `rts` pops $2324 -> "RTS to $002324 (expected $0016FC)", the fallback "plain return"
+   leaves $16FC on the stack too: **the stack leaks 4 bytes per occurrence** (SP at the idle point was
+   $FFFFFBAA, hundreds of bytes too low).
+3. Scene 2->3: `WarpToRoom -> LoadRoomParams -> GetTilemap` clears g_HeightMap ($FFD192, $2AC8 bytes =
+   up to $FFFC59) with `move.l #$40004000,(a1)+`. The leaked stack had reached $FFFC2A, so live return
+   addresses were overwritten with $4000 (the trace shows 55 entries of function $4000), an `rts` popped
+   GameLoop's caller address, the loop restarted, the old trigger sprite fired again -> infinite warp,
+   room never loaded, Nigel keeps the old floor and falls once per 22 frames (fade-out length).
+Fix: `tools/seed_missing.py` (used by build.sh) re-runs generate.py, seeds every call target that
+patch_gencross reports as "not functions", until none are left; `0x002458` is also seeded explicitly.
+Lesson for other recomps: **a failed call that leaves its pushed return address on the emulated stack
+silently corrupts RAM much later**; log every "no function" and treat it as fatal.
+
+## Black screens at scene changes = HInt handler waiting on a frozen V counter (FIXED, verify)
+
+User report: after the bridge scene (and the next one) the screen goes black for a few seconds, the
+music stutters, then play continues. A windowed run with `LANDSTALKER_STACK=1` printed (from the watchdog
+added in patch_watchdog.py):
+`bus: WATCHDOG no VBlank for 3M bus accesses: last $C00008 cycles=84766240 mcycles_vdp=766080 v=224 inTick=1
+... call stack (11): $0016B6 $0016DC $0178C8 $018D02 $014A46 $00620E $002824 $002B4E $002BC8 $00CFD8 $001184`
+(`$1184` = HandleHBlankInterrupt, reached from inside the map decompression). The handler does
+`move.b $C00008,d0 / loop: cmp.b $C00008,d0 / beq loop`. The CPU clock was far ahead of the scanline clock;
+`vdp_hvc_r` only adds ONE line, so the V counter read the same value forever. It only ends when the
+unsigned 32-bit cycle counter wraps ("bus: cycle counter went backwards"), seconds later = the black
+screen. The first suspect was right but the first fix attempt only covered the in-loop dispatch; the hung
+interrupt was the one released when the SR mask drops (top of bus_tick_cycles).
+Reproduced with `tools/hinttest` (heavy VBlank handler makes the CPU run ~160 lines ahead): without the
+rebasing the run hangs (WATCHDOG x3), with it 8774 HInts and no hang. Fix: `bus_irq_rebased()` in
+patch_watchdog.py for all interrupt dispatch sites. Not yet verified in the real game: check the next
+windowed run for absence of WATCHDOG lines and of the black screens.
+
+Also in that log: `no function at $00673E` (+ nine `RTS to $540001`) = `UpdateSwordCharge`, reached only
+by tail branches from `ProcessActionButton` ($66AC); this is why the wooden box could not be lifted.
+Seeded. Lesson: functions reached only by `bcc/bra` from the middle of another routine are NOT split
+by the generator; the runtime log (`no function at`) is the reliable detector, the generate-time
+WARNING list (851 entries, mostly data) is not (seed_missing now only seeds "decoded but not split").
+
+## Garbled item names in text boxes ("Found ▒▒"), game stops at text: HandleControlChars table unseeded
+
+Log: `no function at $02315C`, `$02317C`, then `RTS to $FF5880 (expected $022F52)`, `no function at $028214`
+(a text-script offset: a garbage return address popped after the failed jump), call stack in the text printer
+(`$022F26 $022F52 $0230CA`). `ProcessChar` does `not.w d0 / lsl.w #2,d0 / jmp HandleControlChars(pc,d0.w)`:
+a table at `$023150` of 4-byte `bra.w` entries with zero gaps (`dcb.l 5/3,0`): entries 0-15 contiguous (YesNo,
+NewLine, PopName, ItemName ($2315C), WaitForInput, SpeakerName, ..., Handle1sPause slot ($2317C; routine $023244), NumericVariable ...),
+21, and 25-28. expand_seeds only grows contiguous runs, so the entries are seeded explicitly in gen_seeds.py.
+
+## Gotcha: updated patches were not applied to the existing .deps copy
+
+Every tools/patch_*.py is idempotent by a marker string in the target file. `.deps/genrecomp` persists between
+builds, so after `bus_hint_irq` (first watchdog version) was replaced by `bus_irq_rebased` in the patch script,
+the build printed "already patched" and kept the OLD code: the HInt fix never reached the user's binary
+(`grep -c bus_irq_rebased .deps/genrecomp/src/bus.c` printed 0 while the script had 3).
+build.sh now runs `git checkout -- .` in genrecomp and its submodules before patching. Always verify a patch
+landed in the .deps file, not only in tools/.
+
+## HInt V-counter hang, real root cause (watchdog v2 data) and the always-rebase fix
+
+Watchdog v2 line on the Deck: `last irq: level 4 entry_diff=3107 rebased=0 | hvc_latch=0 reg0=14 reg1=64`.
+The H-Int started 3107 of 3420 cycles into a scanline. The handler's first instruction pushes 16 registers
+(16 x 28 = 448 cycles), so its first `move.b $C00008,d0` already lies past the line end: `vdp_hvc_r` returns
+v+1, and because interrupts run nested inside bus_tick_cycles (`s_in_tick`, the scanline clock cannot advance)
+every later read returns v+1 too -> `cmp.b / beq` never exits (until the 32-bit cycle counter wraps).
+The earlier "rebase only when >= 1 line ahead" rule did not cover this (rebased=0). Fix: ALWAYS start an
+interrupt handler at the line start (mcycles_vdp+64) and add the time it used afterwards
+(`bus_irq_rebased`, patch_watchdog.py). `tools/hinttest` now has the game's `movem.l d0-a6,-(sp)` prologue and
+reproduces it: `LANDSTALKER_NOREBASE=1` hangs (WATCHDOG x3), default completes (8774 HInts).
+Lesson: a nested interrupt handler that polls a clock-derived register needs its own consistent time base.
+
+## Deck run win5.log (commit d9561c7): black screens fixed, new crash after the box scene
+
+Verified: no `bus: WATCHDOG` line any more, scene transitions are fast, intro scenes up to the box are playable, the box
+can be lifted and placed. The startup banner `bus: watchdog v2 + interrupt rebasing active` appears.
+New problem (windowed run, in a text box, ~frame 5100-5300 of the session):
+- `func_table: RTS to $024B14 (expected $024B12, SP=$FFFFFF94)` at ~3540, call stack `... $024A5C $024AD0 $029046`.
+- `no function at $027732 (SP=$FFFFFFBE)`, stack `... $014B44 $014BF2 $012674 $025418 $0253F8 $0014E6`.
+  `$027732` appears in the source only as "Jump to address 0x027732" (cutscene script table XS_00FE) = text script data;
+  `$0014E6` = `loc_14E6` at the end of `sub_13B6` (VBlank: `move.w #0,Z80_BUSREQ / rts`).
+- then `RTS to $9F4C9F` (x10), `bus: cycle counter went backwards (last access $9F4C9F)`, SP = `$4C9F4C31`, and the main
+  thread sits in `$02347E -> $000B5E` (text printer waiting) forever. The game is effectively frozen/garbled from there.
+Reading: a text-script pointer was used as a return address, the 68K stack pointer was then loaded from data.
+Not yet analysed. Plan: (1) look up `$024B12`/`$024B14` in the source (text/menu routine `$024A5C`), (2) replay or play to
+that point with `GENRECOMP_CALLTRACE=lo:hi` and read the first anomalous `T ... UNWIND` or missing function, (3) check
+whether `$027732` is reached via `jsr`/`jmp` computed from a script-table entry (a missing "script jump" handler).
+Also reported: the sound effect that used to loop during the old black screens is no longer heard at scene transitions
+(user: "just missing the sound effect now") - to be checked after the crash is fixed.
+
+## ROOT CAUSE of the item-pickup/text-box crash: calls followed by inline data (call_data)
+
+`GainItem` ($24AC2.., the "Found <item>" box) does `bsr.w ScriptSleep` followed by `dc.w 00119` (the sleep time).
+ScriptSleep reads the word at its return address and returns 2 bytes later (`move.l a0,8(sp)`), so the runtime
+printed `RTS to $024B14 (expected $024B12)`; the generator had decoded the data word as an instruction and the
+generated C executed it: a `ori.w` with an a7-indexed destination trashed the stack ("SP=$4C9F4C31").
+Landstalker's NPC/shop/cutscene scripts are 68K code with data mixed in, so this affects ~1,300 call sites:
+HandleProgressDependentDialogue (850; list of 4-byte entries + `$FFFF`, never returns to the call site: `addq.l #4,sp / rts`),
+CheckFlagAndDisplayMessage (241) and SetFlagBitOnTalking (150) (3 words), HandleYesNoPrompt (145, 3 words),
+HandleChurchInteraction (45, 2 words), ScriptSleep (41, 1 word), DisplayItemPriceMessage (35) and
+HandleShopInteraction (35) (both terminal), PickValueBasedOnFlags (6, (flag,value) pairs + negative word).
+Fix: `tools/patch_calldata.py` + `"call_data"` in recomp.json (gen_seeds.py CALL_DATA): the analyzer skips the data
+after a call to those routines (terminal ones end the block) so the sequential C continues at the right
+instruction, and func_table_rts accepts a return address 1..32 bytes past the expected one silently.
+Callee addresses come from local-label arithmetic on the disassembly (e.g. HandleYesNoPrompt $25DEA); each entry
+has an opcode check (`48E7 xxxx` = movem prologue), a mismatch makes the generator print
+`WARNING call_data: ... ignored` - READ THE BUILD LOG FOR THAT. Test: tools/calldatatest (REC == real core; without
+call_data garbage). Same family as the earlier `trap #n` + data word bug.
+Still open: how the character scripts (CS_xxxx, code+data) are reached (pointer tables) - if talking to an NPC
+prints `no function at` lines, those are script entry points to seed.
+
+## Missing-function fallback: run the code on GPGX's 68K interpreter (patch_interp.py)
+
+Item pickup after `call_data` still failed at `no function at $027732` (call from `$0253F8`; the `$0014E6` shown last in
+the stack dump is a STALE slot: `s_stack[depth-1]` is only written after a successful lookup). `$027732` = `XS_00FE`,
+a cutscene script routine: `RunTextCmd` does `jsr (a0,d0.w)` for EVEN script words (odd words = text script data),
+and every `ScriptJump` in the NPC/cutscene/shop script tables is such a code entry point (hundreds), reached only through
+data tables the generator cannot see. Seeding them one rebuild at a time does not scale.
+Fix: when the dispatcher finds no recompiled function for a ROM address (< $400000) it runs that code on Genesis Plus GX's own
+68K interpreter (already linked, same memory map): registers synced g_m68k <-> core per instruction, `bus_tick_cycles()`
+after every step (scanline clock, VBlank/HInt callbacks, Z80), pending VDP DMA finished like the recompiled bus does, GPGX
+interrupts suppressed (`int_level = 0`, the runtime delivers them). The interpreter stops at the first RTS that pops past the
+frame's entry SP; the popped address goes through the normal return-mismatch logic (`func_table_rts_r`: unwind to an outer
+frame, tail into a recompiled function, or return). Console: `interp: running $XXXXXX on the 68K interpreter (no recompiled
+function)` once per address (first 200) = the list of things worth seeding later for native speed.
+`LANDSTALKER_NOINTERP=1` disables it. Test: `tools/interptest` (REC == real core incl. a routine that pops its own return
+address; interpreter off -> `no function`).
+Limits: slower than native (fine for scripts); interpreted code that depends on recompiled-only state is not expected.
+
+**Status of the interpreter fallback: TEMPORARY.** It is a safety net and a discovery tool, not the intended end state. Every
+address it runs is meant to become a native seed (`LANDSTALKER_INTERP_LOG` + `tools/seed_from_interp.py`, plus static extraction of
+script-table entry points); the fallback becomes opt-in once a full playthrough logs nothing. Tracked as item 8 in INDEX.md section 1.
+
+### Statue of Jypta pickup regression (win8.log) - in progress
+Symptoms after picking up the statue: no item jingle, 3rd text line (wait-for-A prompt) missing, later text boxes vanish and
+graphics corrupt, game keeps running (speech blips audible). win8.log: only `$027732` (XS_00FE, cutscene script: `trap #1`
+text, ScriptSleep, `dc.w 00119`, rts) ran on the interpreter, plus `RTS to $023136 (expected $00171E)` (ProcessChar
+loc_23104: `trap #0` + inline sound word).
+Working theory: running a script that raises `trap #n` with inline data on the Musashi interpreter bypasses the recompiled
+trap/exception path (trap_data handling), so sound/text state diverges. Step 1 (done): seed $027732 so XS_00FE is native
+(commit a95bb31). Next: re-test; if symptoms remain, trace the `RTS to $023136` mismatch (return address after trap+data
+word in loc_23104 not skipped when the trap is entered from a context that lost trap_data).
+
+### win9.log (build a95bb31 + $027732 seeded)
+- $027732 is now native (shows in call stacks) but the statue symptoms are unchanged -> the interpreter was NOT the cause.
+- Intro now playable through to the "Nigel wakes in bed" cutscene, then crash:
+  `interp: running $003890` (sub_3890 = UpdateFridayAnimation tail, reached by fall-through from sub_388C, not split by the
+  analyzer; seed it) and `RTS to $023136 (expected $018D0A, SP=$FFFFFFF8)` with shadow stack ... $0178C8 $018CFC $012988.
+  SP $F8 is far too high for depth 5: something popped extra words; $023136 (= loc_23136 after ProcessChar's trap #0 + data)
+  is a stale return address from earlier text printing. Added `LANDSTALKER_RTSDUMP=023136` (patch_interp.py): dumps the last 64
+  RTS targets with SP/depth and 12 stack words when that address is returned to.
+
+**Correction (user, after win9):** the Statue of Jypta sequence is fine with $027732 native; the earlier 'symptoms unchanged' reading was wrong. Interpreted script code with trap+inline data was the cause. Only the wake-up-in-bed crash remains.
+
+### win10.log: villagers/textbox vanish after waking up
+No crash. Interpreter ran $025F98, $025FB2, $017B48 (plus $003890/$027732 earlier). Same pattern as the statue (interpreted script
+code = broken text/graphics), so all three are now seeded natively. Awaiting Deck re-test (win11).
+
+### win11: hut dialogue fine, village villager garbled, then freeze
+Interpreter ran $017CC0 and $0260DC (new). Seeded. The hut text boxes worked after seeding win10's addresses -> confirms
+interpreted script code is the cause of garbled text; this is whack-a-mole until script entry points are derived statically
+(INDEX item 8). A freeze after garbling is probably also interpreter-related (unverified): if it persists after win12, capture
+the watchdog output.
+
+### Static script entry points (tools/script_tables.py)
+Instead of seeding interpreter addresses one by one: cutscene table (340 entries) and character table (324) are word arrays;
+even word = ScriptJump = code at tablebase + sign-extended word (RunTextCmd `jsr (a0,d0.w)`). `tools/script_tables.json` holds the
+entry kinds and 51+261 known (index, target) anchors taken from the disassembly (no ROM data); the build finds the table base in
+the ROM by matching all anchors, then seeds every code entry (313 total). Tested only on a synthetic ROM here; first real run on
+the Deck must print `cutscene table at $...` and `character table at $...` in build output (check ~/build.log). Not covered:
+shop scripts (different layout) and non-table code such as $017B48/$017CC0 (keep seeding from the interp log).
+
+### win12 (build with script_tables)
+Output pasted was the build's smoke/headless part only. Interp ran $0260EE (seeded) and $1A85E2 (NOT seeded: far outside normal code,
+probably a wild jump after the stack mismatches `RTS to $02539E (expected $025324)`, `$002304`, `$023136` seen in the same run -
+those mismatches are the real lead: returns landing mid-script / stale). Need `grep script_tables ~/build.log`.
+
+### win13: script_tables verified on the real ROM
+Build printed `cutscene table at $02542E: 51`, `character table at $025B0E: 262`, 308 new seeds (US ROM matches the disassembly).
+Remaining interp address: $0260D0 (seeded; part of the $0260BA..$0260EE script body whose pieces are entered separately).
+`RTS to $02539E (expected $025324)` = PickValueBasedOnFlags (call_data pick) consuming 122 bytes of inline data; the compiled caller
+already continues after the data, so it is a harmless warning; the silent window in patch_calldata was widened 32 -> 256.
+
+### Symbol resolution (2026-10)
+No assembler for the disassembly here (asm68k.exe only), so names are mapped to ROM addresses via the disassembly's own XREF comments + decoding the referencing instruction in the ROM (tools/extract_xrefs.py, tools/symbolize.py). 1203 named labels have xrefs; decoder tested on a synthetic ROM only (RunTextCmd -> $0253F8). Real-ROM calibration result pending.
+
+**symbolize.py verified on the real US ROM (Deck):** calibration 327/327 (100%), 1124 named addresses, 66 unresolved labels, 9 with
+disagreeing references (all local sub-labels like XS_003F_4 - majority vote used). $0253F8 = RunTextCmd, $0253CA = PickValueBasedOnFlags.
+`docs/symbols_auto.json` is generated locally (build.sh runs symbolize; gitignored, reproducible from tools/xrefs.json + ROM).
+Next: use these names for seed labels in the generated C (optional) and promote reviewed entries into docs/symbols.json.
+
+### win14: a different villager freezes the game
+Interp ran $026112 (seeded) and, as in every run since win12, $1A85E2 - an address far outside normal code. Hypothesis: a stale/garbage
+return address is popped (stack imbalance; seen before the game banner as `RTS to $002314 (expected $006708)` with stack $0016B6 $0016DC
+$0066AC $006E20 and `RTS to $0021A4 (expected $001700)` with stack $0016B6 $0016DC $00673E; the popped value changes from run to run:
+$023136 -> $002304 -> $002314 -> $0021A4, i.e. stale stack contents) -> wild jump -> interpreter runs garbage at $1A85E2 -> freeze.
+$00673E = UpdateSwordCharge was entered as its own function (tail chunk of ProcessActionButton $0066AC) which loses a shadow-stack frame.
+Diagnostic added: with LANDSTALKER_RTSDUMP set (any hex, e.g. 1), the ring of the last 64 RTS targets + 12 stack words is printed whenever the
+interpreter starts at a NEW address (catches the wild jump with its history).
+
+### win16: SEGFAULT at the villager (exit 139), no interpreter run
+$026112 seeded -> no interp.txt anymore, but the game crashed: kernel `segfault at 6a000000540 ... error 6 (write)` in `landstalker[f26943,...]`;
+code: load pointer from [struct+0x150], store `*ptr = ecx` (ptr = garbage), nearby compare with 0x33f. Looks like GPGX YM2612/sound struct
+(connect-pointer) corrupted, i.e. memory overwritten elsewhere (candidate: out-of-range write to Z80 RAM / YM ports from the 68K bus, or a
+wild store in recompiled code). Next: resolve the function with addr2line/nm on build/landstalker (offset 0xf26943), then find the overwrite.
+The ~/win15 'game closed' was the same crash (buffered output lost; always run with redirect to a file + `echo $?`).
+User asked for save states / skipping the intro: see answer in chat (SRAM test via church save; turbo replay of GENRECOMP_INPUTLOG idea).
+
+### win16/17: crash site = YM2612Update (GPGX FM synth)
+addr2line/nm: ip offset 0xf26943 is inside `YM2612Update` (symbol at 0xf258d0). Garbage pointer 0x6a000000540 looks like two small int32s (0x540, 0x6a0)
+written over a 64-bit pointer in the ym2612 struct -> overwrite from elsewhere or audio-thread vs main-thread race on the YM state.
+Core file unreadable (systemd-coredump root only): run under gdb instead: `gdb -q -batch -ex run -ex "bt 15" -ex "info threads" -ex "thread apply all bt 8" --args build/landstalker ROM` (win17.log).
+Pending decision: user wants save-state alternative "Weg 2" (church save / SRAM persistence) later; turbo-replay is the fallback.
+
+### win17 gdb backtrace -> root cause of the villager SEGV (YM sample buffer overrun)
+Main thread (no race): sub_000B5E -> bus_read8 -> bus_tick_cycles -> landstalker_vblank -> recomp_m68k_interrupt -> vec_irq6_vblank -> sub_0013B6
+-> bus_write16 -> gen_zbusreq_w -> z80_run -> z80_memory_r -> YM2612_Read -> YM2612Update (SEGV, write to garbage pointer).
+GPGX sound.c fm_update(cycles) renders (cycles - fm_cycles_count)/ratio samples into fm_buffer[1080*2]; when the cycle count handed over by
+z80_run is far ahead of the frame (recompiled clock vs real core: same family as the ~40-frame lead) it overruns the buffer -> heap/chip state
+trashed -> garbage pointer. Fix: tools/patch_fmclamp.py (build.sh) clamps samples to the room left and prints `fm_update: clamped N samples to M
+(cycles=.. count=..)` (first 8). Sound glitch instead of crash; the printed numbers show how far the clocks diverge (INDEX open item: timing lead).
+
+### win18: FM clamp confirmed, shop scripts, saves
+- Villager that crashed before now works. `fm_update: clamped 1307 samples to 536 (cycles=1865790 count=548352 ratio=1008)` etc. confirm the
+  overrun theory (the clock handed to the FM chip is ~2 frames past the frame buffer). Exit code 0.
+- Church (priest) scene: interp ran $025F18/$025F20/$025F28/$025F30/$025F40/$025F48 (shop script jump targets, tables not covered by
+  script_tables) and $017C68. Priest textbox invisible, clickable, then game ended. Fix: script_tables.py now also seeds all 429 `Jump to address`
+  targets of the disassembly's script tables (stored as `_extra_targets` in tools/script_tables.json) and $017C68.
+- Saves: genrecomp keeps GPGX battery RAM (sram.sram) only in memory -> new files every start. `tools/patch_sram.py` (build.sh) loads/saves
+  `<rom>.srm` (or $LANDSTALKER_SAVE): console `genrecomp: SRAM loaded/saved/new save file will be ...`; flush every 120 frames when changed + at shutdown.
+  Expected save file: /home/deck/Documents/NonSteamGames/landstalker/landstalker.srm
+
+### win19: saves verified; shops work; another NPC without textbox
+SRAM: `new save file will be .../landstalker.srm` -> `SRAM saved` -> second start `SRAM loaded ... (65536 bytes)` : persistence works (patch_sram.py).
+Both shops work now. Interp ran $028F08 (new; sits among the text/dialogue code $028D64/$028DAC/$028F6E/$028F9E/$028FD8) -> seeded.
+fm_update clamps keep appearing at one fixed point after each scene start (cycles ~1.87M vs count ~0.55M): the clock handed to the FM chip is ~2 frames
+ahead right after a frame boundary (consistent, not random) -> candidate for the timing-lead fix (INDEX item 6).
+
+### win19 $028F08 = PlayMusicTrack36 (DoSpecialAction table)
+rtsdump: interp starts at $028F08 with stack top $028EAC = return address after `jsr (a1,d0.w)` in DoSpecialAction (disassembly scriptfuncs6.asm).
+`ActionPointerList` ($028EB2: ReceiveItem $028EBA, ReceiveGold $028EE0, PlayMusicTrack36 $028F08, PlayMusicTrack14 $028F0E) and `ActionTable`
+(8 words relative to the table: LoadItemIntoSlot0-3, GetNumericValue, DoSpecialAction, SwitchCharacter $028F14, LoadNextCharacter $028F50) are computed-jump
+tables the analyzer cannot see. Added both to tools/script_tables.json (anchors computed from instruction sizes in the disassembly; the build prints
+`action_table at $...` / `special_actions at $...`, `not found uniquely` means my address arithmetic was off). After the call the game printed
+`The game's entry point returned unexpectedly`: stack leaks/underflow after this interpreted call are still possible; recheck once seeded natively.
+**Verified on the real ROM (build log):** `action_table table at $028D9C: 8`, `special_actions table at $028EB2: 4`, 433 new seeds in total (cutscene $02542E, character $025B0E). My instruction-size arithmetic for ActionPointerList ($028EB2) was exact.
+
+### win21: inn map -> `entry point returned unexpectedly` (stack slot is zero)
+RTS ring (newest last): ... HandleMap done -> $0250F2 -> RunTextCmd return $025412 -> $024B7C -> $024ABC -> $024A82 (sub_24A98 -> sub_24A78) ->
+`RTS to $000000 sp=$FFFFFFEC depth=4`: sub_24A78 (a thunk target: `jsr sub_22EB0` -> `jmp sub_24A78(pc)`, called from the sprite behaviours) pops a
+zero return address from the top of the stack (stack words all 0 above SP). So its caller's return address was never written, or was zeroed during
+the map screen (DisplayIslandMap/LoadRoom redraw big RAM areas; check for a buffer clear overrunning into $FFFFFFxx). The ring only shows RTS
+events, so use the new `LANDSTALKER_ENTRYDUMP=024A78`: prints SP, depth and 12 stack words each time sub_24A78 is entered (max 40).
+Compare entry with and without the map (talk to the innkeeper and decline the map first). Also: `lk_rts_dump` runs when main's entry returns.
+
+### win22/23: entry fine, slot later zero, watch saw nothing
+`LANDSTALKER_ENTRYDUMP=024A78`: both entries at depth 5, sp=$FFFFFFE8, return $01895E present (the crashing call too). `GENRECOMP_WATCH=FFFFEB`:
+last write is the push of $895E itself (call stack $0188C4); no later write, yet RTS pops $00000000 at the end of sub_24A78. bus_watch compared the
+exact address, so a write through a work-RAM mirror ($E0xxxx-$FFxxxx alias every 64K) would be invisible -> `tools/patch_watchfold.py` folds
+RAM-mirror addresses in the watch. (The 12-word dump at the end of rts_ring_dump reads past the end of RAM at sp>=$FFFFFFE8: ignore it there.)
+
+### win24: watch (with RAM-mirror folding) still shows no write after the push
+Even with patch_watchfold.py the last write to $FFFFEA is the push of $895E, yet the slot reads 0 when sub_24A78 returns. So the change is not a bus write
+to that address (or the value popped is not read from there). New tool: `LANDSTALKER_GUARD=FFFFE8:0001895E` (patch_guard.py): every bus tick compares the
+32-bit slot, once it held that value; each change is printed with the previous bus access address (the culprit access) and the call stack.
+If nothing is reported, the memory is intact and the bad read/SP is the problem (check `a7` at the final RTS); if the culprit is e.g. a VDP/Z80/YM
+port or a $C0xxxx address, the overwrite comes from inside GPGX (DMA/sound buffer overrun like the FM one).
+
+### win26: all 16 stack words around sp are zero at the crash; guard silent
+`rtsdump` (stack words from sp-$14 = $FFFFD8): sixteen zero words, i.e. a stack range is blank, not just the return slot. `LANDSTALKER_GUARD` never printed
+(`armed` message absent although ENTRYDUMP showed $0001895E at $FFFFE8) -> the guard read the wrong place (fixed: uses the map's read16 handler if there is
+one and prints `guard: watching ... (now ..., map base, read16)` once). Next run decides: if the guard sees the value and then a change we get the culprit;
+if `now` is not 0001895E at the start, the guard address/format is wrong. A blank stack range also fits a bulk RAM clear done outside the bus (DMA/Z80/GPGX).
+win27: `guard: watching $FFFFE8 for 0001895E (now 00000000, map base=0x..., read16=(nil))` and it never armed although ENTRYDUMP read $0001895E there: the guard used
+READ_WORD, which depends on LSB_FIRST and returns byte-swapped words in bus.c's translation unit. Now it reads exactly like bus_read16 (`*(uint16 *)(base+off)`).
+So the "guard silent" result of win25/26 is void; the zero-stack finding (win26 dump) stands.
+
+### win28 GUARD RESULT (inn map crash): the stack slot is zeroed during a VDP control-port ($C00004) access
+`guard: $FFFFE8 0001895E -> 00000000; previous bus access $C00004; call stack (11): $0016B6 $0016DC $0178C8 $0188C4 $024A78 $024A98 $024B48 $0253F8
+$0250B2 $03E654 $0008C2` -- i.e. inside HandleMap -> DisplayIslandMap ($03E654) -> a VDP routine ($0008C2) the 68K write to the VDP control port
+zeroes work RAM at the TOP ($FFE8). Not through the bus (no write16/write8 hit), so GPGX itself writes outside its own arrays (VDP control write / DMA /
+the bus_finish_dma loop / sound-or-Z80 work in the same tick). Real hardware cannot write 68K RAM from the VDP. Suspects: a VDP array overrun
+(vram/cram/vsram/sat/pattern cache/bg_name lists, DMA fill/copy with a wrong length or address) landing in `work_ram` (zero fill = DMA fill with data 0),
+or a negative index into the array that follows `work_ram` in memory.
+patch_guard.py now brackets the culprit: labels `tick start`, `before/after write16|write8 handler`, `after bus_finish_dma`, and prints VDP dma_length, dma_type,
+status and registers 0-23 at the moment of the change.
+
+### win29: guard says "noticed after write16 handler" of the VDP control port (dma_length=0, dma_type=0)
+Regs 0-23: 14 64 30 3C 07 6A 00 00 00 00 18 00 81 34 00 02 01 00 03 00 00 A8 87 7F. DMA is not running; the zeroing happens inside the host code of a $C00004
+write (vdp_68k_ctrl_w -> vdp_reg_w -> e.g. render_line() on a register change mid-frame, remap_line() into bitmap.data...). Hypothesis: a line/pixel write
+(black = 0) past the end of the static bitmap/line buffer lands in work_ram's tail (host layout). Find the instruction with a hardware watchpoint:
+`tools/gdb_stack_watch.py` (needs gdb with python; run under the same play-through as the guard). Fix candidates: bound render_line/remap_line to the bitmap,
+or check `bitmap.pitch`/viewport after the patch_viewport/patch_perline changes.
+win30 (gdb): hardware watchpoint set fine but never stopped: the zeroing may be written in two halves, so EXPECT->0 in one step never occurs; script now stops at the first change away from EXPECT.
+Also found: patch_watchfold.py printed `watch: write16 $FFFFFE` spam (and slowed the game) when GENRECOMP_WATCH is unset (s_watch=0xFFFFFFFF counted as a RAM mirror address); fixed with `s_watch != 0xFFFFFFFF`.
+Note: `curl` of the branch zip (`.../heads/claude/magical-sagan-114s2o.zip`) returns a 9-byte error body; the user downloads the ZIP manually.
+
+### ROOT CAUSE of the inn-map crash (gdb hardware watchpoint, win31)
+Host backtrace of the write that turned $FFFFE8 from 895E0001 into 00000001: `vdp_68k_ctrl_w -> vdp_reg_w -> m68k_set_irq_delay` (GPGX) executing a Musashi
+instruction (`m68k_op_movem_32_re_pd`, the symbol is the nearest exported one). GPGX m68k_set_irq_delay() runs the *next instruction* of its own CPU core
+(`REG_IR = m68ki_read_imm_16(); jump_table[REG_IR]()`) to emulate IRQ latency; in the recompiled build that core is idle with a stale PC/stack, so any VDP
+register write that touches the interrupt enables executes a random ROM instruction against stale registers (here movem.l -> zeros onto the game's stack).
+Fix: tools/patch_irqdelay.py (build.sh) makes it only record the IRQ level. This may also explain other unexplained VDP/IRQ-related weirdness.
+The slowness under gdb is the hardware watchpoint (normal runs are fast again after watchfold fix).
+
+## Timing fix (INDEX open item 6): per-block 68000 cycles from GPGX's own opcode table (patch_timing.py)
+Old model: only data bus accesses cost 28 master clocks; fetches, ALU, shifts, mul/div and branches were free -> the recompiled loop of tools/timingtest ran
++173 % too fast against `genrecomp_ref`. New model (`tools/patch_timing.py`, build.sh after patch_generate):
+- `generate.py`: every straight-line run (split at labels, control flow, and instructions touching $C0xxxx/$A0xxxx/$A1xxxx) is preceded by `bus_add_cycles(N)`;
+  N = sum of `m68ki_cycles[opcode]` from `ext/Genesis-Plus-GX/core/m68k/m68ki_cycles.h` (the table the reference core uses, so ref and rec agree by construction).
+  Dynamic parts as in Musashi: Bcc taken 10 / not taken 8 (.s) or 12 (.w); DBcc 10 / 14 / 12 (cc true); Scc register +2 when true; MOVEM +4 (word) / +8 (long) per
+  register; shifts +2 per count (register count evaluated at run time); MULU/MULS/DIVU/DIVS data dependent (`bus_*_mclk`, same formulas as UseMulu/Muls/Divu/DivsCycles);
+  TRAP 34.
+- `bus.c`: data accesses are free (the opcode table includes them); `bus_add_cycles`/`bus_add_mclk` feed the same scanline/Z80/VBlank machinery as before
+  (`bus_advance`). DRAM refresh (2 cycles per 128) is charged arithmetically. Interrupt entry costs 44 cycles (`recomp_m68k_interrupt`).
+- `LANDSTALKER_OLDTIMING=1` at run time = old model (A/B test on the Deck).
+Test (`tools/timingtest`, runs in the cloud sandbox): short-instruction loop: iterations per frame ref 346.15 vs rec 346.0; with movem/mulu/divu -0.75 %
+(Musashi inserts the refresh stall once per instruction, a long `movem` loses some). Fuzzed 185k random decoded instructions through the rewrite: no exceptions.
+NOT yet verified on the Deck/real ROM: expect `fm_update: clamped` lines to vanish, replay comparison (`massan.txt`) to stay in step beyond frame ~100, and no new
+WATCHDOG/HInt problems (the HInt wait loops now burn realistic time). If the game feels slower or music/animation timing changed, compare with `LANDSTALKER_OLDTIMING=1`.
+
+### Timing fix on the Deck (win37-win41): text boxes crawled because of a DMA stall, fixed
+After the first timing build the text boxes were slow, music crackled, `fm_update: clamped` appeared. `LANDSTALKER_CYCSTAT=1` (per-frame cycles by context, max clock lead, clock jumps behind the bus) showed
+`main` dropping from ~120k to ~31k cycles/frame and a constant jump of **187611 cycles (= exactly 384 lines) after a $C00004 write**. The `timing: clock jumped ...` report named it:
+a 68K->VRAM DMA (`dma_type=1`, ~3.4 KB) issued by the text code ($0253F8 chain, main thread) at v=160 in ACTIVE display. GPGX's control-port write handler halts the 68K for the transfer
+at the active-display rate (9 words/line) = 384 lines, every second frame; with `dma_length=0` afterwards (the whole DMA ran inside the write) so `bus_finish_dma` returned early.
+Fix (`patch_timing.py`): keep the pre-write clock, rescale GPGX's stall from the rate it used to the blanking rate (`DMA done in write: GPGX stall 187611 -> 16553 cycles`), and charge the
+rest of multi-chunk DMAs at the blanking rate. Result win41: `fm_update: clamped` = 0, main ~115-122k cycles/frame in text boxes, max lead <= 40 lines, text/music fine (user: "seems fine").
+Open question: on real hardware that DMA would take the active rate too; the game's text code may expect it to happen in VBlank, we treat every 68K DMA as if it did.
+
+### Replay comparison after the timing fix (win42, tools/alignscan.py)
+Per-frame dumps of `massan.txt` on genrecomp_ref vs the recompiled build (rec now dumps at the END of each frame, patch_dumpwrap.py): frames 0-12 are byte-identical (shift 0);
+frames 13-28 and 94-118 show transient differences (scene loads finish a fraction of a frame earlier/later, best shift flips +-1) and the runs re-converge: from frame ~119 a constant
+44 bytes differ (`$FF80-$FFB3`,`$FFD2` = stack leftovers; `$FF0F9C-$FF0FAB`,`$FF0FDE` = small input/timer variables). `$FF0000-$FF0009` differs because the two cores fill work RAM differently at power-on
+and the game never clears it. Conclusion: timing is good enough for ref-vs-rec comparisons; use `tools/rangecmp.py` (one RAM range, e.g. sprites $FF5480) to hunt real logic differences.
+
+### Why the massan replay diverged from frame 160: genrecomp_ref had no battery save (win43)
+`tools/rangecmp.py` on the player struct / `g_RmNum1`: at frame 160 the recompiled build is already in room $0255 (Nigel loaded from the church save) while the reference is still in room 0.
+Cause: `genrecomp_ref` (tools/ref_runner/main.c) never loaded `landstalker.srm` (patch_sram only covers genrecomp_load_rom), so the replay selected an EMPTY slot there.
+Fix: `tools/patch_refsram.py` (build.sh) loads the save into GPGX's sram after system_reset(), read-only. Console line `ref: SRAM loaded from ... (N bytes)`.
+The earlier ref-vs-rec checks of frames 0-130 (before the game is loaded) are unaffected.
+
+### Win43 result with the save loaded in the reference + input timing (patch_dumpwrap.py WRAPINPUT)
+With `ref: SRAM loaded ...` both runs reach room $0255 (one 5-frame sample apart) and Nigel is identical until frame ~305; from frame ~340 a constant 1-step difference in the player
+struct (e.g. $FF5403 08/0A, $FF5417 B8/BA) remains = input phase: the reference applies the pad state at the START of each frame (recomp_input_update before system_frame_gen), the
+recompiled build did it in the VBlank callback (line 224) => one frame later for code that reads the pad in the main thread. Fix: recomp_input_update() also at the frame wrap
+(`LANDSTALKER_WRAPINPUT`, same script as DUMPWRAP). Note: the replay `massan.txt` was recorded on the old-timing build; with the new input phase it may need re-recording for exact results.
+
+### Win44: Massan NPCs (chicken, dog) ref vs rec - what the dumps say (tools/dogscan.sh, movers.py, entitytrack.py, entitywatch.py)
+Church left at replay frame 545 (room $0255 -> $0250, same in ref and rec). Fastest movers after that: $FF5700 (chicken, 2.68 px/frame ref, 2.58 rec) and $FF5980 (dog, 44 frames visible).
+Entities are 0x80-byte structs (two 0x40 halves with identical position fields). Height map ($FFD192-$FFFC59) is IDENTICAL in ref and rec -> room data loads correctly; the difference is in the logic/state.
+Rec spawns the chicken exactly one frame earlier (slot cleared at 576 in rec, 577 in ref) and stays one tick ahead; both run a probe at frame ~710 (+2A/+2B/+35 toggle for one frame = obstacle check?) but the
+result differs: ref sets +04 88->08 (direction reversed), rec +04 88->C8 and +06 24->2C. Open: random numbers (a 1-frame spawn offset would change RNG draws -> legitimately different paths) vs a real translation bug.
+Decisive cheap test: walk out of the church in `genrecomp_ref` (windowed, needs no audio) and watch whether chicken/dog also pass the fence/church there.
+Note: entity slots are reused, $FF5700 is not a fixed 'chicken' address; recorded as observation in symbols.json.
+
+### Differential instruction fuzz (tools/insnfuzz): translation bugs found and fixed (win44)
+`tools/insnfuzz/run.sh` runs random single 68000 instructions on GPGX's Musashi interpreter and on the recompiled C with identical random registers/flags/RAM and compares everything
+(no ROM needed, ~90k trials per run, runs in the cloud sandbox). First results (all fixed by build.sh patches, re-verified over ~470k further trials):
+- **Absolute short addresses (`$XXXX.w`) were zero-extended** (`patch_absw.py`). On the 68000 they are SIGN-extended: `($D192).w` = `$FFFFD192` (top 32 KB of work RAM), the generator read ROM `$00D192`. Everything that reaches
+  high RAM through absolute short addressing (e.g. the height map at $FFD192, variables above $FF8000) read garbage from ROM. Prime suspect for the Massan NPCs ignoring the fence.
+- CMPM / ABCD / SBCD / NBCD (memory forms): temporaries `_s`/`_d`/`_t` shadowed the macros' own locals (`uint8_t _s = (uint8_t)(_s)` = garbage) (`patch_insnfix.py`).
+- ASL was translated as LSL (V flag never set); ROXL/ROXR left C stale when the count is a multiple of width+1; capstone decodes `roxr.b Dx,Dy` ($E030 pattern) as `roxr.l #n,Dy`.
+- MOVEM with absolute / indexed / pc-relative / d(An)-store addressing was emitted as a TODO comment = silently skipped.
+- `M68K_DIVS` with $80000000 / -1 raised SIGFPE on the host (68000: overflow flag) -> whole process crash.
+Known harmless differences (undefined on the real 68000, Musashi sets them its own way): N after DIVU/DIVS overflow, V after ABCD/SBCD/NBCD; ADDX/SUBX -(An),-(An) with the same register; 68020-only addressing forms
+(bit 8 set in index extension words) that capstone decodes differently from a 68000. Not covered: control flow, privileged / SR instructions, exceptions, TAS, multi-instruction behaviour, hardware (VDP/IO) access.
+
+
+## check_splits findings: heuristic pseudo-functions (2026-10-10)
+`tools/check_splits.py` reported 123 generated functions cut inside an instruction (95 distinct split addresses; the old output was truncated at 80). `tools/split_report.py` classified them: 71 of the split addresses are `jt_XXXXXX` entries that are only referenced as 32-bit values in data (class P), 18 are referenced by nothing (N), only 6 by real jsr/jmp/bsr (R).
+**Root cause:** genrecomp `analyze.py::_scan_jump_tables` turns every run of >= 3 even ROM-range longwords into function labels, and `CODE_RANGES` defaulted to the whole ROM ($200-$1000000), so data areas (graphics, maps, text, sound) count as "undecoded, plausible code". Examples inside REAL code: $0010C0 (operand of a bsr.w at $10BE), $002662 (VDP write), $0086F0, $008890, $008C0C, $00AA88, $00F86C. Same class as the $017CC0 bug, but systematic.
+`tools/code_extent.py` (descent only, no heuristics) showed: certain code lives in $000200-$02BFFF (plus a few islands: $038000, $03C000, $09A000-$0A1FFF, $11E000, $1A4000-$1A9FFF reached by jsr/jmp), 1761 of 5868 generated functions are in blocks with NO certain code, 1752 start at $040000 or higher.
+**First attempt `[0x200,0x30000)` was too strict:** the first Deck play in the new area after the church froze and the log showed `interp: running $03E890`, `$1A85C6` (EnemyAI bra.w table: enemy code lives at $1A8000+) and `$017B90` (a pointer-table entry whose table lost its 50%-in-range majority). Real code is on islands. **Fix (dev branch):** `code_ranges` = $200-$30000, $30000-$40000, $9A000-$A2000, $11E000-$120000, $1A0000-$1B0000 in recomp.json / gen_seeds.py (not tested yet). It only bounds the heuristic scans; descent from vectors/seeds/calls still reaches far code, and seed_missing still seeds real call targets. **Status: needs a Deck build + regression pass** (expect far fewer functions, shorter build, fewer check_splits findings).
+Remaining after that (data tables below $030000 decoded as code, e.g. $003BF6 $004FEA $00A9B2 $00C180 $024460 and inline-data after bsr to $0252B0 at $025E94..$0276BA): see LESSONS 3/4.
+
+
+## Key door / room change after the first key use (dev, 2026-10-10)
+Symptom: after opening a key door, the room change froze/went back to the old room. Log: `interp: running $0085F2`, `$0086C8` and `RTS to $5A7764 (expected $007764)` (garbage in the high byte of a return address after the interpreter run). Both addresses had NO native function in main either: $0086C8 is `PostUseKey`, an entry of `PostUseItemTable` ($0086B0; 6-byte entries = bra.w + id word, searched at $0085FC and entered by `jmp (a0)`; only the first entry had a function), $0085F2 is the real function start called by `bsr.w` at $007756 while the analyzer had started a bogus function at $0085F0. Fix: seeds $0085F2 and the six table entries (gen_seeds.py rows with entry size 6). UseItemTable at $008620 (23 entries, same layout, ItemUseKey = $8698 hit the interpreter next) seeded after the disasm proved the boundaries. Lesson: tables with strides other than 4 bytes (bra.w + data) are invisible to expand_seeds.py.
+
+
+## Microstutter / frame pacing (dev, 2026-10-10)
+User report after playing two shrines: occasional micro stutters; some sprite-heavy rooms stutter (normal on real hardware too). Explanations:
+1. Sprite-heavy rooms: the CPU timing is emulated cycle-exactly (patch_timing). The game logic gets the same cycle budget per frame as the console (about 127,800 68K cycles); native code does not make emulated time faster, so the slowdown there is faithful. An optional CPU overclock (more cycles per frame) is possible but can break raster/sound timing.
+2. Micro stutters (hypothesis, not yet measured): the platform layer paces twice: SDL_RenderPresent with PRESENTVSYNC and then a busy-wait to exactly 1/60 s after the previous frame (`platform_frame_sync`), while the console runs 59.92 Hz and the display 60 Hz (Deck). The two can beat and skip a vblank (one 33 ms frame).
+Tools (patch_framestat.py, build checksum now 62bd2d5b72): `LANDSTALKER_FRAMESTAT=1` prints once per second `framestat: n=.. emu avg/max present avg/max sync avg/max frame max >20ms >30ms`; `LANDSTALKER_NOSYNC=1` skips the busy-wait for an A/B test. Reading: large `emu max` (> 14 ms) = host CPU too slow in that frame; `present` ~ 16 ms = vsync wait (normal); `frame max` ~ 33 ms with small `emu` = missed vblank (pacing); `>20ms` counts dropped frames per second.
+
+
+## Display pipeline: scaling + CRT filter (dev, 2026-10-10)
+`patch_display.py` (+ `tools/display_core.c`, tested by `tools/displaytest`, build checksum now e93867f1b7). Controls: **L1 = scaling mode** (FIT -> 4:3 -> INTEGER -> FILL), **R1 = filter** (OFF -> SCANLINES -> CRT); F1/F2 on a keyboard. A hint ("SCALE: 4:3", "FILTER: CRT") is drawn for ~1.7 s. The choice is saved in `~/.landstalker_display` ("<scale> <filter>") and reloaded at start; defaults = FIT + OFF = the old look. L1/R1 used to be mapped to the pad's Y/Z (unused by Landstalker) in patch_runtime.py; now they only switch the display.
+FIT = letterbox 320:224 (square pixels), 4:3 = TV aspect, INTEGER = largest whole multiple (3x = 960x672 on the Deck), FILL = stretch to the window (16:10 on the Deck). Filters run on the CPU: SCANLINES = sharp pixels + dark lines between source rows; CRT = smooth + scanlines + RGB phosphor mask. Cost: check `LANDSTALKER_FRAMESTAT=1` (`emu` ms). `tools/displaytest` (`gcc -o /tmp/dt tools/displaytest/main.c && /tmp/dt outdir`) checks the rectangle maths and the brightness compensation and writes PPM images of a test frame.
+Roadmap next: widescreen experiment (LESSONS 8), later the in-game Options entry which should use the same settings file.
+
+
+## Display fix + widescreen experiment (dev, 2026-10-10, checksum d67dd60bf2)
+1. **Filter colours were all red**: build.sh switches the window texture to ARGB8888 because the core writes pixels as 0xFFRRGGBB (`MAKE_PIXEL` in vdp_render.c); my first filter assumed RGBX and created its texture as RGBX8888. Fixed (display_core.c reads R=bits 16-23 etc.); displaytest now checks that pure red/green/blue stay pure. Lesson: look up the real pixel format in the core and in build.sh before writing a pixel filter.
+2. **Real widescreen (not a stretch)**: `LANDSTALKER_WIDE=<e>` (or a third number in ~/.landstalker_display), e = 16 / 32 / 48 = 352 / 384 / 416 px wide (1.57 / 1.71 / 1.86; the Deck is 16:10 = 1.6, so e=16 is almost exact; 16:9 = 1.78 -> e=32). Restart to change. patch_wide.py: viewport width +2e (genrecomp.c latch, bus.c per-line latch, draw conditions), plane scroll +e, sprite x +e, window_clip limits + margin cells and window columns keep their place (margins repeat the edge column). Display layer: FIT/4:3/INTEGER/FILL use the real source width (sw = 320 + 2e), so FIT = the true widescreen aspect.
+3. **Test without a ROM**: `tools/widetest` (see its README) proves the centre of the wide picture is pixel-identical to the normal one (planes, window, sprites) for e = 16/32/48 with the full patch chain. e not a multiple of 16 is rejected (window cells would be off by 8 px).
+4. **What is NOT solved** (needs the game): the game only fills tile columns and sprites for its own 320 px. At the new edges you will see whatever the planes contain there (stale/empty columns, partly drawn rooms), enemies pop in at the edge, rooms narrower than the picture show black beyond the room walls, text boxes/HUD may sit at the old place. Next step is to look at real rooms with screenshots and then patch the game's column loader / sprite culling margin (per-game work). Landstalker's own scroll code and room data are in docs/symbols.json.
+
+## Widescreen, round 2 (dev, checksum c19200aaab)
+User screenshots (WIDE=16/32): CRT filter fine. (1) Window plane margins repeated the edge column (brackets `( (` / `) )` at the sides of the HUD and menu boxes): now the window's margin cells are empty (transparent). (2) The map in the margins shows stale tile columns that flicker while scrolling; bigger WIDE makes it worse, as expected: the game streams new plane columns only for its own 320 px. To fix it the column loader must write columns for the wider view. Diagnostic: `LANDSTALKER_VDPLOG=1 LANDSTALKER_WIDE=32 ~/Landstalker.sh > ~/vdplog.txt` then `python3 tools/vdplog_summary.py ~/vdplog.txt` lists which game function writes which plane columns/rows (patch_vdplog.py, uses the shadow call stack).
+
+## Widescreen, round 3 (dev, checksum 9b3c5b0de8)
+User run with LANDSTALKER_VDPLOG (WIDE=32, ~3400 frames): the game writes the scroll planes in whole ROWS over all 64 columns (functions $000AE4 every frame 320 words, $002686 while scrolling (planes A and B), $001340 room load, caller $001260); horizontal scrolling only changes the hscroll value (about 2 px per frame). So the margins show whatever the 64-column plane holds beyond the original 320 px (the plane wraps at 512 px). New: margins are blanked (border colour) on window-plane lines (HUD, text boxes) and on every frame that is not the game map (UpdateSprites $0178C8 has not run in the last 2 frames: menus, title, cutscenes), `lk_world_frame` in func_table.c; widetest checks it. The vdplog now also lists per row the column span written; run again (see HANDOFF tools) to see whether rows are written over 0-39 only (stale margins) or over all 64 columns.
+
+
+## Widescreen: map-frame detection (UpdateSprites) -- FRAGILE HEURISTIC, read this first when margins misbehave
+(checksum 98b54f2a45. Code: `tools/patch_wide.py` -> `lk_wide_margins()` in vdp_render.c and the hook in func_table.c. Test: `tools/widetest`.)
+
+### What it does
+In widescreen mode (LANDSTALKER_WIDE=16/32/48) the picture is wider than the 320 px the game draws. The **side margins** (e px on each side) may only show plane content when the game is displaying its *map*; on every other screen (menus, title, file select, intro, cutscenes with their own layout) the planes hold stale columns of the previous screen (purple menu blocks, wrapped-around map columns) and the margins must stay black.
+The VDP cannot know which screen it draws, so we use a **signal from the game: `UpdateSprites` ($0178C8, the per-frame entity update, called from the game loop `GameLoop $0016DC`)**. `func_table.c` stores the frame number of every call in `lk_world_frame` (hook sits right before `lk_entry_dump(...)` in `func_table_call_expecting`, so it also fires when the function runs on the interpreter fallback). `lk_wide_margins(line)` (called from `render_line` after `render_obj`) treats a line as MAP when `platform_frame_number() - lk_world_frame <= 4`.
+ * MAP frame: margins are black only next to the window plane: on lines where the window covers the whole line (reg 18 vertical split) both margins, on lines where the window shares the line (clip[1]) the side the window sits on. This makes the HUD / text box bands run through to the screen edge.
+ * not-MAP frame: both margins black on every line.
+ Margins are blanked with `memset(&linebuf[0][0x20 (+ w - e)], 0x40, e)` = the border colour index, the same mechanism GPGX uses for its own overscan borders (so it hides sprites in the margin too).
+
+### Assumptions (each one can be wrong)
+ A1. UpdateSprites runs (almost) every game-loop iteration on the game map and does NOT run on menus/title/etc. (We only know this from the call stacks `$0016B6 $0016DC $0178C8` and from the user's report that menus show purple margin blocks; not proven for every screen.)
+ A2. The game loop iteration is never slower than ~4 VBlanks (rooms with many sprites run at 30 fps = every 2nd VBlank; the frame is drawn line by line, so the early lines of a frame are drawn BEFORE this frame's UpdateSprites call: a threshold of 1 would have flashed black margins at the top of the screen every few frames. 4 gives margin; a 15 fps room would still break).
+ A3. Address $0178C8 is correct for the user's ROM (US, 2 MB, serial MK-1353 -00). Other regions/revisions have other addresses -> the signal never fires -> margins always black ("never" behaviour).
+ A4. All other screens that show the map-like picture also call UpdateSprites (dialogue boxes with the world behind them, shops?, the inn "map" screen?). **VIOLATED (user run 2026-10-10, WIDE=32 + WIDE_DEBUG): while an NPC dialogue is open UpdateSprites is not called (e.g. frame 433 MAP, 542 last call, 547 'not map'), so the margins went black for the whole dialogue.** Menus behave as intended (black). A time threshold cannot fix this (a dialogue lasts arbitrarily long); a better signal is being collected: `LANDSTALKER_WIDE_DEBUG=1` now prints, at every switch and every ~1.5 s while 'not map', the game's call stack and the number of plane tiles written since the last report, so the dialogue loop can be told apart from the menu loop.
+ A5. Screens that are NOT the map but still call UpdateSprites (cutscenes using the entity engine, the intro?) get plane content in the margins (stale or wrapped). Unverified.
+ A6. `platform_frame_number()` counts presented frames; lines are rendered in `render_line` during the frame (per-line path, patch_perline) or all at once at frame end; both give the right difference.
+
+### Symptoms -> likely cause -> what to do
+ | symptom | cause | action |
+ |---|---|---|
+ | margins black on the map all the time | A3 (other ROM) or UpdateSprites not reached (function renamed by a re-seed? hook not applied) | `LANDSTALKER_WIDE_DEBUG=1`: if `widemap:` never prints MAP, check `grep lk_world_frame .deps/genrecomp/src/func_table.c` and verify_build marker; try `LANDSTALKER_WIDE_MAP=always` |
+ | margins flash black at the top of the screen / during slow rooms | A2 too small a threshold | `LANDSTALKER_WIDE_MAP=auto:8` (default 4) |
+ | margins flash black while a text box or shop is open | A4 | `LANDSTALKER_WIDE_DEBUG=1` shows when it switches; consider another signal (below) or `always` |
+ | purple/stale blocks in the margins on some screen | A5 or the screen is classed MAP | `LANDSTALKER_WIDE_DEBUG=1` to see the class; use `LANDSTALKER_WIDE_MAP=never` as a last resort (margins always black = widescreen with black bars) |
+ | HUD band does not run through to the edge | the window covers the line via clip[] not reg 18, or the screen is classed not-MAP wrongly | DEBUG line prints reg11/reg18 |
+Overrides without rebuilding: `LANDSTALKER_WIDE_MAP=auto|always|never|auto:N`, `LANDSTALKER_WIDE_DEBUG=1` (prints each MAP/not-MAP switch with frame and line, max 300 lines). Example: `LANDSTALKER_WIDE=32 LANDSTALKER_WIDE_DEBUG=1 ~/Landstalker.sh | grep widemap`.
+
+### Checklist to re-verify after ANY change of this logic or of the call path (play with LANDSTALKER_WIDE=32 and DEBUG on)
+ title screen, file select, intro, village (walking in all directions, also a 30 fps room such as the shrine with many sprites), enter/leave a house, dialogue with an NPC, shop, church save menu, status/inventory menu, the world/inn map screen, a cutscene, game over. Expected: margins show map only on the map; black on all of the others; no flashing. Record the result in HANDOFF.
+
+### What the automatic test covers (tools/widetest) and what it does not
+ Covers: centre pixel-identical, margins of window lines black, non-map frames black, map frames show plane content. NOT covered: whether the game really calls UpdateSprites on every screen (A1/A4/A5), timing/threshold behaviour in slow rooms (A2), other ROM versions (A3). `always` / `never` intentionally fail the 'auto' expectations of widetest.
+
+### If this heuristic proves too weak: better signals to look at (not implemented)
+ * a flag written by the game's own screen setup (room load `$002996 LoadRoom`/`$001260` callers vs. menu entry points): add a tiny patch at those functions that sets/clears a `lk_map_active` variable (exact, not time-based);
+ * the room number `g_RmNum1 ($FF1204)`/game-state bytes that differ between map and menu;
+ * the tilemap writers seen by LANDSTALKER_VDPLOG ($002686 world scroll rows, $001340 room load) as additional 'this is the map' evidence.
+
+### Update (2026-10-10 evening, checksum 7db8cbca90): evidence collection for a better map signal
+ Result of the first debug run: MAP/not-map switches at frames 433/547, 700/1061, 1331/1370, 1645/1990, 2123/2191, 2285/2383, 2518/2618 ... (user talked to NPCs and opened menus; dialogues went black = problem, menus black = correct, no flicker any more). The run could not tell dialogue from menu. `lk_wide_margins` debug lines now carry `call stack (n): $.. $..` (shadow call stack, innermost last) and `plane-tile writes since last report` (counter `lk_nt_writes` in vdp_ctrl.c). Planned decision: treat a frame as MAP when UpdateSprites ran recently OR the call stack contains a dialogue/text routine (to be identified), i.e. an allow-list of functions that keep the map on screen; or a latch cleared only by menu entry functions. Until then `LANDSTALKER_WIDE_MAP=always` keeps the margins during dialogues (but menus then show stale blocks).
+
+### Evidence: game call-stack signatures per screen (user run 2026-10-10, ~3900 frames, WIDE=32 + WIDE_DEBUG; stacks are the shadow call stack, outermost first)
+ | screen / phase | frames | stack signature |
+ |---|---|---|
+ | title / file select / load | 15-291 | `$0016B6 $038614 $0008F2 ..`, `$0016B6 $039848 $0399CC/$039988 $000B5E`, `$0016B6 $0026E8 $002F26 ..` |
+ | game map (walking) | 378.. | `$0016B6 $0016DC $0178C8 $0178FE (..)` ($0016DC = GameLoop, $0178C8 = UpdateSprites) |
+ | **NPC dialogue** | 477, 986-1616, 2948, 3123, 3265 | always contains **`$028FD8`** (text-box printing) together with `$0253F8 $028D64 $028DAC $028FD8 $022F26 $022F52 ..`; started either from the action-button handler (`$0061EC/$0066AC/$0061CA ..`) or from inside UpdateSprites (`$0178C8 $0188C4 $024A5C ..`, i.e. UpdateSprites is still on the stack and is NOT re-entered during the dialogue) |
+ | fade at room change | 607, 1928, 2858 | `$0016DC $0061EC/$0061CA $00620E $008EF4/$008EB4 $000B7A $000B5E` (FadeOutToDarkness `$008EF4`, wait loops `$000B7A/$000B5E`) |
+ | **menu (status/inventory)** | 1928-2559 | open `$0016DC $007624 $008EF4 ..`, loop `$0016DC $007624 $02488A $000B5E` (reg18=$1C: window covers more lines), close `$0016DC $007766 $008EB4 $000B7A $000B5E` ($007766 reloads the room, see symbols/DEBUGGING 'key door') |
+ | special screen after a script (random/fade) | 3265-3821 | `.. $0253F8 $0250B2 $03E654 $03E890 ..` ($03E890: InitFadeFromBlack/GenerateRandomNumber screen) |
+ Typical plane-tile write volume: 28800 per 90 frames in a steady non-map screen (= the constant 320 words/frame of `$000AE4`), 20000-125000 at screen changes.
+
+### Rule now implemented (checksum 86ad1c4fd6)
+ MAP = UpdateSprites ran within the last 4 frames **OR the text-box routine $028FD8 is on the call stack** (`lk_dlg`, evaluated once per frame at the first rendered line from the shadow stack via `func_table_depth()/func_table_stack()`). Overrides: `LANDSTALKER_WIDE_DIALOG_FN=<hex>` (marker function, `0` switches the dialogue rule off), `LANDSTALKER_WIDE_MAP=auto|always|never|auto:N`, `LANDSTALKER_WIDE_DEBUG=1` (now also tags `[dialogue]`).
+ New assumptions: **A7.** `$028FD8` is on the stack during every dialogue that keeps the map visible and during no screen that must be black (true for the 8 dialogues, 2 menu episodes, 3 fades, title and the special screen in the run above; NOT verified for shops, signs/books, the inn map, treasure chests, cutscene dialogues). **A8.** The shadow call stack is accurate at the first line of a frame (it is maintained by func_table.c; interpreter-fallback code and tail calls may leave stale entries: a stale `$028FD8` would keep margins on for a screen that should be black; the debug output shows the stack).
+ Not covered by tests: the dialogue rule itself (widetest has no game call stack). Verify on the Deck with the checklist above, now especially: talk to an NPC (margins must stay), read a sign, open a chest, shop, status menu (must be black), inn map.
+
+## Widescreen, round 4 (dev, checksum b5acb18868): stale columns in the margins, textbox band
+User screenshots (WIDE=32, dialogue rule active):
+ * **Dialogues now keep the margins** (good). While a text box is open the bottom band of the margins turns black: the game blanks the lower plane rows over the whole width when it draws the box (in 320 px the box fills the centre, so nobody notices). This is the game's own behaviour, not our rule; it looks like a flicker in the wide picture. Options if it bothers: keep the lowest margin lines always black on map frames (not implemented).
+ * **Stale tile strip in the inn** (room narrower than the picture): tiles of the previous room (village) remain in plane columns the new room does not write. Hypothesis: ClearScrollPlanes ($000B38, it is a DMA fill: `$000F42 caller $000B38` logged only 1-2 data-port words = the DMA fill start) clears only part of the planes. Evidence tool: LANDSTALKER_VDPLOG now also prints `vdpdma <kind> f= code= addr= len= by $fn($caller)` for every DMA (fill / VRAM copy / 68k->VRAM), summarised by tools/vdplog_summary.py. Experimental fix: **LANDSTALKER_WIDE_CLEAN=1** empties the WHOLE name tables of plane A and B when ClearScrollPlanes ($000B38) is entered (func_table.c hook -> `lk_clean_planes()` in vdp_render.c; size from playfield_row_mask/playfield_shift; sprite table, window plane and hscroll table are untouched; tested in widetest). Default OFF until verified on the Deck.
+ * Note on earlier vdplog output: 'plane A ... rows 40-44, 320 writes per frame by $000AE4' is NOT plane data. The logger counts 0x2000 bytes from the plane base, which reaches the sprite attribute table (0xD800, 80 sprites x 4 words = 320 words): $000AE4 uploads the sprite table every frame.
+
+### Round 4 results (user logs, checksum 3310fe332b)
+ * CLEAN at ClearScrollPlanes ($000B38) did NOT remove the stale strip in the inn: **$000B38 ran only once in the whole 3400-frame session (frame 335, start)**; room changes do not call it. The strip showed graphics of the SHOP (not the village): leftovers of the previously visited room. New: `LANDSTALKER_WIDE_CLEAN=1` hooks $000B38 AND $002996 (LoadRoom); `LANDSTALKER_WIDE_CLEAN=<hex>[,<hex>..]` hooks any function entries (try e.g. `2996`, `8EF4` = FadeOutToDarkness) without a rebuild.
+ * The game streams the map in **cells of 2 columns** at the window edge ("cols 40-41", "42-43", "38-39", "22-23", "0-1" in the span statistics) and writes whole 64-column rows only at room load / vertical scroll. The look-ahead is tied to the 40 visible columns (+1 cell). With a wider picture (e=32 -> 48 visible columns) the columns beyond ~42 keep older content until the camera reaches them: that is the edge flicker while walking. Fix needs the streaming routine to load e/8 more columns on each side (find the function with `tools/vdplog_summary.py`: sections 'narrow spans' and 'wide spans' name the writers), then patch its look-ahead distance (ROM constant or the recompiled code).
+ * Plane A rows >= 32 in the vdplog output are NOT plane rows (sprite attribute table etc., see above).
+
+### The VDP write queue ($FF3900) -- how the game streams the map (found 2026-10-10)
+Disassembly of `$002686` (called from the VBlank handler `$001184`): it flushes a queue that the game fills in RAM at **$FF3900**: count = byte at **$FF1128**, write pointer = long at **$FF1840**; each entry = word (VDP address, low part) + `move.w #3,(a1)` (so only VRAM addresses $C000-$FFFF = the scroll planes / window) + a LONG of data (two nametable entries = two horizontally adjacent tiles: the "2-column cells" seen in the vdplog), four entries per loop pass; VDP auto-increment is set to 2 (`$8F02`). Afterwards the pointer is reset to $FF3900. So the map streaming is decided where entries are QUEUED (the producer functions, find them with `tools/who_touches.py FF1128 FF1840`), not in $002686. `$000D22` fills whole screens by DMA with 40-word rows (`addr=C000,C080,.. len=40`): 40 columns only. `$000AE4` uploads the sprite table (320 words) every frame, `$00126C` writes the hscroll table (2 words per frame).
+
+### Producers of the VDP write queue (tools/who_touches.py FF1128 FF1840 FF3900, user run 2026-10-10)
+ * `$FF1840` (write pointer) is read+written by `$004B14` (+1 entry), `$004C94`, and by a block at **`$00A61C / $00A630 / $00A670 / $00A6B0 / $00A6C4 / $00A6E6 / $00A718 / $00A71C`** which adds **12 entries** (`ADD.B #$0C,$FF1128`) at a time: the prime suspect for the horizontal/vertical map streamer (strip of cells queued in groups of 12). `$004B52` copies the count to `$FF115A`.
+ * Other code that merely points at the queue buffer `$FF3900` (lea): `$00F578 $00F5DC $00F5F4 $00F6DC $00F6F0 $00F6F6 $00F700 $00F722` (a cluster, likely screen/menu drawing), `$023526 $02355A $02356A $02358E $023676 $023690` (text/dialogue drawing?), `$03EB0E $03EB5E`, `$09F694`.
+ * Next: disassemble `$00A5F0..` to see how the column index is derived from the scroll value (a constant 40 columns / an offset to the scroll position is what has to become 40 + e/8).
+
+### The map loader (disassembly of $00A5F0..$00A77C, user run 2026-10-10) -- how Landstalker streams the isometric map into the planes
+ * The room map is made of **blocks (16x16 px = 2x2 tiles)**. `BlockToTiles` ($00A748) turns one map block into **4 queue entries**: plane A row 0, plane B row 0, plane A row 1, plane B row 1 (foreground block index from `(a6)`, background block index from `$2AC8(a6)`, tile data from a block table at `$FF5C02`, VRAM destination words from a table at `$00A77E` + 8 bytes per plane cell, indexed by the cell index d2).
+ * `LoadTopTiles` ($00A61C), `LoadBottomTiles` ($00A698), the left strip ($00A6B0) and `LoadRightTiles` ($00A730) each queue a strip of **12 blocks** (`moveq #$b,d7`) next to the camera: camera = map block coordinates `$FF1124` (x) / `$FF1125` (y), strips start at +-11 blocks (`subi.b #$b` / `addi.b #$b`); `$00C37E` turns (d0,d1) into the map pointer a6 and the plane cell index d2; per step the map pointer moves by $92 / $96 bytes (a map row) and the plane cell index by -$1F / +$21 (one diagonal step: +-1 cell row and +1 cell column), wrapping at $200/$210/$1F0 (the plane is a 32-cell-wide ring). Each strip adds 12 to the queue counter `$FF1128` (the flush loop `$002686` counts groups of 4 entries).
+ * Consequence for widescreen: the map is isometric, i.e. rotated: a plane (screen) rectangle is a DIAMOND in map coordinates. Making the picture wider means the loaded diamond must grow along the map diagonals; it is not a matter of loading 'more columns'. Plan: (1) find who calls the strip loaders (tools/who_calls.py A61C A698 A6B0 A730) and how a room is filled at load time, (2) understand `$00C37E` and the cell-index arithmetic, (3) either extend the strip loops (longer than 12 blocks / offset by the extra columns) or add a native 'wide fill' that writes the extra cells (cell index -> block -> 4 tile pairs) into VRAM ourselves from the game's map RAM.
+ * Tools: `tools/who_touches.py` (data addresses), `tools/who_calls.py` (code addresses).
+
+### More facts about the map loader (user disassembly of $00C37E + who_calls, checksum 005e9f0b2d)
+ * `$00C37E` (d0 = x, d1 = y): `a6 = $FF7C02 + 2*x + table[y]` with `$00C3CE` = `148 * y` (0, $94, $128, ..): the room map is a 2D array of 16-bit block indices, **148 bytes (74 blocks) per row**, base **$FF7C02**; the background layer is `$2AC8` bytes behind it ($FFA6CA). (The same table is MultiplyD1By148 / MultiplyD2By148, also used by the height map at $FFD192.)
+ * The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002154 $002242 $002262 $0022F0 $002300 $002320 $002326 $002328 $002330 $002332 $002362 $002366 $0023F0 $002400` (the 8 scroll directions of the camera) plus `$0090C4` (twice) and a tail jump from `$00A4F0`. These direction handlers are what a widescreen patch has to extend.
+ * Step arithmetic seen in the loaders: top strip: map pointer -146 bytes (x+1, y-1) with plane cell index d2 -$1F (col+1, row-1); left/right strip: +150 bytes (x+1, y+1) with d2 +$21 (col+1, row+1); the plane is a 32-cell x 16-cell ring (d2 wraps at $200). Whether the loaded set is a diamond or a rectangle and where the screen sits inside it is NOT yet known: measure with **LANDSTALKER_BLOCKLOG=1** (patch_vdplog.py): `blk` lines per BlockToTiles call (camera, map block x/y, cell col/row, hscroll/vscroll, strip loader) and `strip` lines per strip loader entry; `tools/blocklog_summary.py` computes the screen position of every cell (x = col*16 + hs mod 512, y = row*16 - vs mod 256) and the map-minus-camera offsets.
+
+### LANDSTALKER_PLANEMAP=<N> (plane content map)
+Every N frames (max 8 dumps, lines `pm ...` on stdout) prints per plane (A, B) one character per 16x16 cell: `#` content inside the original 320x224 window, `:` hole inside it, `+` content in the widescreen margin, `,` hole in the margin, `x`/`.` outside. Use with LANDSTALKER_WIDE=32 to see how far the loaded map diamond reaches behind the 320 px picture. Implemented in tools/patch_vdplog.py.
+
+### LANDSTALKER_WIDE_STRIPS (experiment, patch_wide.py `lk_strip_extend`)
+Planemap result (room "Massan outside", WIDE=32): in steady state the right margin is filled, the left one mostly; holes appear only while walking (the loaded set is the union of diamonds of radius 11). Experiment: at every entry of the strip loaders ($00A61C top, $00A698 bottom, $00A6B0 left, $00A730 right) the same loader additionally runs k = e/16 times with the camera ($FF1124/$FF1125) shifted outward by 1..k on each axis (registers saved/restored, shifted camera must stay in 0..73), i.e. the diamond grows to radius 11+k. `LANDSTALKER_WIDE_STRIPS=0` switches it off, `=N` forces k (max 4). Unverified on the Deck. Risk: the VDP write queue at $FF3900 gets 2k+1 times more entries per strip.
+
+### Screenshot dump LANDSTALKER_SHOT + first self-verified widescreen results (Deck session, 2026-10-10, dev, build checksum see below)
+`tools/patch_shot.py` (+ `tools/shot_core.c`, ROM-free test `tools/shottest/run.sh`): `LANDSTALKER_SHOT=f1,f2,..` writes `<LANDSTALKER_SHOT_DIR or ./shots>/shot_<frame>_w<width>.png` of the final picture (widescreen margins included, display filter/scaling not applied); `LANDSTALKER_SHOT_SCALE=n` repeats pixels. Works headless with the recompiled build and genrecomp_ref. A 13000-frame replay takes ~40 s headless.
+Results (massan.txt replay on the current build, frames 1000..13000, WIDE=0 vs 32; images viewed by Claude):
+1. WIDE=0 runs are bit-identical to each other (replay is deterministic). The replay itself ends up in the item menu from ~frame 7000 (old-timing recording, README note), so use frames <= 6000 only.
+2. **`LANDSTALKER_WIDE_STRIPS` default (k = e/16 = 2) corrupted the WHOLE picture**: black holes and wrong tiles also in the centre, and the game state diverged from WIDE=0 (other NPC positions, dialogue at frame 8000 instead of the menu). Cause not investigated (suspect: the VDP write queue at $FF3900 / queue entries produced by the extra loader runs, or camera registers). With `LANDSTALKER_WIDE_STRIPS=0` the centre is pixel-identical to WIDE=0 at frames 1000/3000 (0 differing pixels) and the margins are filled with plausible map in the steady state. => default changed to 0 (off) in patch_wide.py; it stays an opt-in experiment.
+3. Interior room (frames 4000/6000): the margins are black except small wrapped-around bits of the 512 px plane at the right edge (LESSONS 9 item 3), as predicted.
+4. Not checked yet: margins while walking (holes), shops, signs, chests, inn map, cutscenes (need frames from a replay that reaches them; record a new replay on this build).
+
+### Strips root cause + fix (2026-10-10, Deck session; the user confirmed that the picture centre was always fine in their own widescreen play = they never ran the strip extension)
+Root cause of the corrupted picture (see 'Screenshot dump' item 2): the four strip loaders ($00A61C top, $00A698 bottom, $00A6B0 left, $00A730 right) take the plane START CELL `d2` NOT from the camera but from a table indexed by `g_` word `$FF1184` (`move.w $FF1184,d2; add.w d2,d2; move.w (a6,d2.w),d2`); `MapPtrAndCellFromXY` ($00C37E) only turns (d0,d1) into the map pointer a6 and leaves d2 alone. The first `lk_strip_extend` shifted only the camera, so the blocks of the shifted strips were written to the cells of the UNshifted strip = tiles of other map positions on top of the visible picture.
+Measured with `LANDSTALKER_BLOCKLOG=1` (replay walk2 = massan.txt frames <972 + own walking script): `row = (y + r0) mod 16` (100 % of 816 blocks) and `d2 = (x + 0x20*y + K) mod 0x210` (the ring modulus is 0x210, not 0x200: a row wrap moves the column by 16; K differs per room and by +-0x20 through the loader's wrap quirks; max d2 seen 0x1FF). Fix: in `lk_strip_extend` the entry hook of $00C37E adds `dx + 0x20*dy` (the same shift as the camera) to d2 mod 0x210 and folds values >= 0x200 back by 0x20 (the loader does the same).
+Result (STRIPS=2 vs STRIPS=0, WIDE=32, 27 frames of walking in all directions in Massan outside): no garbage tiles any more, black margin pixels (y 24..184) 40194 -> 28073, left edge now shows fence / villagers where it was black; the centre differs only through a shifted game state (extra loader cycles) and a few sprites. Remaining black = real room/diamond edge of the map (also black in the original, user remark 2026-10-10). Warning lines: only the known startup `RTS to $00FFFC`. Default is k = e/16 again. Still to check on the Deck by the user: feel/timing while scrolling with WIDE=32, shops, signs, chests, inn map, cutscenes.
+Test recipe (no ROM needed to read, ROM needed to run): `awk '$1<972' ~/massan.txt > walk2.txt`, append `frame mask` lines for walking, then `GENRECOMP_INPUTSCRIPT=walk2.txt LANDSTALKER_WIDE=32 LANDSTALKER_WIDE_STRIPS=<k> LANDSTALKER_SHOT=900,925,.. LANDSTALKER_SHOT_DIR=dir build/landstalker --headless --frames 1560 ROM`; compare k=0 and k=2 images.
+Check of the question 'is the reference in another room?' (user, 2026-10-10): RAM dumps at frames 1000/1100/1200/1300 give room `$FF1204` = 592 (Massan outside) in BOTH runs (STRIPS=0 and 2); only Nigel's position differs by 1-3 blocks from frame ~1100 on (the extra loader runs cost emulated 68K time, so the same inputs walk a bit differently). So the large centre difference after frame 1075 is a shifted game state, not another room and not corruption.
+
+### Deck feedback round 2 (2026-10-10, user played WIDE=32 with strips on): stutter, slow text boxes, black flicker after a dialogue, does 48 work?
+Measurements (Claude, headless + windowed with LANDSTALKER_FRAMESTAT / CYCSTAT, display setting FILL + CRT):
+ * Emulated game time is NOT affected by widescreen or strips: identical `clamped`/WATCHDOG counts (0), identical timing lines and 68K cycles per frame for WIDE=0/32/48, STRIPS 0..3 over the whole massan.txt replay (strips only raise 'hint' cycles and the max clock lead). So slow text boxes / speech sound are a WALL-CLOCK problem: the frame did not finish in 16.7 ms.
+ * Windowed: emu ~1.1 ms, but `present` (CPU CRT filter into a 1280x800 buffer + SDL upload + vsync) 7-9 ms at WIDE=0 and 10-13 ms (peaks 17 ms) at WIDE=32: too little headroom on the Deck; a frame >16.7 ms means the game runs below 60 fps (stutter, slower text, lower-pitched speech effect).
+ * Fix (patch_display.py + display_core.c): `lk_fx_render_rows` blends R and B in one 32-bit multiply and folds scanline weight x phosphor mask into 3 weights per row (max 1 level difference to the old formula, checked by tools/displaytest with a benchmark: 10.0 -> 7.0 ms single thread), and `lk_fx_render_mt` splits the destination rows into bands on up to 4 SDL threads (`LANDSTALKER_FXTHREADS=N` overrides, 1 = old single thread). Windowed `present` at WIDE=32: ~7.7 ms (1 thread) -> ~3-7 ms (4 threads). Whether the game now FEELS smooth is for the user to judge.
+ * Flicker after a dialogue: the dialogue rule ('$028FD8 on the call stack') ends with the dialogue, but UpdateSprites has often not run for more than 4 frames by then, so the margins were classed 'not map' (black) until the game loop resumed. Fix: the map classification also holds for 30 frames after the last frame with the text box on the stack (`lk_dlg_last`). NOT reproducible headless: the replay massan.txt stays in the dialogue from frame 4521 on (desynced), so no dialogue END is ever seen; verify on the Deck (`LANDSTALKER_WIDE_DEBUG=1 ... | grep widemap` shows MAP/not map switches).
+ * WIDE=48 (416 px, strips k=3): same walk test as for 32 (27 frames): margins filled with map, no garbage tiles, HUD band centred with black sides, no new warnings; the centre differs only through the shifted game state after frame ~1075 like at 32.
+ * New tool `tools/contactsheet.py` (tiles the LANDSTALKER_SHOT PNGs into sheets for the Read tool; `--diff A B` compares the centre 320 px).
+
+### WIDE=48 crash (user, 2026-10-10: left the church, jumped up-left / up-right, crash) -- fixed
+Reproduced headless with `tools/inputfuzz.py` (random pad input incl. A/B/C jumps after the massan.txt prefix, 9000 frames): seed 3 at `LANDSTALKER_WIDE=48` (strips k=3) logged `func_table: RTS to $CE0000 (expected $001710, SP=$FFFFFFFE) has no function ... call stack $0016B6 $0016DC $002300` plus 3 `interp:` lines ($017B8C $017B98 $017CFC, NPC walk code reached with a destroyed stack). The same input is clean at WIDE=0, at WIDE=48 with STRIPS=0 and at WIDE=32/STRIPS=2 => the strip extension at k=3. Cause (inferred from the symptom + fix, not disassembled in detail): the extra strips (24*k blocks x 24 bytes per call) overflow the VDP write queue ($FF3900.., count byte $FF1128 (ADD.B), write pointer $FF1840) into game RAM (player struct $FF5400 and the stack area) when several loader calls pile up before the flush. Fix in `lk_strip_extend`: skip the extension unless count + 24*k + 12 <= 240 blocks and write pointer + that many blocks stays below $FF5000. Result: 8 seeds x (WIDE=48, WIDE=32) x 9000 frames: no `RTS to`, no `no function`, no `interp:`. Open question: how often the guard skips the extension (margins stay unfilled for that strip); not measured.
+Stutter that remains with the CRT filter OFF (user report, same round): not reproduced; windowed FRAMESTAT runs here showed no frame > 20 ms. Next: user runs LANDSTALKER_FRAMESTAT=1 in the real scene (church / dialogue) for WIDE=0 and WIDE=32 and the logs are read from ~/fs*.log.
+
+### Stutter investigation (user: "ruckelt auch bei WIDE=0 und ohne CRT-Filter", 2026-10-10) -- not found yet
+Measured here (Deck desktop session, KDE Wayland, display 800x1280 at 59.93 Hz): windowed FRAMESTAT runs of 56 s each with random input for WIDE=0/32/48 x CRT/off: 0 of 3360 frames > 20 ms in every config, worst frame <= 17.4 ms, emu ~1.2 ms, no clamped/WATCHDOG. `LANDSTALKER_NOSYNC=1` (no busy-wait): `present` blocks ~15.6 ms, i.e. VSync works. **Picture cadence** (every frame of the walk replay dumped with LANDSTALKER_SHOT, hash of consecutive frames): recompiled build = a new picture in EVERY frame (101 of 101 gaps = 1), the reference core the same (one 10-frame pause) => the game logic does not produce uneven frame spacing, so the judder the user sees is not in the emulation or in widescreen. Remaining suspects (untested): (1) two pacers: VSync (59.93 Hz) + busy-wait at exactly 60.000 Hz beat against each other (A/B: LANDSTALKER_NOSYNC=1), (2) KDE compositor / desktop mode vs Game Mode (gamescope), (3) audio (the user also hears slower speech sound): the audio device clock vs 60.000 Hz frame pacing, (4) something specific to the user's scene (church, dialogue) that the walk replay does not reach. The user could not tell the A/B runs apart by eye ("nicht sicher").
+Tool note: `LANDSTALKER_SHOT` lists were cut at 512 characters (only the first ~100 frames of a long list were written); fixed in shot_core.c (no length limit, tools/shottest checks it).
+
+### Deck round 3 + session end (2026-10-10, build checksum c1fb194c2e, dev 137c917; user played in DESKTOP mode, WIDE=32)
+User: no difference between default pacing and LANDSTALKER_NOSYNC=1; "both definitely SLOWER than the original game"; inside the church still OK, outside in the village no longer. (Not stated whether WIDE=0 is also slower: ask first next time.) Earlier in the round: stutter also with the CRT filter off (user: ~/.landstalker_display = "0 0" = FIT + OFF).
+Objective checks done afterwards (Claude, headless, WIDE=0, walk replay = massan.txt prefix + walking script, `genrecomp_ref` vs recompiled build):
+ * Nigel's X per 20 frames is IDENTICAL for ref and rec for frames 1000-1140 (40,40,40,40,37,35,34,31): the game logic runs at the same speed as the reference core. Later the paths differ (Y start differs by 1 because the replay was recorded with the old timing), which says nothing about speed. So 'slower than the original' is NOT a slower emulated game clock relative to GPGX.
+ * Picture cadence: a new picture every frame in both (see section above). Windowed frame times fine (0/3360 frames > 20 ms). CYCSTAT outdoors in Massan: main ~121,000 cycles/frame + vint ~1,400 + hint 1,400-2,600 of ~127,800 per frame = the 68K is ~97 % loaded outdoors (inside ~109,000); the real console is just as loaded there.
+ * => Open hypotheses for 'slower outdoors': (a) real hardware vs GPGX differ (user compares with the real console / another emulator: ask which original), (b) our cycle model charges too many cycles per block, so the game loop misses frames outdoors where the real 68K does not (ref core uses GPGX's own timing and matched in the X test, so unlikely), (c) audio/pacing in desktop mode only (try Game Mode), (d) the user's perception of the display's 59.93 Hz vs 60 Hz. Next test: compare the user's version of 'original' (same scene, e.g. Massan outside walking, stopwatch for a fixed distance) with our build and with `genrecomp_ref` (silent, but with --headless frame counts can be converted to seconds at 60 Hz: frames needed to walk the same distance).
+
+### Widescreen slowdown fix: strip extension no longer costs emulated time (2026-10-10 evening, user round 4)
+User (desktop mode): `WIDE=0` is faster; WIDE=32 and 48 "definitely slow", most clearly walking up-left from the church, then up-right and jumping up the stairs; also at WIDE=0 the speech sound effect in NPC dialogues "sounds strange" (NOT widescreen related, open, see HANDOFF 0b).
+Cause (consistent with all measurements): the extension runs the strip loaders 2k extra times per scroll step AND the game's own FlushVdpWriteQueue ($002686, ~222 68K cycles per block: 4 x (12+16+20) + subq.b + bne) later copies the extra blocks in VBlank; both are charged as emulated 68K time (`bus_charge`), the village is ~97 % CPU load anyway, so the game loop misses frames while scrolling. Headless FRAMESTAT / CYCSTAT could not show it because the walk replay is short and the effect only shows in the game's own clock (Nigel's progress).
+Fix (tools/patch_wide.py, new bus.c part `LANDSTALKER_FREECYCLES`): `lk_no_charge` makes `bus_charge` ignore everything while the extension runs, and `lk_free_mclk` is a credit (runs x 12 blocks x 222 cycles x 7 mclk, max 1,000,000) that the following charges consume first = refund for the flush of the extra blocks.
+Test (headless, current build): walk replay frames 1000..1560, 28 RAM dumps: Nigel X/Y + camera identical to WIDE=0 for WIDE=32 and 48 (before: diverged from frame ~1075 on); mean main cycles per frame 61370 / 60864 / 60609 (WIDE 0/32/48). Fuzz seeds 3/7/9 (9000 frames, jumps): no `RTS to` / `no function` / `interp:` at 32/48; seed 3 and 9 identical to WIDE=0 at WIDE=32, seed 7 identical up to frame ~5600 and then 1-2 blocks off (the refund is an estimate, so tiny timing differences remain); WIDE=48 drifts earlier (70/81, 15/81 dumps differ by small amounts). Not tested by Claude: the user's stair scene. User must confirm the speed.
+
+### Deck round 5 (2026-10-10 night): flicker gone, WIDE 32/48 much better; 48 slight sound crackle, margin tile pop-in at 48, speech effect odd (also WIDE=0)
+User: black flicker after dialogue GONE (the 30-frame map hold works), both widths run much better (the free-cycles fix works), 48 crackles a little, at 48 tiles sometimes pop up briefly at the margin before they switch to the right ones, the speech sound effect in NPC dialogues sounds odd in general (also WIDE=0).
+ * **Pop-in cause found and fixed**: the cell formula of the strip extension (`d2 = (x + 0x20*y + K) mod 0x210`, fold >= 0x200 by 0x20) was wrong for 32.5 % of the cells (3172 of 9773 consecutive block pairs of the BLOCKLOG of fuzz seed 3, WIDE=0): those extra tiles were first written to a wrong cell and later overwritten by the game's own loader = tiles that appear briefly in the wrong place. Exact rule (0 mismatches in 9773 pairs): `row' = (row + dy) mod 16`, `col' = (col + dx + 16 * floor((row + dy) / 16)) mod 32` (a row wrap moves the column by 16). Implemented in `lk_strip_extend` (patch_wide.py). Headless afterwards: walk replay Nigel/camera identical to WIDE=0 (28 of 28 dumps), 10 fuzz runs (seeds 3/7/9/10/11 x 32/48) no `RTS to`/`no function`/`interp:`, margins look clean in a scrolling contact sheet at 48. The queue guard skips only ~1 % of the extension calls (temporary counter: 10 of 900-1000 / 0-2 of 1000-1100), so it is not the pop-in cause. User must confirm.
+ * **Audio**: captured with the new `LANDSTALKER_WAV=file.wav` (patch_wav.py, works in genrecomp_ref too) and compared with `tools/wavcmp.py` (pure Python): recompiled build vs reference core on massan.txt, frames 0..5200 (incl. the NPC dialogue from frame ~4521): same events, loudness envelopes aligned within 0.005 (10 % of the mean level), no region stands out => the EMULATED sound of the speech effect equals the reference core's. So 'odd' is either how GPGX sounds compared with the user's 'original' (real console / other emulator: ask which) or an output problem. Samples per emulated frame: 736 (4926x) / 735 (272x), i.e. 44160/s vs the device's 44100/s; SDL queue readings hover around 3000 bytes with a sawtooth (the device pulls 1024-sample blocks), min 0 at times. New `patch_audiobuf.py`: LANDSTALKER_AUDIO_PREFILL (default 3 frames of silence before the first block) and LANDSTALKER_AUDIO_MAXQ valve (drop a block when > 10 frames are waiting). EFFECT UNVERIFIED (the 'queued' reading only shows what is not yet in the device ring, so it cannot prove headroom); user to judge the 48 crackle. `LANDSTALKER_AUDIO_PREFILL=0` = old behaviour for an A/B.
+ * Open: the odd speech sound effect (ask: compared with what? try LANDSTALKER_AUDIO_PREFILL=0/6, Game Mode, headphones; maybe the YM2612/PSG filter settings of GPGX (e.g. low-pass, `config.ym2612`/`psg_preamp`) differ from what the user remembers).
+
+### Deck round 6 (2026-10-10 night): sound crackle, rare margin rectangles, replays that did not reach the game, private strip queue
+User: sound still crackles; rare graphics bugs at the margins: black rectangles bottom right at the room edge when LEAVING AND RE-ENTERING THE CHURCH; in the church the sound is OK; wants the sound tested with a village NPC conversation, in a real window (not headless), and compared with the Genesis (reference) core.
+ * **My earlier windowed tests were invalid in part**: `HOME=/tmp/lkhome GENRECOMP_INPUTSCRIPT=$HOME/massan.txt ...` expands `$HOME` AFTER the override, so the replay file was not found and the game stayed on the title screen (found because the user watched the window). Use absolute paths / never override HOME together with a $HOME-based path. Always check a windowed run with a screenshot (LANDSTALKER_SHOT works windowed) and the `input: replaying` line.
+ * Dialogue detection for scripts: purple text box pixels in the bottom rows of a LANDSTALKER_SHOT PNG (see /tmp-style helper in this section's history; tools/inputfuzz.py makes random scripts). Seeds 13 (frames ~1850-1990, villager 'Remember, Nigel... the straightest path has many curves'), 43, 16 give a village conversation; seed 9 enters the church (priest 'Welcome to our church').
+ * **Real device capture**: `parec -d <sink>.monitor --format=s16le --rate=48000 --channels=2 --file-format=raw` while the windowed game runs the replay (seed 13, 38 s, speaker sink `alsa_output.pci-0000_04_00.5-platform-acp5x_mach.0.HiFi__Speaker__sink`). Metric: runs of >= 1 ms of digital silence. Natural baseline of the ideal stream (LANDSTALKER_WAV of our build AND of the reference core): 3 (start of the replay). Device: PREFILL=0: WIDE=0 -> 7, WIDE=48 -> 9; PREFILL=3 (default): WIDE=0 -> 4, WIDE=48 -> 4. => 4-6 real dropouts in 35 s without the prefill = the crackle; the 3-frame prefill removes most of it. No click-like isolated jumps in any capture.
+ * Genesis (reference) core comparison: massan.txt frames 0..5200 (incl. a dialogue): same event list, envelopes aligned within 10 %. In the village dialogue seeds 17/19 the two cores' game states drift apart in time (different NPC/timing), waveform correlation 0.07-0.18 => a sample-exact comparison of the speech blips is NOT possible with replays; the emulated sound itself (YM2612/PSG/Z80 of GPGX) is the same code in both. If the speech effect sounds wrong versus the real console, the cause is GPGX's sound settings/filtering or the real hardware, not our recompilation.
+ * **Pop-in / game-speed root fix: the strip extension no longer touches the game at all.** The user saw Nigel walk further at WIDE=48 than at 0 (real divergence, not NPC randomness: X one block ahead from frame ~1400 in seed 13, caused by the estimated cycle refund and by the extra blocks the game's own flush loop copied). New design (patch_wide.py): the loader runs under `lk_no_charge`; the entries it appended to the game queue are MOVED into a private buffer and `$FF1840`/`$FF1128` are restored; the buffer is written natively into VRAM (`lk_vram_put_word`, vdp_ctrl.c, no FIFO/stall/cycles) when the game enters FlushVdpWriteQueue ($002686). No queue guard or cycle refund needed any more (lk_free_mclk in bus.c is unused now).
+   Result headless (build checksum see verify_build): seeds 13/9/7 x WIDE 0/32/48, 161 RAM dumps each: player, camera, room and queue count IDENTICAL in every dump (before: drifted); the only RAM differences are unused queue bytes $FF3B00-$FF42FF and 26 stack bytes below SP; walk replay: centre pixels identical to WIDE=0 in 27 frames at 32 and 48; margins still filled (black margin px 29826 at 32 / 47150 at 48 over 27 frames); no `RTS to`/`no function`/`interp:` lines.
+ * Church rectangles: NOT reproduced (seed 9 church entry looks clean, transient black-margin spikes in a 6000-frame run are only a few hundred px and may be sprites). Likely related to the old design (queue skips / wrong cells); user to re-test leave + re-enter church with the new build.
+
+### Deck round 7 (2026-10-10 night): "slight wave effect" of the tiles while walking at WIDE=32/48 (user), sharp-bilinear scaling
+User: 48 runs clean, crackle gone; at both widescreen widths the textures/tiles seem to shift slightly while walking, a very light optical 'wave', most visible when walking straight for a long time out of the village.
+ * Rendering is NOT the cause: consecutive frames of a scrolling stretch (walk replay frames 1100-1139, 39 pairs) move rigidly: for 8 vertical strips over the whole picture (incl. margins) the best (dx,dy) shift is identical in 29 of 29 moving pairs, at WIDE=0 and at WIDE=32 (no per-column/per-line scroll differences, reg11 = 0).
+ * Cause (calculation + display setting): with the filter OFF the window texture is scaled with nearest neighbour; the user's ~/.landstalker_display is "0 0" (FIT, filter OFF). Pixel widths on screen: 320 -> 1280 (WIDE=0, FILL) = 4.000x: every source column 4 px (perfect); 384 -> 1280 (WIDE=32) = 3.333x: 33 % of the columns 4 px, the rest 3 px; 416 -> 1280 (WIDE=48) = 3.077x: 8 % wide columns; FIT at WIDE=0 (1142 px) = 3.57x: 57 % wide. While scrolling, this width pattern travels through the picture = a faint wave (worst at slow, long straight scrolls). The CRT filter path interpolates horizontally and is not affected.
+ * Fix (patch_display.py, no-filter branch of lk_disp_present): SHARP-BILINEAR: when the destination is not an exact integer multiple, the picture is first scaled by a whole factor k = ceil(dest/src) with nearest into a render target texture and then stretched linearly to the window (even pixels, only the pixel borders are softened). `LANDSTALKER_SHARP=0` = old nearest look; exact integer scales untouched. Checked with a real window screenshot (spectacle): picture correct, smooth, no artefacts. Whether the wave is gone is for the user to judge (alternatively INTEGER scale with L1: 384 px -> 3x = 1152 px, black bars).
+
+### Deck round 8 (2026-10-10 night): black margin after a screen change (user: leaving the village to the left: black at the side before the landscape appears)
+User: the wave effect is gone with sharp-bilinear; one small thing left: when the screen changes (e.g. leaving the village) a black area is seen at the side until the rest of the widescreen landscape appears.
+ * Reproduced headless with a random direction script (`/tmp`-style dirfuzz, seed 101: village 592 -> room 424 -> village 592 at frame ~3198): `LANDSTALKER_WIDE_DEBUG=1` shows `not map` from frame 3135 (start of the transition) to 3231 (UpdateSprites runs again), call stack `$0016B6 $0016DC $0061EC $00620E (WarpToRoom) $008EF4 (FadeOutToDarkness) / $008EB4 (FadeInFromDarkness) $000B7A $000B5E`. So during the whole fade out / load / fade in the margin blanking (map-frame detection, DEBUGGING 'Widescreen: map-frame detection') treated the picture as 'not a map' and kept the margins black although the strips were already loaded (extension calls and applies at frames 3198-3209, before the picture is visible).
+ * Fix: `WarpToRoom` ($00620E) on the call stack counts as map, like the text box rule (same `lk_dlg` flag, so the 30-frame hold after it applies as well). Result: the new room is shown over the full width from its first visible fade-in frame (before: right margin cut at 368 px until frame ~3232). Title, file select and game start keep black margins (screenshots), 4 fuzz seeds at WIDE=48 without `RTS to`/`no function`/`interp:`.
+ * Also raised LK_EXT_CAP from 24000 to 600000 words: a room load calls the strip loaders hundreds of times; in the observed room load each frame still gets its own flush (2 extension calls = 1728 words per frame), so the old cap was probably not hit, but it is no longer a risk.
+ * Note: a black diagonal region left/below of the picture in a room is the real map edge (the diamond ends), not a loading effect.
+
+### Deck round 9 (2026-10-10 night): screen change OK; still a minimal offset like the wave effect when walking diagonally in the village (WIDE=48 build)
+User: the screen change now works; in the village there is still a minimal shift 'like the wave effect', visible walking up-left / right-down and right-up / left-down back and forth after leaving the church.
+Measured (headless, walk replay, frames 1250-1289 and 1370-1409, WIDE 0/32/48): (1) the rendered frames move RIGIDLY: 8 column strips of the centre, 8 row bands and 12 strips over the whole width incl. margins all give the same (dx,dy) in all 52 moving pairs; (2) the game's own scroll is perfectly uniform and identical at WIDE=0 and 48: (-2,-1) or (+2,-1) source px per frame (isometric 2:1). So the picture is correct; the remaining shimmer can only come from the display scaling.
+Edge-position simulation (an edge moving 1 source px per step; ideal step = scale): nearest neighbour jitter 1.00 px at 384 -> 1280; the first GPU sharp-bilinear (nearest prescale k=ceil, then linear) 0.00-0.12 px in most cases but 0.30 px at 416 -> 960 (WIDE=48 in a 960 px wide window); the new exact CPU sharp-bilinear 0.004-0.008 px in every case (checked in tools/displaytest with the real code).
+Fix (display_core.c `lk_sb_*`, patch_display.py): when the filter is OFF and the scale is not an integer, the picture is scaled on the CPU (threaded like the CRT filter, ~3-6 ms) with an exact sharp-bilinear: per axis the two nearest source pixels are blended with a weight that changes only inside ONE destination pixel at each source pixel boundary => flat pixel interiors, edges at their exact fractional position. The GPU prescale path stays as fallback (size limits). `LANDSTALKER_SHARP=0` = nearest as before. Window screenshot (spectacle) checked: sharp and even. The user must judge if the shimmer is gone.
+Answer to the user's question: the build is the same for every width, the width is chosen at start by `LANDSTALKER_WIDE=0|32|48`.
+
+User confirmation after round 9 (2026-10-10 night): the faint shimmer while walking diagonally is gone (exact CPU sharp-bilinear); the black rectangles at the church have not appeared again since the private strip queue; the speech sound effect: user unsure, will check again (possibly imagination).
+
+### Run-time widescreen switch (user request 2026-10-10 night): no more `LANDSTALKER_WIDE=` at launch
+New: **left trigger L2 (pad) or F3 (keyboard)** cycles the widescreen margin 0 -> 16 -> 32 -> 48 -> 0 px per side (320 / 352 / 384 / 416 px; 16 = 352 px = 1.57, the Deck's native 16:10), a hint 'WIDE: 384 PX' is shown for ~1.7 s, the choice is saved as the THIRD number of `~/.landstalker_display` ("<scale> <filter> <wide>") and is used at the next start unless `LANDSTALKER_WIDE=` is set (the environment variable still wins). L1 = scaling, R1 = filter as before.
+Implementation (patch_display.py, patch_wide.py): `platform_display_cycle_wide()` sets `lk_wide_e` (a live global everywhere: viewport width, scroll offset, sprite offset, window clip, present stride, display scaling tables), calls `lk_wide_refresh()` (vdp_ctrl.c: `window_clip(reg[17], reg[12] & 1)` so the HUD/text box window uses the new width at once instead of at the next register write), and, when the width grew, sets `lk_wide_refill`: at the next UpdateSprites ($0178C8) the extension loads the new outer ring (the four loaders' extra strips, like a scroll step) so the new margins are filled immediately. The strip count k is now recomputed from the current width at every loader call. Input: `src/input.c` left trigger > 16000 edge (patch_display.py), keyboard F3.
+Test (headless, `LANDSTALKER_WIDE_AT=f1,f2,..` presses the key at those frames via lk_shot_frame): start at WIDE=0, keys at frames 1100/1220/1340/1460 (0->16->32->48->0): player/camera/room identical to a plain WIDE=0 run in all 28 dumps, no `RTS to`/`no function`/`interp:`; frames 4 frames after a switch (352 px and 416 px wide) show filled margins on both sides. Note: that test run also WRITES `~/.landstalker_display` (the cycle saves the setting): use HOME=<tmp> with absolute paths for tests or restore the file afterwards. NOT verified by the user (feel of the trigger, OSD hint, saved value).
+
+User confirmation (2026-10-10 night): L2 switch works and the setting is saved. NEW observation to investigate later: in the INTRO of a fresh game (series of text boxes at a new save) the picture flickers between the black-bar presentation and the real widescreen picture (map-frame detection flipping, see HANDOFF section 2 for hypothesis and repro recipe). Not reproduced or analysed yet.
+
+### Intro flicker of a fresh game (user report 2026-10-10 night): ROOT CAUSE + fix
+Symptom (user, WIDE=48 via L2): in the intro of a NEW game (series of text boxes) the picture flickers between the black-bar presentation and the real widescreen picture.
+ * Reproduced headless: `LANDSTALKER_SAVE=<missing file> LANDSTALKER_WIDE=48 LANDSTALKER_WIDE_DEBUG=1 GENRECOMP_INPUTSCRIPT=~/intro.txt build/landstalker --headless --frames 9000 ROM`. From frame 5185 (Jypta statue scene: Owner / Kayla / Friday / Nigel text boxes, screenshots = the map with a text box) `widemap` flips `MAP [dialogue]` <-> `not map` with every text box: while a box prints, `$028FD8 (PrintTextBoxChar)` is on the stack; between the boxes the call stack is `$0016B6 $0016DC $0178C8 (UpdateSprites) $018D02 (sub_018D02) $014B44 (CSA_0111) $000B7A (Sleep) $000B5E (WaitUntilVBlank)`.
+ * Root cause: the cutscene action runs INSIDE UpdateSprites and waits there; UpdateSprites is never CALLED again (last call at frame 5185), so the rule 'UpdateSprites called within 4 frames' runs out after 4 frames and the 30-frame hold after the last text box runs out between boxes (LESSONS 9.1: a 'called recently' signal misses code that is still inside the function).
+ * Fix (patch_wide.py `lk_wide_margins`): UpdateSprites ($0178C8) on the shadow call stack counts as map (same flag as the text-box / WarpToRoom rule, so the 30-frame hold applies too).
+ * Checked headless: intro run 9000 frames: no switch after frame 902 (title / file select / name screens before it stay 'not map' = black bars), screenshots at 5300/5306/5312/6000/6700/7200/7800/8500 show filled margins; Massan replay with the church save (13300 frames): same switches as before (only the full-screen window screen of `sub_007624` from GameLoop is 'not map', unchanged); no `RTS to` / `no function` lines. User check on the Deck still open.
+
+### Full-height picture (LANDSTALKER_TALL, user request 2026-10-10 night): map in the black band at the bottom
+Request: fill the black band below the map (lines ~184-224) with the map; in dialogues it stays black with the text box; optional, on its own key (R4), without touching the widescreen option.
+ * How the game makes the band: `$001184 (HandleHBlankInterrupt)` (ROM vector $70; symbols.json had it wrongly as VBlankHandler, the VBlank vector is `$0011DE (HandleVBlankInterrupt)`) waits for the V counter, writes reg 1 = $8124 (display OFF) and flushes the VDP write queue in that extra blanking. In dialogues `g_HIntLineReg $FF0FC4` = $8AA0 (HInt at line 160) and the handler only sets reg 18 = $1C: the window plane (text box) covers lines 160-224.
+ * Implementation (`tools/patch_tall.py`, renderer only): on a map frame (`lk_map_decide()`, the widescreen map rule, now a shared function in patch_wide.py) a line >= 160 whose display was switched off during the frame (display on at line 0) is rendered as if it were on (`render_line`). GPGX's partial blanking of the HInt line (display off mid-line, vdp_ctrl.c) is skipped then (it showed as a black 40 px dash in the right margin of line 184 at WIDE=48; at 320 px it lands in HBLANK).
+ * The game only loads map blocks for its own picture: the bottom 1-2 cell rows showed stale tiles. `lk_strip_extend` (patch_wide.py) now works on a list of camera shifts (identical list and order when TALL is off): with TALL the bottom loader `$00A698 (LoadBottomTiles)` runs `kv` steps down (default 4; `LANDSTALKER_TALL_STRIPS`; 2 left garbage, 4 clean) and the left/right loaders (and their widescreen copies) also run shifted by (j,j) for j = 1..kv/2 (screen-down = x+y). Refill on the switch and at `$008EB4 (FadeInFromDarkness)` (after a room load the bottom row stayed stale during the fade-in).
+ * Invisible to the game: the extra entries pass through the RAM behind the game's queue end (up to $FF50A0 with kv=4); with TALL that RAM is saved and restored. Work RAM with TALL=1 (WIDE 0 or 48) is identical to a WIDE=0 TALL=0 run in 22 of 24 dumps (inputfuzz seed 13, 6000 frames), the 2 others differ only in the stack word $FFFFEE (below SP, leftover). Side finding: plain WIDE=48 (TALL off) leaves its extension entries in the queue area $FF3B40.. (garbage behind the queue end, differs from WIDE=0 there; the game never read it in any test; left unchanged on purpose).
+ * Checked headless: TALL=0 screenshots byte-identical to the build before; Massan replay + dirfuzz seeds 101/7 (screens every 75 frames, room changes) clean; dialogue (inputfuzz 13, villager): text box on black band; fresh-game intro; switch via `LANDSTALKER_TALL_AT=5000` (saved as 4th number in ~/.landstalker_display). No `RTS to` / `no function`. User check on the Deck open (R4 may need a Steam Input binding to F4).
+
+### Full-height picture: tearing / garbage while walking (user report 2026-10-11, Gumi, save slot 1)
+ * Symptom (user, Deck): R4 works, bottom band shows garbage while walking and tears like the old wave effect. Switch moved to R2 (right trigger, `PA(TRIGGERRIGHT) > 16000`), F4 stays.
+ * Measured headless (scratchpad script: per frame pair find the rigid shift (dx,dy) of the picture at lines 40-150, then test whether lines 190-223 moved by the same shift): in a 1000-frame random walk in Gumi 17 frames had a band shift different from the picture (e.g. picture (+2,+1), band (+2,-1) or (0,0)), a frame early/late = tearing.
+ * Cause: `$001184 (HandleHBlankInterrupt)` switches the display off and then flushes the VDP write queue, i.e. scroll values and tiles of the NEXT frame, inside that blanking time. TALL drew the band lines (rendered at line start in GPGX) AFTER that flush, so they showed next-frame scroll and half-written tiles.
+ * Fix (`tools/patch_tall.py`, renderer only): vdp_ctrl.c `lk_tall_prerender(v_counter)` on the reg-1 write that turns the display off; it renders lines v_counter+1..h-1 immediately (state of the picture above, before the flush) and render_line skips those lines for the rest of the frame (reset at line 0). Sprite state/status flags are advanced in the same order as before.
+ * Verified headless: detector 0 non-rigid frames of 1000 (seed 5) and 2200 (seed 11, WIDE=0 and WIDE=32); work RAM TALL=1 vs TALL=0 identical in 27 of 30 dumps, 3 differ only in stack word $FFEE (leftover, as before); no `RTS to` / `no function`; room change + inn dialogue screenshots clean. User check on the Deck open.
+
+### Widescreen scroll carry bug, church garbage, coordinate overlay (Deck round 11, 2026-10-11)
+ * User (Deck, Gumi): tearing gone; garbage at the bottom in the church; walking out of the church (1 s up-left, 2 s up-right, 1 s down-right, then up/down at the lower right and upper left) the right side shifts oddly.
+ * **Root cause 1 (fixed): widescreen scroll carry.** patch_wide.py added `e * 0x10001` to the 32-bit `xscroll` (plane A in the high half, plane B in the low half). When plane B's scroll was in -e..-1 (map edges: scroll near 0) the low half carried into the high half and plane A was 1 px off against plane B (visible as a 1 px shift of the foreground in lower rows, also WITHOUT TALL). Found by a per-row shift analysis of consecutive screenshots (`rowdx`: at WIDE=0 all rows move by the same dx, at WIDE=16/32/48 rows >= ~128 moved by 1 instead of 2 px at frame 2054 of a random walk, seed 22). The hscroll value itself was identical in WIDE=0 and WIDE=48 (temporary per-line log). Fix: each 16-bit half is added separately. Verified: rows rigid at WIDE 16/32/48, TALL on/off.
+ * **Church garbage (fixed): too few extra strips.** After entering the church the camera pans 1 px per frame (VSRAM +1 per frame); with 4 extra bottom strips 1-3 lines at the very bottom (lines 221-223) showed stale plane tiles for 3 of every 8 frames. 5 strips remove it (default `LANDSTALKER_TALL_STRIPS` is now 5). A hard capacity guard was added in lk_strip_extend: the extra entries may never reach $FF5400 (player struct); farthest strips are dropped instead (12 blocks x 24 bytes = 288 bytes per strip).
+ * Verified: work RAM of WIDE=48 TALL=1 (5 strips) is identical to WIDE=0 TALL=0 in 40 dumps / 4000 frames (inputs of seed 23); no RTS/no-function lines; church pan frames clean at WIDE 0 and 48.
+ * **Still open (not fixed): late margin tiles at the lower right when walking right-down (pad DOWN = +X).** Example seed 26 frame 2508 (room 603, X 47, camera block 41/28, camera crossed 40->41 at frame 2506): the lower right margin (rows 130-183, x >= WIDE edge) shows stale tiles until frame 2508, then the right ones (the content changes, it is not a shift). Also at WIDE=32 and with TALL off, so it is an old widescreen strip limitation, 3 events in a 4100-frame random walk. Idea: the corner where the right edge strip meets the bottom edge is not covered in time; test extra right/bottom strips combined, or look at when the extension entries are applied (FlushVdpWriteQueue). Use the coordinate overlay (R4) to find where it happens.
+ * Coordinate overlay (new, `tools/patch_coords.py`): pad R4 (back button) or F5 shows `ROOM n X x.xx Y y.yy / Z zzzz CAM cx/cy` from work RAM ($FF1204 room, $FF5400 player X/Y bytes + sub-tile bytes $FF5402/3, Z word $FF5412, camera $FF1124/5). Off at start; `LANDSTALKER_COORDS=1`, `LANDSTALKER_COORDS_LOG=N` (console, headless). Pad DOWN raises X (screen right-down).
+ * Tools used (scratchpad, not committed): rigid-shift detector for the band and margins (prev->cur best (dx,dy) from the centre, then match of band/left/right regions), row-shift analysis `rowdx`. False positives: NPCs walking through the band.
+
+### Widescreen: NPCs / enemies popping in at the margins; borderless fullscreen (2026-10-11, after Deck round 11)
+ * User: 'at WIDE=48 NPCs sometimes just pop in' (confirmed: scroll carry fix, church garbage and tearing OK).
+ * Cause: the GAME culls entities. `$004144 (CheckEntityOnScreen)` (called per entity from `$0040F2 (BuildVisibleEntityList)`, LoadSprites) accepts an entity only when its VDP sprite X `d2 = (x - y) + $120` is in [$60, $1E0), i.e. 32 px beyond the 320 px picture; outside it clears `Unk0E` and the entity gets no sprite-attribute entry (`$FF0550`) and no graphics. Margin entities therefore appeared when they crossed that line.
+ * Fix `tools/patch_sprcull.py` (post-processes the GENERATED C of sub_004144 after generate.py, run by build.sh before the compile): lower bound `$60 - lk_wide_e`, upper bound `min($1E0 + lk_wide_e, $1F8)` (VDP X is 9 bits). Instruction count / cycle charges unchanged; with e = 0 the code is the original.
+ * Verified headless: WIDE=0: 30 RAM dumps (incl. VRAM) byte-identical to the build before. WIDE=48 TALL=1, 1200 screenshots (seed 26): the centre 320 px identical in all frames, margins differ in 414 frames (new sprites in the margin: girl at the left, villager at the right); player/camera/room identical (coords log); work RAM differences only in sprite data: SAT `$FF0550..`, entity fields +0E/+10/+4E/+50/+56, visible list `$FF11DE`, DMA op queue `$FF0855..`, queue count/pointer `$FF1128/$FF1842` (transient), stack leftovers `$FFFFAF..`.
+ * Risk (not seen): more entities on screen at once load more sprite graphics; the VDP tile budget for sprites is `$3A8..$4F4` (the game plays a throw sound in a loop if `d2 >= $4F4`, see LoadSpriteFrame code `loc_4318`, skipped when DebugModeEnable < 0). Rooms with many large sprites (bosses) are the place to look.
+ * Borderless windowed fullscreen: pad L4 (SDL paddle 2) / F11 / Alt+Enter (`tools/patch_fullscreen.py`, SDL_WINDOW_FULLSCREEN_DESKTOP), state saved in `~/.landstalker_fullscreen`, `LANDSTALKER_FULLSCREEN=0|1` wins. Compile-tested and headless-smoke-tested only (no window test by Claude).
+ * **Guard pop-in at the right margin (user 2026-10-11, 'only the guard pops in, no tiles'; room 603 (Gumi) X37 Y36.02 cam 31/30):** my first patch clamped the upper X bound at `$1F8`, but the sprite pieces lie LEFT of the origin d2, so with e = 48 an entity with d2 in `$1F8..$20F` already shows its left part inside the margin: the guard appeared 8 px too late and then suddenly. Clamp removed (upper bound `$1E0 + e`). Headless: the guard now enters at 2 px per frame from the viewport edge (columns 415, 413, 411, 409 in frames 2396-2399 of seed 45); before it appeared at 2400. WIDE=0 work RAM byte-identical. The remaining tile pop-in candidates of my detector at that spot were sprite effects (with sprites switched off by a temporary debug binary no tile events there); the user sees no tile pop-in any more.
+ * **Full height needed the vertical test too (user, 2026-10-11: the guard outside the church vanished at the bottom when walking right-up and back):** `$004144 (CheckEntityOnScreen)` first culls an entity when its centre (x + y) is more than $100 from the camera centre (half of that in screen px: 128 px, the old picture ended 80 px below the centre, the full-height one ends 120 px below it). An entity with its centre past the limit but its upper body in the new bottom band disappeared early. With LANDSTALKER_TALL on the limit grows by $80 (`lk_tall_kv() > 0`, tools/patch_sprcull.py). Verified headless (seed 26, 1550 screenshot pairs): TALL=0 WIDE=48 work RAM byte-identical to the build before (30 dumps); TALL=1: rows 24-183 identical in all frames, 70 frames differ in the bottom band only (guard and girl now visible entering from the bottom).
+
+### Navigation by coordinates for headless tests: LANDSTALKER_GOTO (2026-10-11)
+ * `tools/patch_goto.py`: `LANDSTALKER_GOTO="603:37.02,36.02;603:42.00,34.08"` (waypoints `room:X.sub,Y.sub` exactly as the overlay prints them; `LANDSTALKER_GOTO_FROM` default 880 = after the load replay prefix `docs/replays/massan.txt` lines < 830, `LANDSTALKER_GOTO_MAX` default 6000 frames) reads Nigel's position from work RAM every frame and presses the pad. Stuck test: less than 3 units (1/16 tile) of progress in 12 frames -> 40-frame sidestep in rotating directions. Console: `goto: waypoint N reached at frame F`, `ALL REACHED`, `giving up`.
+ * Pad -> world (measured in room 603): UP = (-X,-Y), LEFT = (-X,+Y), RIGHT = (+X,-Y), DOWN = (+X,+Y); pure axes need two buttons (-X = UP+LEFT, +X = DOWN+RIGHT, -Y = UP+RIGHT, +Y = DOWN+LEFT). Screen: +X = right-down, -X = left-up, -Y = right-up, +Y = left-down.
+ * Room 603 (Gumi) geometry found by it: from the church exit (frame ~900, X 44 Y 50) the road leads to X 37 Y 36 (cam 31/30) in 164 frames; at Y 34.07 there is a wall towards -Y (right-up), and along that row Nigel can walk X 36.08 .. 42 (left-up end at X 36.08, obstacle). That is the 'right-down / left-up' walk of the user's guard test.
+ * Check with the final build (WIDE=48, TALL=1, sprites on): 1250 screenshots of that walk, only 4 tiny left-margin events (0.89-0.96 match, sprite edges); no events in the right margin or the bottom band.
+
+### Options menu, phase A: third tab 'Options' in the Start menu (2026-10-11, `tools/patch_options.py`)
+ * User wish: an options menu that looks like part of the game, at the file select and in the Start-button menu; contents (confirmed by the user): the widescreen steps, full height, the CRT and scanline filters (one 'Filter' row: Off / Scanlines / CRT), windowed fullscreen.
+ * How the Start menu is built (all verified by disassembly + headless tests): `CheckForMenuOpen $007624` (stays on the call stack) -> item screen; the bottom bar 'Use / Equip' is the game's two-choice prompt: `LoadYesNoPrompt $02482C` prints the two words with the text engine (PrintString_0, text x $50 / $A0), the cursor is hardware sprite 79 (`$FF07C8..$FF07CE`, X $D0 / $120), the loop is `MenuBarCursorLoop $02488A` (generated as 3 inline copies $02488A / $024898 / $0248EE; handlers RIGHT $024916, LEFT $024952, confirm $0248F6, cancel $02498E are separate functions entered by tail calls). RIGHT/LEFT call `sub_39E` (-> `DrawEquipList $00EC34`) / `sub_398` (-> `DrawItemList $00D4AE`). Item icons and names are TILES of the window tile map (`g_InventoryListTiles $FF1E04`, 36 x 17, tile = $A000 | CHR code), only two sprites are active (0: item cursor, 79: bar arrow).
+ * Implementation: native overrides registered in the function table after the generated init (`func_table_register`; the originals are called for everything else): LoadYesNoPrompt (+ 'Options' via ProcessChar $0230CA per character with the game's CHR codes and DMACopyTextboxTiles), RIGHT / LEFT / confirm / cancel, and `j_UpdateControllerInputs $00033E` (called once per bar pass; per-pass edge detection and UP/DOWN rows; blink in sync with the bar arrow). The page is written into the tile map, uploaded with QueueInventoryWinTilemapDMA; the row cursor is the game's arrow tile in the free sprite slot 78. Settings use the same functions as the pad shortcuts (L2 wide, R2 full height, R1 filter, L4 fullscreen) and are saved the same way (`platform_option_get/step`).
+ * Pitfalls found: (1) the loop is inlined, a hook on the loop head runs only on entry; (2) `j_UpdateControllerInputs` is a thunk with a tail call: code after the call of the original in a hook runs BEFORE the real update; (3) a held direction repeated every pass and slid through the tabs: LEFT/RIGHT now need a new press; (4) the label at text x $F0 wrapped around the text buffer (stray glyph at the left of the bar): $E4 fits; (5) `LANDSTALKER_NOOPTIONS=1` switches the tab off (A/B test, safety valve).
+ * Verified headless: Use -> Equip -> Options with one press each, UP/DOWN rows, A changes the value (Filter CRT -> Off, Full Height On -> Off takes effect at once), LEFT back to Equip -> Use, B closes the menu from the Options tab; normal use of the menu (A on Use, B, Equip, close) differs from the NOOPTIONS run only in the 15 bar rows that show the new word; no RTS/no-function lines. User check on the Deck open.
+ * Open: file select 'Options' (phase B: bar 'Start Copy Delete' + 'Options', same page).
+
+### Options menu, phase B: 'Options' in the file select (2026-10-11, same patch)
+ * File select = two phases: (1) the bar 'Start Copy Delete' with the blinking arrow (hardware sprite 0, selector `GameSelectBarSelector $00F9D6`: d0 first X $B0, d1 Y $134, d2 step, d3 count, called from `sub_F92A $00F92A`), (2) the slot cursor after a word is confirmed (slots grey out). The bar words are text-engine text (`GameSelectDrawBarText $00F958`: ClearTextBuffer $00F5F4, `PrintCharDirect $0235FE` per character, DMACopyTextBuffer $00F5DC -> VRAM $50C0); the slot boxes are plane A ($C000) tiles; the selector reads the pad through `sub_F2E2 $00F2E2`, which allows one move per press (the original also moves one entry when RIGHT is held).
+ * Implementation (patch_options.py): override of the selector when called with the mode bar's parameters: step $3C, four entries (texts at x $28 / $64 / $A0 / $DC, arrow X $B0 + k * $3C; step $40 clipped 'Options' at the buffer's right end), the original is called for every pass; index 3 opens a one-line sub-menu in the bar's text line ('Widescreen < 416 px >'): UP / DOWN pick the setting, LEFT / RIGHT / A / C change it, B returns; the arrow is sprite 0 (same tile $A0AA, blinking). Sounds: the game's own trap sites ($00FA9E cursor move, $00FA54 select) through `recomp_m68k_exception`.
+ * Calling convention found: generated functions return by popping the 68K return address (`func_table_rts`); an override that calls the ORIGINAL directly gets control back only if the original pops its own frame's address (normal RTS); a replacement that does not call the original must end with `func_table_rts(); return;`; calling the original twice needs the return address pushed again (the slot still holds it, but nested calls overwrite it: write it back after `g_m68k = saved`).
+ * Verified headless: bar with four entries (screenshots), Options sub-menu rows / values / B back, Start still works afterwards, plain start replay identical (positions equal at frames 200..1000 with and without the entries), no RTS / no-function lines. User check on the Deck open.
+
+### Options menu, round 2 (user wish 2026-10-11): scaling row and centred bar words
+ * New row 'Scaling' (Fit / 4:3 / Integer / Fill, id 4 of `platform_option_get/step`); rows are now Widescreen, Full Height, Scaling, Filter, Fullscreen (5 rows of the 17-row page, row y = 2 + 3 r; the colon of '4:3' is tile / CHR code $47).
+ * Centred bars: Start menu = native replacement of LoadYesNoPrompt in the menu (same steps: sub_24998, ReloadTextbox $0234A8, three words with ProcessChar, DMACopyTextboxTiles, arrow sprite): text x $28 / $78 / $C8, arrow X $A8 / $F8 / $148 (the game: $50 / $A0, $D0 / $120); the Use <-> Equip moves are native now as well; the original confirm handler tests the arrow X against $D0, so the X is mapped back to the game's own values before calling it. File select: texts at x $16 / $52 / $8E / $CA, arrow d0 $9E, step $3C (equal margins left / right).
+ * Verified headless (screenshots): bars centred in both screens, five rows, scaling changes Fit -> 4:3, A on Use / Equip behave as the game (menu flow identical outside the bar rows 176-216 in 8 screenshots), plain start replay equal at frames 600 and 1000, no RTS / no-function lines. User check open.
+
+### Options menu, round 3 (user feedback 2026-10-11): spacing, sounds, arrow after Equip, CRT stripes at Fit/Fill
+ * File select bar: measured word widths (screen px) Start 39 / Copy 30 / Delete 44 / Options 51; gaps were 21 / 30 / 16. Now equal gaps of 24 px and margins 23 / 24 px: text x $12 / $51 / $87 / $CB. The original selector moves the arrow by a fixed step, so the bar uses a NATIVE selector (`lk_h_fsel`, same sequence as sub_F9D6 / sub_FA24: sub_90E, WaitUntilVBlank, sub_F306, loop with sub_F2E2 pad poll (one press per release), LEFT / RIGHT / confirm / B, blink like sub_FABC, sub_F8B6, WaitUntilVBlank) with an arrow table (arrow X = text x + $88); 'Options' opens the sub-menu and the bar stays on that entry afterwards.
+ * Sounds: the game itself plays NO sound when you switch between Use and Equip (call trace: only the menu-open sound at frame 1001); on the user's request the cursor-move sound ($00FA9E site) now plays at every tab switch of the Start menu and at every UP / DOWN row of the options page, the select sound ($00FA54) when a value changes; the file select bar plays move / select like the game, the options sub-menu plays move on UP / DOWN / value. Verified with GENRECOMP_CALLTRACE (calls of the Trap00 handler `$00075E` at every key press).
+ * Arrow after confirming 'Equip' / 'Use': the original confirm handler tests the arrow X against its own $D0 / $120, so the X was mapped back for the call and then left there (arrow jumped to the old position); the original returns to the override, so the centred X is restored afterwards.
+ * CRT / scanline filter at Fit and Fill: with a non-integer vertical scale (e.g. 800 px = 3.57x) the dark scanline falls on 1 or 2 destination rows and the point-sampled profile gave rows of 0.45 (integer scales: 0.8 - 0.9) = visible dark stripes. For non-integer heights the profile is now averaged over the destination row (8 samples) and its depth is 70 % (rows 0.78 - 1.16, e.g. 800 px: 0.81 - 1.14); integer scales are unchanged (tools/display_core.c, `tools/displaytest` passes). User check on the Deck open (Fit / Fill with CRT).
+ * Verified headless: normal menu flow identical outside the bar rows (8 screenshots), plain start replay equal at frames 600 and 1000, no RTS / no-function lines.
+
+### Options menu, round 4 (user feedback 2026-10-11): enter the list with A, golden frame instead of the arrow
+ * The Start menu's Use / Equip tabs show the list but the cursor (golden frame) only appears after A (the game then runs the item-grid loop; B goes back to the bar, B on the bar closes the menu). The Options tab now behaves the same: tab level = page only (no frame); A / C = into the list (the game's menu-open sound at the bar confirm site $0248F8), UP / DOWN = row (move sound), A / C / RIGHT = next value, LEFT = previous value (select sound), B = back to the tab (no sound), LEFT / RIGHT at tab level switch tabs, B at tab level closes the menu. State `lk_opt_sel`; the bar arrow stays lit inside the list.
+ * The golden selection frame is the sprite graphic `MenuCursor2BPP` (tiles $A8..$B7 in VRAM, 4x4 tiles, column-major: A8 A9 AA AB / AC AD AE AF / B0 B1 B2 B3 / B4 B5 B6 B7); it consists of four corner pieces only (the middle tiles are empty): TL = A8 A9 / AC, BL = AA AB / AF, TR = B4 B5 / B0, BR = B6 B7 / B3. The page draws these corners as plane tiles ($A000 | tile) around the whole row (cols 1..34, 4 tile rows with the text on the second); the arrow sprite is not used for rows any more.
+ * Verified headless: tab level without frame, frame after A, rows, value changes both directions, B back, B on the tab closes; sound calls ($00075E) at every key; normal menu flow identical outside the bar rows (8 screenshots). User check open.
+
+### Deck round 13 (user feedback 2026-10-11 evening): freeze in a dialogue, docked Xbox controller, blinking options frame
+ * User: sounds OK, Fit / Fill with CRT OK, speech sound effect OK. Open: (1) a freeze, (2) Deck in a dock + Xbox controller does not work, (3) the golden frame of the options page does not blink like the Use / Equip cursor.
+ * **Freeze (log = `journalctl --user`, the launcher's stdout goes to the journal):** `func_table: RTS to $6C0002 (expected $025412, SP=$FFFFFFC2)`, call stack `UpdateSprites $0178C8 > $018CFC > CSA_0016 $0128D6 > LoadCutsceneDialogue $012674 > $025418 > RunTextCmd $0253F8 > $027358`, then four more garbage RTS lines (stack wrecked). Root cause: the text script snippet `$027358` (test flag $21, then `bsr HandleYesNoPrompt $025DEA` + 3 inline text-id words, twice) is seeded and its call sites are handled by `call_data` (skip 6), BUT the address-table heuristic (`_scan_jump_tables`: 3+ longwords that look like ROM addresses) also produced entries `jt_027362` / `jt_027366` INSIDE the inline data. The analyzer decoded the data words $0FE3 $0FE7 $0FE9 as `bset d7,-(a3)` / `bset d7,-(a7)` / `bset d7,$600A(a1)` and the region code of `sub_027358` ran them after the prompt returned: `-(a7)` moved the stack pointer by 2 -> every following RTS popped garbage. Fix: `tools/patch_calldata.py` records the inline data bytes of every call_data call (`_call_data_bytes`) and `_plausible()` rejects heuristic targets inside them (marker `LANDSTALKER_CALLDATA_PLAUSIBLE`). Lesson: heuristic entry points must never land in bytes we KNOW are data (LESSONS 9.30).
+ * **Controller:** the input code opened only the FIRST SDL game controller (`input: using controller "Steam Deck Controller"` in every log). With the Deck docked the external pad comes second and was never read. Now all attached controllers (up to 8) are read together: buttons ORed, per axis the value with the largest magnitude; controllers that appear later are picked up (scan every 120 frames), removed ones are closed (`input: controller ... removed`). `tools/patch_runtime.py` (marker `LANDSTALKER_MULTIPAD`); the shortcut buttons (L1/R1/L2/R2/L4/R4) work on every pad. Note: an Xbox pad has no back paddles, L4 / R4 stay Deck-only (keyboard F11 / F5).
+ * **Blinking frame:** the game's item cursor blinks 16 frames on / 16 frames off (screenshots of the Use list every frame after A: changes at frames 953 and 969). The options page now toggles its four corner pieces every 16 passes of the bar loop (one pass per frame), redrawn visible on every enter / row / value change (`lk_opt_blink`, patch_options.py).
+ * Same fix removed a second bogus entry `jt_026700` inside the inline data of `bsr $025DBE` at `$0266FA` (cutscene script near `CS_00C0_9 $0266F8`): the old code fell through into it after the call and wrote one byte `move.b $16B3(a1),(a3)` = a stray RAM write. Function count 5014 -> 5013 (jt_026700, jt_027366 gone, loc_027378 new).
+ * Interpreter log `~/interp.txt`: `$008614` = `ItemUseFailMessage` (target of `bsr` in `ReturnFailure $008BC0`, plays sound / message $16 via $022E90, presumably the 'cannot use' reaction): real instruction start (disasm), seeded in recomp.json.
+
+### Warp to coordinates for headless tests: LANDSTALKER_WARP (2026-10-11, `tools/patch_warp.py`)
+ * User wish: give room + coordinates (from the overlay R4 / F5) and let Claude look at graphic errors there without walking. `LANDSTALKER_WARP="610:12.08,20.04[,Z]"` (several with `;`, frames in `LANDSTALKER_WARP_AT="880,1500"`, default 880) does what the game's own cutscene warps do (CSA_010D `$014A46`): room into `g_RmNum1 $FF1204` and `$FF1206`, player X / Y tile `$FF5400/1`, sub-tile `$FF5402/3`, optional Z word `$FF5412`, then `WarpToRoom $00620E` (fade, load, fade in). Hook = wrapper of the game loop step `$001788` (runs once per loop pass; the original runs after the warp). Z is NOT derived from the map: without Z the current Z stays (Gumi -> Ryuma test landed on a roof); give the overlay's Z for the exact spot (a too low Z would put Nigel inside the floor).
+ * Verified headless: Gumi 603 at 37.02,36.02 and Ryuma 610 loaded and drawn correctly at frames 1450 / 2100 (screenshots), no RTS / no-function lines.
+
+### Widescreen shows real map parts that the 320 px picture hides: room 197 (thieves' hideout) (2026-10-11, user report + LANDSTALKER_WARP)
+ * User: at room 197, X 14.08 Y 21.08, cam 14/21, WIDE=48 + full height, a wall piece (stairs + arch) floats in the black void at the lower left. Reproduced headless with `LANDSTALKER_WARP="197:14.08,21.08,0080"` (also at WIDE=48 without TALL, so not the full-height code). Checked: warping 3 tiles to the left-down (X 11.08 Y 24.08) at WIDE=0 puts the same piece in the middle of the normal picture, so it is REAL map content (a detached island of the room in the void), correctly drawn, not stale/wrapped tiles. The original just never shows it at that spot because it lies left of the 320 px picture.
+ * User wish: such pieces should not be visible. Consequence of widescreen in general (user: 'we will have this now and then'). Possible later fix, not built: hide margin content that is not connected to the walkable area / blank the margin outside the diamond of the 320 px view; needs a rule per room, risk of hiding real scenery. Decision pending with the user.
+
+### Chest opening: margins went black (2026-10-11, user report, reproduced with LANDSTALKER_WARP in room 224)
+ * Rooms (user, overlay): 224 = treasure room of the thieves' hideout (chests at tiles 12.22, 13.21, 12.21, 15.13, 18.20; entity `+04` bits 7-6: closed chest `08`, opened `C8`), 533 = room before Tibor, 815 = inside Tibor (start).
+ * Reproduction recipe (headless, the user's save is NOT touched: `LANDSTALKER_SAVE=<copy of the .srm>`): load replay prefix `awk '$1<790' massan.txt` + `790 0000` (release the last key!), `LANDSTALKER_WARP="224:18.08,19.08,0000" LANDSTALKER_WARP_AT=1000`, then pad inputs after the warp: +Y = `0006` (DOWN+LEFT), -X = `0005`, open the chest with A or C (`0040` / `0020`; B `0010` is JUMP). Save slots in this .srm: No.1 Ryuma 24/24 284G (bag full: 'Found EkeEke. But the bag is full.'), No.2 / No.3 Massan 8/8 15G (fresh game, Friday + village NPCs crowd around Nigel after a warp, GOTO cannot walk there; warp next to the chest instead). Slot 2 = RIGHT (`0008`) between the START (frame 223) and the slot A press (frame 245) of the replay.
+ * Cause: opening a chest runs `ProcessActionButton $0066AC > $007052 > $007218 > $007250` (animation) and then `$022F26 / $022F52 / $02329E` (the 'Found X.' text box, NOT `$028FD8`); `UpdateSprites` does not run, so the map rule said 'not map' (`widemap: frame 1225 ... not map`) and the margins were blanked for the whole pickup. Fix: `$0066AC` on the call stack counts as map (patch_wide.py `lk_map_decide`). Verified: margin pixels identical in all 221 frames 1160-1380 (no flash), centre 320 px identical to WIDE=0 in all 221 frames (the rule only touches margins).
+ * NOT reproduced: the 'faulty picture' the user saw when opening the chest at the bottom left of room 224 (also not with WIDE=48 + TALL, both slots, chests 18.20 and 12.22): ask for details (which frame / what is wrong, WIDE / TALL settings, which save).
+
+### Lithograph picture garbled with full height (2026-10-11, user report, reproduced with LANDSTALKER_LITHO_AT)
+ * User: opening the leftmost chest of room 224 (tile 12.22, 'Found Lithograph.') and pressing a button shows, in the original, a full-screen picture of the lithograph; with our full height (R2) it is garbled. Our teleport did not trigger the picture: it is a story cutscene `CSA_0068 $0136BE` (CSA_015A, text $26 'Friday: Nigel! That's Gola...', `DisplayLithograph $0389D4` via thunk `$03860C`, text $27, flag `$FF1004` bit 1, room transition) started by the game's trigger machinery (TriggerActionJumpTable `$010D08`, TA_xx conditions; not found yet which condition fires it), not by `CheckOpenChest $007052` (that only prints the message, plays the jingle and adds the item).
+ * New test aid: `LANDSTALKER_LITHO_AT=frame` (tools/patch_warp.py) runs that sequence from inside UpdateSprites (where cutscene actions run, call stack `$0178C8 > $012674 ...`) without the story trigger; press A for the first text (frame ~1330 in the recipe: warp 224:13.08,22.08, `LANDSTALKER_WARP_AT=1000`, `LANDSTALKER_LITHO_AT=1200`, input prefix `pre2.txt` = slot 2).
+ * Cause: with full height (`kv > 0`) `lk_strip_extend` also runs the strip loaders after every `FadeInFromDarkness $008EB4` (hack for the stale bottom row after a room load). `DisplayLithograph` fades in too, so the loaders wrote map tiles over the picture in VRAM: the picture was cut off, with map remnants right and bottom. WIDE alone (kv = 0) was fine. Fix: (1) `lk_picture` flag (func_table.c hook in patch_wide.py: set at entry of `$0389D4` DisplayLithograph and `$03E654` DisplayIslandMap, cleared at `$002996` LoadRoom, `$00620E` WarpToRoom and at the next `$0178C8` UpdateSprites entry = the cutscene ended); (2) `lk_map_decide()` returns 'not map' while it is set (margins black, no full-height band); (3) the FadeIn strip hack is skipped while it is set. Verified headless: picture identical at WIDE 0 / 48 / 48 + TALL (margins black), game RAM identical to the previous build over 1500 frames of the Massan replay.
+ * Open: which trigger starts CSA_0068 in the real game (to test the whole sequence naturally); the same flag now also covers the island map (inn), not yet looked at with full height (test: inn map with R2 on). Other full-screen pictures (title, ending, ...) were not checked.
+
+### File select: sword slash after choosing a file was missing (2026-10-11 night)
+ * User: after choosing a file the box moves to the middle and the sword-slash SOUND plays, but no slash is seen (known old bug).
+ * Flow (disassembly + call trace): `HandleGameStartInput $00FF12` loops up to $78 times (any A/B/C/START press ends it early; the old test replay `massan.txt` presses A again at frame 261 and therefore never showed the animation): file box move `$010014` / `$01007E`, `GameStartSwordSlashStep $00FFE2` (state byte -9(a4): 0 = start: `trap #0` with sound id $0051 + `bsr $00F0F8` (anim script pointer -$16(a6) = $F2DB, then `$00FAF0`), 1 = wait for done flag -$19(a6), then `$00F1E4`, state $FF), sprite drawing `$00F13A`.
+ * Root cause: the inline sound word `$0051` of the `trap #0` at `$00FFF4` was decoded as the instruction `ori.w #$6100,(a1)` (entry `jt_00FFF6` produced by the heuristic scans), which swallowed the following `bsr.w $00F0F8` (= `6100 F0FE`): generated C had `TRAP; ori.w #$6100,(a1); /* TODO $00FFFA dc.w $f0fe */`, i.e. sound yes, animation never started, plus a stray memory write. Same bug at `jt_000860` (`trap #0 / dc.w $FFFF`, sound routine at `$00085E`).
+ * Fix: `tools/patch_trap.py` adds the trap data bytes to `_call_data_bytes`; `_plausible()` (patch_calldata.py) rejects heuristic targets inside them. Build: functions `jt_00FFF6` and `jt_000860` are gone, nothing else changed.
+ * Verified headless (slot 1, replay `sel.txt` = massan prefix up to the A at frame 253, no second A): call trace shows `$00F0F8`, `$00FAF0` at frame 319 and `$00F1E4` at 344; screenshots 318-350: the slash with the red arc and sparkles, then the fade and Ryuma/Massan; no RTS / no-function lines; the old Massan replay (which aborts the loop) gives byte-identical game RAM at frames 0 and 1500. User check on the Deck open (also: sound timing relative to the slash).
+ * Not confirmed: whether the old startup log line `RTS to $00FFFC (expected $0016D2)` came from this (it is the return address after the swallowed `bsr` at `$00FFF8`; not seen in current runs).
+
+### Full height: black rectangles at the bottom after loading a save, gone when moving (2026-10-11 night, user report: church of save 1)
+ * User: load save 1 (Ryuma church, room 613), do not move: black rectangles at the bottom of the picture until the first step; asked to check in windowed fullscreen first. Reproduced in the real window (`LANDSTALKER_FULLSCREEN=1`, spectacle capture, settings from ~/.landstalker_display = WIDE 16, full height on) AND headless (`LANDSTALKER_SHOT`): the floor's lower edge shows isolated stubs separated from the floor by a black band (rows of blocks missing); after any move the corner is complete.
+ * Cause: the extra full-height strips (`kv`, patch_wide.py `lk_strip_extend`) were reloaded after a room load by a hook on `FadeInFromDarkness $008EB4`; in the file-select start path that entry is never called (debug print: it never fired), so the band was only filled by the strip loads of the first movement. Proof: `LANDSTALKER_REFILL_AT=520` (test aid in patch_warp.py: runs the reload once) completes the picture at rest.
+ * Fix: entry of the LoadRoom path `$002824` (WarpToRoom and the file-select start both call it) -> first `UpdateSprites` pass after it -> 10 frames later one reload of all strips (`lk_wide_refill`). A reload at the first pass itself did not stick (holes stayed), 10 frames later does (holes are visible for about 12 frames at the end of the fade-in only). `LANDSTALKER_TALL_DEBUG=1` prints `tall: reload due / armed`. Only with full height on (`kv > 0`). Verified headless: sequence frames 445-490 (holes until 457, filled from 460); game RAM WIDE 32 + TALL vs WIDE 0 identical at frames 0 / 1500, at 3000 only the known stack word `$FFEE/$FFEF`; no RTS / no-function lines. The stub-like floor edge seen in the church WITHOUT the reload (and the bottom corner after it) were compared; `LANDSTALKER_TALL_STRIPS` 3..6 made no difference to the holes.
+ * Windowed capture recipe (no pkill -f with the build path in the command: it kills the own shell): `(LANDSTALKER_SAVE=copy.srm GENRECOMP_INPUTSCRIPT=sel.txt LANDSTALKER_FULLSCREEN=1 timeout 20 build/landstalker ROM &)`, `sleep 6`, `spectacle -b -n -f -o file.png` several times.
+
+### Full height: the reload fix made every room change worse (2026-10-11 night, user report after the fix above)
+ * User: 'worse than before': at EVERY screen change garbage shows briefly at the bottom before it is loaded; in the church itself better but not perfect.
+ * Cause: the rewrite above REMOVED the old reload at `FadeInFromDarkness $008EB4` (room changes) and replaced it by a reload 10 frames after the first UpdateSprites pass, i.e. after the fade-in. Reproduced headless: warp 613 -> 610 (LANDSTALKER_WARP, WIDE 16 + TALL): frames 784-810 (the whole fade-in) show black notches at the bottom, complete from 812.
+ * Call trace (`GENRECOMP_CALLTRACE`): room change = `$002824 (LoadRoomPath)` frame 721 -> `$008E9C (InitVDPAndFadeIn)` 768 -> `$008EB4` 782 -> first UpdateSprites 803. File-select start = `$002824` frame 385 -> `$008D84 (StartGame)` 421 -> tail call `$00098A (FadeFromBlack)` 435 (loop `$0009AA (FadeLoop)`, entered by bra) -> first UpdateSprites 449. So the start path simply uses a different fade routine.
+ * Fix (patch_wide.py `lk_strip_extend`): reload all band strips at the START of the fade-in: `$008EB4` always (old behaviour, confirmed by the user before), `$00098A` only after a `$002824` load (pending flag, FadeFromBlack has other callers). Plus map rule: `$00098A`/`$0009AA` on the stack after a save load (`lk_load_fade`) = map, otherwise the band stayed black during the start fade and popped in at frame 450. The delayed reload is gone.
+ * Verified headless (WIDE 16 + TALL, save 1, warps 613 -> 610 -> 613): band complete in every visible fade-in frame of the start (432-474) and of both room changes (780-822, 960-1010); log `tall: reload at fade-in $00098A frame 435`, `$008EB4 frame 782 / 971`; no RTS / no-function lines; Massan replay game RAM WIDE 32 + TALL vs WIDE 0 identical at 1500, at 3000 only the stack word `$FFEE/$FFEF`; WIDE 48 without TALL differs only in the stale VDP queue tail `$FF3B40-$FF40DF` (kv = 0 path not touched by this fix). User CONFIRMED by playing (2026-10-11 night): save 1 load at rest and room changes both clean.
+
+## Names in the generated C and behaviour naming (2026-10-12, dev)
+- `tools/rename_generated.py` (build.sh 1c): enum `Name_XXXXXX = 0xXXXXXX` in recomp_funcs.h, `fn_Name_XXXXXX` functions, calls `func_table_jsr(Name_XXXXXX, ret)`. Evidence: Massan replay 1500 frames, 25 RAM dumps byte-identical with and without names (`LANDSTALKER_NONAMES_C=1`), at 1983 / 2110 / 2345 named functions; verify_build 33/33.
+- Profile of the Massan replay (`GENRECOMP_CALLTRACE=0:1500`): 557 distinct functions ran, 252 of them unnamed (260k of 424k calls). Only 19 were inner labels of named functions (`tools/name_inner.py`: 711 `<Parent>_locN` names, tier auto-parent, XREF proof); 233 real subroutines were named from their behaviour (entity physics / support / links, collision and height-map probes, sprite builder and draw order, camera scrolling, text output, sound queue, file select, HUD, title). 14 stay in unknowns.json. The profile / dossier method is in HANDOFF section 1.
+- Not covered by the replay (about 2700 generated functions): shops, caves, bosses, intro, other rooms. Next: user recordings with `~/Landstalker_Aufnahme.sh` (writes `~/aufnahmen/rec_<time>.txt` + the matching `save_<time>.srm`), then the same profile.
+
+## Naming round 2: user recording ryuma_shop_inn_fight (2026-10-12 night, dev)
+- Replay (5742 frames, save copy) checked with screenshots every 300 frames: file select 'Ryuma', church, village, weapon shop (284 G -> 264 G), inn: island map + innkeeper (264 -> 244), forest with blue bubble enemies (health 24 -> 21). Same behaviour as played.
+- CALLTRACE profile: 871 distinct functions, 1.38 M calls; 151 unnamed ones ran (34k calls). 136 named, 15 open. Findings: many 'functions' are table entries of the sprite behaviour command table (`SpriteBehaviour_Table` $017918, 104 entries, so the old name `EntityBehaviourCommand_Table` at $0179D0 was wrong: it is entry 46), the enemy AI table, `ProcessFloorType_Table` $00604C and the text control code table $023154. The island map (`DisplayIslandMap` $03E654) uses sine-table positioned sprites (GetSine / GetCosine) and nibble-based edge bits for its tilemap.
+- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / $010014 / $01007E, `$002896`, `$00620A` (see unknowns.json).
+
+## Naming round 3: user recording new_game_intro_shrine_cave (2026-10-12 late night, dev)
+- Replay (35221 frames, ~27 s headless) checked with screenshots every 1000 frames: file select slot 4 'New Game', intro in Massan ('Nigel got 2000 golds!' scene, Friday dialogue), eagle flight with 'Climax Entertainment', first shrine with statue (4/4 hearts, 0 G), cave (5/5 hearts, chests 5 G + 10 G, pushable crates, sword swings). End of the file: full health, no death. The user said the recording ends with a death, a key door and a switch: not visible in the replay (determinism limit or the events come after the file ends).
+- Profile (CALLTRACE streamed through awk, no 600 MB log): 1042 functions, 6.0 M calls; 133 unnamed ran (73k calls). Named 100: Friday intro sprite animation (hover, circle, animation data players with `FridayAnimation1..15`), text box scrolling (`ScrollTextBuffer*`), chest opening, inventory screen (`InventoryMenu_*`, list drawing, item list building, 1bpp to 4bpp expansion), tile swap queueing, entity movement helpers, tables `TA_Table_Entry` ($010D08 base, ids = TA_xx) and `CSA_Table_Entry` (base $01209C inferred from CSA_010D at $012530).
+- Method note: stream the trace (`2>&1 >/dev/null | awk ...`) instead of saving it; `tools/contactsheet.py DIR OUTPREFIX` writes to the current directory.
+
+## Hitbox question (user, 2026-10-12): standing inside the slime without damage (recording death_revive_friday, frames 960-2100)
+- Per-frame work-RAM dumps (`--ram-dump DIR:1`, `GENRECOMP_DUMPRANGE=900:2100`, WIDE=16 TALL=1, exact replay) decoded with `tools/entscan.py` (player box `+18..+1E`, Z `+12` / top `+54`, enemies = slots with type `+3B` 60..63).
+- After each hit `$FF1142` counts 1..63 (invulnerability, 63 frames) and `$FF1143 = $80` is the damage request (hit at frames 998, 1099, 1198, 1296, 1380, ...: about every 100 frames = 63 frames protection + ~38 frames until the next step into the player). At the hit frame the closest enemy box is 0-2 units away in X (never overlapping): the damage comes from `EntityMoveStep_ContactDamage` $017C2C, i.e. the enemy's blocked step, not from overlap. Overlapping while vulnerable is followed by a request within 3 frames in 166 of 204 frames; no run of 10+ vulnerable overlapping frames without damage exists.
+- Conclusion: no evidence of a hitbox bug in our build; 'standing in the slime' is the 1 s protection after a hit or an enemy that does not step. Check against the reference core only if the user still sees it for longer than ~1 s.
+
+## Hitbox question, part 2: standing inside a slime for seconds (user recording slime_idle_overlap, 2026-10-12)
+- Exact replay (15 / 15 checkpoints), per-frame dumps 300..1700 with `tools/entscan.py`. First hit at frame 1097 (`$FF1143 = $80`), 63 frames protection (`$FF1142` 1..63, until frame 1161). From frame 1132 the player stands on the SAME tile as slime slot 5 (type 61, id 18): identical boxes x `$121..$12F`, y `$251..$25F`. From frame 1161 (protection over) to 1577 (417 frames, ~7 s) the player is vulnerable and overlapping and takes NO damage; the slime has behaviour 0 / action 0 (idle). At frame ~1575 the player moves, the slime wakes (action `$20`, behaviour `$1D26`) and hits within 5 frames (health 5535 -> 4891 at frame 1580).
+- Cause: the bubble / slime enemies run `EnemyAI_Bubble1_A` / `EnemyAI_Bubble2_A` every tick (CALLTRACE at frame 1300: `$1AB9A0` / `$1ABA3C` -> `EnemyAI_Bubble2_Wander $1ABA70` -> `GenerateRandomNumber`). While idle (`+37` = 0) `EnemyAI_Bubble2_Wander` draws a number 0..999 EVERY frame and only starts acting for 0 or 1 (2 in 1000 per frame, about one action every 500 frames = 8 s); damage only comes from the enemy's own step into the player (`EntityMoveStep_ContactDamage` $017C2C, hit with the boxes 1-2 units apart). So an idle slime does not hurt a player who stands inside it: the game's own AI, not a hitbox bug of the recompilation. The long wait is chance (probability of waiting 417+ frames is about 43%).
+- To double check against the original code path nothing was patched there: patch_sprcull only changes the visibility test (`$004144`) and the exact replay equals the live run.
+
+
+### Session 2026-10-13: filters, De-Dither, audio split, options pages, Shadow (summary, details in HANDOFF section 1 and FORMATS)
+ * CRT Pro / CRT Curved (`display_core.c lk_f2_*`): linear light, soft horizontal gaussian, brightness dependent beam, aperture grille, barrel warp + vignette; tests `tools/displaytest` (colours stay pure, brightness 0.91-0.93).
+ * De-Dither (`lk_dedither`, `lk_dedither_strong`): rule = A-B-A with continuation (light), plus 3x3 smoothing of two dimensional dither inside a colour range of 80 (strong); checked on Massan ground screenshots (rec_20261012_2148 frames 700-2200): ground smoothed, Nigel / HUD text untouched. Settings in `~/.landstalker_dither`.
+ * Audio split: Z80 RAM channel blocks (FORMATS 'Sound driver'); first attempt marked effect channels with `ptr < $8000` for ALL zero-initialised blocks (every channel looked like an effect at boot) -> require pointer != 0; the first A/B run used a different HOME and therefore a different WIDE setting, so the replay diverged (LESSONS 9.y again: always pass LANDSTALKER_WIDE / TALL explicitly in A/B tests).
+ * Shadow, bugs found one after another (all headless): (1) marking pixels with VDP pixel bit 7 darkened every priority tile (bits 6 / 7 carry priority in normal mode) -> own mask + darkening in remap_line; (2) shadows added per entity in BuildEntitySpriteEntries: the list was cleared when the player came up (draw ordered list) -> flicker; now one wrapper of LoadSprites; (3) widescreen: sprites are drawn at `xpos - 0x80 + lk_wide_e`, the shadow ignored it; (4) per-frame ground distance noise on slopes -> hysteresis 6 / 2; (5) switch time = the sprite table DMA. The patch strips older versions from `.deps` itself (marker `LK_SHADOW vN`), because patches are applied in place and an unchanged marker would skip the new code.
+ * Build pitfalls: `pkill -f build.sh` in a tool command kills the tool's own shell (the command line contains the pattern); an assertion in a patch makes build.sh exit 1 while an old binary is still there: always check `Build exit:` before testing.
+
+## Quick Items (2026-10-14, user idea; tools/patch_quick.py)
+ * Game facts found: pad bits in `$FF0F8E`: `ProcessActionButton $0066AC` (once per map pass in GameLoop) tests `#$60` (A / C = talk / open / sword), the Start menu loop `InventoryMenu_Loop $00D3C6` tests `#$90` (B / Start close) and `#$60` (use); GEN_X / GEN_Z (6-button pad bits) never reach the game. SDL B was GEN_C (duplicate of SDL X = GEN_A).
+ * Item use: `UseItemDispatch $0085F2` (d0 = id, table `$008620`, handlers end with `ReturnSuccess $008BBA` / `ReturnFailure $008BC0`); `ConsumeItem $008B98` ends with `DrawItemList $00D4AE` (menu drawing: no-op while the quick use runs) and a failure calls `ItemUseFailMessage $008614` (text box: replaced by the error sound `$0044`, site `$00DBBE`). Success / select / move sounds = trap #0 sites `$00FA54` / `$00FA9E`. `GetItemQtyAndMaxQty $022ED0`: d1 = quantity (<= 0 none); `$FF2C5C` item list of the menu, cursor from `$FF2C06 / $0A / $0C`. Item icons: `PopulateItemSlot_WriteIcon $00D642`: tiles `$BC + id * 16`, 4 x 4 tiles column-major, palette 1 (owned) / 2 (greyed), all icons are in VRAM while the menu is open (32 x 32 px, ~26 x 26 content).
+ * HUD bar (US ROM, 352 px picture = WIDE 16): x 28..323 (296 px), lines 5..22, white line at 5, grey at 22, fill `0x442288`; sword gauge x 48..97, hearts from x 138 (the gap before them is where more hearts appear), `13/25`, bag + EkeEke count, `116G` right aligned with blank leading digits.
+ * Verification (headless, HOME=/tmp/..): menu assign (A enters the list, Y = 0100 / B = 0400 as GEN_X / GEN_Z), EkeEke on the map: health 13 -> 25, count 5 -> 4, HUD bag '-5' -> '-4'; Golden Statue 1 -> 0 (cell dimmed); WIDE 0 / 16 / 48 + TALL screenshots. The first build assumed the bar at x 26..325 (a vertical border piece stayed after the gold: fixed to 28..323).
+
+## Shadow over the Start menu (2026-10-14, user recording raum430)
+ * Replay of `rec_20261014_1907_raum430` (HOME=/tmp/.., WIDE=0 TALL=1, shadow on): checkpoints identical. Frames 3696-3744 black (room fade), 3747-4257 Start menu Options page with the 10 shadow ellipses of the last map pass drawn over it (diff shadow on / off 1124-1243 px), then black. Cause: `lk_sh_pend` stays after the menu starts (LoadSprites is not called there) and the menu's own sprite table DMA (`$FF0550`) promotes it. Fix: `lk_sh_hide` (vdp_render.c) set by a wrapper of CheckForMenuOpen `$007624`; after the fix menu frames show 0 shadow pixels, map frames unchanged (904).
+
+## Session 2026-10-15: filters, title, file select window, fast forward, quick save, difficulty (evidence summary)
+ * Details and numbers are in the INDEX / HANDOFF status entries of 2026-10-15. Verification: headless screenshots (`LANDSTALKER_SHOT`, `displaytest --dedither` with `DD_STRONG` / `DD_BLEND`), isolated `HOME=<dir>` for option tests, replays `massan.txt` (church save) and `slime_idle_overlap` (save `save_20261012_2219.srm`).
+ * Quick save: `LANDSTALKER_QS="s1500,l2500"` (executed at a GameLoop pass), `LANDSTALKER_QSREQ="s5000"` (posted like a button press, refusal test), `LANDSTALKER_QS_DEBUG=1`; SRAM slot 4 = file offset `$2031..$282F` only. LoadGame `$0026E8` contains the file select; the quick load replaces it natively (EnableDisplayAndInts `$0008F2` is required, otherwise SetUpTextDisplay waits forever for VBlank).
+ * Fast forward measured with `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy` and `LANDSTALKER_FFWD_HOLD=1`: 900 frames in 15.4 s / 8.0 s (2x) / 4.2 s (4x).
+ * De-Dither cost: 13 ms (3x3 + 5x5 test, 1 thread) -> 3.7 ms (4 threads, interleaved 8-row chunks, UI mask once, exact-colour clusters, unchanged pictures reused).
+

@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.16)
+project(lz C)
+set(GENRECOMP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../.deps/genrecomp" CACHE PATH "")
+add_subdirectory(${GENRECOMP_DIR} genrecomp_build EXCLUDE_FROM_ALL)
+file(GLOB R out/*.c)
+add_executable(t t.c ${R})
+target_link_libraries(t PRIVATE genrecomp)
+target_include_directories(t PRIVATE out)

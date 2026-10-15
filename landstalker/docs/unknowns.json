@@ -1,0 +1,4171 @@
+{
+ "_readme": "Addresses seen but not understood. See tools/unknowns.py. Move to symbols.json when named; run 'unknowns.py sync'.",
+ "unknowns": [
+  {
+   "addr": "0x000003",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "FORMATS.md:90",
+     "date": "2026-10-12",
+     "snippet": "* V: buffer `$FF3900` (`g_VdpQueueBuffer`), write pointer `$FF1840` (long), count `$FF1128` (BYTE, number of 4-entry groups = map blocks; `A"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x000051",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:976",
+     "date": "2026-10-12",
+     "snippet": "* Flow (disassembly + call trace): `HandleGameStartInput $00FF12` loops up to $78 times (any A/B/C/START press ends it early; the old test r"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:977",
+     "date": "2026-10-12",
+     "snippet": "* Root cause: the inline sound word `$0051` of the `trap #0` at `$00FFF4` was decoded as the instruction `ori.w #$6100,(a1)` (entry `jt_00FF"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x0000FE",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "FORMATS.md:14",
+     "date": "2026-10-12",
+     "snippet": "| `$FF12DE` | g_PlaybackLock | `$00FE` = input locked (replay/cutscene) | V |"
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:164",
+     "date": "2026-10-12",
+     "snippet": "- RAM: Player struct `$FF5400` (X +0, Y +1, Z word +$12, FallRate +$20, JumpRate +$21, GroundHeight +$22, Action word +$2C; bits 0-3 walk, 4"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x000250",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:626",
+     "date": "2026-10-12",
+     "snippet": "Church left at replay frame 545 (room $0255 -> $0250, same in ref and rec). Fastest movers after that: $FF5700 (chicken, 2.68 px/frame ref, "
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:29",
+     "date": "2026-10-12",
+     "snippet": "- Room data loading: `WarpToRoom -> LoadRoomParams -> GetTilemap` (clears the height map with `move.l #$40004000,(a1)+`), `LoadRoom $002996`"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-10: room number (Massan village outside)"
+   ],
+   "mentions": 2,
+   "class": "not-an-address",
+   "class_by": "hand"
+  },
+  {
+   "addr": "0x000255",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:614",
+     "date": "2026-10-12",
+     "snippet": "`tools/rangecmp.py` on the player struct / `g_RmNum1`: at frame 160 the recompiled build is already in room $0255 (Nigel loaded from the chu"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:620",
+     "date": "2026-10-12",
+     "snippet": "With `ref: SRAM loaded ...` both runs reach room $0255 (one 5-frame sample apart) and Nigel is identical until frame ~305; from frame ~340 a"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:626",
+     "date": "2026-10-12",
+     "snippet": "Church left at replay frame 545 (room $0255 -> $0250, same in ref and rec). Fastest movers after that: $FF5700 (chicken, 2.68 px/frame ref, "
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:29",
+     "date": "2026-10-12",
+     "snippet": "- Room data loading: `WarpToRoom -> LoadRoomParams -> GetTilemap` (clears the height map with `move.l #$40004000,(a1)+`), `LoadRoom $002996`"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:43",
+     "date": "2026-10-12",
+     "snippet": "| 597 ($0255) | Massan church (the save of the old replay loads here) | section 6 |"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-10: room number (Massan church), not code"
+   ],
+   "mentions": 6,
+   "class": "not-an-address",
+   "class_by": "hand"
+  },
+  {
+   "addr": "0x00042E",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x00085E",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:977",
+     "date": "2026-10-12",
+     "snippet": "* Root cause: the inline sound word `$0051` of the `trap #0` at `$00FFF4` was decoded as the instruction `ori.w #$6100,(a1)` (entry `jt_00FF"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x000FE3",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:948",
+     "date": "2026-10-12",
+     "snippet": "* **Freeze (log = `journalctl --user`, the launcher's stdout goes to the journal):** `func_table: RTS to $6C0002 (expected $025412, SP=$FFFF"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x000FE7",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:948",
+     "date": "2026-10-12",
+     "snippet": "* **Freeze (log = `journalctl --user`, the launcher's stdout goes to the journal):** `func_table: RTS to $6C0002 (expected $025412, SP=$FFFF"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x000FE9",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:948",
+     "date": "2026-10-12",
+     "snippet": "* **Freeze (log = `journalctl --user`, the launcher's stdout goes to the journal):** `func_table: RTS to $6C0002 (expected $025412, SP=$FFFF"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x0010BE",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:648",
+     "date": "2026-10-12",
+     "snippet": "**Root cause:** genrecomp `analyze.py::_scan_jump_tables` turns every run of >= 3 even ROM-range longwords into function labels, and `CODE_R"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x0010C0",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:648",
+     "date": "2026-10-12",
+     "snippet": "**Root cause:** genrecomp `analyze.py::_scan_jump_tables` turns every run of >= 3 even ROM-range longwords into function labels, and `CODE_R"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x0016B3",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:951",
+     "date": "2026-10-12",
+     "snippet": "* Same fix removed a second bogus entry `jt_026700` inside the inline data of `bsr $025DBE` at `$0266FA` (cutscene script near `CS_00C0_9 $0"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x0016D2",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:980",
+     "date": "2026-10-12",
+     "snippet": "* Not confirmed: whether the old startup log line `RTS to $00FFFC (expected $0016D2)` came from this (it is the return address after the swa"
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:38",
+     "date": "2026-10-12",
+     "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x0016D6",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:218",
+     "date": "2026-10-12",
+     "snippet": "The \"RTS to $001704 (expected $0016D6)\" lines were a side effect: the failed"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x0016FC",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:281",
+     "date": "2026-10-12",
+     "snippet": "68K stack. Later `rts` pops $2324 -> \"RTS to $002324 (expected $0016FC)\", the fallback \"plain return\""
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:282",
+     "date": "2026-10-12",
+     "snippet": "leaves $16FC on the stack too: **the stack leaks 4 bytes per occurrence** (SP at the idle point was"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x001700",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:471",
+     "date": "2026-10-12",
+     "snippet": "$0066AC $006E20 and `RTS to $0021A4 (expected $001700)` with stack $0016B6 $0016DC $00673E; the popped value changes from run to run:"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x001704",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:211",
+     "date": "2026-10-12",
+     "snippet": "## Eighth: more jump tables (intro stuck, \"RTS to $001704\")"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:218",
+     "date": "2026-10-12",
+     "snippet": "The \"RTS to $001704 (expected $0016D6)\" lines were a side effect: the failed"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x001710",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:803",
+     "date": "2026-10-12",
+     "snippet": "Reproduced headless with `tools/inputfuzz.py` (random pad input incl. A/B/C jumps after the massan.txt prefix, 9000 frames): seed 3 at `LAND"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x00171E",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:413",
+     "date": "2026-10-12",
+     "snippet": "text, ScriptSleep, `dc.w 00119`, rts) ran on the interpreter, plus `RTS to $023136 (expected $00171E)` (ProcessChar"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x001D26",
+   "first_seen": "2026-10-12",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1016",
+     "date": "2026-10-12",
+     "snippet": "- Exact replay (15 / 15 checkpoints), per-frame dumps 300..1700 with `tools/entscan.py`. First hit at frame 1097 (`$FF1143 = $80`), 63 frame"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x001F00",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x0020B0",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x002120",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x002262",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x0022F0",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x002300",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:803",
+     "date": "2026-10-12",
+     "snippet": "Reproduced headless with `tools/inputfuzz.py` (random pad input incl. A/B/C jumps after the massan.txt prefix, 9000 frames): seed 3 at `LAND"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x002304",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:451",
+     "date": "2026-10-12",
+     "snippet": "probably a wild jump after the stack mismatches `RTS to $02539E (expected $025324)`, `$002304`, `$023136` seen in the same run -"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:472",
+     "date": "2026-10-12",
+     "snippet": "$023136 -> $002304 -> $002314 -> $0021A4, i.e. stale stack contents) -> wild jump -> interpreter runs garbage at $1A85E2 -> freeze."
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x002314",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:470",
+     "date": "2026-10-12",
+     "snippet": "return address is popped (stack imbalance; seen before the game banner as `RTS to $002314 (expected $006708)` with stack $0016B6 $0016DC"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:472",
+     "date": "2026-10-12",
+     "snippet": "$023136 -> $002304 -> $002314 -> $0021A4, i.e. stale stack contents) -> wild jump -> interpreter runs garbage at $1A85E2 -> freeze."
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x002320",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x002324",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:280",
+     "date": "2026-10-12",
+     "snippet": "2. The generated `bsr.w sub_2458` pushes its return address ($2324) and the call fails, leaving it on the"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:281",
+     "date": "2026-10-12",
+     "snippet": "68K stack. Later `rts` pops $2324 -> \"RTS to $002324 (expected $0016FC)\", the fallback \"plain return\""
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:281",
+     "date": "2026-10-12",
+     "snippet": "68K stack. Later `rts` pops $2324 -> \"RTS to $002324 (expected $0016FC)\", the fallback \"plain return\""
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:89",
+     "date": "2026-10-12",
+     "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 4,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x002328",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x002330",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x002332",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x002362",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x002366",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x002400",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x002662",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:648",
+     "date": "2026-10-12",
+     "snippet": "**Root cause:** genrecomp `analyze.py::_scan_jump_tables` turns every run of >= 3 even ROM-range longwords into function labels, and `CODE_R"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x002896",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the Massan replay (frames 0-1500), 1 calls",
+     "date": "2026-10-12"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1003",
+     "date": "2026-10-12",
+     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
+    }
+   ],
+   "callers": [
+    "0x002824"
+   ],
+   "notes": [
+    "2026-10-12: LoadRoomPath: places the player on the floor / height of the target (uses ScanHeightMapUnderEntity); long routine, not read in full"
+   ],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x002AC8",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:284",
+     "date": "2026-10-12",
+     "snippet": "3. Scene 2->3: `WarpToRoom -> LoadRoomParams -> GetTilemap` clears g_HeightMap ($FFD192, $2AC8 bytes ="
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:762",
+     "date": "2026-10-12",
+     "snippet": "* The room map is made of **blocks (16x16 px = 2x2 tiles)**. `BlockToTiles` ($00A748) turns one map block into **4 queue entries**: plane A "
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:768",
+     "date": "2026-10-12",
+     "snippet": "* `$00C37E` (d0 = x, d1 = y): `a6 = $FF7C02 + 2*x + table[y]` with `$00C3CE` = `148 * y` (0, $94, $128, ..): the room map is a 2D array of 1"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:21",
+     "date": "2026-10-12",
+     "snippet": "| `$FFA6CA` | g_MapBackground | background layer, `$2AC8` bytes behind the foreground | V |"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:22",
+     "date": "2026-10-12",
+     "snippet": "| `$FFD192` | g_HeightMap | height map, `$2AC8` bytes, up to `$FFFC59` | V |"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-10: size in bytes of map/height-map layer, also offset to background layer"
+   ],
+   "mentions": 7,
+   "class": "not-an-address",
+   "class_by": "hand"
+  },
+  {
+   "addr": "0x003FFF",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "FORMATS.md:90",
+     "date": "2026-10-12",
+     "snippet": "* V: buffer `$FF3900` (`g_VdpQueueBuffer`), write pointer `$FF1840` (long), count `$FF1128` (BYTE, number of 4-entry groups = map blocks; `A"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x0050C0",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:924",
+     "date": "2026-10-12",
+     "snippet": "* File select = two phases: (1) the bar 'Start Copy Delete' with the blinking arrow (hardware sprite 0, selector `GameSelectBarSelector $00F"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00600A",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:948",
+     "date": "2026-10-12",
+     "snippet": "* **Freeze (log = `journalctl --user`, the launcher's stdout goes to the journal):** `func_table: RTS to $6C0002 (expected $025412, SP=$FFFF"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x00620A",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2057 (inn / shop doors), 11 calls",
+     "date": "2026-10-12"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1003",
+     "date": "2026-10-12",
+     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
+    }
+   ],
+   "callers": [
+    "0x006246"
+   ],
+   "notes": [
+    "2026-10-12: inside WarpToRoom (/bin/bash0620E): starts on a trap #0 data word, then LoadRoomPath / InitVDPAndFadeIn / CheckBell; entered from HandleFloorStairs and RoomTransitionHandler; entry point or mid-instruction label, not clarified"
+   ],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x006212",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x006708",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:470",
+     "date": "2026-10-12",
+     "snippet": "return address is popped (stack imbalance; seen before the game banner as `RTS to $002314 (expected $006708)` with stack $0016B6 $0016DC"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x00774A",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x007756",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:655",
+     "date": "2026-10-12",
+     "snippet": "Symptom: after opening a key door, the room change froze/went back to the old room. Log: `interp: running $0085F2`, `$0086C8` and `RTS to $5"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x007764",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:655",
+     "date": "2026-10-12",
+     "snippet": "Symptom: after opening a key door, the room change froze/went back to the old room. Log: `interp: running $0085F2`, `$0086C8` and `RTS to $5"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x007766",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:733",
+     "date": "2026-10-12",
+     "snippet": "| **menu (status/inventory)** | 1928-2559 | open `$0016DC $007624 $008EF4 ..`, loop `$0016DC $007624 $02488A $000B5E` (reg18=$1C: window cov"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:733",
+     "date": "2026-10-12",
+     "snippet": "| **menu (status/inventory)** | 1928-2559 | open `$0016DC $007624 $008EF4 ..`, loop `$0016DC $007624 $02488A $000B5E` (reg18=$1C: window cov"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x007816",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x008124",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:877",
+     "date": "2026-10-12",
+     "snippet": "* How the game makes the band: `$001184 (HandleHBlankInterrupt)` (ROM vector $70; symbols.json had it wrongly as VBlankHandler, the VBlank v"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:50",
+     "date": "2026-10-12",
+     "snippet": "- (V, 2026-10-10 night) Map screen layout: lines 0-23 = window plane (HUD, reg 18 = $03), lines 24-~183 = planes A/B (map), from ~184 the HI"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x0085F0",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:655",
+     "date": "2026-10-12",
+     "snippet": "Symptom: after opening a key door, the room change froze/went back to the old room. Log: `interp: running $0085F2`, `$0086C8` and `RTS to $5"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x0085FC",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:655",
+     "date": "2026-10-12",
+     "snippet": "Symptom: after opening a key door, the room change froze/went back to the old room. Log: `interp: running $0085F2`, `$0086C8` and `RTS to $5"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x008698",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:655",
+     "date": "2026-10-12",
+     "snippet": "Symptom: after opening a key door, the room change froze/went back to the old room. Log: `interp: running $0085F2`, `$0086C8` and `RTS to $5"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x0086F0",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:648",
+     "date": "2026-10-12",
+     "snippet": "**Root cause:** genrecomp `analyze.py::_scan_jump_tables` turns every run of >= 3 even ROM-range longwords into function labels, and `CODE_R"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x008890",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:648",
+     "date": "2026-10-12",
+     "snippet": "**Root cause:** genrecomp `analyze.py::_scan_jump_tables` turns every run of >= 3 even ROM-range longwords into function labels, and `CODE_R"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x00895E",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:534",
+     "date": "2026-10-12",
+     "snippet": "last write is the push of $895E itself (call stack $0188C4); no later write, yet RTS pops $00000000 at the end of sub_24A78. bus_watch compa"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:539",
+     "date": "2026-10-12",
+     "snippet": "Even with patch_watchfold.py the last write to $FFFFEA is the push of $895E, yet the slot reads 0 when sub_24A78 returns. So the change is n"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x008AA0",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:877",
+     "date": "2026-10-12",
+     "snippet": "* How the game makes the band: `$001184 (HandleHBlankInterrupt)` (ROM vector $70; symbols.json had it wrongly as VBlankHandler, the VBlank v"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:50",
+     "date": "2026-10-12",
+     "snippet": "- (V, 2026-10-10 night) Map screen layout: lines 0-23 = window plane (HUD, reg 18 = $03), lines 24-~183 = planes A/B (map), from ~184 the HI"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x008C0C",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:648",
+     "date": "2026-10-12",
+     "snippet": "**Root cause:** genrecomp `analyze.py::_scan_jump_tables` turns every run of >= 3 even ROM-range longwords into function labels, and `CODE_R"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x008F02",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:754",
+     "date": "2026-10-12",
+     "snippet": "Disassembly of `$002686` (called from the VBlank handler `$001184`): it flushes a queue that the game fills in RAM at **$FF3900**: count = b"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:47",
+     "date": "2026-10-12",
+     "snippet": "- The game draws only through a RAM queue (`$FF3900`) flushed in VBlank by `FlushVdpWriteQueue $002686`: per entry a word (VDP address low p"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x00A000",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:917",
+     "date": "2026-10-12",
+     "snippet": "* How the Start menu is built (all verified by disassembly + headless tests): `CheckForMenuOpen $007624` (stays on the call stack) -> item s"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:943",
+     "date": "2026-10-12",
+     "snippet": "* The golden selection frame is the sprite graphic `MenuCursor2BPP` (tiles $A8..$B7 in VRAM, 4x4 tiles, column-major: A8 A9 AA AB / AC AD AE"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x00A0AA",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:925",
+     "date": "2026-10-12",
+     "snippet": "* Implementation (patch_options.py): override of the selector when called with the mode bar's parameters: step $3C, four entries (texts at x"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00A4F0",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:769",
+     "date": "2026-10-12",
+     "snippet": "* The strip loaders are called from 15-25 places each: `$001B7E $001C38 $001D16 $001DC6 $001E98 $001F00 $001F50 $00209E $0020B0 $002120 $002"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00A5F0",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:759",
+     "date": "2026-10-12",
+     "snippet": "* Next: disassemble `$00A5F0..` to see how the column index is derived from the scroll value (a constant 40 columns / an offset to the scrol"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:761",
+     "date": "2026-10-12",
+     "snippet": "### The map loader (disassembly of $00A5F0..$00A77C, user run 2026-10-10) -- how Landstalker streams the isometric map into the planes"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x00A670",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:757",
+     "date": "2026-10-12",
+     "snippet": "* `$FF1840` (write pointer) is read+written by `$004B14` (+1 entry), `$004C94`, and by a block at **`$00A61C / $00A630 / $00A670 / $00A6B0 /"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00A77C",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:761",
+     "date": "2026-10-12",
+     "snippet": "### The map loader (disassembly of $00A5F0..$00A77C, user run 2026-10-10) -- how Landstalker streams the isometric map into the planes"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00A9B2",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:651",
+     "date": "2026-10-12",
+     "snippet": "Remaining after that (data tables below $030000 decoded as code, e.g. $003BF6 $004FEA $00A9B2 $00C180 $024460 and inline-data after bsr to $"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x00AA6A",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:33",
+     "date": "2026-10-12",
+     "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
+    },
+    {
+     "type": "doc",
+     "where": "LESSONS.md:34",
+     "date": "2026-10-12",
+     "snippet": "3. (IN PROGRESS, fix on dev: code_ranges) Review the `check_splits` spots (123 reported on 2026-10-10, mostly `jt_*` jump-table entries near"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x00AA88",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:648",
+     "date": "2026-10-12",
+     "snippet": "**Root cause:** genrecomp `analyze.py::_scan_jump_tables` turns every run of >= 3 even ROM-range longwords into function labels, and `CODE_R"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x00C000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:754",
+     "date": "2026-10-12",
+     "snippet": "Disassembly of `$002686` (called from the VBlank handler `$001184`): it flushes a queue that the game fills in RAM at **$FF3900**: count = b"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:924",
+     "date": "2026-10-12",
+     "snippet": "* File select = two phases: (1) the bar 'Start Copy Delete' with the blinking arrow (hardware sprite 0, selector `GameSelectBarSelector $00F"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:47",
+     "date": "2026-10-12",
+     "snippet": "- The game draws only through a RAM queue (`$FF3900`) flushed in VBlank by `FlushVdpWriteQueue $002686`: per entry a word (VDP address low p"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:90",
+     "date": "2026-10-12",
+     "snippet": "* V: buffer `$FF3900` (`g_VdpQueueBuffer`), write pointer `$FF1840` (long), count `$FF1128` (BYTE, number of 4-entry groups = map blocks; `A"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 4,
+   "class": "other"
+  },
+  {
+   "addr": "0x00C180",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:651",
+     "date": "2026-10-12",
+     "snippet": "Remaining after that (data tables below $030000 decoded as code, e.g. $003BF6 $004FEA $00A9B2 $00C180 $024460 and inline-data after bsr to $"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x00CC0C",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:33",
+     "date": "2026-10-12",
+     "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
+    },
+    {
+     "type": "doc",
+     "where": "LESSONS.md:34",
+     "date": "2026-10-12",
+     "snippet": "3. (IN PROGRESS, fix on dev: code_ranges) Review the `check_splits` spots (123 reported on 2026-10-10, mostly `jt_*` jump-table entries near"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x00D34C",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x00D3A8",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x00D3BE",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x00D6C8",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x00D6EC",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 2 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x00D96A",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x00D996",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x00D9FC",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x00E030",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:639",
+     "date": "2026-10-12",
+     "snippet": "- ASL was translated as LSL (V flag never set); ROXL/ROXR left C stale when the count is a multiple of width+1; capstone decodes `roxr.b Dx,"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x00F07C",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 2 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x00F0C0",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x00F0DC",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x00F0FE",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:977",
+     "date": "2026-10-12",
+     "snippet": "* Root cause: the inline sound word `$0051` of the `trap #0` at `$00FFF4` was decoded as the instruction `ori.w #$6100,(a1)` (entry `jt_00FF"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00F2DB",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:976",
+     "date": "2026-10-12",
+     "snippet": "* Flow (disassembly + call trace): `HandleGameStartInput $00FF12` loops up to $78 times (any A/B/C/START press ends it early; the old test r"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00F6F0",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:758",
+     "date": "2026-10-12",
+     "snippet": "* Other code that merely points at the queue buffer `$FF3900` (lea): `$00F578 $00F5DC $00F5F4 $00F6DC $00F6F0 $00F6F6 $00F700 $00F722` (a cl"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00F6F6",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:758",
+     "date": "2026-10-12",
+     "snippet": "* Other code that merely points at the queue buffer `$FF3900` (lea): `$00F578 $00F5DC $00F5F4 $00F6DC $00F6F0 $00F6F6 $00F700 $00F722` (a cl"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00F700",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:758",
+     "date": "2026-10-12",
+     "snippet": "* Other code that merely points at the queue buffer `$FF3900` (lea): `$00F578 $00F5DC $00F5F4 $00F6DC $00F6F0 $00F6F6 $00F700 $00F722` (a cl"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00F722",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:758",
+     "date": "2026-10-12",
+     "snippet": "* Other code that merely points at the queue buffer `$FF3900` (lea): `$00F578 $00F5DC $00F5F4 $00F6DC $00F6F0 $00F6F6 $00F700 $00F722` (a cl"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00F86C",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:648",
+     "date": "2026-10-12",
+     "snippet": "**Root cause:** genrecomp `analyze.py::_scan_jump_tables` turns every run of >= 3 even ROM-range longwords into function labels, and `CODE_R"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x00F89C",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the Massan replay (frames 0-1500), 9 calls",
+     "date": "2026-10-12"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1003",
+     "date": "2026-10-12",
+     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
+    }
+   ],
+   "callers": [
+    "0x01006E"
+   ],
+   "notes": [
+    "2026-10-12: file select: bsr F90A then FadePaletteDownStep (F8C4) on carry"
+   ],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00F8B6",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the Massan replay (frames 0-1500), 59 calls",
+     "date": "2026-10-12"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1003",
+     "date": "2026-10-12",
+     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
+    }
+   ],
+   "callers": [
+    "0x00F08E"
+   ],
+   "notes": [
+    "2026-10-12: file select bar loop helper: bsr F90A then branch on carry; per-frame step of the bar, purpose not worked out"
+   ],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00F90A",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the Massan replay (frames 0-1500), 68 calls",
+     "date": "2026-10-12"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1003",
+     "date": "2026-10-12",
+     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
+    }
+   ],
+   "callers": [
+    "0x00F89C"
+   ],
+   "notes": [
+    "2026-10-12: file select: tests -(a6) and returns with carry; called by the bar helpers F89C / F8B6 each frame (a counter / flag of the Nigel preview?)"
+   ],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00FA54",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:925",
+     "date": "2026-10-12",
+     "snippet": "* Implementation (patch_options.py): override of the selector when called with the mode bar's parameters: step $3C, four entries (texts at x"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:936",
+     "date": "2026-10-12",
+     "snippet": "* Sounds: the game itself plays NO sound when you switch between Use and Equip (call trace: only the menu-open sound at frame 1001); on the "
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x00FA9E",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:925",
+     "date": "2026-10-12",
+     "snippet": "* Implementation (patch_options.py): override of the selector when called with the mode bar's parameters: step $3C, four entries (texts at x"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:936",
+     "date": "2026-10-12",
+     "snippet": "* Sounds: the game itself plays NO sound when you switch between Use and Equip (call trace: only the menu-open sound at frame 1001); on the "
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x00FF80",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:610",
+     "date": "2026-10-12",
+     "snippet": "44 bytes differ (`$FF80-$FFB3`,`$FFD2` = stack leftovers; `$FF0F9C-$FF0FAB`,`$FF0FDE` = small input/timer variables). `$FF0000-$FF0009` diff"
+    },
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:176",
+     "date": "2026-10-12",
+     "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
+    },
+    {
+     "type": "doc",
+     "where": "LESSONS.md:22",
+     "date": "2026-10-12",
+     "snippet": "- The two cores initialise work RAM differently and keep stack leftovers (`$FF80-$FFB3`) - a stable ~44-byte difference is not a bug."
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 3,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x00FFB3",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:610",
+     "date": "2026-10-12",
+     "snippet": "44 bytes differ (`$FF80-$FFB3`,`$FFD2` = stack leftovers; `$FF0F9C-$FF0FAB`,`$FF0FDE` = small input/timer variables). `$FF0000-$FF0009` diff"
+    },
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:176",
+     "date": "2026-10-12",
+     "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
+    },
+    {
+     "type": "doc",
+     "where": "LESSONS.md:22",
+     "date": "2026-10-12",
+     "snippet": "- The two cores initialise work RAM differently and keep stack leftovers (`$FF80-$FFB3`) - a stable ~44-byte difference is not a bug."
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 3,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x00FFD2",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:610",
+     "date": "2026-10-12",
+     "snippet": "44 bytes differ (`$FF80-$FFB3`,`$FFD2` = stack leftovers; `$FF0F9C-$FF0FAB`,`$FF0FDE` = small input/timer variables). `$FF0000-$FF0009` diff"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x00FFE8",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:557",
+     "date": "2026-10-12",
+     "snippet": "zeroes work RAM at the TOP ($FFE8). Not through the bus (no write16/write8 hit), so GPGX itself writes outside its own arrays (VDP control w"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00FFEE",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:888",
+     "date": "2026-10-12",
+     "snippet": "* Verified headless: detector 0 non-rigid frames of 1000 (seed 5) and 2200 (seed 11, WIDE=0 and WIDE=32); work RAM TALL=1 vs TALL=0 identica"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:985",
+     "date": "2026-10-12",
+     "snippet": "* Fix: entry of the LoadRoom path `$002824` (WarpToRoom and the file-select start both call it) -> first `UpdateSprites` pass after it -> 10"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:993",
+     "date": "2026-10-12",
+     "snippet": "* Verified headless (WIDE 16 + TALL, save 1, warps 613 -> 610 -> 613): band complete in every visible fade-in frame of the start (432-474) a"
+    },
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:45",
+     "date": "2026-10-12",
+     "snippet": "- **Deck round 10 (2026-10-11, user played full height in Gumi, save slot 1):** R4 works but moved to R2 (right trigger, the last free shoul"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 4,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x00FFEF",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:985",
+     "date": "2026-10-12",
+     "snippet": "* Fix: entry of the LoadRoom path `$002824` (WarpToRoom and the file-select start both call it) -> first `UpdateSprites` pass after it -> 10"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:993",
+     "date": "2026-10-12",
+     "snippet": "* Verified headless (WIDE 16 + TALL, save 1, warps 613 -> 610 -> 613): band complete in every visible fade-in frame of the start (432-474) a"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x00FFF4",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:977",
+     "date": "2026-10-12",
+     "snippet": "* Root cause: the inline sound word `$0051` of the `trap #0` at `$00FFF4` was decoded as the instruction `ori.w #$6100,(a1)` (entry `jt_00FF"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00FFF8",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:980",
+     "date": "2026-10-12",
+     "snippet": "* Not confirmed: whether the old startup log line `RTS to $00FFFC (expected $0016D2)` came from this (it is the return address after the swa"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x00FFFA",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:977",
+     "date": "2026-10-12",
+     "snippet": "* Root cause: the inline sound word `$0051` of the `trap #0` at `$00FFF4` was decoded as the instruction `ori.w #$6100,(a1)` (entry `jt_00FF"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00FFFC",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:789",
+     "date": "2026-10-12",
+     "snippet": "Result (STRIPS=2 vs STRIPS=0, WIDE=32, 27 frames of walking in all directions in Massan outside): no garbage tiles any more, black margin pi"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:980",
+     "date": "2026-10-12",
+     "snippet": "* Not confirmed: whether the old startup log line `RTS to $00FFFC (expected $0016D2)` came from this (it is the return address after the swa"
+    },
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:33",
+     "date": "2026-10-12",
+     "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:38",
+     "date": "2026-10-12",
+     "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
+    },
+    {
+     "type": "doc",
+     "where": "LESSONS.md:36",
+     "date": "2026-10-12",
+     "snippet": "5. (DONE, user confirmed 2026-10-11 night) Sword-slash animation at file select; startup `RTS to $00FFFC` log line (not seen in current runs"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 5,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x00FFFF",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:374",
+     "date": "2026-10-12",
+     "snippet": "HandleProgressDependentDialogue (850; list of 4-byte entries + `$FFFF`, never returns to the call site: `addq.l #4,sp / rts`),"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:754",
+     "date": "2026-10-12",
+     "snippet": "Disassembly of `$002686` (called from the VBlank handler `$001184`): it flushes a queue that the game fills in RAM at **$FF3900**: count = b"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:977",
+     "date": "2026-10-12",
+     "snippet": "* Root cause: the inline sound word `$0051` of the `trap #0` at `$00FFF4` was decoded as the instruction `ori.w #$6100,(a1)` (entry `jt_00FF"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:47",
+     "date": "2026-10-12",
+     "snippet": "- The game draws only through a RAM queue (`$FF3900`) flushed in VBlank by `FlushVdpWriteQueue $002686`: per entry a word (VDP address low p"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-10: mask/garbage value in docs"
+   ],
+   "mentions": 4,
+   "class": "not-an-address",
+   "class_by": "hand"
+  },
+  {
+   "addr": "0x010014",
+   "first_seen": "2026-10-11",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the Massan replay (frames 0-1500), 14 calls",
+     "date": "2026-10-12"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:976",
+     "date": "2026-10-12",
+     "snippet": "* Flow (disassembly + call trace): `HandleGameStartInput $00FF12` loops up to $78 times (any A/B/C/START press ends it early; the old test r"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1003",
+     "date": "2026-10-12",
+     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
+    }
+   ],
+   "callers": [
+    "0x00FF12"
+   ],
+   "notes": [
+    "2026-10-12: file select start input: tst.b -(a4) / rts; part of HandleGameStartInput"
+   ],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x01007E",
+   "first_seen": "2026-10-11",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the Massan replay (frames 0-1500), 14 calls",
+     "date": "2026-10-12"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:976",
+     "date": "2026-10-12",
+     "snippet": "* Flow (disassembly + call trace): `HandleGameStartInput $00FF12` loops up to $78 times (any A/B/C/START press ends it early; the old test r"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1003",
+     "date": "2026-10-12",
+     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
+    }
+   ],
+   "callers": [
+    "0x00FF12"
+   ],
+   "notes": [
+    "2026-10-12: file select start input: cmp.w -2(a4),d0 / rts; part of HandleGameStartInput"
+   ],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x01209C",
+   "first_seen": "2026-10-12",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1007",
+     "date": "2026-10-12",
+     "snippet": "- Profile (CALLTRACE streamed through awk, no 600 MB log): 1042 functions, 6.0 M calls; 133 unnamed ran (73k calls). Named 100: Friday intro"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x017B48",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:432",
+     "date": "2026-10-12",
+     "snippet": "No crash. Interpreter ran $025F98, $025FB2, $017B48 (plus $003890/$027732 earlier). Same pattern as the statue (interpreted script"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:447",
+     "date": "2026-10-12",
+     "snippet": "shop scripts (different layout) and non-table code such as $017B48/$017CC0 (keep seeding from the interp log)."
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x017B8C",
+   "first_seen": "2026-10-10",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "WIDE=48 strips k=3 fuzz seed 3 (tools/inputfuzz.py), build 2026-10-10",
+     "date": "2026-10-10"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:803",
+     "date": "2026-10-12",
+     "snippet": "Reproduced headless with `tools/inputfuzz.py` (random pad input incl. A/B/C jumps after the massan.txt prefix, 9000 frames): seed 3 at `LAND"
+    }
+   ],
+   "callers": [
+    "0x002300"
+   ],
+   "notes": [
+    "2026-10-10: interp: line seen only together with RTS to $CE0000 / SP=$FFFFFFFE (VDP queue overflow); likely a symptom of the destroyed stack, not a real missing function; clean at WIDE=0 and after the queue guard"
+   ],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x017B90",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:650",
+     "date": "2026-10-12",
+     "snippet": "**First attempt `[0x200,0x30000)` was too strict:** the first Deck play in the new area after the church froze and the log showed `interp: r"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x017B98",
+   "first_seen": "2026-10-10",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "WIDE=48 strips k=3 fuzz seed 3 (tools/inputfuzz.py), build 2026-10-10",
+     "date": "2026-10-10"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:803",
+     "date": "2026-10-12",
+     "snippet": "Reproduced headless with `tools/inputfuzz.py` (random pad input incl. A/B/C jumps after the massan.txt prefix, 9000 frames): seed 3 at `LAND"
+    }
+   ],
+   "callers": [
+    "0x002300"
+   ],
+   "notes": [
+    "2026-10-10: interp: line seen only together with RTS to $CE0000 / SP=$FFFFFFFE (VDP queue overflow); likely a symptom of the destroyed stack, not a real missing function; clean at WIDE=0 and after the queue guard"
+   ],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x017C68",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:503",
+     "date": "2026-10-12",
+     "snippet": "script_tables) and $017C68. Priest textbox invisible, clickable, then game ended. Fix: script_tables.py now also seeds all 429 `Jump to addr"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:504",
+     "date": "2026-10-12",
+     "snippet": "targets of the disassembly's script tables (stored as `_extra_targets` in tools/script_tables.json) and $017C68."
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x017CBE",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:175",
+     "date": "2026-10-12",
+     "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x017CC0",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:436",
+     "date": "2026-10-12",
+     "snippet": "Interpreter ran $017CC0 and $0260DC (new). Seeded. The hut text boxes worked after seeding win10's addresses -> confirms"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:447",
+     "date": "2026-10-12",
+     "snippet": "shop scripts (different layout) and non-table code such as $017B48/$017CC0 (keep seeding from the interp log)."
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:648",
+     "date": "2026-10-12",
+     "snippet": "**Root cause:** genrecomp `analyze.py::_scan_jump_tables` turns every run of >= 3 even ROM-range longwords into function labels, and `CODE_R"
+    },
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:8",
+     "date": "2026-10-12",
+     "snippet": "Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-rec comparison tool chain, differential instruction fuzz (fo"
+    },
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:175",
+     "date": "2026-10-12",
+     "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-10: BOGUS function start (mid-instruction of btst at $017CBE); never seed"
+   ],
+   "mentions": 9,
+   "class": "not-an-address",
+   "class_by": "hand"
+  },
+  {
+   "addr": "0x017CFC",
+   "first_seen": "2026-10-10",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "WIDE=48 strips k=3 fuzz seed 3 (tools/inputfuzz.py), build 2026-10-10",
+     "date": "2026-10-10"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:803",
+     "date": "2026-10-12",
+     "snippet": "Reproduced headless with `tools/inputfuzz.py` (random pad input incl. A/B/C jumps after the massan.txt prefix, 9000 frames): seed 3 at `LAND"
+    }
+   ],
+   "callers": [
+    "0x002300"
+   ],
+   "notes": [
+    "2026-10-10: interp: line seen only together with RTS to $CE0000 / SP=$FFFFFFFE (VDP queue overflow); likely a symptom of the destroyed stack, not a real missing function; clean at WIDE=0 and after the queue guard"
+   ],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x01895E",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:533",
+     "date": "2026-10-12",
+     "snippet": "`LANDSTALKER_ENTRYDUMP=024A78`: both entries at depth 5, sp=$FFFFFFE8, return $01895E present (the crashing call too). `GENRECOMP_WATCH=FFFF"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x0189E0",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x018D0A",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:424",
+     "date": "2026-10-12",
+     "snippet": "analyzer; seed it) and `RTS to $023136 (expected $018D0A, SP=$FFFFFFF8)` with shadow stack ... $0178C8 $018CFC $012988."
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x019844",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x022E8C",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [],
+   "notes": [
+    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x023136",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:413",
+     "date": "2026-10-12",
+     "snippet": "text, ScriptSleep, `dc.w 00119`, rts) ran on the interpreter, plus `RTS to $023136 (expected $00171E)` (ProcessChar"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:417",
+     "date": "2026-10-12",
+     "snippet": "(commit a95bb31). Next: re-test; if symptoms remain, trace the `RTS to $023136` mismatch (return address after trap+data"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:424",
+     "date": "2026-10-12",
+     "snippet": "analyzer; seed it) and `RTS to $023136 (expected $018D0A, SP=$FFFFFFF8)` with shadow stack ... $0178C8 $018CFC $012988."
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:425",
+     "date": "2026-10-12",
+     "snippet": "SP $F8 is far too high for depth 5: something popped extra words; $023136 (= loc_23136 after ProcessChar's trap #0 + data)"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:451",
+     "date": "2026-10-12",
+     "snippet": "probably a wild jump after the stack mismatches `RTS to $02539E (expected $025324)`, `$002304`, `$023136` seen in the same run -"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 6,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x02360C",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:158",
+     "date": "2026-10-12",
+     "snippet": "(`$02360C`) while the dispatcher still expects `$02365C`; with no function at"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x02365C",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:158",
+     "date": "2026-10-12",
+     "snippet": "(`$02360C`) while the dispatcher still expects `$02365C`; with no function at"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x023690",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:758",
+     "date": "2026-10-12",
+     "snippet": "* Other code that merely points at the queue buffer `$FF3900` (lea): `$00F578 $00F5DC $00F5F4 $00F6DC $00F6F0 $00F6F6 $00F700 $00F722` (a cl"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x024460",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:651",
+     "date": "2026-10-12",
+     "snippet": "Remaining after that (data tables below $030000 decoded as code, e.g. $003BF6 $004FEA $00A9B2 $00C180 $024460 and inline-data after bsr to $"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x024898",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:917",
+     "date": "2026-10-12",
+     "snippet": "* How the Start menu is built (all verified by disassembly + headless tests): `CheckForMenuOpen $007624` (stays on the call stack) -> item s"
+    },
+    {
+     "type": "doc",
+     "where": "LESSONS.md:98",
+     "date": "2026-10-12",
+     "snippet": "28. **Options tab = native overrides of the game's menu functions** (`tools/patch_options.py`): depends on `CheckForMenuOpen $007624` on the"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x0248EE",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:917",
+     "date": "2026-10-12",
+     "snippet": "* How the Start menu is built (all verified by disassembly + headless tests): `CheckForMenuOpen $007624` (stays on the call stack) -> item s"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x0248F8",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:942",
+     "date": "2026-10-12",
+     "snippet": "* The Start menu's Use / Equip tabs show the list but the cursor (golden frame) only appears after A (the game then runs the item-grid loop;"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x024A82",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:525",
+     "date": "2026-10-12",
+     "snippet": "RTS ring (newest last): ... HandleMap done -> $0250F2 -> RunTextCmd return $025412 -> $024B7C -> $024ABC -> $024A82 (sub_24A98 -> sub_24A78)"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x024ABC",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:525",
+     "date": "2026-10-12",
+     "snippet": "RTS ring (newest last): ... HandleMap done -> $0250F2 -> RunTextCmd return $025412 -> $024B7C -> $024ABC -> $024A82 (sub_24A98 -> sub_24A78)"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x024AC2",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:369",
+     "date": "2026-10-12",
+     "snippet": "`GainItem` ($24AC2.., the \"Found <item>\" box) does `bsr.w ScriptSleep` followed by `dc.w 00119` (the sleep time)."
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x024B12",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:354",
+     "date": "2026-10-12",
+     "snippet": "- `func_table: RTS to $024B14 (expected $024B12, SP=$FFFFFF94)` at ~3540, call stack `... $024A5C $024AD0 $029046`."
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:361",
+     "date": "2026-10-12",
+     "snippet": "Not yet analysed. Plan: (1) look up `$024B12`/`$024B14` in the source (text/menu routine `$024A5C`), (2) replay or play to"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:371",
+     "date": "2026-10-12",
+     "snippet": "printed `RTS to $024B14 (expected $024B12)`; the generator had decoded the data word as an instruction and the"
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:91",
+     "date": "2026-10-12",
+     "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 4,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x024B14",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:354",
+     "date": "2026-10-12",
+     "snippet": "- `func_table: RTS to $024B14 (expected $024B12, SP=$FFFFFF94)` at ~3540, call stack `... $024A5C $024AD0 $029046`."
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:361",
+     "date": "2026-10-12",
+     "snippet": "Not yet analysed. Plan: (1) look up `$024B12`/`$024B14` in the source (text/menu routine `$024A5C`), (2) replay or play to"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:371",
+     "date": "2026-10-12",
+     "snippet": "printed `RTS to $024B14 (expected $024B12)`; the generator had decoded the data word as an instruction and the"
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:91",
+     "date": "2026-10-12",
+     "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 4,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x024B7C",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:525",
+     "date": "2026-10-12",
+     "snippet": "RTS ring (newest last): ... HandleMap done -> $0250F2 -> RunTextCmd return $025412 -> $024B7C -> $024ABC -> $024A82 (sub_24A98 -> sub_24A78)"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x0250F2",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:525",
+     "date": "2026-10-12",
+     "snippet": "RTS ring (newest last): ... HandleMap done -> $0250F2 -> RunTextCmd return $025412 -> $024B7C -> $024ABC -> $024A82 (sub_24A98 -> sub_24A78)"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x025324",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:451",
+     "date": "2026-10-12",
+     "snippet": "probably a wild jump after the stack mismatches `RTS to $02539E (expected $025324)`, `$002304`, `$023136` seen in the same run -"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:457",
+     "date": "2026-10-12",
+     "snippet": "`RTS to $02539E (expected $025324)` = PickValueBasedOnFlags (call_data pick) consuming 122 bytes of inline data; the compiled caller"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x02539E",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:451",
+     "date": "2026-10-12",
+     "snippet": "probably a wild jump after the stack mismatches `RTS to $02539E (expected $025324)`, `$002304`, `$023136` seen in the same run -"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:457",
+     "date": "2026-10-12",
+     "snippet": "`RTS to $02539E (expected $025324)` = PickValueBasedOnFlags (call_data pick) consuming 122 bytes of inline data; the compiled caller"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x028214",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:320",
+     "date": "2026-10-12",
+     "snippet": "Log: `no function at $02315C`, `$02317C`, then `RTS to $FF5880 (expected $022F52)`, `no function at $028214`"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "log-artifact"
+  },
+  {
+   "addr": "0x02BFFF",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:649",
+     "date": "2026-10-12",
+     "snippet": "`tools/code_extent.py` (descent only, no heuristics) showed: certain code lives in $000200-$02BFFF (plus a few islands: $038000, $03C000, $0"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x030000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:650",
+     "date": "2026-10-12",
+     "snippet": "**First attempt `[0x200,0x30000)` was too strict:** the first Deck play in the new area after the church froze and the log showed `interp: r"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:650",
+     "date": "2026-10-12",
+     "snippet": "**First attempt `[0x200,0x30000)` was too strict:** the first Deck play in the new area after the church froze and the log showed `interp: r"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:651",
+     "date": "2026-10-12",
+     "snippet": "Remaining after that (data tables below $030000 decoded as code, e.g. $003BF6 $004FEA $00A9B2 $00C180 $024460 and inline-data after bsr to $"
+    },
+    {
+     "type": "doc",
+     "where": "LESSONS.md:28",
+     "date": "2026-10-12",
+     "snippet": "## 3b. Rule: heuristic scans must be bounded (but code is not only below $030000!)"
+    },
+    {
+     "type": "doc",
+     "where": "LESSONS.md:29",
+     "date": "2026-10-12",
+     "snippet": "genrecomp's address-table scan invents functions in any data. `recomp.json` carries `code_ranges` ([$200,$30000)); measure with `tools/code_"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 5,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x034300",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:33",
+     "date": "2026-10-12",
+     "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
+    },
+    {
+     "type": "doc",
+     "where": "LESSONS.md:34",
+     "date": "2026-10-12",
+     "snippet": "3. (IN PROGRESS, fix on dev: code_ranges) Review the `check_splits` spots (123 reported on 2026-10-10, mostly `jt_*` jump-table entries near"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x038000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:649",
+     "date": "2026-10-12",
+     "snippet": "`tools/code_extent.py` (descent only, no heuristics) showed: certain code lives in $000200-$02BFFF (plus a few islands: $038000, $03C000, $0"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x039A5C",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the Massan replay (frames 0-1500), 11 calls",
+     "date": "2026-10-12"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1003",
+     "date": "2026-10-12",
+     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
+    }
+   ],
+   "callers": [
+    "0x0399CC"
+   ],
+   "notes": [
+    "2026-10-12: title screen sword slash animation: step that tests six state bytes -5..-a(a6) and resets the counter; part of the title sequence"
+   ],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x039A98",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the Massan replay (frames 0-1500), 11 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [
+    "0x0399CC"
+   ],
+   "notes": [
+    "2026-10-12: title screen sword slash: tests -5(a6); calls DecompTM helper 039AD6"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x039AD6",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the Massan replay (frames 0-1500), 150 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [
+    "0x039A98"
+   ],
+   "notes": [
+    "2026-10-12: title screen tilemap decompressor (DecompTM family, state in -N(a6) bytes): reads a 16-bit window value and stores a tile; real role not worked out"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x039BAA",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the Massan replay (frames 0-1500), 11 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [
+    "0x0399CC"
+   ],
+   "notes": [
+    "2026-10-12: title screen sword slash: step guarded by -7(a6)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x039CA4",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the Massan replay (frames 0-1500), 11 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [
+    "0x0399CC"
+   ],
+   "notes": [
+    "2026-10-12: title screen sword slash: step guarded by -9(a6)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x039D3A",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the Massan replay (frames 0-1500), 11 calls",
+     "date": "2026-10-12"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1003",
+     "date": "2026-10-12",
+     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
+    }
+   ],
+   "callers": [
+    "0x0399CC"
+   ],
+   "notes": [
+    "2026-10-12: title screen sword slash: step guarded by -8(a6), ends with DisplayTitleScreen_UploadTilemap"
+   ],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x039DD8",
+   "first_seen": "2026-10-12",
+   "hits": 1,
+   "sightings": [
+    {
+     "type": "manual",
+     "where": "executed in the Massan replay (frames 0-1500), 11 calls",
+     "date": "2026-10-12"
+    }
+   ],
+   "callers": [
+    "0x0399CC"
+   ],
+   "notes": [
+    "2026-10-12: title screen sword slash: palette/tile step guarded by -b(a6)"
+   ],
+   "mentions": 0,
+   "class": "other"
+  },
+  {
+   "addr": "0x03C000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:649",
+     "date": "2026-10-12",
+     "snippet": "`tools/code_extent.py` (descent only, no heuristics) showed: certain code lives in $000200-$02BFFF (plus a few islands: $038000, $03C000, $0"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x040000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:649",
+     "date": "2026-10-12",
+     "snippet": "`tools/code_extent.py` (descent only, no heuristics) showed: certain code lives in $000200-$02BFFF (plus a few islands: $038000, $03C000, $0"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:650",
+     "date": "2026-10-12",
+     "snippet": "**First attempt `[0x200,0x30000)` was too strict:** the first Deck play in the new area after the church froze and the log showed `interp: r"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x090880",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:33",
+     "date": "2026-10-12",
+     "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
+    },
+    {
+     "type": "doc",
+     "where": "LESSONS.md:34",
+     "date": "2026-10-12",
+     "snippet": "3. (IN PROGRESS, fix on dev: code_ranges) Review the `check_splits` spots (123 reported on 2026-10-10, mostly `jt_*` jump-table entries near"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "seed/table"
+  },
+  {
+   "addr": "0x09A000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:649",
+     "date": "2026-10-12",
+     "snippet": "`tools/code_extent.py` (descent only, no heuristics) showed: certain code lives in $000200-$02BFFF (plus a few islands: $038000, $03C000, $0"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:650",
+     "date": "2026-10-12",
+     "snippet": "**First attempt `[0x200,0x30000)` was too strict:** the first Deck play in the new area after the church froze and the log showed `interp: r"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x09F694",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:758",
+     "date": "2026-10-12",
+     "snippet": "* Other code that merely points at the queue buffer `$FF3900` (lea): `$00F578 $00F5DC $00F5F4 $00F6DC $00F6F0 $00F6F6 $00F700 $00F722` (a cl"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x0A1FFF",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:649",
+     "date": "2026-10-12",
+     "snippet": "`tools/code_extent.py` (descent only, no heuristics) showed: certain code lives in $000200-$02BFFF (plus a few islands: $038000, $03C000, $0"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x0A2000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:650",
+     "date": "2026-10-12",
+     "snippet": "**First attempt `[0x200,0x30000)` was too strict:** the first Deck play in the new area after the church froze and the log showed `interp: r"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x11E000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:649",
+     "date": "2026-10-12",
+     "snippet": "`tools/code_extent.py` (descent only, no heuristics) showed: certain code lives in $000200-$02BFFF (plus a few islands: $038000, $03C000, $0"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:650",
+     "date": "2026-10-12",
+     "snippet": "**First attempt `[0x200,0x30000)` was too strict:** the first Deck play in the new area after the church froze and the log showed `interp: r"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "other"
+  },
+  {
+   "addr": "0x1A0000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:650",
+     "date": "2026-10-12",
+     "snippet": "**First attempt `[0x200,0x30000)` was too strict:** the first Deck play in the new area after the church froze and the log showed `interp: r"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x1A4000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:649",
+     "date": "2026-10-12",
+     "snippet": "`tools/code_extent.py` (descent only, no heuristics) showed: certain code lives in $000200-$02BFFF (plus a few islands: $038000, $03C000, $0"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x1A8000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:650",
+     "date": "2026-10-12",
+     "snippet": "**First attempt `[0x200,0x30000)` was too strict:** the first Deck play in the new area after the church froze and the log showed `interp: r"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x1A9FFF",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:649",
+     "date": "2026-10-12",
+     "snippet": "`tools/code_extent.py` (descent only, no heuristics) showed: certain code lives in $000200-$02BFFF (plus a few islands: $038000, $03C000, $0"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x1B0000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:650",
+     "date": "2026-10-12",
+     "snippet": "**First attempt `[0x200,0x30000)` was too strict:** the first Deck play in the new area after the church froze and the log showed `interp: r"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0xFF0000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:610",
+     "date": "2026-10-12",
+     "snippet": "44 bytes differ (`$FF80-$FFB3`,`$FFD2` = stack leftovers; `$FF0F9C-$FF0FAB`,`$FF0FDE` = small input/timer variables). `$FF0000-$FF0009` diff"
+    },
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:176",
+     "date": "2026-10-12",
+     "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF0009",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:610",
+     "date": "2026-10-12",
+     "snippet": "44 bytes differ (`$FF80-$FFB3`,`$FFD2` = stack leftovers; `$FF0F9C-$FF0FAB`,`$FF0FDE` = small input/timer variables). `$FF0000-$FF0009` diff"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF07CE",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:917",
+     "date": "2026-10-12",
+     "snippet": "* How the Start menu is built (all verified by disassembly + headless tests): `CheckForMenuOpen $007624` (stays on the call stack) -> item s"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF0855",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:903",
+     "date": "2026-10-12",
+     "snippet": "* Verified headless: WIDE=0: 30 RAM dumps (incl. VRAM) byte-identical to the build before. WIDE=48 TALL=1, 1200 screenshots (seed 26): the c"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF0F9C",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:610",
+     "date": "2026-10-12",
+     "snippet": "44 bytes differ (`$FF80-$FFB3`,`$FFD2` = stack leftovers; `$FF0F9C-$FF0FAB`,`$FF0FDE` = small input/timer variables). `$FF0000-$FF0009` diff"
+    },
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:12",
+     "date": "2026-10-12",
+     "snippet": "- **2026-10-12 (latest, dev): replay of the user's death recording (rec_20261012_2148) matches the live run until frame 3720, then diverges*"
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:13",
+     "date": "2026-10-12",
+     "snippet": "- **2026-10-12 (late night, dev): replay vs live comparison (recording rec_20261012_2148, died at the end, user setting WIDE=16 + TALL).** `"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 3,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF0FAA",
+   "first_seen": "2026-10-12",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "FORMATS.md:103",
+     "date": "2026-10-12",
+     "snippet": "- RNG: `GenerateRandomNumber $001164`: seed `$FF0FAA` = seed * 13 + 7 (16 bit), result = (seed * d6) >> 16; the VBlank handler adds 1, `Read"
+    },
+    {
+     "type": "doc",
+     "where": "HANDOFF.md:12",
+     "date": "2026-10-12",
+     "snippet": "- **2026-10-12 (latest, dev): replay of the user's death recording (rec_20261012_2148) matches the live run until frame 3720, then diverges*"
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:13",
+     "date": "2026-10-12",
+     "snippet": "- **2026-10-12 (late night, dev): replay vs live comparison (recording rec_20261012_2148, died at the end, user setting WIDE=16 + TALL).** `"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 3,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF0FAB",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:610",
+     "date": "2026-10-12",
+     "snippet": "44 bytes differ (`$FF80-$FFB3`,`$FFD2` = stack leftovers; `$FF0F9C-$FF0FAB`,`$FF0FDE` = small input/timer variables). `$FF0000-$FF0009` diff"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF0FDE",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:610",
+     "date": "2026-10-12",
+     "snippet": "44 bytes differ (`$FF80-$FFB3`,`$FFD2` = stack leftovers; `$FF0F9C-$FF0FAB`,`$FF0FDE` = small input/timer variables). `$FF0000-$FF0009` diff"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF1004",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:969",
+     "date": "2026-10-12",
+     "snippet": "* User: opening the leftmost chest of room 224 (tile 12.22, 'Found Lithograph.') and pressing a button shows, in the original, a full-screen"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF115A",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:757",
+     "date": "2026-10-12",
+     "snippet": "* `$FF1840` (write pointer) is read+written by `$004B14` (+1 entry), `$004C94`, and by a block at **`$00A61C / $00A630 / $00A670 / $00A6B0 /"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF11E0",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:192",
+     "date": "2026-10-12",
+     "snippet": "\"no function at $00427C\", then garbage return addresses ($FF11E0...) and a black"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF1206",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:955",
+     "date": "2026-10-12",
+     "snippet": "* User wish: give room + coordinates (from the overlay R4 / F5) and let Claude look at graphic errors there without walking. `LANDSTALKER_WA"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF1842",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:903",
+     "date": "2026-10-12",
+     "snippet": "* Verified headless: WIDE=0: 30 RAM dumps (incl. VRAM) byte-identical to the build before. WIDE=48 TALL=1, 1200 screenshots (seed 26): the c"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF1850",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:169",
+     "date": "2026-10-12",
+     "snippet": "On the file select screen: `func_table: no function at $FF1850`. `JmpInstr1`"
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:87",
+     "date": "2026-10-12",
+     "snippet": "| \"no function at $FF1850/$427C/...\" | RAM thunks into ROM mid-code; computed `jmp T(pc,dN)` tables | seeds via `gen_seeds.py`, `expand_seed"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF1858",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:189",
+     "date": "2026-10-12",
+     "snippet": "`JumpInstr2` (`$FF1858`) is filled from ROM words at `loc_403C` (`jmp loc_433E`)"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF2C00",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:93",
+     "date": "2026-10-12",
+     "snippet": "Dumps at frame 274 showed the unpacked-graphics buffer (`$FF2C00`+) and VRAM"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF3B00",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:836",
+     "date": "2026-10-12",
+     "snippet": "Result headless (build checksum see verify_build): seeds 13/9/7 x WIDE 0/32/48, 161 RAM dumps each: player, camera, room and queue count IDE"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF3B40",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:880",
+     "date": "2026-10-12",
+     "snippet": "* Invisible to the game: the extra entries pass through the RAM behind the game's queue end (up to $FF50A0 with kv=4); with TALL that RAM is"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:993",
+     "date": "2026-10-12",
+     "snippet": "* Verified headless (WIDE 16 + TALL, save 1, warps 613 -> 610 -> 613): band complete in every visible fade-in frame of the start (432-474) a"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF40DF",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:993",
+     "date": "2026-10-12",
+     "snippet": "* Verified headless (WIDE 16 + TALL, save 1, warps 613 -> 610 -> 613): band complete in every visible fade-in frame of the start (432-474) a"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF42FF",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:836",
+     "date": "2026-10-12",
+     "snippet": "Result headless (build checksum see verify_build): seeds 13/9/7 x WIDE 0/32/48, 161 RAM dumps each: player, camera, room and queue count IDE"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF5000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:803",
+     "date": "2026-10-12",
+     "snippet": "Reproduced headless with `tools/inputfuzz.py` (random pad input incl. A/B/C jumps after the massan.txt prefix, 9000 frames): seed 3 at `LAND"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF50A0",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:880",
+     "date": "2026-10-12",
+     "snippet": "* Invisible to the game: the extra entries pass through the RAM behind the game's queue end (up to $FF50A0 with kv=4); with TALL that RAM is"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF5402",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:896",
+     "date": "2026-10-12",
+     "snippet": "* Coordinate overlay (new, `tools/patch_coords.py`): pad R4 (back button) or F5 shows `ROOM n X x.xx Y y.yy / Z zzzz CAM cx/cy` from work RA"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:955",
+     "date": "2026-10-12",
+     "snippet": "* User wish: give room + coordinates (from the overlay R4 / F5) and let Claude look at graphic errors there without walking. `LANDSTALKER_WA"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF5403",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:621",
+     "date": "2026-10-12",
+     "snippet": "struct (e.g. $FF5403 08/0A, $FF5417 B8/BA) remains = input phase: the reference applies the pad state at the START of each frame (recomp_inp"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF5412",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:896",
+     "date": "2026-10-12",
+     "snippet": "* Coordinate overlay (new, `tools/patch_coords.py`): pad R4 (back button) or F5 shows `ROOM n X x.xx Y y.yy / Z zzzz CAM cx/cy` from work RA"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:955",
+     "date": "2026-10-12",
+     "snippet": "* User wish: give room + coordinates (from the overlay R4 / F5) and let Claude look at graphic errors there without walking. `LANDSTALKER_WA"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF5417",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:621",
+     "date": "2026-10-12",
+     "snippet": "struct (e.g. $FF5403 08/0A, $FF5417 B8/BA) remains = input phase: the reference applies the pad state at the START of each frame (recomp_inp"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF5880",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:320",
+     "date": "2026-10-12",
+     "snippet": "Log: `no function at $02315C`, `$02317C`, then `RTS to $FF5880 (expected $022F52)`, `no function at $028214`"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFF8000",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:637",
+     "date": "2026-10-12",
+     "snippet": "high RAM through absolute short addressing (e.g. the height map at $FFD192, variables above $FF8000) read garbage from ROM. Prime suspect fo"
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:93",
+     "date": "2026-10-12",
+     "snippet": "| NPCs ignore obstacles; reads of high RAM ($FF8000+) via `($XXXX).w` return ROM bytes; CMPM/BCD/ASL/ROX/MOVEM wrong | generator treated abs"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFFFC2A",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:285",
+     "date": "2026-10-12",
+     "snippet": "up to $FFFC59) with `move.l #$40004000,(a1)+`. The leaked stack had reached $FFFC2A, so live return"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:23",
+     "date": "2026-10-12",
+     "snippet": "The game's own symbolic RAM names are in `code/include/ram.inc` of the lordmir disassembly (check it before inventing names). Stack overrun "
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFFFC59",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:285",
+     "date": "2026-10-12",
+     "snippet": "up to $FFFC59) with `move.l #$40004000,(a1)+`. The leaked stack had reached $FFFC2A, so live return"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:627",
+     "date": "2026-10-12",
+     "snippet": "Entities are 0x80-byte structs (two 0x40 halves with identical position fields). Height map ($FFD192-$FFFC59) is IDENTICAL in ref and rec ->"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:22",
+     "date": "2026-10-12",
+     "snippet": "| `$FFD192` | g_HeightMap | height map, `$2AC8` bytes, up to `$FFFC59` | V |"
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:89",
+     "date": "2026-10-12",
+     "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 4,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFFFFAF",
+   "first_seen": "2026-10-11",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:903",
+     "date": "2026-10-12",
+     "snippet": "* Verified headless: WIDE=0: 30 RAM dumps (incl. VRAM) byte-identical to the build before. WIDE=48 TALL=1, 1200 screenshots (seed 26): the c"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFFFFD8",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:546",
+     "date": "2026-10-12",
+     "snippet": "`rtsdump` (stack words from sp-$14 = $FFFFD8): sixteen zero words, i.e. a stack range is blank, not just the return slot. `LANDSTALKER_GUARD"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFFFFE8",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:547",
+     "date": "2026-10-12",
+     "snippet": "(`armed` message absent although ENTRYDUMP showed $0001895E at $FFFFE8) -> the guard read the wrong place (fixed: uses the map's read16 hand"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:550",
+     "date": "2026-10-12",
+     "snippet": "win27: `guard: watching $FFFFE8 for 0001895E (now 00000000, map base=0x..., read16=(nil))` and it never armed although ENTRYDUMP read $00018"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:555",
+     "date": "2026-10-12",
+     "snippet": "`guard: $FFFFE8 0001895E -> 00000000; previous bus access $C00004; call stack (11): $0016B6 $0016DC $0178C8 $0188C4 $024A78 $024A98 $024B48 "
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:575",
+     "date": "2026-10-12",
+     "snippet": "Host backtrace of the write that turned $FFFFE8 from 895E0001 into 00000001: `vdp_68k_ctrl_w -> vdp_reg_w -> m68k_set_irq_delay` (GPGX) exec"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 4,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFFFFEA",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:539",
+     "date": "2026-10-12",
+     "snippet": "Even with patch_watchfold.py the last write to $FFFFEA is the push of $895E, yet the slot reads 0 when sub_24A78 returns. So the change is n"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFFFFEE",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:880",
+     "date": "2026-10-12",
+     "snippet": "* Invisible to the game: the extra entries pass through the RAM behind the game's queue end (up to $FF50A0 with kv=4); with TALL that RAM is"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFFFFFE",
+   "first_seen": "2026-10-10",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:571",
+     "date": "2026-10-12",
+     "snippet": "Also found: patch_watchfold.py printed `watch: write16 $FFFFFE` spam (and slowed the game) when GENRECOMP_WATCH is unset (s_watch=0xFFFFFFFF"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  }
+ ]
+}

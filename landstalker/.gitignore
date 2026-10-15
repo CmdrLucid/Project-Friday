@@ -1,0 +1,13 @@
+# Generated from your own ROM, or fetched dependencies: never committed
+src/recomp/
+build/
+.deps/
+*.bin
+*.gen
+*.smd
+AppDir/
+appimagetool
+*.AppImage
+vendor/
+build_zig/
+dist/
