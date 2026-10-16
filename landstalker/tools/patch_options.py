@@ -143,7 +143,7 @@ static const char *lk_opt_val(int id, int v) {
     return onoff[v & 1];
 }
 static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 5 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 4 ? 12 : 6; }
-static int lk_opt_vis(void) { int n = lk_opt_nrows(); return n > 6 ? 6 : n; }   /* rows shown at once */
+static int lk_opt_vis(void) { int n = lk_opt_nrows(); return n > 7 ? 7 : n; }   /* rows shown at once */
 static void lk_opt_fixscroll(void) { int v = lk_opt_vis(); if (lk_opt_row < lk_opt_scroll) lk_opt_scroll = lk_opt_row; if (lk_opt_row >= lk_opt_scroll + v) lk_opt_scroll = lk_opt_row - v + 1; }
 static int lk_opt_rowid(int r) { return lk_opt_pg == 1 ? lk_ids_video[r] : lk_opt_pg == 2 ? lk_ids_audio[r] : lk_opt_pg == 3 ? lk_ids_game[r] : lk_opt_pg == 4 ? lk_ids_key[r] : -1 - r; }   /* root rows: -1 Video, -2 Audio, -3 Gameplay */
 static int lk_opt_rowy(int r) { return (lk_opt_pg == 1 || lk_opt_pg >= 3) ? 2 + 2 * r : 2 + 3 * r; }
@@ -175,6 +175,18 @@ static void lk_opt_frame(int top, int left, int right, int on) {   /* on = 0: bl
 /* the game's item cursor blinks 16 frames on / 16 frames off (measured: screenshots of the Use list after A); the bar loop runs once per frame */
 static int lk_opt_blink;
 static void lk_opt_upload(void) { lk_call(0x00792Cu); lk_call(0x0002A2u); }
+/* scroll arrows of a long page, the same sprites as in the item list (InventoryMenu_UpdateArrowSprites $00D756): SAT RAM $FF0558 = up arrow (Y $98), $FF0560 = down arrow (Y $120, flipped), tile $80B8 (the game keeps
+   the 16 x 16 arrow in VRAM tiles $B8..$BB while the menu is open), X $8E; shown for 32 frames, hidden for 32, restarted by every move so that they are visible right after it */
+static uint16_t lk_arrow_ref; static int lk_arrow_on;
+static void lk_opt_arrows(void) {
+    int on = lk_opt_tab && lk_opt_sel && lk_opt_pg == 4, up, dn, ph;
+    if (!on && !lk_arrow_on) return;
+    ph = (int)((uint16_t)(bus_read16(0xFF0F9Cu) - lk_arrow_ref) & 0x3F) < 0x20;
+    up = on && lk_opt_scroll > 0 && ph; dn = on && lk_opt_scroll + lk_opt_vis() < lk_opt_nrows() && ph;
+    bus_write16(0xFF0558u, up ? 0x98 : 0); bus_write8(0xFF055Au, 5); bus_write16(0xFF055Cu, 0x80B8); bus_write16(0xFF055Eu, 0x8E);
+    bus_write16(0xFF0560u, dn ? 0x120 : 0); bus_write8(0xFF0562u, 5); bus_write16(0xFF0564u, 0x90B8); bus_write16(0xFF0566u, 0x8E);
+    lk_arrow_on = on;
+}
 static void lk_opt_page(void) {   /* the whole page: labels, values, and the frame when inside the list; uploaded to the window plane */
     int r, c; M68kContext sv = g_m68k;
     for (r = 0; r < 17; r++) for (c = 0; c < 36; c++) bus_write16(0xFF1E04u + (uint32_t)r * 0x80u + (uint32_t)c * 2u, 0xA000);
@@ -185,7 +197,7 @@ static void lk_opt_page(void) {   /* the whole page: labels, values, and the fra
 }
 static void lk_opt_enter(void) {   /* open the page of the selected root row; 'Quit Game' needs a second A */
     if (lk_opt_row == 4) { if (lk_opt_quitarm) platform_request_quit(); else lk_opt_quitarm = 1; lk_opt_page(); return; }
-    lk_opt_rootrow = lk_opt_row; lk_opt_pg = 1 + lk_opt_row; lk_opt_row = 0; lk_opt_scroll = 0; lk_opt_page();
+    lk_opt_rootrow = lk_opt_row; lk_opt_pg = 1 + lk_opt_row; lk_opt_row = 0; lk_opt_scroll = 0; lk_arrow_ref = bus_read16(0xFF0F9Cu); lk_opt_page();
 }   /* open the Video / Audio page of the selected root row */
 static void lk_bar_arrow(uint16_t x) { bus_write16(0xFF07CEu, x); bus_write8(0xFF07CAu, 5); bus_write16(0xFF07CCu, 0x8524); bus_write8(0xFF1800u, 0); }
 #define LK_X_USE 0x00A8   /* arrow X = text x + $80; the three words are centred in the bar: text x $28 / $78 / $C8 (the game: $50 / $A0, arrow $D0 / $120) */
@@ -220,13 +232,14 @@ static void lk_h_upd(void) {
     if (lk_bar_loop()) {
         static int cap_was;
         int e = cur & ~lk_prev_state;
+        lk_opt_arrows();
         if (lk_opt_tab && lk_opt_sel && lk_opt_pg >= 4) { int cp = lk_bind_capturing(); if (cap_was && !cp) { M68kContext sv = g_m68k; lk_opt_page(); lk_snd(LK_SND_SELECT); g_m68k = sv; } cap_was = cp; }   /* capture finished: show the new binding */   /* edge of the previous pass (one pass late, imperceptible) */
         if (lk_opt_tab && lk_opt_sel) bus_write8(0xFF1800u, 0);   /* inside the list the bar arrow stays lit, like after A on Use / Equip */
         if (lk_opt_tab && lk_opt_sel && (e & 3)) {
             M68kContext sv = g_m68k;
             if (e & 1) lk_opt_row = (lk_opt_row + lk_opt_nrows() - 1) % lk_opt_nrows();
             if (e & 2) lk_opt_row = (lk_opt_row + 1) % lk_opt_nrows();
-            lk_opt_fixscroll(); lk_opt_quitarm = 0;
+            lk_opt_fixscroll(); lk_opt_quitarm = 0; lk_arrow_ref = bus_read16(0xFF0F9Cu);
             lk_opt_page(); lk_snd(LK_SND_MOVE); g_m68k = sv;
         } else if (lk_opt_tab && lk_opt_sel && ((++lk_opt_blink) & 0x0F) == 0) {   /* blink: toggle the corners every 16 passes */
             M68kContext sv = g_m68k;
@@ -287,7 +300,7 @@ static void lk_h_cancel(void) {
         lk_opt_page(); g_m68k = sv; lk_keep_edge_mask();
         func_table_tail(0x024898); return;
     }
-    lk_opt_tab = 0; lk_opt_sel = 0; lk_opt_pg = 0;
+    lk_opt_tab = 0; lk_opt_sel = 0; lk_opt_pg = 0; lk_opt_arrows();
     lk_o_cancel();
 }
 /* ---- file select: fourth bar entry 'Options' (phase B) ---- */
@@ -318,6 +331,8 @@ static void lk_h_fbar(void) {
 extern int lk_win_on, lk_win_sel, lk_win_blink, lk_win_n, lk_win_pitch, lk_win_compact;
 extern uint8_t lk_win_row[8][16][288];
 extern uint8_t lk_win_cur[32][32];
+extern uint8_t lk_win_arrow[16][16];   /* the scroll arrow (up) of the item list, 2bpp from the ROM: indices 0..3 */
+extern int lk_win_arr;   /* bit 0 = draw the up arrow, bit 1 = the down arrow */
 static uint8_t lk_win_stage[8][16][288];   /* a page is built here and copied in one go, so that no frame shows half of a page */
 static void lk_win_text(int k, const char *l, int lx, const char *v, int vx) {
     int x, y; M68kContext sv = g_m68k;
@@ -332,7 +347,7 @@ static void lk_win_text(int k, const char *l, int lx, const char *v, int vx) {
 }
 static const int lk_win_cnt[5] = { 5, 6, 3, 6, 12 };
 static int lk_win_scroll;   /* first visible option of a long page */
-static int lk_win_vis(int pg) { return lk_win_cnt[pg] > 6 ? 6 : lk_win_cnt[pg]; }
+static int lk_win_vis(int pg) { return lk_win_cnt[pg] > 7 ? 7 : lk_win_cnt[pg]; }   /* the window has room for the title and 7 tight rows (pitch 18) */
 static int lk_win_fix(int pg, int row) { int old = lk_win_scroll, v = lk_win_vis(pg); if (row < lk_win_scroll) lk_win_scroll = row; if (row >= lk_win_scroll + v) lk_win_scroll = row - v + 1; return old != lk_win_scroll; }   /* 1 = the visible part changed (the page is rebuilt) */
 static int lk_win_id(int pg, int r) { return pg == 1 ? lk_ids_video[r] : pg == 2 ? lk_ids_audio[r] : pg == 3 ? lk_ids_game[r] : lk_ids_key[r]; }
 static void lk_win_rowtext(int pg, int r) {   /* builds the text of row r (0 = title, 1.. = options) of page pg into lk_win_stage[r] */
@@ -344,7 +359,7 @@ static void lk_win_rowtext(int pg, int r) {   /* builds the text of row r (0 = t
 static void lk_win_page(int pg, int sel) {   /* pg 0 = root, 1 Video, 2 Audio, 3 Gameplay; sel = selected row (0 based) */
     int r;
     for (r = 0; r <= lk_win_vis(pg); r++) lk_win_rowtext(pg, r);
-    lk_win_pitch = (pg == 2) ? 28 : 20; lk_win_compact = (pg != 2);   /* only the 3-row Audio page is spread out; the root (5 rows) and the long pages are tight with the compact frame */   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
+    lk_win_pitch = (pg == 2) ? 28 : (pg == 4) ? 18 : 20; lk_win_compact = (pg != 2);   /* only the 3-row Audio page is spread out; the root (5 rows) and the long pages are tight with the compact frame */   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
     memcpy(lk_win_row, lk_win_stage, sizeof lk_win_row); lk_win_n = lk_win_vis(pg) + 1; lk_win_sel = sel - lk_win_scroll + 1;
 }
 /* UP / DOWN only move the selection frame (no text work: every text row is printed through the game's own text engine, a whole page = about 100 characters = several frames of emulated time,
@@ -352,15 +367,19 @@ static void lk_win_page(int pg, int sel) {   /* pg 0 = root, 1 Video, 2 Audio, 3
 static void lk_win_move(int row) { lk_win_sel = row - lk_win_scroll + 1; }
 static void lk_win_value(int pg, int row) { int k = row - lk_win_scroll + 1; lk_win_rowtext(pg, k); memcpy(lk_win_row[k], lk_win_stage[k], sizeof lk_win_row[0]); }
 static void lk_fs_modal(void) {   /* options window in the file select */
-    int pg = 0, row = 0, rootrow = 0, prev = bus_read8(0xFF0F8Eu), cur, e, blink = 0, cap_was = 0;
+    int pg = 0, row = 0, rootrow = 0, prev = bus_read8(0xFF0F8Eu), cur, e, blink = 0, cap_was = 0, arrow0 = 0;
     M68kContext sv = g_m68k;
     { int t, r, c; for (t = 0; t < 16; t++) for (r = 0; r < 8; r++) {   /* MenuCursor2BPP $00DF76: 16 tiles of 2bpp (8 rows of 2 bytes), column-major 4 x 4 */
         uint16_t w = bus_read16(0x00DF76u + (uint32_t)t * 16u + (uint32_t)r * 2u);
         for (c = 0; c < 8; c++) lk_win_cur[(t % 4) * 8 + r][(t / 4) * 8 + c] = (uint8_t)((w >> (14 - 2 * c)) & 3); } }
+    { int t, r, c; for (t = 0; t < 4; t++) for (r = 0; r < 8; r++) {   /* ArrowGraphic2BPP $00E076: 4 tiles of 2bpp, column-major 2 x 2 */
+        uint16_t w = bus_read16(0x00E076u + (uint32_t)t * 16u + (uint32_t)r * 2u);
+        for (c = 0; c < 8; c++) lk_win_arrow[(t % 2) * 8 + r][(t / 2) * 8 + c] = (uint8_t)((w >> (14 - 2 * c)) & 3); } }
     lk_win_scroll = 0; lk_opt_quitarm = 0; lk_win_page(0, 0); lk_win_on = 1; lk_win_blink = 0;
     for (;;) {
         bus_write16(0xFF0550u, 0x0134); bus_write8(0xFF0552u, 5); bus_write16(0xFF0554u, 0xA0AA); bus_write16(0xFF0556u, 1);   /* the bar arrow is parked (hidden) while the window is open */
         lk_win_blink = (blink++ & 0x10) ? 1 : 0;
+        lk_win_arr = (pg == 4 && ((blink - arrow0) & 0x3F) < 0x20) ? ((lk_win_scroll > 0 ? 1 : 0) | (lk_win_scroll + lk_win_vis(pg) < lk_win_cnt[pg] ? 2 : 0)) : 0;
         lk_call(0x000272u);   /* WaitUntilVBlank */
         lk_call(0x00033Eu);   /* UpdateControllerInputs (the file select polls the pad itself, sub_F2E2) */
         cur = bus_read8(0xFF0F8Eu); e = cur & ~prev; prev = cur;
@@ -372,7 +391,7 @@ static void lk_fs_modal(void) {   /* options window in the file select */
         if (e & 3) {
             if (pg == 0 && lk_opt_quitarm) { lk_opt_quitarm = 0; lk_win_value(0, 4); }   /* moving away disarms 'Quit Game' */
             if (e & 1) row = (row + lk_win_cnt[pg] - 1) % lk_win_cnt[pg]; else row = (row + 1) % lk_win_cnt[pg];
-            blink = 0; if (lk_win_fix(pg, row)) lk_win_page(pg, row); else lk_win_move(row);
+            blink = 0; arrow0 = 0; if (lk_win_fix(pg, row)) lk_win_page(pg, row); else lk_win_move(row);
             lk_snd(0x00FA9Eu);
         }
         if (e & (0x20 | 0x40 | 8)) {   /* A / C / RIGHT: open the page / next value */
@@ -382,7 +401,7 @@ static void lk_fs_modal(void) {   /* options window in the file select */
         }
         if ((e & 4) && pg) { lk_opt_change(lk_win_id(pg, row), -1); blink = 0; lk_win_value(pg, row); lk_snd(0x00FA54u); }   /* LEFT: previous value */
     }
-    lk_win_on = 0;
+    lk_win_on = 0; lk_win_arr = 0;
     lk_fs_bar_text();
     g_m68k = sv;
 }

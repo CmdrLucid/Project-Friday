@@ -89,6 +89,7 @@ if VER2 not in s:
     module = r'''/* ---- LK_WIN v1: options window over the file select (tools/patch_overlay.py; rows are filled by tools/patch_options.py) ---- */
 int lk_win_on, lk_win_sel = -1, lk_win_blink, lk_win_n, lk_win_pitch = 28, lk_win_compact;   /* row pitch; compact = the 24 px selection frame of the Video page (like the Start menu: the full frame would enclose almost two rows) */
 uint8 lk_win_row[8][16][288];
+uint8 lk_win_arrow[16][16]; int lk_win_arr;   /* scroll arrow (ROM graphic ArrowGraphic2BPP, copied at run time), bit 0 = up arrow, bit 1 = down arrow (flipped) */
 uint8 lk_win_cur[32][32];   /* selection frame graphic, colour indices 0 (transparent) .. 3 */   /* per row: 288 x 16 text pixels (1 = glyph), copied from the game's text buffer */
 #define LK_WIN_X 17
 #define LK_WIN_Y 9
@@ -129,6 +130,13 @@ static void lk_win_draw(PIXEL_OUT_T *row, int width) {
           if (cx >= 0 && (idx = lk_win_cur[gy][cx]) != 0) col = idx == 1 ? 0xFFAA6600u : idx == 2 ? 0xFFCCAA00u : 0xFF000000u;
         }
       }
+    }
+    if (cl == 3 && lk_win_arr && lx >= 0 && lx < 16) {   /* the game's scroll arrows (Use list): left of the rows, up near the title, down at the bottom */
+      static const PIXEL_OUT_T ac[4] = { 0, 0xFFDBDBDBu, 0xFF494949u, 0xFF000000u };
+      int ay = ly - 6, idx;
+      if ((lk_win_arr & 1) && ay >= 0 && ay < 16 && (idx = lk_win_arrow[ay][lx]) != 0) col = ac[idx];
+      ay = ly - (LK_WIN_H - 24);
+      if ((lk_win_arr & 2) && ay >= 0 && ay < 16 && (idx = lk_win_arrow[15 - ay][lx]) != 0) col = ac[idx];
     }
     r[xo + lx] = col;
   }
