@@ -99,20 +99,28 @@ static const char *lk_q_d5[10][7] = {
   { "...1.", "..11.", ".1.1.", "1..1.", "11111", "...1.", "...1." }, { "11111", "1....", "1111.", "....1", "....1", "1...1", ".111." },
   { "..11.", ".1...", "1....", "1111.", "1...1", "1...1", ".111." }, { "11111", "....1", "...1.", "..1..", ".1...", ".1...", ".1..." },
   { ".111.", "1...1", "1...1", ".111.", "1...1", "1...1", ".111." }, { ".111.", "1...1", "1...1", ".1111", "....1", "...1.", ".11.." } };
-static const char *lk_q_d3[12][5] = {
+static const char *lk_q_d3[39][5] = {
   { "111", "101", "101", "101", "111" }, { "010", "110", "010", "010", "111" }, { "111", "001", "111", "100", "111" }, { "111", "001", "111", "001", "111" },
   { "101", "101", "111", "001", "001" }, { "111", "100", "111", "001", "111" }, { "111", "100", "111", "101", "111" }, { "111", "001", "010", "010", "010" },
-  { "111", "101", "111", "101", "111" }, { "111", "101", "111", "001", "111" }, { "101", "101", "010", "010", "010" } /* Y */, { "110", "101", "110", "101", "110" } /* B */ };
+  { "111", "101", "111", "101", "111" }, { "111", "101", "111", "001", "111" }, { "101", "101", "010", "010", "010" } /* Y */, { "110", "101", "110", "101", "110" } /* B */,
+  { "010", "101", "111", "101", "101" }, { "110", "101", "110", "101", "110" }, { "011", "100", "100", "100", "011" }, { "110", "101", "101", "101", "110" }, { "111", "100", "110", "100", "111" }, { "111", "100", "110", "100", "100" }, { "011", "100", "101", "101", "011" }, { "101", "101", "111", "101", "101" }, { "111", "010", "010", "010", "111" }, { "001", "001", "001", "101", "010" }, { "101", "101", "110", "101", "101" }, { "100", "100", "100", "100", "111" }, { "101", "111", "111", "101", "101" }, { "111", "101", "101", "101", "101" }, { "010", "101", "101", "101", "010" }, { "110", "101", "110", "100", "100" }, { "010", "101", "101", "111", "011" }, { "110", "101", "110", "101", "101" }, { "011", "100", "010", "001", "110" }, { "111", "010", "010", "010", "010" }, { "101", "101", "101", "101", "111" }, { "101", "101", "101", "101", "010" }, { "101", "101", "111", "111", "101" }, { "101", "101", "010", "101", "101" }, { "101", "101", "010", "010", "010" }, { "111", "001", "010", "100", "111" } /* 12.. = A..Z */, { "000", "000", "111", "000", "000" } /* 38 = - */ };
+extern void lk_bind_hudlabel(int i, char *o, size_t n);   /* key bindings (tools/patch_keys.py): the cell letters are the bound pad button (controller connected) or key */
+static int lk_q_gi(char c) { return (c >= '0' && c <= '9') ? c - '0' : (c >= 'A' && c <= 'Z') ? 12 + c - 'A' : 38; }
 static PIXEL_OUT_T lk_q_cv[16][64];
 static uint8 lk_q_cm[16][64];
 static void lk_q_px_set(int x, int y, PIXEL_OUT_T c) { if (x >= 0 && x < 64 && y >= 0 && y < 16) { lk_q_cv[y][x] = c; lk_q_cm[y][x] = 1; } }
 static void lk_q_g3(int x, int y, int g, PIXEL_OUT_T col, PIXEL_OUT_T blk, int outline) {   /* 3 x 5 glyph with an optional black outline */
   int i, j, di, dj;
+  if (g == 10 || g == 11) g = lk_q_gi("YB"[g - 10]);   /* old letter indices: Y / B */
   if (outline) for (j = 0; j < 5; j++) for (i = 0; i < 3; i++) if (lk_q_d3[g][j][i] == '1') for (dj = -1; dj <= 1; dj++) for (di = -1; di <= 1; di++) lk_q_px_set(x + i + di, y + j + dj, blk);
   for (j = 0; j < 5; j++) for (i = 0; i < 3; i++) if (lk_q_d3[g][j][i] == '1') lk_q_px_set(x + i, y + j, col);
 }
 static void lk_q_g5(int x, int y, int d, PIXEL_OUT_T col) { int i, j; for (j = 0; j < 7; j++) for (i = 0; i < 5; i++) if (lk_q_d5[d][j][i] == '1') lk_q_px_set(x + i, y + j, col); }
 static PIXEL_OUT_T lk_q_dim(PIXEL_OUT_T c) { return ((c >> 1) & 0x007F7F7Fu) | (c & 0xFF000000u); }
+static void lk_q_label(int x, int y, int slot, PIXEL_OUT_T col, PIXEL_OUT_T blk, int outline) {   /* up to two characters of the binding label of Quick 1 / Quick 2 */
+  char b[16]; int n; lk_bind_hudlabel(4 + slot, b, sizeof b); n = (int)strlen(b); if (n > 2) n = 2;
+  for (int k = 0; k < n; k++) lk_q_g3(x + 4 * k, y, lk_q_gi(b[k]), col, blk, outline);
+}
 static void lk_q_cells(int compact, PIXEL_OUT_T white, PIXEL_OUT_T black) {
   int s, i, j;
   memset(lk_q_cm, 0, sizeof lk_q_cm);
@@ -122,11 +130,11 @@ static void lk_q_cells(int compact, PIXEL_OUT_T white, PIXEL_OUT_T black) {
       for (j = 0; j < 16; j++) for (i = 0; i < 16; i++) if (lk_q_mask[id][j * 16 + i]) lk_q_px_set(x0 + i, j, q > 0 ? lk_q_px[id][j * 16 + i] : lk_q_dim(lk_q_px[id][j * 16 + i]));
     }
     if (id >= 0) {
-      lk_q_g3(x0 + 1, 1, s ? 11 : 10, white, black, 1);
+      lk_q_label(x0 + 1, 1, s, white, black, 1);
       if (q < 0) q = 0; if (q > 99) q = 99;
       if (compact) { int two = q >= 10; int xr = x0 + 15 - (two ? 7 : 3); if (two) { lk_q_g3(xr, 10, q / 10, white, black, 1); lk_q_g3(xr + 4, 10, q % 10, white, black, 1); } else lk_q_g3(xr, 10, q, white, black, 1); }
       else { if (q >= 10) { lk_q_g5(x0 + 18, 4, q / 10, white); lk_q_g5(x0 + 24, 4, q % 10, white); } else lk_q_g5(x0 + 18, 4, q, white); }
-    } else lk_q_g3(x0 + 6, 6, s ? 11 : 10, lk_q_dim(white), black, 0);   /* empty slot: dim letter only */
+    } else lk_q_label(x0 + 4, 6, s, lk_q_dim(white), black, 0);   /* empty slot: dim letter only */
   }
 }
 static int lk_q_hud, lk_q_Lp, lk_q_Wb, lk_q_kn, lk_q_cellw, lk_q_bl, lk_q_fillcol, lk_q_haveprev, lk_q_colmap[512];

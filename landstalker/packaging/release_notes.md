@@ -2,6 +2,12 @@
 
 **You need your own legal Landstalker ROM.** Nothing from the game is included in these downloads and nothing generated from it. On the first start the program asks for your ROM, checks it, and builds the game on your own computer (about 1 to 5 minutes, up to 25 on slow machines, one time only). The ROM is checked at every start. The ROM must be a raw 2 MB `.md` / `.bin` / `.gen` dump with SHA-1 `24345e29427b000b90df778965dd8834300a9dde`.
 
+### What is new in {VERSION}
+- **Key bindings** for pad and keyboard: Options > Keybindings (Button A / B / C, Start, Quick 1 / 2, Quick Save / Load, Fast Forward, Fullscreen, Coordinates); the quick item letters in the HUD follow your choice.
+- **De-Dither** rebuilt (Options > Video: Light / Medium / Strong): smooths the dither noise of water, grass and carpets, keeps sprites, outlines and text sharp.
+- **Options:** new *Quick Save* switch (off by default), Enemy HP down to 50 %, *Quit Game*, scrolling lists with the game's own arrows, golden frames centred on the text.
+- README: list of compatible ROMs (currently only the US version).
+
 ### Steam Deck / Linux x86-64: `Project-Friday-x86_64.AppImage`
 1. Download it and make it executable (`chmod +x`, or right-click > Properties > Permissions > allow executing).
 2. Start it. A file dialog asks for your ROM, a progress bar shows the build. Afterwards it starts the game directly.

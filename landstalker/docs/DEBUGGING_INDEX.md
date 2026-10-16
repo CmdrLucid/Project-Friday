@@ -128,3 +128,4 @@
   - L1075: Windows package (2026-10-16): cross-build, Wine tests, what is verified and what is not
   - L1082: Windows package under Proton on the Deck (user report 2026-10-16)
   - L1086: Windows package checked on a REAL Windows runner (2026-10-16, GitHub Actions `windows-latest`)
+- L1092: Session 2026-10-16 (Deck, Sonnet 5.5): options polish, key bindings, De-Dither rebuilt, release v0.5.0

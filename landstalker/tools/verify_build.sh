@@ -44,6 +44,7 @@ chk "Titelbild: Project Friday (Anzeige)"            $G/ext/Genesis-Plus-GX/core
 chk "Vorspulen (R2 / Tab)"                           $G/src/platform_sdl.c "LK_FFWD v1"
 chk "Schnellspeichern / -laden"                     $G/src/func_table.c "LK_QUICKSAVE v1"
 chk "Schwierigkeit (Schaden / Gegner-HP)"           $G/src/func_table.c "LK_DIFF v2"
+chk "Tastenbelegung (Pad + Tastatur)"                 $G/src/input.c "LK_KEYS v1"
 chk "VDP-Arrays 64 Byte ausgerichtet (clang)"   $G/ext/Genesis-Plus-GX/core/vdp_ctrl.c "LK_ALIGN v1"
 chk "Ton: Musik / Effekte getrennte Lautstaerke"   $G/ext/Genesis-Plus-GX/core/sound/sound.c "LK_SNDSEP2"
 chk "Sprach-Blips abschaltbar"                     "$(grep -l "speech blips option" src/recomp/*.c 2>/dev/null | head -1)" "speech blips option"

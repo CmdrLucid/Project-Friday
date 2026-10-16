@@ -80,7 +80,7 @@ static int dedither_cli(const char *in, const char *outp, const char *diffp) {
     int w, h, mx; if (fscanf(f, "P6 %d %d %d", &w, &h, &mx) != 3 || h != LK_SRC_H) { printf("need a P6 image with height 224\n"); return 1; }
     fgetc(f); uint32_t *a = malloc((size_t)w * h * 4), *b = malloc((size_t)w * h * 4);
     for (int i = 0; i < w * h; i++) { int r = fgetc(f), g = fgetc(f), bl = fgetc(f); a[i] = px(r, g, bl); }
-    fclose(f); if (getenv("DD_BLEND")) lk_dedither_blend(a, b, w); else if (getenv("DD_STRONG")) lk_dedither_strong(a, b, w); else lk_dedither(a, b, w);
+    fclose(f); if (getenv("DD_BIL")) { int rg = 80, gt = 0; sscanf(getenv("DD_BIL"), "%d,%d", &rg, &gt); lk_dd_build_near(a, w); memcpy(b, a, (size_t)w * 224 * 4); lk_dedither_bil_rows(a, b, w, rg, gt, 0, 224); } else if (getenv("DD_BLEND")) lk_dedither_blend(a, b, w); else if (getenv("DD_STRONG")) lk_dedither_strong(a, b, w); else lk_dedither(a, b, w);
     long n = 0; for (int i = 0; i < w * h; i++) if (a[i] != b[i]) n++;
     printf("de-dither: %ld of %d pixels changed (%.1f %%)\n", n, w * h, 100.0 * n / (w * h));
     write_ppm(outp, b, w, h);
