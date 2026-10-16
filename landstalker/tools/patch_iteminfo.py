@@ -40,16 +40,29 @@ extern int lk_ii_get(void);
 extern long platform_frame_number(void);
 static gen_func_t lk_o_ii_use, lk_o_ii_eq;
 static const struct { uint8_t id; const char *txt; } lk_ii_tab[] = {   /* only what the game code does (see the patch header); max ~34 characters */
-    { 0x00, "Restores health" },
+    { 0x00, "Restores HP, Friday revives you" },
     { 0x01, "Charged: flames engulf the enemy" }, { 0x02, "Charged: ice whirlwind freezes" }, { 0x03, "Charged: lightning bolt" }, { 0x04, "Charged: earthquake hurts all" },
     { 0x05, "No damage from lava" }, { 0x06, "No damage from spiked floors" }, { 0x07, "Heals you while you walk" }, { 0x08, "No slipping on ice" },
     { 0x09, "Enemy damage x0.9" }, { 0x0A, "Enemy damage x0.8" }, { 0x0B, "Enemy damage x0.7" }, { 0x0C, "Enemy damage x0.5" },
     { 0x0D, "Immune to poison and paralysis" }, { 0x0E, "Immune to confusion" }, { 0x0F, "Sword charges 2x faster" }, { 0x10, "Sword charges 3x faster" },
-    { 0x12, "Cures poison" }, { 0x15, "Cures confusion" }, { 0x1C, "Cures paralysis" },
+    { 0x12, "Cures poison" }, { 0x15, "Cures confusion" }, { 0x1C, "Cures paralysis" }, { 0x2E, "Cures poison and paralysis" }, { 0x2D, "Restores HP completely" },
+    { 0x13, "Earthquake hurts monsters in range" }, { 0x14, "Fills the sword meter for a while" },
+    { 0x16, "Entry to Arthur's Casino" }, { 0x17, "Cuts down discolored trees" }, { 0x1A, "Lights up dark rooms" }, { 0x1B, "Makes Miro run from Nigel" },
+    { 0x1E, "Powers the Lighthouse light" }, { 0x1F, "Breaks Mir's Tower magic barrier" }, { 0x20, "Calls Einstein, talks to dogs" },
+    { 0x19, "Lets you buy from the warehouse" }, { 0x21, "Jewel for Gola's Eye" }, { 0x22, "Jewel for Gola's Eye" }, { 0x28, "Jewel for Gola's Eye" }, { 0x2A, "Jewel for Gola's Eye" }, { 0x34, "Jewel for Gola's Eye" },
+    { 0x27, "Shows where the 5 jewels are" }, { 0x29, "Trade HP for gold, only once" }, { 0x2B, "Opens King Nole's Cave again" }, { 0x2C, "Random effects, bad or good" },
+    { 0x2F, "Used to make a raft" }, { 0x30, "Shows how much you have done" }, { 0x31, "Opens the Swamp Shrine door" }, { 0x32, "Opens locked doors" },
+    { 0x33, "Allows entry to Mercator" }, { 0x35, "Rings near a Life Stock" }, { 0x36, "Makes Friday happy or mad" },
+    { 0x37, "Gola treasure for Nole's Palace" }, { 0x38, "Gola treasure for Nole's Palace" }, { 0x39, "Gola treasure for Nole's Palace" },
 };
 static int lk_ii_menu(void) {   /* the Start menu: CheckForMenuOpen $007624, or its item branches (stack seen in the Use list: GameLoop -> $00774A -> $00D3BE ...) */
     int i, d = func_table_depth();
     for (i = 0; i < d; i++) { uint32_t c = func_table_stack(i); if (c == 0x007624u || c == 0x00774Au || c == 0x0076CAu || c == 0x0076C4u) return 1; }
+    return 0;
+}
+static int lk_ii_tabdraw(void) {   /* the bar is switching tabs (MenuBarRight $024916 / MenuBarLeft $024952 redraw the list and call the cursor update): no description then, else it flickers (user recording 2026-10-16 22:45) */
+    int i, d = func_table_depth();
+    for (i = 0; i < d; i++) { uint32_t c = func_table_stack(i); if (c == 0x024916u || c == 0x024952u) return 1; }
     return 0;
 }
 static const char *lk_ii_text(int id) { unsigned i; for (i = 0; i < sizeof lk_ii_tab / sizeof lk_ii_tab[0]; i++) if (lk_ii_tab[i].id == id) return lk_ii_tab[i].txt; return NULL; }
@@ -59,10 +72,17 @@ static void lk_ii_draw(int id) {   /* id < 0: the plain bar */
     M68kContext sv;
     if (want == lk_ii_cur) return;
     lk_ii_cur = want;
+    if (getenv("LANDSTALKER_ITEMINFO_DEBUG")) printf("iteminfo: draw %d frame %ld\n", want, platform_frame_number());
     sv = g_m68k;
     lk_call(0x024998u); lk_call(0x0234A8u);
     lk_menu_print_nodma("Use", 0x28); lk_menu_print_nodma("Equip", 0x78); lk_menu_print_nodma("Options", 0xC8);
-    if (t) { uint8_t y0 = bus_read8(0xFF1129u); bus_write8(0xFF1129u, (uint8_t)(y0 + 0x10)); lk_menu_print_nodma(t, 0x08); bus_write8(0xFF1129u, y0); }
+    if (t) {
+        uint8_t y0 = bus_read8(0xFF1129u); int cx, k; const char *e = getenv("LANDSTALKER_ITEMINFO_LINE");
+        uint8_t col = e ? (uint8_t)atoi(e) : 0x0B;   /* nibble of the text palette used for the divider line */
+        bus_write8(0xFF1129u, (uint8_t)(y0 + 0x10)); lk_menu_print_nodma(t, 0x10); bus_write8(0xFF1129u, y0);
+        /* divider: a 1 pixel line between the words and the description, drawn straight into the text box tile buffer ($FF3900, 4 bpp: a 16 pixel text line = 8 pixel wide columns of two tiles = 64 bytes, line stride $900, pixel row r at r * 4) */
+        for (cx = 1; cx < 35; cx++) for (k = 0; k < 4; k++) bus_write8(0xFF3900u + (uint32_t)y0 / 16u * 0x900u + (uint32_t)cx * 64u + 14u * 4u + (uint32_t)k, (uint8_t)((col << 4) | col));
+    }
     lk_call(0x02355Au);   /* DMACopyTextboxTiles */
     g_m68k = sv;
 }
@@ -76,7 +96,7 @@ static void lk_ii_dbg(const char *w, int id) { static int last = -99; if (getenv
 static void lk_h_ii_use(void) {   /* InventoryMenu_UpdateCursorAt: Use list */
     lk_o_ii_use();
     if (getenv("LANDSTALKER_ITEMINFO_DEBUG")) { static int n2; if (n2++ < 3 && !lk_ii_menu()) { printf("iteminfo: not in menu, stack: "); func_table_dump_stack(stdout); } }
-    if (lk_ii_get() && lk_ii_menu()) {
+    if (lk_ii_get() && lk_ii_menu() && !lk_ii_tabdraw()) {
         int idx = ((int)bus_read16(0xFF2C06u) + (int)bus_read16(0xFF2C0Cu)) * 2 + (int)bus_read16(0xFF2C0Au);
         int id = idx >= 0 && idx < 64 ? bus_read8(0xFF2C5Cu + (uint32_t)idx) : 0xFF;
         if (getenv("LANDSTALKER_ITEMINFO_DEBUG")) { static int n; if (n++ < 40) printf("iteminfo: use idx %d id $%02X scroll %d row %d col %d frame %ld\n", idx, id & 0xFF, (int)bus_read16(0xFF2C06u), (int)bus_read16(0xFF2C0Cu), (int)bus_read16(0xFF2C0Au), platform_frame_number()); }
@@ -87,7 +107,7 @@ static void lk_h_ii_use(void) {   /* InventoryMenu_UpdateCursorAt: Use list */
 static void lk_h_ii_eq(void) {   /* $00EDAA: Equip grid cursor update */
     lk_o_ii_eq();
     if (getenv("LANDSTALKER_ITEMINFO_DEBUG")) { static int n3; if (n3++ < 2) { printf("iteminfo: equip hook, menu=%d stack: ", lk_ii_menu()); func_table_dump_stack(stdout); } }
-    if (lk_ii_get() && lk_ii_menu()) {
+    if (lk_ii_get() && lk_ii_menu() && !lk_ii_tabdraw()) {
         int col = (int)bus_read16(0xFF2C18u), row = (int)bus_read16(0xFF2C1Au), id = 0xFF;
         if (col >= 0 && col < 5 && row >= 0 && row < 4) id = bus_read8(0x00ECE0u + (uint32_t)(row * 5 + col));
         lk_ii_dbg("equip", id);
