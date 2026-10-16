@@ -127,3 +127,4 @@
   - L1070: Widescreen / full height off for a moment: door entry, Start menu fades, Gaia statue (user recording 2026-10-16 00:39)
   - L1075: Windows package (2026-10-16): cross-build, Wine tests, what is verified and what is not
   - L1082: Windows package under Proton on the Deck (user report 2026-10-16)
+  - L1086: Windows package checked on a REAL Windows runner (2026-10-16, GitHub Actions `windows-latest`)
