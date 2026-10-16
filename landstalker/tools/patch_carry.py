@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Optional fix 'Ride Objects' (2026-10-16, user recording rec_20261016_1946, room 444; Options > Gameplay > Ride Objects Off / On, default Off).
+"""Optional fix 'Fix Ride Objects' (2026-10-16, user recording rec_20261016_1946, room 444; Options > Gameplay > Fix Ride Objects Off / On, default Off).
 Original behaviour: a carried object (vase) put down on a moving platform rides along (UpdateLinkedEntity $019114 copies the platform's move flags to it for one step and then
 RESTORES its own +9), but Nigel standing on the vase is NOT carried: HandlePlayerLinkedEntity ($0017EE) reads the move flags (+9 direction, +2D step bits) of the entity Nigel is linked
 to ($FF5430), and the vase has none of its own (+9 = 0, +2D = 0 for the whole ride, measured), so Nigel stays where he is and slides off.
@@ -18,7 +18,7 @@ if VER not in s:
     a = "void platform_present_frame(const uint8_t *framebuffer) {"
     assert s.count(a) == 1
     module = r'''/* ---- LK_CARRY v1: Nigel rides on objects that stand on moving platforms (tools/patch_carry.py) ---- */
-static int lk_carry_v = -1;   /* Options > Gameplay > Ride Objects Off / On, default Off; file ~/.landstalker_carry, env LANDSTALKER_CARRY=0|1 wins */
+static int lk_carry_v = -1;   /* Options > Gameplay > Fix Ride Objects Off / On, default Off; file ~/.landstalker_carry, env LANDSTALKER_CARRY=0|1 wins */
 int lk_carry_get(void) {
     if (lk_carry_v < 0) { char p[512]; FILE *f; const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_CARRY"); int v = 0; snprintf(p, sizeof p, "%s/.landstalker_carry", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e) v = atoi(e); lk_carry_v = v ? 1 : 0; }
     return lk_carry_v;

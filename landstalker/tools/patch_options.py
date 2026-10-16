@@ -117,7 +117,7 @@ static void lk_menu_print(const char *t, int x) {
 }
 static void lk_opt_put_tile(int col, int row, int tile) { bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | tile)); }
 static void lk_opt_put(int col, int row, const char *t) { for (; *t; t++, col++) bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | lk_chr(*t))); }
-static const char *lk_id_name[16] = { "Widescreen", "Full Height", "Filter", "Fullscreen", "Scaling", "De-Dither", "Music Volume", "Effects Volume", "Speech Sound", "Shadow", "Quick Items", "Fast Forward", "Damage Taken", "Enemy HP", "Quick Save", "Ride Objects" };   /* platform option id -> label */
+static const char *lk_id_name[16] = { "Widescreen", "Full Height", "Filter", "Fullscreen", "Scaling", "De-Dither", "Music Volume", "Effects Volume", "Speech Sound", "Shadow", "Quick Items", "Fast Forward", "Damage Taken", "Enemy HP", "Quick Save", "Fix Ride Objects" };   /* platform option id -> label */
 static const int lk_ids_video[6] = { 0, 1, 4, 2, 5, 3 };
 static const int lk_ids_audio[3] = { 6, 7, 8 };
 static const int lk_ids_game[7] = { 9, 10, 14, 11, 12, 13, 15 };
