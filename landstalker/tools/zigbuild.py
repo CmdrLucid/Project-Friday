@@ -37,6 +37,7 @@ def main():
     ap.add_argument("--sdl-libs", default=os.environ.get("SDL2_LIBS"))
     ap.add_argument("--extra", default="", help="extra compile + link flags for every file, e.g. \"-fsanitize=undefined -g\"")
     ap.add_argument("--extra-gpgx", default="", help="additional flags only for the Genesis Plus GX files (e.g. \"-fno-sanitize=shift\" to skip its known benign shifts)")
+    ap.add_argument("--no-game", action="store_true", help="compile genrecomp + Genesis Plus GX only (no generated code, no link): environment check")
     ap.add_argument("--check-list", action="store_true", help="only compare the source list with genrecomp's CMakeLists.txt")
     a = ap.parse_args()
 
@@ -66,10 +67,11 @@ def main():
         jobs.append((os.path.join(GR, "src", s + ".c"), "gr_" + s,
                      O + ["-std=gnu17"] + DEFS + inc_gpgx + inc_common + sdl_c))
     recomp = sorted(glob.glob(os.path.join(ROOT, "src", "recomp", "*.c")))
-    if not recomp:
+    if not recomp and not a.no_game:
         sys.exit("src/recomp is empty (generate the code first)")
-    for s in [os.path.join(ROOT, "src", "main.c")] + recomp:
-        jobs.append((s, "game_" + os.path.basename(s)[:-2], O + inc_common[:0] + inc_gpgx + inc_common + sdl_c))
+    if not a.no_game:
+        for s in [os.path.join(ROOT, "src", "main.c")] + recomp:
+            jobs.append((s, "game_" + os.path.basename(s)[:-2], O + inc_common[:0] + inc_gpgx + inc_common + sdl_c))
 
     objd = os.path.join(a.out, "obj")
     os.makedirs(objd, exist_ok=True)
@@ -133,6 +135,9 @@ def main():
         for s, e in errors[:3]:
             print("ERROR compiling %s:\n%s" % (s, e[-1500:]), file=sys.stderr)
         return 1
+    if a.no_game:
+        print("zigbuild: compiled %d files (genrecomp + Genesis Plus GX, no game)" % len(jobs), flush=True)
+        return 0
     exe = os.path.join(a.out, "landstalker.exe" if "windows" in a.cc else "landstalker")
     print("zigbuild: linking", flush=True)
     r = subprocess.run(cc + ["-O3"] + objs + sdl_l + ["-lm", "-o", exe])

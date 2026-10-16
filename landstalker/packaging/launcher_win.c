@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <wchar.h>
 
+/* only wait for Enter when a person is at the console (not in CI / pipes) */
+static void pause_if_interactive(void) {
+    DWORD mode;
+    if (GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &mode)) getchar();
+}
+
 int wmain(int argc, wchar_t **argv) {
     wchar_t dir[MAX_PATH], py[MAX_PATH + 32], pyhome[MAX_PATH + 16], script[MAX_PATH + 32];
     wchar_t *cmd, *p, *rest;
@@ -14,7 +20,7 @@ int wmain(int argc, wchar_t **argv) {
     swprintf(pyhome, MAX_PATH + 16, L"%ls\\python", dir);
     swprintf(py, MAX_PATH + 32, L"%ls\\python\\python.exe", dir);
     swprintf(script, MAX_PATH + 32, L"%ls\\firstrun.py", dir);
-    if (GetFileAttributesW(py) == INVALID_FILE_ATTRIBUTES) { fprintf(stderr, "python\\python.exe is missing: extract the whole zip file and start Project-Friday.exe from the extracted folder.\n"); getchar(); return 1; }
+    if (GetFileAttributesW(py) == INVALID_FILE_ATTRIBUTES) { fprintf(stderr, "python\\python.exe is missing: extract the whole zip file and start Project-Friday.exe from the extracted folder.\n"); pause_if_interactive(); return 1; }
     SetEnvironmentVariableW(L"PYTHONHOME", pyhome);
     SetEnvironmentVariableW(L"PYTHONPATH", NULL);
     SetEnvironmentVariableW(L"PYTHONUTF8", L"1");
@@ -28,11 +34,11 @@ int wmain(int argc, wchar_t **argv) {
     swprintf(cmd, n, L"\"%ls\" \"%ls\"%ls", py, script, rest);
     memset(&si, 0, sizeof si); si.cb = sizeof si;
     if (!CreateProcessW(NULL, cmd, NULL, NULL, TRUE, 0, NULL, dir, &si, &pi)) {
-        fprintf(stderr, "cannot start the bundled Python (error %lu)\n", GetLastError()); getchar(); return 1;
+        fprintf(stderr, "cannot start the bundled Python (error %lu)\n", GetLastError()); pause_if_interactive(); return 1;
     }
     WaitForSingleObject(pi.hProcess, INFINITE);
     GetExitCodeProcess(pi.hProcess, &code);
     CloseHandle(pi.hProcess); CloseHandle(pi.hThread);
-    if (code != 0 && code != 2) { fprintf(stderr, "\nProject-Friday stopped (code %lu). Press Enter to close this window.\n", code); getchar(); }
+    if (code != 0 && code != 2) { fprintf(stderr, "\nProject-Friday stopped (code %lu). Press Enter to close this window.\n", code); pause_if_interactive(); }
     return (int)code;
 }

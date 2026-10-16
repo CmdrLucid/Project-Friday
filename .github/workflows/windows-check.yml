@@ -1,0 +1,51 @@
+# Checks a published Windows package on a REAL Windows runner (no ROM needed): the launcher exe, the bundled Python, the patch steps that do not need the ROM,
+# and the compile of genrecomp + Genesis Plus GX with the bundled zig (this is the part that cannot be tested under Wine).
+# Usage: Actions > windows-check > Run workflow, tag = a release tag that contains Project-Friday-windows-x64.zip (default: latest release).
+name: windows-check
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "release tag (empty = latest release)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Download the Windows package of the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          if ($env:TAG) { gh release download $env:TAG --repo $env:GITHUB_REPOSITORY --pattern "Project-Friday-windows-x64.zip" }
+          else { gh release download --repo $env:GITHUB_REPOSITORY --pattern "Project-Friday-windows-x64.zip" }
+          Expand-Archive -Path Project-Friday-windows-x64.zip -DestinationPath pkg
+          Get-ChildItem pkg/Project-Friday | Select-Object -First 20 | ForEach-Object { $_.Name }
+
+      - name: Launcher exe + bundled Python
+        shell: pwsh
+        run: |
+          pkg/Project-Friday/python/python.exe -c "import sys, ctypes, capstone; print(sys.version); print('capstone', capstone.__version__, 'ctypes windll', hasattr(ctypes, 'windll'))"
+
+      - name: Self-test (zig + SDL2 headers / library / SDL2.dll, no ROM)
+        shell: pwsh
+        env:
+          LANDSTALKER_DATA: ${{ runner.temp }}\pf-data
+        run: |
+          pkg/Project-Friday/Project-Friday.exe --selftest
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build self-test (ROM-free patch steps + compile genrecomp and Genesis Plus GX)
+        shell: pwsh
+        env:
+          LANDSTALKER_DATA: ${{ runner.temp }}\pf-data
+        run: |
+          pkg/Project-Friday/Project-Friday.exe --selftest-build
+          if ($LASTEXITCODE -ne 0) { Get-ChildItem "$env:LANDSTALKER_DATA/selftest-build/build.log" | ForEach-Object { Get-Content $_ -Tail 40 }; exit $LASTEXITCODE }
