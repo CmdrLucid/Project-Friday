@@ -31,6 +31,8 @@ if "platform_option_get" not in s:
 extern int lk_shadow_get(void);
 extern void lk_shadow_set(int m);
 extern int lk_quick_get(void);
+extern int lk_qsave_get(void);   /* quick save / load switch (tools/patch_quicksave.py) */
+extern void lk_qsave_set(int v);
 extern void lk_quick_set(int v);
 extern int lk_ffwd_get(void);   /* fast forward speed option (tools/patch_ffwd.py) */
 extern void lk_ffwd_set(int v);
@@ -38,12 +40,12 @@ extern int lk_diff_get(int which);   /* difficulty: 0 = damage taken index, 1 = 
 extern void lk_diff_set(int which, int v);
 extern void lk_snd_get(int *music, int *sfx, int *talk);
 extern void lk_snd_set(int music, int sfx, int talk);
-int platform_option_get(int id) {   /* 0 widescreen step 0..3, 1 full height 0/1, 2 filter 0..4, 3 fullscreen 0/1, 4 scaling 0..3, 5 de-dither 0..2, 6 music volume %, 7 effects volume %, 8 speech sound 0/1, 9 shadow 0/1, 10 quick items 0/1, 11 fast forward 0..3 (Off, 2x, 3x, 4x), 12 damage taken 0..5 (25 / 50 / 75 / 100 / 150 / 200 %, RIGHT = more), 13 enemy HP 0..3 (100 / 150 / 200 / 300 %) */
+int platform_option_get(int id) {   /* 0 widescreen step 0..3, 1 full height 0/1, 2 filter 0..4, 3 fullscreen 0/1, 4 scaling 0..3, 5 de-dither 0..2, 6 music volume %, 7 effects volume %, 8 speech sound 0/1, 9 shadow 0/1, 10 quick items 0/1, 11 fast forward 0..3 (Off, 2x, 3x, 4x), 12 damage taken 0..5 (25 / 50 / 75 / 100 / 150 / 200 %, RIGHT = more), 13 enemy HP 0..4 (50 / 100 / 150 / 200 / 300 %), 14 quick save 0/1 (default Off) */
     extern int lk_wide_e, lk_tall; int m, e, t;
     if (!lk_disp_loaded) lk_disp_load();
     if (!lk_dd_loaded) lk_dd_load();
     switch (id) { case 0: return lk_wide_e / 16; case 1: return lk_tall > 0; case 2: return lk_fx_mode; case 3: return lk_fsc_on; case 4: return lk_scale_mode; case 5: return lk_dd_mode;
-                  case 6: lk_snd_get(&m, &e, &t); return m; case 7: lk_snd_get(&m, &e, &t); return e; case 8: lk_snd_get(&m, &e, &t); return t; case 9: return lk_shadow_get(); case 10: return lk_quick_get(); case 11: return lk_ffwd_get(); case 12: return lk_diff_get(0); case 13: return lk_diff_get(1); }
+                  case 6: lk_snd_get(&m, &e, &t); return m; case 7: lk_snd_get(&m, &e, &t); return e; case 8: lk_snd_get(&m, &e, &t); return t; case 9: return lk_shadow_get(); case 10: return lk_quick_get(); case 11: return lk_ffwd_get(); case 12: return lk_diff_get(0); case 13: return lk_diff_get(1); case 14: return lk_qsave_get(); }
     return 0;
 }
 void platform_option_step(int id) {
@@ -56,7 +58,7 @@ void platform_option_step(int id) {
                   case 9: lk_shadow_set(!lk_shadow_get()); break;
                   case 10: lk_quick_set(!lk_quick_get()); break;
                   case 11: lk_ffwd_set((lk_ffwd_get() + 1) % 4); break;
-                  case 12: lk_diff_set(0, (lk_diff_get(0) + 1) % 6); break; case 13: lk_diff_set(1, (lk_diff_get(1) + 1) % 4); break; }
+                  case 12: lk_diff_set(0, (lk_diff_get(0) + 1) % 6); break; case 13: lk_diff_set(1, (lk_diff_get(1) + 1) % 5); break; case 14: lk_qsave_set(!lk_qsave_get()); break; }
     lk_osd_frames = 0;   /* the menu shows the value itself */
 }
 ''' + b, 1)
@@ -107,14 +109,14 @@ static void lk_menu_print(const char *t, int x) {
 }
 static void lk_opt_put_tile(int col, int row, int tile) { bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | tile)); }
 static void lk_opt_put(int col, int row, const char *t) { for (; *t; t++, col++) bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | lk_chr(*t))); }
-static const char *lk_id_name[14] = { "Widescreen", "Full Height", "Filter", "Fullscreen", "Scaling", "De-Dither", "Music Volume", "Effects Volume", "Speech Sound", "Shadow", "Quick Items", "Fast Forward", "Damage Taken", "Enemy HP" };   /* platform option id -> label */
+static const char *lk_id_name[15] = { "Widescreen", "Full Height", "Filter", "Fullscreen", "Scaling", "De-Dither", "Music Volume", "Effects Volume", "Speech Sound", "Shadow", "Quick Items", "Fast Forward", "Damage Taken", "Enemy HP", "Quick Save" };   /* platform option id -> label */
 static const int lk_ids_video[6] = { 0, 1, 4, 2, 5, 3 };
 static const int lk_ids_audio[3] = { 6, 7, 8 };
-static const int lk_ids_game[5] = { 9, 10, 11, 12, 13 };
+static const int lk_ids_game[6] = { 9, 10, 14, 11, 12, 13 };
 static const int lk_ids_all[LK_OPT_ALL] = { 0, 1, 4, 2, 5, 3, 6, 7, 8, 9, 10 };   /* file select sub-menu: one flat list */
 static const char *lk_opt_val(int id, int v) {
     static char buf[8];
-    static const char *wide[4] = { "Off", "352 px", "384 px", "416 px" }, *onoff[2] = { "Off", "On" }, *filt[5] = { "Off", "Scanlines", "CRT", "CRT Pro", "CRT Curved" }, *scal[4] = { "Fit", "4:3", "Integer", "Fill" }, *dd[4] = { "Off", "Light", "Strong", "Blend" }, *shd[2] = { "Off", "On" }, *ffw[4] = { "Off", "2x", "3x", "4x" }, *dmg[6] = { "25", "50", "75", "100", "150", "200" }, *ehp[4] = { "100", "150", "200", "300" };
+    static const char *wide[4] = { "Off", "352 px", "384 px", "416 px" }, *onoff[2] = { "Off", "On" }, *filt[5] = { "Off", "Scanlines", "CRT", "CRT Pro", "CRT Curved" }, *scal[4] = { "Fit", "4:3", "Integer", "Fill" }, *dd[4] = { "Off", "Light", "Strong", "Blend" }, *shd[2] = { "Off", "On" }, *ffw[4] = { "Off", "2x", "3x", "4x" }, *dmg[6] = { "25", "50", "75", "100", "150", "200" }, *ehp[5] = { "50", "100", "150", "200", "300" };
     if (id == 0) return wide[v & 3];
     if (id == 4) return scal[v & 3];
     if (id == 2) return filt[v > 4 || v < 0 ? 0 : v];
@@ -122,15 +124,15 @@ static const char *lk_opt_val(int id, int v) {
     if (id == 9) return shd[v & 1];
     if (id == 11) return ffw[v & 3];
     if (id == 12) return dmg[v > 5 || v < 0 ? 0 : v];
-    if (id == 13) return ehp[v & 3];
+    if (id == 13) return ehp[v > 4 || v < 0 ? 1 : v];
     if (id == 6 || id == 7) { snprintf(buf, sizeof buf, "%d", v); return buf; }
     return onoff[v & 1];
 }
-static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 3 : lk_opt_pg == 1 ? 6 : lk_opt_pg == 2 ? 3 : 5; }
+static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 3 : lk_opt_pg == 1 ? 6 : lk_opt_pg == 2 ? 3 : 6; }
 static int lk_opt_rowid(int r) { return lk_opt_pg == 1 ? lk_ids_video[r] : lk_opt_pg == 2 ? lk_ids_audio[r] : lk_opt_pg == 3 ? lk_ids_game[r] : -1 - r; }   /* root rows: -1 Video, -2 Audio, -3 Gameplay */
-static int lk_opt_rowy(int r) { return lk_opt_pg == 1 ? 2 + 2 * r : 2 + 3 * r; }
+static int lk_opt_rowy(int r) { return (lk_opt_pg == 1 || lk_opt_pg == 3) ? 2 + 2 * r : 2 + 3 * r; }
 static const char *lk_opt_rowname(int r) { int id = lk_opt_rowid(r); return id >= 0 ? lk_id_name[id] : id == -1 ? "Video" : id == -2 ? "Audio" : "Gameplay"; }
-static int lk_opt_cnt(int id) { static const int c[14] = { 4, 2, 5, 2, 4, 4, 11, 11, 2, 2, 2, 4, 6, 4 }; return c[id]; }
+static int lk_opt_cnt(int id) { static const int c[15] = { 4, 2, 5, 2, 4, 4, 11, 11, 2, 2, 2, 4, 6, 5, 2 }; return c[id]; }
 static void lk_opt_change(int id, int dir) { int n = lk_opt_cnt(id), k, steps = dir > 0 ? 1 : n - 1; for (k = 0; k < steps; k++) platform_option_step(id); }
 /* the golden selection frame of the item lists (tiles $A8..$B7 = MenuCursor2BPP, a 4x4 tile frame that consists of four corner pieces only): a corner piece is
    3 tiles (A8 A9 / AC for the top left, B4 B5 / B0 top right, AA AB / AF bottom left, B6 B7 / B3 bottom right); here the four corners are placed around the whole row */
@@ -303,7 +305,7 @@ static void lk_win_text(int k, const char *l, int lx, const char *v, int vx) {
     }
     g_m68k = sv;
 }
-static const int lk_win_cnt[4] = { 3, 6, 3, 5 };
+static const int lk_win_cnt[4] = { 3, 6, 3, 6 };
 static int lk_win_id(int pg, int r) { return pg == 1 ? lk_ids_video[r] : pg == 2 ? lk_ids_audio[r] : lk_ids_game[r]; }
 static void lk_win_rowtext(int pg, int r) {   /* builds the text of row r (0 = title, 1.. = options) of page pg into lk_win_stage[r] */
     static const char *title[4] = { "Options", "Video", "Audio", "Gameplay" }, *root[3] = { "Video", "Audio", "Gameplay" };
