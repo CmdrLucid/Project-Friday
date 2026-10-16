@@ -436,7 +436,7 @@ def selftest(cc):
     src, exe = os.path.join(d, "t.c"), os.path.join(d, "t.exe" if WIN else "t")
     if WIN and os.path.isfile(os.path.join(HERE, "vendor", "sdl2", "bin", "SDL2.dll")):
         shutil.copy2(os.path.join(HERE, "vendor", "sdl2", "bin", "SDL2.dll"), os.path.join(d, "SDL2.dll"))
-    open(src, "w").write('#include <SDL.h>\nint main(void) { return SDL_MAJOR_VERSION == 2 ? 0 : 1; }\n')
+    open(src, "w").write('#include <SDL.h>\nint main(int argc, char *argv[]) { (void)argc; (void)argv; return SDL_MAJOR_VERSION == 2 ? 0 : 1; }\n')   # SDL redefines main to SDL_main (MinGW)
     env = dict(os.environ, ZIG_GLOBAL_CACHE_DIR=os.path.join(d, "zigcache"))
     r = subprocess.run(shlex.split(cc) + shlex.split(cflags) + [src] + shlex.split(libs) + ["-o", exe], capture_output=True, text=True, env=env)
     if r.returncode:
