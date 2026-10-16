@@ -54,7 +54,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:195",
+     "where": "INDEX.md:196",
      "date": "2026-10-16",
      "snippet": "- RAM: Player struct `$FF5400` (X +0, Y +1, Z word +$12, FallRate +$20, JumpRate +$21, GroundHeight +$22, Action word +$2C; bits 0-3 walk, 4"
     }
@@ -427,7 +427,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:60",
+     "where": "INDEX.md:61",
      "date": "2026-10-16",
      "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
     }
@@ -865,7 +865,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:111",
+     "where": "INDEX.md:112",
      "date": "2026-10-16",
      "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
     }
@@ -1699,7 +1699,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:78",
+     "where": "HANDOFF.md:81",
      "date": "2026-10-16",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -1830,7 +1830,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:78",
+     "where": "HANDOFF.md:81",
      "date": "2026-10-16",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -2031,7 +2031,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:48",
+     "where": "HANDOFF.md:51",
      "date": "2026-10-16",
      "snippet": "- **2026-10-14 (dev): tree warp crash.** `~/interp.txt` had `$00F8C6` (jsr into the middle of FadePaletteDownStep from TreeWarpFx `$00E48E`,"
     }
@@ -2383,7 +2383,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:233",
+     "where": "HANDOFF.md:236",
      "date": "2026-10-16",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -2412,7 +2412,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:233",
+     "where": "HANDOFF.md:236",
      "date": "2026-10-16",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -2487,7 +2487,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:90",
+     "where": "HANDOFF.md:93",
      "date": "2026-10-16",
      "snippet": "- **Deck round 10 (2026-10-11, user played full height in Gumi, save slot 1):** R4 works but moved to R2 (right trigger, the last free shoul"
     }
@@ -2590,13 +2590,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:78",
+     "where": "HANDOFF.md:81",
      "date": "2026-10-16",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:60",
+     "where": "INDEX.md:61",
      "date": "2026-10-16",
      "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
     },
@@ -2619,13 +2619,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:40",
+     "where": "HANDOFF.md:43",
      "date": "2026-10-16",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:21",
+     "where": "INDEX.md:22",
      "date": "2026-10-16",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     }
@@ -2669,7 +2669,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:51",
+     "where": "HANDOFF.md:54",
      "date": "2026-10-16",
      "snippet": "- **2026-10-13 (dev, night): Shadow fixes after the user's report** (Nigel's shadow in the wrong place when jumping; object shadows flicker "
     }
@@ -2930,7 +2930,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:232",
+     "where": "HANDOFF.md:235",
      "date": "2026-10-16",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -2971,7 +2971,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:232",
+     "where": "HANDOFF.md:235",
      "date": "2026-10-16",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -3385,7 +3385,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:113",
+     "where": "INDEX.md:114",
      "date": "2026-10-16",
      "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
     }
@@ -3420,7 +3420,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:113",
+     "where": "INDEX.md:114",
      "date": "2026-10-16",
      "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
     }
@@ -3609,7 +3609,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:78",
+     "where": "HANDOFF.md:81",
      "date": "2026-10-16",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -3841,7 +3841,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:78",
+     "where": "HANDOFF.md:81",
      "date": "2026-10-16",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -4052,7 +4052,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:233",
+     "where": "HANDOFF.md:236",
      "date": "2026-10-16",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     }
@@ -4086,13 +4086,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:40",
+     "where": "HANDOFF.md:43",
      "date": "2026-10-16",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:21",
+     "where": "INDEX.md:22",
      "date": "2026-10-16",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     }
@@ -4149,13 +4149,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:57",
+     "where": "HANDOFF.md:60",
      "date": "2026-10-16",
      "snippet": "- **2026-10-12 (latest, dev): replay of the user's death recording (rec_20261012_2148) matches the live run until frame 3720, then diverges*"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:32",
+     "where": "INDEX.md:33",
      "date": "2026-10-16",
      "snippet": "- **2026-10-12 (late night, dev): replay vs live comparison (recording rec_20261012_2148, died at the end, user setting WIDE=16 + TALL).** `"
     }
@@ -4178,13 +4178,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:57",
+     "where": "HANDOFF.md:60",
      "date": "2026-10-16",
      "snippet": "- **2026-10-12 (latest, dev): replay of the user's death recording (rec_20261012_2148) matches the live run until frame 3720, then diverges*"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:32",
+     "where": "INDEX.md:33",
      "date": "2026-10-16",
      "snippet": "- **2026-10-12 (late night, dev): replay vs live comparison (recording rec_20261012_2148, died at the end, user setting WIDE=16 + TALL).** `"
     }
@@ -4235,13 +4235,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:48",
+     "where": "HANDOFF.md:51",
      "date": "2026-10-16",
      "snippet": "- **2026-10-14 (dev): tree warp crash.** `~/interp.txt` had `$00F8C6` (jsr into the middle of FadePaletteDownStep from TreeWarpFx `$00E48E`,"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:193",
+     "where": "INDEX.md:194",
      "date": "2026-10-16",
      "snippet": "**Lookup tables from Dinopony/landstalker-lib (use them instead of guessing ids; regenerate with `tools/import_rooms.py` / `tools/import_lib"
     }
@@ -4372,7 +4372,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:109",
+     "where": "INDEX.md:110",
      "date": "2026-10-16",
      "snippet": "| \"no function at $FF1850/$427C/...\" | RAM thunks into ROM mid-code; computed `jmp T(pc,dN)` tables | seeds via `gen_seeds.py`, `expand_seed"
     }
@@ -4640,7 +4640,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:115",
+     "where": "INDEX.md:116",
      "date": "2026-10-16",
      "snippet": "| NPCs ignore obstacles; reads of high RAM ($FF8000+) via `($XXXX).w` return ROM bytes; CMPM/BCD/ASL/ROX/MOVEM wrong | generator treated abs"
     }
@@ -4698,7 +4698,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:111",
+     "where": "INDEX.md:112",
      "date": "2026-10-16",
      "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
     }
