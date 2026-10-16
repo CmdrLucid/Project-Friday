@@ -130,7 +130,7 @@ static const char *lk_opt_bindtext(int id) {   /* value column of a binding row:
 static const int lk_ids_all[LK_OPT_ALL] = { 0, 1, 4, 2, 5, 3, 6, 7, 8, 9, 10 };   /* file select sub-menu: one flat list */
 static const char *lk_opt_val(int id, int v) {
     static char buf[8];
-    static const char *wide[4] = { "Off", "352 px", "384 px", "416 px" }, *onoff[2] = { "Off", "On" }, *filt[5] = { "Off", "Scanlines", "CRT", "CRT Pro", "CRT Curved" }, *scal[4] = { "Fit", "4:3", "Integer", "Fill" }, *dd[4] = { "Off", "Light", "Strong", "Blend" }, *shd[2] = { "Off", "On" }, *ffw[4] = { "Off", "2x", "3x", "4x" }, *dmg[6] = { "25", "50", "75", "100", "150", "200" }, *ehp[5] = { "50", "100", "150", "200", "300" };
+    static const char *wide[4] = { "Off", "352 px", "384 px", "416 px" }, *onoff[2] = { "Off", "On" }, *filt[5] = { "Off", "Scanlines", "CRT", "CRT Pro", "CRT Curved" }, *scal[4] = { "Fit", "4:3", "Integer", "Fill" }, *dd[4] = { "Off", "Light", "Medium", "Strong" }, *shd[2] = { "Off", "On" }, *ffw[4] = { "Off", "2x", "3x", "4x" }, *dmg[6] = { "25", "50", "75", "100", "150", "200" }, *ehp[5] = { "50", "100", "150", "200", "300" };
     if (id == 0) return wide[v & 3];
     if (id == 4) return scal[v & 3];
     if (id == 2) return filt[v > 4 || v < 0 ? 0 : v];
@@ -179,7 +179,6 @@ static void lk_opt_page(void) {   /* the whole page: labels, values, and the fra
     int r, c; M68kContext sv = g_m68k;
     for (r = 0; r < 17; r++) for (c = 0; c < 36; c++) bus_write16(0xFF1E04u + (uint32_t)r * 0x80u + (uint32_t)c * 2u, 0xA000);
     for (r = 0; r < lk_opt_vis(); r++) { int ar = r + lk_opt_scroll, id = lk_opt_rowid(ar); lk_opt_put(3, lk_opt_rowy(r), lk_opt_rowname(ar)); if (id >= 100) lk_opt_put(20, lk_opt_rowy(r), lk_opt_bindtext(id)); else if (id >= 0) lk_opt_put(22, lk_opt_rowy(r), lk_opt_val(id, platform_option_get(id))); else if (id == -5) lk_opt_put(22, lk_opt_rowy(r), lk_opt_quitarm ? "PRESS A" : ""); else lk_opt_put(22, lk_opt_rowy(r), ">"); }
-    if (lk_opt_scroll + lk_opt_vis() < lk_opt_nrows()) lk_opt_put(34, lk_opt_rowy(lk_opt_vis() - 1), "v");   /* more rows below */
     lk_opt_blink = 0;   /* every redraw (enter, row, value) starts with the frame visible */
     if (lk_opt_sel) lk_opt_frame(lk_opt_rowy(lk_opt_row - lk_opt_scroll) - 1, 1, 34, 1);
     lk_opt_upload(); g_m68k = sv;
@@ -319,14 +318,12 @@ static void lk_h_fbar(void) {
 extern int lk_win_on, lk_win_sel, lk_win_blink, lk_win_n, lk_win_pitch, lk_win_compact;
 extern uint8_t lk_win_row[8][16][288];
 extern uint8_t lk_win_cur[32][32];
-static const char *lk_win_mark;
 static uint8_t lk_win_stage[8][16][288];   /* a page is built here and copied in one go, so that no frame shows half of a page */
 static void lk_win_text(int k, const char *l, int lx, const char *v, int vx) {
     int x, y; M68kContext sv = g_m68k;
     lk_call(0x00F5F4u);   /* ClearTextBuffer */
     if (l && *l) lk_fs_print(l, lx);
     if (v && *v) lk_fs_print(v, vx);
-    if (lk_win_mark) lk_fs_print(lk_win_mark, 258);
     for (y = 0; y < 16; y++) for (x = 0; x < 288; x++) {
         uint8_t b = bus_read8(0xFF3900u + (uint32_t)((x / 8) * 2 + y / 8) * 32u + (uint32_t)(y % 8) * 4u + (uint32_t)((x % 8) / 2));
         lk_win_stage[k][y][x] = (uint8_t)((((x & 1) ? (b & 15) : (b >> 4)) != 0xA) ? 1 : 0);
@@ -340,10 +337,9 @@ static int lk_win_fix(int pg, int row) { int old = lk_win_scroll, v = lk_win_vis
 static int lk_win_id(int pg, int r) { return pg == 1 ? lk_ids_video[r] : pg == 2 ? lk_ids_audio[r] : pg == 3 ? lk_ids_game[r] : lk_ids_key[r]; }
 static void lk_win_rowtext(int pg, int r) {   /* builds the text of row r (0 = title, 1.. = options) of page pg into lk_win_stage[r] */
     static const char *title[5] = { "Options", "Video", "Audio", "Gameplay", "Keybindings" }, *root[5] = { "Video", "Audio", "Gameplay", "Keybindings", "Quit Game" };
-    lk_win_mark = NULL;
     if (r == 0) { lk_win_text(0, title[pg], pg ? 125 : 120, NULL, 0); return; }
     if (pg == 0) lk_win_text(r, root[r - 1], 0, r == 5 ? (lk_opt_quitarm ? "PRESS A" : "") : ">", r == 5 ? 200 : 250);
-    else { int id = lk_win_id(pg, r - 1 + lk_win_scroll); char buf[40]; lk_win_mark = (r == lk_win_vis(pg) && lk_win_scroll + r < lk_win_cnt[pg]) ? "v" : NULL;   /* 'v' = more rows below */ if (id >= 100) lk_win_text(r, id == 111 ? "Reset Defaults" : lk_bind_name(id - 100), 0, lk_opt_bindtext(id), 150); else { snprintf(buf, sizeof buf, "< %s >", lk_opt_val(id, platform_option_get(id))); lk_win_text(r, lk_id_name[id], 0, buf, 160); } }
+    else { int id = lk_win_id(pg, r - 1 + lk_win_scroll); char buf[40]; if (id >= 100) lk_win_text(r, id == 111 ? "Reset Defaults" : lk_bind_name(id - 100), 0, lk_opt_bindtext(id), 150); else { snprintf(buf, sizeof buf, "< %s >", lk_opt_val(id, platform_option_get(id))); lk_win_text(r, lk_id_name[id], 0, buf, 160); } }
 }
 static void lk_win_page(int pg, int sel) {   /* pg 0 = root, 1 Video, 2 Audio, 3 Gameplay; sel = selected row (0 based) */
     int r;

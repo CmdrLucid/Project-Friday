@@ -328,10 +328,33 @@ static void lk_dedither_smooth_rows(const uint32_t *src, uint32_t *dst, int sw, 
         dst[(size_t)y * sw + x] = 0xFF000000u | ((r / wsum) << 16) | ((g / wsum) << 8) | (b / wsum);
     }
 }
+/* Edge-preserving smoothing ('Smooth' mode, 2026-10-16, user: Light / Strong / Blend are still not good): 5x5 weighted mean where the weight is (spatial gaussian) x (colour similarity): neighbours within `range`
+   (max channel difference) of the centre count, the more alike the more, brighter sparkles, outlines and text are far away in colour and keep their own value. A dither noise of 2..3 close tones (water, grass, floors)
+   becomes a smooth gradient, no clusters / patterns have to be recognised. `gate` = minimum number of the 8 neighbours that differ from the centre (0 = every pixel, higher = only noisy places, sprite shading stays sharper). */
+static void lk_dedither_bil_rows(const uint32_t *src, uint32_t *dst, int sw, int range, int gate, int y0, int y1) {
+    static const int sp[3][3] = { { 16, 11, 8 }, { 11, 8, 4 }, { 8, 4, 3 } };   /* [|dy|][|dx|]: gaussian in the distance */
+    for (int y = y0 < LK_DD_SKIP_TOP ? LK_DD_SKIP_TOP : y0; y < (y1 > LK_SRC_H - 2 ? LK_SRC_H - 2 : y1); y++) for (int x = 2; x < sw - 2; x++) {
+        const uint32_t c = src[(size_t)y * sw + x]; const int cr = (c >> 16) & 255, cg = (c >> 8) & 255, cb = c & 255;
+        unsigned r = 0, g = 0, b = 0, wsum = 0; int diff = 0;
+        { const uint32_t *q = src + (size_t)y * sw + x; if (lk_dd_eq(c, q[-1]) && lk_dd_eq(c, q[1]) && lk_dd_eq(c, q[-sw]) && lk_dd_eq(c, q[sw]) && lk_dd_eq(c, q[-sw - 1]) && lk_dd_eq(c, q[-sw + 1]) && lk_dd_eq(c, q[sw - 1]) && lk_dd_eq(c, q[sw + 1])) continue; }   /* flat 3x3: nothing to do (fast path) */
+        if (lk_dd_uinear(src, sw, x, y)) continue;
+        for (int dy = -2; dy <= 2; dy++) for (int dx = -2; dx <= 2; dx++) {
+            const uint32_t n = src[(size_t)(y + dy) * sw + x + dx]; const int nr = (n >> 16) & 255, ng = (n >> 8) & 255, nb = n & 255;
+            int d = abs(nr - cr), e = abs(ng - cg), f = abs(nb - cb), w;
+            if (e > d) d = e; if (f > d) d = f;
+            if (d >= range) continue;
+            if ((dx | dy) && d && dy >= -1 && dy <= 1 && dx >= -1 && dx <= 1) diff++;
+            w = sp[abs(dy)][abs(dx)] * ((range - d) * 16 / range);
+            r += (unsigned)nr * (unsigned)w; g += (unsigned)ng * (unsigned)w; b += (unsigned)nb * (unsigned)w; wsum += (unsigned)w;
+        }
+        if (diff < gate || !wsum) continue;
+        dst[(size_t)y * sw + x] = 0xFF000000u | ((r / wsum) << 16) | ((g / wsum) << 8) | (b / wsum);
+    }
+}
 /* optional parallel runner (tools/patch_display.py sets it): calls fn(ctx, y0, y1) for bands of source rows on several threads */
 static void (*lk_dd_par)(void (*fn)(void *, int, int), void *ctx);
 typedef struct { const uint32_t *src; uint32_t *dst; int sw, tol, range, ncl, hmode, phase; } lk_dd_ctx;
-static void lk_dd_band(void *p, int y0, int y1) { lk_dd_ctx *c = (lk_dd_ctx *)p; if (c->phase == 0) lk_dedither_tol_rows(c->src, c->dst, c->sw, c->tol, y0, y1); else lk_dedither_smooth_rows(c->src, c->dst, c->sw, c->range, c->ncl, c->hmode, y0, y1); }
+static void lk_dd_band(void *p, int y0, int y1) { lk_dd_ctx *c = (lk_dd_ctx *)p; if (c->phase == 0) lk_dedither_tol_rows(c->src, c->dst, c->sw, c->tol, y0, y1); else if (c->phase == 1) lk_dedither_smooth_rows(c->src, c->dst, c->sw, c->range, c->ncl, c->hmode, y0, y1); else lk_dedither_bil_rows(c->src, c->dst, c->sw, c->range, 0, y0, y1); }
 static void lk_dd_run(lk_dd_ctx *c) { if (lk_dd_par) lk_dd_par(lk_dd_band, c); else lk_dd_band(c, 0, LK_SRC_H); }
 static void lk_dedither_both(const uint32_t *src, uint32_t *dst, int sw, int tol, int range, int ncl, int hmode) {
     static uint32_t *tmp; static int cap;
@@ -349,9 +372,22 @@ static void lk_dedither_both(const uint32_t *src, uint32_t *dst, int sw, int tol
     if (last_cap < (int)bytes) { free(last_in); free(last_out); last_in = (uint32_t *)malloc(bytes); last_out = (uint32_t *)malloc(bytes); last_cap = (last_in && last_out) ? (int)bytes : 0; }
     if (last_cap >= (int)bytes) { memcpy(last_in, src, bytes); memcpy(last_out, dst, bytes); last_key = key; last_sw = sw; }
 }
-static void lk_dedither(const uint32_t *src, uint32_t *dst, int sw) { lk_dedither_both(src, dst, sw, 6, 72, 2, 0); }
-static void lk_dedither_strong(const uint32_t *src, uint32_t *dst, int sw) { lk_dedither_both(src, dst, sw, 22, 110, 3, 0); }
-static void lk_dedither_blend(const uint32_t *src, uint32_t *dst, int sw) { lk_dedither_both(src, dst, sw, 0, 110, 3, 1); }
+/* The three user-visible strengths (2026-10-16): the edge-preserving smoothing above with colour range 90 / 120 / 150 (the older pattern detectors lk_dedither_both stay in the file for the test tool, the game no longer uses them).
+   Same plumbing as lk_dedither_both: UI guard mask, bands on several threads, an unchanged picture (menus, dialogues) reuses the previous result. */
+static void lk_dedither_bil(const uint32_t *src, uint32_t *dst, int sw, int range) {
+    static uint32_t *last_in, *last_out; static int last_cap, last_key = -1, last_sw;
+    lk_dd_ctx c = { src, dst, sw, 0, range, 0, 0, 2 };
+    const size_t bytes = (size_t)sw * LK_SRC_H * 4; const int key = 5000 + range;
+    if (last_cap >= (int)bytes && last_key == key && last_sw == sw && last_in && !memcmp(last_in, src, bytes)) { memcpy(dst, last_out, bytes); return; }
+    lk_dd_build_near(src, sw);
+    memcpy(dst, src, bytes);
+    lk_dd_run(&c);
+    if (last_cap < (int)bytes) { free(last_in); free(last_out); last_in = (uint32_t *)malloc(bytes); last_out = (uint32_t *)malloc(bytes); last_cap = (last_in && last_out) ? (int)bytes : 0; }
+    if (last_cap >= (int)bytes) { memcpy(last_in, src, bytes); memcpy(last_out, dst, bytes); last_key = key; last_sw = sw; }
+}
+static void lk_dedither(const uint32_t *src, uint32_t *dst, int sw) { lk_dedither_bil(src, dst, sw, 90); }          /* Light */
+static void lk_dedither_strong(const uint32_t *src, uint32_t *dst, int sw) { lk_dedither_bil(src, dst, sw, 120); }   /* Medium (mode 2) */
+static void lk_dedither_blend(const uint32_t *src, uint32_t *dst, int sw) { lk_dedither_bil(src, dst, sw, 150); }    /* Strong (mode 3) */
 
 /* ---- 5x7 font for the on-screen hint (rows of 5 bits, top row first) ---- */
 static const uint8_t *lk_glyph(char c) {
