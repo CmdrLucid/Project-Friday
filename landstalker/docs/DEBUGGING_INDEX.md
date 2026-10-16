@@ -129,3 +129,7 @@
   - L1082: Windows package under Proton on the Deck (user report 2026-10-16)
   - L1086: Windows package checked on a REAL Windows runner (2026-10-16, GitHub Actions `windows-latest`)
 - L1092: Session 2026-10-16 (Deck, Sonnet 5.5): options polish, key bindings, De-Dither rebuilt, release v0.5.0
+- L1101: Nigel on an object on a moving platform (user recording `vase_platform_room444`, 2026-10-16)
+- L1108: Full height: garbage band after a long text box (ship after the island map; user recording `ship_band_garbage`, 2026-10-16)
+- L1114: Ship: margins / full height lost after the island map (user recording `ship_band_garbage`, 2026-10-16)
+- L1120: Item descriptions in the Start menu (optional 'Item Info', user wish 2026-10-16: Saturn Stone had no explanation)

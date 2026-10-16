@@ -54,7 +54,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:201",
+     "where": "INDEX.md:206",
      "date": "2026-10-16",
      "snippet": "- RAM: Player struct `$FF5400` (X +0, Y +1, Z word +$12, FallRate +$20, JumpRate +$21, GroundHeight +$22, Action word +$2C; bits 0-3 walk, 4"
     }
@@ -80,6 +80,57 @@
    "notes": [],
    "mentions": 1,
    "class": "seed/table"
+  },
+  {
+   "addr": "0x0001B6",
+   "first_seen": "2026-10-16",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1105",
+     "date": "2026-10-16",
+     "snippet": "* Fix (optional, `tools/patch_carry.py`, Options > Gameplay > Ride Objects, default Off): wrapper of `$0017EE`: if `$FF5430` points at a slo"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x0001BB",
+   "first_seen": "2026-10-16",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1105",
+     "date": "2026-10-16",
+     "snippet": "* Fix (optional, `tools/patch_carry.py`, Options > Gameplay > Ride Objects, default Off): wrapper of `$0017EE`: if `$FF5430` points at a slo"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x0001C1",
+   "first_seen": "2026-10-16",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1105",
+     "date": "2026-10-16",
+     "snippet": "* Fix (optional, `tools/patch_carry.py`, Options > Gameplay > Ride Objects, default Off): wrapper of `$0017EE`: if `$FF5430` points at a slo"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
   },
   {
    "addr": "0x000250",
@@ -184,6 +235,29 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x000D80",
+   "first_seen": "2026-10-16",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1125",
+     "date": "2026-10-16",
+     "snippet": "* **Update 2 (user: 'beim Wechseln auf ein Item mit Beschreibung haengt es kurz'):** the game's text engine costs ~0.14 ms per character her"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1125",
+     "date": "2026-10-16",
+     "snippet": "* **Update 2 (user: 'beim Wechseln auf ein Item mit Beschreibung haengt es kurz'):** the game's text engine costs ~0.14 ms per character her"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 2,
    "class": "other"
   },
   {
@@ -444,7 +518,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:66",
+     "where": "INDEX.md:70",
      "date": "2026-10-16",
      "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
     }
@@ -882,7 +956,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:117",
+     "where": "INDEX.md:121",
      "date": "2026-10-16",
      "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
     }
@@ -1099,22 +1173,22 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:21",
+     "where": "DEBUGGING.md:1112",
      "date": "2026-10-16",
-     "snippet": "| `$FFA6CA` | g_MapBackground | background layer, `$2AC8` bytes behind the foreground | V |"
+     "snippet": "* **Brick stub in room 632 (frames ~806-826) FIXED the same day:** it was NOT real map data. The block map is 74 x 74 words (`$FF7C02`, stri"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:22",
+     "where": "FORMATS.md:21",
      "date": "2026-10-16",
-     "snippet": "| `$FFD192` | g_HeightMap | height map, `$2AC8` bytes, up to `$FFFC59` | V |"
+     "snippet": "| `$FFA6CA` | g_MapBackground | background layer, `$2AC8` bytes behind the foreground | V |"
     }
    ],
    "callers": [],
    "notes": [
     "2026-10-10: size in bytes of map/height-map layer, also offset to background layer"
    ],
-   "mentions": 7,
+   "mentions": 8,
    "class": "not-an-address",
    "class_by": "hand"
   },
@@ -1221,13 +1295,37 @@
      "type": "manual",
      "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
      "date": "2026-10-12"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1116",
+     "date": "2026-10-16",
+     "snippet": "* `LANDSTALKER_WIDE_DEBUG=1`: frame 3402 'not map', stack `UpdateSprites -> EB_TriggerCutscene -> CSA_00D3 -> WarpToRoom+0x4 ($006212) -> Fa"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1116",
+     "date": "2026-10-16",
+     "snippet": "* `LANDSTALKER_WIDE_DEBUG=1`: frame 3402 'not map', stack `UpdateSprites -> EB_TriggerCutscene -> CSA_00D3 -> WarpToRoom+0x4 ($006212) -> Fa"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1117",
+     "date": "2026-10-16",
+     "snippet": "* Fix (`patch_wide.py`): `$006212` also clears `lk_picture`. Replay exact; frames 3375-3430: fade-in complete with margins and band, reload "
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:11",
+     "date": "2026-10-16",
+     "snippet": "- **2026-10-16 (dev): ship return from the island map: margins / full height were black for ~45 frames (+ band garbage) FIXED** (`lk_picture"
     }
    ],
    "callers": [],
    "notes": [
     "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
    ],
-   "mentions": 0,
+   "mentions": 4,
    "class": "other"
   },
   {
@@ -1256,13 +1354,19 @@
      "type": "manual",
      "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
      "date": "2026-10-12"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1121",
+     "date": "2026-10-16",
+     "snippet": "* `tools/patch_iteminfo.py`, Options > Gameplay > Item Info Off / On (default Off, `~/.landstalker_iteminfo`, env `LANDSTALKER_ITEMINFO`, `L"
     }
    ],
    "callers": [],
    "notes": [
     "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
    ],
-   "mentions": 0,
+   "mentions": 1,
    "class": "other"
   },
   {
@@ -1397,13 +1501,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:26",
+     "where": "HANDOFF.md:30",
      "date": "2026-10-16",
      "snippet": "- **2026-10-16 (dev, user feedback): Keybindings page shows more rows and the SAME scroll arrows as the item list.** Start menu: 7 visible r"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:11",
+     "where": "INDEX.md:15",
      "date": "2026-10-16",
      "snippet": "- **2026-10-16 (dev, user feedback): Keybindings page shows more rows and the SAME scroll arrows as the item list.** Start menu: 7 visible r"
     }
@@ -1762,7 +1866,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:90",
+     "where": "HANDOFF.md:94",
      "date": "2026-10-16",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -1893,7 +1997,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:90",
+     "where": "HANDOFF.md:94",
      "date": "2026-10-16",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -1954,13 +2058,19 @@
      "type": "manual",
      "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
      "date": "2026-10-12"
+    },
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1121",
+     "date": "2026-10-16",
+     "snippet": "* `tools/patch_iteminfo.py`, Options > Gameplay > Item Info Off / On (default Off, `~/.landstalker_iteminfo`, env `LANDSTALKER_ITEMINFO`, `L"
     }
    ],
    "callers": [],
    "notes": [
     "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
    ],
-   "mentions": 0,
+   "mentions": 1,
    "class": "other"
   },
   {
@@ -2094,7 +2204,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:60",
+     "where": "HANDOFF.md:64",
      "date": "2026-10-16",
      "snippet": "- **2026-10-14 (dev): tree warp crash.** `~/interp.txt` had `$00F8C6` (jsr into the middle of FadePaletteDownStep from TreeWarpFx `$00E48E`,"
     }
@@ -2123,6 +2233,40 @@
    "mentions": 1,
    "class": "code",
    "class_by": "hand"
+  },
+  {
+   "addr": "0x00EAF2",
+   "first_seen": "2026-10-16",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1121",
+     "date": "2026-10-16",
+     "snippet": "* `tools/patch_iteminfo.py`, Options > Gameplay > Item Info Off / On (default Off, `~/.landstalker_iteminfo`, env `LANDSTALKER_ITEMINFO`, `L"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
+  },
+  {
+   "addr": "0x00EDAA",
+   "first_seen": "2026-10-16",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1121",
+     "date": "2026-10-16",
+     "snippet": "* `tools/patch_iteminfo.py`, Options > Gameplay > Item Info Off / On (default Off, `~/.landstalker_iteminfo`, env `LANDSTALKER_ITEMINFO`, `L"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "other"
   },
   {
    "addr": "0x00F07C",
@@ -2446,7 +2590,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:246",
+     "where": "HANDOFF.md:250",
      "date": "2026-10-16",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -2475,7 +2619,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:246",
+     "where": "HANDOFF.md:250",
      "date": "2026-10-16",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -2550,7 +2694,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:102",
+     "where": "HANDOFF.md:106",
      "date": "2026-10-16",
      "snippet": "- **Deck round 10 (2026-10-11, user played full height in Gumi, save slot 1):** R4 works but moved to R2 (right trigger, the last free shoul"
     }
@@ -2653,13 +2797,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:90",
+     "where": "HANDOFF.md:94",
      "date": "2026-10-16",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:66",
+     "where": "INDEX.md:70",
      "date": "2026-10-16",
      "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
     },
@@ -2682,13 +2826,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:52",
+     "where": "HANDOFF.md:56",
      "date": "2026-10-16",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:27",
+     "where": "INDEX.md:31",
      "date": "2026-10-16",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     }
@@ -2732,7 +2876,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:63",
+     "where": "HANDOFF.md:67",
      "date": "2026-10-16",
      "snippet": "- **2026-10-13 (dev, night): Shadow fixes after the user's report** (Nigel's shadow in the wrong place when jumping; object shadows flicker "
     }
@@ -2993,7 +3137,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:245",
+     "where": "HANDOFF.md:249",
      "date": "2026-10-16",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -3034,7 +3178,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:245",
+     "where": "HANDOFF.md:249",
      "date": "2026-10-16",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -3448,7 +3592,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:119",
+     "where": "INDEX.md:123",
      "date": "2026-10-16",
      "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
     }
@@ -3483,7 +3627,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:119",
+     "where": "INDEX.md:123",
      "date": "2026-10-16",
      "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
     }
@@ -3672,7 +3816,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:90",
+     "where": "HANDOFF.md:94",
      "date": "2026-10-16",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -3904,7 +4048,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:90",
+     "where": "HANDOFF.md:94",
      "date": "2026-10-16",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -4115,7 +4259,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:246",
+     "where": "HANDOFF.md:250",
      "date": "2026-10-16",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     }
@@ -4149,13 +4293,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:52",
+     "where": "HANDOFF.md:56",
      "date": "2026-10-16",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:27",
+     "where": "INDEX.md:31",
      "date": "2026-10-16",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     }
@@ -4212,13 +4356,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:69",
+     "where": "HANDOFF.md:73",
      "date": "2026-10-16",
      "snippet": "- **2026-10-12 (latest, dev): replay of the user's death recording (rec_20261012_2148) matches the live run until frame 3720, then diverges*"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:38",
+     "where": "INDEX.md:42",
      "date": "2026-10-16",
      "snippet": "- **2026-10-12 (late night, dev): replay vs live comparison (recording rec_20261012_2148, died at the end, user setting WIDE=16 + TALL).** `"
     }
@@ -4241,13 +4385,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:69",
+     "where": "HANDOFF.md:73",
      "date": "2026-10-16",
      "snippet": "- **2026-10-12 (latest, dev): replay of the user's death recording (rec_20261012_2148) matches the live run until frame 3720, then diverges*"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:38",
+     "where": "INDEX.md:42",
      "date": "2026-10-16",
      "snippet": "- **2026-10-12 (late night, dev): replay vs live comparison (recording rec_20261012_2148, died at the end, user setting WIDE=16 + TALL).** `"
     }
@@ -4298,13 +4442,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:60",
+     "where": "HANDOFF.md:64",
      "date": "2026-10-16",
      "snippet": "- **2026-10-14 (dev): tree warp crash.** `~/interp.txt` had `$00F8C6` (jsr into the middle of FadePaletteDownStep from TreeWarpFx `$00E48E`,"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:199",
+     "where": "INDEX.md:204",
      "date": "2026-10-16",
      "snippet": "**Lookup tables from Dinopony/landstalker-lib (use them instead of guessing ids; regenerate with `tools/import_rooms.py` / `tools/import_lib"
     }
@@ -4435,7 +4579,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:115",
+     "where": "INDEX.md:119",
      "date": "2026-10-16",
      "snippet": "| \"no function at $FF1850/$427C/...\" | RAM thunks into ROM mid-code; computed `jmp T(pc,dN)` tables | seeds via `gen_seeds.py`, `expand_seed"
     }
@@ -4726,7 +4870,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:121",
+     "where": "INDEX.md:125",
      "date": "2026-10-16",
      "snippet": "| NPCs ignore obstacles; reads of high RAM ($FF8000+) via `($XXXX).w` return ROM bytes; CMPM/BCD/ASL/ROX/MOVEM wrong | generator treated abs"
     }
@@ -4734,6 +4878,40 @@
    "callers": [],
    "notes": [],
    "mentions": 2,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFFA6C9",
+   "first_seen": "2026-10-16",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1112",
+     "date": "2026-10-16",
+     "snippet": "* **Brick stub in room 632 (frames ~806-826) FIXED the same day:** it was NOT real map data. The block map is 74 x 74 words (`$FF7C02`, stri"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
+   "addr": "0xFFA712",
+   "first_seen": "2026-10-16",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "DEBUGGING.md:1112",
+     "date": "2026-10-16",
+     "snippet": "* **Brick stub in room 632 (frames ~806-826) FIXED the same day:** it was NOT real map data. The block map is 74 x 74 words (`$FF7C02`, stri"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
    "class": "ram"
   },
   {
@@ -4784,7 +4962,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:117",
+     "where": "INDEX.md:121",
      "date": "2026-10-16",
      "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
     }

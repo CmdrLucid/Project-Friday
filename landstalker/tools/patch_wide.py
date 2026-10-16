@@ -219,7 +219,7 @@ s = open(p).read()
 if "lk_world_frame" not in s:
     a = "        lk_entry_dump(m68k_addr, ret); /* LANDSTALKER_ENTRYDUMP */\n"
     assert s.count(a) == 1, "func_table.c: entry hook layout changed"
-    s = s.replace(a, "        if (m68k_addr == 0x0389D4 || m68k_addr == 0x03E654) lk_picture = 1; else if (m68k_addr == 0x002996 || m68k_addr == 0x00620E || m68k_addr == 0x0178C8) lk_picture = 0;   /* LANDSTALKER_WIDE: full-screen picture (DisplayLithograph $0389D4, DisplayIslandMap $03E654) until the next room load or the next UpdateSprites pass (the cutscene that showed it has ended) */\n        if (m68k_addr == 0x0178C8) lk_world_frame = platform_frame_number();   /* LANDSTALKER_WIDE: UpdateSprites runs only on game map frames */\n        { static int nclean = -1; static uint32_t cleanfn[6]; if (nclean < 0) { const char *c = getenv(\"LANDSTALKER_WIDE_CLEAN\"); nclean = 0; if (c && *c) { if (c[0] == '1' && !c[1]) { cleanfn[nclean++] = 0x000B38; cleanfn[nclean++] = 0x002996; } else { char *e2; while (*c && nclean < 6) { cleanfn[nclean++] = (uint32_t)strtoul(c, &e2, 16); if (*e2 != ',') break; c = e2 + 1; } } } } for (int ci = 0; ci < nclean; ci++) if (m68k_addr == cleanfn[ci]) { lk_clean_planes(); break; } }   /* LANDSTALKER_WIDE_CLEAN=1 (= $000B38 ClearScrollPlanes + $002996 LoadRoom) or a comma separated hex list of function entries */\n" + a, 1)
+    s = s.replace(a, "        if (m68k_addr == 0x0389D4 || m68k_addr == 0x03E654) lk_picture = 1; else if (m68k_addr == 0x002996 || m68k_addr == 0x00620E || m68k_addr == 0x006212 || m68k_addr == 0x0178C8) lk_picture = 0;   /* $006212 = WarpToRoom+4: CSA_00D3 (island map -> ship) enters there, UpdateSprites is already on the stack, so the picture flag stayed set for ~45 frames of the ship fade-in (margins / band black, no band reload; user recording 2026-10-16) */   /* LANDSTALKER_WIDE: full-screen picture (DisplayLithograph $0389D4, DisplayIslandMap $03E654) until the next room load or the next UpdateSprites pass (the cutscene that showed it has ended) */\n        if (m68k_addr == 0x0178C8) lk_world_frame = platform_frame_number();   /* LANDSTALKER_WIDE: UpdateSprites runs only on game map frames */\n        { static int nclean = -1; static uint32_t cleanfn[6]; if (nclean < 0) { const char *c = getenv(\"LANDSTALKER_WIDE_CLEAN\"); nclean = 0; if (c && *c) { if (c[0] == '1' && !c[1]) { cleanfn[nclean++] = 0x000B38; cleanfn[nclean++] = 0x002996; } else { char *e2; while (*c && nclean < 6) { cleanfn[nclean++] = (uint32_t)strtoul(c, &e2, 16); if (*e2 != ',') break; c = e2 + 1; } } } } for (int ci = 0; ci < nclean; ci++) if (m68k_addr == cleanfn[ci]) { lk_clean_planes(); break; } }   /* LANDSTALKER_WIDE_CLEAN=1 (= $000B38 ClearScrollPlanes + $002996 LoadRoom) or a comma separated hex list of function entries */\n" + a, 1)
     s = s.replace("static uint32_t s_tail;", "extern void lk_clean_planes(void);\nstatic uint32_t s_tail;", 1)
     b = "static uint32_t s_tail;"
     assert s.count(b) == 1, "func_table.c: anchor layout changed"
@@ -300,6 +300,7 @@ extern int lk_tall_kv(void) __attribute__((weak));                /* LANDSTALKER
 int lk_load_fade;   /* FadeFromBlack $00098A after a save load is running (map-frame rule, vdp_render.c) */
 int lk_wide_refill;   /* set by platform_display_cycle_wide() when the width grows */
 static void lk_strip_extend(uint32_t a);
+static int32_t lk_blk_delta;
 static int lk_d2_shift, lk_d2_shift_x, lk_d2_shift_y;
 #define LK_EXT_CAP 600000                                          /* words (1.2 MB); one extension call with k=4 adds 4*2*12 blocks * 12 words = 1152; a room load calls the strip loaders hundreds of times without a flush (24000 was too small: margins stayed black after a room change) */
 static uint16_t lk_ext_w[LK_EXT_CAP]; static int lk_ext_n;
@@ -316,6 +317,11 @@ static void lk_strip_extend(uint32_t a)
       if (a == 0x008EB4 || a == 0x00098A) { if (!pending && a == 0x00098A) kv = 0; pending = 0; }
       if ((a == 0x008EB4 || a == 0x00098A) && kv > 0 && !lk_picture) { lk_wide_refill = 0; if (getenv("LANDSTALKER_TALL_DEBUG")) printf("tall: reload at fade-in $%06X frame %ld\n", a, platform_frame_number());
         lk_strip_extend(0x00A61C); lk_strip_extend(0x00A698); lk_strip_extend(0x00A6B0); lk_strip_extend(0x00A730); return; } }
+    if (a == 0x0178C8 && kv > 0) {   /* full height: UpdateSprites did not run for a while (dialogue / cutscene text box over the map) -> the band below the picture may hold stale rows when the map comes back (user recording 2026-10-16, ship after the island map: garbage ~28 frames until the first scroll load) -> reload all strips with the first map pass */
+        static long last_us = -1000; long now = platform_frame_number();
+        if (now - last_us > 12 && !lk_picture) lk_wide_refill = 1;
+        last_us = now;
+    }
     if (a == 0x0178C8 && lk_wide_refill) {   /* UpdateSprites (game map frame): the width was raised at run time: load the new outer ring of the map diamond now (the same extra strips a scroll step would load) */
         lk_wide_refill = 0;
         lk_strip_extend(0x00A61C); lk_strip_extend(0x00A698); lk_strip_extend(0x00A6B0); lk_strip_extend(0x00A730);
@@ -336,6 +342,12 @@ static void lk_strip_extend(uint32_t a)
         int L = (row - 16 * w) * 32 + (((d & 31) + lk_d2_shift_x + 16 * w) % 32 + 32) % 32;
         g_m68k.d[2] = (g_m68k.d[2] & 0xFFFF0000u) | (uint32_t)L;
         lk_d2_shift = 0; return;
+    }
+    if (a == 0x00A748 && busy && kv > 0) {   /* BlockToTiles during one of OUR extra strips: a block address outside the 74 x 74 block map (x or y beyond the room array) reads other RAM (height map, entity table...) and shows as a lone garbage tile in the full-height band (room 632, brick stub, user recording 2026-10-16) -> use the empty cell 0,0 instead. BlockToTiles does not change a6, but the loader steps a6 relative to it, so the difference is added back at the next call */
+        uint32_t a6 = g_m68k.a[6] + (uint32_t)lk_blk_delta;
+        lk_blk_delta = 0; g_m68k.a[6] = a6;
+        if (a6 < 0xFF7C02u || a6 >= 0xFF7C02u + 0x2AC8u) { lk_blk_delta = (int32_t)(a6 - 0xFF7C02u); g_m68k.a[6] = 0xFF7C02u; if (getenv("LANDSTALKER_TALL_DEBUG")) printf("tall: block outside the map a6=$%06X frame %ld\n", a6, platform_frame_number()); }
+        return;
     }
     if (a != 0x00A61C && a != 0x00A698 && a != 0x00A6B0 && a != 0x00A730) return;
     if (busy) return;
@@ -370,8 +382,9 @@ static void lk_strip_extend(uint32_t a)
                 if (nx < 0 || ny < 0 || nx > 73 || ny > 73) continue;
                 bus_write8(0xFF1124, (uint8_t)nx); bus_write8(0xFF1125, (uint8_t)ny);
                 lk_d2_shift = 1; lk_d2_shift_x = sx[j]; lk_d2_shift_y = sy[j];
+                lk_blk_delta = 0;
                 func_table_jsr(a, 0x000001);
-                g_m68k = sv;
+                lk_blk_delta = 0; g_m68k = sv;
             }
         lk_d2_shift = 0; bus_write8(0xFF1124, (uint8_t)cx); bus_write8(0xFF1125, (uint8_t)cy);
         g_m68k = sv;
