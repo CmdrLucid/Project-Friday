@@ -29,7 +29,7 @@ if VER not in s:
         s = s.replace(old, new, 1)
     a = "bool platform_poll_events(void) {"
     assert s.count(a) == 1
-    s = s.replace(a, "/* " + VER + ": key bindings (tools/patch_keys.py), the table itself lives in input.c */\nextern int lk_bind_capturing(void);\n\n" + a, 1)
+    s = s.replace(a, "/* " + VER + ": key bindings (tools/patch_keys.py), the table itself lives in input.c */\nextern int lk_bind_capturing(void);\nstatic int lk_quit_req;\nvoid platform_request_quit(void) { lk_quit_req = 1; }   /* Options > Quit Game */\n\n" + a + "\n    if (lk_quit_req) return false;   /* LK_KEYS v1: Options > Quit Game */", 1)
     open(p, "w").write(s)
     print("platform_sdl.c patched:", VER)
 
