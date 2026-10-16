@@ -76,6 +76,11 @@ assert s.count(a) == 1, "func_table.c: layout changed (lk_strip_extend forward d
 module = r'''/* ---- LANDSTALKER options tab in the Start menu (tools/patch_options.py) ---- */
 extern int platform_option_get(int id);
 extern void platform_option_step(int id);
+extern int lk_bind_capturing(void);   /* key bindings (tools/patch_keys.py, input.c): pages 'Buttons' / 'Extras', ids 100.. = actions, 111 = reset */
+extern void lk_bind_capture(int i);
+extern void lk_bind_reset(void);
+extern void lk_bind_label(int i, char *o, size_t n);
+extern const char *lk_bind_name(int i);
 static gen_func_t lk_o_yn, lk_o_upd, lk_o_right, lk_o_left, lk_o_conf, lk_o_cancel;
 static int lk_opt_tab, lk_opt_row, lk_opt_sel, lk_prev_state;   /* lk_opt_sel: inside the list (frame visible), like the game's item grid after A */
 static int lk_dir_edge(int bit) { return (bus_read8(0xFF0F8Eu) & bit) && !(lk_prev_state & bit); }   /* new in this pass: the pad state before this pass's UpdateControllerInputs is lk_prev_state */
@@ -113,6 +118,14 @@ static const char *lk_id_name[15] = { "Widescreen", "Full Height", "Filter", "Fu
 static const int lk_ids_video[6] = { 0, 1, 4, 2, 5, 3 };
 static const int lk_ids_audio[3] = { 6, 7, 8 };
 static const int lk_ids_game[6] = { 9, 10, 14, 11, 12, 13 };
+static const int lk_ids_btn[6] = { 100, 101, 102, 103, 104, 105 }, lk_ids_ext[6] = { 106, 107, 108, 109, 110, 111 };
+static int lk_opt_capid = -1;
+static const char *lk_opt_bindtext(int id) {   /* value column of a binding row: 'pad  key' or the capture prompt */
+    static char b[24];
+    if (id == 111) return ">";
+    if (lk_bind_capturing() && lk_opt_capid == id) return "PRESS KEY";
+    lk_bind_label(id - 100, b, sizeof b); return b;
+}
 static const int lk_ids_all[LK_OPT_ALL] = { 0, 1, 4, 2, 5, 3, 6, 7, 8, 9, 10 };   /* file select sub-menu: one flat list */
 static const char *lk_opt_val(int id, int v) {
     static char buf[8];
@@ -128,17 +141,20 @@ static const char *lk_opt_val(int id, int v) {
     if (id == 6 || id == 7) { snprintf(buf, sizeof buf, "%d", v); return buf; }
     return onoff[v & 1];
 }
-static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 3 : lk_opt_pg == 1 ? 6 : lk_opt_pg == 2 ? 3 : 6; }
-static int lk_opt_rowid(int r) { return lk_opt_pg == 1 ? lk_ids_video[r] : lk_opt_pg == 2 ? lk_ids_audio[r] : lk_opt_pg == 3 ? lk_ids_game[r] : -1 - r; }   /* root rows: -1 Video, -2 Audio, -3 Gameplay */
-static int lk_opt_rowy(int r) { return (lk_opt_pg == 1 || lk_opt_pg == 3) ? 2 + 2 * r : 2 + 3 * r; }
-static const char *lk_opt_rowname(int r) { int id = lk_opt_rowid(r); return id >= 0 ? lk_id_name[id] : id == -1 ? "Video" : id == -2 ? "Audio" : "Gameplay"; }
+static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 5 : lk_opt_pg == 2 ? 3 : 6; }
+static int lk_opt_rowid(int r) { return lk_opt_pg == 1 ? lk_ids_video[r] : lk_opt_pg == 2 ? lk_ids_audio[r] : lk_opt_pg == 3 ? lk_ids_game[r] : lk_opt_pg == 4 ? lk_ids_btn[r] : lk_opt_pg == 5 ? lk_ids_ext[r] : -1 - r; }   /* root rows: -1 Video, -2 Audio, -3 Gameplay */
+static int lk_opt_rowy(int r) { return (lk_opt_pg == 1 || lk_opt_pg >= 3) ? 2 + 2 * r : 2 + 3 * r; }
+static const char *lk_opt_rowname(int r) { int id = lk_opt_rowid(r); return id >= 100 ? (id == 111 ? "Reset Defaults" : lk_bind_name(id - 100)) : id >= 0 ? lk_id_name[id] : id == -1 ? "Video" : id == -2 ? "Audio" : id == -3 ? "Gameplay" : id == -4 ? "Buttons" : "Extras"; }
 static int lk_opt_cnt(int id) { static const int c[15] = { 4, 2, 5, 2, 4, 4, 11, 11, 2, 2, 2, 4, 6, 5, 2 }; return c[id]; }
-static void lk_opt_change(int id, int dir) { int n = lk_opt_cnt(id), k, steps = dir > 0 ? 1 : n - 1; for (k = 0; k < steps; k++) platform_option_step(id); }
+static void lk_opt_change(int id, int dir) {
+    int n, k, steps;
+    if (id >= 100) { if (dir > 0) { if (id == 111) lk_bind_reset(); else { lk_opt_capid = id; lk_bind_capture(id - 100); } } return; }   /* binding rows: A / RIGHT = wait for the next button / key press */
+    n = lk_opt_cnt(id); steps = dir > 0 ? 1 : n - 1; for (k = 0; k < steps; k++) platform_option_step(id); }
 /* the golden selection frame of the item lists (tiles $A8..$B7 = MenuCursor2BPP, a 4x4 tile frame that consists of four corner pieces only): a corner piece is
    3 tiles (A8 A9 / AC for the top left, B4 B5 / B0 top right, AA AB / AF bottom left, B6 B7 / B3 bottom right); here the four corners are placed around the whole row */
 static void lk_opt_frame(int top, int left, int right, int on) {   /* on = 0: blank tiles at the corner positions (blink phase off); the video page (rows 2 apart) uses a compact 3-row frame without the second vertical tile of each corner */
     int bottom = top + 3;
-    if (lk_opt_pg == 1) {
+    if (lk_opt_pg == 1 || lk_opt_pg >= 3) {
 #define LK_FT2(t) (on ? (t) : 0)
         bottom = top + 2;
         lk_opt_put_tile(left, top, LK_FT2(0xA8)); lk_opt_put_tile(left + 1, top, LK_FT2(0xAC)); lk_opt_put_tile(right, top, LK_FT2(0xB4)); lk_opt_put_tile(right - 1, top, LK_FT2(0xB0));
@@ -159,7 +175,7 @@ static void lk_opt_upload(void) { lk_call(0x00792Cu); lk_call(0x0002A2u); }
 static void lk_opt_page(void) {   /* the whole page: labels, values, and the frame when inside the list; uploaded to the window plane */
     int r, c; M68kContext sv = g_m68k;
     for (r = 0; r < 17; r++) for (c = 0; c < 36; c++) bus_write16(0xFF1E04u + (uint32_t)r * 0x80u + (uint32_t)c * 2u, 0xA000);
-    for (r = 0; r < lk_opt_nrows(); r++) { int id = lk_opt_rowid(r); lk_opt_put(3, lk_opt_rowy(r), lk_opt_rowname(r)); if (id >= 0) lk_opt_put(22, lk_opt_rowy(r), lk_opt_val(id, platform_option_get(id))); else lk_opt_put(22, lk_opt_rowy(r), ">"); }
+    for (r = 0; r < lk_opt_nrows(); r++) { int id = lk_opt_rowid(r); lk_opt_put(3, lk_opt_rowy(r), lk_opt_rowname(r)); if (id >= 100) lk_opt_put(20, lk_opt_rowy(r), lk_opt_bindtext(id)); else if (id >= 0) lk_opt_put(22, lk_opt_rowy(r), lk_opt_val(id, platform_option_get(id))); else lk_opt_put(22, lk_opt_rowy(r), ">"); }
     lk_opt_blink = 0;   /* every redraw (enter, row, value) starts with the frame visible */
     if (lk_opt_sel) lk_opt_frame(lk_opt_rowy(lk_opt_row) - 1, 1, 34, 1);
     lk_opt_upload(); g_m68k = sv;
@@ -196,7 +212,9 @@ static int lk_bar_loop(void) {   /* is the bar loop (sub_02488A and its generate
 static void lk_h_upd(void) {
     int cur = bus_read8(0xFF0F8Eu);
     if (lk_bar_loop()) {
-        int e = cur & ~lk_prev_state;   /* edge of the previous pass (one pass late, imperceptible) */
+        static int cap_was;
+        int e = cur & ~lk_prev_state;
+        if (lk_opt_tab && lk_opt_sel && lk_opt_pg >= 4) { int cp = lk_bind_capturing(); if (cap_was && !cp) { M68kContext sv = g_m68k; lk_opt_page(); lk_snd(LK_SND_SELECT); g_m68k = sv; } cap_was = cp; }   /* capture finished: show the new binding */   /* edge of the previous pass (one pass late, imperceptible) */
         if (lk_opt_tab && lk_opt_sel) bus_write8(0xFF1800u, 0);   /* inside the list the bar arrow stays lit, like after A on Use / Equip */
         if (lk_opt_tab && lk_opt_sel && (e & 3)) {
             M68kContext sv = g_m68k;
@@ -305,18 +323,18 @@ static void lk_win_text(int k, const char *l, int lx, const char *v, int vx) {
     }
     g_m68k = sv;
 }
-static const int lk_win_cnt[4] = { 3, 6, 3, 6 };
-static int lk_win_id(int pg, int r) { return pg == 1 ? lk_ids_video[r] : pg == 2 ? lk_ids_audio[r] : lk_ids_game[r]; }
+static const int lk_win_cnt[6] = { 5, 6, 3, 6, 6, 6 };
+static int lk_win_id(int pg, int r) { return pg == 1 ? lk_ids_video[r] : pg == 2 ? lk_ids_audio[r] : pg == 3 ? lk_ids_game[r] : pg == 4 ? lk_ids_btn[r] : lk_ids_ext[r]; }
 static void lk_win_rowtext(int pg, int r) {   /* builds the text of row r (0 = title, 1.. = options) of page pg into lk_win_stage[r] */
-    static const char *title[4] = { "Options", "Video", "Audio", "Gameplay" }, *root[3] = { "Video", "Audio", "Gameplay" };
+    static const char *title[6] = { "Options", "Video", "Audio", "Gameplay", "Buttons", "Extras" }, *root[5] = { "Video", "Audio", "Gameplay", "Buttons", "Extras" };
     if (r == 0) { lk_win_text(0, title[pg], pg ? 125 : 120, NULL, 0); return; }
     if (pg == 0) lk_win_text(r, root[r - 1], 0, ">", 250);
-    else { int id = lk_win_id(pg, r - 1); char buf[40]; snprintf(buf, sizeof buf, "< %s >", lk_opt_val(id, platform_option_get(id))); lk_win_text(r, lk_id_name[id], 0, buf, 160); }
+    else { int id = lk_win_id(pg, r - 1); char buf[40]; if (id >= 100) lk_win_text(r, id == 111 ? "Reset Defaults" : lk_bind_name(id - 100), 0, lk_opt_bindtext(id), 150); else { snprintf(buf, sizeof buf, "< %s >", lk_opt_val(id, platform_option_get(id))); lk_win_text(r, lk_id_name[id], 0, buf, 160); } }
 }
 static void lk_win_page(int pg, int sel) {   /* pg 0 = root, 1 Video, 2 Audio, 3 Gameplay; sel = selected row (0 based) */
     int r;
     for (r = 0; r <= lk_win_cnt[pg]; r++) lk_win_rowtext(pg, r);
-    lk_win_pitch = (pg == 1 || pg == 3) ? 20 : 28; lk_win_compact = (pg == 1 || pg == 3);   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
+    lk_win_pitch = (pg == 2) ? 28 : 20; lk_win_compact = (pg != 2);   /* only the 3-row Audio page is spread out; the root (5 rows) and the long pages are tight with the compact frame */   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
     memcpy(lk_win_row, lk_win_stage, sizeof lk_win_row); lk_win_n = lk_win_cnt[pg] + 1; lk_win_sel = sel + 1;
 }
 /* UP / DOWN only move the selection frame (no text work: every text row is printed through the game's own text engine, a whole page = about 100 characters = several frames of emulated time,
@@ -324,7 +342,7 @@ static void lk_win_page(int pg, int sel) {   /* pg 0 = root, 1 Video, 2 Audio, 3
 static void lk_win_move(int row) { lk_win_sel = row + 1; }
 static void lk_win_value(int pg, int row) { lk_win_rowtext(pg, row + 1); memcpy(lk_win_row[row + 1], lk_win_stage[row + 1], sizeof lk_win_row[0]); }
 static void lk_fs_modal(void) {   /* options window in the file select */
-    int pg = 0, row = 0, rootrow = 0, prev = bus_read8(0xFF0F8Eu), cur, e, blink = 0;
+    int pg = 0, row = 0, rootrow = 0, prev = bus_read8(0xFF0F8Eu), cur, e, blink = 0, cap_was = 0;
     M68kContext sv = g_m68k;
     { int t, r, c; for (t = 0; t < 16; t++) for (r = 0; r < 8; r++) {   /* MenuCursor2BPP $00DF76: 16 tiles of 2bpp (8 rows of 2 bytes), column-major 4 x 4 */
         uint16_t w = bus_read16(0x00DF76u + (uint32_t)t * 16u + (uint32_t)r * 2u);
@@ -336,6 +354,7 @@ static void lk_fs_modal(void) {   /* options window in the file select */
         lk_call(0x000272u);   /* WaitUntilVBlank */
         lk_call(0x00033Eu);   /* UpdateControllerInputs (the file select polls the pad itself, sub_F2E2) */
         cur = bus_read8(0xFF0F8Eu); e = cur & ~prev; prev = cur;
+        { int cp = lk_bind_capturing(); if (cap_was && !cp) { blink = 0; lk_win_value(pg, row); lk_snd(0x00FA54u); } cap_was = cp; }   /* capture finished: show the new binding */
         if (e & 0x10) {   /* B: page -> root, root -> close */
             if (pg == 0) break;
             pg = 0; row = rootrow; blink = 0; lk_win_page(0, row); lk_snd(0x00FA9Eu); continue;
