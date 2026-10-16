@@ -5,6 +5,14 @@ Static recompilation of **Landstalker** (Sega Mega Drive) to native code for PC 
 Bring your own ROM: no ROM, game asset or code generated from the ROM is part of this repository (the game is built on your machine from your own ROM).
 Non-commercial, open source, a hobby project. Not affiliated with Sega or Climax Entertainment.
 
+## Compatible ROMs
+
+Currently exactly **one** ROM is supported: the **US version** of *Landstalker: The Treasures of King Nole* for the Mega Drive / Genesis, as a raw 2 MB dump (`.md`, `.bin` or `.gen`, 2,097,152 bytes) with the SHA-1
+
+`24345e29427b000b90df778965dd8834300a9dde`
+
+The launcher checks size and SHA-1 at every start and refuses any other file with a message. Not supported (yet): European and Japanese versions, other dumps or patched / translated ROMs, `.smd` (interleaved) dumps and ROMs inside zip files (convert / unpack them first). A European version is a possible later step but needs a European ROM to test with.
+
 - Project: [`landstalker/`](landstalker/README.md) (build instructions, tools, documentation)
 - Entry point for the documentation: [`landstalker/docs/HANDOFF.md`](landstalker/docs/HANDOFF.md), then `LESSONS.md` and `INDEX.md`
 - Workflow: work happens on `dev`; `main` is the last state verified on a Steam Deck
