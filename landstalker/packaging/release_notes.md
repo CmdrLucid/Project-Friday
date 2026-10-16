@@ -1,7 +1,5 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
-**You need your own legal Landstalker ROM** (US version, raw 2 MB `.md` / `.bin` / `.gen`, SHA-1 `24345e29427b000b90df778965dd8834300a9dde`). Nothing from the game is included; the program builds the game from your ROM on first start (one time, a few minutes).
-
 ### New in {VERSION}
 - **Item Info** (Options > Gameplay, off by default): short description of the item under the cursor in the Use / Equip lists.
 - **Fix Ride Objects** (Options > Gameplay, off by default): Nigel is carried along when he stands on an object that sits on a moving platform.
