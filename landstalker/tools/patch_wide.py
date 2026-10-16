@@ -300,6 +300,7 @@ extern int lk_tall_kv(void) __attribute__((weak));                /* LANDSTALKER
 int lk_load_fade;   /* FadeFromBlack $00098A after a save load is running (map-frame rule, vdp_render.c) */
 int lk_wide_refill;   /* set by platform_display_cycle_wide() when the width grows */
 static void lk_strip_extend(uint32_t a);
+static int32_t lk_blk_delta;
 static int lk_d2_shift, lk_d2_shift_x, lk_d2_shift_y;
 #define LK_EXT_CAP 600000                                          /* words (1.2 MB); one extension call with k=4 adds 4*2*12 blocks * 12 words = 1152; a room load calls the strip loaders hundreds of times without a flush (24000 was too small: margins stayed black after a room change) */
 static uint16_t lk_ext_w[LK_EXT_CAP]; static int lk_ext_n;
@@ -342,6 +343,12 @@ static void lk_strip_extend(uint32_t a)
         g_m68k.d[2] = (g_m68k.d[2] & 0xFFFF0000u) | (uint32_t)L;
         lk_d2_shift = 0; return;
     }
+    if (a == 0x00A748 && busy && kv > 0) {   /* BlockToTiles during one of OUR extra strips: a block address outside the 74 x 74 block map (x or y beyond the room array) reads other RAM (height map, entity table...) and shows as a lone garbage tile in the full-height band (room 632, brick stub, user recording 2026-10-16) -> use the empty cell 0,0 instead. BlockToTiles does not change a6, but the loader steps a6 relative to it, so the difference is added back at the next call */
+        uint32_t a6 = g_m68k.a[6] + (uint32_t)lk_blk_delta;
+        lk_blk_delta = 0; g_m68k.a[6] = a6;
+        if (a6 < 0xFF7C02u || a6 >= 0xFF7C02u + 0x2AC8u) { lk_blk_delta = (int32_t)(a6 - 0xFF7C02u); g_m68k.a[6] = 0xFF7C02u; if (getenv("LANDSTALKER_TALL_DEBUG")) printf("tall: block outside the map a6=$%06X frame %ld\n", a6, platform_frame_number()); }
+        return;
+    }
     if (a != 0x00A61C && a != 0x00A698 && a != 0x00A6B0 && a != 0x00A730) return;
     if (busy) return;
     if (kenv == -2) { const char *c = getenv("LANDSTALKER_WIDE_STRIPS"); kenv = c && *c ? atoi(c) : -1; }
@@ -375,8 +382,9 @@ static void lk_strip_extend(uint32_t a)
                 if (nx < 0 || ny < 0 || nx > 73 || ny > 73) continue;
                 bus_write8(0xFF1124, (uint8_t)nx); bus_write8(0xFF1125, (uint8_t)ny);
                 lk_d2_shift = 1; lk_d2_shift_x = sx[j]; lk_d2_shift_y = sy[j];
+                lk_blk_delta = 0;
                 func_table_jsr(a, 0x000001);
-                g_m68k = sv;
+                lk_blk_delta = 0; g_m68k = sv;
             }
         lk_d2_shift = 0; bus_write8(0xFF1124, (uint8_t)cx); bus_write8(0xFF1125, (uint8_t)cy);
         g_m68k = sv;
