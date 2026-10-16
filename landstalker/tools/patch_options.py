@@ -157,7 +157,7 @@ static void lk_opt_change(int id, int dir) {
    3 tiles (A8 A9 / AC for the top left, B4 B5 / B0 top right, AA AB / AF bottom left, B6 B7 / B3 bottom right); here the four corners are placed around the whole row */
 static void lk_opt_frame(int top, int left, int right, int on) {   /* on = 0: blank tiles at the corner positions (blink phase off); the video page (rows 2 apart) uses a compact 3-row frame without the second vertical tile of each corner */
     int bottom = top + 3;
-    if (lk_opt_pg == 1 || lk_opt_pg >= 3) {
+    if (1) {   /* always the compact frame: its 24 px are centred on the one text line (the full 32 px frame sat 4 px too high on the line, measured 2026-10-16) */
 #define LK_FT2(t) (on ? (t) : 0)
         bottom = top + 2;
         lk_opt_put_tile(left, top, LK_FT2(0xA8)); lk_opt_put_tile(left + 1, top, LK_FT2(0xAC)); lk_opt_put_tile(right, top, LK_FT2(0xB4)); lk_opt_put_tile(right - 1, top, LK_FT2(0xB0));
@@ -359,7 +359,7 @@ static void lk_win_rowtext(int pg, int r) {   /* builds the text of row r (0 = t
 static void lk_win_page(int pg, int sel) {   /* pg 0 = root, 1 Video, 2 Audio, 3 Gameplay; sel = selected row (0 based) */
     int r;
     for (r = 0; r <= lk_win_vis(pg); r++) lk_win_rowtext(pg, r);
-    lk_win_pitch = (pg == 2) ? 28 : (pg == 4) ? 18 : 20; lk_win_compact = (pg != 2);   /* only the 3-row Audio page is spread out; the root (5 rows) and the long pages are tight with the compact frame */   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
+    lk_win_pitch = (pg == 2) ? 28 : (pg == 4) ? 18 : 20; lk_win_compact = 1;   /* only the 3-row Audio page is spread out; the root (5 rows) and the long pages are tight with the compact frame */   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
     memcpy(lk_win_row, lk_win_stage, sizeof lk_win_row); lk_win_n = lk_win_vis(pg) + 1; lk_win_sel = sel - lk_win_scroll + 1;
 }
 /* UP / DOWN only move the selection frame (no text work: every text row is printed through the game's own text engine, a whole page = about 100 characters = several frames of emulated time,

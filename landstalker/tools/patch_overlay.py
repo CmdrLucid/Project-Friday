@@ -123,7 +123,7 @@ static void lk_win_draw(PIXEL_OUT_T *row, int width) {
         if (off >= 0 && off < 16 && bx >= 0 && bx < 288 && lk_win_row[k][off][bx]) col = 0xFFEEEEEEu;
       }
       if (lk_win_sel >= 0 && !lk_win_blink) {   /* the game's own selection frame (MenuCursor2BPP, 32 x 32 = four corner pieces, copied from the ROM by the game side), centred on the text line; compact (Video page) = top and bottom tile row only, 24 px */
-        int ft = 8 + lk_win_sel * pt + tt - (lk_win_compact ? 4 : 8), cy = ly - ft, gy = -1, cx = -1, idx;
+        int ft = 8 + lk_win_sel * pt + tt - (lk_win_compact ? 6 : 10), cy = ly - ft, gy = -1, cx = -1, idx;
         if (lk_win_compact) { if (cy >= 0 && cy < 8) gy = cy; else if (cy >= 16 && cy < 24) gy = 24 + (cy - 16); } else if (cy >= 0 && cy < 32) gy = cy;
         if (gy >= 0) {
           if (lx >= 4 && lx < 20) cx = lx - 4; else if (lx >= LK_WIN_W - 20 && lx < LK_WIN_W - 4) cx = 16 + (lx - (LK_WIN_W - 20));
