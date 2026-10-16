@@ -99,6 +99,7 @@ static int lk_chr(char c) {   /* the game's CHR enum (US) */
     if (c >= 'A' && c <= 'Z') return 0x0B + (c - 'A');
     if (c >= 'a' && c <= 'z') return 0x25 + (c - 'a');
     if (c == '.') return 0x40;
+    if (c == ',') return 0x41;   /* guessed (2026-10-16, Item Info texts): the code after '.' */
     if (c == '-') return 0x48;
     if (c == ':') return 0x47;
     if (c == '<') return 0x45;
