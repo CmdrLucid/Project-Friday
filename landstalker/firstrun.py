@@ -41,10 +41,42 @@ NOTICE = ("Project-Friday builds the game on your computer from your own Landsta
 
 
 # ---------------------------------------------------------------- user interface (zenity / console)
+def win_open_dialog(title):
+    """Standard Windows 'Open file' dialog through ctypes (comdlg32): works on Windows and in Wine / Proton, needs no PowerShell."""
+    import ctypes
+    from ctypes import wintypes as w
+
+    class OPENFILENAMEW(ctypes.Structure):
+        _fields_ = [("lStructSize", w.DWORD), ("hwndOwner", w.HWND), ("hInstance", w.HINSTANCE), ("lpstrFilter", w.LPCWSTR),
+                    ("lpstrCustomFilter", w.LPWSTR), ("nMaxCustFilter", w.DWORD), ("nFilterIndex", w.DWORD), ("lpstrFile", w.LPWSTR),
+                    ("nMaxFile", w.DWORD), ("lpstrFileTitle", w.LPWSTR), ("nMaxFileTitle", w.DWORD), ("lpstrInitialDir", w.LPCWSTR),
+                    ("lpstrTitle", w.LPCWSTR), ("Flags", w.DWORD), ("nFileOffset", w.WORD), ("nFileExtension", w.WORD),
+                    ("lpstrDefExt", w.LPCWSTR), ("lCustData", w.LPARAM), ("lpfnHook", ctypes.c_void_p), ("lpTemplateName", w.LPCWSTR),
+                    ("pvReserved", ctypes.c_void_p), ("dwReserved", w.DWORD), ("FlagsEx", w.DWORD)]
+    buf = ctypes.create_unicode_buffer(32768)
+    flt = "Mega Drive ROM (*.md;*.bin;*.gen)\0*.md;*.bin;*.gen\0All files (*.*)\0*.*\0"
+    ofn = OPENFILENAMEW()
+    ofn.lStructSize = ctypes.sizeof(OPENFILENAMEW)
+    ofn.lpstrFilter = flt
+    ofn.nFilterIndex = 1
+    ofn.lpstrFile = ctypes.cast(buf, w.LPWSTR)
+    ofn.nMaxFile = len(buf)
+    ofn.lpstrTitle = title
+    ofn.Flags = 0x00001000 | 0x00000800 | 0x00080000 | 0x00000008     # FILEMUSTEXIST | PATHMUSTEXIST | EXPLORER | NOCHANGEDIR
+    if ctypes.windll.comdlg32.GetOpenFileNameW(ctypes.byref(ofn)):
+        return buf.value
+    return None
+
+
+def win_message(text, error):
+    import ctypes
+    ctypes.windll.user32.MessageBoxW(0, text, NAME, 0x10 if error else 0x40)
+
+
 class Ui:
     def __init__(self, gui):
-        if WIN:   # dialogs through PowerShell + Windows Forms (present on every Windows 10 / 11), progress as text in the console window
-            self.gui = gui and bool(shutil.which("powershell"))
+        if WIN:   # native dialogs (ctypes), progress as text in the console window
+            self.gui = bool(gui)
         else:
             self.gui = gui and bool(shutil.which("zenity")) and bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
         self.proc = None
@@ -57,7 +89,10 @@ class Ui:
 
     def _box(self, text, icon):
         if WIN:
-            self._ps("[void][System.Windows.Forms.MessageBox]::Show($env:PF_MSG, 'Project-Friday', 'OK', '%s')" % icon, PF_MSG=text)
+            try:
+                win_message(text, icon == "Error")
+            except Exception:
+                self._ps("[void][System.Windows.Forms.MessageBox]::Show($env:PF_MSG, 'Project-Friday', 'OK', '%s')" % icon, PF_MSG=text)
         else:
             subprocess.run(["zenity", "--error" if icon == "Error" else "--info", "--no-markup", "--width=480", "--title=" + NAME, "--text=" + text])
 
@@ -77,6 +112,10 @@ class Ui:
     def ask_rom(self, why):
         self.say(why)
         if self.gui and WIN:
+            try:
+                return win_open_dialog("Select your Landstalker ROM (.md / .bin / .gen)")
+            except Exception as e:     # ctypes missing or the dialog failed: PowerShell, then the console prompt
+                print("file dialog failed (%s), trying PowerShell" % e, file=sys.stderr)
             r = self._ps("$f = New-Object System.Windows.Forms.OpenFileDialog; $f.Title = 'Select your Landstalker ROM (.md / .bin / .gen)'; "
                          "$f.Filter = 'Mega Drive ROM (*.md;*.bin;*.gen)|*.md;*.bin;*.gen|All files (*.*)|*.*'; "
                          "if ($f.ShowDialog() -eq 'OK') { [Console]::Out.Write($f.FileName) }")
@@ -425,6 +464,8 @@ def main():
         save_config(cfg)
     rom, rom_sha = find_rom(ui, args, cfg)
     if not rom:
+        ui.error("No valid Landstalker ROM was selected, nothing was started. Start the program again and pick your ROM file "
+                 "(a raw 2 MB .md / .bin / .gen dump).")
         return 1
     cc = pick_compiler(args)
     bid = build_id(rom_sha)
