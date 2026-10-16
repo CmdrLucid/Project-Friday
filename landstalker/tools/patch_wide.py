@@ -316,6 +316,11 @@ static void lk_strip_extend(uint32_t a)
       if (a == 0x008EB4 || a == 0x00098A) { if (!pending && a == 0x00098A) kv = 0; pending = 0; }
       if ((a == 0x008EB4 || a == 0x00098A) && kv > 0 && !lk_picture) { lk_wide_refill = 0; if (getenv("LANDSTALKER_TALL_DEBUG")) printf("tall: reload at fade-in $%06X frame %ld\n", a, platform_frame_number());
         lk_strip_extend(0x00A61C); lk_strip_extend(0x00A698); lk_strip_extend(0x00A6B0); lk_strip_extend(0x00A730); return; } }
+    if (a == 0x0178C8 && kv > 0) {   /* full height: UpdateSprites did not run for a while (dialogue / cutscene text box over the map) -> the band below the picture may hold stale rows when the map comes back (user recording 2026-10-16, ship after the island map: garbage ~28 frames until the first scroll load) -> reload all strips with the first map pass */
+        static long last_us = -1000; long now = platform_frame_number();
+        if (now - last_us > 12 && !lk_picture) lk_wide_refill = 1;
+        last_us = now;
+    }
     if (a == 0x0178C8 && lk_wide_refill) {   /* UpdateSprites (game map frame): the width was raised at run time: load the new outer ring of the map diamond now (the same extra strips a scroll step would load) */
         lk_wide_refill = 0;
         lk_strip_extend(0x00A61C); lk_strip_extend(0x00A698); lk_strip_extend(0x00A6B0); lk_strip_extend(0x00A730);
