@@ -306,15 +306,19 @@ def patch_steps():
 
 
 # ---------------------------------------------------------------- the build
-def build(ui, rom, rom_sha, bid, cc):
-    work = os.path.join(DATA, "builds", bid + "-" + rom_sha[:8])
+def build(ui, rom, rom_sha, bid, cc, test=False):
+    """test=True (--selftest-build, used by CI on a real Windows runner): no ROM; runs only the patch steps that need neither the ROM nor
+    generated code and compiles genrecomp + Genesis Plus GX only (no game), in a throw-away folder."""
+    work = os.path.join(DATA, "builds", bid + "-" + rom_sha[:8]) if not test else os.path.join(DATA, "selftest-build")
     exe = os.path.join(work, "out", "landstalker.exe" if os.name == "nt" else "landstalker")
-    if os.path.isfile(os.path.join(work, "DONE")) and os.path.isfile(exe):
+    if not test and os.path.isfile(os.path.join(work, "DONE")) and os.path.isfile(exe):
         return exe
     vendor = os.path.join(HERE, "vendor", "genrecomp")
     if not os.path.isfile(os.path.join(vendor, "CMakeLists.txt")):
         raise RuntimeError("vendor/genrecomp is missing (run tools/make_vendor.py, or use the release package)")
     steps = patch_steps()
+    if test:
+        steps = [st for st in steps if "$ROM" not in st[1:] and not any(a.startswith("src/recomp") for a in st[1:])]
     n = len(steps)
     # weights (percent): prepare 3, patch/generate chain 57 (the generate step is the long one), compile 40
     ui.progress_open("Building the game from your ROM (first start only, about 5 to 25 minutes) ...")
@@ -381,7 +385,7 @@ def build(ui, rom, rom_sha, bid, cc):
     env["SDL2_CFLAGS"], env["SDL2_LIBS"] = sdl_flags()
     env.setdefault("ZIG_GLOBAL_CACHE_DIR", os.path.join(DATA, "zigcache"))
     ui.progress(60, "Compiling ...")
-    cmd = [sys.executable, os.path.join(work, "tools", "zigbuild.py"), "--cc", cc, "--out", os.path.join(work, "out")]
+    cmd = [sys.executable, os.path.join(work, "tools", "zigbuild.py"), "--cc", cc, "--out", os.path.join(work, "out")] + (["--no-game"] if test else [])
     log.write("\n$ %s\n" % " ".join(cmd))
     log.flush()
     pr = subprocess.Popen(cmd, cwd=work, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env)
@@ -393,6 +397,13 @@ def build(ui, rom, rom_sha, bid, cc):
             ui.progress(60 + 39.0 * d / t, "Compiling %d of %d" % (d, t))
         elif line.startswith("zigbuild: linking"):
             ui.progress(99, "Linking ...")
+    if test:
+        rc = pr.wait()
+        log.close()
+        if rc:
+            tail = open(os.path.join(work, "build.log")).read()[-1500:]
+            raise RuntimeError("Self-test build failed.\n\n%s\n\nFull log: %s" % (tail, os.path.join(work, "build.log")))
+        return None
     if pr.wait() or not os.path.isfile(exe):
         log.close()
         tail = open(os.path.join(work, "build.log")).read()[-1500:]
@@ -453,9 +464,24 @@ def main():
     ap.add_argument("--no-gui", action="store_true")
     ap.add_argument("--build-only", action="store_true")
     ap.add_argument("--selftest", action="store_true", help="check compiler + SDL2 headers / library without a ROM (used by CI)")
+    ap.add_argument("--selftest-build", action="store_true", help="CI: run the ROM-free patch steps and compile genrecomp + Genesis Plus GX (no ROM, no game)")
     args = ap.parse_args(argv)
     if args.selftest:
         return selftest(pick_compiler(args))
+    if args.selftest_build:
+        ui = Ui(False)
+        cc = pick_compiler(args)
+        if cc is None:
+            print("selftest-build FAILED: no C compiler found")
+            return 1
+        try:
+            build(ui, None, "0" * 40, "selftest", cc, test=True)
+        except Exception as e:
+            print("selftest-build FAILED: " + str(e))
+            return 1
+        ui.progress_close()
+        print("\nselftest-build ok: patch steps and compile of genrecomp + Genesis Plus GX work on this machine")
+        return 0
     ui = Ui(not args.no_gui)
     cfg = load_config()
     if not cfg.get("notice_shown"):
