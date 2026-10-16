@@ -2,7 +2,7 @@
 
 Static recompilation of **Landstalker** (Sega Mega Drive) to native code for PC and Steam Deck, built with
 [genrecomp](https://github.com/sp00nznet/genrecomp). *Friday* is Nigel's fairy companion.
-Bring your own ROM: no ROM, asset or generated code is part of this repository.
+Bring your own ROM: no ROM, game asset or code generated from the ROM is part of this repository (the game is built on your machine from your own ROM).
 Non-commercial, open source, a hobby project. Not affiliated with Sega or Climax Entertainment.
 
 - Project: [`landstalker/`](landstalker/README.md) (build instructions, tools, documentation)
@@ -34,13 +34,12 @@ Details and licence notes: [`landstalker/README.md`](landstalker/README.md). If 
 The files of this repository (patches, tools, launcher, documentation) are under the [MIT License](LICENSE).
 **A built game is non-commercial only:** it contains Genesis Plus GX and Musashi, which are free for non-commercial use only
 (see the table above). Landstalker itself belongs to Sega / Climax Entertainment; this repository contains no ROM, no game data
-and no code generated from the game.
+and no code generated from the ROM. The game code is generated locally on your machine from your own ROM when you build and is never committed.
 
 ## How AI is used in this project
 
 This project is built with **Claude** (Claude Code, an AI assistant by Anthropic). To be fully transparent:
 
 - **All code is written by Claude:** the recompilation patches, tools, launcher, packaging scripts, test aids and the documentation (including this README). Many commits carry a `Co-Authored-By: Claude` line.
-- **The human project owner provides the ideas and does the testing:** what should be built, feature wishes, decisions (for example the release approach and the licence), and playing the game on a real Steam Deck to judge look, sound and feel. Claude can only run the game without a screen, so everything that has to be seen or heard is confirmed by the owner (the documentation says which checks are still open).
+- **CmdrLucid provides the ideas and does the testing:** what should be built, feature wishes, decisions (for example the release approach and the licence), and playing the game on a real Steam Deck to judge look, sound and feel. Claude can only run the game without a screen, so everything that has to be seen or heard is confirmed by CmdrLucid (the documentation says which checks are still open).
 - **Limits:** Claude makes mistakes. Results are checked with automated comparisons (RAM dumps against the reference emulator core, replays) and by playing, but the code has not been audited by a human programmer. Please report bugs as issues.
-- **Claude's output is not used as game content:** no AI-generated art or sound is in the game. An attempt to generate title lettering with an image AI was rejected and dropped.
