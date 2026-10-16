@@ -126,6 +126,8 @@ python3 tools/patch_quicksave.py .deps/genrecomp
 python3 tools/patch_difficulty.py .deps/genrecomp
 # Optional fix 'Ride Objects': Nigel is carried by an object standing on a moving platform (tools/patch_carry.py; needs patch_difficulty.py first)
 python3 tools/patch_carry.py .deps/genrecomp
+# Optional 'Item Info': description of the item under the cursor in the Start menu (tools/patch_iteminfo.py; needs patch_options.py and patch_carry.py first)
+python3 tools/patch_iteminfo.py .deps/genrecomp
 # Key bindings for pad + keyboard (tools/patch_keys.py; replaces the fixed button / key lines of input.c, needs all input patches before it)
 python3 tools/patch_keys.py .deps/genrecomp
 # test aid: LANDSTALKER_WARP="610:12.08,20.04" puts Nigel into a room at a spot (headless tests), see tools/patch_warp.py
