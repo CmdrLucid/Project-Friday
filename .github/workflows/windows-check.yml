@@ -18,6 +18,8 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download the Windows package of the release
         shell: pwsh
         env:
@@ -28,6 +30,14 @@ jobs:
           else { gh release download --repo $env:GITHUB_REPOSITORY --pattern "Project-Friday-windows-x64.zip" }
           Expand-Archive -Path Project-Friday-windows-x64.zip -DestinationPath pkg
           Get-ChildItem pkg/Project-Friday | Select-Object -First 20 | ForEach-Object { $_.Name }
+
+      - name: Use the launcher / tools of THIS commit on top of the released bundle (zig, Python, SDL2, genrecomp from the release)
+        shell: pwsh
+        run: |
+          Copy-Item landstalker/firstrun.py pkg/Project-Friday/firstrun.py -Force
+          Copy-Item landstalker/build.sh pkg/Project-Friday/build.sh -Force
+          Copy-Item landstalker/recomp.json pkg/Project-Friday/recomp.json -Force
+          Copy-Item landstalker/tools/* pkg/Project-Friday/tools/ -Force -ErrorAction SilentlyContinue
 
       - name: Launcher exe + bundled Python
         shell: pwsh
