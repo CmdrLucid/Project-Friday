@@ -47,7 +47,7 @@ static void lk_q_icons_save(void) {
 }
 static void lk_q_load(void) {
   char p[512]; FILE *f; int on = 0, a = -1, b = -1; uint8 id;
-  lk_q_on = 0; lk_q_path(p, sizeof p, ".landstalker_quick"); f = fopen(p, "r");
+  lk_q_on = 1; lk_q_path(p, sizeof p, ".landstalker_quick");   /* default On since 2026-10-17 (Quality of Life); a saved file wins */ f = fopen(p, "r");
   if (f) { if (fscanf(f, "%d %d %d", &on, &a, &b) >= 1) { lk_q_on = on ? 1 : 0; lk_q_id[0] = a; lk_q_id[1] = b; } fclose(f); }
   { const char *e = getenv("LANDSTALKER_QUICK"); if (e && *e) lk_q_on = atoi(e) ? 1 : 0; }
   { const char *e = getenv("LANDSTALKER_QUICK_SLOTS"); int x, y; if (e && sscanf(e, "%d,%d", &x, &y) == 2) { lk_q_id[0] = x; lk_q_id[1] = y; } }   /* test aid */

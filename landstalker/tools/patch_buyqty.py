@@ -20,7 +20,7 @@ if VER not in s:
     module = r'''/* ---- LK_BUYQTY v1: choose how many consumables to buy (tools/patch_buyqty.py) ---- */
 static int lk_bq_v = -1;   /* Options > Gameplay > Buy Quantity Off / On, default Off; file ~/.landstalker_buyqty, env LANDSTALKER_BUYQTY=0|1 wins */
 int lk_bq_get(void) {
-    if (lk_bq_v < 0) { char p[512]; FILE *f; const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_BUYQTY"); int v = 0; snprintf(p, sizeof p, "%s/.landstalker_buyqty", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e) v = atoi(e); lk_bq_v = v ? 1 : 0; }
+    if (lk_bq_v < 0) { char p[512]; FILE *f; const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_BUYQTY"); int v = 1; snprintf(p, sizeof p, "%s/.landstalker_buyqty", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 1; fclose(f); } if (e) v = atoi(e); lk_bq_v = v ? 1 : 0; }
     return lk_bq_v;
 }
 void lk_bq_set(int v) { char p[512]; FILE *f; const char *h = getenv("HOME"); lk_bq_get(); lk_bq_v = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_buyqty", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_bq_v); fclose(f); } }
