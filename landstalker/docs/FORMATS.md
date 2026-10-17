@@ -80,9 +80,9 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
 
 ## 8. Open questions (collect, then answer, then move up)
 1. Room data in ROM: map/height/tileset locations and compression.
-2. Sprite upload: fixed VRAM slots per room or dynamic?
+2. Sprite upload: fixed VRAM slots per room or dynamic? ANSWERED 2026-10-17: dynamic per game pass, see 'Sprite upload' below.
 3. Where the story flags live in RAM and how scripts test them (`PickValueBasedOnFlags $0253CA`).
-4. Whether any screen uses plane content that cannot be derived from RAM state (island map, intro).
+4. Whether any screen uses plane content that cannot be derived from RAM state (island map, intro). ANSWERED 2026-10-17 (code reading only): see 'Screens without a room' below.
 
 ## Map loader: plane cell index d2 (added 2026-10-10, Deck session, measured with LANDSTALKER_BLOCKLOG over the massan walk replay, 1343 blocks)
  * V (2026-10-10): the strip loaders (LoadTopTiles $00A61C, LoadBottomTiles $00A698, LoadLeftTiles $00A6B0, LoadRightTiles $00A730) take the START plane cell `d2` from a table indexed by the word `g_StripStartCellIndex` ($FF1184, x2), NOT from the camera ($FF1124/$FF1125). `MapPtrAndCellFromXY` ($00C37E) only converts (x,y) to the map pointer and leaves d2 unchanged.
@@ -135,3 +135,14 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
 - V: text box: tile buffer `$FF3900` (the same RAM as the VDP write queue buffer), 4 bpp, a 16 pixel text line = 8 pixel columns of two tiles (64 bytes), line stride `$900`, text y `$FF1129` (+$10 per line); the DMA to VRAM `$A500` is `QueueDMAOp $0002C6` with the size in WORDS (`$0D80` with the inventory open = 6912 bytes); `DMACopyTextboxTiles $02355A` ends in FlushDMACopyQueue (waits for the next VBlank). Character codes of the game font: `.` `$40`, `,` `$41` (guessed, works), `:` `$47`, `-` `$48`; no `%`, no apostrophe known.
 - V: the block map is 74 x 74 words (`$FF7C02`, stride 148, background layer at `+$2AC8`); block addresses outside `$FF7C02..$FFA6C9` read the background layer / other RAM (see DEBUGGING 'Full height: garbage band', brick stub).
 - V: platforms: entity `+30` = offset of the entity it stands on (`UpdateSupportingEntities $0024F4`), objects on platforms move through `UpdateLinkedEntity $019114` (borrowing the platform's `+9` / `+2D` for one step) and have no move flags of their own; the player's link is `$FF5430`.
+
+## Sprite upload (added 2026-10-17, dev; V = measured with `tools/spritetrack.py` on per-frame RAM dumps, R = read in the lordmir disassembly)
+ * R: VRAM tile slots of sprites are DYNAMIC. Every game pass `LoadSprites $00401C` -> `InitSpriteLoad $004214` restarts the allocator at tile `$03A8`; each entity of the visible list (`g_VisibleEntityList $FF11DE`, words = offset from `Player_X $FF5400`, `$FFFF` ends) gets the next range. The player always takes `$2C` tiles, the others the tile count of their frame (`LoadObjectVDPSprites $00460C`, size table `VDPSpriteTileCount $00467A`). `TileCopySource` (+06 bit 4 of the init flags) lets an entity share another one's tiles. Tile bytes: uncompressed or LZ77 per frame (`LoadSpriteTiles $00473E`, flag `$2000` = compressed), queued as DMA; hard stop at tile `$04F4` (beep + Sleep).
+ * V: sprite KEY in the entity struct: `SpriteGraphic` (+0B), `AnimationIndex` (+24, byte offset into the animation table), `AnimationFrame` (+26); first VDP tile = `TileSource` (+06) & `$7FF`. Frame data: `SpriteGfxNNNFrameMM` in the ROM (`sprites/spriteframes`, `$121E1C..`), chosen as `SpriteGfxPtrPtr[gfx] -> animation -> frame`.
+ * V (slime replay `slime_idle_overlap` frames 1000..1200, 4 entities): every entity's `TileSource` appears in the RAM mirror of the sprite attribute table (`g_VDPSpr16_Y $FF05D0`, 8 bytes per entry: y, size|link, attr word, x), the player sits at `$3A8..$3D3`. Over 200 frames no tile base changed.
+ * V (ship replay `ship_band_garbage` frames 300..4100, 22448 entity-frames): a tile base of the same entity changes ONLY inside room loads / fades / long text boxes (frames where the SAT mirror is not rebuilt: runs such as 346-351, 586-592, 2380-2755, 3073-3385); in steady play 0 changes. The base is NOT a stable key; use (SpriteGraphic, AnimationIndex, AnimationFrame) (+ palette from `GetSpritePalette $1A4468`). While a text box is open the entity list and the SAT mirror disagree, so a state-driven renderer must not trust `TileSource` then.
+ * Tool: `python3 tools/spritetrack.py DUMPDIR FRAME...` prints visible entities (slot, type, gfx, anim, frame, tile, flags) and the used SAT entries.
+
+## Screens without a room (added 2026-10-17, R = code reading only, nothing measured)
+ * Island map: `DisplayIslandMap $03E654` is a self-contained screen: static ROM images (`IslandMapFg`, `IslandMapBg`, their tilemaps and palettes, `MapDots`, `MapFriday`), zoom / circling markers / labels from the function's local variables (a6 frame), no room map. Not derivable from the room RAM: keep it on the VDP path (or load the ROM assets ourselves).
+ * Intro: the story rooms `$8C..$8E` are normal rooms (map + entities, CSA warps). Logos, title, lithograph, file select, end credits are static images / menus (`graphics/staticimages`, `title`, `ending`).

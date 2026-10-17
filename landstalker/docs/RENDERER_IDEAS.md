@@ -97,3 +97,8 @@ Evidence: the clang (zig cc) release build crashed (SIGSEGV, aligned vector load
 2. No casts of byte arrays to wider pointer types (`uint8*` -> `uint32*`); use `memcpy` or byte reads (same speed after optimisation).
 3. Keep the byte-order trick (`o ^= 1` under LSB_FIRST) in ONE accessor function.
 4. Compare every new renderer change on BOTH compilers (gcc build and the zig build of `firstrun.py`) with RAM dumps / screenshots, and try a `-fsanitize=undefined` test build (not done yet).
+
+## Answers to the open questions (2026-10-17, dev; see FORMATS.md 'Sprite upload' and 'Screens without a room')
+ * Sprites: VRAM slots are dynamic per game pass; the stable key is (SpriteGraphic +0B, AnimationIndex +24, AnimationFrame +26), measured on two replays (`tools/spritetrack.py`). Tile bases move only at room loads / text boxes.
+ * Island map, logos, title, menus: self-contained screens with ROM assets, no room map; keep them on the VDP path. Intro story rooms are normal rooms.
+ * Consequence: Option B (state-driven renderer) only has to cover 'a room is loaded and no text box / menu owns the screen'; the room number / game state tells which.
