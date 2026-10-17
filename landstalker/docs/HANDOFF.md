@@ -11,6 +11,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a10. USER CONFIRMATIONS (2026-10-17, night, Deck): 'passt' for Fix Ride Objects (room 444), Item Info, key bindings (real pad / key), scroll arrows + options frame centring, De-Dither with CRT Pro. Closed in sections 0a1 / 0a2 / 0a / 1. Still open: tree warp 537 -> 539 (dev only), Quick Save in odd situations (moving platform, air, dungeon after a fight), Windows on a real PC, Buy Quantity / new menu look (0a3, 0a5).
 
+## 0a17. 2026-10-17 (night, after the user's grid test): user: model view grid 'sieht alles gut aus'; jump drift fixed (one frame lag, see INDEX status); new build is in ~/ProjectL (start ~/Landstalker.sh, R3). USER CHECK OPEN: jump again with the grid on.
+
 ## 0a16. 2026-10-17 (night, last): rooms can be DRAWN FROM THE ROM ALONE (`tools/romrender.py ROM ROOM out.png`, `romgfx.py`, `romroom.py`); verified against the game's VDP planes (INDEX status, FORMATS 'Room graphics in the ROM'). User asked about missing fir trunk parts in room 439: identical to the game (7200 / 7200 pixels). Next: sprites / entities, tile animation, dark-room palettes.
 
 ## 0a15. 2026-10-17 (night, final): ROM room decoder `tools/romroom.py` works (35 of 39 rooms bit-exact vs RAM; INDEX status, FORMATS 'Room map data in the ROM'). Next: draw a room from ROM data alone (blocks -> tiles -> pixels with flips / palette / priority), then compare with a screenshot.

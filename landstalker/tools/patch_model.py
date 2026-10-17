@@ -10,7 +10,7 @@ that is not void is outlined as a diamond at its floor height with the same proj
 the cell under Nigel is white-bordered.  Modes (R3 / F7 cycles): off -> cells (height map grid) -> blocks (16x16 block squares of both map layers, ids of the BG layer in hex) -> off. Toggle at run time: pad R3 (click of the right stick) or key F7 (fixed, not in the Keybindings list); LANDSTALKER_MODEL=1 starts with it on,
 LANDSTALKER_MODEL_AT="f1,f2" toggles at those frames (headless tests); LANDSTALKER_MODEL_GRID=0 hides the grid.
 Env LANDSTALKER_MODEL=1 switches it on (off by default, debug aid); LANDSTALKER_MODEL_LOG=N prints, every N frames, per entity the game's screen position and the model's (they must agree).
-Hidden while a full-screen picture is shown (lk_picture).  Needs patch_wide.py and patch_overlay.py first.  Idempotent.  usage: patch_model.py path/to/genrecomp"""
+The overlay shows the snapshot of the PREVIOUS frame (the picture itself is one frame behind the RAM, see the C comment), so it does not slide against the background during jumps.  Hidden while a full-screen picture is shown (lk_picture).  Needs patch_wide.py and patch_overlay.py first.  Idempotent.  usage: patch_model.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
 VER = "LK_MODEL v2"
@@ -27,11 +27,11 @@ extern uint8_t *bus_get_ram(void);
 extern int lk_picture;
 #define LK_M_N 16
 typedef struct { int ax, ay, gx[4], gy[4], id, m_g, m_a, m_f; } lk_m_ent_t;
-static lk_m_ent_t lk_m_e[LK_M_N]; static int lk_m_n, lk_m_on = -1, lk_m_log, lk_m_grid = 1;   /* lk_m_on: 0 off, 1 cells + entities, 2 block ids + entities */
+static lk_m_ent_t lk_m_e[LK_M_N], lk_m_de[LK_M_N]; static int lk_m_dn, lk_m_n, lk_m_on = -1, lk_m_log, lk_m_grid = 1;   /* lk_m_on: 0 off, 1 cells + entities, 2 block ids + entities */
 #define LK_MM_W 960
 #define LK_MM_H 512
 #define LK_MM_X0 320   /* mask column of picture x = 0 (margins of wide pictures are negative x) */
-static uint8 lk_m_mask[LK_MM_H][LK_MM_W];   /* 0 none, 1..8 height colours, 9 special cell, 10 border of Nigel's cell */
+static uint8 lk_m_mask[LK_MM_H][LK_MM_W], lk_m_dmask[LK_MM_H][LK_MM_W];   /* write buffer (snapshot of this frame) / display buffer (snapshot of the PREVIOUS frame: the game's scroll registers and sprite table are written at VBlank from the RAM state of the previous pass, measured: vscroll(t) = camera(t - 1) + const, so the picture lags the RAM by one frame and a live snapshot slides ahead of it in jumps) */   /* 0 none, 1..8 height colours, 9 special cell, 10 border of Nigel's cell */
 static const uint32 lk_m_gcol[18] = { 0, 0xFF909090u, 0xFF40C0FFu, 0xFF60FF60u, 0xFFFFFF60u, 0xFFFFA040u, 0xFFFF6060u, 0xFFFF60FFu, 0xFFFFFFFFu, 0xFFB040E0u, 0xFFFFFFFFu,
                                       0xFFFFE000u, 0xFF00FF80u, 0xFFFF2020u, 0xFFFFFFFFu, 0xFF3090B0u, 0xFFB07030u, 0xFFFFFFFFu };   /* 15 BG block square, 16 FG block square, 17 block id text; 11 door, 12 stairs / ladder / elevator, 13 hazard, 14 other floor type: cross through the cell */
 static void lk_m_init(void) { if (lk_m_on < 0) { const char *e = getenv("LANDSTALKER_MODEL"), *l = getenv("LANDSTALKER_MODEL_LOG"), *g = getenv("LANDSTALKER_MODEL_GRID"); lk_m_on = e ? atoi(e) : 0; if (lk_m_on > 2) lk_m_on = 1; lk_m_log = l ? atoi(l) : 0; lk_m_grid = !(g && atoi(g) == 0); } }
@@ -109,12 +109,13 @@ static void lk_model_row(PIXEL_OUT_T *row, int width) {
   lk_m_init();
   if (line == 0) fr++;
   if (!lk_m_on) return;
+  if (line == 0) { memcpy(lk_m_dmask, lk_m_mask, sizeof lk_m_mask); memcpy(lk_m_de, lk_m_e, sizeof lk_m_e); lk_m_dn = lk_m_n; }   /* show last frame's snapshot (see above) */
   if (line == 0) { if (!lk_m_log || fr % lk_m_log) { int sv = lk_m_log; lk_m_log = 0; lk_m_snapshot(); lk_m_log = sv; } else lk_m_snapshot(); }
   if (lk_picture || line < 24 || Wp < 320 || width < Wp + 2 * ox) return;   /* the HUD bar (lines 0..23) stays clean */
   r = row + ox; x0 = (Wp - 320) / 2;
-  if (lk_m_grid && line < LK_MM_H) { int px; for (px = 0; px < Wp; px++) { int v = lk_m_mask[line][px - x0 + LK_MM_X0]; if (v) r[px] = lk_m_gcol[v] | (r[px] & 0xFF000000u); } }
-  for (i = 0; i < lk_m_n; i++) {
-    const lk_m_ent_t *e = &lk_m_e[i]; uint32 col = lk_m_col[e->id & 15];
+  if (lk_m_grid && line < LK_MM_H) { int px; for (px = 0; px < Wp; px++) { int v = lk_m_dmask[line][px - x0 + LK_MM_X0]; if (v) r[px] = lk_m_gcol[v] | (r[px] & 0xFF000000u); } }
+  for (i = 0; i < lk_m_dn; i++) {
+    const lk_m_ent_t *e = &lk_m_de[i]; uint32 col = lk_m_col[e->id & 15];
     for (c = 0; c < 4; c++) {   /* box diamond: each edge, one span per row (2:1 slope) */
       int xa = e->gx[c], ya = e->gy[c], xb = e->gx[(c + 1) & 3], yb = e->gy[(c + 1) & 3];
       if (ya > yb) { int t = xa; xa = xb; xb = t; t = ya; ya = yb; yb = t; }
