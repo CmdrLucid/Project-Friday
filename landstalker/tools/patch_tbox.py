@@ -4,7 +4,7 @@ In a dialogue the game puts the WINDOW plane over the whole bottom of the screen
 transparent window pixels on an empty background = black.  With the option on, a window line of a map / dialogue frame is drawn twice by the renderer: once as the game has it
 and once with the window plane switched off (plane A, plane B and the sprites as the map would show them); every TRANSPARENT pixel of the window line (colour index 0 = backdrop,
 and the blanked widescreen margins) is then taken from the second pass.  The text box (frame, purple, text) stays exactly as it is.  Picture only: the game cannot notice (RAM identical).
-Lines 0..23 (the HUD bar and the black strip around it) are never touched.  Not applied on frames that are not the game map (menus, title, picture screens: `lk_map_decide()` of tools/patch_wide.py).
+Lines 0..22 (the HUD bar and the black strip around it) are never touched.  Not applied on frames that are not the game map (menus, title, picture screens: `lk_map_decide()` of tools/patch_wide.py).
 File ~/.landstalker_tbox, env LANDSTALKER_TBOX=0|1 wins (tests).  Needs patch_wide.py before it (lk_map_decide, lk_wide_margins).  Idempotent.
 usage: patch_tbox.py path/to/genrecomp"""
 import os, sys
@@ -31,7 +31,7 @@ static void lk_tbox_line(int line)
   uint8 r18;
   struct clip_t c0, c1;
   if (!lk_tbox_get()) return;
-  if (line < 24) return;   /* the HUD bar rows (5..22) and the strip around them keep their black (user: 'da kann es bleiben') */
+  if (line < 23) return;   /* the HUD bar rows (5..22) and the strip around them keep their black (user: 'da kann es bleiben') */
   if (getenv("LANDSTALKER_TBOX_DEBUG") && line == 200) fprintf(stderr, "tbox: frame %ld line 200 reg18=%02X reg1=%02X clip1.en=%d map=%d\n", platform_frame_number(), reg[18], reg[1], clip[1].enable, lk_map_decide());
   a = (reg[18] & 0x1F) << 3; w = (reg[18] >> 7) & 1;
   if (w != (line >= a)) return;   /* only lines that belong completely to the window plane */
