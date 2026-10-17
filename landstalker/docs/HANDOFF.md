@@ -11,6 +11,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a10. USER CONFIRMATIONS (2026-10-17, night, Deck): 'passt' for Fix Ride Objects (room 444), Item Info, key bindings (real pad / key), scroll arrows + options frame centring, De-Dither with CRT Pro. Closed in sections 0a1 / 0a2 / 0a / 1. Still open: tree warp 537 -> 539 (dev only), Quick Save in odd situations (moving platform, air, dungeon after a fight), Windows on a real PC, Buy Quantity / new menu look (0a3, 0a5).
 
+## 0a16. 2026-10-17 (night, last): rooms can be DRAWN FROM THE ROM ALONE (`tools/romrender.py ROM ROOM out.png`, `romgfx.py`, `romroom.py`); verified against the game's VDP planes (INDEX status, FORMATS 'Room graphics in the ROM'). User asked about missing fir trunk parts in room 439: identical to the game (7200 / 7200 pixels). Next: sprites / entities, tile animation, dark-room palettes.
+
 ## 0a15. 2026-10-17 (night, final): ROM room decoder `tools/romroom.py` works (35 of 39 rooms bit-exact vs RAM; INDEX status, FORMATS 'Room map data in the ROM'). Next: draw a room from ROM data alone (blocks -> tiles -> pixels with flips / palette / priority), then compare with a screenshot.
 
 ## 0a14. 2026-10-17 (night, very last): block ids per cell done: blocks are drawn isometrically, projection known and shown (INDEX status, FORMATS 'Block map'); R3 / F7 now cycles off / cells / blocks. USER CHECK OPEN: R3 in play (cells, then blocks). NEXT: block word flags, then an own-drawn map. Dungeon recording `rec_20261017_1840` cannot be replayed exactly (save = end state).
