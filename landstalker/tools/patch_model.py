@@ -7,7 +7,7 @@ For every visible entity (list g_VisibleEntityList $FF11DE) it draws, from work 
  * a tiny label: sprite graphic id, animation / 4, frame / 4 in hex (the stable sprite key, FORMATS.md 'Sprite upload').
 Block grid (v2): every cell of the height map ($FFD192, words, 74 x 74, cell (x, y) = world units x * 16 .. x * 16 + 15, byte 0: low nibble = floor height in 16 unit steps, high nibble 4 with height 0 = void)
 that is not void is outlined as a diamond at its floor height with the same projection; colour = height (grey 0, cyan 1, green 2, yellow 3, orange 4, red 5, pink 6, white 7), purple = cells blocked for everybody or for NPCs (byte 0 bits 6 / 5), a CROSS through the cell = floor type (byte 1): yellow doors, green stairs / ladders / elevator / Nole staircase, red pit / spikes / swamp / lava, white others,
-the cell under Nigel is white-bordered.  Toggle at run time: pad R3 (click of the right stick) or key F7 (fixed, not in the Keybindings list); LANDSTALKER_MODEL=1 starts with it on,
+the cell under Nigel is white-bordered.  Modes (R3 / F7 cycles): off -> cells (height map grid) -> blocks (16x16 block squares of both map layers, ids of the BG layer in hex) -> off. Toggle at run time: pad R3 (click of the right stick) or key F7 (fixed, not in the Keybindings list); LANDSTALKER_MODEL=1 starts with it on,
 LANDSTALKER_MODEL_AT="f1,f2" toggles at those frames (headless tests); LANDSTALKER_MODEL_GRID=0 hides the grid.
 Env LANDSTALKER_MODEL=1 switches it on (off by default, debug aid); LANDSTALKER_MODEL_LOG=N prints, every N frames, per entity the game's screen position and the model's (they must agree).
 Hidden while a full-screen picture is shown (lk_picture).  Needs patch_wide.py and patch_overlay.py first.  Idempotent.  usage: patch_model.py path/to/genrecomp"""
@@ -27,15 +27,15 @@ extern uint8_t *bus_get_ram(void);
 extern int lk_picture;
 #define LK_M_N 16
 typedef struct { int ax, ay, gx[4], gy[4], id, m_g, m_a, m_f; } lk_m_ent_t;
-static lk_m_ent_t lk_m_e[LK_M_N]; static int lk_m_n, lk_m_on = -1, lk_m_log, lk_m_grid = 1;
+static lk_m_ent_t lk_m_e[LK_M_N]; static int lk_m_n, lk_m_on = -1, lk_m_log, lk_m_grid = 1;   /* lk_m_on: 0 off, 1 cells + entities, 2 block ids + entities */
 #define LK_MM_W 960
 #define LK_MM_H 512
 #define LK_MM_X0 320   /* mask column of picture x = 0 (margins of wide pictures are negative x) */
 static uint8 lk_m_mask[LK_MM_H][LK_MM_W];   /* 0 none, 1..8 height colours, 9 special cell, 10 border of Nigel's cell */
-static const uint32 lk_m_gcol[15] = { 0, 0xFF909090u, 0xFF40C0FFu, 0xFF60FF60u, 0xFFFFFF60u, 0xFFFFA040u, 0xFFFF6060u, 0xFFFF60FFu, 0xFFFFFFFFu, 0xFFB040E0u, 0xFFFFFFFFu,
-                                      0xFFFFE000u, 0xFF00FF80u, 0xFFFF2020u, 0xFFFFFFFFu };   /* 11 door, 12 stairs / ladder / elevator, 13 hazard, 14 other floor type: cross through the cell */
-static void lk_m_init(void) { if (lk_m_on < 0) { const char *e = getenv("LANDSTALKER_MODEL"), *l = getenv("LANDSTALKER_MODEL_LOG"), *g = getenv("LANDSTALKER_MODEL_GRID"); lk_m_on = e && atoi(e) != 0; lk_m_log = l ? atoi(l) : 0; lk_m_grid = !(g && atoi(g) == 0); } }
-int lk_model_toggle(void) { lk_m_init(); lk_m_on = !lk_m_on; return lk_m_on; }
+static const uint32 lk_m_gcol[18] = { 0, 0xFF909090u, 0xFF40C0FFu, 0xFF60FF60u, 0xFFFFFF60u, 0xFFFFA040u, 0xFFFF6060u, 0xFFFF60FFu, 0xFFFFFFFFu, 0xFFB040E0u, 0xFFFFFFFFu,
+                                      0xFFFFE000u, 0xFF00FF80u, 0xFFFF2020u, 0xFFFFFFFFu, 0xFF3090B0u, 0xFFB07030u, 0xFFFFFFFFu };   /* 15 BG block square, 16 FG block square, 17 block id text; 11 door, 12 stairs / ladder / elevator, 13 hazard, 14 other floor type: cross through the cell */
+static void lk_m_init(void) { if (lk_m_on < 0) { const char *e = getenv("LANDSTALKER_MODEL"), *l = getenv("LANDSTALKER_MODEL_LOG"), *g = getenv("LANDSTALKER_MODEL_GRID"); lk_m_on = e ? atoi(e) : 0; if (lk_m_on > 2) lk_m_on = 1; lk_m_log = l ? atoi(l) : 0; lk_m_grid = !(g && atoi(g) == 0); } }
+int lk_model_toggle(void) { lk_m_init(); lk_m_on = (lk_m_on + 1) % 3; return lk_m_on; }   /* off -> cells -> blocks -> off */
 static void lk_m_seg(int x0, int y0, int x1, int y1, uint8 v) {   /* Bresenham into the mask (a later segment never overwrites a higher value: the player's border wins) */
   int dx = x1 > x0 ? x1 - x0 : x0 - x1, dy = y1 > y0 ? y1 - y0 : y0 - y1, sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1, err = dx - dy;
   for (;;) {
@@ -57,7 +57,18 @@ static void lk_m_snapshot(void) {
   lk_m_n = 0;
   if (!r) return;
   memset(lk_m_mask, 0, sizeof lk_m_mask);
-  if (lk_m_grid) {
+  if (lk_m_grid && lk_m_on == 2) {   /* block ids: screen position of array block (x, y) = 16 (x - y) + (cam2 - cam0 + 160) [FG layer: another -16], 8 (x + y) - (cam0 + cam2) / 2 + 104 (fit on 299 plane / array pairs, FORMATS 'Block map') */
+    int x, y, lay;
+    for (lay = 0; lay < 2; lay++) for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) {
+      int id = LKW((lay ? 0xFF7C02 : 0xFFA6CA) + 148 * y + 2 * x) & 0x3FF, bx, by, d;
+      if (!id) continue;
+      bx = 16 * (x - y) + (cam2 - cam0 + 160) - (lay ? 16 : 0); by = 8 * (x + y) - ((cam0 + cam2) >> 1) + 104;
+      if (bx < -220 || bx > 540 || by < -20 || by > 260) continue;
+      lk_m_seg(bx, by, bx + 15, by, lay ? 16 : 15); lk_m_seg(bx + 15, by, bx + 15, by + 15, lay ? 16 : 15); lk_m_seg(bx + 15, by + 15, bx, by + 15, lay ? 16 : 15); lk_m_seg(bx, by + 15, bx, by, lay ? 16 : 15);
+      if (!lay) for (d = 0; d < 3; d++) { int dig = (id >> (8 - 4 * d)) & 15, rr, cc; for (rr = 0; rr < 5; rr++) for (cc = 0; cc < 3; cc++) if (lk_m_font[dig][rr] & (4 >> cc)) { int mx = bx + 2 + d * 4 + cc + LK_MM_X0, my = by + 5 + rr; if (mx >= 0 && mx < LK_MM_W && my >= 0 && my < LK_MM_H) lk_m_mask[my][mx] = 17; } }
+    }
+  }
+  if (lk_m_grid && lk_m_on == 1) {
     int px = LKB(0xFF5400), py = LKB(0xFF5401), cx, cy;
     for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) {
       int b0 = LKB(0xFFD192 + 148 * cy + 2 * cx), b1 = LKB(0xFFD192 + 148 * cy + 2 * cx + 1) & 0x3F, h = b0 & 15, t = b0 >> 4, z, sxx[4], syy[4], k, v, ccx, ccy;
@@ -136,7 +147,7 @@ if "platform_display_toggle_model" not in s:
 extern int lk_model_toggle(void);
 void platform_display_toggle_model(void) {
     int on = lk_model_toggle();
-    snprintf(lk_osd_text, sizeof(lk_osd_text), "MODEL VIEW: %s", on ? "ON" : "OFF"); lk_osd_frames = 100;
+    snprintf(lk_osd_text, sizeof(lk_osd_text), "MODEL VIEW: %s", on == 1 ? "CELLS" : on == 2 ? "BLOCKS" : "OFF"); lk_osd_frames = 100;
 }
 ''' + a, 1)
     open(p, "w").write(s)

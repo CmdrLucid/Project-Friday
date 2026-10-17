@@ -11,6 +11,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a10. USER CONFIRMATIONS (2026-10-17, night, Deck): 'passt' for Fix Ride Objects (room 444), Item Info, key bindings (real pad / key), scroll arrows + options frame centring, De-Dither with CRT Pro. Closed in sections 0a1 / 0a2 / 0a / 1. Still open: tree warp 537 -> 539 (dev only), Quick Save in odd situations (moving platform, air, dungeon after a fight), Windows on a real PC, Buy Quantity / new menu look (0a3, 0a5).
 
+## 0a14. 2026-10-17 (night, very last): block ids per cell done: blocks are drawn isometrically, projection known and shown (INDEX status, FORMATS 'Block map'); R3 / F7 now cycles off / cells / blocks. USER CHECK OPEN: R3 in play (cells, then blocks). NEXT: block word flags, then an own-drawn map. Dungeon recording `rec_20261017_1840` cannot be replayed exactly (save = end state).
+
 ## 0a13. 2026-10-17 (night, last): height map byte 1 decoded = floor type (INDEX status, FORMATS); model view draws crosses for floor types. Still open for the user: the R3 check in more rooms (0a12).
 
 ## 0a12. 2026-10-17 (night, later): MODEL VIEW (entity boxes + height map grid) built and headless-verified, toggle = pad R3 (click right stick) or F7 (INDEX status, FORMATS 'Height map cells'). USER CHECK OPEN: new ZIP + `build.sh`, in play press R3: does the grid lie on the floor in other rooms (stairs, slopes, platforms, multi-level rooms)? Next: block ids per cell, then an own-drawn map.
