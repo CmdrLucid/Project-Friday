@@ -9,6 +9,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 **The repository is PUBLIC** (checked 2026-10-16: unauthenticated GitHub API says public, release downloads work without login); older entries below that still talk about 'private' were corrected.
 
+## 0a6. 2026-10-17 (later): release **v0.8.0** (dev merged into main, user request) after v0.7.0: Map Behind Text (Options > Video, default On, `tools/patch_tbox.py`), Quick Items HUD spacing in widescreen. User tested on the Deck ('super'). The v0.7.0 / v0.8.0 AppImages have NOT been run through the first-run build + Massan replay check yet.
+
 ## 0a5. END OF SESSION 2026-10-17 (Deck, Sonnet 5.5): release **v0.7.0** (dev merged into main, tag v0.7.0, user request). Done and seen by the user on the Deck: Buy Quantity (question inside the text box, text left aligned), Quick Items HUD (no dash, cells centred / spaced in widescreen), options reorganised. Headless only, user check open: new menu in both menus (long titles), Shadows row in Video, default On for fresh installs, Fix Ride Objects default On (user tested the fix itself). v0.6.0 AppImage first-run test is still open; test the v0.7.0 download the same way (first-run build + Massan replay dump comparison). Next ideas: skip title logos, room name popup, rumble on damage, equipment swap on a quick button, Shadow quality levels.
 
 ## 0a4. 2026-10-17 (dev, later): options menu reorganised (INDEX status): Quality of Life / Difficulty pages, Shadows in Video; Quick Items, Buy Quantity and Fix Ride Objects default On for NEW installs. Release notes (`packaging/release_notes.md`) should mention it at the next release.

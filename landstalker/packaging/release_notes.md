@@ -1,10 +1,9 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- **Buy Quantity:** in item shops you choose how many consumables to buy at once (limited by gold and room in the inventory).
-- **New options menu:** Video (now with Shadows), Audio, Quality of Life, Difficulty, Keybindings. Quick Items, Buy Quantity and Fix Ride Objects are on by default on a fresh install.
-- Quick Items HUD: no dash before the item count, quick item cells fit better at every widescreen width.
-- Options window in the file select: the last entry of long pages is reachable again.
+- **Map Behind Text** (Options > Video, on by default): in dialogues the map stays visible around the text box instead of a black band.
+- Quick Items HUD: the two cells are centred and spaced better in widescreen.
+- Video options page has 8 rows and scrolls.
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).
