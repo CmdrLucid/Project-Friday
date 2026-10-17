@@ -369,7 +369,7 @@ static void lk_win_rowtext(int pg, int r) {   /* builds the text of row r (0 = t
 static void lk_win_page(int pg, int sel) {   /* pg 0 = root, 1 Video, 2 Audio, 3 Gameplay; sel = selected row (0 based) */
     int r;
     for (r = 0; r <= lk_win_vis(pg); r++) lk_win_rowtext(pg, r);
-    lk_win_pitch = (pg == 2) ? 28 : (pg == 4) ? 18 : 20; lk_win_compact = 1;   /* only the 3-row Audio page is spread out; the root (5 rows) and the long pages are tight with the compact frame */   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
+    lk_win_pitch = (pg == 2) ? 28 : (pg >= 3) ? 18 : 20; lk_win_compact = 1;   /* only the 3-row Audio page is spread out; the root (5 rows) and the long pages are tight with the compact frame */   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
     memcpy(lk_win_row, lk_win_stage, sizeof lk_win_row); lk_win_n = lk_win_vis(pg) + 1; lk_win_sel = sel - lk_win_scroll + 1;
 }
 /* UP / DOWN only move the selection frame (no text work: every text row is printed through the game's own text engine, a whole page = about 100 characters = several frames of emulated time,
