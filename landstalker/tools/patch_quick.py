@@ -153,7 +153,7 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
     for (x = bl + 6; x < bl + 287; x++) { PIXEL_OUT_T p = r[x]; if (((p >> 16) & 255) > 200 && ((p >> 8) & 255) > 200 && (p & 255) > 200) wc++; }
     if (wc >= 275 && lk_q_haveprev) {
       int Lp = (Wp == 320) ? 0 : (Wp - 348) / 2, Wb = (Wp == 320) ? 320 : 348,   /* 320: full width; 352 and wider: 348 px (at 352 nearly the full width), centred, so the bar does not stretch over the wide margins */
-           compact = Wp < 352, cellw = compact ? 36 : 62, need = 296 + cellw - Wb, k, a, b, kn = 0, fc = -1;
+           compact = 1, cellw = compact ? 36 : 62, need = 296 + cellw - Wb, k, a, b, kn = 0, fc = -1;
       uint8 rm[296];
       PIXEL_OUT_T white = r[bl + 100], black = white & 0xFF000000u;
       memset(rm, 0, sizeof rm);
