@@ -45,9 +45,9 @@ static int lk_bq_ask(int item, int price, int max) {   /* the question: returns 
     for (;;) {
         uint8_t cur, ed; char t[40];
         if (n != shown) {   /* the question is printed INTO the game's text box (its own text engine, like the Start menu pages) */
-            snprintf(t, sizeof t, "How many:  <%d>  %d G", n, n * price);
+            snprintf(t, sizeof t, "How many:  < %d >  %d G", n, n * price);
             lk_call(0x024998u); lk_call(0x0234A8u);   /* PrepareTextboxPrint + ReloadTextbox: empty box */
-            lk_menu_print(t, 0x10); shown = n;
+            lk_menu_print(t, 0x00); shown = n;
         }
         lk_call(0x000272u);   /* WaitUntilVBlank */
         lk_call(0x00033Eu);   /* UpdateControllerInputs */
