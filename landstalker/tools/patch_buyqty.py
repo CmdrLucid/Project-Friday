@@ -3,7 +3,7 @@
 Original: HandleShopInteraction ($024F0A) = price text, yes / no (XS_0042_0), RemoveGold (price of ONE item, d1 -> d0) and GetItem (item id in d2) once.
 On: the wrapper of j_RemoveGold ($0177F2) looks at its caller (return address $024F32 = the call in HandleShopInteraction).  After the player said Yes it asks how many:
 the limit is min(room left in the inventory = GetRemainingItemAllowedCount $029232, gold / price, 9); with a limit below 2 or for Lifestock (item $3E) nothing changes.  The question is an
-on-screen line (OSD, 'HOW MANY? n = 45G') while the wrapper loops WaitUntilVBlank ($000272) + UpdateControllerInputs ($00033E) on the game's controller byte $FF0F8E: UP / RIGHT more, DOWN / LEFT
+line printed into the text box with the game's text engine ('How many:  <3>  45 G') while the wrapper loops WaitUntilVBlank ($000272) + UpdateControllerInputs ($00033E) on the game's controller byte $FF0F8E: UP / RIGHT more, DOWN / LEFT
 fewer, A / C buy, B buy one.  Then RemoveGold takes price * n at once (a failure keeps the game's own 'not enough gold' path) and GetItem ($0291D6) runs n - 1 more times (the caller adds the last one).
 File ~/.landstalker_buyqty, env LANDSTALKER_BUYQTY=0|1 wins (tests; LANDSTALKER_BUYQTY_PICK="3" answers the question without a pad, LANDSTALKER_BUYQTY_DEBUG=1 prints).
 Needs patch_options.py and patch_iteminfo.py before it (insert order).  Idempotent.
@@ -36,16 +36,19 @@ if VER not in s:
     assert s.count(a) == 1 and "lk_ii_install" in s, "func_table.c: run patch_iteminfo.py first"
     module = r'''/* ---- LK_BUYQTY v1: choose how many consumables to buy (tools/patch_buyqty.py) ---- */
 extern int lk_bq_get(void);
-extern void lk_osd_say(const char *t);
 static gen_func_t lk_o_remgold;
 static int lk_bq_ask(int item, int price, int max) {   /* the question: returns 1..max */
     const char *pick = getenv("LANDSTALKER_BUYQTY_PICK");
     M68kContext sv = g_m68k;
-    int n = 1, first = 1; uint8_t prev = 0;
+    int n = 1, first = 1, shown = 0; uint8_t prev = 0;
     if (pick) { n = atoi(pick); if (n < 1) n = 1; if (n > max) n = max; return n; }
     for (;;) {
         uint8_t cur, ed; char t[40];
-        snprintf(t, sizeof t, "^HOW MANY? %d = %dG  A:OK", n, n * price); lk_osd_say(t);
+        if (n != shown) {   /* the question is printed INTO the game's text box (its own text engine, like the Start menu pages) */
+            snprintf(t, sizeof t, "How many:  <%d>  %d G", n, n * price);
+            lk_call(0x024998u); lk_call(0x0234A8u);   /* PrepareTextboxPrint + ReloadTextbox: empty box */
+            lk_menu_print(t, 0x10); shown = n;
+        }
         lk_call(0x000272u);   /* WaitUntilVBlank */
         lk_call(0x00033Eu);   /* UpdateControllerInputs */
         cur = bus_read8(0xFF0F8Eu);
@@ -56,6 +59,7 @@ static int lk_bq_ask(int item, int price, int max) {   /* the question: returns 
         if (ed & 0x60) { lk_snd(0x00FA54u); break; }                   /* A / C */
         if (ed & 0x10) { n = 1; lk_snd(0x00FA54u); break; }            /* B: just one */
     }
+    lk_call(0x024998u); lk_call(0x0234A8u);   /* empty box again at once: the shopkeeper's next text comes right after the click */
     g_m68k = sv; (void)item;
     return n;
 }

@@ -94,18 +94,15 @@ static void lk_osd_draw(int ow, int oh) {
     if (lk_osd_frames <= 0) return;
     lk_osd_frames--;
     int px = oh / 120; if (px < 2) px = 2;
-    int low = lk_osd_text[0] == '^';   /* a leading '^' = question line: centred in the lower part of the window (shop quantity, tools/patch_buyqty.py) */
-    const char *tx = lk_osd_text + low;
-    int n = (int)strlen(tx), bw = (n * 6 + 1) * px, bh = 9 * px, m = 2 * px;
-    int ox = low ? (ow - bw) / 2 : m, oy = low ? oh * 4 / 5 - bh / 2 : m;
-    SDL_Rect box = { ox, oy, bw, bh };
+    int n = (int)strlen(lk_osd_text), bw = (n * 6 + 1) * px, bh = 9 * px, m = 2 * px;
+    SDL_Rect box = { m, m, bw, bh };
     SDL_SetRenderDrawBlendMode(s_renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 190); SDL_RenderFillRect(s_renderer, &box);
     SDL_SetRenderDrawColor(s_renderer, 255, 255, 255, 255);
     for (int i = 0; i < n; i++) {
-        const uint8_t *g = lk_glyph(tx[i]);
+        const uint8_t *g = lk_glyph(lk_osd_text[i]);
         for (int r = 0; r < 7; r++) for (int c = 0; c < 5; c++)
-            if (g[r] & (0x10 >> c)) { SDL_Rect d = { ox + px + (i * 6 + c) * px, oy + px + r * px, px, px }; SDL_RenderFillRect(s_renderer, &d); }
+            if (g[r] & (0x10 >> c)) { SDL_Rect d = { m + px + (i * 6 + c) * px, m + px + r * px, px, px }; SDL_RenderFillRect(s_renderer, &d); }
     }
     (void)ow;
 }
