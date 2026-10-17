@@ -157,6 +157,7 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
       uint8 rm[296];
       PIXEL_OUT_T white = r[bl + 100], black = white & 0xFF000000u;
       memset(rm, 0, sizeof rm);
+      for (x = 230; x <= 233; x++) { rm[x] = 1; need--; }   /* the '-' between the bag and the item count (rel 230..233, 4 px; user wish 2026-10-17): dropped, so the count moves left and the gold keeps more distance */
       /* 1. runs of empty columns right of the health numbers (rel 200..296), 2. any empty run right of the sword icon (rel 25..199), keep 3 px of every run */
       { int pass; for (pass = 0; pass < 2 && need > 0; pass++) {
           int lo = pass ? 25 : 200, hi = pass ? 199 : 292;
