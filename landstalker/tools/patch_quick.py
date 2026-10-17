@@ -121,11 +121,12 @@ static void lk_q_label(int x, int y, int slot, PIXEL_OUT_T col, PIXEL_OUT_T blk,
   char b[16]; int n; lk_bind_hudlabel(4 + slot, b, sizeof b); n = (int)strlen(b); if (n > 2) n = 2;
   for (int k = 0; k < n; k++) lk_q_g3(x + 4 * k, y, lk_q_gi(b[k]), col, blk, outline);
 }
+static int lk_q_cellw;
 static void lk_q_cells(int compact, PIXEL_OUT_T white, PIXEL_OUT_T black) {
   int s, i, j;
   memset(lk_q_cm, 0, sizeof lk_q_cm);
   for (s = 0; s < 2; s++) {
-    int x0 = compact ? (s ? 20 : 2) : (s ? 32 : 2), id = lk_q_id[s], q = lk_q_qty[s];
+    int x0 = compact ? (s ? 20 + (lk_q_cellw - 36) : 2) : (s ? 32 : 2), id = lk_q_id[s], q = lk_q_qty[s];
     if (id >= 0 && id < 64 && lk_q_have[id]) {
       for (j = 0; j < 16; j++) for (i = 0; i < 16; i++) if (lk_q_mask[id][j * 16 + i]) lk_q_px_set(x0 + i, j, q > 0 ? lk_q_px[id][j * 16 + i] : lk_q_dim(lk_q_px[id][j * 16 + i]));
     }
@@ -153,7 +154,7 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
     for (x = bl + 6; x < bl + 287; x++) { PIXEL_OUT_T p = r[x]; if (((p >> 16) & 255) > 200 && ((p >> 8) & 255) > 200 && (p & 255) > 200) wc++; }
     if (wc >= 275 && lk_q_haveprev) {
       int Lp = (Wp == 320) ? 0 : (Wp - 348) / 2, Wb = (Wp == 320) ? 320 : 348,   /* 320: full width; 352 and wider: 348 px (at 352 nearly the full width), centred, so the bar does not stretch over the wide margins */
-           compact = 1, cellw = compact ? 36 : 62, need = 296 + cellw - Wb, k, a, b, kn = 0, fc = -1;
+           compact = 1, cellw = compact ? (Wp >= 352 ? 41 : 36) : 62,   /* wide pictures: 5 px more between the two cells */ need = 296 + cellw - Wb, k, a, b, kn = 0, fc = -1;
       uint8 rm[296];
       PIXEL_OUT_T white = r[bl + 100], black = white & 0xFF000000u;
       memset(rm, 0, sizeof rm);
