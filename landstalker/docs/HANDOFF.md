@@ -11,7 +11,7 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a10. USER CONFIRMATIONS (2026-10-17, night, Deck): 'passt' for Fix Ride Objects (room 444), Item Info, key bindings (real pad / key), scroll arrows + options frame centring, De-Dither with CRT Pro. Closed in sections 0a1 / 0a2 / 0a / 1. Still open: tree warp 537 -> 539 (dev only), Quick Save in odd situations (moving platform, air, dungeon after a fight), Windows on a real PC, Buy Quantity / new menu look (0a3, 0a5).
 
-## 0a12. 2026-10-17 (night, later): model overlay `LANDSTALKER_MODEL=1` built and headless-verified (INDEX status); user can look at it: `LANDSTALKER_MODEL=1 ~/Landstalker.sh` (after a new ZIP + build.sh). Next: map block grid with the same projection.
+## 0a12. 2026-10-17 (night, later): MODEL VIEW (entity boxes + height map grid) built and headless-verified, toggle = pad R3 (click right stick) or F7 (INDEX status, FORMATS 'Height map cells'). USER CHECK OPEN: new ZIP + `build.sh`, in play press R3: does the grid lie on the floor in other rooms (stairs, slopes, platforms, multi-level rooms)? Next: block ids per cell, then an own-drawn map.
 
 ## 0a11. 2026-10-17 (night): renderer groundwork DONE (no game change): sprite upload is dynamic, stable key = (gfx, anim, frame); island map etc. self-contained (INDEX status, FORMATS). Tool `tools/spritetrack.py`. NEXT: debug overlay that draws the room + entities from RAM next to the VDP picture (Option B); interpreter fallback is switched off only after the user has seen the game's end.
 
@@ -241,6 +241,7 @@ If you are reading this inside a Claude Code session that runs on the Steam Deck
 | `LANDSTALKER_AUDIO_PREFILL=N`, `_MAXQ=N` | audio queue prefill (default 3 frames) / overflow valve (default 10 frames); 0 = old behaviour |
 | key **F3** (pad L2 no longer, since 2026-10-15) | widescreen width 0/16/32/48 at run time, saved as 3rd number in ~/.landstalker_display (env LANDSTALKER_WIDE wins); `LANDSTALKER_WIDE_AT=f,f,..` = test key presses in headless runs (it also saves the setting!) |
 | `docs/WIDESCREEN_CASES.md` | collection of odd margin spots (room, X, Y, Z, WIDE) with real-vs-bug status; add a row for every user report |
+| pad **R3** / key **F7**, `LANDSTALKER_MODEL=1`, `LANDSTALKER_MODEL_AT=f,..`, `LANDSTALKER_MODEL_GRID=0` | model view: height map cell grid + entity boxes / sprite key labels from RAM (tools/patch_model.py, fixed buttons, picture only) |
 | `LANDSTALKER_WARP="610:12.08,20.04[,Z]"` (+ `LANDSTALKER_WARP_AT=frame,..`, default 880) | headless: put Nigel into a room at a spot like the game's cutscene warps (room + X.sub,Y.sub + optional Z hex as the overlay shows them), tools/patch_warp.py; ask the user for ROOM / X / Y / Z from the overlay and look at the screenshots |
 | `LANDSTALKER_GOTO="603:37.02,36.02;..."` | headless closed-loop walk to coordinates (room:X.sub,Y.sub as in the overlay), tools/patch_goto.py; mapping UP=(-X,-Y) LEFT=(-X,+Y) RIGHT=(+X,-Y) DOWN=(+X,+Y) |
 | pad **L4** / **F11** / **Alt+Enter**, `LANDSTALKER_FULLSCREEN=0\|1` | borderless windowed fullscreen, saved in ~/.landstalker_fullscreen (patch_fullscreen.py) |

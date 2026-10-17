@@ -118,8 +118,6 @@ python3 tools/patch_shadow.py .deps/genrecomp
 python3 tools/patch_quick.py .deps/genrecomp
 # Project-Friday branding on the title screen (tools/patch_overlay.py; needs patch_quick.py first)
 python3 tools/patch_overlay.py .deps/genrecomp
-# State-driven model overlay for the renderer groundwork (LANDSTALKER_MODEL=1, tools/patch_model.py; needs patch_overlay.py first)
-python3 tools/patch_model.py .deps/genrecomp
 # Fast forward on R2 / Tab (hold) + Gameplay option; frees L1 / R1 / L2 / R2 from display functions (tools/patch_ffwd.py; needs the display / options patches first)
 python3 tools/patch_ffwd.py .deps/genrecomp
 # Quick save / quick load anywhere (hidden fifth slot, the game's own save routines; tools/patch_quicksave.py; needs patch_ffwd.py first)
@@ -136,6 +134,8 @@ python3 tools/patch_buyqty.py .deps/genrecomp
 python3 tools/patch_tbox.py .deps/genrecomp
 # Key bindings for pad + keyboard (tools/patch_keys.py; replaces the fixed button / key lines of input.c, needs all input patches before it)
 python3 tools/patch_keys.py .deps/genrecomp
+# Model view (block grid, entity boxes; R3 / F7 / LANDSTALKER_MODEL=1, tools/patch_model.py; needs patch_overlay.py and patch_keys.py first)
+python3 tools/patch_model.py .deps/genrecomp
 # test aid: LANDSTALKER_WARP="610:12.08,20.04" puts Nigel into a room at a spot (headless tests), see tools/patch_warp.py
 python3 tools/patch_warp.py .deps/genrecomp
 # audio capture: LANDSTALKER_WAV=file.wav (recompiled build and genrecomp_ref), compare with tools/wavcmp.py (tools/patch_wav.py)

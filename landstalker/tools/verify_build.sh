@@ -41,7 +41,7 @@ chk "Gameplay: Schatten unter Nigel"                 $G/ext/Genesis-Plus-GX/core
 chk "Gameplay: Quick Items (Anzeige)"               $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_QUICK v1"
 chk "Gameplay: Quick Items (Tasten, Logik)"         $G/src/func_table.c "lk_quick_install"
 chk "Titelbild: Project Friday (Anzeige)"            $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_BRAND v1"
-chk "Modell-Overlay (LANDSTALKER_MODEL)"             $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_MODEL v1"
+chk "Modell-Overlay (LANDSTALKER_MODEL)"             $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_MODEL v2"
 chk "Vorspulen (R2 / Tab)"                           $G/src/platform_sdl.c "LK_FFWD v1"
 chk "Schnellspeichern / -laden"                     $G/src/func_table.c "LK_QUICKSAVE v1"
 chk "Schwierigkeit (Schaden / Gegner-HP)"           $G/src/func_table.c "LK_DIFF v2"
