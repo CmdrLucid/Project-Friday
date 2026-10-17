@@ -1,9 +1,7 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- **Map Behind Text** (Options > Video, on by default): in dialogues the map stays visible around the text box instead of a black band.
-- Quick Items HUD: the two cells are centred and spaced better in widescreen.
-- Video options page has 8 rows and scrolls.
+- Fix: the scroll arrows are shown on the Video options page again (it has 8 rows now).
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).
