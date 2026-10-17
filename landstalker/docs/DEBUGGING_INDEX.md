@@ -133,3 +133,4 @@
 - L1108: Full height: garbage band after a long text box (ship after the island map; user recording `ship_band_garbage`, 2026-10-16)
 - L1114: Ship: margins / full height lost after the island map (user recording `ship_band_garbage`, 2026-10-16)
 - L1120: Item descriptions in the Start menu (optional 'Item Info', user wish 2026-10-16: Saturn Stone had no explanation)
+- L1127: Buy Quantity (2026-10-17)
