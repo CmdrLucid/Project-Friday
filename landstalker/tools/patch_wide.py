@@ -304,6 +304,17 @@ static int32_t lk_blk_delta;
 static int lk_d2_shift, lk_d2_shift_x, lk_d2_shift_y;
 #define LK_EXT_CAP 600000                                          /* words (1.2 MB); one extension call with k=4 adds 4*2*12 blocks * 12 words = 1152; a room load calls the strip loaders hundreds of times without a flush (24000 was too small: margins stayed black after a room change) */
 static uint16_t lk_ext_w[LK_EXT_CAP]; static int lk_ext_n;
+static void lk_ext_apply(void)   /* apply the private strip entries (word = VRAM command high word, then two tile words) */
+{
+    int i;
+    for (i = 0; i + 2 < lk_ext_n; i += 3) {
+        unsigned hi = lk_ext_w[i];
+        if ((hi >> 14) != 1) continue;                         /* only VRAM writes */
+        unsigned addr = (hi & 0x3FFF) | 0xC000;                /* the second command word is always $0003 in the game's flush loop */
+        lk_vram_put_word(addr, lk_ext_w[i + 1]); lk_vram_put_word((addr + 2) & 0xFFFF, lk_ext_w[i + 2]);
+    }
+    lk_ext_n = 0;
+}
 static void lk_strip_extend(uint32_t a)
 {
     static int busy, kenv = -2; int k;
@@ -311,8 +322,10 @@ static void lk_strip_extend(uint32_t a)
     { static int pending;   /* LANDSTALKER_TALL: the band below the picture is not covered by the room load; reload the extra strips when the fade-in STARTS, so it is complete before anything is visible.
          Room change: FadeInFromDarkness $008EB4 (always, as before). Start from the file select: StartGame ends in FadeFromBlack $00098A (it never calls $008EB4; black rectangles until the first step, user report 2026-10-11, church of save 1); only after a LoadRoom-path entry $002824 (pending), FadeFromBlack has other callers.
          (2026-10-11 night: a reload 10 frames after the first UpdateSprites pass fixed the file-select start but was too late for room changes: holes during every fade-in, user report.) */
+      if (getenv("LANDSTALKER_TALL_DEBUG") && (a == 0x002824 || a == 0x008EB4 || a == 0x00098A)) printf("tall: hook $%06X frame %ld picture=%d pending=%d\n", a, platform_frame_number(), lk_picture, pending);
       if (a == 0x002824 && !lk_picture) { pending = 1; return; }
       if (a == 0x0178C8) lk_load_fade = 0;
+      if (a == 0x0178C8 && pending && kv > 0 && !lk_picture) { pending = 0; lk_wide_refill = 1; if (getenv("LANDSTALKER_TALL_DEBUG")) printf("tall: reload at the first map frame after a room load without fade-in hook (tree warp) frame %ld\n", platform_frame_number()); }   /* the tree warp ($00E30E) loads the room but fades in with its own palette code: neither $008EB4 nor $00098A runs (user recording rec_20261017_1338, room 537 -> 539: one frame of garbage in the band) */
       if (a == 0x00098A && pending) lk_load_fade = 1;
       if (a == 0x008EB4 || a == 0x00098A) { if (!pending && a == 0x00098A) kv = 0; pending = 0; }
       if ((a == 0x008EB4 || a == 0x00098A) && kv > 0 && !lk_picture) { lk_wide_refill = 0; if (getenv("LANDSTALKER_TALL_DEBUG")) printf("tall: reload at fade-in $%06X frame %ld\n", a, platform_frame_number());
@@ -325,18 +338,10 @@ static void lk_strip_extend(uint32_t a)
     if (a == 0x0178C8 && lk_wide_refill) {   /* UpdateSprites (game map frame): the width was raised at run time: load the new outer ring of the map diamond now (the same extra strips a scroll step would load) */
         lk_wide_refill = 0;
         lk_strip_extend(0x00A61C); lk_strip_extend(0x00A698); lk_strip_extend(0x00A6B0); lk_strip_extend(0x00A730);
+        lk_ext_apply();   /* at once: the band is drawn from the state before this frame's flush (tree warp, rec_20261017_1338: one frame of garbage) */
         return;
     }
-    if (a == 0x002686 && lk_ext_n) {   /* FlushVdpWriteQueue: apply the private strip entries (word = VRAM command high word, then two tile words) */
-        int i;
-        for (i = 0; i + 2 < lk_ext_n; i += 3) {
-            unsigned hi = lk_ext_w[i];
-            if ((hi >> 14) != 1) continue;                         /* only VRAM writes */
-            unsigned addr = (hi & 0x3FFF) | 0xC000;                /* the second command word is always $0003 in the game's flush loop */
-            lk_vram_put_word(addr, lk_ext_w[i + 1]); lk_vram_put_word((addr + 2) & 0xFFFF, lk_ext_w[i + 2]);
-        }
-        lk_ext_n = 0; return;
-    }
+    if (a == 0x002686 && lk_ext_n) { lk_ext_apply(); return; }   /* FlushVdpWriteQueue: apply the private strip entries */
     if (a == 0x00C37E && lk_d2_shift) {   /* MapPtrAndCellFromXY leaves d2 (start cell, from $FF1184 via a table) alone: shift it like the camera: row' = (row + dy) mod 16, col' = (col + dx + 16 * floor((row + dy) / 16)) mod 32 (measured with BLOCKLOG: 0 mismatches in 9773 block pairs; the first formula (x + 0x20*y + K) mod 0x210 was wrong for 32 % of the cells) */
         int d = (int)(g_m68k.d[2] & 0xFFFF), row = (d >> 5) + lk_d2_shift_y, w = row >= 0 ? row / 16 : -((15 - row) / 16);   /* w = floor(row / 16) */
         int L = (row - 16 * w) * 32 + (((d & 31) + lk_d2_shift_x + 16 * w) % 32 + 32) % 32;
