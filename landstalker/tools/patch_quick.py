@@ -47,7 +47,7 @@ static void lk_q_icons_save(void) {
 }
 static void lk_q_load(void) {
   char p[512]; FILE *f; int on = 0, a = -1, b = -1; uint8 id;
-  lk_q_on = 0; lk_q_path(p, sizeof p, ".landstalker_quick"); f = fopen(p, "r");
+  lk_q_on = 1; lk_q_path(p, sizeof p, ".landstalker_quick");   /* default On since 2026-10-17 (Quality of Life); a saved file wins */ f = fopen(p, "r");
   if (f) { if (fscanf(f, "%d %d %d", &on, &a, &b) >= 1) { lk_q_on = on ? 1 : 0; lk_q_id[0] = a; lk_q_id[1] = b; } fclose(f); }
   { const char *e = getenv("LANDSTALKER_QUICK"); if (e && *e) lk_q_on = atoi(e) ? 1 : 0; }
   { const char *e = getenv("LANDSTALKER_QUICK_SLOTS"); int x, y; if (e && sscanf(e, "%d,%d", &x, &y) == 2) { lk_q_id[0] = x; lk_q_id[1] = y; } }   /* test aid */
@@ -121,11 +121,12 @@ static void lk_q_label(int x, int y, int slot, PIXEL_OUT_T col, PIXEL_OUT_T blk,
   char b[16]; int n; lk_bind_hudlabel(4 + slot, b, sizeof b); n = (int)strlen(b); if (n > 2) n = 2;
   for (int k = 0; k < n; k++) lk_q_g3(x + 4 * k, y, lk_q_gi(b[k]), col, blk, outline);
 }
+static int lk_q_cellw;
 static void lk_q_cells(int compact, PIXEL_OUT_T white, PIXEL_OUT_T black) {
   int s, i, j;
   memset(lk_q_cm, 0, sizeof lk_q_cm);
   for (s = 0; s < 2; s++) {
-    int x0 = compact ? (s ? 20 : 2) : (s ? 32 : 2), id = lk_q_id[s], q = lk_q_qty[s];
+    int x0 = compact ? (s ? 20 + (lk_q_cellw - 36) : 2) : (s ? 32 : 2), id = lk_q_id[s], q = lk_q_qty[s];
     if (id >= 0 && id < 64 && lk_q_have[id]) {
       for (j = 0; j < 16; j++) for (i = 0; i < 16; i++) if (lk_q_mask[id][j * 16 + i]) lk_q_px_set(x0 + i, j, q > 0 ? lk_q_px[id][j * 16 + i] : lk_q_dim(lk_q_px[id][j * 16 + i]));
     }
@@ -137,7 +138,7 @@ static void lk_q_cells(int compact, PIXEL_OUT_T white, PIXEL_OUT_T black) {
     } else lk_q_label(x0 + 4, 6, s, lk_q_dim(white), black, 0);   /* empty slot: dim letter only */
   }
 }
-static int lk_q_hud, lk_q_Lp, lk_q_Wb, lk_q_kn, lk_q_cellw, lk_q_bl, lk_q_fillcol, lk_q_haveprev, lk_q_colmap[512];
+static int lk_q_sh, lk_q_hud, lk_q_Lp, lk_q_Wb, lk_q_kn, lk_q_cellw, lk_q_bl, lk_q_fillcol, lk_q_haveprev, lk_q_colmap[512];
 static uint8 lk_q_busy[512], lk_q_busyp[512];
 '''
     module += r'''static void lk_quick_hud(PIXEL_OUT_T *row, int width) {
@@ -153,10 +154,11 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
     for (x = bl + 6; x < bl + 287; x++) { PIXEL_OUT_T p = r[x]; if (((p >> 16) & 255) > 200 && ((p >> 8) & 255) > 200 && (p & 255) > 200) wc++; }
     if (wc >= 275 && lk_q_haveprev) {
       int Lp = (Wp == 320) ? 0 : (Wp - 348) / 2, Wb = (Wp == 320) ? 320 : 348,   /* 320: full width; 352 and wider: 348 px (at 352 nearly the full width), centred, so the bar does not stretch over the wide margins */
-           compact = Wp < 352, cellw = compact ? 36 : 62, need = 296 + cellw - Wb, k, a, b, kn = 0, fc = -1;
+           compact = 1, cellw = compact ? (Wp >= 352 ? 41 : 36) : 62,   /* wide pictures: 5 px more between the two cells */ need = 296 + cellw - Wb, k, a, b, kn = 0, fc = -1;
       uint8 rm[296];
       PIXEL_OUT_T white = r[bl + 100], black = white & 0xFF000000u;
       memset(rm, 0, sizeof rm);
+      for (x = 230; x <= 235; x++) { rm[x] = 1; need--; }   /* the '-' between the bag and the item count (rel 230..233, 4 px; user wish 2026-10-17): dropped, so the count moves left and the gold keeps more distance */
       /* 1. runs of empty columns right of the health numbers (rel 200..296), 2. any empty run right of the sword icon (rel 25..199), keep 3 px of every run */
       { int pass; for (pass = 0; pass < 2 && need > 0; pass++) {
           int lo = pass ? 25 : 200, hi = pass ? 199 : 292;
@@ -174,6 +176,9 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
       if (kn + cellw > Wb - 3) return;
       for (n = kn; n < Wb - 3; n++) lk_q_colmap[n] = -1;
       for (n = 0; n < 3; n++) lk_q_colmap[Wb - 3 + n] = 293 + n;
+      { int i, t, pad = Wb - 3 - kn - cellw;   /* wide pictures: the two cells move right so that the gap gold -> cells equals the gap cells -> bar edge */
+        for (i = kn - 1; i > 0 && lk_q_busyp[lk_q_colmap[i]] == 0; i--) ;
+        t = kn - 1 - i; lk_q_sh = pad > t ? (pad - t) / 2 : 0; }
       lk_q_Lp = Lp; lk_q_Wb = Wb; lk_q_kn = kn; lk_q_cellw = cellw; lk_q_bl = bl; lk_q_fillcol = fc;
       lk_q_cells(compact, white, black);
       lk_q_hud = 1;
@@ -184,7 +189,7 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
     int Lp = lk_q_Lp, Wb = lk_q_Wb, kn = lk_q_kn, fc = lk_q_fillcol;
     memcpy(tmp, r, (size_t)Wp * sizeof(PIXEL_OUT_T));
     for (n = 0; n < Wb; n++) { int src = lk_q_colmap[n]; r[Lp + n] = tmp[bl + (src >= 0 ? src : fc)]; }
-    if (line >= 6 && line <= 21) for (x = 0; x < lk_q_cellw; x++) if (lk_q_cm[line - 6][x]) r[Lp + kn + x] = lk_q_cv[line - 6][x];
+    if (line >= 6 && line <= 21) for (x = 0; x < lk_q_cellw; x++) if (lk_q_cm[line - 6][x]) r[Lp + kn + lk_q_sh + x] = lk_q_cv[line - 6][x];
   }
   if (line == 22) { memcpy(lk_q_busyp, lk_q_busy, sizeof lk_q_busy); memset(lk_q_busy, 0, sizeof lk_q_busy); lk_q_haveprev = 1; }
 }

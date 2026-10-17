@@ -20,7 +20,7 @@ if VER not in s:
     module = r'''/* ---- LK_CARRY v1: Nigel rides on objects that stand on moving platforms (tools/patch_carry.py) ---- */
 static int lk_carry_v = -1;   /* Options > Gameplay > Fix Ride Objects Off / On, default Off; file ~/.landstalker_carry, env LANDSTALKER_CARRY=0|1 wins */
 int lk_carry_get(void) {
-    if (lk_carry_v < 0) { char p[512]; FILE *f; const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_CARRY"); int v = 0; snprintf(p, sizeof p, "%s/.landstalker_carry", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e) v = atoi(e); lk_carry_v = v ? 1 : 0; }
+    if (lk_carry_v < 0) { char p[512]; FILE *f; const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_CARRY"); int v = 1; snprintf(p, sizeof p, "%s/.landstalker_carry", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 1; fclose(f); } if (e) v = atoi(e); lk_carry_v = v ? 1 : 0; }
     return lk_carry_v;
 }
 void lk_carry_set(int v) { char p[512]; FILE *f; const char *h = getenv("HOME"); lk_carry_get(); lk_carry_v = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_carry", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_carry_v); fclose(f); } }

@@ -1,11 +1,10 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
-**You need your own legal Landstalker ROM** (US version, raw 2 MB `.md` / `.bin` / `.gen`, SHA-1 `24345e29427b000b90df778965dd8834300a9dde`). Nothing from the game is included; the program builds the game from your ROM on first start (one time, a few minutes).
-
 ### New in {VERSION}
-- **Item Info** (Options > Gameplay, off by default): short description of the item under the cursor in the Use / Equip lists.
-- **Fix Ride Objects** (Options > Gameplay, off by default): Nigel is carried along when he stands on an object that sits on a moving platform.
-- Full height: no more garbage at the bottom on the ship and in room 632, margins stay on after the island map.
+- **Buy Quantity:** in item shops you choose how many consumables to buy at once (limited by gold and room in the inventory).
+- **New options menu:** Video (now with Shadows), Audio, Quality of Life, Difficulty, Keybindings. Quick Items, Buy Quantity and Fix Ride Objects are on by default on a fresh install.
+- Quick Items HUD: no dash before the item count, quick item cells fit better at every widescreen width.
+- Options window in the file select: the last entry of long pages is reachable again.
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).
