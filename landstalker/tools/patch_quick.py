@@ -137,7 +137,7 @@ static void lk_q_cells(int compact, PIXEL_OUT_T white, PIXEL_OUT_T black) {
     } else lk_q_label(x0 + 4, 6, s, lk_q_dim(white), black, 0);   /* empty slot: dim letter only */
   }
 }
-static int lk_q_hud, lk_q_Lp, lk_q_Wb, lk_q_kn, lk_q_cellw, lk_q_bl, lk_q_fillcol, lk_q_haveprev, lk_q_colmap[512];
+static int lk_q_sh, lk_q_hud, lk_q_Lp, lk_q_Wb, lk_q_kn, lk_q_cellw, lk_q_bl, lk_q_fillcol, lk_q_haveprev, lk_q_colmap[512];
 static uint8 lk_q_busy[512], lk_q_busyp[512];
 '''
     module += r'''static void lk_quick_hud(PIXEL_OUT_T *row, int width) {
@@ -157,7 +157,7 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
       uint8 rm[296];
       PIXEL_OUT_T white = r[bl + 100], black = white & 0xFF000000u;
       memset(rm, 0, sizeof rm);
-      for (x = 230; x <= 233; x++) { rm[x] = 1; need--; }   /* the '-' between the bag and the item count (rel 230..233, 4 px; user wish 2026-10-17): dropped, so the count moves left and the gold keeps more distance */
+      for (x = 230; x <= 235; x++) { rm[x] = 1; need--; }   /* the '-' between the bag and the item count (rel 230..233, 4 px; user wish 2026-10-17): dropped, so the count moves left and the gold keeps more distance */
       /* 1. runs of empty columns right of the health numbers (rel 200..296), 2. any empty run right of the sword icon (rel 25..199), keep 3 px of every run */
       { int pass; for (pass = 0; pass < 2 && need > 0; pass++) {
           int lo = pass ? 25 : 200, hi = pass ? 199 : 292;
@@ -175,6 +175,9 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
       if (kn + cellw > Wb - 3) return;
       for (n = kn; n < Wb - 3; n++) lk_q_colmap[n] = -1;
       for (n = 0; n < 3; n++) lk_q_colmap[Wb - 3 + n] = 293 + n;
+      { int i, t, pad = Wb - 3 - kn - cellw;   /* wide pictures: the two cells move right so that the gap gold -> cells equals the gap cells -> bar edge */
+        for (i = kn - 1; i > 0 && lk_q_busyp[lk_q_colmap[i]] == 0; i--) ;
+        t = kn - 1 - i; lk_q_sh = pad > t ? (pad - t) / 2 : 0; }
       lk_q_Lp = Lp; lk_q_Wb = Wb; lk_q_kn = kn; lk_q_cellw = cellw; lk_q_bl = bl; lk_q_fillcol = fc;
       lk_q_cells(compact, white, black);
       lk_q_hud = 1;
@@ -185,7 +188,7 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
     int Lp = lk_q_Lp, Wb = lk_q_Wb, kn = lk_q_kn, fc = lk_q_fillcol;
     memcpy(tmp, r, (size_t)Wp * sizeof(PIXEL_OUT_T));
     for (n = 0; n < Wb; n++) { int src = lk_q_colmap[n]; r[Lp + n] = tmp[bl + (src >= 0 ? src : fc)]; }
-    if (line >= 6 && line <= 21) for (x = 0; x < lk_q_cellw; x++) if (lk_q_cm[line - 6][x]) r[Lp + kn + x] = lk_q_cv[line - 6][x];
+    if (line >= 6 && line <= 21) for (x = 0; x < lk_q_cellw; x++) if (lk_q_cm[line - 6][x]) r[Lp + kn + lk_q_sh + x] = lk_q_cv[line - 6][x];
   }
   if (line == 22) { memcpy(lk_q_busyp, lk_q_busy, sizeof lk_q_busy); memset(lk_q_busy, 0, sizeof lk_q_busy); lk_q_haveprev = 1; }
 }
