@@ -189,7 +189,7 @@ static void lk_opt_upload(void) { lk_call(0x00792Cu); lk_call(0x0002A2u); }
    the 16 x 16 arrow in VRAM tiles $B8..$BB while the menu is open), X $8E; shown for 32 frames, hidden for 32, restarted by every move so that they are visible right after it */
 static uint16_t lk_arrow_ref; static int lk_arrow_on;
 static void lk_opt_arrows(void) {
-    int on = lk_opt_tab && lk_opt_sel && lk_opt_pg >= 3, up, dn, ph;
+    int on = lk_opt_tab && lk_opt_sel && lk_opt_pg >= 1, up, dn, ph;
     if (!on && !lk_arrow_on) return;
     ph = (int)((uint16_t)(bus_read16(0xFF0F9Cu) - lk_arrow_ref) & 0x3F) < 0x20;
     up = on && lk_opt_scroll > 0 && ph; dn = on && lk_opt_scroll + lk_opt_vis() < lk_opt_nrows() && ph;
@@ -392,7 +392,7 @@ static void lk_fs_modal(void) {   /* options window in the file select */
     for (;;) {
         bus_write16(0xFF0550u, 0x0134); bus_write8(0xFF0552u, 5); bus_write16(0xFF0554u, 0xA0AA); bus_write16(0xFF0556u, 1);   /* the bar arrow is parked (hidden) while the window is open */
         lk_win_blink = (blink++ & 0x10) ? 1 : 0;
-        lk_win_arr = (pg >= 3 && ((blink - arrow0) & 0x3F) < 0x20) ? ((lk_win_scroll > 0 ? 1 : 0) | (lk_win_scroll + lk_win_vis(pg) < lk_win_cnt[pg] ? 2 : 0)) : 0;
+        lk_win_arr = (pg >= 1 && ((blink - arrow0) & 0x3F) < 0x20) ? ((lk_win_scroll > 0 ? 1 : 0) | (lk_win_scroll + lk_win_vis(pg) < lk_win_cnt[pg] ? 2 : 0)) : 0;
         lk_call(0x000272u);   /* WaitUntilVBlank */
         lk_call(0x00033Eu);   /* UpdateControllerInputs (the file select polls the pad itself, sub_F2E2) */
         cur = bus_read8(0xFF0F8Eu); e = cur & ~prev; prev = cur;
