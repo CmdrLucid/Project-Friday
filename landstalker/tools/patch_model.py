@@ -6,7 +6,7 @@ For every visible entity (list g_VisibleEntityList $FF11DE) it draws, from work 
    (CheckEntityOnScreen $004144: a = X - Z - cam$FF1200, b = Y - Z - cam$FF1202, screen x = a - b + $A0, screen y = ((a + b + k) >> 1) + $68, k = 0 for the player else word $FF1180 ^ 1),
  * a tiny label: sprite graphic id, animation / 4, frame / 4 in hex (the stable sprite key, FORMATS.md 'Sprite upload').
 Block grid (v2): every cell of the height map ($FFD192, words, 74 x 74, cell (x, y) = world units x * 16 .. x * 16 + 15, byte 0: low nibble = floor height in 16 unit steps, high nibble 4 with height 0 = void)
-that is not void is outlined as a diamond at its floor height with the same projection; colour = height (grey 0, cyan 1, green 2, yellow 3, orange 4, red 5, pink 6, white 7), purple = cells with a type nibble (walls / special),
+that is not void is outlined as a diamond at its floor height with the same projection; colour = height (grey 0, cyan 1, green 2, yellow 3, orange 4, red 5, pink 6, white 7), purple = cells blocked for everybody or for NPCs (byte 0 bits 6 / 5), a CROSS through the cell = floor type (byte 1): yellow doors, green stairs / ladders / elevator / Nole staircase, red pit / spikes / swamp / lava, white others,
 the cell under Nigel is white-bordered.  Toggle at run time: pad R3 (click of the right stick) or key F7 (fixed, not in the Keybindings list); LANDSTALKER_MODEL=1 starts with it on,
 LANDSTALKER_MODEL_AT="f1,f2" toggles at those frames (headless tests); LANDSTALKER_MODEL_GRID=0 hides the grid.
 Env LANDSTALKER_MODEL=1 switches it on (off by default, debug aid); LANDSTALKER_MODEL_LOG=N prints, every N frames, per entity the game's screen position and the model's (they must agree).
@@ -32,7 +32,8 @@ static lk_m_ent_t lk_m_e[LK_M_N]; static int lk_m_n, lk_m_on = -1, lk_m_log, lk_
 #define LK_MM_H 512
 #define LK_MM_X0 320   /* mask column of picture x = 0 (margins of wide pictures are negative x) */
 static uint8 lk_m_mask[LK_MM_H][LK_MM_W];   /* 0 none, 1..8 height colours, 9 special cell, 10 border of Nigel's cell */
-static const uint32 lk_m_gcol[11] = { 0, 0xFF909090u, 0xFF40C0FFu, 0xFF60FF60u, 0xFFFFFF60u, 0xFFFFA040u, 0xFFFF6060u, 0xFFFF60FFu, 0xFFFFFFFFu, 0xFFB040E0u, 0xFFFFFFFFu };
+static const uint32 lk_m_gcol[15] = { 0, 0xFF909090u, 0xFF40C0FFu, 0xFF60FF60u, 0xFFFFFF60u, 0xFFFFA040u, 0xFFFF6060u, 0xFFFF60FFu, 0xFFFFFFFFu, 0xFFB040E0u, 0xFFFFFFFFu,
+                                      0xFFFFE000u, 0xFF00FF80u, 0xFFFF2020u, 0xFFFFFFFFu };   /* 11 door, 12 stairs / ladder / elevator, 13 hazard, 14 other floor type: cross through the cell */
 static void lk_m_init(void) { if (lk_m_on < 0) { const char *e = getenv("LANDSTALKER_MODEL"), *l = getenv("LANDSTALKER_MODEL_LOG"), *g = getenv("LANDSTALKER_MODEL_GRID"); lk_m_on = e && atoi(e) != 0; lk_m_log = l ? atoi(l) : 0; lk_m_grid = !(g && atoi(g) == 0); } }
 int lk_model_toggle(void) { lk_m_init(); lk_m_on = !lk_m_on; return lk_m_on; }
 static void lk_m_seg(int x0, int y0, int x1, int y1, uint8 v) {   /* Bresenham into the mask (a later segment never overwrites a higher value: the player's border wins) */
@@ -59,7 +60,7 @@ static void lk_m_snapshot(void) {
   if (lk_m_grid) {
     int px = LKB(0xFF5400), py = LKB(0xFF5401), cx, cy;
     for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) {
-      int b0 = LKB(0xFFD192 + 148 * cy + 2 * cx), h = b0 & 15, t = b0 >> 4, z, sxx[4], syy[4], k, v, ccx, ccy;
+      int b0 = LKB(0xFFD192 + 148 * cy + 2 * cx), b1 = LKB(0xFFD192 + 148 * cy + 2 * cx + 1) & 0x3F, h = b0 & 15, t = b0 >> 4, z, sxx[4], syy[4], k, v, ccx, ccy;
       if (t == 4 && h == 0) continue;
       z = h * 16;
       for (k = 0; k < 4; k++) {
@@ -68,9 +69,13 @@ static void lk_m_snapshot(void) {
       }
       ccx = (sxx[0] + sxx[2]) / 2; ccy = (syy[0] + syy[2]) / 2;
       if (ccx < -200 || ccx > 520 || ccy < -20 || ccy > 260) continue;
-      v = t ? 9 : (uint8)(1 + (h & 7));
+      v = (t & 6) ? 9 : (uint8)(1 + (h & 7));   /* byte 0: bit 6 = blocked for all, bit 5 = blocked for NPCs only */
       if (cx == px && cy == py) v = 10;
       for (k = 0; k < 4; k++) lk_m_seg(sxx[k], syy[k], sxx[(k + 1) & 3], syy[(k + 1) & 3], v);
+      if (b1) {   /* byte 1 = floor type (Player_GroundType, ProcessFloorType $00603C): draw a cross */
+        int cl = (b1 >= 1 && b1 <= 4) || b1 == 6 || b1 == 0x26 || b1 == 0x27 ? 11 : (b1 == 5 || b1 == 0xB || b1 == 0xC || b1 == 0xF || b1 == 0x28) ? 12 : (b1 == 7 || b1 == 0x10 || b1 == 0x19 || b1 == 0x29) ? 13 : 14;
+        lk_m_seg(sxx[0], syy[0], sxx[2], syy[2], (uint8)cl); lk_m_seg(sxx[1], syy[1], sxx[3], syy[3], (uint8)cl);
+      }
     }
   }
   for (a = 0xFF11DE, i = 0; i < LK_M_N; i++, a += 2) {
