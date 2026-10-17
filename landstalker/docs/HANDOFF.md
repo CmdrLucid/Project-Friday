@@ -9,6 +9,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 **The repository is PUBLIC** (checked 2026-10-16: unauthenticated GitHub API says public, release downloads work without login); older entries below that still talk about 'private' were corrected.
 
+## 0a8. v0.8.1 AppImage CHECKED (2026-10-17, Deck): downloaded to `dist/` (SHA-256 `28dea6ab...8c05` = the `.sha256` asset), clean-environment first start (`env -i`, fresh data folder, `--no-gui`) built the game in 75 s, ran the user's recording `rec_20261017_1249` headless 1320 frames with no `RTS to` / `no function` lines, and its RAM checkpoint file is byte-identical to the one of the normal gcc build (isolated HOME for both, Buy Quantity off). Not tested: the file dialog on a screen, Steam launch, Windows.
+
 ## 0a7. 2026-10-17 (night): release **v0.8.1** (user request): only the scroll arrows of the Video options page (v0.8.0 had no arrows there). v0.7.0 / v0.8.0 / v0.8.1 AppImages still not run through the first-run check.
 
 ## 0a6. 2026-10-17 (later): release **v0.8.0** (dev merged into main, user request) after v0.7.0: Map Behind Text (Options > Video, default On, `tools/patch_tbox.py`), Quick Items HUD spacing in widescreen. User tested on the Deck ('super'). The v0.7.0 / v0.8.0 AppImages have NOT been run through the first-run build + Massan replay check yet.
