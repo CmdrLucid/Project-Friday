@@ -31,7 +31,7 @@ static int OB(uint32_t a) { return a < 0x200000u ? (int)bus_read8(a) : 0; }   /*
 #define OL(a) ((uint32_t)(((uint32_t)OW(a) << 16) | (uint32_t)OW((a) + 2)))
 static int lk_o_sprmode = 1, lk_o_cammode = 2, lk_o_u0, lk_o_v0, lk_o_vote_room = -1, lk_o_bu, lk_o_bv, lk_o_upred, lk_o_vpred; static float lk_o_vu[64], lk_o_vv[32];
 static int lk_o_mode = -1, lk_o_log = 60, lk_o_room = -1, lk_o_ngrp, lk_o_valid;
-static uint8 lk_o_prev[0x10000], lk_o_use[0x10000];
+static uint8 lk_o_prev[0x10000], lk_o_use[0x10000], lk_o_good[0x10000]; static int lk_o_goodok, lk_o_fade;
 #define UB(a) (lk_o_use[((a) & 0xFFFF) ^ 1])
 #define UW(a) ((int)((UB(a) << 8) | UB((a) + 1)))
 #define US(a) ((int)(int16_t)UW(a))
@@ -49,7 +49,7 @@ extern int lk_tbox_get(void);                                        /* Map Behi
 static uint16 lk_o_spr[224][LK_OSW];                                 /* by row pixel index (screen x + e): pal * 16 + index | 0x100 priority | 0x200 present */
 static uint8 lk_o_sprtiles[0x4000];
 static uint8 lk_o_hud[0x1000]; static int lk_o_hudn = -1;      /* StatusBarGfx $009242 (HUD tiles, tile numbers $6B4 ..) */
-static long lk_o_diff, lk_o_tot; static int lk_o_nspr; static const uint8 *lk_o_r;   /* lk_o_r: work RAM of the current pass */
+static long lk_o_diff, lk_o_tot; static int lk_o_nspr; static const uint8 *lk_o_r, *lk_o_cc, *lk_o_cp;   /* lk_o_r: work RAM of the current pass */
 static int lk_o_lz77(uint32_t pos, uint8 *out, int cap) {            /* DecompressLZ77Gfx $004AB2 */
   int n = 0, i, flags;
   for (;;) {
@@ -119,6 +119,7 @@ static void lk_o_palette(int room) {                                 /* the 64 c
   for (l = 0; l < 4; l++) {                                                                           /* every palette line has its own fade level (the HUD lines are not faded with the room) */
     bestn = 99; bestd = 0;
     for (j = 0; j < 0x1400; j += 0x200) { int bad = 0; for (i = 16 * l; i < 16 * l + 16; i++) { int c = lk_o_darken(pal[i], j); if ((((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)) != act[i]) bad++; } if (bad < bestn) { bestn = bad; bestd = j; } }
+    if (l == 0) lk_o_fade = bestd != 0;
     for (i = 16 * l; i < 16 * l + 16; i++) { int c = lk_o_darken(pal[i], bestd); lk_o_pix[i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; }
   }
 }
@@ -176,18 +177,60 @@ static int lk_o_escore(const lk_o_ent_t *e) {                        /* how well
   }
   return sc;
 }
-static int lk_o_list(const uint8 *src, int *offs) {                  /* visible entity list $FF11DE of a pass state */
-  int a = 0xFF11DE, n = 0; const uint8 *keep = lk_o_sp; lk_o_sp = src;
+static int lk_o_list(const uint8 *src, int *offs) {                  /* visible entity list $FF11DE of a pass state; when the game is in the middle of a pass at the top of the frame the list is empty (terminator first): the last complete list is used (the entity structs are fresh anyway) */
+  int a = 0xFF11DE, n = 0; const uint8 *keep = lk_o_sp; lk_o_sp = (((src[(0xFF11DE & 0xFFFF) ^ 1] << 8) | src[(0xFF11DF & 0xFFFF) ^ 1]) == 0xFFFF && lk_o_goodok && !lk_o_fade) ? lk_o_good : src;
   for (;;) { int off = SW(a); a += 2; if ((off & 0x8000) || a > 0xFF11DE + 40 || n >= 24) break; offs[n++] = off; }
   lk_o_sp = keep; return n;
 }
+static int lk_o_formula(const uint8 *st, int off, int *ax, int *ay) {   /* the game's own visibility test + screen position (CheckEntityOnScreen sub_4144, 'model overlay') for an entity that is NOT in the game's visible list, from a pass state; the widescreen margin is allowed for */
+  const uint8 *keep = lk_o_sp; int b = 0xFF5400 + off, z, cx, cy, c0, c2, kk, a, bb, rx, ry, ok = 0;
+  lk_o_sp = st;
+  z = (int16_t)SW(b + 0x12); cx = (int16_t)SW(b + 0x14); cy = (int16_t)SW(b + 0x16); c0 = (int16_t)SW(0xFF1200); c2 = (int16_t)SW(0xFF1202); kk = off == 0 ? 0 : ((SW(0xFF1180) ^ 1) & 0xFFFF);
+  a = (int16_t)(cx - z - c0); bb = (int16_t)(cy - z - c2);
+  if (!(SB(b + 8) & 1) && !(SB(b + 0x0C) & 0x40) && (uint16_t)(a + bb + 0x100) < 0x200 && (uint16_t)(a - bb + 0x100) < 0x200) {
+    rx = a - bb + 0x120; ry = ((((uint16_t)(a + bb + kk)) >> 1) + 0xE8) & 0x7FF;
+    if (rx >= 0x60 - lk_wide_e - 40 && rx < 0x1E0 + lk_wide_e + 40 && ry >= 0x80 && ry < 0x1E0) { *ax = rx; *ay = ry; ok = 1; }
+  }
+  lk_o_sp = keep; return ok;
+}
 static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *alt) {   /* figures of one pass state: drawn into lk_o_spr and / or as SAT keys (x, y, size) for the choice of the pass; with `alt` every entity of EITHER pass' visible list takes the version (this pass / the other one, or absent) that matches the real sprite table: the game's visibility test flips entities in and out of the list from pass to pass */
-  int offs[48], inA[48], inB[48], n, k, nb = 0, boffs[24], nk = 0, i;
+  int offs[48], inA[48], inB[48], inF[48], n, k, nb = 0, boffs[24], nk = 0, i;
   if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr); lk_o_nspr = 0; }
-  n = lk_o_list(src, offs); for (k = 0; k < n; k++) { inA[k] = 1; inB[k] = 0; }
-  if (alt) { nb = lk_o_list(alt, boffs); for (i = 0; i < nb; i++) { for (k = 0; k < n && offs[k] != boffs[i]; k++) ; if (k < n) inB[k] = 1; else if (n < 48) { offs[n] = boffs[i]; inA[n] = 0; inB[n] = 1; n++; } } }
+  n = lk_o_list(src, offs); for (k = 0; k < n; k++) { inA[k] = 1; inB[k] = 0; inF[k] = 0; }
+  if (alt) { nb = lk_o_list(alt, boffs); for (i = 0; i < nb; i++) { for (k = 0; k < n && offs[k] != boffs[i]; k++) ; if (k < n) inB[k] = 1; else if (n < 48) { offs[n] = boffs[i]; inA[n] = 0; inB[n] = 1; inF[n] = 0; n++; } } }
+  if (draw && alt) {                                                 /* entities the game's visibility test left out of both lists (it flips objects at the edge of the widened screen in and out from pass to pass = blinking): draw them when the same test, evaluated by us on the previous pass, says visible */
+    const uint8 *keep = lk_o_sp; int q2; lk_o_sp = src;
+    for (q2 = 1; q2 < 16 && n < 48; q2++) {
+      int off = 0x80 * q2, in = 0;
+      if (SB(0xFF5400 + off) & 0x80) break;                          /* end of the entity array */
+      for (k = 0; k < n; k++) if (offs[k] == off) in = 1;
+      if (!in) { offs[n] = off; inA[n] = 0; inB[n] = 0; inF[n] = 1; n++; }
+    }
+    lk_o_sp = keep;
+  }
+  { /* draw order = order of the real sprite table (lower index = in front): sort the entities by the first table entry that matches one of their boxes (this pass, previous-pass position or the other snapshot) */
+    int ord[48], idx[48], q, r2;
+    for (k = 0; k < n; k++) {
+      int v, best = 1000 + k;
+      for (v = 0; v < 3; v++) {
+        lk_o_ent_t t; int pc, j;
+        if (inF[k]) continue; if (v == 0 && !inA[k]) continue; if (v == 2 && !(alt && inB[k])) continue; if (v == 1 && !(inA[k] && offs[k] != 0)) continue;
+        lk_o_entload(v == 2 ? alt : src, offs[k], &t, lk_o_sprtiles_c, 0, v == 1);
+        for (pc = 0; pc < t.np; pc++) { uint32 kk = lk_o_pkey(&t, pc, 0); for (j = 0; j < lk_o_satn; j++) if (lk_o_satk[j] == kk) { if (j < best) best = j; break; } }
+      }
+      ord[k] = best; idx[k] = k;
+    }
+    if (draw && alt) for (q = 1; q < n; q++) for (r2 = q; r2 > 0 && ord[idx[r2]] < ord[idx[r2 - 1]]; r2--) { int t2 = idx[r2]; idx[r2] = idx[r2 - 1]; idx[r2 - 1] = t2; }
+    { int so[48], sf[48], sa[48], sb[48]; for (k = 0; k < n; k++) { so[k] = offs[idx[k]]; sa[k] = inA[idx[k]]; sb[k] = inB[idx[k]]; sf[k] = inF[idx[k]]; } for (k = 0; k < n; k++) { offs[k] = so[k]; inA[k] = sa[k]; inB[k] = sb[k]; inF[k] = sf[k]; } }
+  }
   for (k = 0; k < n; k++) {
     lk_o_ent_t e0, e1, e2, *e = 0; int pc, cum = 0;
+    if (inF[k]) {                                                    /* not in the game's lists */
+      int fx, fy;
+      if (!lk_o_formula(lk_o_use, offs[k], &fx, &fy)) continue;
+      lk_o_entload(src, offs[k], &e0, lk_o_sprtiles, 1, 0); if (!e0.vis) continue;
+      e0.ax = fx; e0.ay = fy; e = &e0;
+    } else
     if (inA[k]) { lk_o_entload(src, offs[k], &e0, lk_o_sprtiles, draw, 0); e = &e0; }
     if (draw && alt && inA[k] && offs[k] != 0) {                      /* objects / NPCs (not the player): three versions, this pass' position, the previous pass' position (+4E), the other snapshot; the one that matches the real sprite table wins, ties go to +4E */
       int s0, s2, s1 = -1;
@@ -203,7 +246,12 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
       else if (e0.vis != e1.vis || e0.ax != e1.ax || e0.ay != e1.ay || e0.sgi != e1.sgi || e0.anim != e1.anim || e0.frm != e1.frm || e0.ts != e1.ts) { if (lk_o_escore(&e1) > lk_o_escore(&e0)) e = &e1; }
     }
     if (draw && alt && inA[k] != inB[k] && e) {                       /* in one list only: show it when it agrees with the sprite table */
-      if (lk_o_escore(e) == 0) continue;
+      if (lk_o_escore(e) == 0) {                                    /* the real sprite table does not draw it in this frame (the game's list flips it in and out): draw it anyway when it is visible */
+        int fx, fy; lk_o_ent_t *f = &e2;
+        if (offs[k] == 0 || !lk_o_formula(lk_o_use, offs[k], &fx, &fy)) continue;
+        lk_o_entload(src, offs[k], f, lk_o_sprtiles_c, 1, 0); if (!f->vis) continue;
+        f->ax = fx; f->ay = fy; e = f; cum = 0;
+      }
     }
     if (!e || !e->vis) continue;
     lk_o_nspr++;
@@ -242,7 +290,7 @@ static void lk_o_build(void) {                                       /* everythi
       }
     }
   }
-  lk_o_sprites(chosen, 1, 0, chosen == lk_o_r ? lk_o_use : lk_o_r); lk_o_sp = lk_o_r;
+  lk_o_sprites(chosen, 1, 0, chosen == lk_o_cc ? lk_o_cp : lk_o_cc); lk_o_sp = lk_o_r;
   (void)o;
 }
 static int lk_o_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio) {   /* colour index of one plane pixel at image position (U, V), 0 = transparent */
@@ -326,13 +374,15 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         for (n4 = 0; n4 < 80 && ns < 96; n4++) { int y = ((vram[(base + 8 * i4) ^ 1] << 8) | vram[(base + 8 * i4 + 1) ^ 1]) & 0x3FF, sz = (vram[(base + 8 * i4 + 2) ^ 1] << 8) | vram[(base + 8 * i4 + 3) ^ 1], x = ((vram[(base + 8 * i4 + 6) ^ 1] << 8) | vram[(base + 8 * i4 + 7) ^ 1]) & 0x1FF;
           lk_o_satt[ns] = ((vram[(base + 8 * i4 + 4) ^ 1] << 8) | vram[(base + 8 * i4 + 5) ^ 1]) & 0x7FF; sat[ns] = (uint32)(x << 20 | y << 8 | ((sz >> 8) & 15)); lk_o_satk[ns] = sat[ns]; ns++; i4 = sz & 0x7F; if (!i4) break; }
         lk_o_satn = ns;
-        nc = lk_o_sprites(r, 0, kc, 0); np_ = lk_o_sprites(lk_o_use, 0, kp, 0);
+        { const uint8 *rc = r, *rp = lk_o_use; lk_o_cc = rc; lk_o_cp = rp;
+        nc = lk_o_sprites(rc, 0, kc, 0); np_ = lk_o_sprites(rp, 0, kp, 0); }
         for (i5 = 0; i5 < nc; i5++) for (j5 = 0; j5 < ns; j5++) if (kc[i5] == sat[j5]) { mc++; break; }
         for (i5 = 0; i5 < np_; i5++) for (j5 = 0; j5 < ns; j5++) if (kp[i5] == sat[j5]) { mp++; break; }
-        lk_o_sp = (lk_o_sprmode == 2 || (lk_o_sprmode == 1 && (2 * mc - nc) >= (2 * mp - np_))) ? r : lk_o_use; }
+        lk_o_sp = (lk_o_sprmode == 2 || (lk_o_sprmode == 1 && (2 * mc - nc) >= (2 * mp - np_))) ? lk_o_cc : lk_o_cp; }
       lk_o_r = r; lk_o_build(); if (lk_o_palmode) lk_o_palette(rm); fr_done = 1; } else fr_done = 0;
     } else fr_done = 0;
     memcpy(lk_o_prev, r, sizeof lk_o_prev); lk_o_valid = 1;
+    if (((r[(0xFF11DE & 0xFFFF) ^ 1] << 8) | r[(0xFF11DF & 0xFFFF) ^ 1]) == 0) { memcpy(lk_o_good, r, sizeof lk_o_good); lk_o_goodok = 1; }   /* the player is first in a complete visible list: remember the last complete state */
     fr_n++;
     if (lk_o_diff >= 0 && lk_o_log > 0 && fr_n % lk_o_log == 0) { int ca = 0, cb = 0, tn = 0, i2, j2; for (i2 = 0; i2 < 152; i2++) for (j2 = 0; j2 < 304; j2++) { ca += (lk_o_pa[i2][j2] >> 16) & 1; cb += (lk_o_pb[i2][j2] >> 16) & 1; } for (i2 = 0; i2 < 0x12000; i2++) tn += lk_o_tiles[i2] != 0;
       printf("own: frame %ld room %d lines 0..223: %ld of %ld pixels differ (cells A %d B %d, tile bytes %d, scroll A %d,%d B %d,%d cam %d,%d, player flags2 use %02X cur %02X, sprites %d)\n", platform_frame_number(), rm, lk_o_diff, lk_o_tot, ca, cb, tn, hsA, vsA, hsB, vsB, cam0, cam2, UB(0xFF540C), bus_get_ram()[(0xFF540C & 0xFFFF) ^ 1], lk_o_nspr); }
@@ -350,7 +400,12 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
       du = (((lk_o_bu - hs2 - lk_o_upred) % 512) + 512) % 512; if (du >= 256) du -= 512;
       dv = (((lk_o_bv + vs2 - lk_o_vpred) % 256) + 256) % 256; if (dv >= 128) dv -= 256;
       ubase = lk_o_upred + du; vbase = lk_o_vpred + dv + line;
-    }    for (i = 0; i < w; i++) {
+    }    int wlo = 0, whi = w, tb = lk_tbox_get(), wline = (line == 23 || text);   /* window lines (HUD row 2's last pixel line, the text box): Map Behind Text keeps only the part between the first and last non-black opaque window pixel, the empty / black ends show the map (patch_tbox.py) */
+    if (wline && tb) {
+      for (wlo = 0; wlo < w; wlo++) { int x = wlo - e, wp = (x >= 0 && x < 320) ? lk_o_win(line, x, hint) : -1; if (wp >= 0 && (wp & 0xF) && (lk_o_pix[wp & 0x3F] & 0x00FFFFFF)) break; }
+      for (whi = w; whi > wlo; whi--) { int x = whi - 1 - e, wp = (x >= 0 && x < 320) ? lk_o_win(line, x, hint) : -1; if (wp >= 0 && (wp & 0xF) && (lk_o_pix[wp & 0x3F] & 0x00FFFFFF)) break; }
+    }
+    for (i = 0; i < w; i++) {
       int x = i - e, margin = (x < 0 || x >= 320), pick = -1, ap = 0, bp = 0, ai, bi, apal = 0, bpal = 0, sp = lk_o_spr[line][i], col, black = black_line;
       if (!black) {
         ai = lk_o_fetch(lk_o_pa, ubase + x, vbase, &apal, &ap); bi = lk_o_fetch(lk_o_pb, ubase + x, vbase, &bpal, &bp);   /* image coordinates: independent of the VDP planes and their wrap */
@@ -361,8 +416,8 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         else if (ai) pick = apal * 16 + ai;
         else if (bi) pick = bpal * 16 + bi;
         else pick = reg[7] & 0x3F;                                     /* backdrop colour */
-        if (margin) { if (line < 23 || (text && !lk_tbox_get())) black = 1; }   /* margins next to the HUD bar stay black; next to the text box only with Map Behind Text off */
-        else { int wp = lk_o_win(line, x, hint); if (wp >= 0 && (wp & 0xF)) pick = wp & 0x3F; }   /* transparent window pixels show the map */
+        if (margin) { if (line < 23 || (wline && !tb)) black = 1; }   /* margins next to the HUD bar stay black; next to the text box only with Map Behind Text off */
+        else { int wp = lk_o_win(line, x, hint); if (wp >= 0 && (wp & 0xF) && i >= wlo && i < whi) pick = wp & 0x3F; else if (wp >= 0 && !tb && wline) black = 1; }   /* transparent window pixels and the black ends of the window line show the map */
       }
       col = black ? (margin ? pixel[0x40] : pixel_lut[1][0]) : (lk_o_palmode ? lk_o_pix[pick & 0x3F] : pixel[pick & 0x3F]);
       lk_o_tot++; if (row[i] != (PIXEL_OUT_T)col) lk_o_diff++;
