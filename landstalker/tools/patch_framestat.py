@@ -28,7 +28,7 @@ helpers = r'''/* LANDSTALKER_FRAMESTAT: wall-clock frame statistics (see tools/p
 static int lk_fs_on = -1, lk_fs_nosync = -1;
 static uint64_t lk_fs_pres0, lk_fs_prev_end, lk_fs_win0;
 static int lk_fs_havepres, lk_fs_n, lk_fs_gt20, lk_fs_gt30;
-static double lk_fs_emu_sum, lk_fs_emu_max, lk_fs_pr_sum, lk_fs_pr_max, lk_fs_sy_sum, lk_fs_sy_max, lk_fs_iv_max;
+static double lk_fs_emu_sum, lk_fs_emu_max, lk_fs_pr_sum, lk_fs_pr_max, lk_fs_sy_sum, lk_fs_sy_max, lk_fs_iv_max, lk_fs_iv_min = 1e9, lk_fs_iv_s, lk_fs_iv_s2;
 static double lk_fs_ms(uint64_t a, uint64_t b) { return (double)(b - a) * 1000.0 / (double)SDL_GetPerformanceFrequency(); }
 static void lk_fs_init(void) {
     if (lk_fs_on < 0) { lk_fs_on = getenv("LANDSTALKER_FRAMESTAT") != NULL; lk_fs_nosync = getenv("LANDSTALKER_NOSYNC") != NULL; }
@@ -56,6 +56,7 @@ static void lk_fs_sync_end(uint64_t t0) {
     if (lk_fs_prev_end) {
         double iv = lk_fs_ms(lk_fs_prev_end, t);
         if (iv > lk_fs_iv_max) lk_fs_iv_max = iv;
+        if (iv < lk_fs_iv_min) lk_fs_iv_min = iv; lk_fs_iv_s += iv; lk_fs_iv_s2 += iv * iv;
         if (iv > 20.0) lk_fs_gt20++;
         if (iv > 30.0) lk_fs_gt30++;
     }
@@ -63,12 +64,12 @@ static void lk_fs_sync_end(uint64_t t0) {
     if (!lk_fs_win0) lk_fs_win0 = t;
     if (lk_fs_ms(lk_fs_win0, t) >= 1000.0) {
         int n = lk_fs_n ? lk_fs_n : 1;
-        printf("framestat: n=%d emu avg/max=%.1f/%.1fms present avg/max=%.1f/%.1fms sync avg/max=%.1f/%.1fms frame max=%.1fms >20ms=%d >30ms=%d%s\n",
+        printf("framestat: n=%d emu avg/max=%.1f/%.1fms present avg/max=%.1f/%.1fms sync avg/max=%.1f/%.1fms frame max=%.1fms >20ms=%d >30ms=%d iv min/avg/sd=%.2f/%.2f/%.2fms%s\n",
                lk_fs_n, lk_fs_emu_sum / n, lk_fs_emu_max, lk_fs_pr_sum / n, lk_fs_pr_max, lk_fs_sy_sum / n, lk_fs_sy_max, lk_fs_iv_max, lk_fs_gt20, lk_fs_gt30,
-               lk_fs_nosync ? " (NOSYNC)" : "");
+               lk_fs_iv_min, lk_fs_iv_s / n, sqrt(fabs(lk_fs_iv_s2 / n - (lk_fs_iv_s / n) * (lk_fs_iv_s / n))), lk_fs_nosync ? " (NOSYNC)" : "");
         fflush(stdout);
         lk_fs_win0 = t; lk_fs_n = lk_fs_gt20 = lk_fs_gt30 = 0;
-        lk_fs_emu_sum = lk_fs_emu_max = lk_fs_pr_sum = lk_fs_pr_max = lk_fs_sy_sum = lk_fs_sy_max = lk_fs_iv_max = 0;
+        lk_fs_emu_sum = lk_fs_emu_max = lk_fs_pr_sum = lk_fs_pr_max = lk_fs_sy_sum = lk_fs_sy_max = lk_fs_iv_max = lk_fs_iv_s = lk_fs_iv_s2 = 0; lk_fs_iv_min = 1e9;
     }
 }
 
