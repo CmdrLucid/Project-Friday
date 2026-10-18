@@ -43,6 +43,7 @@ static struct { int dest, words, delay, frames; uint32_t base; } lk_o_grp[8];
 static uint32 lk_o_pa[152][304], lk_o_pb[152][304];                  /* layer cells: bit 16 = present, low 16 = tile word */
 #define LK_OSW 448
 extern int lk_wide_e;                                                /* LANDSTALKER_WIDE (patch_wide.py) */
+extern int lk_warpfx(void);                                          /* the warp pad effect runs (patch_wide.py) */
 extern int lk_sh_hide;                                               /* set while the Start menu runs (patch_shadow.py) */
 extern int lk_map_decide(void);                                      /* the game map is on screen (patch_wide.py) */
 extern int lk_tall_kv(void) __attribute__((weak));                  /* LANDSTALKER_TALL: > 0 = full height (the game's visibility test is widened by $80 at the bottom, patch_sprcull.py) */
@@ -115,6 +116,9 @@ static void lk_o_palette(int room) {                                 /* the 64 c
   }
   pal[56] = SW(0xFF00E0 + 0x10); pal[57] = SW(0xFF00E0 + 0x12); pal[29] = SW(0xFF00A0 + 0x1A); pal[30] = SW(0xFF00A0 + 0x1C);   /* projectile colours: event state */
   pbase = 0x11C926u + 26u * (uint32_t)OB(OL(0xA0A00) + 8u * (uint32_t)room + 5);                      /* line 0: room palette */
+  { uint32_t la;                                                                                       /* dark rooms (LightableRooms $008800, CheckIfRoomIsLit $0087BE): the lantern flag (byte $FF1000 + b, bit) switches the room palette to LabrynthLitPal $002DB4 (SetRoomPal $002D64) */
+    for (la = 0x8800; (int16_t)OW(la) >= 0 && la < 0x8840; la += 4) if ((int)OW(la) == room) { if ((SB(0xFF1000 + OB(la + 2)) >> (OB(la + 3) & 7)) & 1) pbase = 0x2DB4u; break; }
+  }
   for (i = 0; i < 13; i++) pal[2 + i] = OW(pbase + 2u * (uint32_t)i);
   for (l = 0; l < 4; l++) { pal[16 * l] = 0; pal[16 * l + 1] = 0x0CCC; pal[16 * l + 15] = 0; }
   for (i = 0; i < 64; i++) { int cw = (cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1]; act[i] = lk_o_firston ? SW(0xFF0ED0 + 2 * i) : ((((cw >> 6) & 7) << 9) | (((cw >> 3) & 7) << 5) | ((cw & 7) << 1)); }   /* fade level: the VDP's palette (converted back to MD format), but on the first frame after the display was switched on the game's active copy: the VDP still holds the stale bright palette for that one frame and flashes the HUD */
@@ -408,6 +412,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
       if (rm == lk_o_room && (reg[1] & 0x40)) lk_o_blanked = 0;
       if (!(reg[1] & 0x40)) lk_o_blanked = 1;                         /* the display was switched off since the room number changed: the new room is really loaded */
       if (rm != lk_o_room && lk_o_room >= 0 && !lk_o_blanked) fr_done = 0;   /* the room number changes while the OLD room is still on screen (fade-out): keep the game's picture until the load has blanked the screen */
+      else if (lk_warpfx()) fr_done = 0;                                        /* the warp pad (teleport) effect: the game's picture stays (the effect is not ported) */
       else if (lk_sh_hide) fr_done = 0;                                         /* the Start menu is running (CheckForMenuOpen, also its fades): the game's picture stays, the map of RAM is not what is on screen then */
       else if (!(reg[1] & 0x40)) fr_done = 0;                                  /* display switched off at the top of the frame (room load, blackout): the game's black picture stays */
       else if (rm > 0 && rm < 800) { if (rm != lk_o_room) { lk_o_room_load(rm); lk_o_blanked = 0; } { /* which pass are the VDP's sprites from? (the game runs 0, 1 or 2 passes per frame, so the sprite table is sometimes the previous pass' and sometimes the current one): the candidate whose sprite boxes equal the real sprite table's best wins */

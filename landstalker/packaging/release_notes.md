@@ -1,10 +1,10 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- New: **Own Renderer** (Options > Video, default Off, experimental): the picture is drawn from the ROM data instead of the console's video memory (rooms, figures, HUD, text, effects). The groundwork for shadows, lighting and texture replacement.
-- Fix: micro stutter in desktop mode on the Steam Deck (the controller driver blocked the game for ~8 ms every 3.4 s).
-- Fix: Start menu: no blue band when closing, widescreen / full height margins no longer come back late.
-- Fix (own renderer): NPCs and chests no longer jump, HUD fade-in, falling stones of the Statue of Gaia, signs at the bottom edge.
+- Own Renderer (Options > Video, default Off, experimental): dark rooms are lit when the lantern is used.
+- Fix: widescreen / full height are kept during Quick Load and the teleport pad (they used to shrink for a moment).
+- Fix: the own renderer leaves the teleport pad effect to the game.
+- Everything from v0.9.0 (own renderer option, micro stutter fix for the desktop mode) is included.
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).
