@@ -29,7 +29,7 @@ extern long platform_frame_number(void);
 static int OB(uint32_t a) { return a < 0x200000u ? (int)bus_read8(a) : 0; }   /* ROM only; garbage pointers read 0 */
 #define OW(a) ((OB(a) << 8) | OB((a) + 1))
 #define OL(a) ((uint32_t)(((uint32_t)OW(a) << 16) | (uint32_t)OW((a) + 2)))
-static int lk_o_sprmode = 1;
+static int lk_o_sprmode = 1, lk_o_cammode = 2, lk_o_u0, lk_o_v0, lk_o_vote_room = -1, lk_o_vu[512], lk_o_vv[256];
 static int lk_o_mode = -1, lk_o_log = 60, lk_o_room = -1, lk_o_ngrp, lk_o_valid;
 static uint8 lk_o_prev[0x10000], lk_o_use[0x10000];
 #define UB(a) (lk_o_use[((a) & 0xFFFF) ^ 1])
@@ -220,7 +220,7 @@ static void lk_o_init(void) {
     if (e) lk_o_mode = atoi(e);
     else { char path[512]; FILE *f; const char *h = getenv("HOME"); snprintf(path, sizeof path, "%s/.landstalker_own", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } lk_o_mode = v ? 2 : 0; }   /* Options > Video > Own Renderer */
     if (l) lk_o_log = atoi(l);
-    q = getenv("LANDSTALKER_OWN_SPR"); if (q) lk_o_sprmode = atoi(q); q = getenv("LANDSTALKER_OWN_PAL"); if (q) lk_o_palmode = atoi(q); }
+    q = getenv("LANDSTALKER_OWN_SPR"); if (q) lk_o_sprmode = atoi(q); q = getenv("LANDSTALKER_OWN_PAL"); if (q) lk_o_palmode = atoi(q); q = getenv("LANDSTALKER_OWN_CAM"); if (q) lk_o_cammode = atoi(q); }
 }
 int lk_own_get(void) { lk_o_init(); return lk_o_mode == 2; }
 void lk_own_set(int v) {                                             /* Options > Video > Own Renderer On / Off, saved in ~/.landstalker_own */
@@ -240,7 +240,27 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
       memcpy(lk_o_use, lk_o_prev, sizeof lk_o_use);
       hsA = ((vram[hsb ^ 1] << 8) | vram[(hsb + 1) ^ 1]); hsB = ((vram[(hsb + 2) ^ 1] << 8) | vram[(hsb + 3) ^ 1]);
       vsA = (vsram[0 ^ 1] << 8) | vsram[1 ^ 1]; vsB = (vsram[2 ^ 1] << 8) | vsram[3 ^ 1];
-      cam0 = US(0xFF1200); cam2 = US(0xFF1202); rm = UW(0xFF1204); hint = r[(0xFF0FC5 & 0xFFFF) ^ 1];
+      cam0 = US(0xFF1200); cam2 = US(0xFF1202); rm = UW(0xFF1204);
+      { /* which pass' camera does the VDP show? the vertical scroll is (cam0 + cam2) / 2 - 600 of the pass whose camera the game had written when the picture was built (FORMATS 'Scroll registers lag'):
+           take the current pass' camera when it reproduces the VDP's scroll, else the previous one (the VDP's own update timing varies from frame to frame while Nigel moves) */
+        int c0 = (int16_t)((r[(0xFF1200 & 0xFFFF) ^ 1] << 8) | r[(0xFF1201 & 0xFFFF) ^ 1]), c2 = (int16_t)((r[(0xFF1202 & 0xFFFF) ^ 1] << 8) | r[(0xFF1203 & 0xFFFF) ^ 1]);
+        if (((((c0 + c2) >> 1) - 600) & 0x3FF) == (vsA & 0x3FF) && lk_o_cammode) { cam0 = c0; cam2 = c2; }
+      } hint = r[(0xFF0FC5 & 0xFFFF) ^ 1];
+      { /* position of the picture in image coordinates. The camera of the previous pass predicts it to a few pixels (sometimes the VDP is one step further); the VDP's own scroll registers give it exactly
+           modulo the plane size (U = sx - hs + C mod 512, V = line + vs + C' mod 256), with room dependent constants that are learned: every frame votes for (prediction + hs) and the winner is used */
+        int upred = 1184 - (cam2 - cam0 + 160), vpred = ((cam0 + cam2) >> 1) - 104;
+        lk_o_u0 = upred; lk_o_v0 = vpred;
+        if (lk_o_cammode == 2) {
+          int ku = ((upred + (int16_t)hsA) % 512 + 512) % 512, kv = ((vpred - (int16_t)vsA) % 256 + 256) % 256, bu = 0, bv = 0, i3, du, dv;
+          if (rm != lk_o_vote_room) { memset(lk_o_vu, 0, sizeof lk_o_vu); memset(lk_o_vv, 0, sizeof lk_o_vv); lk_o_vote_room = rm; }
+          lk_o_vu[ku]++; lk_o_vv[kv]++;
+          for (i3 = 0; i3 < 512; i3++) if (lk_o_vu[i3] > lk_o_vu[bu]) bu = i3;
+          for (i3 = 0; i3 < 256; i3++) if (lk_o_vv[i3] > lk_o_vv[bv]) bv = i3;
+          du = (((bu - (int16_t)hsA - upred) % 512) + 512) % 512; if (du >= 256) du -= 512;
+          dv = (((bv + (int16_t)vsA - vpred) % 256) + 256) % 256; if (dv >= 128) dv -= 256;
+          lk_o_u0 = upred + du; lk_o_v0 = vpred + dv;
+        }
+      }
       if (rm > 0 && rm < 800) { if (rm != lk_o_room) lk_o_room_load(rm); lk_o_sp = lk_o_sprmode ? r : lk_o_use; lk_o_build(); if (lk_o_palmode) lk_o_palette(rm); fr_done = 1; } else fr_done = 0;
     } else fr_done = 0;
     memcpy(lk_o_prev, r, sizeof lk_o_prev); lk_o_valid = 1;
@@ -253,7 +273,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
   if (!fr_done || w != 320 + 2 * e || !map) return;                  /* only the game map; menus, title, picture screens stay the game's */
   if (lk_o_hudn < 0) lk_o_hudn = lk_o_lz77(0x9242, lk_o_hud, 0x1000);
   {
-    int ubase = 1184 - (cam2 - cam0 + 160), vbase = ((cam0 + cam2) >> 1) - 104 + line, i, text = (line >= 160 && (hint & 0xFF) == 0xA0);
+    int ubase = lk_o_u0, vbase = lk_o_v0 + line, i, text = (line >= 160 && (hint & 0xFF) == 0xA0);
     int black_line = (line >= 185 && !text && !lk_tall_keep(line));   /* below the game's HInt display-off line (full height off) */
     for (i = 0; i < w; i++) {
       int x = i - e, margin = (x < 0 || x >= 320), pick = -1, ap = 0, bp = 0, ai, bi, apal = 0, bpal = 0, sp = lk_o_spr[line][i], col, black = black_line;
