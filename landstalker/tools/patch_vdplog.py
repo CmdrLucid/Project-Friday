@@ -119,6 +119,7 @@ static void lk_blocklog(uint32_t a)
 {
     static int on = -1, n;
     if (on < 0) on = getenv("LANDSTALKER_BLOCKLOG") != NULL;
+    { static long from = -2; if (from == -2) { const char *f = getenv("LANDSTALKER_BLOCKLOG_FROM"); from = f && *f ? atol(f) : 0; } if (platform_frame_number() < from) return; }   /* LANDSTALKER_BLOCKLOG_FROM=frame: skip the log before that frame (12000 line cap) */
     if (!on || n > 12000) return;
     int hs = *(uint16_t *)&vram[hscb] & 0x3FF, vs = *(uint16_t *)&vsram[0] & 0x3FF;
     int cx = bus_read8(0xFF1124), cy = bus_read8(0xFF1125);

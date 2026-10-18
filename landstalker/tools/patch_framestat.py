@@ -4,11 +4,22 @@ Per frame the platform does: emulation (68K + VDP render + audio mix) -> platfor
 (busy-wait until 1/60 s after the previous frame). Two pacers (vsync + busy-wait at exactly 60.000 Hz while the display/real console run 60.0/59.92 Hz) can beat against
 each other and skip a vblank now and then (one 33 ms frame = visible micro stutter).
 LANDSTALKER_FRAMESTAT=1  prints once per second:  framestat: n=60 emu avg/max=..ms present avg/max=..ms sync avg/max=..ms frame max=..ms >20ms=N >30ms=N
+LANDSTALKER_FRAMESTAT_SPIKE=ms prints every frame whose emulation part (between two presents) took longer than ms (with the frame number)
 LANDSTALKER_NOSYNC=1     skips the busy-wait (vsync only) for an A/B test
 Idempotent.  usage: patch_framestat.py path/to/genrecomp"""
 import os, sys
 p = os.path.join(sys.argv[1], "src/platform_sdl.c")
 s = open(p).read()
+if "LANDSTALKER_FRAMETIME" not in s:
+    pe = "bool platform_poll_events(void) {\n"
+    assert s.count(pe) == 1, "platform_sdl.c: platform_poll_events layout changed"
+    s = s.replace(pe, pe + """    { /* LANDSTALKER_FRAMETIME=ms: headless / windowed: print every frame whose time between two event polls (= emulation incl. rendering, without the present wait in headless) exceeds ms, with the frame number */
+        static double thr = -2; static uint64_t last;
+        if (thr == -2) { const char *t = getenv("LANDSTALKER_FRAMETIME"); thr = t && *t ? atof(t) : -1; }
+        if (thr >= 0) { uint64_t n = SDL_GetPerformanceCounter(); if (last) { double ms = (double)(n - last) * 1000.0 / (double)SDL_GetPerformanceFrequency(); if (ms > thr) printf("frametime: frame %ld %.2f ms\\n", platform_frame_number(), ms); } last = n; }
+    }
+""", 1)
+    open(p, "w").write(s)
 if "LANDSTALKER_FRAMESTAT" in s:
     print("platform_sdl.c already patched: LANDSTALKER_FRAMESTAT"); sys.exit(0)
 a = "void platform_present_frame(const uint8_t *framebuffer) {\n"
@@ -17,7 +28,7 @@ helpers = r'''/* LANDSTALKER_FRAMESTAT: wall-clock frame statistics (see tools/p
 static int lk_fs_on = -1, lk_fs_nosync = -1;
 static uint64_t lk_fs_pres0, lk_fs_prev_end, lk_fs_win0;
 static int lk_fs_havepres, lk_fs_n, lk_fs_gt20, lk_fs_gt30;
-static double lk_fs_emu_sum, lk_fs_emu_max, lk_fs_pr_sum, lk_fs_pr_max, lk_fs_sy_sum, lk_fs_sy_max, lk_fs_iv_max;
+static double lk_fs_emu_sum, lk_fs_emu_max, lk_fs_pr_sum, lk_fs_pr_max, lk_fs_sy_sum, lk_fs_sy_max, lk_fs_iv_max, lk_fs_iv_min = 1e9, lk_fs_iv_s, lk_fs_iv_s2;
 static double lk_fs_ms(uint64_t a, uint64_t b) { return (double)(b - a) * 1000.0 / (double)SDL_GetPerformanceFrequency(); }
 static void lk_fs_init(void) {
     if (lk_fs_on < 0) { lk_fs_on = getenv("LANDSTALKER_FRAMESTAT") != NULL; lk_fs_nosync = getenv("LANDSTALKER_NOSYNC") != NULL; }
@@ -26,7 +37,7 @@ static void lk_fs_present_begin(void) {
     lk_fs_init();
     if (!lk_fs_on) return;
     uint64_t t = SDL_GetPerformanceCounter();
-    if (lk_fs_prev_end) { double e = lk_fs_ms(lk_fs_prev_end, t); lk_fs_emu_sum += e; if (e > lk_fs_emu_max) lk_fs_emu_max = e; }
+    if (lk_fs_prev_end) { double e = lk_fs_ms(lk_fs_prev_end, t); lk_fs_emu_sum += e; if (e > lk_fs_emu_max) lk_fs_emu_max = e; { static double sp = -2; if (sp == -2) { const char *q = getenv("LANDSTALKER_FRAMESTAT_SPIKE"); sp = q && *q ? atof(q) : -1; } if (sp >= 0 && e > sp) printf("spike: frame %ld emu %.2f ms (frame mod 121 = %ld, mod 60 = %ld)\\n", platform_frame_number(), e, platform_frame_number() % 121, platform_frame_number() % 60); } }
     lk_fs_pres0 = t; lk_fs_havepres = 1;
 }
 static uint64_t lk_fs_sync_begin(void) {
@@ -45,6 +56,7 @@ static void lk_fs_sync_end(uint64_t t0) {
     if (lk_fs_prev_end) {
         double iv = lk_fs_ms(lk_fs_prev_end, t);
         if (iv > lk_fs_iv_max) lk_fs_iv_max = iv;
+        if (iv < lk_fs_iv_min) lk_fs_iv_min = iv; lk_fs_iv_s += iv; lk_fs_iv_s2 += iv * iv;
         if (iv > 20.0) lk_fs_gt20++;
         if (iv > 30.0) lk_fs_gt30++;
     }
@@ -52,12 +64,12 @@ static void lk_fs_sync_end(uint64_t t0) {
     if (!lk_fs_win0) lk_fs_win0 = t;
     if (lk_fs_ms(lk_fs_win0, t) >= 1000.0) {
         int n = lk_fs_n ? lk_fs_n : 1;
-        printf("framestat: n=%d emu avg/max=%.1f/%.1fms present avg/max=%.1f/%.1fms sync avg/max=%.1f/%.1fms frame max=%.1fms >20ms=%d >30ms=%d%s\n",
+        printf("framestat: n=%d emu avg/max=%.1f/%.1fms present avg/max=%.1f/%.1fms sync avg/max=%.1f/%.1fms frame max=%.1fms >20ms=%d >30ms=%d iv min/avg/sd=%.2f/%.2f/%.2fms%s\n",
                lk_fs_n, lk_fs_emu_sum / n, lk_fs_emu_max, lk_fs_pr_sum / n, lk_fs_pr_max, lk_fs_sy_sum / n, lk_fs_sy_max, lk_fs_iv_max, lk_fs_gt20, lk_fs_gt30,
-               lk_fs_nosync ? " (NOSYNC)" : "");
+               lk_fs_iv_min, lk_fs_iv_s / n, sqrt(fabs(lk_fs_iv_s2 / n - (lk_fs_iv_s / n) * (lk_fs_iv_s / n))), lk_fs_nosync ? " (NOSYNC)" : "");
         fflush(stdout);
         lk_fs_win0 = t; lk_fs_n = lk_fs_gt20 = lk_fs_gt30 = 0;
-        lk_fs_emu_sum = lk_fs_emu_max = lk_fs_pr_sum = lk_fs_pr_max = lk_fs_sy_sum = lk_fs_sy_max = lk_fs_iv_max = 0;
+        lk_fs_emu_sum = lk_fs_emu_max = lk_fs_pr_sum = lk_fs_pr_max = lk_fs_sy_sum = lk_fs_sy_max = lk_fs_iv_max = lk_fs_iv_s = lk_fs_iv_s2 = 0; lk_fs_iv_min = 1e9;
     }
 }
 

@@ -138,7 +138,7 @@ static void lk_q_cells(int compact, PIXEL_OUT_T white, PIXEL_OUT_T black) {
     } else lk_q_label(x0 + 4, 6, s, lk_q_dim(white), black, 0);   /* empty slot: dim letter only */
   }
 }
-static int lk_q_sh, lk_q_hud, lk_q_Lp, lk_q_Wb, lk_q_kn, lk_q_cellw, lk_q_bl, lk_q_fillcol, lk_q_haveprev, lk_q_colmap[512];
+static int lk_q_sh, lk_q_hud, lk_q_Lp, lk_q_Wb, lk_q_kn, lk_q_cellw, lk_q_bl, lk_q_fillcol, lk_q_haveprev, lk_q_bar, lk_q_colmap[512];
 static uint8 lk_q_busy[512], lk_q_busyp[512];
 '''
     module += r'''static void lk_quick_hud(PIXEL_OUT_T *row, int width) {
@@ -152,6 +152,7 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
     int wc = 0;
     lk_q_hud = 0;
     for (x = bl + 6; x < bl + 287; x++) { PIXEL_OUT_T p = r[x]; if (((p >> 16) & 255) > 200 && ((p >> 8) & 255) > 200 && (p & 255) > 200) wc++; }
+    lk_q_bar = wc >= 275;
     if (wc >= 275 && lk_q_haveprev) {
       int Lp = (Wp == 320) ? 0 : (Wp - 348) / 2, Wb = (Wp == 320) ? 320 : 348,   /* 320: full width; 352 and wider: 348 px (at 352 nearly the full width), centred, so the bar does not stretch over the wide margins */
            compact = 1, cellw = compact ? (Wp >= 352 ? 41 : 36) : 62,   /* wide pictures: 5 px more between the two cells */ need = 296 + cellw - Wb, k, a, b, kn = 0, fc = -1;
@@ -191,7 +192,7 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
     for (n = 0; n < Wb; n++) { int src = lk_q_colmap[n]; r[Lp + n] = tmp[bl + (src >= 0 ? src : fc)]; }
     if (line >= 6 && line <= 21) for (x = 0; x < lk_q_cellw; x++) if (lk_q_cm[line - 6][x]) r[Lp + kn + lk_q_sh + x] = lk_q_cv[line - 6][x];
   }
-  if (line == 22) { memcpy(lk_q_busyp, lk_q_busy, sizeof lk_q_busy); memset(lk_q_busy, 0, sizeof lk_q_busy); lk_q_haveprev = 1; }
+  if (line == 22) { if (lk_q_bar) { memcpy(lk_q_busyp, lk_q_busy, sizeof lk_q_busy); lk_q_haveprev = 1; } memset(lk_q_busy, 0, sizeof lk_q_busy); }   /* LK_QUICK: a blank / fading frame without the bar keeps the last real column map (the first frame after a room load showed the game's red striped HUD for one frame) */
 }
 '''
     s = s.replace(c, module + c, 1)
