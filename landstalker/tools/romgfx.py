@@ -97,7 +97,46 @@ def bigtiles(rom, a0):
         words[2 * i + 1] |= t2
     return [tuple(words[4 * i:4 * i + 4]) for i in range(count4 // 4)], B.pos
 
-def room_gfx(rom, room):
+def anim_list(rom, tileset):
+    """animated tile groups of a tileset (`LoadAnimTiles $009D36`): list of dict(dest=VRAM byte address, words=DMA length in words, delay, frames, base=ROM address of frame 0).
+    Index list `AnimatedTilesetTable $009E04` (one byte per entry, `$FF` ends), entries of `AnimatedTilesetData $009E1C` (10 bytes: dest word, length word, delay byte, frame count byte, long pointer to a long = data address).
+    Frame f lives at base + f * words * 2; the game copies one frame per `delay` + 1 passes by DMA (`sub_9DBC`)."""
+    out = []; i = 0
+    while rom[0x9E04 + i] != 0xFF:
+        if rom[0x9E04 + i] == tileset:
+            e = rom[0x9E1C + 10 * i: 0x9E1C + 10 * i + 10]
+            dest, words, delay, frames = struct.unpack('>HHBB', e[:6]); ptr = struct.unpack('>I', e[6:10])[0]
+            base = struct.unpack('>I', rom[ptr:ptr + 4])[0]
+            out.append(dict(dest=dest, words=words, delay=delay, frames=frames, base=base))
+        i += 1
+    return out
+
+LIGHTABLE = 0x8800            # LightableRooms: 4 byte entries (room word, flag byte offset, bit), word < 0 ends
+LIT_PAL = 0x2DB4              # LabrynthLitPal: palette used when the room is lit (lantern), same 13 colour format as RoomPals
+
+def room_lightable(rom, room):
+    """(flag byte offset, bit) of the lantern flag for a dark room, else None (`CheckIfRoomIsLit $0087BE`)."""
+    a = LIGHTABLE
+    while True:
+        w = struct.unpack('>h', rom[a:a + 2])[0]
+        if w < 0: return None
+        if w == room: return rom[a + 2], rom[a + 3]
+        a += 4
+
+def apply_anim(tiles, rom, groups, frame):
+    """tile bytes with animation frame number `frame` (modulo the frame count of each group) copied over the tiles."""
+    t = bytearray(tiles)
+    need = max([g['dest'] + g['words'] * 2 for g in groups] + [len(t)])
+    t += bytes(need - len(t))
+    for k, g in enumerate(groups):
+        f = frame if isinstance(frame, int) else frame[k]
+        if f is None: continue                             # group not active (the game did not start it)
+        f %= g['frames']
+        src = g['base'] + f * g['words'] * 2
+        t[g['dest']:g['dest'] + g['words'] * 2] = rom[src:src + g['words'] * 2]
+    return bytes(t)
+
+def room_gfx(rom, room, lit=False):
     tab = struct.unpack('>I', rom[0xA0A00:0xA0A04])[0]
     e = rom[tab + 8 * room: tab + 8 * room + 8]
     tileset, palidx, sec = e[4] & 0x1F, e[5], e[7] >> 5
@@ -109,8 +148,9 @@ def room_gfx(rom, room):
     prim = struct.unpack('>I', rom[lst: lst + 4])[0]
     secp = struct.unpack('>I', rom[lst + 4 + 4 * sec: lst + 8 + 4 * sec])[0]
     b1, _ = bigtiles(rom, prim); b2, _ = bigtiles(rom, secp)
-    pal = [struct.unpack('>H', rom[0x11C926 + 26 * palidx + 2 * i: 0x11C926 + 26 * palidx + 2 * i + 2])[0] for i in range(13)]
-    return dict(tiles=tiles, blocks=b1 + b2, primary=len(b1), secondary=len(b2), pal0=pal, tileset=tileset, palette=palidx, sec=sec, entry=e)
+    pbase = (LIT_PAL if (lit and room_lightable(rom, room)) else 0x11C926 + 26 * palidx)
+    pal = [struct.unpack('>H', rom[pbase + 2 * i: pbase + 2 * i + 2])[0] for i in range(13)]
+    return dict(anim=anim_list(rom, tileset), lightable=room_lightable(rom, room), tiles=tiles, blocks=b1 + b2, primary=len(b1), secondary=len(b2), pal0=pal, tileset=tileset, palette=palidx, sec=sec, entry=e)
 
 if __name__ == '__main__':
     rom = open(sys.argv[1], 'rb').read(); room = int(sys.argv[2])

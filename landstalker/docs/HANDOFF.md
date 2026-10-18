@@ -11,6 +11,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a10. USER CONFIRMATIONS (2026-10-17, night, Deck): 'passt' for Fix Ride Objects (room 444), Item Info, key bindings (real pad / key), scroll arrows + options frame centring, De-Dither with CRT Pro. Closed in sections 0a1 / 0a2 / 0a / 1. Still open: tree warp 537 -> 539 (dev only), Quick Save in odd situations (moving platform, air, dungeon after a fight), Windows on a real PC, Buy Quantity / new menu look (0a3, 0a5).
 
+## 0a18. 2026-10-18 (Deck, Sonnet 5.5): ROM renderer now has figures, animated tiles, dark-room palettes (INDEX status, FORMATS 'Room graphics in the ROM'): sprites pixel-exact vs the VDP sprite layer, water rooms 494 / 644 / 543 100 %. Nothing for the user to check (tools only). NEXT: sprite palette lines 1..3 from the ROM, lit-room check (needs a test aid that sets the lantern flag), HUD / text, then the room source of an own renderer; the other open items of 0a17 / -16 stand.
+
 ## 0a17. 2026-10-17 (night, after the user's grid test): user: model view grid 'sieht alles gut aus'; jump drift fixed (one frame lag, see INDEX status); new build is in ~/ProjectL (start ~/Landstalker.sh, R3). USER CHECK OPEN: jump again with the grid on.
 
 ## 0a16. 2026-10-17 (night, last): rooms can be DRAWN FROM THE ROM ALONE (`tools/romrender.py ROM ROOM out.png`, `romgfx.py`, `romroom.py`); verified against the game's VDP planes (INDEX status, FORMATS 'Room graphics in the ROM'). User asked about missing fir trunk parts in room 439: identical to the game (7200 / 7200 pixels). Next: sprites / entities, tile animation, dark-room palettes.

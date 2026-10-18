@@ -4,7 +4,7 @@
 Geometry (FORMATS 'Block map'): block (x, y) is 2 x 2 tiles at tile column 2 (x - y) + C and tile row x + y (brick pattern, 16 px steps sideways, 8 px down per diagonal); the FG array sits one block (16 px) further left.
 Modules used: romroom.py (map), romgfx.py (tiles, blocks, palette).  Output: PNG written with zlib (no imaging library needed)."""
 import struct, sys, zlib
-import romroom, romgfx
+import romroom, romgfx, romsprite
 
 def png(path, w, h, rgb):
     raw = b''.join(b'\x00' + bytes(rgb[y * w * 3:(y + 1) * w * 3]) for y in range(h))
@@ -44,7 +44,7 @@ def tile_cache(tiles):
         return cache[k]
     return get
 
-def compose(pa, pb, getpal, x0, y0, w, h, backdrop, tiles):
+def compose(pa, pb, getpal, x0, y0, w, h, backdrop, tiles, spr=None, sprpal=None):
     """colour of every pixel of the window: priority order A high, B high, A low, B low, backdrop."""
     out = bytearray(w * h * 3); tp = tile_cache(tiles); idxmap = [0] * (w * h)
     for y in range(h):
@@ -55,17 +55,23 @@ def compose(pa, pb, getpal, x0, y0, w, h, backdrop, tiles):
                 t = pl.t.get(tcr)
                 cand.append((tp(t[0], t[3], t[4])[iy][ix], t[1], t[2]) if t else None)
             a, b = cand
-            pick = None
-            for p in (a if a and a[2] else None, b if b and b[2] else None, a if a and not a[2] else None, b if b and not b[2] else None):
-                if p and p[0]: pick = p; break
-            rgb = getpal(pick[1], pick[0]) if pick else backdrop
+            sp = spr.get((x, y)) if spr else None          # (palette line * 16 + index, priority, rgb)
+            pick = None; rgb = None
+            for p in (('S', sp) if sp and sp[1] else None, ('P', a) if a and a[2] else None, ('P', b) if b and b[2] else None, ('S', sp) if sp and not sp[1] else None,
+                      ('P', a) if a and not a[2] else None, ('P', b) if b and not b[2] else None):
+                if not p: continue
+                if p[0] == 'S': rgb = p[1][2]; pick = (p[1][0] & 15, p[1][0] >> 4); break
+                if p[1][0]: pick = p[1]; rgb = getpal(pick[1], pick[0]); break
+            if rgb is None: rgb = backdrop
             o = (y * w + x) * 3; out[o:o + 3] = bytes(rgb)
             if pick: idxmap[y * w + x] = pick[1] * 16 + pick[0]
     compose.idx = idxmap
     return out
 
-def rom_planes(rom, room):
-    g = romgfx.room_gfx(rom, room); r = romroom.decode(rom, room); arr = romroom.arrays(r)
+def rom_planes(rom, room, anim=None, lit=False):
+    """anim: animation frame numbers (one per animated tile group, see romgfx.anim_list) or None for frame 0; lit: lantern lit state of a dark room (LabrynthLitPal)."""
+    g = romgfx.room_gfx(rom, room, lit=lit); r = romroom.decode(rom, room); arr = romroom.arrays(r)
+    if g['anim']: g['tiles'] = romgfx.apply_anim(g['tiles'], rom, g['anim'], anim if anim is not None else 0)
     pa, pb = Plane(), Plane()
     for (x, y), v in arr['BG'].items():
         if v & 0x3FF: pb.put(2 * (x - y) + 148, x + y, g['blocks'][v & 0x3FF])
@@ -75,7 +81,63 @@ def rom_planes(rom, room):
     def getpal(line, idx): return md_to_rgb(pal0[idx]) if line == 0 else (255, 0, 255)
     return g, r, pa, pb, getpal
 
-def vdp_window(dump):
+def dump_anim(dump, groups):
+    """animation frame numbers of a RAM dump: state array at $FF1134, 4 bytes per group (delay, frame count, timer, frame); None for a group whose state does not match (not started)."""
+    d = open(dump, 'rb').read(0x10000)
+    B = lambda a: d[(a & 0xFFFF) ^ 1]
+    return [B(0xFF1134 + 4 * k + 3) if (B(0xFF1134 + 4 * k) == g['delay'] and B(0xFF1134 + 4 * k + 1) == g['frames']) else None for k, g in enumerate(groups)]
+
+def sprite_piece(spr, tiledata, tile0, sx, sy, w, h, pal, prio, hf, vf, C):
+    """draw one sprite piece (w x h tiles, column-major tile order, 4 bpp from `tiledata` starting at tile number tile0) into spr {(screen x, y): (pal * 16 + index, priority, rgb)};
+    earlier pieces win (lower SAT index = in front)."""
+    for px in range(w * 8):
+        for py in range(h * 8):
+            ox = (w * 8 - 1 - px) if hf else px; oy = (h * 8 - 1 - py) if vf else py
+            t = tile0 + (ox // 8) * h + (oy // 8)
+            a = t * 32 + (oy % 8) * 4 + (ox % 8) // 2
+            b = tiledata[a] if a < len(tiledata) else 0
+            idx = (b >> 4) if (ox % 8) % 2 == 0 else (b & 15)
+            if not idx: continue
+            X, Y = sx + px, sy + py
+            if 0 <= X < 320 and 0 <= Y < 224 and (X, Y) not in spr: spr[(X, Y)] = (pal * 16 + idx, prio, c9_to_rgb(C[pal * 16 + idx]))
+
+def vdp_sprites(dump):
+    """the VDP sprite layer of a dump (sprite attribute table in VRAM at reg 5 * $200, linked list), screen coordinates."""
+    d = open(dump, 'rb').read()
+    reg, cram, vram = d[0x10000:0x10020], d[0x10020:0x100A0], d[0x10120:0x20120]
+    VW = lambda a: (vram[a ^ 1] << 8) | vram[(a + 1) ^ 1]
+    C = [(cram[2 * i ^ 1] << 8) | cram[(2 * i + 1) ^ 1] for i in range(64)]
+    base = (reg[5] & 0x7F) << 9; spr = {}; i = 0; n = 0
+    vt = bytes(vram[k ^ 1] for k in range(0x10000))
+    while n < 80:
+        a = base + 8 * i; y = VW(a) & 0x3FF; sz = VW(a + 2); at = VW(a + 4); x = VW(a + 6) & 0x1FF
+        sprite_piece(spr, vt, at & 0x7FF, x - 128, y - 128, ((sz >> 10) & 3) + 1, ((sz >> 8) & 3) + 1, (at >> 13) & 3, at >> 15, (at >> 11) & 1, (at >> 12) & 1, C)
+        i = sz & 0x7F; n += 1
+        if i == 0: break
+    return spr, C
+
+def rom_sprites(rom, dump):
+    """the sprites of the entities of a RAM dump drawn from ROM data only (frame pieces and tile graphics decoded by romsprite.py; entity state, palette lines of CRAM)."""
+    d = open(dump, 'rb').read(); r = d[:0x10000]; cram = d[0x10020:0x100A0]
+    B = lambda a: r[(a & 0xFFFF) ^ 1]; W = lambda a: (B(a) << 8) | B(a + 1)
+    C = [(cram[2 * i ^ 1] << 8) | cram[(2 * i + 1) ^ 1] for i in range(64)]
+    spr = {}; a = 0xFF11DE
+    while True:
+        o = W(a); a += 2
+        if o & 0x8000 or a > 0xFF11DE + 40: break
+        b = 0xFF5400 + o
+        ax, ay, ts = W(b + 0x0E), W(b + 0x10), W(b + 6)
+        if ax == 0 and ay == 0: continue
+        f = romsprite.frame(rom, B(b + 0x0B), W(b + 0x24), W(b + 0x26))
+        hf = (ts >> 11) & 1; cum = 0
+        for k, (px, py, w, h) in enumerate(f['pieces']):
+            x = (-px - 8 * w) if hf else px
+            prio = W(0xFF1400 + (o >> 1) + 4) >> 15   # the game's depth test against the scenery (sub_44C4) leaves bit 15 in the tile word of the FIRST piece record of the entity; BuildEntitySpriteEntries gives it to all pieces
+            sprite_piece(spr, f['tiles'], cum, ax + x - 128, ay + py - 128, w, h, (ts >> 13) & 3, prio, hf, (ts >> 12) & 1, C)
+            cum += w * h
+    return spr
+
+def vdp_window(dump, sprites=False):
     """320 x 224 picture of the two scroll planes of a dump (no sprites), as GPGX would show them."""
     d = open(dump, 'rb').read()
     reg, cram, vs, vram = d[0x10000:0x10020], d[0x10020:0x100A0], d[0x100A0:0x10120], d[0x10120:0x20120]
@@ -93,13 +155,17 @@ def vdp_window(dump):
         idx = (b >> 4) if tx % 2 == 0 else (b & 15)
         return idx, (w >> 13) & 3, (w >> 15) & 1
     out = bytearray(320 * 224 * 3); idxmap = [0] * (320 * 224)
+    spr = vdp_sprites(dump)[0] if sprites else {}
     for sy in range(224):
         for sx in range(320):
             a = pix(baseA, hsA, vsA, sx, sy); b = pix(baseB, hsB, vsB, sx, sy)
-            pick = None
-            for p in (a if a[2] else None, b if b[2] else None, a if not a[2] else None, b if not b[2] else None):
-                if p and p[0]: pick = p; break
-            rgb = c9_to_rgb(C[pick[1] * 16 + pick[0]]) if pick else c9_to_rgb(C[0])
+            sp = spr.get((sx, sy)); pick = None; rgb = None
+            for p in (('S', sp) if sp and sp[1] else None, ('P', a) if a[2] else None, ('P', b) if b[2] else None, ('S', sp) if sp and not sp[1] else None,
+                      ('P', a) if not a[2] else None, ('P', b) if not b[2] else None):
+                if not p: continue
+                if p[0] == 'S': pick = (p[1][0] & 15, p[1][0] >> 4); rgb = p[1][2]; break
+                if p[1][0]: pick = p[1]; rgb = c9_to_rgb(C[pick[1] * 16 + pick[0]]); break
+            if rgb is None: rgb = c9_to_rgb(C[0])
             o = (sy * 320 + sx) * 3; out[o:o + 3] = bytes(rgb)
             if pick: idxmap[sy * 320 + sx] = pick[1] * 16 + pick[0]
     vdp_window.idx = idxmap
@@ -110,10 +176,13 @@ def vdp_window(dump):
 
 if __name__ == '__main__':
     rom = open(sys.argv[1], 'rb').read(); room = int(sys.argv[2]); outp = sys.argv[3]
-    g, r, pa, pb, getpal = rom_planes(rom, room)
     backdrop = md_to_rgb(0)
     if len(sys.argv) > 4:
-        ref, cam0, cam2 = vdp_window(sys.argv[4])
+        g0 = romgfx.room_gfx(rom, room)
+        g, r, pa, pb, getpal = rom_planes(rom, room, anim=dump_anim(sys.argv[4], g0['anim']))
+        ref0, cam0, cam2 = vdp_window(sys.argv[4])               # planes only: the offset search needs no sprites (fast)
+        ref, _, _ = vdp_window(sys.argv[4], sprites=True)
+        spr = rom_sprites(rom, sys.argv[4])
         png(outp.replace('.png', '_vdp.png'), 320, 224, ref)
         # predicted window origin in image coordinates: image U = 16 * (x - y + 74), V = 16 * ((x + y) >> 1);  screen = U - 1184 + cam2 - cam0 + 160, V - (cam0 + cam2) // 2 + 104
         px0 = 1184 - (cam2 - cam0 + 160); py0 = (cam0 + cam2) // 2 - 104     # image U = 16 (x - y) + 1184, V = 8 (x + y)
@@ -121,12 +190,16 @@ if __name__ == '__main__':
         for dy in range(-10, 11):
             for dx in range(-6, 7):
                 out = compose(pa, pb, getpal, px0 + dx, py0 + dy, 320, 224, backdrop, g['tiles'])
-                same = sum(1 for i in range(0, len(out), 3) if ref[i:i + 3] != b'\x00\x00\x00' and out[i:i + 3] == ref[i:i + 3])
-                if best is None or same > best[0]: best = (same, dx, dy, out)
+                same = sum(1 for i in range(0, len(out), 3) if ref0[i:i + 3] != b'\x00\x00\x00' and out[i:i + 3] == ref0[i:i + 3])
+                if best is None or same > best[0]: best = (same, dx, dy)
+        out = compose(pa, pb, getpal, px0 + best[1], py0 + best[2], 320, 224, backdrop, g['tiles'], spr)
+        same = sum(1 for i in range(0, len(out), 3) if ref[i:i + 3] != b'\x00\x00\x00' and out[i:i + 3] == ref[i:i + 3])
+        best = (same, best[1], best[2], out)
         loaded = sum(1 for i in range(0, len(ref), 3) if ref[i:i + 3] != b'\x00\x00\x00')
         print('window of the VDP planes vs ROM render: %d of %d loaded (non-black) VDP pixels equal (%.1f %%) at offset (%d, %d) from the predicted origin; window %d px, loaded %d px' % (best[0], loaded, 100.0 * best[0] / max(loaded, 1), best[1], best[2], 320 * 224, loaded))
         png(outp, 320, 224, best[3])
     else:
+        g, r, pa, pb, getpal = rom_planes(rom, room)
         # whole room: bounding box of the used cells
         cells = list(pb.t) + list(pa.t)
         c0 = min(c for c, rr in cells); c1 = max(c for c, rr in cells); r0 = min(rr for c, rr in cells); r1 = max(rr for c, rr in cells)
