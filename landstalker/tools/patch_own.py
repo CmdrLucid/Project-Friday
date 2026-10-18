@@ -9,7 +9,7 @@ FORMATS 'Room graphics in the ROM'):
  * colours: built from ROM + state too (player palette + equipment swaps, per-room sprite palette allocation, room palette, fade level inferred from the active palette copy); LANDSTALKER_OWN_PAL=0 uses the VDP's CRAM instead.
 State = snapshot of work RAM of the PREVIOUS frame (the picture is one frame behind the RAM, FORMATS 'Scroll registers lag').
 Switch: env LANDSTALKER_OWN=1 compare only (console line every LANDSTALKER_OWN_LOG frames, default 60: `own: frame F room R lines 0..223: D of T pixels differ`), =2 the picture shows
-the OWN rendering in the map lines 0..223 (HUD / text box / lines below stay the game's).  Off by default (debug aid).  Hook: render_line, before the other row overlays.
+the OWN rendering in the map lines 0..223 (HUD / text box / lines below stay the game's).  Off by default; Options > Video > Own Renderer (file ~/.landstalker_own) switches mode 2 on; env LANDSTALKER_OWN wins.  Hook: render_line, before the other row overlays.
 usage: patch_own.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
@@ -41,7 +41,12 @@ static const uint8 *lk_o_sp = lk_o_use;   /* RAM snapshot the figures are built 
 static uint8 lk_o_tbase[0x12000], lk_o_tiles[0x12000];
 static struct { int dest, words, delay, frames; uint32_t base; } lk_o_grp[8];
 static uint32 lk_o_pa[152][304], lk_o_pb[152][304];                  /* layer cells: bit 16 = present, low 16 = tile word */
-static uint16 lk_o_spr[224][320];                                    /* pal * 16 + index | 0x100 priority | 0x200 present */
+#define LK_OSW 448
+extern int lk_wide_e;                                                /* LANDSTALKER_WIDE (patch_wide.py) */
+extern int lk_map_decide(void);                                      /* the game map is on screen (patch_wide.py) */
+extern int lk_tall_keep(int line);                                   /* LANDSTALKER_TALL: this line is drawn below the HInt display-off line (patch_tall.py) */
+extern int lk_tbox_get(void);                                        /* Map Behind Text (patch_tbox.py) */
+static uint16 lk_o_spr[224][LK_OSW];                                 /* by row pixel index (screen x + e): pal * 16 + index | 0x100 priority | 0x200 present */
 static uint8 lk_o_sprtiles[0x4000];
 static uint8 lk_o_hud[0x1000]; static int lk_o_hudn = -1;      /* StatusBarGfx $009242 (HUD tiles, tile numbers $6B4 ..) */
 static long lk_o_diff, lk_o_tot; static int lk_o_nspr;
@@ -117,10 +122,10 @@ static void lk_o_palette(int room) {                                 /* the 64 c
 static void lk_o_sprpiece(const uint8 *td, int tile0, int sx, int sy, int w, int h, int pal, int prio, int hf, int vf) {
   int px, py;
   for (px = 0; px < w * 8; px++) for (py = 0; py < h * 8; py++) {
-    int ox = hf ? (w * 8 - 1 - px) : px, oy = vf ? (h * 8 - 1 - py) : py, t = tile0 + (ox / 8) * h + (oy / 8), a = t * 32 + (oy % 8) * 4 + (ox % 8) / 2, b, idx, X = sx + px, Y = sy + py;
+    int ox = hf ? (w * 8 - 1 - px) : px, oy = vf ? (h * 8 - 1 - py) : py, t = tile0 + (ox / 8) * h + (oy / 8), a = t * 32 + (oy % 8) * 4 + (ox % 8) / 2, b, idx, X = sx + px + lk_wide_e, Y = sy + py;
     if (a >= 0x4000) continue;
     b = td[a]; idx = ((ox % 8) % 2 == 0) ? (b >> 4) : (b & 15);
-    if (!idx || X < 0 || X >= 320 || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200)) continue;
+    if (!idx || X < 0 || X >= 320 + 2 * lk_wide_e || X >= LK_OSW || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200)) continue;
     lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | (pal * 16 + idx));
   }
 }
@@ -208,10 +213,25 @@ static int lk_o_win(int line, int x, int hint) {                      /* window 
   return ((w >> 13) & 3) * 16 + ((ix % 2 == 0) ? (b >> 4) : (b & 15)) + 0x100;     /* bit 8 marks 'window pixel' (index 0 = backdrop) */
 }
 static int lk_o_unwrap(int p, int base, int size) { int d = (((p - base) % size) + size) % size; if (d >= size / 2) d -= size; return base + d; }
+
+static void lk_o_init(void) {
+  if (lk_o_mode >= 0) return;
+  { const char *e = getenv("LANDSTALKER_OWN"), *l = getenv("LANDSTALKER_OWN_LOG"), *q; int v = 0;
+    if (e) lk_o_mode = atoi(e);
+    else { char path[512]; FILE *f; const char *h = getenv("HOME"); snprintf(path, sizeof path, "%s/.landstalker_own", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } lk_o_mode = v ? 2 : 0; }   /* Options > Video > Own Renderer */
+    if (l) lk_o_log = atoi(l);
+    q = getenv("LANDSTALKER_OWN_SPR"); if (q) lk_o_sprmode = atoi(q); q = getenv("LANDSTALKER_OWN_PAL"); if (q) lk_o_palmode = atoi(q); }
+}
+int lk_own_get(void) { lk_o_init(); return lk_o_mode == 2; }
+void lk_own_set(int v) {                                             /* Options > Video > Own Renderer On / Off, saved in ~/.landstalker_own */
+  char path[512]; FILE *f; const char *h = getenv("HOME");
+  lk_o_init(); lk_o_mode = v ? 2 : 0; lk_o_valid = 0;
+  snprintf(path, sizeof path, "%s/.landstalker_own", h ? h : "."); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", v ? 1 : 0); fclose(f); }
+}
 static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
   static int hint, fr_done = -1, hsA, hsB, vsA, vsB, cam0, cam2, rm; static long fr_n;
-  int x;
-  if (lk_o_mode < 0) { const char *e = getenv("LANDSTALKER_OWN"), *l = getenv("LANDSTALKER_OWN_LOG"); lk_o_mode = e ? atoi(e) : 0; if (l) lk_o_log = atoi(l); { const char *q = getenv("LANDSTALKER_OWN_SPR"); if (q) lk_o_sprmode = atoi(q); q = getenv("LANDSTALKER_OWN_PAL"); if (q) lk_o_palmode = atoi(q); } }
+  int x, e, map;
+  lk_o_init();
   if (!lk_o_mode) return;
   if (line == 0) {
     const uint8_t *r = bus_get_ram(); int hsb = (reg[13] & 0x3F) << 10;
@@ -229,27 +249,29 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
       printf("own: frame %ld room %d lines 0..223: %ld of %ld pixels differ (cells A %d B %d, tile bytes %d, scroll A %d,%d B %d,%d cam %d,%d, player flags2 use %02X cur %02X, sprites %d)\n", platform_frame_number(), rm, lk_o_diff, lk_o_tot, ca, cb, tn, hsA, vsA, hsB, vsB, cam0, cam2, UB(0xFF540C), bus_get_ram()[(0xFF540C & 0xFFFF) ^ 1], lk_o_nspr); }
     lk_o_diff = 0; lk_o_tot = 0;
   }
-  if (!fr_done || w != 320) return;
+  e = lk_wide_e; map = lk_map_decide();
+  if (!fr_done || w != 320 + 2 * e || !map) return;                  /* only the game map; menus, title, picture screens stay the game's */
   if (lk_o_hudn < 0) lk_o_hudn = lk_o_lz77(0x9242, lk_o_hud, 0x1000);
   {
-    int ubase = 1184 - (cam2 - cam0 + 160), vbase = ((cam0 + cam2) >> 1) - 104 + line;
-    int pyA = (line + vsA) & 255, pyB = (line + vsB) & 255;
-    for (x = 0; x < 320; x++) {
-      int pxA = (x - hsA) & 511, pxB = (x - hsB) & 511, pal, prio, idx, pick = -1, pp, pi, ap = 0, bp = 0, ai, bi, apal = 0, bpal = 0, sp = lk_o_spr[line][x], col;
-      int UA = ubase + x, UB_ = ubase + x, VA = vbase, VB = vbase;      /* image coordinates: independent of the VDP planes and their wrap */
-      ai = lk_o_fetch(lk_o_pa, UA, VA, &apal, &ap); bi = lk_o_fetch(lk_o_pb, UB_, VB, &bpal, &bp);
-      (void)pal; (void)prio; (void)idx; (void)pp; (void)pi;
-      if ((sp & 0x200) && (sp & 0x100)) pick = sp & 0x3F;
-      else if (ai && ap) pick = apal * 16 + ai;
-      else if (bi && bp) pick = bpal * 16 + bi;
-      else if (sp & 0x200) pick = sp & 0x3F;
-      else if (ai) pick = apal * 16 + ai;
-      else if (bi) pick = bpal * 16 + bi;
-      else pick = reg[7] & 0x3F;                                       /* backdrop colour */
-      { int wp = lk_o_win(line, x, hint); if (wp >= 0 && (wp & 0xF)) pick = wp & 0x3F; else if (line >= 185 && !(line >= 160 && (hint & 0xFF) == 0xA0)) pick = -1; }   /* transparent window pixels show the map */
-      col = pick < 0 ? pixel_lut[1][0] : (lk_o_palmode ? lk_o_pix[pick & 0x3F] : pixel[pick & 0x3F]);
-      lk_o_tot++; if (row[x] != (PIXEL_OUT_T)col) lk_o_diff++;
-      if (lk_o_mode == 2) row[x] = (PIXEL_OUT_T)col;
+    int ubase = 1184 - (cam2 - cam0 + 160), vbase = ((cam0 + cam2) >> 1) - 104 + line, i, text = (line >= 160 && (hint & 0xFF) == 0xA0);
+    int black_line = (line >= 185 && !text && !lk_tall_keep(line));   /* below the game's HInt display-off line (full height off) */
+    for (i = 0; i < w; i++) {
+      int x = i - e, margin = (x < 0 || x >= 320), pick = -1, ap = 0, bp = 0, ai, bi, apal = 0, bpal = 0, sp = lk_o_spr[line][i], col, black = black_line;
+      if (!black) {
+        ai = lk_o_fetch(lk_o_pa, ubase + x, vbase, &apal, &ap); bi = lk_o_fetch(lk_o_pb, ubase + x, vbase, &bpal, &bp);   /* image coordinates: independent of the VDP planes and their wrap */
+        if ((sp & 0x200) && (sp & 0x100)) pick = sp & 0x3F;
+        else if (ai && ap) pick = apal * 16 + ai;
+        else if (bi && bp) pick = bpal * 16 + bi;
+        else if (sp & 0x200) pick = sp & 0x3F;
+        else if (ai) pick = apal * 16 + ai;
+        else if (bi) pick = bpal * 16 + bi;
+        else pick = reg[7] & 0x3F;                                     /* backdrop colour */
+        if (margin) { if (line < 23 || (text && !lk_tbox_get())) black = 1; }   /* margins next to the HUD bar stay black; next to the text box only with Map Behind Text off */
+        else { int wp = lk_o_win(line, x, hint); if (wp >= 0 && (wp & 0xF)) pick = wp & 0x3F; }   /* transparent window pixels show the map */
+      }
+      col = black ? (margin ? pixel[0x40] : pixel_lut[1][0]) : (lk_o_palmode ? lk_o_pix[pick & 0x3F] : pixel[pick & 0x3F]);
+      lk_o_tot++; if (row[i] != (PIXEL_OUT_T)col) lk_o_diff++;
+      if (lk_o_mode == 2) row[i] = (PIXEL_OUT_T)col;
     }
   }
 }
