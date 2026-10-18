@@ -138,3 +138,4 @@
 - L1136: Renderer groundwork session (2026-10-17, night, dev)
 - L1141: Own renderer session 2026-10-18 (Sonnet 5.5, Deck, dev b25d85b)
 - L1146: Own renderer, user recording rec_20261018_0817 (2026-10-18, dev b0399dc)
+- L1151: Own renderer / HUD flash, recordings rec_20261018_1304 + 1333 (2026-10-18 night, dev 23f8b2c)
