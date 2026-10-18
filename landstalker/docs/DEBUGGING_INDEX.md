@@ -137,3 +137,4 @@
 - L1132: Map Behind Text (2026-10-17)
 - L1136: Renderer groundwork session (2026-10-17, night, dev)
 - L1141: Own renderer session 2026-10-18 (Sonnet 5.5, Deck, dev b25d85b)
+- L1146: Own renderer, user recording rec_20261018_0817 (2026-10-18, dev b0399dc)
