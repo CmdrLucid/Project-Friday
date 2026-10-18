@@ -29,7 +29,7 @@ extern long platform_frame_number(void);
 static int OB(uint32_t a) { return a < 0x200000u ? (int)bus_read8(a) : 0; }   /* ROM only; garbage pointers read 0 */
 #define OW(a) ((OB(a) << 8) | OB((a) + 1))
 #define OL(a) ((uint32_t)(((uint32_t)OW(a) << 16) | (uint32_t)OW((a) + 2)))
-static int lk_o_sprmode = 1, lk_o_cammode = 2, lk_o_u0, lk_o_v0, lk_o_vote_room = -1, lk_o_vu[512], lk_o_vv[256];
+static int lk_o_sprmode = 1, lk_o_cammode = 2, lk_o_u0, lk_o_v0, lk_o_vote_room = -1, lk_o_bu, lk_o_bv, lk_o_upred, lk_o_vpred; static float lk_o_vu[64], lk_o_vv[32];
 static int lk_o_mode = -1, lk_o_log = 60, lk_o_room = -1, lk_o_ngrp, lk_o_valid;
 static uint8 lk_o_prev[0x10000], lk_o_use[0x10000];
 #define UB(a) (lk_o_use[((a) & 0xFFFF) ^ 1])
@@ -49,7 +49,7 @@ extern int lk_tbox_get(void);                                        /* Map Behi
 static uint16 lk_o_spr[224][LK_OSW];                                 /* by row pixel index (screen x + e): pal * 16 + index | 0x100 priority | 0x200 present */
 static uint8 lk_o_sprtiles[0x4000];
 static uint8 lk_o_hud[0x1000]; static int lk_o_hudn = -1;      /* StatusBarGfx $009242 (HUD tiles, tile numbers $6B4 ..) */
-static long lk_o_diff, lk_o_tot; static int lk_o_nspr;
+static long lk_o_diff, lk_o_tot; static int lk_o_nspr; static const uint8 *lk_o_r;   /* lk_o_r: work RAM of the current pass */
 static int lk_o_lz77(uint32_t pos, uint8 *out, int cap) {            /* DecompressLZ77Gfx $004AB2 */
   int n = 0, i, flags;
   for (;;) {
@@ -115,9 +115,12 @@ static void lk_o_palette(int room) {                                 /* the 64 c
   pbase = 0x11C926u + 26u * (uint32_t)OB(OL(0xA0A00) + 8u * (uint32_t)room + 5);                      /* line 0: room palette */
   for (i = 0; i < 13; i++) pal[2 + i] = OW(pbase + 2u * (uint32_t)i);
   for (l = 0; l < 4; l++) { pal[16 * l] = 0; pal[16 * l + 1] = 0x0CCC; pal[16 * l + 15] = 0; }
-  for (i = 0; i < 64; i++) act[i] = SW(0xFF0ED0 + 2 * i);                                             /* fade level: the one that reproduces the active palette copy best */
-  for (j = 0; j < 0x1400; j += 0x200) { int bad = 0; for (i = 0; i < 64; i++) if (lk_o_darken(pal[i], j) != act[i]) bad++; if (bad < bestn) { bestn = bad; bestd = j; } }
-  for (i = 0; i < 64; i++) { int c = lk_o_darken(pal[i], bestd); lk_o_pix[i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; }
+  for (i = 0; i < 64; i++) act[i] = (cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1];                /* fade level: the one whose darkened palette equals the VDP's palette best (the level counters in RAM are 1..2 steps off the displayed palette) */
+  for (l = 0; l < 4; l++) {                                                                           /* every palette line has its own fade level (the HUD lines are not faded with the room) */
+    bestn = 99; bestd = 0;
+    for (j = 0; j < 0x1400; j += 0x200) { int bad = 0; for (i = 16 * l; i < 16 * l + 16; i++) { int c = lk_o_darken(pal[i], j); if ((((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)) != act[i]) bad++; } if (bad < bestn) { bestn = bad; bestd = j; } }
+    for (i = 16 * l; i < 16 * l + 16; i++) { int c = lk_o_darken(pal[i], bestd); lk_o_pix[i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; }
+  }
 }
 static void lk_o_sprpiece(const uint8 *td, int tile0, int sx, int sy, int w, int h, int pal, int prio, int hf, int vf) {
   int px, py;
@@ -129,8 +132,94 @@ static void lk_o_sprpiece(const uint8 *td, int tile0, int sx, int sy, int w, int
     lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | (pal * 16 + idx));
   }
 }
+static uint32 lk_o_satk[96]; static int lk_o_satt[96], lk_o_satn;   /* the real sprite table: key (x, y, size) and first tile number of every entry */
+typedef struct { int vis, ax, ay, ts, sgi, anim, frm, np, pxs[8], pys[8], pws[8], phs[8], prio, off; uint8 *tiles; } lk_o_ent_t;
+static uint8 lk_o_sprtiles_b[0x4000], lk_o_sprtiles_c[0x4000];
+static void lk_o_entload(const uint8 *src, int off, lk_o_ent_t *e, uint8 *tiles, int decode, int use4e) {   /* one entity of one pass state: pieces + tile graphics from the ROM */
+  int b = 0xFF5400 + off, guard, tl = 0; uint32_t base, fp, ap, pos;
+  const uint8 *keep = lk_o_sp; lk_o_sp = src;
+  e->off = off; e->tiles = tiles; e->np = 0; e->vis = 0;
+  e->ax = SW(b + (use4e ? 0x4E : 0x0E)); e->ay = SW(b + (use4e ? 0x50 : 0x10)); e->ts = SW(b + 6);   /* +4E / +50 = the screen position of the previous pass (sub_40F2 copies +0E there before it recomputes it): the game draws objects there */
+  if ((e->ax == 0 && e->ay == 0) || (SB(b + 0x0C) & 0x40)) { lk_o_sp = keep; return; }   /* Flags2 bit 6 = hidden (the player's hurt blink toggles it every pass) */
+  e->vis = 1; e->sgi = SB(b + 0x0B); e->anim = SW(b + 0x24); e->frm = SW(b + 0x26); e->prio = SW(0xFF1400 + (off >> 1) + 4) >> 15;
+  base = OL(0x120000); { int ofs = OW(0x120004 + 4 * e->sgi); ap = OL(base + (uint32_t)ofs * 4 + (uint32_t)e->anim); }
+  fp = OL(ap + (uint32_t)e->frm); pos = fp;
+  for (;;) {
+    int b1 = OB(pos), b2 = OB(pos + 1), yy = (b1 << 1) & 0xF8, xx = (b2 << 1) & 0xF8; pos += 2;
+    if (yy > 127) yy -= 256; if (xx > 127) xx -= 256;
+    e->pxs[e->np] = xx; e->pys[e->np] = yy; e->pws[e->np] = (b1 & 3) + 1; e->phs[e->np] = (b2 & 3) + 1; e->np++;
+    if ((b2 & 0x80) || e->np >= 8) break;
+  }
+  if (decode) for (guard = 0; guard < 64; guard++) {
+    int h = OW(pos), n = h & 0x0FFF, i; pos += 2;
+    if (h & 0x8000) { for (i = 0; i < n * 2 && tl + i < 0x4000; i++) tiles[tl + i] = 0; tl += n * 2; }
+    else if (h & 0x2000) { tl += lk_o_lz77(pos, tiles + tl, 0x4000 - tl); break; }
+    else { for (i = 0; i < n * 2 && tl + i < 0x4000; i++) tiles[tl + i] = (uint8)OB(pos + (uint32_t)i); pos += (uint32_t)n * 2; tl += n * 2; }
+    if (h & 0x4000) break;
+  }
+  lk_o_sp = keep;
+}
+static uint32 lk_o_pkey(const lk_o_ent_t *e, int pc, int *xxo) {
+  int xx = (((e->ts >> 11) & 1) ? (-e->pxs[pc] - 8 * e->pws[pc]) : e->pxs[pc]); if (xxo) *xxo = xx;
+  return (uint32)(((e->ax + xx) & 0x1FF) << 20 | ((e->ay + e->pys[pc]) & 0x3FF) << 8 | (e->pws[pc] - 1) << 2 | (e->phs[pc] - 1));
+}
+static int lk_o_escore(const lk_o_ent_t *e) {                        /* how well does this entity (in this pass state) agree with the real sprite table: key AND first tile graphic of every piece */
+  int pc, j, i, cum = 0, sc = 0;
+  for (pc = 0; pc < e->np; pc++) {
+    uint32 k = lk_o_pkey(e, pc, 0);
+    for (j = 0; j < lk_o_satn; j++) if (lk_o_satk[j] == k) {
+      int t = lk_o_satt[j], same = 1;
+      for (i = 0; i < 32 && same; i++) if (vram[(t * 32 + i) ^ 1] != e->tiles[cum * 32 + i]) same = 0;
+      sc += same ? 2 : 1; break;
+    }
+    cum += e->pws[pc] * e->phs[pc];
+  }
+  return sc;
+}
+static int lk_o_list(const uint8 *src, int *offs) {                  /* visible entity list $FF11DE of a pass state */
+  int a = 0xFF11DE, n = 0; const uint8 *keep = lk_o_sp; lk_o_sp = src;
+  for (;;) { int off = SW(a); a += 2; if ((off & 0x8000) || a > 0xFF11DE + 40 || n >= 24) break; offs[n++] = off; }
+  lk_o_sp = keep; return n;
+}
+static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *alt) {   /* figures of one pass state: drawn into lk_o_spr and / or as SAT keys (x, y, size) for the choice of the pass; with `alt` every entity of EITHER pass' visible list takes the version (this pass / the other one, or absent) that matches the real sprite table: the game's visibility test flips entities in and out of the list from pass to pass */
+  int offs[48], inA[48], inB[48], n, k, nb = 0, boffs[24], nk = 0, i;
+  if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr); lk_o_nspr = 0; }
+  n = lk_o_list(src, offs); for (k = 0; k < n; k++) { inA[k] = 1; inB[k] = 0; }
+  if (alt) { nb = lk_o_list(alt, boffs); for (i = 0; i < nb; i++) { for (k = 0; k < n && offs[k] != boffs[i]; k++) ; if (k < n) inB[k] = 1; else if (n < 48) { offs[n] = boffs[i]; inA[n] = 0; inB[n] = 1; n++; } } }
+  for (k = 0; k < n; k++) {
+    lk_o_ent_t e0, e1, e2, *e = 0; int pc, cum = 0;
+    if (inA[k]) { lk_o_entload(src, offs[k], &e0, lk_o_sprtiles, draw, 0); e = &e0; }
+    if (draw && alt && inA[k] && offs[k] != 0) {                      /* objects / NPCs (not the player): three versions, this pass' position, the previous pass' position (+4E), the other snapshot; the one that matches the real sprite table wins, ties go to +4E */
+      int s0, s2, s1 = -1;
+      lk_o_entload(src, offs[k], &e2, lk_o_sprtiles_c, 1, 1); lk_o_entload(src, offs[k], &e0, lk_o_sprtiles, 1, 0);
+      s0 = lk_o_escore(&e0); s2 = lk_o_escore(&e2);
+      if (inB[k]) { lk_o_entload(alt, offs[k], &e1, lk_o_sprtiles_b, 1, 0); s1 = lk_o_escore(&e1); }
+      e = &e2; if (s0 > s2 && s0 >= s1) e = &e0; if (s1 > s2 && s1 > s0) e = &e1;
+      if (getenv("LANDSTALKER_OWN_DBG")) printf("ownent: frame %ld off %02X e0 (%d,%d) %d  e2 (%d,%d) %d  e1 (%d,%d) %d  -> %s\n", platform_frame_number(), offs[k], e0.ax, e0.ay, s0, e2.ax, e2.ay, s2, e1.ax, e1.ay, s1, e == &e2 ? "4E" : e == &e0 ? "0E" : "alt");
+      if (e->vis == 0 && e0.vis) e = &e0;
+    } else if (draw && alt && inB[k]) {
+      lk_o_entload(alt, offs[k], &e1, lk_o_sprtiles_b, 1, 0);
+      if (!e) e = &e1;
+      else if (e0.vis != e1.vis || e0.ax != e1.ax || e0.ay != e1.ay || e0.sgi != e1.sgi || e0.anim != e1.anim || e0.frm != e1.frm || e0.ts != e1.ts) { if (lk_o_escore(&e1) > lk_o_escore(&e0)) e = &e1; }
+    }
+    if (draw && alt && inA[k] != inB[k] && e) {                       /* in one list only: show it when it agrees with the sprite table */
+      if (lk_o_escore(e) == 0) continue;
+    }
+    if (!e || !e->vis) continue;
+    lk_o_nspr++;
+    for (pc = 0; pc < e->np; pc++) {
+      int xx; uint32 key = lk_o_pkey(e, pc, &xx);
+      if (keys && nk < 96) keys[nk++] = key;
+      if (draw) lk_o_sprpiece(e->tiles, cum, e->ax + xx - 128, e->ay + e->pys[pc] - 128, e->pws[pc], e->phs[pc], (e->ts >> 13) & 3, e->prio, (e->ts >> 11) & 1, (e->ts >> 12) & 1);
+      cum += e->pws[pc] * e->phs[pc];
+    }
+  }
+  return nk;
+}
 static void lk_o_build(void) {                                       /* everything of one frame from the snapshot */
   int x, y, k, a, o;
+  const uint8 *chosen = lk_o_sp;                                      /* pass the figures come from */
+  lk_o_sp = lk_o_r;                                                   /* tile animation + palettes: current pass */
   /* tiles + animation */
   memcpy(lk_o_tiles, lk_o_tbase, sizeof lk_o_tiles);
   for (k = 0; k < lk_o_ngrp; k++) {
@@ -153,41 +242,7 @@ static void lk_o_build(void) {                                       /* everythi
       }
     }
   }
-  /* figures */
-  memset(lk_o_spr, 0, sizeof lk_o_spr); lk_o_nspr = 0;
-  a = 0xFF11DE;
-  for (;;) {
-    int guard, off = SW(a), b, ax, ay, ts, sgi, anim, frm, hf, pc, pxs[8], pys[8], pws[8], phs[8], np = 0, cum = 0, tl = 0, prio;
-    uint32_t base, fp, ap, pos;
-    a += 2;
-    if ((off & 0x8000) || a > 0xFF11DE + 40) break;
-    b = 0xFF5400 + off; ax = SW(b + 0x0E); ay = SW(b + 0x10); ts = SW(b + 6);
-    if (ax == 0 && ay == 0) continue;
-    if (SB(b + 0x0C) & 0x40) continue;                                  /* Flags2 bit 6 = hidden (the player's hurt blink toggles it every pass) */
-    sgi = SB(b + 0x0B); anim = SW(b + 0x24); frm = SW(b + 0x26);
-    base = OL(0x120000); { int ofs = OW(0x120004 + 4 * sgi); ap = OL(base + (uint32_t)ofs * 4 + (uint32_t)anim); }
-    fp = OL(ap + (uint32_t)frm); pos = fp;
-    for (;;) {
-      int b1 = OB(pos), b2 = OB(pos + 1), yy = (b1 << 1) & 0xF8, xx = (b2 << 1) & 0xF8; pos += 2;
-      if (yy > 127) yy -= 256; if (xx > 127) xx -= 256;
-      pxs[np] = xx; pys[np] = yy; pws[np] = (b1 & 3) + 1; phs[np] = (b2 & 3) + 1; np++;
-      if ((b2 & 0x80) || np >= 8) break;
-    }
-    for (guard = 0; guard < 64; guard++) {
-      int h = OW(pos), n = h & 0x0FFF, i; pos += 2;
-      if (h & 0x8000) { for (i = 0; i < n * 2 && tl + i < 0x4000; i++) lk_o_sprtiles[tl + i] = 0; tl += n * 2; }
-      else if (h & 0x2000) { tl += lk_o_lz77(pos, lk_o_sprtiles + tl, 0x4000 - tl); break; }
-      else { for (i = 0; i < n * 2 && tl + i < 0x4000; i++) lk_o_sprtiles[tl + i] = (uint8)OB(pos + (uint32_t)i); pos += (uint32_t)n * 2; tl += n * 2; }
-      if (h & 0x4000) break;
-    }
-    lk_o_nspr++;
-    hf = (ts >> 11) & 1; prio = SW(0xFF1400 + (off >> 1) + 4) >> 15;
-    for (pc = 0; pc < np; pc++) {
-      int xx = hf ? (-pxs[pc] - 8 * pws[pc]) : pxs[pc];
-      lk_o_sprpiece(lk_o_sprtiles, cum, ax + xx - 128, ay + pys[pc] - 128, pws[pc], phs[pc], (ts >> 13) & 3, prio, hf, (ts >> 12) & 1);
-      cum += pws[pc] * phs[pc];
-    }
-  }
+  lk_o_sprites(chosen, 1, 0, chosen == lk_o_r ? lk_o_use : lk_o_r); lk_o_sp = lk_o_r;
   (void)o;
 }
 static int lk_o_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio) {   /* colour index of one plane pixel at image position (U, V), 0 = transparent */
@@ -251,17 +306,31 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         int upred = 1184 - (cam2 - cam0 + 160), vpred = ((cam0 + cam2) >> 1) - 104;
         lk_o_u0 = upred; lk_o_v0 = vpred;
         if (lk_o_cammode == 2) {
-          int ku = ((upred + (int16_t)hsA) % 512 + 512) % 512, kv = ((vpred - (int16_t)vsA) % 256 + 256) % 256, bu = 0, bv = 0, i3, du, dv;
+          int ku = ((((upred + (int16_t)hsA) % 512 + 512) % 512) + 4) / 8 % 64, kv = ((((vpred - (int16_t)vsA) % 256 + 256) % 256) + 4) / 8 % 32, bu = 0, bv = 0, i3, du, dv;
+          /* the constants are multiples of 8 (the plane's tile grid); the prediction error of +-2 px is rounded away.  Recent frames count more (decay 0.7): right after a room load the VDP's registers are
+             stale for a few frames and vote for a wrong constant, the right one takes over after ~3 frames */
           if (rm != lk_o_vote_room) { memset(lk_o_vu, 0, sizeof lk_o_vu); memset(lk_o_vv, 0, sizeof lk_o_vv); lk_o_vote_room = rm; }
-          lk_o_vu[ku]++; lk_o_vv[kv]++;
-          for (i3 = 0; i3 < 512; i3++) if (lk_o_vu[i3] > lk_o_vu[bu]) bu = i3;
-          for (i3 = 0; i3 < 256; i3++) if (lk_o_vv[i3] > lk_o_vv[bv]) bv = i3;
+          for (i3 = 0; i3 < 64; i3++) lk_o_vu[i3] *= 0.7f; for (i3 = 0; i3 < 32; i3++) lk_o_vv[i3] *= 0.7f;
+          lk_o_vu[ku] += 1.0f; lk_o_vv[kv] += 1.0f;
+          for (i3 = 0; i3 < 64; i3++) if (lk_o_vu[i3] > lk_o_vu[bu]) bu = i3;
+          for (i3 = 0; i3 < 32; i3++) if (lk_o_vv[i3] > lk_o_vv[bv]) bv = i3;
+          bu *= 8; bv *= 8;
           du = (((bu - (int16_t)hsA - upred) % 512) + 512) % 512; if (du >= 256) du -= 512;
           dv = (((bv + (int16_t)vsA - vpred) % 256) + 256) % 256; if (dv >= 128) dv -= 256;
-          lk_o_u0 = upred + du; lk_o_v0 = vpred + dv;
+          lk_o_u0 = upred + du; lk_o_v0 = vpred + dv; lk_o_bu = bu; lk_o_bv = bv; lk_o_upred = upred; lk_o_vpred = vpred;
         }
       }
-      if (rm > 0 && rm < 800) { if (rm != lk_o_room) lk_o_room_load(rm); lk_o_sp = lk_o_sprmode ? r : lk_o_use; lk_o_build(); if (lk_o_palmode) lk_o_palette(rm); fr_done = 1; } else fr_done = 0;
+      if (!(reg[1] & 0x40)) fr_done = 0;                                  /* display switched off at the top of the frame (room load, blackout): the game's black picture stays */
+      else if (rm > 0 && rm < 800) { if (rm != lk_o_room) lk_o_room_load(rm); { /* which pass are the VDP's sprites from? (the game runs 0, 1 or 2 passes per frame, so the sprite table is sometimes the previous pass' and sometimes the current one): the candidate whose sprite boxes equal the real sprite table's best wins */
+        uint32 sat[96], kc[96], kp[96]; int ns = 0, i4 = 0, n4 = 0, nc, np_, mc = 0, mp = 0, i5, j5, base = (reg[5] & 0x7F) << 9;
+        for (n4 = 0; n4 < 80 && ns < 96; n4++) { int y = ((vram[(base + 8 * i4) ^ 1] << 8) | vram[(base + 8 * i4 + 1) ^ 1]) & 0x3FF, sz = (vram[(base + 8 * i4 + 2) ^ 1] << 8) | vram[(base + 8 * i4 + 3) ^ 1], x = ((vram[(base + 8 * i4 + 6) ^ 1] << 8) | vram[(base + 8 * i4 + 7) ^ 1]) & 0x1FF;
+          lk_o_satt[ns] = ((vram[(base + 8 * i4 + 4) ^ 1] << 8) | vram[(base + 8 * i4 + 5) ^ 1]) & 0x7FF; sat[ns] = (uint32)(x << 20 | y << 8 | ((sz >> 8) & 15)); lk_o_satk[ns] = sat[ns]; ns++; i4 = sz & 0x7F; if (!i4) break; }
+        lk_o_satn = ns;
+        nc = lk_o_sprites(r, 0, kc, 0); np_ = lk_o_sprites(lk_o_use, 0, kp, 0);
+        for (i5 = 0; i5 < nc; i5++) for (j5 = 0; j5 < ns; j5++) if (kc[i5] == sat[j5]) { mc++; break; }
+        for (i5 = 0; i5 < np_; i5++) for (j5 = 0; j5 < ns; j5++) if (kp[i5] == sat[j5]) { mp++; break; }
+        lk_o_sp = (lk_o_sprmode == 2 || (lk_o_sprmode == 1 && (2 * mc - nc) >= (2 * mp - np_))) ? r : lk_o_use; }
+      lk_o_r = r; lk_o_build(); if (lk_o_palmode) lk_o_palette(rm); fr_done = 1; } else fr_done = 0;
     } else fr_done = 0;
     memcpy(lk_o_prev, r, sizeof lk_o_prev); lk_o_valid = 1;
     fr_n++;
@@ -275,7 +344,13 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
   {
     int ubase = lk_o_u0, vbase = lk_o_v0 + line, i, text = (line >= 160 && (hint & 0xFF) == 0xA0);
     int black_line = (line >= 185 && !text && !lk_tall_keep(line));   /* below the game's HInt display-off line (full height off) */
-    for (i = 0; i < w; i++) {
+
+    if (lk_o_cammode == 2) {   /* the game may change the scroll registers during the frame: use the values of THIS line */
+      int hsb2 = (reg[13] & 0x3F) << 10, hs2 = (int16_t)((vram[hsb2 ^ 1] << 8) | vram[(hsb2 + 1) ^ 1]), vs2 = (int16_t)((vsram[0 ^ 1] << 8) | vsram[1 ^ 1]), du, dv;
+      du = (((lk_o_bu - hs2 - lk_o_upred) % 512) + 512) % 512; if (du >= 256) du -= 512;
+      dv = (((lk_o_bv + vs2 - lk_o_vpred) % 256) + 256) % 256; if (dv >= 128) dv -= 256;
+      ubase = lk_o_upred + du; vbase = lk_o_vpred + dv + line;
+    }    for (i = 0; i < w; i++) {
       int x = i - e, margin = (x < 0 || x >= 320), pick = -1, ap = 0, bp = 0, ai, bi, apal = 0, bpal = 0, sp = lk_o_spr[line][i], col, black = black_line;
       if (!black) {
         ai = lk_o_fetch(lk_o_pa, ubase + x, vbase, &apal, &ap); bi = lk_o_fetch(lk_o_pb, ubase + x, vbase, &bpal, &bp);   /* image coordinates: independent of the VDP planes and their wrap */
