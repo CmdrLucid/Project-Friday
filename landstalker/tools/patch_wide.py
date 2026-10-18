@@ -101,8 +101,8 @@ static long lk_map_sample;
 extern int func_table_depth(void);
 extern uint32_t func_table_stack(int k);
 static long lk_dlg_fn = 0x028FD8;                       /* text-box print routine: on the call stack during every NPC dialogue (US ROM) */
-static long lk_dlg_frame = -1, lk_dlg_last = -100000; static int lk_dlg, lk_fm;   /* lk_fm: the map is fading out into / in from the Start menu (no grace period) */   /* lk_dlg_last: last frame with the text-box routine on the stack (grace period after the dialogue, see DEBUGGING.md 'flicker after dialogue') */
-static int lk_map_mode = -1, lk_map_frames = 4, lk_map_prev = -1, lk_map_dbg, lk_map_lines;
+static long lk_dlg_frame = -1, lk_dlg_last = -100000; static int lk_dlg, lk_fm; static int lk_menu_seen;   /* an inner call of CheckForMenuOpen $007624 into the inventory code ($00D000..$00FFFF: item / equip screen) ran since the map was last on screen: a menu screen was shown */   /* lk_fm: the map is fading out into / in from the Start menu (no grace period) */   /* lk_dlg_last: last frame with the text-box routine on the stack (grace period after the dialogue, see DEBUGGING.md 'flicker after dialogue') */
+static int lk_map_mode = -1, lk_map_frames = 4, lk_map_prev = -1, lk_map_dbg, lk_map_lines; static int lk_map_dbgint = 90;   /* LANDSTALKER_WIDE_DBGINT=N: sample interval (frames) of the 'not map' debug lines */
 static void lk_map_init(void)
 {
   const char *m = getenv("LANDSTALKER_WIDE_MAP");
@@ -112,6 +112,7 @@ static void lk_map_init(void)
   else if (m && !strncmp(m, "auto:", 5) && atoi(m + 5) > 0) lk_map_frames = atoi(m + 5);
   { const char *d = getenv("LANDSTALKER_WIDE_DIALOG_FN"); if (d && *d) lk_dlg_fn = strtol(d, NULL, 16); }   /* 0 = dialogue rule off */
   lk_map_dbg = getenv("LANDSTALKER_WIDE_DEBUG") != NULL;
+  { const char *di = getenv("LANDSTALKER_WIDE_DBGINT"); if (di && atoi(di) > 0) lk_map_dbgint = atoi(di); }
 }
 /* map-frame decision (shared with LANDSTALKER_TALL, tools/patch_tall.py) */
 int lk_map_decide(void)
@@ -124,7 +125,8 @@ int lk_map_decide(void)
     lk_dlg_frame = platform_frame_number(); lk_dlg = 0;
     if (lk_dlg_fn > 0) for (i = 0; i < d; i++) { uint32_t fnx = func_table_stack(d - 1 - i); if (fnx == (uint32_t)lk_dlg_fn || fnx == 0x00620Eu || fnx == 0x0178C8u || fnx == 0x0066ACu || fnx == 0x010ACEu || fnx == 0x00610Au || fnx == 0x00613Eu || fnx == 0x006184u || fnx == 0x0061CAu || fnx == 0x016712u || (lk_load_fade && (fnx == 0x00098Au || fnx == 0x0009AAu))) { lk_dlg = 1; break; } }   /* FadeFromBlack $00098A (its fade loop $0009AA is entered by a bra, so the stack shows that one) right after loading a save (lk_load_fade): the start room fades in, it is a map (otherwise the full-height band / margins popped in at the end of the fade, 2026-10-11 night) */   /* LoadPlayerSpecialAnimation $010ACE: the death / Friday revive animation (user report 2026-10-12: margins went black for ~145 frames while dying) */   /* ProcessActionButton $0066AC: opening a chest / item pickup text ('Found X.'), user report 2026-10-11: margins went black */   /* text box OR WarpToRoom ($00620E: fade out / load / fade in of a room change: the picture is a real map, so the margins must not be black during the fade-in, user report 2026-10-10) OR still INSIDE UpdateSprites ($0178C8: a cutscene script started by an entity waits between its text boxes, e.g. the intro of a fresh game; it never returns to the game loop, so 'called within 4 frames' runs out, user report 2026-10-10 night) */
     lk_fm = 0;   /* Start menu: FadeOutToDarkness inside CheckForMenuOpen $007624 = the map fades out (still the map), FadeInFromDarkness inside $007766 = the map fades in again after the menu */
-    for (i = 0; i + 1 < d; i++) { uint32_t a0 = func_table_stack(d - 1 - i), a1 = func_table_stack(d - 2 - i); if (a0 == 0x007624u && a1 == 0x008EF4u) { lk_fm = 1; break; } if (a0 == 0x007766u && a1 == 0x008EB4u) { lk_dlg = 1; break; } }   /* fade-out: no grace period (the menu follows); fade-in: with the grace period (the first UpdateSprites pass comes 2 frames after the fade returns) */
+    for (i = 0; i + 1 < d; i++) { uint32_t a0 = func_table_stack(d - 1 - i), a1 = func_table_stack(d - 2 - i); if (a0 == 0x007624u && a1 == 0x008EF4u) { lk_fm = !lk_menu_seen; break; } if (a0 == 0x007624u && a1 >= 0x00D000u && a1 < 0x010000u) lk_menu_seen = 1; if ((a0 == 0x007766u || a0 == 0x00776Eu) && a1 == 0x008EB4u) { lk_dlg = 1; lk_menu_seen = 0; break; } }   /* the menu's own fade-out (after the item / equip screen was shown: lk_menu_seen) is NOT the map any more: the margins stay black (no blue window band over them); the fade-in after the menu is called from $00776E in this build (the old $007766 never matched: the margins came 20 frames late) */
+    if (platform_frame_number() - lk_world_frame <= lk_map_frames) lk_menu_seen = 0;   /* fade-out: no grace period (the menu follows); fade-in: with the grace period (the first UpdateSprites pass comes 2 frames after the fade returns) */
     if (lk_dlg) lk_dlg_last = lk_dlg_frame;
   }
   map = (lk_map_mode == 1) ? 1 : (lk_map_mode == 2 || lk_picture) ? 0 : (lk_dlg || lk_fm || platform_frame_number() - lk_dlg_last <= 30 || platform_frame_number() - lk_world_frame <= lk_map_frames);
@@ -135,7 +137,7 @@ static void lk_wide_margins(int line)
   int e = lk_wide_e, w = bitmap.viewport.w, mk, map;
   if (!e || !(reg[12] & 1) || w < 320 + 2 * e) return;
   map = lk_map_decide();
-  if (lk_map_dbg && lk_map_lines < 400 && (map != lk_map_prev || (!map && line == 0 && platform_frame_number() - lk_map_sample >= 90) || (map && lk_dlg && line == 0 && platform_frame_number() - lk_map_sample >= 300)))
+  if (lk_map_dbg && lk_map_lines < 400 && (map != lk_map_prev || (!map && line == 0 && platform_frame_number() - lk_map_sample >= lk_map_dbgint) || (map && lk_dlg && line == 0 && platform_frame_number() - lk_map_sample >= 300)))
   {
     /* transition, or (while not map) a sample about every 1.5 s: which game function is running (shadow call stack) and how many plane tiles were written since the last line */
     lk_map_lines++; lk_map_sample = platform_frame_number();
