@@ -142,7 +142,17 @@ static void lk_o_sprpiece(const uint8 *td, int tile0, int sx, int sy, int w, int
     lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | (pal * 16 + idx));
   }
 }
-static uint32 lk_o_satk[96]; static int lk_o_satt[96], lk_o_satn;   /* the real sprite table: key (x, y, size) and first tile number of every entry */
+static void lk_o_vpiece(int tile0, int sx, int sy, int w, int h, int pal, int prio, int hf, int vf) {   /* a sprite piece drawn from the game's own VRAM tiles (effects that write the sprite table directly) */
+  int px, py;
+  for (px = 0; px < w * 8; px++) for (py = 0; py < h * 8; py++) {
+    int ox = hf ? (w * 8 - 1 - px) : px, oy = vf ? (h * 8 - 1 - py) : py, t = tile0 + (ox / 8) * h + (oy / 8), a = t * 32 + (oy % 8) * 4 + (ox % 8) / 2, b, idx, X = sx + px + lk_wide_e, Y = sy + py;
+    if (a >= 0x10000) continue;
+    b = vram[a ^ 1]; idx = ((ox % 8) % 2 == 0) ? (b >> 4) : (b & 15);
+    if (!idx || X < 0 || X >= 320 + 2 * lk_wide_e || X >= LK_OSW || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200)) continue;
+    lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | (pal * 16 + idx));
+  }
+}
+static uint32 lk_o_satk[96]; static int lk_o_satt[96], lk_o_satn; static int lk_o_satw[96]; static uint32 lk_o_dk[96]; static int lk_o_dn;   /* lk_o_satw: full attribute word of every sprite table entry; lk_o_dk: keys of the pieces the figures pass drew */   /* the real sprite table: key (x, y, size) and first tile number of every entry */
 typedef struct { int vis, ax, ay, ts, sgi, anim, frm, np, pxs[8], pys[8], pws[8], phs[8], prio, off; uint8 *tiles; } lk_o_ent_t;
 static uint8 lk_o_sprtiles_b[0x4000], lk_o_sprtiles_c[0x4000];
 static void lk_o_entload(const uint8 *src, int off, lk_o_ent_t *e, uint8 *tiles, int decode, int use4e) {   /* one entity of one pass state: pieces + tile graphics from the ROM */
@@ -204,7 +214,7 @@ static int lk_o_formula(const uint8 *st, int off, int *ax, int *ay) {   /* the g
 }
 static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *alt) {   /* figures of one pass state: drawn into lk_o_spr and / or as SAT keys (x, y, size) for the choice of the pass; with `alt` every entity of EITHER pass' visible list takes the version (this pass / the other one, or absent) that matches the real sprite table: the game's visibility test flips entities in and out of the list from pass to pass */
   int offs[48], inA[48], inB[48], inF[48], n, k, nb = 0, boffs[24], nk = 0, i;
-  if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr); lk_o_nspr = 0; }
+  if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr); lk_o_nspr = 0; lk_o_dn = 0; }
   n = lk_o_list(src, offs); for (k = 0; k < n; k++) { inA[k] = 1; inB[k] = 0; inF[k] = 0; }
   if (alt) { nb = lk_o_list(alt, boffs); for (i = 0; i < nb; i++) { for (k = 0; k < n && offs[k] != boffs[i]; k++) ; if (k < n) inB[k] = 1; else if (n < 48) { offs[n] = boffs[i]; inA[n] = 0; inB[n] = 1; inF[n] = 0; n++; } } }
   if (draw && alt) {                                                 /* entities the game's visibility test left out of both lists (it flips objects at the edge of the widened screen in and out from pass to pass = blinking): draw them when the same test, evaluated by us on the previous pass, says visible */
@@ -273,6 +283,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
     for (pc = 0; pc < e->np; pc++) {
       int xx; uint32 key = lk_o_pkey(e, pc, &xx);
       if (keys && nk < 96) keys[nk++] = key;
+      if (draw && lk_o_dn < 96) lk_o_dk[lk_o_dn++] = key;
       if (draw) lk_o_sprpiece(e->tiles, cum, e->ax + xx - 128, e->ay + e->pys[pc] - 128, e->pws[pc], e->phs[pc], (e->ts >> 13) & 3, e->prio, (e->ts >> 11) & 1, (e->ts >> 12) & 1);
       cum += e->pws[pc] * e->phs[pc];
     }
@@ -306,6 +317,16 @@ static void lk_o_build(void) {                                       /* everythi
     }
   }
   lk_o_sprites(chosen, 1, 0, chosen == lk_o_cc ? lk_o_cp : lk_o_cc); lk_o_sp = lk_o_r;
+  { static int ex = -1; int j, i2;                                  /* sprite table entries no figure piece accounts for (effects that write the sprite table directly, e.g. the falling stones of the Statue of Gaia / Gaia sword, GaiaEffect $016712): drawn from the table and the game's VRAM tiles */
+    if (ex < 0) { const char *c = getenv("LANDSTALKER_OWN_EXTRA"); ex = c && *c == '0' ? 0 : 1; }
+    for (j = 0; ex && j < lk_o_satn; j++) {
+      uint32 k2 = lk_o_satk[j]; int w2 = lk_o_satw[j], covered = 0;
+      for (i2 = 0; i2 < lk_o_dn; i2++) if (lk_o_dk[i2] == k2) { covered = 1; break; }
+      if (getenv("LANDSTALKER_OWN_SAT")) printf("ownsat: frame %ld #%d x %d y %d size %X attr %04X %s\n", platform_frame_number(), j, (int)((k2 >> 20) & 0x1FF), (int)((k2 >> 8) & 0x3FF), (int)(k2 & 15), w2, covered ? "covered" : "EXTRA");
+      if (covered) continue;
+      lk_o_vpiece(w2 & 0x7FF, (int)((k2 >> 20) & 0x1FF) - 128, (int)((k2 >> 8) & 0x3FF) - 128, (int)((k2 >> 2) & 3) + 1, (int)(k2 & 3) + 1, (w2 >> 13) & 3, (w2 >> 15) & 1, (w2 >> 11) & 1, (w2 >> 12) & 1);
+    }
+  }
   (void)o;
 }
 static int lk_o_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio) {   /* colour index of one plane pixel at image position (U, V), 0 = transparent */
@@ -392,7 +413,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
       else if (rm > 0 && rm < 800) { if (rm != lk_o_room) { lk_o_room_load(rm); lk_o_blanked = 0; } { /* which pass are the VDP's sprites from? (the game runs 0, 1 or 2 passes per frame, so the sprite table is sometimes the previous pass' and sometimes the current one): the candidate whose sprite boxes equal the real sprite table's best wins */
         uint32 sat[96], kc[96], kp[96]; int ns = 0, i4 = 0, n4 = 0, nc, np_, mc = 0, mp = 0, i5, j5, base = (reg[5] & 0x7F) << 9;
         for (n4 = 0; n4 < 80 && ns < 96; n4++) { int y = ((vram[(base + 8 * i4) ^ 1] << 8) | vram[(base + 8 * i4 + 1) ^ 1]) & 0x3FF, sz = (vram[(base + 8 * i4 + 2) ^ 1] << 8) | vram[(base + 8 * i4 + 3) ^ 1], x = ((vram[(base + 8 * i4 + 6) ^ 1] << 8) | vram[(base + 8 * i4 + 7) ^ 1]) & 0x1FF;
-          lk_o_satt[ns] = ((vram[(base + 8 * i4 + 4) ^ 1] << 8) | vram[(base + 8 * i4 + 5) ^ 1]) & 0x7FF; sat[ns] = (uint32)(x << 20 | y << 8 | ((sz >> 8) & 15)); lk_o_satk[ns] = sat[ns]; ns++; i4 = sz & 0x7F; if (!i4) break; }
+          lk_o_satw[ns] = (vram[(base + 8 * i4 + 4) ^ 1] << 8) | vram[(base + 8 * i4 + 5) ^ 1]; lk_o_satt[ns] = lk_o_satw[ns] & 0x7FF; sat[ns] = (uint32)(x << 20 | y << 8 | ((sz >> 8) & 15)); lk_o_satk[ns] = sat[ns]; ns++; i4 = sz & 0x7F; if (!i4) break; }
         lk_o_satn = ns;
         { const uint8 *rc = r, *rp = lk_o_use; lk_o_cc = rc; lk_o_cp = rp;
         nc = lk_o_sprites(rc, 0, kc, 0); np_ = lk_o_sprites(rp, 0, kp, 0); }

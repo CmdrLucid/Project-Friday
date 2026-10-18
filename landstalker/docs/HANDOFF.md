@@ -11,6 +11,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a10. USER CONFIRMATIONS (2026-10-17, night, Deck): 'passt' for Fix Ride Objects (room 444), Item Info, key bindings (real pad / key), scroll arrows + options frame centring, De-Dither with CRT Pro. Closed in sections 0a1 / 0a2 / 0a / 1. Still open: tree warp 537 -> 539 (dev only), Quick Save in odd situations (moving platform, air, dungeon after a fight), Windows on a real PC, Buy Quantity / new menu look (0a3, 0a5).
 
+## 0a29. 2026-10-18 (Deck, Sonnet 5.5, night): user: menu OK now; recording `rec_20261018_1834`: the own renderer did not show the falling stones of the Gaia statue -> sprite table entries without a figure piece are now drawn from VRAM (INDEX status). Microstutter in room 425: game side smooth (1 pass per frame), needs live `LANDSTALKER_FRAMESTAT=1` numbers. USER CHECK OPEN with a new `build.sh`: Gaia statue with the own renderer.
+
 ## 0a28. 2026-10-18 (Deck, Sonnet 5.5, night): user: wobble + sign fixed, menu exit better but a blue band flashes at closing and the margins / full height come late: both fixed in the widescreen map rule (INDEX status). USER CHECK OPEN with a new `build.sh`: Start menu -> Equip -> leave.
 
 ## 0a27. 2026-10-18 (Deck, Sonnet 5.5, evening): user: sign flicker 425 and HUD 427 were own-renderer only (fixed in 0a26); recording `rec_20261018_1807` (exact replay): own renderer drew the map over the fading Start menu -> fixed with `lk_sh_hide` (INDEX status). USER CHECK OPEN with a new `build.sh`: Start menu -> Equip -> leave, then play on and send recordings of anything odd.
