@@ -4,11 +4,22 @@ Per frame the platform does: emulation (68K + VDP render + audio mix) -> platfor
 (busy-wait until 1/60 s after the previous frame). Two pacers (vsync + busy-wait at exactly 60.000 Hz while the display/real console run 60.0/59.92 Hz) can beat against
 each other and skip a vblank now and then (one 33 ms frame = visible micro stutter).
 LANDSTALKER_FRAMESTAT=1  prints once per second:  framestat: n=60 emu avg/max=..ms present avg/max=..ms sync avg/max=..ms frame max=..ms >20ms=N >30ms=N
+LANDSTALKER_FRAMESTAT_SPIKE=ms prints every frame whose emulation part (between two presents) took longer than ms (with the frame number)
 LANDSTALKER_NOSYNC=1     skips the busy-wait (vsync only) for an A/B test
 Idempotent.  usage: patch_framestat.py path/to/genrecomp"""
 import os, sys
 p = os.path.join(sys.argv[1], "src/platform_sdl.c")
 s = open(p).read()
+if "LANDSTALKER_FRAMETIME" not in s:
+    pe = "bool platform_poll_events(void) {\n"
+    assert s.count(pe) == 1, "platform_sdl.c: platform_poll_events layout changed"
+    s = s.replace(pe, pe + """    { /* LANDSTALKER_FRAMETIME=ms: headless / windowed: print every frame whose time between two event polls (= emulation incl. rendering, without the present wait in headless) exceeds ms, with the frame number */
+        static double thr = -2; static uint64_t last;
+        if (thr == -2) { const char *t = getenv("LANDSTALKER_FRAMETIME"); thr = t && *t ? atof(t) : -1; }
+        if (thr >= 0) { uint64_t n = SDL_GetPerformanceCounter(); if (last) { double ms = (double)(n - last) * 1000.0 / (double)SDL_GetPerformanceFrequency(); if (ms > thr) printf("frametime: frame %ld %.2f ms\\n", platform_frame_number(), ms); } last = n; }
+    }
+""", 1)
+    open(p, "w").write(s)
 if "LANDSTALKER_FRAMESTAT" in s:
     print("platform_sdl.c already patched: LANDSTALKER_FRAMESTAT"); sys.exit(0)
 a = "void platform_present_frame(const uint8_t *framebuffer) {\n"
@@ -26,7 +37,7 @@ static void lk_fs_present_begin(void) {
     lk_fs_init();
     if (!lk_fs_on) return;
     uint64_t t = SDL_GetPerformanceCounter();
-    if (lk_fs_prev_end) { double e = lk_fs_ms(lk_fs_prev_end, t); lk_fs_emu_sum += e; if (e > lk_fs_emu_max) lk_fs_emu_max = e; }
+    if (lk_fs_prev_end) { double e = lk_fs_ms(lk_fs_prev_end, t); lk_fs_emu_sum += e; if (e > lk_fs_emu_max) lk_fs_emu_max = e; { static double sp = -2; if (sp == -2) { const char *q = getenv("LANDSTALKER_FRAMESTAT_SPIKE"); sp = q && *q ? atof(q) : -1; } if (sp >= 0 && e > sp) printf("spike: frame %ld emu %.2f ms (frame mod 121 = %ld, mod 60 = %ld)\\n", platform_frame_number(), e, platform_frame_number() % 121, platform_frame_number() % 60); } }
     lk_fs_pres0 = t; lk_fs_havepres = 1;
 }
 static uint64_t lk_fs_sync_begin(void) {
