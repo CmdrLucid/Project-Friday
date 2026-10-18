@@ -34,6 +34,42 @@ def frame(rom, gfx, anim, frm):
     need = sum(w * hh for _, _, w, hh in pieces)
     return dict(pieces=pieces, tiles=bytes(tiles), ntiles=need, declared=ntile_decl, ptr=fp)
 
+SPRITE_PAL_LUT = 0x1A453A       # SpritePaletteLUT: byte pairs (sprite type, value), $FF ends; value bit 7 = 'high' palette (7 colours), low 7 bits = index
+SPRITE_PAL_LO = 0x1A47E0        # SpritePaletteLo: 80 entries of 6 colours (12 bytes)
+SPRITE_PAL_HI = 0x1A4BA0        # SpritePaletteHi: entries of 7 colours (14 bytes) = SPRITE_PAL_LO + 80 * 12
+DEFAULT_PLAYER_PAL = 0x901C     # DefaultPlayerPal: 16 words = palette line 2 (`LoadPlayerPalette $008FB4`)
+STATUS_BAR_PAL = 0x903C         # StatusBarPal: 5 words -> line 3 colours 10..14 (`InitPalettes $008FCC`)
+SWORD_SWAP_IDX, SWORD_SWAPS = 0x78F4, 0x7900      # UpdateEquipPal $0078B6: item id list (6 bytes), 4 byte entries -> line 2 colours 13, 14
+ARMOUR_SWAP_IDX, ARMOUR_SWAPS = 0x78FA, 0x7918    # -> line 2 colours 11, 12
+
+def sprite_palettes(rom, entities, sword, armour):
+    """the 64 CRAM colours (MD format 0BBB0GGG0RRR0) of lines 1..3 as the game builds them (`InitSpritePalettes $1A4422`, `GetSpritePalette $1A4468`, `LoadPlayerPalette`, `InitPalettes`).
+    entities = [(sprite type, TileSource word)] of the sprite structs in order; returns a list of 64 words, line 0 left 0 (it is the room palette, see romgfx.room_gfx)."""
+    W = lambda a: struct.unpack('>H', rom[a:a + 2])[0]
+    pal = [0] * 64
+    for i in range(16): pal[32 + i] = W(DEFAULT_PLAYER_PAL + 2 * i)                       # line 2: Nigel
+    for lst, swaps, item, col in ((ARMOUR_SWAP_IDX, ARMOUR_SWAPS, armour, 43), (SWORD_SWAP_IDX, SWORD_SWAPS, sword, 45)):
+        k = 0
+        while k < 6 and rom[lst + k] != item: k += 1
+        k = min(k, 5)
+        pal[32 + 11 + (0 if col == 43 else 2)] = W(swaps + 4 * k); pal[32 + 12 + (0 if col == 43 else 2)] = W(swaps + 4 * k + 2)
+    for i in range(5): pal[48 + 10 + i] = W(STATUS_BAR_PAL + 2 * i)                       # line 3: HUD colours 10..14
+    for typ, ts in entities:
+        if not (ts >> 8) & 0x20: continue                                                  # palette 1 or 3 only (bit 13 of the tile word)
+        a = SPRITE_PAL_LUT
+        while rom[a] != 0xFF:
+            if rom[a] == typ:
+                v = rom[a + 1]; hi = v & 0x80; idx = v & 0x7F; pal3 = (ts >> 8) & 0x40
+                if hi:
+                    if pal3: pass                                                          # palette 3 high does not exist (the game beeps)
+                    else:
+                        for j in range(7): pal[16 + 8 + j] = W(SPRITE_PAL_HI + 14 * idx + 2 * j)
+                else:
+                    base = 48 + 2 if pal3 else 16 + 2
+                    for j in range(6): pal[base + j] = W(SPRITE_PAL_LO + 12 * idx + 2 * j)
+            a += 2
+    return pal
+
 if __name__ == '__main__':
     rom = open(sys.argv[1], 'rb').read()
     f = frame(rom, int(sys.argv[2], 0), int(sys.argv[3], 0), int(sys.argv[4], 0))

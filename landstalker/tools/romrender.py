@@ -68,7 +68,7 @@ def compose(pa, pb, getpal, x0, y0, w, h, backdrop, tiles, spr=None, sprpal=None
     compose.idx = idxmap
     return out
 
-def rom_planes(rom, room, anim=None, lit=False):
+def rom_planes(rom, room, anim=None, lit=False, pal=None):
     """anim: animation frame numbers (one per animated tile group, see romgfx.anim_list) or None for frame 0; lit: lantern lit state of a dark room (LabrynthLitPal)."""
     g = romgfx.room_gfx(rom, room, lit=lit); r = romroom.decode(rom, room); arr = romroom.arrays(r)
     if g['anim']: g['tiles'] = romgfx.apply_anim(g['tiles'], rom, g['anim'], anim if anim is not None else 0)
@@ -78,7 +78,9 @@ def rom_planes(rom, room, anim=None, lit=False):
     for (x, y), v in arr['FG'].items():
         if v & 0x3FF: pa.put(2 * (x - y) + 146, x + y, g['blocks'][v & 0x3FF])
     pal0 = [0, 0x0CCC] + g['pal0'] + [0]
-    def getpal(line, idx): return md_to_rgb(pal0[idx]) if line == 0 else (255, 0, 255)
+    def getpal(line, idx):
+        if pal: return md_to_rgb(pal[line * 16 + idx])             # all four lines from rom_cram
+        return md_to_rgb(pal0[idx]) if line == 0 else (255, 0, 255)
     return g, r, pa, pb, getpal
 
 def dump_anim(dump, groups):
@@ -86,6 +88,39 @@ def dump_anim(dump, groups):
     d = open(dump, 'rb').read(0x10000)
     B = lambda a: d[(a & 0xFFFF) ^ 1]
     return [B(0xFF1134 + 4 * k + 3) if (B(0xFF1134 + 4 * k) == g['delay'] and B(0xFF1134 + 4 * k + 1) == g['frames']) else None for k, g in enumerate(groups)]
+
+def rom_cram(rom, dump, room, lit=False):
+    """the 64 CRAM colours of the picture built from ROM data and the game state in a dump (equipment, sprite structs): line 0 = room palette (colour 1 = $0CCC, 0 and 15 = 0),
+    lines 1..3 = romsprite.sprite_palettes.  Returns MD format words."""
+    d = open(dump, 'rb').read(0x10000)
+    B = lambda a: d[(a & 0xFFFF) ^ 1]; W = lambda a: (B(a) << 8) | B(a + 1)
+    ents = []; a = 0xFF5480
+    for _ in range(15):
+        if W(a) & 0x8000: break
+        ents.append((B(a + 0x3B), W(a + 6))); a += 0x80
+    pal = romsprite.sprite_palettes(rom, ents, B(0xFF114E), B(0xFF114F))
+    g = romgfx.room_gfx(rom, room, lit=lit)
+    for i, a in ((56, 0xFF00E0 + 0x10), (57, 0xFF00E0 + 0x12), (29, 0xFF00A0 + 0x1A), (30, 0xFF00A0 + 0x1C)): pal[i] = W(a)   # projectile colours (LoadProjectilePalette $1AC?: set when an enemy fires): event state, read from the work RAM palette copies
+    for l in range(4): pal[16 * l] = 0; pal[16 * l + 1] = 0x0CCC; pal[16 * l + 15] = 0       # InitPalettes $008FCC: colour 0 / 15 black, colour 1 light grey in every line
+    for i, c in enumerate(g['pal0']): pal[2 + i] = c
+    # fade (FadeToBlack / FadeInFromDarkness, `DarkenPalette $0009CE` / `DarkenColour $0009FC`): the level is game state ($FF0F50 steps) that runs ahead of / behind the palette in CRAM, so it is
+    # inferred as the level whose darkened palette equals the game's active palette copy ($FF0ED0, 64 words) best
+    act = [W(0xFF0ED0 + 2 * i) for i in range(64)]
+    best = None
+    for d3 in range(0, 0x1400, 0x200):
+        p = [darken(c, d3) for c in pal]; n = sum(1 for i in range(64) if p[i] != act[i])
+        if best is None or n < best[0]: best = (n, p)
+    return best[1]
+
+def darken(c, d3, d7=0):
+    """one colour darkened by d3 (blue units of $0200; green d3 >> 4, red d3 >> 8), as `DarkenColour $0009FC`: a channel that wraps below zero becomes d7."""
+    b = ((c & 0xE00) - d3) & 0x1E00
+    if b >= 0x1000: b = d7
+    g3 = d3 >> 4; g = ((c & 0xE0) - g3) & 0x1E0
+    if g >= 0x100: g = d7
+    r3 = g3 >> 4; r = ((c & 0xE) - r3) & 0x1E
+    if r >= 0x10: r = d7
+    return b | g | r
 
 def sprite_piece(spr, tiledata, tile0, sx, sy, w, h, pal, prio, hf, vf, C):
     """draw one sprite piece (w x h tiles, column-major tile order, 4 bpp from `tiledata` starting at tile number tile0) into spr {(screen x, y): (pal * 16 + index, priority, rgb)};
@@ -116,11 +151,12 @@ def vdp_sprites(dump):
         if i == 0: break
     return spr, C
 
-def rom_sprites(rom, dump):
+def rom_sprites(rom, dump, pal=None):
     """the sprites of the entities of a RAM dump drawn from ROM data only (frame pieces and tile graphics decoded by romsprite.py; entity state, palette lines of CRAM)."""
     d = open(dump, 'rb').read(); r = d[:0x10000]; cram = d[0x10020:0x100A0]
     B = lambda a: r[(a & 0xFFFF) ^ 1]; W = lambda a: (B(a) << 8) | B(a + 1)
     C = [(cram[2 * i ^ 1] << 8) | cram[(2 * i + 1) ^ 1] for i in range(64)]
+    if pal: C = [((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7) for c in pal]   # colours from rom_cram instead of the dump's CRAM
     spr = {}; a = 0xFF11DE
     while True:
         o = W(a); a += 2
@@ -179,10 +215,11 @@ if __name__ == '__main__':
     backdrop = md_to_rgb(0)
     if len(sys.argv) > 4:
         g0 = romgfx.room_gfx(rom, room)
-        g, r, pa, pb, getpal = rom_planes(rom, room, anim=dump_anim(sys.argv[4], g0['anim']))
+        cr = rom_cram(rom, sys.argv[4], room)
+        g, r, pa, pb, getpal = rom_planes(rom, room, anim=dump_anim(sys.argv[4], g0['anim']), pal=cr)
         ref0, cam0, cam2 = vdp_window(sys.argv[4])               # planes only: the offset search needs no sprites (fast)
         ref, _, _ = vdp_window(sys.argv[4], sprites=True)
-        spr = rom_sprites(rom, sys.argv[4])
+        spr = rom_sprites(rom, sys.argv[4], pal=cr)
         png(outp.replace('.png', '_vdp.png'), 320, 224, ref)
         # predicted window origin in image coordinates: image U = 16 * (x - y + 74), V = 16 * ((x + y) >> 1);  screen = U - 1184 + cam2 - cam0 + 160, V - (cam0 + cam2) // 2 + 104
         px0 = 1184 - (cam2 - cam0 + 160); py0 = (cam0 + cam2) // 2 - 104     # image U = 16 (x - y) + 1184, V = 8 (x + y)
