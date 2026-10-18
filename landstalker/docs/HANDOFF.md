@@ -11,6 +11,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a10. USER CONFIRMATIONS (2026-10-17, night, Deck): 'passt' for Fix Ride Objects (room 444), Item Info, key bindings (real pad / key), scroll arrows + options frame centring, De-Dither with CRT Pro. Closed in sections 0a1 / 0a2 / 0a / 1. Still open: tree warp 537 -> 539 (dev only), Quick Save in odd situations (moving platform, air, dungeon after a fight), Windows on a real PC, Buy Quantity / new menu look (0a3, 0a5).
 
+## 0a25. 2026-10-18 (Deck, Sonnet 5.5, evening): recording `rec_20261018_1725` analysed: NPC / chest jumps of a few pixels in rooms 593 / 595 with the own renderer = sprite table one step ahead of both snapshots in double-pass frames; extrapolated candidate added (INDEX status). USER CHECK OPEN with a new `build.sh`: rooms 593 / 595, then play on and send recordings of anything odd.
+
 ## 0a24. 2026-10-18 (Deck, Sonnet 5.5, night): recording `rec_20261018_1333` analysed: HUD flash at room changes (quick items overlay + stale CRAM), own renderer drew the new room during the fade-out, edge NPCs (INDEX status). USER CHECK OPEN with a new `build.sh` (the HUD fix also helps with the own renderer off).
 
 ## 0a23. 2026-10-18 (Deck, Sonnet 5.5, evening): recording `rec_20261018_1304` analysed: sprite flicker (visible list empty at the top of many frames) and the black border of the text box fixed in the own renderer (INDEX status). USER CHECK OPEN with a new `build.sh`: rooms 593 / 595 / 598, a dialogue in Massan, then play on and send recordings of anything odd.

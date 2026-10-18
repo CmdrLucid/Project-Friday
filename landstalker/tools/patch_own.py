@@ -224,7 +224,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
     { int so[48], sf[48], sa[48], sb[48]; for (k = 0; k < n; k++) { so[k] = offs[idx[k]]; sa[k] = inA[idx[k]]; sb[k] = inB[idx[k]]; sf[k] = inF[idx[k]]; } for (k = 0; k < n; k++) { offs[k] = so[k]; inA[k] = sa[k]; inB[k] = sb[k]; inF[k] = sf[k]; } }
   }
   for (k = 0; k < n; k++) {
-    lk_o_ent_t e0, e1, e2, *e = 0; int pc, cum = 0;
+    lk_o_ent_t e0, e1, e2, e3, *e = 0; int pc, cum = 0, use3 = 0;
     if (inF[k]) {                                                    /* not in the game's lists */
       int fx, fy;
       if (!lk_o_formula(lk_o_use, offs[k], &fx, &fy)) continue;
@@ -238,7 +238,12 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
       s0 = lk_o_escore(&e0); s2 = lk_o_escore(&e2);
       if (inB[k]) { lk_o_entload(alt, offs[k], &e1, lk_o_sprtiles_b, 1, 0); s1 = lk_o_escore(&e1); }
       e = &e2; if (s0 > s2 && s0 >= s1) e = &e0; if (s1 > s2 && s1 > s0) e = &e1;
-      if (getenv("LANDSTALKER_OWN_DBG")) printf("ownent: frame %ld off %02X e0 (%d,%d) %d  e2 (%d,%d) %d  e1 (%d,%d) %d  -> %s\n", platform_frame_number(), offs[k], e0.ax, e0.ay, s0, e2.ax, e2.ay, s2, e1.ax, e1.ay, s1, e == &e2 ? "4E" : e == &e0 ? "0E" : "alt");
+      if (e0.vis && e2.vis && (e0.ax != e2.ax || e0.ay != e2.ay)) {   /* the game ran two passes in this frame: the sprite table can be one step AHEAD of both snapshots (e0 + (e0 - e2)); a candidate that matches the real sprite table better than all three wins */
+        int j, bs = s0 > s2 ? s0 : s2; if (s1 > bs) bs = s1;
+        for (j = 1; j <= 2; j++) { lk_o_ent_t t = e0; int sj; t.ax = e0.ax + j * (e0.ax - e2.ax); t.ay = e0.ay + j * (e0.ay - e2.ay); sj = lk_o_escore(&t); if (sj > bs) { bs = sj; e3 = t; use3 = 1; } }
+        if (use3) e = &e3;
+      }
+      if (getenv("LANDSTALKER_OWN_DBG")) printf("ownent: frame %ld off %02X e0 (%d,%d) %d  e2 (%d,%d) %d  e1 (%d,%d) %d  -> %s\n", platform_frame_number(), offs[k], e0.ax, e0.ay, s0, e2.ax, e2.ay, s2, e1.ax, e1.ay, s1, use3 ? "ahead" : e == &e2 ? "4E" : e == &e0 ? "0E" : "alt");
       if (e->vis == 0 && e0.vis) e = &e0;
     } else if (draw && alt && inB[k]) {
       lk_o_entload(alt, offs[k], &e1, lk_o_sprtiles_b, 1, 0);
