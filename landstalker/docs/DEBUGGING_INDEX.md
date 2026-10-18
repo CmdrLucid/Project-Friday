@@ -139,3 +139,4 @@
 - L1141: Own renderer session 2026-10-18 (Sonnet 5.5, Deck, dev b25d85b)
 - L1146: Own renderer, user recording rec_20261018_0817 (2026-10-18, dev b0399dc)
 - L1151: Own renderer / HUD flash, recordings rec_20261018_1304 + 1333 (2026-10-18 night, dev 23f8b2c)
+- L1156: Own renderer, menu, Gaia effect and micro stutter, recordings rec_20261018_1725 .. 1834 + FRAMESTAT runs (2026-10-18 evening / night, dev 6e6e5ea)
