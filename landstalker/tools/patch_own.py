@@ -49,7 +49,7 @@ extern int lk_tbox_get(void);                                        /* Map Behi
 static uint16 lk_o_spr[224][LK_OSW];                                 /* by row pixel index (screen x + e): pal * 16 + index | 0x100 priority | 0x200 present */
 static uint8 lk_o_sprtiles[0x4000];
 static uint8 lk_o_hud[0x1000]; static int lk_o_hudn = -1;      /* StatusBarGfx $009242 (HUD tiles, tile numbers $6B4 ..) */
-static long lk_o_diff, lk_o_tot; static int lk_o_nspr; static const uint8 *lk_o_r, *lk_o_cc, *lk_o_cp;   /* lk_o_r: work RAM of the current pass */
+static int lk_o_disp0, lk_o_blanked, lk_o_firston, lk_o_dprev = 1; static long lk_o_diff, lk_o_tot; static int lk_o_nspr; static const uint8 *lk_o_r, *lk_o_cc, *lk_o_cp;   /* lk_o_r: work RAM of the current pass */
 static int lk_o_lz77(uint32_t pos, uint8 *out, int cap) {            /* DecompressLZ77Gfx $004AB2 */
   int n = 0, i, flags;
   for (;;) {
@@ -115,10 +115,10 @@ static void lk_o_palette(int room) {                                 /* the 64 c
   pbase = 0x11C926u + 26u * (uint32_t)OB(OL(0xA0A00) + 8u * (uint32_t)room + 5);                      /* line 0: room palette */
   for (i = 0; i < 13; i++) pal[2 + i] = OW(pbase + 2u * (uint32_t)i);
   for (l = 0; l < 4; l++) { pal[16 * l] = 0; pal[16 * l + 1] = 0x0CCC; pal[16 * l + 15] = 0; }
-  for (i = 0; i < 64; i++) act[i] = (cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1];                /* fade level: the one whose darkened palette equals the VDP's palette best (the level counters in RAM are 1..2 steps off the displayed palette) */
+  for (i = 0; i < 64; i++) { int cw = (cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1]; act[i] = lk_o_firston ? SW(0xFF0ED0 + 2 * i) : ((((cw >> 6) & 7) << 9) | (((cw >> 3) & 7) << 5) | ((cw & 7) << 1)); }   /* fade level: the VDP's palette (converted back to MD format), but on the first frame after the display was switched on the game's active copy: the VDP still holds the stale bright palette for that one frame and flashes the HUD */
   for (l = 0; l < 4; l++) {                                                                           /* every palette line has its own fade level (the HUD lines are not faded with the room) */
     bestn = 99; bestd = 0;
-    for (j = 0; j < 0x1400; j += 0x200) { int bad = 0; for (i = 16 * l; i < 16 * l + 16; i++) { int c = lk_o_darken(pal[i], j); if ((((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)) != act[i]) bad++; } if (bad < bestn) { bestn = bad; bestd = j; } }
+    for (j = 0; j < 0x1400; j += 0x200) { int bad = 0; for (i = 16 * l; i < 16 * l + 16; i++) { int c = lk_o_darken(pal[i], j); if (c != act[i]) bad++; } if (bad < bestn) { bestn = bad; bestd = j; } }
     if (l == 0) lk_o_fade = bestd != 0;
     for (i = 16 * l; i < 16 * l + 16; i++) { int c = lk_o_darken(pal[i], bestd); lk_o_pix[i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; }
   }
@@ -189,7 +189,7 @@ static int lk_o_formula(const uint8 *st, int off, int *ax, int *ay) {   /* the g
   a = (int16_t)(cx - z - c0); bb = (int16_t)(cy - z - c2);
   if (!(SB(b + 8) & 1) && !(SB(b + 0x0C) & 0x40) && (uint16_t)(a + bb + 0x100) < 0x200 && (uint16_t)(a - bb + 0x100) < 0x200) {
     rx = a - bb + 0x120; ry = ((((uint16_t)(a + bb + kk)) >> 1) + 0xE8) & 0x7FF;
-    if (rx >= 0x60 - lk_wide_e - 40 && rx < 0x1E0 + lk_wide_e + 40 && ry >= 0x80 && ry < 0x1E0) { *ax = rx; *ay = ry; ok = 1; }
+    if (rx >= 0x60 - lk_wide_e - 40 && rx < 0x1E0 + lk_wide_e + 40 && ry >= 0x40 && ry < 0x220) { *ax = rx; *ay = ry; ok = 1; }
   }
   lk_o_sp = keep; return ok;
 }
@@ -368,8 +368,12 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
           lk_o_u0 = upred + du; lk_o_v0 = vpred + dv; lk_o_bu = bu; lk_o_bv = bv; lk_o_upred = upred; lk_o_vpred = vpred;
         }
       }
-      if (!(reg[1] & 0x40)) fr_done = 0;                                  /* display switched off at the top of the frame (room load, blackout): the game's black picture stays */
-      else if (rm > 0 && rm < 800) { if (rm != lk_o_room) lk_o_room_load(rm); { /* which pass are the VDP's sprites from? (the game runs 0, 1 or 2 passes per frame, so the sprite table is sometimes the previous pass' and sometimes the current one): the candidate whose sprite boxes equal the real sprite table's best wins */
+      lk_o_disp0 = reg[1] & 0x40; lk_o_firston = lk_o_disp0 && !lk_o_dprev; lk_o_dprev = lk_o_disp0 != 0;
+      if (rm == lk_o_room && (reg[1] & 0x40)) lk_o_blanked = 0;
+      if (!(reg[1] & 0x40)) lk_o_blanked = 1;                         /* the display was switched off since the room number changed: the new room is really loaded */
+      if (rm != lk_o_room && lk_o_room >= 0 && !lk_o_blanked) fr_done = 0;   /* the room number changes while the OLD room is still on screen (fade-out): keep the game's picture until the load has blanked the screen */
+      else if (!(reg[1] & 0x40)) fr_done = 0;                                  /* display switched off at the top of the frame (room load, blackout): the game's black picture stays */
+      else if (rm > 0 && rm < 800) { if (rm != lk_o_room) { lk_o_room_load(rm); lk_o_blanked = 0; } { /* which pass are the VDP's sprites from? (the game runs 0, 1 or 2 passes per frame, so the sprite table is sometimes the previous pass' and sometimes the current one): the candidate whose sprite boxes equal the real sprite table's best wins */
         uint32 sat[96], kc[96], kp[96]; int ns = 0, i4 = 0, n4 = 0, nc, np_, mc = 0, mp = 0, i5, j5, base = (reg[5] & 0x7F) << 9;
         for (n4 = 0; n4 < 80 && ns < 96; n4++) { int y = ((vram[(base + 8 * i4) ^ 1] << 8) | vram[(base + 8 * i4 + 1) ^ 1]) & 0x3FF, sz = (vram[(base + 8 * i4 + 2) ^ 1] << 8) | vram[(base + 8 * i4 + 3) ^ 1], x = ((vram[(base + 8 * i4 + 6) ^ 1] << 8) | vram[(base + 8 * i4 + 7) ^ 1]) & 0x1FF;
           lk_o_satt[ns] = ((vram[(base + 8 * i4 + 4) ^ 1] << 8) | vram[(base + 8 * i4 + 5) ^ 1]) & 0x7FF; sat[ns] = (uint32)(x << 20 | y << 8 | ((sz >> 8) & 15)); lk_o_satk[ns] = sat[ns]; ns++; i4 = sz & 0x7F; if (!i4) break; }
@@ -385,7 +389,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
     if (((r[(0xFF11DE & 0xFFFF) ^ 1] << 8) | r[(0xFF11DF & 0xFFFF) ^ 1]) == 0) { memcpy(lk_o_good, r, sizeof lk_o_good); lk_o_goodok = 1; }   /* the player is first in a complete visible list: remember the last complete state */
     fr_n++;
     if (lk_o_diff >= 0 && lk_o_log > 0 && fr_n % lk_o_log == 0) { int ca = 0, cb = 0, tn = 0, i2, j2; for (i2 = 0; i2 < 152; i2++) for (j2 = 0; j2 < 304; j2++) { ca += (lk_o_pa[i2][j2] >> 16) & 1; cb += (lk_o_pb[i2][j2] >> 16) & 1; } for (i2 = 0; i2 < 0x12000; i2++) tn += lk_o_tiles[i2] != 0;
-      printf("own: frame %ld room %d lines 0..223: %ld of %ld pixels differ (cells A %d B %d, tile bytes %d, scroll A %d,%d B %d,%d cam %d,%d, player flags2 use %02X cur %02X, sprites %d)\n", platform_frame_number(), rm, lk_o_diff, lk_o_tot, ca, cb, tn, hsA, vsA, hsB, vsB, cam0, cam2, UB(0xFF540C), bus_get_ram()[(0xFF540C & 0xFFFF) ^ 1], lk_o_nspr); }
+      printf("own: frame %ld room %d lines 0..223: %ld of %ld pixels differ (cells A %d B %d, tile bytes %d, scroll A %d,%d B %d,%d cam %d,%d, player flags2 use %02X cur %02X, sprites %d, reg1 %02X fade %d disp0 %d)\n", platform_frame_number(), rm, lk_o_diff, lk_o_tot, ca, cb, tn, hsA, vsA, hsB, vsB, cam0, cam2, UB(0xFF540C), bus_get_ram()[(0xFF540C & 0xFFFF) ^ 1], lk_o_nspr, reg[1], lk_o_fade, lk_o_disp0); }
     lk_o_diff = 0; lk_o_tot = 0;
   }
   e = lk_wide_e; map = lk_map_decide();
