@@ -44,6 +44,7 @@ static uint32 lk_o_pa[152][304], lk_o_pb[152][304];                  /* layer ce
 #define LK_OSW 448
 extern int lk_wide_e;                                                /* LANDSTALKER_WIDE (patch_wide.py) */
 extern int lk_map_decide(void);                                      /* the game map is on screen (patch_wide.py) */
+extern int lk_tall_kv(void) __attribute__((weak));                  /* LANDSTALKER_TALL: > 0 = full height (the game's visibility test is widened by $80 at the bottom, patch_sprcull.py) */
 extern int lk_tall_keep(int line);                                   /* LANDSTALKER_TALL: this line is drawn below the HInt display-off line (patch_tall.py) */
 extern int lk_tbox_get(void);                                        /* Map Behind Text (patch_tbox.py) */
 static uint16 lk_o_spr[224][LK_OSW];                                 /* by row pixel index (screen x + e): pal * 16 + index | 0x100 priority | 0x200 present */
@@ -118,9 +119,16 @@ static void lk_o_palette(int room) {                                 /* the 64 c
   for (i = 0; i < 64; i++) { int cw = (cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1]; act[i] = lk_o_firston ? SW(0xFF0ED0 + 2 * i) : ((((cw >> 6) & 7) << 9) | (((cw >> 3) & 7) << 5) | ((cw & 7) << 1)); }   /* fade level: the VDP's palette (converted back to MD format), but on the first frame after the display was switched on the game's active copy: the VDP still holds the stale bright palette for that one frame and flashes the HUD */
   for (l = 0; l < 4; l++) {                                                                           /* every palette line has its own fade level (the HUD lines are not faded with the room) */
     bestn = 99; bestd = 0;
-    for (j = 0; j < 0x1400; j += 0x200) { int bad = 0; for (i = 16 * l; i < 16 * l + 16; i++) { int c = lk_o_darken(pal[i], j); if (c != act[i]) bad++; } if (bad < bestn) { bestn = bad; bestd = j; } }
+    for (j = 0; j < 0x1400; j += 0x200) { int bad = 0; for (i = 16 * l; i < 16 * l + 16; i++) { if (l == 3 && i >= 58 && i <= 62) continue; { int c = lk_o_darken(pal[i], j); if (c != act[i]) bad++; } } if (bad < bestn) { bestn = bad; bestd = j; } }
     if (l == 0) lk_o_fade = bestd != 0;
-    for (i = 16 * l; i < 16 * l + 16; i++) { int c = lk_o_darken(pal[i], bestd); lk_o_pix[i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; }
+    if (getenv("LANDSTALKER_OWN_PAL")) { int i2; printf("ownpal: frame %ld room %d line %d level %X bad %d  rom/act:", platform_frame_number(), room, l, bestd, bestn); for (i2 = 16 * l; i2 < 16 * l + 16; i2++) printf(" %03X/%03X", lk_o_darken(pal[i2], bestd), act[i2]); printf("\n"); }
+    if (l == 3) {                                                                                     /* line 3 is mixed: the sprite colours fade with the room, the HUD colours 10..14 do not (rooms with objects on palette line 3, e.g. 427): own level for them, the line's level when they are all black */
+      int hd = bestd, hb = 99, nz = 0;
+      for (i = 58; i <= 62; i++) nz += act[i] != 0;
+      if (nz) for (j = 0; j < 0x1400; j += 0x200) { int bad = 0; for (i = 58; i <= 62; i++) if (lk_o_darken(pal[i], j) != act[i]) bad++; if (bad < hb) { hb = bad; hd = j; } }
+      for (i = 58; i <= 62; i++) { int c = lk_o_darken(pal[i], hd); lk_o_pix[i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; }
+    }
+    for (i = 16 * l; i < 16 * l + 16; i++) { if (l == 3 && i >= 58 && i <= 62) continue; { int c = lk_o_darken(pal[i], bestd); lk_o_pix[i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; } }
   }
 }
 static void lk_o_sprpiece(const uint8 *td, int tile0, int sx, int sy, int w, int h, int pal, int prio, int hf, int vf) {
@@ -187,7 +195,7 @@ static int lk_o_formula(const uint8 *st, int off, int *ax, int *ay) {   /* the g
   lk_o_sp = st;
   z = (int16_t)SW(b + 0x12); cx = (int16_t)SW(b + 0x14); cy = (int16_t)SW(b + 0x16); c0 = (int16_t)SW(0xFF1200); c2 = (int16_t)SW(0xFF1202); kk = off == 0 ? 0 : ((SW(0xFF1180) ^ 1) & 0xFFFF);
   a = (int16_t)(cx - z - c0); bb = (int16_t)(cy - z - c2);
-  if (!(SB(b + 8) & 1) && !(SB(b + 0x0C) & 0x40) && (uint16_t)(a + bb + 0x100) < 0x200 && (uint16_t)(a - bb + 0x100) < 0x200) {
+  if (!(SB(b + 8) & 1) && !(SB(b + 0x0C) & 0x40) && (uint16_t)(a + bb + 0x100) < (uint16_t)(0x200 + ((lk_tall_kv && lk_tall_kv() > 0) ? 0x80 : 0)) && (uint16_t)(a - bb + 0x100) < 0x200) {
     rx = a - bb + 0x120; ry = ((((uint16_t)(a + bb + kk)) >> 1) + 0xE8) & 0x7FF;
     if (rx >= 0x60 - lk_wide_e - 40 && rx < 0x1E0 + lk_wide_e + 40 && ry >= 0x40 && ry < 0x220) { *ax = rx; *ay = ry; ok = 1; }
   }
@@ -258,6 +266,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
         f->ax = fx; f->ay = fy; e = f; cum = 0;
       }
     }
+    if (getenv("LANDSTALKER_OWN_ENTS") && draw && alt) printf("ownents: frame %ld off %02X type %02X A%d B%d F%d vis %d at (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), inA[k], inB[k], inF[k], e ? e->vis : -1, e ? e->ax : 0, e ? e->ay : 0);
     if (!e || !e->vis) continue;
     lk_o_nspr++;
     for (pc = 0; pc < e->np; pc++) {
