@@ -134,6 +134,8 @@ python3 tools/patch_buyqty.py .deps/genrecomp
 python3 tools/patch_tbox.py .deps/genrecomp
 # Key bindings for pad + keyboard (tools/patch_keys.py; replaces the fixed button / key lines of input.c, needs all input patches before it)
 python3 tools/patch_keys.py .deps/genrecomp
+# Controller polling on its own thread (Steam Deck HIDAPI stall every 3.4 s = micro stutter, tools/patch_padthread.py)
+python3 tools/patch_padthread.py .deps/genrecomp
 # Model view (block grid, entity boxes; R3 / F7 / LANDSTALKER_MODEL=1, tools/patch_model.py; needs patch_overlay.py and patch_keys.py first)
 python3 tools/patch_model.py .deps/genrecomp
 # Own renderer, compare mode (LANDSTALKER_OWN=1 / 2, tools/patch_own.py; needs patch_shadow.py first)
