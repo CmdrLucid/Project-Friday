@@ -11,6 +11,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a10. USER CONFIRMATIONS (2026-10-17, night, Deck): 'passt' for Fix Ride Objects (room 444), Item Info, key bindings (real pad / key), scroll arrows + options frame centring, De-Dither with CRT Pro. Closed in sections 0a1 / 0a2 / 0a / 1. Still open: tree warp 537 -> 539 (dev only), Quick Save in odd situations (moving platform, air, dungeon after a fight), Windows on a real PC, Buy Quantity / new menu look (0a3, 0a5).
 
+## 0a27. 2026-10-18 (Deck, Sonnet 5.5, evening): user: sign flicker 425 and HUD 427 were own-renderer only (fixed in 0a26); recording `rec_20261018_1807` (exact replay): own renderer drew the map over the fading Start menu -> fixed with `lk_sh_hide` (INDEX status). USER CHECK OPEN with a new `build.sh`: Start menu -> Equip -> leave, then play on and send recordings of anything odd.
+
 ## 0a26. 2026-10-18 (Deck, Sonnet 5.5, evening): recording `rec_20261018_1747` (does not replay exactly): HUD fade-in in room 427 (palette line 3 mixed) and the sign at the bottom edge of 425 (TALL widening missing in the own visibility formula) fixed (INDEX status). USER CHECK OPEN with a new `build.sh`: rooms 425 -> 427, tell me what exactly the HUD does if it is still wrong (own renderer on / off?).
 
 ## 0a25. 2026-10-18 (Deck, Sonnet 5.5, evening): recording `rec_20261018_1725` analysed: NPC / chest jumps of a few pixels in rooms 593 / 595 with the own renderer = sprite table one step ahead of both snapshots in double-pass frames; extrapolated candidate added (INDEX status). USER CHECK OPEN with a new `build.sh`: rooms 593 / 595, then play on and send recordings of anything odd.
