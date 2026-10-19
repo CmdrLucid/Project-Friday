@@ -4,7 +4,7 @@ Original: HandleAttack ($015C1C) damages every enemy of the room first (no scree
 shake VSRAM, move ~41 falling rock sprites in the sprite table, FlushDMACopyQueue, leave when all rocks are gone) -> GameLoop does not run: Nigel and the enemies stand still.
 Option 'Live' (Options > Gameplay > Gaia Effect, default Off = original): the wrapper of GaiaEffect does the same set-up (Gaia sword graphics + palette for the rocks, rumble sound)
 but returns at once; the rocks live in a C array and are moved / written into the sprite table by a wrapper of LoadSprites ($00401C) after every game pass
-(into the first free slots >= 16, chained between slot 15 and the entity sprites exactly like the original); the VSRAM shake (+4 / 0 on alternate frames) is applied on top of what the game wrote.
+(into the first free slots >= 16, chained between slot 15 and the entity sprites exactly like the original); the VSRAM shake is left out on purpose (it made the picture stutter while walking).
 The effect ends like the original (all rocks cleared after two cycles) or at once on a room change / Start menu / new use. Graphics + palette are restored at the end.
 Saved in ~/.landstalker_gaia, env LANDSTALKER_GAIA=0|1 wins (tests).  Needs patch_carry.py before it (insert order).  Idempotent.
 usage: patch_gaia.py path/to/genrecomp"""
@@ -41,7 +41,7 @@ extern long platform_frame_number(void);
 static struct {
     int active, cycle, step, n_fit;
     int16_t y[LK_G_N]; uint16_t x[LK_G_N], tile[LK_G_N];
-    uint16_t room, vs0, vs1; int vs_off; uint8_t sword;
+    uint16_t room; uint8_t sword;
     uint32_t rng;
 } lk_g;
 static gen_func_t lk_o_gaia, lk_o_lspr, lk_o_cfmo;
@@ -49,17 +49,9 @@ static uint32_t lk_g_rand(uint32_t range) { lk_g.rng = lk_g.rng * 1664525u + 101
 static void lk_g_gfx(void) {   /* sword graphics + palette for the equipped sword (original GaiaEffect end sequence) */
     func_table_jsr(0x000464, 0x016782); func_table_jsr(0x00046A, 0x016788); func_table_jsr(0x000242, 0x01678E);
 }
-static void lk_g_vs(int off) {   /* shake: VSRAM = what the game wrote + off; if the game did not touch it since our last write, take our old offset away first */
-    uint16_t c0 = bus_read16(0xFF0500u), c1 = bus_read16(0xFF0502u);
-    if (c0 == lk_g.vs0 && c1 == lk_g.vs1) { c0 = (uint16_t)(c0 - lk_g.vs_off); c1 = (uint16_t)(c1 - lk_g.vs_off); }
-    lk_g.vs_off = off; lk_g.vs0 = (uint16_t)(c0 + off); lk_g.vs1 = (uint16_t)(c1 + off);
-    bus_write16(0xFF0500u, lk_g.vs0); bus_write16(0xFF0502u, lk_g.vs1);
-    func_table_jsr(0x0002DE, 0x016772);
-}
 static void lk_g_end(int restore) {
     if (!lk_g.active) return;
     lk_g.active = 0;
-    lk_g_vs(0);
     bus_write8(0xFF05CBu, 0x10); bus_write8(0xFF07C3u, 0x4F);   /* slot 15 -> 16, slot 78 -> 79 as the original leaves them */
     if (restore) { lk_g_gfx(); func_table_jsr(0x0002A8, 0x01678E); }
 }
@@ -72,7 +64,6 @@ static void lk_h_gaia(void) {   /* GaiaEffect $016712 */
         bus_write8(0xFF114Eu, 0x04);
         lk_g_gfx();
         bus_write8(0xFF114Eu, lk_g.sword);
-        lk_g.vs0 = lk_g.vs1 = 0xFFFF; lk_g.vs_off = 0;
         lk_g.room = bus_read16(0xFF1204u);
     }
     lk_snd(0x016748);   /* TRAP #0, inline word SND_Rumble (the original call) */
@@ -92,7 +83,6 @@ static void lk_h_gaia(void) {   /* GaiaEffect $016712 */
 static void lk_g_step(void) {   /* once per game pass, after LoadSprites has rebuilt the sprite table */
     int i, k, d3 = -1, n, alive = 0; uint32_t a;
     if (bus_read16(0xFF1204u) != lk_g.room) { lk_g_end(1); return; }
-    lk_g_vs((lk_g.step & 1) ? 0 : 4);   /* sub_016848 */
     lk_g.step++;
     for (i = 0; i < LK_G_N; i++) {   /* sub_01685E */
         int d;
