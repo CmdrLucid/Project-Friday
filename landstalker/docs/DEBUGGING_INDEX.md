@@ -141,3 +141,4 @@
 - L1151: Own renderer / HUD flash, recordings rec_20261018_1304 + 1333 (2026-10-18 night, dev 23f8b2c)
 - L1156: Own renderer, menu, Gaia effect and micro stutter, recordings rec_20261018_1725 .. 1834 + FRAMESTAT runs (2026-10-18 evening / night, dev 6e6e5ea)
 - L1162: Warp pad / Quick Load margins, lit dark rooms, release v0.9.0 / v0.9.1 (2026-10-18 late night, dev 61a4e64)
+- L1168: Gaia effect without freezing the game: 'Live Gaia Effect' (2026-10-19, dev, Sonnet 5.5)

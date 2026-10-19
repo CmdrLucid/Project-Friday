@@ -42,6 +42,7 @@ chk "Gameplay: Quick Items (Anzeige)"               $G/ext/Genesis-Plus-GX/core/
 chk "Gameplay: Quick Items (Tasten, Logik)"         $G/src/func_table.c "lk_quick_install"
 chk "Titelbild: Project Friday (Anzeige)"            $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_BRAND v1"
 chk "Modell-Overlay (LANDSTALKER_MODEL)"             $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_MODEL v2"
+chk "Gaia-Effekt live (LANDSTALKER_GAIA)"             $G/src/func_table.c                  "LK_GAIA v1"
 chk "Eigener Renderer (LANDSTALKER_OWN)"              $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_OWN v1"
 chk "Vorspulen (R2 / Tab)"                           $G/src/platform_sdl.c "LK_FFWD v1"
 chk "Schnellspeichern / -laden"                     $G/src/func_table.c "LK_QUICKSAVE v1"

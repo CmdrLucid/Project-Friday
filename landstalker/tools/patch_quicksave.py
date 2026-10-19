@@ -85,6 +85,7 @@ if VER not in s:
     module = r'''/* ---- LK_QUICKSAVE v1: quick save / load anywhere (tools/patch_quicksave.py) ---- */
 extern int lk_qs_take(void);
 extern void lk_osd_say(const char *t);
+extern void lk_gaia_cancel(void);   /* tools/patch_gaia.py: a running live Gaia effect ends before the saved game is loaded */
 static gen_func_t lk_o_gloop, lk_o_loadgame;
 #define LK_QS_SLOT 4
 static int lk_qs_loading, lk_qs_slot0;
@@ -94,6 +95,7 @@ static int lk_qs_have(void) { int i; for (i = 0; i < 32; i++) if (bus_read8(0x20
 static void lk_h_loadgame(void) {
     if (!lk_qs_loading) { lk_o_loadgame(); return; }
     lk_qs_loading = 0;
+    lk_gaia_cancel();
     lk_call(0x002726u);   /* ClearPlayerStruct */
     lk_call(0x022EC0u);   /* HideRightArrow */
     lk_call(0x002F3Cu);   /* CheckRAM: the RAM marker the file select expects (it clears $FF0010 when it has to write it) */

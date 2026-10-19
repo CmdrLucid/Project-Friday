@@ -92,8 +92,9 @@ static int lk_o_darken(int c, int d3) {                              /* DarkenCo
   r = ((c & 0xE) - r3) & 0x1E; if (r >= 0x10) r = 0;
   return b | g | r;
 }
+extern int lk_gaia_live(void);   /* patch_gaia.py: 1 while the live Gaia effect runs (rocks use the Gaia sword colours) */
 static void lk_o_palette(int room) {                                 /* the 64 colours of the picture from ROM data + game state (romsprite.sprite_palettes / romrender.rom_cram) */
-  int pal[64], i, j, l, n, typ, ts, k, sword = SB(0xFF114E), armour = SB(0xFF114F), act[64], bestn = 99, bestd = 0;
+  int pal[64], i, j, l, n, typ, ts, k, sword = lk_gaia_live() ? 4 : SB(0xFF114E), armour = SB(0xFF114F), act[64], bestn = 99, bestd = 0;
   uint32_t a, e, pbase;
   memset(pal, 0, sizeof pal);
   for (i = 0; i < 16; i++) pal[32 + i] = OW(0x901C + 2 * i);                                         /* line 2: Nigel */
