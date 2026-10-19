@@ -159,14 +159,14 @@ static void lk_o_vpiece(int tile0, int sx, int sy, int w, int h, int pal, int pr
 }
 static uint32 lk_o_satk[96]; static int lk_o_satt[96], lk_o_satn; static int lk_o_satw[96]; static uint32 lk_o_dk[96]; static int lk_o_dn;   /* lk_o_satw: full attribute word of every sprite table entry; lk_o_dk: keys of the pieces the figures pass drew */   /* the real sprite table: key (x, y, size) and first tile number of every entry */
 typedef struct { int vis, ax, ay, ts, sgi, anim, frm, np, pxs[8], pys[8], pws[8], phs[8], prio, off; uint8 *tiles; } lk_o_ent_t;
-static uint8 lk_o_sprtiles_b[0x4000], lk_o_sprtiles_c[0x4000];
+static uint8 lk_o_sprtiles_b[0x4000], lk_o_sprtiles_c[0x4000], lk_o_sprtiles_p[0x4000]; static int lk_o_ovr_anim = -1, lk_o_ovr_frm;   /* _p: tiles of the pose found by the VRAM search; ovr: that search tries other (animation, frame) pairs */
 static void lk_o_entload(const uint8 *src, int off, lk_o_ent_t *e, uint8 *tiles, int decode, int use4e) {   /* one entity of one pass state: pieces + tile graphics from the ROM */
   int b = 0xFF5400 + off, guard, tl = 0; uint32_t base, fp, ap, pos;
   const uint8 *keep = lk_o_sp; lk_o_sp = src;
   e->off = off; e->tiles = tiles; e->np = 0; e->vis = 0;
   e->ax = SW(b + (use4e ? 0x4E : 0x0E)); e->ay = SW(b + (use4e ? 0x50 : 0x10)); e->ts = SW(b + 6);   /* +4E / +50 = the screen position of the previous pass (sub_40F2 copies +0E there before it recomputes it): the game draws objects there */
   if ((e->ax == 0 && e->ay == 0) || (SB(b + 0x0C) & 0x40)) { lk_o_sp = keep; return; }   /* Flags2 bit 6 = hidden (the player's hurt blink toggles it every pass) */
-  e->vis = 1; e->sgi = SB(b + 0x0B); e->anim = SW(b + 0x24); e->frm = SW(b + 0x26); e->prio = SW(0xFF1400 + (off >> 1) + 4) >> 15;
+  e->vis = 1; e->sgi = SB(b + 0x0B); e->anim = SW(b + 0x24); e->frm = SW(b + 0x26); if (lk_o_ovr_anim >= 0) { e->anim = lk_o_ovr_anim; e->frm = lk_o_ovr_frm; } e->prio = SW(0xFF1400 + (off >> 1) + 4) >> 15;
   base = OL(0x120000); { int ofs = OW(0x120004 + 4 * e->sgi); ap = OL(base + (uint32_t)ofs * 4 + (uint32_t)e->anim); }
   fp = OL(ap + (uint32_t)e->frm); pos = fp;
   for (;;) {
@@ -193,8 +193,9 @@ static int lk_o_escore(const lk_o_ent_t *e) {                        /* how well
   for (pc = 0; pc < e->np; pc++) {
     uint32 k = lk_o_pkey(e, pc, 0);
     for (j = 0; j < lk_o_satn; j++) if (lk_o_satk[j] == k) {
-      int t = lk_o_satt[j], same = 1;
-      for (i = 0; i < 32 && same; i++) if (vram[(t * 32 + i) ^ 1] != e->tiles[cum * 32 + i]) same = 0;
+      int t = lk_o_satt[j], same = 1, nb = 32 * e->pws[pc] * e->phs[pc];   /* ALL tiles of the piece: poses of one figure share their first tile (Nigel's walk frame vs the one-frame turn pose), only the whole piece tells which graphic the VDP really holds */
+      if (nb > 0x4000 - cum * 32) nb = 0x4000 - cum * 32; if (t * 32 + nb > 0x10000) nb = 0x10000 - t * 32;
+      for (i = 0; i < nb && same; i++) if (vram[(t * 32 + i) ^ 1] != e->tiles[cum * 32 + i]) same = 0;
       sc += same ? 2 : 1; break;
     }
     cum += e->pws[pc] * e->phs[pc];
@@ -283,6 +284,14 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
       }
     }
     if (getenv("LANDSTALKER_OWN_ENTS") && draw && alt) printf("ownents: frame %ld off %02X type %02X A%d B%d F%d vis %d at (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), inA[k], inB[k], inF[k], e ? e->vis : -1, e ? e->ax : 0, e ? e->ay : 0);
+    if (draw && offs[k] == 0 && e && e->vis && e->np && lk_o_escore(e) < 2 * e->np) {   /* Nigel: for a frame or two the entity's animation / frame fields run ahead of (or behind) the graphic the VDP really holds (one-frame turn flicker while walking in a straight line, rec_20261019_2044): look for the pose whose tiles ARE in VRAM (the same pose appears under several (animation, frame) pairs) */
+      static lk_o_ent_t pose; int an, fr, found = 0;
+      for (an = 0; an < 64 && !found; an += 4) for (fr = 0; fr < 96 && !found; fr += 4) {
+        lk_o_ovr_anim = an; lk_o_ovr_frm = fr; lk_o_entload(src, offs[k], &pose, lk_o_sprtiles_p, 1, 0); lk_o_ovr_anim = -1;
+        if (pose.vis && pose.np == e->np && lk_o_escore(&pose) == 2 * pose.np) found = 1;
+      }
+      if (found) e = &pose;
+    }
     if (!e || !e->vis) continue;
     lk_o_nspr++;
     for (pc = 0; pc < e->np; pc++) {
