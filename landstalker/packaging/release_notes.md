@@ -1,10 +1,9 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- Own Renderer (Options > Video, default Off, experimental): dark rooms are lit when the lantern is used.
-- Fix: widescreen / full height are kept during Quick Load and the teleport pad (they used to shrink for a moment).
-- Fix: the own renderer leaves the teleport pad effect to the game.
-- Everything from v0.9.0 (own renderer option, micro stutter fix for the desktop mode) is included.
+- New option "Live Gaia Effect" (Options > Quality of Life, default Off): the falling rocks of the Statue of Gaia / Gaia Sword no longer freeze the game, you keep moving and the enemies keep moving. The damage is the same as before.
+- Fix: with the own renderer, Nigel no longer turns for one frame while walking straight.
+- Everything from v0.9.1 (own renderer lights dark rooms, widescreen kept during Quick Load and teleport) is included.
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).
