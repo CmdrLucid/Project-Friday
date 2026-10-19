@@ -126,6 +126,8 @@ python3 tools/patch_quicksave.py .deps/genrecomp
 python3 tools/patch_difficulty.py .deps/genrecomp
 # Optional fix 'Ride Objects': Nigel is carried by an object standing on a moving platform (tools/patch_carry.py; needs patch_difficulty.py first)
 python3 tools/patch_carry.py .deps/genrecomp
+# Optional 'Gaia Effect' (Live): the falling rocks of the Gaia statue / sword no longer freeze the game (tools/patch_gaia.py; needs patch_carry.py first)
+python3 tools/patch_gaia.py .deps/genrecomp
 # Optional 'Item Info': description of the item under the cursor in the Start menu (tools/patch_iteminfo.py; needs patch_options.py and patch_carry.py first)
 python3 tools/patch_iteminfo.py .deps/genrecomp
 # Optional 'Buy Quantity': choose how many consumables to buy at once in shops (tools/patch_buyqty.py; needs patch_iteminfo.py first)
