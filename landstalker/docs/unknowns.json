@@ -1477,7 +1477,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:86",
+     "where": "HANDOFF.md:88",
      "date": "2026-10-19",
      "snippet": "## 0a1. END OF SESSION 2026-10-16 (late, Deck, Sonnet 5.5): dev only, user-confirmed by playing: 'Ride Objects' fix, ship band, Item Info ('"
     },
@@ -1783,7 +1783,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:105",
+     "where": "HANDOFF.md:107",
      "date": "2026-10-19",
      "snippet": "- **2026-10-16 (dev, user feedback): Keybindings page shows more rows and the SAME scroll arrows as the item list.** Start menu: 7 visible r"
     },
@@ -2188,7 +2188,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:169",
+     "where": "HANDOFF.md:171",
      "date": "2026-10-19",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -2325,6 +2325,12 @@
     },
     {
      "type": "doc",
+     "where": "FORMATS.md:207",
+     "date": "2026-10-19",
+     "snippet": "* V: `GaiaEffect $016712` writes 41 rock sprites into the RAM sprite table (`g_VDPSpr16_Y $FF05D0`, 8 bytes each: Y word, size byte `$0F` = "
+    },
+    {
+     "type": "doc",
      "where": "INDEX.md:15",
      "date": "2026-10-19",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
@@ -2332,8 +2338,8 @@
    ],
    "callers": [],
    "notes": [],
-   "mentions": 2,
-   "class": "other"
+   "mentions": 3,
+   "class": "seed/table"
   },
   {
    "addr": "0x00C79C",
@@ -2348,6 +2354,12 @@
     },
     {
      "type": "doc",
+     "where": "FORMATS.md:207",
+     "date": "2026-10-19",
+     "snippet": "* V: `GaiaEffect $016712` writes 41 rock sprites into the RAM sprite table (`g_VDPSpr16_Y $FF05D0`, 8 bytes each: Y word, size byte `$0F` = "
+    },
+    {
+     "type": "doc",
      "where": "INDEX.md:15",
      "date": "2026-10-19",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
@@ -2355,8 +2367,8 @@
    ],
    "callers": [],
    "notes": [],
-   "mentions": 2,
-   "class": "other"
+   "mentions": 3,
+   "class": "seed/table"
   },
   {
    "addr": "0x00C7AC",
@@ -2371,6 +2383,12 @@
     },
     {
      "type": "doc",
+     "where": "FORMATS.md:207",
+     "date": "2026-10-19",
+     "snippet": "* V: `GaiaEffect $016712` writes 41 rock sprites into the RAM sprite table (`g_VDPSpr16_Y $FF05D0`, 8 bytes each: Y word, size byte `$0F` = "
+    },
+    {
+     "type": "doc",
      "where": "INDEX.md:15",
      "date": "2026-10-19",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
@@ -2378,8 +2396,8 @@
    ],
    "callers": [],
    "notes": [],
-   "mentions": 2,
-   "class": "other"
+   "mentions": 3,
+   "class": "seed/table"
   },
   {
    "addr": "0x00CC0C",
@@ -2388,7 +2406,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:169",
+     "where": "HANDOFF.md:171",
      "date": "2026-10-19",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -2635,7 +2653,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:139",
+     "where": "HANDOFF.md:141",
      "date": "2026-10-19",
      "snippet": "- **2026-10-14 (dev): tree warp crash.** `~/interp.txt` had `$00F8C6` (jsr into the middle of FadePaletteDownStep from TreeWarpFx `$00E48E`,"
     }
@@ -2814,12 +2832,18 @@
      "where": "DEBUGGING.md:1170",
      "date": "2026-10-19",
      "snippet": "* Findings (disassembly `combat.asm`, replay `docs/replays/mercator_doors_menu_gaia.*`): `HandleAttack $015C1C` damages EVERY enemy of the r"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:207",
+     "date": "2026-10-19",
+     "snippet": "* V: `GaiaEffect $016712` writes 41 rock sprites into the RAM sprite table (`g_VDPSpr16_Y $FF05D0`, 8 bytes each: Y word, size byte `$0F` = "
     }
    ],
    "callers": [],
    "notes": [],
-   "mentions": 1,
-   "class": "other"
+   "mentions": 2,
+   "class": "seed/table"
   },
   {
    "addr": "0x00F2DB",
@@ -3072,7 +3096,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:327",
+     "where": "HANDOFF.md:329",
      "date": "2026-10-19",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -3101,7 +3125,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:327",
+     "where": "HANDOFF.md:329",
      "date": "2026-10-19",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -3176,7 +3200,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:181",
+     "where": "HANDOFF.md:183",
      "date": "2026-10-19",
      "snippet": "- **Deck round 10 (2026-10-11, user played full height in Gumi, save slot 1):** R4 works but moved to R2 (right trigger, the last free shoul"
     }
@@ -3279,7 +3303,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:169",
+     "where": "HANDOFF.md:171",
      "date": "2026-10-19",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -3308,7 +3332,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:131",
+     "where": "HANDOFF.md:133",
      "date": "2026-10-19",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     },
@@ -3653,7 +3677,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:326",
+     "where": "HANDOFF.md:328",
      "date": "2026-10-19",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -3694,7 +3718,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:326",
+     "where": "HANDOFF.md:328",
      "date": "2026-10-19",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -4361,7 +4385,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:169",
+     "where": "HANDOFF.md:171",
      "date": "2026-10-19",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -4593,7 +4617,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:169",
+     "where": "HANDOFF.md:171",
      "date": "2026-10-19",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -4804,7 +4828,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:327",
+     "where": "HANDOFF.md:329",
      "date": "2026-10-19",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     }
@@ -4838,7 +4862,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:131",
+     "where": "HANDOFF.md:133",
      "date": "2026-10-19",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     },
@@ -4969,7 +4993,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:148",
+     "where": "HANDOFF.md:150",
      "date": "2026-10-19",
      "snippet": "- **2026-10-12 (latest, dev): replay of the user's death recording (rec_20261012_2148) matches the live run until frame 3720, then diverges*"
     },
@@ -4998,7 +5022,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:148",
+     "where": "HANDOFF.md:150",
      "date": "2026-10-19",
      "snippet": "- **2026-10-12 (latest, dev): replay of the user's death recording (rec_20261012_2148) matches the live run until frame 3720, then diverges*"
     },
@@ -5055,7 +5079,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:139",
+     "where": "HANDOFF.md:141",
      "date": "2026-10-19",
      "snippet": "- **2026-10-14 (dev): tree warp crash.** `~/interp.txt` had `$00F8C6` (jsr into the middle of FadePaletteDownStep from TreeWarpFx `$00E48E`,"
     },
