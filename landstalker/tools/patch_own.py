@@ -353,9 +353,60 @@ static int lk_o_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio) {   
   return (ix % 2 == 0) ? (b >> 4) : (b & 15);
 }
 
+/* ---- HUD tilemap from the game state (port of hud.asm: RefreshAllHUD $01690A .. UpdateSmallHeartHUD $016B2E, SwordChargeTiles $016CF4), rows 0..2 of the window plane ---- */
+static int lk_o_hw[3][64], lk_o_hwok, lk_o_hwmode = 1, lk_o_hwfr, lk_o_hwlast[4], lk_o_hwlog;
+static int lk_o_hdig[10];
+static void lk_o_b10(long v) { int i, k; static const long p10[10] = {1000000000L, 100000000L, 10000000L, 1000000L, 100000L, 10000L, 1000L, 100L, 10L, 1L};   /* ConvertToBase10 $000FDA: digit + 1, leading zeros (not the last) become 0 */
+  for (i = 0; i < 10; i++) { k = 0; do { k++; v -= p10[i]; } while (v >= 0); v += p10[i]; lk_o_hdig[i] = k; }
+  for (i = 0; i < 9 && lk_o_hdig[i] == 1; i++) lk_o_hdig[i] = 0; }
+static void lk_o_hdraw(int k, int w) { int d = lk_o_hdig[k], t = 0x66BC, b = 0x66BA; if (d) { t = 0x66BF + d; b = t + 0x10; } lk_o_hw[1][w] = t; lk_o_hw[2][w] = b; }   /* GetHUDDigitTiles $01694C + UpdateHUDDigits */
+static void lk_o_hhalf(int *a0, int d0) { (*a0)--; lk_o_hw[1][*a0] = d0; lk_o_hw[2][*a0] = d0 + 0x10; }   /* sub_16B22 */
+static void lk_o_hudbuild(void) {
+  int r, c, i, cur, mx, d0, d2, d3, a0, n, base, stat = 1;
+  lk_o_hwok = 0;
+  if (!lk_o_hwmode) return;
+  for (r = 0; r < 3; r++) for (c = 0; c < 64; c++) lk_o_hw[r][c] = SW(0xFF1C00 + 0x80 * r + 2 * c);
+  for (r = 0; r < 3 && stat; r++) for (c = 0; c < 40; c++) {   /* the static frame (StatusBarTilemap $009152, LoadHUDTiles) must be in the game's buffer, else the HUD is blanked / replaced (intro, credits): the game's words are used */
+    int dyn = (r == 1 && ((c >= 4 && c <= 10) || (c >= 11 && c <= 27) || c == 31 || (c >= 33 && c <= 36))) || (r == 2 && ((c >= 11 && c <= 27) || c == 31 || (c >= 33 && c <= 36)));
+    if (!dyn && lk_o_hw[r][c] != (OW(0x9152 + 2 * (r * 40 + c)) | 0x6000)) { stat = 0; break; } }
+  if (!stat || lk_o_hw[1][36] == 0x66BC) return;                            /* the last gold digit is never blank once the game has refreshed the HUD: still blank = the freshly loaded layout (fade-in after a load), the game's words stay like the original
+  */
+  cur = SW(0xFF543E) & 0xFFFF; mx = SW(0xFF547E) & 0xFFFF;
+  d2 = (cur ? ((cur + 0x100) & 0xFFFF) : 0) >> 8; d3 = (mx ? ((mx + 0x100) & 0xFFFF) : 0) >> 8;
+  lk_o_b10(d2); if (lk_o_hdig[7]) lk_o_hdig[8] = lk_o_hdig[9] = 0x0A; lk_o_hdraw(8, 23); lk_o_hdraw(9, 24);   /* current health (hearts) */
+  lk_o_b10(d3); if (lk_o_hdig[7]) lk_o_hdig[8] = lk_o_hdig[9] = 0x0A; lk_o_hdraw(8, 26); lk_o_hdraw(9, 27);   /* max health */
+  { int g = SW(0xFF120E) & 0xFFFF; lk_o_b10(g); if (lk_o_hdig[5]) lk_o_hdig[6] = lk_o_hdig[7] = lk_o_hdig[8] = lk_o_hdig[9] = 0x0A; for (i = 0; i < 4; i++) lk_o_hdraw(6 + i, 33 + i); }   /* gold, capped at 9999 */
+  { int q = SB(0xFF1040) & 15; q = (q - 1 < 0) ? 0 : q - 1; lk_o_b10(q); if (lk_o_hdig[8]) lk_o_hdig[9] = 0x0A; lk_o_hdraw(9, 31); }   /* EkeEke (item $00: low nibble of the first inventory byte, minus 1) */
+  n = SB(0xFF120A); base = 0x16CF4 + n * 7; for (i = 0; i < 7; i++) lk_o_hw[1][4 + i] = OB(base + i) + 0x66B4;   /* sword charge */
+  for (i = 0; i < 12; i++) { lk_o_hw[2][11 + i] = 0x66BA; lk_o_hw[1][11 + i] = 0x66BC; }   /* InitHeartHUD */
+  { int t = 0x66E3; if (d2 >= 0x33 || d3 >= 0x33) { if (d2 < 0x33) t = 0x66E2;   /* UpdateBigHeartHUD */
+      lk_o_hw[1][11] = t; lk_o_hw[1][12] = t | 0x800; lk_o_hw[2][11] = t + 0x10; lk_o_hw[2][12] = (t + 0x10) | 0x800; } }
+  a0 = 18; if (d2 >= 0x33) d2 -= 0x32;                                       /* UpdateMediumHeartHUD (the label jumps of the asm are kept) */
+  if (d2 >= 0x0B) goto l16AC4;
+  if (d3 < 0x0B) goto small;
+  lk_o_hhalf(&a0, 0x66E0); d0 = 0x66CB; if (d3 < 0x15) goto l16AC2; d0 = 0x66CD;
+l16A9A: lk_o_hhalf(&a0, d0); d0 = 0x66CB; if (d3 < 0x1F) goto l16AC2; d0 = 0x66CD;
+l16AAC: lk_o_hhalf(&a0, d0); d0 = 0x66CB; if (d3 < 0x29) goto l16AC2; d0 = 0x66CD;
+l16ABC: lk_o_hhalf(&a0, d0); d0 = 0x66CB;
+l16AC2: lk_o_hhalf(&a0, d0); goto small;
+l16AC4: lk_o_hhalf(&a0, 0x66E1); if (d2 >= 0x15) goto l16AE0; d0 = 0x66CC; if (d3 < 0x15) { lk_o_hhalf(&a0, d0); goto small; } d0 = 0x66CF; goto l16A9A;
+l16AE0: lk_o_hhalf(&a0, 0x66CE); if (d2 >= 0x1F) goto l16AFC; d0 = 0x66CC; if (d3 < 0x1F) { lk_o_hhalf(&a0, d0); goto small; } d0 = 0x66CF; goto l16AAC;
+l16AFC: lk_o_hhalf(&a0, 0x66CE); if (d2 >= 0x29) goto l16B18; d0 = 0x66CC; if (d3 < 0x29) { lk_o_hhalf(&a0, d0); goto small; } d0 = 0x66CF; goto l16ABC;
+l16B18: lk_o_hhalf(&a0, 0x66CE); lk_o_hhalf(&a0, 0x66CC);
+small:
+  { int k; d0 = (d3 > 10 ? 10 : d3) * 10;                                    /* UpdateSmallHeartHUD */
+    for (k = 0; k < 5; k++, d0++) lk_o_hw[1][18 + k] = OB(0x16BCE + d0) + 0x66B4;
+    for (k = 0; k < 5; k++, d0++) lk_o_hw[2][18 + k] = OB(0x16BCE + d0) + 0x66B4;
+    if (d2) { int rm = d2 % 10, ok = 1; if (!rm) rm = 10; d0 = rm * 10;
+      for (k = 0; k < 5 && ok; k++, d0++) { int d1 = OB(0x16BCE + d0); if (d1 < 10) { ok = 0; break; } if (d1 == 0x30 && lk_o_hw[2][18 + k] == 0x66E8) d1 += 2; lk_o_hw[1][18 + k] = d1 + 0x66B5; }
+      for (k = 0; k < 5 && ok; k++, d0++) { int d1 = OB(0x16BCE + d0); if (d1 < 10) { ok = 0; break; } lk_o_hw[2][18 + k] = d1 + 0x66B5; } } }
+  lk_o_hwok = 1;
+  { int diff = 0; for (r = 1; r < 3; r++) for (c = 0; c < 40; c++) if (lk_o_hw[r][c] != SW(0xFF1C00 + 0x80 * r + 2 * c)) { if (!diff) { lk_o_hwlast[0] = r; lk_o_hwlast[1] = c; lk_o_hwlast[2] = lk_o_hw[r][c]; lk_o_hwlast[3] = SW(0xFF1C00 + 0x80 * r + 2 * c); } diff++; }
+    if (diff) { lk_o_hwfr++; if (lk_o_hwlog > 1) { static int once; if (once++ < 3) for (r = 1; r < 3; r++) { printf("own: HUD row %d mine :", r); for (c = 4; c < 37; c++) printf(" %04X", lk_o_hw[r][c] & 0xFFFF); printf("\nown: HUD row %d game :", r); for (c = 4; c < 37; c++) printf(" %04X", SW(0xFF1C00 + 0x80 * r + 2 * c) & 0xFFFF); printf("\n"); } } if (lk_o_hwlog) printf("own: HUD differs frame %ld in %d words, first row %d col %d mine %04X game %04X (cur %d max %d)\n", platform_frame_number(), diff, lk_o_hwlast[0], lk_o_hwlast[1], lk_o_hwlast[2] & 0xFFFF, lk_o_hwlast[3] & 0xFFFF, d2, d3); } }
+}
 static int lk_o_win(int line, int x, int hint) {                      /* window plane pixel (palette * 16 + index) or -1 = none: HUD rows 0..2, text box rows 20..27 (tilemap in RAM, tiles from ROM / the text tile buffer) */
   int r = line >> 3, w, t, b, ix = x & 7, iy = line & 7;
-  if (line < 24) { w = SW(0xFF1C00 + 0x80 * r + 2 * (x >> 3)); }
+  if (line < 24) { w = (lk_o_hwok && r < 3) ? lk_o_hw[r][x >> 3] : SW(0xFF1C00 + 0x80 * r + 2 * (x >> 3)); }
   else if (line >= 160 && (hint & 0xFF) == 0xA0) { w = SW(0xFF2600 + 0x80 * (r - 20) + 2 * (x >> 3)); }
   else return -1;
   if (w & 0x800) ix = 7 - ix; if (w & 0x1000) iy = 7 - iy;
@@ -373,7 +424,7 @@ static void lk_o_init(void) {
     if (e) lk_o_mode = atoi(e);
     else { char path[512]; FILE *f; const char *h = getenv("HOME"); snprintf(path, sizeof path, "%s/.landstalker_own", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } lk_o_mode = v ? 2 : 0; }   /* Options > Video > Own Renderer */
     if (l) lk_o_log = atoi(l);
-    q = getenv("LANDSTALKER_OWN_SPR"); if (q) lk_o_sprmode = atoi(q); q = getenv("LANDSTALKER_OWN_PAL"); if (q) lk_o_palmode = atoi(q); q = getenv("LANDSTALKER_OWN_CAM"); if (q) lk_o_cammode = atoi(q); }
+    q = getenv("LANDSTALKER_OWN_HUD"); if (q) lk_o_hwmode = atoi(q); q = getenv("LANDSTALKER_OWN_HUDLOG"); if (q) lk_o_hwlog = atoi(q); q = getenv("LANDSTALKER_OWN_SPR"); if (q) lk_o_sprmode = atoi(q); q = getenv("LANDSTALKER_OWN_PAL"); if (q) lk_o_palmode = atoi(q); q = getenv("LANDSTALKER_OWN_CAM"); if (q) lk_o_cammode = atoi(q); }
 }
 int lk_own_get(void) { lk_o_init(); return lk_o_mode == 2; }
 void lk_own_set(int v) {                                             /* Options > Video > Own Renderer On / Off, saved in ~/.landstalker_own */
@@ -436,7 +487,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         for (i5 = 0; i5 < nc; i5++) for (j5 = 0; j5 < ns; j5++) if (kc[i5] == sat[j5]) { mc++; break; }
         for (i5 = 0; i5 < np_; i5++) for (j5 = 0; j5 < ns; j5++) if (kp[i5] == sat[j5]) { mp++; break; }
         lk_o_sp = (lk_o_sprmode == 2 || (lk_o_sprmode == 1 && (2 * mc - nc) >= (2 * mp - np_))) ? lk_o_cc : lk_o_cp; }
-      lk_o_r = r; lk_o_build(); if (lk_o_palmode) lk_o_palette(rm); fr_done = 1; } else fr_done = 0;
+      lk_o_r = r; lk_o_build(); lk_o_hudbuild(); if (lk_o_palmode) lk_o_palette(rm); fr_done = 1; } else fr_done = 0;
     } else fr_done = 0;
     memcpy(lk_o_prev, r, sizeof lk_o_prev); lk_o_valid = 1;
     if (((r[(0xFF11DE & 0xFFFF) ^ 1] << 8) | r[(0xFF11DF & 0xFFFF) ^ 1]) == 0) { memcpy(lk_o_good, r, sizeof lk_o_good); lk_o_goodok = 1; }   /* the player is first in a complete visible list: remember the last complete state */
