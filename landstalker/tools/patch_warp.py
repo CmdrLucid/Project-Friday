@@ -50,8 +50,18 @@ static void lk_h_warp(void) {
 }
 /* LANDSTALKER_LITHO_AT=frame: shows the lithograph picture the way the game does after 'Found Lithograph.' (CSA_0068 $0136BE: CSA_015A, text $26, DisplayLithograph $03860C, text $27;
    the room transition at its end is left out) from INSIDE UpdateSprites ($0178C8), where cutscene actions run - to test the picture with the widescreen / full-height code without the story trigger */
-static gen_func_t lk_l_orig; static long lk_l_at = -1;
+static gen_func_t lk_l_orig; static long lk_l_at = -1, lk_cr_at = -1;
 static void lk_h_litho(void) {
+    if (lk_cr_at >= 0 && platform_frame_number() >= lk_cr_at) {   /* LANDSTALKER_CREDITS_AT: the ending script from FadeToBlack on (CSA_0154 $0156F8) */
+        M68kContext sv = g_m68k; lk_cr_at = -1;
+        printf("credits: frame %ld starting the end credits\n", platform_frame_number());
+        func_table_jsr(0x000254u, 0x0178CEu);
+        g_m68k.d[0] = 0x78; func_table_jsr(0x000278u, 0x0178CEu);
+        g_m68k.d[0] = 0; g_m68k.d[1] = 0xEF; func_table_jsr(0x00031Au, 0x0178CEu);
+        func_table_jsr(0x09B004u, 0x0178CEu);
+        printf("credits: frame %ld credits returned\n", platform_frame_number());
+        g_m68k = sv;
+    }
     if (lk_l_at >= 0 && platform_frame_number() >= lk_l_at) {
         M68kContext sv = g_m68k; lk_l_at = -1;
         printf("litho: frame %ld showing the lithograph picture\n", platform_frame_number());
@@ -68,7 +78,9 @@ static void lk_warp_install(void) {
     static int done; const char *e, *at;
     if (done) return;
     done = 1;
+    { const char *c = getenv("LANDSTALKER_CREDITS_AT"); if (c && *c) lk_cr_at = atol(c); }
     { const char *l = getenv("LANDSTALKER_LITHO_AT"); lk_l_orig = func_table_lookup(0x0178C8);
+      if (lk_cr_at >= 0 && !(l && *l)) l = "999999999";
       if (l && *l && lk_l_orig) { lk_l_at = atol(l); func_table_register(0x0178C8, lk_h_litho); printf("litho: armed at frame %ld\n", lk_l_at); } }
     { const char *r = getenv("LANDSTALKER_REFILL_AT"); if (r && *r && !getenv("LANDSTALKER_WARP")) { lk_refill_at = atol(r); lk_w_orig = func_table_lookup(0x001788); if (lk_w_orig) { func_table_register(0x001788, lk_h_warp); printf("refill: armed at frame %ld\n", lk_refill_at); } return; } else if (r && *r) lk_refill_at = atol(r); }
     e = getenv("LANDSTALKER_WARP");
