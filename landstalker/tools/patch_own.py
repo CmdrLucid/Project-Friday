@@ -362,15 +362,11 @@ static void lk_o_b10(long v) { int i, k; static const long p10[10] = {1000000000
 static void lk_o_hdraw(int k, int w) { int d = lk_o_hdig[k], t = 0x66BC, b = 0x66BA; if (d) { t = 0x66BF + d; b = t + 0x10; } lk_o_hw[1][w] = t; lk_o_hw[2][w] = b; }   /* GetHUDDigitTiles $01694C + UpdateHUDDigits */
 static void lk_o_hhalf(int *a0, int d0) { (*a0)--; lk_o_hw[1][*a0] = d0; lk_o_hw[2][*a0] = d0 + 0x10; }   /* sub_16B22 */
 static void lk_o_hudbuild(void) {
-  int r, c, i, cur, mx, d0, d2, d3, a0, n, base, stat = 1;
+  int r, c, i, cur, mx, d0, d2, d3, a0, n, base;
   lk_o_hwok = 0;
   if (!lk_o_hwmode) return;
-  for (r = 0; r < 3; r++) for (c = 0; c < 64; c++) lk_o_hw[r][c] = SW(0xFF1C00 + 0x80 * r + 2 * c);
-  for (r = 0; r < 3 && stat; r++) for (c = 0; c < 40; c++) {   /* the static frame (StatusBarTilemap $009152, LoadHUDTiles) must be in the game's buffer, else the HUD is blanked / replaced (intro, credits): the game's words are used */
-    int dyn = (r == 1 && ((c >= 4 && c <= 10) || (c >= 11 && c <= 27) || c == 31 || (c >= 33 && c <= 36))) || (r == 2 && ((c >= 11 && c <= 27) || c == 31 || (c >= 33 && c <= 36)));
-    if (!dyn && lk_o_hw[r][c] != (OW(0x9152 + 2 * (r * 40 + c)) | 0x6000)) { stat = 0; break; } }
-  if (!stat || lk_o_hw[1][36] == 0x66BC) return;                            /* the last gold digit is never blank once the game has refreshed the HUD: still blank = the freshly loaded layout (fade-in after a load), the game's words stay like the original
-  */
+  for (r = 0; r < 3; r++) for (c = 0; c < 64; c++) lk_o_hw[r][c] = (c < 40) ? (OW(0x9152 + 2 * (r * 40 + c)) | 0x6000) : 0;   /* LoadHUDTiles: StatusBarTilemap from the ROM */
+  if (lk_o_room >= 139 && lk_o_room <= 143) { for (r = 0; r < 3; r++) for (c = 0; c < 40; c++) lk_o_hw[r][c] = 0xE6B4; lk_o_hwok = 1; return; }   /* the intro rooms 139..143 (INTRO_139.., LoadHUDTiles blanks the HUD at the start in room $8B and nothing refills it before room 148) have a blank HUD */
   cur = SW(0xFF543E) & 0xFFFF; mx = SW(0xFF547E) & 0xFFFF;
   d2 = (cur ? ((cur + 0x100) & 0xFFFF) : 0) >> 8; d3 = (mx ? ((mx + 0x100) & 0xFFFF) : 0) >> 8;
   lk_o_b10(d2); if (lk_o_hdig[7]) lk_o_hdig[8] = lk_o_hdig[9] = 0x0A; lk_o_hdraw(8, 23); lk_o_hdraw(9, 24);   /* current health (hearts) */
@@ -401,8 +397,8 @@ small:
       for (k = 0; k < 5 && ok; k++, d0++) { int d1 = OB(0x16BCE + d0); if (d1 < 10) { ok = 0; break; } if (d1 == 0x30 && lk_o_hw[2][18 + k] == 0x66E8) d1 += 2; lk_o_hw[1][18 + k] = d1 + 0x66B5; }
       for (k = 0; k < 5 && ok; k++, d0++) { int d1 = OB(0x16BCE + d0); if (d1 < 10) { ok = 0; break; } lk_o_hw[2][18 + k] = d1 + 0x66B5; } } }
   lk_o_hwok = 1;
-  { int diff = 0; for (r = 1; r < 3; r++) for (c = 0; c < 40; c++) if (lk_o_hw[r][c] != SW(0xFF1C00 + 0x80 * r + 2 * c)) { if (!diff) { lk_o_hwlast[0] = r; lk_o_hwlast[1] = c; lk_o_hwlast[2] = lk_o_hw[r][c]; lk_o_hwlast[3] = SW(0xFF1C00 + 0x80 * r + 2 * c); } diff++; }
-    if (diff) { lk_o_hwfr++; if (lk_o_hwlog > 1) { static int once; if (once++ < 3) for (r = 1; r < 3; r++) { printf("own: HUD row %d mine :", r); for (c = 4; c < 37; c++) printf(" %04X", lk_o_hw[r][c] & 0xFFFF); printf("\nown: HUD row %d game :", r); for (c = 4; c < 37; c++) printf(" %04X", SW(0xFF1C00 + 0x80 * r + 2 * c) & 0xFFFF); printf("\n"); } } if (lk_o_hwlog) printf("own: HUD differs frame %ld in %d words, first row %d col %d mine %04X game %04X (cur %d max %d)\n", platform_frame_number(), diff, lk_o_hwlast[0], lk_o_hwlast[1], lk_o_hwlast[2] & 0xFFFF, lk_o_hwlast[3] & 0xFFFF, d2, d3); } }
+  { int diff = 0; for (r = 0; r < 3; r++) for (c = 0; c < 40; c++) if (lk_o_hw[r][c] != SW(0xFF1C00 + 0x80 * r + 2 * c)) { if (!diff) { lk_o_hwlast[0] = r; lk_o_hwlast[1] = c; lk_o_hwlast[2] = lk_o_hw[r][c]; lk_o_hwlast[3] = SW(0xFF1C00 + 0x80 * r + 2 * c); } diff++; }
+    if (diff) { lk_o_hwfr++; if (lk_o_hwlog > 1) { static int once; if (once++ < 3) for (r = 1; r < 3; r++) { printf("own: HUD row %d mine :", r); for (c = 4; c < 37; c++) printf(" %04X", lk_o_hw[r][c] & 0xFFFF); printf("\nown: HUD row %d game :", r); for (c = 4; c < 37; c++) printf(" %04X", SW(0xFF1C00 + 0x80 * r + 2 * c) & 0xFFFF); printf("\n"); } } if (lk_o_hwlog) printf("own: HUD differs frame %ld room %d in %d words, first row %d col %d mine %04X game %04X (cur %d max %d)\n", platform_frame_number(), lk_o_room, diff, lk_o_hwlast[0], lk_o_hwlast[1], lk_o_hwlast[2] & 0xFFFF, lk_o_hwlast[3] & 0xFFFF, d2, d3); } }
 }
 static int lk_o_win(int line, int x, int hint) {                      /* window plane pixel (palette * 16 + index) or -1 = none: HUD rows 0..2, text box rows 20..27 (tilemap in RAM, tiles from ROM / the text tile buffer) */
   int r = line >> 3, w, t, b, ix = x & 7, iy = line & 7;
