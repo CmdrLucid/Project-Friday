@@ -1,10 +1,9 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- Fix: the end credits are visible again with the own renderer (they were hidden by the last room).
-- Fix: Quick Items in the HUD no longer show red stripes while the screen fades, and fade out together with the bar (also in the white fade between rooms).
-- Fix: with the own renderer the stairs of the Stairway to Nole no longer flash after a Quick Load.
-- Everything from v0.9.2 (Live Gaia Effect option, Nigel pose fix) is included. The game has now been played to the end on the Steam Deck.
+- Own renderer (Options > Video > Own Renderer, still Off by default): the HUD (hearts, health, gold, EkeEke, sword gauge), the dialogue text and the text box frame are now drawn from the game state instead of copied from the game's buffers; the picture of every frame is built from the state the game handed to the video chip (fewer position glitches).
+- Fix: with the own renderer the intro captions are white again and the text boxes (statue, dialogues) in the intro and the first cave are visible.
+- Everything from v0.9.3 (end credits, Quick Item HUD in fades, stairs of the Stairway to Nole) is included.
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).

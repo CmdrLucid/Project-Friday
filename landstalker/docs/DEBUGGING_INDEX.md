@@ -144,3 +144,5 @@
 - L1168: Gaia effect without freezing the game: 'Live Gaia Effect' (2026-10-19, dev, Sonnet 5.5)
 - L1175: Own renderer: Nigel turns for one frame while walking straight, rec_20261019_2044 (2026-10-19, dev)
 - L1181: Ending credits, quick item HUD in fades, camera re-base in room 421 (2026-10-20, dev 7dbe64a; the game was played to the end)
+- L1188: Own renderer: HUD logic, dialogue text, intro colours (2026-10-20 evening, dev 5f71bb3, Sonnet 5.5)
+- L1193: Own renderer: the state as the VDP receives it, VBlank snapshot (2026-10-20 night, dev c0b0052, Sonnet 5.5)
