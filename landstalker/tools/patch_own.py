@@ -405,7 +405,7 @@ static int lk_o_txmode = 1, lk_o_txlog;
 static int lk_o_win(int line, int x, int hint) {                      /* window plane pixel (palette * 16 + index) or -1 = none: HUD rows 0..2, text box rows 20..27 (tilemap in RAM, tiles from ROM / the text tile buffer) */
   int r = line >> 3, w, t, b, ix = x & 7, iy = line & 7;
   if (line < 24) { w = (lk_o_hwok && r < 3) ? lk_o_hw[r][x >> 3] : SW(0xFF1C00 + 0x80 * r + 2 * (x >> 3)); }
-  else if (line >= 160 && (hint & 0xFF) == 0xA0) { w = SW(0xFF2600 + 0x80 * (r - 20) + 2 * (x >> 3)); }
+  else if (line >= 160 && (hint & 0xFF) == 0xA0) { w = lk_o_txmode ? (OW(0x23900 + 2 * ((r - 20) * 40 + (x >> 3))) | 0x6000) : SW(0xFF2600 + 0x80 * (r - 20) + 2 * (x >> 3)); }   /* LoadTextboxTilemap $0234B2: TextBoxTilemap $023900 | $6000 */
   else return -1;
   if (w & 0x800) ix = 7 - ix; if (w & 0x1000) iy = 7 - iy;
   t = w & 0x7FF;
@@ -485,7 +485,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         for (i5 = 0; i5 < nc; i5++) for (j5 = 0; j5 < ns; j5++) if (kc[i5] == sat[j5]) { mc++; break; }
         for (i5 = 0; i5 < np_; i5++) for (j5 = 0; j5 < ns; j5++) if (kp[i5] == sat[j5]) { mp++; break; }
         lk_o_sp = (lk_o_sprmode == 2 || (lk_o_sprmode == 1 && (2 * mc - nc) >= (2 * mp - np_))) ? lk_o_cc : lk_o_cp; }
-      lk_o_r = r; lk_o_build(); lk_o_hudbuild(); if (lk_o_txlog > 1) lk_ot_dbg(vram, platform_frame_number()); else if (lk_o_txlog) { int bad = lk_ot_check(vram); if (bad > 0) printf("own: text mirror differs from VRAM in %d bytes, frame %ld room %d\n", bad, platform_frame_number(), rm); } if (lk_o_palmode) lk_o_palette(rm); fr_done = 1; } else fr_done = 0;
+      lk_o_r = r; lk_o_build(); lk_o_hudbuild(); if (lk_o_txlog && (hint & 0xFF) == 0xA0) { int rr, cc, nd = 0; for (rr = 0; rr < 8; rr++) for (cc = 0; cc < 40; cc++) if ((OW(0x23900 + 2 * (rr * 40 + cc)) | 0x6000) != SW(0xFF2600 + 0x80 * rr + 2 * cc)) nd++; if (nd) printf("own: text box tilemap differs from the game's in %d words, frame %ld room %d\n", nd, platform_frame_number(), rm); } if (lk_o_txlog > 1) lk_ot_dbg(vram, platform_frame_number()); else if (lk_o_txlog) { int bad = lk_ot_check(vram); if (bad > 0) printf("own: text mirror differs from VRAM in %d bytes, frame %ld room %d\n", bad, platform_frame_number(), rm); } if (lk_o_palmode) lk_o_palette(rm); fr_done = 1; } else fr_done = 0;
     } else fr_done = 0;
     memcpy(lk_o_prev, r, sizeof lk_o_prev); lk_o_valid = 1;
     if (((r[(0xFF11DE & 0xFFFF) ^ 1] << 8) | r[(0xFF11DF & 0xFFFF) ^ 1]) == 0) { memcpy(lk_o_good, r, sizeof lk_o_good); lk_o_goodok = 1; }   /* the player is first in a complete visible list: remember the last complete state */
