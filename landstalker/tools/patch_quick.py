@@ -141,7 +141,15 @@ static void lk_q_cells(int compact, PIXEL_OUT_T white, PIXEL_OUT_T black) {
 static int lk_q_sh, lk_q_hud, lk_q_Lp, lk_q_Wb, lk_q_kn, lk_q_cellw, lk_q_bl, lk_q_fillcol, lk_q_haveprev, lk_q_bar, lk_q_colmap[512];
 static uint8 lk_q_busy[512], lk_q_busyp[512];
 '''
-    module += r'''static void lk_quick_hud(PIXEL_OUT_T *row, int width) {
+    module += r'''static int lk_q_fb;
+static PIXEL_OUT_T lk_q_fl = 0x442288u;
+static int lk_q_cmp(const void *a, const void *b) { PIXEL_OUT_T x = *(const PIXEL_OUT_T *)a, y = *(const PIXEL_OUT_T *)b; return x < y ? -1 : x > y; }
+static PIXEL_OUT_T lk_q_fade(PIXEL_OUT_T c, int fb) {   /* fb = level of the bar border (0xEE = no fade): below: darken, above: towards white */
+  int ch, sh, v; PIXEL_OUT_T o = c & 0xFF000000u;
+  for (sh = 0; sh < 24; sh += 8) { ch = (int)((c >> sh) & 255); v = fb <= 0xEE ? ch * fb / 0xEE : ch + (255 - ch) * (fb - 0xEE) / (255 - 0xEE); o |= (PIXEL_OUT_T)(v & 255) << sh; }
+  return o;
+}
+static void lk_quick_hud(PIXEL_OUT_T *row, int width) {
   int line = lk_q_line, Wp = bitmap.viewport.w, ox = bitmap.viewport.x, e, bl, x, n;
   PIXEL_OUT_T *r, tmp[512];
   if (line < 5 || line > 22) return;
@@ -149,15 +157,18 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
   if (Wp < 320 || Wp > 416 || width < Wp + 2 * ox) return;
   r = row + ox; e = (Wp - 320) / 2; bl = 12 + e;   /* the bar is 296 px wide: picture x 12 + e .. 307 + e (rel 0..295; left cap rel 0..2, right cap rel 293..295) */
   if (line == 5) {   /* decide for this frame: bar there? build the column map from the previous frame's empty columns */
-    int wc = 0;
+    int wc = 0, fb;
+    PIXEL_OUT_T p0 = r[bl + 100] & 0xFFFFFFu;
     lk_q_hud = 0;
-    for (x = bl + 6; x < bl + 287; x++) { PIXEL_OUT_T p = r[x]; if (((p >> 16) & 255) > 200 && ((p >> 8) & 255) > 200 && (p & 255) > 200) wc++; }
-    lk_q_bar = wc >= 275;
-    if (wc >= 275 && lk_q_haveprev) {
+    for (x = bl + 6; x < bl + 287; x++) if ((r[x] & 0xFFFFFFu) == p0) wc++;   /* the top border is one uniform grey (white at full brightness, 0xEEEEEE); a fade changes only its level */
+    fb = (int)(p0 & 255);
+    lk_q_fb = fb;
+    lk_q_bar = wc >= 275 && p0 == 0xEEEEEEu;   /* LK_QUICK: only a frame at full brightness updates the column map (during a fade every column differs from the fill colour and would look busy) */
+    if (wc >= 275 && ((p0 >> 8) & 255) == fb && ((p0 >> 16) & 255) == fb && fb >= 0x08 && lk_q_haveprev) {   /* fades in and out of the bar (user recording 2026-10-19: red stripes + unfaded cells) */
       int Lp = (Wp == 320) ? 0 : (Wp - 348) / 2, Wb = (Wp == 320) ? 320 : 348,   /* 320: full width; 352 and wider: 348 px (at 352 nearly the full width), centred, so the bar does not stretch over the wide margins */
            compact = 1, cellw = compact ? (Wp >= 352 ? 41 : 36) : 62,   /* wide pictures: 5 px more between the two cells */ need = 296 + cellw - Wb, k, a, b, kn = 0, fc = -1;
       uint8 rm[296];
-      PIXEL_OUT_T white = r[bl + 100], black = white & 0xFF000000u;
+      PIXEL_OUT_T white = (r[bl + 100] & 0xFF000000u) | 0xEEEEEEu, black = white & 0xFF000000u;
       memset(rm, 0, sizeof rm);
       for (x = 230; x <= 235; x++) { rm[x] = 1; need--; }   /* the '-' between the bag and the item count (rel 230..233, 4 px; user wish 2026-10-17): dropped, so the count moves left and the gold keeps more distance */
       /* 1. runs of empty columns right of the health numbers (rel 200..296), 2. any empty run right of the sword icon (rel 25..199), keep 3 px of every run */
@@ -182,10 +193,17 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
         t = kn - 1 - i; lk_q_sh = pad > t ? (pad - t) / 2 : 0; }
       lk_q_Lp = Lp; lk_q_Wb = Wb; lk_q_kn = kn; lk_q_cellw = cellw; lk_q_bl = bl; lk_q_fillcol = fc;
       lk_q_cells(compact, white, black);
+      if (fb != 0xEE) { int j, i; for (j = 0; j < 16; j++) for (i = 0; i < 64; i++) if (lk_q_cm[j][i]) lk_q_cv[j][i] = lk_q_fade(lk_q_cv[j][i], fb); }   /* the cells follow the HUD fade (down to black or up to white) */
       lk_q_hud = 1;
     }
   }
-  if (line >= 7 && line <= 20) for (x = 3; x < 293; x++) if (((r[bl + x]) & 0xFFFFFF) != 0x442288u) lk_q_busy[x] = 1;
+  if (line == 7) {   /* the fill colour of THIS frame = the most frequent colour of the bar interior (the room-change fade to white lightens the purple fill while the border stays white; with the fixed 0x442288 every column looked busy, no empty column was found and the sword gauge column 85 became the cell fill = red stripes) */
+    PIXEL_OUT_T v[290]; int i, best = 0, run = 0; lk_q_fl = 0x442288u;
+    for (i = 0; i < 290; i++) v[i] = r[bl + 3 + i] & 0xFFFFFFu;
+    qsort(v, 290, sizeof(PIXEL_OUT_T), lk_q_cmp);
+    for (i = 0; i < 290; i++) { run = (i && v[i] == v[i - 1]) ? run + 1 : 1; if (run > best) { best = run; if (run >= 60) lk_q_fl = v[i]; } }
+  }
+  if (line >= 7 && line <= 20) { PIXEL_OUT_T fl = lk_q_fl; for (x = 3; x < 293; x++) if (((r[bl + x]) & 0xFFFFFF) != fl) lk_q_busy[x] = 1; }   /* LK_QUICK: 'empty' = the fill colour of THIS frame (the room-change fade to white lightens the purple fill while the border stays white: with the fixed 0x442288 every column looked busy, no empty column was found and the sword gauge column 85 was used as cell fill = red stripes) */
   if (lk_q_hud) {
     int Lp = lk_q_Lp, Wb = lk_q_Wb, kn = lk_q_kn, fc = lk_q_fillcol;
     memcpy(tmp, r, (size_t)Wp * sizeof(PIXEL_OUT_T));
