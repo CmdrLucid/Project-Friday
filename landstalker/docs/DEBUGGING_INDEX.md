@@ -143,3 +143,4 @@
 - L1162: Warp pad / Quick Load margins, lit dark rooms, release v0.9.0 / v0.9.1 (2026-10-18 late night, dev 61a4e64)
 - L1168: Gaia effect without freezing the game: 'Live Gaia Effect' (2026-10-19, dev, Sonnet 5.5)
 - L1175: Own renderer: Nigel turns for one frame while walking straight, rec_20261019_2044 (2026-10-19, dev)
+- L1181: Ending credits, quick item HUD in fades, camera re-base in room 421 (2026-10-20, dev 7dbe64a; the game was played to the end)
