@@ -144,9 +144,16 @@ static uint8 lk_q_busy[512], lk_q_busyp[512];
     module += r'''static int lk_q_fb;
 static PIXEL_OUT_T lk_q_fl = 0x442288u;
 static int lk_q_cmp(const void *a, const void *b) { PIXEL_OUT_T x = *(const PIXEL_OUT_T *)a, y = *(const PIXEL_OUT_T *)b; return x < y ? -1 : x > y; }
-static PIXEL_OUT_T lk_q_fade(PIXEL_OUT_T c, int fb) {   /* fb = level of the bar border (0xEE = no fade): below: darken, above: towards white */
-  int ch, sh, v; PIXEL_OUT_T o = c & 0xFF000000u;
-  for (sh = 0; sh < 24; sh += 8) { ch = (int)((c >> sh) & 255); v = fb <= 0xEE ? ch * fb / 0xEE : ch + (255 - ch) * (fb - 0xEE) / (255 - 0xEE); o |= (PIXEL_OUT_T)(v & 255) << sh; }
+static PIXEL_OUT_T lk_q_fade(PIXEL_OUT_T c) {   /* the cells follow the fade of the bar: per channel from the fill colour of this frame (lk_q_fl) against the normal 0x442288: darker below, towards white (0xEE) above (the border stays white in the room-change fade to white, only the fill lightens) */
+  int sh; PIXEL_OUT_T o = c & 0xFF000000u;
+  if ((lk_q_fl & 0xFFFFFFu) == 0x442288u) return c;
+  for (sh = 0; sh < 24; sh += 8) {
+    int ch = (int)((c >> sh) & 255), f0 = (int)((0x442288u >> sh) & 255), f1 = (int)((lk_q_fl >> sh) & 255), v;
+    if (f1 <= f0) v = f0 ? ch * f1 / f0 : ch;
+    else v = f1 >= 0xEE || f0 >= 0xEE ? 0xEE : ch + (0xEE - ch) * (f1 - f0) / (0xEE - f0);
+    if (v < ch && f1 > f0) v = ch;
+    o |= (PIXEL_OUT_T)(v & 255) << sh;
+  }
   return o;
 }
 static void lk_quick_hud(PIXEL_OUT_T *row, int width) {
@@ -193,7 +200,6 @@ static void lk_quick_hud(PIXEL_OUT_T *row, int width) {
         t = kn - 1 - i; lk_q_sh = pad > t ? (pad - t) / 2 : 0; }
       lk_q_Lp = Lp; lk_q_Wb = Wb; lk_q_kn = kn; lk_q_cellw = cellw; lk_q_bl = bl; lk_q_fillcol = fc;
       lk_q_cells(compact, white, black);
-      if (fb != 0xEE) { int j, i; for (j = 0; j < 16; j++) for (i = 0; i < 64; i++) if (lk_q_cm[j][i]) lk_q_cv[j][i] = lk_q_fade(lk_q_cv[j][i], fb); }   /* the cells follow the HUD fade (down to black or up to white) */
       lk_q_hud = 1;
     }
   }
@@ -208,7 +214,7 @@ static void lk_quick_hud(PIXEL_OUT_T *row, int width) {
     int Lp = lk_q_Lp, Wb = lk_q_Wb, kn = lk_q_kn, fc = lk_q_fillcol;
     memcpy(tmp, r, (size_t)Wp * sizeof(PIXEL_OUT_T));
     for (n = 0; n < Wb; n++) { int src = lk_q_colmap[n]; r[Lp + n] = tmp[bl + (src >= 0 ? src : fc)]; }
-    if (line >= 6 && line <= 21) for (x = 0; x < lk_q_cellw; x++) if (lk_q_cm[line - 6][x]) r[Lp + kn + lk_q_sh + x] = lk_q_cv[line - 6][x];
+    if (line >= 6 && line <= 21) for (x = 0; x < lk_q_cellw; x++) if (lk_q_cm[line - 6][x]) r[Lp + kn + lk_q_sh + x] = lk_q_fade(lk_q_cv[line - 6][x]);
   }
   if (line == 22) { if (lk_q_bar) { memcpy(lk_q_busyp, lk_q_busy, sizeof lk_q_busy); lk_q_haveprev = 1; } memset(lk_q_busy, 0, sizeof lk_q_busy); }   /* LK_QUICK: a blank / fading frame without the bar keeps the last real column map (the first frame after a room load showed the game's red striped HUD for one frame) */
 }
