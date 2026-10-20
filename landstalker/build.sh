@@ -140,6 +140,8 @@ python3 tools/patch_keys.py .deps/genrecomp
 python3 tools/patch_padthread.py .deps/genrecomp
 # Model view (block grid, entity boxes; R3 / F7 / LANDSTALKER_MODEL=1, tools/patch_model.py; needs patch_overlay.py and patch_keys.py first)
 python3 tools/patch_model.py .deps/genrecomp
+# Own text box tiles: mirror of the game's text buffer built by an own glyph printer (tools/patch_owntext.py; needs patch_buyqty.py first)
+python3 tools/patch_owntext.py .deps/genrecomp
 # Own renderer, compare mode (LANDSTALKER_OWN=1 / 2, tools/patch_own.py; needs patch_shadow.py first)
 python3 tools/patch_own.py .deps/genrecomp
 # test aid: LANDSTALKER_WARP="610:12.08,20.04" puts Nigel into a room at a spot (headless tests), see tools/patch_warp.py
