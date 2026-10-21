@@ -5756,35 +5756,6 @@
    "class": "ram"
   },
   {
-   "addr": "0xFF2C00",
-   "first_seen": "2026-10-10",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:93",
-     "date": "2026-10-20",
-     "snippet": "Dumps at frame 274 showed the unpacked-graphics buffer (`$FF2C00`+) and VRAM"
-    },
-    {
-     "type": "doc",
-     "where": "FORMATS.md:126",
-     "date": "2026-10-20",
-     "snippet": "- Sprites: SAT entries 1 and 2 in RAM (`$FF0558` up, `$FF0560` down): Y word (0 = hidden, `$98` up / `$120` down), size byte 5 (2 x 2 tiles)"
-    },
-    {
-     "type": "doc",
-     "where": "FORMATS.md:215",
-     "date": "2026-10-20",
-     "snippet": "* `PlayEndCredits` clears the HUD buffers (`$FF1C00`, `$800` words), loads `EndCreditFont $09FA42` (to `$FF2C00`), `EndCreditLogos $0A0033` "
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 3,
-   "class": "ram"
-  },
-  {
    "addr": "0xFF2C04",
    "first_seen": "2026-10-16",
    "hits": 0,
