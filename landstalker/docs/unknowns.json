@@ -5338,40 +5338,6 @@
    "class": "ram"
   },
   {
-   "addr": "0xFF0F52",
-   "first_seen": "2026-10-18",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "FORMATS.md:194",
-     "date": "2026-10-20",
-     "snippet": "* V: sprite / HUD palette lines (2026-10-18, `romsprite.sprite_palettes`, `romrender.rom_cram`): all four CRAM lines are rebuilt from the RO"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF0F54",
-   "first_seen": "2026-10-18",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "FORMATS.md:194",
-     "date": "2026-10-20",
-     "snippet": "* V: sprite / HUD palette lines (2026-10-18, `romsprite.sprite_palettes`, `romrender.rom_cram`): all four CRAM lines are rebuilt from the RO"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
-  },
-  {
    "addr": "0xFF0F9C",
    "first_seen": "2026-10-10",
    "hits": 0,
