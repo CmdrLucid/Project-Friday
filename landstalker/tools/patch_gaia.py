@@ -126,6 +126,11 @@ static void lk_h_cfmo(void) {   /* CheckForMenuOpen $007624: START opens the Sta
     lk_o_cfmo();
 }
 void lk_gaia_cancel(void) { lk_g_end(0); }
+int lk_gaia_shake(void) {   /* the original GaiaEffectLoop $016794 shakes VSRAM directly (the own renderer then reads the VDP's scroll values, not the game's variables) */
+    int i, d = func_table_depth();
+    for (i = 0; i < d; i++) if (func_table_stack(i) == 0x016794u) return 1;
+    return lk_g.active;
+}
 int lk_gaia_live(void) { return lk_g.active; }   /* the own renderer takes the Gaia sword palette while the rocks fall (the sword byte itself stays the real one) */
 static void lk_gaia_install(void) {
     static int done;
