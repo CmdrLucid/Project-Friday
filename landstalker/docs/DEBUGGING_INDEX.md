@@ -150,3 +150,4 @@
 - L1209: Own renderer: fade level from the game's counters (2026-10-21)
 - L1214: Own renderer: camera constants (2026-10-21)
 - L1221: Own renderer: visual effects (2026-10-21)
+- L1228: Own renderer: no VDP any more (2026-10-21)
