@@ -54,7 +54,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:257",
+     "where": "INDEX.md:258",
      "date": "2026-10-21",
      "snippet": "- RAM: Player struct `$FF5400` (X +0, Y +1, Z word +$12, FallRate +$20, JumpRate +$21, GroundHeight +$22, Action word +$2C; bits 0-3 walk, 4"
     }
@@ -71,7 +71,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "LESSONS.md:119",
+     "where": "LESSONS.md:120",
      "date": "2026-10-21",
      "snippet": "38. **`unknowns.py scan-docs` registered room / entity ids as addresses (2026-10-15, FIXED the same day)**: the id tables ROOMS.md / ENTITIE"
     }
@@ -284,7 +284,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:43",
+     "where": "INDEX.md:44",
      "date": "2026-10-21",
      "snippet": "- **2026-10-17 (dev, night): block word flag bits looked at (user: 'schau dir noch die offenen flag-bits an').** Result (FORMATS 'Block word"
     }
@@ -399,14 +399,20 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:13",
+     "where": "FORMATS.md:218",
+     "date": "2026-10-21",
+     "snippet": "* `g_Buffer $FF2C00` (general work buffer, `$D00` bytes up to `g_ScreenBuffer $FF3900`) holds the Use list tile map while the Start menu is "
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:14",
      "date": "2026-10-21",
      "snippet": "- **2026-10-21 (dev, Sonnet 5.5, user: 'im Item Use Men\u00fc nach unten scrollen: Grafikm\u00fcll statt der richtigen Grafiken, im eigenen Renderer, "
     }
    ],
    "callers": [],
    "notes": [],
-   "mentions": 3,
+   "mentions": 4,
    "class": "other"
   },
   {
@@ -440,7 +446,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:15",
+     "where": "INDEX.md:16",
      "date": "2026-10-21",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user recording `rec_20261020_1841` (new game, intro, statue, owner dialogue; WIDE 16 + TALL; replays EXACTL"
     }
@@ -475,7 +481,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:13",
+     "where": "INDEX.md:14",
      "date": "2026-10-21",
      "snippet": "- **2026-10-21 (dev, Sonnet 5.5, user: 'im Item Use Men\u00fc nach unten scrollen: Grafikm\u00fcll statt der richtigen Grafiken, im eigenen Renderer, "
     }
@@ -760,7 +766,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:120",
+     "where": "INDEX.md:121",
      "date": "2026-10-21",
      "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
     }
@@ -1204,7 +1210,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:171",
+     "where": "INDEX.md:172",
      "date": "2026-10-21",
      "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
     }
@@ -1464,6 +1470,12 @@
    "sightings": [
     {
      "type": "doc",
+     "where": "DEBUGGING.md:1229",
+     "date": "2026-10-21",
+     "snippet": "- Facts used: the VBlank handler `HandleVBlankInterrupt $0011DE` = `RefreshVDPSpriteTable`, `ProcessQueuedVDPActions $001260` (= `ProcessVRA"
+    },
+    {
+     "type": "doc",
      "where": "FORMATS.md:94",
      "date": "2026-10-21",
      "snippet": "* V: buffer `$FF3900` (`g_VdpQueueBuffer`), write pointer `$FF1840` (long), count `$FF1128` (BYTE, number of 4-entry groups = map blocks; `A"
@@ -1471,8 +1483,8 @@
    ],
    "callers": [],
    "notes": [],
-   "mentions": 1,
-   "class": "other"
+   "mentions": 2,
+   "class": "seed/table"
   },
   {
    "addr": "0x00478C",
@@ -1527,13 +1539,13 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:16",
+     "where": "INDEX.md:17",
      "date": "2026-10-21",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:17",
+     "where": "INDEX.md:18",
      "date": "2026-10-21",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'nehmen wir uns HUD vor, dann Dialoge'): HUD LOGIC OF THE OWN RENDERER (`tools/patch_own.py lk_o_hudb"
     }
@@ -1616,13 +1628,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:114",
+     "where": "HANDOFF.md:116",
      "date": "2026-10-21",
      "snippet": "## 0a1. END OF SESSION 2026-10-16 (late, Deck, Sonnet 5.5): dev only, user-confirmed by playing: 'Ride Objects' fix, ship band, Item Info ('"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:61",
+     "where": "INDEX.md:62",
      "date": "2026-10-21",
      "snippet": "- **2026-10-16 (dev): ship return from the island map: margins / full height were black for ~45 frames (+ band garbage) FIXED** (`lk_picture"
     }
@@ -1653,7 +1665,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:25",
+     "where": "INDEX.md:26",
      "date": "2026-10-21",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_2127` (WIDE 16 + TALL, rooms 700 -> 486 -> 148; own renderer on): 'beim Telepo"
     }
@@ -1974,13 +1986,13 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:28",
+     "where": "INDEX.md:29",
      "date": "2026-10-21",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, same recording `rec_20261018_1807`; user: 'Men\u00fc verlassen besser, aber nicht perfekt: 1. blaues breites Ban"
     },
     {
      "type": "doc",
-     "where": "LESSONS.md:142",
+     "where": "LESSONS.md:143",
      "date": "2026-10-21",
      "snippet": "60. **Own renderer / widescreen rule / pad (2026-10-18):** (a) the own renderer must NEVER replace the game's picture while a menu runs (`lk"
     }
@@ -2027,7 +2039,7 @@
     },
     {
      "type": "doc",
-     "where": "LESSONS.md:117",
+     "where": "LESSONS.md:118",
      "date": "2026-10-21",
      "snippet": "36. **UBSan survey with the zig build (2026-10-15)**: `python3 tools/zigbuild.py --out DIR \"--extra=-fsanitize=undefined -g\" \"--extra-gpgx=-"
     }
@@ -2053,13 +2065,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:133",
+     "where": "HANDOFF.md:136",
      "date": "2026-10-21",
      "snippet": "- **2026-10-16 (dev, user feedback): Keybindings page shows more rows and the SAME scroll arrows as the item list.** Start menu: 7 visible r"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:65",
+     "where": "INDEX.md:66",
      "date": "2026-10-21",
      "snippet": "- **2026-10-16 (dev, user feedback): Keybindings page shows more rows and the SAME scroll arrows as the item list.** Start menu: 7 visible r"
     }
@@ -2273,11 +2285,17 @@
      "where": "FORMATS.md:51",
      "date": "2026-10-21",
      "snippet": "- The game draws only through a RAM queue (`$FF3900`) flushed in VBlank by `FlushVdpWriteQueue $002686`: per entry a word (VDP address low p"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:224",
+     "date": "2026-10-21",
+     "snippet": "* `g_DMAOpQueue $FF07D0`: 16 bytes per op, built by `QueueDMAOp` (VRAM, length in WORDS, source = RAM or ROM address), `QueueFullPaletteDMA`"
     }
    ],
    "callers": [],
    "notes": [],
-   "mentions": 2,
+   "mentions": 3,
    "class": "other"
   },
   {
@@ -2322,13 +2340,13 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:16",
+     "where": "INDEX.md:17",
      "date": "2026-10-21",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:16",
+     "where": "INDEX.md:17",
      "date": "2026-10-21",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     }
@@ -2420,20 +2438,20 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:13",
+     "where": "FORMATS.md:218",
      "date": "2026-10-21",
-     "snippet": "- **2026-10-21 (dev, Sonnet 5.5, user: 'im Item Use Men\u00fc nach unten scrollen: Grafikm\u00fcll statt der richtigen Grafiken, im eigenen Renderer, "
+     "snippet": "* `g_Buffer $FF2C00` (general work buffer, `$D00` bytes up to `g_ScreenBuffer $FF3900`) holds the Use list tile map while the Start menu is "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:16",
+     "where": "INDEX.md:14",
      "date": "2026-10-21",
-     "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
+     "snippet": "- **2026-10-21 (dev, Sonnet 5.5, user: 'im Item Use Men\u00fc nach unten scrollen: Grafikm\u00fcll statt der richtigen Grafiken, im eigenen Renderer, "
     }
    ],
    "callers": [],
    "notes": [],
-   "mentions": 6,
+   "mentions": 7,
    "class": "other"
   },
   {
@@ -2517,7 +2535,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:197",
+     "where": "HANDOFF.md:200",
      "date": "2026-10-21",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -2608,6 +2626,12 @@
     },
     {
      "type": "doc",
+     "where": "DEBUGGING.md:1229",
+     "date": "2026-10-21",
+     "snippet": "- Facts used: the VBlank handler `HandleVBlankInterrupt $0011DE` = `RefreshVDPSpriteTable`, `ProcessQueuedVDPActions $001260` (= `ProcessVRA"
+    },
+    {
+     "type": "doc",
      "where": "FORMATS.md:51",
      "date": "2026-10-21",
      "snippet": "- The game draws only through a RAM queue (`$FF3900`) flushed in VBlank by `FlushVdpWriteQueue $002686`: per entry a word (VDP address low p"
@@ -2621,8 +2645,8 @@
    ],
    "callers": [],
    "notes": [],
-   "mentions": 4,
-   "class": "other"
+   "mentions": 5,
+   "class": "seed/table"
   },
   {
    "addr": "0x00C180",
@@ -2660,7 +2684,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:27",
+     "where": "INDEX.md:28",
      "date": "2026-10-21",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
     }
@@ -2689,7 +2713,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:27",
+     "where": "INDEX.md:28",
      "date": "2026-10-21",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
     }
@@ -2718,7 +2742,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:27",
+     "where": "INDEX.md:28",
      "date": "2026-10-21",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
     }
@@ -2735,7 +2759,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:197",
+     "where": "HANDOFF.md:200",
      "date": "2026-10-21",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -2758,15 +2782,27 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:28",
+     "where": "DEBUGGING.md:1229",
+     "date": "2026-10-21",
+     "snippet": "- Facts used: the VBlank handler `HandleVBlankInterrupt $0011DE` = `RefreshVDPSpriteTable`, `ProcessQueuedVDPActions $001260` (= `ProcessVRA"
+    },
+    {
+     "type": "doc",
+     "where": "FORMATS.md:224",
+     "date": "2026-10-21",
+     "snippet": "* `g_DMAOpQueue $FF07D0`: 16 bytes per op, built by `QueueDMAOp` (VRAM, length in WORDS, source = RAM or ROM address), `QueueFullPaletteDMA`"
+    },
+    {
+     "type": "doc",
+     "where": "INDEX.md:29",
      "date": "2026-10-21",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, same recording `rec_20261018_1807`; user: 'Men\u00fc verlassen besser, aber nicht perfekt: 1. blaues breites Ban"
     }
    ],
    "callers": [],
    "notes": [],
-   "mentions": 1,
-   "class": "other"
+   "mentions": 3,
+   "class": "seed/table"
   },
   {
    "addr": "0x00D34C",
@@ -2999,7 +3035,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:167",
+     "where": "HANDOFF.md:170",
      "date": "2026-10-21",
      "snippet": "- **2026-10-14 (dev): tree warp crash.** `~/interp.txt` had `$00F8C6` (jsr into the middle of FadePaletteDownStep from TreeWarpFx `$00E48E`,"
     }
@@ -3042,7 +3078,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:15",
+     "where": "INDEX.md:16",
      "date": "2026-10-21",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user recording `rec_20261020_1841` (new game, intro, statue, owner dialogue; WIDE 16 + TALL; replays EXACTL"
     }
@@ -3522,7 +3558,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:357",
+     "where": "HANDOFF.md:360",
      "date": "2026-10-21",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -3551,7 +3587,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:357",
+     "where": "HANDOFF.md:360",
      "date": "2026-10-21",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -3626,7 +3662,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:209",
+     "where": "HANDOFF.md:212",
      "date": "2026-10-21",
      "snippet": "- **Deck round 10 (2026-10-11, user played full height in Gumi, save slot 1):** R4 works but moved to R2 (right trigger, the last free shoul"
     }
@@ -3729,13 +3765,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:197",
+     "where": "HANDOFF.md:200",
      "date": "2026-10-21",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:120",
+     "where": "INDEX.md:121",
      "date": "2026-10-21",
      "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
     },
@@ -3764,13 +3800,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:159",
+     "where": "HANDOFF.md:162",
      "date": "2026-10-21",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:81",
+     "where": "INDEX.md:82",
      "date": "2026-10-21",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     }
@@ -3975,7 +4011,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:17",
+     "where": "INDEX.md:18",
      "date": "2026-10-21",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'nehmen wir uns HUD vor, dann Dialoge'): HUD LOGIC OF THE OWN RENDERER (`tools/patch_own.py lk_o_hudb"
     }
@@ -4132,7 +4168,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:356",
+     "where": "HANDOFF.md:359",
      "date": "2026-10-21",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -4173,7 +4209,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:356",
+     "where": "HANDOFF.md:359",
      "date": "2026-10-21",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -4467,7 +4503,7 @@
     },
     {
      "type": "doc",
-     "where": "LESSONS.md:101",
+     "where": "LESSONS.md:102",
      "date": "2026-10-21",
      "snippet": "28. **Options tab = native overrides of the game's menu functions** (`tools/patch_options.py`): depends on `CheckForMenuOpen $007624` on the"
     }
@@ -4587,7 +4623,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:173",
+     "where": "INDEX.md:174",
      "date": "2026-10-21",
      "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
     }
@@ -4622,7 +4658,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:173",
+     "where": "INDEX.md:174",
      "date": "2026-10-21",
      "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
     }
@@ -4662,13 +4698,13 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:59",
+     "where": "INDEX.md:60",
      "date": "2026-10-21",
      "snippet": "- **2026-10-17 (dev, user wish after a recording in the Mercator item shop, room 720): optional 'Buy Quantity' (Options > Gameplay, default "
     },
     {
      "type": "doc",
-     "where": "LESSONS.md:136",
+     "where": "LESSONS.md:137",
      "date": "2026-10-21",
      "snippet": "54. **A wrapper must sit on the real function, not on its thunk:** `j_RemoveGold $01032C` is a `jmp` thunk that ends in `func_table_tail`; c"
     }
@@ -4840,7 +4876,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:197",
+     "where": "HANDOFF.md:200",
      "date": "2026-10-21",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -5072,7 +5108,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:197",
+     "where": "HANDOFF.md:200",
      "date": "2026-10-21",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -5283,7 +5319,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:357",
+     "where": "HANDOFF.md:360",
      "date": "2026-10-21",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     }
@@ -5317,13 +5353,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:159",
+     "where": "HANDOFF.md:162",
      "date": "2026-10-21",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:81",
+     "where": "INDEX.md:82",
      "date": "2026-10-21",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     }
@@ -5431,13 +5467,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:176",
+     "where": "HANDOFF.md:179",
      "date": "2026-10-21",
      "snippet": "- **2026-10-12 (latest, dev): replay of the user's death recording (rec_20261012_2148) matches the live run until frame 3720, then diverges*"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:92",
+     "where": "INDEX.md:93",
      "date": "2026-10-21",
      "snippet": "- **2026-10-12 (late night, dev): replay vs live comparison (recording rec_20261012_2148, died at the end, user setting WIDE=16 + TALL).** `"
     }
@@ -5460,13 +5496,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:176",
+     "where": "HANDOFF.md:179",
      "date": "2026-10-21",
      "snippet": "- **2026-10-12 (latest, dev): replay of the user's death recording (rec_20261012_2148) matches the live run until frame 3720, then diverges*"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:92",
+     "where": "INDEX.md:93",
      "date": "2026-10-21",
      "snippet": "- **2026-10-12 (late night, dev): replay vs live comparison (recording rec_20261012_2148, died at the end, user setting WIDE=16 + TALL).** `"
     }
@@ -5494,19 +5530,36 @@
    "class": "ram"
   },
   {
+   "addr": "0xFF0FB1",
+   "first_seen": "2026-10-21",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "FORMATS.md:226",
+     "date": "2026-10-21",
+     "snippet": "* VDP register shadow `$FF0FB0 + 2 n` (word `$80xx`, the value is the LOW byte at `$FF0FB1 + 2 n`): reg 1 display (`$40`), 5 sprite table, 7"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
    "addr": "0xFF0FC5",
    "first_seen": "2026-10-20",
    "hits": 0,
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:14",
+     "where": "INDEX.md:15",
      "date": "2026-10-21",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'punkt 1 go' = remove the VDP dependencies, step 1: THE STATE AS THE VDP RECEIVES IT; `tools/patch_ow"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:16",
+     "where": "INDEX.md:17",
      "date": "2026-10-21",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     }
@@ -5526,11 +5579,17 @@
      "where": "DEBUGGING.md:1225",
      "date": "2026-10-21",
      "snippet": "- Pitfalls: (1) the first snapshot after the effect started can hold a stale `g_Buffer` (the table is computed before the first VBlank wait,"
+    },
+    {
+     "type": "doc",
+     "where": "LESSONS.md:72",
+     "date": "2026-10-21",
+     "snippet": "- **9.w (2026-10-21) Own renderer and effects:** (1) the active palette copy `$FF0ED0` is what the game WANTS, CRAM is what the VDP shows: t"
     }
    ],
    "callers": [],
    "notes": [],
-   "mentions": 1,
+   "mentions": 2,
    "class": "ram"
   },
   {
@@ -5557,13 +5616,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:167",
+     "where": "HANDOFF.md:170",
      "date": "2026-10-21",
      "snippet": "- **2026-10-14 (dev): tree warp crash.** `~/interp.txt` had `$00F8C6` (jsr into the middle of FadePaletteDownStep from TreeWarpFx `$00E48E`,"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:255",
+     "where": "INDEX.md:256",
      "date": "2026-10-21",
      "snippet": "**Lookup tables from Dinopony/landstalker-lib (use them instead of guessing ids; regenerate with `tools/import_rooms.py` / `tools/import_lib"
     }
@@ -5603,7 +5662,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:24",
+     "where": "INDEX.md:25",
      "date": "2026-10-21",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user: 'Raum 389 (aktueller Quicksave), dunkler Raum: die Laterne ist im Inventar, benutzt bleibt der Raum i"
     }
@@ -5654,7 +5713,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:16",
+     "where": "INDEX.md:17",
      "date": "2026-10-21",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     }
@@ -5826,7 +5885,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:169",
+     "where": "INDEX.md:170",
      "date": "2026-10-21",
      "snippet": "| \"no function at $FF1850/$427C/...\" | RAM thunks into ROM mid-code; computed `jmp T(pc,dN)` tables | seeds via `gen_seeds.py`, `expand_seed"
     }
@@ -6185,7 +6244,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:175",
+     "where": "INDEX.md:176",
      "date": "2026-10-21",
      "snippet": "| NPCs ignore obstacles; reads of high RAM ($FF8000+) via `($XXXX).w` return ROM bytes; CMPM/BCD/ASL/ROX/MOVEM wrong | generator treated abs"
     }
@@ -6214,7 +6273,7 @@
     },
     {
      "type": "doc",
-     "where": "LESSONS.md:134",
+     "where": "LESSONS.md:135",
      "date": "2026-10-21",
      "snippet": "52. **Extra full-height strips read past the 74 x 74 block map:** check block addresses against `$FF7C02..$FFA6C9` before trusting them (gar"
     }
@@ -6289,7 +6348,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:171",
+     "where": "INDEX.md:172",
      "date": "2026-10-21",
      "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
     }
