@@ -225,3 +225,8 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
  * `g_VRAMCopyQueue $FF0CD0`: entries `[word: length - 1, bit 15 = increment $40 (columns), bits 15 + 14 = $80][word: VRAM address][data words]`, count `$FF0F8C`, flag bit 0 of `$FF0F8B`, processed by `ProcessVRAMCopyQueue $00126C`; carries the per-frame hscroll table update. V.
  * VDP register shadow `$FF0FB0 + 2 n` (word `$80xx`, the value is the LOW byte at `$FF0FB1 + 2 n`): reg 1 display (`$40`), 5 sprite table, 7 backdrop, 10 HInt line (`$FF0FC4`), 11 scroll mode, 12, 13 hscroll base, 17 / 18 window. V.
 
+## Sword hit effects: entity state + sprite table entries (added 2026-10-22, dev; V = replays `all_swords_room166` / `sword_effects_directions`, compare mode, entity dumps; I = the meaning of the flags)
+- V: a fully charged sword hit creates NO effect entity (entity types stay {93, 68, 5D, 00} in room 166); the hit enemy's struct goes into a state with `+09 = 02` and `+0C` bit 7 set (`+0C = 83` seen) for ~16 frames (Fire / Magic sword; Thunder the same signature at frames 3408-3447; Gaia: all enemies at once). I: the flags mean 'being hit by a sword effect'.
+- V: in that state the game's sprite table holds effect entries in place of the entity's normal pieces (Fire: `$C7A4` / `$C7B4`, palette line 2, priority, sizes F + D, 8 lines below the entity's own pieces, tiles loaded dynamically into VRAM). The table order (lower index = in front) decides whether the effect is in front of or behind the neighbouring figures.
+- V: the sprite table snapshot is sometimes a half built pass (16 of 26 entries); an entity missing from it is real, not replaced.
+
