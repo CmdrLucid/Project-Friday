@@ -517,6 +517,70 @@ void lk_own_set(int v) {                                             /* Options 
   lk_o_init(); lk_o_mode = v ? 2 : 0; lk_o_valid = 0;
   snprintf(path, sizeof path, "%s/.landstalker_own", h ? h : "."); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", v ? 1 : 0); fclose(f); }
 }
+/* ---- stage 1: a generic screen renderer (title, menus, island map, credits ...): the picture of a line composed by our own code from the VDP's memory state (planes A / B, window, sprites, priorities, scroll modes, backdrop),
+   checked pixel by pixel against the game's picture (LANDSTALKER_OWN_SCREENS: 0 off, 1 compare + log only, 2 draw (default with the own renderer on), LANDSTALKER_OWN_SCRLOG=1 prints the differing pixels of every frame it handled) ---- */
+static int lk_scr_mode = -1, lk_scr_log, lk_o_why;   /* lk_o_why: why the own map path did not draw this frame (1 old room still showing, 2 warp effect, 3 Start menu running, 4 display off, 5 no room) */ static long lk_scr_diff, lk_scr_tot, lk_scr_lines;
+#define LK_VB(a) vram[((a) & 0xFFFF) ^ 1]
+#define LK_VW(a) (((unsigned)LK_VB(a) << 8) | LK_VB((a) + 1))
+static int lk_scr_ci(int tile, int px, int py, int hf, int vf) { int ox = hf ? 7 - px : px, oy = vf ? 7 - py : py, b = LK_VB(tile * 32 + oy * 4 + (ox >> 1)); return (ox & 1) ? (b & 15) : (b >> 4); }
+static int lk_scr_cell(int ent, int px, int py, int *prio) { int ci = lk_scr_ci(ent & 0x7FF, px, py, (ent >> 11) & 1, (ent >> 12) & 1); *prio = (ent >> 15) & 1; return ci ? ((ent >> 13) & 3) * 16 + ci : -1; }
+static int lk_scr_cramw(int i) { return ((cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1]) & 0x1FF; }
+static int lk_scr_line(int line, PIXEL_OUT_T *out, int e) {                /* returns 0 when the VDP is in a mode this renderer does not do (the game's picture stays) */
+  int hm = reg[11] & 3, vm = (reg[11] >> 2) & 1, pwr = reg[16] & 3, phr = (reg[16] >> 4) & 3, pw, ph, x, i, n, cells;
+  int baseA = (reg[2] & 0x38) << 10, baseB = (reg[4] & 7) << 13, wbase = (reg[3] & 0x3C) << 10, sat = (reg[5] & 0x7E) << 9;
+  int hpos = (reg[17] & 0x1F) * 2, hright = reg[17] & 0x80, vpos = (reg[18] & 0x1F) * 8, vbelow = reg[18] & 0x80, vwin, hsA, hsB, hsb = (reg[13] & 0x3F) << 10, hidx;
+  int bgcol = lk_scr_cramw(reg[7] & 0x3F);
+  static int sp[320], spp[320]; int sl[32], nsl = 0, id, cnt, maxspr = (320 + 2 * e) >> 4;   /* the wide picture allows more sprites / sprite pixels per line (patch_wide: viewport.w >> 4, viewport.w >> 3 cells) */
+  if (!(reg[12] & 1) || (reg[12] & 6) || hm == 1 || pwr == 2 || phr == 2 || (reg[1] & 8) || line >= 224) return 0;
+  if (!(reg[1] & 0x40)) { for (x = 0; x < 320; x++) out[x] = pixel_lut[1][bgcol]; return 1; }   /* display off: the backdrop */
+  pw = pwr == 0 ? 32 : pwr == 1 ? 64 : 128; ph = phr == 0 ? 32 : phr == 1 ? 64 : 128;
+  vwin = vbelow ? line >= vpos : line < vpos;
+  hidx = hm == 0 ? 0 : hm == 3 ? line : (line & ~7);
+  hsA = LK_VW(hsb + 4 * hidx) & 0x3FF; hsB = LK_VW(hsb + 4 * hidx + 2) & 0x3FF;
+  for (x = 0; x < 320; x++) sp[x] = -1;
+  id = 0; cnt = 0; cells = (320 + 2 * e) >> 3;                                       /* sprites: the list in link order (max 80), 20 per line, 40 cells per line */
+  for (n = 0; n < 80; n++) {
+    int y = (int)(LK_VW(sat + 8 * id) & 0x1FF) - 128, sz = LK_VW(sat + 8 * id + 2), h = ((sz >> 8) & 3) + 1;
+    if (line >= y && line < y + 8 * h) { if (nsl >= maxspr || nsl >= 32) break; sl[nsl++] = id; }
+    id = sz & 0x7F; if (!id) break;
+  }
+  { int k, seen = 0, masked = 0;
+    for (k = 0; k < nsl && !masked; k++) {
+      int j = sl[k], y = (int)(LK_VW(sat + 8 * j) & 0x1FF) - 128, sz = LK_VW(sat + 8 * j + 2), at = LK_VW(sat + 8 * j + 4), xr = LK_VW(sat + 8 * j + 6) & 0x1FF, w = ((sz >> 10) & 3) + 1, h = ((sz >> 8) & 3) + 1, c, py, prio = (at >> 15) & 1, pal = (at >> 13) & 3, hf = (at >> 11) & 1, vf = (at >> 12) & 1;
+      if (xr == 0 && seen) { masked = 1; break; }
+      if (xr) seen = 1;
+      if (cells <= 0) break;
+      py = line - y; if (vf) py = 8 * h - 1 - py;
+      for (c = 0; c < w && cells > 0; c++, cells--) {
+        int col = hf ? w - 1 - c : c, tile = (at & 0x7FF) + col * h + (py >> 3), px;
+        for (px = 0; px < 8; px++) { int sx = xr - 128 + c * 8 + px, ci = lk_scr_ci(tile, hf ? 7 - px : px, py & 7, 0, 0); if (sx < 0 || sx >= 320 || !ci || sp[sx] >= 0) continue; sp[sx] = pal * 16 + ci; spp[sx] = prio; }
+      }
+    }
+  }
+  for (x = 0; x < 320; x++) {
+    int cA = -1, pA = 0, cB = -1, pB = 0, sel = -1, cc, xc = x >> 3;
+    { int xp = (x - hsB) & (pw * 8 - 1), yp; yp = (line + (((vsram[((vm ? 4 * (x >> 4) : 0) + 2) ^ 1] << 8) | vsram[((vm ? 4 * (x >> 4) : 0) + 3) ^ 1]) & 0x3FF)) & (ph * 8 - 1);
+      cB = lk_scr_cell(LK_VW(baseB + 2 * ((yp >> 3) * pw + (xp >> 3))), xp & 7, yp & 7, &pB); }
+    if (vwin || (hright ? xc >= hpos : xc < hpos)) cA = lk_scr_cell(LK_VW(wbase + 2 * ((line >> 3) * 64 + xc)), x & 7, line & 7, &pA);
+    else { int xp = (x - hsA) & (pw * 8 - 1), yp = (line + (((vsram[(vm ? 4 * (x >> 4) : 0) ^ 1] << 8) | vsram[((vm ? 4 * (x >> 4) : 0) + 1) ^ 1]) & 0x3FF)) & (ph * 8 - 1);
+      cA = lk_scr_cell(LK_VW(baseA + 2 * ((yp >> 3) * pw + (xp >> 3))), xp & 7, yp & 7, &pA); }
+    if (sp[x] >= 0 && spp[x]) sel = sp[x]; else if (cA >= 0 && pA) sel = cA; else if (cB >= 0 && pB) sel = cB;
+    else if (sp[x] >= 0) sel = sp[x]; else if (cA >= 0) sel = cA; else if (cB >= 0) sel = cB;
+    cc = sel >= 0 ? lk_scr_cramw(sel) : bgcol;
+    if (x < 8 && (reg[0] & 0x20)) cc = bgcol;
+    out[x] = pixel_lut[1][cc];
+  }
+  return 1;
+}
+static void lk_scr_row(PIXEL_OUT_T *row, int e, int line, int map) {
+  PIXEL_OUT_T buf[320]; int x, d = 0;
+  if (lk_scr_mode < 0) { const char *q = getenv("LANDSTALKER_OWN_SCREENS"), *l = getenv("LANDSTALKER_OWN_SCRLOG"); lk_scr_mode = q ? atoi(q) : 2; lk_scr_log = l ? atoi(l) : 0; }
+  if (!lk_scr_mode || !lk_scr_line(line, buf, e)) return;
+  for (x = 0; x < 320; x++) if (row[e + x] != buf[x]) d++;
+  lk_scr_diff += d; lk_scr_tot += 320; lk_scr_lines++;
+  if (lk_scr_mode == 2 && lk_o_mode == 2) for (x = 0; x < 320; x++) row[e + x] = buf[x];
+  if (lk_scr_log && line == 223) { printf("ownscr: frame %ld %s: %ld of %ld pixels differ in %ld lines\n", platform_frame_number(), map ? "map-not-own" : "screen", lk_scr_diff, lk_scr_tot, lk_scr_lines); lk_scr_diff = 0; lk_scr_tot = 0; lk_scr_lines = 0; }
+}
 static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
   static int hint, fr_done = -1, hsA, hsB, vsA, vsB, cam0, cam2, rm; static long fr_n;
   int x, e, map;
@@ -571,10 +635,11 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
       { static int seen_rm = -1; static long seen_f; extern long lk_world_frame;   /* the room number changed without the display being switched off (warp pad, tree warp): the new room is loaded when the game's world runs again (UpdateSprites) */
         if (rm != seen_rm) { seen_rm = rm; seen_f = platform_frame_number(); }
         { static int was_loading; int ld = lk_loadroom_on(); if (lk_o_fx && rm != lk_o_room && lk_o_room >= 0 && !lk_o_blanked && (lk_world_frame > seen_f || lk_fadein_on() || (was_loading && !ld))) lk_o_blanked = 1; was_loading = ld; } }   /* LoadRoomPath has returned = the new room is loaded */
-      if (rm != lk_o_room && lk_o_room >= 0 && !lk_o_blanked && !lk_o_fx) fr_done = 0;   /* with the effects on the OLD room goes on being drawn (fade out, white fade, warp) until the new one is loaded */   /* the room number changes while the OLD room is still on screen (fade-out): keep the game's picture until the load has blanked the screen */
-      else if (lk_warpfx() && !lk_o_fx) fr_done = 0;                                        /* the warp pad (teleport) effect: the game's picture stays (the effect is not ported) */
-      else if (lk_sh_hide) fr_done = 0;                                         /* the Start menu is running (CheckForMenuOpen, also its fades): the game's picture stays, the map of RAM is not what is on screen then */
-      else if (!(LK_REG(1) & 0x40)) fr_done = 0;                                  /* display switched off at the top of the frame (room load, blackout): the game's black picture stays */
+      lk_o_why = 0;
+      if (rm != lk_o_room && lk_o_room >= 0 && !lk_o_blanked && !lk_o_fx) { fr_done = 0; lk_o_why = 1; }   /* with the effects on the OLD room goes on being drawn (fade out, white fade, warp) until the new one is loaded */   /* the room number changes while the OLD room is still on screen (fade-out): keep the game's picture until the load has blanked the screen */
+      else if (lk_warpfx() && !lk_o_fx) { fr_done = 0; lk_o_why = 2; }                                        /* the warp pad (teleport) effect: the game's picture stays (the effect is not ported) */
+      else if (lk_sh_hide) { fr_done = 0; lk_o_why = 3; }                                         /* the Start menu is running (CheckForMenuOpen, also its fades): the game's picture stays, the map of RAM is not what is on screen then */
+      else if (!(LK_REG(1) & 0x40)) { fr_done = 0; lk_o_why = 4; }                                  /* display switched off at the top of the frame (room load, blackout): the game's black picture stays */
       else if (rm > 0 && rm < 800) { if (rm != lk_o_room && (!lk_o_fx || lk_o_blanked || lk_o_room < 0)) { lk_o_room_load(rm); lk_o_blanked = 0; } { /* which pass are the VDP's sprites from? (the game runs 0, 1 or 2 passes per frame, so the sprite table is sometimes the previous pass' and sometimes the current one): the candidate whose sprite boxes equal the real sprite table's best wins */
         uint32 sat[96], kc[96], kp[96]; int ns = 0, i4 = 0, n4 = 0, nc, np_, mc = 0, mp = 0, i5, j5, base = (LK_REG(5) & 0x7F) << 9;
         for (n4 = 0; n4 < 80 && ns < 96; n4++) { int y = ((LK_SATB(8 * i4) << 8) | LK_SATB(8 * i4 + 1)) & 0x1FF, sz = (LK_SATB(8 * i4 + 2) << 8) | LK_SATB(8 * i4 + 3), x = ((LK_SATB(8 * i4 + 6) << 8) | LK_SATB(8 * i4 + 7)) & 0x1FF;
@@ -590,7 +655,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         for (rr = 0; rr < 28; rr++) { int nz = 0; for (cc = 0; cc < 40; cc++) { int w = SW(0xFF1C00 + 0x80 * rr + 2 * cc); if (w != 0 && w != 0xE6B4 && w != 0x66B4) nz++; } if (nz) { printf("owndbg: window row %d: %d interesting words:", rr, nz); for (cc = 0; cc < 40; cc++) printf(" %04X", SW(0xFF1C00 + 0x80 * rr + 2 * cc) & 0xFFFF); printf("\n"); } }
         for (k = 0; k < 40; k++) { int y = ((vram[(base + 8 * i4) ^ 1] << 8) | vram[(base + 8 * i4 + 1) ^ 1]) & 0x3FF, sz = (vram[(base + 8 * i4 + 2) ^ 1] << 8) | vram[(base + 8 * i4 + 3) ^ 1], tw = (vram[(base + 8 * i4 + 4) ^ 1] << 8) | vram[(base + 8 * i4 + 5) ^ 1], x = ((vram[(base + 8 * i4 + 6) ^ 1] << 8) | vram[(base + 8 * i4 + 7) ^ 1]) & 0x1FF; printf("owndbg: SAT %d: y %d x %d size %02X tile %04X\n", i4, y - 128, x - 128, (sz >> 8) & 15, tw); i4 = sz & 0x7F; if (!i4) break; } } }
     if (lk_o_txlog && (hint & 0xFF) == 0xA0) { int rr, cc, nd = 0; for (rr = 0; rr < 8; rr++) for (cc = 0; cc < 40; cc++) if ((OW(0x23900 + 2 * (rr * 40 + cc)) | 0x6000) != SW(0xFF2600 + 0x80 * rr + 2 * cc)) nd++; if (nd) printf("own: text box tilemap differs from the game's in %d words, frame %ld room %d\n", nd, platform_frame_number(), rm); } if (lk_o_txlog > 1) lk_ot_dbg(vram, platform_frame_number()); else if (lk_o_txlog) { int bad = lk_ot_check(vram); if (bad > 0) printf("own: text mirror differs from VRAM in %d bytes, frame %ld room %d\n", bad, platform_frame_number(), rm); } if (lk_o_palmode) lk_o_palette(rm); fr_done = 1; } else fr_done = 0;
-    } else fr_done = 0;
+    } else { fr_done = 0; lk_o_why = 5; }
     memcpy(lk_o_prev, r, sizeof lk_o_prev); lk_o_valid = 1;
     if (((r[(0xFF11DE & 0xFFFF) ^ 1] << 8) | r[(0xFF11DF & 0xFFFF) ^ 1]) == 0) { memcpy(lk_o_good, r, sizeof lk_o_good); lk_o_goodok = 1; }   /* the player is first in a complete visible list: remember the last complete state */
     fr_n++;
@@ -599,7 +664,8 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
     lk_o_diff = 0; lk_o_tot = 0;
   }
   e = lk_wide_e; map = lk_map_decide();
-  if (!fr_done || w != 320 + 2 * e || !map) return;                  /* only the game map; menus, title, picture screens stay the game's */
+  if (line == 0 && map && !fr_done && lk_scr_log >= 2) printf("ownwhy: frame %ld reason %d reg1 %02X\n", platform_frame_number(), lk_o_why, reg[1]);
+  if (!fr_done || w != 320 + 2 * e || !map) { if (w == 320 + 2 * e && (!map || !(reg[1] & 0x40)) && !lk_tall_keep(line)) lk_scr_row(row, e, line, map); return; }   /* (map frames the own map path does not draw - menu fades, effects the game draws - keep the game's picture: its widened / full-height band does not come from the VDP state) */   /* not the own map picture: the generic screen renderer (title, menus, picture screens, fades) */
   if (lk_o_hudn < 0) lk_o_hudn = lk_o_lz77(0x9242, lk_o_hud, 0x1000);
   {
     int ubase = lk_o_u0, vbase = lk_o_v0 + line, i, text = (line >= 160 && (hint & 0xFF) == 0xA0);
