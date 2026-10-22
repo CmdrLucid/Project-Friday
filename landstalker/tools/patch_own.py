@@ -525,14 +525,14 @@ static int lk_scr_mode = -1, lk_scr_log, lk_o_why;   /* lk_o_why: why the own ma
 static int lk_scr_ci(int tile, int px, int py, int hf, int vf) { int ox = hf ? 7 - px : px, oy = vf ? 7 - py : py, b = LK_VB(tile * 32 + oy * 4 + (ox >> 1)); return (ox & 1) ? (b & 15) : (b >> 4); }
 static int lk_scr_cell(int ent, int px, int py, int *prio) { int ci = lk_scr_ci(ent & 0x7FF, px, py, (ent >> 11) & 1, (ent >> 12) & 1); *prio = (ent >> 15) & 1; return ci ? ((ent >> 13) & 3) * 16 + ci : -1; }
 static int lk_scr_cramw(int i) { return ((cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1]) & 0x1FF; }
-static int lk_scr_line(int line, PIXEL_OUT_T *out, int e) {                /* returns 0 when the VDP is in a mode this renderer does not do (the game's picture stays) */
+static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {                /* returns 0 when the VDP is in a mode this renderer does not do (the game's picture stays) */
   int hm = reg[11] & 3, vm = (reg[11] >> 2) & 1, pwr = reg[16] & 3, phr = (reg[16] >> 4) & 3, pw, ph, x, i, n, cells;
   int baseA = (reg[2] & 0x38) << 10, baseB = (reg[4] & 7) << 13, wbase = (reg[3] & 0x3C) << 10, sat = (reg[5] & 0x7E) << 9;
   int hpos = (reg[17] & 0x1F) * 2, hright = reg[17] & 0x80, vpos = (reg[18] & 0x1F) * 8, vbelow = reg[18] & 0x80, vwin, hsA, hsB, hsb = (reg[13] & 0x3F) << 10, hidx;
   int bgcol = lk_scr_cramw(reg[7] & 0x3F);
   static int sp[320], spp[320]; int sl[32], nsl = 0, id, cnt, maxspr = (320 + 2 * e) >> 4;   /* the wide picture allows more sprites / sprite pixels per line (patch_wide: viewport.w >> 4, viewport.w >> 3 cells) */
   if (!(reg[12] & 1) || (reg[12] & 6) || hm == 1 || pwr == 2 || phr == 2 || (reg[1] & 8) || line >= 224) return 0;
-  if (!(reg[1] & 0x40)) { for (x = 0; x < 320; x++) out[x] = pixel_lut[1][bgcol]; return 1; }   /* display off: the backdrop */
+  if (!(reg[1] & 0x40) && !dispforce) { for (x = 0; x < 320; x++) out[x] = pixel_lut[1][bgcol]; return 1; }   /* display off: the backdrop */
   pw = pwr == 0 ? 32 : pwr == 1 ? 64 : 128; ph = phr == 0 ? 32 : phr == 1 ? 64 : 128;
   vwin = vbelow ? line >= vpos : line < vpos;
   hidx = hm == 0 ? 0 : hm == 3 ? line : (line & ~7);
@@ -566,6 +566,8 @@ static int lk_scr_line(int line, PIXEL_OUT_T *out, int e) {                /* re
       cA = lk_scr_cell(LK_VW(baseA + 2 * ((yp >> 3) * pw + (xp >> 3))), xp & 7, yp & 7, &pA); }
     if (sp[x] >= 0 && spp[x]) sel = sp[x]; else if (cA >= 0 && pA) sel = cA; else if (cB >= 0 && pB) sel = cB;
     else if (sp[x] >= 0) sel = sp[x]; else if (cA >= 0) sel = cA; else if (cB >= 0) sel = cB;
+    { static long dbgf = -2; if (dbgf == -2) { const char *q = getenv("LANDSTALKER_OWN_SCRDBG"); dbgf = q ? atol(q) : -1; }
+      if (dbgf >= 0 && platform_frame_number() == dbgf && line == 23 && (x == 16 || x == 100)) printf("ownscrdbg: frame %ld line %d x %d: A %d/%d B %d/%d spr %d/%d sel %d hsA %d hsB %d reg18 %02X reg17 %02X reg11 %02X reg1 %02X vwin %d\n", dbgf, line, x, cA, pA, cB, pB, sp[x], spp[x], sel, hsA, hsB, reg[18], reg[17], reg[11], reg[1], vwin); }
     cc = sel >= 0 ? lk_scr_cramw(sel) : bgcol;
     if (x < 8 && (reg[0] & 0x20)) cc = bgcol;
     out[x] = pixel_lut[1][cc];
@@ -575,7 +577,7 @@ static int lk_scr_line(int line, PIXEL_OUT_T *out, int e) {                /* re
 static void lk_scr_row(PIXEL_OUT_T *row, int e, int line, int map) {
   PIXEL_OUT_T buf[320]; int x, d = 0;
   if (lk_scr_mode < 0) { const char *q = getenv("LANDSTALKER_OWN_SCREENS"), *l = getenv("LANDSTALKER_OWN_SCRLOG"); lk_scr_mode = q ? atoi(q) : 2; lk_scr_log = l ? atoi(l) : 0; }
-  if (!lk_scr_mode || !lk_scr_line(line, buf, e)) return;
+  if (!lk_scr_mode || !lk_scr_line(line, buf, e, lk_tall_keep(line))) return;
   for (x = 0; x < 320; x++) if (row[e + x] != buf[x]) d++;
   lk_scr_diff += d; lk_scr_tot += 320; lk_scr_lines++;
   if (lk_scr_mode == 2 && lk_o_mode == 2) for (x = 0; x < 320; x++) row[e + x] = buf[x];
@@ -665,7 +667,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
   }
   e = lk_wide_e; map = lk_map_decide();
   if (line == 0 && map && !fr_done && lk_scr_log >= 2) printf("ownwhy: frame %ld reason %d reg1 %02X\n", platform_frame_number(), lk_o_why, reg[1]);
-  if (!fr_done || w != 320 + 2 * e || !map) { if (w == 320 + 2 * e && (!map || !(reg[1] & 0x40)) && !lk_tall_keep(line)) lk_scr_row(row, e, line, map); return; }   /* (map frames the own map path does not draw - menu fades, effects the game draws - keep the game's picture: its widened / full-height band does not come from the VDP state) */   /* not the own map picture: the generic screen renderer (title, menus, picture screens, fades) */
+  if (!fr_done || w != 320 + 2 * e || !map) { if (w == 320 + 2 * e && (!map || (line != 23 && (!fr_done || !(reg[1] & 0x40) || lk_tall_keep(line))))) lk_scr_row(row, e, line, map); return; }   /* map frames: line 23 stays the game's (Map Behind Text draws it twice, tools/patch_tbox.py) */   /* (map frames the own map path does not draw - menu fades, effects the game draws - keep the game's picture: its widened / full-height band does not come from the VDP state) */   /* not the own map picture: the generic screen renderer (title, menus, picture screens, fades) */
   if (lk_o_hudn < 0) lk_o_hudn = lk_o_lz77(0x9242, lk_o_hud, 0x1000);
   {
     int ubase = lk_o_u0, vbase = lk_o_v0 + line, i, text = (line >= 160 && (hint & 0xFF) == 0xA0);
