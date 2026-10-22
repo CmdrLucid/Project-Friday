@@ -152,3 +152,6 @@
 - L1221: Own renderer: visual effects (2026-10-21)
 - L1228: Own renderer: no VDP any more (2026-10-21)
 - L1234: Own renderer: Fire sword / sword effects (2026-10-22)
+- L1245: Own renderer: Nole / Kazalt warp and flashes (2026-10-22)
+- L1251: Own renderer: stage 1, generic screen renderer (2026-10-22)
+- L1256: Own renderer: stage 2, tile origins (2026-10-22)
