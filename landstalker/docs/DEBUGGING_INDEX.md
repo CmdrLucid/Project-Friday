@@ -151,3 +151,4 @@
 - L1214: Own renderer: camera constants (2026-10-21)
 - L1221: Own renderer: visual effects (2026-10-21)
 - L1228: Own renderer: no VDP any more (2026-10-21)
+- L1234: Own renderer: Fire sword / sword effects (2026-10-22)

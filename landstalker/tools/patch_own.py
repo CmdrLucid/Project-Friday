@@ -36,6 +36,7 @@ extern int lk_loadroom_on(void); extern int lk_warpfx_kind(void); extern int lk_
 extern uint8_t lk_vm[], lk_vsm[], lk_cm[]; extern long lk_vm_ops;   /* patch_ownvb.py: own VRAM mirror of the game's DMA queue */
 static int lk_o_scrvars;   /* LANDSTALKER_OWN_SCRVARS=1: scroll values from the game's variables $FF0100 / $FF0500 instead of the mirror of what its DMA queue sent */
 static int lk_o_vmirror = 1;   /* LANDSTALKER_OWN_VMIRROR=0: sprite tiles compared / drawn from the VDP's VRAM (old way) instead of the own mirror of the game's DMA queue */
+static int lk_o_hide0 = 1;   /* LANDSTALKER_OWN_HIDE0=0: figures the game replaced by effect sprites (Fire sword) are drawn as before */
 static int lk_o_simple, lk_o_nigelvram = 1;   /* simple mode keeps one VRAM check: Nigel's pose (his animation fields run ahead of the graphic the VDP holds for a frame or two); LANDSTALKER_OWN_NIGELVRAM=0 = none */
 static int lk_o_scrram = 1, lk_o_sc_ram, lk_o_seed = 1, lk_o_gshake;   /* LANDSTALKER_OWN_GSHAKE=1: the original Gaia effect reads the VDP scroll */   /* LANDSTALKER_OWN_SEED=0: no exact seed of the camera vote at a room load */
    /* LANDSTALKER_OWN_SCROLL_VDP=1: scroll values from the VDP (old way) */
@@ -243,6 +244,33 @@ static int lk_o_escore(const lk_o_ent_t *e) {                        /* how well
   }
   return sc;
 }
+static int lk_o_loose(const lk_o_ent_t *e) {                          /* does the real sprite table hold ANY piece of this entity (same size, position within 6 pixels: one pass of lag, the two-pass frames)? */
+  int pc, j;
+  for (pc = 0; pc < e->np; pc++) {
+    uint32 k = lk_o_pkey(e, pc, 0);
+    for (j = 0; j < lk_o_satn; j++) {
+      int dx = (int)((k >> 20) & 0x1FF) - (int)((lk_o_satk[j] >> 20) & 0x1FF), dy = (int)((k >> 8) & 0x3FF) - (int)((lk_o_satk[j] >> 8) & 0x3FF);
+      if ((k & 15) == (lk_o_satk[j] & 15) && dx >= -6 && dx <= 6 && dy >= -6 && dy <= 6) return 1;
+    }
+  }
+  return 0;
+}
+static int lk_o_near(const lk_o_ent_t *e) {                           /* the sprite table holds a piece of the same size close to one of the entity's pieces (same column, up to 16 lines off) but none that agrees with it: the game replaced the figure by something else (effect sprites); an incomplete table (a pass in the middle of its work) holds nothing near */
+  int pc, j;
+  for (pc = 0; pc < e->np; pc++) {
+    uint32 k = lk_o_pkey(e, pc, 0);
+    for (j = 0; j < lk_o_satn; j++) {
+      int dx = (int)((k >> 20) & 0x1FF) - (int)((lk_o_satk[j] >> 20) & 0x1FF), dy = (int)((k >> 8) & 0x3FF) - (int)((lk_o_satk[j] >> 8) & 0x3FF);
+      if ((k & 15) == (lk_o_satk[j] & 15) && dx >= -4 && dx <= 4 && dy >= -16 && dy <= 16) return 1;
+    }
+  }
+  return 0;
+}
+static int lk_o_loose4e(const lk_o_ent_t *e) {                        /* the same at the position of the previous pass (+4E / +50): the game draws objects there */
+  lk_o_ent_t t = *e; int b = 0xFF5400 + e->off;
+  t.ax = SW(b + 0x4E); t.ay = SW(b + 0x50);
+  return lk_o_loose(&t);
+}
 static int lk_o_list(const uint8 *src, int *offs) {                  /* visible entity list $FF11DE of a pass state; when the game is in the middle of a pass at the top of the frame the list is empty (terminator first): the last complete list is used (the entity structs are fresh anyway) */
   int a = 0xFF11DE, n = 0; const uint8 *keep = lk_o_sp; lk_o_sp = (((src[(0xFF11DE & 0xFFFF) ^ 1] << 8) | src[(0xFF11DF & 0xFFFF) ^ 1]) == 0xFFFF && lk_o_goodok && !lk_o_fade) ? lk_o_good : src;
   for (;;) { int off = SW(a); a += 2; if ((off & 0x8000) || a > 0xFF11DE + 40 || n >= 24) break; offs[n++] = off; }
@@ -324,7 +352,8 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
         f->ax = fx; f->ay = fy; e = f; cum = 0;
       }
     }
-    if (getenv("LANDSTALKER_OWN_ENTS") && draw && alt) printf("ownents: frame %ld off %02X type %02X A%d B%d F%d vis %d at (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), inA[k], inB[k], inF[k], e ? e->vis : -1, e ? e->ax : 0, e ? e->ay : 0);
+    if (getenv("LANDSTALKER_OWN_ENTS") && draw) printf("ownents: frame %ld off %02X type %02X A%d B%d F%d vis %d at (%d,%d) np %d score %d\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), inA[k], inB[k], inF[k], e ? e->vis : -1, e ? e->ax : 0, e ? e->ay : 0, e ? e->np : 0, e ? lk_o_escore(e) : -1);
+    if (getenv("LANDSTALKER_OWN_ENTS") && draw && e && e->vis && e->np && lk_o_escore(e) == 0) { int q; for (q = 0; q < e->np; q++) { uint32 kk = lk_o_pkey(e, q, 0); printf("   piece %d: x %d y %d w %d h %d anim %X frm %X sgi %02X ts %04X\n", q, (int)((kk >> 20) & 0x1FF), (int)((kk >> 8) & 0x3FF), e->pws[q], e->phs[q], e->anim, e->frm, e->sgi, e->ts); } }
     if (draw && (!lk_o_simple || lk_o_nigelvram) && offs[k] == 0 && e && e->vis && e->np && lk_o_escore(e) < 2 * e->np) {   /* Nigel: for a frame or two the entity's animation / frame fields run ahead of (or behind) the graphic the VDP really holds (one-frame turn flicker while walking in a straight line, rec_20261019_2044): look for the pose whose tiles ARE in VRAM (the same pose appears under several (animation, frame) pairs) */
       static lk_o_ent_t pose; int an, fr, found = 0;
       for (an = 0; an < 64 && !found; an += 4) for (fr = 0; fr < 96 && !found; fr += 4) {
@@ -334,6 +363,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
       if (found) e = &pose;
     }
     if (!e || !e->vis) continue;
+    if (draw && lk_o_hide0 && offs[k] != 0 && e->np && lk_o_satn > 0 && !lk_o_loose(e) && !lk_o_loose4e(e) && lk_o_near(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) { int q; printf("ownhide: frame %ld off %02X type %02X at (%d,%d) 4e (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), e->ax, e->ay, SW(0xFF5400 + offs[k] + 0x4E), SW(0xFF5400 + offs[k] + 0x50)); for (q = 0; q < e->np; q++) { uint32 kk = lk_o_pkey(e, q, 0); printf("   piece %d: x %d y %d size %X\n", q, (int)((kk >> 20) & 0x1FF), (int)((kk >> 8) & 0x3FF), (int)(kk & 15)); } } continue; }   /* the real sprite table holds none of this entity's pieces: the game draws something else in its place (a burning enemy of the Fire sword is replaced by flame sprites that are written into the table, they come as EXTRA entries) */
     lk_o_nspr++;
     for (pc = 0; pc < e->np; pc++) {
       int xx; uint32 key = lk_o_pkey(e, pc, &xx);
@@ -353,6 +383,7 @@ static void lk_o_build(void) {                                       /* everythi
   memcpy(lk_o_tiles, lk_o_tbase, sizeof lk_o_tiles);
   for (k = 0; k < lk_o_ngrp; k++) {
     int s0 = 0xFF1134 + 4 * k;
+    if (getenv("LANDSTALKER_OWN_ANIM")) printf("ownanim: frame %ld grp %d state %02X %02X %02X %02X (delay %d frames %d dest %X words %d)\n", platform_frame_number(), k, SB(s0) & 255, SB(s0 + 1) & 255, SB(s0 + 2) & 255, SB(s0 + 3) & 255, lk_o_grp[k].delay, lk_o_grp[k].frames, lk_o_grp[k].dest, lk_o_grp[k].words);
     if (SB(s0) == lk_o_grp[k].delay && SB(s0 + 1) == lk_o_grp[k].frames) {
       int f = SB(s0 + 3) % lk_o_grp[k].frames, n = lk_o_grp[k].words * 2, i; uint32_t src = lk_o_grp[k].base + (uint32_t)(f * n);
       for (i = 0; i < n; i++) if (lk_o_grp[k].dest + i < (int)sizeof lk_o_tiles) lk_o_tiles[lk_o_grp[k].dest + i] = (uint8)OB(src + (uint32_t)i);
@@ -462,7 +493,7 @@ static int lk_o_win(int line, int x, int hint) {                      /* window 
 static int lk_o_unwrap(int p, int base, int size) { int d = (((p - base) % size) + size) % size; if (d >= size / 2) d -= size; return base + d; }
 
 static void lk_o_init(void) {
-  lk_o_actcram = getenv("LANDSTALKER_OWN_ACT_CRAM") != NULL; lk_o_fl_log = getenv("LANDSTALKER_OWN_FADELOG") != NULL; lk_o_scrram = getenv("LANDSTALKER_OWN_SCROLL_VDP") == NULL; lk_o_regvdp = getenv("LANDSTALKER_OWN_REGS_VDP") != NULL; lk_o_simple = 1; { const char *q3 = getenv("LANDSTALKER_OWN_SIMPLE"); if (q3) lk_o_simple = atoi(q3); } lk_o_scrvars = getenv("LANDSTALKER_OWN_SCRVARS") != NULL; { const char *q4 = getenv("LANDSTALKER_OWN_VMIRROR"); if (q4) lk_o_vmirror = atoi(q4); } { const char *q5 = getenv("LANDSTALKER_OWN_NIGELVRAM"); if (q5) lk_o_nigelvram = atoi(q5); } lk_o_gshake = getenv("LANDSTALKER_OWN_GSHAKE") != NULL; lk_o_fx = 1; { const char *q6 = getenv("LANDSTALKER_OWN_FX"); if (q6) lk_o_fx = atoi(q6); } { const char *q7 = getenv("LANDSTALKER_OWN_FXOFF"); if (q7) lk_o_fxoff = atoi(q7); } { const char *q9 = getenv("LANDSTALKER_OWN_SEED"); if (q9) lk_o_seed = atoi(q9); }
+  lk_o_hide0 = !(getenv("LANDSTALKER_OWN_HIDE0") && *getenv("LANDSTALKER_OWN_HIDE0") == '0'); lk_o_actcram = getenv("LANDSTALKER_OWN_ACT_CRAM") != NULL; lk_o_fl_log = getenv("LANDSTALKER_OWN_FADELOG") != NULL; lk_o_scrram = getenv("LANDSTALKER_OWN_SCROLL_VDP") == NULL; lk_o_regvdp = getenv("LANDSTALKER_OWN_REGS_VDP") != NULL; lk_o_simple = 1; { const char *q3 = getenv("LANDSTALKER_OWN_SIMPLE"); if (q3) lk_o_simple = atoi(q3); } lk_o_scrvars = getenv("LANDSTALKER_OWN_SCRVARS") != NULL; { const char *q4 = getenv("LANDSTALKER_OWN_VMIRROR"); if (q4) lk_o_vmirror = atoi(q4); } { const char *q5 = getenv("LANDSTALKER_OWN_NIGELVRAM"); if (q5) lk_o_nigelvram = atoi(q5); } lk_o_gshake = getenv("LANDSTALKER_OWN_GSHAKE") != NULL; lk_o_fx = 1; { const char *q6 = getenv("LANDSTALKER_OWN_FX"); if (q6) lk_o_fx = atoi(q6); } { const char *q7 = getenv("LANDSTALKER_OWN_FXOFF"); if (q7) lk_o_fxoff = atoi(q7); } { const char *q9 = getenv("LANDSTALKER_OWN_SEED"); if (q9) lk_o_seed = atoi(q9); }
   if (lk_o_mode >= 0) return;
   { const char *e = getenv("LANDSTALKER_OWN"), *l = getenv("LANDSTALKER_OWN_LOG"), *q; int v = 0;
     if (e) lk_o_mode = atoi(e);
