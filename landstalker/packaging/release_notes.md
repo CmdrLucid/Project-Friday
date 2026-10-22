@@ -1,10 +1,10 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- Fix: Options > Gameplay > Item Info no longer garbles the icons in the Use list when you scroll down to the last items.
-- Own renderer (Options > Video > Own Renderer, still Off by default): no longer reads anything back from the video chip; scrolling, fades, palettes and sprite graphics come from the game state. Also drawn now: tree warp, warp pad, room changes, the Gaia shake, the white fade.
-- Own renderer: the effect of a fully charged sword hit (Sword of Magic fire, Thunder, Ice) sits at the enemy like in the original, in front of or behind it depending on the direction of the hit; burning enemies are no longer shown as standing statues.
-- Everything from v0.9.4 is included.
+- **The own renderer is now On by default** (Options > Video > Own Renderer; a setting you already made is kept). It draws the whole map picture itself, without asking the video chip: rooms, figures, HUD, text boxes, the sword effects, tree warp, warp pad, room changes, the white fade and now also the Nole / Kazalt teleporter (sparks, flashes, fade in) and the red / white / black screen flashes.
+- Quick Items and Quick Save are now **per save file**: every save slot has its own bindings and its own quick save. A new game in a used slot starts with no quick items and no old quick save.
+- Own renderer: sprites that sit far below the picture edge in the game's sprite table (sparks of the Kazalt warp) are no longer hidden.
+- Everything from v0.9.5 is included.
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).

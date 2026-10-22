@@ -33,8 +33,18 @@ static void lk_poke_step(void) {
             }
     }
 }
+static long lk_pad_at = -1;   /* LANDSTALKER_PAD_AT=frame: run HandleFloorWarpPad $0062C6 once (with the 'last floor type' byte cleared) = step onto the warp pad Nigel stands on; in room 170 / 173 that is the Nole warp (test aid, together with LANDSTALKER_WARP=170:11.08,11.08,10) */
 static void lk_h_warp(void) {
-    lk_poke_step();   /* LANDSTALKER_POKE (before a warp of the same frame) */
+    lk_poke_step();
+    if (lk_pad_at >= 0 && platform_frame_number() >= lk_pad_at) {
+        M68kContext sv = g_m68k; lk_pad_at = -1;
+        printf("pad: frame %ld HandleFloorWarpPad\n", platform_frame_number());
+        printf("pad: Z %04X ground height %02X type %02X last type %02X\n", bus_read16(0xFF5412u), bus_read8(0xFF5422u), bus_read8(0xFF5423u), bus_read8(0xFF1209u));
+        bus_write16(0xFF5412u, (uint16_t)((bus_read8(0xFF5422u) & 15) << 4));   /* Nigel stands on the ground (HandleFloorWarpPad wants Z = ground height * 16) */
+        bus_write8(0xFF1209u, 0); func_table_jsr(0x0062C6u, 0x0016ECu);
+        printf("pad: frame %ld returned\n", platform_frame_number());
+        g_m68k = sv;
+    }   /* LANDSTALKER_POKE (before a warp of the same frame) */
     if (lk_refill_at >= 0 && platform_frame_number() >= lk_refill_at) { lk_refill_at = -1; lk_wide_refill = 1; printf("refill: frame %ld\n", platform_frame_number()); }
     if (lk_w_next < lk_w_n && platform_frame_number() >= lk_w_at[lk_w_next]) {
         int i = lk_w_next++; M68kContext sv = g_m68k;
@@ -51,6 +61,7 @@ static void lk_h_warp(void) {
 /* LANDSTALKER_LITHO_AT=frame: shows the lithograph picture the way the game does after 'Found Lithograph.' (CSA_0068 $0136BE: CSA_015A, text $26, DisplayLithograph $03860C, text $27;
    the room transition at its end is left out) from INSIDE UpdateSprites ($0178C8), where cutscene actions run - to test the picture with the widescreen / full-height code without the story trigger */
 static gen_func_t lk_l_orig; static long lk_l_at = -1, lk_cr_at = -1;
+static long lk_vfx_at = -1; static int lk_vfx_n[8], lk_vfx_cnt;   /* LANDSTALKER_VFX_AT=frame LANDSTALKER_VFX="7,8": DoVisualEffect $00E110 with those numbers in a row (7 / 8 = Nole warp out / in, 9 / 10 = Kazalt cutscene warps, 4 / 5 / 6 = black / white / red flash), test aid for the own renderer */
 static void lk_h_litho(void) {
     if (lk_cr_at >= 0 && platform_frame_number() >= lk_cr_at) {   /* LANDSTALKER_CREDITS_AT: the ending script from FadeToBlack on (CSA_0154 $0156F8) */
         M68kContext sv = g_m68k; lk_cr_at = -1;
@@ -60,6 +71,15 @@ static void lk_h_litho(void) {
         g_m68k.d[0] = 0; g_m68k.d[1] = 0xEF; func_table_jsr(0x00031Au, 0x0178CEu);
         func_table_jsr(0x09B004u, 0x0178CEu);
         printf("credits: frame %ld credits returned\n", platform_frame_number());
+        g_m68k = sv;
+    }
+    if (lk_vfx_at >= 0 && platform_frame_number() >= lk_vfx_at) {
+        M68kContext sv = g_m68k; int k; lk_vfx_at = -1;
+        for (k = 0; k < lk_vfx_cnt; k++) {
+            printf("vfx: frame %ld DoVisualEffect(%d)\n", platform_frame_number(), lk_vfx_n[k]);
+            g_m68k.d[0] = (uint32_t)lk_vfx_n[k]; func_table_jsr(0x00E110u, 0x0178CEu);
+        }
+        printf("vfx: frame %ld done\n", platform_frame_number());
         g_m68k = sv;
     }
     if (lk_l_at >= 0 && platform_frame_number() >= lk_l_at) {
@@ -79,8 +99,13 @@ static void lk_warp_install(void) {
     if (done) return;
     done = 1;
     { const char *c = getenv("LANDSTALKER_CREDITS_AT"); if (c && *c) lk_cr_at = atol(c); }
+    { const char *pa = getenv("LANDSTALKER_PAD_AT"); if (pa && *pa) lk_pad_at = atol(pa); }
+    { const char *v = getenv("LANDSTALKER_VFX"), *va = getenv("LANDSTALKER_VFX_AT");
+      if (v && *v) { char vb[64], *t, *sv2; snprintf(vb, sizeof vb, "%s", v);
+          for (t = strtok_r(vb, ",", &sv2); t && lk_vfx_cnt < 8; t = strtok_r(NULL, ",", &sv2)) lk_vfx_n[lk_vfx_cnt++] = atoi(t);
+          lk_vfx_at = (va && *va) ? atol(va) : 880; } }
     { const char *l = getenv("LANDSTALKER_LITHO_AT"); lk_l_orig = func_table_lookup(0x0178C8);
-      if (lk_cr_at >= 0 && !(l && *l)) l = "999999999";
+      if ((lk_cr_at >= 0 || lk_vfx_at >= 0) && !(l && *l)) l = "999999999";
       if (l && *l && lk_l_orig) { lk_l_at = atol(l); func_table_register(0x0178C8, lk_h_litho); printf("litho: armed at frame %ld\n", lk_l_at); } }
     { const char *r = getenv("LANDSTALKER_REFILL_AT"); if (r && *r && !getenv("LANDSTALKER_WARP")) { lk_refill_at = atol(r); lk_w_orig = func_table_lookup(0x001788); if (lk_w_orig) { func_table_register(0x001788, lk_h_warp); printf("refill: armed at frame %ld\n", lk_refill_at); } return; } else if (r && *r) lk_refill_at = atol(r); }
     e = getenv("LANDSTALKER_WARP");
