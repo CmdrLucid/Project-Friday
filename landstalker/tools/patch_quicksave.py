@@ -87,9 +87,11 @@ extern int lk_qs_take(void);
 extern void lk_osd_say(const char *t);
 extern void lk_gaia_cancel(void);   /* tools/patch_gaia.py: a running live Gaia effect ends before the saved game is loaded */
 static gen_func_t lk_o_gloop, lk_o_loadgame;
-#define LK_QS_SLOT 4
 static int lk_qs_loading, lk_qs_slot0;
-static int lk_qs_have(void) { int i; for (i = 0; i < 32; i++) if (bus_read8(0x202031u + 2u * (uint32_t)i)) return 1; return 0; }
+/* one hidden quick save slot PER FILE SLOT (user 2026-10-22): file slot 0..3 -> hidden slot 4..7 (slot n at SRAM $200031 + $800 * n; the file select only knows 0..3) */
+#define LK_QS_SLOT(fs) (4 + ((fs) & 3))
+static int lk_qs_have(int fs) { int i; for (i = 0; i < 32; i++) if (bus_read8(0x200031u + 0x800u * (uint32_t)LK_QS_SLOT(fs) + 2u * (uint32_t)i)) return 1; return 0; }
+void lk_qs_wipe(int fs) { uint32_t i; for (i = 0; i < 0x400; i++) bus_write8(0x200031u + 0x800u * (uint32_t)LK_QS_SLOT(fs) + 2u * i, 0); }   /* a new game in a file slot: its old quick save is gone */
 /* LoadGame ($0026E8) = ClearPlayerStruct, the whole file select (InitGameSelectScreen, it also calls LoadSavedGame) and then LoadRoomPath / LoadMagicSwordGfx. While a quick load is running
    the same steps are done here without the file select: the saved game of the hidden slot is loaded, everything else is the game's own code. RunGameLoop then calls StartGame and GameLoop as usual. */
 static void lk_h_loadgame(void) {
@@ -99,7 +101,7 @@ static void lk_h_loadgame(void) {
     lk_call(0x002726u);   /* ClearPlayerStruct */
     lk_call(0x022EC0u);   /* HideRightArrow */
     lk_call(0x002F3Cu);   /* CheckRAM: the RAM marker the file select expects (it clears $FF0010 when it has to write it) */
-    bus_write8(0xFF0010u, LK_QS_SLOT); lk_call(0x0015C2u);   /* LoadSavedGame */
+    bus_write8(0xFF0010u, (uint8_t)LK_QS_SLOT(lk_qs_slot0)); lk_call(0x0015C2u);   /* LoadSavedGame */
     bus_write8(0xFF0010u, (uint8_t)lk_qs_slot0);
     lk_call(0x0008F2u);   /* EnableDisplayAndInts (SetUpTextDisplay waits for VBlank interrupts; the file select enables them itself) */
     lk_call(0x022EA0u);   /* SetUpTextDisplay */
@@ -112,11 +114,11 @@ static void lk_h_gloop(void) {
     int req = lk_qs_take();
     if (req == 1) {
         M68kContext sv = g_m68k; uint8_t slot0 = bus_read8(0xFF0010u);
-        bus_write8(0xFF0010u, LK_QS_SLOT); lk_call(0x001592u);   /* SaveGame */
+        bus_write8(0xFF0010u, (uint8_t)LK_QS_SLOT(slot0)); lk_call(0x001592u);   /* SaveGame */
         bus_write8(0xFF0010u, slot0); g_m68k = sv;
         lk_snd(LK_SND_SELECT); lk_osd_say("QUICKSAVE"); if (getenv("LANDSTALKER_QS_DEBUG")) fprintf(stderr, "quicksave: saved\n");
     } else if (req == 2) {
-        if (!lk_qs_have()) { lk_snd(LK_SND_MOVE); lk_osd_say("NO QUICKSAVE"); }
+        if (!lk_qs_have(bus_read8(0xFF0010u))) { lk_snd(LK_SND_MOVE); lk_osd_say("NO QUICKSAVE"); }
         else {
             lk_qs_slot0 = bus_read8(0xFF0010u); lk_qs_loading = 1;
             lk_osd_say("QUICKLOAD"); if (getenv("LANDSTALKER_QS_DEBUG")) fprintf(stderr, "quicksave: loading\n");

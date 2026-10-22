@@ -36,10 +36,13 @@ if VER not in s:
 extern uint8 vram[0x10000];
 static int lk_q_line;
 static int lk_q_on = -1, lk_q_id[2] = { -1, -1 }, lk_q_qty[2];
+static int lk_q_sid[4][2] = { { -2, -2 }, { -2, -2 }, { -2, -2 }, { -2, -2 } };   /* the bindings PER SAVE SLOT (the game's current slot $FF0010 & 3, user 2026-10-22); -2 = not set yet: the global pair above (older versions) applies */
+extern uint8_t bus_read8(uint32_t addr);
+static int lk_q_cur(void) { return bus_read8(0xFF0010u) & 3; }
 static PIXEL_OUT_T lk_q_px[64][256];
 static uint8 lk_q_mask[64][256], lk_q_have[64];
 static void lk_q_path(char *b, size_t n, const char *f) { const char *h = getenv("HOME"); snprintf(b, n, "%s/%s", h ? h : ".", f); }
-static void lk_q_save(void) { char p[512]; FILE *f; lk_q_path(p, sizeof p, ".landstalker_quick"); f = fopen(p, "w"); if (f) { fprintf(f, "%d %d %d\n", lk_q_on, lk_q_id[0], lk_q_id[1]); fclose(f); } }
+static void lk_q_save(void) { char p[512]; FILE *f; lk_q_path(p, sizeof p, ".landstalker_quick"); f = fopen(p, "w"); if (f) { int k; fprintf(f, "%d %d %d\n", lk_q_on, lk_q_id[0], lk_q_id[1]); for (k = 0; k < 4; k++) if (lk_q_sid[k][0] != -2 || lk_q_sid[k][1] != -2) fprintf(f, "s %d %d %d\n", k, lk_q_sid[k][0], lk_q_sid[k][1]); fclose(f); } }
 static void lk_q_icons_save(void) {
   char p[512]; FILE *f; int i; lk_q_path(p, sizeof p, ".landstalker_quick_icons"); f = fopen(p, "wb"); if (!f) return;
   for (i = 0; i < 64; i++) if (lk_q_have[i]) { uint8 id = (uint8)i; fwrite(&id, 1, 1, f); fwrite(lk_q_mask[i], 1, 256, f); fwrite(lk_q_px[i], sizeof(PIXEL_OUT_T), 256, f); }
@@ -48,7 +51,7 @@ static void lk_q_icons_save(void) {
 static void lk_q_load(void) {
   char p[512]; FILE *f; int on = 0, a = -1, b = -1; uint8 id;
   lk_q_on = 1; lk_q_path(p, sizeof p, ".landstalker_quick");   /* default On since 2026-10-17 (Quality of Life); a saved file wins */ f = fopen(p, "r");
-  if (f) { if (fscanf(f, "%d %d %d", &on, &a, &b) >= 1) { lk_q_on = on ? 1 : 0; lk_q_id[0] = a; lk_q_id[1] = b; } fclose(f); }
+  if (f) { if (fscanf(f, "%d %d %d", &on, &a, &b) >= 1) { int k, x, y; lk_q_on = on ? 1 : 0; lk_q_id[0] = a; lk_q_id[1] = b; while (fscanf(f, " s %d %d %d", &k, &x, &y) == 3) if (k >= 0 && k < 4) { lk_q_sid[k][0] = x; lk_q_sid[k][1] = y; } } fclose(f); }
   { const char *e = getenv("LANDSTALKER_QUICK"); if (e && *e) lk_q_on = atoi(e) ? 1 : 0; }
   { const char *e = getenv("LANDSTALKER_QUICK_SLOTS"); int x, y; if (e && sscanf(e, "%d,%d", &x, &y) == 2) { lk_q_id[0] = x; lk_q_id[1] = y; } }   /* test aid */
   lk_q_path(p, sizeof p, ".landstalker_quick_icons"); f = fopen(p, "rb");
@@ -56,8 +59,8 @@ static void lk_q_load(void) {
 }
 int lk_quick_get(void) { if (lk_q_on < 0) lk_q_load(); return lk_q_on; }
 void lk_quick_set(int v) { lk_quick_get(); lk_q_on = v ? 1 : 0; lk_q_save(); }
-int lk_quick_slot_get(int s) { lk_quick_get(); return lk_q_id[s & 1]; }
-void lk_quick_slot_set(int s, int id) { lk_quick_get(); lk_q_id[s & 1] = id; lk_q_save(); }
+int lk_quick_slot_get(int s) { int v; lk_quick_get(); v = lk_q_sid[lk_q_cur()][s & 1]; return v == -2 ? lk_q_id[s & 1] : v; }
+void lk_quick_slot_set(int s, int id) { int c; lk_quick_get(); c = lk_q_cur(); if (lk_q_sid[c][0] == -2) lk_q_sid[c][0] = lk_q_id[0]; if (lk_q_sid[c][1] == -2) lk_q_sid[c][1] = lk_q_id[1]; lk_q_sid[c][s & 1] = id; lk_q_save(); }
 void lk_quick_set_qty(int s, int q) { lk_q_qty[s & 1] = q; }
 /* copy the 32 x 32 icon of item `id` from VRAM (tiles $BC + id * 16, column-major 4 x 4, palette 1 as the menu draws owned items) shrunk to 16 x 16 */
 void lk_quick_capture(int id) {
@@ -126,7 +129,7 @@ static void lk_q_cells(int compact, PIXEL_OUT_T white, PIXEL_OUT_T black) {
   int s, i, j;
   memset(lk_q_cm, 0, sizeof lk_q_cm);
   for (s = 0; s < 2; s++) {
-    int x0 = compact ? (s ? 20 + (lk_q_cellw - 36) : 2) : (s ? 32 : 2), id = lk_q_id[s], q = lk_q_qty[s];
+    int x0 = compact ? (s ? 20 + (lk_q_cellw - 36) : 2) : (s ? 32 : 2), id = lk_quick_slot_get(s), q = lk_q_qty[s];
     if (id >= 0 && id < 64 && lk_q_have[id]) {
       for (j = 0; j < 16; j++) for (i = 0; i < 16; i++) if (lk_q_mask[id][j * 16 + i]) lk_q_px_set(x0 + i, j, q > 0 ? lk_q_px[id][j * 16 + i] : lk_q_dim(lk_q_px[id][j * 16 + i]));
     }
@@ -319,9 +322,10 @@ static void lk_h_rpr(void) {
         lk_q_refresh_counts();
       } }
 }
+extern void lk_qs_wipe(int fs);   /* tools/patch_quicksave.py */
 static gen_func_t lk_q_start_orig;
 static void lk_h_start(void) {   /* StartGame $008D84: a NEW game starts in the intro room $8B: the quick slots of the previous save must not carry over (user 2026-10-22: new save showed EkeEke / Gaia statue with 0) */
-    if (bus_read16(0xFF1204u) == 0x008Bu && (lk_quick_slot_get(0) >= 0 || lk_quick_slot_get(1) >= 0)) { lk_quick_slot_set(0, -1); lk_quick_slot_set(1, -1); lk_q_refresh_counts(); printf("quick items: new game, slots cleared\n"); }
+    if (bus_read16(0xFF1204u) == 0x008Bu) { lk_quick_slot_set(0, -1); lk_quick_slot_set(1, -1); lk_q_refresh_counts(); lk_qs_wipe(bus_read8(0xFF0010u)); printf("quick items: new game in file slot %d, its quick item slots and quick save cleared\n", bus_read8(0xFF0010u) & 3); }
     lk_q_start_orig();
 }
 static void lk_quick_install(void) {
