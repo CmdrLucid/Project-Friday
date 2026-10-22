@@ -319,12 +319,18 @@ static void lk_h_rpr(void) {
         lk_q_refresh_counts();
       } }
 }
+static gen_func_t lk_q_start_orig;
+static void lk_h_start(void) {   /* StartGame $008D84: a NEW game starts in the intro room $8B: the quick slots of the previous save must not carry over (user 2026-10-22: new save showed EkeEke / Gaia statue with 0) */
+    if (bus_read16(0xFF1204u) == 0x008Bu && (lk_quick_slot_get(0) >= 0 || lk_quick_slot_get(1) >= 0)) { lk_quick_slot_set(0, -1); lk_quick_slot_set(1, -1); lk_q_refresh_counts(); printf("quick items: new game, slots cleared\n"); }
+    lk_q_start_orig();
+}
 static void lk_quick_install(void) {
     static int done;
     if (done) return;
     done = 1;
     lk_o_pab = func_table_lookup(0x0066AC); lk_o_dil = func_table_lookup(0x00D4AE); lk_o_ifm = func_table_lookup(0x008614); lk_o_rpr = func_table_lookup(0x00D88A);
     if (!(lk_o_pab && lk_o_dil && lk_o_ifm && lk_o_rpr)) { fprintf(stderr, "quick items: game functions not found, option disabled\n"); return; }
+    lk_q_start_orig = func_table_lookup(0x008D84); if (lk_q_start_orig) func_table_register(0x008D84, lk_h_start);
     func_table_register(0x0066AC, lk_h_pab); func_table_register(0x00D4AE, lk_h_dil); func_table_register(0x008614, lk_h_ifm); func_table_register(0x00D88A, lk_h_rpr);
 }
 '''

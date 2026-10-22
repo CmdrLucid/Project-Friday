@@ -2,7 +2,7 @@
 
 ### New in {VERSION}
 - Fix: Options > Gameplay > Item Info no longer garbles the icons in the Use list when you scroll down to the last items.
-- Own renderer (Options > Video > Own Renderer, still Off by default): no longer reads anything back from the video chip; scrolling, fades, palettes and sprite graphics come from the game state. Also drawn now: tree warp, warp pad, room changes, the Gaia shake, the white fade.
+- Own renderer (Options > Video > Own Renderer, now On by default): no longer reads anything back from the video chip; scrolling, fades, palettes and sprite graphics come from the game state. Also drawn now: tree warp, warp pad, room changes, the Gaia shake, the white fade.
 - Own renderer: the effect of a fully charged sword hit (Sword of Magic fire, Thunder, Ice) sits at the enemy like in the original, in front of or behind it depending on the direction of the hit; burning enemies are no longer shown as standing statues.
 - Everything from v0.9.4 is included.
 
