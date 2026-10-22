@@ -522,7 +522,9 @@ void lk_own_set(int v) {                                             /* Options 
 static int lk_scr_mode = -1, lk_scr_log, lk_o_why;   /* lk_o_why: why the own map path did not draw this frame (1 old room still showing, 2 warp effect, 3 Start menu running, 4 display off, 5 no room) */ static long lk_scr_diff, lk_scr_tot, lk_scr_lines;
 #define LK_VB(a) vram[((a) & 0xFFFF) ^ 1]
 #define LK_VW(a) (((unsigned)LK_VB(a) << 8) | LK_VB((a) + 1))
-static int lk_scr_ci(int tile, int px, int py, int hf, int vf) { int ox = hf ? 7 - px : px, oy = vf ? 7 - py : py, b = LK_VB(tile * 32 + oy * 4 + (ox >> 1)); return (ox & 1) ? (b & 15) : (b >> 4); }
+extern int lk_org_lookup(const uint8_t *vram, int tile, uint32_t *rom, int *idx); extern int lk_org_count(void);   /* tools/patch_gfxorg.py */
+static int lk_scr_tc[2048], lk_org_log = -1;   /* opaque tile pixels seen this frame per tile (LANDSTALKER_OWN_ORGLOG) */
+static int lk_scr_ci(int tile, int px, int py, int hf, int vf) { int ox = hf ? 7 - px : px, oy = vf ? 7 - py : py, b = LK_VB(tile * 32 + oy * 4 + (ox >> 1)), ci = (ox & 1) ? (b & 15) : (b >> 4); if (ci && lk_org_log > 0) lk_scr_tc[tile & 0x7FF]++; return ci; }
 static int lk_scr_cell(int ent, int px, int py, int *prio) { int ci = lk_scr_ci(ent & 0x7FF, px, py, (ent >> 11) & 1, (ent >> 12) & 1); *prio = (ent >> 15) & 1; return ci ? ((ent >> 13) & 3) * 16 + ci : -1; }
 static int lk_scr_cramw(int i) { return ((cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1]) & 0x1FF; }
 static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {                /* returns 0 when the VDP is in a mode this renderer does not do (the game's picture stays) */
@@ -576,11 +578,13 @@ static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {      
 }
 static void lk_scr_row(PIXEL_OUT_T *row, int e, int line, int map) {
   PIXEL_OUT_T buf[320]; int x, d = 0;
-  if (lk_scr_mode < 0) { const char *q = getenv("LANDSTALKER_OWN_SCREENS"), *l = getenv("LANDSTALKER_OWN_SCRLOG"); lk_scr_mode = q ? atoi(q) : 2; lk_scr_log = l ? atoi(l) : 0; }
+  if (lk_scr_mode < 0) { const char *q = getenv("LANDSTALKER_OWN_SCREENS"), *l = getenv("LANDSTALKER_OWN_SCRLOG"); lk_scr_mode = q ? atoi(q) : 2; lk_scr_log = l ? atoi(l) : 0; { const char *o = getenv("LANDSTALKER_OWN_ORGLOG"); lk_org_log = o ? atoi(o) : 0; } }
   if (!lk_scr_mode || !lk_scr_line(line, buf, e, lk_tall_keep(line))) return;
   for (x = 0; x < 320; x++) if (row[e + x] != buf[x]) d++;
   lk_scr_diff += d; lk_scr_tot += 320; lk_scr_lines++;
   if (lk_scr_mode == 2 && lk_o_mode == 2) for (x = 0; x < 320; x++) row[e + x] = buf[x];
+  if (lk_org_log > 0 && line == 223) { int t, kn = 0, un = 0, dk = 0, du = 0; for (t = 0; t < 2048; t++) if (lk_scr_tc[t]) { if (lk_org_lookup(vram, t, 0, 0)) { kn += lk_scr_tc[t]; dk++; } else { un += lk_scr_tc[t]; du++; if (getenv("LANDSTALKER_OWN_ORGLIST") && platform_frame_number() % lk_org_log == 0) printf("ownorg: frame %ld unknown tile %d (VRAM $%04X, %d pixels)\n", platform_frame_number(), t, t * 32, lk_scr_tc[t]); } lk_scr_tc[t] = 0; }
+    if (platform_frame_number() % lk_org_log == 0) printf("ownorg: frame %ld %s: opaque tile pixels with a known ROM origin %d, unknown %d (tiles %d / %d, origin table %d entries)\n", platform_frame_number(), map ? "map-not-own" : "screen", kn, un, dk, du, lk_org_count()); }
   if (lk_scr_log && line == 223) { printf("ownscr: frame %ld %s: %ld of %ld pixels differ in %ld lines\n", platform_frame_number(), map ? "map-not-own" : "screen", lk_scr_diff, lk_scr_tot, lk_scr_lines); lk_scr_diff = 0; lk_scr_tot = 0; lk_scr_lines = 0; }
 }
 static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
