@@ -30,3 +30,5 @@ Note (2026-10): `massan.txt` was recorded on the OLD-timing build. With the new 
 
 `all_swords_room166.txt` + `.chk` - recorded by the user 2026-10-22 06:02 (318 changes, ~6300 frames, WIDE=16 + TALL=1): room 166 (stone enemies, spikes, water floor), every sword used in turn (Gaia, Magic = Fire, Thunder, Ice, Gaia again, Magic). Needs `save_20261022_0602.srm` (only on the Deck) and `LANDSTALKER_QUICK=1 LANDSTALKER_QUICK_SLOTS=0,19`. Replays deterministically, but the checkpoint lines part from the live run at frame ~2760 (gold). Use it with `LANDSTALKER_OWN=1 LANDSTALKER_OWN_LOG=1` for the sword effects of the own renderer (DEBUGGING 'Own renderer: Fire sword / sword effects').
 
+`sword_effects_directions.txt` + `.chk` - recorded by the user 2026-10-22 07:06 (WIDE=16 + TALL=1, ~3200 frames): charged sword hits from different directions (effect in front of / behind the enemy). Needs `save_20261022_0706.srm` (only on the Deck) and `LANDSTALKER_QUICK=1 LANDSTALKER_QUICK_SLOTS=0,19`. Compare mode as for `all_swords_room166`.
+

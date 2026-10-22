@@ -287,8 +287,20 @@ static int lk_o_formula(const uint8 *st, int off, int *ax, int *ay) {   /* the g
   }
   lk_o_sp = keep; return ok;
 }
+static uint32 lk_o_dk2[96]; static int lk_o_dn2, lk_o_exon, lk_o_exnext;   /* sprite table entries no figure accounts for are drawn between the figures at their table position: dk2 = keys the first figure pass drew, exnext = next table index to look at */
+static void lk_o_extras_upto(int upto) {                            /* effects that write the sprite table directly (Gaia rocks, the Fire / Thunder / Ice effect at a target): the entries that no figure piece accounts for, from the game's VRAM tiles, in the order of the table (lower index = in front, the figure loop calls this before every figure with that figure's first table index) */
+  static int ex = -1; int i2;
+  if (ex < 0) { const char *c = getenv("LANDSTALKER_OWN_EXTRA"); ex = c && *c == '0' ? 0 : 1; }
+  for (; ex && lk_o_exnext < lk_o_satn && lk_o_exnext < upto; lk_o_exnext++) {
+    int j = lk_o_exnext; uint32 k2 = lk_o_satk[j]; int w2 = lk_o_satw[j], covered = 0;
+    for (i2 = 0; i2 < lk_o_dn2; i2++) if (lk_o_dk2[i2] == k2) { covered = 1; break; }
+    if (getenv("LANDSTALKER_OWN_SAT")) printf("ownsat: frame %ld #%d x %d y %d size %X attr %04X %s\n", platform_frame_number(), j, (int)((k2 >> 20) & 0x1FF), (int)((k2 >> 8) & 0x3FF), (int)(k2 & 15), w2, covered ? "covered" : "EXTRA");
+    if (covered) continue;
+    lk_o_vpiece(w2 & 0x7FF, (int)((k2 >> 20) & 0x1FF) - 128, (int)((k2 >> 8) & 0x3FF) - 128, (int)((k2 >> 2) & 3) + 1, (int)(k2 & 3) + 1, (w2 >> 13) & 3, (w2 >> 15) & 1, (w2 >> 11) & 1, (w2 >> 12) & 1);
+  }
+}
 static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *alt) {   /* figures of one pass state: drawn into lk_o_spr and / or as SAT keys (x, y, size) for the choice of the pass; with `alt` every entity of EITHER pass' visible list takes the version (this pass / the other one, or absent) that matches the real sprite table: the game's visibility test flips entities in and out of the list from pass to pass */
-  int offs[48], inA[48], inB[48], inF[48], n, k, nb = 0, boffs[24], nk = 0, i;
+  int offs[48], inA[48], inB[48], inF[48], sord[48], n, k, nb = 0, boffs[24], nk = 0, i;
   if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr); lk_o_nspr = 0; lk_o_dn = 0; }
   n = lk_o_list(src, offs); for (k = 0; k < n; k++) { inA[k] = 1; inB[k] = 0; inF[k] = 0; }
   if (alt) { nb = lk_o_list(alt, boffs); for (i = 0; i < nb; i++) { for (k = 0; k < n && offs[k] != boffs[i]; k++) ; if (k < n) inB[k] = 1; else if (n < 48) { offs[n] = boffs[i]; inA[n] = 0; inB[n] = 1; inF[n] = 0; n++; } } }
@@ -315,6 +327,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
       ord[k] = best; idx[k] = k;
     }
     if (draw && (alt || lk_o_simple)) for (q = 1; q < n; q++) for (r2 = q; r2 > 0 && ord[idx[r2]] < ord[idx[r2 - 1]]; r2--) { int t2 = idx[r2]; idx[r2] = idx[r2 - 1]; idx[r2 - 1] = t2; }
+    for (k = 0; k < n; k++) sord[k] = ord[idx[k]];
     { int so[48], sf[48], sa[48], sb[48]; for (k = 0; k < n; k++) { so[k] = offs[idx[k]]; sa[k] = inA[idx[k]]; sb[k] = inB[idx[k]]; sf[k] = inF[idx[k]]; } for (k = 0; k < n; k++) { offs[k] = so[k]; inA[k] = sa[k]; inB[k] = sb[k]; inF[k] = sf[k]; } }
   }
   for (k = 0; k < n; k++) {
@@ -364,6 +377,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
     }
     if (!e || !e->vis) continue;
     if (draw && lk_o_hide0 && offs[k] != 0 && e->np && lk_o_satn > 0 && !lk_o_loose(e) && !lk_o_loose4e(e) && lk_o_near(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) { int q; printf("ownhide: frame %ld off %02X type %02X at (%d,%d) 4e (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), e->ax, e->ay, SW(0xFF5400 + offs[k] + 0x4E), SW(0xFF5400 + offs[k] + 0x50)); for (q = 0; q < e->np; q++) { uint32 kk = lk_o_pkey(e, q, 0); printf("   piece %d: x %d y %d size %X\n", q, (int)((kk >> 20) & 0x1FF), (int)((kk >> 8) & 0x3FF), (int)(kk & 15)); } } continue; }   /* the real sprite table holds none of this entity's pieces: the game draws something else in its place (a burning enemy of the Fire sword is replaced by flame sprites that are written into the table, they come as EXTRA entries) */
+    if (draw && lk_o_exon) lk_o_extras_upto(sord[k]);
     lk_o_nspr++;
     for (pc = 0; pc < e->np; pc++) {
       int xx; uint32 key = lk_o_pkey(e, pc, &xx);
@@ -402,17 +416,10 @@ static void lk_o_build(void) {                                       /* everythi
       }
     }
   }
-  lk_o_sprites(chosen, 1, 0, lk_o_simple ? 0 : chosen == lk_o_cc ? lk_o_cp : lk_o_cc); lk_o_sp = lk_o_r;
-  { static int ex = -1; int j, i2;                                  /* sprite table entries no figure piece accounts for (effects that write the sprite table directly, e.g. the falling stones of the Statue of Gaia / Gaia sword, GaiaEffect $016712): drawn from the table and the game's VRAM tiles */
-    if (ex < 0) { const char *c = getenv("LANDSTALKER_OWN_EXTRA"); ex = c && *c == '0' ? 0 : 1; }
-    for (j = 0; ex && j < lk_o_satn; j++) {
-      uint32 k2 = lk_o_satk[j]; int w2 = lk_o_satw[j], covered = 0;
-      for (i2 = 0; i2 < lk_o_dn; i2++) if (lk_o_dk[i2] == k2) { covered = 1; break; }
-      if (getenv("LANDSTALKER_OWN_SAT")) printf("ownsat: frame %ld #%d x %d y %d size %X attr %04X %s\n", platform_frame_number(), j, (int)((k2 >> 20) & 0x1FF), (int)((k2 >> 8) & 0x3FF), (int)(k2 & 15), w2, covered ? "covered" : "EXTRA");
-      if (covered) continue;
-      lk_o_vpiece(w2 & 0x7FF, (int)((k2 >> 20) & 0x1FF) - 128, (int)((k2 >> 8) & 0x3FF) - 128, (int)((k2 >> 2) & 3) + 1, (int)(k2 & 3) + 1, (w2 >> 13) & 3, (w2 >> 15) & 1, (w2 >> 11) & 1, (w2 >> 12) & 1);
-    }
-  }
+  lk_o_exon = 0; lk_o_sprites(chosen, 1, 0, lk_o_simple ? 0 : chosen == lk_o_cc ? lk_o_cp : lk_o_cc); lk_o_sp = lk_o_r;   /* pass 1: which table entries do the figures account for */
+  memcpy(lk_o_dk2, lk_o_dk, sizeof lk_o_dk); lk_o_dn2 = lk_o_dn;
+  lk_o_exon = 1; lk_o_exnext = 0; lk_o_sprites(chosen, 1, 0, lk_o_simple ? 0 : chosen == lk_o_cc ? lk_o_cp : lk_o_cc); lk_o_sp = lk_o_r;   /* pass 2: the same figures with the other table entries drawn between them */
+  lk_o_extras_upto(1 << 20); lk_o_exon = 0;
   (void)o;
 }
 static int lk_o_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio) {   /* colour index of one plane pixel at image position (U, V), 0 = transparent */
