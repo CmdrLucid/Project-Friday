@@ -46,6 +46,7 @@ chk "Gaia-Effekt live (LANDSTALKER_GAIA)"             $G/src/func_table.c       
 chk "Eigene Textbox-Kacheln (Spiegel)"                $G/src/func_table.c                  "LK_OWNTEXT v1"
 chk "Eigener Renderer: VBlank-Schnappschuss"          $G/src/func_table.c                  "LK_OWNVB v3"
 chk "Eigener Renderer: Kachel-Herkunft"              $G/src/func_table.c                  "LK_GFXORG v1"
+chk "HD-Grafik (optional): Anzeige"                  $G/src/platform_sdl.c                "LK_HD v1"
 chk "Eigener Renderer (LANDSTALKER_OWN)"              $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_OWN v1"
 chk "Vorspulen (R2 / Tab)"                           $G/src/platform_sdl.c "LK_FFWD v1"
 chk "Schnellspeichern / -laden"                     $G/src/func_table.c "LK_QUICKSAVE v1"

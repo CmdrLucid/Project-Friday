@@ -148,6 +148,8 @@ python3 tools/patch_ownvb.py .deps/genrecomp
 python3 tools/patch_gfxorg.py .deps/genrecomp
 # Own renderer, compare mode (LANDSTALKER_OWN=1 / 2, tools/patch_own.py; needs patch_shadow.py first)
 python3 tools/patch_own.py .deps/genrecomp
+# HD graphics, display side: HD picture from the compositor's n x n blocks, optional and Off by default (tools/patch_hd.py; needs patch_shot.py and patch_own.py first)
+python3 tools/patch_hd.py .deps/genrecomp
 # test aid: LANDSTALKER_WARP="610:12.08,20.04" puts Nigel into a room at a spot (headless tests), see tools/patch_warp.py
 python3 tools/patch_warp.py .deps/genrecomp
 # audio capture: LANDSTALKER_WAV=file.wav (recompiled build and genrecomp_ref), compare with tools/wavcmp.py (tools/patch_wav.py)

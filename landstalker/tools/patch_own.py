@@ -523,20 +523,23 @@ static int lk_scr_mode = -1, lk_scr_log, lk_o_why;   /* lk_o_why: why the own ma
 #define LK_VB(a) vram[((a) & 0xFFFF) ^ 1]
 #define LK_VW(a) (((unsigned)LK_VB(a) << 8) | LK_VB((a) + 1))
 extern int lk_org_lookup(const uint8_t *vram, int tile, uint32_t *rom, int *idx); extern int lk_org_count(void);   /* tools/patch_gfxorg.py */
-static int lk_scr_tc[2048], lk_org_log = -1;   /* opaque tile pixels seen this frame per tile (LANDSTALKER_OWN_ORGLOG) */
+static int lk_scr_tc[2048], lk_scr_tpal[2048], lk_scr_curpal, lk_org_log = -1, lk_dump_on; static const char *lk_dump_dir;   /* opaque tile pixels seen this frame per tile (LANDSTALKER_OWN_ORGLOG) */
 /* ---- tile replacement (stage 2 test of the HD path): a tile whose ORIGIN (ROM block, tile index, tools/patch_gfxorg.py) has an entry is drawn from the entry instead of the VRAM pixels.
    Only with HD graphics On (LANDSTALKER_HD=1 or ~/.landstalker_hd = 1, default Off).  Entries: LANDSTALKER_TILEPACK=dir (default ~/.landstalker_tilepack): files `XXXXXX_NNNN.rgba` (XXXXXX = hex ROM address of the compressed block, NNNN = decimal tile index in it, 8 x 8 x RGBA = 256 bytes,
    alpha 0 = keep the game's pixel), and the test rule LANDSTALKER_TILETEST="0386E4,03DF8A:12" (a whole block, or one tile `block:index`): the tile is tinted magenta (shading kept).  Screen renderer only. ---- */
 #include <dirent.h>
-typedef struct { uint32_t key; int kind; uint8_t rgba[256]; } lk_rep_t;
+#include <sys/stat.h>
+typedef struct { uint32_t key; int kind, nf; uint32_t *tex; uint8_t *raw; uint8_t *idx; } lk_rep_t;   /* kind 3 = palette index image (`.idx`, 64 * nf * nf bytes, 0 = transparent): drawn through the LIVE palette, so fades / flashes / palette animation keep working; idx = resampled to the global scale */   /* kind 1 = test tint, 2 = image: raw = file (nf x nf per pixel of the 8 x 8 tile), tex = ARGB at the global HD scale */
 #define LK_REP_N 8192
+int lk_hd_n; uint32_t *lk_hd_rows, *lk_hd_ref; long lk_hd_stamp[224], lk_hd_gen;   /* HD graphics: scale (0 = Off), HD pixels of the composed lines [224 * n][320 * n], the 1x pixels they refine, validity stamps (read by platform_sdl.c, tools/patch_hd.py) */
 static lk_rep_t *lk_rep_tab[LK_REP_N]; static int lk_rep_on = -1, lk_rep_cnt;
 static int lk_scr_rgb = -1;                                          /* set by lk_scr_ci: 24 bit colour of a replaced pixel, or -1 */
+static lk_rep_t *lk_scr_prep; static int lk_scr_pox, lk_scr_poy;     /* set by lk_scr_ci: the replacement entry of the tile and the pixel inside the tile (tile space) */
 static lk_rep_t *lk_rep_find(uint32_t key) { uint32_t i = (key * 2654435761u) >> 19 & (LK_REP_N - 1); while (lk_rep_tab[i]) { if (lk_rep_tab[i]->key == key) return lk_rep_tab[i]; i = (i + 1) & (LK_REP_N - 1); } return 0; }
 static lk_rep_t *lk_rep_add(uint32_t key) { uint32_t i = (key * 2654435761u) >> 19 & (LK_REP_N - 1); lk_rep_t *e; if (lk_rep_cnt > LK_REP_N * 3 / 4) return 0; while (lk_rep_tab[i]) { if (lk_rep_tab[i]->key == key) return lk_rep_tab[i]; i = (i + 1) & (LK_REP_N - 1); } e = (lk_rep_t *)calloc(1, sizeof *e); if (!e) return 0; e->key = key; lk_rep_tab[i] = e; lk_rep_cnt++; return e; }
 #define LK_REP_KEY(rom, idx) ((((uint32_t)(rom) & 0xFFFFFF) << 8) ^ ((uint32_t)(idx) & 0xFF) ^ ((uint32_t)(idx) >> 8 << 24))   /* idx < 4096 */
 static void lk_rep_init(void) {
-  const char *t = getenv("LANDSTALKER_TILETEST"), *d = getenv("LANDSTALKER_TILEPACK"); char path[600], buf[256]; DIR *dir;
+  const char *t = getenv("LANDSTALKER_TILETEST"), *d = getenv("LANDSTALKER_TILEPACK"); char path[600], buf[256]; DIR *dir; int maxn = 1, i;
   lk_rep_on = 0;
   { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_HD"); int hd = 0; char hp[512]; FILE *hf;   /* HD graphics is OPTIONAL and Off by default: ~/.landstalker_hd (1 = On) or LANDSTALKER_HD=0|1; Off = no tile pack is read, no replacement happens, the picture stays the original */
     snprintf(hp, sizeof hp, "%s/.landstalker_hd", h ? h : "."); hf = fopen(hp, "r"); if (hf) { if (fscanf(hf, "%d", &hd) != 1) hd = 0; fclose(hf); } if (e && *e) hd = atoi(e);
@@ -544,8 +547,27 @@ static void lk_rep_init(void) {
   if (t && *t) { snprintf(buf, sizeof buf, "%s", t); { char *tok, *sv; for (tok = strtok_r(buf, ",", &sv); tok; tok = strtok_r(NULL, ",", &sv)) { unsigned rom = (unsigned)strtoul(tok, NULL, 16); const char *c = strchr(tok, ':'); lk_rep_t *e; if (c) { e = lk_rep_add(LK_REP_KEY(rom, atoi(c + 1))); } else e = lk_rep_add(LK_REP_KEY(rom, 0xFFF)); if (e) { e->kind = 1; lk_rep_on = 1; } } } }
   if (!d || !*d) { const char *h = getenv("HOME"); snprintf(path, sizeof path, "%s/.landstalker_tilepack", h ? h : "."); } else snprintf(path, sizeof path, "%s", d);
   dir = opendir(path);
-  if (dir) { struct dirent *de; while ((de = readdir(dir))) { unsigned rom; int idx; if (sscanf(de->d_name, "%6x_%4d.rgba", &rom, &idx) == 2) { char fp[900]; FILE *f; snprintf(fp, sizeof fp, "%s/%s", path, de->d_name); f = fopen(fp, "rb"); if (f) { lk_rep_t *e = lk_rep_add(LK_REP_KEY(rom, idx)); if (e && fread(e->rgba, 1, 256, f) == 256) { e->kind = 2; lk_rep_on = 1; } fclose(f); } } } closedir(dir); }
-  if (lk_rep_on) printf("tile replacement: %d entries\n", lk_rep_cnt);
+  if (dir) { struct dirent *de; while ((de = readdir(dir))) { unsigned rom; int idx; if (sscanf(de->d_name, "%6x_%4d.idx", &rom, &idx) == 2 && strstr(de->d_name, ".idx")) { char fp[900]; FILE *f; long sz; snprintf(fp, sizeof fp, "%s/%s", path, de->d_name); f = fopen(fp, "rb"); if (f) { int nf; fseek(f, 0, SEEK_END); sz = ftell(f); fseek(f, 0, SEEK_SET); nf = sz == 64 ? 1 : sz == 256 ? 2 : sz == 1024 ? 4 : sz == 4096 ? 8 : 0;
+      if (nf) { lk_rep_t *e = lk_rep_add(LK_REP_KEY(rom, idx)); if (e) { e->raw = (uint8_t *)malloc((size_t)sz); if (e->raw && fread(e->raw, 1, (size_t)sz, f) == (size_t)sz) { e->kind = 3; e->nf = nf; lk_rep_on = 1; if (nf > maxn) maxn = nf; } else { free(e->raw); e->raw = 0; } } } fclose(f); } }
+      else if (sscanf(de->d_name, "%6x_%4d.rgba", &rom, &idx) == 2) { char fp[900]; FILE *f; long sz; snprintf(fp, sizeof fp, "%s/%s", path, de->d_name); f = fopen(fp, "rb"); if (f) { int nf; fseek(f, 0, SEEK_END); sz = ftell(f); fseek(f, 0, SEEK_SET); nf = sz == 256 ? 1 : sz == 1024 ? 2 : sz == 4096 ? 4 : sz == 16384 ? 8 : 0;
+      if (nf) { lk_rep_t *e = lk_rep_add(LK_REP_KEY(rom, idx)); if (e) { e->raw = (uint8_t *)malloc((size_t)sz); if (e->raw && fread(e->raw, 1, (size_t)sz, f) == (size_t)sz) { e->kind = 2; e->nf = nf; lk_rep_on = 1; if (nf > maxn) maxn = nf; } else { free(e->raw); e->raw = 0; } } } fclose(f); } } } closedir(dir); }
+  { const char *sc = getenv("LANDSTALKER_HD_SCALE"); int n = sc ? atoi(sc) : maxn; if (n < 1) n = 1; if (n > 8) n = 8; if (n == 3) n = 2; if (n == 5 || n == 6 || n == 7) n = 4; lk_hd_n = (lk_rep_on || sc) ? n : 0; }   /* the HD picture exists when HD is On and something is to be shown at a higher resolution (a pack) or the scale is asked for */
+  for (i = 0; i < LK_REP_N; i++) { lk_rep_t *e = lk_rep_tab[i]; if (e && e->kind == 3 && e->raw) { int N = lk_hd_n ? lk_hd_n : 1, x, y; e->idx = (uint8_t *)malloc((size_t)64 * N * N); if (e->idx) for (y = 0; y < 8 * N; y++) for (x = 0; x < 8 * N; x++) e->idx[y * 8 * N + x] = e->raw[(y * e->nf / N) * 8 * e->nf + (x * e->nf / N)]; }
+    if (e && e->kind == 2 && e->raw) { int N = lk_hd_n ? lk_hd_n : 1, x, y; e->tex = (uint32_t *)malloc((size_t)64 * N * N * 4); if (e->tex) for (y = 0; y < 8 * N; y++) for (x = 0; x < 8 * N; x++) { const uint8_t *q = &e->raw[((y * e->nf / N) * 8 * e->nf + (x * e->nf / N)) * 4]; e->tex[y * 8 * N + x] = q[3] ? (0xFF000000u | (uint32_t)q[0] << 16 | (uint32_t)q[1] << 8 | q[2]) : 0; } } }   /* nearest resample to the global scale; alpha 0 = 0 = keep the game's pixel */
+  if (lk_hd_n) { lk_hd_rows = (uint32_t *)calloc((size_t)224 * lk_hd_n * 320 * lk_hd_n, 4); lk_hd_ref = (uint32_t *)calloc((size_t)224 * 320, 4); if (!lk_hd_rows || !lk_hd_ref) lk_hd_n = 0; }
+  if (lk_rep_on || lk_hd_n) printf("tile replacement: %d entries, HD scale %d\n", lk_rep_cnt, lk_hd_n);
+}
+static int lk_scr_cramw(int i);
+static void lk_tile_dump(int tile, int pal) {   /* LANDSTALKER_TILEDUMP=dir: authoring aid, writes every tile of known origin once as 8 x 8 RGBA (1x, the palette line of its first use) named like a tile pack entry: `XXXXXX_NNNN.rgba` */
+  static uint32_t done[16384]; uint32_t rom; int idx, y, x; uint32_t key, h; char path[900]; uint8_t out[256]; FILE *f;
+  if (!lk_org_lookup(vram, tile, &rom, &idx)) return;
+  key = LK_REP_KEY(rom, idx) | 1u; h = (key * 2654435761u) >> 18 & 16383;
+  while (done[h]) { if (done[h] == key) return; h = (h + 1) & 16383; }
+  done[h] = key;
+  for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) { int b = LK_VB(tile * 32 + y * 4 + (x >> 1)), ci = (x & 1) ? (b & 15) : (b >> 4); uint32_t c = pixel_lut[1][lk_scr_cramw(pal * 16 + ci)]; uint8_t *q = &out[(y * 8 + x) * 4]; q[0] = (uint8_t)(c >> 16); q[1] = (uint8_t)(c >> 8); q[2] = (uint8_t)c; q[3] = ci ? 255 : 0; }
+  snprintf(path, sizeof path, "%s/%06X_%04d.rgba", lk_dump_dir, rom, idx); f = fopen(path, "wb"); if (f) { fwrite(out, 1, 256, f); fclose(f); }
+  { uint8_t ix[64]; for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) { int b = LK_VB(tile * 32 + y * 4 + (x >> 1)); ix[y * 8 + x] = (uint8_t)((x & 1) ? (b & 15) : (b >> 4)); }
+    snprintf(path, sizeof path, "%s/%06X_%04d.idx", lk_dump_dir, rom, idx); f = fopen(path, "wb"); if (f) { fwrite(ix, 1, 64, f); fclose(f); } }
 }
 static lk_rep_t *lk_rep_get(int tile) {                              /* replacement entry of a VRAM tile (looked up by the tile's origin), cached for the frame */
   static long fr[2048]; static lk_rep_t *ent[2048]; uint32_t rom; int idx; lk_rep_t *e = 0;
@@ -553,26 +575,35 @@ static lk_rep_t *lk_rep_get(int tile) {                              /* replacem
   if (lk_org_lookup(vram, tile, &rom, &idx)) { e = lk_rep_find(LK_REP_KEY(rom, idx)); if (!e) e = lk_rep_find(LK_REP_KEY(rom, 0xFFF)); }
   fr[tile] = platform_frame_number() + 1; ent[tile] = e; return e;
 }
-static int lk_scr_ci(int tile, int px, int py, int hf, int vf) { int ox = hf ? 7 - px : px, oy = vf ? 7 - py : py, b = LK_VB(tile * 32 + oy * 4 + (ox >> 1)), ci = (ox & 1) ? (b & 15) : (b >> 4); lk_scr_rgb = -1; if (ci && lk_org_log > 0) lk_scr_tc[tile & 0x7FF]++;
+static int lk_scr_ci(int tile, int px, int py, int hf, int vf) { int ox = hf ? 7 - px : px, oy = vf ? 7 - py : py, b = LK_VB(tile * 32 + oy * 4 + (ox >> 1)), ci = (ox & 1) ? (b & 15) : (b >> 4); lk_scr_rgb = -1; lk_scr_prep = 0; if (ci && (lk_org_log > 0 || lk_dump_on)) { lk_scr_tc[tile & 0x7FF]++; lk_scr_tpal[tile & 0x7FF] = lk_scr_curpal; }
   if (ci && lk_rep_on) { lk_rep_t *e = lk_rep_get(tile & 0x7FF);
     if (e && e->kind == 1) lk_scr_rgb = (255 << 16) | ((ci * 17) << 8) | (255 - ci * 8);
-    else if (e && e->kind == 2 && e->rgba[(oy * 8 + ox) * 4 + 3]) { const uint8_t *q = &e->rgba[(oy * 8 + ox) * 4]; lk_scr_rgb = (q[0] << 16) | (q[1] << 8) | q[2]; } }
+    else if (e && e->kind == 3 && e->idx) { lk_scr_prep = e; lk_scr_pox = ox; lk_scr_poy = oy; }   /* the 1x pixel stays the game's, only the HD picture differs */
+    else if (e && e->kind == 2 && e->tex) { int N = lk_hd_n ? lk_hd_n : 1; uint32_t c = e->tex[(oy * N + N / 2) * 8 * N + ox * N + N / 2]; if (c) { lk_scr_rgb = (int)(c & 0xFFFFFF); lk_scr_prep = e; lk_scr_pox = ox; lk_scr_poy = oy; } } }
   return ci; }
-static int lk_scr_cell(int ent, int px, int py, int *prio) { int ci = lk_scr_ci(ent & 0x7FF, px, py, (ent >> 11) & 1, (ent >> 12) & 1); *prio = (ent >> 15) & 1; if (ci && lk_scr_rgb >= 0) return 0x1000000 | lk_scr_rgb; return ci ? ((ent >> 13) & 3) * 16 + ci : -1; }   /* bit 24 set = a replaced pixel (24 bit colour) */
+typedef struct { lk_rep_t *rep; int ox, oy, hf, vf, pal; } lk_pi_t;   /* what the HD picture needs to know about a winning pixel: its replacement entry, the pixel inside the tile (tile space), the flips */
+static int lk_scr_phf, lk_scr_pvf;
+static int lk_scr_cramw(int i);
+static void lk_hd_put(int line, int x, uint32_t col, const lk_pi_t *pi) {   /* one 1x pixel -> its n x n block of the HD rows: the replacement texture where there is one (alpha 0 = the game's colour), else the colour repeated */
+  int N = lk_hd_n, sx, sy; uint32_t *dst = lk_hd_rows + (size_t)(line * N) * 320 * N + (size_t)x * N;
+  for (sy = 0; sy < N; sy++) for (sx = 0; sx < N; sx++) { uint32_t c = col; if (pi && pi->rep) { int tp = (pi->oy * N + (pi->vf ? N - 1 - sy : sy)) * 8 * N + pi->ox * N + (pi->hf ? N - 1 - sx : sx); if (pi->rep->kind == 2 && pi->rep->tex) { uint32_t t = pi->rep->tex[tp]; if (t) c = t; } else if (pi->rep->kind == 3 && pi->rep->idx && pi->rep->idx[tp]) c = pixel_lut[1][lk_scr_cramw(pi->pal * 16 + pi->rep->idx[tp])]; } dst[(size_t)sy * 320 * N + sx] = c; }
+}
+static void lk_hd_plain(int line, const PIXEL_OUT_T *out) { int x; if (!lk_hd_n) return; for (x = 0; x < 320; x++) { lk_hd_put(line, x, out[x], 0); lk_hd_ref[line * 320 + x] = out[x]; } lk_hd_stamp[line] = lk_hd_gen; }
+static int lk_scr_cell(int ent, int px, int py, int *prio) { int ci; lk_scr_curpal = (ent >> 13) & 3; ci = lk_scr_ci(ent & 0x7FF, px, py, (ent >> 11) & 1, (ent >> 12) & 1); lk_scr_phf = (ent >> 11) & 1; lk_scr_pvf = (ent >> 12) & 1; *prio = (ent >> 15) & 1; if (ci && lk_scr_rgb >= 0) return 0x1000000 | lk_scr_rgb; return ci ? ((ent >> 13) & 3) * 16 + ci : -1; }   /* bit 24 set = a replaced pixel (24 bit colour) */
 static int lk_scr_cramw(int i) { return ((cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1]) & 0x1FF; }
 static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {                /* returns 0 when the VDP is in a mode this renderer does not do (the game's picture stays) */
   int hm = reg[11] & 3, vm = (reg[11] >> 2) & 1, pwr = reg[16] & 3, phr = (reg[16] >> 4) & 3, pw, ph, x, i, n, cells;
   int baseA = (reg[2] & 0x38) << 10, baseB = (reg[4] & 7) << 13, wbase = (reg[3] & 0x3C) << 10, sat = (reg[5] & 0x7E) << 9;
   int hpos = (reg[17] & 0x1F) * 2, hright = reg[17] & 0x80, vpos = (reg[18] & 0x1F) * 8, vbelow = reg[18] & 0x80, vwin, hsA, hsB, hsb = (reg[13] & 0x3F) << 10, hidx;
   int bgcol = lk_scr_cramw(reg[7] & 0x3F);
-  static int sp[320], spp[320]; int sl[32], nsl = 0, id, cnt, maxspr = (320 + 2 * e) >> 4;   /* the wide picture allows more sprites / sprite pixels per line (patch_wide: viewport.w >> 4, viewport.w >> 3 cells) */
+  static int sp[320], spp[320]; static lk_pi_t spi[320]; int sl[32], nsl = 0, id, cnt, maxspr = (320 + 2 * e) >> 4;   /* the wide picture allows more sprites / sprite pixels per line (patch_wide: viewport.w >> 4, viewport.w >> 3 cells) */
   if (!(reg[12] & 1) || (reg[12] & 6) || hm == 1 || pwr == 2 || phr == 2 || (reg[1] & 8) || line >= 224) return 0;
-  if (!(reg[1] & 0x40) && !dispforce) { for (x = 0; x < 320; x++) out[x] = pixel_lut[1][bgcol]; return 1; }   /* display off: the backdrop */
+  if (!(reg[1] & 0x40) && !dispforce) { for (x = 0; x < 320; x++) out[x] = pixel_lut[1][bgcol]; lk_hd_plain(line, out); return 1; }   /* display off: the backdrop */
   pw = pwr == 0 ? 32 : pwr == 1 ? 64 : 128; ph = phr == 0 ? 32 : phr == 1 ? 64 : 128;
   vwin = vbelow ? line >= vpos : line < vpos;
   hidx = hm == 0 ? 0 : hm == 3 ? line : (line & ~7);
   hsA = LK_VW(hsb + 4 * hidx) & 0x3FF; hsB = LK_VW(hsb + 4 * hidx + 2) & 0x3FF;
-  for (x = 0; x < 320; x++) sp[x] = -1;
+  for (x = 0; x < 320; x++) { sp[x] = -1; spi[x].rep = 0; }
   id = 0; cnt = 0; cells = (320 + 2 * e) >> 3;                                       /* sprites: the list in link order (max 80), 20 per line, 40 cells per line */
   for (n = 0; n < 80; n++) {
     int y = (int)(LK_VW(sat + 8 * id) & 0x1FF) - 128, sz = LK_VW(sat + 8 * id + 2), h = ((sz >> 8) & 3) + 1;
@@ -588,37 +619,38 @@ static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {      
       py = line - y; if (vf) py = 8 * h - 1 - py;
       for (c = 0; c < w && cells > 0; c++, cells--) {
         int col = hf ? w - 1 - c : c, tile = (at & 0x7FF) + col * h + (py >> 3), px;
-        for (px = 0; px < 8; px++) { int sx = xr - 128 + c * 8 + px, ci = lk_scr_ci(tile, hf ? 7 - px : px, py & 7, 0, 0); if (sx < 0 || sx >= 320 || !ci || sp[sx] >= 0) continue; sp[sx] = lk_scr_rgb >= 0 ? (0x1000000 | lk_scr_rgb) : pal * 16 + ci; spp[sx] = prio; }
+        for (px = 0; px < 8; px++) { int sx = xr - 128 + c * 8 + px, ci = (lk_scr_curpal = pal, lk_scr_ci(tile, hf ? 7 - px : px, py & 7, 0, 0)); if (sx < 0 || sx >= 320 || !ci || sp[sx] >= 0) continue; sp[sx] = lk_scr_rgb >= 0 ? (0x1000000 | lk_scr_rgb) : pal * 16 + ci; spp[sx] = prio; spi[sx].rep = lk_scr_prep; spi[sx].ox = lk_scr_pox; spi[sx].oy = lk_scr_poy; spi[sx].hf = hf; spi[sx].vf = vf; spi[sx].pal = pal; }
       }
     }
   }
   for (x = 0; x < 320; x++) {
-    int cA = -1, pA = 0, cB = -1, pB = 0, sel = -1, cc, xc = x >> 3;
+    int cA = -1, pA = 0, cB = -1, pB = 0, sel = -1, cc, xc = x >> 3; lk_pi_t iA, iB; const lk_pi_t *wi = 0; uint32_t col32; iA.rep = iB.rep = 0; iA.ox = iA.oy = iA.hf = iA.vf = iB.ox = iB.oy = iB.hf = iB.vf = 0;
     { int xp = (x - hsB) & (pw * 8 - 1), yp; yp = (line + (((vsram[((vm ? 4 * (x >> 4) : 0) + 2) ^ 1] << 8) | vsram[((vm ? 4 * (x >> 4) : 0) + 3) ^ 1]) & 0x3FF)) & (ph * 8 - 1);
-      cB = lk_scr_cell(LK_VW(baseB + 2 * ((yp >> 3) * pw + (xp >> 3))), xp & 7, yp & 7, &pB); }
-    if (vwin || (hright ? xc >= hpos : xc < hpos)) cA = lk_scr_cell(LK_VW(wbase + 2 * ((line >> 3) * 64 + xc)), x & 7, line & 7, &pA);
+      cB = lk_scr_cell(LK_VW(baseB + 2 * ((yp >> 3) * pw + (xp >> 3))), xp & 7, yp & 7, &pB); iB.rep = lk_scr_prep; iB.ox = lk_scr_pox; iB.oy = lk_scr_poy; iB.hf = lk_scr_phf; iB.vf = lk_scr_pvf; iB.pal = lk_scr_curpal; }
+    if (vwin || (hright ? xc >= hpos : xc < hpos)) { cA = lk_scr_cell(LK_VW(wbase + 2 * ((line >> 3) * 64 + xc)), x & 7, line & 7, &pA); iA.rep = lk_scr_prep; iA.ox = lk_scr_pox; iA.oy = lk_scr_poy; iA.hf = lk_scr_phf; iA.vf = lk_scr_pvf; iA.pal = lk_scr_curpal; }
     else { int xp = (x - hsA) & (pw * 8 - 1), yp = (line + (((vsram[(vm ? 4 * (x >> 4) : 0) ^ 1] << 8) | vsram[((vm ? 4 * (x >> 4) : 0) + 1) ^ 1]) & 0x3FF)) & (ph * 8 - 1);
-      cA = lk_scr_cell(LK_VW(baseA + 2 * ((yp >> 3) * pw + (xp >> 3))), xp & 7, yp & 7, &pA); }
-    if (sp[x] >= 0 && spp[x]) sel = sp[x]; else if (cA >= 0 && pA) sel = cA; else if (cB >= 0 && pB) sel = cB;
-    else if (sp[x] >= 0) sel = sp[x]; else if (cA >= 0) sel = cA; else if (cB >= 0) sel = cB;
+      cA = lk_scr_cell(LK_VW(baseA + 2 * ((yp >> 3) * pw + (xp >> 3))), xp & 7, yp & 7, &pA); iA.rep = lk_scr_prep; iA.ox = lk_scr_pox; iA.oy = lk_scr_poy; iA.hf = lk_scr_phf; iA.vf = lk_scr_pvf; iA.pal = lk_scr_curpal; }
+    if (sp[x] >= 0 && spp[x]) { sel = sp[x]; wi = &spi[x]; } else if (cA >= 0 && pA) { sel = cA; wi = &iA; } else if (cB >= 0 && pB) { sel = cB; wi = &iB; }
+    else if (sp[x] >= 0) { sel = sp[x]; wi = &spi[x]; } else if (cA >= 0) { sel = cA; wi = &iA; } else if (cB >= 0) { sel = cB; wi = &iB; }
     { static long dbgf = -2; if (dbgf == -2) { const char *q = getenv("LANDSTALKER_OWN_SCRDBG"); dbgf = q ? atol(q) : -1; }
       if (dbgf >= 0 && platform_frame_number() == dbgf && line == 23 && (x == 16 || x == 100)) printf("ownscrdbg: frame %ld line %d x %d: A %d/%d B %d/%d spr %d/%d sel %d hsA %d hsB %d reg18 %02X reg17 %02X reg11 %02X reg1 %02X vwin %d\n", dbgf, line, x, cA, pA, cB, pB, sp[x], spp[x], sel, hsA, hsB, reg[18], reg[17], reg[11], reg[1], vwin); }
-    if (sel >= 0x1000000) { out[x] = (PIXEL_OUT_T)(0xFF000000u | (uint32_t)(sel & 0xFFFFFF)); continue; }   /* replaced pixel (32 bit output) */
-    cc = sel >= 0 ? lk_scr_cramw(sel) : bgcol;
-    if (x < 8 && (reg[0] & 0x20)) cc = bgcol;
-    out[x] = pixel_lut[1][cc];
+    if (sel >= 0x1000000) col32 = 0xFF000000u | (uint32_t)(sel & 0xFFFFFF);   /* replaced pixel (32 bit output) */
+    else { cc = sel >= 0 ? lk_scr_cramw(sel) : bgcol; if (x < 8 && (reg[0] & 0x20)) { cc = bgcol; wi = 0; } col32 = pixel_lut[1][cc]; }
+    out[x] = (PIXEL_OUT_T)col32;
+    if (lk_hd_n) { lk_hd_put(line, x, col32, wi); lk_hd_ref[line * 320 + x] = col32; }
   }
+  if (lk_hd_n) lk_hd_stamp[line] = lk_hd_gen;
   return 1;
 }
 static void lk_scr_row(PIXEL_OUT_T *row, int e, int line, int map) {
   PIXEL_OUT_T buf[320]; int x, d = 0;
-  if (lk_scr_mode < 0) { const char *q = getenv("LANDSTALKER_OWN_SCREENS"), *l = getenv("LANDSTALKER_OWN_SCRLOG"); lk_scr_mode = q ? atoi(q) : 2; lk_rep_init(); lk_scr_log = l ? atoi(l) : 0; { const char *o = getenv("LANDSTALKER_OWN_ORGLOG"); lk_org_log = o ? atoi(o) : 0; } }
+  if (lk_scr_mode < 0) { const char *q = getenv("LANDSTALKER_OWN_SCREENS"), *l = getenv("LANDSTALKER_OWN_SCRLOG"); lk_scr_mode = q ? atoi(q) : 2; lk_rep_init(); lk_scr_log = l ? atoi(l) : 0; { const char *o = getenv("LANDSTALKER_OWN_ORGLOG"); lk_org_log = o ? atoi(o) : 0; lk_dump_dir = getenv("LANDSTALKER_TILEDUMP"); lk_dump_on = lk_dump_dir && *lk_dump_dir; if (lk_dump_on) { struct stat st; extern int mkdir(const char *, unsigned int); if (stat(lk_dump_dir, &st) != 0) mkdir(lk_dump_dir, 0777); } } }
   if (!lk_scr_mode || !lk_scr_line(line, buf, e, lk_tall_keep(line))) return;
   for (x = 0; x < 320; x++) if (row[e + x] != buf[x]) d++;
   lk_scr_diff += d; lk_scr_tot += 320; lk_scr_lines++;
   if (lk_scr_mode == 2 && lk_o_mode == 2) for (x = 0; x < 320; x++) row[e + x] = buf[x];
-  if (lk_org_log > 0 && line == 223) { int t, kn = 0, un = 0, dk = 0, du = 0; for (t = 0; t < 2048; t++) if (lk_scr_tc[t]) { if (lk_org_lookup(vram, t, 0, 0)) { kn += lk_scr_tc[t]; dk++; } else { un += lk_scr_tc[t]; du++; if (getenv("LANDSTALKER_OWN_ORGLIST") && platform_frame_number() % lk_org_log == 0) printf("ownorg: frame %ld unknown tile %d (VRAM $%04X, %d pixels)\n", platform_frame_number(), t, t * 32, lk_scr_tc[t]); } lk_scr_tc[t] = 0; }
-    if (platform_frame_number() % lk_org_log == 0) printf("ownorg: frame %ld %s: opaque tile pixels with a known ROM origin %d, unknown %d (tiles %d / %d, origin table %d entries)\n", platform_frame_number(), map ? "map-not-own" : "screen", kn, un, dk, du, lk_org_count()); }
+  if ((lk_org_log > 0 || lk_dump_on) && line == 223) { int t, kn = 0, un = 0, dk = 0, du = 0; for (t = 0; t < 2048; t++) if (lk_scr_tc[t]) { if (lk_dump_on) lk_tile_dump(t, lk_scr_tpal[t]); if (lk_org_lookup(vram, t, 0, 0)) { kn += lk_scr_tc[t]; dk++; } else { un += lk_scr_tc[t]; du++; if (lk_org_log > 0 && getenv("LANDSTALKER_OWN_ORGLIST") && platform_frame_number() % lk_org_log == 0) printf("ownorg: frame %ld unknown tile %d (VRAM $%04X, %d pixels)\n", platform_frame_number(), t, t * 32, lk_scr_tc[t]); } lk_scr_tc[t] = 0; }
+    if (lk_org_log > 0 && platform_frame_number() % lk_org_log == 0) printf("ownorg: frame %ld %s: opaque tile pixels with a known ROM origin %d, unknown %d (tiles %d / %d, origin table %d entries)\n", platform_frame_number(), map ? "map-not-own" : "screen", kn, un, dk, du, lk_org_count()); }
   if (lk_scr_log && line == 223) { printf("ownscr: frame %ld %s: %ld of %ld pixels differ in %ld lines\n", platform_frame_number(), map ? "map-not-own" : "screen", lk_scr_diff, lk_scr_tot, lk_scr_lines); lk_scr_diff = 0; lk_scr_tot = 0; lk_scr_lines = 0; }
 }
 static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
@@ -626,6 +658,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
   int x, e, map;
   lk_o_init();
   if (!lk_o_mode) return;
+  if (line == 0) lk_hd_gen++;
   if (line == 0) {
     const uint8_t *r = bus_get_ram(); int hsb = (LK_REG(13) & 0x3F) << 10;
     if (lk_o_vbmode && lk_vb_n) r = lk_vb_ram;                       /* LANDSTALKER_OWN_VB=1: the state as the VDP received it (RAM right after the VBlank handler, patch_ownvb.py) */
