@@ -11,14 +11,14 @@ File ~/.landstalker_iteminfo, env LANDSTALKER_ITEMINFO=0|1 wins, LANDSTALKER_ITE
 usage: patch_iteminfo.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_ITEMINFO v2"
+VER = "LK_ITEMINFO v3"
 
 p = os.path.join(root, "src/platform_sdl.c")
 s = open(p).read()
 if VER not in s:
     a = "void platform_present_frame(const uint8_t *framebuffer) {"
     assert s.count(a) == 1
-    module = r'''/* ---- LK_ITEMINFO v2: item descriptions in the Start menu (tools/patch_iteminfo.py) ---- */
+    module = r'''/* ---- LK_ITEMINFO v3: item descriptions in the Start menu (tools/patch_iteminfo.py) ---- */
 static int lk_ii_v = -1;   /* Options > Gameplay > Item Info Off / On, default Off; file ~/.landstalker_iteminfo, env LANDSTALKER_ITEMINFO=0|1 wins */
 int lk_ii_get(void) {
     if (lk_ii_v < 0) { char p[512]; FILE *f; const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_ITEMINFO"); int v = 0; snprintf(p, sizeof p, "%s/.landstalker_iteminfo", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e) v = atoi(e); lk_ii_v = v ? 1 : 0; }
@@ -35,7 +35,7 @@ s = open(p).read()
 if VER not in s:
     a = "static void lk_strip_extend(uint32_t a);\n"
     assert s.count(a) == 1 and "lk_carry_install" in s and "lk_ii_cur" in s, "func_table.c: run patch_options.py / patch_carry.py first"
-    module = r'''/* ---- LK_ITEMINFO v2: item descriptions in the bar box (tools/patch_iteminfo.py) ---- */
+    module = r'''/* ---- LK_ITEMINFO v3: item descriptions in the bar box (tools/patch_iteminfo.py) ---- */
 extern int lk_ii_get(void);
 extern long platform_frame_number(void);
 static gen_func_t lk_o_ii_use, lk_o_ii_eq;
@@ -70,13 +70,20 @@ static const char *lk_ii_text(int id) { unsigned i; for (i = 0; i < sizeof lk_ii
    description ~6 ms on a PC, more on the Deck), so one draw in one frame was a visible hitch.  A job renders the bar box (clear, the three words, the description, the divider line) into the text buffer
    $FF3900 a few characters per call (every call = one cursor update = about one frame; nothing is DMA'd before the end), then the finished buffer is cached; a cached item is applied with a plain copy +
    queued DMA.  The last DMA is only QUEUED (DMACopyTextboxTiles ends in FlushDMACopyQueue = a wait for the next VBlank, one more frame). */
-#define LK_II_WORDS 0x0D80u   /* DMA size of the text box with the inventory open (QueueDMAOp counts WORDS: 6912 bytes = three 16 pixel lines of $900) */
+#define LK_II_WORDS 0x0900u   /* DMA size of the text box with the inventory open (QueueDMAOp counts WORDS: 4608 bytes = two 16 pixel lines of $900; $0D80 = three lines is the normal dialogue box) */
 #define LK_II_BUF (LK_II_WORDS * 2u)
 #define LK_II_BUDGET 12
 #include <time.h>
 static uint8_t *lk_ii_cache[0x41];
 static struct { int on, id, step, pos, x; uint8_t y0; } lk_ii_job;
 static uint8_t lk_ii_y0s;   /* text y of the first line, remembered with the plain bar */
+/* The list of the Use screen lives in the game's g_Buffer ($FF2C00 + $84, row stride $48, 4 tile rows per item row) and runs on into the text tile buffer $FF3900 from about the 11th item row on
+   (user: garbage icons when scrolling down the Use list with Item Info On).  The text engine only draws into $FF3900, so the bar is built there ONLY while it runs: lk_ii_grab saves the game's bytes,
+   the bar lives in lk_ii_work between slices, and lk_ii_release puts the game's bytes back once the queued DMA has been done by the VBlank handler (wrapper of ProcessQueuedDMAOps below). */
+static uint8_t lk_ii_work[LK_II_BUF], lk_ii_save[LK_II_BUF];
+static int lk_ii_dirty, lk_ii_inslice;   /* inslice: the game's own text functions called by a slice wait for VBlanks, the buffer must stay ours then */
+static void lk_ii_grab(void) { uint32_t i; if (lk_ii_dirty) return; for (i = 0; i < LK_II_BUF; i++) lk_ii_save[i] = bus_read8(0xFF3900u + i); lk_ii_dirty = 1; }
+static void lk_ii_release(void) { uint32_t i; if (!lk_ii_dirty) return; for (i = 0; i < LK_II_BUF; i++) bus_write8(0xFF3900u + i, lk_ii_save[i]); lk_ii_dirty = 0; }
 static int lk_ii_slot(int id) { return id < 0 ? 0x40 : (id & 0x3F); }
 static void lk_ii_dma(void) {   /* queue the text box tiles for the next VBlank */
     M68kContext sv = g_m68k;
@@ -92,13 +99,19 @@ static void lk_ii_line(void) {   /* divider: a 1 pixel line between the words an
 }
 static void lk_ii_apply(int id) {   /* a finished buffer from the cache */
     uint32_t i; const uint8_t *c = lk_ii_cache[lk_ii_slot(id)];
+    lk_ii_grab();
     for (i = 0; i < LK_II_BUF; i++) bus_write8(0xFF3900u + i, c[i]);
     lk_ii_dma(); lk_ii_cur = id;
 }
 static void lk_ii_job_run0(void);
-static void lk_ii_job_run(void) {   /* timing wrapper (LANDSTALKER_ITEMINFO_DEBUG): the longest slice */
+static void lk_ii_job_run(void) {   /* one slice, with the bar loaded into $FF3900 only while it runs; timing (LANDSTALKER_ITEMINFO_DEBUG): the longest slice */
+    int pend = lk_ii_dirty; uint32_t i;
+    lk_ii_grab(); lk_ii_inslice = 1;
+    for (i = 0; i < LK_II_BUF; i++) bus_write8(0xFF3900u + i, lk_ii_work[i]);
     if (getenv("LANDSTALKER_ITEMINFO_DEBUG")) { struct timespec a, b; long us; static long mx; clock_gettime(CLOCK_MONOTONIC, &a); lk_ii_job_run0(); clock_gettime(CLOCK_MONOTONIC, &b); us = (long)((b.tv_sec - a.tv_sec) * 1000000L + (b.tv_nsec - a.tv_nsec) / 1000L); if (us > mx) { mx = us; printf("iteminfo: slice %ld us (max)\n", us); } }
     else lk_ii_job_run0();
+    lk_ii_inslice = 0;
+    if (lk_ii_job.on) { for (i = 0; i < LK_II_BUF; i++) lk_ii_work[i] = bus_read8(0xFF3900u + i); if (!pend) lk_ii_release(); }   /* not finished: the bar waits in lk_ii_work; finished: the DMA is queued and the game's bytes come back after it */
 }
 static void lk_ii_job_run0(void) {   /* one slice of the current job */
     int budget = LK_II_BUDGET; const char *t = lk_ii_job.id >= 0 ? lk_ii_text(lk_ii_job.id) : NULL;
@@ -144,40 +157,47 @@ static void lk_ii_draw(int id) {   /* id < 0: the plain bar; called by the curso
     if (lk_ii_cache[lk_ii_slot(want)]) { lk_ii_apply(want); if (getenv("LANDSTALKER_ITEMINFO_DEBUG")) printf("iteminfo: cached %d frame %ld\n", want, platform_frame_number()); return; }
     lk_ii_job.on = 1; lk_ii_job.id = want; lk_ii_job.step = 0; lk_ii_job.pos = 0;
     if (want >= 0 && lk_ii_cache[0x40]) {   /* start from the cached plain bar: only the description has to be rendered */
-        uint32_t i; for (i = 0; i < LK_II_BUF; i++) bus_write8(0xFF3900u + i, lk_ii_cache[0x40][i]);
+        memcpy(lk_ii_work, lk_ii_cache[0x40], LK_II_BUF);
         lk_ii_job.y0 = lk_ii_y0s; lk_ii_job.step = 4; lk_ii_job.x = 0x10;
     }
     lk_ii_job_run();
 }
 static void lk_ii_leave(void) { lk_ii_job.on = 0; if (lk_ii_cur >= 0) lk_ii_draw(-1); }
 static void lk_ii_dbg(const char *w, int id) { static int last = -99; if (getenv("LANDSTALKER_ITEMINFO_DEBUG") && id != last) { printf("iteminfo: %s item $%02X\n", w, id & 0xFF); last = id; } }
-static void lk_h_ii_use(void) {   /* InventoryMenu_UpdateCursorAt: Use list */
-    lk_o_ii_use();
+static void lk_h_ii_use(void) {   /* InventoryMenu_UpdateCursorAt: Use list; the bar is drawn BEFORE the original, whose wait for the VBlank runs the queued DMA and gives the game's list bytes back (lk_h_ii_pq) */
     if (lk_ii_get() && lk_ii_menu() && !lk_ii_tabdraw()) {
         int idx = ((int)bus_read16(0xFF2C06u) + (int)bus_read16(0xFF2C0Cu)) * 2 + (int)bus_read16(0xFF2C0Au);
         int id = idx >= 0 && idx < 64 ? bus_read8(0xFF2C5Cu + (uint32_t)idx) : 0xFF;
         lk_ii_dbg("use", id);
         lk_ii_draw(id == 0xFF || (id & 0x80) ? -1 : id);
     }
+    lk_o_ii_use();
 }
 static int lk_ii_owned(int id) {   /* GetItemQtyAndMaxQty $022ED0: d1 < 0 = the player does not have the item (the Equip grid only draws owned items) */
     M68kContext sv = g_m68k; int r;
     g_m68k.d[0] = (uint32_t)id; lk_call(0x022ED0u); r = (int16_t)(g_m68k.d[1] & 0xFFFFu);
     g_m68k = sv; return r >= 0;
 }
-static void lk_h_ii_eq(void) {   /* $00EDAA: Equip grid cursor update */
-    lk_o_ii_eq();
+static void lk_h_ii_eq(void) {   /* $00EDAA: Equip grid cursor update (same order as the Use list) */
     if (lk_ii_get() && lk_ii_menu() && !lk_ii_tabdraw()) {
         int col = (int)bus_read16(0xFF2C18u), row = (int)bus_read16(0xFF2C1Au), id = 0xFF;
         if (col >= 0 && col < 5 && row >= 0 && row < 4) id = bus_read8(0x00ECE0u + (uint32_t)(row * 5 + col));
         lk_ii_dbg("equip", id);
         lk_ii_draw((id & 0x80) || !lk_ii_owned(id) ? -1 : id);
     }
+    lk_o_ii_eq();
+}
+static void (*lk_o_ii_pq)(void);
+static void lk_h_ii_pq(void) {   /* ProcessQueuedDMAOps $001340 (VBlank): after the whole queue is done the text tile buffer may be given back to the game's list */
+    lk_o_ii_pq();
+    if (lk_ii_dirty && !lk_ii_inslice && bus_read8(0xFF0F8Du) == 0) lk_ii_release();
 }
 static void lk_ii_install(void) {
     static int done;
     if (done) return;
     done = 1;
+    memset(lk_ii_work, 0xAA, sizeof lk_ii_work);   /* the text engine's background (ClearTextBuffer fills $AAAAAAAA) */
+    lk_o_ii_pq = func_table_lookup(0x001340); if (lk_o_ii_pq) func_table_register(0x001340, lk_h_ii_pq); else fprintf(stderr, "iteminfo: ProcessQueuedDMAOps not found\n");
     lk_o_ii_use = func_table_lookup(0x00D714); lk_o_ii_eq = func_table_lookup(0x00EDAA);
     if (lk_o_ii_use && lk_o_ii_eq) { func_table_register(0x00D714, lk_h_ii_use); func_table_register(0x00EDAA, lk_h_ii_eq); } else fprintf(stderr, "iteminfo: cursor functions not found\n");
 }
@@ -185,6 +205,6 @@ static void lk_ii_install(void) {
     s = s.replace(a, module + a, 1)
     h = "        lk_carry_install();   /* LK_CARRY v1 */\n"
     assert s.count(h) == 1
-    s = s.replace(h, h + "        lk_ii_install();   /* LK_ITEMINFO v2 */\n", 1)
+    s = s.replace(h, h + "        lk_ii_install();   /* LK_ITEMINFO v3 */\n", 1)
     open(p, "w").write(s)
     print("func_table.c patched:", VER)

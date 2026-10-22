@@ -100,7 +100,7 @@ static void lk_bq_install(void) {
 }
 '''
     s = s.replace(a, module + a, 1)
-    h = "        lk_ii_install();   /* LK_ITEMINFO v2 */\n"
+    h = "        lk_ii_install();   /* LK_ITEMINFO v3 */\n"
     assert s.count(h) == 1
     s = s.replace(h, h + "        lk_bq_install();   /* LK_BUYQTY v1 */\n", 1)
     open(p, "w").write(s)

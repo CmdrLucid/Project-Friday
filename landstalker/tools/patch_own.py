@@ -6,7 +6,7 @@ FORMATS 'Room graphics in the ROM'):
  * both scroll layers from the block arrays in work RAM (BG `$FFA6CA`, FG `$FF7C02`, 74 x 74 words) and the block table `$FF5C02` (4 tile words per block) on the 8 px brick grid
    (block (x, y) = 2 x 2 tiles at tile column 2 (x - y) + 148 / 146, tile row x + y); the screen position uses the camera of the previous pass (the image is unbounded: no plane wrap, no scroll registers),
  * the figures: visible entity list `$FF11DE`, frame pieces and tile graphics from the ROM (`LoadSpriteFrame $004230` port, SpriteGfxPtrPtr `$120000`),
- * colours: built from ROM + state too (player palette + equipment swaps, per-room sprite palette allocation, room palette, fade level inferred from the active palette copy); LANDSTALKER_OWN_PAL=0 uses the VDP's CRAM instead.
+ * colours: built from ROM + state too (player palette + equipment swaps, per-room sprite palette allocation, room palette, fade level = the game's counters $FF0F50 - $FF0F52 (checked against the active palette copy $FF0ED0, search only as fallback)); LANDSTALKER_OWN_PAL=0 uses the VDP's CRAM instead.
 State = snapshot of work RAM of the PREVIOUS frame (the picture is one frame behind the RAM, FORMATS 'Scroll registers lag').
 Switch: env LANDSTALKER_OWN=1 compare only (console line every LANDSTALKER_OWN_LOG frames, default 60: `own: frame F room R lines 0..223: D of T pixels differ`), =2 the picture shows
 the OWN rendering in the map lines 0..223 (HUD / text box / lines below stay the game's).  Off by default; Options > Video > Own Renderer (file ~/.landstalker_own) switches mode 2 on; env LANDSTALKER_OWN wins.  Hook: render_line, before the other row overlays.
@@ -31,6 +31,20 @@ static int OB(uint32_t a) { return a < 0x200000u ? (int)bus_read8(a) : 0; }   /*
 #define OL(a) ((uint32_t)(((uint32_t)OW(a) << 16) | (uint32_t)OW((a) + 2)))
 static int lk_o_sprmode = 1, lk_o_cammode = 2, lk_o_u0, lk_o_v0, lk_o_vote_room = -1, lk_o_bu, lk_o_bv, lk_o_upred, lk_o_vpred; static float lk_o_vu[64], lk_o_vv[32];
 static int lk_o_mode = -1, lk_o_log = 60, lk_o_room = -1, lk_o_ngrp, lk_o_valid;
+static int lk_o_fx;   /* LANDSTALKER_OWN_FX=0: the visual effects (warp pad, tree warp) stay the game's picture (old way) */
+extern int lk_loadroom_on(void); extern int lk_warpfx_kind(void); extern int lk_fadein_on(void);
+extern uint8_t lk_vm[], lk_vsm[], lk_cm[]; extern long lk_vm_ops;   /* patch_ownvb.py: own VRAM mirror of the game's DMA queue */
+static int lk_o_scrvars;   /* LANDSTALKER_OWN_SCRVARS=1: scroll values from the game's variables $FF0100 / $FF0500 instead of the mirror of what its DMA queue sent */
+static int lk_o_vmirror = 1;   /* LANDSTALKER_OWN_VMIRROR=0: sprite tiles compared / drawn from the VDP's VRAM (old way) instead of the own mirror of the game's DMA queue */
+static int lk_o_hide0 = 1;   /* LANDSTALKER_OWN_HIDE0=0: figures the game replaced by effect sprites (Fire sword) are drawn as before */
+static int lk_o_simple, lk_o_nigelvram = 1;   /* simple mode keeps one VRAM check: Nigel's pose (his animation fields run ahead of the graphic the VDP holds for a frame or two); LANDSTALKER_OWN_NIGELVRAM=0 = none */
+static int lk_o_scrram = 1, lk_o_sc_ram, lk_o_seed = 1, lk_o_gshake;   /* LANDSTALKER_OWN_GSHAKE=1: the original Gaia effect reads the VDP scroll */   /* LANDSTALKER_OWN_SEED=0: no exact seed of the camera vote at a room load */
+   /* LANDSTALKER_OWN_SCROLL_VDP=1: scroll values from the VDP (old way) */
+extern int lk_gaia_shake(void);
+extern int func_table_depth(void);
+extern uint32_t func_table_stack(int k);
+static long lk_o_fl_ok, lk_o_fl_bad; static int lk_o_fl_log;   /* fade level from the game's counters: palette lines where it matched / where the search had to take over (LANDSTALKER_OWN_FADELOG=1 prints the misses) */
+static int lk_o_actcram;   /* LANDSTALKER_OWN_ACT_CRAM=1: the fade level is read from the VDP's CRAM (old way) instead of the game's active palette copy $FF0ED0 */
 static uint8 lk_o_prev[0x10000], lk_o_use[0x10000], lk_o_good[0x10000]; static int lk_o_goodok, lk_o_fade;
 #define UB(a) (lk_o_use[((a) & 0xFFFF) ^ 1])
 #define UW(a) ((int)((UB(a) << 8) | UB((a) + 1)))
@@ -85,6 +99,7 @@ static void lk_o_room_load(int room) {                               /* tile gra
 }
 
 static PIXEL_OUT_T lk_o_pix[64]; static int lk_o_palmode = 1;
+static PIXEL_OUT_T lk_o_fxpix[8][64]; static signed char lk_o_fxk[256]; static int lk_o_fxon, lk_o_fxprev, lk_o_fxoff, lk_o_fxhold, lk_o_fxact[56];   /* warp pad effect: 8 darkened palettes and the palette of every line */
 static int lk_o_darken(int c, int d3) {                              /* DarkenColour $0009FC with target 0 */
   int b = ((c & 0xE00) - d3) & 0x1E00, g3 = d3 >> 4, g, r3 = g3 >> 4, r;
   if (b >= 0x1000) b = 0;
@@ -94,7 +109,7 @@ static int lk_o_darken(int c, int d3) {                              /* DarkenCo
 }
 extern int lk_gaia_live(void);   /* patch_gaia.py: 1 while the live Gaia effect runs (rocks use the Gaia sword colours) */
 static void lk_o_palette(int room) {                                 /* the 64 colours of the picture from ROM data + game state (romsprite.sprite_palettes / romrender.rom_cram) */
-  int pal[64], i, j, l, n, typ, ts, k, sword = lk_gaia_live() ? 4 : SB(0xFF114E), armour = SB(0xFF114F), act[64], bestn = 99, bestd = 0;
+  int direct = 0, pal[64], i, j, l, n, typ, ts, k, sword = lk_gaia_live() ? 4 : SB(0xFF114E), armour = SB(0xFF114F), act[64], bestn = 99, bestd = 0;
   uint32_t a, e, pbase;
   memset(pal, 0, sizeof pal);
   for (i = 0; i < 16; i++) pal[32 + i] = OW(0x901C + 2 * i);                                         /* line 2: Nigel */
@@ -122,19 +137,46 @@ static void lk_o_palette(int room) {                                 /* the 64 c
   }
   for (i = 0; i < 13; i++) pal[2 + i] = OW(pbase + 2u * (uint32_t)i);
   for (l = 0; l < 4; l++) { pal[16 * l] = 0; pal[16 * l + 1] = 0x0CCC; pal[16 * l + 15] = 0; }
-  for (i = 0; i < 64; i++) { int cw = (cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1]; act[i] = lk_o_firston ? SW(0xFF0ED0 + 2 * i) : ((((cw >> 6) & 7) << 9) | (((cw >> 3) & 7) << 5) | ((cw & 7) << 1)); }   /* fade level: the VDP's palette (converted back to MD format), but on the first frame after the display was switched on the game's active copy: the VDP still holds the stale bright palette for that one frame and flashes the HUD */
+  for (i = 0; i < 64; i++) { int cw = (cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1]; act[i] = (lk_o_firston || !lk_o_actcram) ? SW(0xFF0ED0 + 2 * i) : ((((cw >> 6) & 7) << 9) | (((cw >> 3) & 7) << 5) | ((cw & 7) << 1)); }   /* fade level: the VDP's palette (converted back to MD format), but on the first frame after the display was switched on the game's active copy: the VDP still holds the stale bright palette for that one frame and flashes the HUD */
   for (l = 0; l < 4; l++) {                                                                           /* every palette line has its own fade level (the HUD lines are not faded with the room) */
-    bestn = 99; bestd = 0;
-    for (j = 0; j < 0x1400; j += 0x200) { int bad = 0; for (i = 16 * l; i < 16 * l + 16; i++) { if (l == 3 && i >= 58 && i <= 62) continue; { int c = lk_o_darken(pal[i], j); if (c != act[i]) bad++; } } if (bad < bestn) { bestn = bad; bestd = j; } }
+    bestn = 99; bestd = 0; direct = 0;
+    { int L = (int16_t)(SW(0xFF0F50) - SW(0xFF0F52)), bad = 99;   /* the game's own fade level: DarkenPalette darkens with $FF0F50 and then adds the step $FF0F52, so the level of the palette on screen is the difference (fade in ends at 0, fade out at $E00 = black) */
+      if (L >= 0 && L < 0x1400 && !(L & 0x1FF)) { bad = 0; for (i = 16 * l; i < 16 * l + 16; i++) { if (l == 3 && i >= 58 && i <= 62) continue; if (lk_o_darken(pal[i], L) != act[i]) bad++; } }
+      if (bad == 0) { bestn = 0; bestd = L; lk_o_fl_ok++; }
+      else if (lk_o_fx) { lk_o_fl_bad++; direct = 1; bestn = 0; }   /* effects (flashes, tree warp, ...): the game's own active palette is what is shown */
+      else { lk_o_fl_bad++;   /* the game set the palette directly (e.g. black right after a quick load, the counters are stale then): search the level as before */
+        for (j = 0; j < 0x1400; j += 0x200) { int bad2 = 0; for (i = 16 * l; i < 16 * l + 16; i++) { if (l == 3 && i >= 58 && i <= 62) continue; { int c = lk_o_darken(pal[i], j); if (c != act[i]) bad2++; } } if (bad2 < bestn) { bestn = bad2; bestd = j; } } if (lk_o_fl_log && l == 0) printf("ownfade: frame %ld level %X counters %X - %X: no exact match, search found %X (%d bad)\n", platform_frame_number(), L, SW(0xFF0F50), SW(0xFF0F52), bestd, bestn); }
+    }
     if (l == 0) lk_o_fade = bestd != 0;
     if (getenv("LANDSTALKER_OWN_PAL")) { int i2; printf("ownpal: frame %ld room %d line %d level %X bad %d  rom/act:", platform_frame_number(), room, l, bestd, bestn); for (i2 = 16 * l; i2 < 16 * l + 16; i2++) printf(" %03X/%03X", lk_o_darken(pal[i2], bestd), act[i2]); printf("\n"); }
     if (l == 3) {                                                                                     /* (hb > 0: no fade level of the ROM colours reproduces the game's colours, e.g. the intro caption sets colour 11 to white itself: the game's actual colour is used) line 3 is mixed: the sprite colours fade with the room, the HUD colours 10..14 do not (rooms with objects on palette line 3, e.g. 427): own level for them, the line's level when they are all black */
       int hd = bestd, hb = 99, nz = 0;
       for (i = 58; i <= 62; i++) nz += act[i] != 0;
-      if (nz) for (j = 0; j < 0x1400; j += 0x200) { int bad = 0; for (i = 58; i <= 62; i++) if (lk_o_darken(pal[i], j) != act[i]) bad++; if (bad < hb) { hb = bad; hd = j; } }
-      for (i = 58; i <= 62; i++) { int c = (nz && hb > 0 && hb != 99) ? act[i] : lk_o_darken(pal[i], hd); lk_o_pix[i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; }
+      if (nz) { int Lc = (int16_t)(SW(0xFF0F50) - SW(0xFF0F52)), cand[2], ci; cand[0] = (Lc >= 0 && Lc < 0x1400 && !(Lc & 0x1FF)) ? Lc : 0; cand[1] = 0;   /* the HUD colours are faded by the 64 colour fades only (level from the counters) and not by the 58 colour room fades (level 0); anything else (the intro caption sets colour 11 itself) is the game's own colour */
+        for (ci = 0; ci < 2; ci++) { int bad = 0; j = cand[ci]; for (i = 58; i <= 62; i++) if (lk_o_darken(pal[i], j) != act[i]) bad++; if (bad < hb) { hb = bad; hd = j; } } }
+      for (i = 58; i <= 62; i++) { int c = (direct || (nz && hb > 0 && hb != 99)) ? act[i] : lk_o_darken(pal[i], hd); lk_o_pix[i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; }
     }
-    for (i = 16 * l; i < 16 * l + 16; i++) { if (l == 3 && i >= 58 && i <= 62) continue; { int c = lk_o_darken(pal[i], bestd); lk_o_pix[i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; } }
+    for (i = 16 * l; i < 16 * l + 16; i++) { if (l == 3 && i >= 58 && i <= 62) continue; { int c = direct ? act[i] : lk_o_darken(pal[i], bestd); lk_o_pix[i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; } }
+  lk_o_fxon = 0;
+  if (lk_o_fx && lk_warpfx_kind() == 1) {   /* WarpPadFx $00E154: the game rewrites CRAM colours 0..55 from 8 palettes (the base palette darkened 0..7 levels, g_Buffer) at line thresholds, band i = palette 7 - i; the thresholds are in g_Buffer + $380 = $FF2F80 */
+    int k, y, t[8], first = -1, last = -1;
+    for (k = 0; k < 8; k++) { t[k] = SB(0xFF2F80 + k) & 0xFF; if (t[k] >= 0x17 && first < 0) first = k; if (t[k] >= 0x17) last = k; }
+    for (k = 1; k < 8; k++) if (t[k] < t[k - 1]) { for (k = 0; k < 8; k++) t[k] = 0; first = last = -1; break; }   /* the effect has not computed its table yet (stale g_Buffer): no bands */
+    for (k = 0; k < 8; k++) for (i = 0; i < 64; i++) { if (i < 56) { int c = lk_o_darken(pal[i], k * 0x200); lk_o_fxpix[k][i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; } else lk_o_fxpix[k][i] = lk_o_pix[i]; }
+    for (y = 0; y < 256; y++) { int yy = y > 0xB7 ? 0xB7 : y, b = -1;
+      for (k = 0; k < 8; k++) if (t[k] >= 0x17 && t[k] + lk_o_fxoff > yy) { b = k; break; }
+      if (b < 0) b = last;
+      lk_o_fxk[y] = (signed char)(b < 0 ? lk_o_fxprev : 7 - b);
+    }
+    { int b = -1; for (k = 0; k < 8; k++) if (t[k] >= 0x17 && t[k] + lk_o_fxoff > 0xB7) { b = k; break; } if (b < 0) b = last; if (b >= 0) lk_o_fxprev = 7 - b; }
+    lk_o_fxon = 1; (void)first;
+    lk_o_fxhold = 1; for (i = 0; i < 56; i++) lk_o_fxact[i] = act[i];
+  } else if (lk_o_fx && lk_o_fxhold) {   /* the effect ended: CRAM keeps the last band's palette until the game fades the room in (its active palette copy changes then) */
+    int same = 1, k; for (i = 0; i < 56; i++) if (lk_o_fxact[i] != act[i]) same = 0;
+    if (same) { for (k = 0; k < 8; k++) for (i = 0; i < 64; i++) { if (i < 56) { int c = lk_o_darken(pal[i], k * 0x200); lk_o_fxpix[k][i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; } else lk_o_fxpix[k][i] = lk_o_pix[i]; }
+      for (i = 0; i < 256; i++) lk_o_fxk[i] = (signed char)lk_o_fxprev; lk_o_fxon = 1; }
+    else { lk_o_fxhold = 0; lk_o_fxprev = 0; }
+  } else lk_o_fxprev = 0;
   }
 }
 static void lk_o_sprpiece(const uint8 *td, int tile0, int sx, int sy, int w, int h, int pal, int prio, int hf, int vf) {
@@ -152,7 +194,7 @@ static void lk_o_vpiece(int tile0, int sx, int sy, int w, int h, int pal, int pr
   for (px = 0; px < w * 8; px++) for (py = 0; py < h * 8; py++) {
     int ox = hf ? (w * 8 - 1 - px) : px, oy = vf ? (h * 8 - 1 - py) : py, t = tile0 + (ox / 8) * h + (oy / 8), a = t * 32 + (oy % 8) * 4 + (ox % 8) / 2, b, idx, X = sx + px + lk_wide_e, Y = sy + py;
     if (a >= 0x10000) continue;
-    b = vram[a ^ 1]; idx = ((ox % 8) % 2 == 0) ? (b >> 4) : (b & 15);
+    b = lk_o_vmirror ? lk_vm[a] : vram[a ^ 1]; idx = ((ox % 8) % 2 == 0) ? (b >> 4) : (b & 15);
     if (!idx || X < 0 || X >= 320 + 2 * lk_wide_e || X >= LK_OSW || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200)) continue;
     lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | (pal * 16 + idx));
   }
@@ -195,12 +237,39 @@ static int lk_o_escore(const lk_o_ent_t *e) {                        /* how well
     for (j = 0; j < lk_o_satn; j++) if (lk_o_satk[j] == k) {
       int t = lk_o_satt[j], same = 1, nb = 32 * e->pws[pc] * e->phs[pc];   /* ALL tiles of the piece: poses of one figure share their first tile (Nigel's walk frame vs the one-frame turn pose), only the whole piece tells which graphic the VDP really holds */
       if (nb > 0x4000 - cum * 32) nb = 0x4000 - cum * 32; if (t * 32 + nb > 0x10000) nb = 0x10000 - t * 32;
-      for (i = 0; i < nb && same; i++) if (vram[(t * 32 + i) ^ 1] != e->tiles[cum * 32 + i]) same = 0;
+      for (i = 0; i < nb && same; i++) if ((lk_o_vmirror ? lk_vm[t * 32 + i] : vram[(t * 32 + i) ^ 1]) != e->tiles[cum * 32 + i]) same = 0;
       sc += same ? 2 : 1; break;
     }
     cum += e->pws[pc] * e->phs[pc];
   }
   return sc;
+}
+static int lk_o_loose(const lk_o_ent_t *e) {                          /* does the real sprite table hold ANY piece of this entity (same size, position within 6 pixels: one pass of lag, the two-pass frames)? */
+  int pc, j;
+  for (pc = 0; pc < e->np; pc++) {
+    uint32 k = lk_o_pkey(e, pc, 0);
+    for (j = 0; j < lk_o_satn; j++) {
+      int dx = (int)((k >> 20) & 0x1FF) - (int)((lk_o_satk[j] >> 20) & 0x1FF), dy = (int)((k >> 8) & 0x3FF) - (int)((lk_o_satk[j] >> 8) & 0x3FF);
+      if ((k & 15) == (lk_o_satk[j] & 15) && dx >= -6 && dx <= 6 && dy >= -6 && dy <= 6) return 1;
+    }
+  }
+  return 0;
+}
+static int lk_o_near(const lk_o_ent_t *e) {                           /* the sprite table holds a piece of the same size close to one of the entity's pieces (same column, up to 16 lines off) but none that agrees with it: the game replaced the figure by something else (effect sprites); an incomplete table (a pass in the middle of its work) holds nothing near */
+  int pc, j;
+  for (pc = 0; pc < e->np; pc++) {
+    uint32 k = lk_o_pkey(e, pc, 0);
+    for (j = 0; j < lk_o_satn; j++) {
+      int dx = (int)((k >> 20) & 0x1FF) - (int)((lk_o_satk[j] >> 20) & 0x1FF), dy = (int)((k >> 8) & 0x3FF) - (int)((lk_o_satk[j] >> 8) & 0x3FF);
+      if ((k & 15) == (lk_o_satk[j] & 15) && dx >= -4 && dx <= 4 && dy >= -16 && dy <= 16) return 1;
+    }
+  }
+  return 0;
+}
+static int lk_o_loose4e(const lk_o_ent_t *e) {                        /* the same at the position of the previous pass (+4E / +50): the game draws objects there */
+  lk_o_ent_t t = *e; int b = 0xFF5400 + e->off;
+  t.ax = SW(b + 0x4E); t.ay = SW(b + 0x50);
+  return lk_o_loose(&t);
 }
 static int lk_o_list(const uint8 *src, int *offs) {                  /* visible entity list $FF11DE of a pass state; when the game is in the middle of a pass at the top of the frame the list is empty (terminator first): the last complete list is used (the entity structs are fresh anyway) */
   int a = 0xFF11DE, n = 0; const uint8 *keep = lk_o_sp; lk_o_sp = (((src[(0xFF11DE & 0xFFFF) ^ 1] << 8) | src[(0xFF11DF & 0xFFFF) ^ 1]) == 0xFFFF && lk_o_goodok && !lk_o_fade) ? lk_o_good : src;
@@ -218,8 +287,20 @@ static int lk_o_formula(const uint8 *st, int off, int *ax, int *ay) {   /* the g
   }
   lk_o_sp = keep; return ok;
 }
+static uint32 lk_o_dk2[96]; static int lk_o_dn2, lk_o_exon, lk_o_exnext;   /* sprite table entries no figure accounts for are drawn between the figures at their table position: dk2 = keys the first figure pass drew, exnext = next table index to look at */
+static void lk_o_extras_upto(int upto) {                            /* effects that write the sprite table directly (Gaia rocks, the Fire / Thunder / Ice effect at a target): the entries that no figure piece accounts for, from the game's VRAM tiles, in the order of the table (lower index = in front, the figure loop calls this before every figure with that figure's first table index) */
+  static int ex = -1; int i2;
+  if (ex < 0) { const char *c = getenv("LANDSTALKER_OWN_EXTRA"); ex = c && *c == '0' ? 0 : 1; }
+  for (; ex && lk_o_exnext < lk_o_satn && lk_o_exnext < upto; lk_o_exnext++) {
+    int j = lk_o_exnext; uint32 k2 = lk_o_satk[j]; int w2 = lk_o_satw[j], covered = 0;
+    for (i2 = 0; i2 < lk_o_dn2; i2++) if (lk_o_dk2[i2] == k2) { covered = 1; break; }
+    if (getenv("LANDSTALKER_OWN_SAT")) printf("ownsat: frame %ld #%d x %d y %d size %X attr %04X %s\n", platform_frame_number(), j, (int)((k2 >> 20) & 0x1FF), (int)((k2 >> 8) & 0x3FF), (int)(k2 & 15), w2, covered ? "covered" : "EXTRA");
+    if (covered) continue;
+    lk_o_vpiece(w2 & 0x7FF, (int)((k2 >> 20) & 0x1FF) - 128, (int)((k2 >> 8) & 0x3FF) - 128, (int)((k2 >> 2) & 3) + 1, (int)(k2 & 3) + 1, (w2 >> 13) & 3, (w2 >> 15) & 1, (w2 >> 11) & 1, (w2 >> 12) & 1);
+  }
+}
 static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *alt) {   /* figures of one pass state: drawn into lk_o_spr and / or as SAT keys (x, y, size) for the choice of the pass; with `alt` every entity of EITHER pass' visible list takes the version (this pass / the other one, or absent) that matches the real sprite table: the game's visibility test flips entities in and out of the list from pass to pass */
-  int offs[48], inA[48], inB[48], inF[48], n, k, nb = 0, boffs[24], nk = 0, i;
+  int offs[48], inA[48], inB[48], inF[48], sord[48], n, k, nb = 0, boffs[24], nk = 0, i;
   if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr); lk_o_nspr = 0; lk_o_dn = 0; }
   n = lk_o_list(src, offs); for (k = 0; k < n; k++) { inA[k] = 1; inB[k] = 0; inF[k] = 0; }
   if (alt) { nb = lk_o_list(alt, boffs); for (i = 0; i < nb; i++) { for (k = 0; k < n && offs[k] != boffs[i]; k++) ; if (k < n) inB[k] = 1; else if (n < 48) { offs[n] = boffs[i]; inA[n] = 0; inB[n] = 1; inF[n] = 0; n++; } } }
@@ -245,7 +326,8 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
       }
       ord[k] = best; idx[k] = k;
     }
-    if (draw && alt) for (q = 1; q < n; q++) for (r2 = q; r2 > 0 && ord[idx[r2]] < ord[idx[r2 - 1]]; r2--) { int t2 = idx[r2]; idx[r2] = idx[r2 - 1]; idx[r2 - 1] = t2; }
+    if (draw && (alt || lk_o_simple)) for (q = 1; q < n; q++) for (r2 = q; r2 > 0 && ord[idx[r2]] < ord[idx[r2 - 1]]; r2--) { int t2 = idx[r2]; idx[r2] = idx[r2 - 1]; idx[r2 - 1] = t2; }
+    for (k = 0; k < n; k++) sord[k] = ord[idx[k]];
     { int so[48], sf[48], sa[48], sb[48]; for (k = 0; k < n; k++) { so[k] = offs[idx[k]]; sa[k] = inA[idx[k]]; sb[k] = inB[idx[k]]; sf[k] = inF[idx[k]]; } for (k = 0; k < n; k++) { offs[k] = so[k]; inA[k] = sa[k]; inB[k] = sb[k]; inF[k] = sf[k]; } }
   }
   for (k = 0; k < n; k++) {
@@ -283,8 +365,9 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
         f->ax = fx; f->ay = fy; e = f; cum = 0;
       }
     }
-    if (getenv("LANDSTALKER_OWN_ENTS") && draw && alt) printf("ownents: frame %ld off %02X type %02X A%d B%d F%d vis %d at (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), inA[k], inB[k], inF[k], e ? e->vis : -1, e ? e->ax : 0, e ? e->ay : 0);
-    if (draw && offs[k] == 0 && e && e->vis && e->np && lk_o_escore(e) < 2 * e->np) {   /* Nigel: for a frame or two the entity's animation / frame fields run ahead of (or behind) the graphic the VDP really holds (one-frame turn flicker while walking in a straight line, rec_20261019_2044): look for the pose whose tiles ARE in VRAM (the same pose appears under several (animation, frame) pairs) */
+    if (getenv("LANDSTALKER_OWN_ENTS") && draw) printf("ownents: frame %ld off %02X type %02X A%d B%d F%d vis %d at (%d,%d) np %d score %d\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), inA[k], inB[k], inF[k], e ? e->vis : -1, e ? e->ax : 0, e ? e->ay : 0, e ? e->np : 0, e ? lk_o_escore(e) : -1);
+    if (getenv("LANDSTALKER_OWN_ENTS") && draw && e && e->vis && e->np && lk_o_escore(e) == 0) { int q; for (q = 0; q < e->np; q++) { uint32 kk = lk_o_pkey(e, q, 0); printf("   piece %d: x %d y %d w %d h %d anim %X frm %X sgi %02X ts %04X\n", q, (int)((kk >> 20) & 0x1FF), (int)((kk >> 8) & 0x3FF), e->pws[q], e->phs[q], e->anim, e->frm, e->sgi, e->ts); } }
+    if (draw && (!lk_o_simple || lk_o_nigelvram) && offs[k] == 0 && e && e->vis && e->np && lk_o_escore(e) < 2 * e->np) {   /* Nigel: for a frame or two the entity's animation / frame fields run ahead of (or behind) the graphic the VDP really holds (one-frame turn flicker while walking in a straight line, rec_20261019_2044): look for the pose whose tiles ARE in VRAM (the same pose appears under several (animation, frame) pairs) */
       static lk_o_ent_t pose; int an, fr, found = 0;
       for (an = 0; an < 64 && !found; an += 4) for (fr = 0; fr < 96 && !found; fr += 4) {
         lk_o_ovr_anim = an; lk_o_ovr_frm = fr; lk_o_entload(src, offs[k], &pose, lk_o_sprtiles_p, 1, 0); lk_o_ovr_anim = -1;
@@ -293,6 +376,8 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
       if (found) e = &pose;
     }
     if (!e || !e->vis) continue;
+    if (draw && lk_o_hide0 && offs[k] != 0 && e->np && lk_o_satn > 0 && !lk_o_loose(e) && !lk_o_loose4e(e) && lk_o_near(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) { int q; printf("ownhide: frame %ld off %02X type %02X at (%d,%d) 4e (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), e->ax, e->ay, SW(0xFF5400 + offs[k] + 0x4E), SW(0xFF5400 + offs[k] + 0x50)); for (q = 0; q < e->np; q++) { uint32 kk = lk_o_pkey(e, q, 0); printf("   piece %d: x %d y %d size %X\n", q, (int)((kk >> 20) & 0x1FF), (int)((kk >> 8) & 0x3FF), (int)(kk & 15)); } } continue; }   /* the real sprite table holds none of this entity's pieces: the game draws something else in its place (a burning enemy of the Fire sword is replaced by flame sprites that are written into the table, they come as EXTRA entries) */
+    if (draw && lk_o_exon) lk_o_extras_upto(sord[k]);
     lk_o_nspr++;
     for (pc = 0; pc < e->np; pc++) {
       int xx; uint32 key = lk_o_pkey(e, pc, &xx);
@@ -312,6 +397,7 @@ static void lk_o_build(void) {                                       /* everythi
   memcpy(lk_o_tiles, lk_o_tbase, sizeof lk_o_tiles);
   for (k = 0; k < lk_o_ngrp; k++) {
     int s0 = 0xFF1134 + 4 * k;
+    if (getenv("LANDSTALKER_OWN_ANIM")) printf("ownanim: frame %ld grp %d state %02X %02X %02X %02X (delay %d frames %d dest %X words %d)\n", platform_frame_number(), k, SB(s0) & 255, SB(s0 + 1) & 255, SB(s0 + 2) & 255, SB(s0 + 3) & 255, lk_o_grp[k].delay, lk_o_grp[k].frames, lk_o_grp[k].dest, lk_o_grp[k].words);
     if (SB(s0) == lk_o_grp[k].delay && SB(s0 + 1) == lk_o_grp[k].frames) {
       int f = SB(s0 + 3) % lk_o_grp[k].frames, n = lk_o_grp[k].words * 2, i; uint32_t src = lk_o_grp[k].base + (uint32_t)(f * n);
       for (i = 0; i < n; i++) if (lk_o_grp[k].dest + i < (int)sizeof lk_o_tiles) lk_o_tiles[lk_o_grp[k].dest + i] = (uint8)OB(src + (uint32_t)i);
@@ -330,17 +416,10 @@ static void lk_o_build(void) {                                       /* everythi
       }
     }
   }
-  lk_o_sprites(chosen, 1, 0, chosen == lk_o_cc ? lk_o_cp : lk_o_cc); lk_o_sp = lk_o_r;
-  { static int ex = -1; int j, i2;                                  /* sprite table entries no figure piece accounts for (effects that write the sprite table directly, e.g. the falling stones of the Statue of Gaia / Gaia sword, GaiaEffect $016712): drawn from the table and the game's VRAM tiles */
-    if (ex < 0) { const char *c = getenv("LANDSTALKER_OWN_EXTRA"); ex = c && *c == '0' ? 0 : 1; }
-    for (j = 0; ex && j < lk_o_satn; j++) {
-      uint32 k2 = lk_o_satk[j]; int w2 = lk_o_satw[j], covered = 0;
-      for (i2 = 0; i2 < lk_o_dn; i2++) if (lk_o_dk[i2] == k2) { covered = 1; break; }
-      if (getenv("LANDSTALKER_OWN_SAT")) printf("ownsat: frame %ld #%d x %d y %d size %X attr %04X %s\n", platform_frame_number(), j, (int)((k2 >> 20) & 0x1FF), (int)((k2 >> 8) & 0x3FF), (int)(k2 & 15), w2, covered ? "covered" : "EXTRA");
-      if (covered) continue;
-      lk_o_vpiece(w2 & 0x7FF, (int)((k2 >> 20) & 0x1FF) - 128, (int)((k2 >> 8) & 0x3FF) - 128, (int)((k2 >> 2) & 3) + 1, (int)(k2 & 3) + 1, (w2 >> 13) & 3, (w2 >> 15) & 1, (w2 >> 11) & 1, (w2 >> 12) & 1);
-    }
-  }
+  lk_o_exon = 0; lk_o_sprites(chosen, 1, 0, lk_o_simple ? 0 : chosen == lk_o_cc ? lk_o_cp : lk_o_cc); lk_o_sp = lk_o_r;   /* pass 1: which table entries do the figures account for */
+  memcpy(lk_o_dk2, lk_o_dk, sizeof lk_o_dk); lk_o_dn2 = lk_o_dn;
+  lk_o_exon = 1; lk_o_exnext = 0; lk_o_sprites(chosen, 1, 0, lk_o_simple ? 0 : chosen == lk_o_cc ? lk_o_cp : lk_o_cc); lk_o_sp = lk_o_r;   /* pass 2: the same figures with the other table entries drawn between them */
+  lk_o_extras_upto(1 << 20); lk_o_exon = 0;
   (void)o;
 }
 static int lk_o_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio) {   /* colour index of one plane pixel at image position (U, V), 0 = transparent */
@@ -401,7 +480,8 @@ small:
     if (diff) { lk_o_hwfr++; if (lk_o_hwlog > 1) { static int once; if (once++ < 3) for (r = 1; r < 3; r++) { printf("own: HUD row %d mine :", r); for (c = 4; c < 37; c++) printf(" %04X", lk_o_hw[r][c] & 0xFFFF); printf("\nown: HUD row %d game :", r); for (c = 4; c < 37; c++) printf(" %04X", SW(0xFF1C00 + 0x80 * r + 2 * c) & 0xFFFF); printf("\n"); } } if (lk_o_hwlog) printf("own: HUD differs frame %ld room %d in %d words, first row %d col %d mine %04X game %04X (cur %d max %d)\n", platform_frame_number(), lk_o_room, diff, lk_o_hwlast[0], lk_o_hwlast[1], lk_o_hwlast[2] & 0xFFFF, lk_o_hwlast[3] & 0xFFFF, d2, d3); } }
 }
 extern uint8_t lk_vb_ram[]; extern int lk_vb_n; extern long lk_vb_frame;   /* VBlank snapshot (patch_ownvb.py) */
-static int lk_o_vbmode = 1, lk_o_vblog;
+static int lk_o_vbmode = 1, lk_o_vblog, lk_o_regvdp;   /* (LANDSTALKER_OWN_SIMPLE=1: the sprites of the snapshot are drawn as they are (no choice between candidate entity states by comparison with the VDP's sprite table / tiles) */   /* LANDSTALKER_OWN_REGS_VDP=1: VDP registers read from the VDP (old way) instead of the game's RAM shadows $FF0FB0 + 2 n */
+#define LK_REG(n) (lk_o_regvdp ? reg[n] : bus_get_ram()[(0x0FB1 + 2 * (n)) ^ 1])   /* the LIVE shadow (MaskVDPReg / OrVDPReg keep it equal to the VDP register): the snapshot is taken at the last VBlank, the main code disables the display later (room load) */
 #define LK_SATB(o) ((lk_o_vbmode && lk_vb_n) ? lk_vb_ram[((0xFF0550 + (o)) & 0xFFFF) ^ 1] : vram[(base + (o)) ^ 1])   /* sprite table byte: the RAM snapshot (DMA source $FF0550, equal to the VDP's copy in every map frame) or the VDP */   /* LANDSTALKER_OWN_VB=0 = the old two-snapshot way */
 extern uint8_t lk_ot_vis[]; extern int lk_ot_ok; extern int lk_ot_check(const uint8_t *vram); extern void lk_ot_dbg(const uint8_t *vram, long frame);   /* own text tile mirror (patch_owntext.py) */
 static int lk_o_txmode = 1, lk_o_txlog;
@@ -420,6 +500,7 @@ static int lk_o_win(int line, int x, int hint) {                      /* window 
 static int lk_o_unwrap(int p, int base, int size) { int d = (((p - base) % size) + size) % size; if (d >= size / 2) d -= size; return base + d; }
 
 static void lk_o_init(void) {
+  lk_o_hide0 = !(getenv("LANDSTALKER_OWN_HIDE0") && *getenv("LANDSTALKER_OWN_HIDE0") == '0'); lk_o_actcram = getenv("LANDSTALKER_OWN_ACT_CRAM") != NULL; lk_o_fl_log = getenv("LANDSTALKER_OWN_FADELOG") != NULL; lk_o_scrram = getenv("LANDSTALKER_OWN_SCROLL_VDP") == NULL; lk_o_regvdp = getenv("LANDSTALKER_OWN_REGS_VDP") != NULL; lk_o_simple = 1; { const char *q3 = getenv("LANDSTALKER_OWN_SIMPLE"); if (q3) lk_o_simple = atoi(q3); } lk_o_scrvars = getenv("LANDSTALKER_OWN_SCRVARS") != NULL; { const char *q4 = getenv("LANDSTALKER_OWN_VMIRROR"); if (q4) lk_o_vmirror = atoi(q4); } { const char *q5 = getenv("LANDSTALKER_OWN_NIGELVRAM"); if (q5) lk_o_nigelvram = atoi(q5); } lk_o_gshake = getenv("LANDSTALKER_OWN_GSHAKE") != NULL; lk_o_fx = 1; { const char *q6 = getenv("LANDSTALKER_OWN_FX"); if (q6) lk_o_fx = atoi(q6); } { const char *q7 = getenv("LANDSTALKER_OWN_FXOFF"); if (q7) lk_o_fxoff = atoi(q7); } { const char *q9 = getenv("LANDSTALKER_OWN_SEED"); if (q9) lk_o_seed = atoi(q9); }
   if (lk_o_mode >= 0) return;
   { const char *e = getenv("LANDSTALKER_OWN"), *l = getenv("LANDSTALKER_OWN_LOG"), *q; int v = 0;
     if (e) lk_o_mode = atoi(e);
@@ -439,16 +520,18 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
   lk_o_init();
   if (!lk_o_mode) return;
   if (line == 0) {
-    const uint8_t *r = bus_get_ram(); int hsb = (reg[13] & 0x3F) << 10;
+    const uint8_t *r = bus_get_ram(); int hsb = (LK_REG(13) & 0x3F) << 10;
     if (lk_o_vbmode && lk_vb_n) r = lk_vb_ram;                       /* LANDSTALKER_OWN_VB=1: the state as the VDP received it (RAM right after the VBlank handler, patch_ownvb.py) */
     if (!r) return;
+    lk_o_r = r;
     if (lk_o_valid) {                                                 /* state of the previous pass = the picture shown now */
       memcpy(lk_o_use, (lk_o_vbmode && lk_vb_n) ? r : lk_o_prev, sizeof lk_o_use);
-      hsA = ((vram[hsb ^ 1] << 8) | vram[(hsb + 1) ^ 1]); hsB = ((vram[(hsb + 2) ^ 1] << 8) | vram[(hsb + 3) ^ 1]);
-      vsA = (vsram[0 ^ 1] << 8) | vsram[1 ^ 1]; vsB = (vsram[2 ^ 1] << 8) | vsram[3 ^ 1];
+      if (lk_o_scrram && lk_o_vmirror && !lk_o_scrvars) { hsA = (lk_vm[hsb] << 8) | lk_vm[hsb + 1]; hsB = (lk_vm[hsb + 2] << 8) | lk_vm[hsb + 3]; vsA = (lk_vsm[0] << 8) | lk_vsm[1]; vsB = (lk_vsm[2] << 8) | lk_vsm[3]; lk_o_sc_ram = 1; }   /* what the game's DMA queue sent to the VDP's scroll tables (own mirror, patch_ownvb.py) */
+      else if (lk_o_scrram && !(lk_o_gshake && lk_gaia_shake())) { hsA = (r[0x0100 ^ 1] << 8) | r[0x0101 ^ 1]; hsB = (r[0x0102 ^ 1] << 8) | r[0x0103 ^ 1]; vsA = (r[0x0500 ^ 1] << 8) | r[0x0501 ^ 1]; vsB = (r[0x0502 ^ 1] << 8) | r[0x0503 ^ 1]; lk_o_sc_ram = 1; }   /* the game's own scroll variables (equal to the VDP's, except for the stale frames after the Gaia effect) */
+      else { hsA = ((vram[hsb ^ 1] << 8) | vram[(hsb + 1) ^ 1]); hsB = ((vram[(hsb + 2) ^ 1] << 8) | vram[(hsb + 3) ^ 1]); vsA = (vsram[0 ^ 1] << 8) | vsram[1 ^ 1]; vsB = (vsram[2 ^ 1] << 8) | vsram[3 ^ 1]; lk_o_sc_ram = 0; }   /* old way (LANDSTALKER_OWN_SCROLL_VDP=1 / LANDSTALKER_OWN_GSHAKE=1) */
       /* the scroll values stay the VDP's registers: they equal the RAM variables $FF0100 / $FF0102 (hscroll A / B) and $FF0500 / $FF0502 (vscroll A / B) except while an effect writes them directly (the Gaia statue shakes VSRAM) */
       cam0 = US(0xFF1200); cam2 = US(0xFF1202); rm = UW(0xFF1204);
-      if (lk_o_vblog) { static int ns_; int i9, bad = 0, sb = (reg[5] & 0x7F) << 9; for (i9 = 0; i9 < 640; i9++) if (vram[(sb + i9) ^ 1] != r[((0xFF0550 + i9) & 0xFFFF) ^ 1]) bad++; if (bad && rm > 0 && rm < 800 && ns_++ < lk_o_vblog) printf("ownvb: frame %ld room %d sprite table VRAM vs RAM $FF0550: %d of 640 bytes differ\n", platform_frame_number(), rm, bad); }
+      if (lk_o_vblog) { static int ns_; int i9, bad = 0, sb = (LK_REG(5) & 0x7F) << 9; for (i9 = 0; i9 < 640; i9++) if (vram[(sb + i9) ^ 1] != r[((0xFF0550 + i9) & 0xFFFF) ^ 1]) bad++; if (bad && rm > 0 && rm < 800 && ns_++ < lk_o_vblog) printf("ownvb: frame %ld room %d sprite table VRAM vs RAM $FF0550: %d of 640 bytes differ\n", platform_frame_number(), rm, bad); }
       if (lk_o_vblog) { static int nl; int w1 = (int16_t)((r[(0xFF0100 & 0xFFFF) ^ 1] << 8) | r[(0xFF0101 & 0xFFFF) ^ 1]), w2 = (int16_t)((r[(0xFF0102 & 0xFFFF) ^ 1] << 8) | r[(0xFF0103 & 0xFFFF) ^ 1]), v1 = (int16_t)((r[(0xFF0500 & 0xFFFF) ^ 1] << 8) | r[(0xFF0501 & 0xFFFF) ^ 1]), v2 = (int16_t)((r[(0xFF0502 & 0xFFFF) ^ 1] << 8) | r[(0xFF0503 & 0xFFFF) ^ 1]);
         if ((int16_t)hsA != w1 || (int16_t)hsB != w2 || (int16_t)vsA != v1 || (int16_t)vsB != v2) { if (nl++ < lk_o_vblog) printf("ownvb: frame %ld VDP hsA %d hsB %d vsA %d vsB %d | RAM FF0100 %d FF0102 %d FF0500 %d FF0502 %d (snapshot of frame %ld)\n", platform_frame_number(), (int16_t)hsA, (int16_t)hsB, (int16_t)vsA, (int16_t)vsB, w1, w2, v1, v2, lk_vb_frame); } }
       { /* which pass' camera does the VDP show? the vertical scroll is (cam0 + cam2) / 2 - 600 of the pass whose camera the game had written when the picture was built (FORMATS 'Scroll registers lag'):
@@ -461,13 +544,16 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         int upred = 1184 - (cam2 - cam0 + 160), vpred = ((cam0 + cam2) >> 1) - 104;
         lk_o_u0 = upred; lk_o_v0 = vpred;
         if (lk_o_cammode == 2) {
-          int ku = ((((upred + (int16_t)hsA) % 512 + 512) % 512) + 4) / 8 % 64, kv = ((((vpred - (int16_t)vsA) % 256 + 256) % 256) + 4) / 8 % 32, bu = 0, bv = 0, i3, du, dv;
+          int pending, ku = ((((upred + (int16_t)hsA) % 512 + 512) % 512) + 4) / 8 % 64, kv = ((((vpred - (int16_t)vsA) % 256 + 256) % 256) + 4) / 8 % 32, bu = 0, bv = 0, i3, du, dv;
           /* the constants are multiples of 8 (the plane's tile grid); the prediction error of +-2 px is rounded away.  Recent frames count more (decay 0.7): right after a room load the VDP's registers are
              stale for a few frames and vote for a wrong constant, the right one takes over after ~3 frames */
-          { static int pu, pv; int jump = abs(upred - pu) > 48 || abs(vpred - pv) > 48; pu = upred; pv = vpred;   /* the game re-bases the camera of a looping room (Stairway to Nole, room 421, user recording 2026-10-19): the registers go on smoothly, the constants change at once */
-            if (rm != lk_o_vote_room || jump) { memset(lk_o_vu, 0, sizeof lk_o_vu); memset(lk_o_vv, 0, sizeof lk_o_vv); lk_o_vote_room = rm; } }
-          for (i3 = 0; i3 < 64; i3++) lk_o_vu[i3] *= 0.7f; for (i3 = 0; i3 < 32; i3++) lk_o_vv[i3] *= 0.7f;
-          lk_o_vu[ku] += 1.0f; lk_o_vv[kv] += 1.0f;
+          pending = lk_o_fx && lk_o_room >= 0 && rm != lk_o_room && !lk_o_blanked;   /* the old room is still drawn: the camera variables already belong to the new one, the votes stay as they were */
+          { static int pu, pv; int jump = !pending && (abs(upred - pu) > 48 || abs(vpred - pv) > 48); if (!pending) { pu = upred; pv = vpred; }   /* the game re-bases the camera of a looping room (Stairway to Nole, room 421, user recording 2026-10-19): the registers go on smoothly, the constants change at once */
+            { int vr = lk_o_fx ? lk_o_room : rm; if (vr != lk_o_vote_room || jump) { memset(lk_o_vu, 0, sizeof lk_o_vu); memset(lk_o_vv, 0, sizeof lk_o_vv); lk_o_vote_room = vr; } } }   /* with the effects the OLD room goes on being drawn until the new one is loaded: the votes belong to the room that is drawn */
+          if (((r[0x0FC7 ^ 1] & 3) == 0 || !lk_o_fx) && !pending) { for (i3 = 0; i3 < 64; i3++) lk_o_vu[i3] *= 0.7f; for (i3 = 0; i3 < 32; i3++) lk_o_vv[i3] *= 0.7f; }
+          if (((r[0x0FC7 ^ 1] & 3) == 0 || !lk_o_fx) && !pending) { lk_o_vu[ku] += 1.0f; lk_o_vv[kv] += 1.0f; }   /* no votes while the game scrolls per line (tree warp swirl: the first table entry is not the camera any more) */
+          if (!pending && (int16_t)hsA == 144 && (int16_t)vsA == -96 && (int16_t)hsB == 144 && (int16_t)vsB == -96 && lk_o_seed) {   /* the scroll registers show the values InitScrollRegs $00906C gives them at a room load: the plane constants are then known exactly from the camera block (x = $FF1124, y = $FF1125): bu = 8 * ((2 (x - y) + 18) mod 64), bv = 8 * ((x + y) mod 32) (checked against the votes of 44 loads in 6 recordings: all equal); the seed wins the vote at once instead of after ~3 frames */
+            int x = r[0x1124 ^ 1], y = r[0x1125 ^ 1]; lk_o_vu[((2 * (x - y) + 18) % 64 + 64) % 64] += 8.0f; lk_o_vv[((x + y) % 32 + 32) % 32] += 8.0f; }
           for (i3 = 0; i3 < 64; i3++) if (lk_o_vu[i3] > lk_o_vu[bu]) bu = i3;
           for (i3 = 0; i3 < 32; i3++) if (lk_o_vv[i3] > lk_o_vv[bv]) bv = i3;
           bu *= 8; bv *= 8;
@@ -476,15 +562,18 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
           lk_o_u0 = upred + du; lk_o_v0 = vpred + dv; lk_o_bu = bu; lk_o_bv = bv; lk_o_upred = upred; lk_o_vpred = vpred;
         }
       }
-      lk_o_disp0 = reg[1] & 0x40; lk_o_firston = lk_o_disp0 && !lk_o_dprev; lk_o_dprev = lk_o_disp0 != 0;
-      if (rm == lk_o_room && (reg[1] & 0x40)) lk_o_blanked = 0;
-      if (!(reg[1] & 0x40)) lk_o_blanked = 1;                         /* the display was switched off since the room number changed: the new room is really loaded */
-      if (rm != lk_o_room && lk_o_room >= 0 && !lk_o_blanked) fr_done = 0;   /* the room number changes while the OLD room is still on screen (fade-out): keep the game's picture until the load has blanked the screen */
-      else if (lk_warpfx()) fr_done = 0;                                        /* the warp pad (teleport) effect: the game's picture stays (the effect is not ported) */
+      lk_o_disp0 = LK_REG(1) & 0x40; lk_o_firston = lk_o_disp0 && !lk_o_dprev; lk_o_dprev = lk_o_disp0 != 0;
+      if (rm == lk_o_room && (LK_REG(1) & 0x40)) lk_o_blanked = 0;
+      if (!(LK_REG(1) & 0x40)) lk_o_blanked = 1;                         /* the display was switched off since the room number changed: the new room is really loaded */
+      { static int seen_rm = -1; static long seen_f; extern long lk_world_frame;   /* the room number changed without the display being switched off (warp pad, tree warp): the new room is loaded when the game's world runs again (UpdateSprites) */
+        if (rm != seen_rm) { seen_rm = rm; seen_f = platform_frame_number(); }
+        { static int was_loading; int ld = lk_loadroom_on(); if (lk_o_fx && rm != lk_o_room && lk_o_room >= 0 && !lk_o_blanked && (lk_world_frame > seen_f || lk_fadein_on() || (was_loading && !ld))) lk_o_blanked = 1; was_loading = ld; } }   /* LoadRoomPath has returned = the new room is loaded */
+      if (rm != lk_o_room && lk_o_room >= 0 && !lk_o_blanked && !lk_o_fx) fr_done = 0;   /* with the effects on the OLD room goes on being drawn (fade out, white fade, warp) until the new one is loaded */   /* the room number changes while the OLD room is still on screen (fade-out): keep the game's picture until the load has blanked the screen */
+      else if (lk_warpfx() && !lk_o_fx) fr_done = 0;                                        /* the warp pad (teleport) effect: the game's picture stays (the effect is not ported) */
       else if (lk_sh_hide) fr_done = 0;                                         /* the Start menu is running (CheckForMenuOpen, also its fades): the game's picture stays, the map of RAM is not what is on screen then */
-      else if (!(reg[1] & 0x40)) fr_done = 0;                                  /* display switched off at the top of the frame (room load, blackout): the game's black picture stays */
-      else if (rm > 0 && rm < 800) { if (rm != lk_o_room) { lk_o_room_load(rm); lk_o_blanked = 0; } { /* which pass are the VDP's sprites from? (the game runs 0, 1 or 2 passes per frame, so the sprite table is sometimes the previous pass' and sometimes the current one): the candidate whose sprite boxes equal the real sprite table's best wins */
-        uint32 sat[96], kc[96], kp[96]; int ns = 0, i4 = 0, n4 = 0, nc, np_, mc = 0, mp = 0, i5, j5, base = (reg[5] & 0x7F) << 9;
+      else if (!(LK_REG(1) & 0x40)) fr_done = 0;                                  /* display switched off at the top of the frame (room load, blackout): the game's black picture stays */
+      else if (rm > 0 && rm < 800) { if (rm != lk_o_room && (!lk_o_fx || lk_o_blanked || lk_o_room < 0)) { lk_o_room_load(rm); lk_o_blanked = 0; } { /* which pass are the VDP's sprites from? (the game runs 0, 1 or 2 passes per frame, so the sprite table is sometimes the previous pass' and sometimes the current one): the candidate whose sprite boxes equal the real sprite table's best wins */
+        uint32 sat[96], kc[96], kp[96]; int ns = 0, i4 = 0, n4 = 0, nc, np_, mc = 0, mp = 0, i5, j5, base = (LK_REG(5) & 0x7F) << 9;
         for (n4 = 0; n4 < 80 && ns < 96; n4++) { int y = ((LK_SATB(8 * i4) << 8) | LK_SATB(8 * i4 + 1)) & 0x3FF, sz = (LK_SATB(8 * i4 + 2) << 8) | LK_SATB(8 * i4 + 3), x = ((LK_SATB(8 * i4 + 6) << 8) | LK_SATB(8 * i4 + 7)) & 0x1FF;
           lk_o_satw[ns] = (LK_SATB(8 * i4 + 4) << 8) | LK_SATB(8 * i4 + 5); lk_o_satt[ns] = lk_o_satw[ns] & 0x7FF; sat[ns] = (uint32)(x << 20 | y << 8 | ((sz >> 8) & 15)); lk_o_satk[ns] = sat[ns]; ns++; i4 = sz & 0x7F; if (!i4) break; }
         lk_o_satn = ns;
@@ -492,7 +581,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         nc = lk_o_sprites(rc, 0, kc, 0); np_ = lk_o_sprites(rp, 0, kp, 0); }
         for (i5 = 0; i5 < nc; i5++) for (j5 = 0; j5 < ns; j5++) if (kc[i5] == sat[j5]) { mc++; break; }
         for (i5 = 0; i5 < np_; i5++) for (j5 = 0; j5 < ns; j5++) if (kp[i5] == sat[j5]) { mp++; break; }
-        lk_o_sp = (lk_o_sprmode == 2 || (lk_o_sprmode == 1 && (2 * mc - nc) >= (2 * mp - np_))) ? lk_o_cc : lk_o_cp; }
+        lk_o_sp = (lk_o_simple || lk_o_sprmode == 2 || (lk_o_sprmode == 1 && (2 * mc - nc) >= (2 * mp - np_))) ? lk_o_cc : lk_o_cp; }
       lk_o_r = r; lk_o_build(); lk_o_hudbuild(); { static long dbgf = -2; if (dbgf == -2) { const char *e = getenv("LANDSTALKER_OWN_DBG"); dbgf = e ? atol(e) : -1; }
       if (dbgf >= 0 && platform_frame_number() == dbgf) { int rr, cc, base = (reg[5] & 0x7F) << 9, i4 = 0, k; printf("owndbg: frame %ld room %d reg1 %02X reg11 %02X reg12 %02X reg17 %02X reg18 %02X reg10 %02X hint RAM %02X vpos RAM %04X\n", dbgf, rm, reg[1], reg[11], reg[12], reg[17], reg[18], reg[10], hint & 0xFF, SW(0xFF0FD4) & 0xFFFF);
         for (rr = 0; rr < 28; rr++) { int nz = 0; for (cc = 0; cc < 40; cc++) { int w = SW(0xFF1C00 + 0x80 * rr + 2 * cc); if (w != 0 && w != 0xE6B4 && w != 0x66B4) nz++; } if (nz) { printf("owndbg: window row %d: %d interesting words:", rr, nz); for (cc = 0; cc < 40; cc++) printf(" %04X", SW(0xFF1C00 + 0x80 * rr + 2 * cc) & 0xFFFF); printf("\n"); } }
@@ -514,7 +603,9 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
     int black_line = (line >= 185 && !text && !lk_tall_keep(line));   /* below the game's HInt display-off line (full height off) */
 
     if (lk_o_cammode == 2) {   /* the game may change the scroll registers during the frame: use the values of THIS line */
-      int hsb2 = (reg[13] & 0x3F) << 10, hs2 = (int16_t)((vram[hsb2 ^ 1] << 8) | vram[(hsb2 + 1) ^ 1]), vs2 = (int16_t)((vsram[0 ^ 1] << 8) | vsram[1 ^ 1]), du, dv;
+      int hs2 = 0, vs2 = 0, du, dv;
+      if (!lk_o_sc_ram) { int hsb2 = (LK_REG(13) & 0x3F) << 10; hs2 = (int16_t)((vram[hsb2 ^ 1] << 8) | vram[(hsb2 + 1) ^ 1]); vs2 = (int16_t)((vsram[0 ^ 1] << 8) | vsram[1 ^ 1]); }
+      if (lk_o_sc_ram) { hs2 = (int16_t)hsA; vs2 = (int16_t)vsA; if (lk_o_fx && line < 224) { int hm = lk_o_r[0x0FC7 ^ 1] & 3, ln = hm == 3 ? line : hm == 2 ? (line & ~7) : 0; { int hb3 = (LK_REG(13) & 0x3F) << 10; hs2 = (lk_o_vmirror && !lk_o_scrvars) ? (int16_t)((lk_vm[hb3 + 4 * ln] << 8) | lk_vm[hb3 + 4 * ln + 1]) : (int16_t)((lk_o_r[(0x0100 + 4 * ln) ^ 1] << 8) | lk_o_r[(0x0101 + 4 * ln) ^ 1]); } } }   /* the game's per-line hscroll table, mode from its shadow of VDP register 11 $FF0FC6 (0 = one entry, 2 = 8 line cells, 3 = per line; the tree warp swirls it) */
       du = (((lk_o_bu - hs2 - lk_o_upred) % 512) + 512) % 512; if (du >= 256) du -= 512;
       dv = (((lk_o_bv + vs2 - lk_o_vpred) % 256) + 256) % 256; if (dv >= 128) dv -= 256;
       ubase = lk_o_upred + du; vbase = lk_o_vpred + dv + line;
@@ -533,11 +624,11 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         else if (sp & 0x200) pick = sp & 0x3F;
         else if (ai) pick = apal * 16 + ai;
         else if (bi) pick = bpal * 16 + bi;
-        else pick = reg[7] & 0x3F;                                     /* backdrop colour */
+        else pick = LK_REG(7) & 0x3F;                                     /* backdrop colour */
         if (margin) { if (line < 23 || (wline && !tb)) black = 1; }   /* margins next to the HUD bar stay black; next to the text box only with Map Behind Text off */
         else { int wp = lk_o_win(line, x, hint); if (wp >= 0 && (wp & 0xF) && i >= wlo && i < whi) pick = wp & 0x3F; else if (wp >= 0 && !tb && wline) black = 1; }   /* transparent window pixels and the black ends of the window line show the map */
       }
-      col = black ? (margin ? pixel[0x40] : pixel_lut[1][0]) : (lk_o_palmode ? lk_o_pix[pick & 0x3F] : pixel[pick & 0x3F]);
+      col = black ? (margin ? (lk_o_regvdp ? pixel[0x40] : pixel_lut[1][0]) : pixel_lut[1][0]) : (lk_o_palmode ? (lk_o_fxon ? lk_o_fxpix[lk_o_fxk[line & 255]][pick & 0x3F] : lk_o_pix[pick & 0x3F]) : pixel[pick & 0x3F]);
       lk_o_tot++; if (row[i] != (PIXEL_OUT_T)col) lk_o_diff++;
       if (lk_o_mode == 2) row[i] = (PIXEL_OUT_T)col;
     }
