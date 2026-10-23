@@ -34,7 +34,7 @@ static int OB(uint32_t a) { return a < 0x200000u ? (int)bus_read8(a) : 0; }   /*
 #define OL(a) ((uint32_t)(((uint32_t)OW(a) << 16) | (uint32_t)OW((a) + 2)))
 static int lk_o_sprmode = 1, lk_o_cammode = 2, lk_o_u0, lk_o_v0, lk_o_vote_room = -1, lk_o_bu, lk_o_bv, lk_o_upred, lk_o_vpred; static float lk_o_vu[64], lk_o_vv[32];
 static int lk_o_mode = -1, lk_o_log = 60, lk_o_room = -1, lk_o_ngrp, lk_o_valid;
-static int lk_sm_state, lk_sm_nofade, lk_sm_fastload, lk_o_lvl0;   /* S3.5 seamless door transitions (state 0 idle, 1 gap = frozen picture while the game fades / loads, 2 pan, 3 old room dissolves); nofade = the game's fade-in is not shown */
+static int lk_sm_state, lk_sm_nofade, lk_sm_fastload, lk_o_lvl0, lk_sm_due;   /* S3.5 seamless door transitions (state 0 idle, 1 gap = frozen picture while the game fades / loads, 2 pan, 3 old room dissolves); nofade = the game's fade-in is not shown */
 static int lk_o_fx;   /* LANDSTALKER_OWN_FX=0: the visual effects (warp pad, tree warp) stay the game's picture (old way) */
 extern int lk_loadroom_on(void); extern int lk_warpfx_kind(void); extern int lk_fadein_on(void);
 extern uint8_t lk_vm[], lk_vsm[], lk_cm[]; extern long lk_vm_ops;   /* patch_ownvb.py: own VRAM mirror of the game's DMA queue */
@@ -722,12 +722,15 @@ int lk_seam_get(void) {
 }
 void lk_seam_set(int v) { const char *h = getenv("HOME"); char p[512]; FILE *f; lk_sm_opt = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_seam", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_sm_opt); fclose(f); } }
 
-int lk_seam_gap(void) { return lk_sm_state == 1 || lk_sm_fastload; }   /* run the emulation fast without drawing (platform_sdl.c, patch_ffwd.py) */
+int lk_seam_gap(void) { return lk_sm_state == 1 || lk_sm_state == 5 || lk_sm_fastload; }   /* run the emulation fast without drawing (platform_sdl.c, patch_ffwd.py) */
+int lk_seam_synth(void) { return lk_sm_state == 1; }   /* a gap with a synthetic (gliding) picture: shown only when due */
+int lk_seam_due(void) { return lk_sm_state == 1 ? lk_sm_due : 0; }   /* during a gap only the frames that are due (about every 14 ms) are drawn and shown: the picture glides while the game loads in the background */
 static PIXEL_OUT_T lk_sm_rows[224][LK_OSW]; static int lk_sm_roww, lk_sm_rows_ok, lk_sm_capture_now;   /* the last bright picture (final rows, after shadows and the quick item bar) */
 static uint32 lk_sm_pa[152][304], lk_sm_pb[152][304]; static uint8 lk_sm_tiles[0x12000]; static PIXEL_OUT_T lk_sm_pix[64], lk_sm_pixsave[64];   /* the old room's layer images, tiles and colours */
 static int lk_sm_ocam0, lk_sm_ocam2, lk_sm_ou0, lk_sm_ov0, lk_sm_osave_ok, lk_sm_osave0, lk_sm_osave2, lk_sm_osaveu, lk_sm_osavev;   /* camera and image position of the old room's last bright frame */
 static int lk_sm_target, lk_sm_dx, lk_sm_dy, lk_sm_oroom, lk_sm_newroom, lk_sm_prevL, lk_sm_sxn, lk_sm_syn, lk_sm_sxo, lk_sm_syo, lk_sm_alpha = 256, lk_sm_log = -1;
-static long lk_sm_t0, lk_sm_pan0, lk_sm_dis0; static struct timespec lk_sm_wall; static int lk_sm_dz, lk_sm_ou, lk_sm_ov;   /* dz: floor height difference of the two doorways in world units (each room has its own zero level); fastload: the black room load of a normal fade is run fast */
+static long lk_sm_t0, lk_sm_pan0, lk_sm_dis0; static struct timespec lk_sm_wall; static int lk_sm_dz, lk_sm_ou, lk_sm_ov, lk_sm_pcam0, lk_sm_pcam2, lk_sm_nx0, lk_sm_nx1, lk_sm_ny0, lk_sm_ny1, lk_sm_allframes = -1; static struct timespec lk_sm_lastdue;
+#define LK_SM_GLIDE_MS 350   /* wall clock duration of the camera glide (the gap and the first frames after it) */   /* dz: floor height difference of the two doorways in world units (each room has its own zero level); fastload: the black room load of a normal fade is run fast */
 #define LK_SM_MAXDZ 64   /* floor height difference of the two doorways (world units) up to which two rooms are one world: a cave / dungeon entrance is far off the neighbour's floor level and keeps the fade */
 #define LK_SM_MAXOVERLAP 8   /* cells of the two rooms' maps that may lie on top of each other in the shared world (the door cells themselves coincide) */
 #define LK_SM_PAN 24   /* frames of the camera glide */
@@ -921,6 +924,24 @@ static int lk_nb_lookup(int ubase, int vbase, int x, int pick_out[1], const lk_n
   }
   return 0;
 }
+static double lk_sm_ms_since(const struct timespec *t0) { struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts); return (ts.tv_sec - t0->tv_sec) * 1000.0 + (ts.tv_nsec - t0->tv_nsec) / 1e6; }
+static void lk_sm_shifts(int camn0, int camn2, float s);
+static struct timespec lk_sm_xf0;
+static void lk_seam_pre(int rm) {   /* before the picture decision of line 0: ends the gap when the new room is loaded, and decides which gap frames are drawn */
+  if (lk_sm_state == 5) {   /* cross over gap: the game fades / loads, the frozen picture is shown; when the new room is loaded: blend */
+    if (rm != lk_sm_oroom && lk_sm_same(rm, lk_sm_target) && lk_o_disp0 && lk_o_blanked) { lk_sm_state = 6; lk_sm_nofade = 1; clock_gettime(CLOCK_MONOTONIC, &lk_sm_xf0); if (lk_sm_log) printf("seam: frame %ld CROSS OVER blend starts room %d (gap %ld frames, %.0f ms)\n", platform_frame_number(), rm, platform_frame_number() - lk_sm_t0, lk_sm_ms_since(&lk_sm_wall)); }
+    return;
+  }
+  if (lk_sm_state != 1) return;
+  if (lk_sm_allframes < 0) lk_sm_allframes = getenv("LANDSTALKER_SEAM_ALLFRAMES") ? 1 : 0;   /* test aid: draw every gap frame (screenshots) */
+  if (rm != lk_sm_oroom && lk_sm_same(rm, lk_sm_target) && lk_o_disp0 && lk_o_blanked) {
+    lk_sm_state = 2; lk_sm_pan0 = platform_frame_number(); lk_sm_newroom = rm; lk_sm_nofade = 1; lk_sm_alpha = 256; lk_sm_due = 0;
+    if (lk_sm_log) printf("seam: frame %ld PAN start room %d (gap %ld frames, %.0f ms)\n", platform_frame_number(), rm, platform_frame_number() - lk_sm_t0, lk_sm_ms_since(&lk_sm_wall));
+    return;
+  }
+  lk_sm_due = 0;
+  if (lk_sm_allframes || lk_sm_ms_since(&lk_sm_lastdue) >= 14.0) { lk_sm_due = 1; clock_gettime(CLOCK_MONOTONIC, &lk_sm_lastdue); }
+}
 static void lk_sm_shifts(int camn0, int camn2, float s) {   /* screen shift of the new room's picture and of the old room's picture while the camera is at old + s * (new - old) in the shared world */
   float vx = (float)camn0 + (float)lk_sm_ov + (float)lk_sm_ou / 2.0f - (float)lk_sm_dz - (float)lk_sm_ocam0, vy = (float)camn2 + (float)lk_sm_ov - (float)lk_sm_ou / 2.0f - (float)lk_sm_dz - (float)lk_sm_ocam2, an = (1.0f - s) * vx, bn = (1.0f - s) * vy, ao = -s * vx, bo = -s * vy;
   lk_sm_sxn = (int)lroundf(an - bn); lk_sm_syn = (int)lroundf((an + bn) / 2.0f); lk_sm_sxo = (int)lroundf(ao - bo); lk_sm_syo = (int)lroundf((ao + bo) / 2.0f);
@@ -961,8 +982,15 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
         int nk2 = -1, kk; for (kk = 0; kk < lk_nbn; kk++) if (lk_nbl[kk].room == tx) nk2 = kk;
         if (tw >= 0 && lk_sm_door(tw & 0xFF) && ov <= LK_SM_MAXOVERLAP && abs(16 * (((cw >> 8) & 15) - ((tw >> 8) & 15))) <= LK_SM_MAXDZ && nk2 >= 0) {
           lk_sm_state = 1; lk_sm_nofade = 1; lk_sm_t0 = fn; clock_gettime(CLOCK_MONOTONIC, &lk_sm_wall); lk_sm_target = tx; lk_sm_oroom = rm; lk_sm_ou = lk_nbl[nk2].ou; lk_sm_ov = lk_nbl[nk2].ov; lk_sm_dz = lk_nbl[nk2].dz;   /* the neighbour's aligned world offset */ lk_sm_ocam0 = lk_sm_osave0; lk_sm_ocam2 = lk_sm_osave2; lk_sm_ou0 = lk_sm_osaveu; lk_sm_ov0 = lk_sm_osavev;
+          memcpy(lk_o_pix, lk_sm_pixsave, sizeof lk_o_pix);   /* the picture of the gap is the bright one */
+          { int ex = lk_wide_e, nxp = UW(0xFF540E) - 0x80 + ex, nyp = UW(0xFF5410) - 0x80, hz = ((tw >> 8) & 15) * 16; lk_sm_nx0 = nxp - 20; lk_sm_nx1 = nxp + 20; lk_sm_ny0 = nyp - 52; lk_sm_ny1 = nyp + 10; lk_sm_pcam0 = ax * 16 + 8 - hz; lk_sm_pcam2 = ay * 16 + 8 - hz; }   /* Nigel's rectangle on the screen (he stays while the world glides) and the camera of the arrival cell (centre of the cell, floor height) */
+          clock_gettime(CLOCK_MONOTONIC, &lk_sm_lastdue); lk_sm_due = 0;
           memcpy(lk_sm_pa, lk_o_pa, sizeof lk_sm_pa); memcpy(lk_sm_pb, lk_o_pb, sizeof lk_sm_pb); memcpy(lk_sm_tiles, lk_o_tiles, sizeof lk_sm_tiles); memcpy(lk_sm_pix, lk_sm_pixsave, sizeof lk_sm_pix);
           if (lk_sm_log) printf("seam: frame %ld GAP start room %d cell %d,%d -> room %d cell %d,%d (pixel offset %d,%d)\n", fn, rm, px, py, tx, ax, ay, lk_sm_ou, lk_sm_ov);
+        } else if (tw >= 0 && lk_sm_door(tw & 0xFF) && !(fl & 0x31)) {   /* a door into a room that is not a neighbour (a house, a church, a cave): the first prototype's cross over instead of the fade: the picture is frozen while the game fades and loads (fast), then it is blended into the new room */
+          lk_sm_state = 5; lk_sm_nofade = 1; lk_sm_t0 = fn; lk_sm_target = tx; lk_sm_oroom = rm; clock_gettime(CLOCK_MONOTONIC, &lk_sm_wall);
+          memcpy(lk_o_pix, lk_sm_pixsave, sizeof lk_o_pix);
+          if (lk_sm_log) printf("seam: frame %ld CROSS OVER start room %d cell %d,%d -> room %d (door into a separate room: %d map cells would overlap)\n", fn, rm, px, py, tx, ov);
         } else if (lk_sm_log) printf("seam: frame %ld door %d,%d of room %d -> room %d keeps the fade (cells %04X / %04X, %d map cells would overlap)\n", fn, px, py, rm, tx, cw, tw, ov);
       }
     }
@@ -970,18 +998,28 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
     if (rm == lk_sm_oroom && L == 0 && drawn && lk_o_disp0 && fn - lk_sm_t0 > 2) { lk_sm_state = 0; lk_sm_nofade = 0; if (lk_sm_log) printf("seam: frame %ld GAP aborted (the fade ended in the same room)\n", fn); }
     else if (fn - lk_sm_t0 > 400 || lk_sh_hide || lk_sm_roww == 0) { lk_sm_state = 0; if (lk_sm_log) printf("seam: frame %ld GAP aborted (timeout / menu)\n", fn); }
     else if (rm != lk_sm_oroom && !lk_sm_same(rm, lk_sm_target)) { lk_sm_state = 0; if (lk_sm_log) printf("seam: frame %ld GAP aborted (room %d is not the target %d)\n", fn, rm, lk_sm_target); }
-    else if (rm != lk_sm_oroom && lk_o_room == rm && drawn && lk_o_disp0) {
-      lk_sm_state = 2; lk_sm_pan0 = fn; lk_sm_newroom = rm; lk_sm_nofade = 1; lk_sm_alpha = 256;
-      if (lk_sm_log) { struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts); printf("seam: frame %ld PAN start room %d (gap %ld frames, %.0f ms of computing)\n", fn, rm, fn - lk_sm_t0, (ts.tv_sec - lk_sm_wall.tv_sec) * 1000.0 + (ts.tv_nsec - lk_sm_wall.tv_nsec) / 1e6); }
-    }
   }
-  if (lk_sm_state >= 2) {
+  if (lk_sm_state == 5) {
+    if (rm == lk_sm_oroom && L == 0 && drawn && lk_o_disp0 && fn - lk_sm_t0 > 2) { lk_sm_state = 0; lk_sm_nofade = 0; if (lk_sm_log) printf("seam: frame %ld CROSS OVER aborted (the fade ended in the same room)\n", fn); }
+    else if (fn - lk_sm_t0 > 400 || lk_sh_hide || lk_sm_roww == 0) { lk_sm_state = 0; lk_sm_nofade = 0; if (lk_sm_log) printf("seam: frame %ld CROSS OVER aborted (timeout / menu)\n", fn); }
+    else if (rm != lk_sm_oroom && !lk_sm_same(rm, lk_sm_target)) { lk_sm_state = 0; lk_sm_nofade = 0; }
+  }
+  if (lk_sm_state == 6) {
+    if (lk_sh_hide || rm != lk_sm_target && !lk_sm_same(rm, lk_sm_target)) { lk_sm_state = 0; lk_sm_nofade = 0; }
+    else if (lk_sm_ms_since(&lk_sm_xf0) >= 260.0 && L == 0) { lk_sm_state = 0; lk_sm_nofade = 0; if (lk_sm_log) printf("seam: frame %ld CROSS OVER done\n", fn); }
+  }
+  if (lk_sm_state == 1) {   /* the gap picture: the old room's world glides towards the arrival (the wall clock decides how far, the game is loading in the background) */
+    float sg = (float)(lk_sm_ms_since(&lk_sm_wall) / LK_SM_GLIDE_MS); if (sg > 1.0f) sg = 1.0f; sg = sg * sg * (3.0f - 2.0f * sg);
+    lk_sm_shifts(lk_sm_pcam0, lk_sm_pcam2, sg); lk_sm_sxn = lk_sm_sxo; lk_sm_syn = lk_sm_syo;
+    if (lk_sm_log >= 3) printf("seam: gap frame %ld glide %.2f shift %d,%d due %d (pcam %d,%d ocam %d,%d ou %d ov %d dz %d)\n", fn, sg, lk_sm_sxn, lk_sm_syn, lk_sm_due, lk_sm_pcam0, lk_sm_pcam2, lk_sm_ocam0, lk_sm_ocam2, lk_sm_ou, lk_sm_ov, lk_sm_dz);
+  }
+  if (lk_sm_state == 2 || lk_sm_state == 3) {
     float s; long t = fn - lk_sm_pan0;
     if (lk_sh_hide || rm != lk_sm_newroom || lk_o_room != rm || (lk_sm_state == 3 && L > 0)) { lk_sm_state = 0; lk_sm_nofade = 0; if (lk_sm_log) printf("seam: frame %ld transition ended early\n", fn); }
     else {
-      s = t >= LK_SM_PAN ? 1.0f : (float)t / (float)LK_SM_PAN; s = s * s * (3.0f - 2.0f * s);
+      s = (float)(lk_sm_ms_since(&lk_sm_wall) / LK_SM_GLIDE_MS); if (s > 1.0f) s = 1.0f; (void)t; s = s * s * (3.0f - 2.0f * s);
       lk_sm_shifts(cam0, cam2, s);
-      if (lk_sm_state == 2) { lk_sm_nofade = 1; if (t >= LK_SM_PAN && L == 0) { lk_sm_state = 3; lk_sm_dis0 = fn; lk_sm_nofade = 0; } }
+      if (lk_sm_state == 2) { lk_sm_nofade = 1; if (lk_sm_ms_since(&lk_sm_wall) >= LK_SM_GLIDE_MS && L == 0) { lk_sm_state = 3; lk_sm_dis0 = fn; lk_sm_nofade = 0; } }
       if (lk_sm_state == 3) { long d = fn - lk_sm_dis0; lk_sm_alpha = 256 - (int)(256 * d / LK_SM_DISSOLVE); if (lk_sm_alpha <= 0) { lk_sm_state = 0; lk_sm_alpha = 256; if (lk_sm_log) printf("seam: frame %ld transition done\n", fn); } }
     }
   }
@@ -991,7 +1029,13 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
 }
 static void lk_seam_final(PIXEL_OUT_T *row, int w, int line) {   /* after shadows and the quick item bar: remember the bright picture / replay it during the gap */
   if (line < 0 || line >= 224 || w <= 0 || w > LK_OSW) return;
-  if (lk_sm_state == 1) { if (lk_sm_roww == w) memcpy(row, lk_sm_rows[line], (size_t)w * sizeof(PIXEL_OUT_T)); return; }
+  if (lk_sm_state == 5) { if (lk_sm_roww == w) memcpy(row, lk_sm_rows[line], (size_t)w * sizeof(PIXEL_OUT_T)); return; }   /* cross over gap: the frozen picture */
+  if (lk_sm_state == 6) {   /* cross over: frozen old picture -> live new room over ~250 ms */
+    if (lk_sm_roww == w) { double ms = lk_sm_ms_since(&lk_sm_xf0); int a = (int)(256.0 * (ms / 250.0)), i, ch; if (a > 256) a = 256; if (a < 0) a = 0;
+      for (i = 0; i < w; i++) { PIXEL_OUT_T o = lk_sm_rows[line][i], n = row[i], r = n & 0xFF000000u; for (ch = 0; ch < 24; ch += 8) r |= (PIXEL_OUT_T)(((((o >> ch) & 255) * (unsigned)(256 - a) + ((n >> ch) & 255) * (unsigned)a) >> 8) & 255) << ch; row[i] = r; } }
+    return;
+  }
+  if (lk_sm_state == 1) return;   /* the gap picture is composed by the own renderer's pixel loop (glide); the frozen rows are only the fallback of a cross over */
   if (lk_sm_capture_now) { memcpy(lk_sm_rows[line], row, (size_t)w * sizeof(PIXEL_OUT_T)); if (line == 0) lk_sm_rows_ok = 0; lk_sm_roww = w; if (line == 223) lk_sm_rows_ok = 1; }
 }
 static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
@@ -999,6 +1043,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
   int x, e, map;
   lk_o_init();
   if (!lk_o_mode) return;
+  if (lk_sm_state == 1 && !lk_sm_due && line > 0) return;   /* gap frames that are not shown cost nothing */
   if (lk_sm_state) lk_sh_row_on = 0;   /* S3.5: the shadow marks of the VDP belong to the unshifted picture */
   if (line == 0) lk_hd_gen++;
   if (line == 0) {
@@ -1051,7 +1096,9 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         if (rm != seen_rm) { seen_rm = rm; seen_f = platform_frame_number(); }
         { static int was_loading; int ld = lk_loadroom_on(); if (lk_o_fx && rm != lk_o_room && lk_o_room >= 0 && !lk_o_blanked && (lk_world_frame > seen_f || lk_fadein_on() || (was_loading && !ld))) lk_o_blanked = 1; was_loading = ld; } }   /* LoadRoomPath has returned = the new room is loaded */
       lk_o_why = 0;
-      if (rm != lk_o_room && lk_o_room >= 0 && !lk_o_blanked && !lk_o_fx) { fr_done = 0; lk_o_why = 1; }   /* with the effects on the OLD room goes on being drawn (fade out, white fade, warp) until the new one is loaded */   /* the room number changes while the OLD room is still on screen (fade-out): keep the game's picture until the load has blanked the screen */
+      lk_seam_pre(rm);
+      if (lk_sm_state == 1) { fr_done = lk_sm_due && lk_o_valid; lk_o_why = 8; }   /* S3.5: the gap: the old room's saved picture is drawn, shifted by the glide, while the game fades and loads (nothing is rebuilt) */
+      else if (rm != lk_o_room && lk_o_room >= 0 && !lk_o_blanked && !lk_o_fx) { fr_done = 0; lk_o_why = 1; }   /* with the effects on the OLD room goes on being drawn (fade out, white fade, warp) until the new one is loaded */   /* the room number changes while the OLD room is still on screen (fade-out): keep the game's picture until the load has blanked the screen */
       else if (lk_warpfx() && !lk_o_fx) { fr_done = 0; lk_o_why = 2; }                                        /* the warp pad (teleport) effect: the game's picture stays (the effect is not ported) */
       else if (lk_sh_hide) { fr_done = 0; lk_o_why = 3; }                                         /* the Start menu is running (CheckForMenuOpen, also its fades): the game's picture stays, the map of RAM is not what is on screen then */
       else if (!(LK_REG(1) & 0x40)) { fr_done = 0; lk_o_why = 4; }                                  /* display switched off at the top of the frame (room load, blackout): the game's black picture stays */
@@ -1086,7 +1133,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
   if (lk_o_hudn < 0) lk_o_hudn = lk_o_lz77(0x9242, lk_o_hud, 0x1000);
   {
     int ubase = lk_o_u0, vbase = lk_o_v0 + line, i, text = (line >= 160 && (hint & 0xFF) == 0xA0);
-    int black_line = (line >= 185 && !text && !lk_tall_keep(line));   /* below the game's HInt display-off line (full height off) */
+    int black_line = (line >= 185 && !text && !lk_tall_keep(line) && !(lk_sm_state == 1 && lk_tall_kv && lk_tall_kv() > 0));   /* (S3.5 gap: the game's display is off, full height stays when configured) */   /* below the game's HInt display-off line (full height off) */
 
     if (lk_o_cammode == 2) {   /* the game may change the scroll registers during the frame: use the values of THIS line */
       int hs2 = 0, vs2 = 0, du, dv;
@@ -1095,13 +1142,18 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
       du = (((lk_o_bu - hs2 - lk_o_upred) % 512) + 512) % 512; if (du >= 256) du -= 512;
       dv = (((lk_o_bv + vs2 - lk_o_vpred) % 256) + 256) % 256; if (dv >= 128) dv -= 256;
       ubase = lk_o_upred + du; vbase = lk_o_vpred + dv + line;
-    }    int wlo = 0, whi = w, tb = lk_tbox_get(), wline = (line == 23 || text);   /* window lines (HUD row 2's last pixel line, the text box): Map Behind Text keeps only the part between the first and last non-black opaque window pixel, the empty / black ends show the map (patch_tbox.py) */
+    }
+    if (lk_sm_state == 1) { ubase = lk_sm_ou0; vbase = lk_sm_ov0 + line; }   /* S3.5 gap: the saved image position of the old room, not the (reset) scroll registers */
+    int wlo = 0, whi = w, tb = lk_tbox_get(), wline = (line == 23 || text);   /* window lines (HUD row 2's last pixel line, the text box): Map Behind Text keeps only the part between the first and last non-black opaque window pixel, the empty / black ends show the map (patch_tbox.py) */
     if (wline && tb) {
       for (wlo = 0; wlo < w; wlo++) { int x = wlo - e, wp = (x >= 0 && x < 320) ? lk_o_win(line, x, hint) : -1; if (wp >= 0 && (wp & 0xF) && (lk_o_pix[wp & 0x3F] & 0x00FFFFFF)) break; }
       for (whi = w; whi > wlo; whi--) { int x = whi - 1 - e, wp = (x >= 0 && x < 320) ? lk_o_win(line, x, hint) : -1; if (wp >= 0 && (wp & 0xF) && (lk_o_pix[wp & 0x3F] & 0x00FFFFFF)) break; }
     }
     for (i = 0; i < w; i++) {
-      int x = i - e, margin = (x < 0 || x >= 320), pick = -1, ap = 0, bp = 0, ai, bi, apal = 0, bpal = 0, sl = line - lk_sm_syn, si = i - lk_sm_sxn, sp = (sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW) ? lk_o_spr[sl][si] : 0, col, black = black_line, src = 0; lk_o_fi_t afi, bfi; const lk_nb_t *nbq = 0;
+      int x = i - e, margin = (x < 0 || x >= 320), pick = -1, ap = 0, bp = 0, ai, bi, apal = 0, bpal = 0, sl = line - lk_sm_syn, si = i - lk_sm_sxn, sp,  col, black = black_line, src = 0; lk_o_fi_t afi, bfi; const lk_nb_t *nbq = 0;
+      if (lk_sm_state == 1) { if (i >= lk_sm_nx0 && i <= lk_sm_nx1 && line >= lk_sm_ny0 && line <= lk_sm_ny1) { sl = line; si = i; }   /* Nigel stays where he is on the screen while the world glides */
+        else if (si >= lk_sm_nx0 && si <= lk_sm_nx1 && sl >= lk_sm_ny0 && sl <= lk_sm_ny1) { sl = -1; si = -1; } }   /* (his shifted pixels are not drawn) */
+      sp = (sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW) ? lk_o_spr[sl][si] : 0;
       if (!black) {
         ai = lk_o_fetch(lk_o_pa, ubase + x - lk_sm_sxn, vbase - lk_sm_syn, &apal, &ap, &afi); bi = lk_o_fetch(lk_o_pb, ubase + x - lk_sm_sxn, vbase - lk_sm_syn, &bpal, &bp, &bfi);   /* image coordinates: independent of the VDP planes and their wrap */
         if ((sp & 0x200) && (sp & 0x100)) { pick = sp & 0x3F; src = 1; }
@@ -1112,7 +1164,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         else if (bi) { pick = bpal * 16 + bi; src = 3; }
         else { pick = LK_REG(7) & 0x3F;                                   /* backdrop colour */
           if (lk_nbn > 0 && lk_seam_get()) { int pk[1]; const lk_nb_t *nq = 0; if (lk_nb_lookup(ubase, vbase + 0, x, pk, &nq)) { pick = pk[0]; nbq = nq; src = 6; } }   /* step 2: the neighbour rooms that stay loaded fill the void */
-          if (src == 0 && lk_sm_state >= 2 && lk_sm_alpha > 0) {           /* S3.5: the old room's scenery behind the new room's void */
+          if (src == 0 && (lk_sm_state == 2 || lk_sm_state == 3) && lk_sm_alpha > 0) {           /* S3.5: the old room's scenery behind the new room's void */
             int opA = 0, opB = 0, oqA = 0, oqB = 0, oa = lk_sm_fetch(lk_sm_pa, lk_sm_ou0 + x - lk_sm_sxo, lk_sm_ov0 + line - lk_sm_syo, &opA, &oqA), ob = lk_sm_fetch(lk_sm_pb, lk_sm_ou0 + x - lk_sm_sxo, lk_sm_ov0 + line - lk_sm_syo, &opB, &oqB);
             if (oa && oqA) { pick = opA * 16 + oa; src = 5; } else if (ob && oqB) { pick = opB * 16 + ob; src = 5; } else if (oa) { pick = opA * 16 + oa; src = 5; } else if (ob) { pick = opB * 16 + ob; src = 5; }
           } }
