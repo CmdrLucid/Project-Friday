@@ -13,6 +13,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a39. 2026-10-20 (Deck, Sonnet 5.5): user recording `rec_20261019_2215` (ending, room 113): the credits were invisible with garbage because the own renderer drew the arena over them (the ending script runs inside UpdateSprites = 'map'); fixed in `patch_wide.py` (`PlayEndCredits $09EBE0` = picture screen) on `dev`, not released; new test aid `LANDSTALKER_CREDITS_AT` (INDEX status, LESSONS 67). USER CHECK OPEN: play the ending again (own renderer On): do the credits show, do they end properly (EndGame, back to title)? Needs a fresh `build.sh`.
 
+## 0a67. 2026-10-23 (Deck, Sonnet 5.5, later): user: 'bestandsaufnahme machen' -> `docs/STAGE3_INVENTORY.md` (read it before stage 3 work). Also FIXED: shadow code used the entity byte `+0B` (graphic id) as type; now `+3B` (INDEX status). NEXT: user decides S3.1 + S3.2 (C room decoder + clean entity / camera model, invisible groundwork) per the inventory section 6.
+
 ## 0a66. 2026-10-23 (Deck, Sonnet 5.5, later): user: 'menuezeile einbauen' -> Options > Video > Shadows = Off / On / Soft (Soft = contact shadows under creatures, HD only), INDEX status. NEXT: the room data + camera model (stage 3), seamless room transitions.
 
 ## 0a65. 2026-10-23 (Deck, Sonnet 5.5, later): STAGE 3 STEP 2 done on `dev`: one light object (direction / strength, default = overhead) and HD-only contact shadows under creatures (INDEX status 'ja mach so'; option file `~/.landstalker_softshadow`; Options > Video > Shadows is Off / On / Soft since the next entry). NEXT: the room data + camera model, seamless room transitions.

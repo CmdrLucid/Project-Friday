@@ -18,7 +18,7 @@ _deny = re.compile(r"platform|switch|cube|block|gate|door|barrier|spawner|projec
 for _l in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'docs', 'ENTITIES.md')):   # entity types that are NOT creatures / bodies standing on the ground (docs/ENTITIES.md names): no contact shadow for them
     _c = [x.strip() for x in _l.split('|')]
     if len(_c) > 5 and _c[1].isdigit() and _deny.search(_c[3]): _ids.append(int(_c[1]))
-FIGTAB = 'static int lk_sh_figure(int t) { static const unsigned char d[] = { ' + ', '.join(str(i) for i in _ids) + ' }; unsigned k; for (k = 0; k < sizeof d; k++) if (d[k] == t) return 0; return 1; }   /* everything that is not on the deny list (platforms, switches, gates, projectiles ... by name in docs/ENTITIES.md) gets a contact shadow */'
+FIGTAB = 'static int lk_sh_figure(int t) { static const unsigned char d[] = { ' + ', '.join(str(i) for i in _ids) + ' }; unsigned k; if (t >= 173) return 0; for (k = 0; k < sizeof d; k++) if (d[k] == t) return 0; return 1; }   /* everything that is not on the deny list (platforms, switches, gates, projectiles ... by name in docs/ENTITIES.md) gets a contact shadow */'
 VER = "LK_SHADOW v7"
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
@@ -228,15 +228,15 @@ static void lk_h_ls(void) {
         { static uint8_t on[16]; int idx = (w >> 7) & 15;                         /* hysteresis: walking over slopes / steps makes the distance jump by a few units, that must not blink the shadow (user report, room 430) */
           int show = dist >= 6 || (on[idx] && dist >= 2);
           on[idx] = (uint8_t)show;
-          { static int d2 = -1; if (d2 < 0) { const char *e = getenv("LANDSTALKER_SHADOW_DEBUG"); d2 = e && atoi(e) >= 2; } if (d2) fprintf(stderr, "shp: ent %06X dist %d show %d type %d raw %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", (unsigned)ent, dist, show, bus_read8(ent + 0x0B), bus_read8(ent), bus_read8(ent+1), bus_read8(ent+2), bus_read8(ent+3), bus_read8(ent+4), bus_read8(ent+5), bus_read8(ent+6), bus_read8(ent+7), bus_read8(ent+8), bus_read8(ent+9), bus_read8(ent+0xA), bus_read8(ent+0xB)); }
+          { static int d2 = -1; if (d2 < 0) { const char *e = getenv("LANDSTALKER_SHADOW_DEBUG"); d2 = e && atoi(e) >= 2; } if (d2) fprintf(stderr, "shp: ent %06X dist %d show %d type %d raw %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", (unsigned)ent, dist, show, bus_read8(ent + 0x3B), bus_read8(ent), bus_read8(ent+1), bus_read8(ent+2), bus_read8(ent+3), bus_read8(ent+4), bus_read8(ent+5), bus_read8(ent+6), bus_read8(ent+7), bus_read8(ent+8), bus_read8(ent+9), bus_read8(ent+0xA), bus_read8(ent+0xB)); }
           if (!show || !mode) {                                                 /* on the ground (or Shadow Off): a contact shadow under a figure (creatures only: Nigel, enemies, NPCs), HD picture only */
-              if (soft && (ent == 0xFF5400u || lk_sh_figure(bus_read8(ent + 0x0B)))) {
+              if (soft && (ent == 0xFF5400u || lk_sh_figure(bus_read8(ent + 0x3B)))) {
                   int ex = (int)(int16_t)(bus_read16(ent + 0x1A) - bus_read16(ent + 0x18)) + (int)(int16_t)(bus_read16(ent + 0x1E) - bus_read16(ent + 0x1C)), cr = ex * 70 / 100; if (cr < 6) cr = 6; if (cr > 13) cr = 13;
                   lk_shadow_add_soft((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, cr, cr * 45 / 100 < 3 ? 3 : cr * 45 / 100);
               }
               continue; } }                                                 /* on the ground (or a tiny hop): no shadow, only things really in the air */
         ext = (int)(int16_t)(bus_read16(ent + 0x1A) - bus_read16(ent + 0x18)) + (int)(int16_t)(bus_read16(ent + 0x1E) - bus_read16(ent + 0x1C));   /* projected width of the box */
-        if (ent != 0xFF5400u && lk_sh_angular(bus_read8(ent + 0x0B))) {      /* platforms, crates, blocks: the shadow is their own footprint (user: angular platforms must not cast a round shadow) */
+        if (ent != 0xFF5400u && lk_sh_angular(bus_read8(ent + 0x3B))) {      /* platforms, crates, blocks: the shadow is their own footprint (user: angular platforms must not cast a round shadow) */
             int wx = (int)(int16_t)(bus_read16(ent + 0x1A) - bus_read16(ent + 0x18)), wy = (int)(int16_t)(bus_read16(ent + 0x1E) - bus_read16(ent + 0x1C));
             if (mode) lk_shadow_addp((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, wx, wy, 0.75, dist);
             continue;
