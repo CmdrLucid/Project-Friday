@@ -157,3 +157,4 @@
 - L1256: Own renderer: stage 2, tile origins (2026-10-22)
 - L1263: HD graphics: map path, options row, filters, HUD specks (2026-10-23, Sonnet 5.5, dev ced859a)
 - L1270: Seamless Doors: white veil, walk on, time-free room load (2026-10-23 evening, Opus 5.5, dev b4f96eb .. 1748e2b)
+- L1280: HD-2D effects: depth blur, bloom, vignette, color grade (2026-10-24, dev)
