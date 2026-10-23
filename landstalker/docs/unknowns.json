@@ -54,7 +54,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:288",
+     "where": "INDEX.md:290",
      "date": "2026-10-23",
      "snippet": "- RAM: Player struct `$FF5400` (X +0, Y +1, Z word +$12, FallRate +$20, JumpRate +$21, GroundHeight +$22, Action word +$2C; bits 0-3 walk, 4"
     }
@@ -284,7 +284,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:72",
+     "where": "INDEX.md:74",
      "date": "2026-10-23",
      "snippet": "- **2026-10-17 (dev, night): block word flag bits looked at (user: 'schau dir noch die offenen flag-bits an').** Result (FORMATS 'Block word"
     }
@@ -399,13 +399,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:226",
+     "where": "FORMATS.md:228",
      "date": "2026-10-23",
      "snippet": "* `g_Buffer $FF2C00` (general work buffer, `$D00` bytes up to `g_ScreenBuffer $FF3900`) holds the Use list tile map while the Start menu is "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:42",
+     "where": "INDEX.md:44",
      "date": "2026-10-23",
      "snippet": "- **2026-10-21 (dev, Sonnet 5.5, user: 'im Item Use Men\u00fc nach unten scrollen: Grafikm\u00fcll statt der richtigen Grafiken, im eigenen Renderer, "
     }
@@ -446,7 +446,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:44",
+     "where": "INDEX.md:46",
      "date": "2026-10-23",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user recording `rec_20261020_1841` (new game, intro, statue, owner dialogue; WIDE 16 + TALL; replays EXACTL"
     }
@@ -481,7 +481,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:42",
+     "where": "INDEX.md:44",
      "date": "2026-10-23",
      "snippet": "- **2026-10-21 (dev, Sonnet 5.5, user: 'im Item Use Men\u00fc nach unten scrollen: Grafikm\u00fcll statt der richtigen Grafiken, im eigenen Renderer, "
     }
@@ -583,13 +583,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:242",
+     "where": "FORMATS.md:244",
      "date": "2026-10-23",
      "snippet": "- Per pose: `GetGraphic` chain gives the frame pointer; after the piece list (2 bytes per piece, bit 7 of the second byte ends it) follows t"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:24",
+     "where": "INDEX.md:26",
      "date": "2026-10-23",
      "snippet": "- **2026-10-23 (dev, Sonnet 5.5, user: 'figuren-urspr\u00fcnge, HD an den breitbild-r\u00e4ndern - das machen'): (1) FIGURE TILE ORIGINS 62 % -> 95 % "
     }
@@ -806,7 +806,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:149",
+     "where": "INDEX.md:151",
      "date": "2026-10-23",
      "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
     }
@@ -1029,13 +1029,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:242",
+     "where": "FORMATS.md:244",
      "date": "2026-10-23",
      "snippet": "- Per pose: `GetGraphic` chain gives the frame pointer; after the piece list (2 bytes per piece, bit 7 of the second byte ends it) follows t"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:24",
+     "where": "INDEX.md:26",
      "date": "2026-10-23",
      "snippet": "- **2026-10-23 (dev, Sonnet 5.5, user: 'figuren-urspr\u00fcnge, HD an den breitbild-r\u00e4ndern - das machen'): (1) FIGURE TILE ORIGINS 62 % -> 95 % "
     }
@@ -1268,7 +1268,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:200",
+     "where": "INDEX.md:202",
      "date": "2026-10-23",
      "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
     }
@@ -1467,7 +1467,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:223",
+     "where": "FORMATS.md:225",
      "date": "2026-10-23",
      "snippet": "* `PlayEndCredits` clears the HUD buffers (`$FF1C00`, `$800` words), loads `EndCreditFont $09FA42` (to `$FF2C00`), `EndCreditLogos $0A0033` "
     }
@@ -1614,13 +1614,13 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:45",
+     "where": "INDEX.md:47",
      "date": "2026-10-23",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:46",
+     "where": "INDEX.md:48",
      "date": "2026-10-23",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'nehmen wir uns HUD vor, dann Dialoge'): HUD LOGIC OF THE OWN RENDERER (`tools/patch_own.py lk_o_hudb"
     }
@@ -1703,13 +1703,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:158",
+     "where": "HANDOFF.md:162",
      "date": "2026-10-23",
      "snippet": "## 0a1. END OF SESSION 2026-10-16 (late, Deck, Sonnet 5.5): dev only, user-confirmed by playing: 'Ride Objects' fix, ship band, Item Info ('"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:90",
+     "where": "INDEX.md:92",
      "date": "2026-10-23",
      "snippet": "- **2026-10-16 (dev): ship return from the island map: margins / full height were black for ~45 frames (+ band garbage) FIXED** (`lk_picture"
     }
@@ -1740,7 +1740,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:54",
+     "where": "INDEX.md:56",
      "date": "2026-10-23",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_2127` (WIDE 16 + TALL, rooms 700 -> 486 -> 148; own renderer on): 'beim Telepo"
     }
@@ -2061,7 +2061,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:57",
+     "where": "INDEX.md:59",
      "date": "2026-10-23",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, same recording `rec_20261018_1807`; user: 'Men\u00fc verlassen besser, aber nicht perfekt: 1. blaues breites Ban"
     },
@@ -2114,13 +2114,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:242",
+     "where": "FORMATS.md:244",
      "date": "2026-10-23",
      "snippet": "- Per pose: `GetGraphic` chain gives the frame pointer; after the piece list (2 bytes per piece, bit 7 of the second byte ends it) follows t"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:24",
+     "where": "INDEX.md:26",
      "date": "2026-10-23",
      "snippet": "- **2026-10-23 (dev, Sonnet 5.5, user: 'figuren-urspr\u00fcnge, HD an den breitbild-r\u00e4ndern - das machen'): (1) FIGURE TILE ORIGINS 62 % -> 95 % "
     },
@@ -2152,13 +2152,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:179",
+     "where": "HANDOFF.md:183",
      "date": "2026-10-23",
      "snippet": "- **2026-10-16 (dev, user feedback): Keybindings page shows more rows and the SAME scroll arrows as the item list.** Start menu: 7 visible r"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:94",
+     "where": "INDEX.md:96",
      "date": "2026-10-23",
      "snippet": "- **2026-10-16 (dev, user feedback): Keybindings page shows more rows and the SAME scroll arrows as the item list.** Start menu: 7 visible r"
     }
@@ -2181,7 +2181,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:34",
+     "where": "INDEX.md:36",
      "date": "2026-10-23",
      "snippet": "- **2026-10-22 (dev, Sonnet 5.5, user: 'hol bitte den rest zum eigenen renderer', swords are all fine): NOLE / KAZALT WARP, FLASHES AND THE "
     }
@@ -2398,7 +2398,7 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:232",
+     "where": "FORMATS.md:234",
      "date": "2026-10-23",
      "snippet": "* `g_DMAOpQueue $FF07D0`: 16 bytes per op, built by `QueueDMAOp` (VRAM, length in WORDS, source = RAM or ROM address), `QueueFullPaletteDMA`"
     }
@@ -2450,13 +2450,13 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:45",
+     "where": "INDEX.md:47",
      "date": "2026-10-23",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:45",
+     "where": "INDEX.md:47",
      "date": "2026-10-23",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     }
@@ -2548,13 +2548,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:226",
+     "where": "FORMATS.md:228",
      "date": "2026-10-23",
      "snippet": "* `g_Buffer $FF2C00` (general work buffer, `$D00` bytes up to `g_ScreenBuffer $FF3900`) holds the Use list tile map while the Start menu is "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:42",
+     "where": "INDEX.md:44",
      "date": "2026-10-23",
      "snippet": "- **2026-10-21 (dev, Sonnet 5.5, user: 'im Item Use Men\u00fc nach unten scrollen: Grafikm\u00fcll statt der richtigen Grafiken, im eigenen Renderer, "
     }
@@ -2645,7 +2645,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:243",
+     "where": "HANDOFF.md:247",
      "date": "2026-10-23",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -2788,13 +2788,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:218",
+     "where": "FORMATS.md:220",
      "date": "2026-10-23",
      "snippet": "* V: `GaiaEffect $016712` writes 41 rock sprites into the RAM sprite table (`g_VDPSpr16_Y $FF05D0`, 8 bytes each: Y word, size byte `$0F` = "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:56",
+     "where": "INDEX.md:58",
      "date": "2026-10-23",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
     }
@@ -2817,13 +2817,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:218",
+     "where": "FORMATS.md:220",
      "date": "2026-10-23",
      "snippet": "* V: `GaiaEffect $016712` writes 41 rock sprites into the RAM sprite table (`g_VDPSpr16_Y $FF05D0`, 8 bytes each: Y word, size byte `$0F` = "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:56",
+     "where": "INDEX.md:58",
      "date": "2026-10-23",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
     }
@@ -2846,13 +2846,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:238",
+     "where": "FORMATS.md:240",
      "date": "2026-10-23",
      "snippet": "- V: in that state the game's sprite table holds effect entries in place of the entity's normal pieces (Fire: `$C7A4` / `$C7B4`, palette lin"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:37",
+     "where": "INDEX.md:39",
      "date": "2026-10-23",
      "snippet": "- **2026-10-22 (dev, Sonnet 5.5, user recording `rec_20261022_0602` = `docs/replays/all_swords_room166.txt` (room 166, every sword used: Gai"
     }
@@ -2875,13 +2875,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:218",
+     "where": "FORMATS.md:220",
      "date": "2026-10-23",
      "snippet": "* V: `GaiaEffect $016712` writes 41 rock sprites into the RAM sprite table (`g_VDPSpr16_Y $FF05D0`, 8 bytes each: Y word, size byte `$0F` = "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:56",
+     "where": "INDEX.md:58",
      "date": "2026-10-23",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
     }
@@ -2904,13 +2904,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:238",
+     "where": "FORMATS.md:240",
      "date": "2026-10-23",
      "snippet": "- V: in that state the game's sprite table holds effect entries in place of the entity's normal pieces (Fire: `$C7A4` / `$C7B4`, palette lin"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:37",
+     "where": "INDEX.md:39",
      "date": "2026-10-23",
      "snippet": "- **2026-10-22 (dev, Sonnet 5.5, user recording `rec_20261022_0602` = `docs/replays/all_swords_room166.txt` (room 166, every sword used: Gai"
     }
@@ -2927,7 +2927,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:243",
+     "where": "HANDOFF.md:247",
      "date": "2026-10-23",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -2956,13 +2956,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:232",
+     "where": "FORMATS.md:234",
      "date": "2026-10-23",
      "snippet": "* `g_DMAOpQueue $FF07D0`: 16 bytes per op, built by `QueueDMAOp` (VRAM, length in WORDS, source = RAM or ROM address), `QueueFullPaletteDMA`"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:57",
+     "where": "INDEX.md:59",
      "date": "2026-10-23",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, same recording `rec_20261018_1807`; user: 'Men\u00fc verlassen besser, aber nicht perfekt: 1. blaues breites Ban"
     }
@@ -3045,7 +3045,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:215",
+     "where": "FORMATS.md:217",
      "date": "2026-10-23",
      "snippet": "- V (2026-10-20): what the VDP shows in frame t+1 is the RAM at the END of the VBlank handler of frame t (`HandleVBlankInterrupt $0011DE`: s"
     }
@@ -3203,7 +3203,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:213",
+     "where": "HANDOFF.md:217",
      "date": "2026-10-23",
      "snippet": "- **2026-10-14 (dev): tree warp crash.** `~/interp.txt` had `$00F8C6` (jsr into the middle of FadePaletteDownStep from TreeWarpFx `$00E48E`,"
     }
@@ -3220,13 +3220,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:244",
+     "where": "FORMATS.md:246",
      "date": "2026-10-23",
      "snippet": "- Sprite attributes the game writes by hand: the Yes / No arrow is SAT entry 2 (`$FF0560`: Y, size / link `$05`, tile word `$E524`, X), high"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:28",
+     "where": "INDEX.md:30",
      "date": "2026-10-23",
      "snippet": "- **2026-10-23 (dev, Sonnet 5.5, user: 'bei der neuesten Aufnahme fehlt der Auswahlpfeil bei Yes / No im Dialog' = `rec_20261022_2150`, Fahl"
     }
@@ -3269,7 +3269,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:44",
+     "where": "INDEX.md:46",
      "date": "2026-10-23",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user recording `rec_20261020_1841` (new game, intro, statue, owner dialogue; WIDE 16 + TALL; replays EXACTL"
     }
@@ -3454,7 +3454,7 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:218",
+     "where": "FORMATS.md:220",
      "date": "2026-10-23",
      "snippet": "* V: `GaiaEffect $016712` writes 41 rock sprites into the RAM sprite table (`g_VDPSpr16_Y $FF05D0`, 8 bytes each: Y word, size byte `$0F` = "
     }
@@ -3749,7 +3749,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:403",
+     "where": "HANDOFF.md:407",
      "date": "2026-10-23",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -3778,7 +3778,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:403",
+     "where": "HANDOFF.md:407",
      "date": "2026-10-23",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -3853,7 +3853,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:255",
+     "where": "HANDOFF.md:259",
      "date": "2026-10-23",
      "snippet": "- **Deck round 10 (2026-10-11, user played full height in Gumi, save slot 1):** R4 works but moved to R2 (right trigger, the last free shoul"
     }
@@ -3956,13 +3956,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:243",
+     "where": "HANDOFF.md:247",
      "date": "2026-10-23",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:149",
+     "where": "INDEX.md:151",
      "date": "2026-10-23",
      "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
     },
@@ -3985,19 +3985,19 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:222",
+     "where": "FORMATS.md:224",
      "date": "2026-10-23",
      "snippet": "* Room 113 (`GOLA_ARENA_CINEMATIC_VARIANT`) is the arena of the final cutscene; the last cutscene action (CSA_0154, tail at `$0156F8`) runs "
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:205",
+     "where": "HANDOFF.md:209",
      "date": "2026-10-23",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:110",
+     "where": "INDEX.md:112",
      "date": "2026-10-23",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     }
@@ -4202,7 +4202,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:46",
+     "where": "INDEX.md:48",
      "date": "2026-10-23",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'nehmen wir uns HUD vor, dann Dialoge'): HUD LOGIC OF THE OWN RENDERER (`tools/patch_own.py lk_o_hudb"
     }
@@ -4359,7 +4359,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:402",
+     "where": "HANDOFF.md:406",
      "date": "2026-10-23",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -4400,7 +4400,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:402",
+     "where": "HANDOFF.md:406",
      "date": "2026-10-23",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -4814,7 +4814,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:202",
+     "where": "INDEX.md:204",
      "date": "2026-10-23",
      "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
     }
@@ -4849,7 +4849,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:202",
+     "where": "INDEX.md:204",
      "date": "2026-10-23",
      "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
     }
@@ -4889,7 +4889,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:88",
+     "where": "INDEX.md:90",
      "date": "2026-10-23",
      "snippet": "- **2026-10-17 (dev, user wish after a recording in the Mercator item shop, room 720): optional 'Buy Quantity' (Options > Gameplay, default "
     },
@@ -5067,7 +5067,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:243",
+     "where": "HANDOFF.md:247",
      "date": "2026-10-23",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -5299,7 +5299,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:243",
+     "where": "HANDOFF.md:247",
      "date": "2026-10-23",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -5527,7 +5527,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:403",
+     "where": "HANDOFF.md:407",
      "date": "2026-10-23",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     }
@@ -5561,19 +5561,19 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:205",
+     "where": "HANDOFF.md:209",
      "date": "2026-10-23",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:33",
+     "where": "INDEX.md:35",
      "date": "2026-10-23",
      "snippet": "- **2026-10-22 (dev, Sonnet 5.5, user: 'einwandfrei der warp. mach den eigenen renderer zum standard' + 'neues save: die quick items duerfen"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:110",
+     "where": "INDEX.md:112",
      "date": "2026-10-23",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     }
@@ -5590,7 +5590,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:223",
+     "where": "FORMATS.md:225",
      "date": "2026-10-23",
      "snippet": "* `PlayEndCredits` clears the HUD buffers (`$FF1C00`, `$800` words), loads `EndCreditFont $09FA42` (to `$FF2C00`), `EndCreditLogos $0A0033` "
     }
@@ -5681,13 +5681,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:222",
+     "where": "HANDOFF.md:226",
      "date": "2026-10-23",
      "snippet": "- **2026-10-12 (latest, dev): replay of the user's death recording (rec_20261012_2148) matches the live run until frame 3720, then diverges*"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:121",
+     "where": "INDEX.md:123",
      "date": "2026-10-23",
      "snippet": "- **2026-10-12 (late night, dev): replay vs live comparison (recording rec_20261012_2148, died at the end, user setting WIDE=16 + TALL).** `"
     }
@@ -5710,13 +5710,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:222",
+     "where": "HANDOFF.md:226",
      "date": "2026-10-23",
      "snippet": "- **2026-10-12 (latest, dev): replay of the user's death recording (rec_20261012_2148) matches the live run until frame 3720, then diverges*"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:121",
+     "where": "INDEX.md:123",
      "date": "2026-10-23",
      "snippet": "- **2026-10-12 (late night, dev): replay vs live comparison (recording rec_20261012_2148, died at the end, user setting WIDE=16 + TALL).** `"
     }
@@ -5750,7 +5750,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:234",
+     "where": "FORMATS.md:236",
      "date": "2026-10-23",
      "snippet": "* VDP register shadow `$FF0FB0 + 2 n` (word `$80xx`, the value is the LOW byte at `$FF0FB1 + 2 n`): reg 1 display (`$40`), 5 sprite table, 7"
     }
@@ -5767,13 +5767,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:43",
+     "where": "INDEX.md:45",
      "date": "2026-10-23",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'punkt 1 go' = remove the VDP dependencies, step 1: THE STATE AS THE VDP RECEIVES IT; `tools/patch_ow"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:45",
+     "where": "INDEX.md:47",
      "date": "2026-10-23",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     }
@@ -5830,13 +5830,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:213",
+     "where": "HANDOFF.md:217",
      "date": "2026-10-23",
      "snippet": "- **2026-10-14 (dev): tree warp crash.** `~/interp.txt` had `$00F8C6` (jsr into the middle of FadePaletteDownStep from TreeWarpFx `$00E48E`,"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:286",
+     "where": "INDEX.md:288",
      "date": "2026-10-23",
      "snippet": "**Lookup tables from Dinopony/landstalker-lib (use them instead of guessing ids; regenerate with `tools/import_rooms.py` / `tools/import_lib"
     }
@@ -5876,7 +5876,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:53",
+     "where": "INDEX.md:55",
      "date": "2026-10-23",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user: 'Raum 389 (aktueller Quicksave), dunkler Raum: die Laterne ist im Inventar, benutzt bleibt der Raum i"
     }
@@ -5927,7 +5927,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:45",
+     "where": "INDEX.md:47",
      "date": "2026-10-23",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     }
@@ -6116,7 +6116,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:198",
+     "where": "INDEX.md:200",
      "date": "2026-10-23",
      "snippet": "| \"no function at $FF1850/$427C/...\" | RAM thunks into ROM mid-code; computed `jmp T(pc,dN)` tables | seeds via `gen_seeds.py`, `expand_seed"
     }
@@ -6475,7 +6475,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:204",
+     "where": "INDEX.md:206",
      "date": "2026-10-23",
      "snippet": "| NPCs ignore obstacles; reads of high RAM ($FF8000+) via `($XXXX).w` return ROM bytes; CMPM/BCD/ASL/ROX/MOVEM wrong | generator treated abs"
     }
@@ -6579,7 +6579,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:200",
+     "where": "INDEX.md:202",
      "date": "2026-10-23",
      "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
     }
