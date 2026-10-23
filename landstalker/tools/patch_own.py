@@ -28,6 +28,7 @@ if VER not in s:
     module = r'''/* ---- LK_OWN v1: own renderer, compare mode (tools/patch_own.py) ---- */
 extern uint8_t *bus_get_ram(void);
 extern uint8_t bus_read8(uint32_t addr);
+extern void bus_write8(uint32_t addr, uint8_t v);
 extern long platform_frame_number(void);
 static int OB(uint32_t a) { return a < 0x200000u ? (int)bus_read8(a) : 0; }   /* ROM only; garbage pointers read 0 */
 #define OW(a) ((OB(a) << 8) | OB((a) + 1))
@@ -730,6 +731,7 @@ static void lk_scr_row(PIXEL_OUT_T *row, int e, int line, int map) {
    loaded it is drawn without its fade in while the camera glides from the old room's view to the new one (pan) and the old room's scenery, saved as layer images, stays visible beside it
    (the two rooms share one world: new cell = old cell - (door cell - arrival cell)), then the old room dissolves.  Stairs, ladders, locked doors, warp pads and everything else keep the game's fade. ---- */
 #include <time.h>
+extern int lk_rm_layer(int room, int layer, int x, int y);
 extern int lk_rm_cell(int room, int x, int y);   /* tools/patch_roommodel.py: height map word of a room's cell from the ROM decoder, -1 = none */
 static int lk_sm_opt = -1;
 int lk_seam_get(void) {
@@ -752,6 +754,38 @@ static long lk_sm_t0, lk_sm_pan0, lk_sm_dis0; static struct timespec lk_sm_wall;
 #define LK_SM_PAN 24   /* frames of the camera glide */
 #define LK_SM_DISSOLVE 45   /* frames the old room needs to dissolve after the glide */
 static int lk_sm_door(int t) { return t == 1 || t == 2 || t == 3 || t == 4 || t == 6; }
+static int lk_sm_arx, lk_sm_ary, lk_sm_arok, lk_sm_artarget = -1;   /* seamless walk (user: 'ja A'): Nigel's arrival position is moved by the picture alignment, so that he arrives where the aligned world shows him (world units) */
+static int lk_sm_walkable(int room, int x, int y, int h) {   /* a plain floor cell of the same height (no door, stairs or wall), from the ROM room decoder */
+  int w = lk_rm_cell(room, x, y); if (w < 0 || (w & 0x4000)) return 0;   /* 0000 is plain floor of height 0; $4000 = wall */
+  if ((lk_rm_layer(room, 0, x, y) & 0x3FF) == 0 && (lk_rm_layer(room, 1, x, y) & 0x3FF) == 0) return 0;   /* and the cell has a picture (no void outside the map) */
+  if (((w >> 8) & 15) != h) return 0;
+  return (w & 0xFF) == 0;
+}
+static void lk_sm_arrival_plan(int tx, int ax, int ay, int dux, int dvy) {   /* dux / dvy: picture alignment minus the door alignment (image pixels); the correction in world units is -(X, Y) with u = X - Y, v = (X + Y) / 2 */
+  int cX = -((dux + 2 * dvy) / 2), cY = -((2 * dvy - dux) / 2), aw = lk_rm_cell(tx, ax, ay), h, n, k, ok = 0;
+  lk_sm_arx = lk_sm_ary = 0; lk_sm_arok = 0; lk_sm_artarget = -1;
+  { const char *q = getenv("LANDSTALKER_SEAM_WALK"); if (q && atoi(q) == 0) return; }   /* test aid: 0 = old way (Nigel arrives on the door's arrival cell) */
+  if (aw < 0 || (cX == 0 && cY == 0)) return;
+  h = (aw >> 8) & 15;
+  for (n = 16; n >= 1 && !ok; n--) {   /* the largest fraction of the correction whose path (in quarter cell steps) stays on plain floor */
+    int tX = cX * n / 16, tY = cY * n / 16, steps = (abs(tX) > abs(tY) ? abs(tX) : abs(tY)) / 4 + 1, good = 1;
+    for (k = 1; k <= steps && good; k++) { int X = ax * 16 + 8 + tX * k / steps, Y = ay * 16 + 8 + tY * k / steps, cx = X >> 4, cy = Y >> 4; if ((cx != ax || cy != ay) && !lk_sm_walkable(tx, cx, cy, h)) good = 0; }
+    if (good) { lk_sm_arx = tX; lk_sm_ary = tY; ok = 1; }
+  }
+  if (ok) { lk_sm_arok = 1; lk_sm_artarget = tx; }
+  if (lk_sm_log) printf("seam: walk on: arrival %d,%d of room %d moved by %d,%d world units (wanted %d,%d)%s\n", ax, ay, tx, lk_sm_arx, lk_sm_ary, cX, cY, ok ? "" : " - no plain floor, not moved");
+}
+void lk_seam_arrival(void) {   /* func_table.c: right after ApplyWarpAtPlayerTile ($00A0C2) wrote the new room ($FF1204) and Nigel's arrival position ($FF5400 cell X / Y, $FF5402 sub X / Y), before LoadRoomPath */
+  int rm, X, Y;
+  if (!lk_sm_arok || lk_sm_state != 1) return;
+  rm = (bus_read8(0xFF1204) << 8) | bus_read8(0xFF1205);
+  if (rm != lk_sm_artarget) { lk_sm_arok = 0; return; }
+  X = bus_read8(0xFF5400) * 16 + (bus_read8(0xFF5402) & 15) + lk_sm_arx; Y = bus_read8(0xFF5401) * 16 + (bus_read8(0xFF5403) & 15) + lk_sm_ary;
+  if (X < 0 || Y < 0 || (X >> 4) >= 74 || (Y >> 4) >= 74) { lk_sm_arok = 0; return; }
+  bus_write8(0xFF5400, (uint8_t)(X >> 4)); bus_write8(0xFF5401, (uint8_t)(Y >> 4)); bus_write8(0xFF5402, (uint8_t)(X & 15)); bus_write8(0xFF5403, (uint8_t)(Y & 15));
+  if (lk_sm_log) printf("seam: frame %ld walk on: Nigel placed at %d.%02X,%d.%02X in room %d\n", platform_frame_number(), X >> 4, X & 15, Y >> 4, Y & 15, rm);
+  lk_sm_arok = 0;
+}
 static int lk_sm_same(int room, int target) { uint32_t a; if (room == target) return 1; for (a = 0xA3D8; a < 0xA61C && OW(a) != 0xFFFF; a += 6) if (OW(a) == target && OW(a + 2) == room) return 1; return 0; }
 static int lk_sm_find(int room, int cx, int cy, int *target, int *ax, int *ay, int *flags, int *bx, int *by) {   /* the connection record whose cell in `room` (or the room it is a variant of) is (cx, cy) or one step away (the game warps when Nigel's tile is next to the doorway cell); bx / by = that record cell */
   uint32_t a; int orig = room, best = 9;
@@ -1001,7 +1035,8 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
         if (tw >= 0 && lk_sm_door(tw & 0xFF) && ov <= LK_SM_MAXOVERLAP && abs(16 * (((cw >> 8) & 15) - ((tw >> 8) & 15))) <= LK_SM_MAXDZ && nk2 >= 0) {
           lk_sm_state = 1; lk_sm_nofade = 1; lk_sm_t0 = fn; clock_gettime(CLOCK_MONOTONIC, &lk_sm_wall); lk_sm_target = tx; lk_sm_oroom = rm; lk_sm_ou = lk_nbl[nk2].ou; lk_sm_ov = lk_nbl[nk2].ov; lk_sm_dz = lk_nbl[nk2].dz;   /* the neighbour's aligned world offset */ lk_sm_ocam0 = lk_sm_osave0; lk_sm_ocam2 = lk_sm_osave2; lk_sm_ou0 = lk_sm_osaveu; lk_sm_ov0 = lk_sm_osavev;
           memcpy(lk_o_pix, lk_sm_pixsave, sizeof lk_o_pix);   /* the picture of the gap is the bright one */
-          { int ex = lk_wide_e, nxp = UW(0xFF540E) - 0x80 + ex, nyp = UW(0xFF5410) - 0x80, hz = ((tw >> 8) & 15) * 16; lk_sm_nx0 = nxp - 20; lk_sm_nx1 = nxp + 20; lk_sm_ny0 = nyp - 52; lk_sm_ny1 = nyp + 10; lk_sm_pcam0 = ax * 16 + 8 - hz; lk_sm_pcam2 = ay * 16 + 8 - hz; }   /* Nigel's rectangle on the screen (he stays while the world glides) and the camera of the arrival cell (centre of the cell, floor height) */
+          lk_sm_arrival_plan(tx, ax, ay, lk_sm_ou - 16 * ((bx - ax) - (by - ay)), lk_sm_ov - 8 * ((bx - ax) + (by - ay)));   /* walk on: Nigel's arrival moved by the picture alignment */
+          { int ex = lk_wide_e, nxp = UW(0xFF540E) - 0x80 + ex, nyp = UW(0xFF5410) - 0x80, hz = ((tw >> 8) & 15) * 16; lk_sm_nx0 = nxp - 20; lk_sm_nx1 = nxp + 20; lk_sm_ny0 = nyp - 52; lk_sm_ny1 = nyp + 10; lk_sm_pcam0 = ax * 16 + 8 + lk_sm_arx - hz; lk_sm_pcam2 = ay * 16 + 8 + lk_sm_ary - hz; }   /* Nigel's rectangle on the screen (he stays while the world glides) and the camera of the arrival cell (centre of the cell, floor height) */
           clock_gettime(CLOCK_MONOTONIC, &lk_sm_lastdue); lk_sm_due = 0;
           memcpy(lk_sm_pa, lk_o_pa, sizeof lk_sm_pa); memcpy(lk_sm_pb, lk_o_pb, sizeof lk_sm_pb); memcpy(lk_sm_tiles, lk_o_tiles, sizeof lk_sm_tiles); memcpy(lk_sm_pix, lk_sm_pixsave, sizeof lk_sm_pix);
           if (lk_sm_log) printf("seam: frame %ld GAP start room %d cell %d,%d -> room %d cell %d,%d (pixel offset %d,%d)\n", fn, rm, px, py, tx, ax, ay, lk_sm_ou, lk_sm_ov);
@@ -1233,3 +1268,31 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
     print("patched vdp_render.c: " + VER)
 else:
     print("vdp_render.c already patched: " + VER)
+
+# ---- seamless walk on (user 2026-10-23 'ja A'): wrapper of ApplyWarpAtPlayerTile $00A0C2 moves Nigel's arrival position by the picture alignment (lk_seam_arrival in vdp_render.c; only during a seamless transition) ----
+VER_W = "LK_SEAMWALK v1"
+p = os.path.join(root, "src/func_table.c")
+s = open(p).read()
+if VER_W not in s:
+    a = "static void lk_strip_extend(uint32_t a);\n"
+    assert s.count(a) == 1
+    module = r'''/* ---- LK_SEAMWALK v1: seamless doors, walk on (tools/patch_own.py) ---- */
+extern void lk_seam_arrival(void);
+static gen_func_t lk_o_awpt;
+static void lk_h_awpt(void) { lk_o_awpt(); lk_seam_arrival(); }   /* ApplyWarpAtPlayerTile: new room + arrival position written, LoadRoomPath not yet run */
+static void lk_seamwalk_install(void) {
+    static int done;
+    if (done) return;
+    done = 1;
+    lk_o_awpt = func_table_lookup(0x00A0C2);
+    if (lk_o_awpt) func_table_register(0x00A0C2, lk_h_awpt); else fprintf(stderr, "seamwalk: ApplyWarpAtPlayerTile not found\n");
+}
+'''
+    s = s.replace(a, module + a, 1)
+    h = "        lk_qs_install();   /* LK_QUICKSAVE v1 */\n"
+    assert s.count(h) == 1
+    s = s.replace(h, h + "        lk_seamwalk_install();   /* LK_SEAMWALK v1 */\n", 1)
+    open(p, "w").write(s)
+    print("func_table.c patched: " + VER_W)
+else:
+    print("func_table.c already patched: " + VER_W)
