@@ -2,7 +2,7 @@
 
 A map of the game by area and source file, for finding your way in the code and for future modding. Names come from the lordmir/landstalker_disasm project; the **addresses** were computed for the US ROM (see INDEX.md 'Symbol rule' for how and how sure). A name tells what the original authors called a routine, not necessarily what we understood about it yet.
 
-Confidence tiers (entries): `auto-seq` 3275, `inferred` 1322, `auto-seq+xref` 1056, `auto-parent` 711, `verified` 178, `auto-xref` 17, `library` 8, `unknown` 2, `auto-xref-weak` 1.
+Confidence tiers (entries): `auto-seq` 3275, `inferred` 1322, `auto-seq+xref` 1056, `auto-parent` 711, `verified` 179, `auto-xref` 17, `library` 8, `unknown` 2, `auto-xref-weak` 1.
 
 Not covered: the sound driver (`code/audio` in the disassembly) is Z80 code in its own address space; it is not part of this 68K map.
 
