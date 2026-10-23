@@ -8,7 +8,7 @@ filters run on the HD picture (display_core.c `lk_hdn`: scanline period, beam an
 (`~/.landstalker_hd` = 1 or LANDSTALKER_HD=1).  Needs patch_shot.py and patch_own.py before it.  Idempotent.  usage: patch_hd.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_HD v1"
+VER = "LK_HD v2"
 p = os.path.join(root, "src/platform_sdl.c")
 s = open(p).read()
 if VER in s:
@@ -20,6 +20,81 @@ extern int lk_hd_n; extern uint32_t *lk_hd_rows, *lk_hd_ref; extern long lk_hd_s
 static uint32_t lk_hd_dark(uint32_t c) { return ((c >> 1) & 0x007F7F7Fu) + ((c >> 4) & 0x000F0F0Fu) + (c & 0xFF000000u); }   /* the Shadow option's 1x darkening (patch_shadow.py) */
 static uint32_t *lk_hd_img; static int lk_hd_iw, lk_hd_ih; static SDL_Texture *lk_hd_tex; static int lk_hd_tw, lk_hd_th;
 static SDL_Texture *lk_hd_ftex; static int lk_hd_fw, lk_hd_fh; static uint32_t *lk_hd_fbuf;   /* filtered HD picture (destination size) */
+
+extern int lk_hd_active(void); extern int16_t lk_hd_depth[]; extern long lk_hd_dstamp[224]; extern int lk_hd_focus; extern int lk_dof_get(void);
+static void lk_bbox(const uint32_t *s, uint32_t *d, uint32_t *t, int w, int h, int R) {   /* box blur of radius R (edges replicated), per channel, sliding window */
+    int x, y, c;
+    for (c = 0; c <= 16; c += 8) {
+        for (y = 0; y < h; y++) {
+            const uint32_t *r = s + (size_t)y * w; uint32_t *o = t + (size_t)y * w; int k, sum = 0;
+            for (k = -R; k <= R; k++) sum += (r[k < 0 ? 0 : k >= w ? w - 1 : k] >> c) & 255;
+            for (x = 0; x < w; x++) {
+                int a = x + R + 1, b = x - R; if (a >= w) a = w - 1; if (b < 0) b = 0;
+                o[x] = (o[x] & ~(255u << c)) | ((uint32_t)(sum / (2 * R + 1)) << c);
+                sum += ((r[a] >> c) & 255) - ((r[b] >> c) & 255);
+            }
+        }
+        for (x = 0; x < w; x++) {
+            int k, sum = 0;
+            for (k = -R; k <= R; k++) sum += (t[(size_t)(k < 0 ? 0 : k >= h ? h - 1 : k) * w + x] >> c) & 255;
+            for (y = 0; y < h; y++) {
+                int a = y + R + 1, b = y - R; if (a >= h) a = h - 1; if (b < 0) b = 0;
+                d[(size_t)y * w + x] = (d[(size_t)y * w + x] & ~(255u << c)) | ((uint32_t)(sum / (2 * R + 1)) << c);
+                sum += ((t[(size_t)a * w + x] >> c) & 255) - ((t[(size_t)b * w + x] >> c) & 255);
+            }
+        }
+    }
+}
+/* depth blur (HD only): blur radius grows with the distance of a pixel's ground point from Nigel's (screen rows, lk_hd_depth / lk_hd_focus); the sharp HD picture is mixed with a bilinear upsample of a blurred 1x copy */
+static void lk_hd_dof(uint32_t *img, int W, int H, int N, int sw, int e, const int16_t *sc) {
+    static const float K[4] = { 0, 0.03f, 0.045f, 0.06f }, DZ[4] = { 0, 40, 32, 24 }; static const int RM[4] = { 0, 2, 3, 4 };
+    static float *rr; static uint32_t *lv[5], *tmp, *bb; static size_t cap; static int *xi, *xf, *yi, *yf, xcap, ycap; static int dbg = -1;
+    int S = lk_dof_get(), x, y, k, any = 0; size_t n = (size_t)sw * 224;
+    if (dbg < 0) { const char *d = getenv("LANDSTALKER_HD_DEPTHDBG"); dbg = d && atoi(d); }
+    if (S <= 0 && !dbg) return;
+    if (S < 0) S = 0; if (S > 3) S = 3;
+    if (cap < n) { free(rr); free(tmp); free(bb); for (k = 0; k < 5; k++) { free(lv[k]); lv[k] = (uint32_t *)malloc(n * 4); } rr = (float *)malloc(n * 4); tmp = (uint32_t *)malloc(n * 4); bb = (uint32_t *)malloc(n * 4); cap = n; }
+    if (xcap < W) { free(xi); free(xf); xi = (int *)malloc(W * sizeof(int)); xf = (int *)malloc(W * sizeof(int)); xcap = W; }
+    if (ycap < H) { free(yi); free(yf); yi = (int *)malloc(H * sizeof(int)); yf = (int *)malloc(H * sizeof(int)); ycap = H; }
+    if (!rr || !tmp || !bb || !xi || !xf || !yi || !yf || !lv[0] || !lv[4]) return;
+    for (y = 0; y < 224; y++) for (x = 0; x < sw; x++) {
+        float r = 0; int cx = sc[(size_t)y * sw + x] - e;
+        if (y >= 23 && lk_hd_dstamp[y] == lk_hd_gen && cx >= -48 && cx < 368) { int d = lk_hd_depth[y * 416 + cx + 48]; if (d != 0x7FFF) { float dist = (float)abs(d - lk_hd_focus) - DZ[S ? S : 2]; if (dist > 0) { r = dist * K[S ? S : 2]; if (r > RM[S ? S : 2]) r = (float)RM[S ? S : 2]; } if (dbg) { int g = 128 + (d - lk_hd_focus); if (g < 0) g = 0; if (g > 255) g = 255; rr[(size_t)y * sw + x] = -(float)(g + 1); continue; } } }
+        rr[(size_t)y * sw + x] = S ? r : 0;
+    }
+    if (dbg) { for (y = 0; y < H; y++) for (x = 0; x < W; x++) { float v = rr[(size_t)(y / N) * sw + x / N]; if (v < 0) { int g = (int)(-v) - 1; img[(size_t)y * W + x] = 0xFF000000u | (g << 16) | (g << 8) | g; } else img[(size_t)y * W + x] = 0xFF800000u; } return; }
+    for (k = 0; k < (int)n; k++) if (rr[k] > 0) { any = 1; break; }
+    if (!any) return;
+    for (y = 0; y < 224; y++) for (x = 0; x < sw; x++) {   /* lv[0] = the 1x copy (mean of each N x N block) */
+        unsigned a = 0, b = 0, c = 0; int sy, sx;
+        int st = N >= 4 ? 2 : 1;   /* (every other pixel of a big block is enough for the blurred copy) */
+        for (sy = 0; sy < N; sy += st) { const uint32_t *p = img + (size_t)(y * N + sy) * W + x * N; for (sx = 0; sx < N; sx += st) { uint32_t q = p[sx]; a += q & 255; b += (q >> 8) & 255; c += (q >> 16) & 255; } }
+        { unsigned nn = (unsigned)((N / st) * (N / st)); lv[0][(size_t)y * sw + x] = 0xFF000000u | ((c / nn) << 16) | ((b / nn) << 8) | (a / nn); }
+    }
+    for (k = 1; k <= RM[S]; k++) lk_bbox(lv[0], lv[k], tmp, sw, 224, k);
+    for (k = 0; k < (int)n; k++) {                          /* bb = the blurred copy: radius r between the box levels */
+        float r = rr[k]; int f; float t; uint32_t A, B, o = 0xFF000000u; int c;
+        if (r <= 0) { bb[k] = lv[0][k]; continue; }
+        f = (int)r; t = r - f; if (f < 0) f = 0; if (f >= RM[S]) { f = RM[S]; t = 0; }
+        A = lv[f][k]; B = lv[f < RM[S] ? f + 1 : f][k];
+        for (c = 0; c <= 16; c += 8) o |= (uint32_t)((((A >> c) & 255) * (1 - t) + ((B >> c) & 255) * t) + 0.5f) << c;
+        bb[k] = o;
+    }
+    for (x = 0; x < W; x++) { int u = (2 * x + 1 - N) * 128 / N; int i0 = u >> 8; xi[x] = i0; xf[x] = u & 255; }   /* bilinear sample position of an HD pixel in the 1x copy */
+    for (y = 0; y < H; y++) { int u = (2 * y + 1 - N) * 128 / N; int i0 = u >> 8; yi[y] = i0; yf[y] = u & 255; }
+    for (y = 0; y < H; y++) {
+        int y0 = yi[y], y1 = y0 + 1, fy = yf[y]; if (y0 < 0) y0 = 0; if (y1 < 0) y1 = 0; if (y0 > 223) y0 = 223; if (y1 > 223) y1 = 223;
+        for (x = 0; x < W; x++) {
+            float r = rr[(size_t)(y / N) * sw + x / N]; int x0, x1, fx, c, wgt; uint32_t o = 0xFF000000u, s0 = img[(size_t)y * W + x];
+            if (r <= 0) continue;
+            x0 = xi[x]; x1 = x0 + 1; fx = xf[x]; if (x0 < 0) x0 = 0; if (x1 < 0) x1 = 0; if (x0 >= sw) x0 = sw - 1; if (x1 >= sw) x1 = sw - 1;
+            wgt = r >= 0.5f ? 256 : (int)(r * 512);
+            { const uint32_t p00 = bb[(size_t)y0 * sw + x0], p01 = bb[(size_t)y0 * sw + x1], p10 = bb[(size_t)y1 * sw + x0], p11 = bb[(size_t)y1 * sw + x1];
+              for (c = 0; c <= 16; c += 8) { int top = (int)((p00 >> c) & 255) * (256 - fx) + (int)((p01 >> c) & 255) * fx, bot = (int)((p10 >> c) & 255) * (256 - fx) + (int)((p11 >> c) & 255) * fx, v = (top * (256 - fy) + bot * fy) >> 16, sv = (int)((s0 >> c) & 255); o |= (uint32_t)((sv * (256 - wgt) + v * wgt) >> 8) << c; } }
+            img[(size_t)y * W + x] = o;
+        }
+    }
+}
 uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh) {
     int N = lk_hd_n, W = sw * N, H = 224 * N, y, x, sx, sy;
     static uint8_t *m; static int16_t *sc; static size_t mcap;
@@ -44,6 +119,7 @@ uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh) {
             }
         }
     }
+    lk_hd_dof(lk_hd_img, W, H, N, sw, e, sc);
     *ow = W; *oh = H; return lk_hd_img;
 }
 static int lk_hd_present(const uint8_t *framebuffer, int sw, const lk_rect *r) {
@@ -84,18 +160,18 @@ static int lk_hd_present(const uint8_t *framebuffer, int sw, const lk_rect *r) {
 s = s.replace(a, module + a, 1)
 dd = "    if (lk_dd_mode) {                                   /* de-dither"
 assert s.count(dd) == 1, "platform_sdl.c: de-dither block layout changed"
-s = s.replace(dd, "    extern int lk_hd_n;\n    if (lk_dd_mode && !(lk_hd_n > 0)) {                 /* (HD picture: no de-dither, it would change the 1x pixels the HD blocks are matched against) */   /* de-dither", 1)
+s = s.replace(dd, "    extern int lk_hd_active(void);\n    if (lk_dd_mode && !lk_hd_active()) {                 /* (HD picture: no de-dither, it would change the 1x pixels the HD blocks are matched against) */   /* de-dither", 1)
 b = "    SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 255);\n    SDL_RenderClear(s_renderer);\n    static int lk_sb_env = -1;"
 assert s.count(b) == 1, "platform_sdl.c: lk_disp_present body layout changed"
-s = s.replace(b, "    SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 255);\n    SDL_RenderClear(s_renderer);\n    if (lk_hd_n > 0 && lk_hd_present(framebuffer, sw, &r)) { lk_osd_draw(ow, oh); lk_coords_draw(oh); SDL_RenderPresent(s_renderer); return; }   /* LK_HD v1 */\n    static int lk_sb_env = -1;", 1)
+s = s.replace(b, "    SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 255);\n    SDL_RenderClear(s_renderer);\n    if (lk_hd_active() && lk_hd_present(framebuffer, sw, &r)) { lk_osd_draw(ow, oh); lk_coords_draw(oh); SDL_RenderPresent(s_renderer); return; }   /* LK_HD v1 */\n    static int lk_sb_env = -1;", 1)
 # screenshot of the HD picture
 c = "static void lk_shot_frame(const uint8_t *framebuffer, long frame) {"
 assert s.count(c) == 1, "platform_sdl.c: run patch_shot.py first"
-s = s.replace(c, "extern int lk_hd_n; extern int lk_wide_e; uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh);   /* LK_HD v1 */\n" + c, 1)
+s = s.replace(c, "extern int lk_hd_n; extern int lk_hd_active(void); extern int lk_wide_e; uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh);   /* LK_HD v1 */\n" + c, 1)
 d = "    if (!list || !*list || !lk_shot_wanted(list, frame)) return;"
 assert s.count(d) == 1
 s = s.replace(d, '''    { const char *hl = getenv("LANDSTALKER_HD_SHOT");   /* LK_HD v1: the HD picture */
-      if (hl && *hl && lk_hd_n > 0 && lk_shot_wanted(hl, frame)) { int iw, ih; uint32_t *img = lk_hd_assemble((const uint32_t *)framebuffer, 320 + 2 * lk_wide_e, lk_wide_e, &iw, &ih); char path[600]; snprintf(path, sizeof path, "%s/hdshot_%06ld_w%d.png", dir, frame, iw);
+      if (hl && *hl && lk_hd_active() && lk_shot_wanted(hl, frame)) { int iw, ih; uint32_t *img = lk_hd_assemble((const uint32_t *)framebuffer, 320 + 2 * lk_wide_e, lk_wide_e, &iw, &ih); char path[600]; snprintf(path, sizeof path, "%s/hdshot_%06ld_w%d.png", dir, frame, iw);
         { struct stat st; if (stat(dir, &st) != 0) { mkdir(dir, 0777); } }
         if (img) printf("shot: %s %s (%dx%d HD)\\n", lk_shot_png(path, img, iw, ih, 1) ? "wrote" : "FAILED", path, iw, ih); } }
 ''' + d, 1)

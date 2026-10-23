@@ -68,6 +68,9 @@ extern int lk_map_decide(void);                                      /* the game
 extern int lk_tall_kv(void) __attribute__((weak));                  /* LANDSTALKER_TALL: > 0 = full height (the game's visibility test is widened by $80 at the bottom, patch_sprcull.py) */
 extern int lk_tall_keep(int line);                                   /* LANDSTALKER_TALL: this line is drawn below the HInt display-off line (patch_tall.py) */
 extern int lk_tbox_get(void);                                        /* Map Behind Text (patch_tbox.py) */
+extern int lk_hd_n;
+static int16_t lk_o_sprd[224][LK_OSW]; static int lk_o_curd = 150;   /* HD depth blur: ground contact screen row of the figure a sprite pixel belongs to */
+int16_t lk_hd_depth[224 * 416]; long lk_hd_dstamp[224]; int lk_hd_focus = 150;   /* depth per picture pixel (screen row of its ground point, 0x7FFF = no blur: HUD / text box / margins), valid when lk_hd_dstamp[line] == lk_hd_gen; focus = Nigel's ground row (tools/patch_hd.py lk_hd_dof) */
 static uint16 lk_o_spr[224][LK_OSW];                                 /* by row pixel index (screen x + e): pal * 16 + index | 0x100 priority | 0x200 present */
 static uint8 lk_o_sprtiles[0x4000];
 extern int lk_org_lookup_raw(const uint8_t *t, uint32_t *rom, int *idx); extern void lk_org_learn(const uint8_t *t, uint32_t rom, int idx);   /* tools/patch_gfxorg.py: origin of a 32 byte tile image in the game's logical byte order */
@@ -202,7 +205,7 @@ static void lk_o_sprpiece(const uint8 *td, int tile0, int sx, int sy, int w, int
     if (a >= 0x4000) continue;
     b = td[a]; idx = ((ox % 8) % 2 == 0) ? (b >> 4) : (b & 15);
     if (!idx || X < 0 || X >= 320 + 2 * lk_wide_e || X >= LK_OSW || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200)) continue;
-    lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | (pal * 16 + idx));
+    lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | (pal * 16 + idx)); lk_o_sprd[Y][X] = (int16_t)lk_o_curd;
     if (hd) { int q = (ox / 8) * h + (oy / 8); lk_o_sprrep[Y][X] = q < 16 ? rp[q] : 0; lk_o_sprpx[Y][X] = (uint8)((ox % 8) | ((oy % 8) << 3) | (hf << 6) | (vf << 7)); }
   }
 }
@@ -214,7 +217,7 @@ static void lk_o_vpiece(int tile0, int sx, int sy, int w, int h, int pal, int pr
     if (a >= 0x10000) continue;
     b = lk_o_vmirror ? lk_vm[a] : vram[a ^ 1]; idx = ((ox % 8) % 2 == 0) ? (b >> 4) : (b & 15);
     if (!idx || X < 0 || X >= 320 + 2 * lk_wide_e || X >= LK_OSW || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200)) continue;
-    lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | (pal * 16 + idx));
+    lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | (pal * 16 + idx)); lk_o_sprd[Y][X] = (int16_t)lk_o_curd;
     if (hd) { int q = (ox / 8) * h + (oy / 8); lk_o_sprrep[Y][X] = q < 16 ? rp[q] : 0; lk_o_sprpx[Y][X] = (uint8)((ox % 8) | ((oy % 8) << 3) | (hf << 6) | (vf << 7)); }
   }
 }
@@ -400,6 +403,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
     if (draw && lk_o_hide0 && offs[k] != 0 && e->np && lk_o_satn > 0 && !lk_o_loose(e) && !lk_o_loose4e(e) && lk_o_near(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) { int q; printf("ownhide: frame %ld off %02X type %02X at (%d,%d) 4e (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), e->ax, e->ay, SW(0xFF5400 + offs[k] + 0x4E), SW(0xFF5400 + offs[k] + 0x50)); for (q = 0; q < e->np; q++) { uint32 kk = lk_o_pkey(e, q, 0); printf("   piece %d: x %d y %d size %X\n", q, (int)((kk >> 20) & 0x1FF), (int)((kk >> 8) & 0x3FF), (int)(kk & 15)); } } continue; }   /* the real sprite table holds none of this entity's pieces: the game draws something else in its place (a burning enemy of the Fire sword is replaced by flame sprites that are written into the table, they come as EXTRA entries) */
     if (draw && lk_o_exon) lk_o_extras_upto(sord[k]);
     lk_o_nspr++;
+    if (draw && lk_hd_n) { int q2, lo = -9999; for (q2 = 0; q2 < e->np; q2++) { int yb = e->ay + e->pys[q2] - 128 + 8 * e->phs[q2]; if (yb > lo) lo = yb; } lk_o_curd = lo + SW(0xFF5400 + offs[k] + 0x12); if (offs[k] == 0) lk_hd_focus = lk_o_curd; }   /* depth blur: the figure's ground contact row (lowest pixel row + its height above the floor) */
     for (pc = 0; pc < e->np; pc++) {
       int xx; uint32 key = lk_o_pkey(e, pc, &xx);
       if (keys && nk < 96) keys[nk++] = key;
@@ -562,6 +566,18 @@ void lk_own_set(int v) {                                             /* Options 
   lk_o_init(); lk_o_mode = v ? 2 : 0; lk_o_valid = 0;
   snprintf(path, sizeof path, "%s/.landstalker_own", h ? h : "."); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", v ? 1 : 0); fclose(f); }
 }
+static int lk_dof_saved = -1;
+int lk_dof_get(void) {                                               /* Options > Video > Depth Blur 0..3 (Off / Low / Medium / High), saved in ~/.landstalker_dof (LANDSTALKER_DOF overrides); acts on the HD picture only */
+  if (lk_dof_saved < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_DOF"); char path[512]; FILE *f; int v = 0; snprintf(path, sizeof path, "%s/.landstalker_dof", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); lk_dof_saved = v < 0 ? 0 : v > 3 ? 3 : v; }
+  return lk_dof_saved;
+}
+void lk_dof_set(int v) {
+  char path[512]; FILE *f; const char *h = getenv("HOME");
+  lk_dof_saved = v < 0 ? 0 : v > 3 ? 3 : v;
+  snprintf(path, sizeof path, "%s/.landstalker_dof", h ? h : "."); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", lk_dof_saved); fclose(f); }
+}
+static int lk_rep_on, lk_hd_scaleenv;   /* (tentative: defined below) */
+int lk_hd_active(void) { return lk_hd_n > 0 && (lk_rep_on || lk_hd_scaleenv || lk_dof_get() > 0); }
 static int lk_hd_saved = -1;
 int lk_hd_get(void) {                                               /* Options > Video > HD Graphics: the SAVED setting (~/.landstalker_hd, LANDSTALKER_HD overrides at start); the tile packs and the HD buffers are set up at start, so a change applies at the next start */
   if (lk_hd_saved < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_HD"); char path[512]; FILE *f; int v = 0; snprintf(path, sizeof path, "%s/.landstalker_hd", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); lk_hd_saved = v ? 1 : 0; }
@@ -608,7 +624,7 @@ static void lk_rep_init(void) {
       if (nf) { lk_rep_t *e = lk_rep_add(LK_REP_KEY(rom, idx)); if (e) { e->raw = (uint8_t *)malloc((size_t)sz); if (e->raw && fread(e->raw, 1, (size_t)sz, f) == (size_t)sz) { e->kind = 3; e->nf = nf; lk_rep_on = 1; if (nf > maxn) maxn = nf; } else { free(e->raw); e->raw = 0; } } } fclose(f); } }
       else if (sscanf(de->d_name, "%6x_%4d.rgba", &rom, &idx) == 2) { char fp[900]; FILE *f; long sz; snprintf(fp, sizeof fp, "%s/%s", path, de->d_name); f = fopen(fp, "rb"); if (f) { int nf; fseek(f, 0, SEEK_END); sz = ftell(f); fseek(f, 0, SEEK_SET); nf = sz == 256 ? 1 : sz == 1024 ? 2 : sz == 4096 ? 4 : sz == 16384 ? 8 : 0;
       if (nf) { lk_rep_t *e = lk_rep_add(LK_REP_KEY(rom, idx)); if (e) { e->raw = (uint8_t *)malloc((size_t)sz); if (e->raw && fread(e->raw, 1, (size_t)sz, f) == (size_t)sz) { e->kind = 2; e->nf = nf; lk_rep_on = 1; if (nf > maxn) maxn = nf; } else { free(e->raw); e->raw = 0; } } } fclose(f); } } } closedir(dir); }
-  { const char *sc = getenv("LANDSTALKER_HD_SCALE"); int n = sc ? atoi(sc) : maxn; if (n < 1) n = 1; if (n > 8) n = 8; if (n == 3) n = 2; if (n == 5 || n == 6 || n == 7) n = 4; lk_hd_n = (lk_rep_on || sc) ? n : 0; }   /* the HD picture exists when HD is On and something is to be shown at a higher resolution (a pack) or the scale is asked for */
+  { const char *sc = getenv("LANDSTALKER_HD_SCALE"); int n = sc ? atoi(sc) : maxn; if (n < 1) n = 1; if (n > 8) n = 8; if (n == 3) n = 2; if (n == 5 || n == 6 || n == 7) n = 4; lk_hd_scaleenv = sc ? 1 : 0; if (!lk_rep_on && !sc && n < 2) n = 2; lk_hd_n = n; }   /* HD On: the HD picture is always built (2 x 2 without a pack), but presented only when it shows something: a pack, the scale switch or the depth blur (lk_hd_active) */   /* the HD picture exists when HD is On and something is to be shown at a higher resolution (a pack) or the scale is asked for */
   for (i = 0; i < LK_REP_N; i++) { lk_rep_t *e = lk_rep_tab[i]; if (e && e->kind == 3 && e->raw) { int N = lk_hd_n ? lk_hd_n : 1, x, y; e->idx = (uint8_t *)malloc((size_t)64 * N * N); if (e->idx) for (y = 0; y < 8 * N; y++) for (x = 0; x < 8 * N; x++) e->idx[y * 8 * N + x] = e->raw[(y * e->nf / N) * 8 * e->nf + (x * e->nf / N)]; }
     if (e && e->kind == 2 && e->raw) { int N = lk_hd_n ? lk_hd_n : 1, x, y; e->tex = (uint32_t *)malloc((size_t)64 * N * N * 4); if (e->tex) for (y = 0; y < 8 * N; y++) for (x = 0; x < 8 * N; x++) { const uint8_t *q = &e->raw[((y * e->nf / N) * 8 * e->nf + (x * e->nf / N)) * 4]; e->tex[y * 8 * N + x] = q[3] ? (0xFF000000u | (uint32_t)q[0] << 16 | (uint32_t)q[1] << 8 | q[2]) : 0; } } }   /* nearest resample to the global scale; alpha 0 = 0 = keep the game's pixel */
   if (lk_hd_n) { lk_hd_rows = (uint32_t *)calloc((size_t)224 * lk_hd_n * LK_HDW * lk_hd_n, 4); lk_hd_ref = (uint32_t *)calloc((size_t)224 * LK_HDW, 4); if (!lk_hd_rows || !lk_hd_ref) lk_hd_n = 0; }
@@ -1313,10 +1329,11 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
           if (lk_org_log > 0) { uint32_t rm2; const uint8 *tp = src == 1 ? 0 : src == 2 ? afi.t : src == 3 ? bfi.t : lk_o_wfi.t; if (tp) { if (lk_org_lookup_raw(tp, &rm2, 0)) lk_o_orgk++; else lk_o_orgu++; } }
         }
         lk_hd_mapmode = 1; lk_hd_put(line, x, (uint32_t)col, pi.rep ? &pi : 0); lk_hd_mapmode = 0; lk_hd_ref[line * LK_HDW + x + LK_HDO] = (uint32_t)col;
+        lk_hd_depth[line * 416 + x + 48] = (black || margin || src == 4) ? (int16_t)0x7FFF : src == 1 ? lk_o_sprd[sl][si] : (int16_t)line;
       }
       if (lk_o_mode == 2) row[i] = (PIXEL_OUT_T)col;
     }
-    if (lk_hd_n) lk_hd_stamp[line] = lk_hd_gen;
+    if (lk_hd_n) { lk_hd_stamp[line] = lk_hd_gen; lk_hd_dstamp[line] = lk_hd_gen; }
     if (line == 223 && lk_org_log > 0 && platform_frame_number() % lk_org_log == 0) { printf("ownorg: frame %ld map (own path): opaque layer pixels with a known ROM origin %ld, unknown %ld; sprite tiles known %ld, unknown %ld (cumulative)\n", platform_frame_number(), lk_o_orgk, lk_o_orgu, lk_o_sprk, lk_o_spru); }
   }
 }
