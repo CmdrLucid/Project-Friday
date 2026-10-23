@@ -757,6 +757,7 @@ static int lk_sm_ocam0, lk_sm_ocam2, lk_sm_ou0, lk_sm_ov0, lk_sm_osave_ok, lk_sm
 static int lk_sm_early;
 static int lk_sm_target, lk_sm_dx, lk_sm_dy, lk_sm_oroom, lk_sm_newroom, lk_sm_prevL, lk_sm_sxn, lk_sm_syn, lk_sm_sxo, lk_sm_syo, lk_sm_alpha = 256, lk_sm_log = -1;
 int lk_seam_gap(void) { return (lk_sm_state == 1 && !(lk_sm_early && lk_sm_prevL == 0)) || lk_sm_state == 5 || lk_sm_fastload || ((lk_sm_state == 2 || lk_sm_state == 6) && lk_sm_prevL > 0); }   /* the game's fade in after the load is not shown (nofade): run it fast too, so Nigel can walk on at once */   /* run the emulation fast without drawing (platform_sdl.c, patch_ffwd.py) */
+int lk_seam_skipfade(void) { return lk_sm_state == 1 || lk_sm_state == 2 || lk_sm_state == 5 || lk_sm_state == 6; }   /* the game's fades of a seamless transition are not shown: their Sleep frames are skipped (func_table.c LK_SEAMWALK) */
 static long lk_sm_t0, lk_sm_pan0, lk_sm_dis0; static struct timespec lk_sm_wall; static int lk_sm_dz, lk_sm_ou, lk_sm_ov, lk_sm_pcam0, lk_sm_pcam2, lk_sm_nx0, lk_sm_nx1, lk_sm_ny0, lk_sm_ny1, lk_sm_allframes = -1; static struct timespec lk_sm_lastdue;
 #define LK_SM_GLIDE_MS lk_sm_glms   /* (was 350) */
 static double lk_sm_glms = 110.0, lk_sm_gapms = 110.0; static int lk_sm_hx[16], lk_sm_hy[16], lk_sm_hn, lk_sm_gapdone;   /* (lk_sm_early is declared with lk_sm_target) lk_sm_early: the gap was started when Nigel stopped on the door cell, before the game's fade (not run fast until the fade starts) */   /* walk on with a continuous camera: the camera keeps Nigel's walking speed through the gap; lk_sm_gapms = learned wall time of a gap (fade out + load + fade in, run fast), lk_sm_hx / hy = Nigel's position (world units) in the last 8 frames */
@@ -901,6 +902,11 @@ static void lk_nb_check(int room) {   /* LANDSTALKER_NB_CHECK=1: the room built 
 
 typedef struct { int room, ou, ov, dz; lk_nb_t *nb; } lk_nbl_t;   /* ou / ov: pixel offset of the room's image in the current room's image space (16 (dx - dy), 8 (dx + dy) for a door aligned cell offset, plus the fine alignment) */
 static lk_nbl_t lk_nbl[6]; static int lk_nb_pending, lk_nbn, lk_nb_room = -1, lk_nb_chk = -1, lk_nb_chk_room = -1; static long lk_nb_roomf;
+static struct { int a, b, ou, ov, rej; } lk_al[64]; static int lk_aln, lk_al_hit;   /* alignments found so far, per room pair (room a's view of room b) */
+static void lk_nb_prewarm(int room) {   /* at the start of a seamless gap: decode the target room's neighbours from the ROM now (the gap runs fast and is not shown), not in the first visible frames after the arrival */
+  uint32_t a;
+  for (a = 0x11CEA2; a < 0x11EA64 && OW(a) != 0xFFFF; a += 8) { int w1 = OW(a), w2 = OW(a + 4), r1 = w1 & 0x3FF, r2 = w2 & 0x3FF, f = ((w1 >> 10) & 63) | ((w2 >> 10) & 63), tx = r1 == room ? r2 : r2 == room ? r1 : -1; if (tx < 0 || (f & 0x31) || tx == room) continue; { int ax = r1 == room ? OB(a + 6) : OB(a + 2), ay = r1 == room ? OB(a + 7) : OB(a + 3), bx = r1 == room ? OB(a + 2) : OB(a + 6), by = r1 == room ? OB(a + 3) : OB(a + 7), tw = lk_rm_cell(tx, ax, ay), cw = lk_rm_cell(room, bx, by); if (tw >= 0 && cw >= 0 && lk_sm_door(tw & 0xFF) && lk_sm_door(cw & 0xFF)) { lk_nb_t *nb = lk_nb_build(tx); if (nb && !nb->vok) { lk_voidmap(nb->tiles, sizeof nb->tiles, nb->pa, nb->pb, nb->vm); nb->vok = 1; } } } }
+}
 static void lk_nb_collect(int rm) {   /* the rooms that stay loaded beside room `rm`: connections that are door -> door, no stairs / closed flag, and whose maps do not lie on top of each other in the shared world (same rule as the seamless transition) */
   uint32_t a; int orig = rm, i;
   lk_nbn = 0;
@@ -919,7 +925,10 @@ static void lk_nb_collect(int rm) {   /* the rooms that stay loaded beside room 
       if (ov > LK_SM_MAXOVERLAP || abs(16 * (((cw >> 8) & 15) - ((tw >> 8) & 15))) > LK_SM_MAXDZ) continue;
       lk_nbl[lk_nbn].nb = lk_nb_build(tx);
       if (!lk_nbl[lk_nbn].nb) continue;
-      { /* ALIGNMENT (user: "the rooms may overlap so that no black band remains, the exits (what sticks out into the black margin) must overlap 1:1, they only needed to be closer together"): the exits are the path / ground pieces that both rooms draw at the doorway; with the door cells on top of each other they coincide, the grass fields are still apart (a black band).  The neighbour is moved ALONG ONE AXIS (x or y: the exit piece stays collinear with itself), first in whole cells (up to 4), then in 1/8 cell steps (2 x 1 pixels) around the best cell, until the two pictures cover the screen window around the door best (union - 0.5 * overlap - small distance penalty; cells = 8 x 8 tile cells, pixels = colour index != 0 of the layer images); only once the current room's images are built; not kept at all when the two pictures disagree so much where they overlap that this room cannot be a continuation (a cave, a shrine ...) */
+      { int ci, hit = -1; for (ci = 0; ci < lk_aln; ci++) if ((lk_al[ci].a == rm && lk_al[ci].b == tx) || (lk_al[ci].a == tx && lk_al[ci].b == rm)) hit = ci;   /* the alignment of this room pair was found before (from either side): reuse it, mirrored; the same in both directions and no search after a room change */
+        lk_al_hit = hit >= 0;
+        if (lk_al_hit) { int sg = lk_al[hit].a == rm ? 1 : -1; if (lk_al[hit].rej) continue; lk_nbl[lk_nbn].room = tx; lk_nbl[lk_nbn].ou = sg * lk_al[hit].ou; lk_nbl[lk_nbn].ov = sg * lk_al[hit].ov; if (lk_sm_log) printf("nb: room %d beside room %d: alignment reused, pixel offset %d,%d\n", tx, rm, lk_nbl[lk_nbn].ou, lk_nbl[lk_nbn].ov); } }
+      if (!lk_al_hit) { /* ALIGNMENT (user: "the rooms may overlap so that no black band remains, the exits (what sticks out into the black margin) must overlap 1:1, they only needed to be closer together"): the exits are the path / ground pieces that both rooms draw at the doorway; with the door cells on top of each other they coincide, the grass fields are still apart (a black band).  The neighbour is moved ALONG ONE AXIS (x or y: the exit piece stays collinear with itself), first in whole cells (up to 4), then in 1/8 cell steps (2 x 1 pixels) around the best cell, until the two pictures cover the screen window around the door best (union - 0.5 * overlap - small distance penalty; cells = 8 x 8 tile cells, pixels = colour index != 0 of the layer images); only once the current room's images are built; not kept at all when the two pictures disagree so much where they overlap that this room cannot be a continuation (a cave, a shrine ...) */
         const lk_nb_t *nbq2 = lk_nbl[lk_nbn].nb; int dx0 = bx - ax, dy0 = by - ay, sx, sy, c0 = 2 * (bx - by) + 148, r0 = bx + by, k, ax_, bestax = 0, bestk = 0, ovt0 = 0, m0 = 0, mis0 = 0, ou = 0, ov = 0; float bests = -1e9f, base = 0;
         for (ax_ = 0; ax_ < 2; ax_++) for (k = -4; k <= 4; k++) {
           int ddx, ddy, oc, orr, c, r, u = 0, ovl = 0; float sc;
@@ -969,6 +978,7 @@ static void lk_nb_collect(int rm) {   /* the rooms that stay loaded beside room 
           ou += bestax ? 2 * besti : -2 * besti; ov += besti;
         }
         if (lk_sm_log) printf("nb: room %d beside room %d: exact overlap %d tiles, %d equal / %d different sample pixels; axis %c shift %d cells (score %.0f, exact %.0f), pixel offset %d,%d (door aligned %d,%d)\n", tx, rm, ovt0, m0, mis0, bestax ? 'x' : 'y', bestk, bests, base, ou, ov, 16 * (dx0 - dy0), 8 * (dx0 + dy0));
+        if (lk_aln < 64) { lk_al[lk_aln].a = rm; lk_al[lk_aln].b = tx; lk_al[lk_aln].ou = ou; lk_al[lk_aln].ov = ov; lk_al[lk_aln].rej = ovt0 >= 40 && mis0 * 10 > (m0 + mis0) * 6; lk_aln++; }
         if (ovt0 >= 40 && mis0 * 10 > (m0 + mis0) * 6) { if (lk_sm_log) printf("nb: room %d is NOT a clean continuation of room %d (the overlapping pictures disagree): not kept\n", tx, rm); continue; }
         lk_nbl[lk_nbn].room = tx; lk_nbl[lk_nbn].ou = ou; lk_nbl[lk_nbn].ov = ov;
       }
@@ -1005,7 +1015,7 @@ static void lk_seam_pre(int rm) {   /* before the picture decision of line 0: en
     return;
   }
   lk_sm_due = 0;
-  if (lk_sm_allframes || lk_sm_ms_since(&lk_sm_lastdue) >= 14.0) { lk_sm_due = 1; clock_gettime(CLOCK_MONOTONIC, &lk_sm_lastdue); }
+  if (lk_sm_allframes || lk_sm_ms_since(&lk_sm_lastdue) >= 33.0) { lk_sm_due = 1; clock_gettime(CLOCK_MONOTONIC, &lk_sm_lastdue); }
 }
 static void lk_sm_shifts(int camn0, int camn2, float s) {   /* screen shift of the new room's picture and of the old room's picture while the camera is at old + s * (new - old) in the shared world */
   float vx = (float)camn0 + (float)lk_sm_ov + (float)lk_sm_ou / 2.0f - (float)lk_sm_dz - (float)lk_sm_ocam0, vy = (float)camn2 + (float)lk_sm_ov - (float)lk_sm_ou / 2.0f - (float)lk_sm_dz - (float)lk_sm_ocam2, an = (1.0f - s) * vx, bn = (1.0f - s) * vy, ao = -s * vx, bo = -s * vy;
@@ -1021,7 +1031,7 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
     if (rm != lk_nb_room) { lk_nb_room = rm; lk_nb_roomf = fn; lk_nbn = 0; lk_nb_pending = 1; }
     if (lk_nb_pending && fn - lk_nb_roomf >= 2 && (lk_sm_state == 0 || lk_sm_state >= 2)) {   /* two frames after the room appeared: the snapshot holds its height map; and its layer images must be built (the alignment compares them) */
       int y2, cells = 0; for (y2 = 0; y2 < 152; y2 += 4) { int x2; for (x2 = 0; x2 < 304; x2 += 4) cells += (lk_o_pa[y2][x2] | lk_o_pb[y2][x2]) >> 16 & 1; }
-      if (cells > 200 || fn - lk_nb_roomf > 30) { lk_nb_pending = 0; lk_nb_collect(rm); }
+      if (cells > 200 || fn - lk_nb_roomf > 30) { struct timespec t0c; clock_gettime(CLOCK_MONOTONIC, &t0c); lk_nb_pending = 0; lk_nb_collect(rm); if (lk_sm_log >= 4) printf("seam: frame %ld neighbours of room %d collected in %.1f ms\n", fn, rm, lk_sm_ms_since(&t0c)); }
     }
     if (lk_nb_chk && rm != lk_nb_chk_room && fn - lk_nb_roomf >= 60) { lk_nb_chk_room = rm; lk_nb_check(rm); }
   } else if (!(lk_seam_get() && lk_o_mode == 2)) { lk_nbn = 0; lk_nb_room = -1; }
@@ -1050,6 +1060,7 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
         }
         int nk2 = -1, kk; for (kk = 0; kk < lk_nbn; kk++) if (lk_nbl[kk].room == tx) nk2 = kk;
         if (tw >= 0 && lk_sm_door(tw & 0xFF) && ov <= LK_SM_MAXOVERLAP && abs(16 * (((cw >> 8) & 15) - ((tw >> 8) & 15))) <= LK_SM_MAXDZ && nk2 >= 0) {
+          lk_nb_prewarm(tx);   /* the target's neighbours are decoded during the (invisible, fast) gap */
           lk_sm_state = 1; lk_sm_early = early; lk_sm_nofade = 1; lk_sm_t0 = fn; clock_gettime(CLOCK_MONOTONIC, &lk_sm_wall); lk_sm_target = tx; lk_sm_oroom = rm; lk_sm_ou = lk_nbl[nk2].ou; lk_sm_ov = lk_nbl[nk2].ov; lk_sm_dz = lk_nbl[nk2].dz;   /* the neighbour's aligned world offset */ lk_sm_ocam0 = lk_sm_osave0; lk_sm_ocam2 = lk_sm_osave2; lk_sm_ou0 = lk_sm_osaveu; lk_sm_ov0 = lk_sm_osavev;
           memcpy(lk_o_pix, lk_sm_pixsave, sizeof lk_o_pix);   /* the picture of the gap is the bright one */
           { int vx = 0, vy = 0, ex = 0, ey = 0; double fr = lk_sm_gapms / 16.67;   /* Nigel's speed over the last 4 frames (world units per frame) x the frames the gap takes on the wall clock = how far he walks during it */
@@ -1084,6 +1095,7 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
     if (lk_sh_hide || rm != lk_sm_target && !lk_sm_same(rm, lk_sm_target)) { lk_sm_state = 0; lk_sm_nofade = 0; }
     else if (lk_sm_ms_since(&lk_sm_xf0) >= 260.0 && L == 0) { lk_sm_state = 0; lk_sm_nofade = 0; if (lk_sm_log) printf("seam: frame %ld CROSS OVER done\n", fn); }
   }
+  if (lk_sm_log >= 4 && lk_sm_state) { extern int lk_sw_skipped_get(void); printf("seam: t frame %ld state %d L %X early %d gap %d ms %.1f skipped sleeps %d\n", fn, lk_sm_state, L, lk_sm_early, lk_seam_gap(), lk_sm_ms_since(&lk_sm_wall), lk_sw_skipped_get()); }   /* LANDSTALKER_SEAM_LOG=4: wall clock per frame of a transition */
   if (lk_sm_state == 1) {   /* the gap picture: the old room's world glides towards the arrival (the wall clock decides how far, the game is loading in the background) */
     float sg = (float)(lk_sm_ms_since(&lk_sm_wall) / LK_SM_GLIDE_MS); if (sg > 1.0f) sg = 1.0f;   /* linear: the camera moves at Nigel's walking speed */
     lk_sm_shifts(lk_sm_pcam0, lk_sm_pcam2, sg); lk_sm_sxn = lk_sm_sxo; lk_sm_syn = lk_sm_syo;
@@ -1294,29 +1306,49 @@ else:
     print("vdp_render.c already patched: " + VER)
 
 # ---- seamless walk on (user 2026-10-23 'ja A'): wrapper of ApplyWarpAtPlayerTile $00A0C2 moves Nigel's arrival position by the picture alignment (lk_seam_arrival in vdp_render.c; only during a seamless transition) ----
-VER_W = "LK_SEAMWALK v1"
+VER_W = "LK_SEAMWALK v2"
 p = os.path.join(root, "src/func_table.c")
 s = open(p).read()
 if VER_W not in s:
     a = "static void lk_strip_extend(uint32_t a);\n"
     assert s.count(a) == 1
-    module = r'''/* ---- LK_SEAMWALK v1: seamless doors, walk on (tools/patch_own.py) ---- */
+    module = r'''/* ---- LK_SEAMWALK v2: seamless doors, walk on (tools/patch_own.py) ---- */
 extern void lk_seam_arrival(void);
 static gen_func_t lk_o_awpt;
 static void lk_h_awpt(void) { lk_o_awpt(); lk_seam_arrival(); }   /* ApplyWarpAtPlayerTile: new room + arrival position written, LoadRoomPath not yet run */
+extern int lk_seam_skipfade(void);
+void func_table_rts(void);
+static gen_func_t lk_o_sleep; static int lk_sw_skipped;
+int lk_sw_skipped_get(void) { return lk_sw_skipped; }
+static void lk_h_sleep(void) {   /* Sleep $000B7A: the 7 x 2 frame steps of the game's fades (FadeOutToDarkness / FadeInFromDarkness, recognised by the return address $008F1E / $008EEE) are not waited for during a seamless transition (the palette steps are still computed); a skipped call does the rts itself */
+    uint32_t ret = bus_read32(g_m68k.a[7]) & 0xFFFFFF;
+    if ((ret == 0x008F1E || ret == 0x008EEE) && lk_seam_skipfade()) { lk_sw_skipped++; func_table_rts(); return; }
+    lk_o_sleep();
+}
 static void lk_seamwalk_install(void) {
     static int done;
     if (done) return;
     done = 1;
     lk_o_awpt = func_table_lookup(0x00A0C2);
     if (lk_o_awpt) func_table_register(0x00A0C2, lk_h_awpt); else fprintf(stderr, "seamwalk: ApplyWarpAtPlayerTile not found\n");
+    lk_o_sleep = func_table_lookup(0x000B7A);
+    if (lk_o_sleep) func_table_register(0x000B7A, lk_h_sleep); else fprintf(stderr, "seamwalk: Sleep not found\n");
 }
 '''
     s = s.replace(a, module + a, 1)
     h = "        lk_qs_install();   /* LK_QUICKSAVE v1 */\n"
     assert s.count(h) == 1
-    s = s.replace(h, h + "        lk_seamwalk_install();   /* LK_SEAMWALK v1 */\n", 1)
+    s = s.replace(h, h + "        lk_seamwalk_install();   /* LK_SEAMWALK v2 */\n", 1)
     open(p, "w").write(s)
     print("func_table.c patched: " + VER_W)
 else:
     print("func_table.c already patched: " + VER_W)
+
+p = os.path.join(root, "src/platform_sdl.c")
+s = open(p).read()
+if "LK_SEAMSYNC v1" not in s:
+    a = "    uint64_t target = s_frame_start + freq / (60 * (uint64_t)lk_ff_n());   /* LK_FFWD v1 */\n"
+    assert s.count(a) == 1, "platform_sdl.c: run patch_ffwd.py first"
+    s = s.replace(a, a + "    if (lk_seam_gap()) target = 0;   /* LK_SEAMSYNC v1 (patch_own.py): a seamless gap runs flat out, no pacing between its frames */\n", 1)
+    open(p, "w").write(s)
+    print("platform_sdl.c patched: LK_SEAMSYNC v1")
