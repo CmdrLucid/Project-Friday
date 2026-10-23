@@ -713,6 +713,7 @@ static void lk_scr_row(PIXEL_OUT_T *row, int e, int line, int map) {
    the moment the game starts its fade out the last bright picture is FROZEN (gap, the emulation runs fast without drawing: the fade out and the room load take ~60 frames), when the new room is
    loaded it is drawn without its fade in while the camera glides from the old room's view to the new one (pan) and the old room's scenery, saved as layer images, stays visible beside it
    (the two rooms share one world: new cell = old cell - (door cell - arrival cell)), then the old room dissolves.  Stairs, ladders, locked doors, warp pads and everything else keep the game's fade. ---- */
+#include <time.h>
 extern int lk_rm_cell(int room, int x, int y);   /* tools/patch_roommodel.py: height map word of a room's cell from the ROM decoder, -1 = none */
 static int lk_sm_opt = -1;
 int lk_seam_get(void) {
@@ -726,7 +727,7 @@ static PIXEL_OUT_T lk_sm_rows[224][LK_OSW]; static int lk_sm_roww, lk_sm_rows_ok
 static uint32 lk_sm_pa[152][304], lk_sm_pb[152][304]; static uint8 lk_sm_tiles[0x12000]; static PIXEL_OUT_T lk_sm_pix[64], lk_sm_pixsave[64];   /* the old room's layer images, tiles and colours */
 static int lk_sm_ocam0, lk_sm_ocam2, lk_sm_ou0, lk_sm_ov0, lk_sm_osave_ok, lk_sm_osave0, lk_sm_osave2, lk_sm_osaveu, lk_sm_osavev;   /* camera and image position of the old room's last bright frame */
 static int lk_sm_target, lk_sm_dx, lk_sm_dy, lk_sm_oroom, lk_sm_newroom, lk_sm_prevL, lk_sm_sxn, lk_sm_syn, lk_sm_sxo, lk_sm_syo, lk_sm_alpha = 256, lk_sm_log = -1;
-static long lk_sm_t0, lk_sm_pan0, lk_sm_dis0; static int lk_sm_dz;   /* dz: floor height difference of the two doorways in world units (each room has its own zero level); fastload: the black room load of a normal fade is run fast */
+static long lk_sm_t0, lk_sm_pan0, lk_sm_dis0; static struct timespec lk_sm_wall; static int lk_sm_dz, lk_sm_ou, lk_sm_ov;   /* dz: floor height difference of the two doorways in world units (each room has its own zero level); fastload: the black room load of a normal fade is run fast */
 #define LK_SM_MAXDZ 64   /* floor height difference of the two doorways (world units) up to which two rooms are one world: a cave / dungeon entrance is far off the neighbour's floor level and keeps the fade */
 #define LK_SM_MAXOVERLAP 8   /* cells of the two rooms' maps that may lie on top of each other in the shared world (the door cells themselves coincide) */
 #define LK_SM_PAN 24   /* frames of the camera glide */
@@ -832,7 +833,7 @@ static void lk_nb_check(int room) {   /* LANDSTALKER_NB_CHECK=1: the room built 
   printf("nb: room %d ROM build vs the game's RAM: layer A cells differ %d, layer B %d, tile bytes %d\n", room, da, db, dt);
 }
 
-typedef struct { int room, dx, dy, dz; lk_nb_t *nb; } lk_nbl_t;
+typedef struct { int room, ou, ov, dz; lk_nb_t *nb; } lk_nbl_t;   /* ou / ov: pixel offset of the room's image in the current room's image space (16 (dx - dy), 8 (dx + dy) for a door aligned cell offset, plus the fine alignment) */
 static lk_nbl_t lk_nbl[6]; static int lk_nb_pending, lk_nbn, lk_nb_room = -1, lk_nb_chk = -1, lk_nb_chk_room = -1; static long lk_nb_roomf;
 static void lk_nb_collect(int rm) {   /* the rooms that stay loaded beside room `rm`: connections that are door -> door, no stairs / closed flag, and whose maps do not lie on top of each other in the shared world (same rule as the seamless transition) */
   uint32_t a; int orig = rm, i;
@@ -852,33 +853,76 @@ static void lk_nb_collect(int rm) {   /* the rooms that stay loaded beside room 
       if (ov > LK_SM_MAXOVERLAP || abs(16 * (((cw >> 8) & 15) - ((tw >> 8) & 15))) > LK_SM_MAXDZ) continue;
       lk_nbl[lk_nbn].nb = lk_nb_build(tx);
       if (!lk_nbl[lk_nbn].nb) continue;
-      { /* ALIGNMENT (user: the rooms may overlap so that no black band remains between them): the neighbour is moved by up to 3 cells in x / y around the door aligned position; the move that covers the most of the screen window around the door with the two rooms' scenery (union - 0.5 * overlap - 1.5 * distance, in 8 x 8 tile cells of the layer images) wins if it gains at least 12 cells over the exact alignment */
-        const lk_nb_t *nbq2 = lk_nbl[lk_nbn].nb; int dx0 = bx - ax, dy0 = by - ay, sx, sy, c0 = 2 * (bx - by) + 148, r0 = bx + by, bestsx = 0, bestsy = 0; float bests = -1e9f, base = 0;
-        for (sx = -3; sx <= 3; sx++) for (sy = -3; sy <= 3; sy++) {
-          int ddx = dx0 + sx, ddy = dy0 + sy, oc = 2 * (ddx - ddy), orr = ddx + ddy, c, r, u = 0, ov = 0; float sc;
+      { /* ALIGNMENT (user: "the rooms may overlap so that no black band remains, the exits (what sticks out into the black margin) must overlap 1:1, they only needed to be closer together"): the exits are the path / ground pieces that both rooms draw at the doorway; with the door cells on top of each other they coincide, the grass fields are still apart (a black band).  The neighbour is moved ALONG ONE AXIS (x or y: the exit piece stays collinear with itself), first in whole cells (up to 4), then in 1/8 cell steps (2 x 1 pixels) around the best cell, until the two pictures cover the screen window around the door best (union - 0.5 * overlap - small distance penalty; cells = 8 x 8 tile cells, pixels = colour index != 0 of the layer images); only once the current room's images are built; not kept at all when the two pictures disagree so much where they overlap that this room cannot be a continuation (a cave, a shrine ...) */
+        const lk_nb_t *nbq2 = lk_nbl[lk_nbn].nb; int dx0 = bx - ax, dy0 = by - ay, sx, sy, c0 = 2 * (bx - by) + 148, r0 = bx + by, k, ax_, bestax = 0, bestk = 0, ovt0 = 0, m0 = 0, mis0 = 0, ou = 0, ov = 0; float bests = -1e9f, base = 0;
+        for (ax_ = 0; ax_ < 2; ax_++) for (k = -4; k <= 4; k++) {
+          int ddx, ddy, oc, orr, c, r, u = 0, ovl = 0; float sc;
+          if (ax_ == 1 && k == 0) continue;
+          sx = ax_ ? k : 0; sy = ax_ ? 0 : k;
+          ddx = dx0 + sx; ddy = dy0 + sy; oc = 2 * (ddx - ddy); orr = ddx + ddy;
           for (r = r0 - 9; r < r0 + 19; r++) for (c = c0 - 24; c < c0 + 25; c++) {
             int a2 = 0, b2 = 0, nc = c - oc, nr = r - orr;
             if (c >= 0 && c < 304 && r >= 0 && r < 152) a2 = ((lk_o_pa[r][c] | lk_o_pb[r][c]) & 0x10000) != 0;
             if (nc >= 0 && nc < 304 && nr >= 0 && nr < 152) b2 = ((nbq2->pa[nr][nc] | nbq2->pb[nr][nc]) & 0x10000) != 0;
             if (a2 || b2) u++;
-            if (a2 && b2) ov++;
+            if (a2 && b2) ovl++;
+            if (sx == 0 && sy == 0 && a2 && b2) {   /* the exact door alignment: how much do the pictures agree where they overlap? (palette line + colour index of 8 sample pixels per tile) */
+              int q;
+              ovt0++;
+              for (q = 0; q < 8; q++) {
+                int U = c * 8 + ((q * 3) & 7), V = r * 8 + q, apal = 0, ap = 0, bpal = 0, bp = 0, pn = 0, pa = 0, pn2 = 0, pb2 = 0, ia = lk_o_fetch(lk_o_pa, U, V, &apal, &ap, 0), ib = lk_o_fetch(lk_o_pb, U, V, &bpal, &bp, 0),
+                    na1 = lk_nb_fetch(nbq2, nbq2->pa, U - 8 * oc, V - 8 * orr, &pn, &pa), ib1 = lk_nb_fetch(nbq2, nbq2->pb, U - 8 * oc, V - 8 * orr, &pn2, &pb2), x1, x2;
+                x1 = ia && ap ? apal * 16 + ia : ib && bp ? bpal * 16 + ib : ia ? apal * 16 + ia : ib ? bpal * 16 + ib : 0;
+                x2 = na1 && pa ? pn * 16 + na1 : ib1 && pb2 ? pn2 * 16 + ib1 : na1 ? pn * 16 + na1 : ib1 ? pn2 * 16 + ib1 : 0;
+                if (x1 && x2) { if (x1 == x2) m0++; else mis0++; }
+              }
+            }
           }
-          sc = (float)u - 0.5f * (float)ov - 1.5f * (float)(abs(sx) + abs(sy));
-          if (sx == 0 && sy == 0) base = sc;
-          if (sc > bests) { bests = sc; bestsx = sx; bestsy = sy; }
+          sc = (float)u - 0.5f * (float)ovl - 1.5f * (float)abs(k);
+          if (k == 0 && ax_ == 0) base = sc;
+          if (sc > bests) { bests = sc; bestax = ax_; bestk = k; }
         }
-        if (bests - base < 12.0f) { bestsx = bestsy = 0; }
-        { static int tsx = -9999, tsy; if (tsx == -9999) { const char *q = getenv("LANDSTALKER_NB_SHIFT"); tsx = tsy = 0; if (q) sscanf(q, "%d,%d", &tsx, &tsy); if (q) { tsx += 0; } } if (getenv("LANDSTALKER_NB_SHIFT")) { bestsx = tsx; bestsy = tsy; } }   /* LANDSTALKER_NB_SHIFT=x,y: test aid, fixed shift instead of the search */
-        lk_nbl[lk_nbn].room = tx; lk_nbl[lk_nbn].dx = dx0 + bestsx; lk_nbl[lk_nbn].dy = dy0 + bestsy;
-        if (lk_sm_log) printf("nb: alignment of room %d beside room %d: shift %d,%d (score %.0f, exact %.0f)\n", tx, rm, bestsx, bestsy, bests, base);
+        if (bests - base < 12.0f) { bestk = 0; }
+        ou = 16 * (dx0 - dy0); ov = 8 * (dx0 + dy0);
+        if (bestk) { if (bestax) { ou += 16 * bestk; ov += 8 * bestk; } else { ou -= 16 * bestk; ov += 8 * bestk; } }
+        if (bestk) {   /* fine alignment in 1/8 cell steps (the black seam between two rooms is rarely a whole number of cells thick): pixel level coverage of the window, +-8 steps around the best cell shift */
+          int i2, besti = 0; long bestp = -1000000000L;
+          for (i2 = -8; i2 <= 8; i2++) {
+            int ou2 = ou + (bestax ? 2 * i2 : -2 * i2), ov2 = ov + i2, X, Y; long sc2, cov = 0, ovp = 0;
+            for (Y = r0 * 8 - 72; Y < r0 * 8 + 152; Y += 2) for (X = c0 * 8 - 192; X < c0 * 8 + 200; X += 2) {
+              int pp = 0, qq = 0, pr = 0, pb3 = 0, pr2 = 0, pb4 = 0, a3, b3;
+              a3 = lk_o_fetch(lk_o_pa, X, Y, &pp, &pr, 0) || lk_o_fetch(lk_o_pb, X, Y, &qq, &pb3, 0);
+              b3 = lk_nb_fetch(nbq2, nbq2->pa, X - ou2, Y - ov2, &pp, &pr2) || lk_nb_fetch(nbq2, nbq2->pb, X - ou2, Y - ov2, &qq, &pb4);
+              if (a3 || b3) cov++;
+              if (a3 && b3) ovp++;
+            }
+            sc2 = cov * 4 - ovp - (long)abs(i2);
+            if (sc2 > bestp) { bestp = sc2; besti = i2; }
+          }
+          ou += bestax ? 2 * besti : -2 * besti; ov += besti;
+        }
+        if (lk_sm_log) printf("nb: room %d beside room %d: exact overlap %d tiles, %d equal / %d different sample pixels; axis %c shift %d cells (score %.0f, exact %.0f), pixel offset %d,%d (door aligned %d,%d)\n", tx, rm, ovt0, m0, mis0, bestax ? 'x' : 'y', bestk, bests, base, ou, ov, 16 * (dx0 - dy0), 8 * (dx0 + dy0));
+        if (ovt0 >= 40 && mis0 * 10 > (m0 + mis0) * 6) { if (lk_sm_log) printf("nb: room %d is NOT a clean continuation of room %d (the overlapping pictures disagree): not kept\n", tx, rm); continue; }
+        lk_nbl[lk_nbn].room = tx; lk_nbl[lk_nbn].ou = ou; lk_nbl[lk_nbn].ov = ov;
       }
       lk_nbl[lk_nbn].dz = 16 * (((cw >> 8) & 15) - ((tw >> 8) & 15)); lk_nbn++;
     }
   }
-  for (i = 0; i < lk_nbn; i++) if (lk_sm_log) printf("nb: room %d keeps room %d loaded beside it (D %d,%d dz %d)\n", rm, lk_nbl[i].room, lk_nbl[i].dx, lk_nbl[i].dy, lk_nbl[i].dz);
+  for (i = 0; i < lk_nbn; i++) if (lk_sm_log) printf("nb: room %d keeps room %d loaded beside it (pixel offset %d,%d dz %d)\n", rm, lk_nbl[i].room, lk_nbl[i].ou, lk_nbl[i].ov, lk_nbl[i].dz);
+}
+static PIXEL_OUT_T lk_vh[8][LK_OSW]; static uint8 lk_vhv[8][LK_OSW];   /* the last composed rows and whether a pixel was void: a seam between two rooms that is only a few pixels thick is filled from the row above */
+static int lk_nb_lookup(int ubase, int vbase, int x, int pick_out[1], const lk_nb_t **nbq_out) {   /* the first neighbour room that has a picture at this pixel: pick = palette line * 16 + colour index, 0 = none */
+  int nk;
+  for (nk = 0; nk < lk_nbn; nk++) {
+    const lk_nbl_t *q = &lk_nbl[nk]; int U = ubase + x - lk_sm_sxn - q->ou, V = vbase - lk_sm_syn - q->ov + q->dz, nA = 0, nB = 0, pA = 0, pB = 0,
+        na = lk_nb_fetch(q->nb, q->nb->pa, U, V, &nA, &pA), nbb = lk_nb_fetch(q->nb, q->nb->pb, U, V, &nB, &pB), pk = 0;
+    if (na && pA) pk = nA * 16 + na; else if (nbb && pB) pk = nB * 16 + nbb; else if (na) pk = nA * 16 + na; else if (nbb) pk = nB * 16 + nbb;
+    if (pk) { pick_out[0] = pk; *nbq_out = q->nb; return 1; }
+  }
+  return 0;
 }
 static void lk_sm_shifts(int camn0, int camn2, float s) {   /* screen shift of the new room's picture and of the old room's picture while the camera is at old + s * (new - old) in the shared world */
-  float vx = (float)((camn0 + 16 * lk_sm_dx - lk_sm_dz) - lk_sm_ocam0), vy = (float)((camn2 + 16 * lk_sm_dy - lk_sm_dz) - lk_sm_ocam2), an = (1.0f - s) * vx, bn = (1.0f - s) * vy, ao = -s * vx, bo = -s * vy;
+  float vx = (float)camn0 + (float)lk_sm_ov + (float)lk_sm_ou / 2.0f - (float)lk_sm_dz - (float)lk_sm_ocam0, vy = (float)camn2 + (float)lk_sm_ov - (float)lk_sm_ou / 2.0f - (float)lk_sm_dz - (float)lk_sm_ocam2, an = (1.0f - s) * vx, bn = (1.0f - s) * vy, ao = -s * vx, bo = -s * vy;
   lk_sm_sxn = (int)lroundf(an - bn); lk_sm_syn = (int)lroundf((an + bn) / 2.0f); lk_sm_sxo = (int)lroundf(ao - bo); lk_sm_syo = (int)lroundf((ao + bo) / 2.0f);
 }
 static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) {   /* once per frame, after the picture decision of line 0 */
@@ -889,7 +933,10 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
   if (lk_nb_chk < 0) { const char *q = getenv("LANDSTALKER_NB_CHECK"); lk_nb_chk = q ? atoi(q) : 0; }
   if (lk_seam_get() && lk_o_mode == 2 && rm == lk_o_room && rm > 0 && lk_o_disp0) {   /* neighbour rooms of the room that is on screen */
     if (rm != lk_nb_room) { lk_nb_room = rm; lk_nb_roomf = fn; lk_nbn = 0; lk_nb_pending = 1; }
-    if (lk_nb_pending && fn - lk_nb_roomf >= 2 && (lk_sm_state == 0 || lk_sm_state >= 2)) { lk_nb_pending = 0; lk_nb_collect(rm); }   /* two frames after the room appeared: the snapshot holds its height map */
+    if (lk_nb_pending && fn - lk_nb_roomf >= 2 && (lk_sm_state == 0 || lk_sm_state >= 2)) {   /* two frames after the room appeared: the snapshot holds its height map; and its layer images must be built (the alignment compares them) */
+      int y2, cells = 0; for (y2 = 0; y2 < 152; y2 += 4) { int x2; for (x2 = 0; x2 < 304; x2 += 4) cells += (lk_o_pa[y2][x2] | lk_o_pb[y2][x2]) >> 16 & 1; }
+      if (cells > 200 || fn - lk_nb_roomf > 30) { lk_nb_pending = 0; lk_nb_collect(rm); }
+    }
     if (lk_nb_chk && rm != lk_nb_chk_room && fn - lk_nb_roomf >= 60) { lk_nb_chk_room = rm; lk_nb_check(rm); }
   } else if (!(lk_seam_get() && lk_o_mode == 2)) { lk_nbn = 0; lk_nb_room = -1; }
   { int k, i; for (k = 0; k < lk_nbn; k++) for (i = 0; i < 16; i++) { int c = lk_o_darken(lk_nbl[k].nb->md0[i], lk_sm_nofade ? 0 : lk_o_lvl0); lk_nbl[k].nb->pix0[i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; } }
@@ -913,9 +960,9 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
         }
         int nk2 = -1, kk; for (kk = 0; kk < lk_nbn; kk++) if (lk_nbl[kk].room == tx) nk2 = kk;
         if (tw >= 0 && lk_sm_door(tw & 0xFF) && ov <= LK_SM_MAXOVERLAP && abs(16 * (((cw >> 8) & 15) - ((tw >> 8) & 15))) <= LK_SM_MAXDZ && nk2 >= 0) {
-          lk_sm_state = 1; lk_sm_nofade = 1; lk_sm_t0 = fn; lk_sm_target = tx; lk_sm_oroom = rm; lk_sm_dx = lk_nbl[nk2].dx; lk_sm_dy = lk_nbl[nk2].dy; lk_sm_dz = lk_nbl[nk2].dz;   /* the neighbour's aligned world offset */ lk_sm_ocam0 = lk_sm_osave0; lk_sm_ocam2 = lk_sm_osave2; lk_sm_ou0 = lk_sm_osaveu; lk_sm_ov0 = lk_sm_osavev;
+          lk_sm_state = 1; lk_sm_nofade = 1; lk_sm_t0 = fn; clock_gettime(CLOCK_MONOTONIC, &lk_sm_wall); lk_sm_target = tx; lk_sm_oroom = rm; lk_sm_ou = lk_nbl[nk2].ou; lk_sm_ov = lk_nbl[nk2].ov; lk_sm_dz = lk_nbl[nk2].dz;   /* the neighbour's aligned world offset */ lk_sm_ocam0 = lk_sm_osave0; lk_sm_ocam2 = lk_sm_osave2; lk_sm_ou0 = lk_sm_osaveu; lk_sm_ov0 = lk_sm_osavev;
           memcpy(lk_sm_pa, lk_o_pa, sizeof lk_sm_pa); memcpy(lk_sm_pb, lk_o_pb, sizeof lk_sm_pb); memcpy(lk_sm_tiles, lk_o_tiles, sizeof lk_sm_tiles); memcpy(lk_sm_pix, lk_sm_pixsave, sizeof lk_sm_pix);
-          if (lk_sm_log) printf("seam: frame %ld GAP start room %d cell %d,%d -> room %d cell %d,%d (D %d,%d)\n", fn, rm, px, py, tx, ax, ay, lk_sm_dx, lk_sm_dy);
+          if (lk_sm_log) printf("seam: frame %ld GAP start room %d cell %d,%d -> room %d cell %d,%d (pixel offset %d,%d)\n", fn, rm, px, py, tx, ax, ay, lk_sm_ou, lk_sm_ov);
         } else if (lk_sm_log) printf("seam: frame %ld door %d,%d of room %d -> room %d keeps the fade (cells %04X / %04X, %d map cells would overlap)\n", fn, px, py, rm, tx, cw, tw, ov);
       }
     }
@@ -925,7 +972,7 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
     else if (rm != lk_sm_oroom && !lk_sm_same(rm, lk_sm_target)) { lk_sm_state = 0; if (lk_sm_log) printf("seam: frame %ld GAP aborted (room %d is not the target %d)\n", fn, rm, lk_sm_target); }
     else if (rm != lk_sm_oroom && lk_o_room == rm && drawn && lk_o_disp0) {
       lk_sm_state = 2; lk_sm_pan0 = fn; lk_sm_newroom = rm; lk_sm_nofade = 1; lk_sm_alpha = 256;
-      if (lk_sm_log) printf("seam: frame %ld PAN start room %d (gap %ld frames)\n", fn, rm, fn - lk_sm_t0);
+      if (lk_sm_log) { struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts); printf("seam: frame %ld PAN start room %d (gap %ld frames, %.0f ms of computing)\n", fn, rm, fn - lk_sm_t0, (ts.tv_sec - lk_sm_wall.tv_sec) * 1000.0 + (ts.tv_nsec - lk_sm_wall.tv_nsec) / 1e6); }
     }
   }
   if (lk_sm_state >= 2) {
@@ -1024,7 +1071,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         for (k = 0; k < 40; k++) { int y = ((vram[(base + 8 * i4) ^ 1] << 8) | vram[(base + 8 * i4 + 1) ^ 1]) & 0x3FF, sz = (vram[(base + 8 * i4 + 2) ^ 1] << 8) | vram[(base + 8 * i4 + 3) ^ 1], tw = (vram[(base + 8 * i4 + 4) ^ 1] << 8) | vram[(base + 8 * i4 + 5) ^ 1], x = ((vram[(base + 8 * i4 + 6) ^ 1] << 8) | vram[(base + 8 * i4 + 7) ^ 1]) & 0x1FF; printf("owndbg: SAT %d: y %d x %d size %02X tile %04X\n", i4, y - 128, x - 128, (sz >> 8) & 15, tw); i4 = sz & 0x7F; if (!i4) break; } } }
     if (lk_o_txlog && (hint & 0xFF) == 0xA0) { int rr, cc, nd = 0; for (rr = 0; rr < 8; rr++) for (cc = 0; cc < 40; cc++) if ((OW(0x23900 + 2 * (rr * 40 + cc)) | 0x6000) != SW(0xFF2600 + 0x80 * rr + 2 * cc)) nd++; if (nd) printf("own: text box tilemap differs from the game's in %d words, frame %ld room %d\n", nd, platform_frame_number(), rm); } if (lk_o_txlog > 1) lk_ot_dbg(vram, platform_frame_number()); else if (lk_o_txlog) { int bad = lk_ot_check(vram); if (bad > 0) printf("own: text mirror differs from VRAM in %d bytes, frame %ld room %d\n", bad, platform_frame_number(), rm); } if (lk_o_palmode) lk_o_palette(rm); fr_done = 1; } else fr_done = 0;
     } else { fr_done = 0; lk_o_why = 5; }
-    { static int sl = -1; if (sl < 0) { const char *q = getenv("LANDSTALKER_SEAM_LOG"); sl = q ? atoi(q) : 0; } if (sl) printf("seam: frame %ld rm %d drawn %d why %d reg1 %02X L %X cell %d,%d z %d disp0 %d blanked %d\n", platform_frame_number(), rm, lk_o_room, lk_o_why, reg[1], (int)(int16_t)(SW(0xFF0F50) - SW(0xFF0F52)), UB(0xFF5400), UB(0xFF5401), (int)(int16_t)SW(0xFF5412), lk_o_disp0, lk_o_blanked); }   /* LANDSTALKER_SEAM_LOG=1: per frame state of room changes (docs/STAGE3_INVENTORY.md S3.5) */
+    { static int sl = -1; if (sl < 0) { const char *q = getenv("LANDSTALKER_SEAM_LOG"); sl = q ? atoi(q) : 0; } if (sl >= 2) printf("seam: frame %ld rm %d drawn %d why %d reg1 %02X L %X cell %d,%d z %d disp0 %d blanked %d\n", platform_frame_number(), rm, lk_o_room, lk_o_why, reg[1], (int)(int16_t)(SW(0xFF0F50) - SW(0xFF0F52)), UB(0xFF5400), UB(0xFF5401), (int)(int16_t)SW(0xFF5412), lk_o_disp0, lk_o_blanked); }   /* LANDSTALKER_SEAM_LOG=1: per frame state of room changes (docs/STAGE3_INVENTORY.md S3.5) */
     lk_seam_step(rm, fr_done, cam0, cam2, lk_o_u0, lk_o_v0);   /* S3.5 */
     memcpy(lk_o_prev, r, sizeof lk_o_prev); lk_o_valid = 1;
     if (((r[(0xFF11DE & 0xFFFF) ^ 1] << 8) | r[(0xFF11DF & 0xFFFF) ^ 1]) == 0) { memcpy(lk_o_good, r, sizeof lk_o_good); lk_o_goodok = 1; }   /* the player is first in a complete visible list: remember the last complete state */
@@ -1064,15 +1111,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         else if (ai) { pick = apal * 16 + ai; src = 2; }
         else if (bi) { pick = bpal * 16 + bi; src = 3; }
         else { pick = LK_REG(7) & 0x3F;                                   /* backdrop colour */
-          if (lk_nbn > 0 && lk_seam_get()) {                               /* step 2: the neighbour rooms that stay loaded fill the void */
-            int nk;
-            for (nk = 0; nk < lk_nbn && src == 0; nk++) {
-              const lk_nbl_t *q = &lk_nbl[nk]; int U = ubase + x - lk_sm_sxn - 16 * (q->dx - q->dy), V = vbase - lk_sm_syn - 8 * (q->dx + q->dy) + q->dz, nA = 0, nB = 0, pA = 0, pB = 0,
-                  na = lk_nb_fetch(q->nb, q->nb->pa, U, V, &nA, &pA), nbb = lk_nb_fetch(q->nb, q->nb->pb, U, V, &nB, &pB);
-              if (na && pA) { pick = nA * 16 + na; src = 6; } else if (nbb && pB) { pick = nB * 16 + nbb; src = 6; } else if (na) { pick = nA * 16 + na; src = 6; } else if (nbb) { pick = nB * 16 + nbb; src = 6; }
-              if (src == 6) nbq = q->nb;
-            }
-          }
+          if (lk_nbn > 0 && lk_seam_get()) { int pk[1]; const lk_nb_t *nq = 0; if (lk_nb_lookup(ubase, vbase + 0, x, pk, &nq)) { pick = pk[0]; nbq = nq; src = 6; } }   /* step 2: the neighbour rooms that stay loaded fill the void */
           if (src == 0 && lk_sm_state >= 2 && lk_sm_alpha > 0) {           /* S3.5: the old room's scenery behind the new room's void */
             int opA = 0, opB = 0, oqA = 0, oqB = 0, oa = lk_sm_fetch(lk_sm_pa, lk_sm_ou0 + x - lk_sm_sxo, lk_sm_ov0 + line - lk_sm_syo, &opA, &oqA), ob = lk_sm_fetch(lk_sm_pb, lk_sm_ou0 + x - lk_sm_sxo, lk_sm_ov0 + line - lk_sm_syo, &opB, &oqB);
             if (oa && oqA) { pick = opA * 16 + oa; src = 5; } else if (ob && oqB) { pick = opB * 16 + ob; src = 5; } else if (oa) { pick = opA * 16 + oa; src = 5; } else if (ob) { pick = opB * 16 + ob; src = 5; }
@@ -1081,10 +1120,24 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         else { int wp = lk_o_win(line, x, hint); if (wp >= 0 && (wp & 0xF) && i >= wlo && i < whi) { if (!(text && (sp & 0x200) && (sp & 0x100) && !(wp & 0x200))) { pick = wp & 0x3F; src = 4; } }   /* a sprite is above a low priority window pixel (the yes / no arrow in the text box), a high priority one only above a low window pixel */ else if (wp >= 0 && !tb && wline) black = 1; }   /* transparent window pixels and the black ends of the window line show the map */
       }
       col = black ? (margin ? (lk_o_regvdp ? pixel[0x40] : lk_o_palmode ? lk_o_pix[LK_REG(7) & 0x3F] : pixel_lut[1][0]) : pixel_lut[1][0]) : (lk_o_palmode ? (lk_o_fxon ? lk_o_fxpix[lk_o_fxk[line & 255]][pick & 0x3F] : lk_o_pix[pick & 0x3F]) : pixel[pick & 0x3F]);
+      if ((src == 2 || src == 3) && !black && lk_nbn > 0 && (col & 0xFFFFFF) == 0 && lk_seam_get()) {   /* the room's own black edge pixels (the shading of its map edge) are void for the neighbours: a thin black line stayed between two rooms otherwise */
+        int pk[1]; const lk_nb_t *nq = 0;
+        if (lk_nb_lookup(ubase, vbase, x, pk, &nq)) { PIXEL_OUT_T nc = (pk[0] < 16) ? nq->pix0[pk[0] & 15] : lk_o_pix[pk[0] & 0x3F]; if ((nc & 0xFFFFFF) != 0) { pick = pk[0]; nbq = nq; src = 6; } }
+      }
+      if ((src == 0 || src == 2 || src == 3) && (col & 0xFFFFFF) == 0 && !black && !margin && lk_nbn > 0 && line > 27 && lk_seam_get()) {   /* a void pixel with picture a few pixels above and below it is a seam between two rooms: fill it with the colour of the row above */
+        int d, up = -1, below = 0;
+        for (d = 1; d <= 6 && up < 0; d++) if (!lk_vhv[(line - d) & 7][i] && (lk_vh[(line - d) & 7][i] & 0xFFFFFF)) up = d;
+        if (up > 0) {
+          for (d = 1; d <= 8 && !below; d++) { int ap2 = 0, aq = 0, bp2 = 0, bq = 0, pk2[1]; const lk_nb_t *nq2 = 0;
+            if (lk_o_fetch(lk_o_pa, ubase + x - lk_sm_sxn, vbase - lk_sm_syn + d, &ap2, &aq, 0) || lk_o_fetch(lk_o_pb, ubase + x - lk_sm_sxn, vbase - lk_sm_syn + d, &bp2, &bq, 0) || lk_nb_lookup(ubase, vbase + d, x, pk2, &nq2)) below = 1; }
+          if (below) { col = lk_vh[(line - up) & 7][i]; src = 7; }
+        }
+      }
       if (src == 6 && !black && nbq) col = (pick < 16) ? nbq->pix0[pick & 15] : lk_o_pix[pick & 0x3F];   /* a neighbour room: line 0 = its own room palette, lines 1..3 the shared ones */
       if (src == 5 && !black) { PIXEL_OUT_T oc = lk_sm_pix[pick & 0x3F], bg = lk_o_pix[LK_REG(7) & 0x3F]; int a = lk_sm_alpha, ch; PIXEL_OUT_T o = oc & 0xFF000000u;   /* S3.5: the old room's colour, dissolving into the backdrop */
         for (ch = 0; ch < 24; ch += 8) o |= (PIXEL_OUT_T)(((((oc >> ch) & 255) * (unsigned)a + ((bg >> ch) & 255) * (unsigned)(256 - a)) >> 8) & 255) << ch;
         col = o; }
+      lk_vh[line & 7][i] = (PIXEL_OUT_T)col; lk_vhv[line & 7][i] = (src == 0 || black || margin || (col & 0xFFFFFF) == 0) ? 1 : 0;
       lk_o_tot++; if (row[i] != (PIXEL_OUT_T)col) lk_o_diff++;
       if (lk_hd_n && x >= -LK_HDO && x < 320 + LK_HDO) {                    /* HD rows (the widescreen margins too): the winning layer's replacement tile (the compositor of the screens does the same) */
         lk_pi_t pi; memset(&pi, 0, sizeof pi);
