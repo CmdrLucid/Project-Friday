@@ -7,6 +7,7 @@
    tile / centre / Z, box, animation, flags, stored screen position `+0E / +10` and `+4E / +50`, supporting entity `+30`, health `+3E`).  Check: the model's own projection of the player
    (a = CentreX - Z - cam0, b = CentreY - Z - cam2, x = a - b + $120, y = ((a + b) >> 1) + $E8, FORMATS 'Entity -> screen projection') must equal the stored `+0E / +10`; the periodic line
    `model: frame F room R cam C0,C2 ents N player projection: equal A / different B (frames with a stored position; C without)` counts it.
+S3.3 (camera): `$FF1200` / `$FF1202` equal the player's (CentreX - Z, CentreY - Z) exactly, `lk_smodel.mcam0 / mcam2` computes them and the check counts equal / different frames.
 Everything is read only.  usage: patch_roommodel.py path/to/genrecomp   (run after patch_own.py).  Idempotent."""
 import os, sys
 root = sys.argv[1]
@@ -122,7 +123,8 @@ const lk_rm_t *lk_rm_get(int room) {   /* the room's arrays as the game's GetTil
 }
 /* ---- S3.2: the per frame model ---- */
 typedef struct { int idx; uint32_t addr; int type, graphic, tx, ty, z, cx, cy, bx0, bx1, by0, by1, anim, frame, flags8, flagsC, sx, sy, psx, psy, support, hp; } lk_sme_t;
-typedef struct { long frame; int room, cam0, cam2, n; lk_sme_t e[32]; const lk_rm_t *rm; } lk_smodel_t;
+typedef struct { long frame; int room, cam0, cam2, mcam0, mcam2, n;   /* cam0 / cam2 = the game's `$FF1200` / `$FF1202`, mcam0 / mcam2 = the camera computed from the player (S3.3: CentreX - Z, CentreY - Z) */
+   lk_sme_t e[32]; const lk_rm_t *rm; } lk_smodel_t;
 lk_smodel_t lk_smodel;
 static int lk_smdl_chk = -1;
 void lk_sm_update(const uint8 *r, int room) {
@@ -134,6 +136,8 @@ void lk_sm_update(const uint8 *r, int room) {
   { static long lastf = -1; if (platform_frame_number() == lastf) return; lastf = platform_frame_number(); }   /* once per frame (the renderer calls this from its line hook) */
   m->frame = platform_frame_number(); m->room = room; m->cam0 = (int16_t)MRR16(0xFF1200); m->cam2 = (int16_t)MRR16(0xFF1202);
   if (room != cur) { cur = room; since = m->frame; checked = 0; m->rm = lk_rm_get(room); }
+  { int pz = (int16_t)MRR16(0xFF5412), pcx = (int16_t)MRR16(0xFF5414), pcy = (int16_t)MRR16(0xFF5416); m->mcam0 = pcx - pz; m->mcam2 = pcy - pz; }   /* S3.3: the camera IS the player's flattened position */
+  { static long ceq, cdf; if (m->mcam0 == m->cam0 && m->mcam2 == m->cam2) ceq++; else cdf++; if (lk_smdl_chk && m->frame % 600 == 0) printf("model: camera = player (CentreX - Z, CentreY - Z): equal %ld / different %ld (frames)\n", ceq, cdf); }
   m->n = 0;
   for (k = 0; k < 32; k++) {
     int w = MRR16(0xFF11DE + 2 * k); uint32_t a; lk_sme_t *e;
@@ -147,7 +151,8 @@ void lk_sm_update(const uint8 *r, int room) {
   if (!lk_smdl_chk) return;
   for (k = 0; k < m->n; k++) if (m->e[k].addr == 0xFF5400u) {   /* the player: the model's projection must equal the stored screen position */
     const lk_sme_t *e = &m->e[k]; int a = e->cx - e->z - m->cam0, b = e->cy - e->z - m->cam2, px = a - b + 0x120, py = ((a + b) >> 1) + 0xE8;
-    if (e->sx == 0) { pnone++; continue; }   /* no screen position stored (fade / load frames, entity off screen) */
+    if (e->sx == 0) { pnone++; continue; }
+    if (lk_smdl_chk == 4) printf("cam: %ld %d %d %d %d %d %d %d %d %d\n", m->frame, room, e->cx, e->cy, e->z, m->cam0, m->cam2, e->sx, e->sy, MRR16(0xFF1204));   /* no screen position stored (fade / load frames, entity off screen) */
     pframes++; if (px == e->sx && py == e->sy) pok++; else poff++;
     if (lk_smdl_chk == 2 && e->sx != 0 && (px != e->sx || py != e->sy)) { static int nn; if (nn++ < 25) printf("model: P OFF frame %ld stored %d,%d model %d,%d d %d,%d cx %d cy %d z %d cam %d,%d\n", m->frame, e->sx, e->sy, px, py, e->sx - px, e->sy - py, e->cx, e->cy, e->z, m->cam0, m->cam2); }
     if (lk_smdl_chk == 2 && m->frame % 4000 == 0) printf("model: P frame %ld stored %d,%d model %d,%d cx %d cy %d z %d cam %d,%d\n", m->frame, e->sx, e->sy, px, py, e->cx, e->cy, e->z, m->cam0, m->cam2);
