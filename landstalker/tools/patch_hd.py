@@ -21,16 +21,23 @@ static uint32_t *lk_hd_img; static int lk_hd_iw, lk_hd_ih; static SDL_Texture *l
 static SDL_Texture *lk_hd_ftex; static int lk_hd_fw, lk_hd_fh; static uint32_t *lk_hd_fbuf;   /* filtered HD picture (destination size) */
 uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh) {
     int N = lk_hd_n, W = sw * N, H = 224 * N, y, x, sx, sy;
+    static uint8_t *m; static size_t mcap;
     if (N <= 0 || !lk_hd_rows || !lk_hd_ref) return NULL;
     if (!lk_hd_img || lk_hd_iw != W || lk_hd_ih != H) { free(lk_hd_img); lk_hd_img = (uint32_t *)malloc((size_t)W * H * 4); lk_hd_iw = W; lk_hd_ih = H; }
-    if (!lk_hd_img) return NULL;
-    for (y = 0; y < 224; y++) {
+    if (mcap < (size_t)sw * 224) { free(m); m = (uint8_t *)malloc((size_t)sw * 224); mcap = m ? (size_t)sw * 224 : 0; }
+    if (!lk_hd_img || !m) return NULL;
+    for (y = 0; y < 224; y++) {                             /* m = the final pixel is the compositor's pixel (no overlay drew here) */
         const uint32_t *src = fb + (size_t)y * sw; int ok = lk_hd_stamp[y] == lk_hd_gen;
-        for (sy = 0; sy < N; sy++) {
-            uint32_t *dst = lk_hd_img + (size_t)(y * N + sy) * W;
-            for (x = 0; x < sw; x++) {
-                int cx = x - e;
-                if (ok && cx >= -48 && cx < 320 + 48 && src[x] == lk_hd_ref[y * 416 + cx + 48]) { const uint32_t *hb = lk_hd_rows + (size_t)(y * N + sy) * 416 * N + (size_t)(cx + 48) * N; for (sx = 0; sx < N; sx++) dst[x * N + sx] = hb[sx]; }
+        for (x = 0; x < sw; x++) { int cx = x - e; m[(size_t)y * sw + x] = ok && cx >= -48 && cx < 320 + 48 && src[x] == lk_hd_ref[y * 416 + cx + 48]; }
+    }
+    for (y = 0; y < 224; y++) {
+        const uint32_t *src = fb + (size_t)y * sw;
+        for (x = 0; x < sw; x++) {                          /* an HD block is only used where the whole 3 x 3 neighbourhood is the compositor's: overlays that move pixels around (quick item HUD bar, Item Info, the text box line) keep equal colours by chance at their edges, and an enlarged tile cut from a neighbourhood that is not there shows as specks */
+            int cx = x - e, use = m[(size_t)y * sw + x], dy, dx;
+            for (dy = -1; dy <= 1 && use; dy++) for (dx = -1; dx <= 1; dx++) { int yy = y + dy, xx = x + dx; if (yy < 0 || yy > 223 || xx < 0 || xx >= sw) continue; if (!m[(size_t)yy * sw + xx]) { use = 0; break; } }
+            for (sy = 0; sy < N; sy++) {
+                uint32_t *dst = lk_hd_img + (size_t)(y * N + sy) * W;
+                if (use) { const uint32_t *hb = lk_hd_rows + (size_t)(y * N + sy) * 416 * N + (size_t)(cx + 48) * N; for (sx = 0; sx < N; sx++) dst[x * N + sx] = hb[sx]; }
                 else for (sx = 0; sx < N; sx++) dst[x * N + sx] = src[x];
             }
         }
