@@ -31,6 +31,14 @@ int lk_org_lookup(const uint8_t *vram, int tile, uint32_t *rom, int *idx) {
     while (lk_org[i].h) { if (lk_org[i].h == h) { if (rom) *rom = lk_org[i].rom; if (idx) *idx = lk_org[i].idx; return 1; } i = (i + 1) & (LK_ORG_N - 1); }
     return 0;
 }
+int lk_org_lookup_raw(const uint8_t *t, uint32_t *rom, int *idx) {   /* the same for a tile image in the game's logical byte order (the own map path's tile arrays) */
+    uint64_t h = 1469598103934665603ull; uint32_t i; int k;
+    for (k = 0; k < 32; k++) { h ^= t[k]; h *= 1099511628211ull; }
+    if (!h) h = 1;
+    i = (uint32_t)(h >> 20) & (LK_ORG_N - 1);
+    while (lk_org[i].h) { if (lk_org[i].h == h) { if (rom) *rom = lk_org[i].rom; if (idx) *idx = lk_org[i].idx; return 1; } i = (i + 1) & (LK_ORG_N - 1); }
+    return 0;
+}
 int lk_org_count(void) { return lk_org_used; }
 extern long platform_frame_number(void);
 static void lk_org_h(void) {   /* DecompressLZ77Gfx: a0 = source (ROM), a1 = destination; a1 is the end of the output afterwards.  The function ends in tail jumps, so it is run to completion through func_table_jsr (the original registered for the moment) */
