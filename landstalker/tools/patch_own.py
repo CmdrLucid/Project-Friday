@@ -68,7 +68,7 @@ extern int lk_map_decide(void);                                      /* the game
 extern int lk_tall_kv(void) __attribute__((weak));                  /* LANDSTALKER_TALL: > 0 = full height (the game's visibility test is widened by $80 at the bottom, patch_sprcull.py) */
 extern int lk_tall_keep(int line);                                   /* LANDSTALKER_TALL: this line is drawn below the HInt display-off line (patch_tall.py) */
 extern int lk_tbox_get(void);                                        /* Map Behind Text (patch_tbox.py) */
-extern int lk_hd_n; int lk_dof_get(void);
+extern int lk_hd_n; int lk_dof_get(void); int lk_hd_fxany(void);
 static int16_t lk_o_sprd[224][LK_OSW]; static int lk_o_curd = 150;   /* HD depth blur: ground contact screen row of the figure a sprite pixel belongs to */
 int16_t lk_hd_depth[224 * 416]; long lk_hd_dstamp[224]; int lk_hd_focus = 150;   /* depth per picture pixel (screen row of its ground point, 0x7FFF = no blur: HUD / text box / margins), valid when lk_hd_dstamp[line] == lk_hd_gen; focus = Nigel's ground row (tools/patch_hd.py lk_hd_dof) */
 static uint16 lk_o_spr[224][LK_OSW];                                 /* by row pixel index (screen x + e): pal * 16 + index | 0x100 priority | 0x200 present */
@@ -403,7 +403,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
     if (draw && lk_o_hide0 && offs[k] != 0 && e->np && lk_o_satn > 0 && !lk_o_loose(e) && !lk_o_loose4e(e) && lk_o_near(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) { int q; printf("ownhide: frame %ld off %02X type %02X at (%d,%d) 4e (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), e->ax, e->ay, SW(0xFF5400 + offs[k] + 0x4E), SW(0xFF5400 + offs[k] + 0x50)); for (q = 0; q < e->np; q++) { uint32 kk = lk_o_pkey(e, q, 0); printf("   piece %d: x %d y %d size %X\n", q, (int)((kk >> 20) & 0x1FF), (int)((kk >> 8) & 0x3FF), (int)(kk & 15)); } } continue; }   /* the real sprite table holds none of this entity's pieces: the game draws something else in its place (a burning enemy of the Fire sword is replaced by flame sprites that are written into the table, they come as EXTRA entries) */
     if (draw && lk_o_exon) lk_o_extras_upto(sord[k]);
     lk_o_nspr++;
-    if (draw && (lk_hd_n || lk_dof_get() > 0)) { int q2, lo = -9999; for (q2 = 0; q2 < e->np; q2++) { int yb = e->ay + e->pys[q2] - 128 + 8 * e->phs[q2]; if (yb > lo) lo = yb; } lk_o_curd = lo + SW(0xFF5400 + offs[k] + 0x12); if (offs[k] == 0) lk_hd_focus = lk_o_curd; }   /* depth blur: the figure's ground contact row (lowest pixel row + its height above the floor) */
+    if (draw && (lk_hd_n || lk_hd_fxany())) { int q2, lo = -9999; for (q2 = 0; q2 < e->np; q2++) { int yb = e->ay + e->pys[q2] - 128 + 8 * e->phs[q2]; if (yb > lo) lo = yb; } lk_o_curd = lo + SW(0xFF5400 + offs[k] + 0x12); if (offs[k] == 0) lk_hd_focus = lk_o_curd; }   /* depth blur: the figure's ground contact row (lowest pixel row + its height above the floor) */
     for (pc = 0; pc < e->np; pc++) {
       int xx; uint32 key = lk_o_pkey(e, pc, &xx);
       if (keys && nk < 96) keys[nk++] = key;
@@ -578,6 +578,21 @@ void lk_dof_set(int v) {
 }
 static int lk_rep_on, lk_hd_scaleenv;   /* (tentative: defined below) */
 int lk_hd_active(void) { return lk_hd_n > 0; }   /* the HD picture exists (a tile pack or the scale switch); the depth blur alone works on the 1x picture (tools/patch_hd.py lk_hd_dof1x) */
+static int lk_fxl[3] = { -1, -1, -1 };
+int lk_fxlook_get(int i) {                                           /* Options > Video > Bloom / Vignette / Color Grade 0..3 (Off / Low / Medium / High), saved in ~/.landstalker_bloom / _vignette / _grade (LANDSTALKER_BLOOM / _VIGNETTE / _GRADE override); 1x picture, map frames only */
+  static const char *nm[3] = { "bloom", "vignette", "grade" };
+  if (i < 0 || i > 2) return 0;
+  if (lk_fxl[i] < 0) { const char *h = getenv("HOME"); char path[512], en[32]; const char *e; FILE *f; int v = 0, k; snprintf(path, sizeof path, "%s/.landstalker_%s", h ? h : ".", nm[i]); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); }
+    snprintf(en, sizeof en, "LANDSTALKER_%s", nm[i]); for (k = 0; en[k]; k++) if (en[k] >= 'a' && en[k] <= 'z') en[k] -= 32; e = getenv(en); if (e && *e) v = atoi(e); lk_fxl[i] = v < 0 ? 0 : v > 3 ? 3 : v; }
+  return lk_fxl[i];
+}
+void lk_fxlook_set(int i, int v) {
+  static const char *nm[3] = { "bloom", "vignette", "grade" }; char path[512]; FILE *f; const char *h = getenv("HOME");
+  if (i < 0 || i > 2) return;
+  lk_fxl[i] = v < 0 ? 0 : v > 3 ? 3 : v;
+  snprintf(path, sizeof path, "%s/.landstalker_%s", h ? h : ".", nm[i]); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", lk_fxl[i]); fclose(f); }
+}
+int lk_hd_fxany(void) { return lk_dof_get() > 0 || lk_fxlook_get(0) > 0 || lk_fxlook_get(1) > 0 || lk_fxlook_get(2) > 0; }   /* some HD-2D effect needs the depth / validity of the map picture */
 static int lk_hd_saved = -1;
 int lk_hd_get(void) {                                               /* Options > Video > HD Graphics: the SAVED setting (~/.landstalker_hd, LANDSTALKER_HD overrides at start); the tile packs and the HD buffers are set up at start, so a change applies at the next start */
   if (lk_hd_saved < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_HD"); char path[512]; FILE *f; int v = 0; snprintf(path, sizeof path, "%s/.landstalker_hd", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); lk_hd_saved = v ? 1 : 0; }
@@ -1331,7 +1346,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         lk_hd_mapmode = 1; lk_hd_put(line, x, (uint32_t)col, pi.rep ? &pi : 0); lk_hd_mapmode = 0; lk_hd_ref[line * LK_HDW + x + LK_HDO] = (uint32_t)col;
       }
       if (lk_o_mode == 2) row[i] = (PIXEL_OUT_T)col;
-      if (lk_dof_get() > 0 && x >= -48 && x < 368) lk_hd_depth[line * 416 + x + 48] = (black || src == 4) ? (int16_t)0x7FFF : src == 1 ? lk_o_sprd[sl][si] : (int16_t)line;   /* depth blur: the pixel's ground row (tools/patch_hd.py lk_hd_dof) */
+      if (lk_hd_fxany() && x >= -48 && x < 368) lk_hd_depth[line * 416 + x + 48] = (black || src == 4) ? (int16_t)0x7FFF : src == 1 ? lk_o_sprd[sl][si] : (int16_t)line;   /* depth blur: the pixel's ground row (tools/patch_hd.py lk_hd_dof) */
     }
     if (lk_hd_n) lk_hd_stamp[line] = lk_hd_gen;
     lk_hd_dstamp[line] = lk_hd_gen;

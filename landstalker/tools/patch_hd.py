@@ -113,13 +113,103 @@ static void lk_hd_dof(uint32_t *img, int W, int H, int N, int sw, int e, const i
     for (y = 0; y < H; y++) { int u = (2 * y + 1 - C) * 128 / C; lk_dd_yi[y] = u >> 8; lk_dd_yf[y] = u & 255; }
     lk_dd2_par(2, H);
 }
+/* HD-2D look on the map picture (1x, or the HD picture): bloom (bright pass -> small blurred copy -> added back), then colour grade (saturation, S-curve, warm tint) and vignette in one pass.  Only pixels the map path drew with a depth (not the HUD, text box, black margins).  The per-pixel passes run on up to 3 threads (bands of rows). */
+extern int lk_fxlook_get(int i), lk_hd_fxany(void);
+typedef struct { uint32_t *img; const uint8_t *mask; int W, H, N, sw, B, V, G, ws, hs, C; const uint32_t *gl; const uint8_t (*lutc)[256]; const int *vx, *vy; uint32_t gn; } lk_look_ctx;
+typedef struct { lk_look_ctx *c; int pass, y0, y1; } lk_look_job;
+static int lk_look_run(void *pv) {
+    lk_look_job *j = (lk_look_job *)pv; lk_look_ctx *c = j->c; int W = c->W, N = c->N, sw = c->sw, x, y;
+    static const int SAT[4] = { 256, 282, 303, 328 };
+    if (j->pass == 0) {                                      /* bloom: add the upsampled glow */
+        for (y = j->y0; y < j->y1; y++) {
+            int ua = (2 * y + 1 - c->C) * 128 / c->C, ya = ua >> 8, fy = ua & 255, yb = ya + 1; const uint8_t *mrow = c->mask + (size_t)(y / N) * sw; int gx = 0, gs = 0; uint32_t *irow = c->img + (size_t)y * W;
+            if (ya < 0) ya = 0; if (yb < 0) yb = 0; if (ya >= c->hs) ya = c->hs - 1; if (yb >= c->hs) yb = c->hs - 1;
+            for (x = 0; x < W; x++, gs++) {
+                int ub, xa, xb, fx, k; const uint32_t *p00, *p01, *p10, *p11; uint32_t q, o = 0xFF000000u;
+                if (gs == N) { gs = 0; gx++; } if (!mrow[gx]) continue;
+                ub = (2 * x + 1 - c->C) * 128 / c->C; xa = ub >> 8; fx = ub & 255; xb = xa + 1; if (xa < 0) xa = 0; if (xb < 0) xb = 0; if (xa >= c->ws) xa = c->ws - 1; if (xb >= c->ws) xb = c->ws - 1;
+                p00 = c->gl + ((size_t)ya * c->ws + xa) * 3; p01 = c->gl + ((size_t)ya * c->ws + xb) * 3; p10 = c->gl + ((size_t)yb * c->ws + xa) * 3; p11 = c->gl + ((size_t)yb * c->ws + xb) * 3;
+                if (!(p00[0] | p00[1] | p00[2] | p01[0] | p01[1] | p01[2] | p10[0] | p10[1] | p10[2] | p11[0] | p11[1] | p11[2])) continue;   /* no glow here */
+                q = irow[x];
+                for (k = 0; k < 3; k++) { int top = (int)p00[k] * (256 - fx) + (int)p01[k] * fx, bot = (int)p10[k] * (256 - fx) + (int)p11[k] * fx, gv = ((top * (256 - fy) + bot * fy) >> 16) * (int)c->gn >> 8, v = (int)((q >> (8 * k)) & 255) + gv; if (v > 255) v = 255; o |= (uint32_t)v << (8 * k); }
+                irow[x] = o;
+            }
+        }
+    } else {                                                 /* colour grade + vignette */
+        for (y = j->y0; y < j->y1 && y < 1024; y++) {
+            const uint8_t *mrow = c->mask + (size_t)(y / N) * sw; uint32_t *irow = c->img + (size_t)y * W; int gx = 0, gs = 0;
+            for (x = 0; x < W && x < 1024; x++, gs++) {
+                uint32_t q; int r, g, b, l;
+                if (gs == N) { gs = 0; gx++; } if (!mrow[gx]) continue;
+                q = irow[x]; r = q & 255; g = (q >> 8) & 255; b = (q >> 16) & 255;
+                if (c->G) { l = (r * 77 + g * 150 + b * 29) >> 8; r = l + (((r - l) * SAT[c->G]) >> 8); g = l + (((g - l) * SAT[c->G]) >> 8); b = l + (((b - l) * SAT[c->G]) >> 8); r = r < 0 ? 0 : r > 255 ? 255 : r; g = g < 0 ? 0 : g > 255 ? 255 : g; b = b < 0 ? 0 : b > 255 ? 255 : b; r = c->lutc[0][r]; g = c->lutc[1][g]; b = c->lutc[2][b]; }
+                if (c->V) { int f = c->vx[x] * c->vy[y] >> 8; r = r * f >> 8; g = g * f >> 8; b = b * f >> 8; }
+                irow[x] = 0xFF000000u | ((uint32_t)b << 16) | ((uint32_t)g << 8) | (uint32_t)r;
+            }
+        }
+    }
+    return 0;
+}
+static void lk_look_par(lk_look_ctx *c, int pass) {
+    static int nt0; lk_look_job job[3]; SDL_Thread *th[3] = { 0 }; int i, nt, H = c->H;
+    if (!nt0) { nt0 = SDL_GetCPUCount(); if (nt0 > 3) nt0 = 3; if (nt0 < 1) nt0 = 1; if (getenv("LANDSTALKER_FXTHREADS")) { nt0 = atoi(getenv("LANDSTALKER_FXTHREADS")); if (nt0 < 1) nt0 = 1; if (nt0 > 3) nt0 = 3; } }
+    nt = (c->W * c->H < 200000) ? 1 : nt0;   /* (the 1x picture is too small to pay for the threads) */
+    for (i = 0; i < nt; i++) { job[i].c = c; job[i].pass = pass; job[i].y0 = H * i / nt; job[i].y1 = H * (i + 1) / nt; }
+    for (i = 1; i < nt; i++) { th[i] = SDL_CreateThread(lk_look_run, "lklook", &job[i]); if (!th[i]) lk_look_run(&job[i]); }
+    lk_look_run(&job[0]);
+    for (i = 1; i < nt; i++) if (th[i]) SDL_WaitThread(th[i], NULL);
+}
+static void lk_hd_look(uint32_t *img, int W, int H, int N, int sw, int e, const int16_t *sc) {
+    static uint8_t *mask; static size_t mcap; static uint32_t *gl; static size_t gcap; static uint8_t lutc[3][256]; static int lutg = -1; static int vx[1024], vy[1024], vg = -1, vW, vH;
+    int B = lk_fxlook_get(0), V = lk_fxlook_get(1), G = lk_fxlook_get(2), x, y, k, anyrow = 0; size_t n = (size_t)sw * 224; lk_look_ctx cx;
+    if (!B && !V && !G) return;
+    for (y = 23; y < 224; y++) if (lk_hd_dstamp[y] == lk_hd_gen) { anyrow = 1; break; }
+    if (!anyrow) return;                                     /* not a map picture */
+    if (mcap < n) { free(mask); mask = (uint8_t *)malloc(n); mcap = mask ? n : 0; }
+    if (!mask) return;
+    for (y = 0; y < 224; y++) for (x = 0; x < sw; x++) {
+        int cxx = sc[(size_t)y * sw + x] - e, ok = 0;
+        if (y >= 23 && lk_hd_dstamp[y] == lk_hd_gen && cxx >= -48 && cxx < 368 && lk_hd_depth[y * 416 + cxx + 48] != 0x7FFF) ok = 1;
+        mask[(size_t)y * sw + x] = (uint8_t)ok;
+    }
+    memset(&cx, 0, sizeof cx); cx.img = img; cx.mask = mask; cx.W = W; cx.H = H; cx.N = N; cx.sw = sw; cx.B = B; cx.V = V; cx.G = G;
+    if (B) {                                                 /* bloom */
+        static const int T[4] = { 0, 140, 120, 100 }, GN[4] = { 0, 110, 190, 300 };
+        int C = 4 * N, ws = (W + C - 1) / C, hs = (H + C - 1) / C, st = N, pass; uint32_t mx = 0;
+        size_t sn = (size_t)ws * hs * 3;
+        if (gcap < sn * 2) { free(gl); gl = (uint32_t *)malloc(sn * 2 * 4); gcap = gl ? sn * 2 : 0; }
+        if (gl) {
+            uint32_t *a = gl, *b = gl + sn;
+            { static int flut[256], lutT = -1; int ky, kx; if (lutT != B) { for (k = 0; k < 256; k++) flut[k] = k > T[B] ? (k - T[B]) * 256 / (255 - T[B]) : 0; lutT = B; }
+              for (y = 0; y < hs; y++) for (x = 0; x < ws; x++) {      /* a cell = 4 x 4 game pixels (one sample each) */
+                unsigned sr = 0, sg = 0, sb = 0; int cnt = 0;
+                for (ky = 0; ky < 4; ky++) { int gy = y * 4 + ky; const uint8_t *mrow; const uint32_t *irow; if (gy >= 224) break; mrow = mask + (size_t)gy * sw; irow = img + (size_t)(gy * N) * W;
+                  for (kx = 0; kx < 4; kx++) { int gx = x * 4 + kx, f; uint32_t q; int r, g, bl, l; if (gx >= sw) break; cnt++; if (!mrow[gx]) continue; q = irow[gx * N]; r = q & 255; g = (q >> 8) & 255; bl = (q >> 16) & 255; l = (r * 77 + g * 150 + bl * 29) >> 8; f = flut[l]; if (f) { sr += r * f >> 8; sg += g * f >> 8; sb += bl * f >> 8; } } }
+                if (!cnt) cnt = 1;
+                a[((size_t)y * ws + x) * 3] = sr / cnt; a[((size_t)y * ws + x) * 3 + 1] = sg / cnt; a[((size_t)y * ws + x) * 3 + 2] = sb / cnt;
+              } }
+            for (pass = 0; pass < 2; pass++) {               /* two box blurs (radius 1) in both directions = a soft glow */
+                for (y = 0; y < hs; y++) for (x = 0; x < ws; x++) for (k = 0; k < 3; k++) { int xa = x > 0 ? x - 1 : 0, xb = x < ws - 1 ? x + 1 : ws - 1; b[((size_t)y * ws + x) * 3 + k] = (a[((size_t)y * ws + xa) * 3 + k] + a[((size_t)y * ws + x) * 3 + k] + a[((size_t)y * ws + xb) * 3 + k]) / 3; }
+                for (y = 0; y < hs; y++) for (x = 0; x < ws; x++) for (k = 0; k < 3; k++) { int ya = y > 0 ? y - 1 : 0, yb = y < hs - 1 ? y + 1 : hs - 1; a[((size_t)y * ws + x) * 3 + k] = (b[((size_t)ya * ws + x) * 3 + k] + b[((size_t)y * ws + x) * 3 + k] + b[((size_t)yb * ws + x) * 3 + k]) / 3; }
+            }
+            for (k = 0; k < (int)sn; k++) if (a[k] > mx) mx = a[k];
+            if (mx >= 2) { cx.ws = ws; cx.hs = hs; cx.C = C; cx.gl = a; cx.gn = (uint32_t)GN[B]; lk_look_par(&cx, 0); }
+        }
+    }
+    if (V || G) {                                            /* colour grade + vignette */
+        static const int CON[4] = { 0, 20, 38, 64 }, WARM[4] = { 0, 5, 9, 13 }, VA[4] = { 0, 36, 56, 77 };   /* S-curve strength (of 256), warm tint (of 256), vignette corner darkening (of 256 per axis); saturation in lk_look_run */
+        if (lutg != G) { for (k = 0; k < 256; k++) { int t = k * 256 / 255, sm = (t * t * (768 - 2 * t)) >> 16, v = k + (((sm - t) * CON[G]) >> 8), c; for (c = 0; c < 3; c++) { int w = c == 0 ? 256 + WARM[G] : c == 2 ? 256 - WARM[G] : 256, o = v * w >> 8; lutc[c][k] = (uint8_t)(o < 0 ? 0 : o > 255 ? 255 : o); } } lutg = G; }
+        if (vg != V || vW != W || vH != H) { for (x = 0; x < W && x < 1024; x++) { int d = (2 * x + 1 - W) * 256 / W; vx[x] = 256 - (VA[V] * (d * d >> 8) >> 8); } for (y = 0; y < H && y < 1024; y++) { int d = (2 * y + 1 - H) * 256 / H; vy[y] = 256 - (VA[V] * (d * d >> 8) >> 8); } vg = V; vW = W; vH = H; }
+        cx.lutc = (const uint8_t (*)[256])lutc; cx.vx = vx; cx.vy = vy; lk_look_par(&cx, 1);
+    }
+}
 /* depth blur without a tile pack: on the 1x picture (the blurred part needs no finer resolution) before the CRT filters, which then run at the normal cost */
 static const uint32_t *lk_hd_dof1x(const uint32_t *fb, int sw, int e) {
     static uint32_t *buf; static int16_t *sc; static int bw;
     if (bw != sw) { free(buf); free(sc); buf = (uint32_t *)malloc((size_t)sw * 224 * 4); sc = (int16_t *)malloc((size_t)sw * 224 * 2); bw = sw; if (sc) { int x, y; for (y = 0; y < 224; y++) for (x = 0; x < sw; x++) sc[(size_t)y * sw + x] = (int16_t)x; } }
     if (!buf || !sc) return fb;
     { static double tt; static int cnt; Uint64 t0 = SDL_GetPerformanceCounter(); memcpy(buf, fb, (size_t)sw * 224 * 4);
-    lk_hd_dof(buf, sw, 224, 1, sw, e, sc);
+    lk_hd_dof(buf, sw, 224, 1, sw, e, sc); { static double tl; static int cl; Uint64 t1 = SDL_GetPerformanceCounter(); lk_hd_look(buf, sw, 224, 1, sw, e, sc); tl += (double)(SDL_GetPerformanceCounter() - t1) * 1e3 / (double)SDL_GetPerformanceFrequency(); if (++cl % 300 == 0 && getenv("LANDSTALKER_HD_TIME")) printf("hdtime: look (bloom / grade / vignette) %.2f ms per frame\n", tl / cl); }
     tt += (double)(SDL_GetPerformanceCounter() - t0) * 1e3 / (double)SDL_GetPerformanceFrequency(); if (++cnt % 300 == 0 && getenv("LANDSTALKER_HD_TIME")) printf("hdtime: 1x depth blur %.2f ms per frame (avg over %d)\n", tt / cnt, cnt); }
     return buf;
 }
@@ -147,7 +237,7 @@ uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh) {
             }
         }
     }
-    { static double t0, t1, t2; static int cnt; Uint64 a = SDL_GetPerformanceCounter(), b; double c = 0; lk_hd_dof(lk_hd_img, W, H, N, sw, e, sc); b = SDL_GetPerformanceCounter(); t1 += (double)(b - a) * 1e3 / (double)SDL_GetPerformanceFrequency(); if (++cnt % 300 == 0 && getenv("LANDSTALKER_HD_TIME")) printf("hdtime: dof %.2f ms avg over %d\n", t1 / cnt, cnt); (void)t0; (void)t2; (void)c; }
+    { static double t0, t1, t2; static int cnt; Uint64 a = SDL_GetPerformanceCounter(), b; double c = 0; lk_hd_dof(lk_hd_img, W, H, N, sw, e, sc); b = SDL_GetPerformanceCounter(); lk_hd_look(lk_hd_img, W, H, N, sw, e, sc); t1 += (double)(b - a) * 1e3 / (double)SDL_GetPerformanceFrequency(); if (++cnt % 300 == 0 && getenv("LANDSTALKER_HD_TIME")) printf("hdtime: dof %.2f ms avg over %d\n", t1 / cnt, cnt); (void)t0; (void)t2; (void)c; }
     *ow = W; *oh = H; return lk_hd_img;
 }
 static double lk_hd_ms(Uint64 a) { return (double)(SDL_GetPerformanceCounter() - a) * 1e3 / (double)SDL_GetPerformanceFrequency(); }
@@ -193,18 +283,18 @@ assert s.count(dd) == 1, "platform_sdl.c: de-dither block layout changed"
 s = s.replace(dd, "    extern int lk_hd_active(void);\n    if (lk_dd_mode && !lk_hd_active()) {                 /* (HD picture: no de-dither, it would change the 1x pixels the HD blocks are matched against) */   /* de-dither", 1)
 hk = "    lk_rect r; lk_calc_rect(lk_scale_mode, ow, oh, sw, &r);\n"
 assert s.count(hk) == 1, "platform_sdl.c: lk_disp_present rect layout changed"
-s = s.replace(hk, "    if (!lk_hd_active() && lk_dof_get() > 0) framebuffer = (const uint8_t *)lk_hd_dof1x((const uint32_t *)framebuffer, sw, lk_wide_e);   /* depth blur on the 1x picture (no tile pack) */\n" + hk, 1)
+s = s.replace(hk, "    if (!lk_hd_active() && lk_hd_fxany()) framebuffer = (const uint8_t *)lk_hd_dof1x((const uint32_t *)framebuffer, sw, lk_wide_e);   /* depth blur on the 1x picture (no tile pack) */\n" + hk, 1)
 b = "    SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 255);\n    SDL_RenderClear(s_renderer);\n    static int lk_sb_env = -1;"
 assert s.count(b) == 1, "platform_sdl.c: lk_disp_present body layout changed"
 s = s.replace(b, "    SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 255);\n    SDL_RenderClear(s_renderer);\n    if (lk_hd_active() && lk_hd_present(framebuffer, sw, &r)) { lk_osd_draw(ow, oh); lk_coords_draw(oh); SDL_RenderPresent(s_renderer); return; }   /* LK_HD v1 */\n    static int lk_sb_env = -1;", 1)
 # screenshot of the HD picture
 c = "static void lk_shot_frame(const uint8_t *framebuffer, long frame) {"
 assert s.count(c) == 1, "platform_sdl.c: run patch_shot.py first"
-s = s.replace(c, "extern int lk_hd_n; extern int lk_hd_active(void); extern int lk_dof_get(void); extern int lk_wide_e; uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh);   /* LK_HD v1 */\n" + c, 1)
+s = s.replace(c, "extern int lk_hd_n; extern int lk_hd_active(void); extern int lk_dof_get(void); extern int lk_hd_fxany(void); extern int lk_wide_e; uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh);   /* LK_HD v1 */\n" + c, 1)
 d = "    if (!list || !*list || !lk_shot_wanted(list, frame)) return;"
 assert s.count(d) == 1
 s = s.replace(d, '''    { const char *hl = getenv("LANDSTALKER_HD_SHOT");   /* LK_HD v1: the HD picture */
-      if (hl && *hl && !lk_hd_active() && lk_dof_get() > 0 && lk_shot_wanted(hl, frame)) { int sw1 = 320 + 2 * lk_wide_e; const uint32_t *img1 = lk_hd_dof1x((const uint32_t *)framebuffer, sw1, lk_wide_e); char path1[600]; snprintf(path1, sizeof path1, "%s/dofshot_%06ld_w%d.png", dir, frame, sw1); { struct stat st1; if (stat(dir, &st1) != 0) { mkdir(dir, 0777); } } printf("shot: %s %s (1x depth blur)\\n", lk_shot_png(path1, img1, sw1, 224, 1) ? "wrote" : "FAILED", path1); }
+      if (hl && *hl && !lk_hd_active() && lk_hd_fxany() && lk_shot_wanted(hl, frame)) { int sw1 = 320 + 2 * lk_wide_e; const uint32_t *img1 = lk_hd_dof1x((const uint32_t *)framebuffer, sw1, lk_wide_e); char path1[600]; snprintf(path1, sizeof path1, "%s/dofshot_%06ld_w%d.png", dir, frame, sw1); { struct stat st1; if (stat(dir, &st1) != 0) { mkdir(dir, 0777); } } printf("shot: %s %s (1x depth blur)\\n", lk_shot_png(path1, img1, sw1, 224, 1) ? "wrote" : "FAILED", path1); }
       if (hl && *hl && lk_hd_active() && lk_shot_wanted(hl, frame)) { int iw, ih; uint32_t *img = lk_hd_assemble((const uint32_t *)framebuffer, 320 + 2 * lk_wide_e, lk_wide_e, &iw, &ih); char path[600]; snprintf(path, sizeof path, "%s/hdshot_%06ld_w%d.png", dir, frame, iw);
         { struct stat st; if (stat(dir, &st) != 0) { mkdir(dir, 0777); } }
         if (img) printf("shot: %s %s (%dx%d HD)\\n", lk_shot_png(path, img, iw, ih, 1) ? "wrote" : "FAILED", path, iw, ih); } }
