@@ -121,6 +121,11 @@ const lk_rm_t *lk_rm_get(int room) {   /* the room's arrays as the game's GetTil
   for (y = 0; y < lk_rm_hmh && y < 62; y++) for (x = 0; x < lk_rm_hmw && x < 62; x++) { int v = lk_rm_w(4 + 0x5C94 + 148 * y + 2 * x); r->hm[(y + 12) * 74 + x + 12] = (uint16_t)v; }   /* the stream's height map lands at offset (12, 12) (room 610: 1187 of 1187 non-void cells) */
   r->ok = 1; return r;
 }
+int lk_rm_cell(int room, int x, int y) {   /* height map word of a room's cell (RAM cell coordinates), -1 = room not decodable / outside */
+  const lk_rm_t *r = lk_rm_get(room);
+  if (!r || x < 0 || x >= 74 || y < 0 || y >= 74) return -1;
+  return r->hm[y * 74 + x];
+}
 /* ---- S3.2: the per frame model ---- */
 typedef struct { int idx; uint32_t addr; int type, graphic, tx, ty, z, cx, cy, bx0, bx1, by0, by1, anim, frame, flags8, flagsC, sx, sy, psx, psy, support, hp; } lk_sme_t;
 typedef struct { long frame; int room, cam0, cam2, mcam0, mcam2, n;   /* cam0 / cam2 = the game's `$FF1200` / `$FF1202`, mcam0 / mcam2 = the camera computed from the player (S3.3: CentreX - Z, CentreY - Z) */

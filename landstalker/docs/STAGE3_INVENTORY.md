@@ -42,6 +42,8 @@ The entity TYPE id (ENTITIES.md) is the byte at `+3B` (`Player_SpriteType` in `r
 
 - S3.4 is DONE (INDEX status 'ja. auch nahtlose uebergaenge ...'): `tools/roomgraph.py` reads connections, variants and entity placements; 249 of 888 connections are level door candidates for seamless transitions. Seamless transitions are an OPTIONAL setting (default Off); stairs, ladders and dungeon entrances keep the fade.
 
+- S3.5 first prototype DONE (INDEX status 'ja s3.5'): optional Options > Quality of Life > Seamless Doors, level doors only, freeze + fast gap + pan + dissolve of the old scenery. Open: user check on the Deck, old room's figures, HD blocks during the transition, doors with a one step height difference (dz), seamless corridors without any gap (needs the neighbour room drawn BEFORE the game loads it = the S3.1 room decoder + a blockset decoder in C), audio during the gap.
+
 ## 5. Proposed order (each step: no visible change, compare against the current picture, then the next)
 
 - **S3.1** C room decoder + cache; compare with the RAM arrays at every room load in compare mode (35 of 39 rooms exact is the bar; list the 4 known differences).
