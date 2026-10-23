@@ -45,6 +45,8 @@ extern int lk_own_get(void);   /* Own Renderer switch (tools/patch_own.py, vdp_r
 extern int lk_gaia_get(void);   /* Live Gaia Effect switch (tools/patch_gaia.py) */
 extern void lk_gaia_set(int v);
 extern void lk_own_set(int v);
+extern int lk_hd_get(void);   /* HD Graphics switch, saved in ~/.landstalker_hd, takes effect at the next start (tools/patch_own.py) */
+extern void lk_hd_set(int v);
 extern void lk_quick_set(int v);
 extern int lk_ffwd_get(void);   /* fast forward speed option (tools/patch_ffwd.py) */
 extern void lk_ffwd_set(int v);
@@ -52,12 +54,12 @@ extern int lk_diff_get(int which);   /* difficulty: 0 = damage taken index, 1 = 
 extern void lk_diff_set(int which, int v);
 extern void lk_snd_get(int *music, int *sfx, int *talk);
 extern void lk_snd_set(int music, int sfx, int talk);
-int platform_option_get(int id) {   /* 0 widescreen step 0..3, 1 full height 0/1, 2 filter 0..4, 3 fullscreen 0/1, 4 scaling 0..3, 5 de-dither 0..2, 6 music volume %, 7 effects volume %, 8 speech sound 0/1, 9 shadow 0/1, 10 quick items 0/1, 11 fast forward 0..3 (Off, 2x, 3x, 4x), 12 damage taken 0..5 (25 / 50 / 75 / 100 / 150 / 200 %, RIGHT = more), 13 enemy HP 0..4 (50 / 100 / 150 / 200 / 300 %), 14 quick save 0/1 (default Off), 15 ride objects 0/1 (default Off), 16 item info 0/1 (default Off), 17 buy quantity, 18 map behind text, 19 own renderer, 20 live Gaia effect 0/1 (default Off) */
+int platform_option_get(int id) {   /* 0 widescreen step 0..3, 1 full height 0/1, 2 filter 0..4, 3 fullscreen 0/1, 4 scaling 0..3, 5 de-dither 0..2, 6 music volume %, 7 effects volume %, 8 speech sound 0/1, 9 shadow 0/1, 10 quick items 0/1, 11 fast forward 0..3 (Off, 2x, 3x, 4x), 12 damage taken 0..5 (25 / 50 / 75 / 100 / 150 / 200 %, RIGHT = more), 13 enemy HP 0..4 (50 / 100 / 150 / 200 / 300 %), 14 quick save 0/1 (default Off), 15 ride objects 0/1 (default Off), 16 item info 0/1 (default Off), 17 buy quantity, 18 map behind text, 19 own renderer, 20 live Gaia effect 0/1 (default Off), 21 HD graphics 0/1 (default Off, next start) */
     extern int lk_wide_e, lk_tall; int m, e, t;
     if (!lk_disp_loaded) lk_disp_load();
     if (!lk_dd_loaded) lk_dd_load();
     switch (id) { case 0: return lk_wide_e / 16; case 1: return lk_tall > 0; case 2: return lk_fx_mode; case 3: return lk_fsc_on; case 4: return lk_scale_mode; case 5: return lk_dd_mode;
-                  case 6: lk_snd_get(&m, &e, &t); return m; case 7: lk_snd_get(&m, &e, &t); return e; case 8: lk_snd_get(&m, &e, &t); return t; case 9: return lk_shadow_get(); case 10: return lk_quick_get(); case 11: return lk_ffwd_get(); case 12: return lk_diff_get(0); case 13: return lk_diff_get(1); case 14: return lk_qsave_get(); case 15: return lk_carry_get(); case 16: return lk_ii_get(); case 17: return lk_bq_get(); case 18: return lk_tbox_get(); case 19: return lk_own_get(); case 20: return lk_gaia_get(); }
+                  case 6: lk_snd_get(&m, &e, &t); return m; case 7: lk_snd_get(&m, &e, &t); return e; case 8: lk_snd_get(&m, &e, &t); return t; case 9: return lk_shadow_get(); case 10: return lk_quick_get(); case 11: return lk_ffwd_get(); case 12: return lk_diff_get(0); case 13: return lk_diff_get(1); case 14: return lk_qsave_get(); case 15: return lk_carry_get(); case 16: return lk_ii_get(); case 17: return lk_bq_get(); case 18: return lk_tbox_get(); case 19: return lk_own_get(); case 20: return lk_gaia_get(); case 21: return lk_hd_get(); }
     return 0;
 }
 void platform_option_step(int id) {
@@ -70,7 +72,7 @@ void platform_option_step(int id) {
                   case 9: lk_shadow_set(!lk_shadow_get()); break;
                   case 10: lk_quick_set(!lk_quick_get()); break;
                   case 11: lk_ffwd_set((lk_ffwd_get() + 1) % 4); break;
-                  case 12: lk_diff_set(0, (lk_diff_get(0) + 1) % 6); break; case 13: lk_diff_set(1, (lk_diff_get(1) + 1) % 5); break; case 14: lk_qsave_set(!lk_qsave_get()); break; case 15: lk_carry_set(!lk_carry_get()); break; case 16: lk_ii_set(!lk_ii_get()); break; case 17: lk_bq_set(!lk_bq_get()); break; case 18: lk_tbox_set(!lk_tbox_get()); break; case 19: lk_own_set(!lk_own_get()); break; case 20: lk_gaia_set(!lk_gaia_get()); break; }
+                  case 12: lk_diff_set(0, (lk_diff_get(0) + 1) % 6); break; case 13: lk_diff_set(1, (lk_diff_get(1) + 1) % 5); break; case 14: lk_qsave_set(!lk_qsave_get()); break; case 15: lk_carry_set(!lk_carry_get()); break; case 16: lk_ii_set(!lk_ii_get()); break; case 17: lk_bq_set(!lk_bq_get()); break; case 18: lk_tbox_set(!lk_tbox_get()); break; case 19: lk_own_set(!lk_own_get()); break; case 20: lk_gaia_set(!lk_gaia_get()); break; case 21: lk_hd_set(!lk_hd_get()); break; }
     lk_osd_frames = 0;   /* the menu shows the value itself */
 }
 ''' + b, 1)
@@ -128,8 +130,8 @@ static void lk_menu_print(const char *t, int x) {
 }
 static void lk_opt_put_tile(int col, int row, int tile) { bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | tile)); }
 static void lk_opt_put(int col, int row, const char *t) { for (; *t; t++, col++) bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | lk_chr(*t))); }
-static const char *lk_id_name[21] = { "Widescreen", "Full Height", "Filter", "Fullscreen", "Scaling", "De-Dither", "Music Volume", "Effects Volume", "Speech Sound", "Shadows", "Quick Items", "Fast Forward", "Damage Taken", "Enemy HP", "Quick Save", "Fix Ride Objects", "Item Info", "Buy Quantity", "Map Behind Text", "Own Renderer", "Live Gaia Effect" };   /* platform option id -> label */
-static const int lk_ids_video[9] = { 0, 1, 4, 2, 5, 3, 9, 18, 19 };
+static const char *lk_id_name[22] = { "Widescreen", "Full Height", "Filter", "Fullscreen", "Scaling", "De-Dither", "Music Volume", "Effects Volume", "Speech Sound", "Shadows", "Quick Items", "Fast Forward", "Damage Taken", "Enemy HP", "Quick Save", "Fix Ride Objects", "Item Info", "Buy Quantity", "Map Behind Text", "Own Renderer", "Live Gaia Effect", "HD Graphics" };   /* platform option id -> label */
+static const int lk_ids_video[10] = { 0, 1, 4, 2, 5, 3, 9, 18, 19, 21 };
 static const int lk_ids_audio[3] = { 6, 7, 8 };
 static const int lk_ids_game[7] = { 10, 17, 15, 16, 14, 11, 20 };   /* Quality of Life */
 static const int lk_ids_diff[2] = { 12, 13 };   /* Difficulty */
@@ -156,13 +158,13 @@ static const char *lk_opt_val(int id, int v) {
     if (id == 6 || id == 7) { snprintf(buf, sizeof buf, "%d", v); return buf; }
     return onoff[v & 1];
 }
-static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 6 : lk_opt_pg == 1 ? 9 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 3 ? 7 : lk_opt_pg == 4 ? 2 : 12; }
+static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 6 : lk_opt_pg == 1 ? 10 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 3 ? 7 : lk_opt_pg == 4 ? 2 : 12; }
 static int lk_opt_vis(void) { int n = lk_opt_nrows(); return n > 7 ? 7 : n; }   /* rows shown at once */
 static void lk_opt_fixscroll(void) { int v = lk_opt_vis(); if (lk_opt_row < lk_opt_scroll) lk_opt_scroll = lk_opt_row; if (lk_opt_row >= lk_opt_scroll + v) lk_opt_scroll = lk_opt_row - v + 1; }
 static int lk_opt_rowid(int r) { return lk_opt_pg == 1 ? lk_ids_video[r] : lk_opt_pg == 2 ? lk_ids_audio[r] : lk_opt_pg == 3 ? lk_ids_game[r] : lk_opt_pg == 4 ? lk_ids_diff[r] : lk_opt_pg == 5 ? lk_ids_key[r] : -1 - r; }   /* root rows: -1 Video, -2 Audio, -3 Gameplay */
 static int lk_opt_rowy(int r) { return (lk_opt_pg == 2 || lk_opt_pg == 4) ? 2 + 3 * r : 2 + 2 * r; }
 static const char *lk_opt_rowname(int r) { int id = lk_opt_rowid(r); return id >= 100 ? (id == 111 ? "Reset Defaults" : lk_bind_name(id - 100)) : id >= 0 ? lk_id_name[id] : id == -1 ? "Video" : id == -2 ? "Audio" : id == -3 ? "Quality of Life" : id == -4 ? "Difficulty" : id == -5 ? "Keybindings" : "Quit Game"; }
-static int lk_opt_cnt(int id) { static const int c[21] = { 4, 2, 5, 2, 4, 4, 11, 11, 2, 2, 2, 4, 6, 5, 2, 2, 2, 2, 2, 2, 2 }; return c[id]; }
+static int lk_opt_cnt(int id) { static const int c[22] = { 4, 2, 5, 2, 4, 4, 11, 11, 2, 2, 2, 4, 6, 5, 2, 2, 2, 2, 2, 2, 2, 2 }; return c[id]; }
 static void lk_opt_change(int id, int dir) {
     int n, k, steps;
     if (id >= 100) { if (dir > 0) { if (id == 111) lk_bind_reset(); else { lk_opt_capid = id; lk_bind_capture(id - 100); } } return; }   /* binding rows: A / RIGHT = wait for the next button / key press */
@@ -362,7 +364,7 @@ static void lk_win_text(int k, const char *l, int lx, const char *v, int vx) {
     }
     g_m68k = sv;
 }
-static const int lk_win_cnt[6] = { 6, 9, 3, 7, 2, 12 };
+static const int lk_win_cnt[6] = { 6, 10, 3, 7, 2, 12 };
 static int lk_win_scroll;   /* first visible option of a long page */
 static int lk_win_vis(int pg) { return lk_win_cnt[pg] > 7 ? 7 : lk_win_cnt[pg]; }   /* the window has room for the title and 7 tight rows (pitch 18) */
 static int lk_win_fix(int pg, int row) { int old = lk_win_scroll, v = lk_win_vis(pg); if (row < lk_win_scroll) lk_win_scroll = row; if (row >= lk_win_scroll + v) lk_win_scroll = row - v + 1; return old != lk_win_scroll; }   /* 1 = the visible part changed (the page is rebuilt) */

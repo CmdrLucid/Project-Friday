@@ -517,6 +517,16 @@ void lk_own_set(int v) {                                             /* Options 
   lk_o_init(); lk_o_mode = v ? 2 : 0; lk_o_valid = 0;
   snprintf(path, sizeof path, "%s/.landstalker_own", h ? h : "."); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", v ? 1 : 0); fclose(f); }
 }
+static int lk_hd_saved = -1;
+int lk_hd_get(void) {                                               /* Options > Video > HD Graphics: the SAVED setting (~/.landstalker_hd, LANDSTALKER_HD overrides at start); the tile packs and the HD buffers are set up at start, so a change applies at the next start */
+  if (lk_hd_saved < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_HD"); char path[512]; FILE *f; int v = 0; snprintf(path, sizeof path, "%s/.landstalker_hd", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); lk_hd_saved = v ? 1 : 0; }
+  return lk_hd_saved;
+}
+void lk_hd_set(int v) {
+  char path[512]; FILE *f; const char *h = getenv("HOME");
+  lk_hd_saved = v ? 1 : 0;
+  snprintf(path, sizeof path, "%s/.landstalker_hd", h ? h : "."); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", lk_hd_saved); fclose(f); }
+}
 /* ---- stage 1: a generic screen renderer (title, menus, island map, credits ...): the picture of a line composed by our own code from the VDP's memory state (planes A / B, window, sprites, priorities, scroll modes, backdrop),
    checked pixel by pixel against the game's picture (LANDSTALKER_OWN_SCREENS: 0 off, 1 compare + log only, 2 draw (default with the own renderer on), LANDSTALKER_OWN_SCRLOG=1 prints the differing pixels of every frame it handled) ---- */
 static int lk_scr_mode = -1, lk_scr_log, lk_o_why;   /* lk_o_why: why the own map path did not draw this frame (1 old room still showing, 2 warp effect, 3 Start menu running, 4 display off, 5 no room) */ static long lk_scr_diff, lk_scr_tot, lk_scr_lines;
