@@ -35,7 +35,7 @@ if VER not in s:
     s = s.replace(d, "      PIXEL_OUT_T *lk_row0 = dst; int lk_w0 = width;   /* LK_SHADOW v7 */\n" + d + "      lk_shadow_darken(lk_row0, lk_w0);   /* LK_SHADOW v7 */\n", 1)
     helper = r'''/* ---- LK_SHADOW v7: ground shadow (tools/patch_shadow.py) ---- */
 #include <math.h>
-typedef struct { int x, y, rx, ry; } lk_sh_t;
+typedef struct { int x, y, rx, ry; int poly; double vx[4], vy[4]; } lk_sh_t;   /* poly: the shadow is the projected footprint of the object's box (platforms, crates), vx / vy = corners relative to the centre in screen pixels; else an ellipse rx / ry */
 static lk_sh_t lk_sh_act[12], lk_sh_pend[12]; static int lk_sh_nact, lk_sh_npend;
 static int lk_shadow_mode = -1;
 static uint8 lk_sh_fl[224][0x400]; static lk_sh_t lk_sh_snap[12]; static int lk_sh_nsnap;   /* per frame record for the HD picture (tools/patch_hd.py): bit 0 = this pixel was darkened, bit 1 = it shows background and lies within one pixel of a shadow ellipse (eligible); the ellipses of the frame; index = picture x + 0x100 */
@@ -55,9 +55,22 @@ void lk_shadow_set(int m) {
   f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", lk_shadow_mode); fclose(f); }
 }
 void lk_shadow_reset(void) { lk_sh_npend = 0; }
-void lk_shadow_add(int x, int y, int rx, int ry) { if (lk_sh_npend < 12) { lk_sh_t *t = &lk_sh_pend[lk_sh_npend++]; t->x = x; t->y = y; t->rx = rx; t->ry = ry; } }
+void lk_shadow_add(int x, int y, int rx, int ry) { if (lk_sh_npend < 12) { lk_sh_t *t = &lk_sh_pend[lk_sh_npend++]; t->x = x; t->y = y; t->rx = rx; t->ry = ry; t->poly = 0; } }
+/* the footprint of an object's box (wx x wy world units) at scale sc: isometric screen X = x - y, Y = (x + y) / 2 of the four corners (+-a, +-b) */
+void lk_shadow_addp(int x, int y, int wx, int wy, double sc) {
+  if (lk_sh_npend < 12) { lk_sh_t *t = &lk_sh_pend[lk_sh_npend++]; double a = wx * sc / 2.0, b = wy * sc / 2.0; t->x = x; t->y = y; t->rx = (int)(a + b + 1); t->ry = (int)((a + b) / 2 + 1); t->poly = 1;
+    t->vx[0] = a - b; t->vy[0] = (a + b) / 2; t->vx[1] = a + b; t->vy[1] = (a - b) / 2; t->vx[2] = b - a; t->vy[2] = -(a + b) / 2; t->vx[3] = -a - b; t->vy[3] = (b - a) / 2; }
+}
 /* called by the VDP when the game DMAs its sprite table ($FF0550) to VRAM: the shadow list of the pass that built that table becomes the one that is drawn (the sprites and the shadows then change in the same frame) */
 void lk_shadow_promote(void) { memcpy(lk_sh_act, lk_sh_pend, sizeof lk_sh_act); lk_sh_nact = lk_sh_npend; }
+/* polygon shadow: pixels whose centre lies inside the convex footprint (continuous coordinates, pixel cell x covers [x, x + 1)) */
+static int lk_sh_pspan(const lk_sh_t *t, int line, int *x0, int *x1) {
+  double yc = line + 0.5, xl = 1e9, xr = -1e9, cx = t->x + lk_wide_e + 0.5, cy = t->y + 0.5; int k;
+  for (k = 0; k < 4; k++) { int n = (k + 1) & 3; double ya = cy + t->vy[k], yb = cy + t->vy[n], xa = cx + t->vx[k], xb = cx + t->vx[n];
+    if ((ya <= yc && yc <= yb) || (yb <= yc && yc <= ya)) { double xx = ya == yb ? xa : xa + (xb - xa) * (yc - ya) / (yb - ya); if (xx < xl) xl = xx; if (xx > xr) xr = xx; if (ya == yb) { if (xb < xl) xl = xb; if (xb > xr) xr = xb; } } }
+  if (xl > xr) return 0;
+  *x0 = (int)ceil(xl - 0.5); *x1 = (int)floor(xr - 0.5); return *x0 <= *x1;
+}
 /* before remap_line: mark the ellipse pixels that show background (no sprite pixel on top, not the backdrop) */
 int lk_sh_hide;   /* set while the Start menu is open (CheckForMenuOpen $007624 runs): the map is not shown then, the shadows of the last map pass must not be drawn over the menu (user's room 430 recording) */
 static void lk_shadow_line(int line) {
@@ -65,14 +78,16 @@ static void lk_shadow_line(int line) {
   lk_sh_row_on = 0;
   if (line == 0) { memcpy(lk_sh_snap, lk_sh_act, sizeof lk_sh_snap); lk_sh_nsnap = lk_sh_hide ? 0 : lk_sh_nact; }
   if (line >= 0 && line < 224) memset(lk_sh_fl[line], 0, 0x400);
-  if (line == 0) { static int dbg = -1; static long fr; if (dbg < 0) { const char *e = getenv("LANDSTALKER_SHADOW_DEBUG"); dbg = e && atoi(e) >= 3; } if (dbg) { fprintf(stderr, "shf: %ld n=%d", fr, lk_sh_nact); for (i = 0; i < lk_sh_nact; i++) fprintf(stderr, " %d,%d", lk_sh_act[i].x, lk_sh_act[i].y); fprintf(stderr, "\n"); } fr++; }   /* LANDSTALKER_SHADOW_DEBUG=3: what is drawn in every frame */
+  if (line == 0) { static int dbg = -1; static long fr; if (dbg < 0) { const char *e = getenv("LANDSTALKER_SHADOW_DEBUG"); dbg = e && atoi(e) >= 3; } if (dbg) { fprintf(stderr, "shf: %ld n=%d", fr, lk_sh_nact); for (i = 0; i < lk_sh_nact; i++) fprintf(stderr, " %d,%d%s", lk_sh_act[i].x, lk_sh_act[i].y, lk_sh_act[i].poly ? "p" : ""); fprintf(stderr, "\n"); } fr++; }   /* LANDSTALKER_SHADOW_DEBUG=3: what is drawn in every frame */
   if (lk_sh_hide) return;
   for (i = 0; i < lk_sh_nact; i++) {
     const lk_sh_t *t = &lk_sh_act[i]; int dy = line - t->y, x0, x1;
     double q;
+    if (t->poly) { if (!lk_sh_pspan(t, line, &x0, &x1)) continue; }
+    else {
     if (dy < -t->ry || dy > t->ry) continue;
     q = (double)dy / (double)t->ry; q = 1.0 - q * q; if (q < 0) q = 0;
-    x0 = t->x + lk_wide_e - (int)(t->rx * sqrt(q) + 0.5); x1 = t->x + lk_wide_e + (int)(t->rx * sqrt(q) + 0.5);   /* sprites are drawn at xpos - 0x80 + lk_wide_e (widescreen margin) */
+    x0 = t->x + lk_wide_e - (int)(t->rx * sqrt(q) + 0.5); x1 = t->x + lk_wide_e + (int)(t->rx * sqrt(q) + 0.5); }   /* sprites are drawn at xpos - 0x80 + lk_wide_e (widescreen margin) */
     if (x0 < -bitmap.viewport.x) x0 = -bitmap.viewport.x;
     if (x1 > bitmap.viewport.w + bitmap.viewport.x - 1) x1 = bitmap.viewport.w + bitmap.viewport.x - 1;
     if (!lk_sh_row_on) { memset(lk_sh_row, 0, sizeof lk_sh_row); lk_sh_row_on = 1; lk_sh_xa = x0; lk_sh_xb = x1; }
@@ -107,6 +122,14 @@ int lk_shadow_hdalpha(int x, int y, int sx, int sy, int n) {
   double px = x + (sx + 0.5) / n, py = y + (sy + 0.5) / n;
   for (i = 0; i < lk_sh_nsnap; i++) {
     const lk_sh_t *t = &lk_sh_snap[i];
+    if (t->poly) {   /* signed distance to the convex footprint (positive inside; the winding decides the sign), soft edge one game pixel wide */
+      double cx = t->x + lk_wide_e + 0.5, cy = t->y + 0.5, dmin = 1e9, ar = 0, a; int k;
+      for (k = 0; k < 4; k++) { int n = (k + 1) & 3; ar += t->vx[k] * t->vy[n] - t->vx[n] * t->vy[k]; }
+      for (k = 0; k < 4; k++) { int n = (k + 1) & 3; double ex = t->vx[n] - t->vx[k], ey = t->vy[n] - t->vy[k], len = sqrt(ex * ex + ey * ey), d;
+        if (len < 1e-9) continue; d = (ex * (py - cy - t->vy[k]) - ey * (px - cx - t->vx[k])) / len; if (ar < 0) d = -d; if (d < dmin) dmin = d; }
+      a = dmin + 0.5; if (a < 0) a = 0; if (a > 1) a = 1; if ((int)(a * 255 + 0.5) > best) best = (int)(a * 255 + 0.5);
+      continue;
+    }
     double cx = t->x + lk_wide_e + 0.5, cy = t->y + 0.5, rx = t->rx + 0.5, ry = t->ry + 0.5, u = (px - cx) / rx, v = (py - cy) / ry, f = sqrt(u * u + v * v), g, d, a;
     if (f > 1.5) continue;
     g = sqrt((u / rx) * (u / rx) + (v / ry) * (v / ry));
@@ -153,6 +176,8 @@ if VER not in s:
 extern int lk_shadow_get(void);
 extern void lk_shadow_reset(void);
 extern void lk_shadow_add(int x, int y, int rx, int ry);
+extern void lk_shadow_addp(int x, int y, int wx, int wy, double sc);
+static int lk_sh_angular(int t) { return t == 21 || t == 22 || t == 53 || t == 76 || t == 83 || (t >= 86 && t <= 95) || t == 113 || t == 114; }   /* entity types (byte +0B, ENTITIES.md ids) with a box shaped body: platforms, crate, raft, concrete block (ENTITIES.md) */
 extern int lk_no_charge;
 static gen_func_t lk_o_ls;
 /* LoadSprites ($00401C) runs once per game pass: ResetVdpSprites, BuildVisibleEntityList (the on-screen entities as offsets from $FF5400, draw ordered, $FFFF at the end, list at $FF11DE;
@@ -180,9 +205,14 @@ static void lk_h_ls(void) {
         { static uint8_t on[16]; int idx = (w >> 7) & 15;                         /* hysteresis: walking over slopes / steps makes the distance jump by a few units, that must not blink the shadow (user report, room 430) */
           int show = dist >= 6 || (on[idx] && dist >= 2);
           on[idx] = (uint8_t)show;
-          { static int d2 = -1; if (d2 < 0) { const char *e = getenv("LANDSTALKER_SHADOW_DEBUG"); d2 = e && atoi(e) >= 2; } if (d2) fprintf(stderr, "shp: ent %06X dist %d show %d\n", (unsigned)ent, dist, show); }
+          { static int d2 = -1; if (d2 < 0) { const char *e = getenv("LANDSTALKER_SHADOW_DEBUG"); d2 = e && atoi(e) >= 2; } if (d2) fprintf(stderr, "shp: ent %06X dist %d show %d type %d\n", (unsigned)ent, dist, show, bus_read8(ent + 0x0B)); }
           if (!show) continue; }                                                 /* on the ground (or a tiny hop): no shadow, only things really in the air */
         ext = (int)(int16_t)(bus_read16(ent + 0x1A) - bus_read16(ent + 0x18)) + (int)(int16_t)(bus_read16(ent + 0x1E) - bus_read16(ent + 0x1C));   /* projected width of the box */
+        if (ent != 0xFF5400u && lk_sh_angular(bus_read8(ent + 0x0B))) {      /* platforms, crates, blocks: the shadow is their own footprint (user: angular platforms must not cast a round shadow) */
+            int wx = (int)(int16_t)(bus_read16(ent + 0x1A) - bus_read16(ent + 0x18)), wy = (int)(int16_t)(bus_read16(ent + 0x1E) - bus_read16(ent + 0x1C));
+            lk_shadow_addp((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, wx, wy, 0.75);
+            continue;
+        }
         rx = ext / 2; if (rx < 6) rx = 6; if (rx > 9) rx = 9; ry = rx * 45 / 100; if (ry < 3) ry = 3;   /* small: Nigel and platforms were too big at 14 / 20 (user), slimes fitted */
         lk_shadow_add((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, rx, ry);
         { static int dbg = -1; static long n; if (dbg < 0) dbg = getenv("LANDSTALKER_SHADOW_DEBUG") != NULL; if (dbg && ++n < 600 && (n % 7) == 1) fprintf(stderr, "shadow: ent %06X dist %d at %d,%d r %d,%d\n", (unsigned)ent, dist, (int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, rx, ry); }
