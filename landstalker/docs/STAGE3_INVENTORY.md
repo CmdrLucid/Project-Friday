@@ -44,6 +44,8 @@ The entity TYPE id (ENTITIES.md) is the byte at `+3B` (`Player_SpriteType` in `r
 
 - S3.5 first prototype DONE (INDEX status 'ja s3.5'): optional Options > Quality of Life > Seamless Doors, level doors only, freeze + fast gap + pan + dissolve of the old scenery. Open: user check on the Deck, old room's figures, HD blocks during the transition, doors with a one step height difference (dz), seamless corridors without any gap (needs the neighbour room drawn BEFORE the game loads it = the S3.1 room decoder + a blockset decoder in C), audio during the gap.
 
+- Seamless step 2 DONE (INDEX status 'schritt 2'): ROM-side room renderer (C port of the blockset decoder), neighbours drawn into the void of the current room with an aligned offset (no more black band), transition uses the neighbour's offset. Open: neighbour figures, animated tiles, HD.
+
 ## 5. Proposed order (each step: no visible change, compare against the current picture, then the next)
 
 - **S3.1** C room decoder + cache; compare with the RAM arrays at every room load in compare mode (35 of 39 rooms exact is the bar; list the 4 known differences).
