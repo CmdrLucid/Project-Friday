@@ -16,24 +16,24 @@ if VER in s:
 a = "/* draw the frame: returns after SDL_RenderPresent */\nstatic void lk_disp_present(const uint8_t *framebuffer) {"
 assert s.count(a) == 1, "platform_sdl.c: lk_disp_present layout changed"
 module = r'''/* ---- LK_HD v1: HD picture from the compositor's n x n blocks (tools/patch_hd.py) ---- */
-extern int lk_hd_n; extern uint32_t *lk_hd_rows, *lk_hd_ref; extern long lk_hd_stamp[224], lk_hd_gen; extern int lk_wide_e;
+extern int lk_hd_n; extern uint32_t *lk_hd_rows, *lk_hd_ref; extern long lk_hd_stamp[224], lk_hd_gen; extern int lk_wide_e; extern int lk_quick_hdcol(int x);
 static uint32_t *lk_hd_img; static int lk_hd_iw, lk_hd_ih; static SDL_Texture *lk_hd_tex; static int lk_hd_tw, lk_hd_th;
 static SDL_Texture *lk_hd_ftex; static int lk_hd_fw, lk_hd_fh; static uint32_t *lk_hd_fbuf;   /* filtered HD picture (destination size) */
 uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh) {
     int N = lk_hd_n, W = sw * N, H = 224 * N, y, x, sx, sy;
-    static uint8_t *m; static size_t mcap;
+    static uint8_t *m; static int16_t *sc; static size_t mcap;
     if (N <= 0 || !lk_hd_rows || !lk_hd_ref) return NULL;
     if (!lk_hd_img || lk_hd_iw != W || lk_hd_ih != H) { free(lk_hd_img); lk_hd_img = (uint32_t *)malloc((size_t)W * H * 4); lk_hd_iw = W; lk_hd_ih = H; }
-    if (mcap < (size_t)sw * 224) { free(m); m = (uint8_t *)malloc((size_t)sw * 224); mcap = m ? (size_t)sw * 224 : 0; }
-    if (!lk_hd_img || !m) return NULL;
-    for (y = 0; y < 224; y++) {                             /* m = the final pixel is the compositor's pixel (no overlay drew here) */
+    if (mcap < (size_t)sw * 224) { free(m); free(sc); m = (uint8_t *)malloc((size_t)sw * 224); sc = (int16_t *)malloc((size_t)sw * 224 * 2); mcap = (m && sc) ? (size_t)sw * 224 : 0; }
+    if (!lk_hd_img || !m || !sc || !mcap) return NULL;
+    for (y = 0; y < 224; y++) {                             /* m = the final pixel is the compositor's pixel (no overlay drew here); sc = the picture column the pixel comes from (the quick item bar moves the columns of the HUD lines 5..22: the HD block moves with them) */
         const uint32_t *src = fb + (size_t)y * sw; int ok = lk_hd_stamp[y] == lk_hd_gen;
-        for (x = 0; x < sw; x++) { int cx = x - e; m[(size_t)y * sw + x] = ok && cx >= -48 && cx < 320 + 48 && src[x] == lk_hd_ref[y * 416 + cx + 48]; }
+        for (x = 0; x < sw; x++) { int sx0 = (y >= 5 && y <= 22) ? lk_quick_hdcol(x) : x, cx = sx0 - e; sc[(size_t)y * sw + x] = (int16_t)sx0; m[(size_t)y * sw + x] = ok && sx0 >= 0 && sx0 < sw && cx >= -48 && cx < 320 + 48 && src[x] == lk_hd_ref[y * 416 + cx + 48]; }
     }
     for (y = 0; y < 224; y++) {
         const uint32_t *src = fb + (size_t)y * sw;
-        for (x = 0; x < sw; x++) {                          /* an HD block is only used where the whole 3 x 3 neighbourhood is the compositor's: overlays that move pixels around (quick item HUD bar, Item Info, the text box line) keep equal colours by chance at their edges, and an enlarged tile cut from a neighbourhood that is not there shows as specks */
-            int cx = x - e, use = m[(size_t)y * sw + x], dy, dx;
+        for (x = 0; x < sw; x++) {                          /* an HD block is only used where the whole 3 x 3 neighbourhood is the compositor's: overlays that move pixels around (Item Info, the text box line, the quick item cells) keep equal colours by chance at their edges, and an enlarged tile cut from a neighbourhood that is not there shows as specks */
+            int cx = sc[(size_t)y * sw + x] - e, use = m[(size_t)y * sw + x], dy, dx;
             for (dy = -1; dy <= 1 && use; dy++) for (dx = -1; dx <= 1; dx++) { int yy = y + dy, xx = x + dx; if (yy < 0 || yy > 223 || xx < 0 || xx >= sw) continue; if (!m[(size_t)yy * sw + xx]) { use = 0; break; } }
             for (sy = 0; sy < N; sy++) {
                 uint32_t *dst = lk_hd_img + (size_t)(y * N + sy) * W;

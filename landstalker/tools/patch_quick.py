@@ -222,6 +222,14 @@ static void lk_quick_hud(PIXEL_OUT_T *row, int width) {
   if (line == 22) { if (lk_q_bar) { memcpy(lk_q_busyp, lk_q_busy, sizeof lk_q_busy); lk_q_haveprev = 1; } memset(lk_q_busy, 0, sizeof lk_q_busy); }   /* LK_QUICK: a blank / fading frame without the bar keeps the last real column map (the first frame after a room load showed the game's red striped HUD for one frame) */
 }
 '''
+    module += r'''/* LK_QUICK hdcol: for the HD picture (tools/patch_hd.py): the picture column the final pixel x of a HUD bar line (5..22) was moved from; x itself when the bar is not rebuilt in this frame */
+int lk_quick_hdcol(int x) {
+  int n = x - lk_q_Lp, src;
+  if (!lk_q_hud || lk_q_on <= 0 || n < 0 || n >= lk_q_Wb) return x;
+  src = lk_q_colmap[n]; if (src < 0) src = lk_q_fillcol;
+  return lk_q_bl + src;
+}
+'''
     s = s.replace(c, module + c, 1)
     open(p, "w").write(s)
     print("vdp_render.c patched:", VER)
