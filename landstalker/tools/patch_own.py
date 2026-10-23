@@ -453,6 +453,22 @@ static int lk_o_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio, lk_o
   if (fi) { fi->t = &lk_o_tiles[t * 32]; fi->ix = ix; fi->iy = iy; fi->hf = (w >> 11) & 1; fi->vf = (w >> 12) & 1; }
   return (ix % 2 == 0) ? (b >> 4) : (b & 15);
 }
+static int lk_tile_blank(const uint8 *tiles, size_t tsz, uint32 c) {   /* seamless: a layer cell without picture: no cell, or a tile whose pixels are all transparent or black (colour 15 of line 0 = the black edge bands the maps draw around a room) */
+  int w, t, pal, k; if (!(c & 0x10000)) return 1;
+  w = (int)(c & 0xFFFF); t = w & 0x7FF; pal = (w >> 13) & 3; if (t * 32 + 31 >= (int)tsz) return 1;
+  for (k = 0; k < 32; k++) { int b = tiles[t * 32 + k], h = b >> 4, l = b & 15; if ((h && !(h == 15 && pal == 0)) || (l && !(l == 15 && pal == 0))) return 0; }
+  return 1;
+}
+static uint8 lk_o_vc[152][304];   /* per frame cache of lk_o_voidcell: 0 unknown, 1 void, 2 picture */
+static int lk_o_voidcell(int U, int V) {   /* seamless: no picture of the room in either layer here (outside its map, empty or black edge tiles); transparent / black pixels inside real tiles (doorways, gaps between trees, outlines) are NOT void */
+  int tc = U >> 3, tr = V >> 3;
+  if (U < 0 || V < 0 || tc >= 304 || tr >= 152) return 1;
+  if (!lk_o_vc[tr][tc]) lk_o_vc[tr][tc] = (lk_tile_blank(lk_o_tiles, sizeof lk_o_tiles, lk_o_pa[tr][tc]) && lk_tile_blank(lk_o_tiles, sizeof lk_o_tiles, lk_o_pb[tr][tc])) ? 1 : 2;
+  return lk_o_vc[tr][tc] == 1;
+}
+static int lk_o_nearvoid(int U, int V) {   /* a void cell within one tile: the room's own edge (its black edge shading, thin seams) */
+  int dy, dx; for (dy = -8; dy <= 8; dy += 8) for (dx = -8; dx <= 8; dx += 8) if (lk_o_voidcell(U + dx, V + dy)) return 1; return 0;
+}
 
 /* ---- HUD tilemap from the game state (port of hud.asm: RefreshAllHUD $01690A .. UpdateSmallHeartHUD $016B2E, SwordChargeTiles $016CF4), rows 0..2 of the window plane ---- */
 static int lk_o_hw[3][64], lk_o_hwok, lk_o_hwmode = 1, lk_o_hwfr, lk_o_hwlast[4], lk_o_hwlog;
@@ -722,13 +738,13 @@ int lk_seam_get(void) {
 }
 void lk_seam_set(int v) { const char *h = getenv("HOME"); char p[512]; FILE *f; lk_sm_opt = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_seam", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_sm_opt); fclose(f); } }
 
-int lk_seam_gap(void) { return lk_sm_state == 1 || lk_sm_state == 5 || lk_sm_fastload; }   /* run the emulation fast without drawing (platform_sdl.c, patch_ffwd.py) */
 int lk_seam_synth(void) { return lk_sm_state == 1; }   /* a gap with a synthetic (gliding) picture: shown only when due */
 int lk_seam_due(void) { return lk_sm_state == 1 ? lk_sm_due : 0; }   /* during a gap only the frames that are due (about every 14 ms) are drawn and shown: the picture glides while the game loads in the background */
 static PIXEL_OUT_T lk_sm_rows[224][LK_OSW]; static int lk_sm_roww, lk_sm_rows_ok, lk_sm_capture_now;   /* the last bright picture (final rows, after shadows and the quick item bar) */
 static uint32 lk_sm_pa[152][304], lk_sm_pb[152][304]; static uint8 lk_sm_tiles[0x12000]; static PIXEL_OUT_T lk_sm_pix[64], lk_sm_pixsave[64];   /* the old room's layer images, tiles and colours */
 static int lk_sm_ocam0, lk_sm_ocam2, lk_sm_ou0, lk_sm_ov0, lk_sm_osave_ok, lk_sm_osave0, lk_sm_osave2, lk_sm_osaveu, lk_sm_osavev;   /* camera and image position of the old room's last bright frame */
 static int lk_sm_target, lk_sm_dx, lk_sm_dy, lk_sm_oroom, lk_sm_newroom, lk_sm_prevL, lk_sm_sxn, lk_sm_syn, lk_sm_sxo, lk_sm_syo, lk_sm_alpha = 256, lk_sm_log = -1;
+int lk_seam_gap(void) { return lk_sm_state == 1 || lk_sm_state == 5 || lk_sm_fastload || ((lk_sm_state == 2 || lk_sm_state == 6) && lk_sm_prevL > 0); }   /* the game's fade in after the load is not shown (nofade): run it fast too, so Nigel can walk on at once */   /* run the emulation fast without drawing (platform_sdl.c, patch_ffwd.py) */
 static long lk_sm_t0, lk_sm_pan0, lk_sm_dis0; static struct timespec lk_sm_wall; static int lk_sm_dz, lk_sm_ou, lk_sm_ov, lk_sm_pcam0, lk_sm_pcam2, lk_sm_nx0, lk_sm_nx1, lk_sm_ny0, lk_sm_ny1, lk_sm_allframes = -1; static struct timespec lk_sm_lastdue;
 #define LK_SM_GLIDE_MS 350   /* wall clock duration of the camera glide (the gap and the first frames after it) */   /* dz: floor height difference of the two doorways in world units (each room has its own zero level); fastload: the black room load of a normal fade is run fast */
 #define LK_SM_MAXDZ 64   /* floor height difference of the two doorways (world units) up to which two rooms are one world: a cave / dungeon entrance is far off the neighbour's floor level and keeps the fade */
@@ -865,8 +881,8 @@ static void lk_nb_collect(int rm) {   /* the rooms that stay loaded beside room 
           ddx = dx0 + sx; ddy = dy0 + sy; oc = 2 * (ddx - ddy); orr = ddx + ddy;
           for (r = r0 - 9; r < r0 + 19; r++) for (c = c0 - 24; c < c0 + 25; c++) {
             int a2 = 0, b2 = 0, nc = c - oc, nr = r - orr;
-            if (c >= 0 && c < 304 && r >= 0 && r < 152) a2 = ((lk_o_pa[r][c] | lk_o_pb[r][c]) & 0x10000) != 0;
-            if (nc >= 0 && nc < 304 && nr >= 0 && nr < 152) b2 = ((nbq2->pa[nr][nc] | nbq2->pb[nr][nc]) & 0x10000) != 0;
+            if (c >= 0 && c < 304 && r >= 0 && r < 152) a2 = !(lk_tile_blank(lk_o_tiles, sizeof lk_o_tiles, lk_o_pa[r][c]) && lk_tile_blank(lk_o_tiles, sizeof lk_o_tiles, lk_o_pb[r][c]));   /* black edge bands count as void */
+            if (nc >= 0 && nc < 304 && nr >= 0 && nr < 152) b2 = !(lk_tile_blank(nbq2->tiles, sizeof nbq2->tiles, nbq2->pa[nr][nc]) && lk_tile_blank(nbq2->tiles, sizeof nbq2->tiles, nbq2->pb[nr][nc]));
             if (a2 || b2) u++;
             if (a2 && b2) ovl++;
             if (sx == 0 && sy == 0 && a2 && b2) {   /* the exact door alignment: how much do the pictures agree where they overlap? (palette line + colour index of 8 sample pixels per tile) */
@@ -894,8 +910,9 @@ static void lk_nb_collect(int rm) {   /* the rooms that stay loaded beside room 
             int ou2 = ou + (bestax ? 2 * i2 : -2 * i2), ov2 = ov + i2, X, Y; long sc2, cov = 0, ovp = 0;
             for (Y = r0 * 8 - 72; Y < r0 * 8 + 152; Y += 2) for (X = c0 * 8 - 192; X < c0 * 8 + 200; X += 2) {
               int pp = 0, qq = 0, pr = 0, pb3 = 0, pr2 = 0, pb4 = 0, a3, b3;
-              a3 = lk_o_fetch(lk_o_pa, X, Y, &pp, &pr, 0) || lk_o_fetch(lk_o_pb, X, Y, &qq, &pb3, 0);
+              a3 = (lk_o_fetch(lk_o_pa, X, Y, &pp, &pr, 0) || lk_o_fetch(lk_o_pb, X, Y, &qq, &pb3, 0)) && !lk_o_voidcell(X, Y);
               b3 = lk_nb_fetch(nbq2, nbq2->pa, X - ou2, Y - ov2, &pp, &pr2) || lk_nb_fetch(nbq2, nbq2->pb, X - ou2, Y - ov2, &qq, &pb4);
+              if (b3) { int tc3 = (X - ou2) >> 3, tr3 = (Y - ov2) >> 3; if (tc3 >= 0 && tr3 >= 0 && tc3 < 304 && tr3 < 152 && lk_tile_blank(nbq2->tiles, sizeof nbq2->tiles, nbq2->pa[tr3][tc3]) && lk_tile_blank(nbq2->tiles, sizeof nbq2->tiles, nbq2->pb[tr3][tc3])) b3 = 0; }   /* black edge bands are void */
               if (a3 || b3) cov++;
               if (a3 && b3) ovp++;
             }
@@ -919,6 +936,7 @@ static int lk_nb_lookup(int ubase, int vbase, int x, int pick_out[1], const lk_n
   for (nk = 0; nk < lk_nbn; nk++) {
     const lk_nbl_t *q = &lk_nbl[nk]; int U = ubase + x - lk_sm_sxn - q->ou, V = vbase - lk_sm_syn - q->ov + q->dz, nA = 0, nB = 0, pA = 0, pB = 0,
         na = lk_nb_fetch(q->nb, q->nb->pa, U, V, &nA, &pA), nbb = lk_nb_fetch(q->nb, q->nb->pb, U, V, &nB, &pB), pk = 0;
+    { int tc = U >> 3, tr = V >> 3; if (U < 0 || V < 0 || tc >= 304 || tr >= 152) continue; if (lk_tile_blank(q->nb->tiles, sizeof q->nb->tiles, q->nb->pa[tr][tc]) && lk_tile_blank(q->nb->tiles, sizeof q->nb->tiles, q->nb->pb[tr][tc])) continue; }   /* the neighbour's own black edge bands are void too */
     if (na && pA) pk = nA * 16 + na; else if (nbb && pB) pk = nB * 16 + nbb; else if (na) pk = nA * 16 + na; else if (nbb) pk = nB * 16 + nbb;
     if (pk) { pick_out[0] = pk; *nbq_out = q->nb; return 1; }
   }
@@ -1046,6 +1064,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
   if (lk_sm_state == 1 && !lk_sm_due && line > 0) return;   /* gap frames that are not shown cost nothing */
   if (lk_sm_state) lk_sh_row_on = 0;   /* S3.5: the shadow marks of the VDP belong to the unshifted picture */
   if (line == 0) lk_hd_gen++;
+  if (line == 0) memset(lk_o_vc, 0, sizeof lk_o_vc);   /* seamless void cache: the layer images may change every frame */
   if (line == 0) {
     const uint8_t *r = bus_get_ram(); int hsb = (LK_REG(13) & 0x3F) << 10;
     if (lk_o_vbmode && lk_vb_n) r = lk_vb_ram;                       /* LANDSTALKER_OWN_VB=1: the state as the VDP received it (RAM right after the VBlank handler, patch_ownvb.py) */
@@ -1163,7 +1182,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         else if (ai) { pick = apal * 16 + ai; src = 2; }
         else if (bi) { pick = bpal * 16 + bi; src = 3; }
         else { pick = LK_REG(7) & 0x3F;                                   /* backdrop colour */
-          if (lk_nbn > 0 && lk_seam_get()) { int pk[1]; const lk_nb_t *nq = 0; if (lk_nb_lookup(ubase, vbase + 0, x, pk, &nq)) { pick = pk[0]; nbq = nq; src = 6; } }   /* step 2: the neighbour rooms that stay loaded fill the void */
+          if (lk_nbn > 0 && lk_seam_get() && lk_o_voidcell(ubase + x - lk_sm_sxn, vbase - lk_sm_syn)) { int pk[1]; const lk_nb_t *nq = 0; if (lk_nb_lookup(ubase, vbase + 0, x, pk, &nq)) { pick = pk[0]; nbq = nq; src = 6; } }   /* step 2: the neighbour rooms that stay loaded fill the void (only where the room has no tile: its transparent doorways / gaps keep the backdrop) */
           if (src == 0 && (lk_sm_state == 2 || lk_sm_state == 3) && lk_sm_alpha > 0) {           /* S3.5: the old room's scenery behind the new room's void */
             int opA = 0, opB = 0, oqA = 0, oqB = 0, oa = lk_sm_fetch(lk_sm_pa, lk_sm_ou0 + x - lk_sm_sxo, lk_sm_ov0 + line - lk_sm_syo, &opA, &oqA), ob = lk_sm_fetch(lk_sm_pb, lk_sm_ou0 + x - lk_sm_sxo, lk_sm_ov0 + line - lk_sm_syo, &opB, &oqB);
             if (oa && oqA) { pick = opA * 16 + oa; src = 5; } else if (ob && oqB) { pick = opB * 16 + ob; src = 5; } else if (oa) { pick = opA * 16 + oa; src = 5; } else if (ob) { pick = opB * 16 + ob; src = 5; }
@@ -1172,11 +1191,11 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         else { int wp = lk_o_win(line, x, hint); if (wp >= 0 && (wp & 0xF) && i >= wlo && i < whi) { if (!(text && (sp & 0x200) && (sp & 0x100) && !(wp & 0x200))) { pick = wp & 0x3F; src = 4; } }   /* a sprite is above a low priority window pixel (the yes / no arrow in the text box), a high priority one only above a low window pixel */ else if (wp >= 0 && !tb && wline) black = 1; }   /* transparent window pixels and the black ends of the window line show the map */
       }
       col = black ? (margin ? (lk_o_regvdp ? pixel[0x40] : lk_o_palmode ? lk_o_pix[LK_REG(7) & 0x3F] : pixel_lut[1][0]) : pixel_lut[1][0]) : (lk_o_palmode ? (lk_o_fxon ? lk_o_fxpix[lk_o_fxk[line & 255]][pick & 0x3F] : lk_o_pix[pick & 0x3F]) : pixel[pick & 0x3F]);
-      if ((src == 2 || src == 3) && !black && lk_nbn > 0 && (col & 0xFFFFFF) == 0 && lk_seam_get()) {   /* the room's own black edge pixels (the shading of its map edge) are void for the neighbours: a thin black line stayed between two rooms otherwise */
+      if ((src == 2 || src == 3) && !black && lk_nbn > 0 && (col & 0xFFFFFF) == 0 && lk_seam_get() && lk_o_nearvoid(ubase + x - lk_sm_sxn, vbase - lk_sm_syn)) {   /* only at the room's map edge: black outlines / shadows inside the picture stay */   /* the room's own black edge pixels (the shading of its map edge) are void for the neighbours: a thin black line stayed between two rooms otherwise */
         int pk[1]; const lk_nb_t *nq = 0;
         if (lk_nb_lookup(ubase, vbase, x, pk, &nq)) { PIXEL_OUT_T nc = (pk[0] < 16) ? nq->pix0[pk[0] & 15] : lk_o_pix[pk[0] & 0x3F]; if ((nc & 0xFFFFFF) != 0) { pick = pk[0]; nbq = nq; src = 6; } }
       }
-      if ((src == 0 || src == 2 || src == 3) && (col & 0xFFFFFF) == 0 && !black && !margin && lk_nbn > 0 && line > 27 && lk_seam_get()) {   /* a void pixel with picture a few pixels above and below it is a seam between two rooms: fill it with the colour of the row above */
+      if ((src == 0 || src == 2 || src == 3) && (col & 0xFFFFFF) == 0 && !black && !margin && lk_nbn > 0 && line > 27 && lk_seam_get() && lk_o_nearvoid(ubase + x - lk_sm_sxn, vbase - lk_sm_syn)) {   /* a void pixel with picture a few pixels above and below it is a seam between two rooms: fill it with the colour of the row above */
         int d, up = -1, below = 0;
         for (d = 1; d <= 6 && up < 0; d++) if (!lk_vhv[(line - d) & 7][i] && (lk_vh[(line - d) & 7][i] & 0xFFFFFF)) up = d;
         if (up > 0) {
