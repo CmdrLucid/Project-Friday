@@ -16,7 +16,8 @@ if VER in s:
 a = "/* draw the frame: returns after SDL_RenderPresent */\nstatic void lk_disp_present(const uint8_t *framebuffer) {"
 assert s.count(a) == 1, "platform_sdl.c: lk_disp_present layout changed"
 module = r'''/* ---- LK_HD v1: HD picture from the compositor's n x n blocks (tools/patch_hd.py) ---- */
-extern int lk_hd_n; extern uint32_t *lk_hd_rows, *lk_hd_ref; extern long lk_hd_stamp[224], lk_hd_gen; extern int lk_wide_e; extern int lk_quick_hdcol(int x);
+extern int lk_hd_n; extern uint32_t *lk_hd_rows, *lk_hd_ref; extern long lk_hd_stamp[224], lk_hd_gen; extern int lk_wide_e; extern int lk_quick_hdcol(int x); extern int lk_shadow_hdflags(int x, int y), lk_shadow_hdalpha(int x, int y, int sx, int sy, int n);
+static uint32_t lk_hd_dark(uint32_t c) { return ((c >> 1) & 0x007F7F7Fu) + ((c >> 4) & 0x000F0F0Fu) + (c & 0xFF000000u); }   /* the Shadow option's 1x darkening (patch_shadow.py) */
 static uint32_t *lk_hd_img; static int lk_hd_iw, lk_hd_ih; static SDL_Texture *lk_hd_tex; static int lk_hd_tw, lk_hd_th;
 static SDL_Texture *lk_hd_ftex; static int lk_hd_fw, lk_hd_fh; static uint32_t *lk_hd_fbuf;   /* filtered HD picture (destination size) */
 uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh) {
@@ -28,16 +29,17 @@ uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh) {
     if (!lk_hd_img || !m || !sc || !mcap) return NULL;
     for (y = 0; y < 224; y++) {                             /* m = the final pixel is the compositor's pixel (no overlay drew here); sc = the picture column the pixel comes from (the quick item bar moves the columns of the HUD lines 5..22: the HD block moves with them) */
         const uint32_t *src = fb + (size_t)y * sw; int ok = lk_hd_stamp[y] == lk_hd_gen;
-        for (x = 0; x < sw; x++) { int sx0 = (y >= 5 && y <= 22) ? lk_quick_hdcol(x) : x, cx = sx0 - e; sc[(size_t)y * sw + x] = (int16_t)sx0; m[(size_t)y * sw + x] = ok && sx0 >= 0 && sx0 < sw && cx >= -48 && cx < 320 + 48 && src[x] == lk_hd_ref[y * 416 + cx + 48]; }
+        for (x = 0; x < sw; x++) { int sx0 = (y >= 5 && y <= 22) ? lk_quick_hdcol(x) : x, cx = sx0 - e; sc[(size_t)y * sw + x] = (int16_t)sx0; m[(size_t)y * sw + x] = ok && sx0 >= 0 && sx0 < sw && cx >= -48 && cx < 320 + 48 && (src[x] == lk_hd_ref[y * 416 + cx + 48] || ((lk_shadow_hdflags(x, y) & 1) && src[x] == lk_hd_dark(lk_hd_ref[y * 416 + cx + 48]))); }
     }
     for (y = 0; y < 224; y++) {
         const uint32_t *src = fb + (size_t)y * sw;
         for (x = 0; x < sw; x++) {                          /* an HD block is only used where the whole 3 x 3 neighbourhood is the compositor's: overlays that move pixels around (Item Info, the text box line, the quick item cells) keep equal colours by chance at their edges, and an enlarged tile cut from a neighbourhood that is not there shows as specks */
-            int cx = sc[(size_t)y * sw + x] - e, use = m[(size_t)y * sw + x], dy, dx;
+            int cx = sc[(size_t)y * sw + x] - e, use = m[(size_t)y * sw + x], dy, dx; int shf = lk_shadow_hdflags(x, y) & 3;
             for (dy = -1; dy <= 1 && use; dy++) for (dx = -1; dx <= 1; dx++) { int yy = y + dy, xx = x + dx; if (yy < 0 || yy > 223 || xx < 0 || xx >= sw) continue; if (!m[(size_t)yy * sw + xx]) { use = 0; break; } }
             for (sy = 0; sy < N; sy++) {
                 uint32_t *dst = lk_hd_img + (size_t)(y * N + sy) * W;
-                if (use) { const uint32_t *hb = lk_hd_rows + (size_t)(y * N + sy) * 416 * N + (size_t)(cx + 48) * N; for (sx = 0; sx < N; sx++) dst[x * N + sx] = hb[sx]; }
+                if (use) { const uint32_t *hb = lk_hd_rows + (size_t)(y * N + sy) * 416 * N + (size_t)(cx + 48) * N; for (sx = 0; sx < N; sx++) dst[x * N + sx] = hb[sx];
+                    if (shf) for (sx = 0; sx < N; sx++) { int a = lk_shadow_hdalpha(x, y, sx, sy, N); if (a) { uint32_t c = dst[x * N + sx], k = 255 - (a * 112 + 127) / 255;   /* shadow: 56 % brightness at full strength (the 1x darkening), per pixel at the HD resolution, the HD texture stays */ dst[x * N + sx] = (c & 0xFF000000u) | ((((c >> 16) & 255) * k / 255) << 16) | ((((c >> 8) & 255) * k / 255) << 8) | ((c & 255) * k / 255); } } }
                 else for (sx = 0; sx < N; sx++) dst[x * N + sx] = src[x];
             }
         }

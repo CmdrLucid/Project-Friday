@@ -38,6 +38,7 @@ if VER not in s:
 typedef struct { int x, y, rx, ry; } lk_sh_t;
 static lk_sh_t lk_sh_act[12], lk_sh_pend[12]; static int lk_sh_nact, lk_sh_npend;
 static int lk_shadow_mode = -1;
+static uint8 lk_sh_fl[224][0x400]; static lk_sh_t lk_sh_snap[12]; static int lk_sh_nsnap;   /* per frame record for the HD picture (tools/patch_hd.py): bit 0 = this pixel was darkened, bit 1 = it shows background and lies within one pixel of a shadow ellipse (eligible); the ellipses of the frame; index = picture x + 0x100 */
 static uint8 lk_sh_row[0x400]; static int lk_sh_row_on, lk_sh_xa, lk_sh_xb;   /* pixels of the current line that get darkened (index = screen x + 0x100) */
 static void lk_shadow_path(char *buf, size_t n) { const char *h = getenv("HOME"); snprintf(buf, n, "%s/.landstalker_gameplay", h ? h : "."); }
 int lk_shadow_get(void) {
@@ -62,6 +63,8 @@ int lk_sh_hide;   /* set while the Start menu is open (CheckForMenuOpen $007624 
 static void lk_shadow_line(int line) {
   int i, x;
   lk_sh_row_on = 0;
+  if (line == 0) { memcpy(lk_sh_snap, lk_sh_act, sizeof lk_sh_snap); lk_sh_nsnap = lk_sh_hide ? 0 : lk_sh_nact; }
+  if (line >= 0 && line < 224) memset(lk_sh_fl[line], 0, 0x400);
   if (line == 0) { static int dbg = -1; static long fr; if (dbg < 0) { const char *e = getenv("LANDSTALKER_SHADOW_DEBUG"); dbg = e && atoi(e) >= 3; } if (dbg) { fprintf(stderr, "shf: %ld n=%d", fr, lk_sh_nact); for (i = 0; i < lk_sh_nact; i++) fprintf(stderr, " %d,%d", lk_sh_act[i].x, lk_sh_act[i].y); fprintf(stderr, "\n"); } fr++; }   /* LANDSTALKER_SHADOW_DEBUG=3: what is drawn in every frame */
   if (lk_sh_hide) return;
   for (i = 0; i < lk_sh_nact; i++) {
@@ -76,7 +79,14 @@ static void lk_shadow_line(int line) {
     if (x0 < lk_sh_xa) lk_sh_xa = x0;
     if (x1 > lk_sh_xb) lk_sh_xb = x1;
     for (x = x0; x <= x1; x++)
-      if ((linebuf[1][0x20 + x] & 0x0F) == 0 && (linebuf[0][0x20 + x] & 0x0F) != 0) lk_sh_row[x + 0x100] = 1;
+      if ((linebuf[1][0x20 + x] & 0x0F) == 0 && (linebuf[0][0x20 + x] & 0x0F) != 0) { lk_sh_row[x + 0x100] = 1; if (line >= 0 && line < 224) lk_sh_fl[line][x + 0x100] |= 1; }
+  }
+  if (line >= 0 && line < 224) for (i = 0; i < lk_sh_nact; i++) {   /* eligible pixels (background, no sprite on top) in the bounding box of every ellipse + 1 pixel: the HD picture shades them with a smooth edge */
+    const lk_sh_t *t = &lk_sh_act[i]; int xa = t->x + lk_wide_e - t->rx - 1, xb = t->x + lk_wide_e + t->rx + 1;
+    if (line < t->y - t->ry - 1 || line > t->y + t->ry + 1) continue;
+    if (xa < -bitmap.viewport.x) xa = -bitmap.viewport.x;
+    if (xb > bitmap.viewport.w + bitmap.viewport.x - 1) xb = bitmap.viewport.w + bitmap.viewport.x - 1;
+    for (x = xa; x <= xb; x++) if ((linebuf[1][0x20 + x] & 0x0F) == 0 && (linebuf[0][0x20 + x] & 0x0F) != 0) lk_sh_fl[line][x + 0x100] |= 2;
   }
 }
 /* after the pixel conversion of remap_line: darken the marked pixels (56 % brightness); row = first pixel of the line = screen x -viewport.x */
@@ -88,6 +98,23 @@ static void lk_shadow_darken(PIXEL_OUT_T *row, int width) {
     int k = x + bitmap.viewport.x;
     if (k >= 0 && k < width && lk_sh_row[x + 0x100]) { uint32 c = row[k]; row[k] = ((c >> 1) & 0x007F7F7Fu) + ((c >> 4) & 0x000F0F0Fu) + (c & 0xFF000000u); }
   }
+}
+/* HD picture (tools/patch_hd.py): flags of the last rendered frame at picture pixel (x, y): bit 0 darkened at 1x, bit 1 eligible; 0 when none */
+int lk_shadow_hdflags(int x, int y) { return (x >= -0x100 && x < 0x300 && y >= 0 && y < 224 && lk_sh_nsnap) ? lk_sh_fl[y][x + 0x100] : 0; }
+/* shadow strength 0..255 at the sub pixel (sx, sy) of an n x n block of pixel (x, y): the shadow ellipse as a continuous shape (centre of the pixel grid + 0.5, radii + 0.5 = the cells of the 1x ellipse), soft edge one game pixel wide */
+int lk_shadow_hdalpha(int x, int y, int sx, int sy, int n) {
+  int i, best = 0;
+  double px = x + (sx + 0.5) / n, py = y + (sy + 0.5) / n;
+  for (i = 0; i < lk_sh_nsnap; i++) {
+    const lk_sh_t *t = &lk_sh_snap[i];
+    double cx = t->x + lk_wide_e + 0.5, cy = t->y + 0.5, rx = t->rx + 0.5, ry = t->ry + 0.5, u = (px - cx) / rx, v = (py - cy) / ry, f = sqrt(u * u + v * v), g, d, a;
+    if (f > 1.5) continue;
+    g = sqrt((u / rx) * (u / rx) + (v / ry) * (v / ry));
+    d = g > 1e-9 ? (1.0 - f) * f / g : 1e9;   /* distance to the edge in game pixels, positive inside */
+    a = d + 0.5; if (a < 0) a = 0; if (a > 1) a = 1;
+    if ((int)(a * 255 + 0.5) > best) best = (int)(a * 255 + 0.5);
+  }
+  return best;
 }
 
 '''
