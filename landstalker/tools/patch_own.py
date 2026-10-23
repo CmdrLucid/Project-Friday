@@ -34,7 +34,7 @@ static int OB(uint32_t a) { return a < 0x200000u ? (int)bus_read8(a) : 0; }   /*
 #define OL(a) ((uint32_t)(((uint32_t)OW(a) << 16) | (uint32_t)OW((a) + 2)))
 static int lk_o_sprmode = 1, lk_o_cammode = 2, lk_o_u0, lk_o_v0, lk_o_vote_room = -1, lk_o_bu, lk_o_bv, lk_o_upred, lk_o_vpred; static float lk_o_vu[64], lk_o_vv[32];
 static int lk_o_mode = -1, lk_o_log = 60, lk_o_room = -1, lk_o_ngrp, lk_o_valid;
-static int lk_sm_state, lk_sm_nofade;   /* S3.5 seamless door transitions (state 0 idle, 1 gap = frozen picture while the game fades / loads, 2 pan, 3 old room dissolves); nofade = the game's fade-in is not shown */
+static int lk_sm_state, lk_sm_nofade, lk_sm_fastload;   /* S3.5 seamless door transitions (state 0 idle, 1 gap = frozen picture while the game fades / loads, 2 pan, 3 old room dissolves); nofade = the game's fade-in is not shown */
 static int lk_o_fx;   /* LANDSTALKER_OWN_FX=0: the visual effects (warp pad, tree warp) stay the game's picture (old way) */
 extern int lk_loadroom_on(void); extern int lk_warpfx_kind(void); extern int lk_fadein_on(void);
 extern uint8_t lk_vm[], lk_vsm[], lk_cm[]; extern long lk_vm_ops;   /* patch_ownvb.py: own VRAM mirror of the game's DMA queue */
@@ -720,12 +720,14 @@ int lk_seam_get(void) {
   return lk_sm_opt;
 }
 void lk_seam_set(int v) { const char *h = getenv("HOME"); char p[512]; FILE *f; lk_sm_opt = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_seam", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_sm_opt); fclose(f); } }
-int lk_seam_gap(void) { return lk_sm_state == 1; }
+
+int lk_seam_gap(void) { return lk_sm_state == 1 || lk_sm_fastload; }   /* run the emulation fast without drawing (platform_sdl.c, patch_ffwd.py) */
 static PIXEL_OUT_T lk_sm_rows[224][LK_OSW]; static int lk_sm_roww, lk_sm_rows_ok, lk_sm_capture_now;   /* the last bright picture (final rows, after shadows and the quick item bar) */
 static uint32 lk_sm_pa[152][304], lk_sm_pb[152][304]; static uint8 lk_sm_tiles[0x12000]; static PIXEL_OUT_T lk_sm_pix[64], lk_sm_pixsave[64];   /* the old room's layer images, tiles and colours */
 static int lk_sm_ocam0, lk_sm_ocam2, lk_sm_ou0, lk_sm_ov0, lk_sm_osave_ok, lk_sm_osave0, lk_sm_osave2, lk_sm_osaveu, lk_sm_osavev;   /* camera and image position of the old room's last bright frame */
 static int lk_sm_target, lk_sm_dx, lk_sm_dy, lk_sm_oroom, lk_sm_newroom, lk_sm_prevL, lk_sm_sxn, lk_sm_syn, lk_sm_sxo, lk_sm_syo, lk_sm_alpha = 256, lk_sm_log = -1;
-static long lk_sm_t0, lk_sm_pan0, lk_sm_dis0;
+static long lk_sm_t0, lk_sm_pan0, lk_sm_dis0; static int lk_sm_dz;   /* dz: floor height difference of the two doorways in world units (each room has its own zero level); fastload: the black room load of a normal fade is run fast */
+#define LK_SM_MAXOVERLAP 8   /* cells of the two rooms' maps that may lie on top of each other in the shared world (the door cells themselves coincide) */
 #define LK_SM_PAN 24   /* frames of the camera glide */
 #define LK_SM_DISSOLVE 45   /* frames the old room needs to dissolve after the glide */
 static int lk_sm_door(int t) { return t == 1 || t == 2 || t == 3 || t == 4 || t == 6; }
@@ -750,15 +752,17 @@ static int lk_sm_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio) {  
   return (ix % 2 == 0) ? (b >> 4) : (b & 15);
 }
 static void lk_sm_shifts(int camn0, int camn2, float s) {   /* screen shift of the new room's picture and of the old room's picture while the camera is at old + s * (new - old) in the shared world */
-  float vx = (float)((camn0 + 16 * lk_sm_dx) - lk_sm_ocam0), vy = (float)((camn2 + 16 * lk_sm_dy) - lk_sm_ocam2), an = (1.0f - s) * vx, bn = (1.0f - s) * vy, ao = -s * vx, bo = -s * vy;
+  float vx = (float)((camn0 + 16 * lk_sm_dx - lk_sm_dz) - lk_sm_ocam0), vy = (float)((camn2 + 16 * lk_sm_dy - lk_sm_dz) - lk_sm_ocam2), an = (1.0f - s) * vx, bn = (1.0f - s) * vy, ao = -s * vx, bo = -s * vy;
   lk_sm_sxn = (int)lroundf(an - bn); lk_sm_syn = (int)lroundf((an + bn) / 2.0f); lk_sm_sxo = (int)lroundf(ao - bo); lk_sm_syo = (int)lroundf((ao + bo) / 2.0f);
 }
 static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) {   /* once per frame, after the picture decision of line 0 */
   #define MR16(a) ((((int)lk_o_r[((a) & 0xFFFF) ^ 1]) << 8) | (int)lk_o_r[(((a) + 1) & 0xFFFF) ^ 1])
   int L = (int)(int16_t)(MR16(0xFF0F50) - MR16(0xFF0F52)); long fn = platform_frame_number();
   if (lk_sm_log < 0) { const char *q = getenv("LANDSTALKER_SEAM_LOG"); lk_sm_log = q ? atoi(q) : 0; }
-  lk_sm_capture_now = 0;
+  lk_sm_capture_now = 0; lk_sm_fastload = 0;
   if (!lk_seam_get() || lk_o_mode != 2 || !lk_o_fx) { lk_sm_state = 0; lk_sm_nofade = 0; lk_sm_prevL = L; return; }
+  if (lk_sm_state == 0 && !lk_o_disp0 && L >= 0xE00 && rm != lk_o_room && lk_o_room >= 0 && rm > 0 && rm < 800) { static long fl0; static int was; lk_sm_fastload = 1; if (lk_sm_log && !was) fl0 = fn; was = 1; (void)fl0; }   /* a normal fade: the black room load is run fast (no stutter) */
+  { static int was2; static long t2; if (!lk_sm_fastload && was2 && lk_sm_log) printf("seam: frame %ld fast room load ended (%ld frames)\n", fn, fn - t2); if (lk_sm_fastload && !was2) { t2 = fn; if (lk_sm_log) printf("seam: frame %ld fast room load starts\n", fn); } was2 = lk_sm_fastload; }
   if (lk_sm_state == 0) {
     lk_sm_nofade = 0;
     if (L == 0 && drawn && lk_o_disp0 && lk_o_valid && !lk_sh_hide) {   /* a bright map frame: remember it */
@@ -767,12 +771,18 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
     if (L > 0 && lk_sm_prevL == 0 && rm == lk_o_room && rm > 0 && !lk_sh_hide && lk_sm_rows_ok && lk_sm_osave_ok) {   /* the game starts a fade out */
       int px = UB(0xFF5400), py = UB(0xFF5401), tx = 0, ax = 0, ay = 0, fl = 0, bx = 0, by = 0, cw = 0;
       if (px < 74 && py < 74 && lk_sm_find(rm, px, py, &tx, &ax, &ay, &fl, &bx, &by) && bx < 74 && by < 74 && (cw = UW(0xFFD192 + 148 * by + 2 * bx), lk_sm_door(cw & 0xFF)) && !(fl & 0x31)) {
-        int tw = lk_rm_cell(tx, ax, ay);
-        if (tw >= 0 && lk_sm_door(tw & 0xFF) && ((tw >> 8) & 15) == ((cw >> 8) & 15)) {
-          lk_sm_state = 1; lk_sm_nofade = 1; lk_sm_t0 = fn; lk_sm_target = tx; lk_sm_oroom = rm; lk_sm_dx = bx - ax; lk_sm_dy = by - ay; lk_sm_ocam0 = lk_sm_osave0; lk_sm_ocam2 = lk_sm_osave2; lk_sm_ou0 = lk_sm_osaveu; lk_sm_ov0 = lk_sm_osavev;
+        int tw = lk_rm_cell(tx, ax, ay), ov = 0, cx, cy;
+        if (tw >= 0) for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) {   /* do the two maps lie on top of each other in the shared world (new cell = old cell - D)? interiors inside a building's footprint do, neighbouring outdoor rooms hardly */
+          int va = UW(0xFFD192 + 148 * cy + 2 * cx), wb;
+          if (va == 0 || va == 0x4000) continue;
+          wb = lk_rm_cell(tx, cx - (bx - ax), cy - (by - ay));
+          if (wb > 0 && wb != 0x4000) ov++;
+        }
+        if (tw >= 0 && lk_sm_door(tw & 0xFF) && ov <= LK_SM_MAXOVERLAP) {
+          lk_sm_state = 1; lk_sm_nofade = 1; lk_sm_t0 = fn; lk_sm_target = tx; lk_sm_oroom = rm; lk_sm_dx = bx - ax; lk_sm_dy = by - ay; lk_sm_dz = 16 * (((cw >> 8) & 15) - ((tw >> 8) & 15)); lk_sm_ocam0 = lk_sm_osave0; lk_sm_ocam2 = lk_sm_osave2; lk_sm_ou0 = lk_sm_osaveu; lk_sm_ov0 = lk_sm_osavev;
           memcpy(lk_sm_pa, lk_o_pa, sizeof lk_sm_pa); memcpy(lk_sm_pb, lk_o_pb, sizeof lk_sm_pb); memcpy(lk_sm_tiles, lk_o_tiles, sizeof lk_sm_tiles); memcpy(lk_sm_pix, lk_sm_pixsave, sizeof lk_sm_pix);
           if (lk_sm_log) printf("seam: frame %ld GAP start room %d cell %d,%d -> room %d cell %d,%d (D %d,%d)\n", fn, rm, px, py, tx, ax, ay, lk_sm_dx, lk_sm_dy);
-        } else if (lk_sm_log) printf("seam: frame %ld door %d,%d of room %d -> room %d is not level (cells %04X / %04X)\n", fn, px, py, rm, tx, cw, tw);
+        } else if (lk_sm_log) printf("seam: frame %ld door %d,%d of room %d -> room %d keeps the fade (cells %04X / %04X, %d map cells would overlap)\n", fn, px, py, rm, tx, cw, tw, ov);
       }
     }
   } else if (lk_sm_state == 1) {
