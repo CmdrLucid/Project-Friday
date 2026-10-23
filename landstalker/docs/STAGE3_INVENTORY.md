@@ -40,6 +40,8 @@ The entity TYPE id (ENTITIES.md) is the byte at `+3B` (`Player_SpriteType` in `r
 
 - S3.3 is DONE (INDEX status 'ja s3.3'): the camera is simply the player's (CentreX - Z, CentreY - Z), so the 'unknown camera rules' risk is gone; a free camera needs no game change. The camera analysis in section 4 item 3 is answered.
 
+- S3.4 is DONE (INDEX status 'ja. auch nahtlose uebergaenge ...'): `tools/roomgraph.py` reads connections, variants and entity placements; 249 of 888 connections are level door candidates for seamless transitions. Seamless transitions are an OPTIONAL setting (default Off); stairs, ladders and dungeon entrances keep the fade.
+
 ## 5. Proposed order (each step: no visible change, compare against the current picture, then the next)
 
 - **S3.1** C room decoder + cache; compare with the RAM arrays at every room load in compare mode (35 of 39 rooms exact is the bar; list the 4 known differences).

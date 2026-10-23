@@ -160,6 +160,7 @@ void lk_sm_update(const uint8 *r, int room) {
   if ((checked == 0 && m->frame - since >= 90 || checked == 2 && m->frame - since >= 400) && m->rm) {
     int fgd = 0, bgd = 0, hmd = 0, x, y;
     checked = checked == 0 ? 1 : 3;
+    if (lk_smdl_chk == 5) { int i; printf("ents %d:", room); for (i = 0; i < 16; i++) { uint32_t ea = 0xFF5400u + 0x80u * (uint32_t)i; printf(" %d/%d,%d/%d", MRR8(ea + 0x3B), MRR8(ea), MRR8(ea + 1), MRR8(ea + 0x0A)); } printf("\n"); }
     for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) {
       if (m->rm->fg[y * 74 + x] != MRR16(0xFF7C02 + 148 * y + 2 * x)) fgd++;
       if (m->rm->bg[y * 74 + x] != MRR16(0xFFA6CA + 148 * y + 2 * x)) bgd++;
