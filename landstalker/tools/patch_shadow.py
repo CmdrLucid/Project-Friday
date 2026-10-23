@@ -13,6 +13,12 @@ root = sys.argv[1]
 
 # ---- vdp_render.c ----
 import re
+_ids = []
+_deny = re.compile(r"platform|switch|cube|block|gate|door|barrier|spawner|projectile|fireball|(?:^|_)ink(?:_|$)|item_box|raft|crate|money_bag|chest|ball|signpost|sign_post|rock|spikeball|spinner|(?:^|_)wall(?:_|$)")
+for _l in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'docs', 'ENTITIES.md')):   # entity types that are NOT creatures / bodies standing on the ground (docs/ENTITIES.md names): no contact shadow for them
+    _c = [x.strip() for x in _l.split('|')]
+    if len(_c) > 5 and _c[1].isdigit() and _deny.search(_c[3]): _ids.append(int(_c[1]))
+FIGTAB = 'static int lk_sh_figure(int t) { static const unsigned char d[] = { ' + ', '.join(str(i) for i in _ids) + ' }; unsigned k; for (k = 0; k < sizeof d; k++) if (d[k] == t) return 0; return 1; }   /* everything that is not on the deny list (platforms, switches, gates, projectiles ... by name in docs/ENTITIES.md) gets a contact shadow */'
 VER = "LK_SHADOW v7"
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
@@ -35,7 +41,7 @@ if VER not in s:
     s = s.replace(d, "      PIXEL_OUT_T *lk_row0 = dst; int lk_w0 = width;   /* LK_SHADOW v7 */\n" + d + "      lk_shadow_darken(lk_row0, lk_w0);   /* LK_SHADOW v7 */\n", 1)
     helper = r'''/* ---- LK_SHADOW v7: ground shadow (tools/patch_shadow.py) ---- */
 #include <math.h>
-typedef struct { int x, y, rx, ry; int poly; double vx[4], vy[4]; } lk_sh_t;   /* poly: the shadow is the projected footprint of the object's box (platforms, crates), vx / vy = corners relative to the centre in screen pixels; else an ellipse rx / ry */
+typedef struct { int x, y, rx, ry; int poly, soft; double str, feather, vx[4], vy[4]; } lk_sh_t;   /* soft: contact shadow of a figure on the ground, HD picture only (not in the 1x mask); str = strength relative to the full shadow, feather = width of the soft edge in game pixels */   /* poly: the shadow is the projected footprint of the object's box (platforms, crates), vx / vy = corners relative to the centre in screen pixels; else an ellipse rx / ry */
 static lk_sh_t lk_sh_act[12], lk_sh_pend[12]; static int lk_sh_nact, lk_sh_npend;
 static int lk_shadow_mode = -1;
 static uint8 lk_sh_fl[224][0x400]; static lk_sh_t lk_sh_snap[12]; static int lk_sh_nsnap;   /* per frame record for the HD picture (tools/patch_hd.py): bit 0 = this pixel was darkened, bit 1 = it shows background and lies within one pixel of a shadow ellipse (eligible); the ellipses of the frame; index = picture x + 0x100 */
@@ -55,10 +61,21 @@ void lk_shadow_set(int m) {
   f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", lk_shadow_mode); fclose(f); }
 }
 void lk_shadow_reset(void) { lk_sh_npend = 0; }
-void lk_shadow_add(int x, int y, int rx, int ry) { if (lk_sh_npend < 12) { lk_sh_t *t = &lk_sh_pend[lk_sh_npend++]; t->x = x; t->y = y; t->rx = rx; t->ry = ry; t->poly = 0; } }
+/* the LIGHT (stage 3, user 2026-10-23): one direction + strength that every shadow is computed from; the default is the original overhead light (no offset, full strength).  LANDSTALKER_LIGHT=lx,ly[,strength] (test aid): lx / ly = screen pixels the shadow moves per unit of height above the floor, strength 0..1 scales the HD shadows.  A later lighting model only has to set these values. */
+static double lk_light_x, lk_light_y, lk_light_s = 1.0; static int lk_light_init;
+static void lk_light_get(void) { if (!lk_light_init) { const char *e = getenv("LANDSTALKER_LIGHT"); double a, b, c; lk_light_init = 1; if (e && sscanf(e, "%lf,%lf,%lf", &a, &b, &c) == 3) { lk_light_x = a; lk_light_y = b; lk_light_s = c; } else if (e && sscanf(e, "%lf,%lf", &a, &b) == 2) { lk_light_x = a; lk_light_y = b; } } }
+static int lk_soft_mode = -1;   /* contact shadows under figures on the ground: HD picture only, ~/.landstalker_softshadow = 1 or LANDSTALKER_SHADOW_SOFT=1 */
+int lk_shadow_soft_get(void) {
+  if (lk_soft_mode < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_SHADOW_SOFT"); char path[512]; FILE *f; int a; lk_soft_mode = 0; snprintf(path, sizeof path, "%s/.landstalker_softshadow", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &a) == 1) lk_soft_mode = a ? 1 : 0; fclose(f); } if (e && *e) lk_soft_mode = atoi(e) ? 1 : 0; }
+  return lk_soft_mode;
+}
+void lk_shadow_soft_set(int m) { char path[512]; const char *h = getenv("HOME"); FILE *f; lk_soft_mode = m ? 1 : 0; snprintf(path, sizeof path, "%s/.landstalker_softshadow", h ? h : "."); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", lk_soft_mode); fclose(f); } }
+static void lk_sh_shift(int *x, int *y, int h) { lk_light_get(); if (h > 0) { *x += (int)floor(h * lk_light_x + 0.5); *y += (int)floor(h * lk_light_y + 0.5); } }
+void lk_shadow_add(int x, int y, int rx, int ry, int h) { if (lk_sh_npend < 12) { lk_sh_t *t = &lk_sh_pend[lk_sh_npend++]; lk_sh_shift(&x, &y, h); t->x = x; t->y = y; t->rx = rx; t->ry = ry; t->poly = 0; t->soft = 0; t->str = lk_light_s; t->feather = 1.0; } }
+void lk_shadow_add_soft(int x, int y, int rx, int ry) { if (lk_sh_npend < 12) { lk_sh_t *t = &lk_sh_pend[lk_sh_npend++]; lk_light_get(); t->x = x; t->y = y; t->rx = rx; t->ry = ry; t->poly = 0; t->soft = 1; t->str = 0.85 * lk_light_s; t->feather = 2.0; } }
 /* the footprint of an object's box (wx x wy world units) at scale sc: isometric screen X = x - y, Y = (x + y) / 2 of the four corners (+-a, +-b) */
-void lk_shadow_addp(int x, int y, int wx, int wy, double sc) {
-  if (lk_sh_npend < 12) { lk_sh_t *t = &lk_sh_pend[lk_sh_npend++]; double a = wx * sc / 2.0, b = wy * sc / 2.0; t->x = x; t->y = y; t->rx = (int)(a + b + 1); t->ry = (int)((a + b) / 2 + 1); t->poly = 1;
+void lk_shadow_addp(int x, int y, int wx, int wy, double sc, int h) {
+  if (lk_sh_npend < 12) { lk_sh_t *t = &lk_sh_pend[lk_sh_npend++]; double a = wx * sc / 2.0, b = wy * sc / 2.0; lk_sh_shift(&x, &y, h); t->soft = 0; t->str = lk_light_s; t->feather = 1.0; t->x = x; t->y = y; t->rx = (int)(a + b + 1); t->ry = (int)((a + b) / 2 + 1); t->poly = 1;
     t->vx[0] = a - b; t->vy[0] = (a + b) / 2; t->vx[1] = a + b; t->vy[1] = (a - b) / 2; t->vx[2] = b - a; t->vy[2] = -(a + b) / 2; t->vx[3] = -a - b; t->vy[3] = (b - a) / 2; }
 }
 /* called by the VDP when the game DMAs its sprite table ($FF0550) to VRAM: the shadow list of the pass that built that table becomes the one that is drawn (the sprites and the shadows then change in the same frame) */
@@ -83,6 +100,7 @@ static void lk_shadow_line(int line) {
   for (i = 0; i < lk_sh_nact; i++) {
     const lk_sh_t *t = &lk_sh_act[i]; int dy = line - t->y, x0, x1;
     double q;
+    if (t->soft) continue;   /* HD only */
     if (t->poly) { if (!lk_sh_pspan(t, line, &x0, &x1)) continue; }
     else {
     if (dy < -t->ry || dy > t->ry) continue;
@@ -97,8 +115,8 @@ static void lk_shadow_line(int line) {
       if ((linebuf[1][0x20 + x] & 0x0F) == 0 && (linebuf[0][0x20 + x] & 0x0F) != 0) { lk_sh_row[x + 0x100] = 1; if (line >= 0 && line < 224) lk_sh_fl[line][x + 0x100] |= 1; }
   }
   if (line >= 0 && line < 224) for (i = 0; i < lk_sh_nact; i++) {   /* eligible pixels (background, no sprite on top) in the bounding box of every ellipse + 1 pixel: the HD picture shades them with a smooth edge */
-    const lk_sh_t *t = &lk_sh_act[i]; int xa = t->x + lk_wide_e - t->rx - 1, xb = t->x + lk_wide_e + t->rx + 1;
-    if (line < t->y - t->ry - 1 || line > t->y + t->ry + 1) continue;
+    const lk_sh_t *t = &lk_sh_act[i]; int mg = t->soft ? 3 : 1, xa = t->x + lk_wide_e - t->rx - mg, xb = t->x + lk_wide_e + t->rx + mg;
+    if (line < t->y - t->ry - mg || line > t->y + t->ry + mg) continue;
     if (xa < -bitmap.viewport.x) xa = -bitmap.viewport.x;
     if (xb > bitmap.viewport.w + bitmap.viewport.x - 1) xb = bitmap.viewport.w + bitmap.viewport.x - 1;
     for (x = xa; x <= xb; x++) if ((linebuf[1][0x20 + x] & 0x0F) == 0 && (linebuf[0][0x20 + x] & 0x0F) != 0) lk_sh_fl[line][x + 0x100] |= 2;
@@ -127,14 +145,14 @@ int lk_shadow_hdalpha(int x, int y, int sx, int sy, int n) {
       for (k = 0; k < 4; k++) { int n = (k + 1) & 3; ar += t->vx[k] * t->vy[n] - t->vx[n] * t->vy[k]; }
       for (k = 0; k < 4; k++) { int n = (k + 1) & 3; double ex = t->vx[n] - t->vx[k], ey = t->vy[n] - t->vy[k], len = sqrt(ex * ex + ey * ey), d;
         if (len < 1e-9) continue; d = (ex * (py - cy - t->vy[k]) - ey * (px - cx - t->vx[k])) / len; if (ar < 0) d = -d; if (d < dmin) dmin = d; }
-      a = dmin + 0.5; if (a < 0) a = 0; if (a > 1) a = 1; if ((int)(a * 255 + 0.5) > best) best = (int)(a * 255 + 0.5);
+      a = dmin / t->feather + 0.5; if (a < 0) a = 0; if (a > 1) a = 1; a *= t->str; if ((int)(a * 255 + 0.5) > best) best = (int)(a * 255 + 0.5);
       continue;
     }
     double cx = t->x + lk_wide_e + 0.5, cy = t->y + 0.5, rx = t->rx + 0.5, ry = t->ry + 0.5, u = (px - cx) / rx, v = (py - cy) / ry, f = sqrt(u * u + v * v), g, d, a;
-    if (f > 1.5) continue;
+    if (f > 2.0) continue;
     g = sqrt((u / rx) * (u / rx) + (v / ry) * (v / ry));
     d = g > 1e-9 ? (1.0 - f) * f / g : 1e9;   /* distance to the edge in game pixels, positive inside */
-    a = d + 0.5; if (a < 0) a = 0; if (a > 1) a = 1;
+    a = d / t->feather + 0.5; if (a < 0) a = 0; if (a > 1) a = 1; a *= t->str;
     if ((int)(a * 255 + 0.5) > best) best = (int)(a * 255 + 0.5);
   }
   return best;
@@ -175,19 +193,24 @@ if VER not in s:
     module = r'''/* ---- LANDSTALKER 'Shadow' gameplay option, LK_SHADOW v7 (tools/patch_shadow.py) ---- */
 extern int lk_shadow_get(void);
 extern void lk_shadow_reset(void);
-extern void lk_shadow_add(int x, int y, int rx, int ry);
-extern void lk_shadow_addp(int x, int y, int wx, int wy, double sc);
+extern void lk_shadow_add(int x, int y, int rx, int ry, int h);
+extern void lk_shadow_add_soft(int x, int y, int rx, int ry);
+extern int lk_shadow_soft_get(void);
+extern int lk_hd_n;
+extern void lk_shadow_addp(int x, int y, int wx, int wy, double sc, int h);
+/*FIGTAB*/
 static int lk_sh_angular(int t) { return t == 21 || t == 22 || t == 53 || t == 76 || t == 83 || (t >= 86 && t <= 95) || t == 113 || t == 114; }   /* entity types (byte +0B, ENTITIES.md ids) with a box shaped body: platforms, crate, raft, concrete block (ENTITIES.md) */
 extern int lk_no_charge;
 static gen_func_t lk_o_ls;
 /* LoadSprites ($00401C) runs once per game pass: ResetVdpSprites, BuildVisibleEntityList (the on-screen entities as offsets from $FF5400, draw ordered, $FFFF at the end, list at $FF11DE;
    CheckEntityOnScreen stored the screen position in +0E / +10 of each), LoadSpriteFrames. After it the whole list is complete, so the shadows of one pass are collected here at once. */
 static void lk_h_ls(void) {
-    int mode, k;
+    int mode, soft, k;
     lk_o_ls();   /* the original ends with RTS to our caller's frame, it returns here */
     lk_shadow_reset();
     mode = lk_shadow_get();
-    if (!mode) return;
+    soft = lk_hd_n > 0 && lk_shadow_soft_get();   /* contact shadows of figures on the ground: HD picture only */
+    if (!mode && !soft) return;
     for (k = 0; k < 16; k++) {
         uint16_t w = bus_read16(0xFF11DEu + 2u * (uint32_t)k);
         uint32_t ent;
@@ -205,16 +228,21 @@ static void lk_h_ls(void) {
         { static uint8_t on[16]; int idx = (w >> 7) & 15;                         /* hysteresis: walking over slopes / steps makes the distance jump by a few units, that must not blink the shadow (user report, room 430) */
           int show = dist >= 6 || (on[idx] && dist >= 2);
           on[idx] = (uint8_t)show;
-          { static int d2 = -1; if (d2 < 0) { const char *e = getenv("LANDSTALKER_SHADOW_DEBUG"); d2 = e && atoi(e) >= 2; } if (d2) fprintf(stderr, "shp: ent %06X dist %d show %d type %d\n", (unsigned)ent, dist, show, bus_read8(ent + 0x0B)); }
-          if (!show) continue; }                                                 /* on the ground (or a tiny hop): no shadow, only things really in the air */
+          { static int d2 = -1; if (d2 < 0) { const char *e = getenv("LANDSTALKER_SHADOW_DEBUG"); d2 = e && atoi(e) >= 2; } if (d2) fprintf(stderr, "shp: ent %06X dist %d show %d type %d raw %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", (unsigned)ent, dist, show, bus_read8(ent + 0x0B), bus_read8(ent), bus_read8(ent+1), bus_read8(ent+2), bus_read8(ent+3), bus_read8(ent+4), bus_read8(ent+5), bus_read8(ent+6), bus_read8(ent+7), bus_read8(ent+8), bus_read8(ent+9), bus_read8(ent+0xA), bus_read8(ent+0xB)); }
+          if (!show || !mode) {                                                 /* on the ground (or Shadow Off): a contact shadow under a figure (creatures only: Nigel, enemies, NPCs), HD picture only */
+              if (soft && (ent == 0xFF5400u || lk_sh_figure(bus_read8(ent + 0x0B)))) {
+                  int ex = (int)(int16_t)(bus_read16(ent + 0x1A) - bus_read16(ent + 0x18)) + (int)(int16_t)(bus_read16(ent + 0x1E) - bus_read16(ent + 0x1C)), cr = ex * 70 / 100; if (cr < 6) cr = 6; if (cr > 13) cr = 13;
+                  lk_shadow_add_soft((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, cr, cr * 45 / 100 < 3 ? 3 : cr * 45 / 100);
+              }
+              continue; } }                                                 /* on the ground (or a tiny hop): no shadow, only things really in the air */
         ext = (int)(int16_t)(bus_read16(ent + 0x1A) - bus_read16(ent + 0x18)) + (int)(int16_t)(bus_read16(ent + 0x1E) - bus_read16(ent + 0x1C));   /* projected width of the box */
         if (ent != 0xFF5400u && lk_sh_angular(bus_read8(ent + 0x0B))) {      /* platforms, crates, blocks: the shadow is their own footprint (user: angular platforms must not cast a round shadow) */
             int wx = (int)(int16_t)(bus_read16(ent + 0x1A) - bus_read16(ent + 0x18)), wy = (int)(int16_t)(bus_read16(ent + 0x1E) - bus_read16(ent + 0x1C));
-            lk_shadow_addp((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, wx, wy, 0.75);
+            if (mode) lk_shadow_addp((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, wx, wy, 0.75, dist);
             continue;
         }
         rx = ext / 2; if (rx < 6) rx = 6; if (rx > 9) rx = 9; ry = rx * 45 / 100; if (ry < 3) ry = 3;   /* small: Nigel and platforms were too big at 14 / 20 (user), slimes fitted */
-        lk_shadow_add((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, rx, ry);
+        lk_shadow_add((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, rx, ry, dist);
         { static int dbg = -1; static long n; if (dbg < 0) dbg = getenv("LANDSTALKER_SHADOW_DEBUG") != NULL; if (dbg && ++n < 600 && (n % 7) == 1) fprintf(stderr, "shadow: ent %06X dist %d at %d,%d r %d,%d\n", (unsigned)ent, dist, (int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, rx, ry); }
     }
 }
@@ -231,6 +259,7 @@ static void lk_shadow_install(void) {
     if (lk_o_shmenu) func_table_register(0x007624, lk_h_shmenu);
 }
 '''
+    module = module.replace("/*FIGTAB*/", FIGTAB)
     s = s.replace(a, module + a, 1)
     h = "        lk_menu_install();   /* LANDSTALKER options tab (registers the menu overrides once, after the generated init) */\n"
     assert s.count(h) == 1
