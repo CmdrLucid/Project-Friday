@@ -30,6 +30,8 @@ if "platform_option_get" not in s:
     s = s.replace(b, r'''/* ---- options menu accessors (tools/patch_options.py) ---- */
 extern int lk_shadow_get(void);
 extern void lk_shadow_set(int m);
+extern int lk_shadow_soft_get(void);   /* tools/patch_shadow.py: contact shadows under creatures (HD picture only) */
+extern void lk_shadow_soft_set(int m);
 extern int lk_quick_get(void);
 extern int lk_qsave_get(void);   /* quick save / load switch (tools/patch_quicksave.py) */
 extern void lk_qsave_set(int v);
@@ -54,12 +56,12 @@ extern int lk_diff_get(int which);   /* difficulty: 0 = damage taken index, 1 = 
 extern void lk_diff_set(int which, int v);
 extern void lk_snd_get(int *music, int *sfx, int *talk);
 extern void lk_snd_set(int music, int sfx, int talk);
-int platform_option_get(int id) {   /* 0 widescreen step 0..3, 1 full height 0/1, 2 filter 0..4, 3 fullscreen 0/1, 4 scaling 0..3, 5 de-dither 0..2, 6 music volume %, 7 effects volume %, 8 speech sound 0/1, 9 shadow 0/1, 10 quick items 0/1, 11 fast forward 0..3 (Off, 2x, 3x, 4x), 12 damage taken 0..5 (25 / 50 / 75 / 100 / 150 / 200 %, RIGHT = more), 13 enemy HP 0..4 (50 / 100 / 150 / 200 / 300 %), 14 quick save 0/1 (default Off), 15 ride objects 0/1 (default Off), 16 item info 0/1 (default Off), 17 buy quantity, 18 map behind text, 19 own renderer, 20 live Gaia effect 0/1 (default Off), 21 HD graphics 0/1 (default Off, next start) */
+int platform_option_get(int id) {   /* 0 widescreen step 0..3, 1 full height 0/1, 2 filter 0..4, 3 fullscreen 0/1, 4 scaling 0..3, 5 de-dither 0..2, 6 music volume %, 7 effects volume %, 8 speech sound 0/1, 9 shadow 0..2 (Off / On / On + Soft), 10 quick items 0/1, 11 fast forward 0..3 (Off, 2x, 3x, 4x), 12 damage taken 0..5 (25 / 50 / 75 / 100 / 150 / 200 %, RIGHT = more), 13 enemy HP 0..4 (50 / 100 / 150 / 200 / 300 %), 14 quick save 0/1 (default Off), 15 ride objects 0/1 (default Off), 16 item info 0/1 (default Off), 17 buy quantity, 18 map behind text, 19 own renderer, 20 live Gaia effect 0/1 (default Off), 21 HD graphics 0/1 (default Off, next start) */
     extern int lk_wide_e, lk_tall; int m, e, t;
     if (!lk_disp_loaded) lk_disp_load();
     if (!lk_dd_loaded) lk_dd_load();
     switch (id) { case 0: return lk_wide_e / 16; case 1: return lk_tall > 0; case 2: return lk_fx_mode; case 3: return lk_fsc_on; case 4: return lk_scale_mode; case 5: return lk_dd_mode;
-                  case 6: lk_snd_get(&m, &e, &t); return m; case 7: lk_snd_get(&m, &e, &t); return e; case 8: lk_snd_get(&m, &e, &t); return t; case 9: return lk_shadow_get(); case 10: return lk_quick_get(); case 11: return lk_ffwd_get(); case 12: return lk_diff_get(0); case 13: return lk_diff_get(1); case 14: return lk_qsave_get(); case 15: return lk_carry_get(); case 16: return lk_ii_get(); case 17: return lk_bq_get(); case 18: return lk_tbox_get(); case 19: return lk_own_get(); case 20: return lk_gaia_get(); case 21: return lk_hd_get(); }
+                  case 6: lk_snd_get(&m, &e, &t); return m; case 7: lk_snd_get(&m, &e, &t); return e; case 8: lk_snd_get(&m, &e, &t); return t; case 9: return lk_shadow_soft_get() ? 2 : lk_shadow_get(); case 10: return lk_quick_get(); case 11: return lk_ffwd_get(); case 12: return lk_diff_get(0); case 13: return lk_diff_get(1); case 14: return lk_qsave_get(); case 15: return lk_carry_get(); case 16: return lk_ii_get(); case 17: return lk_bq_get(); case 18: return lk_tbox_get(); case 19: return lk_own_get(); case 20: return lk_gaia_get(); case 21: return lk_hd_get(); }
     return 0;
 }
 void platform_option_step(int id) {
@@ -69,7 +71,7 @@ void platform_option_step(int id) {
                   case 6: lk_snd_get(&m, &e, &t); m += 10; if (m > 100) m = 0; lk_snd_set(m, e, t); break;
                   case 7: lk_snd_get(&m, &e, &t); e += 10; if (e > 100) e = 0; lk_snd_set(m, e, t); break;
                   case 8: lk_snd_get(&m, &e, &t); lk_snd_set(m, e, !t); break;
-                  case 9: lk_shadow_set(!lk_shadow_get()); break;
+                  case 9: { int v = (lk_shadow_soft_get() ? 2 : lk_shadow_get()) + 1; if (v > 2) v = 0; lk_shadow_set(v > 0); lk_shadow_soft_set(v == 2); } break;   /* Off / On (things in the air) / On + Soft (also contact shadows under creatures, HD picture only) */
                   case 10: lk_quick_set(!lk_quick_get()); break;
                   case 11: lk_ffwd_set((lk_ffwd_get() + 1) % 4); break;
                   case 12: lk_diff_set(0, (lk_diff_get(0) + 1) % 6); break; case 13: lk_diff_set(1, (lk_diff_get(1) + 1) % 5); break; case 14: lk_qsave_set(!lk_qsave_get()); break; case 15: lk_carry_set(!lk_carry_get()); break; case 16: lk_ii_set(!lk_ii_get()); break; case 17: lk_bq_set(!lk_bq_get()); break; case 18: lk_tbox_set(!lk_tbox_get()); break; case 19: lk_own_set(!lk_own_get()); break; case 20: lk_gaia_set(!lk_gaia_get()); break; case 21: lk_hd_set(!lk_hd_get()); break; }
@@ -146,12 +148,12 @@ static const char *lk_opt_bindtext(int id) {   /* value column of a binding row:
 static const int lk_ids_all[LK_OPT_ALL] = { 0, 1, 4, 2, 5, 3, 6, 7, 8, 9, 10 };   /* file select sub-menu: one flat list */
 static const char *lk_opt_val(int id, int v) {
     static char buf[8];
-    static const char *wide[4] = { "Off", "352 px", "384 px", "416 px" }, *onoff[2] = { "Off", "On" }, *filt[5] = { "Off", "Scanlines", "CRT", "CRT Pro", "CRT Curved" }, *scal[4] = { "Fit", "4:3", "Integer", "Fill" }, *dd[4] = { "Off", "Light", "Medium", "Strong" }, *shd[2] = { "Off", "On" }, *ffw[4] = { "Off", "2x", "3x", "4x" }, *dmg[6] = { "25", "50", "75", "100", "150", "200" }, *ehp[5] = { "50", "100", "150", "200", "300" };
+    static const char *wide[4] = { "Off", "352 px", "384 px", "416 px" }, *onoff[2] = { "Off", "On" }, *filt[5] = { "Off", "Scanlines", "CRT", "CRT Pro", "CRT Curved" }, *scal[4] = { "Fit", "4:3", "Integer", "Fill" }, *dd[4] = { "Off", "Light", "Medium", "Strong" }, *shd[3] = { "Off", "On", "Soft" }, *ffw[4] = { "Off", "2x", "3x", "4x" }, *dmg[6] = { "25", "50", "75", "100", "150", "200" }, *ehp[5] = { "50", "100", "150", "200", "300" };
     if (id == 0) return wide[v & 3];
     if (id == 4) return scal[v & 3];
     if (id == 2) return filt[v > 4 || v < 0 ? 0 : v];
     if (id == 5) return dd[v > 3 || v < 0 ? 0 : v];
-    if (id == 9) return shd[v & 1];
+    if (id == 9) return shd[v > 2 || v < 0 ? 0 : v];
     if (id == 11) return ffw[v & 3];
     if (id == 12) return dmg[v > 5 || v < 0 ? 0 : v];
     if (id == 13) return ehp[v > 4 || v < 0 ? 1 : v];

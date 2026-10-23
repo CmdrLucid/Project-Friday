@@ -13,7 +13,9 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a39. 2026-10-20 (Deck, Sonnet 5.5): user recording `rec_20261019_2215` (ending, room 113): the credits were invisible with garbage because the own renderer drew the arena over them (the ending script runs inside UpdateSprites = 'map'); fixed in `patch_wide.py` (`PlayEndCredits $09EBE0` = picture screen) on `dev`, not released; new test aid `LANDSTALKER_CREDITS_AT` (INDEX status, LESSONS 67). USER CHECK OPEN: play the ending again (own renderer On): do the credits show, do they end properly (EndGame, back to title)? Needs a fresh `build.sh`.
 
-## 0a65. 2026-10-23 (Deck, Sonnet 5.5, later): STAGE 3 STEP 2 done on `dev`: one light object (direction / strength, default = overhead) and HD-only contact shadows under creatures (INDEX status 'ja mach so'; option file `~/.landstalker_softshadow`, no menu row yet). NEXT: Options row for it (ask), then the room data + camera model, seamless room transitions.
+## 0a66. 2026-10-23 (Deck, Sonnet 5.5, later): user: 'menuezeile einbauen' -> Options > Video > Shadows = Off / On / Soft (Soft = contact shadows under creatures, HD only), INDEX status. NEXT: the room data + camera model (stage 3), seamless room transitions.
+
+## 0a65. 2026-10-23 (Deck, Sonnet 5.5, later): STAGE 3 STEP 2 done on `dev`: one light object (direction / strength, default = overhead) and HD-only contact shadows under creatures (INDEX status 'ja mach so'; option file `~/.landstalker_softshadow`; Options > Video > Shadows is Off / On / Soft since the next entry). NEXT: the room data + camera model, seamless room transitions.
 
 ## 0a64. 2026-10-23 (Deck, Sonnet 5.5, later): STAGE 3 STEP 1 = HD SHADOWS (+ angular shadows for platforms / crates, user wish, INDEX status) done on `dev` (INDEX status 'echte Schatten': the Shadow option's ellipse is drawn per HD pixel with a soft edge, HD texture stays under it). NEXT in stage 3: shadows for figures on the ground / shape from the figure, then room data + camera model, then seamless room transitions (user chose to start with shadows; order of the rest open).
 
