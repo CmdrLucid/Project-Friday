@@ -55,7 +55,15 @@ static int lk_ff_n(void) { static int always = -1; if (lk_seam_gap()) return 16;
     # audio
     c = "void platform_queue_audio(const int16_t *samples, int sample_count) {\n"
     assert s.count(c) == 1
-    s = s.replace(c, c + "    if (lk_ff_n() > 1) return;   /* LK_FFWD v1: no audio while fast forwarding */\n", 1)
+    s = s.replace(c, c + """    if (lk_ff_n() > 1 && !lk_seam_gap()) return;   /* LK_FFWD v1: no audio while fast forwarding */
+    {   /* seamless doors (patch_own.py): the fast black room load / gap skips about a second of the music; it is ducked instead of cut: the first gap frame ramps down to silence, the rest is dropped, after the gap the sound fades in over 12 frames (no click, no hard skip) */
+        static float gain = 1.0f; static int16_t tmp[4096 * 2]; int i;
+        if (samples && sample_count > 0 && sample_count <= 4096) {
+            if (lk_seam_gap()) { if (gain <= 0.0f) return; for (i = 0; i < sample_count; i++) { float g = gain * (1.0f - (float)(i + 1) / (float)sample_count); tmp[2 * i] = (int16_t)(samples[2 * i] * g); tmp[2 * i + 1] = (int16_t)(samples[2 * i + 1] * g); } gain = 0.0f; samples = tmp; }
+            else if (gain < 1.0f) { float g0 = gain, g1 = gain + 1.0f / 12.0f; if (g1 > 1.0f) g1 = 1.0f; for (i = 0; i < sample_count; i++) { float g = g0 + (g1 - g0) * (float)(i + 1) / (float)sample_count; tmp[2 * i] = (int16_t)(samples[2 * i] * g); tmp[2 * i + 1] = (int16_t)(samples[2 * i + 1] * g); } gain = g1; samples = tmp; }
+        } else if (lk_seam_gap()) return;
+    }
+""", 1)
     # sync
     d = "    uint64_t target = s_frame_start + freq / 60;\n"
     assert s.count(d) == 1
