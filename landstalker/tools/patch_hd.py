@@ -74,7 +74,7 @@ static void lk_dd2_par(int phase, int rows) {
     for (i = 1; i < nt; i++) if (th[i]) SDL_WaitThread(th[i], NULL);
 }
 static void lk_hd_dof(uint32_t *img, int W, int H, int N, int sw, int e, const int16_t *sc) {
-    static const int K16[4] = { 0, 48, 72, 96 }, DZ[4] = { 0, 40, 32, 24 }, RM[4] = { 0, 2, 3, 4 };   /* radius (1/16 game px) per row of distance beyond the dead zone: 0.03 / 0.045 / 0.06 */
+    static const int FD[4] = { 1, 80, 70, 60 }, DZ[4] = { 0, 44, 40, 36 }, RM[4] = { 0, 2, 3, 4 };   /* sharp zone (rows around Nigel's ground row), rows beyond it until the full radius, full radius (game px) */
     static size_t cap, ncap; static int dbg = -1, nt0;
     int S = lk_dof_get(), x, y, k, any = 0; size_t n = (size_t)sw * 224;
     if (dbg < 0) { const char *d = getenv("LANDSTALKER_HD_DEPTHDBG"); dbg = d && atoi(d); }
@@ -86,7 +86,7 @@ static void lk_hd_dof(uint32_t *img, int W, int H, int N, int sw, int e, const i
     if (!lk_dd_r16 || !lk_dd_lv0 || !lk_dd_bb || !lk_dd_ii[0] || !lk_dd_ii[1] || !lk_dd_ii[2] || !lk_dd_xi || !lk_dd_xf || !lk_dd_yi || !lk_dd_yf) return;
     for (y = 0; y < 224; y++) for (x = 0; x < sw; x++) {   /* radius per game pixel (1/16 px); debug: 0x8000 | grey */
         int r16 = 0, cx = sc[(size_t)y * sw + x] - e;
-        if (y >= 23 && lk_hd_dstamp[y] == lk_hd_gen && cx >= -48 && cx < 368) { int d = lk_hd_depth[y * 416 + cx + 48]; if (d != 0x7FFF) { int dist = abs(d - lk_hd_focus) - DZ[S ? S : 2]; if (dbg) { int g = 128 + (d - lk_hd_focus); if (g < 0) g = 0; if (g > 255) g = 255; lk_dd_r16[(size_t)y * sw + x] = (uint16_t)(0x8000 | g); continue; } if (dist > 0) { r16 = dist * K16[S]; if (r16 > RM[S] * 16) r16 = RM[S] * 16; } } }
+        if (y >= 23 && lk_hd_dstamp[y] == lk_hd_gen && cx >= -48 && cx < 368) { int d = lk_hd_depth[y * 416 + cx + 48]; if (d != 0x7FFF) { int dist = abs(d - lk_hd_focus) - DZ[S ? S : 2]; if (dbg) { int g = 128 + (d - lk_hd_focus); if (g < 0) g = 0; if (g > 255) g = 255; lk_dd_r16[(size_t)y * sw + x] = (uint16_t)(0x8000 | g); continue; } if (dist > 0) { int t = dist >= FD[S] ? 256 : dist * 256 / FD[S]; int sm = (t * t * (768 - 2 * t)) >> 16;   /* smoothstep: no visible start line */ r16 = (sm * RM[S] * 16 + 128) >> 8; } } }
         lk_dd_r16[(size_t)y * sw + x] = (uint16_t)r16;
     }
     if (dbg) { for (y = 0; y < H; y++) for (x = 0; x < W; x++) { int v = lk_dd_r16[(size_t)(y / N) * sw + x / N]; if (v & 0x8000) { int g = v & 255; img[(size_t)y * W + x] = 0xFF000000u | (g << 16) | (g << 8) | g; } else img[(size_t)y * W + x] = 0xFF800000u; } return; }
