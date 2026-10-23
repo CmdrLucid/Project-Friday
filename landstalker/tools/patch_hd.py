@@ -30,7 +30,7 @@ uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh) {
             uint32_t *dst = lk_hd_img + (size_t)(y * N + sy) * W;
             for (x = 0; x < sw; x++) {
                 int cx = x - e;
-                if (ok && cx >= 0 && cx < 320 && src[x] == lk_hd_ref[y * 320 + cx]) { const uint32_t *hb = lk_hd_rows + (size_t)(y * N + sy) * 320 * N + (size_t)cx * N; for (sx = 0; sx < N; sx++) dst[x * N + sx] = hb[sx]; }
+                if (ok && cx >= -48 && cx < 320 + 48 && src[x] == lk_hd_ref[y * 416 + cx + 48]) { const uint32_t *hb = lk_hd_rows + (size_t)(y * N + sy) * 416 * N + (size_t)(cx + 48) * N; for (sx = 0; sx < N; sx++) dst[x * N + sx] = hb[sx]; }
                 else for (sx = 0; sx < N; sx++) dst[x * N + sx] = src[x];
             }
         }

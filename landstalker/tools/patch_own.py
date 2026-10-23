@@ -65,11 +65,11 @@ extern int lk_tall_keep(int line);                                   /* LANDSTAL
 extern int lk_tbox_get(void);                                        /* Map Behind Text (patch_tbox.py) */
 static uint16 lk_o_spr[224][LK_OSW];                                 /* by row pixel index (screen x + e): pal * 16 + index | 0x100 priority | 0x200 present */
 static uint8 lk_o_sprtiles[0x4000];
-extern int lk_org_lookup_raw(const uint8_t *t, uint32_t *rom, int *idx);   /* tools/patch_gfxorg.py: origin of a 32 byte tile image in the game's logical byte order */
+extern int lk_org_lookup_raw(const uint8_t *t, uint32_t *rom, int *idx); extern void lk_org_learn(const uint8_t *t, uint32_t rom, int idx);   /* tools/patch_gfxorg.py: origin of a 32 byte tile image in the game's logical byte order */
 static void *lk_o_repfor(const uint8 *t32, int pal, int cache); static int lk_o_hdwant(void);   /* HD / tile packs: replacement entry of a tile image (defined with the replacement table) */
 static void *lk_o_sprrep[224][LK_OSW]; static uint8 lk_o_sprpx[224][LK_OSW];   /* HD: replacement entry + tile space pixel (ox | oy << 3 | hf << 6 | vf << 7) of every sprite layer pixel */
 typedef struct { const uint8 *t; int ix, iy, hf, vf; } lk_o_fi_t;   /* where a plane / window pixel came from: tile image, pixel in tile space (flips applied), flips */
-static lk_o_fi_t lk_o_wfi;
+static lk_o_fi_t lk_o_wfi; static int lk_o_dbgsgi = -1, lk_o_dbganim, lk_o_dbgfrm;
 static uint8 lk_o_hud[0x1000]; static int lk_o_hudn = -1;      /* StatusBarGfx $009242 (HUD tiles, tile numbers $6B4 ..) */
 static int lk_o_disp0, lk_o_blanked, lk_o_firston, lk_o_dprev = 1; static long lk_o_diff, lk_o_tot; static int lk_o_nspr; static const uint8 *lk_o_r, *lk_o_cc, *lk_o_cp;   /* lk_o_r: work RAM of the current pass */
 static int lk_o_lz77(uint32_t pos, uint8 *out, int cap) {            /* DecompressLZ77Gfx $004AB2 */
@@ -215,7 +215,7 @@ static uint32 lk_o_satk[96]; static int lk_o_satt[96], lk_o_satn; static int lk_
 typedef struct { int vis, ax, ay, ts, sgi, anim, frm, np, pxs[8], pys[8], pws[8], phs[8], prio, off; uint8 *tiles; } lk_o_ent_t;
 static uint8 lk_o_sprtiles_b[0x4000], lk_o_sprtiles_c[0x4000], lk_o_sprtiles_p[0x4000]; static int lk_o_ovr_anim = -1, lk_o_ovr_frm;   /* _p: tiles of the pose found by the VRAM search; ovr: that search tries other (animation, frame) pairs */
 static void lk_o_entload(const uint8 *src, int off, lk_o_ent_t *e, uint8 *tiles, int decode, int use4e) {   /* one entity of one pass state: pieces + tile graphics from the ROM */
-  int b = 0xFF5400 + off, guard, tl = 0; uint32_t base, fp, ap, pos;
+  int b = 0xFF5400 + off, guard, tl = 0; uint32_t base, fp, ap, pos, cstart;
   const uint8 *keep = lk_o_sp; lk_o_sp = src;
   e->off = off; e->tiles = tiles; e->np = 0; e->vis = 0;
   e->ax = SW(b + (use4e ? 0x4E : 0x0E)); e->ay = SW(b + (use4e ? 0x50 : 0x10)); e->ts = SW(b + 6);   /* +4E / +50 = the screen position of the previous pass (sub_40F2 copies +0E there before it recomputes it): the game draws objects there */
@@ -229,13 +229,15 @@ static void lk_o_entload(const uint8 *src, int off, lk_o_ent_t *e, uint8 *tiles,
     e->pxs[e->np] = xx; e->pys[e->np] = yy; e->pws[e->np] = (b1 & 3) + 1; e->phs[e->np] = (b2 & 3) + 1; e->np++;
     if ((b2 & 0x80) || e->np >= 8) break;
   }
+  cstart = pos;
   if (decode) for (guard = 0; guard < 64; guard++) {
     int h = OW(pos), n = h & 0x0FFF, i; pos += 2;
     if (h & 0x8000) { for (i = 0; i < n * 2 && tl + i < 0x4000; i++) tiles[tl + i] = 0; tl += n * 2; }
-    else if (h & 0x2000) { tl += lk_o_lz77(pos, tiles + tl, 0x4000 - tl); break; }
+    else if (h & 0x2000) { int got = lk_o_lz77(pos, tiles + tl, 0x4000 - tl); tl += got; break; }
     else { for (i = 0; i < n * 2 && tl + i < 0x4000; i++) tiles[tl + i] = (uint8)OB(pos + (uint32_t)i); pos += (uint32_t)n * 2; tl += n * 2; }
     if (h & 0x4000) break;
   }
+  if (decode && lk_o_hdwant()) { int k; for (k = 0; (k + 1) * 32 <= tl && (k + 1) * 32 <= 0x4000; k++) lk_org_learn(tiles + 32 * k, cstart, k); }   /* origin of a figure tile = ROM address of the pose's chunk list + tile index in the assembled graphic (the chunks are not tile aligned, so they are no unit of their own) */
   lk_o_sp = keep;
 }
 static uint32 lk_o_pkey(const lk_o_ent_t *e, int pc, int *xxo) {
@@ -395,6 +397,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
       int xx; uint32 key = lk_o_pkey(e, pc, &xx);
       if (keys && nk < 96) keys[nk++] = key;
       if (draw && lk_o_dn < 96) lk_o_dk[lk_o_dn++] = key;
+      lk_o_dbgsgi = e->sgi; lk_o_dbganim = e->anim; lk_o_dbgfrm = e->frm;
       if (draw) lk_o_sprpiece(e->tiles, cum, e->ax + xx - 128, e->ay + e->pys[pc] - 128, e->pws[pc], e->phs[pc], (e->ts >> 13) & 3, e->prio, (e->ts >> 11) & 1, (e->ts >> 12) & 1);
       cum += e->pws[pc] * e->phs[pc];
     }
@@ -551,6 +554,8 @@ static int lk_scr_tc[2048], lk_scr_tpal[2048], lk_scr_curpal, lk_org_log = -1, l
 #include <sys/stat.h>
 typedef struct { uint32_t key; int kind, nf; uint32_t *tex; uint8_t *raw; uint8_t *idx; } lk_rep_t;   /* kind 3 = palette index image (`.idx`, 64 * nf * nf bytes, 0 = transparent): drawn through the LIVE palette, so fades / flashes / palette animation keep working; idx = resampled to the global scale */   /* kind 1 = test tint, 2 = image: raw = file (nf x nf per pixel of the 8 x 8 tile), tex = ARGB at the global HD scale */
 #define LK_REP_N 8192
+#define LK_HDW 416   /* HD rows / refs cover the widest picture (320 + 2 * 48); screen column x of the centre 320 is index x + LK_HDO */
+#define LK_HDO 48
 int lk_hd_n; uint32_t *lk_hd_rows, *lk_hd_ref; long lk_hd_stamp[224], lk_hd_gen;   /* HD graphics: scale (0 = Off), HD pixels of the composed lines [224 * n][320 * n], the 1x pixels they refine, validity stamps (read by platform_sdl.c, tools/patch_hd.py) */
 static lk_rep_t *lk_rep_tab[LK_REP_N]; static int lk_rep_on = -1, lk_rep_cnt;
 static int lk_scr_rgb = -1;                                          /* set by lk_scr_ci: 24 bit colour of a replaced pixel, or -1 */
@@ -574,7 +579,7 @@ static void lk_rep_init(void) {
   { const char *sc = getenv("LANDSTALKER_HD_SCALE"); int n = sc ? atoi(sc) : maxn; if (n < 1) n = 1; if (n > 8) n = 8; if (n == 3) n = 2; if (n == 5 || n == 6 || n == 7) n = 4; lk_hd_n = (lk_rep_on || sc) ? n : 0; }   /* the HD picture exists when HD is On and something is to be shown at a higher resolution (a pack) or the scale is asked for */
   for (i = 0; i < LK_REP_N; i++) { lk_rep_t *e = lk_rep_tab[i]; if (e && e->kind == 3 && e->raw) { int N = lk_hd_n ? lk_hd_n : 1, x, y; e->idx = (uint8_t *)malloc((size_t)64 * N * N); if (e->idx) for (y = 0; y < 8 * N; y++) for (x = 0; x < 8 * N; x++) e->idx[y * 8 * N + x] = e->raw[(y * e->nf / N) * 8 * e->nf + (x * e->nf / N)]; }
     if (e && e->kind == 2 && e->raw) { int N = lk_hd_n ? lk_hd_n : 1, x, y; e->tex = (uint32_t *)malloc((size_t)64 * N * N * 4); if (e->tex) for (y = 0; y < 8 * N; y++) for (x = 0; x < 8 * N; x++) { const uint8_t *q = &e->raw[((y * e->nf / N) * 8 * e->nf + (x * e->nf / N)) * 4]; e->tex[y * 8 * N + x] = q[3] ? (0xFF000000u | (uint32_t)q[0] << 16 | (uint32_t)q[1] << 8 | q[2]) : 0; } } }   /* nearest resample to the global scale; alpha 0 = 0 = keep the game's pixel */
-  if (lk_hd_n) { lk_hd_rows = (uint32_t *)calloc((size_t)224 * lk_hd_n * 320 * lk_hd_n, 4); lk_hd_ref = (uint32_t *)calloc((size_t)224 * 320, 4); if (!lk_hd_rows || !lk_hd_ref) lk_hd_n = 0; }
+  if (lk_hd_n) { lk_hd_rows = (uint32_t *)calloc((size_t)224 * lk_hd_n * LK_HDW * lk_hd_n, 4); lk_hd_ref = (uint32_t *)calloc((size_t)224 * LK_HDW, 4); if (!lk_hd_rows || !lk_hd_ref) lk_hd_n = 0; }
   if (lk_rep_on || lk_hd_n) printf("tile replacement: %d entries, HD scale %d\n", lk_rep_cnt, lk_hd_n);
 }
 static int lk_scr_cramw(int i);
@@ -618,7 +623,7 @@ static void *lk_o_repfor(const uint8 *t32, int pal, int cache) {    /* replaceme
   static struct { const uint8 *p; long fr; void *e; } c[8192]; uint32_t rom; int idx, known; lk_rep_t *e = 0; long fr = platform_frame_number() + 1; size_t ci = ((uintptr_t)t32 >> 5) & 8191;
   if (!t32) return 0;
   if (cache && c[ci].p == t32 && c[ci].fr == fr) return c[ci].e;
-  known = lk_org_lookup_raw(t32, &rom, &idx); if (lk_org_log > 0 && !cache) { if (known) lk_o_sprk++; else lk_o_spru++; }
+  known = lk_org_lookup_raw(t32, &rom, &idx); if (lk_org_log > 0 && !cache) { int z = 1, q; for (q = 0; q < 32; q++) if (t32[q]) { z = 0; break; } if (!z) { if (known) lk_o_sprk++; else { lk_o_spru++; if (getenv("LANDSTALKER_OWN_SPRUNK") && platform_frame_number() % 60 == 0) printf("ownsprunk: frame %ld sgi %d anim %d frm %d tile %02X%02X%02X%02X\n", platform_frame_number(), lk_o_dbgsgi, lk_o_dbganim, lk_o_dbgfrm, t32[0], t32[1], t32[2], t32[3]); } } }
   if (known) { if (lk_rep_on > 0) { e = lk_rep_find(LK_REP_KEY(rom, idx)); if (!e) e = lk_rep_find(LK_REP_KEY(rom, 0xFFF)); } if (lk_dump_on) lk_tile_dump_raw(t32, pal); }
   if (cache) { c[ci].p = t32; c[ci].fr = fr; c[ci].e = e; }
   return e;
@@ -629,10 +634,10 @@ static int lk_scr_cramw(int i);
 static int lk_hd_mapmode;                                            /* 1 while the own map path fills the HD rows (colours of the own palette, fade / warp variants) */
 static PIXEL_OUT_T lk_o_colour(int line, int pick) { return lk_o_palmode ? (lk_o_fxon ? lk_o_fxpix[lk_o_fxk[line & 255]][pick & 0x3F] : lk_o_pix[pick & 0x3F]) : pixel[pick & 0x3F]; }
 static void lk_hd_put(int line, int x, uint32_t col, const lk_pi_t *pi) {   /* one 1x pixel -> its n x n block of the HD rows: the replacement texture where there is one (alpha 0 = the game's colour), else the colour repeated */
-  int N = lk_hd_n, sx, sy; uint32_t *dst = lk_hd_rows + (size_t)(line * N) * 320 * N + (size_t)x * N;
-  for (sy = 0; sy < N; sy++) for (sx = 0; sx < N; sx++) { uint32_t c = col; if (pi && pi->rep) { int tp = (pi->oy * N + (pi->vf ? N - 1 - sy : sy)) * 8 * N + pi->ox * N + (pi->hf ? N - 1 - sx : sx); if (pi->rep->kind == 2 && pi->rep->tex) { uint32_t t = pi->rep->tex[tp]; if (t) c = t; } else if (pi->rep->kind == 3 && pi->rep->idx && pi->rep->idx[tp]) c = lk_hd_mapmode ? (uint32_t)lk_o_colour(line, pi->pal * 16 + pi->rep->idx[tp]) : pixel_lut[1][lk_scr_cramw(pi->pal * 16 + pi->rep->idx[tp])]; } dst[(size_t)sy * 320 * N + sx] = c; }
+  int N = lk_hd_n, sx, sy; uint32_t *dst = lk_hd_rows + (size_t)(line * N) * LK_HDW * N + (size_t)(x + LK_HDO) * N;
+  for (sy = 0; sy < N; sy++) for (sx = 0; sx < N; sx++) { uint32_t c = col; if (pi && pi->rep) { int tp = (pi->oy * N + (pi->vf ? N - 1 - sy : sy)) * 8 * N + pi->ox * N + (pi->hf ? N - 1 - sx : sx); if (pi->rep->kind == 2 && pi->rep->tex) { uint32_t t = pi->rep->tex[tp]; if (t) c = t; } else if (pi->rep->kind == 3 && pi->rep->idx && pi->rep->idx[tp]) c = lk_hd_mapmode ? (uint32_t)lk_o_colour(line, pi->pal * 16 + pi->rep->idx[tp]) : pixel_lut[1][lk_scr_cramw(pi->pal * 16 + pi->rep->idx[tp])]; } dst[(size_t)sy * LK_HDW * N + sx] = c; }
 }
-static void lk_hd_plain(int line, const PIXEL_OUT_T *out) { int x; if (!lk_hd_n) return; for (x = 0; x < 320; x++) { lk_hd_put(line, x, out[x], 0); lk_hd_ref[line * 320 + x] = out[x]; } lk_hd_stamp[line] = lk_hd_gen; }
+static void lk_hd_plain(int line, const PIXEL_OUT_T *out) { int x; if (!lk_hd_n) return; for (x = 0; x < 320; x++) { lk_hd_put(line, x, out[x], 0); lk_hd_ref[line * LK_HDW + x + LK_HDO] = out[x]; } lk_hd_stamp[line] = lk_hd_gen; }
 static int lk_scr_cell(int ent, int px, int py, int *prio) { int ci; lk_scr_curpal = (ent >> 13) & 3; ci = lk_scr_ci(ent & 0x7FF, px, py, (ent >> 11) & 1, (ent >> 12) & 1); lk_scr_phf = (ent >> 11) & 1; lk_scr_pvf = (ent >> 12) & 1; *prio = (ent >> 15) & 1; if (ci && lk_scr_rgb >= 0) return 0x1000000 | lk_scr_rgb; return ci ? ((ent >> 13) & 3) * 16 + ci : -1; }   /* bit 24 set = a replaced pixel (24 bit colour) */
 static int lk_scr_cramw(int i) { return ((cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1]) & 0x1FF; }
 static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {                /* returns 0 when the VDP is in a mode this renderer does not do (the game's picture stays) */
@@ -681,7 +686,7 @@ static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {      
     if (sel >= 0x1000000) col32 = 0xFF000000u | (uint32_t)(sel & 0xFFFFFF);   /* replaced pixel (32 bit output) */
     else { cc = sel >= 0 ? lk_scr_cramw(sel) : bgcol; if (x < 8 && (reg[0] & 0x20)) { cc = bgcol; wi = 0; } col32 = pixel_lut[1][cc]; }
     out[x] = (PIXEL_OUT_T)col32;
-    if (lk_hd_n) { lk_hd_put(line, x, col32, wi); lk_hd_ref[line * 320 + x] = col32; }
+    if (lk_hd_n) { lk_hd_put(line, x, col32, wi); lk_hd_ref[line * LK_HDW + x + LK_HDO] = col32; }
   }
   if (lk_hd_n) lk_hd_stamp[line] = lk_hd_gen;
   return 1;
@@ -816,7 +821,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
       }
       col = black ? (margin ? (lk_o_regvdp ? pixel[0x40] : lk_o_palmode ? lk_o_pix[LK_REG(7) & 0x3F] : pixel_lut[1][0]) : pixel_lut[1][0]) : (lk_o_palmode ? (lk_o_fxon ? lk_o_fxpix[lk_o_fxk[line & 255]][pick & 0x3F] : lk_o_pix[pick & 0x3F]) : pixel[pick & 0x3F]);
       lk_o_tot++; if (row[i] != (PIXEL_OUT_T)col) lk_o_diff++;
-      if (lk_hd_n && x >= 0 && x < 320) {                                  /* HD rows: the winning layer's replacement tile (the compositor of the screens does the same) */
+      if (lk_hd_n && x >= -LK_HDO && x < 320 + LK_HDO) {                    /* HD rows (the widescreen margins too): the winning layer's replacement tile (the compositor of the screens does the same) */
         lk_pi_t pi; memset(&pi, 0, sizeof pi);
         if (!black && (pick & 0xF) && lk_o_hdwant()) {
           if (src == 1) { void *rp = lk_o_sprrep[line][i]; if (rp) { uint8 q = lk_o_sprpx[line][i]; pi.rep = (lk_rep_t *)rp; pi.ox = q & 7; pi.oy = (q >> 3) & 7; pi.hf = (q >> 6) & 1; pi.vf = q >> 7; pi.pal = (pick >> 4) & 3; } }
@@ -824,7 +829,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
           else if (src == 4 && lk_o_wfi.t) { const lk_o_fi_t *f = &lk_o_wfi; pi.rep = (lk_rep_t *)lk_o_repfor(f->t, (pick >> 4) & 3, 1); pi.ox = f->ix; pi.oy = f->iy; pi.hf = f->hf; pi.vf = f->vf; pi.pal = (pick >> 4) & 3; }
           if (lk_org_log > 0) { uint32_t rm2; const uint8 *tp = src == 1 ? 0 : src == 2 ? afi.t : src == 3 ? bfi.t : lk_o_wfi.t; if (tp) { if (lk_org_lookup_raw(tp, &rm2, 0)) lk_o_orgk++; else lk_o_orgu++; } }
         }
-        lk_hd_mapmode = 1; lk_hd_put(line, x, (uint32_t)col, pi.rep ? &pi : 0); lk_hd_mapmode = 0; lk_hd_ref[line * 320 + x] = (uint32_t)col;
+        lk_hd_mapmode = 1; lk_hd_put(line, x, (uint32_t)col, pi.rep ? &pi : 0); lk_hd_mapmode = 0; lk_hd_ref[line * LK_HDW + x + LK_HDO] = (uint32_t)col;
       }
       if (lk_o_mode == 2) row[i] = (PIXEL_OUT_T)col;
     }

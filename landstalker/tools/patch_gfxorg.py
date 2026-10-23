@@ -31,6 +31,12 @@ int lk_org_lookup(const uint8_t *vram, int tile, uint32_t *rom, int *idx) {
     while (lk_org[i].h) { if (lk_org[i].h == h) { if (rom) *rom = lk_org[i].rom; if (idx) *idx = lk_org[i].idx; return 1; } i = (i + 1) & (LK_ORG_N - 1); }
     return 0;
 }
+void lk_org_learn(const uint8_t *t, uint32_t rom, int idx) {   /* teach the table a tile image of a load the LZ77 wrapper does not see (the own map path's figure graphics: raw ROM chunks, own LZ77 decoder): origin = ROM address of the chunk + tile index in it */
+    uint64_t h = 1469598103934665603ull; int k;
+    for (k = 0; k < 32; k++) { h ^= t[k]; h *= 1099511628211ull; }
+    if (!h) h = 1;
+    lk_org_add(h, rom, idx);
+}
 int lk_org_lookup_raw(const uint8_t *t, uint32_t *rom, int *idx) {   /* the same for a tile image in the game's logical byte order (the own map path's tile arrays) */
     uint64_t h = 1469598103934665603ull; uint32_t i; int k;
     for (k = 0; k < 32; k++) { h ^= t[k]; h *= 1099511628211ull; }
