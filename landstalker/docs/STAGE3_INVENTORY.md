@@ -35,6 +35,9 @@ The entity TYPE id (ENTITIES.md) is the byte at `+3B` (`Player_SpriteType` in `r
 5. **Transition rules**: decide what a seamless transition means for gameplay (the neighbour room's entities are static / frozen until the game really loads it; collisions and triggers stay the 68K's). Pure presentation: no change to the game logic, the exact `WarpToRoom` still runs, only the fade is replaced by a scroll / cross-fade.
 6. **3D / rotation (later)**: height map -> voxel columns is automatic; the block art is 2D (needs new assets or the HD pack), figures are 2D sprites (billboards), shadows already take a light.
 
+## 4b. Progress (2026-10-23)
+- S3.1 and S3.2 are DONE (INDEX status 's3.1 und s3.2 machen ja', `tools/patch_roommodel.py`): C room decoder exact in 31 rooms, per frame model with the projection check exact for the player. Open: S3.3 onwards. User decisions (2026-10-23): stairs / dungeon entrances keep the CURRENT fade out / fade in; seamless only where it is possible (same level, neighbouring room); game logic stays the 68K recomp, the model is a presentation layer, goal = graphics + quality of life.
+
 ## 5. Proposed order (each step: no visible change, compare against the current picture, then the next)
 
 - **S3.1** C room decoder + cache; compare with the RAM arrays at every room load in compare mode (35 of 39 rooms exact is the bar; list the 4 known differences).
