@@ -137,7 +137,7 @@ static void lk_opt_put(int col, int row, const char *t) { for (; *t; t++, col++)
 static const char *lk_id_name[23] = { "Widescreen", "Full Height", "Filter", "Fullscreen", "Scaling", "De-Dither", "Music Volume", "Effects Volume", "Speech Sound", "Shadows", "Quick Items", "Fast Forward", "Damage Taken", "Enemy HP", "Quick Save", "Fix Ride Objects", "Item Info", "Buy Quantity", "Map Behind Text", "Own Renderer", "Live Gaia Effect", "HD Graphics", "Seamless Doors" };   /* platform option id -> label */
 static const int lk_ids_video[10] = { 0, 1, 4, 2, 5, 3, 9, 18, 19, 21 };
 static const int lk_ids_audio[3] = { 6, 7, 8 };
-static const int lk_ids_game[8] = { 10, 17, 15, 16, 14, 11, 20, 22 };   /* Quality of Life */
+static const int lk_ids_game[7] = { 10, 17, 15, 16, 14, 11, 20 };   /* Quality of Life (Seamless Doors, id 22, hidden for now) */
 static const int lk_ids_diff[2] = { 12, 13 };   /* Difficulty */
 static const int lk_ids_key[12] = { 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111 };   /* Keybindings page: 11 actions + Reset Defaults (scrolls) */
 static int lk_opt_capid = -1;
@@ -162,7 +162,7 @@ static const char *lk_opt_val(int id, int v) {
     if (id == 6 || id == 7) { snprintf(buf, sizeof buf, "%d", v); return buf; }
     return onoff[v & 1];
 }
-static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 6 : lk_opt_pg == 1 ? 10 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 3 ? 8 : lk_opt_pg == 4 ? 2 : 12; }
+static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 6 : lk_opt_pg == 1 ? 10 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 3 ? 7 : lk_opt_pg == 4 ? 2 : 12; }
 static int lk_opt_vis(void) { int n = lk_opt_nrows(); return n > 7 ? 7 : n; }   /* rows shown at once */
 static void lk_opt_fixscroll(void) { int v = lk_opt_vis(); if (lk_opt_row < lk_opt_scroll) lk_opt_scroll = lk_opt_row; if (lk_opt_row >= lk_opt_scroll + v) lk_opt_scroll = lk_opt_row - v + 1; }
 static int lk_opt_rowid(int r) { return lk_opt_pg == 1 ? lk_ids_video[r] : lk_opt_pg == 2 ? lk_ids_audio[r] : lk_opt_pg == 3 ? lk_ids_game[r] : lk_opt_pg == 4 ? lk_ids_diff[r] : lk_opt_pg == 5 ? lk_ids_key[r] : -1 - r; }   /* root rows: -1 Video, -2 Audio, -3 Gameplay */

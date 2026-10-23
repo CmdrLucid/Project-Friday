@@ -744,7 +744,7 @@ extern int lk_rm_layer(int room, int layer, int x, int y);
 extern int lk_rm_cell(int room, int x, int y);   /* tools/patch_roommodel.py: height map word of a room's cell from the ROM decoder, -1 = none */
 static int lk_sm_opt = -1;
 int lk_seam_get(void) {
-  if (lk_sm_opt < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_SEAM"); char p[512]; FILE *f; int a; lk_sm_opt = 0; snprintf(p, sizeof p, "%s/.landstalker_seam", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &a) == 1) lk_sm_opt = a ? 1 : 0; fclose(f); } if (e && *e) lk_sm_opt = atoi(e) ? 1 : 0; }
+  if (lk_sm_opt < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_SEAM"); char p[512]; FILE *f; int a; lk_sm_opt = 0; (void)h; (void)p; (void)f; (void)a; /* menu row hidden: the saved file is ignored, only LANDSTALKER_SEAM=1 turns it on */ if (e && *e) lk_sm_opt = atoi(e) ? 1 : 0; }
   return lk_sm_opt;
 }
 void lk_seam_set(int v) { const char *h = getenv("HOME"); char p[512]; FILE *f; lk_sm_opt = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_seam", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_sm_opt); fclose(f); } }
