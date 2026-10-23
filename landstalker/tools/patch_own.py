@@ -1329,7 +1329,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
           if (lk_org_log > 0) { uint32_t rm2; const uint8 *tp = src == 1 ? 0 : src == 2 ? afi.t : src == 3 ? bfi.t : lk_o_wfi.t; if (tp) { if (lk_org_lookup_raw(tp, &rm2, 0)) lk_o_orgk++; else lk_o_orgu++; } }
         }
         lk_hd_mapmode = 1; lk_hd_put(line, x, (uint32_t)col, pi.rep ? &pi : 0); lk_hd_mapmode = 0; lk_hd_ref[line * LK_HDW + x + LK_HDO] = (uint32_t)col;
-        lk_hd_depth[line * 416 + x + 48] = (black || margin || src == 4) ? (int16_t)0x7FFF : src == 1 ? lk_o_sprd[sl][si] : (int16_t)line;
+        lk_hd_depth[line * 416 + x + 48] = (black || src == 4) ? (int16_t)0x7FFF : src == 1 ? lk_o_sprd[sl][si] : (int16_t)line;
       }
       if (lk_o_mode == 2) row[i] = (PIXEL_OUT_T)col;
     }
