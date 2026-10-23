@@ -757,6 +757,7 @@ static int lk_sm_ocam0, lk_sm_ocam2, lk_sm_ou0, lk_sm_ov0, lk_sm_osave_ok, lk_sm
 static int lk_sm_early;
 static int lk_sm_target, lk_sm_dx, lk_sm_dy, lk_sm_oroom, lk_sm_newroom, lk_sm_prevL, lk_sm_sxn, lk_sm_syn, lk_sm_sxo, lk_sm_syo, lk_sm_alpha = 256, lk_sm_log = -1;
 int lk_seam_gap(void) { return (lk_sm_state == 1 && !(lk_sm_early && lk_sm_prevL == 0)) || lk_sm_state == 5 || lk_sm_fastload || ((lk_sm_state == 2 || lk_sm_state == 6) && lk_sm_prevL > 0); }   /* the game's fade in after the load is not shown (nofade): run it fast too, so Nigel can walk on at once */   /* run the emulation fast without drawing (platform_sdl.c, patch_ffwd.py) */
+int lk_seam_timefree(void) { static int off = -1; if (off < 0) { const char *q = getenv("LANDSTALKER_SEAM_TIMEFREE"); off = q && atoi(q) == 0; } return !off && (lk_sm_state == 1 || lk_sm_state == 5); }   /* LANDSTALKER_SEAM_TIMEFREE=0: the load with emulated time (test aid) */   /* the room load of a seamless gap runs without emulated time (func_table.c LK_SEAMWALK v3) */
 int lk_seam_skipfade(void) { return lk_sm_state == 1 || lk_sm_state == 2 || lk_sm_state == 5 || lk_sm_state == 6; }   /* the game's fades of a seamless transition are not shown: their Sleep frames are skipped (func_table.c LK_SEAMWALK) */
 static long lk_sm_t0, lk_sm_pan0, lk_sm_dis0; static struct timespec lk_sm_wall; static int lk_sm_dz, lk_sm_ou, lk_sm_ov, lk_sm_pcam0, lk_sm_pcam2, lk_sm_nx0, lk_sm_nx1, lk_sm_ny0, lk_sm_ny1, lk_sm_allframes = -1; static struct timespec lk_sm_lastdue;
 #define LK_SM_GLIDE_MS lk_sm_glms   /* (was 350) */
@@ -1306,13 +1307,13 @@ else:
     print("vdp_render.c already patched: " + VER)
 
 # ---- seamless walk on (user 2026-10-23 'ja A'): wrapper of ApplyWarpAtPlayerTile $00A0C2 moves Nigel's arrival position by the picture alignment (lk_seam_arrival in vdp_render.c; only during a seamless transition) ----
-VER_W = "LK_SEAMWALK v2"
+VER_W = "LK_SEAMWALK v3"
 p = os.path.join(root, "src/func_table.c")
 s = open(p).read()
 if VER_W not in s:
     a = "static void lk_strip_extend(uint32_t a);\n"
     assert s.count(a) == 1
-    module = r'''/* ---- LK_SEAMWALK v2: seamless doors, walk on (tools/patch_own.py) ---- */
+    module = r'''/* ---- LK_SEAMWALK v3: seamless doors, walk on (tools/patch_own.py) ---- */
 extern void lk_seam_arrival(void);
 static gen_func_t lk_o_awpt;
 static void lk_h_awpt(void) { lk_o_awpt(); lk_seam_arrival(); }   /* ApplyWarpAtPlayerTile: new room + arrival position written, LoadRoomPath not yet run */
@@ -1320,8 +1321,27 @@ extern int lk_seam_skipfade(void);
 void func_table_rts(void);
 static gen_func_t lk_o_sleep; static int lk_sw_skipped;
 int lk_sw_skipped_get(void) { return lk_sw_skipped; }
+extern int lk_seam_timefree(void); extern int lk_no_charge, lk_nc_guard, lk_nc_tripped; extern long lk_nc_count;
+static gen_func_t lk_o_lrp, lk_o_wvb; static int lk_sw_frozen, lk_sw_loads; static long lk_sw_waits;
+int lk_sw_frozen_get(void) { return lk_sw_frozen; }
+static void lk_sw_freeze(int on) { lk_sw_frozen = on; lk_no_charge = on; lk_nc_guard = on; lk_nc_count = 0; }
+static void lk_h_lrp(void) {   /* LoadRoomPath $002824: during a seamless gap the game's own room load runs without emulated time (the 55 frames of 68K work take a few ms of the Deck); the textbox / HUD rebuild after it too, until the fade in starts */
+    if (lk_seam_timefree() && !lk_no_charge) { lk_sw_freeze(1); lk_sw_loads++; }
+    lk_o_lrp();
+}
+static gen_func_t lk_o_hint;
+static void lk_h_hint(void) {   /* HandleHBlankInterrupt $001184: it polls the HV counter for the next line, so emulated time runs while it does */
+    if (lk_sw_frozen && lk_no_charge) { lk_no_charge = 0; lk_nc_guard = 0; lk_o_hint(); if (lk_sw_frozen && lk_seam_timefree()) { lk_no_charge = 1; lk_nc_guard = 1; lk_nc_count = 0; } else lk_sw_freeze(0); return; }
+    lk_o_hint();
+}
+static void lk_h_wvb(void) {   /* WaitUntilVBlank $000B5E: a wait needs a real VBlank, so emulated time runs while it waits */
+    if (lk_sw_frozen) { lk_sw_waits++; lk_no_charge = 0; lk_nc_guard = 0; lk_o_wvb(); if (lk_sw_frozen && lk_seam_timefree()) { lk_no_charge = 1; lk_nc_guard = 1; lk_nc_count = 0; } else lk_sw_freeze(0); return; }
+    lk_o_wvb();
+}
 static void lk_h_sleep(void) {   /* Sleep $000B7A: the 7 x 2 frame steps of the game's fades (FadeOutToDarkness / FadeInFromDarkness, recognised by the return address $008F1E / $008EEE) are not waited for during a seamless transition (the palette steps are still computed); a skipped call does the rts itself */
     uint32_t ret = bus_read32(g_m68k.a[7]) & 0xFFFFFF;
+    if (lk_sw_frozen && ret == 0x008EEE) lk_sw_freeze(0);   /* the fade in starts: the load and InitVDP are done, time runs again */
+    if (lk_nc_tripped) { lk_nc_tripped = 0; lk_sw_frozen = 0; fprintf(stderr, "seamwalk: time-free load released by the guard at $%06X\n", ret); }
     if ((ret == 0x008F1E || ret == 0x008EEE) && lk_seam_skipfade()) { lk_sw_skipped++; func_table_rts(); return; }
     lk_o_sleep();
 }
@@ -1331,6 +1351,9 @@ static void lk_seamwalk_install(void) {
     done = 1;
     lk_o_awpt = func_table_lookup(0x00A0C2);
     if (lk_o_awpt) func_table_register(0x00A0C2, lk_h_awpt); else fprintf(stderr, "seamwalk: ApplyWarpAtPlayerTile not found\n");
+    lk_o_lrp = func_table_lookup(0x002824); lk_o_wvb = func_table_lookup(0x000B5E);
+    lk_o_hint = func_table_lookup(0x001184); if (lk_o_hint) func_table_register(0x001184, lk_h_hint);
+    if (lk_o_lrp && lk_o_wvb) { func_table_register(0x002824, lk_h_lrp); func_table_register(0x000B5E, lk_h_wvb); } else fprintf(stderr, "seamwalk: LoadRoomPath / WaitUntilVBlank not found\n");
     lk_o_sleep = func_table_lookup(0x000B7A);
     if (lk_o_sleep) func_table_register(0x000B7A, lk_h_sleep); else fprintf(stderr, "seamwalk: Sleep not found\n");
 }
@@ -1338,7 +1361,7 @@ static void lk_seamwalk_install(void) {
     s = s.replace(a, module + a, 1)
     h = "        lk_qs_install();   /* LK_QUICKSAVE v1 */\n"
     assert s.count(h) == 1
-    s = s.replace(h, h + "        lk_seamwalk_install();   /* LK_SEAMWALK v2 */\n", 1)
+    s = s.replace(h, h + "        lk_seamwalk_install();   /* LK_SEAMWALK v3 */\n", 1)
     open(p, "w").write(s)
     print("func_table.c patched: " + VER_W)
 else:
@@ -1352,3 +1375,15 @@ if "LK_SEAMSYNC v1" not in s:
     s = s.replace(a, a + "    if (lk_seam_gap()) target = 0;   /* LK_SEAMSYNC v1 (patch_own.py): a seamless gap runs flat out, no pacing between its frames */\n", 1)
     open(p, "w").write(s)
     print("platform_sdl.c patched: LK_SEAMSYNC v1")
+
+p = os.path.join(root, "src/bus.c")
+s = open(p).read()
+if "LK_NCGUARD v1" not in s:
+    a = "    if (lk_no_charge) return;\n"
+    assert s.count(a) == 1, "bus.c: lk_no_charge line not found"
+    s = s.replace(a, "    if (lk_no_charge) { if (lk_nc_guard && ++lk_nc_count > 4000000L) { lk_no_charge = 0; lk_nc_guard = 0; lk_nc_tripped = 1; { extern int func_table_depth(void); extern uint32_t func_table_stack(int k); int k, d = func_table_depth(); fprintf(stderr, \"ncguard: tripped, call stack:\"); for (k = 0; k < d && k < 12; k++) fprintf(stderr, \" $%06X\", func_table_stack(k)); fprintf(stderr, \"\\n\"); } } return; }   /* LK_NCGUARD v1 (patch_own.py): a time-free seamless load that polls something other than WaitUntilVBlank gets its time back */\n", 1)
+    a = "int lk_no_charge;"
+    assert s.count(a) == 1
+    s = s.replace(a, "int lk_nc_guard, lk_nc_tripped; long lk_nc_count;\nint lk_no_charge;", 1)
+    open(p, "w").write(s)
+    print("bus.c patched: LK_NCGUARD v1")
