@@ -94,8 +94,11 @@ void lk_quick_capture(int id) {
     lk_q_px[id][y * 16 + x] = ((PIXEL_OUT_T)(sa / n) << 24) | ((PIXEL_OUT_T)(sr / n) << 16) | ((PIXEL_OUT_T)(sg / n) << 8) | (PIXEL_OUT_T)(sb / n);
     lk_q_mask[id][y * 16 + x] = 1;
   }
+  { int lit = 0; for (y = 0; y < 256; y++) if (lk_q_mask[id][y] && (lk_q_px[id][y] & 0xFFFFFF)) lit = 1; if (!lit) { memset(lk_q_mask[id], 0, 256); return; } }   /* palette still dark (fade): try again later */
   lk_q_have[id] = 1; lk_q_icons_save();
 }
+int lk_quick_icon_have(int id) { lk_quick_get(); return id >= 0 && id < 64 && lk_q_have[id]; }
+int lk_quick_icon_rgb(int id, int i) { PIXEL_OUT_T pv; if (id < 0 || id > 63 || i < 0 || i > 255 || !lk_q_have[id] || !lk_q_mask[id][i]) return -1; pv = lk_q_px[id][i]; return (int)(pv & 0xFFFFFF); }   /* 0xRRGGBB of icon pixel i (y * 16 + x) or -1 = transparent (Quick Equip overlay) */
 static const char *lk_q_d5[10][7] = {
   { ".111.", "1...1", "1..11", "1.1.1", "11..1", "1...1", ".111." }, { "..1..", ".11..", "..1..", "..1..", "..1..", "..1..", ".111." },
   { ".111.", "1...1", "....1", "...1.", "..1..", ".1...", "11111" }, { ".111.", "1...1", "....1", "..11.", "....1", "1...1", ".111." },

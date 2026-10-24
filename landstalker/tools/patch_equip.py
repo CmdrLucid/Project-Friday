@@ -38,6 +38,10 @@ if VER not in s:
     module = r'''/* ---- LK_EQUIP v1: quick equip (tools/patch_equip.py) ---- */
 extern int lk_eq_take(void);
 extern int lk_eq_is_held(void);
+extern void lk_quick_capture(int id);
+extern int lk_quick_icon_have(int id);
+extern void lk_osd_equip_flash(int cat);
+static gen_func_t lk_o_cur_eq;
 extern void lk_osd_say(const char *t);
 static gen_func_t lk_o_pab_eq;
 static int lk_eq_owned(int id) { M68kContext sv = g_m68k; int q, nc = lk_no_charge; g_m68k.d[0] = (uint32_t)id; lk_no_charge = 1; lk_call(0x022ED0u); lk_no_charge = nc; q = (int16_t)(g_m68k.d[1] & 0xFFFF); g_m68k = sv; return q > 0; }
@@ -59,9 +63,15 @@ static void lk_eq_apply(int cat) {
       lk_call(0x000242u);                                    /* CopyBasePalleteToActivePalette: without it the old colours stay on screen (user: 'sieht noch aus wie Gaia') */
       lk_call(0x0002A8u);                                    /* FlushDMACopyQueue */
       g_m68k = sv; }
+    lk_osd_equip_flash(cat);
     lk_snd(LK_SND_SELECT);
     snprintf(t, sizeof t, "%s: %s", kind[cat], nm[cat][j]); lk_osd_say(t);
     if (getenv("LANDSTALKER_EQ_DEBUG")) fprintf(stderr, "equip: category %d -> item %d (index %d)\n", cat, lay[cat][j], j + 1);
+}
+static void lk_h_cur_eq(void) {   /* InventoryMenu_UpdateCursorAt $00D714: the Start menu is open and bright: take the icons of the owned equipment from VRAM once (the overlay of Quick Equip shows them) */
+    static const uint8_t ids[16] = { 1, 3, 2, 4, 9, 10, 11, 12, 7, 5, 6, 8, 15, 13, 14, 16 }; int k;
+    for (k = 0; k < 16; k++) if (!lk_quick_icon_have(ids[k]) && lk_eq_owned(ids[k])) lk_quick_capture(ids[k]);
+    lk_o_cur_eq();
 }
 static void lk_h_pab_eq(void) {
     int c = lk_eq_take(), ok = bus_read16(0xFF12DEu) == 0 && bus_read16(0xFF543Eu) != 0, guard = 0;
@@ -80,6 +90,7 @@ static void lk_eq_install(void) {
     if (done) return;
     done = 1;
     lk_o_pab_eq = func_table_lookup(0x0066AC);
+    lk_o_cur_eq = func_table_lookup(0x00D714); if (lk_o_cur_eq) func_table_register(0x00D714, lk_h_cur_eq);
     if (lk_o_pab_eq) func_table_register(0x0066AC, lk_h_pab_eq); else fprintf(stderr, "equip: ProcessActionButton not found\n");
 }
 '''

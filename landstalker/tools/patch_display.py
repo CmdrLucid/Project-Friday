@@ -90,7 +90,46 @@ void platform_display_cycle_filter(void) {
     lk_fx_mode = (lk_fx_mode + 1) % LK_FX_N; lk_disp_save();
     snprintf(lk_osd_text, sizeof(lk_osd_text), "FILTER: %s", lk_fx_names[lk_fx_mode]); lk_osd_frames = 100;
 }
+extern int lk_eq_is_held(void);
+extern int lk_quick_icon_rgb(int id, int i);
+extern uint8_t bus_read8(uint32_t addr);
+static int lk_eq_flash_cat = -1, lk_eq_flash_frames;
+void lk_osd_equip_flash(int cat) { lk_eq_flash_cat = cat; lk_eq_flash_frames = 60; }
+static void lk_eq_overlay(int ow, int oh) {   /* Quick Equip held: the four kinds in a cross (up sword, right armour, down boots, left ring) with the icon of what Nigel wears; the one just changed is framed */
+    static const int cx[4] = { 1, 2, 1, 0 }, cy[4] = { 0, 1, 2, 1 }; static const char *lt = "SABR";
+    int ip = oh / 200; if (ip < 2) ip = 2;
+    int cs = 20 * ip, px = oh / 120; if (px < 2) px = 2;
+    int m = 2 * px, bh = 9 * px, x0 = m, y0 = oh - bh - 2 * m - 3 * cs - m;
+    SDL_SetRenderDrawBlendMode(s_renderer, SDL_BLENDMODE_BLEND);
+    for (int k = 0; k < 4; k++) {
+        SDL_Rect cell = { x0 + cx[k] * cs, y0 + cy[k] * cs, cs, cs };
+        int id = bus_read8(0xFF114Eu + (uint32_t)k), hl = (k == lk_eq_flash_cat && lk_eq_flash_frames > 0);
+        SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 200); SDL_RenderFillRect(s_renderer, &cell);
+        SDL_SetRenderDrawColor(s_renderer, hl ? 255 : 110, hl ? 220 : 110, hl ? 60 : 110, 255);
+        { SDL_Rect b1 = { cell.x, cell.y, cell.w, ip }, b2 = { cell.x, cell.y + cell.h - ip, cell.w, ip }, b3 = { cell.x, cell.y, ip, cell.h }, b4 = { cell.x + cell.w - ip, cell.y, ip, cell.h }; SDL_RenderFillRect(s_renderer, &b1); SDL_RenderFillRect(s_renderer, &b2); SDL_RenderFillRect(s_renderer, &b3); SDL_RenderFillRect(s_renderer, &b4); }
+        int any = 0;
+        for (int i = 0; i < 256; i++) { int rgb = lk_quick_icon_rgb(id, i); if (rgb < 0) continue; any = 1;
+            SDL_SetRenderDrawColor(s_renderer, (rgb >> 16) & 255, (rgb >> 8) & 255, rgb & 255, 255);
+            SDL_Rect d = { cell.x + 2 * ip + (i & 15) * ip, cell.y + 2 * ip + (i >> 4) * ip, ip, ip }; SDL_RenderFillRect(s_renderer, &d); }
+        if (!any) { const uint8_t *g = lk_glyph(lt[k]); SDL_SetRenderDrawColor(s_renderer, 255, 255, 255, 255);
+            for (int r = 0; r < 7; r++) for (int c = 0; c < 5; c++) if (g[r] & (0x10 >> c)) { SDL_Rect d = { cell.x + 7 * ip + c * ip * 2 / 2, cell.y + 6 * ip + r * ip, ip, ip }; SDL_RenderFillRect(s_renderer, &d); } }
+    }
+    (void)ow;
+}
+static void lk_osd_draw2(int ow, int oh);
+static void lk_win_shot(int ow, int oh) {   /* test aid LANDSTALKER_WINSHOT=frame[,frame]: the window picture with the on-screen hints / overlays (BMP) */
+    static const char *e; static int init; extern long platform_frame_number(void); char key[40], l[200];
+    if (!init) { init = 1; e = getenv("LANDSTALKER_WINSHOT"); }
+    if (!e) return;
+    snprintf(l, sizeof l, ",%s,", e); snprintf(key, sizeof key, ",%ld,", platform_frame_number());
+    if (strstr(l, key)) { SDL_Surface *sf = SDL_CreateRGBSurfaceWithFormat(0, ow, oh, 32, SDL_PIXELFORMAT_ARGB8888); if (sf) { char pth[300]; SDL_RenderReadPixels(s_renderer, NULL, SDL_PIXELFORMAT_ARGB8888, sf->pixels, sf->pitch); snprintf(pth, sizeof pth, "%s/winshot_%ld.bmp", getenv("LANDSTALKER_WINSHOT_DIR") ? getenv("LANDSTALKER_WINSHOT_DIR") : ".", platform_frame_number()); SDL_SaveBMP(sf, pth); SDL_FreeSurface(sf); } }
+}
 static void lk_osd_draw(int ow, int oh) {
+    lk_osd_draw2(ow, oh); lk_win_shot(ow, oh);
+}
+static void lk_osd_draw2(int ow, int oh) {
+    if (lk_eq_flash_frames > 0) lk_eq_flash_frames--;
+    if (lk_eq_is_held()) lk_eq_overlay(ow, oh);
     if (lk_osd_frames <= 0) return;
     lk_osd_frames--;
     int px = oh / 120; if (px < 2) px = 2;
