@@ -244,7 +244,7 @@ static void lk_h_ls(void) {
           if (dist < 0) dist = 0;
           if (ent != 0xFF5400u && dist > (ang ? 160 : 40)) continue; }   /* objects far above the floor get no shadow, except platforms (user, room 430: every platform casts its shadow on the grass / the platform below) */
         { static uint8_t on[16]; int idx = (w >> 7) & 15;                         /* hysteresis: walking over slopes / steps makes the distance jump by a few units, that must not blink the shadow (user report, room 430) */
-          int show = dist >= 6 || (on[idx] && dist >= 2);
+          int show = dist >= 6 || (on[idx] && dist >= 2) || (dist >= 2 && ent != 0xFF5400u && lk_sh_angular(bus_read8(ent + 0x3B)));   /* platforms and blocks: a low floating one has a visible rim of shadow too (user, room 21) */
           on[idx] = (uint8_t)show;
           { static int d2 = -1; if (d2 < 0) { const char *e = getenv("LANDSTALKER_SHADOW_DEBUG"); d2 = e && atoi(e) >= 2; } if (d2) fprintf(stderr, "shp: ent %06X dist %d show %d type %d raw %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", (unsigned)ent, dist, show, bus_read8(ent + 0x3B), bus_read8(ent), bus_read8(ent+1), bus_read8(ent+2), bus_read8(ent+3), bus_read8(ent+4), bus_read8(ent+5), bus_read8(ent+6), bus_read8(ent+7), bus_read8(ent+8), bus_read8(ent+9), bus_read8(ent+0xA), bus_read8(ent+0xB)); }
           if (!show || !mode) {                                                 /* on the ground (or Shadow Off): a contact shadow under a figure (creatures only: Nigel, enemies, NPCs), HD picture only */
@@ -256,7 +256,7 @@ static void lk_h_ls(void) {
         ext = (int)(int16_t)(bus_read16(ent + 0x1A) - bus_read16(ent + 0x18)) + (int)(int16_t)(bus_read16(ent + 0x1E) - bus_read16(ent + 0x1C));   /* projected width of the box */
         if (ent != 0xFF5400u && lk_sh_angular(bus_read8(ent + 0x3B))) {      /* platforms, crates, blocks: the shadow is their own footprint (user: angular platforms must not cast a round shadow) */
             int wx = (int)(int16_t)(bus_read16(ent + 0x1A) - bus_read16(ent + 0x18)), wy = (int)(int16_t)(bus_read16(ent + 0x1E) - bus_read16(ent + 0x1C));
-            if (mode) lk_shadow_addp((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, wx, wy, 0.75, dist);
+            if (mode) lk_shadow_addp((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, wx, wy, 1.0, dist);   /* the full footprint of the box (the platform's legs are see-through, a smaller shadow hid behind them: 'too small' and 'above the platform', user, room 21) */
             continue;
         }
         rx = ext / 2; if (rx < 6) rx = 6; if (rx > 9) rx = 9; ry = rx * 45 / 100; if (ry < 3) ry = 3;   /* small: Nigel and platforms were too big at 14 / 20 (user), slimes fitted */
