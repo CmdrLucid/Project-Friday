@@ -460,6 +460,27 @@ static int lk_o_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio, lk_o
   if (fi) { fi->t = &lk_o_tiles[t * 32]; fi->ix = ix; fi->iy = iy; fi->hf = (w >> 11) & 1; fi->vf = (w >> 12) & 1; }
   return (ix % 2 == 0) ? (b >> 4) : (b & 15);
 }
+static void lk_o_roomdump(int rm, int cam0, int cam2) {   /* test aid for the 3D room prototype (tools/room3d_proto.c, docs/RENDERER_IDEAS.md): LANDSTALKER_ROOMDUMP=<dir> LANDSTALKER_ROOMDUMP_ROOM=<n> [LANDSTALKER_ROOMDUMP_FRAME=<f>]: once, the room's two layers as full pictures (RGBA, alpha 0 = transparent, 1 = low priority, 2 = high priority; U = x, V = y of the image), the height map and the camera; local files only, nothing of it goes into git */
+  const char *d = getenv("LANDSTALKER_ROOMDUMP"), *rr = getenv("LANDSTALKER_ROOMDUMP_ROOM"), *ff = getenv("LANDSTALKER_ROOMDUMP_FRAME"); static int done; char path[700]; FILE *f; int lay, U, V, pl[2];
+  if (!d || !*d || done || !rr || rm != atoi(rr) || (ff && platform_frame_number() < atoi(ff))) return;
+  done = 1;
+  for (lay = 0; lay < 2; lay++) {
+    uint8 *buf = (uint8 *)malloc(2432 * 1216 * 4); if (!buf) return;
+    for (V = 0; V < 1216; V++) for (U = 0; U < 2432; U++) {
+      int pal = 0, pr = 0, ix = lk_o_fetch(lay ? lk_o_pb : lk_o_pa, U, V, &pal, &pr, 0); uint8 *o = buf + ((size_t)V * 2432 + U) * 4;
+      if (!ix) { o[0] = o[1] = o[2] = o[3] = 0; continue; }
+      { uint32_t c = (uint32_t)lk_o_pix[((pal << 4) | ix) & 0x3F]; o[0] = (uint8)(c >> 16); o[1] = (uint8)(c >> 8); o[2] = (uint8)c; o[3] = (uint8)(pr ? 2 : 1); }
+    }
+    snprintf(path, sizeof path, "%s/layer%c.rgba", d, lay ? 'B' : 'A'); f = fopen(path, "wb"); if (f) { fwrite(buf, 1, (size_t)2432 * 1216 * 4, f); fclose(f); }
+    free(buf);
+  }
+  snprintf(path, sizeof path, "%s/heightmap.bin", d); f = fopen(path, "wb");
+  if (f) { for (V = 0; V < 74 * 74; V++) { int w = UW(0xFFD192 + 2 * V); fputc(w >> 8, f); fputc(w & 255, f); } fclose(f); }
+  snprintf(path, sizeof path, "%s/info.txt", d); f = fopen(path, "w");
+  if (f) { fprintf(f, "room %d\ncam0 %d\ncam2 %d\n", rm, cam0, cam2); fclose(f); }
+  snprintf(path, sizeof path, "%s/player.bin", d); f = fopen(path, "wb"); if (f) { for (V = 0; V < 0x80; V++) fputc(UB(0xFF5400 + V), f); fclose(f); }
+  (void)pl; printf("roomdump: room %d written to %s\n", rm, d);
+}
 static void lk_voidmap(const uint8 *tiles, size_t tsz, uint32 (*pa)[304], uint32 (*pb)[304], uint8 (*out)[304]) {   /* seamless: 1 = the room has no picture here = the cell is absent / empty in both layers, or blank (all pixels transparent or the black colour 15 of line 0) AND connected to the outside of the map through blank cells: the black edge bands around a room are void, a black doorway inside the picture is not */
   static uint8 bl[2048][2]; static int qx[152 * 304]; int t, nt = (int)(tsz / 32), r, c, h = 0, n = 0;
   if (nt > 2048) nt = 2048;
@@ -1258,7 +1279,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
     lk_seam_step(rm, fr_done, cam0, cam2, lk_o_u0, lk_o_v0);   /* S3.5 */
     memcpy(lk_o_prev, r, sizeof lk_o_prev); lk_o_valid = 1;
     if (((r[(0xFF11DE & 0xFFFF) ^ 1] << 8) | r[(0xFF11DF & 0xFFFF) ^ 1]) == 0) { memcpy(lk_o_good, r, sizeof lk_o_good); lk_o_goodok = 1; }   /* the player is first in a complete visible list: remember the last complete state */
-    fr_n++;
+    fr_n++; lk_o_roomdump(rm, cam0, cam2);
     if (lk_o_diff >= 0 && lk_o_log > 0 && fr_n % lk_o_log == 0) { int ca = 0, cb = 0, tn = 0, i2, j2; for (i2 = 0; i2 < 152; i2++) for (j2 = 0; j2 < 304; j2++) { ca += (lk_o_pa[i2][j2] >> 16) & 1; cb += (lk_o_pb[i2][j2] >> 16) & 1; } for (i2 = 0; i2 < 0x12000; i2++) tn += lk_o_tiles[i2] != 0;
       printf("own: frame %ld room %d lines 0..223: %ld of %ld pixels differ (cells A %d B %d, tile bytes %d, scroll A %d,%d B %d,%d cam %d,%d, player flags2 use %02X cur %02X, sprites %d, reg1 %02X fade %d disp0 %d)\n", platform_frame_number(), rm, lk_o_diff, lk_o_tot, ca, cb, tn, hsA, vsA, hsB, vsB, cam0, cam2, UB(0xFF540C), bus_get_ram()[(0xFF540C & 0xFFFF) ^ 1], lk_o_nspr, reg[1], lk_o_fade, lk_o_disp0); }
     lk_o_diff = 0; lk_o_tot = 0;
