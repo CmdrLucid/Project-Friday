@@ -95,14 +95,15 @@ static void lk_osd_draw(int ow, int oh) {
     lk_osd_frames--;
     int px = oh / 120; if (px < 2) px = 2;
     int n = (int)strlen(lk_osd_text), bw = (n * 6 + 1) * px, bh = 9 * px, m = 2 * px;
-    SDL_Rect box = { m, m, bw, bh };
+    int oy = oh - bh - m;   /* bottom left (user 2026-10-24: the top left was over the HUD) */
+    SDL_Rect box = { m, oy, bw, bh };
     SDL_SetRenderDrawBlendMode(s_renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 190); SDL_RenderFillRect(s_renderer, &box);
     SDL_SetRenderDrawColor(s_renderer, 255, 255, 255, 255);
     for (int i = 0; i < n; i++) {
         const uint8_t *g = lk_glyph(lk_osd_text[i]);
         for (int r = 0; r < 7; r++) for (int c = 0; c < 5; c++)
-            if (g[r] & (0x10 >> c)) { SDL_Rect d = { m + px + (i * 6 + c) * px, m + px + r * px, px, px }; SDL_RenderFillRect(s_renderer, &d); }
+            if (g[r] & (0x10 >> c)) { SDL_Rect d = { m + px + (i * 6 + c) * px, oy + px + r * px, px, px }; SDL_RenderFillRect(s_renderer, &d); }
     }
     (void)ow;
 }
