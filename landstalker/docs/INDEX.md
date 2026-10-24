@@ -262,6 +262,7 @@ Generic lesson: every `func_table: no function` / `RTS to ... has no function` l
 | `LANDSTALKER_SHOT=f,f,..` | screenshot PNGs of the final picture (patch_shot.py, `_DIR`, `_SCALE`; test tools/shottest/run.sh) |
 | `tools/check_docs.py [-v] [--all]` | symbols.json valid + every NAMED address in docs/*.md is in symbols.json; pre-commit hook (`.githooks`, `git config core.hooksPath .githooks`) and CI docs-check run it; `--all` lists bare addresses without symbol |
 | build | `./build.sh ROM` (patch order inside the script) |
+| remake toolchain (2026-10-24) | `export PATH=$HOME/remake_tools/node/bin:$PATH`; `node ~/remake_tools/kiln/bin/kiln.js build x.kx.js` (GLB), `.../loom/bin/loom.js`, `.../pxl/bin/pxl.js`, `.../vex/bin/vex.js`; Blender: `flatpak run --command=blender org.blender.Blender -b -P script.py` (writes only below the home directory); plan RENDERER_IDEAS 'REMAKE option' |
 | deterministic input | record: `GENRECOMP_INPUTLOG=$HOME/rec_x.txt build/landstalker ROM` (old file -> .bak); replay: `GENRECOMP_INPUTSCRIPT=file` (works headless and in `genrecomp_ref`). Lines: `frame hexmask`; pad bits UP1 DOWN2 LEFT4 RIGHT8 B10 C20 A40 START80 X100.. (Deck X = Genesis A) |
 | state dumps | `--headless --frames N --ram-dump DIR:K` (every K frames). Layout: work RAM 64K (byte at 68K addr A is file index A^1) \| VDP regs 32 \| CRAM 128 \| VSRAM 128 \| VRAM 64K |
 | Nigel over time | `python3 tools/traj.py REFDIR RECDIR [start] [end]` (X Y Z fall jump gnd action; `TRAJ_EXTRA=FF542C,..`) |
