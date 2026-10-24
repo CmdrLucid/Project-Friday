@@ -81,7 +81,7 @@ void platform_option_step(int id) {
                   case 9: { int v = (lk_shadow_soft_get() ? 2 : lk_shadow_get()) + 1; if (v > 2) v = 0; lk_shadow_set(v > 0); lk_shadow_soft_set(v == 2); } break;   /* Off / On (things in the air) / On + Soft (also contact shadows under creatures, HD picture only) */
                   case 10: lk_quick_set(!lk_quick_get()); break;
                   case 11: lk_ffwd_set((lk_ffwd_get() + 1) % 4); break;
-                  case 12: lk_diff_set(0, (lk_diff_get(0) + 1) % 6); break; case 13: lk_diff_set(1, (lk_diff_get(1) + 1) % 5); break; case 14: lk_qsave_set(!lk_qsave_get()); break; case 15: lk_carry_set(!lk_carry_get()); break; case 16: lk_ii_set(!lk_ii_get()); break; case 17: lk_bq_set(!lk_bq_get()); break; case 18: lk_tbox_set(!lk_tbox_get()); break; case 19: lk_own_set(!lk_own_get()); break; case 20: lk_gaia_set(!lk_gaia_get()); break; case 22: lk_seam_set(!lk_seam_get()); break; case 23: lk_dof_set((lk_dof_get() + 1) % 4); break; case 28: lk_r3d_set((lk_r3d_get() + 1) % 3); break; case 29: lk_r3d_houses_set(!lk_r3d_houses_get()); break; case 30: lk_camctl_set(!lk_camctl_get()); break; case 31: lk_remake_set(!lk_remake_get()); break; case 32: lk_r3d_light_set(!lk_r3d_light_get()); break; case 33: lk_r3d_objects_set(!lk_r3d_objects_get()); break; case 24: case 25: case 26: case 27: lk_fxlook_set(id - 24, (lk_fxlook_get(id - 24) + 1) % 4); break; case 21: lk_hd_set(!lk_hd_get()); break; }
+                  case 12: lk_diff_set(0, (lk_diff_get(0) + 1) % 6); break; case 13: lk_diff_set(1, (lk_diff_get(1) + 1) % 5); break; case 14: lk_qsave_set(!lk_qsave_get()); break; case 15: lk_carry_set(!lk_carry_get()); break; case 16: lk_ii_set(!lk_ii_get()); break; case 17: lk_bq_set(!lk_bq_get()); break; case 18: lk_tbox_set(!lk_tbox_get()); break; case 19: lk_own_set(!lk_own_get()); break; case 20: lk_gaia_set(!lk_gaia_get()); break; case 22: lk_seam_set(!lk_seam_get()); break; case 23: lk_dof_set((lk_dof_get() + 1) % 4); break; case 28: lk_r3d_set((lk_r3d_get() + 1) % 3); break; case 29: lk_r3d_houses_set((lk_r3d_houses_get() + 1) % 3); break; case 30: lk_camctl_set(!lk_camctl_get()); break; case 31: lk_remake_set(!lk_remake_get()); break; case 32: lk_r3d_light_set(!lk_r3d_light_get()); break; case 33: lk_r3d_objects_set(!lk_r3d_objects_get()); break; case 24: case 25: case 26: case 27: lk_fxlook_set(id - 24, (lk_fxlook_get(id - 24) + 1) % 4); break; case 21: lk_hd_set(!lk_hd_get()); break; }
     lk_osd_frames = 0;   /* the menu shows the value itself */
 }
 ''' + b, 1)
@@ -164,6 +164,7 @@ static const char *lk_opt_val(int id, int v) {
     if (id == 11) return ffw[v & 3];
     if (id >= 23 && id <= 27) return dofv[v & 3];
     if (id == 28) { static const char *r3v[3] = { "Off", "On", "Fast" }; return r3v[v < 0 || v > 2 ? 0 : v]; }
+    if (id == 29) { static const char *hv[3] = { "Off", "Picture", "Model" }; return hv[v < 0 || v > 2 ? 0 : v]; }
     if (id == 12) return dmg[v > 5 || v < 0 ? 0 : v];
     if (id == 13) return ehp[v > 4 || v < 0 ? 1 : v];
     if (id == 6 || id == 7) { snprintf(buf, sizeof buf, "%d", v); return buf; }
@@ -175,7 +176,7 @@ static void lk_opt_fixscroll(void) { int v = lk_opt_vis(); if (lk_opt_row < lk_o
 static int lk_opt_rowid(int r) { return lk_opt_pg == 1 ? lk_ids_video[r] : lk_opt_pg == 2 ? lk_ids_audio[r] : lk_opt_pg == 3 ? lk_ids_game[r] : lk_opt_pg == 4 ? lk_ids_diff[r] : lk_opt_pg == 5 ? lk_ids_key[r] : -1 - r; }   /* root rows: -1 Video, -2 Audio, -3 Gameplay */
 static int lk_opt_rowy(int r) { return (lk_opt_pg == 2 || lk_opt_pg == 4) ? 2 + 3 * r : 2 + 2 * r; }
 static const char *lk_opt_rowname(int r) { int id = lk_opt_rowid(r); return id >= 100 ? (id == 111 ? "Reset Defaults" : lk_bind_name(id - 100)) : id >= 0 ? lk_id_name[id] : id == -1 ? "Video" : id == -2 ? "Audio" : id == -3 ? "Quality of Life" : id == -4 ? "Difficulty" : id == -5 ? "Keybindings" : "Quit Game"; }
-static int lk_opt_cnt(int id) { static const int c[34] = { 4, 2, 5, 2, 4, 4, 11, 11, 2, 3, 2, 4, 6, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 3, 2, 2, 2, 2, 2 }; return (id >= 0 && id < 34) ? c[id] : 2; }   /* one entry per option id (lk_id_name): 23 Depth Blur, 24 Bloom, 25 Vignette, 26 Color Grade = 4 values; LEFT = count-1 steps, so a short table made LEFT run a garbage number of steps (hang) */
+static int lk_opt_cnt(int id) { static const int c[34] = { 4, 2, 5, 2, 4, 4, 11, 11, 2, 3, 2, 4, 6, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 2 }; return (id >= 0 && id < 34) ? c[id] : 2; }   /* one entry per option id (lk_id_name): 23 Depth Blur, 24 Bloom, 25 Vignette, 26 Color Grade = 4 values; LEFT = count-1 steps, so a short table made LEFT run a garbage number of steps (hang) */
 static void lk_opt_change(int id, int dir) {
     int n, k, steps;
     if (id >= 100) { if (dir > 0) { if (id == 111) lk_bind_reset(); else { lk_opt_capid = id; lk_bind_capture(id - 100); } } return; }   /* binding rows: A / RIGHT = wait for the next button / key press */
