@@ -478,6 +478,8 @@ static void lk_o_roomdump(int rm, int cam0, int cam2) {   /* test aid for the 3D
   if (f) { for (V = 0; V < 74 * 74; V++) { int w = UW(0xFFD192 + 2 * V); fputc(w >> 8, f); fputc(w & 255, f); } fclose(f); }
   snprintf(path, sizeof path, "%s/info.txt", d); f = fopen(path, "w");
   if (f) { fprintf(f, "room %d\ncam0 %d\ncam2 %d\n", rm, cam0, cam2); fclose(f); }
+  snprintf(path, sizeof path, "%s/blocks.bin", d); f = fopen(path, "wb");   /* FG (layer A) and BG (layer B) block ids per cell, 74 x 74 words each */
+  if (f) { for (V = 0; V < 74 * 74; V++) { int w = UW(0xFF7C02 + 2 * V); fputc(w >> 8, f); fputc(w & 255, f); } for (V = 0; V < 74 * 74; V++) { int w = UW(0xFFA6CA + 2 * V); fputc(w >> 8, f); fputc(w & 255, f); } fclose(f); }
   snprintf(path, sizeof path, "%s/player.bin", d); f = fopen(path, "wb"); if (f) { for (V = 0; V < 0x80; V++) fputc(UB(0xFF5400 + V), f); fclose(f); }
   (void)pl; printf("roomdump: room %d written to %s\n", rm, d);
 }
@@ -490,6 +492,7 @@ int lk_o3d_get(lk_o3d_src_t *o) {   /* 1 = the last frame was a plain map frame 
   return ok;
 }
 int lk_o3d_hm(int x, int y) { const uint8_t *r = bus_get_ram(); uint32_t a = 0xFFD192u + 148u * (uint32_t)(y < 0 ? 0 : y) + 2u * (uint32_t)(x < 0 ? 0 : x); if (!r || x < 0 || y < 0 || x >= 74 || y >= 74) return 0x4000; return (r[(a & 0xFFFF) ^ 1] << 8) | r[((a + 1) & 0xFFFF) ^ 1]; }   /* the height map word of cell (x, y), live RAM */
+int lk_o3d_blk(int layer, int x, int y) { const uint8_t *r = bus_get_ram(); uint32_t a = (layer ? 0xFFA6CAu : 0xFF7C02u) + 148u * (uint32_t)(y < 0 ? 0 : y) + 2u * (uint32_t)(x < 0 ? 0 : x); if (!r || x < 0 || y < 0 || x >= 74 || y >= 74) return 0; return ((r[(a & 0xFFFF) ^ 1] << 8) | r[((a + 1) & 0xFFFF) ^ 1]) & 0x3FF; }   /* block id of the cell: layer 0 = FG (layer A, objects), 1 = BG (layer B, ground) */
 uint32_t lk_o3d_hash(void) {   /* of the two layer maps: changes at a room load (and when the game edits the map) */
   uint32_t h = 2166136261u; int y, x;
   for (y = 0; y < 152; y++) for (x = 0; x < 304; x++) { h = (h ^ (lk_o_pa[y][x] & 0x1FFFF)) * 16777619u; h = (h ^ (lk_o_pb[y][x] & 0x1FFFF)) * 16777619u; }
