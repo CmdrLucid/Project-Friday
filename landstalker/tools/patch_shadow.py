@@ -89,14 +89,15 @@ static int lk_sh_pspan(const lk_sh_t *t, int line, int *x0, int *x1) {
   *x0 = (int)ceil(xl - 0.5); *x1 = (int)floor(xr - 0.5); return *x0 <= *x1;
 }
 /* before remap_line: mark the ellipse pixels that show background (no sprite pixel on top, not the backdrop) */
+int lk_sh_mapfade;   /* set while the map fades in at the end of the Start menu (InitVDPAndFadeIn): shadows are shown again */
 int lk_sh_hide;   /* set while the Start menu is open (CheckForMenuOpen $007624 runs): the map is not shown then, the shadows of the last map pass must not be drawn over the menu (user's room 430 recording) */
 static void lk_shadow_line(int line) {
   int i, x;
   lk_sh_row_on = 0;
-  if (line == 0) { memcpy(lk_sh_snap, lk_sh_act, sizeof lk_sh_snap); lk_sh_nsnap = lk_sh_hide ? 0 : lk_sh_nact; }
+  if (line == 0) { memcpy(lk_sh_snap, lk_sh_act, sizeof lk_sh_snap); lk_sh_nsnap = (lk_sh_hide && !lk_sh_mapfade) ? 0 : lk_sh_nact; }
   if (line >= 0 && line < 224) memset(lk_sh_fl[line], 0, 0x400);
   if (line == 0) { static int dbg = -1; static long fr; if (dbg < 0) { const char *e = getenv("LANDSTALKER_SHADOW_DEBUG"); dbg = e && atoi(e) >= 3; } if (dbg) { fprintf(stderr, "shf: %ld n=%d", fr, lk_sh_nact); for (i = 0; i < lk_sh_nact; i++) fprintf(stderr, " %d,%d%s", lk_sh_act[i].x, lk_sh_act[i].y, lk_sh_act[i].poly ? "p" : ""); fprintf(stderr, "\n"); } fr++; }   /* LANDSTALKER_SHADOW_DEBUG=3: what is drawn in every frame */
-  if (lk_sh_hide) return;
+  if (lk_sh_hide && !lk_sh_mapfade) return;
   for (i = 0; i < lk_sh_nact; i++) {
     const lk_sh_t *t = &lk_sh_act[i]; int dy = line - t->y, x0, x1;
     double q;
@@ -201,6 +202,19 @@ extern void lk_shadow_addp(int x, int y, int wx, int wy, double sc, int h);
 /*FIGTAB*/
 static int lk_sh_angular(int t) { return t == 21 || t == 22 || t == 53 || t == 76 || t == 83 || (t >= 86 && t <= 95) || t == 113 || t == 114; }   /* entity types (byte +0B, ENTITIES.md ids) with a box shaped body: platforms, crate, raft, concrete block (ENTITIES.md) */
 extern int lk_no_charge;
+static int lk_sh_surface(uint32_t ent, int z) {   /* the top of the highest entity below (z) whose box contains the CENTRE of this entity (the game's FindEntitySurfaceBelow $00338C counts any overlap of the boxes, even a touch: Nigel next to a platform got its top as 'ground', user recording room 430), +1 like the game; 0 = none */
+    int cx = (int)(int16_t)bus_read16(ent + 0x14), cy = (int)(int16_t)bus_read16(ent + 0x16), best = 0, k;
+    for (k = 0; k < 16; k++) {
+        uint32_t o = 0xFF5400u + 0x80u * (uint32_t)k; int top;
+        if (k && (bus_read8(o) & 0x80)) break;
+        if (o == ent || bus_read8(o + 8)) continue;
+        if (cx < (int)(int16_t)bus_read16(o + 0x18) || cx > (int)(int16_t)bus_read16(o + 0x1A) || cy < (int)(int16_t)bus_read16(o + 0x1C) || cy > (int)(int16_t)bus_read16(o + 0x1E)) continue;
+        top = (int)(int16_t)bus_read16(o + 0x54);
+        if (top >= z) continue;
+        if (top + 1 > best) best = top + 1;
+    }
+    return best;
+}
 static gen_func_t lk_o_ls;
 /* LoadSprites ($00401C) runs once per game pass: ResetVdpSprites, BuildVisibleEntityList (the on-screen entities as offsets from $FF5400, draw ordered, $FFFF at the end, list at $FF11DE;
    CheckEntityOnScreen stored the screen position in +0E / +10 of each), LoadSpriteFrames. After it the whole list is complete, so the shadows of one pass are collected here at once. */
@@ -224,7 +238,11 @@ static void lk_h_ls(void) {
           lk_no_charge = nc; dist = (int16_t)(g_m68k.d[5] & 0xFFFF);
           flr = bus_read8(ent + 0x39);                                           /* the height-map floor under the entity (the game caches it in +39 before it merges in the entity surfaces) */
           bus_write8(ent + 0x39, b39); g_m68k = sv; }
-        if (ent != 0xFF5400u) { dist = (int)(int16_t)bus_read16(ent + 0x12) - flr; if (dist < 0) dist = 0; if (dist > 40) continue; }   /* objects (no shadow when more than 40 px above the floor: the projected ground point of a block high on a cliff falls on a nearer surface far away from it, 'shadows where none can be', user report); objects: shadow on the FLOOR, not on the top of another object that passes below (room 430: moving blocks made the shadows jump onto the other block's top where its sprite hides them = flicker, user report); Nigel keeps the full distance (he stands on blocks) */
+        { int z = (int)(int16_t)bus_read16(ent + 0x12), g = flr, ang = ent != 0xFF5400u && lk_sh_angular(bus_read8(ent + 0x3B));
+          if (ent == 0xFF5400u || ang) { int su = lk_sh_surface(ent, z); if (su > g) g = su; dist = z - g; }   /* Nigel and platforms / blocks: the floor is the height map or a platform really under the centre (a shadow falls on a platform below, not on one next to it) */
+          else dist = z - flr;                                                   /* other objects: the height-map floor only (a block passing under another made the shadow jump) */
+          if (dist < 0) dist = 0;
+          if (ent != 0xFF5400u && dist > (ang ? 160 : 40)) continue; }   /* objects far above the floor get no shadow, except platforms (user, room 430: every platform casts its shadow on the grass / the platform below) */
         { static uint8_t on[16]; int idx = (w >> 7) & 15;                         /* hysteresis: walking over slopes / steps makes the distance jump by a few units, that must not blink the shadow (user report, room 430) */
           int show = dist >= 6 || (on[idx] && dist >= 2);
           on[idx] = (uint8_t)show;
@@ -247,7 +265,9 @@ static void lk_h_ls(void) {
     }
 }
 static gen_func_t lk_o_shmenu;
+static gen_func_t lk_o_shfade;
 static void lk_h_shmenu(void) { extern int lk_sh_hide; lk_sh_hide = 1; lk_o_shmenu(); lk_sh_hide = 0; }   /* no shadows over the Start menu */
+static void lk_h_shfade(void) { extern int lk_sh_mapfade; int keep = lk_sh_mapfade; lk_sh_mapfade = 1; lk_o_shfade(); lk_sh_mapfade = keep; }   /* InitVDPAndFadeIn $008E9C: the map fades in again (end of the Start menu): the shadows fade in with it, not at the end of the fade (user: shadows pop up when the menu is left) */
 static void lk_shadow_install(void) {
     static int done;
     if (done) return;
@@ -257,6 +277,8 @@ static void lk_shadow_install(void) {
     func_table_register(0x00401C, lk_h_ls);
     lk_o_shmenu = func_table_lookup(0x007624);
     if (lk_o_shmenu) func_table_register(0x007624, lk_h_shmenu);
+    lk_o_shfade = func_table_lookup(0x008E9C);
+    if (lk_o_shfade) func_table_register(0x008E9C, lk_h_shfade);
 }
 '''
     module = module.replace("/*FIGTAB*/", FIGTAB)
