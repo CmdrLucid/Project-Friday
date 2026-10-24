@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+"""3D room (2026-10-24, optional, Options > Video > 3D Room, Off by default): the room as a 3D scene with a camera that turns with the right stick.
+The module itself is tools/room3d_game.c (inserted into src/platform_sdl.c before lk_disp_present, after patch_hd.py's module: it draws through patch_hd's lk_hd_show);
+this patch wires it: the present hook (before the HD present), the screenshot hook (LANDSTALKER_HD_SHOT frames also write r3dshot_*.png), the right stick / stick click
+readers in src/input.c (lk_rs_x / lk_rs_y / lk_rs_click).  Needs patch_hd.py (LK_HD v3), patch_own.py (lk_o3d_* exports), patch_padthread.py and patch_runtime.py before it.
+Idempotent.  usage: patch_room3d.py path/to/genrecomp"""
+import os, sys
+root = sys.argv[1]
+VER = "LK_R3D v1"
+here = os.path.dirname(os.path.abspath(__file__))
+p = os.path.join(root, "src/platform_sdl.c")
+s = open(p).read()
+if VER in s:
+    print("platform_sdl.c already patched:", VER)
+else:
+    assert "LK_HD v3" in s, "platform_sdl.c: run patch_hd.py (LK_HD v3) first"
+    module = open(os.path.join(here, "room3d_game.c")).read()
+    a = "/* draw the frame: returns after SDL_RenderPresent */\nstatic void lk_disp_present(const uint8_t *framebuffer) {"
+    assert s.count(a) == 1, "platform_sdl.c: lk_disp_present layout changed"
+    s = s.replace(a, module + "\n" + a, 1)
+    h = "    if (lk_hd_active() && lk_hd_present(framebuffer, sw, &r)) {"
+    assert s.count(h) == 1, "platform_sdl.c: HD present hook layout changed"
+    s = s.replace(h, "    if (lk_r3d_present(framebuffer, sw, &r)) { lk_osd_draw(ow, oh); lk_coords_draw(oh); SDL_RenderPresent(s_renderer); return; }   /* LK_R3D v1 */\n" + h, 1)
+    d1 = "    if (!lk_hd_active() && lk_hd_fxany()) framebuffer = (const uint8_t *)lk_hd_dof1x("
+    assert s.count(d1) == 1, "platform_sdl.c: dof1x hook layout changed"
+    s = s.replace(d1, "    extern int lk_r3d_on(void);\n    if (!lk_hd_active() && lk_hd_fxany() && !lk_r3d_on()) framebuffer = (const uint8_t *)lk_hd_dof1x(", 1)
+    c = "static void lk_shot_frame(const uint8_t *framebuffer, long frame) {"
+    assert s.count(c) == 1
+    s = s.replace(c, "extern int lk_r3d_on(void); extern uint32_t *lk_r3d_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh);   /* LK_R3D v1 */\n" + c, 1)
+    d = '    { const char *hl = getenv("LANDSTALKER_HD_SHOT");   /* LK_HD v1: the HD picture */'
+    assert s.count(d) == 1, "platform_sdl.c: HD shot hook layout changed"
+    s = s.replace(d, '''    { const char *rl = getenv("LANDSTALKER_HD_SHOT");   /* LK_R3D v1: the 3D room picture */
+      if (rl && *rl && lk_r3d_on() && lk_shot_wanted(rl, frame)) { int iw3, ih3; uint32_t *im3 = lk_r3d_assemble((const uint32_t *)framebuffer, 320 + 2 * lk_wide_e, lk_wide_e, &iw3, &ih3); char p3[600]; snprintf(p3, sizeof p3, "%s/r3dshot_%06ld_w%d.png", dir, frame, iw3);
+        { struct stat st3; if (stat(dir, &st3) != 0) { mkdir(dir, 0777); } }
+        if (im3) printf("shot: %s %s (%dx%d 3D room)\\n", lk_shot_png(p3, im3, iw3, ih3, 1) ? "wrote" : "FAILED", p3, iw3, ih3); else printf("shot: no 3D picture at frame %ld (scene not ready / not a map frame)\\n", frame); } }
+''' + d, 1)
+    s = s + "\n/* " + VER + " */\n"
+    open(p, "w").write(s)
+    print("platform_sdl.c patched:", VER)
+# right stick in input.c
+pi = os.path.join(root, "src/input.c")
+t = open(pi).read()
+if "lk_rs_x" in t:
+    print("input.c already patched: right stick")
+else:
+    g = "static uint16_t s_pad_state[2];"
+    assert t.count(g) == 1, "input.c: layout changed (s_pad_state)"
+    t = t.replace(g, "volatile int lk_rs_x, lk_rs_y, lk_rs_click;   /* right stick / its click: the 3D room camera (tools/patch_room3d.py) */\n" + g, 1)
+    k = "    buttons |= platform_scripted_buttons();"
+    assert t.count(k) == 1, "input.c: layout changed (scripted buttons)"
+    t = t.replace(k, "    { lk_rs_x = lk_pad_axis(lk_pads, SDL_CONTROLLER_AXIS_RIGHTX); lk_rs_y = lk_pad_axis(lk_pads, SDL_CONTROLLER_AXIS_RIGHTY); lk_rs_click = lk_pad_button(lk_pads, SDL_CONTROLLER_BUTTON_RIGHTSTICK); }   /* LK_R3D v1 */\n" + k, 1)
+    open(pi, "w").write(t)
+    print("input.c patched: right stick")

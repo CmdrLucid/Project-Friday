@@ -69,9 +69,9 @@ extern int lk_map_decide(void);                                      /* the game
 extern int lk_tall_kv(void) __attribute__((weak));                  /* LANDSTALKER_TALL: > 0 = full height (the game's visibility test is widened by $80 at the bottom, patch_sprcull.py) */
 extern int lk_tall_keep(int line);                                   /* LANDSTALKER_TALL: this line is drawn below the HInt display-off line (patch_tall.py) */
 extern int lk_tbox_get(void);                                        /* Map Behind Text (patch_tbox.py) */
-extern int lk_hd_n; int lk_dof_get(void); int lk_hd_fxany(void);
+extern int lk_hd_n; int lk_dof_get(void); int lk_hd_fxany(void); extern int lk_r3d_on(void);   /* tools/patch_room3d.py */
 static int16_t lk_o_sprd[224][LK_OSW]; static int lk_o_curd = 150;   /* HD depth blur: ground contact screen row of the figure a sprite pixel belongs to */
-int16_t lk_hd_depth[224 * 416]; uint8_t lk_hd_spr[224 * 416]; long lk_hd_dstamp[224];   /* lk_hd_spr: bit 0 = the pixel comes from a sprite, bit 1 = from an ANIMATED tile of the room (torch / candle flames, water; the lights take only those, a gold statue or a yellow wall is not a flame) */
+int16_t lk_hd_depth[224 * 416]; uint8_t lk_hd_spr[224 * 416]; uint32_t lk_hd_sprc[224 * 416]; long lk_hd_dstamp[224];   /* lk_hd_sprc: the colour of the sprite pixels (3D room: figures become billboards); lk_hd_spr bit 2 = window pixel (text box), bit 3 = black / void */   /* lk_hd_spr: bit 0 = the pixel comes from a sprite, bit 1 = from an ANIMATED tile of the room (torch / candle flames, water; the lights take only those, a gold statue or a yellow wall is not a flame) */
  int lk_hd_focus = 150;   /* depth per picture pixel (screen row of its ground point, 0x7FFF = no blur: HUD / text box / margins), valid when lk_hd_dstamp[line] == lk_hd_gen; focus = Nigel's ground row (tools/patch_hd.py lk_hd_dof) */
 static uint16 lk_o_spr[224][LK_OSW];                                 /* by row pixel index (screen x + e): pal * 16 + index | 0x100 priority | 0x200 present */
 static uint8 lk_o_sprtiles[0x4000];
@@ -405,7 +405,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
     if (draw && lk_o_hide0 && offs[k] != 0 && e->np && lk_o_satn > 0 && !lk_o_loose(e) && !lk_o_loose4e(e) && lk_o_near(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) { int q; printf("ownhide: frame %ld off %02X type %02X at (%d,%d) 4e (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), e->ax, e->ay, SW(0xFF5400 + offs[k] + 0x4E), SW(0xFF5400 + offs[k] + 0x50)); for (q = 0; q < e->np; q++) { uint32 kk = lk_o_pkey(e, q, 0); printf("   piece %d: x %d y %d size %X\n", q, (int)((kk >> 20) & 0x1FF), (int)((kk >> 8) & 0x3FF), (int)(kk & 15)); } } continue; }   /* the real sprite table holds none of this entity's pieces: the game draws something else in its place (a burning enemy of the Fire sword is replaced by flame sprites that are written into the table, they come as EXTRA entries) */
     if (draw && lk_o_exon) lk_o_extras_upto(sord[k]);
     lk_o_nspr++;
-    if (draw && (lk_hd_n || lk_hd_fxany())) { int q2, lo = -9999; for (q2 = 0; q2 < e->np; q2++) { int yb = e->ay + e->pys[q2] - 128 + 8 * e->phs[q2]; if (yb > lo) lo = yb; } lk_o_curd = lo + SW(0xFF5400 + offs[k] + 0x12); if (offs[k] == 0) lk_hd_focus = lk_o_curd; }   /* depth blur: the figure's ground contact row (lowest pixel row + its height above the floor) */
+    if (draw && (lk_hd_n || lk_hd_fxany() || lk_r3d_on())) { int q2, lo = -9999; for (q2 = 0; q2 < e->np; q2++) { int yb = e->ay + e->pys[q2] - 128 + 8 * e->phs[q2]; if (yb > lo) lo = yb; } lk_o_curd = lo + SW(0xFF5400 + offs[k] + 0x12); if (offs[k] == 0) lk_hd_focus = lk_o_curd; }   /* depth blur: the figure's ground contact row (lowest pixel row + its height above the floor) */
     for (pc = 0; pc < e->np; pc++) {
       int xx; uint32 key = lk_o_pkey(e, pc, &xx);
       if (keys && nk < 96) keys[nk++] = key;
@@ -480,6 +480,20 @@ static void lk_o_roomdump(int rm, int cam0, int cam2) {   /* test aid for the 3D
   if (f) { fprintf(f, "room %d\ncam0 %d\ncam2 %d\n", rm, cam0, cam2); fclose(f); }
   snprintf(path, sizeof path, "%s/player.bin", d); f = fopen(path, "wb"); if (f) { for (V = 0; V < 0x80; V++) fputc(UB(0xFF5400 + V), f); fclose(f); }
   (void)pl; printf("roomdump: room %d written to %s\n", rm, d);
+}
+/* ---- 3D room (tools/patch_room3d.py): what the 3D scene needs from the own renderer; the arrays are the ones of the frame drawn last ---- */
+extern long lk_hd_gen;
+typedef struct { const uint32_t (*pa)[304]; const uint32_t (*pb)[304]; const uint8_t *tiles; const uint32_t *pix; int u0, v0, room; } lk_o3d_src_t;
+int lk_o3d_get(lk_o3d_src_t *o) {   /* 1 = the last frame was a plain map frame drawn by the own path (no warp effect, no seamless transition) */
+  int ok = lk_hd_dstamp[100] == lk_hd_gen && lk_hd_dstamp[40] == lk_hd_gen && lk_sm_state == 0 && !lk_o_fxon && lk_o_valid;
+  o->pa = (const uint32_t (*)[304])lk_o_pa; o->pb = (const uint32_t (*)[304])lk_o_pb; o->tiles = lk_o_tiles; o->pix = (const uint32_t *)lk_o_pix; o->u0 = lk_o_u0; o->v0 = lk_o_v0; o->room = lk_o_room;
+  return ok;
+}
+int lk_o3d_hm(int x, int y) { const uint8_t *r = bus_get_ram(); uint32_t a = 0xFFD192u + 148u * (uint32_t)(y < 0 ? 0 : y) + 2u * (uint32_t)(x < 0 ? 0 : x); if (!r || x < 0 || y < 0 || x >= 74 || y >= 74) return 0x4000; return (r[(a & 0xFFFF) ^ 1] << 8) | r[((a + 1) & 0xFFFF) ^ 1]; }   /* the height map word of cell (x, y), live RAM */
+uint32_t lk_o3d_hash(void) {   /* of the two layer maps: changes at a room load (and when the game edits the map) */
+  uint32_t h = 2166136261u; int y, x;
+  for (y = 0; y < 152; y++) for (x = 0; x < 304; x++) { h = (h ^ (lk_o_pa[y][x] & 0x1FFFF)) * 16777619u; h = (h ^ (lk_o_pb[y][x] & 0x1FFFF)) * 16777619u; }
+  return h ? h : 1u;
 }
 static void lk_voidmap(const uint8 *tiles, size_t tsz, uint32 (*pa)[304], uint32 (*pb)[304], uint8 (*out)[304]) {   /* seamless: 1 = the room has no picture here = the cell is absent / empty in both layers, or blank (all pixels transparent or the black colour 15 of line 0) AND connected to the outside of the map through blank cells: the black edge bands around a room are void, a black doorway inside the picture is not */
   static uint8 bl[2048][2]; static int qx[152 * 304]; int t, nt = (int)(tsz / 32), r, c, h = 0, n = 0;
@@ -1369,7 +1383,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         lk_hd_mapmode = 1; lk_hd_put(line, x, (uint32_t)col, pi.rep ? &pi : 0); lk_hd_mapmode = 0; lk_hd_ref[line * LK_HDW + x + LK_HDO] = (uint32_t)col;
       }
       if (lk_o_mode == 2) row[i] = (PIXEL_OUT_T)col;
-      if (lk_hd_fxany() && x >= -48 && x < 368) { lk_hd_spr[line * 416 + x + 48] = (uint8_t)((src == 1) | (((src == 2 && lk_o_isanim(afi.t)) || (src == 3 && lk_o_isanim(bfi.t))) ? 2 : 0)); lk_hd_depth[line * 416 + x + 48] = (black || src == 4) ? (int16_t)0x7FFF : src == 1 ? lk_o_sprd[sl][si] : (int16_t)line; }   /* depth blur: the pixel's ground row (tools/patch_hd.py lk_hd_dof) */
+      if ((lk_hd_fxany() || lk_r3d_on()) && x >= -48 && x < 368) { lk_hd_sprc[line * 416 + x + 48] = (src == 1 && !black) ? ((uint32_t)col | 0xFF000000u) : 0; lk_hd_spr[line * 416 + x + 48] = (uint8_t)((src == 1) | (((src == 2 && lk_o_isanim(afi.t)) || (src == 3 && lk_o_isanim(bfi.t))) ? 2 : 0) | (src == 4 ? 4 : 0) | (black ? 8 : 0)); lk_hd_depth[line * 416 + x + 48] = (black || src == 4) ? (int16_t)0x7FFF : src == 1 ? lk_o_sprd[sl][si] : (int16_t)line; }   /* depth blur: the pixel's ground row (tools/patch_hd.py lk_hd_dof) */
     }
     if (lk_hd_n) lk_hd_stamp[line] = lk_hd_gen;
     lk_hd_dstamp[line] = lk_hd_gen;

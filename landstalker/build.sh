@@ -152,6 +152,8 @@ python3 tools/patch_own.py .deps/genrecomp
 python3 tools/patch_roommodel.py .deps/genrecomp
 # HD graphics, display side: HD picture from the compositor's n x n blocks, optional and Off by default (tools/patch_hd.py; needs patch_shot.py and patch_own.py first)
 python3 tools/patch_hd.py .deps/genrecomp
+# 3D room: Options > Video > 3D Room, the room as a 3D scene, camera on the right stick (tools/patch_room3d.py + tools/room3d_game.c; needs patch_hd.py first)
+python3 tools/patch_room3d.py .deps/genrecomp
 # test aid: LANDSTALKER_WARP="610:12.08,20.04" puts Nigel into a room at a spot (headless tests), see tools/patch_warp.py
 python3 tools/patch_warp.py .deps/genrecomp
 # audio capture: LANDSTALKER_WAV=file.wav (recompiled build and genrecomp_ref), compare with tools/wavcmp.py (tools/patch_wav.py)

@@ -8,7 +8,7 @@ filters run on the HD picture (display_core.c `lk_hdn`: scanline period, beam an
 (`~/.landstalker_hd` = 1 or LANDSTALKER_HD=1).  Needs patch_shot.py and patch_own.py before it.  Idempotent.  usage: patch_hd.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_HD v2"
+VER = "LK_HD v3"
 p = os.path.join(root, "src/platform_sdl.c")
 s = open(p).read()
 if VER in s:
@@ -115,6 +115,8 @@ static void lk_hd_dof(uint32_t *img, int W, int H, int N, int sw, int e, const i
 }
 /* HD-2D look on the map picture (1x, or the HD picture): bloom (bright pass -> small blurred copy -> added back), then colour grade (saturation, S-curve, warm tint) and vignette in one pass.  Only pixels the map path drew with a depth (not the HUD, text box, black margins).  The per-pixel passes run on up to 3 threads (bands of rows). */
 extern int lk_fxlook_get(int i), lk_hd_fxany(void);
+int lk_hd_look3d;   /* 1 while the look pass runs on the 3D room picture (tools/room3d_game.c): the mask is the 3D region, no lights */
+extern uint8_t lk_hd_spr[];
 typedef struct { uint32_t *img; const uint8_t *mask; int W, H, N, sw, B, V, G, L, ws, hs, C; const int *lf; const uint32_t *gl; const uint8_t (*lutc)[256]; const int *vx, *vy; uint32_t gn; } lk_look_ctx;
 typedef struct { lk_look_ctx *c; int pass, y0, y1; } lk_look_job;
 static int lk_look_run(void *pv) {
@@ -175,7 +177,7 @@ static void lk_look_par(lk_look_ctx *c, int pass) {
 }
 static void lk_hd_look(uint32_t *img, int W, int H, int N, int sw, int e, const int16_t *sc) {
     static uint8_t *mask; static size_t mcap; static uint32_t *gl; static size_t gcap; static uint8_t lutc[3][256]; static int lutg = -1; static int vx[1024], vy[1024], vg = -1, vW, vH;
-    int B = lk_fxlook_get(0), V = lk_fxlook_get(1), G = lk_fxlook_get(2), L = lk_fxlook_get(3), x, y, k, anyrow = 0; size_t n = (size_t)sw * 224; lk_look_ctx cx;
+    int B = lk_fxlook_get(0), V = lk_fxlook_get(1), G = lk_fxlook_get(2), L = lk_hd_look3d ? 0 : lk_fxlook_get(3), x, y, k, anyrow = 0; size_t n = (size_t)sw * 224; lk_look_ctx cx;
     if (!B && !V && !G && !L) return;
     for (y = 23; y < 224; y++) if (lk_hd_dstamp[y] == lk_hd_gen) { anyrow = 1; break; }
     if (!anyrow) return;                                     /* not a map picture */
@@ -183,7 +185,8 @@ static void lk_hd_look(uint32_t *img, int W, int H, int N, int sw, int e, const 
     if (!mask) return;
     for (y = 0; y < 224; y++) for (x = 0; x < sw; x++) {
         int cxx = sc[(size_t)y * sw + x] - e, ok = 0;
-        if (y >= 23 && lk_hd_dstamp[y] == lk_hd_gen && cxx >= -48 && cxx < 368 && lk_hd_depth[y * 416 + cxx + 48] != 0x7FFF) ok = 1;
+        if (lk_hd_look3d) { if (y >= 23 && lk_hd_dstamp[y] == lk_hd_gen && cxx >= -48 && cxx < 368 && !(lk_hd_spr[y * 416 + cxx + 48] & 4)) ok = 1; }
+        else if (y >= 23 && lk_hd_dstamp[y] == lk_hd_gen && cxx >= -48 && cxx < 368 && lk_hd_depth[y * 416 + cxx + 48] != 0x7FFF) ok = 1;
         mask[(size_t)y * sw + x] = (uint8_t)ok;
     }
     memset(&cx, 0, sizeof cx); cx.img = img; cx.mask = mask; cx.W = W; cx.H = H; cx.N = N; cx.sw = sw; cx.B = B; cx.V = V; cx.G = G; cx.L = L;
@@ -313,9 +316,8 @@ uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh) {
 }
 static double lk_hd_ms(Uint64 a) { return (double)(SDL_GetPerformanceCounter() - a) * 1e3 / (double)SDL_GetPerformanceFrequency(); }
 static double lk_hd_tasm, lk_hd_tfil; static int lk_hd_tcnt;
-static int lk_hd_present(const uint8_t *framebuffer, int sw, const lk_rect *r) {
-    int iw, ih; Uint64 t0 = SDL_GetPerformanceCounter(); uint32_t *img = lk_hd_assemble((const uint32_t *)framebuffer, sw, lk_wide_e, &iw, &ih); lk_hd_tasm += lk_hd_ms(t0); t0 = SDL_GetPerformanceCounter();
-    if (!img) return 0;
+static int lk_hd_show(uint32_t *img, int iw, int ih, int n, const lk_rect *r) {   /* draws an assembled picture (iw x ih, n pixels per game pixel): CRT filters per game line, or linear scaling (the 3D room uses it too) */
+    Uint64 t0 = SDL_GetPerformanceCounter();
     if (!lk_hd_tex || lk_hd_tw != iw || lk_hd_th != ih) {
         if (lk_hd_tex) SDL_DestroyTexture(lk_hd_tex);
         lk_hd_tex = SDL_CreateTexture(s_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, iw, ih);
@@ -331,7 +333,7 @@ static int lk_hd_present(const uint8_t *framebuffer, int sw, const lk_rect *r) {
             lk_hd_fbuf = (uint32_t *)malloc((size_t)r->w * r->h * 4); lk_hd_fw = r->w; lk_hd_fh = r->h;
         }
         if (lk_hd_ftex && lk_hd_fbuf) {
-            lk_hdn = lk_hd_n;
+            lk_hdn = n;
             if (lk_fx_mode >= LK_FX_PRO) {
                 lk_f2_prepare(r->w, r->h, lk_fx_mode, iw);
                 if (lk_f2_plane) { lk_fx_render_mt(img, lk_hd_fbuf, r->w, LK_SRC_H, iw, 2); lk_fx_render_mt(img, lk_hd_fbuf, r->w, r->h, iw, 3); }
@@ -346,6 +348,11 @@ static int lk_hd_present(const uint8_t *framebuffer, int sw, const lk_rect *r) {
     SDL_UpdateTexture(lk_hd_tex, NULL, img, iw * 4);
     { SDL_Rect d = { r->x, r->y, r->w, r->h }; SDL_RenderCopy(s_renderer, lk_hd_tex, NULL, &d); }
     return 1;
+}
+static int lk_hd_present(const uint8_t *framebuffer, int sw, const lk_rect *r) {
+    int iw, ih; Uint64 t0 = SDL_GetPerformanceCounter(); uint32_t *img = lk_hd_assemble((const uint32_t *)framebuffer, sw, lk_wide_e, &iw, &ih); lk_hd_tasm += lk_hd_ms(t0);
+    if (!img) return 0;
+    return lk_hd_show(img, iw, ih, lk_hd_n, r);
 }
 '''
 s = s.replace(a, module + a, 1)
