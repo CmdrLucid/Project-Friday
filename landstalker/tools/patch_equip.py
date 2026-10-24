@@ -68,13 +68,25 @@ static void lk_eq_apply(int cat) {
     snprintf(t, sizeof t, "%s: %s", kind[cat], nm[cat][j]); lk_osd_say(t);
     if (getenv("LANDSTALKER_EQ_DEBUG")) fprintf(stderr, "equip: category %d -> item %d (index %d)\n", cat, lay[cat][j], j + 1);
 }
+uint8_t lk_eq_own[16];   /* ownership of the 16 equipment pieces (sword 0..3, armour 4..7, boots 8..11, ring 12..15 in layout order), refreshed by the game side; read by the overlay */
+static const uint8_t lk_eq_ids[16] = { 1, 3, 2, 4, 9, 10, 11, 12, 7, 5, 6, 8, 15, 13, 14, 16 };
+static void lk_eq_scan(void) { int k; for (k = 0; k < 16; k++) lk_eq_own[k] = (uint8_t)lk_eq_owned(lk_eq_ids[k]); }
+static void lk_eq_capture_missing(void) {   /* the Start menu is open and bright: take the icons of the owned pieces from VRAM (once, saved in ~/.landstalker_quick_icons) */
+    int k; for (k = 0; k < 16; k++) if (!lk_quick_icon_have(lk_eq_ids[k]) && lk_eq_owned(lk_eq_ids[k])) lk_quick_capture(lk_eq_ids[k]);
+}
+static gen_func_t lk_o_wuv_eq;
+static void lk_h_wuv_eq(void) {   /* WaitUntilVBlank $000B5E: while the Start menu is open every ~half second try to take the icons (the cursor hook alone missed them when the menu was only scrolled) */
+    extern int lk_sh_hide; static int n;
+    if (lk_sh_hide && (++n & 31) == 0) { int miss = 0, k; for (k = 0; k < 16; k++) if (!lk_quick_icon_have(lk_eq_ids[k])) miss = 1; if (miss) lk_eq_capture_missing(); }
+    lk_o_wuv_eq();
+}
 static void lk_h_cur_eq(void) {   /* InventoryMenu_UpdateCursorAt $00D714: the Start menu is open and bright: take the icons of the owned equipment from VRAM once (the overlay of Quick Equip shows them) */
-    static const uint8_t ids[16] = { 1, 3, 2, 4, 9, 10, 11, 12, 7, 5, 6, 8, 15, 13, 14, 16 }; int k;
-    for (k = 0; k < 16; k++) if (!lk_quick_icon_have(ids[k]) && lk_eq_owned(ids[k])) lk_quick_capture(ids[k]);
+    lk_eq_capture_missing();
     lk_o_cur_eq();
 }
 static void lk_h_pab_eq(void) {
     int c = lk_eq_take(), ok = bus_read16(0xFF12DEu) == 0 && bus_read16(0xFF543Eu) != 0, guard = 0;
+    if (lk_eq_is_held()) lk_eq_scan();
     for (;;) {
         if (c == -2) lk_snd(0x00DBBEu);
         else if (c >= 0) { if (ok) lk_eq_apply(c); else lk_snd(0x00DBBEu); }
@@ -90,6 +102,7 @@ static void lk_eq_install(void) {
     if (done) return;
     done = 1;
     lk_o_pab_eq = func_table_lookup(0x0066AC);
+    lk_o_wuv_eq = func_table_lookup(0x000B5E); if (lk_o_wuv_eq) func_table_register(0x000B5E, lk_h_wuv_eq);
     lk_o_cur_eq = func_table_lookup(0x00D714); if (lk_o_cur_eq) func_table_register(0x00D714, lk_h_cur_eq);
     if (lk_o_pab_eq) func_table_register(0x0066AC, lk_h_pab_eq); else fprintf(stderr, "equip: ProcessActionButton not found\n");
 }
