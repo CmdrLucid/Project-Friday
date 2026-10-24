@@ -45,6 +45,22 @@ rng = np.random.RandomState(3); n = rng.randn(h * S, w * S).astype(np.float32)
 nz = ndi.gaussian_filter(n, (0.5, 2.2)); nz = ndi.rotate(nz, 35, reshape=False, mode="reflect"); nz = nz / (nz.std() + 1e-6)
 green = np.clip((g[..., 1] - np.maximum(g[..., 0], g[..., 2]) - 8) / 40.0, 0, 1)
 g = g + (nz * 7.0 * green)[..., None] * np.array([0.5, 1.0, 0.4], np.float32)
+if "--pixel" in sys.argv:   # PIXEL LOOK (user: 'eher wie das Original'): snap every HD pixel to the game's own colours + the blends of colours that sit next to each other in the picture (= the dither pairs), no soft edges
+    pal = {tuple(c) for c in im.reshape(-1, 3)}
+    pr = set()
+    P = np.array(sorted(pal), np.float32)
+    # blends of horizontally / vertically adjacent different colours
+    pairs = set()
+    for a1, b1 in ((im[:, :-1], im[:, 1:]), (im[:-1, :], im[1:, :])):
+        d = (a1 != b1).any(axis=2)
+        for x, y in zip(a1[d].tolist(), b1[d].tolist()): pairs.add((tuple(x), tuple(y)))
+    mids = {tuple(int((u + v) // 2) for u, v in zip(x, y)) for x, y in pairs if sum(abs(u - v) for u, v in zip(x, y)) < 260}
+    P = np.array(sorted(pal | mids), np.float32)
+    flat = np.clip(g, 0, 255).reshape(-1, 3)
+    out = np.empty(flat.shape, np.uint8)
+    for k in range(0, len(flat), 60000):
+        d2 = ((flat[k:k + 60000, None, :] - P[None, :, :]) ** 2).sum(axis=2); out[k:k + 60000] = P[d2.argmin(axis=1)].astype(np.uint8)
+    g = out.reshape(g.shape).astype(np.float32)
 hd = np.clip(g, 0, 255).astype(np.uint8); Image.fromarray(hd).save(pre + "_hd.png")
 cmp = np.concatenate([np.repeat(np.repeat(im, S, 0), S, 1), e, hd], axis=1); Image.fromarray(cmp).save(pre + "_compare.png")
 print("wrote", pre, hd.shape)

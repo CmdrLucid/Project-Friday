@@ -10,7 +10,7 @@ f1, ids, names_p, dump, pack = sys.argv[1:6]; S = int(sys.argv[6]) if len(sys.ar
 names = json.load(open(names_p)); os.makedirs(pack, exist_ok=True)
 here = os.path.dirname(os.path.abspath(__file__))
 pre = "/tmp/hdp_frame"
-subprocess.check_call([sys.executable, os.path.join(here, "hd_enhance.py"), f1, pre, str(S)])
+subprocess.check_call([sys.executable, os.path.join(here, "hd_enhance.py"), f1, pre, str(S)] + [a for a in sys.argv[7:] if a == "--pixel"])
 hd = np.array(Image.open(pre + "_hd.png").convert("RGB"))
 idm = np.array(Image.open(ids).convert("RGB")).astype(int); H2, W2, _ = idm.shape
 R, G, B = idm[..., 0], idm[..., 1], idm[..., 2]; tid = R | (G << 8); tx = ((B >> 7) & 1) * 8 + ((B >> 3) & 7); ty = ((B >> 6) & 1) * 8 + (B & 7)
