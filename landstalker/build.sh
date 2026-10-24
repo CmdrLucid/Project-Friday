@@ -122,6 +122,8 @@ python3 tools/patch_overlay.py .deps/genrecomp
 python3 tools/patch_ffwd.py .deps/genrecomp
 # Quick save / quick load anywhere (hidden fifth slot, the game's own save routines; tools/patch_quicksave.py; needs patch_ffwd.py first)
 python3 tools/patch_quicksave.py .deps/genrecomp
+# Quick Equip: hold R2 (binding 'Quick Equip') + direction changes sword / armour / boots / ring (tools/patch_equip.py; needs patch_quick.py and patch_quicksave.py first)
+python3 tools/patch_equip.py .deps/genrecomp
 # Difficulty options: damage taken / enemy HP (tools/patch_difficulty.py; needs patch_options.py and patch_quicksave.py first)
 python3 tools/patch_difficulty.py .deps/genrecomp
 # Optional fix 'Ride Objects': Nigel is carried by an object standing on a moving platform (tools/patch_carry.py; needs patch_difficulty.py first)

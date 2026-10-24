@@ -53,6 +53,7 @@ chk "Seamless Doors: Weitergehen (Ankunft verschoben)" $G/src/func_table.c      
 chk "Seamless Doors: Notbremse zeitloses Laden" $G/src/bus.c                          "LK_NCGUARD v1"
 chk "Vorspulen (R2 / Tab)"                           $G/src/platform_sdl.c "LK_FFWD v1"
 chk "Schnellspeichern / -laden"                     $G/src/func_table.c "LK_QUICKSAVE v1"
+chk "Schnell-Ausruesten (R2 + Richtung)"              $G/src/func_table.c "LK_EQUIP v1"
 chk "Schwierigkeit (Schaden / Gegner-HP)"           $G/src/func_table.c "LK_DIFF v2"
 chk "Tastenbelegung (Pad + Tastatur)"                 $G/src/input.c "LK_KEYS v1"
 chk "Controller-Abfrage in eigenem Thread"           $G/src/input.c "LK_PADTHREAD v3"
