@@ -17,15 +17,20 @@ extern volatile int lk_rs_x, lk_rs_y, lk_rs_click;   /* right stick (input.c, to
 #define R3_TW 2432
 #define R3_TH 1216
 #define R3_NQ 24000
-typedef struct { double X0, X1, Y0, Y1, z0, H, o; int axis; } r3_roof_t;
+typedef struct { double X0, X1, Y0, Y1, z0, H, o; int axis; int cx0, cx1, cy0, cy1; } r3_roof_t;   /* eave rectangle incl. overhang, wall top z0, ridge height H, ridge axis; cx0..cy1 = the footprint in cells */
+typedef struct { float x[3], y[3], z[3]; uint8_t mat, r, g, b; } r3_ht_t;      /* house model triangle: mat 1 = coloured by the room picture (projective), 8 = flat colour (r g b, already shaded) */
 typedef struct { float wx[4], wy[4], wz[4]; uint8_t mode, dark; } r3_quad_t;       /* mode 0 ground (layer B only), 1 composite, 2 roof */
 typedef struct { int U, y, n; float bx, by, bz; } r3_strip_t;
 typedef struct {
-    uint32_t hash; int nq, ns, nroofs; r3_quad_t *q; r3_strip_t *st; r3_roof_t roofs[64];
+    uint32_t hash, base_hash; int nq, ns, nroofs; r3_quad_t *q; r3_strip_t *st; r3_roof_t roofs[64];
     float *hw; uint8_t *cov, *hb;           /* hit position (3 floats) / covered / box flag per picture pixel of the original view */
     uint8_t tiles[0x12000]; uint32_t pa[152][304], pb[152][304], pix[64];   /* the snapshot the scene was built from */
-    int hm[74][74]; double zc[74][74]; uint8_t boxc[74][74];
+    int hm[74][74]; double zc[74][74]; uint8_t boxc[74][74]; uint8_t repl[74][74];   /* repl: cells inside a house model (their column quads are not drawn) */
+    r3_ht_t *ht; int nht, nht_cap, houses;
 } r3_scene_t;
+static int r3_houses_cache = -1;
+int lk_r3d_houses_get(void) { if (r3_houses_cache < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_R3D_HOUSES"); char path[512]; FILE *f; int v = 0; snprintf(path, sizeof path, "%s/.landstalker_houses", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); r3_houses_cache = v ? 1 : 0; } return r3_houses_cache; }
+void lk_r3d_houses_set(int v) { const char *h = getenv("HOME"); char path[512]; FILE *f; r3_houses_cache = v ? 1 : 0; snprintf(path, sizeof path, "%s/.landstalker_houses", h ? h : "."); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", r3_houses_cache); fclose(f); } }   /* Options > Video > 3D Houses */
 static r3_scene_t *r3_active, *r3_work; static SDL_Thread *r3_thread; static volatile int r3_busy, r3_done; static uint32_t r3_req_hash; static int r3_on_cache = -1;
 static double r3_yaw, r3_pitch, r3_dyaw, r3_dpitch; static int r3_fixed; static uint64_t r3_t[5]; static double r3_acc[4]; static int r3_nacc;
 static uint32_t *r3_img, *r3_zbuf_dummy; static float *r3_zb; static int r3_iw, r3_ih;
@@ -113,9 +118,9 @@ static int r3_fit_roof(r3_ctx_t *c, int x0, int x1, int y0, int y1, double z0, r
 }
 static void r3_find_roofs(r3_scene_t *sc, r3_ctx_t *c) {
     static uint8_t rem[74][74]; int x, y; char path[600]; FILE *cf; const char *home = getenv("HOME");
-    snprintf(path, sizeof path, "%s/.landstalker_r3d/roofs_%08x.txt", home ? home : ".", sc->hash);
+    snprintf(path, sizeof path, "%s/.landstalker_r3d/roofs2_%08x.txt", home ? home : ".", sc->base_hash);
     cf = fopen(path, "r");
-    if (cf) { r3_roof_t r; sc->nroofs = 0; while (sc->nroofs < 64 && fscanf(cf, "%lf %lf %lf %lf %lf %lf %lf %d", &r.X0, &r.X1, &r.Y0, &r.Y1, &r.z0, &r.H, &r.o, &r.axis) == 8) sc->roofs[sc->nroofs++] = r; fclose(cf); return; }
+    if (cf) { r3_roof_t r; sc->nroofs = 0; while (sc->nroofs < 64 && fscanf(cf, "%lf %lf %lf %lf %lf %lf %lf %d %d %d %d %d", &r.X0, &r.X1, &r.Y0, &r.Y1, &r.z0, &r.H, &r.o, &r.axis, &r.cx0, &r.cx1, &r.cy0, &r.cy1) == 12) sc->roofs[sc->nroofs++] = r; fclose(cf); return; }
     sc->nroofs = 0;
     c->th = (uint8_t *)calloc((size_t)R3_TW * R3_TH, 1); c->rmask = (uint8_t *)calloc((size_t)R3_TW * R3_TH, 1);
     if (!c->th || !c->rmask) { free(c->th); free(c->rmask); c->th = c->rmask = NULL; return; }
@@ -138,13 +143,13 @@ static void r3_find_roofs(r3_scene_t *sc, r3_ctx_t *c) {
             }
         }
         if (!found || bsc < 30) break;
-        sc->roofs[sc->nroofs++] = br; (void)bth;
+        br.cx0 = bx0; br.cx1 = bx1; br.cy0 = by0; br.cy1 = by1; sc->roofs[sc->nroofs++] = br; (void)bth;
         for (y = by0; y <= by1; y++) for (x = bx0; x <= bx1; x++) rem[y][x] = 0;
     }
     free(c->th); free(c->rmask); c->th = c->rmask = NULL;
     { char dir[600]; snprintf(dir, sizeof dir, "%s/.landstalker_r3d", home ? home : "."); mkdir(dir, 0777); }
     cf = fopen(path, "w");
-    if (cf) { int r; for (r = 0; r < sc->nroofs; r++) fprintf(cf, "%.3f %.3f %.3f %.3f %.3f %.3f %.3f %d\n", sc->roofs[r].X0, sc->roofs[r].X1, sc->roofs[r].Y0, sc->roofs[r].Y1, sc->roofs[r].z0, sc->roofs[r].H, sc->roofs[r].o, sc->roofs[r].axis); fclose(cf); }
+    if (cf) { int r; for (r = 0; r < sc->nroofs; r++) fprintf(cf, "%.3f %.3f %.3f %.3f %.3f %.3f %.3f %d %d %d %d %d\n", sc->roofs[r].X0, sc->roofs[r].X1, sc->roofs[r].Y0, sc->roofs[r].Y1, sc->roofs[r].z0, sc->roofs[r].H, sc->roofs[r].o, sc->roofs[r].axis, sc->roofs[r].cx0, sc->roofs[r].cx1, sc->roofs[r].cy0, sc->roofs[r].cy1); fclose(cf); }
 }
 static void r3_addq(r3_scene_t *sc, int mode, int dark, double x0, double y0, double z0, double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3) {
     r3_quad_t *q; if (sc->nq >= R3_NQ) return; q = &sc->q[sc->nq++]; q->mode = (uint8_t)mode; q->dark = (uint8_t)dark;
@@ -154,6 +159,38 @@ static double r3_cz(const r3_scene_t *sc, int x, int y) { return (x < 0 || y < 0
 static int r3_isvoid(const r3_scene_t *sc, int x, int y) { return x < 0 || y < 0 || x >= 74 || y >= 74 || sc->hm[y][x] == 0x4000; }
 static int r3_opaque(const r3_scene_t *sc, int U, int V) { int p = 0, r = 0; return r3_fetch(sc->pa, sc->tiles, U, V, &p, &r) || r3_fetch(sc->pb, sc->tiles, U, V, &p, &r); }
 static int r3_opaqueA(const r3_scene_t *sc, int U, int V) { int p = 0, r = 0; return r3_fetch(sc->pa, sc->tiles, U, V, &p, &r); }
+
+/* ---- house models: real geometry per house (walls, roof with overhang and gables, ridge beam, corner posts); the picture-coloured parts (mat 1) keep the original art from the original camera, the new parts (mat 8) have their own colour and light ---- */
+static void r3_ht_add(r3_scene_t *sc, int mat, const uint8_t *rgb, const double *p0, const double *p1, const double *p2, double nx, double ny, double nz) {
+    r3_ht_t *t; double ax = p1[0] - p0[0], ay = p1[1] - p0[1], az = p1[2] - p0[2], bx = p2[0] - p0[0], by = p2[1] - p0[1], bz = p2[2] - p0[2], gx = ay * bz - az * by, gy = az * bx - ax * bz, gz = ax * by - ay * bx, ln, sh;
+    if (sc->nht >= sc->nht_cap) { sc->nht_cap = sc->nht_cap ? sc->nht_cap * 2 : 512; sc->ht = (r3_ht_t *)realloc(sc->ht, sizeof(r3_ht_t) * sc->nht_cap); if (!sc->ht) { sc->nht = 0; sc->nht_cap = 0; return; } }
+    t = &sc->ht[sc->nht++]; t->mat = (uint8_t)mat;
+    t->x[0] = (float)p0[0]; t->y[0] = (float)p0[1]; t->z[0] = (float)p0[2]; t->x[1] = (float)p1[0]; t->y[1] = (float)p1[1]; t->z[1] = (float)p1[2]; t->x[2] = (float)p2[0]; t->y[2] = (float)p2[1]; t->z[2] = (float)p2[2];
+    ln = sqrt(gx * gx + gy * gy + gz * gz); if (ln < 1e-9) ln = 1; gx /= ln; gy /= ln; gz /= ln; if (gx * nx + gy * ny + gz * nz < 0) { gx = -gx; gy = -gy; gz = -gz; }   /* the outward direction decides which side is lit */
+    sh = 0.50 + 0.50 * fmax(0.0, gx * 0.15 + gy * 0.45 + gz * 0.85);   /* light from above, a little from the south: (0.15, 0.45, 0.85) */
+    if (rgb) { t->r = (uint8_t)(rgb[0] * sh); t->g = (uint8_t)(rgb[1] * sh); t->b = (uint8_t)(rgb[2] * sh); } else t->r = t->g = t->b = 0;
+}
+static void r3_ht_quad(r3_scene_t *sc, int mat, const uint8_t *rgb, double a[3], double b[3], double c[3], double d[3], double nx, double ny, double nz) { r3_ht_add(sc, mat, rgb, a, b, c, nx, ny, nz); r3_ht_add(sc, mat, rgb, a, c, d, nx, ny, nz); }
+static void r3_ht_box(r3_scene_t *sc, const uint8_t *rgb, double x0, double x1, double y0, double y1, double z0, double z1) {
+    double p[8][3] = { { x0, y0, z0 }, { x1, y0, z0 }, { x1, y1, z0 }, { x0, y1, z0 }, { x0, y0, z1 }, { x1, y0, z1 }, { x1, y1, z1 }, { x0, y1, z1 } };
+    r3_ht_quad(sc, 8, rgb, p[4], p[5], p[6], p[7], 0, 0, 1); r3_ht_quad(sc, 8, rgb, p[0], p[1], p[5], p[4], 0, -1, 0); r3_ht_quad(sc, 8, rgb, p[2], p[3], p[7], p[6], 0, 1, 0);
+    r3_ht_quad(sc, 8, rgb, p[1], p[2], p[6], p[5], 1, 0, 0); r3_ht_quad(sc, 8, rgb, p[3], p[0], p[4], p[7], -1, 0, 0);
+}
+static void r3_make_house(r3_scene_t *sc, const r3_roof_t *r) {
+    static const uint8_t beam[3] = { 112, 74, 38 }, post[3] = { 122, 84, 46 };
+    double fx0 = 16.0 * r->cx0, fx1 = 16.0 * (r->cx1 + 1), fy0 = 16.0 * r->cy0, fy1 = 16.0 * (r->cy1 + 1), z0 = r->z0, zr = r->z0 + r->H, zb = 1e9, xm = (r->X0 + r->X1) / 2, ym = (r->Y0 + r->Y1) / 2; int x, y;
+    for (x = r->cx0 - 1; x <= r->cx1 + 1; x++) for (y = r->cy0 - 1; y <= r->cy1 + 1; y++) { if (x >= r->cx0 && x <= r->cx1 && y >= r->cy0 && y <= r->cy1) continue; if (!r3_isvoid(sc, x, y) && sc->zc[y][x] < zb) zb = sc->zc[y][x]; }
+    if (zb > z0) zb = z0 - 0; if (zb > 1e8) zb = 0;
+    for (y = r->cy0; y <= r->cy1; y++) for (x = r->cx0; x <= r->cx1; x++) sc->repl[y][x] = 1;
+    { double a[3] = { fx0, fy0, zb }, b[3] = { fx1, fy0, zb }, c[3] = { fx1, fy0, z0 }, d[3] = { fx0, fy0, z0 }; r3_ht_quad(sc, 1, NULL, a, b, c, d, 0, -1, 0); }      /* walls: picture coloured */
+    { double a[3] = { fx0, fy1, zb }, b[3] = { fx1, fy1, zb }, c[3] = { fx1, fy1, z0 }, d[3] = { fx0, fy1, z0 }; r3_ht_quad(sc, 1, NULL, a, b, c, d, 0, 1, 0); }
+    { double a[3] = { fx0, fy0, zb }, b[3] = { fx0, fy1, zb }, c[3] = { fx0, fy1, z0 }, d[3] = { fx0, fy0, z0 }; r3_ht_quad(sc, 1, NULL, a, b, c, d, -1, 0, 0); }
+    { double a[3] = { fx1, fy0, zb }, b[3] = { fx1, fy1, zb }, c[3] = { fx1, fy1, z0 }, d[3] = { fx1, fy0, z0 }; r3_ht_quad(sc, 1, NULL, a, b, c, d, 1, 0, 0); }
+    { double T[6][3][3]; int t, nt = r3_roof_tris(r, T); for (t = 0; t < nt; t++) r3_ht_add(sc, 1, NULL, T[t][0], T[t][1], T[t][2], 0, 0, 1); }   /* roof slopes + gables: picture coloured (the normal only matters for flat parts) */
+    if (r->axis == 0) r3_ht_box(sc, beam, r->X0 - 3, r->X1 + 3, ym - 2.5, ym + 2.5, zr - 1, zr + 3);      /* ridge beam */
+    else r3_ht_box(sc, beam, xm - 2.5, xm + 2.5, r->Y0 - 3, r->Y1 + 3, zr - 1, zr + 3);
+    { double cx[2] = { fx0, fx1 }, cy[2] = { fy0, fy1 }; int i, j; for (i = 0; i < 2; i++) for (j = 0; j < 2; j++) r3_ht_box(sc, post, cx[i] - 2.5, cx[i] + 2.5, cy[j] - 2.5, cy[j] + 2.5, zb, z0 - 2); }   /* corner posts: they end under the eaves */
+}
 
 static void r3_build(r3_scene_t *sc) {
     int x, y, dx, dy; r3_ctx_t c; memset(&c, 0, sizeof c); c.sc = sc;
@@ -167,12 +204,13 @@ static void r3_build(r3_scene_t *sc) {
     }
     for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) sc->boxc[y][x] = (uint8_t)(sc->hm[y][x] != 0x4000 && (sc->hm[y][x] & 0x4000) && sc->zc[y][x] == 16.0 * ((sc->hm[y][x] >> 8) & 15));
     r3_find_roofs(sc, &c);
+    if (sc->houses) { int r; for (r = 0; r < sc->nroofs; r++) r3_make_house(sc, &sc->roofs[r]); }
     /* the geometry as quads + the coverage of the original view */
     sc->hw = (float *)calloc((size_t)R3_TW * R3_TH * 3, 4); sc->cov = (uint8_t *)calloc((size_t)R3_TW * R3_TH, 1); sc->hb = (uint8_t *)calloc((size_t)R3_TW * R3_TH, 1); sc->q = (r3_quad_t *)malloc(sizeof(r3_quad_t) * R3_NQ);
     if (!sc->hw || !sc->cov || !sc->hb || !sc->q) return;
     for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) {
         double z = r3_cz(sc, x, y), x0 = 16.0 * x, y0 = 16.0 * y, x1 = x0 + 16, y1 = y0 + 16; int mode = sc->boxc[y][x] ? 1 : 0, k;
-        if (r3_isvoid(sc, x, y)) continue;
+        if (r3_isvoid(sc, x, y) || sc->repl[y][x]) continue;
         r3_addq(sc, mode, mode == 0 ? 2 : 0, x0, y0, z, x1, y0, z, x1, y1, z, x0, y1, z);   /* dark 2 = ground top face: soil colour where the picture has none */
         { double zn = r3_cz(sc, x + 1, y); if (zn < z) r3_addq(sc, mode, 0, x1, y0, z, x1, y1, z, x1, y1, zn, x1, y0, zn); }
         { double zn = r3_cz(sc, x, y + 1); if (zn < z) r3_addq(sc, mode, 0, x0, y1, z, x1, y1, z, x1, y1, zn, x0, y1, zn); }
@@ -182,7 +220,8 @@ static void r3_build(r3_scene_t *sc) {
         const r3_quad_t *q = &sc->q[y]; int t;
         for (t = 0; t < 2; t++) { int idx[3] = { 0, t ? 2 : 1, t ? 3 : 2 }, j; double P[3][3]; for (j = 0; j < 3; j++) { P[j][0] = q->wx[idx[j]]; P[j][1] = q->wy[idx[j]]; P[j][2] = q->wz[idx[j]]; } c.box = q->mode == 1; r3_rast(P, 1, r3_hit_cb, &c); }
     }
-    { int r; for (r = 0; r < sc->nroofs; r++) { double T[6][3][3]; int t, nt = r3_roof_tris(&sc->roofs[r], T); c.box = 1; for (t = 0; t < nt; t++) r3_rast(T[t], 1, r3_hit_cb, &c); } }
+    if (!sc->houses) { int r; for (r = 0; r < sc->nroofs; r++) { double T[6][3][3]; int t, nt = r3_roof_tris(&sc->roofs[r], T); c.box = 1; for (t = 0; t < nt; t++) r3_rast(T[t], 1, r3_hit_cb, &c); } }
+    else { int t; c.box = 1; for (t = 0; t < sc->nht; t++) { double P[3][3]; int j; for (j = 0; j < 3; j++) { P[j][0] = sc->ht[t].x[j]; P[j][1] = sc->ht[t].y[j]; P[j][2] = sc->ht[t].z[j]; } r3_rast(P, 1, r3_hit_cb, &c); } }
     /* card strips: opaque picture pixels the box geometry does not carry (uncovered, or layer A pixels on plain ground), anchored at the foot of their run, one depth per card */
     {
         int32_t *lab = (int32_t *)calloc((size_t)R3_TW * R3_TH, 4); int *stk = (int *)malloc(sizeof(int) * R3_TW * 4); int U, nl = 0, nr = 0, cap = 40000; typedef struct { int U, y, n, lab; float bx, by, bz; } run_t; run_t *runs = (run_t *)malloc(sizeof(run_t) * cap);
@@ -224,16 +263,16 @@ static int r3_worker(void *u) {
     if (getenv("LANDSTALKER_R3D_LOG")) printf("r3d: scene built in %.0f ms: %d quads, %d roofs, %d card strips (hash %08x)\n", (double)(SDL_GetPerformanceCounter() - t0) * 1e3 / (double)SDL_GetPerformanceFrequency(), sc->nq, sc->nroofs, sc->ns, sc->hash);
     r3_done = 1; return 0;
 }
-static void r3_free(r3_scene_t *sc) { if (!sc) return; free(sc->hw); free(sc->cov); free(sc->hb); free(sc->q); free(sc->st); free(sc); }
+static void r3_free(r3_scene_t *sc) { if (!sc) return; free(sc->ht); free(sc->hw); free(sc->cov); free(sc->hb); free(sc->q); free(sc->st); free(sc); }
 static int r3_bright(const uint32_t *pix) { int i, best = 0; for (i = 1; i < 64; i++) { int s = ((pix[i] >> 16) & 255) + ((pix[i] >> 8) & 255) + (pix[i] & 255); if (s > best) best = s; } return best >= 500; }   /* not in a fade */
-static void r3_request(const lk_o3d_src_t *src, uint32_t hash) {
+static void r3_request(const lk_o3d_src_t *src, uint32_t hash, uint32_t base) {
     int x, y, cells = 0; r3_scene_t *sc;
     if (r3_thread && r3_done) { SDL_WaitThread(r3_thread, NULL); r3_thread = NULL; r3_done = 0; r3_busy = 0; r3_free(r3_active); r3_active = r3_work; r3_work = NULL; }   /* hand over */
     if (r3_busy || hash == r3_req_hash || !r3_bright(src->pix)) return;
     for (y = 0; y < 152; y += 4) for (x = 0; x < 304; x += 4) cells += (src->pa[y][x] | src->pb[y][x]) >> 16 & 1;
     if (cells < 20) return;                                   /* no room picture (load / black frame) */
     sc = (r3_scene_t *)calloc(1, sizeof *sc); if (!sc) return;
-    sc->hash = hash; memcpy(sc->tiles, src->tiles, sizeof sc->tiles); memcpy(sc->pa, src->pa, sizeof sc->pa); memcpy(sc->pb, src->pb, sizeof sc->pb); memcpy(sc->pix, src->pix, sizeof sc->pix);
+    sc->hash = hash; sc->base_hash = base; sc->houses = lk_r3d_houses_get(); memcpy(sc->tiles, src->tiles, sizeof sc->tiles); memcpy(sc->pa, src->pa, sizeof sc->pa); memcpy(sc->pb, src->pb, sizeof sc->pb); memcpy(sc->pix, src->pix, sizeof sc->pix);
     for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) sc->hm[y][x] = lk_o3d_hm(x, y);
     r3_work = sc; r3_req_hash = hash; r3_busy = 1; r3_done = 0;
     if (getenv("LANDSTALKER_R3D_SYNC")) { r3_worker(sc); r3_thread = NULL; r3_done = 0; r3_busy = 0; r3_free(r3_active); r3_active = sc; r3_work = NULL; return; }   /* test aid: build now (headless screenshots) */
@@ -249,6 +288,7 @@ static void r3_proj(double wx, double wy, double z, double *sx, double *sy, doub
     double dx = wx - r3_fx, dy = wy - r3_fy, xr = dx * r3_cy - dy * r3_sy, yr = dx * r3_sy + dy * r3_cy, u = (xr - yr) / R3K2, dd = (xr + yr) / R3K2;
     *sx = r3_S * R3K2 * u + r3_ox; *sy = r3_S * 1.22474487139 * (dd * r3_sp - z * r3_cp) + r3_oy; *w = dd * r3_cp + z * r3_sp;
 }
+static uint32_t r3_flat;
 static r3_vtx r3_mk(double wx, double wy, double z) { r3_vtx p; r3_proj(wx, wy, z, &p.x, &p.y, &p.w); p.u = wx - wy + 1184; p.v = (wx + wy) / 2 - z; return p; }
 static void r3_tri(r3_vtx a, r3_vtx b, r3_vtx c, int mode, int dark, const lk_o3d_src_t *src) {   /* scanline rasteriser: spans from the edges, w / u / v by their gradients */
     double den = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y), idn, ymin = fmin(a.y, fmin(b.y, c.y)), ymax = fmax(a.y, fmax(b.y, c.y)), xmin3 = fmin(a.x, fmin(b.x, c.x)), xmax3 = fmax(a.x, fmax(b.x, c.x));
@@ -271,7 +311,8 @@ static void r3_tri(r3_vtx a, r3_vtx b, r3_vtx c, int mode, int dark, const lk_o3
             uint32_t col; int tu, tv;
             if (w <= zr[x]) continue;
             tu = (int)(u + 4096.0) - 4096; tv = (int)(v + 4096.0) - 4096;   /* floor for the small negative values at the edges */
-            if (mode == 9) { if (tu < 0 || tv < 0 || tu >= 416 || tv >= 224) continue; col = lk_hd_sprc[tv * 416 + tu]; if (!col) continue; }   /* figure strip: u = column + 48, v = row of the 1x frame */
+            if (mode == 8) col = r3_flat;
+            else if (mode == 9) { if (tu < 0 || tv < 0 || tu >= 416 || tv >= 224) continue; col = lk_hd_sprc[tv * 416 + tu]; if (!col) continue; }   /* figure strip: u = column + 48, v = row of the 1x frame */
             else { col = r3_samp(src->pa, src->pb, src->tiles, src->pix, mode == 0 ? 0 : 1, tu, tv); if (!col) { if (mode == 0 && dark == 2) col = 0xFF483422u; else continue; } }
             if (dark == 1) col = 0xFF000000u | ((((col >> 16) & 255) * 3 / 5) << 16) | ((((col >> 8) & 255) * 3 / 5) << 8) | (((col & 255) * 3 / 5));
             zr[x] = (float)w; ir[x] = col;
@@ -329,10 +370,11 @@ uint32_t *lk_r3d_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh) {
     return r;
 }
 static uint32_t *r3_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh) {
-    lk_o3d_src_t src; const int N = lk_r3d_on() == 2 ? 1 : 2; int W = sw * N, H = 224 * N, x, y, ok, i; uint32_t hash; const r3_scene_t *sc;
+    lk_o3d_src_t src; const int N = lk_r3d_on() == 2 ? 1 : 2; int W = sw * N, H = 224 * N, x, y, ok, i; uint32_t hash, base; const r3_scene_t *sc;
     if (!lk_r3d_on()) return NULL;
-    ok = lk_o3d_get(&src); hash = ok ? lk_o3d_hash() : 0;
-    if (ok) r3_request(&src, hash);
+    ok = lk_o3d_get(&src); hash = ok ? lk_o3d_hash() : 0; base = hash;
+    if (ok && lk_r3d_houses_get()) hash ^= 0x5bd1e995u;   /* the scene differs with 3D Houses on */
+    if (ok) r3_request(&src, hash, base);
     sc = r3_active;
     if (!ok || !sc || sc->hash != hash || !sc->q || !sc->hw) return NULL;
     { const char *ey = getenv("LANDSTALKER_R3D_YAW"), *ep = getenv("LANDSTALKER_R3D_PITCH");   /* fixed camera (test aid) */
@@ -348,15 +390,16 @@ static uint32_t *r3_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh
     if (!r3_img || r3_iw != W || r3_ih != H) { free(r3_img); free(r3_zb); r3_img = (uint32_t *)malloc((size_t)W * H * 4); r3_zb = (float *)malloc((size_t)W * H * 4); r3_iw = W; r3_ih = H; }
     if (!r3_img || !r3_zb) return NULL;
     for (i = 0; i < W * H; i++) { r3_img[i] = 0xFF000000u; r3_zb[i] = -1e30f; }
-    { double Uc = src.u0 + sw / 2 - e, Vc = src.v0 + 112;            /* the ground point at the middle of the screen is the centre of the turn */
-      r3_fx = (Uc - 1184 + 2 * Vc) / 2; r3_fy = (2 * Vc - (Uc - 1184)) / 2; r3_S = N; r3_ox = W / 2.0; r3_oy = H / 2.0; r3_cy = cos(r3_yaw); r3_sy = sin(r3_yaw); r3_cp = cos(atan(1.0 / R3K2) + r3_pitch); r3_sp = sin(atan(1.0 / R3K2) + r3_pitch); }
+    { double Uc = src.u0 + sw / 2 - e, Vc = src.v0 + 112, zoom = 1; { const char *ez = getenv("LANDSTALKER_R3D_ZOOM"), *ef = getenv("LANDSTALKER_R3D_FOCUS"); double fu = 0, fv = 0; if (ez) zoom = atof(ez); if (ef && sscanf(ef, "%lf,%lf", &fu, &fv) == 2) { Uc += fu; Vc += fv; } }   /* test aids: zoom out / pan to look at a whole village */            /* the ground point at the middle of the screen is the centre of the turn */
+      r3_fx = (Uc - 1184 + 2 * Vc) / 2; r3_fy = (2 * Vc - (Uc - 1184)) / 2; r3_S = N * zoom; r3_ox = W / 2.0; r3_oy = H / 2.0; r3_cy = cos(r3_yaw); r3_sy = sin(r3_yaw); r3_cp = cos(atan(1.0 / R3K2) + r3_pitch); r3_sp = sin(atan(1.0 / R3K2) + r3_pitch); }
     r3_t[0] = SDL_GetPerformanceCounter();
     for (i = 0; i < sc->nq; i++) {
         const r3_quad_t *q = &sc->q[i]; r3_vtx v[4]; int k;
         for (k = 0; k < 4; k++) v[k] = r3_mk(q->wx[k], q->wy[k], q->wz[k]);
         r3_tri(v[0], v[1], v[2], q->mode, q->dark, &src); r3_tri(v[0], v[2], v[3], q->mode, q->dark, &src);
     }
-    for (i = 0; i < sc->nroofs; i++) { double T[6][3][3]; int t, nt = r3_roof_tris(&sc->roofs[i], T); for (t = 0; t < nt; t++) r3_tri(r3_mk(T[t][0][0], T[t][0][1], T[t][0][2]), r3_mk(T[t][1][0], T[t][1][1], T[t][1][2]), r3_mk(T[t][2][0], T[t][2][1], T[t][2][2]), 1, 0, &src); }
+    for (i = 0; i < sc->nht; i++) { const r3_ht_t *t = &sc->ht[i]; r3_vtx a = r3_mk(t->x[0], t->y[0], t->z[0]), b = r3_mk(t->x[1], t->y[1], t->z[1]), c = r3_mk(t->x[2], t->y[2], t->z[2]); if (t->mat == 8) { r3_flat = 0xFF000000u | ((uint32_t)t->r << 16) | ((uint32_t)t->g << 8) | t->b; r3_tri(a, b, c, 8, 0, &src); } else r3_tri(a, b, c, 1, 0, &src); }
+    if (!sc->houses) for (i = 0; i < sc->nroofs; i++) { double T[6][3][3]; int t, nt = r3_roof_tris(&sc->roofs[i], T); for (t = 0; t < nt; t++) r3_tri(r3_mk(T[t][0][0], T[t][0][1], T[t][0][2]), r3_mk(T[t][1][0], T[t][1][1], T[t][1][2]), r3_mk(T[t][2][0], T[t][2][1], T[t][2][2]), 1, 0, &src); }
     r3_t[1] = SDL_GetPerformanceCounter();
     r3_cards_sprites(sc, &src, sw, e);
     r3_t[2] = SDL_GetPerformanceCounter();
