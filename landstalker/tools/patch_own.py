@@ -59,6 +59,7 @@ static const uint8 *lk_o_sp = lk_o_use;   /* RAM snapshot the figures are built 
 #define SW(a) ((int)((SB(a) << 8) | SB((a) + 1)))
 static uint8 lk_o_tbase[0x12000], lk_o_tiles[0x12000];
 static struct { int dest, words, delay, frames; uint32_t base; } lk_o_grp[8];
+static int lk_o_isanim(const uint8 *t) { long o; int k; if (!t || t < lk_o_tiles || t >= lk_o_tiles + sizeof lk_o_tiles) return 0; o = (long)(t - lk_o_tiles); for (k = 0; k < lk_o_ngrp; k++) if (o >= lk_o_grp[k].dest && o < lk_o_grp[k].dest + 2 * lk_o_grp[k].words) return 1; return 0; }   /* the tile image lies in the destination range of an animated tile group of the room */
 static uint32 lk_o_pa[152][304], lk_o_pb[152][304];                  /* layer cells: bit 16 = present, low 16 = tile word */
 #define LK_OSW 448
 extern int lk_wide_e;                                                /* LANDSTALKER_WIDE (patch_wide.py) */
@@ -70,7 +71,7 @@ extern int lk_tall_keep(int line);                                   /* LANDSTAL
 extern int lk_tbox_get(void);                                        /* Map Behind Text (patch_tbox.py) */
 extern int lk_hd_n; int lk_dof_get(void); int lk_hd_fxany(void);
 static int16_t lk_o_sprd[224][LK_OSW]; static int lk_o_curd = 150;   /* HD depth blur: ground contact screen row of the figure a sprite pixel belongs to */
-int16_t lk_hd_depth[224 * 416]; uint8_t lk_hd_spr[224 * 416]; long lk_hd_dstamp[224];   /* lk_hd_spr: the pixel comes from a sprite (the lights do not take figures for torches) */
+int16_t lk_hd_depth[224 * 416]; uint8_t lk_hd_spr[224 * 416]; long lk_hd_dstamp[224];   /* lk_hd_spr: bit 0 = the pixel comes from a sprite, bit 1 = from an ANIMATED tile of the room (torch / candle flames, water; the lights take only those, a gold statue or a yellow wall is not a flame) */
  int lk_hd_focus = 150;   /* depth per picture pixel (screen row of its ground point, 0x7FFF = no blur: HUD / text box / margins), valid when lk_hd_dstamp[line] == lk_hd_gen; focus = Nigel's ground row (tools/patch_hd.py lk_hd_dof) */
 static uint16 lk_o_spr[224][LK_OSW];                                 /* by row pixel index (screen x + e): pal * 16 + index | 0x100 priority | 0x200 present */
 static uint8 lk_o_sprtiles[0x4000];
@@ -1347,7 +1348,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         lk_hd_mapmode = 1; lk_hd_put(line, x, (uint32_t)col, pi.rep ? &pi : 0); lk_hd_mapmode = 0; lk_hd_ref[line * LK_HDW + x + LK_HDO] = (uint32_t)col;
       }
       if (lk_o_mode == 2) row[i] = (PIXEL_OUT_T)col;
-      if (lk_hd_fxany() && x >= -48 && x < 368) lk_hd_spr[line * 416 + x + 48] = (src == 1); lk_hd_depth[line * 416 + x + 48] = (black || src == 4) ? (int16_t)0x7FFF : src == 1 ? lk_o_sprd[sl][si] : (int16_t)line;   /* depth blur: the pixel's ground row (tools/patch_hd.py lk_hd_dof) */
+      if (lk_hd_fxany() && x >= -48 && x < 368) { lk_hd_spr[line * 416 + x + 48] = (uint8_t)((src == 1) | (((src == 2 && lk_o_isanim(afi.t)) || (src == 3 && lk_o_isanim(bfi.t))) ? 2 : 0)); lk_hd_depth[line * 416 + x + 48] = (black || src == 4) ? (int16_t)0x7FFF : src == 1 ? lk_o_sprd[sl][si] : (int16_t)line; }   /* depth blur: the pixel's ground row (tools/patch_hd.py lk_hd_dof) */
     }
     if (lk_hd_n) lk_hd_stamp[line] = lk_hd_gen;
     lk_hd_dstamp[line] = lk_hd_gen;

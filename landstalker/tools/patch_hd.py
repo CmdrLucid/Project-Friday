@@ -187,45 +187,61 @@ static void lk_hd_look(uint32_t *img, int W, int H, int N, int sw, int e, const 
         mask[(size_t)y * sw + x] = (uint8_t)ok;
     }
     memset(&cx, 0, sizeof cx); cx.img = img; cx.mask = mask; cx.W = W; cx.H = H; cx.N = N; cx.sw = sw; cx.B = B; cx.V = V; cx.G = G; cx.L = L;
-    if (L) {                                                 /* REAL LIGHTS (Options > Video > Lights): flame pixels of the picture are the sources (wall torches, braziers, fires, fire effects); a cell of 4 x 4 game pixels with enough orange / yellow bright pixels lights the floor around it (an ellipse = a circle on the isometric ground), the rest of the room gets darker while the picture has any source; smooth in time, slight flicker */
+    if (L) {                                                 /* REAL LIGHTS (Options > Video > Lights): the sources are small yellow flames of the MAP picture (not figures): a cell of 4 x 4 game pixels with flame pixels, grown to connected groups; only SMALL groups count (a torch / candle is at most 5 x 6 cells, a gold statue, a yellow wall or a roof is bigger); each source lights an ellipse (a circle on the isometric ground) warmly, the rest of a picture with sources gets darker; the strength per cell is smoothed over frames so that the animated flames and the scrolling do not flicker */
         static const int AMB[4] = { 256, 214, 186, 152 }, LA[4] = { 0, 120, 160, 210 }, RX[4] = { 0, 8, 10, 13 };   /* ambient gain of a room with lights (of 256), light amplitude (of 256), radius in cells (4 game pixels) */
-        static int *lf, lfcap, *srcx, *srcy, *srcw, amb = 256; static unsigned fr;
-        int C = 4 * N, ws = (W + C - 1) / C, hs = (H + C - 1) / C, ns = 0, i, tgt; size_t sn = (size_t)ws * hs * 3;
+        static int *lf, lfcap, *cnt, *comp, *stk, cap, amb = 256, on, pws, phs, ntrk; static unsigned fr; static struct { int px, py, inten, tgt; } trk[48];   /* trk: the tracked lights (pixel position, smoothed strength) */
+        int C = 4 * N, ws = (W + C - 1) / C, hs = (H + C - 1) / C, i, nc = ws * hs; size_t sn = (size_t)ws * hs * 3;
         if (lfcap < (int)sn) { free(lf); lf = (int *)malloc(sn * sizeof(int)); lfcap = lf ? (int)sn : 0; }
-        if (!srcx) { srcx = (int *)malloc(128 * sizeof(int)); srcy = (int *)malloc(128 * sizeof(int)); srcw = (int *)malloc(128 * sizeof(int)); }
-        if (lf && srcx && srcy && srcw) {
+        if (cap < nc) { free(cnt); free(comp); free(stk); cnt = (int *)malloc(nc * sizeof(int)); comp = (int *)malloc(nc * sizeof(int)); stk = (int *)malloc(nc * sizeof(int)); cap = (cnt && comp && stk) ? nc : 0; pws = 0; }
+        if (lf && cap >= nc) {
+            int cy2, cx2, mx = 0, ndet = 0, det[48][3];
             fr++;
-            for (y = 0; y < hs && ns < 128; y++) for (x = 0; x < ws && ns < 128; x++) {   /* find the flame cells */
-                int ky, kx, cnt = 0;
+            if (getenv("LANDSTALKER_LIGHTS_DUMP")) { int a0, b0, a1, b1, yy, xx; if (sscanf(getenv("LANDSTALKER_LIGHTS_DUMP"), "%d,%d,%d,%d", &a0, &b0, &a1, &b1) == 4) for (yy = b0; yy < b1; yy++) { for (xx = a0; xx < a1; xx++) { uint32_t q = img[(size_t)(yy * N) * W + xx * N]; printf("%02x%02x%02x ", (q >> 16) & 255, (q >> 8) & 255, q & 255); } printf("\n"); } }
+            if (pws != ws || phs != hs) { ntrk = 0; pws = ws; phs = hs; }
+            for (y = 0; y < hs; y++) for (x = 0; x < ws; x++) {   /* flame pixels per cell */
+                int ky, kx, n = 0;
                 for (ky = 0; ky < 4; ky++) { int gy = y * 4 + ky; const uint8_t *mrow; const uint32_t *irow; if (gy >= 224) break; mrow = mask + (size_t)gy * sw; irow = img + (size_t)(gy * N) * W;
-                  for (kx = 0; kx < 4; kx++) { int gx = x * 4 + kx, r, g, bl; uint32_t q; if (gx >= sw) break; if (!mrow[gx]) continue; { int cc = sc[(size_t)gy * sw + gx] - e + 48; if (cc >= 0 && cc < 416 && lk_hd_spr[gy * 416 + cc]) continue; } q = irow[gx * N]; bl = q & 255; g = (q >> 8) & 255; r = (q >> 16) & 255;
-                    if (r >= 200 && g >= 170 && g + 40 >= r && g <= r + 4 && r - bl >= 110) cnt++;   /* yellow flame; orange earth / skin / armour have a lower green */ } }
-                if (cnt >= 5) { srcx[ns] = x; srcy[ns] = y; srcw[ns] = cnt; ns++; }
+                  for (kx = 0; kx < 4; kx++) { int gx = x * 4 + kx, r, g, bl; uint32_t q; if (gx >= sw) break;
+                    if (!mrow[gx]) continue; { int cc = sc[(size_t)gy * sw + gx] - e + 48; if (cc < 0 || cc >= 416 || lk_hd_spr[gy * 416 + cc] != 2) continue; }   /* only pixels of animated map tiles (flames), no figures, no still scenery */
+                    q = irow[gx * N]; bl = q & 255; g = (q >> 8) & 255; r = (q >> 16) & 255;
+                    if (r >= 190 && r - bl >= 120) n++; } }
+                cnt[(size_t)y * ws + x] = n; comp[(size_t)y * ws + x] = 0;
             }
-            if (getenv("LANDSTALKER_LIGHTS_DBG")) { int bx = 0, by = 0, bl2 = -1; for (y = 23; y < 224; y++) for (x = 0; x < sw; x++) if (mask[(size_t)y * sw + x]) { uint32_t q = img[(size_t)(y * N) * W + x * N]; int l2 = ((q & 255) * 77 + ((q >> 8) & 255) * 150 + ((q >> 16) & 255) * 29) >> 8; if (l2 > bl2) { bl2 = l2; bx = x; by = y; } }
-                { uint32_t q = img[(size_t)(by * N) * W + bx * N]; printf("lights: sources %d amb %d brightest (%d,%d) rgb %d %d %d\n", ns, amb, bx, by, q & 255, (q >> 8) & 255, (q >> 16) & 255); } }
-            if (getenv("LANDSTALKER_LIGHTS_DBG")) { int q3; printf("lights: cells"); for (q3 = 0; q3 < ns && q3 < 40; q3++) printf(" (%d,%d)x%d", srcx[q3] * 4, srcy[q3] * 4, srcw[q3]); printf("\n"); }
-            if (ns >= 64) ns = 0;                                /* that much 'flame' is terrain (sand, gold, a bright wall), not torches */
-            tgt = ns > 0 ? AMB[L] : 256; amb += (tgt - amb) / 12 + (tgt > amb) - (tgt < amb && amb - tgt < 12);   /* ease towards the target (about 0.4 s) */
-            if (getenv("LANDSTALKER_LIGHTS_SNAP")) amb = tgt;   /* test aid: no easing (single screenshots) */
-            if (amb < AMB[L]) amb = AMB[L]; if (amb > 256) amb = 256;
+            for (cy2 = 0; cy2 < hs; cy2++) for (cx2 = 0; cx2 < ws; cx2++) {   /* connected groups (8 neighbours) of cells with flame pixels */
+                int sp = 0, px0 = 999, px1 = -1, py0 = 999, py1 = -1, tot = 0, ncell = 0, mxn = 0, sumx = 0, sumy = 0;
+                if (cnt[cy2 * ws + cx2] < 2 || comp[cy2 * ws + cx2]) continue;
+                stk[sp++] = cy2 * ws + cx2; comp[cy2 * ws + cx2] = 1;
+                while (sp > 0) {
+                    int c0 = stk[--sp], x0 = c0 % ws, y0 = c0 / ws, dy, dx;
+                    tot += cnt[c0]; sumx += cnt[c0] * (x0 * 4 + 2); sumy += cnt[c0] * (y0 * 4 + 2); ncell++; if (cnt[c0] > mxn) mxn = cnt[c0]; if (x0 < px0) px0 = x0; if (x0 > px1) px1 = x0; if (y0 < py0) py0 = y0; if (y0 > py1) py1 = y0;
+                    for (dy = -1; dy <= 1; dy++) for (dx = -1; dx <= 1; dx++) { int nx = x0 + dx, ny = y0 + dy; if (nx < 0 || ny < 0 || nx >= ws || ny >= hs) continue; if (cnt[ny * ws + nx] < 2 || comp[ny * ws + nx]) continue; comp[ny * ws + nx] = 1; stk[sp++] = ny * ws + nx; }
+                }
+                if (tot >= 8 && ncell <= 12 && px1 - px0 < 5 && py1 - py0 < 6 && mxn >= 4 && ndet < 48) {   /* a small flame: the light sits at its centre of mass, one cell lower (the floor / wall below) */
+                    det[ndet][0] = sumx / tot; det[ndet][1] = sumy / tot + 4; det[ndet][2] = (tot > 36 ? 36 : tot) * 256 / 24; ndet++;
+                }
+            }
+            { int d, t2, k2; char used[48] = { 0 };   /* match the detections to the tracked lights (nearest within 16 px, the camera moves a few px per frame), smooth the strength only */
+              for (t2 = 0; t2 < ntrk; t2++) trk[t2].tgt = 0;
+              for (d = 0; d < ndet; d++) { int best = -1, bd = 99; for (t2 = 0; t2 < ntrk; t2++) { int dd = abs(trk[t2].px - det[d][0]) + abs(trk[t2].py - det[d][1]); if (!used[t2] && dd < bd && dd <= 16) { bd = dd; best = t2; } }
+                if (best < 0 && ntrk < 48) { best = ntrk++; trk[best].inten = 0; used[best] = 0; }
+                if (best >= 0) { used[best] = 1; trk[best].px = det[d][0]; trk[best].py = det[d][1]; trk[best].tgt = det[d][2]; } }
+              for (t2 = 0, k2 = 0; t2 < ntrk; t2++) { trk[t2].inten += (trk[t2].tgt - trk[t2].inten) * 3 / 8 + (trk[t2].tgt > trk[t2].inten) - (trk[t2].tgt < trk[t2].inten); if (trk[t2].inten < 6 && !trk[t2].tgt) continue; if (trk[t2].inten > mx) mx = trk[t2].inten; trk[k2] = trk[t2]; used[k2] = used[t2]; k2++; }
+              ntrk = k2; }
+            if (mx > 90) on = 1; else if (mx < 30) on = 0;   /* hysteresis: the room is 'lit by torches' */
+            { int tgt = on ? AMB[L] : 256; if (getenv("LANDSTALKER_LIGHTS_SNAP")) amb = tgt; else amb += (tgt - amb) / 10 + (tgt > amb) - (tgt < amb && amb - tgt < 10); if (amb < AMB[L]) amb = AMB[L]; if (amb > 256) amb = 256; }
+            if (getenv("LANDSTALKER_LIGHTS_DBG")) { int q3, n3 = 0; printf("lights: smoothed max %d on %d amb %d lights", mx, on, amb); for (q3 = 0; q3 < ntrk && n3 < 30; q3++) { printf(" (%d,%d)x%d", trk[q3].px, trk[q3].py, trk[q3].inten); n3++; } printf("\n"); }
             for (i = 0; i < (int)sn; i += 3) { lf[i] = amb; lf[i + 1] = amb; lf[i + 2] = amb; }
-            if (ns > 0) {
-                int rx = RX[L], ry = rx / 2 + 1, si;
-                int *acc = (int *)calloc((size_t)ws * hs, sizeof(int));
+            if (mx > 0) {
+                int rx = RX[L] * 4, ry = rx / 2 + 2, si; int *acc = (int *)calloc((size_t)nc, sizeof(int));
                 if (acc) {
-                    for (si = 0; si < ns; si++) {
-                        int fl = 232 + (int)(((fr / 3) * 2654435761u + (unsigned)(srcx[si] * 40503 + srcy[si] * 9973)) >> 27) , sx = srcx[si], sy = srcy[si] + 1, dx, dy, st = srcw[si] * fl / 10;   /* strength 0..~1 (x256), 3 % flicker */
-                        for (dy = -ry; dy <= ry; dy++) { int py = sy + dy; if (py < 0 || py >= hs) continue;
-                            for (dx = -rx; dx <= rx; dx++) { int px = sx + dx, d2; if (px < 0 || px >= ws) continue;
-                                d2 = dx * dx * 256 / (rx * rx) + dy * dy * 256 / (ry * ry); if (d2 >= 256) continue;
-                                { int f = 256 - d2; f = f * f >> 8; acc[(size_t)py * ws + px] += f * st >> 8; } } }
-                    }
-                    for (i = 0; i < ws * hs; i++) { int a = acc[i]; int m = a > 380 ? 380 : a; lf[i * 3 + 2] += m * LA[L] >> 8; lf[i * 3 + 1] += (m * LA[L] >> 8) * 205 >> 8; lf[i * 3] += (m * LA[L] >> 8) * 120 >> 8;   /* channel k = byte k: 0 blue, 1 green, 2 red */ }
+                    for (si = 0; si < ntrk; si++) { int st = trk[si].inten, x0 = (trk[si].px - rx) / 4, x1 = (trk[si].px + rx) / 4, y0 = (trk[si].py - ry) / 4, y1 = (trk[si].py + ry) / 4, cx3, cy3;   /* cell centres at 4 x + 2 game pixels, the light centre in pixels: the light moves smoothly when the picture scrolls */
+                        if (x0 < 0) x0 = 0; if (y0 < 0) y0 = 0; if (x1 >= ws) x1 = ws - 1; if (y1 >= hs) y1 = hs - 1;
+                        for (cy3 = y0; cy3 <= y1; cy3++) for (cx3 = x0; cx3 <= x1; cx3++) { int dx = cx3 * 4 + 2 - trk[si].px, dy = cy3 * 4 + 2 - trk[si].py, d2 = dx * dx * 256 / (rx * rx) + dy * dy * 256 / (ry * ry), f; if (d2 >= 256) continue; f = 256 - d2; f = f * f >> 8; acc[(size_t)cy3 * ws + cx3] += f * st >> 8; } }
+                    for (i = 0; i < nc; i++) { int a = acc[i]; int m = a > 300 ? 300 : a, v = m * LA[L] >> 8; lf[i * 3 + 2] += v; lf[i * 3 + 1] += v * 205 >> 8; lf[i * 3] += v * 120 >> 8; }   /* channel k = byte k: 0 blue, 1 green, 2 red */
                     free(acc);
                 }
             }
-            if (amb < 256 || ns > 0) { cx.L = L; cx.ws = ws; cx.hs = hs; cx.C = C; cx.lf = lf; lk_look_par(&cx, 2); }
+            if (amb < 256 || mx > 0) { cx.L = L; cx.ws = ws; cx.hs = hs; cx.C = C; cx.lf = lf; lk_look_par(&cx, 2); }
         }
     }
     if (B) {                                                 /* bloom */
