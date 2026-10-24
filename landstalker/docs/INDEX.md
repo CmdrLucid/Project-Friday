@@ -233,6 +233,11 @@ _Last update (2026-10-10, evening): dev merged into main (code_ranges, seeds for
 
 Generic lesson: every `func_table: no function` / `RTS to ... has no function` line is a real bug, fix it first.
 
+| Options > Video: LEFT on the new rows (Depth Blur / Bloom / Vignette / Color Grade) hangs the game (2026-10-24) | LEFT = (value count - 1) forward steps; the count table `lk_opt_cnt` had 23 entries, the new ids 23..26 read past its end = a random step count; Shadows (id 9) was listed with 2 of its 3 values | table has one entry per option id (+ bounds check); RULE: a new Options row needs `lk_id_name`, `lk_opt_cnt`, get / step switches, `lk_ids_video`, `lk_opt_nrows`, `lk_win_cnt` | INDEX status 2026-10-24 |
+| Colour grade tint cool instead of warm, bloom luminance weights wrong (2026-10-24) | the picture is XRGB: blue is the LOW byte (`q & 255`), the look code read it as red | red / blue read the right way round in `lk_look_run` and the bloom | INDEX status 2026-10-24 (Lights) |
+| Lights: false lights on gold statue / roofs / paths, flicker (2026-10-24) | colour alone cannot tell a flame from gold (same `eecc44`); source cells crossed a count limit and jumped between 4 x 4 cells | flame = bright pixel of an ANIMATED map tile, small connected groups only, tracked lights with smoothed strength and pixel positions | INDEX status 2026-10-24 (Lights rework) |
+| 3D room test: game stays at the title in a replay (2026-10-24) | `HOME=x cmd $HOME/...` in ONE command line expands `$HOME` to x: the replay script path was wrong | absolute paths (LESSONS 9.10, bit again) | LESSONS 93 |
+
 ## 4. Tool cheat sheet (all local, none contain ROM data)
 
 **Names in diagnostics:** console call stacks / `interp:` / `no function` / `RTS to` / CALLTRACE lines show `$ADDR(Name)` (patch_symnames.py, `LANDSTALKER_NONAMES=1` = off). **Code map:** `docs/CODE_MAP.md` (generated, `tools/make_code_map.py`) lists all named routines and data by area and source file.
