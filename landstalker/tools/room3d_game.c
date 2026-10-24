@@ -27,7 +27,7 @@ typedef struct {
     float *hw; uint8_t *cov, *hb;           /* hit position (3 floats) / covered / box flag per picture pixel of the original view */
     uint8_t tiles[0x12000]; uint32_t pa[152][304], pb[152][304], pix[64];   /* the snapshot the scene was built from */
     int hm[74][74]; double zc[74][74]; uint8_t boxc[74][74]; uint8_t repl[74][74];   /* repl: cells inside a house model (their column quads are not drawn) */
-    r3_ht_t *ht; int nht, nht_cap, houses, objects; uint8_t *gm; int fgb[74][74]; int ntrees; int tree[3000][4];   /* gm: picture pixels of the tree blocks (the card strips skip them); fgb: layer A block id per cell */
+    r3_ht_t *ht; int nht, nht_cap, houses, objects, trees; uint8_t *gm; int fgb[74][74]; int ntrees; int tree[3000][4]; int nfence; int fence[3000][3];   /* gm: picture pixels of the tree blocks (the card strips skip them); fgb: layer A block id per cell */
     int light; float *smap; int smw, smh; double sma, smb; uint8_t *gmask;   /* gmask: shadow of every horizontal face per world unit (1184 x 1184), 255 = lit */   /* shadow map of the static scene: highest light depth per light space texel */
 } r3_scene_t;
 static int r3_houses_cache = -1;
@@ -176,6 +176,9 @@ static int r3_opaqueA(const r3_scene_t *sc, int U, int V) { int p = 0, r = 0; re
 /* ---- object models (trees, bushes, rocks): `.r3m` files made by tools/remake_assets.py (kiln -> GLB -> r3m) in ~/.landstalker_remake/models; Options > Video > 3D Objects ---- */
 typedef struct { int n; float *v; uint8_t *c; float ymin, ymax; } r3_model_t;
 static r3_model_t r3_models[3]; static int r3_models_loaded; static int r3_objects_cache = -1;
+static int r3_trees_cache = -1;
+int lk_r3d_trees_get(void) { if (r3_trees_cache < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_R3D_TREES"); char path[512]; FILE *f; int v = 0; snprintf(path, sizeof path, "%s/.landstalker_r3dtrees", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); r3_trees_cache = v ? 1 : 0; } return r3_trees_cache; }
+void lk_r3d_trees_set(int v) { const char *h = getenv("HOME"); char path[512]; FILE *f; r3_trees_cache = v ? 1 : 0; snprintf(path, sizeof path, "%s/.landstalker_r3dtrees", h ? h : "."); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", r3_trees_cache); fclose(f); } }   /* Options > Video > 3D Trees (models instead of the tree sprites / cards) */
 int lk_r3d_objects_get(void) { if (r3_objects_cache < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_R3D_OBJECTS"); char path[512]; FILE *f; int v = 0; snprintf(path, sizeof path, "%s/.landstalker_r3dobjects", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); r3_objects_cache = v ? 1 : 0; } return r3_objects_cache; }
 void lk_r3d_objects_set(int v) { const char *h = getenv("HOME"); char path[512]; FILE *f; r3_objects_cache = v ? 1 : 0; snprintf(path, sizeof path, "%s/.landstalker_r3dobjects", h ? h : "."); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", r3_objects_cache); fclose(f); } }
 static void r3_models_load(void) {
@@ -317,7 +320,7 @@ static void r3_build(r3_scene_t *sc) {
     /* OBJECTS: tree blocks = layer A blocks whose opaque pixels are >= 55 % green; a stack of them along the screen vertical (x - 1, y - 1) is one tree; its bottom cell gets a model, the cells become plain ground
        (no box column, no card strips) */
     sc->ntrees = 0;
-    if (sc->objects) {
+    if (sc->trees) {
         static int8_t cls[1024]; static int16_t opq[1024]; int x2, y2, k; r3_models_load();
         if (r3_models[0].n > 0) {
             memset(cls, -1, sizeof cls);
@@ -353,6 +356,47 @@ static void r3_build(r3_scene_t *sc) {
     }
     r3_find_roofs(sc, &c);
     if (sc->houses) { int r; for (r = 0; r < sc->nroofs; r++) r3_make_house(sc, &sc->roofs[r]); }
+    /* FENCES (3D Objects): layer A blocks that are wood coloured (>= 28 % brown, < 10 % green, nearly full) outside the houses; each such cell gets stakes + rails along its axis (neighbouring fence cells decide: along x if (x +- 1, y) is one, else along y) */
+    sc->nfence = 0;
+    if (sc->objects) {
+        static int8_t fc[1024]; int x2, y2; memset(fc, -1, sizeof fc);
+        for (y2 = 0; y2 < 74; y2++) for (x2 = 0; x2 < 74; x2++) {
+            int b = sc->fgb[y2][x2];
+            if (!b || sc->repl[y2][x2]) continue;
+            if (fc[b] < 0) {
+                int U0 = 16 * (x2 - y2) + 1184 - 16, V0 = 8 * (x2 + y2), dx, dy, op = 0, wd = 0, gr = 0;
+                for (dy = 0; dy < 16; dy++) for (dx = 0; dx < 16; dx++) { uint32_t q = r3_samp(sc->pa, sc->pb, sc->tiles, sc->pix, 3, U0 + dx, V0 + dy); if (q) { int r = (q >> 16) & 255, g = (q >> 8) & 255, bl = q & 255; op++; if (r >= g && g >= bl && r >= 110 && r - bl >= 40 && g <= 150) wd++; if (g > r + 14 && g > bl + 8) gr++; } }
+                fc[b] = (op >= 100 && wd * 100 >= op * 28 && gr * 100 < op * 10) ? 1 : 0;
+            }
+            if (fc[b] == 1 && sc->nfence < 3000) { sc->fence[sc->nfence][0] = x2; sc->fence[sc->nfence][1] = y2; sc->nfence++; }
+        }
+        if (sc->nfence > 0) {
+            int k; if (!sc->gm) sc->gm = (uint8_t *)calloc((size_t)R3_TW * R3_TH, 1);
+            for (k = 0; k < sc->nfence; k++) {
+                int cx2 = sc->fence[k][0], cy2 = sc->fence[k][1], ax = 0, dxx, dyy, X = cx2, Y = cy2; double lo = 1e9;
+                { int isf = 0, ixp = 0, iyp = 0, j; for (j = 0; j < sc->nfence; j++) { int fx = sc->fence[j][0], fy = sc->fence[j][1]; if (fy == cy2 && (fx == cx2 + 1 || fx == cx2 - 1)) ixp = 1; if (fx == cx2 && (fy == cy2 + 1 || fy == cy2 - 1)) iyp = 1; } (void)isf; ax = (ixp || !iyp) ? 0 : 1; }
+                sc->fence[k][2] = ax;
+                for (dyy = -1; dyy <= 1; dyy++) for (dxx = -1; dxx <= 1; dxx++) { int XX = X + dxx, YY = Y + dyy; if ((dxx || dyy) && XX >= 0 && YY >= 0 && XX < 74 && YY < 74 && sc->hm[YY][XX] != 0x4000 && !(sc->hm[YY][XX] & 0x4000) && sc->zc[YY][XX] < lo) lo = sc->zc[YY][XX]; }   /* the fence stands on the lowest walkable neighbour */
+                if (sc->hm[Y][X] != 0x4000 && lo < 1e8) { sc->zc[Y][X] = lo; sc->boxc[Y][X] = 0; }
+                if (sc->gm) { int U0 = 16 * (cx2 - cy2) + 1184 - 16, V0 = 8 * (cx2 + cy2), dx, dy; for (dy = 0; dy < 16; dy++) for (dx = 0; dx < 16; dx++) if (U0 + dx >= 0 && U0 + dx < R3_TW && V0 + dy >= 0 && V0 + dy < R3_TH) sc->gm[(size_t)(V0 + dy) * R3_TW + U0 + dx] = 1; }
+            }
+            for (k = 0; k < sc->nfence; k++) {   /* the models: stakes with pointed tops, two rails */
+                int cx2 = sc->fence[k][0], cy2 = sc->fence[k][1], ax = sc->fence[k][2], i; double z = sc->hm[cy2][cx2] == 0x4000 ? 0 : sc->zc[cy2][cx2];
+                static const uint8_t wood[3][3] = { { 192, 140, 80 }, { 170, 122, 68 }, { 206, 152, 90 } }, rail[3] = { 152, 106, 58 };
+                double mid = ax ? 16.0 * cx2 + 8 : 16.0 * cy2 + 8, s0 = ax ? 16.0 * cy2 : 16.0 * cx2;
+                for (i = 0; i < 5; i++) {
+                    double s = s0 + 1.6 + 3.2 * i, h = 24 + ((cx2 * 7 + cy2 * 5 + i * 3) % 7), wx = ax ? mid : s, wy = ax ? s : mid, w = 2.6; const uint8_t *c = wood[(i + cx2 + cy2) % 3];
+                    double a[3] = { wx, wy, z }, b[3] = { wx, wy, z + h }, tip[3] = { wx, wy, z + h + 4.5 }, q0[3] = { wx - w / 2, wy - w / 2, z + h }, q1[3] = { wx + w / 2, wy - w / 2, z + h }, q2[3] = { wx + w / 2, wy + w / 2, z + h }, q3[3] = { wx - w / 2, wy + w / 2, z + h };
+                    r3_ht_beam(sc, c, a, b, w);
+                    r3_ht_add(sc, 8, c, q0, q1, tip, 0, -1, 0.6); r3_ht_add(sc, 8, c, q1, q2, tip, 1, 0, 0.6); r3_ht_add(sc, 8, c, q2, q3, tip, 0, 1, 0.6); r3_ht_add(sc, 8, c, q3, q0, tip, -1, 0, 0.6);
+                }
+                { double p0[3], p1[3], p2[3], p3[3]; double off = ax ? 1.8 : 1.8;   /* two horizontal rails on one side */
+                  p0[2] = p1[2] = z + 8; p2[2] = p3[2] = z + 17;
+                  if (ax) { p0[0] = p1[0] = p2[0] = p3[0] = mid + off; p0[1] = p2[1] = s0; p1[1] = p3[1] = s0 + 16; } else { p0[1] = p1[1] = p2[1] = p3[1] = mid + off; p0[0] = p2[0] = s0; p1[0] = p3[0] = s0 + 16; }
+                  r3_ht_beam(sc, rail, p0, p1, 1.8); r3_ht_beam(sc, rail, p2, p3, 1.8); }
+            }
+        }
+    }
     /* the geometry as quads + the coverage of the original view */
     sc->hw = (float *)calloc((size_t)R3_TW * R3_TH * 3, 4); sc->cov = (uint8_t *)calloc((size_t)R3_TW * R3_TH, 1); sc->hb = (uint8_t *)calloc((size_t)R3_TW * R3_TH, 1); sc->q = (r3_quad_t *)malloc(sizeof(r3_quad_t) * R3_NQ);
     if (!sc->hw || !sc->cov || !sc->hb || !sc->q) return;
@@ -403,7 +447,7 @@ static void r3_build(r3_scene_t *sc) {
             double bx = runs[r].bx, by = runs[r].by, bz = runs[r].bz; int n = runs[r].n;
             if (n < 110 && cnt[runs[r].lab] > 0 && fabs(dpool[off[runs[r].lab]] - (bx + by)) <= 40) { double D = dpool[off[runs[r].lab]], t = (D - (bx + by)) / 2; bx += t; by += t; bz += t; }   /* one depth per card, along the view ray: the original picture does not change */
             sc->st[sc->ns].U = runs[r].U; sc->st[sc->ns].y = runs[r].y; sc->st[sc->ns].n = n; sc->st[sc->ns].bx = (float)bx; sc->st[sc->ns].by = (float)by; sc->st[sc->ns].bz = (float)bz; sc->ns++; } }
-        if (sc->objects && sc->ntrees > 0) { int k; for (k = 0; k < sc->ntrees; k++) {   /* a model on the ground of the stack's bottom cell */
+        if (sc->trees && sc->ntrees > 0) { int k; for (k = 0; k < sc->ntrees; k++) {   /* a model on the ground of the stack's bottom cell */
             int cx2 = sc->tree[k][0], cy2 = sc->tree[k][1], cnt = sc->tree[k][2]; double X = 16.0 * cx2 + 8, Y = 16.0 * cy2 + 8, Z = (sc->hm[cy2][cx2] == 0x4000) ? 0 : sc->zc[cy2][cx2]; int pine = sc->tree[k][3], kind = pine ? 0 : 1; double h = pine ? 10 + 14.0 * cnt : 8 + 7.0 * cnt;
             if (r3_models[kind].n > 0) r3_place(sc, kind, X, Y, Z, h, (double)((cx2 * 53 + cy2 * 17) % 360)); } }
         free(cnt); free(off); free(dpool); free(lab); free(stk); free(runs);
@@ -477,7 +521,7 @@ static void r3_request(const lk_o3d_src_t *src, uint32_t hash, uint32_t base) {
     for (y = 0; y < 152; y += 4) for (x = 0; x < 304; x += 4) cells += (src->pa[y][x] | src->pb[y][x]) >> 16 & 1;
     if (cells < 20) return;                                   /* no room picture (load / black frame) */
     sc = (r3_scene_t *)calloc(1, sizeof *sc); if (!sc) return;
-    sc->hash = hash; sc->base_hash = base; sc->houses = lk_r3d_houses_get(); sc->objects = lk_r3d_objects_get(); sc->light = lk_r3d_light_get(); memcpy(sc->tiles, src->tiles, sizeof sc->tiles); memcpy(sc->pa, src->pa, sizeof sc->pa); memcpy(sc->pb, src->pb, sizeof sc->pb); memcpy(sc->pix, src->pix, sizeof sc->pix);
+    sc->hash = hash; sc->base_hash = base; sc->houses = lk_r3d_houses_get(); sc->objects = lk_r3d_objects_get(); sc->trees = lk_r3d_trees_get(); sc->light = lk_r3d_light_get(); memcpy(sc->tiles, src->tiles, sizeof sc->tiles); memcpy(sc->pa, src->pa, sizeof sc->pa); memcpy(sc->pb, src->pb, sizeof sc->pb); memcpy(sc->pix, src->pix, sizeof sc->pix);
     for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { sc->hm[y][x] = lk_o3d_hm(x, y); sc->fgb[y][x] = lk_o3d_blk(0, x, y); }
     r3_work = sc; r3_req_hash = hash; r3_busy = 1; r3_done = 0;
     if (getenv("LANDSTALKER_R3D_SYNC")) { r3_worker(sc); r3_thread = NULL; r3_done = 0; r3_busy = 0; r3_free(r3_active); r3_active = sc; r3_work = NULL; return; }   /* test aid: build now (headless screenshots) */
@@ -582,7 +626,8 @@ static uint32_t *r3_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh
     ok = lk_o3d_get(&src); hash = ok ? lk_o3d_hash() : 0; base = hash;
     if (ok && lk_r3d_houses_get()) hash ^= 0x5bd1e995u;
     if (ok && lk_r3d_light_get()) hash ^= 0x3c6ef372u;
-    if (ok && lk_r3d_objects_get()) hash ^= 0x7a3b19c5u;   /* the scene differs with 3D Houses on */
+    if (ok && lk_r3d_objects_get()) hash ^= 0x7a3b19c5u;
+    if (ok && lk_r3d_trees_get()) hash ^= 0x2c91d7e3u;   /* the scene differs with 3D Houses on */
     if (ok) r3_request(&src, hash, base);
     sc = r3_active;
     if (!ok || !sc || sc->hash != hash || !sc->q || !sc->hw) return NULL;
@@ -669,5 +714,5 @@ extern void lk_r3d_light_set(int v);
 void lk_remake_set(int v) {
     const char *h = getenv("HOME"); char path[512]; FILE *f; r3_remake_cache = v ? 1 : 0;
     snprintf(path, sizeof path, "%s/.landstalker_remake", h ? h : "."); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", r3_remake_cache); fclose(f); }
-    lk_r3d_set(v ? 1 : 0); lk_r3d_houses_set(v ? 2 : 0); lk_camctl_set(v ? 1 : 0); lk_r3d_light_set(v ? 1 : 0); lk_r3d_objects_set(v ? 1 : 0);
+    lk_r3d_set(v ? 1 : 0); lk_r3d_houses_set(v ? 2 : 0); lk_camctl_set(v ? 1 : 0); lk_r3d_light_set(v ? 1 : 0); lk_r3d_objects_set(v ? 1 : 0); lk_r3d_trees_set(v ? 1 : 0);
 }
