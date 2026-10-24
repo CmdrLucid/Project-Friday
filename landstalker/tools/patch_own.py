@@ -608,7 +608,7 @@ void lk_own_set(int v) {                                             /* Options 
 }
 static int lk_dof_saved = -1;
 int lk_dof_get(void) {                                               /* Options > Video > Depth Blur 0..3 (Off / Low / Medium / High), saved in ~/.landstalker_dof (LANDSTALKER_DOF overrides); acts on the HD picture only */
-  if (lk_dof_saved < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_DOF"); char path[512]; FILE *f; int v = 0; snprintf(path, sizeof path, "%s/.landstalker_dof", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); lk_dof_saved = v < 0 ? 0 : v > 3 ? 3 : v; }
+  if (lk_dof_saved < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_DOF"); char path[512]; FILE *f; int v = 0; snprintf(path, sizeof path, "%s/.landstalker_dof", h ? h : "."); f = NULL; /* PAUSED 2026-10-24: the saved file is ignored, only the env variable switches it on (test aid) */ if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); lk_dof_saved = v < 0 ? 0 : v > 3 ? 3 : v; }
   return lk_dof_saved;
 }
 void lk_dof_set(int v) {
@@ -622,7 +622,7 @@ static int lk_fxl[4] = { -1, -1, -1, -1 };
 int lk_fxlook_get(int i) {                                           /* Options > Video > Bloom / Vignette / Color Grade / Lights 0..3 (Off / Low / Medium / High), saved in ~/.landstalker_bloom / _vignette / _grade (LANDSTALKER_BLOOM / _VIGNETTE / _GRADE override); 1x picture, map frames only */
   static const char *nm[4] = { "bloom", "vignette", "grade", "lights" };
   if (i < 0 || i > 3) return 0;
-  if (lk_fxl[i] < 0) { const char *h = getenv("HOME"); char path[512], en[32]; const char *e; FILE *f; int v = 0, k; snprintf(path, sizeof path, "%s/.landstalker_%s", h ? h : ".", nm[i]); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); }
+  if (lk_fxl[i] < 0) { const char *h = getenv("HOME"); char path[512], en[32]; const char *e; FILE *f; int v = 0, k; snprintf(path, sizeof path, "%s/.landstalker_%s", h ? h : ".", nm[i]); f = NULL; /* PAUSED 2026-10-24: the saved file is ignored, only the env variable switches it on (test aid) */ if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); }
     snprintf(en, sizeof en, "LANDSTALKER_%s", nm[i]); for (k = 0; en[k]; k++) if (en[k] >= 'a' && en[k] <= 'z') en[k] -= 32; e = getenv(en); if (e && *e) v = atoi(e); lk_fxl[i] = v < 0 ? 0 : v > 3 ? 3 : v; }
   return lk_fxl[i];
 }
