@@ -2,7 +2,7 @@
 
 | # | Asset | Status | Recipe | Notes |
 |---|---|---|---|---|
-| 1 | Thatched hut (Massan) | waiting for the user's verdict (2026-10-24) | `recipes/hut.py` | 80 x 64 footprint, logs / thatch / wood textures, door, windows, ridge poles |
+| 1 | Massan house A (room 592, the lone house west of the statue) | waiting for the user's verdict (2026-10-24 late) | `recipes/massan_house_proj.py` (+ `tools/rom_picture.py`) | ORIGINAL PIXELS projected (Scale2x), hidden sides mirrored; older tries: `recipes/massan_house.py` (own textures, pixel look), `recipes/hut.py` (first hut, superseded) |
 | 2 | Pine, bush / hedge | - | - | pixel foliage texture, cone stack with jitter; hedge = low rounded block |
 | 3 | Wooden fence: stakes, gate, corner | - | - | |
 | 4 | Stone steps and stones | - | - | |
