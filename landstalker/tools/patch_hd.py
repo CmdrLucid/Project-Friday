@@ -21,7 +21,7 @@ static uint32_t lk_hd_dark(uint32_t c) { return ((c >> 1) & 0x007F7F7Fu) + ((c >
 static uint32_t *lk_hd_img; static int lk_hd_iw, lk_hd_ih; static SDL_Texture *lk_hd_tex; static int lk_hd_tw, lk_hd_th;
 static SDL_Texture *lk_hd_ftex; static int lk_hd_fw, lk_hd_fh; static uint32_t *lk_hd_fbuf;   /* filtered HD picture (destination size) */
 
-extern int lk_hd_active(void); extern int16_t lk_hd_depth[]; extern long lk_hd_dstamp[224]; extern int lk_hd_focus; extern int lk_dof_get(void);
+extern int lk_hd_active(void); extern int16_t lk_hd_depth[]; extern uint8_t lk_hd_spr[]; extern long lk_hd_dstamp[224]; extern int lk_hd_focus; extern int lk_dof_get(void);
 /* depth blur (HD only): blur radius grows with the distance of a pixel's ground point from Nigel's (screen rows, lk_hd_depth / lk_hd_focus).  A 1x copy of the picture (mean of each N x N block) gets a summed-area table; every game pixel then takes
    a box average of its own radius (two box sizes mixed for the fraction, O(1) per pixel); the HD picture is mixed with a bilinear upsample of that.  All passes run on up to 4 threads (bands of rows). */
 static struct { uint32_t *img; int W, H, N, sw, nt, C, ws, hs; } lk_dd_c;
@@ -115,12 +115,26 @@ static void lk_hd_dof(uint32_t *img, int W, int H, int N, int sw, int e, const i
 }
 /* HD-2D look on the map picture (1x, or the HD picture): bloom (bright pass -> small blurred copy -> added back), then colour grade (saturation, S-curve, warm tint) and vignette in one pass.  Only pixels the map path drew with a depth (not the HUD, text box, black margins).  The per-pixel passes run on up to 3 threads (bands of rows). */
 extern int lk_fxlook_get(int i), lk_hd_fxany(void);
-typedef struct { uint32_t *img; const uint8_t *mask; int W, H, N, sw, B, V, G, ws, hs, C; const uint32_t *gl; const uint8_t (*lutc)[256]; const int *vx, *vy; uint32_t gn; } lk_look_ctx;
+typedef struct { uint32_t *img; const uint8_t *mask; int W, H, N, sw, B, V, G, L, ws, hs, C; const int *lf; const uint32_t *gl; const uint8_t (*lutc)[256]; const int *vx, *vy; uint32_t gn; } lk_look_ctx;
 typedef struct { lk_look_ctx *c; int pass, y0, y1; } lk_look_job;
 static int lk_look_run(void *pv) {
     lk_look_job *j = (lk_look_job *)pv; lk_look_ctx *c = j->c; int W = c->W, N = c->N, sw = c->sw, x, y;
     static const int SAT[4] = { 256, 282, 303, 328 };
-    if (j->pass == 0) {                                      /* bloom: add the upsampled glow */
+    if (j->pass == 2) {                                      /* real lights: multiply by the light field (3 gains per cell, 256 = 1.0), bilinear like the bloom */
+        for (y = j->y0; y < j->y1; y++) {
+            int ua = (2 * y + 1 - c->C) * 128 / c->C, ya = ua >> 8, fy = ua & 255, yb = ya + 1; const uint8_t *mrow = c->mask + (size_t)(y / N) * sw; int gx = 0, gs = 0; uint32_t *irow = c->img + (size_t)y * W;
+            if (ya < 0) ya = 0; if (yb < 0) yb = 0; if (ya >= c->hs) ya = c->hs - 1; if (yb >= c->hs) yb = c->hs - 1;
+            for (x = 0; x < W; x++, gs++) {
+                int ub, xa, xb, fx, k; const int *p00, *p01, *p10, *p11; uint32_t q, o = 0xFF000000u;
+                if (gs == N) { gs = 0; gx++; } if (!mrow[gx]) continue;
+                ub = (2 * x + 1 - c->C) * 128 / c->C; xa = ub >> 8; fx = ub & 255; xb = xa + 1; if (xa < 0) xa = 0; if (xb < 0) xb = 0; if (xa >= c->ws) xa = c->ws - 1; if (xb >= c->ws) xb = c->ws - 1;
+                p00 = c->lf + ((size_t)ya * c->ws + xa) * 3; p01 = c->lf + ((size_t)ya * c->ws + xb) * 3; p10 = c->lf + ((size_t)yb * c->ws + xa) * 3; p11 = c->lf + ((size_t)yb * c->ws + xb) * 3;
+                q = irow[x];
+                for (k = 0; k < 3; k++) { int top = p00[k] * (256 - fx) + p01[k] * fx, bot = p10[k] * (256 - fx) + p11[k] * fx, gv = (top * (256 - fy) + bot * fy) >> 16, v = (((int)((q >> (8 * k)) & 255)) * gv) >> 8; if (v > 255) v = 255; o |= (uint32_t)v << (8 * k); }
+                irow[x] = o;
+            }
+        }
+    } else if (j->pass == 0) {                               /* bloom: add the upsampled glow */
         for (y = j->y0; y < j->y1; y++) {
             int ua = (2 * y + 1 - c->C) * 128 / c->C, ya = ua >> 8, fy = ua & 255, yb = ya + 1; const uint8_t *mrow = c->mask + (size_t)(y / N) * sw; int gx = 0, gs = 0; uint32_t *irow = c->img + (size_t)y * W;
             if (ya < 0) ya = 0; if (yb < 0) yb = 0; if (ya >= c->hs) ya = c->hs - 1; if (yb >= c->hs) yb = c->hs - 1;
@@ -141,10 +155,10 @@ static int lk_look_run(void *pv) {
             for (x = 0; x < W && x < 1024; x++, gs++) {
                 uint32_t q; int r, g, b, l;
                 if (gs == N) { gs = 0; gx++; } if (!mrow[gx]) continue;
-                q = irow[x]; r = q & 255; g = (q >> 8) & 255; b = (q >> 16) & 255;
+                q = irow[x]; b = q & 255; g = (q >> 8) & 255; r = (q >> 16) & 255;   /* the picture is XRGB: blue is the low byte */
                 if (c->G) { l = (r * 77 + g * 150 + b * 29) >> 8; r = l + (((r - l) * SAT[c->G]) >> 8); g = l + (((g - l) * SAT[c->G]) >> 8); b = l + (((b - l) * SAT[c->G]) >> 8); r = r < 0 ? 0 : r > 255 ? 255 : r; g = g < 0 ? 0 : g > 255 ? 255 : g; b = b < 0 ? 0 : b > 255 ? 255 : b; r = c->lutc[0][r]; g = c->lutc[1][g]; b = c->lutc[2][b]; }
                 if (c->V) { int f = c->vx[x] * c->vy[y] >> 8; r = r * f >> 8; g = g * f >> 8; b = b * f >> 8; }
-                irow[x] = 0xFF000000u | ((uint32_t)b << 16) | ((uint32_t)g << 8) | (uint32_t)r;
+                irow[x] = 0xFF000000u | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b;
             }
         }
     }
@@ -161,8 +175,8 @@ static void lk_look_par(lk_look_ctx *c, int pass) {
 }
 static void lk_hd_look(uint32_t *img, int W, int H, int N, int sw, int e, const int16_t *sc) {
     static uint8_t *mask; static size_t mcap; static uint32_t *gl; static size_t gcap; static uint8_t lutc[3][256]; static int lutg = -1; static int vx[1024], vy[1024], vg = -1, vW, vH;
-    int B = lk_fxlook_get(0), V = lk_fxlook_get(1), G = lk_fxlook_get(2), x, y, k, anyrow = 0; size_t n = (size_t)sw * 224; lk_look_ctx cx;
-    if (!B && !V && !G) return;
+    int B = lk_fxlook_get(0), V = lk_fxlook_get(1), G = lk_fxlook_get(2), L = lk_fxlook_get(3), x, y, k, anyrow = 0; size_t n = (size_t)sw * 224; lk_look_ctx cx;
+    if (!B && !V && !G && !L) return;
     for (y = 23; y < 224; y++) if (lk_hd_dstamp[y] == lk_hd_gen) { anyrow = 1; break; }
     if (!anyrow) return;                                     /* not a map picture */
     if (mcap < n) { free(mask); mask = (uint8_t *)malloc(n); mcap = mask ? n : 0; }
@@ -172,7 +186,48 @@ static void lk_hd_look(uint32_t *img, int W, int H, int N, int sw, int e, const 
         if (y >= 23 && lk_hd_dstamp[y] == lk_hd_gen && cxx >= -48 && cxx < 368 && lk_hd_depth[y * 416 + cxx + 48] != 0x7FFF) ok = 1;
         mask[(size_t)y * sw + x] = (uint8_t)ok;
     }
-    memset(&cx, 0, sizeof cx); cx.img = img; cx.mask = mask; cx.W = W; cx.H = H; cx.N = N; cx.sw = sw; cx.B = B; cx.V = V; cx.G = G;
+    memset(&cx, 0, sizeof cx); cx.img = img; cx.mask = mask; cx.W = W; cx.H = H; cx.N = N; cx.sw = sw; cx.B = B; cx.V = V; cx.G = G; cx.L = L;
+    if (L) {                                                 /* REAL LIGHTS (Options > Video > Lights): flame pixels of the picture are the sources (wall torches, braziers, fires, fire effects); a cell of 4 x 4 game pixels with enough orange / yellow bright pixels lights the floor around it (an ellipse = a circle on the isometric ground), the rest of the room gets darker while the picture has any source; smooth in time, slight flicker */
+        static const int AMB[4] = { 256, 214, 186, 152 }, LA[4] = { 0, 120, 160, 210 }, RX[4] = { 0, 8, 10, 13 };   /* ambient gain of a room with lights (of 256), light amplitude (of 256), radius in cells (4 game pixels) */
+        static int *lf, lfcap, *srcx, *srcy, *srcw, amb = 256; static unsigned fr;
+        int C = 4 * N, ws = (W + C - 1) / C, hs = (H + C - 1) / C, ns = 0, i, tgt; size_t sn = (size_t)ws * hs * 3;
+        if (lfcap < (int)sn) { free(lf); lf = (int *)malloc(sn * sizeof(int)); lfcap = lf ? (int)sn : 0; }
+        if (!srcx) { srcx = (int *)malloc(128 * sizeof(int)); srcy = (int *)malloc(128 * sizeof(int)); srcw = (int *)malloc(128 * sizeof(int)); }
+        if (lf && srcx && srcy && srcw) {
+            fr++;
+            for (y = 0; y < hs && ns < 128; y++) for (x = 0; x < ws && ns < 128; x++) {   /* find the flame cells */
+                int ky, kx, cnt = 0;
+                for (ky = 0; ky < 4; ky++) { int gy = y * 4 + ky; const uint8_t *mrow; const uint32_t *irow; if (gy >= 224) break; mrow = mask + (size_t)gy * sw; irow = img + (size_t)(gy * N) * W;
+                  for (kx = 0; kx < 4; kx++) { int gx = x * 4 + kx, r, g, bl; uint32_t q; if (gx >= sw) break; if (!mrow[gx]) continue; { int cc = sc[(size_t)gy * sw + gx] - e + 48; if (cc >= 0 && cc < 416 && lk_hd_spr[gy * 416 + cc]) continue; } q = irow[gx * N]; bl = q & 255; g = (q >> 8) & 255; r = (q >> 16) & 255;
+                    if (r >= 200 && g >= 170 && g + 40 >= r && g <= r + 4 && r - bl >= 110) cnt++;   /* yellow flame; orange earth / skin / armour have a lower green */ } }
+                if (cnt >= 5) { srcx[ns] = x; srcy[ns] = y; srcw[ns] = cnt; ns++; }
+            }
+            if (getenv("LANDSTALKER_LIGHTS_DBG")) { int bx = 0, by = 0, bl2 = -1; for (y = 23; y < 224; y++) for (x = 0; x < sw; x++) if (mask[(size_t)y * sw + x]) { uint32_t q = img[(size_t)(y * N) * W + x * N]; int l2 = ((q & 255) * 77 + ((q >> 8) & 255) * 150 + ((q >> 16) & 255) * 29) >> 8; if (l2 > bl2) { bl2 = l2; bx = x; by = y; } }
+                { uint32_t q = img[(size_t)(by * N) * W + bx * N]; printf("lights: sources %d amb %d brightest (%d,%d) rgb %d %d %d\n", ns, amb, bx, by, q & 255, (q >> 8) & 255, (q >> 16) & 255); } }
+            if (getenv("LANDSTALKER_LIGHTS_DBG")) { int q3; printf("lights: cells"); for (q3 = 0; q3 < ns && q3 < 40; q3++) printf(" (%d,%d)x%d", srcx[q3] * 4, srcy[q3] * 4, srcw[q3]); printf("\n"); }
+            if (ns >= 64) ns = 0;                                /* that much 'flame' is terrain (sand, gold, a bright wall), not torches */
+            tgt = ns > 0 ? AMB[L] : 256; amb += (tgt - amb) / 12 + (tgt > amb) - (tgt < amb && amb - tgt < 12);   /* ease towards the target (about 0.4 s) */
+            if (getenv("LANDSTALKER_LIGHTS_SNAP")) amb = tgt;   /* test aid: no easing (single screenshots) */
+            if (amb < AMB[L]) amb = AMB[L]; if (amb > 256) amb = 256;
+            for (i = 0; i < (int)sn; i += 3) { lf[i] = amb; lf[i + 1] = amb; lf[i + 2] = amb; }
+            if (ns > 0) {
+                int rx = RX[L], ry = rx / 2 + 1, si;
+                int *acc = (int *)calloc((size_t)ws * hs, sizeof(int));
+                if (acc) {
+                    for (si = 0; si < ns; si++) {
+                        int fl = 232 + (int)(((fr / 3) * 2654435761u + (unsigned)(srcx[si] * 40503 + srcy[si] * 9973)) >> 27) , sx = srcx[si], sy = srcy[si] + 1, dx, dy, st = srcw[si] * fl / 10;   /* strength 0..~1 (x256), 3 % flicker */
+                        for (dy = -ry; dy <= ry; dy++) { int py = sy + dy; if (py < 0 || py >= hs) continue;
+                            for (dx = -rx; dx <= rx; dx++) { int px = sx + dx, d2; if (px < 0 || px >= ws) continue;
+                                d2 = dx * dx * 256 / (rx * rx) + dy * dy * 256 / (ry * ry); if (d2 >= 256) continue;
+                                { int f = 256 - d2; f = f * f >> 8; acc[(size_t)py * ws + px] += f * st >> 8; } } }
+                    }
+                    for (i = 0; i < ws * hs; i++) { int a = acc[i]; int m = a > 380 ? 380 : a; lf[i * 3 + 2] += m * LA[L] >> 8; lf[i * 3 + 1] += (m * LA[L] >> 8) * 205 >> 8; lf[i * 3] += (m * LA[L] >> 8) * 120 >> 8;   /* channel k = byte k: 0 blue, 1 green, 2 red */ }
+                    free(acc);
+                }
+            }
+            if (amb < 256 || ns > 0) { cx.L = L; cx.ws = ws; cx.hs = hs; cx.C = C; cx.lf = lf; lk_look_par(&cx, 2); }
+        }
+    }
     if (B) {                                                 /* bloom */
         static const int T[4] = { 0, 140, 120, 100 }, GN[4] = { 0, 110, 190, 300 };
         int C = 4 * N, ws = (W + C - 1) / C, hs = (H + C - 1) / C, st = N, pass; uint32_t mx = 0;
@@ -184,7 +239,7 @@ static void lk_hd_look(uint32_t *img, int W, int H, int N, int sw, int e, const 
               for (y = 0; y < hs; y++) for (x = 0; x < ws; x++) {      /* a cell = 4 x 4 game pixels (one sample each) */
                 unsigned sr = 0, sg = 0, sb = 0; int cnt = 0;
                 for (ky = 0; ky < 4; ky++) { int gy = y * 4 + ky; const uint8_t *mrow; const uint32_t *irow; if (gy >= 224) break; mrow = mask + (size_t)gy * sw; irow = img + (size_t)(gy * N) * W;
-                  for (kx = 0; kx < 4; kx++) { int gx = x * 4 + kx, f; uint32_t q; int r, g, bl, l; if (gx >= sw) break; cnt++; if (!mrow[gx]) continue; q = irow[gx * N]; r = q & 255; g = (q >> 8) & 255; bl = (q >> 16) & 255; l = (r * 77 + g * 150 + bl * 29) >> 8; f = flut[l]; if (f) { sr += r * f >> 8; sg += g * f >> 8; sb += bl * f >> 8; } } }
+                  for (kx = 0; kx < 4; kx++) { int gx = x * 4 + kx, f; uint32_t q; int r, g, bl, l; if (gx >= sw) break; cnt++; if (!mrow[gx]) continue; q = irow[gx * N]; bl = q & 255; g = (q >> 8) & 255; r = (q >> 16) & 255; l = (r * 77 + g * 150 + bl * 29) >> 8; f = flut[l]; if (f) { sr += r * f >> 8; sg += g * f >> 8; sb += bl * f >> 8; } } }
                 if (!cnt) cnt = 1;
                 a[((size_t)y * ws + x) * 3] = sr / cnt; a[((size_t)y * ws + x) * 3 + 1] = sg / cnt; a[((size_t)y * ws + x) * 3 + 2] = sb / cnt;
               } }
