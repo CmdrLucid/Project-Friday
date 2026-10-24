@@ -32,6 +32,7 @@ static int r3_houses_cache = -1;
 int lk_r3d_houses_get(void) { if (r3_houses_cache < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_R3D_HOUSES"); char path[512]; FILE *f; int v = 0; snprintf(path, sizeof path, "%s/.landstalker_houses", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); r3_houses_cache = v ? 1 : 0; } return r3_houses_cache; }
 void lk_r3d_houses_set(int v) { const char *h = getenv("HOME"); char path[512]; FILE *f; r3_houses_cache = v ? 1 : 0; snprintf(path, sizeof path, "%s/.landstalker_houses", h ? h : "."); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", r3_houses_cache); fclose(f); } }   /* Options > Video > 3D Houses */
 static r3_scene_t *r3_active, *r3_work; static SDL_Thread *r3_thread; static volatile int r3_busy, r3_done; static uint32_t r3_req_hash; static int r3_on_cache = -1;
+static long r3_last_frame = -100; static int r3_camctl_cache = -1;
 static double r3_yaw, r3_pitch, r3_dyaw, r3_dpitch; static int r3_fixed; static uint64_t r3_t[5]; static double r3_acc[4]; static int r3_nacc;
 static uint32_t *r3_img, *r3_zbuf_dummy; static float *r3_zb; static int r3_iw, r3_ih;
 
@@ -407,6 +408,7 @@ static uint32_t *r3_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh
         int cx = x - e, in3d = y >= 23 && lk_hd_dstamp[y] == lk_hd_gen && cx >= -48 && cx < 368 && !(lk_hd_spr[y * 416 + cx + 48] & 4); int sy, sx;
         if (!in3d) for (sy = 0; sy < N; sy++) for (sx = 0; sx < N; sx++) r3_img[(size_t)(y * N + sy) * W + x * N + sx] = fb[(size_t)y * sw + x];
     }
+    r3_last_frame = platform_frame_number();
     *ow = W; *oh = H; r3_t[3] = SDL_GetPerformanceCounter();
     { static int16_t *ident; static int iw0; if (iw0 != sw) { free(ident); ident = (int16_t *)malloc((size_t)sw * 224 * 2); iw0 = sw; if (ident) for (y = 0; y < 224; y++) for (x = 0; x < sw; x++) ident[(size_t)y * sw + x] = (int16_t)x; }
       if (ident) { lk_hd_look3d = 1; lk_hd_look(r3_img, W, H, N, sw, e, ident); lk_hd_look3d = 0; } }   /* bloom / vignette / colour grade of Options > Video on the 3D picture */
@@ -419,4 +421,30 @@ static int lk_r3d_present(const uint8_t *framebuffer, int sw, const lk_rect *r) 
     img = lk_r3d_assemble((const uint32_t *)framebuffer, sw, lk_wide_e, &iw, &ih);
     if (!img) return 0;
     return lk_hd_show(img, iw, ih, iw / sw, r);
+}
+
+/* ---- REMAKE RULE LAYER, first change of the game's behaviour: camera relative controls (Options > Video > Camera Controls Off / On, `~/.landstalker_camctl`, env LANDSTALKER_CAMCTL) ----
+ * The game moves along its four world axes only (NE = -Y, SE = +X, SW = +Y, NW = -X); the d-pad combinations UP+RIGHT / DOWN+RIGHT / DOWN+LEFT / UP+LEFT select one axis each (HandleDirectionalControl $001936),
+ * the plain directions pick one of two axes by Nigel's facing.  With the 3D camera turned, the axis that LOOKS closest to the pressed screen direction is chosen instead: the wrapper of
+ * HandleDirectionalInput $0018C4 (tools/patch_room3d.py, func_table.c) replaces the d-pad nibble by the diagonal nibble of that axis for the duration of the call.  Inactive when the option is Off,
+ * the 3D picture is not shown, the camera is within 3 degrees of the original, or a cutscene plays the controller (g_ControllerPlayback $FF12DE). */
+int lk_camctl_get(void) {
+    if (r3_camctl_cache < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_CAMCTL"); char path[512]; FILE *f; int v = 0; snprintf(path, sizeof path, "%s/.landstalker_camctl", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); r3_camctl_cache = v ? 1 : 0; }
+    return r3_camctl_cache;
+}
+void lk_camctl_set(int v) { const char *h = getenv("HOME"); char path[512]; FILE *f; r3_camctl_cache = v ? 1 : 0; snprintf(path, sizeof path, "%s/.landstalker_camctl", h ? h : "."); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", r3_camctl_cache); fclose(f); } }
+int lk_camctl_nibble(int nib) {   /* -1 = leave the input alone, else the d-pad nibble (bit 0 up, 1 down, 2 left, 3 right) to use */
+    static const int wdx[4] = { 0, 1, 0, -1 }, wdy[4] = { -1, 0, 1, 0 }, code[4] = { 0x9, 0xA, 0x6, 0x5 };   /* NE (-Y), SE (+X), SW (+Y), NW (-X) and their diagonal d-pad nibbles */
+    static int prev = -1; double vx, vy, ln, c, s, best = -2, sc[4]; int a, pick = -1;
+    if (!lk_camctl_get() || !lk_r3d_on() || platform_frame_number() - r3_last_frame > 3 || fabs(r3_yaw) < 0.052) return -1;
+    vx = ((nib >> 3) & 1) - ((nib >> 2) & 1); vy = ((nib >> 1) & 1) - (nib & 1);
+    if (vx == 0 && vy == 0) return -1;
+    ln = sqrt(vx * vx + vy * vy); vx /= ln; vy /= ln; c = cos(r3_yaw); s = sin(r3_yaw);
+    for (a = 0; a < 4; a++) {                                    /* how the world axis looks on the screen with the turned camera (same projection as the picture) */
+        double xr = wdx[a] * c - wdy[a] * s, yr = wdx[a] * s + wdy[a] * c, u = (xr - yr) / R3K2, dd = (xr + yr) / R3K2, sx = R3K2 * u, sy = 0.70711 * dd, l = sqrt(sx * sx + sy * sy);
+        sc[a] = (sx * vx + sy * vy) / l; if (sc[a] > best) { best = sc[a]; pick = a; }
+    }
+    if (prev >= 0 && sc[prev] > best - 0.03) pick = prev;       /* ties (the plain directions between two axes): keep the last axis, like the original keeps the facing */
+    if (getenv("LANDSTALKER_CAMCTL_LOG")) printf("camctl: yaw %.1f pad %X -> axis %d nibble %X\n", r3_yaw * 180 / M_PI, nib, pick, code[pick]);
+    prev = pick; return code[pick];
 }
