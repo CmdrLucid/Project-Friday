@@ -67,6 +67,6 @@ chk "FM-Puffer-Begrenzung"                          $G/ext/Genesis-Plus-GX/core/
 if [ -f build/landstalker ]; then echo "  [ok]  build/landstalker vorhanden ($(date -r build/landstalker '+%d.%m. %H:%M'))"; ok=$((ok+1))
 else echo "  [FEHLT] build/landstalker existiert nicht"; bad=$((bad+1)); fi
 echo
-echo "Pruefsumme der Quellen (build.sh + tools/patch_*.py): $(cat build.sh tools/patch_*.py | sha1sum | cut -c1-10)"
+echo "Pruefsumme der Quellen (build.sh + tools/patch_*.py + tools/room3d_game.c): $(cat build.sh tools/patch_*.py tools/room3d_game.c | sha1sum | cut -c1-10)"
 echo "Ergebnis: $ok ok, $bad fehlend"
 [ "$bad" -eq 0 ] && echo "=> Stand ist aktuell" || echo "=> NICHT aktuell: ./build.sh ausfuehren (bei fehlenden Markern: vorher ZIP neu laden mit unzip -o)"
