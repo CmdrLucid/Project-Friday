@@ -42,9 +42,10 @@ static struct {
     int active, cycle, step, n_fit;
     int16_t y[LK_G_N]; uint16_t x[LK_G_N], tile[LK_G_N];
     uint16_t room; uint8_t sword;
+    int16_t hs0, vs0;   /* plane A scroll at the use: the rocks stay where they were spawned in the WORLD (the screen scrolls under them) */
     uint32_t rng;
 } lk_g;
-static gen_func_t lk_o_gaia, lk_o_lspr, lk_o_cfmo;
+static gen_func_t lk_o_gaia, lk_o_lspr, lk_o_cfmo, lk_o_hatk, lk_o_igs;
 static uint32_t lk_g_rand(uint32_t range) { lk_g.rng = lk_g.rng * 1664525u + 1013904223u; return (lk_g.rng >> 8) % range; }   /* own RNG: the game's seed stays untouched */
 static void lk_g_gfx(void) {   /* sword graphics + palette for the equipped sword (original GaiaEffect end sequence) */
     func_table_jsr(0x000464, 0x016782); func_table_jsr(0x00046A, 0x016788); func_table_jsr(0x000242, 0x01678E);
@@ -66,6 +67,7 @@ static void lk_h_gaia(void) {   /* GaiaEffect $016712 */
         bus_write8(0xFF114Eu, lk_g.sword);
         lk_g.room = bus_read16(0xFF1204u);
     }
+    lk_g.hs0 = (int16_t)bus_read16(0xFF0100u); lk_g.vs0 = (int16_t)bus_read16(0xFF0500u);
     lk_snd(0x016748);   /* TRAP #0, inline word SND_Rumble (the original call) */
     lk_g.rng = 0x2545F491u ^ (uint32_t)platform_frame_number();
     for (i = 0; i < LK_G_N; i++) {   /* sub_0167D6 */
@@ -81,7 +83,7 @@ static void lk_h_gaia(void) {   /* GaiaEffect $016712 */
     func_table_rts();   /* the replaced function ends with RTS */
 }
 static void lk_g_step(void) {   /* once per game pass, after LoadSprites has rebuilt the sprite table */
-    int i, k, d3 = -1, n, alive = 0; uint32_t a;
+    int i, k, d3 = -1, n, alive = 0, dh, dv; uint32_t a;
     if (bus_read16(0xFF1204u) != lk_g.room) { lk_g_end(1); return; }
     lk_g.step++;
     for (i = 0; i < LK_G_N; i++) {   /* sub_01685E */
@@ -102,12 +104,30 @@ static void lk_g_step(void) {   /* once per game pass, after LoadSprites has reb
     for (k = 16; k < 80; k++) if (bus_read16(0xFF05D0u + 8u * (uint32_t)(k - 16)) == 0) { d3 = k; break; }   /* first free sprite slot (sub_016794 scan) */
     if (d3 < 0) return;
     n = 80 - d3; if (n > LK_G_N) n = LK_G_N;
+    dh = (int16_t)((int16_t)bus_read16(0xFF0100u) - lk_g.hs0); dv = (int16_t)((int16_t)bus_read16(0xFF0500u) - lk_g.vs0);
     bus_write8(0xFF05CBu, (uint8_t)d3);   /* slot 15 -> rocks ... last rock -> slot 16 (entities) */
     for (i = 0; i < n; i++) {
         a = 0xFF05D0u + 8u * (uint32_t)(d3 + i - 16);
-        bus_write16(a, (uint16_t)lk_g.y[i]); bus_write8(a + 2, 0x0F); bus_write8(a + 3, (uint8_t)(i == n - 1 ? 0x10 : d3 + i + 1));
-        bus_write16(a + 4, lk_g.tile[i]); bus_write16(a + 6, lk_g.x[i]);
+        int ty = (int)lk_g.y[i] - dv, tx = (int)lk_g.x[i] + dh;   /* screen position = the rock's own position in the world (the fall) moved by the scroll since the use */
+        if (!lk_g.tile[i]) { ty = 0; tx = 1; }
+        else if (ty < -200 || ty > 400 || tx <= 0 || tx >= 0x1FF) { ty = 0; tx = 1; }   /* out of the screen: parked above it (x = 0 would be the VDP's sprite mask) */
+        bus_write16(a, (uint16_t)ty); bus_write8(a + 2, 0x0F); bus_write8(a + 3, (uint8_t)(i == n - 1 ? 0x10 : d3 + i + 1));
+        bus_write16(a + 4, lk_g.tile[i]); bus_write16(a + 6, (uint16_t)tx);
     }
+}
+static void lk_h_igs(void) {   /* ItemUseGaiaStatue $00873A: no second statue while the rocks fall (the item is not used up: the usual 'cannot use' answer) */
+    if (lk_gaia_get() && lk_g.active) { gen_func_t f = func_table_lookup(0x008BC0); if (f) { f(); return; } }
+    lk_o_igs();
+}
+static void lk_h_hatk(void) {   /* HandleAttack $015C1C: the Gaia sword's charged hit (state $FF12E5 = 4, charge $0B) does not fire while the rocks fall: no damage, no new effect (a plain hit instead) */
+    uint8_t st = bus_read8(0xFF12E5u);
+    if (lk_gaia_get() && lk_g.active && st == 4 && bus_read8(0xFF113Fu) == 0x0B) {
+        bus_write8(0xFF12E5u, 0xFF);
+        lk_o_hatk();
+        if (bus_read8(0xFF12E5u) == 0xFF) bus_write8(0xFF12E5u, st);
+        return;
+    }
+    lk_o_hatk();
 }
 static void lk_h_lspr(void) {   /* LoadSprites $00401C */
     lk_o_lspr();
@@ -136,8 +156,8 @@ static void lk_gaia_install(void) {
     static int done;
     if (done) return;
     done = 1;
-    lk_o_gaia = func_table_lookup(0x016712); lk_o_lspr = func_table_lookup(0x00401C); lk_o_cfmo = func_table_lookup(0x007624);
-    if (lk_o_gaia && lk_o_lspr && lk_o_cfmo) { func_table_register(0x016712, lk_h_gaia); func_table_register(0x00401C, lk_h_lspr); func_table_register(0x007624, lk_h_cfmo); }
+    lk_o_gaia = func_table_lookup(0x016712); lk_o_lspr = func_table_lookup(0x00401C); lk_o_cfmo = func_table_lookup(0x007624); lk_o_hatk = func_table_lookup(0x015C1C); lk_o_igs = func_table_lookup(0x00873A);
+    if (lk_o_gaia && lk_o_lspr && lk_o_cfmo && lk_o_hatk && lk_o_igs) { func_table_register(0x016712, lk_h_gaia); func_table_register(0x00401C, lk_h_lspr); func_table_register(0x007624, lk_h_cfmo); func_table_register(0x015C1C, lk_h_hatk); func_table_register(0x00873A, lk_h_igs); }
     else fprintf(stderr, "gaia: GaiaEffect / LoadSprites / menu entry not found\n");
 }
 '''

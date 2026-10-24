@@ -70,6 +70,7 @@ extern int lk_tall_kv(void) __attribute__((weak));                  /* LANDSTALK
 extern int lk_tall_keep(int line);                                   /* LANDSTALKER_TALL: this line is drawn below the HInt display-off line (patch_tall.py) */
 extern int lk_tbox_get(void);                                        /* Map Behind Text (patch_tbox.py) */
 extern int lk_hd_n; int lk_dof_get(void); int lk_hd_fxany(void); extern int lk_r3d_on(void);   /* tools/patch_room3d.py */
+static int lk_o_smk[224], lk_o_cidx;   /* sprite masking: per screen line the table index + 1 of the first masking sprite (0 = none) (x = 0 after a sprite with x != 0 on that line: the game hides the figures behind the text box this way), figures / effects with an index >= it are hidden there */
 static int16_t lk_o_sprd[224][LK_OSW]; static int lk_o_curd = 150;   /* HD depth blur: ground contact screen row of the figure a sprite pixel belongs to */
 int16_t lk_hd_depth[224 * 416]; uint8_t lk_hd_spr[224 * 416]; uint32_t lk_hd_sprc[224 * 416]; long lk_hd_dstamp[224];   /* lk_hd_sprc: the colour of the sprite pixels (3D room: figures become billboards); lk_hd_spr bit 2 = window pixel (text box), bit 3 = black / void */   /* lk_hd_spr: bit 0 = the pixel comes from a sprite, bit 1 = from an ANIMATED tile of the room (torch / candle flames, water; the lights take only those, a gold statue or a yellow wall is not a flame) */
  int lk_hd_focus = 150;   /* depth per picture pixel (screen row of its ground point, 0x7FFF = no blur: HUD / text box / margins), valid when lk_hd_dstamp[line] == lk_hd_gen; focus = Nigel's ground row (tools/patch_hd.py lk_hd_dof) */
@@ -206,7 +207,7 @@ static void lk_o_sprpiece(const uint8 *td, int tile0, int sx, int sy, int w, int
     int ox = hf ? (w * 8 - 1 - px) : px, oy = vf ? (h * 8 - 1 - py) : py, t = tile0 + (ox / 8) * h + (oy / 8), a = t * 32 + (oy % 8) * 4 + (ox % 8) / 2, b, idx, X = sx + px + lk_wide_e, Y = sy + py;
     if (a >= 0x4000) continue;
     b = td[a]; idx = ((ox % 8) % 2 == 0) ? (b >> 4) : (b & 15);
-    if (!idx || X < 0 || X >= 320 + 2 * lk_wide_e || X >= LK_OSW || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200)) continue;
+    if (!idx || X < 0 || X >= 320 + 2 * lk_wide_e || X >= LK_OSW || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200) || (lk_o_smk[Y] && lk_o_smk[Y] - 1 <= lk_o_cidx)) continue;
     lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | (pal * 16 + idx)); lk_o_sprd[Y][X] = (int16_t)lk_o_curd;
     if (hd) { int q = (ox / 8) * h + (oy / 8); lk_o_sprrep[Y][X] = q < 16 ? rp[q] : 0; lk_o_sprpx[Y][X] = (uint8)((ox % 8) | ((oy % 8) << 3) | (hf << 6) | (vf << 7)); }
   }
@@ -218,7 +219,7 @@ static void lk_o_vpiece(int tile0, int sx, int sy, int w, int h, int pal, int pr
     int ox = hf ? (w * 8 - 1 - px) : px, oy = vf ? (h * 8 - 1 - py) : py, t = tile0 + (ox / 8) * h + (oy / 8), a = t * 32 + (oy % 8) * 4 + (ox % 8) / 2, b, idx, X = sx + px + lk_wide_e, Y = sy + py;
     if (a >= 0x10000) continue;
     b = lk_o_vmirror ? lk_vm[a] : vram[a ^ 1]; idx = ((ox % 8) % 2 == 0) ? (b >> 4) : (b & 15);
-    if (!idx || X < 0 || X >= 320 + 2 * lk_wide_e || X >= LK_OSW || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200)) continue;
+    if (!idx || X < 0 || X >= 320 + 2 * lk_wide_e || X >= LK_OSW || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200) || (lk_o_smk[Y] && lk_o_smk[Y] - 1 <= lk_o_cidx)) continue;
     lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | (pal * 16 + idx)); lk_o_sprd[Y][X] = (int16_t)lk_o_curd;
     if (hd) { int q = (ox / 8) * h + (oy / 8); lk_o_sprrep[Y][X] = q < 16 ? rp[q] : 0; lk_o_sprpx[Y][X] = (uint8)((ox % 8) | ((oy % 8) << 3) | (hf << 6) | (vf << 7)); }
   }
@@ -322,6 +323,7 @@ static void lk_o_extras_upto(int upto) {                            /* effects t
     for (i2 = 0; i2 < lk_o_dn2; i2++) if (lk_o_dk2[i2] == k2) { covered = 1; break; }
     if (getenv("LANDSTALKER_OWN_SAT")) printf("ownsat: frame %ld #%d x %d y %d size %X attr %04X %s\n", platform_frame_number(), j, (int)((k2 >> 20) & 0x1FF), (int)((k2 >> 8) & 0x3FF), (int)(k2 & 15), w2, covered ? "covered" : "EXTRA");
     if (covered) continue;
+    lk_o_cidx = j;
     lk_o_vpiece(w2 & 0x7FF, (int)((k2 >> 20) & 0x1FF) - 128, (int)((k2 >> 8) & 0x3FF) - 128, (int)((k2 >> 2) & 3) + 1, (int)(k2 & 3) + 1, (w2 >> 13) & 3, (w2 >> 15) & 1, (w2 >> 11) & 1, (w2 >> 12) & 1);
   }
 }
@@ -411,6 +413,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
       if (keys && nk < 96) keys[nk++] = key;
       if (draw && lk_o_dn < 96) lk_o_dk[lk_o_dn++] = key;
       lk_o_dbgsgi = e->sgi; lk_o_dbganim = e->anim; lk_o_dbgfrm = e->frm;
+      { int j2; lk_o_cidx = lk_o_satn; for (j2 = 0; j2 < lk_o_satn; j2++) if (lk_o_satk[j2] == key) { lk_o_cidx = j2; break; } }
       if (draw) lk_o_sprpiece(e->tiles, cum, e->ax + xx - 128, e->ay + e->pys[pc] - 128, e->pws[pc], e->phs[pc], (e->ts >> 13) & 3, e->prio, (e->ts >> 11) & 1, (e->ts >> 12) & 1);
       cum += e->pws[pc] * e->phs[pc];
     }
@@ -1281,6 +1284,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         for (n4 = 0; n4 < 80 && ns < 96; n4++) { int y = ((LK_SATB(8 * i4) << 8) | LK_SATB(8 * i4 + 1)) & 0x1FF, sz = (LK_SATB(8 * i4 + 2) << 8) | LK_SATB(8 * i4 + 3), x = ((LK_SATB(8 * i4 + 6) << 8) | LK_SATB(8 * i4 + 7)) & 0x1FF;
           lk_o_satw[ns] = (LK_SATB(8 * i4 + 4) << 8) | LK_SATB(8 * i4 + 5); lk_o_satt[ns] = lk_o_satw[ns] & 0x7FF; sat[ns] = (uint32)(x << 20 | y << 8 | ((sz >> 8) & 15)); lk_o_satk[ns] = sat[ns]; ns++; i4 = sz & 0x7F; if (!i4) break; }
         lk_o_satn = ns;
+        { int L, j; for (L = 0; L < 224; L++) { int seen = 0; lk_o_smk[L] = 0; for (j = 0; j < ns; j++) { int y0 = (int)((lk_o_satk[j] >> 8) & 0x1FF) - 128, h8 = 8 * (int)((lk_o_satk[j] & 3) + 1), x0 = (int)((lk_o_satk[j] >> 20) & 0x1FF); if (L < y0 || L >= y0 + h8) continue; if (x0) seen = 1; else if (seen) { lk_o_smk[L] = j + 1; break; } } } }   /* the VDP's sprite mask */
         { const uint8 *rc = r, *rp = lk_o_use; lk_o_cc = rc; lk_o_cp = rp;
         nc = lk_o_sprites(rc, 0, kc, 0); np_ = lk_o_sprites(rp, 0, kp, 0); }
         for (i5 = 0; i5 < nc; i5++) for (j5 = 0; j5 < ns; j5++) if (kc[i5] == sat[j5]) { mc++; break; }
