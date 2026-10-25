@@ -12,7 +12,7 @@ mats = [cmat.get(n) for n in ("bark", "post", "endgrain", "dark", "hole", "thatc
 M = blx.Mesh("massan_house_vc", mats); M.density = 1.0
 # 1:1 the original (user 2026-10-25: 'mach es mal 1:1 wie im Original'): the picture's heights (door 35 > Nigel's 31), only a little more eave
 H.POSTS = dict(H.POSTS, E=[445, 452, 462.5, 485.5, 492, 499])               # the door posts stand just beside the opening (picture), not in it
-H.build(M, nseg=20, den=1.0, roof_jitter=0.5, hx=H.HX + 1.5, lip=3.5, door="open", course=6.5, step=1.8, ridge_knot=True)      # open dark doorway like the original
+H.build(M, nseg=20, den=1.0, roof_jitter=0.5, hx=H.HX + 1.5, lip=3.5, door="open", ridge_knot=True)      # open dark doorway like the original
 # the sign: a small plank board with a modelled skull
 ya = (H.DOOR["a0"] + H.DOOR["a1"]) / 2; zc = 42.0                                          # centred over the door, above the lintel (like the original)
 ob = M.finish()
