@@ -41,6 +41,8 @@ extern int lk_eq_is_held(void);
 extern void lk_quick_capture(int id);
 extern int lk_quick_icon_have(int id);
 extern void lk_osd_equip_flash(int cat);
+extern int lk_osd_equip_armed(int cat);
+extern void lk_osd_equip_disarm(void);
 static gen_func_t lk_o_cur_eq;
 extern void lk_osd_say(const char *t);
 static gen_func_t lk_o_pab_eq;
@@ -50,6 +52,7 @@ static void lk_eq_apply(int cat) {
     static const char *nm[4][4] = { { "MAGIC", "THUNDER", "ICE", "GAIA" }, { "STEEL", "CHROME", "SHELL", "HYPER" }, { "HEALING", "FIREPROOF", "IRON", "SPIKE" }, { "SATURN", "MARS", "MOON", "VENUS" } };
     static const char *kind[4] = { "SWORD", "ARMOUR", "BOOTS", "RING" };
     int cur = bus_read8(0xFF114Eu + (uint32_t)cat), idx = -1, k, j = -1; char t[48];
+    if (!lk_osd_equip_armed(cat)) { lk_osd_equip_flash(cat); return; }   /* first press of a direction only shows the pieces (user: switched by accident too often), the second press switches */
     for (k = 0; k < 4; k++) if (lay[cat][k] == cur) idx = k;
     for (k = 1; k <= 4 && j < 0; k++) { int c = (idx + k + 4) % 4; if (lay[cat][c] != cur && lk_eq_owned(lay[cat][c])) j = c; }
     if (j < 0) { lk_snd(0x00DBBEu); snprintf(t, sizeof t, "NO OTHER %s", kind[cat]); lk_osd_say(t); return; }
@@ -95,6 +98,7 @@ static void lk_h_pab_eq(void) {
         lk_call(0x000B5Eu);   /* WaitUntilVBlank */
         c = lk_eq_take();
     }
+    lk_osd_equip_disarm();
     lk_o_pab_eq();
 }
 static void lk_eq_install(void) {

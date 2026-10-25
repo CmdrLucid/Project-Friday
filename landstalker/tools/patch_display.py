@@ -94,7 +94,9 @@ extern int lk_eq_is_held(void);
 extern int lk_quick_icon_rgb(int id, int i);
 extern uint8_t bus_read8(uint32_t addr);
 static int lk_eq_flash_cat = -1, lk_eq_flash_frames;
-void lk_osd_equip_flash(int cat) { lk_eq_flash_cat = cat; lk_eq_flash_frames = 60; }
+void lk_osd_equip_flash(int cat) { lk_eq_flash_cat = cat; lk_eq_flash_frames = 90; }
+int lk_osd_equip_armed(int cat) { return lk_eq_flash_cat == cat && lk_eq_flash_frames > 0; }   /* the strip of this kind is on screen: the next press switches (first press only shows) */
+void lk_osd_equip_disarm(void) { lk_eq_flash_frames = 0; }
 extern uint8_t lk_eq_own[16];
 static void lk_eq_text(int x, int y, const char *t, int sc, int r, int g, int b) {   /* small text with the game's glyphs, sc = pixel size */
     SDL_SetRenderDrawColor(s_renderer, r, g, b, 255);
