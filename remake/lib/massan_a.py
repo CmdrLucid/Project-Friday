@@ -245,13 +245,45 @@ def voxels(vs=1.0):
 
 # ---- shared preview set ---------------------------------------------------------------------------------------------------------------------------
 VIEWS = [("game", None), ("turn_l", -35), ("turn_r", 35), ("back", 150), ("side", 200)]
-def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=False):
+def add_figure(png_path, game_pos, light=0.55):
+    """a pixel figure (rom_sprite.py cut-out) as a camera-facing billboard standing at game_pos (feet = bottom row, 1 image pixel = 1 unit / scale2x factor);
+    lit a little by the scene (HD-2D style) and casting a shadow.  Returns the object (render_set(figures=...) turns it to every camera)."""
+    import bpy, bmesh
+    img = bpy.data.images.load(png_path); img.colorspace_settings.name = "sRGB"; w, h = img.size
+    k = 1.0
+    txt = os.path.splitext(png_path)[0] + ".txt"
+    if os.path.exists(txt): k = float(open(txt).read().split()[2])
+    W, Hh = w / k, h / k
+    me = bpy.data.meshes.new("figure"); b = bmesh.new(); uvl = b.loops.layers.uv.new("UV")
+    f = b.faces.new([b.verts.new(p) for p in ((-W / 2, 0, 0), (W / 2, 0, 0), (W / 2, 0, Hh), (-W / 2, 0, Hh))])
+    for l, uv in zip(f.loops, ((0, 0), (1, 0), (1, 1), (0, 1))): l[uvl].uv = uv
+    b.to_mesh(me); b.free()
+    m = bpy.data.materials.new("figure"); m.use_nodes = True; nt = m.node_tree; nt.nodes.clear(); L = nt.links.new
+    o = nt.nodes.new("ShaderNodeOutputMaterial"); t = nt.nodes.new("ShaderNodeTexImage"); t.image = img; t.interpolation = "Closest"
+    bs = nt.nodes.new("ShaderNodeBsdfPrincipled"); bs.inputs["Roughness"].default_value = 0.9
+    L(t.outputs["Color"], bs.inputs["Base Color"]); L(t.outputs["Alpha"], bs.inputs["Alpha"])
+    if "Emission Color" in bs.inputs: L(t.outputs["Color"], bs.inputs["Emission Color"]); bs.inputs["Emission Strength"].default_value = light
+    L(bs.outputs["BSDF"], o.inputs["Surface"])
+    if hasattr(m, "surface_render_method"): m.surface_render_method = "DITHERED"
+    me.materials.append(m); ob = bpy.data.objects.new("figure", me); bpy.context.scene.collection.objects.link(ob)
+    ob.location = G(*game_pos); return ob
+
+def face_camera(ob, co, upright=True):
+    import bpy, mathutils
+    bpy.context.view_layer.update()                                          # the camera was just moved: refresh its matrix first
+    d = co.matrix_world.to_quaternion() @ mathutils.Vector((0, 0, 1))          # towards the camera (orthographic: the view direction)
+    if co.data.type == "PERSP": d = co.location - ob.location
+    if upright: d.z = 0
+    ob.rotation_euler = d.normalized().to_track_quat("-Y", "Z").to_euler()
+
+def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=False, figures=()):
     """game view (the original's projection, heights squashed like the game) + turned views and a low perspective 'hero' shot (true heights).
     Needs the scene filled; uses blx.game_view (sets light / world).  Files: out/<view>.png"""
     import bpy, mathutils, blx
     T = G(CX, CY, 38); size = (int(208 * px), int(190 * px))
     sc, co = blx.game_view(os.path.join(out, "game.png"), px_per_unit=px, size=size, target=T, squash=squash_game)
     if not outlines: sc.render.use_freestyle = False
+    for f in figures: f.scale = (1, 1, 1); face_camera(f, co, upright=False)   # game view: the figure faces the screen like the original sprite
     if modern:                                                                 # warm low sun, soft shadows (variant C: + filmic AgX colours; modern="std" keeps the colours)
         if modern != "std":
             sc.view_settings.view_transform = "AgX"
@@ -266,9 +298,12 @@ def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=F
     if squash_game:
         for ob in sc.objects:
             if ob.type == "MESH": ob.scale.z /= math.sqrt(2.0 / 3.0)
+    for f in figures: f.scale = (1, 1, 1)
     Tt = (T[0], T[1], 34)
     for name, yaw in VIEWS[1:]:
-        blx.orbit(co, Tt, yaw, 28); sc.render.filepath = os.path.join(out, name + ".png"); bpy.ops.render.render(write_still=True)
+        blx.orbit(co, Tt, yaw, 28)
+        for f in figures: face_camera(f, co)
+        sc.render.filepath = os.path.join(out, name + ".png"); bpy.ops.render.render(write_still=True)
     cd = co.data; cd.type = "PERSP"; cd.lens = 35; cd.clip_start = 1
     a = math.radians(-45 + 25); el = math.radians(9); dist = 175
     co.location = mathutils.Vector(Tt) + mathutils.Vector((math.cos(el) * math.cos(a), math.cos(el) * math.sin(a), math.sin(el))) * dist
@@ -276,4 +311,5 @@ def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=F
     co.rotation_euler = (mathutils.Vector((Tt[0], Tt[1], 30)) - co.location).to_track_quat("-Z", "Y").to_euler()
     if dof:
         cd.dof.use_dof = True; cd.dof.focus_distance = (mathutils.Vector(Tt) - co.location).length * 0.9; cd.dof.aperture_fstop = 0.04
+    for f in figures: face_camera(f, co)
     sc.render.filepath = os.path.join(out, "hero.png"); bpy.ops.render.render(write_still=True)

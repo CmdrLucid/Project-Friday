@@ -59,5 +59,8 @@ bpy.context.scene.collection.objects.link(bpy.data.objects.new("ground", gme))
 bpy.ops.object.select_all(action="DESELECT"); ob.select_set(True); bpy.context.view_layer.objects.active = ob
 bpy.ops.export_scene.gltf(filepath=os.path.join(out, "massan_house_vc.glb"), export_format="GLB", use_selection=True, export_apply=True, export_yup=True)
 sc = bpy.context.scene
-H.render_set(out, px=float(os.environ.get("R_PX", "2")), dof=True, modern=True)
+figs = []                                                                   # R_FIGURE = a rom_sprite.py cut-out (local), standing in front of the door
+fig = os.path.expanduser(os.environ.get("R_FIGURE", ""))
+if fig and os.path.exists(fig): figs.append(H.add_figure(fig, (H.X1 + 20, H.DOOR["a1"] + 8, 0)))
+H.render_set(out, px=float(os.environ.get("R_PX", "2")), dof=True, modern=True, figures=figs)
 print("massan_house_vc done ->", out)
