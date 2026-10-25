@@ -42,5 +42,6 @@ sc = bpy.context.scene
 figs = []                                                                   # R_FIGURE = a rom_sprite.py cut-out (local), standing in front of the door
 fig = os.path.expanduser(os.environ.get("R_FIGURE", ""))
 if fig and os.path.exists(fig): figs.append(H.add_figure(fig, (H.X1 + 22, H.DOOR["a1"] + 10, 0)))
-H.render_set(out, px=float(os.environ.get("R_PX", "2")), dof=True, modern=True, figures=figs, quarter=True, tz=52, fh=235)
+H.render_set(out, px=float(os.environ.get("R_PX", "2")), dof=True, modern=True, figures=figs, quarter=True, tz=52, fh=235) if not os.environ.get("R_ALIGN") else \
+    H.render_set(out, px=2.0, dof=False, modern=True, figures=figs, tz=44, fh=216)       # R_ALIGN=1: game view exactly on the window of rom_picture.py (overlay test)
 print("massan_house_vc done ->", out)
