@@ -43,6 +43,10 @@ class Picture:
         self.a = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)[::-1]     # row 0 = top; values = sRGB / 255
         self.w, self.h = w, h
     def uv(self, x, y, z): return ((x - y + 1184 - self.U0) * self.K, ((x + y) / 2 - z - self.V0) * self.K)
+    def at_many(self, x, y, z):
+        """vectorised at(): arrays of world points -> (n, 4) colours (alpha 0 outside the picture)."""
+        u = np.floor((x - y + 1184 - self.U0) * self.K).astype(int); v = np.floor(((x + y) / 2 - z - self.V0) * self.K).astype(int)
+        ok = (u >= 0) & (u < self.w) & (v >= 0) & (v < self.h); c = self.a[np.clip(v, 0, self.h - 1), np.clip(u, 0, self.w - 1)].copy(); c[~ok] = 0; return c
     def at(self, x, y, z):
         u, v = self.uv(x, y, z); u, v = int(math.floor(u)), int(math.floor(v))
         if 0 <= u < self.w and 0 <= v < self.h: return self.a[v, u]
@@ -93,8 +97,8 @@ def ground_texture(pic_full, n=64):
     return f, n, n
 
 # ---- modelled geometry (variants A and C) ---------------------------------------------------------------------------------------------------------
-def contour(t, rc0=6.0, K=(24, 5)):
-    hx = HX - t; rc = max(rc0 - t, 0.0); pts = []
+def contour(t, rc0=6.0, K=(24, 5), hx0=HX):
+    hx = hx0 - t; rc = max(rc0 - t, 0.0); pts = []
     corners = [(hx - rc, hx - rc, 0), (-(hx - rc), hx - rc, 90), (-(hx - rc), -(hx - rc), 180), (hx - rc, -(hx - rc), 270)]
     for ci, (cx, cy, a0) in enumerate(corners):
         for j in range(K[1]):
@@ -104,9 +108,10 @@ def contour(t, rc0=6.0, K=(24, 5)):
         for j in range(1, K[0]): pts.append((ex + (tx - ex) * j / K[0], ey + (ty - ey) * j / K[0]))
     return pts
 
-def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, smooth_roof=False):
+def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, door="dark", door_top=None):
     """adds the house to a blx.Mesh with materials bark, post, endgrain, dark, hole, thatch, under (+ 'sign' if sign_uv is given:
-    function (x, y, z) -> texel uv of the sign image)."""
+    function (x, y, z) -> texel uv of the sign image).  hx > HX = more roof overhang (the slope continues down past the picture's eave),
+    lip = eave roll radius; door = 'dark' (opening as in the picture) or 'planks' (frame + plank door leaf + handle; needs material 'plank')."""
     import random
     rnd = random.Random(5)
     # dark core: the seams between the logs show black like the original
@@ -116,7 +121,7 @@ def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, smooth_roof=False)
         for i, zc in enumerate(LOG_Z):
             r = RL * (0.92 if rnd.random() > 0.5 else 0.88)
             segs = [(L0 - EXT, L1 + EXT)]
-            if side == DOOR["side"] and zc - r < DOOR["top"]: segs = [(L0 - EXT, DOOR["a0"]), (DOOR["a1"], L1 + EXT)]
+            if side == DOOR["side"] and zc - r < (door_top or DOOR["top"]) + (1.0 if door_top else 0.0): segs = [(L0 - EXT, DOOR["a0"]), (DOOR["a1"], L1 + EXT)]
             for a, b in segs:
                 pa = G(*wall_pos(side, a, -RL, zc)); pb = G(*wall_pos(side, b, -RL, zc))
                 M.cylinder("bark", pa, pb, r, n=nseg, cap="endgrain", density=den)
@@ -124,11 +129,30 @@ def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, smooth_roof=False)
             top = POST_TOP + rnd.random() * 1.2
             M.cylinder("post", G(*wall_pos(side, a, POST_R - 0.6, -1)), G(*wall_pos(side, a, POST_R - 0.6, top)), POST_R, n=nseg, cap="endgrain", density=den)
             M.cylinder("post", G(*wall_pos(side, a, POST_R - 0.6, top)), G(*wall_pos(side, a, POST_R - 0.6, top + 1.6)), POST_R * 0.7, n=nseg, cap="endgrain", density=den)
-    # door: dark opening, lintel, threshold
-    d = DOOR; s = d["side"]
-    M.face("dark", [G(*wall_pos(s, d["a0"], -RL, 0)), G(*wall_pos(s, d["a1"], -RL, 0)), G(*wall_pos(s, d["a1"], -RL, d["top"])), G(*wall_pos(s, d["a0"], -RL, d["top"]))][::-1], [(0, 0), (16, 0), (16, 16), (0, 16)])
-    M.cylinder("post", G(*wall_pos(s, d["a0"] - 3, 1.0, d["top"] + 1.5)), G(*wall_pos(s, d["a1"] + 3, 1.0, d["top"] + 1.5)), 2.2, n=nseg, cap="endgrain", density=den)
-    M.cylinder("post", G(*wall_pos(s, d["a0"] - 1, 0.5, 0.8)), G(*wall_pos(s, d["a1"] + 1, 0.5, 0.8)), 1.0, n=6, density=den)
+    # door: dark opening (or a plank door in a frame), lintel, threshold
+    d = dict(DOOR, top=door_top or DOOR["top"]); s = d["side"]
+    if door == "planks":
+        wd = d["a1"] - d["a0"]; inset = -2.6                                       # leaf: in front of the dark core (x 361), behind the log fronts
+        for sgn, a in ((-1, d["a0"]), (1, d["a1"])):                                # jambs: square posts in the opening
+            p = [wall_pos(s, a - sgn * 0.0, 1.2, 0), wall_pos(s, a - sgn * 2.2, -2 * RL + 0.5, d["top"] + 0.5)]
+            M.box("post", min(p[0][0], p[1][0]), max(p[0][0], p[1][0]), -max(p[0][1], p[1][1]), -min(p[0][1], p[1][1]), 0, d["top"] + 0.5)
+        n = 4; pw = (wd - 4.4) / n
+        for k in range(n):                                                         # vertical planks, small gaps, slightly uneven tops
+            a0 = d["a0"] + 2.2 + k * pw + 0.15; a1 = a0 + pw - 0.3; zt = d["top"] - 0.3 - rnd.random() * 0.6
+            p0 = wall_pos(s, a0, inset - 1.0, 0); p1 = wall_pos(s, a1, inset, zt)
+            M.box("plank", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), 0.2, zt)
+        for zb in (7.0, d["top"] - 8.0):                                           # two battens across the planks
+            p0 = wall_pos(s, d["a0"] + 2.6, inset, zb); p1 = wall_pos(s, d["a1"] - 2.6, inset + 0.8, zb + 2.2)
+            M.box("post", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), zb, zb + 2.2)
+        hc = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, 17.0)); e1 = G(*wall_pos(s, d["a1"] - 3.5, inset + 1.4, 17.0)); e2 = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, 18.0))
+        M.torus("dark", hc, tuple(e1[i] - hc[i] for i in range(3)), tuple(e2[i] - hc[i] for i in range(3)), 1.3, 0.35, n=16, m=6)
+        M.cylinder("post", G(*wall_pos(s, d["a0"] - 3, 1.2, d["top"] + 2.0)), G(*wall_pos(s, d["a1"] + 3, 1.2, d["top"] + 2.0)), 2.7, n=nseg, cap="endgrain", density=den)
+        p0 = wall_pos(s, d["a0"] - 1, 3.0, 0); p1 = wall_pos(s, d["a1"] + 1, -2 * RL, 1.2)       # stone-ish step
+        M.box("post", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), 0, 1.2)
+    else:
+        M.face("dark", [G(*wall_pos(s, d["a0"], -RL, 0)), G(*wall_pos(s, d["a1"], -RL, 0)), G(*wall_pos(s, d["a1"], -RL, d["top"])), G(*wall_pos(s, d["a0"], -RL, d["top"]))][::-1], [(0, 0), (16, 0), (16, 16), (0, 16)])
+        M.cylinder("post", G(*wall_pos(s, d["a0"] - 3, 1.0, d["top"] + 1.5)), G(*wall_pos(s, d["a1"] + 3, 1.0, d["top"] + 1.5)), 2.2, n=nseg, cap="endgrain", density=den)
+        M.cylinder("post", G(*wall_pos(s, d["a0"] - 1, 0.5, 0.8)), G(*wall_pos(s, d["a1"] + 1, 0.5, 0.8)), 1.0, n=6, density=den)
     # round window: ring + dark hole
     w = WINDOW; c0 = G(*wall_pos(w["side"], w["a"], 0.8, w["z"])); e1 = G(*wall_pos(w["side"], w["a"] + 1, 0.8, w["z"])); e2 = G(*wall_pos(w["side"], w["a"], 0.8, w["z"] + 1))
     M.torus("post", c0, tuple(e1[i] - c0[i] for i in range(3)), tuple(e2[i] - c0[i] for i in range(3)), w["R"], w["r"], n=max(24, nseg * 2), m=8)
@@ -138,15 +162,17 @@ def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, smooth_roof=False)
     if sign_uv:
         g = SIGN; q = [wall_pos(g["side"], g["a1"], 1.5, g["z0"]), wall_pos(g["side"], g["a0"], 1.5, g["z0"]), wall_pos(g["side"], g["a0"], 1.5, g["z1"]), wall_pos(g["side"], g["a1"], 1.5, g["z1"])]
         M.face("sign", [G(*p) for p in q], [sign_uv(*p) for p in q])
-    # roof: eave roll + bulging hip roof up to the top
-    LIP = 3.5; rings = []
+    # roof: eave roll + bulging hip roof up to the top (with hx > HX the slope runs on down past the picture's eave)
+    off = hx - HX; LIP = lip; rings = []
+    def rzz(t): return rz(t - off) if t >= off else ZE - (off - t) * 0.62
+    ze = rzz(LIP)
     for k in range(7):
-        phi = math.radians(-90 + 180 * k / 6); pts = contour(LIP * (1 - math.cos(phi))); jit = math.cos(phi) * roof_jitter
+        phi = math.radians(-90 + 180 * k / 6); pts = contour(LIP * (1 - math.cos(phi)), hx0=hx); jit = math.cos(phi) * roof_jitter
         pts = [(x + (rnd.random() - 0.5) * jit, y + (rnd.random() - 0.5) * jit) for x, y in pts]
-        rings.append((pts, ZE - LIP + LIP * math.sin(phi)))
-    for k in range(1, 15):
-        t = LIP + (HX - 0.8 - LIP) * k / 14; rings.append((contour(t), rz(t)))
-    tex = lambda x, y: ((x - (CX - HX)) * den, ((CY + HX) - y) * den)
+        rings.append((pts, ze - LIP + LIP * math.sin(phi)))
+    for k in range(1, 17):
+        t = LIP + (hx - 0.8 - LIP) * k / 16; rings.append((contour(t, hx0=hx), rzz(t)))
+    tex = lambda x, y: ((x - (CX - hx)) * den, ((CY + hx) - y) * den)
     for (A, za), (B, zb) in zip(rings, rings[1:]):
         n = len(A)
         for i in range(n):
@@ -165,11 +191,12 @@ def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, smooth_roof=False)
 
 # ---- voxel occupancy (variant B) ------------------------------------------------------------------------------------------------------------------
 MAT = dict(empty=0, core=1, log=2, post=3, roof=4, stick=5, ring=6, hole=7, door=8, sign=9)
-def voxels():
-    """occupancy grid, 1 voxel = 1 unit; returns (mat array [x, y, z] uint8, origin (x, y, z) of voxel 0, 0, 0)."""
-    ox, oy, oz = 278, 422, 0; nx, ny, nz = 102, 102, 92
-    xs = ox + 0.5 + np.arange(nx); ys = oy + 0.5 + np.arange(ny); zs = oz + 0.5 + np.arange(nz)
-    X, Y, Z = np.meshgrid(xs, ys, zs, indexing="ij"); V = np.zeros((nx, ny, nz), np.uint8)
+def voxels(vs=1.0):
+    """occupancy grid, voxel edge vs units (1 = one game pixel); returns (mat [x, y, z] uint8, side of the log voxels [x, y, z] uint8
+    (1 S, 2 N, 3 E, 4 W), origin (x, y, z) of voxel 0, 0, 0)."""
+    ox, oy, oz = 278, 422, 0; nx, ny, nz = int(102 / vs), int(102 / vs), int(92 / vs)
+    xs = (ox + vs * (0.5 + np.arange(nx))).astype(np.float32); ys = (oy + vs * (0.5 + np.arange(ny))).astype(np.float32); zs = (oz + vs * (0.5 + np.arange(nz))).astype(np.float32)
+    X, Y, Z = np.meshgrid(xs, ys, zs, indexing="ij"); V = np.zeros((nx, ny, nz), np.uint8); LS = np.zeros((nx, ny, nz), np.uint8)
     def seg_dist(p0, p1):
         p0 = np.array(p0); d = np.array(p1) - p0; L2 = d @ d
         t = np.clip(((X - p0[0]) * d[0] + (Y - p0[1]) * d[1] + (Z - p0[2]) * d[2]) / L2, 0, 1)
@@ -188,7 +215,7 @@ def voxels():
                 yc = Y1 - RL if side == "S" else Y0 + RL; m = ((Y - yc) ** 2 + (Z - zc) ** 2 < r2) & (X > X0 - EXT) & (X < X1 + EXT)
             else:
                 xc = X1 - RL if side == "E" else X0 + RL; m = ((X - xc) ** 2 + (Z - zc) ** 2 < r2) & (Y > Y0 - EXT) & (Y < Y1 + EXT)
-            V[m & (Z < ZE - 1)] = MAT["log"]
+            V[m & (Z < ZE - 1)] = MAT["log"]; LS[m & (Z < ZE - 1)] = "SNEW".index(side) + 1
     # door (carved, dark back)
     d = DOOR; dm = (X > X1 - 2 * RL - 1) & (Y > d["a0"]) & (Y < d["a1"]) & (Z < d["top"])
     V[dm] = 0; V[dm & (X < X1 - 2 * RL)] = MAT["door"]
@@ -214,7 +241,7 @@ def voxels():
             if ax == 0: p0, p1 = (CX - dw * sgn, CY + 1.4 * sgn, ZT - 3), (CX + dw * sgn, CY + 1.4 * sgn, ZT - 3 + 2 * dz)
             else: p0, p1 = (CX + 1.4 * sgn, CY - dw * sgn, ZT - 3), (CX + 1.4 * sgn, CY + dw * sgn, ZT - 3 + 2 * dz)
             V[seg_dist(p0, p1) < 1.7] = MAT["stick"]
-    return V, (ox, oy, oz)
+    return V, LS, (ox, oy, oz)
 
 # ---- shared preview set ---------------------------------------------------------------------------------------------------------------------------
 VIEWS = [("game", None), ("turn_l", -35), ("turn_r", 35), ("back", 150), ("side", 200)]
@@ -225,10 +252,11 @@ def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=F
     T = G(CX, CY, 38); size = (int(208 * px), int(190 * px))
     sc, co = blx.game_view(os.path.join(out, "game.png"), px_per_unit=px, size=size, target=T, squash=squash_game)
     if not outlines: sc.render.use_freestyle = False
-    if modern:                                                                 # warm low sun, filmic colours, soft shadows (variant C)
-        sc.view_settings.view_transform = "AgX"
-        try: sc.view_settings.look = "AgX - Medium High Contrast"
-        except Exception: pass
+    if modern:                                                                 # warm low sun, soft shadows (variant C: + filmic AgX colours; modern="std" keeps the colours)
+        if modern != "std":
+            sc.view_settings.view_transform = "AgX"
+            try: sc.view_settings.look = "AgX - Medium High Contrast"
+            except Exception: pass
         sun = bpy.data.objects["sun"]; sun.data.energy = 4.5; sun.data.color = (1.0, 0.86, 0.68); sun.data.angle = math.radians(6)
         sun.rotation_euler = (-mathutils.Vector((-0.55, -0.6, 0.55))).to_track_quat("-Z", "Y").to_euler()
         sc.world.node_tree.nodes["Background"].inputs[0].default_value = (0.55, 0.7, 1.0, 1); sc.world.node_tree.nodes["Background"].inputs[1].default_value = 0.8

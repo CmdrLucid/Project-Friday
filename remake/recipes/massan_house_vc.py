@@ -31,12 +31,13 @@ mats = [pmat("bark", (40, 84, 20), (104, 134, 40), scale=0.25, stretch=(5, 1, 1)
         pmat("dark", (10, 12, 8), (24, 26, 16), rough=1.0), pmat("hole", (8, 14, 10), (20, 28, 20), rough=1.0),
         pmat("thatch", (176, 126, 30), (240, 200, 90), scale=0.25, stretch=(1, 1, 4), bump=1.0, rough=0.9, streaks=3.0),
         pmat("under", (110, 80, 24), (150, 112, 40), rough=1.0),
-        pmat("bone", (226, 220, 200), (246, 242, 230), scale=0.5, bump=0.1, rough=0.5)]
+        pmat("bone", (226, 220, 200), (246, 242, 230), scale=0.5, bump=0.1, rough=0.5),
+        pmat("plank", (92, 58, 28), (128, 84, 44), scale=0.3, stretch=(1, 1, 6), bump=0.4, rough=0.85)]
 M = blx.Mesh("massan_house_vc", mats); M.density = 1.0
-H.build(M, nseg=20, den=1.0, roof_jitter=0.5)
+H.build(M, nseg=20, den=1.0, roof_jitter=0.5, hx=H.HX + 4.5, lip=4.5, door="planks", door_top=29.0)
 # the sign: a small plank board with a modelled skull
-g = H.SIGN; ya = (g["a0"] + g["a1"]) / 2; zc = (g["z0"] + g["z1"]) / 2
-M.box("post", H.X1 + 0.4, H.X1 + 1.6, -(g["a1"] - 1), -(g["a0"] + 1), g["z0"] + 2, g["z1"] - 1)
+ya = (H.DOOR["a0"] + H.DOOR["a1"]) / 2; zc = 37.0                                          # centred over the door, above the lintel
+M.box("post", H.X1 + 0.4, H.X1 + 1.6, -(ya + 5.5), -(ya - 5.5), zc - 4.5, zc + 4.5)
 ob = M.finish()
 for p in ob.data.polygons: p.use_smooth = True
 import bmesh, mathutils
@@ -46,9 +47,10 @@ def blob(name, mat, centre, scale):
     for p in me.polygons: p.use_smooth = True
     me.materials.append(mat); o = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(o); return o
 bone = bpy.data.materials["bone"]; drk = bpy.data.materials["dark"]
-sx = H.X1 + 3.4
-blob("skull", bone, H.G(sx, ya, zc + 1), (2.2, 4.2, 4.0)); blob("jaw", bone, H.G(sx + 0.4, ya, zc - 3), (1.8, 2.8, 1.6))
-for dy in (-1.6, 1.6): blob("eye", drk, H.G(sx + 1.7, ya + dy, zc + 1.2), (0.8, 1.1, 1.2))
+sx = H.X1 + 3.0
+blob("skull", bone, H.G(sx, ya, zc + 0.8), (2.4, 3.4, 3.3)); blob("jaw", bone, H.G(sx + 0.5, ya, zc - 2.4), (1.9, 2.3, 1.4))
+for dy in (-1.3, 1.3): blob("eye", drk, H.G(sx + 1.9, ya + dy, zc + 0.6), (0.7, 0.9, 1.0))
+blob("nose", drk, H.G(sx + 2.1, ya, zc - 1.0), (0.4, 0.4, 0.6))
 # ground: soft grass / dirt
 gm = pmat("ground", (120, 96, 52), (88, 116, 44), scale=0.02, detail=6.0, bump=0.1, rough=1.0)
 gme = bpy.data.meshes.new("ground"); b = bmesh.new(); s = 260
