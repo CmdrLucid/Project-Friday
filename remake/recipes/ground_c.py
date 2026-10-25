@@ -1,7 +1,7 @@
 """ASSET 5a (style C, 2026-10-25): the DIRT PATH / village ground (user: 'mach erstmal nur den Erdweg').
 Original (rooms 592 / 424): packed ochre earth, fine dark grit, light diagonal drag marks, a few small pebbles; on the route the path is a band through
 the grass with a soft raised grass lip.  Built here: a subdivided ground mesh with gentle unevenness (worn path slightly lower than the edges, shallow
-wheel / foot ruts along the path), material cmat.dirt_mat, small pebbles ('boulder').  The grass around it is a PLACEHOLDER (asset 5b).
+wheel / foot ruts along the path), material cmat.dirt_mat (no pebbles: user).  The grass around it is a PLACEHOLDER (asset 5b).
 Run: R_FIGURE=~/.landstalker_remake/figures/nigel_a4.png R_CLOSE=1 python3 remake/tools/build_asset.py ground_c"""
 import bpy, bmesh, sys, os, math, random, mathutils
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lib")); import blx, cmat, massan_a as H
@@ -46,17 +46,6 @@ me = bpy.data.meshes.new("ground"); bm.to_mesh(me); bm.free()
 for p in me.polygons: p.use_smooth = True
 me.materials.append(dirt)
 ob = bpy.data.objects.new("ground", me); bpy.context.scene.collection.objects.link(ob)
-bp = bmesh.new()                                                                # pebbles on the path
-for k in range(14):
-    for _ in range(50):
-        x = cx - S + 10 + rnd.random() * (2 * S - 20); y = cy - S + 10 + rnd.random() * (2 * S - 20)
-        if path_d(x, y) < W / 2 - 3: break
-    r = 0.8 + rnd.random() * 1.0; res = bmesh.ops.create_icosphere(bp, subdivisions=2, radius=r)
-    for v in res["verts"]: v.co.z *= 0.6
-    bmesh.ops.translate(bp, vec=G(x, y, -0.3), verts=res["verts"])
-pm = bpy.data.meshes.new("pebbles"); bp.to_mesh(pm); bp.free()
-for p in pm.polygons: p.use_smooth = True
-pm.materials.append(cmat.get("boulder")); bpy.context.scene.collection.objects.link(bpy.data.objects.new("pebbles", pm))
 figs = []
 fig = os.path.expanduser(os.environ.get("R_FIGURE", ""))
 if fig and os.path.exists(fig): figs.append(H.add_figure(fig, (cx - 20, cy + 10, -0.6)))
