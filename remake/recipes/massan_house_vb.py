@@ -5,15 +5,35 @@ Colours: a voxel the original camera sees (the front one along its view ray, dir
 Hidden voxels: logs = the log swatch of variant A by angle around the log + position along it; roof = the thatch swatch of variant A (top planar);
 posts / sticks = the mirrored seen voxel (positions are symmetric), else a seen voxel of the same kind at the same height; core / door = dark.
 R_LIT=1 (default): lit material (sun, soft shadows, ambient occlusion) on a soft ground; R_LIT=0: unlit, fixed shade per face direction, pixel ground.
-Run: python3 remake/tools/build_asset.py massan_house_vb"""
+R_COL = orig (default: the picture as it is) / dedither (the picture smoothed inside areas of similar colour, then snapped back to its own palette:
+the dither checkers turn into flat shades, black seams stay) / clean (every voxel coloured by a pattern per kind in the original's palette: logs by the
+angle around the log, posts lit on the south east side, thatch in courses with strands; only the skull keeps the picture).  Output: <out>[_mode]/.
+Run: python3 remake/tools/build_asset.py massan_house_vb   (R_COL=clean python3 remake/tools/build_asset.py massan_house_vb)"""
 import bpy, sys, os, math
 import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lib")); import blx, massan_a as H
-out = os.environ.get("R_OUT", "/tmp/massan_house_vb"); os.makedirs(out, exist_ok=True)
+MODE = os.environ.get("R_COL", "orig")
+out = os.environ.get("R_OUT", "/tmp/massan_house_vb").rstrip("/") + ("" if MODE == "orig" else "_" + MODE); os.makedirs(out, exist_ok=True)
 pic_dir = os.path.expanduser(os.environ.get("R_PIC", "~/.landstalker_remake/rooms/592_houseA"))
 VS = float(os.environ.get("R_VS", "0.5")); LIT = os.environ.get("R_LIT", "1") == "1"
 bpy.ops.wm.read_factory_settings(use_empty=True)
 pic = H.Picture(pic_dir); full = H.Picture(pic_dir, "full.png"); M_ = H.MAT
+def dedither(a, rad=3, thr=0.5):
+    """edge preserving smoothing (only neighbours of similar colour count), then back to the picture's own palette."""
+    rgb = a[..., :3]; al = a[..., 3] > 0.5; h, w = al.shape
+    acc = np.zeros_like(rgb); cnt = np.zeros((h, w, 1), np.float32)
+    P = np.pad(rgb, ((rad, rad), (rad, rad), (0, 0))); PA = np.pad(al, rad)
+    for dy in range(-rad, rad + 1):
+        for dx in range(-rad, rad + 1):
+            nb = P[rad + dy:rad + dy + h, rad + dx:rad + dx + w]; na = PA[rad + dy:rad + dy + h, rad + dx:rad + dx + w]
+            wgt = (na & (np.sqrt(((nb - rgb) ** 2).sum(-1)) < thr)).astype(np.float32)[..., None]
+            acc += nb * wgt; cnt += wgt
+    mean = acc / np.maximum(cnt, 1)
+    pal = np.unique((rgb[al] * 255).round().astype(np.int32), axis=0).astype(np.float32) / 255
+    out = a.copy(); m = mean[al]
+    best = np.argmin(((m[:, None, :] - pal[None, :, :]) ** 2).sum(-1), axis=1); out[..., :3][al] = pal[best]
+    return out
+if MODE == "dedither": pic.a = dedither(pic.a)
 V, LS, (ox, oy, oz) = H.voxels(VS); nx, ny, nz = V.shape
 occ = V > 0
 # keep only voxels with an empty neighbour (the inside is never drawn)
@@ -68,6 +88,46 @@ for i in np.nonzero(~have)[0]:
             lst = byz.get((m, int(Z[i]) + dz))
             if lst: col[i] = col[lst[rng.integers(len(lst))]]; break
         else: col[i] = (0.55, 0.36, 0.16)
+# ---- R_COL=clean: patterns per kind in the original's palette ------------------------------------------------------------------------------------
+if MODE == "clean":
+    pal = lambda l: np.array(l, np.float32) / 255
+    GR = pal([(0, 32, 16), (0, 72, 36), (30, 96, 18), (60, 126, 0), (84, 144, 18)])
+    BR = pal([(40, 32, 14), (72, 72, 36), (110, 86, 30), (144, 108, 36), (182, 126, 54), (216, 144, 72), (232, 176, 110), (232, 228, 210)])
+    TH = pal([(72, 56, 0), (108, 80, 0), (144, 108, 0), (180, 144, 0), (216, 180, 0), (232, 200, 40), (240, 232, 200)])
+    def hh(*k):
+        v = sum(np.asarray(x, np.float64) * c for x, c in zip(k, (12.9898, 78.233, 37.719, 4.581)))
+        return np.modf(np.abs(np.sin(v) * 43758.5453))[0]
+    keepsign = mat == M_["sign"]
+    c = np.zeros((len(X), 3), np.float32)
+    # logs: lit top edge, moss green front with patches, darker underside, black seam; protruding ends show rings
+    lg = mat == M_["log"]; n1 = hh(np.floor(along / 3), np.floor(Z), side); n2 = hh(np.floor(along), np.floor(Z * 2), side, 3)
+    moss = np.where(n1 > 0.62, 4, np.where(n1 < 0.18, 2, 3)); moss = np.where(n2 > 0.93, -5, moss)            # -5 = a light bark speck
+    idxc = np.where(ang < 0.35, -6, np.where(ang < 0.7, np.where(n2 > 0.7, -5, 4), np.where(ang < 1.9, moss, np.where(ang < 2.5, 1 + (n2 > 0.5), 0))))
+    c[lg] = np.where((idxc < 0)[:, None], BR[np.clip(-idxc, 0, 7)], GR[np.clip(idxc, 0, 4)])[lg]
+    L0 = np.where(ns, H.X0, H.Y0); L1 = np.where(ns, H.X1, H.Y1); stub = lg & ((along < L0 - 0.2) | (along > L1 + 0.2))
+    rr = np.sqrt(outw ** 2 + (Z - zc) ** 2)
+    c[stub] = np.where((rr > 3.0)[:, None], GR[1], np.where((np.floor(rr) % 2 == 0)[:, None], BR[4], BR[3]))[stub]
+    # posts / lintel / sticks / ring: lit on the south east side
+    wood = np.isin(mat, (M_["post"], M_["stick"], M_["ring"]))
+    pc = np.array([H.wall_pos(sd, a, H.POST_R - 0.6, 0)[:2] for sd, al in H.POSTS.items() for a in al], np.float32)
+    dpx = X[:, None] - pc[None, :, 0]; dpy = Y[:, None] - pc[None, :, 1]; k = np.argmin(dpx ** 2 + dpy ** 2, axis=1)
+    dx_, dy_ = dpx[np.arange(len(X)), k], dpy[np.arange(len(X)), k]; nearpost = (dx_ ** 2 + dy_ ** 2) < (H.POST_R + 0.8) ** 2
+    lit = (dx_ + dy_) / np.sqrt(2) / np.maximum(np.sqrt(dx_ ** 2 + dy_ ** 2), 1e-3)
+    ng = hh(np.floor(Z / 2), k, 7)
+    cpost = np.where((lit > 0.995)[:, None] & (ng > 0.5)[:, None], BR[7], np.where((lit > 0.75)[:, None], BR[6], np.where((lit > 0.1)[:, None], np.where((ng > 0.3)[:, None], BR[5], BR[4]), np.where((lit > -0.4)[:, None], BR[3], BR[2]))))
+    cwood = np.where((hh(np.floor(X), np.floor(Y), np.floor(Z), 9) > 0.5)[:, None], BR[4], BR[5])
+    c[wood] = np.where(nearpost[:, None] & (mat == M_["post"])[:, None], cpost, cwood)[wood]
+    # thatch: courses every 5 units down the slope, strands across, light tips, shadow under the next course; darker underside and eave
+    rf = mat == M_["roof"]
+    tt = np.minimum.reduce([X - (H.CX - H.HX), (H.CX + H.HX) - X, Y - (H.CY - H.HX), (H.CY + H.HX) - Y])
+    aa = np.where(np.abs(X - H.CX) > np.abs(Y - H.CY), Y, X)
+    wob = 0.8 * np.sin(aa * 0.9) + 0.6 * np.sin(aa * 2.3 + tt * 0.4)
+    course = np.floor((tt + wob) / 5.0); fr = np.modf((tt + wob) / 5.0)[0]; st = hh(np.floor(aa * 1.5), course, 11); sp = hh(np.floor(X * 2), np.floor(Y * 2), 12)
+    ti = np.where(fr < 0.22, np.where(st > 0.45, 5, 6), np.where(fr > 0.8, 2, np.where(st > 0.85, 5, np.where(st > 0.3, 4, 3))))
+    ti = np.where(sp > 0.97, 6, ti); ti = np.where(Z < H.ZE - 1, 1, np.where(tt < 1.0, 2, ti))
+    c[rf] = TH[ti][rf]
+    dk = np.isin(mat, (M_["core"], M_["hole"], M_["door"])); c[dk] = (0.02, 0.06, 0.03)
+    c[keepsign] = col[keepsign]; col = c
 # ---- mesh of the exposed faces -------------------------------------------------------------------------------------------------------------------
 keep = ~drop; idx = idx[keep]; col = col[keep]
 occ2 = occ.copy(); dropped = np.argwhere(surf)[drop]; occ2[tuple(dropped.T)] = False
