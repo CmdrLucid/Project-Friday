@@ -11,4 +11,5 @@ The recompiled game (`landstalker/`) stays the LOGIC CORE; the remake draws its 
 
 ## Tools
 - Blender (Flatpak) headless: `python3 remake/tools/build_asset.py <name>` runs `remake/recipes/<name>.py` with `remake/lib/blx.py` (pixel texture generator, mesh builder with planar 1 texel = 1 unit UVs, EEVEE preview renders, GLB export) -> `~/.landstalker_remake/assets/<name>/` (`<name>.glb`, `preview_*.png`).
+- Rooms: `remake/lib/roomdata.py` (room data from the ROM, cell classes), `remake/lib/kit_c.py` (approved assets as builders), `remake/recipes/room_c.py` (whole room), `remake/tools/room_sheet.py` (sheet original | remake | turned views); see `ASSETS.md` 'Room blockout'.
 - Node + kiln / loom / pxl / vex in `~/remake_tools` (INDEX 'remake toolchain') for quick props; Godot comes with the front end.

@@ -7,6 +7,8 @@ as a gamma coded skip / reference / literal scheme (stage 1 marks, stage 2 resol
 Use it as a module: `import romroom; r = romroom.decode(rom, room)`  (r['left'], r['top'], r['w'], r['h'], r['layers'], r['hm'])."""
 import struct, sys
 
+HM_SIZE = [0, 0]
+
 def decompress(rom, a0):
     pos = a0
     st = {'cur': 0, 'n': 0}
@@ -105,6 +107,7 @@ def decompress(rom, a0):
     a1 = start + 0x5C94; a2 = a1
     d3 = rom[pos]; pos += 1; d3 -= 1; d4 = d3
     d5 = rom[pos]; pos += 1; d5 -= 1
+    HM_SIZE[0:2] = [d3 + 1, d5 + 1]                     # width / height of the height map area (cells beyond it are buffer padding, not room)
     done = False
     while not done:
         d0 = (rom[pos] << 8) | rom[pos + 1]; pos += 2
@@ -127,7 +130,7 @@ def decode(rom, room):
     sg = lambda b: b - 256 if b > 127 else b
     left, top, w, h2 = sg(buf[0]), sg(buf[1]), buf[2] + 1, buf[3] + 1
     n = w * h2                                           # cells per layer? (h2 rows of w words per layer: two layers = 2 * h2 rows)
-    return dict(ptr=ptr, end=end, left=left, top=top, w=w, h=h2, buf=buf, tileset=e[4], palette=e[5], height=e[6], music=e[7])
+    return dict(ptr=ptr, end=end, left=left, top=top, w=w, h=h2, buf=buf, hm_w=HM_SIZE[0], hm_h=HM_SIZE[1], tileset=e[4], palette=e[5], height=e[6], music=e[7])
 
 def arrays(r):
     """the three 74 x 74 arrays as the game builds them (GetTilemap / ExtractMap): FG layer (RAM $FF7C02), BG layer ($FFA6CA), height map ($FFD192); dict of {(x, y): word}."""
