@@ -112,7 +112,7 @@ def dirt_mat(name="path", base=((140, 84, 30), (214, 146, 68)), speck=(90, 56, 2
     # streaks: stretched noise along the screen diagonal (game x - y)
     mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Rotation"].default_value = (0, 0, math.radians(45)); mp.inputs["Scale"].default_value = (0.3, 1.0, 1.0); L(tc.outputs["Object"], mp.inputs["Vector"])
     n2 = nt.nodes.new("ShaderNodeTexNoise"); n2.inputs["Scale"].default_value = 1.0; n2.inputs["Detail"].default_value = 3.0; n2.inputs["Distortion"].default_value = 1.6   # short, irregular marks; L(mp.outputs["Vector"], n2.inputs["Vector"])
-    s2 = nt.nodes.new("ShaderNodeMapRange"); s2.inputs["From Min"].default_value = 0.5; s2.inputs["From Max"].default_value = 0.6; L(n2.outputs["Fac"], s2.inputs["Value"])
+    s2 = nt.nodes.new("ShaderNodeMapRange"); s2.inputs["From Min"].default_value = 0.6; s2.inputs["From Max"].default_value = 0.7; L(n2.outputs["Fac"], s2.inputs["Value"])
     f2 = nt.nodes.new("ShaderNodeMath"); f2.operation = "MULTIPLY"; f2.inputs[1].default_value = streak_amt; L(s2.outputs["Result"], f2.inputs[0])
     m2 = nt.nodes.new("ShaderNodeMix"); m2.data_type = "RGBA"; L(f2.outputs[0], m2.inputs["Factor"]); L(r1.outputs["Color"], m2.inputs[6]); m2.inputs[7].default_value = srgb(streak)
     # grit: fine dark speckles
