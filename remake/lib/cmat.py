@@ -67,7 +67,7 @@ LIB = {
     "dirt":     ("village ground / path", dict(c1=(120, 90, 46), c2=(166, 128, 72), scale=0.04, detail=8.0, bump=0.2, rough=1.0)),
     "sand":     ("beach", dict(c1=(206, 176, 116), c2=(234, 212, 158), scale=0.06, detail=6.0, bump=0.15, rough=1.0)),
     "water":    ("water", dict(c1=(36, 92, 150), c2=(70, 140, 196), scale=0.03, detail=3.0, bump=0.15, gloss=True)),
-    "needles":  ("pine foliage", dict(c1=(16, 72, 36), c2=(56, 126, 48), scale=0.3, stretch=(1, 1, 2), detail=8.0, bump=0.9, rough=0.95)),
+    "needles":  ("pine foliage", dict(c1=(22, 104, 42), c2=(96, 178, 66), scale=0.3, stretch=(1, 1, 2), detail=8.0, bump=0.9, rough=0.95)),
     "leaves":   ("hedges, bushes", dict(c1=(36, 104, 28), c2=(98, 150, 40), scale=0.25, detail=8.0, bump=0.9, rough=0.95)),
     "clay":     ("red roof tiles (Mercator)", dict(c1=(156, 68, 40), c2=(204, 104, 62), scale=0.3, bump=0.4, rough=0.8, cells=0.18)),
     "plaster":  ("whitewashed walls (Mercator)", dict(c1=(214, 204, 184), c2=(240, 232, 214), scale=0.08, bump=0.15, rough=0.9)),
