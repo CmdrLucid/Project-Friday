@@ -1,10 +1,13 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- **The own renderer is now On by default** (Options > Video > Own Renderer; a setting you already made is kept). It draws the whole map picture itself, without asking the video chip: rooms, figures, HUD, text boxes, the sword effects, tree warp, warp pad, room changes, the white fade and now also the Nole / Kazalt teleporter (sparks, flashes, fade in) and the red / white / black screen flashes.
-- Quick Items and Quick Save are now **per save file**: every save slot has its own bindings and its own quick save. A new game in a used slot starts with no quick items and no old quick save.
-- Own renderer: sprites that sit far below the picture edge in the game's sprite table (sparks of the Kazalt warp) are no longer hidden.
-- Everything from v0.9.5 is included.
+- **Quick Equip** (Options > Quality of Life, On by default): hold R2 (keyboard Q) and press a direction - up sword, right armour, down boots, left ring. The first press only shows the pieces of that kind (icons, owned ones in colour, others as black silhouettes), the second press switches; the starting equipment (Broad Sword, Leather Breast, Leather Boots, no ring) is part of the cycle. The game pauses while R2 is held. Fast Forward moved to R5 by default.
+- **Better Menu** (Options > Quality of Life, On by default): B in the Use list or the Equip grid goes back to Use / Equip / Options instead of closing the whole menu; START still closes it.
+- **Live Gaia Effect** is On by default: the falling rocks no longer freeze the game and stay in the world; no second Gaia use while they fall.
+- **Widescreen in any width**: Options > Video > Widescreen is now Off / 16:10 / 16:9 (any width works, no longer multiples of 16 only). New defaults for a fresh install: 16:9, Full Height On, CRT Pro, Scaling Fit, Map Behind Text On.
+- The own renderer is always on (its Options row is gone); the HD Graphics and De-Dither rows are hidden for now.
+- Fixes: figures are hidden behind the text box like on the original hardware (dwarves), the ending credits are visible again, shadows (no pop-up after the Start menu, every platform casts one, Nigel's ground), two stray grey pixels in the HUD bar next to the gold, Options page hang with LEFT on some rows, and **the first start from the AppImage** (a missing file made the first build fail on a clean system).
+- Everything from v0.9.6 is included.
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).
