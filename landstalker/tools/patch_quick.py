@@ -94,8 +94,11 @@ void lk_quick_capture(int id) {
     lk_q_px[id][y * 16 + x] = ((PIXEL_OUT_T)(sa / n) << 24) | ((PIXEL_OUT_T)(sr / n) << 16) | ((PIXEL_OUT_T)(sg / n) << 8) | (PIXEL_OUT_T)(sb / n);
     lk_q_mask[id][y * 16 + x] = 1;
   }
+  { int lit = 0; for (y = 0; y < 256; y++) if (lk_q_mask[id][y] && (lk_q_px[id][y] & 0xFFFFFF)) lit = 1; if (!lit) { memset(lk_q_mask[id], 0, 256); return; } }   /* palette still dark (fade): try again later */
   lk_q_have[id] = 1; lk_q_icons_save();
 }
+int lk_quick_icon_have(int id) { lk_quick_get(); return id >= 0 && id < 64 && lk_q_have[id]; }
+int lk_quick_icon_rgb(int id, int i) { PIXEL_OUT_T pv; if (id < 0 || id > 63 || i < 0 || i > 255 || !lk_q_have[id] || !lk_q_mask[id][i]) return -1; pv = lk_q_px[id][i]; return (int)(pv & 0xFFFFFF); }   /* 0xRRGGBB of icon pixel i (y * 16 + x) or -1 = transparent (Quick Equip overlay) */
 static const char *lk_q_d5[10][7] = {
   { ".111.", "1...1", "1..11", "1.1.1", "11..1", "1...1", ".111." }, { "..1..", ".11..", "..1..", "..1..", "..1..", "..1..", ".111." },
   { ".111.", "1...1", "....1", "...1.", "..1..", ".1...", "11111" }, { ".111.", "1...1", "....1", "..11.", "....1", "1...1", ".111." },
@@ -194,7 +197,7 @@ static void lk_quick_hud(PIXEL_OUT_T *row, int width) {
       if (need > 0) return;   /* not enough room: leave the HUD alone this frame */
       for (k = 40; k <= 292; k++) if (!lk_q_busyp[k] && !rm[k]) { fc = k; break; }
       if (fc < 0) fc = 85;
-      for (k = 0; k < 293; k++) if (!rm[k]) lk_q_colmap[kn++] = k;
+      for (k = 0; k < 292; k++) if (!rm[k]) lk_q_colmap[kn++] = k;   /* rel 292 is not bar interior: its rows 7 / 20 hold the grey corner pixel of the right cap and showed as two lone grey pixels beside the G of the gold (user 2026-10-25) */
       if (kn + cellw > Wb - 3) return;
       for (n = kn; n < Wb - 3; n++) lk_q_colmap[n] = -1;
       for (n = 0; n < 3; n++) lk_q_colmap[Wb - 3 + n] = 293 + n;
@@ -220,6 +223,14 @@ static void lk_quick_hud(PIXEL_OUT_T *row, int width) {
     if (line >= 6 && line <= 21) for (x = 0; x < lk_q_cellw; x++) if (lk_q_cm[line - 6][x]) r[Lp + kn + lk_q_sh + x] = lk_q_fade(lk_q_cv[line - 6][x]);
   }
   if (line == 22) { if (lk_q_bar) { memcpy(lk_q_busyp, lk_q_busy, sizeof lk_q_busy); lk_q_haveprev = 1; } memset(lk_q_busy, 0, sizeof lk_q_busy); }   /* LK_QUICK: a blank / fading frame without the bar keeps the last real column map (the first frame after a room load showed the game's red striped HUD for one frame) */
+}
+'''
+    module += r'''/* LK_QUICK hdcol: for the HD picture (tools/patch_hd.py): the picture column the final pixel x of a HUD bar line (5..22) was moved from; x itself when the bar is not rebuilt in this frame */
+int lk_quick_hdcol(int x) {
+  int n = x - lk_q_Lp, src;
+  if (!lk_q_hud || lk_q_on <= 0 || n < 0 || n >= lk_q_Wb) return x;
+  src = lk_q_colmap[n]; if (src < 0) src = lk_q_fillcol;
+  return lk_q_bl + src;
 }
 '''
     s = s.replace(c, module + c, 1)

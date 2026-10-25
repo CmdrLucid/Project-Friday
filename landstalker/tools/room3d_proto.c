@@ -1,0 +1,281 @@
+/* room3d_proto.c - experiment: Landstalker room as 3D scene (docs/RENDERER_IDEAS.md, 'the 3D room', 2026-10-24).
+ *
+ * Input: a room dump written by the game (LANDSTALKER_ROOMDUMP=<dir> LANDSTALKER_ROOMDUMP_ROOM=<n>, tools/patch_own.py lk_o_roomdump):
+ *   layerA.rgba / layerB.rgba (2432 x 1216, alpha 0 transparent / 1 low / 2 high priority), heightmap.bin (74 x 74 big endian words), info.txt (cam0 cam2).
+ * Local files only (ROM derived pictures never go into git).
+ *
+ * Idea: the height map is a real height field (floors, house blocks, cliffs).  Its surfaces get their colours by PROJECTIVE texturing from the original
+ * camera: a surface point (wx, wy, z) takes the pixel at image position U = wx - wy + 1184, V = (wx + wy) / 2 - z of the room picture (docs/FORMATS.md
+ * 'Block map').  Seen from the original camera the result equals the original picture; a tilted / turned camera shows the same scene with real depth.
+ * What the height field does not cover in the original view (roof ridges, trees, fence tops) becomes upright one pixel wide CARD STRIPS that stand on the surface
+ * point just below them (like HD-2D cards).  Orthographic camera = the original isometric view (pitch 35.26 degrees, x scale sqrt 2) plus yaw / pitch offsets.
+ *
+ * Usage: room3d_proto DUMPDIR OUT.png [yaw_deg [pitch_delta_deg [scale [flags]]]]    flags: n = no cards, b = no back faces
+ * Build: cc -O2 -o room3d_proto room3d_proto.c -lm
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdint.h>
+
+#define TW 2432
+#define TH 1216
+static uint8_t *tex, *texG, *texA;   /* tex = composited room picture RGBA (alpha 0 = nothing); texG = layer B only (the GROUND: floors, cliffs, water); texA = layer A only (OBJECTS: houses, trees, fences, the statue) */
+static int g_fill;                   /* 1 while a top face is drawn: ground without a picture gets the soil colour (not the cliff sides)  */
+static int boxc[74][74];             /* 1 = a box shaped object / cliff column (blocked cell, not a prop): its faces use the composite picture */
+static int hm[74][74];               /* word: byte 0 = type nibble << 4 | height, byte 1 = floor type; 0x4000 = void */
+static int cam0, cam2;
+
+static double Wd, Hd, S = 1.0, YAW, DPHI, fx, fy, fz, ox, oy;
+static float *zbuf; static uint32_t *img; static int CW = 1400, CH = 900;
+static const double K2 = 1.41421356237;
+
+static void proj(double wx, double wy, double z, double *sx, double *sy, double *w) {
+  double dx = wx - fx, dy = wy - fy, c = cos(YAW), s = sin(YAW), xr = dx * c - dy * s, yr = dx * s + dy * c;
+  double u = (xr - yr) / K2, dd = (xr + yr) / K2, ph = atan(1.0 / K2) + DPHI, kx = K2, ky = sqrt(1.5);
+  *sx = S * kx * u + ox; *sy = S * ky * (dd * sin(ph) - (z - fz) * cos(ph)) + oy; *w = dd * cos(ph) + (z - fz) * sin(ph);
+}
+typedef struct { double x, y, w, u, v; } vtx;
+static void tri(vtx a, vtx b, vtx c, int dark, const uint8_t *T) {
+  double minx = fmin(a.x, fmin(b.x, c.x)), maxx = fmax(a.x, fmax(b.x, c.x)), miny = fmin(a.y, fmin(b.y, c.y)), maxy = fmax(a.y, fmax(b.y, c.y));
+  double den = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y); int x0, x1, y0, y1, x, y;
+  if (fabs(den) < 1e-9) return;
+  x0 = (int)floor(minx); x1 = (int)ceil(maxx); y0 = (int)floor(miny); y1 = (int)ceil(maxy);
+  if (x0 < 0) x0 = 0; if (y0 < 0) y0 = 0; if (x1 >= CW) x1 = CW - 1; if (y1 >= CH) y1 = CH - 1;
+  for (y = y0; y <= y1; y++) for (x = x0; x <= x1; x++) {
+    double px = x + 0.5, py = y + 0.5, l1 = ((b.y - c.y) * (px - c.x) + (c.x - b.x) * (py - c.y)) / den, l2 = ((c.y - a.y) * (px - c.x) + (a.x - c.x) * (py - c.y)) / den, l3 = 1 - l1 - l2;
+    double w, u, v; int tu, tv; const uint8_t *t;
+    if (l1 < -1e-6 || l2 < -1e-6 || l3 < -1e-6) continue;
+    w = l1 * a.w + l2 * b.w + l3 * c.w; if (w <= zbuf[y * CW + x]) continue;
+    u = l1 * a.u + l2 * b.u + l3 * c.u; v = l1 * a.v + l2 * b.v + l3 * c.v; tu = (int)floor(u); tv = (int)floor(v);
+    if (tu < 0 || tv < 0 || tu >= TW || tv >= TH) continue;
+    t = T + ((size_t)tv * TW + tu) * 4; if (!t[3]) { if (T != texG || !g_fill) continue; { static const uint8_t fill[4] = { 72, 52, 34, 255 }; t = fill; } }   /* ground without a picture (under a house): soil colour */
+    zbuf[y * CW + x] = (float)w; { int r = t[0], g = t[1], bl = t[2]; if (dark) { r = r * 3 / 5; g = g * 3 / 5; bl = bl * 3 / 5; } img[y * CW + x] = 0xFF000000u | (uint32_t)r << 16 | (uint32_t)g << 8 | (uint32_t)bl; }
+  }
+}
+static vtx mk(double wx, double wy, double z) { vtx p; proj(wx, wy, z, &p.x, &p.y, &p.w); p.u = wx - wy + 1184; p.v = (wx + wy) / 2 - z; return p; }
+static vtx mk3(const double *p) { return mk(p[0], p[1], p[2]); }
+static void quad(vtx a, vtx b, vtx c, vtx d, int dark, const uint8_t *T) { tri(a, b, c, dark, T); tri(a, c, d, dark, T); }
+
+static double zc[74][74];            /* effective height of a cell: isolated single cell columns (the stone statue, single trees) are PROPS, not terrain: they sit on the ground around them and are drawn as upright cards */
+static double cellz(int x, int y) { if (x < 0 || y < 0 || x >= 74 || y >= 74) return -400; if (hm[y][x] == 0x4000) return -400; return zc[y][x]; }
+static void make_zc(int props) {
+  int x, y, dx, dy;
+  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) zc[y][x] = hm[y][x] == 0x4000 ? -400 : 16.0 * ((hm[y][x] >> 8) & 15);
+  if (!props) return;
+  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) {
+    double z = 16.0 * ((hm[y][x] >> 8) & 15), lo = 1e9; int same = 0, nn = 0;
+    if (hm[y][x] == 0x4000) continue;
+    for (dy = -1; dy <= 1; dy++) for (dx = -1; dx <= 1; dx++) { int X = x + dx, Y = y + dy; double zn; if (!dx && !dy) continue; if (X < 0 || Y < 0 || X >= 74 || Y >= 74 || hm[Y][X] == 0x4000) continue; zn = 16.0 * ((hm[Y][X] >> 8) & 15); nn++; if (zn == z) same++; if (zn < lo) lo = zn; }
+    if (nn >= 5 && !same && lo < z) zc[y][x] = lo;
+  }
+}
+
+static int isvoid(int x, int y) { return x < 0 || y < 0 || x >= 74 || y >= 74 || hm[y][x] == 0x4000; }
+
+static void put_png(const char *path, const uint32_t *p, int w, int h) {
+  FILE *f = fopen(path, "wb"); size_t rowlen = (size_t)w * 3 + 1, rawlen = rowlen * h, i; uint8_t *raw = (uint8_t *)malloc(rawlen); uint32_t crctab[256], c, a1 = 1, a2 = 0;
+  uint8_t *z = (uint8_t *)malloc(rawlen + rawlen / 65535 * 5 + 64); size_t zl = 0, pos = 0; int y, x;
+  for (y = 0; y < h; y++) { raw[y * rowlen] = 0; for (x = 0; x < w; x++) { uint32_t q = p[y * w + x]; raw[y * rowlen + 1 + x * 3] = q >> 16; raw[y * rowlen + 2 + x * 3] = q >> 8; raw[y * rowlen + 3 + x * 3] = q; } }
+  z[zl++] = 0x78; z[zl++] = 1;
+  while (pos < rawlen) { size_t n = rawlen - pos > 65535 ? 65535 : rawlen - pos; z[zl++] = (pos + n == rawlen); z[zl++] = n & 255; z[zl++] = n >> 8; z[zl++] = ~n & 255; z[zl++] = (~n >> 8) & 255; memcpy(z + zl, raw + pos, n); zl += n; pos += n; }
+  for (i = 0; i < rawlen; i++) { a1 = (a1 + raw[i]) % 65521; a2 = (a2 + a1) % 65521; }
+  z[zl++] = a2 >> 8; z[zl++] = a2; z[zl++] = a1 >> 8; z[zl++] = a1;
+  for (i = 0; i < 256; i++) { c = (uint32_t)i; for (y = 0; y < 8; y++) c = c & 1 ? 0xEDB88320u ^ (c >> 1) : c >> 1; crctab[i] = c; }
+#define BE32(v) fputc((v) >> 24, f), fputc((v) >> 16, f), fputc((v) >> 8, f), fputc((v), f)
+  fwrite("\x89PNG\r\n\x1a\n", 1, 8, f);
+  { uint8_t hd[13] = { (uint8_t)(w >> 24), (uint8_t)(w >> 16), (uint8_t)(w >> 8), (uint8_t)w, (uint8_t)(h >> 24), (uint8_t)(h >> 16), (uint8_t)(h >> 8), (uint8_t)h, 8, 2, 0, 0, 0 }; uint32_t cr = 0xFFFFFFFFu; BE32(13u); fwrite("IHDR", 1, 4, f); fwrite(hd, 1, 13, f);
+    for (i = 0; i < 4; i++) cr = crctab[(cr ^ "IHDR"[i]) & 255] ^ (cr >> 8); for (i = 0; i < 13; i++) cr = crctab[(cr ^ hd[i]) & 255] ^ (cr >> 8); cr ^= 0xFFFFFFFFu; BE32(cr); }
+  { uint32_t cr = 0xFFFFFFFFu; BE32((uint32_t)zl); fwrite("IDAT", 1, 4, f); fwrite(z, 1, zl, f); for (i = 0; i < 4; i++) cr = crctab[(cr ^ "IDAT"[i]) & 255] ^ (cr >> 8); for (i = 0; i < zl; i++) cr = crctab[(cr ^ z[i]) & 255] ^ (cr >> 8); cr ^= 0xFFFFFFFFu; BE32(cr); }
+  { uint32_t cr = 0xFFFFFFFFu; BE32(0u); fwrite("IEND", 1, 4, f); for (i = 0; i < 4; i++) cr = crctab[(cr ^ "IEND"[i]) & 255] ^ (cr >> 8); cr ^= 0xFFFFFFFFu; BE32(cr); }
+  fclose(f); free(raw); free(z);
+}
+
+
+/* ---- generic triangle rasteriser in ORIGINAL picture space (U, V): calls f for every covered pixel with the world position ---- */
+typedef void (*cb_t)(int px, int py, double wx, double wy, double z, void *ud);
+static void rast(const double P[3][3], cb_t f, void *ud) {
+  double U[3], V[3]; int j, px, py;
+  for (j = 0; j < 3; j++) { U[j] = P[j][0] - P[j][1] + 1184; V[j] = (P[j][0] + P[j][1]) / 2 - P[j][2]; }
+  { double mnx = fmin(U[0], fmin(U[1], U[2])), mxx = fmax(U[0], fmax(U[1], U[2])), mny = fmin(V[0], fmin(V[1], V[2])), mxy = fmax(V[0], fmax(V[1], V[2]));
+    double den = (V[1] - V[2]) * (U[0] - U[2]) + (U[2] - U[1]) * (V[0] - V[2]);
+    if (fabs(den) < 1e-9) return;
+    for (py = (int)floor(mny); py <= (int)ceil(mxy); py++) for (px = (int)floor(mnx); px <= (int)ceil(mxx); px++) {
+      double qx = px + 0.5, qy = py + 0.5, l1 = ((V[1] - V[2]) * (qx - U[2]) + (U[2] - U[1]) * (qy - V[2])) / den, l2 = ((V[2] - V[0]) * (qx - U[2]) + (U[0] - U[2]) * (qy - V[2])) / den, l3 = 1 - l1 - l2;
+      if (px < 0 || py < 0 || px >= TW || py >= TH || l1 < -1e-6 || l2 < -1e-6 || l3 < -1e-6) continue;
+      f(px, py, l1 * P[0][0] + l2 * P[1][0] + l3 * P[2][0], l1 * P[0][1] + l2 * P[1][1] + l3 * P[2][1], l1 * P[0][2] + l2 * P[1][2] + l3 * P[2][2], ud);
+    }
+  }
+}
+static float hitwx[TH][TW]; static float hitwy[TH][TW], hitz[TH][TW]; static uint8_t cov[TH][TW], hitbox[TH][TW];
+static void hit_cb(int px, int py, double wx, double wy, double z, void *ud) {   /* nearest to the viewer along the view ray (wx + wy + z grows towards the viewer) */
+  if (!cov[py][px] || wx + wy + z > hitwx[py][px] + hitwy[py][px] + hitz[py][px]) { hitwx[py][px] = (float)wx; hitwy[py][px] = (float)wy; hitz[py][px] = (float)z; cov[py][px] = 1; hitbox[py][px] = (uint8_t)*(int *)ud; }
+}
+
+/* ---- gable roofs: houses are rectangles of equal height columns; the height field only has the flat top, the roof (ridge, slopes, eaves) comes from a fit to the picture ---- */
+typedef struct { double X0, X1, Y0, Y1, z0, H, o; int axis; } roof_t;   /* eave rectangle (incl. overhang o) at z0, ridge H above it, axis 0 = ridge along x */
+static roof_t roofs[64]; static int nroofs;
+static int roof_tris(const roof_t *r, double T[6][3][3]) {
+  double xm = (r->X0 + r->X1) / 2, ym = (r->Y0 + r->Y1) / 2, z = r->z0, zr = r->z0 + r->H; int n = 0;
+#define TRI(a0, a1, a2, b0, b1, b2, c0, c1, c2) do { T[n][0][0] = a0; T[n][0][1] = a1; T[n][0][2] = a2; T[n][1][0] = b0; T[n][1][1] = b1; T[n][1][2] = b2; T[n][2][0] = c0; T[n][2][1] = c1; T[n][2][2] = c2; n++; } while (0)
+  if (r->axis == 0) {      /* ridge along x: slopes towards -y and +y, gables at x0 / x1 */
+    TRI(r->X0, r->Y0, z, r->X1, r->Y0, z, r->X1, ym, zr); TRI(r->X0, r->Y0, z, r->X1, ym, zr, r->X0, ym, zr);
+    TRI(r->X0, ym, zr, r->X1, ym, zr, r->X1, r->Y1, z); TRI(r->X0, ym, zr, r->X1, r->Y1, z, r->X0, r->Y1, z);
+    TRI(r->X1, r->Y0, z, r->X1, r->Y1, z, r->X1, ym, zr); TRI(r->X0, r->Y0, z, r->X0, r->Y1, z, r->X0, ym, zr);
+  } else {                 /* ridge along y */
+    TRI(r->X0, r->Y0, z, r->X0, r->Y1, z, xm, r->Y1, zr); TRI(r->X0, r->Y0, z, xm, r->Y1, zr, xm, r->Y0, zr);
+    TRI(xm, r->Y0, zr, xm, r->Y1, zr, r->X1, r->Y1, z); TRI(xm, r->Y0, zr, r->X1, r->Y1, z, r->X1, r->Y0, z);
+    TRI(r->X0, r->Y1, z, r->X1, r->Y1, z, xm, r->Y1, zr); TRI(r->X0, r->Y0, z, r->X1, r->Y0, z, xm, r->Y0, zr);
+  }
+  return n;
+}
+static int thatch(int px, int py) { const uint8_t *t = texA + ((size_t)py * TW + px) * 4; if (!t[3]) return 0; if (t[2] <= 40 && t[0] >= 120 && t[1] >= 90 && t[0] > t[1]) return 1; return t[0] >= 190 && t[1] >= 190 && t[2] >= 190; }   /* thatch: mustard yellow / brown dither, white highlights */
+static int s_in, s_out, s_all; static uint8_t *rmask;
+static void mask_cb(int px, int py, double wx, double wy, double z, void *ud) { (void)wx; (void)wy; (void)z; (void)ud; if (!rmask[(size_t)py * TW + px]) { rmask[(size_t)py * TW + px] = 1; if (thatch(px, py)) s_in++; else s_out++; } }
+static int fit_roof(int x0, int x1, int y0, int y1, double z0, roof_t *out, int *thatch_n) {   /* best gable roof for a footprint rectangle: ridge axis, ridge height H, overhang o; score = thatch pixels inside the roof's silhouette - 1.5 * other pixels inside - 0.6 * thatch pixels just outside */
+  double bs = -1e18; int axis, hi, oi, have = 0;
+  for (axis = 0; axis < 2; axis++) for (hi = 1; hi <= 5; hi++) for (oi = 0; oi <= 2; oi++) {
+    roof_t r; double T[6][3][3]; int t, nt, py, px, bx0, bx1, by0, by1, outy = 0, j; double score, mnU = 1e9, mxU = -1e9, mnV = 1e9, mxV = -1e9;
+    r.o = 8.0 * oi; r.H = 8.0 * hi; r.axis = axis; r.z0 = z0; r.X0 = 16.0 * x0 - r.o; r.X1 = 16.0 * (x1 + 1) + r.o; r.Y0 = 16.0 * y0 - r.o; r.Y1 = 16.0 * (y1 + 1) + r.o;
+    nt = roof_tris(&r, T); s_in = s_out = 0;
+    for (t = 0; t < nt; t++) rast(T[t], mask_cb, NULL);
+    for (t = 0; t < nt; t++) for (j = 0; j < 3; j++) { double U = T[t][j][0] - T[t][j][1] + 1184, V = (T[t][j][0] + T[t][j][1]) / 2 - T[t][j][2]; if (U < mnU) mnU = U; if (U > mxU) mxU = U; if (V < mnV) mnV = V; if (V > mxV) mxV = V; }
+    bx0 = (int)mnU - 16; bx1 = (int)mxU + 16; by0 = (int)mnV - 16; by1 = (int)mxV + 16; if (bx0 < 0) bx0 = 0; if (by0 < 0) by0 = 0; if (bx1 >= TW) bx1 = TW - 1; if (by1 >= TH) by1 = TH - 1;
+    for (py = by0; py <= by1; py++) for (px = bx0; px <= bx1; px++) if (!rmask[(size_t)py * TW + px] && thatch(px, py)) outy++;
+    for (py = by0; py <= by1; py++) memset(rmask + (size_t)py * TW + bx0, 0, (size_t)(bx1 - bx0 + 1));
+    score = s_in - 1.5 * s_out - 0.6 * outy;
+    if (score > bs) { bs = score; *out = r; have = s_in; }
+  }
+  *thatch_n = have; return (int)bs;
+}
+static char g_roofcache[700];
+static void find_roofs(void) {
+  static uint8_t rem[74][74]; int x, y; FILE *cf = fopen(g_roofcache, "r");
+  if (cf) { roof_t r; nroofs = 0; while (nroofs < 64 && fscanf(cf, "%lf %lf %lf %lf %lf %lf %lf %d", &r.X0, &r.X1, &r.Y0, &r.Y1, &r.z0, &r.H, &r.o, &r.axis) == 8) roofs[nroofs++] = r; fclose(cf); fprintf(stderr, "roofs: %d from cache %s\n", nroofs, g_roofcache); return; }   /* the fit takes about a minute: cached per dump */
+  rmask = (uint8_t *)calloc((size_t)TW * TH, 1); nroofs = 0;
+  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) rem[y][x] = (uint8_t)(boxc[y][x] && zc[y][x] >= 32);
+  for (;;) {                                          /* greedy: the best scoring rectangle first, its cells are used up */
+    int bx0 = 0, bx1 = 0, by0 = 0, by1 = 0, bsc = 0, bth = 0, found = 0, x0, x1, y0, y1; roof_t br;
+    if (nroofs >= 64) break;
+    for (y0 = 0; y0 < 74; y0++) for (x0 = 0; x0 < 74; x0++) {
+      if (!rem[y0][x0]) continue;
+      for (y1 = y0 + 1; y1 < y0 + 8 && y1 < 74; y1++) for (x1 = x0 + 1; x1 < x0 + 8 && x1 < 74; x1++) {   /* at least 2 x 2 cells */
+        int cx, cy, in = 0, tot = (x1 - x0 + 1) * (y1 - y0 + 1), sc, th; double z0 = zc[y0][x0]; roof_t r;
+        for (cy = y0; cy <= y1; cy++) for (cx = x0; cx <= x1; cx++) if (rem[cy][cx] && zc[cy][cx] == z0) in++;
+        if (in * 100 < tot * 85 || !rem[y1][x1] ) continue;   /* >= 85 % of the cells are house columns, the far corner is one */
+        sc = fit_roof(x0, x1, y0, y1, z0, &r, &th);
+        if (getenv("R3D_DBG2") && (x0 == 18 && y0 == 27)) fprintf(stderr, "rect %d..%d x %d..%d in %d/%d sc %d th %d\n", x0, x1, y0, y1, in, tot, sc, th);
+        if (th >= 150 && sc > bsc) { bsc = sc; bth = th; br = r; bx0 = x0; bx1 = x1; by0 = y0; by1 = y1; found = 1; }
+      }
+    }
+    if (!found || bsc < 120) break;
+    roofs[nroofs++] = br; fprintf(stderr, "roof: cells x %d..%d y %d..%d z %.0f -> ridge axis %d, H %.0f, overhang %.0f, thatch %d, score %d\n", bx0, bx1, by0, by1, br.z0, br.axis, br.H, br.o, bth, bsc);
+    for (y = by0; y <= by1; y++) for (x = bx0; x <= bx1; x++) rem[y][x] = 0;
+  }
+  free(rmask);
+  cf = fopen(g_roofcache, "w"); if (cf) { int r; for (r = 0; r < nroofs; r++) fprintf(cf, "%.3f %.3f %.3f %.3f %.3f %.3f %.3f %d\n", roofs[r].X0, roofs[r].X1, roofs[r].Y0, roofs[r].Y1, roofs[r].z0, roofs[r].H, roofs[r].o, roofs[r].axis); fclose(cf); }
+}
+int main(int argc, char **argv) {
+  char path[600]; FILE *f; uint8_t *A, *B; int x, y, i, nocards = 0, noback = 0, ncards = 0;
+  if (argc < 3) { fprintf(stderr, "usage: %s DUMPDIR OUT.png [yaw_deg [pitch_delta_deg [scale [flags n b]]]]\n", argv[0]); return 1; }
+  YAW = (argc > 3 ? atof(argv[3]) : 0) * M_PI / 180; DPHI = (argc > 4 ? atof(argv[4]) : 0) * M_PI / 180; S = argc > 5 ? atof(argv[5]) : 1.0;
+  if (argc > 6) { nocards = strchr(argv[6], 'n') != NULL; noback = strchr(argv[6], 'b') != NULL; }
+  A = (uint8_t *)malloc((size_t)TW * TH * 4); B = (uint8_t *)malloc((size_t)TW * TH * 4); tex = (uint8_t *)malloc((size_t)TW * TH * 4);
+  snprintf(path, sizeof path, "%s/layerA.rgba", argv[1]); f = fopen(path, "rb"); if (!f || fread(A, 1, (size_t)TW * TH * 4, f) != (size_t)TW * TH * 4) { fprintf(stderr, "layerA\n"); return 1; } fclose(f);
+  snprintf(path, sizeof path, "%s/layerB.rgba", argv[1]); f = fopen(path, "rb"); if (!f || fread(B, 1, (size_t)TW * TH * 4, f) != (size_t)TW * TH * 4) { fprintf(stderr, "layerB\n"); return 1; } fclose(f);
+  snprintf(path, sizeof path, "%s/heightmap.bin", argv[1]); f = fopen(path, "rb"); if (!f) return 1;
+  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int hi = fgetc(f), lo = fgetc(f); hm[y][x] = hi << 8 | lo; } fclose(f);
+  make_zc(!(argc > 6 && strchr(argv[6], 'p')));          /* flag p = props stay terrain boxes */
+  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) boxc[y][x] = hm[y][x] != 0x4000 && (hm[y][x] & 0x4000) && zc[y][x] == 16.0 * ((hm[y][x] >> 8) & 15);
+  for (i = 0; i < TW * TH; i++) {                       /* priority order of the VDP: A high, B high, A low, B low */
+    const uint8_t *a = A + i * 4, *b = B + i * 4, *s = NULL;
+    if (a[3] == 2) s = a; else if (b[3] == 2) s = b; else if (a[3]) s = a; else if (b[3]) s = b;
+    if (s) { tex[i * 4] = s[0]; tex[i * 4 + 1] = s[1]; tex[i * 4 + 2] = s[2]; tex[i * 4 + 3] = 255; } else { tex[i * 4] = tex[i * 4 + 1] = tex[i * 4 + 2] = 0; tex[i * 4 + 3] = 0; }
+  }
+  snprintf(g_roofcache, sizeof g_roofcache, "%s/roofs.txt", argv[1]);
+  texG = (uint8_t *)malloc((size_t)TW * TH * 4); texA = (uint8_t *)malloc((size_t)TW * TH * 4);
+  for (i = 0; i < TW * TH; i++) { const uint8_t *a = A + i * 4, *b = B + i * 4; texG[i * 4] = b[0]; texG[i * 4 + 1] = b[1]; texG[i * 4 + 2] = b[2]; texG[i * 4 + 3] = b[3] ? 255 : 0; texA[i * 4] = a[0]; texA[i * 4 + 1] = a[1]; texA[i * 4 + 2] = a[2]; texA[i * 4 + 3] = a[3] ? 255 : 0; }
+  { int x0 = 99, x1 = -1, y0 = 99, y1 = -1; for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (hm[y][x] != 0x4000) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    fx = 16.0 * (x0 + x1 + 1) / 2; fy = 16.0 * (y0 + y1 + 1) / 2; fz = 0; }
+  ox = CW / 2.0; oy = CH / 2.0 + 20;
+  zbuf = (float *)malloc((size_t)CW * CH * 4); img = (uint32_t *)malloc((size_t)CW * CH * 4);
+  for (i = 0; i < CW * CH; i++) { zbuf[i] = -1e9f; img[i] = 0xFF101018u; }
+
+  /* pass 1: the height field seen from the ORIGINAL camera, to find what it covers: per picture pixel the world position of the nearest surface (along a view ray wx + wy + z grows towards the viewer) */
+  memset(cov, 0, sizeof cov);
+  find_roofs();
+  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) {   /* direct rasterisation of the original view: top quads + visible side quads, writing the hit world position per picture pixel */
+    int k;
+    if (isvoid(x, y)) continue;
+    for (k = 0; k < 3; k++) {
+      double z0, z1, wx[4], wy[4], zz[4]; int q;
+      if (k == 0) { z0 = cellz(x, y); wx[0] = 16 * x; wy[0] = 16 * y; wx[1] = 16 * x + 16; wy[1] = 16 * y; wx[2] = 16 * x + 16; wy[2] = 16 * y + 16; wx[3] = 16 * x; wy[3] = 16 * y + 16; zz[0] = zz[1] = zz[2] = zz[3] = z0; }
+      else if (k == 1) { z0 = cellz(x, y); z1 = cellz(x + 1, y); if (z1 >= z0) continue; wx[0] = wx[1] = wx[2] = wx[3] = 16 * x + 16; wy[0] = 16 * y; wy[1] = 16 * y + 16; wy[2] = 16 * y + 16; wy[3] = 16 * y; zz[0] = z0; zz[1] = z0; zz[2] = z1; zz[3] = z1; }
+      else { z0 = cellz(x, y); z1 = cellz(x, y + 1); if (z1 >= z0) continue; wy[0] = wy[1] = wy[2] = wy[3] = 16 * y + 16; wx[0] = 16 * x; wx[1] = 16 * x + 16; wx[2] = 16 * x + 16; wx[3] = 16 * x; zz[0] = z0; zz[1] = z0; zz[2] = z1; zz[3] = z1; }
+      for (q = 0; q < 2; q++) { int idx[3] = { 0, q ? 2 : 1, q ? 3 : 2 }, j; double P[3][3]; for (j = 0; j < 3; j++) { P[j][0] = wx[idx[j]]; P[j][1] = wy[idx[j]]; P[j][2] = zz[idx[j]]; } rast(P, hit_cb, &boxc[y][x]); }
+    }
+  }
+  { int r, one = 1; for (r = 0; r < nroofs; r++) { double T[6][3][3]; int t, nt = roof_tris(&roofs[r], T); for (t = 0; t < nt; t++) rast(T[t], hit_cb, &one); } }
+
+  /* pass 2: draw the scene with the chosen camera: ground from layer B, box columns from the composite picture */
+  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) {
+    double z = cellz(x, y), x0 = 16.0 * x, y0 = 16.0 * y, x1 = x0 + 16, y1 = y0 + 16; const uint8_t *T = boxc[y][x] ? tex : texG;
+    if (isvoid(x, y)) continue;
+    g_fill = 1; quad(mk(x0, y0, z), mk(x1, y0, z), mk(x1, y1, z), mk(x0, y1, z), 0, T); g_fill = 0;
+    { double zn = cellz(x + 1, y); if (zn < z) quad(mk(x1, y0, z), mk(x1, y1, z), mk(x1, y1, zn), mk(x1, y0, zn), 0, T); }
+    { double zn = cellz(x, y + 1); if (zn < z) quad(mk(x0, y1, z), mk(x1, y1, z), mk(x1, y1, zn), mk(x0, y1, zn), 0, T); }
+    if (!noback) {
+      { double zn = cellz(x - 1, y); if (zn < z) quad(mk(x0, y0, z), mk(x0, y1, z), mk(x0, y1, zn), mk(x0, y0, zn), 1, T); }
+      { double zn = cellz(x, y - 1); if (zn < z) quad(mk(x0, y0, z), mk(x1, y0, z), mk(x1, y0, zn), mk(x0, y0, zn), 1, T); }
+    }
+  }
+  { int r; for (r = 0; r < nroofs; r++) { double T[6][3][3]; int t, nt = roof_tris(&roofs[r], T); for (t = 0; t < nt; t++) { vtx a = mk3(T[t][0]), b2 = mk3(T[t][1]), c = mk3(T[t][2]); tri(a, b2, c, 0, tex); } } }
+  if (!nocards) {                                        /* card strips: opaque picture pixels the height field does not cover, standing on the surface point just below */
+    typedef struct { int U, y, n, lab; float bx, by, bz; } run_t;
+    static int32_t lab[TH][TW]; static int stk[TW * 4]; run_t *runs = (run_t *)malloc(sizeof(run_t) * 400000); int nr = 0, nl = 0, U, r;
+    double (*lo)[2] = NULL; int *cnt; float *dmin, *dmax; float *dpool; int *off;
+    memset(lab, 0, sizeof lab);
+#define NEEDC(X, Y) (tex[((size_t)(Y) * TW + (X)) * 4 + 3] && (!cov[Y][X] || (!hitbox[Y][X] && texA[((size_t)(Y) * TW + (X)) * 4 + 3])))   /* a card pixel: picture that the box geometry does not carry: uncovered, or an OBJECT pixel (layer A) lying on plain ground */
+    for (y = 0; y < TH; y++) for (U = 0; U < TW; U++) {    /* components of uncovered opaque pixels (4 neighbours) */
+      int sp = 0;
+      if (lab[y][U] || !NEEDC(U, y)) continue;
+      nl++; lab[y][U] = nl; stk[sp++] = y * TW + U;
+      while (sp > 0) {
+        int c0 = stk[--sp], cx = c0 % TW, cy = c0 / TW, k; static const int dxs[4] = { 1, -1, 0, 0 }, dys[4] = { 0, 0, 1, -1 };
+        for (k = 0; k < 4; k++) { int X = cx + dxs[k], Y = cy + dys[k]; if (X < 0 || Y < 0 || X >= TW || Y >= TH || lab[Y][X] || !NEEDC(X, Y)) continue; lab[Y][X] = nl; if (sp < TW * 4 - 1) stk[sp++] = Y * TW + X; }
+      }
+    }
+    (void)lo;
+    for (U = 0; U < TW; U++) for (y = TH - 2; y >= 0; y--) {   /* runs of card pixels, from the bottom up; the anchor = the ground point at the foot of the run (the hit of its lowest pixel when that lies on ground, else of the pixel below) */
+      int n = 0, v, yb = y;
+      if (!NEEDC(U, y) || NEEDC(U, y + 1)) continue;
+      for (v = y; v >= 0 && NEEDC(U, v); v--) n++;
+      if (!cov[yb][U]) { if (!cov[yb + 1][U]) { y = v + 1; continue; } yb = yb + 1; }
+      if (nr < 400000) { runs[nr].U = U; runs[nr].y = yb - 1 + (cov[y][U] ? 1 : 0) * 0; runs[nr].n = n; runs[nr].lab = lab[y][U]; runs[nr].bx = hitwx[yb][U]; runs[nr].by = hitwy[yb][U]; runs[nr].bz = hitz[yb][U]; nr++; }
+      y = v + 1;
+    }
+    cnt = (int *)calloc(nl + 2, sizeof(int)); off = (int *)calloc(nl + 2, sizeof(int)); dmin = (float *)malloc((nl + 2) * 4); dmax = (float *)malloc((nl + 2) * 4);
+    for (r = 0; r < nr; r++) if (runs[r].n >= 8 && runs[r].n < 110) cnt[runs[r].lab]++;   /* the depth of a card = the median anchor depth of its TALL runs (decals / grass tufts at the foot do not count) */
+    { int tot = 0, l; for (l = 0; l <= nl; l++) { off[l] = tot; tot += cnt[l]; } dpool = (float *)malloc((tot + 1) * 4); memset(cnt, 0, (nl + 2) * sizeof(int)); }
+    for (r = 0; r < nr; r++) if (runs[r].n >= 8 && runs[r].n < 110) { int l = runs[r].lab; dpool[off[l] + cnt[l]++] = runs[r].bx + runs[r].by; }
+    { int l; for (l = 1; l <= nl; l++) { int k, m; if (!cnt[l]) continue; for (k = 1; k < cnt[l]; k++) { float t = dpool[off[l] + k]; m = k - 1; while (m >= 0 && dpool[off[l] + m] > t) { dpool[off[l] + m + 1] = dpool[off[l] + m]; m--; } dpool[off[l] + m + 1] = t; }
+        dmin[l] = dpool[off[l]]; dmax[l] = dpool[off[l] + cnt[l] - 1]; dpool[off[l]] = dpool[off[l] + cnt[l] / 2]; } }   /* dpool[off] = the median depth of the component */
+    for (r = 0; r < nr; r++) {
+      if (getenv("R3D_DBG") && runs[r].U >= atoi(getenv("R3D_DBG")) && runs[r].U < atoi(getenv("R3D_DBG")) + 30) printf("run U %d y %d n %d lab %d anchor %.1f %.1f %.1f\n", runs[r].U, runs[r].y, runs[r].n, runs[r].lab, runs[r].bx, runs[r].by, runs[r].bz);
+      run_t *q = &runs[r]; double bx = q->bx, by = q->by, bz = q->bz, r0 = 1 / K2, r1 = -1 / K2, hw = 0.5 / K2 * 1.35; vtx a, b, cc, d; int n = q->n;   /* a little wider than one picture pixel: turned cards must not show seams */
+      if (n < 110 && cnt[q->lab] > 0 && fabs(dpool[off[q->lab]] - (bx + by)) <= 40) {   /* one depth for the whole card: the anchor moves along the view ray (1, 1, 1) to the card's depth; the picture from the original camera does not change */
+        double D = dpool[off[q->lab]], t = (D - (bx + by)) / 2; bx += t; by += t; bz += t; }
+      if (n >= 110) {                                 /* a long uncovered run is a surface that goes on towards the back (water, far cliff tops), not an upright thing: lay it flat at the height of the surface below */
+        a = mk(bx - r0 * hw, by - r1 * hw, bz); b = mk(bx + r0 * hw, by + r1 * hw, bz); cc = mk(bx + r0 * hw - n, by + r1 * hw - n, bz); d = mk(bx - r0 * hw - n, by - r1 * hw - n, bz);
+      } else {
+        a = mk(bx - r0 * hw, by - r1 * hw, bz); b = mk(bx + r0 * hw, by + r1 * hw, bz); cc = mk(bx + r0 * hw, by + r1 * hw, bz + n); d = mk(bx - r0 * hw, by - r1 * hw, bz + n);
+      }
+      a.u = b.u = q->U + 0.5; cc.u = d.u = q->U + 0.5; a.v = b.v = q->y + 1.0; cc.v = d.v = q->y + 1.0 - n; quad(a, b, cc, d, 0, tex); ncards++;
+    }
+    free(runs); free(cnt); free(off); free(dmin); free(dmax); free(dpool);
+  }
+  put_png(argv[2], img, CW, CH);
+  fprintf(stderr, "room3d_proto: yaw %.1f pitch %+.1f scale %.2f, %d card strips -> %s\n", YAW * 180 / M_PI, DPHI * 180 / M_PI, S, ncards, argv[2]);
+  return 0;
+}

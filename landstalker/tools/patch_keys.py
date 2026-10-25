@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Key bindings for pad AND keyboard (2026-10-16, user wish; menu pages are added by patch_options.py: Options > 'Buttons' / 'Extras').
-One table of 11 actions, each with a pad binding and a keyboard binding (0 = none), saved in ~/.landstalker_keys (lines 'name padcode scancode').
+One table of 12 actions, each with a pad binding and a keyboard binding (0 = none), saved in ~/.landstalker_keys (lines 'name padcode scancode').
  * Game buttons (what the Mega Drive pad sends): Button A / B / C, Start, Quick 1 (the item on 'Y'), Quick 2 (the item on 'B'; only while Quick Items is On)
- * Extras: Quick Save, Quick Load (pad: hold 0.5 s), Fast Forward (hold), Fullscreen, Coordinates
+ * Extras: Quick Save, Quick Load (pad: hold 0.5 s), Fast Forward (hold), Fullscreen, Coordinates, Quick Equip (hold + direction, tools/patch_equip.py)
 Not rebindable (kept as they are): directions (D-pad, left stick, arrow keys), Back = Mode, Esc = quit, F1-F4 / F6 display keys, Alt+Enter, S = MD Y.
 Pad codes: 1 + SDL_CONTROLLER_BUTTON_*, 100 = left trigger, 101 = right trigger.  Capture: the menu calls lk_bind_capture(i); the next NEW press (any pad or the keyboard) is assigned (Esc cancels),
 a code already used by another action in the same device is swapped; the game sees no buttons while capturing and until everything is released again.
@@ -42,19 +42,19 @@ static SDL_GameController *lk_pads[8];
 #define LKP(b) (1 + (int)(b))
 #define LK_PT_L 100
 #define LK_PT_R 101
-enum { LK_BA, LK_BB, LK_BC, LK_BSTART, LK_BQ1, LK_BQ2, LK_BQSAVE, LK_BQLOAD, LK_BFF, LK_BFS, LK_BCOORD, LK_NB };
-static const char *lk_bind_nm[LK_NB] = { "Button A", "Button B", "Button C", "Start", "Quick 1", "Quick 2", "Quick Save", "Quick Load", "Fast Forward", "Fullscreen", "Coordinates" };
-static const char *lk_bind_id[LK_NB] = { "a", "b", "c", "start", "q1", "q2", "qsave", "qload", "ff", "fs", "coords" };
+enum { LK_BA, LK_BB, LK_BC, LK_BSTART, LK_BQ1, LK_BQ2, LK_BQSAVE, LK_BQLOAD, LK_BFF, LK_BFS, LK_BCOORD, LK_BEQ, LK_NB };
+static const char *lk_bind_nm[LK_NB] = { "Button A", "Button B", "Button C", "Start", "Quick 1", "Quick 2", "Quick Save", "Quick Load", "Fast Forward", "Fullscreen", "Coordinates", "Quick Equip" };
+static const char *lk_bind_id[LK_NB] = { "a", "b", "c", "start", "q1", "q2", "qsave", "qload", "ff", "fs", "coords", "eq" };
 static int lk_bind_pad[LK_NB], lk_bind_key[LK_NB], lk_bind_loaded;
 static int lk_bind_defpad(int i) {
     switch (i) { case LK_BA: return LKP(SDL_CONTROLLER_BUTTON_X); case LK_BB: return LKP(SDL_CONTROLLER_BUTTON_A); case LK_BC: return LKP(SDL_CONTROLLER_BUTTON_B); case LK_BSTART: return LKP(SDL_CONTROLLER_BUTTON_START);
                  case LK_BQ1: return LKP(SDL_CONTROLLER_BUTTON_Y); case LK_BQ2: return LKP(SDL_CONTROLLER_BUTTON_B); case LK_BQSAVE: return LK_PT_L; case LK_BQLOAD: return LKP(SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
-                 case LK_BFF: return LK_PT_R; case LK_BFS: return LKP(SDL_CONTROLLER_BUTTON_PADDLE2); case LK_BCOORD: return LKP(SDL_CONTROLLER_BUTTON_PADDLE1); }
+                 case LK_BFF: return LKP(SDL_CONTROLLER_BUTTON_PADDLE4); case LK_BFS: return LKP(SDL_CONTROLLER_BUTTON_PADDLE2); case LK_BCOORD: return LKP(SDL_CONTROLLER_BUTTON_PADDLE1); case LK_BEQ: return LK_PT_R; }
     return 0;
 }
 static int lk_bind_defkey(int i) {
     switch (i) { case LK_BA: return SDL_SCANCODE_Z; case LK_BB: return SDL_SCANCODE_X; case LK_BC: return SDL_SCANCODE_C; case LK_BSTART: return SDL_SCANCODE_RETURN; case LK_BQ1: return SDL_SCANCODE_A; case LK_BQ2: return SDL_SCANCODE_D;
-                 case LK_BQSAVE: return SDL_SCANCODE_F9; case LK_BQLOAD: return SDL_SCANCODE_F10; case LK_BFF: return SDL_SCANCODE_TAB; case LK_BFS: return SDL_SCANCODE_F11; case LK_BCOORD: return SDL_SCANCODE_F5; }
+                 case LK_BQSAVE: return SDL_SCANCODE_F9; case LK_BQLOAD: return SDL_SCANCODE_F10; case LK_BFF: return SDL_SCANCODE_TAB; case LK_BFS: return SDL_SCANCODE_F11; case LK_BCOORD: return SDL_SCANCODE_F5; case LK_BEQ: return SDL_SCANCODE_Q; }
     return 0;
 }
 static void lk_bind_path(char *b, size_t n) { const char *h = getenv("HOME"); snprintf(b, n, "%s/.landstalker_keys", h ? h : "."); }
@@ -67,8 +67,10 @@ static void lk_bind_load(void) {
     char p[512], l[128], nm[32]; FILE *f; int a, b;
     lk_bind_loaded = 1; lk_bind_defaults(); lk_bind_path(p, sizeof p); f = fopen(p, "r");
     if (!f) return;
-    while (fgets(l, sizeof l, f)) if (sscanf(l, "%31s %d %d", nm, &a, &b) == 3) for (int i = 0; i < LK_NB; i++) if (!strcmp(nm, lk_bind_id[i]) && a >= 0 && a < 200 && b >= 0 && b < SDL_NUM_SCANCODES) { lk_bind_pad[i] = a; lk_bind_key[i] = b; }
+    int seen[LK_NB]; memset(seen, 0, sizeof seen);
+    while (fgets(l, sizeof l, f)) if (sscanf(l, "%31s %d %d", nm, &a, &b) == 3) for (int i = 0; i < LK_NB; i++) if (!strcmp(nm, lk_bind_id[i]) && a >= 0 && a < 200 && b >= 0 && b < SDL_NUM_SCANCODES) { lk_bind_pad[i] = a; lk_bind_key[i] = b; seen[i] = 1; }
     fclose(f);
+    for (int i = 0; i < LK_NB; i++) if (!seen[i]) for (int j = 0; j < LK_NB; j++) if (j != i && seen[j]) { if (lk_bind_pad[i] && lk_bind_pad[i] == lk_bind_pad[j]) lk_bind_pad[i] = 0; if (lk_bind_key[i] && lk_bind_key[i] == lk_bind_key[j]) lk_bind_key[i] = 0; }   /* an action added later (Quick Equip) never steals a button from the saved ones */
 }
 static void lk_bind_init(void) { if (!lk_bind_loaded) lk_bind_load(); }
 int lk_bind_count(void) { return LK_NB; }
@@ -121,6 +123,10 @@ extern void platform_set_ffwd(int hold);
 extern void platform_quick_request(int what);
 extern void platform_display_toggle_coords(void);
 extern void platform_display_toggle_fullscreen(void);
+extern void platform_equip_request(int cat);   /* LK_EQUIP v1 */
+static int lk_eq_heldv;
+extern int lk_qeq_get(void);   /* Options > Quality of Life > Quick Equip */
+int lk_eq_is_held(void) { return lk_eq_heldv; }   /* the game side pauses while it is held */
 
 static void lk_keys_step(const uint8_t *keys, SDL_GameController **pads, uint16_t *buttons) {
     static const uint16_t gen[6] = { GEN_BTN_A, GEN_BTN_B, GEN_BTN_C, GEN_BTN_START, GEN_BTN_X, GEN_BTN_Z };   /* LK_BA, LK_BB, LK_BC, LK_BSTART, LK_BQ1, LK_BQ2 */
@@ -134,6 +140,7 @@ static void lk_keys_step(const uint8_t *keys, SDL_GameController **pads, uint16_
         int kd = lk_bind_key[i] > 0 && keys[lk_bind_key[i]], pd = lk_pad_code_down(pads, lk_bind_pad[i]);
         dpad[i] = pd; d[i] = kd || pd; any |= d[i];
     }
+    { static const char *eh; static int ehi; static long e0, e1; if (!ehi) { ehi = 1; eh = getenv("LANDSTALKER_EQHOLD"); if (eh && sscanf(eh, "%ld-%ld", &e0, &e1) != 2) eh = 0; } if (eh && frame >= e0 && frame <= e1) { d[LK_BEQ] = 1; any = 1; } }   /* test aid: Quick Equip held from frame a to b */
     if (lk_cap >= 0) {   /* capture: first NEW press from the keyboard or any pad */
         int got = 0;
         if (lk_raw_k > 0) { if (lk_raw_k == SDL_SCANCODE_ESCAPE) { lk_cap = -1; got = 1; } else { lk_bind_assign(lk_cap, 0, lk_raw_k); lk_cap = -1; got = 1; } }
@@ -163,6 +170,15 @@ static void lk_keys_step(const uint8_t *keys, SDL_GameController **pads, uint16_
         platform_set_ffwd(d[LK_BFF]);
         if (d[LK_BFS] && !prev[LK_BFS]) platform_display_toggle_fullscreen();
         if (d[LK_BCOORD] && !prev[LK_BCOORD]) platform_display_toggle_coords();
+        { /* LK_EQUIP v1: Quick Equip held = the directions pick a kind of equipment instead of moving Nigel (UP sword, RIGHT armour, DOWN boots, LEFT ring) */
+          static uint16_t pdir; const uint16_t dm = GEN_BTN_UP | GEN_BTN_DOWN | GEN_BTN_LEFT | GEN_BTN_RIGHT;
+          { static const char *ed2; static int edi; if (!edi) { edi = 1; ed2 = getenv("LANDSTALKER_EQDIR"); } if (ed2) { char l[200], key[40]; snprintf(l, sizeof l, ",%s,", ed2); for (int q = 0; q < 4; q++) for (int t = 0; t < 4; t++) { snprintf(key, sizeof key, ",%ld:%d,", frame - t, q); if (strstr(l, key)) *buttons |= (q == 0 ? GEN_BTN_UP : q == 1 ? GEN_BTN_RIGHT : q == 2 ? GEN_BTN_DOWN : GEN_BTN_LEFT); } } }   /* test aid LANDSTALKER_EQDIR="frame:q" (q 0 up 1 right 2 down 3 left), pressed for 4 frames */
+          uint16_t dn = (uint16_t)(*buttons & dm), ed = (uint16_t)(dn & ~pdir);
+          lk_eq_heldv = lk_qeq_get() && d[LK_BEQ] && (lk_bind_pad[LK_BEQ] || lk_bind_key[LK_BEQ]);
+          if (lk_eq_heldv) {
+              if (ed & GEN_BTN_UP) platform_equip_request(0); else if (ed & GEN_BTN_RIGHT) platform_equip_request(1); else if (ed & GEN_BTN_DOWN) platform_equip_request(2); else if (ed & GEN_BTN_LEFT) platform_equip_request(3);
+              *buttons = (uint16_t)(*buttons & ~dm); pdir = dn;
+          } else pdir = 0; }
         for (int i = 0; i < LK_NB; i++) prev[i] = d[i];
         prev[LK_BQLOAD] = kq ? 2 : 0;
     }

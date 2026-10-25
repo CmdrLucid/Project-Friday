@@ -30,7 +30,7 @@ if "LANDSTALKER_WIDE" not in s:
 int lk_wide_e = 0;
 __attribute__((constructor)) static void lk_wide_init(void)
 {
-  int v = 0;
+  int v = 39;   /* default 16:9 (398 px) since 2026-10-25; a saved ~/.landstalker_display or LANDSTALKER_WIDE wins */
   const char *e = getenv("LANDSTALKER_WIDE");
   if (e && *e) v = atoi(e);
   else {
@@ -40,8 +40,8 @@ __attribute__((constructor)) static void lk_wide_init(void)
     if (f) { if (fscanf(f, "%d %d %d", &a, &b, &c) == 3) v = c; fclose(f); }
   }
   if (v < 0) v = 0;
-  if (v > 48) v = 48;
-  lk_wide_e = v & ~15;   /* whole 16 px cells: the window plane only lines up with the planes then */
+  if (v > 64) v = 64;
+  lk_wide_e = v;   /* any width 0..64 per side since 2026-10-25 (the own renderer draws the HUD / window itself; tested 38, 62); the Options steps are 0 / 19 / 39 / 64 = Off / 16:10 / 16:9 / 18:9 */   /* whole 16 px cells: the window plane only lines up with the planes then */
 }
 /* window plane column (16 px cells) for a screen cell: the window keeps its place relative to the original 320 px, its margin cells are empty (transparent) */
 static inline int lk_wmargin(int c)
@@ -366,7 +366,7 @@ static void lk_strip_extend(uint32_t a)
     if (a != 0x00A61C && a != 0x00A698 && a != 0x00A6B0 && a != 0x00A730) return;
     if (busy) return;
     if (kenv == -2) { const char *c = getenv("LANDSTALKER_WIDE_STRIPS"); kenv = c && *c ? atoi(c) : -1; }
-    k = kenv >= 0 ? kenv : lk_wide_e / 16; if (k > 4) k = 4;   /* default k = e/16, follows the run-time width switch */
+    k = kenv >= 0 ? kenv : (lk_wide_e + 15) / 16; if (k > 4) k = 4;   /* default k = e/16 rounded UP (any width since 2026-10-25), follows the run-time width switch */
     if (k <= 0 && kv <= 0) return;
     if (a == 0x00A61C)      { dx[0] = -1; dy[0] =  0; dx[1] =  0; dy[1] = -1; }   /* top    edge x+y = -11 */
     else if (a == 0x00A698) { dx[0] =  1; dy[0] =  0; dx[1] =  0; dy[1] =  1; }   /* bottom edge x+y = +11 */

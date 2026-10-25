@@ -48,13 +48,14 @@ static const char *lk_fx_names[LK_FX_N] = { "OFF", "SCANLINES", "CRT", "CRT PRO"
 static void lk_disp_path(char *out, size_t n) { const char *h = getenv("HOME"); snprintf(out, n, "%s/.landstalker_display", h ? h : "."); }
 static void lk_disp_load(void) {
     char path[600]; lk_disp_loaded = 1; lk_disp_path(path, sizeof(path));
+    lk_fx_mode = 3;   /* default filter CRT Pro since 2026-10-25 (a saved file wins) */
     FILE *f = fopen(path, "r");
     if (f) { int a = 0, b = 0; if (fscanf(f, "%d %d", &a, &b) == 2) { if (a >= 0 && a < LK_SC_N) lk_scale_mode = a; if (b >= 0 && b < LK_FX_N) lk_fx_mode = b; } fclose(f); }
 }
 static void lk_dd_load(void) {
     const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_DEDITHER"); char path[600]; lk_dd_loaded = 1;
     snprintf(path, sizeof(path), "%s/.landstalker_dither", h ? h : ".");
-    FILE *f = fopen(path, "r"); if (f) { int a = 0; if (fscanf(f, "%d", &a) == 1 && a >= 0 && a < 4) lk_dd_mode = a; fclose(f); }
+    (void)path;   /* De-Dither row hidden 2026-10-25: the saved ~/.landstalker_dither is ignored, only LANDSTALKER_DEDITHER switches it on */
     if (e && *e) { int a = atoi(e); if (a >= 0 && a < 4) lk_dd_mode = a; }
 }
 static void lk_dd_save(void) {
@@ -78,9 +79,9 @@ void platform_display_cycle_scale(void) {
 extern int lk_wide_refill;
 extern void lk_wide_refresh(void);
 void platform_display_cycle_wide(void) {
-    extern int lk_wide_e; static const int steps[4] = { 0, 16, 32, 48 }; int i = 0, old = lk_wide_e;
-    for (int j = 0; j < 4; j++) if (steps[j] == lk_wide_e) i = j;
-    lk_wide_e = steps[(i + 1) % 4]; lk_wide_refresh();
+    extern int lk_wide_e; static const int steps[3] = { 0, 19, 39 }; int i = 0, old = lk_wide_e;   /* Off / 16:10 (358 px) / 16:9 (398 px) on the 224 line picture (18:9 dropped 2026-10-25: odd format) */
+    for (int j = 0; j < 3; j++) if (steps[j] <= lk_wide_e) i = j;
+    lk_wide_e = steps[(i + 1) % 3]; lk_wide_refresh();
     if (lk_wide_e > old) lk_wide_refill = 1;   /* load the new outer ring of the map as soon as a map frame runs */
     lk_disp_save();
     snprintf(lk_osd_text, sizeof(lk_osd_text), "WIDE: %d PX", 320 + 2 * lk_wide_e); lk_osd_frames = 100;
@@ -90,19 +91,91 @@ void platform_display_cycle_filter(void) {
     lk_fx_mode = (lk_fx_mode + 1) % LK_FX_N; lk_disp_save();
     snprintf(lk_osd_text, sizeof(lk_osd_text), "FILTER: %s", lk_fx_names[lk_fx_mode]); lk_osd_frames = 100;
 }
+extern int lk_eq_is_held(void);
+extern int lk_eq_active(void);
+extern int lk_quick_icon_rgb(int id, int i);
+extern uint8_t bus_read8(uint32_t addr);
+static int lk_eq_flash_cat = -1, lk_eq_flash_frames;
+void lk_osd_equip_flash(int cat) { lk_eq_flash_cat = cat; lk_eq_flash_frames = 90; }
+int lk_osd_equip_armed(int cat) { return lk_eq_flash_cat == cat && lk_eq_flash_frames > 0; }   /* the strip of this kind is on screen: the next press switches (first press only shows) */
+void lk_osd_equip_disarm(void) { lk_eq_flash_frames = 0; }
+extern uint8_t lk_eq_own[16];
+static void lk_eq_text(int x, int y, const char *t, int sc, int r, int g, int b) {   /* small text with the game's glyphs, sc = pixel size */
+    SDL_SetRenderDrawColor(s_renderer, r, g, b, 255);
+    for (int i = 0; t[i]; i++) { const uint8_t *gl = lk_glyph(t[i]); for (int rr = 0; rr < 7; rr++) for (int c = 0; c < 5; c++) if (gl[rr] & (0x10 >> c)) { SDL_Rect d = { x + (i * 6 + c) * sc, y + rr * sc, sc, sc }; SDL_RenderFillRect(s_renderer, &d); } }
+}
+static void lk_eq_icon(int id, int x, int y, int ip, int dim) {
+    int any = 0;
+    for (int i = 0; i < 256; i++) { int rgb = lk_quick_icon_rgb(id, i); if (rgb < 0) continue; any = 1;
+        int r = (rgb >> 16) & 255, g = (rgb >> 8) & 255, b = rgb & 255; if (dim) { r = 26; g = 26; b = 32; }   /* not owned: black silhouette, no spoiler */
+        SDL_SetRenderDrawColor(s_renderer, r, g, b, 255); SDL_Rect d = { x + (i & 15) * ip, y + (i >> 4) * ip, ip, ip }; SDL_RenderFillRect(s_renderer, &d); }
+    if (!any) lk_eq_text(x + 5 * ip, y + 4 * ip, "?", ip * 2, 200, 200, 200);
+}
+static void lk_eq_frame(SDL_Rect c, int t, int r, int g, int b) {
+    SDL_SetRenderDrawColor(s_renderer, r, g, b, 255);
+    SDL_Rect b1 = { c.x, c.y, c.w, t }, b2 = { c.x, c.y + c.h - t, c.w, t }, b3 = { c.x, c.y, t, c.h }, b4 = { c.x + c.w - t, c.y, t, c.h };
+    SDL_RenderFillRect(s_renderer, &b1); SDL_RenderFillRect(s_renderer, &b2); SDL_RenderFillRect(s_renderer, &b3); SDL_RenderFillRect(s_renderer, &b4);
+}
+static void lk_eq_overlay(int ow, int oh) {   /* Quick Equip held: the four kinds in a cross (up sword, right armour, down boots, left ring) with the icon + name of what Nigel wears; the kind just changed is framed and its four pieces are shown in a strip (current framed, not owned greyed) */
+    static const int cx[4] = { 1, 2, 1, 0 }, cy[4] = { 0, 1, 2, 1 }; static const char *lt = "SABR";
+    static const char *nm[4][4] = { { "MAGIC", "THUNDER", "ICE", "GAIA" }, { "STEEL", "CHROME", "SHELL", "HYPER" }, { "HEALING", "FIREPROOF", "IRON", "SPIKE" }, { "SATURN", "MARS", "MOON", "VENUS" } };
+    static const uint8_t lay[4][4] = { { 1, 3, 2, 4 }, { 9, 10, 11, 12 }, { 7, 5, 6, 8 }, { 15, 13, 14, 16 } };
+    static const char *dn[4] = { "BROAD SWORD", "LEATHER", "LEATHER", "NONE" };   /* starting equipment (the menu says Leather Breast / Leather Boots; shortened to fit the cells) */
+    int ip = oh / 200; if (ip < 2) ip = 2;
+    int cw = 26 * ip, ch = 24 * ip, px = oh / 120; if (px < 2) px = 2; int ts = ip > 3 ? ip / 2 : 1;   /* text pixel size */
+    int m = 2 * px, bh = 9 * px, x0 = m, y0 = oh - bh - 2 * m - 3 * ch - m;
+    SDL_SetRenderDrawBlendMode(s_renderer, SDL_BLENDMODE_BLEND);
+    for (int k = 0; k < 4; k++) {
+        SDL_Rect cell = { x0 + cx[k] * cw, y0 + cy[k] * ch, cw, ch };
+        int id = bus_read8(0xFF114Eu + (uint32_t)k), hl = (k == lk_eq_flash_cat && lk_eq_flash_frames > 0), idx = -1;
+        for (int q = 0; q < 4; q++) if (lay[k][q] == id) idx = q;
+        SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 200); SDL_RenderFillRect(s_renderer, &cell);
+        lk_eq_frame(cell, ip, hl ? 255 : 110, hl ? 220 : 110, hl ? 60 : 110);
+        { int any = 0; for (int i = 0; i < 256 && !any; i++) if (lk_quick_icon_rgb(idx >= 0 ? id : 0x3A + k, i) >= 0) any = 1;   /* an id outside the 16 pieces (starting equipment: the game's 'no sword' ids, or 0) must not show another item's icon (EkeEke) */
+          if (any) lk_eq_icon(idx >= 0 ? id : 0x3A + k, cell.x + (cw - 16 * ip) / 2, cell.y + ip, ip, 0); else lk_eq_text(cell.x + (cw - 6 * ts) / 2, cell.y + 4 * ip, (char[]){ lt[k], 0 }, ip, 255, 255, 255); }
+        { const char *nn = idx >= 0 ? nm[k][idx] : dn[k]; int n = (int)strlen(nn), sc = n * 6 * ts > cw - 2 ? 1 : ts; lk_eq_text(cell.x + (cw - n * 6 * sc) / 2, cell.y + ch - 9 * ts, nn, sc, 230, 230, 230); }
+    }
+    if (lk_eq_flash_cat >= 0 && lk_eq_flash_frames > 0) {   /* candidate strip of the changed kind, right of the cross: the starting equipment first, then the four pieces */
+        int k = lk_eq_flash_cat, sx = x0 + 3 * cw + 2 * m, sy = y0 + cy[k] * ch, sw = 23 * ip, curid = bus_read8(0xFF114Eu + (uint32_t)k), curin = 0;
+        for (int q = 0; q < 4; q++) if (lay[k][q] == curid) curin = 1;
+        for (int q = 0; q < 5; q++) {
+            SDL_Rect c = { sx + q * (sw + ip), sy, sw, ch }; int id = q ? lay[k][q - 1] : 0x3A + k, own = q ? lk_eq_own[k * 4 + q - 1] : 1, cur = q ? (curid == id) : !curin;
+            const char *nn = q ? nm[k][q - 1] : dn[k];
+            SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 200); SDL_RenderFillRect(s_renderer, &c);
+            lk_eq_frame(c, ip, cur ? 255 : 80, cur ? 220 : 80, cur ? 60 : 80);
+            lk_eq_icon(id, c.x + (sw - 16 * ip) / 2, c.y + ip, ip, !own);
+            if (own) { int n = (int)strlen(nn); int sc = n * 6 * ts > sw ? 1 : ts; lk_eq_text(c.x + (sw - n * 6 * sc) / 2, c.y + ch - 9 * ts, nn, sc, 230, 230, 230); }
+        }
+    }
+    (void)ow;
+}
+static void lk_osd_draw2(int ow, int oh);
+static void lk_win_shot(int ow, int oh) {   /* test aid LANDSTALKER_WINSHOT=frame[,frame]: the window picture with the on-screen hints / overlays (BMP) */
+    static const char *e; static int init; extern long platform_frame_number(void); char key[40], l[200];
+    if (!init) { init = 1; e = getenv("LANDSTALKER_WINSHOT"); }
+    if (!e) return;
+    snprintf(l, sizeof l, ",%s,", e); snprintf(key, sizeof key, ",%ld,", platform_frame_number());
+    if (strstr(l, key)) { SDL_Surface *sf = SDL_CreateRGBSurfaceWithFormat(0, ow, oh, 32, SDL_PIXELFORMAT_ARGB8888); if (sf) { char pth[300]; SDL_RenderReadPixels(s_renderer, NULL, SDL_PIXELFORMAT_ARGB8888, sf->pixels, sf->pitch); snprintf(pth, sizeof pth, "%s/winshot_%ld.bmp", getenv("LANDSTALKER_WINSHOT_DIR") ? getenv("LANDSTALKER_WINSHOT_DIR") : ".", platform_frame_number()); SDL_SaveBMP(sf, pth); SDL_FreeSurface(sf); } }
+}
 static void lk_osd_draw(int ow, int oh) {
+    lk_osd_draw2(ow, oh); lk_win_shot(ow, oh);
+}
+static void lk_osd_draw2(int ow, int oh) {
+    if (lk_eq_flash_frames > 0) lk_eq_flash_frames--;
+    if (lk_eq_is_held() && lk_eq_active()) lk_eq_overlay(ow, oh);
     if (lk_osd_frames <= 0) return;
     lk_osd_frames--;
     int px = oh / 120; if (px < 2) px = 2;
     int n = (int)strlen(lk_osd_text), bw = (n * 6 + 1) * px, bh = 9 * px, m = 2 * px;
-    SDL_Rect box = { m, m, bw, bh };
+    int oy = oh - bh - m;   /* bottom left (user 2026-10-24: the top left was over the HUD) */
+    SDL_Rect box = { m, oy, bw, bh };
     SDL_SetRenderDrawBlendMode(s_renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 190); SDL_RenderFillRect(s_renderer, &box);
     SDL_SetRenderDrawColor(s_renderer, 255, 255, 255, 255);
     for (int i = 0; i < n; i++) {
         const uint8_t *g = lk_glyph(lk_osd_text[i]);
         for (int r = 0; r < 7; r++) for (int c = 0; c < 5; c++)
-            if (g[r] & (0x10 >> c)) { SDL_Rect d = { m + px + (i * 6 + c) * px, m + px + r * px, px, px }; SDL_RenderFillRect(s_renderer, &d); }
+            if (g[r] & (0x10 >> c)) { SDL_Rect d = { m + px + (i * 6 + c) * px, oy + px + r * px, px, px }; SDL_RenderFillRect(s_renderer, &d); }
     }
     (void)ow;
 }

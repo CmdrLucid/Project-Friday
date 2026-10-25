@@ -59,6 +59,7 @@ def main():
         copy(os.path.join(ROOT, f), os.path.join(pkg, f))
     copy(os.path.join(ROOT, "src", "main.c"), os.path.join(pkg, "src", "main.c"))
     copy(os.path.join(ROOT, "docs", "symbols.json"), os.path.join(pkg, "docs", "symbols.json"))
+    copy(os.path.join(ROOT, "docs", "ENTITIES.md"), os.path.join(pkg, "docs", "ENTITIES.md"))   # read by tools/patch_shadow.py (entity names -> figure table); missing = the first start fails (found by the AppImage first-run test 2026-10-25)
     for f in sorted(os.listdir(os.path.join(ROOT, "tools"))):
         p = os.path.join(ROOT, "tools", f)
         if os.path.isfile(p) and f.endswith((".py", ".c", ".h", ".json", ".sh")):

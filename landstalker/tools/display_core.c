@@ -5,6 +5,7 @@
 enum { LK_SC_FIT, LK_SC_43, LK_SC_INT, LK_SC_FILL, LK_SC_N };
 enum { LK_FX_OFF, LK_FX_SCAN, LK_FX_CRT, LK_FX_PRO, LK_FX_CURVE, LK_FX_N };   /* PRO / CURVE (2026-10-13) are ADDITIONAL filters: the three older ones above are unchanged */
 typedef struct { int x, y, w, h; } lk_rect;
+static int lk_hdn = 1;   /* HD graphics: the source is sw * lk_hdn x 224 * lk_hdn pixels (1 = the normal 1x picture); scanlines / beam / mask stay per GAME line, the horizontal sampling uses the finer source columns */
 
 /* destination rectangle inside an output of ow x oh pixels */
 static void lk_calc_rect(int mode, int ow, int oh, int sw, lk_rect *r) {
@@ -25,13 +26,13 @@ static void lk_calc_rect(int mode, int ow, int oh, int sw, lk_rect *r) {
 }
 
 /* ---- CRT / scanline filter (CPU) ---- */
-static int lk_tab_dw, lk_tab_dh, lk_tab_fx, lk_tab_sw;
+static int lk_tab_dw, lk_tab_dh, lk_tab_fx, lk_tab_sw, lk_tab_hn;
 static uint16_t lk_tx0[LK_MAXDIM], lk_tx1[LK_MAXDIM], lk_twx[LK_MAXDIM], lk_trow[LK_MAXDIM], lk_twy[LK_MAXDIM];
 static uint16_t lk_tmask[3][3];
 
 static void lk_fx_prepare(int dw, int dh, int fx, int sw) {
-    if (dw == lk_tab_dw && dh == lk_tab_dh && fx == lk_tab_fx && sw == lk_tab_sw) return;
-    lk_tab_dw = dw; lk_tab_dh = dh; lk_tab_fx = fx; lk_tab_sw = sw;
+    if (dw == lk_tab_dw && dh == lk_tab_dh && fx == lk_tab_fx && sw == lk_tab_sw && lk_hdn == lk_tab_hn) return;
+    lk_tab_dw = dw; lk_tab_dh = dh; lk_tab_fx = fx; lk_tab_sw = sw; lk_tab_hn = lk_hdn;
     for (int x = 0; x < dw; x++) {
         float f = ((float)x + 0.5f) * (float)sw / (float)dw - 0.5f;
         if (f < 0) f = 0;
@@ -46,7 +47,7 @@ static void lk_fx_prepare(int dw, int dh, int fx, int sw) {
     float comp = 1.0f / (1.0f - a / 3.0f);                   /* keep the average brightness */
     for (int y = 0; y < dh; y++) {
         float sy = ((float)y + 0.5f) * LK_SRC_H / (float)dh;
-        int row = (int)sy; if (row > LK_SRC_H - 1) row = LK_SRC_H - 1;
+        int row = (int)(sy * (float)lk_hdn); if (row > LK_SRC_H * lk_hdn - 1) row = LK_SRC_H * lk_hdn - 1;   /* source row (HD: the finer row inside the game line) */
         lk_trow[y] = (uint16_t)row;
         float wsum = 0.0f; const int ns = whole ? 1 : 8;
         for (int k = 0; k < ns; k++) {                       /* profile averaged over the destination row's footprint (1 sample at its centre for integer scales) */
@@ -94,10 +95,10 @@ static uint16_t lk_f2_dec[256], lk_f2_hw[256][4], lk_f2_wt[64][32];   /* gamma d
 static uint8_t lk_f2_enc[4096];
 static uint16_t lk_f2_mask[3][3];
 static uint16_t *lk_f2_plane, *lk_f2_mx, *lk_f2_my; static uint8_t *lk_f2_gain;
-static int lk_f2_dw, lk_f2_dh, lk_f2_sw, lk_f2_fx;
+static int lk_f2_dw, lk_f2_dh, lk_f2_sw, lk_f2_fx, lk_f2_hn;
 static void lk_f2_prepare(int dw, int dh, int fx, int sw) {
-    if (dw == lk_f2_dw && dh == lk_f2_dh && sw == lk_f2_sw && fx == lk_f2_fx && lk_f2_plane) return;
-    lk_f2_dw = dw; lk_f2_dh = dh; lk_f2_sw = sw; lk_f2_fx = fx;
+    if (dw == lk_f2_dw && dh == lk_f2_dh && sw == lk_f2_sw && fx == lk_f2_fx && lk_hdn == lk_f2_hn && lk_f2_plane) return;
+    lk_f2_dw = dw; lk_f2_dh = dh; lk_f2_sw = sw; lk_f2_fx = fx; lk_f2_hn = lk_hdn;
     for (int i = 0; i < 256; i++) lk_f2_dec[i] = (uint16_t)(4095.0 * pow(i / 255.0, 2.2) + 0.5);
     for (int i = 0; i < 4096; i++) { double v = pow(i / 4095.0, 1.0 / 2.2) * 255.0 + 0.5; lk_f2_enc[i] = (uint8_t)(v > 255.0 ? 255 : v); }
     for (int f = 0; f < 256; f++) {                         /* taps at source pixels x0-1, x0, x0+1, x0+2, the sample point is x0 + f/256 */
@@ -134,7 +135,7 @@ static void lk_f2_prepare(int dw, int dh, int fx, int sw) {
 static void lk_f2_hrows(const uint32_t *src, int sw, int y0, int y1) {   /* source rows y0..y1-1 -> plane (4 x uint16 per pixel: r g b 0) */
     const int dw = lk_f2_dw;
     for (int y = y0; y < y1; y++) {
-        const uint32_t *row = src + (size_t)y * sw; uint16_t *o = lk_f2_plane + (size_t)y * dw * 4;
+        const uint32_t *row = src + (size_t)y * lk_hdn * sw; uint16_t *o = lk_f2_plane + (size_t)y * dw * 4; const int hn = lk_hdn;   /* HD: the hn source rows of the game line y are averaged (linear light) */
         for (int x = 0; x < dw; x++) {
             int p = (int)(((int64_t)(2 * x + 1) * sw * 128) / dw) - 128;   /* source position * 256 of the plane pixel centre, pixel centres at integers */
             if (p < 0) p = 0;
@@ -142,7 +143,8 @@ static void lk_f2_hrows(const uint32_t *src, int sw, int y0, int y1) {   /* sour
             const uint16_t *w = lk_f2_hw[f]; uint32_t r = 0, g = 0, b = 0;
             for (int k = 0; k < 4; k++) {
                 int xs = x0 + k - 1; if (xs < 0) xs = 0; if (xs > sw - 1) xs = sw - 1;
-                uint32_t c = row[xs]; r += lk_f2_dec[(c >> 16) & 255] * w[k]; g += lk_f2_dec[(c >> 8) & 255] * w[k]; b += lk_f2_dec[c & 255] * w[k];
+                if (hn == 1) { uint32_t c = row[xs]; r += lk_f2_dec[(c >> 16) & 255] * w[k]; g += lk_f2_dec[(c >> 8) & 255] * w[k]; b += lk_f2_dec[c & 255] * w[k]; }
+                else { uint32_t ar = 0, ag = 0, ab = 0; for (int j = 0; j < hn; j++) { uint32_t c = row[(size_t)j * sw + xs]; ar += lk_f2_dec[(c >> 16) & 255]; ag += lk_f2_dec[(c >> 8) & 255]; ab += lk_f2_dec[c & 255]; } r += ar / hn * w[k]; g += ag / hn * w[k]; b += ab / hn * w[k]; }
             }
             o[x * 4] = (uint16_t)(r >> 8); o[x * 4 + 1] = (uint16_t)(g >> 8); o[x * 4 + 2] = (uint16_t)(b >> 8); o[x * 4 + 3] = 0;
         }

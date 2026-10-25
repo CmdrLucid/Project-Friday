@@ -122,6 +122,8 @@ python3 tools/patch_overlay.py .deps/genrecomp
 python3 tools/patch_ffwd.py .deps/genrecomp
 # Quick save / quick load anywhere (hidden fifth slot, the game's own save routines; tools/patch_quicksave.py; needs patch_ffwd.py first)
 python3 tools/patch_quicksave.py .deps/genrecomp
+# Quick Equip: hold R2 (binding 'Quick Equip') + direction changes sword / armour / boots / ring (tools/patch_equip.py; needs patch_quick.py and patch_quicksave.py first)
+python3 tools/patch_equip.py .deps/genrecomp
 # Difficulty options: damage taken / enemy HP (tools/patch_difficulty.py; needs patch_options.py and patch_quicksave.py first)
 python3 tools/patch_difficulty.py .deps/genrecomp
 # Optional fix 'Ride Objects': Nigel is carried by an object standing on a moving platform (tools/patch_carry.py; needs patch_difficulty.py first)
@@ -144,8 +146,16 @@ python3 tools/patch_model.py .deps/genrecomp
 python3 tools/patch_owntext.py .deps/genrecomp
 # Own renderer: RAM snapshot right after the VBlank handler = what the VDP shows next (tools/patch_ownvb.py; needs patch_owntext.py first)
 python3 tools/patch_ownvb.py .deps/genrecomp
+# Own renderer stage 2 groundwork: origin (ROM block + tile index) of tile graphics by content hash (tools/patch_gfxorg.py; needs patch_ownvb.py first)
+python3 tools/patch_gfxorg.py .deps/genrecomp
 # Own renderer, compare mode (LANDSTALKER_OWN=1 / 2, tools/patch_own.py; needs patch_shadow.py first)
 python3 tools/patch_own.py .deps/genrecomp
+# Stage 3 groundwork: ROM room decoder (C port of romroom.py) + per frame model, read only, check with LANDSTALKER_SMODEL_CHECK=1 (tools/patch_roommodel.py; needs patch_own.py first)
+python3 tools/patch_roommodel.py .deps/genrecomp
+# HD graphics, display side: HD picture from the compositor's n x n blocks, optional and Off by default (tools/patch_hd.py; needs patch_shot.py and patch_own.py first)
+python3 tools/patch_hd.py .deps/genrecomp
+# 3D room: Options > Video > 3D Room, the room as a 3D scene, camera on the right stick (tools/patch_room3d.py + tools/room3d_game.c; needs patch_hd.py first)
+python3 tools/patch_room3d.py .deps/genrecomp
 # test aid: LANDSTALKER_WARP="610:12.08,20.04" puts Nigel into a room at a spot (headless tests), see tools/patch_warp.py
 python3 tools/patch_warp.py .deps/genrecomp
 # audio capture: LANDSTALKER_WAV=file.wav (recompiled build and genrecomp_ref), compare with tools/wavcmp.py (tools/patch_wav.py)

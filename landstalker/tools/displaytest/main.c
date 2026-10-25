@@ -87,8 +87,36 @@ static int dedither_cli(const char *in, const char *outp, const char *diffp) {
     if (diffp) { for (int i = 0; i < w * h; i++) b[i] = a[i] != b[i] ? px(255, 0, 0) : (((a[i] >> 1) & 0x7F7F7F7Fu) | 0xFF000000u); write_ppm(diffp, b, w, h); }
     return 0;
 }
+/* usage: displaytest --hdfx in.ppm N outprefix [dw dh]: a 1x P6 picture (height 224) is repeated N x N (= an HD picture without detail) and filtered at dw x dh (default 1280 x 800) with every CRT filter, once as the 1x chain and once as the HD chain (lk_hdn = N);
+   writes <outprefix>_fx<k>_1x.ppm / _hd.ppm and prints the mean / max channel difference (the HD chain must look like the 1x one when the HD picture has no extra detail; CRT / PRO / CURVE sample the finer columns, so small differences at edges are expected) */
+static const char *lk_fx_names_cli[LK_FX_N] = { "off", "scanlines", "crt", "crt pro", "crt curved" };
+static void hdfx_render(const uint32_t *src, uint32_t *dst, int dw, int dh, int sw, int fx) {
+    if (fx >= LK_FX_PRO) { lk_f2_prepare(dw, dh, fx, sw); lk_f2_hrows(src, sw, 0, LK_SRC_H); lk_f2_vrows(dst, 0, dh); }
+    else { lk_fx_prepare(dw, dh, fx, sw); lk_fx_render(src, dst, dw, dh, sw); }
+}
+static int hdfx_cli(int argc, char **argv) {
+    const char *in = argv[2]; int N = atoi(argv[3]), dw = argc > 6 ? atoi(argv[6]) : 1280, dh = argc > 7 ? atoi(argv[7]) : 800;
+    FILE *f = fopen(in, "rb"); if (!f) { printf("cannot open %s\n", in); return 1; }
+    int w, h, mx; if (fscanf(f, "P6 %d %d %d", &w, &h, &mx) != 3 || h != LK_SRC_H || N < 1) { printf("need a P6 image with height 224\n"); return 1; }
+    fgetc(f); uint32_t *a = malloc((size_t)w * h * 4), *hd = malloc((size_t)w * N * h * N * 4), *o1 = malloc((size_t)dw * dh * 4), *o2 = malloc((size_t)dw * dh * 4);
+    for (int i = 0; i < w * h; i++) { int r = fgetc(f), g = fgetc(f), bl = fgetc(f); a[i] = px(r, g, bl); }
+    fclose(f);
+    for (int y = 0; y < h * N; y++) for (int x = 0; x < w * N; x++) hd[(size_t)y * w * N + x] = a[(size_t)(y / N) * w + x / N];
+    for (int fx = LK_FX_SCAN; fx < LK_FX_N; fx++) {
+        char path[600]; double sum = 0; int md = 0;
+        lk_hdn = 1; hdfx_render(a, o1, dw, dh, w, fx);
+        lk_hdn = N; hdfx_render(hd, o2, dw, dh, w * N, fx); lk_hdn = 1;
+        for (size_t i = 0; i < (size_t)dw * dh; i++) for (int sh = 0; sh < 24; sh += 8) { int d = (int)((o1[i] >> sh) & 255) - (int)((o2[i] >> sh) & 255); if (d < 0) d = -d; sum += d; if (d > md) md = d; }
+        double t1 = 1e9, t2 = 1e9; for (int k = 0; k < 4; k++) { double t0 = now_ms(); lk_hdn = 1; hdfx_render(a, o1, dw, dh, w, fx); t1 = fmin(t1, now_ms() - t0); t0 = now_ms(); lk_hdn = N; hdfx_render(hd, o2, dw, dh, w * N, fx); lk_hdn = 1; t2 = fmin(t2, now_ms() - t0); }
+        printf("fx %d (%s): mean channel difference 1x vs HD %.3f, max %d; single thread %.1f ms (1x) / %.1f ms (HD)\n", fx, lk_fx_names_cli[fx], sum / ((double)dw * dh * 3), md, t1, t2);
+        snprintf(path, sizeof path, "%s_fx%d_1x.ppm", argv[4], fx); write_ppm(path, o1, dw, dh);
+        snprintf(path, sizeof path, "%s_fx%d_hd.ppm", argv[4], fx); write_ppm(path, o2, dw, dh);
+    }
+    return 0;
+}
 int main(int argc, char **argv) {
     const char *out = argc > 1 ? argv[1] : ".";
+    if (argc > 4 && !strcmp(argv[1], "--hdfx")) return hdfx_cli(argc, argv);
     if (argc > 3 && !strcmp(argv[1], "--dedither")) return dedither_cli(argv[2], argv[3], argc > 4 ? argv[4] : NULL);
     int fails = 0;
     fails += check_fast_filter();

@@ -1,0 +1,382 @@
+#!/usr/bin/env python3
+"""HD graphics, display side (2026-10-22, optional, Off by default): the own renderer's screen compositor (tools/patch_own.py) keeps, for every line it composed, an n times
+enlarged copy (lk_hd_rows: replacement textures of the tile pack at n x n pixels per game pixel, everything else repeated) and the 1x pixels it produced (lk_hd_ref).
+This patch builds the HD picture from the final 1x frame: where the final pixel equals the compositor's pixel (no overlay such as the options menu, Item Info or the quick items drew
+over it) the HD block is used, anywhere else the final pixel is repeated n x n.  Lines the compositor did not do (the map) are repeated too, so the picture never changes character.
+Present: with HD on, the HD picture (sw * n x 224 * n) is drawn into the usual destination rectangle: filter Off = linear scaling, Scanlines / CRT / CRT Pro / CRT Curved = the same
+filters run on the HD picture (display_core.c `lk_hdn`: scanline period, beam and mask stay per GAME line, the horizontal sampling uses the finer columns); de-dither is 1x only and is skipped with HD on.  Screenshots: LANDSTALKER_HD_SHOT=<frame>,.. writes hdshot_<frame>_w<width>.png into LANDSTALKER_SHOT_DIR.  Everything is inert unless HD graphics is On
+(`~/.landstalker_hd` = 1 or LANDSTALKER_HD=1).  Needs patch_shot.py and patch_own.py before it.  Idempotent.  usage: patch_hd.py path/to/genrecomp"""
+import os, sys
+root = sys.argv[1]
+VER = "LK_HD v3"
+p = os.path.join(root, "src/platform_sdl.c")
+s = open(p).read()
+if VER in s:
+    print("platform_sdl.c already patched:", VER); sys.exit(0)
+a = "/* draw the frame: returns after SDL_RenderPresent */\nstatic void lk_disp_present(const uint8_t *framebuffer) {"
+assert s.count(a) == 1, "platform_sdl.c: lk_disp_present layout changed"
+module = r'''/* ---- LK_HD v1: HD picture from the compositor's n x n blocks (tools/patch_hd.py) ---- */
+extern int lk_hd_n; extern uint32_t *lk_hd_rows, *lk_hd_ref; extern long lk_hd_stamp[224], lk_hd_gen; extern int lk_wide_e; extern int lk_quick_hdcol(int x); extern int lk_shadow_hdflags(int x, int y), lk_shadow_hdalpha(int x, int y, int sx, int sy, int n);
+static uint32_t lk_hd_dark(uint32_t c) { return ((c >> 1) & 0x007F7F7Fu) + ((c >> 4) & 0x000F0F0Fu) + (c & 0xFF000000u); }   /* the Shadow option's 1x darkening (patch_shadow.py) */
+static uint32_t *lk_hd_img; static int lk_hd_iw, lk_hd_ih; static SDL_Texture *lk_hd_tex; static int lk_hd_tw, lk_hd_th;
+static SDL_Texture *lk_hd_ftex; static int lk_hd_fw, lk_hd_fh; static uint32_t *lk_hd_fbuf;   /* filtered HD picture (destination size) */
+
+extern int lk_hd_active(void); extern int16_t lk_hd_depth[]; extern uint8_t lk_hd_spr[]; extern long lk_hd_dstamp[224]; extern int lk_hd_focus; extern int lk_dof_get(void);
+/* depth blur (HD only): blur radius grows with the distance of a pixel's ground point from Nigel's (screen rows, lk_hd_depth / lk_hd_focus).  A 1x copy of the picture (mean of each N x N block) gets a summed-area table; every game pixel then takes
+   a box average of its own radius (two box sizes mixed for the fraction, O(1) per pixel); the HD picture is mixed with a bilinear upsample of that.  All passes run on up to 4 threads (bands of rows). */
+static struct { uint32_t *img; int W, H, N, sw, nt, C, ws, hs; } lk_dd_c;
+static uint16_t *lk_dd_r16, *lk_dd_rs; static uint32_t *lk_dd_lv0, *lk_dd_bb; static int32_t *lk_dd_ii[3]; static int lk_dd_recip[100]; static int lk_dd_rm; static int *lk_dd_xi, *lk_dd_xf, *lk_dd_yi, *lk_dd_yf;
+typedef struct { int phase, y0, y1; } lk_dd2_job;
+/* the blurred copy ('small') has one cell per C x C output pixels: C = N for the HD picture (= the 1x resolution), 2 for the 1x picture (half resolution: the blurred part needs no more) */
+static int lk_dd2_run(void *pv) {
+    lk_dd2_job *jb = (lk_dd2_job *)pv; int sw = lk_dd_c.sw, N = lk_dd_c.N, W = lk_dd_c.W, H = lk_dd_c.H, C = lk_dd_c.C, ws = lk_dd_c.ws, hs = lk_dd_c.hs, y, x, c; int st = C >= 4 ? 2 : 1, ii_w = ws + 1;
+    if (jb->phase == 0) {                                   /* small copy of rows y0..y1: mean of each C x C block */
+        for (y = jb->y0; y < jb->y1; y++) for (x = 0; x < ws; x++) {
+            unsigned a = 0, b = 0, cc = 0, cnt = 0; int sy, sx;
+            for (sy = 0; sy < C; sy += st) { int yy = y * C + sy; if (yy >= H) break; { const uint32_t *p = lk_dd_c.img + (size_t)yy * W; for (sx = 0; sx < C; sx += st) { int xx = x * C + sx; uint32_t q; if (xx >= W) break; q = p[xx]; a += q & 255; b += (q >> 8) & 255; cc += (q >> 16) & 255; cnt++; } } }
+            if (!cnt) cnt = 1;
+            lk_dd_lv0[(size_t)y * ws + x] = 0xFF000000u | ((cc / cnt) << 16) | ((b / cnt) << 8) | (a / cnt);
+        }
+    } else if (jb->phase == 1) {                            /* box average of the radius of each small pixel, rows y0..y1 */
+        for (y = jb->y0; y < jb->y1; y++) for (x = 0; x < ws; x++) {
+            int r16 = lk_dd_rs[(size_t)y * ws + x], R0 = r16 >> 4, fr = r16 & 15; uint32_t o = 0xFF000000u, px = lk_dd_lv0[(size_t)y * ws + x];
+            if (r16 == 0) { lk_dd_bb[(size_t)y * ws + x] = px; continue; }
+            if (R0 >= lk_dd_rm) { R0 = lk_dd_rm; fr = 0; }
+            for (c = 0; c < 3; c++) {
+                int v0, v1 = 0; const int32_t *ii = lk_dd_ii[c];
+                if (R0 == 0) v0 = (int)((px >> (8 * c)) & 255);
+                else { int x0 = x - R0 < 0 ? 0 : x - R0, x1 = x + R0 >= ws ? ws - 1 : x + R0, y0 = y - R0 < 0 ? 0 : y - R0, y1 = y + R0 >= hs ? hs - 1 : y + R0; v0 = (int)(((int64_t)(ii[(y1 + 1) * ii_w + x1 + 1] - ii[y0 * ii_w + x1 + 1] - ii[(y1 + 1) * ii_w + x0] + ii[y0 * ii_w + x0]) * lk_dd_recip[(x1 - x0 + 1) * (y1 - y0 + 1)]) >> 16); }
+              { int R1 = R0 + 1, x0 = x - R1 < 0 ? 0 : x - R1, x1 = x + R1 >= ws ? ws - 1 : x + R1, y0 = y - R1 < 0 ? 0 : y - R1, y1 = y + R1 >= hs ? hs - 1 : y + R1; if (fr == 0) v1 = v0; else v1 = (int)(((int64_t)(ii[(y1 + 1) * ii_w + x1 + 1] - ii[y0 * ii_w + x1 + 1] - ii[(y1 + 1) * ii_w + x0] + ii[y0 * ii_w + x0]) * lk_dd_recip[(x1 - x0 + 1) * (y1 - y0 + 1)]) >> 16); }
+                o |= (uint32_t)((v0 * (16 - fr) + v1 * fr) >> 4) << (8 * c);
+            }
+            lk_dd_bb[(size_t)y * ws + x] = o;
+        }
+    } else {                                                /* output rows y0..y1: sharp pixel mixed with the bilinear upsample of the blurred copy */
+        for (y = jb->y0; y < jb->y1; y++) {
+            int ya = lk_dd_yi[y], yb = ya + 1, fy = lk_dd_yf[y]; const uint16_t *rrow = lk_dd_r16 + (size_t)(y / N) * sw; uint32_t *row = lk_dd_c.img + (size_t)y * W;
+            if (ya < 0) ya = 0; if (yb < 0) yb = 0; if (ya >= hs) ya = hs - 1; if (yb >= hs) yb = hs - 1;
+            for (x = 0; x < W; x++) {
+                int r16 = rrow[x / N], xa, xb, fx, wgt; uint32_t o = 0xFF000000u, s0, pa, pb, pc, pd;
+                if (!r16) continue;
+                xa = lk_dd_xi[x]; xb = xa + 1; fx = lk_dd_xf[x]; if (xa < 0) xa = 0; if (xb < 0) xb = 0; if (xa >= ws) xa = ws - 1; if (xb >= ws) xb = ws - 1;
+                wgt = r16 >= 8 ? 256 : r16 * 32; s0 = row[x];
+                pa = lk_dd_bb[(size_t)ya * ws + xa]; pb = lk_dd_bb[(size_t)ya * ws + xb]; pc = lk_dd_bb[(size_t)yb * ws + xa]; pd = lk_dd_bb[(size_t)yb * ws + xb];
+                for (c = 0; c < 24; c += 8) { int top = (int)((pa >> c) & 255) * (256 - fx) + (int)((pb >> c) & 255) * fx, bot = (int)((pc >> c) & 255) * (256 - fx) + (int)((pd >> c) & 255) * fx, v = (top * (256 - fy) + bot * fy) >> 16, sv = (int)((s0 >> c) & 255); o |= (uint32_t)((sv * (256 - wgt) + v * wgt) >> 8) << c; }
+                row[x] = o;
+            }
+        }
+    }
+    return 0;
+}
+static void lk_dd2_par(int phase, int rows) {
+    lk_dd2_job job[4]; SDL_Thread *th[4] = { 0 }; int i, nt = lk_dd_c.nt; if (rows < 16 || lk_dd_c.W * lk_dd_c.H < 200000) nt = 1;   /* (the 1x picture is too small to pay for the threads) */
+    for (i = 0; i < nt; i++) { job[i].phase = phase; job[i].y0 = rows * i / nt; job[i].y1 = rows * (i + 1) / nt; }
+    for (i = 1; i < nt; i++) { th[i] = SDL_CreateThread(lk_dd2_run, "lkdof", &job[i]); if (!th[i]) lk_dd2_run(&job[i]); }
+    lk_dd2_run(&job[0]);
+    for (i = 1; i < nt; i++) if (th[i]) SDL_WaitThread(th[i], NULL);
+}
+static void lk_hd_dof(uint32_t *img, int W, int H, int N, int sw, int e, const int16_t *sc) {
+    static const int FD[4] = { 1, 80, 70, 60 }, DZ[4] = { 0, 44, 40, 36 }, RM[4] = { 0, 2, 3, 4 };   /* sharp zone (rows around Nigel's ground row), rows beyond it until the full radius, full radius (game px) */
+    static size_t cap, ncap; static int dbg = -1, nt0, lutS = -1; static uint16_t lut[128];
+    int S = lk_dof_get(), x, y, k, any = 0, C = N == 1 ? 2 : N, ws = (W + C - 1) / C, hs = (H + C - 1) / C; size_t n = (size_t)sw * 224;
+    if (dbg < 0) { const char *d = getenv("LANDSTALKER_HD_DEPTHDBG"); dbg = d && atoi(d); }
+    if (S <= 0 && !dbg) return;
+    if (S < 0) S = 0; if (S > 3) S = 3;
+    if (!nt0) { nt0 = SDL_GetCPUCount(); if (nt0 > 4) nt0 = 4; if (nt0 < 1) nt0 = 1; if (getenv("LANDSTALKER_FXTHREADS")) nt0 = atoi(getenv("LANDSTALKER_FXTHREADS")); if (nt0 < 1) nt0 = 1; if (nt0 > 4) nt0 = 4; for (k = 1; k < 100; k++) lk_dd_recip[k] = 65536 / k; }
+    if (lutS != S) { int d; for (d = 0; d < 128; d++) { int dist = d - DZ[S ? S : 2], r = 0; if (dist > 0) { int t = dist >= FD[S ? S : 2] ? 256 : dist * 256 / FD[S ? S : 2]; int sm = (t * t * (768 - 2 * t)) >> 16; r = (sm * RM[S ? S : 2] * 16 + 128) >> 8; } lut[d] = (uint16_t)r; } lutS = S; }   /* radius (1/16 game px) by distance in rows: smoothstep, no visible start line */
+    if (cap < n) { free(lk_dd_r16); free(lk_dd_rs); free(lk_dd_lv0); free(lk_dd_bb); for (k = 0; k < 3; k++) { free(lk_dd_ii[k]); lk_dd_ii[k] = (int32_t *)malloc((size_t)(sw + 1) * 226 * 4); } lk_dd_r16 = (uint16_t *)malloc(n * 2); lk_dd_rs = (uint16_t *)malloc(n * 2); lk_dd_lv0 = (uint32_t *)malloc(n * 4); lk_dd_bb = (uint32_t *)malloc(n * 4); cap = n; }
+    if (ncap < (size_t)(W > H ? W : H)) { size_t m = W > H ? W : H; free(lk_dd_xi); free(lk_dd_xf); free(lk_dd_yi); free(lk_dd_yf); lk_dd_xi = (int *)malloc(m * sizeof(int)); lk_dd_xf = (int *)malloc(m * sizeof(int)); lk_dd_yi = (int *)malloc(m * sizeof(int)); lk_dd_yf = (int *)malloc(m * sizeof(int)); ncap = m; }
+    if (!lk_dd_r16 || !lk_dd_rs || !lk_dd_lv0 || !lk_dd_bb || !lk_dd_ii[0] || !lk_dd_ii[1] || !lk_dd_ii[2] || !lk_dd_xi || !lk_dd_xf || !lk_dd_yi || !lk_dd_yf) return;
+    for (y = 0; y < 224; y++) for (x = 0; x < sw; x++) {   /* radius per game pixel (1/16 px); debug: 0x8000 | grey */
+        int r16 = 0, cx = sc[(size_t)y * sw + x] - e;
+        if (y >= 23 && lk_hd_dstamp[y] == lk_hd_gen && cx >= -48 && cx < 368) { int d = lk_hd_depth[y * 416 + cx + 48]; if (d != 0x7FFF) { int ad = abs(d - lk_hd_focus); if (dbg) { int g = 128 + (d - lk_hd_focus); if (g < 0) g = 0; if (g > 255) g = 255; lk_dd_r16[(size_t)y * sw + x] = (uint16_t)(0x8000 | g); continue; } r16 = lut[ad > 127 ? 127 : ad]; } }
+        lk_dd_r16[(size_t)y * sw + x] = (uint16_t)r16;
+    }
+    if (dbg) { for (y = 0; y < H; y++) for (x = 0; x < W; x++) { int v = lk_dd_r16[(size_t)(y / N) * sw + x / N]; if (v & 0x8000) { int g = v & 255; img[(size_t)y * W + x] = 0xFF000000u | (g << 16) | (g << 8) | g; } else img[(size_t)y * W + x] = 0xFF800000u; } return; }
+    for (k = 0; k < (int)n; k++) if (lk_dd_r16[k]) { any = 1; break; }
+    if (!any) return;
+    for (y = 0; y < hs; y++) for (x = 0; x < ws; x++) {      /* radius of a small cell: the largest of the game pixels it covers, in small pixels */
+        int gx0 = x * C / N, gx1 = ((x + 1) * C - 1) / N, gy0 = y * C / N, gy1 = ((y + 1) * C - 1) / N, gx, gy, m = 0;
+        if (gx1 >= sw) gx1 = sw - 1; if (gy1 > 223) gy1 = 223;
+        for (gy = gy0; gy <= gy1; gy++) for (gx = gx0; gx <= gx1; gx++) { int v = lk_dd_r16[(size_t)gy * sw + gx]; if (v > m) m = v; }
+        lk_dd_rs[(size_t)y * ws + x] = (uint16_t)((m * N + C / 2) / C);
+    }
+    lk_dd_c.img = img; lk_dd_c.W = W; lk_dd_c.H = H; lk_dd_c.N = N; lk_dd_c.sw = sw; lk_dd_c.nt = nt0; lk_dd_c.C = C; lk_dd_c.ws = ws; lk_dd_c.hs = hs; lk_dd_rm = (RM[S] * N + C - 1) / C;
+    lk_dd2_par(0, hs);
+    for (y = 0; y <= hs; y++) { /* summed-area tables of the three channels (one pass) */ }
+    { int ii_w = ws + 1; int32_t *i0 = lk_dd_ii[0], *i1 = lk_dd_ii[1], *i2 = lk_dd_ii[2];
+      for (x = 0; x <= ws; x++) i0[x] = i1[x] = i2[x] = 0;
+      for (y = 0; y < hs; y++) { int32_t r0 = 0, r1 = 0, r2 = 0; i0[(y + 1) * ii_w] = i1[(y + 1) * ii_w] = i2[(y + 1) * ii_w] = 0;
+        for (x = 0; x < ws; x++) { uint32_t q = lk_dd_lv0[(size_t)y * ws + x]; r0 += q & 255; r1 += (q >> 8) & 255; r2 += (q >> 16) & 255; i0[(y + 1) * ii_w + x + 1] = i0[y * ii_w + x + 1] + r0; i1[(y + 1) * ii_w + x + 1] = i1[y * ii_w + x + 1] + r1; i2[(y + 1) * ii_w + x + 1] = i2[y * ii_w + x + 1] + r2; } } }
+    lk_dd2_par(1, hs);
+    for (x = 0; x < W; x++) { int u = (2 * x + 1 - C) * 128 / C; lk_dd_xi[x] = u >> 8; lk_dd_xf[x] = u & 255; }
+    for (y = 0; y < H; y++) { int u = (2 * y + 1 - C) * 128 / C; lk_dd_yi[y] = u >> 8; lk_dd_yf[y] = u & 255; }
+    lk_dd2_par(2, H);
+}
+/* HD-2D look on the map picture (1x, or the HD picture): bloom (bright pass -> small blurred copy -> added back), then colour grade (saturation, S-curve, warm tint) and vignette in one pass.  Only pixels the map path drew with a depth (not the HUD, text box, black margins).  The per-pixel passes run on up to 3 threads (bands of rows). */
+extern int lk_fxlook_get(int i), lk_hd_fxany(void);
+int lk_hd_look3d;   /* 1 while the look pass runs on the 3D room picture (tools/room3d_game.c): the mask is the 3D region, no lights */
+extern uint8_t lk_hd_spr[];
+typedef struct { uint32_t *img; const uint8_t *mask; int W, H, N, sw, B, V, G, L, ws, hs, C; const int *lf; const uint32_t *gl; const uint8_t (*lutc)[256]; const int *vx, *vy; uint32_t gn; } lk_look_ctx;
+typedef struct { lk_look_ctx *c; int pass, y0, y1; } lk_look_job;
+static int lk_look_run(void *pv) {
+    lk_look_job *j = (lk_look_job *)pv; lk_look_ctx *c = j->c; int W = c->W, N = c->N, sw = c->sw, x, y;
+    static const int SAT[4] = { 256, 282, 303, 328 };
+    if (j->pass == 2) {                                      /* real lights: multiply by the light field (3 gains per cell, 256 = 1.0), bilinear like the bloom */
+        for (y = j->y0; y < j->y1; y++) {
+            int ua = (2 * y + 1 - c->C) * 128 / c->C, ya = ua >> 8, fy = ua & 255, yb = ya + 1; const uint8_t *mrow = c->mask + (size_t)(y / N) * sw; int gx = 0, gs = 0; uint32_t *irow = c->img + (size_t)y * W;
+            if (ya < 0) ya = 0; if (yb < 0) yb = 0; if (ya >= c->hs) ya = c->hs - 1; if (yb >= c->hs) yb = c->hs - 1;
+            for (x = 0; x < W; x++, gs++) {
+                int ub, xa, xb, fx, k; const int *p00, *p01, *p10, *p11; uint32_t q, o = 0xFF000000u;
+                if (gs == N) { gs = 0; gx++; } if (!mrow[gx]) continue;
+                ub = (2 * x + 1 - c->C) * 128 / c->C; xa = ub >> 8; fx = ub & 255; xb = xa + 1; if (xa < 0) xa = 0; if (xb < 0) xb = 0; if (xa >= c->ws) xa = c->ws - 1; if (xb >= c->ws) xb = c->ws - 1;
+                p00 = c->lf + ((size_t)ya * c->ws + xa) * 3; p01 = c->lf + ((size_t)ya * c->ws + xb) * 3; p10 = c->lf + ((size_t)yb * c->ws + xa) * 3; p11 = c->lf + ((size_t)yb * c->ws + xb) * 3;
+                q = irow[x];
+                for (k = 0; k < 3; k++) { int top = p00[k] * (256 - fx) + p01[k] * fx, bot = p10[k] * (256 - fx) + p11[k] * fx, gv = (top * (256 - fy) + bot * fy) >> 16, v = (((int)((q >> (8 * k)) & 255)) * gv) >> 8; if (v > 255) v = 255; o |= (uint32_t)v << (8 * k); }
+                irow[x] = o;
+            }
+        }
+    } else if (j->pass == 0) {                               /* bloom: add the upsampled glow */
+        for (y = j->y0; y < j->y1; y++) {
+            int ua = (2 * y + 1 - c->C) * 128 / c->C, ya = ua >> 8, fy = ua & 255, yb = ya + 1; const uint8_t *mrow = c->mask + (size_t)(y / N) * sw; int gx = 0, gs = 0; uint32_t *irow = c->img + (size_t)y * W;
+            if (ya < 0) ya = 0; if (yb < 0) yb = 0; if (ya >= c->hs) ya = c->hs - 1; if (yb >= c->hs) yb = c->hs - 1;
+            for (x = 0; x < W; x++, gs++) {
+                int ub, xa, xb, fx, k; const uint32_t *p00, *p01, *p10, *p11; uint32_t q, o = 0xFF000000u;
+                if (gs == N) { gs = 0; gx++; } if (!mrow[gx]) continue;
+                ub = (2 * x + 1 - c->C) * 128 / c->C; xa = ub >> 8; fx = ub & 255; xb = xa + 1; if (xa < 0) xa = 0; if (xb < 0) xb = 0; if (xa >= c->ws) xa = c->ws - 1; if (xb >= c->ws) xb = c->ws - 1;
+                p00 = c->gl + ((size_t)ya * c->ws + xa) * 3; p01 = c->gl + ((size_t)ya * c->ws + xb) * 3; p10 = c->gl + ((size_t)yb * c->ws + xa) * 3; p11 = c->gl + ((size_t)yb * c->ws + xb) * 3;
+                if (!(p00[0] | p00[1] | p00[2] | p01[0] | p01[1] | p01[2] | p10[0] | p10[1] | p10[2] | p11[0] | p11[1] | p11[2])) continue;   /* no glow here */
+                q = irow[x];
+                for (k = 0; k < 3; k++) { int top = (int)p00[k] * (256 - fx) + (int)p01[k] * fx, bot = (int)p10[k] * (256 - fx) + (int)p11[k] * fx, gv = ((top * (256 - fy) + bot * fy) >> 16) * (int)c->gn >> 8, v = (int)((q >> (8 * k)) & 255) + gv; if (v > 255) v = 255; o |= (uint32_t)v << (8 * k); }
+                irow[x] = o;
+            }
+        }
+    } else {                                                 /* colour grade + vignette */
+        for (y = j->y0; y < j->y1 && y < 1024; y++) {
+            const uint8_t *mrow = c->mask + (size_t)(y / N) * sw; uint32_t *irow = c->img + (size_t)y * W; int gx = 0, gs = 0;
+            for (x = 0; x < W && x < 1024; x++, gs++) {
+                uint32_t q; int r, g, b, l;
+                if (gs == N) { gs = 0; gx++; } if (!mrow[gx]) continue;
+                q = irow[x]; b = q & 255; g = (q >> 8) & 255; r = (q >> 16) & 255;   /* the picture is XRGB: blue is the low byte */
+                if (c->G) { l = (r * 77 + g * 150 + b * 29) >> 8; r = l + (((r - l) * SAT[c->G]) >> 8); g = l + (((g - l) * SAT[c->G]) >> 8); b = l + (((b - l) * SAT[c->G]) >> 8); r = r < 0 ? 0 : r > 255 ? 255 : r; g = g < 0 ? 0 : g > 255 ? 255 : g; b = b < 0 ? 0 : b > 255 ? 255 : b; r = c->lutc[0][r]; g = c->lutc[1][g]; b = c->lutc[2][b]; }
+                if (c->V) { int f = c->vx[x] * c->vy[y] >> 8; r = r * f >> 8; g = g * f >> 8; b = b * f >> 8; }
+                irow[x] = 0xFF000000u | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b;
+            }
+        }
+    }
+    return 0;
+}
+static void lk_look_par(lk_look_ctx *c, int pass) {
+    static int nt0; lk_look_job job[3]; SDL_Thread *th[3] = { 0 }; int i, nt, H = c->H;
+    if (!nt0) { nt0 = SDL_GetCPUCount(); if (nt0 > 3) nt0 = 3; if (nt0 < 1) nt0 = 1; if (getenv("LANDSTALKER_FXTHREADS")) { nt0 = atoi(getenv("LANDSTALKER_FXTHREADS")); if (nt0 < 1) nt0 = 1; if (nt0 > 3) nt0 = 3; } }
+    nt = (c->W * c->H < 200000) ? 1 : nt0;   /* (the 1x picture is too small to pay for the threads) */
+    for (i = 0; i < nt; i++) { job[i].c = c; job[i].pass = pass; job[i].y0 = H * i / nt; job[i].y1 = H * (i + 1) / nt; }
+    for (i = 1; i < nt; i++) { th[i] = SDL_CreateThread(lk_look_run, "lklook", &job[i]); if (!th[i]) lk_look_run(&job[i]); }
+    lk_look_run(&job[0]);
+    for (i = 1; i < nt; i++) if (th[i]) SDL_WaitThread(th[i], NULL);
+}
+static void lk_hd_look(uint32_t *img, int W, int H, int N, int sw, int e, const int16_t *sc) {
+    static uint8_t *mask; static size_t mcap; static uint32_t *gl; static size_t gcap; static uint8_t lutc[3][256]; static int lutg = -1; static int vx[1024], vy[1024], vg = -1, vW, vH;
+    int B = lk_fxlook_get(0), V = lk_fxlook_get(1), G = lk_fxlook_get(2), L = lk_hd_look3d ? 0 : lk_fxlook_get(3), x, y, k, anyrow = 0; size_t n = (size_t)sw * 224; lk_look_ctx cx;
+    if (!B && !V && !G && !L) return;
+    for (y = 23; y < 224; y++) if (lk_hd_dstamp[y] == lk_hd_gen) { anyrow = 1; break; }
+    if (!anyrow) return;                                     /* not a map picture */
+    if (mcap < n) { free(mask); mask = (uint8_t *)malloc(n); mcap = mask ? n : 0; }
+    if (!mask) return;
+    for (y = 0; y < 224; y++) for (x = 0; x < sw; x++) {
+        int cxx = sc[(size_t)y * sw + x] - e, ok = 0;
+        if (lk_hd_look3d) { if (y >= 23 && lk_hd_dstamp[y] == lk_hd_gen && cxx >= -48 && cxx < 368 && !(lk_hd_spr[y * 416 + cxx + 48] & 4)) ok = 1; }
+        else if (y >= 23 && lk_hd_dstamp[y] == lk_hd_gen && cxx >= -48 && cxx < 368 && lk_hd_depth[y * 416 + cxx + 48] != 0x7FFF) ok = 1;
+        mask[(size_t)y * sw + x] = (uint8_t)ok;
+    }
+    memset(&cx, 0, sizeof cx); cx.img = img; cx.mask = mask; cx.W = W; cx.H = H; cx.N = N; cx.sw = sw; cx.B = B; cx.V = V; cx.G = G; cx.L = L;
+    if (L) {                                                 /* REAL LIGHTS (Options > Video > Lights): the sources are small yellow flames of the MAP picture (not figures): a cell of 4 x 4 game pixels with flame pixels, grown to connected groups; only SMALL groups count (a torch / candle is at most 5 x 6 cells, a gold statue, a yellow wall or a roof is bigger); each source lights an ellipse (a circle on the isometric ground) warmly, the rest of a picture with sources gets darker; the strength per cell is smoothed over frames so that the animated flames and the scrolling do not flicker */
+        static const int AMB[4] = { 256, 214, 186, 152 }, LA[4] = { 0, 120, 160, 210 }, RX[4] = { 0, 8, 10, 13 };   /* ambient gain of a room with lights (of 256), light amplitude (of 256), radius in cells (4 game pixels) */
+        static int *lf, lfcap, *cnt, *comp, *stk, cap, amb = 256, on, pws, phs, ntrk; static unsigned fr; static struct { int px, py, inten, tgt; } trk[48];   /* trk: the tracked lights (pixel position, smoothed strength) */
+        int C = 4 * N, ws = (W + C - 1) / C, hs = (H + C - 1) / C, i, nc = ws * hs; size_t sn = (size_t)ws * hs * 3;
+        if (lfcap < (int)sn) { free(lf); lf = (int *)malloc(sn * sizeof(int)); lfcap = lf ? (int)sn : 0; }
+        if (cap < nc) { free(cnt); free(comp); free(stk); cnt = (int *)malloc(nc * sizeof(int)); comp = (int *)malloc(nc * sizeof(int)); stk = (int *)malloc(nc * sizeof(int)); cap = (cnt && comp && stk) ? nc : 0; pws = 0; }
+        if (lf && cap >= nc) {
+            int cy2, cx2, mx = 0, ndet = 0, det[48][3];
+            fr++;
+            if (getenv("LANDSTALKER_LIGHTS_DUMP")) { int a0, b0, a1, b1, yy, xx; if (sscanf(getenv("LANDSTALKER_LIGHTS_DUMP"), "%d,%d,%d,%d", &a0, &b0, &a1, &b1) == 4) for (yy = b0; yy < b1; yy++) { for (xx = a0; xx < a1; xx++) { uint32_t q = img[(size_t)(yy * N) * W + xx * N]; printf("%02x%02x%02x ", (q >> 16) & 255, (q >> 8) & 255, q & 255); } printf("\n"); } }
+            if (pws != ws || phs != hs) { ntrk = 0; pws = ws; phs = hs; }
+            for (y = 0; y < hs; y++) for (x = 0; x < ws; x++) {   /* flame pixels per cell */
+                int ky, kx, n = 0;
+                for (ky = 0; ky < 4; ky++) { int gy = y * 4 + ky; const uint8_t *mrow; const uint32_t *irow; if (gy >= 224) break; mrow = mask + (size_t)gy * sw; irow = img + (size_t)(gy * N) * W;
+                  for (kx = 0; kx < 4; kx++) { int gx = x * 4 + kx, r, g, bl; uint32_t q; if (gx >= sw) break;
+                    if (!mrow[gx]) continue; { int cc = sc[(size_t)gy * sw + gx] - e + 48; if (cc < 0 || cc >= 416 || lk_hd_spr[gy * 416 + cc] != 2) continue; }   /* only pixels of animated map tiles (flames), no figures, no still scenery */
+                    q = irow[gx * N]; bl = q & 255; g = (q >> 8) & 255; r = (q >> 16) & 255;
+                    if (r >= 190 && r - bl >= 120) n++; } }
+                cnt[(size_t)y * ws + x] = n; comp[(size_t)y * ws + x] = 0;
+            }
+            for (cy2 = 0; cy2 < hs; cy2++) for (cx2 = 0; cx2 < ws; cx2++) {   /* connected groups (8 neighbours) of cells with flame pixels */
+                int sp = 0, px0 = 999, px1 = -1, py0 = 999, py1 = -1, tot = 0, ncell = 0, mxn = 0, sumx = 0, sumy = 0;
+                if (cnt[cy2 * ws + cx2] < 2 || comp[cy2 * ws + cx2]) continue;
+                stk[sp++] = cy2 * ws + cx2; comp[cy2 * ws + cx2] = 1;
+                while (sp > 0) {
+                    int c0 = stk[--sp], x0 = c0 % ws, y0 = c0 / ws, dy, dx;
+                    tot += cnt[c0]; sumx += cnt[c0] * (x0 * 4 + 2); sumy += cnt[c0] * (y0 * 4 + 2); ncell++; if (cnt[c0] > mxn) mxn = cnt[c0]; if (x0 < px0) px0 = x0; if (x0 > px1) px1 = x0; if (y0 < py0) py0 = y0; if (y0 > py1) py1 = y0;
+                    for (dy = -1; dy <= 1; dy++) for (dx = -1; dx <= 1; dx++) { int nx = x0 + dx, ny = y0 + dy; if (nx < 0 || ny < 0 || nx >= ws || ny >= hs) continue; if (cnt[ny * ws + nx] < 2 || comp[ny * ws + nx]) continue; comp[ny * ws + nx] = 1; stk[sp++] = ny * ws + nx; }
+                }
+                if (tot >= 8 && ncell <= 12 && px1 - px0 < 5 && py1 - py0 < 6 && mxn >= 4 && ndet < 48) {   /* a small flame: the light sits at its centre of mass, one cell lower (the floor / wall below) */
+                    det[ndet][0] = sumx / tot; det[ndet][1] = sumy / tot + 4; det[ndet][2] = (tot > 36 ? 36 : tot) * 256 / 24; ndet++;
+                }
+            }
+            { int d, t2, k2; char used[48] = { 0 };   /* match the detections to the tracked lights (nearest within 16 px, the camera moves a few px per frame), smooth the strength only */
+              for (t2 = 0; t2 < ntrk; t2++) trk[t2].tgt = 0;
+              for (d = 0; d < ndet; d++) { int best = -1, bd = 99; for (t2 = 0; t2 < ntrk; t2++) { int dd = abs(trk[t2].px - det[d][0]) + abs(trk[t2].py - det[d][1]); if (!used[t2] && dd < bd && dd <= 16) { bd = dd; best = t2; } }
+                if (best < 0 && ntrk < 48) { best = ntrk++; trk[best].inten = 0; used[best] = 0; }
+                if (best >= 0) { used[best] = 1; trk[best].px = det[d][0]; trk[best].py = det[d][1]; trk[best].tgt = det[d][2]; } }
+              for (t2 = 0, k2 = 0; t2 < ntrk; t2++) { trk[t2].inten += (trk[t2].tgt - trk[t2].inten) * 3 / 8 + (trk[t2].tgt > trk[t2].inten) - (trk[t2].tgt < trk[t2].inten); if (trk[t2].inten < 6 && !trk[t2].tgt) continue; if (trk[t2].inten > mx) mx = trk[t2].inten; trk[k2] = trk[t2]; used[k2] = used[t2]; k2++; }
+              ntrk = k2; }
+            if (mx > 90) on = 1; else if (mx < 30) on = 0;   /* hysteresis: the room is 'lit by torches' */
+            { int tgt = on ? AMB[L] : 256; if (getenv("LANDSTALKER_LIGHTS_SNAP")) amb = tgt; else amb += (tgt - amb) / 10 + (tgt > amb) - (tgt < amb && amb - tgt < 10); if (amb < AMB[L]) amb = AMB[L]; if (amb > 256) amb = 256; }
+            if (getenv("LANDSTALKER_LIGHTS_DBG")) { int q3, n3 = 0; printf("lights: smoothed max %d on %d amb %d lights", mx, on, amb); for (q3 = 0; q3 < ntrk && n3 < 30; q3++) { printf(" (%d,%d)x%d", trk[q3].px, trk[q3].py, trk[q3].inten); n3++; } printf("\n"); }
+            for (i = 0; i < (int)sn; i += 3) { lf[i] = amb; lf[i + 1] = amb; lf[i + 2] = amb; }
+            if (mx > 0) {
+                int rx = RX[L] * 4, ry = rx / 2 + 2, si; int *acc = (int *)calloc((size_t)nc, sizeof(int));
+                if (acc) {
+                    for (si = 0; si < ntrk; si++) { int st = trk[si].inten, x0 = (trk[si].px - rx) / 4, x1 = (trk[si].px + rx) / 4, y0 = (trk[si].py - ry) / 4, y1 = (trk[si].py + ry) / 4, cx3, cy3;   /* cell centres at 4 x + 2 game pixels, the light centre in pixels: the light moves smoothly when the picture scrolls */
+                        if (x0 < 0) x0 = 0; if (y0 < 0) y0 = 0; if (x1 >= ws) x1 = ws - 1; if (y1 >= hs) y1 = hs - 1;
+                        for (cy3 = y0; cy3 <= y1; cy3++) for (cx3 = x0; cx3 <= x1; cx3++) { int dx = cx3 * 4 + 2 - trk[si].px, dy = cy3 * 4 + 2 - trk[si].py, d2 = dx * dx * 256 / (rx * rx) + dy * dy * 256 / (ry * ry), f; if (d2 >= 256) continue; f = 256 - d2; f = f * f >> 8; acc[(size_t)cy3 * ws + cx3] += f * st >> 8; } }
+                    for (i = 0; i < nc; i++) { int a = acc[i]; int m = a > 300 ? 300 : a, v = m * LA[L] >> 8; lf[i * 3 + 2] += v; lf[i * 3 + 1] += v * 205 >> 8; lf[i * 3] += v * 120 >> 8; }   /* channel k = byte k: 0 blue, 1 green, 2 red */
+                    free(acc);
+                }
+            }
+            if (amb < 256 || mx > 0) { cx.L = L; cx.ws = ws; cx.hs = hs; cx.C = C; cx.lf = lf; lk_look_par(&cx, 2); }
+        }
+    }
+    if (B) {                                                 /* bloom */
+        static const int T[4] = { 0, 140, 120, 100 }, GN[4] = { 0, 110, 190, 300 };
+        int C = 4 * N, ws = (W + C - 1) / C, hs = (H + C - 1) / C, st = N, pass; uint32_t mx = 0;
+        size_t sn = (size_t)ws * hs * 3;
+        if (gcap < sn * 2) { free(gl); gl = (uint32_t *)malloc(sn * 2 * 4); gcap = gl ? sn * 2 : 0; }
+        if (gl) {
+            uint32_t *a = gl, *b = gl + sn;
+            { static int flut[256], lutT = -1; int ky, kx; if (lutT != B) { for (k = 0; k < 256; k++) flut[k] = k > T[B] ? (k - T[B]) * 256 / (255 - T[B]) : 0; lutT = B; }
+              for (y = 0; y < hs; y++) for (x = 0; x < ws; x++) {      /* a cell = 4 x 4 game pixels (one sample each) */
+                unsigned sr = 0, sg = 0, sb = 0; int cnt = 0;
+                for (ky = 0; ky < 4; ky++) { int gy = y * 4 + ky; const uint8_t *mrow; const uint32_t *irow; if (gy >= 224) break; mrow = mask + (size_t)gy * sw; irow = img + (size_t)(gy * N) * W;
+                  for (kx = 0; kx < 4; kx++) { int gx = x * 4 + kx, f; uint32_t q; int r, g, bl, l; if (gx >= sw) break; cnt++; if (!mrow[gx]) continue; q = irow[gx * N]; bl = q & 255; g = (q >> 8) & 255; r = (q >> 16) & 255; l = (r * 77 + g * 150 + bl * 29) >> 8; f = flut[l]; if (f) { sr += r * f >> 8; sg += g * f >> 8; sb += bl * f >> 8; } } }
+                if (!cnt) cnt = 1;
+                a[((size_t)y * ws + x) * 3] = sr / cnt; a[((size_t)y * ws + x) * 3 + 1] = sg / cnt; a[((size_t)y * ws + x) * 3 + 2] = sb / cnt;
+              } }
+            for (pass = 0; pass < 2; pass++) {               /* two box blurs (radius 1) in both directions = a soft glow */
+                for (y = 0; y < hs; y++) for (x = 0; x < ws; x++) for (k = 0; k < 3; k++) { int xa = x > 0 ? x - 1 : 0, xb = x < ws - 1 ? x + 1 : ws - 1; b[((size_t)y * ws + x) * 3 + k] = (a[((size_t)y * ws + xa) * 3 + k] + a[((size_t)y * ws + x) * 3 + k] + a[((size_t)y * ws + xb) * 3 + k]) / 3; }
+                for (y = 0; y < hs; y++) for (x = 0; x < ws; x++) for (k = 0; k < 3; k++) { int ya = y > 0 ? y - 1 : 0, yb = y < hs - 1 ? y + 1 : hs - 1; a[((size_t)y * ws + x) * 3 + k] = (b[((size_t)ya * ws + x) * 3 + k] + b[((size_t)y * ws + x) * 3 + k] + b[((size_t)yb * ws + x) * 3 + k]) / 3; }
+            }
+            for (k = 0; k < (int)sn; k++) if (a[k] > mx) mx = a[k];
+            if (mx >= 2) { cx.ws = ws; cx.hs = hs; cx.C = C; cx.gl = a; cx.gn = (uint32_t)GN[B]; lk_look_par(&cx, 0); }
+        }
+    }
+    if (V || G) {                                            /* colour grade + vignette */
+        static const int CON[4] = { 0, 20, 38, 64 }, WARM[4] = { 0, 5, 9, 13 }, VA[4] = { 0, 36, 56, 77 };   /* S-curve strength (of 256), warm tint (of 256), vignette corner darkening (of 256 per axis); saturation in lk_look_run */
+        if (lutg != G) { for (k = 0; k < 256; k++) { int t = k * 256 / 255, sm = (t * t * (768 - 2 * t)) >> 16, v = k + (((sm - t) * CON[G]) >> 8), c; for (c = 0; c < 3; c++) { int w = c == 0 ? 256 + WARM[G] : c == 2 ? 256 - WARM[G] : 256, o = v * w >> 8; lutc[c][k] = (uint8_t)(o < 0 ? 0 : o > 255 ? 255 : o); } } lutg = G; }
+        if (vg != V || vW != W || vH != H) { for (x = 0; x < W && x < 1024; x++) { int d = (2 * x + 1 - W) * 256 / W; vx[x] = 256 - (VA[V] * (d * d >> 8) >> 8); } for (y = 0; y < H && y < 1024; y++) { int d = (2 * y + 1 - H) * 256 / H; vy[y] = 256 - (VA[V] * (d * d >> 8) >> 8); } vg = V; vW = W; vH = H; }
+        cx.lutc = (const uint8_t (*)[256])lutc; cx.vx = vx; cx.vy = vy; lk_look_par(&cx, 1);
+    }
+}
+/* depth blur without a tile pack: on the 1x picture (the blurred part needs no finer resolution) before the CRT filters, which then run at the normal cost */
+static const uint32_t *lk_hd_dof1x(const uint32_t *fb, int sw, int e) {
+    static uint32_t *buf; static int16_t *sc; static int bw;
+    if (bw != sw) { free(buf); free(sc); buf = (uint32_t *)malloc((size_t)sw * 224 * 4); sc = (int16_t *)malloc((size_t)sw * 224 * 2); bw = sw; if (sc) { int x, y; for (y = 0; y < 224; y++) for (x = 0; x < sw; x++) sc[(size_t)y * sw + x] = (int16_t)x; } }
+    if (!buf || !sc) return fb;
+    { static double tt; static int cnt; Uint64 t0 = SDL_GetPerformanceCounter(); memcpy(buf, fb, (size_t)sw * 224 * 4);
+    lk_hd_dof(buf, sw, 224, 1, sw, e, sc); { static double tl; static int cl; Uint64 t1 = SDL_GetPerformanceCounter(); lk_hd_look(buf, sw, 224, 1, sw, e, sc); tl += (double)(SDL_GetPerformanceCounter() - t1) * 1e3 / (double)SDL_GetPerformanceFrequency(); if (++cl % 300 == 0 && getenv("LANDSTALKER_HD_TIME")) printf("hdtime: look (bloom / grade / vignette) %.2f ms per frame\n", tl / cl); }
+    tt += (double)(SDL_GetPerformanceCounter() - t0) * 1e3 / (double)SDL_GetPerformanceFrequency(); if (++cnt % 300 == 0 && getenv("LANDSTALKER_HD_TIME")) printf("hdtime: 1x depth blur %.2f ms per frame (avg over %d)\n", tt / cnt, cnt); }
+    return buf;
+}
+uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh) {
+    int N = lk_hd_n, W = sw * N, H = 224 * N, y, x, sx, sy;
+    static uint8_t *m; static int16_t *sc; static size_t mcap;
+    if (N <= 0 || !lk_hd_rows || !lk_hd_ref) return NULL;
+    if (!lk_hd_img || lk_hd_iw != W || lk_hd_ih != H) { free(lk_hd_img); lk_hd_img = (uint32_t *)malloc((size_t)W * H * 4); lk_hd_iw = W; lk_hd_ih = H; }
+    if (mcap < (size_t)sw * 224) { free(m); free(sc); m = (uint8_t *)malloc((size_t)sw * 224); sc = (int16_t *)malloc((size_t)sw * 224 * 2); mcap = (m && sc) ? (size_t)sw * 224 : 0; }
+    if (!lk_hd_img || !m || !sc || !mcap) return NULL;
+    for (y = 0; y < 224; y++) {                             /* m = the final pixel is the compositor's pixel (no overlay drew here); sc = the picture column the pixel comes from (the quick item bar moves the columns of the HUD lines 5..22: the HD block moves with them) */
+        const uint32_t *src = fb + (size_t)y * sw; int ok = lk_hd_stamp[y] == lk_hd_gen;
+        for (x = 0; x < sw; x++) { int sx0 = (y >= 5 && y <= 22) ? lk_quick_hdcol(x) : x, cx = sx0 - e; sc[(size_t)y * sw + x] = (int16_t)sx0; m[(size_t)y * sw + x] = ok && sx0 >= 0 && sx0 < sw && cx >= -48 && cx < 320 + 48 && (src[x] == lk_hd_ref[y * 416 + cx + 48] || ((lk_shadow_hdflags(x, y) & 1) && src[x] == lk_hd_dark(lk_hd_ref[y * 416 + cx + 48]))); }
+    }
+    for (y = 0; y < 224; y++) {
+        const uint32_t *src = fb + (size_t)y * sw;
+        for (x = 0; x < sw; x++) {                          /* an HD block is only used where the whole 3 x 3 neighbourhood is the compositor's: overlays that move pixels around (Item Info, the text box line, the quick item cells) keep equal colours by chance at their edges, and an enlarged tile cut from a neighbourhood that is not there shows as specks */
+            int cx = sc[(size_t)y * sw + x] - e, use = m[(size_t)y * sw + x], dy, dx; int shf = lk_shadow_hdflags(x, y) & 3;
+            for (dy = -1; dy <= 1 && use; dy++) for (dx = -1; dx <= 1; dx++) { int yy = y + dy, xx = x + dx; if (yy < 0 || yy > 223 || xx < 0 || xx >= sw) continue; if (!m[(size_t)yy * sw + xx]) { use = 0; break; } }
+            for (sy = 0; sy < N; sy++) {
+                uint32_t *dst = lk_hd_img + (size_t)(y * N + sy) * W;
+                if (use) { const uint32_t *hb = lk_hd_rows + (size_t)(y * N + sy) * 416 * N + (size_t)(cx + 48) * N; for (sx = 0; sx < N; sx++) dst[x * N + sx] = hb[sx];
+                    if (shf) for (sx = 0; sx < N; sx++) { int a = lk_shadow_hdalpha(x, y, sx, sy, N); if (a) { uint32_t c = dst[x * N + sx], k = 255 - (a * 112 + 127) / 255;   /* shadow: 56 % brightness at full strength (the 1x darkening), per pixel at the HD resolution, the HD texture stays */ dst[x * N + sx] = (c & 0xFF000000u) | ((((c >> 16) & 255) * k / 255) << 16) | ((((c >> 8) & 255) * k / 255) << 8) | ((c & 255) * k / 255); } } }
+                else for (sx = 0; sx < N; sx++) dst[x * N + sx] = src[x];
+            }
+        }
+    }
+    { static double t0, t1, t2; static int cnt; Uint64 a = SDL_GetPerformanceCounter(), b; double c = 0; lk_hd_dof(lk_hd_img, W, H, N, sw, e, sc); b = SDL_GetPerformanceCounter(); lk_hd_look(lk_hd_img, W, H, N, sw, e, sc); t1 += (double)(b - a) * 1e3 / (double)SDL_GetPerformanceFrequency(); if (++cnt % 300 == 0 && getenv("LANDSTALKER_HD_TIME")) printf("hdtime: dof %.2f ms avg over %d\n", t1 / cnt, cnt); (void)t0; (void)t2; (void)c; }
+    *ow = W; *oh = H; return lk_hd_img;
+}
+static double lk_hd_ms(Uint64 a) { return (double)(SDL_GetPerformanceCounter() - a) * 1e3 / (double)SDL_GetPerformanceFrequency(); }
+static double lk_hd_tasm, lk_hd_tfil; static int lk_hd_tcnt;
+static int lk_hd_show(uint32_t *img, int iw, int ih, int n, const lk_rect *r) {   /* draws an assembled picture (iw x ih, n pixels per game pixel): CRT filters per game line, or linear scaling (the 3D room uses it too) */
+    Uint64 t0 = SDL_GetPerformanceCounter();
+    if (!lk_hd_tex || lk_hd_tw != iw || lk_hd_th != ih) {
+        if (lk_hd_tex) SDL_DestroyTexture(lk_hd_tex);
+        lk_hd_tex = SDL_CreateTexture(s_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, iw, ih);
+        if (lk_hd_tex) SDL_SetTextureScaleMode(lk_hd_tex, SDL_ScaleModeLinear);
+        lk_hd_tw = iw; lk_hd_th = ih;
+    }
+    if (!lk_hd_tex) return 0;
+    if (lk_fx_mode != LK_FX_OFF && r->w <= LK_MAXDIM && r->h <= LK_MAXDIM && r->w >= LK_SRC_W && r->h >= LK_SRC_H) {   /* the CRT filters on the HD picture: scanlines / beam / mask per GAME line (lk_hdn), sampling from the finer HD columns */
+        if (!lk_hd_ftex || lk_hd_fw != r->w || lk_hd_fh != r->h) {
+            if (lk_hd_ftex) SDL_DestroyTexture(lk_hd_ftex);
+            free(lk_hd_fbuf);
+            lk_hd_ftex = SDL_CreateTexture(s_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, r->w, r->h);
+            lk_hd_fbuf = (uint32_t *)malloc((size_t)r->w * r->h * 4); lk_hd_fw = r->w; lk_hd_fh = r->h;
+        }
+        if (lk_hd_ftex && lk_hd_fbuf) {
+            lk_hdn = n;
+            if (lk_fx_mode >= LK_FX_PRO) {
+                lk_f2_prepare(r->w, r->h, lk_fx_mode, iw);
+                if (lk_f2_plane) { lk_fx_render_mt(img, lk_hd_fbuf, r->w, LK_SRC_H, iw, 2); lk_fx_render_mt(img, lk_hd_fbuf, r->w, r->h, iw, 3); }
+                else { lk_fx_prepare(r->w, r->h, LK_FX_CRT, iw); lk_fx_render_mt(img, lk_hd_fbuf, r->w, r->h, iw, 0); }
+            } else { lk_fx_prepare(r->w, r->h, lk_fx_mode, iw); lk_fx_render_mt(img, lk_hd_fbuf, r->w, r->h, iw, 0); }
+            lk_hdn = 1; lk_hd_tfil += lk_hd_ms(t0); if (++lk_hd_tcnt % 300 == 0 && getenv("LANDSTALKER_HD_TIME")) { printf("hdtime: assemble(incl. dof) %.2f ms, filter %.2f ms per frame\n", lk_hd_tasm / lk_hd_tcnt, lk_hd_tfil / lk_hd_tcnt); }
+            SDL_UpdateTexture(lk_hd_ftex, NULL, lk_hd_fbuf, r->w * 4);
+            { SDL_Rect d = { r->x, r->y, r->w, r->h }; SDL_RenderCopy(s_renderer, lk_hd_ftex, NULL, &d); }
+            return 1;
+        }
+    }
+    SDL_UpdateTexture(lk_hd_tex, NULL, img, iw * 4);
+    { SDL_Rect d = { r->x, r->y, r->w, r->h }; SDL_RenderCopy(s_renderer, lk_hd_tex, NULL, &d); }
+    return 1;
+}
+static int lk_hd_present(const uint8_t *framebuffer, int sw, const lk_rect *r) {
+    int iw, ih; Uint64 t0 = SDL_GetPerformanceCounter(); uint32_t *img = lk_hd_assemble((const uint32_t *)framebuffer, sw, lk_wide_e, &iw, &ih); lk_hd_tasm += lk_hd_ms(t0);
+    if (!img) return 0;
+    return lk_hd_show(img, iw, ih, lk_hd_n, r);
+}
+'''
+s = s.replace(a, module + a, 1)
+dd = "    if (lk_dd_mode) {                                   /* de-dither"
+assert s.count(dd) == 1, "platform_sdl.c: de-dither block layout changed"
+s = s.replace(dd, "    extern int lk_hd_active(void);\n    if (lk_dd_mode && !lk_hd_active()) {                 /* (HD picture: no de-dither, it would change the 1x pixels the HD blocks are matched against) */   /* de-dither", 1)
+hk = "    lk_rect r; lk_calc_rect(lk_scale_mode, ow, oh, sw, &r);\n"
+assert s.count(hk) == 1, "platform_sdl.c: lk_disp_present rect layout changed"
+s = s.replace(hk, "    if (!lk_hd_active() && lk_hd_fxany()) framebuffer = (const uint8_t *)lk_hd_dof1x((const uint32_t *)framebuffer, sw, lk_wide_e);   /* depth blur on the 1x picture (no tile pack) */\n" + hk, 1)
+b = "    SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 255);\n    SDL_RenderClear(s_renderer);\n    static int lk_sb_env = -1;"
+assert s.count(b) == 1, "platform_sdl.c: lk_disp_present body layout changed"
+s = s.replace(b, "    SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 255);\n    SDL_RenderClear(s_renderer);\n    if (lk_hd_active() && lk_hd_present(framebuffer, sw, &r)) { lk_osd_draw(ow, oh); lk_coords_draw(oh); SDL_RenderPresent(s_renderer); return; }   /* LK_HD v1 */\n    static int lk_sb_env = -1;", 1)
+# screenshot of the HD picture
+c = "static void lk_shot_frame(const uint8_t *framebuffer, long frame) {"
+assert s.count(c) == 1, "platform_sdl.c: run patch_shot.py first"
+s = s.replace(c, "extern int lk_hd_n; extern int lk_hd_active(void); extern int lk_dof_get(void); extern int lk_hd_fxany(void); extern int lk_wide_e; uint32_t *lk_hd_assemble(const uint32_t *fb, int sw, int e, int *ow, int *oh);   /* LK_HD v1 */\n" + c, 1)
+d = "    if (!list || !*list || !lk_shot_wanted(list, frame)) return;"
+assert s.count(d) == 1
+s = s.replace(d, '''    { const char *hl = getenv("LANDSTALKER_HD_SHOT");   /* LK_HD v1: the HD picture */
+      if (hl && *hl && !lk_hd_active() && lk_hd_fxany() && lk_shot_wanted(hl, frame)) { int sw1 = 320 + 2 * lk_wide_e; const uint32_t *img1 = lk_hd_dof1x((const uint32_t *)framebuffer, sw1, lk_wide_e); char path1[600]; snprintf(path1, sizeof path1, "%s/dofshot_%06ld_w%d.png", dir, frame, sw1); { struct stat st1; if (stat(dir, &st1) != 0) { mkdir(dir, 0777); } } printf("shot: %s %s (1x depth blur)\\n", lk_shot_png(path1, img1, sw1, 224, 1) ? "wrote" : "FAILED", path1); }
+      if (hl && *hl && lk_hd_active() && lk_shot_wanted(hl, frame)) { int iw, ih; uint32_t *img = lk_hd_assemble((const uint32_t *)framebuffer, 320 + 2 * lk_wide_e, lk_wide_e, &iw, &ih); char path[600]; snprintf(path, sizeof path, "%s/hdshot_%06ld_w%d.png", dir, frame, iw);
+        { struct stat st; if (stat(dir, &st) != 0) { mkdir(dir, 0777); } }
+        if (img) printf("shot: %s %s (%dx%d HD)\\n", lk_shot_png(path, img, iw, ih, 1) ? "wrote" : "FAILED", path, iw, ih); } }
+''' + d, 1)
+s = s + "\n/* " + VER + " */\n"
+open(p, "w").write(s)
+print("platform_sdl.c patched:", VER)

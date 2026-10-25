@@ -19,7 +19,7 @@ for l in open(os.path.join(C, "entity_type_codes.hpp")):
     if m: codes.setdefault(int(m.group(2)), []).append(m.group(1))
 jnames = json.load(open(os.path.join(LIB, "assets", "entity_type_names.json")))
 ids = sorted(set(codes) | set(range(len(jnames))))
-out = ["# Entity types\n", HEAD + "Entity type id (the entity byte at +0A of the 128 byte entity struct at `$FF5400 + n*$80`, see FORMATS) -> name. "
+out = ["# Entity types\n", HEAD + "Entity type id (the entity byte at +3B (`SpriteType`) of the 128 byte entity struct; verified 2026-10-23 in rooms 444 and 615, see FORMATS at `$FF5400 + n*$80`, see FORMATS) -> name. "
        "`name` = library's `entity_type_names.json` (index = id), `code` = constant in `entity_type_codes.hpp` (ENEMY_* / ENTITY_*). "
        f"{len(jnames)} names, {len(codes)} codes.\n", "| id | hex | name | code |", "|---|---|---|---|"]
 for i in ids:

@@ -24,7 +24,7 @@ static int lk_tall_on0;
 static void lk_tall_load(void)
 {
   const char *e = getenv("LANDSTALKER_TALL");
-  lk_tall = 0;
+  lk_tall = 1;   /* default Full Height On since 2026-10-25; a saved ~/.landstalker_display or LANDSTALKER_TALL wins */
   if (e && *e) lk_tall = atoi(e) != 0;
   else {
     const char *h = getenv("HOME"); char path[600]; int a = 0, b = 0, c = 0, d = 0;

@@ -44,17 +44,27 @@ static void lk_ff_load(void) {
 int lk_ffwd_get(void) { if (lk_ff_opt < 0) lk_ff_load(); return lk_ff_opt; }
 void lk_ffwd_set(int v) { char p[512]; FILE *f; lk_ffwd_get(); lk_ff_opt = v & 3; lk_ff_path(p, sizeof p); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_ff_opt); fclose(f); } }
 void platform_set_ffwd(int hold) { lk_ff_pad = hold ? 1 : 0; }
-static int lk_ff_n(void) { static int always = -1; if (always < 0) always = getenv("LANDSTALKER_FFWD_HOLD") != NULL; return ((lk_ff_pad || lk_ff_kb || always) && lk_ffwd_get() > 0) ? lk_ff_opt + 1 : 1; }   /* emulated frames per displayed frame */
+extern int lk_seam_synth(void), lk_seam_due(void);
+extern int lk_seam_gap(void);   /* S3.5 (patch_own.py): the picture is frozen while the game fades and loads for a seamless door transition: run it fast */
+static int lk_ff_n(void) { static int always = -1; if (lk_seam_gap()) return 16; if (always < 0) always = getenv("LANDSTALKER_FFWD_HOLD") != NULL; return ((lk_ff_pad || lk_ff_kb || always) && lk_ffwd_get() > 0) ? lk_ff_opt + 1 : 1; }   /* emulated frames per displayed frame */
 '''
     s = s.replace(a, module + a, 1)
     # skip drawing
     b = "    if (!s_texture || !s_renderer) return;\n\n    lk_disp_present(framebuffer);\n}"
     assert s.count(b) == 1, "present layout changed"
-    s = s.replace(b, "    if (!s_texture || !s_renderer) return;\n    { int n = lk_ff_n(); if (n > 1) { static int c; snprintf(lk_osd_text, sizeof lk_osd_text, \"FAST FORWARD %dX\", n); lk_osd_frames = 3; if (++c % n) return; } }   /* LK_FFWD v1: draw every Nth frame */\n\n    lk_disp_present(framebuffer);\n}", 1)
+    s = s.replace(b, "    if (!s_texture || !s_renderer) return;\n    { int n = lk_ff_n(); if (n > 1) { static int c; if (!lk_seam_gap()) { snprintf(lk_osd_text, sizeof lk_osd_text, \"FAST FORWARD %dX\", n); lk_osd_frames = 3; } if (lk_seam_synth()) { if (!lk_seam_due()) return; } else if (++c % n) return; } }   /* LK_FFWD v1: draw every Nth frame (a seamless gap with a gliding picture: only the frames that are due) */\n\n    lk_disp_present(framebuffer);\n}", 1)
     # audio
     c = "void platform_queue_audio(const int16_t *samples, int sample_count) {\n"
     assert s.count(c) == 1
-    s = s.replace(c, c + "    if (lk_ff_n() > 1) return;   /* LK_FFWD v1: no audio while fast forwarding */\n", 1)
+    s = s.replace(c, c + """    if (lk_ff_n() > 1 && !lk_seam_gap()) return;   /* LK_FFWD v1: no audio while fast forwarding */
+    {   /* seamless doors (patch_own.py): the fast black room load / gap skips about a second of the music; it is ducked instead of cut: the first gap frame ramps down to silence, the rest is dropped, after the gap the sound fades in over 12 frames (no click, no hard skip) */
+        static float gain = 1.0f; static int16_t tmp[4096 * 2]; int i;
+        if (samples && sample_count > 0 && sample_count <= 4096) {
+            if (lk_seam_gap()) { if (gain <= 0.0f) return; for (i = 0; i < sample_count; i++) { float g = gain * (1.0f - (float)(i + 1) / (float)sample_count); tmp[2 * i] = (int16_t)(samples[2 * i] * g); tmp[2 * i + 1] = (int16_t)(samples[2 * i + 1] * g); } gain = 0.0f; samples = tmp; }
+            else if (gain < 1.0f) { float g0 = gain, g1 = gain + 1.0f / 12.0f; if (g1 > 1.0f) g1 = 1.0f; for (i = 0; i < sample_count; i++) { float g = g0 + (g1 - g0) * (float)(i + 1) / (float)sample_count; tmp[2 * i] = (int16_t)(samples[2 * i] * g); tmp[2 * i + 1] = (int16_t)(samples[2 * i + 1] * g); } gain = g1; samples = tmp; }
+        } else if (lk_seam_gap()) return;
+    }
+""", 1)
     # sync
     d = "    uint64_t target = s_frame_start + freq / 60;\n"
     assert s.count(d) == 1

@@ -45,9 +45,15 @@ chk "Modell-Overlay (LANDSTALKER_MODEL)"             $G/ext/Genesis-Plus-GX/core
 chk "Gaia-Effekt live (LANDSTALKER_GAIA)"             $G/src/func_table.c                  "LK_GAIA v1"
 chk "Eigene Textbox-Kacheln (Spiegel)"                $G/src/func_table.c                  "LK_OWNTEXT v1"
 chk "Eigener Renderer: VBlank-Schnappschuss"          $G/src/func_table.c                  "LK_OWNVB v3"
+chk "Eigener Renderer: Kachel-Herkunft"              $G/src/func_table.c                  "LK_GFXORG v1"
+chk "HD-Grafik (optional): Anzeige"                  $G/src/platform_sdl.c                "LK_HD v3"
+chk "3D-Raum (optional): Szene + Kamera"             $G/src/platform_sdl.c                "LK_R3D v1"
 chk "Eigener Renderer (LANDSTALKER_OWN)"              $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_OWN v1"
+chk "Seamless Doors: Weitergehen (Ankunft verschoben)" $G/src/func_table.c                  "LK_SEAMWALK v3"
+chk "Seamless Doors: Notbremse zeitloses Laden" $G/src/bus.c                          "LK_NCGUARD v1"
 chk "Vorspulen (R2 / Tab)"                           $G/src/platform_sdl.c "LK_FFWD v1"
 chk "Schnellspeichern / -laden"                     $G/src/func_table.c "LK_QUICKSAVE v1"
+chk "Schnell-Ausruesten (R2 + Richtung)"              $G/src/func_table.c "LK_EQUIP v1"
 chk "Schwierigkeit (Schaden / Gegner-HP)"           $G/src/func_table.c "LK_DIFF v2"
 chk "Tastenbelegung (Pad + Tastatur)"                 $G/src/input.c "LK_KEYS v1"
 chk "Controller-Abfrage in eigenem Thread"           $G/src/input.c "LK_PADTHREAD v3"
@@ -62,6 +68,6 @@ chk "FM-Puffer-Begrenzung"                          $G/ext/Genesis-Plus-GX/core/
 if [ -f build/landstalker ]; then echo "  [ok]  build/landstalker vorhanden ($(date -r build/landstalker '+%d.%m. %H:%M'))"; ok=$((ok+1))
 else echo "  [FEHLT] build/landstalker existiert nicht"; bad=$((bad+1)); fi
 echo
-echo "Pruefsumme der Quellen (build.sh + tools/patch_*.py): $(cat build.sh tools/patch_*.py | sha1sum | cut -c1-10)"
+echo "Pruefsumme der Quellen (build.sh + tools/patch_*.py + tools/room3d_game.c): $(cat build.sh tools/patch_*.py tools/room3d_game.c | sha1sum | cut -c1-10)"
 echo "Ergebnis: $ok ok, $bad fehlend"
 [ "$bad" -eq 0 ] && echo "=> Stand ist aktuell" || echo "=> NICHT aktuell: ./build.sh ausfuehren (bei fehlenden Markern: vorher ZIP neu laden mit unzip -o)"
