@@ -129,7 +129,11 @@ def spec_of(gr):
     for k in ("ZE", "ZT"):
         if k in ex: sp[k] = ex[k]
     if gr["cls"] == "tower" and "ZE" not in ex: sp["ZE"] = 16.0 * gr["rel"] - 2; sp["ZT"] = sp["ZE"] + 27
-    if gr["cls"] == "tower": sp["sign"] = dict(side=side, a=(sp["door"]["a0"] + sp["door"]["a1"]) / 2, z=sp["door"]["top"] + 9)   # right above the door
+    if gr["cls"] == "tower":                                                     # door, sign, cloth and window in ONE column (user: 'ueber der Tuer, nicht versetzt')
+        ad = (sp["door"]["a0"] + sp["door"]["a1"]) / 2
+        sp["sign"] = dict(side=side, a=ad, z=sp["door"]["top"] + 9)
+        for q in sp["squares"]: q["a"] = ad
+        if "banner" in sp: sp["banner"]["a"] = ad
     return sp
 first = True
 for gr in R["groups"]:
