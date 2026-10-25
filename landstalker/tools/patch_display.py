@@ -78,9 +78,9 @@ void platform_display_cycle_scale(void) {
 extern int lk_wide_refill;
 extern void lk_wide_refresh(void);
 void platform_display_cycle_wide(void) {
-    extern int lk_wide_e; static const int steps[4] = { 0, 19, 39, 64 }; int i = 0, old = lk_wide_e;   /* Off / 16:10 (358 px) / 16:9 (398 px) / 18:9 (448 px) on the 224 line picture */
-    for (int j = 0; j < 4; j++) if (steps[j] <= lk_wide_e) i = j;
-    lk_wide_e = steps[(i + 1) % 4]; lk_wide_refresh();
+    extern int lk_wide_e; static const int steps[3] = { 0, 19, 39 }; int i = 0, old = lk_wide_e;   /* Off / 16:10 (358 px) / 16:9 (398 px) on the 224 line picture (18:9 dropped 2026-10-25: odd format) */
+    for (int j = 0; j < 3; j++) if (steps[j] <= lk_wide_e) i = j;
+    lk_wide_e = steps[(i + 1) % 3]; lk_wide_refresh();
     if (lk_wide_e > old) lk_wide_refill = 1;   /* load the new outer ring of the map as soon as a map frame runs */
     lk_disp_save();
     snprintf(lk_osd_text, sizeof(lk_osd_text), "WIDE: %d PX", 320 + 2 * lk_wide_e); lk_osd_frames = 100;
