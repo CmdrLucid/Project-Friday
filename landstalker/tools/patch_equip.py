@@ -80,11 +80,12 @@ static const uint8_t lk_eq_ids[16] = { 1, 3, 2, 4, 9, 10, 11, 12, 7, 5, 6, 8, 15
 static void lk_eq_scan(void) { int k; for (k = 0; k < 16; k++) lk_eq_own[k] = (uint8_t)lk_eq_owned(lk_eq_ids[k]); }
 static void lk_eq_capture_missing(void) {   /* the Start menu is open and bright: take the icons of the owned pieces from VRAM (once, saved in ~/.landstalker_quick_icons) */
     int k; for (k = 0; k < 16; k++) if (!lk_quick_icon_have(lk_eq_ids[k]) && lk_eq_owned(lk_eq_ids[k])) lk_quick_capture(lk_eq_ids[k]);
+    for (k = 0x3A; k <= 0x3D; k++) if (!lk_quick_icon_have(k)) lk_quick_capture(k);   /* the starting equipment (Broad Sword, Leather Breast, Leather Boots, the glove of 'None'): their tiles are in VRAM while the Equip tab is shown (user recording rec_20261025_0720); a blank capture is refused */
 }
 static gen_func_t lk_o_wuv_eq;
 static void lk_h_wuv_eq(void) {   /* WaitUntilVBlank $000B5E: while the Start menu is open every ~half second try to take the icons (the cursor hook alone missed them when the menu was only scrolled) */
     extern int lk_sh_hide; static int n;
-    if (lk_sh_hide && (++n & 31) == 0) { int miss = 0, k; for (k = 0; k < 16; k++) if (!lk_quick_icon_have(lk_eq_ids[k])) miss = 1; if (miss) lk_eq_capture_missing(); }
+    if (lk_sh_hide && (++n & 31) == 0) { int miss = 0, k; for (k = 0; k < 16; k++) if (!lk_quick_icon_have(lk_eq_ids[k])) miss = 1; for (k = 0x3A; k <= 0x3D; k++) if (!lk_quick_icon_have(k)) miss = 1; if (miss) lk_eq_capture_missing(); }
     lk_o_wuv_eq();
 }
 static void lk_h_cur_eq(void) {   /* InventoryMenu_UpdateCursorAt $00D714: the Start menu is open and bright: take the icons of the owned equipment from VRAM once (the overlay of Quick Equip shows them) */

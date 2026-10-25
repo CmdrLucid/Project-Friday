@@ -119,7 +119,7 @@ static void lk_eq_overlay(int ow, int oh) {   /* Quick Equip held: the four kind
     static const int cx[4] = { 1, 2, 1, 0 }, cy[4] = { 0, 1, 2, 1 }; static const char *lt = "SABR";
     static const char *nm[4][4] = { { "MAGIC", "THUNDER", "ICE", "GAIA" }, { "STEEL", "CHROME", "SHELL", "HYPER" }, { "HEALING", "FIREPROOF", "IRON", "SPIKE" }, { "SATURN", "MARS", "MOON", "VENUS" } };
     static const uint8_t lay[4][4] = { { 1, 3, 2, 4 }, { 9, 10, 11, 12 }, { 7, 5, 6, 8 }, { 15, 13, 14, 16 } };
-    static const char *dn[4] = { "BROAD SWORD", "LEATHER BREAST", "LEATHER SHOES", "NONE" };   /* starting equipment */
+    static const char *dn[4] = { "BROAD SWORD", "LEATHER BREAST", "LEATHER BOOTS", "NONE" };   /* starting equipment */
     int ip = oh / 200; if (ip < 2) ip = 2;
     int cw = 26 * ip, ch = 24 * ip, px = oh / 120; if (px < 2) px = 2; int ts = ip > 3 ? ip / 2 : 1;   /* text pixel size */
     int m = 2 * px, bh = 9 * px, x0 = m, y0 = oh - bh - 2 * m - 3 * ch - m;
@@ -130,8 +130,8 @@ static void lk_eq_overlay(int ow, int oh) {   /* Quick Equip held: the four kind
         for (int q = 0; q < 4; q++) if (lay[k][q] == id) idx = q;
         SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 200); SDL_RenderFillRect(s_renderer, &cell);
         lk_eq_frame(cell, ip, hl ? 255 : 110, hl ? 220 : 110, hl ? 60 : 110);
-        { int any = 0; for (int i = 0; i < 256 && !any; i++) if (idx >= 0 && lk_quick_icon_rgb(id, i) >= 0) any = 1;   /* an id outside the 16 pieces (starting equipment: the game's 'no sword' ids, or 0) must not show another item's icon (EkeEke) */
-          if (any) lk_eq_icon(id, cell.x + (cw - 16 * ip) / 2, cell.y + ip, ip, 0); else lk_eq_text(cell.x + (cw - 6 * ts) / 2, cell.y + 4 * ip, (char[]){ lt[k], 0 }, ip, 255, 255, 255); }
+        { int any = 0; for (int i = 0; i < 256 && !any; i++) if (lk_quick_icon_rgb(idx >= 0 ? id : 0x3A + k, i) >= 0) any = 1;   /* an id outside the 16 pieces (starting equipment: the game's 'no sword' ids, or 0) must not show another item's icon (EkeEke) */
+          if (any) lk_eq_icon(idx >= 0 ? id : 0x3A + k, cell.x + (cw - 16 * ip) / 2, cell.y + ip, ip, 0); else lk_eq_text(cell.x + (cw - 6 * ts) / 2, cell.y + 4 * ip, (char[]){ lt[k], 0 }, ip, 255, 255, 255); }
         { const char *nn = idx >= 0 ? nm[k][idx] : dn[k]; int n = (int)strlen(nn), sc = n * 6 * ts > cw - 2 ? 1 : ts; lk_eq_text(cell.x + (cw - n * 6 * sc) / 2, cell.y + ch - 9 * ts, nn, sc, 230, 230, 230); }
     }
     if (lk_eq_flash_cat >= 0 && lk_eq_flash_frames > 0) {   /* candidate strip of the changed kind, right of the cross */
