@@ -144,7 +144,7 @@ def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, do
         for zb in (7.0, d["top"] - 8.0):                                           # two battens across the planks
             p0 = wall_pos(s, d["a0"] + 2.6, inset, zb); p1 = wall_pos(s, d["a1"] - 2.6, inset + 0.8, zb + 2.2)
             M.box("post", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), zb, zb + 2.2)
-        hc = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, 17.0)); e1 = G(*wall_pos(s, d["a1"] - 3.5, inset + 1.4, 17.0)); e2 = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, 18.0))
+        zh = d["top"] * 0.5; hc = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, zh)); e1 = G(*wall_pos(s, d["a1"] - 3.5, inset + 1.4, zh)); e2 = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, zh + 1))
         M.torus("dark", hc, tuple(e1[i] - hc[i] for i in range(3)), tuple(e2[i] - hc[i] for i in range(3)), 1.3, 0.35, n=16, m=6)
         M.cylinder("post", G(*wall_pos(s, d["a0"] - 3, 1.2, d["top"] + 2.0)), G(*wall_pos(s, d["a1"] + 3, 1.2, d["top"] + 2.0)), 2.7, n=nseg, cap="endgrain", density=den)
         p0 = wall_pos(s, d["a0"] - 1, 3.0, 0); p1 = wall_pos(s, d["a1"] + 1, -2 * RL, 1.2)       # stone-ish step
@@ -276,31 +276,29 @@ def face_camera(ob, co, upright=True):
     if upright: d.z = 0
     ob.rotation_euler = d.normalized().to_track_quat("-Y", "Z").to_euler()
 
-def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=False, figures=()):
+def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=False, figures=(), quarter=False, tz=38, fh=190):
     """game view (the original's projection, heights squashed like the game) + turned views and a low perspective 'hero' shot (true heights).
     Needs the scene filled; uses blx.game_view (sets light / world).  Files: out/<view>.png"""
     import bpy, mathutils, blx
-    T = G(CX, CY, 38); size = (int(208 * px), int(190 * px))
+    T = G(CX, CY, tz); size = (int(208 * px), int(fh * px))
     sc, co = blx.game_view(os.path.join(out, "game.png"), px_per_unit=px, size=size, target=T, squash=squash_game)
     if not outlines: sc.render.use_freestyle = False
     for f in figures: f.scale = (1, 1, 1); face_camera(f, co, upright=False)   # game view: the figure faces the screen like the original sprite
-    if modern:                                                                 # warm low sun, soft shadows (variant C: + filmic AgX colours; modern="std" keeps the colours)
-        if modern != "std":
-            sc.view_settings.view_transform = "AgX"
-            try: sc.view_settings.look = "AgX - Medium High Contrast"
-            except Exception: pass
-        sun = bpy.data.objects["sun"]; sun.data.energy = 4.5; sun.data.color = (1.0, 0.86, 0.68); sun.data.angle = math.radians(6)
-        sun.rotation_euler = (-mathutils.Vector((-0.55, -0.6, 0.55))).to_track_quat("-Z", "Y").to_euler()
-        sc.world.node_tree.nodes["Background"].inputs[0].default_value = (0.55, 0.7, 1.0, 1); sc.world.node_tree.nodes["Background"].inputs[1].default_value = 0.8
-        if hasattr(sc.eevee, "use_raytracing"): sc.eevee.use_raytracing = True
+    if modern:                                                                 # the style C light (lib/cmat.py); modern="std" keeps the game's colours
+        import cmat; cmat.modern_look(sc, agx=(modern != "std"))
         bpy.ops.render.render(write_still=True)
-    bpy.ops.render.render(write_still=True)
+    if quarter:                                                                # the remake camera (user 2026-10-25): game projection, turned in 90 degree steps only
+        zs = math.sqrt(2.0 / 3.0) if squash_game else 1.0
+        for q in (1, 2, 3):
+            blx.orbit(co, (T[0], T[1], T[2] * zs), 90 * q, 30)
+            for f in figures: face_camera(f, co, upright=False)
+            sc.render.filepath = os.path.join(out, "q%d.png" % q); bpy.ops.render.render(write_still=True)
     if squash_game:
         for ob in sc.objects:
             if ob.type == "MESH": ob.scale.z /= math.sqrt(2.0 / 3.0)
     for f in figures: f.scale = (1, 1, 1)
     Tt = (T[0], T[1], 34)
-    for name, yaw in VIEWS[1:]:
+    for name, yaw in ([] if quarter else VIEWS[1:]):
         blx.orbit(co, Tt, yaw, 28)
         for f in figures: face_camera(f, co)
         sc.render.filepath = os.path.join(out, name + ".png"); bpy.ops.render.render(write_still=True)

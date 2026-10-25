@@ -7,37 +7,17 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 out = os.environ.get("R_OUT", "/tmp/massan_house_vc"); os.makedirs(out, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 blx.PIXEL = False
-def srgb(c): return tuple(((v / 255) / 12.92 if v / 255 <= 0.04045 else ((v / 255 + 0.055) / 1.055) ** 2.4) for v in c) + (1.0,)
-def pmat(name, c1, c2, scale=0.15, detail=4.0, bump=0.3, stretch=(1, 1, 1), rough=0.75, streaks=0.0):
-    """soft painted material: two colours mixed by noise in object space (stretch > 1 = longer blotches along that axis), light bump; streaks = straw strands along z."""
-    m = bpy.data.materials.new(name); m.use_nodes = True; nt = m.node_tree; nt.nodes.clear(); L = nt.links.new
-    o = nt.nodes.new("ShaderNodeOutputMaterial"); b = nt.nodes.new("ShaderNodeBsdfPrincipled"); b.inputs["Roughness"].default_value = rough
-    tc = nt.nodes.new("ShaderNodeTexCoord"); mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (scale / stretch[0], scale / stretch[1], scale / stretch[2])
-    nz = nt.nodes.new("ShaderNodeTexNoise"); nz.inputs["Detail"].default_value = detail
-    ramp = nt.nodes.new("ShaderNodeValToRGB"); ramp.color_ramp.elements[0].position = 0.35; ramp.color_ramp.elements[1].position = 0.65
-    ramp.color_ramp.elements[0].color = srgb(c1); ramp.color_ramp.elements[1].color = srgb(c2)
-    L(tc.outputs["Object"], mp.inputs["Vector"]); L(mp.outputs["Vector"], nz.inputs["Vector"]); L(nz.outputs["Fac"], ramp.inputs["Fac"]); L(ramp.outputs["Color"], b.inputs["Base Color"])
-    bm = nt.nodes.new("ShaderNodeBump"); bm.inputs["Strength"].default_value = bump
-    if streaks:
-        wv = nt.nodes.new("ShaderNodeTexWave"); wv.wave_type = "BANDS"; wv.bands_direction = "X"; wv.inputs["Scale"].default_value = streaks; wv.inputs["Distortion"].default_value = 6.0
-        mp2 = nt.nodes.new("ShaderNodeMapping"); mp2.inputs["Rotation"].default_value = (0, math.radians(90), 0); L(tc.outputs["Object"], mp2.inputs["Vector"]); L(mp2.outputs["Vector"], wv.inputs["Vector"])
-        mx = nt.nodes.new("ShaderNodeMath"); mx.operation = "MULTIPLY"; L(wv.outputs["Fac"], mx.inputs[0]); L(nz.outputs["Fac"], mx.inputs[1]); L(mx.outputs[0], bm.inputs["Height"])
-    else: L(nz.outputs["Fac"], bm.inputs["Height"])
-    L(bm.outputs["Normal"], b.inputs["Normal"]); L(b.outputs["BSDF"], o.inputs["Surface"])
-    return m
-mats = [pmat("bark", (40, 84, 20), (104, 134, 40), scale=0.25, stretch=(5, 1, 1), bump=0.5),
-        pmat("post", (150, 92, 44), (196, 130, 70), scale=0.2, stretch=(1, 1, 5), bump=0.2),
-        pmat("endgrain", (170, 120, 70), (214, 168, 110), scale=0.4, bump=0.1),
-        pmat("dark", (10, 12, 8), (24, 26, 16), rough=1.0), pmat("hole", (8, 14, 10), (20, 28, 20), rough=1.0),
-        pmat("thatch", (176, 126, 30), (240, 200, 90), scale=0.25, stretch=(1, 1, 4), bump=1.0, rough=0.9, streaks=3.0),
-        pmat("under", (110, 80, 24), (150, 112, 40), rough=1.0),
-        pmat("bone", (226, 220, 200), (246, 242, 230), scale=0.5, bump=0.1, rough=0.5),
-        pmat("plank", (92, 58, 28), (128, 84, 44), scale=0.3, stretch=(1, 1, 6), bump=0.4, rough=0.85)]
+import cmat
+mats = [cmat.get(n) for n in ("bark", "post", "endgrain", "dark", "hole", "thatch", "under", "bone", "plank")]
 M = blx.Mesh("massan_house_vc", mats); M.density = 1.0
-H.build(M, nseg=20, den=1.0, roof_jitter=0.5, hx=H.HX + 4.5, lip=4.5, door="planks", door_top=29.0)
+# remake proportions (user 2026-10-25: 'die Tuer sollte etwas groesser sein als Nigels Sprite', sprite 47 px): same footprint (collision),
+# taller walls (9 log rows), door 52 high / 22 wide, roof raised with them; the skull hangs on the door (under the eave it would be hidden)
+H.LOG_Z = [-1.5 + 8 * k for k in range(9)]; H.ZE = 70.0; H.ZT = 102.0; H.POST_TOP = 67.0
+H.DOOR = dict(side="E", a0=463.0, a1=485.0, top=35.0); H.POSTS = dict(H.POSTS, E=[444, 451, 460, 488, 493, 500])
+H.WINDOW = dict(H.WINDOW, z=38.0, R=9.0, hole=7.2)
+H.build(M, nseg=20, den=1.0, roof_jitter=0.5, hx=H.HX + 4.5, lip=4.5, door="planks", door_top=52.0)
 # the sign: a small plank board with a modelled skull
-ya = (H.DOOR["a0"] + H.DOOR["a1"]) / 2; zc = 37.0                                          # centred over the door, above the lintel
-M.box("post", H.X1 + 0.4, H.X1 + 1.6, -(ya + 5.5), -(ya - 5.5), zc - 4.5, zc + 4.5)
+ya = (H.DOOR["a0"] + H.DOOR["a1"]) / 2; zc = 37.0                                          # centred on the door leaf, upper half
 ob = M.finish()
 for p in ob.data.polygons: p.use_smooth = True
 import bmesh, mathutils
@@ -47,12 +27,12 @@ def blob(name, mat, centre, scale):
     for p in me.polygons: p.use_smooth = True
     me.materials.append(mat); o = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(o); return o
 bone = bpy.data.materials["bone"]; drk = bpy.data.materials["dark"]
-sx = H.X1 + 3.0
+sx = H.X1 + 0.4
 blob("skull", bone, H.G(sx, ya, zc + 0.8), (2.4, 3.4, 3.3)); blob("jaw", bone, H.G(sx + 0.5, ya, zc - 2.4), (1.9, 2.3, 1.4))
 for dy in (-1.3, 1.3): blob("eye", drk, H.G(sx + 1.9, ya + dy, zc + 0.6), (0.7, 0.9, 1.0))
 blob("nose", drk, H.G(sx + 2.1, ya, zc - 1.0), (0.4, 0.4, 0.6))
 # ground: soft grass / dirt
-gm = pmat("ground", (120, 96, 52), (88, 116, 44), scale=0.02, detail=6.0, bump=0.1, rough=1.0)
+gm = cmat.pmat("ground", (120, 96, 52), (88, 116, 44), scale=0.02, detail=6.0, bump=0.1, rough=1.0)
 gme = bpy.data.meshes.new("ground"); b = bmesh.new(); s = 260
 b.faces.new([b.verts.new(H.G(H.CX + a, H.CY + c, 0)) for a, c in ((-s, s), (s, s), (s, -s), (-s, -s))]); b.to_mesh(gme); b.free(); gme.materials.append(gm)
 bpy.context.scene.collection.objects.link(bpy.data.objects.new("ground", gme))
@@ -61,6 +41,6 @@ bpy.ops.export_scene.gltf(filepath=os.path.join(out, "massan_house_vc.glb"), exp
 sc = bpy.context.scene
 figs = []                                                                   # R_FIGURE = a rom_sprite.py cut-out (local), standing in front of the door
 fig = os.path.expanduser(os.environ.get("R_FIGURE", ""))
-if fig and os.path.exists(fig): figs.append(H.add_figure(fig, (H.X1 + 20, H.DOOR["a1"] + 8, 0)))
-H.render_set(out, px=float(os.environ.get("R_PX", "2")), dof=True, modern=True, figures=figs)
+if fig and os.path.exists(fig): figs.append(H.add_figure(fig, (H.X1 + 22, H.DOOR["a1"] + 10, 0)))
+H.render_set(out, px=float(os.environ.get("R_PX", "2")), dof=True, modern=True, figures=figs, quarter=True, tz=52, fh=235)
 print("massan_house_vc done ->", out)
