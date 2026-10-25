@@ -17,7 +17,7 @@ CLIPS = {
     "vase":      {"src": "vase", "a": 1600, "b": 1820},
     "ffwd":      {"src": "room430", "a": 5040, "b": 5730},
     "harbour":   {"src": "intro", "a": 4180, "b": 4700},
-    "m_jypta":   {"src": "intro", "a": 1650, "b": 1950},
+    "m_town":    {"src": "jump430", "a": 600, "b": 900},
     "m_forest":  {"src": "room430", "a": 6600, "b": 6900},
     "m_beach":   {"src": "jump430", "a": 2600, "b": 2900},
     "m_ryuma":   {"src": "ryuma", "a": 880, "b": 1180},

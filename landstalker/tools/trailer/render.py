@@ -279,7 +279,7 @@ FEATURES = [  # (bar, clip, title, subtitle, grad)
     (28, "qequip", "QUICK EQUIP!", "SWAP SWORDS ON THE FLY", "chrome"),
     (31, "ffwd", "FAST FORWARD!", "UP TO 4X SPEED", "fire"),
 ]
-MONTAGE = [("m_jypta", 3), ("m_forest", 2), ("m_beach", 2), ("m_ryuma", 3), ("m_fight", 2), ("m_stream", 2), ("m_woods", 3), ("m_ruins", 2), ("harbour", 3)]
+MONTAGE = [("m_town", 3), ("m_forest", 2), ("m_beach", 2), ("m_ryuma", 3), ("m_fight", 2), ("m_stream", 2), ("m_woods", 3), ("m_ruins", 2), ("harbour", 3)]
 MORE = ["QUICK SAVE & QUICK LOAD", "REAL DROP SHADOWS", "DIFFICULTY SETTINGS", "REMAPPABLE CONTROLS", "MUSIC & EFFECTS VOLUME", "FULLSCREEN & SCALING MODES", "MAP BEHIND TEXT BOXES", "ITEM INFO IN THE MENU"]
 
 
