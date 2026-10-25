@@ -78,6 +78,7 @@ LIB = {
     "shrub":    ("bush crowns (dark green, lit lumps)", dict(c1=(8, 58, 24), c2=(58, 132, 40), scale=0.3, detail=8.0, bump=0.8, rough=0.95)),
     "stem":     ("bush stems", dict(c1=(118, 78, 34), c2=(168, 118, 58), scale=0.4, stretch=(1, 1, 4), bump=0.2)),
     "stepstone":("rounded step stones: grey-blue tops, earthy sides (Massan steps)", dict(c1=(112, 84, 44), c2=(168, 132, 76), scale=0.25, detail=5.0, bump=0.5, rough=0.85, top=((104, 120, 128), (170, 182, 186)))),
+    "stump":    ("upright log steps: ochre bark sides, weathered grey-blue tops (Massan steps)", dict(c1=(132, 90, 40), c2=(190, 140, 70), scale=0.3, stretch=(1, 1, 5), detail=5.0, bump=0.5, rough=0.85, top=((110, 124, 128), (168, 178, 178)), top_from=0.55, top_to=0.8)),
     "earth":    ("packed earth behind stone walls", dict(c1=(70, 52, 28), c2=(104, 80, 44), scale=0.1, detail=6.0, bump=0.3, rough=1.0)),
     "clay":     ("red roof tiles (Mercator)", dict(c1=(156, 68, 40), c2=(204, 104, 62), scale=0.3, bump=0.4, rough=0.8, cells=0.18)),
     "plaster":  ("whitewashed walls (Mercator)", dict(c1=(214, 204, 184), c2=(240, 232, 214), scale=0.08, bump=0.15, rough=0.9)),

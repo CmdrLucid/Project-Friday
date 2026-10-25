@@ -19,6 +19,24 @@ def rock(bm, c, r, sq=(1, 1, 1), seed=0, lump=0.12):
         v.co = mathutils.Vector((n.x * r * sq[0] * k, n.y * r * sq[1] * k, n.z * r * sq[2] * k))
     bmesh.ops.translate(bm, vec=c, verts=res["verts"])
 
+def stump_row(bm, bm_body, x0, x1, y_front, depth, h, seed):
+    """Massan variant (user 2026-10-25: 'sieht eher nach Baumstaemmen im Boden aus'): the step is rows of UPRIGHT LOG STUMPS set in the ground,
+    tops at h (+-0.7, slightly domed, weathered grey), rows 7.5 apart and staggered, radius ~3.6."""
+    bmesh.ops.create_cube(bm_body, size=1.0); vs = bm_body.verts[-8:]
+    bmesh.ops.scale(bm_body, vec=(x1 - x0 - 2, depth - 2, h - 2), verts=vs); bmesh.ops.translate(bm_body, vec=G((x0 + x1) / 2, y_front - depth / 2, (h - 2) / 2), verts=vs)
+    rows = max(1, int(depth / 7.5))
+    for j in range(rows):
+        y = y_front - 3.7 - j * 7.5; off = 3.7 if j % 2 else 0.0
+        n = int((x1 - x0 - off) / 7.4)
+        for k in range(n):
+            seed += 1; x = x0 + 3.7 + off + k * 7.4 + (rnd.random() - 0.5) * 0.8; r = 3.4 + rnd.random() * 0.4; top = h + (rnd.random() - 0.5) * 1.4
+            res = bmesh.ops.create_cone(bm, cap_ends=True, segments=14, radius1=r, radius2=r * 0.96, depth=top + 1.0)
+            vs = res["verts"]; bmesh.ops.translate(bm, vec=(0, 0, (top + 1.0) / 2 - 1.0), verts=vs)
+            for v in vs:                                                         # dome the top a little, uneven cut
+                if v.co.z > top - 0.01 and math.hypot(v.co.x, v.co.y) < 0.01: v.co.z += 0.8
+            bmesh.ops.translate(bm, vec=G(x, y + (rnd.random() - 0.5) * 0.8, 0), verts=vs)
+    return seed
+
 def step_row(bm_st, bm_body, x0, x1, y_front, depth, h, seed):
     """one step: cells from x0 to x1 (game x), front edge at y_front (south), 'depth' units deep to the north, top at h."""
     # earth body (hidden behind the stones, closes the gaps)
@@ -43,19 +61,21 @@ def step_row(bm_st, bm_body, x0, x1, y_front, depth, h, seed):
 cx, cy = H.CX, H.CY
 bst = bmesh.new(); bbody = bmesh.new(); seed = 0
 x0, x1 = cx - 40, cx + 40
-seed = step_row(bst, bbody, x0, x1, cy + 16, 16, 16.0, seed)                    # step 1: top 16
-seed = step_row(bst, bbody, x0, x1, cy, 16, 32.0, seed)                         # step 2 = edge of the upper level (top 32)
+STYLE = os.environ.get("R_STEPS", "stumps")                                      # stumps (Massan) / stones (dry-stone steps elsewhere)
+row = stump_row if STYLE == "stumps" else step_row
+seed = row(bst, bbody, x0, x1, cy + 16, 16, 16.0, seed)                         # step 1: top 16
+seed = row(bst, bbody, x0, x1, cy, 16, 32.0, seed)                              # step 2 = edge of the upper level (top 32)
 def obj(name, bm, mat):
     me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
     for p in me.polygons: p.use_smooth = True
     me.materials.append(mat); o = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(o); return o
-for (h, yf, dp) in ((16.0, cy + 16, 16), (32.0, cy, 16)):                      # stones on the open west / east ends of each step
+for (h, yf, dp) in (((16.0, cy + 16, 16), (32.0, cy, 16)) if STYLE != "stumps" else ()):                      # stones on the open west / east ends of each step
     for xe in (x0 - 1.5, x1 + 1.5):
         for k in range(int(dp / 7.6)):
             for zc in (h - 4.6, h - 12.0):
                 if zc < 2: continue
                 seed += 1; rock(bst, G(xe, yf - 4 - k * 7.6 + (rnd.random() - 0.5), zc), 4.0, (0.85, 1.0, 0.95), seed)
-obj("step_stones", bst, cmat.get("stepstone")); obj("step_body", bbody, cmat.get("earth"))
+obj("step_stones", bst, cmat.get("stump" if STYLE == "stumps" else "stepstone")); obj("step_body", bbody, cmat.get("earth"))
 pl = bmesh.new(); bmesh.ops.create_cube(pl, size=1.0)                         # preview only: the upper level (height 32) the steps lead up to
 bmesh.ops.scale(pl, vec=(x1 - x0 + 120, 120, 32), verts=pl.verts); bmesh.ops.translate(pl, vec=G(cx, cy - 16 - 60 + 1.5, 16), verts=pl.verts)
 obj("upper_level", pl, cmat.get("dirt"))
