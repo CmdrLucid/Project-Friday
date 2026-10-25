@@ -161,3 +161,4 @@
 - L1285: Session 2026-10-24 (Deck, Sonnet 5.5): Options hang, Lights, 3D room (dev 991228f)
 - L1291: Session 2026-10-25 (Deck, Sonnet 5.5): Quick Equip rounds, Better Menu, defaults, release v1.0.0 (dev ed47591, main a370bd2, tag v1.0.0)
 - L1300: Session 2026-10-25 evening (Deck, Opus 5.5): remake style C, assets 1..4 (dev c04a08e)
+- L1307: Remake session 2026-10-25 night: Massan blockout (dev, Opus 5.5)
