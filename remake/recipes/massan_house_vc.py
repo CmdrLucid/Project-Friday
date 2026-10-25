@@ -11,10 +11,10 @@ import cmat
 mats = [cmat.get(n) for n in ("bark", "post", "endgrain", "dark", "hole", "thatch", "under", "bone", "plank")]
 M = blx.Mesh("massan_house_vc", mats); M.density = 1.0
 # 1:1 the original (user 2026-10-25: 'mach es mal 1:1 wie im Original'): the picture's heights (door 35 > Nigel's 31), only a little more eave
-H.build(M, nseg=20, den=1.0, roof_jitter=0.5, hx=H.HX + 1.5, lip=3.5, door="planks")
+H.POSTS = dict(H.POSTS, E=[445, 452, 462.5, 485.5, 492, 499])               # the door posts stand just beside the opening (picture), not in it
+H.build(M, nseg=20, den=1.0, roof_jitter=0.5, hx=H.HX + 1.5, lip=3.5, door="open")      # open dark doorway like the original
 # the sign: a small plank board with a modelled skull
 ya = (H.DOOR["a0"] + H.DOOR["a1"]) / 2; zc = 42.0                                          # centred over the door, above the lintel (like the original)
-M.box("post", H.X1 + 0.4, H.X1 + 1.6, -(ya + 5.0), -(ya - 5.0), zc - 4.0, zc + 4.0)
 ob = M.finish()
 for p in ob.data.polygons: p.use_smooth = True
 import bmesh, mathutils
@@ -24,10 +24,8 @@ def blob(name, mat, centre, scale):
     for p in me.polygons: p.use_smooth = True
     me.materials.append(mat); o = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(o); return o
 bone = bpy.data.materials["bone"]; drk = bpy.data.materials["dark"]
-sx = H.X1 + 3.4
-blob("skull", bone, H.G(sx, ya, zc + 0.8), (2.4, 3.4, 3.3)); blob("jaw", bone, H.G(sx + 0.5, ya, zc - 2.4), (1.9, 2.3, 1.4))
-for dy in (-1.3, 1.3): blob("eye", drk, H.G(sx + 1.9, ya + dy, zc + 0.6), (0.7, 0.9, 1.0))
-blob("nose", drk, H.G(sx + 2.1, ya, zc - 1.0), (0.4, 0.4, 0.6))
+import props_c                                                              # the animal skull of the original, hanging tilted over the doorway
+props_c.animal_skull(H.G(H.X1 + 4.0, ya + 2.0, 40.0), bone, drk, scale=1.45, yaw=45.0, pitch=48.0, roll=0.0)     # side on to the game camera: profile like the picture
 # ground: soft grass / dirt
 gm = cmat.pmat("ground", (120, 96, 52), (88, 116, 44), scale=0.02, detail=6.0, bump=0.1, rough=1.0)
 gme = bpy.data.meshes.new("ground"); b = bmesh.new(); s = 260

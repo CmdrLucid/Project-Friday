@@ -111,7 +111,8 @@ def contour(t, rc0=6.0, K=(24, 5), hx0=HX):
 def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, door="dark", door_top=None):
     """adds the house to a blx.Mesh with materials bark, post, endgrain, dark, hole, thatch, under (+ 'sign' if sign_uv is given:
     function (x, y, z) -> texel uv of the sign image).  hx > HX = more roof overhang (the slope continues down past the picture's eave),
-    lip = eave roll radius; door = 'dark' (opening as in the picture) or 'planks' (frame + plank door leaf + handle; needs material 'plank')."""
+    lip = eave roll radius; door = 'dark' (opening as in the picture), 'open' (dark opening in a frame: jambs, lintel, threshold) or 'planks'
+    (the frame + a plank door leaf + handle; needs material 'plank')."""
     import random
     rnd = random.Random(5)
     # dark core: the seams between the logs show black like the original
@@ -131,25 +132,29 @@ def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, do
             M.cylinder("post", G(*wall_pos(side, a, POST_R - 0.6, top)), G(*wall_pos(side, a, POST_R - 0.6, top + 1.6)), POST_R * 0.7, n=nseg, cap="endgrain", density=den)
     # door: dark opening (or a plank door in a frame), lintel, threshold
     d = dict(DOOR, top=door_top or DOOR["top"]); s = d["side"]
-    if door == "planks":
+    if door in ("planks", "open"):
         wd = d["a1"] - d["a0"]; inset = -2.6                                       # leaf: in front of the dark core (x 361), behind the log fronts
-        for sgn, a in ((-1, d["a0"]), (1, d["a1"])):                                # jambs: square posts in the opening
+        for sgn, a in (((-1, d["a0"]), (1, d["a1"])) if door == "planks" else ()):  # jambs: square posts in the opening (the open doorway has none, like the picture)
             p = [wall_pos(s, a - sgn * 0.0, 1.2, 0), wall_pos(s, a - sgn * 2.2, -2 * RL + 0.5, d["top"] + 0.5)]
             M.box("post", min(p[0][0], p[1][0]), max(p[0][0], p[1][0]), -max(p[0][1], p[1][1]), -min(p[0][1], p[1][1]), 0, d["top"] + 0.5)
-        n = 4; pw = (wd - 4.4) / n
+        if door == "open":                                                         # the dark opening, set back to the core like in the picture
+            M.face("dark", [G(*wall_pos(s, d["a0"], -1.2, 0)), G(*wall_pos(s, d["a1"], -1.2, 0)), G(*wall_pos(s, d["a1"], -1.2, d["top"])), G(*wall_pos(s, d["a0"], -1.2, d["top"]))][::-1], [(0, 0), (16, 0), (16, 16), (0, 16)])
+        n = 4 if door == "planks" else 0; pw = (wd - 4.4) / 4
         for k in range(n):                                                         # vertical planks, small gaps, slightly uneven tops
             a0 = d["a0"] + 2.2 + k * pw + 0.15; a1 = a0 + pw - 0.3; zt = d["top"] - 0.3 - rnd.random() * 0.6
             p0 = wall_pos(s, a0, inset - 1.0, 0); p1 = wall_pos(s, a1, inset, zt)
             M.box("plank", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), 0.2, zt)
-        for zb in (7.0, d["top"] - 8.0):                                           # two battens across the planks
+        for zb in ((7.0, d["top"] - 8.0) if door == "planks" else ()):           # two battens across the planks
             p0 = wall_pos(s, d["a0"] + 2.6, inset, zb); p1 = wall_pos(s, d["a1"] - 2.6, inset + 0.8, zb + 2.2)
             M.box("post", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), zb, zb + 2.2)
-        zh = d["top"] * 0.5; hc = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, zh)); e1 = G(*wall_pos(s, d["a1"] - 3.5, inset + 1.4, zh)); e2 = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, zh + 1))
-        M.torus("dark", hc, tuple(e1[i] - hc[i] for i in range(3)), tuple(e2[i] - hc[i] for i in range(3)), 1.3, 0.35, n=16, m=6)
+        zh = d["top"] * 0.5
+        if door == "planks":
+            hc = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, zh)); e1 = G(*wall_pos(s, d["a1"] - 3.5, inset + 1.4, zh)); e2 = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, zh + 1))
+            M.torus("dark", hc, tuple(e1[i] - hc[i] for i in range(3)), tuple(e2[i] - hc[i] for i in range(3)), 1.3, 0.35, n=16, m=6)
         M.cylinder("post", G(*wall_pos(s, d["a0"] - 3, 1.2, d["top"] + 2.0)), G(*wall_pos(s, d["a1"] + 3, 1.2, d["top"] + 2.0)), 2.7, n=nseg, cap="endgrain", density=den)
         p0 = wall_pos(s, d["a0"] - 1, 3.0, 0); p1 = wall_pos(s, d["a1"] + 1, -2 * RL, 1.2)       # stone-ish step
         M.box("post", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), 0, 1.2)
-    else:
+    elif door == "dark":
         M.face("dark", [G(*wall_pos(s, d["a0"], -RL, 0)), G(*wall_pos(s, d["a1"], -RL, 0)), G(*wall_pos(s, d["a1"], -RL, d["top"])), G(*wall_pos(s, d["a0"], -RL, d["top"]))][::-1], [(0, 0), (16, 0), (16, 16), (0, 16)])
         M.cylinder("post", G(*wall_pos(s, d["a0"] - 3, 1.0, d["top"] + 1.5)), G(*wall_pos(s, d["a1"] + 3, 1.0, d["top"] + 1.5)), 2.2, n=nseg, cap="endgrain", density=den)
         M.cylinder("post", G(*wall_pos(s, d["a0"] - 1, 0.5, 0.8)), G(*wall_pos(s, d["a1"] + 1, 0.5, 0.8)), 1.0, n=6, density=den)
