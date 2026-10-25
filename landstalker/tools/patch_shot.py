@@ -19,6 +19,13 @@ sdl = r'''
 #ifdef _WIN32
 #include <direct.h>
 #endif
+int lk_mkdir(const char *d) {   /* portable: Windows (MinGW) mkdir takes ONE argument; the 2-argument POSIX calls elsewhere in the patches broke the Windows first build (GitHub issue #3, v1.0.0) */
+#ifdef _WIN32
+    return _mkdir(d);
+#else
+    return mkdir(d, 0777);
+#endif
+}
 static void lk_shot_frame(const uint8_t *framebuffer, long frame) {
     static const char *list; static int init; static const char *dir; static int scale;
     if (!init) {

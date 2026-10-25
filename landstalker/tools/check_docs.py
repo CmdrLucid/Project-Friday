@@ -92,6 +92,12 @@ if os.path.exists(up):
     unk = {int(u["addr"], 16) for u in json.load(open(up)).get("unknowns", [])}
     stale = sorted(a for a in unk if a in addr_of)
     print(f"unknowns.json: {len(unk)} open unknown addresses" + (f"; {len(stale)} are now named in symbols.json -> run: python3 tools/unknowns.py sync" if stale else ""))
+# portability lint (GitHub issue #3, 2026-10-25): C code inside the patch tools must compile with MinGW too; the 2-argument POSIX mkdir broke the first Windows build of v1.0.0
+import glob as _glob
+for _f in sorted(_glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), "*.py")) + _glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), "*.c"))):
+    for _n, _l in enumerate(open(_f, errors="replace"), 1):
+        if re.search(r"(?<![_\w])mkdir\([^;)]*,\s*0[0-7]{3}\)", _l) and "lk_mkdir" not in _l and "return mkdir" not in _l and "mkdir(dir, 0755);" not in _l:
+            errors.append(f"{os.path.basename(_f)}:{_n}: POSIX mkdir(path, mode) does not compile on Windows (MinGW): use lk_mkdir(path) (tools/patch_shot.py)")
 print(f"symbols.json: {len(addr_of)} entries; named-but-missing: {len(named_missing)}; errors: {len(errors)}")
 for e in errors: print("ERROR:", e)
 if errors:

@@ -799,7 +799,7 @@ static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {      
 }
 static void lk_scr_row(PIXEL_OUT_T *row, int e, int line, int map) {
   PIXEL_OUT_T buf[320]; int x, d = 0;
-  if (lk_scr_mode < 0) { const char *q = getenv("LANDSTALKER_OWN_SCREENS"), *l = getenv("LANDSTALKER_OWN_SCRLOG"); lk_scr_mode = q ? atoi(q) : 2; lk_rep_init(); lk_scr_log = l ? atoi(l) : 0; { const char *o = getenv("LANDSTALKER_OWN_ORGLOG"); lk_org_log = o ? atoi(o) : 0; lk_dump_dir = getenv("LANDSTALKER_TILEDUMP"); lk_dump_on = lk_dump_dir && *lk_dump_dir; if (lk_dump_on) { struct stat st; extern int mkdir(const char *, unsigned int); if (stat(lk_dump_dir, &st) != 0) mkdir(lk_dump_dir, 0777); } } }
+  if (lk_scr_mode < 0) { const char *q = getenv("LANDSTALKER_OWN_SCREENS"), *l = getenv("LANDSTALKER_OWN_SCRLOG"); lk_scr_mode = q ? atoi(q) : 2; lk_rep_init(); lk_scr_log = l ? atoi(l) : 0; { const char *o = getenv("LANDSTALKER_OWN_ORGLOG"); lk_org_log = o ? atoi(o) : 0; lk_dump_dir = getenv("LANDSTALKER_TILEDUMP"); lk_dump_on = lk_dump_dir && *lk_dump_dir; if (lk_dump_on) { struct stat st; extern int lk_mkdir(const char *); if (stat(lk_dump_dir, &st) != 0) lk_mkdir(lk_dump_dir); } } }
   if (!lk_scr_mode || !lk_scr_line(line, buf, e, lk_tall_keep(line))) return;
   for (x = 0; x < 320; x++) if (row[e + x] != buf[x]) d++;
   lk_scr_diff += d; lk_scr_tot += 320; lk_scr_lines++;
