@@ -205,6 +205,17 @@ tx = (uc - 1184 + 2 * vc) / 2; ty = (2 * vc - (uc - 1184)) / 2
 sc, co = blx.game_view(os.path.join(out, "game.png"), px_per_unit=PX, size=(int(W_ * PX), int(H_ * PX)), target=G(tx, ty, 0), squash=True)
 cmat.modern_look(sc); co.data.clip_end = 6000
 bpy.data.objects["sun"].data.specular_factor = 0.0                               # like the water asset: no sun gloss (the sea turned white in view q1)
+# fill light for the ROCK only (light linking): the low west sun leaves the east-facing slopes in their own shadow, so no rock form showed
+# (the original painter drew them lit anyway); other assets keep the approved light
+rc = bpy.data.collections.new("rock_lit"); sc.collection.children.link(rc)
+for ob in list(sc.objects):
+    if ob.name.startswith("cliffs"): rc.objects.link(ob)
+fl = bpy.data.lights.new("rock_fill", "SUN"); fl.energy = float(os.environ.get("R_ROCK_FILL", "2.2")); fl.color = (1.0, 0.92, 0.8); fl.angle = math.radians(8); fl.specular_factor = 0.0
+flo = bpy.data.objects.new("rock_fill", fl); sc.collection.objects.link(flo)
+flo.rotation_euler = (-mathutils.Vector((0.25, -0.75, 0.6))).to_track_quat("-Z", "Y").to_euler()     # from the south-south-east, high
+try:
+    flo.light_linking.receiver_collection = rc
+except Exception as e: print("no light linking:", e)
 for ob in sc.objects:                                                            # game_view squashes the meshes' z scale only: objects placed on raised
     if ob.parent is None and ob.type in ("MESH", "EMPTY") and ob.location.z:   # ground (z0) must move down with them
         ob.location.z *= math.sqrt(2.0 / 3.0)

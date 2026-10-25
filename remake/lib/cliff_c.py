@@ -14,7 +14,14 @@ import numpy as np
 import bpy, bmesh
 import cmat
 from massan_a import G
-STEP = 4.0; MARGIN = 6; K_ROCK = 1.5; K_BANK = 2.4; FADE = 10.0; AMP = 5.0
+import os
+STYLE = os.environ.get("R_ROCK", "A"); STEP = float(os.environ.get("R_ROCK_STEP", "2")); MARGIN = 6; K_ROCK = 1.5; K_BANK = 2.4; FADE = 10.0; AMP = 5.0
+
+STONE = dict(dark=(86, 78, 66), olive=(140, 128, 110), ochre=(162, 134, 98), light=(206, 194, 170), moss=((42, 70, 32), (76, 100, 40)))
+def rock_material(name):
+    """user 2026-10-25: the original's olive / ochre rock is a PALETTE limit and does not read as rock in 3D -> deliberately real stone colours
+    (warm grey-brown sandstone, light faces, dark joints, muted moss); R_ROCK_COL=orig keeps the palette colours."""
+    return cmat.rock_mat(name) if os.environ.get("R_ROCK_COL", "stone") == "orig" else cmat.rock_mat(name, **STONE)
 
 def relief(X, Y, seed=5):
     rr = random.Random(seed); v = np.zeros_like(X)
@@ -49,34 +56,59 @@ def build(cells, top, rock, O, bottom, name="cliffs"):
     out_front = is_rock & ~incliff & front                                       # the mountain runs on behind the room only; in front it drops like a bank
     H = np.where(out_front, np.maximum(np.minimum(hc, cone) - K_BANK * dc, bottom), H)
     steep = np.where(is_rock, (cone < hc - 2).astype(float) * 1.0 + 0.35, 1.0)        # flat mountain tops get less relief
-    # ridges run DOWN the slope (the original's light rock ribs and dark crevices): a pattern across the fall line = across the smoothed gradient
-    H2 = H.reshape(nx + 1, ny + 1); gxv, gyv = np.gradient(H2)
-    for _ in range(6):                                                           # smooth the directions (box blur)
+    live = np.where(H > bottom + 1, 1.0, 0.0); fade = np.clip(dg / FADE, 0, 1)
+    H2 = H.reshape(nx + 1, ny + 1); gxv, gyv = np.gradient(H2)                  # fall line = the smoothed gradient of the plain slope
+    for _ in range(int(12 / STEP) + 2):
         gxv = (gxv + np.roll(gxv, 1, 0) + np.roll(gxv, -1, 0) + np.roll(gxv, 1, 1) + np.roll(gxv, -1, 1)) / 5
         gyv = (gyv + np.roll(gyv, 1, 0) + np.roll(gyv, -1, 0) + np.roll(gyv, 1, 1) + np.roll(gyv, -1, 1)) / 5
     gl = np.hypot(gxv, gyv) + 1e-6; ux, uy = (gxv / gl).ravel(), (gyv / gl).ravel()
     t = P[:, 0] * (-uy) + P[:, 1] * ux; along = P[:, 0] * ux + P[:, 1] * uy        # across / along the fall line
-    # OUTCROPS (user 2026-10-25: the thin light ribs 'sehen nur aus wie lange striche'): the original's light rock = broad bumpy patches,
-    # elongated down the slope: random elliptical blobs on the steep rock, raised as real relief, ragged edge (noise), mask -> colour attribute
-    rr = random.Random(17); ridge = np.zeros(len(P)); bump = np.zeros(len(P))
-    cand = np.nonzero(is_rock & (cone < hc - 8) & (dg > 14))[0]
-    edge = relief(P[:, 0] * 2.3, P[:, 1] * 2.3, seed=9)                           # ragged outline / lumps inside
-    for _ in range(int(len(cand) * STEP * STEP / 1400)):
-        c = cand[rr.randrange(len(cand))]; cx_, cy_ = P[c]
-        ang = math.atan2(uy[c], ux[c]) + (rr.random() - 0.5) * 1.4                # roughly down the slope, turned up to +-40 degrees
-        uxc, uyc = math.cos(ang), math.sin(ang)
-        sz = 0.6 + rr.random() ** 2 * 1.2; L = (9 + rr.random() * 7) * sz; Wd = (7 + rr.random() * 5) * sz
-        dx, dy = P[:, 0] - cx_, P[:, 1] - cy_; al = dx * uxc + dy * uyc; ac = -dx * uyc + dy * uxc
-        q = (al / L) ** 2 + (ac / Wd) ** 2
-        near = q < 4
-        m = np.clip((1.0 - q[near] + 0.6 * edge[near]) / 0.25, 0, 1)                 # ragged outline
-        ridge[near] = np.maximum(ridge[near], m)
-        bump[near] = np.maximum(bump[near], np.clip(1.0 - q[near] + 0.3 * edge[near], 0, 1) ** 0.6 * sz * (0.6 + 0.4 * np.abs(edge[near])))   # lumpy inside
-    rv = relief(P[:, 0], P[:, 1]) * 0.6
-    H = H + 5.0 * bump * np.where(H > bottom + 1, 1, 0)                          # the outcrops stand out of the slope
-    fade = np.clip(dg / FADE, 0, 1)
-    H = H + AMP * rv * steep * fade * np.where(H > bottom + 1, 1, 0)
-    H = H.reshape(nx + 1, ny + 1); RV = (ridge * fade).reshape(nx + 1, ny + 1); ROCK = is_rock.reshape(nx + 1, ny + 1)
+    ridge = np.zeros(len(P)); boulders = []; flat = False
+    w = steep * fade * live                                                      # where the rock form may act
+    if STYLE == "A":
+        # A = FACETED ROCK: every Voronoi cell (seeds on a jittered 15 unit lattice) is one flat plane, the plain slope's tangent plane at the seed,
+        # tilted at random: flat faces with sharp edges; plus strata = soft terraces every 11 units (ledges catch moss); flat shading
+        S = 15.0; rr = np.random.default_rng(3)
+        li, lj = np.floor(P[:, 0] / S).astype(int), np.floor(P[:, 1] / S).astype(int)
+        best = np.full(len(P), 1e9); val = np.zeros(len(P)); fid = np.zeros(len(P))
+        Hf = H.reshape(nx + 1, ny + 1)
+        def jit(a, b, k): return ((a * 73856093) ^ (b * 19349663) ^ (k * 83492791)) % 1000 / 1000.0
+        for da in (-1, 0, 1):
+            for db in (-1, 0, 1):
+                a_, b_ = li + da, lj + db
+                sx_ = (a_ + 0.15 + 0.7 * jit(a_, b_, 1)) * S; sy_ = (b_ + 0.15 + 0.7 * jit(a_, b_, 2)) * S
+                d2 = (P[:, 0] - sx_) ** 2 + (P[:, 1] - sy_) ** 2
+                ii = np.clip(((sx_ - gx0) / STEP).astype(int), 0, nx); jj = np.clip(((sy_ - gy0) / STEP).astype(int), 0, ny)
+                hs = Hf[ii, jj]; gx_s = gxv[ii, jj] / STEP; gy_s = gyv[ii, jj] / STEP
+                tx_ = (jit(a_, b_, 3) - 0.5) * 1.4; ty_ = (jit(a_, b_, 4) - 0.5) * 1.4
+                plane = hs + (gx_s + tx_) * (P[:, 0] - sx_) + (gy_s + ty_) * (P[:, 1] - sy_) + (jit(a_, b_, 5) - 0.5) * 6
+                m = d2 < best; best = np.where(m, d2, best); val = np.where(m, plane, val); fid = np.where(m, jit(a_, b_, 6), fid)
+        dz = np.clip(val - H, -10, 10)
+        Hs = H + dz * w
+        terr = 11.0 * np.round(Hs / 11.0); Hs = Hs + (terr - Hs) * 0.45 * w          # strata ledges
+        H = Hs + 1.5 * relief(P[:, 0] * 1.7, P[:, 1] * 1.7) * w; flat = True
+        ridge = (fid - 0.5) * 0.7 * w                                            # every face its own shade (lighter / darker stone)
+    elif STYLE == "B":
+        # B = STACKED BOULDERS: the plain slope (mossy, sunk a little) carries many big rounded-angular rocks, half buried, overlapping
+        H = H - 3.0 * w
+        rr = random.Random(23); cand = np.nonzero(is_rock & (w > 0.5))[0]
+        for _ in range(int(len(cand) * STEP * STEP / 230)):
+            c = cand[rr.randrange(len(cand))]; r = 6 + rr.random() ** 1.5 * 10
+            boulders.append((float(P[c, 0]), float(P[c, 1]), float(H[c]), r, rr.randrange(10 ** 6)))
+        ridge[:] = 0.0
+    elif STYLE == "C":
+        # C = FLUTED BANDS: sharp crested ribs running down the slope with deep runnels between them (triangle wave across the fall line,
+        # varying spacing / height, crests broken along the slope); the crests a touch warmer (ridge attribute)
+        warp = 7.0 * np.sin(along * 0.04 + 1.3) + 4.0 * np.sin(along * 0.09 + t * 0.013)
+        sp = 20.0; ph = (t + warp) / sp; fr = ph - np.floor(ph)
+        tri = 1.0 - 2.0 * np.abs(fr - 0.5)                                       # 1 at the crest, 0 in the runnel
+        cell = np.floor(ph); amp = 0.55 + 0.45 * np.sin(cell * 2.7 + 1.1) * np.sin(along * 0.03 + cell)
+        brk = np.clip(0.6 + 0.6 * np.sin(along * 0.07 + cell * 1.9), 0, 1)       # crests break up along the slope
+        prof = (tri ** 1.6) * amp * (0.5 + 0.5 * brk)
+        H = H + 13.0 * (prof - 0.35) * w + 1.2 * relief(P[:, 0] * 1.5, P[:, 1] * 1.5) * w
+        ridge = np.clip((prof - 0.45) / 0.4, 0, 1) * 0.5 * w
+    H = H + AMP * 0.5 * relief(P[:, 0], P[:, 1]) * w * (0 if STYLE == "A" else 1)
+    H = H.reshape(nx + 1, ny + 1); RV = ridge.reshape(nx + 1, ny + 1); ROCK = is_rock.reshape(nx + 1, ny + 1)
     # quads whose centre lies in a rock cell or outside the room
     bm = bmesh.new(); cl_ = bm.loops.layers.color.new("ridge"); vs = {}
     def V(i, j):
@@ -100,9 +132,18 @@ def build(cells, top, rock, O, bottom, name="cliffs"):
         a, b = vs[(i0, j0)], vs[(i1, j1)]
         f = bm.faces.new([a, b, bm.verts.new((b.co.x, b.co.y, bottom)), bm.verts.new((a.co.x, a.co.y, bottom))]); f.material_index = 0
     me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
-    for p in me.polygons: p.use_smooth = True
-    me.materials.append(cmat.rock_mat("rock_c")); me.materials.append(cmat.rock_mat("bank_c", moss_amt=2.2))
+    for p in me.polygons: p.use_smooth = not (flat and p.material_index == 0)
+    me.materials.append(rock_material("rock_c")); me.materials.append(cmat.rock_mat("bank_c", dark=(66, 52, 32), olive=(110, 86, 52), ochre=(140, 106, 58), moss_amt=2.2))
     ob = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(ob)
+    if boulders:                                                                 # study B: the rocks
+        import kit_c
+        bb = bmesh.new()
+        for (x, y, z, r, sd) in boulders:
+            r2 = random.Random(sd); sq = (1.0 + r2.random() * 0.5, 0.8 + r2.random() * 0.4, 0.55 + r2.random() * 0.3)
+            kit_c.rock(bb, G(x, y, z + r * sq[2] * 0.25), r, sq, seed=sd, lump=0.28)
+        mb = bpy.data.meshes.new(name + "_boulders"); bb.to_mesh(mb); bb.free()
+        for p in mb.polygons: p.use_smooth = False
+        mb.materials.append(rock_material("boulder_rock")); bpy.context.scene.collection.objects.link(bpy.data.objects.new(name + "_boulders", mb))
     def height_at(px, py):
         fi = (px - gx0) / STEP; fj = (py - gy0) / STEP; i = int(min(max(fi, 0), nx - 1)); j = int(min(max(fj, 0), ny - 1)); ti, tj = fi - i, fj - j
         return float((H[i, j] * (1 - ti) + H[i + 1, j] * ti) * (1 - tj) + (H[i, j + 1] * (1 - ti) + H[i + 1, j + 1] * ti) * tj)

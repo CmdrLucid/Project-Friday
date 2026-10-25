@@ -179,12 +179,12 @@ def rock_mat(name="rock_c", dark=(60, 58, 28), olive=(112, 92, 40), ochre=(160, 
     mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (0.35, 0.35, 0.06); L(tc.outputs["Object"], mp.inputs["Vector"])   # streaks run down the slope
     n2 = nt.nodes.new("ShaderNodeTexNoise"); n2.inputs["Scale"].default_value = 1.0; n2.inputs["Detail"].default_value = 3.0; L(mp.outputs["Vector"], n2.inputs["Vector"])
     s2 = nt.nodes.new("ShaderNodeMapRange"); s2.inputs["From Min"].default_value = 0.52; s2.inputs["From Max"].default_value = 0.66; L(n2.outputs["Fac"], s2.inputs["Value"])
-    m2 = nt.nodes.new("ShaderNodeMix"); m2.data_type = "RGBA"; L(s2.outputs["Result"], m2.inputs["Factor"]); L(r1.outputs["Color"], m2.inputs[6]); m2.inputs[7].default_value = srgb(ochre)
-    sr = nt.nodes.new("ShaderNodeMapRange"); sr.inputs["From Min"].default_value = 0.15; sr.inputs["From Max"].default_value = 0.5; L(at.outputs["Fac"], sr.inputs["Value"])
+    s2k = nt.nodes.new("ShaderNodeMath"); s2k.operation = "MULTIPLY"; s2k.inputs[1].default_value = 0.35; L(s2.outputs["Result"], s2k.inputs[0])   # calm streaks: the FORM carries the rock (studies A / B / C)
+    m2 = nt.nodes.new("ShaderNodeMix"); m2.data_type = "RGBA"; L(s2k.outputs[0], m2.inputs["Factor"]); L(r1.outputs["Color"], m2.inputs[6]); m2.inputs[7].default_value = srgb(ochre)
+    sr = nt.nodes.new("ShaderNodeMapRange"); sr.inputs["From Min"].default_value = 0.15; sr.inputs["From Max"].default_value = 1.6; L(at.outputs["Fac"], sr.inputs["Value"])
     n5 = nt.nodes.new("ShaderNodeTexNoise"); n5.inputs["Scale"].default_value = 0.6; n5.inputs["Detail"].default_value = 6.0; L(tc.outputs["Object"], n5.inputs["Vector"])
     r5 = nt.nodes.new("ShaderNodeValToRGB"); r5.color_ramp.elements[0].position = 0.35; r5.color_ramp.elements[1].position = 0.75   # outcrop: ochre .. pale specks
-    r5.color_ramp.elements[0].color = srgb(ochre); r5.color_ramp.elements[1].color = srgb(light); L(n5.outputs["Fac"], r5.inputs["Fac"])
-    e5 = r5.color_ramp.elements.new(0.9); e5.color = srgb((226, 206, 172))
+    r5.color_ramp.elements[0].color = srgb(olive); r5.color_ramp.elements[1].color = srgb(ochre); L(n5.outputs["Fac"], r5.inputs["Fac"])   # only a touch warmer than the rock (user: no pale stains)
     m3 = nt.nodes.new("ShaderNodeMix"); m3.data_type = "RGBA"; L(sr.outputs["Result"], m3.inputs["Factor"]); L(m2.outputs[2], m3.inputs[6]); L(r5.outputs["Color"], m3.inputs[7])
     cr = nt.nodes.new("ShaderNodeMapRange"); cr.inputs["From Min"].default_value = 0.0; cr.inputs["From Max"].default_value = -0.5; L(at.outputs["Fac"], cr.inputs["Value"])
     m4 = nt.nodes.new("ShaderNodeMix"); m4.data_type = "RGBA"; L(cr.outputs["Result"], m4.inputs["Factor"]); L(m3.outputs[2], m4.inputs[6]); m4.inputs[7].default_value = srgb((22, 20, 10))
@@ -200,7 +200,7 @@ def rock_mat(name="rock_c", dark=(60, 58, 28), olive=(112, 92, 40), ochre=(160, 
     m5 = nt.nodes.new("ShaderNodeMix"); m5.data_type = "RGBA"; L(nm.outputs[0], m5.inputs["Factor"]); L(m4.outputs[2], m5.inputs[6]); L(mc.outputs["Color"], m5.inputs[7])
     L(m5.outputs[2], b.inputs["Base Color"])
     n4 = nt.nodes.new("ShaderNodeTexNoise"); n4.inputs["Scale"].default_value = 0.5; n4.inputs["Detail"].default_value = 6.0; L(tc.outputs["Object"], n4.inputs["Vector"])
-    bm = nt.nodes.new("ShaderNodeBump"); bm.inputs["Strength"].default_value = 0.45; L(n4.outputs["Fac"], bm.inputs["Height"]); L(bm.outputs["Normal"], b.inputs["Normal"])
+    bm = nt.nodes.new("ShaderNodeBump"); bm.inputs["Strength"].default_value = 0.2; L(n4.outputs["Fac"], bm.inputs["Height"]); L(bm.outputs["Normal"], b.inputs["Normal"])
     L(b.outputs["BSDF"], o.inputs["Surface"]); return m
 
 def get(name):
