@@ -197,7 +197,7 @@ static void lk_quick_hud(PIXEL_OUT_T *row, int width) {
       if (need > 0) return;   /* not enough room: leave the HUD alone this frame */
       for (k = 40; k <= 292; k++) if (!lk_q_busyp[k] && !rm[k]) { fc = k; break; }
       if (fc < 0) fc = 85;
-      for (k = 0; k < 293; k++) if (!rm[k]) lk_q_colmap[kn++] = k;
+      for (k = 0; k < 292; k++) if (!rm[k]) lk_q_colmap[kn++] = k;   /* rel 292 is not bar interior: its rows 7 / 20 hold the grey corner pixel of the right cap and showed as two lone grey pixels beside the G of the gold (user 2026-10-25) */
       if (kn + cellw > Wb - 3) return;
       for (n = kn; n < Wb - 3; n++) lk_q_colmap[n] = -1;
       for (n = 0; n < 3; n++) lk_q_colmap[Wb - 3 + n] = 293 + n;
