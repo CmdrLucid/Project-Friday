@@ -12,7 +12,7 @@ Run: R_FIGURE=~/.landstalker_remake/figures/nigel_a4.png python3 remake/tools/bu
 Output (local): game.png (the original's projection, window in window.txt for rom_picture.py), q1..q3.png (camera turned by 90 degree steps)."""
 import bpy, bmesh, sys, os, math, random
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lib"))
-import blx, cmat, cground, kit_c, roomdata as RD, massan_a as H
+import blx, cmat, cground, cliff_c, kit_c, roomdata as RD, massan_a as H
 out = os.environ.get("R_OUT", "/tmp/room_c"); os.makedirs(out, exist_ok=True)
 ROM = os.path.expanduser(os.environ.get("R_ROM", "~/Documents/NonSteamGames/landstalker/landstalker.md")); ROOM = int(os.environ.get("R_ROOM", "592"))
 PX = float(os.environ.get("R_PX", "1"))
@@ -31,6 +31,8 @@ for k, c in C.items():
     top[k] = 16.0 * (gr["base"] if gr and ("obj" in gr or gr["cls"] in ("house", "tower")) else c["h"])
 for k in R["statues"]: top[k] = min(top.get((k[0] + dx, k[1] + dy), 0.0) for dx, dy in RD.N4)
 for k in step_cells: top[k] -= 4.0                                               # the stump tops (at the cell height) stay visible above the ground
+rock = {k: 16.0 * C[k]["h"] for gr in R["groups"] if gr["cls"] in ("cliff", "cave") for k in gr["cells"]}   # asset 5d: these become slopes
+for k in rock: top.pop(k, None)
 dirt = {k: 1.0 if c["kind"] == "dirt" else 0.0 for k, c in C.items()}
 def field(gx, gy):
     """dirt fraction at a game point: bilinear between cell centres (missing cells take the nearest existing one)."""
@@ -57,7 +59,8 @@ for (x, y), z in top.items():
             a, b = gx + 16 * i / NS, gy + 16 * j / NS; s = 16 / NS
             quad([(a, b, z), (a + s, b, z), (a + s, b + s, z), (a, b + s, z)], 0, UP)
     for (dx, dy), e in (((1, 0), ((16, 0), (16, 16))), ((-1, 0), ((0, 0), (0, 16))), ((0, 1), ((0, 16), (16, 16))), ((0, -1), ((0, 0), (16, 0)))):
-        nz = top.get((x + dx, y + dy), BOTTOM)
+        if (x + dx, y + dy) not in top: continue                                 # rock / outside: the slopes of lib/cliff_c.py meet this edge
+        nz = top[(x + dx, y + dy)]
         if nz >= z: continue
         (u0, v0), (u1, v1) = e
         quad([(gx + u0, gy + v0, nz), (gx + u1, gy + v1, nz), (gx + u1, gy + v1, z), (gx + u0, gy + v0, z)], 1, mathutils.Vector((dx, -dy, 0)))
@@ -65,6 +68,11 @@ me = bpy.data.meshes.new("terrain"); bm.to_mesh(me); bm.free()
 for p in me.polygons: p.use_smooth = p.material_index == 0
 me.materials.append(cmat.dirt_mat("room_ground", mask="mask", other=((30, 84, 26), (58, 118, 34)))); me.materials.append(cmat.get("cliff"))
 bpy.context.scene.collection.objects.link(bpy.data.objects.new("terrain", me))
+
+cliffs, slope_at = cliff_c.build(C, top, rock, O, BOTTOM)
+def surface(gx, gy):
+    k = (int((gx - O) // 16), int((gy - O) // 16))
+    return top[k] if k in top else slope_at(gx, gy)
 
 # ---- grass blades on grass tops (not under houses / the tower) ------------------------------------------------------------------------------------
 grs = random.Random(9); pts = []
@@ -129,7 +137,15 @@ for gr in R["groups"]:
         kit_c.pine(16 * x + O + 8 + (prnd.random() - 0.5) * 6, 16 * y + O + 8 + (prnd.random() - 0.5) * 6, height=38 + prnd.random() * 10, radius=12 + prnd.random() * 2.5,
                    rnd=prnd, z0=z0, name="pine_%d_%d" % (x, y))
 
-for (wx, wy, z, k) in R["pines"]:                                                # single pines on the cliffs, found in the picture (roomdata.cliff_pines)
+def recast(wx, wy, z):
+    """the same picture point on the new surface: walk the view ray (U fixed) from the viewer until it meets the ground / the slopes."""
+    d = wx - wy; V = (wx + wy) / 2 - z
+    for s_ in range(4000, -600, -1):
+        zz = s_ / 2 - V; px_, py_ = (s_ + d) / 2, (s_ - d) / 2
+        if zz <= surface(px_, py_): return px_, py_, zz
+    return wx, wy, z
+for (wx, wy, z, k) in R["pines"]:
+    wx, wy, z = recast(wx, wy, z)                                                # single pines on the cliffs, found in the picture (roomdata.cliff_pines)
     kit_c.pine(wx, wy, height=40 + prnd.random() * 6, radius=12.5 + prnd.random() * 1.5, rnd=prnd, z0=z, name="cliffpine_%d_%d" % k)
 
 # ---- steps: log stumps along every walkable edge one step high (runs of cells along x) -------------------------------------------------------------------

@@ -166,6 +166,39 @@ def water_mat(name="water_c", deep=(8, 46, 72), mid=(22, 90, 150), ripple=(110, 
     ms = nt.nodes.new("ShaderNodeMixShader"); ms.inputs["Fac"].default_value = 0.15; L(df.outputs["BSDF"], ms.inputs[1]); L(gl.outputs["BSDF"], ms.inputs[2])
     L(ms.outputs["Shader"], o.inputs["Surface"]); return m
 
+def rock_mat(name="rock_c", dark=(60, 58, 28), olive=(112, 92, 40), ochre=(160, 116, 46), light=(214, 150, 84), moss=((6, 52, 26), (34, 92, 26)), moss_amt=1.0):
+    """the Massan mountain (asset 5d, room 592 picture): dark olive-brown rock with ochre streaks running down the slope, light bare rock on the ridges
+    (colour attribute 'ridge' 0..1 written by lib/cliff_c.py), dark crevices (ridge < 0), dark green moss where the slope is flatter (normal z) and
+    in noisy patches.  moss_amt > 1 = the grassier earth bank of the plateau edges.  Object coordinates."""
+    m = bpy.data.materials.new(name); m.use_nodes = True; nt = m.node_tree; nt.nodes.clear(); L = nt.links.new
+    o = nt.nodes.new("ShaderNodeOutputMaterial"); b = nt.nodes.new("ShaderNodeBsdfPrincipled"); b.inputs["Roughness"].default_value = 0.92
+    if "Specular IOR Level" in b.inputs: b.inputs["Specular IOR Level"].default_value = 0.2
+    tc = nt.nodes.new("ShaderNodeTexCoord"); at = nt.nodes.new("ShaderNodeAttribute"); at.attribute_name = "ridge"
+    n1 = nt.nodes.new("ShaderNodeTexNoise"); n1.inputs["Scale"].default_value = 0.035; n1.inputs["Detail"].default_value = 5.0; L(tc.outputs["Object"], n1.inputs["Vector"])
+    r1 = nt.nodes.new("ShaderNodeValToRGB"); r1.color_ramp.elements[0].color = srgb(dark); r1.color_ramp.elements[1].color = srgb(olive); L(n1.outputs["Fac"], r1.inputs["Fac"])
+    mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (0.35, 0.35, 0.06); L(tc.outputs["Object"], mp.inputs["Vector"])   # streaks run down the slope
+    n2 = nt.nodes.new("ShaderNodeTexNoise"); n2.inputs["Scale"].default_value = 1.0; n2.inputs["Detail"].default_value = 3.0; L(mp.outputs["Vector"], n2.inputs["Vector"])
+    s2 = nt.nodes.new("ShaderNodeMapRange"); s2.inputs["From Min"].default_value = 0.52; s2.inputs["From Max"].default_value = 0.66; L(n2.outputs["Fac"], s2.inputs["Value"])
+    m2 = nt.nodes.new("ShaderNodeMix"); m2.data_type = "RGBA"; L(s2.outputs["Result"], m2.inputs["Factor"]); L(r1.outputs["Color"], m2.inputs[6]); m2.inputs[7].default_value = srgb(ochre)
+    sr = nt.nodes.new("ShaderNodeMapRange"); sr.inputs["From Min"].default_value = 0.2; sr.inputs["From Max"].default_value = 0.9; L(at.outputs["Fac"], sr.inputs["Value"])
+    m3 = nt.nodes.new("ShaderNodeMix"); m3.data_type = "RGBA"; L(sr.outputs["Result"], m3.inputs["Factor"]); L(m2.outputs[2], m3.inputs[6]); m3.inputs[7].default_value = srgb(light)
+    cr = nt.nodes.new("ShaderNodeMapRange"); cr.inputs["From Min"].default_value = 0.0; cr.inputs["From Max"].default_value = -0.5; L(at.outputs["Fac"], cr.inputs["Value"])
+    m4 = nt.nodes.new("ShaderNodeMix"); m4.data_type = "RGBA"; L(cr.outputs["Result"], m4.inputs["Factor"]); L(m3.outputs[2], m4.inputs[6]); m4.inputs[7].default_value = srgb((22, 20, 10))
+    # moss: flatter parts + noise patches
+    gm = nt.nodes.new("ShaderNodeNewGeometry"); sx = nt.nodes.new("ShaderNodeSeparateXYZ"); L(gm.outputs["Normal"], sx.inputs["Vector"])
+    fl = nt.nodes.new("ShaderNodeMapRange"); fl.inputs["From Min"].default_value = 0.8; fl.inputs["From Max"].default_value = 0.97; L(sx.outputs["Z"], fl.inputs["Value"])
+    n3 = nt.nodes.new("ShaderNodeTexNoise"); n3.inputs["Scale"].default_value = 0.09; n3.inputs["Detail"].default_value = 4.0; L(tc.outputs["Object"], n3.inputs["Vector"])
+    pm = nt.nodes.new("ShaderNodeMapRange"); pm.inputs["From Min"].default_value = 0.6 - 0.05 * (moss_amt - 1); pm.inputs["From Max"].default_value = 0.68 - 0.05 * (moss_amt - 1); L(n3.outputs["Fac"], pm.inputs["Value"])
+    mx = nt.nodes.new("ShaderNodeMath"); mx.operation = "MAXIMUM"; L(fl.outputs["Result"], mx.inputs[0]); L(pm.outputs["Result"], mx.inputs[1])
+    nr = nt.nodes.new("ShaderNodeMapRange"); nr.inputs["From Min"].default_value = 0.2; nr.inputs["From Max"].default_value = 0.7; L(at.outputs["Fac"], nr.inputs["Value"])
+    nm = nt.nodes.new("ShaderNodeMath"); nm.operation = "SUBTRACT"; L(mx.outputs[0], nm.inputs[0]); L(nr.outputs["Result"], nm.inputs[1]); nm.use_clamp = True   # no moss on bare ridges
+    mc = nt.nodes.new("ShaderNodeValToRGB"); mc.color_ramp.elements[0].color = srgb(moss[0]); mc.color_ramp.elements[1].color = srgb(moss[1]); L(n1.outputs["Fac"], mc.inputs["Fac"])
+    m5 = nt.nodes.new("ShaderNodeMix"); m5.data_type = "RGBA"; L(nm.outputs[0], m5.inputs["Factor"]); L(m4.outputs[2], m5.inputs[6]); L(mc.outputs["Color"], m5.inputs[7])
+    L(m5.outputs[2], b.inputs["Base Color"])
+    n4 = nt.nodes.new("ShaderNodeTexNoise"); n4.inputs["Scale"].default_value = 0.5; n4.inputs["Detail"].default_value = 6.0; L(tc.outputs["Object"], n4.inputs["Vector"])
+    bm = nt.nodes.new("ShaderNodeBump"); bm.inputs["Strength"].default_value = 0.45; L(n4.outputs["Fac"], bm.inputs["Height"]); L(bm.outputs["Normal"], b.inputs["Normal"])
+    L(b.outputs["BSDF"], o.inputs["Surface"]); return m
+
 def get(name):
     if name in bpy.data.materials: return bpy.data.materials[name]
     return pmat(name, **LIB[name][1])
