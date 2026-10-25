@@ -245,15 +245,20 @@ def voxels(vs=1.0):
 
 # ---- shared preview set ---------------------------------------------------------------------------------------------------------------------------
 VIEWS = [("game", None), ("turn_l", -35), ("turn_r", 35), ("back", 150), ("side", 200)]
+FIG_PX = 1 / math.sqrt(2)      # world units per sprite pixel on a camera-facing card: the game projection shows 1 world unit across the screen as sqrt(2) pixels
+FIG_FWD = 7.5 * math.sqrt(2)  # the sprite's bottom row = the FRONT corner of the 15 x 15 box: the card stands this far towards the camera from the box centre
 def add_figure(png_path, game_pos, light=0.55):
-    """a pixel figure (rom_sprite.py cut-out) as a camera-facing billboard standing at game_pos (feet = bottom row, 1 image pixel = 1 unit / scale2x factor);
-    lit a little by the scene (HD-2D style) and casting a shadow.  Returns the object (render_set(figures=...) turns it to every camera)."""
+    """a pixel figure (rom_sprite.py cut-out) as a camera-facing billboard; game_pos = centre of its collision box on the ground.
+    Size (measured 2026-10-25 on the Massan replay, entity +12 Z / +54 top / +18..+1E box): Nigel is 31 units high with a 15 x 15 box; his 47 px sprite
+    = 31 + the depth of the box drawn in the 2:1 view.  So one sprite pixel = FIG_PX units on the card (head at ~33) and the card's bottom row stands at
+    the box's front corner (face_camera moves it FIG_FWD towards the camera): in the game view the figure covers exactly the pixels of the original.
+    Lit a little by the scene (HD-2D style), casts a shadow.  render_set(figures=...) turns it to every camera."""
     import bpy, bmesh
     img = bpy.data.images.load(png_path); img.colorspace_settings.name = "sRGB"; w, h = img.size
     k = 1.0
     txt = os.path.splitext(png_path)[0] + ".txt"
     if os.path.exists(txt): k = float(open(txt).read().split()[2])
-    W, Hh = w / k, h / k
+    W, Hh = w / k * FIG_PX, h / k * FIG_PX
     me = bpy.data.meshes.new("figure"); b = bmesh.new(); uvl = b.loops.layers.uv.new("UV")
     f = b.faces.new([b.verts.new(p) for p in ((-W / 2, 0, 0), (W / 2, 0, 0), (W / 2, 0, Hh), (-W / 2, 0, Hh))])
     for l, uv in zip(f.loops, ((0, 0), (1, 0), (1, 1), (0, 1))): l[uvl].uv = uv
@@ -266,7 +271,7 @@ def add_figure(png_path, game_pos, light=0.55):
     L(bs.outputs["BSDF"], o.inputs["Surface"])
     if hasattr(m, "surface_render_method"): m.surface_render_method = "DITHERED"
     me.materials.append(m); ob = bpy.data.objects.new("figure", me); bpy.context.scene.collection.objects.link(ob)
-    ob.location = G(*game_pos); return ob
+    ob.location = G(*game_pos); ob["base"] = G(*game_pos); return ob
 
 def face_camera(ob, co, upright=True):
     import bpy, mathutils
@@ -275,6 +280,8 @@ def face_camera(ob, co, upright=True):
     if co.data.type == "PERSP": d = co.location - ob.location
     if upright: d.z = 0
     ob.rotation_euler = d.normalized().to_track_quat("-Y", "Z").to_euler()
+    if "base" in ob:
+        h = mathutils.Vector((d.x, d.y, 0)).normalized(); ob.location = mathutils.Vector(ob["base"]) + h * FIG_FWD
 
 def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=False, figures=(), quarter=False, tz=38, fh=190):
     """game view (the original's projection, heights squashed like the game) + turned views and a low perspective 'hero' shot (true heights).

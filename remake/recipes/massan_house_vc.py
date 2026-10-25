@@ -10,14 +10,11 @@ blx.PIXEL = False
 import cmat
 mats = [cmat.get(n) for n in ("bark", "post", "endgrain", "dark", "hole", "thatch", "under", "bone", "plank")]
 M = blx.Mesh("massan_house_vc", mats); M.density = 1.0
-# remake proportions (user 2026-10-25: 'die Tuer sollte etwas groesser sein als Nigels Sprite', sprite 47 px): same footprint (collision),
-# taller walls (9 log rows), door 52 high / 22 wide, roof raised with them; the skull hangs on the door (under the eave it would be hidden)
-H.LOG_Z = [-1.5 + 8 * k for k in range(9)]; H.ZE = 70.0; H.ZT = 102.0; H.POST_TOP = 67.0
-H.DOOR = dict(side="E", a0=463.0, a1=485.0, top=35.0); H.POSTS = dict(H.POSTS, E=[444, 451, 460, 488, 493, 500])
-H.WINDOW = dict(H.WINDOW, z=38.0, R=9.0, hole=7.2)
-H.build(M, nseg=20, den=1.0, roof_jitter=0.5, hx=H.HX + 4.5, lip=4.5, door="planks", door_top=52.0)
+# 1:1 the original (user 2026-10-25: 'mach es mal 1:1 wie im Original'): the picture's heights (door 35 > Nigel's 31), only a little more eave
+H.build(M, nseg=20, den=1.0, roof_jitter=0.5, hx=H.HX + 1.5, lip=3.5, door="planks")
 # the sign: a small plank board with a modelled skull
-ya = (H.DOOR["a0"] + H.DOOR["a1"]) / 2; zc = 37.0                                          # centred on the door leaf, upper half
+ya = (H.DOOR["a0"] + H.DOOR["a1"]) / 2; zc = 42.0                                          # centred over the door, above the lintel (like the original)
+M.box("post", H.X1 + 0.4, H.X1 + 1.6, -(ya + 5.0), -(ya - 5.0), zc - 4.0, zc + 4.0)
 ob = M.finish()
 for p in ob.data.polygons: p.use_smooth = True
 import bmesh, mathutils
@@ -27,7 +24,7 @@ def blob(name, mat, centre, scale):
     for p in me.polygons: p.use_smooth = True
     me.materials.append(mat); o = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(o); return o
 bone = bpy.data.materials["bone"]; drk = bpy.data.materials["dark"]
-sx = H.X1 + 0.4
+sx = H.X1 + 3.4
 blob("skull", bone, H.G(sx, ya, zc + 0.8), (2.4, 3.4, 3.3)); blob("jaw", bone, H.G(sx + 0.5, ya, zc - 2.4), (1.9, 2.3, 1.4))
 for dy in (-1.3, 1.3): blob("eye", drk, H.G(sx + 1.9, ya + dy, zc + 0.6), (0.7, 0.9, 1.0))
 blob("nose", drk, H.G(sx + 2.1, ya, zc - 1.0), (0.4, 0.4, 0.6))
@@ -41,7 +38,7 @@ bpy.ops.export_scene.gltf(filepath=os.path.join(out, "massan_house_vc.glb"), exp
 sc = bpy.context.scene
 figs = []                                                                   # R_FIGURE = a rom_sprite.py cut-out (local), standing in front of the door
 fig = os.path.expanduser(os.environ.get("R_FIGURE", ""))
-if fig and os.path.exists(fig): figs.append(H.add_figure(fig, (H.X1 + 22, H.DOOR["a1"] + 10, 0)))
-H.render_set(out, px=float(os.environ.get("R_PX", "2")), dof=True, modern=True, figures=figs, quarter=True, tz=52, fh=235) if not os.environ.get("R_ALIGN") else \
+if fig and os.path.exists(fig): figs.append(H.add_figure(fig, (H.X1 + 18, H.DOOR["a1"] + 4, 0)))
+H.render_set(out, px=float(os.environ.get("R_PX", "2")), dof=True, modern=True, figures=figs, quarter=True) if not os.environ.get("R_ALIGN") else \
     H.render_set(out, px=2.0, dof=False, modern=True, figures=figs, tz=44, fh=216)       # R_ALIGN=1: game view exactly on the window of rom_picture.py (overlay test)
 print("massan_house_vc done ->", out)
