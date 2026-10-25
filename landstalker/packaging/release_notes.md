@@ -1,13 +1,8 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- **Quick Equip** (Options > Quality of Life, On by default): hold R2 (keyboard Q) and press a direction - up sword, right armour, down boots, left ring. The first press only shows the pieces of that kind (icons, owned ones in colour, others as black silhouettes), the second press switches; the starting equipment (Broad Sword, Leather Breast, Leather Boots, no ring) is part of the cycle. The game pauses while R2 is held. Fast Forward moved to R5 by default.
-- **Better Menu** (Options > Quality of Life, On by default): B in the Use list or the Equip grid goes back to Use / Equip / Options instead of closing the whole menu; START still closes it.
-- **Live Gaia Effect** is On by default: the falling rocks no longer freeze the game and stay in the world; no second Gaia use while they fall.
-- **Widescreen in any width**: Options > Video > Widescreen is now Off / 16:10 / 16:9 (any width works, no longer multiples of 16 only). New defaults for a fresh install: 16:9, Full Height On, CRT Pro, Scaling Fit, Map Behind Text On.
-- The own renderer is always on (its Options row is gone); the HD Graphics and De-Dither rows are hidden for now.
-- Fixes: figures are hidden behind the text box like on the original hardware (dwarves), the ending credits are visible again, shadows (no pop-up after the Start menu, every platform casts one, Nigel's ground), two stray grey pixels in the HUD bar next to the gold, Options page hang with LEFT on some rows, and **the first start from the AppImage** (a missing file made the first build fail on a clean system).
-- Everything from v0.9.6 is included.
+- **Windows: the first build from your ROM works again.** v1.0.0 stopped at the last compile step (162 / 163) on Windows because two places used a Linux-only form of `mkdir` (GitHub issue #3, thanks for the log!). Nothing changes for Steam Deck / Linux.
+- Everything from v1.0.0 is included: Quick Equip (hold R2 + direction), Better Menu (B in Use / Equip goes back to the bar), Live Gaia Effect, Widescreen Off / 16:10 / 16:9 in any width, defaults 16:9 + Full Height + CRT Pro, the own renderer always on, and the AppImage first-start fix.
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).
