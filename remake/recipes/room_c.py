@@ -110,7 +110,7 @@ MASSAN = {(11, 15, 10, 13): dict(boards=[("S", 0.3, 26)]),                      
           (20, 24, 9, 12): dict(hatches=[(0.1, 0.3)], squares=[("S", 0.25, 26)]),                   # front right: a square window south (user: one was missing)
           (20, 24, 4, 8): dict(),
           (22, 26, 17, 23): dict(boards=[("S", 0.2, 26)], windows=[("E", 0.45, 27)], hatches=[(0.0, 0.3), (0.05, 0.62)]),
-          (11, 15, 2, 5): dict(windows=[("S", 0.5, 70), ("S", 0.5, 92)], squares=[("E", 0.45, 86)], banner=("E", 0.45, 80), ZE=110, ZT=137)}   # tower: two centred round windows,
+          (11, 15, 2, 5): dict(windows=[("S", 0.5, 70), ("S", 0.5, 92)], squares=[("E", 0.45, 93)], banner=("E", 0.45, 87), ZE=110, ZT=137)}   # tower: two centred round windows,
 # the cloth hangs out of the east window, the sign above the door (placed in spec_of)
 def spec_of(gr):
     x0, x1, y0, y1 = gr["box"]; d = gr["doors"][0]
@@ -131,7 +131,7 @@ def spec_of(gr):
     if gr["cls"] == "tower" and "ZE" not in ex: sp["ZE"] = 16.0 * gr["rel"] - 2; sp["ZT"] = sp["ZE"] + 27
     if gr["cls"] == "tower":                                                     # door, sign, cloth and window in ONE column (user: 'ueber der Tuer, nicht versetzt')
         ad = (sp["door"]["a0"] + sp["door"]["a1"]) / 2
-        sp["sign"] = dict(side=side, a=ad, z=sp["door"]["top"] + 9)
+        sp["sign"] = dict(side=side, a=ad, z=sp["door"]["top"] + 17)              # hangs a log above the door, under the cloth
         for q in sp["squares"]: q["a"] = ad
         if "banner" in sp: sp["banner"]["a"] = ad
     return sp

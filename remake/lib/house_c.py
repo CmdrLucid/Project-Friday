@@ -58,20 +58,26 @@ class House:
             for zc in logs:
                 r = RL * (0.92 if rnd.random() > 0.5 else 0.88); segs = [(L0 - EXT, L1 + EXT)]
                 for (hs, a0, a1, z0, z1) in holes:                               # logs crossing an opening are cut (door, square windows)
-                    if hs != side or not (zc - r < z1 + 1.0 and zc + r > z0 + 1.0): continue
+                    if hs != side or not (z0 - 2.0 < zc < z1 + 2.0): continue          # only logs whose CENTRE lies in the opening (else the door / window grew by half a log)
                     segs = [q for a, b in segs for q in ((a, min(b, a0)), (max(a, a1), b)) if q[1] - q[0] > 1.0]
                 for a, b in segs:
                     M.cylinder("bark", G(*s.wall_pos(side, a, -RL, zc)), G(*s.wall_pos(side, b, -RL, zc)), r, n=nseg, cap="endgrain", density=den)
-            posts = [L0 + 9, L0 + 16, L1 - 16, L1 - 9]                           # pairs 9 / 16 from each corner (house A)
-            if d and side == d["side"]: posts += [d["a0"] - 3.5, d["a1"] + 3.5]
-            n_mid = int((L1 - L0 - 40) / 36)                                    # long walls: more posts between
-            posts += [L0 + 16 + (L1 - L0 - 32) * (k + 1) / (n_mid + 1) for k in range(n_mid)]
-            for a in sorted(posts):
-                if d and side == d["side"] and d["a0"] - 2 < a < d["a1"] + 2: continue
-                if any(w["side"] == side and abs(w["a"] - a) < w.get("R", 7.5) + 4 for w in sp.get("windows", []) + sp.get("boards", []) + sp.get("squares", [])): continue   # no post across a window
-                top = s.ZE - 3 + rnd.random() * 1.2
-                M.cylinder("post", G(*s.wall_pos(side, a, POST_R - 0.6, -1)), G(*s.wall_pos(side, a, POST_R - 0.6, top)), POST_R, n=nseg, cap="endgrain", density=den)
-                M.cylinder("post", G(*s.wall_pos(side, a, POST_R - 0.6, top)), G(*s.wall_pos(side, a, POST_R - 0.6, top + 1.6)), POST_R * 0.7, n=nseg, cap="endgrain", density=den)
+            # posts like the picture of houses B..F (user 2026-10-25: the pairs were 'zu viel und falsch platziert'): ONE post at each corner, one on
+            # each side of every door / window opening, one more only on a long blank stretch; forked (Y) tops carrying the eave
+            ops = [(d["a0"], d["a1"])] if d and side == d["side"] else []
+            ops += [(q["a"] - q.get("w", 10) / 2, q["a"] + q.get("w", 10) / 2) for q in sp.get("squares", []) if q["side"] == side]
+            ops += [(q["a"] - q.get("R", 7.5) - 1, q["a"] + q.get("R", 7.5) + 1) for q in sp.get("windows", []) + sp.get("boards", []) if q["side"] == side]
+            posts = [L0 + 2.5, L1 - 2.5] + [a0 - 3.5 for a0, a1 in ops] + [a1 + 3.5 for a0, a1 in ops]
+            if sp.get("post_pairs"): posts = [L0 + 9, L0 + 16, L1 - 16, L1 - 9] + ([d["a0"] - 3.5, d["a1"] + 3.5] if d and side == d["side"] else [])
+            posts = sorted(posts); extra = []
+            for p0, p1 in zip(posts, posts[1:]):
+                if p1 - p0 > 46: extra.append((p0 + p1) / 2)
+            for a in sorted(posts + extra):
+                if any(a0 - 2 < a < a1 + 2 for a0, a1 in ops): continue
+                top = s.ZE - 3 + rnd.random() * 1.2; po = POST_R - 0.6
+                M.cylinder("post", G(*s.wall_pos(side, a, po, -1)), G(*s.wall_pos(side, a, po, top - 5)), POST_R, n=nseg, cap="endgrain", density=den)
+                for sg in (-1, 1):                                               # the fork: two short branches spreading along the wall under the eave
+                    M.cylinder("post", G(*s.wall_pos(side, a, po, top - 5.5)), G(*s.wall_pos(side, a + sg * 2.6, po + 0.3, top + 1.0)), POST_R * 0.62, n=max(8, nseg // 2), cap="endgrain", density=den)
         if d:                                                                    # open dark doorway (house A 'open'), lintel, step
             sd = d["side"]
             M.face("dark", [G(*s.wall_pos(sd, d["a0"], -1.2, 0)), G(*s.wall_pos(sd, d["a1"], -1.2, 0)), G(*s.wall_pos(sd, d["a1"], -1.2, d["top"])), G(*s.wall_pos(sd, d["a0"], -1.2, d["top"]))][::-1] if sd in "ES" else
@@ -91,24 +97,27 @@ class House:
             for k in (-4.0, 0.0, 4.0):
                 M.cylinder("plank", G(*s.wall_pos(b["side"], a + k - 4.5, 1.6, z - 7)), G(*s.wall_pos(b["side"], a + k + 4.5, 1.6, z + 7)), 1.5, n=6, density=den)
         for bn in [sp["banner"]] if sp.get("banner") else []:                    # tower: a blue cloth hanging in two swags under a rod
-            a, z = bn["a"], bn["z"]; hw = bn.get("w", 7.0)                         # a blue cloth hanging out of a window: over the sill, down the wall
+            a, z = bn["a"], bn["z"]; hw = bn.get("w", 9.0)                         # a blue cloth hanging out of a window: over the sill, down the wall
             for k in range(8):
                 u0, u1 = -hw + 2 * hw * k / 8, -hw + 2 * hw * (k + 1) / 8
-                drop = lambda u: 10.0 + 4.0 * math.cos(math.pi * u / hw) + 1.5 * math.sin(3.1 * u)
+                drop = lambda u: 14.0 + 4.0 * math.cos(math.pi * u / hw) + 1.5 * math.sin(3.1 * u)
                 for (o0, z0_, o1, z1_) in ((-1.5, z + 0.8, 1.8, z + 0.8), (1.8, z + 0.8, 2.4, z - 3.0)):          # over the sill
                     q = [s.wall_pos(bn["side"], a + u0, o0, z0_), s.wall_pos(bn["side"], a + u1, o0, z0_), s.wall_pos(bn["side"], a + u1, o1, z1_), s.wall_pos(bn["side"], a + u0, o1, z1_)]
                     M.face("cloth", [G(*p) for p in (q[::-1] if bn["side"] in "ES" else q)], [(0, 0), (1, 0), (1, 1), (0, 1)])
                 q = [s.wall_pos(bn["side"], a + u0, 2.4, z - 3.0), s.wall_pos(bn["side"], a + u1, 2.4, z - 3.0), s.wall_pos(bn["side"], a + u1, 2.0, z - 3.0 - drop(u1)), s.wall_pos(bn["side"], a + u0, 2.0, z - 3.0 - drop(u0))]
                 M.face("cloth", [G(*p) for p in (q[::-1] if bn["side"] in "ES" else q)], [(0, 0), (1, 0), (1, 1), (0, 1)])
-        for sg in [sp["sign"]] if sp.get("sign") else []:                        # tower: a plank board with a pale plate
-            a, z = sg["a"], sg["z"]
-            p0 = s.wall_pos(sg["side"], a - 6, 1.0, z - 6); p1 = s.wall_pos(sg["side"], a + 6, 3.0, z + 6)
-            M.box("plank", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), z - 6, z + 6)
-            p0 = s.wall_pos(sg["side"], a - 4, 3.0, z - 4); p1 = s.wall_pos(sg["side"], a + 4, 3.4, z + 4)
-            M.box("bone", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), z - 4, z + 4)
-            for (u0, u1, v0, v1) in ((-2.0, 2.0, -3.0, 0.6), (-1.2, 1.2, 0.6, 1.6), (-2.2, 2.2, 1.6, 2.4), (-0.6, 0.6, 2.4, 3.2)):   # the dark pictogram (a sack / jar)
-                p0 = s.wall_pos(sg["side"], a + u0, 3.4, z + v0); p1 = s.wall_pos(sg["side"], a + u1, 3.9, z + v1)
-                M.box("dark", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), z + v0, z + v1)
+        for sg in [sp["sign"]] if sp.get("sign") else []:                        # tower: a grey metal plate with a pale animal head HANGING on a cord from a nail
+            a, z, sd_ = sg["a"], sg["z"], sg["side"]; W2, H2 = 7.5, 8.5
+            def bx(mat, u0, u1, v0, v1, o0, o1):
+                p0 = s.wall_pos(sd_, a + u0, o0, z + v0); p1 = s.wall_pos(sd_, a + u1, o1, z + v1)
+                M.box(mat, min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), z + v0, z + v1)
+            bx("signframe", -W2, W2, -H2, H2, 1.6, 2.6)                          # darker rim
+            bx("signplate", -W2 + 1.3, W2 - 1.3, -H2 + 1.3, H2 - 1.3, 2.6, 2.9)      # grey plate
+            for (u0, u1, v0, v1) in ((-2.0, 2.2, -4.5, 1.5), (-3.2, 3.4, 0.5, 3.0), (-4.6, -2.6, 2.6, 4.6), (2.8, 4.8, 2.6, 4.6), (-1.2, 1.4, -6.0, -4.5)):
+                bx("bone", u0, u1, v0, v1, 2.9, 3.3)                             # the animal head: snout, brow, ears / horns, chin
+            M.cylinder("dark", G(*s.wall_pos(sd_, a, 1.0, z + H2 + 7.0)), G(*s.wall_pos(sd_, a, 2.4, z + H2 + 7.0)), 0.7, n=6, density=den)   # the nail
+            for sg_ in (-1, 1):                                                  # the cord to both upper corners
+                M.cylinder("dark", G(*s.wall_pos(sd_, a, 2.2, z + H2 + 7.0)), G(*s.wall_pos(sd_, a + sg_ * (W2 - 1.5), 2.4, z + H2 - 0.5)), 0.35, n=5, density=den)
         # roof: eave roll + bulging hip roof
         off = sp.get("overhang", 1.5); hx = s.HXx + off; hy = s.HXy + off; hmin = min(s.HXx, s.HXy); LIP = sp.get("lip", 3.5); rings = []
         def rzz(t): return s.rz(t - off, hmin) if t >= off else s.ZE - (off - t) * 0.62
@@ -157,7 +166,9 @@ def materials():
     names = ("bark", "post", "endgrain", "dark", "hole", "thatch", "under", "bone", "plank")
     ms = [cmat.get(n) for n in names]
     cl = bpy.data.materials.get("cloth") or cmat.pmat("cloth", (24, 60, 140), (70, 120, 200), scale=0.3, bump=0.2, rough=0.8)
-    return ms + [cl]
+    sp = bpy.data.materials.get("signplate") or cmat.pmat("signplate", (128, 132, 136), (170, 174, 176), scale=0.4, bump=0.1, rough=0.45)
+    sf = bpy.data.materials.get("signframe") or cmat.pmat("signframe", (60, 62, 66), (90, 92, 96), scale=0.4, bump=0.1, rough=0.5)
+    return ms + [cl, sp, sf]
 
 def house(spec, name="house", z0=0.0):
     """builds one house and returns its object (placed on ground z0)."""
