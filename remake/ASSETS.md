@@ -2,7 +2,7 @@
 
 | # | Asset | Status | Recipe | Notes |
 |---|---|---|---|---|
-| 1 | Massan house A (room 592, the lone house west of the statue) | waiting for the user's verdict (2026-10-24 late) | `recipes/massan_house_proj.py` (+ `tools/rom_picture.py`) | ORIGINAL PIXELS projected (Scale2x), hidden sides mirrored; older tries: `recipes/massan_house.py` (own textures, pixel look), `recipes/hut.py` (first hut, superseded) |
+| 1 | Massan house A (room 592, the lone house west of the statue) | 2026-10-25: user not happy with the projection (odd from other angles); THREE STUDIES built, waiting for his choice | `recipes/massan_house_va.py` / `_vb.py` / `_vc.py` (shared `lib/massan_a.py`) | A = modelled house + tileable pixel swatches cut from the original (stepped light, outlines); B = voxels, 1 voxel = 1 game pixel, seen voxels take the original pixel, hidden ones a mirrored seen voxel; C = smooth toy diorama (procedural materials, AgX, DOF). Comparison sheet: `~/.landstalker_remake/assets/massan_house_varianten.png` (local). Older tries: `recipes/massan_house_proj.py` (projection), `recipes/massan_house.py` (own textures), `recipes/hut.py` |
 | 2 | Pine, bush / hedge | - | - | pixel foliage texture, cone stack with jitter; hedge = low rounded block |
 | 3 | Wooden fence: stakes, gate, corner | - | - | |
 | 4 | Stone steps and stones | - | - | |
