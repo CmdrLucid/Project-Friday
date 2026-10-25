@@ -25,7 +25,7 @@ def blob(name, mat, centre, scale):
     me.materials.append(mat); o = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(o); return o
 bone = bpy.data.materials["bone"]; drk = bpy.data.materials["dark"]
 import props_c                                                              # the animal skull of the original, hanging tilted over the doorway
-props_c.animal_skull(H.G(H.X1 + 4.0, ya + 2.0, 40.0), bone, drk, scale=1.45, yaw=45.0, pitch=48.0, roll=0.0)     # side on to the game camera: profile like the picture
+props_c.animal_skull(H.G(H.X1 + 5.0, ya + 2.0, 40.5), bone, drk, scale=1.9, yaw=45.0, pitch=18.0, roll=0.0, length=0.6)     # side on to the game camera: profile like the picture
 # ground: soft grass / dirt
 gm = cmat.pmat("ground", (120, 96, 52), (88, 116, 44), scale=0.02, detail=6.0, bump=0.1, rough=1.0)
 gme = bpy.data.meshes.new("ground"); b = bmesh.new(); s = 260

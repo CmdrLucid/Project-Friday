@@ -17,7 +17,7 @@ def _cone(bm, mat_i, base, direction, length, r):
     bmesh.ops.translate(bm, vec=base, verts=vs)
     for f in {f for v in vs for f in v.link_faces}: f.material_index = mat_i
 
-def animal_skull(pos, bone, dark, scale=1.0, yaw=0.0, pitch=45.0, roll=0.0, name="skull"):
+def animal_skull(pos, bone, dark, scale=1.0, yaw=0.0, pitch=45.0, roll=0.0, length=1.0, name="skull"):
     bm = bmesh.new()
     _blob(bm, 0, (0, 0, 0.2), (2.6, 2.3, 2.3))                  # brain case (rounded back of the head)
     _blob(bm, 0, (1.8, 0, 0.9), (2.2, 2.2, 1.5))                # brow / forehead
@@ -36,7 +36,8 @@ def animal_skull(pos, bone, dark, scale=1.0, yaw=0.0, pitch=45.0, roll=0.0, name
     _blob(bm, 0, (3.9, 0, -2.4), (2.9, 1.05, 0.45))             # lower jaw, a little open
     _blob(bm, 1, (4.1, 0, -1.55), (2.2, 0.85, 0.45))            # dark mouth gap
     M = mathutils.Matrix.Translation(pos) @ mathutils.Matrix.Rotation(math.radians(yaw), 4, "Z") @ mathutils.Matrix.Rotation(math.radians(roll), 4, "X") \
-        @ mathutils.Matrix.Rotation(math.radians(pitch), 4, "Y") @ mathutils.Matrix.Scale(scale, 4)
+        @ mathutils.Matrix.Rotation(math.radians(pitch), 4, "Y") @ mathutils.Matrix.Scale(scale, 4) \
+        @ mathutils.Matrix.Diagonal((length, 1.0, 1.0, 1.0))                          # length < 1 = a shorter skull (back of the head to the snout tip)
     bmesh.ops.transform(bm, matrix=M, verts=bm.verts)
     me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
     for p in me.polygons: p.use_smooth = True
