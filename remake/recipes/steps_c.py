@@ -39,6 +39,11 @@ def stump_row(bm, bm_body, x0, x1, y_front, depth, h, seed):
                 if v.co.z > top - 0.01:
                     v.co.z += sa * v.co.x + sb * v.co.y + (0.9 if math.hypot(v.co.x, v.co.y) < 0.01 else (rnd.random() - 0.5) * 0.5)
                 v.co.x *= 1 + (rnd.random() - 0.5) * 0.08; v.co.y *= 1 + (rnd.random() - 0.5) * 0.08
+            uvl = bm.loops.layers.uv.verify()                                    # the top cap: own material (growth rings) with a disc UV
+            for f in {f for v in vs for f in v.link_faces}:
+                if f.normal.z > 0.7:
+                    f.material_index = 1
+                    for l in f.loops: l[uvl].uv = (0.5 + l.vert.co.x / (2 * r), 0.5 + l.vert.co.y / (2 * r))
             lean = mathutils.Euler(((rnd.random() - 0.5) * 0.04, (rnd.random() - 0.5) * 0.04, rnd.random() * 6.28)).to_matrix()
             bmesh.ops.rotate(bm, cent=(0, 0, 0), matrix=lean, verts=vs)
             bmesh.ops.translate(bm, vec=G(xc, y0 + (rnd.random() - 0.5) * 1.4, 0), verts=vs)
@@ -82,7 +87,8 @@ for (h, yf, dp) in (((16.0, cy + 16, 16), (32.0, cy, 16)) if STYLE != "stumps" e
             for zc in (h - 4.6, h - 12.0):
                 if zc < 2: continue
                 seed += 1; rock(bst, G(xe, yf - 4 - k * 7.6 + (rnd.random() - 0.5), zc), 4.0, (0.85, 1.0, 0.95), seed)
-obj("step_stones", bst, cmat.get("stump" if STYLE == "stumps" else "stepstone")); obj("step_body", bbody, cmat.get("earth"))
+so = obj("step_stones", bst, cmat.get("stump" if STYLE == "stumps" else "stepstone"))
+so.data.materials.append(cmat.rings_mat() if STYLE == "stumps" else cmat.get("stepstone")); obj("step_body", bbody, cmat.get("earth"))
 pl = bmesh.new(); bmesh.ops.create_cube(pl, size=1.0)                         # preview only: the upper level (height 32) the steps lead up to
 bmesh.ops.scale(pl, vec=(x1 - x0 + 120, 120, 32), verts=pl.verts); bmesh.ops.translate(pl, vec=G(cx, cy - 16 - 60 + 1.5, 16), verts=pl.verts)
 obj("upper_level", pl, cmat.get("dirt"))

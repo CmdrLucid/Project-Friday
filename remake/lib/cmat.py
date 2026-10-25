@@ -83,6 +83,23 @@ LIB = {
     "clay":     ("red roof tiles (Mercator)", dict(c1=(156, 68, 40), c2=(204, 104, 62), scale=0.3, bump=0.4, rough=0.8, cells=0.18)),
     "plaster":  ("whitewashed walls (Mercator)", dict(c1=(214, 204, 184), c2=(240, 232, 214), scale=0.08, bump=0.15, rough=0.9)),
 }
+def rings_mat(name="stumptop", c1=(104, 116, 118), c2=(172, 180, 176), dark=(84, 74, 52), n=5.0):
+    """cut log top: grey weathered wood with growth rings around the UV centre (UV 0..1 over the disc), a darker rim and a little noise."""
+    m = bpy.data.materials.new(name); m.use_nodes = True; nt = m.node_tree; nt.nodes.clear(); L = nt.links.new
+    o = nt.nodes.new("ShaderNodeOutputMaterial"); b = nt.nodes.new("ShaderNodeBsdfPrincipled"); b.inputs["Roughness"].default_value = 0.85
+    tc = nt.nodes.new("ShaderNodeTexCoord"); sub = nt.nodes.new("ShaderNodeVectorMath"); sub.operation = "SUBTRACT"; sub.inputs[1].default_value = (0.5, 0.5, 0.0)
+    ln = nt.nodes.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"; L(tc.outputs["UV"], sub.inputs[0]); L(sub.outputs[0], ln.inputs[0])
+    nz = nt.nodes.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = 6.0; L(tc.outputs["UV"], nz.inputs["Vector"])
+    wob = nt.nodes.new("ShaderNodeMath"); wob.operation = "MULTIPLY_ADD"; L(nz.outputs["Fac"], wob.inputs[0]); wob.inputs[1].default_value = 0.06; L(ln.outputs["Value"], wob.inputs[2])
+    sn = nt.nodes.new("ShaderNodeMath"); sn.operation = "MULTIPLY"; L(wob.outputs[0], sn.inputs[0]); sn.inputs[1].default_value = 2 * math.pi * n
+    si = nt.nodes.new("ShaderNodeMath"); si.operation = "SINE"; L(sn.outputs[0], si.inputs[0])
+    mr = nt.nodes.new("ShaderNodeMapRange"); mr.inputs["From Min"].default_value = -1; mr.inputs["From Max"].default_value = 1; mr.inputs["To Min"].default_value = 0.25; mr.inputs["To Max"].default_value = 0.85; L(si.outputs[0], mr.inputs["Value"])
+    mix = nt.nodes.new("ShaderNodeMix"); mix.data_type = "RGBA"; mix.inputs[6].default_value = srgb(c1); mix.inputs[7].default_value = srgb(c2); L(mr.outputs["Result"], mix.inputs["Factor"])
+    rim = nt.nodes.new("ShaderNodeMapRange"); rim.inputs["From Min"].default_value = 0.4; rim.inputs["From Max"].default_value = 0.5; L(ln.outputs["Value"], rim.inputs["Value"])
+    mx2 = nt.nodes.new("ShaderNodeMix"); mx2.data_type = "RGBA"; L(rim.outputs["Result"], mx2.inputs["Factor"]); L(mix.outputs[2], mx2.inputs[6]); mx2.inputs[7].default_value = srgb(dark)
+    bm = nt.nodes.new("ShaderNodeBump"); bm.inputs["Strength"].default_value = 0.25; L(mr.outputs["Result"], bm.inputs["Height"]); L(bm.outputs["Normal"], b.inputs["Normal"])
+    L(mx2.outputs[2], b.inputs["Base Color"]); L(b.outputs["BSDF"], o.inputs["Surface"]); return m
+
 def get(name):
     if name in bpy.data.materials: return bpy.data.materials[name]
     return pmat(name, **LIB[name][1])
