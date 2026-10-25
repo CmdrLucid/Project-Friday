@@ -10,7 +10,8 @@
 | 6 | Props: barrel, crate, sign, well | - | - | |
 | 7 | More buildings: church, shop, tower | - | - | |
 
-Approval log: (none yet)
+Approval log:
+- 2026-10-25: asset 1 Massan house A in style C (`recipes/massan_house_vc.py`: open dark doorway, animal skull `lib/props_c.py`, smooth golden thatch with a straw knot, 1:1 the original's size) - user: 'passt'.
 
 ## HD textures (2D, user 2026-10-24: 'nicht 3D, nur HD')
 First experiment: pines of the forest room 563. `remake/tools/hd_enhance.py` (de-dither, Lanczos 4x, form light, needle detail; needs the venv `~/hdvenv` with pillow / numpy / scipy) and `remake/tools/hd_pack.py` (cuts the enhanced frame into HD tile pieces by an 'id pack' screenshot: every tile replaced by an image whose RGB encodes tile number + position) -> `~/.landstalker_remake/hd/pack_forest` (use with `LANDSTALKER_TILEPACK=dir LANDSTALKER_HD=1`). Result looks smooth, not pixelated; known flaw: a tile is cut from ONE place on screen, so the grass tiles show a faint grid (their neighbours differ). Verdict of the user: open.
