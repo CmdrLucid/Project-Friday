@@ -18,9 +18,9 @@ if VER not in s:
     a = "void platform_present_frame(const uint8_t *framebuffer) {"
     assert s.count(a) == 1
     module = r'''/* ---- LK_GAIA v1: Gaia effect without freezing the game (tools/patch_gaia.py) ---- */
-static int lk_gaia_v = -1;   /* Options > Gameplay > Gaia Effect Original / Live, default Original; file ~/.landstalker_gaia, env LANDSTALKER_GAIA=0|1 wins */
+static int lk_gaia_v = -1;   /* Options > Gameplay > Gaia Effect Original / Live, default Live since 2026-10-25; file ~/.landstalker_gaia, env LANDSTALKER_GAIA=0|1 wins */
 int lk_gaia_get(void) {
-    if (lk_gaia_v < 0) { char p[512]; FILE *f; const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_GAIA"); int v = 0; snprintf(p, sizeof p, "%s/.landstalker_gaia", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e) v = atoi(e); lk_gaia_v = v ? 1 : 0; }
+    if (lk_gaia_v < 0) { char p[512]; FILE *f; const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_GAIA"); int v = 1;   /* default On since 2026-10-25 */ snprintf(p, sizeof p, "%s/.landstalker_gaia", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 1; fclose(f); } if (e) v = atoi(e); lk_gaia_v = v ? 1 : 0; }
     return lk_gaia_v;
 }
 void lk_gaia_set(int v) { char p[512]; FILE *f; const char *h = getenv("HOME"); lk_gaia_get(); lk_gaia_v = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_gaia", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_gaia_v); fclose(f); } }
