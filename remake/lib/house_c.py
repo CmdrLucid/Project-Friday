@@ -51,11 +51,15 @@ class House:
         sp = s.sp; rnd = s.rnd; d = sp.get("door")
         logs = [-1.5 + 8 * k for k in range(int((s.ZE - 3.5) / 8) + 1)]
         M.box("dark", s.X0 + RL, s.X1 - RL, -(s.Y1 - RL), -(s.Y0 + RL), 0, s.ZE - 1)
+        holes = ([(d["side"], d["a0"], d["a1"], -9, d["top"])] if d else []) + \
+                [(q["side"], q["a"] - q.get("w", 10) / 2, q["a"] + q.get("w", 10) / 2, q["z"] - q.get("h", 12) / 2, q["z"] + q.get("h", 12) / 2) for q in sp.get("squares", [])]
         for side in "NSEW":
             L0, L1 = s.span(side)
             for zc in logs:
                 r = RL * (0.92 if rnd.random() > 0.5 else 0.88); segs = [(L0 - EXT, L1 + EXT)]
-                if d and side == d["side"] and zc - r < d["top"] + 1.0: segs = [(L0 - EXT, d["a0"]), (d["a1"], L1 + EXT)]
+                for (hs, a0, a1, z0, z1) in holes:                               # logs crossing an opening are cut (door, square windows)
+                    if hs != side or not (zc - r < z1 + 1.0 and zc + r > z0 + 1.0): continue
+                    segs = [q for a, b in segs for q in ((a, min(b, a0)), (max(a, a1), b)) if q[1] - q[0] > 1.0]
                 for a, b in segs:
                     M.cylinder("bark", G(*s.wall_pos(side, a, -RL, zc)), G(*s.wall_pos(side, b, -RL, zc)), r, n=nseg, cap="endgrain", density=den)
             posts = [L0 + 9, L0 + 16, L1 - 16, L1 - 9]                           # pairs 9 / 16 from each corner (house A)
@@ -64,7 +68,7 @@ class House:
             posts += [L0 + 16 + (L1 - L0 - 32) * (k + 1) / (n_mid + 1) for k in range(n_mid)]
             for a in sorted(posts):
                 if d and side == d["side"] and d["a0"] - 2 < a < d["a1"] + 2: continue
-                if any(w["side"] == side and abs(w["a"] - a) < w.get("R", 7.5) + 4 for w in sp.get("windows", []) + sp.get("boards", [])): continue   # no post across a window
+                if any(w["side"] == side and abs(w["a"] - a) < w.get("R", 7.5) + 4 for w in sp.get("windows", []) + sp.get("boards", []) + sp.get("squares", [])): continue   # no post across a window
                 top = s.ZE - 3 + rnd.random() * 1.2
                 M.cylinder("post", G(*s.wall_pos(side, a, POST_R - 0.6, -1)), G(*s.wall_pos(side, a, POST_R - 0.6, top)), POST_R, n=nseg, cap="endgrain", density=den)
                 M.cylinder("post", G(*s.wall_pos(side, a, POST_R - 0.6, top)), G(*s.wall_pos(side, a, POST_R - 0.6, top + 1.6)), POST_R * 0.7, n=nseg, cap="endgrain", density=den)
@@ -72,9 +76,9 @@ class House:
             sd = d["side"]
             M.face("dark", [G(*s.wall_pos(sd, d["a0"], -1.2, 0)), G(*s.wall_pos(sd, d["a1"], -1.2, 0)), G(*s.wall_pos(sd, d["a1"], -1.2, d["top"])), G(*s.wall_pos(sd, d["a0"], -1.2, d["top"]))][::-1] if sd in "ES" else
                    [G(*s.wall_pos(sd, d["a0"], -1.2, 0)), G(*s.wall_pos(sd, d["a1"], -1.2, 0)), G(*s.wall_pos(sd, d["a1"], -1.2, d["top"])), G(*s.wall_pos(sd, d["a0"], -1.2, d["top"]))], [(0, 0), (16, 0), (16, 16), (0, 16)])
-            M.cylinder("post", G(*s.wall_pos(sd, d["a0"] - 3, 1.2, d["top"] + 2.0)), G(*s.wall_pos(sd, d["a1"] + 3, 1.2, d["top"] + 2.0)), 2.7, n=nseg, cap="endgrain", density=den)
-            p0 = s.wall_pos(sd, d["a0"] - 1, 3.0, 0); p1 = s.wall_pos(sd, d["a1"] + 1, -2 * RL, 1.2)
-            M.box("post", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), 0, 1.2)
+        for (hs, a0, a1, z0, z1) in holes[1 if d else 0:]:                       # square windows: dark opening set back like the door (picture)
+            q = [G(*s.wall_pos(hs, a0, -1.2, z0)), G(*s.wall_pos(hs, a1, -1.2, z0)), G(*s.wall_pos(hs, a1, -1.2, z1)), G(*s.wall_pos(hs, a0, -1.2, z1))]
+            M.face("dark", q[::-1] if hs in "ES" else q, [(0, 0), (16, 0), (16, 16), (0, 16)])
         for w in sp.get("windows", []):                                          # round window: ring + dark hole
             R = w.get("R", 7.5); c0 = G(*s.wall_pos(w["side"], w["a"], 0.8, w["z"])); e1 = G(*s.wall_pos(w["side"], w["a"] + 1, 0.8, w["z"])); e2 = G(*s.wall_pos(w["side"], w["a"], 0.8, w["z"] + 1))
             M.torus("post", c0, tuple(e1[i] - c0[i] for i in range(3)), tuple(e2[i] - c0[i] for i in range(3)), R, 2.0, n=max(24, nseg * 2), m=8)
@@ -87,12 +91,14 @@ class House:
             for k in (-4.0, 0.0, 4.0):
                 M.cylinder("plank", G(*s.wall_pos(b["side"], a + k - 4.5, 1.6, z - 7)), G(*s.wall_pos(b["side"], a + k + 4.5, 1.6, z + 7)), 1.5, n=6, density=den)
         for bn in [sp["banner"]] if sp.get("banner") else []:                    # tower: a blue cloth hanging in two swags under a rod
-            a, z = bn["a"], bn["z"]
-            M.cylinder("post", G(*s.wall_pos(bn["side"], a - 11, 2.5, z)), G(*s.wall_pos(bn["side"], a + 11, 2.5, z)), 1.0, n=8, density=den)
+            a, z = bn["a"], bn["z"]; hw = bn.get("w", 7.0)                         # a blue cloth hanging out of a window: over the sill, down the wall
             for k in range(8):
-                u0, u1 = -10 + 20 * k / 8, -10 + 20 * (k + 1) / 8
-                sag = lambda u: 7.0 + 4.0 * math.sin(math.pi * (u + 10) / 10) ** 2
-                q = [s.wall_pos(bn["side"], a + u0, 2.2, z), s.wall_pos(bn["side"], a + u1, 2.2, z), s.wall_pos(bn["side"], a + u1, 2.6, z - sag(u1)), s.wall_pos(bn["side"], a + u0, 2.6, z - sag(u0))]
+                u0, u1 = -hw + 2 * hw * k / 8, -hw + 2 * hw * (k + 1) / 8
+                drop = lambda u: 10.0 + 4.0 * math.cos(math.pi * u / hw) + 1.5 * math.sin(3.1 * u)
+                for (o0, z0_, o1, z1_) in ((-1.5, z + 0.8, 1.8, z + 0.8), (1.8, z + 0.8, 2.4, z - 3.0)):          # over the sill
+                    q = [s.wall_pos(bn["side"], a + u0, o0, z0_), s.wall_pos(bn["side"], a + u1, o0, z0_), s.wall_pos(bn["side"], a + u1, o1, z1_), s.wall_pos(bn["side"], a + u0, o1, z1_)]
+                    M.face("cloth", [G(*p) for p in (q[::-1] if bn["side"] in "ES" else q)], [(0, 0), (1, 0), (1, 1), (0, 1)])
+                q = [s.wall_pos(bn["side"], a + u0, 2.4, z - 3.0), s.wall_pos(bn["side"], a + u1, 2.4, z - 3.0), s.wall_pos(bn["side"], a + u1, 2.0, z - 3.0 - drop(u1)), s.wall_pos(bn["side"], a + u0, 2.0, z - 3.0 - drop(u0))]
                 M.face("cloth", [G(*p) for p in (q[::-1] if bn["side"] in "ES" else q)], [(0, 0), (1, 0), (1, 1), (0, 1)])
         for sg in [sp["sign"]] if sp.get("sign") else []:                        # tower: a plank board with a pale plate
             a, z = sg["a"], sg["z"]
@@ -100,6 +106,9 @@ class House:
             M.box("plank", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), z - 6, z + 6)
             p0 = s.wall_pos(sg["side"], a - 4, 3.0, z - 4); p1 = s.wall_pos(sg["side"], a + 4, 3.4, z + 4)
             M.box("bone", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), z - 4, z + 4)
+            for (u0, u1, v0, v1) in ((-2.0, 2.0, -3.0, 0.6), (-1.2, 1.2, 0.6, 1.6), (-2.2, 2.2, 1.6, 2.4), (-0.6, 0.6, 2.4, 3.2)):   # the dark pictogram (a sack / jar)
+                p0 = s.wall_pos(sg["side"], a + u0, 3.4, z + v0); p1 = s.wall_pos(sg["side"], a + u1, 3.9, z + v1)
+                M.box("dark", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), z + v0, z + v1)
         # roof: eave roll + bulging hip roof
         off = sp.get("overhang", 1.5); hx = s.HXx + off; hy = s.HXy + off; hmin = min(s.HXx, s.HXy); LIP = sp.get("lip", 3.5); rings = []
         def rzz(t): return s.rz(t - off, hmin) if t >= off else s.ZE - (off - t) * 0.62
@@ -123,9 +132,18 @@ class House:
             zr = s.roof_z(hxp, hyp)
             M.box("thatch", hxp - 7, hxp + 7, -(hyp + 5), -(hyp - 5), zr + 2.0, zr + 4.2)
             M.box("under", hxp - 5, hxp + 5, -(hyp + 3.5), -(hyp - 3.5), zr - 1.0, zr + 2.0)
+        if sp.get("knot", True):                                                 # straw bundle on the top tied with a band (house A, ridge_knot)
+            kx, ky = s.CX, s.CY; zk = s.roof_z(kx, ky)
+            for k in range(10):
+                a0 = 2 * math.pi * k / 10; a1 = 2 * math.pi * (k + 1) / 10
+                for j in range(6):
+                    p = lambda a, jj: (kx + 5.5 * math.cos(a) * math.cos(math.pi / 2 * jj / 6), ky + 5.5 * math.sin(a) * math.cos(math.pi / 2 * jj / 6), zk - 2.5 + 4.5 * math.sin(math.pi / 2 * jj / 6))
+                    q = [p(a0, j), p(a1, j), p(a1, j + 1), p(a0, j + 1)]
+                    M.face("thatch", [G(*v) for v in q], [tex(v[0], v[1]) for v in q])
+            M.torus("post", G(kx, ky, zk - 1.2), (1, 0, 0), (0, 1, 0), 5.3, 0.6, n=24, m=6)
         if sp.get("sticks", True):                                               # crossed pairs of short sticks on the ridge (at both ridge ends if long)
             long_x = s.HXx >= s.HXy; ridge = abs(s.HXx - s.HXy)
-            spots = [(s.CX, s.CY)] if ridge < 8 else ([(s.CX - ridge * 0.6, s.CY)] if long_x else [(s.CX, s.CY - ridge * 0.6)])
+            spots = [(s.CX, s.CY)]
             for (sx, sy) in spots:
                 zr = s.roof_z(sx, sy)
                 for ax in (0, 1):

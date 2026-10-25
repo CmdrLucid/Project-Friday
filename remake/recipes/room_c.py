@@ -105,12 +105,13 @@ YAW = dict(E=0.0, N=90.0, W=180.0, S=-90.0)                                     
 import house_c
 # details of the Massan houses as seen in the original picture (box = height map cells incl. the doorway cell): windows, boarded windows, roof
 # hatches, tower banner / sign; everything else (footprint, door side / place, base height) comes from the room data
-MASSAN = {(11, 15, 10, 13): dict(boards=[("S", 0.3, 26)], ZT=60),                                   # terrace west: boarded window on the south wall
+MASSAN = {(11, 15, 10, 13): dict(boards=[("S", 0.3, 26)]),                                   # terrace west: boarded window on the south wall
           (11, 15, 6, 9): dict(hatches=[(0.0, 0.25)]),                                       # terrace middle: a smoke-hole cover
-          (20, 24, 9, 12): dict(hatches=[(0.1, 0.3)]),
+          (20, 24, 9, 12): dict(hatches=[(0.1, 0.3)], squares=[("S", 0.25, 26)]),                   # front right: a square window south (user: one was missing)
           (20, 24, 4, 8): dict(),
           (22, 26, 17, 23): dict(boards=[("S", 0.2, 26)], windows=[("E", 0.45, 27)], hatches=[(0.0, 0.3), (0.05, 0.62)]),
-          (11, 15, 2, 5): dict(windows=[("S", 0.4, 40), ("S", 0.4, 78)], banner=("E", 0.4, 96), sign=("E", 0.55, 76), ZE=110, ZT=120)}
+          (11, 15, 2, 5): dict(windows=[("S", 0.5, 70), ("S", 0.5, 92)], squares=[("E", 0.45, 86)], banner=("E", 0.45, 80), ZE=110, ZT=137)}   # tower: two centred round windows,
+# the cloth hangs out of the east window, the sign above the door (placed in spec_of)
 def spec_of(gr):
     x0, x1, y0, y1 = gr["box"]; d = gr["doors"][0]
     sp = dict(X0=16 * (x0 + RD.OFF) + 3, X1=16 * (x1 + 1 + RD.OFF) - 3, Y0=16 * (y0 + RD.OFF) + 3, Y1=16 * (y1 + 1 + RD.OFF) - 3, seed=x0 * 100 + y0)
@@ -123,10 +124,12 @@ def spec_of(gr):
     sp["hatches"] = [((sp["X0"] + sp["X1"]) / 2 + (sp["X1"] - sp["X0"]) * hx_, sp["Y0"] + (sp["Y1"] - sp["Y0"]) * hy_) for hx_, hy_ in ex.get("hatches", [])]
     for k in ("banner", "sign"):
         if k in ex: sp[k] = dict(side=ex[k][0], a=along(ex[k][0], ex[k][1]), z=ex[k][2])
-    sp.update(flat=0.5, overhang=0.0, eave_out=2.5, ZT=60.0)                    # the other Massan roofs: low and flat on top, little overhang (picture)
+    sp.update(overhang=1.5, lip=3.5, ZT=77.0)                                   # roofs like house A (user 2026-10-25)
+    sp["squares"] = [dict(side=w[0], a=along(w[0], w[1]), z=w[2]) for w in ex.get("squares", [])]
     for k in ("ZE", "ZT"):
         if k in ex: sp[k] = ex[k]
-    if gr["cls"] == "tower" and "ZE" not in ex: sp["ZE"] = 16.0 * gr["rel"] - 2; sp["ZT"] = sp["ZE"] + 18
+    if gr["cls"] == "tower" and "ZE" not in ex: sp["ZE"] = 16.0 * gr["rel"] - 2; sp["ZT"] = sp["ZE"] + 27
+    if gr["cls"] == "tower": sp["sign"] = dict(side=side, a=(sp["door"]["a0"] + sp["door"]["a1"]) / 2, z=sp["door"]["top"] + 9)   # right above the door
     return sp
 first = True
 for gr in R["groups"]:
