@@ -63,13 +63,14 @@ def bushes(cells, Hh=16.0, name="bushes"):
     bm = bmesh.new(); bs = bmesh.new(); seed = 100
     for (cx, cy) in cells:
         seed += 1; x = cx + 8 + (rnd.random() - 0.5) * 1.2; y = cy + 8 + (rnd.random() - 0.5) * 1.2
-        r = 7.3 + rnd.random() * 0.5; sz = 0.72; zc = Hh + 1.0 - r * sz
+        r = 7.3 + rnd.random() * 0.5; sz = 0.6; zc = Hh + 1.0 - r * sz
         clump(bm, G(x, y, zc), r, sz, seed)                                     # the crown
         for k in range(5):                                                      # leaf lumps on the crown: a rounder, leafy outline
             seed += 1; a = 2 * math.pi * k / 5 + rnd.random(); rr = 2.8 + rnd.random() * 1.0
             clump(bm, G(x + 4.6 * math.cos(a), y + 4.6 * math.sin(a), zc + 0.6 + rnd.random()), rr, 0.85, seed)
         zb = zc - r * sz + 1.0                                                  # bottom of the crown
-        for (a, b, rad) in (((0, 0, 0), (0, 0, 3.0), 1.3), ((0, 0, 2.6), (-3.0, 1.4, zb + 2.0), 0.9), ((0, 0, 2.6), (2.8, -1.6, zb + 2.0), 0.9), ((0, 0, 2.6), (0.8, 2.8, zb + 1.5), 0.7)):
+        for (a, b, rad) in (                                          # Y fork: the main pair spreads across the game camera's view (game x = -y), a thinner pair the other way
+                ((0, 0, 0), (0, 0, 2.2), 1.5), ((0, 0, 1.9), (-3.4, 3.4, zb + 2.2), 1.05), ((0, 0, 1.9), (3.4, -3.4, zb + 2.2), 1.05), ((0, 0, 1.9), (2.2, 2.2, zb + 1.8), 0.75), ((0, 0, 1.9), (-2.2, -2.2, zb + 1.8), 0.75)):
             pa = G(x + a[0], y + a[1], a[2]); pb = G(x + b[0], y + b[1], b[2])
             import mathutils
             A = mathutils.Vector(pa); B = mathutils.Vector(pb); d = B - A

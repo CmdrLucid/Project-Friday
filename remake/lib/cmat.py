@@ -70,7 +70,7 @@ LIB = {
     "needles":  ("pine foliage", dict(c1=(22, 104, 42), c2=(96, 178, 66), scale=0.3, stretch=(1, 1, 2), detail=8.0, bump=0.9, rough=0.95)),
     "leaves":   ("hedges, bushes", dict(c1=(36, 104, 28), c2=(98, 150, 40), scale=0.25, detail=8.0, bump=0.9, rough=0.95)),
     "shrub":    ("bush crowns (dark green, lit lumps)", dict(c1=(8, 58, 24), c2=(58, 132, 40), scale=0.3, detail=8.0, bump=0.8, rough=0.95)),
-    "stem":     ("dark bush stems", dict(c1=(70, 52, 22), c2=(110, 84, 36), scale=0.4, stretch=(1, 1, 4), bump=0.2)),
+    "stem":     ("bush stems", dict(c1=(118, 78, 34), c2=(168, 118, 58), scale=0.4, stretch=(1, 1, 4), bump=0.2)),
     "clay":     ("red roof tiles (Mercator)", dict(c1=(156, 68, 40), c2=(204, 104, 62), scale=0.3, bump=0.4, rough=0.8, cells=0.18)),
     "plaster":  ("whitewashed walls (Mercator)", dict(c1=(214, 204, 184), c2=(240, 232, 214), scale=0.08, bump=0.15, rough=0.9)),
 }
