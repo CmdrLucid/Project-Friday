@@ -8,7 +8,7 @@ import bpy
 
 def srgb(c): return tuple(((v / 255) / 12.92 if v / 255 <= 0.04045 else ((v / 255 + 0.055) / 1.055) ** 2.4) for v in c) + (1.0,)
 
-def pmat(name, c1, c2, scale=0.15, detail=4.0, bump=0.3, stretch=(1, 1, 1), rough=0.75, streaks=0.0, cells=0.0, seam=(30, 26, 20), strata=0.0, gloss=False, alpha=1.0):
+def pmat(name, c1, c2, scale=0.15, detail=4.0, bump=0.3, stretch=(1, 1, 1), rough=0.75, streaks=0.0, cells=0.0, seam=(30, 26, 20), strata=0.0, gloss=False, alpha=1.0, top=None, top_from=0.35, top_to=0.85):
     m = bpy.data.materials.new(name); m.use_nodes = True; nt = m.node_tree; nt.nodes.clear(); L = nt.links.new
     o = nt.nodes.new("ShaderNodeOutputMaterial"); b = nt.nodes.new("ShaderNodeBsdfPrincipled"); b.inputs["Roughness"].default_value = rough
     tc = nt.nodes.new("ShaderNodeTexCoord"); mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (scale / stretch[0], scale / stretch[1], scale / stretch[2])
@@ -39,6 +39,12 @@ def pmat(name, c1, c2, scale=0.15, detail=4.0, bump=0.3, stretch=(1, 1, 1), roug
         inv = nt.nodes.new("ShaderNodeMath"); inv.operation = "SUBTRACT"; inv.inputs[0].default_value = 1.0; L(sr.outputs["Result"], inv.inputs[1])
         L(inv.outputs[0], mix.inputs["Factor"]); L(colour, mix.inputs[6]); colour = mix.outputs[2]
         mul = nt.nodes.new("ShaderNodeMath"); mul.operation = "MULTIPLY"; L(sr.outputs["Result"], mul.inputs[0]); L(height, mul.inputs[1]); height = mul.outputs[0]
+    if top:                                                                      # faces looking up get another colour (stone tops grey, sides earthy)
+        geo = nt.nodes.new("ShaderNodeNewGeometry"); sep = nt.nodes.new("ShaderNodeSeparateXYZ"); L(geo.outputs["Normal"], sep.inputs["Vector"])
+        mr = nt.nodes.new("ShaderNodeMapRange"); mr.inputs["From Min"].default_value = top_from; mr.inputs["From Max"].default_value = top_to; L(sep.outputs["Z"], mr.inputs["Value"])
+        mix = nt.nodes.new("ShaderNodeMix"); mix.data_type = "RGBA"; L(mr.outputs["Result"], mix.inputs["Factor"]); L(colour, mix.inputs[6])
+        tr = nt.nodes.new("ShaderNodeMix"); tr.data_type = "RGBA"; tr.inputs[6].default_value = srgb(top[0]); tr.inputs[7].default_value = srgb(top[1]); L(nz.outputs["Fac"], tr.inputs["Factor"])
+        L(tr.outputs[2], mix.inputs[7]); colour = mix.outputs[2]
     L(colour, b.inputs["Base Color"]); L(height, bm.inputs["Height"]); L(bm.outputs["Normal"], b.inputs["Normal"])
     if gloss:
         b.inputs["Roughness"].default_value = 0.06
@@ -71,6 +77,8 @@ LIB = {
     "leaves":   ("hedges, bushes", dict(c1=(36, 104, 28), c2=(98, 150, 40), scale=0.25, detail=8.0, bump=0.9, rough=0.95)),
     "shrub":    ("bush crowns (dark green, lit lumps)", dict(c1=(8, 58, 24), c2=(58, 132, 40), scale=0.3, detail=8.0, bump=0.8, rough=0.95)),
     "stem":     ("bush stems", dict(c1=(118, 78, 34), c2=(168, 118, 58), scale=0.4, stretch=(1, 1, 4), bump=0.2)),
+    "stepstone":("rounded step stones: grey-blue tops, earthy sides (Massan steps)", dict(c1=(112, 84, 44), c2=(168, 132, 76), scale=0.25, detail=5.0, bump=0.5, rough=0.85, top=((104, 120, 128), (170, 182, 186)))),
+    "earth":    ("packed earth behind stone walls", dict(c1=(70, 52, 28), c2=(104, 80, 44), scale=0.1, detail=6.0, bump=0.3, rough=1.0)),
     "clay":     ("red roof tiles (Mercator)", dict(c1=(156, 68, 40), c2=(204, 104, 62), scale=0.3, bump=0.4, rough=0.8, cells=0.18)),
     "plaster":  ("whitewashed walls (Mercator)", dict(c1=(214, 204, 184), c2=(240, 232, 214), scale=0.08, bump=0.15, rough=0.9)),
 }
