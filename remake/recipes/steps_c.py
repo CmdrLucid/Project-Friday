@@ -23,18 +23,25 @@ def stump_row(bm, bm_body, x0, x1, y_front, depth, h, seed):
     """Massan variant (user 2026-10-25: 'sieht eher nach Baumstaemmen im Boden aus'): the step is rows of UPRIGHT LOG STUMPS set in the ground,
     tops at h (+-0.7, slightly domed, weathered grey), rows 7.5 apart and staggered, radius ~3.6."""
     bmesh.ops.create_cube(bm_body, size=1.0); vs = bm_body.verts[-8:]
-    bmesh.ops.scale(bm_body, vec=(x1 - x0 - 2, depth - 2, h - 2), verts=vs); bmesh.ops.translate(bm_body, vec=G((x0 + x1) / 2, y_front - depth / 2, (h - 2) / 2), verts=vs)
+    bmesh.ops.scale(bm_body, vec=(x1 - x0 - 8, depth - 7, h - 3), verts=vs); bmesh.ops.translate(bm_body, vec=G((x0 + x1) / 2, y_front - 3.5 - (depth - 7) / 2, (h - 3) / 2), verts=vs)   # core behind the stump centres
     rows = max(1, int(depth / 7.5))
     for j in range(rows):
-        y = y_front - 3.7 - j * 7.5; off = 3.7 if j % 2 else 0.0
-        n = int((x1 - x0 - off) / 7.4)
-        for k in range(n):
-            seed += 1; x = x0 + 3.7 + off + k * 7.4 + (rnd.random() - 0.5) * 0.8; r = 3.4 + rnd.random() * 0.4; top = h + (rnd.random() - 0.5) * 1.4
-            res = bmesh.ops.create_cone(bm, cap_ends=True, segments=14, radius1=r, radius2=r * 0.96, depth=top + 1.0)
+        y0 = y_front - 3.7 - j * 7.5; x = x0 + 2.5 + (3.0 if j % 2 else 0.0) * rnd.random()
+        while x < x1 - 2.5:
+            seed += 1; r = 3.1 + rnd.random() * 1.1                               # irregular like the original: sizes, heights, lean, slanted cuts
+            xc = x + r; x = xc + r + rnd.random() * 0.6
+            if xc > x1 - 1.5: break
+            top = h + (rnd.random() - 0.5) * 2.2 - (1.2 if rnd.random() < 0.12 else 0.0)
+            res = bmesh.ops.create_cone(bm, cap_ends=True, segments=12, radius1=r * (1.0 + rnd.random() * 0.1), radius2=r * (0.88 + rnd.random() * 0.1), depth=top + 1.0)
             vs = res["verts"]; bmesh.ops.translate(bm, vec=(0, 0, (top + 1.0) / 2 - 1.0), verts=vs)
-            for v in vs:                                                         # dome the top a little, uneven cut
-                if v.co.z > top - 0.01 and math.hypot(v.co.x, v.co.y) < 0.01: v.co.z += 0.8
-            bmesh.ops.translate(bm, vec=G(x, y + (rnd.random() - 0.5) * 0.8, 0), verts=vs)
+            sa, sb = (rnd.random() - 0.5) * 0.25, (rnd.random() - 0.5) * 0.25   # slanted, uneven top cut
+            for v in vs:
+                if v.co.z > top - 0.01:
+                    v.co.z += sa * v.co.x + sb * v.co.y + (0.9 if math.hypot(v.co.x, v.co.y) < 0.01 else (rnd.random() - 0.5) * 0.5)
+                v.co.x *= 1 + (rnd.random() - 0.5) * 0.08; v.co.y *= 1 + (rnd.random() - 0.5) * 0.08
+            lean = mathutils.Euler(((rnd.random() - 0.5) * 0.07, (rnd.random() - 0.5) * 0.07, rnd.random() * 6.28)).to_matrix()
+            bmesh.ops.rotate(bm, cent=(0, 0, 0), matrix=lean, verts=vs)
+            bmesh.ops.translate(bm, vec=G(xc, y0 + (rnd.random() - 0.5) * 1.4, 0), verts=vs)
     return seed
 
 def step_row(bm_st, bm_body, x0, x1, y_front, depth, h, seed):
