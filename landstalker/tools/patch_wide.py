@@ -30,7 +30,7 @@ if "LANDSTALKER_WIDE" not in s:
 int lk_wide_e = 0;
 __attribute__((constructor)) static void lk_wide_init(void)
 {
-  int v = 0;
+  int v = 39;   /* default 16:9 (398 px) since 2026-10-25; a saved ~/.landstalker_display or LANDSTALKER_WIDE wins */
   const char *e = getenv("LANDSTALKER_WIDE");
   if (e && *e) v = atoi(e);
   else {

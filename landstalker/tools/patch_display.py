@@ -48,6 +48,7 @@ static const char *lk_fx_names[LK_FX_N] = { "OFF", "SCANLINES", "CRT", "CRT PRO"
 static void lk_disp_path(char *out, size_t n) { const char *h = getenv("HOME"); snprintf(out, n, "%s/.landstalker_display", h ? h : "."); }
 static void lk_disp_load(void) {
     char path[600]; lk_disp_loaded = 1; lk_disp_path(path, sizeof(path));
+    lk_fx_mode = 3;   /* default filter CRT Pro since 2026-10-25 (a saved file wins) */
     FILE *f = fopen(path, "r");
     if (f) { int a = 0, b = 0; if (fscanf(f, "%d %d", &a, &b) == 2) { if (a >= 0 && a < LK_SC_N) lk_scale_mode = a; if (b >= 0 && b < LK_FX_N) lk_fx_mode = b; } fclose(f); }
 }
