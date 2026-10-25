@@ -31,15 +31,15 @@ def stump_row(bm, bm_body, x0, x1, y_front, depth, h, seed):
             seed += 1; r = 3.1 + rnd.random() * 1.1                               # irregular like the original: sizes, heights, lean, slanted cuts
             xc = x + r; x = xc + r + rnd.random() * 0.6
             if xc > x1 - 1.5: break
-            top = h + (rnd.random() - 0.5) * 2.2 - (1.2 if rnd.random() < 0.12 else 0.0)
+            top = h - 0.4 + (rnd.random() - 0.5) * 0.4                                 # same height for all stumps, like the original
             res = bmesh.ops.create_cone(bm, cap_ends=True, segments=12, radius1=r * (1.0 + rnd.random() * 0.1), radius2=r * (0.88 + rnd.random() * 0.1), depth=top + 1.0)
             vs = res["verts"]; bmesh.ops.translate(bm, vec=(0, 0, (top + 1.0) / 2 - 1.0), verts=vs)
-            sa, sb = (rnd.random() - 0.5) * 0.25, (rnd.random() - 0.5) * 0.25   # slanted, uneven top cut
+            sa, sb = (rnd.random() - 0.5) * 0.08, (rnd.random() - 0.5) * 0.08   # slanted, uneven top cut
             for v in vs:
                 if v.co.z > top - 0.01:
                     v.co.z += sa * v.co.x + sb * v.co.y + (0.9 if math.hypot(v.co.x, v.co.y) < 0.01 else (rnd.random() - 0.5) * 0.5)
                 v.co.x *= 1 + (rnd.random() - 0.5) * 0.08; v.co.y *= 1 + (rnd.random() - 0.5) * 0.08
-            lean = mathutils.Euler(((rnd.random() - 0.5) * 0.07, (rnd.random() - 0.5) * 0.07, rnd.random() * 6.28)).to_matrix()
+            lean = mathutils.Euler(((rnd.random() - 0.5) * 0.04, (rnd.random() - 0.5) * 0.04, rnd.random() * 6.28)).to_matrix()
             bmesh.ops.rotate(bm, cent=(0, 0, 0), matrix=lean, verts=vs)
             bmesh.ops.translate(bm, vec=G(xc, y0 + (rnd.random() - 0.5) * 1.4, 0), verts=vs)
     return seed
