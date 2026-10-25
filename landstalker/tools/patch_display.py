@@ -119,7 +119,7 @@ static void lk_eq_overlay(int ow, int oh) {   /* Quick Equip held: the four kind
     static const int cx[4] = { 1, 2, 1, 0 }, cy[4] = { 0, 1, 2, 1 }; static const char *lt = "SABR";
     static const char *nm[4][4] = { { "MAGIC", "THUNDER", "ICE", "GAIA" }, { "STEEL", "CHROME", "SHELL", "HYPER" }, { "HEALING", "FIREPROOF", "IRON", "SPIKE" }, { "SATURN", "MARS", "MOON", "VENUS" } };
     static const uint8_t lay[4][4] = { { 1, 3, 2, 4 }, { 9, 10, 11, 12 }, { 7, 5, 6, 8 }, { 15, 13, 14, 16 } };
-    static const char *dn[4] = { "BROAD SWORD", "LEATHER BREAST", "LEATHER BOOTS", "NONE" };   /* starting equipment */
+    static const char *dn[4] = { "BROAD SWORD", "LEATHER", "LEATHER", "NONE" };   /* starting equipment (the menu says Leather Breast / Leather Boots; shortened to fit the cells) */
     int ip = oh / 200; if (ip < 2) ip = 2;
     int cw = 26 * ip, ch = 24 * ip, px = oh / 120; if (px < 2) px = 2; int ts = ip > 3 ? ip / 2 : 1;   /* text pixel size */
     int m = 2 * px, bh = 9 * px, x0 = m, y0 = oh - bh - 2 * m - 3 * ch - m;
@@ -134,14 +134,16 @@ static void lk_eq_overlay(int ow, int oh) {   /* Quick Equip held: the four kind
           if (any) lk_eq_icon(idx >= 0 ? id : 0x3A + k, cell.x + (cw - 16 * ip) / 2, cell.y + ip, ip, 0); else lk_eq_text(cell.x + (cw - 6 * ts) / 2, cell.y + 4 * ip, (char[]){ lt[k], 0 }, ip, 255, 255, 255); }
         { const char *nn = idx >= 0 ? nm[k][idx] : dn[k]; int n = (int)strlen(nn), sc = n * 6 * ts > cw - 2 ? 1 : ts; lk_eq_text(cell.x + (cw - n * 6 * sc) / 2, cell.y + ch - 9 * ts, nn, sc, 230, 230, 230); }
     }
-    if (lk_eq_flash_cat >= 0 && lk_eq_flash_frames > 0) {   /* candidate strip of the changed kind, right of the cross */
-        int k = lk_eq_flash_cat, sx = x0 + 3 * cw + 2 * m, sy = y0 + cy[k] * ch, sw = 20 * ip;
-        for (int q = 0; q < 4; q++) {
-            SDL_Rect c = { sx + q * (sw + ip), sy, sw, ch }; int id = lay[k][q], own = lk_eq_own[k * 4 + q], cur = (bus_read8(0xFF114Eu + (uint32_t)k) == id);
+    if (lk_eq_flash_cat >= 0 && lk_eq_flash_frames > 0) {   /* candidate strip of the changed kind, right of the cross: the starting equipment first, then the four pieces */
+        int k = lk_eq_flash_cat, sx = x0 + 3 * cw + 2 * m, sy = y0 + cy[k] * ch, sw = 23 * ip, curid = bus_read8(0xFF114Eu + (uint32_t)k), curin = 0;
+        for (int q = 0; q < 4; q++) if (lay[k][q] == curid) curin = 1;
+        for (int q = 0; q < 5; q++) {
+            SDL_Rect c = { sx + q * (sw + ip), sy, sw, ch }; int id = q ? lay[k][q - 1] : 0x3A + k, own = q ? lk_eq_own[k * 4 + q - 1] : 1, cur = q ? (curid == id) : !curin;
+            const char *nn = q ? nm[k][q - 1] : dn[k];
             SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 200); SDL_RenderFillRect(s_renderer, &c);
             lk_eq_frame(c, ip, cur ? 255 : 80, cur ? 220 : 80, cur ? 60 : 80);
             lk_eq_icon(id, c.x + (sw - 16 * ip) / 2, c.y + ip, ip, !own);
-            if (own) { int n = (int)strlen(nm[k][q]); int sc = n * 6 * ts > sw ? 1 : ts; lk_eq_text(c.x + (sw - n * 6 * sc) / 2, c.y + ch - 9 * ts, nm[k][q], sc, own ? 230 : 110, own ? 230 : 110, own ? 230 : 110); }
+            if (own) { int n = (int)strlen(nn); int sc = n * 6 * ts > sw ? 1 : ts; lk_eq_text(c.x + (sw - n * 6 * sc) / 2, c.y + ch - 9 * ts, nn, sc, 230, 230, 230); }
         }
     }
     (void)ow;

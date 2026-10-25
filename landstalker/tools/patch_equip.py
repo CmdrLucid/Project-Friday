@@ -57,11 +57,14 @@ static void lk_eq_apply(int cat) {
     static const char *kind[4] = { "SWORD", "ARMOUR", "BOOTS", "RING" };
     int cur = bus_read8(0xFF114Eu + (uint32_t)cat), idx = -1, k, j = -1; char t[48];
     if (!lk_osd_equip_armed(cat)) { lk_osd_equip_flash(cat); return; }   /* first press of a direction only shows the pieces (user: switched by accident too often), the second press switches */
+    static const char *dnm[4] = { "BROAD SWORD", "LEATHER BREAST", "LEATHER BOOTS", "NONE" };   /* position 0 of every row = the starting equipment (equipped byte 0, cursor nibble 0), always owned */
     for (k = 0; k < 4; k++) if (lay[cat][k] == cur) idx = k;
-    for (k = 1; k <= 4 && j < 0; k++) { int c = (idx + k + 4) % 4; if (lay[cat][c] != cur && lk_eq_owned(lay[cat][c])) j = c; }
+    j = -2;
+    for (k = 1; k <= 5 && j < 0; k++) { int c = ((idx + 1) + k) % 5; if (c == 0 || lk_eq_owned(lay[cat][c - 1])) j = c; }   /* j = position 0..4 (0 = starting equipment); wraps through the current one last */
+    if (j == idx + 1) j = -1;
     if (j < 0) { lk_snd(0x00DBBEu); snprintf(t, sizeof t, "NO OTHER %s", kind[cat]); lk_osd_say(t); return; }
-    { uint16_t w = bus_read16(0xFF1BF0u); w = (uint16_t)((w & ~(0xFu << (4 * cat))) | ((uint16_t)(j + 1) << (4 * cat))); bus_write16(0xFF1BF0u, w); }
-    bus_write8(0xFF114Eu + (uint32_t)cat, lay[cat][j]);
+    { uint16_t w = bus_read16(0xFF1BF0u); w = (uint16_t)((w & ~(0xFu << (4 * cat))) | ((uint16_t)j << (4 * cat))); bus_write16(0xFF1BF0u, w); }
+    bus_write8(0xFF114Eu + (uint32_t)cat, j ? lay[cat][j - 1] : 0);
     { M68kContext sv = g_m68k;
       if (cat == 0) { bus_write16(0xFF120Au, 0); lk_call(0x0103AEu); lk_call(0x01036Cu); lk_call(0x010340u); }
       if (cat == 1) lk_call(0x0076ECu);
@@ -72,8 +75,8 @@ static void lk_eq_apply(int cat) {
       g_m68k = sv; }
     lk_osd_equip_flash(cat);
     lk_snd(LK_SND_SELECT);
-    snprintf(t, sizeof t, "%s: %s", kind[cat], nm[cat][j]); lk_osd_say(t);
-    if (getenv("LANDSTALKER_EQ_DEBUG")) fprintf(stderr, "equip: category %d -> item %d (index %d)\n", cat, lay[cat][j], j + 1);
+    snprintf(t, sizeof t, "%s: %s", kind[cat], j ? nm[cat][j - 1] : dnm[cat]); lk_osd_say(t);
+    if (getenv("LANDSTALKER_EQ_DEBUG")) fprintf(stderr, "equip: category %d -> item %d (index %d)\n", cat, j ? lay[cat][j - 1] : 0, j);
 }
 uint8_t lk_eq_own[16];   /* ownership of the 16 equipment pieces (sword 0..3, armour 4..7, boots 8..11, ring 12..15 in layout order), refreshed by the game side; read by the overlay */
 static const uint8_t lk_eq_ids[16] = { 1, 3, 2, 4, 9, 10, 11, 12, 7, 5, 6, 8, 15, 13, 14, 16 };
