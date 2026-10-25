@@ -3015,36 +3015,6 @@
    "class": "other"
   },
   {
-   "addr": "0x00D3BE",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1121",
-     "date": "2026-10-24",
-     "snippet": "* `tools/patch_iteminfo.py`, Options > Gameplay > Item Info Off / On (default Off, `~/.landstalker_iteminfo`, env `LANDSTALKER_ITEMINFO`, `L"
-    },
-    {
-     "type": "doc",
-     "where": "FORMATS.md:136",
-     "date": "2026-10-24",
-     "snippet": "- V: Equip grid (loop `$00EAD4`): cursor column `$FF2C18` (0..4), row `$FF2C1A` (0..3 = sword, armour, boots, ring); cell item ids = ROM `Eq"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 2,
-   "class": "other"
-  },
-  {
    "addr": "0x00D400",
    "first_seen": "2026-10-20",
    "hits": 0,
@@ -3295,23 +3265,6 @@
      "where": "FORMATS.md:203",
      "date": "2026-10-24",
      "snippet": "- V (2026-10-20): the intro caption ('GAMUL DATE 312 / JYPTA RUINS', 'LANDSTALKER') is drawn by 8 SPRITES (size `$0D`, tiles `$E78C..$E7C4` "
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "other"
-  },
-  {
-   "addr": "0x00EAD4",
-   "first_seen": "2026-10-16",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "FORMATS.md:136",
-     "date": "2026-10-24",
-     "snippet": "- V: Equip grid (loop `$00EAD4`): cursor column `$FF2C18` (0..4), row `$FF2C1A` (0..3 = sword, armour, boots, ring); cell item ids = ROM `Eq"
     }
    ],
    "callers": [],
@@ -4534,24 +4487,6 @@
    "mentions": 1,
    "class": "code",
    "class_by": "hand"
-  },
-  {
-   "addr": "0x022E8C",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 0,
-   "class": "other"
   },
   {
    "addr": "0x023132",
