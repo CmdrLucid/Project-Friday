@@ -102,16 +102,39 @@ print("grass tufts", len(pts), flush=True)
 ha = kit_c.house_a(); A_BOX = (6, 10, 15, 19)                                    # house A's own cells in room 592 (lib/massan_a.py measures)
 A_C = (16 * (A_BOX[0] + A_BOX[1] + 1) / 2 + O, 16 * (A_BOX[2] + A_BOX[3] + 1) / 2 + O)
 YAW = dict(E=0.0, N=90.0, W=180.0, S=-90.0)                                      # house A's door looks east (+x)
+import house_c
+# details of the Massan houses as seen in the original picture (box = height map cells incl. the doorway cell): windows, boarded windows, roof
+# hatches, tower banner / sign; everything else (footprint, door side / place, base height) comes from the room data
+MASSAN = {(11, 15, 10, 13): dict(boards=[("S", 0.3, 26)], ZT=60),                                   # terrace west: boarded window on the south wall
+          (11, 15, 6, 9): dict(hatches=[(0.0, 0.25)]),                                       # terrace middle: a smoke-hole cover
+          (20, 24, 9, 12): dict(hatches=[(0.1, 0.3)]),
+          (20, 24, 4, 8): dict(),
+          (22, 26, 17, 23): dict(boards=[("S", 0.2, 26)], windows=[("E", 0.45, 27)], hatches=[(0.0, 0.3), (0.05, 0.62)]),
+          (11, 15, 2, 5): dict(windows=[("S", 0.4, 40), ("S", 0.4, 78)], banner=("E", 0.4, 96), sign=("E", 0.55, 76), ZE=110, ZT=120)}
+def spec_of(gr):
+    x0, x1, y0, y1 = gr["box"]; d = gr["doors"][0]
+    sp = dict(X0=16 * (x0 + RD.OFF) + 3, X1=16 * (x1 + 1 + RD.OFF) - 3, Y0=16 * (y0 + RD.OFF) + 3, Y1=16 * (y1 + 1 + RD.OFF) - 3, seed=x0 * 100 + y0)
+    side = gr["door_side"]; ca = 16 * ((d[1] if side in "EW" else d[0]) + RD.OFF)
+    sp["door"] = dict(side=side, a0=ca + 2.0, a1=ca + 18.0, top=35.0)
+    ex = MASSAN.get((x0, x1, y0, y1), {}) if ROOM == 592 else {}
+    def along(side_, f): L0, L1 = (sp["X0"], sp["X1"]) if side_ in "NS" else (sp["Y0"], sp["Y1"]); return L0 + (L1 - L0) * f
+    sp["windows"] = [dict(side=w[0], a=along(w[0], w[1]), z=w[2]) for w in ex.get("windows", [])]
+    sp["boards"] = [dict(side=w[0], a=along(w[0], w[1]), z=w[2]) for w in ex.get("boards", [])]
+    sp["hatches"] = [((sp["X0"] + sp["X1"]) / 2 + (sp["X1"] - sp["X0"]) * hx_, sp["Y0"] + (sp["Y1"] - sp["Y0"]) * hy_) for hx_, hy_ in ex.get("hatches", [])]
+    for k in ("banner", "sign"):
+        if k in ex: sp[k] = dict(side=ex[k][0], a=along(ex[k][0], ex[k][1]), z=ex[k][2])
+    sp.update(flat=0.5, overhang=0.0, eave_out=2.5, ZT=60.0)                    # the other Massan roofs: low and flat on top, little overhang (picture)
+    for k in ("ZE", "ZT"):
+        if k in ex: sp[k] = ex[k]
+    if gr["cls"] == "tower" and "ZE" not in ex: sp["ZE"] = 16.0 * gr["rel"] - 2; sp["ZT"] = sp["ZE"] + 18
+    return sp
 first = True
 for gr in R["groups"]:
     if gr["cls"] not in ("house", "tower"): continue
-    x0, x1, y0, y1 = gr["box"]; w, d = x1 - x0 + 1, y1 - y0 + 1
-    ctr = (16 * (x0 + x1 + 1) / 2 + O, 16 * (y0 + y1 + 1) / 2 + O)
+    x0, x1, y0, y1 = gr["box"]
     if ROOM == 592 and (x0, x1, y0, y1) == A_BOX and first:
-        first = False; continue                                                  # house A itself stays where it was built
-    yaw = YAW[gr["door_side"]]; across, along = (w, d) if gr["door_side"] in "EW" else (d, w)
-    sz = 1.0 if gr["cls"] == "house" else (gr["rel"] * 16.0 + 30.0) / (3 * 16.0 + 30.0)
-    kit_c.place_copy(ha, A_C, ctr, yaw, (across / 5.0, along / 5.0, sz), 16.0 * gr["base"], name="house_%d_%d" % (x0, y0))
+        first = False; continue                                                  # house A itself = the approved asset 1
+    house_c.house(spec_of(gr), name="house_%d_%d" % (x0, y0), z0=16.0 * gr["base"])
 if ROOM != 592:
     for o in ha: o.hide_render = True                                            # house A lives in Massan only
 
