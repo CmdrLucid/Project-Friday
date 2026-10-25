@@ -14,7 +14,7 @@ import numpy as np
 import bpy, bmesh
 import cmat
 from massan_a import G
-import os
+import os                                                                       # R_ROCK: A (user 2026-10-25: works best) / B / C
 STYLE = os.environ.get("R_ROCK", "A"); STEP = float(os.environ.get("R_ROCK_STEP", "2")); MARGIN = 6; K_ROCK = 1.5; K_BANK = 2.4; FADE = 10.0; AMP = 5.0
 
 STONE = dict(dark=(86, 78, 66), olive=(140, 128, 110), ochre=(162, 134, 98), light=(206, 194, 170), moss=((42, 70, 32), (76, 100, 40)))
@@ -30,7 +30,7 @@ def relief(X, Y, seed=5):
         v += w * np.sin(f * (X * math.cos(a) + Y * math.sin(a)) + ph + 1.5 * np.sin(0.02 * (X * math.sin(a) - Y * math.cos(a))))
     return v / 2.2
 
-def build(cells, top, rock, O, bottom, name="cliffs"):
+def build(cells, top, rock, O, bottom, name="cliffs", calm=(), holes=()):
     """cells: all room cells; top: {cell: flat top} of the cells NOT in rock; rock: {cell: height map top} of the cliff cells."""
     xs = [k[0] for k in cells]; ys = [k[1] for k in cells]
     gx0, gy0 = 16 * (min(xs) - MARGIN) + O, 16 * (min(ys) - MARGIN) + O
@@ -65,6 +65,8 @@ def build(cells, top, rock, O, bottom, name="cliffs"):
     t = P[:, 0] * (-uy) + P[:, 1] * ux; along = P[:, 0] * ux + P[:, 1] * uy        # across / along the fall line
     ridge = np.zeros(len(P)); boulders = []; flat = False
     w = steep * fade * live                                                      # where the rock form may act
+    for (qx, qy, qr) in calm:                                                    # a plain slope around cave mouths (calm = (x, y, radius))
+        w = w * np.clip((np.hypot(P[:, 0] - qx, P[:, 1] - qy) - qr) / 14.0, 0, 1)
     if STYLE == "A":
         # A = FACETED ROCK: every Voronoi cell (seeds on a jittered 15 unit lattice) is one flat plane, the plain slope's tangent plane at the seed,
         # tilted at random: flat faces with sharp edges; plus strata = soft terraces every 11 units (ledges catch moss); flat shading
@@ -119,6 +121,11 @@ def build(cells, top, rock, O, bottom, name="cliffs"):
             mx, my = gx0 + STEP * (i + 0.5), gy0 + STEP * (j + 0.5); k = (int((mx - O) // 16), int((my - O) // 16))
             if k in cells and k not in rock: continue
             if max(H[i, j], H[i + 1, j], H[i, j + 1], H[i + 1, j + 1]) <= bottom + 1: continue   # nothing at the very bottom
+            cut = False
+            for (xe, cyh, hw, hh, kk) in holes:                                 # cave mouths: open the slope (x < xe rises westward with kk)
+                sl = (xe - mx) * math.sqrt(1 + kk * kk)
+                if 0 <= sl < hh and abs(my - cyh) < hw * math.sqrt(max(0.0, 1 - (sl / hh) ** 2)): cut = True
+            if cut: continue
             f = bm.faces.new([V(i, j), V(i + 1, j), V(i + 1, j + 1), V(i, j + 1)])
             f.material_index = 0 if ROCK[i, j] or ROCK[i + 1, j + 1] else 1
             for l, (a, b) in zip(f.loops, ((i, j), (i + 1, j), (i + 1, j + 1), (i, j + 1))):

@@ -180,6 +180,35 @@ def step_row(bm_st, bm_body, x0, x1, y_front, depth, h, seed, rnd=None):
             rock(bm_st, G(x + (rnd.random() - 0.5) * 1.5, yy + (rnd.random() - 0.5) * 1.5, h + 1.0 - r * sz), r, (1.0, 1.0, sz), seed)
     return seed
 
+# ---- asset 5d: cave mouth in a rock slope ----------------------------------------------------------------------------------------------------------
+def cave_mouth(p0, across, upslope, normal, into, half_w, height, rock, dark, seed=3, name="cave"):
+    """a cave entrance lying IN a slope (user 2026-10-25: the dark oval cut by the rock facets 'sieht seltsam aus'): p0 = middle of the opening's
+    foot on the ground (game coordinates), across / upslope / normal = unit vectors of the slope plane, into = horizontal direction into the
+    mountain; a dark half-elliptic opening, a short dark tunnel going in (depth from oblique views) and an angular rock arch around it."""
+    V = mathutils.Vector; p0 = V(p0); A, B, Nn, I = V(across), V(upslope), V(normal), V(into); rr = random.Random(seed)
+    bmd = bmesh.new(); outline = []
+    for k in range(17):
+        t = math.pi * k / 16; outline.append(p0 + A * (half_w * math.cos(t)) + B * (height * math.sin(t)) + Nn * 0.3)
+    back = [q + I * 16.0 - Nn * 0.0 for q in outline]                            # the tunnel: the outline pushed 16 into the mountain
+    vo = [bmd.verts.new(G(*q)) for q in outline]; vb = [bmd.verts.new(G(*q)) for q in back]
+    for k in range(16): bmd.faces.new([vo[k], vo[k + 1], vb[k + 1], vb[k]])
+    bmd.faces.new(vb[::-1]); bmd.faces.new([vo[0], vb[0], vb[-1], vo[-1]])       # back wall, floor
+    for f in bmd.faces: f.normal_update()
+    od = link(name + "_hole", bmd, dark, smooth=False)
+    bmr = bmesh.new()                                                            # the rock arch: an angular tube along the outline
+    ring = []
+    for k in range(17):
+        t = math.pi * k / 16; c = p0 + A * ((half_w + 2.5 + rr.random() * 1.5) * math.cos(t)) + B * ((height + 2.5 + rr.random() * 1.5) * math.sin(t)) + Nn * (rr.random() * 1.6 - 0.4)
+        if k in (0, 16): c = c - B * 2.0                                         # the ends go into the ground
+        tang = (-A * math.sin(t) * half_w + B * math.cos(t) * height).normalized(); side = tang.cross(Nn).normalized()
+        r = 2.4 + rr.random() * 2.6 + 1.5 * math.sin(t) ** 2; ring.append([bmr.verts.new(G(*(c + (Nn * math.cos(2 * math.pi * j / 6) + side * math.sin(2 * math.pi * j / 6)) * r * (0.8 + rr.random() * 0.4)))) for j in range(6)])
+    for k in range(16):
+        for j in range(6): bmr.faces.new([ring[k][j], ring[k][(j + 1) % 6], ring[k + 1][(j + 1) % 6], ring[k + 1][j]])
+    bmr.faces.new(ring[0][::-1]); bmr.faces.new(ring[-1])
+    for f in bmr.faces: f.normal_update()
+    orr = link(name + "_arch", bmr, rock, smooth=False)
+    return od, orr
+
 # ---- asset 1: Massan house A -------------------------------------------------------------------------------------------------------------------------
 def house_a(name="massan_house_vc"):
     """builds the approved house A in style C at its own place (lib/massan_a.py: walls X0..X1 / Y0..Y1, door east) and returns its objects."""

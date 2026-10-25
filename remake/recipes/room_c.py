@@ -69,7 +69,16 @@ for p in me.polygons: p.use_smooth = p.material_index == 0
 me.materials.append(cmat.dirt_mat("room_ground", mask="mask", other=((30, 84, 26), (58, 118, 34)))); me.materials.append(cmat.get("cliff"))
 bpy.context.scene.collection.objects.link(bpy.data.objects.new("terrain", me))
 
-cliffs, slope_at = cliff_c.build(C, top, rock, O, BOTTOM)
+cave_doors = [d for d in R["doors"] if not any(d in gr["cells"] for gr in R["groups"] if gr["cls"] in ("house", "tower"))
+              and C.get((d[0] - 1, d[1]), {}).get("blk") and any(grp.get((d[0] - 1, d[1]), {}).get("cls") == cls for cls in ("cave", "cliff"))]
+cave_groups = []                                                                 # neighbouring door cells = ONE opening (user: 'sieht aus wie 2 Eingaenge')
+for d in sorted(cave_doors):
+    for g_ in cave_groups:
+        if any(abs(d[0] - e[0]) + abs(d[1] - e[1]) == 1 for e in g_): g_.append(d); break
+    else: cave_groups.append([d])
+calm = [(16 * min(e[0] for e in g_) + O, 16 * (min(e[1] for e in g_) + max(e[1] for e in g_) + 1) / 2 + O, 8.0 * len(g_) + 14.0) for g_ in cave_groups]
+holes = [(16 * min(e[0] for e in g_) + O, 16 * (min(e[1] for e in g_) + max(e[1] for e in g_) + 1) / 2 + O, 8.0 * len(g_) - 1.5, 20.5, cliff_c.K_ROCK) for g_ in cave_groups]
+cliffs, slope_at = cliff_c.build(C, top, rock, O, BOTTOM, calm=calm, holes=holes)          # no rock facets around a cave mouth
 def surface(gx, gy):
     k = (int((gx - O) // 16), int((gy - O) // 16))
     return top[k] if k in top else slope_at(gx, gy)
@@ -167,23 +176,11 @@ pb = bmesh.new()
 for (x, y) in R["statues"]:
     kit_c.rock(pb, G(16 * x + O + 8, 16 * y + O + 8, top[(x, y)] + 22), 8.0, (0.9, 0.8, 2.6), seed=7, lump=0.18)
 if pb.verts: kit_c.link("statue_placeholder", pb, cmat.get("boulder"))
-cb = bmesh.new()
-cave_doors = [d for d in R["doors"] if not any(d in gr["cells"] for gr in R["groups"] if gr["cls"] in ("house", "tower"))
-              and C.get((d[0] - 1, d[1]), {}).get("blk") and any(grp.get((d[0] - 1, d[1]), {}).get("cls") == cls for cls in ("cave", "cliff"))]
-cave_groups = []                                                                 # neighbouring door cells = ONE opening (user: 'sieht aus wie 2 Eingaenge')
-for d in sorted(cave_doors):
-    for g_ in cave_groups:
-        if any(abs(d[0] - e[0]) + abs(d[1] - e[1]) == 1 for e in g_): g_.append(d); break
-    else: cave_groups.append([d])
-for g_ in cave_groups:                                                           # a dark mouth lying IN the slope west of the door cells (rises 1.5 per unit)
+for g_ in cave_groups:                                                           # the mouth lies in the slope west of the door cells (Massan: faces east)
     x = min(e[0] for e in g_); y0_, y1_ = min(e[1] for e in g_), max(e[1] for e in g_) + 1; z = top[g_[0]]
-    k = cliff_c.K_ROCK; xe = 16 * x + O; hz = 15.0
-    res = bmesh.ops.create_uvsphere(cb, u_segments=24, v_segments=14, radius=1.0)
-    half_w = 8.0 * (y1_ - y0_) + 3.0; up = hz / math.sin(math.atan(k))
-    for v in res["verts"]: v.co = mathutils.Vector((v.co.x * 1.2, v.co.y * half_w, v.co.z * up))
-    bmesh.ops.rotate(cb, cent=(0, 0, 0), matrix=mathutils.Matrix.Rotation(-math.atan2(1.0, k), 3, "Y"), verts=res["verts"])
-    bmesh.ops.translate(cb, vec=G(xe - (hz * 0.55) / k + 0.8, 16 * (y0_ + y1_) / 2 + O, z + hz * 0.55), verts=res["verts"])
-if cb.verts: kit_c.link("cave_placeholder", cb, cmat.get("dark"))
+    k = cliff_c.K_ROCK; n_ = mathutils.Vector((k, 0, 1)).normalized(); up_ = mathutils.Vector((-1, 0, k)).normalized()
+    kit_c.cave_mouth((16 * x + O, 16 * (y0_ + y1_) / 2 + O, z), (0, 1, 0), up_, n_, (-1, 0, 0), 8.0 * (y1_ - y0_) - 1.0, 21.0,
+                     bpy.data.materials["rock_c"], cmat.get("dark"))
 xs = [k[0] for k in C]; ys = [k[1] for k in C]
 SEA_X, SEA_Y = 16 * (24 + RD.OFF), 16 * (min(ys) + RD.OFF)                       # Massan: the sea lies NORTH-EAST of the room (behind the tower), the
 sb = bmesh.new()                                                                 # east / south faces of the plateau drop into the dark (picture, 2026-10-25)
@@ -210,7 +207,7 @@ bpy.data.objects["sun"].data.specular_factor = 0.0                              
 rc = bpy.data.collections.new("rock_lit"); sc.collection.children.link(rc)
 for ob in list(sc.objects):
     if ob.name.startswith("cliffs"): rc.objects.link(ob)
-fl = bpy.data.lights.new("rock_fill", "SUN"); fl.energy = float(os.environ.get("R_ROCK_FILL", "2.2")); fl.color = (1.0, 0.92, 0.8); fl.angle = math.radians(8); fl.specular_factor = 0.0
+fl = bpy.data.lights.new("rock_fill", "SUN"); fl.energy = float(os.environ.get("R_ROCK_FILL", "3.0")); fl.color = (1.0, 0.92, 0.8); fl.angle = math.radians(8); fl.specular_factor = 0.0
 flo = bpy.data.objects.new("rock_fill", fl); sc.collection.objects.link(flo)
 flo.rotation_euler = (-mathutils.Vector((0.25, -0.75, 0.6))).to_track_quat("-Z", "Y").to_euler()     # from the south-south-east, high
 try:
