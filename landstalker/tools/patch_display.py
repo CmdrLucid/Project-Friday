@@ -78,8 +78,8 @@ void platform_display_cycle_scale(void) {
 extern int lk_wide_refill;
 extern void lk_wide_refresh(void);
 void platform_display_cycle_wide(void) {
-    extern int lk_wide_e; static const int steps[4] = { 0, 16, 32, 48 }; int i = 0, old = lk_wide_e;
-    for (int j = 0; j < 4; j++) if (steps[j] == lk_wide_e) i = j;
+    extern int lk_wide_e; static const int steps[4] = { 0, 19, 39, 64 }; int i = 0, old = lk_wide_e;   /* Off / 16:10 (358 px) / 16:9 (398 px) / 18:9 (448 px) on the 224 line picture */
+    for (int j = 0; j < 4; j++) if (steps[j] <= lk_wide_e) i = j;
     lk_wide_e = steps[(i + 1) % 4]; lk_wide_refresh();
     if (lk_wide_e > old) lk_wide_refill = 1;   /* load the new outer ring of the map as soon as a map frame runs */
     lk_disp_save();

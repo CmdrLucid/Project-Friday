@@ -71,7 +71,7 @@ int platform_option_get(int id) {   /* 0 widescreen step 0..3, 1 full height 0/1
     extern int lk_wide_e, lk_tall; int m, e, t;
     if (!lk_disp_loaded) lk_disp_load();
     if (!lk_dd_loaded) lk_dd_load();
-    switch (id) { case 0: return lk_wide_e / 16; case 1: return lk_tall > 0; case 2: return lk_fx_mode; case 3: return lk_fsc_on; case 4: return lk_scale_mode; case 5: return lk_dd_mode;
+    switch (id) { case 0: return lk_wide_e >= 52 ? 3 : lk_wide_e >= 29 ? 2 : lk_wide_e >= 10 ? 1 : 0;   /* nearest step: 0 / 19 / 39 / 64 (older saves: 16 -> 16:10, 32 -> 16:9, 48 -> 16:9) */ case 1: return lk_tall > 0; case 2: return lk_fx_mode; case 3: return lk_fsc_on; case 4: return lk_scale_mode; case 5: return lk_dd_mode;
                   case 6: lk_snd_get(&m, &e, &t); return m; case 7: lk_snd_get(&m, &e, &t); return e; case 8: lk_snd_get(&m, &e, &t); return t; case 9: return lk_shadow_soft_get() ? 2 : lk_shadow_get(); case 10: return lk_quick_get(); case 11: return lk_ffwd_get(); case 12: return lk_diff_get(0); case 13: return lk_diff_get(1); case 14: return lk_qsave_get(); case 15: return lk_carry_get(); case 16: return lk_ii_get(); case 17: return lk_bq_get(); case 18: return lk_tbox_get(); case 19: return lk_own_get(); case 20: return lk_gaia_get(); case 22: return lk_seam_get(); case 23: return lk_dof_get(); case 24: case 25: case 26: case 27: return lk_fxlook_get(id - 24); case 28: return lk_r3d_get(); case 29: return lk_r3d_houses_get(); case 30: return lk_camctl_get(); case 31: return lk_remake_get(); case 32: return lk_r3d_light_get(); case 33: return lk_r3d_objects_get(); case 34: return lk_r3d_trees_get(); case 35: return lk_qeq_get(); case 36: return lk_bm_get(); case 21: return lk_hd_get(); }
     return 0;
 }
@@ -159,7 +159,7 @@ static const char *lk_opt_bindtext(int id) {   /* value column of a binding row:
 static const int lk_ids_all[LK_OPT_ALL] = { 0, 1, 4, 2, 5, 3, 6, 7, 8, 9, 10 };   /* file select sub-menu: one flat list */
 static const char *lk_opt_val(int id, int v) {
     static char buf[8];
-    static const char *wide[4] = { "Off", "352 px", "384 px", "416 px" }, *onoff[2] = { "Off", "On" }, *dofv[4] = { "Off", "Low", "Medium", "High" }, *filt[5] = { "Off", "Scanlines", "CRT", "CRT Pro", "CRT Curved" }, *scal[4] = { "Fit", "4:3", "Integer", "Fill" }, *dd[4] = { "Off", "Light", "Medium", "Strong" }, *shd[3] = { "Off", "On", "Soft" }, *ffw[4] = { "Off", "2x", "3x", "4x" }, *dmg[6] = { "25", "50", "75", "100", "150", "200" }, *ehp[5] = { "50", "100", "150", "200", "300" };
+    static const char *wide[4] = { "Off", "16:10", "16:9", "18:9" }, *onoff[2] = { "Off", "On" }, *dofv[4] = { "Off", "Low", "Medium", "High" }, *filt[5] = { "Off", "Scanlines", "CRT", "CRT Pro", "CRT Curved" }, *scal[4] = { "Fit", "4:3", "Integer", "Fill" }, *dd[4] = { "Off", "Light", "Medium", "Strong" }, *shd[3] = { "Off", "On", "Soft" }, *ffw[4] = { "Off", "2x", "3x", "4x" }, *dmg[6] = { "25", "50", "75", "100", "150", "200" }, *ehp[5] = { "50", "100", "150", "200", "300" };
     if (id == 0) return wide[v & 3];
     if (id == 4) return scal[v & 3];
     if (id == 2) return filt[v > 4 || v < 0 ? 0 : v];
