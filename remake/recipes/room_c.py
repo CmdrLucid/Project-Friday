@@ -170,10 +170,19 @@ if pb.verts: kit_c.link("statue_placeholder", pb, cmat.get("boulder"))
 cb = bmesh.new()
 cave_doors = [d for d in R["doors"] if not any(d in gr["cells"] for gr in R["groups"] if gr["cls"] in ("house", "tower"))
               and C.get((d[0] - 1, d[1]), {}).get("blk") and any(grp.get((d[0] - 1, d[1]), {}).get("cls") == cls for cls in ("cave", "cliff"))]
-for (x, y) in cave_doors:                                                        # a dark opening in the rock face west of the door cell
-    res = bmesh.ops.create_uvsphere(cb, u_segments=16, v_segments=10, radius=1.0)
-    for v in res["verts"]: v.co = mathutils.Vector((v.co.x * 1.5, v.co.y * 10.0, v.co.z * 22.0))
-    bmesh.ops.translate(cb, vec=G(16 * x + O + 0.5, 16 * y + O + 8, top[(x, y)]), verts=res["verts"])
+cave_groups = []                                                                 # neighbouring door cells = ONE opening (user: 'sieht aus wie 2 Eingaenge')
+for d in sorted(cave_doors):
+    for g_ in cave_groups:
+        if any(abs(d[0] - e[0]) + abs(d[1] - e[1]) == 1 for e in g_): g_.append(d); break
+    else: cave_groups.append([d])
+for g_ in cave_groups:                                                           # a dark mouth lying IN the slope west of the door cells (rises 1.5 per unit)
+    x = min(e[0] for e in g_); y0_, y1_ = min(e[1] for e in g_), max(e[1] for e in g_) + 1; z = top[g_[0]]
+    k = cliff_c.K_ROCK; xe = 16 * x + O; hz = 15.0
+    res = bmesh.ops.create_uvsphere(cb, u_segments=24, v_segments=14, radius=1.0)
+    half_w = 8.0 * (y1_ - y0_) + 3.0; up = hz / math.sin(math.atan(k))
+    for v in res["verts"]: v.co = mathutils.Vector((v.co.x * 1.2, v.co.y * half_w, v.co.z * up))
+    bmesh.ops.rotate(cb, cent=(0, 0, 0), matrix=mathutils.Matrix.Rotation(-math.atan2(1.0, k), 3, "Y"), verts=res["verts"])
+    bmesh.ops.translate(cb, vec=G(xe - (hz * 0.55) / k + 0.8, 16 * (y0_ + y1_) / 2 + O, z + hz * 0.55), verts=res["verts"])
 if cb.verts: kit_c.link("cave_placeholder", cb, cmat.get("dark"))
 xs = [k[0] for k in C]; ys = [k[1] for k in C]
 SEA_X, SEA_Y = 16 * (24 + RD.OFF), 16 * (min(ys) + RD.OFF)                       # Massan: the sea lies NORTH-EAST of the room (behind the tower), the

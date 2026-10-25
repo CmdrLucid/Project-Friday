@@ -5,8 +5,9 @@ Built here on a fine grid (STEP units) over the room + MARGIN cells:
   rock  (cliff cells, and outside cells whose nearest room cell is a cliff): rises from the nearest ground with K_ROCK per unit, at most to the
         cliff's height map height; beyond the room the mountain goes on rising (like the original, where it runs out of the picture)
   bank  (outside cells next to ground): falls from the edge of the ground with K_BANK per unit down to BOTTOM
-  relief: rounded bumps / ridges (sum of sines with random phases) as z displacement, fading out within FADE of the ground so the slope meets the
-        flat ground without a step; the relief is written as colour attribute 'ridge' (cmat.rock_mat: light ridges, dark crevices).
+  relief: rounded bumps (sum of sines with random phases) as z displacement, fading out within FADE of the ground so the slope meets the flat
+        ground without a step; OUTCROPS = broad light rock patches elongated down the slope, raised, written as colour attribute 'ridge'
+        (cmat.rock_mat: light rock where ridge > 0).
 Returns the mesh objects and a height function (for trees standing on the slopes)."""
 import math, random
 import numpy as np
@@ -55,10 +56,24 @@ def build(cells, top, rock, O, bottom, name="cliffs"):
         gyv = (gyv + np.roll(gyv, 1, 0) + np.roll(gyv, -1, 0) + np.roll(gyv, 1, 1) + np.roll(gyv, -1, 1)) / 5
     gl = np.hypot(gxv, gyv) + 1e-6; ux, uy = (gxv / gl).ravel(), (gyv / gl).ravel()
     t = P[:, 0] * (-uy) + P[:, 1] * ux; along = P[:, 0] * ux + P[:, 1] * uy        # across / along the fall line
-    warp = 6.0 * np.sin(along * 0.045 + 1.3) + 3.0 * np.sin(along * 0.11 + t * 0.02)
-    rib = np.sin((t + warp) * 0.16) * 0.6 + np.sin((t + warp) * 0.37 + 2.0) * 0.4
-    ridge = np.clip((rib - 0.55) / 0.35, 0, 1) - np.clip((-rib - 0.6) / 0.3, 0, 1)   # +1 light rib, -1 dark crevice
-    rv = relief(P[:, 0], P[:, 1]) * 0.5 + rib * 0.5
+    # OUTCROPS (user 2026-10-25: the thin light ribs 'sehen nur aus wie lange striche'): the original's light rock = broad bumpy patches,
+    # elongated down the slope: random elliptical blobs on the steep rock, raised as real relief, ragged edge (noise), mask -> colour attribute
+    rr = random.Random(17); ridge = np.zeros(len(P)); bump = np.zeros(len(P))
+    cand = np.nonzero(is_rock & (cone < hc - 8) & (dg > 14))[0]
+    edge = relief(P[:, 0] * 2.3, P[:, 1] * 2.3, seed=9)                           # ragged outline / lumps inside
+    for _ in range(int(len(cand) * STEP * STEP / 1400)):
+        c = cand[rr.randrange(len(cand))]; cx_, cy_ = P[c]
+        ang = math.atan2(uy[c], ux[c]) + (rr.random() - 0.5) * 1.4                # roughly down the slope, turned up to +-40 degrees
+        uxc, uyc = math.cos(ang), math.sin(ang)
+        sz = 0.6 + rr.random() ** 2 * 1.2; L = (9 + rr.random() * 7) * sz; Wd = (7 + rr.random() * 5) * sz
+        dx, dy = P[:, 0] - cx_, P[:, 1] - cy_; al = dx * uxc + dy * uyc; ac = -dx * uyc + dy * uxc
+        q = (al / L) ** 2 + (ac / Wd) ** 2
+        near = q < 4
+        m = np.clip((1.0 - q[near] + 0.6 * edge[near]) / 0.25, 0, 1)                 # ragged outline
+        ridge[near] = np.maximum(ridge[near], m)
+        bump[near] = np.maximum(bump[near], np.clip(1.0 - q[near] + 0.3 * edge[near], 0, 1) ** 0.6 * sz * (0.6 + 0.4 * np.abs(edge[near])))   # lumpy inside
+    rv = relief(P[:, 0], P[:, 1]) * 0.6
+    H = H + 5.0 * bump * np.where(H > bottom + 1, 1, 0)                          # the outcrops stand out of the slope
     fade = np.clip(dg / FADE, 0, 1)
     H = H + AMP * rv * steep * fade * np.where(H > bottom + 1, 1, 0)
     H = H.reshape(nx + 1, ny + 1); RV = (ridge * fade).reshape(nx + 1, ny + 1); ROCK = is_rock.reshape(nx + 1, ny + 1)
