@@ -70,7 +70,7 @@ def bushes(cells, Hh=16.0, name="bushes"):
             clump(bm, G(x + 4.6 * math.cos(a), y + 4.6 * math.sin(a), zc + 0.6 + rnd.random()), rr, 0.85, seed)
         zb = zc - r * sz + 1.0                                                  # bottom of the crown
         for (a, b, rad) in (                                          # Y fork: the main pair spreads across the game camera's view (game x = -y), a thinner pair the other way
-                ((0, 0, 0), (0, 0, 2.2), 1.5), ((0, 0, 1.9), (-3.4, 3.4, zb + 2.2), 1.05), ((0, 0, 1.9), (3.4, -3.4, zb + 2.2), 1.05), ((0, 0, 1.9), (2.2, 2.2, zb + 1.8), 0.75), ((0, 0, 1.9), (-2.2, -2.2, zb + 1.8), 0.75)):
+                ((0, 0, -0.5), (0, 0, 1.3), 0.85), ((0, 0, 0.9), (-3.4, 3.4, zb + 2.2), 0.75), ((0, 0, 0.9), (3.4, -3.4, zb + 2.2), 0.75), ((0, 0, 1.6), (2.0, 2.0, zb + 1.8), 0.45), ((0, 0, 1.6), (-2.0, -2.0, zb + 1.8), 0.45)):
             pa = G(x + a[0], y + a[1], a[2]); pb = G(x + b[0], y + b[1], b[2])
             import mathutils
             A = mathutils.Vector(pa); B = mathutils.Vector(pb); d = B - A
@@ -93,4 +93,9 @@ if fig and os.path.exists(fig):
     figs.append(H.add_figure(fig, (cx + 26, cy + 4, HH)))                      # Nigel standing ON the hedge
     figs.append(H.add_figure(fig, (cx - 10, cy + 26, 0)))                      # and on the ground beside the pines
 H.render_set(out, px=2.0, dof=True, modern=True, figures=figs, quarter=True, tz=20, fh=170)
+if os.environ.get("R_CLOSE"):                                                  # close-up of the front bush from the game camera (stem check)
+    sc = bpy.context.scene; co = sc.camera; co.data.type = "ORTHO"; co.data.ortho_scale = 42; co.data.dof.use_dof = False
+    for f in figs: f.hide_render = True
+    blx.orbit(co, G(cx + 2 + 16 * 2 + 8, cy - 8 + 16 + 8, 8), 0, 30); sc.render.resolution_x, sc.render.resolution_y = 700, 600
+    sc.render.filepath = os.path.join(out, "close.png"); bpy.ops.render.render(write_still=True)
 print("plants_c done ->", out)
