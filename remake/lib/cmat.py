@@ -131,6 +131,18 @@ def dirt_mat(name="path", base=((140, 84, 30), (214, 146, 68)), speck=(90, 56, 2
         mk = nt.nodes.new("ShaderNodeMix"); mk.data_type = "RGBA"; L(sep.outputs[0], mk.inputs["Factor"]); L(r4.outputs["Color"], mk.inputs[6]); L(col, mk.inputs[7]); col = mk.outputs[2]
     L(col, b.inputs["Base Color"]); L(b.outputs["BSDF"], o.inputs["Surface"]); return m
 
+def blade_mat(name="blades", base=(24, 84, 26), tip=(120, 186, 64)):
+    """grass blades: dark at the root, light at the tip (colour attribute 'h' = 0 root .. 1 tip, written by the mesh builder), a little noise per tuft."""
+    m = bpy.data.materials.new(name); m.use_nodes = True; nt = m.node_tree; nt.nodes.clear(); L = nt.links.new
+    o = nt.nodes.new("ShaderNodeOutputMaterial"); b = nt.nodes.new("ShaderNodeBsdfPrincipled"); b.inputs["Roughness"].default_value = 0.8
+    at = nt.nodes.new("ShaderNodeVertexColor"); at.layer_name = "h"; sep = nt.nodes.new("ShaderNodeSeparateColor"); L(at.outputs["Color"], sep.inputs["Color"])
+    rp = nt.nodes.new("ShaderNodeValToRGB"); rp.color_ramp.elements[0].color = srgb(base); rp.color_ramp.elements[1].color = srgb(tip); L(sep.outputs[0], rp.inputs["Fac"])
+    mx = nt.nodes.new("ShaderNodeMix"); mx.data_type = "RGBA"; mx.blend_type = "MULTIPLY"; mx.inputs["Factor"].default_value = 1.0
+    L(rp.outputs["Color"], mx.inputs[6]); L(at.outputs["Color"], mx.inputs[7])                              # G / B channels carry the per-tuft tint
+    L(mx.outputs[2], b.inputs["Base Color"])
+    if "Subsurface Weight" in b.inputs: b.inputs["Subsurface Weight"].default_value = 0.15
+    L(b.outputs["BSDF"], o.inputs["Surface"]); return m
+
 def get(name):
     if name in bpy.data.materials: return bpy.data.materials[name]
     return pmat(name, **LIB[name][1])
