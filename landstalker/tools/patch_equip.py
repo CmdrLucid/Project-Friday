@@ -17,6 +17,9 @@ if VER not in s:
     assert s.count(a) == 1
     module = r'''/* ---- LK_EQUIP v1: quick equip request (tools/patch_equip.py) ---- */
 static int lk_eq_req = -1; static long lk_eq_req_frame;
+static long lk_eq_stamp = -100;
+void lk_eq_stamp_now(void) { lk_eq_stamp = platform_frame_number(); }
+int lk_eq_active(void) { return platform_frame_number() - lk_eq_stamp < 4; }   /* the game's map pass ran a moment ago = a save is loaded and nothing blocks (no title / menu / dialogue): the overlay shows only then */
 void platform_equip_request(int cat) { lk_eq_req = cat; lk_eq_req_frame = platform_frame_number(); }
 int lk_eq_take(void) {   /* called by the game side once per map pass: -1 none, 0..3 = sword / armour / boots / ring; requests older than 8 frames are dropped (the game was inside a menu / text box) */
     static const char *sched; static int init; int r = lk_eq_req; long f = platform_frame_number();
@@ -37,6 +40,7 @@ if VER not in s:
     assert s.count(a) == 1
     module = r'''/* ---- LK_EQUIP v1: quick equip (tools/patch_equip.py) ---- */
 extern int lk_eq_take(void);
+extern void lk_eq_stamp_now(void);
 extern int lk_eq_is_held(void);
 extern void lk_quick_capture(int id);
 extern int lk_quick_icon_have(int id);
@@ -89,6 +93,7 @@ static void lk_h_cur_eq(void) {   /* InventoryMenu_UpdateCursorAt $00D714: the S
 }
 static void lk_h_pab_eq(void) {
     int c = lk_eq_take(), ok = bus_read16(0xFF12DEu) == 0 && bus_read16(0xFF543Eu) != 0, guard = 0;
+    if (ok) lk_eq_stamp_now();
     if (lk_eq_is_held()) lk_eq_scan();
     for (;;) {
         if (c == -2) lk_snd(0x00DBBEu);
@@ -96,6 +101,7 @@ static void lk_h_pab_eq(void) {
         /* the game stands still while Quick Equip is held (a small menu: nobody gets hit while choosing); the VBlank handler goes on reading the pad, so the requests keep coming */
         if (!ok || !lk_eq_is_held() || ++guard > 36000) break;
         lk_call(0x000B5Eu);   /* WaitUntilVBlank */
+        lk_eq_stamp_now();
         c = lk_eq_take();
     }
     lk_osd_equip_disarm();

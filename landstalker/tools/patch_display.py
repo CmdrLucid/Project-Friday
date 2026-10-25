@@ -91,6 +91,7 @@ void platform_display_cycle_filter(void) {
     snprintf(lk_osd_text, sizeof(lk_osd_text), "FILTER: %s", lk_fx_names[lk_fx_mode]); lk_osd_frames = 100;
 }
 extern int lk_eq_is_held(void);
+extern int lk_eq_active(void);
 extern int lk_quick_icon_rgb(int id, int i);
 extern uint8_t bus_read8(uint32_t addr);
 static int lk_eq_flash_cat = -1, lk_eq_flash_frames;
@@ -157,7 +158,7 @@ static void lk_osd_draw(int ow, int oh) {
 }
 static void lk_osd_draw2(int ow, int oh) {
     if (lk_eq_flash_frames > 0) lk_eq_flash_frames--;
-    if (lk_eq_is_held()) lk_eq_overlay(ow, oh);
+    if (lk_eq_is_held() && lk_eq_active()) lk_eq_overlay(ow, oh);
     if (lk_osd_frames <= 0) return;
     lk_osd_frames--;
     int px = oh / 120; if (px < 2) px = 2;
