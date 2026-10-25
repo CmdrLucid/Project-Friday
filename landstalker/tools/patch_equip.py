@@ -23,7 +23,7 @@ static int lk_eqopt_load(const char *f, int def) { char p[512]; FILE *fp; int v 
 static void lk_eqopt_save(const char *f, int v) { char p[512]; FILE *fp; lk_eqopt_path(p, sizeof p, f); fp = fopen(p, "w"); if (fp) { fprintf(fp, "%d\n", v); fclose(fp); } }
 int lk_qeq_get(void) { if (lk_qeq_v < 0) { const char *e = getenv("LANDSTALKER_QEQUIP"); lk_qeq_v = lk_eqopt_load(".landstalker_qequip", 1); if (e && *e) lk_qeq_v = atoi(e) ? 1 : 0; } return lk_qeq_v; }   /* Quick Equip (R2 + direction), default On */
 void lk_qeq_set(int v) { lk_qeq_get(); lk_qeq_v = v ? 1 : 0; lk_eqopt_save(".landstalker_qequip", lk_qeq_v); }
-int lk_bm_get(void) { if (lk_bm_v < 0) { const char *e = getenv("LANDSTALKER_BETTERMENU"); lk_bm_v = lk_eqopt_load(".landstalker_bmenu", 0); if (e && *e) lk_bm_v = atoi(e) ? 1 : 0; } return lk_bm_v; }   /* Better Menu (B in Use / Equip goes back to the bar), default Off */
+int lk_bm_get(void) { if (lk_bm_v < 0) { const char *e = getenv("LANDSTALKER_BETTERMENU"); lk_bm_v = lk_eqopt_load(".landstalker_bmenu", 1); if (e && *e) lk_bm_v = atoi(e) ? 1 : 0; } return lk_bm_v; }   /* Better Menu (B in Use / Equip goes back to the bar), default On since 2026-10-25 */
 void lk_bm_set(int v) { lk_bm_get(); lk_bm_v = v ? 1 : 0; lk_eqopt_save(".landstalker_bmenu", lk_bm_v); }
 static long lk_eq_stamp = -100;
 void lk_eq_stamp_now(void) { lk_eq_stamp = platform_frame_number(); }
