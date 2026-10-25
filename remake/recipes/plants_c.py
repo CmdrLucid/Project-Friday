@@ -2,8 +2,8 @@
 Bueschen laufen, das muss in 3D nach wie vor so aussehen').
 Pine (original: bright green cone of drooping branch tiers, round brown stump at the foot, ~28 px wide): trunk + root flare + 6 tiers of star-shaped
 branch rings (tips out and down), each tier turned a little; material 'needles'.
-Hedge (original: a block of dense round leaf clumps on whole map cells, walkable on top): per 16 x 16 cell a 2 x 2 group of squashed clumps whose tops
-stay within +1.5 of the cell height H (env R_HEDGE_H, default 16 = one height step: the top reads as a floor), rounder clumps on the open sides.
+Bushes (original, seen from the front in rooms 424 / 425: one small shrub per map cell, round dark green crown on a short Y-shaped stem, crowns touching,
+walkable on top): bushes() below; crown tops at the cell height H (env R_HEDGE_H, default 16 = one height step).
 Run: R_FIGURE=~/.landstalker_remake/figures/nigel_a4.png python3 remake/tools/build_asset.py plants_c"""
 import bpy, bmesh, sys, os, math, random
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lib")); import blx, cmat, massan_a as H
@@ -57,29 +57,32 @@ def clump(bm, c, r, sz, seed):
 def mathutils_vec(x, y, z):
     import mathutils; return mathutils.Vector((x, y, z))
 
-def hedge(cells, Hh=16.0, name="hedge"):
-    """cells = [(cx, cy)] map cells (16 x 16 units, game x / y of the cell's north west corner); Hh = the walkable top height."""
-    bm = bmesh.new(); S = 16.0; seed = 0; cs = set(cells)
+def bushes(cells, Hh=16.0, name="bushes"):
+    """the Massan / route bushes (rooms 424 / 425 seen from the front, 2026-10-25): ONE small shrub per 16 x 16 map cell, a round dark green crown on
+    a short Y-shaped brown stem; neighbouring crowns touch, so a row reads as one walkable top at Hh (crown tops within Hh .. Hh + 1.5)."""
+    bm = bmesh.new(); bs = bmesh.new(); seed = 100
     for (cx, cy) in cells:
-        for (ix, iy) in ((0, 0), (1, 0), (0, 1), (1, 1)):
-            seed += 1; px = cx + 4 + 8 * ix + (rnd.random() - 0.5) * 4.0; py = cy + 4 + 8 * iy + (rnd.random() - 0.5) * 4.0
-            r = 5.0 + rnd.random() * 2.6; sz = 0.45 + rnd.random() * 0.2
-            clump(bm, G(px, py, Hh + 1.2 - r * sz), r, sz, seed)                 # top clumps: their tops lie at Hh .. Hh + 1.5
-            open_side = [(dx, dy) for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)) if (cx + dx * S, cy + dy * S) not in cs and ((dx == -1 and ix == 0) or (dx == 1 and ix == 1) or (dy == -1 and iy == 0) or (dy == 1 and iy == 1))]
-            if open_side:                                                       # rounder clumps lower down on the open sides
-                seed += 1; dx = sum(d[0] for d in open_side) * 1.5; dy = sum(d[1] for d in open_side) * 1.5
-                clump(bm, G(px + dx, py + dy, Hh * 0.45), 6.0 + rnd.random(), 0.95, seed)
-        seed += 1; clump(bm, G(cx + 8, cy + 8, Hh * 0.45), 7.5, 1.0, seed)           # core, so nothing is see-through
-        for k in range(2):                                                      # a few small clumps on top at random spots: no regular grid
-            seed += 1; r = 3.0 + rnd.random() * 1.5
-            clump(bm, G(cx + 2 + rnd.random() * 12, cy + 2 + rnd.random() * 12, Hh + 1.3 - r * 0.5), r, 0.5, seed)
-    return mesh_obj(name, bm, cmat.get("leaves"))
+        seed += 1; x = cx + 8 + (rnd.random() - 0.5) * 1.2; y = cy + 8 + (rnd.random() - 0.5) * 1.2
+        r = 7.3 + rnd.random() * 0.5; sz = 0.72; zc = Hh + 1.0 - r * sz
+        clump(bm, G(x, y, zc), r, sz, seed)                                     # the crown
+        for k in range(5):                                                      # leaf lumps on the crown: a rounder, leafy outline
+            seed += 1; a = 2 * math.pi * k / 5 + rnd.random(); rr = 2.8 + rnd.random() * 1.0
+            clump(bm, G(x + 4.6 * math.cos(a), y + 4.6 * math.sin(a), zc + 0.6 + rnd.random()), rr, 0.85, seed)
+        zb = zc - r * sz + 1.0                                                  # bottom of the crown
+        for (a, b, rad) in (((0, 0, 0), (0, 0, 3.0), 1.3), ((0, 0, 2.6), (-3.0, 1.4, zb + 2.0), 0.9), ((0, 0, 2.6), (2.8, -1.6, zb + 2.0), 0.9), ((0, 0, 2.6), (0.8, 2.8, zb + 1.5), 0.7)):
+            pa = G(x + a[0], y + a[1], a[2]); pb = G(x + b[0], y + b[1], b[2])
+            import mathutils
+            A = mathutils.Vector(pa); B = mathutils.Vector(pb); d = B - A
+            res = bmesh.ops.create_cone(bs, cap_ends=True, segments=8, radius1=rad, radius2=rad * 0.75, depth=d.length)
+            vs = res["verts"]; bmesh.ops.translate(bs, vec=(0, 0, d.length / 2), verts=vs)
+            bmesh.ops.rotate(bs, cent=(0, 0, 0), matrix=d.normalized().to_track_quat("Z", "Y").to_matrix(), verts=vs); bmesh.ops.translate(bs, vec=A, verts=vs)
+    crowns = mesh_obj(name, bm, cmat.get("shrub")); stems = mesh_obj(name + "_stems", bs, cmat.get("stem")); return crowns, stems
 
 # scene around the centre the previews look at (lib/massan_a.py CX, CY)
 cx, cy = H.CX, H.CY
 pine(cx - 30, cy - 18); pine(cx - 46, cy + 6, height=36, radius=11, name="pine2"); pine(cx - 14, cy - 40, height=46, radius=14, name="pine3")
 HH = float(os.environ.get("R_HEDGE_H", "16"))
-hedge([(cx + 2 + 16 * i, cy - 8 + 16 * j) for i in range(3) for j in range(2)], HH)
+bushes([(cx + 2 + 16 * i, cy - 8 + 16 * j) for i in range(3) for j in range(2)], HH)
 g = bpy.data.meshes.new("ground"); b = bmesh.new(); s = 260
 b.faces.new([b.verts.new(G(cx + a, cy + c, 0)) for a, c in ((-s, s), (s, s), (s, -s), (-s, -s))]); b.to_mesh(g); b.free()
 g.materials.append(cmat.pmat("ground", (120, 96, 52), (88, 116, 44), scale=0.02, detail=6.0, bump=0.1, rough=1.0)); bpy.context.scene.collection.objects.link(bpy.data.objects.new("ground", g))
