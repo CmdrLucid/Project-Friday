@@ -6,7 +6,7 @@ folder and is tied to the ROM's SHA-1. The ROM must be present at EVERY start (i
   python3 firstrun.py [--rom FILE] [--rebuild] [--cc "zig cc"] [--no-gui] [--build-only] [-- game args]
 
 Environment: LANDSTALKER_ROM, LANDSTALKER_DATA (data folder), SDL2_CFLAGS / SDL2_LIBS, CC.
-Folder layout next to this file (release):  tools/ docs/symbols.json recomp.json src/main.c vendor/genrecomp/
+Folder layout next to this file (release):  tools/ docs/symbols.json docs/ENTITIES.md recomp.json src/main.c vendor/genrecomp/
                                             vendor/zig/zig (optional, else a system compiler is used)
 """
 import hashlib, json, os, re, shlex, shutil, subprocess, sys, time
@@ -229,7 +229,7 @@ def find_rom(ui, args, cfg):
 def build_id(rom_sha):
     """Changes whenever the build inputs change (patches, symbols, seeds, genrecomp revision, ROM)."""
     h = hashlib.sha1(rom_sha.encode())
-    files = [os.path.join(HERE, "recomp.json"), os.path.join(HERE, "docs", "symbols.json"), os.path.join(HERE, "src", "main.c"),
+    files = [os.path.join(HERE, "recomp.json"), os.path.join(HERE, "docs", "symbols.json"), os.path.join(HERE, "docs", "ENTITIES.md"), os.path.join(HERE, "src", "main.c"),
              os.path.join(HERE, "build.sh"), os.path.join(HERE, "vendor", "genrecomp", "VENDOR_REVISION.txt")]
     files += sorted(os.path.join(HERE, "tools", f) for f in os.listdir(os.path.join(HERE, "tools")) if f.endswith((".py", ".c", ".h", ".json")))
     for f in files:
@@ -346,6 +346,7 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
     for sub in ("funcdiff",):
         pass
     shutil.copy2(os.path.join(HERE, "docs", "symbols.json"), os.path.join(work, "docs", "symbols.json"))
+    shutil.copy2(os.path.join(HERE, "docs", "ENTITIES.md"), os.path.join(work, "docs", "ENTITIES.md"))   # read by tools/patch_shadow.py
     shutil.copy2(os.path.join(HERE, "recomp.json"), os.path.join(work, "recomp.json"))
     os.makedirs(os.path.join(work, "src", "recomp"))
     shutil.copy2(os.path.join(HERE, "src", "main.c"), os.path.join(work, "src", "main.c"))
