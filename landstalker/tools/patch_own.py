@@ -599,7 +599,7 @@ static void lk_o_init(void) {
   if (lk_o_mode >= 0) return;
   { const char *e = getenv("LANDSTALKER_OWN"), *l = getenv("LANDSTALKER_OWN_LOG"), *q; int v = 1;   /* default On since 2026-10-22 (user: 'mach den eigenen renderer zum standard'); a saved ~/.landstalker_own wins */
     if (e) lk_o_mode = atoi(e);
-    else { char path[512]; FILE *f; const char *h = getenv("HOME"); snprintf(path, sizeof path, "%s/.landstalker_own", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } lk_o_mode = v ? 2 : 0; }   /* Options > Video > Own Renderer */
+    else lk_o_mode = 2;   /* the own renderer is always On since 2026-10-25 (user: Options row removed); the saved ~/.landstalker_own is ignored, only LANDSTALKER_OWN=0 (test aid: the game's own picture) switches it off */
     if (l) lk_o_log = atoi(l);
     q = getenv("LANDSTALKER_OWN_HUD"); if (q) lk_o_hwmode = atoi(q); q = getenv("LANDSTALKER_OWN_VB"); if (q) lk_o_vbmode = atoi(q); q = getenv("LANDSTALKER_OWN_VBLOG"); if (q) lk_o_vblog = atoi(q); q = getenv("LANDSTALKER_OWN_TEXT"); if (q) lk_o_txmode = atoi(q); q = getenv("LANDSTALKER_OWN_TEXTLOG"); if (q) lk_o_txlog = atoi(q); q = getenv("LANDSTALKER_OWN_HUDLOG"); if (q) lk_o_hwlog = atoi(q); q = getenv("LANDSTALKER_OWN_SPR"); if (q) lk_o_sprmode = atoi(q); q = getenv("LANDSTALKER_OWN_PAL"); if (q) lk_o_palmode = atoi(q); q = getenv("LANDSTALKER_OWN_CAM"); if (q) lk_o_cammode = atoi(q); }
 }
@@ -638,7 +638,7 @@ void lk_fxlook_set(int i, int v) {
 int lk_hd_fxany(void) { return lk_dof_get() > 0 || lk_fxlook_get(0) > 0 || lk_fxlook_get(1) > 0 || lk_fxlook_get(2) > 0 || lk_fxlook_get(3) > 0; }   /* some HD-2D effect needs the depth / validity of the map picture */
 static int lk_hd_saved = -1;
 int lk_hd_get(void) {                                               /* Options > Video > HD Graphics: the SAVED setting (~/.landstalker_hd, LANDSTALKER_HD overrides at start); the tile packs and the HD buffers are set up at start, so a change applies at the next start */
-  if (lk_hd_saved < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_HD"); char path[512]; FILE *f; int v = 0; snprintf(path, sizeof path, "%s/.landstalker_hd", h ? h : "."); f = fopen(path, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); lk_hd_saved = v ? 1 : 0; }
+  if (lk_hd_saved < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_HD"); char path[512]; FILE *f; int v = 0; (void)path; (void)f; (void)h; /* HD Graphics row removed 2026-10-25 (no texture pack yet): the saved ~/.landstalker_hd is ignored, only LANDSTALKER_HD=1 turns it on */ if (e && *e) v = atoi(e); lk_hd_saved = v ? 1 : 0; }
   return lk_hd_saved;
 }
 void lk_hd_set(int v) {

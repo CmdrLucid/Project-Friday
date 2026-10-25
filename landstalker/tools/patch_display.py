@@ -54,7 +54,7 @@ static void lk_disp_load(void) {
 static void lk_dd_load(void) {
     const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_DEDITHER"); char path[600]; lk_dd_loaded = 1;
     snprintf(path, sizeof(path), "%s/.landstalker_dither", h ? h : ".");
-    FILE *f = fopen(path, "r"); if (f) { int a = 0; if (fscanf(f, "%d", &a) == 1 && a >= 0 && a < 4) lk_dd_mode = a; fclose(f); }
+    (void)path;   /* De-Dither row hidden 2026-10-25: the saved ~/.landstalker_dither is ignored, only LANDSTALKER_DEDITHER switches it on */
     if (e && *e) { int a = atoi(e); if (a >= 0 && a < 4) lk_dd_mode = a; }
 }
 static void lk_dd_save(void) {
