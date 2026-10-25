@@ -143,6 +143,29 @@ def blade_mat(name="blades", base=(24, 84, 26), tip=(120, 186, 64)):
     if "Subsurface Weight" in b.inputs: b.inputs["Subsurface Weight"].default_value = 0.15
     L(b.outputs["BSDF"], o.inputs["Surface"]); return m
 
+def water_mat(name="water_c", deep=(8, 46, 72), mid=(22, 90, 150), ripple=(110, 186, 230), flow=(1.0, 0.0)):
+    """river / sea water like the original (rooms 424 / 592): deep teal-blue in soft patches, short light ripple strokes stretched along the flow
+    (game direction 'flow'), glossy with a wavy bump so the sun leaves sparkles.  Object coordinates."""
+    m = bpy.data.materials.new(name); m.use_nodes = True; nt = m.node_tree; nt.nodes.clear(); L = nt.links.new
+    o = nt.nodes.new("ShaderNodeOutputMaterial"); b = nt.nodes.new("ShaderNodeBsdfPrincipled"); b.inputs["Roughness"].default_value = 0.18
+    if "Specular IOR Level" in b.inputs: b.inputs["Specular IOR Level"].default_value = 0.22          # low: no white sky mirror at flat angles
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    n1 = nt.nodes.new("ShaderNodeTexNoise"); n1.inputs["Scale"].default_value = 0.04; n1.inputs["Detail"].default_value = 4.0; L(tc.outputs["Object"], n1.inputs["Vector"])
+    r1 = nt.nodes.new("ShaderNodeValToRGB"); r1.color_ramp.elements[0].color = srgb(deep); r1.color_ramp.elements[1].color = srgb(mid); L(n1.outputs["Fac"], r1.inputs["Fac"])
+    ang = math.atan2(-flow[1], flow[0])                                          # Blender y = - game y
+    mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Rotation"].default_value = (0, 0, -ang); mp.inputs["Scale"].default_value = (0.18, 0.9, 1.0); L(tc.outputs["Object"], mp.inputs["Vector"])
+    n2 = nt.nodes.new("ShaderNodeTexNoise"); n2.inputs["Scale"].default_value = 1.0; n2.inputs["Detail"].default_value = 2.0; n2.inputs["Distortion"].default_value = 0.8; L(mp.outputs["Vector"], n2.inputs["Vector"])
+    s2 = nt.nodes.new("ShaderNodeMapRange"); s2.inputs["From Min"].default_value = 0.6; s2.inputs["From Max"].default_value = 0.7; L(n2.outputs["Fac"], s2.inputs["Value"])
+    f2 = nt.nodes.new("ShaderNodeMath"); f2.operation = "MULTIPLY"; f2.inputs[1].default_value = 0.7; L(s2.outputs["Result"], f2.inputs[0])
+    m2 = nt.nodes.new("ShaderNodeMix"); m2.data_type = "RGBA"; L(f2.outputs[0], m2.inputs["Factor"]); L(r1.outputs["Color"], m2.inputs[6]); m2.inputs[7].default_value = srgb(ripple)
+    bm = nt.nodes.new("ShaderNodeBump"); bm.inputs["Strength"].default_value = 0.35; L(n2.outputs["Fac"], bm.inputs["Height"]); L(bm.outputs["Normal"], b.inputs["Normal"])
+    # capped reflection: diffuse water colour + at most 15 % gloss; the SUN must not add gloss (render with sun_spec=0): with the ortho camera every
+    # point sees the sun from the same angle, so in the view near the mirror angle (q1) the whole surface turned white, already at sun_spec 0.05
+    df = nt.nodes.new("ShaderNodeBsdfDiffuse"); gl = nt.nodes.new("ShaderNodeBsdfGlossy"); gl.inputs["Roughness"].default_value = 0.12
+    L(m2.outputs[2], df.inputs["Color"]); L(bm.outputs["Normal"], df.inputs["Normal"]); L(bm.outputs["Normal"], gl.inputs["Normal"])
+    ms = nt.nodes.new("ShaderNodeMixShader"); ms.inputs["Fac"].default_value = 0.15; L(df.outputs["BSDF"], ms.inputs[1]); L(gl.outputs["BSDF"], ms.inputs[2])
+    L(ms.outputs["Shader"], o.inputs["Surface"]); return m
+
 def get(name):
     if name in bpy.data.materials: return bpy.data.materials[name]
     return pmat(name, **LIB[name][1])

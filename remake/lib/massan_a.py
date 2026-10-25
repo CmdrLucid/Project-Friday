@@ -308,7 +308,7 @@ def face_camera(ob, co, upright=True):
     if "base" in ob:
         h = mathutils.Vector((d.x, d.y, 0)).normalized(); ob.location = mathutils.Vector(ob["base"]) + h * FIG_FWD
 
-def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=False, figures=(), quarter=False, tz=38, fh=190):
+def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=False, figures=(), quarter=False, tz=38, fh=190, sun_spec=1.0):
     """game view (the original's projection, heights squashed like the game) + turned views and a low perspective 'hero' shot (true heights).
     Needs the scene filled; uses blx.game_view (sets light / world).  Files: out/<view>.png"""
     import bpy, mathutils, blx
@@ -317,7 +317,7 @@ def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=F
     if not outlines: sc.render.use_freestyle = False
     for f in figures: f.scale = (1, 1, 1); face_camera(f, co, upright=False)   # game view: the figure faces the screen like the original sprite
     if modern:                                                                 # the style C light (lib/cmat.py); modern="std" keeps the game's colours
-        import cmat; cmat.modern_look(sc, agx=(modern != "std"))
+        import cmat; cmat.modern_look(sc, agx=(modern != "std")); bpy.data.objects["sun"].data.specular_factor = sun_spec
         bpy.ops.render.render(write_still=True)
     if quarter:                                                                # the remake camera (user 2026-10-25): game projection, turned in 90 degree steps only
         zs = math.sqrt(2.0 / 3.0) if squash_game else 1.0
