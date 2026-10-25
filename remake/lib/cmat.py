@@ -22,6 +22,8 @@ def pmat(name, c1, c2, scale=0.15, detail=4.0, bump=0.3, stretch=(1, 1, 1), roug
         wv = nt.nodes.new("ShaderNodeTexWave"); wv.wave_type = "BANDS"; wv.bands_direction = "X"; wv.inputs["Scale"].default_value = streaks; wv.inputs["Distortion"].default_value = 6.0
         mp2 = nt.nodes.new("ShaderNodeMapping"); mp2.inputs["Rotation"].default_value = (0, math.radians(90), 0); L(tc.outputs["Object"], mp2.inputs["Vector"]); L(mp2.outputs["Vector"], wv.inputs["Vector"])
         mx = nt.nodes.new("ShaderNodeMath"); mx.operation = "MULTIPLY"; L(wv.outputs["Fac"], mx.inputs[0]); L(height, mx.inputs[1]); height = mx.outputs[0]
+        sc_ = nt.nodes.new("ShaderNodeMix"); sc_.data_type = "RGBA"; sc_.blend_type = "MULTIPLY"; sc_.inputs["Factor"].default_value = 0.45   # dark gaps between strands
+        L(colour, sc_.inputs[6]); L(wv.outputs["Color"], sc_.inputs[7]); colour = sc_.outputs[2]
     if strata:                                                                   # horizontal rock layers, slightly wavy
         wv = nt.nodes.new("ShaderNodeTexWave"); wv.wave_type = "BANDS"; wv.bands_direction = "Z"; wv.inputs["Scale"].default_value = strata; wv.inputs["Distortion"].default_value = 3.0
         L(tc.outputs["Object"], wv.inputs["Vector"])
@@ -53,7 +55,7 @@ LIB = {
     "post":     ("light wood: posts, beams", dict(c1=(150, 92, 44), c2=(196, 130, 70), scale=0.2, stretch=(1, 1, 5), bump=0.2)),
     "endgrain": ("cut log ends", dict(c1=(170, 120, 70), c2=(214, 168, 110), scale=0.4, bump=0.1)),
     "plank":    ("dark planks: doors, crates", dict(c1=(92, 58, 28), c2=(128, 84, 44), scale=0.3, stretch=(1, 1, 6), bump=0.4, rough=0.85)),
-    "thatch":   ("straw roof", dict(c1=(176, 126, 30), c2=(240, 200, 90), scale=0.25, stretch=(1, 1, 4), bump=1.0, rough=0.9, streaks=3.0)),
+    "thatch":   ("straw roof", dict(c1=(190, 128, 18), c2=(242, 196, 66), scale=0.35, stretch=(1, 1, 5), bump=1.2, rough=0.9, streaks=4.5)),
     "under":    ("straw underside / shadow", dict(c1=(110, 80, 24), c2=(150, 112, 40), rough=1.0)),
     "dark":     ("openings, inside", dict(c1=(10, 12, 8), c2=(24, 26, 16), rough=1.0)),
     "hole":     ("window hole", dict(c1=(8, 14, 10), c2=(20, 28, 20), rough=1.0)),

@@ -108,11 +108,12 @@ def contour(t, rc0=6.0, K=(24, 5), hx0=HX):
         for j in range(1, K[0]): pts.append((ex + (tx - ex) * j / K[0], ey + (ty - ey) * j / K[0]))
     return pts
 
-def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, door="dark", door_top=None):
+def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, door="dark", door_top=None, course=0.0, step=0.0, ridge_knot=False):
     """adds the house to a blx.Mesh with materials bark, post, endgrain, dark, hole, thatch, under (+ 'sign' if sign_uv is given:
     function (x, y, z) -> texel uv of the sign image).  hx > HX = more roof overhang (the slope continues down past the picture's eave),
     lip = eave roll radius; door = 'dark' (opening as in the picture), 'open' (dark opening in a frame: jambs, lintel, threshold) or 'planks'
-    (the frame + a plank door leaf + handle; needs material 'plank')."""
+    (the frame + a plank door leaf + handle; needs material 'plank').  course / step > 0: the thatch is laid in overlapping courses (each course
+    'course' units long down the slope, its butt end 'step' units proud of the one below); ridge_knot: a straw bundle at the top holding the sticks."""
     import random
     rnd = random.Random(5)
     # dark core: the seams between the logs show black like the original
@@ -175,8 +176,19 @@ def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, do
         phi = math.radians(-90 + 180 * k / 6); pts = contour(LIP * (1 - math.cos(phi)), hx0=hx); jit = math.cos(phi) * roof_jitter
         pts = [(x + (rnd.random() - 0.5) * jit, y + (rnd.random() - 0.5) * jit) for x, y in pts]
         rings.append((pts, ze - LIP + LIP * math.sin(phi)))
-    for k in range(1, 17):
-        t = LIP + (hx - 0.8 - LIP) * k / 16; rings.append((contour(t, hx0=hx), rzz(t)))
+    if course > 0:                                                             # thatch courses: z = slope + step * (1 - position in the course), a butt edge at every course start
+        tmax = hx - 0.8; c0 = LIP
+        while c0 < tmax - 0.5:
+            c1 = min(c0 + course, tmax); fade = 1 - c0 / hx                     # the steps get smaller towards the top
+            for k in range(7):
+                t = c0 + (c1 - c0) * k / 6; pts = contour(t, hx0=hx); jit = 1.1 if k == 0 else 0.35          # ragged butt edge, rougher straw
+                pts = [(x + (rnd.random() - 0.5) * jit + 0.5 * jit * math.sin(0.7 * (x + y) + c0), y + (rnd.random() - 0.5) * jit) for x, y in pts]
+                if k == 6: pts = contour(t, hx0=hx)                              # the next course's butt edge starts on this exact ring (no gaps)
+                rings.append((pts, rzz(t) + step * fade * (1 - k / 6)))
+            c0 = c1
+    else:
+        for k in range(1, 17):
+            t = LIP + (hx - 0.8 - LIP) * k / 16; rings.append((contour(t, hx0=hx), rzz(t)))
     tex = lambda x, y: ((x - (CX - hx)) * den, ((CY + hx) - y) * den)
     for (A, za), (B, zb) in zip(rings, rings[1:]):
         n = len(A)
@@ -186,6 +198,14 @@ def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, do
                    [tex(*A[i]), tex(*A[j]), tex(*B[j]), tex(*B[i])])
     under, zu = rings[0]; M.face("under", [G(x, y, zu) for x, y in under], [(x * den, y * den) for x, y in under])
     top, zt = rings[-1]; M.face("thatch", [G(x, y, zt) for x, y in top], [tex(x, y) for x, y in top])
+    if ridge_knot:                                                             # straw bundle at the top: a squat rounded cap, tied with a band
+        for k in range(10):
+            a0 = 2 * math.pi * k / 10; a1 = 2 * math.pi * (k + 1) / 10
+            for j in range(6):
+                p = lambda a, jj: (CX + 5.5 * math.cos(a) * math.cos(math.pi / 2 * jj / 6), CY + 5.5 * math.sin(a) * math.cos(math.pi / 2 * jj / 6), ZT - 2.5 + 4.5 * math.sin(math.pi / 2 * jj / 6))
+                q = [p(a0, j), p(a1, j), p(a1, j + 1), p(a0, j + 1)]
+                M.face("thatch", [G(*v) for v in q], [tex(v[0], v[1]) for v in q])
+        M.torus("post", G(CX, CY, ZT - 1.2), (1, 0, 0), (0, 1, 0), 5.3, 0.6, n=24, m=6)
     # ridge: two crossed pairs of short sticks at the top
     for ax in (0, 1):
         for sgn in (-1, 1):
