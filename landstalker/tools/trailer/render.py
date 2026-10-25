@@ -397,7 +397,6 @@ def frame_at(t):
         t1 = B(FEATURES[k + 1][0]) if k + 1 < len(FEATURES) else B(33)
         sp = 4.0 if cl == "ffwd" else 1.0
         img = picture(clip(cl).get(src_index(t, t0, sp)), 3)
-        punch = beat_punch(t, t0, t1, 0.5, 0.025)
         fl = max(0, 1 - (t - t0) / 0.2) * 0.7
         if cl == "ffwd":
             img = rgbsplit(img, int(4 * S))
