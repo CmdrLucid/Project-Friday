@@ -31,7 +31,7 @@ else:
     assert s.count(d) == 1, "platform_sdl.c: HD shot hook layout changed"
     s = s.replace(d, '''    { const char *rl = getenv("LANDSTALKER_HD_SHOT");   /* LK_R3D v1: the 3D room picture */
       if (rl && *rl && lk_r3d_on() && lk_shot_wanted(rl, frame)) { int iw3, ih3; uint32_t *im3 = lk_r3d_assemble((const uint32_t *)framebuffer, 320 + 2 * lk_wide_e, lk_wide_e, &iw3, &ih3); char p3[600]; snprintf(p3, sizeof p3, "%s/r3dshot_%06ld_w%d.png", dir, frame, iw3);
-        { struct stat st3; if (stat(dir, &st3) != 0) { mkdir(dir, 0777); } }
+        { struct stat st3; if (stat(dir, &st3) != 0) { { extern int lk_mkdir(const char *); lk_mkdir(dir); } } }
         if (im3) printf("shot: %s %s (%dx%d 3D room)\\n", lk_shot_png(p3, im3, iw3, ih3, 1) ? "wrote" : "FAILED", p3, iw3, ih3); else printf("shot: no 3D picture at frame %ld (scene not ready / not a map frame)\\n", frame); } }
 ''' + d, 1)
     s = s + "\n/* " + VER + " */\n"

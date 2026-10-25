@@ -161,7 +161,7 @@ static void r3_find_roofs(r3_scene_t *sc, r3_ctx_t *c) {
         for (y = by0; y <= by1; y++) for (x = bx0; x <= bx1; x++) rem[y][x] = 0;
     }
     free(c->th); free(c->rmask); c->th = c->rmask = NULL;
-    { char dir[600]; snprintf(dir, sizeof dir, "%s/.landstalker_r3d", home ? home : "."); mkdir(dir, 0777); }
+    { char dir[600]; snprintf(dir, sizeof dir, "%s/.landstalker_r3d", home ? home : "."); { extern int lk_mkdir(const char *); lk_mkdir(dir); } }
     cf = fopen(path, "w");
     if (cf) { int r; for (r = 0; r < sc->nroofs; r++) fprintf(cf, "%.3f %.3f %.3f %.3f %.3f %.3f %.3f %d %d %d %d %d\n", sc->roofs[r].X0, sc->roofs[r].X1, sc->roofs[r].Y0, sc->roofs[r].Y1, sc->roofs[r].z0, sc->roofs[r].H, sc->roofs[r].o, sc->roofs[r].axis, sc->roofs[r].cx0, sc->roofs[r].cx1, sc->roofs[r].cy0, sc->roofs[r].cy1); fclose(cf); }
 }

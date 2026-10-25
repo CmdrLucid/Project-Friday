@@ -372,9 +372,9 @@ s = s.replace(c, "extern int lk_hd_n; extern int lk_hd_active(void); extern int 
 d = "    if (!list || !*list || !lk_shot_wanted(list, frame)) return;"
 assert s.count(d) == 1
 s = s.replace(d, '''    { const char *hl = getenv("LANDSTALKER_HD_SHOT");   /* LK_HD v1: the HD picture */
-      if (hl && *hl && !lk_hd_active() && lk_hd_fxany() && lk_shot_wanted(hl, frame)) { int sw1 = 320 + 2 * lk_wide_e; const uint32_t *img1 = lk_hd_dof1x((const uint32_t *)framebuffer, sw1, lk_wide_e); char path1[600]; snprintf(path1, sizeof path1, "%s/dofshot_%06ld_w%d.png", dir, frame, sw1); { struct stat st1; if (stat(dir, &st1) != 0) { mkdir(dir, 0777); } } printf("shot: %s %s (1x depth blur)\\n", lk_shot_png(path1, img1, sw1, 224, 1) ? "wrote" : "FAILED", path1); }
+      if (hl && *hl && !lk_hd_active() && lk_hd_fxany() && lk_shot_wanted(hl, frame)) { int sw1 = 320 + 2 * lk_wide_e; const uint32_t *img1 = lk_hd_dof1x((const uint32_t *)framebuffer, sw1, lk_wide_e); char path1[600]; snprintf(path1, sizeof path1, "%s/dofshot_%06ld_w%d.png", dir, frame, sw1); { struct stat st1; if (stat(dir, &st1) != 0) { { extern int lk_mkdir(const char *); lk_mkdir(dir); } } } printf("shot: %s %s (1x depth blur)\\n", lk_shot_png(path1, img1, sw1, 224, 1) ? "wrote" : "FAILED", path1); }
       if (hl && *hl && lk_hd_active() && lk_shot_wanted(hl, frame)) { int iw, ih; uint32_t *img = lk_hd_assemble((const uint32_t *)framebuffer, 320 + 2 * lk_wide_e, lk_wide_e, &iw, &ih); char path[600]; snprintf(path, sizeof path, "%s/hdshot_%06ld_w%d.png", dir, frame, iw);
-        { struct stat st; if (stat(dir, &st) != 0) { mkdir(dir, 0777); } }
+        { struct stat st; if (stat(dir, &st) != 0) { { extern int lk_mkdir(const char *); lk_mkdir(dir); } } }
         if (img) printf("shot: %s %s (%dx%d HD)\\n", lk_shot_png(path, img, iw, ih, 1) ? "wrote" : "FAILED", path, iw, ih); } }
 ''' + d, 1)
 s = s + "\n/* " + VER + " */\n"

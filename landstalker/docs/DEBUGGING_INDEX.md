@@ -159,3 +159,4 @@
 - L1270: Seamless Doors: white veil, walk on, time-free room load (2026-10-23 evening, Opus 5.5, dev b4f96eb .. 1748e2b)
 - L1280: HD-2D effects: depth blur, bloom, vignette, color grade (2026-10-24, dev)
 - L1285: Session 2026-10-24 (Deck, Sonnet 5.5): Options hang, Lights, 3D room (dev 991228f)
+- L1291: Session 2026-10-25 (Deck, Sonnet 5.5): Quick Equip rounds, Better Menu, defaults, release v1.0.0 (dev ed47591, main a370bd2, tag v1.0.0)
