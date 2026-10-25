@@ -17,6 +17,14 @@ if VER not in s:
     assert s.count(a) == 1
     module = r'''/* ---- LK_EQUIP v1: quick equip request (tools/patch_equip.py) ---- */
 static int lk_eq_req = -1; static long lk_eq_req_frame;
+static int lk_qeq_v = -1, lk_bm_v = -1;
+static void lk_eqopt_path(char *b, size_t n, const char *f) { const char *h = getenv("HOME"); snprintf(b, n, "%s/%s", h ? h : ".", f); }
+static int lk_eqopt_load(const char *f, int def) { char p[512]; FILE *fp; int v = def; lk_eqopt_path(p, sizeof p, f); fp = fopen(p, "r"); if (fp) { int x; if (fscanf(fp, "%d", &x) == 1) v = x ? 1 : 0; fclose(fp); } return v; }
+static void lk_eqopt_save(const char *f, int v) { char p[512]; FILE *fp; lk_eqopt_path(p, sizeof p, f); fp = fopen(p, "w"); if (fp) { fprintf(fp, "%d\n", v); fclose(fp); } }
+int lk_qeq_get(void) { if (lk_qeq_v < 0) { const char *e = getenv("LANDSTALKER_QEQUIP"); lk_qeq_v = lk_eqopt_load(".landstalker_qequip", 1); if (e && *e) lk_qeq_v = atoi(e) ? 1 : 0; } return lk_qeq_v; }   /* Quick Equip (R2 + direction), default On */
+void lk_qeq_set(int v) { lk_qeq_get(); lk_qeq_v = v ? 1 : 0; lk_eqopt_save(".landstalker_qequip", lk_qeq_v); }
+int lk_bm_get(void) { if (lk_bm_v < 0) { const char *e = getenv("LANDSTALKER_BETTERMENU"); lk_bm_v = lk_eqopt_load(".landstalker_bmenu", 0); if (e && *e) lk_bm_v = atoi(e) ? 1 : 0; } return lk_bm_v; }   /* Better Menu (B in Use / Equip goes back to the bar), default Off */
+void lk_bm_set(int v) { lk_bm_get(); lk_bm_v = v ? 1 : 0; lk_eqopt_save(".landstalker_bmenu", lk_bm_v); }
 static long lk_eq_stamp = -100;
 void lk_eq_stamp_now(void) { lk_eq_stamp = platform_frame_number(); }
 int lk_eq_active(void) { return platform_frame_number() - lk_eq_stamp < 4; }   /* the game's map pass ran a moment ago = a save is loaded and nothing blocks (no title / menu / dialogue): the overlay shows only then */
@@ -41,6 +49,7 @@ if VER not in s:
     module = r'''/* ---- LK_EQUIP v1: quick equip (tools/patch_equip.py) ---- */
 extern int lk_eq_take(void);
 extern void lk_eq_stamp_now(void);
+extern int lk_bm_get(void);
 extern int lk_eq_is_held(void);
 extern void lk_quick_capture(int id);
 extern int lk_quick_icon_have(int id);
@@ -111,6 +120,47 @@ static void lk_h_pab_eq(void) {
     lk_osd_equip_disarm();
     lk_o_pab_eq();
 }
+/* ---- Better Menu: B (or START) in the Use list / Equip grid goes back to the bar (Use / Equip / Options) instead of closing the whole menu ----
+   CheckForMenuOpen: bar = sub_22E8C ($022E8C -> $02488A: returns carry clear = B, else d0 0 = Use / 1 = Equip); Use: loc_D3BE (d1 = 0 item chosen in d0, 1 = B, 2 = START) then UseItem; Equip: sub_EAD4 (returns on B / START),
+   then the four sub_7718 + UpdatePlayerDefence apply the choice and the menu closes.  The wrapper of the bar runs the lists itself and loops; when the user really leaves, the caller gets the answer again
+   (pending result: the wrapper of the list / grid returns the stored registers instead of running again). */
+static gen_func_t lk_o_bar_bm, lk_o_use_bm, lk_o_eqg_bm;
+static int lk_bm_pend;   /* 0 none, 1 = Use list answered (lk_bm_d0 / d1), 2 = Equip grid answered */
+static uint32_t lk_bm_d0, lk_bm_d1;
+static void lk_bm_bar_redraw(int equip) {   /* the bar's own preview of the tab (what LEFT / RIGHT on the bar call), arrow Y state as LoadYesNoPrompt leaves it */
+    int y = (int)(int8_t)bus_read8(0xFF1129) + 0x134;
+    lk_call(equip ? 0x00039Eu : 0x000398u);
+    bus_write16(0xFF1800u, (uint16_t)y); bus_write16(0xFF07C8u, (uint16_t)y);
+}
+static void lk_bm_apply_equip(void) {   /* the part of CheckForMenuOpen that follows sub_EAD4, without the fades */
+    M68kContext sv = g_m68k; int k;
+    g_m68k.d[0] = 0; g_m68k.a[0] = 0xFF114Eu;
+    for (k = 0; k < 4; k++) lk_call(0x007718u);
+    lk_call(0x0076ECu);
+    g_m68k = sv;
+}
+static void lk_h_bar_bm(void) {
+    static int dbg = -1; if (dbg < 0) dbg = getenv("LANDSTALKER_BM_DEBUG") != NULL;
+    if (dbg) fprintf(stderr, "better menu: bar entered (bm %d, in menu %d)\n", lk_bm_get(), lk_in_menu());
+    if (!lk_bm_get() || !lk_in_menu()) { lk_o_bar_bm(); return; }
+    for (;;) {
+        lk_call(0x02488Au);   /* not lk_o_bar_bm(): $022E8C is a thunk (jmp), its original only schedules the tail jump and returns at once */
+        if (dbg) fprintf(stderr, "better menu: bar returned at frame %ld C=%d d0=%u\n", platform_frame_number(), (int)g_m68k.flag_C, (unsigned)(g_m68k.d[0] & 0xFF));
+        if (!g_m68k.flag_C) return;                              /* B on the bar: the menu closes as always */
+        if ((g_m68k.d[0] & 0xFF) == 0) {                         /* Use */
+            uint32_t d0, d1;
+            lk_call(0x00D3BEu); d0 = g_m68k.d[0]; d1 = g_m68k.d[1];
+            if ((d1 & 0xFF) == 0 || (d1 & 0xFF) == 2) { lk_bm_pend = 1; lk_bm_d0 = d0; lk_bm_d1 = d1; g_m68k.d[0] = 0; g_m68k.flag_C = true; return; }   /* item chosen / START: the caller takes the answer */
+            lk_bm_bar_redraw(0);
+        } else {                                                 /* Equip */
+            lk_call(0x00EAD4u); lk_bm_d1 = g_m68k.d[1]; lk_bm_apply_equip();
+            if ((lk_bm_d1 & 0xFF) == 2) { lk_bm_pend = 2; g_m68k.d[0] = 1; g_m68k.flag_C = true; return; }   /* START: close the menu */
+            lk_bm_bar_redraw(1);
+        }
+    }
+}
+static void lk_h_use_bm(void) { if (lk_bm_pend == 1) { lk_bm_pend = 0; g_m68k.d[0] = lk_bm_d0; g_m68k.d[1] = lk_bm_d1; func_table_rts(); return; } lk_o_use_bm(); }
+static void lk_h_eqg_bm(void) { if (lk_bm_pend == 2) { lk_bm_pend = 0; g_m68k.d[1] = 2; func_table_rts(); return; } lk_o_eqg_bm(); }
 static void lk_eq_install(void) {
     static int done;
     if (done) return;
@@ -118,6 +168,8 @@ static void lk_eq_install(void) {
     lk_o_pab_eq = func_table_lookup(0x0066AC);
     lk_o_wuv_eq = func_table_lookup(0x000B5E); if (lk_o_wuv_eq) func_table_register(0x000B5E, lk_h_wuv_eq);
     lk_o_cur_eq = func_table_lookup(0x00D714); if (lk_o_cur_eq) func_table_register(0x00D714, lk_h_cur_eq);
+    lk_o_bar_bm = func_table_lookup(0x022E8C); lk_o_use_bm = func_table_lookup(0x00D3BE); lk_o_eqg_bm = func_table_lookup(0x00EAD4);
+    if (lk_o_bar_bm && lk_o_use_bm && lk_o_eqg_bm) { func_table_register(0x022E8C, lk_h_bar_bm); func_table_register(0x00D3BE, lk_h_use_bm); func_table_register(0x00EAD4, lk_h_eqg_bm); } else fprintf(stderr, "better menu: menu functions not found\n");
     if (lk_o_pab_eq) func_table_register(0x0066AC, lk_h_pab_eq); else fprintf(stderr, "equip: ProcessActionButton not found\n");
 }
 '''

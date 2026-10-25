@@ -57,6 +57,10 @@ extern void lk_own_set(int v);
 extern int lk_hd_get(void);   /* HD Graphics switch, saved in ~/.landstalker_hd, takes effect at the next start (tools/patch_own.py) */
 extern void lk_hd_set(int v);
 extern void lk_quick_set(int v);
+extern int lk_qeq_get(void);   /* Quick Equip / Better Menu switches (tools/patch_equip.py) */
+extern void lk_qeq_set(int v);
+extern int lk_bm_get(void);
+extern void lk_bm_set(int v);
 extern int lk_ffwd_get(void);   /* fast forward speed option (tools/patch_ffwd.py) */
 extern void lk_ffwd_set(int v);
 extern int lk_diff_get(int which);   /* difficulty: 0 = damage taken index, 1 = enemy HP index (tools/patch_difficulty.py) */
@@ -68,7 +72,7 @@ int platform_option_get(int id) {   /* 0 widescreen step 0..3, 1 full height 0/1
     if (!lk_disp_loaded) lk_disp_load();
     if (!lk_dd_loaded) lk_dd_load();
     switch (id) { case 0: return lk_wide_e / 16; case 1: return lk_tall > 0; case 2: return lk_fx_mode; case 3: return lk_fsc_on; case 4: return lk_scale_mode; case 5: return lk_dd_mode;
-                  case 6: lk_snd_get(&m, &e, &t); return m; case 7: lk_snd_get(&m, &e, &t); return e; case 8: lk_snd_get(&m, &e, &t); return t; case 9: return lk_shadow_soft_get() ? 2 : lk_shadow_get(); case 10: return lk_quick_get(); case 11: return lk_ffwd_get(); case 12: return lk_diff_get(0); case 13: return lk_diff_get(1); case 14: return lk_qsave_get(); case 15: return lk_carry_get(); case 16: return lk_ii_get(); case 17: return lk_bq_get(); case 18: return lk_tbox_get(); case 19: return lk_own_get(); case 20: return lk_gaia_get(); case 22: return lk_seam_get(); case 23: return lk_dof_get(); case 24: case 25: case 26: case 27: return lk_fxlook_get(id - 24); case 28: return lk_r3d_get(); case 29: return lk_r3d_houses_get(); case 30: return lk_camctl_get(); case 31: return lk_remake_get(); case 32: return lk_r3d_light_get(); case 33: return lk_r3d_objects_get(); case 34: return lk_r3d_trees_get(); case 21: return lk_hd_get(); }
+                  case 6: lk_snd_get(&m, &e, &t); return m; case 7: lk_snd_get(&m, &e, &t); return e; case 8: lk_snd_get(&m, &e, &t); return t; case 9: return lk_shadow_soft_get() ? 2 : lk_shadow_get(); case 10: return lk_quick_get(); case 11: return lk_ffwd_get(); case 12: return lk_diff_get(0); case 13: return lk_diff_get(1); case 14: return lk_qsave_get(); case 15: return lk_carry_get(); case 16: return lk_ii_get(); case 17: return lk_bq_get(); case 18: return lk_tbox_get(); case 19: return lk_own_get(); case 20: return lk_gaia_get(); case 22: return lk_seam_get(); case 23: return lk_dof_get(); case 24: case 25: case 26: case 27: return lk_fxlook_get(id - 24); case 28: return lk_r3d_get(); case 29: return lk_r3d_houses_get(); case 30: return lk_camctl_get(); case 31: return lk_remake_get(); case 32: return lk_r3d_light_get(); case 33: return lk_r3d_objects_get(); case 34: return lk_r3d_trees_get(); case 35: return lk_qeq_get(); case 36: return lk_bm_get(); case 21: return lk_hd_get(); }
     return 0;
 }
 void platform_option_step(int id) {
@@ -81,7 +85,7 @@ void platform_option_step(int id) {
                   case 9: { int v = (lk_shadow_soft_get() ? 2 : lk_shadow_get()) + 1; if (v > 2) v = 0; lk_shadow_set(v > 0); lk_shadow_soft_set(v == 2); } break;   /* Off / On (things in the air) / On + Soft (also contact shadows under creatures, HD picture only) */
                   case 10: lk_quick_set(!lk_quick_get()); break;
                   case 11: lk_ffwd_set((lk_ffwd_get() + 1) % 4); break;
-                  case 12: lk_diff_set(0, (lk_diff_get(0) + 1) % 6); break; case 13: lk_diff_set(1, (lk_diff_get(1) + 1) % 5); break; case 14: lk_qsave_set(!lk_qsave_get()); break; case 15: lk_carry_set(!lk_carry_get()); break; case 16: lk_ii_set(!lk_ii_get()); break; case 17: lk_bq_set(!lk_bq_get()); break; case 18: lk_tbox_set(!lk_tbox_get()); break; case 19: lk_own_set(!lk_own_get()); break; case 20: lk_gaia_set(!lk_gaia_get()); break; case 22: lk_seam_set(!lk_seam_get()); break; case 23: lk_dof_set((lk_dof_get() + 1) % 4); break; case 28: lk_r3d_set((lk_r3d_get() + 1) % 3); break; case 29: lk_r3d_houses_set((lk_r3d_houses_get() + 1) % 3); break; case 30: lk_camctl_set(!lk_camctl_get()); break; case 31: lk_remake_set(!lk_remake_get()); break; case 32: lk_r3d_light_set(!lk_r3d_light_get()); break; case 33: lk_r3d_objects_set(!lk_r3d_objects_get()); break; case 34: lk_r3d_trees_set(!lk_r3d_trees_get()); break; case 24: case 25: case 26: case 27: lk_fxlook_set(id - 24, (lk_fxlook_get(id - 24) + 1) % 4); break; case 21: lk_hd_set(!lk_hd_get()); break; }
+                  case 12: lk_diff_set(0, (lk_diff_get(0) + 1) % 6); break; case 13: lk_diff_set(1, (lk_diff_get(1) + 1) % 5); break; case 14: lk_qsave_set(!lk_qsave_get()); break; case 15: lk_carry_set(!lk_carry_get()); break; case 16: lk_ii_set(!lk_ii_get()); break; case 17: lk_bq_set(!lk_bq_get()); break; case 18: lk_tbox_set(!lk_tbox_get()); break; case 19: lk_own_set(!lk_own_get()); break; case 20: lk_gaia_set(!lk_gaia_get()); break; case 22: lk_seam_set(!lk_seam_get()); break; case 23: lk_dof_set((lk_dof_get() + 1) % 4); break; case 28: lk_r3d_set((lk_r3d_get() + 1) % 3); break; case 29: lk_r3d_houses_set((lk_r3d_houses_get() + 1) % 3); break; case 30: lk_camctl_set(!lk_camctl_get()); break; case 31: lk_remake_set(!lk_remake_get()); break; case 32: lk_r3d_light_set(!lk_r3d_light_get()); break; case 33: lk_r3d_objects_set(!lk_r3d_objects_get()); break; case 34: lk_r3d_trees_set(!lk_r3d_trees_get()); break; case 35: lk_qeq_set(!lk_qeq_get()); break; case 36: lk_bm_set(!lk_bm_get()); break; case 24: case 25: case 26: case 27: lk_fxlook_set(id - 24, (lk_fxlook_get(id - 24) + 1) % 4); break; case 21: lk_hd_set(!lk_hd_get()); break; }
     lk_osd_frames = 0;   /* the menu shows the value itself */
 }
 ''' + b, 1)
@@ -139,10 +143,10 @@ static void lk_menu_print(const char *t, int x) {
 }
 static void lk_opt_put_tile(int col, int row, int tile) { bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | tile)); }
 static void lk_opt_put(int col, int row, const char *t) { for (; *t; t++, col++) bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | lk_chr(*t))); }
-static const char *lk_id_name[35] = { "Widescreen", "Full Height", "Filter", "Fullscreen", "Scaling", "De-Dither", "Music Volume", "Effects Volume", "Speech Sound", "Shadows", "Quick Items", "Fast Forward", "Damage Taken", "Enemy HP", "Quick Save", "Fix Ride Objects", "Item Info", "Buy Quantity", "Map Behind Text", "Own Renderer", "Live Gaia Effect", "HD Graphics", "Seamless Doors", "Depth Blur", "Bloom", "Vignette", "Color Grade", "Lights", "3D Room", "3D Houses", "Camera Controls", "Remake", "3D Light", "3D Objects", "3D Trees" };   /* platform option id -> label */
+static const char *lk_id_name[37] = { "Widescreen", "Full Height", "Filter", "Fullscreen", "Scaling", "De-Dither", "Music Volume", "Effects Volume", "Speech Sound", "Shadows", "Quick Items", "Fast Forward", "Damage Taken", "Enemy HP", "Quick Save", "Fix Ride Objects", "Item Info", "Buy Quantity", "Map Behind Text", "Own Renderer", "Live Gaia Effect", "HD Graphics", "Seamless Doors", "Depth Blur", "Bloom", "Vignette", "Color Grade", "Lights", "3D Room", "3D Houses", "Camera Controls", "Remake", "3D Light", "3D Objects", "3D Trees", "Quick Equip", "Better Menu" };   /* platform option id -> label */
 static const int lk_ids_video[10] = { 0, 1, 4, 2, 5, 3, 9, 18, 19, 21 }   /* PAUSED 2026-10-24: the rows 23..34 (Depth Blur, Bloom, Vignette, Color Grade, Lights, 3D Room, 3D Houses, Camera Controls, Remake, 3D Light, 3D Objects, 3D Trees) are hidden, their code stays (docs/HANDOFF.md 0a101) */;
 static const int lk_ids_audio[3] = { 6, 7, 8 };
-static const int lk_ids_game[7] = { 10, 17, 15, 16, 14, 11, 20 };   /* Quality of Life (Seamless Doors, id 22, hidden for now) */
+static const int lk_ids_game[9] = { 10, 35, 17, 15, 16, 14, 11, 20, 36 };   /* Quality of Life (Seamless Doors, id 22, hidden for now) */
 static const int lk_ids_diff[2] = { 12, 13 };   /* Difficulty */
 static const int lk_ids_key[13] = { 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112 };   /* Keybindings page: 11 actions + Reset Defaults (scrolls) */
 static int lk_opt_capid = -1;
@@ -170,13 +174,13 @@ static const char *lk_opt_val(int id, int v) {
     if (id == 6 || id == 7) { snprintf(buf, sizeof buf, "%d", v); return buf; }
     return onoff[v & 1];
 }
-static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 6 : lk_opt_pg == 1 ? 10 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 3 ? 7 : lk_opt_pg == 4 ? 2 : 13; }
+static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 6 : lk_opt_pg == 1 ? 10 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 3 ? 9 : lk_opt_pg == 4 ? 2 : 13; }
 static int lk_opt_vis(void) { int n = lk_opt_nrows(); return n > 7 ? 7 : n; }   /* rows shown at once */
 static void lk_opt_fixscroll(void) { int v = lk_opt_vis(); if (lk_opt_row < lk_opt_scroll) lk_opt_scroll = lk_opt_row; if (lk_opt_row >= lk_opt_scroll + v) lk_opt_scroll = lk_opt_row - v + 1; }
 static int lk_opt_rowid(int r) { return lk_opt_pg == 1 ? lk_ids_video[r] : lk_opt_pg == 2 ? lk_ids_audio[r] : lk_opt_pg == 3 ? lk_ids_game[r] : lk_opt_pg == 4 ? lk_ids_diff[r] : lk_opt_pg == 5 ? lk_ids_key[r] : -1 - r; }   /* root rows: -1 Video, -2 Audio, -3 Gameplay */
 static int lk_opt_rowy(int r) { return (lk_opt_pg == 2 || lk_opt_pg == 4) ? 2 + 3 * r : 2 + 2 * r; }
 static const char *lk_opt_rowname(int r) { int id = lk_opt_rowid(r); return id >= 100 ? (id == 112 ? "Reset Defaults" : lk_bind_name(id - 100)) : id >= 0 ? lk_id_name[id] : id == -1 ? "Video" : id == -2 ? "Audio" : id == -3 ? "Quality of Life" : id == -4 ? "Difficulty" : id == -5 ? "Keybindings" : "Quit Game"; }
-static int lk_opt_cnt(int id) { static const int c[35] = { 4, 2, 5, 2, 4, 4, 11, 11, 2, 3, 2, 4, 6, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 2, 2 }; return (id >= 0 && id < 35) ? c[id] : 2; }   /* one entry per option id (lk_id_name): 23 Depth Blur, 24 Bloom, 25 Vignette, 26 Color Grade = 4 values; LEFT = count-1 steps, so a short table made LEFT run a garbage number of steps (hang) */
+static int lk_opt_cnt(int id) { static const int c[37] = { 4, 2, 5, 2, 4, 4, 11, 11, 2, 3, 2, 4, 6, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 2, 2, 2, 2 }; return (id >= 0 && id < 37) ? c[id] : 2; }   /* one entry per option id (lk_id_name): 23 Depth Blur, 24 Bloom, 25 Vignette, 26 Color Grade = 4 values; LEFT = count-1 steps, so a short table made LEFT run a garbage number of steps (hang) */
 static void lk_opt_change(int id, int dir) {
     int n, k, steps;
     if (id >= 100) { if (dir > 0) { if (id == 112) lk_bind_reset(); else { lk_opt_capid = id; lk_bind_capture(id - 100); } } return; }   /* binding rows: A / RIGHT = wait for the next button / key press */
@@ -376,7 +380,7 @@ static void lk_win_text(int k, const char *l, int lx, const char *v, int vx) {
     }
     g_m68k = sv;
 }
-static const int lk_win_cnt[6] = { 6, 10, 3, 7, 2, 13 };
+static const int lk_win_cnt[6] = { 6, 10, 3, 9, 2, 13 };
 static int lk_win_scroll;   /* first visible option of a long page */
 static int lk_win_vis(int pg) { return lk_win_cnt[pg] > 7 ? 7 : lk_win_cnt[pg]; }   /* the window has room for the title and 7 tight rows (pitch 18) */
 static int lk_win_fix(int pg, int row) { int old = lk_win_scroll, v = lk_win_vis(pg); if (row < lk_win_scroll) lk_win_scroll = row; if (row >= lk_win_scroll + v) lk_win_scroll = row - v + 1; return old != lk_win_scroll; }   /* 1 = the visible part changed (the page is rebuilt) */

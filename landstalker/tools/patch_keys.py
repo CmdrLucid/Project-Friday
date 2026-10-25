@@ -125,6 +125,7 @@ extern void platform_display_toggle_coords(void);
 extern void platform_display_toggle_fullscreen(void);
 extern void platform_equip_request(int cat);   /* LK_EQUIP v1 */
 static int lk_eq_heldv;
+extern int lk_qeq_get(void);   /* Options > Quality of Life > Quick Equip */
 int lk_eq_is_held(void) { return lk_eq_heldv; }   /* the game side pauses while it is held */
 
 static void lk_keys_step(const uint8_t *keys, SDL_GameController **pads, uint16_t *buttons) {
@@ -173,8 +174,8 @@ static void lk_keys_step(const uint8_t *keys, SDL_GameController **pads, uint16_
           static uint16_t pdir; const uint16_t dm = GEN_BTN_UP | GEN_BTN_DOWN | GEN_BTN_LEFT | GEN_BTN_RIGHT;
           { static const char *ed2; static int edi; if (!edi) { edi = 1; ed2 = getenv("LANDSTALKER_EQDIR"); } if (ed2) { char l[200], key[40]; snprintf(l, sizeof l, ",%s,", ed2); for (int q = 0; q < 4; q++) for (int t = 0; t < 4; t++) { snprintf(key, sizeof key, ",%ld:%d,", frame - t, q); if (strstr(l, key)) *buttons |= (q == 0 ? GEN_BTN_UP : q == 1 ? GEN_BTN_RIGHT : q == 2 ? GEN_BTN_DOWN : GEN_BTN_LEFT); } } }   /* test aid LANDSTALKER_EQDIR="frame:q" (q 0 up 1 right 2 down 3 left), pressed for 4 frames */
           uint16_t dn = (uint16_t)(*buttons & dm), ed = (uint16_t)(dn & ~pdir);
-          lk_eq_heldv = d[LK_BEQ] && (lk_bind_pad[LK_BEQ] || lk_bind_key[LK_BEQ]);
-          if (d[LK_BEQ] && (lk_bind_pad[LK_BEQ] || lk_bind_key[LK_BEQ])) {
+          lk_eq_heldv = lk_qeq_get() && d[LK_BEQ] && (lk_bind_pad[LK_BEQ] || lk_bind_key[LK_BEQ]);
+          if (lk_eq_heldv) {
               if (ed & GEN_BTN_UP) platform_equip_request(0); else if (ed & GEN_BTN_RIGHT) platform_equip_request(1); else if (ed & GEN_BTN_DOWN) platform_equip_request(2); else if (ed & GEN_BTN_LEFT) platform_equip_request(3);
               *buttons = (uint16_t)(*buttons & ~dm); pdir = dn;
           } else pdir = 0; }
