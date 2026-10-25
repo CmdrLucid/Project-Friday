@@ -100,6 +100,37 @@ def rings_mat(name="stumptop", c1=(104, 116, 118), c2=(172, 180, 176), dark=(84,
     bm = nt.nodes.new("ShaderNodeBump"); bm.inputs["Strength"].default_value = 0.25; L(mr.outputs["Result"], bm.inputs["Height"]); L(bm.outputs["Normal"], b.inputs["Normal"])
     L(mx2.outputs[2], b.inputs["Base Color"]); L(b.outputs["BSDF"], o.inputs["Surface"]); return m
 
+def dirt_mat(name="path", base=((156, 98, 38), (204, 140, 66)), speck=(96, 60, 24), streak=(226, 168, 98), speck_amt=0.75, streak_amt=0.6, mask=None, other=None):
+    """packed earth like the original's ground (rooms 592 / 424): ochre base in large soft patches, fine dark speckles (grit), light streaks running
+    diagonally (drag marks seen in the picture), a little bump.  Object coordinates, 1 unit = 1 game pixel."""
+    m = bpy.data.materials.new(name); m.use_nodes = True; nt = m.node_tree; nt.nodes.clear(); L = nt.links.new
+    o = nt.nodes.new("ShaderNodeOutputMaterial"); b = nt.nodes.new("ShaderNodeBsdfPrincipled"); b.inputs["Roughness"].default_value = 0.95
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    n1 = nt.nodes.new("ShaderNodeTexNoise"); n1.inputs["Scale"].default_value = 0.03; n1.inputs["Detail"].default_value = 4.0; L(tc.outputs["Object"], n1.inputs["Vector"])
+    r1 = nt.nodes.new("ShaderNodeValToRGB"); r1.color_ramp.elements[0].position = 0.3; r1.color_ramp.elements[1].position = 0.7
+    r1.color_ramp.elements[0].color = srgb(base[0]); r1.color_ramp.elements[1].color = srgb(base[1]); L(n1.outputs["Fac"], r1.inputs["Fac"])
+    # streaks: stretched noise along the screen diagonal (game x - y)
+    mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Rotation"].default_value = (0, 0, math.radians(45)); mp.inputs["Scale"].default_value = (0.06, 0.6, 1.0); L(tc.outputs["Object"], mp.inputs["Vector"])
+    n2 = nt.nodes.new("ShaderNodeTexNoise"); n2.inputs["Scale"].default_value = 1.0; n2.inputs["Detail"].default_value = 3.0; L(mp.outputs["Vector"], n2.inputs["Vector"])
+    s2 = nt.nodes.new("ShaderNodeMapRange"); s2.inputs["From Min"].default_value = 0.58; s2.inputs["From Max"].default_value = 0.72; L(n2.outputs["Fac"], s2.inputs["Value"])
+    f2 = nt.nodes.new("ShaderNodeMath"); f2.operation = "MULTIPLY"; f2.inputs[1].default_value = streak_amt; L(s2.outputs["Result"], f2.inputs[0])
+    m2 = nt.nodes.new("ShaderNodeMix"); m2.data_type = "RGBA"; L(f2.outputs[0], m2.inputs["Factor"]); L(r1.outputs["Color"], m2.inputs[6]); m2.inputs[7].default_value = srgb(streak)
+    # grit: fine dark speckles
+    n3 = nt.nodes.new("ShaderNodeTexNoise"); n3.inputs["Scale"].default_value = 1.1; n3.inputs["Detail"].default_value = 1.0; L(tc.outputs["Object"], n3.inputs["Vector"])
+    s3 = nt.nodes.new("ShaderNodeMapRange"); s3.inputs["From Min"].default_value = 0.56; s3.inputs["From Max"].default_value = 0.62; L(n3.outputs["Fac"], s3.inputs["Value"])
+    f3 = nt.nodes.new("ShaderNodeMath"); f3.operation = "MULTIPLY"; f3.inputs[1].default_value = speck_amt; L(s3.outputs["Result"], f3.inputs[0])
+    m3 = nt.nodes.new("ShaderNodeMix"); m3.data_type = "RGBA"; L(f3.outputs[0], m3.inputs["Factor"]); L(m2.outputs[2], m3.inputs[6]); m3.inputs[7].default_value = srgb(speck)
+    bm = nt.nodes.new("ShaderNodeBump"); bm.inputs["Strength"].default_value = 0.25; ad = nt.nodes.new("ShaderNodeMath"); ad.operation = "ADD"
+    L(n3.outputs["Fac"], ad.inputs[0]); L(n1.outputs["Fac"], ad.inputs[1]); L(ad.outputs[0], bm.inputs["Height"]); L(bm.outputs["Normal"], b.inputs["Normal"])
+    col = m3.outputs[2]
+    if mask:                                                                     # blend into another ground (other = (c1, c2)) by a colour attribute (1 = dirt)
+        at = nt.nodes.new("ShaderNodeVertexColor"); at.layer_name = mask
+        n4 = nt.nodes.new("ShaderNodeTexNoise"); n4.inputs["Scale"].default_value = 0.08; n4.inputs["Detail"].default_value = 6.0; L(tc.outputs["Object"], n4.inputs["Vector"])
+        r4 = nt.nodes.new("ShaderNodeValToRGB"); r4.color_ramp.elements[0].color = srgb(other[0]); r4.color_ramp.elements[1].color = srgb(other[1]); L(n4.outputs["Fac"], r4.inputs["Fac"])
+        sep = nt.nodes.new("ShaderNodeSeparateColor"); L(at.outputs["Color"], sep.inputs["Color"])
+        mk = nt.nodes.new("ShaderNodeMix"); mk.data_type = "RGBA"; L(sep.outputs[0], mk.inputs["Factor"]); L(r4.outputs["Color"], mk.inputs[6]); L(col, mk.inputs[7]); col = mk.outputs[2]
+    L(col, b.inputs["Base Color"]); L(b.outputs["BSDF"], o.inputs["Surface"]); return m
+
 def get(name):
     if name in bpy.data.materials: return bpy.data.materials[name]
     return pmat(name, **LIB[name][1])
