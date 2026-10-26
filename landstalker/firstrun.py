@@ -467,7 +467,7 @@ def smoke_run():
     subprocess.run([sys.executable, os.path.join(HERE, "tools", "make_dummy_rom.py"), rom], check=True)
     if os.path.isfile(srm):
         os.remove(srm)
-    env = dict(os.environ, SDL_VIDEODRIVER="dummy", SDL_AUDIODRIVER="dummy")
+    env = dict(os.environ, SDL_VIDEODRIVER="dummy", SDL_AUDIODRIVER="dummy", SDL_RENDER_DRIVER="software")   # CI runners have no GPU
     for n, label in ((1, "first start (no save file)"), (2, "second start (existing save file)")):
         if n == 2:
             open(srm, "wb").write(bytes(range(256)) * 256)
