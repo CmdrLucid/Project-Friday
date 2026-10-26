@@ -166,6 +166,8 @@ python3 tools/patch_audiobuf.py .deps/genrecomp
 python3 tools/patch_focuspause.py .deps/genrecomp
 # video standard: force NTSC / 60 Hz for every ROM, region stays auto (a Europe ROM was PAL = 20 % too fast; tools/patch_region.py, LANDSTALKER_PAL=1 = auto-detect)
 python3 tools/patch_region.py .deps/genrecomp
+# text layer runtime: language binary (tools/langbuild.py), translated strings / names / font (tools/patch_lang.py, docs/TEXT_LAYER.md)
+python3 tools/patch_lang.py .deps/genrecomp
 # sound diagnostics + separate music / effect volumes (tools/patch_sndsep.py, LANDSTALKER_SNDLOG / LANDSTALKER_ZRAMDUMP)
 python3 tools/patch_sndsep.py .deps/genrecomp
 # diagnostics: LANDSTALKER_VDPLOG=1 lists which game function writes which tile columns of the scroll planes (widescreen work)
