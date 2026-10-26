@@ -249,9 +249,15 @@ static void lk_opt_enter(void) {   /* open the page of the selected root row; 'Q
     lk_opt_rootrow = lk_opt_row; lk_opt_pg = 1 + lk_opt_row; lk_opt_row = 0; lk_opt_scroll = 0; lk_arrow_ref = bus_read16(0xFF0F9Cu); lk_opt_page();
 }   /* open the Video / Audio page of the selected root row */
 static void lk_bar_arrow(uint16_t x) { bus_write16(0xFF07CEu, x); bus_write8(0xFF07CAu, 5); bus_write16(0xFF07CCu, 0x8524); bus_write8(0xFF1800u, 0); }
-#define LK_X_USE 0x00A8   /* arrow X = text x + $80; the three words are centred in the bar: text x $28 / $78 / $C8 (the game: $50 / $A0, arrow $D0 / $120) */
-#define LK_X_EQ  0x00F8
-#define LK_X_OPT 0x0148
+static int lk_fs_width(const char *t);
+static int lk_bar_tx[3] = { 0x28, 0x78, 0xC8 }, lk_bar_ax[3] = { 0x00A8, 0x00F8, 0x0148 };   /* text x of the three words and the arrow X (= text x + $80): the English layout, recomputed by lk_bar_layout() from the word widths (other languages) */
+#define LK_X_USE lk_bar_ax[0]   /* the words are centred on $33 / $89 / $E1 in the bar (English: text x $28 / $78 / $C8; the game: $50 / $A0, arrow $D0 / $120) */
+#define LK_X_EQ  lk_bar_ax[1]
+#define LK_X_OPT lk_bar_ax[2]
+static void lk_bar_layout(void) {
+    static const char *const word[3] = { "Use", "Equip", "Options" }; static const int centre[3] = { 0x33, 0x89, 0xE1 }; int i;
+    for (i = 0; i < 3; i++) { lk_bar_tx[i] = centre[i] - lk_fs_width(word[i]) / 2; lk_bar_ax[i] = lk_bar_tx[i] + 0x80; }
+}
 static void lk_menu_print_nodma(const char *t, int x) {
     t = lk_lang_tr(t);
     bus_write32(0xFF1844, 0); bus_write8(0xFF1155, 0); bus_write8(0xFF1144, 3); bus_write16(0xFF1194, (uint16_t)x);
@@ -264,7 +270,7 @@ static void lk_h_yn(void) {   /* replaces LoadYesNoPrompt in the Start menu: sam
     if (!lk_in_menu()) { lk_o_yn(); return; }
     { M68kContext sv = g_m68k;
       lk_call(0x024998u); lk_call(0x0234A8u);
-      lk_menu_print_nodma("Use", 0x28); lk_menu_print_nodma("Equip", 0x78); lk_menu_print_nodma("Options", 0xC8);
+      lk_bar_layout(); lk_menu_print_nodma("Use", lk_bar_tx[0]); lk_menu_print_nodma("Equip", lk_bar_tx[1]); lk_menu_print_nodma("Options", lk_bar_tx[2]);
       lk_call(0x02355Au);   /* DMACopyTextboxTiles */
       g_m68k = sv; }
     y = (int)(int8_t)bus_read8(0xFF1129) + 0x134;
@@ -376,7 +382,8 @@ static int lk_fs_width(const char *t) {   /* visible width in px of a text print
 static void lk_fs_layout(void) {   /* four words with equal gaps between the equal margins 0x12 .. 0xFE (English: 24 px gaps) */
     static const char *const word[4] = { "Start", "Copy", "Delete", "Options" }; int i, sum = 0, gap, x = 0x12;
     for (i = 0; i < 4; i++) sum += lk_fs_width(word[i]);
-    gap = (0xFE - 0x12 - sum) / 3; if (gap < 6) gap = 6;
+    gap = (0x114 - 0x0C - sum) / 3; if (gap > 24) gap = 24; if (gap < 6) gap = 6;   /* English: 24 px gaps, 236 px in all, starting at 0x12; longer words use up to 264 px (0x0C .. 0x114) with smaller gaps */
+    x += (236 - (sum + 3 * gap)) / 2;
     for (i = 0; i < 4; i++) { lk_fs_tx[i] = x; lk_fs_ax[i] = x + 0x88; x += lk_fs_width(word[i]) + gap; }
 }
 #define LK_FS_TX0 lk_fs_tx[0]
