@@ -22,6 +22,9 @@ static LONG WINAPI crash_filter(EXCEPTION_POINTERS *e) {
         if ((char *)s_fn[i].a <= fa && (!best || (char *)s_fn[i].a > (char *)s_fn[best - 1].a)) best = i + 1;
     }
     if (best) fprintf(stderr, "smoke: nearest function below the crash: %s + 0x%lX\n", s_fn[best - 1].n, (unsigned long)(fa - (char *)s_fn[best - 1].a));
+    { HMODULE m = NULL; char nm[260] = "?";
+      if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, fa, &m) && m) GetModuleFileNameA(m, nm, sizeof nm);
+      fprintf(stderr, "smoke: crash is in module %s (base %p, offset 0x%lX)\n", nm, (void *)m, (unsigned long)(fa - (char *)m)); }
     fflush(stderr);
     return EXCEPTION_EXECUTE_HANDLER;
 }

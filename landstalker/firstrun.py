@@ -472,7 +472,7 @@ def smoke_run():
         if n == 2:
             open(srm, "wb").write(bytes(range(256)) * 256)
         r = subprocess.run([exe, rom], capture_output=True, text=True, env=env, timeout=120)
-        print("--- %s: exit code %d (0x%X)\n%s%s" % (label, r.returncode, r.returncode & 0xFFFFFFFF, r.stdout[-800:], r.stderr[-800:]))
+        print("--- %s: exit code %d (0x%X)\n%s%s" % (label, r.returncode, r.returncode & 0xFFFFFFFF, r.stdout[-1500:], r.stderr[:3000]))
         if r.returncode or "smoke: ok" not in r.stderr:
             print("selftest-run FAILED at the %s" % label)
             return 1
