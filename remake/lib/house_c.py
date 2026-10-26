@@ -145,8 +145,9 @@ class House:
         top, zt = rings[-1]; M.face("thatch", [G(x, y, zt) for x, y in top], [tex(x, y) for x, y in top])
         for (hxp, hyp) in sp.get("hatches", []):                                 # smoke-hole cover: a pale thatch cap on four short legs
             zr = s.roof_z(hxp, hyp)
-            M.box("thatch", hxp - 7, hxp + 7, -(hyp + 5), -(hyp - 5), zr + 2.0, zr + 4.2)
-            M.box("under", hxp - 5, hxp + 5, -(hyp + 3.5), -(hyp - 3.5), zr - 1.0, zr + 2.0)
+            # user 2026-10-26 'mach die Luken groesser': the picture's lids are ~25 px wide; the old 14 x 10 lid also sank into the uphill slope -> 22 x 16, raised
+            M.box("thatch", hxp - 11, hxp + 11, -(hyp + 8), -(hyp - 8), zr + 5.0, zr + 7.6)
+            M.box("under", hxp - 8, hxp + 8, -(hyp + 5.5), -(hyp - 5.5), zr - 1.0, zr + 5.0)
         if sp.get("knot", True):                                                 # straw bundle on the top tied with a band (house A, ridge_knot)
             kx, ky = s.CX, s.CY; zk = s.roof_z(kx, ky)
             for k in range(10):
