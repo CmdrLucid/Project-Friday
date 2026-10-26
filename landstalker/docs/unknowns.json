@@ -368,26 +368,6 @@
    "class_by": "hand"
   },
   {
-   "addr": "0x00085E",
-   "first_seen": "2026-10-11",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:977",
-     "date": "2026-10-25",
-     "snippet": "* Root cause: the inline sound word `$0051` of the `trap #0` at `$00FFF4` was decoded as the instruction `ori.w #$6100,(a1)` (entry `jt_00FF"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-26: lies inside RestoreBGM+$C: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
-   ],
-   "mentions": 1,
-   "class": "inside-symbol",
-   "class_by": "hand"
-  },
-  {
    "addr": "0x0008EE",
    "first_seen": "2026-10-18",
    "hits": 0,
@@ -3041,26 +3021,6 @@
    "class_by": "hand"
   },
   {
-   "addr": "0x00DBBE",
-   "first_seen": "2026-10-15",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1030",
-     "date": "2026-10-25",
-     "snippet": "* Item use: `UseItemDispatch $0085F2` (d0 = id, table `$008620`, handlers end with `ReturnSuccess $008BBA` / `ReturnFailure $008BC0`); `Cons"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-26: lies inside InventoryMenu_UseItem+$96: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
-   ],
-   "mentions": 1,
-   "class": "inside-symbol",
-   "class_by": "hand"
-  },
-  {
    "addr": "0x00E030",
    "first_seen": "2026-10-10",
    "hits": 0,
@@ -3383,70 +3343,6 @@
    ],
    "mentions": 1,
    "class": "not-an-address",
-   "class_by": "hand"
-  },
-  {
-   "addr": "0x00FA54",
-   "first_seen": "2026-10-11",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:925",
-     "date": "2026-10-25",
-     "snippet": "* Implementation (patch_options.py): override of the selector when called with the mode bar's parameters: step $3C, four entries (texts at x"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:936",
-     "date": "2026-10-25",
-     "snippet": "* Sounds: the game itself plays NO sound when you switch between Use and Equip (call trace: only the menu-open sound at frame 1001); on the "
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1030",
-     "date": "2026-10-25",
-     "snippet": "* Item use: `UseItemDispatch $0085F2` (d0 = id, table `$008620`, handlers end with `ReturnSuccess $008BBA` / `ReturnFailure $008BC0`); `Cons"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-26: lies inside GameSelectBarSelector+$7E: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
-   ],
-   "mentions": 3,
-   "class": "inside-symbol",
-   "class_by": "hand"
-  },
-  {
-   "addr": "0x00FA9E",
-   "first_seen": "2026-10-11",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:925",
-     "date": "2026-10-25",
-     "snippet": "* Implementation (patch_options.py): override of the selector when called with the mode bar's parameters: step $3C, four entries (texts at x"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:936",
-     "date": "2026-10-25",
-     "snippet": "* Sounds: the game itself plays NO sound when you switch between Use and Equip (call trace: only the menu-open sound at frame 1001); on the "
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1030",
-     "date": "2026-10-25",
-     "snippet": "* Item use: `UseItemDispatch $0085F2` (d0 = id, table `$008620`, handlers end with `ReturnSuccess $008BBA` / `ReturnFailure $008BC0`); `Cons"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-26: lies inside GameSelectBarSelector+$C8: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
-   ],
-   "mentions": 3,
-   "class": "inside-symbol",
    "class_by": "hand"
   },
   {
@@ -4165,26 +4061,6 @@
    "class_by": "hand"
   },
   {
-   "addr": "0x023132",
-   "first_seen": "2026-10-15",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "FORMATS.md:113",
-     "date": "2026-10-25",
-     "snippet": "- V: `pt_SFX` (58 words) is at Z80 `$1594`. The speech blip is a PSG tone-3 effect (frames with `ProcessChar_loc_23104` running = frames wit"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-26: lies inside ProcessChar_loc_23104+$2E: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
-   ],
-   "mentions": 1,
-   "class": "inside-symbol",
-   "class_by": "hand"
-  },
-  {
    "addr": "0x02360C",
    "first_seen": "2026-10-10",
    "hits": 0,
@@ -4276,26 +4152,6 @@
    "notes": [],
    "mentions": 1,
    "class": "log-artifact",
-   "class_by": "hand"
-  },
-  {
-   "addr": "0x0248F8",
-   "first_seen": "2026-10-11",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:942",
-     "date": "2026-10-25",
-     "snippet": "* The Start menu's Use / Equip tabs show the list but the cursor (golden frame) only appears after A (the game then runs the item-grid loop;"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-26: lies inside MenuBarConfirm+$2: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
-   ],
-   "mentions": 1,
-   "class": "inside-symbol",
    "class_by": "hand"
   },
   {
@@ -4451,38 +4307,6 @@
     "2026-10-26: lies inside RunShopSpecialItemScript+$34: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
    ],
    "mentions": 1,
-   "class": "inside-symbol",
-   "class_by": "hand"
-  },
-  {
-   "addr": "0x024F32",
-   "first_seen": "2026-10-17",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1129",
-     "date": "2026-10-25",
-     "snippet": "* Wrapper of `RemoveGold $0177F2` (caller `$024F32` only): `GetRemainingItemAllowedCount $029232` (d0 = item, d1 = max - owned) for the limi"
-    },
-    {
-     "type": "doc",
-     "where": "INDEX.md:139",
-     "date": "2026-10-25",
-     "snippet": "- **2026-10-17 (dev, user wish after a recording in the Mercator item shop, room 720): optional 'Buy Quantity' (Options > Gameplay, default "
-    },
-    {
-     "type": "doc",
-     "where": "LESSONS.md:140",
-     "date": "2026-10-25",
-     "snippet": "54. **A wrapper must sit on the real function, not on its thunk:** `j_RemoveGold $01032C` is a `jmp` thunk that ends in `func_table_tail`; c"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-26: lies inside HandleShopInteraction_loc1+$8: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
-   ],
-   "mentions": 3,
    "class": "inside-symbol",
    "class_by": "hand"
   },
@@ -5089,58 +4913,6 @@
     "2026-10-26: byte / word inside a named RAM symbol: g_VDPRegShadow+$1 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
    ],
    "mentions": 1,
-   "class": "field",
-   "class_by": "hand"
-  },
-  {
-   "addr": "0xFF0FC5",
-   "first_seen": "2026-10-20",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "INDEX.md:94",
-     "date": "2026-10-25",
-     "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'punkt 1 go' = remove the VDP dependencies, step 1: THE STATE AS THE VDP RECEIVES IT; `tools/patch_ow"
-    },
-    {
-     "type": "doc",
-     "where": "INDEX.md:96",
-     "date": "2026-10-25",
-     "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-26: byte / word inside a named RAM symbol: g_HIntLineReg+$1 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
-   ],
-   "mentions": 2,
-   "class": "field",
-   "class_by": "hand"
-  },
-  {
-   "addr": "0xFF0FC7",
-   "first_seen": "2026-10-21",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1225",
-     "date": "2026-10-25",
-     "snippet": "- Pitfalls: (1) the first snapshot after the effect started can hold a stale `g_Buffer` (the table is computed before the first VBlank wait,"
-    },
-    {
-     "type": "doc",
-     "where": "LESSONS.md:75",
-     "date": "2026-10-25",
-     "snippet": "- **9.w (2026-10-21) Own renderer and effects:** (1) the active palette copy `$FF0ED0` is what the game WANTS, CRAM is what the VDP shows: t"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-26: byte / word inside a named RAM symbol: g_VDPReg11_ModeSet3+$1 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
-   ],
-   "mentions": 2,
    "class": "field",
    "class_by": "hand"
   },
