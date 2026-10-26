@@ -69,6 +69,23 @@ def decode_string(rom, start):
     return text, start + length
 
 
+# Uncompressed name / menu tables (LoadUncompressedString $02949A, sub_294B6): entry = count byte (NOT including itself) + that many font codes.
+# Codes $69 hyphenation point, $6A breaking space (shown as a space or a line break in two-line names), $6B break point.
+NAME_TABLES = (("char", 0x29552, 61), ("special", 0x296E0, 15), ("default", 0x29730, 1), ("item", 0x29732, 64), ("menu", 0x29A0A, 29))
+NAME_CODES = {0x69: "{Hyphen}", 0x6A: "{BreakSpace}", 0x6B: "{BreakPoint}"}
+
+
+def decode_names(rom):
+    res = {}
+    for name, start, count in NAME_TABLES:
+        p = start
+        for i in range(count):
+            n = rom[p]
+            res["%s:%02d" % (name, i)] = "".join(MAIN[c] if c < len(MAIN) else NAME_CODES.get(c, "{?%02X}" % c) for c in rom[p + 1:p + 1 + n])
+            p += 1 + n
+    return res
+
+
 def main():
     rom = open(sys.argv[1], "rb").read()
     banks = [struct.unpack(">I", rom[BANK_PTRS + 4 * i:BANK_PTRS + 4 * i + 4])[0] for i in range(N_BANKS)]
@@ -86,12 +103,15 @@ def main():
             res["%04X" % (b << 8 | idx)] = t
             pos, idx = nxt, idx + 1
         print("bank %d @%06X: %d strings" % (b, start, idx))
+    names = decode_names(rom)
+    print("names:", len(names), "entries (char, special, default, item, menu)")
+    res.update(names)
     if len(sys.argv) > 2:
         json.dump(res, open(sys.argv[2], "w"), indent=0, ensure_ascii=False)
     else:
         for k in list(res)[:25]:
             print(k, repr(res[k]))
-    print("total", len(res), "strings")
+    print("total", len(res), "strings + names")
 
 if __name__ == "__main__":
     main()
