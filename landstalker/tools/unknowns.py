@@ -12,8 +12,12 @@ commands (run in landstalker/):
   unknowns.py note ADDR "observation"         append a pattern note / hypothesis to an entry
   unknowns.py triage                          auto-class every entry: log-artifact (only seen in stale-stack/RTS-to/'expected' lines), ram, seed/table, other
   unknowns.py classify ADDR CLASS [text]      set class by hand, e.g. not-an-address (room number, size, abs.w offset), code, data, hardware
+                                              SETTLED classes (understood, nothing left to name; kept so scan-docs does not re-add them):
+                                              not-an-address, range, stack, field (byte inside a named RAM symbol), inside-symbol (call / trap site,
+                                              return address inside a named function), data (data decoded as code), log-artifact
   unknowns.py sync                            drop entries whose address is now in symbols.json (resolved) -- run after adding symbols
-  unknowns.py list [--min N] [--pattern]      open unknowns, most hits/mentions first (--pattern: only entries with notes or callers; --class C: only that class)
+  unknowns.py list [--min N] [--pattern]      open unknowns, most hits/mentions first (--pattern: only entries with notes or callers; --class C: only that class;
+                                              --all: settled entries too)
 """
 import json, os, re, sys, datetime
 
@@ -35,6 +39,9 @@ def norm(h):
     return v | 0xFF0000 if len(h) == 6 and v >= 0xFF0000 else v
 
 def fmt(a): return f"0x{a:06X}"
+
+SETTLED = ("not-an-address", "range", "stack", "field", "inside-symbol", "data", "log-artifact")
+def is_open(e): return e.get("class") not in SETTLED
 
 U = load(UP, {"_readme": "Addresses seen but not understood. See tools/unknowns.py. Move to symbols.json when named; run 'unknowns.py sync'.", "unknowns": []})
 by = {int(u["addr"], 16): u for u in U["unknowns"]}
@@ -121,15 +128,15 @@ elif cmd == "classify":
 elif cmd == "sync":
     gone = [a for a in by if a in S]
     for a in gone: del by[a]
-    save(); print(f"sync: {len(gone)} resolved and removed, {len(by)} open")
+    save(); print(f"sync: {len(gone)} resolved and removed, {sum(map(is_open, by.values()))} open, {len(by)} total")
 elif cmd == "list":
     mn = int(opt("--min", 0)); rows = []
     for a, e in by.items():
         score = e["hits"] * 10 + e.get("mentions", 0)
-        if score < mn or ("--pattern" in args and not (e["notes"] or e["callers"])) or (opt("--class") and e.get("class") != opt("--class")): continue
+        if (not is_open(e) and "--all" not in args and not opt("--class")) or score < mn or ("--pattern" in args and not (e["notes"] or e["callers"])) or (opt("--class") and e.get("class") != opt("--class")): continue
         rows.append((score, a, e))
     for score, a, e in sorted(rows, reverse=True)[:60]:
         print(f"{fmt(a)} hits={e['hits']} mentions={e.get('mentions', 0)} first={e['first_seen']} class={e.get('class','?')} callers={e['callers']} notes={len(e['notes'])}  e.g. {e['sightings'][-1]['where']}")
-    print(f"({len(rows)} shown/open, {len(by)} total)")
+    print(f"({len(rows)} shown, {sum(map(is_open, by.values()))} open, {len(by)} total)")
 else:
     print(__doc__)
