@@ -192,6 +192,8 @@ python3 tools/patch_sprcull.py src/recomp
 
 # 1b2. speech blips on/off option: skips the talk-sound trap in $023104 (tools/patch_talk.py; must run before rename_generated)
 python3 tools/patch_talk.py src/recomp
+# Yes / No prompt layout from the language file (tools/patch_yesno.py, docs/TEXT_LAYER.md; must run before rename_generated)
+python3 tools/patch_yesno.py src/recomp
 
 # 1c. readable names in the generated C: sub_XXXXXX -> Name_XXXXXX from docs/symbols.json (address stays in the name; must run AFTER patch_sprcull; LANDSTALKER_NONAMES_C=1 = off), see tools/rename_generated.py
 python3 tools/rename_generated.py src/recomp

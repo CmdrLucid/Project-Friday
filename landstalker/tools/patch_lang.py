@@ -57,6 +57,7 @@ static LkLgName *lk_lg_name; static int lk_lg_nname;
 static const LkLgStr *lk_lg_cur; static int lk_lg_pos, lk_lg_ext, lk_lg_extcode;
 static uint8_t *lk_lg_data;                                   /* the loaded language file (word streams are read from it) */
 static int lk_lg_on, lk_lg_hooked;
+static uint16_t lk_lg_ui[8][2]; static int lk_lg_nui;                  /* language file block 'ui': key, value (docs/TEXT_LAYER.md) */
 static char lk_lg_codes[8][16], lk_lg_names[8][32]; static int lk_lg_nlang = 1, lk_lg_sel;   /* [0] = English (the original), then the languages of lang/index.txt */
 static char lk_lg_dir[512], lk_lg_binfile[512];
 static void (*lk_lg_o_ics)(void), (*lk_lg_o_dc)(void), (*lk_lg_o_gnc)(void), (*lk_lg_o_skip)(void);
@@ -66,7 +67,7 @@ static uint16_t lk_lg_be16(const uint8_t *p) { return (uint16_t)(p[0] << 8 | p[1
 static uint32_t lk_lg_be32(const uint8_t *p) { return (uint32_t)p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3]; }
 static int lk_lg_cmp(const void *a, const void *b) { return (int)((const LkLgStr *)a)->id - (int)((const LkLgStr *)b)->id; }
 static void lk_lg_unload(void) {
-    lk_lg_cur = NULL; lk_lg_on = 0;
+    lk_lg_cur = NULL; lk_lg_on = 0; lk_lg_nui = 0;
     free(lk_lg_str); lk_lg_str = NULL; lk_lg_nstr = 0; free(lk_lg_name); lk_lg_name = NULL; lk_lg_nname = 0; free(lk_lg_data); lk_lg_data = NULL;
     lk_lang_map(); lk_lang_rom_patch32(0x022E84u, 0x02A884u);   /* the original font */
 }
@@ -89,6 +90,7 @@ static void lk_lg_load(const char *path) {
             nameoff += (uint32_t)n + 2;
         }
         lk_lg_nname = nn;
+        for (i = 0; i < nu && i < 8; i++) { lk_lg_ui[i][0] = lk_lg_be16(ue + 4 * i); lk_lg_ui[i][1] = lk_lg_be16(ue + 4 * i + 2); } lk_lg_nui = nu < 8 ? nu : 8;
         /* font: the ROM's glyphs 0..$6B (30 bytes each) + the new ones, at $801000; MainFontPtr $022E84 -> there */
         for (i = 0; i < 0x6C * 30; i += 2) lk_lg_put16(0x1000u + (uint32_t)i, bus_read16(0x02A884u + (uint32_t)i));
         for (i = 0; i < ng; i++) { const uint8_t *g = ge + 31 * i; int k; for (k = 0; k < 30; k += 2) lk_lg_put16(0x1000u + 30u * g[0] + (uint32_t)k, lk_lg_be16(g + 1 + k)); }
@@ -156,6 +158,7 @@ static void lk_lg_apply(int i) {   /* switch the language now: 0 = English (orig
     lk_lg_load(path);
     if (!lk_lg_on) lk_lg_sel = 0;
 }
+uint32_t lk_lang_ui(int key, uint32_t def) { int i; for (i = 0; i < lk_lg_nui; i++) if (lk_lg_ui[i][0] == key) return lk_lg_ui[i][1]; return def; }   /* layout value of the current language or the original (US) value */
 int lk_lang_count(void) { return lk_lg_nlang; }
 const char *lk_lang_name(int i) { return i >= 0 && i < lk_lg_nlang ? lk_lg_names[i] : "?"; }
 int lk_lang_get(void) { return lk_lg_sel; }
