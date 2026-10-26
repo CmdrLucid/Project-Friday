@@ -64,12 +64,12 @@ static void lk_lg_load(const char *path) {
     if (sz < 14 || memcmp(d, "LKLG", 4) || lk_lg_be16(d + 4) != 1) { fprintf(stderr, "lang: %s is not a language file\n", path); free(d); return; }
     ns = lk_lg_be16(d + 6); nn = lk_lg_be16(d + 8); nu = lk_lg_be16(d + 10); ng = lk_lg_be16(d + 12);
     q = d + 14;
-    {   const uint8_t *se = q, *ne = se + 8 * ns, *ue = ne + 8 * nn, *ge = ue + 4 * nu, *blob = ge + 31 * ng;
+    {   const uint8_t *se = q, *ne = se + 8 * ns, *ue = ne + 7 * nn, *ge = ue + 4 * nu, *blob = ge + 31 * ng;
         lk_lg_str = calloc((size_t)ns + 1, sizeof *lk_lg_str); lk_lg_name = calloc((size_t)nn + 1, sizeof *lk_lg_name);
         for (i = 0; i < ns; i++) { const uint8_t *e = se + 8 * i; lk_lg_str[i].id = lk_lg_be16(e); lk_lg_str[i].w = blob + lk_lg_be32(e + 2); lk_lg_str[i].n = lk_lg_be16(e + 6); }
         qsort(lk_lg_str, (size_t)ns, sizeof *lk_lg_str, lk_lg_cmp); lk_lg_nstr = ns;
         for (i = 0; i < nn; i++) {
-            const uint8_t *e = ne + 8 * i; int n = e[7], k;
+            const uint8_t *e = ne + 7 * i; int n = e[6], k;
             lk_lg_name[i].tab = e[0]; lk_lg_name[i].idx = e[1]; lk_lg_name[i].n = (uint8_t)n; lk_lg_name[i].addr = 0x800000u + nameoff;
             for (k = 0; k < n; k++) lk_lg_put8(nameoff + (uint32_t)k, blob[lk_lg_be32(e + 2) + (uint32_t)k]);
             nameoff += (uint32_t)n + 2;
@@ -94,7 +94,7 @@ static void lk_lg_h_dc(void) {    /* DecodeChar $0246B2: the next character in t
     if (lk_lg_cur) {
         uint16_t w = lk_lg_pos < lk_lg_cur->n ? lk_lg_be16(lk_lg_cur->w + 2 * lk_lg_pos++) : 0xFFFF; uint8_t ch;
         if (w == 0xFFFF) { ch = 0x55; lk_lg_cur = NULL; }
-        else if (w >= 0x8000) { ch = (uint8_t)(0x56 + (w == 0xFFEA ? 0 : 0)); /* control: find k from ~handler */
+        else if (w >= 0x8000) { ch = 0x56; /* control: find k from ~handler */
             static const uint8_t hk[19] = {0x15, 0x0E, 0x01, 0x0B, 0x0C, 0x05, 0x07, 0x06, 0x04, 0x03, 0x02, 0x18, 0x0F, 0x0D, 0x08, 0x09, 0x0A, 0x17, 0x19}; int k;
             for (k = 0; k < 19; k++) if ((uint16_t)~hk[k] == w) { ch = (uint8_t)(0x56 + k); break; } }
         else if (w >= 0x56) { lk_lg_ext = 1; lk_lg_extcode = w; ch = 0x56; }   /* extended glyph: placeholder control code k = 0 (D0 = $FFEA), swapped in by the GetNextChar wrapper */
