@@ -467,11 +467,11 @@ static void lk_fs_modal(void) {   /* options window in the file select */
         }
         if (e & (0x20 | 0x40 | 8)) {   /* A / C / RIGHT: open the page / next value */
             if (pg == 0 && row == 6) { if (lk_opt_quitarm) platform_request_quit(); else { lk_opt_quitarm = 1; lk_win_value(0, 6); } blink = 0; lk_snd(0x00FA54u); }   /* Quit Game: second A */
-            else if (pg == 0 && row == 5) { lk_opt_change(37, 1); blink = 0; lk_win_value(0, 5); lk_snd(0x00FA54u); }   /* Language: next language */
+            else if (pg == 0 && row == 5) { lk_opt_change(37, 1); blink = 0; lk_win_page(0, row); lk_snd(0x00FA54u); }   /* Language: next language (the whole page is drawn again in the new language) */
             else if (pg == 0) { rootrow = row; pg = 1 + row; row = 0; lk_win_scroll = 0; blink = 0; lk_win_page(pg, 0); lk_snd(0x00FA54u); }
             else { lk_opt_change(lk_win_id(pg, row), 1); blink = 0; lk_win_value(pg, row); lk_snd(0x00FA54u); }
         }
-        if ((e & 4) && pg == 0 && row == 5) { lk_opt_change(37, -1); blink = 0; lk_win_value(0, 5); lk_snd(0x00FA54u); }   /* LEFT on Language: previous language */
+        if ((e & 4) && pg == 0 && row == 5) { lk_opt_change(37, -1); blink = 0; lk_win_page(0, row); lk_snd(0x00FA54u); }   /* LEFT on Language: previous language */
         if ((e & 4) && pg) { lk_opt_change(lk_win_id(pg, row), -1); blink = 0; lk_win_value(pg, row); lk_snd(0x00FA54u); }   /* LEFT: previous value */
     }
     lk_win_on = 0; lk_win_arr = 0;
