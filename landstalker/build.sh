@@ -162,6 +162,8 @@ python3 tools/patch_warp.py .deps/genrecomp
 python3 tools/patch_wav.py .deps/genrecomp
 # audio buffer: ~3 frames of prefill + overflow valve against crackle (tools/patch_audiobuf.py, LANDSTALKER_AUDIO_PREFILL / _MAXQ)
 python3 tools/patch_audiobuf.py .deps/genrecomp
+# focus pause: no focus / minimized = game and audio paused (issue #9, tools/patch_focuspause.py, LANDSTALKER_NOFOCUSPAUSE=1 = off)
+python3 tools/patch_focuspause.py .deps/genrecomp
 # sound diagnostics + separate music / effect volumes (tools/patch_sndsep.py, LANDSTALKER_SNDLOG / LANDSTALKER_ZRAMDUMP)
 python3 tools/patch_sndsep.py .deps/genrecomp
 # diagnostics: LANDSTALKER_VDPLOG=1 lists which game function writes which tile columns of the scroll planes (widescreen work)
