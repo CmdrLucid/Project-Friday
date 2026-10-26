@@ -106,10 +106,10 @@ import house_c
 # details of the Massan houses as seen in the original picture (box = height map cells incl. the doorway cell): windows, boarded windows, roof
 # hatches, tower banner / sign; everything else (footprint, door side / place, base height) comes from the room data
 MASSAN = {(11, 15, 10, 13): dict(boards=[("S", 0.3, 26)]),                                   # terrace west: boarded window on the south wall
-          (11, 15, 6, 9): dict(hatches=[(0.0, 0.25)]),                                       # terrace middle: a smoke-hole cover
-          (20, 24, 9, 12): dict(hatches=[(0.1, 0.3)], squares=[("S", 0.46, 30, 14)]),               # behind the church: a square window south (user: one was missing; 2026-10-26 'passt noch nicht' -> measured on the picture: middle of the wall, right under the eave, 14 wide)
+          (11, 15, 6, 9): dict(hatch_px=[(653, 286)]),                                       # terrace middle: a smoke-hole cover
+          (20, 24, 9, 12): dict(hatch_px=[(800, 385)], squares=[("S", 0.46, 24, 14)]),               # behind the church: a square window south (user: one was missing; 2026-10-26 'passt noch nicht' -> measured on the picture: middle of the wall, right under the eave, 14 wide)
           (20, 24, 4, 8): dict(),
-          (22, 26, 17, 23): dict(boards=[("S", 0.2, 26)], windows=[("E", 0.45, 27)], hatches=[(0.0, 0.3), (0.05, 0.62)]),
+          (22, 26, 17, 23): dict(boards=[("S", 0.2, 26)], windows=[("E", 0.45, 27)], hatch_px=[(657, 522), (687, 505)]),
           (11, 15, 2, 5): dict(windows=[("S", 0.5, 70), ("S", 0.5, 92)], squares=[("E", 0.45, 93)], banner=("E", 0.45, 87), ZE=110, ZT=137)}   # tower: two centred round windows,
 # the cloth hangs out of the east window, the sign above the door (placed in spec_of)
 def spec_of(gr):
@@ -122,6 +122,15 @@ def spec_of(gr):
     sp["windows"] = [dict(side=w[0], a=along(w[0], w[1]), z=w[2]) for w in ex.get("windows", [])]
     sp["boards"] = [dict(side=w[0], a=along(w[0], w[1]), z=w[2]) for w in ex.get("boards", [])]
     sp["hatches"] = [((sp["X0"] + sp["X1"]) / 2 + (sp["X1"] - sp["X0"]) * hx_, sp["Y0"] + (sp["Y1"] - sp["Y0"]) * hy_) for hx_, hy_ in ex.get("hatches", [])]
+    if "hatch_px" in ex:                                                          # user 2026-10-26: hatches where the picture has them -> given as the screen point of the
+        z0 = 16.0 * gr["base"]; H = house_c.House(dict(sp, ZT=77.0, overhang=1.5)); best = []   # cover in the original (full.png of window.txt 600 -16), solved onto the roof
+        for (U, V) in ex["hatch_px"]:
+            cand = ((abs(x - y + 584 - U) + abs((x + y) / 2 - (z0 + H.roof_z(x, y) + 4) + 16 - V), x, y)
+                    for x in [sp["X0"] + 0.5 * i for i in range(int(2 * (sp["X1"] - sp["X0"])) + 1)]
+                    for y in [sp["Y0"] + 0.5 * j for j in range(int(2 * (sp["Y1"] - sp["Y0"])) + 1)])
+            e, x, y = min(cand); best.append((x, y))
+            if os.environ.get("R_DEBUG"): print("hatch", gr["box"], (U, V), "->", (x, y), "err", round(e, 2))
+        sp["hatches"] = best
     for k in ("banner", "sign"):
         if k in ex: sp[k] = dict(side=ex[k][0], a=along(ex[k][0], ex[k][1]), z=ex[k][2])
     sp.update(overhang=1.5, lip=3.5, ZT=77.0)                                   # roofs like house A (user 2026-10-25)
