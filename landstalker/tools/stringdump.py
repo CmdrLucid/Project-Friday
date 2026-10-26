@@ -15,7 +15,7 @@ MAIN = (" 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz*.,?!/<>
 # code - $56 -> handler (table ControlChars $023E??: word = ~handler index into HandleControlChars $023150): names by what the handler does
 CONTROL = {0: "Ctl0", 1: "SoftNewLine", 2: "NewLine", 3: "Pause1s", 4: "Number", 5: "Speaker", 6: "Ctl6", 7: "Ctl7", 8: "WaitInput", 9: "Item", 10: "PopName",
            11: "CopyStr11", 12: "ContinuePrompt", 13: "NewLinePrompt", 14: "Pause1sOrInput", 15: "Pause1_5sOrInput", 16: "Pause2sOrInput", 17: "CopyStr17", 18: "Ctl18"}
-# (Ctl0 = handler 21 `loc_230D6`, the first code of the Yes / No / Use / Equip strings 0000..0003; the YesNo prompt routine itself `$024748` is called by code, not by a string code)
+# (Ctl0 = handler 21 `loc_230D6`, the first code of the Yes / No / Use / Equip strings 0000..0003; the YesNo prompt routine itself `$024724` is called by code, not by a string code)
 
 
 class Bits:

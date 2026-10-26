@@ -22,8 +22,10 @@ Why not the German ROM as a base / text source: its code differs (1169 routines)
 ```
 {"meta": {"code": "de", "name": "Deutsch", "version": 1},
  "strings": {"0004": {"h": "<first 8 hex digits of sha1 of the ENGLISH source>", "t": "Wally: Miss Kayla ist wunderschoen."}, ...},
- "names": {"item:01": {"h": "...", "t": "Zauber{BreakSpace}Schwert"}, ...}}
+ "names": {"item:01": {"h": "...", "t": "Zauber{BreakSpace}Schwert"}, ...},
+ "ui": {"yesno_no_x": 168, "yesno_cursor_yes_x": 208, "yesno_cursor_no_x": 296}}
 ```
+`ui` = layout values that depend on the word lengths of the language (defaults = the US values, so English needs none): the Yes / No prompt `YesNoPrompt $024724` prints 'Yes' at x `$50` and 'No' at x `$A0` and moves a cursor sprite between FIXED x positions `$D0` / `$120` (`g_VDPSpr02_X`); the German original build uses `$A8` for the second word and `$128` for the cursor (every position that is compared / set in `loc_247E8` / `loc_24804`). Our hook wraps or patches these constants from `ui`; the same mechanism takes later layout values (Use / Equip choice, menu column widths).
 Control codes are written as in `stringdump.py` (`{Speaker}`, `{NewLine}`, `{Item}`, `{Number}`, `{ContinuePrompt}` ...) and must appear in the translation as in the English source (checked). `h` makes sure a translation is only used when the ROM's English text is the one it was written for (US and EU are identical, other versions simply fall back to English).
 
 ## 4. Build step
