@@ -200,6 +200,10 @@ python3 tools/rename_generated.py src/recomp
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j"$(nproc)"
 
+# 3. Languages: every lang/*.json -> build/lang/<code>.bin + index.txt (derived from your ROM's font and text hashes: local only, tools/langbuild.py, docs/TEXT_LAYER.md)
+mkdir -p build/lang
+python3 tools/langbuild.py "$ROM" lang build/lang
+
 # generated functions cut off in the middle of an instruction (bogus function starts): informational
 python3 tools/check_splits.py "$ROM" src/recomp 2>&1 | head -12 || true
 

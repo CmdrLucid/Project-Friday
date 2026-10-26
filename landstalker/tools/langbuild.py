@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""langbuild.py ROM lang/xx.json out.bin [--preview font.png]: builds the runtime language file from a translation (docs/TEXT_LAYER.md).
+"""langbuild.py ROM lang/xx.json out.bin [--preview font.png]   or   langbuild.py ROM lang/ outdir/ (every *.json -> outdir/<code>.bin + outdir/index.txt): builds the runtime language files from translations (docs/TEXT_LAYER.md).
  * decodes the ROM's English strings (stringdump.py) and keeps only translations whose 'h' (first 8 hex digits of sha1 of the English source text) matches
  * checks the control codes ({Speaker}, {Item}, {Number} ...) of a translation against the English source (layout codes NewLine / SoftNewLine / pauses may differ)
  * converts text to the game's WORD STREAM (glyph code = word, control character = ~handler word, $FFFF end) and name tables to byte entries
@@ -96,10 +96,8 @@ def preview(rom, glyphs, path, text):
     png(path, W, H, px)
 
 
-def main():
-    rom = open(sys.argv[1], "rb").read()
-    lang = json.load(open(sys.argv[2]))
-    en = sd.decode_all(rom)
+def build_one(rom, en, lang_path, out_path):
+    lang = json.load(open(lang_path))
     strs, names, blob, dropped = [], [], bytearray(), []
     def check(key, ent):
         src = en.get(key)
@@ -131,11 +129,28 @@ def main():
     out = b"LKLG" + struct.pack(">HHHHH", 1, len(strs), len(names), len(ui), len(glyphs))
     out += b"".join(struct.pack(">HIH", *e) for e in strs) + b"".join(struct.pack(">BBIB", *e) for e in names)
     out += b"".join(struct.pack(">HH", *e) for e in ui) + b"".join(bytes([c]) + d for c, d in sorted(glyphs.items())) + bytes(blob)
-    open(sys.argv[3], "wb").write(out)
-    print("langbuild: %d strings, %d names, %d ui values, %d glyphs -> %s (%d bytes); dropped %d" % (len(strs), len(names), len(ui), len(glyphs), sys.argv[3], len(out), len(dropped)))
+    open(out_path, "wb").write(out)
+    print("langbuild: %d strings, %d names, %d ui values, %d glyphs -> %s (%d bytes); dropped %d" % (len(strs), len(names), len(ui), len(glyphs), out_path, len(out), len(dropped)))
     for k, w in dropped: print("  dropped", k, "-", w)
     if "--preview" in sys.argv:
         preview(rom, glyphs, sys.argv[sys.argv.index("--preview") + 1], "Größe über Äpfel, Öl, Übung: Fuß schön Mädchen")
+    return lang.get("meta", {})
+
+
+def main():
+    rom = open(sys.argv[1], "rb").read()
+    en = sd.decode_all(rom)
+    if os.path.isdir(sys.argv[2]):                  # directory mode: every lang/*.json -> <out>/<code>.bin + <out>/index.txt ("code<TAB>name", English is built in)
+        outdir = sys.argv[3]; os.makedirs(outdir, exist_ok=True); idx = []
+        for f in sorted(os.listdir(sys.argv[2])):
+            if not f.endswith(".json"): continue
+            code = f[:-5]
+            meta = build_one(rom, en, os.path.join(sys.argv[2], f), os.path.join(outdir, code + ".bin"))
+            idx.append("%s\t%s" % (code, meta.get("name", code)))
+        open(os.path.join(outdir, "index.txt"), "w", encoding="utf-8").write("\n".join(idx) + ("\n" if idx else ""))
+        print("langbuild: index.txt with %d languages" % len(idx))
+    else:
+        build_one(rom, en, sys.argv[2], sys.argv[3])
 
 
 if __name__ == "__main__":

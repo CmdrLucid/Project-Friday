@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Text layer runtime (docs/TEXT_LAYER.md step 3): loads the language binary built by tools/langbuild.py and replaces dialogue strings, name table entries and the font.
-LANDSTALKER_LANGBIN=<file> loads it, LANDSTALKER_LANGLOG=1 lists every string the game starts (test aid; the Options row and the saved setting come later); without it every hook is a plain pass through (English = bit exact).
+Languages: <exe dir>/lang/index.txt ("code<TAB>name") + <code>.bin (tools/langbuild.py, run by build.sh / firstrun.py); the setting is ~/.landstalker_lang (LANDSTALKER_LANG=<code> overrides), the Options row (Quality of Life > Language) calls lk_lang_step() and switches AT ONCE; LANDSTALKER_LANGDIR / LANDSTALKER_LANGBIN=<file> (an extra language 'Test') / LANDSTALKER_LANGLOG=1 (lists every string the game starts) are test aids. English = every hook is a plain pass through.
  * dialogue: InitCompString $022FCC remembers the string id; DecodeChar $0246B2 then returns the translated characters instead of Huffman decoding (control characters as
    $56 + k, end as $55): the game's own GetNextChar / ProcessChar / name insertion ({Item}) keep working; the extended glyphs ($6C..) cannot pass the control table, so DecodeChar
    returns a placeholder control code and the GetNextChar wrapper swaps in the glyph word
@@ -45,25 +45,39 @@ module = r'''/* ---- ''' + VER + r''': text layer (tools/patch_lang.py, docs/TEX
 extern uint8_t lk_lang_mem[0x10000];
 extern void lk_lang_map(void);
 extern void lk_lang_rom_patch32(uint32_t addr, uint32_t v);
+#ifdef _WIN32
+extern __declspec(dllimport) unsigned long __stdcall GetModuleFileNameA(void *, char *, unsigned long);
+#else
+#include <unistd.h>
+#endif
 typedef struct { uint16_t id; uint16_t n; const uint8_t *w; } LkLgStr;
 typedef struct { uint8_t tab, idx, n; uint32_t addr; } LkLgName;
 static LkLgStr *lk_lg_str; static int lk_lg_nstr;
 static LkLgName *lk_lg_name; static int lk_lg_nname;
 static const LkLgStr *lk_lg_cur; static int lk_lg_pos, lk_lg_ext, lk_lg_extcode;
-static int lk_lg_on;
+static uint8_t *lk_lg_data;                                   /* the loaded language file (word streams are read from it) */
+static int lk_lg_on, lk_lg_hooked;
+static char lk_lg_codes[8][16], lk_lg_names[8][32]; static int lk_lg_nlang = 1, lk_lg_sel;   /* [0] = English (the original), then the languages of lang/index.txt */
+static char lk_lg_dir[512], lk_lg_binfile[512];
 static void (*lk_lg_o_ics)(void), (*lk_lg_o_dc)(void), (*lk_lg_o_gnc)(void), (*lk_lg_o_skip)(void);
 static void lk_lg_put8(uint32_t off, uint8_t v) { lk_lang_mem[off ^ 1] = v; }
 static void lk_lg_put16(uint32_t off, uint16_t v) { *(uint16_t *)(lk_lang_mem + off) = v; }
 static uint16_t lk_lg_be16(const uint8_t *p) { return (uint16_t)(p[0] << 8 | p[1]); }
 static uint32_t lk_lg_be32(const uint8_t *p) { return (uint32_t)p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3]; }
 static int lk_lg_cmp(const void *a, const void *b) { return (int)((const LkLgStr *)a)->id - (int)((const LkLgStr *)b)->id; }
+static void lk_lg_unload(void) {
+    lk_lg_cur = NULL; lk_lg_on = 0;
+    free(lk_lg_str); lk_lg_str = NULL; lk_lg_nstr = 0; free(lk_lg_name); lk_lg_name = NULL; lk_lg_nname = 0; free(lk_lg_data); lk_lg_data = NULL;
+    lk_lang_map(); lk_lang_rom_patch32(0x022E84u, 0x02A884u);   /* the original font */
+}
 static void lk_lg_load(const char *path) {
     FILE *f = fopen(path, "rb"); long sz; uint8_t *d; int i, ns, nn, nu, ng; const uint8_t *q; uint32_t nameoff = 0x8000;
+    lk_lg_unload();
     if (!f) { fprintf(stderr, "lang: cannot open %s\n", path); return; }
     fseek(f, 0, SEEK_END); sz = ftell(f); fseek(f, 0, SEEK_SET); d = malloc((size_t)sz); if (fread(d, 1, (size_t)sz, f) != (size_t)sz) { fclose(f); free(d); return; } fclose(f);
     if (sz < 14 || memcmp(d, "LKLG", 4) || lk_lg_be16(d + 4) != 1) { fprintf(stderr, "lang: %s is not a language file\n", path); free(d); return; }
     ns = lk_lg_be16(d + 6); nn = lk_lg_be16(d + 8); nu = lk_lg_be16(d + 10); ng = lk_lg_be16(d + 12);
-    q = d + 14;
+    q = d + 14; lk_lg_data = d; lk_lang_map(); memset(lk_lang_mem, 0, sizeof lk_lang_mem);
     {   const uint8_t *se = q, *ne = se + 8 * ns, *ue = ne + 7 * nn, *ge = ue + 4 * nu, *blob = ge + 31 * ng;
         lk_lg_str = calloc((size_t)ns + 1, sizeof *lk_lg_str); lk_lg_name = calloc((size_t)nn + 1, sizeof *lk_lg_name);
         for (i = 0; i < ns; i++) { const uint8_t *e = se + 8 * i; lk_lg_str[i].id = lk_lg_be16(e); lk_lg_str[i].w = blob + lk_lg_be32(e + 2); lk_lg_str[i].n = lk_lg_be16(e + 6); }
@@ -81,13 +95,12 @@ static void lk_lg_load(const char *path) {
         lk_lang_rom_patch32(0x022E84u, 0x801000u);
     }
     fprintf(stderr, "lang: loaded %s: %d strings, %d names, %d glyphs\n", path, ns, nn, ng);
-    lk_lg_on = 1;   /* the blob stays allocated (word streams are read from it) */
+    lk_lg_on = 1;
 }
 static void lk_lg_h_ics(void) {   /* InitCompString $022FCC: D0 = string id */
-    uint16_t id = (uint16_t)g_m68k.d[0]; LkLgStr key, *r; key.id = id;
-    lk_lang_map();
+    uint16_t id = (uint16_t)g_m68k.d[0]; LkLgStr key, *r = NULL; key.id = id;
     lk_lg_o_ics();
-    r = bsearch(&key, lk_lg_str, (size_t)lk_lg_nstr, sizeof *lk_lg_str, lk_lg_cmp);
+    if (lk_lg_on) { lk_lang_map(); r = bsearch(&key, lk_lg_str, (size_t)lk_lg_nstr, sizeof *lk_lg_str, lk_lg_cmp); }
     lk_lg_cur = r; lk_lg_pos = 0; lk_lg_ext = 0;
     { static int lg_log = -1; if (lg_log < 0) lg_log = getenv("LANDSTALKER_LANGLOG") != NULL; if (lg_log) fprintf(stderr, "lang: string %04X %s at frame %ld\n", id, r ? "TRANSLATED" : "original", (long)platform_frame_number()); }   /* test aid */
 }
@@ -111,26 +124,73 @@ static void lk_lg_h_gnc(void) {   /* GetNextChar $023044 */
 }
 static void lk_lg_h_skip(void) {  /* SkipToStringIndex $0294B6: A2 = table, D1 = entry index; result A2 = characters, D7 = count - 1 */
     uint32_t tbl = g_m68k.a[2]; int idx = (int)(g_m68k.d[1] & 0xFFFF), tab = -1, i;
-    lk_lang_map();
     lk_lg_o_skip();
+    if (!lk_lg_on) return;
     tab = tbl == 0x029552 ? 0 : tbl == 0x0296E0 ? 1 : tbl == 0x029730 ? 2 : tbl == 0x029732 ? 3 : tbl == 0x029A0A ? 4 : -1;
     if (tab < 0) return;
+    lk_lang_map();
     for (i = 0; i < lk_lg_nname; i++) if (lk_lg_name[i].tab == tab && lk_lg_name[i].idx == idx) {
         g_m68k.a[2] = lk_lg_name[i].addr; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | (uint32_t)(lk_lg_name[i].n - 1); return; }
 }
+static void lk_lg_home(char *out, size_t n, const char *file) { const char *h = getenv("HOME"); snprintf(out, n, "%s/%s", h ? h : ".", file); }
+static void lk_lg_exedir(void) {
+    char *sl; ssize_t k = 0;
+    { const char *e = getenv("LANDSTALKER_LANGDIR"); if (e && *e) { snprintf(lk_lg_dir, sizeof lk_lg_dir, "%s", e); return; } }
+#ifdef _WIN32
+    k = (ssize_t)GetModuleFileNameA(NULL, lk_lg_dir, sizeof lk_lg_dir - 8);
+#else
+    k = readlink("/proc/self/exe", lk_lg_dir, sizeof lk_lg_dir - 8);
+#endif
+    if (k <= 0) { snprintf(lk_lg_dir, sizeof lk_lg_dir, "lang"); return; }
+    lk_lg_dir[k] = 0; sl = strrchr(lk_lg_dir, '/'); { char *bs = strrchr(lk_lg_dir, '\\'); if (bs && (!sl || bs > sl)) sl = bs; }
+    if (sl) *sl = 0;
+    strcat(lk_lg_dir, "/lang");
+}
+static void lk_lg_apply(int i) {   /* switch the language now: 0 = English (original), others from <exe dir>/lang/<code>.bin */
+    char path[600];
+    if (i < 0 || i >= lk_lg_nlang) i = 0;
+    lk_lg_sel = i;
+    if (i == 0) { lk_lg_unload(); return; }
+    if (lk_lg_codes[i][0] == '#') snprintf(path, sizeof path, "%s", lk_lg_binfile);   /* LANDSTALKER_LANGBIN test aid */
+    else snprintf(path, sizeof path, "%s/%s.bin", lk_lg_dir, lk_lg_codes[i]);
+    lk_lg_load(path);
+    if (!lk_lg_on) lk_lg_sel = 0;
+}
+int lk_lang_count(void) { return lk_lg_nlang; }
+const char *lk_lang_name(int i) { return i >= 0 && i < lk_lg_nlang ? lk_lg_names[i] : "?"; }
+int lk_lang_get(void) { return lk_lg_sel; }
+void lk_lang_step(void) {          /* Options > Quality of Life > Language: next language, applied at once and saved in ~/.landstalker_lang */
+    char path[512]; FILE *f; int n = (lk_lg_sel + 1) % lk_lg_nlang;
+    lk_lg_apply(n);
+    lk_lg_home(path, sizeof path, ".landstalker_lang"); f = fopen(path, "w"); if (f) { fprintf(f, "%s\n", lk_lg_codes[lk_lg_sel]); fclose(f); }
+}
 static void lk_lang_install(void) {
-    static int done; const char *e;
+    static int done; const char *e; char path[600], line[128]; FILE *f; int i, want = 0;
     if (done) return;
     done = 1;
-    e = getenv("LANDSTALKER_LANGBIN");
-    if (!e || !*e) return;
+    snprintf(lk_lg_codes[0], sizeof lk_lg_codes[0], "en"); snprintf(lk_lg_names[0], sizeof lk_lg_names[0], "English");
+    lk_lg_exedir();
+    snprintf(path, sizeof path, "%s/index.txt", lk_lg_dir);
+    if ((f = fopen(path, "r"))) {      /* "code<TAB>name" per line, written by tools/langbuild.py */
+        while (lk_lg_nlang < 8 && fgets(line, sizeof line, f)) { char *t = strchr(line, '\t'), *nl; if (!t) continue; *t++ = 0; if ((nl = strpbrk(t, "\r\n"))) *nl = 0;
+            snprintf(lk_lg_codes[lk_lg_nlang], sizeof lk_lg_codes[0], "%s", line); snprintf(lk_lg_names[lk_lg_nlang], sizeof lk_lg_names[0], "%s", t); lk_lg_nlang++; }
+        fclose(f);
+    }
+    e = getenv("LANDSTALKER_LANGBIN");                                     /* test aid: an explicit file becomes an extra language called 'Test' */
+    if (e && *e && lk_lg_nlang < 8) { snprintf(lk_lg_binfile, sizeof lk_lg_binfile, "%s", e); snprintf(lk_lg_codes[lk_lg_nlang], sizeof lk_lg_codes[0], "#"); snprintf(lk_lg_names[lk_lg_nlang], sizeof lk_lg_names[0], "Test"); want = lk_lg_nlang++; }
     lk_lang_map();
-    lk_lg_load(e);
-    if (!lk_lg_on) return;
     lk_lg_o_ics = func_table_lookup(0x022FCC); lk_lg_o_dc = func_table_lookup(0x0246B2); lk_lg_o_gnc = func_table_lookup(0x023044); lk_lg_o_skip = func_table_lookup(0x0294B6);
     if (lk_lg_o_ics && lk_lg_o_dc && lk_lg_o_gnc && lk_lg_o_skip) {
-        func_table_register(0x022FCC, lk_lg_h_ics); func_table_register(0x0246B2, lk_lg_h_dc); func_table_register(0x023044, lk_lg_h_gnc); func_table_register(0x0294B6, lk_lg_h_skip);
-    } else fprintf(stderr, "lang: InitCompString / DecodeChar / GetNextChar / SkipToStringIndex not all found (%p %p %p %p)\n", (void *)lk_lg_o_ics, (void *)lk_lg_o_dc, (void *)lk_lg_o_gnc, (void *)lk_lg_o_skip);
+        func_table_register(0x022FCC, lk_lg_h_ics); func_table_register(0x0246B2, lk_lg_h_dc); func_table_register(0x023044, lk_lg_h_gnc); func_table_register(0x0294B6, lk_lg_h_skip); lk_lg_hooked = 1;
+    } else { fprintf(stderr, "lang: InitCompString / DecodeChar / GetNextChar / SkipToStringIndex not all found (%p %p %p %p)\n", (void *)lk_lg_o_ics, (void *)lk_lg_o_dc, (void *)lk_lg_o_gnc, (void *)lk_lg_o_skip); lk_lg_nlang = 1; return; }
+    if (!want) {                                                            /* LANDSTALKER_LANG=<code> overrides the saved ~/.landstalker_lang */
+        char code[16] = "";
+        e = getenv("LANDSTALKER_LANG");
+        if (e && *e) snprintf(code, sizeof code, "%s", e);
+        else { lk_lg_home(path, sizeof path, ".landstalker_lang"); if ((f = fopen(path, "r"))) { if (fgets(line, sizeof line, f)) { char *nl = strpbrk(line, "\r\n"); if (nl) *nl = 0; snprintf(code, sizeof code, "%s", line); } fclose(f); } }
+        for (i = 1; i < lk_lg_nlang; i++) if (!strcmp(code, lk_lg_codes[i])) want = i;
+    }
+    if (want) lk_lg_apply(want);
 }
 '''
 s = s.replace(anchor, module + anchor, 1)
