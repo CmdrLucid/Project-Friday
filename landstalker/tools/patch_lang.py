@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Text layer runtime (docs/TEXT_LAYER.md step 3): loads the language binary built by tools/langbuild.py and replaces dialogue strings, name table entries and the font.
-LANDSTALKER_LANGBIN=<file> loads it (test aid; the Options row and the saved setting come later); without it every hook is a plain pass through (English = bit exact).
+LANDSTALKER_LANGBIN=<file> loads it, LANDSTALKER_LANGLOG=1 lists every string the game starts (test aid; the Options row and the saved setting come later); without it every hook is a plain pass through (English = bit exact).
  * dialogue: InitCompString $022FCC remembers the string id; DecodeChar $0246B2 then returns the translated characters instead of Huffman decoding (control characters as
    $56 + k, end as $55): the game's own GetNextChar / ProcessChar / name insertion ({Item}) keep working; the extended glyphs ($6C..) cannot pass the control table, so DecodeChar
    returns a placeholder control code and the GetNextChar wrapper swaps in the glyph word
@@ -89,6 +89,7 @@ static void lk_lg_h_ics(void) {   /* InitCompString $022FCC: D0 = string id */
     lk_lg_o_ics();
     r = bsearch(&key, lk_lg_str, (size_t)lk_lg_nstr, sizeof *lk_lg_str, lk_lg_cmp);
     lk_lg_cur = r; lk_lg_pos = 0; lk_lg_ext = 0;
+    { static int lg_log = -1; if (lg_log < 0) lg_log = getenv("LANDSTALKER_LANGLOG") != NULL; if (lg_log) fprintf(stderr, "lang: string %04X %s at frame %ld\n", id, r ? "TRANSLATED" : "original", (long)platform_frame_number()); }   /* test aid */
 }
 static void lk_lg_h_dc(void) {    /* DecodeChar $0246B2: the next character in the Huffman character domain: glyph < $55, control $56 + k, end $55 */
     if (lk_lg_cur) {
