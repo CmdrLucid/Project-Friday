@@ -475,6 +475,9 @@ def smoke_run():
         print("--- %s: exit code %d (0x%X)\n%s%s" % (label, r.returncode, r.returncode & 0xFFFFFFFF, r.stdout[-1500:], r.stderr[:3000]))
         if r.returncode or "smoke: ok" not in r.stderr:
             print("selftest-run FAILED at the %s" % label)
+            if WIN:   # diagnosis: the load steps one by one
+                r = subprocess.run([exe, rom], capture_output=True, text=True, env=dict(env, SMOKE_STEPS="1"), timeout=120)
+                print("--- step by step: exit code 0x%X\n%s" % (r.returncode & 0xFFFFFFFF, "\n".join(l for l in r.stderr.splitlines() if l.startswith("smoke:") and not l.startswith("smoke:   "))[:2500]))
             return 1
     print("selftest-run ok: genrecomp starts with a dummy ROM, with and without an existing save file")
     return 0

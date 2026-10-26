@@ -67,6 +67,19 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "smoke: init\n");
     if (!genrecomp_init("smoke", 1)) { fprintf(stderr, "smoke: init failed\n"); return 3; }
     fprintf(stderr, "smoke: load rom %s\n", argv[1]);
+#ifdef _WIN32
+    if (getenv("SMOKE_STEPS")) {   /* diagnosis: the steps of genrecomp_load_rom one by one, so that a crash names the step */
+        extern int load_rom(); extern int audio_init(); extern int system_init(); extern int system_reset();
+        char pb[1024]; strncpy(pb, argv[1], sizeof pb - 1); pb[sizeof pb - 1] = 0;
+        fprintf(stderr, "smoke: step load_rom\n");     if (!load_rom(pb)) { fprintf(stderr, "smoke: load_rom failed\n"); return 4; }
+        fprintf(stderr, "smoke: step audio_init\n");    audio_init(44100, 0);
+        fprintf(stderr, "smoke: step system_init\n");   system_init();
+        fprintf(stderr, "smoke: step system_reset\n");  system_reset();
+        fprintf(stderr, "smoke: steps done\n");
+        genrecomp_shutdown();
+        return 0;
+    }
+#endif
     if (!genrecomp_load_rom(argv[1])) { fprintf(stderr, "smoke: load failed\n"); return 4; }
     fprintf(stderr, "smoke: rom loaded\n");
     for (i = 0; i < 130; i++) { if (!genrecomp_begin_frame()) break; genrecomp_end_frame(); }
