@@ -7,7 +7,7 @@
 #include <windows.h>
 /* a crash prints WHERE (fault address, nearest known function below it, address that was accessed) instead of only the exit code */
 extern int load_rom(), audio_init(), system_init(), system_reset(), md_cart_init(), md_cart_reset(), io_init(), vdp_init(), sound_init(), gen_init(), gen_reset(),
-    vdp_reset(), io_reset(), sound_reset(), recomp_m68k_reset(), m68k_init(), m68k_pulse_reset(), sram_init();
+    vdp_reset(), io_reset(), sound_reset(), m68k_init(), m68k_pulse_reset(), sram_init();
 #define FN(f) { #f, (void *)f }
 static const struct { const char *n; void *a; } s_fn[] = { FN(load_rom), FN(audio_init), FN(system_init), FN(system_reset), FN(md_cart_init), FN(md_cart_reset), FN(io_init),
     FN(vdp_init), FN(sound_init), FN(gen_init), FN(gen_reset), FN(vdp_reset), FN(io_reset), FN(sound_reset), FN(recomp_m68k_reset), FN(m68k_init), FN(m68k_pulse_reset),
