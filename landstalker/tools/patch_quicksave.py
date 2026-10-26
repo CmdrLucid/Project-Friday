@@ -65,7 +65,7 @@ static void lk_qs_check(void) {
     static const char *post; static int init;   /* test aid LANDSTALKER_QSREQ="s6220,l6300": post a request at that frame as if a button was pressed (headless); LANDSTALKER_QS_DEBUG=1 reports refusals */
     if (!init) { init = 1; post = getenv("LANDSTALKER_QSREQ"); }
     if (post) { char key[24], l[256]; snprintf(l, sizeof l, "%s,", post); snprintf(key, sizeof key, "s%ld,", s_frame_no); if (strstr(l, key)) lk_qs_post(1); snprintf(key, sizeof key, "l%ld,", s_frame_no); if (strstr(l, key)) lk_qs_post(2); }   /* every presented frame: a request that no GameLoop pass picked up within 8 frames means the game is in a nested loop (menu, dialogue, cutscene, fade) -> refuse */
-    if (lk_qs_req && s_frame_no - lk_qs_req_frame >= 8) { if (getenv("LANDSTALKER_QS_DEBUG")) fprintf(stderr, "quicksave: request %d refused at frame %ld (game is inside a menu / dialogue / cutscene loop)\n", lk_qs_req, s_frame_no); lk_qs_req = 0; lk_beep(); snprintf(lk_osd_text, sizeof lk_osd_text, "NOT NOW"); lk_osd_frames = 60; }
+    if (lk_qs_req && s_frame_no - lk_qs_req_frame >= 8) { if (getenv("LANDSTALKER_QS_DEBUG")) fprintf(stderr, "quicksave: request %d refused at frame %ld (game is inside a menu / dialogue / cutscene loop)\n", lk_qs_req, s_frame_no); lk_qs_req = 0; lk_beep(); snprintf(lk_osd_text, sizeof lk_osd_text, "%s", lk_lang_tr("NOT NOW")); lk_osd_frames = 60; }
 }
 void lk_osd_say(const char *t) { snprintf(lk_osd_text, sizeof lk_osd_text, "%s", lk_lang_tr(t)); lk_osd_frames = 90; }
 '''
