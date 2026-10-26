@@ -7,7 +7,7 @@
 The output is derived from the ROM (font): local only, never commit it.
 Binary format (all numbers big endian):  'LKLG' u16 version(1) u16 n_str u16 n_name u16 n_ui u16 n_glyph
   n_str  x { u16 id, u32 blob offset, u16 word count (without the $FFFF) }       n_name x { u8 table, u8 index, u32 blob offset, u8 byte count }
-  n_ui   x { u16 key, u16 value }                                                  n_glyph x { u8 code, 30 bytes }        then the blob (strings as u16 words incl. $FFFF, names as bytes)"""
+  n_ui   x { u16 key, u16 value }                                                  n_glyph x { u8 code, 30 bytes main font, 8 bytes menu font }        then the blob (strings as u16 words incl. $FFFF, names as bytes)"""
 import hashlib, json, struct, sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import stringdump as sd
@@ -15,7 +15,8 @@ import stringdump as sd
 HANDLER = [0x15, 0xE, 0x01, 0xB, 0xC, 0x05, 0x07, 0x06, 0x04, 0x03, 0x02, 0x18, 0x0F, 0x0D, 0x08, 0x09, 0x0A, 0x17, 0x19]   # ControlChars table: code $56 + k -> handler index
 CTL = {v: k for k, v in sd.CONTROL.items()}
 NAMECTL = {v.strip("{}"): k for k, v in sd.NAME_CODES.items()}
-EXTRA = {"ä": 0x6C, "ö": 0x6D, "ü": 0x6E, "ß": 0x6F, "Ä": 0x70, "Ö": 0x71, "Ü": 0x72}
+EXTRA = {"ä": 0x6C, "ö": 0x6D, "ü": 0x6E, "ß": 0x71, "Ä": 0x72, "Ö": 0x73, "Ü": 0x74}   # codes whose tile slots are BLANK in the menu font (slots $6F / $70 hold other art)
+MENUFONT = 0xDC76   # 1bpp 8x8 glyphs, 8 bytes each; the menu lists draw names with these tiles (patch_lang.py patches the tiles in RAM before the DMA)
 LAYOUT = {"NewLine", "SoftNewLine", "Pause1s", "Pause1sOrInput", "Pause1_5sOrInput", "Pause2sOrInput", "BreakSpace", "BreakPoint", "Hyphen"}
 TABLES = {name: i for i, (name, _, _) in enumerate(sd.NAME_TABLES)}
 UI_KEYS = {"yesno_no_x": 1, "yesno_cursor_yes_x": 2, "yesno_cursor_no_x": 3}
@@ -55,17 +56,25 @@ def glyph_rows(rom, code):
 def pack(rows): return b"".join(struct.pack(">H", r) for r in rows)
 
 
+def menu_glyph(rom, base, kind):
+    """8x8 menu font glyph (8 bytes) for an extra character: kind 'l' = lower case with the dots in the free top row, 'u' = capital (one middle row dropped, dots + gap on top), 's' = sharp s"""
+    if kind == "s": return bytes([0x78, 0xCC, 0xCC, 0xD8, 0xCC, 0xC6, 0xC6, 0xDC])
+    r = list(rom[MENUFONT + 8 * sd.MAIN.index(base):MENUFONT + 8 * sd.MAIN.index(base) + 8])
+    if kind == "l": r[0] |= 0x44; return bytes(r)
+    body = r[1:3] + r[4:8]; return bytes([0x44, 0x00] + body)
+
+
 def make_glyphs(rom):
     """derived glyphs: small letters get the diaeresis in the free rows above; capitals lose one middle row to make room for it in row 0; a drawn sharp s"""
     dots = 0x4800                                   # columns 1 and 4
     g = {}
     for ch, base in (("ä", "a"), ("ö", "o"), ("ü", "u")):
-        r = glyph_rows(rom, sd.MAIN.index(base)); r[2] |= dots; g[EXTRA[ch]] = pack(r)
+        r = glyph_rows(rom, sd.MAIN.index(base)); r[2] |= dots; g[EXTRA[ch]] = pack(r) + menu_glyph(rom, base, "l")
     for ch, base in (("Ä", "A"), ("Ö", "O"), ("Ü", "U")):
         r = glyph_rows(rom, sd.MAIN.index(base)); body = r[:5] + r[6:11]      # 11 rows -> 10 rows (a middle row is dropped)
-        g[EXTRA[ch]] = pack([dots] + body + [0] * 4)
+        g[EXTRA[ch]] = pack([dots] + body + [0] * 4) + menu_glyph(rom, base, "u")
     ss = [0x7000, 0x8800, 0x8800, 0x9000, 0xB000, 0x8800, 0x8400, 0x8400, 0x8400, 0xBC00, 0xB800, 0, 0, 0, 0]
-    g[EXTRA["ß"]] = pack(ss)
+    g[EXTRA["ß"]] = pack(ss) + menu_glyph(rom, "s", "s")
     return g
 
 
