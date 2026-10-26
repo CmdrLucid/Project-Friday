@@ -72,6 +72,7 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
 
 ## 6. Save data
 - Battery save in `landstalker.srm`, 65536 bytes (SRAM), written when the user saves at the church book (`patch_sram.py`). The save loads into room `$0255` (church). V
+  * File name / place (V, `firstrun.py` + `patch_sram.py`, 2026-10-26): `<ROM file name without extension>.srm` in the SAME folder as the ROM the user picked (or `LANDSTALKER_SAVE`); content = the raw 64 KB GPGX `sram.sram` buffer. I (untested): saves of RetroArch's Genesis Plus GX core use the same raw 64 KB layout, so a renamed `.srm` should load (Reddit question 2026-10-26, answer: back it up first); other emulators (Kega Fusion, BlastEm, Gens, PicoDrive) may store a smaller / byte-swapped layout -> a converter would need sample files. Only in-game (church) saves carry over, no emulator save states; the Quick Save slot lies in the unused SRAM area (slots 1-4 untouched).
 - Layout of the save blocks (items, flags, position): ? (look at `code/` save routines in the lordmir disassembly and compare dumps).
 
 ## 7. Graphics and compression
