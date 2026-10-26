@@ -164,6 +164,8 @@ python3 tools/patch_wav.py .deps/genrecomp
 python3 tools/patch_audiobuf.py .deps/genrecomp
 # focus pause: no focus / minimized = game and audio paused (issue #9, tools/patch_focuspause.py, LANDSTALKER_NOFOCUSPAUSE=1 = off)
 python3 tools/patch_focuspause.py .deps/genrecomp
+# region: force NTSC / 60 Hz for every ROM (a Europe ROM was detected as PAL = 20 % too fast; tools/patch_region.py, LANDSTALKER_PAL=1 = auto-detect)
+python3 tools/patch_region.py .deps/genrecomp
 # sound diagnostics + separate music / effect volumes (tools/patch_sndsep.py, LANDSTALKER_SNDLOG / LANDSTALKER_ZRAMDUMP)
 python3 tools/patch_sndsep.py .deps/genrecomp
 # diagnostics: LANDSTALKER_VDPLOG=1 lists which game function writes which tile columns of the scroll planes (widescreen work)
