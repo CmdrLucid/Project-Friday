@@ -12,6 +12,7 @@ import bpy
 import blx, cmat
 from massan_a import G
 RL = 4.0; EXT = 4.0; POST_R = 2.2
+CORNER_IN = 7.5; WIN_GAP = 15.0                                                   # post places (user feedback 4, 2026-10-26)
 
 class House:
     def __init__(s, sp):
@@ -66,8 +67,13 @@ class House:
             # each side of every door / window opening, one more only on a long blank stretch; forked (Y) tops carrying the eave
             ops = [(d["a0"], d["a1"])] if d and side == d["side"] else []
             ops += [(q["a"] - q.get("w", 10) / 2, q["a"] + q.get("w", 10) / 2) for q in sp.get("squares", []) if q["side"] == side]
-            ops += [(q["a"] - q.get("R", 7.5) - 1, q["a"] + q.get("R", 7.5) + 1) for q in sp.get("windows", []) + sp.get("boards", []) if q["side"] == side]
-            posts = [L0 + 2.5, L1 - 2.5] + [a0 - 3.5 for a0, a1 in ops] + [a1 + 3.5 for a0, a1 in ops]
+            rws = [(q["a"] - q.get("R", 7.5) - 1, q["a"] + q.get("R", 7.5) + 1) for q in sp.get("windows", []) + sp.get("boards", []) if q["side"] == side]
+            # user 2026-10-26 (feedback 4, tower): the posts of two walls met IN the corner edge -> corner posts stand CORNER_IN in from the corner (the log ends
+            # interlock at the edge as in the picture) and are left out when an opening's post is closer than 20; round / boarded windows keep WIN_GAP to their
+            # posts (picture of the tower: posts ~24 from the window centre), doors and square windows 3.5
+            opost = [a0 - 3.5 for a0, a1 in ops] + [a1 + 3.5 for a0, a1 in ops] + [a0 - WIN_GAP for a0, a1 in rws] + [a1 + WIN_GAP for a0, a1 in rws]
+            ops += rws
+            posts = [c for c in (L0 + CORNER_IN, L1 - CORNER_IN) if all(abs(c - o) >= 20 for o in opost)] + [o for o in opost if L0 + 4 < o < L1 - 4]
             if sp.get("post_pairs"): posts = [L0 + 9, L0 + 16, L1 - 16, L1 - 9] + ([d["a0"] - 3.5, d["a1"] + 3.5] if d and side == d["side"] else [])
             posts = sorted(posts); extra = []
             for p0, p1 in zip(posts, posts[1:]):
