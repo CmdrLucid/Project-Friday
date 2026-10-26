@@ -154,11 +154,11 @@ for gr in R["groups"]:
 if ROOM != 592:
     for o in ha: o.hide_render = True                                            # house A lives in Massan only
 
-# pines / bushes as ORIGINAL PIXEL billboards (study 2026-10-26, user: 'bringt mich dazu, Baeume und Straeucher auch so zu machen'): R_PLANTS=pixel cuts one
+# pines / bushes as ORIGINAL PIXEL billboards (2026-10-26, DECIDED by the user: pixel, user: 'bringt mich dazu, Baeume und Straeucher auch so zu machen'): R_PLANTS=pixel cuts one
 # free-standing pine and the single round bush beside house A out of plane A of the user's picture (props_c.cut_template, local PNGs) and stands a card on
 # every place where the 3D pine / bush would stand (bottom row = trunk / stem foot); hedge rows stay one bush card per cell like the 3D bushes
 PIX_PINE = PIX_BUSH = None; plant_cards = []
-if os.environ.get("R_PLANTS") == "pixel" and ROOM == 592:
+if os.environ.get("R_PLANTS", "pixel") == "pixel" and ROOM == 592:              # user 2026-10-26: 'pixel' (default now; R_PLANTS=3d = the approved 3D pines / bushes)
     la_ = os.path.expanduser("~/.landstalker_remake/rooms/592_room_c/layerA.png")
     if os.path.exists(la_):
         PIX_PINE = props_c.cut_template(la_, (80, 405, 132, 462), os.path.expanduser("~/.landstalker_remake/props/pine_592.png"))
