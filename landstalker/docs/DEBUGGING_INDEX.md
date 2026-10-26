@@ -164,3 +164,4 @@
 - L1307: Remake session 2026-10-25 night: Massan blockout (dev, Opus 5.5)
 - L1313: Unknowns triage 2026-10-26 (cloud, no ROM; user: 'schau dir die unknowns an, sind die wirklich noch alle unknown? gibt es Namen die wir ergaenzen koennen?')
 - L1322: Session 2026-10-26 (Deck): issue #6 hint + Massan remake details, pixel billboards (dev 22651bd + end of session)
+- L1326: Multi-ROM and text layer 2026-10-26 (Deck, Sonnet 5.5; user: 'Unterstuetzung Europa-ROM, Sprachversionen mit Textlayer')
