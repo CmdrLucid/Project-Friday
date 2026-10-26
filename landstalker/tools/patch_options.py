@@ -106,6 +106,7 @@ a = "static void lk_strip_extend(uint32_t a);\n"
 assert s.count(a) == 1, "func_table.c: layout changed (lk_strip_extend forward declaration)"
 module = r'''/* ---- LANDSTALKER options tab in the Start menu (tools/patch_options.py) ---- */
 extern int platform_option_get(int id);
+extern int lk_lang_count(void); extern const char *lk_lang_name(int i);   /* Language row (tools/patch_lang.py, defined further down in this file) */
 extern void platform_option_step(int id);
 extern int lk_bind_capturing(void);   /* key bindings (tools/patch_keys.py, input.c): pages 'Buttons' / 'Extras', ids 100.. = actions, 111 = reset */
 extern void lk_bind_capture(int i);
