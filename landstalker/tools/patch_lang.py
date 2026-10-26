@@ -52,6 +52,8 @@ extern __declspec(dllimport) unsigned long __stdcall GetModuleFileNameA(void *, 
 #endif
 typedef struct { uint16_t id; uint16_t n; const uint8_t *w; } LkLgStr;
 typedef struct { uint8_t tab, idx, n; uint32_t addr; } LkLgName;
+typedef struct { char *k, *v; } LkLgText;                     /* our own UI text: English key -> translation (umlauts as bytes $80..$86, see patch_options.py lk_chr) */
+static LkLgText *lk_lg_text; static int lk_lg_ntext;
 static LkLgStr *lk_lg_str; static int lk_lg_nstr;
 static LkLgName *lk_lg_name; static int lk_lg_nname;
 static const LkLgStr *lk_lg_cur; static int lk_lg_pos, lk_lg_ext, lk_lg_extcode;
@@ -69,18 +71,22 @@ static uint32_t lk_lg_be32(const uint8_t *p) { return (uint32_t)p[0] << 24 | p[1
 static int lk_lg_cmp(const void *a, const void *b) { return (int)((const LkLgStr *)a)->id - (int)((const LkLgStr *)b)->id; }
 static void lk_lg_unload(void) {
     lk_lg_cur = NULL; lk_lg_on = 0; lk_lg_nui = 0; memset(lk_lg_mg, 0, sizeof lk_lg_mg);
+    { int t; for (t = 0; t < lk_lg_ntext; t++) { free(lk_lg_text[t].k); free(lk_lg_text[t].v); } free(lk_lg_text); lk_lg_text = NULL; lk_lg_ntext = 0; }
     free(lk_lg_str); lk_lg_str = NULL; lk_lg_nstr = 0; free(lk_lg_name); lk_lg_name = NULL; lk_lg_nname = 0; free(lk_lg_data); lk_lg_data = NULL;
     lk_lang_map(); lk_lang_rom_patch32(0x022E84u, 0x02A884u);   /* the original font */
 }
 static void lk_lg_load(const char *path) {
-    FILE *f = fopen(path, "rb"); long sz; uint8_t *d; int i, ns, nn, nu, ng; const uint8_t *q; uint32_t nameoff = 0x8000;
+    FILE *f = fopen(path, "rb"); long sz; uint8_t *d; int i, ns, nn, nu, ng, nt; const uint8_t *q; uint32_t nameoff = 0x8000;
     lk_lg_unload();
     if (!f) { fprintf(stderr, "lang: cannot open %s\n", path); return; }
     fseek(f, 0, SEEK_END); sz = ftell(f); fseek(f, 0, SEEK_SET); d = malloc((size_t)sz); if (fread(d, 1, (size_t)sz, f) != (size_t)sz) { fclose(f); free(d); return; } fclose(f);
-    if (sz < 14 || memcmp(d, "LKLG", 4) || lk_lg_be16(d + 4) != 1) { fprintf(stderr, "lang: %s is not a language file\n", path); free(d); return; }
-    ns = lk_lg_be16(d + 6); nn = lk_lg_be16(d + 8); nu = lk_lg_be16(d + 10); ng = lk_lg_be16(d + 12);
-    q = d + 14; lk_lg_data = d; lk_lang_map(); memset(lk_lang_mem, 0, sizeof lk_lang_mem);
-    {   const uint8_t *se = q, *ne = se + 8 * ns, *ue = ne + 7 * nn, *ge = ue + 4 * nu, *blob = ge + 39 * ng;
+    if (sz < 16 || memcmp(d, "LKLG", 4) || lk_lg_be16(d + 4) != 2) { fprintf(stderr, "lang: %s is not a language file (version 2 expected: run tools/langbuild.py again)\n", path); free(d); return; }
+    ns = lk_lg_be16(d + 6); nn = lk_lg_be16(d + 8); nu = lk_lg_be16(d + 10); ng = lk_lg_be16(d + 12); nt = lk_lg_be16(d + 14);
+    q = d + 16; lk_lg_data = d; lk_lang_map(); memset(lk_lang_mem, 0, sizeof lk_lang_mem);
+    {   const uint8_t *se = q, *ne = se + 8 * ns, *ue = ne + 7 * nn, *ge = ue + 4 * nu, *te = ge + 39 * ng, *blob = te;
+        { const uint8_t *tp = te; int t; lk_lg_text = calloc((size_t)nt + 1, sizeof *lk_lg_text); lk_lg_ntext = nt;
+          for (t = 0; t < nt; t++) { int kl = tp[0], vl = tp[1]; lk_lg_text[t].k = malloc((size_t)kl + 1); memcpy(lk_lg_text[t].k, tp + 2, (size_t)kl); lk_lg_text[t].k[kl] = 0; lk_lg_text[t].v = malloc((size_t)vl + 1); memcpy(lk_lg_text[t].v, tp + 2 + kl, (size_t)vl); lk_lg_text[t].v[vl] = 0; tp += 2 + kl + vl; }
+          blob = tp; }
         lk_lg_str = calloc((size_t)ns + 1, sizeof *lk_lg_str); lk_lg_name = calloc((size_t)nn + 1, sizeof *lk_lg_name);
         for (i = 0; i < ns; i++) { const uint8_t *e = se + 8 * i; lk_lg_str[i].id = lk_lg_be16(e); lk_lg_str[i].w = blob + lk_lg_be32(e + 2); lk_lg_str[i].n = lk_lg_be16(e + 6); }
         qsort(lk_lg_str, (size_t)ns, sizeof *lk_lg_str, lk_lg_cmp); lk_lg_nstr = ns;
@@ -169,6 +175,11 @@ static void lk_lg_apply(int i) {   /* switch the language now: 0 = English (orig
     if (!lk_lg_on) lk_lg_sel = 0;
 }
 uint32_t lk_lang_ui(int key, uint32_t def) { int i; for (i = 0; i < lk_lg_nui; i++) if (lk_lg_ui[i][0] == key) return lk_lg_ui[i][1]; return def; }   /* layout value of the current language or the original (US) value */
+const char *lk_lang_tr(const char *en) {   /* our own UI text: the translation of an English word / phrase of the options menus (or the English text itself) */
+    int t; if (!lk_lg_on || !en) return en;
+    for (t = 0; t < lk_lg_ntext; t++) if (!strcmp(lk_lg_text[t].k, en)) return lk_lg_text[t].v;
+    return en;
+}
 int lk_lang_count(void) { return lk_lg_nlang; }
 const char *lk_lang_name(int i) { return i >= 0 && i < lk_lg_nlang ? lk_lg_names[i] : "?"; }
 int lk_lang_get(void) { return lk_lg_sel; }

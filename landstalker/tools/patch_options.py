@@ -106,6 +106,7 @@ a = "static void lk_strip_extend(uint32_t a);\n"
 assert s.count(a) == 1, "func_table.c: layout changed (lk_strip_extend forward declaration)"
 module = r'''/* ---- LANDSTALKER options tab in the Start menu (tools/patch_options.py) ---- */
 extern int platform_option_get(int id);
+extern const char *lk_lang_tr(const char *en);   /* our own UI text in the selected language (tools/patch_lang.py): the English text itself when there is no translation */
 extern int lk_lang_count(void); extern const char *lk_lang_name(int i);   /* Language row (tools/patch_lang.py, defined further down in this file) */
 extern void platform_option_step(int id);
 extern int lk_bind_capturing(void);   /* key bindings (tools/patch_keys.py, input.c): pages 'Buttons' / 'Extras', ids 100.. = actions, 111 = reset */
@@ -132,6 +133,14 @@ static int lk_chr(char c) {   /* the game's CHR enum (US) */
     if (c == ':') return 0x47;
     if (c == '<') return 0x45;
     if (c == '>') return 0x46;
+    if (c == '?') return 0x42;
+    if (c == '!') return 0x43;
+    if (c == '/') return 0x44;
+    if (c == '\'') return 0x49;
+    if (c == '%') return 0x4B;
+    if (c == '(') return 0x4E;
+    if (c == ')') return 0x4F;
+    { unsigned char u = (unsigned char)c; if (u >= 0x80 && u <= 0x86) return ((const int[]){ 0x6C, 0x6D, 0x6E, 0x71, 0x72, 0x73, 0x74 })[u - 0x80]; }   /* ä ö ü ß Ä Ö Ü: the extra glyph codes of the language file (tools/langbuild.py UI_BYTES) */
     return 0;
 }
 static void lk_call(uint32_t a) { func_table_jsr(a, 0x0248B2u); }
@@ -147,7 +156,7 @@ static void lk_menu_print(const char *t, int x) {
     g_m68k = sv;
 }
 static void lk_opt_put_tile(int col, int row, int tile) { bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | tile)); }
-static void lk_opt_put(int col, int row, const char *t) { for (; *t; t++, col++) bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | lk_chr(*t))); }
+static void lk_opt_put(int col, int row, const char *t) { t = lk_lang_tr(t); for (; *t; t++, col++) bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | lk_chr(*t))); }
 static const char *lk_id_name[38] = { "Widescreen", "Full Height", "Filter", "Fullscreen", "Scaling", "De-Dither", "Music Volume", "Effects Volume", "Speech Sound", "Shadows", "Quick Items", "Fast Forward", "Damage Taken", "Enemy HP", "Quick Save", "Fix Ride Objects", "Item Info", "Buy Quantity", "Map Behind Text", "Own Renderer", "Live Gaia Effect", "HD Graphics", "Seamless Doors", "Depth Blur", "Bloom", "Vignette", "Color Grade", "Lights", "3D Room", "3D Houses", "Camera Controls", "Remake", "3D Light", "3D Objects", "3D Trees", "Quick Equip", "Better Menu", "Language" };   /* platform option id -> label */
 static const int lk_ids_video[7] = { 0, 1, 4, 2, 3, 9, 18 }   /* PAUSED 2026-10-24: the rows 23..34 (Depth Blur, Bloom, Vignette, Color Grade, Lights, 3D Room, 3D Houses, Camera Controls, Remake, 3D Light, 3D Objects, 3D Trees) are hidden, their code stays (docs/HANDOFF.md 0a101) */;
 static const int lk_ids_audio[3] = { 6, 7, 8 };
@@ -162,7 +171,7 @@ static const char *lk_opt_bindtext(int id) {   /* value column of a binding row:
     lk_bind_label(id - 100, b, sizeof b); return b;
 }
 static const int lk_ids_all[LK_OPT_ALL] = { 0, 1, 4, 2, 5, 3, 6, 7, 8, 9, 10 };   /* file select sub-menu: one flat list */
-static const char *lk_opt_val(int id, int v) {
+static const char *lk_opt_val0(int id, int v) {
     static char buf[8];
     static const char *wide[4] = { "Off", "16:10", "16:9", "16:9" }, *onoff[2] = { "Off", "On" }, *dofv[4] = { "Off", "Low", "Medium", "High" }, *filt[5] = { "Off", "Scanlines", "CRT", "CRT Pro", "CRT Curved" }, *scal[4] = { "Fit", "4:3", "Integer", "Fill" }, *dd[4] = { "Off", "Light", "Medium", "Strong" }, *shd[3] = { "Off", "On", "Soft" }, *ffw[4] = { "Off", "2x", "3x", "4x" }, *dmg[6] = { "25", "50", "75", "100", "150", "200" }, *ehp[5] = { "50", "100", "150", "200", "300" };
     if (id == 0) return wide[v & 3];
@@ -180,6 +189,7 @@ static const char *lk_opt_val(int id, int v) {
     if (id == 6 || id == 7) { snprintf(buf, sizeof buf, "%d", v); return buf; }
     return onoff[v & 1];
 }
+static const char *lk_opt_val(int id, int v) { return lk_lang_tr(lk_opt_val0(id, v)); }   /* the value words (Off / On / Scanlines ...) in the selected language */
 static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 7 : lk_opt_pg == 1 ? 7 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 3 ? 9 : lk_opt_pg == 4 ? 2 : 13; }
 static int lk_opt_vis(void) { int n = lk_opt_nrows(); return n > 7 ? 7 : n; }   /* rows shown at once */
 static void lk_opt_fixscroll(void) { int v = lk_opt_vis(); if (lk_opt_row < lk_opt_scroll) lk_opt_scroll = lk_opt_row; if (lk_opt_row >= lk_opt_scroll + v) lk_opt_scroll = lk_opt_row - v + 1; }
@@ -243,6 +253,7 @@ static void lk_bar_arrow(uint16_t x) { bus_write16(0xFF07CEu, x); bus_write8(0xF
 #define LK_X_EQ  0x00F8
 #define LK_X_OPT 0x0148
 static void lk_menu_print_nodma(const char *t, int x) {
+    t = lk_lang_tr(t);
     bus_write32(0xFF1844, 0); bus_write8(0xFF1155, 0); bus_write8(0xFF1144, 3); bus_write16(0xFF1194, (uint16_t)x);
     for (; *t; t++) { g_m68k.d[0] = (uint32_t)lk_chr(*t); lk_call(0x0230CAu); }   /* ProcessChar */
 }
@@ -348,15 +359,33 @@ static void lk_h_cancel(void) {
 /* ---- file select: fourth bar entry 'Options' (phase B) ---- */
 static gen_func_t lk_o_fsel, lk_o_fbar;
 static int lk_in_fileselect(void) { int i, d = func_table_depth(); for (i = 0; i < d; i++) if (func_table_stack(i) == 0x00EE84u) return 1; return 0; }
-static void lk_fs_print(const char *t, int x) { bus_write16(0xFF1194, (uint16_t)x); for (; *t; t++) { g_m68k.d[0] = (uint32_t)lk_chr(*t); lk_call(0x0235FEu); } }
+static void lk_fs_print(const char *t, int x) { t = lk_lang_tr(t); bus_write16(0xFF1194, (uint16_t)x); for (; *t; t++) { g_m68k.d[0] = (uint32_t)lk_chr(*t); lk_call(0x0235FEu); } }
 /* words of the bar: measured widths (screen px) Start 39, Copy 30, Delete 44, Options 51; equal gaps of 24 px, equal margins: text x $12 / $51 / $87 / $CB; arrow X = text x + $88 */
-#define LK_FS_TX0 0x12
-#define LK_FS_TX1 0x51
-#define LK_FS_TX2 0x87
-#define LK_FS_TX3 0xCB
-static const int lk_fs_ax[4] = { LK_FS_TX0 + 0x88, LK_FS_TX1 + 0x88, LK_FS_TX2 + 0x88, LK_FS_TX3 + 0x88 };
+static int lk_fs_tx[4] = { 0x12, 0x51, 0x87, 0xCB };            /* the English layout; recomputed from the text widths whenever the bar is drawn (other languages) */
+static int lk_fs_ax[4] = { 0x12 + 0x88, 0x51 + 0x88, 0x87 + 0x88, 0xCB + 0x88 };
+static int lk_fs_width(const char *t) {   /* visible width in px of a text printed with the text box font: sum of the glyph advances (rightmost ink column + 3, space 8) minus the last spacing of 2 */
+    uint32_t font = bus_read32(0x022E84u); int w = 0;
+    for (t = lk_lang_tr(t); *t; t++) {
+        int c = lk_chr(*t), k = 0, row;
+        if (c == 0) { w += 8; continue; }
+        for (row = 0; row < 15; row++) { int word = bus_read16(font + 30u * (uint32_t)c + 2u * (uint32_t)row), b; for (b = 11; b >= 0; b--) if (word & (0x8000 >> b)) { if (b > k) k = b; break; } }
+        w += k + 3;
+    }
+    return w > 2 ? w - 2 : w;
+}
+static void lk_fs_layout(void) {   /* four words with equal gaps between the equal margins 0x12 .. 0xFE (English: 24 px gaps) */
+    static const char *const word[4] = { "Start", "Copy", "Delete", "Options" }; int i, sum = 0, gap, x = 0x12;
+    for (i = 0; i < 4; i++) sum += lk_fs_width(word[i]);
+    gap = (0xFE - 0x12 - sum) / 3; if (gap < 6) gap = 6;
+    for (i = 0; i < 4; i++) { lk_fs_tx[i] = x; lk_fs_ax[i] = x + 0x88; x += lk_fs_width(word[i]) + gap; }
+}
+#define LK_FS_TX0 lk_fs_tx[0]
+#define LK_FS_TX1 lk_fs_tx[1]
+#define LK_FS_TX2 lk_fs_tx[2]
+#define LK_FS_TX3 lk_fs_tx[3]
 static void lk_fs_bar_text(void) {
     M68kContext sv = g_m68k;
+    lk_fs_layout();
     lk_call(0x00F5F4u);   /* ClearTextBuffer */
     lk_fs_print("Start", LK_FS_TX0); lk_fs_print("Copy", LK_FS_TX1); lk_fs_print("Delete", LK_FS_TX2); lk_fs_print("Options", LK_FS_TX3);
     lk_call(0x00F5DCu);   /* DMACopyTextBuffer */

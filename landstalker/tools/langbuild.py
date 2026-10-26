@@ -5,9 +5,9 @@
  * converts text to the game's WORD STREAM (glyph code = word, control character = ~handler word, $FFFF end) and name tables to byte entries
  * adds the extended font glyphs (ä ö ü ß Ä Ö Ü = codes $6C..$72, 30 bytes each, derived from the ROM's own font) and the 'ui' layout values
 The output is derived from the ROM (font): local only, never commit it.
-Binary format (all numbers big endian):  'LKLG' u16 version(1) u16 n_str u16 n_name u16 n_ui u16 n_glyph
+Binary format (all numbers big endian):  'LKLG' u16 version(2) u16 n_str u16 n_name u16 n_ui u16 n_glyph u16 n_text
   n_str  x { u16 id, u32 blob offset, u16 word count (without the $FFFF) }       n_name x { u8 table, u8 index, u32 blob offset, u8 byte count }
-  n_ui   x { u16 key, u16 value }                                                  n_glyph x { u8 code, 30 bytes main font, 8 bytes menu font }        then the blob (strings as u16 words incl. $FFFF, names as bytes)"""
+  n_ui   x { u16 key, u16 value }                                                  n_glyph x { u8 code, 30 bytes main font, 8 bytes menu font }   n_text x { u8 key length, u8 value length, key, value }  (our own UI text: English key -> translation, umlauts as bytes $80..$86)   then the blob (strings as u16 words incl. $FFFF, names as bytes)"""
 import hashlib, json, struct, sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import stringdump as sd
@@ -18,6 +18,7 @@ NAMECTL = {v.strip("{}"): k for k, v in sd.NAME_CODES.items()}
 EXTRA = {"ä": 0x6C, "ö": 0x6D, "ü": 0x6E, "ß": 0x71, "Ä": 0x72, "Ö": 0x73, "Ü": 0x74}   # codes whose tile slots are BLANK in the menu font (slots $6F / $70 hold other art)
 MENUFONT = 0xDC76   # 1bpp 8x8 glyphs, 8 bytes each; the menu lists draw names with these tiles (patch_lang.py patches the tiles in RAM before the DMA)
 LAYOUT = {"NewLine", "SoftNewLine", "Pause1s", "Pause1sOrInput", "Pause1_5sOrInput", "Pause2sOrInput", "BreakSpace", "BreakPoint", "Hyphen"}
+UI_BYTES = {"ä": 0x80, "ö": 0x81, "ü": 0x82, "ß": 0x83, "Ä": 0x84, "Ö": 0x85, "Ü": 0x86}   # our own UI text (patch_options.py lk_chr maps these bytes to the extra glyph codes)
 TABLES = {name: i for i, (name, _, _) in enumerate(sd.NAME_TABLES)}
 UI_KEYS = {"yesno_no_x": 1, "yesno_cursor_yes_x": 2, "yesno_cursor_no_x": 3}
 FONT, GLYPH = 0x2A884, 30
@@ -133,13 +134,19 @@ def build_one(rom, en, lang_path, out_path):
         try: data = bytes(v for t, v in tokens(ent["t"]))
         except ValueError as e: dropped.append((key, str(e))); continue
         names.append((TABLES[tab], int(idx), len(blob), len(data))); blob += data
-    ui = [(UI_KEYS[k], v) for k, v in lang.get("ui", {}).items()]
+    ui = [(UI_KEYS[k], v) for k, v in lang.get("ui_values", lang.get("ui", {})).items()]
+    texts = []
+    for k, v in lang.get("ui_text", {}).items():
+        try: vb = bytes(UI_BYTES.get(c) or ord(c) for c in v); kb = k.encode("ascii")
+        except (ValueError, UnicodeEncodeError): dropped.append(("ui_text:" + k, "unsupported character")); continue
+        if any(c > 0x86 or (c > 0x7E and c < 0x80) for c in vb) or len(kb) > 255 or len(vb) > 255: dropped.append(("ui_text:" + k, "unsupported character")); continue
+        texts.append(bytes([len(kb), len(vb)]) + kb + vb)
     glyphs = make_glyphs(rom)
-    out = b"LKLG" + struct.pack(">HHHHH", 1, len(strs), len(names), len(ui), len(glyphs))
+    out = b"LKLG" + struct.pack(">HHHHHH", 2, len(strs), len(names), len(ui), len(glyphs), len(texts))
     out += b"".join(struct.pack(">HIH", *e) for e in strs) + b"".join(struct.pack(">BBIB", *e) for e in names)
-    out += b"".join(struct.pack(">HH", *e) for e in ui) + b"".join(bytes([c]) + d for c, d in sorted(glyphs.items())) + bytes(blob)
+    out += b"".join(struct.pack(">HH", *e) for e in ui) + b"".join(bytes([c]) + d for c, d in sorted(glyphs.items())) + b"".join(texts) + bytes(blob)
     open(out_path, "wb").write(out)
-    print("langbuild: %d strings, %d names, %d ui values, %d glyphs -> %s (%d bytes); dropped %d" % (len(strs), len(names), len(ui), len(glyphs), out_path, len(out), len(dropped)))
+    print("langbuild: %d strings, %d names, %d ui values, %d glyphs, %d ui texts -> %s (%d bytes); dropped %d" % (len(strs), len(names), len(ui), len(glyphs), len(texts), out_path, len(out), len(dropped)))
     for k, w in dropped: print("  dropped", k, "-", w)
     if "--preview" in sys.argv:
         preview(rom, glyphs, sys.argv[sys.argv.index("--preview") + 1], "Größe über Äpfel, Öl, Übung: Fuß schön Mädchen")
