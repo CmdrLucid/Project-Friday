@@ -107,7 +107,7 @@ import house_c
 # hatches, tower banner / sign; everything else (footprint, door side / place, base height) comes from the room data
 MASSAN = {(11, 15, 10, 13): dict(boards=[("S", 0.3, 26)]),                                   # terrace west: boarded window on the south wall
           (11, 15, 6, 9): dict(hatches=[(0.0, 0.25)]),                                       # terrace middle: a smoke-hole cover
-          (20, 24, 9, 12): dict(hatches=[(0.1, 0.3)], squares=[("S", 0.25, 26)]),                   # front right: a square window south (user: one was missing)
+          (20, 24, 9, 12): dict(hatches=[(0.1, 0.3)], squares=[("S", 0.46, 30, 14)]),               # behind the church: a square window south (user: one was missing; 2026-10-26 'passt noch nicht' -> measured on the picture: middle of the wall, right under the eave, 14 wide)
           (20, 24, 4, 8): dict(),
           (22, 26, 17, 23): dict(boards=[("S", 0.2, 26)], windows=[("E", 0.45, 27)], hatches=[(0.0, 0.3), (0.05, 0.62)]),
           (11, 15, 2, 5): dict(windows=[("S", 0.5, 70), ("S", 0.5, 92)], squares=[("E", 0.45, 93)], banner=("E", 0.45, 87), ZE=110, ZT=137)}   # tower: two centred round windows,
@@ -125,7 +125,7 @@ def spec_of(gr):
     for k in ("banner", "sign"):
         if k in ex: sp[k] = dict(side=ex[k][0], a=along(ex[k][0], ex[k][1]), z=ex[k][2])
     sp.update(overhang=1.5, lip=3.5, ZT=77.0)                                   # roofs like house A (user 2026-10-25)
-    sp["squares"] = [dict(side=w[0], a=along(w[0], w[1]), z=w[2]) for w in ex.get("squares", [])]
+    sp["squares"] = [dict(side=w[0], a=along(w[0], w[1]), z=w[2], **({"w": w[3], "h": w[3]} if len(w) > 3 else {})) for w in ex.get("squares", [])]
     for k in ("ZE", "ZT"):
         if k in ex: sp[k] = ex[k]
     if gr["cls"] == "tower" and "ZE" not in ex: sp["ZE"] = 16.0 * gr["rel"] - 2; sp["ZT"] = sp["ZE"] + 27
