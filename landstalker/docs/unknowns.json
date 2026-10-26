@@ -14,9 +14,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: small id written as $XXXX in the docs (VDP command low word / CSA or sound id / item field value), not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x000051",
@@ -37,9 +40,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: small id written as $XXXX in the docs (VDP command low word / CSA or sound id / item field value), not an address"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0000FE",
@@ -60,9 +66,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: small id written as $XXXX in the docs (VDP command low word / CSA or sound id / item field value), not an address"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x000123",
@@ -77,9 +86,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: small id written as $XXXX in the docs (VDP command low word / CSA or sound id / item field value), not an address"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0001B6",
@@ -94,9 +106,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: player X / Y coordinate values in a ride-objects test (DEBUGGING), not addresses"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0001BB",
@@ -111,9 +126,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: player X / Y coordinate values in a ride-objects test (DEBUGGING), not addresses"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0001C1",
@@ -128,9 +146,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: player X / Y coordinate values in a ride-objects test (DEBUGGING), not addresses"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x000240",
@@ -145,9 +166,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: colour words of a room palette (LabrynthLitPal, room 368), not addresses"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x000244",
@@ -162,9 +186,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: colour words of a room palette (LabrynthLitPal, room 368), not addresses"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x000250",
@@ -249,9 +276,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VDP tile index / tile budget value ($3A8..$4F4 sprite tiles, block id mask $3FF), not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0003FF",
@@ -290,27 +320,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 5,
-   "class": "other"
-  },
-  {
-   "addr": "0x00042E",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
    "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+    "2026-10-26: VDP tile index / tile budget value ($3A8..$4F4 sprite tiles, block id mask $3FF), not an address"
    ],
-   "mentions": 0,
-   "class": "other"
+   "mentions": 5,
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0004F4",
@@ -325,9 +340,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VDP tile index / tile budget value ($3A8..$4F4 sprite tiles, block id mask $3FF), not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x000600",
@@ -342,9 +360,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: colour word (palette value $0600 / $0CCC / $0EEE), not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00085E",
@@ -359,9 +380,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside RestoreBGM+$C: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x0008EE",
@@ -376,9 +400,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: colour words of a room palette (LabrynthLitPal, room 368), not addresses"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x000900",
@@ -411,9 +438,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: size / stride / step value (text line stride $900, DMA length $D80 words, fade level $E00, size mask $0FFF, Sleep $2A2F frames, map layer size $2AC8, height map offset $5C94), not an address"
+   ],
    "mentions": 4,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x000CCC",
@@ -452,9 +482,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: colour word (palette value $0600 / $0CCC / $0EEE), not an address"
+   ],
    "mentions": 5,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x000D80",
@@ -487,9 +520,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: size / stride / step value (text line stride $900, DMA length $D80 words, fade level $E00, size mask $0FFF, Sleep $2A2F frames, map layer size $2AC8, height map offset $5C94), not an address"
+   ],
    "mentions": 4,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x000E00",
@@ -504,9 +540,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: size / stride / step value (text line stride $900, DMA length $D80 words, fade level $E00, size mask $0FFF, Sleep $2A2F frames, map layer size $2AC8, height map offset $5C94), not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x000EEE",
@@ -521,9 +560,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: colour word (palette value $0600 / $0CCC / $0EEE), not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x000FE3",
@@ -540,7 +582,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x000FE7",
@@ -557,7 +600,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x000FE9",
@@ -574,7 +618,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x000FFF",
@@ -595,9 +640,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: size / stride / step value (text line stride $900, DMA length $D80 words, fade level $E00, size mask $0FFF, Sleep $2A2F frames, map layer size $2AC8, height map offset $5C94), not an address"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x001000",
@@ -612,9 +660,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: flag / mask bit in a tile or chunk header word ($1000 v-flip, $2000 LZ77, $3FFF VRAM address mask, $6000 / $A000 palette+priority bits, $8000 zero fill), not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0010BE",
@@ -629,9 +680,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside WaitForButtonPush+$C: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x0010C0",
@@ -646,9 +700,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside WaitForButtonPush+$E: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x001300",
@@ -791,7 +848,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x0016D2",
@@ -814,7 +872,8 @@
    "callers": [],
    "notes": [],
    "mentions": 2,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x0016D6",
@@ -831,7 +890,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x0016FC",
@@ -854,7 +914,8 @@
    "callers": [],
    "notes": [],
    "mentions": 2,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x001700",
@@ -871,7 +932,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x001704",
@@ -894,7 +956,8 @@
    "callers": [],
    "notes": [],
    "mentions": 2,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x001710",
@@ -909,9 +972,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: expected / popped return address in an old 'RTS to' log line (stack imbalance of an early build, fixed); not a function"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x00171E",
@@ -928,7 +994,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x00176F",
@@ -983,9 +1050,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: behaviour / action value of an entity in a fight log (DEBUGGING slime), not used as an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x001F00",
@@ -1000,9 +1070,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside HandleDownLeft_MoveAndScroll+$68: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x002000",
@@ -1081,9 +1154,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside HandleUpLeft_MoveAndScroll+$12: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x002120",
@@ -1098,9 +1174,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside HandleUpLeft_MoveAndScroll+$82: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x002262",
@@ -1115,9 +1194,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ScrollCameraPlus+$20: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x0022F0",
@@ -1132,9 +1214,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ScrollCameraPlus+$AE: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x002300",
@@ -1155,9 +1240,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ScrollCameraPlus+$BE: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 2,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x002304",
@@ -1198,10 +1286,12 @@
    "callers": [],
    "notes": [
     "2026-10-15: 2026-10-15 22:37:53: 'RTS to $002304 (ScrollCameraPlus+0xC2) expected GameLoop+0x42' in the same cutscene session (see 0x023136); probably a stale return address left by the interpreter-run table entries; re-check after the seeds.",
-    "2026-10-16: 2026-10-16 00:29:57: again 'RTS to $002304 (ScrollCameraPlus+0xC2) expected GameLoop+0x42' directly after the interpreter ran $013FB2 (CSA_00B4); $0021A4 (CheckForLadderClimb_loc1) expected RunGameLoop+0xC likewise. Same pattern as 2026-10-15: the RTS lines come WITH an interpreter run of an unregistered subroutine entry; seeded now."
+    "2026-10-16: 2026-10-16 00:29:57: again 'RTS to $002304 (ScrollCameraPlus+0xC2) expected GameLoop+0x42' directly after the interpreter ran $013FB2 (CSA_00B4); $0021A4 (CheckForLadderClimb_loc1) expected RunGameLoop+0xC likewise. Same pattern as 2026-10-15: the RTS lines come WITH an interpreter run of an unregistered subroutine entry; seeded now.",
+    "2026-10-26: expected / popped return address in an old 'RTS to' log line (stack imbalance of an early build, fixed); not a function"
    ],
    "mentions": 4,
-   "class": "seed/table"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x002314",
@@ -1224,7 +1314,8 @@
    "callers": [],
    "notes": [],
    "mentions": 2,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x002320",
@@ -1239,9 +1330,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ScrollCameraPlus+$DE: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x002324",
@@ -1276,7 +1370,8 @@
    "callers": [],
    "notes": [],
    "mentions": 4,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x002328",
@@ -1291,9 +1386,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ScrollCameraMinus+$2: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x002330",
@@ -1308,9 +1406,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ScrollCameraMinus+$A: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x002332",
@@ -1325,9 +1426,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ScrollCameraMinus+$C: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x002362",
@@ -1342,9 +1446,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ScrollCameraMinus+$3C: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x002366",
@@ -1359,9 +1466,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ScrollCameraMinus+$40: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x002400",
@@ -1376,9 +1486,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside nullsub_4+$10: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x0024C4",
@@ -1393,9 +1506,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x002662",
@@ -1410,9 +1526,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside Return+$34: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00282F",
@@ -1435,32 +1554,6 @@
    "class_by": "hand"
   },
   {
-   "addr": "0x002896",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the Massan replay (frames 0-1500), 1 calls",
-     "date": "2026-10-12"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1003",
-     "date": "2026-10-25",
-     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
-    }
-   ],
-   "callers": [
-    "0x002824"
-   ],
-   "notes": [
-    "2026-10-12: LoadRoomPath: places the player on the floor / height of the target (uses ScanHeightMapUnderEntity); long routine, not read in full"
-   ],
-   "mentions": 1,
-   "class": "other"
-  },
-  {
    "addr": "0x002A2F",
    "first_seen": "2026-10-20",
    "hits": 0,
@@ -1473,9 +1566,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: size / stride / step value (text line stride $900, DMA length $D80 words, fade level $E00, size mask $0FFF, Sleep $2A2F frames, map layer size $2AC8, height map offset $5C94), not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x002AC8",
@@ -1540,9 +1636,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: flag / mask bit in a tile or chunk header word ($1000 v-flip, $2000 LZ77, $3FFF VRAM address mask, $6000 / $A000 palette+priority bits, $8000 zero fill), not an address"
+   ],
    "mentions": 2,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00478C",
@@ -1557,9 +1656,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0050C0",
@@ -1574,9 +1676,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VRAM address (nametables $C000 / $D000 / $F000, sprite table $D400, tiles $50C0 / $A500 / $D680 / $F180, window map range $F420..$FA4B), not a 68000 address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x005C94",
@@ -1597,9 +1702,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: size / stride / step value (text line stride $900, DMA length $D80 words, fade level $E00, size mask $0FFF, Sleep $2A2F frames, map layer size $2AC8, height map offset $5C94), not an address"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x006000",
@@ -1632,9 +1740,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: flag / mask bit in a tile or chunk header word ($1000 v-flip, $2000 LZ77, $3FFF VRAM address mask, $6000 / $A000 palette+priority bits, $8000 zero fill), not an address"
+   ],
    "mentions": 4,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00600A",
@@ -1651,110 +1762,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
-  },
-  {
-   "addr": "0x00620A",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2057 (inn / shop doors), 11 calls",
-     "date": "2026-10-12"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1003",
-     "date": "2026-10-25",
-     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
-    }
-   ],
-   "callers": [
-    "0x006246"
-   ],
-   "notes": [
-    "2026-10-12: inside WarpToRoom (/bin/bash0620E): starts on a trap #0 data word, then LoadRoomPath / InitVDPAndFadeIn / CheckBell; entered from HandleFloorStairs and RoomTransitionHandler; entry point or mid-instruction label, not clarified"
-   ],
-   "mentions": 1,
-   "class": "other"
-  },
-  {
-   "addr": "0x006212",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1116",
-     "date": "2026-10-25",
-     "snippet": "* `LANDSTALKER_WIDE_DEBUG=1`: frame 3402 'not map', stack `UpdateSprites -> EB_TriggerCutscene -> CSA_00D3 -> WarpToRoom+0x4 ($006212) -> Fa"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1116",
-     "date": "2026-10-25",
-     "snippet": "* `LANDSTALKER_WIDE_DEBUG=1`: frame 3402 'not map', stack `UpdateSprites -> EB_TriggerCutscene -> CSA_00D3 -> WarpToRoom+0x4 ($006212) -> Fa"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1117",
-     "date": "2026-10-25",
-     "snippet": "* Fix (`patch_wide.py`): `$006212` also clears `lk_picture`. Replay exact; frames 3375-3430: fade-in complete with margins and band, reload "
-    },
-    {
-     "type": "doc",
-     "where": "HANDOFF.md:238",
-     "date": "2026-10-25",
-     "snippet": "## 0a1. END OF SESSION 2026-10-16 (late, Deck, Sonnet 5.5): dev only, user-confirmed by playing: 'Ride Objects' fix, ship band, Item Info ('"
-    },
-    {
-     "type": "doc",
-     "where": "INDEX.md:141",
-     "date": "2026-10-25",
-     "snippet": "- **2026-10-16 (dev): ship return from the island map: margins / full height were black for ~45 frames (+ band garbage) FIXED** (`lk_picture"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 6,
-   "class": "other"
-  },
-  {
-   "addr": "0x0062EA",
-   "first_seen": "2026-10-18",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1163",
-     "date": "2026-10-25",
-     "snippet": "* Recording `rec_20261018_2127` (WIDE 16 + TALL): does not replay alone, step 1 is a QUICK LOAD (L1 held, not in the input file): `LANDSTALK"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1223",
-     "date": "2026-10-25",
-     "snippet": "- Tree warp = `DoVisualEffect(2 / 3)` -> `TreeWarpFx`: `sub_E446` fills the whole hscroll table (256 entries x 2 words, `GetSine` of a count"
-    },
-    {
-     "type": "doc",
-     "where": "INDEX.md:105",
-     "date": "2026-10-25",
-     "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_2127` (WIDE 16 + TALL, rooms 700 -> 486 -> 148; own renderer on): 'beim Telepo"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 3,
-   "class": "seed/table"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x0066B4",
@@ -1775,9 +1784,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 2,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0066B5",
@@ -1792,9 +1804,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0066B6",
@@ -1809,9 +1824,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0066BA",
@@ -1826,9 +1844,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0066BC",
@@ -1843,9 +1864,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0066C0",
@@ -1860,9 +1884,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0066CB",
@@ -1877,9 +1904,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0066E1",
@@ -1894,9 +1924,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0066E2",
@@ -1911,9 +1944,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0066E3",
@@ -1928,9 +1964,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x006708",
@@ -1947,37 +1986,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
-  },
-  {
-   "addr": "0x00774A",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1121",
-     "date": "2026-10-25",
-     "snippet": "* `tools/patch_iteminfo.py`, Options > Gameplay > Item Info Off / On (default Off, `~/.landstalker_iteminfo`, env `LANDSTALKER_ITEMINFO`, `L"
-    },
-    {
-     "type": "doc",
-     "where": "FORMATS.md:137",
-     "date": "2026-10-25",
-     "snippet": "- V: Equip grid (loop `$00EAD4`): cursor column `$FF2C18` (0..4), row `$FF2C1A` (0..3 = sword, armour, boots, ring); cell item ids = ROM `Eq"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 2,
-   "class": "other"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x007756",
@@ -1994,7 +2004,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x007764",
@@ -2011,95 +2022,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
-  },
-  {
-   "addr": "0x007766",
-   "first_seen": "2026-10-10",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:733",
-     "date": "2026-10-25",
-     "snippet": "| **menu (status/inventory)** | 1928-2559 | open `$0016DC $007624 $008EF4 ..`, loop `$0016DC $007624 $02488A $000B5E` (reg18=$1C: window cov"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:733",
-     "date": "2026-10-25",
-     "snippet": "| **menu (status/inventory)** | 1928-2559 | open `$0016DC $007624 $008EF4 ..`, loop `$0016DC $007624 $02488A $000B5E` (reg18=$1C: window cov"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1071",
-     "date": "2026-10-25",
-     "snippet": "* User report (recording `rec_20261016_0039`, WIDE 16 + TALL 1): margins and full height briefly missing when entering buildings in Mercator"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1072",
-     "date": "2026-10-25",
-     "snippet": "* Fix (`tools/patch_wide.py`, `lk_map_decide`): on the call stack now also count as map: `HandleFloorDoorNE / SE / SW / NW` ($00610A / $0061"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1158",
-     "date": "2026-10-25",
-     "snippet": "* Findings (details in INDEX status): (1) NPC / chest jumps = sprite table one step ahead of both snapshots in double-pass frames -> extrapo"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 7,
-   "class": "seed/table"
-  },
-  {
-   "addr": "0x00776E",
-   "first_seen": "2026-10-18",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1158",
-     "date": "2026-10-25",
-     "snippet": "* Findings (details in INDEX status): (1) NPC / chest jumps = sprite table one step ahead of both snapshots in double-pass frames -> extrapo"
-    },
-    {
-     "type": "doc",
-     "where": "INDEX.md:108",
-     "date": "2026-10-25",
-     "snippet": "- **2026-10-18 (dev, Sonnet 5.5, same recording `rec_20261018_1807`; user: 'Men\u00fc verlassen besser, aber nicht perfekt: 1. blaues breites Ban"
-    },
-    {
-     "type": "doc",
-     "where": "LESSONS.md:146",
-     "date": "2026-10-25",
-     "snippet": "60. **Own renderer / widescreen rule / pad (2026-10-18):** (a) the own renderer must NEVER replace the game's picture while a menu runs (`lk"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 3,
-   "class": "seed/table"
-  },
-  {
-   "addr": "0x007816",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 0,
-   "class": "other"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x008000",
@@ -2170,9 +2094,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 3,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x008100",
@@ -2193,9 +2120,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x008124",
@@ -2216,9 +2146,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VDP register write word ($8124 reg 1, $8AA0 reg 10, $8F02 reg 15, $921C reg 18), not an address"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0085F0",
@@ -2235,7 +2168,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x0085FC",
@@ -2252,7 +2186,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x008698",
@@ -2269,7 +2204,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x0086BC",
@@ -2284,9 +2220,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0086F0",
@@ -2301,9 +2240,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ItemFuncs1+$16: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x008890",
@@ -2318,9 +2260,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ItemUseEinsteinWhistle+$A: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00895E",
@@ -2341,9 +2286,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: low word of the return address $0001895E (EB_ShopItem+$9A) pushed at $FFFFEA, not an address of its own"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x008AA0",
@@ -2364,9 +2312,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VDP register write word ($8124 reg 1, $8AA0 reg 10, $8F02 reg 15, $921C reg 18), not an address"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x008C0C",
@@ -2381,9 +2332,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside PostUseEinsteinWhistle+$1A: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x008F02",
@@ -2410,9 +2364,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VDP register write word ($8124 reg 1, $8AA0 reg 10, $8F02 reg 15, $921C reg 18), not an address"
+   ],
    "mentions": 3,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x0090B8",
@@ -2427,9 +2384,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00921C",
@@ -2468,9 +2428,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VDP register write word ($8124 reg 1, $8AA0 reg 10, $8F02 reg 15, $921C reg 18), not an address"
+   ],
    "mentions": 6,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00A000",
@@ -2491,9 +2454,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: flag / mask bit in a tile or chunk header word ($1000 v-flip, $2000 LZ77, $3FFF VRAM address mask, $6000 / $A000 palette+priority bits, $8000 zero fill), not an address"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00A0AA",
@@ -2508,9 +2474,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00A4F0",
@@ -2525,9 +2494,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside RoomTransitionLookup+$118: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00A500",
@@ -2566,9 +2538,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VRAM address (nametables $C000 / $D000 / $F000, sprite table $D400, tiles $50C0 / $A500 / $D680 / $F180, window map range $F420..$FA4B), not a 68000 address"
+   ],
    "mentions": 7,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00A5F0",
@@ -2589,9 +2564,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of an address range quoted in the docs (disassembly excerpt / dialogue data range), not a location of its own"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x00A670",
@@ -2606,9 +2584,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside LoadTopTiles_loc1+$1E: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00A77C",
@@ -2623,9 +2604,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of an address range quoted in the docs (disassembly excerpt / dialogue data range), not a location of its own"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x00A9B2",
@@ -2640,9 +2624,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: data decoded as code by the analyzer / check_splits (tables near the ROM start, inline data); deliberately not seeded"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "data",
+   "class_by": "hand"
   },
   {
    "addr": "0x00AA6A",
@@ -2663,9 +2650,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: data decoded as code by the analyzer / check_splits (tables near the ROM start, inline data); deliberately not seeded"
+   ],
    "mentions": 2,
-   "class": "seed/table"
+   "class": "data",
+   "class_by": "hand"
   },
   {
    "addr": "0x00AA88",
@@ -2680,9 +2670,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: data decoded as code by the analyzer / check_splits (tables near the ROM start, inline data); deliberately not seeded"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "data",
+   "class_by": "hand"
   },
   {
    "addr": "0x00B23C",
@@ -2718,10 +2711,12 @@
    ],
    "callers": [],
    "notes": [
-    "2026-10-16: 2026-10-16: constant call target of generated code (func_table_jsr from /bin/bash0B23C / /bin/bash0B23E) but the CALLER is data decoded as code (BlockToTiles tables), garbage disassembly; deliberately NOT seeded. If it ever shows up in interp.txt look again."
+    "2026-10-16: 2026-10-16: constant call target of generated code (func_table_jsr from /bin/bash0B23C / /bin/bash0B23E) but the CALLER is data decoded as code (BlockToTiles tables), garbage disassembly; deliberately NOT seeded. If it ever shows up in interp.txt look again.",
+    "2026-10-26: data decoded as code by the analyzer / check_splits (tables near the ROM start, inline data); deliberately not seeded"
    ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "data",
+   "class_by": "hand"
   },
   {
    "addr": "0x00C000",
@@ -2760,9 +2755,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VRAM address (nametables $C000 / $D000 / $F000, sprite table $D400, tiles $50C0 / $A500 / $D680 / $F180, window map range $F420..$FA4B), not a 68000 address"
+   ],
    "mentions": 5,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00C180",
@@ -2777,9 +2775,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: data decoded as code by the analyzer / check_splits (tables near the ROM start, inline data); deliberately not seeded"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "data",
+   "class_by": "hand"
   },
   {
    "addr": "0x00C78C",
@@ -2806,9 +2807,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 3,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00C79C",
@@ -2835,9 +2839,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 3,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00C7A4",
@@ -2864,9 +2871,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 3,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00C7AC",
@@ -2893,9 +2903,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 3,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00C7B4",
@@ -2922,9 +2935,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 3,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00CC0C",
@@ -2945,9 +2961,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: data decoded as code by the analyzer / check_splits (tables near the ROM start, inline data); deliberately not seeded"
+   ],
    "mentions": 2,
-   "class": "seed/table"
+   "class": "data",
+   "class_by": "hand"
   },
   {
    "addr": "0x00D000",
@@ -2974,45 +2993,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VRAM address (nametables $C000 / $D000 / $F000, sprite table $D400, tiles $50C0 / $A500 / $D680 / $F180, window map range $F420..$FA4B), not a 68000 address"
+   ],
    "mentions": 3,
-   "class": "seed/table"
-  },
-  {
-   "addr": "0x00D34C",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 0,
-   "class": "other"
-  },
-  {
-   "addr": "0x00D3A8",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 0,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00D400",
@@ -3027,9 +3013,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VRAM address (nametables $C000 / $D000 / $F000, sprite table $D400, tiles $50C0 / $A500 / $D680 / $F180, window map range $F420..$FA4B), not a 68000 address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00D680",
@@ -3044,99 +3033,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VRAM address (nametables $C000 / $D000 / $F000, sprite table $D400, tiles $50C0 / $A500 / $D680 / $F180, window map range $F420..$FA4B), not a 68000 address"
+   ],
    "mentions": 1,
-   "class": "other"
-  },
-  {
-   "addr": "0x00D6C8",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 0,
-   "class": "other"
-  },
-  {
-   "addr": "0x00D6EC",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 2 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 0,
-   "class": "other"
-  },
-  {
-   "addr": "0x00D96A",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 0,
-   "class": "other"
-  },
-  {
-   "addr": "0x00D996",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 0,
-   "class": "other"
-  },
-  {
-   "addr": "0x00D9FC",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 0,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00DBBE",
@@ -3151,9 +3053,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside InventoryMenu_UseItem+$96: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00E030",
@@ -3168,26 +3073,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "log-artifact"
-  },
-  {
-   "addr": "0x00E48E",
-   "first_seen": "2026-10-15",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "HANDOFF.md:295",
-     "date": "2026-10-25",
-     "snippet": "- **2026-10-14 (dev): tree warp crash.** `~/interp.txt` had `$00F8C6` (jsr into the middle of FadePaletteDownStep from TreeWarpFx `$00E48E`,"
-    }
+   "notes": [
+    "2026-10-26: opcode bit pattern ($E030 = roxr.b Dx,Dy) in the instruction fuzz notes, not an address"
    ],
-   "callers": [],
-   "notes": [],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00E524",
@@ -3208,9 +3099,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00E63C",
@@ -3226,10 +3120,11 @@
    ],
    "callers": [],
    "notes": [
-    "2026-10-16: bsr.w  inside NoleWarp (instruction)"
+    "2026-10-16: bsr.w  inside NoleWarp (instruction)",
+    "2026-10-26: lies inside NoleWarp_loc4+$34: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
    ],
    "mentions": 1,
-   "class": "code",
+   "class": "inside-symbol",
    "class_by": "hand"
   },
   {
@@ -3251,9 +3146,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00E7C4",
@@ -3268,43 +3166,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "other"
-  },
-  {
-   "addr": "0x00EAF2",
-   "first_seen": "2026-10-16",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1121",
-     "date": "2026-10-25",
-     "snippet": "* `tools/patch_iteminfo.py`, Options > Gameplay > Item Info Off / On (default Off, `~/.landstalker_iteminfo`, env `LANDSTALKER_ITEMINFO`, `L"
-    }
+   "notes": [
+    "2026-10-26: tile word (VRAM tile index | attribute bits) in a sprite / HUD / text box tilemap, not an address"
    ],
-   "callers": [],
-   "notes": [],
    "mentions": 1,
-   "class": "other"
-  },
-  {
-   "addr": "0x00EDAA",
-   "first_seen": "2026-10-16",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1121",
-     "date": "2026-10-25",
-     "snippet": "* `tools/patch_iteminfo.py`, Options > Gameplay > Item Info Off / On (default Off, `~/.landstalker_iteminfo`, env `LANDSTALKER_ITEMINFO`, `L"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00F000",
@@ -3325,63 +3192,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VRAM address (nametables $C000 / $D000 / $F000, sprite table $D400, tiles $50C0 / $A500 / $D680 / $F180, window map range $F420..$FA4B), not a 68000 address"
+   ],
    "mentions": 2,
-   "class": "seed/table"
-  },
-  {
-   "addr": "0x00F07C",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 2 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 0,
-   "class": "other"
-  },
-  {
-   "addr": "0x00F0C0",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 0,
-   "class": "other"
-  },
-  {
-   "addr": "0x00F0DC",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 0,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00F0FE",
@@ -3396,9 +3212,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: data word of an inline bsr (dc.w $F0FE after trap #0 at $00FFF4 in the old file select bug), not an address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00F180",
@@ -3419,26 +3238,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 2,
-   "class": "seed/table"
-  },
-  {
-   "addr": "0x00F2DB",
-   "first_seen": "2026-10-11",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:976",
-     "date": "2026-10-25",
-     "snippet": "* Flow (disassembly + call trace): `HandleGameStartInput $00FF12` loops up to $78 times (any A/B/C/START press ends it early; the old test r"
-    }
+   "notes": [
+    "2026-10-26: VRAM address (nametables $C000 / $D000 / $F000, sprite table $D400, tiles $50C0 / $A500 / $D680 / $F180, window map range $F420..$FA4B), not a 68000 address"
    ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "other"
+   "mentions": 2,
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00F420",
@@ -3453,9 +3258,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VRAM address (nametables $C000 / $D000 / $F000, sprite table $D400, tiles $50C0 / $A500 / $D680 / $F180, window map range $F420..$FA4B), not a 68000 address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00F6F0",
@@ -3470,9 +3278,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside InitGameStartScreen_loc1+$A: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00F6F6",
@@ -3487,9 +3298,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside InitGameStartScreen_loc1+$10: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00F700",
@@ -3504,9 +3318,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside InitGameStartScreen_loc1+$1A: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00F722",
@@ -3521,9 +3338,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside InitGameStartScreen_loc2+$6: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00F86C",
@@ -3538,87 +3358,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "seed/table"
-  },
-  {
-   "addr": "0x00F89C",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the Massan replay (frames 0-1500), 9 calls",
-     "date": "2026-10-12"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1003",
-     "date": "2026-10-25",
-     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
-    }
-   ],
-   "callers": [
-    "0x01006E"
-   ],
    "notes": [
-    "2026-10-12: file select: bsr F90A then FadePaletteDownStep (F8C4) on carry"
+    "2026-10-26: lies inside CopyTilemapRect+$52: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
    ],
    "mentions": 1,
-   "class": "other"
-  },
-  {
-   "addr": "0x00F8B6",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the Massan replay (frames 0-1500), 59 calls",
-     "date": "2026-10-12"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1003",
-     "date": "2026-10-25",
-     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
-    }
-   ],
-   "callers": [
-    "0x00F08E"
-   ],
-   "notes": [
-    "2026-10-12: file select bar loop helper: bsr F90A then branch on carry; per-frame step of the bar, purpose not worked out"
-   ],
-   "mentions": 1,
-   "class": "other"
-  },
-  {
-   "addr": "0x00F90A",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the Massan replay (frames 0-1500), 68 calls",
-     "date": "2026-10-12"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1003",
-     "date": "2026-10-25",
-     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
-    }
-   ],
-   "callers": [
-    "0x00F89C"
-   ],
-   "notes": [
-    "2026-10-12: file select: tests -(a6) and returns with carry; called by the bar helpers F89C / F8B6 each frame (a counter / flag of the Nigel preview?)"
-   ],
-   "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FA4B",
@@ -3633,9 +3378,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: VRAM address (nametables $C000 / $D000 / $F000, sprite table $D400, tiles $50C0 / $A500 / $D680 / $F180, window map range $F420..$FA4B), not a 68000 address"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FA54",
@@ -3662,9 +3410,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside GameSelectBarSelector+$7E: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 3,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FA9E",
@@ -3691,9 +3442,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside GameSelectBarSelector+$C8: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 3,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FF80",
@@ -3720,9 +3474,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: short form of a stack RAM address ($FFxx = $FFFFxx; stack leftovers that differ between two cores / runs), not ROM"
+   ],
    "mentions": 3,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FFB3",
@@ -3749,9 +3506,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: short form of a stack RAM address ($FFxx = $FFFFxx; stack leftovers that differ between two cores / runs), not ROM"
+   ],
    "mentions": 3,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FFD2",
@@ -3766,9 +3526,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: short form of a stack RAM address ($FFxx = $FFFFxx; stack leftovers that differ between two cores / runs), not ROM"
+   ],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FFE8",
@@ -3783,9 +3546,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: short form of a stack RAM address ($FFxx = $FFFFxx; stack leftovers that differ between two cores / runs), not ROM"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FFEE",
@@ -3818,9 +3584,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: short form of a stack RAM address ($FFxx = $FFFFxx; stack leftovers that differ between two cores / runs), not ROM"
+   ],
    "mentions": 4,
-   "class": "seed/table"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FFEF",
@@ -3841,9 +3610,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: short form of a stack RAM address ($FFxx = $FFFFxx; stack leftovers that differ between two cores / runs), not ROM"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "not-an-address",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FFF4",
@@ -3858,9 +3630,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside nullsub_3+$4: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FFF8",
@@ -3877,7 +3652,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FFFA",
@@ -3892,9 +3668,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside nullsub_3+$A: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FFFC",
@@ -3935,7 +3714,8 @@
    "callers": [],
    "notes": [],
    "mentions": 5,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x00FFFD",
@@ -4014,70 +3794,6 @@
    "class_by": "hand"
   },
   {
-   "addr": "0x010014",
-   "first_seen": "2026-10-11",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the Massan replay (frames 0-1500), 14 calls",
-     "date": "2026-10-12"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:976",
-     "date": "2026-10-25",
-     "snippet": "* Flow (disassembly + call trace): `HandleGameStartInput $00FF12` loops up to $78 times (any A/B/C/START press ends it early; the old test r"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1003",
-     "date": "2026-10-25",
-     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
-    }
-   ],
-   "callers": [
-    "0x00FF12"
-   ],
-   "notes": [
-    "2026-10-12: file select start input: tst.b -(a4) / rts; part of HandleGameStartInput"
-   ],
-   "mentions": 2,
-   "class": "other"
-  },
-  {
-   "addr": "0x01007E",
-   "first_seen": "2026-10-11",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the Massan replay (frames 0-1500), 14 calls",
-     "date": "2026-10-12"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:976",
-     "date": "2026-10-25",
-     "snippet": "* Flow (disassembly + call trace): `HandleGameStartInput $00FF12` loops up to $78 times (any A/B/C/START press ends it early; the old test r"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1003",
-     "date": "2026-10-25",
-     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
-    }
-   ],
-   "callers": [
-    "0x00FF12"
-   ],
-   "notes": [
-    "2026-10-12: file select start input: cmp.w -2(a4),d0 / rts; part of HandleGameStartInput"
-   ],
-   "mentions": 2,
-   "class": "other"
-  },
-  {
    "addr": "0x01209C",
    "first_seen": "2026-10-12",
    "hits": 0,
@@ -4090,9 +3806,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: computed base of the cutscene action table (CSA_Table_Entry0019 $012100 - $19 * 4); entries below $19 overlap TA_88 / TA_89 code, so the base is only a reference point"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x013FA6",
@@ -4108,45 +3827,12 @@
    ],
    "callers": [],
    "notes": [
-    "2026-10-16: bsr.b 3FB2 inside CSA_00B4 (instruction, not a function start)"
+    "2026-10-16: bsr.b 3FB2 inside CSA_00B4 (instruction, not a function start)",
+    "2026-10-26: lies inside CSA_00B4+$6: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
    ],
    "mentions": 1,
-   "class": "code",
+   "class": "inside-symbol",
    "class_by": "hand"
-  },
-  {
-   "addr": "0x0160B8",
-   "first_seen": "2026-10-19",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1170",
-     "date": "2026-10-25",
-     "snippet": "* Findings (disassembly `combat.asm`, replay `docs/replays/mercator_doors_menu_gaia.*`): `HandleAttack $015C1C` damages EVERY enemy of the r"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "other"
-  },
-  {
-   "addr": "0x016696",
-   "first_seen": "2026-10-16",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "FORMATS.md:135",
-     "date": "2026-10-25",
-     "snippet": "- V: equipped items are bytes `$FF114E` sword, `$FF114F` armour, `$FF1150` boots, `$FF1151` ring (item ids, `$3A..$3D` = nothing). Effects f"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "other"
   },
   {
    "addr": "0x016BCE",
@@ -4167,9 +3853,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside WriteHUDDigitsNoBlank+$10: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 2,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x017127",
@@ -4191,10 +3880,12 @@
    ],
    "callers": [],
    "notes": [
-    "2026-10-16: 2026-10-16: ODD constant call target (func_table_jsr from /bin/bash1701A / bsr.w 7127 at /bin/bash17016): impossible on a real 68000, data decoded as code; deliberately NOT seeded."
+    "2026-10-16: 2026-10-16: ODD constant call target (func_table_jsr from /bin/bash1701A / bsr.w 7127 at /bin/bash17016): impossible on a real 68000, data decoded as code; deliberately NOT seeded.",
+    "2026-10-26: data decoded as code by the analyzer / check_splits (tables near the ROM start, inline data); deliberately not seeded"
    ],
    "mentions": 2,
-   "class": "seed/table"
+   "class": "data",
+   "class_by": "hand"
   },
   {
    "addr": "0x017B48",
@@ -4215,9 +3906,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: interpreter-seeded inner entry of EntityMoveStepNoClip+$8 (gen_seeds.py, runs natively since 2026-10-10)"
+   ],
    "mentions": 2,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x017B8C",
@@ -4240,10 +3934,12 @@
     "0x002300"
    ],
    "notes": [
-    "2026-10-10: interp: line seen only together with RTS to $CE0000 / SP=$FFFFFFFE (VDP queue overflow); likely a symptom of the destroyed stack, not a real missing function; clean at WIDE=0 and after the queue guard"
+    "2026-10-10: interp: line seen only together with RTS to $CE0000 / SP=$FFFFFFFE (VDP queue overflow); likely a symptom of the destroyed stack, not a real missing function; clean at WIDE=0 and after the queue guard",
+    "2026-10-26: lies inside EntityMoveStep_MinusY+$1C: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
    ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x017B90",
@@ -4258,9 +3954,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside EntityMoveStep_MinusY+$20: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x017B98",
@@ -4283,10 +3982,12 @@
     "0x002300"
    ],
    "notes": [
-    "2026-10-10: interp: line seen only together with RTS to $CE0000 / SP=$FFFFFFFE (VDP queue overflow); likely a symptom of the destroyed stack, not a real missing function; clean at WIDE=0 and after the queue guard"
+    "2026-10-10: interp: line seen only together with RTS to $CE0000 / SP=$FFFFFFFE (VDP queue overflow); likely a symptom of the destroyed stack, not a real missing function; clean at WIDE=0 and after the queue guard",
+    "2026-10-26: lies inside EntityMoveStep_MinusY+$28: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
    ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x017C68",
@@ -4307,9 +4008,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: interpreter-seeded inner entry of EntityMoveStep_ContactDamage+$3C (gen_seeds.py, runs natively since 2026-10-10)"
+   ],
    "mentions": 2,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x017CBE",
@@ -4326,7 +4030,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x017CC0",
@@ -4393,10 +4098,12 @@
     "0x002300"
    ],
    "notes": [
-    "2026-10-10: interp: line seen only together with RTS to $CE0000 / SP=$FFFFFFFE (VDP queue overflow); likely a symptom of the destroyed stack, not a real missing function; clean at WIDE=0 and after the queue guard"
+    "2026-10-10: interp: line seen only together with RTS to $CE0000 / SP=$FFFFFFFE (VDP queue overflow); likely a symptom of the destroyed stack, not a real missing function; clean at WIDE=0 and after the queue guard",
+    "2026-10-26: lies inside NpcWalkBlock_SE+$52: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
    ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x01895E",
@@ -4411,27 +4118,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "other"
-  },
-  {
-   "addr": "0x0189E0",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
    "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
+    "2026-10-26: lies inside EB_ShopItem+$9A: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
    ],
-   "mentions": 0,
-   "class": "other"
+   "mentions": 1,
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x018D0A",
@@ -4448,25 +4140,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
-  },
-  {
-   "addr": "0x019844",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the recording rec_20261012_2106 (new game, intro, shrine, cave), 1 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [],
-   "notes": [
-    "2026-10-12: one-off or short routine seen in the intro / first dungeon replay; purpose not worked out (see DEBUGGING Naming round 3)"
-   ],
-   "mentions": 0,
-   "class": "other"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x019FCC",
@@ -4482,10 +4157,11 @@
    ],
    "callers": [],
    "notes": [
-    "2026-10-16: bsr.b 9FB0 inside CustomRoomActions1 (instruction)"
+    "2026-10-16: bsr.b 9FB0 inside CustomRoomActions1 (instruction)",
+    "2026-10-26: lies inside CustomRoomActions1_SetCells7F+$1C: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
    ],
    "mentions": 1,
-   "class": "code",
+   "class": "inside-symbol",
    "class_by": "hand"
   },
   {
@@ -4501,58 +4177,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "other"
-  },
-  {
-   "addr": "0x023136",
-   "first_seen": "2026-10-10",
-   "hits": 2,
-   "sightings": [
-    {
-     "type": "rts",
-     "where": "journal_0.txt",
-     "date": "2026-10-15",
-     "ctx": "user play 2026-10-15 22:37, Zak / Lara cutscene CSA_00B2 (flying), 5 quick loads before; build 8ad5e18+"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:413",
-     "date": "2026-10-25",
-     "snippet": "text, ScriptSleep, `dc.w 00119`, rts) ran on the interpreter, plus `RTS to $023136 (expected $00171E)` (ProcessChar"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:417",
-     "date": "2026-10-25",
-     "snippet": "(commit a95bb31). Next: re-test; if symptoms remain, trace the `RTS to $023136` mismatch (return address after trap+data"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:424",
-     "date": "2026-10-25",
-     "snippet": "analyzer; seed it) and `RTS to $023136 (expected $018D0A, SP=$FFFFFFF8)` with shadow stack ... $0178C8 $018CFC $012988."
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:425",
-     "date": "2026-10-25",
-     "snippet": "SP $F8 is far too high for depth 5: something popped extra words; $023136 (= loc_23136 after ProcessChar's trap #0 + data)"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:451",
-     "date": "2026-10-25",
-     "snippet": "probably a wild jump after the stack mismatches `RTS to $02539E (expected $025324)`, `$002304`, `$023136` seen in the same run -"
-    }
-   ],
-   "callers": [],
    "notes": [
-    "2026-10-15: 2026-10-15 22:37-22:38: 'RTS to $023136 (ProcessChar_loc_23104+0x32) expected RunGameLoop+0xC / CSA_00B2+0x4E' twice, in the Zak / Lara cutscene CSA_00B2 right after 8 jump-table entries ($013ECA..) ran on the interpreter (bra.b table, now seeded 2026-10-15); stack had 5 nested RunGameLoop = 5 quick loads (by design). Check after the next play of that cutscene whether the lines are gone."
+    "2026-10-26: lies inside ProcessChar_loc_23104+$2E: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
    ],
-   "mentions": 7,
-   "class": "seed/table"
+   "mentions": 1,
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x02360C",
@@ -4569,7 +4199,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x02365C",
@@ -4586,7 +4217,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x023690",
@@ -4601,9 +4233,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside PrintChar_CalcDestPtr+$1A: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x024460",
@@ -4618,32 +4253,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "seed/table"
-  },
-  {
-   "addr": "0x024898",
-   "first_seen": "2026-10-11",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:917",
-     "date": "2026-10-25",
-     "snippet": "* How the Start menu is built (all verified by disassembly + headless tests): `CheckForMenuOpen $007624` (stays on the call stack) -> item s"
-    },
-    {
-     "type": "doc",
-     "where": "LESSONS.md:105",
-     "date": "2026-10-25",
-     "snippet": "28. **Options tab = native overrides of the game's menu functions** (`tools/patch_options.py`): depends on `CheckForMenuOpen $007624` on the"
-    }
+   "notes": [
+    "2026-10-26: data decoded as code by the analyzer / check_splits (tables near the ROM start, inline data); deliberately not seeded"
    ],
-   "callers": [],
-   "notes": [],
-   "mentions": 2,
-   "class": "other"
+   "mentions": 1,
+   "class": "data",
+   "class_by": "hand"
   },
   {
    "addr": "0x0248EE",
@@ -4660,7 +4275,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x0248F8",
@@ -4675,9 +4291,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside MenuBarConfirm+$2: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x024A82",
@@ -4692,9 +4311,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ShopDialogue_VariantA+$A: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x024ABC",
@@ -4709,9 +4331,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside RunShopDialogue+$24: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x024AC2",
@@ -4726,9 +4351,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside RunShopDialogue+$2A: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x024B12",
@@ -4761,9 +4389,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ScriptSleep_call_site+$4: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 4,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x024B14",
@@ -4796,9 +4427,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside ScriptSleep_call_site+$6: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 4,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x024B7C",
@@ -4813,9 +4447,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside RunShopSpecialItemScript+$34: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x024F32",
@@ -4842,9 +4479,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside HandleShopInteraction_loc1+$8: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 3,
-   "class": "seed/table"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x0250F2",
@@ -4859,9 +4499,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: lies inside HandleMap+$40: a call / trap / lea site, a return address or an inner entry that the docs quote; understood, no own name needed"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x025324",
@@ -4884,7 +4527,8 @@
    "callers": [],
    "notes": [],
    "mentions": 2,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x02539E",
@@ -4907,7 +4551,8 @@
    "callers": [],
    "notes": [],
    "mentions": 2,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x025B0C",
@@ -4922,9 +4567,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of an address range quoted in the docs (disassembly excerpt / dialogue data range), not a location of its own"
+   ],
    "mentions": 1,
-   "class": "seed/table"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x028214",
@@ -4941,7 +4589,8 @@
    "callers": [],
    "notes": [],
    "mentions": 1,
-   "class": "log-artifact"
+   "class": "log-artifact",
+   "class_by": "hand"
   },
   {
    "addr": "0x02BFFF",
@@ -4956,9 +4605,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x030000",
@@ -4997,9 +4649,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
+   ],
    "mentions": 5,
-   "class": "seed/table"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x034300",
@@ -5020,9 +4675,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: data decoded as code by the analyzer / check_splits (tables near the ROM start, inline data); deliberately not seeded"
+   ],
    "mentions": 2,
-   "class": "seed/table"
+   "class": "data",
+   "class_by": "hand"
   },
   {
    "addr": "0x038000",
@@ -5037,161 +4695,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "other"
-  },
-  {
-   "addr": "0x039A5C",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the Massan replay (frames 0-1500), 11 calls",
-     "date": "2026-10-12"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1003",
-     "date": "2026-10-25",
-     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
-    }
-   ],
-   "callers": [
-    "0x0399CC"
-   ],
    "notes": [
-    "2026-10-12: title screen sword slash animation: step that tests six state bytes -5..-a(a6) and resets the counter; part of the title sequence"
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
    ],
    "mentions": 1,
-   "class": "other"
-  },
-  {
-   "addr": "0x039A98",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the Massan replay (frames 0-1500), 11 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [
-    "0x0399CC"
-   ],
-   "notes": [
-    "2026-10-12: title screen sword slash: tests -5(a6); calls DecompTM helper 039AD6"
-   ],
-   "mentions": 0,
-   "class": "other"
-  },
-  {
-   "addr": "0x039AD6",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the Massan replay (frames 0-1500), 150 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [
-    "0x039A98"
-   ],
-   "notes": [
-    "2026-10-12: title screen tilemap decompressor (DecompTM family, state in -N(a6) bytes): reads a 16-bit window value and stores a tile; real role not worked out"
-   ],
-   "mentions": 0,
-   "class": "other"
-  },
-  {
-   "addr": "0x039BAA",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the Massan replay (frames 0-1500), 11 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [
-    "0x0399CC"
-   ],
-   "notes": [
-    "2026-10-12: title screen sword slash: step guarded by -7(a6)"
-   ],
-   "mentions": 0,
-   "class": "other"
-  },
-  {
-   "addr": "0x039CA4",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the Massan replay (frames 0-1500), 11 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [
-    "0x0399CC"
-   ],
-   "notes": [
-    "2026-10-12: title screen sword slash: step guarded by -9(a6)"
-   ],
-   "mentions": 0,
-   "class": "other"
-  },
-  {
-   "addr": "0x039D3A",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the Massan replay (frames 0-1500), 11 calls",
-     "date": "2026-10-12"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1003",
-     "date": "2026-10-25",
-     "snippet": "- Still unknown: title screen sword slash helpers (DecompTM family $039A5C..$039D3A), file select bar helpers $00F89C / $00F8B6 / $00F90A / "
-    }
-   ],
-   "callers": [
-    "0x0399CC"
-   ],
-   "notes": [
-    "2026-10-12: title screen sword slash: step guarded by -8(a6), ends with DisplayTitleScreen_UploadTilemap"
-   ],
-   "mentions": 1,
-   "class": "other"
-  },
-  {
-   "addr": "0x039DD8",
-   "first_seen": "2026-10-12",
-   "hits": 1,
-   "sightings": [
-    {
-     "type": "manual",
-     "where": "executed in the Massan replay (frames 0-1500), 11 calls",
-     "date": "2026-10-12"
-    }
-   ],
-   "callers": [
-    "0x0399CC"
-   ],
-   "notes": [
-    "2026-10-12: title screen sword slash: palette/tile step guarded by -b(a6)"
-   ],
-   "mentions": 0,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x03C000",
@@ -5206,9 +4715,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x040000",
@@ -5229,9 +4741,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x090880",
@@ -5252,9 +4767,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: data decoded as code by the analyzer / check_splits (tables near the ROM start, inline data); deliberately not seeded"
+   ],
    "mentions": 2,
-   "class": "seed/table"
+   "class": "data",
+   "class_by": "hand"
   },
   {
    "addr": "0x09A000",
@@ -5275,26 +4793,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 2,
-   "class": "other"
-  },
-  {
-   "addr": "0x09F694",
-   "first_seen": "2026-10-10",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:758",
-     "date": "2026-10-25",
-     "snippet": "* Other code that merely points at the queue buffer `$FF3900` (lea): `$00F578 $00F5DC $00F5F4 $00F6DC $00F6F0 $00F6F6 $00F700 $00F722` (a cl"
-    }
+   "notes": [
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
    ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "other"
+   "mentions": 2,
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x0A1FFF",
@@ -5309,9 +4813,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x0A2000",
@@ -5326,9 +4833,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x11E000",
@@ -5349,9 +4859,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
+   ],
    "mentions": 2,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x142E30",
@@ -5366,9 +4879,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: graphics data inside SpriteGfx002Frame00+$4 (LZ77 block that DecompressLZ77Gfx loads), no own name"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "inside-symbol",
+   "class_by": "hand"
   },
   {
    "addr": "0x1A0000",
@@ -5383,9 +4899,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x1A4000",
@@ -5400,9 +4919,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x1A8000",
@@ -5417,9 +4939,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x1A9FFF",
@@ -5434,9 +4959,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0x1B0000",
@@ -5451,9 +4979,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a ROM range in the code-extent / code_ranges notes (recomp.json), not a single location"
+   ],
    "mentions": 1,
-   "class": "other"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF0000",
@@ -5474,9 +5005,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 2,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF0009",
@@ -5491,106 +5025,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF0010",
-   "first_seen": "2026-10-15",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "HANDOFF.md:287",
-     "date": "2026-10-25",
-     "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
-    },
-    {
-     "type": "doc",
-     "where": "INDEX.md:84",
-     "date": "2026-10-25",
-     "snippet": "- **2026-10-22 (dev, Sonnet 5.5, user: 'einwandfrei der warp. mach den eigenen renderer zum standard' + 'neues save: die quick items duerfen"
-    },
-    {
-     "type": "doc",
-     "where": "INDEX.md:161",
-     "date": "2026-10-25",
-     "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
-    }
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
    ],
-   "callers": [],
-   "notes": [],
-   "mentions": 3,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF0080",
-   "first_seen": "2026-10-20",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "FORMATS.md:228",
-     "date": "2026-10-25",
-     "snippet": "* `PlayEndCredits` clears the HUD buffers (`$FF1C00`, `$800` words), loads `EndCreditFont $09FA42` (to `$FF2C00`), `EndCreditLogos $0A0033` "
-    }
-   ],
-   "callers": [],
-   "notes": [],
    "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF00A0",
-   "first_seen": "2026-10-18",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "FORMATS.md:199",
-     "date": "2026-10-25",
-     "snippet": "* V: sprite / HUD palette lines (2026-10-18, `romsprite.sprite_palettes`, `romrender.rom_cram`): all four CRAM lines are rebuilt from the RO"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF00E0",
-   "first_seen": "2026-10-18",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "FORMATS.md:199",
-     "date": "2026-10-25",
-     "snippet": "* V: sprite / HUD palette lines (2026-10-18, `romsprite.sprite_palettes`, `romrender.rom_cram`): all four CRAM lines are rebuilt from the RO"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF07CE",
-   "first_seen": "2026-10-11",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:917",
-     "date": "2026-10-25",
-     "snippet": "* How the Start menu is built (all verified by disassembly + headless tests): `CheckForMenuOpen $007624` (stays on the call stack) -> item s"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF0855",
@@ -5605,9 +5045,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: byte / word inside a named RAM symbol: g_DMAOpQueue+$85 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "field",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF0FAB",
@@ -5622,9 +5065,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF0FB1",
@@ -5639,9 +5085,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: byte / word inside a named RAM symbol: g_VDPRegShadow+$1 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "field",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF0FC5",
@@ -5662,9 +5111,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: byte / word inside a named RAM symbol: g_HIntLineReg+$1 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
+   ],
    "mentions": 2,
-   "class": "ram"
+   "class": "field",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF0FC7",
@@ -5685,32 +5137,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 2,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF1000",
-   "first_seen": "2026-10-15",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "HANDOFF.md:295",
-     "date": "2026-10-25",
-     "snippet": "- **2026-10-14 (dev): tree warp crash.** `~/interp.txt` had `$00F8C6` (jsr into the middle of FadePaletteDownStep from TreeWarpFx `$00E48E`,"
-    },
-    {
-     "type": "doc",
-     "where": "INDEX.md:344",
-     "date": "2026-10-25",
-     "snippet": "**Lookup tables from Dinopony/landstalker-lib (use them instead of guessing ids; regenerate with `tools/import_rooms.py` / `tools/import_lib"
-    }
+   "notes": [
+    "2026-10-26: byte / word inside a named RAM symbol: g_VDPReg11_ModeSet3+$1 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
    ],
-   "callers": [],
-   "notes": [],
    "mentions": 2,
-   "class": "ram"
+   "class": "field",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF1004",
@@ -5725,9 +5157,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: byte / word inside a named RAM symbol: g_Flags+$4 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "field",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF103E",
@@ -5748,26 +5183,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 2,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF1126",
-   "first_seen": "2026-10-21",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1216",
-     "date": "2026-10-25",
-     "snippet": "- Analysis aid (removed again, re-add if needed): print per room load `(x, y)` = `$FF1124 / $FF1125`, `hsA / vsA`, the vote `bu / bv`. At a "
-    }
+   "notes": [
+    "2026-10-26: byte / word inside a named RAM symbol: g_AdditionalFlags+$1E (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
    ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
+   "mentions": 2,
+   "class": "field",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF1127",
@@ -5782,60 +5203,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF112A",
-   "first_seen": "2026-10-20",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "INDEX.md:96",
-     "date": "2026-10-25",
-     "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
-    }
+   "notes": [
+    "2026-10-26: byte / word inside a named RAM symbol: g_RoomScrollBase+$1 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
    ],
-   "callers": [],
-   "notes": [],
    "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF1154",
-   "first_seen": "2026-10-15",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "FORMATS.md:113",
-     "date": "2026-10-25",
-     "snippet": "- V: `pt_SFX` (58 words) is at Z80 `$1594`. The speech blip is a PSG tone-3 effect (frames with `ProcessChar_loc_23104` running = frames wit"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF115A",
-   "first_seen": "2026-10-10",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:757",
-     "date": "2026-10-25",
-     "snippet": "* `$FF1840` (write pointer) is read+written by `$004B14` (+1 entry), `$004C94`, and by a block at **`$00A61C / $00A630 / $00A670 / $00A6B0 /"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
+   "class": "field",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF11E0",
@@ -5850,101 +5223,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF1202",
-   "first_seen": "2026-10-18",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1215",
-     "date": "2026-10-25",
-     "snippet": "- How the picture position is made: image coordinates `u = bu - hs (mod 512)`, `v = bv + vs (mod 256) + line`, `hs / vs` = scroll variables "
-    },
-    {
-     "type": "doc",
-     "where": "FORMATS.md:154",
-     "date": "2026-10-25",
-     "snippet": "* a = CentreX (+14) - Z (+12) - cam `$FF1200`; b = CentreY (+16) - Z - cam `$FF1202` (word variables, the camera in sub-tile units)."
-    },
-    {
-     "type": "doc",
-     "where": "FORMATS.md:162",
-     "date": "2026-10-25",
-     "snippet": "* V: projection of a cell corner (wx, wy) at floor height z: a = wx - z - cam `$FF1200`, b = wy - z - cam `$FF1202`, screen x = a - b + $A0,"
-    },
-    {
-     "type": "doc",
-     "where": "FORMATS.md:172",
-     "date": "2026-10-25",
-     "snippet": "* V: screen pixel of the top-left corner of block (x, y), layer B / BG array: `sx = 16 * (x - y) + (cam2 - cam0 + 160)`, `sy = 8 * (x + y) -"
-    },
-    {
-     "type": "doc",
-     "where": "FORMATS.md:210",
-     "date": "2026-10-25",
-     "snippet": "- V (2026-10-23, S3.3, 8 replays, 100 000+ frames): CAMERA = PLAYER: `g_CameraPixelX $FF1200` = Player_CentreX - Player_Z, `$FF1202` = Playe"
-    }
+   "notes": [
+    "2026-10-26: byte / word inside a named RAM symbol: g_VisibleEntityList+$2 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
    ],
-   "callers": [],
-   "notes": [],
-   "mentions": 9,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF1206",
-   "first_seen": "2026-10-11",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:955",
-     "date": "2026-10-25",
-     "snippet": "* User wish: give room + coordinates (from the overlay R4 / F5) and let Claude look at graphic errors there without walking. `LANDSTALKER_WA"
-    }
-   ],
-   "callers": [],
-   "notes": [],
    "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF1209",
-   "first_seen": "2026-10-23",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1247",
-     "date": "2026-10-25",
-     "snippet": "- Test setup (headless, no story needed): `LANDSTALKER_VFX=\"7,8\" LANDSTALKER_VFX_AT=1500` in the Massan replay (`docs/replays/massan.txt`, c"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF1400",
-   "first_seen": "2026-10-18",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "FORMATS.md:198",
-     "date": "2026-10-25",
-     "snippet": "* V: figures: `romsprite.frame(rom, SpriteGraphic, AnimationIndex, AnimationFrame)` = own port of `LoadSpriteFrame $004230` (pieces, tile gr"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
+   "class": "field",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF1842",
@@ -5959,61 +5243,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: byte / word inside a named RAM symbol: g_VdpQueueWritePtr+$2 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
+   ],
    "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF1850",
-   "first_seen": "2026-10-10",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:169",
-     "date": "2026-10-25",
-     "snippet": "On the file select screen: `func_table: no function at $FF1850`. `JmpInstr1`"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1067",
-     "date": "2026-10-25",
-     "snippet": "* Proactive scan (all `func_table_jsr/jmp/call(0xADDR, ...)` constants in `src/recomp/*.c` that are not registered): 8 targets. Seeded as va"
-    },
-    {
-     "type": "doc",
-     "where": "INDEX.md:250",
-     "date": "2026-10-25",
-     "snippet": "| \"no function at $FF1850/$427C/...\" | RAM thunks into ROM mid-code; computed `jmp T(pc,dN)` tables | seeds via `gen_seeds.py`, `expand_seed"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 3,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF1858",
-   "first_seen": "2026-10-10",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:189",
-     "date": "2026-10-25",
-     "snippet": "`JumpInstr2` (`$FF1858`) is filled from ROM words at `loc_403C` (`jmp loc_433E`)"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1067",
-     "date": "2026-10-25",
-     "snippet": "* Proactive scan (all `func_table_jsr/jmp/call(0xADDR, ...)` constants in `src/recomp/*.c` that are not registered): 8 targets. Seeded as va"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 2,
-   "class": "ram"
+   "class": "field",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF2020",
@@ -6028,9 +5263,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF2604",
@@ -6045,9 +5283,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF2C04",
@@ -6062,32 +5303,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF2C84",
-   "first_seen": "2026-10-21",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1204",
-     "date": "2026-10-25",
-     "snippet": "* Evidence: `--ram-dump` at frame 1200, ITEMINFO 0 vs 1: VRAM differs only in the window tile map (`$F420..$FA4B`), work RAM differs in `$FF"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:1204",
-     "date": "2026-10-25",
-     "snippet": "* Evidence: `--ram-dump` at frame 1200, ITEMINFO 0 vs 1: VRAM differs only in the window tile map (`$F420..$FA4B`), work RAM differs in `$FF"
-    }
+   "notes": [
+    "2026-10-26: byte / word inside a named RAM symbol: g_Buffer+$4 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
    ],
-   "callers": [],
-   "notes": [],
-   "mentions": 2,
-   "class": "ram"
+   "mentions": 1,
+   "class": "field",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF3B00",
@@ -6102,9 +5323,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF3B40",
@@ -6125,9 +5349,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 2,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF40DF",
@@ -6142,9 +5369,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF42FF",
@@ -6159,9 +5389,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF434B",
@@ -6176,9 +5409,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF5000",
@@ -6193,9 +5429,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF50A0",
@@ -6210,72 +5449,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF5402",
-   "first_seen": "2026-10-11",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:896",
-     "date": "2026-10-25",
-     "snippet": "* Coordinate overlay (new, `tools/patch_coords.py`): pad R4 (back button) or F5 shows `ROOM n X x.xx Y y.yy / Z zzzz CAM cx/cy` from work RA"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:955",
-     "date": "2026-10-25",
-     "snippet": "* User wish: give room + coordinates (from the overlay R4 / F5) and let Claude look at graphic errors there without walking. `LANDSTALKER_WA"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 2,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF5403",
-   "first_seen": "2026-10-10",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:621",
-     "date": "2026-10-25",
-     "snippet": "struct (e.g. $FF5403 08/0A, $FF5417 B8/BA) remains = input phase: the reference applies the pad state at the START of each frame (recomp_inp"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF5412",
-   "first_seen": "2026-10-11",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:896",
-     "date": "2026-10-25",
-     "snippet": "* Coordinate overlay (new, `tools/patch_coords.py`): pad R4 (back button) or F5 shows `ROOM n X x.xx Y y.yy / Z zzzz CAM cx/cy` from work RA"
-    },
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:955",
-     "date": "2026-10-25",
-     "snippet": "* User wish: give room + coordinates (from the overlay R4 / F5) and let Claude look at graphic errors there without walking. `LANDSTALKER_WA"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 2,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF5417",
@@ -6290,43 +5469,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF547C",
-   "first_seen": "2026-10-16",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "FORMATS.md:135",
-     "date": "2026-10-25",
-     "snippet": "- V: equipped items are bytes `$FF114E` sword, `$FF114F` armour, `$FF1150` boots, `$FF1151` ring (item ids, `$3A..$3D` = nothing). Effects f"
-    }
+   "notes": [
+    "2026-10-26: byte / word inside a named RAM symbol: Player_Z+$5 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
    ],
-   "callers": [],
-   "notes": [],
    "mentions": 1,
-   "class": "ram"
-  },
-  {
-   "addr": "0xFF5880",
-   "first_seen": "2026-10-10",
-   "hits": 0,
-   "sightings": [
-    {
-     "type": "doc",
-     "where": "DEBUGGING.md:320",
-     "date": "2026-10-25",
-     "snippet": "Log: `no function at $02315C`, `$02317C`, then `RTS to $FF5880 (expected $022F52)`, `no function at $028214`"
-    }
-   ],
-   "callers": [],
-   "notes": [],
-   "mentions": 1,
-   "class": "ram"
+   "class": "field",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF5C03",
@@ -6342,10 +5490,12 @@
    ],
    "callers": [],
    "notes": [
-    "2026-10-23: range bound in FORMATS 'Room load timeline': RAM written during frames 1230..1247 of a room load (probably the blockset buffer), not a variable"
+    "2026-10-23: range bound in FORMATS 'Room load timeline': RAM written during frames 1230..1247 of a room load (probably the blockset buffer), not a variable",
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
    ],
    "mentions": 1,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF7A91",
@@ -6361,10 +5511,12 @@
    ],
    "callers": [],
    "notes": [
-    "2026-10-23: range end of the same load buffer (FORMATS 'Room load timeline'), not a variable"
+    "2026-10-23: range end of the same load buffer (FORMATS 'Room load timeline'), not a variable",
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
    ],
    "mentions": 1,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF7C1E",
@@ -6380,10 +5532,12 @@
    ],
    "callers": [],
    "notes": [
-    "2026-10-23: inside g_MapForeground $FF7C02: GetTileset decompresses the tileset there before the DMA (FORMATS 'Room load timeline')"
+    "2026-10-23: inside g_MapForeground $FF7C02: GetTileset decompresses the tileset there before the DMA (FORMATS 'Room load timeline')",
+    "2026-10-26: byte / word inside a named RAM symbol: g_MapForeground+$1C (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
    ],
    "mentions": 1,
-   "class": "ram"
+   "class": "field",
+   "class_by": "hand"
   },
   {
    "addr": "0xFF8000",
@@ -6404,9 +5558,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 2,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFFA6C9",
@@ -6433,9 +5590,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 3,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFFA712",
@@ -6450,9 +5610,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: byte / word inside a named RAM symbol: g_MapBackground+$48 (low byte of a VDP register shadow word, flag byte of g_Flags, element of a list / buffer)"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "field",
+   "class_by": "hand"
   },
   {
    "addr": "0xFFFC2A",
@@ -6473,9 +5636,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 2,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFFFC59",
@@ -6508,9 +5674,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: bound of a RAM range (work RAM start, untouched / differing bytes, buffer tails behind the VDP queue, load buffer, block map ends), see the parent symbol"
+   ],
    "mentions": 4,
-   "class": "ram"
+   "class": "range",
+   "class_by": "hand"
   },
   {
    "addr": "0xFFFF38",
@@ -6526,10 +5695,12 @@
    ],
    "callers": [],
    "notes": [
-    "2026-10-23: stack area: leftovers differ between timed and time-free room loads (INDEX seamless step 2), not a variable"
+    "2026-10-23: stack area: leftovers differ between timed and time-free room loads (INDEX seamless step 2), not a variable",
+    "2026-10-26: 68000 stack area (Stack $FFFC5A.. in ram.inc): leftovers / return address slots seen in dumps, not a variable"
    ],
    "mentions": 1,
-   "class": "ram"
+   "class": "stack",
+   "class_by": "hand"
   },
   {
    "addr": "0xFFFFAF",
@@ -6544,9 +5715,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: 68000 stack area (Stack $FFFC5A.. in ram.inc): leftovers / return address slots seen in dumps, not a variable"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "stack",
+   "class_by": "hand"
   },
   {
    "addr": "0xFFFFD8",
@@ -6561,9 +5735,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: 68000 stack area (Stack $FFFC5A.. in ram.inc): leftovers / return address slots seen in dumps, not a variable"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "stack",
+   "class_by": "hand"
   },
   {
    "addr": "0xFFFFE8",
@@ -6596,9 +5773,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: 68000 stack area (Stack $FFFC5A.. in ram.inc): leftovers / return address slots seen in dumps, not a variable"
+   ],
    "mentions": 4,
-   "class": "ram"
+   "class": "stack",
+   "class_by": "hand"
   },
   {
    "addr": "0xFFFFEA",
@@ -6613,9 +5793,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: 68000 stack area (Stack $FFFC5A.. in ram.inc): leftovers / return address slots seen in dumps, not a variable"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "stack",
+   "class_by": "hand"
   },
   {
    "addr": "0xFFFFEE",
@@ -6630,9 +5813,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: 68000 stack area (Stack $FFFC5A.. in ram.inc): leftovers / return address slots seen in dumps, not a variable"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "stack",
+   "class_by": "hand"
   },
   {
    "addr": "0xFFFFFE",
@@ -6647,9 +5833,12 @@
     }
    ],
    "callers": [],
-   "notes": [],
+   "notes": [
+    "2026-10-26: 68000 stack area (Stack $FFFC5A.. in ram.inc): leftovers / return address slots seen in dumps, not a variable"
+   ],
    "mentions": 1,
-   "class": "ram"
+   "class": "stack",
+   "class_by": "hand"
   }
  ]
 }

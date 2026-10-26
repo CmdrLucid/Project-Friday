@@ -89,9 +89,12 @@ if verbose:
 
 up = os.path.join(docs, "unknowns.json")
 if os.path.exists(up):
-    unk = {int(u["addr"], 16) for u in json.load(open(up)).get("unknowns", [])}
+    _ul = json.load(open(up)).get("unknowns", [])
+    unk = {int(u["addr"], 16) for u in _ul}
+    _settled = ("not-an-address", "range", "stack", "field", "inside-symbol", "data", "log-artifact")    # same list as tools/unknowns.py SETTLED
+    _open = sum(1 for u in _ul if u.get("class") not in _settled)
     stale = sorted(a for a in unk if a in addr_of)
-    print(f"unknowns.json: {len(unk)} open unknown addresses" + (f"; {len(stale)} are now named in symbols.json -> run: python3 tools/unknowns.py sync" if stale else ""))
+    print(f"unknowns.json: {_open} open unknown addresses ({len(unk) - _open} settled: understood, not nameable)" + (f"; {len(stale)} are now named in symbols.json -> run: python3 tools/unknowns.py sync" if stale else ""))
 # portability lint (GitHub issue #3, 2026-10-25): C code inside the patch tools must compile with MinGW too; the 2-argument POSIX mkdir broke the first Windows build of v1.0.0
 import glob as _glob
 for _f in sorted(_glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), "*.py")) + _glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), "*.c"))):
