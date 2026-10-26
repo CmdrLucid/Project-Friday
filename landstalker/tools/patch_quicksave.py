@@ -7,7 +7,7 @@ It uses the GAME'S OWN save routines with a hidden fifth slot (index 4, SRAM $20
    $0015C2 with slot 4, the real slot number back in $FF0010, then RunGameLoop $0016CA (LoadGame, StartGame fade-in, GameLoop).
 Both run at the START of a GameLoop pass ($0016DC), i.e. never inside a menu, a text box or a cutscene routine (those loops run inside a pass). A request while nothing is saved shows 'NO QUICKSAVE'. A request that no GameLoop pass picks up within 8 frames (menu, text box, cutscene, fade) is refused: low beep + 'NOT NOW', nothing is executed later.
 Screen hint (QUICKSAVE / QUICKLOAD) on the picture, the game's select sound. Test aid: LANDSTALKER_QS="s600,l900" = request quick save at frame 600, quick load at frame 900 (headless runs).
-Off by default: Options > Gameplay > Quick Save (file ~/.landstalker_quicksave, env LANDSTALKER_QSAVE=0|1); while Off the buttons / keys do nothing.
+Off by default: Options > Quality of Life > Quick Save (file ~/.landstalker_quicksave, env LANDSTALKER_QSAVE=0|1); while Off a press only shows 'QUICK SAVE OFF - SEE OPTIONS' (issue #6).
 Needs patch_options / patch_ffwd before it.  Idempotent.  usage: patch_quicksave.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
@@ -44,8 +44,9 @@ int lk_qsave_get(void) {
     return lk_qsw;
 }
 void lk_qsave_set(int v) { char p[512]; FILE *f; const char *h = getenv("HOME"); lk_qsave_get(); lk_qsw = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_quicksave", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_qsw); fclose(f); } }
-void platform_quick_request(int what) { if (!lk_qsave_get()) return; lk_qs_req = what; lk_qs_req_frame = s_frame_no; }
-static void lk_qs_post(int what) { if (!lk_qsave_get()) return; lk_qs_req = what; lk_qs_req_frame = s_frame_no; }
+static void lk_qs_off_hint(void) { snprintf(lk_osd_text, sizeof lk_osd_text, "QUICK SAVE OFF - SEE OPTIONS"); lk_osd_frames = 150; }   /* a press while the option is Off says so (GitHub issue #6: 'nothing happens') */
+void platform_quick_request(int what) { if (!lk_qsave_get()) { lk_qs_off_hint(); return; } lk_qs_req = what; lk_qs_req_frame = s_frame_no; }
+static void lk_qs_post(int what) { if (!lk_qsave_get()) { lk_qs_off_hint(); return; } lk_qs_req = what; lk_qs_req_frame = s_frame_no; }
 int lk_qs_take(void) {   /* called by the game side at the start of every GameLoop pass: 0 none, 1 save, 2 load (also the LANDSTALKER_QS test schedule) */
     static const char *sched; static int init; int r = lk_qs_req;
     if (!init) { init = 1; sched = getenv("LANDSTALKER_QS"); }
