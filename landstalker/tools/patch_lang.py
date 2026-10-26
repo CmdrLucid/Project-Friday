@@ -164,8 +164,11 @@ static void lk_lg_exedir(void) {
     if (sl) *sl = 0;
     strcat(lk_lg_dir, "/lang");
 }
+static int lk_lg_gen;
+int lk_lang_gen(void) { return lk_lg_gen; }   /* counts language switches (caches of translated renderings, patch_iteminfo.py) */
 static void lk_lg_apply(int i) {   /* switch the language now: 0 = English (original), others from <exe dir>/lang/<code>.bin */
     char path[600];
+    lk_lg_gen++;
     if (i < 0 || i >= lk_lg_nlang) i = 0;
     lk_lg_sel = i;
     if (i == 0) { lk_lg_unload(); return; }

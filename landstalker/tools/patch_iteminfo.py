@@ -65,7 +65,8 @@ static int lk_ii_tabdraw(void) {   /* the bar is switching tabs (MenuBarRight $0
     for (i = 0; i < d; i++) { uint32_t c = func_table_stack(i); if (c == 0x024916u || c == 0x024952u) return 1; }
     return 0;
 }
-static const char *lk_ii_text(int id) { unsigned i; for (i = 0; i < sizeof lk_ii_tab / sizeof lk_ii_tab[0]; i++) if (lk_ii_tab[i].id == id) return lk_ii_tab[i].txt; return NULL; }
+extern int lk_lang_gen(void);   /* tools/patch_lang.py: counts language changes (the cached bars are in the old language) */
+static const char *lk_ii_text(int id) { unsigned i; for (i = 0; i < sizeof lk_ii_tab / sizeof lk_ii_tab[0]; i++) if (lk_ii_tab[i].id == id) return lk_lang_tr(lk_ii_tab[i].txt); return NULL; }
 /* Drawing is SLICED and CACHED (user report: the game hung briefly when the cursor landed on an item with a description): the game's text engine costs ~0.14 ms per character here (a whole bar with a
    description ~6 ms on a PC, more on the Deck), so one draw in one frame was a visible hitch.  A job renders the bar box (clear, the three words, the description, the divider line) into the text buffer
    $FF3900 a few characters per call (every call = one cursor update = about one frame; nothing is DMA'd before the end), then the finished buffer is cached; a cached item is applied with a plain copy +
@@ -91,7 +92,7 @@ static void lk_ii_dma(void) {   /* queue the text box tiles for the next VBlank 
     g_m68k = sv;
 }
 static void lk_ii_putchars(const char *t, int n) { int i; for (i = 0; i < n; i++) { g_m68k.d[0] = (uint32_t)lk_chr(t[i]); lk_call(0x0230CAu); } }   /* ProcessChar */
-static void lk_ii_print_at(const char *t, int x) { bus_write32(0xFF1844, 0); bus_write8(0xFF1155, 0); bus_write8(0xFF1144, 3); bus_write16(0xFF1194, (uint16_t)x); lk_ii_putchars(t, (int)strlen(t)); }
+static void lk_ii_print_at(const char *t, int x) { t = lk_lang_tr(t); bus_write32(0xFF1844, 0); bus_write8(0xFF1155, 0); bus_write8(0xFF1144, 3); bus_write16(0xFF1194, (uint16_t)x); lk_ii_putchars(t, (int)strlen(t)); }
 static void lk_ii_line(void) {   /* divider: a 1 pixel line between the words and the description, straight into the tile buffer (4 bpp: a 16 pixel text line = 8 pixel columns of two tiles = 64 bytes, line stride $900, pixel row r at r * 4) */
     const char *e = getenv("LANDSTALKER_ITEMINFO_LINE"); uint8_t col = e ? (uint8_t)atoi(e) : 0x0B;   /* palette nibble $B = white, like the box border */
     int cx, k;
@@ -119,11 +120,11 @@ static void lk_ii_job_run0(void) {   /* one slice of the current job */
     while (budget > 0 && lk_ii_job.on) {
         switch (lk_ii_job.step) {
         case 0: lk_call(0x024998u); lk_call(0x0234A8u); lk_ii_job.y0 = bus_read8(0xFF1129u); lk_ii_job.step = 1; budget -= 4; break;
-        case 1: lk_ii_print_at("Use", 0x28); lk_ii_job.step = 2; budget -= 3; break;
-        case 2: lk_ii_print_at("Equip", 0x78); lk_ii_job.step = 3; budget -= 5; break;
+        case 1: lk_ii_print_at("Use", lk_bar_tx[0]); lk_ii_job.step = 2; budget -= 3; break;
+        case 2: lk_ii_print_at("Equip", lk_bar_tx[1]); lk_ii_job.step = 3; budget -= 5; break;
         case 3: {
             uint32_t i; uint8_t *c = lk_ii_cache[0x40];
-            lk_ii_print_at("Options", 0xC8); lk_ii_job.step = t ? 4 : 6; budget -= 7; lk_ii_job.pos = 0; lk_ii_job.x = 0x10;
+            lk_ii_print_at("Options", lk_bar_tx[2]); lk_ii_job.step = t ? 4 : 6; budget -= 7; lk_ii_job.pos = 0; lk_ii_job.x = 0x10;
             if (!c) c = lk_ii_cache[0x40] = (uint8_t *)malloc(LK_II_BUF);   /* the plain bar (words only) is kept: later descriptions start from it */
             if (c) { for (i = 0; i < LK_II_BUF; i++) c[i] = bus_read8(0xFF3900u + i); lk_ii_y0s = lk_ii_job.y0; }
             break; }
@@ -149,6 +150,7 @@ static void lk_ii_job_run0(void) {   /* one slice of the current job */
     g_m68k = sv;
 }
 static void lk_ii_draw(int id) {   /* id < 0: the plain bar; called by the cursor hooks at every update */
+    { static int seen; int g = lk_lang_gen(), i; if (g != seen) { seen = g; lk_ii_job.on = 0; lk_ii_cur = -2; for (i = 0; i < 0x41; i++) { free(lk_ii_cache[i]); lk_ii_cache[i] = NULL; } } }   /* language changed: rebuild every bar */
     const char *t = id >= 0 ? lk_ii_text(id) : NULL;
     int want = t ? id : -1;
     if (lk_ii_job.on && lk_ii_job.id == want) { lk_ii_job_run(); return; }   /* continue */

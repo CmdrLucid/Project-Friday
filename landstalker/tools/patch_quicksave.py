@@ -44,7 +44,8 @@ int lk_qsave_get(void) {
     return lk_qsw;
 }
 void lk_qsave_set(int v) { char p[512]; FILE *f; const char *h = getenv("HOME"); lk_qsave_get(); lk_qsw = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_quicksave", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_qsw); fclose(f); } }
-static void lk_qs_off_hint(void) { snprintf(lk_osd_text, sizeof lk_osd_text, "QUICK SAVE OFF - SEE OPTIONS"); lk_osd_frames = 150; }   /* a press while the option is Off says so (GitHub issue #6: 'nothing happens') */
+extern const char *lk_lang_tr(const char *en);   /* tools/patch_lang.py */
+static void lk_qs_off_hint(void) { snprintf(lk_osd_text, sizeof lk_osd_text, "%s", lk_lang_tr("QUICK SAVE OFF - SEE OPTIONS")); lk_osd_frames = 150; }   /* a press while the option is Off says so (GitHub issue #6: 'nothing happens') */
 void platform_quick_request(int what) { if (!lk_qsave_get()) { lk_qs_off_hint(); return; } lk_qs_req = what; lk_qs_req_frame = s_frame_no; }
 static void lk_qs_post(int what) { if (!lk_qsave_get()) { lk_qs_off_hint(); return; } lk_qs_req = what; lk_qs_req_frame = s_frame_no; }
 int lk_qs_take(void) {   /* called by the game side at the start of every GameLoop pass: 0 none, 1 save, 2 load (also the LANDSTALKER_QS test schedule) */
@@ -66,7 +67,7 @@ static void lk_qs_check(void) {
     if (post) { char key[24], l[256]; snprintf(l, sizeof l, "%s,", post); snprintf(key, sizeof key, "s%ld,", s_frame_no); if (strstr(l, key)) lk_qs_post(1); snprintf(key, sizeof key, "l%ld,", s_frame_no); if (strstr(l, key)) lk_qs_post(2); }   /* every presented frame: a request that no GameLoop pass picked up within 8 frames means the game is in a nested loop (menu, dialogue, cutscene, fade) -> refuse */
     if (lk_qs_req && s_frame_no - lk_qs_req_frame >= 8) { if (getenv("LANDSTALKER_QS_DEBUG")) fprintf(stderr, "quicksave: request %d refused at frame %ld (game is inside a menu / dialogue / cutscene loop)\n", lk_qs_req, s_frame_no); lk_qs_req = 0; lk_beep(); snprintf(lk_osd_text, sizeof lk_osd_text, "NOT NOW"); lk_osd_frames = 60; }
 }
-void lk_osd_say(const char *t) { snprintf(lk_osd_text, sizeof lk_osd_text, "%s", t); lk_osd_frames = 90; }
+void lk_osd_say(const char *t) { snprintf(lk_osd_text, sizeof lk_osd_text, "%s", lk_lang_tr(t)); lk_osd_frames = 90; }
 '''
     s = s.replace(a, module + a, 1)
     f0 = "    lk_fs_present_begin();\n"

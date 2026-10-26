@@ -412,6 +412,8 @@ static const uint8_t *lk_glyph(char c) {
     if (c == '-') return dash;
     if (c == '/') return slash;
     if (c == '.') return dot;
+    { static const uint8_t au[7] = { 10, 0, 14, 17, 31, 17, 17 }, ou[7] = { 10, 0, 14, 17, 17, 17, 14 }, uu[7] = { 10, 0, 17, 17, 17, 17, 14 }, sz[7] = { 12, 18, 18, 22, 17, 17, 22 };   /* ä Ä / ö Ö / ü Ü / ß (UI bytes $80..$86, tools/langbuild.py UI_BYTES); the hint font has capitals only */
+      unsigned char u = (unsigned char)c; if (u == 0x80 || u == 0x84) return au; if (u == 0x81 || u == 0x85) return ou; if (u == 0x82 || u == 0x86) return uu; if (u == 0x83) return sz; }
     return blank;
 }
 /* LK_DISPLAY_END */

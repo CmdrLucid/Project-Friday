@@ -43,7 +43,7 @@ static void lk_ff_load(void) {
 }
 int lk_ffwd_get(void) { if (lk_ff_opt < 0) lk_ff_load(); return lk_ff_opt; }
 void lk_ffwd_set(int v) { char p[512]; FILE *f; lk_ffwd_get(); lk_ff_opt = v & 3; lk_ff_path(p, sizeof p); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_ff_opt); fclose(f); } }
-void platform_set_ffwd(int hold) { if (hold && !lk_ff_pad && lk_ffwd_get() == 0) { snprintf(lk_osd_text, sizeof lk_osd_text, "FAST FORWARD OFF - SEE OPTIONS"); lk_osd_frames = 150; } lk_ff_pad = hold ? 1 : 0; }   /* a press while the option is Off says so (GitHub issue #6) */
+void platform_set_ffwd(int hold) { if (hold && !lk_ff_pad && lk_ffwd_get() == 0) { { extern const char *lk_lang_tr(const char *); snprintf(lk_osd_text, sizeof lk_osd_text, "%s", lk_lang_tr("FAST FORWARD OFF - SEE OPTIONS")); }; lk_osd_frames = 150; } lk_ff_pad = hold ? 1 : 0; }   /* a press while the option is Off says so (GitHub issue #6) */
 extern int lk_seam_synth(void), lk_seam_due(void);
 extern int lk_seam_gap(void);   /* S3.5 (patch_own.py): the picture is frozen while the game fades and loads for a seamless door transition: run it fast */
 static int lk_ff_n(void) { static int always = -1; if (lk_seam_gap()) return 16; if (always < 0) always = getenv("LANDSTALKER_FFWD_HOLD") != NULL; return ((lk_ff_pad || lk_ff_kb || always) && lk_ffwd_get() > 0) ? lk_ff_opt + 1 : 1; }   /* emulated frames per displayed frame */
@@ -52,7 +52,7 @@ static int lk_ff_n(void) { static int always = -1; if (lk_seam_gap()) return 16;
     # skip drawing
     b = "    if (!s_texture || !s_renderer) return;\n\n    lk_disp_present(framebuffer);\n}"
     assert s.count(b) == 1, "present layout changed"
-    s = s.replace(b, "    if (!s_texture || !s_renderer) return;\n    { int n = lk_ff_n(); if (n > 1) { static int c; if (!lk_seam_gap()) { snprintf(lk_osd_text, sizeof lk_osd_text, \"FAST FORWARD %dX\", n); lk_osd_frames = 3; } if (lk_seam_synth()) { if (!lk_seam_due()) return; } else if (++c % n) return; } }   /* LK_FFWD v1: draw every Nth frame (a seamless gap with a gliding picture: only the frames that are due) */\n\n    lk_disp_present(framebuffer);\n}", 1)
+    s = s.replace(b, "    if (!s_texture || !s_renderer) return;\n    { int n = lk_ff_n(); if (n > 1) { static int c; if (!lk_seam_gap()) { { extern const char *lk_lang_tr(const char *); snprintf(lk_osd_text, sizeof lk_osd_text, lk_lang_tr(\"FAST FORWARD %dX\"), n); } lk_osd_frames = 3; } if (lk_seam_synth()) { if (!lk_seam_due()) return; } else if (++c % n) return; } }   /* LK_FFWD v1: draw every Nth frame (a seamless gap with a gliding picture: only the frames that are due) */\n\n    lk_disp_present(framebuffer);\n}", 1)
     # audio
     c = "void platform_queue_audio(const int16_t *samples, int sample_count) {\n"
     assert s.count(c) == 1
