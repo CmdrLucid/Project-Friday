@@ -212,8 +212,21 @@ so = kit_c.link("step_stumps", bst, [cmat.get("stump"), cmat.rings_mat()]); kit_
 
 # ---- statue, cave; the sea ---------------------------------------------------------------------------------------------------------------
 import props_c
-for (x, y) in R["statues"]:                                                      # the Massan statue (props_c.massan_statue, 2026-10-26)
-    props_c.massan_statue(16 * x + O + 8, 16 * y + O + 8, top[(x, y)], name="statue_%d_%d" % (x, y))
+# the statue (2026-10-26): the user's idea after three 3D attempts ('Schnauze zu lang, falsche Form'): the ORIGINAL PIXELS as a camera-facing billboard
+# like the figures, cut out of plane A of the user's own picture (rom_picture.py layerA.png; the PNG stays local); R_STATUE=3d = props_c.massan_statue
+statue_cards = []
+ORIG_DIR = os.path.expanduser(os.environ.get("R_ORIG_DIR", "~/.landstalker_remake/rooms/%d_room_c" % ROOM))
+for (x, y) in R["statues"]:
+    xc, yc = 16 * x + O + 8, 16 * y + O + 8
+    la = os.path.join(ORIG_DIR, "layerA.png")
+    if os.environ.get("R_STATUE") == "3d" or not os.path.exists(la):
+        props_c.massan_statue(xc, yc, top[(x, y)], name="statue_%d_%d" % (x, y)); continue
+    U0w, V0w = [int(v) for v in open(os.path.join(ORIG_DIR, "window.txt")).read().split()[:2]]
+    uc = xc - yc + 1184 - U0w; vcorner = (xc + yc) / 2 + 8 - top[(x, y)] - V0w     # picture column of the cell centre, row of its front corner on the ground
+    path = props_c.cut_billboard(la, int(uc) - 30, int(vcorner) - 90, 60, 100, os.path.expanduser("~/.landstalker_remake/props/statue_%d_%d_%d.png" % (ROOM, x, y)))
+    if path:
+        img_path, bottom = path                                                  # bottom = picture row of the lowest statue pixel; rows below the corner go under the ground
+        statue_cards.append(H.add_figure(img_path, (xc, yc, top[(x, y)] - (bottom - vcorner) * H.FIG_PX), light=0.45))
 for g_ in cave_groups:                                                           # the mouth lies in the slope west of the door cells (Massan: faces east)
     x = min(e[0] for e in g_); y0_, y1_ = min(e[1] for e in g_), max(e[1] for e in g_) + 1; z = top[g_[0]]
     k = cliff_c.K_ROCK; n_ = mathutils.Vector((k, 0, 1)).normalized(); up_ = mathutils.Vector((-1, 0, k)).normalized()
@@ -255,7 +268,8 @@ for ob in sc.objects:                                                           
     if ob.parent is None and ob.type in ("MESH", "EMPTY") and ob.location.z:   # ground (z0) must move down with them
         ob.location.z *= math.sqrt(2.0 / 3.0)
     if "base" in ob: ob["base"] = (ob["base"][0], ob["base"][1], ob["base"][2] * math.sqrt(2.0 / 3.0))
-for f in figs: H.face_camera(f, co, upright=False)
+figs += statue_cards
+for f in figs: f.scale = (1, 1, 1); H.face_camera(f, co, upright=False)   # pixel cards are not squashed (game_view squashes every mesh; massan_a.render_set does the same reset)
 bpy.ops.render.render(write_still=True)
 print("game view done", flush=True)
 zs = math.sqrt(2.0 / 3.0)
