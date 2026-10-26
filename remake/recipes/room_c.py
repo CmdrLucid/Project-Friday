@@ -210,11 +210,10 @@ for (y, h), xs in sorted(runs.items()):
         a = x
 so = kit_c.link("step_stumps", bst, [cmat.get("stump"), cmat.rings_mat()]); kit_c.link("step_body", bbody, cmat.get("earth"))
 
-# ---- placeholders: statue, cave; the sea ---------------------------------------------------------------------------------------------------------------
-pb = bmesh.new()
-for (x, y) in R["statues"]:
-    kit_c.rock(pb, G(16 * x + O + 8, 16 * y + O + 8, top[(x, y)] + 22), 8.0, (0.9, 0.8, 2.6), seed=7, lump=0.18)
-if pb.verts: kit_c.link("statue_placeholder", pb, cmat.get("boulder"))
+# ---- statue, cave; the sea ---------------------------------------------------------------------------------------------------------------
+import props_c
+for (x, y) in R["statues"]:                                                      # the Massan statue (props_c.massan_statue, 2026-10-26)
+    props_c.massan_statue(16 * x + O + 8, 16 * y + O + 8, top[(x, y)], name="statue_%d_%d" % (x, y))
 for g_ in cave_groups:                                                           # the mouth lies in the slope west of the door cells (Massan: faces east)
     x = min(e[0] for e in g_); y0_, y1_ = min(e[1] for e in g_), max(e[1] for e in g_) + 1; z = top[g_[0]]
     k = cliff_c.K_ROCK; n_ = mathutils.Vector((k, 0, 1)).normalized(); up_ = mathutils.Vector((-1, 0, k)).normalized()

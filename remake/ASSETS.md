@@ -26,8 +26,7 @@ cliffs from the pines' colour blobs + a view ray cast; `python3 remake/lib/roomd
 assets as placeable builders (the four recipes call them; their renders are pixel identical to before). Game view = the same window as the original
 (`window.txt`, original via `tools/rom_picture.py ROM 592 $(cat window.txt) ~/.landstalker_remake/rooms/592_room_c`), sheet
 `tools/room_sheet.py` -> `~/.landstalker_remake/assets/massan_rohbau_C.png`. An overlay showed houses, statue, fences, steps, cave, grove and the
-cliff pines on the original's pixels. PLACEHOLDERS (next assets): houses B.. (copies of house A stretched to their
-footprint and turned to their door), the tower (house A stretched upwards), statue (grey stone), cave (dark oval), sea level -56 (a guess).
+cliff pines on the original's pixels. PLACEHOLDERS at first: houses B.. and the tower (now `lib/house_c.py`), statue (2026-10-26: `lib/props_c.py massan_statue`, first version, user check open), cave (dark oval, since rebuilt), sea level -56 (a guess).
 Open: the back views (q2 / q3) look at the big cliff from behind (a turned camera will need cut-aways); stump steps only on south edges.
 
 ## HD textures (2D, user 2026-10-24: 'nicht 3D, nur HD')
