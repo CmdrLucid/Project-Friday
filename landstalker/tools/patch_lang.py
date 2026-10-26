@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Text layer runtime (docs/TEXT_LAYER.md step 3): loads the language binary built by tools/langbuild.py and replaces dialogue strings, name table entries and the font.
-Languages: <exe dir>/lang/index.txt ("code<TAB>name") + <code>.bin (tools/langbuild.py, run by build.sh / firstrun.py); the setting is ~/.landstalker_lang (LANDSTALKER_LANG=<code> overrides), the Options row (Quality of Life > Language) calls lk_lang_step() and switches AT ONCE; LANDSTALKER_LANGDIR / LANDSTALKER_LANGBIN=<file> (an extra language 'Test') / LANDSTALKER_LANGLOG=1 (lists every string the game starts) are test aids. English = every hook is a plain pass through.
+Languages: <exe dir>/lang/index.txt ("code<TAB>name") + <code>.bin (tools/langbuild.py, run by build.sh / firstrun.py); the setting is ~/.landstalker_lang (LANDSTALKER_LANG=<code> overrides), the Options row (Options > Language) calls lk_lang_step() and switches AT ONCE; LANDSTALKER_LANGDIR / LANDSTALKER_LANGBIN=<file> (an extra language 'Test') / LANDSTALKER_LANGLOG=1 (lists every string the game starts) are test aids. English = every hook is a plain pass through.
  * dialogue: InitCompString $022FCC remembers the string id; DecodeChar $0246B2 then returns the translated characters instead of Huffman decoding (control characters as
    $56 + k, end as $55): the game's own GetNextChar / ProcessChar / name insertion ({Item}) keep working; the extended glyphs ($6C..) cannot pass the control table, so DecodeChar
    returns a placeholder control code and the GetNextChar wrapper swaps in the glyph word
@@ -162,7 +162,7 @@ uint32_t lk_lang_ui(int key, uint32_t def) { int i; for (i = 0; i < lk_lg_nui; i
 int lk_lang_count(void) { return lk_lg_nlang; }
 const char *lk_lang_name(int i) { return i >= 0 && i < lk_lg_nlang ? lk_lg_names[i] : "?"; }
 int lk_lang_get(void) { return lk_lg_sel; }
-void lk_lang_step(void) {          /* Options > Quality of Life > Language: next language, applied at once and saved in ~/.landstalker_lang */
+void lk_lang_step(void) {          /* Options > Language (root row above Quit Game): next language, applied at once and saved in ~/.landstalker_lang */
     char path[512]; FILE *f; int n = (lk_lg_sel + 1) % lk_lg_nlang;
     lk_lg_apply(n);
     lk_lg_home(path, sizeof path, ".landstalker_lang"); f = fopen(path, "w"); if (f) { fprintf(f, "%s\n", lk_lg_codes[lk_lg_sel]); fclose(f); }
