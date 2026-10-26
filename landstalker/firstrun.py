@@ -386,7 +386,7 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
     env["SDL2_CFLAGS"], env["SDL2_LIBS"] = sdl_flags()
     env.setdefault("ZIG_GLOBAL_CACHE_DIR", os.path.join(DATA, "zigcache"))
     ui.progress(60, "Compiling ...")
-    cmd = [sys.executable, os.path.join(work, "tools", "zigbuild.py"), "--cc", cc, "--out", os.path.join(work, "out")] + (["--no-game"] if test else [])
+    cmd = [sys.executable, os.path.join(work, "tools", "zigbuild.py"), "--cc", cc, "--out", os.path.join(work, "out")] + (["--no-game", "--smoke"] if test else [])
     log.write("\n$ %s\n" % " ".join(cmd))
     log.flush()
     pr = subprocess.Popen(cmd, cwd=work, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env)
@@ -451,6 +451,42 @@ def selftest(cc):
     return 0
 
 
+def smoke_run():
+    """CI (--selftest-run, after --selftest-build): start genrecomp with a dummy ROM (no ROM, no game) twice, the second time with an existing
+    battery RAM file next to it, in a folder whose name has a space (like a user's 'F:\\PC Rom Mods\\...'). A crash (e.g. 0xC0000005) fails the step."""
+    work = os.path.join(DATA, "selftest-build")
+    exe = os.path.join(work, "out", "smoke.exe" if WIN else "smoke")
+    if not os.path.isfile(exe):
+        print("selftest-run FAILED: %s is missing (run --selftest-build first)" % exe)
+        return 1
+    if WIN:
+        shutil.copy2(os.path.join(HERE, "vendor", "sdl2", "bin", "SDL2.dll"), os.path.join(work, "out", "SDL2.dll"))
+    d = os.path.join(work, "rom dir")
+    os.makedirs(d, exist_ok=True)
+    rom, srm = os.path.join(d, "dummy rom.md"), os.path.join(d, "dummy rom.srm")
+    subprocess.run([sys.executable, os.path.join(HERE, "tools", "make_dummy_rom.py"), rom], check=True)
+    if os.path.isfile(srm):
+        os.remove(srm)
+    env = dict(os.environ, SDL_VIDEODRIVER="dummy", SDL_AUDIODRIVER="dummy", SDL_RENDER_DRIVER="software")   # CI runners have no GPU
+    for n, label in ((1, "first start (no save file)"), (2, "second start (existing save file)")):
+        if n == 2:
+            open(srm, "wb").write(bytes(range(256)) * 256)
+        r = subprocess.run([exe, rom], capture_output=True, text=True, env=env, timeout=120)
+        print("--- %s: exit code %d (0x%X)\n%s%s" % (label, r.returncode, r.returncode & 0xFFFFFFFF, r.stdout[-1500:], r.stderr[:3000]))
+        if r.returncode or "smoke: ok" not in r.stderr:
+            print("selftest-run FAILED at the %s" % label)
+            if WIN:   # diagnosis: the load steps one by one
+                r = subprocess.run([exe, rom], capture_output=True, text=True, env=dict(env, SMOKE_STEPS="1"), timeout=120)
+                print("--- step by step: exit code 0x%X\n%s" % (r.returncode & 0xFFFFFFFF, "\n".join(l for l in r.stderr.splitlines() if l.startswith("smoke:") and not l.startswith("smoke:   "))[:2500]))
+                for label2, env2, cwd2, rom2 in (("LANDSTALKER_SAVE set", dict(env, LANDSTALKER_SAVE=os.path.join(d, "x.srm")), None, rom),
+                                                 ("relative ROM path", env, d, os.path.basename(rom))):
+                    r = subprocess.run([exe, rom2], capture_output=True, text=True, env=env2, cwd=cwd2, timeout=120)
+                    print("--- variant %s: exit code 0x%X, %s" % (label2, r.returncode & 0xFFFFFFFF, "ok" if "smoke: ok" in r.stderr else "FAILED"))
+            return 1
+    print("selftest-run ok: genrecomp starts with a dummy ROM, with and without an existing save file")
+    return 0
+
+
 def main():
     argv = sys.argv[1:]
     game_args = []
@@ -465,10 +501,13 @@ def main():
     ap.add_argument("--no-gui", action="store_true")
     ap.add_argument("--build-only", action="store_true")
     ap.add_argument("--selftest", action="store_true", help="check compiler + SDL2 headers / library without a ROM (used by CI)")
+    ap.add_argument("--selftest-run", action="store_true", help="CI: after --selftest-build, start genrecomp with a dummy ROM twice (second time with a save file)")
     ap.add_argument("--selftest-build", action="store_true", help="CI: run the ROM-free patch steps and compile genrecomp + Genesis Plus GX (no ROM, no game)")
     args = ap.parse_args(argv)
     if args.selftest:
         return selftest(pick_compiler(args))
+    if args.selftest_run:
+        return smoke_run()
     if args.selftest_build:
         ui = Ui(False)
         cc = pick_compiler(args)

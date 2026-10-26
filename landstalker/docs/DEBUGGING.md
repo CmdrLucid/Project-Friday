@@ -1296,3 +1296,17 @@ Recordings: `rec_20261023_1937` (church -> 592 -> 424 -> 425 -> 426 -> 177 / 178
 - AppImage first-run test (clean `env -i`, empty HOME and `LANDSTALKER_DATA`): FAILED once (missing `docs/ENTITIES.md` for `patch_shadow.py`), fixed in `make_appimage.py`, `make_windows_zip.py`, `firstrun.py`; afterwards the built game was byte identical to `build/landstalker` on `rec_20261024_1739` (frames 2000 / 4000 / 6600). LESSONS 106.
 - Release: merge commit on `main` (no `gh`, no GitHub MCP in this session), tag `v1.0.0`; Actions run 40174903861 succeeded, release has AppImage (98 MB), Windows zip (132 MB) and both .sha256.
 - NOT tested by anyone: zenity dialogs of the AppImage (no GUI session), the Windows zip on a real Windows PC.
+
+## Session 2026-10-25 evening (Deck, Opus 5.5): remake style C, assets 1..4 (dev c04a08e)
+- House A studies: A = modelled house with pixel swatches cut from the picture (`lib/massan_a.py: bark_texture / thatch_texture`; pitfalls: blx cylinder UV v runs around the log starting at +z, the dark core box sat in front of the logs and hid them), B = voxels (`recipes/massan_house_vb.py`, `R_VS`, `R_COL=orig/dedither/clean`, hidden voxels coloured from mirrored seen voxels / swatches), C = smooth diorama (`recipes/massan_house_vc.py`). User: C.
+- Nigel's size from 6 RAM dumps of the Massan replay (frames 2160..2460): Z 0, top `+54` 30 -> 31 units, box 547..561 x 489..503 (15 x 15). FORMATS entry.
+- Overlay of house C on the original window (`R_ALIGN=1`, tz 44 / fh 216 = the window of rom_picture.py): footprint, eave and door coincide.
+- Bushes: room 592 shows them only behind fences; rooms 424 / 425 (`romrender.py ROM 424|425`) show single round shrubs on a Y stem per cell; the bush rows of room 425 are height-1 cells (top 16).
+- Massan steps (room 592 height map: one band of height 1 between 0 and 2) are upright log stumps with grey tops in the picture, not stones.
+
+## Remake session 2026-10-25 night: Massan blockout (dev, Opus 5.5)
+- Water asset: view q1 rendered the water white. Tests: rougher gloss (no change), no bump (white), no gloss (blue), sun specular 0 (blue), 0.05 (grey-white) -> cause = the sun's gloss under the ortho camera near the mirror angle (LESSONS 111).
+- Room 592 from the ROM: height map 38 x 39 cells (stage 3 header, `romroom.decode` `hm_w` / `hm_h`); 29 blocked groups -> 6 houses + tower by door cells (floor types 01 / 04 in front of a `$2x00` cell), cave = door cells in front of a cliff (3,21)/(3,22), fences / bushes / pines by plane A colour (pine colour = palette 0 index 7, (0,216,72)), 6 single cliff pines from colour blobs of 16..24 x 28..34 px cast onto the height field. Overlay of the remake game view on `rom_picture.py` of the same window: houses, statue, fences, steps, cave, grove and cliff pines on the original's pixels.
+- Cliffs: plain cone slopes from the height map; the low west sun leaves east-facing slopes self-shadowed (rock form invisible) -> rock-only fill light by light linking (EEVEE supports it in Blender 5.2: `light_linking.receiver_collection`).
+- Tower: dark column = logs cut by openings they only touched (LESSONS 115); found by building the tower alone (`~/.landstalker_remake/tmp/tower_test.py`, variants without door / window / sign / cloth).
+

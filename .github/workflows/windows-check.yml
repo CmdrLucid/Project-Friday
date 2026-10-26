@@ -59,3 +59,11 @@ jobs:
         run: |
           pkg/Project-Friday/Project-Friday.exe --selftest-build
           if ($LASTEXITCODE -ne 0) { Get-ChildItem "$env:LANDSTALKER_DATA/selftest-build/build.log" | ForEach-Object { Get-Content $_ -Tail 40 }; exit $LASTEXITCODE }
+
+      - name: Run self-test (genrecomp with a dummy ROM, first start and second start with a save file)
+        shell: pwsh
+        env:
+          LANDSTALKER_DATA: ${{ runner.temp }}\pf-data
+        run: |
+          pkg/Project-Friday/Project-Friday.exe --selftest-run
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

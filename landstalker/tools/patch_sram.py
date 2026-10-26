@@ -33,16 +33,22 @@ static void lk_sram_flush(void) {
     fprintf(stderr, "genrecomp: SRAM saved to %s\n", s_srm_path);
 }
 
-static void lk_sram_load(const char *rom_path) {
+/* the save file name is worked out BEFORE the Genesis Plus GX init calls and kept in a static buffer: on Windows (CI, issue #5) the `path` argument of
+   genrecomp_load_rom was no longer valid after system_reset() and the snprintf below crashed (0xC0000005 inside the C runtime) */
+static void lk_sram_path(const char *rom_path) {
     const char *env = getenv("LANDSTALKER_SAVE");
     if (env && *env) {
         snprintf(s_srm_path, sizeof(s_srm_path), "%s", env);
     } else {
         snprintf(s_srm_path, sizeof(s_srm_path), "%s", rom_path);
-        char *dot = strrchr(s_srm_path, '.'), *slash = strrchr(s_srm_path, '/');
+        char *dot = strrchr(s_srm_path, '.'), *slash = strrchr(s_srm_path, '/'), *bslash = strrchr(s_srm_path, '\\');
+        if (bslash && (!slash || bslash > slash)) slash = bslash;
         if (dot && (!slash || dot > slash)) *dot = 0;
         strncat(s_srm_path, ".srm", 5);
     }
+}
+
+static void lk_sram_load(void) {
     if (!sram.on) { fprintf(stderr, "genrecomp: SRAM: cartridge reports no battery RAM (saving disabled)\n"); s_srm_path[0] = 0; return; }
     FILE *f = fopen(s_srm_path, "rb");
     if (f) {
@@ -57,7 +63,8 @@ static void lk_sram_load(const char *rom_path) {
 
 '''
 rep("bool genrecomp_load_rom(const char *path) {\n", HELPERS + "bool genrecomp_load_rom(const char *path) {\n")
-rep("    /* Hard reset everything */\n    system_reset();\n", "    /* Hard reset everything */\n    system_reset();\n    lk_sram_load(path);\n")
+rep("    /* GenPlusGX's load_rom expects a mutable char* */\n", "    lk_sram_path(path);\n    /* GenPlusGX's load_rom expects a mutable char* */\n")
+rep("    /* Hard reset everything */\n    system_reset();\n", "    /* Hard reset everything */\n    system_reset();\n    lk_sram_load();\n")
 rep("void genrecomp_end_frame(void) {\n", "void genrecomp_end_frame(void) {\n    if (++s_srm_frames >= 120) { s_srm_frames = 0; lk_sram_flush(); }\n")
 rep("void genrecomp_shutdown(void) {\n    if (!s_initialized) return;\n", "void genrecomp_shutdown(void) {\n    if (!s_initialized) return;\n    lk_sram_flush();\n")
 open(p, "w").write(s); print("genrecomp.c patched: LANDSTALKER_SRAM")

@@ -108,10 +108,12 @@ def contour(t, rc0=6.0, K=(24, 5), hx0=HX):
         for j in range(1, K[0]): pts.append((ex + (tx - ex) * j / K[0], ey + (ty - ey) * j / K[0]))
     return pts
 
-def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, door="dark", door_top=None):
+def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, door="dark", door_top=None, course=0.0, step=0.0, ridge_knot=False):
     """adds the house to a blx.Mesh with materials bark, post, endgrain, dark, hole, thatch, under (+ 'sign' if sign_uv is given:
     function (x, y, z) -> texel uv of the sign image).  hx > HX = more roof overhang (the slope continues down past the picture's eave),
-    lip = eave roll radius; door = 'dark' (opening as in the picture) or 'planks' (frame + plank door leaf + handle; needs material 'plank')."""
+    lip = eave roll radius; door = 'dark' (opening as in the picture), 'open' (dark opening in a frame: jambs, lintel, threshold) or 'planks'
+    (the frame + a plank door leaf + handle; needs material 'plank').  course / step > 0: the thatch is laid in overlapping courses (each course
+    'course' units long down the slope, its butt end 'step' units proud of the one below); ridge_knot: a straw bundle at the top holding the sticks."""
     import random
     rnd = random.Random(5)
     # dark core: the seams between the logs show black like the original
@@ -131,25 +133,29 @@ def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, do
             M.cylinder("post", G(*wall_pos(side, a, POST_R - 0.6, top)), G(*wall_pos(side, a, POST_R - 0.6, top + 1.6)), POST_R * 0.7, n=nseg, cap="endgrain", density=den)
     # door: dark opening (or a plank door in a frame), lintel, threshold
     d = dict(DOOR, top=door_top or DOOR["top"]); s = d["side"]
-    if door == "planks":
+    if door in ("planks", "open"):
         wd = d["a1"] - d["a0"]; inset = -2.6                                       # leaf: in front of the dark core (x 361), behind the log fronts
-        for sgn, a in ((-1, d["a0"]), (1, d["a1"])):                                # jambs: square posts in the opening
+        for sgn, a in (((-1, d["a0"]), (1, d["a1"])) if door == "planks" else ()):  # jambs: square posts in the opening (the open doorway has none, like the picture)
             p = [wall_pos(s, a - sgn * 0.0, 1.2, 0), wall_pos(s, a - sgn * 2.2, -2 * RL + 0.5, d["top"] + 0.5)]
             M.box("post", min(p[0][0], p[1][0]), max(p[0][0], p[1][0]), -max(p[0][1], p[1][1]), -min(p[0][1], p[1][1]), 0, d["top"] + 0.5)
-        n = 4; pw = (wd - 4.4) / n
+        if door == "open":                                                         # the dark opening, set back to the core like in the picture
+            M.face("dark", [G(*wall_pos(s, d["a0"], -1.2, 0)), G(*wall_pos(s, d["a1"], -1.2, 0)), G(*wall_pos(s, d["a1"], -1.2, d["top"])), G(*wall_pos(s, d["a0"], -1.2, d["top"]))][::-1], [(0, 0), (16, 0), (16, 16), (0, 16)])
+        n = 4 if door == "planks" else 0; pw = (wd - 4.4) / 4
         for k in range(n):                                                         # vertical planks, small gaps, slightly uneven tops
             a0 = d["a0"] + 2.2 + k * pw + 0.15; a1 = a0 + pw - 0.3; zt = d["top"] - 0.3 - rnd.random() * 0.6
             p0 = wall_pos(s, a0, inset - 1.0, 0); p1 = wall_pos(s, a1, inset, zt)
             M.box("plank", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), 0.2, zt)
-        for zb in (7.0, d["top"] - 8.0):                                           # two battens across the planks
+        for zb in ((7.0, d["top"] - 8.0) if door == "planks" else ()):           # two battens across the planks
             p0 = wall_pos(s, d["a0"] + 2.6, inset, zb); p1 = wall_pos(s, d["a1"] - 2.6, inset + 0.8, zb + 2.2)
             M.box("post", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), zb, zb + 2.2)
-        hc = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, 17.0)); e1 = G(*wall_pos(s, d["a1"] - 3.5, inset + 1.4, 17.0)); e2 = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, 18.0))
-        M.torus("dark", hc, tuple(e1[i] - hc[i] for i in range(3)), tuple(e2[i] - hc[i] for i in range(3)), 1.3, 0.35, n=16, m=6)
+        zh = d["top"] * 0.5
+        if door == "planks":
+            hc = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, zh)); e1 = G(*wall_pos(s, d["a1"] - 3.5, inset + 1.4, zh)); e2 = G(*wall_pos(s, d["a1"] - 4.5, inset + 1.4, zh + 1))
+            M.torus("dark", hc, tuple(e1[i] - hc[i] for i in range(3)), tuple(e2[i] - hc[i] for i in range(3)), 1.3, 0.35, n=16, m=6)
         M.cylinder("post", G(*wall_pos(s, d["a0"] - 3, 1.2, d["top"] + 2.0)), G(*wall_pos(s, d["a1"] + 3, 1.2, d["top"] + 2.0)), 2.7, n=nseg, cap="endgrain", density=den)
         p0 = wall_pos(s, d["a0"] - 1, 3.0, 0); p1 = wall_pos(s, d["a1"] + 1, -2 * RL, 1.2)       # stone-ish step
         M.box("post", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), 0, 1.2)
-    else:
+    elif door == "dark":
         M.face("dark", [G(*wall_pos(s, d["a0"], -RL, 0)), G(*wall_pos(s, d["a1"], -RL, 0)), G(*wall_pos(s, d["a1"], -RL, d["top"])), G(*wall_pos(s, d["a0"], -RL, d["top"]))][::-1], [(0, 0), (16, 0), (16, 16), (0, 16)])
         M.cylinder("post", G(*wall_pos(s, d["a0"] - 3, 1.0, d["top"] + 1.5)), G(*wall_pos(s, d["a1"] + 3, 1.0, d["top"] + 1.5)), 2.2, n=nseg, cap="endgrain", density=den)
         M.cylinder("post", G(*wall_pos(s, d["a0"] - 1, 0.5, 0.8)), G(*wall_pos(s, d["a1"] + 1, 0.5, 0.8)), 1.0, n=6, density=den)
@@ -170,8 +176,19 @@ def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, do
         phi = math.radians(-90 + 180 * k / 6); pts = contour(LIP * (1 - math.cos(phi)), hx0=hx); jit = math.cos(phi) * roof_jitter
         pts = [(x + (rnd.random() - 0.5) * jit, y + (rnd.random() - 0.5) * jit) for x, y in pts]
         rings.append((pts, ze - LIP + LIP * math.sin(phi)))
-    for k in range(1, 17):
-        t = LIP + (hx - 0.8 - LIP) * k / 16; rings.append((contour(t, hx0=hx), rzz(t)))
+    if course > 0:                                                             # thatch courses: z = slope + step * (1 - position in the course), a butt edge at every course start
+        tmax = hx - 0.8; c0 = LIP
+        while c0 < tmax - 0.5:
+            c1 = min(c0 + course, tmax); fade = 1 - c0 / hx                     # the steps get smaller towards the top
+            for k in range(7):
+                t = c0 + (c1 - c0) * k / 6; pts = contour(t, hx0=hx); jit = 1.1 if k == 0 else 0.35          # ragged butt edge, rougher straw
+                pts = [(x + (rnd.random() - 0.5) * jit + 0.5 * jit * math.sin(0.7 * (x + y) + c0), y + (rnd.random() - 0.5) * jit) for x, y in pts]
+                if k == 6: pts = contour(t, hx0=hx)                              # the next course's butt edge starts on this exact ring (no gaps)
+                rings.append((pts, rzz(t) + step * fade * (1 - k / 6)))
+            c0 = c1
+    else:
+        for k in range(1, 17):
+            t = LIP + (hx - 0.8 - LIP) * k / 16; rings.append((contour(t, hx0=hx), rzz(t)))
     tex = lambda x, y: ((x - (CX - hx)) * den, ((CY + hx) - y) * den)
     for (A, za), (B, zb) in zip(rings, rings[1:]):
         n = len(A)
@@ -181,6 +198,14 @@ def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, do
                    [tex(*A[i]), tex(*A[j]), tex(*B[j]), tex(*B[i])])
     under, zu = rings[0]; M.face("under", [G(x, y, zu) for x, y in under], [(x * den, y * den) for x, y in under])
     top, zt = rings[-1]; M.face("thatch", [G(x, y, zt) for x, y in top], [tex(x, y) for x, y in top])
+    if ridge_knot:                                                             # straw bundle at the top: a squat rounded cap, tied with a band
+        for k in range(10):
+            a0 = 2 * math.pi * k / 10; a1 = 2 * math.pi * (k + 1) / 10
+            for j in range(6):
+                p = lambda a, jj: (CX + 5.5 * math.cos(a) * math.cos(math.pi / 2 * jj / 6), CY + 5.5 * math.sin(a) * math.cos(math.pi / 2 * jj / 6), ZT - 2.5 + 4.5 * math.sin(math.pi / 2 * jj / 6))
+                q = [p(a0, j), p(a1, j), p(a1, j + 1), p(a0, j + 1)]
+                M.face("thatch", [G(*v) for v in q], [tex(v[0], v[1]) for v in q])
+        M.torus("post", G(CX, CY, ZT - 1.2), (1, 0, 0), (0, 1, 0), 5.3, 0.6, n=24, m=6)
     # ridge: two crossed pairs of short sticks at the top
     for ax in (0, 1):
         for sgn in (-1, 1):
@@ -245,15 +270,20 @@ def voxels(vs=1.0):
 
 # ---- shared preview set ---------------------------------------------------------------------------------------------------------------------------
 VIEWS = [("game", None), ("turn_l", -35), ("turn_r", 35), ("back", 150), ("side", 200)]
+FIG_PX = 1 / math.sqrt(2)      # world units per sprite pixel on a camera-facing card: the game projection shows 1 world unit across the screen as sqrt(2) pixels
+FIG_FWD = 7.5 * math.sqrt(2)  # the sprite's bottom row = the FRONT corner of the 15 x 15 box: the card stands this far towards the camera from the box centre
 def add_figure(png_path, game_pos, light=0.55):
-    """a pixel figure (rom_sprite.py cut-out) as a camera-facing billboard standing at game_pos (feet = bottom row, 1 image pixel = 1 unit / scale2x factor);
-    lit a little by the scene (HD-2D style) and casting a shadow.  Returns the object (render_set(figures=...) turns it to every camera)."""
+    """a pixel figure (rom_sprite.py cut-out) as a camera-facing billboard; game_pos = centre of its collision box on the ground.
+    Size (measured 2026-10-25 on the Massan replay, entity +12 Z / +54 top / +18..+1E box): Nigel is 31 units high with a 15 x 15 box; his 47 px sprite
+    = 31 + the depth of the box drawn in the 2:1 view.  So one sprite pixel = FIG_PX units on the card (head at ~33) and the card's bottom row stands at
+    the box's front corner (face_camera moves it FIG_FWD towards the camera): in the game view the figure covers exactly the pixels of the original.
+    Lit a little by the scene (HD-2D style), casts a shadow.  render_set(figures=...) turns it to every camera."""
     import bpy, bmesh
     img = bpy.data.images.load(png_path); img.colorspace_settings.name = "sRGB"; w, h = img.size
     k = 1.0
     txt = os.path.splitext(png_path)[0] + ".txt"
     if os.path.exists(txt): k = float(open(txt).read().split()[2])
-    W, Hh = w / k, h / k
+    W, Hh = w / k * FIG_PX, h / k * FIG_PX
     me = bpy.data.meshes.new("figure"); b = bmesh.new(); uvl = b.loops.layers.uv.new("UV")
     f = b.faces.new([b.verts.new(p) for p in ((-W / 2, 0, 0), (W / 2, 0, 0), (W / 2, 0, Hh), (-W / 2, 0, Hh))])
     for l, uv in zip(f.loops, ((0, 0), (1, 0), (1, 1), (0, 1))): l[uvl].uv = uv
@@ -266,7 +296,7 @@ def add_figure(png_path, game_pos, light=0.55):
     L(bs.outputs["BSDF"], o.inputs["Surface"])
     if hasattr(m, "surface_render_method"): m.surface_render_method = "DITHERED"
     me.materials.append(m); ob = bpy.data.objects.new("figure", me); bpy.context.scene.collection.objects.link(ob)
-    ob.location = G(*game_pos); return ob
+    ob.location = G(*game_pos); ob["base"] = G(*game_pos); return ob
 
 def face_camera(ob, co, upright=True):
     import bpy, mathutils
@@ -275,32 +305,32 @@ def face_camera(ob, co, upright=True):
     if co.data.type == "PERSP": d = co.location - ob.location
     if upright: d.z = 0
     ob.rotation_euler = d.normalized().to_track_quat("-Y", "Z").to_euler()
+    if "base" in ob:
+        h = mathutils.Vector((d.x, d.y, 0)).normalized(); ob.location = mathutils.Vector(ob["base"]) + h * FIG_FWD
 
-def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=False, figures=()):
+def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=False, figures=(), quarter=False, tz=38, fh=190, sun_spec=1.0):
     """game view (the original's projection, heights squashed like the game) + turned views and a low perspective 'hero' shot (true heights).
     Needs the scene filled; uses blx.game_view (sets light / world).  Files: out/<view>.png"""
     import bpy, mathutils, blx
-    T = G(CX, CY, 38); size = (int(208 * px), int(190 * px))
+    T = G(CX, CY, tz); size = (int(208 * px), int(fh * px))
     sc, co = blx.game_view(os.path.join(out, "game.png"), px_per_unit=px, size=size, target=T, squash=squash_game)
     if not outlines: sc.render.use_freestyle = False
     for f in figures: f.scale = (1, 1, 1); face_camera(f, co, upright=False)   # game view: the figure faces the screen like the original sprite
-    if modern:                                                                 # warm low sun, soft shadows (variant C: + filmic AgX colours; modern="std" keeps the colours)
-        if modern != "std":
-            sc.view_settings.view_transform = "AgX"
-            try: sc.view_settings.look = "AgX - Medium High Contrast"
-            except Exception: pass
-        sun = bpy.data.objects["sun"]; sun.data.energy = 4.5; sun.data.color = (1.0, 0.86, 0.68); sun.data.angle = math.radians(6)
-        sun.rotation_euler = (-mathutils.Vector((-0.55, -0.6, 0.55))).to_track_quat("-Z", "Y").to_euler()
-        sc.world.node_tree.nodes["Background"].inputs[0].default_value = (0.55, 0.7, 1.0, 1); sc.world.node_tree.nodes["Background"].inputs[1].default_value = 0.8
-        if hasattr(sc.eevee, "use_raytracing"): sc.eevee.use_raytracing = True
+    if modern:                                                                 # the style C light (lib/cmat.py); modern="std" keeps the game's colours
+        import cmat; cmat.modern_look(sc, agx=(modern != "std")); bpy.data.objects["sun"].data.specular_factor = sun_spec
         bpy.ops.render.render(write_still=True)
-    bpy.ops.render.render(write_still=True)
+    if quarter:                                                                # the remake camera (user 2026-10-25): game projection, turned in 90 degree steps only
+        zs = math.sqrt(2.0 / 3.0) if squash_game else 1.0
+        for q in (1, 2, 3):
+            blx.orbit(co, (T[0], T[1], T[2] * zs), 90 * q, 30)
+            for f in figures: face_camera(f, co, upright=False)
+            sc.render.filepath = os.path.join(out, "q%d.png" % q); bpy.ops.render.render(write_still=True)
     if squash_game:
         for ob in sc.objects:
             if ob.type == "MESH": ob.scale.z /= math.sqrt(2.0 / 3.0)
     for f in figures: f.scale = (1, 1, 1)
     Tt = (T[0], T[1], 34)
-    for name, yaw in VIEWS[1:]:
+    for name, yaw in ([] if quarter else VIEWS[1:]):
         blx.orbit(co, Tt, yaw, 28)
         for f in figures: face_camera(f, co)
         sc.render.filepath = os.path.join(out, name + ".png"); bpy.ops.render.render(write_still=True)

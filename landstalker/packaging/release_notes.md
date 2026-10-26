@@ -1,7 +1,8 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- **Windows: the first build from your ROM works again.** v1.0.0 stopped at the last compile step (162 / 163) on Windows because two places used a Linux-only form of `mkdir` (GitHub issue #3, thanks for the log!). Nothing changes for Steam Deck / Linux.
+- **Windows: the game no longer crashes right after the start (exit code `0xC0000005`, GitHub issue #5, thanks for the report!).** The name of the save file (`.srm`) is now worked out before the emulator core starts. The Windows package is also tested on a real Windows machine by GitHub now (start with a test ROM, with and without a save file). Nothing changes for Steam Deck / Linux.
+- Included since v1.0.1: the Windows first-build fix (compile step 162 / 163, issue #3).
 - Everything from v1.0.0 is included: Quick Equip (hold R2 + direction), Better Menu (B in Use / Equip goes back to the bar), Live Gaia Effect, Widescreen Off / 16:10 / 16:9 in any width, defaults 16:9 + Full Height + CRT Pro, the own renderer always on, and the AppImage first-start fix.
 
 ### Downloads

@@ -38,6 +38,7 @@ def main():
     ap.add_argument("--extra", default="", help="extra compile + link flags for every file, e.g. \"-fsanitize=undefined -g\"")
     ap.add_argument("--extra-gpgx", default="", help="additional flags only for the Genesis Plus GX files (e.g. \"-fno-sanitize=shift\" to skip its known benign shifts)")
     ap.add_argument("--no-game", action="store_true", help="compile genrecomp + Genesis Plus GX only (no generated code, no link): environment check")
+    ap.add_argument("--smoke", action="store_true", help="with --no-game: also link <out>/smoke (tools/smoke_main.c: init, load a dummy ROM, run frames; CI smoke test without a ROM)")
     ap.add_argument("--check-list", action="store_true", help="only compare the source list with genrecomp's CMakeLists.txt")
     a = ap.parse_args()
 
@@ -137,6 +138,12 @@ def main():
         return 1
     if a.no_game:
         print("zigbuild: compiled %d files (genrecomp + Genesis Plus GX, no game)" % len(jobs), flush=True)
+        if a.smoke:
+            smoke = os.path.join(a.out, "smoke.exe" if "windows" in a.cc or os.name == "nt" else "smoke")
+            r = subprocess.run(cc + ["-O1"] + inc_common + sdl_c + [os.path.join(ROOT, "tools", "smoke_main.c")] + objs + sdl_l + ["-lm", "-o", smoke])
+            if r.returncode:
+                return 1
+            print("zigbuild: built", smoke, flush=True)
         return 0
     exe = os.path.join(a.out, "landstalker.exe" if "windows" in a.cc else "landstalker")
     print("zigbuild: linking", flush=True)
