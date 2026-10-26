@@ -112,7 +112,7 @@ def massan_statue(cx, cy, z0, seed=7, name="statue", zs=1.0):
     for m in (stone, vine, cmat.get("dark")): me.materials.append(m)
     o = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(o); return o
 
-def cut_billboard(src_png, x0, y0, w, h, out_png):
+def cut_billboard(src_png, x0, y0, w, h, out_png, keep=None):
     """cuts the box (x0, y0, w, h) of an RGBA picture (top-left origin, e.g. rom_picture.py layerA.png) into out_png, trimmed at the bottom to the lowest
     non-transparent row; returns (out_png, picture row of that lowest row) or None.  For pixel billboards (massan_a.add_figure: bottom row = ground)."""
     import os
@@ -123,8 +123,30 @@ def cut_billboard(src_png, x0, y0, w, h, out_png):
     y1 = max(rows); hh = y1 - y0 + 1
     o = bpy.data.images.new(os.path.basename(out_png), w, hh, alpha=True); out = []
     for yy in range(hh - 1, -1, -1):
-        for x in range(x0, x0 + w): out += get(x, y0 + yy)
+        for x in range(x0, x0 + w): out += get(x, y0 + yy) if keep is None or (x, y0 + yy) in keep else [0.0, 0.0, 0.0, 0.0]
     o.pixels = out; os.makedirs(os.path.dirname(out_png), exist_ok=True)
     o.filepath_raw = out_png; o.file_format = "PNG"; o.save()
     open(os.path.splitext(out_png)[0] + ".txt", "w").write("0 0 1\n")
     return out_png, y1
+
+def cut_template(src_png, box, out_png):
+    """a clean pixel template (e.g. one free-standing pine of plane A): the non-transparent pixels inside box = (x0, y0, x1, y1), cropped so that the
+    column of the trunk / stem (mean of the lowest 3 rows) is the image centre and the lowest row is the bottom; returns out_png or None."""
+    import os
+    im = bpy.data.images.load(src_png); W, H = im.size; px = list(im.pixels)
+    a = lambda x, y: px[4 * ((H - 1 - y) * W + x) + 3]
+    inside = lambda x, y: box[0] <= x < box[2] and box[1] <= y < box[3] and a(x, y) > 0
+    seeds = [(x, y) for y in range(box[1], box[3]) for x in range(box[0], box[2]) if a(x, y) > 0]
+    if not seeds: return None
+    cx_ = (box[0] + box[2]) / 2; ylow = max(y for _, y in seeds)                  # only the object connected to the lowest pixel near the box centre (no neighbours)
+    st = [min((p for p in seeds if p[1] >= ylow - 3), key=lambda p: abs(p[0] - cx_))]; seen = set(st)
+    while st:
+        x, y = st.pop()
+        for q in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+            if q not in seen and inside(*q): seen.add(q); st.append(q)
+    pts = sorted(seen)
+    y1 = max(y for _, y in pts); y0 = min(y for _, y in pts)
+    base = [x for x, y in pts if y >= y1 - 2]; xc = round(sum(base) / len(base))
+    hw = max(max(xc - min(x for x, _ in pts), max(x for x, _ in pts) - xc) + 1, 1)
+    r = cut_billboard(src_png, xc - hw, y0, 2 * hw + 1, y1 - y0 + 1, out_png, keep=seen)
+    return r[0] if r else None

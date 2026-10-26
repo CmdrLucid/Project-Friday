@@ -102,7 +102,7 @@ print("grass tufts", len(pts), flush=True)
 ha = kit_c.house_a(); A_BOX = (6, 10, 15, 19)                                    # house A's own cells in room 592 (lib/massan_a.py measures)
 A_C = (16 * (A_BOX[0] + A_BOX[1] + 1) / 2 + O, 16 * (A_BOX[2] + A_BOX[3] + 1) / 2 + O)
 YAW = dict(E=0.0, N=90.0, W=180.0, S=-90.0)                                      # house A's door looks east (+x)
-import house_c
+import house_c, props_c
 # details of the Massan houses as seen in the original picture (box = height map cells incl. the doorway cell): windows, boarded windows, roof
 # hatches, tower banner / sign; everything else (footprint, door side / place, base height) comes from the room data
 MASSAN = {(11, 15, 10, 13): dict(boards=[("S", 0.3, 26)]),                                   # terrace west: boarded window on the south wall
@@ -154,6 +154,20 @@ for gr in R["groups"]:
 if ROOM != 592:
     for o in ha: o.hide_render = True                                            # house A lives in Massan only
 
+# pines / bushes as ORIGINAL PIXEL billboards (study 2026-10-26, user: 'bringt mich dazu, Baeume und Straeucher auch so zu machen'): R_PLANTS=pixel cuts one
+# free-standing pine and the single round bush beside house A out of plane A of the user's picture (props_c.cut_template, local PNGs) and stands a card on
+# every place where the 3D pine / bush would stand (bottom row = trunk / stem foot); hedge rows stay one bush card per cell like the 3D bushes
+PIX_PINE = PIX_BUSH = None; plant_cards = []
+if os.environ.get("R_PLANTS") == "pixel" and ROOM == 592:
+    la_ = os.path.expanduser("~/.landstalker_remake/rooms/592_room_c/layerA.png")
+    if os.path.exists(la_):
+        PIX_PINE = props_c.cut_template(la_, (80, 405, 132, 462), os.path.expanduser("~/.landstalker_remake/props/pine_592.png"))
+        PIX_BUSH = props_c.cut_template(la_, (329, 391, 362, 426), os.path.expanduser("~/.landstalker_remake/props/bush_592.png"))
+def plant_card(png, x, y, z):
+    # add_figure puts the card's bottom row FIG_FWD towards the camera (the front corner of a figure's box); a plant's bottom row is its trunk foot, so the
+    # card's base goes back by the same amount (7.5 along x and y = FIG_FWD) to land the foot on (x, y)
+    plant_cards.append(H.add_figure(png, (x - 7.5, y - 7.5, z), light=0.45))
+
 # ---- fences, bushes, pines ----------------------------------------------------------------------------------------------------------------------------
 frnd = random.Random(21); brnd = random.Random(11); prnd = random.Random(12)
 fb = bmesh.new()
@@ -179,9 +193,12 @@ for gr in R["groups"]:
                     kit_c.end_post(bmf, 16 * x + O + 8 - 6 * ox, 16 * y + O + 8 - 6 * oy)
         kit_c.link("fence_%d_%d" % gr["cells"][0], bmf, kit_c.fence_mats(), z0=z0)
     bush = [p for p, v in obj.items() if v == "bush"]
-    if bush: kit_c.bushes([(16 * x + O, 16 * y + O) for (x, y) in bush], Hh=16.0 * gr["rel"], rnd=brnd, z0=z0, name="bushes_%d_%d" % gr["cells"][0])
+    if bush and PIX_BUSH:
+        for (x, y) in bush: plant_card(PIX_BUSH, 16 * x + O + 8, 16 * y + O + 8, z0 + 16.0 * gr["rel"] - 16.0)
+    elif bush: kit_c.bushes([(16 * x + O, 16 * y + O) for (x, y) in bush], Hh=16.0 * gr["rel"], rnd=brnd, z0=z0, name="bushes_%d_%d" % gr["cells"][0])
     for (x, y) in sorted(p for p, v in obj.items() if v == "pine"):
-        if (x + y) % 2: continue
+        if (x + y) % 2 and not PIX_PINE: continue                                # 3D pines are big: every second cell; pixel pines on every cell like the picture
+        if PIX_PINE: plant_card(PIX_PINE, 16 * x + O + 8, 16 * y + O + 8, z0); continue
         kit_c.pine(16 * x + O + 8 + (prnd.random() - 0.5) * 6, 16 * y + O + 8 + (prnd.random() - 0.5) * 6, height=38 + prnd.random() * 10, radius=12 + prnd.random() * 2.5,
                    rnd=prnd, z0=z0, name="pine_%d_%d" % (x, y))
 
@@ -194,6 +211,7 @@ def recast(wx, wy, z):
     return wx, wy, z
 for (wx, wy, z, k) in R["pines"]:
     wx, wy, z = recast(wx, wy, z)                                                # single pines on the cliffs, found in the picture (roomdata.cliff_pines)
+    if PIX_PINE: plant_card(PIX_PINE, wx, wy, z); continue
     kit_c.pine(wx, wy, height=40 + prnd.random() * 6, radius=12.5 + prnd.random() * 1.5, rnd=prnd, z0=z, name="cliffpine_%d_%d" % k)
 
 # ---- steps: log stumps along every walkable edge one step high (runs of cells along x) -------------------------------------------------------------------
@@ -211,7 +229,6 @@ for (y, h), xs in sorted(runs.items()):
 so = kit_c.link("step_stumps", bst, [cmat.get("stump"), cmat.rings_mat()]); kit_c.link("step_body", bbody, cmat.get("earth"))
 
 # ---- statue, cave; the sea ---------------------------------------------------------------------------------------------------------------
-import props_c
 # the statue (2026-10-26): the user's idea after three 3D attempts ('Schnauze zu lang, falsche Form'): the ORIGINAL PIXELS as a camera-facing billboard
 # like the figures, cut out of plane A of the user's own picture (rom_picture.py layerA.png; the PNG stays local); R_STATUE=3d = props_c.massan_statue
 statue_cards = []
@@ -268,7 +285,7 @@ for ob in sc.objects:                                                           
     if ob.parent is None and ob.type in ("MESH", "EMPTY") and ob.location.z:   # ground (z0) must move down with them
         ob.location.z *= math.sqrt(2.0 / 3.0)
     if "base" in ob: ob["base"] = (ob["base"][0], ob["base"][1], ob["base"][2] * math.sqrt(2.0 / 3.0))
-figs += statue_cards
+figs += statue_cards + plant_cards
 for f in figs: f.scale = (1, 1, 1); H.face_camera(f, co, upright=False)   # pixel cards are not squashed (game_view squashes every mesh; massan_a.render_set does the same reset)
 bpy.ops.render.render(write_still=True)
 print("game view done", flush=True)
