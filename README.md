@@ -5,6 +5,58 @@ Static recompilation of **Landstalker** (Sega Mega Drive) to native code for PC 
 Bring your own ROM: no ROM, game asset or code generated from the ROM is part of this repository (the game is built on your machine from your own ROM).
 Non-commercial, open source, a hobby project. Not affiliated with Sega or Climax Entertainment.
 
+## Download and start
+
+Get the latest release from the [Releases page](https://github.com/cmdrlucid/Project-Friday/releases):
+
+- **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage`. Make it executable, start it and pick your ROM. The first start builds the game from your ROM (this takes a few minutes); later starts go straight into the game. On the Deck, add it in Desktop mode via *Steam > Add a Non-Steam Game*.
+- **Windows 10 / 11 (experimental):** `Project-Friday-windows-x64.zip`. Extract the whole zip and start `Project-Friday.exe`.
+
+You need the US ROM described under [Compatible ROMs](#compatible-roms).
+
+## How is this different from running the ROM in an emulator?
+
+The game logic is no longer interpreted: the 68000 code of the ROM is translated into C and compiled into a native program on your machine. Video and sound chips are still emulated, using Genesis Plus GX. Because the game code is now ordinary C that we can hook into, the project can change things an emulator cannot: draw a wider picture with real map content, fix old bugs, or add comfort features inside the game's own menus.
+
+With every option switched off, the game plays like the original cartridge. All additions are optional and set in a new **Options** tab in the game's Start menu (next to *Use* / *Equip*; also on the file select screen).
+
+**Video**
+- **Widescreen** Off / 16:10 / 16:9: real map content in the side margins, not stretched. The project draws the picture with its own renderer, and sprites, scrolling and effects are handled for the wider view.
+- **Full Height:** shows the map in the band at the bottom of the screen that the original leaves empty while you walk.
+- **Map Behind Text:** dialogue boxes sit over the map instead of a black band.
+- **Filter** (Off, Scanlines, CRT, CRT Pro, CRT Curved), **Scaling** (Fit, 4:3, Integer, Fill), borderless **Fullscreen**.
+- **Shadows** (Off / On / Soft): a ground shadow under Nigel and airborne objects, which makes jumps easier to judge.
+
+**Audio:** separate music and effect volume; speech blips can be switched off.
+
+**Quality of Life**
+- **Quick Save / Quick Load** anywhere, on a button. This uses a hidden extra slot, so your four normal save files are not touched.
+- **Quick Items:** put consumable items (e.g. EkeEke) on two buttons, shown in the HUD.
+- **Quick Equip:** hold a button and press a direction to switch sword, armour, boots or ring without opening the menu.
+- **Better Menu:** B in Use / Equip goes back to the menu bar instead of closing the menu.
+- **Item Info:** a short description of the item under the cursor.
+- **Buy Quantity:** buy several of an item in one go in shops.
+- **Fast Forward** 2x / 3x / 4x while a button is held.
+- **Fix Ride Objects:** Nigel now rides along on an object that stands on a moving platform. In the original he slides off; this is a bug fix.
+- **Live Gaia Effect:** the Gaia rocks stay in the world while the screen scrolls.
+
+**Difficulty:** damage taken (25 % to 200 %) and enemy HP (50 % to 300 %).
+
+**Keybindings:** every action can be remapped, for both controller and keyboard.
+
+Defaults for a new install: 16:9, Full Height, CRT Pro filter, and most Quality of Life options on. Change anything you like in Options.
+
+## Vision and what comes next
+
+The goal is the **definitive way to play Landstalker on PC and Steam Deck**: faithful to the original by default, with modern comfort for those who want it. Planned or being looked at (no promises, this is a hobby project):
+
+- **More comfort features and fixes**, driven by player feedback. Suggestions are welcome in [Discussions](https://github.com/cmdrlucid/Project-Friday/discussions) / Issues.
+- **European (and maybe Japanese) ROM support.** Technically possible; it needs a European ROM to test with.
+- **Seamless room transitions** (prototype exists, paused) and **HD texture packs** for the 2D picture (tools exist, paused until there are textures).
+- **A 3D remake** ([`remake/`](remake/README.md), early stage): the recompiled game stays the logic core, and a new front end draws the world as hand-made 3D models in a "toy diorama" style, with the sprites kept. Assets are made and approved one at a time.
+- **Modding groundwork:** thousands of functions, variables and tables are named and documented ([`landstalker/docs/`](landstalker/docs/INDEX.md)). The long-term idea is a mod layer for text, items and scripts.
+- **Windows** is built and tested automatically but is still experimental. Reports from real PCs help a lot.
+
 ## Compatible ROMs
 
 Currently exactly **one** ROM is supported: the **US version** of *Landstalker: The Treasures of King Nole* for the Mega Drive / Genesis, as a raw 2 MB dump (`.md`, `.bin` or `.gen`, 2,097,152 bytes) with the SHA-1

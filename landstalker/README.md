@@ -1,4 +1,6 @@
-# Landstalker via genrecomp (scaffold)
+# Landstalker via genrecomp
+
+**Players:** use the release packages (AppImage / Windows zip). They contain no ROM and no game code; the game is built from your ROM on the first start. Features, download and roadmap: [../README.md](../README.md). This page is for developers.
 
 Statically recompiles the Mega Drive 68000 code of Landstalker to native C with
 [genrecomp](https://github.com/sp00nznet/genrecomp). Bring your own ROM; no ROM,
@@ -7,7 +9,7 @@ asset or generated code belongs in this repo (`.gitignore` enforces it).
     ./build.sh path/to/landstalker.md
     build/landstalker path/to/landstalker.md
 
-## Steam Deck AppImage
+## Steam Deck AppImage (developer build with your ROM baked in; releases use `make_appimage.py` instead)
 
 Build on any x86-64 Linux machine (Ubuntu 22.04 is a safe choice for glibc
 compatibility; SteamOS has no compiler by default), then copy the file over:
