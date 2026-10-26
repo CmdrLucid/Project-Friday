@@ -28,8 +28,8 @@ class Bits:
         return (self.cur >> self.n) & 1
 
 
-def decode_string(rom, start):
-    """-> (text, end_address_of_entry) for the entry at start"""
+def decode_codes(rom, start):
+    """-> (list of raw character codes without the end marker, end_address_of_entry) for the entry at start"""
     length = rom[start]
     sb = Bits(rom, start + 1)
     prev, out = STR_BEGIN, []
@@ -57,8 +57,12 @@ def decode_string(rom, start):
             break
         out.append(ch)
         prev = ch
+    return out, start + length
+
+
+def codes_to_text(codes):
     text = ""
-    for ch in out:
+    for ch in codes:
         if ch < len(MAIN):
             text += MAIN[ch]
         elif ch >= SEL_POINT:
@@ -66,7 +70,13 @@ def decode_string(rom, start):
             text += "{%s}" % CONTROL.get(k, "C%02d" % k)
         else:
             text += "{?%02X}" % ch
-    return text, start + length
+    return text
+
+
+def decode_string(rom, start):
+    """-> (text, end_address_of_entry) for the entry at start"""
+    codes, end = decode_codes(rom, start)
+    return codes_to_text(codes), end
 
 
 # Uncompressed name / menu tables (LoadUncompressedString $02949A, sub_294B6): entry = count byte (NOT including itself) + that many font codes.
@@ -83,6 +93,24 @@ def decode_names(rom):
             n = rom[p]
             res["%s:%02d" % (name, i)] = "".join(MAIN[c] if c < len(MAIN) else NAME_CODES.get(c, "{?%02X}" % c) for c in rom[p + 1:p + 1 + n])
             p += 1 + n
+    return res
+
+
+def decode_all(rom):
+    """-> {key: text} for all compressed strings ('0004') and name table entries ('item:01')"""
+    banks = [struct.unpack(">I", rom[BANK_PTRS + 4 * i:BANK_PTRS + 4 * i + 4])[0] for i in range(N_BANKS)]
+    ends = banks[1:] + [None]
+    res = {}
+    for b, start in enumerate(banks):
+        pos, idx = start, 0
+        while idx < 256 and (ends[b] is None or pos < ends[b]) and rom[pos] != 0:
+            try:
+                t, nxt = decode_string(rom, pos)
+            except Exception:
+                break
+            res["%04X" % (b << 8 | idx)] = t
+            pos, idx = nxt, idx + 1
+    res.update(decode_names(rom))
     return res
 
 

@@ -31,9 +31,12 @@ Control codes are written as in `stringdump.py` (`{Speaker}`, `{NewLine}`, `{Ite
 ## 4. Build step
 `tools/langbuild.py ROM lang/de.json out.bin` (runs in `build.sh` / `firstrun.py` on the player's machine): decodes the ROM's strings, drops translations whose hash does not match, converts the text to word streams / name entries and writes a compact binary (id -> offset) plus the extended font. The game loads it at start (`LANDSTALKER_LANG` / `~/.landstalker_lang`, Options > Language row). English = the original path, bit exact (hooks do nothing).
 
+## 4b. Binary format (DONE, `tools/langbuild.py`)
+`'LKLG' u16 version(1) u16 n_str u16 n_name u16 n_ui u16 n_glyph`, then `n_str x {u16 id, u32 blob offset, u16 words}`, `n_name x {u8 table, u8 index, u32 offset, u8 bytes}` (tables: 0 char, 1 special, 2 default, 3 item, 4 menu), `n_ui x {u16 key, u16 value}` (1 yesno_no_x, 2 yesno_cursor_yes_x, 3 yesno_cursor_no_x), `n_glyph x {u8 code, 30 bytes}`, then the blob (strings as u16 words incl. `$FFFF`, names as bytes). All big endian. Control codes become `~HANDLER[k] & $FFFF` (table `HANDLER` in langbuild = the game's `ControlChars` table). Entries whose English hash or control codes do not match are dropped with a message (US and EU give identical output). Extended glyphs: lower case umlauts = a / o / u + dots in row 2 (free rows above the x height), capitals lose one middle row and get the dots in row 0, sharp s drawn; preview with `--preview out.png` (checked by eye 2026-10-26, user has not judged them yet).
+
 ## 5. Steps
 1. DONE: string / name decoder (`stringdump.py`).
-2. Language file + `langbuild.py` + a mini test translation (10 strings) checked headless (`LANDSTALKER_LANG=de`, text box screenshots).
+2. DONE (offline part): `lang/de.json` (10 test strings + 3 names + ui, hashes of the English source only), `tools/langbuild.py`; still to do: load the binary in the game and look at it headless (`LANDSTALKER_LANG=de`, text box screenshots) = step 3.
 3. Hooks 1-2 + glyphs, test in Massan (first dialogues, item names, menus).
 4. Options row Language, saved setting.
 5. The translation itself (Claude writes, the user corrects while playing), per area.

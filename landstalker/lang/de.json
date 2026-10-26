@@ -1,0 +1,69 @@
+{
+ "meta": {
+  "code": "de",
+  "name": "Deutsch",
+  "version": 0,
+  "note": "TEST: ten strings, translated by Claude"
+ },
+ "strings": {
+  "0000": {
+   "h": "2bd589a9",
+   "t": "{Ctl0}Ja"
+  },
+  "0001": {
+   "h": "653075cd",
+   "t": "{Ctl0}Nein"
+  },
+  "0002": {
+   "h": "e8a9232d",
+   "t": "{Ctl0}Benutzen"
+  },
+  "0003": {
+   "h": "080fe0b4",
+   "t": "{Ctl0}Anlegen"
+  },
+  "000C": {
+   "h": "2198e4be",
+   "t": "{Item} benutzt.{ContinuePrompt}"
+  },
+  "000D": {
+   "h": "a2efe62f",
+   "t": "{Item} gegessen.{ContinuePrompt}"
+  },
+  "000E": {
+   "h": "9fe2b0d0",
+   "t": "{Item} getrunken.{ContinuePrompt}"
+  },
+  "0014": {
+   "h": "d07fa30c",
+   "t": "Ach...es war leer.{ContinuePrompt}"
+  },
+  "0015": {
+   "h": "52fd1592",
+   "t": "{Number} Gold erhalten.{ContinuePrompt}"
+  },
+  "0016": {
+   "h": "7320fb7d",
+   "t": "Nichts geschah...{ContinuePrompt}"
+  }
+ },
+ "names": {
+  "menu:02": {
+   "h": "528fb1c4",
+   "t": "Neues Spiel"
+  },
+  "item:61": {
+   "h": "6eef6648",
+   "t": "Nichts"
+  },
+  "item:01": {
+   "h": "86c826b7",
+   "t": "Zauber{BreakSpace}Schwert"
+  }
+ },
+ "ui": {
+  "yesno_no_x": 168,
+  "yesno_cursor_yes_x": 208,
+  "yesno_cursor_no_x": 296
+ }
+}
