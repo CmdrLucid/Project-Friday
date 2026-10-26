@@ -151,7 +151,7 @@ static void lk_opt_put(int col, int row, const char *t) { for (; *t; t++, col++)
 static const char *lk_id_name[38] = { "Widescreen", "Full Height", "Filter", "Fullscreen", "Scaling", "De-Dither", "Music Volume", "Effects Volume", "Speech Sound", "Shadows", "Quick Items", "Fast Forward", "Damage Taken", "Enemy HP", "Quick Save", "Fix Ride Objects", "Item Info", "Buy Quantity", "Map Behind Text", "Own Renderer", "Live Gaia Effect", "HD Graphics", "Seamless Doors", "Depth Blur", "Bloom", "Vignette", "Color Grade", "Lights", "3D Room", "3D Houses", "Camera Controls", "Remake", "3D Light", "3D Objects", "3D Trees", "Quick Equip", "Better Menu", "Language" };   /* platform option id -> label */
 static const int lk_ids_video[7] = { 0, 1, 4, 2, 3, 9, 18 }   /* PAUSED 2026-10-24: the rows 23..34 (Depth Blur, Bloom, Vignette, Color Grade, Lights, 3D Room, 3D Houses, Camera Controls, Remake, 3D Light, 3D Objects, 3D Trees) are hidden, their code stays (docs/HANDOFF.md 0a101) */;
 static const int lk_ids_audio[3] = { 6, 7, 8 };
-static const int lk_ids_game[10] = { 10, 35, 17, 15, 16, 14, 11, 20, 36, 37 };   /* Quality of Life (Seamless Doors, id 22, hidden for now) */
+static const int lk_ids_game[9] = { 10, 35, 17, 15, 16, 14, 11, 20, 36 };   /* Quality of Life (Seamless Doors, id 22, hidden for now) */
 static const int lk_ids_diff[2] = { 12, 13 };   /* Difficulty */
 static const int lk_ids_key[13] = { 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112 };   /* Keybindings page: 11 actions + Reset Defaults (scrolls) */
 static int lk_opt_capid = -1;
@@ -180,10 +180,10 @@ static const char *lk_opt_val(int id, int v) {
     if (id == 6 || id == 7) { snprintf(buf, sizeof buf, "%d", v); return buf; }
     return onoff[v & 1];
 }
-static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 6 : lk_opt_pg == 1 ? 7 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 3 ? 10 : lk_opt_pg == 4 ? 2 : 13; }
+static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 7 : lk_opt_pg == 1 ? 7 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 3 ? 9 : lk_opt_pg == 4 ? 2 : 13; }
 static int lk_opt_vis(void) { int n = lk_opt_nrows(); return n > 7 ? 7 : n; }   /* rows shown at once */
 static void lk_opt_fixscroll(void) { int v = lk_opt_vis(); if (lk_opt_row < lk_opt_scroll) lk_opt_scroll = lk_opt_row; if (lk_opt_row >= lk_opt_scroll + v) lk_opt_scroll = lk_opt_row - v + 1; }
-static int lk_opt_rowid(int r) { return lk_opt_pg == 1 ? lk_ids_video[r] : lk_opt_pg == 2 ? lk_ids_audio[r] : lk_opt_pg == 3 ? lk_ids_game[r] : lk_opt_pg == 4 ? lk_ids_diff[r] : lk_opt_pg == 5 ? lk_ids_key[r] : -1 - r; }   /* root rows: -1 Video, -2 Audio, -3 Gameplay */
+static int lk_opt_rowid(int r) { return lk_opt_pg == 1 ? lk_ids_video[r] : lk_opt_pg == 2 ? lk_ids_audio[r] : lk_opt_pg == 3 ? lk_ids_game[r] : lk_opt_pg == 4 ? lk_ids_diff[r] : lk_opt_pg == 5 ? lk_ids_key[r] : (r < 5 ? -1 - r : r == 5 ? 37 : -6); }   /* root rows: -1 Video, -2 Audio, -3 Gameplay, -4 Difficulty, -5 Keybindings, then the Language value row (id 37) and Quit Game (-6) */
 static int lk_opt_rowy(int r) { return (lk_opt_pg == 2 || lk_opt_pg == 4) ? 2 + 3 * r : 2 + 2 * r; }
 static const char *lk_opt_rowname(int r) { int id = lk_opt_rowid(r); return id >= 100 ? (id == 112 ? "Reset Defaults" : lk_bind_name(id - 100)) : id >= 0 ? lk_id_name[id] : id == -1 ? "Video" : id == -2 ? "Audio" : id == -3 ? "Quality of Life" : id == -4 ? "Difficulty" : id == -5 ? "Keybindings" : "Quit Game"; }
 static int lk_opt_cnt(int id) { static const int c[38] = { 3, 2, 5, 2, 4, 4, 11, 11, 2, 3, 2, 4, 6, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2 }; if (id == 37) return lk_lang_count() > 1 ? lk_lang_count() : 1; return (id >= 0 && id < 38) ? c[id] : 2; }   /* one entry per option id (lk_id_name): 23 Depth Blur, 24 Bloom, 25 Vignette, 26 Color Grade = 4 values; LEFT = count-1 steps, so a short table made LEFT run a garbage number of steps (hang) */
@@ -234,7 +234,8 @@ static void lk_opt_page(void) {   /* the whole page: labels, values, and the fra
     lk_opt_upload(); g_m68k = sv;
 }
 static void lk_opt_enter(void) {   /* open the page of the selected root row; 'Quit Game' needs a second A */
-    if (lk_opt_row == 5) { if (lk_opt_quitarm) platform_request_quit(); else lk_opt_quitarm = 1; lk_opt_page(); return; }
+    if (lk_opt_row == 5) { lk_opt_change(37, 1); lk_opt_page(); return; }   /* Language: next language (a value row on the root page) */
+    if (lk_opt_row == 6) { if (lk_opt_quitarm) platform_request_quit(); else lk_opt_quitarm = 1; lk_opt_page(); return; }
     lk_opt_rootrow = lk_opt_row; lk_opt_pg = 1 + lk_opt_row; lk_opt_row = 0; lk_opt_scroll = 0; lk_arrow_ref = bus_read16(0xFF0F9Cu); lk_opt_page();
 }   /* open the Video / Audio page of the selected root row */
 static void lk_bar_arrow(uint16_t x) { bus_write16(0xFF07CEu, x); bus_write8(0xFF07CAu, 5); bus_write16(0xFF07CCu, 0x8524); bus_write8(0xFF1800u, 0); }
@@ -308,7 +309,7 @@ static void lk_h_left(void) {
     if (lk_in_menu()) {
         uint16_t x = bus_read16(0xFF07CEu);
         if (!lk_dir_edge(4)) { lk_bump(); return; }   /* a held LEFT must not slide through the tabs */
-        if (lk_opt_sel) { M68kContext sv = g_m68k; if (lk_opt_pg == 0) { lk_snd(LK_SND_MOVE); g_m68k = sv; func_table_tail(0x024898); return; } lk_opt_change(lk_opt_rowid(lk_opt_row), -1); lk_opt_page(); lk_snd(LK_SND_SELECT); g_m68k = sv; func_table_tail(0x024898); return; }   /* inside the list: previous value (root: nothing) */
+        if (lk_opt_sel) { M68kContext sv = g_m68k; if (lk_opt_pg == 0 && lk_opt_row != 5) { lk_snd(LK_SND_MOVE); g_m68k = sv; func_table_tail(0x024898); return; } lk_opt_change(lk_opt_pg == 0 ? 37 : lk_opt_rowid(lk_opt_row), -1); lk_opt_page(); lk_snd(LK_SND_SELECT); g_m68k = sv; func_table_tail(0x024898); return; }   /* inside the list: previous value (root: nothing) */
         if (x == LK_X_OPT) { lk_opt_tab = 0; lk_goto_tab(LK_X_EQ, 0x39E); return; }   /* sub_39E: the game redraws the Equip list */
         if (x == LK_X_EQ) { lk_goto_tab(LK_X_USE, 0x398); return; }                                     /* sub_398: the game redraws the item list */
         lk_bump(); return;
@@ -386,21 +387,21 @@ static void lk_win_text(int k, const char *l, int lx, const char *v, int vx) {
     }
     g_m68k = sv;
 }
-static const int lk_win_cnt[6] = { 6, 7, 3, 10, 2, 13 };
+static const int lk_win_cnt[6] = { 7, 7, 3, 9, 2, 13 };   /* root: Video, Audio, Quality of Life, Difficulty, Keybindings, Language (a value row), Quit Game */
 static int lk_win_scroll;   /* first visible option of a long page */
 static int lk_win_vis(int pg) { return lk_win_cnt[pg] > 7 ? 7 : lk_win_cnt[pg]; }   /* the window has room for the title and 7 tight rows (pitch 18) */
 static int lk_win_fix(int pg, int row) { int old = lk_win_scroll, v = lk_win_vis(pg); if (row < lk_win_scroll) lk_win_scroll = row; if (row >= lk_win_scroll + v) lk_win_scroll = row - v + 1; return old != lk_win_scroll; }   /* 1 = the visible part changed (the page is rebuilt) */
 static int lk_win_id(int pg, int r) { return pg == 1 ? lk_ids_video[r] : pg == 2 ? lk_ids_audio[r] : pg == 3 ? lk_ids_game[r] : pg == 4 ? lk_ids_diff[r] : lk_ids_key[r]; }
 static void lk_win_rowtext(int pg, int r) {   /* builds the text of row r (0 = title, 1.. = options) of page pg into lk_win_stage[r] */
-    static const char *title[6] = { "Options", "Video", "Audio", "Quality of Life", "Difficulty", "Keybindings" }, *root[6] = { "Video", "Audio", "Quality of Life", "Difficulty", "Keybindings", "Quit Game" };
+    static const char *title[6] = { "Options", "Video", "Audio", "Quality of Life", "Difficulty", "Keybindings" }, *root[7] = { "Video", "Audio", "Quality of Life", "Difficulty", "Keybindings", "Language", "Quit Game" };
     if (r == 0) { lk_win_text(0, title[pg], pg == 3 ? 108 : pg ? 125 : 120, NULL, 0); return; }
-    if (pg == 0) lk_win_text(r, root[r - 1], 0, r == 6 ? (lk_opt_quitarm ? "PRESS A" : "") : ">", r == 6 ? 200 : 250);
+    if (pg == 0) { char vb[40]; if (r == 6) { snprintf(vb, sizeof vb, "< %s >", lk_opt_val(37, platform_option_get(37))); lk_win_text(r, root[5], 0, vb, 160); } else lk_win_text(r, root[r < 6 ? r - 1 : 6], 0, r == 7 ? (lk_opt_quitarm ? "PRESS A" : "") : ">", r == 7 ? 200 : 250); }
     else { int id = lk_win_id(pg, r - 1 + lk_win_scroll); char buf[40]; if (id >= 100) lk_win_text(r, id == 112 ? "Reset Defaults" : lk_bind_name(id - 100), 0, lk_opt_bindtext(id), 150); else { snprintf(buf, sizeof buf, "< %s >", lk_opt_val(id, platform_option_get(id))); lk_win_text(r, lk_id_name[id], 0, buf, 160); } }
 }
 static void lk_win_page(int pg, int sel) {   /* pg 0 = root, 1 Video, 2 Audio, 3 Gameplay; sel = selected row (0 based) */
     int r;
     for (r = 0; r <= lk_win_vis(pg); r++) lk_win_rowtext(pg, r);
-    lk_win_pitch = (pg == 2 || pg == 4) ? 28 : (pg == 1 || pg == 3 || pg == 5) ? 18 : 20; lk_win_compact = 1;   /* only the 3-row Audio page is spread out; the root (5 rows) and the long pages are tight with the compact frame */   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
+    lk_win_pitch = (pg == 2 || pg == 4) ? 28 : (pg == 0 || pg == 1 || pg == 3 || pg == 5) ? 18 : 20; lk_win_compact = 1;   /* only the 3-row Audio page is spread out; the root (5 rows) and the long pages are tight with the compact frame */   /* Video: 6 rows close together + compact frame (as in the Start menu), the others spread out */
     memcpy(lk_win_row, lk_win_stage, sizeof lk_win_row); lk_win_n = lk_win_vis(pg) + 1; lk_win_sel = sel - lk_win_scroll + 1;
 }
 /* UP / DOWN only move the selection frame (no text work: every text row is printed through the game's own text engine, a whole page = about 100 characters = several frames of emulated time,
@@ -430,16 +431,18 @@ static void lk_fs_modal(void) {   /* options window in the file select */
             pg = 0; row = rootrow; lk_win_scroll = 0; lk_opt_quitarm = 0; blink = 0; lk_win_page(0, row); lk_snd(0x00FA9Eu); continue;
         }
         if (e & 3) {
-            if (pg == 0 && lk_opt_quitarm) { lk_opt_quitarm = 0; lk_win_value(0, 5); }   /* moving away disarms 'Quit Game' */
+            if (pg == 0 && lk_opt_quitarm) { lk_opt_quitarm = 0; lk_win_value(0, 6); }   /* moving away disarms 'Quit Game' */
             if (e & 1) row = (row + lk_win_cnt[pg] - 1) % lk_win_cnt[pg]; else row = (row + 1) % lk_win_cnt[pg];
             blink = 0; arrow0 = 0; if (lk_win_fix(pg, row)) lk_win_page(pg, row); else lk_win_move(row);
             lk_snd(0x00FA9Eu);
         }
         if (e & (0x20 | 0x40 | 8)) {   /* A / C / RIGHT: open the page / next value */
-            if (pg == 0 && row == 5) { if (lk_opt_quitarm) platform_request_quit(); else { lk_opt_quitarm = 1; lk_win_value(0, 5); } blink = 0; lk_snd(0x00FA54u); }   /* Quit Game: second A */
+            if (pg == 0 && row == 6) { if (lk_opt_quitarm) platform_request_quit(); else { lk_opt_quitarm = 1; lk_win_value(0, 6); } blink = 0; lk_snd(0x00FA54u); }   /* Quit Game: second A */
+            else if (pg == 0 && row == 5) { lk_opt_change(37, 1); blink = 0; lk_win_value(0, 5); lk_snd(0x00FA54u); }   /* Language: next language */
             else if (pg == 0) { rootrow = row; pg = 1 + row; row = 0; lk_win_scroll = 0; blink = 0; lk_win_page(pg, 0); lk_snd(0x00FA54u); }
             else { lk_opt_change(lk_win_id(pg, row), 1); blink = 0; lk_win_value(pg, row); lk_snd(0x00FA54u); }
         }
+        if ((e & 4) && pg == 0 && row == 5) { lk_opt_change(37, -1); blink = 0; lk_win_value(0, 5); lk_snd(0x00FA54u); }   /* LEFT on Language: previous language */
         if ((e & 4) && pg) { lk_opt_change(lk_win_id(pg, row), -1); blink = 0; lk_win_value(pg, row); lk_snd(0x00FA54u); }   /* LEFT: previous value */
     }
     lk_win_on = 0; lk_win_arr = 0;
