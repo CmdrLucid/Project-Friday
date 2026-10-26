@@ -478,6 +478,10 @@ def smoke_run():
             if WIN:   # diagnosis: the load steps one by one
                 r = subprocess.run([exe, rom], capture_output=True, text=True, env=dict(env, SMOKE_STEPS="1"), timeout=120)
                 print("--- step by step: exit code 0x%X\n%s" % (r.returncode & 0xFFFFFFFF, "\n".join(l for l in r.stderr.splitlines() if l.startswith("smoke:") and not l.startswith("smoke:   "))[:2500]))
+                for label2, env2, cwd2, rom2 in (("LANDSTALKER_SAVE set", dict(env, LANDSTALKER_SAVE=os.path.join(d, "x.srm")), None, rom),
+                                                 ("relative ROM path", env, d, os.path.basename(rom))):
+                    r = subprocess.run([exe, rom2], capture_output=True, text=True, env=env2, cwd=cwd2, timeout=120)
+                    print("--- variant %s: exit code 0x%X, %s" % (label2, r.returncode & 0xFFFFFFFF, "ok" if "smoke: ok" in r.stderr else "FAILED"))
             return 1
     print("selftest-run ok: genrecomp starts with a dummy ROM, with and without an existing save file")
     return 0
