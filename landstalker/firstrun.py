@@ -31,7 +31,8 @@ def rmtree(path):
     shutil.rmtree(path, onerror=onerr)
 NAME = "Project-Friday"
 # SHA-1 of the ROM version this project is built and tested for (2 MB Genesis dump, as used on the Steam Deck)
-KNOWN_ROMS = {"24345e29427b000b90df778965dd8834300a9dde": "Landstalker (Mega Drive)"}
+KNOWN_ROMS = {"24345e29427b000b90df778965dd8834300a9dde": "Landstalker (Mega Drive, USA)",
+              "9fbadc86319936855831ecd096d82d716b304215": "Landstalker (Mega Drive, Europe)"}   # Europe = US code with 50 Hz timing constants (HANDOFF 0a120)
 DATA = os.environ.get("LANDSTALKER_DATA") or (
     os.path.join(os.environ.get("LOCALAPPDATA") or os.path.join(os.path.expanduser("~"), "AppData", "Local"), "Project-Friday") if WIN else
     os.path.join(os.environ.get("XDG_DATA_HOME") or os.path.join(os.path.expanduser("~"), ".local", "share"), "project-friday"))
