@@ -11,6 +11,7 @@ pine / bush / fence where the height map alone cannot tell (roomdata.py).
 Run: R_FIGURE=~/.landstalker_remake/figures/nigel_a4.png python3 remake/tools/build_asset.py room_c   (R_ROOM=592, R_ROM=path, R_PX=1)
 Output (local): game.png (the original's projection, window in window.txt for rom_picture.py), q1..q3.png (camera turned by 90 degree steps)."""
 import bpy, bmesh, sys, os, math, random
+import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lib"))
 import blx, cmat, cground, cliff_c, kit_c, roomdata as RD, massan_a as H
 out = os.environ.get("R_OUT", "/tmp/room_c"); os.makedirs(out, exist_ok=True)
@@ -44,6 +45,35 @@ def mask(gx, gy):
     n = (math.sin(gx * 0.35) + math.sin(gy * 0.5 + 1)) * 0.06 + math.sin(gx * 1.3 + gy * 0.7) * 0.04
     return min(1.0, max(0.0, (field(gx, gy) - 0.5 + n) / 0.22 + 0.5))
 
+# RAISED cells (a blocked edge of a walkable level, rel 0) are a SLOPED bank in the original, not a wall (user 2026-10-27: behind the church the original
+# leaves space, ours stood right against the bank): their top falls from the level's height to the lower neighbour across the group's depth
+bank = {}                                                                        # cell -> (low side direction, rows from the low edge, depth, low z, high z)
+for gr in R["groups"]:
+    if gr["cls"] != "raised": continue
+    cells_ = set(gr["cells"]); hi_ = 16.0 * gr["h"]
+    lows = {k: [(dx, dy, top[(k[0] + dx, k[1] + dy)]) for dx, dy in RD.N4 if (k[0] + dx, k[1] + dy) in top and (k[0] + dx, k[1] + dy) not in cells_
+                and top[(k[0] + dx, k[1] + dy)] < hi_ - 8] for k in cells_}
+    for d_ in RD.N4:                                                             # the main low side of the group
+        edge = [k for k in cells_ if any((dx, dy) == d_ for dx, dy, _ in lows[k])]
+        if not edge: continue
+        lo_ = max(z_ for k in edge for dx, dy, z_ in lows[k] if (dx, dy) == d_)
+        for k in cells_:
+            n = 0
+            while (k[0] + d_[0] * (n + 1), k[1] + d_[1] * (n + 1)) in cells_: n += 1
+            m = 0
+            while (k[0] - d_[0] * (m + 1), k[1] - d_[1] * (m + 1)) in cells_: m += 1
+            if n == 0 and k not in edge: continue
+            if k not in bank or bank[k][2] < n + m + 1: bank[k] = (d_, n, n + m + 1, lo_, hi_)
+        break
+def zat(k, gx, gy):
+    """terrain height of cell k at the game point (gx, gy) (flat except bank cells)."""
+    if k not in bank: return top[k]
+    (dx, dy), n, D, lo_, hi_ = bank[k]
+    cx, cy = 16 * k[0] + O + 8, 16 * k[1] + O + 8
+    t = ((gx - cx) * dx + (gy - cy) * dy) / 16.0 + 0.5                           # 0 = far edge, 1 = low edge of this cell
+    f = (n + 1 - t) / D                                                          # 1 at the group's high edge, 0 at the low edge
+    return lo_ + (hi_ - lo_) * min(1.0, max(0.0, f))
+
 bm = bmesh.new(); cl = bm.loops.layers.color.new("mask"); NS = 6
 def quad(ps, mat, want):
     f = bm.faces.new([bm.verts.new(G(*p)) for p in ps]); f.material_index = mat; f.normal_update()
@@ -57,13 +87,15 @@ for (x, y), z in top.items():
     for i in range(NS):                                                          # top: NS x NS quads (smooth mask edges)
         for j in range(NS):
             a, b = gx + 16 * i / NS, gy + 16 * j / NS; s = 16 / NS
-            quad([(a, b, z), (a + s, b, z), (a + s, b + s, z), (a, b + s, z)], 0, UP)
+            k_ = (x, y); Z = lambda u, v: zat(k_, u, v)
+            quad([(a, b, Z(a, b)), (a + s, b, Z(a + s, b)), (a + s, b + s, Z(a + s, b + s)), (a, b + s, Z(a, b + s))], 0, UP)
     for (dx, dy), e in (((1, 0), ((16, 0), (16, 16))), ((-1, 0), ((0, 0), (0, 16))), ((0, 1), ((0, 16), (16, 16))), ((0, -1), ((0, 0), (16, 0)))):
         if (x + dx, y + dy) not in top: continue                                 # rock / outside: the slopes of lib/cliff_c.py meet this edge
-        nz = top[(x + dx, y + dy)]
-        if nz >= z: continue
         (u0, v0), (u1, v1) = e
-        quad([(gx + u0, gy + v0, nz), (gx + u1, gy + v1, nz), (gx + u1, gy + v1, z), (gx + u0, gy + v0, z)], 1, mathutils.Vector((dx, -dy, 0)))
+        z0_, z1_ = zat((x, y), gx + u0, gy + v0), zat((x, y), gx + u1, gy + v1)
+        n0_, n1_ = zat((x + dx, y + dy), gx + u0, gy + v0), zat((x + dx, y + dy), gx + u1, gy + v1)
+        if n0_ >= z0_ - 0.01 and n1_ >= z1_ - 0.01: continue
+        quad([(gx + u0, gy + v0, min(n0_, z0_)), (gx + u1, gy + v1, min(n1_, z1_)), (gx + u1, gy + v1, z1_), (gx + u0, gy + v0, z0_)], 1, mathutils.Vector((dx, -dy, 0)))
 me = bpy.data.meshes.new("terrain"); bm.to_mesh(me); bm.free()
 for p in me.polygons: p.use_smooth = p.material_index == 0
 me.materials.append(cmat.dirt_mat("room_ground", mask="mask", other=((30, 84, 26), (58, 118, 34)))); me.materials.append(cmat.get("cliff"))
@@ -257,9 +289,8 @@ if PIX_PINE:
             X = (Ub - 1184) / 2.0 + Vb; wx, wy, z = recast(X, X - (Ub - 1184), 0.0)
             card_at(png_, Ub, Vb, z); np_cliff += 1
     skip |= ~PP.leaf_mask(LA)                                                    # only leaf colours (no roof / log / fence / grass speck pieces)
-    # HEDGES (user 2026-10-27: cut picture pieces looked half drawn / junk when turned): a real block per bush cell whose picture shows leaves
-    # (>= PP.MIN_LEAF leaf pixels in its outline), textured by projecting the original picture (U, V of every vertex); pixels of pines / fences / logs
-    # in front of a hedge are filled from a clean hedge top (the pattern repeats per cell), so the block is whole from every side
+    # HEDGES (user 2026-10-27: cut picture pieces looked half drawn / junk when turned): every bush cell whose picture shows leaves (>= PP.MIN_LEAF leaf
+    # pixels in its outline); pixels of pines / fences / logs in front of a hedge are filled from a clean hedge top (the pattern repeats per cell)
     leafy = PP.cell_cards(LA, U0_, V0_, {(16 * x + O + 8, 16 * y + O + 8): (16.0 * gr["base"], 16.0 * (gr["base"] + gr["rel"])) for (x, y), gr in bush_cells.items()}, skip)
     hedge = sorted((int((cx - O) // 16), int((cy - O) // 16)) for (cx, cy) in leafy)
     if hedge:
@@ -271,31 +302,14 @@ if PIX_PINE:
                     if 0 <= vc + dv < LA.shape[0] and not skip[vc + dv, uc + du] and LA[vc + dv, uc + du, 3] > 0)
             if best is None or n > best[0]: best = (n, (uc, vc))
         pic = PP.leaf_picture(LA, ~skip & (LA[:, :, 3] > 0), best[1])
-        hp = PP.save(pic, os.path.expanduser("~/.landstalker_remake/props/hedge_%d.png" % ROOM))
-        img = bpy.data.images.load(hp); img.colorspace_settings.name = "sRGB"; IW, IH = img.size
-        hb = bmesh.new(); uvl = hb.loops.layers.uv.new("UV")
-        for k in hedge:
-            x0, y0 = 16 * k[0] + O, 16 * k[1] + O; zb = 16.0 * bush_cells[k]["base"]; zt = zb + 16.0 * bush_cells[k]["rel"]
-            vs = {}
-            for dx in (0, 16):
-                for dy in (0, 16):
-                    for z in (zb, zt): vs[(dx, dy, z)] = hb.verts.new(G(x0 + dx, y0 + dy, z))
-            for f in (((0, 0, zt), (16, 0, zt), (16, 16, zt), (0, 16, zt)), ((0, 16, zb), (16, 16, zb), (16, 16, zt), (0, 16, zt)),
-                      ((16, 0, zb), (16, 0, zt), (16, 16, zt), (16, 16, zb)), ((0, 0, zb), (0, 0, zt), (16, 0, zt), (16, 0, zb)),
-                      ((0, 0, zb), (0, 16, zb), (0, 16, zt), (0, 0, zt))):
-                try: fc = hb.faces.new([vs[p] for p in f])
-                except ValueError: continue
-                for l, p in zip(fc.loops, f):
-                    gx, gy, gz = x0 + p[0], y0 + p[1], p[2]
-                    l[uvl].uv = ((gx - gy + 1184 - U0_) / IW, 1.0 - ((gx + gy) / 2.0 - gz - V0_) / IH)
-        me = bpy.data.meshes.new("hedges"); hb.normal_update(); hb.to_mesh(me); hb.free()
-        m = bpy.data.materials.new("hedge_px"); m.use_nodes = True; nt = m.node_tree; nt.nodes.clear(); L_ = nt.links.new
-        o_ = nt.nodes.new("ShaderNodeOutputMaterial"); t_ = nt.nodes.new("ShaderNodeTexImage"); t_.image = img; t_.interpolation = "Closest"
-        bs = nt.nodes.new("ShaderNodeBsdfPrincipled"); bs.inputs["Roughness"].default_value = 0.9
-        L_(t_.outputs["Color"], bs.inputs["Base Color"])
-        if "Emission Color" in bs.inputs: L_(t_.outputs["Color"], bs.inputs["Emission Color"]); bs.inputs["Emission Strength"].default_value = 0.45
-        L_(bs.outputs["BSDF"], o_.inputs["Surface"]); me.materials.append(m)
-        ob_ = bpy.data.objects.new("hedges", me); bpy.context.scene.collection.objects.link(ob_)
+        # one camera-facing CARD per hedge cell like the pines (user 2026-10-27: 'warum nicht das Sprite immer zur Kamera gedreht'): the cell's box outline
+        # cut from the filled hedge picture + the original leaves sticking up over it
+        keep = ~skip & (LA[:, :, 3] > 0); pic[:, :, 3] = np.where(keep, 255, 0)
+        hc = PP.cell_cards(pic, U0_, V0_, {(16 * x + O + 8, 16 * y + O + 8): (16.0 * bush_cells[(x, y)]["base"], 16.0 * (bush_cells[(x, y)]["base"] + bush_cells[(x, y)]["rel"])) for (x, y) in hedge}, core_all=True)
+        pdir = os.path.expanduser("~/.landstalker_remake/props/hedge_%d" % ROOM)
+        for (cx, cy), (a_, (Ub, Vb)) in hc.items():
+            zb = 16.0 * bush_cells[(int((cx - O) // 16), int((cy - O) // 16))]["base"]
+            card_at(PP.save(a_, os.path.join(pdir, "hedge_%d_%d.png" % (cx, cy))), Ub, Vb, zb)
     cards = leafy
     print("pixel plants: %d pines on cells, %d on slopes, %d round bushes, %d hedge blocks" % (np_grid, np_cliff, len(btips), len(hedge)), flush=True)
 for (wx, wy, z, k) in ([] if PIX_PINE else R["pines"]):

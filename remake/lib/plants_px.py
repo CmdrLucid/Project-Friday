@@ -75,7 +75,7 @@ def colour_mask(la, tmpls):
     flat = la[:, :, :3].reshape(-1, 3)
     return np.array([tuple(c) in cols for c in flat.tolist()]).reshape(la.shape[:2])
 
-def cell_cards(la, U0, V0, cells, skip=None):
+def cell_cards(la, U0, V0, cells, skip=None, core_all=False):
     """cells = {(x, y): (z_base, z_top)} in world units (x, y = cell centre).  Returns {(x, y): (rgba array, bottom-centre (U, V))}: for every cell
     the plane A pixels inside its box outline (front cells first) + up to OVER px of leaves above it, nothing in skip."""
     H, W = la.shape[:2]; own = np.full((H, W), -1, np.int32); keys = list(cells)
@@ -88,8 +88,8 @@ def cell_cards(la, U0, V0, cells, skip=None):
         return (d < 16) & (V >= vc - zt - half - over) & (V < vc - zb + half)
     order = sorted(range(len(keys)), key=lambda i: -(keys[i][0] + keys[i][1]))   # front (larger x + y) first
     for over in (0, OVER):
-        for i in order:
-            own[(own < 0) & opaque & region(keys[i], over)] = i
+        for i in order:                                                          # core_all: the whole box outline belongs to the cell (a filled picture)
+            own[(own < 0) & (opaque | (core_all and over == 0)) & region(keys[i], over)] = i
     out = {}
     for i, k in enumerate(keys):
         m = own == i
@@ -99,7 +99,7 @@ def cell_cards(la, U0, V0, cells, skip=None):
         top_ = int(np.nonzero(m.any(1))[0].min()); hw = 16
         a = np.zeros((vb - top_ + 1, 2 * hw + 1, 4), np.int32)
         sub = m[top_:vb + 1, uc - hw:uc + hw + 1]; src = la[top_:vb + 1, uc - hw:uc + hw + 1]
-        a[:sub.shape[0], :sub.shape[1]][sub] = src[sub]
+        a[:sub.shape[0], :sub.shape[1]][sub] = src[sub]; a[:sub.shape[0], :sub.shape[1], 3][sub] = 255
         out[k] = (a, (uc + U0, vb + V0))
     return out
 
