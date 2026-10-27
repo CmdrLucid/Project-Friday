@@ -302,14 +302,23 @@ if PIX_PINE:
                     if 0 <= vc + dv < LA.shape[0] and not skip[vc + dv, uc + du] and LA[vc + dv, uc + du, 3] > 0)
             if best is None or n > best[0]: best = (n, (uc, vc))
         pic = PP.leaf_picture(LA, ~skip & (LA[:, :, 3] > 0), best[1])
-        # one camera-facing CARD per hedge cell like the pines (user 2026-10-27: 'warum nicht das Sprite immer zur Kamera gedreht'): the cell's box outline
-        # cut from the filled hedge picture + the original leaves sticking up over it
+        # ONE complete hedge sprite for every hedge cell, like the pines (user 2026-10-27: 'ja ein vollstaendiges Hecken-Sprite'): the whole box outline
+        # of the hedge cell whose outline holds the most ORIGINAL leaf pixels (cut alone, no neighbour takes a part), stood camera-facing on every
+        # hedge cell of the height map; drawn back to front by depth it closes into the original's hedge in the game view
         keep = ~skip & (LA[:, :, 3] > 0); pic[:, :, 3] = np.where(keep, 255, 0)
-        hc = PP.cell_cards(pic, U0_, V0_, {(16 * x + O + 8, 16 * y + O + 8): (16.0 * bush_cells[(x, y)]["base"], 16.0 * (bush_cells[(x, y)]["base"] + bush_cells[(x, y)]["rel"])) for (x, y) in hedge}, core_all=True)
-        pdir = os.path.expanduser("~/.landstalker_remake/props/hedge_%d" % ROOM)
-        for (cx, cy), (a_, (Ub, Vb)) in hc.items():
-            zb = 16.0 * bush_cells[(int((cx - O) // 16), int((cy - O) // 16))]["base"]
-            card_at(PP.save(a_, os.path.join(pdir, "hedge_%d_%d.png" % (cx, cy))), Ub, Vb, zb)
+        best_c = None; PP.OVER = 0                                                # the sprite = the outline only (the leaves above it belong to the cell behind)
+        for (x, y) in hedge:
+            zb_ = 16.0 * bush_cells[(x, y)]["base"]; one = {(16 * x + O + 8, 16 * y + O + 8): (zb_, zb_ + 16.0 * bush_cells[(x, y)]["rel"])}
+            for k_, (a_, (Ub, Vb)) in PP.cell_cards(pic, U0_, V0_, one, core_all=True).items():
+                sub = keep[Vb - V0_ - a_.shape[0] + 1:Vb - V0_ + 1, Ub - U0_ - (a_.shape[1] // 2):Ub - U0_ + a_.shape[1] // 2 + 1]
+                n = int((sub & (a_[:, :, 3] > 0)).sum()) if sub.shape == a_.shape[:2] else 0
+                if bush_cells[(x, y)]["rel"] == 1 and (best_c is None or n > best_c[0]): best_c = (n, a_, (x, y))
+        HP = PP.save(best_c[1], os.path.expanduser("~/.landstalker_remake/props/hedge_%d.png" % ROOM))
+        print("hedge sprite from cell", best_c[2], "original leaf pixels", best_c[0], flush=True)
+        for (x, y) in hedge:
+            zb_ = 16.0 * bush_cells[(x, y)]["base"]; cx, cy = 16 * x + O + 8, 16 * y + O + 8
+            Ub, Vb = cx - cy + 1184, int(round((cx + cy) / 2.0 + 8 - zb_))     # bottom row = the cell's front corner (as plants_px.cell_cards cuts it)
+            card_at(HP, Ub, Vb, zb_)
     cards = leafy
     print("pixel plants: %d pines on cells, %d on slopes, %d round bushes, %d hedge blocks" % (np_grid, np_cliff, len(btips), len(hedge)), flush=True)
 for (wx, wy, z, k) in ([] if PIX_PINE else R["pines"]):
