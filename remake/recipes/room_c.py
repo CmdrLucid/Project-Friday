@@ -166,7 +166,9 @@ if os.environ.get("R_PLANTS", "pixel") == "pixel" and ROOM == 592:              
 def plant_card(png, x, y, z, fwd=0.0, side=0.0):
     # add_figure puts the card's bottom row FIG_FWD towards the camera (the front corner of a figure's box); a plant's bottom row is its trunk foot, so the
     # card's base goes back by the same amount (7.5 along x and y = FIG_FWD) to land the foot on (x, y); fwd / side = extra screen pixels down / right
-    plant_cards.append(H.add_figure(png, (x - 7.5 + fwd + side / 2, y - 7.5 + fwd - side / 2, z), light=0.45))
+    ob = H.add_figure(png, (x - 7.5 + fwd + side / 2, y - 7.5 + fwd - side / 2, z), light=0.45)
+    ob["base_q"] = H.G(x - 7.5, y - 7.5, z)   # turned views: the card stands in the middle of the cell (the front corner of the GAME view would push it into fences / slopes)
+    plant_cards.append(ob)
 
 
 # ---- fences, bushes, pines ----------------------------------------------------------------------------------------------------------------------------
@@ -218,7 +220,7 @@ if PIX_PINE:
     import plants_px as PP
     U0_, V0_ = [int(v) for v in open(os.path.join(os.path.dirname(la_), "window.txt")).read().split()[:2]]
     LA = PP.load(la_); PT = PP.load(PIX_PINE); th_, tw_ = PT.shape[:2]
-    tips = PP.find_tips(LA, PT); skip = PP.pine_mask(LA, PT, tips)
+    tips = PP.find_tips(LA, PT); skip = PP.pine_mask(LA, PT, tips)            # (the trunk rows of grove pines mask nothing: they are not in the picture)
     # single decorations drawn over WALKABLE ground (no plant cell under them): Massan's round bush beside house A; found like the pines, standing on
     # the terrain along the view ray
     PB = props_c.cut_template(la_, (329, 391, 362, 426), os.path.expanduser("~/.landstalker_remake/props/bush_592.png"))
@@ -231,24 +233,30 @@ if PIX_PINE:
         for k, v in (gr.get("obj") or {}).items():
             if v in ("pine", "bush"): plant_cells[k] = gr
     bush_cells = {k: gr for k, gr in plant_cells.items() if gr["obj"][k] == "bush"}
-    np_grid = np_cliff = 0
+    # the original draws the trunk only where nothing stands in front (single pines); in the groves the pines are crowns only, so every pine whose
+    # trunk rows (TRUNK_ROW..) are not in the picture gets the crown-only card (same size: the placement stays the same)
+    TRUNK_ROW = 40
+    nt = PT.copy(); nt[TRUNK_ROW:] = 0; PIX_PINE_NT = PP.save(nt, os.path.expanduser("~/.landstalker_remake/props/pine_592_crown.png"))
+    np_grid = np_cliff = n_trunk = 0
     for px_, py_ in tips:
+        tm = PP.part_match(LA, PT, (px_, py_), TRUNK_ROW, th_)
+        png_ = PIX_PINE if tm is not None and tm > 0.5 else PIX_PINE_NT; n_trunk += png_ == PIX_PINE
         Ub, Vb = px_ + (tw_ - 1) // 2 + U0_, py_ + th_ - 1 + V0_                # the trunk foot in the picture = the front corner of its cell
         for b in sorted({gr["base"] for gr in plant_cells.values()}, reverse=True):
             z = 16.0 * b; cx = (Ub - 1184) / 2.0 + Vb - 8 + z; cy = cx - (Ub - 1184)
             k = (int((cx - O) // 16), int((cy - O) // 16))
             if k in plant_cells and b in (plant_cells[k]["base"], C[k]["h"]):     # on the ground beside the cell or on its top (pines in a hedge, Massan (28, 17))
-                card_at(PIX_PINE, Ub, Vb, z); np_grid += 1; break
+                card_at(png_, Ub, Vb, z); np_grid += 1; break
         else:                                                                    # a pine on a slope: the terrain along the view ray
             X = (Ub - 1184) / 2.0 + Vb; wx, wy, z = recast(X, X - (Ub - 1184), 0.0)
-            card_at(PIX_PINE, Ub, Vb, z); np_cliff += 1
-    skip |= ~PP.colour_mask(LA, (PT, BT))                                        # only the plants' own colours (no roof / stone pieces)
+            card_at(png_, Ub, Vb, z); np_cliff += 1
+    skip |= ~PP.leaf_mask(LA)                                                    # only leaf colours (no roof / log / fence / grass speck pieces)
     cards = PP.cell_cards(LA, U0_, V0_, {(16 * x + O + 8, 16 * y + O + 8): (16.0 * gr["base"], 16.0 * (gr["base"] + gr["rel"])) for (x, y), gr in bush_cells.items()}, skip)
     pdir = os.path.expanduser("~/.landstalker_remake/props/cells_%d" % ROOM)
     for (cx, cy), (a, (Ub, Vb)) in cards.items():
         zb = 16.0 * bush_cells[(int((cx - O) // 16), int((cy - O) // 16))]["base"]
         card_at(PP.save(a, os.path.join(pdir, "plant_%d_%d.png" % (cx, cy))), Ub, Vb, zb)
-    print("pixel plants: %d pines on cells, %d on slopes, %d round bushes, %d cell cards" % (np_grid, np_cliff, len(btips), len(cards)), flush=True)
+    print("pixel plants: %d with trunk," % n_trunk, "%d pines on cells, %d on slopes, %d round bushes, %d cell cards" % (np_grid, np_cliff, len(btips), len(cards)), flush=True)
 for (wx, wy, z, k) in ([] if PIX_PINE else R["pines"]):
     wx, wy, z = recast(wx, wy, z)                                                # single pines on the cliffs, found in the picture (roomdata.cliff_pines)
     kit_c.pine(wx, wy, height=40 + prnd.random() * 6, radius=12.5 + prnd.random() * 1.5, rnd=prnd, z0=z, name="cliffpine_%d_%d" % k)
@@ -325,7 +333,7 @@ for ob in sc.objects:                                                           
         ob.location.z *= math.sqrt(2.0 / 3.0)
     if "base" in ob: ob["base"] = (ob["base"][0], ob["base"][1], ob["base"][2] * math.sqrt(2.0 / 3.0))
 figs += statue_cards + plant_cards
-for f in figs: f.scale = (1, 1, 1); H.face_camera(f, co, upright=False)   # pixel cards are not squashed (game_view squashes every mesh; massan_a.render_set does the same reset)
+for f in figs: f.scale = (1, 1, 1); H.face_camera(f, co, upright=False, game=True)   # pixel cards are not squashed (game_view squashes every mesh; massan_a.render_set does the same reset)
 bpy.ops.render.render(write_still=True)
 print("game view done", flush=True)
 zs = math.sqrt(2.0 / 3.0)

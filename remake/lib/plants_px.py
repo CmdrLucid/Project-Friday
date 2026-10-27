@@ -46,6 +46,13 @@ def find_tips(la, tmpl, rows=TIP_ROWS, match=TIP_MATCH):
         if all(abs(px - qx) > 2 or abs(py - qy) > 2 for qx, qy in hits): hits.append((int(px), int(py)))    # the template is symmetric: +-1 px twins
     return sorted(hits, key=lambda p: (p[1], p[0]))
 
+def part_match(la, tmpl, hit, r0, r1):
+    """share of the template's opaque pixels in rows r0..r1-1 that the picture shows unchanged at hit (None = no such pixels)."""
+    px, py = hit; t = tmpl[r0:r1]; H, W = la.shape[:2]; h_, w_ = min(t.shape[0], H - py - r0), min(t.shape[1], W - px)
+    t = t[:h_, :w_]; win = la[py + r0:py + r0 + h_, px:px + w_]; m = t[:, :, 3] > 0
+    if not m.any(): return None
+    return float(((np.abs(win[:, :, :3] - t[:, :, :3]).sum(2) == 0) & (win[:, :, 3] > 0))[m].mean())
+
 def pine_mask(la, tmpl, hits):
     """pixels of la that belong to the found pines (template opaque there and the colour equal)."""
     m = np.zeros(la.shape[:2], bool); th, tw = tmpl.shape[:2]; H, W = m.shape
@@ -54,6 +61,13 @@ def pine_mask(la, tmpl, hits):
         t = tmpl[:h_, :w_]; win = la[py:py + h_, px:px + w_]
         m[py:py + h_, px:px + w_] |= (t[:, :, 3] > 0) & (np.abs(win[:, :, :3] - t[:, :, :3]).sum(2) == 0)
     return m
+
+LEAF = {(0, 72, 36), (0, 0, 0), (72, 144, 0), (0, 216, 72), (108, 180, 252)}    # Massan's leaf colours (round bush / hedge clumps); white / olive / brown = logs, fences, grass specks
+MIN_LEAF = 40       # a bush cell card needs at least this many leaf pixels (cells whose picture shows fence / stumps / grass only get none)
+
+def leaf_mask(la):
+    flat = la[:, :, :3].reshape(-1, 3).tolist()
+    return np.array([tuple(c) in LEAF for c in flat]).reshape(la.shape[:2])
 
 def colour_mask(la, tmpls):
     """pixels of la whose colour occurs in one of the templates (the plants' own colours: keeps straw roof / stone pieces out of the bush cards)."""
@@ -79,7 +93,7 @@ def cell_cards(la, U0, V0, cells, skip=None):
     out = {}
     for i, k in enumerate(keys):
         m = own == i
-        if not m.any(): continue
+        if m.sum() < MIN_LEAF: continue
         (x, y), (zb, zt) = k, cells[k]
         uc = x - y + 1184 - U0; vb = int(round((x + y) / 2.0 + 8 - zb - V0))     # bottom row = the cell's front corner
         top_ = int(np.nonzero(m.any(1))[0].min()); hw = 16

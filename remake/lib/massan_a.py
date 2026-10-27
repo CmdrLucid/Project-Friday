@@ -298,7 +298,7 @@ def add_figure(png_path, game_pos, light=0.55):
     me.materials.append(m); ob = bpy.data.objects.new("figure", me); bpy.context.scene.collection.objects.link(ob)
     ob.location = G(*game_pos); ob["base"] = G(*game_pos); return ob
 
-def face_camera(ob, co, upright=True):
+def face_camera(ob, co, upright=True, game=False):
     import bpy, mathutils
     bpy.context.view_layer.update()                                          # the camera was just moved: refresh its matrix first
     d = co.matrix_world.to_quaternion() @ mathutils.Vector((0, 0, 1))          # towards the camera (orthographic: the view direction)
@@ -307,6 +307,7 @@ def face_camera(ob, co, upright=True):
     ob.rotation_euler = d.normalized().to_track_quat("-Y", "Z").to_euler()
     if "base" in ob:
         h = mathutils.Vector((d.x, d.y, 0)).normalized(); ob.location = mathutils.Vector(ob["base"]) + h * FIG_FWD
+        if not game and "base_q" in ob: ob.location = mathutils.Vector(ob["base_q"])   # pixel plants (room_c.py): in the middle of their cell when turned
 
 def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=False, figures=(), quarter=False, tz=38, fh=190, sun_spec=1.0):
     """game view (the original's projection, heights squashed like the game) + turned views and a low perspective 'hero' shot (true heights).
@@ -315,7 +316,7 @@ def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=F
     T = G(CX, CY, tz); size = (int(208 * px), int(fh * px))
     sc, co = blx.game_view(os.path.join(out, "game.png"), px_per_unit=px, size=size, target=T, squash=squash_game)
     if not outlines: sc.render.use_freestyle = False
-    for f in figures: f.scale = (1, 1, 1); face_camera(f, co, upright=False)   # game view: the figure faces the screen like the original sprite
+    for f in figures: f.scale = (1, 1, 1); face_camera(f, co, upright=False, game=True)   # game view: the figure faces the screen like the original sprite
     if modern:                                                                 # the style C light (lib/cmat.py); modern="std" keeps the game's colours
         import cmat; cmat.modern_look(sc, agx=(modern != "std")); bpy.data.objects["sun"].data.specular_factor = sun_spec
         bpy.ops.render.render(write_still=True)
