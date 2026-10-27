@@ -40,7 +40,8 @@
   <button id="marks" title="Fußpunkte aller Sprites ein / aus (M)">Markierungen</button>
   <button id="finished" title="Das fertig gerenderte Bild zeigen, mit Schatten und Überdeckung (F)">Fertiges Bild</button>
   <button id="undo" title="Rückgängig (Strg+Z)">↶ Rückgängig</button>
-  <button id="save">Speichern</button>
+  <button id="save" title="Änderungen übernehmen (Strg+S). Ohne Speichern ist alles nur ein Versuch, auch nach 'Rendern'.">Speichern</button>
+  <button id="discard" title="Zurück zum zuletzt gespeicherten Stand">Verwerfen</button>
   <button id="render" class="big">Rendern</button>
   <span id="status"></span>
 </header>
@@ -66,6 +67,8 @@
     <kbd>Q</kbd>/<kbd>E</kbd> Ansicht drehen, <kbd>F</kbd> fertiges Bild<br>
     Zwei Finger auf dem Touchpad = Bild schieben
   </div>
+  <h3>Speichern</h3>
+  <div class="keys">Verschieben, Löschen, Neu setzen und <b>Rendern</b> sind nur Versuche. Erst <b>Speichern</b> übernimmt sie in die Raumdatei. <b>Verwerfen</b> geht zurück zum gespeicherten Stand.</div>
   <h3>Legende</h3>
   <div class="keys">Die Sprites zeichnet der Editor selbst, immer an ihrer aktuellen Stelle (darunter liegt ein Bild ohne Sprites). Ob ein Haus ein Sprite verdeckt, zeigt erst „Rendern“ und dann „Fertiges Bild“.<br>Blau = ausgewählt · Grün = verschoben / neu (noch nicht gerendert) · Rot = gelöscht · Gelb (Markierungen) = Fußpunkt</div>
 </aside>

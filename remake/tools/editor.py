@@ -23,9 +23,18 @@ FIGURE = os.path.join(LOCAL, "figures", "nigel_a4.png")
 render = dict(state="idle", started=0.0, took=0.0, log="")
 
 
+DRAFT = os.path.join(LOCAL, "tmp", "editor_draft_%d.json" % ROOM)
+
+
+def clean(d):
+    return dict(move={k: [round(float(v), 2) for v in m] for k, m in d.get("move", {}).items() if any(abs(float(v)) > 1e-3 for v in m)},
+                delete=sorted(set(d.get("delete", []))),
+                add=[dict(kind=str(a["kind"]), x=round(float(a["x"]), 2), y=round(float(a["y"]), 2), z=round(float(a["z"]), 2)) for a in d.get("add", [])])
+
+
 def run_render():
     render.update(state="running", started=time.time(), log="")
-    env = dict(os.environ, R_PX="2", R_ROOM=str(ROOM))
+    env = dict(os.environ, R_PX="2", R_ROOM=str(ROOM), R_EDITS_FILE=DRAFT)     # renders the page's current (maybe unsaved) edits; the room file stays untouched
     if os.path.exists(FIGURE): env["R_FIGURE"] = FIGURE
     print("render started ...", flush=True)
     p = subprocess.run([sys.executable, os.path.join(REPO, "remake", "tools", "build_asset.py"), "room_c"], cwd=REPO, env=env,
@@ -76,16 +85,16 @@ class H(SimpleHTTPRequestHandler):
         u = self.path.split("?")[0]
         n = int(self.headers.get("Content-Length", "0")); body = self.rfile.read(n) if n else b""
         if u == "/api/save":
-            d = json.loads(body or b"{}")
-            clean = dict(move={k: [round(float(v), 2) for v in m] for k, m in d.get("move", {}).items() if any(abs(float(v)) > 1e-3 for v in m)},
-                         delete=sorted(set(d.get("delete", []))),
-                         add=[dict(kind=str(a["kind"]), x=round(float(a["x"]), 2), y=round(float(a["y"]), 2), z=round(float(a["z"]), 2)) for a in d.get("add", [])])
+            c = clean(json.loads(body or b"{}"))
             os.makedirs(os.path.dirname(OVR), exist_ok=True)
-            open(OVR, "w").write(json.dumps(clean, indent=1, sort_keys=True) + "\n")
-            print("saved", OVR, "(%d moved, %d deleted, %d added)" % (len(clean["move"]), len(clean["delete"]), len(clean["add"])), flush=True)
+            open(OVR, "w").write(json.dumps(c, indent=1, sort_keys=True) + "\n")
+            print("saved", OVR, "(%d moved, %d deleted, %d added)" % (len(c["move"]), len(c["delete"]), len(c["add"])), flush=True)
             return self.send(200, json.dumps(dict(ok=True)))
         if u == "/api/render":
-            if render["state"] != "running": threading.Thread(target=run_render, daemon=True).start()
+            if render["state"] != "running":
+                os.makedirs(os.path.dirname(DRAFT), exist_ok=True)
+                open(DRAFT, "w").write(json.dumps(clean(json.loads(body or b"{}"))))
+                threading.Thread(target=run_render, daemon=True).start()
             return self.send(200, json.dumps(dict(ok=True)))
         self.send(404, "not found", "text/plain")
 

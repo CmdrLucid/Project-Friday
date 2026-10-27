@@ -353,6 +353,7 @@ for (x, y) in R["statues"]:
 # ---- map editor overrides (user 2026-10-27: 'kleiner simpler Mapeditor'): remake/rooms/<room>.json, written by remake/tools/editor.py --------------------
 # {"move": {card id: [dx, dy, dz]}, "delete": [card id, ...], "add": [{"kind": png name in ~/.landstalker_remake/props, "x", "y", "z" = foot}]}
 OVR_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "rooms", "%d.json" % ROOM)
+OVR_PATH = os.path.expanduser(os.environ.get("R_EDITS_FILE", OVR_PATH))       # the editor renders its UNSAVED edits from a draft file (user: only 'Speichern' takes them over)
 OVR = json.load(open(OVR_PATH)) if os.path.exists(OVR_PATH) and os.environ.get("R_EDITS", "1") != "0" else {}
 def _removed(ob):
     try: ob.name; return False
@@ -486,7 +487,7 @@ for q in (1, 2, 3):
     render_nocards("nocards_q%d.png" % q); render_mask("mask_q%d.png" % q)
     print("view q%d done" % q, flush=True)
 # what the map editor needs: every pixel card (id, image, foot in game units), the views, the cells' heights, the picture window
-json.dump(dict(room=ROOM, window=[U0, V0, W_, H_], O=O, cells=[[k[0], k[1], top[k]] for k in sorted(top)], views=views, houses=house_boxes(), house_step=HOUSE_STEP,
+json.dump(dict(room=ROOM, window=[U0, V0, W_, H_], O=O, cells=[[k[0], k[1], top[k]] for k in sorted(top)], views=views, houses=house_boxes(), house_step=HOUSE_STEP, rendered_with=OVR,
                cards=[dict(id=c["cid"], kind=c["kind"], png=c["png"], foot=list(c["foot"]), added=c["cid"].startswith("add:")) for c in plant_cards + statue_cards] + deleted_cards),
           open(os.path.join(out, "cards.json"), "w"))
 print("room_c done ->", out)

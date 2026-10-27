@@ -34,7 +34,7 @@ function cards() {
   const out = [];
   for (const c of R.cards) {
     if (c.added) continue;
-    const savedMove = (R.overrides.move || {})[c.id] || [0, 0, 0];
+    const savedMove = ((R.rendered_with || R.overrides).move || {})[c.id] || [0, 0, 0];   // the edits the render was made with
     const auto = sub3(c.foot, savedMove);
     const m = edits.move[c.id] || [0, 0, 0];
     out.push({ id: c.id, kind: c.kind, img: c.img, foot: add3(auto, m), rendered: c.deleted ? null : c.foot, deleted: edits.delete.includes(c.id) });
@@ -224,14 +224,14 @@ async function save() {
   if (r.ok) { saved = JSON.stringify(edits); dirty(); } else status("Speichern fehlgeschlagen");
 }
 async function render() {
-  await save(); await fetch("/api/render", { method: "POST" }); $("render").disabled = true;
+  await fetch("/api/render", { method: "POST", body: JSON.stringify(edits) }); $("render").disabled = true;   // renders the current edits WITHOUT saving them
   const t0 = Date.now();
   const poll = async () => {
     const s = await (await fetch("/api/render")).json();
     if (s.state === "running") { status("rendert ... " + Math.round((Date.now() - t0) / 1000) + " s (dauert etwa 1-2 Minuten)"); setTimeout(poll, 2000); return; }
     $("render").disabled = false;
     if (s.state === "failed") { status("Rendern fehlgeschlagen (Meldung im Konsole-Fenster)"); console.log(s.log); return; }
-    await load(); status("gerendert in " + Math.round(s.took) + " s");
+    await load(true); status("gerendert in " + Math.round(s.took) + " s" + (JSON.stringify(edits) === saved ? "" : " · nicht gespeichert"));
   };
   poll();
 }
@@ -240,7 +240,7 @@ function zoom(z) {
   for (const i of [$("bgo"), $("bgr")]) { i.style.width = V.w * Z + "px"; i.style.height = V.h * Z + "px"; }
   $("stage").style.width = V.w * Z + "px"; $("stage").style.height = V.h * Z + "px"; draw();
 }
-async function load() {
+async function load(keep) {                                         // keep = after 'Rendern': the page's edits stay (they may be unsaved)
   const r = await fetch("/api/room");
   if (!r.ok) { status("Noch kein Render da: bitte 'Rendern' drücken"); R = null; return; }
   R = await r.json(); const ov = R.overrides || {};
@@ -248,8 +248,10 @@ async function load() {
     R.views = [{ name: "game", img: "game.png", w: 1056, h: 912, s: 1, offs: {}, A: [[1, -1, 0, 1184 - R.window[0]], [0.5, 0.5, -1, -R.window[1]], [-1, -1, -1, 0]] }];
     status("Bitte einmal 'Rendern' drücken (neue Ansichten)");
   }
-  edits = { move: Object.assign({}, ov.move || {}), delete: (ov.delete || []).slice(), add: (ov.add || []).map((a) => Object.assign({}, a)) };
-  saved = JSON.stringify(edits); undo = []; stamp = String(R.render_time); for (const k in masks) delete masks[k];
+  const fromFile = { move: Object.assign({}, ov.move || {}), delete: (ov.delete || []).slice(), add: (ov.add || []).map((a) => Object.assign({}, a)) };
+  saved = JSON.stringify(fromFile);
+  if (!keep) { edits = fromFile; undo = []; }
+  stamp = String(R.render_time); for (const k in masks) delete masks[k];
   $("room").textContent = "Raum " + R.room + " · " + R.cards.length + " Sprites";
   $("bgo").src = "/img/original.png";
   const k = $("kinds"); k.innerHTML = "";
@@ -268,6 +270,7 @@ $("view").addEventListener("wheel", (e) => { if (e.ctrlKey) { e.preventDefault()
 for (const b of document.querySelectorAll(".vbtn")) b.onclick = () => setView(b.dataset.v);
 $("marks").onclick = toggleMarks; $("finished").onclick = toggleFinished; $("undo").onclick = doUndo; $("save").onclick = save; $("render").onclick = render;
 $("del").onclick = del; $("up").onclick = () => nudge(0, 0, 1); $("down").onclick = () => nudge(0, 0, -1);
+$("discard").onclick = () => { if (JSON.stringify(edits) === saved) return; if (!confirm("Alle nicht gespeicherten Änderungen verwerfen?")) return; push(); edits = JSON.parse(saved); sel = null; dirty(); draw(); };
 $("reset").onclick = () => { const c = cards().find((c) => c.id === sel); if (!c || c.added) return; push(); delete edits.move[c.id]; edits.delete = edits.delete.filter((x) => x !== c.id); dirty(); draw(); };
 window.addEventListener("beforeunload", (e) => { if (JSON.stringify(edits) !== saved) { e.preventDefault(); e.returnValue = ""; } });
 load();
