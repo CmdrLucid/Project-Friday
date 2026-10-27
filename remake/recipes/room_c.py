@@ -442,13 +442,13 @@ def editor_view(name, img):
         L = c.location; f_ = c["foot"]; offs[c["cid"]] = [L.x - f_[0], -L.y - f_[1], L.z / zs - f_[2]]
     views.append(dict(name=name, img=img, mask="mask_" + img[len("nocards_"):], w=rx / PX, h=ry / PX, A=A, s=H.FIG_PX * rx / co.data.ortho_scale / PX, offs=offs))
 def render_nocards(img):
-    for c in ecards: c.hide_render = True
+    for c in figs: c.hide_render = True                                         # all cards and the figure (the walk demo draws its own Nigel)
     tw = [o for o in sc.objects if o.get("shadow_twin")]
     for o in tw: o.hide_render = True
     pct, fp = sc.render.resolution_percentage, sc.render.filepath
-    sc.render.resolution_percentage = int(100 / PX); sc.render.filepath = os.path.join(out, img); bpy.ops.render.render(write_still=True)
-    sc.render.resolution_percentage, sc.render.filepath = pct, fp
-    for c in ecards: c.hide_render = False
+    sc.render.filepath = os.path.join(out, img); bpy.ops.render.render(write_still=True)          # full size (the walk demo zooms in; the editor scales it)
+    sc.render.filepath = fp
+    for c in figs: c.hide_render = False
     for o in tw: o.hide_render = False
 HOUSE_STEP = 28                                                                  # house id i -> red value (i + 1) * 28 in the mask PNG (editor.js reads it back)
 def render_mask(img):
@@ -492,7 +492,8 @@ def render_hd(img, key):
     sc.render.resolution_percentage = int(100 / PX); sc.render.filepath = os.path.join(out, img); bpy.ops.render.render(write_still=True)
     (sc.render.engine, sc.render.film_transparent, sc.render.use_freestyle, sc.view_settings.view_transform, sc.view_settings.look,
      sc.render.resolution_percentage, sc.render.filepath, sc.display.shading.color_type) = st
-    for o in objs: o.data.color_attributes.render_color_index, o.data.color_attributes.active_color_index = act[o.name]
+    for o in objs:
+        if act[o.name][0] >= 0: o.data.color_attributes.render_color_index, o.data.color_attributes.active_color_index = act[o.name]
     for o in sc.objects: o.hide_render = keep.get(o.name, o.hide_render)
     views[-1].update(hd=img, hv=[hv.x, hv.y], hd_lo=lo, hd_hi=hi)
 def house_boxes():
@@ -517,7 +518,10 @@ for q in (1, 2, 3):
     render_nocards("nocards_q%d.png" % q); render_mask("mask_q%d.png" % q); render_hd("hd_q%d.png" % q, "q%d" % q)
     print("view q%d done" % q, flush=True)
 # what the map editor needs: every pixel card (id, image, foot in game units), the views, the cells' heights, the picture window
-json.dump(dict(room=ROOM, window=[U0, V0, W_, H_], O=O, cells=[[k[0], k[1], top[k]] for k in sorted(top)], views=views, houses=house_boxes(), house_step=HOUSE_STEP, rendered_with=OVR,
+start = [16 * R["statues"][0][0] + O + 8 + 18, 16 * R["statues"][0][1] + O + 8 + 22] if R["statues"] else None   # where the preview figure stands
+json.dump(dict(room=ROOM, window=[U0, V0, W_, H_], O=O, start=start,
+               cells=[[k[0], k[1], top[k], 16.0 * C[k]["h"], int(C[k]["blk"])] for k in sorted(top)],   # x, y, look height, walk height, blocked
+               views=views, houses=house_boxes(), house_step=HOUSE_STEP, rendered_with=OVR,
                cards=[dict(id=c["cid"], kind=c["kind"], png=c["png"], foot=list(c["foot"]), added=c["cid"].startswith("add:")) for c in plant_cards + statue_cards] + deleted_cards),
           open(os.path.join(out, "cards.json"), "w"))
 print("room_c done ->", out)

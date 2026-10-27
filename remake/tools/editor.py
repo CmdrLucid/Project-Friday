@@ -19,6 +19,8 @@ LOCAL = os.path.expanduser("~/.landstalker_remake")
 ORIG = os.path.join(LOCAL, "rooms", "%d_room_c" % ROOM, "full.png")
 OUT = os.path.join(LOCAL, "assets", "room_c")
 PROPS = os.path.join(LOCAL, "props")
+FIGS = os.path.join(LOCAL, "figures")
+PLAY = os.path.join(REPO, "remake", "play")
 FIGURE = os.path.join(LOCAL, "figures", "nigel_a4.png")
 render = dict(state="idle", started=0.0, took=0.0, log="")
 
@@ -61,6 +63,12 @@ class H(SimpleHTTPRequestHandler):
         u = self.path.split("?")[0]
         if u in ("/", "/index.html"): return self.file(os.path.join(PAGE, "index.html"), "text/html; charset=utf-8")
         if u == "/editor.js": return self.file(os.path.join(PAGE, "editor.js"), "text/javascript")
+        if u in ("/play", "/play/", "/play/index.html"): return self.file(os.path.join(PLAY, "index.html"), "text/html; charset=utf-8")   # walk demo
+        if u == "/play/play.js": return self.file(os.path.join(PLAY, "play.js"), "text/javascript")
+        if u.startswith("/figures/"):                                            # Nigel's frames (tools/nigel_frames.py): only files inside the figures folder
+            p = os.path.realpath(os.path.join(FIGS, u[len("/figures/"):]))
+            if not p.startswith(os.path.realpath(FIGS) + os.sep): return self.send(403, "no", "text/plain")
+            return self.file(p, "application/json" if p.endswith(".json") else "image/png")
         if u == "/img/original.png": return self.file(ORIG, "image/png")
         if u == "/img/render.png": return self.file(os.path.join(OUT, "game.png"), "image/png")
         if u.startswith("/img/") and u.endswith(".png") and "/" not in u[5:]: return self.file(os.path.join(OUT, u[5:]), "image/png")   # renders of every view
@@ -102,7 +110,7 @@ class H(SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     if not os.path.exists(ORIG): sys.exit("original picture missing: %s (rom_picture.py, see remake/ASSETS.md 'Room blockout')" % ORIG)
     srv = ThreadingHTTPServer(("127.0.0.1", PORT), H)
-    url = "http://localhost:%d/" % PORT
+    url = "http://localhost:%d/%s" % (PORT, os.environ.get("EDITOR_PAGE", ""))
     print("Map-Editor laeuft: %s  (Raum %d; Beenden: Strg+C in diesem Fenster)" % (url, ROOM), flush=True)
     if not os.environ.get("EDITOR_NO_BROWSER"): threading.Timer(0.8, lambda: webbrowser.open(url)).start()
     try: srv.serve_forever()
