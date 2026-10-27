@@ -5,6 +5,10 @@ Static recompilation of **Landstalker** (Sega Mega Drive) to native code for PC 
 Bring your own ROM: no ROM, game asset or code generated from the ROM is part of this repository (the game is built on your machine from your own ROM).
 Non-commercial, open source, a hobby project. Not affiliated with Sega or Climax Entertainment.
 
+## Video
+
+[![Project-Friday on YouTube](https://img.youtube.com/vi/XXYhEBV57Co/hqdefault.jpg)](https://www.youtube.com/watch?v=XXYhEBV57Co)
+
 ## Download and start
 
 Get the latest release from the [Releases page](https://github.com/cmdrlucid/Project-Friday/releases):
