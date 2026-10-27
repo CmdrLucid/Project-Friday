@@ -649,8 +649,8 @@ void lk_hd_set(int v) {
 /* ---- stage 1: a generic screen renderer (title, menus, island map, credits ...): the picture of a line composed by our own code from the VDP's memory state (planes A / B, window, sprites, priorities, scroll modes, backdrop),
    checked pixel by pixel against the game's picture (LANDSTALKER_OWN_SCREENS: 0 off, 1 compare + log only, 2 draw (default with the own renderer on), LANDSTALKER_OWN_SCRLOG=1 prints the differing pixels of every frame it handled) ---- */
 static int lk_scr_mode = -1, lk_scr_log, lk_o_why;   /* lk_o_why: why the own map path did not draw this frame (1 old room still showing, 2 warp effect, 3 Start menu running, 4 display off, 5 no room) */ static long lk_scr_diff, lk_scr_tot, lk_scr_lines;
-static int lk_scr_mir, lk_scr_ismap;   /* lk_scr_ismap: the line belongs to a map frame (margins show the planes), else a picture screen (margins black, patch_wide) */
-/* LANDSTALKER_OWN_SCRMIR=<bits> (default 31 since 2026-10-27; 0 = the chip; 1 VRAM, 2 CRAM, 4 VSRAM, 8 registers, 16 margins of widescreen, 32 line 23 of map frames the own map path does not draw): the generic screen renderer reads the own mirror of the game's VDP uploads (lk_vm / lk_cm / lk_vsm) and the game's register shadow instead of the chip */
+static int lk_scr_mir, lk_scr_ismap, lk_scr_mapl; extern int lk_tbox_get(void);   /* lk_scr_ismap: the line belongs to a map frame (margins show the planes), else a picture screen (margins black, patch_wide) */
+/* LANDSTALKER_OWN_SCRMIR=<bits> (default 63; 0 = the chip; 1 VRAM, 2 CRAM, 4 VSRAM, 8 registers, 16 margins of widescreen, 32 line 23 of map frames the own map path does not draw, with the Map Behind Text rule): the generic screen renderer reads the own mirror of the game's VDP uploads (lk_vm / lk_cm / lk_vsm) and the game's register shadow instead of the chip */
 #define LK_VB(a) ((lk_scr_mir & 1) ? lk_vm[(a) & 0xFFFF] : vram[((a) & 0xFFFF) ^ 1])
 #define LK_SVS(i) ((lk_scr_mir & 4) ? lk_vsm[(i) & 0x4F] : vsram[(i) ^ 1])
 #define LK_VW(a) (((unsigned)LK_VB(a) << 8) | LK_VB((a) + 1))
@@ -750,7 +750,7 @@ static void lk_hd_plain(int line, const PIXEL_OUT_T *out) { int x; if (!lk_hd_n)
 static int lk_scr_cell(int ent, int px, int py, int *prio) { int ci; lk_scr_curpal = (ent >> 13) & 3; ci = lk_scr_ci(ent & 0x7FF, px, py, (ent >> 11) & 1, (ent >> 12) & 1); lk_scr_phf = (ent >> 11) & 1; lk_scr_pvf = (ent >> 12) & 1; *prio = (ent >> 15) & 1; if (ci && lk_scr_rgb >= 0) return 0x1000000 | lk_scr_rgb; return ci ? ((ent >> 13) & 3) * 16 + ci : -1; }   /* bit 24 set = a replaced pixel (24 bit colour) */
 static int lk_scr_cramw(int i) { if (lk_scr_mir & 2) { int w = (lk_cm[2 * i] << 8) | lk_cm[2 * i + 1]; return (((w >> 9) & 7) << 6) | (((w >> 5) & 7) << 3) | ((w >> 1) & 7); } return ((cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1]) & 0x1FF; }   /* mirror: the raw MD word -> the chip's 9 bit form */
 static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {                /* returns 0 when the VDP is in a mode this renderer does not do (the game's picture stays) */
-  int lk_rg[32]; { int q; if (lk_scr_mir & 8) for (q = 0; q < 32; q++) lk_rg[q] = bus_get_ram()[(0x0FB1 + 2 * q) ^ 1]; else for (q = 0; q < 32; q++) lk_rg[q] = reg[q]; }   /* VDP registers: the game's live shadow ($FF0FB0 + 2 n) or the chip */
+  int wlo, whi; int lk_rg[32]; { int q; if (lk_scr_mir & 8) for (q = 0; q < 32; q++) lk_rg[q] = bus_get_ram()[(0x0FB1 + 2 * q) ^ 1]; else for (q = 0; q < 32; q++) lk_rg[q] = reg[q]; }   /* VDP registers: the game's live shadow ($FF0FB0 + 2 n) or the chip */
   int hm = lk_rg[11] & 3, vm = (lk_rg[11] >> 2) & 1, pwr = lk_rg[16] & 3, phr = (lk_rg[16] >> 4) & 3, pw, ph, x, i, n, cells;
   int baseA = (lk_rg[2] & 0x38) << 10, baseB = (lk_rg[4] & 7) << 13, wbase = (lk_rg[3] & 0x3C) << 10, sat = (lk_rg[5] & 0x7E) << 9;
   int hpos = (lk_rg[17] & 0x1F) * 2, hright = lk_rg[17] & 0x80, vpos = (lk_rg[18] & 0x1F) * 8, vbelow = lk_rg[18] & 0x80, vwin, hsA, hsB, hsb = (lk_rg[13] & 0x3F) << 10, hidx;
@@ -782,19 +782,27 @@ static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {      
       }
     }
   }
+  if (lk_scr_mir & 32) { lk_scr_mapl = lk_scr_ismap && line == 23 && lk_tbox_get(); }   /* Map Behind Text on the HUD's last pixel line (patch_tbox.py): only the part between the first and last non-black opaque window pixel is the window's, the rest shows the map */
+  else lk_scr_mapl = 0;
+  wlo = -ex; whi = 320 + ex;
+  if (lk_scr_mapl) {
+    for (wlo = 0; wlo < 320; wlo++) { int pa_; int v = lk_scr_cell(LK_VW(wbase + 2 * ((line >> 3) * 64 + (wlo >> 3))), wlo & 7, line & 7, &pa_); if (v >= 0x1000000 || (v >= 0 && (v & 15) && lk_scr_cramw(v))) break; }
+    for (whi = 320; whi > wlo; whi--) { int pa_; int xx = whi - 1; int v = lk_scr_cell(LK_VW(wbase + 2 * ((line >> 3) * 64 + (xx >> 3))), xx & 7, line & 7, &pa_); if (v >= 0x1000000 || (v >= 0 && (v & 15) && lk_scr_cramw(v))) break; }
+  }
   for (x = -ex; x < 320 + ex; x++) {
+    int inw = !lk_scr_mapl || (x >= wlo && x < whi);   /* window plane applies to this pixel */
     int mg = x < 0 || x >= 320, vc = x < 0 ? 0 : x >= 320 ? 19 : (x >> 4);   /* margin pixel? / the 2-cell vertical scroll column (margins use the edge columns) */
     int cA = -1, pA = 0, cB = -1, pB = 0, sel = -1, cc, xc = x >> 3; lk_pi_t iA, iB; const lk_pi_t *wi = 0; uint32_t col32; iA.rep = iB.rep = 0; iA.ox = iA.oy = iA.hf = iA.vf = iB.ox = iB.oy = iB.hf = iB.vf = 0;
     { int xp = (x - hsB) & (pw * 8 - 1), yp; yp = (line + (((LK_SVS((vm ? 4 * vc : 0) + 2) << 8) | LK_SVS((vm ? 4 * vc : 0) + 3)) & 0x3FF)) & (ph * 8 - 1);
       cB = lk_scr_cell(LK_VW(baseB + 2 * ((yp >> 3) * pw + (xp >> 3))), xp & 7, yp & 7, &pB); iB.rep = lk_scr_prep; iB.ox = lk_scr_pox; iB.oy = lk_scr_poy; iB.hf = lk_scr_phf; iB.vf = lk_scr_pvf; iB.pal = lk_scr_curpal; }
-    if (!mg && (vwin || (hright ? xc >= hpos : xc < hpos))) { cA = lk_scr_cell(LK_VW(wbase + 2 * ((line >> 3) * 64 + xc)), x & 7, line & 7, &pA); iA.rep = lk_scr_prep; iA.ox = lk_scr_pox; iA.oy = lk_scr_poy; iA.hf = lk_scr_phf; iA.vf = lk_scr_pvf; iA.pal = lk_scr_curpal; }
+    if (inw && !mg && (vwin || (hright ? xc >= hpos : xc < hpos))) { cA = lk_scr_cell(LK_VW(wbase + 2 * ((line >> 3) * 64 + xc)), x & 7, line & 7, &pA); iA.rep = lk_scr_prep; iA.ox = lk_scr_pox; iA.oy = lk_scr_poy; iA.hf = lk_scr_phf; iA.vf = lk_scr_pvf; iA.pal = lk_scr_curpal; }
     else { int xp = (x - hsA) & (pw * 8 - 1), yp = (line + (((LK_SVS(vm ? 4 * vc : 0) << 8) | LK_SVS((vm ? 4 * vc : 0) + 1)) & 0x3FF)) & (ph * 8 - 1);
       cA = lk_scr_cell(LK_VW(baseA + 2 * ((yp >> 3) * pw + (xp >> 3))), xp & 7, yp & 7, &pA); iA.rep = lk_scr_prep; iA.ox = lk_scr_pox; iA.oy = lk_scr_poy; iA.hf = lk_scr_phf; iA.vf = lk_scr_pvf; iA.pal = lk_scr_curpal; }
     if (sp[x + 48] >= 0 && spp[x + 48]) { sel = sp[x + 48]; wi = &spi[x + 48]; } else if (cA >= 0 && pA) { sel = cA; wi = &iA; } else if (cB >= 0 && pB) { sel = cB; wi = &iB; }
     else if (sp[x + 48] >= 0) { sel = sp[x + 48]; wi = &spi[x + 48]; } else if (cA >= 0) { sel = cA; wi = &iA; } else if (cB >= 0) { sel = cB; wi = &iB; }
     { static long dbgf = -2; if (dbgf == -2) { const char *q = getenv("LANDSTALKER_OWN_SCRDBG"); dbgf = q ? atol(q) : -1; }
       if (dbgf >= 0 && platform_frame_number() == dbgf && line == 23 && (x == 16 || x == 100)) printf("ownscrdbg: frame %ld line %d x %d: A %d/%d B %d/%d spr %d/%d sel %d hsA %d hsB %d reg18 %02X reg17 %02X reg11 %02X reg1 %02X vwin %d\n", dbgf, line, x, cA, pA, cB, pB, sp[x + 48], spp[x + 48], sel, hsA, hsB, lk_rg[18], lk_rg[17], lk_rg[11], lk_rg[1], vwin); }
-    if (mg && (!lk_scr_ismap || vwin || (x < 0 ? (!hright && hpos > 0) : (hright && hpos < 40)))) col32 = pixel_lut[1][0];   /* margins beside a window plane (HUD / text box) are black, like the chip does with widescreen */
+    if (mg && inw && (!lk_scr_ismap || vwin || (x < 0 ? (!hright && hpos > 0) : (hright && hpos < 40)))) col32 = pixel_lut[1][0];   /* margins beside a window plane (HUD / text box) are black, like the chip does with widescreen */
     else if (sel >= 0x1000000) col32 = 0xFF000000u | (uint32_t)(sel & 0xFFFFFF);   /* replaced pixel (32 bit output) */
     else { cc = sel >= 0 ? lk_scr_cramw(sel) : bgcol; if (x + ex < 8 && (lk_rg[0] & 0x20)) { cc = bgcol; wi = 0; } col32 = pixel_lut[1][cc]; }
     out[x] = (PIXEL_OUT_T)col32;
@@ -806,7 +814,7 @@ static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {      
 static void lk_scr_row(PIXEL_OUT_T *row, int e, int line, int map) {
   PIXEL_OUT_T bufw[48 + 320 + 48], *buf = bufw + 48; int x, d = 0, ex;
   { static int pz = -1; if (pz < 0) pz = getenv("LANDSTALKER_OWN_POISON") != NULL; if (pz && line == 0) { memset(vram, 0xA5, 0x10000); memset(cram, 0x1F, 0x80); memset(vsram, 0x55, 0x80); } }   /* test aid: the chip memories hold garbage from line 0 of every frame on (the own renderer must not read them) */
-  if (lk_scr_mode < 0) { const char *q = getenv("LANDSTALKER_OWN_SCREENS"), *l = getenv("LANDSTALKER_OWN_SCRLOG"); lk_scr_mode = q ? atoi(q) : 2; lk_rep_init(); lk_scr_log = l ? atoi(l) : 0; { const char *mq = getenv("LANDSTALKER_OWN_SCRMIR"); lk_scr_mir = mq ? atoi(mq) : 31; } { const char *o = getenv("LANDSTALKER_OWN_ORGLOG"); lk_org_log = o ? atoi(o) : 0; lk_dump_dir = getenv("LANDSTALKER_TILEDUMP"); lk_dump_on = lk_dump_dir && *lk_dump_dir; if (lk_dump_on) { struct stat st; extern int lk_mkdir(const char *); if (stat(lk_dump_dir, &st) != 0) lk_mkdir(lk_dump_dir); } } }
+  if (lk_scr_mode < 0) { const char *q = getenv("LANDSTALKER_OWN_SCREENS"), *l = getenv("LANDSTALKER_OWN_SCRLOG"); lk_scr_mode = q ? atoi(q) : 2; lk_rep_init(); lk_scr_log = l ? atoi(l) : 0; { const char *mq = getenv("LANDSTALKER_OWN_SCRMIR"); lk_scr_mir = mq ? atoi(mq) : 63; } { const char *o = getenv("LANDSTALKER_OWN_ORGLOG"); lk_org_log = o ? atoi(o) : 0; lk_dump_dir = getenv("LANDSTALKER_TILEDUMP"); lk_dump_on = lk_dump_dir && *lk_dump_dir; if (lk_dump_on) { struct stat st; extern int lk_mkdir(const char *); if (stat(lk_dump_dir, &st) != 0) lk_mkdir(lk_dump_dir); } } }
   lk_scr_ismap = map;
   if (!lk_scr_mode || !lk_scr_line(line, buf, e, lk_tall_keep(line))) return;
   ex = (lk_hd_n || !(lk_scr_mir & 16)) ? 0 : e;

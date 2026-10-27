@@ -65,3 +65,12 @@ if "LK_VDPMIRROR v2" not in r:
     assert r.count(old) == 1, "vdp_render.c: lk_clean_planes layout changed"
     r = r.replace(old, old + "  { extern uint8_t lk_vm[]; if (size && ntab + size <= 0x10000) memset(&lk_vm[ntab], 0, size); if (size && ntbb + size <= 0x10000) memset(&lk_vm[ntbb], 0, size); }   /* LK_VDPMIRROR v2 */\n")
     open(pr, "w").write(r); print("vdp_render.c patched: LK_VDPMIRROR v2")
+
+# LK_NOCHIP v1: the chip's own line composition (render_bg / render_obj) can be skipped: the own renderer draws every line from the mirror (test aid and option LANDSTALKER_OWN_NOCHIP=0 puts the chip back, default ON since 2026-10-27; always on with HD graphics)
+r = open(pr).read()
+if "LK_NOCHIP v1" not in r:
+    old = "    /* Render BG layer(s) */\n    render_bg(line);\n\n    /* Render sprite layer */\n    render_obj(line & 1);\n    lk_wide_margins(line);"
+    assert r.count(old) == 1, "vdp_render.c: render_line layout changed (nochip)"
+    new = ("    /* LK_NOCHIP v1 */\n    { static int lk_nochip = -1; if (lk_nochip < 0) lk_nochip = !(getenv(\"LANDSTALKER_OWN_NOCHIP\") && *getenv(\"LANDSTALKER_OWN_NOCHIP\") == '0');\n"
+           "      if (!lk_nochip || lk_hd_n) {\n    /* Render BG layer(s) */\n    render_bg(line);\n\n    /* Render sprite layer */\n    render_obj(line & 1);\n      } }\n    lk_wide_margins(line);")
+    r = r.replace(old, new); open(pr, "w").write(r); print("vdp_render.c patched: LK_NOCHIP v1")
