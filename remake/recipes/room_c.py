@@ -263,7 +263,11 @@ if PIX_PINE:
     # single decorations drawn over WALKABLE ground (no plant cell under them): Massan's round bush beside house A; found like the pines, standing on
     # the terrain along the view ray
     PB = props_c.cut_template(la_, (329, 391, 362, 426), os.path.expanduser("~/.landstalker_remake/props/bush_592.png"))
-    BT = PP.load(PB); bh_, bw_ = BT.shape[:2]; btips = PP.find_tips(LA, BT, rows=bh_, match=0.9)     # the whole bush: its top alone also matches the leaf clumps of the hedges; skip |= PP.pine_mask(LA, BT, btips)
+    BT = PP.load(PB); bh_, bw_ = BT.shape[:2]; btips = PP.find_tips(LA, BT, rows=bh_, match=0.9)
+    # clean cut-out (user 2026-10-27: 'nicht ganz sauber freigestellt'): row 0 = the foot of the pine above it, rows 27.. beside the stem (columns 12..19)
+    # = grass tufts of the ground; found with the full cut first, then the clean one is used for every card
+    BC = BT.copy(); BC[0] = 0; BC[27:, :12] = 0; BC[27:, 20:] = 0
+    PB = PP.save(BC, os.path.expanduser("~/.landstalker_remake/props/bush_592_clean.png"))     # the whole bush: its top alone also matches the leaf clumps of the hedges; skip |= PP.pine_mask(LA, BT, btips)
     for px_, py_ in btips:
         Ub, Vb = px_ + (bw_ - 1) // 2 + U0_, py_ + bh_ - 1 + V0_
         X = (Ub - 1184) / 2.0 + Vb; wx, wy, z = recast(X, X - (Ub - 1184), 0.0); card_at(PB, Ub, Vb, z)
