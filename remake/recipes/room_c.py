@@ -47,6 +47,9 @@ def mask(gx, gy):
 
 # RAISED cells (a blocked edge of a walkable level, rel 0) are a SLOPED bank in the original, not a wall (user 2026-10-27: behind the church the original
 # leaves space, ours stood right against the bank): their top falls from the level's height to the lower neighbour across the group's depth
+# 2026-10-27 (user: 'zwischen Hang und Kirche ist Platz fuer eine Kiefernreihe'): the original's bank top lies on the group's HIGH edge and the bank is
+# steep; it reaches the low level within BANK_RUN units, the rest of the group is flat low ground (Massan: one free cell row behind the church)
+BANK_RUN = float(os.environ.get("R_BANK_RUN", "14"))
 bank = {}                                                                        # cell -> (low side direction, rows from the low edge, depth, low z, high z)
 for gr in R["groups"]:
     if gr["cls"] != "raised": continue
@@ -71,8 +74,9 @@ def zat(k, gx, gy):
     (dx, dy), n, D, lo_, hi_ = bank[k]
     cx, cy = 16 * k[0] + O + 8, 16 * k[1] + O + 8
     t = ((gx - cx) * dx + (gy - cy) * dy) / 16.0 + 0.5                           # 0 = far edge, 1 = low edge of this cell
-    f = (n + 1 - t) / D                                                          # 1 at the group's high edge, 0 at the low edge
-    return lo_ + (hi_ - lo_) * min(1.0, max(0.0, f))
+    u = (D - (n + 1 - t)) * 16.0                                                 # units from the group's high edge
+    if BANK_RUN <= 0: return lo_ + (hi_ - lo_) * min(1.0, max(0.0, 1 - u / (16.0 * D)))   # R_BANK_RUN=0: the old even slope over the whole depth
+    g = min(1.0, max(0.0, 1 - u / BANK_RUN)); return lo_ + (hi_ - lo_) * g * g * (3 - 2 * g)
 
 bm = bmesh.new(); cl = bm.loops.layers.color.new("mask"); NS = 6
 def quad(ps, mat, want):
@@ -141,7 +145,7 @@ MASSAN = {(11, 15, 10, 13): dict(boards=[("S", 0.3, 26)]),                      
           (11, 15, 6, 9): dict(hatch_px=[(653, 286)]),                                       # terrace middle: a smoke-hole cover
           (20, 24, 9, 12): dict(hatch_px=[(800, 385)], squares=[("S", 0.46, 24, 14)]),               # behind the church: a square window south (user: one was missing; 2026-10-26 'passt noch nicht' -> measured on the picture: middle of the wall, right under the eave, 14 wide)
           (20, 24, 4, 8): dict(),
-          (22, 26, 17, 23): dict(boards=[("S", 0.2, 26)], windows=[("E", 0.45, 27)], hatch_px=[(657, 522), (687, 505)]),
+          (22, 26, 17, 23): dict(boards=[("S", 0.2, 26)], windows=[("E", 0.59, 25)], hatch_px=[(657, 522), (687, 505)]),
           (11, 15, 2, 5): dict(windows=[("S", 0.5, 70), ("S", 0.5, 92)], squares=[("E", 0.45, 93)], banner=("E", 0.45, 87), ZE=110, ZT=137)}   # tower: two centred round windows,
 # the cloth hangs out of the east window, the sign above the door (placed in spec_of)
 def spec_of(gr):
