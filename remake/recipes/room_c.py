@@ -10,7 +10,8 @@ pine / bush / fence where the height map alone cannot tell (roomdata.py).
             every walkable edge one step high (asset 4), sea east of the room (cmat.water_mat, asset 5c); statue and cave = grey / dark placeholders
 Run: R_FIGURE=~/.landstalker_remake/figures/nigel_a4.png python3 remake/tools/build_asset.py room_c   (R_ROOM=592, R_ROM=path, R_PX=1)
 Output (local): game.png (the original's projection, window in window.txt for rom_picture.py), q1..q3.png (camera turned by 90 degree steps)."""
-import bpy, bmesh, sys, os, math, random
+import bpy, bmesh, sys, os, math, random, json
+import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lib"))
 import blx, cmat, cground, cliff_c, kit_c, roomdata as RD, massan_a as H
 out = os.environ.get("R_OUT", "/tmp/room_c"); os.makedirs(out, exist_ok=True)
@@ -44,6 +45,39 @@ def mask(gx, gy):
     n = (math.sin(gx * 0.35) + math.sin(gy * 0.5 + 1)) * 0.06 + math.sin(gx * 1.3 + gy * 0.7) * 0.04
     return min(1.0, max(0.0, (field(gx, gy) - 0.5 + n) / 0.22 + 0.5))
 
+# RAISED cells (a blocked edge of a walkable level, rel 0) are a SLOPED bank in the original, not a wall (user 2026-10-27: behind the church the original
+# leaves space, ours stood right against the bank): their top falls from the level's height to the lower neighbour across the group's depth
+# 2026-10-27 (user: 'zwischen Hang und Kirche ist Platz fuer eine Kiefernreihe'): the original's bank top lies on the group's HIGH edge and the bank is
+# steep; it reaches the low level within BANK_RUN units, the rest of the group is flat low ground (Massan: one free cell row behind the church)
+BANK_RUN = float(os.environ.get("R_BANK_RUN", "14"))
+bank = {}                                                                        # cell -> (low side direction, rows from the low edge, depth, low z, high z)
+for gr in R["groups"]:
+    if gr["cls"] != "raised": continue
+    cells_ = set(gr["cells"]); hi_ = 16.0 * gr["h"]
+    lows = {k: [(dx, dy, top[(k[0] + dx, k[1] + dy)]) for dx, dy in RD.N4 if (k[0] + dx, k[1] + dy) in top and (k[0] + dx, k[1] + dy) not in cells_
+                and top[(k[0] + dx, k[1] + dy)] < hi_ - 8] for k in cells_}
+    for d_ in RD.N4:                                                             # the main low side of the group
+        edge = [k for k in cells_ if any((dx, dy) == d_ for dx, dy, _ in lows[k])]
+        if not edge: continue
+        lo_ = max(z_ for k in edge for dx, dy, z_ in lows[k] if (dx, dy) == d_)
+        for k in cells_:
+            n = 0
+            while (k[0] + d_[0] * (n + 1), k[1] + d_[1] * (n + 1)) in cells_: n += 1
+            m = 0
+            while (k[0] - d_[0] * (m + 1), k[1] - d_[1] * (m + 1)) in cells_: m += 1
+            if n == 0 and k not in edge: continue
+            if k not in bank or bank[k][2] < n + m + 1: bank[k] = (d_, n, n + m + 1, lo_, hi_)
+        break
+def zat(k, gx, gy):
+    """terrain height of cell k at the game point (gx, gy) (flat except bank cells)."""
+    if k not in bank: return top[k]
+    (dx, dy), n, D, lo_, hi_ = bank[k]
+    cx, cy = 16 * k[0] + O + 8, 16 * k[1] + O + 8
+    t = ((gx - cx) * dx + (gy - cy) * dy) / 16.0 + 0.5                           # 0 = far edge, 1 = low edge of this cell
+    u = (D - (n + 1 - t)) * 16.0                                                 # units from the group's high edge
+    if BANK_RUN <= 0: return lo_ + (hi_ - lo_) * min(1.0, max(0.0, 1 - u / (16.0 * D)))   # R_BANK_RUN=0: the old even slope over the whole depth
+    g = min(1.0, max(0.0, 1 - u / BANK_RUN)); return lo_ + (hi_ - lo_) * g * g * (3 - 2 * g)
+
 bm = bmesh.new(); cl = bm.loops.layers.color.new("mask"); NS = 6
 def quad(ps, mat, want):
     f = bm.faces.new([bm.verts.new(G(*p)) for p in ps]); f.material_index = mat; f.normal_update()
@@ -57,13 +91,15 @@ for (x, y), z in top.items():
     for i in range(NS):                                                          # top: NS x NS quads (smooth mask edges)
         for j in range(NS):
             a, b = gx + 16 * i / NS, gy + 16 * j / NS; s = 16 / NS
-            quad([(a, b, z), (a + s, b, z), (a + s, b + s, z), (a, b + s, z)], 0, UP)
+            k_ = (x, y); Z = lambda u, v: zat(k_, u, v)
+            quad([(a, b, Z(a, b)), (a + s, b, Z(a + s, b)), (a + s, b + s, Z(a + s, b + s)), (a, b + s, Z(a, b + s))], 0, UP)
     for (dx, dy), e in (((1, 0), ((16, 0), (16, 16))), ((-1, 0), ((0, 0), (0, 16))), ((0, 1), ((0, 16), (16, 16))), ((0, -1), ((0, 0), (16, 0)))):
         if (x + dx, y + dy) not in top: continue                                 # rock / outside: the slopes of lib/cliff_c.py meet this edge
-        nz = top[(x + dx, y + dy)]
-        if nz >= z: continue
         (u0, v0), (u1, v1) = e
-        quad([(gx + u0, gy + v0, nz), (gx + u1, gy + v1, nz), (gx + u1, gy + v1, z), (gx + u0, gy + v0, z)], 1, mathutils.Vector((dx, -dy, 0)))
+        z0_, z1_ = zat((x, y), gx + u0, gy + v0), zat((x, y), gx + u1, gy + v1)
+        n0_, n1_ = zat((x + dx, y + dy), gx + u0, gy + v0), zat((x + dx, y + dy), gx + u1, gy + v1)
+        if n0_ >= z0_ - 0.01 and n1_ >= z1_ - 0.01: continue
+        quad([(gx + u0, gy + v0, min(n0_, z0_)), (gx + u1, gy + v1, min(n1_, z1_)), (gx + u1, gy + v1, z1_), (gx + u0, gy + v0, z0_)], 1, mathutils.Vector((dx, -dy, 0)))
 me = bpy.data.meshes.new("terrain"); bm.to_mesh(me); bm.free()
 for p in me.polygons: p.use_smooth = p.material_index == 0
 me.materials.append(cmat.dirt_mat("room_ground", mask="mask", other=((30, 84, 26), (58, 118, 34)))); me.materials.append(cmat.get("cliff"))
@@ -102,14 +138,14 @@ print("grass tufts", len(pts), flush=True)
 ha = kit_c.house_a(); A_BOX = (6, 10, 15, 19)                                    # house A's own cells in room 592 (lib/massan_a.py measures)
 A_C = (16 * (A_BOX[0] + A_BOX[1] + 1) / 2 + O, 16 * (A_BOX[2] + A_BOX[3] + 1) / 2 + O)
 YAW = dict(E=0.0, N=90.0, W=180.0, S=-90.0)                                      # house A's door looks east (+x)
-import house_c
+import house_c, props_c
 # details of the Massan houses as seen in the original picture (box = height map cells incl. the doorway cell): windows, boarded windows, roof
 # hatches, tower banner / sign; everything else (footprint, door side / place, base height) comes from the room data
 MASSAN = {(11, 15, 10, 13): dict(boards=[("S", 0.3, 26)]),                                   # terrace west: boarded window on the south wall
-          (11, 15, 6, 9): dict(hatches=[(0.0, 0.25)]),                                       # terrace middle: a smoke-hole cover
-          (20, 24, 9, 12): dict(hatches=[(0.1, 0.3)], squares=[("S", 0.25, 26)]),                   # front right: a square window south (user: one was missing)
+          (11, 15, 6, 9): dict(hatch_px=[(653, 286)]),                                       # terrace middle: a smoke-hole cover
+          (20, 24, 9, 12): dict(hatch_px=[(800, 385)], squares=[("S", 0.46, 24, 14)]),               # behind the church: a square window south (user: one was missing; 2026-10-26 'passt noch nicht' -> measured on the picture: middle of the wall, right under the eave, 14 wide)
           (20, 24, 4, 8): dict(),
-          (22, 26, 17, 23): dict(boards=[("S", 0.2, 26)], windows=[("E", 0.45, 27)], hatches=[(0.0, 0.3), (0.05, 0.62)]),
+          (22, 26, 17, 23): dict(boards=[("S", 0.2, 26)], windows=[("E", 0.59, 25)], hatch_px=[(657, 522), (687, 505)]),
           (11, 15, 2, 5): dict(windows=[("S", 0.5, 70), ("S", 0.5, 92)], squares=[("E", 0.45, 93)], banner=("E", 0.45, 87), ZE=110, ZT=137)}   # tower: two centred round windows,
 # the cloth hangs out of the east window, the sign above the door (placed in spec_of)
 def spec_of(gr):
@@ -122,10 +158,19 @@ def spec_of(gr):
     sp["windows"] = [dict(side=w[0], a=along(w[0], w[1]), z=w[2]) for w in ex.get("windows", [])]
     sp["boards"] = [dict(side=w[0], a=along(w[0], w[1]), z=w[2]) for w in ex.get("boards", [])]
     sp["hatches"] = [((sp["X0"] + sp["X1"]) / 2 + (sp["X1"] - sp["X0"]) * hx_, sp["Y0"] + (sp["Y1"] - sp["Y0"]) * hy_) for hx_, hy_ in ex.get("hatches", [])]
+    if "hatch_px" in ex:                                                          # user 2026-10-26: hatches where the picture has them -> given as the screen point of the
+        z0 = 16.0 * gr["base"]; H = house_c.House(dict(sp, ZT=77.0, overhang=1.5)); best = []   # cover in the original (full.png of window.txt 600 -16), solved onto the roof
+        for (U, V) in ex["hatch_px"]:
+            cand = ((abs(x - y + 584 - U) + abs((x + y) / 2 - (z0 + H.roof_z(x, y) + 4) + 16 - V), x, y)
+                    for x in [sp["X0"] + 0.5 * i for i in range(int(2 * (sp["X1"] - sp["X0"])) + 1)]
+                    for y in [sp["Y0"] + 0.5 * j for j in range(int(2 * (sp["Y1"] - sp["Y0"])) + 1)])
+            e, x, y = min(cand); best.append((x, y))
+            if os.environ.get("R_DEBUG"): print("hatch", gr["box"], (U, V), "->", (x, y), "err", round(e, 2))
+        sp["hatches"] = best
     for k in ("banner", "sign"):
         if k in ex: sp[k] = dict(side=ex[k][0], a=along(ex[k][0], ex[k][1]), z=ex[k][2])
     sp.update(overhang=1.5, lip=3.5, ZT=77.0)                                   # roofs like house A (user 2026-10-25)
-    sp["squares"] = [dict(side=w[0], a=along(w[0], w[1]), z=w[2]) for w in ex.get("squares", [])]
+    sp["squares"] = [dict(side=w[0], a=along(w[0], w[1]), z=w[2], **({"w": w[3], "h": w[3]} if len(w) > 3 else {})) for w in ex.get("squares", [])]
     for k in ("ZE", "ZT"):
         if k in ex: sp[k] = ex[k]
     if gr["cls"] == "tower" and "ZE" not in ex: sp["ZE"] = 16.0 * gr["rel"] - 2; sp["ZT"] = sp["ZE"] + 27
@@ -145,7 +190,32 @@ for gr in R["groups"]:
 if ROOM != 592:
     for o in ha: o.hide_render = True                                            # house A lives in Massan only
 
+# pines / bushes as ORIGINAL PIXEL billboards (2026-10-26, DECIDED by the user: pixel, user: 'bringt mich dazu, Baeume und Straeucher auch so zu machen'): R_PLANTS=pixel cuts one
+# free-standing pine and the single round bush beside house A out of plane A of the user's picture (props_c.cut_template, local PNGs) and stands a card on
+# every place where the 3D pine / bush would stand (bottom row = trunk / stem foot); hedge rows stay one bush card per cell like the 3D bushes
+PIX_PINE = None; plant_cards = []
+if os.environ.get("R_PLANTS", "pixel") == "pixel" and ROOM == 592:              # user 2026-10-26: 'pixel' (default now; R_PLANTS=3d = the approved 3D pines / bushes)
+    la_ = os.path.expanduser("~/.landstalker_remake/rooms/592_room_c/layerA.png")
+    if os.path.exists(la_):
+        # the pine at the west edge (box (132, 515, 168, 584)) has its trunk in plane A; the free-standing ones keep it in plane B (user 2026-10-27: 'der Kiefer fehlt der Stamm')
+        PIX_PINE = props_c.cut_template(la_, (132, 515, 168, 584), os.path.expanduser("~/.landstalker_remake/props/pine_592.png"))
+def plant_card(png, x, y, z, fwd=0.0, side=0.0):
+    # add_figure puts the card's bottom row FIG_FWD towards the camera (the front corner of a figure's box); a plant's bottom row is its trunk foot, so the
+    # card's base goes back by the same amount (7.5 along x and y = FIG_FWD) to land the foot on (x, y); fwd / side = extra screen pixels down / right
+    ob = H.add_figure(png, (x - 7.5 + fwd + side / 2, y - 7.5 + fwd - side / 2, z), light=0.45)
+    ob["base_q"] = H.G(x - 7.5, y - 7.5, z)   # turned views: the card stands in the middle of the cell (the front corner of the GAME view would push it into fences / slopes)
+    card_id(ob, png, (x, y, z)); plant_cards.append(ob); return ob
+CARD_IDS = {}
+def card_id(ob, png, foot):
+    """stable name of a pixel card for the map editor (remake/tools/editor.py): kind @ foot (game units, as placed by the automatic code)."""
+    kind = os.path.splitext(os.path.basename(png))[0]; cid = "%s@%d,%d,%d" % (kind, round(foot[0]), round(foot[1]), round(foot[2]))
+    n = CARD_IDS.get(cid, 0); CARD_IDS[cid] = n + 1
+    if n: cid += "#%d" % n
+    ob["cid"] = cid; ob["kind"] = kind; ob["png"] = png; ob["foot"] = tuple(foot)
+
+
 # ---- fences, bushes, pines ----------------------------------------------------------------------------------------------------------------------------
+FENCE_OUT = float(os.environ.get("R_FENCE_OUT", "8"))   # user 2026-10-27: 'der Zaun muesste ein Stueck naeher Richtung Klippe' / pines in front of it as in the original: stakes on the OUTER edge
 frnd = random.Random(21); brnd = random.Random(11); prnd = random.Random(12)
 fb = bmesh.new()
 for gr in R["groups"]:
@@ -155,11 +225,17 @@ for gr in R["groups"]:
     fence = {p for p, v in obj.items() if v == "fence"}
     if fence:
         bmf = bmesh.new()
+        def fpos(x, y):                                                          # stake line of a fence cell: FENCE_OUT towards the outside (a missing or lower neighbour)
+            ox = oy = 0
+            for dx, dy in RD.N4:
+                n = C.get((x + dx, y + dy))
+                if (x + dx, y + dy) not in fence and (n is None or n["h"] < gr["base"]): ox += dx; oy += dy
+            return 16 * x + O + 8 + FENCE_OUT * (ox > 0) - FENCE_OUT * (ox < 0), 16 * y + O + 8 + FENCE_OUT * (oy > 0) - FENCE_OUT * (oy < 0)
         for (x, y) in sorted(fence):
-            cx, cy = 16 * x + O + 8, 16 * y + O + 8; linked = False
+            cx, cy = fpos(x, y); linked = False
             for dx, dy in ((1, 0), (0, 1)):
                 if (x + dx, y + dy) in fence:
-                    kit_c.palisade(bmf, (cx, cy), (cx + 16 * dx, cy + 16 * dy), (-dy, dx), rnd=frnd); linked = True
+                    kit_c.palisade(bmf, (cx, cy), fpos(x + dx, y + dy), (-dy, dx), rnd=frnd); linked = True
             if not linked and not any((x - dx, y - dy) in fence for dx, dy in ((1, 0), (0, 1))):
                 kit_c.palisade(bmf, (cx - 6, cy), (cx + 6, cy), (0, -1), rnd=frnd)
         for (x, y) in fence:                                                     # end posts where a fence line stops at walkable ground (gates)
@@ -170,9 +246,10 @@ for gr in R["groups"]:
                     kit_c.end_post(bmf, 16 * x + O + 8 - 6 * ox, 16 * y + O + 8 - 6 * oy)
         kit_c.link("fence_%d_%d" % gr["cells"][0], bmf, kit_c.fence_mats(), z0=z0)
     bush = [p for p, v in obj.items() if v == "bush"]
+    if PIX_PINE: continue                                                        # pixel plants: placed from the picture below (lib/plants_px.py)
     if bush: kit_c.bushes([(16 * x + O, 16 * y + O) for (x, y) in bush], Hh=16.0 * gr["rel"], rnd=brnd, z0=z0, name="bushes_%d_%d" % gr["cells"][0])
     for (x, y) in sorted(p for p, v in obj.items() if v == "pine"):
-        if (x + y) % 2: continue
+        if (x + y) % 2: continue                                                 # 3D pines are big: every second cell
         kit_c.pine(16 * x + O + 8 + (prnd.random() - 0.5) * 6, 16 * y + O + 8 + (prnd.random() - 0.5) * 6, height=38 + prnd.random() * 10, radius=12 + prnd.random() * 2.5,
                    rnd=prnd, z0=z0, name="pine_%d_%d" % (x, y))
 
@@ -183,7 +260,61 @@ def recast(wx, wy, z):
         zz = s_ / 2 - V; px_, py_ = (s_ + d) / 2, (s_ - d) / 2
         if zz <= surface(px_, py_): return px_, py_, zz
     return wx, wy, z
-for (wx, wy, z, k) in R["pines"]:
+def card_at(png, Ub, Vb, z):
+    """a pixel card whose bottom-centre pixel lands on the picture point (Ub, Vb), standing at height z (the depth along the view ray)."""
+    Ub += 1; Vb += 1                                                             # pixel index -> the card's edge convention (measured: else 1 px up / left)
+    X = (Ub - 1184) / 2.0 + Vb + z; Y = X - (Ub - 1184); plant_card(png, X, Y, z)
+if PIX_PINE:
+    # pixel plants EXACTLY as the original draws them (2026-10-27, user: 'exakt wie im Original'; lib/plants_px.py): pines found by their tips in plane A,
+    # bushes / hedges = one card per plant cell of the height map, cut from plane A
+    import plants_px as PP
+    U0_, V0_ = [int(v) for v in open(os.path.join(os.path.dirname(la_), "window.txt")).read().split()[:2]]
+    LA = PP.load(la_); PT = PP.load(PIX_PINE); th_, tw_ = PT.shape[:2]
+    tips = PP.find_tips(LA, PT); skip = PP.pine_mask(LA, PT, tips)            # (the trunk rows of grove pines mask nothing: they are not in the picture)
+    # single decorations drawn over WALKABLE ground (no plant cell under them): Massan's round bush beside house A; found like the pines, standing on
+    # the terrain along the view ray
+    PB = props_c.cut_template(la_, (329, 391, 362, 426), os.path.expanduser("~/.landstalker_remake/props/bush_592.png"))
+    BT = PP.load(PB); bh_, bw_ = BT.shape[:2]; btips = PP.find_tips(LA, BT, rows=bh_, match=0.9)
+    # clean cut-out (user 2026-10-27: 'nicht ganz sauber freigestellt'): row 0 = the foot of the pine above it, rows 27.. beside the stem (columns 12..19)
+    # = grass tufts of the ground; found with the full cut first, then the clean one is used for every card
+    BC = BT.copy(); BC[0] = 0; BC[27:, :12] = 0; BC[27:, 20:] = 0
+    PB = PP.save(BC, os.path.expanduser("~/.landstalker_remake/props/bush_592_clean.png"))     # the whole bush: its top alone also matches the leaf clumps of the hedges; skip |= PP.pine_mask(LA, BT, btips)
+    for px_, py_ in btips:
+        Ub, Vb = px_ + (bw_ - 1) // 2 + U0_, py_ + bh_ - 1 + V0_
+        X = (Ub - 1184) / 2.0 + Vb; wx, wy, z = recast(X, X - (Ub - 1184), 0.0); card_at(PB, Ub, Vb, z)
+    plant_cells = {}
+    for gr in R["groups"]:
+        for k, v in (gr.get("obj") or {}).items():
+            if v in ("pine", "bush"): plant_cells[k] = gr
+    bush_cells = {k: gr for k, gr in plant_cells.items() if gr["obj"][k] == "bush"}
+    np_grid = np_cliff = 0
+    for px_, py_ in tips:
+        png_ = PIX_PINE                                                          # every pine with its trunk (user 2026-10-27); covered by the pines in front by depth
+        Ub, Vb = px_ + (tw_ - 1) // 2 + U0_, py_ + th_ - 1 + V0_                # the trunk foot in the picture = the front corner of its cell
+        hs = sorted({gr["base"] for gr in plant_cells.values()} | {C[k]["h"] for k in plant_cells}, reverse=True)
+        cand = [(b, 0) for b in hs] + [(b, 1) for b in hs]                       # first: on the ground of its cell (base); only then: on the TOP of a cell (pines in a
+        for b, on_top in cand:                                                   # hedge, Massan (28, 17)); top first wrongly put grove pines one row too far forward
+            z = 16.0 * b; cx = (Ub - 1184) / 2.0 + Vb - 8 + z; cy = cx - (Ub - 1184)
+            k = (int((cx - O) // 16), int((cy - O) // 16))
+            if k in plant_cells and b == (C[k]["h"] if on_top else plant_cells[k]["base"]):
+                # on top of a hedge cell: the same picture point 8 back along the view ray = the cell MIDDLE, 8 below its top, so the trunk stands in the
+                # leaves as in the original (user: 'eine Kiefer auf einem Busch')
+                card_at(png_, Ub, Vb, z - 8.0 if on_top else z); np_grid += 1; break
+        else:                                                                    # a pine on a slope: the terrain along the view ray
+            X = (Ub - 1184) / 2.0 + Vb; wx, wy, z = recast(X, X - (Ub - 1184), 0.0)
+            card_at(png_, Ub, Vb, z); np_cliff += 1
+    skip |= ~PP.leaf_mask(LA)                                                    # only leaf colours (no roof / log / fence / grass speck pieces)
+    # HEDGES: every bush cell whose picture shows leaves (>= PP.MIN_LEAF leaf pixels in its outline, so cells showing fence / stumps / grass get none)
+    leafy = PP.cell_cards(LA, U0_, V0_, {(16 * x + O + 8, 16 * y + O + 8): (16.0 * gr["base"], 16.0 * (gr["base"] + gr["rel"])) for (x, y), gr in bush_cells.items()}, skip)
+    hedge = sorted((int((cx - O) // 16), int((cy - O) // 16)) for (cx, cy) in leafy)
+    if hedge:
+        # every hedge cell gets the ROUND BUSH beside house A (the one complete bush of the picture; user 2026-10-27: 'links neben dem Haus mit dem
+        # Totenschaedel ... ja'), camera-facing like the pines, its stem foot on the cell's front corner; drawn back to front by depth
+        for (x, y) in hedge:
+            zb_ = 16.0 * bush_cells[(x, y)]["base"]; cx, cy = 16 * x + O + 8, 16 * y + O + 8
+            card_at(PB, cx - cy + 1184, int(round((cx + cy) / 2.0 + 8 - zb_)), zb_)
+    print("pixel plants: %d pines on cells, %d on slopes, %d round bushes, %d hedge bushes" % (np_grid, np_cliff, len(btips), len(hedge)), flush=True)
+for (wx, wy, z, k) in ([] if PIX_PINE else R["pines"]):
     wx, wy, z = recast(wx, wy, z)                                                # single pines on the cliffs, found in the picture (roomdata.cliff_pines)
     kit_c.pine(wx, wy, height=40 + prnd.random() * 6, radius=12.5 + prnd.random() * 1.5, rnd=prnd, z0=z, name="cliffpine_%d_%d" % k)
 
@@ -201,11 +332,54 @@ for (y, h), xs in sorted(runs.items()):
         a = x
 so = kit_c.link("step_stumps", bst, [cmat.get("stump"), cmat.rings_mat()]); kit_c.link("step_body", bbody, cmat.get("earth"))
 
-# ---- placeholders: statue, cave; the sea ---------------------------------------------------------------------------------------------------------------
-pb = bmesh.new()
+# ---- statue, cave; the sea ---------------------------------------------------------------------------------------------------------------
+# the statue (2026-10-26): the user's idea after three 3D attempts ('Schnauze zu lang, falsche Form'): the ORIGINAL PIXELS as a camera-facing billboard
+# like the figures, cut out of plane A of the user's own picture (rom_picture.py layerA.png; the PNG stays local); R_STATUE=3d = props_c.massan_statue
+statue_cards = []
+ORIG_DIR = os.path.expanduser(os.environ.get("R_ORIG_DIR", "~/.landstalker_remake/rooms/%d_room_c" % ROOM))
 for (x, y) in R["statues"]:
-    kit_c.rock(pb, G(16 * x + O + 8, 16 * y + O + 8, top[(x, y)] + 22), 8.0, (0.9, 0.8, 2.6), seed=7, lump=0.18)
-if pb.verts: kit_c.link("statue_placeholder", pb, cmat.get("boulder"))
+    xc, yc = 16 * x + O + 8, 16 * y + O + 8
+    la = os.path.join(ORIG_DIR, "layerA.png")
+    if os.environ.get("R_STATUE") == "3d" or not os.path.exists(la):
+        props_c.massan_statue(xc, yc, top[(x, y)], name="statue_%d_%d" % (x, y)); continue
+    U0w, V0w = [int(v) for v in open(os.path.join(ORIG_DIR, "window.txt")).read().split()[:2]]
+    uc = xc - yc + 1184 - U0w; vcorner = (xc + yc) / 2 + 8 - top[(x, y)] - V0w     # picture column of the cell centre, row of its front corner on the ground
+    path = props_c.cut_billboard(la, int(uc) - 30, int(vcorner) - 90, 60, 100, os.path.expanduser("~/.landstalker_remake/props/statue_%d_%d_%d.png" % (ROOM, x, y)))
+    if path:
+        img_path, bottom = path                                                  # bottom = picture row of the lowest statue pixel; rows below the corner go under the ground
+        zst = top[(x, y)] - (bottom - vcorner) * H.FIG_PX
+        statue_cards.append(H.add_figure(img_path, (xc, yc, zst), light=0.45)); card_id(statue_cards[-1], img_path, (xc + 9.0, yc + 8.0, zst))   # foot as the editor draws it (plant cards: +1 pixel edge convention of card_at, measured)
+
+# ---- map editor overrides (user 2026-10-27: 'kleiner simpler Mapeditor'): remake/rooms/<room>.json, written by remake/tools/editor.py --------------------
+# {"move": {card id: [dx, dy, dz]}, "delete": [card id, ...], "add": [{"kind": png name in ~/.landstalker_remake/props, "x", "y", "z" = foot}]}
+OVR_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "rooms", "%d.json" % ROOM)
+OVR_PATH = os.path.expanduser(os.environ.get("R_EDITS_FILE", OVR_PATH))       # the editor renders its UNSAVED edits from a draft file (user: only 'Speichern' takes them over)
+OVR = json.load(open(OVR_PATH)) if os.path.exists(OVR_PATH) and os.environ.get("R_EDITS", "1") != "0" else {}
+def _removed(ob):
+    try: ob.name; return False
+    except ReferenceError: return True
+deleted_cards = []                                                              # kept for the editor (it shows them crossed out and can bring them back)
+for c in plant_cards + statue_cards:
+    cid = c["cid"]
+    if cid in OVR.get("delete", []):
+        m_ = OVR.get("move", {}).get(cid, (0, 0, 0)); f_ = c["foot"]
+        deleted_cards.append(dict(id=cid, kind=c["kind"], png=c["png"], foot=[f_[0] + m_[0], f_[1] + m_[1], f_[2] + m_[2]], added=False, deleted=True))
+        bpy.data.objects.remove(c, do_unlink=True); continue
+    if cid in OVR.get("move", {}):
+        dx, dy, dz = OVR["move"][cid]; dv = mathutils.Vector((dx, -dy, dz))  # game y south = Blender -y
+        for k in ("base", "base_q"):
+            if k in c: c[k] = tuple(mathutils.Vector(c[k]) + dv)
+        c.location = mathutils.Vector(c["base"]); f_ = c["foot"]; c["foot"] = (f_[0] + dx, f_[1] + dy, f_[2] + dz)
+plant_cards = [c for c in plant_cards if not _removed(c)]
+statue_cards = [c for c in statue_cards if not _removed(c)]
+for i, a in enumerate(OVR.get("add", [])):
+    png = os.path.expanduser("~/.landstalker_remake/props/%s.png" % a["kind"])
+    if not os.path.exists(png): print("editor: unknown kind", a["kind"]); continue
+    plant_card(png, a["x"], a["y"], a["z"])["cid"] = "add:%d" % i
+known = {c["cid"] for c in plant_cards + statue_cards} | {d["id"] for d in deleted_cards}
+for cid in list(OVR.get("move", {})) + OVR.get("delete", []):
+    if cid not in known and not any(c.get("cid") == cid for c in bpy.data.objects): print("editor: card not found (automatic placement changed?):", cid)
+print("editor overrides: %d moved, %d deleted, %d added" % (len(OVR.get("move", {})), len(OVR.get("delete", [])), len(OVR.get("add", []))), flush=True)
 for g_ in cave_groups:                                                           # the mouth lies in the slope west of the door cells (Massan: faces east)
     x = min(e[0] for e in g_); y0_, y1_ = min(e[1] for e in g_), max(e[1] for e in g_) + 1; z = top[g_[0]]
     k = cliff_c.K_ROCK; n_ = mathutils.Vector((k, 0, 1)).normalized(); up_ = mathutils.Vector((-1, 0, k)).normalized()
@@ -247,15 +421,107 @@ for ob in sc.objects:                                                           
     if ob.parent is None and ob.type in ("MESH", "EMPTY") and ob.location.z:   # ground (z0) must move down with them
         ob.location.z *= math.sqrt(2.0 / 3.0)
     if "base" in ob: ob["base"] = (ob["base"][0], ob["base"][1], ob["base"][2] * math.sqrt(2.0 / 3.0))
-for f in figs: H.face_camera(f, co, upright=False)
+figs += statue_cards + plant_cards
+for f in figs: f.scale = (1, 1, 1); H.face_camera(f, co, upright=False, game=True)   # pixel cards are not squashed (game_view squashes every mesh; massan_a.render_set does the same reset)
+solids = [o for o in sc.objects if o.type == "MESH" and (o.name.startswith("house_") or o.name.startswith("massan_house_vc"))]
+SORT = os.environ.get("R_SORT", "1") != "0"                                      # 2D sorting of the pixel cards against the houses (massan_a.sort_cards); R_SORT=0 = plain depth test
+fields = [o for o in sc.objects if o.type == "MESH" and o.name.split("_")[0] in ("fence", "terrain", "cliffs", "cave")]
+# map editor views (user 2026-10-27: 'verwirrend wenn ich die Originalposition des Sprites noch sehe', 'wie drehe ich die Raumansicht'): for every view a
+# render WITHOUT the editable cards (half size, the editor draws the cards itself where they are now) and the projection game units -> editor pixels
+from bpy_extras.object_utils import world_to_camera_view
+ecards = [c for c in figs if c.get("cid")]; zs = math.sqrt(2.0 / 3.0); views = []
+def editor_view(name, img):
+    bpy.context.view_layer.update()
+    rx, ry = sc.render.resolution_x, sc.render.resolution_y
+    def px(g):                                                                   # game units (true heights) -> editor pixel (render pixel / PX) and depth
+        v = world_to_camera_view(sc, co, mathutils.Vector(G(g[0], g[1], g[2] * zs))); return (v.x * rx / PX, (1 - v.y) * ry / PX, v.z)
+    p0, px_, py_, pz_ = px((0, 0, 0)), px((100, 0, 0)), px((0, 100, 0)), px((0, 0, 100))
+    A = [[(px_[i] - p0[i]) / 100, (py_[i] - p0[i]) / 100, (pz_[i] - p0[i]) / 100, p0[i]] for i in range(3)]
+    offs = {}
+    for c in ecards:                                                             # card origin (bottom centre) relative to its foot, game units, this view
+        L = c.location; f_ = c["foot"]; offs[c["cid"]] = [L.x - f_[0], -L.y - f_[1], L.z / zs - f_[2]]
+    views.append(dict(name=name, img=img, mask="mask_" + img[len("nocards_"):], w=rx / PX, h=ry / PX, A=A, s=H.FIG_PX * rx / co.data.ortho_scale / PX, offs=offs))
+def render_nocards(img):
+    for c in figs: c.hide_render = True                                         # all cards and the figure (the walk demo draws its own Nigel)
+    tw = [o for o in sc.objects if o.get("shadow_twin")]
+    for o in tw: o.hide_render = True
+    pct, fp = sc.render.resolution_percentage, sc.render.filepath
+    sc.render.filepath = os.path.join(out, img); bpy.ops.render.render(write_still=True)          # full size (the walk demo zooms in; the editor scales it)
+    sc.render.filepath = fp
+    for c in figs: c.hide_render = False
+    for o in tw: o.hide_render = False
+HOUSE_STEP = 28                                                                  # house id i -> red value (i + 1) * 28 in the mask PNG (editor.js reads it back)
+def render_mask(img):
+    """flat colour mask of the houses for the editor (it hides cards behind a house like sort_cards does): workbench, no AA, Standard view."""
+    keep = {o.name: o.hide_render for o in sc.objects}
+    st = (sc.render.engine, sc.render.film_transparent, sc.render.use_freestyle, sc.view_settings.view_transform, sc.view_settings.look,
+          sc.render.resolution_percentage, sc.render.filepath)
+    for o in sc.objects: o.hide_render = o not in solids
+    for i, o in enumerate(solids):
+        v = ((i + 1) * HOUSE_STEP) / 255.0; lin = v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4; o.color = (lin, 0, 0, 1)
+    sc.render.engine = "BLENDER_WORKBENCH"; sc.display.shading.light = "FLAT"; sc.display.shading.color_type = "OBJECT"; sc.display.render_aa = "OFF"
+    sc.render.film_transparent = True; sc.render.use_freestyle = False; sc.view_settings.view_transform = "Standard"; sc.view_settings.look = "None"
+    sc.render.resolution_percentage = int(100 / PX); sc.render.filepath = os.path.join(out, img); bpy.ops.render.render(write_still=True)
+    (sc.render.engine, sc.render.film_transparent, sc.render.use_freestyle, sc.view_settings.view_transform, sc.view_settings.look,
+     sc.render.resolution_percentage, sc.render.filepath) = st
+    for o in sc.objects: o.hide_render = keep.get(o.name, o.hide_render)
+def render_hd(img, key):
+    """'ground position along the view' of fences / terrain / cliffs / cave per pixel for the editor (it lets those cover a card the way sort_cards'
+    fields do): every vertex gets t = (position along the horizontal view direction - lo) / (hi - lo) as a colour (R = t, G = t * 16 mod 1),
+    rendered flat without AA in the Raw view (the bytes are the values).  Returns the parameters for editor.js."""
+    bpy.context.view_layer.update()
+    d = co.matrix_world.to_quaternion() @ mathutils.Vector((0, 0, 1)); hv = mathutils.Vector((-d.x, d.y)).normalized()   # into the scene, game x / y
+    objs = [o for o in fields if o.type == "MESH" and len(o.data.vertices)]
+    hs = []
+    for o in objs:
+        mw = o.matrix_world; hs += [(mw @ v.co).x * hv.x + -(mw @ v.co).y * hv.y for v in o.data.vertices]
+    lo, hi = min(hs) - 1, max(hs) + 1
+    keep = {o.name: o.hide_render for o in sc.objects}; act = {}
+    st = (sc.render.engine, sc.render.film_transparent, sc.render.use_freestyle, sc.view_settings.view_transform, sc.view_settings.look,
+          sc.render.resolution_percentage, sc.render.filepath, sc.display.shading.color_type)
+    for o in sc.objects: o.hide_render = o not in objs
+    for o in objs:
+        me = o.data; act[o.name] = (me.color_attributes.render_color_index, me.color_attributes.active_color_index)
+        a = me.color_attributes.get("ed_hd") or me.color_attributes.new("ed_hd", "FLOAT_COLOR", "POINT")
+        mw = o.matrix_world; col = []
+        for v in me.vertices:
+            w = mw @ v.co; t = ((w.x * hv.x - w.y * hv.y) - lo) / (hi - lo); col += [t, (t * 16) % 1.0, 0.0, 1.0]
+        a.data.foreach_set("color", col); i_ = me.color_attributes.find("ed_hd"); me.color_attributes.render_color_index = i_; me.color_attributes.active_color_index = i_
+    sc.render.engine = "BLENDER_WORKBENCH"; sc.display.shading.light = "FLAT"; sc.display.shading.color_type = "VERTEX"; sc.display.render_aa = "OFF"
+    sc.render.film_transparent = True; sc.render.use_freestyle = False; sc.view_settings.view_transform = "Raw"; sc.view_settings.look = "None"
+    sc.render.resolution_percentage = int(100 / PX); sc.render.filepath = os.path.join(out, img); bpy.ops.render.render(write_still=True)
+    (sc.render.engine, sc.render.film_transparent, sc.render.use_freestyle, sc.view_settings.view_transform, sc.view_settings.look,
+     sc.render.resolution_percentage, sc.render.filepath, sc.display.shading.color_type) = st
+    for o in objs:
+        if act[o.name][0] >= 0: o.data.color_attributes.render_color_index, o.data.color_attributes.active_color_index = act[o.name]
+    for o in sc.objects: o.hide_render = keep.get(o.name, o.hide_render)
+    views[-1].update(hd=img, hv=[hv.x, hv.y], hd_lo=lo, hd_hi=hi)
+def house_boxes():
+    bx = []
+    for o in solids:
+        W = [o.matrix_world @ v.co for v in o.data.vertices]
+        bx.append([min(w.x for w in W), max(w.x for w in W), min(-w.y for w in W), max(-w.y for w in W)])
+    return bx
+editor_view("game", "nocards_game.png")
+if SORT: H.sort_cards(figs, solids, co, fields=fields)
 bpy.ops.render.render(write_still=True)
+render_nocards("nocards_game.png"); render_mask("mask_game.png"); render_hd("hd_game.png", "game")
 print("game view done", flush=True)
-zs = math.sqrt(2.0 / 3.0)
 cxr, cyr = 16 * (min(xs) + max(xs) + 1) / 2 + O, 16 * (min(ys) + max(ys) + 1) / 2 + O
 sc.render.resolution_x = sc.render.resolution_y = int(max(W_, H_) * PX * 0.92); co.data.ortho_scale = max(W_, H_) * 0.92 * math.sqrt(0.5) * 1.15
 for q in (1, 2, 3):
     blx.orbit(co, G(cxr, cyr, 0), 90 * q, 30)
     for f in figs: H.face_camera(f, co, upright=False)
+    editor_view("q%d" % q, "nocards_q%d.png" % q)
+    if SORT: H.sort_cards(figs, solids, co, fields=fields)
     sc.render.filepath = os.path.join(out, "q%d.png" % q); bpy.ops.render.render(write_still=True)
+    render_nocards("nocards_q%d.png" % q); render_mask("mask_q%d.png" % q); render_hd("hd_q%d.png" % q, "q%d" % q)
     print("view q%d done" % q, flush=True)
+# what the map editor needs: every pixel card (id, image, foot in game units), the views, the cells' heights, the picture window
+start = [16 * R["statues"][0][0] + O + 8 + 18, 16 * R["statues"][0][1] + O + 8 + 22] if R["statues"] else None   # where the preview figure stands
+json.dump(dict(room=ROOM, window=[U0, V0, W_, H_], O=O, start=start,
+               cells=[[k[0], k[1], top[k], 16.0 * C[k]["h"], int(C[k]["blk"])] for k in sorted(top)],   # x, y, look height, walk height, blocked
+               views=views, houses=house_boxes(), house_step=HOUSE_STEP, rendered_with=OVR,
+               cards=[dict(id=c["cid"], kind=c["kind"], png=c["png"], foot=list(c["foot"]), added=c["cid"].startswith("add:")) for c in plant_cards + statue_cards] + deleted_cards),
+          open(os.path.join(out, "cards.json"), "w"))
 print("room_c done ->", out)

@@ -1,9 +1,12 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- **Windows: the game no longer crashes right after the start (exit code `0xC0000005`, GitHub issue #5, thanks for the report!).** The name of the save file (`.srm`) is now worked out before the emulator core starts. The Windows package is also tested on a real Windows machine by GitHub now (start with a test ROM, with and without a save file). Nothing changes for Steam Deck / Linux.
-- Included since v1.0.1: the Windows first-build fix (compile step 162 / 163, issue #3).
-- Everything from v1.0.0 is included: Quick Equip (hold R2 + direction), Better Menu (B in Use / Equip goes back to the bar), Live Gaia Effect, Widescreen Off / 16:10 / 16:9 in any width, defaults 16:9 + Full Height + CRT Pro, the own renderer always on, and the AppImage first-start fix.
+- **Language option + German (first part):** Options > Language. Menus, item names, system messages, hints and options are translated; character dialogue is still English for now.
+- **Europe ROM supported:** the European Landstalker ROM is accepted too and runs at the right speed (60 Hz).
+- **Fast Forward can be a toggle (issue #11):** Options > Quality of Life > Fast Forward Key: Hold or Toggle.
+- **Game and sound pause while the window is not in focus (alt+tab, issue #9).**
+- **Quick Save and Fast Forward are OFF by default:** turn them on under Options > Quality of Life; pressing their button while off now shows a hint (issue #6). Fast forward: hold Tab / Steam Deck back button R5.
+- Everything from v1.0.2 is included (Windows start fix, Quick Equip, Better Menu, Live Gaia Effect, Widescreen ...).
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).

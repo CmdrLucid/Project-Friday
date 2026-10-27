@@ -1,0 +1,744 @@
+{
+ "meta": {
+  "code": "de",
+  "name": "Deutsch",
+  "version": 1,
+  "note": "menu, system messages, item names and role names; translated by Claude, to be corrected by the user while playing"
+ },
+ "strings": {
+  "0000": {
+   "h": "2bd589a9",
+   "t": "{Ctl0}Ja"
+  },
+  "0001": {
+   "h": "653075cd",
+   "t": "{Ctl0}Nein"
+  },
+  "0002": {
+   "h": "e8a9232d",
+   "t": "{Ctl0}Benutzen"
+  },
+  "0003": {
+   "h": "080fe0b4",
+   "t": "{Ctl0}Ausrüsten"
+  },
+  "000C": {
+   "h": "2198e4be",
+   "t": "{Item} benutzt.{ContinuePrompt}"
+  },
+  "000D": {
+   "h": "a2efe62f",
+   "t": "{Item} gegessen.{ContinuePrompt}"
+  },
+  "000E": {
+   "h": "9fe2b0d0",
+   "t": "{Item} getrunken.{ContinuePrompt}"
+  },
+  "000F": {
+   "h": "f12784ea",
+   "t": "{Item} geblasen.{ContinuePrompt}"
+  },
+  "0010": {
+   "h": "d3b49744",
+   "t": "Du versuchst,{SoftNewLine}Friday {Item} zu geben.{ContinuePrompt}"
+  },
+  "0011": {
+   "h": "907b3994",
+   "t": "{Item} gefunden.{ContinuePrompt}"
+  },
+  "0012": {
+   "h": "c25ae2a5",
+   "t": "{Item} gefunden.{SoftNewLine}Aber der Beutel ist voll.{ContinuePrompt}"
+  },
+  "0013": {
+   "h": "4ff0b680",
+   "t": "{Item} bekommen.{ContinuePrompt}"
+  },
+  "0014": {
+   "h": "d07fa30c",
+   "t": "Ach...die Truhe war leer.{ContinuePrompt}"
+  },
+  "0015": {
+   "h": "52fd1592",
+   "t": "{Number} Gold bekommen.{ContinuePrompt}"
+  },
+  "0016": {
+   "h": "7320fb7d",
+   "t": "Nichts geschah...{ContinuePrompt}"
+  },
+  "0017": {
+   "h": "636bf767",
+   "t": "{Item} gefunden.{Pause1s}"
+  },
+  "0018": {
+   "h": "a7442713",
+   "t": "{Item} genommen."
+  },
+  "0019": {
+   "h": "34b495ae",
+   "t": "Du hast {Number}% dieser Insel{SoftNewLine}geschafft...{ContinuePrompt}{SoftNewLine}sprach der Orakelstein.{ContinuePrompt}"
+  },
+  "001A": {
+   "h": "9e60926b",
+   "t": "Zweiter Platz bei einem{SoftNewLine}Schönheitswettbewerb!{ContinuePrompt}"
+  },
+  "001B": {
+   "h": "1306b765",
+   "t": "Abrakadabra.....{ContinuePrompt}"
+  },
+  "001C": {
+   "h": "c583a176",
+   "t": "Etwas ist geschehen!{ContinuePrompt}"
+  }
+ },
+ "names": {
+  "item:00": {
+   "h": "6a119137",
+   "t": "EkeEke"
+  },
+  "item:01": {
+   "h": "86c826b7",
+   "t": "Zauber{BreakSpace}schwert"
+  },
+  "item:02": {
+   "h": "a86d7878",
+   "t": "Eis{BreakSpace}schwert"
+  },
+  "item:03": {
+   "h": "c89ab09e",
+   "t": "Donner{BreakSpace}schwert"
+  },
+  "item:04": {
+   "h": "ff49c9c1",
+   "t": "Gaia{BreakSpace}schwert"
+  },
+  "item:05": {
+   "h": "bd415d23",
+   "t": "Feuer{Hyphen}schutz"
+  },
+  "item:06": {
+   "h": "2bac97b0",
+   "t": "Eisen{BreakSpace}stiefel"
+  },
+  "item:07": {
+   "h": "c59bf72a",
+   "t": "Heil{BreakSpace}stiefel"
+  },
+  "item:08": {
+   "h": "0aa6843f",
+   "t": "Schnee{BreakSpace}spikes"
+  },
+  "item:09": {
+   "h": "cad6904f",
+   "t": "Stahl{BreakSpace}panzer"
+  },
+  "item:10": {
+   "h": "d650dacb",
+   "t": "Chrom{BreakSpace}panzer"
+  },
+  "item:11": {
+   "h": "5f49c577",
+   "t": "Muschel{BreakSpace}panzer"
+  },
+  "item:12": {
+   "h": "91543ccf",
+   "t": "Hyper{BreakSpace}panzer"
+  },
+  "item:13": {
+   "h": "d86d8b04",
+   "t": "Mars{BreakSpace}stein"
+  },
+  "item:14": {
+   "h": "05f9572e",
+   "t": "Mond{BreakSpace}stein"
+  },
+  "item:15": {
+   "h": "0b9e9903",
+   "t": "Saturn{BreakSpace}stein"
+  },
+  "item:16": {
+   "h": "f41b5cc8",
+   "t": "Venus{BreakSpace}stein"
+  },
+  "item:17": {
+   "h": "ebe707a8",
+   "t": "Weck{BreakSpace}buch"
+  },
+  "item:18": {
+   "h": "4207a267",
+   "t": "Gegengift{BreakSpace}kraut"
+  },
+  "item:19": {
+   "h": "4d57fc1e",
+   "t": "Gaia{BreakSpace}Statue"
+  },
+  "item:20": {
+   "h": "d2dacfdb",
+   "t": "Gold{BreakSpace}statue"
+  },
+  "item:21": {
+   "h": "cb503f76",
+   "t": "Geist{BreakSpace}heilung"
+  },
+  "item:22": {
+   "h": "3c346ef4",
+   "t": "Casino{BreakSpace}Ticket"
+  },
+  "item:23": {
+   "h": "491f42c3",
+   "t": "Axt{BreakSpace}magie"
+  },
+  "item:24": {
+   "h": "ac8b9435",
+   "t": "Blaues{BreakSpace}Band"
+  },
+  "item:25": {
+   "h": "dfbbfa66",
+   "t": "Käufer{BreakSpace}karte"
+  },
+  "item:26": {
+   "h": "93e720cf",
+   "t": "Laterne"
+  },
+  "item:27": {
+   "h": "364d8c0e",
+   "t": "Knoblauch"
+  },
+  "item:28": {
+   "h": "05a1ab53",
+   "t": "Anti{BreakPoint}Lähmung"
+  },
+  "item:29": {
+   "h": "34fcd960",
+   "t": "Jypta{BreakSpace}Statue"
+  },
+  "item:30": {
+   "h": "1cc22b30",
+   "t": "Sonnen{BreakSpace}stein"
+  },
+  "item:31": {
+   "h": "87432d57",
+   "t": "Armreif"
+  },
+  "item:32": {
+   "h": "d0cb54fb",
+   "t": "Einstein{BreakSpace}Pfeife"
+  },
+  "item:33": {
+   "h": "12f83b6d",
+   "t": "Gegengift{BreakSpace}buch"
+  },
+  "item:34": {
+   "h": "f5992ca9",
+   "t": "Anti{BreakPoint}Fluch"
+  },
+  "item:35": {
+   "h": "5f97d999",
+   "t": "Chronik{BreakSpace}buch"
+  },
+  "item:36": {
+   "h": "3efabac9",
+   "t": "Zauber{BreakSpace}buch"
+  },
+  "item:37": {
+   "h": "ab690e9b",
+   "t": "Gäste{BreakSpace}buch"
+  },
+  "item:38": {
+   "h": "c9da658f",
+   "t": "Insel{BreakSpace}karte"
+  },
+  "item:39": {
+   "h": "ae41fdbd",
+   "t": "Litho{Hyphen}grafie"
+  },
+  "item:40": {
+   "h": "347e88f4",
+   "t": "Rotes{BreakSpace}Juwel"
+  },
+  "item:41": {
+   "h": "01a05ca1",
+   "t": "Pfand{BreakSpace}schein"
+  },
+  "item:42": {
+   "h": "82300d53",
+   "t": "Lila{BreakSpace}Juwel"
+  },
+  "item:43": {
+   "h": "72d819da",
+   "t": "Golas{BreakSpace}Auge"
+  },
+  "item:44": {
+   "h": "94de898c",
+   "t": "Todes{BreakSpace}statue"
+  },
+  "item:45": {
+   "h": "316c57cb",
+   "t": "Dahl"
+  },
+  "item:46": {
+   "h": "60772261",
+   "t": "Genesung"
+  },
+  "item:47": {
+   "h": "126dd3b7",
+   "t": "Holz{BreakPoint}stämme"
+  },
+  "item:48": {
+   "h": "be9230df",
+   "t": "Orakel{BreakSpace}stein"
+  },
+  "item:49": {
+   "h": "4f52aab2",
+   "t": "Idol{BreakSpace}stein"
+  },
+  "item:50": {
+   "h": "c67dd20e",
+   "t": "Schlüssel"
+  },
+  "item:51": {
+   "h": "cfa7bedf",
+   "t": "Passier{BreakSpace}schein"
+  },
+  "item:52": {
+   "h": "bcf598e4",
+   "t": "No52"
+  },
+  "item:53": {
+   "h": "d4198662",
+   "t": "Glocke"
+  },
+  "item:54": {
+   "h": "fdfa66f8",
+   "t": "Erdbeer{BreakSpace}torte"
+  },
+  "item:55": {
+   "h": "47123a5d",
+   "t": "Golas{BreakSpace}Nagel"
+  },
+  "item:56": {
+   "h": "22a88651",
+   "t": "Golas{BreakSpace}Horn"
+  },
+  "item:57": {
+   "h": "920d99db",
+   "t": "Golas{BreakSpace}Zahn"
+  },
+  "item:58": {
+   "h": "863cecc5",
+   "t": "Breit{BreakSpace}schwert"
+  },
+  "item:59": {
+   "h": "46be37f8",
+   "t": "Leder{BreakSpace}panzer"
+  },
+  "item:60": {
+   "h": "7517cf47",
+   "t": "Leder{BreakSpace}stiefel"
+  },
+  "item:61": {
+   "h": "6eef6648",
+   "t": "Nichts"
+  },
+  "item:62": {
+   "h": "64f16280",
+   "t": "Lebens{BreakSpace}vorrat"
+  },
+  "item:63": {
+   "h": "112238c5",
+   "t": "No63"
+  },
+  "menu:00": {
+   "h": "bc5af774",
+   "t": "AP"
+  },
+  "menu:01": {
+   "h": "9f2059fa",
+   "t": "DP"
+  },
+  "menu:02": {
+   "h": "528fb1c4",
+   "t": "Neues Spiel"
+  },
+  "menu:03": {
+   "h": "952f3754",
+   "t": "Start"
+  },
+  "menu:04": {
+   "h": "af74f7c5",
+   "t": "Kopieren"
+  },
+  "menu:05": {
+   "h": "f6fdbe48",
+   "t": "Löschen"
+  },
+  "menu:06": {
+   "h": "5397e058",
+   "t": "Ja"
+  },
+  "menu:07": {
+   "h": "816c52fd",
+   "t": "Nein"
+  },
+  "menu:08": {
+   "h": "46d9768b",
+   "t": "Starten?"
+  },
+  "menu:09": {
+   "h": "04f6db80",
+   "t": "Kopieren?"
+  },
+  "menu:10": {
+   "h": "042dc9b7",
+   "t": "Löschen?"
+  },
+  "menu:11": {
+   "h": "0b8efda5",
+   "t": "Wohin?"
+  },
+  "menu:12": {
+   "h": "e8e953e1",
+   "t": "Massan"
+  },
+  "menu:13": {
+   "h": "38f7dd3f",
+   "t": "Gumi"
+  },
+  "menu:14": {
+   "h": "c6036848",
+   "t": "Ryuma"
+  },
+  "menu:15": {
+   "h": "82e3d22f",
+   "t": "Mercator"
+  },
+  "menu:16": {
+   "h": "0dfe797d",
+   "t": "Verla"
+  },
+  "menu:17": {
+   "h": "5d1ce2e8",
+   "t": "Destel"
+  },
+  "menu:18": {
+   "h": "778a2487",
+   "t": "Mirs Turm"
+  },
+  "menu:19": {
+   "h": "e9d8ee92",
+   "t": "Schloss"
+  },
+  "menu:20": {
+   "h": "e8e953e1",
+   "t": "Massan"
+  },
+  "menu:21": {
+   "h": "38f7dd3f",
+   "t": "Gumi"
+  },
+  "menu:22": {
+   "h": "c6036848",
+   "t": "Ryuma"
+  },
+  "menu:23": {
+   "h": "82e3d22f",
+   "t": "Mercator"
+  },
+  "menu:24": {
+   "h": "0dfe797d",
+   "t": "Verla"
+  },
+  "menu:25": {
+   "h": "5d1ce2e8",
+   "t": "Destel"
+  },
+  "menu:26": {
+   "h": "740d324a",
+   "t": "Seeschrein"
+  },
+  "menu:27": {
+   "h": "08cd4fb2",
+   "t": "Unterhöhle"
+  },
+  "menu:28": {
+   "h": "217b6e1b",
+   "t": "Kazalt"
+  },
+  "char:00": {
+   "h": "96ea8904",
+   "t": "Bürgermeister"
+  },
+  "char:05": {
+   "h": "89ff3122",
+   "t": "Händler"
+  },
+  "char:06": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:07": {
+   "h": "0f775394",
+   "t": "Wirt"
+  },
+  "char:09": {
+   "h": "96ea8904",
+   "t": "Bürgermeister"
+  },
+  "char:10": {
+   "h": "34e287be",
+   "t": "Frau"
+  },
+  "char:11": {
+   "h": "0f775394",
+   "t": "Wirt"
+  },
+  "char:12": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:13": {
+   "h": "0f775394",
+   "t": "Wirt"
+  },
+  "char:14": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:15": {
+   "h": "89ff3122",
+   "t": "Händler"
+  },
+  "char:17": {
+   "h": "96ea8904",
+   "t": "Bürgermeister"
+  },
+  "char:18": {
+   "h": "0f775394",
+   "t": "Wirt"
+  },
+  "char:19": {
+   "h": "ba83eff4",
+   "t": "Kassierer"
+  },
+  "char:20": {
+   "h": "89ff3122",
+   "t": "Händler"
+  },
+  "char:21": {
+   "h": "89ff3122",
+   "t": "Händler"
+  },
+  "char:25": {
+   "h": "89ff3122",
+   "t": "Händler"
+  },
+  "char:27": {
+   "h": "89ff3122",
+   "t": "Händler"
+  },
+  "char:28": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:35": {
+   "h": "89ff3122",
+   "t": "Händler"
+  },
+  "char:36": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:37": {
+   "h": "96ea8904",
+   "t": "Bürgermeister"
+  },
+  "char:38": {
+   "h": "0f775394",
+   "t": "Wirt"
+  },
+  "char:39": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:40": {
+   "h": "89ff3122",
+   "t": "Händler"
+  },
+  "char:41": {
+   "h": "89ff3122",
+   "t": "Händler"
+  },
+  "char:42": {
+   "h": "89ff3122",
+   "t": "Händler"
+  },
+  "char:43": {
+   "h": "0f775394",
+   "t": "Wirt"
+  },
+  "char:44": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:45": {
+   "h": "89ff3122",
+   "t": "Händler"
+  },
+  "char:53": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "special:03": {
+   "h": "cdf92988",
+   "t": "Orkkönig"
+  }
+ },
+ "ui": {
+  "yesno_no_x": 168,
+  "yesno_cursor_yes_x": 208,
+  "yesno_cursor_no_x": 296
+ },
+ "ui_text": {
+  "Widescreen": "Breitbild",
+  "Full Height": "Volle Höhe",
+  "Filter": "Filter",
+  "Fullscreen": "Vollbild",
+  "Scaling": "Skalierung",
+  "De-Dither": "De-Dither",
+  "Music Volume": "Musiklautstärke",
+  "Effects Volume": "Effektlautstärke",
+  "Speech Sound": "Sprechlaute",
+  "Shadows": "Schatten",
+  "Quick Items": "Schnell-Items",
+  "Fast Forward": "Vorspulen",
+  "Fast Forward Key": "Vorspul-Taste",
+  "Damage Taken": "Schaden erhalten",
+  "Enemy HP": "Gegner-HP",
+  "Quick Save": "Schnellspeichern",
+  "Fix Ride Objects": "Fahrobjekt-Fix",
+  "Item Info": "Item-Info",
+  "Buy Quantity": "Kaufmenge",
+  "Map Behind Text": "Karte hinter Text",
+  "Own Renderer": "Eig. Renderer",
+  "Live Gaia Effect": "Live-Gaia-Effekt",
+  "Quick Equip": "Schnellwechsel",
+  "Better Menu": "Besseres Menü",
+  "Language": "Sprache",
+  "Options": "Optionen",
+  "Video": "Video",
+  "Audio": "Audio",
+  "Quality of Life": "Komfort",
+  "Difficulty": "Schwierigkeit",
+  "Keybindings": "Tastenbelegung",
+  "Quit Game": "Spiel beenden",
+  "PRESS A": "A DRÜCKEN",
+  "PRESS KEY": "TASTE DRÜCKEN",
+  "Reset Defaults": "Zurücksetzen",
+  "Off": "Aus",
+  "On": "An",
+  "Hold": "Halten",
+  "Toggle": "Antippen",
+  "Low": "Niedrig",
+  "Medium": "Mittel",
+  "High": "Hoch",
+  "Scanlines": "Zeilen",
+  "CRT Curved": "CRT gewölbt",
+  "Fit": "Einpassen",
+  "Integer": "Ganzzahl",
+  "Fill": "Füllen",
+  "Light": "Leicht",
+  "Strong": "Stark",
+  "Soft": "Weich",
+  "Use": "Benutzen",
+  "Equip": "Ausrüsten",
+  "Start": "Start",
+  "Copy": "Kopieren",
+  "Delete": "Löschen",
+  "Button A": "Taste A",
+  "Button B": "Taste B",
+  "Button C": "Taste C",
+  "Quick 1": "Schnell 1",
+  "Quick 2": "Schnell 2",
+  "Quick Load": "Schnellladen",
+  "Coordinates": "Koordinaten",
+  "QUICKSAVE": "SCHNELLSPEICHERN",
+  "QUICKLOAD": "SCHNELLLADEN",
+  "NO QUICKSAVE": "NICHTS GESPEICHERT",
+  "QUICK SAVE OFF - SEE OPTIONS": "SCHNELLSPEICHERN AUS - SIEHE OPTIONEN",
+  "FAST FORWARD OFF - SEE OPTIONS": "VORSPULEN AUS - SIEHE OPTIONEN",
+  "FAST FORWARD %dX": "VORSPULEN %dX",
+  "NO OTHER %s": "%s: NICHTS ANDERES",
+  "SWORD": "SCHWERT",
+  "ARMOUR": "RÜSTUNG",
+  "BOOTS": "STIEFEL",
+  "RING": "RING",
+  "MAGIC": "ZAUBER",
+  "THUNDER": "DONNER",
+  "ICE": "EIS",
+  "GAIA": "GAIA",
+  "STEEL": "STAHL",
+  "CHROME": "CHROM",
+  "SHELL": "MUSCHEL",
+  "HYPER": "HYPER",
+  "HEALING": "HEIL",
+  "FIREPROOF": "FEUERFEST",
+  "IRON": "EISEN",
+  "SPIKE": "SPIKES",
+  "SATURN": "SATURN",
+  "MARS": "MARS",
+  "MOON": "MOND",
+  "VENUS": "VENUS",
+  "BROAD SWORD": "BREITSCHWERT",
+  "LEATHER BREAST": "LEDERPANZER",
+  "LEATHER BOOTS": "LEDERSTIEFEL",
+  "LEATHER": "LEDER",
+  "NONE": "NICHTS",
+  "SABR": "SPSR",
+  "Restores HP, Friday revives you": "Heilt HP, Friday belebt dich",
+  "Charged: flames engulf the enemy": "Geladen: Flammen hüllen Feind ein",
+  "Charged: ice whirlwind freezes": "Geladen: Eiswirbel friert ein",
+  "Charged: lightning bolt": "Geladen: Blitzschlag",
+  "Charged: earthquake hurts all": "Geladen: Erdbeben schadet allen",
+  "No damage from lava": "Kein Schaden durch Lava",
+  "No damage from spiked floors": "Kein Schaden durch Dornenböden",
+  "Heals you while you walk": "Heilt dich beim Gehen",
+  "No slipping on ice": "Kein Rutschen auf Eis",
+  "Enemy damage x0.9": "Feindschaden x0,9",
+  "Enemy damage x0.8": "Feindschaden x0,8",
+  "Enemy damage x0.7": "Feindschaden x0,7",
+  "Enemy damage x0.5": "Feindschaden x0,5",
+  "Immune to poison and paralysis": "Immun gegen Gift und Lähmung",
+  "Immune to confusion": "Immun gegen Verwirrung",
+  "Sword charges 2x faster": "Schwert lädt 2x schneller",
+  "Sword charges 3x faster": "Schwert lädt 3x schneller",
+  "Cures poison": "Heilt Gift",
+  "Cures confusion": "Heilt Verwirrung",
+  "Cures paralysis": "Heilt Lähmung",
+  "Cures poison and paralysis": "Heilt Gift und Lähmung",
+  "Restores HP completely": "Füllt HP vollständig auf",
+  "Earthquake hurts monsters in range": "Erdbeben trifft Monster ringsum",
+  "Fills the sword meter for a while": "Schwertleiste eine Weile voll",
+  "Entry to the Casino": "Eintritt ins Casino",
+  "Cuts down discolored trees": "Fällt verfärbte Bäume",
+  "Lights up dark rooms": "Erhellt dunkle Räume",
+  "Makes Miro run from Nigel": "Miro flieht vor Nigel",
+  "Powers the Lighthouse light": "Betreibt das Leuchtturmlicht",
+  "Breaks the Mir Tower barrier": "Bricht die Barriere von Mirs Turm",
+  "Calls Einstein, talks to dogs": "Ruft Einstein, spricht mit Hunden",
+  "Lets you buy from the warehouse": "Erlaubt Kauf im Lagerhaus",
+  "Jewel for the Gola Eye": "Juwel für das Gola-Auge",
+  "Shows where the 5 jewels are": "Zeigt, wo die 5 Juwelen sind",
+  "Trade HP for gold, only once": "HP gegen Gold, nur einmal",
+  "Opens King Nole Cave again": "Öffnet die Nole-Höhle erneut",
+  "Random effects, bad or good": "Zufallseffekte, gut oder schlecht",
+  "Used to make a raft": "Zum Bau eines Floßes",
+  "Shows how much you have done": "Zeigt deinen Fortschritt",
+  "Opens the Swamp Shrine door": "Öffnet die Tür im Sumpfschrein",
+  "Opens locked doors": "Öffnet verschlossene Türen",
+  "Allows entry to Mercator": "Erlaubt Einlass in Mercator",
+  "Rings near a Life Stock": "Klingelt nahe eines Lebensvorrats",
+  "Makes Friday happy or mad": "Macht Friday froh oder wütend",
+  "Gola treasure for the Palace": "Gola-Schatz für den Palast",
+  "NOT NOW": "JETZT NICHT"
+ }
+}

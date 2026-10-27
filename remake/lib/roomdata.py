@@ -95,6 +95,15 @@ def classify(R):
         elif rel <= 2: cls = "small"                                             # bushes / pines / fence: decided per cell below
         else: cls = "cliff"
         groups.append(dict(cls=cls, h=c["h"], base=hi if cls in ("house", "small") else c["h"], rel=rel, cells=comp, doors=gd))
+    # a group without a walkable neighbour (Massan: the bush row at y 2 behind the pine row, between pines and the map edge) gets its base from the
+    # neighbouring groups that have one, so its height above the ground counts (else rel = its absolute height = 'cliff')
+    gof = {p: gr for gr in groups for p in gr["cells"]}
+    for gr in groups:
+        if gr["cls"] != "cliff" or any(q in walk for p in gr["cells"] for dx, dy in N4 for q in [(p[0] + dx, p[1] + dy)]): continue
+        nbg = {id(gof[q]): gof[q] for p in gr["cells"] for dx, dy in N4 for q in [(p[0] + dx, p[1] + dy)] if q in gof and gof[q] is not gr and gof[q]["cls"] == "small"}
+        if not nbg: continue
+        hi = max(g_["base"] for g_ in nbg.values()); rel = gr["h"] - hi
+        if 0 < rel <= 2: gr.update(cls="small", base=hi, rel=rel)
     # a group with several doors = several houses: every cell goes to the nearest door along the door wall
     out = []
     for gr in groups:
@@ -121,11 +130,16 @@ def classify(R):
                                             "fence" if c[0] > c[1] - 10 and c[0] > 80 and c[0] < 130 and c[2] < c[1] else None)
         known = [v for v in obj.values() if v]
         thin = len(gr["cells"]) <= 1.5 * max(max(p[0] for p in gr["cells"]) - min(p[0] for p in gr["cells"]) + 1, max(p[1] for p in gr["cells"]) - min(p[1] for p in gr["cells"]) + 1)
-        if thin and gr["rel"] == 2: obj = {p: "fence" for p in obj}; known = ["fence"]      # a thin line of height 2 is a fence (colours there mix with the slope behind)
+        if thin and gr["rel"] == 2:                                              # a thin line of height 2 is a fence (colours there mix with the slope behind) ...
+            obj = {p: "pine" if v == "pine" else "fence" for p, v in obj.items()}; known = ["fence"]   # ... except clear pines (Massan: the pine row east of the houses at y 3 is joined to the palisade)
         fill = max(set(known), key=known.count) if known else ("fence" if thin and gr["rel"] == 2 else "bush" if gr["rel"] == 1 else "pine")
         if gr["rel"] == 1 and fill == "fence": fill = "bush"
         for p in obj:
             if obj[p] is None: obj[p] = fill
+        others = [v for v in obj.values() if v != "fence"]
+        for p in [p for p, v in obj.items() if v == "fence" and others]:          # a lone 'fence' cell among plants = brown stems / trunks (Massan (5, 18) under the
+            if not any(obj.get((p[0] + dx, p[1] + dy)) == "fence" for dx, dy in N4): # round bush): the most common plant of the group
+                obj[p] = max(set(others), key=others.count)
         gr["obj"] = obj
         kinds = set(obj.values()); gr["cls"] = kinds.pop() if len(kinds) == 1 else "mixed"
     # walkable details

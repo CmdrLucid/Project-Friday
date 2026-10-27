@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Fast forward (2026-10-15, user wish): HOLD pad R2 (right trigger) or keyboard Tab = the game runs 2x / 3x / 4x as fast (Options > Gameplay > Fast Forward: Off / 2x / 3x / 4x, file ~/.landstalker_ffwd,
-env LANDSTALKER_FFWD=0..3, test aid LANDSTALKER_FFWD_HOLD=1 = as if the button were held). While it is held only every Nth emulated frame is drawn, the audio of the skipped frames is dropped (no chipmunk sound), the frame pacing waits 1/N of a frame, the game itself is
+"""Fast forward (2026-10-15, user wish; 2026-10-27 GitHub issue #11: Options 'Fast Forward Key' Hold / Toggle right under 'Fast Forward', saved as the second number of ~/.landstalker_ffwd, env LANDSTALKER_FFWD_MODE=0/1, test aid LANDSTALKER_FFWD_TAPS=poll,poll): HOLD pad R2 (right trigger; since patch_keys.py the default pad button is the back paddle R5 / PADDLE4, R2 = Quick Equip) or keyboard Tab = the game runs 2x / 3x / 4x as fast (Options > Gameplay > Fast Forward: Off / 2x / 3x / 4x, file ~/.landstalker_ffwd,
+env LANDSTALKER_FFWD=0..3; while Off a press only shows 'FAST FORWARD OFF - SEE OPTIONS' (issue #6), test aid LANDSTALKER_FFWD_HOLD=1 = as if the button were held). While it is held only every Nth emulated frame is drawn, the audio of the skipped frames is dropped (no chipmunk sound), the frame pacing waits 1/N of a frame, the game itself is
 untouched (the emulation just runs without waiting). A hint 'FAST FORWARD 3x' is shown on screen.
 The shoulder buttons L1 / R1 / L2 (and the old R2 = full height) no longer trigger display functions: everything of that is in the options menu (the F1..F6 keys and L4 / R4 keep working).
 Needs patch_display / patch_wide / patch_tall / patch_options / patch_fullscreen before it.  Idempotent.  usage: patch_ffwd.py path/to/genrecomp"""
@@ -35,15 +35,32 @@ if VER not in s:
     assert s.count(a) == 1
     module = r'''/* ---- LK_FFWD v1: fast forward (tools/patch_ffwd.py) ---- */
 static int lk_ff_opt = -1, lk_ff_pad, lk_ff_kb;   /* option 0 off, 1 = 2x, 2 = 3x, 3 = 4x; hold flags */
+static int lk_ff_mode, lk_ff_tog, lk_ff_prev;   /* key mode 0 = hold, 1 = toggle (GitHub issue #11, Options 'Fast Forward Key'); toggle state; key state of the last poll */
 static void lk_ff_path(char *b, size_t n) { const char *h = getenv("HOME"); snprintf(b, n, "%s/.landstalker_ffwd", h ? h : "."); }
 static void lk_ff_load(void) {
-    char p[512]; FILE *f; const char *e = getenv("LANDSTALKER_FFWD"); lk_ff_opt = 0;   /* default Off (user wish 2026-10-15); Options > Gameplay > Fast Forward turns it on */
-    lk_ff_path(p, sizeof p); f = fopen(p, "r"); if (f) { int a; if (fscanf(f, "%d", &a) == 1 && a >= 0 && a < 4) lk_ff_opt = a; fclose(f); }
+    char p[512]; FILE *f; const char *e = getenv("LANDSTALKER_FFWD"); lk_ff_opt = 0; lk_ff_mode = 0;   /* default Off (user wish 2026-10-15); Options > Gameplay > Fast Forward turns it on */
+    lk_ff_path(p, sizeof p); f = fopen(p, "r"); if (f) { int a, m; int k = fscanf(f, "%d %d", &a, &m); if (k >= 1 && a >= 0 && a < 4) lk_ff_opt = a; if (k == 2) lk_ff_mode = m == 1; fclose(f); }   /* file: 'speed mode' (older files: speed only = hold) */
     if (e && *e) { int a = atoi(e); if (a >= 0 && a < 4) lk_ff_opt = a; }
+    e = getenv("LANDSTALKER_FFWD_MODE"); if (e && *e) lk_ff_mode = atoi(e) == 1;
 }
+static void lk_ff_save(void) { char p[512]; FILE *f; lk_ff_path(p, sizeof p); f = fopen(p, "w"); if (f) { fprintf(f, "%d %d\n", lk_ff_opt, lk_ff_mode); fclose(f); } }
 int lk_ffwd_get(void) { if (lk_ff_opt < 0) lk_ff_load(); return lk_ff_opt; }
-void lk_ffwd_set(int v) { char p[512]; FILE *f; lk_ffwd_get(); lk_ff_opt = v & 3; lk_ff_path(p, sizeof p); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_ff_opt); fclose(f); } }
-void platform_set_ffwd(int hold) { lk_ff_pad = hold ? 1 : 0; }
+void lk_ffwd_set(int v) { lk_ffwd_get(); lk_ff_opt = v & 3; if (!lk_ff_opt) lk_ff_tog = 0; lk_ff_save(); }
+int lk_ffwd_mode_get(void) { lk_ffwd_get(); return lk_ff_mode; }
+void lk_ffwd_mode_set(int v) { lk_ffwd_get(); lk_ff_mode = v ? 1 : 0; lk_ff_tog = 0; lk_ff_save(); }
+void platform_set_ffwd(int hold) {   /* called every input poll with the bound key / button state */
+    int edge;
+    {   /* test aid LANDSTALKER_FFWD_TAPS=300,900: a one-poll press at these poll counts (headless check of the toggle) */
+        static const char *taps; static int init; static long poll;
+        if (!init) { init = 1; taps = getenv("LANDSTALKER_FFWD_TAPS"); }
+        poll++;
+        if (taps) { char key[32], l[512]; snprintf(l, sizeof l, ",%s,", taps); snprintf(key, sizeof key, ",%ld,", poll); if (strstr(l, key)) { hold = 1; fprintf(stderr, "LK_FFWD: tap at poll %ld\n", poll); } }
+    }
+    edge = hold && !lk_ff_prev; lk_ff_prev = hold ? 1 : 0;
+    if (edge && lk_ffwd_get() == 0) { { extern const char *lk_lang_tr(const char *); snprintf(lk_osd_text, sizeof lk_osd_text, "%s", lk_lang_tr("FAST FORWARD OFF - SEE OPTIONS")); }; lk_osd_frames = 150; }   /* a press while the option is Off says so (GitHub issue #6) */
+    if (lk_ffwd_mode_get()) { if (edge && lk_ffwd_get() > 0) { lk_ff_tog = !lk_ff_tog; if (getenv("LANDSTALKER_FFWD_TAPS")) fprintf(stderr, "LK_FFWD: toggle %s\n", lk_ff_tog ? "on" : "off"); } lk_ff_pad = lk_ff_tog; }   /* toggle: one press on, the next off */
+    else { lk_ff_tog = 0; lk_ff_pad = hold ? 1 : 0; }
+}
 extern int lk_seam_synth(void), lk_seam_due(void);
 extern int lk_seam_gap(void);   /* S3.5 (patch_own.py): the picture is frozen while the game fades and loads for a seamless door transition: run it fast */
 static int lk_ff_n(void) { static int always = -1; if (lk_seam_gap()) return 16; if (always < 0) always = getenv("LANDSTALKER_FFWD_HOLD") != NULL; return ((lk_ff_pad || lk_ff_kb || always) && lk_ffwd_get() > 0) ? lk_ff_opt + 1 : 1; }   /* emulated frames per displayed frame */
@@ -52,7 +69,7 @@ static int lk_ff_n(void) { static int always = -1; if (lk_seam_gap()) return 16;
     # skip drawing
     b = "    if (!s_texture || !s_renderer) return;\n\n    lk_disp_present(framebuffer);\n}"
     assert s.count(b) == 1, "present layout changed"
-    s = s.replace(b, "    if (!s_texture || !s_renderer) return;\n    { int n = lk_ff_n(); if (n > 1) { static int c; if (!lk_seam_gap()) { snprintf(lk_osd_text, sizeof lk_osd_text, \"FAST FORWARD %dX\", n); lk_osd_frames = 3; } if (lk_seam_synth()) { if (!lk_seam_due()) return; } else if (++c % n) return; } }   /* LK_FFWD v1: draw every Nth frame (a seamless gap with a gliding picture: only the frames that are due) */\n\n    lk_disp_present(framebuffer);\n}", 1)
+    s = s.replace(b, "    if (!s_texture || !s_renderer) return;\n    { int n = lk_ff_n(); if (n > 1) { static int c; if (!lk_seam_gap()) { { extern const char *lk_lang_tr(const char *); snprintf(lk_osd_text, sizeof lk_osd_text, lk_lang_tr(\"FAST FORWARD %dX\"), n); } lk_osd_frames = 3; } if (lk_seam_synth()) { if (!lk_seam_due()) return; } else if (++c % n) return; } }   /* LK_FFWD v1: draw every Nth frame (a seamless gap with a gliding picture: only the frames that are due) */\n\n    lk_disp_present(framebuffer);\n}", 1)
     # audio
     c = "void platform_queue_audio(const int16_t *samples, int sample_count) {\n"
     assert s.count(c) == 1

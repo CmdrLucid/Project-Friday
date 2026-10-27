@@ -100,6 +100,7 @@ void lk_osd_equip_flash(int cat) { lk_eq_flash_cat = cat; lk_eq_flash_frames = 9
 int lk_osd_equip_armed(int cat) { return lk_eq_flash_cat == cat && lk_eq_flash_frames > 0; }   /* the strip of this kind is on screen: the next press switches (first press only shows) */
 void lk_osd_equip_disarm(void) { lk_eq_flash_frames = 0; }
 extern uint8_t lk_eq_own[16];
+extern const char *lk_lang_tr(const char *en);   /* tools/patch_lang.py: the names in the overlay are translated (capitals, the hint font) */
 static void lk_eq_text(int x, int y, const char *t, int sc, int r, int g, int b) {   /* small text with the game's glyphs, sc = pixel size */
     SDL_SetRenderDrawColor(s_renderer, r, g, b, 255);
     for (int i = 0; t[i]; i++) { const uint8_t *gl = lk_glyph(t[i]); for (int rr = 0; rr < 7; rr++) for (int c = 0; c < 5; c++) if (gl[rr] & (0x10 >> c)) { SDL_Rect d = { x + (i * 6 + c) * sc, y + rr * sc, sc, sc }; SDL_RenderFillRect(s_renderer, &d); } }
@@ -117,7 +118,7 @@ static void lk_eq_frame(SDL_Rect c, int t, int r, int g, int b) {
     SDL_RenderFillRect(s_renderer, &b1); SDL_RenderFillRect(s_renderer, &b2); SDL_RenderFillRect(s_renderer, &b3); SDL_RenderFillRect(s_renderer, &b4);
 }
 static void lk_eq_overlay(int ow, int oh) {   /* Quick Equip held: the four kinds in a cross (up sword, right armour, down boots, left ring) with the icon + name of what Nigel wears; the kind just changed is framed and its four pieces are shown in a strip (current framed, not owned greyed) */
-    static const int cx[4] = { 1, 2, 1, 0 }, cy[4] = { 0, 1, 2, 1 }; static const char *lt = "SABR";
+    static const int cx[4] = { 1, 2, 1, 0 }, cy[4] = { 0, 1, 2, 1 }; const char *lt = lk_lang_tr("SABR");
     static const char *nm[4][4] = { { "MAGIC", "THUNDER", "ICE", "GAIA" }, { "STEEL", "CHROME", "SHELL", "HYPER" }, { "HEALING", "FIREPROOF", "IRON", "SPIKE" }, { "SATURN", "MARS", "MOON", "VENUS" } };
     static const uint8_t lay[4][4] = { { 1, 3, 2, 4 }, { 9, 10, 11, 12 }, { 7, 5, 6, 8 }, { 15, 13, 14, 16 } };
     static const char *dn[4] = { "BROAD SWORD", "LEATHER", "LEATHER", "NONE" };   /* starting equipment (the menu says Leather Breast / Leather Boots; shortened to fit the cells) */
@@ -133,14 +134,14 @@ static void lk_eq_overlay(int ow, int oh) {   /* Quick Equip held: the four kind
         lk_eq_frame(cell, ip, hl ? 255 : 110, hl ? 220 : 110, hl ? 60 : 110);
         { int any = 0; for (int i = 0; i < 256 && !any; i++) if (lk_quick_icon_rgb(idx >= 0 ? id : 0x3A + k, i) >= 0) any = 1;   /* an id outside the 16 pieces (starting equipment: the game's 'no sword' ids, or 0) must not show another item's icon (EkeEke) */
           if (any) lk_eq_icon(idx >= 0 ? id : 0x3A + k, cell.x + (cw - 16 * ip) / 2, cell.y + ip, ip, 0); else lk_eq_text(cell.x + (cw - 6 * ts) / 2, cell.y + 4 * ip, (char[]){ lt[k], 0 }, ip, 255, 255, 255); }
-        { const char *nn = idx >= 0 ? nm[k][idx] : dn[k]; int n = (int)strlen(nn), sc = n * 6 * ts > cw - 2 ? 1 : ts; lk_eq_text(cell.x + (cw - n * 6 * sc) / 2, cell.y + ch - 9 * ts, nn, sc, 230, 230, 230); }
+        { const char *nn = lk_lang_tr(idx >= 0 ? nm[k][idx] : dn[k]); int n = (int)strlen(nn), sc = n * 6 * ts > cw - 2 ? 1 : ts; lk_eq_text(cell.x + (cw - n * 6 * sc) / 2, cell.y + ch - 9 * ts, nn, sc, 230, 230, 230); }
     }
     if (lk_eq_flash_cat >= 0 && lk_eq_flash_frames > 0) {   /* candidate strip of the changed kind, right of the cross: the starting equipment first, then the four pieces */
         int k = lk_eq_flash_cat, sx = x0 + 3 * cw + 2 * m, sy = y0 + cy[k] * ch, sw = 23 * ip, curid = bus_read8(0xFF114Eu + (uint32_t)k), curin = 0;
         for (int q = 0; q < 4; q++) if (lay[k][q] == curid) curin = 1;
         for (int q = 0; q < 5; q++) {
             SDL_Rect c = { sx + q * (sw + ip), sy, sw, ch }; int id = q ? lay[k][q - 1] : 0x3A + k, own = q ? lk_eq_own[k * 4 + q - 1] : 1, cur = q ? (curid == id) : !curin;
-            const char *nn = q ? nm[k][q - 1] : dn[k];
+            const char *nn = lk_lang_tr(q ? nm[k][q - 1] : dn[k]);
             SDL_SetRenderDrawColor(s_renderer, 0, 0, 0, 200); SDL_RenderFillRect(s_renderer, &c);
             lk_eq_frame(c, ip, cur ? 255 : 80, cur ? 220 : 80, cur ? 60 : 80);
             lk_eq_icon(id, c.x + (sw - 16 * ip) / 2, c.y + ip, ip, !own);

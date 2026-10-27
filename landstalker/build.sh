@@ -162,6 +162,12 @@ python3 tools/patch_warp.py .deps/genrecomp
 python3 tools/patch_wav.py .deps/genrecomp
 # audio buffer: ~3 frames of prefill + overflow valve against crackle (tools/patch_audiobuf.py, LANDSTALKER_AUDIO_PREFILL / _MAXQ)
 python3 tools/patch_audiobuf.py .deps/genrecomp
+# focus pause: no focus / minimized = game and audio paused (issue #9, tools/patch_focuspause.py, LANDSTALKER_NOFOCUSPAUSE=1 = off)
+python3 tools/patch_focuspause.py .deps/genrecomp
+# video standard: force NTSC / 60 Hz for every ROM, region stays auto (a Europe ROM was PAL = 20 % too fast; tools/patch_region.py, LANDSTALKER_PAL=1 = auto-detect)
+python3 tools/patch_region.py .deps/genrecomp
+# text layer runtime: language binary (tools/langbuild.py), translated strings / names / font (tools/patch_lang.py, docs/TEXT_LAYER.md)
+python3 tools/patch_lang.py .deps/genrecomp
 # sound diagnostics + separate music / effect volumes (tools/patch_sndsep.py, LANDSTALKER_SNDLOG / LANDSTALKER_ZRAMDUMP)
 python3 tools/patch_sndsep.py .deps/genrecomp
 # diagnostics: LANDSTALKER_VDPLOG=1 lists which game function writes which tile columns of the scroll planes (widescreen work)
@@ -186,6 +192,8 @@ python3 tools/patch_sprcull.py src/recomp
 
 # 1b2. speech blips on/off option: skips the talk-sound trap in $023104 (tools/patch_talk.py; must run before rename_generated)
 python3 tools/patch_talk.py src/recomp
+# Yes / No prompt layout from the language file (tools/patch_yesno.py, docs/TEXT_LAYER.md; must run before rename_generated)
+python3 tools/patch_yesno.py src/recomp
 
 # 1c. readable names in the generated C: sub_XXXXXX -> Name_XXXXXX from docs/symbols.json (address stays in the name; must run AFTER patch_sprcull; LANDSTALKER_NONAMES_C=1 = off), see tools/rename_generated.py
 python3 tools/rename_generated.py src/recomp
@@ -193,6 +201,10 @@ python3 tools/rename_generated.py src/recomp
 # 2. Compile
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j"$(nproc)"
+
+# 3. Languages: every lang/*.json -> build/lang/<code>.bin + index.txt (derived from your ROM's font and text hashes: local only, tools/langbuild.py, docs/TEXT_LAYER.md)
+mkdir -p build/lang
+python3 tools/langbuild.py "$ROM" lang build/lang
 
 # generated functions cut off in the middle of an instruction (bogus function starts): informational
 python3 tools/check_splits.py "$ROM" src/recomp 2>&1 | head -12 || true

@@ -31,7 +31,8 @@ def rmtree(path):
     shutil.rmtree(path, onerror=onerr)
 NAME = "Project-Friday"
 # SHA-1 of the ROM version this project is built and tested for (2 MB Genesis dump, as used on the Steam Deck)
-KNOWN_ROMS = {"24345e29427b000b90df778965dd8834300a9dde": "Landstalker (Mega Drive)"}
+KNOWN_ROMS = {"24345e29427b000b90df778965dd8834300a9dde": "Landstalker (Mega Drive, USA)",
+              "9fbadc86319936855831ecd096d82d716b304215": "Landstalker (Mega Drive, Europe)"}   # Europe = US code with 50 Hz timing constants (HANDOFF 0a120)
 DATA = os.environ.get("LANDSTALKER_DATA") or (
     os.path.join(os.environ.get("LOCALAPPDATA") or os.path.join(os.path.expanduser("~"), "AppData", "Local"), "Project-Friday") if WIN else
     os.path.join(os.environ.get("XDG_DATA_HOME") or os.path.join(os.path.expanduser("~"), ".local", "share"), "project-friday"))
@@ -232,6 +233,8 @@ def build_id(rom_sha):
     files = [os.path.join(HERE, "recomp.json"), os.path.join(HERE, "docs", "symbols.json"), os.path.join(HERE, "docs", "ENTITIES.md"), os.path.join(HERE, "src", "main.c"),
              os.path.join(HERE, "build.sh"), os.path.join(HERE, "vendor", "genrecomp", "VENDOR_REVISION.txt")]
     files += sorted(os.path.join(HERE, "tools", f) for f in os.listdir(os.path.join(HERE, "tools")) if f.endswith((".py", ".c", ".h", ".json")))
+    if os.path.isdir(os.path.join(HERE, "lang")):
+        files += sorted(os.path.join(HERE, "lang", f) for f in os.listdir(os.path.join(HERE, "lang")) if f.endswith(".json"))
     for f in files:
         if os.path.isfile(f):
             h.update(os.path.basename(f).encode())
@@ -345,6 +348,9 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
             shutil.copy2(p, os.path.join(work, "tools", f))
     for sub in ("funcdiff",):
         pass
+    if os.path.isdir(os.path.join(HERE, "lang")):   # translations (our own text), built by tools/langbuild.py (a step of build.sh) into build/lang
+        shutil.copytree(os.path.join(HERE, "lang"), os.path.join(work, "lang"))
+    os.makedirs(os.path.join(work, "build", "lang"), exist_ok=True)
     shutil.copy2(os.path.join(HERE, "docs", "symbols.json"), os.path.join(work, "docs", "symbols.json"))
     shutil.copy2(os.path.join(HERE, "docs", "ENTITIES.md"), os.path.join(work, "docs", "ENTITIES.md"))   # read by tools/patch_shadow.py
     shutil.copy2(os.path.join(HERE, "recomp.json"), os.path.join(work, "recomp.json"))
@@ -412,6 +418,8 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
     log.close()
     if WIN:   # the game needs SDL2.dll next to it
         shutil.copy2(os.path.join(HERE, "vendor", "sdl2", "bin", "SDL2.dll"), os.path.join(work, "out", "SDL2.dll"))
+    if os.path.isdir(os.path.join(work, "build", "lang")):   # the language files stay next to the program (<exe dir>/lang)
+        shutil.copytree(os.path.join(work, "build", "lang"), os.path.join(work, "out", "lang"))
     # the generated sources are no longer needed: keep only the program (saves disk space)
     rmtree(os.path.join(work, "src"))
     rmtree(os.path.join(work, ".deps"))

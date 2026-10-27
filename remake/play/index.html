@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Massan Lauf-Demo</title>
+<style>
+  :root { --bg: #000; --text: #f0e8d8; --dim: #b8ae9c; --acc: #f0c060; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.4 system-ui, sans-serif; overflow: hidden; }
+  #cv { display: block; width: 100vw; height: 100vh; image-rendering: pixelated; }
+  #hud { position: fixed; left: 10px; top: 10px; background: rgba(0, 0, 0, .55); padding: 6px 10px; border-radius: 8px; color: var(--dim); font-size: 13px; }
+  #hud b { color: var(--acc); }
+  #btns { position: fixed; right: 10px; top: 10px; display: flex; gap: 6px; }
+  button { background: rgba(30, 30, 36, .8); color: var(--text); border: 1px solid #555; border-radius: 8px; padding: 8px 14px; font: inherit; font-size: 16px; cursor: pointer; }
+  #load { position: fixed; inset: 0; display: grid; place-items: center; font-size: 20px; color: var(--acc); background: #000; }
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="hud"><b>Massan</b> · Laufen: Steuerkreuz / Pfeile / WASD · Springen: A / Leertaste · Drehen: L1 R1 / Q E · Zoom: + − · <span id="hint">H blendet aus</span></div>
+<div id="btns"><button id="tl" title="Kamera links drehen (Q)">⟲</button><button id="tr" title="Kamera rechts drehen (E)">⟳</button><button id="zo">−</button><button id="zi">+</button><button id="fs" title="Vollbild">⛶</button></div>
+<div id="load">Lade Massan ...</div>
+<script src="/play/play.js"></script>
+</body>
+</html>

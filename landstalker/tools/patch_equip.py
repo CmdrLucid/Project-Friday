@@ -58,6 +58,7 @@ extern int lk_osd_equip_armed(int cat);
 extern void lk_osd_equip_disarm(void);
 static gen_func_t lk_o_cur_eq;
 extern void lk_osd_say(const char *t);
+extern const char *lk_lang_tr(const char *en);   /* tools/patch_lang.py */
 static gen_func_t lk_o_pab_eq;
 static int lk_eq_owned(int id) { M68kContext sv = g_m68k; int q, nc = lk_no_charge; g_m68k.d[0] = (uint32_t)id; lk_no_charge = 1; lk_call(0x022ED0u); lk_no_charge = nc; q = (int16_t)(g_m68k.d[1] & 0xFFFF); g_m68k = sv; return q > 0; }
 static void lk_eq_apply(int cat) {
@@ -71,7 +72,7 @@ static void lk_eq_apply(int cat) {
     j = -2;
     for (k = 1; k <= 5 && j < 0; k++) { int c = ((idx + 1) + k) % 5; if (c == 0 || lk_eq_owned(lay[cat][c - 1])) j = c; }   /* j = position 0..4 (0 = starting equipment); wraps through the current one last */
     if (j == idx + 1) j = -1;
-    if (j < 0) { lk_snd(0x00DBBEu); snprintf(t, sizeof t, "NO OTHER %s", kind[cat]); lk_osd_say(t); return; }
+    if (j < 0) { lk_snd(0x00DBBEu); snprintf(t, sizeof t, lk_lang_tr("NO OTHER %s"), lk_lang_tr(kind[cat])); lk_osd_say(t); return; }
     { uint16_t w = bus_read16(0xFF1BF0u); w = (uint16_t)((w & ~(0xFu << (4 * cat))) | ((uint16_t)j << (4 * cat))); bus_write16(0xFF1BF0u, w); }
     bus_write8(0xFF114Eu + (uint32_t)cat, j ? lay[cat][j - 1] : 0);
     { M68kContext sv = g_m68k;
@@ -84,7 +85,7 @@ static void lk_eq_apply(int cat) {
       g_m68k = sv; }
     lk_osd_equip_flash(cat);
     lk_snd(LK_SND_SELECT);
-    snprintf(t, sizeof t, "%s: %s", kind[cat], j ? nm[cat][j - 1] : dnm[cat]); lk_osd_say(t);
+    snprintf(t, sizeof t, "%s: %s", lk_lang_tr(kind[cat]), lk_lang_tr(j ? nm[cat][j - 1] : dnm[cat])); lk_osd_say(t);
     if (getenv("LANDSTALKER_EQ_DEBUG")) fprintf(stderr, "equip: category %d -> item %d (index %d)\n", cat, j ? lay[cat][j - 1] : 0, j);
 }
 uint8_t lk_eq_own[16];   /* ownership of the 16 equipment pieces (sword 0..3, armour 4..7, boots 8..11, ring 12..15 in layout order), refreshed by the game side; read by the overlay */
