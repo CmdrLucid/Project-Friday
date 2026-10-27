@@ -11,7 +11,8 @@ let undo = [];
 let Z = 2, sel = null, placing = null, drag = null, marks = false, finished = false, cycle = {};
 let stamp = "";
 const imgs = {};
-const masks = {};             // view name -> [canvas per house: opaque where that house is seen] (from the view's mask PNG)
+const masks = {};
+const hds = {};               // view name -> {w, h, hd: Float32Array} ground position along the view of fences / terrain / cliffs (NaN = none)             // view name -> [canvas per house: opaque where that house is seen] (from the view's mask PNG)
 const cv = $("cv"), ctx = cv.getContext("2d");
 
 function img(name) {
@@ -81,16 +82,47 @@ function loadMask(v) {
   i.onerror = () => { masks[v.name] = null; };
   i.src = "/img/" + v.mask + "?t=" + stamp;
 }
-const tmp = document.createElement("canvas"), tg = tmp.getContext("2d");
+function loadHd(v) {
+  if (hds[v.name] || !v.hd) return;
+  hds[v.name] = "loading";
+  const i = new Image();
+  i.onload = () => {
+    const w = i.naturalWidth, h = i.naturalHeight, c0 = document.createElement("canvas"); c0.width = w; c0.height = h;
+    const g = c0.getContext("2d"); g.drawImage(i, 0, 0); const d = g.getImageData(0, 0, w, h).data; const hd = new Float32Array(w * h);
+    for (let p = 0; p < w * h; p++) {
+      if (d[p * 4 + 3] < 128) { hd[p] = NaN; continue; }
+      const t = d[p * 4] / 255, f = d[p * 4 + 1] / 255; let tf = (Math.round(t * 16 - f) + f) / 16;   // R = t, G = t * 16 mod 1 (room_c.py render_hd)
+      if (Math.abs(tf - t) > 1.5 / 255) tf = t;
+      hd[p] = v.hd_lo + tf * (v.hd_hi - v.hd_lo);
+    }
+    hds[v.name] = { w, h, hd }; draw();
+  };
+  i.onerror = () => { hds[v.name] = null; };
+  i.src = "/img/" + v.hd + "?t=" + stamp;
+}
+const tmp = document.createElement("canvas"), tg = tmp.getContext("2d", { willReadFrequently: true });
 function drawCard(c, i, x, y, w, h) {                              // the card, minus the pixels of every house standing in front of its foot
   const ms = masks[V.name]; const o = add3(c.foot, off(c));
   const front = Array.isArray(ms) ? R.houses.map((b, k) => side(o, b) < 0 ? ms[k] : null).filter(Boolean) : [];
-  if (!front.length) { ctx.drawImage(i, x, y, w, h); return; }
+  const H_ = hds[V.name] && hds[V.name].hd ? hds[V.name] : null;
+  if (!front.length && !H_) { ctx.drawImage(i, x, y, w, h); return; }
   const W = Math.ceil(w) + 1, H = Math.ceil(h) + 1; tmp.width = W; tmp.height = H; tg.imageSmoothingEnabled = false;
   tg.drawImage(i, x - Math.floor(x), y - Math.floor(y), w, h);
   tg.globalCompositeOperation = "destination-out";
   for (const m of front) tg.drawImage(m, -Math.floor(x), -Math.floor(y), V.w, V.h);
   tg.globalCompositeOperation = "source-over";
+  if (H_) {                                                        // fences / terrain in FRONT of the foot (by more than 2 units) cover the card (sort_cards' fields)
+    const fh = o[0] * V.hv[0] + o[1] * V.hv[1] - 2, x0 = Math.floor(x), y0 = Math.floor(y);
+    const im = tg.getImageData(0, 0, W, H), dd = im.data; let hit = false;
+    for (let j = 0; j < H; j++) {
+      const yy = y0 + j; if (yy < 0 || yy >= H_.h) continue;
+      for (let k = 0; k < W; k++) {
+        const xx = x0 + k; if (xx < 0 || xx >= H_.w || !dd[(j * W + k) * 4 + 3]) continue;
+        if (H_.hd[yy * H_.w + xx] < fh) { dd[(j * W + k) * 4 + 3] = 0; hit = true; }
+      }
+    }
+    if (hit) tg.putImageData(im, 0, 0);
+  }
   ctx.drawImage(tmp, Math.floor(x), Math.floor(y));
 }
 function changed(c) { return !c.rendered || Math.abs(c.foot[0] - c.rendered[0]) + Math.abs(c.foot[1] - c.rendered[1]) + Math.abs(c.foot[2] - c.rendered[2]) > 0.01; }
@@ -205,7 +237,7 @@ function doUndo() { if (!undo.length) return; edits = JSON.parse(undo.pop()); di
 function toggleMarks() { marks = !marks; $("marks").classList.toggle("on", marks); draw(); }
 function toggleFinished() { finished = !finished; $("finished").classList.toggle("on", finished); showBg(); draw(); }
 function showBg() {
-  const game = V.name === "game"; loadMask(V);
+  const game = V.name === "game"; loadMask(V); loadHd(V);
   $("bgo").style.display = game ? "" : "none";
   $("fadebox").style.visibility = game ? "visible" : "hidden";
   $("bgr").src = "/img/" + (finished ? (game ? "game.png" : V.name + ".png") : V.img) + "?t=" + stamp;
@@ -251,7 +283,7 @@ async function load(keep) {                                         // keep = af
   const fromFile = { move: Object.assign({}, ov.move || {}), delete: (ov.delete || []).slice(), add: (ov.add || []).map((a) => Object.assign({}, a)) };
   saved = JSON.stringify(fromFile);
   if (!keep) { edits = fromFile; undo = []; }
-  stamp = String(R.render_time); for (const k in masks) delete masks[k];
+  stamp = String(R.render_time); for (const k in masks) delete masks[k]; for (const k in hds) delete hds[k];
   $("room").textContent = "Raum " + R.room + " · " + R.cards.length + " Sprites";
   $("bgo").src = "/img/original.png";
   const k = $("kinds"); k.innerHTML = "";

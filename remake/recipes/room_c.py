@@ -465,6 +465,36 @@ def render_mask(img):
     (sc.render.engine, sc.render.film_transparent, sc.render.use_freestyle, sc.view_settings.view_transform, sc.view_settings.look,
      sc.render.resolution_percentage, sc.render.filepath) = st
     for o in sc.objects: o.hide_render = keep.get(o.name, o.hide_render)
+def render_hd(img, key):
+    """'ground position along the view' of fences / terrain / cliffs / cave per pixel for the editor (it lets those cover a card the way sort_cards'
+    fields do): every vertex gets t = (position along the horizontal view direction - lo) / (hi - lo) as a colour (R = t, G = t * 16 mod 1),
+    rendered flat without AA in the Raw view (the bytes are the values).  Returns the parameters for editor.js."""
+    bpy.context.view_layer.update()
+    d = co.matrix_world.to_quaternion() @ mathutils.Vector((0, 0, 1)); hv = mathutils.Vector((-d.x, d.y)).normalized()   # into the scene, game x / y
+    objs = [o for o in fields if o.type == "MESH" and len(o.data.vertices)]
+    hs = []
+    for o in objs:
+        mw = o.matrix_world; hs += [(mw @ v.co).x * hv.x + -(mw @ v.co).y * hv.y for v in o.data.vertices]
+    lo, hi = min(hs) - 1, max(hs) + 1
+    keep = {o.name: o.hide_render for o in sc.objects}; act = {}
+    st = (sc.render.engine, sc.render.film_transparent, sc.render.use_freestyle, sc.view_settings.view_transform, sc.view_settings.look,
+          sc.render.resolution_percentage, sc.render.filepath, sc.display.shading.color_type)
+    for o in sc.objects: o.hide_render = o not in objs
+    for o in objs:
+        me = o.data; act[o.name] = (me.color_attributes.render_color_index, me.color_attributes.active_color_index)
+        a = me.color_attributes.get("ed_hd") or me.color_attributes.new("ed_hd", "FLOAT_COLOR", "POINT")
+        mw = o.matrix_world; col = []
+        for v in me.vertices:
+            w = mw @ v.co; t = ((w.x * hv.x - w.y * hv.y) - lo) / (hi - lo); col += [t, (t * 16) % 1.0, 0.0, 1.0]
+        a.data.foreach_set("color", col); i_ = me.color_attributes.find("ed_hd"); me.color_attributes.render_color_index = i_; me.color_attributes.active_color_index = i_
+    sc.render.engine = "BLENDER_WORKBENCH"; sc.display.shading.light = "FLAT"; sc.display.shading.color_type = "VERTEX"; sc.display.render_aa = "OFF"
+    sc.render.film_transparent = True; sc.render.use_freestyle = False; sc.view_settings.view_transform = "Raw"; sc.view_settings.look = "None"
+    sc.render.resolution_percentage = int(100 / PX); sc.render.filepath = os.path.join(out, img); bpy.ops.render.render(write_still=True)
+    (sc.render.engine, sc.render.film_transparent, sc.render.use_freestyle, sc.view_settings.view_transform, sc.view_settings.look,
+     sc.render.resolution_percentage, sc.render.filepath, sc.display.shading.color_type) = st
+    for o in objs: o.data.color_attributes.render_color_index, o.data.color_attributes.active_color_index = act[o.name]
+    for o in sc.objects: o.hide_render = keep.get(o.name, o.hide_render)
+    views[-1].update(hd=img, hv=[hv.x, hv.y], hd_lo=lo, hd_hi=hi)
 def house_boxes():
     bx = []
     for o in solids:
@@ -474,7 +504,7 @@ def house_boxes():
 editor_view("game", "nocards_game.png")
 if SORT: H.sort_cards(figs, solids, co, fields=fields)
 bpy.ops.render.render(write_still=True)
-render_nocards("nocards_game.png"); render_mask("mask_game.png")
+render_nocards("nocards_game.png"); render_mask("mask_game.png"); render_hd("hd_game.png", "game")
 print("game view done", flush=True)
 cxr, cyr = 16 * (min(xs) + max(xs) + 1) / 2 + O, 16 * (min(ys) + max(ys) + 1) / 2 + O
 sc.render.resolution_x = sc.render.resolution_y = int(max(W_, H_) * PX * 0.92); co.data.ortho_scale = max(W_, H_) * 0.92 * math.sqrt(0.5) * 1.15
@@ -484,7 +514,7 @@ for q in (1, 2, 3):
     editor_view("q%d" % q, "nocards_q%d.png" % q)
     if SORT: H.sort_cards(figs, solids, co, fields=fields)
     sc.render.filepath = os.path.join(out, "q%d.png" % q); bpy.ops.render.render(write_still=True)
-    render_nocards("nocards_q%d.png" % q); render_mask("mask_q%d.png" % q)
+    render_nocards("nocards_q%d.png" % q); render_mask("mask_q%d.png" % q); render_hd("hd_q%d.png" % q, "q%d" % q)
     print("view q%d done" % q, flush=True)
 # what the map editor needs: every pixel card (id, image, foot in game units), the views, the cells' heights, the picture window
 json.dump(dict(room=ROOM, window=[U0, V0, W_, H_], O=O, cells=[[k[0], k[1], top[k]] for k in sorted(top)], views=views, houses=house_boxes(), house_step=HOUSE_STEP, rendered_with=OVR,
