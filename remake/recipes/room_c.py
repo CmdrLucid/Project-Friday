@@ -172,6 +172,7 @@ def plant_card(png, x, y, z, fwd=0.0, side=0.0):
 
 
 # ---- fences, bushes, pines ----------------------------------------------------------------------------------------------------------------------------
+FENCE_OUT = float(os.environ.get("R_FENCE_OUT", "8"))   # user 2026-10-27: 'der Zaun muesste ein Stueck naeher Richtung Klippe' / pines in front of it as in the original: stakes on the OUTER edge
 frnd = random.Random(21); brnd = random.Random(11); prnd = random.Random(12)
 fb = bmesh.new()
 for gr in R["groups"]:
@@ -181,11 +182,17 @@ for gr in R["groups"]:
     fence = {p for p, v in obj.items() if v == "fence"}
     if fence:
         bmf = bmesh.new()
+        def fpos(x, y):                                                          # stake line of a fence cell: FENCE_OUT towards the outside (a missing or lower neighbour)
+            ox = oy = 0
+            for dx, dy in RD.N4:
+                n = C.get((x + dx, y + dy))
+                if (x + dx, y + dy) not in fence and (n is None or n["h"] < gr["base"]): ox += dx; oy += dy
+            return 16 * x + O + 8 + FENCE_OUT * (ox > 0) - FENCE_OUT * (ox < 0), 16 * y + O + 8 + FENCE_OUT * (oy > 0) - FENCE_OUT * (oy < 0)
         for (x, y) in sorted(fence):
-            cx, cy = 16 * x + O + 8, 16 * y + O + 8; linked = False
+            cx, cy = fpos(x, y); linked = False
             for dx, dy in ((1, 0), (0, 1)):
                 if (x + dx, y + dy) in fence:
-                    kit_c.palisade(bmf, (cx, cy), (cx + 16 * dx, cy + 16 * dy), (-dy, dx), rnd=frnd); linked = True
+                    kit_c.palisade(bmf, (cx, cy), fpos(x + dx, y + dy), (-dy, dx), rnd=frnd); linked = True
             if not linked and not any((x - dx, y - dy) in fence for dx, dy in ((1, 0), (0, 1))):
                 kit_c.palisade(bmf, (cx - 6, cy), (cx + 6, cy), (0, -1), rnd=frnd)
         for (x, y) in fence:                                                     # end posts where a fence line stops at walkable ground (gates)
@@ -243,7 +250,9 @@ if PIX_PINE:
             z = 16.0 * b; cx = (Ub - 1184) / 2.0 + Vb - 8 + z; cy = cx - (Ub - 1184)
             k = (int((cx - O) // 16), int((cy - O) // 16))
             if k in plant_cells and b == (C[k]["h"] if on_top else plant_cells[k]["base"]):
-                card_at(png_, Ub, Vb, z); np_grid += 1; break
+                # on top of a hedge cell: the same picture point 8 back along the view ray = the cell MIDDLE, 8 below its top, so the trunk stands in the
+                # leaves as in the original (user: 'eine Kiefer auf einem Busch')
+                card_at(png_, Ub, Vb, z - 8.0 if on_top else z); np_grid += 1; break
         else:                                                                    # a pine on a slope: the terrain along the view ray
             X = (Ub - 1184) / 2.0 + Vb; wx, wy, z = recast(X, X - (Ub - 1184), 0.0)
             card_at(png_, Ub, Vb, z); np_cliff += 1
