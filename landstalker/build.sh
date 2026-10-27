@@ -146,6 +146,8 @@ python3 tools/patch_model.py .deps/genrecomp
 python3 tools/patch_owntext.py .deps/genrecomp
 # Own renderer: RAM snapshot right after the VBlank handler = what the VDP shows next (tools/patch_ownvb.py; needs patch_owntext.py first)
 python3 tools/patch_ownvb.py .deps/genrecomp
+# Own renderer stage 2: complete mirror of all VDP memory writes (data port, DMA fill / copy; tools/patch_vdpmirror.py; needs patch_ownvb.py first)
+python3 tools/patch_vdpmirror.py .deps/genrecomp
 # Own renderer stage 2 groundwork: origin (ROM block + tile index) of tile graphics by content hash (tools/patch_gfxorg.py; needs patch_ownvb.py first)
 python3 tools/patch_gfxorg.py .deps/genrecomp
 # Own renderer, compare mode (LANDSTALKER_OWN=1 / 2, tools/patch_own.py; needs patch_shadow.py first)

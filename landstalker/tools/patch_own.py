@@ -649,7 +649,10 @@ void lk_hd_set(int v) {
 /* ---- stage 1: a generic screen renderer (title, menus, island map, credits ...): the picture of a line composed by our own code from the VDP's memory state (planes A / B, window, sprites, priorities, scroll modes, backdrop),
    checked pixel by pixel against the game's picture (LANDSTALKER_OWN_SCREENS: 0 off, 1 compare + log only, 2 draw (default with the own renderer on), LANDSTALKER_OWN_SCRLOG=1 prints the differing pixels of every frame it handled) ---- */
 static int lk_scr_mode = -1, lk_scr_log, lk_o_why;   /* lk_o_why: why the own map path did not draw this frame (1 old room still showing, 2 warp effect, 3 Start menu running, 4 display off, 5 no room) */ static long lk_scr_diff, lk_scr_tot, lk_scr_lines;
-#define LK_VB(a) vram[((a) & 0xFFFF) ^ 1]
+static int lk_scr_mir, lk_scr_ismap;   /* lk_scr_ismap: the line belongs to a map frame (margins show the planes), else a picture screen (margins black, patch_wide) */
+/* LANDSTALKER_OWN_SCRMIR=<bits> (default 31 since 2026-10-27; 0 = the chip; 1 VRAM, 2 CRAM, 4 VSRAM, 8 registers, 16 margins of widescreen, 32 line 23 of map frames the own map path does not draw): the generic screen renderer reads the own mirror of the game's VDP uploads (lk_vm / lk_cm / lk_vsm) and the game's register shadow instead of the chip */
+#define LK_VB(a) ((lk_scr_mir & 1) ? lk_vm[(a) & 0xFFFF] : vram[((a) & 0xFFFF) ^ 1])
+#define LK_SVS(i) ((lk_scr_mir & 4) ? lk_vsm[(i) & 0x4F] : vsram[(i) ^ 1])
 #define LK_VW(a) (((unsigned)LK_VB(a) << 8) | LK_VB((a) + 1))
 extern int lk_org_lookup(const uint8_t *vram, int tile, uint32_t *rom, int *idx); extern int lk_org_count(void);   /* tools/patch_gfxorg.py */
 static int lk_scr_tc[2048], lk_scr_tpal[2048], lk_scr_curpal, lk_org_log = -1, lk_dump_on; static const char *lk_dump_dir;   /* opaque tile pixels seen this frame per tile (LANDSTALKER_OWN_ORGLOG) */
@@ -745,20 +748,21 @@ static void lk_hd_put(int line, int x, uint32_t col, const lk_pi_t *pi) {   /* o
 }
 static void lk_hd_plain(int line, const PIXEL_OUT_T *out) { int x; if (!lk_hd_n) return; for (x = 0; x < 320; x++) { lk_hd_put(line, x, out[x], 0); lk_hd_ref[line * LK_HDW + x + LK_HDO] = out[x]; } lk_hd_stamp[line] = lk_hd_gen; }
 static int lk_scr_cell(int ent, int px, int py, int *prio) { int ci; lk_scr_curpal = (ent >> 13) & 3; ci = lk_scr_ci(ent & 0x7FF, px, py, (ent >> 11) & 1, (ent >> 12) & 1); lk_scr_phf = (ent >> 11) & 1; lk_scr_pvf = (ent >> 12) & 1; *prio = (ent >> 15) & 1; if (ci && lk_scr_rgb >= 0) return 0x1000000 | lk_scr_rgb; return ci ? ((ent >> 13) & 3) * 16 + ci : -1; }   /* bit 24 set = a replaced pixel (24 bit colour) */
-static int lk_scr_cramw(int i) { return ((cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1]) & 0x1FF; }
+static int lk_scr_cramw(int i) { if (lk_scr_mir & 2) { int w = (lk_cm[2 * i] << 8) | lk_cm[2 * i + 1]; return (((w >> 9) & 7) << 6) | (((w >> 5) & 7) << 3) | ((w >> 1) & 7); } return ((cram[(2 * i) ^ 1] << 8) | cram[(2 * i + 1) ^ 1]) & 0x1FF; }   /* mirror: the raw MD word -> the chip's 9 bit form */
 static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {                /* returns 0 when the VDP is in a mode this renderer does not do (the game's picture stays) */
-  int hm = reg[11] & 3, vm = (reg[11] >> 2) & 1, pwr = reg[16] & 3, phr = (reg[16] >> 4) & 3, pw, ph, x, i, n, cells;
-  int baseA = (reg[2] & 0x38) << 10, baseB = (reg[4] & 7) << 13, wbase = (reg[3] & 0x3C) << 10, sat = (reg[5] & 0x7E) << 9;
-  int hpos = (reg[17] & 0x1F) * 2, hright = reg[17] & 0x80, vpos = (reg[18] & 0x1F) * 8, vbelow = reg[18] & 0x80, vwin, hsA, hsB, hsb = (reg[13] & 0x3F) << 10, hidx;
-  int bgcol = lk_scr_cramw(reg[7] & 0x3F);
-  static int sp[320], spp[320]; static lk_pi_t spi[320]; int sl[32], nsl = 0, id, cnt, maxspr = (320 + 2 * e) >> 4;   /* the wide picture allows more sprites / sprite pixels per line (patch_wide: viewport.w >> 4, viewport.w >> 3 cells) */
-  if (!(reg[12] & 1) || (reg[12] & 6) || hm == 1 || pwr == 2 || phr == 2 || (reg[1] & 8) || line >= 224) return 0;
-  if (!(reg[1] & 0x40) && !dispforce) { for (x = 0; x < 320; x++) out[x] = pixel_lut[1][bgcol]; lk_hd_plain(line, out); return 1; }   /* display off: the backdrop */
+  int lk_rg[32]; { int q; if (lk_scr_mir & 8) for (q = 0; q < 32; q++) lk_rg[q] = bus_get_ram()[(0x0FB1 + 2 * q) ^ 1]; else for (q = 0; q < 32; q++) lk_rg[q] = reg[q]; }   /* VDP registers: the game's live shadow ($FF0FB0 + 2 n) or the chip */
+  int hm = lk_rg[11] & 3, vm = (lk_rg[11] >> 2) & 1, pwr = lk_rg[16] & 3, phr = (lk_rg[16] >> 4) & 3, pw, ph, x, i, n, cells;
+  int baseA = (lk_rg[2] & 0x38) << 10, baseB = (lk_rg[4] & 7) << 13, wbase = (lk_rg[3] & 0x3C) << 10, sat = (lk_rg[5] & 0x7E) << 9;
+  int hpos = (lk_rg[17] & 0x1F) * 2, hright = lk_rg[17] & 0x80, vpos = (lk_rg[18] & 0x1F) * 8, vbelow = lk_rg[18] & 0x80, vwin, hsA, hsB, hsb = (lk_rg[13] & 0x3F) << 10, hidx;
+  int bgcol = lk_scr_cramw(lk_rg[7] & 0x3F);
+  static int sp[416], spp[416]; static lk_pi_t spi[416]; int ex = (lk_hd_n || !(lk_scr_mir & 16)) ? 0 : e;   /* ex: margin pixels drawn left and right of the 320 (out[-ex .. 320 + ex - 1]); 0 with HD graphics */ int sl[32], nsl = 0, id, cnt, maxspr = (320 + 2 * e) >> 4;   /* the wide picture allows more sprites / sprite pixels per line (patch_wide: viewport.w >> 4, viewport.w >> 3 cells) */
+  if (!(lk_rg[12] & 1) || (lk_rg[12] & 6) || hm == 1 || pwr == 2 || phr == 2 || (lk_rg[1] & 8) || line >= 224) return 0;
+  if (!(lk_rg[1] & 0x40) && !dispforce) { for (x = -ex; x < 320 + ex; x++) out[x] = pixel_lut[1][bgcol]; lk_hd_plain(line, out); return 1; }   /* display off: the backdrop */
   pw = pwr == 0 ? 32 : pwr == 1 ? 64 : 128; ph = phr == 0 ? 32 : phr == 1 ? 64 : 128;
   vwin = vbelow ? line >= vpos : line < vpos;
   hidx = hm == 0 ? 0 : hm == 3 ? line : (line & ~7);
   hsA = LK_VW(hsb + 4 * hidx) & 0x3FF; hsB = LK_VW(hsb + 4 * hidx + 2) & 0x3FF;
-  for (x = 0; x < 320; x++) { sp[x] = -1; spi[x].rep = 0; }
+  for (x = -ex; x < 320 + ex; x++) { sp[x + 48] = -1; spi[x + 48].rep = 0; }
   id = 0; cnt = 0; cells = (320 + 2 * e) >> 3;                                       /* sprites: the list in link order (max 80), 20 per line, 40 cells per line */
   for (n = 0; n < 80; n++) {
     int y = (int)(LK_VW(sat + 8 * id) & 0x1FF) - 128, sz = LK_VW(sat + 8 * id + 2), h = ((sz >> 8) & 3) + 1;
@@ -774,23 +778,25 @@ static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {      
       py = line - y; if (vf) py = 8 * h - 1 - py;
       for (c = 0; c < w && cells > 0; c++, cells--) {
         int col = hf ? w - 1 - c : c, tile = (at & 0x7FF) + col * h + (py >> 3), px;
-        for (px = 0; px < 8; px++) { int sx = xr - 128 + c * 8 + px, ci = (lk_scr_curpal = pal, lk_scr_ci(tile, hf ? 7 - px : px, py & 7, 0, 0)); if (sx < 0 || sx >= 320 || !ci || sp[sx] >= 0) continue; sp[sx] = lk_scr_rgb >= 0 ? (0x1000000 | lk_scr_rgb) : pal * 16 + ci; spp[sx] = prio; spi[sx].rep = lk_scr_prep; spi[sx].ox = lk_scr_pox; spi[sx].oy = lk_scr_poy; spi[sx].hf = hf; spi[sx].vf = vf; spi[sx].pal = pal; }
+        for (px = 0; px < 8; px++) { int sx = xr - 128 + c * 8 + px, ci = (lk_scr_curpal = pal, lk_scr_ci(tile, hf ? 7 - px : px, py & 7, 0, 0)); if (sx < -ex || sx >= 320 + ex || !ci || sp[sx + 48] >= 0) continue; sp[sx + 48] = lk_scr_rgb >= 0 ? (0x1000000 | lk_scr_rgb) : pal * 16 + ci; spp[sx + 48] = prio; spi[sx + 48].rep = lk_scr_prep; spi[sx + 48].ox = lk_scr_pox; spi[sx + 48].oy = lk_scr_poy; spi[sx + 48].hf = hf; spi[sx + 48].vf = vf; spi[sx + 48].pal = pal; }
       }
     }
   }
-  for (x = 0; x < 320; x++) {
+  for (x = -ex; x < 320 + ex; x++) {
+    int mg = x < 0 || x >= 320, vc = x < 0 ? 0 : x >= 320 ? 19 : (x >> 4);   /* margin pixel? / the 2-cell vertical scroll column (margins use the edge columns) */
     int cA = -1, pA = 0, cB = -1, pB = 0, sel = -1, cc, xc = x >> 3; lk_pi_t iA, iB; const lk_pi_t *wi = 0; uint32_t col32; iA.rep = iB.rep = 0; iA.ox = iA.oy = iA.hf = iA.vf = iB.ox = iB.oy = iB.hf = iB.vf = 0;
-    { int xp = (x - hsB) & (pw * 8 - 1), yp; yp = (line + (((vsram[((vm ? 4 * (x >> 4) : 0) + 2) ^ 1] << 8) | vsram[((vm ? 4 * (x >> 4) : 0) + 3) ^ 1]) & 0x3FF)) & (ph * 8 - 1);
+    { int xp = (x - hsB) & (pw * 8 - 1), yp; yp = (line + (((LK_SVS((vm ? 4 * vc : 0) + 2) << 8) | LK_SVS((vm ? 4 * vc : 0) + 3)) & 0x3FF)) & (ph * 8 - 1);
       cB = lk_scr_cell(LK_VW(baseB + 2 * ((yp >> 3) * pw + (xp >> 3))), xp & 7, yp & 7, &pB); iB.rep = lk_scr_prep; iB.ox = lk_scr_pox; iB.oy = lk_scr_poy; iB.hf = lk_scr_phf; iB.vf = lk_scr_pvf; iB.pal = lk_scr_curpal; }
-    if (vwin || (hright ? xc >= hpos : xc < hpos)) { cA = lk_scr_cell(LK_VW(wbase + 2 * ((line >> 3) * 64 + xc)), x & 7, line & 7, &pA); iA.rep = lk_scr_prep; iA.ox = lk_scr_pox; iA.oy = lk_scr_poy; iA.hf = lk_scr_phf; iA.vf = lk_scr_pvf; iA.pal = lk_scr_curpal; }
-    else { int xp = (x - hsA) & (pw * 8 - 1), yp = (line + (((vsram[(vm ? 4 * (x >> 4) : 0) ^ 1] << 8) | vsram[((vm ? 4 * (x >> 4) : 0) + 1) ^ 1]) & 0x3FF)) & (ph * 8 - 1);
+    if (!mg && (vwin || (hright ? xc >= hpos : xc < hpos))) { cA = lk_scr_cell(LK_VW(wbase + 2 * ((line >> 3) * 64 + xc)), x & 7, line & 7, &pA); iA.rep = lk_scr_prep; iA.ox = lk_scr_pox; iA.oy = lk_scr_poy; iA.hf = lk_scr_phf; iA.vf = lk_scr_pvf; iA.pal = lk_scr_curpal; }
+    else { int xp = (x - hsA) & (pw * 8 - 1), yp = (line + (((LK_SVS(vm ? 4 * vc : 0) << 8) | LK_SVS((vm ? 4 * vc : 0) + 1)) & 0x3FF)) & (ph * 8 - 1);
       cA = lk_scr_cell(LK_VW(baseA + 2 * ((yp >> 3) * pw + (xp >> 3))), xp & 7, yp & 7, &pA); iA.rep = lk_scr_prep; iA.ox = lk_scr_pox; iA.oy = lk_scr_poy; iA.hf = lk_scr_phf; iA.vf = lk_scr_pvf; iA.pal = lk_scr_curpal; }
-    if (sp[x] >= 0 && spp[x]) { sel = sp[x]; wi = &spi[x]; } else if (cA >= 0 && pA) { sel = cA; wi = &iA; } else if (cB >= 0 && pB) { sel = cB; wi = &iB; }
-    else if (sp[x] >= 0) { sel = sp[x]; wi = &spi[x]; } else if (cA >= 0) { sel = cA; wi = &iA; } else if (cB >= 0) { sel = cB; wi = &iB; }
+    if (sp[x + 48] >= 0 && spp[x + 48]) { sel = sp[x + 48]; wi = &spi[x + 48]; } else if (cA >= 0 && pA) { sel = cA; wi = &iA; } else if (cB >= 0 && pB) { sel = cB; wi = &iB; }
+    else if (sp[x + 48] >= 0) { sel = sp[x + 48]; wi = &spi[x + 48]; } else if (cA >= 0) { sel = cA; wi = &iA; } else if (cB >= 0) { sel = cB; wi = &iB; }
     { static long dbgf = -2; if (dbgf == -2) { const char *q = getenv("LANDSTALKER_OWN_SCRDBG"); dbgf = q ? atol(q) : -1; }
-      if (dbgf >= 0 && platform_frame_number() == dbgf && line == 23 && (x == 16 || x == 100)) printf("ownscrdbg: frame %ld line %d x %d: A %d/%d B %d/%d spr %d/%d sel %d hsA %d hsB %d reg18 %02X reg17 %02X reg11 %02X reg1 %02X vwin %d\n", dbgf, line, x, cA, pA, cB, pB, sp[x], spp[x], sel, hsA, hsB, reg[18], reg[17], reg[11], reg[1], vwin); }
-    if (sel >= 0x1000000) col32 = 0xFF000000u | (uint32_t)(sel & 0xFFFFFF);   /* replaced pixel (32 bit output) */
-    else { cc = sel >= 0 ? lk_scr_cramw(sel) : bgcol; if (x < 8 && (reg[0] & 0x20)) { cc = bgcol; wi = 0; } col32 = pixel_lut[1][cc]; }
+      if (dbgf >= 0 && platform_frame_number() == dbgf && line == 23 && (x == 16 || x == 100)) printf("ownscrdbg: frame %ld line %d x %d: A %d/%d B %d/%d spr %d/%d sel %d hsA %d hsB %d reg18 %02X reg17 %02X reg11 %02X reg1 %02X vwin %d\n", dbgf, line, x, cA, pA, cB, pB, sp[x + 48], spp[x + 48], sel, hsA, hsB, lk_rg[18], lk_rg[17], lk_rg[11], lk_rg[1], vwin); }
+    if (mg && (!lk_scr_ismap || vwin || (x < 0 ? (!hright && hpos > 0) : (hright && hpos < 40)))) col32 = pixel_lut[1][0];   /* margins beside a window plane (HUD / text box) are black, like the chip does with widescreen */
+    else if (sel >= 0x1000000) col32 = 0xFF000000u | (uint32_t)(sel & 0xFFFFFF);   /* replaced pixel (32 bit output) */
+    else { cc = sel >= 0 ? lk_scr_cramw(sel) : bgcol; if (x + ex < 8 && (lk_rg[0] & 0x20)) { cc = bgcol; wi = 0; } col32 = pixel_lut[1][cc]; }
     out[x] = (PIXEL_OUT_T)col32;
     if (lk_hd_n) { lk_hd_put(line, x, col32, wi); lk_hd_ref[line * LK_HDW + x + LK_HDO] = col32; }
   }
@@ -798,14 +804,19 @@ static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {      
   return 1;
 }
 static void lk_scr_row(PIXEL_OUT_T *row, int e, int line, int map) {
-  PIXEL_OUT_T buf[320]; int x, d = 0;
-  if (lk_scr_mode < 0) { const char *q = getenv("LANDSTALKER_OWN_SCREENS"), *l = getenv("LANDSTALKER_OWN_SCRLOG"); lk_scr_mode = q ? atoi(q) : 2; lk_rep_init(); lk_scr_log = l ? atoi(l) : 0; { const char *o = getenv("LANDSTALKER_OWN_ORGLOG"); lk_org_log = o ? atoi(o) : 0; lk_dump_dir = getenv("LANDSTALKER_TILEDUMP"); lk_dump_on = lk_dump_dir && *lk_dump_dir; if (lk_dump_on) { struct stat st; extern int lk_mkdir(const char *); if (stat(lk_dump_dir, &st) != 0) lk_mkdir(lk_dump_dir); } } }
+  PIXEL_OUT_T bufw[48 + 320 + 48], *buf = bufw + 48; int x, d = 0, ex;
+  { static int pz = -1; if (pz < 0) pz = getenv("LANDSTALKER_OWN_POISON") != NULL; if (pz && line == 0) { memset(vram, 0xA5, 0x10000); memset(cram, 0x1F, 0x80); memset(vsram, 0x55, 0x80); } }   /* test aid: the chip memories hold garbage from line 0 of every frame on (the own renderer must not read them) */
+  if (lk_scr_mode < 0) { const char *q = getenv("LANDSTALKER_OWN_SCREENS"), *l = getenv("LANDSTALKER_OWN_SCRLOG"); lk_scr_mode = q ? atoi(q) : 2; lk_rep_init(); lk_scr_log = l ? atoi(l) : 0; { const char *mq = getenv("LANDSTALKER_OWN_SCRMIR"); lk_scr_mir = mq ? atoi(mq) : 31; } { const char *o = getenv("LANDSTALKER_OWN_ORGLOG"); lk_org_log = o ? atoi(o) : 0; lk_dump_dir = getenv("LANDSTALKER_TILEDUMP"); lk_dump_on = lk_dump_dir && *lk_dump_dir; if (lk_dump_on) { struct stat st; extern int lk_mkdir(const char *); if (stat(lk_dump_dir, &st) != 0) lk_mkdir(lk_dump_dir); } } }
+  lk_scr_ismap = map;
   if (!lk_scr_mode || !lk_scr_line(line, buf, e, lk_tall_keep(line))) return;
-  for (x = 0; x < 320; x++) if (row[e + x] != buf[x]) d++;
-  lk_scr_diff += d; lk_scr_tot += 320; lk_scr_lines++;
-  if (lk_scr_mode == 2 && lk_o_mode == 2) for (x = 0; x < 320; x++) row[e + x] = buf[x];
+  ex = (lk_hd_n || !(lk_scr_mir & 16)) ? 0 : e;
+  for (x = -ex; x < 320 + ex; x++) if (row[e + x] != buf[x]) d++;
+  lk_scr_diff += d; lk_scr_tot += 320 + 2 * ex; lk_scr_lines++;
+  if (lk_scr_mode == 2 && lk_o_mode == 2) for (x = -ex; x < 320 + ex; x++) row[e + x] = buf[x];
   if ((lk_org_log > 0 || lk_dump_on) && line == 223) { int t, kn = 0, un = 0, dk = 0, du = 0; for (t = 0; t < 2048; t++) if (lk_scr_tc[t]) { if (lk_dump_on) lk_tile_dump(t, lk_scr_tpal[t]); if (lk_org_lookup(vram, t, 0, 0)) { kn += lk_scr_tc[t]; dk++; } else { un += lk_scr_tc[t]; du++; if (lk_org_log > 0 && getenv("LANDSTALKER_OWN_ORGLIST") && platform_frame_number() % lk_org_log == 0) printf("ownorg: frame %ld unknown tile %d (VRAM $%04X, %d pixels)\n", platform_frame_number(), t, t * 32, lk_scr_tc[t]); } lk_scr_tc[t] = 0; }
     if (lk_org_log > 0 && platform_frame_number() % lk_org_log == 0) printf("ownorg: frame %ld %s: opaque tile pixels with a known ROM origin %d, unknown %d (tiles %d / %d, origin table %d entries)\n", platform_frame_number(), map ? "map-not-own" : "screen", kn, un, dk, du, lk_org_count()); }
+  if (line == 223) { static long vmf = -2; if (vmf == -2) { const char *q = getenv("LANDSTALKER_OWN_VMDIFF"); vmf = q ? atol(q) : -1; }   /* test aid: VRAM bytes where the own mirror differs from the chip, as ranges (every N frames) */
+    if (vmf > 0 && platform_frame_number() % vmf == 0) { int a0, st = -1, tot = 0; for (a0 = 0; a0 <= 0x10000; a0++) { int dif = a0 < 0x10000 && lk_vm[a0] != vram[a0 ^ 1]; if (dif && st < 0) st = a0; if (!dif && st >= 0) { printf("vmdiff: frame %ld $%04X-$%04X (%d bytes)\n", platform_frame_number(), st, a0 - 1, a0 - st); tot += a0 - st; st = -1; } } printf("vmdiff: frame %ld total %d bytes\n", platform_frame_number(), tot); } }
   if (lk_scr_log && line == 223) { printf("ownscr: frame %ld %s: %ld of %ld pixels differ in %ld lines\n", platform_frame_number(), map ? "map-not-own" : "screen", lk_scr_diff, lk_scr_tot, lk_scr_lines); lk_scr_diff = 0; lk_scr_tot = 0; lk_scr_lines = 0; }
 }
 /* ---- S3.5: seamless door transitions (optional: Options / ~/.landstalker_seam = 1 or LANDSTALKER_SEAM=1; docs/STAGE3_INVENTORY.md).  Presentation only, the game's logic runs as always.
@@ -1307,7 +1318,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
   }
   e = lk_wide_e; map = lk_map_decide();
   if (line == 0 && map && !fr_done && lk_scr_log >= 2) printf("ownwhy: frame %ld reason %d reg1 %02X\n", platform_frame_number(), lk_o_why, reg[1]);
-  if (!fr_done || w != 320 + 2 * e || !map) { if (w == 320 + 2 * e && (!map || (line != 23 && (!fr_done || !(reg[1] & 0x40) || lk_tall_keep(line))))) lk_scr_row(row, e, line, map); return; }   /* map frames: line 23 stays the game's (Map Behind Text draws it twice, tools/patch_tbox.py) */   /* (map frames the own map path does not draw - menu fades, effects the game draws - keep the game's picture: its widened / full-height band does not come from the VDP state) */   /* not the own map picture: the generic screen renderer (title, menus, picture screens, fades) */
+  if (!fr_done || w != 320 + 2 * e || !map) { if (w == 320 + 2 * e && (!map || ((line != 23 || (!fr_done && (lk_scr_mir & 32))) && (!fr_done || !(reg[1] & 0x40) || lk_tall_keep(line))))) lk_scr_row(row, e, line, map); return; }   /* map frames: line 23 stays the game's (Map Behind Text draws it twice, tools/patch_tbox.py) */   /* (map frames the own map path does not draw - menu fades, effects the game draws - keep the game's picture: its widened / full-height band does not come from the VDP state) */   /* not the own map picture: the generic screen renderer (title, menus, picture screens, fades) */
   if (lk_o_hudn < 0) lk_o_hudn = lk_o_lz77(0x9242, lk_o_hud, 0x1000);
   {
     int ubase = lk_o_u0, vbase = lk_o_v0 + line, i, text = (line >= 160 && (hint & 0xFF) == 0xA0);
