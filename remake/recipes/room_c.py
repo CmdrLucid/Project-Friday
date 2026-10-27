@@ -157,19 +157,17 @@ if ROOM != 592:
 # pines / bushes as ORIGINAL PIXEL billboards (2026-10-26, DECIDED by the user: pixel, user: 'bringt mich dazu, Baeume und Straeucher auch so zu machen'): R_PLANTS=pixel cuts one
 # free-standing pine and the single round bush beside house A out of plane A of the user's picture (props_c.cut_template, local PNGs) and stands a card on
 # every place where the 3D pine / bush would stand (bottom row = trunk / stem foot); hedge rows stay one bush card per cell like the 3D bushes
-PIX_PINE = PIX_BUSH = None; plant_cards = []
+PIX_PINE = None; plant_cards = []
 if os.environ.get("R_PLANTS", "pixel") == "pixel" and ROOM == 592:              # user 2026-10-26: 'pixel' (default now; R_PLANTS=3d = the approved 3D pines / bushes)
     la_ = os.path.expanduser("~/.landstalker_remake/rooms/592_room_c/layerA.png")
     if os.path.exists(la_):
         # the pine at the west edge (box (132, 515, 168, 584)) has its trunk in plane A; the free-standing ones keep it in plane B (user 2026-10-27: 'der Kiefer fehlt der Stamm')
         PIX_PINE = props_c.cut_template(la_, (132, 515, 168, 584), os.path.expanduser("~/.landstalker_remake/props/pine_592.png"))
-        PIX_BUSH = props_c.cut_template(la_, (329, 391, 362, 426), os.path.expanduser("~/.landstalker_remake/props/bush_592.png"))
 def plant_card(png, x, y, z, fwd=0.0, side=0.0):
     # add_figure puts the card's bottom row FIG_FWD towards the camera (the front corner of a figure's box); a plant's bottom row is its trunk foot, so the
     # card's base goes back by the same amount (7.5 along x and y = FIG_FWD) to land the foot on (x, y); fwd / side = extra screen pixels down / right
     plant_cards.append(H.add_figure(png, (x - 7.5 + fwd + side / 2, y - 7.5 + fwd - side / 2, z), light=0.45))
-# the pine with trunk: its trunk foot lies 8 px below the anchor the old crown-only cut used and 2 px left of it (measured against the original, all pines alike)
-PINE_FWD, PINE_SIDE = 8.0, 2.0
+
 
 # ---- fences, bushes, pines ----------------------------------------------------------------------------------------------------------------------------
 frnd = random.Random(21); brnd = random.Random(11); prnd = random.Random(12)
@@ -196,12 +194,10 @@ for gr in R["groups"]:
                     kit_c.end_post(bmf, 16 * x + O + 8 - 6 * ox, 16 * y + O + 8 - 6 * oy)
         kit_c.link("fence_%d_%d" % gr["cells"][0], bmf, kit_c.fence_mats(), z0=z0)
     bush = [p for p, v in obj.items() if v == "bush"]
-    if bush and PIX_BUSH:
-        for (x, y) in bush: plant_card(PIX_BUSH, 16 * x + O + 8, 16 * y + O + 8, z0 + 16.0 * gr["rel"] - 16.0)
-    elif bush: kit_c.bushes([(16 * x + O, 16 * y + O) for (x, y) in bush], Hh=16.0 * gr["rel"], rnd=brnd, z0=z0, name="bushes_%d_%d" % gr["cells"][0])
+    if PIX_PINE: continue                                                        # pixel plants: placed from the picture below (lib/plants_px.py)
+    if bush: kit_c.bushes([(16 * x + O, 16 * y + O) for (x, y) in bush], Hh=16.0 * gr["rel"], rnd=brnd, z0=z0, name="bushes_%d_%d" % gr["cells"][0])
     for (x, y) in sorted(p for p, v in obj.items() if v == "pine"):
-        if (x + y) % 2 and not PIX_PINE: continue                                # 3D pines are big: every second cell; pixel pines on every cell like the picture
-        if PIX_PINE: plant_card(PIX_PINE, 16 * x + O + 8, 16 * y + O + 8, z0, PINE_FWD, PINE_SIDE); continue
+        if (x + y) % 2: continue                                                 # 3D pines are big: every second cell
         kit_c.pine(16 * x + O + 8 + (prnd.random() - 0.5) * 6, 16 * y + O + 8 + (prnd.random() - 0.5) * 6, height=38 + prnd.random() * 10, radius=12 + prnd.random() * 2.5,
                    rnd=prnd, z0=z0, name="pine_%d_%d" % (x, y))
 
@@ -212,9 +208,49 @@ def recast(wx, wy, z):
         zz = s_ / 2 - V; px_, py_ = (s_ + d) / 2, (s_ - d) / 2
         if zz <= surface(px_, py_): return px_, py_, zz
     return wx, wy, z
-for (wx, wy, z, k) in R["pines"]:
+def card_at(png, Ub, Vb, z):
+    """a pixel card whose bottom-centre pixel lands on the picture point (Ub, Vb), standing at height z (the depth along the view ray)."""
+    Ub += 1; Vb += 1                                                             # pixel index -> the card's edge convention (measured: else 1 px up / left)
+    X = (Ub - 1184) / 2.0 + Vb + z; Y = X - (Ub - 1184); plant_card(png, X, Y, z)
+if PIX_PINE:
+    # pixel plants EXACTLY as the original draws them (2026-10-27, user: 'exakt wie im Original'; lib/plants_px.py): pines found by their tips in plane A,
+    # bushes / hedges = one card per plant cell of the height map, cut from plane A
+    import plants_px as PP
+    U0_, V0_ = [int(v) for v in open(os.path.join(os.path.dirname(la_), "window.txt")).read().split()[:2]]
+    LA = PP.load(la_); PT = PP.load(PIX_PINE); th_, tw_ = PT.shape[:2]
+    tips = PP.find_tips(LA, PT); skip = PP.pine_mask(LA, PT, tips)
+    # single decorations drawn over WALKABLE ground (no plant cell under them): Massan's round bush beside house A; found like the pines, standing on
+    # the terrain along the view ray
+    PB = props_c.cut_template(la_, (329, 391, 362, 426), os.path.expanduser("~/.landstalker_remake/props/bush_592.png"))
+    BT = PP.load(PB); bh_, bw_ = BT.shape[:2]; btips = PP.find_tips(LA, BT, rows=bh_, match=0.9)     # the whole bush: its top alone also matches the leaf clumps of the hedges; skip |= PP.pine_mask(LA, BT, btips)
+    for px_, py_ in btips:
+        Ub, Vb = px_ + (bw_ - 1) // 2 + U0_, py_ + bh_ - 1 + V0_
+        X = (Ub - 1184) / 2.0 + Vb; wx, wy, z = recast(X, X - (Ub - 1184), 0.0); card_at(PB, Ub, Vb, z)
+    plant_cells = {}
+    for gr in R["groups"]:
+        for k, v in (gr.get("obj") or {}).items():
+            if v in ("pine", "bush"): plant_cells[k] = gr
+    bush_cells = {k: gr for k, gr in plant_cells.items() if gr["obj"][k] == "bush"}
+    np_grid = np_cliff = 0
+    for px_, py_ in tips:
+        Ub, Vb = px_ + (tw_ - 1) // 2 + U0_, py_ + th_ - 1 + V0_                # the trunk foot in the picture = the front corner of its cell
+        for b in sorted({gr["base"] for gr in plant_cells.values()}, reverse=True):
+            z = 16.0 * b; cx = (Ub - 1184) / 2.0 + Vb - 8 + z; cy = cx - (Ub - 1184)
+            k = (int((cx - O) // 16), int((cy - O) // 16))
+            if k in plant_cells and b in (plant_cells[k]["base"], C[k]["h"]):     # on the ground beside the cell or on its top (pines in a hedge, Massan (28, 17))
+                card_at(PIX_PINE, Ub, Vb, z); np_grid += 1; break
+        else:                                                                    # a pine on a slope: the terrain along the view ray
+            X = (Ub - 1184) / 2.0 + Vb; wx, wy, z = recast(X, X - (Ub - 1184), 0.0)
+            card_at(PIX_PINE, Ub, Vb, z); np_cliff += 1
+    skip |= ~PP.colour_mask(LA, (PT, BT))                                        # only the plants' own colours (no roof / stone pieces)
+    cards = PP.cell_cards(LA, U0_, V0_, {(16 * x + O + 8, 16 * y + O + 8): (16.0 * gr["base"], 16.0 * (gr["base"] + gr["rel"])) for (x, y), gr in bush_cells.items()}, skip)
+    pdir = os.path.expanduser("~/.landstalker_remake/props/cells_%d" % ROOM)
+    for (cx, cy), (a, (Ub, Vb)) in cards.items():
+        zb = 16.0 * bush_cells[(int((cx - O) // 16), int((cy - O) // 16))]["base"]
+        card_at(PP.save(a, os.path.join(pdir, "plant_%d_%d.png" % (cx, cy))), Ub, Vb, zb)
+    print("pixel plants: %d pines on cells, %d on slopes, %d round bushes, %d cell cards" % (np_grid, np_cliff, len(btips), len(cards)), flush=True)
+for (wx, wy, z, k) in ([] if PIX_PINE else R["pines"]):
     wx, wy, z = recast(wx, wy, z)                                                # single pines on the cliffs, found in the picture (roomdata.cliff_pines)
-    if PIX_PINE: plant_card(PIX_PINE, wx, wy, z, PINE_FWD, PINE_SIDE); continue
     kit_c.pine(wx, wy, height=40 + prnd.random() * 6, radius=12.5 + prnd.random() * 1.5, rnd=prnd, z0=z, name="cliffpine_%d_%d" % k)
 
 # ---- steps: log stumps along every walkable edge one step high (runs of cells along x) -------------------------------------------------------------------
