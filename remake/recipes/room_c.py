@@ -233,30 +233,62 @@ if PIX_PINE:
         for k, v in (gr.get("obj") or {}).items():
             if v in ("pine", "bush"): plant_cells[k] = gr
     bush_cells = {k: gr for k, gr in plant_cells.items() if gr["obj"][k] == "bush"}
-    # the original draws the trunk only where nothing stands in front (single pines); in the groves the pines are crowns only, so every pine whose
-    # trunk rows (TRUNK_ROW..) are not in the picture gets the crown-only card (same size: the placement stays the same)
-    TRUNK_ROW = 40
-    nt = PT.copy(); nt[TRUNK_ROW:] = 0; PIX_PINE_NT = PP.save(nt, os.path.expanduser("~/.landstalker_remake/props/pine_592_crown.png"))
-    np_grid = np_cliff = n_trunk = 0
+    np_grid = np_cliff = 0
     for px_, py_ in tips:
-        tm = PP.part_match(LA, PT, (px_, py_), TRUNK_ROW, th_)
-        png_ = PIX_PINE if tm is not None and tm > 0.5 else PIX_PINE_NT; n_trunk += png_ == PIX_PINE
+        png_ = PIX_PINE                                                          # every pine with its trunk (user 2026-10-27); covered by the pines in front by depth
         Ub, Vb = px_ + (tw_ - 1) // 2 + U0_, py_ + th_ - 1 + V0_                # the trunk foot in the picture = the front corner of its cell
-        for b in sorted({gr["base"] for gr in plant_cells.values()}, reverse=True):
+        hs = sorted({gr["base"] for gr in plant_cells.values()} | {C[k]["h"] for k in plant_cells}, reverse=True)
+        cand = [(b, 0) for b in hs] + [(b, 1) for b in hs]                       # first: on the ground of its cell (base); only then: on the TOP of a cell (pines in a
+        for b, on_top in cand:                                                   # hedge, Massan (28, 17)); top first wrongly put grove pines one row too far forward
             z = 16.0 * b; cx = (Ub - 1184) / 2.0 + Vb - 8 + z; cy = cx - (Ub - 1184)
             k = (int((cx - O) // 16), int((cy - O) // 16))
-            if k in plant_cells and b in (plant_cells[k]["base"], C[k]["h"]):     # on the ground beside the cell or on its top (pines in a hedge, Massan (28, 17))
+            if k in plant_cells and b == (C[k]["h"] if on_top else plant_cells[k]["base"]):
                 card_at(png_, Ub, Vb, z); np_grid += 1; break
         else:                                                                    # a pine on a slope: the terrain along the view ray
             X = (Ub - 1184) / 2.0 + Vb; wx, wy, z = recast(X, X - (Ub - 1184), 0.0)
             card_at(png_, Ub, Vb, z); np_cliff += 1
     skip |= ~PP.leaf_mask(LA)                                                    # only leaf colours (no roof / log / fence / grass speck pieces)
-    cards = PP.cell_cards(LA, U0_, V0_, {(16 * x + O + 8, 16 * y + O + 8): (16.0 * gr["base"], 16.0 * (gr["base"] + gr["rel"])) for (x, y), gr in bush_cells.items()}, skip)
-    pdir = os.path.expanduser("~/.landstalker_remake/props/cells_%d" % ROOM)
-    for (cx, cy), (a, (Ub, Vb)) in cards.items():
-        zb = 16.0 * bush_cells[(int((cx - O) // 16), int((cy - O) // 16))]["base"]
-        card_at(PP.save(a, os.path.join(pdir, "plant_%d_%d.png" % (cx, cy))), Ub, Vb, zb)
-    print("pixel plants: %d with trunk," % n_trunk, "%d pines on cells, %d on slopes, %d round bushes, %d cell cards" % (np_grid, np_cliff, len(btips), len(cards)), flush=True)
+    # HEDGES (user 2026-10-27: cut picture pieces looked half drawn / junk when turned): a real block per bush cell whose picture shows leaves
+    # (>= PP.MIN_LEAF leaf pixels in its outline), textured by projecting the original picture (U, V of every vertex); pixels of pines / fences / logs
+    # in front of a hedge are filled from a clean hedge top (the pattern repeats per cell), so the block is whole from every side
+    leafy = PP.cell_cards(LA, U0_, V0_, {(16 * x + O + 8, 16 * y + O + 8): (16.0 * gr["base"], 16.0 * (gr["base"] + gr["rel"])) for (x, y), gr in bush_cells.items()}, skip)
+    hedge = sorted((int((cx - O) // 16), int((cy - O) // 16)) for (cx, cy) in leafy)
+    if hedge:
+        best = None
+        for k in hedge:                                                          # the cleanest top: most leaf pixels inside its top diamond
+            cx, cy = 16 * k[0] + O + 8, 16 * k[1] + O + 8; zt = 16.0 * (bush_cells[k]["base"] + bush_cells[k]["rel"])
+            uc, vc = cx - cy + 1184 - U0_, int((cx + cy) / 2 - zt - V0_)
+            n = sum(1 for du in range(-14, 15) for dv in range(-(16 - abs(du)) // 2 + 1, (16 - abs(du)) // 2)
+                    if 0 <= vc + dv < LA.shape[0] and not skip[vc + dv, uc + du] and LA[vc + dv, uc + du, 3] > 0)
+            if best is None or n > best[0]: best = (n, (uc, vc))
+        pic = PP.leaf_picture(LA, ~skip & (LA[:, :, 3] > 0), best[1])
+        hp = PP.save(pic, os.path.expanduser("~/.landstalker_remake/props/hedge_%d.png" % ROOM))
+        img = bpy.data.images.load(hp); img.colorspace_settings.name = "sRGB"; IW, IH = img.size
+        hb = bmesh.new(); uvl = hb.loops.layers.uv.new("UV")
+        for k in hedge:
+            x0, y0 = 16 * k[0] + O, 16 * k[1] + O; zb = 16.0 * bush_cells[k]["base"]; zt = zb + 16.0 * bush_cells[k]["rel"]
+            vs = {}
+            for dx in (0, 16):
+                for dy in (0, 16):
+                    for z in (zb, zt): vs[(dx, dy, z)] = hb.verts.new(G(x0 + dx, y0 + dy, z))
+            for f in (((0, 0, zt), (16, 0, zt), (16, 16, zt), (0, 16, zt)), ((0, 16, zb), (16, 16, zb), (16, 16, zt), (0, 16, zt)),
+                      ((16, 0, zb), (16, 0, zt), (16, 16, zt), (16, 16, zb)), ((0, 0, zb), (0, 0, zt), (16, 0, zt), (16, 0, zb)),
+                      ((0, 0, zb), (0, 16, zb), (0, 16, zt), (0, 0, zt))):
+                try: fc = hb.faces.new([vs[p] for p in f])
+                except ValueError: continue
+                for l, p in zip(fc.loops, f):
+                    gx, gy, gz = x0 + p[0], y0 + p[1], p[2]
+                    l[uvl].uv = ((gx - gy + 1184 - U0_) / IW, 1.0 - ((gx + gy) / 2.0 - gz - V0_) / IH)
+        me = bpy.data.meshes.new("hedges"); hb.normal_update(); hb.to_mesh(me); hb.free()
+        m = bpy.data.materials.new("hedge_px"); m.use_nodes = True; nt = m.node_tree; nt.nodes.clear(); L_ = nt.links.new
+        o_ = nt.nodes.new("ShaderNodeOutputMaterial"); t_ = nt.nodes.new("ShaderNodeTexImage"); t_.image = img; t_.interpolation = "Closest"
+        bs = nt.nodes.new("ShaderNodeBsdfPrincipled"); bs.inputs["Roughness"].default_value = 0.9
+        L_(t_.outputs["Color"], bs.inputs["Base Color"])
+        if "Emission Color" in bs.inputs: L_(t_.outputs["Color"], bs.inputs["Emission Color"]); bs.inputs["Emission Strength"].default_value = 0.45
+        L_(bs.outputs["BSDF"], o_.inputs["Surface"]); me.materials.append(m)
+        ob_ = bpy.data.objects.new("hedges", me); bpy.context.scene.collection.objects.link(ob_)
+    cards = leafy
+    print("pixel plants: %d pines on cells, %d on slopes, %d round bushes, %d hedge blocks" % (np_grid, np_cliff, len(btips), len(hedge)), flush=True)
 for (wx, wy, z, k) in ([] if PIX_PINE else R["pines"]):
     wx, wy, z = recast(wx, wy, z)                                                # single pines on the cliffs, found in the picture (roomdata.cliff_pines)
     kit_c.pine(wx, wy, height=40 + prnd.random() * 6, radius=12.5 + prnd.random() * 1.5, rnd=prnd, z0=z, name="cliffpine_%d_%d" % k)

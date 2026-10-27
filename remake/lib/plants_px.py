@@ -102,3 +102,15 @@ def cell_cards(la, U0, V0, cells, skip=None):
         a[:sub.shape[0], :sub.shape[1]][sub] = src[sub]
         out[k] = (a, (uc + U0, vb + V0))
     return out
+
+def leaf_picture(la, keep, src_cell):
+    """the plane A picture for the hedge blocks: leaf pixels where `keep`, every other pixel filled from the clean hedge top of src_cell = (U, V) of a
+    cell top centre (the hedge pattern repeats with the cells: lattice (16, 8) / (-16, 8) in the picture), so pines / fences in front of a hedge leave no hole."""
+    H, W = la.shape[:2]; out = la.copy(); us, vs = src_cell
+    vv, uu = np.mgrid[0:H, 0:W]
+    a = (uu - us) / 16.0; b = (vv - vs) / 8.0                                   # cell lattice: i = (a + b) / 2, j = (b - a) / 2
+    i = np.floor((a + b) / 2.0 + 0.5); j = np.floor((b - a) / 2.0 + 0.5)
+    su = np.clip((uu - 16 * (i - j)).astype(int), 0, W - 1); sv = np.clip((vv - 8 * (i + j)).astype(int), 0, H - 1)
+    fill = la[sv, su]; fill[:, :, 3] = 255
+    out[~keep] = fill[~keep]; out[:, :, 3] = 255
+    return out
