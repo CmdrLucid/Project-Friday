@@ -386,7 +386,8 @@ figs += statue_cards + plant_cards
 for f in figs: f.scale = (1, 1, 1); H.face_camera(f, co, upright=False, game=True)   # pixel cards are not squashed (game_view squashes every mesh; massan_a.render_set does the same reset)
 solids = [o for o in sc.objects if o.type == "MESH" and (o.name.startswith("house_") or o.name.startswith("massan_house_vc"))]
 SORT = os.environ.get("R_SORT", "1") != "0"                                      # 2D sorting of the pixel cards against the houses (massan_a.sort_cards); R_SORT=0 = plain depth test
-if SORT: H.sort_cards(figs, solids, co)
+fields = [o for o in sc.objects if o.type == "MESH" and o.name.split("_")[0] in ("fence", "terrain", "cliffs", "cave")]
+if SORT: H.sort_cards(figs, solids, co, fields=fields)
 bpy.ops.render.render(write_still=True)
 print("game view done", flush=True)
 zs = math.sqrt(2.0 / 3.0)
@@ -395,7 +396,7 @@ sc.render.resolution_x = sc.render.resolution_y = int(max(W_, H_) * PX * 0.92); 
 for q in (1, 2, 3):
     blx.orbit(co, G(cxr, cyr, 0), 90 * q, 30)
     for f in figs: H.face_camera(f, co, upright=False)
-    if SORT: H.sort_cards(figs, solids, co)
+    if SORT: H.sort_cards(figs, solids, co, fields=fields)
     sc.render.filepath = os.path.join(out, "q%d.png" % q); bpy.ops.render.render(write_still=True)
     print("view q%d done" % q, flush=True)
 print("room_c done ->", out)

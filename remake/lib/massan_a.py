@@ -309,13 +309,16 @@ def face_camera(ob, co, upright=True, game=False):
         h = mathutils.Vector((d.x, d.y, 0)).normalized(); ob.location = mathutils.Vector(ob["base"]) + h * FIG_FWD
         if not game and "base_q" in ob: ob.location = mathutils.Vector(ob["base_q"])   # pixel plants (room_c.py): in the middle of their cell when turned
 
-def sort_cards(cards, solids, co, margin=1.0):
+def sort_cards(cards, solids, co, margin=1.0, fields=(), fmargin=2.0):
     """2D sorting for pixel cards (user 2026-10-27: a bush in front of a house was cut by the house wall in a turned view; it must lie WHOLLY in front
     of the house in that view and wholly behind it where the house is in front).  A camera-facing card has one depth (its foot); tall walls just behind
     the foot are nearer than that, so the depth test cuts the card.  The camera is orthographic: sliding a card along the view ray changes neither its
     screen place nor its size, so every card is slid towards the camera until it is in front of every solid (house) that stands BEHIND its foot
     (footprint rule as in 2D games) and overlaps it on screen, but stays behind solids in FRONT of its foot; cards keep their order among themselves.
-    The shadow stays where it was (a hidden twin at the old place casts it).  Call after face_camera for every view."""
+    The shadow stays where it was (a hidden twin at the old place casts it).  Call after face_camera for every view.
+    fields = long or open objects without a footprint (fences, terrain, cliffs; user 2026-10-27: 'muss auch fuer den Zaun gelten, oder den Hang'):
+    sorted POINT by point by their ground position along the view: points behind the foot (by more than fmargin) must not cover the card, points in
+    front of it may."""
     import bpy, mathutils
     import numpy as np
     bpy.context.view_layer.update()
@@ -329,6 +332,12 @@ def sort_cards(cards, solids, co, margin=1.0):
         mw = np.array(ob.matrix_world)
         V = np.array([v.co[:] for v in ob.data.vertices]); V = V @ mw[:3, :3].T + mw[:3, 3]
         sol.append((V[:, 0].min(), V[:, 0].max(), V[:, 1].min(), V[:, 1].max(), cs(V)))
+    hv = np.array([-d.x, -d.y, 0.0]); hv /= max(1e-9, np.linalg.norm(hv))
+    fld = []
+    for ob in fields:
+        if ob.type != "MESH" or not len(ob.data.vertices): continue
+        mw = np.array(ob.matrix_world); V = np.empty(len(ob.data.vertices) * 3); ob.data.vertices.foreach_get("co", V); V = V.reshape(-1, 3)
+        V = V @ mw[:3, :3].T + mw[:3, 3]; fld.append((V @ hv, cs(V)))
     vx, vy = -d.x, -d.y                                                          # horizontal view direction (into the scene)
     def side(F, s):                                                              # +1 foot in front of the solid, -1 behind, 0 unclear (inside / beside)
         x0, x1, y0, y1 = s[:4]
@@ -344,7 +353,7 @@ def sort_cards(cards, solids, co, margin=1.0):
         mw = np.array(c.matrix_world); V = np.array([v.co[:] for v in c.data.vertices]) @ mw[:3, :3].T + mw[:3, 3]; S = cs(V)
         info.append(dict(ob=c, F=c.location.copy(), r=(S[:, 0].min(), S[:, 0].max(), S[:, 1].min(), S[:, 1].max()), z=float(S[:, 2].mean())))
     def inside(S, r): return (S[:, 0] >= r[0]) & (S[:, 0] <= r[1]) & (S[:, 1] >= r[2]) & (S[:, 1] <= r[3])
-    done = []; moved = 0
+    done = []; moved = 0; conflicts = 0
     for c in sorted(info, key=lambda c: c["z"]):                                 # far cards first
         need, cap = c["z"], 1e9
         for s in sol:
@@ -354,17 +363,25 @@ def sort_cards(cards, solids, co, margin=1.0):
             if not len(S): continue
             if k > 0: need = max(need, float(S[:, 2].max()) + 0.5)               # in front of every point of the house it overlaps
             else: cap = min(cap, float(S[:, 2].min()) - 0.5)                     # behind every point of a house in front of it
+        fh = float(np.array(c["F"][:]) @ hv)
+        for H_, S_ in fld:
+            m_ = inside(S_, c["r"])
+            if not m_.any(): continue
+            Hm, Sm = H_[m_], S_[m_]
+            b_ = Hm > fh + fmargin; f_ = Hm < fh - fmargin
+            if b_.any(): need = max(need, float(Sm[b_, 2].max()) + 0.5)
+            if f_.any(): cap = min(cap, float(Sm[f_, 2].min()) - 0.5)
         for e in done:                                                           # keep the order among overlapping cards
             if e["z0"] < c["z"] and not (e["r"][1] < c["r"][0] or c["r"][1] < e["r"][0] or e["r"][3] < c["r"][2] or c["r"][3] < e["r"][2]):
                 need = max(need, e["z"] + 0.01)
-        if need > cap: print("sort_cards: conflict for", c["ob"].name, round(need - cap, 1)); need = max(c["z"], cap)
+        if need > cap: conflicts += 1; need = max(c["z"], cap)
         c["z0"] = c["z"]
         if need > c["z"] + 1e-3:
             tw = c["ob"].copy(); tw["shadow_twin"] = 1; bpy.context.scene.collection.objects.link(tw); tw.visible_camera = False
             c["ob"].visible_shadow = False; c["ob"].location = c["ob"].location + d * (need - c["z"]); c["z"] = need; moved += 1
         else: c["ob"].visible_shadow = True
         done.append(c)
-    print("sort_cards: %d of %d cards moved towards the camera" % (moved, len(cards)), flush=True)
+    print("sort_cards: %d of %d cards moved towards the camera, %d limited by something in front" % (moved, len(cards), conflicts), flush=True)
 
 def render_set(out, px=2.0, dof=False, squash_game=True, outlines=True, modern=False, figures=(), quarter=False, tz=38, fh=190, sun_spec=1.0):
     """game view (the original's projection, heights squashed like the game) + turned views and a low perspective 'hero' shot (true heights).
