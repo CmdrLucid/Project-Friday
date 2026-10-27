@@ -161,12 +161,15 @@ PIX_PINE = PIX_BUSH = None; plant_cards = []
 if os.environ.get("R_PLANTS", "pixel") == "pixel" and ROOM == 592:              # user 2026-10-26: 'pixel' (default now; R_PLANTS=3d = the approved 3D pines / bushes)
     la_ = os.path.expanduser("~/.landstalker_remake/rooms/592_room_c/layerA.png")
     if os.path.exists(la_):
-        PIX_PINE = props_c.cut_template(la_, (80, 405, 132, 462), os.path.expanduser("~/.landstalker_remake/props/pine_592.png"))
+        # the pine at the west edge (box (132, 515, 168, 584)) has its trunk in plane A; the free-standing ones keep it in plane B (user 2026-10-27: 'der Kiefer fehlt der Stamm')
+        PIX_PINE = props_c.cut_template(la_, (132, 515, 168, 584), os.path.expanduser("~/.landstalker_remake/props/pine_592.png"))
         PIX_BUSH = props_c.cut_template(la_, (329, 391, 362, 426), os.path.expanduser("~/.landstalker_remake/props/bush_592.png"))
-def plant_card(png, x, y, z):
+def plant_card(png, x, y, z, fwd=0.0, side=0.0):
     # add_figure puts the card's bottom row FIG_FWD towards the camera (the front corner of a figure's box); a plant's bottom row is its trunk foot, so the
-    # card's base goes back by the same amount (7.5 along x and y = FIG_FWD) to land the foot on (x, y)
-    plant_cards.append(H.add_figure(png, (x - 7.5, y - 7.5, z), light=0.45))
+    # card's base goes back by the same amount (7.5 along x and y = FIG_FWD) to land the foot on (x, y); fwd / side = extra screen pixels down / right
+    plant_cards.append(H.add_figure(png, (x - 7.5 + fwd + side / 2, y - 7.5 + fwd - side / 2, z), light=0.45))
+# the pine with trunk: its trunk foot lies 8 px below the anchor the old crown-only cut used and 2 px left of it (measured against the original, all pines alike)
+PINE_FWD, PINE_SIDE = 8.0, 2.0
 
 # ---- fences, bushes, pines ----------------------------------------------------------------------------------------------------------------------------
 frnd = random.Random(21); brnd = random.Random(11); prnd = random.Random(12)
@@ -198,7 +201,7 @@ for gr in R["groups"]:
     elif bush: kit_c.bushes([(16 * x + O, 16 * y + O) for (x, y) in bush], Hh=16.0 * gr["rel"], rnd=brnd, z0=z0, name="bushes_%d_%d" % gr["cells"][0])
     for (x, y) in sorted(p for p, v in obj.items() if v == "pine"):
         if (x + y) % 2 and not PIX_PINE: continue                                # 3D pines are big: every second cell; pixel pines on every cell like the picture
-        if PIX_PINE: plant_card(PIX_PINE, 16 * x + O + 8, 16 * y + O + 8, z0); continue
+        if PIX_PINE: plant_card(PIX_PINE, 16 * x + O + 8, 16 * y + O + 8, z0, PINE_FWD, PINE_SIDE); continue
         kit_c.pine(16 * x + O + 8 + (prnd.random() - 0.5) * 6, 16 * y + O + 8 + (prnd.random() - 0.5) * 6, height=38 + prnd.random() * 10, radius=12 + prnd.random() * 2.5,
                    rnd=prnd, z0=z0, name="pine_%d_%d" % (x, y))
 
@@ -211,7 +214,7 @@ def recast(wx, wy, z):
     return wx, wy, z
 for (wx, wy, z, k) in R["pines"]:
     wx, wy, z = recast(wx, wy, z)                                                # single pines on the cliffs, found in the picture (roomdata.cliff_pines)
-    if PIX_PINE: plant_card(PIX_PINE, wx, wy, z); continue
+    if PIX_PINE: plant_card(PIX_PINE, wx, wy, z, PINE_FWD, PINE_SIDE); continue
     kit_c.pine(wx, wy, height=40 + prnd.random() * 6, radius=12.5 + prnd.random() * 1.5, rnd=prnd, z0=z, name="cliffpine_%d_%d" % k)
 
 # ---- steps: log stumps along every walkable edge one step high (runs of cells along x) -------------------------------------------------------------------
