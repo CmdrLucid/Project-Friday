@@ -10,7 +10,7 @@ pine / bush / fence where the height map alone cannot tell (roomdata.py).
             every walkable edge one step high (asset 4), sea east of the room (cmat.water_mat, asset 5c); statue and cave = grey / dark placeholders
 Run: R_FIGURE=~/.landstalker_remake/figures/nigel_a4.png python3 remake/tools/build_asset.py room_c   (R_ROOM=592, R_ROM=path, R_PX=1)
 Output (local): game.png (the original's projection, window in window.txt for rom_picture.py), q1..q3.png (camera turned by 90 degree steps)."""
-import bpy, bmesh, sys, os, math, random
+import bpy, bmesh, sys, os, math, random, json
 import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lib"))
 import blx, cmat, cground, cliff_c, kit_c, roomdata as RD, massan_a as H
@@ -204,7 +204,14 @@ def plant_card(png, x, y, z, fwd=0.0, side=0.0):
     # card's base goes back by the same amount (7.5 along x and y = FIG_FWD) to land the foot on (x, y); fwd / side = extra screen pixels down / right
     ob = H.add_figure(png, (x - 7.5 + fwd + side / 2, y - 7.5 + fwd - side / 2, z), light=0.45)
     ob["base_q"] = H.G(x - 7.5, y - 7.5, z)   # turned views: the card stands in the middle of the cell (the front corner of the GAME view would push it into fences / slopes)
-    plant_cards.append(ob)
+    card_id(ob, png, (x, y, z)); plant_cards.append(ob); return ob
+CARD_IDS = {}
+def card_id(ob, png, foot):
+    """stable name of a pixel card for the map editor (remake/tools/editor.py): kind @ foot (game units, as placed by the automatic code)."""
+    kind = os.path.splitext(os.path.basename(png))[0]; cid = "%s@%d,%d,%d" % (kind, round(foot[0]), round(foot[1]), round(foot[2]))
+    n = CARD_IDS.get(cid, 0); CARD_IDS[cid] = n + 1
+    if n: cid += "#%d" % n
+    ob["cid"] = cid; ob["kind"] = kind; ob["png"] = png; ob["foot"] = tuple(foot)
 
 
 # ---- fences, bushes, pines ----------------------------------------------------------------------------------------------------------------------------
@@ -340,7 +347,38 @@ for (x, y) in R["statues"]:
     path = props_c.cut_billboard(la, int(uc) - 30, int(vcorner) - 90, 60, 100, os.path.expanduser("~/.landstalker_remake/props/statue_%d_%d_%d.png" % (ROOM, x, y)))
     if path:
         img_path, bottom = path                                                  # bottom = picture row of the lowest statue pixel; rows below the corner go under the ground
-        statue_cards.append(H.add_figure(img_path, (xc, yc, top[(x, y)] - (bottom - vcorner) * H.FIG_PX), light=0.45))
+        zst = top[(x, y)] - (bottom - vcorner) * H.FIG_PX
+        statue_cards.append(H.add_figure(img_path, (xc, yc, zst), light=0.45)); card_id(statue_cards[-1], img_path, (xc + 9.0, yc + 8.0, zst))   # foot as the editor draws it (plant cards: +1 pixel edge convention of card_at, measured)
+
+# ---- map editor overrides (user 2026-10-27: 'kleiner simpler Mapeditor'): remake/rooms/<room>.json, written by remake/tools/editor.py --------------------
+# {"move": {card id: [dx, dy, dz]}, "delete": [card id, ...], "add": [{"kind": png name in ~/.landstalker_remake/props, "x", "y", "z" = foot}]}
+OVR_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "rooms", "%d.json" % ROOM)
+OVR = json.load(open(OVR_PATH)) if os.path.exists(OVR_PATH) and os.environ.get("R_EDITS", "1") != "0" else {}
+def _removed(ob):
+    try: ob.name; return False
+    except ReferenceError: return True
+deleted_cards = []                                                              # kept for the editor (it shows them crossed out and can bring them back)
+for c in plant_cards + statue_cards:
+    cid = c["cid"]
+    if cid in OVR.get("delete", []):
+        m_ = OVR.get("move", {}).get(cid, (0, 0, 0)); f_ = c["foot"]
+        deleted_cards.append(dict(id=cid, kind=c["kind"], png=c["png"], foot=[f_[0] + m_[0], f_[1] + m_[1], f_[2] + m_[2]], added=False, deleted=True))
+        bpy.data.objects.remove(c, do_unlink=True); continue
+    if cid in OVR.get("move", {}):
+        dx, dy, dz = OVR["move"][cid]; dv = mathutils.Vector((dx, -dy, dz))  # game y south = Blender -y
+        for k in ("base", "base_q"):
+            if k in c: c[k] = tuple(mathutils.Vector(c[k]) + dv)
+        c.location = mathutils.Vector(c["base"]); f_ = c["foot"]; c["foot"] = (f_[0] + dx, f_[1] + dy, f_[2] + dz)
+plant_cards = [c for c in plant_cards if not _removed(c)]
+statue_cards = [c for c in statue_cards if not _removed(c)]
+for i, a in enumerate(OVR.get("add", [])):
+    png = os.path.expanduser("~/.landstalker_remake/props/%s.png" % a["kind"])
+    if not os.path.exists(png): print("editor: unknown kind", a["kind"]); continue
+    plant_card(png, a["x"], a["y"], a["z"])["cid"] = "add:%d" % i
+known = {c["cid"] for c in plant_cards + statue_cards} | {d["id"] for d in deleted_cards}
+for cid in list(OVR.get("move", {})) + OVR.get("delete", []):
+    if cid not in known and not any(c.get("cid") == cid for c in bpy.data.objects): print("editor: card not found (automatic placement changed?):", cid)
+print("editor overrides: %d moved, %d deleted, %d added" % (len(OVR.get("move", {})), len(OVR.get("delete", [])), len(OVR.get("add", []))), flush=True)
 for g_ in cave_groups:                                                           # the mouth lies in the slope west of the door cells (Massan: faces east)
     x = min(e[0] for e in g_); y0_, y1_ = min(e[1] for e in g_), max(e[1] for e in g_) + 1; z = top[g_[0]]
     k = cliff_c.K_ROCK; n_ = mathutils.Vector((k, 0, 1)).normalized(); up_ = mathutils.Vector((-1, 0, k)).normalized()
@@ -390,6 +428,10 @@ fields = [o for o in sc.objects if o.type == "MESH" and o.name.split("_")[0] in 
 if SORT: H.sort_cards(figs, solids, co, fields=fields)
 bpy.ops.render.render(write_still=True)
 print("game view done", flush=True)
+# what the map editor needs: every pixel card (id, image, foot in game units), the cells' heights, the picture window
+json.dump(dict(room=ROOM, window=[U0, V0, W_, H_], O=O, cells=[[k[0], k[1], top[k]] for k in sorted(top)],
+               cards=[dict(id=c["cid"], kind=c["kind"], png=c["png"], foot=list(c["foot"]), added=c["cid"].startswith("add:")) for c in plant_cards + statue_cards] + deleted_cards),
+          open(os.path.join(out, "cards.json"), "w"))
 zs = math.sqrt(2.0 / 3.0)
 cxr, cyr = 16 * (min(xs) + max(xs) + 1) / 2 + O, 16 * (min(ys) + max(ys) + 1) / 2 + O
 sc.render.resolution_x = sc.render.resolution_y = int(max(W_, H_) * PX * 0.92); co.data.ortho_scale = max(W_, H_) * 0.92 * math.sqrt(0.5) * 1.15
