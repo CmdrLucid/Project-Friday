@@ -289,38 +289,16 @@ if PIX_PINE:
             X = (Ub - 1184) / 2.0 + Vb; wx, wy, z = recast(X, X - (Ub - 1184), 0.0)
             card_at(png_, Ub, Vb, z); np_cliff += 1
     skip |= ~PP.leaf_mask(LA)                                                    # only leaf colours (no roof / log / fence / grass speck pieces)
-    # HEDGES (user 2026-10-27: cut picture pieces looked half drawn / junk when turned): every bush cell whose picture shows leaves (>= PP.MIN_LEAF leaf
-    # pixels in its outline); pixels of pines / fences / logs in front of a hedge are filled from a clean hedge top (the pattern repeats per cell)
+    # HEDGES: every bush cell whose picture shows leaves (>= PP.MIN_LEAF leaf pixels in its outline, so cells showing fence / stumps / grass get none)
     leafy = PP.cell_cards(LA, U0_, V0_, {(16 * x + O + 8, 16 * y + O + 8): (16.0 * gr["base"], 16.0 * (gr["base"] + gr["rel"])) for (x, y), gr in bush_cells.items()}, skip)
     hedge = sorted((int((cx - O) // 16), int((cy - O) // 16)) for (cx, cy) in leafy)
     if hedge:
-        best = None
-        for k in hedge:                                                          # the cleanest top: most leaf pixels inside its top diamond
-            cx, cy = 16 * k[0] + O + 8, 16 * k[1] + O + 8; zt = 16.0 * (bush_cells[k]["base"] + bush_cells[k]["rel"])
-            uc, vc = cx - cy + 1184 - U0_, int((cx + cy) / 2 - zt - V0_)
-            n = sum(1 for du in range(-14, 15) for dv in range(-(16 - abs(du)) // 2 + 1, (16 - abs(du)) // 2)
-                    if 0 <= vc + dv < LA.shape[0] and not skip[vc + dv, uc + du] and LA[vc + dv, uc + du, 3] > 0)
-            if best is None or n > best[0]: best = (n, (uc, vc))
-        pic = PP.leaf_picture(LA, ~skip & (LA[:, :, 3] > 0), best[1])
-        # ONE complete hedge sprite for every hedge cell, like the pines (user 2026-10-27: 'ja ein vollstaendiges Hecken-Sprite'): the whole box outline
-        # of the hedge cell whose outline holds the most ORIGINAL leaf pixels (cut alone, no neighbour takes a part), stood camera-facing on every
-        # hedge cell of the height map; drawn back to front by depth it closes into the original's hedge in the game view
-        keep = ~skip & (LA[:, :, 3] > 0); pic[:, :, 3] = np.where(keep, 255, 0)
-        best_c = None; PP.OVER = 0                                                # the sprite = the outline only (the leaves above it belong to the cell behind)
-        for (x, y) in hedge:
-            zb_ = 16.0 * bush_cells[(x, y)]["base"]; one = {(16 * x + O + 8, 16 * y + O + 8): (zb_, zb_ + 16.0 * bush_cells[(x, y)]["rel"])}
-            for k_, (a_, (Ub, Vb)) in PP.cell_cards(pic, U0_, V0_, one, core_all=True).items():
-                sub = keep[Vb - V0_ - a_.shape[0] + 1:Vb - V0_ + 1, Ub - U0_ - (a_.shape[1] // 2):Ub - U0_ + a_.shape[1] // 2 + 1]
-                n = int((sub & (a_[:, :, 3] > 0)).sum()) if sub.shape == a_.shape[:2] else 0
-                if bush_cells[(x, y)]["rel"] == 1 and (best_c is None or n > best_c[0]): best_c = (n, a_, (x, y))
-        HP = PP.save(best_c[1], os.path.expanduser("~/.landstalker_remake/props/hedge_%d.png" % ROOM))
-        print("hedge sprite from cell", best_c[2], "original leaf pixels", best_c[0], flush=True)
+        # every hedge cell gets the ROUND BUSH beside house A (the one complete bush of the picture; user 2026-10-27: 'links neben dem Haus mit dem
+        # Totenschaedel ... ja'), camera-facing like the pines, its stem foot on the cell's front corner; drawn back to front by depth
         for (x, y) in hedge:
             zb_ = 16.0 * bush_cells[(x, y)]["base"]; cx, cy = 16 * x + O + 8, 16 * y + O + 8
-            Ub, Vb = cx - cy + 1184, int(round((cx + cy) / 2.0 + 8 - zb_))     # bottom row = the cell's front corner (as plants_px.cell_cards cuts it)
-            card_at(HP, Ub, Vb, zb_)
-    cards = leafy
-    print("pixel plants: %d pines on cells, %d on slopes, %d round bushes, %d hedge blocks" % (np_grid, np_cliff, len(btips), len(hedge)), flush=True)
+            card_at(PB, cx - cy + 1184, int(round((cx + cy) / 2.0 + 8 - zb_)), zb_)
+    print("pixel plants: %d pines on cells, %d on slopes, %d round bushes, %d hedge bushes" % (np_grid, np_cliff, len(btips), len(hedge)), flush=True)
 for (wx, wy, z, k) in ([] if PIX_PINE else R["pines"]):
     wx, wy, z = recast(wx, wy, z)                                                # single pines on the cliffs, found in the picture (roomdata.cliff_pines)
     kit_c.pine(wx, wy, height=40 + prnd.random() * 6, radius=12.5 + prnd.random() * 1.5, rnd=prnd, z0=z, name="cliffpine_%d_%d" % k)
