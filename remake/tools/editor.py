@@ -10,7 +10,7 @@ import json, os, subprocess, sys, threading, time, webbrowser
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 
 ROOM = int(sys.argv[1]) if len(sys.argv) > 1 else 592
-PORT = 8765
+PORT = int(os.environ.get("EDITOR_PORT", "8765"))
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
 PAGE = os.path.join(REPO, "remake", "editor")
@@ -54,7 +54,7 @@ class H(SimpleHTTPRequestHandler):
         if u == "/editor.js": return self.file(os.path.join(PAGE, "editor.js"), "text/javascript")
         if u == "/img/original.png": return self.file(ORIG, "image/png")
         if u == "/img/render.png": return self.file(os.path.join(OUT, "game.png"), "image/png")
-        if u.startswith("/img/q") and u.endswith(".png"): return self.file(os.path.join(OUT, u[5:]), "image/png")
+        if u.startswith("/img/") and u.endswith(".png") and "/" not in u[5:]: return self.file(os.path.join(OUT, u[5:]), "image/png")   # renders of every view
         if u.startswith("/props/"):                                              # card images: only files inside the props folder
             p = os.path.realpath(os.path.join(PROPS, u[len("/props/"):]))
             if not p.startswith(os.path.realpath(PROPS) + os.sep): return self.send(403, "no", "text/plain")
@@ -67,7 +67,7 @@ class H(SimpleHTTPRequestHandler):
                 c["img"] = os.path.relpath(c["png"], PROPS) if os.path.realpath(c["png"]).startswith(os.path.realpath(PROPS)) else None
             d["kinds"] = sorted(f[:-4] for f in os.listdir(PROPS) if f.endswith(".png"))
             d["overrides"] = json.load(open(OVR)) if os.path.exists(OVR) else {}
-            d["render_time"] = os.path.getmtime(os.path.join(OUT, "game.png")) if os.path.exists(os.path.join(OUT, "game.png")) else 0
+            d["render_time"] = os.path.getmtime(cj)
             return self.send(200, json.dumps(d))
         if u == "/api/render": return self.send(200, json.dumps(render))
         self.send(404, "not found", "text/plain")

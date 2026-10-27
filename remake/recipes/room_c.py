@@ -425,20 +425,68 @@ for f in figs: f.scale = (1, 1, 1); H.face_camera(f, co, upright=False, game=Tru
 solids = [o for o in sc.objects if o.type == "MESH" and (o.name.startswith("house_") or o.name.startswith("massan_house_vc"))]
 SORT = os.environ.get("R_SORT", "1") != "0"                                      # 2D sorting of the pixel cards against the houses (massan_a.sort_cards); R_SORT=0 = plain depth test
 fields = [o for o in sc.objects if o.type == "MESH" and o.name.split("_")[0] in ("fence", "terrain", "cliffs", "cave")]
+# map editor views (user 2026-10-27: 'verwirrend wenn ich die Originalposition des Sprites noch sehe', 'wie drehe ich die Raumansicht'): for every view a
+# render WITHOUT the editable cards (half size, the editor draws the cards itself where they are now) and the projection game units -> editor pixels
+from bpy_extras.object_utils import world_to_camera_view
+ecards = [c for c in figs if c.get("cid")]; zs = math.sqrt(2.0 / 3.0); views = []
+def editor_view(name, img):
+    bpy.context.view_layer.update()
+    rx, ry = sc.render.resolution_x, sc.render.resolution_y
+    def px(g):                                                                   # game units (true heights) -> editor pixel (render pixel / PX) and depth
+        v = world_to_camera_view(sc, co, mathutils.Vector(G(g[0], g[1], g[2] * zs))); return (v.x * rx / PX, (1 - v.y) * ry / PX, v.z)
+    p0, px_, py_, pz_ = px((0, 0, 0)), px((100, 0, 0)), px((0, 100, 0)), px((0, 0, 100))
+    A = [[(px_[i] - p0[i]) / 100, (py_[i] - p0[i]) / 100, (pz_[i] - p0[i]) / 100, p0[i]] for i in range(3)]
+    offs = {}
+    for c in ecards:                                                             # card origin (bottom centre) relative to its foot, game units, this view
+        L = c.location; f_ = c["foot"]; offs[c["cid"]] = [L.x - f_[0], -L.y - f_[1], L.z / zs - f_[2]]
+    views.append(dict(name=name, img=img, mask="mask_" + img[len("nocards_"):], w=rx / PX, h=ry / PX, A=A, s=H.FIG_PX * rx / co.data.ortho_scale / PX, offs=offs))
+def render_nocards(img):
+    for c in ecards: c.hide_render = True
+    tw = [o for o in sc.objects if o.get("shadow_twin")]
+    for o in tw: o.hide_render = True
+    pct, fp = sc.render.resolution_percentage, sc.render.filepath
+    sc.render.resolution_percentage = int(100 / PX); sc.render.filepath = os.path.join(out, img); bpy.ops.render.render(write_still=True)
+    sc.render.resolution_percentage, sc.render.filepath = pct, fp
+    for c in ecards: c.hide_render = False
+    for o in tw: o.hide_render = False
+HOUSE_STEP = 28                                                                  # house id i -> red value (i + 1) * 28 in the mask PNG (editor.js reads it back)
+def render_mask(img):
+    """flat colour mask of the houses for the editor (it hides cards behind a house like sort_cards does): workbench, no AA, Standard view."""
+    keep = {o.name: o.hide_render for o in sc.objects}
+    st = (sc.render.engine, sc.render.film_transparent, sc.render.use_freestyle, sc.view_settings.view_transform, sc.view_settings.look,
+          sc.render.resolution_percentage, sc.render.filepath)
+    for o in sc.objects: o.hide_render = o not in solids
+    for i, o in enumerate(solids):
+        v = ((i + 1) * HOUSE_STEP) / 255.0; lin = v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4; o.color = (lin, 0, 0, 1)
+    sc.render.engine = "BLENDER_WORKBENCH"; sc.display.shading.light = "FLAT"; sc.display.shading.color_type = "OBJECT"; sc.display.render_aa = "OFF"
+    sc.render.film_transparent = True; sc.render.use_freestyle = False; sc.view_settings.view_transform = "Standard"; sc.view_settings.look = "None"
+    sc.render.resolution_percentage = int(100 / PX); sc.render.filepath = os.path.join(out, img); bpy.ops.render.render(write_still=True)
+    (sc.render.engine, sc.render.film_transparent, sc.render.use_freestyle, sc.view_settings.view_transform, sc.view_settings.look,
+     sc.render.resolution_percentage, sc.render.filepath) = st
+    for o in sc.objects: o.hide_render = keep.get(o.name, o.hide_render)
+def house_boxes():
+    bx = []
+    for o in solids:
+        W = [o.matrix_world @ v.co for v in o.data.vertices]
+        bx.append([min(w.x for w in W), max(w.x for w in W), min(-w.y for w in W), max(-w.y for w in W)])
+    return bx
+editor_view("game", "nocards_game.png")
 if SORT: H.sort_cards(figs, solids, co, fields=fields)
 bpy.ops.render.render(write_still=True)
+render_nocards("nocards_game.png"); render_mask("mask_game.png")
 print("game view done", flush=True)
-# what the map editor needs: every pixel card (id, image, foot in game units), the cells' heights, the picture window
-json.dump(dict(room=ROOM, window=[U0, V0, W_, H_], O=O, cells=[[k[0], k[1], top[k]] for k in sorted(top)],
-               cards=[dict(id=c["cid"], kind=c["kind"], png=c["png"], foot=list(c["foot"]), added=c["cid"].startswith("add:")) for c in plant_cards + statue_cards] + deleted_cards),
-          open(os.path.join(out, "cards.json"), "w"))
-zs = math.sqrt(2.0 / 3.0)
 cxr, cyr = 16 * (min(xs) + max(xs) + 1) / 2 + O, 16 * (min(ys) + max(ys) + 1) / 2 + O
 sc.render.resolution_x = sc.render.resolution_y = int(max(W_, H_) * PX * 0.92); co.data.ortho_scale = max(W_, H_) * 0.92 * math.sqrt(0.5) * 1.15
 for q in (1, 2, 3):
     blx.orbit(co, G(cxr, cyr, 0), 90 * q, 30)
     for f in figs: H.face_camera(f, co, upright=False)
+    editor_view("q%d" % q, "nocards_q%d.png" % q)
     if SORT: H.sort_cards(figs, solids, co, fields=fields)
     sc.render.filepath = os.path.join(out, "q%d.png" % q); bpy.ops.render.render(write_still=True)
+    render_nocards("nocards_q%d.png" % q); render_mask("mask_q%d.png" % q)
     print("view q%d done" % q, flush=True)
+# what the map editor needs: every pixel card (id, image, foot in game units), the views, the cells' heights, the picture window
+json.dump(dict(room=ROOM, window=[U0, V0, W_, H_], O=O, cells=[[k[0], k[1], top[k]] for k in sorted(top)], views=views, houses=house_boxes(), house_step=HOUSE_STEP,
+               cards=[dict(id=c["cid"], kind=c["kind"], png=c["png"], foot=list(c["foot"]), added=c["cid"].startswith("add:")) for c in plant_cards + statue_cards] + deleted_cards),
+          open(os.path.join(out, "cards.json"), "w"))
 print("room_c done ->", out)

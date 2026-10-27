@@ -34,9 +34,11 @@
 <body>
 <header>
   <b>Map-Editor</b> <span id="room"></span>
-  <label>Original <input id="fade" type="range" min="0" max="100" value="100"> Remake</label>
+  <label>Ansicht <button class="vbtn on" data-v="game" title="Spielansicht wie im Original">Spiel</button><button class="vbtn" data-v="q1">90°</button><button class="vbtn" data-v="q2">180°</button><button class="vbtn" data-v="q3">270°</button></label>
+  <label id="fadebox">Original <input id="fade" type="range" min="0" max="100" value="100"> Remake</label>
   <label>Zoom <button id="zout">−</button><span id="zv">2x</span><button id="zin">+</button></label>
-  <button id="marks" class="on" title="Markierungen aller Sprites ein / aus (M)">Markierungen</button>
+  <button id="marks" title="Fußpunkte aller Sprites ein / aus (M)">Markierungen</button>
+  <button id="finished" title="Das fertig gerenderte Bild zeigen, mit Schatten und Überdeckung (F)">Fertiges Bild</button>
   <button id="undo" title="Rückgängig (Strg+Z)">↶ Rückgängig</button>
   <button id="save">Speichern</button>
   <button id="render" class="big">Rendern</button>
@@ -61,10 +63,11 @@
     <kbd>Bild↑</kbd>/<kbd>Bild↓</kbd> höher / tiefer<br>
     <kbd>Entf</kbd> löschen, <kbd>Strg+Z</kbd> rückgängig<br>
     <kbd>Strg+S</kbd> speichern, <kbd>M</kbd> Markierungen<br>
+    <kbd>Q</kbd>/<kbd>E</kbd> Ansicht drehen, <kbd>F</kbd> fertiges Bild<br>
     Zwei Finger auf dem Touchpad = Bild schieben
   </div>
   <h3>Legende</h3>
-  <div class="keys">Gelb = Fuß eines Sprites · Blau = ausgewählt · Grün = verschoben / neu (noch nicht gerendert) · Rot = gelöscht</div>
+  <div class="keys">Die Sprites zeichnet der Editor selbst, immer an ihrer aktuellen Stelle (darunter liegt ein Bild ohne Sprites). Ob ein Haus ein Sprite verdeckt, zeigt erst „Rendern“ und dann „Fertiges Bild“.<br>Blau = ausgewählt · Grün = verschoben / neu (noch nicht gerendert) · Rot = gelöscht · Gelb (Markierungen) = Fußpunkt</div>
 </aside>
 <script src="editor.js"></script>
 </body>
