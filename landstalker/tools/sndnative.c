@@ -147,12 +147,18 @@ void lk_nat_pause_restore(void) { Z80.cycles = lkn_ps_z80; lkn_z.cyc = lkn_ps_cy
 /* own sound clock, mailbox FIFO (tools/patch_sndclock.py): the 68K's writes to $1FFC / $1FFD / $1FFF are queued while the sound timeline skips frames; one entry per sound frame goes to the driver once it has taken the last command */
 extern int lk_snd_skipping(void);
 typedef struct { uint8_t ha, hb, a, b, cmd; } LknCmd;
-static LknCmd lkq[256]; static int lkq_n, lkq_head, lkq_ha, lkq_hb, lkq_pa, lkq_pb, lkq_max, lkq_pushed, lkq_given, lkq_dropped;   /* stats: LANDSTALKER_SNDCLOCK_LOG=1 */
+static LknCmd lkq[256]; static int lkq_n, lkq_head, lkq_ha, lkq_hb, lkq_pa, lkq_pb, lkq_max, lkq_pushed, lkq_given, lkq_dropped, lkq_thinned;   /* stats: LANDSTALKER_SNDCLOCK_LOG=1 */
 int lk_snd_zw(unsigned a, unsigned v) {
     if (a != 0x1FFC && a != 0x1FFD && a != 0x1FFF) return 0;
     if (!lk_snd_skipping() && !lkq_n) return 0;
     if (a == 0x1FFC) { lkq_pa = v; lkq_ha = 1; return 1; }
     if (a == 0x1FFD) { lkq_pb = v; lkq_hb = 1; return 1; }
+    {   /* fast forward: a run of the same command (the speech blip: one per character, the text prints N times faster) is thinned to every Nth, so it sounds as often per real second as at normal speed */
+        extern int lk_ff_sndskip_n(void); extern long platform_frame_number(void);
+        static int last = -1, lha, lhb, lpa, lpb, run; static long lastf = -100; int n = lk_ff_sndskip_n(); long f = platform_frame_number();
+        if (n >= 2 && last == (int)v && lha == lkq_ha && lhb == lkq_hb && lpa == lkq_pa && lpb == lkq_pb && f - lastf <= 20) { run++; lastf = f; if (run % n) { lkq_ha = lkq_hb = 0; lkq_thinned++; return 1; } }
+        else { run = 0; last = (int)v; lha = lkq_ha; lhb = lkq_hb; lpa = lkq_pa; lpb = lkq_pb; lastf = f; }
+    }
     lkq_pushed++; if (lkq_n >= 256) lkq_dropped++;
     if (lkq_n < 256) { LknCmd *c = &lkq[(lkq_head + lkq_n++) & 255]; if (lkq_n > lkq_max) lkq_max = lkq_n; c->ha = lkq_ha; c->hb = lkq_hb; c->a = lkq_pa; c->b = lkq_pb; c->cmd = v; }
     lkq_ha = lkq_hb = 0;
@@ -162,7 +168,7 @@ void lk_snd_deliver(void) {
     static int blocked; LknCmd *c; if (!lkq_n) { blocked = 0; return; }
     if (zram[0x1FFF] && ++blocked < 4) return;   /* the driver has not taken the last command yet; after 3 sound frames overwrite it as the original 68K would */
     blocked = 0; lkq_given++;
-    { static int lg = -1; if (lg < 0) lg = getenv("LANDSTALKER_SNDCLOCK_LOG") != NULL; if (lg && !(lkq_given % 20)) fprintf(stderr, "sndclock: commands queued %d delivered %d dropped %d deepest queue %d\n", lkq_pushed, lkq_given, lkq_dropped, lkq_max); }
+    { static int lg = -1; if (lg < 0) lg = getenv("LANDSTALKER_SNDCLOCK_LOG") != NULL; if (lg && (!(lkq_given % 20) || (lkq_thinned && !(lkq_thinned % 10)))) fprintf(stderr, "sndclock: commands queued %d delivered %d dropped %d thinned %d deepest queue %d\n", lkq_pushed, lkq_given, lkq_dropped, lkq_thinned, lkq_max); }
     c = &lkq[lkq_head]; lkq_head = (lkq_head + 1) & 255; lkq_n--;
     if (c->ha) { lk_nat_ram_w(0x1FFC, c->a); zram[0x1FFC] = c->a; }
     if (c->hb) { lk_nat_ram_w(0x1FFD, c->b); zram[0x1FFD] = c->b; }
