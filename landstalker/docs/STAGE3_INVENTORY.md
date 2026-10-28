@@ -62,3 +62,6 @@ Risks: the camera rules (S3.3) are unknown and the largest unknown; the 4 rooms 
 - Start with S3.1 + S3.2 (invisible groundwork, recommended)?
 - What should a seamless transition look like when the neighbour room does not line up (stairs, doors on different heights): a slide, a camera pan, or a quick cross-fade?
 - Should the model stay a pure presentation layer (game logic = the 68K recomp, recommended) or become the place where game logic is rewritten one day?
+
+## 6. Update 2026-10-28: gap 2 (clean entity list) re-checked
+The renderer already reads the entity structs for position / graphic / animation (INDEX status 2026-10-28). What still looks at the game's sprite table (RAM `$FF0550`) is only the draw order, the hiding of figures the table does not draw and the text box sprite mask: these reproduce the cartridge's sprite limits and flicker. `LANDSTALKER_OWN_NOSAT=1` shows the cost of dropping it (~19 px per frame in busy rooms). Decision open: an optional 'No Sprite Limit' setting.

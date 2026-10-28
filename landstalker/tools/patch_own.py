@@ -1303,6 +1303,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         for (n4 = 0; n4 < 80 && ns < 96; n4++) { int y = ((LK_SATB(8 * i4) << 8) | LK_SATB(8 * i4 + 1)) & 0x1FF, sz = (LK_SATB(8 * i4 + 2) << 8) | LK_SATB(8 * i4 + 3), x = ((LK_SATB(8 * i4 + 6) << 8) | LK_SATB(8 * i4 + 7)) & 0x1FF;
           lk_o_satw[ns] = (LK_SATB(8 * i4 + 4) << 8) | LK_SATB(8 * i4 + 5); lk_o_satt[ns] = lk_o_satw[ns] & 0x7FF; sat[ns] = (uint32)(x << 20 | y << 8 | ((sz >> 8) & 15)); lk_o_satk[ns] = sat[ns]; ns++; i4 = sz & 0x7F; if (!i4) break; }
         lk_o_satn = ns;
+        { static int nosat = -1; if (nosat < 0) nosat = getenv("LANDSTALKER_OWN_NOSAT") != NULL; if (nosat) lk_o_satn = 0; }   /* test aid: no use of the game's sprite table for the draw order / hiding (entities in the order of the game's own list) */
         { int L, j; for (L = 0; L < 224; L++) { int seen = 0; lk_o_smk[L] = 0; for (j = 0; j < ns; j++) { int y0 = (int)((lk_o_satk[j] >> 8) & 0x1FF) - 128, h8 = 8 * (int)((lk_o_satk[j] & 3) + 1), x0 = (int)((lk_o_satk[j] >> 20) & 0x1FF); if (L < y0 || L >= y0 + h8) continue; if (x0) seen = 1; else if (seen) { lk_o_smk[L] = j + 1; break; } } } }   /* the VDP's sprite mask */
         { const uint8 *rc = r, *rp = lk_o_use; lk_o_cc = rc; lk_o_cp = rp;
         nc = lk_o_sprites(rc, 0, kc, 0); np_ = lk_o_sprites(rp, 0, kp, 0); }
