@@ -5,6 +5,7 @@
 - **Europe ROM supported:** the European Landstalker ROM is accepted too and runs at the right speed (60 Hz).
 - **Fast Forward can be a toggle (issue #11):** Options > Quality of Life > Fast Forward Key: Hold or Toggle.
 - **No sprite limit (always on):** every figure of a room is drawn, without the cartridge's limit of 20 sprites per line and its flicker (no option row).
+- **Fast forward keeps the music at normal speed** (the sound runs on its own clock; GitHub issue #11).
 - **Native sound (always on):** the sound driver runs recompiled inside the game instead of GPGX's Z80 (audio bit identical to before).
 - **Game and sound pause while the window is not in focus (alt+tab, issue #9).**
 - **Quick Save and Fast Forward are OFF by default:** turn them on under Options > Quality of Life; pressing their button while off now shows a hint (issue #6). Fast forward: hold Tab / Steam Deck back button R5.

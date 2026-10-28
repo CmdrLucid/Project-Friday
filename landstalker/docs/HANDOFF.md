@@ -13,6 +13,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a39. 2026-10-20 (Deck, Sonnet 5.5): user recording `rec_20261019_2215` (ending, room 113): the credits were invisible with garbage because the own renderer drew the arena over them (the ending script runs inside UpdateSprites = 'map'); fixed in `patch_wide.py` (`PlayEndCredits $09EBE0` = picture screen) on `dev`, not released; new test aid `LANDSTALKER_CREDITS_AT` (INDEX status, LESSONS 67). USER CHECK OPEN: play the ending again (own renderer On): do the credits show, do they end properly (EndGame, back to title)? Needs a fresh `build.sh`.
 
+## 0a141. 2026-10-28 (Deck, Sonnet 5.5, on `dev`): OWN SOUND CLOCK built (issue #11 part 2, INDEX status first entry, SOUND_PLAN step 6): music + effects stay at normal speed while fast forwarding. USER CHECK OPEN: hold fast forward (4x) in Massan / fight / shop / entering a house. Rollback `LANDSTALKER_SNDCLOCK=0`. NEXT: EU ROM + AppImage check; I cannot comment on GitHub: the user answers / closes #11.
+
 ## 0a140. 2026-10-28 (Deck, Sonnet 5.5, on `dev`): user: native sound AND No Sprite Limit are now DEFAULT, the No Sprite Limit row is out of the menu (INDEX status first entry). USER CHECK OPEN (after `build.sh`): play with `~/Landstalker.sh` (no env needed): sound as before, Video page 7 rows, crowded rooms. NEXT: own clock (issue #11 part 2), EU ROM + AppImage check.
 
 ## 0a139. 2026-10-28 (Deck, Sonnet 5.5, on `dev`): USER CONFIRMED the native sound ('klingt komplett gleich', `~/Landstalker_NativeSound.sh`). Check of 0a138 closed. NEXT (user picks): own clock (issue #11 part 2), default on / options row, EU ROM + AppImage check.

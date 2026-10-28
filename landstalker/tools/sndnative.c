@@ -141,7 +141,10 @@ static void lkn_from_ctx(void) {
     lkn_z.a2 = Z80.af2.b.h; lkn_z.f2 = Z80.af2.b.l; lkn_z.b2 = Z80.bc2.b.h; lkn_z.c2 = Z80.bc2.b.l; lkn_z.d2 = Z80.de2.b.h; lkn_z.e2 = Z80.de2.b.l; lkn_z.h2 = Z80.hl2.b.h; lkn_z.l2 = Z80.hl2.b.l;
     lkn_z.ix = Z80.ix.w.l; lkn_z.iy = Z80.iy.w.l; lkn_z.sp = Z80.sp.w.l; lkn_z.pc = Z80.pc.w.l;
 }
-void lk_nat_loadctx(void) { if (lkn_native && lkn_active) { lkn_from_ctx(); lkn_z.cyc = Z80.cycles / 15; lkn_z.wait = 0; lkn_z.bad = 0; } }   /* after z80_set_context (quick load) */
+static unsigned lkn_ps_z80; static uint32_t lkn_ps_cyc, lkn_ps_wait;   /* own sound clock (tools/patch_sndclock.py): the sound timeline is put back at the end of a skip frame */
+void lk_nat_pause_save(void) { lkn_ps_z80 = Z80.cycles; lkn_ps_cyc = lkn_z.cyc; lkn_ps_wait = lkn_z.wait; }
+void lk_nat_pause_restore(void) { Z80.cycles = lkn_ps_z80; lkn_z.cyc = lkn_ps_cyc; lkn_z.wait = lkn_ps_wait; }
+void lk_nat_loadctx(void) { if (lkn_native && lkn_active) { lkn_from_ctx(); lkn_z.cyc = Z80.cycles / 15; lkn_z.wait = 0; lkn_z.bad = 0; } lk_nat_pause_save(); }   /* after z80_set_context (quick load) */
 int lk_nat_native_run(unsigned cycles) {
     if (!lkn_enabled() || !lkn_native || !lkn_active) return 0;
     if (lkn_now(&lkn_z) < Z80.cycles) { lkn_z.cyc = Z80.cycles / 15; lkn_z.wait = 0; }   /* skip the time the Z80 was stopped (bus request / reset) */

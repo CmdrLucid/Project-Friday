@@ -177,6 +177,8 @@ python3 tools/patch_sndtrace.py .deps/genrecomp
 # sound step 4: the recompiled Z80 driver in shadow mode (tools/z80recomp.py makes core/z80drv_gen.c FROM THE ROM, never committed; tools/patch_sndnative.py, env LANDSTALKER_SND_SHADOW=1)
 python3 tools/z80recomp.py "$ROM" .deps/genrecomp/ext/Genesis-Plus-GX/core/z80drv_gen.c
 python3 tools/patch_sndnative.py .deps/genrecomp
+# own sound clock while fast forwarding: music at normal speed (GitHub issue #11 part 2; tools/patch_sndclock.py, env LANDSTALKER_SNDCLOCK=0 = off)
+python3 tools/patch_sndclock.py .deps/genrecomp
 # diagnostics: LANDSTALKER_VDPLOG=1 lists which game function writes which tile columns of the scroll planes (widescreen work)
 python3 tools/patch_vdplog.py .deps/genrecomp
 # names (from docs/symbols.json) in the console diagnostics: call stack, interp:, no function, RTS to, CALLTRACE (tools/patch_symnames.py; LANDSTALKER_NONAMES=1 = off)
