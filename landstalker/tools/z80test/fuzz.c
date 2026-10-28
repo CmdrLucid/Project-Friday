@@ -9,12 +9,12 @@
 #include "z80rt.h"
 
 static uint8_t memG[65536], memR[65536];
-typedef struct { uint16_t a; uint8_t v; } wr_t;
+typedef struct { uint16_t a; uint8_t v; uint32_t t; } wr_t;
 static wr_t wg[16], wrr[16]; static int ng, nr;
 static unsigned char rdG(unsigned int a) { return memG[a & 0xFFFF]; }
-static void wtG(unsigned int a, unsigned char v) { if (ng < 16) { wg[ng].a = a & 0xFFFF; wg[ng].v = v; ng++; } memG[a & 0xFFFF] = v; }
+static void wtG(unsigned int a, unsigned char v) { if (ng < 16) { wg[ng].a = a & 0xFFFF; wg[ng].v = v; wg[ng].t = Z80.cycles / 15; ng++; } memG[a & 0xFFFF] = v; }
 uint8_t z80rt_rb(Z80S *s, uint16_t a) { (void)s; return memR[a]; }
-void z80rt_wb(Z80S *s, uint16_t a, uint8_t v) { (void)s; if (nr < 16) { wrr[nr].a = a; wrr[nr].v = v; nr++; } memR[a] = v; }
+void z80rt_wb(Z80S *s, uint16_t a, uint8_t v) { (void)s; if (nr < 16) { wrr[nr].a = a; wrr[nr].v = v; wrr[nr].t = s->cyc; nr++; } memR[a] = v; }
 static unsigned char rdport(unsigned int p) { (void)p; return 0xFF; }
 static void wrport(unsigned int p, unsigned char v) { (void)p; (void)v; }
 static uint32_t rng = 1;
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
             CMP("A'", Z80.af2.b.h, s.a2); CMP("F'", Z80.af2.b.l, s.f2); CMP("B'", Z80.bc2.b.h, s.b2); CMP("C'", Z80.bc2.b.l, s.c2); CMP("D'", Z80.de2.b.h, s.d2); CMP("E'", Z80.de2.b.l, s.e2); CMP("H'", Z80.hl2.b.h, s.h2); CMP("L'", Z80.hl2.b.l, s.l2);
             CMP("IX", Z80.ix.w.l, s.ix); CMP("IY", Z80.iy.w.l, s.iy); CMP("SP", Z80.sp.w.l, s.sp); CMP("PC", Z80.pc.w.l, s.pc); CMP("cycles", Z80.cycles / 15, s.cyc);
             CMP("nwrites", ng, nr);
-            if (ng == nr) for (j = 0; j < ng; j++) { CMP("write addr", wg[j].a, wrr[j].a); CMP("write val", wg[j].v, wrr[j].v); }
+            if (ng == nr) for (j = 0; j < ng; j++) { CMP("write addr", wg[j].a, wrr[j].a); CMP("write val", wg[j].v, wrr[j].v); if (wg[j].a >= 0x4000) CMP("write time", wg[j].t, wrr[j].t); }
             tot++; if (diff) bad++;
         }
     }
