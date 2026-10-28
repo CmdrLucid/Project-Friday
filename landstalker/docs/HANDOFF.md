@@ -13,6 +13,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a39. 2026-10-20 (Deck, Sonnet 5.5): user recording `rec_20261019_2215` (ending, room 113): the credits were invisible with garbage because the own renderer drew the arena over them (the ending script runs inside UpdateSprites = 'map'); fixed in `patch_wide.py` (`PlayEndCredits $09EBE0` = picture screen) on `dev`, not released; new test aid `LANDSTALKER_CREDITS_AT` (INDEX status, LESSONS 67). USER CHECK OPEN: play the ending again (own renderer On): do the credits show, do they end properly (EndGame, back to title)? Needs a fresh `build.sh`.
 
+## 0a147. 2026-10-28 (Deck, Sonnet 5.5, on `dev`): user: INTRO_141 broken (`rec_20261028_2107`): map path drew the backdrop / wrong tiles where the script blanks or changes the planes -> rooms 141..143 use the generic screen renderer (INDEX status first entry). USER CHECK OPEN: the whole intro (rooms 142 / 143 never seen).
+
 ## 0a146. 2026-10-28 (Deck, Sonnet 5.5, on `dev`): user recording `rec_20261028_2054`: no shadows for the yellow platforms of the intro and for Nigel on a vine -> rule: intro rooms 139..143 none, ladder / vine (Action bit 12) none (INDEX status first entry). USER CHECK OPEN: new game intro + a ladder.
 
 ## 0a145. 2026-10-28 (Deck, Sonnet 5.5, on `dev`): user recording `rec_20261028_2040`: shadow visible on the roof when jumping behind a house, shadow missing at places on a level path -> cause: the shadow test read the chip's stale line buffers (empty since LK_NOCHIP) -> own renderer's per pixel verdict + priority rule (INDEX status first entry). USER CHECK OPEN: shadows in play (paths, behind houses, platforms, enemies).
