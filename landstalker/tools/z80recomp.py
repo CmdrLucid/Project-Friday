@@ -139,7 +139,11 @@ def smc_sites(seen):
     return out
 
 def main():
-    rom = open(sys.argv[1], 'rb').read(); out = sys.argv[2]
+    out = sys.argv[2]
+    try: rom = open(sys.argv[1], 'rb').read()
+    except OSError: rom = b''
+    if len(rom) < 0x1F7F80 or rom[0x1F6000:0x1F6006] != bytes.fromhex('f331f01faf32'):   # not the known driver layout (other ROM / region): a stub, the recompiled driver stays unused
+        open(out, 'w').write('/* stub: no known sound driver image in this ROM */\n#include "z80rt.h"\nvoid z80drv_step(Z80S *s) { s->bad = 1; }\n'); print('no known Z80 driver in this ROM: stub written'); return
     start = int(sys.argv[3], 16) if len(sys.argv) > 3 else 0x1F6000
     size = int(sys.argv[4], 16) if len(sys.argv) > 4 else 0x1F80
     mem = bytearray(0x10000); mem[:size] = rom[start:start + size]

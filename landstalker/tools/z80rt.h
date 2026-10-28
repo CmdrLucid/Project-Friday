@@ -8,6 +8,7 @@ typedef struct Z80S {
     uint16_t ix, iy, sp, pc;
     uint8_t i, r, iff1, iff2;
     uint32_t cyc;      /* Z80 cycles executed so far */
+    uint32_t wait;     /* extra master cycles (68K bus wait states, DMA waits): the Z80's time in master cycles is cyc * 15 + wait */
     int bad;           /* set when pc is not an instruction of the recompiled program */
 } Z80S;
 extern uint8_t z80rt_rb(Z80S *s, uint16_t addr);
