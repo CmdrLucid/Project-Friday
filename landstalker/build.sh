@@ -172,6 +172,8 @@ python3 tools/patch_region.py .deps/genrecomp
 python3 tools/patch_lang.py .deps/genrecomp
 # sound diagnostics + separate music / effect volumes (tools/patch_sndsep.py, LANDSTALKER_SNDLOG / LANDSTALKER_ZRAMDUMP)
 python3 tools/patch_sndsep.py .deps/genrecomp
+# sound step S0: golden trace of everything that reaches the sound chips and the Z80 mailbox (tools/patch_sndtrace.py, LANDSTALKER_SNDTRACE)
+python3 tools/patch_sndtrace.py .deps/genrecomp
 # diagnostics: LANDSTALKER_VDPLOG=1 lists which game function writes which tile columns of the scroll planes (widescreen work)
 python3 tools/patch_vdplog.py .deps/genrecomp
 # names (from docs/symbols.json) in the console diagnostics: call stack, interp:, no function, RTS to, CALLTRACE (tools/patch_symnames.py; LANDSTALKER_NONAMES=1 = off)
