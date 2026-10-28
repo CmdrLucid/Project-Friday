@@ -163,7 +163,7 @@ static void lk_menu_print(const char *t, int x) {
 static void lk_opt_put_tile(int col, int row, int tile) { bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | tile)); }
 static void lk_opt_put(int col, int row, const char *t) { t = lk_lang_tr(t); for (; *t; t++, col++) bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | lk_chr(*t))); }
 static const char *lk_id_name[40] = { "Widescreen", "Full Height", "Filter", "Fullscreen", "Scaling", "De-Dither", "Music Volume", "Effects Volume", "Speech Sound", "Shadows", "Quick Items", "Fast Forward", "Damage Taken", "Enemy HP", "Quick Save", "Fix Ride Objects", "Item Info", "Buy Quantity", "Map Behind Text", "Own Renderer", "Live Gaia Effect", "HD Graphics", "Seamless Doors", "Depth Blur", "Bloom", "Vignette", "Color Grade", "Lights", "3D Room", "3D Houses", "Camera Controls", "Remake", "3D Light", "3D Objects", "3D Trees", "Quick Equip", "Better Menu", "Language", "Fast Forward Key", "No Sprite Limit" };   /* platform option id -> label */
-static const int lk_ids_video[8] = { 0, 1, 4, 2, 3, 9, 18, 39 }   /* PAUSED 2026-10-24: the rows 23..34 (Depth Blur, Bloom, Vignette, Color Grade, Lights, 3D Room, 3D Houses, Camera Controls, Remake, 3D Light, 3D Objects, 3D Trees) are hidden, their code stays (docs/HANDOFF.md 0a101) */;
+static const int lk_ids_video[7] = { 0, 1, 4, 2, 3, 9, 18 }   /* PAUSED 2026-10-24: the rows 23..34 (Depth Blur, Bloom, Vignette, Color Grade, Lights, 3D Room, 3D Houses, Camera Controls, Remake, 3D Light, 3D Objects, 3D Trees) are hidden, their code stays (docs/HANDOFF.md 0a101) */;
 static const int lk_ids_audio[3] = { 6, 7, 8 };
 static const int lk_ids_game[10] = { 10, 35, 17, 15, 16, 14, 11, 38, 20, 36 };   /* 38 Fast Forward Key right under Fast Forward (user 2026-10-27) */   /* Quality of Life (Seamless Doors, id 22, hidden for now) */
 static const int lk_ids_diff[2] = { 12, 13 };   /* Difficulty */
@@ -196,7 +196,7 @@ static const char *lk_opt_val0(int id, int v) {
     return onoff[v & 1];
 }
 static const char *lk_opt_val(int id, int v) { return lk_lang_tr(lk_opt_val0(id, v)); }   /* the value words (Off / On / Scanlines ...) in the selected language */
-static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 7 : lk_opt_pg == 1 ? 8 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 3 ? 10 : lk_opt_pg == 4 ? 2 : 13; }
+static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 7 : lk_opt_pg == 1 ? 7 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 3 ? 10 : lk_opt_pg == 4 ? 2 : 13; }
 static int lk_opt_vis(void) { int n = lk_opt_nrows(); return n > 7 ? 7 : n; }   /* rows shown at once */
 static void lk_opt_fixscroll(void) { int v = lk_opt_vis(); if (lk_opt_row < lk_opt_scroll) lk_opt_scroll = lk_opt_row; if (lk_opt_row >= lk_opt_scroll + v) lk_opt_scroll = lk_opt_row - v + 1; }
 static int lk_opt_rowid(int r) { return lk_opt_pg == 1 ? lk_ids_video[r] : lk_opt_pg == 2 ? lk_ids_audio[r] : lk_opt_pg == 3 ? lk_ids_game[r] : lk_opt_pg == 4 ? lk_ids_diff[r] : lk_opt_pg == 5 ? lk_ids_key[r] : (r < 5 ? -1 - r : r == 5 ? 37 : -6); }   /* root rows: -1 Video, -2 Audio, -3 Gameplay, -4 Difficulty, -5 Keybindings, then the Language value row (id 37) and Quit Game (-6) */

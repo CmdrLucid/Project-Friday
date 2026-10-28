@@ -34,9 +34,9 @@ static int OB(uint32_t a) { return a < 0x200000u ? (int)bus_read8(a) : 0; }   /*
 #define OW(a) ((OB(a) << 8) | OB((a) + 1))
 #define OL(a) ((uint32_t)(((uint32_t)OW(a) << 16) | (uint32_t)OW((a) + 2)))
 static int lk_o_sprmode = 1, lk_o_cammode = 2, lk_o_u0, lk_o_v0, lk_o_vote_room = -1, lk_o_bu, lk_o_bv, lk_o_upred, lk_o_vpred; static float lk_o_vu[64], lk_o_vv[32];
-static int lk_nosprlim_v = -1;   /* Options > Video > No Sprite Limit Off / On (default Off = the cartridge's look); file ~/.landstalker_nosprlim, env LANDSTALKER_NOSPRLIM=0|1 (or LANDSTALKER_OWN_NOSAT=1) wins */
+static int lk_nosprlim_v = -1;   /* No Sprite Limit: ALWAYS ON (user 2026-10-28, the option row is gone: the cartridge's sprite limit look as default could clash with future features); only env LANDSTALKER_NOSPRLIM=0 (tests, A/B with the original) turns it off */
 int lk_nosprlim_get(void) {
-  if (lk_nosprlim_v < 0) { char p[512]; FILE *f; const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_NOSPRLIM"); int v = 0; snprintf(p, sizeof p, "%s/.landstalker_nosprlim", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); if (getenv("LANDSTALKER_OWN_NOSAT")) v = 1; lk_nosprlim_v = v ? 1 : 0; }
+  if (lk_nosprlim_v < 0) { const char *e = getenv("LANDSTALKER_NOSPRLIM"); lk_nosprlim_v = (e && *e) ? (atoi(e) ? 1 : 0) : 1; if (getenv("LANDSTALKER_OWN_NOSAT")) lk_nosprlim_v = 1; }
   return lk_nosprlim_v;
 }
 void lk_nosprlim_set(int v) { char p[512]; FILE *f; const char *h = getenv("HOME"); lk_nosprlim_get(); lk_nosprlim_v = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_nosprlim", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_nosprlim_v); fclose(f); } }

@@ -12,7 +12,7 @@ extern long platform_frame_number(void);
 #define LKN_Q 4096
 typedef struct { uint8_t kind; uint32_t t; uint8_t a, v; int x; } lkn_ev_t;     /* kind: 'Y' YM2612 write (a = port 0..3), 'P' PSG write */
 static lkn_ev_t lkn_g[LKN_Q], lkn_n[LKN_Q]; static int lkn_gh, lkn_gt, lkn_nh, lkn_nt;   /* GPGX events / native events (ring buffers: head = next read, tail = next write) */
-static long lkn_match, lkn_mismatch, lkn_ramdiff; static int lkn_on = -1, lkn_dead, lkn_native;   /* lkn_native: LANDSTALKER_SND=native, the recompiled driver REPLACES GPGX's Z80 */
+static long lkn_match, lkn_mismatch, lkn_ramdiff; static int lkn_on = -1, lkn_dead, lkn_native;   /* lkn_native: DEFAULT since 2026-10-28 (LANDSTALKER_SND=gpgx = GPGX's Z80 again; LANDSTALKER_SND_SHADOW=n = shadow test), the recompiled driver REPLACES GPGX's Z80 */
 static Z80S lkn_z; static uint8_t lkn_ram[0x2000]; static uint32_t lkn_zbank;
 /* YM2612 timers / busy flag, same arithmetic as GPGX's MAME OPN2 core (sound/ym2612.c, sound.c): sample = 1008 master cycles, timer B period (256 - v) * 16 samples, timer A 1024 - v */
 static struct { int mode, ta, tal, tac, tb, tbl, tbc, status, addr; int64_t count, busy, start; } lkn_ym;   /* start: the sample grid's origin in this frame (GPGX fm_cycles_start) */
@@ -76,7 +76,7 @@ void z80rt_wb(Z80S *s, uint16_t a, uint8_t v) {
     if (a >= 0x7F10 && a <= 0x7F17 && (a & 1)) { lkn_push('P', t, 0, v); return; }
 }
 /* ---- hooks called by the GPGX core ---- */
-static int lkn_enabled(void) { if (lkn_on < 0) { const char *e = getenv("LANDSTALKER_SND_SHADOW"), *nv = getenv("LANDSTALKER_SND"); lkn_native = nv && !strcmp(nv, "native"); lkn_on = lkn_native || (e && *e && *e != '0'); if (lkn_on) { memset(&lkn_z, 0, sizeof lkn_z); lkn_ymreset(); lkn_ym.count = 0; fprintf(stderr, lkn_native ? "sndnative: NATIVE sound: the recompiled Z80 driver replaces the GPGX Z80\n" : "sndnative: shadow mode on (recompiled Z80 driver next to the GPGX Z80)\n"); } } return lkn_on; }
+static int lkn_enabled(void) { if (lkn_on < 0) { const char *e = getenv("LANDSTALKER_SND_SHADOW"), *nv = getenv("LANDSTALKER_SND"); lkn_native = nv ? !strcmp(nv, "native") : !(e && *e && *e != '0'); lkn_on = lkn_native || (e && *e && *e != '0'); if (lkn_on) { memset(&lkn_z, 0, sizeof lkn_z); lkn_ymreset(); lkn_ym.count = 0; fprintf(stderr, lkn_native ? "sndnative: NATIVE sound: the recompiled Z80 driver replaces the GPGX Z80\n" : "sndnative: shadow mode on (recompiled Z80 driver next to the GPGX Z80)\n"); } } return lkn_on; }
 extern void lk_ym_state(int *v);
 void lk_nat_gdbg(unsigned t, unsigned v, int cnt) { static int dbg = -1; if (dbg < 0) { const char *e = getenv("LANDSTALKER_SND_SHADOW"); dbg = e && *e == '4'; } if (dbg && platform_frame_number() == 66 && t > 130000 && t < 150000) { int st[6]; lk_ym_state(st); fprintf(stderr, "gpgx read t=%u v=%02X mode %02X tbc %d tbl %d status %02X gpgx count %d | native count %lld tbc %d\n", t, v, st[0], st[1], st[2], st[3], cnt, (long long)lkn_ym.count, lkn_ym.tbc); } }
 void lk_nat_gframe(int before, int after) { static int dbg = -1; if (dbg < 0) { const char *e = getenv("LANDSTALKER_SND_SHADOW"); dbg = e && *e == '5'; } if (dbg && platform_frame_number() >= 62 && platform_frame_number() <= 66) { int st[6]; extern void lk_ym_state(int *v); lk_ym_state(st); fprintf(stderr, "gpgx frame %ld: end time %d new count %d tbc %d mode %02X | native count %lld tbc %d\n", platform_frame_number(), before, after, st[1], st[0], (long long)lkn_ym.count, lkn_ym.tbc); } }
