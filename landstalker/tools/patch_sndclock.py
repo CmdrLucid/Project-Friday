@@ -3,12 +3,14 @@
 Fast forward runs N emulated frames per displayed frame. Before, the audio of all frames was dropped. Now the SOUND TIMELINE (Z80 / recompiled driver + FM / PSG chips) advances only on every Nth emulated
 frame ('sound frame' = one real 1/60 s): in the other N-1 frames ('skip frames') the Z80 is not run, no VBlank interrupt reaches it, the chips are not rendered, the Z80 / driver clock is put back at the end of
 the frame; the audio of the sound frames is played. Music and effects keep their normal speed, the game runs N times faster.
-Commands: ProcessSoundCommandQueue ($0013B6, the 68K's mailbox writer, one command per VBlank) does nothing in skip frames, so the game's own 4 entry sound queue ($FF0FA0) holds the commands and the
-driver gets one per sound frame, in order (nothing is overwritten). Seamless door fast loads (lk_seam_gap) are not touched (they keep the old ducking). Without fast forward every frame is a sound frame
-= bit identical to before. Needs patch_ffwd.py and patch_sndnative.py (tools/sndnative.c lk_nat_pause_save / lk_nat_pause_restore) before it.  Idempotent.  usage: patch_sndclock.py path/to/genrecomp"""
+Commands: the 68K's sound routine ($0013B6, one command per VBlank, game queue of only 4 entries) keeps running every emulated frame, but its writes to the driver's mailbox (Z80 RAM $1FFC / $1FFD
+argument, $1FFF command) are caught in a host FIFO of 256 entries while skip frames run (or the FIFO is not empty); at the start of every sound frame ONE entry is written to the driver's RAM, only when the driver
+has taken the previous command (it clears $1FFF = NEW_OPERATION). So no command is lost or overwritten at any speed and the order stays. z80_run() does nothing in a skip frame (the 68K's bus request must not
+run the driver). Seamless door fast loads (lk_seam_gap) are not touched (they keep the old ducking). Without fast forward every frame is a sound frame = bit identical to before.
+Needs patch_ffwd.py and patch_sndnative.py (tools/sndnative.c lk_nat_pause_save / lk_nat_pause_restore) before it.  Idempotent.  usage: patch_sndclock.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_SNDCLOCK v1"
+VER = "LK_SNDCLOCK v2"
 
 p = os.path.join(root, "src/platform_sdl.c"); s = open(p).read()
 if VER not in s:
@@ -29,7 +31,7 @@ if VER not in s:
     assert s.count(a) == 1
     s = s.replace(a, a + '''/* %s: own sound clock while fast forwarding (tools/patch_sndclock.py) */
 extern int lk_ff_sndskip_n(void);
-extern void lk_nat_pause_save(void), lk_nat_pause_restore(void);
+extern void lk_nat_pause_save(void), lk_nat_pause_restore(void), lk_snd_deliver(void);
 static int s_snd_skip, s_snd_ctr;
 int lk_snd_skipping(void) { return s_snd_skip; }
 static void lk_snd_decide(void) {   /* at the start of every frame: sound frame or skip frame */
@@ -37,6 +39,7 @@ static void lk_snd_decide(void) {   /* at the start of every frame: sound frame 
     if (n < 2) { s_snd_ctr = 0; skip = 0; } else { s_snd_ctr++; skip = (s_snd_ctr %% n) != 0; }
     if (skip && !s_snd_skip) lk_nat_pause_save();
     s_snd_skip = skip;
+    if (!skip) lk_snd_deliver();   /* one queued mailbox command to the driver */
 }
 ''' % VER, 1)
     old = "        if (zstate == 1) z80_run(mcycles_vdp);\n        else Z80.cycles = mcycles_vdp;\n"
@@ -50,23 +53,16 @@ static void lk_snd_decide(void) {   /* at the start of every frame: sound frame 
     s = s.replace(old, "            if (s_snd_skip) lk_nat_pause_restore();   /* %s: the sound timeline stands still */\n            else {\n                Z80.cycles -= mcycles_vdp;\n                { extern void lk_nat_frame(unsigned); lk_nat_frame(mcycles_vdp); }   /* LK_SNDNATIVE v1 */\n            }\n            mcycles_vdp = 0;\n            lk_snd_decide();\n" % VER, 1)
     open(p, "w").write(s); print("bus.c patched:", VER)
 
-p = os.path.join(root, "src/func_table.c"); s = open(p).read()
+core = os.path.join(root, "ext/Genesis-Plus-GX/core")
+p = os.path.join(core, "mem68k.c"); s = open(p).read()
 if VER not in s:
-    a = "static void lk_strip_extend(uint32_t a);\n"
-    h = "        lk_carry_install();   /* LK_CARRY v1 */\n"
-    assert s.count(a) == 1 and s.count(h) == 1, "func_table.c: run patch_carry.py first"
-    module = r'''/* ---- %s: in a skip frame ProcessSoundCommandQueue $0013B6 does nothing: the game's own sound queue keeps the commands (tools/patch_sndclock.py) ---- */
-extern int lk_snd_skipping(void);
-static gen_func_t lk_o_psq;
-static void lk_h_psq(void) { if (lk_snd_skipping()) return; lk_o_psq(); }
-static void lk_sndclock_install(void) {
-    static int done;
-    if (done) return;
-    done = 1;
-    lk_o_psq = func_table_lookup(0x0013B6);
-    if (lk_o_psq) func_table_register(0x0013B6, lk_h_psq); else fprintf(stderr, "sndclock: ProcessSoundCommandQueue not found\n");
-}
-''' % VER
-    s = s.replace(a, module + a, 1)
-    s = s.replace(h, h + "        lk_sndclock_install();   /* %s */\n" % VER, 1)
-    open(p, "w").write(s); print("func_table.c patched:", VER)
+    old = "      lk_st_zram(m68k.cycles, address & 0x1FFF, data);\n"
+    assert s.count(old) == 1, "mem68k.c: run patch_sndnative.py first"
+    s = s.replace(old, "      { extern int lk_snd_zw(unsigned a, unsigned v); if (lk_snd_zw(address & 0x1FFF, data)) return; }   /* %s: mailbox FIFO */\n" % VER + old, 1)
+    open(p, "w").write(s); print("mem68k.c patched:", VER)
+p = os.path.join(core, "z80/z80.c"); s = open(p).read()
+if VER not in s:
+    old = "void z80_run(unsigned int cycles) { if (lk_nat_native_run(cycles)) return;"
+    assert s.count(old) == 1, "z80.c: run patch_sndnative.py first"
+    s = s.replace(old, "extern int lk_snd_skipping(void);\nvoid z80_run(unsigned int cycles) { if (lk_snd_skipping()) return; /* %s: no Z80 in a skip frame */ if (lk_nat_native_run(cycles)) return;" % VER, 1)
+    open(p, "w").write(s); print("z80.c patched:", VER)

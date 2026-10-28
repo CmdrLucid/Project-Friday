@@ -144,7 +144,31 @@ static void lkn_from_ctx(void) {
 static unsigned lkn_ps_z80; static uint32_t lkn_ps_cyc, lkn_ps_wait;   /* own sound clock (tools/patch_sndclock.py): the sound timeline is put back at the end of a skip frame */
 void lk_nat_pause_save(void) { lkn_ps_z80 = Z80.cycles; lkn_ps_cyc = lkn_z.cyc; lkn_ps_wait = lkn_z.wait; }
 void lk_nat_pause_restore(void) { Z80.cycles = lkn_ps_z80; lkn_z.cyc = lkn_ps_cyc; lkn_z.wait = lkn_ps_wait; }
-void lk_nat_loadctx(void) { if (lkn_native && lkn_active) { lkn_from_ctx(); lkn_z.cyc = Z80.cycles / 15; lkn_z.wait = 0; lkn_z.bad = 0; } lk_nat_pause_save(); }   /* after z80_set_context (quick load) */
+/* own sound clock, mailbox FIFO (tools/patch_sndclock.py): the 68K's writes to $1FFC / $1FFD / $1FFF are queued while the sound timeline skips frames; one entry per sound frame goes to the driver once it has taken the last command */
+extern int lk_snd_skipping(void);
+typedef struct { uint8_t ha, hb, a, b, cmd; } LknCmd;
+static LknCmd lkq[256]; static int lkq_n, lkq_head, lkq_ha, lkq_hb, lkq_pa, lkq_pb, lkq_max, lkq_pushed, lkq_given, lkq_dropped;   /* stats: LANDSTALKER_SNDCLOCK_LOG=1 */
+int lk_snd_zw(unsigned a, unsigned v) {
+    if (a != 0x1FFC && a != 0x1FFD && a != 0x1FFF) return 0;
+    if (!lk_snd_skipping() && !lkq_n) return 0;
+    if (a == 0x1FFC) { lkq_pa = v; lkq_ha = 1; return 1; }
+    if (a == 0x1FFD) { lkq_pb = v; lkq_hb = 1; return 1; }
+    lkq_pushed++; if (lkq_n >= 256) lkq_dropped++;
+    if (lkq_n < 256) { LknCmd *c = &lkq[(lkq_head + lkq_n++) & 255]; if (lkq_n > lkq_max) lkq_max = lkq_n; c->ha = lkq_ha; c->hb = lkq_hb; c->a = lkq_pa; c->b = lkq_pb; c->cmd = v; }
+    lkq_ha = lkq_hb = 0;
+    return 1;
+}
+void lk_snd_deliver(void) {
+    static int blocked; LknCmd *c; if (!lkq_n) { blocked = 0; return; }
+    if (zram[0x1FFF] && ++blocked < 4) return;   /* the driver has not taken the last command yet; after 3 sound frames overwrite it as the original 68K would */
+    blocked = 0; lkq_given++;
+    { static int lg = -1; if (lg < 0) lg = getenv("LANDSTALKER_SNDCLOCK_LOG") != NULL; if (lg && !(lkq_given % 20)) fprintf(stderr, "sndclock: commands queued %d delivered %d dropped %d deepest queue %d\n", lkq_pushed, lkq_given, lkq_dropped, lkq_max); }
+    c = &lkq[lkq_head]; lkq_head = (lkq_head + 1) & 255; lkq_n--;
+    if (c->ha) { lk_nat_ram_w(0x1FFC, c->a); zram[0x1FFC] = c->a; }
+    if (c->hb) { lk_nat_ram_w(0x1FFD, c->b); zram[0x1FFD] = c->b; }
+    lk_nat_ram_w(0x1FFF, c->cmd); zram[0x1FFF] = c->cmd;
+}
+void lk_nat_loadctx(void) { if (lkn_native && lkn_active) { lkn_from_ctx(); lkn_z.cyc = Z80.cycles / 15; lkn_z.wait = 0; lkn_z.bad = 0; } lk_nat_pause_save(); lkq_n = lkq_head = lkq_ha = lkq_hb = 0; }   /* after z80_set_context (quick load) */
 int lk_nat_native_run(unsigned cycles) {
     if (!lkn_enabled() || !lkn_native || !lkn_active) return 0;
     if (lkn_now(&lkn_z) < Z80.cycles) { lkn_z.cyc = Z80.cycles / 15; lkn_z.wait = 0; }   /* skip the time the Z80 was stopped (bus request / reset) */
