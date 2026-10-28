@@ -20,7 +20,7 @@ static void wrport(unsigned int p, unsigned char v) { (void)p; (void)v; }
 static uint32_t rng = 1;
 static uint32_t rnd(void) { rng ^= rng << 13; rng ^= rng >> 17; rng ^= rng << 5; return rng; }
 extern void z80drv_step(Z80S *s);
-void lk_nat_begin(void) {} void lk_nat_end(void) {} void lk_nat_reset(void) {} void lk_nat_gevent(int k, uint32_t t, int a, int v) {}   /* stubs for the hooks of a patched z80.c (tools/patch_sndnative.py) */
+void lk_nat_begin(void) {} void lk_nat_gstep(void) {} void lk_nat_end(void) {} void lk_nat_reset(void) {} void lk_nat_gevent(int k, uint32_t t, int a, int v) {}   /* stubs for the hooks of a patched z80.c (tools/patch_sndnative.py) */
 
 int main(int argc, char **argv) {
     FILE *f = fopen(argv[1], "rb"); static uint8_t rom[0x200000]; int cases = argc > 2 ? atoi(argv[2]) : 64; long bad = 0, tot = 0; int pcs[0x2000], npc = 0, i, k;
