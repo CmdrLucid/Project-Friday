@@ -18,10 +18,18 @@ A. **Native port of the Z80 driver (recommended).**  Port `sounddrv.asm` (the dr
 B. **High level music engine** (own sequencer, own synthesis or sampled instruments): freedom for HD sound, but no longer the cartridge's sound; needs the music format fully understood and a lot of listening checks.
 C. **Keep GPGX for sound** and only decouple its clock (run it on its own thread at normal speed): smallest step, solves issue #11 part 2 but not the emulator question.
 
-## 4. Proposed steps for A
+## 4. Decision 2026-10-28: A, as a RECOMPILER (not a hand port)
+User chose A.  Refinement found the same day: a hand written C port of the driver would be game code in the repository (rule: never commit game code, not even snippets).  So the Z80 driver is handled like the 68K code: a tool in the repo (`tools/z80recomp.py`, built on `tools/z80dis.py`) generates C from the user's own ROM at build time; the generated C is never committed.  Facts measured:
+- the driver is the 8 064 byte image `SoundDriver` at ROM `$1F6000` (US ROM; code `$0000..$10A2`, data tables behind it); the 68K copies `$1F81` bytes into Z80 RAM at start (`InitZ80Driver $0006FA`).  The driver is the Cube / Idaware sound driver (same family as Shining Force II).
+- `tools/z80dis.py` decodes it: 2 177 reachable instructions (the lordmir disassembly lists 2 180; the call / jr / jp / djnz / ret counts match exactly), 36 distinct mnemonics, no indirect jumps (`jp (hl)`), no interrupts (the main loop polls YM2612 timer B bit 1 for its tick), one `ldir`-free instruction mix: ld, jr, inc, call, add, jp, or, cp, push, pop, xor, ret, and, bit, djnz, rra, sbc, exx, srl ... small.
+- self modifying code: the driver patches the immediate of a few `ld b, n` instructions (Z80 `$751`, `$75A`, `$9AB`, `$9B4` = the YM register select of the vibrato / frequency write, and `Dac_Loop+1` = the DAC delay), seen as the only differences between the ROM image and Z80 RAM after start (51 bytes in total, the rest are the channel variables at `$1300..`).  The recompiler reads those immediates from the memory image.
+- the DAC (74 - 90 % of the chip writes) is paced by instruction counts in the main loop (`Dac_Loop`): the recompiled code must carry exact cycle counts (the decoder returns them), because the DAC pitch depends on them.
+- timer: the tick comes from YM2612 timer B (value `YM_TIMER_VALUE`); the chip model has to provide the timer flag.
+
+## 5. Steps
 1. (done) golden trace + summary tool.
-2. Read the driver: channel blocks (FORMATS), command ids -> music / sfx, tick structure; write the command table (id, kind, channels) into `docs/symbols.json` names + FORMATS.
-3. Port the YM / PSG part of one tick (instrument load, note on / off, frequency, volume, envelope macros) for the music channels; compare against the trace for the title music (first command in the intro).
-4. Sound effects and the type-1 / type-2 channel stealing rules; speech blip.
-5. DAC samples as a PCM mixer.
-6. Switch: `LANDSTALKER_SND=native` next to the GPGX path, A/B on all recordings (trace + WAV compare), then default.
+2. (done) the driver image found, SMC sites, instruction census, flow decoder `z80dis.py` (agrees with the lordmir listing).
+3. Semantics: `z80recomp.py` emits C for every reachable instruction (registers, flags, cycle counter, memory map: Z80 RAM 8 KB mirrored, YM2612 `$4000..$5FFF`, bank register `$6000`, PSG `$7F11` through the 68K bus, banked ROM `$8000..`).  Verify instruction by instruction with a differential fuzz against GPGX's own Z80 core (`z80/z80.c`, same idea as `tools/insnfuzz`).
+4. Runtime `tools/z80rt.c` (in the repo: registers, memory callbacks, chip write hooks; no game code) + a build step that compiles the generated driver; run it in lock step with the GPGX Z80 first and compare the chip write trace (`Y` / `P` lines, cycles included) with the golden trace on all recordings.
+5. Switch: the Z80 emulation is no longer run (`LANDSTALKER_SND=native`, default after the A/B passes); mailbox writes of the 68K go to the recompiled driver's RAM.
+6. Own clock: run the recompiled driver by audio time, not by the emulator's frame; fast forward without the music speed up (issue #11 part 2).
