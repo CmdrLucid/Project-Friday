@@ -38,7 +38,7 @@ if VER not in s:
     assert s.count(c) == 1, "vdp_render.c: render_line signature changed"
     d = "      do\n      {\n        *dst++ = pixel[*src++];\n      }\n      while (--width);\n"
     assert s.count(d) == 1, "vdp_render.c: remap_line loop layout changed"
-    s = s.replace(d, "      PIXEL_OUT_T *lk_row0 = dst; int lk_w0 = width;   /* LK_SHADOW v7 */\n" + d + "      lk_shadow_darken(lk_row0, lk_w0);   /* LK_SHADOW v7 */\n", 1)
+    s = s.replace(d, "      PIXEL_OUT_T *lk_row0 = dst; int lk_w0 = width;   /* LK_SHADOW v7 */\n" + d + "      lk_shadow_finish(line);   /* LK_SHADOW v7: after the own renderer drew the line (it is inserted before this line) */\n      lk_shadow_darken(lk_row0, lk_w0);   /* LK_SHADOW v7 */\n", 1)
     helper = r'''/* ---- LK_SHADOW v7: ground shadow (tools/patch_shadow.py) ---- */
 #include <math.h>
 typedef struct { int x, y, rx, ry; int poly, soft; double str, feather, vx[4], vy[4]; } lk_sh_t;   /* soft: contact shadow of a figure on the ground, HD picture only (not in the 1x mask); str = strength relative to the full shadow, feather = width of the soft edge in game pixels */   /* poly: the shadow is the projected footprint of the object's box (platforms, crates), vx / vy = corners relative to the centre in screen pixels; else an ellipse rx / ry */
@@ -91,9 +91,13 @@ static int lk_sh_pspan(const lk_sh_t *t, int line, int *x0, int *x1) {
 /* before remap_line: mark the ellipse pixels that show background (no sprite pixel on top, not the backdrop) */
 int lk_sh_mapfade;   /* set while the map fades in at the end of the Start menu (InitVDPAndFadeIn): shadows are shown again */
 int lk_sh_hide;   /* set while the Start menu is open (CheckForMenuOpen $007624 runs): the map is not shown then, the shadows of the last map pass must not be drawn over the menu (user's room 430 recording) */
+extern uint8 lk_o_shok[]; extern int lk_o_shline;   /* the own renderer's per pixel verdict for the line it just drew (tools/patch_own.py): 1 = a plain ground pixel (no sprite pixel, a plane A / B pixel of LOW priority) */
+static int lk_sh_sp[12][2], lk_sh_nsp, lk_sh_pend_fin;
+/* can the shadow lie on this pixel? The chip's line buffers are NOT filled any more (the own renderer draws the picture, LK_NOCHIP) -> its own verdict; without it (the chip drew the line) the old test: no sprite pixel, background not transparent.  A high priority tile (the roof of a house in front of Nigel) never takes a shadow. */
+static int lk_sh_elig(int line, int x) { if (lk_o_shline == line) return lk_o_shok[x + bitmap.viewport.x]; return (linebuf[1][0x20 + x] & 0x0F) == 0 && (linebuf[0][0x20 + x] & 0x0F) != 0; }
 static void lk_shadow_line(int line) {
   int i, x;
-  lk_sh_row_on = 0;
+  lk_sh_row_on = 0; lk_sh_nsp = 0; lk_sh_pend_fin = 0;
   if (line == 0) { memcpy(lk_sh_snap, lk_sh_act, sizeof lk_sh_snap); lk_sh_nsnap = (lk_sh_hide && !lk_sh_mapfade) ? 0 : lk_sh_nact; }
   if (line >= 0 && line < 224) memset(lk_sh_fl[line], 0, 0x400);
   if (line == 0) { static int dbg = -1; static long fr; if (dbg < 0) { const char *e = getenv("LANDSTALKER_SHADOW_DEBUG"); dbg = e && atoi(e) >= 3; } if (dbg) { fprintf(stderr, "shf: %ld n=%d", fr, lk_sh_nact); for (i = 0; i < lk_sh_nact; i++) fprintf(stderr, " %d,%d%s", lk_sh_act[i].x, lk_sh_act[i].y, lk_sh_act[i].poly ? "p" : ""); fprintf(stderr, "\n"); } fr++; }   /* LANDSTALKER_SHADOW_DEBUG=3: what is drawn in every frame */
@@ -112,15 +116,23 @@ static void lk_shadow_line(int line) {
     if (!lk_sh_row_on) { memset(lk_sh_row, 0, sizeof lk_sh_row); lk_sh_row_on = 1; lk_sh_xa = x0; lk_sh_xb = x1; }
     if (x0 < lk_sh_xa) lk_sh_xa = x0;
     if (x1 > lk_sh_xb) lk_sh_xb = x1;
-    for (x = x0; x <= x1; x++)
-      if ((linebuf[1][0x20 + x] & 0x0F) == 0 && (linebuf[0][0x20 + x] & 0x0F) != 0) { lk_sh_row[x + 0x100] = 1; if (line >= 0 && line < 224) lk_sh_fl[line][x + 0x100] |= 1; }
+    if (lk_sh_nsp < 12) { lk_sh_sp[lk_sh_nsp][0] = x0; lk_sh_sp[lk_sh_nsp][1] = x1; lk_sh_nsp++; }   /* the pixels are tested in lk_shadow_finish, after the own renderer drew the line */
   }
+  lk_sh_pend_fin = 1;
+}
+/* after the own renderer drew the line (before lk_shadow_darken): the shadow pixels */
+static void lk_shadow_finish(int line) {
+  int i, x, k;
+  if (!lk_sh_pend_fin) return;
+  lk_sh_pend_fin = 0;
+  if (lk_sh_row_on) for (k = 0; k < lk_sh_nsp; k++) for (x = lk_sh_sp[k][0]; x <= lk_sh_sp[k][1]; x++)
+    if (lk_sh_elig(line, x)) { lk_sh_row[x + 0x100] = 1; if (line >= 0 && line < 224) lk_sh_fl[line][x + 0x100] |= 1; }
   if (line >= 0 && line < 224) for (i = 0; i < lk_sh_nact; i++) {   /* eligible pixels (background, no sprite on top) in the bounding box of every ellipse + 1 pixel: the HD picture shades them with a smooth edge */
     const lk_sh_t *t = &lk_sh_act[i]; int mg = t->soft ? 3 : 1, xa = t->x + lk_wide_e - t->rx - mg, xb = t->x + lk_wide_e + t->rx + mg;
     if (line < t->y - t->ry - mg || line > t->y + t->ry + mg) continue;
     if (xa < -bitmap.viewport.x) xa = -bitmap.viewport.x;
     if (xb > bitmap.viewport.w + bitmap.viewport.x - 1) xb = bitmap.viewport.w + bitmap.viewport.x - 1;
-    for (x = xa; x <= xb; x++) if ((linebuf[1][0x20 + x] & 0x0F) == 0 && (linebuf[0][0x20 + x] & 0x0F) != 0) lk_sh_fl[line][x + 0x100] |= 2;
+    for (x = xa; x <= xb; x++) if (lk_sh_elig(line, x)) lk_sh_fl[line][x + 0x100] |= 2;
   }
 }
 /* after the pixel conversion of remap_line: darken the marked pixels (56 % brightness); row = first pixel of the line = screen x -viewport.x */

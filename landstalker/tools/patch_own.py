@@ -19,7 +19,9 @@ s = open(p).read()
 if VER not in s:
     d = "      lk_shadow_darken(lk_row0, lk_w0);   /* LK_SHADOW v7 */\n"
     assert s.count(d) == 1, "vdp_render.c: run patch_shadow.py first"
-    s = s.replace(d, "      lk_own_row(lk_row0, lk_w0, line);   /* LK_OWN v1 */\n" + d, 1)
+    dfin = "      lk_shadow_finish(line);   /* LK_SHADOW v7: after the own renderer drew the line (it is inserted before this line) */\n"
+    assert s.count(dfin) == 1, "vdp_render.c: run patch_shadow.py first (lk_shadow_finish)"
+    s = s.replace(dfin, "      lk_own_row(lk_row0, lk_w0, line);   /* LK_OWN v1 */\n" + dfin, 1)
     q = "      lk_quick_hud(lk_row0, lk_w0);   /* LK_QUICK v1 */\n"
     if s.count(q) == 1: s = s.replace(q, q + "      lk_seam_final(lk_row0, lk_w0, line);   /* LK_OWN S3.5 */\n", 1)
     else: s = s.replace(d, d + "      lk_seam_final(lk_row0, lk_w0, line);   /* LK_OWN S3.5 */\n", 1)
@@ -1246,9 +1248,11 @@ static void lk_seam_final(PIXEL_OUT_T *row, int w, int line) {   /* after shadow
   if (lk_sm_state == 1) return;   /* the gap picture is composed by the own renderer's pixel loop (glide); the frozen rows are only the fallback of a cross over */
   if (lk_sm_capture_now) { memcpy(lk_sm_rows[line], row, (size_t)w * sizeof(PIXEL_OUT_T)); if (line == 0) lk_sm_rows_ok = 0; lk_sm_roww = w; if (line == 223) lk_sm_rows_ok = 1; }
 }
+uint8 lk_o_shok[0x400]; int lk_o_shline = -1;   /* per pixel verdict for the shadows (patch_shadow.py lk_sh_elig): 1 = ground that can take a shadow: no sprite pixel, plane A / B pixel of LOW priority. The chip's line buffers are empty with LK_NOCHIP (the old test read stale pixels: shadows missing in places, shadows on the roof in front of Nigel) */
 static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
   static int hint, fr_done = -1, hsA, hsB, vsA, vsB, cam0, cam2, rm; static long fr_n;
   int x, e, map;
+  lk_o_shline = -1;
   lk_o_init();
   if (!lk_o_mode) return;
   if (lk_sm_state == 1 && !lk_sm_due && line > 0) return;   /* gap frames that are not shown cost nothing */
@@ -1361,6 +1365,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
       for (wlo = 0; wlo < w; wlo++) { int x = wlo - e, wp = (x >= 0 && x < 320) ? lk_o_win(line, x, hint) : -1; if (wp >= 0 && (wp & 0xF) && (lk_o_pix[wp & 0x3F] & 0x00FFFFFF)) break; }
       for (whi = w; whi > wlo; whi--) { int x = whi - 1 - e, wp = (x >= 0 && x < 320) ? lk_o_win(line, x, hint) : -1; if (wp >= 0 && (wp & 0xF) && (lk_o_pix[wp & 0x3F] & 0x00FFFFFF)) break; }
     }
+    lk_o_shline = line;
     for (i = 0; i < w; i++) {
       int x = i - e, margin = (x < 0 || x >= 320), pick = -1, ap = 0, bp = 0, ai, bi, apal = 0, bpal = 0, sl = line - lk_sm_syn, si = i - lk_sm_sxn, sp,  col, black = black_line, src = 0; lk_o_fi_t afi, bfi; const lk_nb_t *nbq = 0;
       if (lk_sm_state == 1) { if (i >= lk_sm_nx0 && i <= lk_sm_nx1 && line >= lk_sm_ny0 && line <= lk_sm_ny1) { sl = line; si = i; }   /* Nigel stays where he is on the screen while the world glides */
@@ -1411,6 +1416,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
       if (src == 5 && !black) { PIXEL_OUT_T oc = lk_sm_pix[pick & 0x3F], bg = lk_o_pix[LK_REG(7) & 0x3F]; int a = lk_sm_oldnb ? 256 : lk_sm_alpha, ch; PIXEL_OUT_T o = oc & 0xFF000000u;   /* S3.5: the old room's colour, dissolving into the backdrop */
         for (ch = 0; ch < 24; ch += 8) o |= (PIXEL_OUT_T)(((((oc >> ch) & 255) * (unsigned)a + ((bg >> ch) & 255) * (unsigned)(256 - a)) >> 8) & 255) << ch;
         col = o; }
+      lk_o_shok[i] = (!black && (src == 2 || src == 3 || src == 5 || src == 6 || src == 7) && !(sp & 0x200) && !((src == 2 && ap) || (src == 3 && bp))) ? 1 : 0;
       lk_vh[line & 7][i] = (PIXEL_OUT_T)col; lk_vhv[line & 7][i] = (src == 0 || black || margin || (col & 0xFFFFFF) == 0) ? 1 : 0;
       lk_o_tot++; if (row[i] != (PIXEL_OUT_T)col) lk_o_diff++;
       if (lk_hd_n && x >= -LK_HDO && x < 320 + LK_HDO) {                    /* HD rows (the widescreen margins too): the winning layer's replacement tile (the compositor of the screens does the same) */

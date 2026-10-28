@@ -13,6 +13,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a39. 2026-10-20 (Deck, Sonnet 5.5): user recording `rec_20261019_2215` (ending, room 113): the credits were invisible with garbage because the own renderer drew the arena over them (the ending script runs inside UpdateSprites = 'map'); fixed in `patch_wide.py` (`PlayEndCredits $09EBE0` = picture screen) on `dev`, not released; new test aid `LANDSTALKER_CREDITS_AT` (INDEX status, LESSONS 67). USER CHECK OPEN: play the ending again (own renderer On): do the credits show, do they end properly (EndGame, back to title)? Needs a fresh `build.sh`.
 
+## 0a145. 2026-10-28 (Deck, Sonnet 5.5, on `dev`): user recording `rec_20261028_2040`: shadow visible on the roof when jumping behind a house, shadow missing at places on a level path -> cause: the shadow test read the chip's stale line buffers (empty since LK_NOCHIP) -> own renderer's per pixel verdict + priority rule (INDEX status first entry). USER CHECK OPEN: shadows in play (paths, behind houses, platforms, enemies).
+
 ## 0a144. 2026-10-28 (Deck, Sonnet 5.5, on `dev`): user: Gaia effect shows no rocks -> cause was No Sprite Limit (default since 0a140) zeroing the sprite table count the extras loop also used; fixed with `lk_o_satn_all` (INDEX status first entry). USER CHECK OPEN: Gaia + spell effects.
 
 ## 0a143. 2026-10-28 (Deck, Sonnet 5.5, on `dev`): user: 'passt' (no crackle); speech blips too fast while fast forwarding -> runs of the same mailbox command thinned to every Nth (INDEX status first entry). USER CHECK OPEN: dialogue with fast forward. Next: EU ROM + AppImage check.
