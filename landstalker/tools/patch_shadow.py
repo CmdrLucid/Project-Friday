@@ -237,6 +237,7 @@ static void lk_h_ls(void) {
     mode = lk_shadow_get();
     soft = lk_hd_n > 0 && lk_shadow_soft_get();   /* contact shadows of figures on the ground: HD picture only */
     if (!mode && !soft) return;
+    { int room = bus_read16(0xFF1204u); if (room >= 139 && room <= 143) return; }   /* the intro rooms (INTRO_139..143, ROOMS.md): floating platforms and a vine in front of a backdrop, there is no ground the shadow could fall on (user, rec_20261028_2054) */
     for (k = 0; k < 16; k++) {
         uint16_t w = bus_read16(0xFF11DEu + 2u * (uint32_t)k);
         uint32_t ent;
@@ -244,6 +245,7 @@ static void lk_h_ls(void) {
         if (w == 0xFFFF) break;
         ent = 0xFF5400u + w;
         if (bus_read8(ent + 8) & 1) continue;                                    /* hidden entity (LoadSpriteFrames skips it too) */
+        if (ent == 0xFF5400u && (bus_read16(ent + 0x2C) & 0x1000)) continue;      /* Nigel climbs a ladder / vine (Action bit 12): he hangs on a wall, there is no ground below him to fall on */
         if (ent != 0xFF5400u && (bus_read8(ent + 0x0C) & 2)) continue;           /* the game draws a shadow of its own for it */
         { M68kContext sv = g_m68k; uint8_t b39 = bus_read8(ent + 0x39); int nc = lk_no_charge;
           g_m68k.a[0] = ent; lk_no_charge = 1; lk_call(0x0032C6u);               /* GetDistanceToGround: d5 = Z - ground, no emulated 68K time */
