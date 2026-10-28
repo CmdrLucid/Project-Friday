@@ -16,7 +16,7 @@ Get the latest release from the [Releases page](https://github.com/cmdrlucid/Pro
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage`. Make it executable, start it and pick your ROM. The first start builds the game from your ROM (this takes a few minutes); later starts go straight into the game. On the Deck, add it in Desktop mode via *Steam > Add a Non-Steam Game*.
 - **Windows 10 / 11 (experimental):** `Project-Friday-windows-x64.zip`. Extract the whole zip and start `Project-Friday.exe`.
 
-You need the US ROM described under [Compatible ROMs](#compatible-roms).
+You need a supported ROM (US or European version), described under [Compatible ROMs](#compatible-roms).
 
 ## How is this different from running the ROM in an emulator?
 
@@ -28,6 +28,7 @@ With every option switched off, the game plays like the original cartridge. All 
 - **Widescreen** Off / 16:10 / 16:9: real map content in the side margins, not stretched. The project draws the picture with its own renderer, and sprites, scrolling and effects are handled for the wider view.
 - **Full Height:** shows the map in the band at the bottom of the screen that the original leaves empty while you walk.
 - **Map Behind Text:** dialogue boxes sit over the map instead of a black band.
+- **No Sprite Limit:** draws every figure of a room, without the cartridge's limit of 20 sprites per line and its flicker (off by default = the original look).
 - **Filter** (Off, Scanlines, CRT, CRT Pro, CRT Curved), **Scaling** (Fit, 4:3, Integer, Fill), borderless **Fullscreen**.
 - **Shadows** (Off / On / Soft): a ground shadow under Nigel and airborne objects, which makes jumps easier to judge.
 
@@ -40,7 +41,8 @@ With every option switched off, the game plays like the original cartridge. All 
 - **Better Menu:** B in Use / Equip goes back to the menu bar instead of closing the menu.
 - **Item Info:** a short description of the item under the cursor.
 - **Buy Quantity:** buy several of an item in one go in shops.
-- **Fast Forward** 2x / 3x / 4x while a button is held.
+- **Fast Forward** 2x / 3x / 4x while a button is held, or as a toggle (Fast Forward Key: Hold / Toggle).
+- **Language:** English or Deutsch (menus, items and system messages are translated so far; dialogue is still English).
 - **Fix Ride Objects:** Nigel now rides along on an object that stands on a moving platform. In the original he slides off; this is a bug fix.
 - **Live Gaia Effect:** the Gaia rocks stay in the world while the screen scrolls.
 
@@ -55,7 +57,7 @@ Defaults for a new install: 16:9, Full Height, CRT Pro filter, and most Quality 
 The goal is the **definitive way to play Landstalker on PC and Steam Deck**: faithful to the original by default, with modern comfort for those who want it. Planned or being looked at (no promises, this is a hobby project):
 
 - **More comfort features and fixes**, driven by player feedback. Suggestions are welcome in [Discussions](https://github.com/cmdrlucid/Project-Friday/discussions) / Issues.
-- **European (and maybe Japanese) ROM support.** Technically possible; it needs a European ROM to test with.
+- **German ROM as a base** (the European and US versions work already). It is a different program revision and needs its own recompilation; Japanese and hacks like *Remix* are further away.
 - **Seamless room transitions** (prototype exists, paused) and **HD texture packs** for the 2D picture (tools exist, paused until there are textures).
 - **A 3D remake** ([`remake/`](remake/README.md), early stage): the recompiled game stays the logic core, and a new front end draws the world as hand-made 3D models in a "toy diorama" style, with the sprites kept. Assets are made and approved one at a time.
 - **Modding groundwork:** thousands of functions, variables and tables are named and documented ([`landstalker/docs/`](landstalker/docs/INDEX.md)). The long-term idea is a mod layer for text, items and scripts.
@@ -63,11 +65,16 @@ The goal is the **definitive way to play Landstalker on PC and Steam Deck**: fai
 
 ## Compatible ROMs
 
-Currently exactly **one** ROM is supported: the **US version** of *Landstalker: The Treasures of King Nole* for the Mega Drive / Genesis, as a raw 2 MB dump (`.md`, `.bin` or `.gen`, 2,097,152 bytes) with the SHA-1
+Two ROMs are supported, both as a raw 2 MB dump (`.md`, `.bin` or `.gen`, 2,097,152 bytes) of *Landstalker: The Treasures of King Nole* for the Mega Drive / Genesis:
 
-`24345e29427b000b90df778965dd8834300a9dde`
+| Version | SHA-1 |
+|---|---|
+| **US** | `24345e29427b000b90df778965dd8834300a9dde` |
+| **Europe** | `9fbadc86319936855831ecd096d82d716b304215` |
 
-The launcher checks size and SHA-1 at every start and refuses any other file with a message. Not supported (yet): European and Japanese versions, other dumps or patched / translated ROMs, `.smd` (interleaved) dumps and ROMs inside zip files (convert / unpack them first). A European version is a possible later step but needs a European ROM to test with.
+The European version is the US game with 50 Hz timing constants; the game still runs at the speed of the US version. European support is new and has had less play testing than the US version.
+
+The launcher checks size and SHA-1 at every start and refuses any other file with a message. Not supported (yet): the German and Japanese versions, hacks such as *Landstalker Remix*, other dumps or patched / translated ROMs, `.smd` (interleaved) dumps and ROMs inside zip files (convert / unpack them first). The German version differs in a lot of code and would need its own recompilation; the Japanese version and *Remix* have shifted data.
 
 - Project: [`landstalker/`](landstalker/README.md) (build instructions, tools, documentation)
 - Entry point for the documentation: [`landstalker/docs/HANDOFF.md`](landstalker/docs/HANDOFF.md), then `LESSONS.md` and `INDEX.md`
