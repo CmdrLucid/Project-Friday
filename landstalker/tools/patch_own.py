@@ -327,11 +327,12 @@ static int lk_o_formula(const uint8 *st, int off, int *ax, int *ay) {   /* the g
   }
   lk_o_sp = keep; return ok;
 }
+static int lk_o_satn_all;   /* the real number of sprite table entries (lk_o_satn is 0 with No Sprite Limit: it only steers the figures' draw order / hiding, NOT the extras below: Gaia rocks, spell effects) */
 static uint32 lk_o_dk2[96]; static int lk_o_dn2, lk_o_exon, lk_o_exnext;   /* sprite table entries no figure accounts for are drawn between the figures at their table position: dk2 = keys the first figure pass drew, exnext = next table index to look at */
 static void lk_o_extras_upto(int upto) {                            /* effects that write the sprite table directly (Gaia rocks, the Fire / Thunder / Ice effect at a target): the entries that no figure piece accounts for, from the game's VRAM tiles, in the order of the table (lower index = in front, the figure loop calls this before every figure with that figure's first table index) */
   static int ex = -1; int i2;
   if (ex < 0) { const char *c = getenv("LANDSTALKER_OWN_EXTRA"); ex = c && *c == '0' ? 0 : 1; }
-  for (; ex && lk_o_exnext < lk_o_satn && lk_o_exnext < upto; lk_o_exnext++) {
+  for (; ex && lk_o_exnext < lk_o_satn_all && lk_o_exnext < upto; lk_o_exnext++) {
     int j = lk_o_exnext; uint32 k2 = lk_o_satk[j]; int w2 = lk_o_satw[j], covered = 0;
     for (i2 = 0; i2 < lk_o_dn2; i2++) if (lk_o_dk2[i2] == k2) { covered = 1; break; }
     if (getenv("LANDSTALKER_OWN_SAT")) printf("ownsat: frame %ld #%d x %d y %d size %X attr %04X %s\n", platform_frame_number(), j, (int)((k2 >> 20) & 0x1FF), (int)((k2 >> 8) & 0x3FF), (int)(k2 & 15), w2, covered ? "covered" : "EXTRA");
@@ -1315,7 +1316,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         uint32 sat[96], kc[96], kp[96]; int ns = 0, i4 = 0, n4 = 0, nc, np_, mc = 0, mp = 0, i5, j5, base = (LK_REG(5) & 0x7F) << 9;
         for (n4 = 0; n4 < 80 && ns < 96; n4++) { int y = ((LK_SATB(8 * i4) << 8) | LK_SATB(8 * i4 + 1)) & 0x1FF, sz = (LK_SATB(8 * i4 + 2) << 8) | LK_SATB(8 * i4 + 3), x = ((LK_SATB(8 * i4 + 6) << 8) | LK_SATB(8 * i4 + 7)) & 0x1FF;
           lk_o_satw[ns] = (LK_SATB(8 * i4 + 4) << 8) | LK_SATB(8 * i4 + 5); lk_o_satt[ns] = lk_o_satw[ns] & 0x7FF; sat[ns] = (uint32)(x << 20 | y << 8 | ((sz >> 8) & 15)); lk_o_satk[ns] = sat[ns]; ns++; i4 = sz & 0x7F; if (!i4) break; }
-        lk_o_satn = ns;
+        lk_o_satn = lk_o_satn_all = ns;
         if (lk_nosprlim_get()) lk_o_satn = 0;   /* Options > Video > No Sprite Limit (also LANDSTALKER_OWN_NOSAT=1): the game's sprite table (= the cartridge's per line sprite limit and its flicker) decides neither the draw order nor which figures are hidden: every figure of the game's own list is drawn, in the list's order */
         { int L, j; for (L = 0; L < 224; L++) { int seen = 0; lk_o_smk[L] = 0; for (j = 0; j < ns; j++) { int y0 = (int)((lk_o_satk[j] >> 8) & 0x1FF) - 128, h8 = 8 * (int)((lk_o_satk[j] & 3) + 1), x0 = (int)((lk_o_satk[j] >> 20) & 0x1FF); if (L < y0 || L >= y0 + h8) continue; if (x0) seen = 1; else if (seen) { lk_o_smk[L] = j + 1; break; } } } }   /* the VDP's sprite mask */
         { const uint8 *rc = r, *rp = lk_o_use; lk_o_cc = rc; lk_o_cp = rp;
