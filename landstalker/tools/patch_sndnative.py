@@ -24,11 +24,14 @@ def z80c(s):
     assert s.count(a) == 1
     inc = list(re.finditer(r'^#include .*\n', s, re.M))[-1]
     s = s[:inc.end()] + "extern void lk_nat_begin(void), lk_nat_end(void), lk_nat_reset(void);   /* %s */\n" % VER + s[inc.end():]
-    s = s.replace(a, "static void z80_run_inner(unsigned int cycles);\nvoid z80_run(unsigned int cycles) { lk_nat_begin(); z80_run_inner(cycles); lk_nat_end(); }\nstatic void z80_run_inner(unsigned int cycles)\n{")
+    s = s.replace(a, "static void z80_run_inner(unsigned int cycles);\nvoid z80_run(unsigned int cycles) { if (lk_nat_native_run(cycles)) return; lk_nat_begin(); z80_run_inner(cycles); lk_nat_end(); }\nstatic void z80_run_inner(unsigned int cycles)\n{")
     c = "    Z80.after_ei = FALSE;\n    R++;\n    EXEC_INLINE(op,ROP());"
     assert s.count(c) == 1
     s = s.replace(c, "    Z80.after_ei = FALSE;\n    R++;\n    lk_nat_gstep();   /* %s: debug trace of the GPGX Z80 (LANDSTALKER_SND_SHADOW=3) */\n    EXEC_INLINE(op,ROP());" % VER)
-    s = s.replace("extern void lk_nat_begin(void), lk_nat_end(void), lk_nat_reset(void);", "extern void lk_nat_begin(void), lk_nat_end(void), lk_nat_reset(void), lk_nat_gstep(void);", 1)
+    s = s.replace("extern void lk_nat_begin(void), lk_nat_end(void), lk_nat_reset(void);", "extern void lk_nat_begin(void), lk_nat_end(void), lk_nat_reset(void), lk_nat_gstep(void), lk_nat_loadctx(void); extern int lk_nat_native_run(unsigned cycles);", 1)
+    d = "    Z80 = *(Z80_Regs*)src;\n"
+    assert s.count(d) == 1
+    s = s.replace(d, d + "    lk_nat_loadctx();   /* %s */\n" % VER)
     b = "void z80_reset(void)\n{\n"
     assert s.count(b) == 1
     return s.replace(b, b + "  lk_nat_reset();   /* %s */\n" % VER)

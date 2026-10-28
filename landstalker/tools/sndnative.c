@@ -12,7 +12,7 @@ extern long platform_frame_number(void);
 #define LKN_Q 4096
 typedef struct { uint8_t kind; uint32_t t; uint8_t a, v; int x; } lkn_ev_t;     /* kind: 'Y' YM2612 write (a = port 0..3), 'P' PSG write */
 static lkn_ev_t lkn_g[LKN_Q], lkn_n[LKN_Q]; static int lkn_gh, lkn_gt, lkn_nh, lkn_nt;   /* GPGX events / native events (ring buffers: head = next read, tail = next write) */
-static long lkn_match, lkn_mismatch, lkn_ramdiff; static int lkn_on = -1, lkn_dead;
+static long lkn_match, lkn_mismatch, lkn_ramdiff; static int lkn_on = -1, lkn_dead, lkn_native;   /* lkn_native: LANDSTALKER_SND=native, the recompiled driver REPLACES GPGX's Z80 */
 static Z80S lkn_z; static uint8_t lkn_ram[0x2000]; static uint32_t lkn_zbank;
 /* YM2612 timers / busy flag, same arithmetic as GPGX's MAME OPN2 core (sound/ym2612.c, sound.c): sample = 1008 master cycles, timer B period (256 - v) * 16 samples, timer A 1024 - v */
 static struct { int mode, ta, tal, tac, tb, tbl, tbc, status, addr; int64_t count, busy, start; } lkn_ym;   /* start: the sample grid's origin in this frame (GPGX fm_cycles_start) */
@@ -34,7 +34,14 @@ static void lkn_buswait(Z80S *s) {   /* a Z80 access to the 68K bus (banked ROM 
     if (now < dma_endCycles && dma_type < 2) s->wait += dma_endCycles - now;
     s->wait += 3 * 15;
 }
+extern unsigned char z80_memory_r(unsigned int address); extern void z80_memory_w(unsigned int address, unsigned char data);
+static int lkn_active;
 uint8_t z80rt_rb(Z80S *s, uint16_t a) {
+    if (lkn_native) {   /* native mode: RAM is GPGX's zram, everything else goes through GPGX's own Z80 memory map with Z80.cycles = this Z80's time (chip writes / reads, bank register, PSG, the 68K bus wait states and the 68K stall are then exactly GPGX's) */
+        uint32_t now; uint8_t v;
+        if (a < 0x4000) return zram[a & 0x1FFF];
+        now = lkn_now(s); Z80.cycles = now; v = z80_memory_r(a); s->wait += Z80.cycles - now; return v;
+    }
     if (a < 0x4000) return lkn_ram[a & 0x1FFF];
     if (a < 0x6000) { if ((a & 3) == 0) { uint8_t v; lkn_ymsync(lkn_now(s)); v = (uint8_t)(lkn_ym.status | (lkn_now(s) >= lkn_ym.busy ? 0 : 0x80)); lkn_push('R', lkn_now(s), 0, v); return v; } return 0; }
     if (a < 0x8000) { if (a >= 0x7F00) lkn_buswait(s); return 0xFF; }
@@ -43,6 +50,11 @@ uint8_t z80rt_rb(Z80S *s, uint16_t a) {
 }
 void z80rt_wb(Z80S *s, uint16_t a, uint8_t v) {
     uint32_t t;
+    if (lkn_native) {
+        uint32_t now;
+        if (a < 0x4000) { zram[a & 0x1FFF] = v; return; }
+        now = lkn_now(s); Z80.cycles = now; z80_memory_w(a, v); s->wait += Z80.cycles - now; return;
+    }
     if (a >= 0x8000 || a >= 0x7F00) lkn_buswait(s);
     t = lkn_now(s);
     if (a < 0x4000) { lkn_ram[a & 0x1FFF] = v; return; }
@@ -64,14 +76,14 @@ void z80rt_wb(Z80S *s, uint16_t a, uint8_t v) {
     if (a >= 0x7F10 && a <= 0x7F17 && (a & 1)) { lkn_push('P', t, 0, v); return; }
 }
 /* ---- hooks called by the GPGX core ---- */
-static int lkn_enabled(void) { if (lkn_on < 0) { const char *e = getenv("LANDSTALKER_SND_SHADOW"); lkn_on = e && *e && *e != '0'; if (lkn_on) { memset(&lkn_z, 0, sizeof lkn_z); lkn_ymreset(); lkn_ym.count = 0; fprintf(stderr, "sndnative: shadow mode on (recompiled Z80 driver next to the GPGX Z80)\n"); } } return lkn_on; }
+static int lkn_enabled(void) { if (lkn_on < 0) { const char *e = getenv("LANDSTALKER_SND_SHADOW"), *nv = getenv("LANDSTALKER_SND"); lkn_native = nv && !strcmp(nv, "native"); lkn_on = lkn_native || (e && *e && *e != '0'); if (lkn_on) { memset(&lkn_z, 0, sizeof lkn_z); lkn_ymreset(); lkn_ym.count = 0; fprintf(stderr, lkn_native ? "sndnative: NATIVE sound: the recompiled Z80 driver replaces the GPGX Z80\n" : "sndnative: shadow mode on (recompiled Z80 driver next to the GPGX Z80)\n"); } } return lkn_on; }
 extern void lk_ym_state(int *v);
 void lk_nat_gdbg(unsigned t, unsigned v, int cnt) { static int dbg = -1; if (dbg < 0) { const char *e = getenv("LANDSTALKER_SND_SHADOW"); dbg = e && *e == '4'; } if (dbg && platform_frame_number() == 66 && t > 130000 && t < 150000) { int st[6]; lk_ym_state(st); fprintf(stderr, "gpgx read t=%u v=%02X mode %02X tbc %d tbl %d status %02X gpgx count %d | native count %lld tbc %d\n", t, v, st[0], st[1], st[2], st[3], cnt, (long long)lkn_ym.count, lkn_ym.tbc); } }
 void lk_nat_gframe(int before, int after) { static int dbg = -1; if (dbg < 0) { const char *e = getenv("LANDSTALKER_SND_SHADOW"); dbg = e && *e == '5'; } if (dbg && platform_frame_number() >= 62 && platform_frame_number() <= 66) { int st[6]; extern void lk_ym_state(int *v); lk_ym_state(st); fprintf(stderr, "gpgx frame %ld: end time %d new count %d tbc %d mode %02X | native count %lld tbc %d\n", platform_frame_number(), before, after, st[1], st[0], (long long)lkn_ym.count, lkn_ym.tbc); } }
-void lk_nat_gevent(int kind, uint32_t t, int a, int v) { if (!lkn_enabled()) return; lkn_ev_t *e = &lkn_g[lkn_gt % LKN_Q]; e->kind = (uint8_t)kind; e->t = t; e->a = (uint8_t)a; e->v = (uint8_t)v; if (kind == 'R') { int st[6]; extern void lk_ym_state(int *v); lk_ym_state(st); e->x = st[1]; } else e->x = 0; lkn_gt++; }
+void lk_nat_gevent(int kind, uint32_t t, int a, int v) { if (!lkn_enabled() || lkn_native) return; lkn_ev_t *e = &lkn_g[lkn_gt % LKN_Q]; e->kind = (uint8_t)kind; e->t = t; e->a = (uint8_t)a; e->v = (uint8_t)v; if (kind == 'R') { int st[6]; extern void lk_ym_state(int *v); lk_ym_state(st); e->x = st[1]; } else e->x = 0; lkn_gt++; }
 void lk_nat_ram_w(unsigned a, unsigned v) { if (lkn_enabled()) lkn_ram[a & 0x1FFF] = (uint8_t)v; }
 static unsigned lkn_dbgfrom(void) { const char *e = getenv("LANDSTALKER_SND_DBGFROM"); return e ? (unsigned)atol(e) : 0; }
-static int lkn_active;   /* the recompiled driver runs only while the Z80 RAM holds the game's driver (not during the boot stub of the system init) */
+/* (lkn_active is declared above) the recompiled driver runs only while the Z80 RAM holds the game's driver (not during the boot stub of the system init) */
 void lk_nat_reset(void) {
     static const uint8_t sig[6] = { 0xF3, 0x31, 0xF0, 0x1F, 0xAF, 0x32 };
     if (!lkn_enabled()) return;
@@ -116,4 +128,25 @@ void lk_nat_end(void) {     /* end of a z80_run(): run the recompiled driver up 
     lkn_compare();
     if (memcmp(lkn_ram, zram, 0x2000)) { if (lkn_ramdiff++ < 3) { int i; for (i = 0; i < 0x2000 && lkn_ram[i] == zram[i]; i++) ; fprintf(stderr, "sndnative: Z80 RAM differs at %04X (native %02X gpgx %02X) frame %ld\n", i, lkn_ram[i], zram[i], platform_frame_number()); } }
     { static long lastf; long f = platform_frame_number(); if (f / 600 != lastf / 600) { lastf = f; fprintf(stderr, "sndnative: frame %ld events matched %ld mismatched %ld RAM differences %ld\n", f, lkn_match, lkn_mismatch, lkn_ramdiff); } }
+}
+
+/* ---- native mode (LANDSTALKER_SND=native): called by z80_run() instead of GPGX's Z80 loop ---- */
+static void lkn_to_ctx(void) {   /* the recompiled Z80's registers into GPGX's Z80 struct, so a save state (quick save) carries them */
+    Z80.af.b.h = lkn_z.a; Z80.af.b.l = lkn_z.f; Z80.bc.b.h = lkn_z.b; Z80.bc.b.l = lkn_z.c; Z80.de.b.h = lkn_z.d; Z80.de.b.l = lkn_z.e; Z80.hl.b.h = lkn_z.h; Z80.hl.b.l = lkn_z.l;
+    Z80.af2.b.h = lkn_z.a2; Z80.af2.b.l = lkn_z.f2; Z80.bc2.b.h = lkn_z.b2; Z80.bc2.b.l = lkn_z.c2; Z80.de2.b.h = lkn_z.d2; Z80.de2.b.l = lkn_z.e2; Z80.hl2.b.h = lkn_z.h2; Z80.hl2.b.l = lkn_z.l2;
+    Z80.ix.w.l = lkn_z.ix; Z80.iy.w.l = lkn_z.iy; Z80.sp.w.l = lkn_z.sp; Z80.pc.w.l = lkn_z.pc;
+}
+static void lkn_from_ctx(void) {
+    lkn_z.a = Z80.af.b.h; lkn_z.f = Z80.af.b.l; lkn_z.b = Z80.bc.b.h; lkn_z.c = Z80.bc.b.l; lkn_z.d = Z80.de.b.h; lkn_z.e = Z80.de.b.l; lkn_z.h = Z80.hl.b.h; lkn_z.l = Z80.hl.b.l;
+    lkn_z.a2 = Z80.af2.b.h; lkn_z.f2 = Z80.af2.b.l; lkn_z.b2 = Z80.bc2.b.h; lkn_z.c2 = Z80.bc2.b.l; lkn_z.d2 = Z80.de2.b.h; lkn_z.e2 = Z80.de2.b.l; lkn_z.h2 = Z80.hl2.b.h; lkn_z.l2 = Z80.hl2.b.l;
+    lkn_z.ix = Z80.ix.w.l; lkn_z.iy = Z80.iy.w.l; lkn_z.sp = Z80.sp.w.l; lkn_z.pc = Z80.pc.w.l;
+}
+void lk_nat_loadctx(void) { if (lkn_native && lkn_active) { lkn_from_ctx(); lkn_z.cyc = Z80.cycles / 15; lkn_z.wait = 0; lkn_z.bad = 0; } }   /* after z80_set_context (quick load) */
+int lk_nat_native_run(unsigned cycles) {
+    if (!lkn_enabled() || !lkn_native || !lkn_active) return 0;
+    if (lkn_now(&lkn_z) < Z80.cycles) { lkn_z.cyc = Z80.cycles / 15; lkn_z.wait = 0; }   /* skip the time the Z80 was stopped (bus request / reset) */
+    while (lkn_now(&lkn_z) < cycles && !lkn_z.bad) z80drv_step(&lkn_z);
+    if (lkn_z.bad) { static int w; if (!w++) fprintf(stderr, "sndnative: recompiled driver left the known code at pc %04X, sound stops\n", lkn_z.pc); lkn_active = 0; return 1; }
+    Z80.cycles = lkn_now(&lkn_z); lkn_to_ctx();
+    return 1;
 }
