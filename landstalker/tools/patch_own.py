@@ -30,7 +30,8 @@ extern uint8_t *bus_get_ram(void);
 extern uint8_t bus_read8(uint32_t addr);
 extern void bus_write8(uint32_t addr, uint8_t v);
 extern long platform_frame_number(void);
-static int OB(uint32_t a) { return a < 0x200000u ? (int)bus_read8(a) : 0; }   /* ROM only; garbage pointers read 0 */
+extern uint8_t bus_peek8(uint32_t addr);   /* LK_OWNPEEK: the same read without the bus clock (bus_tick_cycles / guard): the entity loader reads the ROM byte by byte, with No Sprite Limit on that was half of the run time */
+static int OB(uint32_t a) { return a < 0x200000u ? (int)bus_peek8(a) : 0; }   /* ROM only; garbage pointers read 0 */
 #define OW(a) ((OB(a) << 8) | OB((a) + 1))
 #define OL(a) ((uint32_t)(((uint32_t)OW(a) << 16) | (uint32_t)OW((a) + 2)))
 static int lk_o_sprmode = 1, lk_o_cammode = 2, lk_o_u0, lk_o_v0, lk_o_vote_room = -1, lk_o_bu, lk_o_bv, lk_o_upred, lk_o_vpred; static float lk_o_vu[64], lk_o_vv[32];
@@ -233,8 +234,12 @@ static void lk_o_vpiece(int tile0, int sx, int sy, int w, int h, int pal, int pr
 static uint32 lk_o_satk[96]; static int lk_o_satt[96], lk_o_satn; static int lk_o_satw[96]; static uint32 lk_o_dk[96]; static int lk_o_dn;   /* lk_o_satw: full attribute word of every sprite table entry; lk_o_dk: keys of the pieces the figures pass drew */   /* the real sprite table: key (x, y, size) and first tile number of every entry */
 typedef struct { int vis, ax, ay, ts, sgi, anim, frm, np, pxs[8], pys[8], pws[8], phs[8], prio, off; uint8 *tiles; } lk_o_ent_t;
 static uint8 lk_o_sprtiles_b[0x4000], lk_o_sprtiles_c[0x4000], lk_o_sprtiles_p[0x4000]; static int lk_o_ovr_anim = -1, lk_o_ovr_frm;   /* _p: tiles of the pose found by the VRAM search; ovr: that search tries other (animation, frame) pairs */
+/* LK_ENTCACHE v1: the graphics of a pose (ROM chunk list at cstart -> assembled tiles) are a pure function of the ROM: decoded once, copied afterwards (with No Sprite Limit every entity of the room is loaded every frame: the decoding was a quarter of the run time) */
+static struct { uint32_t key; int tl; uint8 *d; } lk_o_ec[512];
+static int lk_o_ecget(uint32_t key, uint8 *tiles) { unsigned ci = (key * 2654435761u) >> 23; if (lk_o_ec[ci].d && lk_o_ec[ci].key == key) { memcpy(tiles, lk_o_ec[ci].d, (size_t)lk_o_ec[ci].tl); return lk_o_ec[ci].tl; } return -1; }
+static void lk_o_ecput(uint32_t key, const uint8 *tiles, int tl) { unsigned ci = (key * 2654435761u) >> 23; uint8 *d = (uint8 *)malloc((size_t)tl); if (!d) return; memcpy(d, tiles, (size_t)tl); free(lk_o_ec[ci].d); lk_o_ec[ci].d = d; lk_o_ec[ci].key = key; lk_o_ec[ci].tl = tl; }
 static void lk_o_entload(const uint8 *src, int off, lk_o_ent_t *e, uint8 *tiles, int decode, int use4e) {   /* one entity of one pass state: pieces + tile graphics from the ROM */
-  int b = 0xFF5400 + off, guard, tl = 0; uint32_t base, fp, ap, pos, cstart;
+  int b = 0xFF5400 + off, guard, tl = 0, hit = 0; uint32_t base, fp, ap, pos, cstart;
   const uint8 *keep = lk_o_sp; lk_o_sp = src;
   e->off = off; e->tiles = tiles; e->np = 0; e->vis = 0;
   e->ax = SW(b + (use4e ? 0x4E : 0x0E)); e->ay = SW(b + (use4e ? 0x50 : 0x10)); e->ts = SW(b + 6);   /* +4E / +50 = the screen position of the previous pass (sub_40F2 copies +0E there before it recomputes it): the game draws objects there */
@@ -249,13 +254,15 @@ static void lk_o_entload(const uint8 *src, int off, lk_o_ent_t *e, uint8 *tiles,
     if ((b2 & 0x80) || e->np >= 8) break;
   }
   cstart = pos;
-  if (decode) for (guard = 0; guard < 64; guard++) {
+  if (decode) { int got = lk_o_ecget(cstart, tiles); if (got >= 0) { tl = got; hit = 1; } }   /* LK_ENTCACHE v1 */
+  if (decode && !hit) for (guard = 0; guard < 64; guard++) {
     int h = OW(pos), n = h & 0x0FFF, i; pos += 2;
     if (h & 0x8000) { for (i = 0; i < n * 2 && tl + i < 0x4000; i++) tiles[tl + i] = 0; tl += n * 2; }
     else if (h & 0x2000) { int got = lk_o_lz77(pos, tiles + tl, 0x4000 - tl); tl += got; break; }
     else { for (i = 0; i < n * 2 && tl + i < 0x4000; i++) tiles[tl + i] = (uint8)OB(pos + (uint32_t)i); pos += (uint32_t)n * 2; tl += n * 2; }
     if (h & 0x4000) break;
   }
+  if (decode && !hit && tl > 0 && tl <= 0x4000) lk_o_ecput(cstart, tiles, tl);
   if (decode && lk_o_hdwant()) { int k; for (k = 0; (k + 1) * 32 <= tl && (k + 1) * 32 <= 0x4000; k++) lk_org_learn(tiles + 32 * k, cstart, k); }   /* origin of a figure tile = ROM address of the pose's chunk list + tile index in the assembled graphic (the chunks are not tile aligned, so they are no unit of their own) */
   lk_o_sp = keep;
 }
@@ -1534,3 +1541,12 @@ if "LK_NCGUARD v1" not in s:
     s = s.replace(a, "int lk_nc_guard, lk_nc_tripped; long lk_nc_count;\nint lk_no_charge;", 1)
     open(p, "w").write(s)
     print("bus.c patched: LK_NCGUARD v1")
+
+p = os.path.join(root, "src/bus.c")
+s = open(p).read()
+if "LK_OWNPEEK v2" not in s:
+    a = "uint16_t bus_read16(uint32_t addr) {\n"
+    assert s.count(a) == 1, "bus.c: bus_read16 not found"
+    s = s.replace(a, "/* LK_OWNPEEK v2: a read for the own renderer without the bus clock (the renderer runs inside the VBlank callback, where bus_tick_cycles does nothing anyway) */\nuint8_t bus_peek8(uint32_t addr) {\n    static const uint8_t *rom; static int ok = -1;   /* fast path: the ROM is one flat block (checked once) */\n    addr &= 0xFFFFFF;\n    if (ok < 0) { int i; rom = m68k.memory_map[0].base; ok = rom != NULL; for (i = 0; i < 32 && ok; i++) if (m68k.memory_map[i].read8 || m68k.memory_map[i].base != rom + ((uint32_t)i << 16)) ok = 0; }\n    if (ok && addr < 0x200000u) return READ_BYTE(rom, addr);\n    cpu_memory_map *map = &m68k.memory_map[(addr >> 16) & 0xFF];\n    if (map->read8) return (uint8_t)map->read8(addr);\n    if (map->base) return READ_BYTE(map->base, addr & 0xFFFF);\n    return 0xFF;\n}\n\n" + a, 1)
+    open(p, "w").write(s)
+    print("bus.c patched: LK_OWNPEEK v2")
