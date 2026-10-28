@@ -34,6 +34,12 @@ static int OB(uint32_t a) { return a < 0x200000u ? (int)bus_read8(a) : 0; }   /*
 #define OW(a) ((OB(a) << 8) | OB((a) + 1))
 #define OL(a) ((uint32_t)(((uint32_t)OW(a) << 16) | (uint32_t)OW((a) + 2)))
 static int lk_o_sprmode = 1, lk_o_cammode = 2, lk_o_u0, lk_o_v0, lk_o_vote_room = -1, lk_o_bu, lk_o_bv, lk_o_upred, lk_o_vpred; static float lk_o_vu[64], lk_o_vv[32];
+static int lk_nosprlim_v = -1;   /* Options > Video > No Sprite Limit Off / On (default Off = the cartridge's look); file ~/.landstalker_nosprlim, env LANDSTALKER_NOSPRLIM=0|1 (or LANDSTALKER_OWN_NOSAT=1) wins */
+int lk_nosprlim_get(void) {
+  if (lk_nosprlim_v < 0) { char p[512]; FILE *f; const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_NOSPRLIM"); int v = 0; snprintf(p, sizeof p, "%s/.landstalker_nosprlim", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); if (getenv("LANDSTALKER_OWN_NOSAT")) v = 1; lk_nosprlim_v = v ? 1 : 0; }
+  return lk_nosprlim_v;
+}
+void lk_nosprlim_set(int v) { char p[512]; FILE *f; const char *h = getenv("HOME"); lk_nosprlim_get(); lk_nosprlim_v = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_nosprlim", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_nosprlim_v); fclose(f); } }
 static int lk_o_mode = -1, lk_o_log = 60, lk_o_room = -1, lk_o_ngrp, lk_o_valid;
 static int lk_sm_state, lk_sm_nofade, lk_sm_fastload, lk_o_lvl0, lk_sm_due;   /* S3.5 seamless door transitions (state 0 idle, 1 gap = frozen picture while the game fades / loads, 2 pan, 3 old room dissolves); nofade = the game's fade-in is not shown */
 static int lk_o_fx;   /* LANDSTALKER_OWN_FX=0: the visual effects (warp pad, tree warp) stay the game's picture (old way) */
@@ -1303,7 +1309,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         for (n4 = 0; n4 < 80 && ns < 96; n4++) { int y = ((LK_SATB(8 * i4) << 8) | LK_SATB(8 * i4 + 1)) & 0x1FF, sz = (LK_SATB(8 * i4 + 2) << 8) | LK_SATB(8 * i4 + 3), x = ((LK_SATB(8 * i4 + 6) << 8) | LK_SATB(8 * i4 + 7)) & 0x1FF;
           lk_o_satw[ns] = (LK_SATB(8 * i4 + 4) << 8) | LK_SATB(8 * i4 + 5); lk_o_satt[ns] = lk_o_satw[ns] & 0x7FF; sat[ns] = (uint32)(x << 20 | y << 8 | ((sz >> 8) & 15)); lk_o_satk[ns] = sat[ns]; ns++; i4 = sz & 0x7F; if (!i4) break; }
         lk_o_satn = ns;
-        { static int nosat = -1; if (nosat < 0) nosat = getenv("LANDSTALKER_OWN_NOSAT") != NULL; if (nosat) lk_o_satn = 0; }   /* test aid: no use of the game's sprite table for the draw order / hiding (entities in the order of the game's own list) */
+        if (lk_nosprlim_get()) lk_o_satn = 0;   /* Options > Video > No Sprite Limit (also LANDSTALKER_OWN_NOSAT=1): the game's sprite table (= the cartridge's per line sprite limit and its flicker) decides neither the draw order nor which figures are hidden: every figure of the game's own list is drawn, in the list's order */
         { int L, j; for (L = 0; L < 224; L++) { int seen = 0; lk_o_smk[L] = 0; for (j = 0; j < ns; j++) { int y0 = (int)((lk_o_satk[j] >> 8) & 0x1FF) - 128, h8 = 8 * (int)((lk_o_satk[j] & 3) + 1), x0 = (int)((lk_o_satk[j] >> 20) & 0x1FF); if (L < y0 || L >= y0 + h8) continue; if (x0) seen = 1; else if (seen) { lk_o_smk[L] = j + 1; break; } } } }   /* the VDP's sprite mask */
         { const uint8 *rc = r, *rp = lk_o_use; lk_o_cc = rc; lk_o_cp = rp;
         nc = lk_o_sprites(rc, 0, kc, 0); np_ = lk_o_sprites(rp, 0, kp, 0); }

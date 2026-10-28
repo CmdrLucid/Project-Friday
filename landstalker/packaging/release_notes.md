@@ -4,6 +4,7 @@
 - **Language option + German (first part):** Options > Language. Menus, item names, system messages, hints and options are translated; character dialogue is still English for now.
 - **Europe ROM supported:** the European Landstalker ROM is accepted too and runs at the right speed (60 Hz).
 - **Fast Forward can be a toggle (issue #11):** Options > Quality of Life > Fast Forward Key: Hold or Toggle.
+- **No Sprite Limit (Options > Video):** draws every figure of a room, without the cartridge's limit of 20 sprites per line and its flicker (off by default = the original look).
 - **Game and sound pause while the window is not in focus (alt+tab, issue #9).**
 - **Quick Save and Fast Forward are OFF by default:** turn them on under Options > Quality of Life; pressing their button while off now shows a hint (issue #6). Fast forward: hold Tab / Steam Deck back button R5.
 - Everything from v1.0.2 is included (Windows start fix, Quick Equip, Better Menu, Live Gaia Effect, Widescreen ...).
