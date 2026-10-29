@@ -20,6 +20,9 @@ VARIANTS = {   # lean = px the head moves forward, hip = first row that stays, p
     "D": dict(bands=[(0, 18, 4), (18, 26, 2)], pick=[0, 1, 4, 5], lift=[1, 3], dust=True, big=True, stride=[0], wide=2),
     # E / F (user 2026-10-29: '4 frames sind zu wenig'): more frames, played faster than the walk (tick = game frames per picture; walk = 6)
     "E": dict(bands=[(0, 18, 4), (18, 26, 2)], pick=[0, 1, 2, 3, 4, 5, 6, 7], lift=[2, 6], dust=True, big=True, dustat=[0, 4], stride=[0], wide=2, tick=3),
+    # G (user: 'E wirkt am besten, braucht cleanup'): head stays one block (shift 4), below it the shift drops by 1 px per band so every
+    # outline step is at most 1 px (stays 8-connected, no gaps at the neck / back); the stride widening only moves the boots (last 6 rows)
+    "G": dict(bands=[(0, 18, 4), (18, 20, 3), (20, 23, 2), (23, 27, 1)], pick=[0, 1, 2, 3, 4, 5, 6, 7], lift=[2, 6], dust=True, big=True, dustat=[0, 4], stride=[0], wide=2, feet=6, tick=3),
     "F": dict(bands=[(0, 18, 4), (18, 26, 2)], pick=[0, 1, 2, 4, 5, 6], lift=[2, 5], dust=True, big=True, dustat=[0, 3], stride=[0], wide=2, tick=3),
 }
 GREY_L, GREY_M = (216, 216, 216, 255), (144, 144, 144, 255)
@@ -50,11 +53,11 @@ def lean_bands(im, bands):
     return out
 
 
-def widen(im, n):
+def widen(im, n, rows=10):
     """longer stride: below the knees the left half moves n px left, the right half n px right (split at the middle of the legs)"""
-    w, h = im.size; px = im.load()
+    w, h = im.size; px = im.load(); n_rows = rows
     rows = [y for y in range(h) if any(px[x, y][3] for x in range(w))]
-    bot = rows[-1]; top = bot - 9
+    bot = rows[-1]; top = bot - (n_rows - 1)
     xs = [x for y in range(top, bot + 1) for x in range(w) if px[x, y][3]]
     mid = (min(xs) + max(xs)) // 2
     out = im.copy(); o = out.load()
@@ -99,7 +102,7 @@ def make(v):
     p = VARIANTS[v]; frames = []
     for i, k in enumerate(p["pick"]):
         src = load(k)
-        if i in p.get("stride", []): src = widen(src, p["wide"])
+        if i in p.get("stride", []): src = widen(src, p["wide"], p.get("feet", 10))
         f = lean_bands(src, p["bands"]) if "bands" in p else lean(src, p["lean"], p["hip"])
         if i in p["lift"]:
             g = Image.new("RGBA", f.size, (0, 0, 0, 0)); g.paste(f, (0, -1)); f = g
