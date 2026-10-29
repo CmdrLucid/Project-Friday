@@ -193,6 +193,8 @@ python3 tools/patch_timetrace.py .deps/genrecomp
 python3 tools/patch_timedoors.py .deps/genrecomp
 # timing step T2: our own clock state (struct lk_clk) is the master of the line loop, GPGX globals written from it / read back after every door; LANDSTALKER_TIME_SHADOW compare, LANDSTALKER_TIMING=gpgx rollback (tools/patch_timestate.py; no behaviour change)
 python3 tools/patch_timestate.py .deps/genrecomp
+# timing step T3: the VDP port timing is ours (status / HV counter / DMA chunk timing / FIFO stall computed in bus.c lk_v_* from lk_clk and own tables; GPGX's code = LANDSTALKER_TIMING=gpgx + LANDSTALKER_TIME_SHADOW compare) (tools/patch_vdptime.py; no behaviour change)
+python3 tools/patch_vdptime.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json

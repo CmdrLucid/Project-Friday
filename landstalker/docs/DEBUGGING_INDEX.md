@@ -171,5 +171,6 @@
 - L1353: Time trace and timing bench, 2026-10-29 (Sonnet 5.5; TIMING_PLAN T0)
 - L1361: Time doors and the door counters, 2026-10-29 (Sonnet 5.5; TIMING_PLAN T1)
 - L1369: Own clock state and the shadow, 2026-10-29 (Sonnet 5.5; TIMING_PLAN T2)
-- L1372: CRT Pro cost and the worker pool, 2026-10-29 (Sonnet 5.5; HANDOFF 0a165)
-- L1390: Friday's wake-up flash in the own renderer, 2026-10-29 (Sonnet 5.5; HANDOFF 0a166)
+- L1372: Timing T3: VDP port timing ours (2026-10-29 night)
+- L1379: CRT Pro cost and the worker pool, 2026-10-29 (Sonnet 5.5; HANDOFF 0a165)
+- L1397: Friday's wake-up flash in the own renderer, 2026-10-29 (Sonnet 5.5; HANDOFF 0a166)

@@ -23,7 +23,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 LAND = os.path.dirname(HERE)
 ROM = "/home/deck/Documents/NonSteamGames/landstalker/landstalker.md"
 AUF = "/home/deck/aufnahmen"
-WORK = "/home/deck/timebench/work"
+WORK = "/home/deck/timebench/work/%d" % os.getpid()   # one directory per bench process: two benches at the same time must not share a recording's work dir (2026-10-29)
 HOME_OPTS = False
 EXTRA_ENV = {}
 
@@ -141,6 +141,7 @@ def main():
     jobs = [j for j in jobs_list() if not a.only or a.only in j["name"]]
     if a.keep_traces: os.makedirs(a.keep_traces, exist_ok=True)
     os.makedirs(WORK, exist_ok=True)
+    import atexit; atexit.register(shutil.rmtree, WORK, True)
     print("timebench: %d recordings, %d jobs, binary %s" % (len(jobs), a.jobs, a.bin), flush=True)
     t_all = time.time(); results = {}; allcounts = {}; offbad = []
     def task(j):
