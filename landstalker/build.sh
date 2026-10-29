@@ -187,6 +187,8 @@ python3 tools/patch_chips.py .deps/genrecomp
 python3 tools/patch_vdplog.py .deps/genrecomp
 # names (from docs/symbols.json) in the console diagnostics: call stack, interp:, no function, RTS to, CALLTRACE (tools/patch_symnames.py; LANDSTALKER_NONAMES=1 = off)
 python3 tools/patch_symnames.py .deps/genrecomp
+# timing step T0: golden time trace of every clock relevant event (tools/patch_timetrace.py, env LANDSTALKER_TIMETRACE=file, inert without it; docs/TIMING_PLAN.md)
+python3 tools/patch_timetrace.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json
