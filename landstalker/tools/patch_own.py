@@ -429,7 +429,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
       if (keys && nk < 96) keys[nk++] = key;
       if (draw && lk_o_dn < 96) lk_o_dk[lk_o_dn++] = key;
       lk_o_dbgsgi = e->sgi; lk_o_dbganim = e->anim; lk_o_dbgfrm = e->frm;
-      { int j2; lk_o_cidx = lk_o_satn; for (j2 = 0; j2 < lk_o_satn; j2++) if (lk_o_satk[j2] == key) { lk_o_cidx = j2; break; } }
+      { int j2; lk_o_cidx = lk_o_satn_all; for (j2 = 0; j2 < lk_o_satn_all; j2++) if (lk_o_satk[j2] == key) { lk_o_cidx = j2; break; } }   /* the REAL table (lk_o_satn is 0 with No Sprite Limit): the sprite mask of the text box needs each figure's table position, else every figure (index 0) is drawn over the box */
       if (draw) lk_o_sprpiece(e->tiles, cum, e->ax + xx - 128, e->ay + e->pys[pc] - 128, e->pws[pc], e->phs[pc], (e->ts >> 13) & 3, e->prio, (e->ts >> 11) & 1, (e->ts >> 12) & 1);
       cum += e->pws[pc] * e->phs[pc];
     }
