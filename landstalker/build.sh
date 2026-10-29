@@ -181,6 +181,8 @@ python3 tools/z80recomp.py "$ROM" .deps/genrecomp/ext/Genesis-Plus-GX/core/z80dr
 python3 tools/patch_sndnative.py .deps/genrecomp
 # own sound clock while fast forwarding: music at normal speed (GitHub issue #11 part 2; tools/patch_sndclock.py, env LANDSTALKER_SNDCLOCK=0 = off)
 python3 tools/patch_sndclock.py .deps/genrecomp
+# own sound chips next to GPGX's (PSG first; LANDSTALKER_CHIPS=gpgx = the old way; tools/patch_chips.py, docs/SOUND_PLAN.md section 9)
+python3 tools/patch_chips.py .deps/genrecomp
 # diagnostics: LANDSTALKER_VDPLOG=1 lists which game function writes which tile columns of the scroll planes (widescreen work)
 python3 tools/patch_vdplog.py .deps/genrecomp
 # names (from docs/symbols.json) in the console diagnostics: call stack, interp:, no function, RTS to, CALLTRACE (tools/patch_symnames.py; LANDSTALKER_NONAMES=1 = off)
