@@ -139,13 +139,13 @@ def streaks(im):
 
 
 def make_jump():
-    """the game's jump frames (SpriteGfx000Anim09 = a36, front view, 2 frames) as a RUNNING jump: lean like sprint G (+1 px), trailing boot, dust at take-off, speed lines in flight.
+    """the game's jump frames (SpriteGfx000Anim09 = a36, front view, 2 frames) as a RUNNING jump: lean like sprint G (+1 px), trailing legs, dust at take-off (speed lines removed at the user's wish).
     Only the look changes: distance / arc stay the original (user decision 2026-10-29)."""
     bands = [(0, 18, 5), (18, 20, 4), (20, 22, 3), (22, 24, 2), (24, 27, 1)]
     take = Image.open(os.path.join(SRC, "a36_f0.png")).convert("RGBA")
     fly = Image.open(os.path.join(SRC, "a36_f4.png")).convert("RGBA")
     j0 = dust(lean_bands(take, bands), 0, True)
-    j1 = streaks(lean_bands(trail_boots(fly, 3), bands))
+    j1 = lean_bands(trail_boots(fly, 3), bands)   # no speed lines (user 2026-10-29)
     return [j0, j1]
 
 
