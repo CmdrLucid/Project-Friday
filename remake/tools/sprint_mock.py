@@ -18,6 +18,9 @@ VARIANTS = {   # lean = px the head moves forward, hip = first row that stays, p
     "C": dict(lean=4, hip=32, pick=[0, 1, 4, 5], lift=[0, 2], dust=False),
     # D: lean in BANDS (whole rows of the head / chest move as blocks, so the drawing stays intact), stride widened on the two stride frames, bigger dust
     "D": dict(bands=[(0, 18, 4), (18, 26, 2)], pick=[0, 1, 4, 5], lift=[1, 3], dust=True, big=True, stride=[0], wide=2),
+    # E / F (user 2026-10-29: '4 frames sind zu wenig'): more frames, played faster than the walk (tick = game frames per picture; walk = 6)
+    "E": dict(bands=[(0, 18, 4), (18, 26, 2)], pick=[0, 1, 2, 3, 4, 5, 6, 7], lift=[2, 6], dust=True, big=True, dustat=[0, 4], stride=[0], wide=2, tick=3),
+    "F": dict(bands=[(0, 18, 4), (18, 26, 2)], pick=[0, 1, 2, 4, 5, 6], lift=[2, 5], dust=True, big=True, dustat=[0, 3], stride=[0], wide=2, tick=3),
 }
 GREY_L, GREY_M = (216, 216, 216, 255), (144, 144, 144, 255)
 PAD = 8   # extra canvas around the 32 x 48 frame (lean + dust)
@@ -100,8 +103,9 @@ def make(v):
         f = lean_bands(src, p["bands"]) if "bands" in p else lean(src, p["lean"], p["hip"])
         if i in p["lift"]:
             g = Image.new("RGBA", f.size, (0, 0, 0, 0)); g.paste(f, (0, -1)); f = g
-        if p["dust"] and i in (0, 2):
-            f = dust(f, (i // 2) % 2, p.get("big", False))
+        da = p.get("dustat", [0, 2])
+        if p["dust"] and i in da:
+            f = dust(f, da.index(i) % 2, p.get("big", False))
         frames.append(f)
     return frames
 
@@ -124,11 +128,12 @@ def main():
     sheet.save(os.path.join(OUT, "sheet_%s.png" % v))
     # animation: walk (8 frames, 6 game frames each) next to sprint (4 frames, 4 game frames each), 4x, 60 Hz game frames -> GIF in 10 ms units
     A = 4; gif = []
-    for t in range(0, 48, 2):
+    n, tick = len(sprint), VARIANTS[v].get("tick", 4)
+    for t in range(0, 144, 2):
         c = Image.new("RGBA", (cw * 2 * A, ch * A), BG)
         wf = Image.new("RGBA", (cw, ch), (0, 0, 0, 0)); wf.paste(walk[(t // 6) % 8], (PAD, PAD))
         c.alpha_composite(wf.resize((cw * A, ch * A), Image.NEAREST), (0, 0))
-        c.alpha_composite(sprint[(t // 4) % 4].resize((cw * A, ch * A), Image.NEAREST), (cw * A, 0))
+        c.alpha_composite(sprint[(t // tick) % n].resize((cw * A, ch * A), Image.NEAREST), (cw * A, 0))
         gif.append(c.convert("RGB"))
     gif[0].save(os.path.join(OUT, "anim_%s.gif" % v), save_all=True, append_images=gif[1:], duration=33, loop=0)
     print("->", os.path.join(OUT, "sheet_%s.png" % v), os.path.join(OUT, "anim_%s.gif" % v))
