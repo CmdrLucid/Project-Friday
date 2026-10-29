@@ -23,3 +23,8 @@ Nothing here is implemented or verified. Re-check against the code / docs of the
 1. Research (headless, a recording of Nigel walking): find the speed source, write it into FORMATS / symbols.
 2. A mock-up of 2 - 3 sprint frames for ONE direction next to the original walk frames, shown to the user (one asset at a time, LESSONS 98).
 3. Prototype the speed change behind the option, test collision / doors / jumps with recordings, bench IDENTICAL with the option Off.
+
+## Status 2026-10-29 night: animation mock-up (dev `23414ba`)
+- `remake/tools/sprint_mock.py [A..G]` (Pillow; on the Deck `~/.landstalker_trailer/venv/bin/python`) builds sprint frames from Nigel's FRONT walk frames (`~/.landstalker_remake/figures/nigel/a12_f*.png`, cut by `nigel_frames.py` from the user's ROM); output only in `~/.landstalker_remake/sprint/` (sheets, 1x frames, GIF; self-contained HTML pages with base64 images, because the desktop browser does not load images from the hidden folder).
+- User verdicts: 4 frames (A..D) 'zu wenig'; 8 frames played at 2x the walk speed (E) 'wirkt am besten, braucht cleanup'; cleaned variant **G** (head as one block shifted 4 px, below it the lean drops by 1 px per band so outlines stay connected; stride widening only on the boots of frame 0; 1 px lift on frames 2 / 6; dust puff on frames 0 / 4; 3 game frames per picture) = **'behalten wir mal so'**, to be judged IN THE GAME later.
+- Open: back view (`a8_f*`, walk back) with the same recipe; the 4 screen directions come from mirroring front / back; arms / legs keep the walk poses (real sprint poses would need hand-made pixel edits).
