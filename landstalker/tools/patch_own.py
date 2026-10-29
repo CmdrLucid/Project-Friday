@@ -208,6 +208,9 @@ static void lk_o_palette(int room) {                                 /* the 64 c
     else { lk_o_fxhold = 0; lk_o_fxprev = 0; }
   } else lk_o_fxprev = 0;
   }
+  { int fs = SB(0xFF114B) & 0xFF;   /* LK_OWN FLASH v1: Friday's wake-up flash (UpdateFridayAnimation_Flash $0037EE, state $41 / $42) writes CRAM colours 0 (backdrop) and 15 of line 0 straight to the VDP (white $EEE / black on alternate frames) without touching the game's palette copies: show the chip's two colours then (the own palette forces them to black) */
+    if (fs == 0x41 || fs == 0x42) { int q; for (q = 0; q < 16; q += 15) lk_o_pix[q] = pixel_lut[1][((cram[(2 * q) ^ 1] << 8) | cram[(2 * q + 1) ^ 1]) & 0x1FF]; }
+  }
 }
 static void lk_o_sprpiece(const uint8 *td, int tile0, int sx, int sy, int w, int h, int pal, int prio, int hf, int vf) {
   int px, py, hd = lk_o_hdwant(), ti; void *rp[16] = { 0 };
