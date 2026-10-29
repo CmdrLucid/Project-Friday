@@ -167,3 +167,4 @@
 - L1326: Multi-ROM and text layer 2026-10-26 (Deck, Sonnet 5.5; user: 'Unterstuetzung Europa-ROM, Sprachversionen mit Textlayer')
 - L1333: Session 2026-10-27 (Deck, Opus 5.5): remake pixel plants exact (dev 2124ed1..dd21ea4)
 - L1340: Session 2026-10-28 / 29 (Deck, Opus 5.5 then Sonnet 5.5): defaults, sound clock, shadows, intro, release v1.2.0
+- L1348: Own sound chips, 2026-10-29 (Sonnet 5.5)
