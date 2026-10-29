@@ -1364,3 +1364,7 @@ Recordings: `rec_20261023_1937` (church -> 592 -> 424 -> 425 -> 426 -> 177 / 178
 - **Nesting:** `zbus_w` contains `zwait` moves (the busreq write runs the Z80); `dma_start` shows GPGX's first DMA stall, before `bus_finish_dma` rewrites it.
 - **CYCSTAT check without the bench:** call `timebench.jobs_list()` / `clean_env()` from a small script, set `LANDSTALKER_CYCSTAT=1`, keep the output file (the bench deletes its work dirs); per frame RAM/ROM should be ~0 (6 cycles residual after interrupt entries).
 - **Pitfall:** `git checkout src/bus.c` inside `.deps/genrecomp` wipes every patch of that file; only a full `build.sh` re-applies them.
+
+
+## Own clock state and the shadow, 2026-10-29 (Sonnet 5.5; TIMING_PLAN T2)
+`lk_clk` in `bus.c` (fields and who pushes / pulls: TIMING_PLAN section 9). Debug: `LANDSTALKER_TIME_SHADOW=/tmp/s.txt` then `cat /tmp/s.txt` (mismatch lines with call stack, last line = summary; the bench with `--env LANDSTALKER_TIME_SHADOW=path` appends one summary per run, sum them with a small python). Rollback to the old master: `LANDSTALKER_TIMING=gpgx`. A mismatch means GPGX changed a clock variable outside a door / the loop (add a pull) or the loop changed one without a push before GPGX read it. Proof that a quick load ran: the `TIME_SHADOW RESYNC (quick load)` line (only one load per request that the game accepts; refused requests leave no line). Quick loop: edit `.deps/genrecomp/src/bus.c`, `cmake --build build -j8` (4 s); to restore after an experiment copy the file back from a saved copy, NEVER `git checkout` in `.deps`.

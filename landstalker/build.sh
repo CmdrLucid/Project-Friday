@@ -191,6 +191,8 @@ python3 tools/patch_symnames.py .deps/genrecomp
 python3 tools/patch_timetrace.py .deps/genrecomp
 # timing step T1: one door per GPGX clock access (lk_t_* in bus.c) + LANDSTALKER_TIMEDOORS counters + CYCSTAT expected-cycles fix (tools/patch_timedoors.py; no behaviour change)
 python3 tools/patch_timedoors.py .deps/genrecomp
+# timing step T2: our own clock state (struct lk_clk) is the master of the line loop, GPGX globals written from it / read back after every door; LANDSTALKER_TIME_SHADOW compare, LANDSTALKER_TIMING=gpgx rollback (tools/patch_timestate.py; no behaviour change)
+python3 tools/patch_timestate.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json
