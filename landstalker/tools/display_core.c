@@ -94,7 +94,7 @@ static void lk_fx_render(const uint32_t *src, uint32_t *dst, int dw, int dh, int
 static uint16_t lk_f2_dec[256], lk_f2_hw[256][4], lk_f2_wt[64][32];   /* gamma decode, horizontal tap weights per 1/256 fraction (sum 256), beam weight [distance 0..63][brightness 0..31] */
 static uint8_t lk_f2_enc[4096];
 static uint16_t lk_f2_mask[3][3];
-static uint16_t *lk_f2_plane, *lk_f2_mx, *lk_f2_my; static uint8_t *lk_f2_gain;
+static uint16_t *lk_f2_plane, *lk_f2_mx, *lk_f2_my, *lk_f2_hi; static uint8_t *lk_f2_gain, *lk_f2_hf, *lk_f2_rflat;   /* hi / hf: horizontal tap source columns + fraction per plane column; rflat: row is flat (see lk_f2_vrows) */
 static int lk_f2_dw, lk_f2_dh, lk_f2_sw, lk_f2_fx, lk_f2_hn;
 static void lk_f2_prepare(int dw, int dh, int fx, int sw) {
     if (dw == lk_f2_dw && dh == lk_f2_dh && sw == lk_f2_sw && fx == lk_f2_fx && lk_hdn == lk_f2_hn && lk_f2_plane) return;
@@ -113,10 +113,11 @@ static void lk_f2_prepare(int dw, int dh, int fx, int sw) {
     }
     const double lit = 1.38, oth = 0.62 * 1.38;               /* aperture grille in linear light: lit channel boosted, the other two dimmer (average ~ 0.85 * ... compensates the beam gaps) */
     for (int i = 0; i < 3; i++) for (int c = 0; c < 3; c++) lk_f2_mask[i][c] = (uint16_t)(256.0 * (i == c ? lit : oth));
-    free(lk_f2_plane); free(lk_f2_mx); free(lk_f2_my); free(lk_f2_gain);
+    free(lk_f2_plane); free(lk_f2_mx); free(lk_f2_my); free(lk_f2_gain); free(lk_f2_hi); free(lk_f2_hf); free(lk_f2_rflat); lk_f2_hi = 0; lk_f2_hf = 0; lk_f2_rflat = 0;
     lk_f2_plane = (uint16_t *)malloc((size_t)LK_SRC_H * dw * 4 * 2);
     lk_f2_mx = (uint16_t *)malloc((size_t)dw * dh * 2); lk_f2_my = (uint16_t *)malloc((size_t)dw * dh * 2); lk_f2_gain = (uint8_t *)malloc((size_t)dw * dh);
-    if (!lk_f2_plane || !lk_f2_mx || !lk_f2_my || !lk_f2_gain) { free(lk_f2_plane); free(lk_f2_mx); free(lk_f2_my); free(lk_f2_gain); lk_f2_plane = 0; lk_f2_mx = lk_f2_my = 0; lk_f2_gain = 0; return; }
+    lk_f2_hi = (uint16_t *)malloc((size_t)dw * 4 * 2); lk_f2_hf = (uint8_t *)malloc((size_t)dw); lk_f2_rflat = (uint8_t *)calloc((size_t)dh, 1);
+    if (!lk_f2_plane || !lk_f2_mx || !lk_f2_my || !lk_f2_gain || !lk_f2_hi || !lk_f2_hf || !lk_f2_rflat) { free(lk_f2_hi); free(lk_f2_hf); free(lk_f2_rflat); lk_f2_hi = 0; lk_f2_hf = 0; lk_f2_rflat = 0; free(lk_f2_plane); free(lk_f2_mx); free(lk_f2_my); free(lk_f2_gain); lk_f2_plane = 0; lk_f2_mx = lk_f2_my = 0; lk_f2_gain = 0; return; }
     const double k = (fx == LK_FX_CURVE) ? 0.025 : 0.0, z = 1.0 / (1.0 + k);   /* barrel warp; z shrinks the picture so that the corners stay inside */
     for (int y = 0; y < dh; y++) for (int x = 0; x < dw; x++) {
         double u = 2.0 * (x + 0.5) / dw - 1.0, v = 2.0 * (y + 0.5) / dh - 1.0, g = 1.0;
@@ -131,36 +132,64 @@ static void lk_f2_prepare(int dw, int dh, int fx, int sw) {
         size_t i = (size_t)y * dw + x;
         lk_f2_mx[i] = (uint16_t)px; lk_f2_my[i] = (uint16_t)(sy * 256.0 + 0.5); lk_f2_gain[i] = (uint8_t)(g * 255.0 + 0.5);
     }
+    for (int x = 0; x < dw; x++) {                          /* horizontal pass tables (the position arithmetic of the per-pixel version, once per plane column) */
+        int p = (int)(((int64_t)(2 * x + 1) * sw * 128) / dw) - 128;   /* source position * 256 of the plane pixel centre, pixel centres at integers */
+        if (p < 0) p = 0;
+        int x0 = p >> 8, f = p & 255; if (x0 > sw - 1) { x0 = sw - 1; f = 0; }
+        for (int kk = 0; kk < 4; kk++) { int xs = x0 + kk - 1; if (xs < 0) xs = 0; if (xs > sw - 1) xs = sw - 1; lk_f2_hi[(size_t)x * 4 + kk] = (uint16_t)xs; }
+        lk_f2_hf[x] = (uint8_t)f;
+    }
+    for (int y = 0; y < dh; y++) {                          /* a row is flat when every pixel has gain 255, column x and the same source row position as the first */
+        const size_t base = (size_t)y * dw; int flat = 1;
+        for (int x = 0; x < dw && flat; x++) if (lk_f2_gain[base + x] != 255 || lk_f2_mx[base + x] != x || lk_f2_my[base + x] != lk_f2_my[base]) flat = 0;
+        lk_f2_rflat[y] = (uint8_t)flat;
+    }
 }
-static void lk_f2_hrows(const uint32_t *src, int sw, int y0, int y1) {   /* source rows y0..y1-1 -> plane (4 x uint16 per pixel: r g b 0) */
-    const int dw = lk_f2_dw;
+static void lk_f2_hrows(const uint32_t *src, int sw, int y0, int y1) {   /* source rows y0..y1-1 -> plane (4 x uint16 per pixel: r g b bucket; bucket = beam brightness class of the pixel, used by lk_f2_vrows) */
+    /* LK_FXFAST v1 (2026-10-29): same result as the per-pixel version before, only cheaper: the gamma decode (and for HD the average of the hn source rows) is done once per SOURCE pixel into a row buffer,
+       the tap positions / fractions come from a table made in lk_f2_prepare (no 64 bit division per pixel), the luminance class is stored in the 4th plane slot (it was computed twice per output pixel) */
+    const int dw = lk_f2_dw, hn = lk_hdn;
+    uint16_t *dr = (uint16_t *)malloc((size_t)sw * 4 * sizeof(uint16_t));
+    if (!dr || !lk_f2_hi) { free(dr); return; }
     for (int y = y0; y < y1; y++) {
-        const uint32_t *row = src + (size_t)y * lk_hdn * sw; uint16_t *o = lk_f2_plane + (size_t)y * dw * 4; const int hn = lk_hdn;   /* HD: the hn source rows of the game line y are averaged (linear light) */
+        const uint32_t *row = src + (size_t)y * hn * sw; uint16_t *o = lk_f2_plane + (size_t)y * dw * 4;   /* HD: the hn source rows of the game line y are averaged (linear light) */
+        if (hn == 1) { for (int x = 0; x < sw; x++) { uint32_t c = row[x]; dr[x * 4] = lk_f2_dec[(c >> 16) & 255]; dr[x * 4 + 1] = lk_f2_dec[(c >> 8) & 255]; dr[x * 4 + 2] = lk_f2_dec[c & 255]; } }
+        else { for (int x = 0; x < sw; x++) { uint32_t ar = 0, ag = 0, ab = 0; for (int j = 0; j < hn; j++) { uint32_t c = row[(size_t)j * sw + x]; ar += lk_f2_dec[(c >> 16) & 255]; ag += lk_f2_dec[(c >> 8) & 255]; ab += lk_f2_dec[c & 255]; } dr[x * 4] = (uint16_t)(ar / hn); dr[x * 4 + 1] = (uint16_t)(ag / hn); dr[x * 4 + 2] = (uint16_t)(ab / hn); } }
         for (int x = 0; x < dw; x++) {
-            int p = (int)(((int64_t)(2 * x + 1) * sw * 128) / dw) - 128;   /* source position * 256 of the plane pixel centre, pixel centres at integers */
-            if (p < 0) p = 0;
-            int x0 = p >> 8, f = p & 255; if (x0 > sw - 1) { x0 = sw - 1; f = 0; }
-            const uint16_t *w = lk_f2_hw[f]; uint32_t r = 0, g = 0, b = 0;
-            for (int k = 0; k < 4; k++) {
-                int xs = x0 + k - 1; if (xs < 0) xs = 0; if (xs > sw - 1) xs = sw - 1;
-                if (hn == 1) { uint32_t c = row[xs]; r += lk_f2_dec[(c >> 16) & 255] * w[k]; g += lk_f2_dec[(c >> 8) & 255] * w[k]; b += lk_f2_dec[c & 255] * w[k]; }
-                else { uint32_t ar = 0, ag = 0, ab = 0; for (int j = 0; j < hn; j++) { uint32_t c = row[(size_t)j * sw + xs]; ar += lk_f2_dec[(c >> 16) & 255]; ag += lk_f2_dec[(c >> 8) & 255]; ab += lk_f2_dec[c & 255]; } r += ar / hn * w[k]; g += ag / hn * w[k]; b += ab / hn * w[k]; }
-            }
-            o[x * 4] = (uint16_t)(r >> 8); o[x * 4 + 1] = (uint16_t)(g >> 8); o[x * 4 + 2] = (uint16_t)(b >> 8); o[x * 4 + 3] = 0;
+            const uint16_t *ix = lk_f2_hi + (size_t)x * 4, *w = lk_f2_hw[lk_f2_hf[x]];
+            const uint16_t *d0 = dr + (size_t)ix[0] * 4, *d1 = dr + (size_t)ix[1] * 4, *d2 = dr + (size_t)ix[2] * 4, *d3 = dr + (size_t)ix[3] * 4;
+            uint32_t r = d0[0] * (uint32_t)w[0] + d1[0] * (uint32_t)w[1] + d2[0] * (uint32_t)w[2] + d3[0] * (uint32_t)w[3];
+            uint32_t g = d0[1] * (uint32_t)w[0] + d1[1] * (uint32_t)w[1] + d2[1] * (uint32_t)w[2] + d3[1] * (uint32_t)w[3];
+            uint32_t b = d0[2] * (uint32_t)w[0] + d1[2] * (uint32_t)w[1] + d2[2] * (uint32_t)w[2] + d3[2] * (uint32_t)w[3];
+            uint32_t pr = (uint16_t)(r >> 8), pg = (uint16_t)(g >> 8), pb = (uint16_t)(b >> 8);
+            o[x * 4] = (uint16_t)pr; o[x * 4 + 1] = (uint16_t)pg; o[x * 4 + 2] = (uint16_t)pb;
+            o[x * 4 + 3] = (uint16_t)(lk_f2_enc[(pr * 54u + pg * 183u + pb * 19u) >> 8] >> 3);   /* linear luminance, 12 bit -> brightness class 0..31 */
         }
     }
+    free(dr);
 }
 static void lk_f2_vrows(uint32_t *dst, int y0, int y1) {
     const int dw = lk_f2_dw;
     for (int y = y0; y < y1; y++) {
         uint32_t *o = dst + (size_t)y * dw; const size_t base = (size_t)y * dw;
+        if (lk_f2_rflat[y]) {   /* flat row (CRT PRO): column = x, no edge gain, one source row pair for the whole row (checked in lk_f2_prepare) */
+            const int sy = lk_f2_my[base], r0 = sy >> 8, fr = sy & 255, r1 = r0 + 1 < LK_SRC_H ? r0 + 1 : r0;
+            const uint16_t *wtA = lk_f2_wt[fr >> 2], *wtB = lk_f2_wt[(255 - fr) >> 2];
+            const uint16_t *a = lk_f2_plane + (size_t)r0 * dw * 4, *b = lk_f2_plane + (size_t)r1 * dw * 4;
+            const uint8_t *enc = lk_f2_enc; int ph = 0;
+            for (int x = 0; x < dw; x++, a += 4, b += 4) {
+                const uint32_t wa = wtA[a[3]], wb = wtB[b[3]]; const uint16_t *m = lk_f2_mask[ph]; if (++ph == 3) ph = 0;
+                uint32_t v0 = ((a[0] * wa + b[0] * wb) >> 8) * m[0] >> 8, v1 = ((a[1] * wa + b[1] * wb) >> 8) * m[1] >> 8, v2 = ((a[2] * wa + b[2] * wb) >> 8) * m[2] >> 8;   /* (the gain 255 / 255 of the general path is the identity) */
+                o[x] = 0xFF000000u | ((uint32_t)enc[v0 > 4095 ? 4095 : v0] << 16) | ((uint32_t)enc[v1 > 4095 ? 4095 : v1] << 8) | enc[v2 > 4095 ? 4095 : v2];
+            }
+            continue;
+        }
         for (int x = 0; x < dw; x++) {
             const uint32_t gn = lk_f2_gain[base + x];
             if (!gn) { o[x] = 0xFF000000u; continue; }
             const int sy = lk_f2_my[base + x], r0 = sy >> 8, fr = sy & 255, r1 = r0 + 1 < LK_SRC_H ? r0 + 1 : r0, mx = lk_f2_mx[base + x];
             const uint16_t *a = lk_f2_plane + ((size_t)r0 * dw + mx) * 4, *b = lk_f2_plane + ((size_t)r1 * dw + mx) * 4;
-            uint32_t la = (a[0] * 54u + a[1] * 183u + a[2] * 19u) >> 8, lb = (b[0] * 54u + b[1] * 183u + b[2] * 19u) >> 8;   /* linear luminance, 12 bit */
-            uint32_t wa = lk_f2_wt[fr >> 2][lk_f2_enc[la] >> 3], wb = lk_f2_wt[(255 - fr) >> 2][lk_f2_enc[lb] >> 3];
+            uint32_t wa = lk_f2_wt[fr >> 2][a[3]], wb = lk_f2_wt[(255 - fr) >> 2][b[3]];
             const uint16_t *m = lk_f2_mask[x % 3]; uint32_t c[3];
             for (int ch = 0; ch < 3; ch++) {
                 uint32_t v = (a[ch] * wa + b[ch] * wb) >> 8;            /* beam sum, 12 bit linear */

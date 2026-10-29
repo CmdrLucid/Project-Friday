@@ -69,11 +69,9 @@ static int lk_dd2_run(void *pv) {
     return 0;
 }
 static void lk_dd2_par(int phase, int rows) {
-    lk_dd2_job job[4]; SDL_Thread *th[4] = { 0 }; int i, nt = lk_dd_c.nt; if (rows < 16 || lk_dd_c.W * lk_dd_c.H < 200000) nt = 1;   /* (the 1x picture is too small to pay for the threads) */
+    lk_dd2_job job[4]; int i, nt = lk_dd_c.nt; if (rows < 16 || lk_dd_c.W * lk_dd_c.H < 200000) nt = 1;   /* (the 1x picture is too small to pay for the threads) */
     for (i = 0; i < nt; i++) { job[i].phase = phase; job[i].y0 = rows * i / nt; job[i].y1 = rows * (i + 1) / nt; }
-    for (i = 1; i < nt; i++) { th[i] = SDL_CreateThread(lk_dd2_run, "lkdof", &job[i]); if (!th[i]) lk_dd2_run(&job[i]); }
-    lk_dd2_run(&job[0]);
-    for (i = 1; i < nt; i++) if (th[i]) SDL_WaitThread(th[i], NULL);
+    lk_pool_run(lk_dd2_run, job, sizeof(lk_dd2_job), nt);   /* (persistent workers, patch_display.py LK_FXPOOL) */
 }
 static void lk_hd_dof(uint32_t *img, int W, int H, int N, int sw, int e, const int16_t *sc) {
     static const int FD[4] = { 1, 80, 70, 60 }, DZ[4] = { 0, 44, 40, 36 }, RM[4] = { 0, 2, 3, 4 };   /* sharp zone (rows around Nigel's ground row), rows beyond it until the full radius, full radius (game px) */
@@ -167,13 +165,11 @@ static int lk_look_run(void *pv) {
     return 0;
 }
 static void lk_look_par(lk_look_ctx *c, int pass) {
-    static int nt0; lk_look_job job[3]; SDL_Thread *th[3] = { 0 }; int i, nt, H = c->H;
+    static int nt0; lk_look_job job[3]; int i, nt, H = c->H;
     if (!nt0) { nt0 = SDL_GetCPUCount(); if (nt0 > 3) nt0 = 3; if (nt0 < 1) nt0 = 1; if (getenv("LANDSTALKER_FXTHREADS")) { nt0 = atoi(getenv("LANDSTALKER_FXTHREADS")); if (nt0 < 1) nt0 = 1; if (nt0 > 3) nt0 = 3; } }
     nt = (c->W * c->H < 200000) ? 1 : nt0;   /* (the 1x picture is too small to pay for the threads) */
     for (i = 0; i < nt; i++) { job[i].c = c; job[i].pass = pass; job[i].y0 = H * i / nt; job[i].y1 = H * (i + 1) / nt; }
-    for (i = 1; i < nt; i++) { th[i] = SDL_CreateThread(lk_look_run, "lklook", &job[i]); if (!th[i]) lk_look_run(&job[i]); }
-    lk_look_run(&job[0]);
-    for (i = 1; i < nt; i++) if (th[i]) SDL_WaitThread(th[i], NULL);
+    lk_pool_run(lk_look_run, job, sizeof(lk_look_job), nt);
 }
 static void lk_hd_look(uint32_t *img, int W, int H, int N, int sw, int e, const int16_t *sc) {
     static uint8_t *mask; static size_t mcap; static uint32_t *gl; static size_t gcap; static uint8_t lutc[3][256]; static int lutg = -1; static int vx[1024], vy[1024], vg = -1, vW, vH;

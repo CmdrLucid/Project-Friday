@@ -47,6 +47,7 @@ chk "Eigene Textbox-Kacheln (Spiegel)"                $G/src/func_table.c       
 chk "Eigener Renderer: VBlank-Schnappschuss"          $G/src/func_table.c                  "LK_OWNVB v3"
 chk "Eigener Renderer: Kachel-Herkunft"              $G/src/func_table.c                  "LK_GFXORG v1"
 chk "HD-Grafik (optional): Anzeige"                  $G/src/platform_sdl.c                "LK_HD v3"
+chk "Anzeige: Worker-Pool + schneller CRT Pro"       $G/src/platform_sdl.c                "LK_FXPOOL v1"
 chk "3D-Raum (optional): Szene + Kamera"             $G/src/platform_sdl.c                "LK_R3D v1"
 chk "Eigener Renderer (LANDSTALKER_OWN)"              $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_OWN v1"
 chk "Seamless Doors: Weitergehen (Ankunft verschoben)" $G/src/func_table.c                  "LK_SEAMWALK v3"
