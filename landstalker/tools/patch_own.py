@@ -776,6 +776,7 @@ static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {      
   if (!(lk_rg[1] & 0x40) && !dispforce) { for (x = -ex; x < 320 + ex; x++) out[x] = pixel_lut[1][bgcol]; lk_hd_plain(line, out); return 1; }   /* display off: the backdrop */
   pw = pwr == 0 ? 32 : pwr == 1 ? 64 : 128; ph = phr == 0 ? 32 : phr == 1 ? 64 : 128;
   vwin = vbelow ? line >= vpos : line < vpos;
+  if (lk_scr_ismap && line >= 160 && bus_get_ram()[(0xFF0FC5 & 0xFFFF) ^ 1] == 0xA0) vwin = 1;   /* the text box of a map frame: the game's HInt moves the window split to line 160 (hint line $FF0FC5 = $A0, like lk_own_row's `text`); the register shadow does not see that: without this the generic renderer (intro rooms 141..143, display off frames) drew no text box */
   hidx = hm == 0 ? 0 : hm == 3 ? line : (line & ~7);
   hsA = LK_VW(hsb + 4 * hidx) & 0x3FF; hsB = LK_VW(hsb + 4 * hidx + 2) & 0x3FF;
   for (x = -ex; x < 320 + ex; x++) { sp[x + 48] = -1; spi[x + 48].rep = 0; }
@@ -798,7 +799,7 @@ static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {      
       }
     }
   }
-  if (lk_scr_mir & 32) { lk_scr_mapl = lk_scr_ismap && line == 23 && lk_tbox_get(); }   /* Map Behind Text on the HUD's last pixel line (patch_tbox.py): only the part between the first and last non-black opaque window pixel is the window's, the rest shows the map */
+  if (lk_scr_mir & 32) { lk_scr_mapl = lk_scr_ismap && (line == 23 || (line >= 160 && bus_get_ram()[(0xFF0FC5 & 0xFFFF) ^ 1] == 0xA0)) && lk_tbox_get(); }   /* + the text box lines (Map Behind Text) */   /* Map Behind Text on the HUD's last pixel line (patch_tbox.py): only the part between the first and last non-black opaque window pixel is the window's, the rest shows the map */
   else lk_scr_mapl = 0;
   wlo = -ex; whi = 320 + ex;
   if (lk_scr_mapl) {
@@ -1316,7 +1317,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
       else if (lk_warpfx() && !lk_o_fx) { fr_done = 0; lk_o_why = 2; }                                        /* the warp pad (teleport) effect: the game's picture stays (the effect is not ported) */
       else if (lk_sh_hide) { fr_done = 0; lk_o_why = 3; }                                         /* the Start menu is running (CheckForMenuOpen, also its fades): the game's picture stays, the map of RAM is not what is on screen then */
       else if (!(LK_REG(1) & 0x40)) { fr_done = 0; lk_o_why = 4; }                                  /* display switched off at the top of the frame (room load, blackout): the game's black picture stays */
-      else if (rm >= 141 && rm <= 143) { fr_done = 0; lk_o_why = 6; }   /* INTRO_141..143 (cutscenes; 139 / 140 are fine with the map path): the scripts rewrite the planes / tiles themselves (room 141: a black cover, scene changes), the room's block arrays are not what is on screen: the generic screen renderer follows the VDP's planes (user, rec_20261028_2107) */
+      else if (rm == 141 && (hint & 0xFF) != 0xA0) { fr_done = 0; lk_o_why = 6; }   /* INTRO_141 without a text box (the scene change / black cover frames; the generic renderer is 3 px off in the text box lines and loses sprites at the right margin, so 142 / 143 and the text frames keep the map path): the scripts rewrite the planes / tiles themselves (room 141: a black cover, scene changes), the room's block arrays are not what is on screen: the generic screen renderer follows the VDP's planes (user, rec_20261028_2107) */
       else if (rm > 0 && rm < 800) { if (rm != lk_o_room && (!lk_o_fx || lk_o_blanked || lk_o_room < 0)) { lk_o_room_load(rm); lk_o_blanked = 0; } { /* which pass are the VDP's sprites from? (the game runs 0, 1 or 2 passes per frame, so the sprite table is sometimes the previous pass' and sometimes the current one): the candidate whose sprite boxes equal the real sprite table's best wins */
         uint32 sat[96], kc[96], kp[96]; int ns = 0, i4 = 0, n4 = 0, nc, np_, mc = 0, mp = 0, i5, j5, base = (LK_REG(5) & 0x7F) << 9;
         for (n4 = 0; n4 < 80 && ns < 96; n4++) { int y = ((LK_SATB(8 * i4) << 8) | LK_SATB(8 * i4 + 1)) & 0x1FF, sz = (LK_SATB(8 * i4 + 2) << 8) | LK_SATB(8 * i4 + 3), x = ((LK_SATB(8 * i4 + 6) << 8) | LK_SATB(8 * i4 + 7)) & 0x1FF;
