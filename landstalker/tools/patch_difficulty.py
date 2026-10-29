@@ -47,17 +47,18 @@ static void lk_scale_d0(int pct) {
     if (n > 0xFFFFu) n = 0xFFFFu;
     g_m68k.d[0] = (g_m68k.d[0] & 0xFFFF0000u) | n;
 }
+static int lk_intro_room(void) { unsigned r = bus_read16(0xFF1204u); return r >= 139u && r <= 143u; }   /* INTRO_139..143: the cutscene is written for the original numbers (Enemy HP 300 %% left the golem statues of room 141 alive: the intro never went on, user 2026-10-28) */
 static void lk_h_ced(void) {   /* CalculateEnemyDamageOutput: damage an enemy does to Nigel */
     static const int pct[6] = { 25, 50, 75, 100, 150, 200 }; int i;
     lk_o_ced();
     i = lk_diff_get(0);
-    if (i != 3 && i >= 0 && i < 6) lk_scale_d0(pct[i]);
+    if (i != 3 && i >= 0 && i < 6 && !lk_intro_room()) lk_scale_d0(pct[i]);
 }
 static void lk_h_cpd(void) {   /* CalculatePlayerDamageOutput: damage Nigel does to an enemy; HP x % = damage / x % */
     static const int hp[5] = { 50, 100, 150, 200, 300 }; int i;
     lk_o_cpd();
     i = lk_diff_get(1);
-    if (i != 1 && i >= 0 && i < 5) lk_scale_d0(10000 / hp[i]);
+    if (i != 1 && i >= 0 && i < 5 && !lk_intro_room()) lk_scale_d0(10000 / hp[i]);
 }
 static void lk_diff_install(void) {
     static int done;

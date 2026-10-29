@@ -13,6 +13,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a39. 2026-10-20 (Deck, Sonnet 5.5): user recording `rec_20261019_2215` (ending, room 113): the credits were invisible with garbage because the own renderer drew the arena over them (the ending script runs inside UpdateSprites = 'map'); fixed in `patch_wide.py` (`PlayEndCredits $09EBE0` = picture screen) on `dev`, not released; new test aid `LANDSTALKER_CREDITS_AT` (INDEX status, LESSONS 67). USER CHECK OPEN: play the ending again (own renderer On): do the credits show, do they end properly (EndGame, back to title)? Needs a fresh `build.sh`.
 
+## 0a148. 2026-10-29 (Deck, Sonnet 5.5, on `dev`): INTRO_141 hang = Enemy HP 300 % (golem statues survive the scripted hit -> LoadSpecialAI recursion); no HP / damage scaling in rooms 139..143 + a safety net for unlisted ids (INDEX status first entry). USER CHECK OPEN: new game, whole intro. LESSON: replay recordings with an EMPTY HOME first.
+
 ## 0a147. 2026-10-28 (Deck, Sonnet 5.5, on `dev`): user: INTRO_141 broken (`rec_20261028_2107`): map path drew the backdrop / wrong tiles where the script blanks or changes the planes -> rooms 141..143 use the generic screen renderer (INDEX status first entry). USER CHECK OPEN: the whole intro (rooms 142 / 143 never seen).
 
 ## 0a146. 2026-10-28 (Deck, Sonnet 5.5, on `dev`): user recording `rec_20261028_2054`: no shadows for the yellow platforms of the intro and for Nigel on a vine -> rule: intro rooms 139..143 none, ladder / vine (Action bit 12) none (INDEX status first entry). USER CHECK OPEN: new game intro + a ladder.
