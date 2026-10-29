@@ -195,6 +195,8 @@ python3 tools/patch_timedoors.py .deps/genrecomp
 python3 tools/patch_timestate.py .deps/genrecomp
 # timing step T3: the VDP port timing is ours (status / HV counter / DMA chunk timing / FIFO stall computed in bus.c lk_v_* from lk_clk and own tables; GPGX's code = LANDSTALKER_TIMING=gpgx + LANDSTALKER_TIME_SHADOW compare) (tools/patch_vdptime.py; no behaviour change)
 python3 tools/patch_vdptime.py .deps/genrecomp
+# timing step T4: the Z80 bus timing is ours (Z80 access wait on the 68K bus, Z80 wait during a DMA, BUSREQ / RESET handshake copied into bus.c lk_z_*; guarded by a fingerprint of GPGX's functions) (tools/patch_z80time.py; no behaviour change)
+python3 tools/patch_z80time.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json

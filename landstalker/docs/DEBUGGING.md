@@ -1376,6 +1376,12 @@ Numbers (62 runs, `~/timebench/baseline.txt`): bench `--compare` IDENTICAL in ow
 Pitfalls: (1) the bench work dir used to be shared (`~/timebench/work/<recording>`): two benches at once gave a false DIFFERENCE; now per process `~/timebench/work/<pid>/`. (2) a bench with the long recording `rec_20261029_1729` (43 201 frames, 185 s alone) is longer than the 450 s of T2. (3) GPGX's timing code is skipped in own mode: debugging it needs `LANDSTALKER_TIMING=gpgx`.
 
 
+## Timing T4: Z80 bus timing ours (2026-10-29 night)
+Full design: TIMING_PLAN section 12 (`tools/patch_z80time.py`, marker `LK_Z80TIME v1`, `lk_z_*` in `bus.c`). Debug: `LANDSTALKER_TIME_SHADOW=/tmp/s.txt` computes the Z80 bus wait (`zwait`) ours AND GPGX's at every banked Z80 access; the exit line is `TIME_SHADOW Z80 own=1 zwait=checks/mismatches`. The BUSREQ / RESET handshake cannot run twice (it runs the Z80), so it is checked only by the bench (RAM, WAV, `B` / `R` / `Z` trace lines). `LANDSTALKER_TIMING=gpgx` = rollback to GPGX's functions.
+Shadow sanity experiment (temporary edit, restored): `72` -> `73` in the 68K wait gave the first mismatch at frame 14 (`Reset_InitHardware`, 68K ours +7).
+Numbers (62 runs, `~/timebench/baseline.txt`, binaries `~/timebench/landstalker_pre_T4` / `landstalker_T4`): bench `--compare` IDENTICAL in own (542 s wall), shadow (544 s) and gpgx (547 s); shadow zwait 33 411 857 checks, 0 mismatches (T3 VDP and T2 struct checks again 0). Quick save / load + fast forward on `rec_20261016_0039`: RAM / WAV / trace hashes equal to pre-T4 (90ec784e / e50c4cea / a50a37aa). Run time 3 runs each: pre-T4 15.5 / 16.0 / 15.6 s, T4 15.2 / 15.1 / 15.3 s. Full `build.sh` from scratch: Build exit 0 (1 min 27 s), `verify_build.sh` 65 ok, bench IDENTICAL (542 s).
+Pitfalls: (1) if `genesis.c` changes, the fingerprint guard stops the build (see LESSONS section 9). (2) The Z80 boot stub is still GPGX's interpreter (T6).
+
 ## CRT Pro cost and the worker pool, 2026-10-29 (Sonnet 5.5; HANDOFF 0a165)
 Cause of the micro stutter candidate (HANDOFF 0a164): the CPU display filters (CRT Pro / Curved most of all) cost 9 ms in the present step and every pass created and joined its SDL threads again each frame. Measured windowed in real time with the user's settings (display file `0 3 19 1`, WIDE 16, TALL 1, recording `rec_20261023_1739`, 2900 frames, isolated HOME, average of the per second `framestat:` lines minus the first two; jitter = mean of the per second sd; slow = frames over 20 ms in 46 s):
 
