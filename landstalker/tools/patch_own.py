@@ -216,8 +216,8 @@ static void lk_o_sprpiece(const uint8 *td, int tile0, int sx, int sy, int w, int
     int ox = hf ? (w * 8 - 1 - px) : px, oy = vf ? (h * 8 - 1 - py) : py, t = tile0 + (ox / 8) * h + (oy / 8), a = t * 32 + (oy % 8) * 4 + (ox % 8) / 2, b, idx, X = sx + px + lk_wide_e, Y = sy + py;
     if (a >= 0x4000) continue;
     b = td[a]; idx = ((ox % 8) % 2 == 0) ? (b >> 4) : (b & 15);
-    if (!idx || X < 0 || X >= 320 + 2 * lk_wide_e || X >= LK_OSW || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200) || (lk_o_smk[Y] && lk_o_smk[Y] - 1 <= lk_o_cidx)) continue;
-    lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | (pal * 16 + idx)); lk_o_sprd[Y][X] = (int16_t)lk_o_curd;
+    if (!idx || X < 0 || X >= 320 + 2 * lk_wide_e || X >= LK_OSW || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200)) continue;
+    lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | ((lk_o_smk[Y] && lk_o_smk[Y] - 1 <= lk_o_cidx) ? 0x400 : 0) | (pal * 16 + idx));   /* 0x400: hidden by the text box's sprite mask in the original: drawn here, but BEHIND the window (user 2026-10-29: figures at the corner / beside the box must stay, only the box covers them) */ lk_o_sprd[Y][X] = (int16_t)lk_o_curd;
     if (hd) { int q = (ox / 8) * h + (oy / 8); lk_o_sprrep[Y][X] = q < 16 ? rp[q] : 0; lk_o_sprpx[Y][X] = (uint8)((ox % 8) | ((oy % 8) << 3) | (hf << 6) | (vf << 7)); }
   }
 }
@@ -228,8 +228,8 @@ static void lk_o_vpiece(int tile0, int sx, int sy, int w, int h, int pal, int pr
     int ox = hf ? (w * 8 - 1 - px) : px, oy = vf ? (h * 8 - 1 - py) : py, t = tile0 + (ox / 8) * h + (oy / 8), a = t * 32 + (oy % 8) * 4 + (ox % 8) / 2, b, idx, X = sx + px + lk_wide_e, Y = sy + py;
     if (a >= 0x10000) continue;
     b = lk_o_vmirror ? lk_vm[a] : vram[a ^ 1]; idx = ((ox % 8) % 2 == 0) ? (b >> 4) : (b & 15);
-    if (!idx || X < 0 || X >= 320 + 2 * lk_wide_e || X >= LK_OSW || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200) || (lk_o_smk[Y] && lk_o_smk[Y] - 1 <= lk_o_cidx)) continue;
-    lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | (pal * 16 + idx)); lk_o_sprd[Y][X] = (int16_t)lk_o_curd;
+    if (!idx || X < 0 || X >= 320 + 2 * lk_wide_e || X >= LK_OSW || Y < 0 || Y >= 224 || (lk_o_spr[Y][X] & 0x200)) continue;
+    lk_o_spr[Y][X] = (uint16)(0x200 | (prio ? 0x100 : 0) | ((lk_o_smk[Y] && lk_o_smk[Y] - 1 <= lk_o_cidx) ? 0x400 : 0) | (pal * 16 + idx));   /* 0x400: hidden by the text box's sprite mask in the original: drawn here, but BEHIND the window (user 2026-10-29: figures at the corner / beside the box must stay, only the box covers them) */ lk_o_sprd[Y][X] = (int16_t)lk_o_curd;
     if (hd) { int q = (ox / 8) * h + (oy / 8); lk_o_sprrep[Y][X] = q < 16 ? rp[q] : 0; lk_o_sprpx[Y][X] = (uint8)((ox % 8) | ((oy % 8) << 3) | (hf << 6) | (vf << 7)); }
   }
 }
@@ -1388,7 +1388,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
             if (oa && oqA) { pick = opA * 16 + oa; src = 5; } else if (ob && oqB) { pick = opB * 16 + ob; src = 5; } else if (oa) { pick = opA * 16 + oa; src = 5; } else if (ob) { pick = opB * 16 + ob; src = 5; }
           } }
         if (margin) { if (line < 23 || (wline && !tb)) black = 1; }   /* margins next to the HUD bar stay black; next to the text box only with Map Behind Text off */
-        else { int wp = lk_o_win(line, x, hint); if (wp >= 0 && (wp & 0xF) && i >= wlo && i < whi) { if (!(text && (sp & 0x200) && (sp & 0x100) && !(wp & 0x200))) { pick = wp & 0x3F; src = 4; } }   /* a sprite is above a low priority window pixel (the yes / no arrow in the text box), a high priority one only above a low window pixel */ else if (wp >= 0 && !tb && wline) black = 1; }   /* transparent window pixels and the black ends of the window line show the map */
+        else { int wp = lk_o_win(line, x, hint); if (wp >= 0 && (wp & 0xF) && i >= wlo && i < whi) { if (!(text && (sp & 0x200) && (sp & 0x100) && !(sp & 0x400) && !(wp & 0x200))) { pick = wp & 0x3F; src = 4; } }   /* a sprite is above a low priority window pixel (the yes / no arrow in the text box), a high priority one only above a low window pixel */ else if (wp >= 0 && !tb && wline) black = 1; }   /* transparent window pixels and the black ends of the window line show the map */
       }
       col = black ? (margin ? (lk_o_regvdp ? pixel[0x40] : lk_o_palmode ? lk_o_pix[LK_REG(7) & 0x3F] : pixel_lut[1][0]) : pixel_lut[1][0]) : (lk_o_palmode ? (lk_o_fxon ? lk_o_fxpix[lk_o_fxk[line & 255]][pick & 0x3F] : lk_o_pix[pick & 0x3F]) : pixel[pick & 0x3F]);
       if ((src == 2 || src == 3) && !black && !margin && (col & 0xFFFFFF) == 0 && lk_sm_oldnb && lk_nb_pending && (lk_sm_state == 2 || lk_sm_state == 3)) {   /* the first frames in the new room, before its neighbours are collected: its black edge pixels show the old room's saved picture (as the neighbour will a frame later) */
