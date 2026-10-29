@@ -2,7 +2,7 @@
 """Stage 3, steps S3.1 + S3.2 (2026-10-23, docs/STAGE3_INVENTORY.md): the game-state MODEL, invisible groundwork (no picture change).
  * S3.1 `lk_rm_get(room)`: C port of the ROM room decoder (`tools/romroom.py` = port of `DecompressMap1 $00CDAE`): FG / BG block ids and the height map (74 x 74 words each, the game's cell index) of ANY room
    straight from the ROM, cached per room number.  Check (env LANDSTALKER_SMODEL_CHECK=1): 90 frames after every room change the decoded arrays are compared with the game's RAM arrays
-   (`$FF7C02`, `$FFA6CA`, `$FFD192`) and one line `model: room R decode FG a BG b HM c cells differ` is printed (known game edits: rooms 139 / 142 / 632 top row, 454 scripted blocks).
+   (`$FF7C02`, `$FFA6CA`, `$FFD192`) and one line `model: room R decode FG a BG b HM c cells differ` is printed (since 2026-10-28 ExtractMap runs in place like the game, so only the flag dependent tile swaps `CheckRoomGfxFlags $004DF6` differ: rooms 454 / 425 / 177 in the state of the user's save).
  * S3.2 `lk_smodel`: one struct per frame filled from the RAM snapshot the own renderer draws from: room id, camera (`$FF1200` / `$FF1202`), the visible entities (`$FF11DE` list; type `+3B`, graphic `+0B`,
    tile / centre / Z, box, animation, flags, stored screen position `+0E / +10` and `+4E / +50`, supporting entity `+30`, health `+3E`).  Check: the model's own projection of the player
    (a = CentreX - Z - cam0, b = CentreY - Z - cam2, x = a - b + $120, y = ((a + b) >> 1) + $E8, FORMATS 'Entity -> screen projection') must equal the stored `+0E / +10`; the periodic line
@@ -103,6 +103,36 @@ static int lk_rm_decompress(uint32_t a0) {   /* port of DecompressMap1 $00CDAE (
   }
   return 1;
 }
+/* ExtractMap $002C4A, exactly as the game runs it: IN PLACE inside the decoder's buffer (the stage area sits at g_ForegroundBlocks $FF7C02, the expanded arrays are written backwards over it, FG $FF7C02 and BG $FFA6CA, each 74 x 74 words), so cells the expansion overtakes before they are read come out as 0
+   (rooms 139 / 142 / 632 / 421: part of the top FG row; the plain placement of the stream was wrong there).  Offsets are relative to $FF7C02; returns 0 when a pointer leaves the model's 0x5590 bytes (then the plain placement is used). */
+static int lk_rm_xfail;
+static int lk_rm_xr(const uint8_t *m, int a) { if (a < 0 || a + 1 >= 0x5590) { lk_rm_xfail = 1; return 0; } return (m[a] << 8) | m[a + 1]; }
+static void lk_rm_xw(uint8_t *m, int a, int v) { if (a < 0 || a + 1 >= 0x5590) { lk_rm_xfail = 1; return; } m[a] = (uint8_t)(v >> 8); m[a + 1] = (uint8_t)v; }
+static void lk_rm_xrun(uint8_t *m, int *pa0, int a1, int d0, int d1, int d2, int d3, int d5, int d7) {
+  int a0 = *pa0, d4 = 0x48 - d1, d6, i, j, k;
+  if (d4 >= 0) for (i = 0; i <= d4; i++) for (k = 0; k < 0x4A; k++) { a1 -= 2; lk_rm_xw(m, a1, 0); }
+  d6 = 0x48 - d0; d7--;
+  for (i = 0; i <= d3; i++) {
+    if (d6 >= 0) for (k = 0; k <= d6; k++) { a1 -= 2; lk_rm_xw(m, a1, 0); }
+    for (j = 0; j <= d2; j++) { a0 -= 2; a1 -= 2; lk_rm_xw(m, a1, lk_rm_xr(m, a0)); }
+    if (d7 >= 0) for (k = 0; k <= d7; k++) { a1 -= 2; lk_rm_xw(m, a1, 0); }
+    if (lk_rm_xfail) break;
+  }
+  d5--;
+  if (d5 >= 0) for (i = 0; i <= d5; i++) for (k = 0; k < 0x4A; k++) { a1 -= 2; lk_rm_xw(m, a1, 0); }
+  *pa0 = a0;
+}
+static int lk_rm_extract(lk_rm_t *r, int w, int h) {
+  static uint8_t m[0x5590]; int a0, i, x, y;
+  memset(m, 0, sizeof m);
+  for (i = 0; i < 0x5590; i++) m[i] = (uint8_t)lk_rm_buf[i];
+  lk_rm_xfail = 0; a0 = 4 + 4 * w * h;
+  lk_rm_xrun(m, &a0, 0x5590, r->left + w - 1, r->top + h - 1, w - 1, h - 1, r->top, r->left);   /* HM start = end of the BG array: fills the BG array from the BG layer at the end of the stage area */
+  lk_rm_xrun(m, &a0, 0x2AC8, r->left + w - 1, r->top + h - 1, w - 1, h - 1, r->top, r->left);   /* BG array start = end of the FG array: fills the FG array */
+  if (lk_rm_xfail) return 0;
+  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { r->fg[y * 74 + x] = (uint16_t)lk_rm_xr(m, 2 * (y * 74 + x)); r->bg[y * 74 + x] = (uint16_t)lk_rm_xr(m, 0x2AC8 + 2 * (y * 74 + x)); }
+  return 1;
+}
 const lk_rm_t *lk_rm_get(int room) {   /* the room's arrays as the game's GetTilemap / ExtractMap build them (FORMATS 'Room map data in the ROM'); NULL = not a decodable room */
   uint32_t tab, e; lk_rm_t *r; int x, y, w, h, base;
   if (room < 0 || room >= 1024) return NULL;
@@ -113,9 +143,11 @@ const lk_rm_t *lk_rm_get(int room) {   /* the room's arrays as the game's GetTil
   r->ptr = MRL(e); r->tileset = MRB(e + 4); r->palette = MRB(e + 5); r->height = MRB(e + 6); r->music = MRB(e + 7);
   if (r->ptr < 0x1000 || r->ptr >= 0x200000 || !lk_rm_decompress(r->ptr)) return NULL;
   r->left = (int8_t)lk_rm_buf[0]; r->top = (int8_t)lk_rm_buf[1]; w = r->w = lk_rm_buf[2] + 1; h = r->h = lk_rm_buf[3] + 1;
-  for (base = 0; base < 2; base++) {
-    uint16_t *dst = base ? r->bg : r->fg; int b0 = 4 + (base ? 2 * w * h : 0);
-    for (y = 0; y < h; y++) for (x = 0; x < w; x++) { int xx = x + r->left, yy = y + r->top; if (xx >= 0 && xx < 74 && yy >= 0 && yy < 74) dst[yy * 74 + xx] = (uint16_t)lk_rm_w(b0 + 2 * (y * w + x)); }
+  if (!lk_rm_extract(r, w, h)) {   /* (fallback: plain placement) */
+    for (base = 0; base < 2; base++) {
+      uint16_t *dst = base ? r->bg : r->fg; int b0 = 4 + (base ? 2 * w * h : 0);
+      for (y = 0; y < h; y++) for (x = 0; x < w; x++) { int xx = x + r->left, yy = y + r->top; if (xx >= 0 && xx < 74 && yy >= 0 && yy < 74) dst[yy * 74 + xx] = (uint16_t)lk_rm_w(b0 + 2 * (y * w + x)); }
+    }
   }
   for (x = 0; x < 74 * 74; x++) r->hm[x] = 0x4000;   /* GetTilemap clears the whole array to $4000; the stream's rectangle (stage 3 header: width x height) is copied as it is (0 stays 0) */
   for (y = 0; y < lk_rm_hmh && y < 62; y++) for (x = 0; x < lk_rm_hmw && x < 62; x++) { int v = lk_rm_w(4 + 0x5C94 + 148 * y + 2 * x); r->hm[(y + 12) * 74 + x + 12] = (uint16_t)v; }   /* the stream's height map lands at offset (12, 12) (room 610: 1187 of 1187 non-void cells) */

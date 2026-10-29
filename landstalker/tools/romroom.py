@@ -132,12 +132,51 @@ def decode(rom, room):
     n = w * h2                                           # cells per layer? (h2 rows of w words per layer: two layers = 2 * h2 rows)
     return dict(ptr=ptr, end=end, left=left, top=top, w=w, h=h2, buf=buf, hm_w=HM_SIZE[0], hm_h=HM_SIZE[1], tileset=e[4], palette=e[5], height=e[6], music=e[7])
 
+def extract_inplace(buf, left, top, w, h):
+    """ExtractMap $002C4A run exactly as the game does it: IN PLACE in the decoder's buffer (stage area at g_ForegroundBlocks $FF7C02, the 74 x 74 arrays are written
+    backwards over it), so the cells the expansion overtakes before they are read come out as 0 (rooms 139 / 142 / 632 / 421: part of the top FG row).  Returns
+    ({FG}, {BG}) dicts or None when a pointer leaves the model (then the plain placement is used).  Verified against RAM in rooms 139 / 142 / 632 (0 cells differ)."""
+    SZ = 0x5590
+    mem = bytearray(SZ); mem[:min(len(buf), SZ)] = buf[:SZ]
+    bad = [False]
+    def rw(a):
+        if a < 0 or a + 1 >= SZ: bad[0] = True; return 0
+        return (mem[a] << 8) | mem[a + 1]
+    def ww(a, v):
+        if a < 0 or a + 1 >= SZ: bad[0] = True; return
+        mem[a] = (v >> 8) & 255; mem[a + 1] = v & 255
+    def run(a0, a1, d0, d1, d2, d3, d5, d7):
+        d4 = 0x48 - d1
+        if d4 >= 0:
+            for _ in range((d4 + 1) * 0x4A): a1 -= 2; ww(a1, 0)
+        d6 = 0x48 - d0; d7 -= 1
+        for _ in range(d3 + 1):
+            if d6 >= 0:
+                for _ in range(d6 + 1): a1 -= 2; ww(a1, 0)
+            for _ in range(d2 + 1): a0 -= 2; a1 -= 2; ww(a1, rw(a0))
+            if d7 >= 0:
+                for _ in range(d7 + 1): a1 -= 2; ww(a1, 0)
+        if d5 - 1 >= 0:
+            for _ in range(d5 * 0x4A): a1 -= 2; ww(a1, 0)
+        return a0
+    a0 = 4 + 4 * w * h
+    args = (left + w - 1, top + h - 1, w - 1, h - 1, top, left)
+    a0 = run(a0, SZ, *args); a0 = run(a0, 0x2AC8, *args)
+    if bad[0]: return None
+    fg = {(x, y): rw(2 * (y * 74 + x)) for y in range(74) for x in range(74)}
+    bg = {(x, y): rw(0x2AC8 + 2 * (y * 74 + x)) for y in range(74) for x in range(74)}
+    return fg, bg
+
 def arrays(r):
     """the three 74 x 74 arrays as the game builds them (GetTilemap / ExtractMap): FG layer (RAM $FF7C02), BG layer ($FFA6CA), height map ($FFD192); dict of {(x, y): word}."""
     buf, w, h, left, top = r['buf'], r['w'], r['h'], r['left'], r['top']
     Wd = lambda a: (buf[a] << 8) | buf[a + 1]
     out = {'FG': {}, 'BG': {}, 'HM': {}}
-    for name, base in (('FG', 4), ('BG', 4 + 2 * w * h)):
+    fgb = extract_inplace(buf, left, top, w, h)
+    if fgb:
+        out['FG'], out['BG'] = fgb
+    else:
+      for name, base in (('FG', 4), ('BG', 4 + 2 * w * h)):
         for y in range(h):
             for x in range(w):
                 v = Wd(base + 2 * (y * w + x))

@@ -10,7 +10,8 @@ logic (unwind to an outer frame, tail into a recompiled function, or plain retur
 Per instruction: registers are copied to/from g_m68k, the bus clock is advanced (bus_tick_cycles: scanline clock,
 VBlank callback, Z80, HInt) and pending VDP DMA is finished (as the recompiled bus does after VDP writes).
 Logs "interp: running $XXXXXX ..." once per address (first 200); LANDSTALKER_INTERP_LOG=file appends every distinct address
-(hex, one per line) for tools/seed_from_interp.py. LANDSTALKER_NOINTERP=1 disables it.
+(hex, one per line) for tools/seed_from_interp.py. The fallback is OPT-IN since 2026-10-27 (LANDSTALKER_INTERP=1 turns it on; the log of the Deck has been empty for weeks and the user finished the game);
+LANDSTALKER_NOINTERP=1 still forces it off.
 usage: patch_interp.py path/to/genrecomp
 """
 import sys, os
@@ -143,3 +144,13 @@ patch("src/func_table.c",
       "        if (ct_on()) fprintf(stderr, \"T %ld d=%d $%06X ret=$%06X\\n\", platform_frame_number(), s_call_depth, m68k_addr, ret);\n"
       "        lk_entry_dump(m68k_addr, ret); /* LANDSTALKER_ENTRYDUMP */\n",
       "LANDSTALKER_ENTRYDUMP */")
+
+# opt-in (2026-10-27): old text (default on) is replaced in place, also in an already patched tree
+patch_p = os.path.join(root, "src/func_table.c"); t = open(patch_p).read()
+OLD = 's_off = getenv(\"LANDSTALKER_NOINTERP\") != NULL;'
+NEW = 's_off = getenv(\"LANDSTALKER_NOINTERP\") != NULL || getenv(\"LANDSTALKER_INTERP\") == NULL;'
+OLD = OLD.replace('\\"','"'); NEW = NEW.replace('\\"','"')
+if NEW in t: print("func_table.c already opt-in")
+else:
+    assert OLD in t, "interp default line not found"
+    open(patch_p, "w").write(t.replace(OLD, NEW, 1)); print("func_table.c: interpreter fallback is opt-in now")

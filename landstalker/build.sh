@@ -128,6 +128,8 @@ python3 tools/patch_equip.py .deps/genrecomp
 python3 tools/patch_difficulty.py .deps/genrecomp
 # Optional fix 'Ride Objects': Nigel is carried by an object standing on a moving platform (tools/patch_carry.py; needs patch_difficulty.py first)
 python3 tools/patch_carry.py .deps/genrecomp
+# Fix: the golem statues of INTRO_141 ran LoadSpecialAI for ever (sprite id not in EnemyTable; tools/patch_enemyai.py; needs patch_carry.py first)
+python3 tools/patch_enemyai.py .deps/genrecomp
 # Optional 'Gaia Effect' (Live): the falling rocks of the Gaia statue / sword no longer freeze the game (tools/patch_gaia.py; needs patch_carry.py first)
 python3 tools/patch_gaia.py .deps/genrecomp
 # Optional 'Item Info': description of the item under the cursor in the Start menu (tools/patch_iteminfo.py; needs patch_options.py and patch_carry.py first)
@@ -146,6 +148,8 @@ python3 tools/patch_model.py .deps/genrecomp
 python3 tools/patch_owntext.py .deps/genrecomp
 # Own renderer: RAM snapshot right after the VBlank handler = what the VDP shows next (tools/patch_ownvb.py; needs patch_owntext.py first)
 python3 tools/patch_ownvb.py .deps/genrecomp
+# Own renderer stage 2: complete mirror of all VDP memory writes (data port, DMA fill / copy; tools/patch_vdpmirror.py; needs patch_ownvb.py first)
+python3 tools/patch_vdpmirror.py .deps/genrecomp
 # Own renderer stage 2 groundwork: origin (ROM block + tile index) of tile graphics by content hash (tools/patch_gfxorg.py; needs patch_ownvb.py first)
 python3 tools/patch_gfxorg.py .deps/genrecomp
 # Own renderer, compare mode (LANDSTALKER_OWN=1 / 2, tools/patch_own.py; needs patch_shadow.py first)
@@ -170,6 +174,13 @@ python3 tools/patch_region.py .deps/genrecomp
 python3 tools/patch_lang.py .deps/genrecomp
 # sound diagnostics + separate music / effect volumes (tools/patch_sndsep.py, LANDSTALKER_SNDLOG / LANDSTALKER_ZRAMDUMP)
 python3 tools/patch_sndsep.py .deps/genrecomp
+# sound step S0: golden trace of everything that reaches the sound chips and the Z80 mailbox (tools/patch_sndtrace.py, LANDSTALKER_SNDTRACE)
+python3 tools/patch_sndtrace.py .deps/genrecomp
+# sound step 4: the recompiled Z80 driver in shadow mode (tools/z80recomp.py makes core/z80drv_gen.c FROM THE ROM, never committed; tools/patch_sndnative.py, env LANDSTALKER_SND_SHADOW=1)
+python3 tools/z80recomp.py "$ROM" .deps/genrecomp/ext/Genesis-Plus-GX/core/z80drv_gen.c
+python3 tools/patch_sndnative.py .deps/genrecomp
+# own sound clock while fast forwarding: music at normal speed (GitHub issue #11 part 2; tools/patch_sndclock.py, env LANDSTALKER_SNDCLOCK=0 = off)
+python3 tools/patch_sndclock.py .deps/genrecomp
 # diagnostics: LANDSTALKER_VDPLOG=1 lists which game function writes which tile columns of the scroll planes (widescreen work)
 python3 tools/patch_vdplog.py .deps/genrecomp
 # names (from docs/symbols.json) in the console diagnostics: call stack, interp:, no function, RTS to, CALLTRACE (tools/patch_symnames.py; LANDSTALKER_NONAMES=1 = off)
