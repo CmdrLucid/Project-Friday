@@ -113,8 +113,76 @@ def make(v):
     return frames
 
 
+def trail_boots(im, n, rows=10):
+    """running jump: the lowest `rows` rows move back (right; front view runs left) as WHOLE rows in 1 px steps up to n px at the boots,
+    so the legs trail behind the body and every outline step stays 1 px"""
+    w, h = im.size; px = im.load()
+    ys = [y for y in range(h) if any(px[x, y][3] for x in range(w))]
+    bot = ys[-1]; top = bot - rows + 1
+    out = Image.new("RGBA", im.size, (0, 0, 0, 0))
+    for y in range(h):
+        k = 0 if y < top else min(n, 1 + (y - top) * n // rows)
+        row = im.crop((0, y, w, y + 1)); out.paste(row, (k, y), row)
+    return out
+
+
+def streaks(im):
+    """two thin speed lines behind the body (right side), palette greys"""
+    w, h = im.size; px = im.load()
+    for y0, ln in ((PAD + 20, 6), (PAD + 30, 4)):
+        xs = [x for x in range(w) if px[x, y0][3]]
+        if not xs: continue
+        x0 = max(xs) + 2
+        for i in range(ln):
+            if x0 + i < w and not px[x0 + i, y0][3]: px[x0 + i, y0] = GREY_L if i < ln // 2 else GREY_M
+    return im
+
+
+def make_jump():
+    """the game's jump frames (SpriteGfx000Anim09 = a36, front view, 2 frames) as a RUNNING jump: lean like sprint G (+1 px), trailing boot, dust at take-off, speed lines in flight.
+    Only the look changes: distance / arc stay the original (user decision 2026-10-29)."""
+    bands = [(0, 18, 5), (18, 20, 4), (20, 22, 3), (22, 24, 2), (24, 27, 1)]
+    take = Image.open(os.path.join(SRC, "a36_f0.png")).convert("RGBA")
+    fly = Image.open(os.path.join(SRC, "a36_f4.png")).convert("RGBA")
+    j0 = dust(lean_bands(take, bands), 0, True)
+    j1 = streaks(lean_bands(trail_boots(fly, 3), bands))
+    return [j0, j1]
+
+
+def main_jump():
+    os.makedirs(OUT, exist_ok=True)
+    orig = [Image.open(os.path.join(SRC, "a36_f%d.png" % f)).convert("RGBA") for f in (0, 4)]
+    jump = make_jump(); sprint = make("G")
+    for i, f in enumerate(jump): f.save(os.path.join(OUT, "jump_f%d.png" % i))
+    S, BG = 6, (70, 100, 60, 255); cw, ch = 32 + 2 * PAD, 48 + 2 * PAD
+    sheet = Image.new("RGBA", (cw * 2 * S, ch * 2 * S), BG)
+    for k, f in enumerate(orig):
+        c = Image.new("RGBA", (cw, ch), (0, 0, 0, 0)); c.paste(f, (PAD, PAD))
+        sheet.alpha_composite(c.resize((cw * S, ch * S), Image.NEAREST), (k * cw * S, 0))
+    for k, f in enumerate(jump):
+        sheet.alpha_composite(f.resize((cw * S, ch * S), Image.NEAREST), (k * cw * S, ch * S))
+    sheet.save(os.path.join(OUT, "sheet_jump.png"))
+    # GIF: one sprint cycle on the ground, then the jump (take-off 6 game frames, flight 24 frames along a parabola), landing, sprint again
+    A = 4; seq = []
+    for t in range(24): seq.append((sprint[(t // 3) % 8], 0))
+    for t in range(30):
+        f = jump[0] if t < 6 else jump[1]
+        u = (t - 3) / 27.0; z = int(round(max(0.0, 4 * 14 * u * (1 - u))))   # 14 px high arc (look only)
+        seq.append((f, z))
+    for t in range(24): seq.append((sprint[(t // 3) % 8], 0))
+    gif = []
+    for k in range(0, len(seq), 2):
+        f, z = seq[k]
+        c = Image.new("RGBA", (cw, ch + 16), (0, 0, 0, 0)); c.paste(f, (0, 16 - z), f)
+        g = Image.new("RGBA", (cw * A, (ch + 16) * A), BG); g.alpha_composite(c.resize((cw * A, (ch + 16) * A), Image.NEAREST))
+        gif.append(g.convert("RGB"))
+    gif[0].save(os.path.join(OUT, "anim_jump.gif"), save_all=True, append_images=gif[1:], duration=33, loop=0)
+    print("->", os.path.join(OUT, "sheet_jump.png"), os.path.join(OUT, "anim_jump.gif"))
+
+
 def main():
     v = sys.argv[1] if len(sys.argv) > 1 else "A"
+    if v == "jump": return main_jump()
     os.makedirs(OUT, exist_ok=True)
     walk = [load(k) for k in range(8)]
     sprint = make(v)
