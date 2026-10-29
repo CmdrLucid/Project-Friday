@@ -169,3 +169,4 @@
 - L1340: Session 2026-10-28 / 29 (Deck, Opus 5.5 then Sonnet 5.5): defaults, sound clock, shadows, intro, release v1.2.0
 - L1348: Own sound chips, 2026-10-29 (Sonnet 5.5)
 - L1353: Time trace and timing bench, 2026-10-29 (Sonnet 5.5; TIMING_PLAN T0)
+- L1361: Time doors and the door counters, 2026-10-29 (Sonnet 5.5; TIMING_PLAN T1)

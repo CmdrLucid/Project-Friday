@@ -60,6 +60,7 @@ chk "Controller-Abfrage in eigenem Thread"           $G/src/input.c "LK_PADTHREA
 chk "VDP-Arrays 64 Byte ausgerichtet (clang)"   $G/ext/Genesis-Plus-GX/core/vdp_ctrl.c "LK_ALIGN v1"
 chk "Ton: Musik / Effekte getrennte Lautstaerke"   $G/ext/Genesis-Plus-GX/core/sound/sound.c "LK_SNDSEP2"
 chk "Zeit-Trace (LANDSTALKER_TIMETRACE, Timing T0)"      $G/src/bus.c                         "LK_TIMETRACE v1"
+chk "Zeit-Tueren (lk_t_*, Timing T1)"                $G/src/bus.c                         "LK_TIMEDOORS v1"
 chk "Sprach-Blips abschaltbar"                     "$(grep -l "speech blips option" src/recomp/*.c 2>/dev/null | head -1)" "speech blips option"
 chk "Absolute short Adressen vorzeichenerweitert"   $G/tools/recompiler/generate.py      "_abs_val"
 chk "Befehlskorrekturen (ASL, CMPM, MOVEM, ...)"    $G/tools/recompiler/generate.py      "LANDSTALKER_INSNFIX"
