@@ -278,3 +278,9 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
  * V: room sprite records (`RoomSpriteData $01B932`, offset word at `$01B090 + 2 * room`, minus 1): 8 bytes; `Dialogue(+3A) = data[4..5] & $FCFF` (low byte = sprite type, `+3B`). Room 141 (INTRO_141): three records with type `$8B` at tiles (40, 44), (35, 44), (30, 44).
  * V: intro scenes: `CSA_010D / 010E / 010F` (dialogue actions) warp to rooms 140 / 141 / 142 (`g_ControllerPlayback = $FE` locks the pad: Nigel is played by a recorded input list); with the default settings INTRO_141 -> 142 at frame ~3840, 143 at ~11640 of `~/intro.txt`.
  * V: text box in map frames: the game's HInt moves the window split to line 160 while `g_HIntLine $FF0FC5 == $A0`; the register shadow `$FF0FB0 + 2 n` does not see it. The text box's sprite mask = a sprite table entry with x = 0 after one with x != 0: everything LATER in the table is hidden on its lines (original behaviour; our renderer draws such figures behind the box, bit `0x400`).
+
+## Item icons (V, 2026-10-30, disassembly + ROM decoder `lk_qr_fill` in tools/patch_modernhud.py)
+- An item icon = frame of sprite graphic `$23`: animation offset `(id >> 3) * 4`, frame offset `(id & 7) * 4` (`GetSpriteGfxParams $0046EE`), table `SpriteGfxPtrPtr $120000` as for figures (`tools/romsprite.py`).
+- Frame data: piece bytes (2 per piece, bit 7 of the 2nd byte = last), then the chunk list of `LoadSpriteTiles $00473E` (bit 15 zero fill, bit 13 LZ77, bit 14 last, low 12 bits = words); 16 tiles = 32 x 32 px, column-major (tile `r + 4 c`, as `PopulateItemSlot_WriteIcon $00D642` writes them; VRAM tiles `$BC + id * 16` in the menu).
+- Colours: `InvItemPal $007896`, 16 words copied to palette line 1 by `InitInvDisplay` (not `InvPalette1 $00E0E0`, which goes to palette line 0 entries 0..7).
+- 63 of the ids 0..63 decode to a picture (61 is empty).
