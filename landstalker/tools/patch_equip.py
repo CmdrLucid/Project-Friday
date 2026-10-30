@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Quick Equip (2026-10-24, user wish: 'quick equip items', 'Equip auf R2'): hold the binding 'Quick Equip' (the game stands still meanwhile) (pad R2, keyboard Q; Options > Keybindings) and press a direction:
-UP = next sword, RIGHT = next armour, DOWN = next boots, LEFT = next ring (cycles through the pieces of that kind that Nigel owns).  While it is held the directions do not move Nigel.
+UP = swords, RIGHT = armour, DOWN = boots, LEFT = rings: the first direction opens the strip of that kind, then LEFT / RIGHT step back / forth through the pieces Nigel owns
+(user 2026-10-30; the other directions do nothing until Quick Equip is released).  While it is held the directions do not move Nigel.
 How: tools/patch_keys.py (input.c) calls platform_equip_request(category) on a new direction press; this patch (func_table.c) wraps ProcessActionButton ($0066AC, once per map pass, like Quick Items):
 the request is taken there when no dialogue / cutscene runs ($FF12DE = 0) and Nigel lives ($FF543E != 0), else it is dropped after 8 frames with the error sound.
 Applying a piece = what the Equip menu does when it closes: the cursor nibble of the category in $FF1BF0 (index 1..4 into EquipInventoryLayout $00ECE0) and the equipped byte $FF114E + category;
@@ -29,7 +30,7 @@ static long lk_eq_stamp = -100;
 void lk_eq_stamp_now(void) { lk_eq_stamp = platform_frame_number(); }
 int lk_eq_active(void) { return platform_frame_number() - lk_eq_stamp < 4; }   /* the game's map pass ran a moment ago = a save is loaded and nothing blocks (no title / menu / dialogue): the overlay shows only then */
 void platform_equip_request(int cat) { lk_eq_req = cat; lk_eq_req_frame = platform_frame_number(); }
-int lk_eq_take(void) {   /* called by the game side once per map pass: -1 none, 0..3 = sword / armour / boots / ring; requests older than 8 frames are dropped (the game was inside a menu / text box) */
+int lk_eq_take(void) {   /* called by the game side once per map pass: -1 none, 0..3 = sword / armour / boots / ring (+ 4 * mode, see lk_eq_apply); requests older than 8 frames are dropped (the game was inside a menu / text box) */
     static const char *sched; static int init; int r = lk_eq_req; long f = platform_frame_number();
     if (!init) { init = 1; sched = getenv("LANDSTALKER_EQREQ"); }
     if (r < 0 && sched) { char l[256], key[32]; int c; snprintf(l, sizeof l, ",%s,", sched); for (c = 0; c < 4; c++) { snprintf(key, sizeof key, ",%ld:%d,", f, c); if (strstr(l, key)) r = c; } }
@@ -61,16 +62,17 @@ extern void lk_osd_say(const char *t);
 extern const char *lk_lang_tr(const char *en);   /* tools/patch_lang.py */
 static gen_func_t lk_o_pab_eq;
 static int lk_eq_owned(int id) { M68kContext sv = g_m68k; int q, nc = lk_no_charge; g_m68k.d[0] = (uint32_t)id; lk_no_charge = 1; lk_call(0x022ED0u); lk_no_charge = nc; q = (int16_t)(g_m68k.d[1] & 0xFFFF); g_m68k = sv; return q > 0; }
-static void lk_eq_apply(int cat) {
+static void lk_eq_apply(int req) {   /* req = kind (0..3) + 4 * mode: 0 = a direction press (test aid LANDSTALKER_EQREQ: first shows, second switches), 1 = next, 2 = previous, 3 = open the strip only (user 2026-10-30: a direction opens the strip, then LEFT / RIGHT move inside it) */
+    int cat = req & 3, dir = req >> 2;
     static const uint8_t lay[4][4] = { { 1, 3, 2, 4 }, { 9, 10, 11, 12 }, { 7, 5, 6, 8 }, { 15, 13, 14, 16 } };   /* EquipInventoryLayout $00ECE0 without its header byte: Magic Thunder Ice Gaia / Steel Chrome Shell Hyper / Healing Fireproof Iron Spike / Saturn Mars Moon Venus */
     static const char *nm[4][4] = { { "MAGIC", "THUNDER", "ICE", "GAIA" }, { "STEEL", "CHROME", "SHELL", "HYPER" }, { "HEALING", "FIREPROOF", "IRON", "SPIKE" }, { "SATURN", "MARS", "MOON", "VENUS" } };
     static const char *kind[4] = { "SWORD", "ARMOUR", "BOOTS", "RING" };
     int cur = bus_read8(0xFF114Eu + (uint32_t)cat), idx = -1, k, j = -1; char t[48];
-    if (!lk_osd_equip_armed(cat)) { lk_osd_equip_flash(cat); return; }   /* first press of a direction only shows the pieces (user: switched by accident too often), the second press switches */
+    if (dir == 3 || (dir == 0 && !lk_osd_equip_armed(cat))) { lk_osd_equip_flash(cat); return; }   /* first press of a direction only shows the pieces (user: switched by accident too often), the second press switches */
     static const char *dnm[4] = { "BROAD SWORD", "LEATHER BREAST", "LEATHER BOOTS", "NONE" };   /* position 0 of every row = the starting equipment (equipped byte 0, cursor nibble 0), always owned */
     for (k = 0; k < 4; k++) if (lay[cat][k] == cur) idx = k;
     j = -2;
-    for (k = 1; k <= 5 && j < 0; k++) { int c = ((idx + 1) + k) % 5; if (c == 0 || lk_eq_owned(lay[cat][c - 1])) j = c; }   /* j = position 0..4 (0 = starting equipment); wraps through the current one last */
+    for (k = 1; k <= 5 && j < 0; k++) { int c = dir == 2 ? ((idx + 1) - k + 25) % 5 : ((idx + 1) + k) % 5; if (c == 0 || lk_eq_owned(lay[cat][c - 1])) j = c; }   /* j = position 0..4 (0 = starting equipment); wraps through the current one last */
     if (j == idx + 1) j = -1;
     if (j < 0) { lk_snd(0x00DBBEu); snprintf(t, sizeof t, lk_lang_tr("NO OTHER %s"), lk_lang_tr(kind[cat])); lk_osd_say(t); return; }
     { uint16_t w = bus_read16(0xFF1BF0u); w = (uint16_t)((w & ~(0xFu << (4 * cat))) | ((uint16_t)j << (4 * cat))); bus_write16(0xFF1BF0u, w); }

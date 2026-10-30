@@ -190,11 +190,11 @@ static void lk_mh_begin(int w, int e) {
         if (on && !(yy >= 0 && yy < 7 && xx >= 0 && xx < 5 && (lk_mh_font[gi][yy] & (16 >> xx)))) lk_mh_put(gx + 6 * k2 + xx, gy + yy, 0x0A0814u, 190); }
       lk_mh_glyph(gx + 6 * k2, gy, gt[k2], white); } }
   /* top right: the diamond, ONE disc per function at its default place (user 2026-10-30: the disc shows the button the function is bound to, e.g. 'R1', and follows the key configuration):
-     left = MD A (sword, default pad X), bottom = MD B (jump, pad A), top = Quick 1 (pad Y), right = Quick 2 (pad B) or Button C while Quick Items is off */
+     left = MD A (sword, default pad X), bottom = none (the jump disc with the boots was dropped, user 2026-10-30), top = Quick 1 (pad Y), right = Quick 2 (pad B) or Button C while Quick Items is off */
   cx = w - 30; cy = 31;
   { static const int px[4] = { -1, 0, 0, 1 }, py[4] = { 0, 1, -1, 0 };
     int k2, pass, quick = lk_quick_get() > 0;
-    for (pass = 0; pass < 3; pass++) for (k2 = 0; k2 < 4; k2++) {   /* pass 0 all discs, 1 names + icons, 2 counts: nothing of a disc covers its neighbour's icon / count (user 2026-10-30) */ int dcx = cx + px[k2] * o, dcy = cy + py[k2] * o, fn = k2 == 0 ? 0 : k2 == 1 ? 1 : k2 == 2 ? (quick ? 4 : -1) : (quick ? 5 : 2), icon = -1, qslot = -1; char lb[16];
+    for (pass = 0; pass < 3; pass++) for (k2 = 0; k2 < 4; k2++) {   /* pass 0 all discs, 1 names + icons, 2 counts: nothing of a disc covers its neighbour's icon / count (user 2026-10-30) */ int dcx = cx + px[k2] * o, dcy = cy + py[k2] * o, fn = k2 == 0 ? 0 : k2 == 1 ? -1 : k2 == 2 ? (quick ? 4 : -1) : (quick ? 5 : 2), icon = -1, qslot = -1; char lb[16];
       if (fn < 0) continue;
       if (pass == 0) { lk_mh_disc(dcx, dcy, r, fill, white, grey); continue; }
       if (fn == 0) { icon = SB(0xFF114E) & 0xFF; if (icon < 1 || icon > 4) icon = 0x3A; }   /* MD A: the equipped sword; 0 (new game) / $3A = none = the broadsword icon (user 2026-10-30: a new game showed EkeEke = id 0) */
