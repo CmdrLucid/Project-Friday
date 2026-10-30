@@ -24,3 +24,11 @@ User decisions in order: variant A (corners) -> 'Herzen gestuft' (the game's own
 4. Black void above the room edge (no bar any more): leave black, or fill (backdrop / neighbour room like Seamless Doors).
 5. Nigel at the very top edge, 3D room mode (`lk_r3d_on`), HD tile packs, widescreen widths, CRT / De-Dither: test.
 6. Map Behind Text and the sprite mask `lk_o_smk` keep working (text box unchanged).
+
+## Notes for step 1 (2026-10-30 later, Deck, Opus 5.5; dev after Native Pace default On)
+- Plan agreed with the user: 'Nativ-Tempo standardmaessig an, dann HUD' = start building. Proposed step 1: option row (Video, 'HUD: Original / Modern', file `~/.landstalker_hud`, env `LANDSTALKER_NOHUD` keeps working as override) + NOHUD band + LEFT panel (hearts, sword + gauge) + RIGHT panel with the gold only; the Quick Item cells move into the right panel in step 2.
+- Proposed defaults for open points 2 / 4 (confirm with the user): frames the own path does not draw keep the OLD bar (no change = safe); the void above a room edge stays black.
+- The original bar ALREADY contains the sword icon AND the charge gauge (bar tiles, rows 11..15, ~50 px): crop it, no own gauge drawing needed (the mock-up drew its own because it started from a Quick Items screenshot).
+- Bar geometry (headless shot, `rec_20261030_0310` with save_0319, frame 1500, WIDE 19, no Quick Items): white border line 5, grey 6, interior 7..20, white 21, grey 22. At WIDE > 0 the bar is WIDER than 320 px (left cap + sword pommel lie left of plane x 0, i.e. in the margin): take the panel crops by TILE COLUMN of the window tilemap (`lk_o_hw[r][col]`, built by `lk_o_hudbuild` from hud.asm data) instead of by pixel x; crops from screenshots with Quick Items ON are shifted (lk_quick_hud removes columns).
+- Hook point: the own renderer's per-pixel loop in `patch_own.py` (`col` = final RGB per pixel, after the window pixel choice); window pixels come from `lk_o_win(line, x, hint)` -> palette index -> `lk_o_pix` / `lk_o_fxpix` (so the panel content fades with the picture). Panels span lines ~3..39, i.e. below line 23: read the bar line (line - offset) via `lk_o_win` for the crop rows.
+- Pillow on the Deck: `~/.landstalker_trailer/venv/bin/python` (system python3 has no PIL).
