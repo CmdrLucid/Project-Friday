@@ -5,7 +5,9 @@ remake/tools/sprint_mock.py).  While Sprint really moved Nigel in this frame (lk
 into the sprint pose before it goes into the sprite layer:
  * lean in bands (rows from the top of the frame's piece box, as rom_sprite.py cuts the frames): rows 0..17 move 4 px forward, 18..19 3 px,
    20..22 2 px, 23..26 1 px (the head stays one block, every outline step is 1 px);
- * frame 0: longer stride: the lowest 6 rows split at the middle of the legs, each half 2 px outwards;
+ * own cadence: one walk picture per 3 game frames (the game turns them every 2 frames at the sprint step: too hectic, user), the picture loaded
+   from the ROM by the renderer's pose override (lk_o_ovr_anim / lk_o_ovr_frm);
+ * longer stride (user: 'looks like walking'): frames 0 / 4 the lowest 8 rows split at the middle of the legs, each half 3 px outwards, the frames between 1 px;
  * frames 2 and 6: lifted by 1 px; frames 0 and 4: a dust puff behind the REAR boot (the outermost leg pixels on the backward side, at its sole;
    2 px lower in the back view, where 'behind' is towards the camera; two shapes, the palette's light / middle grey).
 Forward = screen left for the front view, right for the back view, swapped when the game mirrors the frame.  The game itself already turns the
@@ -36,19 +38,25 @@ static int lk_sa_grey(int pal, int want) {   /* palette index of line pal whose 
   for (i = 1; i < 16; i++) { PIXEL_OUT_T c = lk_o_palmode ? lk_o_pix[pal * 16 + i] : pixel[pal * 16 + i]; int r = (int)((c >> 16) & 255), g = (int)((c >> 8) & 255), b = (int)(c & 255), m = (r + g + b) / 3, d = (r - m) * (r - m) + (g - m) * (g - m) + (b - m) * (b - m) + 4 * (m - want) * (m - want); if (d < bd) { bd = d; best = i; } }
   return best;
 }
+static int lk_sa_index(int gi) {   /* the picture shown: own cadence of 3 game frames per walk picture (user: 'zu hektisch'; the game turns them every 2 frames at the sprint step), starting at the game's picture */
+  static long st = -100, last = -100; static int i0; long f = platform_frame_number();
+  if (f - last > 2) { st = f; i0 = gi; }
+  last = f; return (i0 + (int)((f - st) / 3)) & 7;
+}
 static void lk_sa_apply(int fwd, int i, int ptop, int pal, int prio, int behind_down) {
   int x, y, bot = -1, top6, mid, x0 = LK_SA_N, x1 = -1, lift = (i == 2 || i == 6) ? 1 : 0;
   memcpy(lk_sa_tmp, lk_sa_cv, sizeof lk_sa_tmp);
   for (y = LK_SA_N - 1; y >= 0 && bot < 0; y--) for (x = 0; x < LK_SA_N; x++) if (lk_sa_cv[y][x]) { bot = y; break; }
   if (bot < 0) return;
-  if (i == 0) {   /* longer stride: the lowest 6 rows, each half 2 px outwards; the gap in the top 3 of them closed with the middle colour */
-    top6 = bot - 5;
+  { int wn = (i == 0 || i == 4) ? 3 : (i & 1) ? 1 : 0, wr = wn == 3 ? 8 : 6;   /* longer stride (user: 'sieht wie Gehen aus'): the full-stride frames 0 / 4 3 px per side over the lowest 8 rows, the frames between 1 px over 6 rows */
+  if (wn) {
+    top6 = bot - (wr - 1);
     for (y = top6; y <= bot; y++) for (x = 0; x < LK_SA_N; x++) if (lk_sa_cv[y][x]) { if (x < x0) x0 = x; if (x > x1) x1 = x; }
     mid = (x0 + x1) / 2;
     for (y = top6; y <= bot; y++) { for (x = 0; x < LK_SA_N; x++) lk_sa_tmp[y][x] = 0;
-      for (x = 0; x < LK_SA_N; x++) if (lk_sa_cv[y][x]) { int nx = x < mid ? x - 2 : x + 2; if (nx >= 0 && nx < LK_SA_N) lk_sa_tmp[y][nx] = lk_sa_cv[y][x]; }
-      if (y < top6 + 3) for (x = mid - 2; x < mid + 2; x++) if (x >= 0 && !lk_sa_tmp[y][x] && lk_sa_cv[y][mid]) lk_sa_tmp[y][x] = lk_sa_cv[y][mid]; }
-  }
+      for (x = 0; x < LK_SA_N; x++) if (lk_sa_cv[y][x]) { int nx = x < mid ? x - wn : x + wn; if (nx >= 0 && nx < LK_SA_N) lk_sa_tmp[y][nx] = lk_sa_cv[y][x]; }
+      if (y < top6 + 3) for (x = mid - wn; x < mid + wn; x++) if (x >= 0 && !lk_sa_tmp[y][x] && lk_sa_cv[y][mid]) lk_sa_tmp[y][x] = lk_sa_cv[y][mid]; }
+  } }
   memset(lk_sa_cv, 0, sizeof lk_sa_cv);
   for (y = 0; y < LK_SA_N; y++) { int r = y - ptop, sh = r < 0 ? 0 : r < 18 ? 4 : r < 20 ? 3 : r < 23 ? 2 : r < 27 ? 1 : 0, dy = y - lift;   /* lean in bands, then the lift */
     if (dy < 0) continue;
@@ -87,10 +95,17 @@ static void lk_sa_apply(int fwd, int i, int ptop, int pal, int prio, int behind_
     # after the loop (the loop ends with 'cum += ...' and the closing brace before the outer loop's end)
     a = "      cum += e->pws[pc] * e->phs[pc];\n    }\n"
     assert s.count(a) == 1, "vdp_render.c: lk_o_sprites piece loop end changed"
-    post = r'''      if (sa) { int q, ptop = 1 << 30, fwd = (e->anim == 12 ? -1 : 1) * (((e->ts >> 11) & 1) ? -1 : 1);
+    post = r'''      if (sa) { int q, ptop = 1 << 30, fwd = (e->anim == 12 ? -1 : 1) * (((e->ts >> 11) & 1) ? -1 : 1), gi = (e->frm / 4) & 7, si = lk_sa_index(gi); lk_o_ent_t *de = e;
+        static lk_o_ent_t spe; static uint8 sptiles[0x4000];
+        if (si != gi) {   /* the walk picture of the own cadence, loaded from the ROM like the VRAM pose search does; drawn into the canvas instead of the game's picture */
+          lk_o_ovr_anim = e->anim; lk_o_ovr_frm = si * 4; lk_o_entload(src, offs[k], &spe, sptiles, 1, 0); lk_o_ovr_anim = -1;
+          if (spe.vis && spe.np) { int c2 = 0; de = &spe; memset(lk_sa_cv, 0, sizeof lk_sa_cv);
+            for (q = 0; q < de->np; q++) { int xx; (void)lk_o_pkey(de, q, &xx); lk_o_sprpiece(de->tiles, c2, de->ax + xx - 128, de->ay + de->pys[q] - 128, de->pws[q], de->phs[q], (de->ts >> 13) & 3, de->prio, (de->ts >> 11) & 1, (de->ts >> 12) & 1); c2 += de->pws[q] * de->phs[q]; } }
+          else si = gi;
+        }
         lk_sa_cap = 0;
-        for (q = 0; q < e->np; q++) { int yy = e->ay + e->pys[q] - 128 - lk_sa_oy; if (yy < ptop) ptop = yy; }
-        lk_sa_apply(fwd, (e->frm / 4) & 7, ptop, (e->ts >> 13) & 3, e->prio, e->anim == 8); } }
+        for (q = 0; q < de->np; q++) { int yy = de->ay + de->pys[q] - 128 - lk_sa_oy; if (yy < ptop) ptop = yy; }
+        lk_sa_apply(fwd, si, ptop, (de->ts >> 13) & 3, de->prio, e->anim == 8); } }
 '''
     s = s.replace(a, a + post, 1)
     open(p, "w").write(s)
