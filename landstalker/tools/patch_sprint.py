@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Sprint (2026-10-30, user: 'Sprint umsetzen, Standard auf R2'; idea docs/SPRINT_IDEAS.md).  Hold the binding 'Sprint' (pad R2, keyboard Left Shift;
-Options > Keybindings, unbind = no sprint) and Nigel walks twice as fast.
+Options > Keybindings, unbind = no sprint) and Nigel walks 1.5 x as fast.
 How: HandleDirectionalInput $0018C4 sets the step g_ScrollStep $FF1182 to 2 every frame (8 in the debug mode) and ends with a jump through
 HandleDirectionalControl $001936 (32 x bra.w, index = d-pad nibble + confusion bit) into the move handlers, which add the step to the hit box,
 test collisions only when a cell boundary (bit 3) is crossed and scroll the camera by the same step (the debug mode proves steps up to 8 work).
 This patch wraps those 32 table entries (func_table_tail goes through the function table): while Sprint is held and the step is the normal 2,
-it becomes LK_SPRINT_STEP (4) for this frame, unless a script plays Nigel (g_PlaybackLock $FF12DE), he is in the air (Player action byte $FF542D
+it becomes the sprint step (3 = 1.5 x, user; LANDSTALKER_SPRINT_STEP) for this frame, unless a script plays Nigel (g_PlaybackLock $FF12DE), he is in the air (Player action byte $FF542D
 bits 4 fall / 5 jump, JumpRate $FF5421: the jump length stays EXACTLY the original, user decision 2026-10-29), on a ladder or swinging the sword
 (action byte $FF542C bits 0..4).  Without the button nothing changes (bit exact).
 Recordings: every press / release is logged next to the quick save events ('p<frame>' / 'r<frame>' in LANDSTALKER_QSLOG, so the recording script
@@ -64,7 +64,7 @@ if VER not in s:
     module = r'''/* ---- LK_SPRINT v1: sprint step (tools/patch_sprint.py) ---- */
 extern int lk_sprint_held(void);
 static gen_func_t lk_o_dir[32];
-static int lk_sprint_step = 4;
+static int lk_sprint_step = 3;   /* 1.5 x the walk (user 2026-10-30: 2 x was too fast) */
 static void lk_sprint_dir(int k) {
     if (lk_sprint_held() && bus_read16(0xFF1182u) == 2 && bus_read16(0xFF12DEu) == 0 && !(bus_read8(0xFF542Du) & 0x30) && !(bus_read8(0xFF542Cu) & 0x1F) && bus_read8(0xFF5421u) == 0)
         bus_write16(0xFF1182u, (uint16_t)lk_sprint_step);
