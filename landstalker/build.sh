@@ -181,10 +181,32 @@ python3 tools/z80recomp.py "$ROM" .deps/genrecomp/ext/Genesis-Plus-GX/core/z80dr
 python3 tools/patch_sndnative.py .deps/genrecomp
 # own sound clock while fast forwarding: music at normal speed (GitHub issue #11 part 2; tools/patch_sndclock.py, env LANDSTALKER_SNDCLOCK=0 = off)
 python3 tools/patch_sndclock.py .deps/genrecomp
+# own sound chips next to GPGX's (PSG first; LANDSTALKER_CHIPS=gpgx = the old way; tools/patch_chips.py, docs/SOUND_PLAN.md section 9)
+python3 tools/patch_chips.py .deps/genrecomp
 # diagnostics: LANDSTALKER_VDPLOG=1 lists which game function writes which tile columns of the scroll planes (widescreen work)
 python3 tools/patch_vdplog.py .deps/genrecomp
 # names (from docs/symbols.json) in the console diagnostics: call stack, interp:, no function, RTS to, CALLTRACE (tools/patch_symnames.py; LANDSTALKER_NONAMES=1 = off)
 python3 tools/patch_symnames.py .deps/genrecomp
+# timing step T0: golden time trace of every clock relevant event (tools/patch_timetrace.py, env LANDSTALKER_TIMETRACE=file, inert without it; docs/TIMING_PLAN.md)
+python3 tools/patch_timetrace.py .deps/genrecomp
+# timing step T1: one door per GPGX clock access (lk_t_* in bus.c) + LANDSTALKER_TIMEDOORS counters + CYCSTAT expected-cycles fix (tools/patch_timedoors.py; no behaviour change)
+python3 tools/patch_timedoors.py .deps/genrecomp
+# timing step T2: our own clock state (struct lk_clk) is the master of the line loop, GPGX globals written from it / read back after every door; LANDSTALKER_TIME_SHADOW compare, LANDSTALKER_TIMING=gpgx rollback (tools/patch_timestate.py; no behaviour change)
+python3 tools/patch_timestate.py .deps/genrecomp
+# timing step T3: the VDP port timing is ours (status / HV counter / DMA chunk timing / FIFO stall computed in bus.c lk_v_* from lk_clk and own tables; GPGX's code = LANDSTALKER_TIMING=gpgx + LANDSTALKER_TIME_SHADOW compare) (tools/patch_vdptime.py; no behaviour change)
+python3 tools/patch_vdptime.py .deps/genrecomp
+# timing step T4: the Z80 bus timing is ours (Z80 access wait on the 68K bus, Z80 wait during a DMA, BUSREQ / RESET handshake copied into bus.c lk_z_*; guarded by a fingerprint of GPGX's functions) (tools/patch_z80time.py; no behaviour change)
+python3 tools/patch_z80time.py .deps/genrecomp
+# timing step T5: the pad TH latency deadline + its frame-end rebase are ours (lk_p_lat in bus.c; GPGX's gamepad Latency = mirror for rollback / shadow) (tools/patch_padtime.py; no behaviour change)
+python3 tools/patch_padtime.py .deps/genrecomp
+# timing step T6: the power-on time state is ours (lk_time_power_on after system_reset, compared once with GPGX's reset values) (tools/patch_starttime.py; no behaviour change)
+python3 tools/patch_starttime.py .deps/genrecomp
+# timing phase 2 measurement: lag frames per room (LANDSTALKER_LAGSTAT=file; inert without it) (tools/patch_lagstat.py)
+python3 tools/patch_lagstat.py .deps/genrecomp
+# timing phase 2 option: LANDSTALKER_VDPWAIT=0 = the 68K does not wait for the VDP (DMA / FIFO stall off); off by default = bit exact (tools/patch_vdpwait.py)
+python3 tools/patch_vdpwait.py .deps/genrecomp
+# timing phase 2 option: LANDSTALKER_NATIVEPACE=1 = the frame waits for the game's main loop (no lost passes in busy rooms); off by default = bit exact (tools/patch_nativepace.py)
+python3 tools/patch_nativepace.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json

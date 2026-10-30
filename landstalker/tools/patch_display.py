@@ -180,17 +180,48 @@ static void lk_osd_draw2(int ow, int oh) {
     }
     (void)ow;
 }
+/* LK_FXPOOL v1 (2026-10-29): persistent worker threads for the display passes (CRT filters, de-dither, depth blur, look).  Before, every pass created and joined its threads EVERY FRAME (about 3 - 10 thread
+   creations per frame; a micro stutter source next to the 9 ms of the CRT Pro step, DEBUGGING 'CRT Pro cost 2026-10-29').  Workers are created on first use (up to 7, index 1..7), sleep on a semaphore and are woken once per
+   pass; the caller runs job 0 itself and waits for the others.  Portable SDL only (SDL_sem, SDL_atomic).  Only the present thread may start a pass: a second caller while a pass runs (busy flag) simply runs all jobs
+   itself in order, so the result is always the same.  Jobs are independent bands, so thread count / order never changes the output. */
+static struct { SDL_Thread *th; SDL_sem *go, *done; int (*fn)(void *); void *arg; int idx; } lk_pool_w[8];
+static SDL_atomic_t lk_pool_busy;
+static int lk_pool_main(void *p) {
+    int i = *(int *)p;
+    for (;;) { SDL_SemWait(lk_pool_w[i].go); lk_pool_w[i].fn(lk_pool_w[i].arg); SDL_SemPost(lk_pool_w[i].done); }
+    return 0;
+}
+static void lk_pool_run(int (*fn)(void *), void *jobs, size_t stride, int nt) {
+    char *jb = (char *)jobs; int i, ok[8];
+    if (nt > 8) nt = 8;
+    if (nt <= 1 || !SDL_AtomicCAS(&lk_pool_busy, 0, 1)) { for (i = 0; i < (nt < 1 ? 1 : nt); i++) fn(jb + (size_t)i * stride); return; }
+    for (i = 1; i < nt; i++) {
+        if (!lk_pool_w[i].th) {
+            lk_pool_w[i].go = SDL_CreateSemaphore(0); lk_pool_w[i].done = SDL_CreateSemaphore(0); lk_pool_w[i].idx = i;
+            if (lk_pool_w[i].go && lk_pool_w[i].done) lk_pool_w[i].th = SDL_CreateThread(lk_pool_main, "lkfxpool", &lk_pool_w[i].idx);
+        }
+        ok[i] = lk_pool_w[i].th != NULL;
+        if (ok[i]) { lk_pool_w[i].fn = fn; lk_pool_w[i].arg = jb + (size_t)i * stride; SDL_SemPost(lk_pool_w[i].go); }
+    }
+    fn(jb);
+    for (i = 1; i < nt; i++) { if (ok[i]) SDL_SemWait(lk_pool_w[i].done); else fn(jb + (size_t)i * stride); }
+    SDL_AtomicSet(&lk_pool_busy, 0);
+}
 /* the CRT filter runs on up to 4 threads (bands of destination rows); one thread is the caller itself */
-typedef struct { const uint32_t *src; uint32_t *dst; int dw, sw, y0, y1, mode; } lk_fx_job;   /* mode 0 = CRT/scanline filter, 1 = exact sharp-bilinear, 2 / 3 = CRT PRO / CURVED horizontal pass (source rows) / vertical pass (destination rows) */
-static int lk_fx_job_run(void *p) { lk_fx_job *j = (lk_fx_job *)p; if (j->mode == 2) lk_f2_hrows(j->src, j->sw, j->y0, j->y1); else if (j->mode == 3) lk_f2_vrows(j->dst, j->y0, j->y1); else if (j->mode) lk_sb_render_rows(j->src, j->dst, j->dw, j->sw, j->y0, j->y1); else lk_fx_render_rows(j->src, j->dst, j->dw, j->sw, j->y0, j->y1); return 0; }
+typedef struct { const uint32_t *src; uint32_t *dst; int dw, sw, y0, y1, mode; SDL_atomic_t *next; int total, chunk; } lk_fx_job;   /* mode 0 = CRT/scanline filter, 1 = exact sharp-bilinear, 2 / 3 = CRT PRO / CURVED horizontal pass (source rows) / vertical pass (destination rows) */
+static void lk_fx_band(lk_fx_job *j, int y0, int y1) { if (j->mode == 2) lk_f2_hrows(j->src, j->sw, y0, y1); else if (j->mode == 3) lk_f2_vrows(j->dst, y0, y1); else if (j->mode) lk_sb_render_rows(j->src, j->dst, j->dw, j->sw, y0, y1); else lk_fx_render_rows(j->src, j->dst, j->dw, j->sw, y0, y1); }
+static int lk_fx_job_run(void *p) {   /* LK_FXPOOL v1: every participant takes row chunks from a shared counter (a thread that is late or descheduled just does fewer chunks; the output does not depend on who renders which rows) */
+    lk_fx_job *j = (lk_fx_job *)p;
+    for (;;) { int y0 = SDL_AtomicAdd(j->next, j->chunk), y1; if (y0 >= j->total) break; y1 = y0 + j->chunk; if (y1 > j->total) y1 = j->total; lk_fx_band(j, y0, y1); }
+    return 0;
+}
 static void lk_fx_render_mt(const uint32_t *src, uint32_t *dst, int dw, int dh, int sw, int mode) {
     static int nt;
-    if (!nt) { nt = SDL_GetCPUCount(); if (nt > 4) nt = 4; if (nt < 1) nt = 1; if (getenv("LANDSTALKER_FXTHREADS")) nt = atoi(getenv("LANDSTALKER_FXTHREADS")); if (nt < 1) nt = 1; if (nt > 8) nt = 8; }
-    lk_fx_job job[8]; SDL_Thread *th[8] = { 0 };
-    for (int i = 0; i < nt; i++) { job[i].src = src; job[i].dst = dst; job[i].dw = dw; job[i].sw = sw; job[i].mode = mode; job[i].y0 = dh * i / nt; job[i].y1 = dh * (i + 1) / nt; }
-    for (int i = 1; i < nt; i++) { th[i] = SDL_CreateThread(lk_fx_job_run, "lkfx", &job[i]); if (!th[i]) lk_fx_job_run(&job[i]); }
-    lk_fx_job_run(&job[0]);
-    for (int i = 1; i < nt; i++) if (th[i]) SDL_WaitThread(th[i], NULL);
+    if (!nt) { nt = SDL_GetCPUCount(); if (nt > 8) nt = 8; if (nt < 1) nt = 1; if (getenv("LANDSTALKER_FXTHREADS")) nt = atoi(getenv("LANDSTALKER_FXTHREADS")); if (nt < 1) nt = 1; if (nt > 8) nt = 8; }   /* (up to 8 since LK_FXPOOL: the workers are persistent and the rows are handed out in chunks) */
+    lk_fx_job job[8]; SDL_atomic_t next; int chunk = dh / (nt * 6); if (chunk < 1) chunk = 1;
+    SDL_AtomicSet(&next, 0);
+    for (int i = 0; i < nt; i++) { job[i].src = src; job[i].dst = dst; job[i].dw = dw; job[i].sw = sw; job[i].mode = mode; job[i].y0 = 0; job[i].y1 = dh; job[i].next = &next; job[i].total = dh; job[i].chunk = chunk; }
+    lk_pool_run(lk_fx_job_run, job, sizeof(lk_fx_job), nt);
 }
 /* de-dither on several threads: bands of source rows */
 typedef struct { void (*fn)(void *, int, int); void *ctx; int i, nt; } lk_dd_job;   /* thread i takes the 8-row chunks i, i + nt, ... (busy and empty rows are spread evenly) */
@@ -198,11 +229,9 @@ static int lk_dd_job_run(void *p) { lk_dd_job *j = (lk_dd_job *)p; for (int y = 
 static void lk_dd_par_run(void (*fn)(void *, int, int), void *ctx) {
     static int nt;
     if (!nt) { nt = SDL_GetCPUCount(); if (nt > 4) nt = 4; if (nt < 1) nt = 1; if (getenv("LANDSTALKER_FXTHREADS")) nt = atoi(getenv("LANDSTALKER_FXTHREADS")); if (nt < 1) nt = 1; if (nt > 8) nt = 8; }
-    lk_dd_job job[8]; SDL_Thread *th[8] = { 0 };
+    lk_dd_job job[8];
     for (int i = 0; i < nt; i++) { job[i].fn = fn; job[i].ctx = ctx; job[i].i = i; job[i].nt = nt; }
-    for (int i = 1; i < nt; i++) { th[i] = SDL_CreateThread(lk_dd_job_run, "lkdd", &job[i]); if (!th[i]) lk_dd_job_run(&job[i]); }
-    lk_dd_job_run(&job[0]);
-    for (int i = 1; i < nt; i++) if (th[i]) SDL_WaitThread(th[i], NULL);
+    lk_pool_run(lk_dd_job_run, job, sizeof(lk_dd_job), nt);
 }
 /* draw the frame: returns after SDL_RenderPresent */
 static void lk_disp_present(const uint8_t *framebuffer) {

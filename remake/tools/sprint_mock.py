@@ -1,0 +1,214 @@
+#!/usr/bin/env python3
+"""sprint_mock.py [variant]  -- first mock-up of a SPRINT animation for Nigel (idea docs/SPRINT_IDEAS.md, 2026-10-29).
+
+Input: Nigel's walk frames cut from the user's own ROM by nigel_frames.py (~/.landstalker_remake/figures/nigel/a12_f*.png = walk, front view).
+Output (LOCAL only, never in git): ~/.landstalker_remake/sprint/ : sheet_<variant>.png (walk row vs sprint row, 6x), sprint_<variant>_f*.png (1x frames),
+anim_<variant>.gif (walk and sprint side by side at game speed, 4x).
+Method, pixel art only (no new colours, no smoothing): 4 of the 8 walk frames with the widest stride, the upper body sheared row by row
+towards the walking direction (lean), a 1 px lift on the push-off frames, a small dust puff behind the back foot in the palette's greys.
+Needs Pillow (on the Deck: ~/.landstalker_trailer/venv/bin/python)."""
+import os, sys
+from PIL import Image
+
+SRC = os.path.expanduser("~/.landstalker_remake/figures/nigel")
+OUT = os.path.expanduser("~/.landstalker_remake/sprint")
+VARIANTS = {   # lean = px the head moves forward, hip = first row that stays, pick = walk frames used, lift = frames raised by 1 px
+    "A": dict(lean=3, hip=30, pick=[0, 1, 4, 5], lift=[1, 3], dust=True),
+    "B": dict(lean=2, hip=28, pick=[0, 2, 4, 6], lift=[1, 3], dust=True),
+    "C": dict(lean=4, hip=32, pick=[0, 1, 4, 5], lift=[0, 2], dust=False),
+    # D: lean in BANDS (whole rows of the head / chest move as blocks, so the drawing stays intact), stride widened on the two stride frames, bigger dust
+    "D": dict(bands=[(0, 18, 4), (18, 26, 2)], pick=[0, 1, 4, 5], lift=[1, 3], dust=True, big=True, stride=[0], wide=2),
+    # E / F (user 2026-10-29: '4 frames sind zu wenig'): more frames, played faster than the walk (tick = game frames per picture; walk = 6)
+    "E": dict(bands=[(0, 18, 4), (18, 26, 2)], pick=[0, 1, 2, 3, 4, 5, 6, 7], lift=[2, 6], dust=True, big=True, dustat=[0, 4], stride=[0], wide=2, tick=3),
+    # G (user: 'E wirkt am besten, braucht cleanup'): head stays one block (shift 4), below it the shift drops by 1 px per band so every
+    # outline step is at most 1 px (stays 8-connected, no gaps at the neck / back); the stride widening only moves the boots (last 6 rows)
+    "G": dict(bands=[(0, 18, 4), (18, 20, 3), (20, 23, 2), (23, 27, 1)], pick=[0, 1, 2, 3, 4, 5, 6, 7], lift=[2, 6], dust=True, big=True, dustat=[0, 4], stride=[0], wide=2, feet=6, tick=3),
+    "F": dict(bands=[(0, 18, 4), (18, 26, 2)], pick=[0, 1, 2, 4, 5, 6], lift=[2, 5], dust=True, big=True, dustat=[0, 3], stride=[0], wide=2, tick=3),
+}
+GREY_L, GREY_M = (216, 216, 216, 255), (144, 144, 144, 255)
+PAD = 8   # extra canvas around the 32 x 48 frame (lean + dust)
+
+
+def load(k):
+    return Image.open(os.path.join(SRC, "a12_f%d.png" % (4 * k))).convert("RGBA")
+
+
+def lean(im, px, hip):
+    """front view walks towards screen down-left: rows above `hip` move left, the head by `px`, linear down to 0 at the hip"""
+    w, h = im.size
+    out = Image.new("RGBA", (w + 2 * PAD, h + 2 * PAD), (0, 0, 0, 0))
+    for y in range(h):
+        dx = -round(px * (hip - y) / hip) if y < hip else 0
+        out.paste(im.crop((0, y, w, y + 1)), (PAD + dx, PAD + y))
+    return out
+
+
+def lean_bands(im, bands):
+    """rows y0..y1-1 move left by dx as one block (the drawing inside a band stays intact)"""
+    w, h = im.size
+    out = Image.new("RGBA", (w + 2 * PAD, h + 2 * PAD), (0, 0, 0, 0))
+    for y in range(h):
+        dx = next((-d for y0, y1, d in bands if y0 <= y < y1), 0)
+        out.paste(im.crop((0, y, w, y + 1)), (PAD + dx, PAD + y), im.crop((0, y, w, y + 1)))
+    return out
+
+
+def widen(im, n, rows=10):
+    """longer stride: below the knees the left half moves n px left, the right half n px right (split at the middle of the legs)"""
+    w, h = im.size; px = im.load(); n_rows = rows
+    rows = [y for y in range(h) if any(px[x, y][3] for x in range(w))]
+    bot = rows[-1]; top = bot - (n_rows - 1)
+    xs = [x for y in range(top, bot + 1) for x in range(w) if px[x, y][3]]
+    mid = (min(xs) + max(xs)) // 2
+    out = im.copy(); o = out.load()
+    for y in range(top, bot + 1):
+        for x in range(w): o[x, y] = (0, 0, 0, 0)
+        for x in range(w):
+            if px[x, y][3]:
+                nx = x - n if x < mid else x + n
+                if 0 <= nx < w: o[nx, y] = px[x, y]
+        # close the gap at the middle with the neighbour colour so the legs stay connected at the top rows
+        if y < top + 3:
+            for x in range(mid - n, mid + n):
+                if not o[x, y][3] and px[mid, y][3]: o[x, y] = px[mid, y]
+    return out
+
+
+def feet(im):
+    """lowest opaque row and the x range of the rearmost foot (the right-most opaque pixels of the bottom rows: front view runs left)"""
+    w, h = im.size; px = im.load()
+    rows = [y for y in range(h) if any(px[x, y][3] for x in range(w))]
+    bot = rows[-1]
+    xs = [x for y in range(bot - 3, bot + 1) for x in range(w) if px[x, y][3]]
+    return bot, max(xs)
+
+
+def dust(im, phase, big=False):
+    """a small puff right behind the back foot, two sizes alternating (big: a 7 px cloud plus a trailing speck)"""
+    px = im.load(); bot, xr = feet(im)
+    if big:
+        shape = ([(1, 0), (2, 0), (3, 0), (4, 0), (0, -1), (1, -1), (2, -1), (3, -1), (4, -1), (5, -1), (1, -2), (2, -2), (3, -2), (4, -2), (2, -3), (3, -3), (7, -1), (8, -1), (8, -2)]
+                 if phase == 0 else [(2, 0), (3, 0), (4, 0), (5, 0), (2, -1), (3, -1), (4, -1), (5, -1), (6, -1), (3, -2), (4, -2), (5, -2), (9, -1), (10, -2)])
+    else:
+      shape = [(1, 0), (2, 0), (0, -1), (1, -1), (2, -1), (3, -1), (1, -2), (2, -2)] if phase == 0 else [(1, 0), (2, 0), (3, 0), (1, -1), (2, -1)]
+    for dx, dy in shape:
+        x, y = xr + 2 + dx, bot + dy
+        if 0 <= x < im.size[0] and 0 <= y < im.size[1] and not px[x, y][3]:
+            px[x, y] = GREY_L if dy < 0 else GREY_M
+    return im
+
+
+def make(v):
+    p = VARIANTS[v]; frames = []
+    for i, k in enumerate(p["pick"]):
+        src = load(k)
+        if i in p.get("stride", []): src = widen(src, p["wide"], p.get("feet", 10))
+        f = lean_bands(src, p["bands"]) if "bands" in p else lean(src, p["lean"], p["hip"])
+        if i in p["lift"]:
+            g = Image.new("RGBA", f.size, (0, 0, 0, 0)); g.paste(f, (0, -1)); f = g
+        da = p.get("dustat", [0, 2])
+        if p["dust"] and i in da:
+            f = dust(f, da.index(i) % 2, p.get("big", False))
+        frames.append(f)
+    return frames
+
+
+def trail_boots(im, n, rows=10):
+    """running jump: the lowest `rows` rows move back (right; front view runs left) as WHOLE rows in 1 px steps up to n px at the boots,
+    so the legs trail behind the body and every outline step stays 1 px"""
+    w, h = im.size; px = im.load()
+    ys = [y for y in range(h) if any(px[x, y][3] for x in range(w))]
+    bot = ys[-1]; top = bot - rows + 1
+    out = Image.new("RGBA", im.size, (0, 0, 0, 0))
+    for y in range(h):
+        k = 0 if y < top else min(n, 1 + (y - top) * n // rows)
+        row = im.crop((0, y, w, y + 1)); out.paste(row, (k, y), row)
+    return out
+
+
+def streaks(im):
+    """two thin speed lines behind the body (right side), palette greys"""
+    w, h = im.size; px = im.load()
+    for y0, ln in ((PAD + 20, 6), (PAD + 30, 4)):
+        xs = [x for x in range(w) if px[x, y0][3]]
+        if not xs: continue
+        x0 = max(xs) + 2
+        for i in range(ln):
+            if x0 + i < w and not px[x0 + i, y0][3]: px[x0 + i, y0] = GREY_L if i < ln // 2 else GREY_M
+    return im
+
+
+def make_jump():
+    """the game's jump frames (SpriteGfx000Anim09 = a36, front view, 2 frames) as a RUNNING jump: lean like sprint G (+1 px), trailing legs, dust at take-off (speed lines removed at the user's wish).
+    Only the look changes: distance / arc stay the original (user decision 2026-10-29)."""
+    bands = [(0, 18, 5), (18, 20, 4), (20, 22, 3), (22, 24, 2), (24, 27, 1)]
+    take = Image.open(os.path.join(SRC, "a36_f0.png")).convert("RGBA")
+    fly = Image.open(os.path.join(SRC, "a36_f4.png")).convert("RGBA")
+    j0 = dust(lean_bands(take, bands), 0, True)
+    j1 = lean_bands(trail_boots(fly, 3), bands)   # no speed lines (user 2026-10-29)
+    return [j0, j1]
+
+
+def main_jump():
+    os.makedirs(OUT, exist_ok=True)
+    orig = [Image.open(os.path.join(SRC, "a36_f%d.png" % f)).convert("RGBA") for f in (0, 4)]
+    jump = make_jump(); sprint = make("G")
+    for i, f in enumerate(jump): f.save(os.path.join(OUT, "jump_f%d.png" % i))
+    S, BG = 6, (70, 100, 60, 255); cw, ch = 32 + 2 * PAD, 48 + 2 * PAD
+    sheet = Image.new("RGBA", (cw * 2 * S, ch * 2 * S), BG)
+    for k, f in enumerate(orig):
+        c = Image.new("RGBA", (cw, ch), (0, 0, 0, 0)); c.paste(f, (PAD, PAD))
+        sheet.alpha_composite(c.resize((cw * S, ch * S), Image.NEAREST), (k * cw * S, 0))
+    for k, f in enumerate(jump):
+        sheet.alpha_composite(f.resize((cw * S, ch * S), Image.NEAREST), (k * cw * S, ch * S))
+    sheet.save(os.path.join(OUT, "sheet_jump.png"))
+    # GIF: one sprint cycle on the ground, then the jump (take-off 6 game frames, flight 24 frames along a parabola), landing, sprint again
+    A = 4; seq = []
+    for t in range(24): seq.append((sprint[(t // 3) % 8], 0))
+    for t in range(30):
+        f = jump[0] if t < 6 else jump[1]
+        u = (t - 3) / 27.0; z = int(round(max(0.0, 4 * 14 * u * (1 - u))))   # 14 px high arc (look only)
+        seq.append((f, z))
+    for t in range(24): seq.append((sprint[(t // 3) % 8], 0))
+    gif = []
+    for k in range(0, len(seq), 2):
+        f, z = seq[k]
+        c = Image.new("RGBA", (cw, ch + 16), (0, 0, 0, 0)); c.paste(f, (0, 16 - z), f)
+        g = Image.new("RGBA", (cw * A, (ch + 16) * A), BG); g.alpha_composite(c.resize((cw * A, (ch + 16) * A), Image.NEAREST))
+        gif.append(g.convert("RGB"))
+    gif[0].save(os.path.join(OUT, "anim_jump.gif"), save_all=True, append_images=gif[1:], duration=33, loop=0)
+    print("->", os.path.join(OUT, "sheet_jump.png"), os.path.join(OUT, "anim_jump.gif"))
+
+
+def main():
+    v = sys.argv[1] if len(sys.argv) > 1 else "A"
+    if v == "jump": return main_jump()
+    os.makedirs(OUT, exist_ok=True)
+    walk = [load(k) for k in range(8)]
+    sprint = make(v)
+    for i, f in enumerate(sprint):
+        f.save(os.path.join(OUT, "sprint_%s_f%d.png" % (v, i)))
+    S, BG = 6, (70, 100, 60, 255)
+    cw, ch = 32 + 2 * PAD, 48 + 2 * PAD
+    sheet = Image.new("RGBA", (cw * 8 * S, ch * 2 * S), BG)
+    for k, f in enumerate(walk):
+        c = Image.new("RGBA", (cw, ch), (0, 0, 0, 0)); c.paste(f, (PAD, PAD))
+        sheet.alpha_composite(c.resize((cw * S, ch * S), Image.NEAREST), (k * cw * S, 0))
+    for k, f in enumerate(sprint):
+        sheet.alpha_composite(f.resize((cw * S, ch * S), Image.NEAREST), (k * cw * S, ch * S))
+    sheet.save(os.path.join(OUT, "sheet_%s.png" % v))
+    # animation: walk (8 frames, 6 game frames each) next to sprint (4 frames, 4 game frames each), 4x, 60 Hz game frames -> GIF in 10 ms units
+    A = 4; gif = []
+    n, tick = len(sprint), VARIANTS[v].get("tick", 4)
+    for t in range(0, 144, 2):
+        c = Image.new("RGBA", (cw * 2 * A, ch * A), BG)
+        wf = Image.new("RGBA", (cw, ch), (0, 0, 0, 0)); wf.paste(walk[(t // 6) % 8], (PAD, PAD))
+        c.alpha_composite(wf.resize((cw * A, ch * A), Image.NEAREST), (0, 0))
+        c.alpha_composite(sprint[(t // tick) % n].resize((cw * A, ch * A), Image.NEAREST), (cw * A, 0))
+        gif.append(c.convert("RGB"))
+    gif[0].save(os.path.join(OUT, "anim_%s.gif" % v), save_all=True, append_images=gif[1:], duration=33, loop=0)
+    print("->", os.path.join(OUT, "sheet_%s.png" % v), os.path.join(OUT, "anim_%s.gif" % v))
+
+
+if __name__ == "__main__":
+    main()
