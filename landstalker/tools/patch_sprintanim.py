@@ -12,7 +12,7 @@ into the sprint pose before it goes into the sprite layer:
    2 px lower in the back view, where 'behind' is towards the camera; two shapes, the palette's light / middle grey).
 Forward = screen left for the front view, right for the back view, swapped when the game mirrors the frame.  The game itself already turns the
 walk frames twice as fast at the sprint step.  Only the picture changes (the game logic and the sprite table are untouched); without a sprint
-step nothing is different (bit exact).  Not with HD tile packs (the pose would lose its replacement texture).  LANDSTALKER_SPRINTANIM=0 = off.
+step nothing is different (bit exact).  Not with HD tile packs (the pose would lose its replacement texture).  OFF by default (user 2026-10-30: the game's own walk animation for now), LANDSTALKER_SPRINTANIM=1 = on.
 Needs patch_own.py (lk_o_sprites / lk_o_sprpiece) and patch_sprint.py before it.  Idempotent.  usage: patch_sprintanim.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
@@ -87,7 +87,7 @@ static void lk_sa_apply(int fwd, int i, int ptop, int pal, int prio, int behind_
     a = "    for (pc = 0; pc < e->np; pc++) {\n      int xx; uint32 key = lk_o_pkey(e, pc, &xx);\n"
     assert s.count(a) == 1, "vdp_render.c: lk_o_sprites piece loop changed"
     pre = r'''    { int sa = 0;   /* LK_SPRINTANIM v1: Nigel in a walk frame while Sprint moved him: draw into the canvas */
-      if (lk_sa_on < 0) { const char *q = getenv("LANDSTALKER_SPRINTANIM"); lk_sa_on = (q && *q) ? atoi(q) != 0 : 1; }
+      if (lk_sa_on < 0) { const char *q = getenv("LANDSTALKER_SPRINTANIM"); lk_sa_on = (q && *q) ? atoi(q) != 0 : 0;   /* OFF by default since 2026-10-30 (user: keep the game's walk animation for now); LANDSTALKER_SPRINTANIM=1 shows the pose */ }
       if (draw && lk_sa_on && offs[k] == 0 && (e->anim == 8 || e->anim == 12) && !lk_o_hdwant() && lk_sprint_active()) sa = 1;
       if (sa) { lk_sa_cap = 1; lk_sa_ox = e->ax - 128 + lk_wide_e - LK_SA_N / 3; lk_sa_oy = e->ay - 128 - (2 * LK_SA_N) / 3; memset(lk_sa_cv, 0, sizeof lk_sa_cv); }
 '''

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Sprint (2026-10-30, user: 'Sprint umsetzen, Standard auf R2'; idea docs/SPRINT_IDEAS.md).  Hold the binding 'Sprint' (pad R2, keyboard Left Shift;
-Options > Keybindings, unbind = no sprint) and Nigel walks 2 x as fast (even step = smooth scrolling).
+Options > Keybindings; Options > Quality of Life > Sprint On / Off, default On) and Nigel walks 2 x as fast (even step = smooth scrolling).
 How: HandleDirectionalInput $0018C4 sets the step g_ScrollStep $FF1182 to 2 every frame (8 in the debug mode) and ends with a jump through
 HandleDirectionalControl $001936 (32 x bra.w, index = d-pad nibble + confusion bit) into the move handlers, which add the step to the hit box,
 test collisions only when a cell boundary (bit 3) is crossed and scroll the camera by the same step (the debug mode proves steps up to 8 work).
@@ -39,6 +39,9 @@ if VER not in s:
     module = r'''/* ---- LK_SPRINT v1: Sprint button state (tools/patch_sprint.py) ---- */
 static int lk_sprint_v;
 int lk_sprint_held(void) { return lk_sprint_v; }
+static int lk_sprint_o = -1;   /* Options > Quality of Life > Sprint (id 42), default On; ~/.landstalker_sprint, env LANDSTALKER_SPRINT=0|1 wins */
+int lk_sprint_opt_get(void) { if (lk_sprint_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_SPRINT"); char p[512]; FILE *f; int v = 1; snprintf(p, sizeof p, "%s/.landstalker_sprint", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 1; fclose(f); } if (e && *e) v = atoi(e); lk_sprint_o = v ? 1 : 0; } return lk_sprint_o; }
+void lk_sprint_opt_set(int v) { const char *h = getenv("HOME"); char p[512]; FILE *f; lk_sprint_opt_get(); lk_sprint_o = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_sprint", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_sprint_o); fclose(f); } }
 static void lk_qs_rec(int what);
 void lk_sprint_poll(long frame, int live) {
     static int init, replay, n, prev, pos, cur; static long *ev; static char *evk; static long h0 = -1, h1 = -1;
@@ -49,7 +52,8 @@ void lk_sprint_poll(long frame, int live) {
     if (frame >= h0 && frame <= h1) live = 1;
     live = live ? 1 : 0;
     if (live != prev && !replay) lk_qs_rec(live ? 3 : 4);
-    prev = live; lk_sprint_v = live;
+    if (live && !prev && !lk_sprint_opt_get()) { snprintf(lk_osd_text, sizeof lk_osd_text, "%s", lk_lang_tr("SPRINT OFF - SEE OPTIONS")); lk_osd_frames = 150; }   /* a press while the option is Off says so, like Quick Save (user 2026-10-30) */
+    prev = live; lk_sprint_v = live && lk_sprint_opt_get();   /* the option off = the button does nothing (the press is still recorded) */
 }
 '''
     s = s.replace(a, module + a, 1)
