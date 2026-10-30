@@ -193,17 +193,18 @@ static void lk_mh_begin(int w, int e) {
      left = MD A (sword, default pad X), bottom = MD B (jump, pad A), top = Quick 1 (pad Y), right = Quick 2 (pad B) or Button C while Quick Items is off */
   cx = w - 30; cy = 31;
   { static const int px[4] = { -1, 0, 0, 1 }, py[4] = { 0, 1, -1, 0 };
-    int k2, quick = lk_quick_get() > 0;
-    for (k2 = 0; k2 < 4; k2++) { int dcx = cx + px[k2] * o, dcy = cy + py[k2] * o, fn = k2 == 0 ? 0 : k2 == 1 ? 1 : k2 == 2 ? (quick ? 4 : -1) : (quick ? 5 : 2), icon = -1, qslot = -1; char lb[16];
+    int k2, pass, quick = lk_quick_get() > 0;
+    for (pass = 0; pass < 3; pass++) for (k2 = 0; k2 < 4; k2++) {   /* pass 0 all discs, 1 names + icons, 2 counts: nothing of a disc covers its neighbour's icon / count (user 2026-10-30) */ int dcx = cx + px[k2] * o, dcy = cy + py[k2] * o, fn = k2 == 0 ? 0 : k2 == 1 ? 1 : k2 == 2 ? (quick ? 4 : -1) : (quick ? 5 : 2), icon = -1, qslot = -1; char lb[16];
       if (fn < 0) continue;
-      lk_mh_disc(dcx, dcy, r, fill, white, grey);
+      if (pass == 0) { lk_mh_disc(dcx, dcy, r, fill, white, grey); continue; }
       if (fn == 0) { icon = SB(0xFF114E) & 0xFF; if (icon < 1 || icon > 4) icon = 0x3A; }   /* MD A: the equipped sword; 0 (new game) / $3A = none = the broadsword icon (user 2026-10-30: a new game showed EkeEke = id 0) */
       else if (fn == 1) icon = 0x3C;             /* MD B: jump = leather boots */
       else if (fn >= 4) { qslot = fn - 4; icon = lk_quick_slot_get(qslot); }
       lk_bind_hudlabel(fn, lb, sizeof lb); if (lb[0] == '-') lb[0] = 0; lb[5] = 0;   /* pad button name while a controller is connected, else the key; unbound = no name */
+      if (pass == 2) { if (qslot >= 0 && icon >= 0 && icon < 64 && lk_q_have[icon]) lk_mh_count(dcx, dcy, r, lk_q_qty[qslot], white); continue; }
       if (lb[0]) { int n2 = (int)strlen(lb), k3, x0 = dcx - (n2 * 6 - 1) / 2;   /* the name in the middle of the disc, BEHIND the icon (user 2026-10-30: like the letters before) */
         for (k3 = 0; k3 < n2; k3++) lk_mh_glyph(x0 + 6 * k3, dcy - 3, lb[k3], white); }
-      if (icon >= 0 && icon < 64 && lk_q_have[icon]) { lk_mh_icon(dcx, dcy, icon, fill); if (qslot >= 0) lk_mh_count(dcx, dcy, r, lk_q_qty[qslot], white); }
+      if (icon >= 0 && icon < 64 && lk_q_have[icon]) { lk_mh_icon(dcx, dcy, icon, fill); }
     } }
   (void)e; (void)sh; (void)sw;
 }
