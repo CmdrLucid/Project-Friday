@@ -201,6 +201,10 @@ python3 tools/patch_z80time.py .deps/genrecomp
 python3 tools/patch_padtime.py .deps/genrecomp
 # timing step T6: the power-on time state is ours (lk_time_power_on after system_reset, compared once with GPGX's reset values) (tools/patch_starttime.py; no behaviour change)
 python3 tools/patch_starttime.py .deps/genrecomp
+# timing phase 2 measurement: lag frames per room (LANDSTALKER_LAGSTAT=file; inert without it) (tools/patch_lagstat.py)
+python3 tools/patch_lagstat.py .deps/genrecomp
+# timing phase 2 option: LANDSTALKER_VDPWAIT=0 = the 68K does not wait for the VDP (DMA / FIFO stall off); off by default = bit exact (tools/patch_vdpwait.py)
+python3 tools/patch_vdpwait.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json
