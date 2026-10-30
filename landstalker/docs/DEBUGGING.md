@@ -1458,3 +1458,8 @@ HANDOFF 0a177 point 2: the four 30.10 recordings (0310, 0318, 0319, 0536) do not
 - Checks: HUD 0 picture byte identical to the previous build; checkpoints identical HUD 0 vs 1 (picture only); screenshots `~/Mockups/hud_ingame/`.
 - Item icons decoded from the ROM (`lk_qr_fill`): 63 icons, against the user's 28 captured ones the same pictures (8 byte identical, others differ by colour rounding of the menu CRAM). Empty HOME test: sword + boots on the discs without any capture. Gold switched to the small 5 x 7 font (user: too large).
 - Side find: the window options menu counted 8 Video rows (`lk_win_cnt[1] = 8`) while `lk_ids_video` had 7 entries (read one past the array); now 8 entries with HUD (id 41).
+
+## Release v1.4.0, Quick Equip strip, Sprint (2026-10-30, late; Opus 5.5)
+ * Release v1.4.0: pre-release timebench = only the Options menu scroll arrow differs in 5 recordings (new HUD row; byte diff against a rebuilt 8fa7d5f binary); CI AppImage first run + Massan replay identical to the local build; no .sha256 assets any more (HANDOFF 0a199).
+ * Sprint (`patch_sprint.py`, `patch_sprintanim.py`): speed source `g_ScrollStep $FF1182`; 1.5 x wobbles by 2:1 geometry (own renderer == chip picture, 0 differing pixels; the game's sprite table keeps Nigel still) -> 2 x; a blocked sprint step left Nigel too far from items (gold bag, `rec_20261030_2148`) -> the next frame uses step 2; presses recorded as p / r in QSPLAY (the QSPLAY parser had a 1024 char limit, fixed). Timebench without the button IDENTICAL; `rec_20261018_1805` differs only through the new Quality of Life row (wrap-around target). Details: SPRINT_IDEAS.md.
+

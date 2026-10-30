@@ -284,3 +284,10 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
 - Frame data: piece bytes (2 per piece, bit 7 of the 2nd byte = last), then the chunk list of `LoadSpriteTiles $00473E` (bit 15 zero fill, bit 13 LZ77, bit 14 last, low 12 bits = words); 16 tiles = 32 x 32 px, column-major (tile `r + 4 c`, as `PopulateItemSlot_WriteIcon $00D642` writes them; VRAM tiles `$BC + id * 16` in the menu).
 - Colours: `InvItemPal $007896`, 16 words copied to palette line 1 by `InitInvDisplay` (not `InvPalette1 $00E0E0`, which goes to palette line 0 entries 0..7).
 - 63 of the ids 0..63 decode to a picture (61 is empty).
+
+## Player movement step and sprint (added 2026-10-30, Opus 5.5; V = disassembly + RAM dumps)
+ * V: `g_ScrollStep $FF1182` = the step of the current move in units; `HandleDirectionalInput $0018C4` sets 2 every frame (8 in the ROM debug mode with pad 2 C), the move handlers add it to the X / Y words (+14 / +16), test map collision only when bit 3 of the sub position changes and scroll the camera by the same step; a map block sets it to 1, a sprite collision takes the whole step back (the step stays).
+ * V: `HandleDirectionalControl $001936` (32 x bra.w) is entered through func_table_tail, so its entries can be wrapped (tools/patch_sprint.py).
+ * V: 2:1 view: the picture moves by the full step horizontally and by half the step vertically (`VScrollIncrease $002452`, `g_VScrollPhase $FF1180`): only even steps scroll evenly.
+ * V: player +24 animation (8 walk back, 12 walk front), +26 frame (steps of 4), +06 tile word (bit 11 flip, constant through a walk cycle).
+

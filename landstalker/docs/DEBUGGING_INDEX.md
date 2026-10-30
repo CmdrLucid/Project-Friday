@@ -183,3 +183,4 @@
 - L1439: Session 2026-10-30 (day): lag counter v2, rooms 155 / 157, no-HUD experiment, HUD design (Opus 5.5 + Sonnet 5.5 agents)
 - L1445: Replay divergence of the 30.10 recordings (2026-10-30, later)
 - L1454: Modern HUD + item icons from the ROM (2026-10-30, later)
+- L1462: Release v1.4.0, Quick Equip strip, Sprint (2026-10-30, late; Opus 5.5)
