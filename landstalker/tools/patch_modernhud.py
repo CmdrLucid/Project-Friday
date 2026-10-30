@@ -9,12 +9,13 @@ env LANDSTALKER_HUD=0|1; the old experiment env LANDSTALKER_NOHUD=1 means Modern
    (EquippedSword $FF114E), MD B = the leather boots (NO_BOOTS $3C) for the jump; a disc without icon shows its letter (the binding label);
    icons come from the quick icon cache (~/.landstalker_quick_icons, captured in the Start menu); a missing icon shows the letter;
  * bottom right: the gold in a small 5 x 7 font with a dark outline (user: the bar's digits looked too large), above the picture's lower edge (185 without full height).
-Frames the own map path does not draw (Start menu fades, black room-load frames) show black instead of the old bar in lines 0..23 (user 2026-10-30).
+Frames the own map path does not draw (Start menu fades, black room-load frames) and the Start menu item / equip screens show black instead of the old bar in lines 0..23 (user 2026-10-30).
+The sword + gauge crop has no dark outline (v2, user: the black hilt became a dark lump); hearts, gold and discs keep theirs.
 Picture only: the game logic is not touched (replays / timebench unchanged; Original = bit exact).
 Needs patch_own.py, patch_quick.py, patch_keys.py and patch_options.py (option row 41) before it.  Idempotent.  usage: patch_modernhud.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_MHUD v1"
+VER = "LK_MHUD v2"
 
 # ---- input.c: pad code of a binding (1 + SDL_CONTROLLER_BUTTON_*, 0 = none) -------------------------------
 p = os.path.join(root, "src/input.c")
@@ -22,7 +23,7 @@ s = open(p).read()
 if VER not in s:
     a = "void lk_bind_hudlabel(int i, char *o, size_t n) {"
     assert s.count(a) == 1, "input.c: run patch_keys.py first"
-    s = s.replace(a, "int lk_bind_pad_get(int i) { lk_bind_init(); return (i >= 0 && i < LK_NB) ? lk_bind_pad[i] : 0; }   /* LK_MHUD v1: the modern HUD puts each function's icon on its pad button */\n" + a, 1)
+    s = s.replace(a, "int lk_bind_pad_get(int i) { lk_bind_init(); return (i >= 0 && i < LK_NB) ? lk_bind_pad[i] : 0; }   /* LK_MHUD v2: the modern HUD puts each function's icon on its pad button */\n" + a, 1)
     open(p, "w").write(s)
     print("input.c patched:", VER)
 
@@ -32,7 +33,7 @@ s = open(p).read()
 if VER not in s:
     old = "static int lk_o_nohud = -1;\nint lk_nohud_get(void) { if (lk_o_nohud < 0) { const char *q = getenv(\"LANDSTALKER_NOHUD\"); lk_o_nohud = (q && *q && atoi(q)) ? 1 : 0; } return lk_o_nohud; }\n"
     assert s.count(old) == 1, "vdp_render.c: run patch_own.py first (LK_NOHUD v0)"
-    new = r'''static int lk_o_nohud = -1;   /* LK_MHUD v1: 0 = HUD Original, 1 = Modern (Options > Video > HUD, ~/.landstalker_hud; env LANDSTALKER_HUD or the old LANDSTALKER_NOHUD wins at start) */
+    new = r'''static int lk_o_nohud = -1;   /* LK_MHUD v2: 0 = HUD Original, 1 = Modern (Options > Video > HUD, ~/.landstalker_hud; env LANDSTALKER_HUD or the old LANDSTALKER_NOHUD wins at start) */
 static void lk_mh_path(char *b, size_t n) { const char *h = getenv("HOME"); snprintf(b, n, "%s/.landstalker_hud", h ? h : "."); }
 int lk_mhud_get(void) {
   if (lk_o_nohud < 0) { char p[512]; FILE *f; int v = 0; const char *q = getenv("LANDSTALKER_HUD"), *q0 = getenv("LANDSTALKER_NOHUD");
@@ -51,21 +52,21 @@ static int lk_mh_pix(int line, int i, int *col);
 
     a = "static void lk_q_load(void) {"
     assert s.count(a) == 1, "vdp_render.c: run patch_quick.py first"
-    s = s.replace(a, "static void lk_qr_fill(void);   /* LK_MHUD v1: item icons from the ROM */\n" + a, 1)
+    s = s.replace(a, "static void lk_qr_fill(void);   /* LK_MHUD v2: item icons from the ROM */\n" + a, 1)
     a = "lk_q_have[id] = 1; } fclose(f); }\n}\n"
     assert s.count(a) == 1, "vdp_render.c: lk_q_load layout changed"
-    s = s.replace(a, "lk_q_have[id] = 1; } fclose(f); }\n  lk_qr_fill();   /* LK_MHUD v1: every icon straight from the ROM (no Start menu capture needed) */\n}\n", 1)
+    s = s.replace(a, "lk_q_have[id] = 1; } fclose(f); }\n  lk_qr_fill();   /* LK_MHUD v2: every icon straight from the ROM (no Start menu capture needed) */\n}\n", 1)
 
     # build the layer once per frame (first own line of the frame)
     a = "    int wlo = 0, whi = w, tb = lk_tbox_get(), nohud = lk_nohud_get(), wline = ((line == 23 && !nohud) || text);"
     assert s.count(a) == 1, "vdp_render.c: own line layout changed"
     k = s.index(a); k = s.index("\n", k) + 1
-    s = s[:k] + "    if (nohud) lk_mh_begin(w, e);   /* LK_MHUD v1 */\n" + s[k:]
+    s = s[:k] + "    if (nohud) lk_mh_begin(w, e);   /* LK_MHUD v2 */\n" + s[k:]
 
     # every pixel: the overlay over the final colour (after the seam history, before the row / HD output)
     a = "      lk_vh[line & 7][i] = (PIXEL_OUT_T)col; lk_vhv[line & 7][i] = (src == 0 || black || margin || (col & 0xFFFFFF) == 0) ? 1 : 0;\n"
     assert s.count(a) == 1, "vdp_render.c: own pixel layout changed"
-    s = s.replace(a, a + "      lk_mh_hit = nohud ? lk_mh_pix(line, i, &col) : 0;   /* LK_MHUD v1 */\n", 1)
+    s = s.replace(a, a + "      lk_mh_hit = nohud ? lk_mh_pix(line, i, &col) : 0;   /* LK_MHUD v2 */\n", 1)
     a = "lk_hd_put(line, x, (uint32_t)col, pi.rep ? &pi : 0);"
     assert s.count(a) == 1, "vdp_render.c: HD put changed"
     s = s.replace(a, "lk_hd_put(line, x, (uint32_t)col, (pi.rep && !lk_mh_hit) ? &pi : 0);", 1)
@@ -73,10 +74,10 @@ static int lk_mh_pix(int line, int i, int *col);
     # map frames the own path does not draw: no old bar in lines 0..23
     a = "  if (!fr_done || w != 320 + 2 * e || !map) {"
     assert s.count(a) == 1, "vdp_render.c: own frame gate changed"
-    s = s.replace(a, "  if (map && !fr_done && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { int k; for (k = 0; k < w; k++) row[k] = (PIXEL_OUT_T)pixel_lut[1][0]; return; }   /* LK_MHUD v1: Modern HUD: black instead of the old bar */\n" + a, 1)
+    s = s.replace(a, "  if (((map && !fr_done) || (!map && lk_menu_seen)) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { int k; for (k = 0; k < w; k++) row[k] = (PIXEL_OUT_T)pixel_lut[1][0]; return; }   /* LK_MHUD v2: Modern HUD: black instead of the old bar (also in the Start menu item / equip screens, lk_menu_seen of patch_wide.py; user 2026-10-30) */\n" + a, 1)
 
     module = r'''
-/* ---- LK_MHUD v1: modern HUD layer (tools/patch_modernhud.py, docs/HUD_IDEAS.md entwurf 9) ---- */
+/* ---- LK_MHUD v2: modern HUD layer (tools/patch_modernhud.py, docs/HUD_IDEAS.md entwurf 9) ---- */
 extern int lk_bind_pad_get(int i);
 extern void lk_bind_hudlabel(int i, char *o, size_t n);
 #define LK_MH_H 240
@@ -110,7 +111,7 @@ static PIXEL_OUT_T lk_mh_fadec(PIXEL_OUT_T c, PIXEL_OUT_T fill) {   /* an RGB ic
   return o;
 }
 static uint8 lk_mh_m[64][120];   /* scratch mask for the outline of one crop */
-static void lk_mh_crop(int x0, int x1, int ly0, int ly1, int dx, int dy, int fillp, int greyp, int *outw, int *outh, int place) {   /* window pixels x0..x1 / lines ly0..ly1 -> picture (dx, dy), fill / grey transparent, 1 px dark outline */
+static void lk_mh_crop(int x0, int x1, int ly0, int ly1, int dx, int dy, int fillp, int greyp, int *outw, int *outh, int place, int outl) {   /* window pixels x0..x1 / lines ly0..ly1 -> picture (dx, dy), fill / grey transparent, 1 px dark outline when outl */
   int x, y, bx0 = 999, bx1 = -1, by0 = 999, by1 = -1, w, h;
   for (y = ly0; y <= ly1; y++) for (x = x0; x <= x1; x++) { int wp = lk_o_win(y, x, 0); if (wp >= 0 && (wp & 0xF) && (wp & 0x3F) != fillp && (wp & 0x3F) != greyp) { if (x < bx0) bx0 = x; if (x > bx1) bx1 = x; if (y < by0) by0 = y; if (y > by1) by1 = y; } }
   if (bx1 < 0) { *outw = *outh = 0; return; }
@@ -118,7 +119,7 @@ static void lk_mh_crop(int x0, int x1, int ly0, int ly1, int dx, int dy, int fil
   if (!place) return;
   memset(lk_mh_m, 0, sizeof lk_mh_m);
   for (y = 0; y < h; y++) for (x = 0; x < w; x++) { int wp = lk_o_win(by0 + y, bx0 + x, 0); if (wp >= 0 && (wp & 0xF) && (wp & 0x3F) != fillp && (wp & 0x3F) != greyp) lk_mh_m[y + 1][x + 1] = (uint8)(1 + (wp & 0x3F)); }
-  for (y = 0; y < h + 2; y++) for (x = 0; x < w + 2; x++) if (!lk_mh_m[y][x]) { int n = 0, i2, j2; for (j2 = -1; j2 <= 1; j2++) for (i2 = -1; i2 <= 1; i2++) { int yy = y + j2, xx = x + i2; if (yy >= 0 && xx >= 0 && yy < 64 && xx < 120 && lk_mh_m[yy][xx]) n = 1; } if (n) lk_mh_put(dx + x - 1, dy + y - 1, 0x0A0814u, 190); }
+  if (outl) for (y = 0; y < h + 2; y++) for (x = 0; x < w + 2; x++) if (!lk_mh_m[y][x]) { int n = 0, i2, j2; for (j2 = -1; j2 <= 1; j2++) for (i2 = -1; i2 <= 1; i2++) { int yy = y + j2, xx = x + i2; if (yy >= 0 && xx >= 0 && yy < 64 && xx < 120 && lk_mh_m[yy][xx]) n = 1; } if (n) lk_mh_put(dx + x - 1, dy + y - 1, 0x0A0814u, 190); }
   for (y = 0; y < h; y++) for (x = 0; x < w; x++) if (lk_mh_m[y + 1][x + 1]) lk_mh_put(dx + x, dy + y, lk_mh_rgb(lk_mh_m[y + 1][x + 1] - 1), 255);
 }
 static void lk_mh_glyph(int x, int y, int ch, PIXEL_OUT_T c) { int j, i, g = lk_mh_gi(ch); for (j = 0; j < 7; j++) for (i = 0; i < 5; i++) if (lk_mh_font[g][j] & (16 >> i)) lk_mh_put(x + i, y + j, c, 255); }
@@ -166,8 +167,8 @@ static void lk_mh_begin(int w, int e) {
   { static int dbg = -1, n; if (dbg < 0) dbg = getenv("LANDSTALKER_MHUD_DBG") != NULL; if (dbg && n++ < 3) printf("mhud: frame %ld fill %d (%06X) rim %d grey %d content lines %d..%d\n", fr, fillp, (unsigned)(lk_mh_rgb(fillp) & 0xFFFFFF), whitep, greyp, top, bot); }
   fill = lk_mh_rgb(fillp); white = whitep >= 0 ? lk_mh_rgb(whitep) : 0xEEEEEEu; grey = greyp >= 0 ? lk_mh_rgb(greyp) : 0x666666u;
   /* top left: hearts, below them sword + gauge */
-  lk_mh_crop(88, 183, top, bot, 6, 5, fillp, greyp, &hw, &hh, 1);
-  lk_mh_crop(15, 87, top, bot, 6, 5 + (hh ? hh : 14) + 4, fillp, greyp, &sw, &sh, 1);
+  lk_mh_crop(88, 183, top, bot, 6, 5, fillp, greyp, &hw, &hh, 1, 1);
+  lk_mh_crop(15, 87, top, bot, 6, 5 + (hh ? hh : 14) + 4, fillp, greyp, &sw, &sh, 1, 0);   /* sword + gauge without the dark outline (user 2026-10-30: the black hilt became a dark lump) */
   /* bottom right: gold */
   bottom = lk_tall_keep(200) ? 224 : 185;
   { char gt[8]; int g = SW(0xFF120E) & 0xFFFF, n2, k2, gx, gy, yy, xx; if (g > 9999) g = 9999;   /* gold in the small 5 x 7 font with a dark outline (user: the bar's big digits looked too large) */
@@ -249,7 +250,7 @@ static void lk_qr_fill(void) {
   }
   { const char *e = getenv("LANDSTALKER_ICON_DUMP"); if (e && *e) { FILE *f = fopen(e, "wb"); if (f) { for (id = 0; id < 64; id++) if (lk_q_have[id]) { uint8 b = (uint8)id; fwrite(&b, 1, 1, f); fwrite(lk_q_mask[id], 1, 256, f); fwrite(lk_q_px[id], sizeof(PIXEL_OUT_T), 256, f); } fclose(f); } } }   /* test aid: the icons in the cache file format */
 }
-/* ---- end LK_MHUD v1 ---- */
+/* ---- end LK_MHUD v2 ---- */
 '''
     s = s.rstrip("\n") + "\n" + module
     open(p, "w").write(s)

@@ -58,7 +58,7 @@ chk "Schnell-Ausruesten (R2 + Richtung)"              $G/src/func_table.c "LK_EQ
 chk "Schwierigkeit (Schaden / Gegner-HP)"           $G/src/func_table.c "LK_DIFF v2"
 chk "Tastenbelegung (Pad + Tastatur)"                 $G/src/input.c "LK_KEYS v1"
 chk "Schnellspeichern in Aufnahmen"                 $G/src/input.c "LK_QSREC v1"
-chk "Modernes HUD (Option)"                         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_MHUD v1"
+chk "Modernes HUD (Option)"                         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_MHUD v2"
 chk "Controller-Abfrage in eigenem Thread"           $G/src/input.c "LK_PADTHREAD v3"
 chk "VDP-Arrays 64 Byte ausgerichtet (clang)"   $G/ext/Genesis-Plus-GX/core/vdp_ctrl.c "LK_ALIGN v1"
 chk "Ton: Musik / Effekte getrennte Lautstaerke"   $G/ext/Genesis-Plus-GX/core/sound/sound.c "LK_SNDSEP2"
