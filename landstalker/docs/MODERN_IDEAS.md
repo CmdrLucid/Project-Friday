@@ -21,6 +21,7 @@ Idea: the OWN RENDERER draws the room planes at the IDEAL (fractional) camera po
  * first prototype: only the vertical half step while Sprint (step 3) runs; check with a recording that the room scrolls evenly (1.5 px per frame)
    and that figures (NPCs too) do not wobble against the ground; then the sprint step back to 3 behind the option.
 Open: text box / HUD lines must not move; the seam / room-change code (`lk_seam_step`) uses the integer camera; 3D room / HD packs.
+**2026-10-30 night: PROTOTYPE BUILT, but without the HD path** (it is off for the user: no tile pack): a quarter line blend of the world pixels on the 1x picture instead of a real half line shift (works with every filter). Details HANDOFF 0a203, `tools/patch_subpix.py`. User check open.
 
 ## (B) Map + 'where to go next' (Friday)  (after A)
  * Map: an overview of visited rooms / regions (room ids and connections: `docs/ROOMS.md`, landstalker-lib import, INDEX section 6); visited set

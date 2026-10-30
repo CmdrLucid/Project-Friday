@@ -215,6 +215,8 @@ python3 tools/patch_nativepace.py .deps/genrecomp
 python3 tools/patch_modernhud.py .deps/genrecomp
 # Sprint animation: Nigel's walk frames turned into the sprint pose (variant G) while Sprint moves him; picture only (tools/patch_sprintanim.py; needs patch_own / patch_sprint)
 python3 tools/patch_sprintanim.py .deps/genrecomp
+# Smooth sub-pixel scrolling PROTOTYPE: quarter line blend of the room while the camera moves by odd steps, sprint 1.5 x; Off by default (LANDSTALKER_SMOOTH=1 / ~/.landstalker_smooth; tools/patch_subpix.py; needs patch_own / patch_sprint / patch_sprintanim)
+python3 tools/patch_subpix.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json
