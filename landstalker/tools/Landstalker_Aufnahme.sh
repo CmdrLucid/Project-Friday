@@ -10,7 +10,8 @@
 # v2: (1) das Spiel schreibt in eine Arbeitskopie, nicht mehr in save_<zeit>.srm (sonst startet die Wiedergabe mit dem Stand vom ENDE, HANDOFF 0a189);
 #     (2) Schnellspeichern / -laden wird mit Bildnummer aufgezeichnet (LANDSTALKER_QSLOG) und als LANDSTALKER_QSPLAY in die .cfg geschrieben;
 #     (3) die Optionsdateien ~/.landstalker_* beim Start werden nach opts_<zeit>/ kopiert (die Wiedergabe braucht dieselben Optionen);
-#     (4) LANDSTALKER_SNDCLOCK=0: Schnellvorlauf veraendert das Spiel nicht mehr (Musik dabei stumm).
+#     (4) LANDSTALKER_SNDCLOCK=0: Schnellvorlauf veraendert das Spiel nicht mehr (Musik dabei stumm);
+#     (5) der live benutzte Nativ-Tempo-Wert kommt als LANDSTALKER_NATIVEPACE in die .cfg (Standard An seit 2026-10-30).
 ROM=/home/deck/Documents/NonSteamGames/landstalker/landstalker.md
 SAVE=/home/deck/Documents/NonSteamGames/landstalker/landstalker.srm
 DIR=$HOME/aufnahmen
@@ -55,6 +56,9 @@ if [ -f "$HOME/.landstalker_display" ]; then
     export LANDSTALKER_TALL=${_ta:-0}
 fi
 echo "LANDSTALKER_WIDE=${LANDSTALKER_WIDE:-0} LANDSTALKER_TALL=${LANDSTALKER_TALL:-0}" > "$DIR/rec_$STAMP.cfg"
+# Nativ-Tempo: der live benutzte Wert (Datei, sonst Standard An) fuer die Wiedergabe; im Menue waehrend der Aufnahme bitte nicht umschalten
+_np=1; [ -f "$HOME/.landstalker_nativepace" ] && read -r _np < "$HOME/.landstalker_nativepace"
+echo "LANDSTALKER_NATIVEPACE=${_np:-1}" >> "$DIR/rec_$STAMP.cfg"
 _w=$((320 + 2 * ${LANDSTALKER_WIDE:-0}))
 echo "[Aufnahme] Breitbild/Hoehe fuer diese Aufnahme festgehalten: $(cat "$DIR/rec_$STAMP.cfg")  = Bildbreite $_w px, volle Hoehe ${LANDSTALKER_TALL:-0}  (L2 / R2 wirken jetzt nicht)"
 echo "[Aufnahme] Andere Breite gewuenscht? Spiel beenden, im normalen Spiel mit L2 umschalten (352 / 384 / 416 px), dann die Aufnahme neu starten."
