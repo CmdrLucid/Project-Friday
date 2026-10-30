@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-10-30 evening (main, Opus 5.5): RELEASE v1.4.0 PUBLISHED** (modern HUD option default Original, Quick Equip strip control, Native Pace default On, ROM item icons; no separate .sha256 assets any more, the SHA-256 is in the notes). CI AppImage first run + Massan replay identical to the local build (HANDOFF 0a199).
 - **2026-10-30 evening (dev, Opus 5.5): QUICK EQUIP: a direction opens the strip, then LEFT / RIGHT move inside it (user wish); modern HUD without the jump disc.** Headless-checked via debug output, user check open (HANDOFF 0a198).
 - **2026-10-30 evening (dev, Opus 5.5): MODERN HUD discs show the bound button's name** (one disc per function, follows the key configuration). Headless preview, user check open (HANDOFF 0a197).
 - **2026-10-30 evening (dev, Opus 5.5): MODERN HUD: only the hearts in the Start menu** (`lk_mh_menu_row`, live RAM, chip palette); 0a195 fixes confirmed by the user ('gut'). Headless-checked (HANDOFF 0a196).
