@@ -48,6 +48,14 @@ static int lk_mh_pix(int line, int i, int *col);
 '''
     s = s.replace(old, new, 1)
 
+
+    a = "static void lk_q_load(void) {"
+    assert s.count(a) == 1, "vdp_render.c: run patch_quick.py first"
+    s = s.replace(a, "static void lk_qr_fill(void);   /* LK_MHUD v1: item icons from the ROM */\n" + a, 1)
+    a = "lk_q_have[id] = 1; } fclose(f); }\n}\n"
+    assert s.count(a) == 1, "vdp_render.c: lk_q_load layout changed"
+    s = s.replace(a, "lk_q_have[id] = 1; } fclose(f); }\n  lk_qr_fill();   /* LK_MHUD v1: every icon straight from the ROM (no Start menu capture needed) */\n}\n", 1)
+
     # build the layer once per frame (first own line of the frame)
     a = "    int wlo = 0, whi = w, tb = lk_tbox_get(), nohud = lk_nohud_get(), wline = ((line == 23 && !nohud) || text);"
     assert s.count(a) == 1, "vdp_render.c: own line layout changed"
@@ -189,6 +197,53 @@ static int lk_mh_pix(int line, int i, int *col) {
   o = (PIXEL_OUT_T)*col & 0xFF000000u;
   for (sh = 0; sh < 24; sh += 8) { int v1 = (int)((c >> sh) & 255), v0 = (int)(((PIXEL_OUT_T)*col >> sh) & 255); o |= (PIXEL_OUT_T)((v1 * a + v0 * (255 - a)) / 255) << sh; }
   *col = (int)o; return 1;
+}
+/* item icons straight from the ROM (user 2026-10-30): sprite graphic $23 (the item sprites), animation (id >> 3) * 4, frame (id & 7) * 4 (GetSpriteGfxParams $0046EE / LoadSprite),
+   chunk list as LoadSpriteTiles $00473E (zero fill / raw / LZ77), 4 x 4 tiles column-major (tile r + 4 c, as PopulateItemSlot_WriteIcon $00D642 lays them out), palette InvItemPal $007896
+   (16 words, CopyPalette to palette line 1 by InitInvDisplay); shrunk to the 16 x 16 cache exactly like lk_quick_capture; the 32 x 32 originals stay in lk_qr_raw (larger icons later) */
+static uint8 lk_qr_raw[64][32][32]; static uint8 lk_qr_ok[64];
+static int lk_qr_decode(int id) {
+  static uint8 t[0x4000]; uint32_t base, ap, fp, pos; int guard, tl = 0, np = 0, r, c, y, x;
+  if (id < 0 || id > 63) return 0;
+  base = OL(0x120000); { int ofs = OW(0x120004 + 4 * 0x23); ap = OL(base + (uint32_t)ofs * 4 + (uint32_t)(((id >> 3) & 7) * 4)); }
+  if (ap >= 0x200000u) return 0;
+  fp = OL(ap + (uint32_t)((id & 7) * 4)); if (fp >= 0x200000u) return 0;
+  pos = fp; for (;;) { int b2 = OB(pos + 1); pos += 2; np++; if ((b2 & 0x80) || np >= 8) break; }
+  for (guard = 0; guard < 64; guard++) { int h = OW(pos), n = h & 0x0FFF, i; pos += 2;
+    if (h & 0x8000) { for (i = 0; i < n * 2 && tl + i < 0x4000; i++) t[tl + i] = 0; tl += n * 2; }
+    else if (h & 0x2000) { tl += lk_o_lz77(pos, t + tl, 0x4000 - tl); break; }
+    else { for (i = 0; i < n * 2 && tl + i < 0x4000; i++) t[tl + i] = (uint8)OB(pos + (uint32_t)i); pos += (uint32_t)n * 2; tl += n * 2; }
+    if ((h & 0x4000) || tl >= 0x4000) break; }
+  if (tl < 16 * 32) return 0;
+  for (r = 0; r < 4; r++) for (c = 0; c < 4; c++) { int k = r + 4 * c; for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) { uint8 bb = t[k * 32 + y * 4 + (x >> 1)]; lk_qr_raw[id][r * 8 + y][c * 8 + x] = (x & 1) ? (bb & 15) : (bb >> 4); } }
+  lk_qr_ok[id] = 1; return 1;
+}
+static PIXEL_OUT_T lk_qr_col(int i) { int c = OW(0x7896 + 2 * (i & 15)); return pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; }
+static void lk_qr_fill(void) {
+  static int done; int id, y, x;
+  if (done) return; done = 1;
+  for (id = 0; id < 64; id++) {
+    int bx0 = 99, by0 = 99, bx1 = -1, by1 = -1, w, h, mx, sw, sh, ox, oy, lit = 0;
+    if (!lk_qr_decode(id)) continue;
+    for (y = 0; y < 32; y++) for (x = 0; x < 32; x++) if (lk_qr_raw[id][y][x]) { if (x < bx0) bx0 = x; if (x > bx1) bx1 = x; if (y < by0) by0 = y; if (y > by1) by1 = y; }
+    if (bx1 < 0) continue;
+    w = bx1 - bx0 + 1; h = by1 - by0 + 1; mx = w > h ? w : h;
+    sw = (w * 16 + mx / 2) / mx; sh = (h * 16 + mx / 2) / mx; if (sw < 1) sw = 1; if (sh < 1) sh = 1; if (sw > 16) sw = 16; if (sh > 16) sh = 16;
+    ox = (16 - sw) / 2; oy = (16 - sh) / 2;
+    memset(lk_q_mask[id], 0, 256);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) {
+      int ya, yb, xa, xb, yy, xx, n = 0, tot, sr = 0, sg = 0, sb = 0, sa = 0;
+      if (x < ox || x >= ox + sw || y < oy || y >= oy + sh) continue;
+      ya = by0 + (y - oy) * h / sh; yb = by0 + ((y - oy + 1) * h + sh - 1) / sh; xa = bx0 + (x - ox) * w / sw; xb = bx0 + ((x - ox + 1) * w + sw - 1) / sw;
+      if (yb <= ya) yb = ya + 1; if (xb <= xa) xb = xa + 1; tot = (yb - ya) * (xb - xa);
+      for (yy = ya; yy < yb && yy < 32; yy++) for (xx = xa; xx < xb && xx < 32; xx++) if (lk_qr_raw[id][yy][xx]) { PIXEL_OUT_T pv = lk_qr_col(lk_qr_raw[id][yy][xx]); n++; sr += (pv >> 16) & 255; sg += (pv >> 8) & 255; sb += pv & 255; sa += (pv >> 24) & 255; }
+      if (n * 2 < tot || !n) continue;
+      lk_q_px[id][y * 16 + x] = ((PIXEL_OUT_T)(sa / n) << 24) | ((PIXEL_OUT_T)(sr / n) << 16) | ((PIXEL_OUT_T)(sg / n) << 8) | (PIXEL_OUT_T)(sb / n);
+      lk_q_mask[id][y * 16 + x] = 1; if (lk_q_px[id][y * 16 + x] & 0xFFFFFF) lit = 1;
+    }
+    if (lit) lk_q_have[id] = 1; else memset(lk_q_mask[id], 0, 256);
+  }
+  { const char *e = getenv("LANDSTALKER_ICON_DUMP"); if (e && *e) { FILE *f = fopen(e, "wb"); if (f) { for (id = 0; id < 64; id++) if (lk_q_have[id]) { uint8 b = (uint8)id; fwrite(&b, 1, 1, f); fwrite(lk_q_mask[id], 1, 256, f); fwrite(lk_q_px[id], sizeof(PIXEL_OUT_T), 256, f); } fclose(f); } } }   /* test aid: the icons in the cache file format */
 }
 /* ---- end LK_MHUD v1 ---- */
 '''
