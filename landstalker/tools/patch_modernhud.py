@@ -4,9 +4,10 @@ env LANDSTALKER_HUD=0|1; the old experiment env LANDSTALKER_NOHUD=1 means Modern
 (LK_NOHUD band of patch_own.py) and lays the HUD over the picture, without boxes:
  * top left: the original hearts (window tile columns 11..22) and below them the sword icon + the original rounded charge gauge (columns 2..10), taken pixel by pixel
    from the HUD tilemap the own renderer rebuilds every frame (lk_o_hudbuild = port of hud.asm), so tiers, charge and fades are the game's own; 1 px dark outline;
- * top right: the buttons in the layout of the pad (Y top, X left, B right, A bottom), round discs in the HUD purple (slightly transparent, white rim, grey inner line);
-   the icon of the function bound to that pad button lies over the disc: Quick 1 / Quick 2 = their items (+ count on a dark plate), MD A = the equipped sword
-   (EquippedSword $FF114E), MD B = the leather boots (NO_BOOTS $3C) for the jump; a disc without icon shows its letter (the binding label);
+ * top right: a diamond of round discs in the HUD purple (slightly transparent, white rim, grey inner line), ONE per function at its default pad place
+   (left MD A = the equipped sword EquippedSword $FF114E, bottom MD B = jump = leather boots NO_BOOTS $3C, top Quick 1, right Quick 2 / Button C with Quick Items off);
+   each disc shows the name of the button the function is bound to (lk_bind_hudlabel: pad name with a controller, else the key; follows the key configuration,
+   user 2026-10-30 'Quick Item auf R1 = R1 im Kreis'): small lower left next to an icon, in the middle on a disc without icon; quick items + count on a dark plate;
    icons come from the quick icon cache (~/.landstalker_quick_icons, captured in the Start menu); a missing icon shows the letter;
  * bottom right: the gold in a small 5 x 7 font with a dark outline (user: the bar's digits looked too large), above the picture's lower edge (185 without full height).
 Frames the own map path does not draw (Start menu fades, black room-load frames) show black instead of the old bar in lines 0..23; the Start menu item / equip screens show black + only the hearts (user 2026-10-30).
@@ -188,19 +189,23 @@ static void lk_mh_begin(int w, int e) {
         for (j2 = -1; j2 <= 1 && !on; j2++) for (i2 = -1; i2 <= 1 && !on; i2++) { int y3 = yy + j2, x3 = xx + i2; if (y3 >= 0 && y3 < 7 && x3 >= 0 && x3 < 5 && (lk_mh_font[gi][y3] & (16 >> x3))) on = 1; }
         if (on && !(yy >= 0 && yy < 7 && xx >= 0 && xx < 5 && (lk_mh_font[gi][yy] & (16 >> xx)))) lk_mh_put(gx + 6 * k2 + xx, gy + yy, 0x0A0814u, 190); }
       lk_mh_glyph(gx + 6 * k2, gy, gt[k2], white); } }
-  /* top right: the pad diamond */
+  /* top right: the diamond, ONE disc per function at its default place (user 2026-10-30: the disc shows the button the function is bound to, e.g. 'R1', and follows the key configuration):
+     left = MD A (sword, default pad X), bottom = MD B (jump, pad A), top = Quick 1 (pad Y), right = Quick 2 (pad B) or Button C while Quick Items is off */
   cx = w - 30; cy = 31;
-  { static const int bx[5] = { 0, 0, 1, -1, 0 }, by[5] = { 0, 1, 0, 0, -1 };   /* pad code 1 A bottom, 2 B right, 3 X left, 4 Y top */
-    static const char lab[5] = { 0, 'A', 'B', 'X', 'Y' };
-    int code, quick = lk_quick_get() > 0;
-    for (code = 1; code <= 4; code++) { int dcx = cx + bx[code] * o, dcy = cy + by[code] * o, fn = -1, icon = -1, qslot = -1, f; char lb[16];
+  { static const int px[4] = { -1, 0, 0, 1 }, py[4] = { 0, 1, -1, 0 };
+    int k2, quick = lk_quick_get() > 0;
+    for (k2 = 0; k2 < 4; k2++) { int dcx = cx + px[k2] * o, dcy = cy + py[k2] * o, fn = k2 == 0 ? 0 : k2 == 1 ? 1 : k2 == 2 ? (quick ? 4 : -1) : (quick ? 5 : 2), icon = -1, qslot = -1; char lb[16];
+      if (fn < 0) continue;
       lk_mh_disc(dcx, dcy, r, fill, white, grey);
-      for (f = 0; f < 6; f++) if (f != 3 && lk_bind_pad_get(f) == code) { if (f >= 4 && !quick) continue; if (fn < 0 || f >= 4) fn = f; }   /* Quick 1 / 2 win over Button C on a shared button (as input.c does) */
       if (fn == 0) { icon = SB(0xFF114E) & 0xFF; if (icon < 1 || icon > 4) icon = 0x3A; }   /* MD A: the equipped sword; 0 (new game) / $3A = none = the broadsword icon (user 2026-10-30: a new game showed EkeEke = id 0) */
       else if (fn == 1) icon = 0x3C;             /* MD B: jump = leather boots */
       else if (fn >= 4) { qslot = fn - 4; icon = lk_quick_slot_get(qslot); }
-      if (icon >= 0 && icon < 64 && lk_q_have[icon]) { lk_mh_icon(dcx, dcy, icon, fill); if (qslot >= 0) lk_mh_count(dcx, dcy, r, lk_q_qty[qslot], white); }
-      else { lb[0] = lab[code]; lb[1] = 0; if (fn >= 0) { lk_bind_hudlabel(fn, lb, sizeof lb); if (!lb[0] || lb[0] == '-') { lb[0] = lab[code]; lb[1] = 0; } } lk_mh_glyph(dcx - 2, dcy - 3, lb[0], white); }
+      lk_bind_hudlabel(fn, lb, sizeof lb); if (lb[0] == '-') lb[0] = 0; lb[5] = 0;   /* pad button name while a controller is connected, else the key; unbound = no name */
+      if (icon >= 0 && icon < 64 && lk_q_have[icon]) { lk_mh_icon(dcx, dcy, icon, fill); if (qslot >= 0) lk_mh_count(dcx, dcy, r, lk_q_qty[qslot], white);
+        if (lb[0]) { int n2 = (int)strlen(lb), wd = n2 * 6 - 1, x0 = dcx - r - 1, y0 = dcy + r - 6, x, y, k3;   /* the name small at the lower left on a dark plate (the count sits lower right) */
+          for (y = -1; y <= 7; y++) for (x = -1; x <= wd; x++) lk_mh_put(x0 + x, y0 + y, 0x0A0814u, 215);
+          for (k3 = 0; k3 < n2; k3++) lk_mh_glyph(x0 + 6 * k3, y0, lb[k3], white); } }
+      else if (lb[0]) { int n2 = (int)strlen(lb), k3, x0 = dcx - (n2 * 6 - 1) / 2; for (k3 = 0; k3 < n2; k3++) lk_mh_glyph(x0 + 6 * k3, dcy - 3, lb[k3], white); }   /* no icon: the name in the middle */
     } }
   (void)e; (void)sh; (void)sw;
 }
