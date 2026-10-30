@@ -31,13 +31,15 @@ With every option switched off, the game plays like the original cartridge. All 
 - **No Sprite Limit:** draws every figure of a room, without the cartridge's limit of 20 sprites per line and its flicker (off by default = the original look).
 - **Filter** (Off, Scanlines, CRT, CRT Pro, CRT Curved), **Scaling** (Fit, 4:3, Integer, Fill), borderless **Fullscreen**.
 - **Shadows** (Off / On / Soft): a ground shadow under Nigel and airborne objects, which makes jumps easier to judge.
+- **HUD** Original / Modern: the modern HUD drops the status bar and lays hearts, the sword charge, gold and the button icons (sword, Quick Items, with the name of the bound button) over the map, so the room fills the whole screen.
 
 **Audio:** separate music and effect volume; speech blips can be switched off.
 
 **Quality of Life**
 - **Quick Save / Quick Load** anywhere, on a button. This uses a hidden extra slot, so your four normal save files are not touched.
 - **Quick Items:** put consumable items (e.g. EkeEke) on two buttons, shown in the HUD.
-- **Quick Equip:** hold a button and press a direction to switch sword, armour, boots or ring without opening the menu.
+- **Quick Equip:** hold a button (R2) and press a direction to open the strip of swords, armour, boots or rings, then pick a piece with left / right, without opening the menu.
+- **Native Pace:** busy rooms no longer run in slow motion; the picture waits for the game instead of the game losing frames like on the console.
 - **Better Menu:** B in Use / Equip goes back to the menu bar instead of closing the menu.
 - **Item Info:** a short description of the item under the cursor.
 - **Buy Quantity:** buy several of an item in one go in shops.
@@ -50,7 +52,7 @@ With every option switched off, the game plays like the original cartridge. All 
 
 **Keybindings:** every action can be remapped, for both controller and keyboard.
 
-Defaults for a new install: 16:9, Full Height, CRT Pro filter, and most Quality of Life options on. Change anything you like in Options.
+Defaults for a new install: 16:9, Full Height, CRT Pro filter, Native Pace, and most Quality of Life options on (HUD: Original). Change anything you like in Options.
 
 ## Vision and what comes next
 
