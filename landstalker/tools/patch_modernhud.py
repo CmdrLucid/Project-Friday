@@ -44,6 +44,7 @@ int lk_mhud_get(void) {
 void lk_mhud_set(int v) { char p[512]; FILE *f; lk_mhud_get(); lk_o_nohud = v ? 1 : 0; lk_mh_path(p, sizeof p); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_o_nohud); fclose(f); } }
 int lk_nohud_get(void) { return lk_o_nohud < 0 ? lk_mhud_get() : lk_o_nohud; }
 static int lk_mh_hit;
+static int lk_mh_menu(void);
 static void lk_mh_begin(int w, int e);
 static int lk_mh_pix(int line, int i, int *col);
 '''
@@ -74,7 +75,7 @@ static int lk_mh_pix(int line, int i, int *col);
     # map frames the own path does not draw: no old bar in lines 0..23
     a = "  if (!fr_done || w != 320 + 2 * e || !map) {"
     assert s.count(a) == 1, "vdp_render.c: own frame gate changed"
-    s = s.replace(a, "  if (((map && !fr_done) || (!map && lk_menu_seen)) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { int k; for (k = 0; k < w; k++) row[k] = (PIXEL_OUT_T)pixel_lut[1][0]; return; }   /* LK_MHUD v2: Modern HUD: black instead of the old bar (also in the Start menu item / equip screens, lk_menu_seen of patch_wide.py; user 2026-10-30) */\n" + a, 1)
+    s = s.replace(a, "  if (((map && !fr_done) || (!map && (lk_menu_seen || lk_mh_menu()))) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { int k; for (k = 0; k < w; k++) row[k] = (PIXEL_OUT_T)pixel_lut[1][0]; return; }   /* LK_MHUD v2: Modern HUD: black instead of the old bar (also in the Start menu item / equip screens, lk_menu_seen of patch_wide.py; user 2026-10-30) */\n" + a, 1)
 
     module = r'''
 /* ---- LK_MHUD v2: modern HUD layer (tools/patch_modernhud.py, docs/HUD_IDEAS.md entwurf 9) ---- */
@@ -192,13 +193,18 @@ static void lk_mh_begin(int w, int e) {
     for (code = 1; code <= 4; code++) { int dcx = cx + bx[code] * o, dcy = cy + by[code] * o, fn = -1, icon = -1, qslot = -1, f; char lb[16];
       lk_mh_disc(dcx, dcy, r, fill, white, grey);
       for (f = 0; f < 6; f++) if (f != 3 && lk_bind_pad_get(f) == code) { if (f >= 4 && !quick) continue; if (fn < 0 || f >= 4) fn = f; }   /* Quick 1 / 2 win over Button C on a shared button (as input.c does) */
-      if (fn == 0) icon = SB(0xFF114E) & 0x3F;   /* MD A: the equipped sword */
+      if (fn == 0) { icon = SB(0xFF114E) & 0xFF; if (icon < 1 || icon > 4) icon = 0x3A; }   /* MD A: the equipped sword; 0 (new game) / $3A = none = the broadsword icon (user 2026-10-30: a new game showed EkeEke = id 0) */
       else if (fn == 1) icon = 0x3C;             /* MD B: jump = leather boots */
       else if (fn >= 4) { qslot = fn - 4; icon = lk_quick_slot_get(qslot); }
       if (icon >= 0 && icon < 64 && lk_q_have[icon]) { lk_mh_icon(dcx, dcy, icon, fill); if (qslot >= 0) lk_mh_count(dcx, dcy, r, lk_q_qty[qslot], white); }
       else { lb[0] = lab[code]; lb[1] = 0; if (fn >= 0) { lk_bind_hudlabel(fn, lb, sizeof lb); if (!lb[0] || lb[0] == '-') { lb[0] = lab[code]; lb[1] = 0; } } lk_mh_glyph(dcx - 2, dcy - 3, lb[0], white); }
     } }
   (void)e; (void)sh; (void)sw;
+}
+static int lk_mh_menu(void) {   /* LK_MHUD v2: CheckForMenuOpen $007624 is on the game's call stack (Start menu set-up / screens; lk_menu_seen of patch_wide.py comes one frame late: the old bar flashed for one frame when the menu opened, user 2026-10-30) */
+  static long fr = -2; static int v; long f = platform_frame_number();
+  if (f != fr) { int i, d = func_table_depth(); fr = f; v = 0; for (i = 0; i < d; i++) if (func_table_stack(i) == 0x007624u) { v = 1; break; } }
+  return v;
 }
 static int lk_mh_pix(int line, int i, int *col) {
   int a; PIXEL_OUT_T c, o; int sh;
