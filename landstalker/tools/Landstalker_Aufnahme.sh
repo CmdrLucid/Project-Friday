@@ -1,6 +1,6 @@
 #!/bin/bash
 # Landstalker mit Eingabe-Aufnahme (fuer die Funktions-Messung, siehe docs/replays/README.md). Installiert als ~/Landstalker_Aufnahme.sh
-# (Vorlage im Repo: landstalker/tools/Landstalker_Aufnahme.sh; v2 2026-10-31).
+# (Vorlage im Repo: landstalker/tools/Landstalker_Aufnahme.sh; v2 2026-10-30).
 #   ~/Landstalker_Aufnahme.sh          normal: spielt mit einer Kopie deines echten Spielstands; am Ende wird sie zurueckgeschrieben
 #                                      (Speichern / Schnellspeichern waehrend der Aufnahme bleibt erhalten; Sicherung des alten Stands: landstalker.srm.vor_<zeit>)
 #   ~/Landstalker_Aufnahme.sh neu      neues Spiel: leerer Spielstand (Intro, Anfang)

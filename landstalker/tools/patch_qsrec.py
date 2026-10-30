@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Quick save / quick load in input recordings (2026-10-31).  The input log (GENRECOMP_INPUTLOG) only holds the Mega Drive pad bits; a quick save (L2 / F9) or
+"""Quick save / quick load in input recordings (2026-10-30).  The input log (GENRECOMP_INPUTLOG) only holds the Mega Drive pad bits; a quick save (L2 / F9) or
 quick load (L1 held / F10) is not a pad bit, so a replay of a recording with a quick load stayed in the old room (HANDOFF 0a177 point 2, rec_20261030_0536: live
 quick load at frame 360 Mercator -> room 454).
  * LANDSTALKER_QSLOG=file      every quick request that reaches platform_quick_request (option On) appends "s<frame>" / "l<frame>" (frame = platform_frame_number()
