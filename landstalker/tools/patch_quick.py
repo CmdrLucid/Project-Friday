@@ -165,6 +165,7 @@ static PIXEL_OUT_T lk_q_fade(PIXEL_OUT_T c) {   /* the cells follow the fade of 
 static void lk_quick_hud(PIXEL_OUT_T *row, int width) {
   int line = lk_q_line, Wp = bitmap.viewport.w, ox = bitmap.viewport.x, e, bl, x, n;
   PIXEL_OUT_T *r, tmp[512];
+  { extern int lk_nohud_get(void); if (lk_nohud_get()) return; }   /* LK_NOHUD v0: no bar to draw on */
   if (line < 5 || line > 22) return;
   if (lk_quick_get() <= 0) return;
   if (Wp < 320 || Wp > 416 || width < Wp + 2 * ox) return;
