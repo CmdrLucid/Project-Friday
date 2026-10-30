@@ -49,7 +49,7 @@ static int lk_bind_pad[LK_NB], lk_bind_key[LK_NB], lk_bind_loaded;
 static int lk_bind_defpad(int i) {
     switch (i) { case LK_BA: return LKP(SDL_CONTROLLER_BUTTON_X); case LK_BB: return LKP(SDL_CONTROLLER_BUTTON_A); case LK_BC: return LKP(SDL_CONTROLLER_BUTTON_B); case LK_BSTART: return LKP(SDL_CONTROLLER_BUTTON_START);
                  case LK_BQ1: return LKP(SDL_CONTROLLER_BUTTON_Y); case LK_BQ2: return LKP(SDL_CONTROLLER_BUTTON_B); case LK_BQSAVE: return LK_PT_L; case LK_BQLOAD: return LKP(SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
-                 case LK_BFF: return LKP(SDL_CONTROLLER_BUTTON_LEFTSTICK); case LK_BFS: return LKP(SDL_CONTROLLER_BUTTON_RIGHTSTICK); case LK_BCOORD: return LKP(SDL_CONTROLLER_BUTTON_PADDLE1); case LK_BEQ: return LKP(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER); case LK_BSPRINT: return LK_PT_R; }   /* 2026-10-30 (user): Sprint on R2, Quick Equip moved to R1, Fast Forward to L3 */
+                 case LK_BFF: return LKP(SDL_CONTROLLER_BUTTON_LEFTSTICK); case LK_BFS: return LKP(SDL_CONTROLLER_BUTTON_RIGHTSTICK); case LK_BCOORD: return 0;   /* keyboard F5 only (user 2026-10-30: the coordinates off the controller) */ case LK_BEQ: return LKP(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER); case LK_BSPRINT: return LK_PT_R; }   /* 2026-10-30 (user): Sprint on R2, Quick Equip moved to R1, Fast Forward to L3 */
     return 0;
 }
 static int lk_bind_defkey(int i) {

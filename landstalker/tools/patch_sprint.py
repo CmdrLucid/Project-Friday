@@ -10,6 +10,7 @@ bits 4 fall / 5 jump, JumpRate $FF5421: the jump length stays EXACTLY the origin
 (action byte $FF542C bits 0..4).  Without the button nothing changes (bit exact).
 Recordings: every press / release is logged next to the quick save events ('p<frame>' / 'r<frame>' in LANDSTALKER_QSLOG, so the recording script
 puts them into LANDSTALKER_QSPLAY); while an input script is replayed (GENRECOMP_INPUTSCRIPT) only those events count, never a live button.
+An odd step is applied as step+1 / step-1 on alternate frames (3 = 4, 2, 4, 2 ...): the vertical scroll moves by half the step, odd steps made the figures jitter.
 Test aid: LANDSTALKER_SPRINTHOLD=a-b holds Sprint from frame a to b; LANDSTALKER_SPRINT_STEP=n (2..8) changes the step.
 Needs patch_keys.py (LK_BSPRINT binding), patch_qsrec.py and patch_equip.py before it.  Idempotent.  usage: patch_sprint.py path/to/genrecomp"""
 import os, sys
@@ -67,7 +68,8 @@ static gen_func_t lk_o_dir[32];
 static int lk_sprint_step = 3;   /* 1.5 x the walk (user 2026-10-30: 2 x was too fast) */
 static void lk_sprint_dir(int k) {
     if (lk_sprint_held() && bus_read16(0xFF1182u) == 2 && bus_read16(0xFF12DEu) == 0 && !(bus_read8(0xFF542Du) & 0x30) && !(bus_read8(0xFF542Cu) & 0x1F) && bus_read8(0xFF5421u) == 0)
-        bus_write16(0xFF1182u, (uint16_t)lk_sprint_step);
+        { static int alt; int st = lk_sprint_step; if (st & 1) { st += alt ? 1 : -1; alt ^= 1; }   /* an odd step (3 = 1.5 x) alternates step+1 / step-1 (4 / 2): the camera moves vertically by HALF the step, an odd step made the figures jitter 1 px against the room (user 2026-10-30) */
+          bus_write16(0xFF1182u, (uint16_t)st); }
     lk_o_dir[k]();
 }
 #define LK_SPD(k) static void lk_h_dir##k(void) { lk_sprint_dir(k); }
