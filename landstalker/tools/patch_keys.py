@@ -42,19 +42,19 @@ static SDL_GameController *lk_pads[8];
 #define LKP(b) (1 + (int)(b))
 #define LK_PT_L 100
 #define LK_PT_R 101
-enum { LK_BA, LK_BB, LK_BC, LK_BSTART, LK_BQ1, LK_BQ2, LK_BQSAVE, LK_BQLOAD, LK_BFF, LK_BFS, LK_BCOORD, LK_BEQ, LK_NB };
-static const char *lk_bind_nm[LK_NB] = { "Button A", "Button B", "Button C", "Start", "Quick 1", "Quick 2", "Quick Save", "Quick Load", "Fast Forward", "Fullscreen", "Coordinates", "Quick Equip" };
-static const char *lk_bind_id[LK_NB] = { "a", "b", "c", "start", "q1", "q2", "qsave", "qload", "ff", "fs", "coords", "eq" };
+enum { LK_BA, LK_BB, LK_BC, LK_BSTART, LK_BQ1, LK_BQ2, LK_BQSAVE, LK_BQLOAD, LK_BFF, LK_BFS, LK_BCOORD, LK_BEQ, LK_BSPRINT, LK_NB };
+static const char *lk_bind_nm[LK_NB] = { "Button A", "Button B", "Button C", "Start", "Quick 1", "Quick 2", "Quick Save", "Quick Load", "Fast Forward", "Fullscreen", "Coordinates", "Quick Equip", "Sprint" };
+static const char *lk_bind_id[LK_NB] = { "a", "b", "c", "start", "q1", "q2", "qsave", "qload", "ff", "fs", "coords", "eq", "sprint" };
 static int lk_bind_pad[LK_NB], lk_bind_key[LK_NB], lk_bind_loaded;
 static int lk_bind_defpad(int i) {
     switch (i) { case LK_BA: return LKP(SDL_CONTROLLER_BUTTON_X); case LK_BB: return LKP(SDL_CONTROLLER_BUTTON_A); case LK_BC: return LKP(SDL_CONTROLLER_BUTTON_B); case LK_BSTART: return LKP(SDL_CONTROLLER_BUTTON_START);
                  case LK_BQ1: return LKP(SDL_CONTROLLER_BUTTON_Y); case LK_BQ2: return LKP(SDL_CONTROLLER_BUTTON_B); case LK_BQSAVE: return LK_PT_L; case LK_BQLOAD: return LKP(SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
-                 case LK_BFF: return LKP(SDL_CONTROLLER_BUTTON_PADDLE4); case LK_BFS: return LKP(SDL_CONTROLLER_BUTTON_PADDLE2); case LK_BCOORD: return LKP(SDL_CONTROLLER_BUTTON_PADDLE1); case LK_BEQ: return LK_PT_R; }
+                 case LK_BFF: return LKP(SDL_CONTROLLER_BUTTON_LEFTSTICK); case LK_BFS: return LKP(SDL_CONTROLLER_BUTTON_RIGHTSTICK); case LK_BCOORD: return LKP(SDL_CONTROLLER_BUTTON_PADDLE1); case LK_BEQ: return LKP(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER); case LK_BSPRINT: return LK_PT_R; }   /* 2026-10-30 (user): Sprint on R2, Quick Equip moved to R1, Fast Forward to L3 */
     return 0;
 }
 static int lk_bind_defkey(int i) {
     switch (i) { case LK_BA: return SDL_SCANCODE_Z; case LK_BB: return SDL_SCANCODE_X; case LK_BC: return SDL_SCANCODE_C; case LK_BSTART: return SDL_SCANCODE_RETURN; case LK_BQ1: return SDL_SCANCODE_A; case LK_BQ2: return SDL_SCANCODE_D;
-                 case LK_BQSAVE: return SDL_SCANCODE_F9; case LK_BQLOAD: return SDL_SCANCODE_F10; case LK_BFF: return SDL_SCANCODE_TAB; case LK_BFS: return SDL_SCANCODE_F11; case LK_BCOORD: return SDL_SCANCODE_F5; case LK_BEQ: return SDL_SCANCODE_Q; }
+                 case LK_BQSAVE: return SDL_SCANCODE_F9; case LK_BQLOAD: return SDL_SCANCODE_F10; case LK_BFF: return SDL_SCANCODE_TAB; case LK_BFS: return SDL_SCANCODE_F11; case LK_BCOORD: return SDL_SCANCODE_F5; case LK_BEQ: return SDL_SCANCODE_Q; case LK_BSPRINT: return SDL_SCANCODE_LSHIFT; }
     return 0;
 }
 static void lk_bind_path(char *b, size_t n) { const char *h = getenv("HOME"); snprintf(b, n, "%s/.landstalker_keys", h ? h : "."); }

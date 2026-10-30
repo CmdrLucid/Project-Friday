@@ -142,6 +142,8 @@ python3 tools/patch_tbox.py .deps/genrecomp
 python3 tools/patch_keys.py .deps/genrecomp
 # Quick save / load in input recordings: LANDSTALKER_QSLOG writes them, LANDSTALKER_QSPLAY replays them at the input poll (tools/patch_qsrec.py; needs patch_keys.py)
 python3 tools/patch_qsrec.py .deps/genrecomp
+# Sprint: hold the binding 'Sprint' (R2 / Left Shift) = step 4 instead of 2 on the ground; presses recorded like quick save (tools/patch_sprint.py; needs patch_keys / qsrec / equip)
+python3 tools/patch_sprint.py .deps/genrecomp
 # Controller polling on its own thread (Steam Deck HIDAPI stall every 3.4 s = micro stutter, tools/patch_padthread.py)
 python3 tools/patch_padthread.py .deps/genrecomp
 # Model view (block grid, entity boxes; R3 / F7 / LANDSTALKER_MODEL=1, tools/patch_model.py; needs patch_overlay.py and patch_keys.py first)

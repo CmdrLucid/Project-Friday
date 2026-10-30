@@ -23,13 +23,11 @@ if VER not in s:
     if (f) { fprintf(f, "%c%ld\n", what == 1 ? 's' : 'l', s_frame_no); fflush(f); }
 }
 void platform_quick_request(int what) { if (!lk_qsave_get()) { lk_qs_off_hint(); return; } lk_qs_req = what; lk_qs_req_frame = s_frame_no; lk_qs_rec(what); }
-void lk_qs_play(long frame) {   /* LK_QSREC v1: LANDSTALKER_QSPLAY="l360,s900" = the recorded requests, posted at the input poll like the live press */
-    static const char *e; static int init; char key[24], l[1024];
-    if (!init) { init = 1; e = getenv("LANDSTALKER_QSPLAY"); }
-    if (!e) return;
-    snprintf(l, sizeof l, ",%s,", e);
-    snprintf(key, sizeof key, ",s%ld,", frame); if (strstr(l, key)) { lk_qs_req = 1; lk_qs_req_frame = s_frame_no; }
-    snprintf(key, sizeof key, ",l%ld,", frame); if (strstr(l, key)) { lk_qs_req = 2; lk_qs_req_frame = s_frame_no; }
+void lk_qs_play(long frame) {   /* LK_QSREC v1: LANDSTALKER_QSPLAY="l360,s900" = the recorded requests, posted at the input poll like the live press (parsed once, any length: other event letters such as Sprint p / r are skipped) */
+    static int init, n; static long *ev; static char *evk;
+    if (!init) { const char *e = getenv("LANDSTALKER_QSPLAY"), *q; init = 1;
+        if (e) { size_t cap = strlen(e) / 2 + 1; ev = (long *)malloc(cap * sizeof *ev); evk = (char *)malloc(cap); for (q = e; *q && ev && evk; q++) if ((*q == 's' || *q == 'l') && (q == e || q[-1] == ',') && (size_t)n < cap) { evk[n] = *q; ev[n] = atol(q + 1); n++; } } }
+    for (int k = 0; k < n; k++) if (ev[k] == frame) { lk_qs_req = evk[k] == 's' ? 1 : 2; lk_qs_req_frame = s_frame_no; }
 }
 '''
     s = s.replace(old, new, 1)
