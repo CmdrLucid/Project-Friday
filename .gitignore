@@ -12,3 +12,4 @@ landstalker/docs/symbols_auto.json
 # output images of tools/displaytest
 landstalker/tools/displaytest/*.ppm
 landstalker/docs/symbols_seq.json
+.claude/worktrees/

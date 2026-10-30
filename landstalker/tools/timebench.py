@@ -71,6 +71,10 @@ def run_one(job, binary, trace_on, tag, max_frames, keep):
     if HOME_OPTS:   # copy (never the original) of the option files of the real HOME: the recordings were made with them
         for f in glob.glob("/home/deck/.landstalker_*"):
             if os.path.isfile(f): shutil.copy(f, wd + "/home/")
+    opts = os.path.join(AUF, "opts_" + job["name"][4:])   # option files saved by the recording script v2 (tools/Landstalker_Aufnahme.sh) win over --home-opts
+    if os.path.isdir(opts):
+        for f in glob.glob(opts + "/.landstalker_*"):
+            if os.path.isfile(f): shutil.copy(f, wd + "/home/")
     srm = wd + "/s.srm"
     if job["save"] and os.path.exists(job["save"]): shutil.copy(job["save"], srm)
     env = clean_env(); env.update(EXTRA_ENV); env.update(job["cfg"])

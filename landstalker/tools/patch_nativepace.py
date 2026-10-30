@@ -10,6 +10,8 @@ of the last visible line (the extra cycles are not counted) until the main loop 
 Safety cap (code that waits for VBlank without the wait bit, room loads): at most LANDSTALKER_NATIVEPACE_CAP lines (default 262 = one frame)
 are held per frame, then the VBlank comes anyway.  LANDSTALKER_NATIVEPACE_STAT=1 prints held frames / lines per second to stderr.
 Menu (v2, 2026-10-30): Options > Quality of Life > Native Pace Off / On, saved in ~/.landstalker_nativepace ('0' / '1'), read live (no restart).
+Default (2026-10-30 later, user: 'Nativ-Tempo standardmaessig an'): On when ~/.landstalker_nativepace does not exist; Off while GENRECOMP_INPUTSCRIPT is set (replays of older recordings, timebench);
+the recording script v2 writes the value used live as LANDSTALKER_NATIVEPACE=<0|1> into rec_<t>.cfg (the env wins in the replay).
 The env var, if set (also '0'), wins over the menu value (test launchers, headless tests).
 Default (Off, no env) = original timing, bit identical.  Only in the own timing mode (LANDSTALKER_TIMING=gpgx ignores it).  Changes the game's
 timing on purpose: recordings made without it do not replay with it.
@@ -28,8 +30,8 @@ if OLD:   # upgrade a v1 tree: cut the old block, the hooks only get the new mar
 CODE = r'''/* ---- LK_NATIVEPACE v2 (tools/patch_nativepace.py, TIMING_PLAN section 16): the frame waits for the game's main loop ---- */
 static int lk_np_init, lk_np_env = -1, lk_np_gpgx, lk_np_menu_v = -1; static unsigned long lk_np_cap, lk_np_used, lk_np_stat, lk_np_frames, lk_np_held, lk_np_lines, lk_np_capped;
 static void lk_np_path(char *b, size_t n) { const char *h = getenv("HOME"); snprintf(b, n, "%s/.landstalker_nativepace", h ? h : "."); }
-int lk_np_menu_get(void) {   /* Options > Quality of Life > Native Pace (platform_option_get id 40); default Off */
-    if (lk_np_menu_v < 0) { char p[512]; FILE *f; int v; lk_np_menu_v = 0; lk_np_path(p, sizeof p); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) == 1) lk_np_menu_v = v == 1; fclose(f); } }
+int lk_np_menu_get(void) {   /* Options > Quality of Life > Native Pace (platform_option_get id 40); default On (user 2026-10-30), but Off while an input script is replayed (old recordings / bench were made without it) */
+    if (lk_np_menu_v < 0) { char p[512]; FILE *f; int v; lk_np_menu_v = getenv("GENRECOMP_INPUTSCRIPT") ? 0 : 1; lk_np_path(p, sizeof p); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) == 1) lk_np_menu_v = v == 1; fclose(f); } }
     return lk_np_menu_v;
 }
 void lk_np_menu_set(int v) { char p[512]; FILE *f; lk_np_menu_get(); lk_np_menu_v = v ? 1 : 0; lk_np_path(p, sizeof p); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_np_menu_v); fclose(f); } }

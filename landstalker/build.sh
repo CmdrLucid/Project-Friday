@@ -140,6 +140,8 @@ python3 tools/patch_buyqty.py .deps/genrecomp
 python3 tools/patch_tbox.py .deps/genrecomp
 # Key bindings for pad + keyboard (tools/patch_keys.py; replaces the fixed button / key lines of input.c, needs all input patches before it)
 python3 tools/patch_keys.py .deps/genrecomp
+# Quick save / load in input recordings: LANDSTALKER_QSLOG writes them, LANDSTALKER_QSPLAY replays them at the input poll (tools/patch_qsrec.py; needs patch_keys.py)
+python3 tools/patch_qsrec.py .deps/genrecomp
 # Controller polling on its own thread (Steam Deck HIDAPI stall every 3.4 s = micro stutter, tools/patch_padthread.py)
 python3 tools/patch_padthread.py .deps/genrecomp
 # Model view (block grid, entity boxes; R3 / F7 / LANDSTALKER_MODEL=1, tools/patch_model.py; needs patch_overlay.py and patch_keys.py first)
@@ -207,6 +209,8 @@ python3 tools/patch_lagstat.py .deps/genrecomp
 python3 tools/patch_vdpwait.py .deps/genrecomp
 # timing phase 2 option: LANDSTALKER_NATIVEPACE=1 = the frame waits for the game's main loop (no lost passes in busy rooms); off by default = bit exact (tools/patch_nativepace.py)
 python3 tools/patch_nativepace.py .deps/genrecomp
+# Modern HUD: Options > Video > HUD Original / Modern (option 41, ~/.landstalker_hud); picture only, Original = bit exact (tools/patch_modernhud.py; needs patch_own / quick / keys / options)
+python3 tools/patch_modernhud.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json
