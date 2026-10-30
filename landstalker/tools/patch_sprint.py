@@ -7,7 +7,9 @@ test collisions only when a cell boundary (bit 3) is crossed and scroll the came
 This patch wraps those 32 table entries (func_table_tail goes through the function table): while Sprint is held and the step is the normal 2,
 it becomes the sprint step (4 = 2 x; LANDSTALKER_SPRINT_STEP) for this frame, unless a script plays Nigel (g_PlaybackLock $FF12DE), he is in the air (Player action byte $FF542D
 bits 4 fall / 5 jump, JumpRate $FF5421: the jump length stays EXACTLY the original, user decision 2026-10-29), on a ladder or swinging the sword
-(action byte $FF542C bits 0..4).  Without the button nothing changes (bit exact).
+(action byte $FF542C bits 0..4).  When the last sprint step did not get through (Player X / Y words $FF5414 / $FF5416 moved less than the step:
+a wall, a figure, an item that blocks with the whole step taken back), this frame uses the normal step, so Nigel gets as close as in the original
+(the gold bag could not be picked up while sprinting, user 2026-10-30).  Without the button nothing changes (bit exact).
 Recordings: every press / release is logged next to the quick save events ('p<frame>' / 'r<frame>' in LANDSTALKER_QSLOG, so the recording script
 puts them into LANDSTALKER_QSPLAY); while an input script is replayed (GENRECOMP_INPUTSCRIPT) only those events count, never a live button.
 An odd step is applied as step+1 / step-1 on alternate frames (3 = 4, 2, 4, 2 ...): the vertical scroll moves by half the step, odd steps made the figures jitter.
@@ -74,9 +76,12 @@ int lk_sprint_active(void) { return platform_frame_number() - lk_sprint_frame <=
 static int lk_sprint_alt = 1;   /* LANDSTALKER_SPRINT_ALT=0: an odd step stays odd (test aid) */
 static int lk_sprint_step = 4;   /* 2 x the walk: in the 2:1 view only EVEN steps scroll smoothly (vertical = half the step); 1.5 x wobbled, user chose 2 x (2026-10-30) */
 static void lk_sprint_dir(int k) {
-    if (lk_sprint_held() && bus_read16(0xFF1182u) == 2 && bus_read16(0xFF12DEu) == 0 && !(bus_read8(0xFF542Du) & 0x30) && !(bus_read8(0xFF542Cu) & 0x1F) && bus_read8(0xFF5421u) == 0)
+    static int lstep; static uint16_t lx, ly; uint16_t cx = bus_read16(0xFF5414u), cy = bus_read16(0xFF5416u); int moved, blocked;
+    moved = abs((int16_t)(cx - lx)) + abs((int16_t)(cy - ly)); blocked = lstep > 2 && moved < lstep;   /* the last sprint step did not get through (wall, figure, item): */
+    lx = cx; ly = cy; lstep = 0;                                                                            /* this frame the normal step, so Nigel gets as close as in the original (pick up the gold bag, talk; user 2026-10-30) */
+    if (!blocked && lk_sprint_held() && bus_read16(0xFF1182u) == 2 && bus_read16(0xFF12DEu) == 0 && !(bus_read8(0xFF542Du) & 0x30) && !(bus_read8(0xFF542Cu) & 0x1F) && bus_read8(0xFF5421u) == 0)
         { static int alt; int st = lk_sprint_step; if ((st & 1) && lk_sprint_alt) { st += alt ? 1 : -1; alt ^= 1; }   /* an odd step (3 = 1.5 x) alternates step+1 / step-1 (4 / 2): the camera moves vertically by HALF the step, an odd step made the figures jitter 1 px against the room (user 2026-10-30) */
-          bus_write16(0xFF1182u, (uint16_t)st); lk_sprint_frame = platform_frame_number(); }
+          bus_write16(0xFF1182u, (uint16_t)st); lk_sprint_frame = platform_frame_number(); lstep = st; }
     lk_o_dir[k]();
 }
 #define LK_SPD(k) static void lk_h_dir##k(void) { lk_sprint_dir(k); }
