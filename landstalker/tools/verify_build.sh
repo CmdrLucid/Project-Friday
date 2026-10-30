@@ -68,7 +68,7 @@ chk "VDP-Timing-Haken in GPGX (Timing T3)"              $G/ext/Genesis-Plus-GX/c
 chk "Eigenes Z80-Bus-Timing (lk_z_*, Timing T4)"        $G/src/bus.c                         "LK_Z80TIME v1"
 chk "Eigenes Controller-Timing (lk_p_*, Timing T5)"     $G/src/bus.c                         "LK_PADTIME v1"
 chk "Eigene Einschalt-Zeitwerte (Timing T6)"            $G/src/bus.c                         "LK_STARTTIME v1"
-chk "Ruckel-Zaehler (LANDSTALKER_LAGSTAT)"              $G/src/bus.c                         "LK_LAGSTAT v1"
+chk "Ruckel-Zaehler (LANDSTALKER_LAGSTAT)"              $G/src/bus.c                         "LK_LAGSTAT v2"
 chk "Option: kein Warten auf den VDP (Phase 2)"         $G/src/bus.c                         "LK_VDPWAIT v1"
 chk "Option: Natives Tempo (Bild wartet aufs Spiel)"   $G/src/bus.c                         "LK_NATIVEPACE v2"
 chk "Option: Natives Tempo im Optionsmenue (Quality of Life)" $G/src/func_table.c "\"Native Pace\""
