@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-10-30 evening (dev, Opus 5.5): MODERN HUD: only the hearts in the Start menu** (`lk_mh_menu_row`, live RAM, chip palette); 0a195 fixes confirmed by the user ('gut'). Headless-checked (HANDOFF 0a196).
 - **2026-10-30 evening (dev, Opus 5.5): MODERN HUD fixes after user feedback 2:** no one-frame flash of the old bar when the Start menu opens (`lk_mh_menu`: `CheckForMenuOpen $007624` on the stack), broadsword icon on the A disc in a new game (`EquippedSword $FF114E` = 0 = none, like $3A). Headless-checked, user check open (HANDOFF 0a195).
 - **2026-10-30 evening (dev, Opus 5.5): MODERN HUD v2 after the first user look:** sword + gauge without the dark outline (hilt kept), the old bar is hidden in the Start menu item / equip screens (lines 0..23 black, `lk_menu_seen`). Original unchanged. USER CONFIRMED the sword ("passt so", bf7b265) (HANDOFF 0a194).
 - **2026-10-30 later (dev, Opus 5.5): ITEM ICONS FROM THE ROM + small gold.** `lk_qr_fill` decodes all item sprites ($23, palette `InvItemPal $007896`) into the quick icon cache at start: HUD discs, Quick Items and Quick Equip need no Start menu capture any more (FORMATS 'Item icons'). Gold of the modern HUD in the 5 x 7 font. Headless-verified, user check open.

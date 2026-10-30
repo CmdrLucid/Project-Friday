@@ -9,7 +9,7 @@ env LANDSTALKER_HUD=0|1; the old experiment env LANDSTALKER_NOHUD=1 means Modern
    (EquippedSword $FF114E), MD B = the leather boots (NO_BOOTS $3C) for the jump; a disc without icon shows its letter (the binding label);
    icons come from the quick icon cache (~/.landstalker_quick_icons, captured in the Start menu); a missing icon shows the letter;
  * bottom right: the gold in a small 5 x 7 font with a dark outline (user: the bar's digits looked too large), above the picture's lower edge (185 without full height).
-Frames the own map path does not draw (Start menu fades, black room-load frames) and the Start menu item / equip screens show black instead of the old bar in lines 0..23 (user 2026-10-30).
+Frames the own map path does not draw (Start menu fades, black room-load frames) show black instead of the old bar in lines 0..23; the Start menu item / equip screens show black + only the hearts (user 2026-10-30).
 The sword + gauge crop has no dark outline (v2, user: the black hilt became a dark lump); its enclosed purple / grey hilt pixels keep their colour; hearts, gold and discs keep the outline.
 Picture only: the game logic is not touched (replays / timebench unchanged; Original = bit exact).
 Needs patch_own.py, patch_quick.py, patch_keys.py and patch_options.py (option row 41) before it.  Idempotent.  usage: patch_modernhud.py path/to/genrecomp"""
@@ -45,6 +45,7 @@ void lk_mhud_set(int v) { char p[512]; FILE *f; lk_mhud_get(); lk_o_nohud = v ? 
 int lk_nohud_get(void) { return lk_o_nohud < 0 ? lk_mhud_get() : lk_o_nohud; }
 static int lk_mh_hit;
 static int lk_mh_menu(void);
+static void lk_mh_menu_row(PIXEL_OUT_T *row, int w, int e, int line);
 static void lk_mh_begin(int w, int e);
 static int lk_mh_pix(int line, int i, int *col);
 '''
@@ -75,7 +76,7 @@ static int lk_mh_pix(int line, int i, int *col);
     # map frames the own path does not draw: no old bar in lines 0..23
     a = "  if (!fr_done || w != 320 + 2 * e || !map) {"
     assert s.count(a) == 1, "vdp_render.c: own frame gate changed"
-    s = s.replace(a, "  if (((map && !fr_done) || (!map && (lk_menu_seen || lk_mh_menu()))) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { int k; for (k = 0; k < w; k++) row[k] = (PIXEL_OUT_T)pixel_lut[1][0]; return; }   /* LK_MHUD v2: Modern HUD: black instead of the old bar (also in the Start menu item / equip screens, lk_menu_seen of patch_wide.py; user 2026-10-30) */\n" + a, 1)
+    s = s.replace(a, "  if (!map && (lk_menu_seen || lk_mh_menu()) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { lk_mh_menu_row(row, w, e, line); return; }   /* LK_MHUD v2: Start menu: black + only the hearts (user 2026-10-30) */\n  if (((map && !fr_done) || (!map && (lk_menu_seen || lk_mh_menu()))) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { int k; for (k = 0; k < w; k++) row[k] = (PIXEL_OUT_T)pixel_lut[1][0]; return; }   /* LK_MHUD v2: Modern HUD: black instead of the old bar (also in the Start menu item / equip screens, lk_menu_seen of patch_wide.py; user 2026-10-30) */\n" + a, 1)
 
     module = r'''
 /* ---- LK_MHUD v2: modern HUD layer (tools/patch_modernhud.py, docs/HUD_IDEAS.md entwurf 9) ---- */
@@ -94,7 +95,8 @@ static const uint8 lk_mh_font[39][7] = {   /* 5 x 7: A..Z, 0..9, '-', '?', ' ' *
   {14,17,19,21,25,17,14},{4,12,4,4,4,4,14},{14,17,1,2,4,8,31},{31,2,4,2,1,17,14},{2,6,10,18,31,2,2},{31,16,30,1,1,17,14},{6,8,16,30,17,17,14},{31,1,2,4,8,8,8},
   {14,17,17,14,17,17,14},{14,17,17,15,1,2,12},{0,0,0,31,0,0,0},{14,17,1,2,4,0,4},{0,0,0,0,0,0,0} };
 static int lk_mh_gi(int ch) { if (ch >= 'a' && ch <= 'z') ch -= 32; if (ch >= 'A' && ch <= 'Z') return ch - 'A'; if (ch >= '0' && ch <= '9') return 26 + ch - '0'; if (ch == '-') return 36; if (ch == ' ') return 38; return 37; }
-static PIXEL_OUT_T lk_mh_rgb(int pick) { return lk_o_palmode ? lk_o_pix[pick & 0x3F] : pixel[pick & 0x3F]; }
+static int lk_mh_live, lk_mh_only;   /* Start menu build: the chip palette (pixel[], follows the menu's fades), hearts only */
+static PIXEL_OUT_T lk_mh_rgb(int pick) { return (lk_o_palmode && !lk_mh_live) ? lk_o_pix[pick & 0x3F] : pixel[pick & 0x3F]; }
 static void lk_mh_put(int x, int y, PIXEL_OUT_T c, int a) {   /* a = 255 opaque, else alpha over what is there (layer pixels blend too) */
   if (x < 0 || y < 0 || x >= LK_MH_W || y >= LK_MH_H || a <= 0) return;
   if (a >= 255 || !lk_mh_a[y][x]) { if (a >= 255 || !lk_mh_a[y][x]) { lk_mh_c[y][x] = c; lk_mh_a[y][x] = (uint8)(a > 255 ? 255 : a); } }
@@ -176,6 +178,7 @@ static void lk_mh_begin(int w, int e) {
   fill = lk_mh_rgb(fillp); white = whitep >= 0 ? lk_mh_rgb(whitep) : 0xEEEEEEu; grey = greyp >= 0 ? lk_mh_rgb(greyp) : 0x666666u;
   /* top left: hearts, below them sword + gauge */
   lk_mh_crop(88, 183, top, bot, 6, 5, fillp, greyp, &hw, &hh, 1, 1);
+  if (lk_mh_only) return;   /* Start menu: the hearts only (nothing there overlaps the menu windows) */
   lk_mh_crop(15, 87, top, bot, 6, 5 + (hh ? hh : 14) + 4, fillp, greyp, &sw, &sh, 1, 2);   /* sword + gauge without the dark outline (user 2026-10-30: the black hilt became a dark lump), the hilt's enclosed purple / grey pixels filled */
   /* bottom right: gold */
   bottom = lk_tall_keep(200) ? 224 : 185;
@@ -205,6 +208,11 @@ static int lk_mh_menu(void) {   /* LK_MHUD v2: CheckForMenuOpen $007624 is on th
   static long fr = -2; static int v; long f = platform_frame_number();
   if (f != fr) { int i, d = func_table_depth(); fr = f; v = 0; for (i = 0; i < d; i++) if (func_table_stack(i) == 0x007624u) { v = 1; break; } }
   return v;
+}
+static void lk_mh_menu_row(PIXEL_OUT_T *row, int w, int e, int line) {   /* Start menu item / equip screens with the Modern HUD: lines 0..23 black with the hearts at their modern place (user 2026-10-30); the HUD tilemap is rebuilt from the LIVE RAM (an EkeEke used in the menu changes the hearts) */
+  int k;
+  if (lk_mh_fr != platform_frame_number()) { const uint8 *sp = lk_o_sp; lk_o_sp = bus_get_ram(); lk_o_hudbuild(); lk_mh_live = 1; lk_mh_only = 1; lk_mh_begin(w, e); lk_mh_only = 0; lk_mh_live = 0; lk_o_sp = sp; }
+  for (k = 0; k < w; k++) { int col = (int)pixel_lut[1][0]; lk_mh_pix(line, k, &col); row[k] = (PIXEL_OUT_T)col; }
 }
 static int lk_mh_pix(int line, int i, int *col) {
   int a; PIXEL_OUT_T c, o; int sh;
