@@ -7,7 +7,7 @@ env LANDSTALKER_HUD=0|1; the old experiment env LANDSTALKER_NOHUD=1 means Modern
  * top right: a diamond of round discs in the HUD purple (slightly transparent, white rim, grey inner line), ONE per function at its default pad place
    (left MD A = the equipped sword EquippedSword $FF114E, bottom MD B = jump = leather boots NO_BOOTS $3C, top Quick 1, right Quick 2 / Button C with Quick Items off);
    each disc shows the name of the button the function is bound to (lk_bind_hudlabel: pad name with a controller, else the key; follows the key configuration,
-   user 2026-10-30 'Quick Item auf R1 = R1 im Kreis'): in the middle of the disc (over an icon with a dark outline); quick items + count on a dark plate;
+   user 2026-10-30 'Quick Item auf R1 = R1 im Kreis'): in the middle of the disc, behind the icon; quick items + count on a dark plate;
    icons come from the quick icon cache (~/.landstalker_quick_icons, captured in the Start menu); a missing icon shows the letter;
  * bottom right: the gold in a small 5 x 7 font with a dark outline (user: the bar's digits looked too large), above the picture's lower edge (185 without full height).
 Frames the own map path does not draw (Start menu fades, black room-load frames) show black instead of the old bar in lines 0..23; the Start menu item / equip screens show black + only the hearts (user 2026-10-30).
@@ -201,13 +201,9 @@ static void lk_mh_begin(int w, int e) {
       else if (fn == 1) icon = 0x3C;             /* MD B: jump = leather boots */
       else if (fn >= 4) { qslot = fn - 4; icon = lk_quick_slot_get(qslot); }
       lk_bind_hudlabel(fn, lb, sizeof lb); if (lb[0] == '-') lb[0] = 0; lb[5] = 0;   /* pad button name while a controller is connected, else the key; unbound = no name */
-      if (icon >= 0 && icon < 64 && lk_q_have[icon]) { lk_mh_icon(dcx, dcy, icon, fill); if (qslot >= 0) lk_mh_count(dcx, dcy, r, lk_q_qty[qslot], white);
-        }
-      if (lb[0]) { int n2 = (int)strlen(lb), k3, x0 = dcx - (n2 * 6 - 1) / 2, y0 = dcy - 3, has = icon >= 0 && icon < 64 && lk_q_have[icon], xx, yy;   /* the name in the middle of the disc like the letters before (user 2026-10-30); over an icon with a dark outline */
-        if (has) for (k3 = 0; k3 < n2; k3++) { int gi = lk_mh_gi(lb[k3]); for (yy = -1; yy <= 7; yy++) for (xx = -1; xx <= 5; xx++) { int on = 0, j2, i2;
-            for (j2 = -1; j2 <= 1 && !on; j2++) for (i2 = -1; i2 <= 1 && !on; i2++) { int y3 = yy + j2, x3 = xx + i2; if (y3 >= 0 && y3 < 7 && x3 >= 0 && x3 < 5 && (lk_mh_font[gi][y3] & (16 >> x3))) on = 1; }
-            if (on && !(yy >= 0 && yy < 7 && xx >= 0 && xx < 5 && (lk_mh_font[gi][yy] & (16 >> xx)))) lk_mh_put(x0 + 6 * k3 + xx, y0 + yy, 0x0A0814u, 230); } }
-        for (k3 = 0; k3 < n2; k3++) lk_mh_glyph(x0 + 6 * k3, y0, lb[k3], white); }
+      if (lb[0]) { int n2 = (int)strlen(lb), k3, x0 = dcx - (n2 * 6 - 1) / 2;   /* the name in the middle of the disc, BEHIND the icon (user 2026-10-30: like the letters before) */
+        for (k3 = 0; k3 < n2; k3++) lk_mh_glyph(x0 + 6 * k3, dcy - 3, lb[k3], white); }
+      if (icon >= 0 && icon < 64 && lk_q_have[icon]) { lk_mh_icon(dcx, dcy, icon, fill); if (qslot >= 0) lk_mh_count(dcx, dcy, r, lk_q_qty[qslot], white); }
     } }
   (void)e; (void)sh; (void)sw;
 }
