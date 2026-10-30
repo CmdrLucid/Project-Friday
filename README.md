@@ -39,7 +39,8 @@ With every option switched off, the game plays like the original cartridge. All 
 - **Quick Save / Quick Load** anywhere, on a button. This uses a hidden extra slot, so your four normal save files are not touched.
 - **Quick Items:** put consumable items (e.g. EkeEke) on two buttons, shown in the HUD.
 - **Quick Equip:** hold a button (R1) and press a direction to open the strip of swords, armour, boots or rings, then pick a piece with left / right, without opening the menu.
-- **Sprint** (On by default): hold R2 (keyboard Left Shift) and Nigel runs twice as fast on the ground (jumps stay exactly as in the original).
+- **Sprint** (On by default): hold R2 (keyboard Left Shift) and Nigel runs faster on the ground (jumps stay exactly as in the original).
+- **Smooth Scrolling** (On by default, Quality of Life): the sprint is 1.5 x and the room scrolls evenly (a light quarter line blend of the scenery while sprinting); Off = sprint 2 x, no blend.
 - **Native Pace:** busy rooms no longer run in slow motion; the picture waits for the game instead of the game losing frames like on the console.
 - **Better Menu:** B in Use / Equip goes back to the menu bar instead of closing the menu.
 - **Item Info:** a short description of the item under the cursor.
