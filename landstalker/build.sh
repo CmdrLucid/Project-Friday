@@ -205,6 +205,8 @@ python3 tools/patch_starttime.py .deps/genrecomp
 python3 tools/patch_lagstat.py .deps/genrecomp
 # timing phase 2 option: LANDSTALKER_VDPWAIT=0 = the 68K does not wait for the VDP (DMA / FIFO stall off); off by default = bit exact (tools/patch_vdpwait.py)
 python3 tools/patch_vdpwait.py .deps/genrecomp
+# timing phase 2 option: LANDSTALKER_NATIVEPACE=1 = the frame waits for the game's main loop (no lost passes in busy rooms); off by default = bit exact (tools/patch_nativepace.py)
+python3 tools/patch_nativepace.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json

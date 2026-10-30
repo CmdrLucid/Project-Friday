@@ -70,6 +70,7 @@ chk "Eigenes Controller-Timing (lk_p_*, Timing T5)"     $G/src/bus.c            
 chk "Eigene Einschalt-Zeitwerte (Timing T6)"            $G/src/bus.c                         "LK_STARTTIME v1"
 chk "Ruckel-Zaehler (LANDSTALKER_LAGSTAT)"              $G/src/bus.c                         "LK_LAGSTAT v1"
 chk "Option: kein Warten auf den VDP (Phase 2)"         $G/src/bus.c                         "LK_VDPWAIT v1"
+chk "Option: Natives Tempo (Bild wartet aufs Spiel)"   $G/src/bus.c                         "LK_NATIVEPACE v1"
 chk "Sprach-Blips abschaltbar"                     "$(grep -l "speech blips option" src/recomp/*.c 2>/dev/null | head -1)" "speech blips option"
 chk "Absolute short Adressen vorzeichenerweitert"   $G/tools/recompiler/generate.py      "_abs_val"
 chk "Befehlskorrekturen (ASL, CMPM, MOVEM, ...)"    $G/tools/recompiler/generate.py      "LANDSTALKER_INSNFIX"
