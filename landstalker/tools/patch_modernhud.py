@@ -8,7 +8,7 @@ env LANDSTALKER_HUD=0|1; the old experiment env LANDSTALKER_NOHUD=1 means Modern
    the icon of the function bound to that pad button lies over the disc: Quick 1 / Quick 2 = their items (+ count on a dark plate), MD A = the equipped sword
    (EquippedSword $FF114E), MD B = the leather boots (NO_BOOTS $3C) for the jump; a disc without icon shows its letter (the binding label);
    icons come from the quick icon cache (~/.landstalker_quick_icons, captured in the Start menu); a missing icon shows the letter;
- * bottom right: the gold (window columns 33..37) above the picture's lower edge (185 without full height).
+ * bottom right: the gold in a small 5 x 7 font with a dark outline (user: the bar's digits looked too large), above the picture's lower edge (185 without full height).
 Frames the own map path does not draw (Start menu fades, black room-load frames) show black instead of the old bar in lines 0..23 (user 2026-10-30).
 Picture only: the game logic is not touched (replays / timebench unchanged; Original = bit exact).
 Needs patch_own.py, patch_quick.py, patch_keys.py and patch_options.py (option row 41) before it.  Idempotent.  usage: patch_modernhud.py path/to/genrecomp"""
@@ -170,8 +170,12 @@ static void lk_mh_begin(int w, int e) {
   lk_mh_crop(15, 87, top, bot, 6, 5 + (hh ? hh : 14) + 4, fillp, greyp, &sw, &sh, 1);
   /* bottom right: gold */
   bottom = lk_tall_keep(200) ? 224 : 185;
-  lk_mh_crop(264, 303, top, bot, 0, 0, fillp, greyp, &gw, &gh, 0);
-  if (gw) lk_mh_crop(264, 303, top, bot, w - 6 - gw, bottom - 6 - gh, fillp, greyp, &gw, &gh, 1);
+  { char gt[8]; int g = SW(0xFF120E) & 0xFFFF, n2, k2, gx, gy, yy, xx; if (g > 9999) g = 9999;   /* gold in the small 5 x 7 font with a dark outline (user: the bar's big digits looked too large) */
+    n2 = snprintf(gt, sizeof gt, "%dG", g); gw = n2 * 6 - 1; gh = 7; gx = w - 6 - gw; gy = bottom - 6 - gh;
+    for (k2 = 0; k2 < n2; k2++) { int gi = lk_mh_gi(gt[k2]); for (yy = -1; yy <= 7; yy++) for (xx = -1; xx <= 5; xx++) { int on = 0, j2, i2;
+        for (j2 = -1; j2 <= 1 && !on; j2++) for (i2 = -1; i2 <= 1 && !on; i2++) { int y3 = yy + j2, x3 = xx + i2; if (y3 >= 0 && y3 < 7 && x3 >= 0 && x3 < 5 && (lk_mh_font[gi][y3] & (16 >> x3))) on = 1; }
+        if (on && !(yy >= 0 && yy < 7 && xx >= 0 && xx < 5 && (lk_mh_font[gi][yy] & (16 >> xx)))) lk_mh_put(gx + 6 * k2 + xx, gy + yy, 0x0A0814u, 190); }
+      lk_mh_glyph(gx + 6 * k2, gy, gt[k2], white); } }
   /* top right: the pad diamond */
   cx = w - 30; cy = 31;
   { static const int bx[5] = { 0, 0, 1, -1, 0 }, by[5] = { 0, 1, 0, 0, -1 };   /* pad code 1 A bottom, 2 B right, 3 X left, 4 Y top */
