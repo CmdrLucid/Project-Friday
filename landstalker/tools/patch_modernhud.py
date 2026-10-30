@@ -10,7 +10,7 @@ env LANDSTALKER_HUD=0|1; the old experiment env LANDSTALKER_NOHUD=1 means Modern
    icons come from the quick icon cache (~/.landstalker_quick_icons, captured in the Start menu); a missing icon shows the letter;
  * bottom right: the gold in a small 5 x 7 font with a dark outline (user: the bar's digits looked too large), above the picture's lower edge (185 without full height).
 Frames the own map path does not draw (Start menu fades, black room-load frames) and the Start menu item / equip screens show black instead of the old bar in lines 0..23 (user 2026-10-30).
-The sword + gauge crop has no dark outline (v2, user: the black hilt became a dark lump); hearts, gold and discs keep theirs.
+The sword + gauge crop has no dark outline (v2, user: the black hilt became a dark lump); its enclosed purple / grey hilt pixels keep their colour; hearts, gold and discs keep the outline.
 Picture only: the game logic is not touched (replays / timebench unchanged; Original = bit exact).
 Needs patch_own.py, patch_quick.py, patch_keys.py and patch_options.py (option row 41) before it.  Idempotent.  usage: patch_modernhud.py path/to/genrecomp"""
 import os, sys
@@ -111,7 +111,7 @@ static PIXEL_OUT_T lk_mh_fadec(PIXEL_OUT_T c, PIXEL_OUT_T fill) {   /* an RGB ic
   return o;
 }
 static uint8 lk_mh_m[64][120];   /* scratch mask for the outline of one crop */
-static void lk_mh_crop(int x0, int x1, int ly0, int ly1, int dx, int dy, int fillp, int greyp, int *outw, int *outh, int place, int outl) {   /* window pixels x0..x1 / lines ly0..ly1 -> picture (dx, dy), fill / grey transparent, 1 px dark outline when outl */
+static void lk_mh_crop(int x0, int x1, int ly0, int ly1, int dx, int dy, int fillp, int greyp, int *outw, int *outh, int place, int outl) {   /* window pixels x0..x1 / lines ly0..ly1 -> picture (dx, dy), fill / grey transparent, outl: 1 = 1 px dark outline, 2 = fill enclosed transparent pixels */
   int x, y, bx0 = 999, bx1 = -1, by0 = 999, by1 = -1, w, h;
   for (y = ly0; y <= ly1; y++) for (x = x0; x <= x1; x++) { int wp = lk_o_win(y, x, 0); if (wp >= 0 && (wp & 0xF) && (wp & 0x3F) != fillp && (wp & 0x3F) != greyp) { if (x < bx0) bx0 = x; if (x > bx1) bx1 = x; if (y < by0) by0 = y; if (y > by1) by1 = y; } }
   if (bx1 < 0) { *outw = *outh = 0; return; }
@@ -119,7 +119,14 @@ static void lk_mh_crop(int x0, int x1, int ly0, int ly1, int dx, int dy, int fil
   if (!place) return;
   memset(lk_mh_m, 0, sizeof lk_mh_m);
   for (y = 0; y < h; y++) for (x = 0; x < w; x++) { int wp = lk_o_win(by0 + y, bx0 + x, 0); if (wp >= 0 && (wp & 0xF) && (wp & 0x3F) != fillp && (wp & 0x3F) != greyp) lk_mh_m[y + 1][x + 1] = (uint8)(1 + (wp & 0x3F)); }
-  if (outl) for (y = 0; y < h + 2; y++) for (x = 0; x < w + 2; x++) if (!lk_mh_m[y][x]) { int n = 0, i2, j2; for (j2 = -1; j2 <= 1; j2++) for (i2 = -1; i2 <= 1; i2++) { int yy = y + j2, xx = x + i2; if (yy >= 0 && xx >= 0 && yy < 64 && xx < 120 && lk_mh_m[yy][xx]) n = 1; } if (n) lk_mh_put(dx + x - 1, dy + y - 1, 0x0A0814u, 190); }
+  if (outl & 2) {   /* LK_MHUD v2: transparent pixels enclosed by the crop (not 4-connected to its outside) keep their bar colour: the hilt's purple / grey inner pixels (user 2026-10-30) */
+    static short q[64 * 120]; int qn = 0, qi = 0;
+    lk_mh_m[0][0] = 255; q[qn++] = 0;
+    while (qi < qn) { int c0 = q[qi++], cy0 = c0 / 120, cx0 = c0 % 120, d; static const int ddx[4] = { 1, -1, 0, 0 }, ddy[4] = { 0, 0, 1, -1 };
+      for (d = 0; d < 4; d++) { int nx = cx0 + ddx[d], ny = cy0 + ddy[d]; if (nx < 0 || ny < 0 || nx >= w + 2 || ny >= h + 2 || lk_mh_m[ny][nx]) continue; lk_mh_m[ny][nx] = 255; q[qn++] = (short)(ny * 120 + nx); } }
+    for (y = 1; y <= h; y++) for (x = 1; x <= w; x++) { if (!lk_mh_m[y][x]) { int wp = lk_o_win(by0 + y - 1, bx0 + x - 1, 0); lk_mh_m[y][x] = (uint8)(1 + ((wp >= 0 && (wp & 0xF)) ? (wp & 0x3F) : (reg[7] & 0x3F))); } }
+    for (y = 0; y < h + 2; y++) for (x = 0; x < w + 2; x++) if (lk_mh_m[y][x] == 255) lk_mh_m[y][x] = 0; }
+  if (outl & 1) for (y = 0; y < h + 2; y++) for (x = 0; x < w + 2; x++) if (!lk_mh_m[y][x]) { int n = 0, i2, j2; for (j2 = -1; j2 <= 1; j2++) for (i2 = -1; i2 <= 1; i2++) { int yy = y + j2, xx = x + i2; if (yy >= 0 && xx >= 0 && yy < 64 && xx < 120 && lk_mh_m[yy][xx]) n = 1; } if (n) lk_mh_put(dx + x - 1, dy + y - 1, 0x0A0814u, 190); }
   for (y = 0; y < h; y++) for (x = 0; x < w; x++) if (lk_mh_m[y + 1][x + 1]) lk_mh_put(dx + x, dy + y, lk_mh_rgb(lk_mh_m[y + 1][x + 1] - 1), 255);
 }
 static void lk_mh_glyph(int x, int y, int ch, PIXEL_OUT_T c) { int j, i, g = lk_mh_gi(ch); for (j = 0; j < 7; j++) for (i = 0; i < 5; i++) if (lk_mh_font[g][j] & (16 >> i)) lk_mh_put(x + i, y + j, c, 255); }
@@ -168,7 +175,7 @@ static void lk_mh_begin(int w, int e) {
   fill = lk_mh_rgb(fillp); white = whitep >= 0 ? lk_mh_rgb(whitep) : 0xEEEEEEu; grey = greyp >= 0 ? lk_mh_rgb(greyp) : 0x666666u;
   /* top left: hearts, below them sword + gauge */
   lk_mh_crop(88, 183, top, bot, 6, 5, fillp, greyp, &hw, &hh, 1, 1);
-  lk_mh_crop(15, 87, top, bot, 6, 5 + (hh ? hh : 14) + 4, fillp, greyp, &sw, &sh, 1, 0);   /* sword + gauge without the dark outline (user 2026-10-30: the black hilt became a dark lump) */
+  lk_mh_crop(15, 87, top, bot, 6, 5 + (hh ? hh : 14) + 4, fillp, greyp, &sw, &sh, 1, 2);   /* sword + gauge without the dark outline (user 2026-10-30: the black hilt became a dark lump), the hilt's enclosed purple / grey pixels filled */
   /* bottom right: gold */
   bottom = lk_tall_keep(200) ? 224 : 185;
   { char gt[8]; int g = SW(0xFF120E) & 0xFFFF, n2, k2, gx, gy, yy, xx; if (g > 9999) g = 9999;   /* gold in the small 5 x 7 font with a dark outline (user: the bar's big digits looked too large) */
