@@ -65,12 +65,14 @@ if VER not in s:
     module = r'''/* ---- LK_SPRINT v1: sprint step (tools/patch_sprint.py) ---- */
 extern int lk_sprint_held(void);
 static gen_func_t lk_o_dir[32];
+static long lk_sprint_frame = -10;
+int lk_sprint_active(void) { return platform_frame_number() - lk_sprint_frame <= 1; }   /* the step was raised in this (or the last) frame: the own renderer shows the sprint pose (tools/patch_sprintanim.py) */
 static int lk_sprint_alt = 1;   /* LANDSTALKER_SPRINT_ALT=0: an odd step stays odd (test aid) */
 static int lk_sprint_step = 4;   /* 2 x the walk: in the 2:1 view only EVEN steps scroll smoothly (vertical = half the step); 1.5 x wobbled, user chose 2 x (2026-10-30) */
 static void lk_sprint_dir(int k) {
     if (lk_sprint_held() && bus_read16(0xFF1182u) == 2 && bus_read16(0xFF12DEu) == 0 && !(bus_read8(0xFF542Du) & 0x30) && !(bus_read8(0xFF542Cu) & 0x1F) && bus_read8(0xFF5421u) == 0)
         { static int alt; int st = lk_sprint_step; if ((st & 1) && lk_sprint_alt) { st += alt ? 1 : -1; alt ^= 1; }   /* an odd step (3 = 1.5 x) alternates step+1 / step-1 (4 / 2): the camera moves vertically by HALF the step, an odd step made the figures jitter 1 px against the room (user 2026-10-30) */
-          bus_write16(0xFF1182u, (uint16_t)st); }
+          bus_write16(0xFF1182u, (uint16_t)st); lk_sprint_frame = platform_frame_number(); }
     lk_o_dir[k]();
 }
 #define LK_SPD(k) static void lk_h_dir##k(void) { lk_sprint_dir(k); }

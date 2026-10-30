@@ -213,6 +213,8 @@ python3 tools/patch_vdpwait.py .deps/genrecomp
 python3 tools/patch_nativepace.py .deps/genrecomp
 # Modern HUD: Options > Video > HUD Original / Modern (option 41, ~/.landstalker_hud); picture only, Original = bit exact (tools/patch_modernhud.py; needs patch_own / quick / keys / options)
 python3 tools/patch_modernhud.py .deps/genrecomp
+# Sprint animation: Nigel's walk frames turned into the sprint pose (variant G) while Sprint moves him; picture only (tools/patch_sprintanim.py; needs patch_own / patch_sprint)
+python3 tools/patch_sprintanim.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json
