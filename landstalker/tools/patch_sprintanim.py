@@ -3,12 +3,12 @@
 remake/tools/sprint_mock.py).  While Sprint really moved Nigel in this frame (lk_sprint_active, tools/patch_sprint.py) and he shows a WALK frame
 (animation 8 = back view, 12 = front view, frame = frm / 4), the own renderer draws his pieces into a small canvas first and turns that picture
 into the sprint pose before it goes into the sprite layer:
- * lean in bands (rows from the top of the frame's piece box, as rom_sprite.py cuts the frames): rows 0..17 move 4 px forward, 18..19 3 px,
-   20..22 2 px, 23..26 1 px (the head stays one block, every outline step is 1 px);
+ * lean in bands (rows from the top of the frame's piece box, as rom_sprite.py cuts the frames): rows 0..17 move 2 px forward, 18..22 1 px
+   (the head stays one block; 4 / 3 / 2 / 1 px looked bent too far, user 2026-10-30);
  * own cadence: one walk picture per 3 game frames (the game turns them every 2 frames at the sprint step: too hectic, user), the picture loaded
    from the ROM by the renderer's pose override (lk_o_ovr_anim / lk_o_ovr_frm);
  * longer stride (user: 'looks like walking'): frames 0 / 4 the lowest 8 rows split at the middle of the legs, each half 3 px outwards, the frames between 1 px;
- * frames 2 and 6: lifted by 1 px; frames 0 and 4: a dust puff behind the REAR boot (the outermost leg pixels on the backward side, at its sole;
+ * frames 2 and 6: lifted by 1 px; frames 0 and 4: (dust removed, user 2026-10-30) a dust puff behind the REAR boot (the outermost leg pixels on the backward side, at its sole;
    2 px lower in the back view, where 'behind' is towards the camera; two shapes, the palette's light / middle grey).
 Forward = screen left for the front view, right for the back view, swapped when the game mirrors the frame.  The game itself already turns the
 walk frames twice as fast at the sprint step.  Only the picture changes (the game logic and the sprite table are untouched); without a sprint
@@ -58,10 +58,10 @@ static void lk_sa_apply(int fwd, int i, int ptop, int pal, int prio, int behind_
       if (y < top6 + 3) for (x = mid - wn; x < mid + wn; x++) if (x >= 0 && !lk_sa_tmp[y][x] && lk_sa_cv[y][mid]) lk_sa_tmp[y][x] = lk_sa_cv[y][mid]; }
   } }
   memset(lk_sa_cv, 0, sizeof lk_sa_cv);
-  for (y = 0; y < LK_SA_N; y++) { int r = y - ptop, sh = r < 0 ? 0 : r < 18 ? 4 : r < 20 ? 3 : r < 23 ? 2 : r < 27 ? 1 : 0, dy = y - lift;   /* lean in bands, then the lift */
+  for (y = 0; y < LK_SA_N; y++) { int r = y - ptop, sh = r < 0 ? 0 : r < 18 ? 2 : r < 23 ? 1 : 0, dy = y - lift;   /* lean in bands (head 2 px, chest 1 px; 4 px looked bent too far, user 2026-10-30), then the lift */
     if (dy < 0) continue;
     for (x = 0; x < LK_SA_N; x++) if (lk_sa_tmp[y][x]) { int nx = x + fwd * sh; if (nx >= 0 && nx < LK_SA_N) lk_sa_cv[dy][nx] = lk_sa_tmp[y][x]; } }
-  if (i == 0 || i == 4) {   /* dust right behind the rear foot (big puff of sprint_mock.py, two shapes) */
+  if (0 && (i == 0 || i == 4)) {   /* (no dust: user 2026-10-30 'die Staubwolke lassen wir weg'; kept for reference) dust right behind the rear foot (big puff of sprint_mock.py, two shapes) */
     static const signed char d0[][2] = { {1,0},{2,0},{3,0},{4,0},{0,-1},{1,-1},{2,-1},{3,-1},{4,-1},{5,-1},{1,-2},{2,-2},{3,-2},{4,-2},{2,-3},{3,-3},{7,-1},{8,-1},{8,-2} };
     static const signed char d1[][2] = { {2,0},{3,0},{4,0},{5,0},{2,-1},{3,-1},{4,-1},{5,-1},{6,-1},{3,-2},{4,-2},{5,-2},{9,-1},{10,-2} };
     const signed char (*sh)[2] = i == 0 ? d0 : d1; int n = i == 0 ? (int)(sizeof d0 / sizeof d0[0]) : (int)(sizeof d1 / sizeof d1[0]), k, b2 = -1, xr = fwd < 0 ? -1 : LK_SA_N;
