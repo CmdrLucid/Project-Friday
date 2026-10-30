@@ -199,6 +199,8 @@ python3 tools/patch_vdptime.py .deps/genrecomp
 python3 tools/patch_z80time.py .deps/genrecomp
 # timing step T5: the pad TH latency deadline + its frame-end rebase are ours (lk_p_lat in bus.c; GPGX's gamepad Latency = mirror for rollback / shadow) (tools/patch_padtime.py; no behaviour change)
 python3 tools/patch_padtime.py .deps/genrecomp
+# timing step T6: the power-on time state is ours (lk_time_power_on after system_reset, compared once with GPGX's reset values) (tools/patch_starttime.py; no behaviour change)
+python3 tools/patch_starttime.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json

@@ -67,6 +67,7 @@ chk "Eigenes VDP-Timing (lk_v_*, Timing T3)"          $G/src/bus.c              
 chk "VDP-Timing-Haken in GPGX (Timing T3)"              $G/ext/Genesis-Plus-GX/core/vdp_ctrl.c "LK_VDPTIME v1"
 chk "Eigenes Z80-Bus-Timing (lk_z_*, Timing T4)"        $G/src/bus.c                         "LK_Z80TIME v1"
 chk "Eigenes Controller-Timing (lk_p_*, Timing T5)"     $G/src/bus.c                         "LK_PADTIME v1"
+chk "Eigene Einschalt-Zeitwerte (Timing T6)"            $G/src/bus.c                         "LK_STARTTIME v1"
 chk "Sprach-Blips abschaltbar"                     "$(grep -l "speech blips option" src/recomp/*.c 2>/dev/null | head -1)" "speech blips option"
 chk "Absolute short Adressen vorzeichenerweitert"   $G/tools/recompiler/generate.py      "_abs_val"
 chk "Befehlskorrekturen (ASL, CMPM, MOVEM, ...)"    $G/tools/recompiler/generate.py      "LANDSTALKER_INSNFIX"

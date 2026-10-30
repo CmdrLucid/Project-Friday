@@ -174,5 +174,6 @@
 - L1372: Timing T3: VDP port timing ours (2026-10-29 night)
 - L1379: Timing T4: Z80 bus timing ours (2026-10-29 night)
 - L1385: Timing T5: pad timing ours (2026-10-29 night)
-- L1391: CRT Pro cost and the worker pool, 2026-10-29 (Sonnet 5.5; HANDOFF 0a165)
-- L1409: Friday's wake-up flash in the own renderer, 2026-10-29 (Sonnet 5.5; HANDOFF 0a166)
+- L1391: Timing T6: power-on time state ours (2026-10-30 night)
+- L1397: CRT Pro cost and the worker pool, 2026-10-29 (Sonnet 5.5; HANDOFF 0a165)
+- L1415: Friday's wake-up flash in the own renderer, 2026-10-29 (Sonnet 5.5; HANDOFF 0a166)
