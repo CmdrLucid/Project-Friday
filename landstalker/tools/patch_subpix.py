@@ -31,6 +31,7 @@ static void lk_ss_update(int sum, int rm) {   /* once per own map frame, with th
   static int psum, prm = -1; int d = sum - psum;
   lk_ss_gen++;
   lk_ss_frac = (lk_smooth_get() && rm == prm && (d & 1) && d >= -16 && d <= 16 && !lk_hd_n) ? ((sum & 1) ? 1 : -1) : 0;
+  { static int lg = -1; if (lg < 0) lg = getenv("LANDSTALKER_SS_LOG") != NULL; if (lg) fprintf(stderr, "ss: gen %ld sum %d d %d room %d frac %d\n", lk_ss_gen, sum, d, rm, lk_ss_frac); }   /* test aid: one line per own map frame */
   psum = sum; prm = rm;
 }
 ''' + a, 1)
@@ -86,6 +87,7 @@ static const uint8_t *lk_ss_apply(const uint8_t *fb) {
             o[x] = (a & 0xFF000000u) | ((((a >> 16 & 255) * 3 + (b >> 16 & 255) + 2) >> 2) << 16) | ((((a >> 8 & 255) * 3 + (b >> 8 & 255) + 2) >> 2) << 8) | (((a & 255) * 3 + (b & 255) + 2) >> 2);
         }
     }
+    { static int lg = -1; if (lg < 0) lg = getenv("LANDSTALKER_SS_LOG") != NULL; if (lg) { long nb = 0, nw = 0, nr = 0, nl = 0; for (y = 0; y < 224; y++) { if (lk_ss_lgen[y] == lk_ss_gen) nl++; for (x = 0; x < sw; x++) { if (buf[(size_t)y * sw + x] != src[(size_t)y * sw + x]) nb++; if (lk_ss_w[y][x]) { nw++; if (src[(size_t)y * sw + x] != lk_ss_ref[y][x]) nr++; } } } fprintf(stderr, "ssa: gen %ld blended %ld world %ld changed-after %ld lines %ld\n", lk_ss_gen, nb, nw, nr, nl); } }   /* test aid */
     return (const uint8_t *)buf;
 }
 '''
