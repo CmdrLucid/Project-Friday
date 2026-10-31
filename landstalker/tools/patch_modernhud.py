@@ -16,7 +16,7 @@ Picture only: the game logic is not touched (replays / timebench unchanged; Orig
 Needs patch_own.py, patch_quick.py, patch_keys.py and patch_options.py (option row 41) before it.  Idempotent.  usage: patch_modernhud.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_MHUD v2"
+VER = "LK_MHUD v3"   # v3 (2026-10-31): life numbers right of the hearts (user)
 
 # ---- input.c: pad code of a binding (1 + SDL_CONTROLLER_BUTTON_*, 0 = none) -------------------------------
 p = os.path.join(root, "src/input.c")
@@ -24,7 +24,7 @@ s = open(p).read()
 if VER not in s:
     a = "void lk_bind_hudlabel(int i, char *o, size_t n) {"
     assert s.count(a) == 1, "input.c: run patch_keys.py first"
-    s = s.replace(a, "int lk_bind_pad_get(int i) { lk_bind_init(); return (i >= 0 && i < LK_NB) ? lk_bind_pad[i] : 0; }   /* LK_MHUD v2: the modern HUD puts each function's icon on its pad button */\n" + a, 1)
+    s = s.replace(a, "int lk_bind_pad_get(int i) { lk_bind_init(); return (i >= 0 && i < LK_NB) ? lk_bind_pad[i] : 0; }   /* LK_MHUD v3: the modern HUD puts each function's icon on its pad button */\n" + a, 1)
     open(p, "w").write(s)
     print("input.c patched:", VER)
 
@@ -34,7 +34,7 @@ s = open(p).read()
 if VER not in s:
     old = "static int lk_o_nohud = -1;\nint lk_nohud_get(void) { if (lk_o_nohud < 0) { const char *q = getenv(\"LANDSTALKER_NOHUD\"); lk_o_nohud = (q && *q && atoi(q)) ? 1 : 0; } return lk_o_nohud; }\n"
     assert s.count(old) == 1, "vdp_render.c: run patch_own.py first (LK_NOHUD v0)"
-    new = r'''static int lk_o_nohud = -1;   /* LK_MHUD v2: 0 = HUD Original, 1 = Modern (Options > Video > HUD, ~/.landstalker_hud; env LANDSTALKER_HUD or the old LANDSTALKER_NOHUD wins at start) */
+    new = r'''static int lk_o_nohud = -1;   /* LK_MHUD v3: 0 = HUD Original, 1 = Modern (Options > Video > HUD, ~/.landstalker_hud; env LANDSTALKER_HUD or the old LANDSTALKER_NOHUD wins at start) */
 static void lk_mh_path(char *b, size_t n) { const char *h = getenv("HOME"); snprintf(b, n, "%s/.landstalker_hud", h ? h : "."); }
 int lk_mhud_get(void) {
   if (lk_o_nohud < 0) { char p[512]; FILE *f; int v = 0; const char *q = getenv("LANDSTALKER_HUD"), *q0 = getenv("LANDSTALKER_NOHUD");
@@ -55,21 +55,21 @@ static int lk_mh_pix(int line, int i, int *col);
 
     a = "static void lk_q_load(void) {"
     assert s.count(a) == 1, "vdp_render.c: run patch_quick.py first"
-    s = s.replace(a, "static void lk_qr_fill(void);   /* LK_MHUD v2: item icons from the ROM */\n" + a, 1)
+    s = s.replace(a, "static void lk_qr_fill(void);   /* LK_MHUD v3: item icons from the ROM */\n" + a, 1)
     a = "lk_q_have[id] = 1; } fclose(f); }\n}\n"
     assert s.count(a) == 1, "vdp_render.c: lk_q_load layout changed"
-    s = s.replace(a, "lk_q_have[id] = 1; } fclose(f); }\n  lk_qr_fill();   /* LK_MHUD v2: every icon straight from the ROM (no Start menu capture needed) */\n}\n", 1)
+    s = s.replace(a, "lk_q_have[id] = 1; } fclose(f); }\n  lk_qr_fill();   /* LK_MHUD v3: every icon straight from the ROM (no Start menu capture needed) */\n}\n", 1)
 
     # build the layer once per frame (first own line of the frame)
     a = "    int wlo = 0, whi = w, tb = lk_tbox_get(), nohud = lk_nohud_get(), wline = ((line == 23 && !nohud) || text);"
     assert s.count(a) == 1, "vdp_render.c: own line layout changed"
     k = s.index(a); k = s.index("\n", k) + 1
-    s = s[:k] + "    if (nohud) lk_mh_begin(w, e);   /* LK_MHUD v2 */\n" + s[k:]
+    s = s[:k] + "    if (nohud) lk_mh_begin(w, e);   /* LK_MHUD v3 */\n" + s[k:]
 
     # every pixel: the overlay over the final colour (after the seam history, before the row / HD output)
     a = "      lk_vh[line & 7][i] = (PIXEL_OUT_T)col; lk_vhv[line & 7][i] = (src == 0 || black || margin || (col & 0xFFFFFF) == 0) ? 1 : 0;\n"
     assert s.count(a) == 1, "vdp_render.c: own pixel layout changed"
-    s = s.replace(a, a + "      lk_mh_hit = nohud ? lk_mh_pix(line, i, &col) : 0;   /* LK_MHUD v2 */\n", 1)
+    s = s.replace(a, a + "      lk_mh_hit = nohud ? lk_mh_pix(line, i, &col) : 0;   /* LK_MHUD v3 */\n", 1)
     a = "lk_hd_put(line, x, (uint32_t)col, pi.rep ? &pi : 0);"
     assert s.count(a) == 1, "vdp_render.c: HD put changed"
     s = s.replace(a, "lk_hd_put(line, x, (uint32_t)col, (pi.rep && !lk_mh_hit) ? &pi : 0);", 1)
@@ -77,10 +77,10 @@ static int lk_mh_pix(int line, int i, int *col);
     # map frames the own path does not draw: no old bar in lines 0..23
     a = "  if (!fr_done || w != 320 + 2 * e || !map) {"
     assert s.count(a) == 1, "vdp_render.c: own frame gate changed"
-    s = s.replace(a, "  if (!map && (lk_menu_seen || lk_mh_menu()) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { lk_mh_menu_row(row, w, e, line); return; }   /* LK_MHUD v2: Start menu: black + only the hearts (user 2026-10-30) */\n  if (((map && !fr_done) || (!map && (lk_menu_seen || lk_mh_menu()))) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { int k; for (k = 0; k < w; k++) row[k] = (PIXEL_OUT_T)pixel_lut[1][0]; return; }   /* LK_MHUD v2: Modern HUD: black instead of the old bar (also in the Start menu item / equip screens, lk_menu_seen of patch_wide.py; user 2026-10-30) */\n" + a, 1)
+    s = s.replace(a, "  if (!map && (lk_menu_seen || lk_mh_menu()) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { lk_mh_menu_row(row, w, e, line); return; }   /* LK_MHUD v3: Start menu: black + only the hearts (user 2026-10-30) */\n  if (((map && !fr_done) || (!map && (lk_menu_seen || lk_mh_menu()))) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { int k; for (k = 0; k < w; k++) row[k] = (PIXEL_OUT_T)pixel_lut[1][0]; return; }   /* LK_MHUD v3: Modern HUD: black instead of the old bar (also in the Start menu item / equip screens, lk_menu_seen of patch_wide.py; user 2026-10-30) */\n" + a, 1)
 
     module = r'''
-/* ---- LK_MHUD v2: modern HUD layer (tools/patch_modernhud.py, docs/HUD_IDEAS.md entwurf 9) ---- */
+/* ---- LK_MHUD v3: modern HUD layer (tools/patch_modernhud.py, docs/HUD_IDEAS.md entwurf 9) ---- */
 extern int lk_bind_pad_get(int i);
 extern void lk_bind_hudlabel(int i, char *o, size_t n);
 #define LK_MH_H 240
@@ -88,14 +88,14 @@ extern void lk_bind_hudlabel(int i, char *o, size_t n);
 static PIXEL_OUT_T lk_mh_c[LK_MH_H][LK_MH_W];
 static uint8 lk_mh_a[LK_MH_H][LK_MH_W];
 static long lk_mh_fr = -1; static int lk_mh_y0 = LK_MH_H, lk_mh_y1 = -1;
-static const uint8 lk_mh_font[39][7] = {   /* 5 x 7: A..Z, 0..9, '-', '?', ' ' */
+static const uint8 lk_mh_font[40][7] = {   /* 5 x 7: A..Z, 0..9, '-', '?', ' ', '/' */
   {14,17,17,31,17,17,17},{30,17,17,30,17,17,30},{14,17,16,16,16,17,14},{30,17,17,17,17,17,30},{31,16,16,30,16,16,31},{31,16,16,30,16,16,16},{14,17,16,23,17,17,15},
   {17,17,17,31,17,17,17},{14,4,4,4,4,4,14},{7,2,2,2,2,18,12},{17,18,20,24,20,18,17},{16,16,16,16,16,16,31},{17,27,21,21,17,17,17},{17,17,25,21,19,17,17},
   {14,17,17,17,17,17,14},{30,17,17,30,16,16,16},{14,17,17,17,21,18,13},{30,17,17,30,20,18,17},{15,16,16,14,1,1,30},{31,4,4,4,4,4,4},{17,17,17,17,17,17,14},
   {17,17,17,17,17,10,4},{17,17,17,21,21,21,10},{17,17,10,4,10,17,17},{17,17,10,4,4,4,4},{31,1,2,4,8,16,31},
   {14,17,19,21,25,17,14},{4,12,4,4,4,4,14},{14,17,1,2,4,8,31},{31,2,4,2,1,17,14},{2,6,10,18,31,2,2},{31,16,30,1,1,17,14},{6,8,16,30,17,17,14},{31,1,2,4,8,8,8},
-  {14,17,17,14,17,17,14},{14,17,17,15,1,2,12},{0,0,0,31,0,0,0},{14,17,1,2,4,0,4},{0,0,0,0,0,0,0} };
-static int lk_mh_gi(int ch) { if (ch >= 'a' && ch <= 'z') ch -= 32; if (ch >= 'A' && ch <= 'Z') return ch - 'A'; if (ch >= '0' && ch <= '9') return 26 + ch - '0'; if (ch == '-') return 36; if (ch == ' ') return 38; return 37; }
+  {14,17,17,14,17,17,14},{14,17,17,15,1,2,12},{0,0,0,31,0,0,0},{14,17,1,2,4,0,4},{0,0,0,0,0,0,0},{1,1,2,4,8,16,16} };
+static int lk_mh_gi(int ch) { if (ch >= 'a' && ch <= 'z') ch -= 32; if (ch >= 'A' && ch <= 'Z') return ch - 'A'; if (ch >= '0' && ch <= '9') return 26 + ch - '0'; if (ch == '-') return 36; if (ch == ' ') return 38; if (ch == '/') return 39; return 37; }
 static int lk_mh_live, lk_mh_only;   /* Start menu build: the chip palette (pixel[], follows the menu's fades), hearts only */
 static PIXEL_OUT_T lk_mh_rgb(int pick) { return (lk_o_palmode && !lk_mh_live) ? lk_o_pix[pick & 0x3F] : pixel[pick & 0x3F]; }
 static void lk_mh_put(int x, int y, PIXEL_OUT_T c, int a) {   /* a = 255 opaque, else alpha over what is there (layer pixels blend too) */
@@ -123,7 +123,7 @@ static void lk_mh_crop(int x0, int x1, int ly0, int ly1, int dx, int dy, int fil
   if (!place) return;
   memset(lk_mh_m, 0, sizeof lk_mh_m);
   for (y = 0; y < h; y++) for (x = 0; x < w; x++) { int wp = lk_o_win(by0 + y, bx0 + x, 0); if (wp >= 0 && (wp & 0xF) && (wp & 0x3F) != fillp && (wp & 0x3F) != greyp) lk_mh_m[y + 1][x + 1] = (uint8)(1 + (wp & 0x3F)); }
-  if (outl & 2) {   /* LK_MHUD v2: transparent pixels enclosed by the crop (not 4-connected to its outside) keep their bar colour: the hilt's purple / grey inner pixels (user 2026-10-30) */
+  if (outl & 2) {   /* LK_MHUD v3: transparent pixels enclosed by the crop (not 4-connected to its outside) keep their bar colour: the hilt's purple / grey inner pixels (user 2026-10-30) */
     static short q[64 * 120]; int qn = 0, qi = 0;
     lk_mh_m[0][0] = 255; q[qn++] = 0;
     while (qi < qn) { int c0 = q[qi++], cy0 = c0 / 120, cx0 = c0 % 120, d; static const int ddx[4] = { 1, -1, 0, 0 }, ddy[4] = { 0, 0, 1, -1 };
@@ -155,6 +155,13 @@ static void lk_mh_count(int cx, int cy, int r, int q, PIXEL_OUT_T white) {   /* 
   for (y = -1; y <= 7; y++) for (x = -1; x <= wd; x++) lk_mh_put(x0 + x, y0 + y, 0x0A0814u, 215);
   if (two) { lk_mh_glyph(x0, y0, '0' + q / 10, white); lk_mh_glyph(x0 + 6, y0, '0' + q % 10, white); } else lk_mh_glyph(x0, y0, '0' + q, white);
 }
+static void lk_mh_otext(int x, int y, const char *t, PIXEL_OUT_T white) {   /* small 5 x 7 font with a 1 px dark outline (gold, life numbers) */
+  int n = (int)strlen(t), k, yy, xx;
+  for (k = 0; k < n; k++) { int gi = lk_mh_gi(t[k]); for (yy = -1; yy <= 7; yy++) for (xx = -1; xx <= 5; xx++) { int on = 0, j2, i2;
+      for (j2 = -1; j2 <= 1 && !on; j2++) for (i2 = -1; i2 <= 1 && !on; i2++) { int y3 = yy + j2, x3 = xx + i2; if (y3 >= 0 && y3 < 7 && x3 >= 0 && x3 < 5 && (lk_mh_font[gi][y3] & (16 >> x3))) on = 1; }
+      if (on && !(yy >= 0 && yy < 7 && xx >= 0 && xx < 5 && (lk_mh_font[gi][yy] & (16 >> xx)))) lk_mh_put(x + 6 * k + xx, y + yy, 0x0A0814u, 190); }
+    lk_mh_glyph(x + 6 * k, y, t[k], white); }
+}
 static void lk_mh_begin(int w, int e) {
   long fr = platform_frame_number(); int y, x, fillp = -1, greyp = -1, whitep = -1, hw, hh, sw, sh, gw, gh, bottom, cx, cy, o = 16, r = 10, k;
   int top = -1, bot = -1; PIXEL_OUT_T fill, white, grey;
@@ -179,16 +186,15 @@ static void lk_mh_begin(int w, int e) {
   fill = lk_mh_rgb(fillp); white = whitep >= 0 ? lk_mh_rgb(whitep) : 0xEEEEEEu; grey = greyp >= 0 ? lk_mh_rgb(greyp) : 0x666666u;
   /* top left: hearts, below them sword + gauge */
   lk_mh_crop(88, 183, top, bot, 6, 5, fillp, greyp, &hw, &hh, 1, 1);
+  if (hw > 0) { char lt[12]; int ch = SW(0xFF543E) & 0xFFFF, mh = SW(0xFF547E) & 0xFFFF, cur = ch ? ((ch + 0x100) & 0xFFFF) >> 8 : 0, mx = mh ? ((mh + 0x100) & 0xFFFF) >> 8 : 0;   /* as the game counts: non-zero + $100 (word), then / 256 */ if (cur > 99) cur = 99; if (mx > 99) mx = 99;   /* v3: life as numbers right of the hearts (user 2026-10-31), the values of GetHealthDisplayValues $00F416 */
+    snprintf(lt, sizeof lt, "%d/%d", cur, mx); lk_mh_otext(6 + hw + 5, 5 + (hh > 7 ? (hh - 7) / 2 : 0), lt, white); }
   if (lk_mh_only) return;   /* Start menu: the hearts only (nothing there overlaps the menu windows) */
   lk_mh_crop(15, 87, top, bot, 6, 5 + (hh ? hh : 14) + 4, fillp, greyp, &sw, &sh, 1, 2);   /* sword + gauge without the dark outline (user 2026-10-30: the black hilt became a dark lump), the hilt's enclosed purple / grey pixels filled */
   /* bottom right: gold */
   bottom = lk_tall_keep(200) ? 224 : 185;
   { char gt[8]; int g = SW(0xFF120E) & 0xFFFF, n2, k2, gx, gy, yy, xx; if (g > 9999) g = 9999;   /* gold in the small 5 x 7 font with a dark outline (user: the bar's big digits looked too large) */
-    n2 = snprintf(gt, sizeof gt, "%dG", g); gw = n2 * 6 - 1; gh = 7; gx = w - 6 - gw; gy = bottom - 6 - gh;
-    for (k2 = 0; k2 < n2; k2++) { int gi = lk_mh_gi(gt[k2]); for (yy = -1; yy <= 7; yy++) for (xx = -1; xx <= 5; xx++) { int on = 0, j2, i2;
-        for (j2 = -1; j2 <= 1 && !on; j2++) for (i2 = -1; i2 <= 1 && !on; i2++) { int y3 = yy + j2, x3 = xx + i2; if (y3 >= 0 && y3 < 7 && x3 >= 0 && x3 < 5 && (lk_mh_font[gi][y3] & (16 >> x3))) on = 1; }
-        if (on && !(yy >= 0 && yy < 7 && xx >= 0 && xx < 5 && (lk_mh_font[gi][yy] & (16 >> xx)))) lk_mh_put(gx + 6 * k2 + xx, gy + yy, 0x0A0814u, 190); }
-      lk_mh_glyph(gx + 6 * k2, gy, gt[k2], white); } }
+    n2 = snprintf(gt, sizeof gt, "%dG", g); gw = n2 * 6 - 1; gh = 7; gx = w - 6 - gw; gy = bottom - 6 - gh; (void)k2; (void)yy; (void)xx;
+    lk_mh_otext(gx, gy, gt, white); }
   /* top right: the diamond, ONE disc per function at its default place (user 2026-10-30: the disc shows the button the function is bound to, e.g. 'R1', and follows the key configuration):
      left = MD A (sword, default pad X), bottom = none (the jump disc with the boots was dropped, user 2026-10-30), top = Quick 1 (pad Y), right = Quick 2 (pad B) or Button C while Quick Items is off */
   cx = w - 30; cy = 31;
@@ -208,7 +214,7 @@ static void lk_mh_begin(int w, int e) {
     } }
   (void)e; (void)sh; (void)sw;
 }
-static int lk_mh_menu(void) {   /* LK_MHUD v2: CheckForMenuOpen $007624 is on the game's call stack (Start menu set-up / screens; lk_menu_seen of patch_wide.py comes one frame late: the old bar flashed for one frame when the menu opened, user 2026-10-30) */
+static int lk_mh_menu(void) {   /* LK_MHUD v3: CheckForMenuOpen $007624 is on the game's call stack (Start menu set-up / screens; lk_menu_seen of patch_wide.py comes one frame late: the old bar flashed for one frame when the menu opened, user 2026-10-30) */
   static long fr = -2; static int v; long f = platform_frame_number();
   if (f != fr) { int i, d = func_table_depth(); fr = f; v = 0; for (i = 0; i < d; i++) if (func_table_stack(i) == 0x007624u) { v = 1; break; } }
   return v;
@@ -275,7 +281,7 @@ static void lk_qr_fill(void) {
   }
   { const char *e = getenv("LANDSTALKER_ICON_DUMP"); if (e && *e) { FILE *f = fopen(e, "wb"); if (f) { for (id = 0; id < 64; id++) if (lk_q_have[id]) { uint8 b = (uint8)id; fwrite(&b, 1, 1, f); fwrite(lk_q_mask[id], 1, 256, f); fwrite(lk_q_px[id], sizeof(PIXEL_OUT_T), 256, f); } fclose(f); } } }   /* test aid: the icons in the cache file format */
 }
-/* ---- end LK_MHUD v2 ---- */
+/* ---- end LK_MHUD v3 ---- */
 '''
     s = s.rstrip("\n") + "\n" + module
     open(p, "w").write(s)
