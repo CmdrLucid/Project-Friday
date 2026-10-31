@@ -15,7 +15,7 @@ Without the Sprint button the game state never changes (the blend is picture onl
 Needs patch_own.py, patch_sprint.py and patch_sprintanim.py before it.  Idempotent.  usage: patch_subpix.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_SUBPIX v2"
+VER = "LK_SUBPIX v3"   # v3 (2026-10-31): blend direction from the scroll steps
 
 # ---- vdp_render.c (own renderer): mark Nigel's sprite pixels, remember the world pixels the compositor wrote, the frame's blend direction ----
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
@@ -23,15 +23,21 @@ s = open(p).read()
 if VER not in s:
     a = "static uint16 lk_o_spr[224][LK_OSW];"
     assert s.count(a) == 1, "vdp_render.c: run patch_own.py first"
-    s = s.replace(a, r'''/* ---- LK_SUBPIX v2: smooth sub-pixel scrolling (tools/patch_subpix.py) ---- */
+    s = s.replace(a, r'''/* ---- LK_SUBPIX v3: smooth sub-pixel scrolling (tools/patch_subpix.py) ---- */
 static uint8 lk_ss_nig[224][LK_OSW]; static int lk_ss_cur;   /* 1 = the sprite pixel belongs to Nigel (entity offset 0) */
 uint8_t lk_ss_w[224][LK_OSW]; uint32_t lk_ss_ref[224][LK_OSW]; long lk_ss_lgen[224], lk_ss_gen; int lk_ss_frac;   /* world pixel flag + the colour the compositor wrote; line stamps; blend: -1 = with the line above, +1 = below, 0 = none */
 extern int lk_smooth_get(void);
+static int lk_ss_vs;   /* test aid: the VDP's vertical scroll of plane A this frame */
 static void lk_ss_update(int sum, int rm) {   /* once per own map frame, with the camera the picture is drawn from */
-  static int psum, prm = -1; int d = sum - psum;
+  static int psum, prm = -1, pvs, pdv; int d = sum - psum, dv = ((lk_ss_vs - pvs + 512) & 1023) - 512;
   lk_ss_gen++;
-  lk_ss_frac = (lk_smooth_get() && rm == prm && (d & 1) && d >= -16 && d <= 16 && !lk_hd_n) ? ((sum & 1) ? 1 : -1) : 0;
-  { static int lg = -1; if (lg < 0) lg = getenv("LANDSTALKER_SS_LOG") != NULL; if (lg) fprintf(stderr, "ss: gen %ld sum %d d %d room %d frac %d\n", lk_ss_gen, sum, d, rm, lk_ss_frac); }   /* test aid: one line per own map frame */
+  /* v3 (2026-10-31, user: 'after a menu it jitters again'): the direction comes from the VDP's own vertical scroll, not from the camera parity.  At 1.5 x the scroll moves 1, 2, 1, 2 lines;
+     the frame after the SMALLER step is half a line behind the even motion (behind = content too low while the scroll grows, too high while it shrinks), the frame after the larger one half a line ahead.  The parity rule
+     (odd camera sum = too low) held only while the game rounds the scroll down: after a room reload (closing the Start menu, LoadRoomPath) the scroll can round the other way, and the old rule
+     blended in the wrong direction = twice the jitter until the next reload (measured on rec_20261031_0756: vs - sum / 2 alternated before the menu visit, constant after it). */
+  lk_ss_frac = (lk_smooth_get() && rm == prm && (d & 1) && d >= -16 && d <= 16 && !lk_hd_n && dv && pdv && (dv > 0) == (pdv > 0) && abs(dv - pdv) == 1) ? ((abs(dv) < abs(pdv)) == (dv > 0) ? 1 : -1) : 0;   /* behind the even motion: scrolling down (dv > 0) = vs too small = content too low (+1), scrolling up = content too high (-1) */
+  pvs = lk_ss_vs; pdv = dv;
+  { static int lg = -1; if (lg < 0) lg = getenv("LANDSTALKER_SS_LOG") != NULL; if (lg) { const uint8_t *lr = bus_get_ram(); int px = (int16_t)((lr[(0x5414) ^ 1] << 8) | lr[(0x5415) ^ 1]), py = (int16_t)((lr[(0x5416) ^ 1] << 8) | lr[(0x5417) ^ 1]); fprintf(stderr, "ss: gen %ld sum %d d %d room %d frac %d px %d py %d vs %d\n", lk_ss_gen, sum, d, rm, lk_ss_frac, px, py, lk_ss_vs); } }   /* test aid: one line per own map frame */
   psum = sum; prm = rm;
 }
 ''' + a, 1)
@@ -40,22 +46,22 @@ static void lk_ss_update(int sum, int rm) {   /* once per own map frame, with th
     s = s.replace(a, a + " lk_ss_nig[Y][X] = (uint8)lk_ss_cur;")
     a = "  if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr);"
     assert s.count(a) == 1
-    s = s.replace(a, "  if (draw) memset(lk_ss_nig, 0, sizeof lk_ss_nig);   /* LK_SUBPIX v2 */\n" + a, 1)
+    s = s.replace(a, "  if (draw) memset(lk_ss_nig, 0, sizeof lk_ss_nig);   /* LK_SUBPIX v3 */\n" + a, 1)
     a = "    if (draw && lk_o_exon) lk_o_extras_upto(sord[k]);\n    lk_o_nspr++;\n"
     assert s.count(a) == 1
-    s = s.replace(a, "    lk_ss_cur = 0;\n" + a + "    lk_ss_cur = offs[k] == 0;   /* LK_SUBPIX v2: Nigel's pieces (also the sprint pose canvas) */\n", 1)
+    s = s.replace(a, "    lk_ss_cur = 0;\n" + a + "    lk_ss_cur = offs[k] == 0;   /* LK_SUBPIX v3: Nigel's pieces (also the sprint pose canvas) */\n", 1)
     a = "  }\n  return nk;\n}\nstatic void lk_o_build(void) {"
     assert s.count(a) == 1
     s = s.replace(a, "  }\n  lk_ss_cur = 0;\n  return nk;\n}\nstatic void lk_o_build(void) {", 1)
     a = "int upred = 1184 - (cam2 - cam0 + 160), vpred = ((cam0 + cam2) >> 1) - 104;\n"
     assert s.count(a) == 1
-    s = s.replace(a, a + "        lk_ss_update(cam0 + cam2, rm);   /* LK_SUBPIX v2 */\n", 1)
+    s = s.replace(a, a + "        lk_ss_vs = (int16_t)vsA; lk_ss_update(cam0 + cam2, rm);   /* LK_SUBPIX v3 */\n", 1)
     a = "      if (lk_o_mode == 2) row[i] = (PIXEL_OUT_T)col;\n"
     assert s.count(a) == 1
-    s = s.replace(a, a + "      if (lk_ss_frac) { lk_ss_w[line][i] = (uint8_t)(!black && src != 4 && !(src == 1 && sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW && lk_ss_nig[sl][si])); lk_ss_ref[line][i] = (uint32_t)col; }   /* LK_SUBPIX v2 */\n", 1)
+    s = s.replace(a, a + "      if (lk_ss_frac) { lk_ss_w[line][i] = (uint8_t)(!black && src != 4 && !(src == 1 && sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW && lk_ss_nig[sl][si])); lk_ss_ref[line][i] = (uint32_t)col; }   /* LK_SUBPIX v3 */\n", 1)
     a = "    lk_hd_dstamp[line] = lk_hd_gen;\n"
     assert s.count(a) == 1
-    s = s.replace(a, a + "    if (lk_ss_frac) lk_ss_lgen[line] = lk_ss_gen;   /* LK_SUBPIX v2 */\n", 1)
+    s = s.replace(a, a + "    if (lk_ss_frac) lk_ss_lgen[line] = lk_ss_gen;   /* LK_SUBPIX v3 */\n", 1)
     open(p, "w").write(s)
     print("vdp_render.c patched:", VER)
 
@@ -65,7 +71,7 @@ s = open(p).read()
 if VER not in s:
     a = "void platform_present_frame(const uint8_t *framebuffer) {\n"
     assert s.count(a) == 1
-    module = r'''/* ---- LK_SUBPIX v2: smooth sub-pixel scrolling (tools/patch_subpix.py) ---- */
+    module = r'''/* ---- LK_SUBPIX v3: smooth sub-pixel scrolling (tools/patch_subpix.py) ---- */
 static int lk_smooth_o = -1;
 int lk_smooth_get(void) { if (lk_smooth_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_SMOOTH"); char p[512]; FILE *f; int v = 1; snprintf(p, sizeof p, "%s/.landstalker_smooth", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 1; fclose(f); } if (e && *e) v = atoi(e); lk_smooth_o = v ? 1 : 0; } return lk_smooth_o; }   /* Options > Quality of Life > Smooth Scrolling (id 43), default On (user 2026-10-30: 'passt alles, einbauen'); ~/.landstalker_smooth, env LANDSTALKER_SMOOTH=0|1 wins */
 void lk_smooth_set(int v) { const char *h = getenv("HOME"); char p[512]; FILE *f; lk_smooth_get(); lk_smooth_o = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_smooth", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_smooth_o); fclose(f); } }
@@ -91,7 +97,7 @@ static const uint8_t *lk_ss_apply(const uint8_t *fb) {
     return (const uint8_t *)buf;
 }
 '''
-    s = s.replace(a, module + a + "    framebuffer = lk_ss_apply(framebuffer);   /* LK_SUBPIX v2 */\n", 1)
+    s = s.replace(a, module + a + "    framebuffer = lk_ss_apply(framebuffer);   /* LK_SUBPIX v3 */\n", 1)
     open(p, "w").write(s)
     print("platform_sdl.c patched:", VER)
 
@@ -101,12 +107,12 @@ s = open(p).read()
 if VER not in s:
     a = "    if (e && atoi(e) >= 2 && atoi(e) <= 8) lk_sprint_step = atoi(e);\n"
     assert s.count(a) == 1, "func_table.c: run patch_sprint.py first"
-    s = s.replace(a, "    if (e && atoi(e) >= 2 && atoi(e) <= 8) lk_ss_envstep = 1;   /* LK_SUBPIX v2 */\n" + a, 1)
+    s = s.replace(a, "    if (e && atoi(e) >= 2 && atoi(e) <= 8) lk_ss_envstep = 1;   /* LK_SUBPIX v3 */\n" + a, 1)
     a = "        { static int alt; int st = lk_sprint_step; if ((st & 1) && lk_sprint_alt) {"
     assert s.count(a) == 1
     s = s.replace(a, "        { static int alt; int sm = lk_smooth_get() && !lk_ss_envstep, st = sm ? 3 : lk_sprint_step; if ((st & 1) && lk_sprint_alt && !sm) {", 1)   # Smooth Scrolling On = 1.5 x, constant (no 4 / 2 alternation); read every frame, so the options row works at once
     a = "static long lk_sprint_frame = -10;\n"
     assert s.count(a) == 1
-    s = s.replace(a, a + "extern int lk_smooth_get(void); static int lk_ss_envstep;   /* LK_SUBPIX v2: LANDSTALKER_SPRINT_STEP set = that step wins over Smooth Scrolling */\n", 1)
+    s = s.replace(a, a + "extern int lk_smooth_get(void); static int lk_ss_envstep;   /* LK_SUBPIX v3: LANDSTALKER_SPRINT_STEP set = that step wins over Smooth Scrolling */\n", 1)
     open(p, "w").write(s)
     print("func_table.c patched:", VER)
