@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import roomgraph, romroom
 
-VERSION = "roommap v14"   # v14: connections keyed by their index (two rooms can be joined twice)   # v13: layout pulled apart by one unit at every box edge (longer bridges, lanes for the bent corridors)   # v12: bent corridors (L / Z / U) for the pairs still apart   # v11: corridors must not cross   # v10: straight free corridors between facing doors count as connected (E lines: last field)   # v9: no door may touch a room it does not lead to (false contacts weigh more than missed doors)   # v8: boxes sized by door count, one slot per door, best of TRIALS randomised placements (user: proportions need not be right, doors must fit)   # v7: floors from a walk over the stairs first; v6: most-linked room next, spot with the smallest total door distance (user: a door into nothing)   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
+VERSION = "roommap v15"   # v15: route search through the free lanes for the pairs still apart (any number of bends, at most 8)   # v14: connections keyed by their index (two rooms can be joined twice)   # v13: layout pulled apart by one unit at every box edge (longer bridges, lanes for the bent corridors)   # v12: bent corridors (L / Z / U) for the pairs still apart   # v11: corridors must not cross   # v10: straight free corridors between facing doors count as connected (E lines: last field)   # v9: no door may touch a room it does not lead to (false contacts weigh more than missed doors)   # v8: boxes sized by door count, one slot per door, best of TRIALS randomised placements (user: proportions need not be right, doors must fit)   # v7: floors from a walk over the stairs first; v6: most-linked room next, spot with the smallest total door distance (user: a door into nothing)   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
 TRIALS = 60   # randomised placements per area (v8)
 KMAX = 8      # how far out (grid units) a room may be put from the door that asks for it (v12)
 TW = 112                     # thumbnail width (pixels): the map cells are drawn at most ~1.3 x this at 1280 x 800
@@ -300,6 +300,53 @@ def build(rom):
                     bends[k] = wp; metall.add(k)
                     for i in range(len(pts) - 1): segs.append((l, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1]))
                     break
+        # v15 (user: 'the two 1-doors could be joined too'): every pair still apart gets a route found by a search through the free lanes (half-unit grid between
+        # the boxes, any number of bends, fewest bends first, then the shortest), never through a box, never on / across another corridor
+        import heapq
+        def route(l, a, b, A, da, B, db):
+            occ = set()
+            for m, (mx, my, ml) in p0.items():
+                if ml != l: continue
+                for i in range(int(2 * mx) + 1, int(2 * (mx + box[m][4]))):
+                    for j in range(int(2 * my) + 1, int(2 * (my + box[m][5]))): occ.add((i, j))
+            for (sl_, su0, sv0, su1, sv1) in segs:
+                if sl_ != l: continue
+                n = int(round(2 * (abs(su1 - su0) + abs(sv1 - sv0))))
+                for t in range(n + 1):
+                    occ.add((int(round(2 * su0 + (2 * su1 - 2 * su0) * t / max(n, 1))), int(round(2 * sv0 + (2 * sv1 - 2 * sv0) * t / max(n, 1)))))
+            S = (int(round(2 * A[0] + da[0])), int(round(2 * A[1] + da[1]))); G = (int(round(2 * B[0] + db[0])), int(round(2 * B[1] + db[1])))
+            if S in occ or G in occ: return None
+            us = [i for (i, j) in occ] + [S[0], G[0]]; vs = [j for (i, j) in occ] + [S[1], G[1]]
+            lo_i, hi_i, lo_j, hi_j = min(us) - 8, max(us) + 8, min(vs) - 8, max(vs) + 8
+            start = (S, da); dist = {start: (0, 0)}; prev = {}; pq = [(0, 0, S, da)]
+            while pq:
+                c, ln, node, d = heapq.heappop(pq)
+                if dist.get((node, d), (1e9,))[0] < c: continue
+                if node == G and d == (-db[0], -db[1]):
+                    path = [node]; st = (node, d)
+                    while st in prev: st = prev[st]; path.append(st[0])
+                    path.reverse(); pts = [A] + [(x / 2.0, y / 2.0) for (x, y) in path] + [B]
+                    wp = [pts[i] for i in range(1, len(pts) - 1) if (pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]) != (0, 0) and
+                          ((pts[i][0] - pts[i - 1][0]) * (pts[i + 1][1] - pts[i][1]) - (pts[i][1] - pts[i - 1][1]) * (pts[i + 1][0] - pts[i][0])) != 0]
+                    return wp
+                for nd in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    if nd == (-d[0], -d[1]): continue
+                    nx = (node[0] + 2 * nd[0], node[1] + 2 * nd[1])
+                    if nx != G and (nx in occ or not (lo_i <= nx[0] <= hi_i and lo_j <= nx[1] <= hi_j)): continue
+                    if nx == G and nx in occ: continue
+                    nc = c + 1 + (6 if nd != d else 0)
+                    if nc < dist.get((nx, nd), (1e9,))[0]:
+                        dist[(nx, nd)] = (nc, 0); prev[(nx, nd)] = (node, d); heapq.heappush(pq, (nc, 0, nx, nd))
+            return None
+        todo = [k for k, (a, b, up, pa, pb) in enumerate(edges_l) if not up and k not in mt and k not in bends and a in p0 and b in p0 and p0[a][2] == p0[b][2]]
+        todo.sort(key=lambda k: abs(p0[edges_l[k][0]][0] - p0[edges_l[k][1]][0]) + abs(p0[edges_l[k][0]][1] - p0[edges_l[k][1]][1]))
+        for k in todo:
+            a, b, up, pa, pb = edges_l[k]; l = p0[a][2]
+            A = (p0[a][0] + pa[0], p0[a][1] + pa[1]); B = (p0[b][0] + pb[0], p0[b][1] + pb[1])
+            wp = route(l, a, b, A, side_of(a, pa), B, side_of(b, pb))
+            if wp is None or len(wp) > 8: continue
+            bends[k] = wp; metall.add(k); pts = [A] + wp + [B]
+            for i in range(len(pts) - 1): segs.append((l, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1]))
         lmin = min(p[2] for p in p0.values())
         for r, (x, y, l) in p0.items(): pos[r] = (ai, l - lmin, x, y)
     variants = [(v['variant'], v['room']) for v in g['variants']]

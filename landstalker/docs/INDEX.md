@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-10-31 (dev, Opus 5.5): ROOM MAP v10 / roommap v15:** route search joins loop doors with bent corridors (up to 8 bends): 484 of 533 door pairs connected, 49 numbered. Headless only.
 - **2026-10-31 (dev, Opus 5.5): ROOM MAP v9 / roommap v14:** layout pulled apart (longer bridges), bent corridors, scrolling with D-pad / stick (floors now L1 / R1): 451 of 533 door pairs connected, 82 numbered, no corridor through a room. Headless mapshots only.
 - **2026-10-31 (dev, Opus 5.5): ROOM MAP v8 / roommap v11:** no door touches a room it does not lead to, straight corridors between facing doors, no crossing corridors: 439 of 533 door pairs connected, 94 numbered. Headless mapshots only.
 - **2026-10-31 (dev, Opus 5.5): ROOM MAP v7 / roommap v8:** slabs sized by door count with one slot per door (user: doors must fit, proportions do not matter), best of 60 placements, numbered badges for the remaining loop doors (136 of 520) + legend. Headless mapshots only.

@@ -1,6 +1,6 @@
 # Room map (MODERN_IDEAS (B), started 2026-10-31)
 
-User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (end of 2026-10-31): v9 / roommap v14 (pulled apart, straight + bent corridors, scrolling, floors on L1 / R1) built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
+User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (end of 2026-10-31): v10 / roommap v15 (route search, scrolling, floors on L1 / R1) built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
 
 ## How it works
 - **Data (build time, from the player's ROM, never in git):** `tools/roommap.py ROM build/roommap` (step of build.sh, also run by firstrun.py; ~2 min on all cores the first time,
@@ -77,6 +77,11 @@ User wishes: own room map (not the island map), location only (no 'where to go n
 - Runtime LK_ROOMMAP v9: a readable minimum scale (panel height / 16 per unit); bigger maps scroll with the D-pad / left stick / arrow keys (start: current room in the
   middle, limits keep content on screen, gold arrows at the frame where more content lies), floors on L1 / R1 (+ PgUp / PgDn), content clipped to the frame, bent
   corridors drawn from the E line's bend points. Test aid LANDSTALKER_MAPSHOT_PAN=x,y. ~/Karte_Entwurf6.png.
+
+## v10 / roommap v15 (2026-10-31, user: 'the two 1-doors could be joined too')
+- Route search for every pair still apart after the L / Z / U pass: half-unit grid in the lanes between boxes, cost = length + 6 per bend (fewest bends first), never
+  through a box, never on a cell of another corridor (so no crossing), at most 8 bends, shortest pairs first. 484 of 533 pairs connected, 61 bent (33 with > 2 bends),
+  49 numbered; checker 0 problems. Runtime LK_ROOMMAP v10 reads / draws up to 8 bend points. Swamp Shrine floor 1: no number left (~/Karte_Entwurf7.png).
 
 ## Open / ideas
 - User look at it on the Deck (style, size, button). Town interiors are in the town's grid (no 'inside' grouping yet). Mercator outdoors shows as floor 2 / 3 (houses with cellars).
