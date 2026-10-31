@@ -1,6 +1,6 @@
 # Room map (MODERN_IDEAS (B), started 2026-10-31)
 
-User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status: v2 built (dev): v1 hung on the Deck (see v2 below), towns dropped; user check of v2 open.
+User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (end of 2026-10-31): v4 / roommap v5 built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
 
 ## How it works
 - **Data (build time, from the player's ROM, never in git):** `tools/roommap.py ROM build/roommap` (step of build.sh, also run by firstrun.py; ~2 min on all cores the first time,
@@ -34,6 +34,14 @@ User wishes: own room map (not the island map), location only (no 'where to go n
   12 cells off the game's cell coordinates (the game puts the height map at (12, 12); connection records and Nigel `$FF5400` use the game's cells), so the exit side was judged
   on a wrong footprint (355: door (30, 25), footprint x 5..18 -> now 17..30 = SE). Fixed in roommap.py footprint() (v4); Nigel's dot uses the same frame now.
   Cause 2: the picture was 1.5 x the cell: now as wide as the cell, its bottom on the cell's bottom corner, clipped to the cell diamond (walls cut at the top, LK_ROOMMAP v3).
+
+## v4 / roommap v5 (2026-10-31, user: 'connections where there are none' in the Swamp Shrine)
+- Cause: rooms with several doors on one side (room 5: NW to 10, 7 and 0) cannot be shown with one cell per room; pushed neighbours got long diagonal bars across other
+  rooms. Geometric placement per floor re-tested (stairs removed): still 10 loop conflicts / 585 overlapping cells, so it stays schematic.
+- Now: each room = box of W x H grid units (8 cells per unit, floor proportions); a neighbour is put against the side of the door, shifted along it so that both door
+  points meet; stairs put the upper room over the door on the next floor; taken places: slide along the side, then push outwards. layout.txt R lines + 'W H', E lines + both
+  door points (local units x 10). Drawn: framed boxes with the room picture clipped inside, a gold door mark at every door, a connector only between doors that really meet
+  (<= 0.8 units apart; dungeon loops do not fit the grid), stair triangles at their doors, Nigel inside the box.
 
 ## Open / ideas
 - User look at it on the Deck (style, size, button). Town interiors are in the town's grid (no 'inside' grouping yet). Mercator outdoors shows as floor 2 / 3 (houses with cellars).

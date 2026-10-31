@@ -14,16 +14,16 @@ LANDSTALKER_MAPSHOT_FLOOR=n shows floor n instead of the current one.
 Needs patch_keys.py (LK_BMAP), patch_display.py, patch_subpix.py (lk_ss_gen = own map frames) before it.  Idempotent.  usage: patch_roommap.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_ROOMMAP v3"   # v3: room picture clipped to its cell   # v2 (2026-10-31): pad read through the pad thread (v1 hung: controller events are off, LK_PADTHREAD); dungeons only
+VER = "LK_ROOMMAP v4"   # v4 (2026-10-31): rooms drawn as boxes of their size, connectors at the doors (tools/roommap.py v5)   # v3: room picture clipped to its cell   # v2 (2026-10-31): pad read through the pad thread (v1 hung: controller events are off, LK_PADTHREAD); dungeons only
 
 p = os.path.join(root, "src/platform_sdl.c")
 s = open(p).read()
 if VER not in s:
-    module = r'''/* ---- LK_ROOMMAP v3: room map (tools/patch_roommap.py) ---- */
-typedef struct { int room, area, floor, gx, gy, vbit, hl, ht, hw, hh, tw, th; const uint16_t *px; } lk_rm_t;
+    module = r'''/* ---- LK_ROOMMAP v4: room map (tools/patch_roommap.py) ---- */
+typedef struct { int room, area, floor, gx, gy, vbit, hl, ht, hw, hh, W, H, tw, th; const uint16_t *px; } lk_rm_t;
 static lk_rm_t *lk_rm_r; static int lk_rm_n, lk_rm_loaded, lk_rm_ok, lk_rm_nar;
 static short lk_rm_idx[1024], lk_rm_var[1024]; static int lk_rm_afl[256]; static char lk_rm_anm[256][28];
-static int (*lk_rm_e)[3]; static int lk_rm_ne; static uint8_t *lk_rm_blob;
+static int (*lk_rm_e)[7]; static int lk_rm_ne; static uint8_t *lk_rm_blob;
 static volatile int lk_rm_req; static const uint8_t *lk_rm_lastfb;
 static int lk_rm_open, lk_rm_area, lk_rm_floor, lk_rm_cur, lk_rm_nx, lk_rm_ny, lk_rm_blink; static long lk_rm_seen_gen = -1, lk_rm_gen_frame = -1000;
 static uint32_t *lk_rm_buf; static int lk_rm_bw, lk_rm_bh, lk_rm_dirty = 1; static SDL_Texture *lk_rm_tex; static int lk_rm_tw, lk_rm_th;
@@ -35,13 +35,13 @@ static void lk_rm_load(void) {
     { const char *e = getenv("LANDSTALKER_MAPDIR"); if (e && *e) snprintf(dir, sizeof dir, "%s", e); else { char *b = SDL_GetBasePath(); snprintf(dir, sizeof dir, "%sroommap", b ? b : "./"); if (b) SDL_free(b); } }
     snprintf(path, sizeof path, "%s/layout.txt", dir); f = fopen(path, "r");
     if (!f) { printf("roommap: no map data (%s): the Map button does nothing (tools/roommap.py)\n", path); return; }
-    int cap = 1024, ecap = 2048; lk_rm_r = (lk_rm_t *)calloc(cap, sizeof *lk_rm_r); lk_rm_e = (int (*)[3])calloc(ecap, sizeof *lk_rm_e);
+    int cap = 1024, ecap = 2048; lk_rm_r = (lk_rm_t *)calloc(cap, sizeof *lk_rm_r); lk_rm_e = (int (*)[7])calloc(ecap, sizeof *lk_rm_e);
     while (lk_rm_r && lk_rm_e && fgets(l, sizeof l, f)) {
-        int a, b, c, d, e2, g, h, i2, j, k; char nm[64];
+        int a, b, c, d, e2, g, h, i2, j, k, W, H, q1, q2, q3, q4; char nm[64];
         if (l[0] == 'A' && sscanf(l + 2, "%d %d %63s", &a, &b, nm) == 3 && a >= 0 && a < 256) { lk_rm_afl[a] = b; snprintf(lk_rm_anm[a], sizeof lk_rm_anm[a], "%s", nm); if (a + 1 > lk_rm_nar) lk_rm_nar = a + 1; }
-        else if (l[0] == 'R' && sscanf(l + 2, "%d %d %d %d %d %d %d %d %d %d", &a, &b, &c, &d, &e2, &g, &h, &i2, &j, &k) == 10 && a >= 0 && a < 1024 && lk_rm_n < cap) {
-            lk_rm_t *r = &lk_rm_r[lk_rm_n]; r->room = a; r->area = b; r->floor = c; r->gx = d; r->gy = e2; r->vbit = g; r->hl = h; r->ht = i2; r->hw = j; r->hh = k; lk_rm_idx[a] = (short)lk_rm_n++; }
-        else if (l[0] == 'E' && sscanf(l + 2, "%d %d %d", &a, &b, &c) == 3 && lk_rm_ne < ecap) { lk_rm_e[lk_rm_ne][0] = a; lk_rm_e[lk_rm_ne][1] = b; lk_rm_e[lk_rm_ne][2] = c; lk_rm_ne++; }
+        else if (l[0] == 'R' && sscanf(l + 2, "%d %d %d %d %d %d %d %d %d %d %d %d", &a, &b, &c, &d, &e2, &g, &h, &i2, &j, &k, &W, &H) == 12 && a >= 0 && a < 1024 && lk_rm_n < cap) {
+            lk_rm_t *r = &lk_rm_r[lk_rm_n]; r->room = a; r->area = b; r->floor = c; r->gx = d; r->gy = e2; r->vbit = g; r->hl = h; r->ht = i2; r->hw = j; r->hh = k; r->W = W; r->H = H; lk_rm_idx[a] = (short)lk_rm_n++; }
+        else if (l[0] == 'E' && sscanf(l + 2, "%d %d %d %d %d %d %d", &a, &b, &c, &q1, &q2, &q3, &q4) == 7 && lk_rm_ne < ecap) { int *e = lk_rm_e[lk_rm_ne++]; e[0] = a; e[1] = b; e[2] = c; e[3] = q1; e[4] = q2; e[5] = q3; e[6] = q4; }
         else if (l[0] == 'V' && sscanf(l + 2, "%d %d", &a, &b) == 2 && a >= 0 && a < 1024) lk_rm_var[a] = (short)b;
     }
     fclose(f);
@@ -95,45 +95,58 @@ static void lk_rm_render(int W, int H, int cur, int floor, int blink) {
     { char t[80]; extern const char *lk_lang_tr(const char *en); snprintf(t, sizeof t, "%s", lk_rm_anm[area]); lk_rm_text(px0 + 6 * sc, py0 + 5 * sc, t, sc, GOLD);
       if (nfl > 1) { snprintf(t, sizeof t, "%s %d / %d", lk_lang_tr("FLOOR"), floor + 1, nfl); lk_rm_text(px0 + pw - 6 * sc - (int)strlen(t) * 6 * sc, py0 + 5 * sc, t, sc, floor == cr->floor ? 0xFFF0E0B0u : 0xFFA09070u);
                     for (int k = 0; k < nfl && k < 12; k++) lk_rm_fill(px0 + pw - 6 * sc - (nfl - k) * 4 * sc, py0 + 15 * sc, 3 * sc, 2 * sc, k == floor ? GOLD : GOLDD); } }
-    /* rooms of this floor that are shown: visited or current */
-    int gx0 = 1 << 30, gx1 = -(1 << 30), gy0 = 1 << 30, gy1 = -(1 << 30), any = 0;
-    for (int i = 0; i < lk_rm_n; i++) { const lk_rm_t *r = &lk_rm_r[i]; if (r->area != area || r->floor != floor || !(i == cur || lk_rm_visited(r))) continue; int u = r->gx - r->gy, v = r->gx + r->gy; if (u < gx0) gx0 = u; if (u > gx1) gx1 = u; if (v < gy0) gy0 = v; if (v > gy1) gy1 = v; any = 1; }
+    /* rooms of this floor that are shown: visited or current (v4: boxes of W x H grid units, tools/roommap.py v5) */
+    double umin = 1e9, umax = -1e9, vmin = 1e9, vmax = -1e9; int any = 0;
+    for (int i = 0; i < lk_rm_n; i++) { const lk_rm_t *r = &lk_rm_r[i]; if (r->area != area || r->floor != floor || !(i == cur || lk_rm_visited(r))) continue;
+        double u0 = r->gx - (r->gy + r->H), u1 = (r->gx + r->W) - r->gy, v0 = r->gx + r->gy, v1 = r->gx + r->W + r->gy + r->H;
+        if (u0 < umin) umin = u0; if (u1 > umax) umax = u1; if (v0 < vmin) vmin = v0; if (v1 > vmax) vmax = v1; any = 1; }
     if (!any) { lk_rm_text(px0 + pw / 2 - 21 * sc, py0 + ph / 2, "?", sc * 3, GOLDD); return; }
-    int top = py0 + 22 * sc, aw = pw - 8 * sc, ah = ph - 26 * sc;
-    int C = aw / (gx1 - gx0 + 2); { int c2 = 2 * ah / (gy1 - gy0 + 3); if (c2 < C) C = c2; } if (C > 150) C = 150; if (C < 12) C = 12;
-    int ox = px0 + pw / 2 - (gx0 + gx1) * C / 2, oy = top + ah / 2 - (gy0 + gy1) * C / 4;
-#define LK_RM_CX(r) (ox + ((r)->gx - (r)->gy) * C)
-#define LK_RM_CY(r) (oy + ((r)->gx + (r)->gy) * C / 2)
-    for (int e = 0; e < lk_rm_ne; e++) {   /* passages: bars between the two cells */
+    int top = py0 + 24 * sc, aw = pw - 10 * sc, ah = ph - 30 * sc;
+    double S = aw / (umax - umin + 0.4); { double s2 = 2.0 * ah / (vmax - vmin + 0.4); if (s2 < S) S = s2; } if (S > 110) S = 110; if (S < 5) S = 5;
+    double ox = px0 + pw / 2.0 - (umin + umax) * S / 2.0, oy = top + ah / 2.0 - (vmin + vmax) * S / 4.0;
+#define LK_RM_PX(u, v) (ox + ((u) - (v)) * S)
+#define LK_RM_PY(u, v) (oy + ((u) + (v)) * S / 2.0)
+    const double gap = 0.07;
+    for (int i = 0; i < lk_rm_n; i++) {   /* room boxes: frame, dark inside, the room picture clipped to the box */
+        const lk_rm_t *r = &lk_rm_r[i]; if (r->area != area || r->floor != floor || !(i == cur || lk_rm_visited(r))) continue;
+        int here = i == cur; double u0 = r->gx + gap, v0 = r->gy + gap, u1 = r->gx + r->W - gap, v1 = r->gy + r->H - gap, fr = 2.5 / S;
+        int x0 = (int)LK_RM_PX(u0, v1) - 1, x1 = (int)LK_RM_PX(u1, v0) + 1, y0 = (int)LK_RM_PY(u0, v0) - 1, y1 = (int)LK_RM_PY(u1, v1) + 1;
+        int dw = (int)(LK_RM_PX(u1, v0) - LK_RM_PX(u0, v1)), dh = (r->px && r->tw > 0) ? r->th * dw / r->tw : 0, pyb = (int)LK_RM_PY(u1, v1), pxl = (int)LK_RM_PX(u0, v1);
+        for (int y = y0; y <= y1; y++) for (int x = x0; x <= x1; x++) {
+            double dx = (x - ox) / S, dy = 2.0 * (y - oy) / S, u = (dy + dx) / 2.0, v = (dy - dx) / 2.0;
+            if (u < u0 || u > u1 || v < v0 || v > v1) continue;
+            if (u < u0 + fr || u > u1 - fr || v < v0 + fr || v > v1 - fr) { lk_rm_px(x, y, here ? GOLD : 0xFF3C3858u); continue; }
+            uint32_t c = 0xFF080814u;
+            if (dh > 0) { int ty = y - (pyb - dh), tx = x - pxl; if (ty >= 0 && ty < dh && tx >= 0 && tx < dw) { uint16_t pv = r->px[(size_t)(ty * r->th / dh) * r->tw + tx * r->tw / dw]; if (pv) c = lk_rm_565(pv, 0); } }
+            lk_rm_px(x, y, c);
+        }
+    }
+    for (int e = 0; e < lk_rm_ne; e++) {   /* connectors exactly at the doors; stairs = white triangle at the door (up = this room is the lower one) */
         int a = lk_rm_lookup(lk_rm_e[e][0]), b = lk_rm_lookup(lk_rm_e[e][1]); if (a < 0 || b < 0) continue;
-        const lk_rm_t *ra = &lk_rm_r[a], *rb = &lk_rm_r[b];
-        if (ra->area != area || rb->area != area || ra->floor != floor || rb->floor != floor) continue;
-        if (!(a == cur || lk_rm_visited(ra)) || !(b == cur || lk_rm_visited(rb))) continue;
-        int x0 = LK_RM_CX(ra), y0 = LK_RM_CY(ra), x1 = LK_RM_CX(rb), y1 = LK_RM_CY(rb), n = abs(x1 - x0) > abs(y1 - y0) ? abs(x1 - x0) : abs(y1 - y0); if (n < 1) n = 1;
-        for (int k = 0; k <= n; k += 2) lk_rm_diamond(x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n, C / 9 > 3 ? C / 9 : 3, 0xFFA88848u);
-    }
-    for (int pass = 0; pass < 2; pass++) for (int d = gy0; d <= gy1; d++) for (int i = 0; i < lk_rm_n; i++) {   /* back to front; pass 1 = the current room's frame + Nigel on top */
-        const lk_rm_t *r = &lk_rm_r[i]; if (r->area != area || r->floor != floor || r->gx + r->gy != d || !(i == cur || lk_rm_visited(r))) continue;
-        if (pass == 1 && i != cur) continue;
-        int cx = LK_RM_CX(r), cy = LK_RM_CY(r), here = i == cur;
-        if (pass == 0) { lk_rm_diamond(cx, cy, C * 9 / 10, here ? GOLD : 0xFF3C3858u); lk_rm_diamond(cx, cy, C * 9 / 10 - 3, 0xFF080814u); }
-        if (r->px && r->tw > 0) {   /* the room picture: as wide as the cell, bottom on the cell's bottom corner (the floor diamond of the picture = the cell), clipped to the cell (v3, user: it ran over its box) */
-            int hw = C * 9 / 10 - 3, hh = hw / 2, dw = 2 * hw, dh = r->th * dw / r->tw, top = cy + hh - dh;
-            if (pass == 0 && hw > 2) for (int y = 0; y < dh; y++) { int yy = top + y - cy; if (yy < -hh || yy > hh) continue; int lim = hw - 2 * abs(yy); const uint16_t *row = r->px + (size_t)(y * r->th / dh) * r->tw; for (int x = 0; x < dw; x++) { int xx = x - hw; if (xx < -lim || xx > lim) continue; uint16_t v = row[x * r->tw / dw]; if (v) lk_rm_px(cx + xx, top + y, lk_rm_565(v, 0)); } }
-            if (here && pass == 1 && blink) {   /* Nigel: his cell relative to the floor's centre, on the cell's 2:1 projection */
-                double k = (double)dw / (double)(r->hw + r->hh), X = lk_rm_nx - (r->hl + r->hw / 2.0), Y = lk_rm_ny - (r->ht + r->hh / 2.0);
-                int nx = cx + (int)((X - Y) * k), ny = cy + (int)((X + Y) * k / 2);
-                lk_rm_diamond(nx, ny, sc * 4 + 2, 0xFFFFFFFFu); lk_rm_diamond(nx, ny, sc * 4 - 1, 0xFFE02828u);
-            }
+        const lk_rm_t *ra = &lk_rm_r[a], *rb = &lk_rm_r[b]; if (ra->area != area || rb->area != area) continue;
+        int sa = ra->floor == floor && (a == cur || lk_rm_visited(ra)), sb = rb->floor == floor && (b == cur || lk_rm_visited(rb));
+        double au = ra->gx + lk_rm_e[e][3] / 10.0, av = ra->gy + lk_rm_e[e][4] / 10.0, bu = rb->gx + lk_rm_e[e][5] / 10.0, bv = rb->gy + lk_rm_e[e][6] / 10.0;
+        int hgt = (int)(S / 5) > 4 ? (int)(S / 5) : 4;
+        if (lk_rm_e[e][2]) {
+            if (sa) { int tx = (int)LK_RM_PX(au, av), ty = (int)LK_RM_PY(au, av) - hgt; for (int k = 0; k <= hgt; k++) for (int dx = -k; dx <= k; dx++) lk_rm_px(tx + dx, ty + k, 0xFFFFFFFFu); }
+            if (sb) { int tx = (int)LK_RM_PX(bu, bv), ty = (int)LK_RM_PY(bu, bv) - hgt; for (int k = 0; k <= hgt; k++) for (int dx = -k; dx <= k; dx++) lk_rm_px(tx + dx, ty + hgt - k, 0xFFFFFFFFu); }
+            continue;
         }
-        if (pass == 0) for (int e = 0; e < lk_rm_ne; e++) {   /* stairs: white triangle up (this room is the lower one) / down */
-            if (!lk_rm_e[e][2]) continue; int a = lk_rm_lookup(lk_rm_e[e][0]), b = lk_rm_lookup(lk_rm_e[e][1]); if (a != i && b != i) continue;
-            int up = a == i, tx = cx + C * 11 / 20, ty = cy - C / 6, hgt = C / 7 > 4 ? C / 7 : 4;
-            for (int k = 0; k <= hgt; k++) for (int dx = -k; dx <= k; dx++) { lk_rm_px(tx + dx, ty + (up ? k : hgt - k), 0xFFFFFFFFu); }
-        }
+        int th = (int)(S / 10) > 3 ? (int)(S / 10) : 3;
+        if (sa) lk_rm_diamond((int)LK_RM_PX(au, av), (int)LK_RM_PY(au, av), th + 1, 0xFFC8A050u);   /* door mark on the room's edge (also when the other room is not shown yet) */
+        if (sb) lk_rm_diamond((int)LK_RM_PX(bu, bv), (int)LK_RM_PY(bu, bv), th + 1, 0xFFC8A050u);
+        if (!sa || !sb || fabs(au - bu) + fabs(av - bv) > 0.8) continue;   /* a connector only between doors that really meet: loops of the dungeon do not fit the grid, a long line across other rooms misled (user) */
+        int x0 = (int)LK_RM_PX(au, av), y0 = (int)LK_RM_PY(au, av), x1 = (int)LK_RM_PX(bu, bv), y1 = (int)LK_RM_PY(bu, bv), n = abs(x1 - x0) > abs(y1 - y0) ? abs(x1 - x0) : abs(y1 - y0);
+        if (n < 1) n = 1;
+        for (int k = 0; k <= n; k++) lk_rm_diamond(x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n, th, 0xFFC8A050u);
     }
-#undef LK_RM_CX
-#undef LK_RM_CY
+    if (blink) {   /* Nigel: his cell inside the current room's box */
+        const lk_rm_t *r = &lk_rm_r[cur];
+        if (r->floor == floor && r->hw > 0 && r->hh > 0) { double u = r->gx + (lk_rm_nx - r->hl + 0.5) / r->hw * r->W, v = r->gy + (lk_rm_ny - r->ht + 0.5) / r->hh * r->H;
+            int nx = (int)LK_RM_PX(u, v), ny = (int)LK_RM_PY(u, v); lk_rm_diamond(nx, ny, sc * 4 + 2, 0xFFFFFFFFu); lk_rm_diamond(nx, ny, sc * 4 - 1, 0xFFE02828u); }
+    }
+#undef LK_RM_PX
+#undef LK_RM_PY
 }
 static void lk_map_draw(int ow, int oh) {   /* called by lk_disp_present before the OSD while the map is open */
     if (!lk_rm_open || !s_renderer) return;
@@ -196,19 +209,19 @@ static void lk_map_shot(long frame) {   /* test aid LANDSTALKER_MAPSHOT */
     s = s.replace(a, module + a, 1)
     a = "    lk_shot_frame(framebuffer, s_frame_no);\n"
     assert s.count(a) == 1
-    s = s.replace(a, a + "    lk_rm_lastfb = framebuffer; lk_rm_note_frame(); lk_map_shot(s_frame_no);   /* LK_ROOMMAP v3 */\n", 1)
+    s = s.replace(a, a + "    lk_rm_lastfb = framebuffer; lk_rm_note_frame(); lk_map_shot(s_frame_no);   /* LK_ROOMMAP v4 */\n", 1)
     a = "    lk_ssh_d = 0;   /* LK_SSHARP v1 */\n    lk_osd_draw(ow, oh);\n"
     assert s.count(a) == 1, "platform_sdl.c: run patch_subpix.py first"
-    s = s.replace(a, "    lk_ssh_d = 0;   /* LK_SSHARP v1 */\n    lk_map_draw(ow, oh);   /* LK_ROOMMAP v3 */\n    lk_osd_draw(ow, oh);\n", 1)
+    s = s.replace(a, "    lk_ssh_d = 0;   /* LK_SSHARP v1 */\n    lk_map_draw(ow, oh);   /* LK_ROOMMAP v4 */\n    lk_osd_draw(ow, oh);\n", 1)
     a = "static void lk_disp_present(const uint8_t *framebuffer) {\n"
     assert s.count(a) == 1
-    s = s.replace(a, "static void lk_map_draw(int ow, int oh);   /* LK_ROOMMAP v3 */\n" + a, 1)
+    s = s.replace(a, "static void lk_map_draw(int ow, int oh);   /* LK_ROOMMAP v4 */\n" + a, 1)
     a = "    while (SDL_PollEvent(&ev)) {\n        if (ev.type == SDL_QUIT) return false;\n"
     assert s.count(a) == 1
-    s = s.replace(a, "    if (lk_rm_req) { lk_rm_req = 0; if (!lk_map_modal()) return false; }   /* LK_ROOMMAP v3: the map button was pressed */\n" + a, 1)
+    s = s.replace(a, "    if (lk_rm_req) { lk_rm_req = 0; if (!lk_map_modal()) return false; }   /* LK_ROOMMAP v4: the map button was pressed */\n" + a, 1)
     a = "static bool s_headless = false;\n"
     assert s.count(a) == 1
-    s = s.replace(a, a + "static volatile int lk_rm_req;   /* LK_ROOMMAP v3 (defined with the map code below) */\n", 1)
+    s = s.replace(a, a + "static volatile int lk_rm_req;   /* LK_ROOMMAP v4 (defined with the map code below) */\n", 1)
     s = s.replace("static volatile int lk_rm_req; static const uint8_t *lk_rm_lastfb;", "static const uint8_t *lk_rm_lastfb;", 1)
     open(p, "w").write(s)
     print("platform_sdl.c patched:", VER)
@@ -218,7 +231,7 @@ s = open(p).read()
 if VER not in s:
     a = "uint16_t recomp_input_read_pad(int port) {\n"
     assert s.count(a) == 1 and "LK_KEYS v1" in s and "LK_PADTHREAD" in s, "input.c: run patch_keys.py / patch_padthread.py first"
-    s = s.replace(a, r'''/* LK_ROOMMAP v3: the room map's input while the game is paused in its loop: bit b = SDL controller button b on any pad (the pad thread's copy; the worker is kicked
+    s = s.replace(a, r'''/* LK_ROOMMAP v4: the room map's input while the game is paused in its loop: bit b = SDL controller button b on any pad (the pad thread's copy; the worker is kicked
    every call, it only runs after platform_poll_events otherwise), left stick up / down = D-pad, bit 31 = the Map binding's pad code (triggers too) */
 uint32_t lk_map_pad(void) {
     extern void lk_pad_kick(void); uint32_t m = 0;

@@ -186,3 +186,7 @@
 - L1462: Release v1.4.0, Quick Equip strip, Sprint (2026-10-30, late; Opus 5.5)
 - L1467: Smooth Scrolling / sprint 1.5 x (2026-10-30 night; Opus 5.5)
 - L1473: Sprint Key, Friday Hints, Smooth Scrolling v3 (2026-10-31; Opus 5.5 lead + 2 Sonnet agents for the hint texts)
+- L1482: Sharp smooth scrolling (2026-10-31 evening; Opus 5.5)
+- L1487: Room map step 1 (2026-10-31 evening; Opus 5.5)
+- L1491: Issue #12: AppImage on Ubuntu 26.10, 'externally-managed-environment' (2026-10-31; Opus 5.5)
+- L1502: Room map v4 / roommap v5 (2026-10-31 end of session; Opus 5.5)

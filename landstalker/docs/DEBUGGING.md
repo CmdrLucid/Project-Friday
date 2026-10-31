@@ -1498,3 +1498,8 @@ HANDOFF 0a177 point 2: the four 30.10 recordings (0310, 0318, 0319, 0536) do not
   installs (the import test was meaningless here: SteamOS already has capstone in /usr/lib/python3.13/site-packages), but writes into the player's ~/.local for every python
   program (what PEP 668 protects) and pip < 23.0.1 (e.g. Ubuntu 22.04's 22.0.2) rejects the unknown flag = a second code path. Kept `--target` (no system package, no flag, any pip
   that has --target, own folder that is removed with our data).
+
+## Room map v4 / roommap v5 (2026-10-31 end of session; Opus 5.5)
+- User: 'Verbindungen, wo es keine gibt' in the Swamp Shrine. Table of the shrine's connections with grid distances: room 5 has three NW doors (10, 7, 0), 6 two, 24 / 25 / 19 loops: the pushed cells were 2-4 apart and the bars crossed other rooms.
+- /tmp/rm/geo.py: geometric placement per floor without stairs (door cells + best +-3 shift): 10 conflicts, 585 overlapping cells -> stays schematic.
+- v5 boxes (8 cells per unit): room 5 = 3 x 3, its NW doors at v 0.8 / 1.4 / 2.1. Mapshot rec_20261024_1818 frame 11645 with and without LANDSTALKER_MAPSHOT_ALL: no line across a room, door marks on every edge, Nigel (47, 33) on room 5's SE edge (he came in from the outside room).
