@@ -18,21 +18,35 @@ import langbuild as lb
 root = sys.argv[1]
 VER = "LK_FRIDAY v2"   # v2: gentle level only, name line, Friday's blip, she flies out of the bag
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(HERE, "..", "lang", "friday_hints.json")
+SRC = os.environ.get("LANDSTALKER_FRIDAY_JSON") or os.path.join(HERE, "..", "lang", "friday_hints.json")   # env: a test copy (build time)
 
 NAME = {"en": "Friday:", "de": "Flora:"}   # her name in the US / German game (user 2026-10-31: 'Friday: bzw. Flora: in der Textbox')
+WIDTH = 32   # characters per text box line: the game wraps by itself at ~33-34, in the middle of a word (measured 2026-10-31), so we wrap at word ends first
+def wrap(text):
+    """free text ('|' = forced line break) -> lines of at most WIDTH characters, broken at spaces"""
+    lines = []
+    for part in text.split("|"):
+        cur = ""
+        for w in part.split():
+            if cur and len(cur) + 1 + len(w) > WIDTH: lines.append(cur); cur = w
+            else: cur = (cur + " " + w) if cur else w
+        lines.append(cur)
+    return lines
 def words(text, lang=None):
-    """our hint text ('|' = line break) -> word list: glyph codes, ~handler words; ends with ContinuePrompt"""
+    """our hint text -> word list (glyph codes, ~handler words).  Her name leads the first line ('Flora: ...', like the early version of the game wrote speakers);
+    the box shows 3 lines and scrolls like a normal dialogue; after every 3 lines the game waits for a button (ContinuePrompt, the arrow); the text ends with
+    ContinuePrompt like the chest messages"""
+    lines = wrap((NAME[lang] + " " + text) if lang else text)
     out = []
-    if lang:
-        for t, v in lb.tokens(NAME[lang]): out.append(v)
-        out.append(~lb.HANDLER[1] & 0xFFFF)   # SoftNewLine: the name on its own line
-    for i, line in enumerate(text.split("|")):
-        if i: out.append(~lb.HANDLER[1] & 0xFFFF)   # SoftNewLine
-        for t, v in lb.tokens(line.strip()):
-            if t != "g": raise ValueError("only plain text in hints: %r" % text)
-            out.append(v)
-    out.append(~lb.HANDLER[12] & 0xFFFF)              # ContinuePrompt (the chest messages end with it)
+    for i, line in enumerate(lines):
+        if i:
+            if i % 3 == 0: out.append(~lb.HANDLER[12] & 0xFFFF)   # page full: wait for a button first
+            out.append(~lb.HANDLER[1] & 0xFFFF)                    # SoftNewLine
+        for t, v in lb.tokens(line):
+            if t == "g": out.append(v)
+            elif t == "c": out.append(~lb.HANDLER[v] & 0xFFFF)
+            else: raise ValueError("no name codes in hints: %r" % text)
+    out.append(~lb.HANDLER[12] & 0xFFFF)                           # ContinuePrompt (the chest messages end with it)
     return out
 
 COND = {"stage>=": 1, "sub2>=": 2, "sub3>=": 3, "flag:": 4, "!flag:": 5, "item:": 6, "!item:": 7, "room:": 8}

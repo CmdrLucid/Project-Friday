@@ -1,6 +1,6 @@
 {
  "version": 1,
- "note": "Friday hints (Select key). Runtime picks the LAST entry whose when-conditions all hold. stage = list 1 of GetFlagProgress (decimal, 0..31) at RAM 0xFF1906, sub2 = 0xFF1907, sub3 = 0xFF1908. flag:BB.b = byte BB (hex) bit b of the story flags at 0xFF1000. item:XX = hex item id owned (nibble at 0xFF1040). room:A-B = current room number, decimal range. en/de = [level 1, level 2], lines split by the pipe sign. Generated from landstalker/docs/FRIDAY_HINTS.md work; texts are our own wording.",
+ "note": "Friday hints (Select key). Runtime picks the LAST entry whose when-conditions all hold. stage = list 1 of GetFlagProgress (decimal, 0..31) at RAM 0xFF1906, sub2 = 0xFF1907, sub3 = 0xFF1908. flag:BB.b = byte BB (hex) bit b of the story flags at 0xFF1000. item:XX = hex item id owned (nibble at 0xFF1040). room:A-B = current room number, decimal range. en/de = [level 1, level 2], lines split by the pipe sign. Generated from landstalker/docs/FRIDAY_HINTS.md work; texts are our own wording. Since 2026-10-31 only level 1 is shown, in Friday's own voice (user: 'am Stil ihrer Dialoge orientieren'); it is free text: tools/patch_friday.py wraps it at word ends (30 characters per line, 3 lines per page, the game waits for a button between pages), a pipe still forces a line break.",
  "hints": [
   {
    "id": "stage00_start",
@@ -8,11 +8,11 @@
     "stage>=0"
    ],
    "en": [
-    "Wake up, hero! Chat with|the villagers first.",
+    "Nigel! WAKE UP! The treasure won't find itself! Ask around.",
     "Talk to everyone in Massan.|Someone mentions a bridge."
    ],
    "de": [
-    "Aufwachen, Held! Red erstmal|mit den Dörflern.",
+    "Nigel! AUFWACHEN! Der Schatz findet sich nicht allein! Frag rum.",
     "Sprich mit allen in Massan.|Einer erzählt was von der Brücke."
    ]
   },
@@ -23,11 +23,11 @@
     "room:144-172"
    ],
    "en": [
-    "Treasure first, chat later!|This cave must lead somewhere.",
+    "Hey, Nigel! The treasure is so close! Keep going, hurry!",
     "Fight your way through the cave|and look for the way onward."
    ],
    "de": [
-    "Erst der Schatz, dann reden!|Die Höhle führt sicher weiter.",
+    "Hey, Nigel! Der Schatz ist ganz nah! Weiter, beeil dich!",
     "Kämpf dich durch die Höhle und|such den Weg nach draußen."
    ]
   },
@@ -37,11 +37,11 @@
     "stage>=1"
    ],
    "en": [
-    "The bridge is smashed. Maybe|the scholar knows more.",
+    "The bridge is smashed?! Ugh! Maybe the old scholar knows...",
     "Visit Prospero's house in|Massan and ask about Nole."
    ],
    "de": [
-    "Die Brücke ist hin. Vielleicht|weiß der Gelehrte mehr.",
+    "Die Brücke ist kaputt?! Mist! Vielleicht weiß der Gelehrte was.",
     "Besuch Prosperos Haus in|Massan und frag nach Nole."
    ]
   },
@@ -51,11 +51,11 @@
     "stage>=2"
    ],
    "en": [
-    "Fara is gone! The tribe in the|south is up to something.",
+    "Poor Fara! Those creeps from the south took her! Let's go!",
     "Head south to Gumi and find|where they hold their ritual."
    ],
    "de": [
-    "Fara ist weg! Der Stamm im|Süden führt was im Schilde.",
+    "Arme Fara! Die Kerle aus dem Süden haben sie! Los, Nigel!",
     "Geh nach Gumi im Süden und|such ihren Ritualplatz."
    ]
   },
@@ -66,11 +66,11 @@
     "room:601-607"
    ],
    "en": [
-    "Gumi feels creepy. Look around|quietly, don't make a scene.",
+    "Brrr... this place is creepy. Let's spy on them, quietly!",
     "Find the place where they chant|and watch from nearby."
    ],
    "de": [
-    "Gumi ist gruselig. Schau dich|leise um, keine Szene machen.",
+    "Brrr... hier ist es gruselig. Lass uns die mal belauschen!",
     "Such den Platz, wo sie singen,|und beobachte aus der Nähe."
    ]
   },
@@ -81,11 +81,11 @@
     "!item:31"
    ],
    "en": [
-    "The shrine door stays shut. But|there is a key-like stone.",
+    "That door won't budge, Nigel! We need some kind of key stone.",
     "Get the Idol Stone (try the|Waterfall Shrine near Massan)."
    ],
    "de": [
-    "Die Tür bleibt zu. Aber es gibt|einen passenden Schlüsselstein.",
+    "Die Tür rührt sich nicht! Wir brauchen so 'nen Schlüsselstein.",
     "Hol den Idol-Stein (versuch den|Wasserfall-Schrein bei Massan)."
    ]
   },
@@ -97,11 +97,11 @@
     "room:174-182"
    ],
    "en": [
-    "Keep climbing. Shrines hide|their best bits deep inside.",
+    "Keep climbing, Nigel! The good stuff is always at the very end.",
     "Look for the Idol Stone in the|deepest part of this shrine."
    ],
    "de": [
-    "Klettere weiter. Schreine|verstecken Gutes ganz hinten.",
+    "Weiter rauf, Nigel! Das Beste liegt immer ganz am Ende.",
     "Such den Idol-Stein im tiefsten|Teil dieses Schreins."
    ]
   },
@@ -112,11 +112,11 @@
     "item:31"
    ],
    "en": [
-    "Nice stone. Doors in the swamp|like shiny things.",
+    "Ooh, what a pretty stone! I bet the swamp door likes it.",
     "Use the Idol Stone on the statue|at the Swamp Shrine entrance."
    ],
    "de": [
-    "Netter Stein. Sumpftüren|stehen auf so was.",
+    "Oh, was für ein schöner Stein! Der Sumpftür gefällt der sicher.",
     "Benutz den Idol-Stein an der|Statue am Sumpf-Schrein."
    ]
   },
@@ -127,11 +127,11 @@
     "room:0-30"
    ],
    "en": [
-    "Fara is at the far end. Watch|your step and keep moving.",
+    "Fara must be at the far end! Hurry, Nigel, she needs us!",
     "Fight through to the boss room.|Orc Kings hit hard, dodge!"
    ],
    "de": [
-    "Fara ist ganz hinten. Pass auf|und bleib in Bewegung.",
+    "Fara ist bestimmt ganz hinten! Beeil dich, sie braucht uns!",
     "Kämpf dich zum Bossraum durch.|Die Orkkönige hauen fest zu!"
    ]
   },
@@ -141,11 +141,11 @@
     "stage>=4"
    ],
    "en": [
-    "Fara is safe. Her family wants|to thank you.",
+    "We saved Fara! Her family owes us a reward... I mean, thanks!",
     "Go to the mayor's house in Massan|and collect your reward."
    ],
    "de": [
-    "Fara ist gerettet. Ihre Familie|will dir danken.",
+    "Fara ist gerettet! Ihre Familie schuldet uns was... Dank, mein ich!",
     "Geh zum Haus des Bürgermeisters|in Massan: Belohnung abholen."
    ]
   },
@@ -155,11 +155,11 @@
     "stage>=5"
    ],
    "en": [
-    "Massan is done. The road west|is clear now.",
+    "Massan is done! West, Nigel, the treasure won't wait!",
     "Go through Gumi and west. Take|the fork to Ryuma."
    ],
    "de": [
-    "Massan ist erledigt. Der Weg|nach Westen ist frei.",
+    "Massan ist erledigt! Nach Westen, der Schatz wartet nicht!",
     "Durch Gumi und nach Westen. An|der Gabelung nach Ryuma."
    ]
   },
@@ -170,11 +170,11 @@
     "room:610-629"
    ],
    "en": [
-    "Ryuma is scared. Someone is|hiding in a corner.",
+    "Everyone here looks so scared! Someone's hiding, I can tell.",
     "Find the hidden villager in town|and talk to him."
    ],
    "de": [
-    "Ryuma hat Angst. Einer versteckt|sich irgendwo in der Stadt.",
+    "Hier haben alle solche Angst! Da versteckt sich wer, wetten?",
     "Finde den versteckten Dörfler|und sprich mit ihm."
    ]
   },
@@ -184,11 +184,11 @@
     "stage>=6"
    ],
    "en": [
-    "Now the town elders can use|your help.",
+    "The old folks want our help? Fine, but it better pay off!",
     "Talk to the Ryuma elders until|they bring up the thieves."
    ],
    "de": [
-    "Jetzt brauchen die Ältesten|deine Hilfe.",
+    "Die Ältesten wollen Hilfe? Na gut, aber es soll sich lohnen!",
     "Sprich in Ryuma mit den Ältesten,|bis sie die Räuber erwähnen."
    ]
   },
@@ -198,11 +198,11 @@
     "stage>=7"
    ],
    "en": [
-    "The thieves hide on a cape.|You need a ride there.",
+    "Thieves on a cape, huh? We need a ride over there, Nigel!",
     "Take the raft at Ryuma's pier|to the thieves' hideout."
    ],
    "de": [
-    "Die Räuber hausen auf einer|Landzunge. Du brauchst Transport.",
+    "Diebe auf einer Landzunge? Wir brauchen was, das uns rüberbringt!",
     "Nimm das Floß am Pier von Ryuma|zum Räuberversteck."
    ]
   },
@@ -213,11 +213,11 @@
     "room:184-226"
    ],
    "en": [
-    "Levers and doors everywhere.|Keep pushing deeper.",
+    "Levers, doors, more levers! Keep going, they hide loot here!",
     "Free the captured mayor, then|beat whoever leads this gang."
    ],
    "de": [
-    "Überall Hebel und Türen. Dring|immer weiter vor.",
+    "Hebel, Türen, noch mehr Hebel! Weiter, hier liegt sicher Beute!",
     "Befreie den Bürgermeister, dann|besiege den Anführer."
    ]
   },
@@ -227,11 +227,11 @@
     "stage>=8"
    ],
    "en": [
-    "The gang is history. The mayor|is waiting for you.",
+    "Ha! That gang is finished! Let's see what the mayor gives us.",
     "Back to Ryuma, talk to the mayor.|He has a pass for you."
    ],
    "de": [
-    "Die Bande ist Geschichte. Der|Bürgermeister wartet.",
+    "Ha! Die Bande ist erledigt! Mal sehen, was der Bürgermeister gibt.",
     "Zurück nach Ryuma, red mit ihm.|Er hat einen Pass für dich."
    ]
   },
@@ -241,11 +241,11 @@
     "stage>=9"
    ],
    "en": [
-    "The pass opens a big, rich|town to you.",
+    "A pass! Now that big, rich town lets us in. Shopping, Nigel!",
     "Go to Mercator: back at the fork|west of Gumi, take the other path."
    ],
    "de": [
-    "Mit dem Pass kommst du in eine|große, reiche Stadt.",
+    "Ein Passierschein! Ab in die große, reiche Stadt. Einkaufen, Nigel!",
     "Geh nach Mercator: zurück zur|Gabelung, anderer Weg."
    ]
   },
@@ -256,11 +256,11 @@
     "room:630-710"
    ],
    "en": [
-    "Mercator is huge. Listen to|gossip, look around the castle.",
+    "Wow, what a town! But how do we get into that castle, hmm?",
     "The front gate is closed to you.|Look for another way in."
    ],
    "de": [
-    "Mercator ist riesig. Hör dich|um und schau ums Schloss.",
+    "Wow, was für eine Stadt! Aber wie kommen wir ins Schloss, hm?",
     "Das Haupttor ist zu. Such|einen anderen Weg hinein."
    ]
   },
@@ -270,11 +270,11 @@
     "stage>=10"
    ],
    "en": [
-    "The castle is well guarded. Take|a look at its back side.",
+    "The front is full of guards... Let's sneak round the back!",
     "Behind the castle is a court with|a button room. Someone sneaks."
    ],
    "de": [
-    "Das Schloss ist gut bewacht.|Schau dir die Rückseite an.",
+    "Vorne stehen nur Wachen rum... Schleichen wir hinten herum!",
     "Hinterm Schloss liegt ein Hof mit|Knopfraum. Dort schleicht wer."
    ]
   },
@@ -284,11 +284,11 @@
     "stage>=12"
    ],
    "en": [
-    "You saw Arthur sneaking about.|Others know a trick for you.",
+    "Did you see Arthur sneak off? Someone in town knows a trick.",
     "Ask at Madame Yard's place. They|know how to get ahead."
    ],
    "de": [
-    "Du hast Arthur schleichen sehen.|Andere kennen einen Trick.",
+    "Hast du Arthur schleichen sehen? Jemand in der Stadt kennt 'nen Trick.",
     "Frag bei Madame Yard's nach. Die|wissen, wie man weiterkommt."
    ]
   },
@@ -298,11 +298,11 @@
     "stage>=13"
    ],
    "en": [
-    "A fortune-teller in town can|cast a spell for you.",
+    "A fortune-teller with a spell? Ooh, let's go see her, Nigel!",
     "Find her house and let her cast|it. Then try Madame Yard's."
    ],
    "de": [
-    "Eine Wahrsagerin in der Stadt|kann dich verzaubern.",
+    "Eine Wahrsagerin mit Zauber? Oh, da gehen wir hin, Nigel!",
     "Such ihr Haus, lass sie zaubern.|Dann zu Madame Yard's."
    ]
   },
@@ -312,11 +312,11 @@
     "stage>=14"
    ],
    "en": [
-    "The spell is cast. Shut doors|may open for you now.",
+    "That spell felt funny... Maybe a locked door opens now?",
     "Go through the door at Madame|Yard's and see who is inside."
    ],
    "de": [
-    "Der Zauber wirkt. Verschlossene|Türen gehen jetzt vielleicht auf.",
+    "Der Zauber kitzelt noch... Geht jetzt vielleicht eine Tür auf?",
     "Geh bei Madame Yard's durch die|Tür und sieh, wer drin ist."
    ]
   },
@@ -326,11 +326,11 @@
     "stage>=15"
    ],
    "en": [
-    "Arthur put in a word. The castle|gate lets you pass now.",
+    "Arthur talked to the guards! The castle is open. Let's go!",
     "Walk to Mercator Castle and go|in to meet the duke."
    ],
    "de": [
-    "Arthur hat ein Wort eingelegt.|Das Schlosstor lässt dich durch.",
+    "Arthur hat mit den Wachen geredet! Das Schloss ist offen. Los!",
     "Geh zum Schloss von Mercator und|triff den Herzog."
    ]
   },
@@ -341,11 +341,11 @@
     "room:51-62"
    ],
    "en": [
-    "Find the man in charge. Think|big room, big chair.",
+    "Somewhere here sits the duke. Big room, big chair, big ego!",
     "The duke is in the throne room.|Walk up and talk to him."
    ],
    "de": [
-    "Such den Chef des Hauses. Denk|an großen Raum, großen Stuhl.",
+    "Irgendwo hier sitzt der Herzog. Großer Saal, großer Stuhl, großes Ego!",
     "Der Herzog sitzt im Thronsaal.|Geh hin und sprich mit ihm."
    ]
   },
@@ -355,11 +355,11 @@
     "stage>=16"
    ],
    "en": [
-    "The duke has left. The staff|will look after you.",
+    "Hmph, he just walked off! Let's see if the servants help us.",
     "Follow the servant who offers to|show you a room."
    ],
    "de": [
-    "Der Herzog ist gegangen. Das|Personal kümmert sich um dich.",
+    "Pah, der ist einfach gegangen! Mal sehen, ob die Diener helfen.",
     "Folge dem Diener, der dir ein|Zimmer zeigen will."
    ]
   },
@@ -369,11 +369,11 @@
     "stage>=17"
    ],
    "en": [
-    "Make yourself at home. Roam|the castle, chat with staff.",
+    "A real castle, Nigel! Let's look around and chat with everyone.",
     "Talk to the butler and the kitchen|crew until dinner is announced."
    ],
    "de": [
-    "Fühl dich wie zu Hause. Geh|durchs Schloss, red mit Leuten.",
+    "Ein echtes Schloss, Nigel! Schau dich um und red mit allen.",
     "Sprich mit Butler und Küche, bis|das Essen angesagt wird."
    ]
   },
@@ -383,11 +383,11 @@
     "stage>=18"
    ],
    "en": [
-    "Dinner is ready. Don't be|fashionably late, hero!",
+    "Dinner is ready! Come on, I'm starving! Don't be late!",
     "Go to the banquet room on the|second floor of the castle."
    ],
    "de": [
-    "Das Essen ist fertig. Komm nicht|zu spät, Held!",
+    "Das Essen ist fertig! Komm, ich verhungere! Sei pünktlich!",
     "Geh zum Bankettsaal im zweiten|Stock des Schlosses."
    ]
   },
@@ -397,11 +397,11 @@
     "stage>=19"
    ],
    "en": [
-    "Full belly, big plans. Rest up|before the big day.",
+    "I'm so full... Let's get some sleep before tomorrow, Nigel.",
     "Go to your bedroom in the castle|and go to sleep."
    ],
    "de": [
-    "Voller Bauch, große Pläne. Ruh|dich vor dem großen Tag aus.",
+    "Ich bin so satt... Lass uns schlafen gehen, Nigel.",
     "Geh in dein Schlafzimmer im|Schloss und leg dich hin."
    ]
   },
@@ -411,11 +411,11 @@
     "stage>=20"
    ],
    "en": [
-    "Next job: the wizard Mir. His|tower is sealed by magic.",
+    "Mir's tower has a magic wall? There must be a way past it...",
     "Find a way past the barrier. The|crypt in Mercator looks promising."
    ],
    "de": [
-    "Nächster Job: der Magier Mir.|Sein Turm ist magisch versiegelt.",
+    "Mirs Turm hat eine Zauberwand? Da gibt's bestimmt einen Weg...",
     "Such einen Weg an der Sperre|vorbei. Die Gruft hilft dir."
    ]
   },
@@ -427,11 +427,11 @@
     "room:646-659"
    ],
    "en": [
-    "Think before you step. Riddle|rooms punish wrong answers.",
+    "Careful, Nigel! Think before you step. These riddles bite!",
     "Solve the riddle rooms, cross the|river and reach the armlet room."
    ],
    "de": [
-    "Denk nach, bevor du gehst.|Rätselräume bestrafen Fehler.",
+    "Vorsicht, Nigel! Erst denken, dann gehen. Die Rätsel beißen!",
     "Löse die Rätsel, quere den Fluss|und finde den Armreif-Raum."
    ]
   },
@@ -442,11 +442,11 @@
     "!item:1F"
    ],
    "en": [
-    "The riddles are behind you.|The prize is close.",
+    "Riddles done! I can feel it, the prize is close now!",
     "Keep going in the crypt until|you hold the armlet."
    ],
    "de": [
-    "Die Rätsel hast du hinter dir.|Der Preis ist nah.",
+    "Rätsel geschafft! Ich spür's, der Preis ist ganz nah!",
     "Geh in der Gruft weiter, bis du|den Armreif hast."
    ]
   },
@@ -457,11 +457,11 @@
     "item:1F"
    ],
    "en": [
-    "Nice bracelet! That should talk|the barrier into opening.",
+    "What a nice armlet! That magic wall won't stop us now!",
     "Take the armlet to Mir's tower|south of Mercator."
    ],
    "de": [
-    "Schickes Armband! Damit gibt die|Sperre sicher nach.",
+    "Was für ein schöner Armreif! Die Zauberwand hält uns nicht auf!",
     "Bring den Armreif zu Mirs Turm|südlich von Mercator."
    ]
   },
@@ -471,11 +471,11 @@
     "stage>=22"
    ],
    "en": [
-    "The barrier gives way to the|armlet. Go and meet Mir.",
+    "With the armlet we can pass! On to Mir's tower, Nigel!",
     "Mir's tower is south of Mercator.|Hold the armlet up at the door."
    ],
    "de": [
-    "Die Sperre weicht dem Armreif.|Geh und triff Mir.",
+    "Mit dem Armreif kommen wir durch! Auf zu Mirs Turm, Nigel!",
     "Mirs Turm liegt südlich von|Mercator. Halt den Armreif hoch."
    ]
   },
@@ -486,11 +486,11 @@
     "room:750-784"
    ],
    "en": [
-    "Traps galore. Climb carefully|and save jumps for solid ground.",
+    "Traps everywhere! Watch your step, I'm not carrying you!",
     "Reach the top of the tower and|talk to Mir. He may surprise you."
    ],
    "de": [
-    "Fallen über Fallen. Klettere|vorsichtig und spring mit Bedacht.",
+    "Überall Fallen! Pass auf, ich trag dich nicht!",
     "Komm oben im Turm an und sprich|mit Mir. Er überrascht dich."
    ]
   },
@@ -501,11 +501,11 @@
     "flag:17.6"
    ],
    "en": [
-    "Purple jewel in the bag. Time to|leave this tower behind.",
+    "Got the purple jewel! Let's get out of this spooky tower!",
     "Head back to Mercator and report|to the duke in the castle."
    ],
    "de": [
-    "Das lila Juwel ist im Beutel.|Zeit, den Turm zu verlassen.",
+    "Der lila Juwel ist unser! Raus aus diesem gruseligen Turm!",
     "Geh zurück nach Mercator und melde|dich beim Herzog im Schloss."
    ]
   },
@@ -515,11 +515,11 @@
     "stage>=23"
    ],
    "en": [
-    "The wizard was not the villain.|Back to the castle with you.",
+    "Mir wasn't the bad guy at all! Let's tell the duke, I guess...",
     "The duke waits upstairs in the|castle. Take the jewels along."
    ],
    "de": [
-    "Der Magier war nicht der Böse.|Zurück ins Schloss mit dir.",
+    "Mir war gar nicht der Böse! Sagen wir's dem Herzog, oder...",
     "Der Herzog wartet oben im Schloss.|Bring die Juwelen mit."
    ]
   },
@@ -530,11 +530,11 @@
     "flag:13.0"
    ],
    "en": [
-    "Locked up! Typical duke. Find|a way out of the dungeon.",
+    "Locked up?! That rotten duke! Find a way out, Nigel, now!",
     "Search cells and corridors. The|princess is held down here too."
    ],
    "de": [
-    "Eingesperrt! Typisch Herzog. Such|einen Weg aus dem Verlies.",
+    "Eingesperrt?! Dieser fiese Herzog! Such einen Weg raus, Nigel!",
     "Durchsuch Zellen und Gänge. Die|Prinzessin sitzt hier auch fest."
    ]
   },
@@ -545,11 +545,11 @@
     "flag:20.4"
    ],
    "en": [
-    "You found the princess. Now find|the way up and out.",
+    "The princess is here too! Now let's find the way up and out!",
     "Follow the dungeon corridors on to|the tower exit (room 110)."
    ],
    "de": [
-    "Du hast die Prinzessin gefunden.|Jetzt: nach oben und raus.",
+    "Die Prinzessin ist auch hier! Jetzt nach oben und raus!",
     "Folge den Verliesgängen zum|Turmausgang (Raum 110)."
    ]
   },
@@ -559,11 +559,11 @@
     "stage>=24"
    ],
    "en": [
-    "Armored invaders storm the|castle! Arthur needs help.",
+    "Soldiers in armor everywhere! Quick, Arthur needs our help!",
     "Fight through the castle floors|and find General Arthur."
    ],
    "de": [
-    "Gepanzerte Eindringlinge stürmen|das Schloss! Arthur braucht Hilfe.",
+    "Überall Soldaten in Rüstung! Schnell, Arthur braucht uns!",
     "Kämpf dich durchs Schloss und|finde General Arthur."
    ]
   },
@@ -574,11 +574,11 @@
     "flag:20.6"
    ],
    "en": [
-    "The duke sailed off. But no ship|sails with a dark lighthouse.",
+    "The duke ran off with OUR loot! No ship sails while it's dark...",
     "Sun Stone is in Greenmaze, north|of the castle. Bring EkeEke."
    ],
    "de": [
-    "Der Herzog ist weg. Aber ohne|Leuchtturm fährt kein Schiff.",
+    "Der Herzog ist mit UNSERER Beute weg! Ohne Licht fährt kein Schiff...",
     "Der Sonnenstein liegt im Irrgarten|nördlich des Schlosses. EkeEke!"
    ]
   },
@@ -590,11 +590,11 @@
     "!item:1E"
    ],
    "en": [
-    "Dog saved! Its owner is sure|to be thankful.",
+    "The poor dog is all better! I bet his owner wants to thank us.",
     "Visit the dog's owner. The|reward is a handy whistle."
    ],
    "de": [
-    "Hund gerettet! Sein Besitzer ist|sicher dankbar.",
+    "Der arme Hund ist wieder gesund! Sein Besitzer dankt uns sicher.",
     "Besuch den Besitzer für eine|Belohnung: eine Pfeife."
    ]
   },
@@ -606,11 +606,11 @@
     "!item:1E"
    ],
    "en": [
-    "Whistle in hand. Greenmaze is a|maze of trees and ledges.",
+    "A whistle! When the trees get too confusing, just give it a try!",
     "Walk Greenmaze and whistle where|stuck. The dog leads to the stone."
    ],
    "de": [
-    "Pfeife in der Hand. Der Irrgarten|ist ein Wirrwarr aus Bäumen.",
+    "Eine Pfeife! Wenn die Bäume zu verwirrend werden, probier sie aus!",
     "Geh durch den Irrgarten und pfeif,|wenn du hängst. Der Hund hilft."
    ]
   },
@@ -621,11 +621,11 @@
     "item:1E"
    ],
    "en": [
-    "Sun Stone found! Ryuma's light|needs it badly.",
+    "The Sun Stone! Ooh, it's so warm! The lighthouse needs it, Nigel!",
     "Bring it to the lighthouse keeper|in Ryuma."
    ],
    "de": [
-    "Sonnenstein gefunden! Ryumas Licht|braucht ihn dringend.",
+    "Der Sonnenstein! Oh, so warm! Der Leuchtturm braucht ihn, Nigel!",
     "Bring ihn zum Leuchtturmwärter|in Ryuma."
    ]
   },
@@ -635,11 +635,11 @@
     "stage>=26"
    ],
    "en": [
-    "The lighthouse shines again! A|free ship ride is yours.",
+    "The lighthouse shines again! Now the ship can take us further!",
     "Take the ship to Verla at the|Mercator docks south of town."
    ],
    "de": [
-    "Der Leuchtturm strahlt wieder!|Freie Überfahrt für dich.",
+    "Der Leuchtturm strahlt wieder! Jetzt bringt uns das Schiff weiter!",
     "Nimm das Schiff nach Verla am|Hafen südlich von Mercator."
    ]
   },
@@ -650,11 +650,11 @@
     "room:711-721"
    ],
    "en": [
-    "Verla is empty. Soldiers took|everyone to the mines.",
+    "Where is everybody? The soldiers dragged them off to the mines!",
     "Head to the Verla Mines and free|the villagers."
    ],
    "de": [
-    "Verla ist leer. Soldaten haben|alle in die Minen gebracht.",
+    "Wo sind denn alle? Die Soldaten haben sie in die Minen geschleppt!",
     "Geh in die Minen von Verla und|befreie die Dorfbewohner."
    ]
   },
@@ -665,11 +665,11 @@
     "room:227-269"
    ],
    "en": [
-    "Knights, jars, lava: the mines|are a long puzzle.",
+    "Knights, jars, lava... Ugh! Keep going, the boss is further in!",
     "Push through. The boss Marley|waits at the far end."
    ],
    "de": [
-    "Ritter, Krüge, Lava: die Minen|sind ein langes Rätsel.",
+    "Ritter, Krüge, Lava... Igitt! Weiter, der Boss ist noch tiefer!",
     "Kämpf dich durch. Boss Marley|wartet ganz hinten."
    ]
   },
@@ -681,11 +681,11 @@
     "room:227-269"
    ],
    "en": [
-    "Dex is down. One more big|enemy lurks deeper in.",
+    "We beat Dex! But someone even nastier is waiting down there.",
     "Go on to the lava rooms. Marley|is the last boss here."
    ],
    "de": [
-    "Dex ist besiegt. Ein großer|Gegner lauert noch tiefer.",
+    "Dex ist erledigt! Aber da unten wartet noch wer Fieseres.",
     "Weiter zu den Lavaräumen. Marley|ist der letzte Boss hier."
    ]
   },
@@ -695,11 +695,11 @@
     "stage>=27"
    ],
    "en": [
-    "The miners are free! The duke|went on to Destel.",
+    "The miners are free! And that duke ran off to Destel. After him!",
     "Follow the mine tunnel west to|the dwarf village, Destel."
    ],
    "de": [
-    "Die Bergleute sind frei! Der|Herzog zog nach Destel weiter.",
+    "Die Bergleute sind frei! Und der Herzog ist nach Destel. Hinterher!",
     "Folge dem Minentunnel nach Westen|zum Zwergendorf Destel."
    ]
   },
@@ -710,11 +710,11 @@
     "room:726-736"
    ],
    "en": [
-    "Quiet village, angry dwarves.|Something rumbles underground.",
+    "Grumpy dwarves... and something rumbles below the village.",
     "The well in Destel leads to an old|cave. Climb down and go on."
    ],
    "de": [
-    "Ruhiges Dorf, wütende Zwerge.|Unten rumort es.",
+    "Grummelige Zwerge... und unter dem Dorf rumpelt irgendwas.",
     "Der Brunnen in Destel führt zu|einer alten Höhle. Steig hinab."
    ]
   },
@@ -725,11 +725,11 @@
     "flag:28.7"
    ],
    "en": [
-    "The duke floats off on a raft.|Time to find another way.",
+    "He's getting away on a raft! We'll find another way, Nigel!",
     "Go down the well beneath Destel|to follow him to the lake."
    ],
    "de": [
-    "Der Herzog treibt auf einem Floß|davon. Such einen anderen Weg.",
+    "Er haut auf einem Floß ab! Wir finden einen anderen Weg!",
     "Steig in Destel den Brunnen hinab|und folge ihm zum See."
    ]
   },
@@ -740,11 +740,11 @@
     "room:270-290"
    ],
    "en": [
-    "The well is deep and wet. Look|for paths, ledges, switches.",
+    "Ew, so wet and dark! Keep going, there must be a way out.",
     "Fight your way through and out|to the lake on the other side."
    ],
    "de": [
-    "Der Brunnen ist tief und nass.|Such Wege, Absätze, Schalter.",
+    "Igitt, so nass und dunkel! Weiter, irgendwo geht's hier raus.",
     "Kämpf dich durch und hinaus zum|See auf der anderen Seite."
    ]
   },
@@ -754,11 +754,11 @@
     "stage>=28"
    ],
    "en": [
-    "The duke went into the lake|shrine. Follow him in.",
+    "The duke went into that shrine! Don't let him get away!",
     "Enter the Lake Shrine and work up|to the boss at the top."
    ],
    "de": [
-    "Der Herzog ging in den Seeschrein.|Folge ihm hinein.",
+    "Der Herzog ist in den Schrein! Lass ihn nicht entkommen!",
     "Betritt den Seeschrein und arbeite|dich zum Boss ganz oben vor."
    ]
   },
@@ -769,11 +769,11 @@
     "room:291-354"
    ],
    "en": [
-    "Big shrine, many floors, many|keys. Save when you can.",
+    "So many floors and keys! Patience, Nigel. And save often!",
     "Look for switches and keys to open|the way upward. Be patient."
    ],
    "de": [
-    "Großer Schrein, viele Etagen,|viele Schlüssel. Speicher oft.",
+    "So viele Stockwerke und Schlüssel! Geduld, Nigel. Und oft speichern!",
     "Such Schalter und Schlüssel für|den Weg nach oben. Hab Geduld."
    ]
   },
@@ -783,11 +783,11 @@
     "stage>=29"
    ],
    "en": [
-    "Shrine done. The duke's trail|leads back to Mercator.",
+    "Shrine done! I bet the duke's back at his castle by now.",
     "Go back to Mercator Castle. It|has changed since you left."
    ],
    "de": [
-    "Schrein geschafft. Die Spur des|Herzogs führt nach Mercator.",
+    "Schrein geschafft! Der Herzog ist bestimmt zurück in seinem Schloss.",
     "Geh zurück ins Schloss von|Mercator. Dort hat sich was getan."
    ]
   },
@@ -797,11 +797,11 @@
     "stage>=30"
    ],
    "en": [
-    "A hidden way is about to open|in Mercator Castle.",
+    "Something's going on in that castle... Let's take a look!",
     "Check the castle tower and the|passage rooms for a teleporter."
    ],
    "de": [
-    "In Mercators Schloss öffnet sich|bald ein verborgener Weg.",
+    "Im Schloss tut sich was... Lass uns nachsehen, Nigel!",
     "Schau im Schlossturm und in den|Gängen nach einem Teleporter."
    ]
   },
@@ -811,11 +811,11 @@
     "stage>=31"
    ],
    "en": [
-    "A new way is open in Mercator.|King Nole's cave awaits.",
+    "The way to King Nole's treasure is open! Finally! Let's GO!",
     "Use the teleporter in Mercator|Castle to reach King Nole's cave."
    ],
    "de": [
-    "In Mercator ist ein Weg offen.|Die Höhle von König Nole ruft.",
+    "Der Weg zu König Noles Schatz ist offen! Endlich! LOS, Nigel!",
     "Nimm den Teleporter im Schloss von|Mercator zur Höhle von König Nole."
    ]
   },
@@ -826,11 +826,11 @@
     "room:144-172"
    ],
    "en": [
-    "The cave is full of golems and|traps. Mind your footing.",
+    "Golems and traps... Ugh! But the treasure gets closer, Nigel!",
     "Work to the teleporter at the end.|It takes you to Kazalt."
    ],
    "de": [
-    "Die Höhle ist voller Golems und|Fallen. Achte auf deinen Schritt.",
+    "Golems und Fallen... Igitt! Aber der Schatz kommt näher, Nigel!",
     "Arbeite dich zum Teleporter am|Ende. Er bringt dich nach Kazalt."
    ]
   },
@@ -841,11 +841,11 @@
     "room:737-749"
    ],
    "en": [
-    "Last town of the trip. Heal,|save and stock up here.",
+    "A town way out here? Let's rest and stock up, the end is near!",
     "Then head on to the labyrinth of|King Nole. It is a long one."
    ],
    "de": [
-    "Letzte Stadt der Reise. Heilen,|speichern, Vorräte kaufen.",
+    "Eine Stadt hier draußen? Ausruhen und einkaufen, das Ende ist nah!",
     "Dann weiter zum Labyrinth von|König Nole. Es ist lang."
    ]
   },
@@ -856,11 +856,11 @@
     "room:355-423"
    ],
    "en": [
-    "A huge maze. Rivers need rafts,|rafts need logs from trees.",
+    "What a crazy maze! Rivers need rafts, and rafts need logs...",
     "Cut a tree for logs, then place a|raft. Keep an eye on the map."
    ],
    "de": [
-    "Ein riesiges Labyrinth. Flüsse|brauchen Flöße, Flöße Holz.",
+    "Was für ein irres Labyrinth! Flüsse brauchen Flöße, Flöße brauchen Holz...",
     "Fäll einen Baum für Holz und lege|ein Floß. Nutze die Karte."
    ]
   },
@@ -872,11 +872,11 @@
     "room:355-423"
    ],
    "en": [
-    "The second raft is in place.|The way on is open.",
+    "The second raft is ready! Come on, it feels like we're warmer!",
     "Follow the maze towards the ice|path that leads to the palace."
    ],
    "de": [
-    "Das zweite Floß liegt bereit.|Der Weg ist frei.",
+    "Das zweite Floß ist bereit! Komm, ich glaub, wir sind ganz nah!",
     "Folge dem Labyrinth zum Eispfad,|der zum Palast führt."
    ]
   },
@@ -888,11 +888,11 @@
     "room:355-423"
    ],
    "en": [
-    "The duke is just ahead, and he|loves to gloat. Chase him.",
+    "What a hateful man! The duke is right ahead. After him, Nigel!",
     "Keep going. The palace stairway|is near. Heal before it."
    ],
    "de": [
-    "Der Herzog ist dicht vor dir und|gibt an. Jag ihm nach.",
+    "So ein ekliger Kerl! Der Herzog ist gleich vorn. Hinterher!",
     "Weiter so. Die Palasttreppe ist|nah. Heile dich vorher."
    ]
   },
@@ -903,11 +903,11 @@
     "room:115-138"
    ],
    "en": [
-    "Nole's palace. The end is near.|Don't rush, check every room.",
+    "King Nole's palace! The treasure is here somewhere, I KNOW it!",
     "Find the way to the pillar hallway|that leads to the arenas."
    ],
    "de": [
-    "Noles Palast. Das Ende naht.|Nicht hetzen, jeden Raum prüfen.",
+    "König Noles Palast! Der Schatz ist hier irgendwo, ich WEISS es!",
     "Such den Weg zum Säulengang, der|zu den Arenen führt."
    ]
   },
@@ -918,11 +918,11 @@
     "room:111-114"
    ],
    "en": [
-    "Final stretch. Heal up, eat|an EkeEke, then go.",
+    "This is it, Nigel! Heal up, then let's grab that treasure!",
     "Beat the guardian in the arena.|You can do it, Nigel!"
    ],
    "de": [
-    "Endspurt. Heil dich, iss einen|EkeEke und los.",
+    "Jetzt gilt's, Nigel! Heil dich, dann holen wir uns den Schatz!",
     "Besiege den Wächter in der Arena.|Du schaffst das, Nigel!"
    ]
   }
