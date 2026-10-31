@@ -1,13 +1,10 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- **Sprint (new, On by default):** hold R2 (keyboard Left Shift) and Nigel runs faster on the ground; jumps stay exactly as in the original. Options > Quality of Life: Sprint On / Off, Sprint Key Hold / Toggle. The controls moved for it: **Quick Equip is now R1, Fast Forward L3, Fullscreen R3** (all remappable in Options > Keybindings).
-- **Smooth Scrolling (new, On by default):** while sprinting the room scrolls evenly at 1.5 x and stays sharp (the scenery is shifted by whole screen pixels inside the display filter, Nigel, HUD and text boxes stay put). Off = sprint 2 x.
-- **Fix for the first start on newer Linux (issue #12, Ubuntu 26.10 / Python 3.14):** the build helper module is now installed into the game's own data folder, so distributions that lock the system Python ("externally-managed-environment") work; your system Python is not touched.
-- **Experimental, off by default (still being tuned, feedback welcome):**
-  - *Friday Hints* (Options > Quality of Life): press Select and Friday flies out of Nigel's bag and gives a hint where to go next, in her own words.
-  - *Dungeon map*: bind a button to "Map" in Options > Keybindings. In a dungeon it pauses the game and shows the rooms you have visited, floor by floor, each room drawn from your ROM, with your position.
-- Everything from v1.4.0 is included.
+- **Dungeon map, rebuilt (still experimental, off by default):** bind a button to "Map" in Options > Keybindings. In a dungeon it pauses the game and shows a schematic map of the rooms you have visited: every door sits on the wall the game itself gives it, doors that meet are joined by corridors, the rest carry matching numbers; river / raft passages are drawn blue. Scroll with the D-pad / stick, change floors with **L1 / R1** (shown at the top right).
+- **Modern HUD:** the life numbers (e.g. 55/78) are back next to the hearts.
+- **Less emulator inside, nothing to hear:** the sound mixer and the Z80's start-up program now run on the project's own code instead of Genesis Plus GX (checked sample for sample against the old way on every test recording).
+- Everything from v1.5.0 is included (Sprint, Smooth Scrolling, the first-start fix for newer Linux, experimental Friday Hints).
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).
