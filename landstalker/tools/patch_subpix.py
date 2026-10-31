@@ -76,7 +76,9 @@ static int lk_smooth_o = -1;
 int lk_smooth_get(void) { if (lk_smooth_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_SMOOTH"); char p[512]; FILE *f; int v = 1; snprintf(p, sizeof p, "%s/.landstalker_smooth", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 1; fclose(f); } if (e && *e) v = atoi(e); lk_smooth_o = v ? 1 : 0; } return lk_smooth_o; }   /* Options > Quality of Life > Smooth Scrolling (id 43), default On (user 2026-10-30: 'passt alles, einbauen'); ~/.landstalker_smooth, env LANDSTALKER_SMOOTH=0|1 wins */
 void lk_smooth_set(int v) { const char *h = getenv("HOME"); char p[512]; FILE *f; lk_smooth_get(); lk_smooth_o = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_smooth", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_smooth_o); fclose(f); } }
 extern uint8_t lk_ss_w[224][448]; extern uint32_t lk_ss_ref[224][448]; extern long lk_ss_lgen[224], lk_ss_gen; extern int lk_ss_frac;
+static int lk_ss_wt = -1;   /* LANDSTALKER_SS_WEIGHT=1..8 (16ths); default 5 (2026-10-31: measured on screenshots, 4 left 1.29 / 1.73 lines per frame, 5 gives 1.48 / 1.56, 6 overshoots) */
 static const uint8_t *lk_ss_apply(const uint8_t *fb) {
+    if (lk_ss_wt < 0) { const char *e = getenv("LANDSTALKER_SS_WEIGHT"); lk_ss_wt = e && atoi(e) >= 1 && atoi(e) <= 8 ? atoi(e) : 5; }
     static uint32_t *buf; static int cap; static long done = -1; extern int lk_wide_e; const int sw = 320 + 2 * lk_wide_e; const uint32_t *src = (const uint32_t *)fb; int y, x, d = lk_ss_frac;
     if (!d || done == lk_ss_gen || sw > 448) return fb;
     done = lk_ss_gen;
@@ -90,7 +92,7 @@ static const uint8_t *lk_ss_apply(const uint8_t *fb) {
         for (x = 0; x < sw; x++) {
             uint32_t a = r0[x], b = r1[x];
             if (a == b || !lk_ss_w[y][x] || !lk_ss_w[n][x] || a != lk_ss_ref[y][x] || b != lk_ss_ref[n][x]) continue;   /* only world pixels nobody drew over, both lines */
-            o[x] = (a & 0xFF000000u) | ((((a >> 16 & 255) * 3 + (b >> 16 & 255) + 2) >> 2) << 16) | ((((a >> 8 & 255) * 3 + (b >> 8 & 255) + 2) >> 2) << 8) | (((a & 255) * 3 + (b & 255) + 2) >> 2);
+            o[x] = (a & 0xFF000000u) | ((((a >> 16 & 255) * (16 - lk_ss_wt) + (b >> 16 & 255) * lk_ss_wt + 8) >> 4) << 16) | ((((a >> 8 & 255) * (16 - lk_ss_wt) + (b >> 8 & 255) * lk_ss_wt + 8) >> 4) << 8) | (((a & 255) * (16 - lk_ss_wt) + (b & 255) * lk_ss_wt + 8) >> 4);   /* weight of the neighbour line in 16ths (4 = the quarter blend) */
         }
     }
     { static int lg = -1; if (lg < 0) lg = getenv("LANDSTALKER_SS_LOG") != NULL; if (lg) { long nb = 0, nw = 0, nr = 0, nl = 0; for (y = 0; y < 224; y++) { if (lk_ss_lgen[y] == lk_ss_gen) nl++; for (x = 0; x < sw; x++) { if (buf[(size_t)y * sw + x] != src[(size_t)y * sw + x]) nb++; if (lk_ss_w[y][x]) { nw++; if (src[(size_t)y * sw + x] != lk_ss_ref[y][x]) nr++; } } } fprintf(stderr, "ssa: gen %ld blended %ld world %ld changed-after %ld lines %ld\n", lk_ss_gen, nb, nw, nr, nl); } }   /* test aid */
