@@ -17,7 +17,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import roomgraph, romroom
 
-VERSION = "roommap v7"   # v7: floors from a walk over the stairs first; v6: most-linked room next, spot with the smallest total door distance (user: a door into nothing)   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
+VERSION = "roommap v8"   # v8: boxes sized by door count, one slot per door, best of TRIALS randomised placements (user: proportions need not be right, doors must fit)   # v7: floors from a walk over the stairs first; v6: most-linked room next, spot with the smallest total door distance (user: a door into nothing)   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
+TRIALS = 60   # randomised placements per area (v8)
 TW = 112                     # thumbnail width (pixels): the map cells are drawn at most ~1.3 x this at 1280 x 800
 MULTI = ["KN_LABYRINTH", "KN_CAVE", "KN_PALACE", "LAKE_SHRINE", "SWAMP_SHRINE", "WATERFALL_SHRINE", "THIEVES_HIDEOUT", "DESTEL_WELL", "MIR_TOWER", "VERLA_MINES",
          "HELGAS_HUT", "MERCATOR_CASTLE", "MERCATOR_DUNGEON", "RYUMA_LIGHTHOUSE", "GREENMAZE", "ROUTE_GUMI_RYUMA", "ROUTE_AFTER_DESTEL", "MASSAN_CAVE"]
@@ -80,87 +81,104 @@ def build(rom):
         areas.append((region[r], sorted(comp)))
     areas = [a for a in areas if a[0] in DUNGEONS]   # towns, routes, castles: no map
     area_of = {x: ai for ai, (reg, comp) in enumerate(areas) for x in comp}
-    # v5 (user 2026-10-31: 'connections where there are none' in the Swamp Shrine): rooms have several doors on one side (room 5: three to the NW), one cell per room
-    # cannot show that.  Each room is now a box of W x H grid units (U cells per unit, at least 1) in the proportions of its floor; a neighbour is put against the
-    # side of the door, shifted along that side so that both door units meet; stairs put the upper room over the door on the next floor.  Taken places: slide along
-    # the side, then push outwards.  Edges carry both door points (local units x 10) so the map draws short connectors exactly at the doors.
-    U = 8
-    box = {}
-    for r in area_of:
-        xs = [k[0] for k in fps[r]] or [0]; ys = [k[1] for k in fps[r]] or [0]
-        x0, y0, w, h = min(xs), min(ys), max(xs) - min(xs) + 1, max(ys) - min(ys) + 1
-        box[r] = (x0, y0, w, h, max(1, int(w / U + 0.5)), max(1, int(h / U + 0.5)))
-    def dpt(r, x, y):   # door point in the room's local units (fraction), clamped into the box
-        x0, y0, w, h, W, H = box[r]
-        return (min(max((x - x0 + 0.5) / w * W, 0.0), W), min(max((y - y0 + 0.5) / h * H, 0.0), H))
-    def snap(r, p, d):   # put the door point on the side d
-        W, H = box[r][4], box[r][5]; u, v = p
-        if d == 'NW': u = 0.0
-        elif d == 'SE': u = float(W)
-        elif d == 'NE': v = 0.0
-        elif d == 'SW': v = float(H)
-        return (u, v)
-    nb = defaultdict(list); edges = []
+    # v8 (user 2026-10-31: 'schematic, proportions need not be right, as long as the doors fit'): a room's box is as long on a side as it has doors there
+    # (at least 1 x 1), each door gets its own unit slot on its side (in the order of the real door positions), a neighbour is put so that both door slots
+    # face each other exactly.  Loops of the dungeon may still not close: several randomised placements per area, the one with the fewest doors that do not
+    # meet (then the smallest total door distance, then the smallest area) wins.
+    import random
+    rawe = []
     for c in conns:
         a, b = c['r1'], c['r2']
         if area_of.get(a) is None or area_of.get(a) != area_of.get(b): continue
         s1 = side(fps[a], c['x1'], c['y1']); s2 = side(fps[b], c['x2'], c['y2'])
-        d = s1 or (OPP[s2] if s2 else 'SE'); up = 1 if c['e1'] in (10, 20) else 0
-        pa = dpt(a, c['x1'], c['y1']); pb = dpt(b, c['x2'], c['y2'])
-        if not up: pa = snap(a, pa, d); pb = snap(b, pb, OPP[d])
+        rawe.append((a, b, 1 if c['e1'] in (10, 20) else 0, s1 or (OPP[s2] if s2 else 'SE'), c['x1'], c['y1'], c['x2'], c['y2']))
+    slots = defaultdict(list)
+    for k, (a, b, up, d, x1, y1, x2, y2) in enumerate(rawe):
+        if up: continue
+        slots[(a, d)].append((y1 if d in ('NW', 'SE') else x1, k, 0))
+        slots[(b, OPP[d])].append((y2 if OPP[d] in ('NW', 'SE') else x2, k, 1))
+    box = {}
+    for r in area_of:
+        xs = [k[0] for k in fps[r]] or [0]; ys = [k[1] for k in fps[r]] or [0]
+        n = {sd: len(slots.get((r, sd), [])) for sd in DIRS}
+        box[r] = (min(xs), min(ys), max(xs) - min(xs) + 1, max(ys) - min(ys) + 1, max(2, n['NE'], n['SW']), max(2, n['NW'], n['SE']))   # at least 2 x 2 (a 4 x 1 strip looked odd, user)
+    dp = {}
+    for (r, sd), lst in slots.items():
+        lst.sort(); W, H = box[r][4], box[r][5]; L = H if sd in ('NW', 'SE') else W; off = (L - len(lst)) // 2
+        for i, (al, k, end) in enumerate(lst):
+            q_ = off + i + 0.5
+            dp[(k, end)] = {'NW': (0.0, q_), 'SE': (float(W), q_), 'NE': (q_, 0.0), 'SW': (q_, float(H))}[sd]
+    nb = defaultdict(list); edges = []
+    for k, (a, b, up, d, x1, y1, x2, y2) in enumerate(rawe):
+        pa = dp.get((k, 0), (box[a][4] / 2.0, box[a][5] / 2.0)); pb = dp.get((k, 1), (box[b][4] / 2.0, box[b][5] / 2.0))   # stairs: the middle of the room
         nb[a].append((b, d, up, pa, pb)); nb[b].append((a, OPP[d], -up, pb, pa)); edges.append((a, b, up, pa, pb))
-    pos = {}
-    for ai, (reg, comp) in enumerate(areas):
-        # v6 (user: 'a door leads into nothing'): loops of the dungeon left 151 of 512 door pairs apart.  Now the next room is always the unplaced one with the most
-        # placed neighbours, and among all free spots (around the spot each placed neighbour asks for) the one with the smallest total distance to ALL placed
-        # neighbours' doors wins.
-        start = comp[0]; p0 = {start: (0, 0, 0)}
-        lev = {start: 0}; q = deque([start])   # floors first, by a plain walk over the stairs (the placement order below would let loops pick a wrong floor)
+    def floors(comp):   # floors first: ONE walk over the stairs from the area's first room (the stairs of some areas are not free of contradictions, so the result must not depend on the trial)
+        lev = {comp[0]: 0}; q = deque([comp[0]])
         while q:
             r = q.popleft()
             for (m, d, up, pr, pm) in nb[r]:
                 if m not in lev: lev[m] = lev[r] + up; q.append(m)
+        return lev
+    def place(comp, rng, start, lev):
+        p0 = {start: (0, 0, lev.get(start, 0))}
         def free(r, gx, gy, l):
             W, H = box[r][4], box[r][5]
             for o, (ox, oy, ol) in p0.items():
                 if ol == l and o != r and gx < ox + box[o][4] and ox < gx + W and gy < oy + box[o][5] and oy < gy + H: return False
             return True
-        def want(r, o, d, up, pr, po):   # the spot of o that makes its door meet r's door, plus the outward / along directions
+        def want(r, o, d, up, pr, po):
             x, y, l = p0[r]; W, H = box[o][4], box[o][5]
-            bx, by = x + pr[0] - po[0], y + pr[1] - po[1]
-            if up: return int(round(bx)), int(round(by)), l + up, (0, 0), (0, 0)
-            if d == 'NW': return x - W, int(round(by)), l, DIRS['NW'], (0, 1)
-            if d == 'SE': return x + box[r][4], int(round(by)), l, DIRS['SE'], (0, 1)
-            if d == 'NE': return int(round(bx)), y - H, l, DIRS['NE'], (1, 0)
-            return int(round(bx)), y + box[r][5], l, DIRS['SW'], (1, 0)
+            bx, by = int(round(x + pr[0] - po[0])), int(round(y + pr[1] - po[1]))
+            if up: return bx, by, (0, 0), (0, 0)
+            if d == 'NW': return x - W, by, DIRS['NW'], (0, 1)
+            if d == 'SE': return x + box[r][4], by, DIRS['SE'], (0, 1)
+            if d == 'NE': return bx, y - H, DIRS['NE'], (1, 0)
+            return bx, y + box[r][5], DIRS['SW'], (1, 0)
         while True:
-            best_o, best_n = None, 0
+            best_n, todo = 0, []
             for o in comp:
                 if o in p0: continue
-                n = sum(1 for (m, d, up, pm, po) in nb[o] if m in p0)
-                if n > best_n: best_o, best_n = o, n
-            if best_o is None: break
-            o = best_o; links = [(m, OPP[d], -up, pm, po) for (m, d, up, po, pm) in nb[o] if m in p0]   # seen from the placed room m: (m, side of m, stairs m -> o, m's door, o's door)
-            cands = set(); fl = lev.get(o, 0)
+                n = sum(1 for t in nb[o] if t[0] in p0)
+                if n > best_n: best_n, todo = n, [o]
+                elif n == best_n and n: todo.append(o)
+            if not todo: break
+            o = rng.choice(todo); fl = lev.get(o, 0)
+            links = [(m, OPP[d], -up, pm, po) for (m, d, up, po, pm) in nb[o] if m in p0]
+            cands = set()
             for (m, d, up, pm, po) in links:
-                gx0, gy0, l, out, along = want(m, o, d, up, pm, po)
-                l = fl
-                if up or p0[m][2] != fl: cands.add((gx0, gy0, l, 0)); continue
+                gx0, gy0, out, along = want(m, o, d, up, pm, po)
+                if up or p0[m][2] != fl: cands.add((gx0, gy0, 0)); continue
                 for k in range(0, 8):
-                    for sl in range(-5, 6): cands.add((gx0 + out[0] * k + along[0] * sl, gy0 + out[1] * k + along[1] * sl, l, k + abs(sl)))
+                    for sl in range(-5, 6): cands.add((gx0 + out[0] * k + along[0] * sl, gy0 + out[1] * k + along[1] * sl, k + abs(sl)))
             best = None
-            for (gx, gy, l, pen) in cands:
-                if l != fl or not free(o, gx, gy, l): continue
-                cost = 0.05 * pen
+            for (gx, gy, pen) in cands:
+                if not free(o, gx, gy, fl): continue
+                miss = 0; cost = 0.05 * pen
                 for (m, d, up, pm, po) in links:
-                    if up: continue
                     mx, my, ml = p0[m]
-                    if up: continue
-                    cost += abs(mx + pm[0] - gx - po[0]) + abs(my + pm[1] - gy - po[1]) if ml == l else 0
-                if best is None or cost < best[0]: best = (cost, gx, gy, l)
-            if best is None:
-                m, d, up, pm, po = links[0]; gx0, gy0, l, out, along = want(m, o, d, up, pm, po); best = (0, gx0 + out[0] * 9, gy0 + out[1] * 9, l)
-            p0[o] = (best[1], best[2], best[3])
+                    if up or ml != fl: continue
+                    dd = abs(mx + pm[0] - gx - po[0]) + abs(my + pm[1] - gy - po[1]); cost += dd; miss += dd > 0.01
+                key = (miss, cost, rng.random())
+                if best is None or key < best[0]: best = (key, gx, gy)
+            if best is None:   # every candidate taken: the nearest free spot around the first wanted one (ring by ring)
+                gx0, gy0, out, along = want(*links[0][:1], o, *links[0][1:])
+                for rad in range(1, 60):
+                    ring = [(gx0 + dx, gy0 + dy) for dx in range(-rad, rad + 1) for dy in range(-rad, rad + 1) if max(abs(dx), abs(dy)) == rad and free(o, gx0 + dx, gy0 + dy, fl)]
+                    if ring: best = (None,) + min(ring, key=lambda c: abs(c[0] - gx0) + abs(c[1] - gy0)); break
+            p0[o] = (best[1], best[2], fl)
+        miss = cost = 0
+        for (a, b, up, pa, pb) in edges:
+            if a in p0 and b in p0 and not up and p0[a][2] == p0[b][2]:
+                dd = abs(p0[a][0] + pa[0] - p0[b][0] - pb[0]) + abs(p0[a][1] + pa[1] - p0[b][1] - pb[1]); cost += dd; miss += dd > 0.01
+        xs = [p[0] for p in p0.values()]; ys = [p[1] for p in p0.values()]
+        return (miss, cost, (max(xs) - min(xs) + 1) * (max(ys) - min(ys) + 1)), p0
+    pos = {}
+    for ai, (reg, comp) in enumerate(areas):
+        rng = random.Random(1000 + ai); best = None; lev = floors(comp)
+        for t in range(TRIALS):
+            sc, p0 = place(comp, rng, comp[0] if t == 0 else rng.choice(comp), lev)
+            if best is None or sc < best[0]: best = (sc, p0)
+        p0 = best[1]
         lmin = min(p[2] for p in p0.values())
         for r, (x, y, l) in p0.items(): pos[r] = (ai, l - lmin, x, y)
     variants = [(v['variant'], v['room']) for v in g['variants']]

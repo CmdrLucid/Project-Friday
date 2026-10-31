@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-10-31 (dev, Opus 5.5): ROOM MAP v7 / roommap v8:** slabs sized by door count with one slot per door (user: doors must fit, proportions do not matter), best of 60 placements, numbered badges for the remaining loop doors (136 of 520) + legend. Headless mapshots only.
 - **2026-10-31 (dev, Opus 5.5): ROOM MAP v5 / roommap v7:** schematic slabs instead of the room pictures (user: pixelated), numbered door pairs where doors do not meet, no doors towards unvisited rooms (user: a door into nothing); placement by total door distance. Headless mapshots only.
 - **2026-10-31 end of session (dev, Opus 5.5): ROOM MAP v4 / roommap v5** (user saw connections that do not exist in the Swamp Shrine): rooms as boxes of their size, neighbours at their doors, gold door marks, connectors only between doors that meet (docs/MAP.md). Headless mapshots only; user check open.
 - **2026-10-31 (main, Opus 5.5): RELEASE v1.5.0** (sprint, sharp smooth scrolling, issue #12 first-start fix; Friday Hints + dungeon map experimental and OFF by default). main = merge 32f3f61, tag v1.5.0, Actions run 41196000505 success.

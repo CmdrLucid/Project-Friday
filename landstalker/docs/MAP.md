@@ -1,6 +1,6 @@
 # Room map (MODERN_IDEAS (B), started 2026-10-31)
 
-User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (end of 2026-10-31): v5 / roommap v7 (schematic slabs, numbered door pairs) built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
+User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (end of 2026-10-31): v7 / roommap v8 (slabs sized by door count, numbered badges) built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
 
 ## How it works
 - **Data (build time, from the player's ROM, never in git):** `tools/roommap.py ROM build/roommap` (step of build.sh, also run by firstrun.py; ~2 min on all cores the first time,
@@ -49,6 +49,15 @@ User wishes: own room map (not the island map), location only (no 'where to go n
 - Drawing: doors that meet = gold connector; doors that do not meet = the same small NUMBER at both doors (classic dungeon map trick, no line across rooms);
   doors / stairs to rooms not visited yet are not drawn (no door into nothing). Rooms = schematic raised slabs (slate top, light back edges, dark side; current room gold);
   no room pictures any more (roommap.py makes them only with --thumbs; build ~2 min faster). Count tool: /tmp/rm/unmet.py (pairs not meeting per area).
+
+## v7 / roommap v8 (2026-10-31, user: 'schematic, proportions need not be right, the doors must fit'; 'door 4 at the back goes into nothing'; 'the long door at the long room looks odd')
+- Boxes sized by DOOR COUNT, not by the floor: at least 2 x 2, as long on a side as it has doors there; each door has its own unit slot on its side (order of the real door
+  positions); a neighbour is placed so that both slots face each other exactly. Floors first (one walk over the stairs from the area's first room: some areas' stairs contradict,
+  a random start gave the Swamp Shrine 4 floors), then 60 randomised placements per area (most-linked room next, free spot with the fewest missed doors / smallest door distance),
+  the best one wins; no free spot = nearest free spot ring by ring (a far fallback once zoomed the whole map to nothing). 18 s for all areas.
+- Doors that do not meet: 136 of 520 (Greenmaze 25, KN cave 22, Mir tower 21; Swamp Shrine 3 on floor 1); 300 trials gave only 3 fewer. They get a round numbered badge a little
+  inside their own room at both doors (two doors on one spot stay readable) + legend 'SAME NUMBER: CONNECTED DOORS' (font has no '='); doors <= 0.6 apart get a door piece.
+- Stairs = white triangle in the middle of the room, shown once the other end was visited. ~/Karte_Entwurf4.png = Swamp Shrine floor 1.
 
 ## Open / ideas
 - User look at it on the Deck (style, size, button). Town interiors are in the town's grid (no 'inside' grouping yet). Mercator outdoors shows as floor 2 / 3 (houses with cellars).
