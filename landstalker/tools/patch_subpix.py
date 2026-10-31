@@ -6,7 +6,7 @@ is drawn half a line too low, with an even sum exactly; Nigel's own screen spot 
 What this does (picture only, the game state is untouched): while the camera sum changed by an ODD amount in this frame, the final 1x picture gets a quarter line
 vertical blend on every 'world' pixel (planes, backdrop, the other figures): odd sum -> 3/4 own + 1/4 the line below (= sampled 1/4 line lower, lifting the half line
 error), even sum -> 3/4 own + 1/4 the line above.  Both frames are equally soft, the mean offset is zero, and the room now moves 1.5 lines EVERY frame.  Not blended:
-Nigel's pixels (marked while the own renderer draws entity offset 0), window pixels (HUD, text box), black margins, and any pixel something drew over the
+the Modern HUD's pixels (lk_mh_hit, user 2026-10-31 'das HUD wird beim Sprinten unscharf und zittert'), Nigel's pixels (marked while the own renderer draws entity offset 0), window pixels (HUD, text box), black margins, and any pixel something drew over the
 compositor's output afterwards (overlays, menus: the pixel must equal what the compositor wrote, the HD path's rule).  Applied at the top of
 platform_present_frame, so screenshots (LANDSTALKER_SHOT) show it too.  Inert with the HD picture (lk_hd_n) and outside the own map path.
 Switch: Options > Quality of Life > Smooth Scrolling (id 43, last row; user 2026-10-30 'passt alles, einbauen'), default ON; ~/.landstalker_smooth, env LANDSTALKER_SMOOTH=0|1 wins.
@@ -58,7 +58,7 @@ static void lk_ss_update(int sum, int rm) {   /* once per own map frame, with th
     s = s.replace(a, a + "        lk_ss_vs = (int16_t)vsA; lk_ss_update(cam0 + cam2, rm);   /* LK_SUBPIX v3 */\n", 1)
     a = "      if (lk_o_mode == 2) row[i] = (PIXEL_OUT_T)col;\n"
     assert s.count(a) == 1
-    s = s.replace(a, a + "      if (lk_ss_frac) { lk_ss_w[line][i] = (uint8_t)(!black && src != 4 && !(src == 1 && sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW && lk_ss_nig[sl][si])); lk_ss_ref[line][i] = (uint32_t)col; }   /* LK_SUBPIX v3 */\n", 1)
+    s = s.replace(a, a + "      if (lk_ss_frac) { lk_ss_w[line][i] = (uint8_t)(!black && src != 4 && !lk_mh_hit && !(src == 1 && sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW && lk_ss_nig[sl][si])); lk_ss_ref[line][i] = (uint32_t)col; }   /* LK_SUBPIX v3 */\n", 1)
     a = "    lk_hd_dstamp[line] = lk_hd_gen;\n"
     assert s.count(a) == 1
     s = s.replace(a, a + "    if (lk_ss_frac) lk_ss_lgen[line] = lk_ss_gen;   /* LK_SUBPIX v3 */\n", 1)
