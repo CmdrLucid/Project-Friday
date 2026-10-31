@@ -176,6 +176,8 @@ python3 tools/patch_focuspause.py .deps/genrecomp
 python3 tools/patch_region.py .deps/genrecomp
 # text layer runtime: language binary (tools/langbuild.py), translated strings / names / font (tools/patch_lang.py, docs/TEXT_LAYER.md)
 python3 tools/patch_lang.py .deps/genrecomp
+# Friday Hints: Select = Friday says where to go next (game's story stage GetFlagProgress + our texts lang/friday_hints.json, text box of the chest messages; tools/patch_friday.py; needs patch_lang / patch_options)
+python3 tools/patch_friday.py .deps/genrecomp
 # sound diagnostics + separate music / effect volumes (tools/patch_sndsep.py, LANDSTALKER_SNDLOG / LANDSTALKER_ZRAMDUMP)
 python3 tools/patch_sndsep.py .deps/genrecomp
 # sound step S0: golden trace of everything that reaches the sound chips and the Z80 mailbox (tools/patch_sndtrace.py, LANDSTALKER_SNDTRACE)
