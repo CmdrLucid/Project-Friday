@@ -61,21 +61,46 @@ E = html.escape
 out = ["<!doctype html><html lang='de'><meta charset='utf-8'><title>Friday-Hinweise</title><style>",
        "body{font-family:sans-serif;background:#1b1a2e;color:#eee;margin:24px;max-width:1100px}h1{font-size:22px}",
        "table{border-collapse:collapse;width:100%}td,th{padding:6px 8px;border-bottom:1px solid #3a3860;vertical-align:top;font-size:14px}",
-       "th{text-align:left;color:#b9a7ff}.st{color:#9fd;white-space:nowrap}.de{font-size:15px}.en{color:#999;font-size:12px}",
+       "th{text-align:left;color:#b9a7ff}.st{color:#9fd;width:26%}.de{font-size:15px}.en{color:#999;font-size:12px}",
        ".id{color:#777;font-size:11px}.u{background:#4a2c2c}.tag{background:#a33;color:#fff;border-radius:3px;padding:0 4px;font-size:11px}",
-       "tr.sth td{background:#2a2850;color:#cfc3ff;font-weight:bold}</style>",
+       "tr.sth td{background:#2a2850;color:#cfc3ff;font-weight:bold}",
+       "textarea{width:100%;min-height:44px;box-sizing:border-box;background:#11101f;color:#fff;border:1px solid #4a4880;border-radius:4px;font-size:14px;padding:4px}",
+       "textarea.has{border-color:#e8c068}td.k{width:34%}.bar{position:sticky;top:0;background:#1b1a2e;padding:8px 0;border-bottom:2px solid #e8c068;z-index:2;display:flex;gap:10px;align-items:center;flex-wrap:wrap}",
+       "button{background:#e8c068;color:#1b1a2e;border:0;border-radius:4px;padding:8px 14px;font-size:15px;font-weight:bold;cursor:pointer}#info{color:#9fd;font-size:13px}</style>",
        "<h1>Friday-Hinweise (Select-Taste): wann kommt welcher Hinweis</h1>",
        "<p>Friday sagt immer den Hinweis der <b>letzten</b> Zeile, deren Bedingung erfüllt ist. Die Story-Stufe stammt aus der eigenen "
        "Fortschrittstabelle des Spiels (dieselbe, nach der die Dorfbewohner reden). Zeilen mit Ort gelten nur, solange du dort bist. "
-       "<span class='tag'>unsicher</span> = vom Agenten geraten, bitte besonders prüfen. Für eine Korrektur einfach die Nummer und den neuen Text nennen.</p>",
-       "<table><tr><th>Nr</th><th>Wann</th><th>Was Flora sagt</th></tr>"]
+       "<span class='tag'>unsicher</span> = vom Agenten geraten, bitte besonders prüfen.</p>",
+       "<p><b>Kommentare:</b> rechts in das Feld schreiben (neuer Text, falsche Bedingung, ...). Der Browser merkt sich alles beim Tippen. "
+       "Am Ende <b>Kommentare speichern</b> drücken: die Datei <code>Friday_Kommentare.txt</code> landet in <code>~/Downloads</code>, Claude liest sie von dort. "
+       "<b>Datei laden</b> holt eine gespeicherte Datei wieder in die Felder.</p>",
+       "<div class='bar'><button id='save'>Kommentare speichern</button><button id='loadb'>Datei laden</button><input type='file' id='load' accept='.txt' hidden><span id='info'></span></div>",
+       "<table><tr><th>Nr</th><th>Wann</th><th>Was Flora sagt</th><th>Dein Kommentar</th></tr>"]
 cur = None
 for n, i, st, extra, de, en, uns in rows:
     if st != cur:
-        cur = st; out.append("<tr class='sth'><td colspan='3'>Stufe %d: %s</td></tr>" % (st, E(STAGE.get(st, "?"))))
+        cur = st; out.append("<tr class='sth'><td colspan='4'>Stufe %d: %s</td></tr>" % (st, E(STAGE.get(st, "?"))))
     w = "ab hier" if not extra else "und " + " und ".join(E(x) for x in extra)
-    out.append("<tr%s><td>%d</td><td class='st'>%s%s<div class='id'>%s</div></td><td><div class='de'>%s</div><div class='en'>%s</div></td></tr>" % (
-        " class='u'" if uns else "", n, w, " <span class='tag'>unsicher</span>" if uns else "", E(i), E(de), E(en)))
-out.append("</table></html>")
+    out.append("<tr%s><td>%d</td><td class='st'>%s%s<div class='id'>%s</div></td><td><div class='de'>%s</div><div class='en'>%s</div></td><td class='k'><textarea data-n='%d' data-id='%s'></textarea></td></tr>" % (
+        " class='u'" if uns else "", n, w, " <span class='tag'>unsicher</span>" if uns else "", E(i), E(de), E(en), n, E(i)))
+out.append("</table>")
+# comments: kept in the browser while typing (localStorage, may be unavailable: then only the file counts), saved as a text file to ~/Downloads (2026-10-31, user: 'Kommentare direkt in die HTML schreiben und speichern')
+out.append(r"""<script>
+const K = 'friday_kommentare_v1', T = [...document.querySelectorAll('textarea')], info = document.getElementById('info');
+function mark() { let n = 0; T.forEach(t => { t.classList.toggle('has', t.value.trim() !== ''); if (t.value.trim()) n++; }); info.textContent = n + ' Kommentar(e)'; }
+function keep() { const o = {}; T.forEach(t => { if (t.value.trim()) o[t.dataset.id] = t.value; }); try { localStorage.setItem(K, JSON.stringify(o)); } catch (e) {} mark(); }
+try { const o = JSON.parse(localStorage.getItem(K) || '{}'); T.forEach(t => { if (o[t.dataset.id]) t.value = o[t.dataset.id]; }); } catch (e) {}
+T.forEach(t => t.addEventListener('input', keep)); mark();
+document.getElementById('save').onclick = () => {
+  let s = 'Friday-Hinweise: Kommentare (' + new Date().toLocaleString('de-DE') + ')\n\n';
+  T.forEach(t => { if (t.value.trim()) s += '#' + t.dataset.n + ' [' + t.dataset.id + ']\n' + t.value.trim() + '\n\n'; });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([s], { type: 'text/plain;charset=utf-8' })); a.download = 'Friday_Kommentare.txt';
+  document.body.appendChild(a); a.click(); a.remove(); info.textContent = 'gespeichert: Friday_Kommentare.txt (Downloads)';
+};
+document.getElementById('loadb').onclick = () => document.getElementById('load').click();
+document.getElementById('load').onchange = e => { const f = e.target.files[0]; if (!f) return; f.text().then(s => {
+  const parts = s.split(/^#\d+ \[([^\]]+)\]\n/m); const o = {}; for (let i = 1; i + 1 < parts.length; i += 2) o[parts[i]] = parts[i + 1].trim();
+  T.forEach(t => { if (o[t.dataset.id] !== undefined) t.value = o[t.dataset.id]; }); keep(); info.textContent = 'geladen: ' + Object.keys(o).length + ' Kommentar(e)'; }); };
+</script></html>""")
 open(OUT, "w", encoding="utf-8").write("\n".join(out))
 print("written", OUT, len(rows), "hints,", sum(r[6] for r in rows), "unsure")

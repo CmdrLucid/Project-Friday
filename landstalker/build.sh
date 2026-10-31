@@ -189,6 +189,8 @@ python3 tools/patch_sndnative.py .deps/genrecomp
 python3 tools/patch_sndclock.py .deps/genrecomp
 # own sound chips next to GPGX's (PSG first; LANDSTALKER_CHIPS=gpgx = the old way; tools/patch_chips.py, docs/SOUND_PLAN.md section 9)
 python3 tools/patch_chips.py .deps/genrecomp
+# own sound mixer (YM2612 sync / BUSY / frame flush / resampled output; LANDSTALKER_MIX=gpgx = the old glue; tools/patch_mix.py + tools/lksnd_mix.c, docs/SOUND_PLAN.md section 10)
+python3 tools/patch_mix.py .deps/genrecomp
 # diagnostics: LANDSTALKER_VDPLOG=1 lists which game function writes which tile columns of the scroll planes (widescreen work)
 python3 tools/patch_vdplog.py .deps/genrecomp
 # names (from docs/symbols.json) in the console diagnostics: call stack, interp:, no function, RTS to, CALLTRACE (tools/patch_symnames.py; LANDSTALKER_NONAMES=1 = off)

@@ -19,7 +19,8 @@ static unsigned char rdport(unsigned int p) { (void)p; return 0xFF; }
 static void wrport(unsigned int p, unsigned char v) { (void)p; (void)v; }
 static uint32_t rng = 1;
 static uint32_t rnd(void) { rng ^= rng << 13; rng ^= rng >> 17; rng ^= rng << 5; return rng; }
-extern void z80drv_step(Z80S *s);
+extern void z80drv_step(Z80S *s); extern void z80boot_step(Z80S *s); extern const unsigned char z80boot_img[]; extern const int z80boot_len;
+int lk_snd_skipping(void) { return 0; } int lk_nat_native_run(unsigned c) { (void)c; return 0; } void lk_nat_loadctx(void) {}   /* hooks of the later patches (sndclock, native run) */
 void lk_nat_begin(void) {} void lk_nat_gstep(void) {} void lk_nat_end(void) {} void lk_nat_reset(void) {} void lk_nat_gevent(int k, uint32_t t, int a, int v) {}   /* stubs for the hooks of a patched z80.c (tools/patch_sndnative.py) */
 
 int main(int argc, char **argv) {
@@ -59,5 +60,33 @@ int main(int argc, char **argv) {
         }
     }
     printf("cases %ld, differing %ld\n", tot, bad);
+    /* ---- the SEGA boot stub (z80boot_step, 2026-10-31): every instruction with random state, then the whole program from a reset to its jp (hl) loop ---- */
+    { long btot = 0, bbad = 0; int bp[64], nb = 0;
+      for (i = 0; i < z80boot_len && z80boot_len > 1; i++) { Z80S t; memset(&t, 0, sizeof t); t.pc = (uint16_t)i; memset(memR, 0, 65536); memcpy(memR, z80boot_img, z80boot_len); z80boot_step(&t); if (!t.bad) bp[nb++] = i; }
+      printf("instructions in the boot stub: %d\n", nb);
+      #define BCMP(name, gv, rv) if ((unsigned)(gv) != (unsigned)(rv)) { diff = 1; if (bbad < 25) printf("  boot %04X: %s differs: gpgx %X recomp %X\n", s.pc, name, (unsigned)(gv), (unsigned)(rv)); }
+      for (int run = 0; run <= nb * cases; run++) {
+          Z80S s; int j, diff = 0, whole = run == nb * cases; memset(&s, 0, sizeof s);
+          if (whole) { memset(memG, 0, 65536); memcpy(memG, z80boot_img, z80boot_len); }
+          else { for (j = 0; j < 65536; j++) memG[j] = (uint8_t)rnd(); memcpy(memG, z80boot_img, z80boot_len); s.pc = (uint16_t)bp[run / cases]; }
+          memcpy(memR, memG, 65536);
+          z80_reset();
+          if (!whole) { Z80.af.b.h = s.a = rnd(); Z80.af.b.l = s.f = rnd(); Z80.bc.b.h = s.b = rnd(); Z80.bc.b.l = s.c = rnd(); Z80.de.b.h = s.d = rnd(); Z80.de.b.l = s.e = rnd(); Z80.hl.b.h = s.h = rnd(); Z80.hl.b.l = s.l = rnd();
+              if (run & 1) { Z80.bc.b.h = s.b = 0; Z80.bc.b.l = s.c = 1 + (rnd() & 1); }   /* LDIR: last and second last transfer */
+              Z80.af2.b.h = s.a2 = rnd(); Z80.af2.b.l = s.f2 = rnd(); Z80.bc2.w.l = 0; s.b2 = s.c2 = 0; Z80.de2.b.h = s.d2 = rnd(); Z80.de2.b.l = s.e2 = rnd(); Z80.hl2.b.h = s.h2 = rnd(); Z80.hl2.b.l = s.l2 = rnd();
+              Z80.ix.w.l = s.ix = rnd(); Z80.iy.w.l = s.iy = rnd(); Z80.sp.w.l = s.sp = (uint16_t)rnd(); Z80.pc.w.l = s.pc; }
+          else { s.a = Z80.af.b.h; s.f = Z80.af.b.l; s.b = Z80.bc.b.h; s.c = Z80.bc.b.l; s.d = Z80.de.b.h; s.e = Z80.de.b.l; s.h = Z80.hl.b.h; s.l = Z80.hl.b.l; s.a2 = Z80.af2.b.h; s.f2 = Z80.af2.b.l; s.b2 = Z80.bc2.b.h; s.c2 = Z80.bc2.b.l;
+              s.d2 = Z80.de2.b.h; s.e2 = Z80.de2.b.l; s.h2 = Z80.hl2.b.h; s.l2 = Z80.hl2.b.l; s.ix = Z80.ix.w.l; s.iy = Z80.iy.w.l; s.sp = Z80.sp.w.l; s.pc = Z80.pc.w.l; s.i = Z80.i; s.im = Z80.im; }
+          Z80.cycles = 0; Z80.iff1 = Z80.iff2 = 0; Z80.irq_state = 0; s.iff1 = s.iff2 = 0; ng = nr = 0;
+          if (whole) { z80_run(200000 * 15); while (s.cyc < Z80.cycles / 15 && !s.bad) z80boot_step(&s); }   /* clears 8 KB (~170 000 cycles), then loops on the written jp (hl) */
+          else { z80_run(1); z80boot_step(&s); }
+          BCMP("A", Z80.af.b.h, s.a); BCMP("F", Z80.af.b.l, s.f); BCMP("BC", Z80.bc.w.l, (s.b << 8) | s.c); BCMP("DE", Z80.de.w.l, (s.d << 8) | s.e); BCMP("HL", Z80.hl.w.l, (s.h << 8) | s.l);
+          BCMP("AF'", Z80.af2.w.l, (s.a2 << 8) | s.f2); BCMP("BC'", Z80.bc2.w.l, (s.b2 << 8) | s.c2); BCMP("DE'", Z80.de2.w.l, (s.d2 << 8) | s.e2); BCMP("HL'", Z80.hl2.w.l, (s.h2 << 8) | s.l2);
+          BCMP("IX", Z80.ix.w.l, s.ix); BCMP("IY", Z80.iy.w.l, s.iy); BCMP("SP", Z80.sp.w.l, s.sp); BCMP("PC", Z80.pc.w.l, s.pc); BCMP("I", Z80.i, s.i); BCMP("IM", Z80.im, s.im); BCMP("cycles", Z80.cycles / 15, s.cyc); BCMP("bad", 0, s.bad);
+          if (whole) { BCMP("memory", 0, memcmp(memG, memR, 65536) != 0); printf("whole boot stub from reset: %u cycles, pc %04X, sp %04X, mem[0] %02X: %s\n", s.cyc, s.pc, s.sp, memR[0], diff ? "DIFFERS" : "same as GPGX"); }
+          else { BCMP("nwrites", ng, nr); if (ng == nr) for (j = 0; j < ng; j++) { BCMP("write addr", wg[j].a, wrr[j].a); BCMP("write val", wg[j].v, wrr[j].v); } }
+          btot++; if (diff) bbad++;
+      }
+      printf("boot stub cases %ld, differing %ld\n", btot, bbad); bad += bbad; }
     return bad ? 1 : 0;
 }

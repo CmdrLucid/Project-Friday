@@ -20,7 +20,7 @@ You need a supported ROM (US or European version), described under [Compatible R
 
 ## How is this different from running the ROM in an emulator?
 
-The game logic is no longer interpreted: the 68000 code of the ROM is translated into C and compiled into a native program on your machine. Video and sound chips are still emulated, using Genesis Plus GX. Because the game code is now ordinary C that we can hook into, the project can change things an emulator cannot: draw a wider picture with real map content, fix old bugs, or add comfort features inside the game's own menus.
+The game logic is no longer interpreted: the 68000 code of the ROM is translated into C and compiled into a native program on your machine. The picture is drawn by the project's own renderer, and the timing, both sound chips, the sound mixer and the Z80 sound driver run on the project's own code; Genesis Plus GX still handles the video chip's data path, the system start-up and is the base of the FM chip core. Because the game code is now ordinary C that we can hook into, the project can change things an emulator cannot: draw a wider picture with real map content, fix old bugs, or add comfort features inside the game's own menus.
 
 With every option switched off, the game plays like the original cartridge. All additions are optional and set in a new **Options** tab in the game's Start menu (next to *Use* / *Equip*; also on the file select screen).
 
@@ -31,7 +31,7 @@ With every option switched off, the game plays like the original cartridge. All 
 - **No Sprite Limit:** draws every figure of a room, without the cartridge's limit of 20 sprites per line and its flicker (off by default = the original look).
 - **Filter** (Off, Scanlines, CRT, CRT Pro, CRT Curved), **Scaling** (Fit, 4:3, Integer, Fill), borderless **Fullscreen**.
 - **Shadows** (Off / On / Soft): a ground shadow under Nigel and airborne objects, which makes jumps easier to judge.
-- **HUD** Original / Modern: the modern HUD drops the status bar and lays hearts, the sword charge, gold and the button icons (sword, Quick Items, with the name of the bound button) over the map, so the room fills the whole screen.
+- **HUD** Original / Modern: the modern HUD drops the status bar and lays hearts (with the life numbers), the sword charge, gold and the button icons (sword, Quick Items, with the name of the bound button) over the map, so the room fills the whole screen.
 
 **Audio:** separate music and effect volume; speech blips can be switched off.
 
@@ -41,7 +41,7 @@ With every option switched off, the game plays like the original cartridge. All 
 - **Quick Equip:** hold a button (R1) and press a direction to open the strip of swords, armour, boots or rings, then pick a piece with left / right, without opening the menu.
 - **Sprint** (On by default): hold R2 (keyboard Left Shift) and Nigel runs faster on the ground (jumps stay exactly as in the original). Sprint Key: Hold or Toggle.
 - **Smooth Scrolling** (On by default, Quality of Life): the sprint is 1.5 x and the room scrolls evenly and stays sharp (the scenery is shifted by whole screen pixels inside the display filter); Off = sprint 2 x.
-- **Experimental, off by default:** *Friday Hints* (Quality of Life; press Select and Friday flies out of Nigel's bag and tells you where to go next) and a *dungeon map* (bind a button to "Map" in Keybindings; shows the visited rooms of the current dungeon, floor by floor, with the rooms drawn from your ROM). Both are still being tuned.
+- **Experimental, off by default:** *Friday Hints* (Quality of Life; press Select and Friday flies out of Nigel's bag and tells you where to go next) and a *dungeon map* (bind a button to "Map" in Keybindings; schematic map of the visited rooms of the current dungeon with every door on its real wall, scrolling with the D-pad, floors on L1 / R1). Both are still being tuned.
 - **Native Pace:** busy rooms no longer run in slow motion; the picture waits for the game instead of the game losing frames like on the console.
 - **Better Menu:** B in Use / Equip goes back to the menu bar instead of closing the menu.
 - **Item Info:** a short description of the item under the cursor.

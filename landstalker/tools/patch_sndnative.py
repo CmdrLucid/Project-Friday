@@ -7,7 +7,7 @@ import os, re, shutil, sys
 root = os.path.join(sys.argv[1], "ext/Genesis-Plus-GX/core"); here = os.path.dirname(os.path.abspath(__file__))
 VER = "LK_SNDNATIVE v1"
 if not os.path.exists(os.path.join(root, "z80drv_gen.c")):   # no ROM step before (selftest build without a ROM): a stub, the recompiled driver stays unused
-    open(os.path.join(root, "z80drv_gen.c"), "w").write('/* stub: no known sound driver image */\n#include "z80rt.h"\nvoid z80drv_step(Z80S *s) { s->bad = 1; }\n'); print("z80drv_gen.c: stub written")
+    open(os.path.join(root, "z80drv_gen.c"), "w").write('/* stub: no known sound driver image */\n#include "z80rt.h"\nvoid z80drv_step(Z80S *s) { s->bad = 1; }\nconst unsigned char z80boot_img[1] = { 0 }; const int z80boot_len = 0;\nvoid z80boot_step(Z80S *s) { s->bad = 1; }\n'); print("z80drv_gen.c: stub written")
 shutil.copy(os.path.join(here, "z80rt.h"), os.path.join(root, "z80rt.h"))
 def edit(fname, fn):
     p = os.path.join(root, fname); s = open(p).read()

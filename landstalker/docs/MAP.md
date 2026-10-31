@@ -1,6 +1,6 @@
 # Room map (MODERN_IDEAS (B), started 2026-10-31)
 
-User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status: v2 built (dev): v1 hung on the Deck (see v2 below), towns dropped; user check of v2 open.
+User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (2026-10-31 late): v12 / roommap v17 (river passages blue), v11 / roommap v16 (door sides from the door cells' floor type), before that v10 / roommap v15 (route search, scrolling, floors on L1 / R1) built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
 
 ## How it works
 - **Data (build time, from the player's ROM, never in git):** `tools/roommap.py ROM build/roommap` (step of build.sh, also run by firstrun.py; ~2 min on all cores the first time,
@@ -34,6 +34,68 @@ User wishes: own room map (not the island map), location only (no 'where to go n
   12 cells off the game's cell coordinates (the game puts the height map at (12, 12); connection records and Nigel `$FF5400` use the game's cells), so the exit side was judged
   on a wrong footprint (355: door (30, 25), footprint x 5..18 -> now 17..30 = SE). Fixed in roommap.py footprint() (v4); Nigel's dot uses the same frame now.
   Cause 2: the picture was 1.5 x the cell: now as wide as the cell, its bottom on the cell's bottom corner, clipped to the cell diamond (walls cut at the top, LK_ROOMMAP v3).
+
+## v4 / roommap v5 (2026-10-31, user: 'connections where there are none' in the Swamp Shrine)
+- Cause: rooms with several doors on one side (room 5: NW to 10, 7 and 0) cannot be shown with one cell per room; pushed neighbours got long diagonal bars across other
+  rooms. Geometric placement per floor re-tested (stairs removed): still 10 loop conflicts / 585 overlapping cells, so it stays schematic.
+- Now: each room = box of W x H grid units (8 cells per unit, floor proportions); a neighbour is put against the side of the door, shifted along it so that both door
+  points meet; stairs put the upper room over the door on the next floor; taken places: slide along the side, then push outwards. layout.txt R lines + 'W H', E lines + both
+  door points (local units x 10). Drawn: framed boxes with the room picture clipped inside, a gold door mark at every door, a connector only between doors that really meet
+  (<= 0.8 units apart; dungeon loops do not fit the grid), stair triangles at their doors, Nigel inside the box.
+
+## v5 / roommap v7 (2026-10-31, user: 'a door leads south-west into nothing'; 'the pictures look pixelated, schematic would be better')
+- Doors that did not meet: 151 of 512 pairs (loops). Placement v6/v7: floors first (walk over the stairs), then always the unplaced room with the most placed
+  neighbours, at the free spot with the smallest total distance to ALL placed neighbours' doors: 143 of 516 left (Greenmaze 34, KN cave 26, Mir tower 18; Swamp Shrine 8).
+- Drawing: doors that meet = gold connector; doors that do not meet = the same small NUMBER at both doors (classic dungeon map trick, no line across rooms);
+  doors / stairs to rooms not visited yet are not drawn (no door into nothing). Rooms = schematic raised slabs (slate top, light back edges, dark side; current room gold);
+  no room pictures any more (roommap.py makes them only with --thumbs; build ~2 min faster). Count tool: /tmp/rm/unmet.py (pairs not meeting per area).
+
+## v7 / roommap v8 (2026-10-31, user: 'schematic, proportions need not be right, the doors must fit'; 'door 4 at the back goes into nothing'; 'the long door at the long room looks odd')
+- Boxes sized by DOOR COUNT, not by the floor: at least 2 x 2, as long on a side as it has doors there; each door has its own unit slot on its side (order of the real door
+  positions); a neighbour is placed so that both slots face each other exactly. Floors first (one walk over the stairs from the area's first room: some areas' stairs contradict,
+  a random start gave the Swamp Shrine 4 floors), then 60 randomised placements per area (most-linked room next, free spot with the fewest missed doors / smallest door distance),
+  the best one wins; no free spot = nearest free spot ring by ring (a far fallback once zoomed the whole map to nothing). 18 s for all areas.
+- Doors that do not meet: 136 of 520 (Greenmaze 25, KN cave 22, Mir tower 21; Swamp Shrine 3 on floor 1); 300 trials gave only 3 fewer. They get a round numbered badge a little
+  inside their own room at both doors (two doors on one spot stay readable) + legend 'SAME NUMBER: CONNECTED DOORS' (font has no '='); doors <= 0.6 apart get a door piece.
+- Stairs = white triangle in the middle of the room, shown once the other end was visited. ~/Karte_Entwurf4.png = Swamp Shrine floor 1.
+
+## v8 / roommap v11 (2026-10-31, user: 'why does door 1 connect to door 2?')
+- Cause: a room placed against another one but shifted by a slot, so its door lay on a FOREIGN door / wall of the neighbour (150 such 'false contacts' over all areas).
+  v9: false contacts are forbidden first (key = false contacts, then missed doors, then distance): 0 left, but missed doors rose 136 -> 187.
+- v10: two doors that face each other on one straight line with no box in between count as CONNECTED (a corridor); new boxes must not cut existing corridors.
+  v11: corridors must not cross (an X looked like a junction). Result: 533 door pairs, 439 connected (touching or corridor), 94 numbered; Swamp Shrine floor 1: 3 numbered pairs.
+  E lines got a last field (1 = connected); the map draws a straight gold corridor for those, numbered badges for the rest. Layout time 52 s (60 trials, all areas).
+  Count tools: /tmp/rm/falsecnt.py (false contacts), awk on the E lines (connected / numbered). ~/Karte_Entwurf5.png.
+
+## v9 / roommap v14 (2026-10-31, user: 'longer bridges could line things up better; then the D-pad / stick must scroll, not everything fits')
+- Longer search range alone (KMAX 8 / 14 / 20): no gain (94 / 98 / 97 numbered). The gain came from (v13) pulling the finished layout apart by one unit at every box
+  edge (start edges map with 'lines <= x', end edges / doors with 'lines < x': touching boxes get one unit between them, order kept, doors stay face to face) and
+  (v12) bent corridors L / Z / U for the pairs still apart, through the new lanes, touching no other box and crossing no corridor.
+- Bugs found with a checker (corridor through a box / diagonal segment): the expansion of each area overwrote the mapped doors of all earlier areas (v13 fix);
+  two rooms joined twice (two doors, or door + stairs) shared their door data (keyed by the room pair) -> v14 keys every connection by its index. Checker: 0 problems.
+- Result: 533 pairs, 451 connected (touching, straight or bent corridor), 28 bent, 82 numbered; false contacts 0. Swamp Shrine floor 1: one numbered pair.
+- Runtime LK_ROOMMAP v9: a readable minimum scale (panel height / 16 per unit); bigger maps scroll with the D-pad / left stick / arrow keys (start: current room in the
+  middle, limits keep content on screen, gold arrows at the frame where more content lies), floors on L1 / R1 (+ PgUp / PgDn), content clipped to the frame, bent
+  corridors drawn from the E line's bend points. Test aid LANDSTALKER_MAPSHOT_PAN=x,y. ~/Karte_Entwurf6.png.
+
+## v10 / roommap v15 (2026-10-31, user: 'the two 1-doors could be joined too')
+- Route search for every pair still apart after the L / Z / U pass: half-unit grid in the lanes between boxes, cost = length + 6 per bend (fewest bends first), never
+  through a box, never on a cell of another corridor (so no crossing), at most 8 bends, shortest pairs first. 484 of 533 pairs connected, 61 bent (33 with > 2 bends),
+  49 numbered; checker 0 problems. Runtime LK_ROOMMAP v10 reads / draws up to 8 bend points. Swamp Shrine floor 1: no number left (~/Karte_Entwurf7.png).
+
+## v11 / roommap v16 (2026-10-31, user recording rec_20261031_1743: 'I go through the door top left, the map leads into a room on the left')
+- KN cave 165 (variant 166) -> 170: door cell (18, 17), footprint x 17..46 / y 15..35: side() took the nearest footprint edge (NW 1 < NE 2), but the door is in the NE
+  wall next to the corner. Door cells carry their exit direction as FLOOR TYPE (low byte of the height map cell & $3F, ProcessFloorType $00603C: 01 NE, 02 SE, 03 SW,
+  04 NW); the walk-in end of 663 of 788 door connections has one, and 206 of them had been judged on the wrong side. door_side(): own floor type, else the partner's
+  (opposite), else the sum of both ends' edge distances. 483 of 533 door pairs connected (was 484), crosscheck / false contacts 0. Data only (no binary change).
+
+## v12 / roommap v17 + LK_ROOMMAP v11 (2026-10-31, user: 'the room has 2 doors top right, your picture shows 3 exits')
+- The third 'door' of KN cave 165 (-> 167) and the second link 163 -> 165 lie on the RIVER (cells with byte 0 bit 4 = raft track, type nibble 5; end cells floor type 0D):
+  connection records for the raft ride, not doors. roommap writes 'W k' lines (E line k is a river passage; 3 in the whole game: 163-165, 165-167, 498-169), the runtime
+  draws their corridor / badges blue (0xFF58A8F0) instead of gold. Mapshot rec_20261031_1743 frame 2700: 2 gold exits NE + 1 blue.
+
+## LK_ROOMMAP v12 (2026-10-31, user: 'not clear in the UI that the shoulder buttons change the floor')
+- Top right in areas with several floors: 'L1  FLOOR n / m  R1'; a button is dark when that way ends (lowest / highest floor). Mapshot Swamp Shrine room 5 (rec_20261024_1818 frame 11645).
 
 ## Open / ideas
 - User look at it on the Deck (style, size, button). Town interiors are in the town's grid (no 'inside' grouping yet). Mercator outdoors shows as floor 2 / 3 (houses with cellars).
