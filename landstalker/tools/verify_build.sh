@@ -59,7 +59,7 @@ chk "Schwierigkeit (Schaden / Gegner-HP)"           $G/src/func_table.c "LK_DIFF
 chk "Tastenbelegung (Pad + Tastatur)"                 $G/src/input.c "LK_KEYS v1"
 chk "Schnellspeichern in Aufnahmen"                 $G/src/input.c "LK_QSREC v1"
 chk "Modernes HUD (Option)"                         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_MHUD v2"
-chk "Sprint (R2)"                                   $G/src/func_table.c "LK_SPRINT v1"
+chk "Sprint (R2)"                                   $G/src/func_table.c "LK_SPRINT v2"
 chk "Sprint-Animation"                               $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SPRINTANIM v1"
 chk "Weiches Scrollen (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SUBPIX v2"
 chk "Controller-Abfrage in eigenem Thread"           $G/src/input.c "LK_PADTHREAD v3"

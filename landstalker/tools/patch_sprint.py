@@ -13,11 +13,14 @@ a wall, a figure, an item that blocks with the whole step taken back), this fram
 Recordings: every press / release is logged next to the quick save events ('p<frame>' / 'r<frame>' in LANDSTALKER_QSLOG, so the recording script
 puts them into LANDSTALKER_QSPLAY); while an input script is replayed (GENRECOMP_INPUTSCRIPT) only those events count, never a live button.
 An odd step is applied as step+1 / step-1 on alternate frames (3 = 4, 2, 4, 2 ...): the vertical scroll moves by half the step, odd steps made the figures jitter.
+Sprint Key (v2, user 2026-10-31 'wie bei fast forward als toggle'): Options > Quality of Life > Sprint Key Hold / Toggle (id 44, last row, default Hold;
+~/.landstalker_sprint_key, env LANDSTALKER_SPRINT_KEY=0|1 wins).  Toggle: one press on, the next off; a room change / script keeps it on.  In Toggle the RESULTING
+state is recorded ('p' when it turns on, 'r' when off), so a recording replays the same with either key mode.
 Test aid: LANDSTALKER_SPRINTHOLD=a-b holds Sprint from frame a to b; LANDSTALKER_SPRINT_STEP=n (2..8) changes the step.
 Needs patch_keys.py (LK_BSPRINT binding), patch_qsrec.py and patch_equip.py before it.  Idempotent.  usage: patch_sprint.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_SPRINT v1"
+VER = "LK_SPRINT v2"   # v2 (2026-10-31): Options > Quality of Life > Sprint Key Hold / Toggle (id 44)
 
 # ---- input.c: the live button state goes to the platform side once per input poll ----
 p = os.path.join(root, "src/input.c")
@@ -25,7 +28,7 @@ s = open(p).read()
 if VER not in s:
     a = "        dpad[i] = pd; d[i] = kd || pd; any |= d[i];\n    }\n"
     assert s.count(a) == 1, "input.c: run patch_keys.py first (or its layout changed)"
-    s = s.replace(a, a + "    { extern void lk_sprint_poll(long frame, int live); lk_sprint_poll(frame, d[LK_BSPRINT]); }   /* LK_SPRINT v1 */\n", 1)
+    s = s.replace(a, a + "    { extern void lk_sprint_poll(long frame, int live); lk_sprint_poll(frame, d[LK_BSPRINT]); }   /* LK_SPRINT v2 */\n", 1)
     open(p, "w").write(s)
     print("input.c patched:", VER)
 
@@ -35,24 +38,28 @@ s = open(p).read()
 if VER not in s:
     old = "    if (f) { fprintf(f, \"%c%ld\\n\", what == 1 ? 's' : 'l', s_frame_no); fflush(f); }\n"
     assert s.count(old) == 1, "platform_sdl.c: run patch_qsrec.py first (or its layout changed)"
-    s = s.replace(old, "    if (f) { fprintf(f, \"%c%ld\\n\", what == 1 ? 's' : what == 2 ? 'l' : what == 3 ? 'p' : 'r', s_frame_no); fflush(f); }   /* 3 / 4 = Sprint pressed / released (LK_SPRINT v1) */\n", 1)
+    s = s.replace(old, "    if (f) { fprintf(f, \"%c%ld\\n\", what == 1 ? 's' : what == 2 ? 'l' : what == 3 ? 'p' : 'r', s_frame_no); fflush(f); }   /* 3 / 4 = Sprint pressed / released (LK_SPRINT v2) */\n", 1)
     a = "void lk_qs_play(long frame) {"
     assert s.count(a) == 1
-    module = r'''/* ---- LK_SPRINT v1: Sprint button state (tools/patch_sprint.py) ---- */
+    module = r'''/* ---- LK_SPRINT v2: Sprint button state (tools/patch_sprint.py) ---- */
 static int lk_sprint_v;
 int lk_sprint_held(void) { return lk_sprint_v; }
 static int lk_sprint_o = -1;   /* Options > Quality of Life > Sprint (id 42), default On; ~/.landstalker_sprint, env LANDSTALKER_SPRINT=0|1 wins */
 int lk_sprint_opt_get(void) { if (lk_sprint_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_SPRINT"); char p[512]; FILE *f; int v = 1; snprintf(p, sizeof p, "%s/.landstalker_sprint", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 1; fclose(f); } if (e && *e) v = atoi(e); lk_sprint_o = v ? 1 : 0; } return lk_sprint_o; }
 void lk_sprint_opt_set(int v) { const char *h = getenv("HOME"); char p[512]; FILE *f; lk_sprint_opt_get(); lk_sprint_o = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_sprint", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_sprint_o); fclose(f); } }
+static int lk_sprint_k = -1;   /* Options > Quality of Life > Sprint Key (id 44): 0 = Hold (default), 1 = Toggle; ~/.landstalker_sprint_key, env LANDSTALKER_SPRINT_KEY=0|1 wins */
+int lk_sprint_key_get(void) { if (lk_sprint_k < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_SPRINT_KEY"); char p[512]; FILE *f; int v = 0; snprintf(p, sizeof p, "%s/.landstalker_sprint_key", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); lk_sprint_k = v ? 1 : 0; } return lk_sprint_k; }
+void lk_sprint_key_set(int v) { const char *h = getenv("HOME"); char p[512]; FILE *f; lk_sprint_key_get(); lk_sprint_k = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_sprint_key", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_sprint_k); fclose(f); } }
 static void lk_qs_rec(int what);
 void lk_sprint_poll(long frame, int live) {
-    static int init, replay, n, prev, pos, cur; static long *ev; static char *evk; static long h0 = -1, h1 = -1;
+    static int init, replay, n, prev, pos, cur, kprev, ktog; static long *ev; static char *evk; static long h0 = -1, h1 = -1;
     if (!init) { const char *e = getenv("LANDSTALKER_QSPLAY"), *h = getenv("LANDSTALKER_SPRINTHOLD"); init = 1; replay = getenv("GENRECOMP_INPUTSCRIPT") != NULL;
         if (e) { size_t cap = strlen(e) / 2 + 1; const char *q; ev = (long *)malloc(cap * sizeof *ev); evk = (char *)malloc(cap); for (q = e; *q && ev && evk; q++) if ((*q == 'p' || *q == 'r') && (q == e || q[-1] == ',') && (size_t)n < cap) { evk[n] = *q; ev[n] = atol(q + 1); n++; } }
         if (h && sscanf(h, "%ld-%ld", &h0, &h1) != 2) h0 = h1 = -1; }
     if (replay) { while (pos < n && ev[pos] <= frame) { cur = evk[pos] == 'p'; pos++; } live = cur; }   /* replays: only the recorded presses (events in frame order) */
     if (frame >= h0 && frame <= h1) live = 1;
     live = live ? 1 : 0;
+    if (!replay && lk_sprint_key_get()) { if (live && !kprev) ktog = !ktog; kprev = live; live = ktog; }   /* Sprint Key = Toggle: the press edge flips the state; the state (not the button) is what counts and is recorded */
     if (live != prev && !replay) lk_qs_rec(live ? 3 : 4);
     if (live && !prev && !lk_sprint_opt_get()) { snprintf(lk_osd_text, sizeof lk_osd_text, "%s", lk_lang_tr("SPRINT OFF - SEE OPTIONS")); lk_osd_frames = 150; }   /* a press while the option is Off says so, like Quick Save (user 2026-10-30) */
     prev = live; lk_sprint_v = live && lk_sprint_opt_get();   /* the option off = the button does nothing (the press is still recorded) */
@@ -68,7 +75,7 @@ s = open(p).read()
 if VER not in s:
     a = "static void lk_strip_extend(uint32_t a);\n"
     assert s.count(a) == 1
-    module = r'''/* ---- LK_SPRINT v1: sprint step (tools/patch_sprint.py) ---- */
+    module = r'''/* ---- LK_SPRINT v2: sprint step (tools/patch_sprint.py) ---- */
 extern int lk_sprint_held(void);
 static gen_func_t lk_o_dir[32];
 static long lk_sprint_frame = -10;
@@ -102,6 +109,6 @@ static void lk_sprint_install(void) {
     s = s.replace(a, module + a, 1)
     h = "        lk_eq_install();   /* LK_EQUIP v1 */\n"
     assert s.count(h) == 1, "func_table.c: run patch_equip.py first"
-    s = s.replace(h, h + "        lk_sprint_install();   /* LK_SPRINT v1 */\n", 1)
+    s = s.replace(h, h + "        lk_sprint_install();   /* LK_SPRINT v2 */\n", 1)
     open(p, "w").write(s)
     print("func_table.c patched:", VER)
