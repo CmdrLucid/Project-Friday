@@ -62,6 +62,7 @@ chk "Modernes HUD (Option)"                         $G/ext/Genesis-Plus-GX/core/
 chk "Sprint (R2)"                                   $G/src/func_table.c "LK_SPRINT v2"
 chk "Sprint-Animation"                               $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SPRINTANIM v1"
 chk "Weiches Scrollen (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SUBPIX v3"
+chk "Scharfes weiches Scrollen"                       $G/src/platform_sdl.c "LK_SSHARP v1"
 chk "Friday-Hinweise (Select)"                    $G/src/func_table.c "LK_FRIDAY v2"
 chk "Controller-Abfrage in eigenem Thread"           $G/src/input.c "LK_PADTHREAD v3"
 chk "VDP-Arrays 64 Byte ausgerichtet (clang)"   $G/ext/Genesis-Plus-GX/core/vdp_ctrl.c "LK_ALIGN v1"

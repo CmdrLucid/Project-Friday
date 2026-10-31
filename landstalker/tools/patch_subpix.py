@@ -118,3 +118,171 @@ if VER not in s:
     s = s.replace(a, a + "extern int lk_smooth_get(void); static int lk_ss_envstep;   /* LK_SUBPIX v3: LANDSTALKER_SPRINT_STEP set = that step wins over Smooth Scrolling */\n", 1)
     open(p, "w").write(s)
     print("func_table.c patched:", VER)
+
+# ---- LK_SSHARP v1 (2026-10-31, MODERN_IDEAS (A2), user: 'scharfes weiches scrollen'): instead of the blend, the WORLD pixels are drawn shifted by
+#      k OUTPUT pixels (k = a quarter game line at the output scale, nearest, nothing mixed) inside the display filters (CRT Pro / Curved, CRT, Scanlines, no filter).
+#      The frames alternate +k / -k like the blend's +1/4 / -1/4 line, so the room moves 1.5 lines every frame and stays sharp; Nigel, figures drawn by Nigel's
+#      pieces, HUD, text box, overlays are unshifted.  A world pixel is only shifted when the pixel it is shifted onto is a world pixel too (no smear of Nigel's edge).
+#      Falls back to the blend where it cannot work: headless, picture lower than 2 x 224 (k < 1), HD / 3D room, CPU filter path not possible.
+#      LANDSTALKER_SS_SHARP=0 = the blend (v3) again; LANDSTALKER_SS_SHIFT = the shift in 1/256 game lines (default 64 = a quarter line).
+#      Test aid: LANDSTALKER_OSHOT=f1,f2,.. (+ LANDSTALKER_OSHOT_SIZE=1280x800, default 1280x800) writes the FILTERED output picture of those frames, also headless
+#      (dir LANDSTALKER_SHOT_DIR, oshot_FRAME.png): the sharp shift exists only there.
+SHARP = "LK_SSHARP v1"
+p = os.path.join(root, "src/platform_sdl.c")
+s = open(p).read()
+if SHARP not in s:
+    assert "LK_SUBPIX v3" in s
+    # globals + helpers before the CPU filters
+    a = "/* ---- CRT / scanline filter (CPU) ---- */\n"
+    assert s.count(a) == 1, "platform_sdl.c: run patch_display.py first"
+    s = s.replace(a, r'''/* ---- LK_SSHARP v1: sharp smooth scrolling (tools/patch_subpix.py) ---- */
+static int lk_ssh_pend;   /* set by lk_ss_apply for the frame being presented: +1 / -1 = shift the world pixels down / up by lk_ssh_k output rows (sample from the lower / upper row), 0 = none */
+static int lk_ssh_d, lk_ssh_k;   /* in use while lk_disp_present runs the CPU filters (0 everywhere else, e.g. the HD path) */
+static int lk_ssh_amt = -1;      /* LANDSTALKER_SS_SHIFT, 1/256 game lines, default 64 */
+static uint8_t lk_ssh_ok[224][448];   /* 1 = world pixel nobody drew over (filled by lk_ss_apply) */
+static uint16_t lk_ssh_cx[LK_MAXDIM], lk_ssh_ry[LK_MAXDIM]; static int lk_ssh_tw, lk_ssh_th, lk_ssh_ts;   /* output column -> source column, output row -> source row (nearest) */
+static int lk_ssh_amount(void) { if (lk_ssh_amt < 0) { const char *e = getenv("LANDSTALKER_SS_SHIFT"); lk_ssh_amt = e && atoi(e) >= 1 && atoi(e) <= 255 ? atoi(e) : 64; } return lk_ssh_amt; }
+static int lk_ssh_kfor(int dh) { int k = (int)((double)lk_ssh_amount() * dh / (224.0 * 256.0) + 0.5); return k; }   /* the shift in output rows for a picture dh rows high */
+static int lk_ssh_setup(int dw, int dh, int sw) {   /* main thread, before the filter bands run */
+    if (dw > LK_MAXDIM || dh > LK_MAXDIM || sw > 448) return 0;
+    if (dw != lk_ssh_tw || dh != lk_ssh_th || sw != lk_ssh_ts) {
+        for (int x = 0; x < dw; x++) { int c = (int)(((int64_t)(2 * x + 1) * sw) / (2 * dw)); lk_ssh_cx[x] = (uint16_t)(c > sw - 1 ? sw - 1 : c); }
+        for (int y = 0; y < dh; y++) { int r = (int)(((int64_t)(2 * y + 1) * 224) / (2 * dh)); lk_ssh_ry[y] = (uint16_t)(r > 223 ? 223 : r); }
+        lk_ssh_tw = dw; lk_ssh_th = dh; lk_ssh_ts = sw;
+    }
+    lk_ssh_k = lk_ssh_kfor(dh); return lk_ssh_k >= 1;
+}
+static inline int lk_ssh_y2(int y, int dh) { int y2 = y + lk_ssh_d * lk_ssh_k; return y2 < 0 ? 0 : y2 > dh - 1 ? dh - 1 : y2; }   /* the output row whose sampling a shifted world pixel of row y uses */
+''' + a, 1)
+
+    # SCANLINES / CRT
+    a = """        uint32_t *o = dst + (size_t)y * dw;
+        int ph = 0;
+        for (int x = 0; x < dw; x++) {
+            uint32_t a = row[lk_tx0[x]], b = row[lk_tx1[x]], wx = lk_twx[x], iw = 256 - wx;"""
+    assert s.count(a) == 1
+    s = s.replace(a, """        uint32_t *o = dst + (size_t)y * dw;
+        int ph = 0;
+        if (lk_ssh_d) {   /* LK_SSHARP v1: world pixels take row / scanline weight of the output row y2 */
+            const int y2 = lk_ssh_y2(y, lk_tab_dh); const uint32_t *row2 = src + (size_t)lk_trow[y2] * sw; uint32_t wk2[3][3], wy2 = lk_twy[y2];
+            const uint8_t *mn = lk_ssh_ok[lk_ssh_ry[y]], *ms = lk_ssh_ok[lk_ssh_ry[y2]];
+            for (int i = 0; i < 3; i++) for (int c = 0; c < 3; c++) wk2[i][c] = wy2 * lk_tmask[i][c] >> 8;
+            for (int x = 0; x < dw; x++) {
+                const int cc = lk_ssh_cx[x], sh = mn[cc] & ms[cc]; const uint32_t *rr = sh ? row2 : row;
+                uint32_t a = rr[lk_tx0[x]], b = rr[lk_tx1[x]], wx = lk_twx[x], iw = 256 - wx;
+                uint32_t rb = (((a & 0x00FF00FFu) * iw + (b & 0x00FF00FFu) * wx) >> 8) & 0x00FF00FFu;
+                uint32_t g = (((a >> 8) & 255) * iw + ((b >> 8) & 255) * wx) >> 8;
+                const uint32_t *k = sh ? wk2[ph] : wk[ph]; if (++ph == 3) ph = 0;
+                uint32_t r = (rb >> 16) * k[0] >> 8, gg = g * k[1] >> 8, bl = (rb & 255) * k[2] >> 8;
+                r = r > 255 ? 255 : r; gg = gg > 255 ? 255 : gg; bl = bl > 255 ? 255 : bl;
+                o[x] = 0xFF000000u | (r << 16) | (gg << 8) | bl;
+            }
+            continue;
+        }
+""" + a[a.index("        for (int x"):], 1)
+
+    # CRT PRO flat rows
+    a = """            const uint8_t *enc = lk_f2_enc; int ph = 0;
+            for (int x = 0; x < dw; x++, a += 4, b += 4) {"""
+    assert s.count(a) == 1
+    s = s.replace(a, """            const uint8_t *enc = lk_f2_enc; int ph = 0;
+            if (lk_ssh_d) {   /* LK_SSHARP v1: world pixels take the source rows / beam weights of the output row y2 */
+                const int y2 = lk_ssh_y2(y, lk_f2_dh), sy2 = lk_f2_my[(size_t)y2 * dw], q0 = sy2 >> 8, qf = sy2 & 255, q1 = q0 + 1 < LK_SRC_H ? q0 + 1 : q0;
+                const uint16_t *wtA2 = lk_f2_wt[qf >> 2], *wtB2 = lk_f2_wt[(255 - qf) >> 2], *a2 = lk_f2_plane + (size_t)q0 * dw * 4, *b2 = lk_f2_plane + (size_t)q1 * dw * 4;
+                const uint8_t *mn = lk_ssh_ok[lk_ssh_ry[y]], *ms = lk_ssh_ok[lk_ssh_ry[y2]];
+                for (int x = 0; x < dw; x++) {
+                    const int cc = lk_ssh_cx[x], sh = mn[cc] & ms[cc];
+                    const uint16_t *pa = (sh ? a2 : a) + (size_t)x * 4, *pb = (sh ? b2 : b) + (size_t)x * 4;
+                    const uint32_t wa = (sh ? wtA2 : wtA)[pa[3]], wb = (sh ? wtB2 : wtB)[pb[3]]; const uint16_t *m = lk_f2_mask[ph]; if (++ph == 3) ph = 0;
+                    uint32_t v0 = ((pa[0] * wa + pb[0] * wb) >> 8) * m[0] >> 8, v1 = ((pa[1] * wa + pb[1] * wb) >> 8) * m[1] >> 8, v2 = ((pa[2] * wa + pb[2] * wb) >> 8) * m[2] >> 8;
+                    o[x] = 0xFF000000u | ((uint32_t)enc[v0 > 4095 ? 4095 : v0] << 16) | ((uint32_t)enc[v1 > 4095 ? 4095 : v1] << 8) | enc[v2 > 4095 ? 4095 : v2];
+                }
+                continue;
+            }
+            for (int x = 0; x < dw; x++, a += 4, b += 4) {""", 1)
+
+    # CRT PRO general path (Curved)
+    a = "            const int sy = lk_f2_my[base + x], r0 = sy >> 8, fr = sy & 255, r1 = r0 + 1 < LK_SRC_H ? r0 + 1 : r0, mx = lk_f2_mx[base + x];"
+    assert s.count(a) == 1
+    s = s.replace(a, "            const int ssh2 = lk_ssh_d ? lk_ssh_y2(y, lk_f2_dh) : y, ssw = lk_ssh_d && (lk_ssh_ok[lk_ssh_ry[y]][lk_ssh_cx[x]] & lk_ssh_ok[lk_ssh_ry[ssh2]][lk_ssh_cx[x]]);   /* LK_SSHARP v1 */\n"
+                      "            const int sy = lk_f2_my[(ssw ? (size_t)ssh2 * dw : base) + x], r0 = sy >> 8, fr = sy & 255, r1 = r0 + 1 < LK_SRC_H ? r0 + 1 : r0, mx = lk_f2_mx[base + x];", 1)
+
+    # no filter: sharp-bilinear
+    a = """        const uint32_t *ra = src + (size_t)lk_sby0[y] * sw, *rb = src + (size_t)lk_sby1[y] * sw;
+        uint32_t wy = lk_sbwy[y]; uint32_t *o = dst + (size_t)y * dw;
+"""
+    assert s.count(a) == 1
+    s = s.replace(a, a + """        if (lk_ssh_d) {   /* LK_SSHARP v1 */
+            const int y2 = lk_ssh_y2(y, lk_sbt_dh); const uint32_t *ra2 = src + (size_t)lk_sby0[y2] * sw, *rb2 = src + (size_t)lk_sby1[y2] * sw; const uint32_t wy2 = lk_sbwy[y2];
+            const uint8_t *mn = lk_ssh_ok[lk_ssh_ry[y]], *ms = lk_ssh_ok[lk_ssh_ry[y2]];
+            for (int x = 0; x < dw; x++) {
+                const int cc = lk_ssh_cx[x], sh = mn[cc] & ms[cc]; const uint32_t *pa = sh ? ra2 : ra, *pb = sh ? rb2 : rb, w2 = sh ? wy2 : wy;
+                uint32_t wx = lk_sbwx[x]; int xa = lk_sbx0[x], xb = lk_sbx1[x];
+                uint32_t top = lk_sb_mix(pa[xa], pa[xb], wx);
+                uint32_t v = w2 ? lk_sb_mix(top, lk_sb_mix(pb[xa], pb[xb], wx), w2) : top;
+                o[x] = 0xFF000000u | v;
+            }
+            continue;
+        }
+""", 1)
+
+    # lk_disp_present: switch the shift on for the CPU filter path only, force the CPU path while it is on
+    a = "    const int lk_sb_cpu = lk_sb_env && !((r.w % sw == 0) && (r.h % LK_SRC_H == 0));"
+    assert s.count(a) == 1
+    s = s.replace(a, "    lk_ssh_d = 0; if (lk_ssh_pend && lk_ssh_setup(r.w, r.h, sw)) lk_ssh_d = lk_ssh_pend;   /* LK_SSHARP v1 */\n"
+                      "    const int lk_sb_cpu = (lk_sb_env && !((r.w % sw == 0) && (r.h % LK_SRC_H == 0))) || lk_ssh_d;   /* (LK_SSHARP: the shift needs the CPU path, at an exact scale it is plain nearest) */", 1)
+    a = "    lk_osd_draw(ow, oh);\n    lk_coords_draw(oh);\n    SDL_RenderPresent(s_renderer);\n}\n"
+    assert s.count(a) == 1
+    s = s.replace(a, "    lk_ssh_d = 0;   /* LK_SSHARP v1 */\n" + a, 1)
+
+    # lk_ss_apply: sharp instead of blend when the output path can do it
+    a = "    if (!d || done == lk_ss_gen || sw > 448) return fb;\n"
+    assert s.count(a) == 1
+    s = s.replace(a, """    lk_ssh_pend = 0;
+    if (d && sw <= 448 && lk_ssh_can(sw)) {   /* LK_SSHARP v1: no blend, the display filters shift the world pixels */
+        static long mdone = -1; extern int lk_wide_e;
+        if (mdone != lk_ss_gen) { mdone = lk_ss_gen; for (y = 0; y < 224; y++) { const uint32_t *r0 = src + (size_t)y * sw; uint8_t *m = lk_ssh_ok[y]; if (lk_ss_lgen[y] != lk_ss_gen) { memset(m, 0, 448); continue; } for (x = 0; x < sw; x++) m[x] = (uint8_t)(lk_ss_w[y][x] && r0[x] == lk_ss_ref[y][x]); } }
+        lk_ssh_pend = d; return fb;
+    }
+""" + a, 1)
+    a = "static const uint8_t *lk_ss_apply(const uint8_t *fb) {\n"
+    assert s.count(a) == 1
+    s = s.replace(a, r'''static int lk_ssh_outsize(int *ow, int *oh) {   /* LK_SSHARP v1: the output size the display path will use (headless: only for LANDSTALKER_OSHOT) */
+    if (s_renderer) { SDL_GetRendererOutputSize(s_renderer, ow, oh); return *ow > 0 && *oh > 0; }
+    { const char *q = getenv("LANDSTALKER_OSHOT"), *z = getenv("LANDSTALKER_OSHOT_SIZE"); if (!q || !*q) return 0; *ow = 1280; *oh = 800; if (z) sscanf(z, "%dx%d", ow, oh); return 1; }
+}
+static int lk_ssh_can(int sw) {   /* LK_SSHARP v1: will lk_disp_present run the CPU filters on the 1x picture? */
+    static int env = -1; int ow = 0, oh = 0; lk_rect r; extern int lk_r3d_on(void), lk_hd_active(void);
+    if (env < 0) { const char *e = getenv("LANDSTALKER_SS_SHARP"); env = !(e && *e == '0'); }
+    if (!env || !lk_ssh_outsize(&ow, &oh)) return 0;
+    if (!lk_disp_loaded) lk_disp_load();
+    if (lk_r3d_on() || lk_hd_active()) return 0;
+    lk_calc_rect(lk_scale_mode, ow, oh, sw, &r);
+    return r.w <= LK_MAXDIM && r.h <= LK_MAXDIM && r.w >= LK_SRC_W && r.h >= LK_SRC_H && lk_ssh_kfor(r.h) >= 1;
+}
+''' + a, 1)
+
+    # test aid LANDSTALKER_OSHOT: the filtered output picture (same CPU calls as lk_disp_present), also headless
+    a = "    lk_shot_frame(framebuffer, s_frame_no);\n"
+    assert s.count(a) == 1
+    s = s.replace(a, a + r'''    { static int on = -1; static const char *ol; if (on < 0) { ol = getenv("LANDSTALKER_OSHOT"); on = ol && *ol; }   /* LK_SSHARP v1 test aid */
+      if (on && lk_shot_wanted(ol, s_frame_no)) {
+        extern int lk_wide_e; const int sw = LK_SRC_W + 2 * lk_wide_e; int ow = 1280, oh = 800; lk_rect r; const uint8_t *fb = framebuffer; static uint32_t *ob; static size_t oc;
+        lk_ssh_outsize(&ow, &oh); if (!lk_disp_loaded) lk_disp_load(); if (!lk_dd_loaded) lk_dd_load();
+        { const char *fx = getenv("LANDSTALKER_OSHOT_FX"); if (fx && *fx) lk_fx_mode = atoi(fx) % LK_FX_N; }
+        if (lk_dd_mode) { lk_dd_par = lk_dd_par_run; if (lk_dd_cap < sw * LK_SRC_H) { free(lk_dd_buf); lk_dd_buf = (uint32_t *)malloc((size_t)sw * LK_SRC_H * 4); lk_dd_cap = lk_dd_buf ? sw * LK_SRC_H : 0; } if (lk_dd_buf) { if (lk_dd_mode == 3) lk_dedither_blend((const uint32_t *)fb, lk_dd_buf, sw); else if (lk_dd_mode == 2) lk_dedither_strong((const uint32_t *)fb, lk_dd_buf, sw); else lk_dedither((const uint32_t *)fb, lk_dd_buf, sw); fb = (const uint8_t *)lk_dd_buf; } }
+        lk_calc_rect(lk_scale_mode, ow, oh, sw, &r);
+        if ((size_t)r.w * r.h > oc) { free(ob); oc = (size_t)r.w * r.h; ob = (uint32_t *)malloc(oc * 4); }
+        lk_ssh_d = 0; if (lk_ssh_pend && lk_ssh_setup(r.w, r.h, sw)) lk_ssh_d = lk_ssh_pend;
+        if (ob) { const uint64_t tq0 = SDL_GetPerformanceCounter(); double tms;
+            if (lk_fx_mode >= LK_FX_PRO) { lk_f2_prepare(r.w, r.h, lk_fx_mode, sw); if (lk_f2_plane) { lk_fx_render_mt((const uint32_t *)fb, ob, r.w, LK_SRC_H, sw, 2); lk_fx_render_mt((const uint32_t *)fb, ob, r.w, r.h, sw, 3); } }
+            else if (lk_fx_mode != LK_FX_OFF) { lk_fx_prepare(r.w, r.h, lk_fx_mode, sw); lk_fx_render_mt((const uint32_t *)fb, ob, r.w, r.h, sw, 0); }
+            else { lk_sb_prepare(r.w, r.h, sw); lk_fx_render_mt((const uint32_t *)fb, ob, r.w, r.h, sw, 1); }
+            tms = (double)(SDL_GetPerformanceCounter() - tq0) * 1000.0 / (double)SDL_GetPerformanceFrequency();
+            { const char *dir = getenv("LANDSTALKER_SHOT_DIR"); char path[700]; snprintf(path, sizeof path, "%s/oshot_%06ld.png", dir && *dir ? dir : "shots", s_frame_no); printf("oshot: %s %s (%dx%d fx %d shift %d x %d, filter %.2f ms)\n", lk_shot_png(path, ob, r.w, r.h, 1) ? "wrote" : "FAILED", path, r.w, r.h, lk_fx_mode, lk_ssh_d, lk_ssh_k, tms); }
+        }
+        lk_ssh_d = 0;
+      } }
+''', 1)
+    open(p, "w").write(s)
+    print("platform_sdl.c patched:", SHARP)

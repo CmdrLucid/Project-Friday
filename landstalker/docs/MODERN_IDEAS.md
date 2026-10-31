@@ -42,6 +42,7 @@ Rejected earlier: room-name popup, rumble (for now).
 
 ## (A2) Sharp smooth scrolling (user 2026-10-31: 'brauchen wir die Unschärfe?' -> '1. später umsetzen'; rests on dev after 191e2f1)
 The blend (LK_SUBPIX v3, weight 5/16) is soft while sprinting. Sharp variant: the Deck shows ~3.5 screen lines per game line, so a half game line is ~1.8 real lines: draw the WORLD layer shifted by the fraction at the output scale (nearest, no mixing) and Nigel / figures / HUD / text box unshifted on top. Needs: the compositor to hand world and overlay (with a mask) separately to the display path, the shift applied before / inside the display filters (CRT, de-dither run on the output picture), 1x windows fall back to the blend. Direction / amount: the v3 rule (scroll steps) gives which frames are half a line behind.
+**2026-10-31 evening: BUILT (`LK_SSHARP v1`, tools/patch_subpix.py, HANDOFF 0a207).** Simpler than separate layers: the existing per-pixel world mask (`lk_ss_w` + 'nobody drew over it') goes to the CPU filters, which take a world pixel's sampling (rows, beam / scanline weight) from the output row y +- k (k = round(1/4 line * output rows / 224), 1 px on the Deck) when both rows are world there. Headless 1.43 / 1.57 lines per frame, sharp. Waiting for the user's eyes.
 
 ## (B) status 2026-10-31
 Friday hints DONE (Select, `tools/patch_friday.py`, `lang/friday_hints.json`, `docs/FRIDAY_HINTS.md`); the user reviews the texts. The map part is still open.
