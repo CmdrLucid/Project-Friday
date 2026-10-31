@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import roomgraph, romroom
 
-VERSION = "roommap v15"   # v15: route search through the free lanes for the pairs still apart (any number of bends, at most 8)   # v14: connections keyed by their index (two rooms can be joined twice)   # v13: layout pulled apart by one unit at every box edge (longer bridges, lanes for the bent corridors)   # v12: bent corridors (L / Z / U) for the pairs still apart   # v11: corridors must not cross   # v10: straight free corridors between facing doors count as connected (E lines: last field)   # v9: no door may touch a room it does not lead to (false contacts weigh more than missed doors)   # v8: boxes sized by door count, one slot per door, best of TRIALS randomised placements (user: proportions need not be right, doors must fit)   # v7: floors from a walk over the stairs first; v6: most-linked room next, spot with the smallest total door distance (user: a door into nothing)   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
+VERSION = "roommap v16"   # v16: door side from the door cell's floor type (01..04 = NE / SE / SW / NW), not the nearest footprint edge (user: door top left drawn into a room on the left)   # v15: route search through the free lanes for the pairs still apart (any number of bends, at most 8)   # v14: connections keyed by their index (two rooms can be joined twice)   # v13: layout pulled apart by one unit at every box edge (longer bridges, lanes for the bent corridors)   # v12: bent corridors (L / Z / U) for the pairs still apart   # v11: corridors must not cross   # v10: straight free corridors between facing doors count as connected (E lines: last field)   # v9: no door may touch a room it does not lead to (false contacts weigh more than missed doors)   # v8: boxes sized by door count, one slot per door, best of TRIALS randomised placements (user: proportions need not be right, doors must fit)   # v7: floors from a walk over the stairs first; v6: most-linked room next, spot with the smallest total door distance (user: a door into nothing)   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
 TRIALS = 60   # randomised placements per area (v8)
 KMAX = 8      # how far out (grid units) a room may be put from the door that asks for it (v12)
 TW = 112                     # thumbnail width (pixels): the map cells are drawn at most ~1.3 x this at 1280 x 800
@@ -53,6 +53,23 @@ def side(fp, x, y):
     d = {'NW': x - min(xs), 'SE': max(xs) - x, 'NE': y - min(ys), 'SW': max(ys) - y}
     k = min(d, key=d.get)
     return k if d[k] <= 3 else None
+
+DOORTYPE = {1: 'NE', 2: 'SE', 3: 'SW', 4: 'NW'}   # floor type (low byte of the height map cell & $3F) of a door cell: ProcessFloorType $00603C 01..04 = door NE / SE / SW / NW
+
+def door_side(fa, xa, ya, fb, xb, yb):
+    """wall of room a that the connection (xa, ya) -> room b (xb, yb) leaves through (v16, user recording rec_20261031_1743: KN cave 165 -> 170 drawn to the NW,
+    the door is in the NE wall next to the corner).  1) the door cell's own floor type (the game's exit direction; set on 663 of 1576 connection ends, the walk-in end),
+    2) the partner end's floor type, opposite side, 3) the sum of both ends' distances to their footprint edges (one end alone ties at corners)"""
+    t = fa.get((xa, ya), 0) & 0x3F if fa else 0
+    if t in DOORTYPE: return DOORTYPE[t]
+    t = fb.get((xb, yb), 0) & 0x3F if fb else 0
+    if t in DOORTYPE: return OPP[DOORTYPE[t]]
+    def dist(fp, x, y):
+        xs = [k[0] for k in fp]; ys = [k[1] for k in fp]
+        return {'NW': x - min(xs), 'SE': max(xs) - x, 'NE': y - min(ys), 'SW': max(ys) - y}
+    if not fa or not fb: return side(fa, xa, ya) or (OPP[side(fb, xb, yb)] if side(fb, xb, yb) else None)
+    da, db = dist(fa, xa, ya), dist(fb, xb, yb)
+    return min(DIRS, key=lambda k: da[k] + db[OPP[k]])
 
 def build(rom):
     names = room_names(); g = roomgraph.read(rom)
@@ -91,8 +108,8 @@ def build(rom):
     for c in conns:
         a, b = c['r1'], c['r2']
         if area_of.get(a) is None or area_of.get(a) != area_of.get(b): continue
-        s1 = side(fps[a], c['x1'], c['y1']); s2 = side(fps[b], c['x2'], c['y2'])
-        rawe.append((a, b, 1 if c['e1'] in (10, 20) else 0, s1 or (OPP[s2] if s2 else 'SE'), c['x1'], c['y1'], c['x2'], c['y2']))
+        s1 = door_side(fps[a], c['x1'], c['y1'], fps[b], c['x2'], c['y2'])   # v16: the door cell's floor type first (was: nearest footprint edge of one end)
+        rawe.append((a, b, 1 if c['e1'] in (10, 20) else 0, s1 or 'SE', c['x1'], c['y1'], c['x2'], c['y2']))
     slots = defaultdict(list)
     for k, (a, b, up, d, x1, y1, x2, y2) in enumerate(rawe):
         if up: continue
