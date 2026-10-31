@@ -1487,3 +1487,9 @@ HANDOFF 0a177 point 2: the four 30.10 recordings (0310, 0318, 0319, 0536) do not
 ## Room map step 1 (2026-10-31 evening; Opus 5.5)
 - Prototypes in /tmp: geometric placement by door cells failed (overlaps; per-type best shift histogram: NW passages (-2, 0), NE either (0, -2) or (-2, 0), plain doors up to 10 cells off = interiors). Schematic grid with exit direction from the door cell's floor edge + stairs = floors works (Swamp Shrine 3 floors). Room pictures via romrender.rom_planes / compose (~1 s per room, multiprocessing: 703 rooms in 2 min on the Deck).
 - Runtime checked headless with `LANDSTALKER_MAPSHOT=729` on rec_20261030_2020 (room 630, Mercator, floor 2 / 3) incl. `LANDSTALKER_MAPSHOT_ALL=1`; data found next to the program (SDL_GetBasePath). Bug found before the user saw it: visited bit numbers go up to 641 (limit was 512).
+
+## Issue #12: AppImage on Ubuntu 26.10, 'externally-managed-environment' (2026-10-31; Opus 5.5)
+- Reporter's build.log: `python3 -m pip install --user --no-index --find-links <AppImage>/vendor/wheels capstone` -> error: externally-managed-environment (PEP 668, Python 3.14).
+- pip 25 `commands/install.py`: the PEP 668 check runs only when installing into the current environment; `--root`, `--target`, `--prefix` skip it. firstrun.py now installs with
+  `--target <DATA>/pylib` (and `--upgrade`), checks `import capstone` with PYTHONPATH=<DATA>/pylib and passes that environment to every build step. Checked on the Deck (SteamOS has
+  /usr/lib/python3.13/EXTERNALLY-MANAGED as well): `pip install --target /tmp/pyl capstone==5.0.6` worked, `PYTHONPATH=/tmp/pyl python3 -c 'import capstone'` -> 5.0.6.

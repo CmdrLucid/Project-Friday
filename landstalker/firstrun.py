@@ -372,12 +372,16 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
             raise RuntimeError("platform_sdl.c layout changed")
         s = s.replace(m, m + open(os.path.join(work, "tools", "ascii_patch.c")).read(), 1)
     open(p, "w").write(s)
-    try:
-        subprocess.run([sys.executable, "-c", "import capstone"], check=True, capture_output=True)
-    except subprocess.CalledProcessError:
+    # capstone (python module of the generator): if the system python has none, it goes into OUR data folder (pip --target) and every step gets it on PYTHONPATH.
+    # (issue #12, Ubuntu 26.10 / Python 3.14: PEP 668 'externally-managed-environment' refuses `pip install --user`; pip skips that check for --target, and the
+    # system python stays untouched on every distribution)
+    pylib = os.path.join(DATA, "pylib")
+    penv = dict(os.environ)
+    penv["PYTHONPATH"] = pylib + (os.pathsep + penv["PYTHONPATH"] if penv.get("PYTHONPATH") else "")
+    if subprocess.run([sys.executable, "-c", "import capstone"], capture_output=True, env=penv).returncode:
         ui.progress(2, "Installing the python module 'capstone' ...")
         wheels = os.path.join(HERE, "vendor", "wheels")
-        cmd = [sys.executable, "-m", "pip", "install", "--user", "--quiet", "capstone"]
+        cmd = [sys.executable, "-m", "pip", "install", "--quiet", "--upgrade", "--target", pylib, "capstone"]
         if os.path.isdir(wheels):
             cmd[5:5] = ["--no-index", "--find-links", wheels]
         run(cmd, "install capstone")
@@ -386,7 +390,7 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
         args = [rom if a == "$ROM" else a for a in st[1:]]
         label = os.path.basename(st[0])
         ui.progress(3 + 57.0 * i / n, "Step %d of %d: %s" % (i + 1, n, label))
-        run([sys.executable, st[0]] + args, label)
+        run([sys.executable, st[0]] + args, label, env=penv)
     # compile
     env = dict(os.environ)
     env["CC"] = cc
