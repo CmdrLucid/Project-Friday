@@ -185,3 +185,4 @@
 - L1454: Modern HUD + item icons from the ROM (2026-10-30, later)
 - L1462: Release v1.4.0, Quick Equip strip, Sprint (2026-10-30, late; Opus 5.5)
 - L1467: Smooth Scrolling / sprint 1.5 x (2026-10-30 night; Opus 5.5)
+- L1473: Sprint Key, Friday Hints, Smooth Scrolling v3 (2026-10-31; Opus 5.5 lead + 2 Sonnet agents for the hint texts)

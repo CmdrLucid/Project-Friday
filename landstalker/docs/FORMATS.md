@@ -292,3 +292,9 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
  * V: 2:1 view: the picture moves by the full step horizontally and by half the step vertically (`VScrollIncrease $002452`, `g_VScrollPhase $FF1180`): only even steps scroll evenly.
  * V: player +24 animation (8 walk back, 12 walk front), +26 frame (steps of 4), +06 tile word (bit 11 flip, constant through a walk cycle).
 
+## Story progress, Friday's appearance, text box layout, scroll rounding (added 2026-10-31, Opus 5.5; V = disassembly + headless screenshots / logs)
+- V: GetFlagProgress `$025318` fills g_GameFlagProgress `$FF1906` (main stage 0..31) / `$FF1907` / `$FF1908` (sub lists 0..3) from inline (flag number, value) lists, first set flag wins (PickValueBasedOnFlags `$0253CA`); flag number n = byte n >> 3, bit n & 7 at `$FF1000` (same numbering as FLAGS.md). HandleProgressDependentDialogue takes max with the stored bytes `$FF190E..` (I). Stage table: `docs/FRIDAY_HINTS.md` section 2.
+- V: Friday out of the bag: g_FridayAnimState `$FF114B` = 1, next state `$FF114D` = `$11` (hovers beside Nigel while a text box waits; UpdateFridayAnimation runs in WaitUntilVBlank), afterwards next state `$31` = back into the bag. Her speech blip: SpecialCharacterSfxList `$02913E` entry 1 -> g_TalkSoundEffect `$FF1154`.
+- V: map message = j_SetUpTextbox `$022EE8`, j_PrintString `$022E90` (d0 = string id), j_SetUpTextDisplay `$022EA0` (CheckOpenChest). The box shows 3 lines and scrolls; the game wraps by itself at ~33-34 characters in the middle of a word; ContinuePrompt waits for a button and continues on the SAME line (a SoftNewLine must follow for a new line).
+- V: vertical scroll rounding: in the 2:1 view vs = floor or ceil of (cam0 + cam2) / 2 + const; which one can change at a room reload (closing the Start menu); `vs - floor(sum / 2)` constant = floor, alternating = ceil (rec_20261031_0756). LK_SUBPIX v3 reads the direction from the scroll steps.
+
