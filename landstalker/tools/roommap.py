@@ -9,7 +9,7 @@ Built on the player's machine from his own ROM by build.sh (nothing of it goes i
  * visited bit per room: `RoomVisitedFlagLookup $00C74E` (word per room = bit number in the flags at `$FF10C0`, SetRoomVisited `$00293C`).
  * thumbs: every room drawn from the ROM (tools/romrender.py) and shrunk to at most TW pixels wide, RGB565, 0 = transparent.
 layout.txt lines:  'A area floors name' / 'R room area floor gx gy visitbit floor_left floor_top floor_w floor_h W H' (box W x H grid units at gx, gy) /
-'E room1 room2 stairs door1_u door1_v door2_u door2_v' (door points in the rooms' local units x 10) / 'V variant original'.
+'E room1 room2 stairs door1_u door1_v door2_u door2_v' (door points in the rooms' local units x 10) / 'W k' (E line k is a river passage) / 'V variant original'.
 Takes ~1 s per room on one core; runs on all cores (multiprocessing); skipped when OUTDIR already holds the data of this ROM and VERSION (--force rebuilds)."""
 import hashlib, os, re, struct, sys, zlib
 from collections import Counter, defaultdict, deque
@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import roomgraph, romroom
 
-VERSION = "roommap v16"   # v16: door side from the door cell's floor type (01..04 = NE / SE / SW / NW), not the nearest footprint edge (user: door top left drawn into a room on the left)   # v15: route search through the free lanes for the pairs still apart (any number of bends, at most 8)   # v14: connections keyed by their index (two rooms can be joined twice)   # v13: layout pulled apart by one unit at every box edge (longer bridges, lanes for the bent corridors)   # v12: bent corridors (L / Z / U) for the pairs still apart   # v11: corridors must not cross   # v10: straight free corridors between facing doors count as connected (E lines: last field)   # v9: no door may touch a room it does not lead to (false contacts weigh more than missed doors)   # v8: boxes sized by door count, one slot per door, best of TRIALS randomised placements (user: proportions need not be right, doors must fit)   # v7: floors from a walk over the stairs first; v6: most-linked room next, spot with the smallest total door distance (user: a door into nothing)   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
+VERSION = "roommap v17"   # v17: W lines = river / raft passages (KN cave 163 / 165 / 167: user saw 2 doors, the map 3)   # v16: door side from the door cell's floor type (01..04 = NE / SE / SW / NW), not the nearest footprint edge (user: door top left drawn into a room on the left)   # v15: route search through the free lanes for the pairs still apart (any number of bends, at most 8)   # v14: connections keyed by their index (two rooms can be joined twice)   # v13: layout pulled apart by one unit at every box edge (longer bridges, lanes for the bent corridors)   # v12: bent corridors (L / Z / U) for the pairs still apart   # v11: corridors must not cross   # v10: straight free corridors between facing doors count as connected (E lines: last field)   # v9: no door may touch a room it does not lead to (false contacts weigh more than missed doors)   # v8: boxes sized by door count, one slot per door, best of TRIALS randomised placements (user: proportions need not be right, doors must fit)   # v7: floors from a walk over the stairs first; v6: most-linked room next, spot with the smallest total door distance (user: a door into nothing)   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
 TRIALS = 60   # randomised placements per area (v8)
 KMAX = 8      # how far out (grid units) a room may be put from the door that asks for it (v12)
 TW = 112                     # thumbnail width (pixels): the map cells are drawn at most ~1.3 x this at 1280 x 800
@@ -104,12 +104,13 @@ def build(rom):
     # face each other exactly.  Loops of the dungeon may still not close: several randomised placements per area, the one with the fewest doors that do not
     # meet (then the smallest total door distance, then the smallest area) wins.
     import random
-    rawe = []
+    rawe = []; water = set()
     for c in conns:
         a, b = c['r1'], c['r2']
         if area_of.get(a) is None or area_of.get(a) != area_of.get(b): continue
         s1 = door_side(fps[a], c['x1'], c['y1'], fps[b], c['x2'], c['y2'])   # v16: the door cell's floor type first (was: nearest footprint edge of one end)
         rawe.append((a, b, 1 if c['e1'] in (10, 20) else 0, s1 or 'SE', c['x1'], c['y1'], c['x2'], c['y2']))
+        if (fps[a].get((c['x1'], c['y1']), 0) >> 12) & 1 or (fps[b].get((c['x2'], c['y2']), 0) >> 12) & 1: water.add(len(rawe) - 1)   # v17: an end on a raft track cell (byte 0 bit 4) = a river passage, not a door
     slots = defaultdict(list)
     for k, (a, b, up, d, x1, y1, x2, y2) in enumerate(rawe):
         if up: continue
@@ -377,6 +378,7 @@ def build(rom):
     for k, (r1, r2, up, pa, pb) in enumerate([(a, b, up, *edgefix.get(k, (pa, pb))) for k, (a, b, up, pa, pb) in enumerate(edges)]):   # last fields: 1 = connected (doors meet / straight corridor / bent corridor), then the corridor's bend points (absolute grid units x 10)
         wp = bends.get(k, [])
         lines.append("E %d %d %d %d %d %d %d %d" % (r1, r2, up, round(pa[0] * 10), round(pa[1] * 10), round(pb[0] * 10), round(pb[1] * 10), 1 if k in metall else 0) + "".join(" %d %d" % (round(x * 10), round(y * 10)) for x, y in wp))   # last field: 1 = doors meet or face each other on a free straight corridor
+    for k in sorted(water): lines.append("W %d" % k)   # v17: E line number k (0-based, file order) is a river / raft passage (drawn blue)
     for v, o in variants: lines.append("V %d %d" % (v, o))
     return lines, sorted(pos), areas, pos
 

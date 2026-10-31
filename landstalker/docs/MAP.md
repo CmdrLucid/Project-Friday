@@ -1,6 +1,6 @@
 # Room map (MODERN_IDEAS (B), started 2026-10-31)
 
-User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (2026-10-31 late): v11 / roommap v16 (door sides from the door cells' floor type), before that v10 / roommap v15 (route search, scrolling, floors on L1 / R1) built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
+User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (2026-10-31 late): v12 / roommap v17 (river passages blue), v11 / roommap v16 (door sides from the door cells' floor type), before that v10 / roommap v15 (route search, scrolling, floors on L1 / R1) built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
 
 ## How it works
 - **Data (build time, from the player's ROM, never in git):** `tools/roommap.py ROM build/roommap` (step of build.sh, also run by firstrun.py; ~2 min on all cores the first time,
@@ -88,6 +88,11 @@ User wishes: own room map (not the island map), location only (no 'where to go n
   wall next to the corner. Door cells carry their exit direction as FLOOR TYPE (low byte of the height map cell & $3F, ProcessFloorType $00603C: 01 NE, 02 SE, 03 SW,
   04 NW); the walk-in end of 663 of 788 door connections has one, and 206 of them had been judged on the wrong side. door_side(): own floor type, else the partner's
   (opposite), else the sum of both ends' edge distances. 483 of 533 door pairs connected (was 484), crosscheck / false contacts 0. Data only (no binary change).
+
+## v12 / roommap v17 + LK_ROOMMAP v11 (2026-10-31, user: 'the room has 2 doors top right, your picture shows 3 exits')
+- The third 'door' of KN cave 165 (-> 167) and the second link 163 -> 165 lie on the RIVER (cells with byte 0 bit 4 = raft track, type nibble 5; end cells floor type 0D):
+  connection records for the raft ride, not doors. roommap writes 'W k' lines (E line k is a river passage; 3 in the whole game: 163-165, 165-167, 498-169), the runtime
+  draws their corridor / badges blue (0xFF58A8F0) instead of gold. Mapshot rec_20261031_1743 frame 2700: 2 gold exits NE + 1 blue.
 
 ## Open / ideas
 - User look at it on the Deck (style, size, button). Town interiors are in the town's grid (no 'inside' grouping yet). Mercator outdoors shows as floor 2 / 3 (houses with cellars).

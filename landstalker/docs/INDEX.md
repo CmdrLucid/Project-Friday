@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-10-31 late (dev, Opus 5.5): ROOM MAP v12 / roommap v17 / LK_ROOMMAP v11:** river / raft passages (height map byte 0 bit 4) drawn blue instead of as a gold door (user: KN cave 165 has 2 doors top right, the map showed 3). Headless mapshot only.
 - **2026-10-31 late (dev, Opus 5.5): ROOM MAP v11 / roommap v16:** door sides from the door cells' floor type (01..04 = NE / SE / SW / NW) instead of the nearest room edge (user recording rec_20261031_1743, KN cave 166 -> 170 drawn to the NW); 206 of 663 door ends had been on the wrong wall. 483 of 533 pairs connected. Headless mapshot only; user check open.
 - **2026-10-31 (dev, Opus 5.5): ROOM MAP v10 / roommap v15:** route search joins loop doors with bent corridors (up to 8 bends): 484 of 533 door pairs connected, 49 numbered. Headless only.
 - **2026-10-31 (dev, Opus 5.5): ROOM MAP v9 / roommap v14:** layout pulled apart (longer bridges), bent corridors, scrolling with D-pad / stick (floors now L1 / R1): 451 of 533 door pairs connected, 82 numbered, no corridor through a room. Headless mapshots only.
