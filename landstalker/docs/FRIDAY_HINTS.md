@@ -65,6 +65,9 @@ The runtime picks the LAST entry whose `when` conditions ALL hold, so entries ru
 
 The list ends at stage 31; the rest of the game is covered by room ranges plus flags $2B.1 / $2B.7 and items: King Nole's Cave (rooms 144-172, teleporter to Kazalt = room 170), Kazalt (737-749, shop 747, church 749), the Labyrinth (355-423, exterior 362, tree with logs 415, ice path to the palace 388, stairway to Nole 421), the Palace (115-138), pillar hallway 114, Nole arena 111, Gola arena 112 / 113. Gola is slain in cutscene $144 and the ending follows. UNSURE: no story flag exists in FLAGS.md for entering Kazalt or beating the Labyrinth; the hints there depend on the current room only.
 
+## 4b. Runtime (LK_FRIDAY v2, 2026-10-31, user wishes)
+Only the gentle level (L1) is shown (the user: 'nur die vagen Hinweise'); L2 stays in the data. The text box starts with her name on its own line ('Friday:', German 'Flora:'), plays her speech blip (g_TalkSoundEffect $FF1154 = SpecialCharacterSfxList $02913E entry 1) and she flies out of Nigel's bag while she talks (g_FridayAnimState $FF114B = 1, next state $FF114D = $11, then $31 = back into the bag after the text, as the cutscene actions do). Headless-verified (screenshots, rec_20261029_1729 frame 15000, German).
+
 ## 5. Checkpoint list (same data as the json)
 
 Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
