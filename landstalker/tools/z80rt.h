@@ -6,7 +6,7 @@
 typedef struct Z80S {
     uint8_t a, f, b, c, d, e, h, l, a2, f2, b2, c2, d2, e2, h2, l2;
     uint16_t ix, iy, sp, pc;
-    uint8_t i, r, iff1, iff2;
+    uint8_t i, r, iff1, iff2, im;   /* im: interrupt mode (the boot stub sets 1) */
     uint32_t cyc;      /* Z80 cycles executed so far */
     uint32_t wait;     /* extra master cycles (68K bus wait states, DMA waits): the Z80's time in master cycles is cyc * 15 + wait */
     int bad;           /* set when pc is not an instruction of the recompiled program */

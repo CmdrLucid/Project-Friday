@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-10-31 late (dev, Opus 5.5): Z80 BOOT STUB RECOMPILED (`LK_Z80BOOT v1`, `tools/z80recomp.py` z80boot_step, `tools/sndnative.c`, SOUND_PLAN section 11), default on, `LANDSTALKER_Z80BOOT=gpgx` / `=check`:** GPGX's Z80 interpreter runs nothing in normal play any more. Check mode 0 differences, z80test fuzz 0 differing (driver + stub + whole stub), timebench IDENTICAL 74 / 74. Next: VDP data path, system start.
 - **2026-10-31 late (dev, Opus 5.5): OWN SOUND MIXER (`tools/lksnd_mix.c`, `tools/patch_mix.py`, `LK_MIX v1`, SOUND_PLAN section 10), default on, `LANDSTALKER_MIX=gpgx` = old glue:** timebench A/B in one binary IDENTICAL on all 74 runs (RAM, WAV, trace). Nothing to hear for the player. Next on the way off the emulator: Z80 boot stub, VDP data path, system start.
 - **2026-10-31 late (dev, Opus 5.5): LK_ROOMMAP v12:** 'L1' / 'R1' left / right of the floor display (dark when that way ends; user: floor change with the shoulder buttons was not clear). Headless mapshot only.
 - **2026-10-31 late (dev, Opus 5.5): ROOM MAP v12 / roommap v17 / LK_ROOMMAP v11:** river / raft passages (height map byte 0 bit 4) drawn blue instead of as a gold door (user: KN cave 165 has 2 doors top right, the map showed 3). Headless mapshot only.

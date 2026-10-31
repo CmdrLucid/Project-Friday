@@ -47,6 +47,15 @@ def emit(a, d, smc):
     elif t == "ex af,af'": body.append('SWAP8(s->a, s->a2); SWAP8(s->f, s->f2);'); fin()
     elif t == 'neg': body.append('neg_(s);'); fin()
     elif t in ('rlca', 'rrca', 'rla', 'rra'): body.append('%s_(s);' % t); fin()
+    elif t == 'ld sp,hl': body.append('s->sp = HL();'); fin()   # forms of the SEGA Z80 boot stub (z80boot_step, 2026-10-31)
+    elif t == 'ld i,a': body.append('s->i = s->a;'); fin()
+    elif t == 'ld r,a': body.append('s->r = s->a;'); fin()
+    elif t == 'im 1': body.append('s->im = 1;'); fin()
+    elif t == 'ldir':   # one transfer per step like GPGX (LDI, then pc stays on the instruction while BC != 0: 16 + 5 cycles)
+        body.append('s->cyc += 16; { uint8_t v = RB(HL()); WB(DE(), v); s->f &= FS | FZ | FC; if ((s->a + v) & 0x02) s->f |= FY; if ((s->a + v) & 0x08) s->f |= FX;')
+        body.append('  SET_HL(HL() + 1); SET_DE(DE() + 1); SET_BC(BC() - 1); if (BC()) { s->f |= FP; s->cyc += 5; return; } }')
+        body.append('s->pc = 0x%04X; return;' % nxt)
+    elif k == 'jpind' and t == 'jp (hl)': fin(pcexpr='HL()')
     elif k == 'jr': fin(pcexpr='0x%04X' % d['target'])
     elif k == 'jp': fin(pcexpr='0x%04X' % d['target'])
     elif k == 'jrc':
@@ -76,6 +85,8 @@ def emit(a, d, smc):
             fin(); return body
         m = re.fullmatch(r'ld (\(hl\)|\((?:ix|iy)[+-]\d+\)),(a|b|c|d|e|h|l)', t)
         if m: body.append(dest(m.group(1), 's->' + m.group(2))); fin(); return body
+        m = re.fullmatch(r'ld \(hl\),([0-9A-F]{2})h', t)
+        if m: body.append('WB(HL(), 0x%s);' % m.group(1)); fin(); return body
         m = re.fullmatch(r'ld a,\(([0-9A-F]+)h\)', t)
         if m: body.append('s->a = RB(0x%s);' % m.group(1)); fin(); return body
         m = re.fullmatch(r'ld \(([0-9A-F]+)h\),a', t)
@@ -138,12 +149,38 @@ def smc_sites(seen):
             if (x - 1) in seen and re.fullmatch(r'ld [abcdehl],[0-9A-F]{2}h', seen[x - 1]['text']): out.add(x - 1)
     return out
 
+BOOT_SIG = bytes.fromhex('af01d91f112700212600f977edb0')   # start of SEGA's standard Z80 init program (clears Z80 RAM, zeroes the registers, parks the Z80 in a 'jp (hl)' loop)
+BOOT_LEN = 0x26
+BOOT_STUB = 'const unsigned char z80boot_img[1] = { 0 }; const int z80boot_len = 0;\nvoid z80boot_step(Z80S *s) { s->bad = 1; }\n'
+
+def boot(rom):
+    """z80boot_step(): the boot stub the game uploads before its driver (found by its standard start in the user's ROM; 2026-10-31, docs/SOUND_PLAN.md section 11).
+    Its last two instructions write 'jp (hl)' (E9) to the address in HL (0 after the cleared pops) and jump there: pcs outside the stub execute an E9 found in memory."""
+    i = rom.find(BOOT_SIG)
+    if i < 0 or rom.count(BOOT_SIG) != 1: print('no Z80 boot stub found: z80boot_step stub'); return [BOOT_STUB]
+    img = rom[i:i + BOOT_LEN]; mem = bytearray(0x10000); mem[:BOOT_LEN] = img
+    seen = z80dis.flow(mem, [0])
+    L = ['/* SEGA Z80 boot stub from ROM offset %06X (generated, never commit) */' % i,
+         'const unsigned char z80boot_img[%d] = { %s }; const int z80boot_len = %d;' % (BOOT_LEN, ', '.join('0x%02X' % b for b in img), BOOT_LEN),
+         'void z80boot_step(Z80S *s) {',
+         '  { uint8_t op = RB(s->pc); if (s->pc >= z80boot_len || op != z80boot_img[s->pc]) { if (op == 0xE9) { s->cyc += 4; s->pc = HL(); } else s->bad = 1; return; } }   /* the self written jp (hl) loop; any other change of the stub = not ours */',
+         '  switch (s->pc) {']
+    for a in sorted(seen):
+        L.append('  case 0x%04X: {   /* %s */' % (a, seen[a]['text']))
+        bd = emit(a, seen[a], set())
+        if seen[a]['kind'] == 'op': bd = pre_cycles(bd)
+        for ln in bd: L.append('    ' + ln)
+        L.append('  }')
+    L += ['  default: s->bad = 1; return;', '  }', '}', '']
+    print('Z80 boot stub at ROM %06X: %d instructions' % (i, len(seen)))
+    return L
+
 def main():
     out = sys.argv[2]
     try: rom = open(sys.argv[1], 'rb').read()
     except OSError: rom = b''
     if len(rom) < 0x1F7F80 or rom[0x1F6000:0x1F6006] != bytes.fromhex('f331f01faf32'):   # not the known driver layout (other ROM / region): a stub, the recompiled driver stays unused
-        open(out, 'w').write('/* stub: no known sound driver image in this ROM */\n#include "z80rt.h"\nvoid z80drv_step(Z80S *s) { s->bad = 1; }\n'); print('no known Z80 driver in this ROM: stub written'); return
+        open(out, 'w').write('/* stub: no known sound driver image in this ROM */\n#include "z80rt.h"\nvoid z80drv_step(Z80S *s) { s->bad = 1; }\n' + BOOT_STUB); print('no known Z80 driver in this ROM: stub written'); return
     start = int(sys.argv[3], 16) if len(sys.argv) > 3 else 0x1F6000
     size = int(sys.argv[4], 16) if len(sys.argv) > 4 else 0x1F80
     mem = bytearray(0x10000); mem[:size] = rom[start:start + size]
@@ -156,6 +193,7 @@ def main():
         for ln in bd: L.append('    ' + ln)
         L.append('  }')
     L += ['  default: s->bad = 1; return;', '  }', '}', '']
+    L += boot(rom)
     open(out, 'w').write('\n'.join(L))
     print('%d instructions, self modifying immediates at %s -> %s' % (len(seen), ' '.join('%04X' % x for x in sorted(smc)), out))
 if __name__ == '__main__': main()
