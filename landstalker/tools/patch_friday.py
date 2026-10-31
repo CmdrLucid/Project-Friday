@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Friday Hints (2026-10-31, user: 'Karte + Hinweise ja', Select key, two levels; idea docs/MODERN_IDEAS.md (B)).  Press Select (pad Back = MD Mode, keyboard: the key
-bound to Mode) while Nigel walks and Friday says where to go next, in the game's own text box; asking again for the same situation gives the clearer second level.
+bound to Mode) while Nigel walks and Friday says where to go next, in the game's own text box; (v2) only the gentle level; her name ('Friday:' / German 'Flora:') on the first line, her speech blip, and she comes out of Nigel's bag and goes back afterwards.
 Options > Quality of Life > Friday Hints On / Off (id 45, last row, default On; ~/.landstalker_friday, env LANDSTALKER_FRIDAY=0|1 wins).  Without a Select press nothing
 changes (the game never reads Mode: bit exact).
 How: the wrapper of ProcessActionButton $0066AC (once per map pass, like Quick Items / Quick Equip) takes the Mode press edge from the MD pad word (so recordings and input
@@ -16,13 +16,17 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import langbuild as lb
 
 root = sys.argv[1]
-VER = "LK_FRIDAY v1"
+VER = "LK_FRIDAY v2"   # v2: gentle level only, name line, Friday's blip, she flies out of the bag
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "..", "lang", "friday_hints.json")
 
-def words(text):
+NAME = {"en": "Friday:", "de": "Flora:"}   # her name in the US / German game (user 2026-10-31: 'Friday: bzw. Flora: in der Textbox')
+def words(text, lang=None):
     """our hint text ('|' = line break) -> word list: glyph codes, ~handler words; ends with ContinuePrompt"""
     out = []
+    if lang:
+        for t, v in lb.tokens(NAME[lang]): out.append(v)
+        out.append(~lb.HANDLER[1] & 0xFFFF)   # SoftNewLine: the name on its own line
     for i, line in enumerate(text.split("|")):
         if i: out.append(~lb.HANDLER[1] & 0xFFFF)   # SoftNewLine
         for t, v in lb.tokens(line.strip()):
@@ -51,7 +55,7 @@ for h in hints:
     offs = []
     for lang in ("en", "de"):
         for lv in (0, 1):
-            w = words(h[lang][lv]); offs.append((len(data), len(w))); data.extend(w)
+            w = words(h[lang][lv], lang); offs.append((len(data), len(w))); data.extend(w)
     ents.append((c0, len(conds) - c0, offs)); ids.append(h["id"])
 c_words = ",".join("0x%02X,0x%02X" % (w >> 8, w & 0xFF) for w in data)
 c_conds = ",".join("{%d,%d,%d}" % c for c in conds) or "{0,0,0}"
@@ -69,7 +73,7 @@ if VER not in s:
     s = s.replace(a, "    if (lk_fh_force) { r = (LkLgStr *)lk_fh_force; lk_fh_force = NULL; }   /* " + VER + " */\n" + a, 1)
     a = "static void lk_lang_install(void) {"
     assert s.count(a) == 1
-    module = r'''/* ---- LK_FRIDAY v1: Friday Hints (tools/patch_friday.py, texts lang/friday_hints.json) ---- */
+    module = r'''/* ---- LK_FRIDAY v2: Friday Hints (tools/patch_friday.py, texts lang/friday_hints.json) ---- */
 static const uint8_t lk_fh_w[] = { @WORDS@ };
 static const struct { uint8_t k; uint16_t a, b; } lk_fh_c[] = { @CONDS@ };
 static const struct { uint16_t c0, nc; struct { uint16_t off, n; } t[4]; } lk_fh_e[] = { @ENTS@ };   /* t: en L1, en L2, de L1, de L2 */
@@ -90,19 +94,24 @@ static int lk_fh_test(int i) {
     return 0;
 }
 static void lk_fh_ask(void) {
-    static int last = -1, times; int e, i, n = (int)(sizeof lk_fh_e / sizeof lk_fh_e[0]), pick = 0, lv, de; static LkLgStr str;
+    int e, i, n = (int)(sizeof lk_fh_e / sizeof lk_fh_e[0]), pick = 0, lv, de; static LkLgStr str;
     M68kContext sv = g_m68k;
     lk_call(0x025318u);   /* GetFlagProgress: $FF1906..08 */
     for (i = 1; i <= 3; i++) { int v = bus_read8(0xFF1905u + (uint32_t)i), m = bus_read8(0xFF190Du + (uint32_t)i); lk_fh_stage[i] = v > m ? v : m; }   /* the stored maximum counts too (HandleProgressDependentDialogue) */
     for (e = 0; e < n; e++) { int ok = 1; for (i = 0; i < lk_fh_e[e].nc && ok; i++) ok = lk_fh_test(lk_fh_e[e].c0 + i); if (ok) pick = e; }
-    times = pick == last ? times + 1 : 0; last = pick; lv = times > 0 ? 1 : 0;   /* asking again in the same situation: the clearer level */
+    lv = 0;   /* only the gentle level (user 2026-10-31: 'nur die vagen Hinweise, nicht mehr 2-stufig'; the clear level stays in lang/friday_hints.json) */
     de = lk_lg_sel > 0 && !strcmp(lk_lg_codes[lk_lg_sel], "de");
     str.id = 0x16; str.n = lk_fh_e[pick].t[de * 2 + lv].n; str.w = lk_fh_w + 2 * lk_fh_e[pick].t[de * 2 + lv].off;
     if (getenv("LANDSTALKER_FRIDAY_LOG")) fprintf(stderr, "friday: frame %ld stage %d/%d/%d room %d -> %s level %d\n", (long)platform_frame_number(), lk_fh_stage[1], lk_fh_stage[2], lk_fh_stage[3], (int)bus_read16(0xFF1204u), lk_fh_id[pick], lv + 1);
     g_m68k = sv;
-    lk_call(0x022EE8u);   /* j_SetUpTextbox */
-    lk_fh_force = &str; g_m68k.d[0] = 0x16; lk_call(0x022E90u); lk_fh_force = NULL;   /* j_PrintString (carrier id $16) */
-    lk_call(0x022EA0u);   /* j_SetUpTextDisplay */
+    { uint8_t sfx = bus_read8(0xFF1154u);   /* g_TalkSoundEffect: Friday's speech blip while she talks (SetSpecialCharacter $02912C: SpecialCharacterSfxList $02913E, entry 1 = Friday) */
+      bus_write8(0xFF1154u, bus_read8(0x02913Fu));
+      bus_write8(0xFF114Bu, 0x01); bus_write8(0xFF114Du, 0x11);   /* g_FridayAnimState 1 = out of Nigel's bag, next $11 = hover beside him (what the cutscene actions do, e.g. CSA_0011) */
+      lk_call(0x022EE8u);   /* j_SetUpTextbox */
+      lk_fh_force = &str; g_m68k.d[0] = 0x16; lk_call(0x022E90u); lk_fh_force = NULL;   /* j_PrintString (carrier id $16); UpdateFridayAnimation runs in every WaitUntilVBlank meanwhile */
+      lk_call(0x022EA0u);   /* j_SetUpTextDisplay */
+      bus_write8(0xFF114Du, 0x31);   /* next state $31 = back into the bag (the cutscene actions do the same after the dialogue) */
+      bus_write8(0xFF1154u, sfx); }
     g_m68k = sv;
 }
 static void lk_h_pab_fh(void) {
