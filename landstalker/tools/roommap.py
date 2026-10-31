@@ -17,8 +17,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import roomgraph, romroom
 
-VERSION = "roommap v11"   # v11: corridors must not cross   # v10: straight free corridors between facing doors count as connected (E lines: last field)   # v9: no door may touch a room it does not lead to (false contacts weigh more than missed doors)   # v8: boxes sized by door count, one slot per door, best of TRIALS randomised placements (user: proportions need not be right, doors must fit)   # v7: floors from a walk over the stairs first; v6: most-linked room next, spot with the smallest total door distance (user: a door into nothing)   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
+VERSION = "roommap v14"   # v14: connections keyed by their index (two rooms can be joined twice)   # v13: layout pulled apart by one unit at every box edge (longer bridges, lanes for the bent corridors)   # v12: bent corridors (L / Z / U) for the pairs still apart   # v11: corridors must not cross   # v10: straight free corridors between facing doors count as connected (E lines: last field)   # v9: no door may touch a room it does not lead to (false contacts weigh more than missed doors)   # v8: boxes sized by door count, one slot per door, best of TRIALS randomised placements (user: proportions need not be right, doors must fit)   # v7: floors from a walk over the stairs first; v6: most-linked room next, spot with the smallest total door distance (user: a door into nothing)   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
 TRIALS = 60   # randomised placements per area (v8)
+KMAX = 8      # how far out (grid units) a room may be put from the door that asks for it (v12)
 TW = 112                     # thumbnail width (pixels): the map cells are drawn at most ~1.3 x this at 1280 x 800
 MULTI = ["KN_LABYRINTH", "KN_CAVE", "KN_PALACE", "LAKE_SHRINE", "SWAMP_SHRINE", "WATERFALL_SHRINE", "THIEVES_HIDEOUT", "DESTEL_WELL", "MIR_TOWER", "VERLA_MINES",
          "HELGAS_HUT", "MERCATOR_CASTLE", "MERCATOR_DUNGEON", "RYUMA_LIGHTHOUSE", "GREENMAZE", "ROUTE_GUMI_RYUMA", "ROUTE_AFTER_DESTEL", "MASSAN_CAVE"]
@@ -184,7 +185,7 @@ def build(rom):
             for (m, d, up, pm, po) in links:
                 gx0, gy0, out, along = want(m, o, d, up, pm, po)
                 if up or p0[m][2] != fl: cands.add((gx0, gy0, 0)); continue
-                for k in range(0, 8):
+                for k in range(0, KMAX):   # v12: farther out (longer corridors, user: 'longer bridges to line things up better'; the map scrolls now)
                     for sl in range(-5, 6): cands.add((gx0 + out[0] * k + along[0] * sl, gy0 + out[1] * k + along[1] * sl, k + abs(sl)))
             best = None
             corrs = []   # the corridors between placed rooms on this floor (once per step; a new box must not cut them)
@@ -219,16 +220,86 @@ def build(rom):
         for (a, b, up, pa, pb) in edges:
             if a in p0 and b in p0 and not up and p0[a][2] == p0[b][2]:
                 dd = abs(p0[a][0] + pa[0] - p0[b][0] - pb[0]) + abs(p0[a][1] + pa[1] - p0[b][1] - pb[1]); cost += dd; miss += not linked(a, pa, p0[a][:2], b, pb, p0[b][:2], p0[a][2])
-        met = {(a, b) for (a, b, up, pa, pb) in edges if a in p0 and b in p0 and not up and p0[a][2] == p0[b][2] and linked(a, pa, p0[a][:2], b, pb, p0[b][:2], p0[a][2])}
+        met = {k for k, (a, b, up, pa, pb) in enumerate(edges) if a in p0 and b in p0 and not up and p0[a][2] == p0[b][2] and linked(a, pa, p0[a][:2], b, pb, p0[b][:2], p0[a][2])}   # by edge index: two rooms can be joined twice
         xs = [p[0] for p in p0.values()]; ys = [p[1] for p in p0.values()]
         return (fal, miss, cost, (max(xs) - min(xs) + 1) * (max(ys) - min(ys) + 1)), (p0, met)
-    pos = {}; metall = set()
+    pos = {}; metall = set(); bends = {}; edgefix = {}; boxfix = {}
     for ai, (reg, comp) in enumerate(areas):
         rng = random.Random(1000 + ai); best = None; lev = floors(comp)
         for t in range(TRIALS):
             sc, p0 = place(comp, rng, comp[0] if t == 0 else rng.choice(comp), lev)
             if best is None or sc < best[0]: best = (sc, p0)
-        p0, mt = best[1]; metall |= mt
+        p0, mt = best[1]
+        # v13 (user: 'make the bridges longer'): pull the layout apart by one unit at every box edge (per floor): touching doors become short straight bridges and
+        # free lanes appear between all rooms for the bent corridors.  Start edges map with 'lines <= x', end edges and doors with 'lines < x', so two boxes that
+        # touched get exactly one unit between them, every box keeps its order and doors that met stay face to face.
+        bx = {}; ept = {}; p1 = {}
+        for l in set(q[2] for q in p0.values()):
+            rs = [r for r in p0 if p0[r][2] == l]
+            Lu = sorted(set([p0[r][0] for r in rs] + [p0[r][0] + box[r][4] for r in rs])); Lv = sorted(set([p0[r][1] for r in rs] + [p0[r][1] + box[r][5] for r in rs]))
+            fs = lambda x, L: x + sum(1 for t in L if t <= x + 1e-6); fe = lambda x, L: x + sum(1 for t in L if t < x - 1e-6)
+            for r in rs:
+                u0, v0 = fs(p0[r][0], Lu), fs(p0[r][1], Lv); u1, v1 = fe(p0[r][0] + box[r][4], Lu), fe(p0[r][1] + box[r][5], Lv)
+                p1[r] = (u0, v0, l); bx[r] = (u1 - u0, v1 - v0)
+            for ke, (a, b, up, pa, pb) in enumerate(edges):
+                for (r, pt, end) in ((a, pa, 0), (b, pb, 1)):
+                    if r not in p1 or p0[r][2] != l: continue
+                    gu, gv = p0[r][0] + pt[0], p0[r][1] + pt[1]
+                    nu = fs(gu, Lu) if pt[0] < 0.01 and not up else fe(gu, Lu); nv = fs(gv, Lv) if pt[1] < 0.01 and not up else fe(gv, Lv)
+                    ept[(ke, end)] = (nu - p1[r][0], nv - p1[r][1])
+        for r in p0: p0[r] = p1[r]
+        edges2 = [(a, b, up, ept.get((k, 0), pa), ept.get((k, 1), pb)) for k, (a, b, up, pa, pb) in enumerate(edges)]
+        for k, (a, b, up, pa, pb) in enumerate(edges):   # only this area's doors (an earlier version overwrote every other area's mapped doors with the old ones)
+            if (k, 0) in ept or (k, 1) in ept: edgefix[k] = (ept.get((k, 0), pa), ept.get((k, 1), pb))
+        for r in bx: boxfix[r] = bx[r]
+        box_ = dict(box); box = {r: (box_[r][0], box_[r][1], box_[r][2], box_[r][3]) + bx.get(r, box_[r][4:6]) for r in box_}
+        edges_l = edges2
+        # the pairs that met / had a straight corridor still do (same lines, order kept)
+        metall |= mt
+        # v12: bent corridors (user: 'longer bridges to line things up better'): every pair still apart gets an L / Z / U route if one exists that touches no box
+        # (other than its two rooms) and crosses no corridor; straight corridors of the layout come first
+        segs = []
+        for k, (a, b, up, pa, pb) in enumerate(edges_l):
+            if k in mt:
+                ua, va, ub, vb = p0[a][0] + pa[0], p0[a][1] + pa[1], p0[b][0] + pb[0], p0[b][1] + pb[1]
+                if abs(ua - ub) + abs(va - vb) > 0.01: segs.append((p0[a][2], ua, va, ub, vb))
+        def sfree(l, a, b, u0, v0, u1, v1):
+            lu, hu, lv, hv = min(u0, u1), max(u0, u1), min(v0, v1), max(v0, v1)
+            for m, (mx, my, ml) in p0.items():
+                if ml != l: continue
+                inner = 0.0 if m in (a, b) else -0.01   # its own two rooms: only the inside is forbidden (the route starts on their edge)
+                if m in (a, b):
+                    if mx + 0.01 < hu and mx + box[m][4] - 0.01 > lu and my + 0.01 < hv and my + box[m][5] - 0.01 > lv: return False
+                elif mx < hu + 0.01 and mx + box[m][4] > lu - 0.01 and my < hv + 0.01 and my + box[m][5] > lv - 0.01: return False
+            for (sl_, su0, sv0, su1, sv1) in segs:   # no crossing / overlapping another corridor
+                if sl_ != l: continue
+                slu, shu, slv, shv = min(su0, su1), max(su0, su1), min(sv0, sv1), max(sv0, sv1)
+                if lu <= shu + 0.01 and hu >= slu - 0.01 and lv <= shv + 0.01 and hv >= slv - 0.01: return False
+            return True
+        def side_of(r, pt):
+            if pt[0] < 0.01: return (-1, 0)
+            if pt[0] > box[r][4] - 0.01: return (1, 0)
+            if pt[1] < 0.01: return (0, -1)
+            return (0, 1)
+        for k, (a, b, up, pa, pb) in enumerate(edges_l):
+            if up or k in mt or a not in p0 or b not in p0 or p0[a][2] != p0[b][2]: continue
+            l = p0[a][2]; A = (p0[a][0] + pa[0], p0[a][1] + pa[1]); B = (p0[b][0] + pb[0], p0[b][1] + pb[1]); da, db = side_of(a, pa), side_of(b, pb)
+            routes = []
+            if da[0] * db[0] + da[1] * db[1] == 0:   # perpendicular: L (one corner)
+                C = (B[0], A[1]) if da[0] else (A[0], B[1])
+                if (C[0] - A[0]) * da[0] + (C[1] - A[1]) * da[1] > 0.3 and (C[0] - B[0]) * db[0] + (C[1] - B[1]) * db[1] > 0.3: routes.append([C])
+            else:
+                for t in [x * 0.5 for x in range(1, 25)]:   # Z (facing, offset) or U (same side): out by t, across, in
+                    P = (A[0] + da[0] * t, A[1] + da[1] * t)
+                    Q = (P[0], B[1]) if da[0] else (B[0], P[1])
+                    if (Q[0] - B[0]) * db[0] + (Q[1] - B[1]) * db[1] < 0.3: continue
+                    routes.append([P, Q])
+            for wp in sorted(routes, key=lambda w: sum(abs(x[0] - y[0]) + abs(x[1] - y[1]) for x, y in zip([A] + w, w + [B]))):
+                pts = [A] + wp + [B]
+                if all(sfree(l, a, b, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1]) for i in range(len(pts) - 1)):
+                    bends[k] = wp; metall.add(k)
+                    for i in range(len(pts) - 1): segs.append((l, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1]))
+                    break
         lmin = min(p[2] for p in p0.values())
         for r, (x, y, l) in p0.items(): pos[r] = (ai, l - lmin, x, y)
     variants = [(v['variant'], v['room']) for v in g['variants']]
@@ -238,8 +309,10 @@ def build(rom):
     for r in sorted(pos):
         ai, l, x, y = pos[r]; vb = (rom[0xC74E + 2 * r] << 8) | rom[0xC74E + 2 * r + 1]
         xs = [k[0] for k in fps[r]] or [0]; ys = [k[1] for k in fps[r]] or [0]
-        lines.append("R %d %d %d %d %d %d %d %d %d %d %d %d" % (r, ai, l, x, y, vb, min(xs), min(ys), max(xs) - min(xs) + 1, max(ys) - min(ys) + 1, box[r][4], box[r][5]))
-    for r1, r2, up, pa, pb in edges: lines.append("E %d %d %d %d %d %d %d %d" % (r1, r2, up, round(pa[0] * 10), round(pa[1] * 10), round(pb[0] * 10), round(pb[1] * 10), 1 if (r1, r2) in metall else 0))   # last field: 1 = doors meet or face each other on a free straight corridor
+        lines.append("R %d %d %d %d %d %d %d %d %d %d %d %d" % (r, ai, l, x, y, vb, min(xs), min(ys), max(xs) - min(xs) + 1, max(ys) - min(ys) + 1, boxfix.get(r, box[r][4:6])[0], boxfix.get(r, box[r][4:6])[1]))
+    for k, (r1, r2, up, pa, pb) in enumerate([(a, b, up, *edgefix.get(k, (pa, pb))) for k, (a, b, up, pa, pb) in enumerate(edges)]):   # last fields: 1 = connected (doors meet / straight corridor / bent corridor), then the corridor's bend points (absolute grid units x 10)
+        wp = bends.get(k, [])
+        lines.append("E %d %d %d %d %d %d %d %d" % (r1, r2, up, round(pa[0] * 10), round(pa[1] * 10), round(pb[0] * 10), round(pb[1] * 10), 1 if k in metall else 0) + "".join(" %d %d" % (round(x * 10), round(y * 10)) for x, y in wp))   # last field: 1 = doors meet or face each other on a free straight corridor
     for v, o in variants: lines.append("V %d %d" % (v, o))
     return lines, sorted(pos), areas, pos
 

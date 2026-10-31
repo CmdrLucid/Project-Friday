@@ -1,6 +1,6 @@
 # Room map (MODERN_IDEAS (B), started 2026-10-31)
 
-User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (end of 2026-10-31): v8 / roommap v11 (slabs by door count, corridors, no false contacts / crossings, numbered badges for the rest) built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
+User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (end of 2026-10-31): v9 / roommap v14 (pulled apart, straight + bent corridors, scrolling, floors on L1 / R1) built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
 
 ## How it works
 - **Data (build time, from the player's ROM, never in git):** `tools/roommap.py ROM build/roommap` (step of build.sh, also run by firstrun.py; ~2 min on all cores the first time,
@@ -66,6 +66,17 @@ User wishes: own room map (not the island map), location only (no 'where to go n
   v11: corridors must not cross (an X looked like a junction). Result: 533 door pairs, 439 connected (touching or corridor), 94 numbered; Swamp Shrine floor 1: 3 numbered pairs.
   E lines got a last field (1 = connected); the map draws a straight gold corridor for those, numbered badges for the rest. Layout time 52 s (60 trials, all areas).
   Count tools: /tmp/rm/falsecnt.py (false contacts), awk on the E lines (connected / numbered). ~/Karte_Entwurf5.png.
+
+## v9 / roommap v14 (2026-10-31, user: 'longer bridges could line things up better; then the D-pad / stick must scroll, not everything fits')
+- Longer search range alone (KMAX 8 / 14 / 20): no gain (94 / 98 / 97 numbered). The gain came from (v13) pulling the finished layout apart by one unit at every box
+  edge (start edges map with 'lines <= x', end edges / doors with 'lines < x': touching boxes get one unit between them, order kept, doors stay face to face) and
+  (v12) bent corridors L / Z / U for the pairs still apart, through the new lanes, touching no other box and crossing no corridor.
+- Bugs found with a checker (corridor through a box / diagonal segment): the expansion of each area overwrote the mapped doors of all earlier areas (v13 fix);
+  two rooms joined twice (two doors, or door + stairs) shared their door data (keyed by the room pair) -> v14 keys every connection by its index. Checker: 0 problems.
+- Result: 533 pairs, 451 connected (touching, straight or bent corridor), 28 bent, 82 numbered; false contacts 0. Swamp Shrine floor 1: one numbered pair.
+- Runtime LK_ROOMMAP v9: a readable minimum scale (panel height / 16 per unit); bigger maps scroll with the D-pad / left stick / arrow keys (start: current room in the
+  middle, limits keep content on screen, gold arrows at the frame where more content lies), floors on L1 / R1 (+ PgUp / PgDn), content clipped to the frame, bent
+  corridors drawn from the E line's bend points. Test aid LANDSTALKER_MAPSHOT_PAN=x,y. ~/Karte_Entwurf6.png.
 
 ## Open / ideas
 - User look at it on the Deck (style, size, button). Town interiors are in the town's grid (no 'inside' grouping yet). Mercator outdoors shows as floor 2 / 3 (houses with cellars).

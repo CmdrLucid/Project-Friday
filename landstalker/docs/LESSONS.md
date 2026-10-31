@@ -262,4 +262,5 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 - **(2026-10-31) Never `pip install --user` on the player's machine** (PEP 668 distributions refuse it: issue #12, Ubuntu 26.10; SteamOS has the marker too): install into our own folder with `--target` and pass PYTHONPATH.
 - **(2026-10-31) Room map: one cell per room cannot show rooms with several doors on one side** (pushed neighbours = long bars across other rooms = 'connections that do not exist'); draw connectors only between doors that really meet, mark the other doors on the room's edge.
 - **(2026-10-31) Room map layout: judge a layout by FALSE contacts first** (a door lying on a room it does not lead to reads as a connection: user 'why does door 1 connect to door 2?'), then by missed doors; straight free corridors are a valid connection, crossings are not.
+- **(2026-10-31) Room map: key connections by their index, never by the room pair** (rooms can be joined twice: two doors, or door + stairs); per-area results must only touch that area's entries. A geometric checker (corridor through a box / diagonal segment) found both bugs at once.
 
