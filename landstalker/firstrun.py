@@ -6,7 +6,7 @@ folder and is tied to the ROM's SHA-1. The ROM must be present at EVERY start (i
   python3 firstrun.py [--rom FILE] [--rebuild] [--cc "zig cc"] [--no-gui] [--build-only] [-- game args]
 
 Environment: LANDSTALKER_ROM, LANDSTALKER_DATA (data folder), SDL2_CFLAGS / SDL2_LIBS, CC.
-Folder layout next to this file (release):  tools/ docs/symbols.json docs/ENTITIES.md recomp.json src/main.c vendor/genrecomp/
+Folder layout next to this file (release):  tools/ docs/symbols.json docs/ENTITIES.md docs/ROOMS.md recomp.json src/main.c vendor/genrecomp/
                                             vendor/zig/zig (optional, else a system compiler is used)
 """
 import hashlib, json, os, re, shlex, shutil, subprocess, sys, time
@@ -230,7 +230,7 @@ def find_rom(ui, args, cfg):
 def build_id(rom_sha):
     """Changes whenever the build inputs change (patches, symbols, seeds, genrecomp revision, ROM)."""
     h = hashlib.sha1(rom_sha.encode())
-    files = [os.path.join(HERE, "recomp.json"), os.path.join(HERE, "docs", "symbols.json"), os.path.join(HERE, "docs", "ENTITIES.md"), os.path.join(HERE, "src", "main.c"),
+    files = [os.path.join(HERE, "recomp.json"), os.path.join(HERE, "docs", "symbols.json"), os.path.join(HERE, "docs", "ENTITIES.md"), os.path.join(HERE, "docs", "ROOMS.md"), os.path.join(HERE, "src", "main.c"),
              os.path.join(HERE, "build.sh"), os.path.join(HERE, "vendor", "genrecomp", "VENDOR_REVISION.txt")]
     files += sorted(os.path.join(HERE, "tools", f) for f in os.listdir(os.path.join(HERE, "tools")) if f.endswith((".py", ".c", ".h", ".json")))
     if os.path.isdir(os.path.join(HERE, "lang")):
@@ -353,6 +353,7 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
     os.makedirs(os.path.join(work, "build", "lang"), exist_ok=True)
     shutil.copy2(os.path.join(HERE, "docs", "symbols.json"), os.path.join(work, "docs", "symbols.json"))
     shutil.copy2(os.path.join(HERE, "docs", "ENTITIES.md"), os.path.join(work, "docs", "ENTITIES.md"))   # read by tools/patch_shadow.py
+    shutil.copy2(os.path.join(HERE, "docs", "ROOMS.md"), os.path.join(work, "docs", "ROOMS.md"))   # read by tools/roommap.py (room names -> map areas)
     shutil.copy2(os.path.join(HERE, "recomp.json"), os.path.join(work, "recomp.json"))
     os.makedirs(os.path.join(work, "src", "recomp"))
     shutil.copy2(os.path.join(HERE, "src", "main.c"), os.path.join(work, "src", "main.c"))
@@ -420,6 +421,8 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
         shutil.copy2(os.path.join(HERE, "vendor", "sdl2", "bin", "SDL2.dll"), os.path.join(work, "out", "SDL2.dll"))
     if os.path.isdir(os.path.join(work, "build", "lang")):   # the language files stay next to the program (<exe dir>/lang)
         shutil.copytree(os.path.join(work, "build", "lang"), os.path.join(work, "out", "lang"))
+    if os.path.isdir(os.path.join(work, "build", "roommap")):   # room map data (tools/roommap.py), <exe dir>/roommap
+        shutil.copytree(os.path.join(work, "build", "roommap"), os.path.join(work, "out", "roommap"))
     # the generated sources are no longer needed: keep only the program (saves disk space)
     rmtree(os.path.join(work, "src"))
     rmtree(os.path.join(work, ".deps"))

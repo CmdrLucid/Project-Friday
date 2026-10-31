@@ -219,6 +219,8 @@ python3 tools/patch_modernhud.py .deps/genrecomp
 python3 tools/patch_sprintanim.py .deps/genrecomp
 # Smooth sub-pixel scrolling PROTOTYPE: quarter line blend of the room while the camera moves by odd steps, sprint 1.5 x; Off by default (LANDSTALKER_SMOOTH=1 / ~/.landstalker_smooth; tools/patch_subpix.py; needs patch_own / patch_sprint / patch_sprintanim)
 python3 tools/patch_subpix.py .deps/genrecomp
+# Room map: binding Map (pad L4, key M) = schematic map of the current area over the paused game (data: tools/roommap.py -> build/roommap; tools/patch_roommap.py, docs/MAP.md)
+python3 tools/patch_roommap.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json
@@ -250,6 +252,8 @@ cmake --build build -j"$(nproc)"
 # 3. Languages: every lang/*.json -> build/lang/<code>.bin + index.txt (derived from your ROM's font and text hashes: local only, tools/langbuild.py, docs/TEXT_LAYER.md)
 mkdir -p build/lang
 python3 tools/langbuild.py "$ROM" lang build/lang
+# room map data (areas, floors, room pictures; local only, ~2 min on all cores, skipped when up to date; tools/roommap.py, docs/MAP.md)
+python3 tools/roommap.py "$ROM" build/roommap
 
 # generated functions cut off in the middle of an instruction (bogus function starts): informational
 python3 tools/check_splits.py "$ROM" src/recomp 2>&1 | head -12 || true

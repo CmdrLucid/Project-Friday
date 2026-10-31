@@ -174,11 +174,11 @@ static const int lk_ids_video[8] = { 0, 1, 4, 2, 3, 9, 18, 41 }   /* 41 HUD Orig
 static const int lk_ids_audio[3] = { 6, 7, 8 };
 static const int lk_ids_game[15] = { 10, 35, 17, 15, 16, 14, 11, 38, 40, 20, 36, 42, 43, 44, 45 };   /* 45 Friday Hints (Select, 2026-10-31) appended at the end */   /* 44 Sprint Key Hold / Toggle (2026-10-31) appended at the end */   /* 43 Smooth Scrolling (2026-10-30 night) appended at the end */   /* 42 Sprint (2026-10-30) appended at the end: rows of older recordings keep their place */   /* 38 Fast Forward Key right under Fast Forward (user 2026-10-27); 40 Native Pace (timing option, 2026-10-30) after the speed options */   /* Quality of Life (Seamless Doors, id 22, hidden for now) */
 static const int lk_ids_diff[2] = { 12, 13 };   /* Difficulty */
-static const int lk_ids_key[14] = { 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113 };   /* Keybindings page: 13 actions (112 = Sprint, 2026-10-30) + Reset Defaults 113 (scrolls) */
+static const int lk_ids_key[15] = { 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114 };   /* Keybindings page: 14 actions (112 = Sprint, 2026-10-30; 113 = Map, 2026-10-31) + Reset Defaults 114 (scrolls) */
 static int lk_opt_capid = -1;
 static const char *lk_opt_bindtext(int id) {   /* value column of a binding row: 'pad  key' or the capture prompt */
     static char b[24];
-    if (id == 113) return ">";
+    if (id == 114) return ">";
     if (lk_bind_capturing() && lk_opt_capid == id) return "PRESS KEY";
     lk_bind_label(id - 100, b, sizeof b); return b;
 }
@@ -204,16 +204,16 @@ static const char *lk_opt_val0(int id, int v) {
     return onoff[v & 1];
 }
 static const char *lk_opt_val(int id, int v) { return lk_lang_tr(lk_opt_val0(id, v)); }   /* the value words (Off / On / Scanlines ...) in the selected language */
-static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 7 : lk_opt_pg == 1 ? 8 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 3 ? 15 : lk_opt_pg == 4 ? 2 : 14; }
+static int lk_opt_nrows(void) { return lk_opt_pg == 0 ? 7 : lk_opt_pg == 1 ? 8 : lk_opt_pg == 2 ? 3 : lk_opt_pg == 3 ? 15 : lk_opt_pg == 4 ? 2 : 15; }
 static int lk_opt_vis(void) { int n = lk_opt_nrows(); return n > 7 ? 7 : n; }   /* rows shown at once */
 static void lk_opt_fixscroll(void) { int v = lk_opt_vis(); if (lk_opt_row < lk_opt_scroll) lk_opt_scroll = lk_opt_row; if (lk_opt_row >= lk_opt_scroll + v) lk_opt_scroll = lk_opt_row - v + 1; }
 static int lk_opt_rowid(int r) { return lk_opt_pg == 1 ? lk_ids_video[r] : lk_opt_pg == 2 ? lk_ids_audio[r] : lk_opt_pg == 3 ? lk_ids_game[r] : lk_opt_pg == 4 ? lk_ids_diff[r] : lk_opt_pg == 5 ? lk_ids_key[r] : (r < 5 ? -1 - r : r == 5 ? 37 : -6); }   /* root rows: -1 Video, -2 Audio, -3 Gameplay, -4 Difficulty, -5 Keybindings, then the Language value row (id 37) and Quit Game (-6) */
 static int lk_opt_rowy(int r) { return (lk_opt_pg == 2 || lk_opt_pg == 4) ? 2 + 3 * r : 2 + 2 * r; }
-static const char *lk_opt_rowname(int r) { int id = lk_opt_rowid(r); return id >= 100 ? (id == 113 ? "Reset Defaults" : lk_bind_name(id - 100)) : id >= 0 ? lk_id_name[id] : id == -1 ? "Video" : id == -2 ? "Audio" : id == -3 ? "Quality of Life" : id == -4 ? "Difficulty" : id == -5 ? "Keybindings" : "Quit Game"; }
+static const char *lk_opt_rowname(int r) { int id = lk_opt_rowid(r); return id >= 100 ? (id == 114 ? "Reset Defaults" : lk_bind_name(id - 100)) : id >= 0 ? lk_id_name[id] : id == -1 ? "Video" : id == -2 ? "Audio" : id == -3 ? "Quality of Life" : id == -4 ? "Difficulty" : id == -5 ? "Keybindings" : "Quit Game"; }
 static int lk_opt_cnt(int id) { static const int c[46] = { 3, 2, 5, 2, 4, 4, 11, 11, 2, 3, 2, 4, 6, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 }; if (id == 37) return lk_lang_count() > 1 ? lk_lang_count() : 1; return (id >= 0 && id < 42) ? c[id] : 2; }   /* one entry per option id (lk_id_name): 23 Depth Blur, 24 Bloom, 25 Vignette, 26 Color Grade = 4 values; LEFT = count-1 steps, so a short table made LEFT run a garbage number of steps (hang) */
 static void lk_opt_change(int id, int dir) {
     int n, k, steps;
-    if (id >= 100) { if (dir > 0) { if (id == 113) lk_bind_reset(); else { lk_opt_capid = id; lk_bind_capture(id - 100); } } return; }   /* binding rows: A / RIGHT = wait for the next button / key press */
+    if (id >= 100) { if (dir > 0) { if (id == 114) lk_bind_reset(); else { lk_opt_capid = id; lk_bind_capture(id - 100); } } return; }   /* binding rows: A / RIGHT = wait for the next button / key press */
     n = lk_opt_cnt(id); steps = dir > 0 ? 1 : n - 1; for (k = 0; k < steps; k++) platform_option_step(id); }
 /* the golden selection frame of the item lists (tiles $A8..$B7 = MenuCursor2BPP, a 4x4 tile frame that consists of four corner pieces only): a corner piece is
    3 tiles (A8 A9 / AC for the top left, B4 B5 / B0 top right, AA AB / AF bottom left, B6 B7 / B3 bottom right); here the four corners are placed around the whole row */
@@ -437,7 +437,7 @@ static void lk_win_text(int k, const char *l, int lx, const char *v, int vx) {
     }
     g_m68k = sv;
 }
-static const int lk_win_cnt[6] = { 7, 8, 3, 15, 2, 14 };   /* root: Video, Audio, Quality of Life, Difficulty, Keybindings, Language (a value row), Quit Game */
+static const int lk_win_cnt[6] = { 7, 8, 3, 15, 2, 15 };   /* (Keybindings 15 rows since the Map action, 2026-10-31) */   /* root: Video, Audio, Quality of Life, Difficulty, Keybindings, Language (a value row), Quit Game */
 static int lk_win_scroll;   /* first visible option of a long page */
 static int lk_win_vis(int pg) { return lk_win_cnt[pg] > 7 ? 7 : lk_win_cnt[pg]; }   /* the window has room for the title and 7 tight rows (pitch 18) */
 static int lk_win_fix(int pg, int row) { int old = lk_win_scroll, v = lk_win_vis(pg); if (row < lk_win_scroll) lk_win_scroll = row; if (row >= lk_win_scroll + v) lk_win_scroll = row - v + 1; return old != lk_win_scroll; }   /* 1 = the visible part changed (the page is rebuilt) */
@@ -446,7 +446,7 @@ static void lk_win_rowtext(int pg, int r) {   /* builds the text of row r (0 = t
     static const char *title[6] = { "Options", "Video", "Audio", "Quality of Life", "Difficulty", "Keybindings" }, *root[7] = { "Video", "Audio", "Quality of Life", "Difficulty", "Keybindings", "Language", "Quit Game" };
     if (r == 0) { lk_win_text(0, title[pg], pg == 3 ? 108 : pg ? 125 : 120, NULL, 0); return; }
     if (pg == 0) { char vb[40]; if (r == 6) { snprintf(vb, sizeof vb, "< %s >", lk_opt_val(37, platform_option_get(37))); lk_win_text(r, root[5], 0, vb, 160); } else lk_win_text(r, root[r < 6 ? r - 1 : 6], 0, r == 7 ? (lk_opt_quitarm ? "PRESS A" : "") : ">", r == 7 ? 200 : 250); }
-    else { int id = lk_win_id(pg, r - 1 + lk_win_scroll); char buf[40]; if (id >= 100) lk_win_text(r, id == 113 ? "Reset Defaults" : lk_bind_name(id - 100), 0, lk_opt_bindtext(id), 150); else { snprintf(buf, sizeof buf, "< %s >", lk_opt_val(id, platform_option_get(id))); lk_win_text(r, lk_id_name[id], 0, buf, 160); } }
+    else { int id = lk_win_id(pg, r - 1 + lk_win_scroll); char buf[40]; if (id >= 100) lk_win_text(r, id == 114 ? "Reset Defaults" : lk_bind_name(id - 100), 0, lk_opt_bindtext(id), 150); else { snprintf(buf, sizeof buf, "< %s >", lk_opt_val(id, platform_option_get(id))); lk_win_text(r, lk_id_name[id], 0, buf, 160); } }
 }
 static void lk_win_page(int pg, int sel) {   /* pg 0 = root, 1 Video, 2 Audio, 3 Gameplay; sel = selected row (0 based) */
     int r;
