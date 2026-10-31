@@ -6,7 +6,7 @@ folder and is tied to the ROM's SHA-1. The ROM must be present at EVERY start (i
   python3 firstrun.py [--rom FILE] [--rebuild] [--cc "zig cc"] [--no-gui] [--build-only] [-- game args]
 
 Environment: LANDSTALKER_ROM, LANDSTALKER_DATA (data folder), SDL2_CFLAGS / SDL2_LIBS, CC.
-Folder layout next to this file (release):  tools/ docs/symbols.json docs/ENTITIES.md recomp.json src/main.c vendor/genrecomp/
+Folder layout next to this file (release):  tools/ docs/symbols.json docs/ENTITIES.md docs/ROOMS.md recomp.json src/main.c vendor/genrecomp/
                                             vendor/zig/zig (optional, else a system compiler is used)
 """
 import hashlib, json, os, re, shlex, shutil, subprocess, sys, time
@@ -230,7 +230,7 @@ def find_rom(ui, args, cfg):
 def build_id(rom_sha):
     """Changes whenever the build inputs change (patches, symbols, seeds, genrecomp revision, ROM)."""
     h = hashlib.sha1(rom_sha.encode())
-    files = [os.path.join(HERE, "recomp.json"), os.path.join(HERE, "docs", "symbols.json"), os.path.join(HERE, "docs", "ENTITIES.md"), os.path.join(HERE, "src", "main.c"),
+    files = [os.path.join(HERE, "recomp.json"), os.path.join(HERE, "docs", "symbols.json"), os.path.join(HERE, "docs", "ENTITIES.md"), os.path.join(HERE, "docs", "ROOMS.md"), os.path.join(HERE, "src", "main.c"),
              os.path.join(HERE, "build.sh"), os.path.join(HERE, "vendor", "genrecomp", "VENDOR_REVISION.txt")]
     files += sorted(os.path.join(HERE, "tools", f) for f in os.listdir(os.path.join(HERE, "tools")) if f.endswith((".py", ".c", ".h", ".json")))
     if os.path.isdir(os.path.join(HERE, "lang")):
@@ -353,6 +353,7 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
     os.makedirs(os.path.join(work, "build", "lang"), exist_ok=True)
     shutil.copy2(os.path.join(HERE, "docs", "symbols.json"), os.path.join(work, "docs", "symbols.json"))
     shutil.copy2(os.path.join(HERE, "docs", "ENTITIES.md"), os.path.join(work, "docs", "ENTITIES.md"))   # read by tools/patch_shadow.py
+    shutil.copy2(os.path.join(HERE, "docs", "ROOMS.md"), os.path.join(work, "docs", "ROOMS.md"))   # read by tools/roommap.py (room names -> map areas)
     shutil.copy2(os.path.join(HERE, "recomp.json"), os.path.join(work, "recomp.json"))
     os.makedirs(os.path.join(work, "src", "recomp"))
     shutil.copy2(os.path.join(HERE, "src", "main.c"), os.path.join(work, "src", "main.c"))
@@ -371,12 +372,16 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
             raise RuntimeError("platform_sdl.c layout changed")
         s = s.replace(m, m + open(os.path.join(work, "tools", "ascii_patch.c")).read(), 1)
     open(p, "w").write(s)
-    try:
-        subprocess.run([sys.executable, "-c", "import capstone"], check=True, capture_output=True)
-    except subprocess.CalledProcessError:
+    # capstone (python module of the generator): if the system python has none, it goes into OUR data folder (pip --target) and every step gets it on PYTHONPATH.
+    # (issue #12, Ubuntu 26.10 / Python 3.14: PEP 668 'externally-managed-environment' refuses `pip install --user`; pip skips that check for --target, and the
+    # system python stays untouched on every distribution)
+    pylib = os.path.join(DATA, "pylib")
+    penv = dict(os.environ)
+    penv["PYTHONPATH"] = pylib + (os.pathsep + penv["PYTHONPATH"] if penv.get("PYTHONPATH") else "")
+    if subprocess.run([sys.executable, "-c", "import capstone"], capture_output=True, env=penv).returncode:
         ui.progress(2, "Installing the python module 'capstone' ...")
         wheels = os.path.join(HERE, "vendor", "wheels")
-        cmd = [sys.executable, "-m", "pip", "install", "--user", "--quiet", "capstone"]
+        cmd = [sys.executable, "-m", "pip", "install", "--quiet", "--upgrade", "--target", pylib, "capstone"]
         if os.path.isdir(wheels):
             cmd[5:5] = ["--no-index", "--find-links", wheels]
         run(cmd, "install capstone")
@@ -385,7 +390,7 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
         args = [rom if a == "$ROM" else a for a in st[1:]]
         label = os.path.basename(st[0])
         ui.progress(3 + 57.0 * i / n, "Step %d of %d: %s" % (i + 1, n, label))
-        run([sys.executable, st[0]] + args, label)
+        run([sys.executable, st[0]] + args, label, env=penv)
     # compile
     env = dict(os.environ)
     env["CC"] = cc
@@ -420,6 +425,8 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
         shutil.copy2(os.path.join(HERE, "vendor", "sdl2", "bin", "SDL2.dll"), os.path.join(work, "out", "SDL2.dll"))
     if os.path.isdir(os.path.join(work, "build", "lang")):   # the language files stay next to the program (<exe dir>/lang)
         shutil.copytree(os.path.join(work, "build", "lang"), os.path.join(work, "out", "lang"))
+    if os.path.isdir(os.path.join(work, "build", "roommap")):   # room map data (tools/roommap.py), <exe dir>/roommap
+        shutil.copytree(os.path.join(work, "build", "roommap"), os.path.join(work, "out", "roommap"))
     # the generated sources are no longer needed: keep only the program (saves disk space)
     rmtree(os.path.join(work, "src"))
     rmtree(os.path.join(work, ".deps"))

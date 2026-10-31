@@ -32,7 +32,7 @@ The lead (this session) plans, writes the delicate code, decides and talks to th
 - **Not for agents:** patch code in `tools/patch_*.py` and the runtime (timing, renderer, options), anything "Off = bit exact" must protect, decisions for the user, merges / releases / tags, `~/Landstalker.sh` changes.
 - Give every agent: the exact task, the files, the rules (no ROM-derived files in git, symbols with names, work on `dev`), and what to report back (short). Run independent agents in parallel in the background. If an agent uses `isolation: "worktree"`, tell it the base is `main` and it must start from `origin/dev` (`git checkout -B work origin/dev`).
 - The lead CHECKS every agent result (diff / numbers) before it is committed or told to the user.
-- Do not switch the session model yourself; if asked which model runs, use `get_session`.
+- Lead model = **Opus** (user wish 2026-10-31: "switch to model opus"). The lead cannot switch itself: if the session does not run on Opus, tell the user to type `/model opus` once. Sonnet only via `model: "sonnet"` on sub-agents. If asked which model runs, use `get_session`.
 
 ## 4. Report to the user (German, short)
 - Where we are (2-4 lines: last session, what is verified headless vs. confirmed by the user on the Deck).

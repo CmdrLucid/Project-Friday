@@ -142,6 +142,8 @@ python3 tools/patch_tbox.py .deps/genrecomp
 python3 tools/patch_keys.py .deps/genrecomp
 # Quick save / load in input recordings: LANDSTALKER_QSLOG writes them, LANDSTALKER_QSPLAY replays them at the input poll (tools/patch_qsrec.py; needs patch_keys.py)
 python3 tools/patch_qsrec.py .deps/genrecomp
+# Sprint: hold the binding 'Sprint' (R2 / Left Shift) = step 4 instead of 2 on the ground; presses recorded like quick save (tools/patch_sprint.py; needs patch_keys / qsrec / equip)
+python3 tools/patch_sprint.py .deps/genrecomp
 # Controller polling on its own thread (Steam Deck HIDAPI stall every 3.4 s = micro stutter, tools/patch_padthread.py)
 python3 tools/patch_padthread.py .deps/genrecomp
 # Model view (block grid, entity boxes; R3 / F7 / LANDSTALKER_MODEL=1, tools/patch_model.py; needs patch_overlay.py and patch_keys.py first)
@@ -174,6 +176,8 @@ python3 tools/patch_focuspause.py .deps/genrecomp
 python3 tools/patch_region.py .deps/genrecomp
 # text layer runtime: language binary (tools/langbuild.py), translated strings / names / font (tools/patch_lang.py, docs/TEXT_LAYER.md)
 python3 tools/patch_lang.py .deps/genrecomp
+# Friday Hints: Select = Friday says where to go next (game's story stage GetFlagProgress + our texts lang/friday_hints.json, text box of the chest messages; tools/patch_friday.py; needs patch_lang / patch_options)
+python3 tools/patch_friday.py .deps/genrecomp
 # sound diagnostics + separate music / effect volumes (tools/patch_sndsep.py, LANDSTALKER_SNDLOG / LANDSTALKER_ZRAMDUMP)
 python3 tools/patch_sndsep.py .deps/genrecomp
 # sound step S0: golden trace of everything that reaches the sound chips and the Z80 mailbox (tools/patch_sndtrace.py, LANDSTALKER_SNDTRACE)
@@ -211,6 +215,12 @@ python3 tools/patch_vdpwait.py .deps/genrecomp
 python3 tools/patch_nativepace.py .deps/genrecomp
 # Modern HUD: Options > Video > HUD Original / Modern (option 41, ~/.landstalker_hud); picture only, Original = bit exact (tools/patch_modernhud.py; needs patch_own / quick / keys / options)
 python3 tools/patch_modernhud.py .deps/genrecomp
+# Sprint animation: Nigel's walk frames turned into the sprint pose (variant G) while Sprint moves him; picture only (tools/patch_sprintanim.py; needs patch_own / patch_sprint)
+python3 tools/patch_sprintanim.py .deps/genrecomp
+# Smooth sub-pixel scrolling PROTOTYPE: quarter line blend of the room while the camera moves by odd steps, sprint 1.5 x; Off by default (LANDSTALKER_SMOOTH=1 / ~/.landstalker_smooth; tools/patch_subpix.py; needs patch_own / patch_sprint / patch_sprintanim)
+python3 tools/patch_subpix.py .deps/genrecomp
+# Room map: binding Map (pad L4, key M) = schematic map of the current area over the paused game (data: tools/roommap.py -> build/roommap; tools/patch_roommap.py, docs/MAP.md)
+python3 tools/patch_roommap.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json
@@ -242,6 +252,8 @@ cmake --build build -j"$(nproc)"
 # 3. Languages: every lang/*.json -> build/lang/<code>.bin + index.txt (derived from your ROM's font and text hashes: local only, tools/langbuild.py, docs/TEXT_LAYER.md)
 mkdir -p build/lang
 python3 tools/langbuild.py "$ROM" lang build/lang
+# room map data (areas, floors, room pictures; local only, ~2 min on all cores, skipped when up to date; tools/roommap.py, docs/MAP.md)
+python3 tools/roommap.py "$ROM" build/roommap
 
 # generated functions cut off in the middle of an instruction (bogus function starts): informational
 python3 tools/check_splits.py "$ROM" src/recomp 2>&1 | head -12 || true

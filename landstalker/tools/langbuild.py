@@ -159,7 +159,7 @@ def main():
     if os.path.isdir(sys.argv[2]):                  # directory mode: every lang/*.json -> <out>/<code>.bin + <out>/index.txt ("code<TAB>name", English is built in)
         outdir = sys.argv[3]; os.makedirs(outdir, exist_ok=True); idx = []
         for f in sorted(os.listdir(sys.argv[2])):
-            if not f.endswith(".json"): continue
+            if not f.endswith(".json") or f == "friday_hints.json": continue   # friday_hints.json = the Friday Hints texts (tools/patch_friday.py), not a language
             code = f[:-5]
             meta = build_one(rom, en, os.path.join(sys.argv[2], f), os.path.join(outdir, code + ".bin"))
             idx.append("%s\t%s" % (code, meta.get("name", code)))

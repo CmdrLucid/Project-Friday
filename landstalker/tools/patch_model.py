@@ -7,7 +7,7 @@ For every visible entity (list g_VisibleEntityList $FF11DE) it draws, from work 
  * a tiny label: sprite graphic id, animation / 4, frame / 4 in hex (the stable sprite key, FORMATS.md 'Sprite upload').
 Block grid (v2): every cell of the height map ($FFD192, words, 74 x 74, cell (x, y) = world units x * 16 .. x * 16 + 15, byte 0: low nibble = floor height in 16 unit steps, high nibble 4 with height 0 = void)
 that is not void is outlined as a diamond at its floor height with the same projection; colour = height (grey 0, cyan 1, green 2, yellow 3, orange 4, red 5, pink 6, white 7), purple = cells blocked for everybody or for NPCs (byte 0 bits 6 / 5), a CROSS through the cell = floor type (byte 1): yellow doors, green stairs / ladders / elevator / Nole staircase, red pit / spikes / swamp / lava, white others,
-the cell under Nigel is white-bordered.  Modes (R3 / F7 cycles): off -> cells (height map grid) -> blocks (16x16 block squares of both map layers, ids of the BG layer in hex) -> off. Toggle at run time: pad R3 (click of the right stick) or key F7 (fixed, not in the Keybindings list); LANDSTALKER_MODEL=1 starts with it on,
+the cell under Nigel is white-bordered.  Modes (F7 cycles; R3 removed 2026-10-30): off -> cells (height map grid) -> blocks (16x16 block squares of both map layers, ids of the BG layer in hex) -> off. Toggle at run time: pad R3 (click of the right stick) or key F7 (fixed, not in the Keybindings list); LANDSTALKER_MODEL=1 starts with it on,
 LANDSTALKER_MODEL_AT="f1,f2" toggles at those frames (headless tests); LANDSTALKER_MODEL_GRID=0 hides the grid.
 Env LANDSTALKER_MODEL=1 switches it on (off by default, debug aid); LANDSTALKER_MODEL_LOG=N prints, every N frames, per entity the game's screen position and the model's (they must agree).
 The overlay shows the snapshot of the PREVIOUS frame (the picture itself is one frame behind the RAM, see the C comment), so it does not slide against the background during jumps.  Hidden while a full-screen picture is shown (lk_picture).  Needs patch_wide.py and patch_overlay.py first.  Idempotent.  usage: patch_model.py path/to/genrecomp"""
@@ -144,7 +144,7 @@ s = open(p).read()
 if "platform_display_toggle_model" not in s:
     a = "static void lk_text_box(const char *t, int x, int y, int px) {"
     assert s.count(a) == 1, "platform_sdl.c: run patch_coords.py first"
-    s = s.replace(a, '''/* LK_MODEL v2: model view toggle (R3 / F7, tools/patch_model.py) */
+    s = s.replace(a, '''/* LK_MODEL v2: model view toggle (F7, tools/patch_model.py) */
 extern int lk_model_toggle(void);
 void platform_display_toggle_model(void) {
     int on = lk_model_toggle();
@@ -154,14 +154,14 @@ void platform_display_toggle_model(void) {
     open(p, "w").write(s)
     print("platform_sdl.c patched: model toggle")
 
-# ---- input.c: R3 / F7 (fixed), LANDSTALKER_MODEL_AT test aid; R3 is not assignable in the Keybindings capture ----
+# ---- input.c: F7 (fixed), LANDSTALKER_MODEL_AT test aid ----
 p = os.path.join(root, "src/input.c")
 s = open(p).read()
 if "platform_display_toggle_model" not in s:
     a = "        if (d[LK_BCOORD] && !prev[LK_BCOORD]) platform_display_toggle_coords();\n"
     assert s.count(a) == 1, "input.c: run patch_keys.py first"
-    s = s.replace(a, a + '''        { /* model view: pad R3 (click of the right stick, code 9) or key F7, fixed; test aid LANDSTALKER_MODEL_AT="f1,f2" (LK_MODEL v2) */
-            static int mprev; static long mlast = -1; int md = lk_pad_code_down(pads, 9) || keys[SDL_SCANCODE_F7];
+    s = s.replace(a, a + '''        { /* model view: key F7 only (the pad R3 trigger was removed 2026-10-30, user: R3 = Fullscreen now); test aid LANDSTALKER_MODEL_AT="f1,f2" (LK_MODEL v2) */
+            static int mprev; static long mlast = -1; int md = keys[SDL_SCANCODE_F7];
             const char *me = getenv("LANDSTALKER_MODEL_AT");
             if (md && !mprev) platform_display_toggle_model();
             mprev = md;
@@ -171,8 +171,6 @@ if "platform_display_toggle_model" not in s:
     b = "extern void platform_display_toggle_coords(void);\n"
     assert s.count(b) == 1
     s = s.replace(b, b + "extern void platform_display_toggle_model(void);\n", 1)
-    c = "&& cc != 5) { lk_bind_assign(lk_cap, 1, cc);"
-    assert s.count(c) == 1, "input.c: capture rule changed"
-    s = s.replace(c, "&& cc != 5 && cc != 9) { lk_bind_assign(lk_cap, 1, cc);", 1)   # R3 stays fixed
+    # (until 2026-10-30 R3 was excluded from the Keybindings capture here; now R3 is a normal assignable button: Fullscreen by default)
     open(p, "w").write(s)
     print("input.c patched: model toggle")

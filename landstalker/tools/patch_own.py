@@ -698,7 +698,7 @@ static void lk_rep_init(void) {
   const char *t = getenv("LANDSTALKER_TILETEST"), *d = getenv("LANDSTALKER_TILEPACK"); char path[600], buf[256]; DIR *dir; int maxn = 1, i;
   lk_rep_on = 0;
   { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_HD"); int hd = 0; char hp[512]; FILE *hf;   /* HD graphics is OPTIONAL and Off by default: ~/.landstalker_hd (1 = On) or LANDSTALKER_HD=0|1; Off = no tile pack is read, no replacement happens, the picture stays the original */
-    snprintf(hp, sizeof hp, "%s/.landstalker_hd", h ? h : "."); hf = fopen(hp, "r"); if (hf) { if (fscanf(hf, "%d", &hd) != 1) hd = 0; fclose(hf); } if (e && *e) hd = atoi(e);
+    (void)hp; (void)hf; (void)h; if (e && *e) hd = atoi(e);   /* HD Graphics row removed 2026-10-25: an old ~/.landstalker_hd = 1 is ignored here too (2026-10-31, same rule as lk_hd_get), only LANDSTALKER_HD=1 */
     if (!hd) return; }
   if (t && *t) { snprintf(buf, sizeof buf, "%s", t); { char *tok, *sv; for (tok = strtok_r(buf, ",", &sv); tok; tok = strtok_r(NULL, ",", &sv)) { unsigned rom = (unsigned)strtoul(tok, NULL, 16); const char *c = strchr(tok, ':'); lk_rep_t *e; if (c) { e = lk_rep_add(LK_REP_KEY(rom, atoi(c + 1))); } else e = lk_rep_add(LK_REP_KEY(rom, 0xFFF)); if (e) { e->kind = 1; lk_rep_on = 1; } } } }
   if (!d || !*d) { const char *h = getenv("HOME"); snprintf(path, sizeof path, "%s/.landstalker_tilepack", h ? h : "."); } else snprintf(path, sizeof path, "%s", d);

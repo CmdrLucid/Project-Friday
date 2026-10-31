@@ -38,7 +38,10 @@ With every option switched off, the game plays like the original cartridge. All 
 **Quality of Life**
 - **Quick Save / Quick Load** anywhere, on a button. This uses a hidden extra slot, so your four normal save files are not touched.
 - **Quick Items:** put consumable items (e.g. EkeEke) on two buttons, shown in the HUD.
-- **Quick Equip:** hold a button (R2) and press a direction to open the strip of swords, armour, boots or rings, then pick a piece with left / right, without opening the menu.
+- **Quick Equip:** hold a button (R1) and press a direction to open the strip of swords, armour, boots or rings, then pick a piece with left / right, without opening the menu.
+- **Sprint** (On by default): hold R2 (keyboard Left Shift) and Nigel runs faster on the ground (jumps stay exactly as in the original). Sprint Key: Hold or Toggle.
+- **Smooth Scrolling** (On by default, Quality of Life): the sprint is 1.5 x and the room scrolls evenly and stays sharp (the scenery is shifted by whole screen pixels inside the display filter); Off = sprint 2 x.
+- **Experimental, off by default:** *Friday Hints* (Quality of Life; press Select and Friday flies out of Nigel's bag and tells you where to go next) and a *dungeon map* (bind a button to "Map" in Keybindings; shows the visited rooms of the current dungeon, floor by floor, with the rooms drawn from your ROM). Both are still being tuned.
 - **Native Pace:** busy rooms no longer run in slow motion; the picture waits for the game instead of the game losing frames like on the console.
 - **Better Menu:** B in Use / Equip goes back to the menu bar instead of closing the menu.
 - **Item Info:** a short description of the item under the cursor.

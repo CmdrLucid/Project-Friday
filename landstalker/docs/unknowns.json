@@ -8,7 +8,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:96",
+     "where": "FORMATS.md:97",
      "date": "2026-10-30",
      "snippet": "* V: buffer `$FF3900` (`g_VdpQueueBuffer`), write pointer `$FF1840` (long), count `$FF1128` (BYTE, number of 4-entry groups = map blocks; `A"
     }
@@ -60,7 +60,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:405",
+     "where": "INDEX.md:427",
      "date": "2026-10-30",
      "snippet": "- RAM: Player struct `$FF5400` (X +0, Y +1, Z word +$12, FallRate +$20, JumpRate +$21, GroundHeight +$22, Action word +$2C; bits 0-3 walk, 4"
     }
@@ -177,7 +177,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:199",
+     "where": "FORMATS.md:200",
      "date": "2026-10-30",
      "snippet": "* V: dark rooms: `LightableRooms $008800` = 4 byte entries (room word, story flag byte offset, bit; negative word ends; 12 rooms: 368 381 38"
     }
@@ -197,7 +197,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:199",
+     "where": "FORMATS.md:200",
      "date": "2026-10-30",
      "snippet": "* V: dark rooms: `LightableRooms $008800` = 4 byte entries (room word, story flag byte offset, bit; negative word ends; 12 rooms: 368 381 38"
     }
@@ -287,7 +287,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:145",
+     "where": "FORMATS.md:146",
      "date": "2026-10-30",
      "snippet": "* R: VRAM tile slots of sprites are DYNAMIC. Every game pass `LoadSprites $00401C` -> `InitSpriteLoad $004214` restarts the allocator at til"
     }
@@ -307,31 +307,31 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:162",
+     "where": "FORMATS.md:163",
      "date": "2026-10-30",
      "snippet": "* V: `g_HeightMap $FFD192` = 74 x 74 WORDS (row stride 148 bytes, size `$2AC8`), cell (x, y) at `$FFD192 + 148 * y + 2 * x`, indexed with th"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:173",
+     "where": "FORMATS.md:174",
      "date": "2026-10-30",
      "snippet": "* V: the two arrays `g_ForegroundBlocks $FF7C02` (layer A, plane A) and `g_BackgroundBlocks $FFA6CA` (layer B, plane B) are indexed like the"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:179",
+     "where": "FORMATS.md:180",
      "date": "2026-10-30",
      "snippet": "* V: the block word has NO flags: the id is the whole low 10 bits (`$0000..$03FF`, the blockset `g_Blockset $FF5C02` holds exactly 1024 entr"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:179",
+     "where": "FORMATS.md:180",
      "date": "2026-10-30",
      "snippet": "* V: the block word has NO flags: the id is the whole low 10 bits (`$0000..$03FF`, the blockset `g_Blockset $FF5C02` holds exactly 1024 entr"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:181",
+     "where": "INDEX.md:201",
      "date": "2026-10-30",
      "snippet": "- **2026-10-17 (dev, night): block word flag bits looked at (user: 'schau dir noch die offenen flag-bits an').** Result (FORMATS 'Block word"
     }
@@ -351,7 +351,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:145",
+     "where": "FORMATS.md:146",
      "date": "2026-10-30",
      "snippet": "* R: VRAM tile slots of sprites are DYNAMIC. Every game pass `LoadSprites $00401C` -> `InitSpriteLoad $004214` restarts the allocator at til"
     }
@@ -371,7 +371,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:208",
+     "where": "FORMATS.md:209",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20): the intro caption ('GAMUL DATE 312 / JYPTA RUINS', 'LANDSTALKER') is drawn by 8 SPRITES (size `$0D`, tiles `$E78C..$E7C4` "
     }
@@ -391,7 +391,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:199",
+     "where": "FORMATS.md:200",
      "date": "2026-10-30",
      "snippet": "* V: dark rooms: `LightableRooms $008800` = 4 byte entries (room word, story flag byte offset, bit; negative word ends; 12 rooms: 368 381 38"
     }
@@ -417,19 +417,19 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:140",
+     "where": "FORMATS.md:141",
      "date": "2026-10-30",
      "snippet": "- V: text box: tile buffer `$FF3900` (the same RAM as the VDP write queue buffer), 4 bpp, a 16 pixel text line = 8 pixel columns of two tile"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:233",
+     "where": "FORMATS.md:234",
      "date": "2026-10-30",
      "snippet": "* `g_Buffer $FF2C00` (general work buffer, `$D00` bytes up to `g_ScreenBuffer $FF3900`) holds the Use list tile map while the Start menu is "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:151",
+     "where": "INDEX.md:171",
      "date": "2026-10-30",
      "snippet": "- **2026-10-21 (dev, Sonnet 5.5, user: 'im Item Use Men\u00fc nach unten scrollen: Grafikm\u00fcll statt der richtigen Grafiken, im eigenen Renderer, "
     }
@@ -449,31 +449,31 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:195",
+     "where": "FORMATS.md:196",
      "date": "2026-10-30",
      "snippet": "* V: palette: `RoomPals $11C926`, 26 bytes (13 colours, MD format 0BBB0GGG0RRR0) per palette number (entry byte 5) = colours 2..14 of palett"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:201",
+     "where": "FORMATS.md:202",
      "date": "2026-10-30",
      "snippet": "* V: sprite / HUD palette lines (2026-10-18, `romsprite.sprite_palettes`, `romrender.rom_cram`): all four CRAM lines are rebuilt from the RO"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:208",
+     "where": "FORMATS.md:209",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20): the intro caption ('GAMUL DATE 312 / JYPTA RUINS', 'LANDSTALKER') is drawn by 8 SPRITES (size `$0D`, tiles `$E78C..$E7C4` "
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:208",
+     "where": "FORMATS.md:209",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20): the intro caption ('GAMUL DATE 312 / JYPTA RUINS', 'LANDSTALKER') is drawn by 8 SPRITES (size `$0D`, tiles `$E78C..$E7C4` "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:153",
+     "where": "INDEX.md:173",
      "date": "2026-10-30",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user recording `rec_20261020_1841` (new game, intro, statue, owner dialogue; WIDE 16 + TALL; replays EXACTL"
     }
@@ -505,13 +505,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:140",
+     "where": "FORMATS.md:141",
      "date": "2026-10-30",
      "snippet": "- V: text box: tile buffer `$FF3900` (the same RAM as the VDP write queue buffer), 4 bpp, a 16 pixel text line = 8 pixel columns of two tile"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:151",
+     "where": "INDEX.md:171",
      "date": "2026-10-30",
      "snippet": "- **2026-10-21 (dev, Sonnet 5.5, user: 'im Item Use Men\u00fc nach unten scrollen: Grafikm\u00fcll statt der richtigen Grafiken, im eigenen Renderer, "
     }
@@ -557,19 +557,19 @@
     },
     {
      "type": "doc",
-     "where": "DEBUGGING.md:1422",
+     "where": "DEBUGGING.md:1437",
      "date": "2026-10-30",
      "snippet": "Report: after the waterfall (room 593) Nigel wakes in bed and Friday wakes him with a blinking screen; the own renderer showed nothing. Chip"
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:47",
+     "where": "HANDOFF.md:87",
      "date": "2026-10-30",
      "snippet": "## 0a166. 2026-10-29 night (Deck, Sonnet 5.5, on `dev`): FRIDAY'S WAKE-UP FLASH is back in the own renderer. User report: after the waterfal"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:300",
+     "where": "INDEX.md:321",
      "date": "2026-10-30",
      "snippet": "| Friday's wake-up flash (blinking white screen after the waterfall, room 593) missing with the own renderer | `UpdateFridayAnimation_Flash "
     }
@@ -643,13 +643,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:249",
+     "where": "FORMATS.md:250",
      "date": "2026-10-30",
      "snippet": "- Per pose: `GetGraphic` chain gives the frame pointer; after the piece list (2 bytes per piece, bit 7 of the second byte ends it) follows t"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:133",
+     "where": "INDEX.md:153",
      "date": "2026-10-30",
      "snippet": "- **2026-10-23 (dev, Sonnet 5.5, user: 'figuren-urspr\u00fcnge, HD an den breitbild-r\u00e4ndern - das machen'): (1) FIGURE TILE ORIGINS 62 % -> 95 % "
     }
@@ -669,13 +669,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:130",
+     "where": "FORMATS.md:131",
      "date": "2026-10-30",
      "snippet": "- Graphic `ArrowGraphic2BPP $00E076`: 4 tiles of 2bpp (8 rows of 2 bytes each), column-major 2 x 2 = one 16 x 16 UP arrow; pixel value 1 = l"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:35",
+     "where": "INDEX.md:55",
      "date": "2026-10-30",
      "snippet": "- **2026-10-28 (dev, Sonnet 5.5, user recording `rec_20261028_2054` (intro, rooms 139 / 140; replays up to frame ~1900, then drifts by one p"
     }
@@ -752,13 +752,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:113",
+     "where": "FORMATS.md:114",
      "date": "2026-10-30",
      "snippet": "- V: the Z80 sound driver (disassembly `code/audio/sounddrv.asm`) keeps **14 channel blocks of 32 bytes from Z80 RAM `$1300`**: YM1..YM6 (`$"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:113",
+     "where": "FORMATS.md:114",
      "date": "2026-10-30",
      "snippet": "- V: the Z80 sound driver (disassembly `code/audio/sounddrv.asm`) keeps **14 channel blocks of 32 bytes from Z80 RAM `$1300`**: YM1..YM6 (`$"
     },
@@ -784,7 +784,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:113",
+     "where": "FORMATS.md:114",
      "date": "2026-10-30",
      "snippet": "- V: the Z80 sound driver (disassembly `code/audio/sounddrv.asm`) keeps **14 channel blocks of 32 bytes from Z80 RAM `$1300`**: YM1..YM6 (`$"
     }
@@ -804,7 +804,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:113",
+     "where": "FORMATS.md:114",
      "date": "2026-10-30",
      "snippet": "- V: the Z80 sound driver (disassembly `code/audio/sounddrv.asm`) keeps **14 channel blocks of 32 bytes from Z80 RAM `$1300`**: YM1..YM6 (`$"
     }
@@ -824,7 +824,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:113",
+     "where": "FORMATS.md:114",
      "date": "2026-10-30",
      "snippet": "- V: the Z80 sound driver (disassembly `code/audio/sounddrv.asm`) keeps **14 channel blocks of 32 bytes from Z80 RAM `$1300`**: YM1..YM6 (`$"
     }
@@ -844,7 +844,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:113",
+     "where": "FORMATS.md:114",
      "date": "2026-10-30",
      "snippet": "- V: the Z80 sound driver (disassembly `code/audio/sounddrv.asm`) keeps **14 channel blocks of 32 bytes from Z80 RAM `$1300`**: YM1..YM6 (`$"
     }
@@ -864,7 +864,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:115",
+     "where": "FORMATS.md:116",
      "date": "2026-10-30",
      "snippet": "- V: `pt_SFX` (58 words) is at Z80 `$1594`. The speech blip is a PSG tone-3 effect (frames with `ProcessChar_loc_23104` running = frames wit"
     }
@@ -908,7 +908,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:258",
+     "where": "INDEX.md:278",
      "date": "2026-10-30",
      "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
     }
@@ -1048,7 +1048,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:114",
+     "where": "FORMATS.md:115",
      "date": "2026-10-30",
      "snippet": "- V: music streams live in the banked ROM window (pointer >= `$8000`), effect streams in the driver's own RAM (pointer < `$2000`, e.g. `$176"
     }
@@ -1068,7 +1068,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:114",
+     "where": "FORMATS.md:115",
      "date": "2026-10-30",
      "snippet": "- V: music streams live in the banked ROM window (pointer >= `$8000`), effect streams in the driver's own RAM (pointer < `$2000`, e.g. `$176"
     }
@@ -1128,7 +1128,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:42",
+     "where": "INDEX.md:62",
      "date": "2026-10-30",
      "snippet": "- **2026-10-28 (dev, Opus 5.5, user: 'ja' to the switch): NATIVE SOUND, OPT-IN (`LANDSTALKER_SND=native`; `tools/sndnative.c` `lk_nat_native"
     }
@@ -1162,13 +1162,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:40",
+     "where": "INDEX.md:60",
      "date": "2026-10-30",
      "snippet": "- **2026-10-28 (dev, Sonnet 5.5, user: 'eigene Uhr bauen' = GitHub issue #11 PART 2: MUSIC AT NORMAL SPEED WHILE FAST FORWARDING; `tools/pat"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:43",
+     "where": "INDEX.md:63",
      "date": "2026-10-30",
      "snippet": "- **2026-10-28 (dev, Opus 5.5, user: 'sound' = SOUND STEP S0: GOLDEN TRACE + PLAN; `tools/patch_sndtrace.py` (build.sh after patch_sndsep.py"
     },
@@ -1191,13 +1191,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:40",
+     "where": "INDEX.md:60",
      "date": "2026-10-30",
      "snippet": "- **2026-10-28 (dev, Sonnet 5.5, user: 'eigene Uhr bauen' = GitHub issue #11 PART 2: MUSIC AT NORMAL SPEED WHILE FAST FORWARDING; `tools/pat"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:43",
+     "where": "INDEX.md:63",
      "date": "2026-10-30",
      "snippet": "- **2026-10-28 (dev, Opus 5.5, user: 'sound' = SOUND STEP S0: GOLDEN TRACE + PLAN; `tools/patch_sndtrace.py` (build.sh after patch_sndsep.py"
     },
@@ -1220,25 +1220,25 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:40",
+     "where": "INDEX.md:60",
      "date": "2026-10-30",
      "snippet": "- **2026-10-28 (dev, Sonnet 5.5, user: 'eigene Uhr bauen' = GitHub issue #11 PART 2: MUSIC AT NORMAL SPEED WHILE FAST FORWARDING; `tools/pat"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:40",
+     "where": "INDEX.md:60",
      "date": "2026-10-30",
      "snippet": "- **2026-10-28 (dev, Sonnet 5.5, user: 'eigene Uhr bauen' = GitHub issue #11 PART 2: MUSIC AT NORMAL SPEED WHILE FAST FORWARDING; `tools/pat"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:43",
+     "where": "INDEX.md:63",
      "date": "2026-10-30",
      "snippet": "- **2026-10-28 (dev, Opus 5.5, user: 'sound' = SOUND STEP S0: GOLDEN TRACE + PLAN; `tools/patch_sndtrace.py` (build.sh after patch_sndsep.py"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:50",
+     "where": "INDEX.md:70",
      "date": "2026-10-30",
      "snippet": "- **2026-10-27 (dev, Opus 5.5; GitHub issue #11 by the user 'Fast forward toggle + music', part 1 'erstmal das Umschalten'): FAST FORWARD KE"
     },
@@ -1267,25 +1267,25 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:114",
+     "where": "FORMATS.md:115",
      "date": "2026-10-30",
      "snippet": "- V: music streams live in the banked ROM window (pointer >= `$8000`), effect streams in the driver's own RAM (pointer < `$2000`, e.g. `$176"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:145",
+     "where": "FORMATS.md:146",
      "date": "2026-10-30",
      "snippet": "* R: VRAM tile slots of sprites are DYNAMIC. Every game pass `LoadSprites $00401C` -> `InitSpriteLoad $004214` restarts the allocator at til"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:249",
+     "where": "FORMATS.md:250",
      "date": "2026-10-30",
      "snippet": "- Per pose: `GetGraphic` chain gives the frame pointer; after the piece list (2 bytes per piece, bit 7 of the second byte ends it) follows t"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:115",
+     "where": "INDEX.md:135",
      "date": "2026-10-30",
      "snippet": "- **2026-10-23 (dev, Opus 5.5, user: 'ja A' = WALK ON through seamless doors; recording `rec_20261023_2012` (church -> 592 <-> 424, 'Nigel s"
     }
@@ -1539,7 +1539,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:311",
+     "where": "INDEX.md:332",
      "date": "2026-10-30",
      "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
     }
@@ -1677,7 +1677,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:124",
+     "where": "FORMATS.md:125",
      "date": "2026-10-30",
      "snippet": "- V: the game has its own shadow sprites in `BuildEntitySpriteEntries $00437A` (tiles `$24C4` for the player / `$478C` for others, entity fl"
     }
@@ -1737,7 +1737,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:230",
+     "where": "FORMATS.md:231",
      "date": "2026-10-30",
      "snippet": "* `PlayEndCredits` clears the HUD buffers (`$FF1C00`, `$800` words), loads `EndCreditFont $09FA42` (to `$FF2C00`), `EndCreditLogos $0A0033` "
     }
@@ -1807,7 +1807,7 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:96",
+     "where": "FORMATS.md:97",
      "date": "2026-10-30",
      "snippet": "* V: buffer `$FF3900` (`g_VdpQueueBuffer`), write pointer `$FF1840` (long), count `$FF1128` (BYTE, number of 4-entry groups = map blocks; `A"
     }
@@ -1827,7 +1827,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:124",
+     "where": "FORMATS.md:125",
      "date": "2026-10-30",
      "snippet": "- V: the game has its own shadow sprites in `BuildEntitySpriteEntries $00437A` (tiles `$24C4` for the player / `$478C` for others, entity fl"
     }
@@ -1867,13 +1867,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:210",
+     "where": "FORMATS.md:211",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-23, `lk_rm_get` in `patch_roommodel.py`, 31 rooms): height map placement exactly as the game builds it: the whole 74 x 74 array"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:266",
+     "where": "FORMATS.md:267",
      "date": "2026-10-30",
      "snippet": "* I (2026-10-24, dev, measured on room 592 house A by cutting it out of the ROM picture and aligning the house corners): the height map as `"
     }
@@ -1916,19 +1916,19 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:207",
+     "where": "FORMATS.md:208",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20, own renderer HUD / text): the WHOLE window plane nametable (VRAM `$F000`, 64 words per row, 28 rows) is mirrored in RAM fro"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:154",
+     "where": "INDEX.md:174",
      "date": "2026-10-30",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:155",
+     "where": "INDEX.md:175",
      "date": "2026-10-30",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'nehmen wir uns HUD vor, dann Dialoge'): HUD LOGIC OF THE OWN RENDERER (`tools/patch_own.py lk_o_hudb"
     },
@@ -1989,13 +1989,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:203",
+     "where": "FORMATS.md:204",
      "date": "2026-10-30",
      "snippet": "* V: text from the ROM font (`romtext.py`, port of `PrintCharDirect $0235FE` / `PrintChar $023640` / `sub_2371A` / `sub_237AC` / `sub_23702`"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:207",
+     "where": "FORMATS.md:208",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20, own renderer HUD / text): the WHOLE window plane nametable (VRAM `$F000`, 64 words per row, 28 rows) is mirrored in RAM fro"
     }
@@ -2015,7 +2015,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:203",
+     "where": "FORMATS.md:204",
      "date": "2026-10-30",
      "snippet": "* V: text from the ROM font (`romtext.py`, port of `PrintCharDirect $0235FE` / `PrintChar $023640` / `sub_2371A` / `sub_237AC` / `sub_23702`"
     }
@@ -2035,7 +2035,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:203",
+     "where": "FORMATS.md:204",
      "date": "2026-10-30",
      "snippet": "* V: text from the ROM font (`romtext.py`, port of `PrintCharDirect $0235FE` / `PrintChar $023640` / `sub_2371A` / `sub_237AC` / `sub_23702`"
     }
@@ -2055,7 +2055,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:207",
+     "where": "FORMATS.md:208",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20, own renderer HUD / text): the WHOLE window plane nametable (VRAM `$F000`, 64 words per row, 28 rows) is mirrored in RAM fro"
     }
@@ -2075,7 +2075,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:207",
+     "where": "FORMATS.md:208",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20, own renderer HUD / text): the WHOLE window plane nametable (VRAM `$F000`, 64 words per row, 28 rows) is mirrored in RAM fro"
     }
@@ -2095,7 +2095,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:207",
+     "where": "FORMATS.md:208",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20, own renderer HUD / text): the WHOLE window plane nametable (VRAM `$F000`, 64 words per row, 28 rows) is mirrored in RAM fro"
     }
@@ -2115,7 +2115,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:207",
+     "where": "FORMATS.md:208",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20, own renderer HUD / text): the WHOLE window plane nametable (VRAM `$F000`, 64 words per row, 28 rows) is mirrored in RAM fro"
     }
@@ -2135,7 +2135,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:207",
+     "where": "FORMATS.md:208",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20, own renderer HUD / text): the WHOLE window plane nametable (VRAM `$F000`, 64 words per row, 28 rows) is mirrored in RAM fro"
     }
@@ -2155,7 +2155,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:207",
+     "where": "FORMATS.md:208",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20, own renderer HUD / text): the WHOLE window plane nametable (VRAM `$F000`, 64 words per row, 28 rows) is mirrored in RAM fro"
     }
@@ -2175,7 +2175,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:207",
+     "where": "FORMATS.md:208",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20, own renderer HUD / text): the WHOLE window plane nametable (VRAM `$F000`, 64 words per row, 28 rows) is mirrored in RAM fro"
     }
@@ -2289,19 +2289,19 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:114",
+     "where": "FORMATS.md:115",
      "date": "2026-10-30",
      "snippet": "- V: music streams live in the banked ROM window (pointer >= `$8000`), effect streams in the driver's own RAM (pointer < `$2000`, e.g. `$176"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:249",
+     "where": "FORMATS.md:250",
      "date": "2026-10-30",
      "snippet": "- Per pose: `GetGraphic` chain gives the frame pointer; after the piece list (2 bytes per piece, bit 7 of the second byte ends it) follows t"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:133",
+     "where": "INDEX.md:153",
      "date": "2026-10-30",
      "snippet": "- **2026-10-23 (dev, Sonnet 5.5, user: 'figuren-urspr\u00fcnge, HD an den breitbild-r\u00e4ndern - das machen'): (1) FIGURE TILE ORIGINS 62 % -> 95 % "
     },
@@ -2327,19 +2327,19 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:131",
+     "where": "FORMATS.md:132",
      "date": "2026-10-30",
      "snippet": "- Sprites: SAT entries 1 and 2 in RAM (`$FF0558` up, `$FF0560` down): Y word (0 = hidden, `$98` up / `$120` down), size byte 5 (2 x 2 tiles)"
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:402",
+     "where": "HANDOFF.md:443",
      "date": "2026-10-30",
      "snippet": "- **2026-10-16 (dev, user feedback): Keybindings page shows more rows and the SAME scroll arrows as the item list.** Start menu: 7 visible r"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:203",
+     "where": "INDEX.md:223",
      "date": "2026-10-30",
      "snippet": "- **2026-10-16 (dev, user feedback): Keybindings page shows more rows and the SAME scroll arrows as the item list.** Start menu: 7 visible r"
     }
@@ -2365,7 +2365,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:143",
+     "where": "INDEX.md:163",
      "date": "2026-10-30",
      "snippet": "- **2026-10-22 (dev, Sonnet 5.5, user: 'hol bitte den rest zum eigenen renderer', swords are all fine): NOLE / KAZALT WARP, FLASHES AND THE "
     }
@@ -2465,7 +2465,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:179",
+     "where": "FORMATS.md:180",
      "date": "2026-10-30",
      "snippet": "* V: the block word has NO flags: the id is the whole low 10 bits (`$0000..$03FF`, the blockset `g_Blockset $FF5C02` holds exactly 1024 entr"
     }
@@ -2609,7 +2609,7 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:239",
+     "where": "FORMATS.md:240",
      "date": "2026-10-30",
      "snippet": "* `g_DMAOpQueue $FF07D0`: 16 bytes per op, built by `QueueDMAOp` (VRAM, length in WORDS, source = RAM or ROM address), `QueueFullPaletteDMA`"
     }
@@ -2629,7 +2629,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:131",
+     "where": "FORMATS.md:132",
      "date": "2026-10-30",
      "snippet": "- Sprites: SAT entries 1 and 2 in RAM (`$FF0558` up, `$FF0560` down): Y word (0 = hidden, `$98` up / `$120` down), size byte 5 (2 x 2 tiles)"
     }
@@ -2649,31 +2649,31 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:140",
+     "where": "FORMATS.md:141",
      "date": "2026-10-30",
      "snippet": "- V: text box: tile buffer `$FF3900` (the same RAM as the VDP write queue buffer), 4 bpp, a 16 pixel text line = 8 pixel columns of two tile"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:140",
+     "where": "FORMATS.md:141",
      "date": "2026-10-30",
      "snippet": "- V: text box: tile buffer `$FF3900` (the same RAM as the VDP write queue buffer), 4 bpp, a 16 pixel text line = 8 pixel columns of two tile"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:208",
+     "where": "FORMATS.md:209",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20): the intro caption ('GAMUL DATE 312 / JYPTA RUINS', 'LANDSTALKER') is drawn by 8 SPRITES (size `$0D`, tiles `$E78C..$E7C4` "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:154",
+     "where": "INDEX.md:174",
      "date": "2026-10-30",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:154",
+     "where": "INDEX.md:174",
      "date": "2026-10-30",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     }
@@ -2765,25 +2765,25 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:140",
+     "where": "FORMATS.md:141",
      "date": "2026-10-30",
      "snippet": "- V: text box: tile buffer `$FF3900` (the same RAM as the VDP write queue buffer), 4 bpp, a 16 pixel text line = 8 pixel columns of two tile"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:202",
+     "where": "FORMATS.md:203",
      "date": "2026-10-30",
      "snippet": "* V: HUD and text box without the VDP (`romhud.py`): the window plane tilemap also lives in RAM: `g_HUD_Row1..3 $FF1C00 / $FF1C80 / $FF1D00`"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:233",
+     "where": "FORMATS.md:234",
      "date": "2026-10-30",
      "snippet": "* `g_Buffer $FF2C00` (general work buffer, `$D00` bytes up to `g_ScreenBuffer $FF3900`) holds the Use list tile map while the Start menu is "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:151",
+     "where": "INDEX.md:171",
      "date": "2026-10-30",
      "snippet": "- **2026-10-21 (dev, Sonnet 5.5, user: 'im Item Use Men\u00fc nach unten scrollen: Grafikm\u00fcll statt der richtigen Grafiken, im eigenen Renderer, "
     }
@@ -2889,7 +2889,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:466",
+     "where": "HANDOFF.md:507",
      "date": "2026-10-30",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -3000,7 +3000,7 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:96",
+     "where": "FORMATS.md:97",
      "date": "2026-10-30",
      "snippet": "* V: buffer `$FF3900` (`g_VdpQueueBuffer`), write pointer `$FF1840` (long), count `$FF1128` (BYTE, number of 4-entry groups = map blocks; `A"
     }
@@ -3046,13 +3046,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:225",
+     "where": "FORMATS.md:226",
      "date": "2026-10-30",
      "snippet": "* V: `GaiaEffect $016712` writes 41 rock sprites into the RAM sprite table (`g_VDPSpr16_Y $FF05D0`, 8 bytes each: Y word, size byte `$0F` = "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:165",
+     "where": "INDEX.md:185",
      "date": "2026-10-30",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
     }
@@ -3078,13 +3078,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:225",
+     "where": "FORMATS.md:226",
      "date": "2026-10-30",
      "snippet": "* V: `GaiaEffect $016712` writes 41 rock sprites into the RAM sprite table (`g_VDPSpr16_Y $FF05D0`, 8 bytes each: Y word, size byte `$0F` = "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:165",
+     "where": "INDEX.md:185",
      "date": "2026-10-30",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
     }
@@ -3110,13 +3110,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:245",
+     "where": "FORMATS.md:246",
      "date": "2026-10-30",
      "snippet": "- V: in that state the game's sprite table holds effect entries in place of the entity's normal pieces (Fire: `$C7A4` / `$C7B4`, palette lin"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:146",
+     "where": "INDEX.md:166",
      "date": "2026-10-30",
      "snippet": "- **2026-10-22 (dev, Sonnet 5.5, user recording `rec_20261022_0602` = `docs/replays/all_swords_room166.txt` (room 166, every sword used: Gai"
     }
@@ -3142,13 +3142,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:225",
+     "where": "FORMATS.md:226",
      "date": "2026-10-30",
      "snippet": "* V: `GaiaEffect $016712` writes 41 rock sprites into the RAM sprite table (`g_VDPSpr16_Y $FF05D0`, 8 bytes each: Y word, size byte `$0F` = "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:165",
+     "where": "INDEX.md:185",
      "date": "2026-10-30",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
     }
@@ -3174,13 +3174,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:245",
+     "where": "FORMATS.md:246",
      "date": "2026-10-30",
      "snippet": "- V: in that state the game's sprite table holds effect entries in place of the entity's normal pieces (Fire: `$C7A4` / `$C7B4`, palette lin"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:146",
+     "where": "INDEX.md:166",
      "date": "2026-10-30",
      "snippet": "- **2026-10-22 (dev, Sonnet 5.5, user recording `rec_20261022_0602` = `docs/replays/all_swords_room166.txt` (room 166, every sword used: Gai"
     }
@@ -3200,7 +3200,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:466",
+     "where": "HANDOFF.md:507",
      "date": "2026-10-30",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -3232,13 +3232,13 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:239",
+     "where": "FORMATS.md:240",
      "date": "2026-10-30",
      "snippet": "* `g_DMAOpQueue $FF07D0`: 16 bytes per op, built by `QueueDMAOp` (VRAM, length in WORDS, source = RAM or ROM address), `QueueFullPaletteDMA`"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:166",
+     "where": "INDEX.md:186",
      "date": "2026-10-30",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, same recording `rec_20261018_1807`; user: 'Men\u00fc verlassen besser, aber nicht perfekt: 1. blaues breites Ban"
     }
@@ -3258,7 +3258,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:222",
+     "where": "FORMATS.md:223",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20): what the VDP shows in frame t+1 is the RAM at the END of the VBlank handler of frame t (`HandleVBlankInterrupt $0011DE`: s"
     }
@@ -3278,7 +3278,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:202",
+     "where": "FORMATS.md:203",
      "date": "2026-10-30",
      "snippet": "* V: HUD and text box without the VDP (`romhud.py`): the window plane tilemap also lives in RAM: `g_HUD_Row1..3 $FF1C00 / $FF1C80 / $FF1D00`"
     }
@@ -3318,13 +3318,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:251",
+     "where": "FORMATS.md:252",
      "date": "2026-10-30",
      "snippet": "- Sprite attributes the game writes by hand: the Yes / No arrow is SAT entry 2 (`$FF0560`: Y, size / link `$05`, tile word `$E524`, X), high"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:137",
+     "where": "INDEX.md:157",
      "date": "2026-10-30",
      "snippet": "- **2026-10-23 (dev, Sonnet 5.5, user: 'bei der neuesten Aufnahme fehlt der Auswahlpfeil bei Yes / No im Dialog' = `rec_20261022_2150`, Fahl"
     }
@@ -3365,13 +3365,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:208",
+     "where": "FORMATS.md:209",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20): the intro caption ('GAMUL DATE 312 / JYPTA RUINS', 'LANDSTALKER') is drawn by 8 SPRITES (size `$0D`, tiles `$E78C..$E7C4` "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:153",
+     "where": "INDEX.md:173",
      "date": "2026-10-30",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user recording `rec_20261020_1841` (new game, intro, statue, owner dialogue; WIDE 16 + TALL; replays EXACTL"
     }
@@ -3391,7 +3391,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:208",
+     "where": "FORMATS.md:209",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20): the intro caption ('GAMUL DATE 312 / JYPTA RUINS', 'LANDSTALKER') is drawn by 8 SPRITES (size `$0D`, tiles `$E78C..$E7C4` "
     }
@@ -3411,13 +3411,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:202",
+     "where": "FORMATS.md:203",
      "date": "2026-10-30",
      "snippet": "* V: HUD and text box without the VDP (`romhud.py`): the window plane tilemap also lives in RAM: `g_HUD_Row1..3 $FF1C00 / $FF1C80 / $FF1D00`"
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:207",
+     "where": "FORMATS.md:208",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20, own renderer HUD / text): the WHOLE window plane nametable (VRAM `$F000`, 64 words per row, 28 rows) is mirrored in RAM fro"
     }
@@ -3463,7 +3463,7 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:225",
+     "where": "FORMATS.md:226",
      "date": "2026-10-30",
      "snippet": "* V: `GaiaEffect $016712` writes 41 rock sprites into the RAM sprite table (`g_VDPSpr16_Y $FF05D0`, 8 bytes each: Y word, size byte `$0F` = "
     }
@@ -3623,7 +3623,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:277",
+     "where": "FORMATS.md:278",
      "date": "2026-10-30",
      "snippet": "* V: room sprite records (`RoomSpriteData $01B932`, offset word at `$01B090 + 2 * room`, minus 1): 8 bytes; `Dialogue(+3A) = data[4..5] & $F"
     }
@@ -3646,7 +3646,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:639",
+     "where": "HANDOFF.md:692",
      "date": "2026-10-30",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -3678,7 +3678,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:639",
+     "where": "HANDOFF.md:692",
      "date": "2026-10-30",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -3779,7 +3779,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:478",
+     "where": "HANDOFF.md:519",
      "date": "2026-10-30",
      "snippet": "- **Deck round 10 (2026-10-11, user played full height in Gumi, save slot 1):** R4 works but moved to R2 (right trigger, the last free shoul"
     }
@@ -3895,13 +3895,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:466",
+     "where": "HANDOFF.md:507",
      "date": "2026-10-30",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:258",
+     "where": "INDEX.md:278",
      "date": "2026-10-30",
      "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
     },
@@ -3925,19 +3925,19 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:229",
+     "where": "FORMATS.md:230",
      "date": "2026-10-30",
      "snippet": "* Room 113 (`GOLA_ARENA_CINEMATIC_VARIANT`) is the arena of the final cutscene; the last cutscene action (CSA_0154, tail at `$0156F8`) runs "
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:428",
+     "where": "HANDOFF.md:469",
      "date": "2026-10-30",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:219",
+     "where": "INDEX.md:239",
      "date": "2026-10-30",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     }
@@ -3981,7 +3981,7 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:145",
+     "where": "FORMATS.md:146",
      "date": "2026-10-30",
      "snippet": "* R: VRAM tile slots of sprites are DYNAMIC. Every game pass `LoadSprites $00401C` -> `InitSpriteLoad $004214` restarts the allocator at til"
     }
@@ -4042,13 +4042,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:207",
+     "where": "FORMATS.md:208",
      "date": "2026-10-30",
      "snippet": "- V (2026-10-20, own renderer HUD / text): the WHOLE window plane nametable (VRAM `$F000`, 64 words per row, 28 rows) is mirrored in RAM fro"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:155",
+     "where": "INDEX.md:175",
      "date": "2026-10-30",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'nehmen wir uns HUD vor, dann Dialoge'): HUD LOGIC OF THE OWN RENDERER (`tools/patch_own.py lk_o_hudb"
     }
@@ -4223,7 +4223,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:638",
+     "where": "HANDOFF.md:691",
      "date": "2026-10-30",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -4265,7 +4265,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:638",
+     "where": "HANDOFF.md:691",
      "date": "2026-10-30",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -4544,7 +4544,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:313",
+     "where": "INDEX.md:334",
      "date": "2026-10-30",
      "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
     }
@@ -4582,7 +4582,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:313",
+     "where": "INDEX.md:334",
      "date": "2026-10-30",
      "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
     }
@@ -4792,7 +4792,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:466",
+     "where": "HANDOFF.md:507",
      "date": "2026-10-30",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -4844,7 +4844,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:139",
+     "where": "HANDOFF.md:179",
      "date": "2026-10-30",
      "snippet": "## 0a120. 2026-10-26 (Deck, Sonnet 5.5, on `dev`): MULTI-ROM / LANGUAGES PLAN (user: 'step 1 Unterstuetzung Europa-ROM und Sprachversionen f"
     }
@@ -4907,7 +4907,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:466",
+     "where": "HANDOFF.md:507",
      "date": "2026-10-30",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -4959,7 +4959,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:275",
+     "where": "FORMATS.md:276",
      "date": "2026-10-30",
      "snippet": "* V: entity `+2B` BehavCmd (low byte of the word at `+2A`), `+2A` BehavParam; `OnTick $0178FE` dispatches `jmp loc_17918(pc, cmd * 4)` = 4 b"
     }
@@ -4982,7 +4982,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:139",
+     "where": "HANDOFF.md:179",
      "date": "2026-10-30",
      "snippet": "## 0a120. 2026-10-26 (Deck, Sonnet 5.5, on `dev`): MULTI-ROM / LANGUAGES PLAN (user: 'step 1 Unterstuetzung Europa-ROM und Sprachversionen f"
     }
@@ -4999,7 +4999,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:139",
+     "where": "HANDOFF.md:179",
      "date": "2026-10-30",
      "snippet": "## 0a120. 2026-10-26 (Deck, Sonnet 5.5, on `dev`): MULTI-ROM / LANGUAGES PLAN (user: 'step 1 Unterstuetzung Europa-ROM und Sprachversionen f"
     }
@@ -5016,7 +5016,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:139",
+     "where": "HANDOFF.md:179",
      "date": "2026-10-30",
      "snippet": "## 0a120. 2026-10-26 (Deck, Sonnet 5.5, on `dev`): MULTI-ROM / LANGUAGES PLAN (user: 'step 1 Unterstuetzung Europa-ROM und Sprachversionen f"
     }
@@ -5039,7 +5039,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:139",
+     "where": "HANDOFF.md:179",
      "date": "2026-10-30",
      "snippet": "## 0a120. 2026-10-26 (Deck, Sonnet 5.5, on `dev`): MULTI-ROM / LANGUAGES PLAN (user: 'step 1 Unterstuetzung Europa-ROM und Sprachversionen f"
     }
@@ -5128,7 +5128,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:139",
+     "where": "HANDOFF.md:179",
      "date": "2026-10-30",
      "snippet": "## 0a120. 2026-10-26 (Deck, Sonnet 5.5, on `dev`): MULTI-ROM / LANGUAGES PLAN (user: 'step 1 Unterstuetzung Europa-ROM und Sprachversionen f"
     }
@@ -5288,7 +5288,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:639",
+     "where": "HANDOFF.md:692",
      "date": "2026-10-30",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     }
@@ -5368,7 +5368,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:241",
+     "where": "FORMATS.md:242",
      "date": "2026-10-30",
      "snippet": "* VDP register shadow `$FF0FB0 + 2 n` (word `$80xx`, the value is the LOW byte at `$FF0FB1 + 2 n`): reg 1 display (`$40`), 5 sprite table, 7"
     }
@@ -5408,13 +5408,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:198",
+     "where": "FORMATS.md:199",
      "date": "2026-10-30",
      "snippet": "* V (2026-10-18, lit state): `SetRoomPal $002D64` (called only from `LoadRoomParams`, i.e. at every room LOAD, so the Start menu close that "
     },
     {
      "type": "doc",
-     "where": "INDEX.md:162",
+     "where": "INDEX.md:182",
      "date": "2026-10-30",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user: 'Raum 389 (aktueller Quicksave), dunkler Raum: die Laterne ist im Inventar, benutzt bleibt der Raum i"
     }
@@ -5534,7 +5534,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:131",
+     "where": "FORMATS.md:132",
      "date": "2026-10-30",
      "snippet": "- Sprites: SAT entries 1 and 2 in RAM (`$FF0558` up, `$FF0560` down): Y word (0 = hidden, `$98` up / `$120` down), size byte 5 (2 x 2 tiles)"
     }
@@ -5714,13 +5714,30 @@
    "class_by": "hand"
   },
   {
+   "addr": "0xFF5427",
+   "first_seen": "2026-10-30",
+   "hits": 0,
+   "sightings": [
+    {
+     "type": "doc",
+     "where": "SPRINT_IDEAS.md:40",
+     "date": "2026-10-30",
+     "snippet": "- **(2026-10-30 late) SPRINT STEP 2 = ANIMATION BUILT (user: 'Sprint-Animation fertig machen und an den Sprint haengen').** `tools/patch_spr"
+    }
+   ],
+   "callers": [],
+   "notes": [],
+   "mentions": 1,
+   "class": "ram"
+  },
+  {
    "addr": "0xFF5C03",
    "first_seen": "2026-10-23",
    "hits": 0,
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:256",
+     "where": "FORMATS.md:257",
      "date": "2026-10-30",
      "snippet": "- V Per frame (room number new at frame 1212, display on 1267): 1212..1221 tileset LZ77 into the buffer from `$FF7C1E` (~3.4 KB per frame), "
     }
@@ -5741,7 +5758,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:256",
+     "where": "FORMATS.md:257",
      "date": "2026-10-30",
      "snippet": "- V Per frame (room number new at frame 1212, display on 1267): 1212..1221 tileset LZ77 into the buffer from `$FF7C1E` (~3.4 KB per frame), "
     }
@@ -5762,7 +5779,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "FORMATS.md:256",
+     "where": "FORMATS.md:257",
      "date": "2026-10-30",
      "snippet": "- V Per frame (room number new at frame 1212, display on 1267): 1212..1221 tileset LZ77 into the buffer from `$FF7C1E` (~3.4 KB per frame), "
     }
@@ -5789,7 +5806,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:315",
+     "where": "INDEX.md:336",
      "date": "2026-10-30",
      "snippet": "| NPCs ignore obstacles; reads of high RAM ($FF8000+) via `($XXXX).w` return ROM bytes; CMPM/BCD/ASL/ROX/MOVEM wrong | generator treated abs"
     }
@@ -5815,7 +5832,7 @@
     },
     {
      "type": "doc",
-     "where": "FORMATS.md:141",
+     "where": "FORMATS.md:142",
      "date": "2026-10-30",
      "snippet": "- V: the block map is 74 x 74 words (`$FF7C02`, stride 148, background layer at `+$2AC8`); block addresses outside `$FF7C02..$FFA6C9` read t"
     },
@@ -5905,7 +5922,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:311",
+     "where": "INDEX.md:332",
      "date": "2026-10-30",
      "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
     }
@@ -5925,7 +5942,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:112",
+     "where": "INDEX.md:132",
      "date": "2026-10-30",
      "snippet": "- **2026-10-23 (dev, Opus 5.5, user: 'ja' = SEAMLESS STEP 2: TIME-FREE ROOM LOAD; `tools/patch_own.py` (LK_SEAMWALK v3, LK_NCGUARD v1 in bus"
     }
