@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-10-31 late (dev, Opus 5.5): OWN SOUND MIXER (`tools/lksnd_mix.c`, `tools/patch_mix.py`, `LK_MIX v1`, SOUND_PLAN section 10), default on, `LANDSTALKER_MIX=gpgx` = old glue:** timebench A/B in one binary IDENTICAL on all 74 runs (RAM, WAV, trace). Nothing to hear for the player. Next on the way off the emulator: Z80 boot stub, VDP data path, system start.
 - **2026-10-31 late (dev, Opus 5.5): LK_ROOMMAP v12:** 'L1' / 'R1' left / right of the floor display (dark when that way ends; user: floor change with the shoulder buttons was not clear). Headless mapshot only.
 - **2026-10-31 late (dev, Opus 5.5): ROOM MAP v12 / roommap v17 / LK_ROOMMAP v11:** river / raft passages (height map byte 0 bit 4) drawn blue instead of as a gold door (user: KN cave 165 has 2 doors top right, the map showed 3). Headless mapshot only.
 - **2026-10-31 late (dev, Opus 5.5): ROOM MAP v11 / roommap v16:** door sides from the door cells' floor type (01..04 = NE / SE / SW / NW) instead of the nearest room edge (user recording rec_20261031_1743, KN cave 166 -> 170 drawn to the NW); 206 of 663 door ends had been on the wrong wall. 483 of 533 pairs connected. Headless mapshot only; user check open.
