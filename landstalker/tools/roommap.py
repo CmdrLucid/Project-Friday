@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""roommap.py ROM OUTDIR [--png AREA_ROOM OUT.png] [--force]   -- data for the in-game room map (2026-10-31, user wish 'eigene Raumkarte', MODERN_IDEAS (B), docs/MAP.md).
+"""roommap.py ROM OUTDIR [--thumbs] [--force]   -- data for the in-game room map (2026-10-31, user wish 'eigene Raumkarte', MODERN_IDEAS (B), docs/MAP.md).
 Built on the player's machine from his own ROM by build.sh (nothing of it goes into git).  Writes OUTDIR/layout.txt and OUTDIR/thumbs.bin:
  * areas: rooms grouped by region (name prefix from docs/ROOMS.md, unnamed rooms inherit their neighbours' region) and connected by the room connections
    (tools/roomgraph.py, `$11CEA2`); one area = one map.  The rooms do NOT fit together geometrically (measured: placing them by the door cells overlaps them), so the
@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import roomgraph, romroom
 
-VERSION = "roommap v5"   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
+VERSION = "roommap v7"   # v7: floors from a walk over the stairs first; v6: most-linked room next, spot with the smallest total door distance (user: a door into nothing)   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
 TW = 112                     # thumbnail width (pixels): the map cells are drawn at most ~1.3 x this at 1280 x 800
 MULTI = ["KN_LABYRINTH", "KN_CAVE", "KN_PALACE", "LAKE_SHRINE", "SWAMP_SHRINE", "WATERFALL_SHRINE", "THIEVES_HIDEOUT", "DESTEL_WELL", "MIR_TOWER", "VERLA_MINES",
          "HELGAS_HUT", "MERCATOR_CASTLE", "MERCATOR_DUNGEON", "RYUMA_LIGHTHOUSE", "GREENMAZE", "ROUTE_GUMI_RYUMA", "ROUTE_AFTER_DESTEL", "MASSAN_CAVE"]
@@ -111,32 +111,56 @@ def build(rom):
         nb[a].append((b, d, up, pa, pb)); nb[b].append((a, OPP[d], -up, pb, pa)); edges.append((a, b, up, pa, pb))
     pos = {}
     for ai, (reg, comp) in enumerate(areas):
-        start = comp[0]; p0 = {start: (0, 0, 0)}; q = deque([start])
+        # v6 (user: 'a door leads into nothing'): loops of the dungeon left 151 of 512 door pairs apart.  Now the next room is always the unplaced one with the most
+        # placed neighbours, and among all free spots (around the spot each placed neighbour asks for) the one with the smallest total distance to ALL placed
+        # neighbours' doors wins.
+        start = comp[0]; p0 = {start: (0, 0, 0)}
+        lev = {start: 0}; q = deque([start])   # floors first, by a plain walk over the stairs (the placement order below would let loops pick a wrong floor)
+        while q:
+            r = q.popleft()
+            for (m, d, up, pr, pm) in nb[r]:
+                if m not in lev: lev[m] = lev[r] + up; q.append(m)
         def free(r, gx, gy, l):
             W, H = box[r][4], box[r][5]
             for o, (ox, oy, ol) in p0.items():
                 if ol == l and o != r and gx < ox + box[o][4] and ox < gx + W and gy < oy + box[o][5] and oy < gy + H: return False
             return True
-        while q:
-            r = q.popleft(); x, y, l = p0[r]
-            for o, d, up, pr, po in sorted(nb[r], key=lambda t: (t[0], t[1], t[2])):
+        def want(r, o, d, up, pr, po):   # the spot of o that makes its door meet r's door, plus the outward / along directions
+            x, y, l = p0[r]; W, H = box[o][4], box[o][5]
+            bx, by = x + pr[0] - po[0], y + pr[1] - po[1]
+            if up: return int(round(bx)), int(round(by)), l + up, (0, 0), (0, 0)
+            if d == 'NW': return x - W, int(round(by)), l, DIRS['NW'], (0, 1)
+            if d == 'SE': return x + box[r][4], int(round(by)), l, DIRS['SE'], (0, 1)
+            if d == 'NE': return int(round(bx)), y - H, l, DIRS['NE'], (1, 0)
+            return int(round(bx)), y + box[r][5], l, DIRS['SW'], (1, 0)
+        while True:
+            best_o, best_n = None, 0
+            for o in comp:
                 if o in p0: continue
-                W, H = box[o][4], box[o][5]
-                bx, by = x + pr[0] - po[0], y + pr[1] - po[1]          # door points meet
-                if up: cand = [(0, 0)]
-                elif d == 'NW': bx = x - W; cand = [(0, 1)]
-                elif d == 'SE': bx = x + box[r][4]; cand = [(0, 1)]
-                elif d == 'NE': by = y - H; cand = [(1, 0)]
-                else: by = y + box[r][5]; cand = [(1, 0)]
-                gx0, gy0 = int(round(bx)), int(round(by)); out = DIRS.get(d, (1, 1)); along = cand[0]
-                spot = None
-                for k in range(0, 12):
-                    for sl in (0, 1, -1, 2, -2, 3, -3, 4, -4):
-                        gx = gx0 + out[0] * k + along[0] * sl; gy = gy0 + out[1] * k + along[1] * sl
-                        if up or free(o, gx, gy, l + up): spot = (gx, gy); break
-                    if spot: break
-                if not spot: spot = (gx0 + out[0] * 12, gy0 + out[1] * 12)
-                p0[o] = (spot[0], spot[1], l + up); q.append(o)
+                n = sum(1 for (m, d, up, pm, po) in nb[o] if m in p0)
+                if n > best_n: best_o, best_n = o, n
+            if best_o is None: break
+            o = best_o; links = [(m, OPP[d], -up, pm, po) for (m, d, up, po, pm) in nb[o] if m in p0]   # seen from the placed room m: (m, side of m, stairs m -> o, m's door, o's door)
+            cands = set(); fl = lev.get(o, 0)
+            for (m, d, up, pm, po) in links:
+                gx0, gy0, l, out, along = want(m, o, d, up, pm, po)
+                l = fl
+                if up or p0[m][2] != fl: cands.add((gx0, gy0, l, 0)); continue
+                for k in range(0, 8):
+                    for sl in range(-5, 6): cands.add((gx0 + out[0] * k + along[0] * sl, gy0 + out[1] * k + along[1] * sl, l, k + abs(sl)))
+            best = None
+            for (gx, gy, l, pen) in cands:
+                if l != fl or not free(o, gx, gy, l): continue
+                cost = 0.05 * pen
+                for (m, d, up, pm, po) in links:
+                    if up: continue
+                    mx, my, ml = p0[m]
+                    if up: continue
+                    cost += abs(mx + pm[0] - gx - po[0]) + abs(my + pm[1] - gy - po[1]) if ml == l else 0
+                if best is None or cost < best[0]: best = (cost, gx, gy, l)
+            if best is None:
+                m, d, up, pm, po = links[0]; gx0, gy0, l, out, along = want(m, o, d, up, pm, po); best = (0, gx0 + out[0] * 9, gy0 + out[1] * 9, l)
+            p0[o] = (best[1], best[2], best[3])
         lmin = min(p[2] for p in p0.values())
         for r, (x, y, l) in p0.items(): pos[r] = (ai, l - lmin, x, y)
     variants = [(v['variant'], v['room']) for v in g['variants']]
@@ -192,6 +216,10 @@ def main():
     lines, rooms, areas, pos = build(rom)
     open(os.path.join(outd, "layout.txt"), "w").write("\n".join(lines) + "\n")
     print("roommap: %d areas, %d rooms" % (len(areas), len(rooms)), flush=True)
+    if "--thumbs" not in a:   # v7: the map is schematic (user: the room pictures looked pixelated), no pictures needed; --thumbs still makes them
+        tb = os.path.join(outd, "thumbs.bin")
+        if os.path.exists(tb): os.remove(tb)
+        open(stamp, "w").write(key + "\n"); print("roommap: layout written (no room pictures)"); return
     import inspect
     tkey = hashlib.sha256(rom).hexdigest()[:16] + " TW %d " % TW + hashlib.sha256(inspect.getsource(thumb).encode()).hexdigest()[:12] + " %d" % len(rooms)
     tstamp = os.path.join(outd, "thumbs_stamp.txt")

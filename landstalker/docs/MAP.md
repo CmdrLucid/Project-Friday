@@ -1,6 +1,6 @@
 # Room map (MODERN_IDEAS (B), started 2026-10-31)
 
-User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (end of 2026-10-31): v4 / roommap v5 built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
+User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (end of 2026-10-31): v5 / roommap v7 (schematic slabs, numbered door pairs) built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
 
 ## How it works
 - **Data (build time, from the player's ROM, never in git):** `tools/roommap.py ROM build/roommap` (step of build.sh, also run by firstrun.py; ~2 min on all cores the first time,
@@ -42,6 +42,13 @@ User wishes: own room map (not the island map), location only (no 'where to go n
   points meet; stairs put the upper room over the door on the next floor; taken places: slide along the side, then push outwards. layout.txt R lines + 'W H', E lines + both
   door points (local units x 10). Drawn: framed boxes with the room picture clipped inside, a gold door mark at every door, a connector only between doors that really meet
   (<= 0.8 units apart; dungeon loops do not fit the grid), stair triangles at their doors, Nigel inside the box.
+
+## v5 / roommap v7 (2026-10-31, user: 'a door leads south-west into nothing'; 'the pictures look pixelated, schematic would be better')
+- Doors that did not meet: 151 of 512 pairs (loops). Placement v6/v7: floors first (walk over the stairs), then always the unplaced room with the most placed
+  neighbours, at the free spot with the smallest total distance to ALL placed neighbours' doors: 143 of 516 left (Greenmaze 34, KN cave 26, Mir tower 18; Swamp Shrine 8).
+- Drawing: doors that meet = gold connector; doors that do not meet = the same small NUMBER at both doors (classic dungeon map trick, no line across rooms);
+  doors / stairs to rooms not visited yet are not drawn (no door into nothing). Rooms = schematic raised slabs (slate top, light back edges, dark side; current room gold);
+  no room pictures any more (roommap.py makes them only with --thumbs; build ~2 min faster). Count tool: /tmp/rm/unmet.py (pairs not meeting per area).
 
 ## Open / ideas
 - User look at it on the Deck (style, size, button). Town interiors are in the town's grid (no 'inside' grouping yet). Mercator outdoors shows as floor 2 / 3 (houses with cellars).
