@@ -94,6 +94,9 @@ User wishes: own room map (not the island map), location only (no 'where to go n
   connection records for the raft ride, not doors. roommap writes 'W k' lines (E line k is a river passage; 3 in the whole game: 163-165, 165-167, 498-169), the runtime
   draws their corridor / badges blue (0xFF58A8F0) instead of gold. Mapshot rec_20261031_1743 frame 2700: 2 gold exits NE + 1 blue.
 
+## LK_ROOMMAP v12 (2026-10-31, user: 'not clear in the UI that the shoulder buttons change the floor')
+- Top right in areas with several floors: 'L1  FLOOR n / m  R1'; a button is dark when that way ends (lowest / highest floor). Mapshot Swamp Shrine room 5 (rec_20261024_1818 frame 11645).
+
 ## Open / ideas
 - User look at it on the Deck (style, size, button). Town interiors are in the town's grid (no 'inside' grouping yet). Mercator outdoors shows as floor 2 / 3 (houses with cellars).
 - Area names are the library identifiers (MERCATOR, SWAMP SHRINE); own display names / German later if wanted.
