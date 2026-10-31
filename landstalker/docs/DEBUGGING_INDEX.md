@@ -190,3 +190,4 @@
 - L1487: Room map step 1 (2026-10-31 evening; Opus 5.5)
 - L1491: Issue #12: AppImage on Ubuntu 26.10, 'externally-managed-environment' (2026-10-31; Opus 5.5)
 - L1502: Room map v4 / roommap v5 (2026-10-31 end of session; Opus 5.5)
+- L1507: Room map v5 -> v10 (2026-10-31, rest of the session; Opus 5.5)

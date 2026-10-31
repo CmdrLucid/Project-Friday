@@ -60,7 +60,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:434",
+     "where": "INDEX.md:439",
      "date": "2026-10-31",
      "snippet": "- RAM: Player struct `$FF5400` (X +0, Y +1, Z word +$12, FallRate +$20, JumpRate +$21, GroundHeight +$22, Action word +$2C; bits 0-3 walk, 4"
     }
@@ -331,7 +331,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:208",
+     "where": "INDEX.md:213",
      "date": "2026-10-31",
      "snippet": "- **2026-10-17 (dev, night): block word flag bits looked at (user: 'schau dir noch die offenen flag-bits an').** Result (FORMATS 'Block word"
     }
@@ -429,7 +429,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:178",
+     "where": "INDEX.md:183",
      "date": "2026-10-31",
      "snippet": "- **2026-10-21 (dev, Sonnet 5.5, user: 'im Item Use Men\u00fc nach unten scrollen: Grafikm\u00fcll statt der richtigen Grafiken, im eigenen Renderer, "
     }
@@ -473,7 +473,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:180",
+     "where": "INDEX.md:185",
      "date": "2026-10-31",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user recording `rec_20261020_1841` (new game, intro, statue, owner dialogue; WIDE 16 + TALL; replays EXACTL"
     }
@@ -511,7 +511,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:178",
+     "where": "INDEX.md:183",
      "date": "2026-10-31",
      "snippet": "- **2026-10-21 (dev, Sonnet 5.5, user: 'im Item Use Men\u00fc nach unten scrollen: Grafikm\u00fcll statt der richtigen Grafiken, im eigenen Renderer, "
     }
@@ -563,13 +563,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:99",
+     "where": "HANDOFF.md:105",
      "date": "2026-10-31",
      "snippet": "## 0a166. 2026-10-29 night (Deck, Sonnet 5.5, on `dev`): FRIDAY'S WAKE-UP FLASH is back in the own renderer. User report: after the waterfal"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:328",
+     "where": "INDEX.md:333",
      "date": "2026-10-31",
      "snippet": "| Friday's wake-up flash (blinking white screen after the waterfall, room 593) missing with the own renderer | `UpdateFridayAnimation_Flash "
     }
@@ -649,7 +649,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:160",
+     "where": "INDEX.md:165",
      "date": "2026-10-31",
      "snippet": "- **2026-10-23 (dev, Sonnet 5.5, user: 'figuren-urspr\u00fcnge, HD an den breitbild-r\u00e4ndern - das machen'): (1) FIGURE TILE ORIGINS 62 % -> 95 % "
     }
@@ -675,7 +675,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:62",
+     "where": "INDEX.md:67",
      "date": "2026-10-31",
      "snippet": "- **2026-10-28 (dev, Sonnet 5.5, user recording `rec_20261028_2054` (intro, rooms 139 / 140; replays up to frame ~1900, then drifts by one p"
     }
@@ -908,7 +908,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:285",
+     "where": "INDEX.md:290",
      "date": "2026-10-31",
      "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
     }
@@ -1128,7 +1128,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:69",
+     "where": "INDEX.md:74",
      "date": "2026-10-31",
      "snippet": "- **2026-10-28 (dev, Opus 5.5, user: 'ja' to the switch): NATIVE SOUND, OPT-IN (`LANDSTALKER_SND=native`; `tools/sndnative.c` `lk_nat_native"
     }
@@ -1162,13 +1162,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:67",
+     "where": "INDEX.md:72",
      "date": "2026-10-31",
      "snippet": "- **2026-10-28 (dev, Sonnet 5.5, user: 'eigene Uhr bauen' = GitHub issue #11 PART 2: MUSIC AT NORMAL SPEED WHILE FAST FORWARDING; `tools/pat"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:70",
+     "where": "INDEX.md:75",
      "date": "2026-10-31",
      "snippet": "- **2026-10-28 (dev, Opus 5.5, user: 'sound' = SOUND STEP S0: GOLDEN TRACE + PLAN; `tools/patch_sndtrace.py` (build.sh after patch_sndsep.py"
     },
@@ -1191,13 +1191,13 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:67",
+     "where": "INDEX.md:72",
      "date": "2026-10-31",
      "snippet": "- **2026-10-28 (dev, Sonnet 5.5, user: 'eigene Uhr bauen' = GitHub issue #11 PART 2: MUSIC AT NORMAL SPEED WHILE FAST FORWARDING; `tools/pat"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:70",
+     "where": "INDEX.md:75",
      "date": "2026-10-31",
      "snippet": "- **2026-10-28 (dev, Opus 5.5, user: 'sound' = SOUND STEP S0: GOLDEN TRACE + PLAN; `tools/patch_sndtrace.py` (build.sh after patch_sndsep.py"
     },
@@ -1220,25 +1220,25 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:67",
+     "where": "INDEX.md:72",
      "date": "2026-10-31",
      "snippet": "- **2026-10-28 (dev, Sonnet 5.5, user: 'eigene Uhr bauen' = GitHub issue #11 PART 2: MUSIC AT NORMAL SPEED WHILE FAST FORWARDING; `tools/pat"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:67",
+     "where": "INDEX.md:72",
      "date": "2026-10-31",
      "snippet": "- **2026-10-28 (dev, Sonnet 5.5, user: 'eigene Uhr bauen' = GitHub issue #11 PART 2: MUSIC AT NORMAL SPEED WHILE FAST FORWARDING; `tools/pat"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:70",
+     "where": "INDEX.md:75",
      "date": "2026-10-31",
      "snippet": "- **2026-10-28 (dev, Opus 5.5, user: 'sound' = SOUND STEP S0: GOLDEN TRACE + PLAN; `tools/patch_sndtrace.py` (build.sh after patch_sndsep.py"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:77",
+     "where": "INDEX.md:82",
      "date": "2026-10-31",
      "snippet": "- **2026-10-27 (dev, Opus 5.5; GitHub issue #11 by the user 'Fast forward toggle + music', part 1 'erstmal das Umschalten'): FAST FORWARD KE"
     },
@@ -1285,7 +1285,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:142",
+     "where": "INDEX.md:147",
      "date": "2026-10-31",
      "snippet": "- **2026-10-23 (dev, Opus 5.5, user: 'ja A' = WALK ON through seamless doors; recording `rec_20261023_2012` (church -> 592 <-> 424, 'Nigel s"
     }
@@ -1539,7 +1539,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:339",
+     "where": "INDEX.md:344",
      "date": "2026-10-31",
      "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
     }
@@ -1922,13 +1922,13 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:181",
+     "where": "INDEX.md:186",
      "date": "2026-10-31",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:182",
+     "where": "INDEX.md:187",
      "date": "2026-10-31",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'nehmen wir uns HUD vor, dann Dialoge'): HUD LOGIC OF THE OWN RENDERER (`tools/patch_own.py lk_o_hudb"
     },
@@ -2301,7 +2301,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:160",
+     "where": "INDEX.md:165",
      "date": "2026-10-31",
      "snippet": "- **2026-10-23 (dev, Sonnet 5.5, user: 'figuren-urspr\u00fcnge, HD an den breitbild-r\u00e4ndern - das machen'): (1) FIGURE TILE ORIGINS 62 % -> 95 % "
     },
@@ -2333,13 +2333,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:457",
+     "where": "HANDOFF.md:463",
      "date": "2026-10-31",
      "snippet": "- **2026-10-16 (dev, user feedback): Keybindings page shows more rows and the SAME scroll arrows as the item list.** Start menu: 7 visible r"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:230",
+     "where": "INDEX.md:235",
      "date": "2026-10-31",
      "snippet": "- **2026-10-16 (dev, user feedback): Keybindings page shows more rows and the SAME scroll arrows as the item list.** Start menu: 7 visible r"
     }
@@ -2365,7 +2365,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:170",
+     "where": "INDEX.md:175",
      "date": "2026-10-31",
      "snippet": "- **2026-10-22 (dev, Sonnet 5.5, user: 'hol bitte den rest zum eigenen renderer', swords are all fine): NOLE / KAZALT WARP, FLASHES AND THE "
     }
@@ -2667,13 +2667,13 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:181",
+     "where": "INDEX.md:186",
      "date": "2026-10-31",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:181",
+     "where": "INDEX.md:186",
      "date": "2026-10-31",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'weiter mit den Dialogen'): DIALOGUE TEXT TILES OF THE OWN RENDERER (`tools/patch_owntext.py`, `LK_OW"
     }
@@ -2783,7 +2783,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:178",
+     "where": "INDEX.md:183",
      "date": "2026-10-31",
      "snippet": "- **2026-10-21 (dev, Sonnet 5.5, user: 'im Item Use Men\u00fc nach unten scrollen: Grafikm\u00fcll statt der richtigen Grafiken, im eigenen Renderer, "
     }
@@ -2889,7 +2889,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:521",
+     "where": "HANDOFF.md:527",
      "date": "2026-10-31",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -3052,7 +3052,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:192",
+     "where": "INDEX.md:197",
      "date": "2026-10-31",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
     }
@@ -3084,7 +3084,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:192",
+     "where": "INDEX.md:197",
      "date": "2026-10-31",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
     }
@@ -3116,7 +3116,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:173",
+     "where": "INDEX.md:178",
      "date": "2026-10-31",
      "snippet": "- **2026-10-22 (dev, Sonnet 5.5, user recording `rec_20261022_0602` = `docs/replays/all_swords_room166.txt` (room 166, every sword used: Gai"
     }
@@ -3148,7 +3148,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:192",
+     "where": "INDEX.md:197",
      "date": "2026-10-31",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user recording `rec_20261018_1834` (WIDE 48 + TALL, rooms 425 / 427, replays EXACTLY with `LANDSTALKER_QUIC"
     }
@@ -3180,7 +3180,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:173",
+     "where": "INDEX.md:178",
      "date": "2026-10-31",
      "snippet": "- **2026-10-22 (dev, Sonnet 5.5, user recording `rec_20261022_0602` = `docs/replays/all_swords_room166.txt` (room 166, every sword used: Gai"
     }
@@ -3200,7 +3200,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:521",
+     "where": "HANDOFF.md:527",
      "date": "2026-10-31",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -3238,7 +3238,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:193",
+     "where": "INDEX.md:198",
      "date": "2026-10-31",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, same recording `rec_20261018_1807`; user: 'Men\u00fc verlassen besser, aber nicht perfekt: 1. blaues breites Ban"
     }
@@ -3324,7 +3324,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:164",
+     "where": "INDEX.md:169",
      "date": "2026-10-31",
      "snippet": "- **2026-10-23 (dev, Sonnet 5.5, user: 'bei der neuesten Aufnahme fehlt der Auswahlpfeil bei Yes / No im Dialog' = `rec_20261022_2150`, Fahl"
     }
@@ -3371,7 +3371,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:180",
+     "where": "INDEX.md:185",
      "date": "2026-10-31",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user recording `rec_20261020_1841` (new game, intro, statue, owner dialogue; WIDE 16 + TALL; replays EXACTL"
     }
@@ -3646,7 +3646,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:712",
+     "where": "HANDOFF.md:719",
      "date": "2026-10-31",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -3678,7 +3678,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:712",
+     "where": "HANDOFF.md:719",
      "date": "2026-10-31",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     },
@@ -3779,7 +3779,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:533",
+     "where": "HANDOFF.md:539",
      "date": "2026-10-31",
      "snippet": "- **Deck round 10 (2026-10-11, user played full height in Gumi, save slot 1):** R4 works but moved to R2 (right trigger, the last free shoul"
     }
@@ -3895,13 +3895,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:521",
+     "where": "HANDOFF.md:527",
      "date": "2026-10-31",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:285",
+     "where": "INDEX.md:290",
      "date": "2026-10-31",
      "snippet": "4. Startup log lines `RTS to $00FFFC (expected $0016D2)` (ResetGame calls `$8D84`, which resets SP) and"
     },
@@ -3931,13 +3931,13 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:483",
+     "where": "HANDOFF.md:489",
      "date": "2026-10-31",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     },
     {
      "type": "doc",
-     "where": "INDEX.md:246",
+     "where": "INDEX.md:251",
      "date": "2026-10-31",
      "snippet": "- **2026-10-15 (dev, night): QUICK SAVE / QUICK LOAD anywhere built (`tools/patch_quicksave.py`).** Pad L2 or key F9 = quick save; pad L1 HE"
     }
@@ -4048,7 +4048,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:182",
+     "where": "INDEX.md:187",
      "date": "2026-10-31",
      "snippet": "- **2026-10-20 (dev, Sonnet 5.5, user: 'nehmen wir uns HUD vor, dann Dialoge'): HUD LOGIC OF THE OWN RENDERER (`tools/patch_own.py lk_o_hudb"
     }
@@ -4223,7 +4223,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:711",
+     "where": "HANDOFF.md:718",
      "date": "2026-10-31",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -4265,7 +4265,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:711",
+     "where": "HANDOFF.md:718",
      "date": "2026-10-31",
      "snippet": "5. **Bogus function start `$017CC0`** (a seed copied from the interpreter log) lay in the middle of `btst.b #6,$48(a5)` at `$017CBE`, so `$0"
     }
@@ -4544,7 +4544,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:341",
+     "where": "INDEX.md:346",
      "date": "2026-10-31",
      "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
     }
@@ -4582,7 +4582,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:341",
+     "where": "INDEX.md:346",
      "date": "2026-10-31",
      "snippet": "| Item pickup / text box crash, `RTS to $024B14 (expected $024B12)`, SP garbage | scripts call helpers that read inline data after the call "
     }
@@ -4792,7 +4792,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:521",
+     "where": "HANDOFF.md:527",
      "date": "2026-10-31",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -4844,7 +4844,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:191",
+     "where": "HANDOFF.md:197",
      "date": "2026-10-31",
      "snippet": "## 0a120. 2026-10-26 (Deck, Sonnet 5.5, on `dev`): MULTI-ROM / LANGUAGES PLAN (user: 'step 1 Unterstuetzung Europa-ROM und Sprachversionen f"
     }
@@ -4907,7 +4907,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:521",
+     "where": "HANDOFF.md:527",
      "date": "2026-10-31",
      "snippet": "- **Known open problems:** (sword-slash at the file select: FIXED 2026-10-11 night, user check open); startup `RTS to $00FFFC` line; \"functi"
     },
@@ -4982,7 +4982,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:191",
+     "where": "HANDOFF.md:197",
      "date": "2026-10-31",
      "snippet": "## 0a120. 2026-10-26 (Deck, Sonnet 5.5, on `dev`): MULTI-ROM / LANGUAGES PLAN (user: 'step 1 Unterstuetzung Europa-ROM und Sprachversionen f"
     }
@@ -4999,7 +4999,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:191",
+     "where": "HANDOFF.md:197",
      "date": "2026-10-31",
      "snippet": "## 0a120. 2026-10-26 (Deck, Sonnet 5.5, on `dev`): MULTI-ROM / LANGUAGES PLAN (user: 'step 1 Unterstuetzung Europa-ROM und Sprachversionen f"
     }
@@ -5016,7 +5016,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "HANDOFF.md:191",
+     "where": "HANDOFF.md:197",
      "date": "2026-10-31",
      "snippet": "## 0a120. 2026-10-26 (Deck, Sonnet 5.5, on `dev`): MULTI-ROM / LANGUAGES PLAN (user: 'step 1 Unterstuetzung Europa-ROM und Sprachversionen f"
     }
@@ -5039,7 +5039,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:191",
+     "where": "HANDOFF.md:197",
      "date": "2026-10-31",
      "snippet": "## 0a120. 2026-10-26 (Deck, Sonnet 5.5, on `dev`): MULTI-ROM / LANGUAGES PLAN (user: 'step 1 Unterstuetzung Europa-ROM und Sprachversionen f"
     }
@@ -5128,7 +5128,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:191",
+     "where": "HANDOFF.md:197",
      "date": "2026-10-31",
      "snippet": "## 0a120. 2026-10-26 (Deck, Sonnet 5.5, on `dev`): MULTI-ROM / LANGUAGES PLAN (user: 'step 1 Unterstuetzung Europa-ROM und Sprachversionen f"
     }
@@ -5288,7 +5288,7 @@
     },
     {
      "type": "doc",
-     "where": "HANDOFF.md:712",
+     "where": "HANDOFF.md:719",
      "date": "2026-10-31",
      "snippet": "6. Reference-comparison pitfalls (each cost hours): `genrecomp_ref` did not load the save (diverged at frame 160); dumps were taken at diffe"
     }
@@ -5414,7 +5414,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:189",
+     "where": "INDEX.md:194",
      "date": "2026-10-31",
      "snippet": "- **2026-10-18 (dev, Sonnet 5.5, user: 'Raum 389 (aktueller Quicksave), dunkler Raum: die Laterne ist im Inventar, benutzt bleibt der Raum i"
     }
@@ -5806,7 +5806,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:343",
+     "where": "INDEX.md:348",
      "date": "2026-10-31",
      "snippet": "| NPCs ignore obstacles; reads of high RAM ($FF8000+) via `($XXXX).w` return ROM bytes; CMPM/BCD/ASL/ROX/MOVEM wrong | generator treated abs"
     }
@@ -5922,7 +5922,7 @@
     },
     {
      "type": "doc",
-     "where": "INDEX.md:339",
+     "where": "INDEX.md:344",
      "date": "2026-10-31",
      "snippet": "| Nigel \"walks in the air\", scene 2->3 black, repeated warp, `RTS to $002324` | failed call (`$2458`) left its return address on the 68K sta"
     }
@@ -5942,7 +5942,7 @@
    "sightings": [
     {
      "type": "doc",
-     "where": "INDEX.md:139",
+     "where": "INDEX.md:144",
      "date": "2026-10-31",
      "snippet": "- **2026-10-23 (dev, Opus 5.5, user: 'ja' = SEAMLESS STEP 2: TIME-FREE ROOM LOAD; `tools/patch_own.py` (LK_SEAMWALK v3, LK_NCGUARD v1 in bus"
     }
