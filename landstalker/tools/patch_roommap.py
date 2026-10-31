@@ -14,16 +14,16 @@ LANDSTALKER_MAPSHOT_FLOOR=n shows floor n instead of the current one.
 Needs patch_keys.py (LK_BMAP), patch_display.py, patch_subpix.py (lk_ss_gen = own map frames) before it.  Idempotent.  usage: patch_roommap.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_ROOMMAP v7"   # v7 (2026-10-31): numbered badge on the door itself + legend   # v6 (2026-10-31): numbered door pairs as stub + round badge (roommap v8: boxes sized by door count)   # v5 (2026-10-31): schematic slabs instead of the room pictures, numbered door pairs where doors do not meet (user)   # v4 (2026-10-31): rooms drawn as boxes of their size, connectors at the doors (tools/roommap.py v5)   # v3: room picture clipped to its cell   # v2 (2026-10-31): pad read through the pad thread (v1 hung: controller events are off, LK_PADTHREAD); dungeons only
+VER = "LK_ROOMMAP v8"   # v8 (2026-10-31): straight corridors between facing doors (E line flag)   # v7 (2026-10-31): numbered badge on the door itself + legend   # v6 (2026-10-31): numbered door pairs as stub + round badge (roommap v8: boxes sized by door count)   # v5 (2026-10-31): schematic slabs instead of the room pictures, numbered door pairs where doors do not meet (user)   # v4 (2026-10-31): rooms drawn as boxes of their size, connectors at the doors (tools/roommap.py v5)   # v3: room picture clipped to its cell   # v2 (2026-10-31): pad read through the pad thread (v1 hung: controller events are off, LK_PADTHREAD); dungeons only
 
 p = os.path.join(root, "src/platform_sdl.c")
 s = open(p).read()
 if VER not in s:
-    module = r'''/* ---- LK_ROOMMAP v7: room map (tools/patch_roommap.py) ---- */
+    module = r'''/* ---- LK_ROOMMAP v8: room map (tools/patch_roommap.py) ---- */
 typedef struct { int room, area, floor, gx, gy, vbit, hl, ht, hw, hh, W, H, tw, th; const uint16_t *px; } lk_rm_t;
 static lk_rm_t *lk_rm_r; static int lk_rm_n, lk_rm_loaded, lk_rm_ok, lk_rm_nar;
 static short lk_rm_idx[1024], lk_rm_var[1024]; static int lk_rm_afl[256]; static char lk_rm_anm[256][28];
-static int (*lk_rm_e)[7]; static int lk_rm_ne; static uint8_t *lk_rm_blob;
+static int (*lk_rm_e)[8]; static int lk_rm_ne; static uint8_t *lk_rm_blob;
 static volatile int lk_rm_req; static const uint8_t *lk_rm_lastfb;
 static int lk_rm_open, lk_rm_area, lk_rm_floor, lk_rm_cur, lk_rm_nx, lk_rm_ny, lk_rm_blink; static long lk_rm_seen_gen = -1, lk_rm_gen_frame = -1000;
 static uint32_t *lk_rm_buf; static int lk_rm_bw, lk_rm_bh, lk_rm_dirty = 1; static SDL_Texture *lk_rm_tex; static int lk_rm_tw, lk_rm_th;
@@ -35,13 +35,13 @@ static void lk_rm_load(void) {
     { const char *e = getenv("LANDSTALKER_MAPDIR"); if (e && *e) snprintf(dir, sizeof dir, "%s", e); else { char *b = SDL_GetBasePath(); snprintf(dir, sizeof dir, "%sroommap", b ? b : "./"); if (b) SDL_free(b); } }
     snprintf(path, sizeof path, "%s/layout.txt", dir); f = fopen(path, "r");
     if (!f) { printf("roommap: no map data (%s): the Map button does nothing (tools/roommap.py)\n", path); return; }
-    int cap = 1024, ecap = 2048; lk_rm_r = (lk_rm_t *)calloc(cap, sizeof *lk_rm_r); lk_rm_e = (int (*)[7])calloc(ecap, sizeof *lk_rm_e);
+    int cap = 1024, ecap = 2048; lk_rm_r = (lk_rm_t *)calloc(cap, sizeof *lk_rm_r); lk_rm_e = (int (*)[8])calloc(ecap, sizeof *lk_rm_e);
     while (lk_rm_r && lk_rm_e && fgets(l, sizeof l, f)) {
         int a, b, c, d, e2, g, h, i2, j, k, W, H, q1, q2, q3, q4; char nm[64];
         if (l[0] == 'A' && sscanf(l + 2, "%d %d %63s", &a, &b, nm) == 3 && a >= 0 && a < 256) { lk_rm_afl[a] = b; snprintf(lk_rm_anm[a], sizeof lk_rm_anm[a], "%s", nm); if (a + 1 > lk_rm_nar) lk_rm_nar = a + 1; }
         else if (l[0] == 'R' && sscanf(l + 2, "%d %d %d %d %d %d %d %d %d %d %d %d", &a, &b, &c, &d, &e2, &g, &h, &i2, &j, &k, &W, &H) == 12 && a >= 0 && a < 1024 && lk_rm_n < cap) {
             lk_rm_t *r = &lk_rm_r[lk_rm_n]; r->room = a; r->area = b; r->floor = c; r->gx = d; r->gy = e2; r->vbit = g; r->hl = h; r->ht = i2; r->hw = j; r->hh = k; r->W = W; r->H = H; lk_rm_idx[a] = (short)lk_rm_n++; }
-        else if (l[0] == 'E' && sscanf(l + 2, "%d %d %d %d %d %d %d", &a, &b, &c, &q1, &q2, &q3, &q4) == 7 && lk_rm_ne < ecap) { int *e = lk_rm_e[lk_rm_ne++]; e[0] = a; e[1] = b; e[2] = c; e[3] = q1; e[4] = q2; e[5] = q3; e[6] = q4; }
+        else if (l[0] == 'E' && sscanf(l + 2, "%d %d %d %d %d %d %d %d", &a, &b, &c, &q1, &q2, &q3, &q4, &k) >= 7 && lk_rm_ne < ecap) { int *e = lk_rm_e[lk_rm_ne++]; e[0] = a; e[1] = b; e[2] = c; e[3] = q1; e[4] = q2; e[5] = q3; e[6] = q4; e[7] = sscanf(l + 2, "%*d %*d %*d %*d %*d %*d %*d %d", &k) == 1 ? k : 0; }
         else if (l[0] == 'V' && sscanf(l + 2, "%d %d", &a, &b) == 2 && a >= 0 && a < 1024) lk_rm_var[a] = (short)b;
     }
     fclose(f);
@@ -133,7 +133,7 @@ static void lk_rm_render(int W, int H, int cur, int floor, int blink) {
         }
         if (!sa || !sb) continue;
         int x0 = (int)LK_RM_PX(au, av), y0 = (int)LK_RM_PY(au, av), x1 = (int)LK_RM_PX(bu, bv), y1 = (int)LK_RM_PY(bu, bv);
-        if (fabs(au - bu) + fabs(av - bv) <= 0.6) {   /* doors that meet (or nearly: a short door piece, two badges on one spot were unreadable) */ int n = abs(x1 - x0) > abs(y1 - y0) ? abs(x1 - x0) : abs(y1 - y0); if (n < 1) n = 1; for (int k = 0; k <= n; k++) lk_rm_diamond(x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n, th + 1, 0xFFE8C068u); continue; }
+        if (lk_rm_e[e][7] || fabs(au - bu) + fabs(av - bv) <= 0.01) {   /* connected: doors meet or face each other on a free straight corridor (roommap v10) */    /* doors that meet (or nearly: a short door piece, two badges on one spot were unreadable) */ int n = abs(x1 - x0) > abs(y1 - y0) ? abs(x1 - x0) : abs(y1 - y0); if (n < 1) n = 1; for (int k = 0; k <= n; k++) lk_rm_diamond(x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n, th + 1, 0xFFE8C068u); continue; }
         { char t[8]; int ls = sc >= 3 ? 2 : 1, rad = 5 * ls + 2; snprintf(t, sizeof t, "%d", ++lab); nlab = lab;   /* doors that do not meet on the grid (loops): a round badge with the same number ON both doors (v7: no stub; legend at the bottom) */
           for (int end = 0; end < 2; end++) {   /* the badge sits a little inside its own room (two doors on one spot stay readable, and it shows whose door it is) */
               const lk_rm_t *rr = end ? rb : ra; double lu = lk_rm_e[e][end ? 5 : 3] / 10.0, lv = lk_rm_e[e][end ? 6 : 4] / 10.0, iu = 0, iv = 0;
@@ -213,19 +213,19 @@ static void lk_map_shot(long frame) {   /* test aid LANDSTALKER_MAPSHOT */
     s = s.replace(a, module + a, 1)
     a = "    lk_shot_frame(framebuffer, s_frame_no);\n"
     assert s.count(a) == 1
-    s = s.replace(a, a + "    lk_rm_lastfb = framebuffer; lk_rm_note_frame(); lk_map_shot(s_frame_no);   /* LK_ROOMMAP v7 */\n", 1)
+    s = s.replace(a, a + "    lk_rm_lastfb = framebuffer; lk_rm_note_frame(); lk_map_shot(s_frame_no);   /* LK_ROOMMAP v8 */\n", 1)
     a = "    lk_ssh_d = 0;   /* LK_SSHARP v1 */\n    lk_osd_draw(ow, oh);\n"
     assert s.count(a) == 1, "platform_sdl.c: run patch_subpix.py first"
-    s = s.replace(a, "    lk_ssh_d = 0;   /* LK_SSHARP v1 */\n    lk_map_draw(ow, oh);   /* LK_ROOMMAP v7 */\n    lk_osd_draw(ow, oh);\n", 1)
+    s = s.replace(a, "    lk_ssh_d = 0;   /* LK_SSHARP v1 */\n    lk_map_draw(ow, oh);   /* LK_ROOMMAP v8 */\n    lk_osd_draw(ow, oh);\n", 1)
     a = "static void lk_disp_present(const uint8_t *framebuffer) {\n"
     assert s.count(a) == 1
-    s = s.replace(a, "static void lk_map_draw(int ow, int oh);   /* LK_ROOMMAP v7 */\n" + a, 1)
+    s = s.replace(a, "static void lk_map_draw(int ow, int oh);   /* LK_ROOMMAP v8 */\n" + a, 1)
     a = "    while (SDL_PollEvent(&ev)) {\n        if (ev.type == SDL_QUIT) return false;\n"
     assert s.count(a) == 1
-    s = s.replace(a, "    if (lk_rm_req) { lk_rm_req = 0; if (!lk_map_modal()) return false; }   /* LK_ROOMMAP v7: the map button was pressed */\n" + a, 1)
+    s = s.replace(a, "    if (lk_rm_req) { lk_rm_req = 0; if (!lk_map_modal()) return false; }   /* LK_ROOMMAP v8: the map button was pressed */\n" + a, 1)
     a = "static bool s_headless = false;\n"
     assert s.count(a) == 1
-    s = s.replace(a, a + "static volatile int lk_rm_req;   /* LK_ROOMMAP v7 (defined with the map code below) */\n", 1)
+    s = s.replace(a, a + "static volatile int lk_rm_req;   /* LK_ROOMMAP v8 (defined with the map code below) */\n", 1)
     s = s.replace("static volatile int lk_rm_req; static const uint8_t *lk_rm_lastfb;", "static const uint8_t *lk_rm_lastfb;", 1)
     open(p, "w").write(s)
     print("platform_sdl.c patched:", VER)
@@ -235,7 +235,7 @@ s = open(p).read()
 if VER not in s:
     a = "uint16_t recomp_input_read_pad(int port) {\n"
     assert s.count(a) == 1 and "LK_KEYS v1" in s and "LK_PADTHREAD" in s, "input.c: run patch_keys.py / patch_padthread.py first"
-    s = s.replace(a, r'''/* LK_ROOMMAP v7: the room map's input while the game is paused in its loop: bit b = SDL controller button b on any pad (the pad thread's copy; the worker is kicked
+    s = s.replace(a, r'''/* LK_ROOMMAP v8: the room map's input while the game is paused in its loop: bit b = SDL controller button b on any pad (the pad thread's copy; the worker is kicked
    every call, it only runs after platform_poll_events otherwise), left stick up / down = D-pad, bit 31 = the Map binding's pad code (triggers too) */
 uint32_t lk_map_pad(void) {
     extern void lk_pad_kick(void); uint32_t m = 0;

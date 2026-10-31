@@ -261,4 +261,5 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 - **(2026-10-31) Height map cells from `romroom.arrays()['HM']` are 12 cells off the game's cells** (the game places the height map at (12, 12)); compare with connection records or `$FF5400` only after adding 12 (room map v1-v3 judged every exit side wrong).
 - **(2026-10-31) Never `pip install --user` on the player's machine** (PEP 668 distributions refuse it: issue #12, Ubuntu 26.10; SteamOS has the marker too): install into our own folder with `--target` and pass PYTHONPATH.
 - **(2026-10-31) Room map: one cell per room cannot show rooms with several doors on one side** (pushed neighbours = long bars across other rooms = 'connections that do not exist'); draw connectors only between doors that really meet, mark the other doors on the room's edge.
+- **(2026-10-31) Room map layout: judge a layout by FALSE contacts first** (a door lying on a room it does not lead to reads as a connection: user 'why does door 1 connect to door 2?'), then by missed doors; straight free corridors are a valid connection, crossings are not.
 

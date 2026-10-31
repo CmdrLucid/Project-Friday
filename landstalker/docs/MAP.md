@@ -1,6 +1,6 @@
 # Room map (MODERN_IDEAS (B), started 2026-10-31)
 
-User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (end of 2026-10-31): v7 / roommap v8 (slabs sized by door count, numbered badges) built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
+User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status (end of 2026-10-31): v8 / roommap v11 (slabs by door count, corridors, no false contacts / crossings, numbered badges for the rest) built on dev (NOT in release v1.5.0, which has v3 / roommap v4 as experimental, off by default); user check of v4 open.
 
 ## How it works
 - **Data (build time, from the player's ROM, never in git):** `tools/roommap.py ROM build/roommap` (step of build.sh, also run by firstrun.py; ~2 min on all cores the first time,
@@ -58,6 +58,14 @@ User wishes: own room map (not the island map), location only (no 'where to go n
 - Doors that do not meet: 136 of 520 (Greenmaze 25, KN cave 22, Mir tower 21; Swamp Shrine 3 on floor 1); 300 trials gave only 3 fewer. They get a round numbered badge a little
   inside their own room at both doors (two doors on one spot stay readable) + legend 'SAME NUMBER: CONNECTED DOORS' (font has no '='); doors <= 0.6 apart get a door piece.
 - Stairs = white triangle in the middle of the room, shown once the other end was visited. ~/Karte_Entwurf4.png = Swamp Shrine floor 1.
+
+## v8 / roommap v11 (2026-10-31, user: 'why does door 1 connect to door 2?')
+- Cause: a room placed against another one but shifted by a slot, so its door lay on a FOREIGN door / wall of the neighbour (150 such 'false contacts' over all areas).
+  v9: false contacts are forbidden first (key = false contacts, then missed doors, then distance): 0 left, but missed doors rose 136 -> 187.
+- v10: two doors that face each other on one straight line with no box in between count as CONNECTED (a corridor); new boxes must not cut existing corridors.
+  v11: corridors must not cross (an X looked like a junction). Result: 533 door pairs, 439 connected (touching or corridor), 94 numbered; Swamp Shrine floor 1: 3 numbered pairs.
+  E lines got a last field (1 = connected); the map draws a straight gold corridor for those, numbered badges for the rest. Layout time 52 s (60 trials, all areas).
+  Count tools: /tmp/rm/falsecnt.py (false contacts), awk on the E lines (connected / numbered). ~/Karte_Entwurf5.png.
 
 ## Open / ideas
 - User look at it on the Deck (style, size, button). Town interiors are in the town's grid (no 'inside' grouping yet). Mercator outdoors shows as floor 2 / 3 (houses with cellars).
