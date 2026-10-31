@@ -1493,3 +1493,8 @@ HANDOFF 0a177 point 2: the four 30.10 recordings (0310, 0318, 0319, 0536) do not
 - pip 25 `commands/install.py`: the PEP 668 check runs only when installing into the current environment; `--root`, `--target`, `--prefix` skip it. firstrun.py now installs with
   `--target <DATA>/pylib` (and `--upgrade`), checks `import capstone` with PYTHONPATH=<DATA>/pylib and passes that environment to every build step. Checked on the Deck (SteamOS has
   /usr/lib/python3.13/EXTERNALLY-MANAGED as well): `pip install --target /tmp/pyl capstone==5.0.6` worked, `PYTHONPATH=/tmp/pyl python3 -c 'import capstone'` -> 5.0.6.
+- The issue's own suggestions, checked on the Deck (2026-10-31): (1) venv: works on SteamOS (`python3 -m venv` + pip inside), but Debian / Ubuntu ship `ensurepip` only in the
+  separate python3-venv package ('ensurepip is not available'), so a venv needs an extra system package on exactly the reporter's distribution; (2) `--user --break-system-packages`:
+  installs (the import test was meaningless here: SteamOS already has capstone in /usr/lib/python3.13/site-packages), but writes into the player's ~/.local for every python
+  program (what PEP 668 protects) and pip < 23.0.1 (e.g. Ubuntu 22.04's 22.0.2) rejects the unknown flag = a second code path. Kept `--target` (no system package, no flag, any pip
+  that has --target, own folder that is removed with our data).
