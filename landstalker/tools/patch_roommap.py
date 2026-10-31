@@ -14,12 +14,12 @@ LANDSTALKER_MAPSHOT_FLOOR=n shows floor n instead of the current one.
 Needs patch_keys.py (LK_BMAP), patch_display.py, patch_subpix.py (lk_ss_gen = own map frames) before it.  Idempotent.  usage: patch_roommap.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_ROOMMAP v2"   # v2 (2026-10-31): pad read through the pad thread (v1 hung: controller events are off, LK_PADTHREAD); dungeons only
+VER = "LK_ROOMMAP v3"   # v3: room picture clipped to its cell   # v2 (2026-10-31): pad read through the pad thread (v1 hung: controller events are off, LK_PADTHREAD); dungeons only
 
 p = os.path.join(root, "src/platform_sdl.c")
 s = open(p).read()
 if VER not in s:
-    module = r'''/* ---- LK_ROOMMAP v2: room map (tools/patch_roommap.py) ---- */
+    module = r'''/* ---- LK_ROOMMAP v3: room map (tools/patch_roommap.py) ---- */
 typedef struct { int room, area, floor, gx, gy, vbit, hl, ht, hw, hh, tw, th; const uint16_t *px; } lk_rm_t;
 static lk_rm_t *lk_rm_r; static int lk_rm_n, lk_rm_loaded, lk_rm_ok, lk_rm_nar;
 static short lk_rm_idx[1024], lk_rm_var[1024]; static int lk_rm_afl[256]; static char lk_rm_anm[256][28];
@@ -117,12 +117,12 @@ static void lk_rm_render(int W, int H, int cur, int floor, int blink) {
         if (pass == 1 && i != cur) continue;
         int cx = LK_RM_CX(r), cy = LK_RM_CY(r), here = i == cur;
         if (pass == 0) { lk_rm_diamond(cx, cy, C * 9 / 10, here ? GOLD : 0xFF3C3858u); lk_rm_diamond(cx, cy, C * 9 / 10 - 3, 0xFF080814u); }
-        if (r->px && r->tw > 0) {   /* the room picture, nearest scaled to 1.5 x the cell */
-            int dw = C * 3 / 2, dh = r->th * dw / r->tw;
-            if (pass == 0) for (int y = 0; y < dh; y++) { const uint16_t *row = r->px + (size_t)(y * r->th / dh) * r->tw; for (int x = 0; x < dw; x++) { uint16_t v = row[x * r->tw / dw]; if (v) lk_rm_px(cx - dw / 2 + x, cy - dh / 2 + y, lk_rm_565(v, 0)); } }
-            if (here && pass == 1 && blink) {   /* Nigel: his cell relative to the floor's centre, on the picture's 2:1 projection */
-                double k = (double)dw / (double)(r->hw + r->hh + 2), X = lk_rm_nx - (r->hl + r->hw / 2.0), Y = lk_rm_ny - (r->ht + r->hh / 2.0);
-                int nx = cx + (int)((X - Y) * k), ny = cy + (int)((X + Y) * k / 2) + dh / 10;
+        if (r->px && r->tw > 0) {   /* the room picture: as wide as the cell, bottom on the cell's bottom corner (the floor diamond of the picture = the cell), clipped to the cell (v3, user: it ran over its box) */
+            int hw = C * 9 / 10 - 3, hh = hw / 2, dw = 2 * hw, dh = r->th * dw / r->tw, top = cy + hh - dh;
+            if (pass == 0 && hw > 2) for (int y = 0; y < dh; y++) { int yy = top + y - cy; if (yy < -hh || yy > hh) continue; int lim = hw - 2 * abs(yy); const uint16_t *row = r->px + (size_t)(y * r->th / dh) * r->tw; for (int x = 0; x < dw; x++) { int xx = x - hw; if (xx < -lim || xx > lim) continue; uint16_t v = row[x * r->tw / dw]; if (v) lk_rm_px(cx + xx, top + y, lk_rm_565(v, 0)); } }
+            if (here && pass == 1 && blink) {   /* Nigel: his cell relative to the floor's centre, on the cell's 2:1 projection */
+                double k = (double)dw / (double)(r->hw + r->hh), X = lk_rm_nx - (r->hl + r->hw / 2.0), Y = lk_rm_ny - (r->ht + r->hh / 2.0);
+                int nx = cx + (int)((X - Y) * k), ny = cy + (int)((X + Y) * k / 2);
                 lk_rm_diamond(nx, ny, sc * 4 + 2, 0xFFFFFFFFu); lk_rm_diamond(nx, ny, sc * 4 - 1, 0xFFE02828u);
             }
         }
@@ -196,19 +196,19 @@ static void lk_map_shot(long frame) {   /* test aid LANDSTALKER_MAPSHOT */
     s = s.replace(a, module + a, 1)
     a = "    lk_shot_frame(framebuffer, s_frame_no);\n"
     assert s.count(a) == 1
-    s = s.replace(a, a + "    lk_rm_lastfb = framebuffer; lk_rm_note_frame(); lk_map_shot(s_frame_no);   /* LK_ROOMMAP v2 */\n", 1)
+    s = s.replace(a, a + "    lk_rm_lastfb = framebuffer; lk_rm_note_frame(); lk_map_shot(s_frame_no);   /* LK_ROOMMAP v3 */\n", 1)
     a = "    lk_ssh_d = 0;   /* LK_SSHARP v1 */\n    lk_osd_draw(ow, oh);\n"
     assert s.count(a) == 1, "platform_sdl.c: run patch_subpix.py first"
-    s = s.replace(a, "    lk_ssh_d = 0;   /* LK_SSHARP v1 */\n    lk_map_draw(ow, oh);   /* LK_ROOMMAP v2 */\n    lk_osd_draw(ow, oh);\n", 1)
+    s = s.replace(a, "    lk_ssh_d = 0;   /* LK_SSHARP v1 */\n    lk_map_draw(ow, oh);   /* LK_ROOMMAP v3 */\n    lk_osd_draw(ow, oh);\n", 1)
     a = "static void lk_disp_present(const uint8_t *framebuffer) {\n"
     assert s.count(a) == 1
-    s = s.replace(a, "static void lk_map_draw(int ow, int oh);   /* LK_ROOMMAP v2 */\n" + a, 1)
+    s = s.replace(a, "static void lk_map_draw(int ow, int oh);   /* LK_ROOMMAP v3 */\n" + a, 1)
     a = "    while (SDL_PollEvent(&ev)) {\n        if (ev.type == SDL_QUIT) return false;\n"
     assert s.count(a) == 1
-    s = s.replace(a, "    if (lk_rm_req) { lk_rm_req = 0; if (!lk_map_modal()) return false; }   /* LK_ROOMMAP v2: the map button was pressed */\n" + a, 1)
+    s = s.replace(a, "    if (lk_rm_req) { lk_rm_req = 0; if (!lk_map_modal()) return false; }   /* LK_ROOMMAP v3: the map button was pressed */\n" + a, 1)
     a = "static bool s_headless = false;\n"
     assert s.count(a) == 1
-    s = s.replace(a, a + "static volatile int lk_rm_req;   /* LK_ROOMMAP v2 (defined with the map code below) */\n", 1)
+    s = s.replace(a, a + "static volatile int lk_rm_req;   /* LK_ROOMMAP v3 (defined with the map code below) */\n", 1)
     s = s.replace("static volatile int lk_rm_req; static const uint8_t *lk_rm_lastfb;", "static const uint8_t *lk_rm_lastfb;", 1)
     open(p, "w").write(s)
     print("platform_sdl.c patched:", VER)
@@ -218,7 +218,7 @@ s = open(p).read()
 if VER not in s:
     a = "uint16_t recomp_input_read_pad(int port) {\n"
     assert s.count(a) == 1 and "LK_KEYS v1" in s and "LK_PADTHREAD" in s, "input.c: run patch_keys.py / patch_padthread.py first"
-    s = s.replace(a, r'''/* LK_ROOMMAP v2: the room map's input while the game is paused in its loop: bit b = SDL controller button b on any pad (the pad thread's copy; the worker is kicked
+    s = s.replace(a, r'''/* LK_ROOMMAP v3: the room map's input while the game is paused in its loop: bit b = SDL controller button b on any pad (the pad thread's copy; the worker is kicked
    every call, it only runs after platform_poll_events otherwise), left stick up / down = D-pad, bit 31 = the Map binding's pad code (triggers too) */
 uint32_t lk_map_pad(void) {
     extern void lk_pad_kick(void); uint32_t m = 0;

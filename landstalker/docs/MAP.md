@@ -29,6 +29,12 @@ User wishes: own room map (not the island map), location only (no 'where to go n
   Ryuma lighthouse): 31 areas, 504 rooms. Elsewhere the button shows 'NO MAP HERE' ('KEINE KARTE HIER') for 1.5 s.
 - Headless: mapshot in room 5 (rec_20261024_1818 frame 11645) = Swamp Shrine floor 1 / 3; Mercator = no map. The modal loop itself can only be tried on the Deck.
 
+## v3 / roommap v4 (2026-10-31, user recording rec_20261031_1141, KN_LABYRINTH 355 -> 356)
+- User: 'I leave the first room south-east, the map hangs the next one north-east' + 'the picture runs over its box'. Cause 1: the height map cells from romroom.arrays are
+  12 cells off the game's cell coordinates (the game puts the height map at (12, 12); connection records and Nigel `$FF5400` use the game's cells), so the exit side was judged
+  on a wrong footprint (355: door (30, 25), footprint x 5..18 -> now 17..30 = SE). Fixed in roommap.py footprint() (v4); Nigel's dot uses the same frame now.
+  Cause 2: the picture was 1.5 x the cell: now as wide as the cell, its bottom on the cell's bottom corner, clipped to the cell diamond (walls cut at the top, LK_ROOMMAP v3).
+
 ## Open / ideas
 - User look at it on the Deck (style, size, button). Town interiors are in the town's grid (no 'inside' grouping yet). Mercator outdoors shows as floor 2 / 3 (houses with cellars).
 - Area names are the library identifiers (MERCATOR, SWAMP SHRINE); own display names / German later if wanted.
