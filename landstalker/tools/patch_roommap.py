@@ -3,7 +3,9 @@
 opens a full-resolution map of the current AREA over the paused game: one cell per room on a 2:1 grid (schematic, tools/roommap.py), each cell shows the room drawn from
 the ROM, bars = passages, triangles = stairs up / down, the current room has a golden frame and a blinking dot for Nigel.  Only rooms the game marked as visited
 (its own flags `$FF10C0`, SetRoomVisited `$00293C`, bit per room from `RoomVisitedFlagLookup $00C74E`) and the current room are shown.  One floor at a time:
-D-pad / stick up and down (or L / R) change the floor; B, Start, Esc or the Map binding close it.  While it is open the game is paused completely (like the focus pause:
+D-pad / stick up and down (or L / R) change the floor; B, Start, Esc or the Map binding close it.
+v2 (user 2026-10-31: v1 hung on the Deck, could not close; 'Mercator zu durcheinander, nur Dungeon-Karten'): controller EVENTS are off (LK_PADTHREAD), so the loop polls
+lk_map_pad() (input.c: the pad thread's copy, kicks the worker every pass) instead of waiting for SDL controller events; outside a dungeon the button shows 'NO MAP HERE' for a moment.  While it is open the game is paused completely (like the focus pause:
 emulation waits in platform_poll_events, audio paused, the frame timer restarts afterwards) and it waits until every button is released before the game continues.
 Data: <exe dir>/roommap/layout.txt + thumbs.bin (built from the player's ROM by tools/roommap.py in build.sh / firstrun.py); LANDSTALKER_MAPDIR overrides.  No data or not in a
 map room = the button does nothing.  Picture only: the game state is untouched (Off = bit exact by construction).
@@ -12,12 +14,12 @@ LANDSTALKER_MAPSHOT_FLOOR=n shows floor n instead of the current one.
 Needs patch_keys.py (LK_BMAP), patch_display.py, patch_subpix.py (lk_ss_gen = own map frames) before it.  Idempotent.  usage: patch_roommap.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_ROOMMAP v1"
+VER = "LK_ROOMMAP v2"   # v2 (2026-10-31): pad read through the pad thread (v1 hung: controller events are off, LK_PADTHREAD); dungeons only
 
 p = os.path.join(root, "src/platform_sdl.c")
 s = open(p).read()
 if VER not in s:
-    module = r'''/* ---- LK_ROOMMAP v1: room map (tools/patch_roommap.py) ---- */
+    module = r'''/* ---- LK_ROOMMAP v2: room map (tools/patch_roommap.py) ---- */
 typedef struct { int room, area, floor, gx, gy, vbit, hl, ht, hw, hh, tw, th; const uint16_t *px; } lk_rm_t;
 static lk_rm_t *lk_rm_r; static int lk_rm_n, lk_rm_loaded, lk_rm_ok, lk_rm_nar;
 static short lk_rm_idx[1024], lk_rm_var[1024]; static int lk_rm_afl[256]; static char lk_rm_anm[256][28];
@@ -141,30 +143,34 @@ static void lk_map_draw(int ow, int oh) {   /* called by lk_disp_present before 
     if (lk_rm_tex) SDL_RenderCopy(s_renderer, lk_rm_tex, NULL, NULL);
 }
 static int lk_map_modal(void) {   /* the map is open: returns 0 when the window was closed (quit) */
-    SDL_Event ev; int held = 0, closing = 0; Uint32 t0 = SDL_GetTicks(), tb = t0, tclose = 0;
-    if (!lk_rm_state() || !lk_rm_lastfb) return 1;
+    extern uint32_t lk_map_pad(void); SDL_Event ev; int closing = 0; Uint32 t0 = SDL_GetTicks(), tb = t0, tclose = 0; uint32_t prev;
+    if (!lk_rm_state() || !lk_rm_lastfb) {   /* not in a dungeon: a short note */
+        if (lk_rm_ok) { extern const char *lk_lang_tr(const char *en); snprintf(lk_osd_text, sizeof lk_osd_text, "%s", lk_lang_tr("NO MAP HERE")); lk_osd_frames = 90; }
+        return 1;
+    }
     lk_rm_area = lk_rm_r[lk_rm_cur].area; lk_rm_floor = lk_rm_r[lk_rm_cur].floor; lk_rm_open = 1; lk_rm_blink = 1; lk_rm_dirty = 1;
     printf("roommap: open (room %d, area %s, floor %d)\n", lk_rm_r[lk_rm_cur].room, lk_rm_anm[lk_rm_area], lk_rm_floor);
     if (s_audio_dev > 0) { SDL_PauseAudioDevice(s_audio_dev, 1); SDL_ClearQueuedAudio(s_audio_dev); }
     lk_disp_present(lk_rm_lastfb);
+    prev = lk_map_pad();   /* the opening press is still held: only NEW presses count */
     for (;;) {
-        int redraw = 0;
-        if (SDL_WaitEventTimeout(&ev, 30)) {
-            if (ev.type == SDL_QUIT) { lk_rm_open = 0; return 0; }
-            int down = ev.type == SDL_CONTROLLERBUTTONDOWN || (ev.type == SDL_KEYDOWN && !ev.key.repeat), up = ev.type == SDL_CONTROLLERBUTTONUP || ev.type == SDL_KEYUP;
-            if (down) held++; else if (up && held > 0) held--;
-            if (down && !closing) {
-                int b = ev.type == SDL_CONTROLLERBUTTONDOWN ? ev.cbutton.button : -1, k = ev.type == SDL_KEYDOWN ? ev.key.keysym.scancode : -1, nfl = lk_rm_afl[lk_rm_area];
-                if (b == SDL_CONTROLLER_BUTTON_DPAD_UP || b == SDL_CONTROLLER_BUTTON_RIGHTSHOULDER || k == SDL_SCANCODE_UP || k == SDL_SCANCODE_PAGEUP) { if (lk_rm_floor + 1 < nfl) { lk_rm_floor++; redraw = 1; } }
-                else if (b == SDL_CONTROLLER_BUTTON_DPAD_DOWN || b == SDL_CONTROLLER_BUTTON_LEFTSHOULDER || k == SDL_SCANCODE_DOWN || k == SDL_SCANCODE_PAGEDOWN) { if (lk_rm_floor > 0) { lk_rm_floor--; redraw = 1; } }
-                else if (b == SDL_CONTROLLER_BUTTON_B || b == SDL_CONTROLLER_BUTTON_START || b == SDL_CONTROLLER_BUTTON_PADDLE2 || b == SDL_CONTROLLER_BUTTON_BACK || k == SDL_SCANCODE_ESCAPE || k == SDL_SCANCODE_M || k == SDL_SCANCODE_RETURN) { closing = 1; tclose = SDL_GetTicks(); }
-                else if (b >= 0) { extern int lk_bind_pad_get(int i); int mp = lk_bind_pad_get(13); if (mp == b + 1) { closing = 1; tclose = SDL_GetTicks(); } }
-            }
+        int redraw = 0, nfl = lk_rm_afl[lk_rm_area], kdown = -1;
+        while (SDL_PollEvent(&ev)) {   /* keyboard / window only (controller events are switched off by LK_PADTHREAD) */
+            if (ev.type == SDL_QUIT) { lk_rm_open = 0; if (s_audio_dev > 0) SDL_PauseAudioDevice(s_audio_dev, 0); return 0; }
+            if (ev.type == SDL_KEYDOWN && !ev.key.repeat) kdown = ev.key.keysym.scancode;
             if (ev.type == SDL_WINDOWEVENT) redraw = 1;
         }
+        uint32_t cur = lk_map_pad(), ed = cur & ~prev; prev = cur;
+#define LKMB(b) (ed & (1u << SDL_CONTROLLER_BUTTON_##b))
+        if (!closing) {
+            if (LKMB(DPAD_UP) || LKMB(RIGHTSHOULDER) || kdown == SDL_SCANCODE_UP || kdown == SDL_SCANCODE_PAGEUP) { if (lk_rm_floor + 1 < nfl) { lk_rm_floor++; redraw = 1; } }
+            else if (LKMB(DPAD_DOWN) || LKMB(LEFTSHOULDER) || kdown == SDL_SCANCODE_DOWN || kdown == SDL_SCANCODE_PAGEDOWN) { if (lk_rm_floor > 0) { lk_rm_floor--; redraw = 1; } }
+            else if (ed || kdown == SDL_SCANCODE_ESCAPE || kdown == SDL_SCANCODE_M || kdown == SDL_SCANCODE_RETURN || kdown == SDL_SCANCODE_X) { closing = 1; tclose = SDL_GetTicks(); }   /* any other new button closes (B, A, Start, the Map binding, ..) */
+        }
+#undef LKMB
         if (SDL_GetTicks() - tb > 400) { tb = SDL_GetTicks(); lk_rm_blink ^= 1; redraw = 1; }
-        if (closing && (held <= 0 || SDL_GetTicks() - tclose > 1500)) break;   /* wait until the closing press is released (the game must not see it) */
-        if (redraw) { lk_rm_dirty = 1; lk_disp_present(lk_rm_lastfb); }
+        if (closing) { const Uint8 *ks = SDL_GetKeyboardState(NULL); int anyk = 0; for (int i = 4; i < SDL_NUM_SCANCODES && !anyk; i++) anyk = ks[i]; if ((!cur && !anyk) || SDL_GetTicks() - tclose > 1500) break; }   /* the game must not see the closing press */
+        if (redraw) { lk_rm_dirty = 1; lk_disp_present(lk_rm_lastfb); } else SDL_Delay(15);
     }
     lk_rm_open = 0;
     if (s_audio_dev > 0) SDL_PauseAudioDevice(s_audio_dev, 0);
@@ -176,7 +182,7 @@ static void lk_map_shot(long frame) {   /* test aid LANDSTALKER_MAPSHOT */
     static int on = -1; static const char *ml; if (on < 0) { ml = getenv("LANDSTALKER_MAPSHOT"); on = ml && *ml; }
     if (!on || !lk_shot_wanted(ml, frame)) return;
     int ow = 1280, oh = 800; { const char *z = getenv("LANDSTALKER_OSHOT_SIZE"); if (z) sscanf(z, "%dx%d", &ow, &oh); }
-    if (!lk_rm_state()) { printf("mapshot: frame %ld: map not available (room %d)\n", frame, lk_rm_cur); return; }
+    if (!lk_rm_state()) { { const uint8_t *m = bus_get_ram(); extern long lk_ss_gen; int room = (m[0x1204 ^ 1] << 8) | m[0x1205 ^ 1]; printf("mapshot: frame %ld: map not available (room %d, known %d, own map frame %ld frames ago)\n", frame, room, lk_rm_lookup(room) >= 0, platform_frame_number() - lk_rm_gen_frame); } return; }
     int fl = lk_rm_r[lk_rm_cur].floor; { const char *e = getenv("LANDSTALKER_MAPSHOT_FLOOR"); if (e && *e) fl = atoi(e); }
     lk_rm_render(ow, oh, lk_rm_cur, fl, 1);
     { extern int lk_wide_e; const int sw = 320 + 2 * lk_wide_e; const uint32_t *g = (const uint32_t *)lk_rm_lastfb; uint32_t *img = (uint32_t *)malloc((size_t)ow * oh * 4);   /* over the 1x game picture, nearest */
@@ -190,19 +196,39 @@ static void lk_map_shot(long frame) {   /* test aid LANDSTALKER_MAPSHOT */
     s = s.replace(a, module + a, 1)
     a = "    lk_shot_frame(framebuffer, s_frame_no);\n"
     assert s.count(a) == 1
-    s = s.replace(a, a + "    lk_rm_lastfb = framebuffer; lk_rm_note_frame(); lk_map_shot(s_frame_no);   /* LK_ROOMMAP v1 */\n", 1)
+    s = s.replace(a, a + "    lk_rm_lastfb = framebuffer; lk_rm_note_frame(); lk_map_shot(s_frame_no);   /* LK_ROOMMAP v2 */\n", 1)
     a = "    lk_ssh_d = 0;   /* LK_SSHARP v1 */\n    lk_osd_draw(ow, oh);\n"
     assert s.count(a) == 1, "platform_sdl.c: run patch_subpix.py first"
-    s = s.replace(a, "    lk_ssh_d = 0;   /* LK_SSHARP v1 */\n    lk_map_draw(ow, oh);   /* LK_ROOMMAP v1 */\n    lk_osd_draw(ow, oh);\n", 1)
+    s = s.replace(a, "    lk_ssh_d = 0;   /* LK_SSHARP v1 */\n    lk_map_draw(ow, oh);   /* LK_ROOMMAP v2 */\n    lk_osd_draw(ow, oh);\n", 1)
     a = "static void lk_disp_present(const uint8_t *framebuffer) {\n"
     assert s.count(a) == 1
-    s = s.replace(a, "static void lk_map_draw(int ow, int oh);   /* LK_ROOMMAP v1 */\n" + a, 1)
+    s = s.replace(a, "static void lk_map_draw(int ow, int oh);   /* LK_ROOMMAP v2 */\n" + a, 1)
     a = "    while (SDL_PollEvent(&ev)) {\n        if (ev.type == SDL_QUIT) return false;\n"
     assert s.count(a) == 1
-    s = s.replace(a, "    if (lk_rm_req) { lk_rm_req = 0; if (!lk_map_modal()) return false; }   /* LK_ROOMMAP v1: the map button was pressed */\n" + a, 1)
+    s = s.replace(a, "    if (lk_rm_req) { lk_rm_req = 0; if (!lk_map_modal()) return false; }   /* LK_ROOMMAP v2: the map button was pressed */\n" + a, 1)
     a = "static bool s_headless = false;\n"
     assert s.count(a) == 1
-    s = s.replace(a, a + "static volatile int lk_rm_req;   /* LK_ROOMMAP v1 (defined with the map code below) */\n", 1)
+    s = s.replace(a, a + "static volatile int lk_rm_req;   /* LK_ROOMMAP v2 (defined with the map code below) */\n", 1)
     s = s.replace("static volatile int lk_rm_req; static const uint8_t *lk_rm_lastfb;", "static const uint8_t *lk_rm_lastfb;", 1)
     open(p, "w").write(s)
     print("platform_sdl.c patched:", VER)
+
+p = os.path.join(root, "src/input.c")
+s = open(p).read()
+if VER not in s:
+    a = "uint16_t recomp_input_read_pad(int port) {\n"
+    assert s.count(a) == 1 and "LK_KEYS v1" in s and "LK_PADTHREAD" in s, "input.c: run patch_keys.py / patch_padthread.py first"
+    s = s.replace(a, r'''/* LK_ROOMMAP v2: the room map's input while the game is paused in its loop: bit b = SDL controller button b on any pad (the pad thread's copy; the worker is kicked
+   every call, it only runs after platform_poll_events otherwise), left stick up / down = D-pad, bit 31 = the Map binding's pad code (triggers too) */
+uint32_t lk_map_pad(void) {
+    extern void lk_pad_kick(void); uint32_t m = 0;
+    lk_bind_init(); lk_pad_kick();
+    if (!lk_pt_run) SDL_GameControllerUpdate();
+    for (int b = 0; b < SDL_CONTROLLER_BUTTON_MAX && b < 31; b++) if (lk_pad_button(lk_pads, (SDL_GameControllerButton)b)) m |= 1u << b;
+    { int ly = lk_pad_axis(lk_pads, SDL_CONTROLLER_AXIS_LEFTY); if (ly < -20000) m |= 1u << SDL_CONTROLLER_BUTTON_DPAD_UP; if (ly > 20000) m |= 1u << SDL_CONTROLLER_BUTTON_DPAD_DOWN; }
+    if (lk_bind_pad[LK_BMAP] && lk_pad_code_down(lk_pads, lk_bind_pad[LK_BMAP])) m |= 1u << 31;
+    return m;
+}
+''' + a, 1)
+    open(p, "w").write(s)
+    print("input.c patched:", VER)

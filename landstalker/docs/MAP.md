@@ -1,6 +1,6 @@
 # Room map (MODERN_IDEAS (B), started 2026-10-31)
 
-User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status: step 1 built (dev), user check on the Deck open.
+User wishes: own room map (not the island map), location only (no 'where to go next'), Landstalker style, full resolution. Status: v2 built (dev): v1 hung on the Deck (see v2 below), towns dropped; user check of v2 open.
 
 ## How it works
 - **Data (build time, from the player's ROM, never in git):** `tools/roommap.py ROM build/roommap` (step of build.sh, also run by firstrun.py; ~2 min on all cores the first time,
@@ -19,6 +19,15 @@ User wishes: own room map (not the island map), location only (no 'where to go n
   released. Drawn into an ARGB buffer at output size (gold-framed dark blue panel, area name, FLOOR n / m, cells with the room pictures 1.5 x the cell, passage bars, stair
   triangles, current room gold, Nigel = blinking red dot from `$FF5400 / $FF5401`), blended over the dimmed game picture before the OSD.
 - **Test aids:** `LANDSTALKER_MAPSHOT=frames` (PNG of the map as it would open, also headless; `LANDSTALKER_OSHOT_SIZE`, `LANDSTALKER_MAPSHOT_FLOOR=n`, `LANDSTALKER_MAPSHOT_ALL=1` = all rooms).
+
+## v2 (2026-10-31, after the user's first try)
+- **v1 HUNG on the Deck** (user: map opened, could not close, not even leave fullscreen; the process had to be killed): the modal loop waited for SDL controller EVENTS, but
+  LK_PADTHREAD switches controller events off (SDL_GameControllerEventState(SDL_IGNORE)) and reads the pads on its worker thread. v2 polls `lk_map_pad()` (input.c: the worker's
+  button copy + left stick, kicks the worker every pass; bit 31 = the Map binding's pad code); any new button except up / down / L / R closes; keyboard keys still by events.
+- **Dungeons only** (user: 'Mercator wirkt viel zu durcheinander mit den ganzen Innenraeumen, lassen wirs lieber bei Dungeon-Karten'): `DUNGEONS` in roommap.py (Swamp Shrine,
+  Mercator dungeon, Knight / Nole areas KN_*, Lake / Waterfall shrines, Thieves' hideout, Destel well, Mir tower, Verla mines, Massan cave, crypt, Greenmaze, Helga's hut, Tibor,
+  Ryuma lighthouse): 31 areas, 504 rooms. Elsewhere the button shows 'NO MAP HERE' ('KEINE KARTE HIER') for 1.5 s.
+- Headless: mapshot in room 5 (rec_20261024_1818 frame 11645) = Swamp Shrine floor 1 / 3; Mercator = no map. The modal loop itself can only be tried on the Deck.
 
 ## Open / ideas
 - User look at it on the Deck (style, size, button). Town interiors are in the town's grid (no 'inside' grouping yet). Mercator outdoors shows as floor 2 / 3 (houses with cellars).
