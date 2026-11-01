@@ -648,3 +648,71 @@ int lk_vdp_dump_own(FILE *f)
   fwrite(v, 1, 0x10000, f);
   return 1;
 }
+
+/* ---- step 4.1: chip reset (GPGX's vdp_reset), Mega Drive only ---- */
+/* LANDSTALKER_BOOT: unset / gpgx = GPGX's vdp_reset (default until the user confirms step 3.5 on the Deck), own = ours, check = ours,
+ * then GPGX's, all touched state compared (GPGX's result stays).  Ours keeps only the Mega Drive path (no TMSS BIOS, config.bios = 0):
+ * other systems / a BIOS = GPGX's.  It sets GPGX's state that its remaining code reads (timing tables, renderer pointers, caches) AND
+ * ours (command latch, register file, lk_vm / lk_cm / lk_vsm / lkv_vsx). */
+static int lkv_boot = -1, lkv_rnest;
+
+static void lkv_reset(void)
+{
+  int i;
+  memset(sat, 0, sizeof sat); memset(vram, 0, sizeof vram); memset(cram, 0, sizeof cram); memset(vsram, 0, sizeof vsram); memset(reg, 0, sizeof reg);
+  addr = addr_latch = 0; code = pending = 0; border = 0; hint_pending = vint_pending = 0; dmafill = 0; dma_src = 0; dma_type = 0; dma_length = 0; dma_endCycles = 0;
+  odd_frame = im2_flag = interlaced = 0; fifo_idx = 0; cached_write = -1; fifo_byte_access = 1;
+  ntab = ntbb = ntwb = satb = hscb = 0; vscroll = 0;
+  hscroll_mask = 0x00; playfield_shift = 6; playfield_col_mask = 0x0F; playfield_row_mask = 0x0FF; sat_base_mask = 0xFE00; sat_addr_mask = 0x01FF;
+  bg_list_index = 0; memset(bg_name_dirty, 0, sizeof bg_name_dirty); memset(bg_name_list, 0, sizeof bg_name_list);
+  window_clip(0, 0);
+  status = vdp_pal;
+  bitmap.viewport.w = bitmap.viewport.ow = 256; bitmap.viewport.h = bitmap.viewport.oh = 192;
+  hvc_latch = 0x10000; hctab = cycle2hc32; vc_max = vc_table[0][vdp_pal]; v_counter = bitmap.viewport.h; h_counter = 0xff;
+  max_sprite_pixels = 256; fifo_timing = (int *)fifo_timing_h32;
+  vint_cycle = VINT_H32_MCYCLE; hblank_start_cycle = HBLANK_H32_START_MCYCLE; hblank_end_cycle = HBLANK_H32_END_MCYCLE;
+  bitmap.viewport.x = (config.overscan & 2) * 7; bitmap.viewport.y = (config.overscan & 1) * 24 * (vdp_pal + 1);
+  update_bg_pattern_cache = update_bg_pattern_cache_m4; render_bg = render_bg_m4; render_obj = render_obj_m4; parse_satb = parse_satb_m4;   /* the chip starts in mode 4 */
+  vdp_68k_data_w = vdp_68k_data_w_m4; vdp_68k_data_r = vdp_68k_data_r_m4; vdp_z80_data_w = vdp_z80_data_w_m4; vdp_z80_data_r = vdp_z80_data_r_m4;
+  reg[10] = 0xFF;   /* H-Int off at power on */
+  for (i = 0; i < 0x20; i++) color_update_m4(i, 0x00);
+  color_update_m4(0x40, 0x00);
+  /* ours */
+  memset(lk_vm, 0, 0x10000); memset(lk_cm, 0, 0x80); memset(lk_vsm, 0, 0x50); memset(lkv_vsx, 0, sizeof lkv_vsx);
+  memset(&lkv, 0, sizeof lkv); memcpy(lkv.reg, reg, sizeof lkv.reg);
+}
+
+/* check mode: every variable vdp_reset writes, byte for byte */
+static size_t lkv_reset_snap(uint8 *o)
+{
+  size_t n = 0;
+#define LKV_S(v) do { memcpy(o + n, &(v), sizeof(v)); n += sizeof(v); } while (0)
+  LKV_S(sat); LKV_S(vram); LKV_S(cram); LKV_S(vsram); LKV_S(reg); LKV_S(addr); LKV_S(addr_latch); LKV_S(code); LKV_S(pending); LKV_S(border);
+  LKV_S(hint_pending); LKV_S(vint_pending); LKV_S(dmafill); LKV_S(dma_src); LKV_S(dma_type); LKV_S(dma_length); LKV_S(dma_endCycles);
+  LKV_S(odd_frame); LKV_S(im2_flag); LKV_S(interlaced); LKV_S(fifo_idx); LKV_S(cached_write); LKV_S(fifo_byte_access);
+  LKV_S(ntab); LKV_S(ntbb); LKV_S(ntwb); LKV_S(satb); LKV_S(hscb); LKV_S(vscroll); LKV_S(hscroll_mask); LKV_S(playfield_shift); LKV_S(playfield_col_mask);
+  LKV_S(playfield_row_mask); LKV_S(sat_base_mask); LKV_S(sat_addr_mask); LKV_S(bg_list_index); LKV_S(bg_name_dirty); LKV_S(bg_name_list);
+  LKV_S(status); LKV_S(bitmap.viewport); LKV_S(hvc_latch); LKV_S(hctab); LKV_S(vc_max); LKV_S(v_counter); LKV_S(h_counter); LKV_S(max_sprite_pixels);
+  LKV_S(fifo_timing); LKV_S(vint_cycle); LKV_S(hblank_start_cycle); LKV_S(hblank_end_cycle); LKV_S(update_bg_pattern_cache); LKV_S(render_bg);
+  LKV_S(render_obj); LKV_S(parse_satb); LKV_S(vdp_68k_data_w); LKV_S(vdp_68k_data_r); LKV_S(vdp_z80_data_w); LKV_S(vdp_z80_data_r); LKV_S(lkv);
+#undef LKV_S
+  memcpy(o + n, lk_clip_ptr(), lk_clip_bytes()); n += lk_clip_bytes();
+  return n;
+}
+
+/* hook at the top of vdp_reset: 1 = handled */
+static int lkv_reset_hook(void)
+{
+  static uint8 a[0x18000], b[0x18000]; size_t na, nb, i, nd = 0;
+  if (lkv_rnest) return 0;
+  if (lkv_boot < 0) { const char *e = getenv("LANDSTALKER_BOOT"); lkv_boot = (e && !strcmp(e, "own")) ? 1 : (e && !strcmp(e, "check")) ? 2 : 0; }
+  if (!lkv_boot || system_hw != SYSTEM_MD || (config.bios & 1)) return 0;
+  lkv_reset();
+  if (lkv_boot == 1) return 1;
+  na = lkv_reset_snap(a);
+  lkv_rnest = 1; vdp_reset(); lkv_rnest = 0;   /* GPGX's (it ends with lkv_pull: GPGX's latch / registers into ours) */
+  nb = lkv_reset_snap(b);
+  for (i = 0; i < na && i < nb; i++) if (a[i] != b[i]) { if (nd < 12) fprintf(stderr, "vdpboot check: RESET MISMATCH at byte %u (%02X/%02X)\n", (unsigned)i, a[i], b[i]); nd++; }
+  fprintf(stderr, "vdpboot check: vdp_reset %u bytes compared, %u mismatches\n", (unsigned)na, (unsigned)nd);
+  return 1;
+}

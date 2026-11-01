@@ -94,3 +94,12 @@ Goal: YM2612 + PSG cores of our own (no Genesis Plus GX code in the sound path),
 **Acceptance:** check mode 0 differences on all 74 runs; timebench IDENTICAL 74 / 74 vs `LANDSTALKER_VDP=gpgx`; intro WAV unchanged; zig cc Linux + Windows compile; then the user plays (nothing should look or sound different).
 **Risks:** register side effects at mid-line timing (display enable, IRQ enable with a pending V-Int: GPGX raises the line at once), the DMA pending flag between the two command words (fill starts at the next data write), the widescreen patch's hooks inside `vdp_bus_w` (must be called from our store too), save-state free: nothing.
 **Then step 4 (system start):** `vdp_init` / `vdp_reset`, `system_init`, the remaining GPGX glue in `genrecomp.c` / `system.c`.
+
+## 13. PLAN: system start (step 4; written 2026-11-01, user 'ja': build it opt-in while the user has not tested 3.5 on the Deck yet)
+Start today (`src/genrecomp.c` genrecomp_load_rom): `load_rom` -> `audio_init` -> `system_init` (gen_init: 68K / Z80 memory maps incl. Pico / Mega-CD / SMS branches, io_init, vdp_init, render_init, sound_init) -> `system_reset` (gen_reset(1): work RAM / Z80 RAM clear + start cycles + cart reset, io_reset, render_reset, vdp_reset, sound_reset, audio_reset) -> `lk_time_power_on` (ours) -> SRAM load -> `recomp_m68k_reset`. GPGX's code handles ~10 systems; we need the Mega Drive (NTSC, no BIOS) path only.
+Switch `LANDSTALKER_BOOT`: unset / gpgx = GPGX's start (default until the user confirmed 3.5), own = ours, check = ours + GPGX's, all touched state compared byte for byte (GPGX's result stays).
+- **4.1 chip reset (`vdp_reset`):** `lkv_reset` in `tools/lkvdp.c` (Mega Drive path only; other systems / BIOS = GPGX's), also clears our memories + latch.
+  - **4.1 RESULT (2026-11-01, `LK_VDPPORT v7`):** check: all variables vdp_reset writes (73 231 bytes incl. chip memories, caches, timing tables, function pointers, clip, our latch) 0 mismatches; timebench `LANDSTALKER_BOOT=own` IDENTICAL 74 / 74, default (GPGX) IDENTICAL 74 / 74.
+- **4.2 vdp_init + gen_reset / io_reset / sound_reset start values:** the same pattern (Mega Drive only, snapshot compare).
+- **4.3 memory map setup (gen_init / md_cart_init, Mega Drive branch only):** the 68K / Z80 maps; compare the map tables.
+- **4.4 default on** (after the user's OK for 3.5 and 4.x), GPGX's start = rollback.
