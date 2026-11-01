@@ -223,6 +223,8 @@ python3 tools/patch_sprintanim.py .deps/genrecomp
 python3 tools/patch_subpix.py .deps/genrecomp
 # Room map: binding Map (pad L4, key M) = schematic map of the current area over the paused game (data: tools/roommap.py -> build/roommap; tools/patch_roommap.py, docs/MAP.md)
 python3 tools/patch_roommap.py .deps/genrecomp
+# VDP data path step 3.0: path counters in vdp_ctrl.c (LANDSTALKER_VDPCOUNT=file; inert without it; tools/patch_vdpcount.py, docs/SOUND_PLAN.md section 12)
+python3 tools/patch_vdpcount.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json
