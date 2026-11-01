@@ -1518,3 +1518,17 @@ Goal (SOUND_PLAN section 12): GPGX's `vdp_ctrl.c` decode replaced by `tools/lkvd
 - **Proof:** timebench (re-baselined this session with `~/timebench/bin_pre31`, 74 runs) own IDENTICAL 74 / 74 after every step; check mode 0 mismatches (265 M data words, 20.3 M control words, 11.6 M register writes, 0 sync misses); screenshots gpgx vs own 266 / 266 identical.
 - **3.3 DMA engine** (`lkv_dma_update`, `LK_VDPPORT v4`): bookkeeping + transfer ours (timing was already ours: `lk_v_dma_calc`); check = prediction from the state before + GPGX's chunk nested; 1.43 M chunks 0 mismatches, own IDENTICAL 74 / 74.
 - **Next:** 3.4 data port wrapper + reset, 3.5 default on + poison of the chip memories, then drop `lkv_chip_feed` and the renderer upkeep.
+
+## VDP data path steps 3.3 - 3.5 + system start 4.1 - 4.3 (2026-11-01; Opus 5.5)
+- **3.3** DMA engine ours (`LK_VDPPORT v4`, `lkv_dma_update`): own IDENTICAL 74 / 74, check 1.43 M chunks 0 mismatches, screenshots 266 / 266 (commit a78a2fd).
+- **3.4** data port write wrapper ours (`LK_VDPPORT v5`, `lkv_data_w`): own IDENTICAL 74 / 74, check 6 M data writes 0 mismatches (505262c). The session broke off after 3.4; recovered from the working tree + `~/timebench/vdp34_*` / `vdp35_*` logs.
+- **3.5** default ours (`LK_VDPPORT v6`, 8bf4578). First runs: default 1 RAM diff (rec_20261012_2106), poison 21 time trace diffs (RAM / WAV equal).
+  - Poison: `--keep-traces` of rec_20261012_2148 normal vs `LANDSTALKER_OWN_POISON=1`: only 2 lines `S` (status read) 520 vs 552 = bit 5 (sprite collision). Cause: GPGX's `parse_satb_m5` / `_im2` read name / attribute + x position from the chip VRAM (`p[link + 2]`, `p[link + 3]`); the collision bit comes from GPGX's sprite renderer. Fix: read `lk_vm` in own mode (`lk_vdp_ownmem`, patched into vdp_render.c by patch_vdpport.py).
+  - RAM diff: dumps of own vs gpgx mode differed from frame 30800 at one VRAM word $9780 (ours 0x00F1, chip 0x4F00). `LANDSTALKER_OWN_VMDIFF=1` showed the mirror vs chip split at frame 30772 in BOTH modes = old bug of the mirror. Cause: VRAM fill (and copy) work on the ADJACENT byte (`WRITE_BYTE(vram, addr ^ 1)`); our big endian copy wrote `lk_vm[addr]`. Fixed in patch_vdpmirror.py (fill + copy), lkvdp.c lkv_fill and the fill check of the DMA compare (it had predicted the same wrong byte).
+  - Final: timebench default / poison / gpgx / check IDENTICAL 74 / 74; check 265 M words, 20.3 M ctrl, 11.6 M regw, 1.43 M DMA, 6 M data writes, 0 mismatches; `LANDSTALKER_SHOT` gpgx vs own intro (every 60 frames) + rec_20261012_2106 30000-31200 (every 20) 259 / 259 identical.
+- **4.1** chip reset ours, opt-in `LANDSTALKER_BOOT=own|check` (`LK_VDPPORT v7`, `lkv_reset`, 1e145b4): check compares every variable vdp_reset writes (73 231 bytes) 0 mismatches; timebench BOOT=own + default IDENTICAL.
+- **4.2** vdp_init (`LK_VDPPORT v8`) + gen_reset / io_reset (`tools/lkboot.c`, `tools/patch_boot.py`, `LK_BOOT v1`, 63a5254): check 84 670 bytes 0 mismatches; timebench IDENTICAL.
+- **4.3** gen_init memory maps + plain cartridge init (Landstalker only; `LK_BOOT v2`, fe4d007): check 81 121 bytes + ROM area hash 0 mismatches; timebench IDENTICAL.
+- Pitfall: `timebench.py --out FILE` and `LANDSTALKER_VDP_CHECKLOG=FILE` must be different files (the --out file overwrote the check counters once).
+- Not done yet: user check on the Deck (3.5 default on; optionally `LANDSTALKER_BOOT=own`); 4.4 = BOOT default ours after the user's OK; zig cc Windows compile of the new code (SOUND_PLAN acceptance).
+

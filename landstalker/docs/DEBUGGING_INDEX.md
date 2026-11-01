@@ -192,3 +192,4 @@
 - L1502: Room map v4 / roommap v5 (2026-10-31 end of session; Opus 5.5)
 - L1507: Room map v5 -> v10 (2026-10-31, rest of the session; Opus 5.5)
 - L1512: VDP data path steps 3.0 - 3.2 (2026-11-01; Opus 5.5)
+- L1522: VDP data path steps 3.3 - 3.5 + system start 4.1 - 4.3 (2026-11-01; Opus 5.5)
