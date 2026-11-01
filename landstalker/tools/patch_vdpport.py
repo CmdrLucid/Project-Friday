@@ -4,12 +4,14 @@ tools/lkvdp.c (copied next to it and #included just before vdp_bus_w).  Step 3.1
 auto increment, widescreen hooks; GPGX's caches fed until step 3.5); marker LK_VDPPORT v2 = + step 3.2a: control port (command latch,
 register file, DMA start decode); LK_VDPPORT v3 = + step 3.2b: register side effects (lkv_reg_w);
 LK_VDPPORT v4 = + step 3.3: DMA engine (lkv_dma_update; needs our VDP timing);
-LK_VDPPORT v5 = + step 3.4: data port write wrapper (lkv_data_w).
-Env LANDSTALKER_VDP: unset / gpgx = GPGX (default until step 3.5), own = ours, check = both, compared after every data word / control word
+LK_VDPPORT v5 = + step 3.4: data port write wrapper (lkv_data_w);
+LK_VDPPORT v6 = step 3.5: ours by default (LANDSTALKER_VDP=gpgx = GPGX's decode), the headless RAM dump reads our memories (bus.c),
+GPGX's sprite parse (parse_satb_m5: name / attribute + x, feeds the collision / overflow status) reads lk_vm.
+Env LANDSTALKER_VDP: unset / own = ours (default since step 3.5), gpgx = GPGX, check = both, compared after every data word / control word
 (summary on stderr + LANDSTALKER_VDP_CHECKLOG=<file>).  Idempotent.  usage: patch_vdpport.py path/to/genrecomp   (after patch_vdpmirror.py)"""
 import os, shutil, sys
 core = os.path.join(sys.argv[1], "ext/Genesis-Plus-GX/core"); here = os.path.dirname(os.path.abspath(__file__))
-VER = "LK_VDPPORT v5"
+VER = "LK_VDPPORT v6"
 shutil.copy(os.path.join(here, "lkvdp.c"), os.path.join(core, "lkvdp.c"))
 p = os.path.join(core, "vdp_ctrl.c"); s = open(p).read()
 if VER in s:
@@ -73,5 +75,21 @@ if VER not in s:
     a = "void window_clip(unsigned int data, unsigned int sw)\n"
     assert s.count(a) == 1
     s = s.replace(a, "void *lk_clip_ptr(void) { return clip; }   /* %s */\nint lk_clip_bytes(void) { return (int)sizeof clip; }\n" % VER + a, 1)
+    # sprite list: name / attribute + x position from our VRAM in own mode (feeds the collision / overflow status; poison run 3.5)
+    x = "        object_info->attr  = p[link + 2];\n        object_info->xpos  = p[link + 3] & 0x1ff;\n"
+    assert s.count(x) == 2
+    s = s.replace(x, "        if (lk_vdp_ownmem) { const uint8 *o = &lk_vm[(satb + 2 * link + 4) & 0xFFFC]; object_info->attr = (o[0] << 8) | o[1]; object_info->xpos = ((o[2] << 8) | o[3]) & 0x1ff; } else {   /* %s */\n" % VER
+                  + x + "        }\n")
+    a = "void parse_satb_m5(int line)\n"
+    assert s.count(a) == 1
+    s = s.replace(a, "extern int lk_vdp_ownmem; extern uint8_t lk_vm[0x10000];   /* %s */\n" % VER + a, 1)
     open(p, "w").write(s); print("vdp_render.c patched:", VER)
 
+# the headless RAM dump (timebench hashes) from our memories in own mode
+p = os.path.join(sys.argv[1], "src", "bus.c"); s = open(p).read()
+if VER not in s:
+    a = "    fwrite(work_ram, 1, 0x10000, f);\n    fwrite(reg, 1, 0x20, f);\n    fwrite(cram, 1, 0x80, f);\n    fwrite(vsram, 1, 0x80, f);\n    fwrite(vram, 1, 0x10000, f);\n"
+    assert s.count(a) == 1, "bus.c bus_dump_state layout changed"
+    s = s.replace(a, "    fwrite(work_ram, 1, 0x10000, f);\n    { extern int lk_vdp_dump_own(FILE *f); if (lk_vdp_dump_own(f)) return; }   /* %s: our VDP memories (tools/lkvdp.c) */\n" % VER
+                  + "    fwrite(reg, 1, 0x20, f);\n    fwrite(cram, 1, 0x80, f);\n    fwrite(vsram, 1, 0x80, f);\n    fwrite(vram, 1, 0x10000, f);\n", 1)
+    open(p, "w").write(s); print("bus.c patched:", VER)

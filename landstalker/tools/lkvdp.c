@@ -4,6 +4,7 @@
  * Step 3.1 (this file, v1): the DATA PORT WRITE = every word the 68K (data port or 68K->VDP DMA) stores into VRAM / CRAM / VSRAM:
  * destination decode (code CD0-CD3), byte swap for odd VRAM addresses, store into our memories lk_vm / lk_cm / lk_vsm (the "mirror"
  * of patch_vdpmirror.py becomes the primary copy), the widescreen hooks (lk_vl_write, lk_nt_count), auto increment by register 15.
+ * Step 3.5 (v6): ours by default; the dump reads our memories; LANDSTALKER_OWN_POISON (chip memories = garbage every frame) proves nobody else reads them.
  * Step 3.4 (v5): the data port write wrapper (lkv_data_w: pending, word, fill start); chip reset = step 4.
  * Step 3.3 (v4): the DMA engine (lkv_dma_update: bookkeeping + 68K -> VDP from ROM / RAM + fill; copy / io stay GPGX's, never used).
  * Step 3.2b (v3): the register side effects (lkv_reg_w, below); check mode compares the GPGX state after GPGX's and our write.
@@ -14,17 +15,21 @@
  * GPGX's own state that its remaining code still reads (address, FIFO for fill, chip VRAM / CRAM / VSRAM, sprite table cache, pattern
  * cache, palette) is fed from here (lkv_chip_feed) until step 3.5 proves (poison) nobody needs the chip memories.
  *
- * LANDSTALKER_VDP: unset / gpgx = GPGX's vdp_bus_w (default until step 3.5), own = ours, check = GPGX runs, ours predicts the same
- * access and both are compared (data word, control word, register write, DMA chunk, data port write).
+ * LANDSTALKER_VDP: unset / own = ours (default since step 3.5), gpgx = GPGX's decode (A/B reference, rollback), check = GPGX runs, ours
+ * predicts the same access and both are compared (data word, control word, register write, DMA chunk, data port write).
+ * Our memories: lk_vm (VRAM, big endian), lk_cm (CRAM, raw 16 bit words), lk_vsm (VSRAM 0..$4F) + lkv_vsx (VSRAM $50..$7F, never shown).
+ * The headless RAM dump (bus_dump_state) is written from them in own mode, in GPGX's layout (lk_vdp_dump_own).
  * Check summary: stderr at exit, and one line appended to LANDSTALKER_VDP_CHECKLOG=<file> (name of the input script + counters). */
 
 static struct { uint16 addr, addr_latch; uint8 code, pending; uint8 reg[32]; } lkv;   /* our command latch + register file */
-static struct { int kind; unsigned idx; uint8 b0, b1; uint16 next; } lkv_pred;   /* check mode: the predicted store of the current word */
+static struct { int kind; unsigned idx; uint8 b0, b1; uint16 next; } lkv_pred;
+static uint8 lkv_vsx[0x30];   /* VSRAM $50..$7F: written like the chip does, never displayed (only for the dump) */   /* check mode: the predicted store of the current word */
 static unsigned long long lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync;
 static unsigned long long lkv_n_regw, lkv_n_rbad, lkv_n_fallback;   /* step 3.2b */
 static unsigned long long lkv_n_dma, lkv_n_dbad, lkv_n_dfallback;   /* step 3.3 */
 static unsigned long long lkv_n_dw, lkv_n_dwbad;   /* step 3.4 */
 static void lkv_reg_w(unsigned int r, unsigned int d, unsigned int cycles);
+int lk_vdp_ownmem;   /* 1 = own mode: GPGX's sprite parse (vdp_render.c parse_satb_m5) reads lk_vm */
 static int lkv_nest;   /* check mode: 1 while GPGX's own vdp_68k_ctrl_w runs (called from our hook) */
 
 static void lkv_report(void)
@@ -43,9 +48,9 @@ static void lkv_report(void)
 static void lkv_init(void)
 {
   const char *e = getenv("LANDSTALKER_VDP");
-  lkv_mode = (e && !strcmp(e, "own")) ? 1 : (e && !strcmp(e, "check")) ? 2 : 0;
-  lkv_pull();
-  if (lkv_mode) fprintf(stderr, "vdpport: LK_VDPPORT v5 data port write + control port + register side effects + DMA = %s\n", lkv_mode == 1 ? "own" : "check (GPGX stores, ours compared)");
+  lkv_mode = (e && !strcmp(e, "gpgx")) ? 0 : (e && !strcmp(e, "check")) ? 2 : 1;   /* default ours (step 3.5) */
+  lkv_pull(); lk_vdp_ownmem = lkv_mode == 1;
+  if (lkv_mode != 1) fprintf(stderr, "vdpport: LK_VDPPORT v6 data port write + control port + register side effects + DMA = %s\n", lkv_mode == 1 ? "own" : "check (GPGX stores, ours compared)");
   if (lkv_mode == 2) atexit(lkv_report);
 }
 
@@ -117,7 +122,7 @@ static void lkv_bus_w(unsigned int data)
   {
     case 1: lk_vl_write(i); lk_nt_count(i); lk_vm[i] = (uint8)(w >> 8); lk_vm[i + 1] = (uint8)w; break;
     case 3: lk_cm[i] = (uint8)(w >> 8); lk_cm[i + 1] = (uint8)w; break;
-    case 5: if (i < 0x50) { lk_vsm[i] = (uint8)(w >> 8); lk_vsm[i + 1] = (uint8)w; } break;
+    case 5: if (i < 0x50) { lk_vsm[i] = (uint8)(w >> 8); lk_vsm[i + 1] = (uint8)w; } else { lkv_vsx[i - 0x50] = (uint8)(w >> 8); lkv_vsx[i - 0x4F] = (uint8)w; } break;
   }
   if (k) lkv_chip_feed(k, lkv.addr, w);
   lkv.addr += lkv.reg[15];
@@ -445,7 +450,7 @@ static void lkv_fill(unsigned int length)
       do
       {
         if ((lkv.addr & sat_base_mask) == satb) WRITE_BYTE(sat, (lkv.addr & sat_addr_mask) ^ 1, data);   /* GPGX's caches (until 3.5) */
-        lk_vm[lkv.addr] = data;
+        lk_vm[lkv.addr ^ 1] = data;   /* big endian: the adjacent byte (was lkv.addr until 2026-11-01: wrong byte, found by the step 3.5 dump) */
         WRITE_BYTE(vram, lkv.addr ^ 1, data); MARK_BG_DIRTY(lkv.addr);
         lkv.addr += lkv.reg[15];
       }
@@ -471,6 +476,7 @@ static void lkv_fill(unsigned int length)
       do
       {
         if ((lkv.addr & 0x7E) < 0x50) { lk_vsm[lkv.addr & 0x7E] = (uint8)(data >> 8); lk_vsm[(lkv.addr & 0x7E) + 1] = (uint8)data; }
+        else { lkv_vsx[(lkv.addr & 0x7E) - 0x50] = (uint8)(data >> 8); lkv_vsx[(lkv.addr & 0x7E) - 0x4F] = (uint8)data; }
         *(uint16 *)&vsram[lkv.addr & 0x7E] = data;
         lkv.addr += lkv.reg[15];
       }
@@ -567,7 +573,7 @@ static void lkv_dma_compare(void)
   if (addr != lkv_dp.addr) bad |= 4;
   if (dma_endCycles != lkv_dp.end || m68k.cycles != lkv_dp.cyc || (status & 2) != lkv_dp.busy) bad |= 8;
   if (reg[19] != lkv_dp.r19 || reg[20] != lkv_dp.r20 || reg[21] != lkv_dp.r21 || reg[22] != lkv_dp.r22) bad |= 16;
-  if (lkv_dp.fillk == 1) { for (i = 0; i < lkv_dp.fn; i++) if (lk_vm[(uint16)(lkv_dp.fa + i * lkv.reg[15])] != lkv_dp.fillv) { bad |= 32; break; } }
+  if (lkv_dp.fillk == 1) { for (i = 0; i < lkv_dp.fn; i++) if (lk_vm[(uint16)((lkv_dp.fa + i * lkv.reg[15]) ^ 1)] != lkv_dp.fillv) { bad |= 32; break; } }
   else if (lkv_dp.fillk == 3 || lkv_dp.fillk == 5)
   {
     const uint8 *m = (lkv_dp.fillk == 3) ? lk_cm : lk_vsm;
@@ -628,3 +634,17 @@ static int lkv_dataw_hook(unsigned int data)
   return 1;
 }
 
+/* ---- step 3.5: headless RAM dump from our memories (bus.c bus_dump_state), GPGX's layout: reg 32 | CRAM 128 | VSRAM 128 | VRAM 64K, native byte order ---- */
+int lk_vdp_dump_own(FILE *f)
+{
+  static uint8 v[0x10000]; uint16 c[0x40], vs[0x40]; int i;
+  if (lkv_mode < 0) lkv_init();
+  if (lkv_mode != 1) return 0;
+  fwrite(lkv.reg, 1, 0x20, f);
+  for (i = 0; i < 0x40; i++) { unsigned w = (lk_cm[2 * i] << 8) | lk_cm[2 * i + 1]; c[i] = ((w & 0xE00) >> 3) | ((w & 0x0E0) >> 2) | ((w & 0x00E) >> 1); }
+  for (i = 0; i < 0x40; i++) vs[i] = (2 * i < 0x50) ? ((lk_vsm[2 * i] << 8) | lk_vsm[2 * i + 1]) : ((lkv_vsx[2 * i - 0x50] << 8) | lkv_vsx[2 * i - 0x4F]);
+  fwrite(c, 1, 0x80, f); fwrite(vs, 1, 0x80, f);
+  for (i = 0; i < 0x10000; i++) v[i ^ 1] = lk_vm[i];   /* (little endian host = GPGX's LSB_FIRST order) */
+  fwrite(v, 1, 0x10000, f);
+  return 1;
+}
