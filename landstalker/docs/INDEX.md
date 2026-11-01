@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-01 (dev, Opus 5.5): SYSTEM START step 4.2 (opt-in `LANDSTALKER_BOOT`, `LK_BOOT v1` + `LK_VDPPORT v8`): vdp_init, gen_reset, io_reset ours:** check 0 mismatches (vdp_init, 73 231 + 84 670 bytes), timebench BOOT=own and default IDENTICAL 74 / 74. Next 4.3 (memory map / cartridge).
 - **2026-11-01 (dev, Opus 5.5): SYSTEM START step 4.1 (opt-in `LANDSTALKER_BOOT=own|check`, `LK_VDPPORT v7`): chip reset ours (`lkv_reset`, Mega Drive only):** check 73 231 bytes 0 mismatches, timebench BOOT=own and default IDENTICAL 74 / 74. Plan 4.2-4.4 in SOUND_PLAN section 13.
 - **2026-11-01 (dev, Opus 5.5): VDP step 3.5 DONE: our VDP data path is the default (`LK_VDPPORT v6`, rollback `LANDSTALKER_VDP=gpgx`):** default / poison / gpgx / check timebench IDENTICAL 74 / 74, check 0 mismatches, screenshots 259 / 259. Fixed on the way: GPGX's sprite parse read the chip VRAM (collision bit), VRAM fill / copy wrote the wrong byte into lk_vm. User check on the Deck open.
 - **2026-11-01 (dev, Opus 5.5): VDP step 3.4 DONE: data port write wrapper ours (`LK_VDPPORT v5`, `lkv_data_w`):** own IDENTICAL 74 / 74, check 74 / 74 with 0 data write mismatches. Still opt-in (`LANDSTALKER_VDP=own|check`); next 3.5 (default on + poison: a poison run still changes 21 time traces = some code reads the chip memories).
@@ -402,7 +403,7 @@ Generic lesson: every `func_table: no function` / `RTS to ... has no function` l
 | pad **R2** / **F4**, `LANDSTALKER_TALL=0\|1` | full-height picture: map in the bottom band (4th number of ~/.landstalker_display; `LANDSTALKER_TALL_STRIPS`, `LANDSTALKER_TALL_AT=f,..` test presses); tools/patch_tall.py |
 | `LANDSTALKER_SHOT=f,f,..` | screenshot PNGs of the final picture (patch_shot.py, `_DIR`, `_SCALE`; test tools/shottest/run.sh) |
 | `LANDSTALKER_VDP=gpgx|own|check`, `LANDSTALKER_VDP_CHECKLOG=file` | own VDP data path (tools/lkvdp.c, patch_vdpport.py, SOUND_PLAN section 12): data / control port, register side effects, DMA; DEFAULT OURS since step 3.5 (2026-11-01), `gpgx` = GPGX's decode (rollback), `check` = both compared (summary on stderr + one line per run in the checklog) |
-| `LANDSTALKER_BOOT=gpgx|own|check` | own system start (SOUND_PLAN section 13): step 4.1 = chip reset (`lkv_reset`); default GPGX's until the user confirmed 3.5, `check` prints `vdpboot check: ... mismatches` on stderr |
+| `LANDSTALKER_BOOT=gpgx|own|check` | own system start (SOUND_PLAN section 13): chip reset + vdp_init (`tools/lkvdp.c`), gen_reset + io_reset (`tools/lkboot.c`, `patch_boot.py`); default GPGX's until the user confirmed 3.5, `check` prints `vdpboot check: ... mismatches` on stderr |
 | `LANDSTALKER_VDPCOUNT=file` | counts which VDP paths the game uses (patch_vdpcount.py, sum: tools/vdpcount_sum.py FILE); one line per run appended |
 | `tools/check_docs.py [-v] [--all]` | symbols.json valid + every NAMED address in docs/*.md is in symbols.json; pre-commit hook (`.githooks`, `git config core.hooksPath .githooks`) and CI docs-check run it; `--all` lists bare addresses without symbol |
 | build | `./build.sh ROM` (patch order inside the script) |

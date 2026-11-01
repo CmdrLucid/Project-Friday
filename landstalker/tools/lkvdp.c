@@ -716,3 +716,20 @@ static int lkv_reset_hook(void)
   fprintf(stderr, "vdpboot check: vdp_reset %u bytes compared, %u mismatches\n", (unsigned)na, (unsigned)nd);
   return 1;
 }
+
+/* ---- step 4.2: vdp_init (Mega Drive: line count + the 68K interrupt line) ---- */
+static int lkv_inest;
+static int lkv_init_hook(void)
+{
+  uint16 lpf; void (*s1)(unsigned int), (*s2)(unsigned int);
+  if (lkv_inest) return 0;
+  if (lkv_boot < 0) { const char *e = getenv("LANDSTALKER_BOOT"); lkv_boot = (e && !strcmp(e, "own")) ? 1 : (e && !strcmp(e, "check")) ? 2 : 0; }
+  if (!lkv_boot || system_hw != SYSTEM_MD) return 0;
+  lines_per_frame = vdp_pal ? 313 : 262;
+  set_irq_line = m68k_set_irq; set_irq_line_delay = m68k_set_irq_delay;
+  if (lkv_boot == 1) return 1;
+  lpf = lines_per_frame; s1 = set_irq_line; s2 = set_irq_line_delay;
+  lkv_inest = 1; vdp_init(); lkv_inest = 0;
+  fprintf(stderr, "vdpboot check: vdp_init %s\n", (lpf == lines_per_frame && s1 == set_irq_line && s2 == set_irq_line_delay) ? "0 mismatches" : "MISMATCH");
+  return 1;
+}

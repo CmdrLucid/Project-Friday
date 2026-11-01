@@ -7,12 +7,13 @@ LK_VDPPORT v4 = + step 3.3: DMA engine (lkv_dma_update; needs our VDP timing);
 LK_VDPPORT v5 = + step 3.4: data port write wrapper (lkv_data_w);
 LK_VDPPORT v6 = step 3.5: ours by default (LANDSTALKER_VDP=gpgx = GPGX's decode), the headless RAM dump reads our memories (bus.c),
 GPGX's sprite parse (parse_satb_m5: name / attribute + x, feeds the collision / overflow status) reads lk_vm;
-LK_VDPPORT v7 = + step 4.1: chip reset ours (lkv_reset; LANDSTALKER_BOOT=own|check, default GPGX's vdp_reset for now).
+LK_VDPPORT v7 = + step 4.1: chip reset ours (lkv_reset; LANDSTALKER_BOOT=own|check, default GPGX's vdp_reset for now);
+LK_VDPPORT v8 = + step 4.2: vdp_init ours under the same switch (lkv_init_hook).
 Env LANDSTALKER_VDP: unset / own = ours (default since step 3.5), gpgx = GPGX, check = both, compared after every data word / control word
 (summary on stderr + LANDSTALKER_VDP_CHECKLOG=<file>).  Idempotent.  usage: patch_vdpport.py path/to/genrecomp   (after patch_vdpmirror.py)"""
 import os, shutil, sys
 core = os.path.join(sys.argv[1], "ext/Genesis-Plus-GX/core"); here = os.path.dirname(os.path.abspath(__file__))
-VER = "LK_VDPPORT v7"
+VER = "LK_VDPPORT v8"
 shutil.copy(os.path.join(here, "lkvdp.c"), os.path.join(core, "lkvdp.c"))
 p = os.path.join(core, "vdp_ctrl.c"); s = open(p).read()
 if VER in s:
@@ -59,6 +60,8 @@ ins_in("void vdp_dma_update(unsigned int cycles)\n{\n", "      reg[19] = reg[20]
 # chip reset: ours (LANDSTALKER_BOOT=own) or both compared (=check)
 RS = "void vdp_reset(void)\n{\n  int i;\n"
 rep(RS, RS + "  if (lkv_reset_hook()) return;" + TAG)
+VI = "void vdp_init(void)\n{\n"
+rep(VI, VI + "  if (lkv_init_hook()) return;" + TAG)
 # data port write: ours (own mode) or GPGX's nested + compared (check mode)
 DW = "static void vdp_68k_data_w_m5(unsigned int data)\n{\n"
 rep(DW, DW + "  if (lkv_mode && lkv_dataw_hook(data)) return;" + TAG)
@@ -69,7 +72,7 @@ rep("void lk_vdp_status_ack(void) { pending = 0; }", "void lk_vdp_status_ack(voi
 f0, f1 = func_span(CW); body = s[f0:f1]
 a = "      vdp_reg_w((data >> 8) & 0x1F, data & 0xFF, m68k.cycles);\n"
 s = s[:f0] + body.replace(a, "      if (lkv_mode == 2) lkv_reg_check((data >> 8) & 0x1F, data & 0xFF, m68k.cycles); else" + TAG + a) + s[f1:]
-rep("static int lkv_bus_hook(unsigned int data), lkv_ctrl_hook(unsigned int data);", "static int lkv_bus_hook(unsigned int data), lkv_ctrl_hook(unsigned int data); static void lkv_reg_check(unsigned int r, unsigned int d, unsigned int cycles); static int lkv_dma_hook(unsigned int cycles), lkv_dataw_hook(unsigned int data), lkv_reset_hook(void);")
+rep("static int lkv_bus_hook(unsigned int data), lkv_ctrl_hook(unsigned int data);", "static int lkv_bus_hook(unsigned int data), lkv_ctrl_hook(unsigned int data); static void lkv_reg_check(unsigned int r, unsigned int d, unsigned int cycles); static int lkv_dma_hook(unsigned int cycles), lkv_dataw_hook(unsigned int data), lkv_reset_hook(void), lkv_init_hook(void);")
 open(p, "w").write(s)
 print("vdp_ctrl.c patched:", VER)
 
