@@ -225,6 +225,8 @@ python3 tools/patch_subpix.py .deps/genrecomp
 python3 tools/patch_roommap.py .deps/genrecomp
 # VDP data path step 3.0: path counters in vdp_ctrl.c (LANDSTALKER_VDPCOUNT=file; inert without it; tools/patch_vdpcount.py, docs/SOUND_PLAN.md section 12)
 python3 tools/patch_vdpcount.py .deps/genrecomp
+# VDP data path of our own (step 3.1: data port write; LANDSTALKER_VDP=own|check, default still GPGX until step 3.5; tools/patch_vdpport.py + tools/lkvdp.c, docs/SOUND_PLAN.md section 12)
+python3 tools/patch_vdpport.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json
