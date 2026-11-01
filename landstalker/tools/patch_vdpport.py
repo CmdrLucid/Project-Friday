@@ -3,12 +3,13 @@
 tools/lkvdp.c (copied next to it and #included just before vdp_bus_w).  Step 3.1: data port write (store into lk_vm / lk_cm / lk_vsm,
 auto increment, widescreen hooks; GPGX's caches fed until step 3.5); marker LK_VDPPORT v2 = + step 3.2a: control port (command latch,
 register file, DMA start decode); LK_VDPPORT v3 = + step 3.2b: register side effects (lkv_reg_w);
-LK_VDPPORT v4 = + step 3.3: DMA engine (lkv_dma_update; needs our VDP timing).
+LK_VDPPORT v4 = + step 3.3: DMA engine (lkv_dma_update; needs our VDP timing);
+LK_VDPPORT v5 = + step 3.4: data port write wrapper (lkv_data_w).
 Env LANDSTALKER_VDP: unset / gpgx = GPGX (default until step 3.5), own = ours, check = both, compared after every data word / control word
 (summary on stderr + LANDSTALKER_VDP_CHECKLOG=<file>).  Idempotent.  usage: patch_vdpport.py path/to/genrecomp   (after patch_vdpmirror.py)"""
 import os, shutil, sys
 core = os.path.join(sys.argv[1], "ext/Genesis-Plus-GX/core"); here = os.path.dirname(os.path.abspath(__file__))
-VER = "LK_VDPPORT v4"
+VER = "LK_VDPPORT v5"
 shutil.copy(os.path.join(here, "lkvdp.c"), os.path.join(core, "lkvdp.c"))
 p = os.path.join(core, "vdp_ctrl.c"); s = open(p).read()
 if VER in s:
@@ -52,6 +53,9 @@ DU = "void vdp_dma_update(unsigned int cycles)\n{\n"
 rep(DU, DU + "  if (lkv_mode && lkv_dma_hook(cycles)) return;" + TAG)
 # DMA end: GPGX's engine advanced the source / cleared the length registers (until step 3.3)
 ins_in("void vdp_dma_update(unsigned int cycles)\n{\n", "      reg[19] = reg[20] = 0;\n", "      if (lkv_mode) lkv_pull_dmaregs();" + TAG)
+# data port write: ours (own mode) or GPGX's nested + compared (check mode)
+DW = "static void vdp_68k_data_w_m5(unsigned int data)\n{\n"
+rep(DW, DW + "  if (lkv_mode && lkv_dataw_hook(data)) return;" + TAG)
 # pending is cleared by a data write and by a status read
 ins_in("static void vdp_68k_data_w_m5(unsigned int data)\n{\n", "  /* Clear pending flag */\n  pending = 0;\n", "  lkv.pending = 0;" + TAG)
 rep("void lk_vdp_status_ack(void) { pending = 0; }", "void lk_vdp_status_ack(void) { pending = 0; lkv.pending = 0; }   /* LK_VDPPORT v2 */")
@@ -59,7 +63,7 @@ rep("void lk_vdp_status_ack(void) { pending = 0; }", "void lk_vdp_status_ack(voi
 f0, f1 = func_span(CW); body = s[f0:f1]
 a = "      vdp_reg_w((data >> 8) & 0x1F, data & 0xFF, m68k.cycles);\n"
 s = s[:f0] + body.replace(a, "      if (lkv_mode == 2) lkv_reg_check((data >> 8) & 0x1F, data & 0xFF, m68k.cycles); else" + TAG + a) + s[f1:]
-rep("static int lkv_bus_hook(unsigned int data), lkv_ctrl_hook(unsigned int data);", "static int lkv_bus_hook(unsigned int data), lkv_ctrl_hook(unsigned int data); static void lkv_reg_check(unsigned int r, unsigned int d, unsigned int cycles); static int lkv_dma_hook(unsigned int cycles);")
+rep("static int lkv_bus_hook(unsigned int data), lkv_ctrl_hook(unsigned int data);", "static int lkv_bus_hook(unsigned int data), lkv_ctrl_hook(unsigned int data); static void lkv_reg_check(unsigned int r, unsigned int d, unsigned int cycles); static int lkv_dma_hook(unsigned int cycles), lkv_dataw_hook(unsigned int data);")
 open(p, "w").write(s)
 print("vdp_ctrl.c patched:", VER)
 
@@ -70,3 +74,4 @@ if VER not in s:
     assert s.count(a) == 1
     s = s.replace(a, "void *lk_clip_ptr(void) { return clip; }   /* %s */\nint lk_clip_bytes(void) { return (int)sizeof clip; }\n" % VER + a, 1)
     open(p, "w").write(s); print("vdp_render.c patched:", VER)
+

@@ -4,6 +4,7 @@
  * Step 3.1 (this file, v1): the DATA PORT WRITE = every word the 68K (data port or 68K->VDP DMA) stores into VRAM / CRAM / VSRAM:
  * destination decode (code CD0-CD3), byte swap for odd VRAM addresses, store into our memories lk_vm / lk_cm / lk_vsm (the "mirror"
  * of patch_vdpmirror.py becomes the primary copy), the widescreen hooks (lk_vl_write, lk_nt_count), auto increment by register 15.
+ * Step 3.4 (v5): the data port write wrapper (lkv_data_w: pending, word, fill start); chip reset = step 4.
  * Step 3.3 (v4): the DMA engine (lkv_dma_update: bookkeeping + 68K -> VDP from ROM / RAM + fill; copy / io stay GPGX's, never used).
  * Step 3.2b (v3): the register side effects (lkv_reg_w, below); check mode compares the GPGX state after GPGX's and our write.
  * Step 3.2a (v2): the CONTROL PORT = 2-word command latch (pending, address latch A15/A14, code, address), the register file lkv.reg[]
@@ -13,8 +14,8 @@
  * GPGX's own state that its remaining code still reads (address, FIFO for fill, chip VRAM / CRAM / VSRAM, sprite table cache, pattern
  * cache, palette) is fed from here (lkv_chip_feed) until step 3.5 proves (poison) nobody needs the chip memories.
  *
- * LANDSTALKER_VDP: unset / gpgx = GPGX's vdp_bus_w (default until step 3.5), own = ours, check = GPGX stores, ours predicts the same
- * write and both are compared after every word (address + code before, the stored bytes + the new address after).
+ * LANDSTALKER_VDP: unset / gpgx = GPGX's vdp_bus_w (default until step 3.5), own = ours, check = GPGX runs, ours predicts the same
+ * access and both are compared (data word, control word, register write, DMA chunk, data port write).
  * Check summary: stderr at exit, and one line appended to LANDSTALKER_VDP_CHECKLOG=<file> (name of the input script + counters). */
 
 static struct { uint16 addr, addr_latch; uint8 code, pending; uint8 reg[32]; } lkv;   /* our command latch + register file */
@@ -22,18 +23,19 @@ static struct { int kind; unsigned idx; uint8 b0, b1; uint16 next; } lkv_pred;  
 static unsigned long long lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync;
 static unsigned long long lkv_n_regw, lkv_n_rbad, lkv_n_fallback;   /* step 3.2b */
 static unsigned long long lkv_n_dma, lkv_n_dbad, lkv_n_dfallback;   /* step 3.3 */
+static unsigned long long lkv_n_dw, lkv_n_dwbad;   /* step 3.4 */
 static void lkv_reg_w(unsigned int r, unsigned int d, unsigned int cycles);
 static int lkv_nest;   /* check mode: 1 while GPGX's own vdp_68k_ctrl_w runs (called from our hook) */
 
 static void lkv_report(void)
 {
   const char *fn = getenv("LANDSTALKER_VDP_CHECKLOG"), *sc = getenv("GENRECOMP_INPUTSCRIPT"); FILE *f;
-  fprintf(stderr, "vdpport check: words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu regw=%llu reg_mismatches=%llu reg_fallbacks=%llu dma=%llu dma_mismatches=%llu dma_fallbacks=%llu\n",
-          lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync, lkv_n_regw, lkv_n_rbad, lkv_n_fallback, lkv_n_dma, lkv_n_dbad, lkv_n_dfallback);
+  fprintf(stderr, "vdpport check: words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu regw=%llu reg_mismatches=%llu reg_fallbacks=%llu dma=%llu dma_mismatches=%llu dma_fallbacks=%llu dataw=%llu dataw_mismatches=%llu\n",
+          lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync, lkv_n_regw, lkv_n_rbad, lkv_n_fallback, lkv_n_dma, lkv_n_dbad, lkv_n_dfallback, lkv_n_dw, lkv_n_dwbad);
   if (fn && (f = fopen(fn, "a")))
   {
-    fprintf(f, "%s words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu regw=%llu reg_mismatches=%llu reg_fallbacks=%llu dma=%llu dma_mismatches=%llu dma_fallbacks=%llu\n",
-            sc ? (strrchr(sc, '/') ? strrchr(sc, '/') + 1 : sc) : "-", lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync, lkv_n_regw, lkv_n_rbad, lkv_n_fallback, lkv_n_dma, lkv_n_dbad, lkv_n_dfallback);
+    fprintf(f, "%s words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu regw=%llu reg_mismatches=%llu reg_fallbacks=%llu dma=%llu dma_mismatches=%llu dma_fallbacks=%llu dataw=%llu dataw_mismatches=%llu\n",
+            sc ? (strrchr(sc, '/') ? strrchr(sc, '/') + 1 : sc) : "-", lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync, lkv_n_regw, lkv_n_rbad, lkv_n_fallback, lkv_n_dma, lkv_n_dbad, lkv_n_dfallback, lkv_n_dw, lkv_n_dwbad);
     fclose(f);
   }
 }
@@ -43,7 +45,7 @@ static void lkv_init(void)
   const char *e = getenv("LANDSTALKER_VDP");
   lkv_mode = (e && !strcmp(e, "own")) ? 1 : (e && !strcmp(e, "check")) ? 2 : 0;
   lkv_pull();
-  if (lkv_mode) fprintf(stderr, "vdpport: LK_VDPPORT v4 data port write + control port + register side effects + DMA = %s\n", lkv_mode == 1 ? "own" : "check (GPGX stores, ours compared)");
+  if (lkv_mode) fprintf(stderr, "vdpport: LK_VDPPORT v5 data port write + control port + register side effects + DMA = %s\n", lkv_mode == 1 ? "own" : "check (GPGX stores, ours compared)");
   if (lkv_mode == 2) atexit(lkv_report);
 }
 
@@ -590,3 +592,39 @@ static int lkv_dma_hook(unsigned int cycles)
   lkv.addr = addr;
   return 1;
 }
+
+/* ---- step 3.4: data port write (the 68K's word to $C00000; GPGX's vdp_68k_data_w_m5) ---- */
+/* clears the pending flag, stores the word (the FIFO wait is our timing's: bus.c lk_t_fifo_w), and a pending fill starts now with the
+ * length of registers 19 / 20.  Data port READS never happen in this game (step 3.0): GPGX's vdp_68k_data_r_m5 stays.  The chip reset
+ * (vdp_reset / vdp_init) belongs to step 4 (system start): we take over its result (lkv_pull at the end of vdp_reset). */
+static int lkv_dwnest;
+
+static void lkv_data_w(unsigned int data)
+{
+  lkv.pending = 0; pending = 0;
+  lkv_bus_w(data);
+  if (dmafill)
+  {
+    dma_length = (lkv.reg[20] << 8) | lkv.reg[19]; if (!dma_length) dma_length = 0x10000;
+    vdp_dma_update(m68k.cycles);
+    dmafill = 0;
+  }
+}
+
+/* hook at the top of vdp_68k_data_w_m5: 1 = handled */
+static int lkv_dataw_hook(unsigned int data)
+{
+  if (lkv_mode < 0) lkv_init();
+  if (!lk_v_own || lk_v_shadow || lkv_dwnest) return 0;   /* GPGX's timing selected: its FIFO step lives in this function */
+  if (lkv_mode == 1) { lkv_data_w(data); return 1; }
+  if (lkv_mode != 2) return 0;
+  lkv_dwnest = 1; vdp_68k_data_w_m5(data); lkv_dwnest = 0;   /* the word itself and the fill chunk are compared by their own hooks */
+  lkv_n_dw++;
+  if (pending || dmafill || !lkv_ctrl_same())
+  {
+    if (lkv_n_dwbad++ < 10) lkv_ctrl_show("DATA WRITE MISMATCH after");
+    lkv_pull();
+  }
+  return 1;
+}
+
