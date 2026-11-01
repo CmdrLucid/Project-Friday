@@ -5,6 +5,7 @@
  * destination decode (code CD0-CD3), byte swap for odd VRAM addresses, store into our memories lk_vm / lk_cm / lk_vsm (the "mirror"
  * of patch_vdpmirror.py becomes the primary copy), the widescreen hooks (lk_vl_write, lk_nt_count), auto increment by register 15.
  * Step 3.5 (v6): ours by default; the dump reads our memories; LANDSTALKER_OWN_POISON (chip memories = garbage every frame) proves nobody else reads them.
+ * Step 5.2 (v10): our SAT cache lk_sat16 (for the sprite overflow status, tools/patch_chipline.py).
  * Step 3.4 (v5): the data port write wrapper (lkv_data_w: pending, word, fill start); chip reset = step 4.
  * Step 3.3 (v4): the DMA engine (lkv_dma_update: bookkeeping + 68K -> VDP from ROM / RAM + fill; copy / io stay GPGX's, never used).
  * Step 3.2b (v3): the register side effects (lkv_reg_w, below); check mode compares the GPGX state after GPGX's and our write.
@@ -22,6 +23,8 @@
  * Check summary: stderr at exit, and one line appended to LANDSTALKER_VDP_CHECKLOG=<file> (name of the input script + counters). */
 
 static struct { uint16 addr, addr_latch; uint8 code, pending; uint8 reg[32]; } lkv;   /* our command latch + register file */
+int lk_sat_dirty = 1;   /* step 5.2: set at every lk_sat16 write (the per-line sprite counts of tools/patch_chipline.py are rebuilt) */
+uint16 lk_sat16[0x200];   /* step 5.2: our copy of the chip's internal sprite table cache (big endian words, index = SAT byte offset / 2): written like GPGX's sat[] */
 static struct { int kind; unsigned idx; uint8 b0, b1; uint16 next; } lkv_pred;
 static uint8 lkv_vsx[0x30];   /* VSRAM $50..$7F: written like the chip does, never displayed (only for the dump) */   /* check mode: the predicted store of the current word */
 static unsigned long long lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync;
@@ -76,7 +79,7 @@ static void lkv_chip_feed(int kind, unsigned a, unsigned data)
     case 1:
     {
       int index = a & 0xFFFE; uint16 *p = (uint16 *)&vram[index];
-      if ((index & sat_base_mask) == satb) *(uint16 *)&sat[index & sat_addr_mask] = data;
+      if ((index & sat_base_mask) == satb) { *(uint16 *)&sat[index & sat_addr_mask] = data; lk_sat16[(index & sat_addr_mask) >> 1] = (uint16)data; lk_sat_dirty = 1; }   /* + our SAT cache (step 5.2) */
       if (data != *p) { *p = data; MARK_BG_DIRTY(index); }
       break;
     }
@@ -449,7 +452,7 @@ static void lkv_fill(unsigned int length)
       uint8 data = fifo[(fifo_idx + 3) & 3] >> 8; int name;
       do
       {
-        if ((lkv.addr & sat_base_mask) == satb) WRITE_BYTE(sat, (lkv.addr & sat_addr_mask) ^ 1, data);   /* GPGX's caches (until 3.5) */
+        if ((lkv.addr & sat_base_mask) == satb) { unsigned sa = lkv.addr & sat_addr_mask; WRITE_BYTE(sat, sa ^ 1, data); lk_sat16[sa >> 1] = (sa & 1) ? (uint16)((lk_sat16[sa >> 1] & 0xFF00) | data) : (uint16)((lk_sat16[sa >> 1] & 0x00FF) | (data << 8)); lk_sat_dirty = 1; }   /* GPGX's cache + ours (step 5.2; the adjacent byte, as the chip) */
         lk_vm[lkv.addr ^ 1] = data;   /* big endian: the adjacent byte (was lkv.addr until 2026-11-01: wrong byte, found by the step 3.5 dump) */
         WRITE_BYTE(vram, lkv.addr ^ 1, data); MARK_BG_DIRTY(lkv.addr);
         lkv.addr += lkv.reg[15];
@@ -679,7 +682,7 @@ static void lkv_reset(void)
   color_update_m4(0x40, 0x00);
   /* ours */
   memset(lk_vm, 0, 0x10000); memset(lk_cm, 0, 0x80); memset(lk_vsm, 0, 0x50); memset(lkv_vsx, 0, sizeof lkv_vsx);
-  memset(&lkv, 0, sizeof lkv); memcpy(lkv.reg, reg, sizeof lkv.reg);
+  memset(&lkv, 0, sizeof lkv); memcpy(lkv.reg, reg, sizeof lkv.reg); memset(lk_sat16, 0, sizeof lk_sat16); lk_sat_dirty = 1;
 }
 
 /* check mode: every variable vdp_reset writes, byte for byte */
