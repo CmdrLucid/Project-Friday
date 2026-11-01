@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-01 (dev, Opus 5.5): VDP step 3.3 DONE: DMA engine ours (`LK_VDPPORT v4`, `lkv_dma_update`):** own IDENTICAL 74 / 74, check 1.43 M DMA chunks 0 mismatches, screenshots 266 / 266. Still opt-in. Next: 3.4 data port wrapper + reset, then 3.5 default on + poison.
 - **2026-11-01 (dev, Opus 5.5): VDP step 3.2b DONE: register side effects ours (`LK_VDPPORT v3`, `lkv_reg_w`):** own IDENTICAL 74 / 74, check 11.6 M register writes 0 mismatches, screenshots 266 / 266 identical. Still opt-in (`LANDSTALKER_VDP=own|check`). Next: 3.3 DMA engine.
 - **2026-11-01 (dev, Opus 5.5): VDP step 3.2a DONE: own control port (command latch + register file + DMA start decode, `LK_VDPPORT v2`):** own IDENTICAL 74 / 74, check 20 M control words 0 mismatches. Next: 3.2b register side effects.
 - **2026-11-01 (dev, Opus 5.5): VDP DATA PATH step 3.1 DONE: own data port write (`tools/lkvdp.c`, `tools/patch_vdpport.py`, `LK_VDPPORT v1`), opt-in `LANDSTALKER_VDP=own|check` (default GPGX until 3.5):** timebench own IDENTICAL 74 / 74, check mode 265 M words 0 mismatches. Timebench re-baselined (74 runs, old: `baseline_before_vdp31.txt`). Next: 3.2 control port + registers.

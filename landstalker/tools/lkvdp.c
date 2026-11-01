@@ -4,6 +4,7 @@
  * Step 3.1 (this file, v1): the DATA PORT WRITE = every word the 68K (data port or 68K->VDP DMA) stores into VRAM / CRAM / VSRAM:
  * destination decode (code CD0-CD3), byte swap for odd VRAM addresses, store into our memories lk_vm / lk_cm / lk_vsm (the "mirror"
  * of patch_vdpmirror.py becomes the primary copy), the widescreen hooks (lk_vl_write, lk_nt_count), auto increment by register 15.
+ * Step 3.3 (v4): the DMA engine (lkv_dma_update: bookkeeping + 68K -> VDP from ROM / RAM + fill; copy / io stay GPGX's, never used).
  * Step 3.2b (v3): the register side effects (lkv_reg_w, below); check mode compares the GPGX state after GPGX's and our write.
  * Step 3.2a (v2): the CONTROL PORT = 2-word command latch (pending, address latch A15/A14, code, address), the register file lkv.reg[]
  * (own copy, written by register writes) and the DMA start decode.  The register SIDE EFFECTS (mode / table bases / IRQ / viewport, our
@@ -20,18 +21,19 @@ static struct { uint16 addr, addr_latch; uint8 code, pending; uint8 reg[32]; } l
 static struct { int kind; unsigned idx; uint8 b0, b1; uint16 next; } lkv_pred;   /* check mode: the predicted store of the current word */
 static unsigned long long lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync;
 static unsigned long long lkv_n_regw, lkv_n_rbad, lkv_n_fallback;   /* step 3.2b */
+static unsigned long long lkv_n_dma, lkv_n_dbad, lkv_n_dfallback;   /* step 3.3 */
 static void lkv_reg_w(unsigned int r, unsigned int d, unsigned int cycles);
 static int lkv_nest;   /* check mode: 1 while GPGX's own vdp_68k_ctrl_w runs (called from our hook) */
 
 static void lkv_report(void)
 {
   const char *fn = getenv("LANDSTALKER_VDP_CHECKLOG"), *sc = getenv("GENRECOMP_INPUTSCRIPT"); FILE *f;
-  fprintf(stderr, "vdpport check: words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu regw=%llu reg_mismatches=%llu reg_fallbacks=%llu\n",
-          lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync, lkv_n_regw, lkv_n_rbad, lkv_n_fallback);
+  fprintf(stderr, "vdpport check: words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu regw=%llu reg_mismatches=%llu reg_fallbacks=%llu dma=%llu dma_mismatches=%llu dma_fallbacks=%llu\n",
+          lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync, lkv_n_regw, lkv_n_rbad, lkv_n_fallback, lkv_n_dma, lkv_n_dbad, lkv_n_dfallback);
   if (fn && (f = fopen(fn, "a")))
   {
-    fprintf(f, "%s words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu regw=%llu reg_mismatches=%llu reg_fallbacks=%llu\n",
-            sc ? (strrchr(sc, '/') ? strrchr(sc, '/') + 1 : sc) : "-", lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync, lkv_n_regw, lkv_n_rbad, lkv_n_fallback);
+    fprintf(f, "%s words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu regw=%llu reg_mismatches=%llu reg_fallbacks=%llu dma=%llu dma_mismatches=%llu dma_fallbacks=%llu\n",
+            sc ? (strrchr(sc, '/') ? strrchr(sc, '/') + 1 : sc) : "-", lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync, lkv_n_regw, lkv_n_rbad, lkv_n_fallback, lkv_n_dma, lkv_n_dbad, lkv_n_dfallback);
     fclose(f);
   }
 }
@@ -41,7 +43,7 @@ static void lkv_init(void)
   const char *e = getenv("LANDSTALKER_VDP");
   lkv_mode = (e && !strcmp(e, "own")) ? 1 : (e && !strcmp(e, "check")) ? 2 : 0;
   lkv_pull();
-  if (lkv_mode) fprintf(stderr, "vdpport: LK_VDPPORT v3 data port write + control port + register side effects = %s\n", lkv_mode == 1 ? "own" : "check (GPGX stores, ours compared)");
+  if (lkv_mode) fprintf(stderr, "vdpport: LK_VDPPORT v4 data port write + control port + register side effects + DMA = %s\n", lkv_mode == 1 ? "own" : "check (GPGX stores, ours compared)");
   if (lkv_mode == 2) atexit(lkv_report);
 }
 
@@ -419,4 +421,172 @@ static void lkv_reg_check(unsigned int r, unsigned int d, unsigned int cycles)
     }
   }
   lkv_side_set(&a);   /* GPGX's result stays */
+}
+
+/* ---- step 3.3: DMA engine ---- */
+/* One DMA chunk (GPGX's vdp_dma_update): the timing is already ours (bus.c lk_v_dma_calc / lk_v_dma_halt, LK_VDPTIME); here the
+ * bookkeeping (end cycle, 68K / Z80 halt, busy flag, length, end registers 19..22, cached second control word) and the transfer:
+ * 68K -> VDP from ROM / work RAM through our data word write, fill (VRAM / CRAM / VSRAM).  Copy (VRAM -> VRAM) and DMA from the io area
+ * never happen in this game (step 3.0): GPGX's functions, counted.  Needs our VDP timing (lk_v_own, not shadow), else GPGX's whole update.
+ * GPGX's dma_length / dma_type / dma_src / dmafill / dma_endCycles / status stay the state (bus.c reads them). */
+extern int lk_v_own, lk_v_shadow, lk_z_own;
+static int lkv_dnest;
+
+static void lkv_fill(unsigned int length)
+{
+  lk_vl_dma(0, length);   /* LANDSTALKER_VDPLOG */
+  switch (lkv.code & 0x0F)
+  {
+    case 0x01:   /* VRAM: the high byte of the last written FIFO entry, one byte per step (at the odd address of the pair, as the chip does) */
+    {
+      uint8 data = fifo[(fifo_idx + 3) & 3] >> 8; int name;
+      do
+      {
+        if ((lkv.addr & sat_base_mask) == satb) WRITE_BYTE(sat, (lkv.addr & sat_addr_mask) ^ 1, data);   /* GPGX's caches (until 3.5) */
+        lk_vm[lkv.addr] = data;
+        WRITE_BYTE(vram, lkv.addr ^ 1, data); MARK_BG_DIRTY(lkv.addr);
+        lkv.addr += lkv.reg[15];
+      }
+      while (--length);
+      break;
+    }
+    case 0x03:   /* CRAM: the next FIFO entry */
+    {
+      uint16 raw = fifo[fifo_idx], data = ((raw & 0xE00) >> 3) | ((raw & 0x0E0) >> 2) | ((raw & 0x00E) >> 1);
+      do
+      {
+        uint16 *p = (uint16 *)&cram[lkv.addr & 0x7E];
+        if (data != *p) { int index = (lkv.addr >> 1) & 0x3F; *p = data; if (index & 0x0F) color_update_m5(index, data); if (index == border) color_update_m5(0x00, data); }
+        lk_cm[lkv.addr & 0x7E] = (uint8)(raw >> 8); lk_cm[(lkv.addr & 0x7E) + 1] = (uint8)raw;
+        lkv.addr += lkv.reg[15];
+      }
+      while (--length);
+      break;
+    }
+    case 0x05:   /* VSRAM: the next FIFO entry */
+    {
+      uint16 data = fifo[fifo_idx];
+      do
+      {
+        if ((lkv.addr & 0x7E) < 0x50) { lk_vsm[lkv.addr & 0x7E] = (uint8)(data >> 8); lk_vsm[(lkv.addr & 0x7E) + 1] = (uint8)data; }
+        *(uint16 *)&vsram[lkv.addr & 0x7E] = data;
+        lkv.addr += lkv.reg[15];
+      }
+      while (--length);
+      break;
+    }
+    default:
+      lkv.addr += lkv.reg[15] * length;   /* invalid destination: nothing written, the address still moves */
+      break;
+  }
+  addr = lkv.addr;
+}
+
+/* 68K -> VDP: source = register 23 (bits 17..23) + dma_src (word address), 128 KB window; rom = external area (memory map), else work RAM */
+static void lkv_dma_68k(unsigned int length, int rom)
+{
+  uint32 source = (lkv.reg[23] << 17) | (dma_src << 1);
+  lk_vl_dma(rom ? 3 : 2, length);   /* LANDSTALKER_VDPLOG */
+  if (!rom) { extern void lk_shadow_promote(void); if (source == 0xFF0550u) lk_shadow_promote(); }   /* LK_SHADOW v7: sprite table DMA */
+  do
+  {
+    uint16 data;
+    if (!rom) data = *(uint16 *)(work_ram + (source & 0xFFFF));
+    else if (m68k.memory_map[source >> 16].read16) data = m68k.memory_map[source >> 16].read16(source);
+    else data = *(uint16 *)(m68k.memory_map[source >> 16].base + (source & 0xFFFF));
+    source = (lkv.reg[23] << 17) | ((source + 2) & 0x1FFFF);
+    lkv_bus_w(data);
+  }
+  while (--length);
+  dma_src = (source >> 1) & 0xFFFF;
+}
+
+static void lkv_dma_update(unsigned int cycles)
+{
+  int dma_cycles, dma_bytes; unsigned int start;
+  dma_cycles = lk_v_dma_calc(cycles, dma_type, dmafill, dma_length, &dma_bytes, &start);
+  dma_endCycles = start + dma_cycles;
+  { extern int lk_tt_active; extern void lk_tt_ev(int, int, unsigned, unsigned, unsigned, unsigned, unsigned); if (lk_tt_active) lk_tt_ev('D', 5, dma_type, dma_bytes, dma_length, dma_cycles, ((dma_type < 2 && dma_endCycles > m68k.cycles) ? dma_endCycles - m68k.cycles : 0)); } /* LK_TIMETRACE v1 */
+  if (dma_type < 2)
+  {
+    lk_v_dma_halt(dma_endCycles);                                   /* the 68K waits for its bus */
+    if (!(lk_z_own && lk_v_own) && (zstate & 4)) Z80.cycles = dma_endCycles;
+  }
+  else status |= 0x02;                                              /* busy flag only where the 68K can read it */
+  if (dma_bytes <= 0) return;
+  dma_length -= dma_bytes;
+  switch (lkv.reg[23] >> 4)
+  {
+    case 0: case 1: case 2: case 3: lkv_dma_68k(dma_bytes, 1); break;
+    case 4: case 6: case 7:         lkv_dma_68k(dma_bytes, 0); break;
+    case 8: case 9: case 10: case 11: lkv_fill(dma_bytes); break;
+    default: lkv_n_dfallback++; dma_func[lkv.reg[23] >> 4](dma_bytes); lkv_pull(); break;   /* io area / copy: never in this game */
+  }
+  if (!dma_length)
+  {
+    uint16 end = lkv.reg[21] + (lkv.reg[22] << 8) + lkv.reg[19] + (lkv.reg[20] << 8);   /* source registers advance, length registers count down */
+    lkv.reg[21] = end & 0xFF; lkv.reg[22] = end >> 8; lkv.reg[19] = lkv.reg[20] = 0;
+    reg[19] = lkv.reg[19]; reg[20] = lkv.reg[20]; reg[21] = lkv.reg[21]; reg[22] = lkv.reg[22];
+    if (cached_write >= 0) { vdp_68k_ctrl_w(cached_write); cached_write = -1; }
+    zstate &= ~4;
+  }
+}
+
+/* check mode: what one chunk must leave behind, computed from the state before GPGX runs it */
+static struct { int on; unsigned len, src, end, cyc; uint16 addr; uint8 r19, r20, r21, r22, busy; int fillk; unsigned fillv; uint16 fa; unsigned fn; } lkv_dp;
+static void lkv_dma_predict(unsigned int cycles)
+{
+  int b; unsigned st, c = lk_v_dma_calc(cycles, dma_type, dmafill, dma_length, &b, &st), k = lkv.reg[23] >> 4;
+  lkv_dp.on = (k < 12 && k != 5);
+  lkv_dp.end = st + c; lkv_dp.cyc = (dma_type < 2) ? lkv_dp.end : m68k.cycles; lkv_dp.busy = (dma_type < 2) ? (status & 2) : 2;
+  lkv_dp.len = dma_length; lkv_dp.src = dma_src; lkv_dp.addr = lkv.addr; lkv_dp.fillk = 0;
+  lkv_dp.r19 = lkv.reg[19]; lkv_dp.r20 = lkv.reg[20]; lkv_dp.r21 = lkv.reg[21]; lkv_dp.r22 = lkv.reg[22];
+  if (b <= 0) return;
+  lkv_dp.len -= b; lkv_dp.addr = (uint16)(lkv.addr + b * lkv.reg[15]);
+  if (k < 8) lkv_dp.src = (dma_src + b) & 0xFFFF;
+  else
+  {
+    lkv_dp.fillk = lkv.code & 0x0F; lkv_dp.fa = lkv.addr; lkv_dp.fn = b;
+    lkv_dp.fillv = (lkv_dp.fillk == 1) ? (fifo[(fifo_idx + 3) & 3] >> 8) : fifo[fifo_idx];
+  }
+  if (!lkv_dp.len)
+  {
+    uint16 e = lkv.reg[21] + (lkv.reg[22] << 8) + lkv.reg[19] + (lkv.reg[20] << 8);
+    lkv_dp.r21 = e & 0xFF; lkv_dp.r22 = e >> 8; lkv_dp.r19 = lkv_dp.r20 = 0;
+  }
+}
+static void lkv_dma_compare(void)
+{
+  int bad = 0; unsigned i;
+  if (!lkv_dp.on) return;
+  lkv_n_dma++;
+  if (dma_length != lkv_dp.len) bad |= 1;
+  if (dma_src != lkv_dp.src) bad |= 2;
+  if (addr != lkv_dp.addr) bad |= 4;
+  if (dma_endCycles != lkv_dp.end || m68k.cycles != lkv_dp.cyc || (status & 2) != lkv_dp.busy) bad |= 8;
+  if (reg[19] != lkv_dp.r19 || reg[20] != lkv_dp.r20 || reg[21] != lkv_dp.r21 || reg[22] != lkv_dp.r22) bad |= 16;
+  if (lkv_dp.fillk == 1) { for (i = 0; i < lkv_dp.fn; i++) if (lk_vm[(uint16)(lkv_dp.fa + i * lkv.reg[15])] != lkv_dp.fillv) { bad |= 32; break; } }
+  else if (lkv_dp.fillk == 3 || lkv_dp.fillk == 5)
+  {
+    const uint8 *m = (lkv_dp.fillk == 3) ? lk_cm : lk_vsm;
+    for (i = 0; i < lkv_dp.fn && i < 64; i++) { unsigned a = (lkv_dp.fa + i * lkv.reg[15]) & 0x7E; if ((lkv_dp.fillk == 3 || a < 0x50) && (m[a] != (uint8)(lkv_dp.fillv >> 8) || m[a + 1] != (uint8)lkv_dp.fillv)) { bad |= 32; break; } }
+  }
+  if (bad && lkv_n_dbad++ < 10)
+    fprintf(stderr, "vdpport check: DMA MISMATCH chunk %llu bits=%02X len %u/%u src %04X/%04X addr %04X/%04X end %u/%u cyc %u/%u busy %d/%d regs %02X%02X%02X%02X/%02X%02X%02X%02X\n",
+            lkv_n_dma, bad, lkv_dp.len, (unsigned)dma_length, lkv_dp.src, (unsigned)dma_src, lkv_dp.addr, addr, lkv_dp.end, (unsigned)dma_endCycles, lkv_dp.cyc, (unsigned)m68k.cycles,
+            lkv_dp.busy, status & 2, lkv_dp.r19, lkv_dp.r20, lkv_dp.r21, lkv_dp.r22, reg[19], reg[20], reg[21], reg[22]);
+}
+
+/* hook at the top of vdp_dma_update: 1 = handled */
+static int lkv_dma_hook(unsigned int cycles)
+{
+  if (lkv_mode < 0) lkv_init();
+  if (!lk_v_own || lk_v_shadow || lkv_dnest) return 0;   /* GPGX's timing selected: GPGX's whole update */
+  if (lkv_mode == 1) { lkv_dma_update(cycles); return 1; }
+  if (lkv_mode != 2) return 0;
+  lkv_dma_predict(cycles);
+  lkv_dnest = 1; vdp_dma_update(cycles); lkv_dnest = 0;
+  lkv_dma_compare();
+  lkv.addr = addr;
+  return 1;
 }
