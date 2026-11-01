@@ -4,6 +4,7 @@
  * Step 3.1 (this file, v1): the DATA PORT WRITE = every word the 68K (data port or 68K->VDP DMA) stores into VRAM / CRAM / VSRAM:
  * destination decode (code CD0-CD3), byte swap for odd VRAM addresses, store into our memories lk_vm / lk_cm / lk_vsm (the "mirror"
  * of patch_vdpmirror.py becomes the primary copy), the widescreen hooks (lk_vl_write, lk_nt_count), auto increment by register 15.
+ * Step 3.2b (v3): the register side effects (lkv_reg_w, below); check mode compares the GPGX state after GPGX's and our write.
  * Step 3.2a (v2): the CONTROL PORT = 2-word command latch (pending, address latch A15/A14, code, address), the register file lkv.reg[]
  * (own copy, written by register writes) and the DMA start decode.  The register SIDE EFFECTS (mode / table bases / IRQ / viewport, our
  * widescreen patches inside) are still GPGX's vdp_reg_w, called from here (step 3.2b), and the DMA engine still GPGX's (step 3.3);
@@ -18,16 +19,19 @@
 static struct { uint16 addr, addr_latch; uint8 code, pending; uint8 reg[32]; } lkv;   /* our command latch + register file */
 static struct { int kind; unsigned idx; uint8 b0, b1; uint16 next; } lkv_pred;   /* check mode: the predicted store of the current word */
 static unsigned long long lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync;
+static unsigned long long lkv_n_regw, lkv_n_rbad, lkv_n_fallback;   /* step 3.2b */
+static void lkv_reg_w(unsigned int r, unsigned int d, unsigned int cycles);
 static int lkv_nest;   /* check mode: 1 while GPGX's own vdp_68k_ctrl_w runs (called from our hook) */
 
 static void lkv_report(void)
 {
   const char *fn = getenv("LANDSTALKER_VDP_CHECKLOG"), *sc = getenv("GENRECOMP_INPUTSCRIPT"); FILE *f;
-  fprintf(stderr, "vdpport check: words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu\n", lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync);
+  fprintf(stderr, "vdpport check: words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu regw=%llu reg_mismatches=%llu reg_fallbacks=%llu\n",
+          lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync, lkv_n_regw, lkv_n_rbad, lkv_n_fallback);
   if (fn && (f = fopen(fn, "a")))
   {
-    fprintf(f, "%s words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu\n", sc ? (strrchr(sc, '/') ? strrchr(sc, '/') + 1 : sc) : "-",
-            lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync);
+    fprintf(f, "%s words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu regw=%llu reg_mismatches=%llu reg_fallbacks=%llu\n",
+            sc ? (strrchr(sc, '/') ? strrchr(sc, '/') + 1 : sc) : "-", lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync, lkv_n_regw, lkv_n_rbad, lkv_n_fallback);
     fclose(f);
   }
 }
@@ -37,7 +41,7 @@ static void lkv_init(void)
   const char *e = getenv("LANDSTALKER_VDP");
   lkv_mode = (e && !strcmp(e, "own")) ? 1 : (e && !strcmp(e, "check")) ? 2 : 0;
   lkv_pull();
-  if (lkv_mode) fprintf(stderr, "vdpport: LK_VDPPORT v2 data port write + control port = %s\n", lkv_mode == 1 ? "own" : "check (GPGX stores, ours compared)");
+  if (lkv_mode) fprintf(stderr, "vdpport: LK_VDPPORT v3 data port write + control port + register side effects = %s\n", lkv_mode == 1 ? "own" : "check (GPGX stores, ours compared)");
   if (lkv_mode == 2) atexit(lkv_report);
 }
 
@@ -209,7 +213,7 @@ static void lkv_ctrl_w(unsigned int data)
   if (!lkv.pending && dma_length && dma_type < 2) { cached_write = data; return; }   /* second word of a long write that started a 68K DMA: after the DMA (never seen in this game) */
   k = lkv_ctrl_decode(data, &r, &d);
   addr = lkv.addr; code = lkv.code; pending = lkv.pending; addr_latch = lkv.addr_latch;   /* GPGX's copies: its DMA engine, status read and logs still read them */
-  if (k == 1) vdp_reg_w(r, d, m68k.cycles);   /* register side effects: GPGX until step 3.2b (it writes reg[] itself) */
+  if (k == 1) lkv_reg_w(r, d, m68k.cycles);   /* register side effects (step 3.2b; they write GPGX's reg[] copy too) */
   else if (k == 2) lkv_dma_start();
   fifo_byte_access = (lkv.code & 0x06) ? 0 : 1;
 }
@@ -241,4 +245,178 @@ static int lkv_ctrl_hook(unsigned int data)
   lkv_nest = 1; vdp_68k_ctrl_w(data); lkv_nest = 0;   /* GPGX's control port on the same word */
   if (!lkv_ctrl_same()) { if (lkv_n_cbad++ < 10) lkv_ctrl_show("MISMATCH after"); lkv_pull(); }
   return 1;
+}
+
+/* ---- step 3.2b: register side effects ---- */
+/* Everything GPGX's vdp_reg_w does for a mode 5 Mega Drive, on GPGX's globals that its remaining code (and our timing / renderer patches)
+ * read: table bases, H32 / H40 switch, IRQ line, HV latch, V counter limit, viewport changes, backdrop, window clip.  The calls into GPGX's
+ * own renderer (render_line / blank_line / remap_line / color_update / parse_satb, the TALL patch's prerender) only keep its caches fed and
+ * are skipped in check mode (lkv_dry).  Rare paths stay GPGX's (counted, lkv_n_fallback): the mode 4 <-> 5 switch (register 1 bit 2,
+ * once at boot), register 8 (mode 4 H scroll, its line render can move v_counter) and anything in mode 4. */
+extern void *lk_clip_ptr(void); extern int lk_clip_bytes(void);   /* vdp_render.c's window clip state (patch_vdpport.py) */
+static int lkv_dry;
+
+/* the rare paths that stay GPGX's: mode 4 (boot, before the game switches to mode 5), the mode 4 <-> 5 switch, register 8 */
+static inline int lkv_reg_fallback(unsigned int r, unsigned int d)
+{
+  return !(reg[1] & 4) || r == 8 || (r == 1 && ((d ^ reg[1]) & 0x04));
+}
+
+static void lkv_reg_w(unsigned int r, unsigned int d, unsigned int cycles)
+{
+  unsigned ch;
+  if (lkv_reg_fallback(r, d)) { lkv_n_fallback++; vdp_reg_w(r, d, cycles); return; }
+  switch (r)
+  {
+    case 0:
+      ch = d ^ reg[0]; reg[0] = d;
+      if (ch & hint_pending) { if (reg[1] & vint_pending) set_irq_line(6); else if (d & 0x10) set_irq_line_delay(4); else set_irq_line(0); }
+      if ((ch & 0x04) && !lkv_dry) { int i; color_update_m5(0x00, *(uint16 *)&cram[border << 1]); for (i = 1; i < 0x40; i++) color_update_m5(i, *(uint16 *)&cram[i << 1]); }
+      if (ch & 0x02) hvc_latch = (d & 0x02) ? (vdp_hvc_r(cycles) | 0x10000) : 0;   /* HV counter latch (GPGX's HV read; ours is bus.c's lk_v_*) */
+      break;
+    case 1:
+      ch = d ^ reg[1]; reg[1] = d;
+      if ((ch & 0x40) && v_counter < bitmap.viewport.h)   /* display enable changed inside the active picture */
+      {
+        int offset = cycles - mcycles_vdp;
+        if (!(d & 0x40) && !lkv_dry) lk_tall_prerender(v_counter);
+        if (offset <= 860) { if (!lkv_dry) { if ((d & 0x40) && offset > 360) max_sprite_pixels = 128; render_line(v_counter); } max_sprite_pixels = 256 + ((reg[12] & 1) << 6); }
+        else
+        {
+          offset = (reg[12] & 1) ? ((offset - 860) / 8) + 16 : ((offset - 860) / 10) + 16;
+          if (offset < bitmap.viewport.w && !lkv_dry)
+          {
+            if (d & 0x40) { render_line(v_counter); blank_line(v_counter, 0, offset); }
+            else if (!lk_tall_keep(v_counter)) blank_line(v_counter, offset, bitmap.viewport.w - offset);
+          }
+        }
+      }
+      if (ch & vint_pending) { if (d & 0x20) set_irq_line_delay(6); else if (reg[0] & hint_pending) set_irq_line(4); else set_irq_line(0); }
+      if ((ch & 0x08) && (d & 0x04)) { bitmap.viewport.changed |= 2; vc_max = vc_table[(d >> 2) & 3][vdp_pal]; }   /* 224 <-> 240 lines */
+      break;
+    case 2:
+      reg[2] = d; ntab = (d << 10) & 0xE000;
+      if (!lkv_dry && (v_counter < bitmap.viewport.h) && (reg[1] & 0x40) && (cycles <= (mcycles_vdp + 860))) render_line(v_counter);
+      break;
+    case 3:
+      reg[3] = d; ntwb = (reg[12] & 0x01) ? ((d << 10) & 0xF000) : ((d << 10) & 0xF800);
+      if (!lkv_dry && (v_counter < bitmap.viewport.h) && (reg[1] & 0x40) && (cycles <= (mcycles_vdp + 860))) render_line(v_counter);
+      break;
+    case 4:
+      reg[4] = d; ntbb = (d << 13) & 0xE000;
+      if (!lkv_dry && (v_counter < bitmap.viewport.h) && (reg[1] & 0x40) && (cycles <= (mcycles_vdp + 860))) render_line(v_counter);
+      break;
+    case 5:
+      reg[5] = d; satb = (d << 9) & sat_base_mask;
+      if (!lkv_dry && (v_counter < bitmap.viewport.h) && (reg[1] & 0x40) && (cycles <= (mcycles_vdp + 860))) parse_satb(v_counter);
+      break;
+    case 7:
+      reg[7] = d; d &= 0x3F;
+      if (d != border)
+      {
+        border = d;
+        if (!lkv_dry) { color_update_m5(0x00, *(uint16 *)&cram[d << 1]); if ((v_counter < bitmap.viewport.h) && (cycles <= (mcycles_vdp + 860))) remap_line(v_counter); }
+      }
+      break;
+    case 11:
+      reg[11] = d; hscroll_mask = hscroll_mask_table[d & 0x03];
+      render_bg = (d & 0x04) ? (im2_flag ? render_bg_m5_im2_vs : (config.enhanced_vscroll ? render_bg_m5_vs_enhanced : render_bg_m5_vs)) : (im2_flag ? render_bg_m5_im2 : render_bg_m5);
+      break;
+    case 12:
+      ch = d ^ reg[12]; reg[12] = d;
+      if (ch & 0x08)   /* shadow / highlight */
+      {
+        if (!lkv_dry) { int i; color_update_m5(0x00, *(uint16 *)&cram[border << 1]); for (i = 1; i < 0x40; i++) color_update_m5(i, *(uint16 *)&cram[i << 1]); }
+        render_obj = (d & 0x08) ? (im2_flag ? render_obj_m5_im2_ste : render_obj_m5_ste) : (im2_flag ? render_obj_m5_im2 : render_obj_m5);
+      }
+      if (ch & 0x06) bitmap.viewport.changed |= 2;   /* interlace */
+      if (ch & 0x01)   /* H32 <-> H40 */
+      {
+        if (d & 0x01)
+        {
+          ntwb = (reg[3] << 10) & 0xF000; satb = (reg[5] << 9) & 0xFC00; sat_base_mask = 0xFC00; sat_addr_mask = 0x03FF;
+          hctab = cycle2hc40; window_clip(reg[17], 1); max_sprite_pixels = 320; fifo_timing = (int *)fifo_timing_h40;
+          vint_cycle = VINT_H40_MCYCLE; hblank_start_cycle = HBLANK_H40_START_MCYCLE; hblank_end_cycle = HBLANK_H40_END_MCYCLE;
+        }
+        else
+        {
+          ntwb = (reg[3] << 10) & 0xF800; satb = (reg[5] << 9) & 0xFE00; sat_base_mask = 0xFE00; sat_addr_mask = 0x01FF;
+          hctab = cycle2hc32; window_clip(reg[17], 0); max_sprite_pixels = 256; fifo_timing = (int *)fifo_timing_h32;
+          vint_cycle = VINT_H32_MCYCLE; hblank_start_cycle = HBLANK_H32_START_MCYCLE; hblank_end_cycle = HBLANK_H32_END_MCYCLE;
+        }
+        if (v_counter >= bitmap.viewport.h) bitmap.viewport.w = max_sprite_pixels;
+        else if (v_counter <= 1) { bitmap.viewport.w = max_sprite_pixels; if (!lkv_dry) { render_line(0); if (v_counter) render_line(1); } }
+        else bitmap.viewport.changed |= 2;
+      }
+      break;
+    case 13:
+      reg[13] = d; hscb = (d << 10) & 0xFC00;
+      break;
+    case 16:
+      reg[16] = d; playfield_shift = shift_table[d & 3]; playfield_col_mask = col_mask_table[d & 3]; playfield_row_mask = row_mask_table[(d >> 4) & 3];
+      break;
+    case 17:
+      reg[17] = d; window_clip(d, reg[12] & 1);
+      break;
+    default:
+      reg[r] = d;
+      break;
+  }
+}
+
+/* check mode: the GPGX state a register write can change */
+typedef struct
+{
+  uint8 reg[0x20]; uint16 ntab, ntbb, ntwb, satb, hscb, sat_base_mask, sat_addr_mask, vc_max, max_sprite_pixels;
+  uint8 hscroll_mask, playfield_shift, playfield_col_mask, border; uint16 playfield_row_mask;
+  const uint8 *hctab; int *fifo_timing; uint32 vint_cycle, hvc_latch; int hblank_start, hblank_end, vw, vchanged; unsigned int int_level;
+  void (*render_bg)(int); void (*render_obj)(int); void (*parse_satb)(int); void (*pattern)(int); uint8 clip[64];
+} lkv_side_t;
+static void lkv_side_get(lkv_side_t *t)
+{
+  memset(t, 0, sizeof *t); memcpy(t->reg, reg, sizeof t->reg);
+  t->ntab = ntab; t->ntbb = ntbb; t->ntwb = ntwb; t->satb = satb; t->hscb = hscb; t->sat_base_mask = sat_base_mask; t->sat_addr_mask = sat_addr_mask;
+  t->vc_max = vc_max; t->max_sprite_pixels = max_sprite_pixels; t->hscroll_mask = hscroll_mask; t->playfield_shift = playfield_shift;
+  t->playfield_col_mask = playfield_col_mask; t->playfield_row_mask = playfield_row_mask; t->border = border; t->hctab = hctab; t->fifo_timing = fifo_timing;
+  t->vint_cycle = vint_cycle; t->hvc_latch = hvc_latch; t->hblank_start = hblank_start_cycle; t->hblank_end = hblank_end_cycle;
+  t->vw = bitmap.viewport.w; t->vchanged = bitmap.viewport.changed; t->int_level = m68k.int_level;
+  t->render_bg = render_bg; t->render_obj = render_obj; t->parse_satb = parse_satb; t->pattern = update_bg_pattern_cache;
+  if (lk_clip_bytes() > (int)sizeof t->clip) { fprintf(stderr, "vdpport: clip state too big\n"); abort(); }
+  memcpy(t->clip, lk_clip_ptr(), lk_clip_bytes());
+}
+static void lkv_side_set(const lkv_side_t *t)
+{
+  memcpy(reg, t->reg, sizeof t->reg);
+  ntab = t->ntab; ntbb = t->ntbb; ntwb = t->ntwb; satb = t->satb; hscb = t->hscb; sat_base_mask = t->sat_base_mask; sat_addr_mask = t->sat_addr_mask;
+  vc_max = t->vc_max; max_sprite_pixels = t->max_sprite_pixels; hscroll_mask = t->hscroll_mask; playfield_shift = t->playfield_shift;
+  playfield_col_mask = t->playfield_col_mask; playfield_row_mask = t->playfield_row_mask; border = t->border; hctab = t->hctab; fifo_timing = t->fifo_timing;
+  vint_cycle = t->vint_cycle; hvc_latch = t->hvc_latch; hblank_start_cycle = t->hblank_start; hblank_end_cycle = t->hblank_end;
+  bitmap.viewport.w = t->vw; bitmap.viewport.changed = t->vchanged; m68k.int_level = t->int_level;
+  render_bg = t->render_bg; render_obj = t->render_obj; parse_satb = t->parse_satb; update_bg_pattern_cache = t->pattern;
+  memcpy(lk_clip_ptr(), t->clip, lk_clip_bytes());
+}
+
+/* check mode, called instead of GPGX's vdp_reg_w by GPGX's control port: GPGX's write, then ours on the state from before, compared */
+static void lkv_reg_check(unsigned int r, unsigned int d, unsigned int cycles)
+{
+  static lkv_side_t s0, a, b;
+  if (lkv_reg_fallback(r, d)) { lkv_n_fallback++; vdp_reg_w(r, d, cycles); return; }   /* GPGX's in both modes */
+  lkv_side_get(&s0);
+  vdp_reg_w(r, d, cycles);
+  lkv_side_get(&a);
+  lkv_side_set(&s0);
+  lkv_dry = 1; lkv_reg_w(r, d, cycles); lkv_dry = 0;
+  lkv_side_get(&b);
+  lkv_n_regw++;
+  if (memcmp(&a, &b, sizeof a))
+  {
+    if (lkv_n_rbad++ < 10)
+    {
+      const uint8 *pa = (const uint8 *)&a, *pb = (const uint8 *)&b; unsigned i, n = 0;
+      fprintf(stderr, "vdpport check: REG MISMATCH write %llu r%u=%02X: differing bytes at offsets", lkv_n_regw, r, d);
+      for (i = 0; i < sizeof a && n < 12; i++) if (pa[i] != pb[i]) { fprintf(stderr, " %u(%02X/%02X)", i, pa[i], pb[i]); n++; }
+      fprintf(stderr, "\n");
+    }
+  }
+  lkv_side_set(&a);   /* GPGX's result stays */
 }
