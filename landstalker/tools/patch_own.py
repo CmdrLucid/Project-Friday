@@ -472,7 +472,7 @@ static void lk_o_build(void) {                                       /* everythi
   lk_o_extras_upto(1 << 20); lk_o_exon = 0;
   (void)o;
 }
-static int lk_o_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio, lk_o_fi_t *fi) {   /* colour index of one plane pixel at image position (U, V), 0 = transparent */
+static inline __attribute__((always_inline)) int lk_o_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio, lk_o_fi_t *fi) {   /* inlined: called twice per pixel (2026-11-01) */   /* colour index of one plane pixel at image position (U, V), 0 = transparent */
   int tc = U >> 3, tr = V >> 3, ix = U & 7, iy = V & 7; uint32 c; int w, t, b;
   if (U < 0 || V < 0 || tc >= 304 || tr >= 152) return 0;
   c = pl[tr][tc]; if (!(c & 0x10000)) return 0;
