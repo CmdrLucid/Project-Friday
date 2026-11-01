@@ -4,7 +4,10 @@
  * Step 3.1 (this file, v1): the DATA PORT WRITE = every word the 68K (data port or 68K->VDP DMA) stores into VRAM / CRAM / VSRAM:
  * destination decode (code CD0-CD3), byte swap for odd VRAM addresses, store into our memories lk_vm / lk_cm / lk_vsm (the "mirror"
  * of patch_vdpmirror.py becomes the primary copy), the widescreen hooks (lk_vl_write, lk_nt_count), auto increment by register 15.
- * Code / address still come from GPGX's control port (pulled after every change, lkv_pull) until step 3.2; register 15 is read from reg[].
+ * Step 3.2a (v2): the CONTROL PORT = 2-word command latch (pending, address latch A15/A14, code, address), the register file lkv.reg[]
+ * (own copy, written by register writes) and the DMA start decode.  The register SIDE EFFECTS (mode / table bases / IRQ / viewport, our
+ * widescreen patches inside) are still GPGX's vdp_reg_w, called from here (step 3.2b), and the DMA engine still GPGX's (step 3.3);
+ * DMA end writes registers 19..22 itself (pulled, lkv_pull_dmaregs).  Register 15 / 1 / 23 are read from our register file.
  * GPGX's own state that its remaining code still reads (address, FIFO for fill, chip VRAM / CRAM / VSRAM, sprite table cache, pattern
  * cache, palette) is fed from here (lkv_chip_feed) until step 3.5 proves (poison) nobody needs the chip memories.
  *
@@ -12,17 +15,19 @@
  * write and both are compared after every word (address + code before, the stored bytes + the new address after).
  * Check summary: stderr at exit, and one line appended to LANDSTALKER_VDP_CHECKLOG=<file> (name of the input script + counters). */
 
-static struct { uint16 addr; uint8 code; } lkv;          /* our address / code register (3.1: pulled from GPGX's control port) */
+static struct { uint16 addr, addr_latch; uint8 code, pending; uint8 reg[32]; } lkv;   /* our command latch + register file */
 static struct { int kind; unsigned idx; uint8 b0, b1; uint16 next; } lkv_pred;   /* check mode: the predicted store of the current word */
-static unsigned long long lkv_n_words, lkv_n_bad, lkv_n_sync;
+static unsigned long long lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync;
+static int lkv_nest;   /* check mode: 1 while GPGX's own vdp_68k_ctrl_w runs (called from our hook) */
 
 static void lkv_report(void)
 {
   const char *fn = getenv("LANDSTALKER_VDP_CHECKLOG"), *sc = getenv("GENRECOMP_INPUTSCRIPT"); FILE *f;
-  fprintf(stderr, "vdpport check: words=%llu mismatches=%llu sync_misses=%llu\n", lkv_n_words, lkv_n_bad, lkv_n_sync);
+  fprintf(stderr, "vdpport check: words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu\n", lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync);
   if (fn && (f = fopen(fn, "a")))
   {
-    fprintf(f, "%s words=%llu mismatches=%llu sync_misses=%llu\n", sc ? (strrchr(sc, '/') ? strrchr(sc, '/') + 1 : sc) : "-", lkv_n_words, lkv_n_bad, lkv_n_sync);
+    fprintf(f, "%s words=%llu mismatches=%llu sync_misses=%llu ctrl=%llu ctrl_mismatches=%llu ctrl_sync_misses=%llu\n", sc ? (strrchr(sc, '/') ? strrchr(sc, '/') + 1 : sc) : "-",
+            lkv_n_words, lkv_n_bad, lkv_n_sync, lkv_n_ctrl, lkv_n_cbad, lkv_n_csync);
     fclose(f);
   }
 }
@@ -31,16 +36,22 @@ static void lkv_init(void)
 {
   const char *e = getenv("LANDSTALKER_VDP");
   lkv_mode = (e && !strcmp(e, "own")) ? 1 : (e && !strcmp(e, "check")) ? 2 : 0;
-  lkv.addr = addr; lkv.code = code;
-  if (lkv_mode) fprintf(stderr, "vdpport: LK_VDPPORT v1 data port write = %s\n", lkv_mode == 1 ? "own" : "check (GPGX stores, ours compared)");
+  lkv_pull();
+  if (lkv_mode) fprintf(stderr, "vdpport: LK_VDPPORT v2 data port write + control port = %s\n", lkv_mode == 1 ? "own" : "check (GPGX stores, ours compared)");
   if (lkv_mode == 2) atexit(lkv_report);
 }
 
-/* GPGX changed address / code (control port, fill, copy, reset): take them over (step 3.2 makes the control port ours) */
+/* GPGX changed our state (reset; in gpgx / check mode also its control port, fill, copy): take it over */
 static void lkv_pull(void)
 {
-  if (lkv_mode < 0) lkv_init();
-  lkv.addr = addr; lkv.code = code;
+  if (lkv_mode < 0) { lkv_init(); return; }
+  lkv.addr = addr; lkv.code = code; lkv.pending = pending; lkv.addr_latch = addr_latch; memcpy(lkv.reg, reg, sizeof lkv.reg);
+}
+
+/* GPGX's DMA engine finished a DMA: it advanced the source registers 21 / 22 and cleared the length 19 / 20 (ours from step 3.3) */
+static void lkv_pull_dmaregs(void)
+{
+  lkv.reg[19] = reg[19]; lkv.reg[20] = reg[20]; lkv.reg[21] = reg[21]; lkv.reg[22] = reg[22];
 }
 
 /* the emulator's caches of the same write (chip memories, sprite table cache, pattern cache, palette): only until step 3.5 */
@@ -101,7 +112,7 @@ static void lkv_bus_w(unsigned int data)
     case 5: if (i < 0x50) { lk_vsm[i] = (uint8)(w >> 8); lk_vsm[i + 1] = (uint8)w; } break;
   }
   if (k) lkv_chip_feed(k, lkv.addr, w);
-  lkv.addr += reg[15];
+  lkv.addr += lkv.reg[15];
   addr = lkv.addr;   /* GPGX's address register follows ours (its fill / copy / status code still read it) */
 }
 
@@ -110,14 +121,14 @@ static void lkv_check_pre(unsigned int data)
 {
   unsigned i, w;
   lkv_n_words++;
-  if (lkv.addr != addr || lkv.code != code)
+  if (lkv.addr != addr || lkv.code != code || lkv.reg[15] != reg[15])
   {
     if (lkv_n_sync++ < 10) fprintf(stderr, "vdpport check: SYNC MISS word %llu own addr=%04X code=%02X gpgx addr=%04X code=%02X\n", lkv_n_words, lkv.addr, lkv.code, addr, code);
     lkv.addr = addr; lkv.code = code;
   }
   lkv_pred.kind = lkv_decode(data, &i, &w);
   lkv_pred.idx = i; lkv_pred.b0 = (uint8)(w >> 8); lkv_pred.b1 = (uint8)w;
-  lkv_pred.next = (uint16)(lkv.addr + reg[15]);
+  lkv_pred.next = (uint16)(lkv.addr + lkv.reg[15]);
 }
 
 /* check mode, after GPGX's vdp_bus_w: compare the stored bytes and the new address */
@@ -140,4 +151,94 @@ static int lkv_bus_hook(unsigned int data)
   if (lkv_mode == 1) { lkv_bus_w(data); return 1; }
   if (lkv_mode == 2) lkv_check_pre(data);
   return 0;
+}
+
+/* ---- step 3.2a: control port ---- */
+
+/* one control word on a latch state: returns 1 = register write (*r, *d), 2 = DMA start (second word with CD5 and DMA enabled), 0 = else */
+static int lkv_ctrl_decode(unsigned int data, unsigned *r, unsigned *d)
+{
+  if (!lkv.pending)
+  {
+    lkv.addr = lkv.addr_latch | (data & 0x3FFF);
+    lkv.code = (lkv.code & 0x3C) | ((data >> 14) & 0x03);
+    if ((data & 0xC000) == 0x8000)
+    {
+      *r = (data >> 8) & 0x1F; *d = data & 0xFF;
+      if ((lkv.reg[1] & 4) || *r <= 10) lkv.reg[*r] = *d;   /* registers 11..23 are locked in mode 4 (vdp_reg_w) */
+      /* (mode 4 only: GPGX's vdp_reg_w can clear register 1 bit 2 again; the game never leaves mode 5, check mode would see it) */
+      return 1;
+    }
+    lkv.pending = lkv.reg[1] & 4;
+    return 0;
+  }
+  lkv.pending = 0;
+  lkv.addr_latch = (data & 3) << 14;
+  lkv.addr = lkv.addr_latch | (lkv.addr & 0x3FFF);
+  lkv.code = (lkv.code & 0x03) | ((data >> 2) & 0x3C);
+  return ((lkv.code & 0x20) && (lkv.reg[1] & 0x10)) ? 2 : 0;
+}
+
+/* DMA start, as GPGX's control port does it (fill waits for the next data write; copy and 68K->VDP start at once); the engine is GPGX's until 3.3 */
+static void lkv_dma_start(void)
+{
+  switch (lkv.reg[23] >> 6)
+  {
+    case 2:
+      dma_type = 2; dmafill = 1; status |= 0x02; dma_endCycles = 0xffffffff;
+      break;
+    case 3:
+      dma_type = 3;
+      dma_length = (lkv.reg[20] << 8) | lkv.reg[19]; if (!dma_length) dma_length = 0x10000;
+      dma_src = (lkv.reg[22] << 8) | lkv.reg[21];
+      vdp_dma_update(m68k.cycles);
+      break;
+    default:
+      dma_type = (lkv.code & 0x06) ? 0 : 1;
+      dma_length = (lkv.reg[20] << 8) | lkv.reg[19]; if (!dma_length) dma_length = 0x10000;
+      dma_src = (lkv.reg[22] << 8) | lkv.reg[21];
+      vdp_dma_update(m68k.cycles);   /* (GPGX's Sega CD / SVP one-word delay case does not exist on a plain Mega Drive) */
+      break;
+  }
+}
+
+/* own mode: the whole control port write (replaces vdp_68k_ctrl_w) */
+static void lkv_ctrl_w(unsigned int data)
+{
+  unsigned r = 0, d = 0; int k;
+  if (!lkv.pending && dma_length && dma_type < 2) { cached_write = data; return; }   /* second word of a long write that started a 68K DMA: after the DMA (never seen in this game) */
+  k = lkv_ctrl_decode(data, &r, &d);
+  addr = lkv.addr; code = lkv.code; pending = lkv.pending; addr_latch = lkv.addr_latch;   /* GPGX's copies: its DMA engine, status read and logs still read them */
+  if (k == 1) vdp_reg_w(r, d, m68k.cycles);   /* register side effects: GPGX until step 3.2b (it writes reg[] itself) */
+  else if (k == 2) lkv_dma_start();
+  fifo_byte_access = (lkv.code & 0x06) ? 0 : 1;
+}
+
+/* check mode: everything of the latch + register file equal? */
+static int lkv_ctrl_same(void)
+{
+  return lkv.addr == addr && lkv.code == code && lkv.pending == pending && lkv.addr_latch == addr_latch && !memcmp(lkv.reg, reg, 24);
+}
+static void lkv_ctrl_show(const char *what)
+{
+  int i;
+  fprintf(stderr, "vdpport check: %s ctrl %llu own addr=%04X code=%02X pend=%d latch=%04X gpgx addr=%04X code=%02X pend=%d latch=%04X regs", what, lkv_n_ctrl,
+          lkv.addr, lkv.code, lkv.pending, lkv.addr_latch, addr, code, pending, addr_latch);
+  for (i = 0; i < 24; i++) if (lkv.reg[i] != reg[i]) fprintf(stderr, " r%d own=%02X gpgx=%02X", i, lkv.reg[i], reg[i]);
+  fprintf(stderr, "\n");
+}
+
+/* hook at the top of vdp_68k_ctrl_w: 1 = handled */
+static int lkv_ctrl_hook(unsigned int data)
+{
+  unsigned r, d;
+  if (lkv_mode < 0) lkv_init();
+  if (lkv_mode == 1) { lkv_ctrl_w(data); return 1; }
+  if (lkv_mode != 2 || lkv_nest) return 0;
+  lkv_n_ctrl++;
+  if (!lkv_ctrl_same()) { if (lkv_n_csync++ < 10) lkv_ctrl_show("SYNC MISS before"); lkv_pull(); }
+  if (!(!lkv.pending && dma_length && dma_type < 2)) lkv_ctrl_decode(data, &r, &d);
+  lkv_nest = 1; vdp_68k_ctrl_w(data); lkv_nest = 0;   /* GPGX's control port on the same word */
+  if (!lkv_ctrl_same()) { if (lkv_n_cbad++ < 10) lkv_ctrl_show("MISMATCH after"); lkv_pull(); }
+  return 1;
 }
