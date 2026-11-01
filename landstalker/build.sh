@@ -229,6 +229,8 @@ python3 tools/patch_vdpcount.py .deps/genrecomp
 python3 tools/patch_vdpport.py .deps/genrecomp
 # System start of our own (step 4: gen_reset / io_reset; default ours since step 4.4, LANDSTALKER_BOOT=gpgx = GPGX's start, =check = both compared; tools/patch_boot.py + tools/lkboot.c, docs/SOUND_PLAN.md section 13)
 python3 tools/patch_boot.py .deps/genrecomp
+# The old renderer's line work off where our renderer draws (step 5.1; default off since LK_CHIPLINE v2, LANDSTALKER_CHIPLINE=1 = rollback; tools/patch_chipline.py, docs/SOUND_PLAN.md section 14)
+python3 tools/patch_chipline.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table
 python3 tools/expand_seeds.py "$ROM" recomp.json

@@ -68,6 +68,7 @@ chk "Eigener Ton-Mischer"                              $G/ext/Genesis-Plus-GX/co
 chk "VDP-Wegzaehler (Diagnose, inaktiv)"              $G/ext/Genesis-Plus-GX/core/vdp_ctrl.c "LK_VDPCOUNT v1"
 chk "Eigener VDP-Datenweg"                           $G/ext/Genesis-Plus-GX/core/vdp_ctrl.c "LK_VDPPORT v9"
 chk "Eigener Systemstart"                $G/ext/Genesis-Plus-GX/core/system.c "LK_BOOT v3"
+chk "Alte Renderer-Zeilenarbeit aus"         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_CHIPLINE v2"
 chk "Z80-Startprogramm uebersetzt"                    $G/ext/Genesis-Plus-GX/core/memz80.c "LK_Z80BOOT v1"
 chk "Friday-Hinweise (Select)"                    $G/src/func_table.c "LK_FRIDAY v2"
 chk "Controller-Abfrage in eigenem Thread"           $G/src/input.c "LK_PADTHREAD v3"
