@@ -2,12 +2,12 @@
 """System start of our own (docs/SOUND_PLAN.md section 13, step 4 of the way off the emulator): GPGX's core/system.c gets
 tools/lkboot.c (#included just before system_init) and a hook at the top of system_reset.  Marker LK_BOOT v1 = step 4.2: gen_reset /
 io_reset ours for the Mega Drive cartridge path; LK_BOOT v2 = + step 4.3: system_init (gen_init memory maps + md_cart_init for a
-plain cartridge) (vdp_init / vdp_reset: tools/lkvdp.c, patch_vdpport.py).
-Env LANDSTALKER_BOOT: unset / gpgx = GPGX's start (default until the user confirms), own = ours, check = both compared (stderr
+plain cartridge); LK_BOOT v3 = step 4.4: default ours (vdp_init / vdp_reset: tools/lkvdp.c, patch_vdpport.py).
+Env LANDSTALKER_BOOT: unset / own = ours (default since step 4.4), gpgx = GPGX's start (rollback), check = both compared (stderr
 'vdpboot check: ...').  Idempotent.  usage: patch_boot.py path/to/genrecomp   (after patch_vdpport.py)"""
 import os, shutil, sys
 core = os.path.join(sys.argv[1], "ext/Genesis-Plus-GX/core"); here = os.path.dirname(os.path.abspath(__file__))
-VER = "LK_BOOT v2"
+VER = "LK_BOOT v3"
 shutil.copy(os.path.join(here, "lkboot.c"), os.path.join(core, "lkboot.c"))
 p = os.path.join(core, "system.c"); s = open(p).read()
 if VER in s:

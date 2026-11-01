@@ -1,6 +1,6 @@
 /* LK_BOOT: system start of our own (steps 4.2 / 4.3 of the way off the emulator, docs/SOUND_PLAN.md section 13).  #included into GPGX's
  * core/system.c by tools/patch_boot.py.  Mega Drive (NTSC / PAL, cartridge, no TMSS BIOS) only; anything else = GPGX's.
- * LANDSTALKER_BOOT: unset / gpgx = GPGX's system_reset (default until the user confirms), own = ours, check = ours, then GPGX's
+ * LANDSTALKER_BOOT: unset / own = ours (default since step 4.4, user confirmed 3.5 on 2026-11-01), gpgx = GPGX's start (rollback), check = ours, then GPGX's
  * gen_reset + io_reset on top, the touched state compared byte for byte (GPGX's result stays).
  * The chip reset (vdp_reset, step 4.1) and vdp_init are ours in tools/lkvdp.c; sound_reset is already ours (LK_MIX);
  * render_reset / audio_reset (GPGX's picture / output upkeep) and the CPU cores' own resets (m68k_pulse_reset, z80_reset) and the
@@ -14,7 +14,7 @@
 static int lkb_mode = -1;
 extern void lk_cart_default_time_w(void);   /* md_cart.c (patch_boot.py) */
 
-static void lkb_getmode(void) { if (lkb_mode < 0) { const char *e = getenv("LANDSTALKER_BOOT"); lkb_mode = (e && !strcmp(e, "own")) ? 1 : (e && !strcmp(e, "check")) ? 2 : 0; } }
+static void lkb_getmode(void) { if (lkb_mode < 0) { const char *e = getenv("LANDSTALKER_BOOT"); lkb_mode = (e && !strcmp(e, "gpgx")) ? 0 : (e && !strcmp(e, "check")) ? 2 : 1;   /* default ours (step 4.4) */ } }
 
 /* step 4.3: md_cart_init for a plain cartridge = Landstalker (2 MB ROM, battery SRAM above the ROM at $200001-$203FFF odd bytes, no mapper,
  * no SVP, no lock-on / add-on); other ROMs = GPGX's (its database of special cartridges) */

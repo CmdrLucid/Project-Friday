@@ -650,7 +650,7 @@ int lk_vdp_dump_own(FILE *f)
 }
 
 /* ---- step 4.1: chip reset (GPGX's vdp_reset), Mega Drive only ---- */
-/* LANDSTALKER_BOOT: unset / gpgx = GPGX's vdp_reset (default until the user confirms step 3.5 on the Deck), own = ours, check = ours,
+/* LANDSTALKER_BOOT: unset / own = ours (default since step 4.4), gpgx = GPGX's vdp_reset (rollback), check = ours,
  * then GPGX's, all touched state compared (GPGX's result stays).  Ours keeps only the Mega Drive path (no TMSS BIOS, config.bios = 0):
  * other systems / a BIOS = GPGX's.  It sets GPGX's state that its remaining code reads (timing tables, renderer pointers, caches) AND
  * ours (command latch, register file, lk_vm / lk_cm / lk_vsm / lkv_vsx). */
@@ -705,7 +705,7 @@ static int lkv_reset_hook(void)
 {
   static uint8 a[0x18000], b[0x18000]; size_t na, nb, i, nd = 0;
   if (lkv_rnest) return 0;
-  if (lkv_boot < 0) { const char *e = getenv("LANDSTALKER_BOOT"); lkv_boot = (e && !strcmp(e, "own")) ? 1 : (e && !strcmp(e, "check")) ? 2 : 0; }
+  if (lkv_boot < 0) { const char *e = getenv("LANDSTALKER_BOOT"); lkv_boot = (e && !strcmp(e, "gpgx")) ? 0 : (e && !strcmp(e, "check")) ? 2 : 1;   /* default ours (step 4.4) */ }
   if (!lkv_boot || system_hw != SYSTEM_MD || (config.bios & 1)) return 0;
   lkv_reset();
   if (lkv_boot == 1) return 1;
@@ -723,7 +723,7 @@ static int lkv_init_hook(void)
 {
   uint16 lpf; void (*s1)(unsigned int), (*s2)(unsigned int);
   if (lkv_inest) return 0;
-  if (lkv_boot < 0) { const char *e = getenv("LANDSTALKER_BOOT"); lkv_boot = (e && !strcmp(e, "own")) ? 1 : (e && !strcmp(e, "check")) ? 2 : 0; }
+  if (lkv_boot < 0) { const char *e = getenv("LANDSTALKER_BOOT"); lkv_boot = (e && !strcmp(e, "gpgx")) ? 0 : (e && !strcmp(e, "check")) ? 2 : 1;   /* default ours (step 4.4) */ }
   if (!lkv_boot || system_hw != SYSTEM_MD) return 0;
   lines_per_frame = vdp_pal ? 313 : 262;
   set_irq_line = m68k_set_irq; set_irq_line_delay = m68k_set_irq_delay;

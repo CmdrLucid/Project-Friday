@@ -227,7 +227,7 @@ python3 tools/patch_roommap.py .deps/genrecomp
 python3 tools/patch_vdpcount.py .deps/genrecomp
 # VDP data path of our own (data / control port, registers, DMA; default ours, LANDSTALKER_VDP=gpgx = GPGX's decode, =check = both compared; tools/patch_vdpport.py + tools/lkvdp.c, docs/SOUND_PLAN.md section 12)
 python3 tools/patch_vdpport.py .deps/genrecomp
-# System start of our own (step 4: gen_reset / io_reset; LANDSTALKER_BOOT=own|check, default GPGX's until the user confirms; tools/patch_boot.py + tools/lkboot.c, docs/SOUND_PLAN.md section 13)
+# System start of our own (step 4: gen_reset / io_reset; default ours since step 4.4, LANDSTALKER_BOOT=gpgx = GPGX's start, =check = both compared; tools/patch_boot.py + tools/lkboot.c, docs/SOUND_PLAN.md section 13)
 python3 tools/patch_boot.py .deps/genrecomp
 
 # Expand seeds that land in a bra.w jump table into the whole table

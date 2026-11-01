@@ -8,12 +8,13 @@ LK_VDPPORT v5 = + step 3.4: data port write wrapper (lkv_data_w);
 LK_VDPPORT v6 = step 3.5: ours by default (LANDSTALKER_VDP=gpgx = GPGX's decode), the headless RAM dump reads our memories (bus.c),
 GPGX's sprite parse (parse_satb_m5: name / attribute + x, feeds the collision / overflow status) reads lk_vm;
 LK_VDPPORT v7 = + step 4.1: chip reset ours (lkv_reset; LANDSTALKER_BOOT=own|check, default GPGX's vdp_reset for now);
-LK_VDPPORT v8 = + step 4.2: vdp_init ours under the same switch (lkv_init_hook).
+LK_VDPPORT v8 = + step 4.2: vdp_init ours under the same switch (lkv_init_hook);
+LK_VDPPORT v9 = step 4.4: LANDSTALKER_BOOT default ours (=gpgx = GPGX's reset / init).
 Env LANDSTALKER_VDP: unset / own = ours (default since step 3.5), gpgx = GPGX, check = both, compared after every data word / control word
 (summary on stderr + LANDSTALKER_VDP_CHECKLOG=<file>).  Idempotent.  usage: patch_vdpport.py path/to/genrecomp   (after patch_vdpmirror.py)"""
 import os, shutil, sys
 core = os.path.join(sys.argv[1], "ext/Genesis-Plus-GX/core"); here = os.path.dirname(os.path.abspath(__file__))
-VER = "LK_VDPPORT v8"
+VER = "LK_VDPPORT v9"
 shutil.copy(os.path.join(here, "lkvdp.c"), os.path.join(core, "lkvdp.c"))
 p = os.path.join(core, "vdp_ctrl.c"); s = open(p).read()
 if VER in s:
