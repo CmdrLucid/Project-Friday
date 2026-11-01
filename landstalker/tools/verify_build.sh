@@ -67,7 +67,7 @@ chk "Raumkarte"                                       $G/src/platform_sdl.c "LK_
 chk "Eigener Ton-Mischer"                              $G/ext/Genesis-Plus-GX/core/sound/sound.c "LK_MIX v1"
 chk "VDP-Wegzaehler (Diagnose, inaktiv)"              $G/ext/Genesis-Plus-GX/core/vdp_ctrl.c "LK_VDPCOUNT v1"
 chk "Eigener VDP-Datenweg"                           $G/ext/Genesis-Plus-GX/core/vdp_ctrl.c "LK_VDPPORT v8"
-chk "Eigener Systemstart (Schalter)"                $G/ext/Genesis-Plus-GX/core/system.c "LK_BOOT v1"
+chk "Eigener Systemstart (Schalter)"                $G/ext/Genesis-Plus-GX/core/system.c "LK_BOOT v2"
 chk "Z80-Startprogramm uebersetzt"                    $G/ext/Genesis-Plus-GX/core/memz80.c "LK_Z80BOOT v1"
 chk "Friday-Hinweise (Select)"                    $G/src/func_table.c "LK_FRIDAY v2"
 chk "Controller-Abfrage in eigenem Thread"           $G/src/input.c "LK_PADTHREAD v3"
