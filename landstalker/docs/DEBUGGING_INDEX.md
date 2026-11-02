@@ -13,7 +13,7 @@
 - L187: Sixth: RAM thunks that point into the middle of ROM code
 - L197: Seventh: viewport height stuck at 192 lines (cut-off screens, early VBlank)
 - L211: Eighth: more jump tables (intro stuck, "RTS to $001704")
-- L228: Ninth: call targets silently dropped by the generator ($002458 ...)
+- L228: Ninth: call targets silently dropped by the generator (0x0024 (colour)58 ...)
 - L249: Input record / replay, and what the scripted comparisons showed
   - L269: Gotcha: GENRECOMP_INPUTLOG truncates its file
 - L275: ROOT CAUSE of "walks in the air", repeated warp, black screen at scene 3: missing call target $2458
@@ -194,3 +194,4 @@
 - L1512: VDP data path steps 3.0 - 3.2 (2026-11-01; Opus 5.5)
 - L1522: VDP data path steps 3.3 - 3.5 + system start 4.1 - 4.3 (2026-11-01; Opus 5.5)
 - L1535: System start 4.4, renderer speed-ups, old renderer off 5.1 (2026-11-01 evening / night; Opus 5.5)
+- L1545: Old renderer off 5.3, release v1.7.0, sword effects, options menu, lighting (2026-11-02 / 03; Opus 5.5)
