@@ -8,10 +8,16 @@ every pixel our renderer does not draw shows up in a screenshot).  Env LANDSTALK
 IDENTICAL incl. the time trace), 1 = GPGX's line work as before (rollback).  Idempotent.  usage: patch_chipline.py path/to/genrecomp   (after patch_own.py,
 patch_wide.py, patch_tbox.py, patch_shadow.py).
 Step 5.2 (LK_CHIPLINE v3): parse_satb_m5 -> only the sprite overflow status from our SAT cache (LANDSTALKER_SPRSTAT=own|gpgx|check);
-v4: per-line sprite counts, rebuilt only when the SAT cache / width changed."""
+v4: per-line sprite counts, rebuilt only when the SAT cache / width changed.
+Step 5.3 (v5): lk_cf_gate at the start of every render_line decides whether the chip VRAM / SAT cache / VSRAM are fed (tools/lkvdp.c
+lk_chip_feed): not while our VDP path + our line work + our sprite status run; when a reader comes back they are rebuilt (lk_chip_resync).
+LANDSTALKER_CHIPFEED: unset = off where possible (default), 1 = always fed (rollback), check = fed + the rebuilt image compared at
+line 0 of every frame (must stay 0); LANDSTALKER_CHIPFEED_POISON=1 = while not fed, the chip memories + pattern cache hold garbage
+(refilled at line 0 of every frame: proves nobody reads them).  Summary on stderr at exit for check / poison (+ one line appended to
+LANDSTALKER_CHIPFEED_LOG=<file>)."""
 import os, sys
 core = os.path.join(sys.argv[1], "ext/Genesis-Plus-GX/core")
-VER = "LK_CHIPLINE v4"
+VER = "LK_CHIPLINE v5"
 p = os.path.join(core, "vdp_render.c"); s = open(p).read()
 if VER in s:
     print("vdp_render.c already patched:", VER); sys.exit(0)
@@ -23,8 +29,9 @@ def rep(a, b):
 
 # the switch (defined before render_line: lk_own_get and lk_hd_n are known there)
 RL = "void render_line(int line)\n{\n"
+rep(RL, RL + "  lk_cf_gate(line);   /* %s step 5.3 */\n" % VER)
 rep(RL, """/* %s: 1 = the old renderer's line work is skipped (our renderer draws the line) */
-static int lk_cl_mode = -1, lk_cl_mark;
+static int lk_cl_mode = -1, lk_cl_mark; static void lk_cf_gate(int line);
 static int lk_cl_off(void)
 {
   if (lk_cl_mode < 0)
@@ -88,5 +95,29 @@ static int lk_spr_ovf(int line)   /* 1 = overflow on the line after `line`: more
     }
   }
 """ % VER)
+# step 5.3 (v5): the gate (after parse_satb_m5: lk_ss_mode is known there)
+rep("void parse_satb_m5(int line)\n{\n", """/* %s step 5.3: feed the chip VRAM / SAT cache / VSRAM only while something reads them (tools/lkvdp.c lk_chip_feed / lk_chip_resync) */
+extern int lk_chip_feed, lk_chip_stale; extern unsigned long long lk_chip_nresync; extern void lk_chip_resync(void); extern int lk_chip_cmp(void);
+static int lk_cf_mode = -1, lk_cf_poison; static unsigned long long lk_cf_ncmp, lk_cf_bad, lk_cf_lines;
+static void lk_cf_report(void) { const char *fn = getenv("LANDSTALKER_CHIPFEED_LOG"), *sc = getenv("GENRECOMP_INPUTSCRIPT"); FILE *f; fprintf(stderr, "chipfeed: lines_not_fed=%%llu resyncs=%%llu compares=%%llu mismatch_bytes=%%llu\\n", lk_cf_lines, lk_chip_nresync, lk_cf_ncmp, lk_cf_bad); if (fn && (f = fopen(fn, "a"))) { fprintf(f, "%%s lines_not_fed=%%llu resyncs=%%llu compares=%%llu mismatch_bytes=%%llu\\n", sc ? (strrchr(sc, '/') ? strrchr(sc, '/') + 1 : sc) : "-", lk_cf_lines, lk_chip_nresync, lk_cf_ncmp, lk_cf_bad); fclose(f); } }
+static void lk_cf_gate(int line)
+{
+  int off;
+  if (lk_cf_mode < 0)
+  {
+    const char *e = getenv("LANDSTALKER_CHIPFEED"), *q = getenv("LANDSTALKER_CHIPFEED_POISON"), *ss = getenv("LANDSTALKER_SPRSTAT");
+    lk_cf_mode = (e && !strcmp(e, "check")) ? 2 : (e && *e == '1') ? 0 : 1;
+    lk_cf_poison = q && *q == '1';
+    if (lk_ss_mode < 0) { lk_ss_mode = (ss && !strcmp(ss, "gpgx")) ? 0 : (ss && !strcmp(ss, "check")) ? 2 : 1; if (lk_ss_mode == 2) atexit(lk_ss_report); }
+    if (lk_cf_mode == 2 || lk_cf_poison) atexit(lk_cf_report);
+  }
+  off = lk_cf_mode == 1 && lk_vdp_ownmem && lk_ss_mode == 1 && lk_cl_off();
+  if (!off && lk_chip_stale) lk_chip_resync();
+  lk_chip_feed = !off;
+  if (off) lk_cf_lines++;
+  if (line == 0 && off && lk_cf_poison) { memset(vram, 0xA5, sizeof vram); memset(sat, 0x5A, sizeof sat); memset(vsram, 0x55, sizeof vsram); memset(bg_pattern_cache, 0x0F, sizeof bg_pattern_cache); lk_chip_stale = 1; }
+  if (line == 0 && lk_cf_mode == 2) { int n = lk_chip_cmp(); lk_cf_ncmp++; lk_cf_bad += n; if (n && lk_cf_bad == (unsigned long long)n) fprintf(stderr, "chipfeed check: MISMATCH %%d bytes at the first compare with a difference\\n", n); }
+}
+""" % VER + "void parse_satb_m5(int line)\n{\n")
 open(p, "w").write(s)
 print("vdp_render.c patched:", VER)

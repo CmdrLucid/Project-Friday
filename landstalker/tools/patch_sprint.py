@@ -97,7 +97,7 @@ LK_SPD(16) LK_SPD(17) LK_SPD(18) LK_SPD(19) LK_SPD(20) LK_SPD(21) LK_SPD(22) LK_
 static void lk_sprint_install(void) {
     static gen_func_t h[32] = { lk_h_dir0, lk_h_dir1, lk_h_dir2, lk_h_dir3, lk_h_dir4, lk_h_dir5, lk_h_dir6, lk_h_dir7, lk_h_dir8, lk_h_dir9, lk_h_dir10, lk_h_dir11, lk_h_dir12, lk_h_dir13, lk_h_dir14, lk_h_dir15,
         lk_h_dir16, lk_h_dir17, lk_h_dir18, lk_h_dir19, lk_h_dir20, lk_h_dir21, lk_h_dir22, lk_h_dir23, lk_h_dir24, lk_h_dir25, lk_h_dir26, lk_h_dir27, lk_h_dir28, lk_h_dir29, lk_h_dir30, lk_h_dir31 };
-    static int done; int k, miss = 0; const char *e = getenv("LANDSTALKER_SPRINT_STEP");
+    static int done; int k, miss = 0; const char *e = done ? NULL : getenv("LANDSTALKER_SPRINT_STEP");   /* env read once (was every call: 0.3 % of the run time, 2026-11-02) */
     if (done) return;
     done = 1;
     if (e && atoi(e) >= 2 && atoi(e) <= 8) lk_sprint_step = atoi(e);

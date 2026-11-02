@@ -6,6 +6,10 @@
  * of patch_vdpmirror.py becomes the primary copy), the widescreen hooks (lk_vl_write, lk_nt_count), auto increment by register 15.
  * Step 3.5 (v6): ours by default; the dump reads our memories; LANDSTALKER_OWN_POISON (chip memories = garbage every frame) proves nobody else reads them.
  * Step 5.2 (v10): our SAT cache lk_sat16 (for the sprite overflow status, tools/patch_chipline.py).
+ * Step 5.3 (v11): the chip VRAM / sprite table cache / VSRAM (+ GPGX's pattern cache) are no longer fed while nothing reads them
+ *   (lk_chip_feed = 0, decided per line by tools/patch_chipline.py lk_cf_gate); a reader that needs them again (GPGX's renderer: own renderer
+ *   off / HD pack / rollbacks; the 68K / Z80 VRAM / VSRAM read port; GPGX's DMA copy) first calls lk_chip_resync = rebuild from our memories.
+ *   CRAM + GPGX's palette (pixel[]) stay fed (several of our paths still read them).
  * Step 3.4 (v5): the data port write wrapper (lkv_data_w: pending, word, fill start); chip reset = step 4.
  * Step 3.3 (v4): the DMA engine (lkv_dma_update: bookkeeping + 68K -> VDP from ROM / RAM + fill; copy / io stay GPGX's, never used).
  * Step 3.2b (v3): the register side effects (lkv_reg_w, below); check mode compares the GPGX state after GPGX's and our write.
@@ -32,6 +36,8 @@ static unsigned long long lkv_n_regw, lkv_n_rbad, lkv_n_fallback;   /* step 3.2b
 static unsigned long long lkv_n_dma, lkv_n_dbad, lkv_n_dfallback;   /* step 3.3 */
 static unsigned long long lkv_n_dw, lkv_n_dwbad;   /* step 3.4 */
 static void lkv_reg_w(unsigned int r, unsigned int d, unsigned int cycles);
+int lk_chip_feed = 1, lk_chip_stale;   /* step 5.3: 1 = the chip VRAM / SAT cache / VSRAM are fed; stale = a write was skipped since the last resync */
+unsigned long long lk_chip_nresync;
 int lk_vdp_ownmem;   /* 1 = own mode: GPGX's sprite parse (vdp_render.c parse_satb_m5) reads lk_vm */
 static int lkv_nest;   /* check mode: 1 while GPGX's own vdp_68k_ctrl_w runs (called from our hook) */
 
@@ -79,7 +85,8 @@ static void lkv_chip_feed(int kind, unsigned a, unsigned data)
     case 1:
     {
       int index = a & 0xFFFE; uint16 *p = (uint16 *)&vram[index];
-      if ((index & sat_base_mask) == satb) { *(uint16 *)&sat[index & sat_addr_mask] = data; lk_sat16[(index & sat_addr_mask) >> 1] = (uint16)data; lk_sat_dirty = 1; }   /* + our SAT cache (step 5.2) */
+      if ((index & sat_base_mask) == satb) { if (lk_chip_feed) *(uint16 *)&sat[index & sat_addr_mask] = data; lk_sat16[(index & sat_addr_mask) >> 1] = (uint16)data; lk_sat_dirty = 1; }   /* + our SAT cache (step 5.2) */
+      if (!lk_chip_feed) { lk_chip_stale = 1; break; }   /* step 5.3 */
       if (data != *p) { *p = data; MARK_BG_DIRTY(index); }
       break;
     }
@@ -98,10 +105,41 @@ static void lkv_chip_feed(int kind, unsigned a, unsigned data)
       break;
     }
     case 5:
-      *(uint16 *)&vsram[a & 0x7E] = data;
+      if (lk_chip_feed) *(uint16 *)&vsram[a & 0x7E] = data; else lk_chip_stale = 1;   /* step 5.3 (the line re-render below stays: our renderer reads lk_vsm) */
       if ((reg[11] & 0x04) && (v_counter < bitmap.viewport.h) && (reg[1] & 0x40) && (m68k.cycles <= (mcycles_vdp + 860))) render_line(v_counter);
       break;
   }
+}
+
+/* step 5.3: the chip VRAM / SAT cache / VSRAM as GPGX would hold them, from our memories (lk_vm big endian: vram[i] = lk_vm[i ^ 1]) */
+static void lk_chip_image(uint8 *v, uint8 *sa, uint8 *vs)
+{
+  int i;
+  for (i = 0; i < 0x10000; i += 2) *(uint16 *)&v[i] = (uint16)((lk_vm[i] << 8) | lk_vm[i + 1]);
+  for (i = 0; i < 0x200; i++) *(uint16 *)&sa[i << 1] = lk_sat16[i];
+  for (i = 0; i < 0x50; i += 2) *(uint16 *)&vs[i] = (uint16)((lk_vsm[i] << 8) | lk_vsm[i + 1]);
+  for (i = 0x50; i < 0x80; i += 2) *(uint16 *)&vs[i] = (uint16)((lkv_vsx[i - 0x50] << 8) | lkv_vsx[i - 0x4F]);
+}
+
+/* a reader of the chip memories comes back (or the read port): rebuild them + the whole pattern cache (as GPGX's state load does) */
+void lk_chip_resync(void)
+{
+  int i;
+  lk_chip_image(vram, sat, vsram);
+  for (i = 0; i < 0x800; i++) { bg_name_list[i] = (uint16)i; bg_name_dirty[i] = 0xFF; }
+  bg_list_index = 0x800;
+  lk_chip_stale = 0; lk_chip_nresync++;
+}
+
+/* LANDSTALKER_CHIPFEED=check (feed on): bytes in which the rebuilt image differs from the fed chip memories (must stay 0) */
+int lk_chip_cmp(void)
+{
+  static uint8 v[0x10000], sa[0x400], vs[0x80]; int i, n = 0;
+  lk_chip_image(v, sa, vs);
+  for (i = 0; i < 0x10000; i++) n += v[i] != vram[i];
+  for (i = 0; i < 0x400; i++) n += sa[i] != sat[i];
+  for (i = 0; i < 0x80; i++) n += vs[i] != vsram[i];
+  return n;
 }
 
 /* decode one data word: destination kind (1 VRAM, 3 CRAM, 5 VSRAM, 0 = invalid code, nothing stored), byte index, final word */
@@ -452,9 +490,9 @@ static void lkv_fill(unsigned int length)
       uint8 data = fifo[(fifo_idx + 3) & 3] >> 8; int name;
       do
       {
-        if ((lkv.addr & sat_base_mask) == satb) { unsigned sa = lkv.addr & sat_addr_mask; WRITE_BYTE(sat, sa ^ 1, data); lk_sat16[sa >> 1] = (sa & 1) ? (uint16)((lk_sat16[sa >> 1] & 0xFF00) | data) : (uint16)((lk_sat16[sa >> 1] & 0x00FF) | (data << 8)); lk_sat_dirty = 1; }   /* GPGX's cache + ours (step 5.2; the adjacent byte, as the chip) */
+        if ((lkv.addr & sat_base_mask) == satb) { unsigned sa = lkv.addr & sat_addr_mask; if (lk_chip_feed) WRITE_BYTE(sat, sa ^ 1, data); lk_sat16[sa >> 1] = (sa & 1) ? (uint16)((lk_sat16[sa >> 1] & 0xFF00) | data) : (uint16)((lk_sat16[sa >> 1] & 0x00FF) | (data << 8)); lk_sat_dirty = 1; }   /* GPGX's cache + ours (step 5.2; the adjacent byte, as the chip) */
         lk_vm[lkv.addr ^ 1] = data;   /* big endian: the adjacent byte (was lkv.addr until 2026-11-01: wrong byte, found by the step 3.5 dump) */
-        WRITE_BYTE(vram, lkv.addr ^ 1, data); MARK_BG_DIRTY(lkv.addr);
+        if (lk_chip_feed) { WRITE_BYTE(vram, lkv.addr ^ 1, data); MARK_BG_DIRTY(lkv.addr); } else lk_chip_stale = 1;   /* step 5.3 */
         lkv.addr += lkv.reg[15];
       }
       while (--length);
@@ -480,7 +518,7 @@ static void lkv_fill(unsigned int length)
       {
         if ((lkv.addr & 0x7E) < 0x50) { lk_vsm[lkv.addr & 0x7E] = (uint8)(data >> 8); lk_vsm[(lkv.addr & 0x7E) + 1] = (uint8)data; }
         else { lkv_vsx[(lkv.addr & 0x7E) - 0x50] = (uint8)(data >> 8); lkv_vsx[(lkv.addr & 0x7E) - 0x4F] = (uint8)data; }
-        *(uint16 *)&vsram[lkv.addr & 0x7E] = data;
+        if (lk_chip_feed) *(uint16 *)&vsram[lkv.addr & 0x7E] = data; else lk_chip_stale = 1;   /* step 5.3 */
         lkv.addr += lkv.reg[15];
       }
       while (--length);
