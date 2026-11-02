@@ -331,7 +331,7 @@ static void lk_strip_extend(uint32_t a)
     { static int pending;   /* LANDSTALKER_TALL: the band below the picture is not covered by the room load; reload the extra strips when the fade-in STARTS, so it is complete before anything is visible.
          Room change: FadeInFromDarkness $008EB4 (always, as before). Start from the file select: StartGame ends in FadeFromBlack $00098A (it never calls $008EB4; black rectangles until the first step, user report 2026-10-11, church of save 1); only after a LoadRoom-path entry $002824 (pending), FadeFromBlack has other callers.
          (2026-10-11 night: a reload 10 frames after the first UpdateSprites pass fixed the file-select start but was too late for room changes: holes during every fade-in, user report.) */
-      if (getenv("LANDSTALKER_TALL_DEBUG") && (a == 0x002824 || a == 0x008EB4 || a == 0x00098A)) printf("tall: hook $%06X frame %ld picture=%d pending=%d\n", a, platform_frame_number(), lk_picture, pending);
+      if ((a == 0x002824 || a == 0x008EB4 || a == 0x00098A) && getenv("LANDSTALKER_TALL_DEBUG")) printf("tall: hook $%06X frame %ld picture=%d pending=%d\n", a, platform_frame_number(), lk_picture, pending);
       if (a == 0x002824 && !lk_picture) { pending = 1; return; }
       if (a == 0x0178C8) lk_load_fade = 0;
       if (a == 0x0178C8 && pending && kv > 0 && !lk_picture) { pending = 0; lk_wide_refill = 1; if (getenv("LANDSTALKER_TALL_DEBUG")) printf("tall: reload at the first map frame after a room load without fade-in hook (tree warp) frame %ld\n", platform_frame_number()); }   /* the tree warp ($00E30E) loads the room but fades in with its own palette code: neither $008EB4 nor $00098A runs (user recording rec_20261017_1338, room 537 -> 539: one frame of garbage in the band) */

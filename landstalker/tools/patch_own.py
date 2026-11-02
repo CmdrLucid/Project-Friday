@@ -472,7 +472,7 @@ static void lk_o_build(void) {                                       /* everythi
   lk_o_extras_upto(1 << 20); lk_o_exon = 0;
   (void)o;
 }
-static int lk_o_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio, lk_o_fi_t *fi) {   /* colour index of one plane pixel at image position (U, V), 0 = transparent */
+static inline __attribute__((always_inline)) int lk_o_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio, lk_o_fi_t *fi) {   /* inlined: called twice per pixel (2026-11-01) */   /* colour index of one plane pixel at image position (U, V), 0 = transparent */
   int tc = U >> 3, tr = V >> 3, ix = U & 7, iy = V & 7; uint32 c; int w, t, b;
   if (U < 0 || V < 0 || tc >= 304 || tr >= 152) return 0;
   c = pl[tr][tc]; if (!(c & 0x10000)) return 0;
@@ -617,7 +617,9 @@ static int lk_o_win(int line, int x, int hint) {                      /* window 
 static int lk_o_unwrap(int p, int base, int size) { int d = (((p - base) % size) + size) % size; if (d >= size / 2) d -= size; return base + d; }
 
 static void lk_o_init(void) {
+  { static int env_done; if (!env_done) { env_done = 1;   /* the environment is read once (was: every call = every line, 2.5 % of the run time, 2026-11-01) */
   lk_o_hide0 = !(getenv("LANDSTALKER_OWN_HIDE0") && *getenv("LANDSTALKER_OWN_HIDE0") == '0'); lk_o_actcram = getenv("LANDSTALKER_OWN_ACT_CRAM") != NULL; lk_o_fl_log = getenv("LANDSTALKER_OWN_FADELOG") != NULL; lk_o_scrram = getenv("LANDSTALKER_OWN_SCROLL_VDP") == NULL; lk_o_regvdp = getenv("LANDSTALKER_OWN_REGS_VDP") != NULL; lk_o_simple = 1; { const char *q3 = getenv("LANDSTALKER_OWN_SIMPLE"); if (q3) lk_o_simple = atoi(q3); } lk_o_scrvars = getenv("LANDSTALKER_OWN_SCRVARS") != NULL; { const char *q4 = getenv("LANDSTALKER_OWN_VMIRROR"); if (q4) lk_o_vmirror = atoi(q4); } { const char *q5 = getenv("LANDSTALKER_OWN_NIGELVRAM"); if (q5) lk_o_nigelvram = atoi(q5); } lk_o_gshake = getenv("LANDSTALKER_OWN_GSHAKE") != NULL; lk_o_fx = 1; { const char *q6 = getenv("LANDSTALKER_OWN_FX"); if (q6) lk_o_fx = atoi(q6); } { const char *q7 = getenv("LANDSTALKER_OWN_FXOFF"); if (q7) lk_o_fxoff = atoi(q7); } { const char *q9 = getenv("LANDSTALKER_OWN_SEED"); if (q9) lk_o_seed = atoi(q9); }
+  } }
   if (lk_o_mode >= 0) return;
   { const char *e = getenv("LANDSTALKER_OWN"), *l = getenv("LANDSTALKER_OWN_LOG"), *q; int v = 1;   /* default On since 2026-10-22 (user: 'mach den eigenen renderer zum standard'); a saved ~/.landstalker_own wins */
     if (e) lk_o_mode = atoi(e);
@@ -1260,8 +1262,10 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
   static int hint, fr_done = -1, hsA, hsB, vsA, vsB, cam0, cam2, rm; static long fr_n;
   int x, e, map;
   lk_o_shline = -1;
+  int fxon;
   lk_o_init();
   if (!lk_o_mode) return;
+  fxon = lk_hd_fxany() || lk_r3d_on();   /* once per line (was: per pixel, 14 % of the run time, 2026-11-01) */
   if (lk_sm_state == 1 && !lk_sm_due && line > 0) return;   /* gap frames that are not shown cost nothing */
   if (lk_sm_state) lk_sh_row_on = 0;   /* S3.5: the shadow marks of the VDP belong to the unshifted picture */
   if (line == 0) lk_hd_gen++;
@@ -1438,7 +1442,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
         lk_hd_mapmode = 1; lk_hd_put(line, x, (uint32_t)col, pi.rep ? &pi : 0); lk_hd_mapmode = 0; lk_hd_ref[line * LK_HDW + x + LK_HDO] = (uint32_t)col;
       }
       if (lk_o_mode == 2) row[i] = (PIXEL_OUT_T)col;
-      if ((lk_hd_fxany() || lk_r3d_on()) && x >= -48 && x < 368) { lk_hd_sprc[line * 416 + x + 48] = (src == 1 && !black) ? ((uint32_t)col | 0xFF000000u) : 0; lk_hd_spr[line * 416 + x + 48] = (uint8_t)((src == 1) | (((src == 2 && lk_o_isanim(afi.t)) || (src == 3 && lk_o_isanim(bfi.t))) ? 2 : 0) | (src == 4 ? 4 : 0) | (black ? 8 : 0)); lk_hd_depth[line * 416 + x + 48] = (black || src == 4) ? (int16_t)0x7FFF : src == 1 ? lk_o_sprd[sl][si] : (int16_t)line; }   /* depth blur: the pixel's ground row (tools/patch_hd.py lk_hd_dof) */
+      if (fxon && x >= -48 && x < 368) { lk_hd_sprc[line * 416 + x + 48] = (src == 1 && !black) ? ((uint32_t)col | 0xFF000000u) : 0; lk_hd_spr[line * 416 + x + 48] = (uint8_t)((src == 1) | (((src == 2 && lk_o_isanim(afi.t)) || (src == 3 && lk_o_isanim(bfi.t))) ? 2 : 0) | (src == 4 ? 4 : 0) | (black ? 8 : 0)); lk_hd_depth[line * 416 + x + 48] = (black || src == 4) ? (int16_t)0x7FFF : src == 1 ? lk_o_sprd[sl][si] : (int16_t)line; }   /* depth blur: the pixel's ground row (tools/patch_hd.py lk_hd_dof) */
     }
     if (lk_hd_n) lk_hd_stamp[line] = lk_hd_gen;
     lk_hd_dstamp[line] = lk_hd_gen;

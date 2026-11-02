@@ -44,9 +44,9 @@ if VER not in s:
             "        if ((addr & 0x7E) < 0x50) { lk_vsm[addr & 0x7E] = (uint8)(data >> 8); lk_vsm[(addr & 0x7E) + 1] = (uint8)data; }   /* LK_VDPMIRROR */\n        *(uint16 *)&vsram[addr & 0x7E] = data;\n", 0)
     # DMA copy / fill (VRAM)
     rep_nth("      /* Write byte to adjacent VRAM destination address */\n      WRITE_BYTE(vram, addr ^ 1, data);\n",
-            "      lk_vm[(uint16)addr] = lk_vm[source];   /* LK_VDPMIRROR: from the mirror itself */\n      /* Write byte to adjacent VRAM destination address */\n      WRITE_BYTE(vram, addr ^ 1, data);\n", 0)
+            "      lk_vm[(uint16)(addr ^ 1)] = lk_vm[(uint16)(source ^ 1)];   /* LK_VDPMIRROR: from the mirror itself (the chip copies byte source ^ 1 -> addr ^ 1) */\n      /* Write byte to adjacent VRAM destination address */\n      WRITE_BYTE(vram, addr ^ 1, data);\n", 0)
     rep_nth("        /* Write byte to adjacent VRAM address */\n        WRITE_BYTE(vram, addr ^ 1, data);\n",
-            "        lk_vm[(uint16)addr] = data;   /* LK_VDPMIRROR */\n        /* Write byte to adjacent VRAM address */\n        WRITE_BYTE(vram, addr ^ 1, data);\n", 0)
+            "        lk_vm[(uint16)(addr ^ 1)] = data;   /* LK_VDPMIRROR (the chip fills the adjacent byte addr ^ 1) */\n        /* Write byte to adjacent VRAM address */\n        WRITE_BYTE(vram, addr ^ 1, data);\n", 0)
 
 if V2 not in s:
     # direct VRAM edits of the widescreen patch (patch_wide.py): the strip queue's word write and the name table clean-up

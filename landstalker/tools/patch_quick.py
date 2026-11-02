@@ -33,7 +33,7 @@ if VER not in s:
     module = r'''/* ---- LK_QUICK v1: quick item cells in the HUD bar (tools/patch_quick.py) ---- */
 #include <stdio.h>
 #include <stdlib.h>
-extern uint8 vram[0x10000];
+extern uint8_t lk_vm[0x10000];
 static int lk_q_line;
 static int lk_q_on = -1, lk_q_id[2] = { -1, -1 }, lk_q_qty[2];
 static int lk_q_sid[4][2] = { { -2, -2 }, { -2, -2 }, { -2, -2 }, { -2, -2 } };   /* the bindings PER SAVE SLOT (the game's current slot $FF0010 & 3, user 2026-10-22); -2 = not set yet: the global pair above (older versions) applies */
@@ -70,10 +70,7 @@ void lk_quick_capture(int id) {
     unsigned addr = (unsigned)(0xBC + id * 16 + r + 4 * c) * 32u;
     for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) {
       unsigned o = addr + (unsigned)y * 4u + (unsigned)(x >> 1);
-#ifdef LSB_FIRST
-      o ^= 1;
-#endif
-      { uint8 bb = vram[o & 0xFFFF]; raw[r * 8 + y][c * 8 + x] = (x & 1) ? (bb & 15) : (bb >> 4); }
+      { uint8 bb = lk_vm[o & 0xFFFF]; raw[r * 8 + y][c * 8 + x] = (x & 1) ? (bb & 15) : (bb >> 4); }   /* our VRAM (big endian; VDP step 3.5: no read of the chip's vram) */
     }
   }
   for (y = 0; y < 32; y++) for (x = 0; x < 32; x++) if (raw[y][x]) { if (x < bx0) bx0 = x; if (x > bx1) bx1 = x; if (y < by0) by0 = y; if (y > by1) by1 = y; }

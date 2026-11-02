@@ -20,7 +20,7 @@ You need a supported ROM (US or European version), described under [Compatible R
 
 ## How is this different from running the ROM in an emulator?
 
-The game logic is no longer interpreted: the 68000 code of the ROM is translated into C and compiled into a native program on your machine. The picture is drawn by the project's own renderer, and the timing, both sound chips, the sound mixer and the Z80 sound driver run on the project's own code; Genesis Plus GX still handles the video chip's data path, the system start-up and is the base of the FM chip core. Because the game code is now ordinary C that we can hook into, the project can change things an emulator cannot: draw a wider picture with real map content, fix old bugs, or add comfort features inside the game's own menus.
+The game logic is no longer interpreted: the 68000 code of the ROM is translated into C and compiled into a native program on your machine. The picture is drawn by the project's own renderer, and the timing, the video chip's data path, the system start-up, both sound chips, the sound mixer and the Z80 sound driver run on the project's own code; Genesis Plus GX is still the frame around it and the base of the FM chip core, and its renderer is only kept as a test picture. Because the game code is now ordinary C that we can hook into, the project can change things an emulator cannot: draw a wider picture with real map content, fix old bugs, or add comfort features inside the game's own menus.
 
 With every option switched off, the game plays like the original cartridge. All additions are optional and set in a new **Options** tab in the game's Start menu (next to *Use* / *Equip*; also on the file select screen).
 
