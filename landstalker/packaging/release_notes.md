@@ -1,10 +1,9 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- **Dungeon map, rebuilt (still experimental, off by default):** bind a button to "Map" in Options > Keybindings. In a dungeon it pauses the game and shows a schematic map of the rooms you have visited: every door sits on the wall the game itself gives it, doors that meet are joined by corridors, the rest carry matching numbers; river / raft passages are drawn blue. Scroll with the D-pad / stick, change floors with **L1 / R1** (shown at the top right).
-- **Modern HUD:** the life numbers (e.g. 55/78) are back next to the hearts.
-- **Less emulator inside, nothing to hear:** the sound mixer and the Z80's start-up program now run on the project's own code instead of Genesis Plus GX (checked sample for sample against the old way on every test recording).
-- Everything from v1.5.0 is included (Sprint, Smooth Scrolling, the first-start fix for newer Linux, experimental Friday Hints).
+- **About a third less CPU load** (measured on the Steam Deck: 23.7 s -> 15.1 s for the same 6000-frame test recording): cooler and quieter Deck, longer battery life. The project's own renderer got faster, and the leftover work of the old emulator renderer is gone.
+- **Less emulator inside, nothing to see or hear:** the video chip's data path (writes, registers, DMA) and the system start-up now run on the project's own code; Genesis Plus GX's renderer is only kept as a test picture. Every step was checked against the old way on all 74 test recordings (identical game state, sound and picture).
+- Everything from v1.6.0 is included (rebuilt dungeon map, Modern HUD life numbers, Sprint, Smooth Scrolling, experimental Friday Hints).
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).
