@@ -24,38 +24,45 @@ The game logic is no longer interpreted: the 68000 code of the ROM is translated
 
 With every option switched off, the game plays like the original cartridge. All additions are optional and set in a new **Options** tab in the game's Start menu (next to *Use* / *Equip*; also on the file select screen).
 
-**Video**
+**Display**
 - **Widescreen** Off / 16:10 / 16:9: real map content in the side margins, not stretched. The project draws the picture with its own renderer, and sprites, scrolling and effects are handled for the wider view.
 - **Full Height:** shows the map in the band at the bottom of the screen that the original leaves empty while you walk.
+- **Filter** (Off, Scanlines, CRT, CRT Pro, CRT Curved), **Scaling** (Fit, 4:3, Integer, Fill), borderless **Fullscreen**.
+
+**Graphics**
+- **HUD** Original / Modern: the modern HUD drops the status bar and lays hearts (with the life numbers), the sword charge, gold and the button icons (sword, Quick Items, with the name of the bound button) over the map, so the room fills the whole screen.
+- **Shadows** (Off / On / Soft): a ground shadow under Nigel and airborne objects, which makes jumps easier to judge.
+- **Sword Effects** (off by default): while Nigel swings one of the four special swords the arc takes the sword's colour and a few small particles come off it: embers (Magic Sword), frost glitter (Ice Sword), little bolts (Thunder Sword), green light motes (Gaia Sword).
+- **Live Gaia Effect:** the Gaia rocks stay in the world while the screen scrolls.
 - **Map Behind Text:** dialogue boxes sit over the map instead of a black band.
 - **No Sprite Limit:** draws every figure of a room, without the cartridge's limit of 20 sprites per line and its flicker (off by default = the original look).
-- **Filter** (Off, Scanlines, CRT, CRT Pro, CRT Curved), **Scaling** (Fit, 4:3, Integer, Fill), borderless **Fullscreen**.
-- **Shadows** (Off / On / Soft): a ground shadow under Nigel and airborne objects, which makes jumps easier to judge.
-- **HUD** Original / Modern: the modern HUD drops the status bar and lays hearts (with the life numbers), the sword charge, gold and the button icons (sword, Quick Items, with the name of the bound button) over the map, so the room fills the whole screen.
 
 **Audio:** separate music and effect volume; speech blips can be switched off.
 
-**Quality of Life**
+**Movement**
+- **Sprint** (On by default): hold R2 (keyboard Left Shift) and Nigel runs faster on the ground (jumps stay exactly as in the original). Sprint Key: Hold or Toggle.
+- **Smooth Scrolling** (On by default): the sprint is 1.5 x and the room scrolls evenly and stays sharp (the scenery is shifted by whole screen pixels inside the display filter); Off = sprint 2 x.
+- **Native Pace:** busy rooms no longer run in slow motion; the picture waits for the game instead of the game losing frames like on the console.
+- **Fast Forward** 2x / 3x / 4x while a button is held, or as a toggle (Fast Forward Key: Hold / Toggle).
+
+**Comfort**
 - **Quick Save / Quick Load** anywhere, on a button. This uses a hidden extra slot, so your four normal save files are not touched.
 - **Quick Items:** put consumable items (e.g. EkeEke) on two buttons, shown in the HUD.
 - **Quick Equip:** hold a button (R1) and press a direction to open the strip of swords, armour, boots or rings, then pick a piece with left / right, without opening the menu.
-- **Sprint** (On by default): hold R2 (keyboard Left Shift) and Nigel runs faster on the ground (jumps stay exactly as in the original). Sprint Key: Hold or Toggle.
-- **Smooth Scrolling** (On by default, Quality of Life): the sprint is 1.5 x and the room scrolls evenly and stays sharp (the scenery is shifted by whole screen pixels inside the display filter); Off = sprint 2 x.
-- **Experimental, off by default:** *Friday Hints* (Quality of Life; press Select and Friday flies out of Nigel's bag and tells you where to go next) and a *dungeon map* (bind a button to "Map" in Keybindings; schematic map of the visited rooms of the current dungeon with every door on its real wall, scrolling with the D-pad, floors on L1 / R1). Both are still being tuned.
-- **Native Pace:** busy rooms no longer run in slow motion; the picture waits for the game instead of the game losing frames like on the console.
-- **Better Menu:** B in Use / Equip goes back to the menu bar instead of closing the menu.
 - **Item Info:** a short description of the item under the cursor.
 - **Buy Quantity:** buy several of an item in one go in shops.
-- **Fast Forward** 2x / 3x / 4x while a button is held, or as a toggle (Fast Forward Key: Hold / Toggle).
-- **Language:** English or Deutsch (menus, items and system messages are translated so far; dialogue is still English).
+- **Better Menu:** B in Use / Equip goes back to the menu bar instead of closing the menu.
 - **Fix Ride Objects:** Nigel now rides along on an object that stands on a moving platform. In the original he slides off; this is a bug fix.
-- **Live Gaia Effect:** the Gaia rocks stay in the world while the screen scrolls.
 
-**Difficulty:** damage taken (25 % to 200 %) and enemy HP (50 % to 300 %).
+**Difficulty / Help:** damage taken (25 % to 200 %), enemy HP (50 % to 300 %) and the experimental *Friday Hints* (off by default; press Select and Friday flies out of Nigel's bag and tells you where to go next).
+
+**Experimental, off by default:** a *dungeon map* (bind a button to "Map" in Keybindings; schematic map of the visited rooms of the current dungeon with every door on its real wall, scrolling with the D-pad, floors on L1 / R1). Still being tuned.
 
 **Keybindings:** every action can be remapped, for both controller and keyboard.
 
-Defaults for a new install: 16:9, Full Height, CRT Pro filter, Native Pace, and most Quality of Life options on (HUD: Original). Change anything you like in Options.
+**Language:** English or Deutsch (menus, items and system messages are translated so far; dialogue is still English).
+
+Defaults for a new install: 16:9, Full Height, CRT Pro filter, Native Pace, and most Movement / Comfort options on (HUD: Original). Change anything you like in Options.
 
 ## Vision and what comes next
 
