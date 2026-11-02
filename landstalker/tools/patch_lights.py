@@ -7,10 +7,11 @@ licht3.html, 'ja, bau es als Option ein').  In rooms with flame tiles the own ma
    into void above the last floor, a BACK WALL.  Computed per 32 x 32 block of the room picture the first time the block is on screen, kept
    until the room / height map changes (camera independent).
  * LIGHTS = the animated tile groups that are flames (ROM base address of frame 0 = AnimatedTilesetData entries 3 fireplace, 4 lamp, 7 / 11
-   torches, 15 / 16 candles, 17 candelabra, 20 cauldron (green); tools/animsurvey.py numbers, user check 2026-11-02; lava (21) not yet): the
+   torches, 15 / 16 candles, 17 candelabra, 20 cauldron (green), 6 = waterfall shrine water + torches, only its torch tiles 917 / 927 / 928 /
+   934 / 935 (v2, user report room 177, 2026-11-03); tools/animsurvey.py numbers, user check 2026-11-02; lava (21) not yet): the
    plane cells with those tiles, connected groups (<= 40 cells) -> one light at the 3D point of the group's centre pixel, 6 units in front of
    its face.
- * SCENERY LIGHT per block and light (<= 6 per block): distance falloff (radius 90 units), the angle to the face, and the shadow of the height
+ * SCENERY LIGHT per block and light (<= 6 per block): distance falloff (radius 120 units), the angle to the face, and the shadow of the height
    map (march to the light) -> 0..255; per frame only the flicker of each light is applied.
  * FIGURES (visible entities, g_VisibleEntityList $FF11DE): upright cut-outs at their foot point (+14 / +16 / +12), silhouette = their sprite
    pixels of lk_o_spr inside a box around the anchor (+0E / +10): their own pixels are lit at their cut-out position (normal to the camera) and
@@ -22,7 +23,7 @@ Test aid: LANDSTALKER_LIGHTING_DBG=1 prints the lights of every new room; =2 sho
 Needs patch_own.py, patch_modernhud.py and patch_swordfx.py before it.  Idempotent.  usage: patch_lights.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_LIGHTS v1"
+VER = "LK_LIGHTS v2"
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
 if VER in s:
@@ -40,7 +41,7 @@ void lk_lt_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; 
 #define LK_LT_BW 76                     /* blocks of 32 px over the room picture (304 x 152 tiles = 2432 x 1216 px) */
 #define LK_LT_BH 38
 #define LK_LT_NL 6                      /* lights per block */
-#define LK_LT_RAD 90.0f
+#define LK_LT_RAD 120.0f   /* v2: was 90, the floor under high wall torches stayed dark (room 177) */
 typedef struct { int16_t z[1024]; uint8 face[1024]; uint8 nl, li[LK_LT_NL]; uint8 term[LK_LT_NL][1024]; } lk_lt_blk;
 static lk_lt_blk *lk_lt_b[LK_LT_BH][LK_LT_BW];
 typedef struct { float x, y, z; float r, g, b; } lk_lt_light;
@@ -98,21 +99,26 @@ static int lk_lt_isflame(uint32_t base, float *r, float *g, float *bl) {   /* An
     case 0x095BAA: case 0x096E8A: case 0x097CCA: case 0x098AAA: case 0x098CAA: case 0x09906A: *r = 1.0f; *g = 0.72f; *bl = 0.42f; return 1;   /* fireplace, torches, candles, candelabra */
     case 0x09608A: *r = 1.0f; *g = 0.84f; *bl = 0.55f; return 1;    /* lamp */
     case 0x099C0A: *r = 0.55f; *g = 1.0f; *bl = 0.45f; return 1;    /* cauldron */
+    case 0x0968CA: *r = 1.0f; *g = 0.72f; *bl = 0.42f; return 1;    /* waterfall shrine: water AND wall torches in one group (only the torch tiles, lk_lt_tileok; user report room 177, 2026-11-03) */
   }
   return 0;
+}
+static int lk_lt_tileok(uint32_t base, int t) {   /* groups that mix flames with other tiles: only the flame tiles light */
+  if (base == 0x0968CA) return t == 917 || t == 927 || t == 928 || t == 934 || t == 935;
+  return 1;
 }
 static void lk_lt_newroom(void) {   /* height map + lights of the current room */
   int x, y, k; static uint8 seen[152][304];
   lk_lt_free(); lk_lt_nl = 0; lk_lt_zmax = 0;
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x); lk_lt_top[y][x] = (int16_t)(w == 0x4000 ? -32768 : 16 * ((w >> 8) & 15)); if (w != 0x4000 && lk_lt_top[y][x] > lk_lt_zmax) lk_lt_zmax = lk_lt_top[y][x]; }
-  lk_lt_zmax += 48;
+  lk_lt_zmax += 192;   /* walls stand high above the floor: the view ray must start above the top of the back walls (v2: was 48, the torches of room 177 hang higher) */
   memset(seen, 0, sizeof seen);
   for (k = 0; k < lk_o_ngrp; k++) {
     float cr, cg, cb; int t0 = lk_o_grp[k].dest / 32, tn = lk_o_grp[k].words * 2 / 32, r0, c0;
     if (!lk_lt_isflame(lk_o_grp[k].base, &cr, &cg, &cb) || tn < 1) continue;
     for (r0 = 0; r0 < 152; r0++) for (c0 = 0; c0 < 304; c0++) {
       static int16_t st[4096][2]; int sp = 0, n = 0, su = 0, sv = 0;
-      #define LK_LT_IS(rr, cc) ((((lk_o_pa[rr][cc] & 0x10000) && (int)(lk_o_pa[rr][cc] & 0x7FF) >= t0 && (int)(lk_o_pa[rr][cc] & 0x7FF) < t0 + tn)) || (((lk_o_pb[rr][cc] & 0x10000) && (int)(lk_o_pb[rr][cc] & 0x7FF) >= t0 && (int)(lk_o_pb[rr][cc] & 0x7FF) < t0 + tn)))
+      #define LK_LT_IS(rr, cc) ((((lk_o_pa[rr][cc] & 0x10000) && (int)(lk_o_pa[rr][cc] & 0x7FF) >= t0 && (int)(lk_o_pa[rr][cc] & 0x7FF) < t0 + tn && lk_lt_tileok(lk_o_grp[k].base, (int)(lk_o_pa[rr][cc] & 0x7FF)))) || (((lk_o_pb[rr][cc] & 0x10000) && (int)(lk_o_pb[rr][cc] & 0x7FF) >= t0 && (int)(lk_o_pb[rr][cc] & 0x7FF) < t0 + tn && lk_lt_tileok(lk_o_grp[k].base, (int)(lk_o_pb[rr][cc] & 0x7FF)))))
       if (seen[r0][c0] || !LK_LT_IS(r0, c0)) continue;
       seen[r0][c0] = 1; st[sp][0] = (int16_t)r0; st[sp][1] = (int16_t)c0; sp++;
       while (sp) { int rr, cc, dr, dc; sp--; rr = st[sp][0]; cc = st[sp][1]; n++; su += cc * 8 + 4; sv += rr * 8 + 4;
