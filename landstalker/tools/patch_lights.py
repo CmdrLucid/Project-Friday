@@ -13,7 +13,7 @@ licht3.html, 'ja, bau es als Option ein').  In rooms with flame tiles the own ma
    its face.  LAVA (21, `$099E8A`, v3; red only in rooms 403 / 404, the same tiles are blue water in 406..411) is a field: one weak orange light per 8 x 8 cells holding >= 8 lava tiles, slow glow; every block uses
    its 8 NEAREST lights.
  * SWORD GLOW (v3, user 2026-11-03): with Magic / Ice / Thunder / Gaia sword equipped (EquippedSword $FF114E 1..4) a light in the sword's colour
-   moves with Nigel (+18 above his foot), weak (0.55) while walking, strong while swinging (Player_ActionHigh $FF542C bits 0..3 = 1..4); only in rooms
+   moves with Nigel (+18 above his foot), no light while walking (user), only while swinging (Player_ActionHigh $FF542C bits 0..3 = 1..4); only in rooms
    that are lit (flames / lava), no shadow, lights the other figures at half strength.
  * SCENERY LIGHT per block and light (<= 6 per block): distance falloff (radius 120 units), the angle to the face, and the shadow of the height
    map (march to the light) -> 0..255; per frame only the flicker of each light is applied.
@@ -25,6 +25,8 @@ licht3.html, 'ja, bau es als Option ein').  In rooms with flame tiles the own ma
 Option: Options > Graphics > Lighting Off / On (id 47, ~/.landstalker_lighting, env LANDSTALKER_LIGHTING=0|1), default Off.
 Test aid: LANDSTALKER_LIGHTING_DBG=1 prints the lights of every new room; =2 shows the geometry colours instead of the picture;
 LANDSTALKER_LIGHTING_SWORD=1..4 = sword glow of that sword (Magic / Ice / Thunder / Gaia) whatever is equipped.
+=3 also prints the height map rows 18..33 / columns 18..43; LANDSTALKER_LIGHTING_PROBE=x0,line[,x1] prints face / z / world position / light terms of
+every 4th picture pixel x0..x1 on that line at frame 1260 (v3 church fixes).
 Needs patch_own.py, patch_modernhud.py and patch_swordfx.py before it.  Idempotent.  usage: patch_lights.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
@@ -61,14 +63,26 @@ static int lk_lt_retry;               /* a new room whose planes were not built 
 static uint8 lk_lt_pair[LK_LT_ML][16];        /* light k / figure j close enough for a shadow */
 static int lk_lt_cell(int cx, int cy) { return (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) ? -32768 : lk_lt_top[cy][cx]; }
 static int lk_lt_fdiv(int a, int b) { return a >= 0 ? a / b : -((-a + b - 1) / b); }
+static int lk_lt_side(int cx, int cy, int pcx, int pcy, int z) {   /* v3: which side the ray entered (cx, cy) from; both indices change in the same step on every 16th picture column, then the neighbour that is solid decides (was always +x: box-shaped dark stripes on +y walls, user: church wall by the books) */
+  int ty, tx;
+  if (cx == pcx) return 3;
+  if (cy == pcy) return 2;
+  ty = lk_lt_cell(pcx, cy); tx = lk_lt_cell(cx, pcy);
+  if (z <= ty && z > tx) return 3;
+  if (z <= tx && z > ty) return 2;
+  return 2;
+}
 static int lk_lt_ray(int U, int V, int *zo) {   /* geometry of one picture pixel: 0 none, 1 floor, 2 face +x, 3 face +y; *zo = z of the hit */
-  int D = U - 1184, z, pcx = -999, pcy = -999, ptop = -32768, pin = 0;
+  int D = U - 1184, z, pcx = -999, pcy = -999, ptop = -32768, pin = 0, cf = 0, cz = 0, cat = 0;
   for (z = lk_lt_zmax; z >= -16; z--) {
     int cx = lk_lt_fdiv(2 * V + 2 * z + D, 32), cy = lk_lt_fdiv(2 * V + 2 * z - D, 32), top = lk_lt_cell(cx, cy), in = top > -32768;
-    if (z <= top) { *zo = z; return (cx == pcx && cy == pcy) || pcx == -999 || z == top ? 1 : (cx != pcx ? 2 : 3); }   /* v3: z == top = landed on the floor right at a cell border (was a face: grid lines on flat floors, user: church carpet) */
-    if (pcx != -999 && pin && !in && z > ptop) { *zo = z; return cx != pcx ? 2 : 3; }
+    if (cf && in && cat - z <= 40 && z > top) cf = 0;   /* v3: back on room cells right after a void gap (beside a corridor that sticks out of the room, church room 700): the gap was no wall */
+    if (z <= top) { *zo = z; return (cx == pcx && cy == pcy) || pcx == -999 || z == top ? 1 : lk_lt_side(cx, cy, pcx, pcy, z); }
+    if (pcx != -999 && pin && !in && z > ptop && !cf) { int ty = lk_lt_cell(pcx, cy), tx = lk_lt_cell(cx, pcy); cz = z; cat = z; cf = cx == pcx ? 3 : cy == pcy ? 2 : (ty == -32768 && tx > -32768 ? 3 : 2); }   /* back wall candidate: the side that leads into the void */
+    if (cf && cat - z > 40) { *zo = cz; return cf; }
     pcx = cx; pcy = cy; ptop = top; pin = in;
   }
+  if (cf) { *zo = cz; return cf; }
   return 0;
 }
 static void lk_lt_pos(int U, int V, int z, float *x, float *y) { int D = U - 1184; *x = (float)(2 * V + 2 * z + D) * 0.5f; *y = (float)(2 * V + 2 * z - D) * 0.5f; }
@@ -78,7 +92,10 @@ static float lk_lt_term(float px, float py, float pz, float nx, float ny, float 
   if (d >= LK_LT_RAD || d < 0.001f) return d < 0.001f ? 1.0f : 0.0f;
   ndl = (nx * vx + ny * vy + nz * vz) / d; if (ndl < 0) ndl = 0;
   att = 1.0f - d / LK_LT_RAD; att *= att;
-  if (shadow) for (t = 4.0f; t < d - 3.0f; t += 2.0f) if (lk_lt_solid(px + vx * t / d, py + vy * t / d, pz + vz * t / d)) return 0.0f;
+  if (shadow) {   /* v3: march from 3 units in front of the surface (a wall pixel lies on the cell border: the march along the wall hit the wall itself = box-shaped shadows, user: church wall by the books) */
+    float sx = px + nx * 3.0f, sy = py + ny * 3.0f, sz = pz + nz * 3.0f, wx = L->x - sx, wy = L->y - sy, wz = L->z - sz, e = sqrtf(wx * wx + wy * wy + wz * wz);
+    for (t = 2.0f; t < e - 3.0f; t += 2.0f) if (lk_lt_solid(sx + wx * t / e, sy + wy * t / e, sz + wz * t / e)) return 0.0f;
+  }
   return att * (0.25f + 0.75f * ndl);
 }
 static void lk_lt_free(void) { int x, y; for (y = 0; y < LK_LT_BH; y++) for (x = 0; x < LK_LT_BW; x++) if (lk_lt_b[y][x]) { free(lk_lt_b[y][x]); lk_lt_b[y][x] = 0; } }
@@ -156,6 +173,7 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
         L->x = px + (f == 2 ? 6.0f : 0.0f); L->y = py + (f == 3 ? 6.0f : 0.0f); L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; L->lava = 0; lk_lt_nl++; }
     }
   }
+  if (lk_lt_dbg == 3) { for (y = 18; y < 34; y++) { printf("hm %%2d:", y); for (x = 18; x < 44; x++) printf(" %%4d", lk_lt_top[y][x] == -32768 ? -1 : lk_lt_top[y][x]); printf("\n"); } }
   if (lk_lt_dbg) { printf("lighting: room %%d, %%d lights\n", lk_o_room, lk_lt_nl); for (k = 0; k < lk_lt_nl; k++) printf("  light %%d at (%%.0f, %%.0f, %%.0f)\n", k, lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z); }
 }
 static int lk_lt_swtest(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LIGHTING_SWORD"); v = e ? atoi(e) : 0; if (v < 0 || v > 4) v = 0; } return v; }   /* test aid: sword glow colour 1..4 without that sword */
@@ -174,7 +192,8 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     int sw = SB(0xFF114E) & 0xFF, swt = lk_lt_swtest(), act = SB(0xFF542C) & 0x0F, swing = act >= 1 && act <= 4; float want;
     if (swt) sw = swt;
     lk_lt_swon = lk_lt_on && sw >= 1 && sw <= 4;
-    want = swing ? 1.0f : 0.55f; lk_lt_swk += (want - lk_lt_swk) * (want > lk_lt_swk ? 0.6f : 0.15f);
+    want = swing ? 1.0f : 0.0f;   /* user 2026-11-03: no light while walking, only while swinging */ lk_lt_swk += (want - lk_lt_swk) * (want > lk_lt_swk ? 0.6f : 0.15f);
+    if (lk_lt_swk < 0.02f) lk_lt_swon = 0;
     if (lk_lt_swon) { float f = 1.0f + 0.05f * sinf((float)fr * 0.3f);
       lk_lt_sw.x = (float)SW(0xFF5414); lk_lt_sw.y = (float)SW(0xFF5416); lk_lt_sw.z = (float)(int16_t)SW(0xFF5412) + 18.0f;
       lk_lt_sw.r = swc[sw][0] * lk_lt_swk * 0.8f * f; lk_lt_sw.g = swc[sw][1] * lk_lt_swk * 0.8f * f; lk_lt_sw.b = swc[sw][2] * lk_lt_swk * 0.8f * f; lk_lt_sw.lava = 0; }
@@ -223,6 +242,9 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
     i = ((V & 31) << 5) | (U & 31);
     if (lk_lt_dbg == 2) { static const int dc[4] = { 0x000000, 0x6E6E8C, 0xC8503C, 0x3CAA50 }; return (int)(0xFF000000u | (uint32_t)dc[b->face[i] & 3]); }
     if (!b->face[i]) return col;
+    { static int px0 = -2, py0; static int px1; if (px0 == -2) { const char *e = getenv("LANDSTALKER_LIGHTING_PROBE"); px0 = -1; if (e && sscanf(e, "%%d,%%d,%%d", &px0, &py0, &px1) < 2) px0 = -1; if (px1 < px0) px1 = px0; }   /* test aid: one picture pixel's geometry + light terms */
+      if (x >= px0 && x <= px1 && (x - px0) %% 4 == 0 && line == py0 && platform_frame_number() == 1260) { float qx, qy; lk_lt_pos(U, V, b->z[i], &qx, &qy); printf("probe: x %%d U %%d V %%d face %%d z %%d pos (%%.0f, %%.0f) nl %%d:", x, U, V, b->face[i], b->z[i], qx, qy, b->nl);
+        for (k = 0; k < b->nl; k++) { const lk_lt_light *L = &lk_lt_l[b->li[k]]; printf(" L%%d t%%d n%%.2f", b->li[k], b->term[k][i], lk_lt_term(qx, qy, (float)b->z[i], b->face[i] == 2, b->face[i] == 3, b->face[i] == 1, L, 0)); } printf("\n"); } }
     for (k = 0; k < b->nl; k++) {
       float t = (float)b->term[k][i] * (1.0f / 255.0f); const lk_lt_light *L;
       if (t <= 0.0f) continue;
