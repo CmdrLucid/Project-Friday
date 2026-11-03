@@ -1,6 +1,6 @@
 # Light proxies: invisible 3D shapes for lighting (plan, 2026-11-03)
 
-Status: PLAN, agreed by the user 2026-11-03 night ('klingt sinnvoll'), nothing built yet. Rests on `dev` f8e8713 (LK_LIGHTS v7).
+Status: STEP 1 BUILT 2026-11-03 (user check open, mock-ups `~/Mockups/kulissen1.html`); plan agreed by the user ('klingt sinnvoll'). Rests on `dev` f8e8713 (LK_LIGHTS v7).
 
 ## Why
 Lighting v5..v7 guesses the 3D shape of every object from the painted picture (layer A) plus the game's
@@ -44,3 +44,14 @@ Cells without a proxy use the game's height map as today.
 5. Later on the same proxies: day / night, light from windows, Nigel's lantern outdoors.
 
 Rules: Lighting Off stays byte-identical; indoor flame rooms only change when they get proxies; nothing ROM-derived in git.
+
+## Step 1 result (2026-11-03, `patch_lights.py`, default on, `LANDSTALKER_LIGHTPROXY=0` = v7 guessed field)
+- Proposal per building PART (equal height piece, >= 16 high sub columns, both sides >= 24 units): `hip` over the part's whole
+  footprint (the drawn walls stand on its edge; the high sub column box was too small, walls came out dark), eave = median of the measured
+  border heights, ridge = max. Small objects: `cone` from the card (drawn foot, half width / 1.41, height capped at 48 + 24 per cell: a pine
+  beside a house measured 174 because the run went on into the wall). Then the fine field is cleared for those objects and redrawn from the shapes.
+- `LANDSTALKER_LIGHTING_DBG=5` prints 'proxy: room R #n hip x .. y .. z0 eave ridge (object part)' / 'cone at x,y r z..'; `=7` colours each proxy over the picture.
+- Mercator (rec_20261103_2201 frames 1377 / 1719): house shadows clean to the wall base (no light gap, no dark walls), pines no stray shapes.
+  Still wrong (step 2 data): the long flower beds of room 635 (objects 4 x 14 cells, box 32) get a hip with ridge ~90 from the drawn
+  flowers (they darken Nigel); the river is void in the height map (Nigel's shadow on the far bank as a wall).
+- Room setup 1.6 / 3.8 ms (635 / 632); Lighting Off and indoor flame rooms byte-identical to the previous build.

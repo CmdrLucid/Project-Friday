@@ -27,7 +27,7 @@ licht3.html, 'ja, bau es als Option ein').  In rooms with flame tiles the own ma
 Option: Options > Graphics > Lighting Off / On (id 47, ~/.landstalker_lighting, env LANDSTALKER_LIGHTING=0|1), default Off.
 Test aid: LANDSTALKER_LIGHTING_DBG=1 prints the lights of every new room; =2 shows the geometry colours instead of the picture;
 LANDSTALKER_LIGHTING_SWORD=1..4 = sword glow of that sword (Magic / Ice / Thunder / Gaia) whatever is equipped.
-=3 also prints the height map rows 18..33 / columns 18..43; =6 (v7) shows the sun share as grey, tinted by the outdoor object of the hit cell; LANDSTALKER_LIGHTING_PROBE=x0,line[,x1[,frame]] prints face / z / world position / light terms of
+=3 also prints the height map rows 18..33 / columns 18..43; =6 (v7) shows the sun share as grey, tinted by the outdoor object of the hit cell; =7 the light proxies as colours (LANDSTALKER_LIGHTPROXY=0: v7 guessed field); LANDSTALKER_LIGHTING_PROBE=x0,line[,x1[,frame]] prints face / z / world position / light terms of
 every 4th picture pixel x0..x1 on that line at frame 1260 or the given frame (v3 church fixes; v4: 4th value = frame).
 v7 (user 2026-11-03 late: 'die Schatten sind teilweise echt noch nicht gut, siehe Haeuser in Mercator': stair steps, blocky; v6 had one card per cell).
 Outdoor objects by class: SMALL (<= 4 cells: tree, post, rock) one card for the whole object (its drawn silhouette); up to 5 heights (houses, the church,
@@ -71,6 +71,9 @@ static int16_t lk_lt_gh[74][74];   /* v6: the game's heights (lk_lt_top = ours: 
 static int16_t lk_lt_fh[LK_LT_FN][LK_LT_FN], lk_lt_fo[LK_LT_FN][LK_LT_FN]; static int lk_lt_fhmax;   /* v7: object top + owner object per sub column */
 typedef struct { float x, y; int16_t h, hh, U, V0, w, obj; } lk_lt_card;   /* upright card facing the sun, silhouette = drawn layer A picture: v7 one per SMALL object (tree, post), one per cell of class 3 objects (v6) */
 static lk_lt_card lk_lt_c[1024]; static int lk_lt_nc;
+typedef struct { uint8 type; int16_t x0, y0, x1, y1, z0, eave, ridge, obj; } lk_lt_proxy;   /* LIGHT PROXY (docs/LIGHT_PROXY_PLAN.md): invisible shape for light only; type 1 hip (box to eave + hip roof to ridge), 2 cone (centre (x0, y0), radius x1, z0 .. ridge) */
+static lk_lt_proxy lk_lt_px[255]; static int lk_lt_npx; static uint8 lk_lt_fp[LK_LT_FN][LK_LT_FN];   /* proxies of the room; lk_lt_fp = proxy + 1 of every sub column (0 none) */
+static int lk_lt_pxon(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LIGHTPROXY"); v = e ? atoi(e) != 0 : 1; } return v; }   /* 0 = v7 guessed field (comparison) */
 static int16_t lk_lt_vt[LK_LT_FN][LK_LT_FN], lk_lt_vm[74][74];   /* v7 speed: lk_lt_fcell of every sub column; per cell the 3 x 3 max of it (32767 = void / object near: no skip) */
 static int16_t lk_lt_hd[74][74], lk_lt_chd[74][74];   /* v7 speed: per cell the highest thing (field / cards) the sun ray can still meet from this cell on (3 x 3 dilated), cards only */
 static int16_t lk_lt_bb[1024][5], lk_lt_sgnd[1024], lk_lt_omax[1024]; static uint8 lk_lt_ocl[1024];   /* lk_lt_sgnd: v7 ground around a SMALL object (its collision box is no picture: light and shadow use the ground + the card) */ static int16_t lk_lt_part[74][74], lk_lt_pb[2048][4];   /* v7: equal height parts of the objects + their boxes (mirror boxes of the fine field) */   /* v7: per outdoor object: footprint box (cells) + cell count; class 1 small (one card), 2 building (fine field), 3 other (a card per cell, v6) */
@@ -427,6 +430,48 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
         if (h + best > lk_lt_fhmax) lk_lt_fhmax = h + best; }
     }
   }
+  lk_lt_npx = 0; memset(lk_lt_fp, 0, sizeof lk_lt_fp);
+  if (lk_lt_pxon()) {   /* LIGHT PROXIES step 1 (user 2026-11-03: 'dann haben wir es an Objekten und muessen nicht mehr raten'): a clean shape per building part / small object,
+       proposed from the measured field / card, then the field is redrawn from the shapes only (no holes, towers or gaps of the guessed hull) */
+    static int16_t pb[2048][4]; static int32_t pcnt[2048]; int pt, j, i, c, k;
+    for (pt = 0; pt < 2048; pt++) { pb[pt][0] = pb[pt][1] = 9999; pb[pt][2] = pb[pt][3] = -1; pcnt[pt] = 0; }
+    for (j = 0; j < LK_LT_FN; j++) for (i = 0; i < LK_LT_FN; i++) {   /* per part: the sub columns that stand clearly above the part's box top */
+      int o = lk_lt_fo[j][i], q = lk_lt_part[j >> 2][i >> 2]; if (!o || o >= 1024 || lk_lt_ocl[o] != 2 || q <= 0 || q >= 2048) continue;
+      if (lk_lt_fh[j][i] < lk_lt_gh[j >> 2][i >> 2] + 8) continue;
+      if (i < pb[q][0]) pb[q][0] = (int16_t)i; if (j < pb[q][1]) pb[q][1] = (int16_t)j; if (i > pb[q][2]) pb[q][2] = (int16_t)i; if (j > pb[q][3]) pb[q][3] = (int16_t)j; pcnt[q]++; }
+    for (pt = 1; pt < 2048 && lk_lt_npx < 255; pt++) { int o = 0, mx = -32768, z0 = 0, nb = 0; static int16_t ev[1024]; lk_lt_proxy *P;
+      if (pcnt[pt] < 16) continue;
+      for (j = pb[pt][1]; j <= pb[pt][3]; j++) for (i = pb[pt][0]; i <= pb[pt][2]; i++) if (lk_lt_part[j >> 2][i >> 2] == pt && lk_lt_fh[j][i] >= lk_lt_gh[j >> 2][i >> 2] + 8) {
+        int f = lk_lt_fh[j][i]; o = lk_lt_fo[j][i]; z0 = lk_lt_gh[j >> 2][i >> 2]; if (f > mx) mx = f;
+        if ((i == pb[pt][0] || i == pb[pt][2] || j == pb[pt][1] || j == pb[pt][3]) && nb < 1024) ev[nb++] = (int16_t)f; }
+      if (!o || nb == 0 || pb[pt][2] - pb[pt][0] < 5 || pb[pt][3] - pb[pt][1] < 5) continue;   /* strips < 24 units (eave rings, borders behind a tall core) are no building of their own */
+      for (k = 1; k < nb; k++) { int16_t t = ev[k]; c = k - 1; while (c >= 0 && ev[c] > t) { ev[c + 1] = ev[c]; c--; } ev[c + 1] = t; }   /* eave = median height along the border */
+      P = &lk_lt_px[lk_lt_npx++]; P->type = 1; P->obj = (int16_t)o; P->x0 = (int16_t)(16 * lk_lt_pb[pt][0]); P->y0 = (int16_t)(16 * lk_lt_pb[pt][1]); P->x1 = (int16_t)(16 * lk_lt_pb[pt][2] + 16); P->y1 = (int16_t)(16 * lk_lt_pb[pt][3] + 16);   /* the part's whole footprint: the drawn walls stand on its edge */
+      P->z0 = (int16_t)z0; P->ridge = (int16_t)mx; P->eave = ev[nb / 2]; if (P->eave > P->ridge) P->eave = P->ridge;
+      if (lk_lt_dbg == 5) printf("proxy: room %%d #%%d hip x %%d..%%d y %%d..%%d z0 %%d eave %%d ridge %%d (object %%d part %%d)\n", lk_o_room, lk_lt_npx - 1, P->x0, P->x1, P->y0, P->y1, P->z0, P->eave, P->ridge, o, pt); }
+    for (c = 0, j = 0; j < lk_lt_nc; j++) { lk_lt_card *C = &lk_lt_c[j];   /* small objects: a cone from their card (drawn foot, width, height); the card itself goes */
+      if (C->obj > 0 && C->obj < 1024 && lk_lt_ocl[C->obj] == 1 && lk_lt_npx < 255) { lk_lt_proxy *P = &lk_lt_px[lk_lt_npx++];
+        P->type = 2; P->obj = C->obj; P->x0 = (int16_t)C->x; P->y0 = (int16_t)C->y; P->x1 = (int16_t)((float)C->w * 0.7072f); P->y1 = 0; P->z0 = C->h; P->eave = C->h;
+        { int cap = 48 + 24 * (lk_lt_bb[C->obj][2] - lk_lt_bb[C->obj][0] > lk_lt_bb[C->obj][3] - lk_lt_bb[C->obj][1] ? lk_lt_bb[C->obj][2] - lk_lt_bb[C->obj][0] + 1 : lk_lt_bb[C->obj][3] - lk_lt_bb[C->obj][1] + 1); P->ridge = (int16_t)(C->h + (C->hh < cap ? C->hh : cap)); }   /* a pine at a house: the drawn run went on into the wall behind (cone 174 high) */
+        if (lk_lt_dbg == 5) printf("proxy: room %%d #%%d cone at %%d,%%d r %%d z %%d..%%d (object %%d)\n", lk_o_room, lk_lt_npx - 1, P->x0, P->y0, P->x1, P->z0, P->ridge, P->obj);
+        continue; }
+      lk_lt_c[c++] = *C; }
+    lk_lt_nc = c;
+    for (j = 0; j < LK_LT_FN; j++) for (i = 0; i < LK_LT_FN; i++) { int o = lk_lt_fo[j][i]; if (o && o < 1024 && (lk_lt_ocl[o] == 1 || lk_lt_ocl[o] == 2)) { lk_lt_fh[j][i] = -32768; lk_lt_fo[j][i] = 0; } }
+    for (k = 0; k < lk_lt_npx; k++) { const lk_lt_proxy *P = &lk_lt_px[k]; int i0, i1, j0, j1;   /* rasterise (4 units, sub column centres) */
+      if (P->type == 1) { i0 = P->x0 >> 2; i1 = (P->x1 >> 2) - 1; j0 = P->y0 >> 2; j1 = (P->y1 >> 2) - 1; }
+      else { i0 = (P->x0 - P->x1) >> 2; i1 = (P->x0 + P->x1) >> 2; j0 = (P->y0 - P->x1) >> 2; j1 = (P->y0 + P->x1) >> 2; }
+      for (j = j0 < 0 ? 0 : j0; j <= j1 && j < LK_LT_FN; j++) for (i = i0 < 0 ? 0 : i0; i <= i1 && i < LK_LT_FN; i++) { float x = 4.0f * i + 2.0f, y = 4.0f * j + 2.0f, h;
+        if (P->type == 1) { float w = (float)(P->x1 - P->x0), hh = (float)(P->y1 - P->y0), d = x - P->x0, half = 0.5f * (w < hh ? w : hh);
+          if (P->x1 - x < d) d = P->x1 - x; if (y - P->y0 < d) d = y - P->y0; if (P->y1 - y < d) d = P->y1 - y;
+          h = half > 0.0f ? (float)P->eave + (float)(P->ridge - P->eave) * d / half : (float)P->ridge; if (h > P->ridge) h = (float)P->ridge; }
+        else { float dx = x - P->x0, dy = y - P->y0, d = sqrtf(dx * dx + dy * dy); if (d >= (float)P->x1 || P->x1 <= 0) continue; h = (float)P->ridge - (float)(P->ridge - P->z0) * d / (float)P->x1; }
+        if (lk_lt_fo[j][i] && (float)lk_lt_fh[j][i] >= h) continue;
+        lk_lt_fh[j][i] = (int16_t)h; lk_lt_fo[j][i] = P->obj; lk_lt_fp[j][i] = (uint8)(k + 1); } }
+    lk_lt_fhmax = -32768;
+    for (j = 0; j < LK_LT_FN; j++) for (i = 0; i < LK_LT_FN; i++) if (lk_lt_fo[j][i] && lk_lt_fh[j][i] > lk_lt_fhmax) lk_lt_fhmax = lk_lt_fh[j][i];
+    for (j = 0; j < lk_lt_nc; j++) if (lk_lt_c[j].h + lk_lt_c[j].hh > lk_lt_fhmax) lk_lt_fhmax = lk_lt_c[j].h + lk_lt_c[j].hh;
+  }
   return n;
 }
 static void lk_lt_newroom(void) {   /* height map + lights of the current room */
@@ -583,6 +628,11 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
     if (!b) return col;
     i = ((V & 31) << 5) | (U & 31);
     if (lk_lt_dbg == 2) { static const int dc[4] = { 0x000000, 0x6E6E8C, 0xC8503C, 0x3CAA50 }; return (int)(0xFF000000u | (uint32_t)dc[b->face[i] & 3]); }
+    if (lk_lt_dbg == 7) { float px, py; int sx, sy, q = 0; uint32_t c = (uint32_t)col, h; lk_lt_pos(U, V, b->z[i], &px, &py); sx = (int)floorf(px / 4.0f); sy = (int)floorf(py / 4.0f);   /* light proxies over the picture */
+      if (b->face[i] && sx >= 0 && sy >= 0 && sx < LK_LT_FN && sy < LK_LT_FN) q = lk_lt_fp[sy][sx];
+      if (!q) return (int)(0xFF000000u | ((c >> 1) & 0x7F7F7F));
+      h = (uint32_t)q * 2654435761u; { int f = b->face[i] == 1 ? 255 : b->face[i] == 3 ? 200 : 150;
+        return (int)(0xFF000000u | ((uint32_t)((((h >> 8) & 255) | 64) * f / 255 / 2 + ((c >> 17) & 127)) << 16) | ((uint32_t)((((h >> 16) & 255) | 64) * f / 255 / 2 + ((c >> 9) & 127)) << 8) | (uint32_t)((((h >> 24) & 255) | 64) * f / 255 / 2 + ((c >> 1) & 127))); } }
     if (lk_lt_dbg == 6 && b->face[i]) { float px, py; int cx, cy, o, g = b->sun[i]; uint32_t h; lk_lt_pos(U, V, b->z[i], &px, &py); cx = (int)floorf(px / 16.0f); cy = (int)floorf(py / 16.0f);   /* v7 test aid: sun share (grey) + outdoor object of the hit cell (colour) */
       o = (cx >= 0 && cy >= 0 && cx < 74 && cy < 74) ? lk_lt_obj[cy][cx] : 0; if (!o) return (int)(0xFF000000u | (uint32_t)(g * 0x010101));
       h = (uint32_t)o * 2654435761u; return (int)(0xFF000000u | ((uint32_t)((g + (int)((h >> 8) & 127)) / 2) << 16) | ((uint32_t)((g + (int)((h >> 16) & 127)) / 2) << 8) | (uint32_t)((g + (int)((h >> 24) & 127)) / 2)); }
