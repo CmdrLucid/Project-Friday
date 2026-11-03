@@ -29,6 +29,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a201. 2026-10-30 (late, Deck, Opus 5.5): SPRINT ANIMATION built (`tools/patch_sprintanim.py`, LK_SPRINTANIM v1; SPRINT_IDEAS last entry): variant G applied at runtime to Nigel's walk frames while sprinting. Headless-checked (front view); user check open, especially the back view (walking up).
 
+## 0a259. 2026-11-03 (latest, Deck, Opus 5.5): user 'Mach die Korrekturdatei' -> data/light_proxies.json + loader (build time) + packaging; first entries room 635 flower beds flat. NEXT -74.
+
 ## 0a258. 2026-11-03 (latest, Deck, Opus 5.5): user: shadows along the isometric grid -> azimuth 90; 'dunkler Streifen vor der Kirche' -> phantom wall from protruding collision cells + water merged the church into terrain, both fixed (LIGHT_PROXY_PLAN). NEXT -73.
 
 ## 0a257. 2026-11-03 (latest, Deck, Opus 5.5): light proxies cleaned up, water rule (painted void = water), low plant rows flat, sun elevation 55 (user choice). All on dev, headless checked; user plays next. NEXT -73.
@@ -602,6 +604,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **Deck round 10 (2026-10-11, user played full height in Gumi, save slot 1):** R4 works but moved to R2 (right trigger, the last free shoulder button; F4 unchanged). User saw garbage at the bottom while walking and a tearing look like the old wave effect. Cause found headless (detector `rigid shift of band vs picture`, 17 of 1000 frames in a Gumi walk): the game flushes the VDP queue (scroll + tiles of the NEXT frame) while the display is off in the HInt band, and the renderer drew the band lines after that flush. Fix: `lk_tall_prerender` renders the remaining lines at the moment of the display-off write (patch_tall.py, vdp_ctrl.c hook). Result: 0 of 1000 / 2200 frames non-rigid at WIDE=0 and 32, work RAM identical to TALL=0 (only stack word $FFEE as before), no RTS/no-function lines. NOT yet seen by the user: ask them to walk in Gumi with R2 on (and WIDE 32/48).
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-74. **NEXT (2026-11-03, latest):** correction file DONE (LIGHT_PROXY_PLAN 'Step 2'); user plays (Mercator incl. room 635 beds, church front, shadow direction); next data entries from new sword-marker recordings; then the `mesh` op + a Blender church; cliff edge lines room 603.
 -73. **NEXT (2026-11-03, latest):** user plays the new build (water, trees, clean-up); then step 2 correction file for one-offs (room 635 flower beds, church Blender mesh); church marker 397 of rec_20261103_2256 not looked at yet.
 -72. **NEXT (2026-11-03, latest):** clean-up DONE (LIGHT_PROXY_PLAN 'Clean-up done'); step 2 = correction file `landstalker/data/light_proxies.json` (built in at build time like the Friday hints) with flat / water / remove / hip / MESH (Blender, one-offs: church first); first entries: room 635 flower beds flat, pond / river water.
 -71. **NEXT (2026-11-03, latest):** LIGHT PROXY CLEAN-UP (LIGHT_PROXY_PLAN 'Decision'): remove v6 cards + guessing rules, one pixel rule, then the correction file (ponds / river = water, flower beds flat). Intermediate state 'Step 1b' committed, user saw nothing of it yet.

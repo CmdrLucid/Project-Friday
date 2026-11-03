@@ -95,3 +95,15 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
   (class 3, no house shape any more). Back to object 4 (94 cells, 5 heights, class 2).
 - What stays dark in front of the church now is the shadow of the church's front wing on the flower strip (sun from the lower left) - for the user to judge.
 
+## Step 2 built: the correction file (2026-11-03, user: 'Mach die Korrekturdatei')
+- `landstalker/data/light_proxies.json` (our own data: room ids, map cells, heights; nothing from the ROM). Read by `tools/patch_lights.py`
+  at BUILD time and compiled in as a C table (`lk_lt_corr`), like the Friday hints; `LANDSTALKER_LIGHTPROXY_JSON=<file>` = a test copy at build time.
+  Shipped: `packaging/make_appimage.py` and `make_windows_zip.py` copy `data/*.json` (the game is built on the player's machine).
+- ops (cells inclusive, heights in units): `flat [x0,y0,x1,y1]` (no shape in these cells, shapes centred there dropped; the game's box stays),
+  `water [x0,y0,x1,y1,h]` (water floor; applied after the automatic water fill), `remove [x0,y0,x1,y1]` (drop shapes centred there),
+  `hip [x0,y0,x1,y1,z0,eave,ridge]` (own building shape, object id 1000+). `DBG=5` prints 'correction: room R drops proxy #n / adds hip #n'.
+- First entries: room 635 the two long flower beds (cells 43..46 x 26..39 and 43..46 x 47..60) flat: Nigel no longer darkened in the bed
+  (rec_20261103_2201 frame 2790), the big triangle at the bed's end gone; the bed's raised edge keeps its small shadow.
+- How to add an entry: find the cells with `LANDSTALKER_LIGHTING_PROBE` (position / 16) or the `DBG=5` proxy list, add a line with a `why`, rebuild (13 s).
+- Open: `mesh` op for Blender shapes of one-offs (church), the cliff edge lines of room 603.
+

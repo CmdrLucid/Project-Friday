@@ -1,0 +1,18 @@
+{
+  "_about": [
+    "Corrections for the LIGHT PROXIES (docs/LIGHT_PROXY_PLAN.md): our own data, room ids and map coordinates only, nothing from the ROM.",
+    "Read by tools/patch_lights.py at build time (compiled into the game). Coordinates: map cells (16 world units each, as in the game's height map), rectangles inclusive.",
+    "Heights in world units (ground is usually 16, one height step = 16). Find cells / proposals: LANDSTALKER_LIGHTING_DBG=5 prints 'proxy: room R #n ...', =7 shows the proxies,",
+    "LANDSTALKER_LIGHTING_PROBE=x0,line,x1,frame prints the world position of picture pixels (cell = position / 16).",
+    "ops: flat [x0,y0,x1,y1]      - nothing in these cells casts or carries a shape (flower beds, signs); the game's box stays",
+    "     water [x0,y0,x1,y1,h]   - these cells are a water floor at height h (river / pond the automatic rule missed)",
+    "     remove [x0,y0,x1,y1]    - drop the automatic shapes whose centre lies in these cells",
+    "     hip [x0,y0,x1,y1,z0,eave,ridge] - an own building shape: walls from z0 to eave, hip roof up to ridge"
+  ],
+  "rooms": {
+    "635": [
+      {"op": "flat", "cells": [43, 26, 46, 39], "why": "long flower bed east of the houses: the drawn tulips became a hip roof that shaded Nigel (rec_20261103_2201 marker 2805)"},
+      {"op": "flat", "cells": [43, 47, 46, 60], "why": "the second long flower bed (same as above)"}
+    ]
+  }
+}
