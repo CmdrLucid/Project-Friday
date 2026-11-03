@@ -32,7 +32,7 @@ every 4th picture pixel x0..x1 on that line at frame 1260 or the given frame (v3
 Needs patch_own.py, patch_modernhud.py and patch_swordfx.py before it.  Idempotent.  usage: patch_lights.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_LIGHTS v5"
+VER = "LK_LIGHTS v6"
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
 if VER in s:
@@ -57,6 +57,9 @@ static lk_lt_blk *lk_lt_b[LK_LT_BH][LK_LT_BW];
 typedef struct { float x, y, z; float r, g, b; int lava; } lk_lt_light;
 static lk_lt_light lk_lt_l[LK_LT_ML]; static int lk_lt_nl, lk_lt_room = -2, lk_lt_zmax; static uint32_t lk_lt_hash; static long lk_lt_frame = -1;
 static int16_t lk_lt_top[74][74];
+static int16_t lk_lt_gh[74][74];   /* v6: the game's heights (lk_lt_top = ours: outdoor objects raised to their drawn height for the view ray); the sun's shadow march uses these, objects cast through cards */
+typedef struct { float x, y; int16_t h, hh, U, V0, cx, cy, obj; } lk_lt_card;   /* v6: one upright card per raised cell outdoors, silhouette = the layer A pixels of its picture column */
+static lk_lt_card lk_lt_c[1024]; static int lk_lt_nc; static int16_t lk_lt_obj[74][74];
 static float lk_lt_flk[LK_LT_ML];
 static lk_lt_light lk_lt_sw; static float lk_lt_swk; static int lk_lt_swon;   /* v3: glow of Nigel's sword (EquippedSword $FF114E 1..4), a light that moves: no cache, no shadow */
 typedef struct { float fx, fy, fz; int ax, ay; float sun; } lk_lt_fig;
@@ -83,10 +86,12 @@ static int lk_lt_dent(int cx, int cy, int cf) {   /* v4: room cell (cx, cy) is p
   for (d = 1; d <= 3 && lk_lt_cell(cx + d * ax, cy + d * ay) > -32768; d++) n++;
   return n <= 3;
 }
+static int lk_lt_rob;   /* v6: the first outdoor object (lk_lt_obj) the last view ray passed */
 static int lk_lt_ray(int U, int V, int *zo) {   /* geometry of one picture pixel: 0 none, 1 floor, 2 face +x, 3 face +y; *zo = z of the hit */
   int D = U - 1184, z, pcx = -999, pcy = -999, ptop = -32768, pin = 0, cf = 0, cz = 0;
   for (z = lk_lt_zmax; z >= -16; z--) {
     int cx = lk_lt_fdiv(2 * V + 2 * z + D, 32), cy = lk_lt_fdiv(2 * V + 2 * z - D, 32), top = lk_lt_cell(cx, cy), in = top > -32768;
+    if (in && !lk_lt_rob && lk_lt_obj[cy][cx]) lk_lt_rob = lk_lt_obj[cy][cx];
     if (cf && in && z > top && !lk_lt_dent(cx, cy, cf)) cf = 0;   /* v3: back on room cells after a void gap (beside a corridor that sticks out of the room, church room 700): the gap was no wall; v4: at any distance (a pit in front of the walkway of room 5 = void, was a high wall), unless those cells are a narrow door niche in the wall (room 5) */
     if (z <= top) { *zo = z; return (cx == pcx && cy == pcy) || pcx == -999 || z == top ? 1 : lk_lt_side(cx, cy, pcx, pcy, z); }
     if (pcx != -999 && pin && !in && z > ptop && !cf) { int ty = lk_lt_cell(pcx, cy), tx = lk_lt_cell(cx, pcy); cz = z; cf = cx == pcx ? 3 : cy == pcy ? 2 : (ty == -32768 && tx > -32768 ? 3 : 2); }   /* back wall candidate: the side that leads into the void */
@@ -109,18 +114,37 @@ static float lk_lt_term(float px, float py, float pz, float nx, float ny, float 
   return att * (0.25f + 0.75f * ndl);
 }
 static int lk_lt_sunp(void) {   /* v5 prototype: LANDSTALKER_SUN=1..3 (soft / medium / strong shadows), _SUN_AZ (degrees in the world x/y plane, 110 = from the lower left of the screen like the painted light: +y faces are the brightest, user 2026-11-03), _SUN_EL (elevation) */
-  static int v = -1;
+  static int v = -1; int r;   /* v6: part of the Lighting option (user 2026-11-03: 'gehoert alles zu Lighting'), strength 2 unless LANDSTALKER_SUN says otherwise (0 = no sun) */
   if (v < 0) { const char *e = getenv("LANDSTALKER_SUN"), *a = getenv("LANDSTALKER_SUN_AZ"), *l = getenv("LANDSTALKER_SUN_EL"); float az = a ? (float)atof(a) : 110.0f, el = l ? (float)atof(l) : 40.0f;
-    v = e ? atoi(e) : 0; if (v < 0 || v > 3) v = 0;
+    v = e ? atoi(e) : 2; if (v < 0 || v > 3) v = 2;
     az *= 3.14159265f / 180.0f; el *= 3.14159265f / 180.0f;
     lk_lt_sd[0] = cosf(az) * cosf(el); lk_lt_sd[1] = sinf(az) * cosf(el); lk_lt_sd[2] = sinf(el);
     lk_lt_sS = v == 1 ? 0.80f : v == 2 ? 0.70f : 0.60f; lk_lt_sK = (1.08f - lk_lt_sS) / (lk_lt_sd[2] > 0.2f ? lk_lt_sd[2] : 0.2f); }
-  return v;
+  r = lk_lt_get() ? v : 0;
+  return r;
 }
 static int lk_lt_sunblocked(float px, float py, float pz) {   /* v5: the way from a point to the sun crosses the height map */
   float t; for (t = 2.0f; ; t += 2.0f) { float x = px + lk_lt_sd[0] * t, y = py + lk_lt_sd[1] * t, z = pz + lk_lt_sd[2] * t;
     if (z > (float)lk_lt_ztop + 1.0f || x < 0.0f || y < 0.0f || x >= 74.0f * 16.0f || y >= 74.0f * 16.0f) return 0;
-    if (lk_lt_solid(x, y, z)) return 1; }
+    { int cx = (int)floorf(x / 16.0f), cy = (int)floorf(y / 16.0f); if (cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && z < (float)lk_lt_gh[cy][cx] - 0.5f) return 1; } }   /* v6: the game's heights (raised objects cast through their cards) */
+}
+static int lk_lt_cardsun(float px, float py, float pz, int obj) {   /* v6: the way to the sun crosses the drawn silhouette of a house / tree (its cards); obj = the pixel's own object (no self shadow from the drawing) */
+  float hx = lk_lt_sd[0], hy = lk_lt_sd[1], hl = sqrtf(hx * hx + hy * hy), nx, ny, tx, ty, den, tn = lk_lt_sd[2] / (hl > 1e-3f ? hl : 1e-3f); int j;
+  if (hl < 1e-3f) return 0;
+  nx = hx / hl; ny = hy / hl; den = hl; tx = ny; ty = -nx; if (tx - ty < 0.0f) { tx = -tx; ty = -ty; }
+  for (j = 0; j < lk_lt_nc; j++) {
+    const lk_lt_card *C = &lk_lt_c[j]; float t, qx, qy, qz, dx, hh, reach; int pal, pr;
+    if (C->obj == obj && obj) continue;
+    if (pz >= (float)(C->h + C->hh)) continue;
+    reach = (float)(C->h + C->hh) - pz; reach = reach / tn + 24.0f;
+    if (fabsf(C->x - px) > reach || fabsf(C->y - py) > reach) continue;
+    t = (nx * (C->x - px) + ny * (C->y - py)) / den; if (t <= 0.5f) continue;
+    qx = px + t * lk_lt_sd[0]; qy = py + t * lk_lt_sd[1]; qz = pz + t * lk_lt_sd[2];
+    dx = 1.4142f * (tx * (qx - C->x) + ty * (qy - C->y)); hh = qz - (float)C->h;
+    if (dx < -16.0f || dx > 16.0f || hh < 0.0f || hh > (float)C->hh) continue;
+    if (lk_o_fetch(lk_o_pa, C->U + (int)lrintf(dx), C->V0 - (int)lrintf(hh), &pal, &pr, 0)) return 1;
+  }
+  return 0;
 }
 static int lk_lt_isout(int room) {   /* v5: outdoor room = tileset 0 / 7 / 12 / 13 / 14 / 17 (towns, routes, docks, castle yard; tools: room table $0A0A00 byte 4), not the intro (139..143, 148) and not the dark docks (643) */
   int ts = OB(OL(0xA0A00) + 8u * (uint32_t)room + 4u) & 0x1F;
@@ -133,7 +157,8 @@ static const lk_lt_blk *lk_lt_block(int bx, int by) {   /* the block, computed o
   if (bx < 0 || by < 0 || bx >= LK_LT_BW || by >= LK_LT_BH) return 0;
   if ((b = lk_lt_b[by][bx])) return b;
   b = (lk_lt_blk *)calloc(1, sizeof *b); if (!b) return 0;
-  for (i = 0; i < 1024; i++) { int z = 0; b->face[i] = (uint8)lk_lt_ray(U0 + (i & 31), V0 + (i >> 5), &z); b->z[i] = (int16_t)z; }
+  static int16_t robj[1024];
+  for (i = 0; i < 1024; i++) { int z = 0; lk_lt_rob = 0; b->face[i] = (uint8)lk_lt_ray(U0 + (i & 31), V0 + (i >> 5), &z); b->z[i] = (int16_t)z; robj[i] = (int16_t)lk_lt_rob; }
   { float bd[LK_LT_NL]; for (k = 0; k < lk_lt_nl; k++) {   /* the nearest lights of the block (picture distance of the light's projection) */
     float lu = lk_lt_l[k].x - lk_lt_l[k].y + 1184.0f, lv = (lk_lt_l[k].x + lk_lt_l[k].y) * 0.5f - lk_lt_l[k].z, du = lu - (float)(U0 + 16), dv = lv - (float)(V0 + 16), d2 = du * du + dv * dv; int m;
     if (fabsf(du) >= LK_LT_RAD * 1.6f + 24.0f || fabsf(dv) >= LK_LT_RAD * 1.6f + 24.0f) continue;
@@ -142,10 +167,14 @@ static const lk_lt_blk *lk_lt_block(int bx, int by) {   /* the block, computed o
   } }
   if (lk_lt_sun) for (i = 0; i < 1024; i++) {   /* v5: sun = lit floor level, 0 in the shadow of the height map; faces keep their painted shading
                                                   (outdoors the height map holds only the low collision boxes of the houses, not walls / roofs: an angle term shaded them wrongly) */
-    int f = b->face[i]; float px, py, nx = f == 2 ? 1.0f : 0.0f, ny = f == 3 ? 1.0f : 0.0f, nz = f == 1 ? 1.0f : 0.0f, ndl = lk_lt_sd[2];
+    int f = b->face[i], cx, cy, ob; float px, py, nx = f == 2 ? 1.0f : 0.0f, ny = f == 3 ? 1.0f : 0.0f, nz = f == 1 ? 1.0f : 0.0f, ndl = lk_lt_sd[2];
     if (!f) continue;
+    if (f != 1 && nx * lk_lt_sd[0] + ny * lk_lt_sd[1] <= 0.0f) { b->sun[i] = (uint8)(int)(ndl * 255.0f); continue; }   /* v6: a face turned away from the sun is painted darker already: no extra shadow (user: 'als wuerde ein Schatten auf die rechte vordere Wand geworfen') */
     lk_lt_pos(U0 + (i & 31), V0 + (i >> 5), b->z[i], &px, &py);
     if (lk_lt_sunblocked(px + nx * 3.0f, py + ny * 3.0f, (float)b->z[i] + nz * 3.0f)) continue;
+    cx = (int)floorf((px - nx * 2.0f) / 16.0f); cy = (int)floorf((py - ny * 2.0f) / 16.0f); ob = (cx >= 0 && cy >= 0 && cx < 74 && cy < 74) ? lk_lt_obj[cy][cx] : 0;
+    if (!ob && robj[i]) { int pal, pr; if (lk_o_fetch(lk_o_pa, U0 + (i & 31), V0 + (i >> 5), &pal, &pr, 0)) ob = robj[i]; }   /* a drawn (layer A) pixel belongs to the object its view ray passed first: no shadow of that object on its own roof (user: 'Schattenfleck auf dem Dach') */
+    if (lk_lt_nc && lk_lt_cardsun(px + nx * 3.0f, py + ny * 3.0f, (float)b->z[i] + nz * 3.0f, ob)) continue;
     b->sun[i] = (uint8)(ndl >= 1.0f ? 255 : (int)(ndl * 255.0f));
   }
   for (k = 0; k < b->nl; k++) for (i = 0; i < 1024; i++) {
@@ -187,14 +216,48 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
         if (t == h) { if (!comp[ny][nx] && sp < 5476) { comp[ny][nx] = 1; st[sp][0] = (int16_t)nx; st[sp][1] = (int16_t)ny; sp++; } }
         else if (t > h) ok = 0; else low = 1; } }
     if (lk_lt_dbg == 5 && cnt > 1) printf("extrude: room %%d comp at (%%d, %%d) h %%d cells %%d ok %%d low %%d\n", lk_o_room, x, y, h, cnt, ok, low);
-    if (!low || cnt > 128) continue;   /* the steps of a house (eave ring + core) are separate boxes: each cell takes the drawn top of its own column */
-    for (i = 0; i < sp; i++) { int cx = st[i][0], cy = st[i][1], U = 16 * (cx - cy) + 1184, V0 = 8 * (cx + cy) + 8 - h, best = 0, du;
-      for (du = -6; du <= 6; du += 6) { int v, last = V0 + 1, seen = 0;
-        for (v = V0; v >= V0 - 176 && v >= 0; v--) { int pal, pr, a = lk_o_fetch(lk_o_pa, U + du, v, &pal, &pr, 0);
-          if (a) { last = v; seen = 1; } else if (v < last - (seen ? 6 : 12)) break; }
-        if (seen && V0 - last > best) best = V0 - last; }
-      if (lk_lt_dbg == 5) printf("extrude:   cell (%%d, %%d) +%%d\n", cx, cy, best);
-      if (best > 8) { lk_lt_top[cy][cx] = (int16_t)(h + best); n++; } }
+    if (!low || cnt > 128) continue;
+    for (i = 0; i < sp; i++) comp[st[i][1]][st[i][0]] = 2;   /* 2 = candidate (a house's eave ring and core are separate boxes of different height) */
+  }
+  { static uint8 ob[74][74]; int no = 0;   /* objects = 4-connected candidate cells (a whole house / tree) */
+    memset(lk_lt_obj, 0, sizeof lk_lt_obj); memset(ob, 0, sizeof ob);
+    for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int sp = 0, i;
+      if (comp[y][x] != 2 || lk_lt_obj[y][x]) continue;
+      no++; lk_lt_obj[y][x] = (int16_t)no; st[sp][0] = (int16_t)x; st[sp][1] = (int16_t)y; sp++;
+      for (i = 0; i < sp; i++) { int d; for (d = 0; d < 4; d++) { int nx = st[i][0] + (d == 0) - (d == 1), ny = st[i][1] + (d == 2) - (d == 3);
+        if (nx >= 0 && ny >= 0 && nx < 74 && ny < 74 && comp[ny][nx] == 2 && !lk_lt_obj[ny][nx] && sp < 5476) { lk_lt_obj[ny][nx] = (int16_t)no; st[sp][0] = (int16_t)nx; st[sp][1] = (int16_t)ny; sp++; } } }
+    } }
+  lk_lt_nc = 0;
+  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) {   /* per candidate cell: its picture column's layer A run above its top face = the drawn object */
+    int o = lk_lt_obj[y][x], h, U, V0, best = 0, du, v;
+    if (!o) continue;
+    h = lk_lt_gh[y][x]; U = 16 * (x - y) + 1184; V0 = 8 * (x + y) + 8 - h;
+    for (du = -12; du <= 12; du += 4) { int last = V0 + 1, seen = 0;
+      for (v = V0; v >= V0 - 176 && v >= 0; v--) { int pal, pr, a = lk_o_fetch(lk_o_pa, U + du, v, &pal, &pr, 0);
+        if (a) { last = v; seen = 1; } else if (v < last - (seen ? 6 : 64)) break; }   /* the walls are often layer B: up to 64 px of them before the roof */
+      if (!seen) continue;
+      if (V0 - last > best) best = V0 - last;
+      for (v = V0; v >= last; v -= 2) {   /* every drawn pixel of the run: its view ray must hit the object -> raise the BACK-MOST cell of the
+                                              front-most object the ray passes (a hip roof is as low at the back as at the front: the silhouette of a
+                                              back cell is only the eave; cell by cell columns gave notches, user 'an der Kante erst heller, dann dunkel') */
+        int pal, pr, z, D = U + du - 1184, own = 0, bx = -1, by = -1, bz = 0;
+        if (!lk_o_fetch(lk_o_pa, U + du, v, &pal, &pr, 0)) continue;
+        for (z = lk_lt_zmax + 192; z >= -16; z--) {
+          int cx = lk_lt_fdiv(2 * v + 2 * z + D, 32), cy = lk_lt_fdiv(2 * v + 2 * z - D, 32), g, ob;
+          if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) { if (own) break; continue; }
+          g = lk_lt_gh[cy][cx]; ob = lk_lt_obj[cy][cx];
+          if (ob && !own) own = ob;
+          if (ob && ob == own && (cx != bx || cy != by)) { bx = cx; by = cy; bz = z; }
+          if (g != -32768 && z <= g) break;   /* hit something of the game's height map */
+          if (own && ob != own && g != -32768) { if (bx >= 0 && z < bz - 40) break; }
+        }
+        if (own == o && bx >= 0 && bz > lk_lt_top[by][bx]) { lk_lt_top[by][bx] = (int16_t)bz; n++; }
+      }
+    }
+    if (lk_lt_dbg == 5) printf("extrude: cell (%%d, %%d) obj %%d column +%%d\n", x, y, o, best);
+    if (best > 8 && lk_lt_nc < 1024) { lk_lt_card *C = &lk_lt_c[lk_lt_nc++];   /* the card of this cell: its own picture column up to the drawn top */
+      C->x = (float)(16 * x + 8); C->y = (float)(16 * y + 8); C->h = (int16_t)h; C->hh = (int16_t)best; C->U = (int16_t)U; C->V0 = (int16_t)V0;
+      C->cx = (int16_t)x; C->cy = (int16_t)y; C->obj = (int16_t)o; }
   }
   return n;
 }
@@ -202,6 +265,7 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
   int x, y, k; static uint8 seen[152][304];
   lk_lt_free(); lk_lt_nl = 0; lk_lt_zmax = 0;
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x); lk_lt_top[y][x] = (int16_t)(w == 0x4000 ? -32768 : 16 * ((w >> 8) & 15)); if (w != 0x4000 && lk_lt_top[y][x] > lk_lt_zmax) lk_lt_zmax = lk_lt_top[y][x]; }
+  memcpy(lk_lt_gh, lk_lt_top, sizeof lk_lt_gh); lk_lt_nc = 0; memset(lk_lt_obj, 0, sizeof lk_lt_obj);
   lk_lt_sun = lk_lt_sunp() && lk_lt_isout(lk_o_room);   /* v5 */
   if (lk_lt_sun && lk_lt_extrude()) for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (lk_lt_top[y][x] > lk_lt_zmax) lk_lt_zmax = lk_lt_top[y][x];
   lk_lt_ztop = lk_lt_zmax;
@@ -249,6 +313,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
   lk_lt_frame = fr;
   if (lk_lt_dbg < 0) { const char *e = getenv("LANDSTALKER_LIGHTING_DBG"); lk_lt_dbg = e ? atoi(e) : 0; }
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) h = (h ^ (uint32_t)UW(0xFFD192 + 148 * y + 2 * x)) * 16777619u;
+  { static int lastopt = -1; if (lk_lt_get() != lastopt) { lastopt = lk_lt_get(); lk_lt_room = -2; } }   /* v6: the option changes what is built (flames, sun) */
   if (lk_o_room != lk_lt_room || h != lk_lt_hash) { lk_lt_room = lk_o_room; lk_lt_hash = h; lk_lt_retry = 12; lk_lt_newroom(); }
   else if (lk_lt_nl == 0 && lk_lt_retry > 0 && (fr & 7) == 0) { lk_lt_retry--; lk_lt_newroom(); }
   lk_lt_on = (lk_lt_nl > 0 || lk_lt_sun) && !lk_hd_n;
@@ -318,7 +383,7 @@ static int lk_lt_figsun(float px, float py, float pz) {   /* v5: the way scenery
   }
   return 0;
 }
-static int lk_lt_linebegin(void) { if (!lk_lt_get() && !lk_lt_sunp()) return 0; if (lk_lt_frame != platform_frame_number()) lk_lt_step(); return lk_lt_on; }
+static int lk_lt_linebegin(void) { if (!lk_lt_get()) return 0; if (lk_lt_frame != platform_frame_number()) lk_lt_step(); return lk_lt_on; }
 static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one composed map pixel; sp = winning sprite pixel or 0 */
   float ar = 0.55f * 0.93f, ag = 0.55f * 0.96f, ab = 0.55f * 1.06f, sr = 0, sg = 0, sb = 0, tl = 0, tb = 0; int k, j = -1;
   if ((sp & 0x200) && (j = lk_lt_figat(x, line)) >= 0) {   /* a figure pixel: lit at its cut-out position, facing the camera */
