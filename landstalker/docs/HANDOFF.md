@@ -29,6 +29,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a201. 2026-10-30 (late, Deck, Opus 5.5): SPRINT ANIMATION built (`tools/patch_sprintanim.py`, LK_SPRINTANIM v1; SPRINT_IDEAS last entry): variant G applied at runtime to Nigel's walk frames while sprinting. Headless-checked (front view); user check open, especially the back view (walking up).
 
+## 0a248. 2026-11-03 (Deck, Opus 5.5): user: room 177 torches 'passt'; LIGHTING v3 built: lava light (rooms 403 / 404 only, the same animation is water in 406..411) + sword glow in the sword colour (INDEX status 2026-11-03 v3). NEXT: user tries King Nole's labyrinth lava rooms 403 / 404 and a lit room (church / torch room) with Magic / Ice / Thunder / Gaia sword, swinging; then figure shadow tuning, maybe Live Gaia -> Movement.
+
 ## 0a247. 2026-11-03 (Deck, Opus 5.5): options menu restructured (user: option 1), Live Gaia placement undecided (user 'nicht sicher'); LIGHTING built as an option after three mock-ups (INDEX status 2026-11-03). NEXT: user plays with Lighting on in a candle / torch room (e.g. Mercator dungeon, churches); then: sword glow in dark rooms (user wish: all swords except the basic one, sword colour), lava area light, figure shadows tuning, maybe Live Gaia -> Movement.
 
 ## 0a246. 2026-11-02 (Deck, Opus 5.5): graphics ideas after the release: (1) sprint frames from a user reference image REJECTED (SPRINT_IDEAS last entry); (2) slash trail mock-ups 'zu stark'; (3) SWORD EFFECTS per sword BUILT as an option (INDEX status 2026-11-02, `tools/patch_swordfx.py`, default Off, verified headless: Off bit exact, timebench 72 / 74 + 2 menu-text re-baselines). Learned: the swing arc + blade use colours 45 / 46 (`SwordPalSwaps $007900`, the original already tints them per sword: grey / orange-red / blue / violet-white / brown). NEXT: user plays with Sword Effects on; user decides the options menu structure (proposal: Bild, Grafik, Audio, Bewegung, Komfort, Schwierigkeit & Hilfe, Tastenbelegung, Sprache, Beenden; root would scroll by 2) or submenus.
@@ -576,6 +578,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
 -61. **NEXT (2026-11-03, later):** user re-checks room 177 with Lighting v2 (torches on the right wall now light; build done); then the open wishes of -60.
+-61. **NEXT (2026-11-03, v3):** see 0a248: user checks lava rooms 403 / 404 and the sword glow (Lighting On).
 -60. **NEXT (2026-11-03):** see 0a247: user tries Lighting (Options > Graphics > Lighting) and Sword Effects; open wishes: sword glow in dark rooms, lava light; Live Gaia Effect page undecided. Timebench baseline now `~/timebench/baseline_lights2026-11-03.txt`.
 -59. **NEXT (2026-11-02, latest):** user checks the new options menu (Display / Graphics / Audio / Movement / Comfort / Difficulty / Help / Keybindings / Language / Quit; INDEX status) and Sword Effects on the Deck; timebench baseline is now `~/timebench/baseline_menu2026-11-02.txt` (menu recordings changed).
 -58. **NEXT (2026-11-02, later):** see 0a246: user plays with Sword Effects on; options menu restructure decision; re-baseline rec_20261024_0655 + rec_20261031_0756 (menu text).

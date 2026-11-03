@@ -10,7 +10,11 @@ licht3.html, 'ja, bau es als Option ein').  In rooms with flame tiles the own ma
    torches, 15 / 16 candles, 17 candelabra, 20 cauldron (green), 6 = waterfall shrine water + torches, only its torch tiles 917 / 927 / 928 /
    934 / 935 (v2, user report room 177, 2026-11-03); tools/animsurvey.py numbers, user check 2026-11-02; lava (21) not yet): the
    plane cells with those tiles, connected groups (<= 40 cells) -> one light at the 3D point of the group's centre pixel, 6 units in front of
-   its face.
+   its face.  LAVA (21, `$099E8A`, v3; red only in rooms 403 / 404, the same tiles are blue water in 406..411) is a field: one weak orange light per 8 x 8 cells holding >= 8 lava tiles, slow glow; every block uses
+   its 8 NEAREST lights.
+ * SWORD GLOW (v3, user 2026-11-03): with Magic / Ice / Thunder / Gaia sword equipped (EquippedSword $FF114E 1..4) a light in the sword's colour
+   moves with Nigel (+18 above his foot), weak (0.55) while walking, strong while swinging (Player_ActionHigh $FF542C bits 0..3 = 1..4); only in rooms
+   that are lit (flames / lava), no shadow, lights the other figures at half strength.
  * SCENERY LIGHT per block and light (<= 6 per block): distance falloff (radius 120 units), the angle to the face, and the shadow of the height
    map (march to the light) -> 0..255; per frame only the flicker of each light is applied.
  * FIGURES (visible entities, g_VisibleEntityList $FF11DE): upright cut-outs at their foot point (+14 / +16 / +12), silhouette = their sprite
@@ -19,11 +23,12 @@ licht3.html, 'ja, bau es als Option ein').  In rooms with flame tiles the own ma
  * Colour: ambient 0.55 (slightly cool) + 2.2 x the warm light sum, clamped at 2.4; only in rooms with at least one flame light, map frames only
    (not the screens / menus), not with HD tile packs.  Picture only (Off = bit exact).
 Option: Options > Graphics > Lighting Off / On (id 47, ~/.landstalker_lighting, env LANDSTALKER_LIGHTING=0|1), default Off.
-Test aid: LANDSTALKER_LIGHTING_DBG=1 prints the lights of every new room; =2 shows the geometry colours instead of the picture.
+Test aid: LANDSTALKER_LIGHTING_DBG=1 prints the lights of every new room; =2 shows the geometry colours instead of the picture;
+LANDSTALKER_LIGHTING_SWORD=1..4 = sword glow of that sword (Magic / Ice / Thunder / Gaia) whatever is equipped.
 Needs patch_own.py, patch_modernhud.py and patch_swordfx.py before it.  Idempotent.  usage: patch_lights.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_LIGHTS v2"
+VER = "LK_LIGHTS v3"
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
 if VER in s:
@@ -40,18 +45,20 @@ int lk_lt_get(void) { if (lk_lt_o < 0) { const char *h = getenv("HOME"), *e = ge
 void lk_lt_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_lt_get(); lk_lt_o = v ? 1 : 0; snprintf(pth, sizeof pth, "%%s/.landstalker_lighting", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%d\n", lk_lt_o); fclose(f); } }
 #define LK_LT_BW 76                     /* blocks of 32 px over the room picture (304 x 152 tiles = 2432 x 1216 px) */
 #define LK_LT_BH 38
-#define LK_LT_NL 6                      /* lights per block */
+#define LK_LT_NL 8                      /* lights per block (v3: the nearest ones; was the first 6) */
+#define LK_LT_ML 96                     /* lights per room (v3: lava fields; was 32) */
 #define LK_LT_RAD 120.0f   /* v2: was 90, the floor under high wall torches stayed dark (room 177) */
 typedef struct { int16_t z[1024]; uint8 face[1024]; uint8 nl, li[LK_LT_NL]; uint8 term[LK_LT_NL][1024]; } lk_lt_blk;
 static lk_lt_blk *lk_lt_b[LK_LT_BH][LK_LT_BW];
-typedef struct { float x, y, z; float r, g, b; } lk_lt_light;
-static lk_lt_light lk_lt_l[32]; static int lk_lt_nl, lk_lt_room = -2, lk_lt_zmax; static uint32_t lk_lt_hash; static long lk_lt_frame = -1;
+typedef struct { float x, y, z; float r, g, b; int lava; } lk_lt_light;
+static lk_lt_light lk_lt_l[LK_LT_ML]; static int lk_lt_nl, lk_lt_room = -2, lk_lt_zmax; static uint32_t lk_lt_hash; static long lk_lt_frame = -1;
 static int16_t lk_lt_top[74][74];
-static float lk_lt_flk[32];
+static float lk_lt_flk[LK_LT_ML];
+static lk_lt_light lk_lt_sw; static float lk_lt_swk; static int lk_lt_swon;   /* v3: glow of Nigel's sword (EquippedSword $FF114E 1..4), a light that moves: no cache, no shadow */
 typedef struct { float fx, fy, fz; int ax, ay; } lk_lt_fig;
 static lk_lt_fig lk_lt_f[16]; static int lk_lt_nf, lk_lt_on;
 static int lk_lt_retry;               /* a new room whose planes were not built yet: look for lights again a few times */
-static uint8 lk_lt_pair[32][16];        /* light k / figure j close enough for a shadow */
+static uint8 lk_lt_pair[LK_LT_ML][16];        /* light k / figure j close enough for a shadow */
 static int lk_lt_cell(int cx, int cy) { return (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) ? -32768 : lk_lt_top[cy][cx]; }
 static int lk_lt_fdiv(int a, int b) { return a >= 0 ? a / b : -((-a + b - 1) / b); }
 static int lk_lt_ray(int U, int V, int *zo) {   /* geometry of one picture pixel: 0 none, 1 floor, 2 face +x, 3 face +y; *zo = z of the hit */
@@ -81,10 +88,12 @@ static const lk_lt_blk *lk_lt_block(int bx, int by) {   /* the block, computed o
   if ((b = lk_lt_b[by][bx])) return b;
   b = (lk_lt_blk *)calloc(1, sizeof *b); if (!b) return 0;
   for (i = 0; i < 1024; i++) { int z = 0; b->face[i] = (uint8)lk_lt_ray(U0 + (i & 31), V0 + (i >> 5), &z); b->z[i] = (int16_t)z; }
-  for (k = 0; k < lk_lt_nl && b->nl < LK_LT_NL; k++) {   /* lights near the block (picture distance of the light's projection) */
-    float lu = lk_lt_l[k].x - lk_lt_l[k].y + 1184.0f, lv = (lk_lt_l[k].x + lk_lt_l[k].y) * 0.5f - lk_lt_l[k].z, du = lu - (float)(U0 + 16), dv = lv - (float)(V0 + 16);
-    if (fabsf(du) < LK_LT_RAD * 1.6f + 24.0f && fabsf(dv) < LK_LT_RAD * 1.6f + 24.0f) b->li[b->nl++] = (uint8)k;
-  }
+  { float bd[LK_LT_NL]; for (k = 0; k < lk_lt_nl; k++) {   /* the nearest lights of the block (picture distance of the light's projection) */
+    float lu = lk_lt_l[k].x - lk_lt_l[k].y + 1184.0f, lv = (lk_lt_l[k].x + lk_lt_l[k].y) * 0.5f - lk_lt_l[k].z, du = lu - (float)(U0 + 16), dv = lv - (float)(V0 + 16), d2 = du * du + dv * dv; int m;
+    if (fabsf(du) >= LK_LT_RAD * 1.6f + 24.0f || fabsf(dv) >= LK_LT_RAD * 1.6f + 24.0f) continue;
+    if (b->nl < LK_LT_NL) m = b->nl++; else { int q; m = 0; for (q = 1; q < LK_LT_NL; q++) if (bd[q] > bd[m]) m = q; if (bd[m] <= d2) continue; }
+    b->li[m] = (uint8)k; bd[m] = d2;
+  } }
   for (k = 0; k < b->nl; k++) for (i = 0; i < 1024; i++) {
     int f = b->face[i]; float px, py, t;
     if (!f) continue;
@@ -99,6 +108,7 @@ static int lk_lt_isflame(uint32_t base, float *r, float *g, float *bl) {   /* An
     case 0x095BAA: case 0x096E8A: case 0x097CCA: case 0x098AAA: case 0x098CAA: case 0x09906A: *r = 1.0f; *g = 0.72f; *bl = 0.42f; return 1;   /* fireplace, torches, candles, candelabra */
     case 0x09608A: *r = 1.0f; *g = 0.84f; *bl = 0.55f; return 1;    /* lamp */
     case 0x099C0A: *r = 0.55f; *g = 1.0f; *bl = 0.45f; return 1;    /* cauldron */
+    case 0x099E8A: *r = 0.95f; *g = 0.42f; *bl = 0.12f; return 2;   /* lava (entry 21, only rooms 403 / 404 are lava, the others water): a field, one weak light per 64 x 64 px of it (v3) */
     case 0x0968CA: *r = 1.0f; *g = 0.72f; *bl = 0.42f; return 1;    /* waterfall shrine: water AND wall torches in one group (only the torch tiles, lk_lt_tileok; user report room 177, 2026-11-03) */
   }
   return 0;
@@ -114,8 +124,23 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
   lk_lt_zmax += 192;   /* walls stand high above the floor: the view ray must start above the top of the back walls (v2: was 48, the torches of room 177 hang higher) */
   memset(seen, 0, sizeof seen);
   for (k = 0; k < lk_o_ngrp; k++) {
-    float cr, cg, cb; int t0 = lk_o_grp[k].dest / 32, tn = lk_o_grp[k].words * 2 / 32, r0, c0;
-    if (!lk_lt_isflame(lk_o_grp[k].base, &cr, &cg, &cb) || tn < 1) continue;
+    float cr, cg, cb; int t0 = lk_o_grp[k].dest / 32, tn = lk_o_grp[k].words * 2 / 32, r0, c0, kind = lk_lt_isflame(lk_o_grp[k].base, &cr, &cg, &cb);
+    if (kind == 2 && lk_o_room != 403 && lk_o_room != 404) continue;   /* entry 21 is red lava only in rooms 403 / 404; blue water in 406..411 (same tiles, other palette; ROM colour check 2026-11-03) */
+    if (!kind || tn < 1) continue;
+    if (kind == 2) {   /* a field (lava): one light per 8 x 8 cells with >= 8 of its tiles, at their centre, above the surface */
+      #define LK_LT_IN(rr, cc) ((((lk_o_pa[rr][cc] & 0x10000) && (int)(lk_o_pa[rr][cc] & 0x7FF) >= t0 && (int)(lk_o_pa[rr][cc] & 0x7FF) < t0 + tn)) || (((lk_o_pb[rr][cc] & 0x10000) && (int)(lk_o_pb[rr][cc] & 0x7FF) >= t0 && (int)(lk_o_pb[rr][cc] & 0x7FF) < t0 + tn)))
+      for (r0 = 0; r0 < 152; r0 += 8) for (c0 = 0; c0 < 304; c0 += 8) {
+        int rr, cc, n = 0, su = 0, sv = 0;
+        for (rr = r0; rr < r0 + 8; rr++) for (cc = c0; cc < c0 + 8; cc++) if (LK_LT_IN(rr, cc)) { n++; su += cc * 8 + 4; sv += rr * 8 + 4; }
+        if (n < 8 || lk_lt_nl >= LK_LT_ML) continue;
+        { int U = su / n, V = sv / n, z = 0, f = lk_lt_ray(U, V, &z); float px, py; lk_lt_light *L = &lk_lt_l[lk_lt_nl];
+          if (!f) continue;
+          lk_lt_pos(U, V, z, &px, &py);
+          L->x = px; L->y = py; L->z = (float)z + 10.0f; L->r = cr; L->g = cg; L->b = cb; L->lava = 1; lk_lt_nl++; }
+      }
+      #undef LK_LT_IN
+      continue;
+    }
     for (r0 = 0; r0 < 152; r0++) for (c0 = 0; c0 < 304; c0++) {
       static int16_t st[4096][2]; int sp = 0, n = 0, su = 0, sv = 0;
       #define LK_LT_IS(rr, cc) ((((lk_o_pa[rr][cc] & 0x10000) && (int)(lk_o_pa[rr][cc] & 0x7FF) >= t0 && (int)(lk_o_pa[rr][cc] & 0x7FF) < t0 + tn && lk_lt_tileok(lk_o_grp[k].base, (int)(lk_o_pa[rr][cc] & 0x7FF)))) || (((lk_o_pb[rr][cc] & 0x10000) && (int)(lk_o_pb[rr][cc] & 0x7FF) >= t0 && (int)(lk_o_pb[rr][cc] & 0x7FF) < t0 + tn && lk_lt_tileok(lk_o_grp[k].base, (int)(lk_o_pb[rr][cc] & 0x7FF)))))
@@ -124,15 +149,16 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
       while (sp) { int rr, cc, dr, dc; sp--; rr = st[sp][0]; cc = st[sp][1]; n++; su += cc * 8 + 4; sv += rr * 8 + 4;
         for (dr = -1; dr <= 1; dr++) for (dc = -1; dc <= 1; dc++) { int r2 = rr + dr, c2 = cc + dc; if (r2 >= 0 && r2 < 152 && c2 >= 0 && c2 < 304 && !seen[r2][c2] && LK_LT_IS(r2, c2) && sp < 4096) { seen[r2][c2] = 1; st[sp][0] = (int16_t)r2; st[sp][1] = (int16_t)c2; sp++; } } }
       #undef LK_LT_IS
-      if (n > 40 || lk_lt_nl >= 32) continue;
+      if (n > 40 || lk_lt_nl >= LK_LT_ML) continue;
       { int U = su / n, V = sv / n, z = 0, f = lk_lt_ray(U, V, &z); float px, py; lk_lt_light *L = &lk_lt_l[lk_lt_nl];
         if (!f) continue;
         lk_lt_pos(U, V, z, &px, &py);
-        L->x = px + (f == 2 ? 6.0f : 0.0f); L->y = py + (f == 3 ? 6.0f : 0.0f); L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; lk_lt_nl++; }
+        L->x = px + (f == 2 ? 6.0f : 0.0f); L->y = py + (f == 3 ? 6.0f : 0.0f); L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; L->lava = 0; lk_lt_nl++; }
     }
   }
   if (lk_lt_dbg) { printf("lighting: room %%d, %%d lights\n", lk_o_room, lk_lt_nl); for (k = 0; k < lk_lt_nl; k++) printf("  light %%d at (%%.0f, %%.0f, %%.0f)\n", k, lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z); }
 }
+static int lk_lt_swtest(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LIGHTING_SWORD"); v = e ? atoi(e) : 0; if (v < 0 || v > 4) v = 0; } return v; }   /* test aid: sword glow colour 1..4 without that sword */
 static void lk_lt_step(void) {   /* once per frame: room / height map change, flicker, figures */
   long fr = platform_frame_number(); int x, y, k, j; uint32_t h = 2166136261u; uint32_t a;
   lk_lt_frame = fr;
@@ -141,7 +167,18 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
   if (lk_o_room != lk_lt_room || h != lk_lt_hash) { lk_lt_room = lk_o_room; lk_lt_hash = h; lk_lt_retry = 12; lk_lt_newroom(); }
   else if (lk_lt_nl == 0 && lk_lt_retry > 0 && (fr & 7) == 0) { lk_lt_retry--; lk_lt_newroom(); }
   lk_lt_on = lk_lt_nl > 0 && !lk_hd_n;
-  for (k = 0; k < lk_lt_nl; k++) lk_lt_flk[k] = 1.0f + 0.12f * sinf((float)fr * 0.21f + (float)k * 2.1f) + 0.06f * sinf((float)fr * 0.53f + (float)k * 1.3f);
+  for (k = 0; k < lk_lt_nl; k++) lk_lt_flk[k] = lk_lt_l[k].lava ? 1.0f + 0.10f * sinf((float)fr * 0.045f + (float)k * 0.9f)   /* lava: slow glow */
+                                                 : 1.0f + 0.12f * sinf((float)fr * 0.21f + (float)k * 2.1f) + 0.06f * sinf((float)fr * 0.53f + (float)k * 1.3f);
+  {   /* v3 sword glow (user 2026-11-03: all swords except the basic one, in the sword's colour): only where the room is lit; stronger while swinging */
+    static const float swc[5][3] = { { 0, 0, 0 }, { 1.0f, 0.50f, 0.15f }, { 0.45f, 0.75f, 1.0f }, { 0.95f, 0.85f, 0.35f }, { 0.35f, 1.0f, 0.45f } };   /* Magic, Ice, Thunder, Gaia (lk_sfx_tint) */
+    int sw = SB(0xFF114E) & 0xFF, swt = lk_lt_swtest(), act = SB(0xFF542C) & 0x0F, swing = act >= 1 && act <= 4; float want;
+    if (swt) sw = swt;
+    lk_lt_swon = lk_lt_on && sw >= 1 && sw <= 4;
+    want = swing ? 1.0f : 0.55f; lk_lt_swk += (want - lk_lt_swk) * (want > lk_lt_swk ? 0.6f : 0.15f);
+    if (lk_lt_swon) { float f = 1.0f + 0.05f * sinf((float)fr * 0.3f);
+      lk_lt_sw.x = (float)SW(0xFF5414); lk_lt_sw.y = (float)SW(0xFF5416); lk_lt_sw.z = (float)(int16_t)SW(0xFF5412) + 18.0f;
+      lk_lt_sw.r = swc[sw][0] * lk_lt_swk * 0.8f * f; lk_lt_sw.g = swc[sw][1] * lk_lt_swk * 0.8f * f; lk_lt_sw.b = swc[sw][2] * lk_lt_swk * 0.8f * f; lk_lt_sw.lava = 0; }
+  }
   lk_lt_nf = 0;
   for (a = 0xFF11DE; a < 0xFF11DE + 40 && lk_lt_nf < 16; a += 2) {
     int o = SW(a), b, ax, ay; if (o & 0x8000) break;
@@ -179,6 +216,7 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
   if ((sp & 0x200) && (j = lk_lt_figat(x, line)) >= 0) {   /* a figure pixel: lit at its cut-out position, facing the camera */
     const lk_lt_fig *F = &lk_lt_f[j]; float dx = (float)(x - F->ax), px = F->fx + dx * 0.5f, py = F->fy - dx * 0.5f, pz = F->fz + (float)(F->ay - line);
     for (k = 0; k < lk_lt_nl; k++) { float t = lk_lt_term(px, py, pz, 0.7071f, 0.7071f, 0.0f, &lk_lt_l[k], 0) * lk_lt_flk[k]; sr += t * lk_lt_l[k].r; sg += t * lk_lt_l[k].g; sb += t * lk_lt_l[k].b; }
+    if (lk_lt_swon) { float t = lk_lt_term(px, py, pz, 0.7071f, 0.7071f, 0.0f, &lk_lt_sw, 0) * 0.5f; sr += t * lk_lt_sw.r; sg += t * lk_lt_sw.g; sb += t * lk_lt_sw.b; }   /* v3 */
   } else {
     const lk_lt_blk *b = lk_lt_block(lk_lt_fdiv(U, 32), lk_lt_fdiv(V, 32)); int i;
     if (!b) return col;
@@ -192,6 +230,8 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
       if (lk_lt_nf) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); if (lk_lt_shadowed(px, py, (float)b->z[i], L, b->li[k])) continue; }
       t *= lk_lt_flk[b->li[k]]; sr += t * L->r; sg += t * L->g; sb += t * L->b;
     }
+    if (lk_lt_swon) { int f = b->face[i]; float px, py, t; lk_lt_pos(U, V, b->z[i], &px, &py);   /* v3 sword glow */
+      t = lk_lt_term(px, py, (float)b->z[i], f == 2 ? 1.0f : 0.0f, f == 3 ? 1.0f : 0.0f, f == 1 ? 1.0f : 0.0f, &lk_lt_sw, 0); sr += t * lk_lt_sw.r; sg += t * lk_lt_sw.g; sb += t * lk_lt_sw.b; }
   }
   { uint32_t c = (uint32_t)col; float fr = ar + 2.2f * sr, fg = ag + 2.2f * sg, fb = ab + 2.2f * sb; int r, g, bl;
     if (fr > 2.4f) fr = 2.4f; if (fg > 2.4f) fg = 2.4f; if (fb > 2.4f) fb = 2.4f;
