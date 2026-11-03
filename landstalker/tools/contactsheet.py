@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """contactsheet.py DIR OUT_PREFIX [per_sheet=6] [cols=2]  -- tiles the PNGs written by LANDSTALKER_SHOT (DIR/shot_*.png) into contact sheets OUT_PREFIX_<n>.png (view them with the Read tool).
-Also: contactsheet.py --diff A.png B.png  -> number of differing pixels in the common centre 320 px (use to compare WIDE=0 and WIDE=n runs). Needs only the Python standard library."""
+Also: contactsheet.py --ratio OFF.png ON.png OUT.png (brightness ratio as grey, for lighting); contactsheet.py --diff A.png B.png  -> number of differing pixels in the common centre 320 px (use to compare WIDE=0 and WIDE=n runs). Needs only the Python standard library."""
 import glob, os, struct, sys, zlib
 
 def dec(p):
@@ -17,6 +17,14 @@ def write(p, w, h, rows):
     def ch(t, b): return struct.pack('>I', len(b)) + t + b + struct.pack('>I', zlib.crc32(t + b))
     open(p, 'wb').write(b'\x89PNG\r\n\x1a\n' + ch(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0)) + ch(b'IDAT', zlib.compress(b''.join(b'\0' + r for r in rows))) + ch(b'IEND', b''))
 
+if len(sys.argv) >= 5 and sys.argv[1] == '--ratio':   # contactsheet.py --ratio OFF.png ON.png OUT.png: brightness ratio on / off as grey (128 = same; lighting checks: dark = shadow)
+    w, h, a = dec(sys.argv[2]); _, _, b = dec(sys.argv[3]); rows = []
+    for y in range(h):
+        r = bytearray()
+        for x in range(w):
+            v = max(0, min(255, int(128 * (sum(b[y][3*x:3*x+3]) + 1) / (sum(a[y][3*x:3*x+3]) + 1)))); r += bytes((v, v, v))
+        rows.append(bytes(r))
+    write(sys.argv[4], w, h, rows); sys.exit(0)
 if len(sys.argv) >= 4 and sys.argv[1] == '--diff':
     wa, h, a = dec(sys.argv[2]); wb, _, b = dec(sys.argv[3]); oa, ob = (wa - 320) // 2, (wb - 320) // 2
     print(sum(1 for y in range(h) for x in range(320) if a[y][3*(x+oa):3*(x+oa)+3] != b[y][3*(x+ob):3*(x+ob)+3]))
