@@ -55,3 +55,19 @@ Rules: Lighting Off stays byte-identical; indoor flame rooms only change when th
   Still wrong (step 2 data): the long flower beds of room 635 (objects 4 x 14 cells, box 32) get a hip with ridge ~90 from the drawn
   flowers (they darken Nigel); the river is void in the height map (Nigel's shadow on the far bank as a wall).
 - Room setup 1.6 / 3.8 ms (635 / 632); Lighting Off and indoor flame rooms byte-identical to the previous build.
+
+## Step 1b (2026-11-03, user recording rec_20261103_2230, markers 747 / 1131 / 1380 / 2144) - intermediate state before the clean-up
+- Pixels NOT drawn in layer A are ground: the view ray of such a pixel passes the proxies (table `lk_lt_vg`); ground beside a trunk is no part of the tree (pine shadow starts at the trunk).
+- Small objects: LATHE solid (type 3) from the sprite's drawn half width per row (/ 1.41 = world radius), like Blender's screw modifier (user asked about a Blender pine:
+  not needed, the lathe follows each sprite); rows hidden by a wall behind take the whole shape of the most alike free standing tree of the room; drawn < 32 high (tulips) = no shape.
+  The sun march tests the real profile (branch tiers), the height field is only for the view ray.
+- A face turned away from the sun on a LOW box without a proxy (<= 48, ring / flower box) is as lit as the box top just behind its edge (the tulip box stayed bright in a house's shadow);
+  first version without the height limit darkened a tall wall without a proxy (frame 732) -> limited.
+- Not solved: ponds / river (void), flower beds (hip from drawn flowers) -> correction data.
+
+## Decision 2026-11-03 (user: 'brauchts die Karten dann ueberhaupt noch?' -> 'ja das macht Sinn')
+CLEAN-UP next: remove the v6 cards (cliffs / terraces take the game's height map), remove the guessing rules (part splitting, mirror hull as geometry,
+special cases); keep: proposal at room entry, ONE pixel rule (layer A on proxies, layer B on the ground), turned-away faces keep their painting, correction file.
+User asked about rendering the map in 3D like Octopath: the existing 3D room prototype (2026-10-24, projective texturing) can take the same proxies later;
+from the original camera the result equals ours (the picture is the texture), the gain is GPU light / shadow maps and a moving camera. Proxies are the base for both.
+
