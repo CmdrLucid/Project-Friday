@@ -71,3 +71,11 @@ special cases); keep: proposal at room entry, ONE pixel rule (layer A on proxies
 User asked about rendering the map in 3D like Octopath: the existing 3D room prototype (2026-10-24, projective texturing) can take the same proxies later;
 from the original camera the result equals ours (the picture is the texture), the gain is GPU light / shadow maps and a moving camera. Proxies are the base for both.
 
+## Clean-up done (2026-11-03, after 'Step 1b')
+Removed: the v6 per cell cards (cliffs / terraces = game height map, they shade their own lower parts now), the v6 raising of `lk_lt_top`,
+`lk_lt_cardsun` + its horizon map, the painted-crown rule, the switch `LANDSTALKER_LIGHTPROXY` (proxies always). The cards survive only as the
+measurement of small objects (foot, width, height -> lathe). -71 lines. Results: tree shadows smooth and from the trunk (the game's tree box cast a block
+before), houses unchanged; cliff room 603 (rec_20261103_1803 frame 7500) shows thin dark lines along terrain edges (to look at with the correction pass).
+Lighting Off and indoor rooms byte-identical. NEXT: step 2 = correction file + mesh proxies from Blender for unique objects (user 2026-11-03: 'und der
+Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle tower, built by script on the Deck, referenced per room in the file).
+
