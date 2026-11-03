@@ -79,3 +79,10 @@ before), houses unchanged; cliff room 603 (rec_20261103_1803 frame 7500) shows t
 Lighting Off and indoor rooms byte-identical. NEXT: step 2 = correction file + mesh proxies from Blender for unique objects (user 2026-11-03: 'und der
 Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle tower, built by script on the Deck, referenced per room in the file).
 
+## Recording rec_20261103_2256 (markers 397 church, 1724, 2888, 3239, 3812 in Mercator 632) - automatic rules instead of data
+- WATER: a void cell of the height map whose picture is PAINTED (river, pond) is a floor 8 below its lowest neighbour (flood fill, our copy only);
+  unpainted void (the black outside) stays void. Room 632: 796 cells. Nigel's shadow lies flat on the river now (climbed the bank 'as if it were a wall'),
+  the triangle in the pond is gone, the stone platform shades the water. `DBG=5` prints 'water: room R, n void cells painted -> floor'.
+- A small object drawn < 48 high whose footprint is a ROW (1 x 2, 1 x 3 cells: tulip rows) is flat (its lathe was a round blob beside the pond).
+- So the correction file is still needed only for real one-offs (flower beds of room 635 with a hip, the church as a Blender mesh).
+
