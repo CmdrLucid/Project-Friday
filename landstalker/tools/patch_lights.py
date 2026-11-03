@@ -77,7 +77,7 @@ static int16_t lk_lt_bb[1024][5], lk_lt_sgnd[1024], lk_lt_omax[1024]; static uin
 static int16_t lk_lt_obj[74][74];
 static float lk_lt_flk[LK_LT_ML];
 static lk_lt_light lk_lt_sw; static float lk_lt_swk; static int lk_lt_swon;   /* v3: glow of Nigel's sword (EquippedSword $FF114E 1..4), a light that moves: no cache, no shadow */
-typedef struct { float fx, fy, fz; int ax, ay; float sun; } lk_lt_fig;
+typedef struct { float fx, fy, fz; int ax, ay; float sun; int tag; } lk_lt_fig;   /* tag (v7): entity offset / 0x80 + 1 = lk_lt_spre of its own sprite pixels */
 static lk_lt_fig lk_lt_f[16]; static int lk_lt_nf, lk_lt_on;
 static int lk_lt_sun, lk_lt_ztop;   /* v5: outdoor room lit by the sun (tilesets 0 / 7 / 12 / 13 / 14 / 17), highest floor */
 static float lk_lt_sd[3] = { -0.72f, -0.26f, 0.64f }, lk_lt_sS = 0.70f, lk_lt_sK = 0.6f;   /* v5: unit vector to the sun, shadow level, sun strength (lk_lt_sunp) */
@@ -517,7 +517,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     b = 0xFF5400 + o; ax = SW(b + 0x0E) - 128; ay = SW(b + 0x10) - 128;
     if (ax == -128 && ay == -128) continue;
     lk_lt_f[lk_lt_nf].fx = (float)SW(b + 0x14); lk_lt_f[lk_lt_nf].fy = (float)SW(b + 0x16); lk_lt_f[lk_lt_nf].fz = (float)(int16_t)SW(b + 0x12);
-    lk_lt_f[lk_lt_nf].ax = ax; lk_lt_f[lk_lt_nf].ay = ay;
+    lk_lt_f[lk_lt_nf].ax = ax; lk_lt_f[lk_lt_nf].ay = ay; lk_lt_f[lk_lt_nf].tag = (o >> 7) + 1;
     lk_lt_f[lk_lt_nf].sun = lk_lt_sun ? lk_lt_sd[2] * lk_lt_sunvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f, 0) : 0.0f;
     if (lk_lt_f[lk_lt_nf].sun > 0.0f && lk_lt_nc && lk_lt_cardsun(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f, 0)) lk_lt_f[lk_lt_nf].sun = 0.0f;   /* v5: a figure is sunlit like the floor, unless it stands in a building's shadow (v7: soft, objects too) */
     lk_lt_nf++;
@@ -532,7 +532,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
 static int lk_lt_figat(int x, int y) {   /* figure whose box holds screen pixel (x, y) (x = 0..319 + margins), -1 none */
   int j; for (j = 0; j < lk_lt_nf; j++) { int dx = x - lk_lt_f[j].ax, dy = lk_lt_f[j].ay - y; if (dx >= -16 && dx <= 16 && dy >= -6 && dy <= 56) return j; } return -1;
 }
-static int lk_lt_shadowed(float px, float py, float pz, const lk_lt_light *L, int k) {   /* the ray scenery pixel -> light crosses a figure's silhouette */
+static float lk_lt_shadowed(float px, float py, float pz, const lk_lt_light *L, int k) {   /* the ray scenery pixel -> light crosses a figure's silhouette: 0..1 (v7: only the figure's OWN sprite pixels, fading with the distance pixel -> figure) */
   int j; for (j = 0; j < lk_lt_nf; j++) {
     const lk_lt_fig *F = &lk_lt_f[j]; float den, num, t, qx, qy, qz, dx, hh, nx, ny, tx, ty; int mx, my;
     if (!lk_lt_pair[k][j]) continue;
@@ -545,9 +545,11 @@ static int lk_lt_shadowed(float px, float py, float pz, const lk_lt_light *L, in
     dx = 1.4142f * (tx * (qx - F->fx) + ty * (qy - F->fy)); hh = qz - F->fz;
     if (dx < -16.0f || dx > 16.0f || hh < -6.0f || hh > 56.0f) continue;
     mx = F->ax + (int)lrintf(dx) + lk_wide_e; my = F->ay - (int)lrintf(hh);
-    if (mx >= 0 && mx < LK_OSW && my >= 0 && my < 224 && (lk_o_spr[my][mx] & 0x200)) return 1;
+    if (mx >= 0 && mx < LK_OSW && my >= 0 && my < 224 && (lk_o_spr[my][mx] & 0x200) && lk_lt_spre[my][mx] == F->tag) {   /* v7: the books on the church shelf are figures too: their pixels made Nigel's shadow a block (user rec_20261103_2149) */
+      float ex = L->x - px, ey = L->y - py, ez = L->z - pz, d = t * sqrtf(ex * ex + ey * ey + ez * ez), w = (60.0f - d) * (1.0f / 40.0f);   /* v7: a candle close to the head stretched the shadow far and jagged: fade from 20 to 60 units */
+      return w >= 1.0f ? 1.0f : w > 0.0f ? w : 0.0f; }
   }
-  return 0;
+  return 0.0f;
 }
 static int lk_lt_figsun(float px, float py, float pz) {   /* v5: the way scenery pixel -> sun crosses a figure (a card through its foot point, facing the sun) */
   int j; float hx = lk_lt_sd[0], hy = lk_lt_sd[1], hl = sqrtf(hx * hx + hy * hy), nx, ny, tx, ty, den;
@@ -561,7 +563,7 @@ static int lk_lt_figsun(float px, float py, float pz) {   /* v5: the way scenery
     dx = 1.4142f * (tx * (qx - F->fx) + ty * (qy - F->fy)); hh = qz - F->fz;
     if (dx < -16.0f || dx > 16.0f || hh < -6.0f || hh > 56.0f) continue;
     mx = F->ax + (int)lrintf(dx) + lk_wide_e; my = F->ay - (int)lrintf(hh);
-    if (mx >= 0 && mx < LK_OSW && my >= 0 && my < 224 && (lk_o_spr[my][mx] & 0x200)) return 1;
+    if (mx >= 0 && mx < LK_OSW && my >= 0 && my < 224 && (lk_o_spr[my][mx] & 0x200) && lk_lt_spre[my][mx] == F->tag) return 1;   /* v7: own pixels only */
   }
   return 0;
 }
@@ -595,7 +597,7 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
       float t = (float)b->term[k][i] * (1.0f / 255.0f); const lk_lt_light *L;
       if (t <= 0.0f) continue;
       L = &lk_lt_l[b->li[k]];
-      if (lk_lt_nf) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); if (lk_lt_shadowed(px, py, (float)b->z[i], L, b->li[k])) { tb += t; continue; } }
+      if (lk_lt_nf) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); { float w = lk_lt_shadowed(px, py, (float)b->z[i], L, b->li[k]); if (w >= 1.0f) { tb += t; continue; } if (w > 0.0f) { tb += t * w; t *= 1.0f - w; } } }
       tl += t; t *= lk_lt_flk[b->li[k]]; sr += t * L->r; sg += t * L->g; sb += t * L->b;
     }
     if (tb > 0.0f) { float d = 1.0f - 0.5f * tb / (tb + tl + 0.05f); ar *= d; ag *= d; ab *= d; }   /* v4: a figure's shadow also takes part of the base light (share of the blocked light), so the silhouette reads (user 2026-11-03) */
@@ -613,6 +615,12 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
 
 a = "static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {\n"
 rep(a, MODULE + a)
+# v7: entity of every sprite pixel (figure shadows take only their own pixels); marked /*LK_LT_ENT*/
+rep("static uint8 lk_ss_nig[224][LK_OSW]; static int lk_ss_cur;", "static uint8 lk_lt_spre[224][LK_OSW]; static int lk_lt_ecur; /*LK_LT_ENT*/\nstatic uint8 lk_ss_nig[224][LK_OSW]; static int lk_ss_cur;")
+assert s.count("lk_ss_nig[Y][X] = (uint8)lk_ss_cur;") == 3
+s = s.replace("lk_ss_nig[Y][X] = (uint8)lk_ss_cur;", "lk_ss_nig[Y][X] = (uint8)lk_ss_cur; lk_lt_spre[Y][X] = (uint8)lk_lt_ecur; /*LK_LT_ENT*/")
+rep("    lk_ss_cur = offs[k] == 0;   /* LK_SUBPIX v3: Nigel's pieces (also the sprint pose canvas) */\n", "    lk_ss_cur = offs[k] == 0;   /* LK_SUBPIX v3: Nigel's pieces (also the sprint pose canvas) */\n    lk_lt_ecur = (offs[k] >> 7) + 1; /*LK_LT_ENT*/\n")
+rep("    lk_ss_cur = 0;\n    if (draw && lk_o_exon)", "    lk_ss_cur = 0; lk_lt_ecur = 0; /*LK_LT_ENT*/\n    if (draw && lk_o_exon)")
 rep("int lk_sfx_ln = lk_sfx_linebegin(line);   /* LK_SWORDFX v1 */\n",
     "int lk_sfx_ln = lk_sfx_linebegin(line);   /* LK_SWORDFX v1 */\n    int lk_lt_ln = lk_lt_linebegin();   /* %s */\n" % VER)
 rep("      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n",

@@ -289,4 +289,6 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 - **(2026-11-03) Count how often a room setup runs, not only how long:** the lighting's 'no lights yet' retry rebuilt every outdoor room 12 more times every 8 frames (up to 65 ms each). Measure with `LANDSTALKER_LIGHTING_DBG=5` (prints ms per rebuild) after every lighting change.
 - **(2026-11-03) Lazily computed screen blocks stutter when many come into view at once (walking: 8..13 blocks in one frame).** Measure per frame (`LANDSTALKER_LIGHTING_DBG=5` 'blocks:'), make the per block work cheaper with exact early exits, then PREFETCH a ring around the drawn area at a fixed budget per frame and cap the on-demand work.
 - **(2026-11-03) The game's collision boxes merge things that are drawn apart:** pines whose box touches a house core became part of the house object. Split small free standing parts off buildings (not off cliffs: their steps are terrain).
+- **(2026-11-03) `lk_o_spr` holds the pixels of ALL figures: anything per figure (shadow silhouettes) must check the owner (`lk_lt_spre` entity tag).** Shop items / books are figures; sampling a box around Nigel picked them up.
+- **(2026-11-03) User recordings with markers:** the user swings the sword (pad bit $40 in rec_*.txt) where something looks wrong; list the presses and take shots just before each.
 
