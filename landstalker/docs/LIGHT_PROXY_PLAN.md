@@ -86,3 +86,12 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
 - A small object drawn < 48 high whose footprint is a ROW (1 x 2, 1 x 3 cells: tulip rows) is flat (its lathe was a round blob beside the pond).
 - So the correction file is still needed only for real one-offs (flower beds of room 635 with a hip, the church as a Blender mesh).
 
+## Sun along the grid + church stripe (2026-11-03, user: 'Schatten im gleichen Winkel wie die isometrische Ansicht', 'nur der dunkle Streifen vor der Kirche')
+- Sun azimuth 90 by default (was 110): exactly from the lower left = world +y, shadows run along the isometric grid up-right; +y faces get the full sun,
+  +x faces are edge-on (they keep their painting). Elevation 55 (user choice of 40 / 55 / 65 on `~/Mockups/sonnenhoehe.html`).
+- Hip proxies are rasterised only on the part's OWN cells (the part box is a rectangle, the part may not be), without single cells sticking out of
+  the part (<= 1 neighbour of the same part: steps / bumps of the collision; room 632 object 8 had two at column 24 = a phantom wall).
+- WATER cells (our fill) are no part of any object: the painted border void of room 632 had merged the church with it into one terrain object
+  (class 3, no house shape any more). Back to object 4 (94 cells, 5 heights, class 2).
+- What stays dark in front of the church now is the shadow of the church's front wing on the flower strip (sun from the lower left) - for the user to judge.
+

@@ -29,6 +29,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a201. 2026-10-30 (late, Deck, Opus 5.5): SPRINT ANIMATION built (`tools/patch_sprintanim.py`, LK_SPRINTANIM v1; SPRINT_IDEAS last entry): variant G applied at runtime to Nigel's walk frames while sprinting. Headless-checked (front view); user check open, especially the back view (walking up).
 
+## 0a258. 2026-11-03 (latest, Deck, Opus 5.5): user: shadows along the isometric grid -> azimuth 90; 'dunkler Streifen vor der Kirche' -> phantom wall from protruding collision cells + water merged the church into terrain, both fixed (LIGHT_PROXY_PLAN). NEXT -73.
+
 ## 0a257. 2026-11-03 (latest, Deck, Opus 5.5): light proxies cleaned up, water rule (painted void = water), low plant rows flat, sun elevation 55 (user choice). All on dev, headless checked; user plays next. NEXT -73.
 
 ## 0a256. 2026-11-03 (latest, Deck, Opus 5.5): user 'ja' -> light proxies step 1 built (LIGHT_PROXY_PLAN 'Step 1 result'), mock-ups kulissen1.html. NEXT -70.
@@ -497,6 +499,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-03 latest (Opus 5.5, `dev` pushed, `main` = v1.7.0):** sun defaults now strength 1 / elevation 55 / azimuth 90 (all user choices); light proxies + water rule + church fixes built and checked headless (Lighting Off / indoor byte-identical). User has NOT played the last builds (water, church, azimuth). Open: correction file for one-offs (room 635 flower beds, Blender church mesh), cliff edge lines in room 603.
 - **2026-11-03 latest (Opus 5.5, `dev` 6d71fd4 + docs, `main` = v1.7.0):** LIGHT PROXIES (docs/LIGHT_PROXY_PLAN.md) step 1 + 1b + clean-up built: outdoors the sun uses invisible shapes (hip roof houses, lathe trees from the sprite) + the game height map; v6 cards and the guessing rules are gone; Nigel's figure shadows only from his own pixels. All verified headless on the user's recordings 1803 / 2114 / 2149 / 2201 / 2230 (Lighting Off + indoor byte-identical). The user saw kulissen1.html (step 1) and played step 1 (rec 2230); NOT yet played: 1b + clean-up. Next: step 2 correction file (+ Blender meshes for one-offs, user agreed). Recording workflow: sword swings (pad bit $40) mark wrong spots, `tools/lightshots.sh` + `contactsheet.py --ratio`.
 - **2026-11-03 night, very last:** Nigel's church shadow fixed (block from the shelf's book figures, candle smear); built, headless checked, user check open.
 - **2026-11-03 night (Opus 5.5, `dev` pushed, `main` = v1.7.0):** SUN v7 (house shadows in roof shape, trees one card, no stair steps), sun strength 1 by default (user: 'leicht'), outdoor stutter fixed (prefetch), pines beside houses own shadows. Verified headless only (rec_20261103_1803 + rec_20261103_2114, Lighting Off / indoors byte-identical). User saw the v7 mock-ups (sonne3) and played the first v7 build; NOT yet played: the stutter fix + pines. OPEN: Nigel's church shadow (ask what is wrong). Test harness: `tools/lightshots.sh`.
