@@ -29,6 +29,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a201. 2026-10-30 (late, Deck, Opus 5.5): SPRINT ANIMATION built (`tools/patch_sprintanim.py`, LK_SPRINTANIM v1; SPRINT_IDEAS last entry): variant G applied at runtime to Nigel's walk frames while sprinting. Headless-checked (front view); user check open, especially the back view (walking up).
 
+## 0a257. 2026-11-03 (latest, Deck, Opus 5.5): light proxies cleaned up, water rule (painted void = water), low plant rows flat, sun elevation 55 (user choice). All on dev, headless checked; user plays next. NEXT -73.
+
 ## 0a256. 2026-11-03 (latest, Deck, Opus 5.5): user 'ja' -> light proxies step 1 built (LIGHT_PROXY_PLAN 'Step 1 result'), mock-ups kulissen1.html. NEXT -70.
 
 ## 0a255. 2026-11-03 (latest, Deck, Opus 5.5): user recording rec_20261103_2201 (markers 937, 952, 1392, 1734, 2116, 2805): causes found (river void = wall, raised flower bed casts on Nigel, guessed shapes at edges) but NOT patched; user asked whether we draw the map differently for lighting / how Octopath does it -> agreed plan LIGHT_PROXY_PLAN.md. NEXT -69.

@@ -160,7 +160,7 @@ static float lk_lt_term(float px, float py, float pz, float nx, float ny, float 
 }
 static int lk_lt_sunp(void) {   /* v5 prototype: LANDSTALKER_SUN=1..3 (soft / medium / strong shadows), _SUN_AZ (degrees in the world x/y plane, 110 = from the lower left of the screen like the painted light: +y faces are the brightest, user 2026-11-03), _SUN_EL (elevation) */
   static int v = -1; int r;   /* v6: part of the Lighting option (user 2026-11-03: 'gehoert alles zu Lighting'), strength 2 unless LANDSTALKER_SUN says otherwise (0 = no sun) */
-  if (v < 0) { const char *e = getenv("LANDSTALKER_SUN"), *a = getenv("LANDSTALKER_SUN_AZ"), *l = getenv("LANDSTALKER_SUN_EL"); float az = a ? (float)atof(a) : 110.0f, el = l ? (float)atof(l) : 40.0f;
+  if (v < 0) { const char *e = getenv("LANDSTALKER_SUN"), *a = getenv("LANDSTALKER_SUN_AZ"), *l = getenv("LANDSTALKER_SUN_EL"); float az = a ? (float)atof(a) : 110.0f, el = l ? (float)atof(l) : 55.0f;   /* 55 (user 2026-11-03: 'Nigels Schatten wirkt draussen sehr lang', chose 55 of 40 / 55 / 65; was 40) */
     v = e ? atoi(e) : 1; if (v < 0 || v > 3) v = 1;   /* v7: default 1 = soft (user 2026-11-03: 'ich denke leicht') */
     az *= 3.14159265f / 180.0f; el *= 3.14159265f / 180.0f;
     lk_lt_sd[0] = cosf(az) * cosf(el); lk_lt_sd[1] = sinf(az) * cosf(el); lk_lt_sd[2] = sinf(el);
