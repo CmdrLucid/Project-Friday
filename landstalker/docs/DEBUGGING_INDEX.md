@@ -195,3 +195,4 @@
 - L1522: VDP data path steps 3.3 - 3.5 + system start 4.1 - 4.3 (2026-11-01; Opus 5.5)
 - L1535: System start 4.4, renderer speed-ups, old renderer off 5.1 (2026-11-01 evening / night; Opus 5.5)
 - L1545: Old renderer off 5.3, release v1.7.0, sword effects, options menu, lighting (2026-11-02 / 03; Opus 5.5)
+- L1554: Lighting v4..v6 and the sun prototype (2026-11-03 evening / night, Deck, Opus 5.5)
