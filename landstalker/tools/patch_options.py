@@ -171,10 +171,10 @@ static void lk_opt_put_tile(int col, int row, int tile) { bus_write16(0xFF1E04u 
 static void lk_opt_put(int col, int row, const char *t) { t = lk_lang_tr(t); for (; *t; t++, col++) bus_write16(0xFF1E04u + (uint32_t)row * 0x80u + (uint32_t)col * 2u, (uint16_t)(0xA000 | lk_chr(*t))); }
 static const char *lk_id_name[48] = { "Widescreen", "Full Height", "Filter", "Fullscreen", "Scaling", "De-Dither", "Music Volume", "Effects Volume", "Speech Sound", "Shadows", "Quick Items", "Fast Forward", "Damage Taken", "Enemy HP", "Quick Save", "Fix Ride Objects", "Item Info", "Buy Quantity", "Map Behind Text", "Own Renderer", "Live Gaia Effect", "HD Graphics", "Seamless Doors", "Depth Blur", "Bloom", "Vignette", "Color Grade", "Lights", "3D Room", "3D Houses", "Camera Controls", "Remake", "3D Light", "3D Objects", "3D Trees", "Quick Equip", "Better Menu", "Language", "Fast Forward Key", "No Sprite Limit", "Native Pace", "HUD", "Sprint", "Smooth Scrolling", "Sprint Key", "Friday Hints", "Sword Effects", "Lighting" };   /* platform option id -> label */
 static const int lk_ids_video[5] = { 0, 1, 4, 2, 3 };   /* Display (menu restructure 2026-11-02: Widescreen, Full Height, Scaling, Filter, Fullscreen) */
-static const int lk_ids_gfx[6] = { 41, 9, 46, 47, 20, 18 };   /* Graphics: HUD, Shadows, Sword Effects, Lighting (tools/patch_lights.py), Live Gaia Effect, Map Behind Text */
+static const int lk_ids_gfx[5] = { 41, 9, 46, 47, 18 };   /* Graphics: HUD, Shadows, Sword Effects, Lighting (tools/patch_lights.py), Map Behind Text (Live Gaia Effect moved to Comfort, user 2026-11-03) */
 static const int lk_ids_audio[3] = { 6, 7, 8 };
 static const int lk_ids_move[6] = { 42, 44, 43, 40, 11, 38 };   /* Movement: Sprint, Sprint Key, Smooth Scrolling, Native Pace, Fast Forward, Fast Forward Key */
-static const int lk_ids_comf[7] = { 14, 10, 35, 16, 17, 36, 15 };   /* Comfort: Quick Save, Quick Items, Quick Equip, Item Info, Buy Quantity, Better Menu, Fix Ride Objects */
+static const int lk_ids_comf[8] = { 14, 10, 35, 16, 17, 36, 15, 20 };   /* Comfort: Quick Save, Quick Items, Quick Equip, Item Info, Buy Quantity, Better Menu, Fix Ride Objects, Live Gaia Effect (user 2026-11-03: 'gehoert zu Quality of Life', the page scrolls now) */
 static const int lk_ids_diff[3] = { 12, 13, 45 };   /* Difficulty / Help: Damage Taken, Enemy HP, Friday Hints */
 static const int lk_ids_key[15] = { 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114 };   /* Keybindings page: 14 actions (112 = Sprint, 2026-10-30; 113 = Map, 2026-10-31) + Reset Defaults 114 (scrolls) */
 /* root rows: 0..6 = pages 1..7 (Display, Graphics, Audio, Movement, Comfort, Difficulty / Help, Keybindings), 7 = Language (a value row), 8 = Quit Game (second A) */
@@ -182,7 +182,7 @@ static const int lk_ids_key[15] = { 100, 101, 102, 103, 104, 105, 106, 107, 108,
 #define LK_RLANG 7
 #define LK_RQUIT 8
 #define LK_PGKEY 7
-static const int lk_pg_cnt[LK_NPG + 1] = { 9, 5, 6, 3, 6, 7, 3, 15 };   /* rows per page, [0] = root */
+static const int lk_pg_cnt[LK_NPG + 1] = { 9, 5, 5, 3, 6, 8, 3, 15 };   /* rows per page, [0] = root */
 static const int *const lk_pg_ids[LK_NPG + 1] = { 0, lk_ids_video, lk_ids_gfx, lk_ids_audio, lk_ids_move, lk_ids_comf, lk_ids_diff, 0 };
 static const char *const lk_pg_name[LK_NPG + 1] = { "Options", "Display", "Graphics", "Audio", "Movement", "Comfort", "Difficulty / Help", "Keybindings" };
 static int lk_pg_id(int pg, int r) { return pg == LK_PGKEY ? lk_ids_key[r] : lk_pg_ids[pg][r]; }
