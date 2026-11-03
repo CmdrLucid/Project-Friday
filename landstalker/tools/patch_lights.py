@@ -65,7 +65,7 @@ static int lk_lt_ray(int U, int V, int *zo) {   /* geometry of one picture pixel
   int D = U - 1184, z, pcx = -999, pcy = -999, ptop = -32768, pin = 0;
   for (z = lk_lt_zmax; z >= -16; z--) {
     int cx = lk_lt_fdiv(2 * V + 2 * z + D, 32), cy = lk_lt_fdiv(2 * V + 2 * z - D, 32), top = lk_lt_cell(cx, cy), in = top > -32768;
-    if (z <= top) { *zo = z; return (cx == pcx && cy == pcy) || pcx == -999 ? 1 : (cx != pcx ? 2 : 3); }
+    if (z <= top) { *zo = z; return (cx == pcx && cy == pcy) || pcx == -999 || z == top ? 1 : (cx != pcx ? 2 : 3); }   /* v3: z == top = landed on the floor right at a cell border (was a face: grid lines on flat floors, user: church carpet) */
     if (pcx != -999 && pin && !in && z > ptop) { *zo = z; return cx != pcx ? 2 : 3; }
     pcx = cx; pcy = cy; ptop = top; pin = in;
   }
