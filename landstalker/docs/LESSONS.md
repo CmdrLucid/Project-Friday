@@ -291,4 +291,6 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 - **(2026-11-03) The game's collision boxes merge things that are drawn apart:** pines whose box touches a house core became part of the house object. Split small free standing parts off buildings (not off cliffs: their steps are terrain).
 - **(2026-11-03) `lk_o_spr` holds the pixels of ALL figures: anything per figure (shadow silhouettes) must check the owner (`lk_lt_spre` entity tag).** Shop items / books are figures; sampling a box around Nigel picked them up.
 - **(2026-11-03) User recordings with markers:** the user swings the sword (pad bit $40 in rec_*.txt) where something looks wrong; list the presses and take shots just before each.
+- **(2026-11-03) Guessing 3D from the painted picture per pixel never converges: every rule moves the error to the next edge.** Give the scene explicit simple geometry (light proxies) proposed once and corrected as DATA; keep one pixel rule (layer A on the proxies, layer B on the ground). User: 'das wirkt nach sehr viel Einzelarbeit'.
+- **(2026-11-03) A face turned away from the sun keeps its painting only if it is the face of a real (proxy) object; a low box without a proxy (ring, flower box) must follow the light of its top, a TALL wall without a proxy must keep its painting** (first version darkened a whole house wall).
 
