@@ -31,8 +31,11 @@ CUT = {(0x20, 0): (-128, -128, 127, -8), (0x28, 0): (-128, -128, 127, -8),   # p
 NOTES = {(0x08, 12): 'walk, raised sole: its rim sat too high for the 30 % rule', (0x38, 4): 'swing: the arc (sword colours) touches the boots',
          (0x3C, 4): 'swing: boot cuff above a grey strap', (0x20, 0): 'jump: the scabbard end runs into the boot shaft without an outline'}   # C comments
 BROWN = {3, 4, 5, 8}
-BOOTCOL = {0: (0x0ACE, 0x04AE, 0x0048, 0x0024), 5: (0x0ECC, 0x0E88, 0x0A44, 0x0622), 6: (0x0EEE, 0x0AAA, 0x0886, 0x0444),
-           7: (0x0AEA, 0x04C4, 0x0282, 0x0040), 8: (0x0A8A, 0x0646, 0x0424, 0x0202)}   # entries 8 / 3 / 4 / 5, must match lk_bc_col
+BOOTCOL = {0: (0x0ACE, 0x04AE, 0x0048, 0x0024),     # entries 8 / 3 / 4 / 5 per boots; the C table lk_bc_col is generated from this
+           5: (0x0CCC, 0x0A88, 0x0644, 0x0422),     # Fireproof: muted blue-violet (user 2026-11-04: step C of the muted previews, the icon colours were too loud)
+           6: (0x0EEE, 0x0AAA, 0x0888, 0x0444),     # Iron: steel grey
+           7: (0x0CCC, 0x08A8, 0x0464, 0x0222),     # Healing: muted moss green
+           8: (0x0A8A, 0x0646, 0x0424, 0x0202)}     # Spike: dark violet
 
 def _boxes(key):
     v = CUT.get(key, [])
