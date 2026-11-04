@@ -32,8 +32,9 @@ With every option switched off, the game plays like the original cartridge. All 
 **Graphics**
 - **HUD** Original / Modern: the modern HUD drops the status bar and lays hearts (with the life numbers), the sword charge, gold and the button icons (sword, Quick Items, with the name of the bound button) over the map, so the room fills the whole screen.
 - **Shadows** (Off / On / Soft): a ground shadow under Nigel and airborne objects, which makes jumps easier to judge.
-- **Sword Effects** (off by default): while Nigel swings one of the four special swords the arc takes the sword's colour and a few small particles come off it: embers (Magic Sword), frost glitter (Ice Sword), little bolts (Thunder Sword), green light motes (Gaia Sword).
-- **Live Gaia Effect:** the Gaia rocks stay in the world while the screen scrolls.
+- **Sword Effects** (On by default): while Nigel swings one of the four special swords the arc takes the sword's colour and a few small particles come off it: embers (Magic Sword), frost glitter (Ice Sword), little bolts (Thunder Sword), green light motes (Gaia Sword); also during the swing on the file select screen.
+- **Boot Colors** (off by default): Nigel's boots take the colour of the equipped boots (Fireproof, Iron, Healing, Spike), like his sword and armour already do in the original; on the map and on the file select screen.
+- **Lighting** (experimental, off by default): torches, lava and the sword light the room and figures cast shadows; outdoors a sun casts shadows of houses, trees and Nigel. Still being tuned room by room.
 - **Map Behind Text:** dialogue boxes sit over the map instead of a black band.
 - **No Sprite Limit:** draws every figure of a room, without the cartridge's limit of 20 sprites per line and its flicker (off by default = the original look).
 
@@ -53,6 +54,7 @@ With every option switched off, the game plays like the original cartridge. All 
 - **Buy Quantity:** buy several of an item in one go in shops.
 - **Better Menu:** B in Use / Equip goes back to the menu bar instead of closing the menu.
 - **Fix Ride Objects:** Nigel now rides along on an object that stands on a moving platform. In the original he slides off; this is a bug fix.
+- **Live Gaia Effect:** the Gaia rocks stay in the world while the screen scrolls.
 
 **Difficulty / Help:** damage taken (25 % to 200 %), enemy HP (50 % to 300 %) and the experimental *Friday Hints* (off by default; press Select and Friday flies out of Nigel's bag and tells you where to go next).
 

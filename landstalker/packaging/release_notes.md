@@ -1,9 +1,11 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- **About a third less CPU load** (measured on the Steam Deck: 23.7 s -> 15.1 s for the same 6000-frame test recording): cooler and quieter Deck, longer battery life. The project's own renderer got faster, and the leftover work of the old emulator renderer is gone.
-- **Less emulator inside, nothing to see or hear:** the video chip's data path (writes, registers, DMA) and the system start-up now run on the project's own code; Genesis Plus GX's renderer is only kept as a test picture. Every step was checked against the old way on all 74 test recordings (identical game state, sound and picture).
-- Everything from v1.6.0 is included (rebuilt dungeon map, Modern HUD life numbers, Sprint, Smooth Scrolling, experimental Friday Hints).
+- **Options menu reorganised:** Display, Graphics, Audio, Movement, Comfort, Difficulty / Help, Keybindings, Language and Quit Game, the same pages in the Start menu tab and on the file select screen.
+- **Sword Effects (On by default):** the four special swords colour their swing arc and give off a few small particles (embers, frost, bolts, green motes), also during the swing on the file select screen.
+- **Boot Colors (Options > Graphics, off by default):** Nigel's boots show the equipped boots (Fireproof, Iron, Healing, Spike), like his sword and armour already do in the original; on the map and on the file select screen.
+- **Lighting (EXPERIMENTAL, Options > Graphics, off by default):** torches, lava and the swords light the rooms and figures cast shadows; outdoors a sun casts the shadows of houses, trees and Nigel. It is still being tuned room by room, so some rooms can show odd shadows or light edges; please report them (a screenshot and the room help a lot).
+- Everything from v1.7.0 is included (a third less CPU load, own video chip data path and system start).
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).
