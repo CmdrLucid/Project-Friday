@@ -168,6 +168,9 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
 - Room 488 done: bushes 44..58 x 28..33, 26..37 x 33..36, 26..31 x 37..44; pines 32..33 x 37..44, 34..37 x 37..38 (h 30); remove 32,39 (hip #2 up to 218);
   mesh tree_488 (cells 33..38 x 38..43, box up to 271 replaced, drawn tip 212). Check: warp `488:48.08,26.08,0080` (path: block shadow gone),
   `488:39.08,40.08,0080` (big tree); Lighting Off byte-identical; Mercator 632 / 637 frames identical to the previous build. USER CHECK OPEN.
+- SUN TEST AID (2026-11-04, user: 'mit dem rechten Stick den Sonnenstand aendern'): pad L5 (or R5) held + right stick (x: azimuth 2 deg / frame, y: elevation 1 deg / frame, 5..89);
+  `lk_lt_sun_nudge` -> `lk_lt_step` sets the direction (`lk_lt_sunset`), drops the computed blocks (`lk_lt_free`) and redoes `lk_lt_horizon`, at most every 4th frame;
+  headless `LANDSTALKER_SUN_AT="2300:180:30,..."` (frame:azimuth:elevation). The same path is the base of a day / night cycle (then spread the recompute over frames).
 - Next: the other bush block rooms of the survey (565, 362, 529, 425, 454, 515, 424, 183, ...): cells from the height map (raised walkable slab) + a look at the picture.
 - Packaging copies `data/**/*.json` and `*.obj` (AppImage / Windows zip). Lighting Off / indoor byte-identical; only frame 2100 of rec_20261103_1803 changed (church).
 - Refined 2026-11-04 (user: 'verfeinere die 3d Form der Kirche'): the entrance gable was 13 units too high (ridge 107 -> 94, read from the gable apex U 720 / V 538 and the

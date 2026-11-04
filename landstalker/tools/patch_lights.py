@@ -203,13 +203,19 @@ static float lk_lt_term(float px, float py, float pz, float nx, float ny, float 
   }
   return att * (0.25f + 0.75f * ndl);
 }
+static float lk_lt_azd = 90.0f, lk_lt_eld = 55.0f; static volatile int lk_lt_sunmov;   /* the sun in degrees: azimuth in the world x / y plane (90 = from +y), elevation */
+static void lk_lt_sunset(void) { float az = lk_lt_azd * 3.14159265f / 180.0f, el = lk_lt_eld * 3.14159265f / 180.0f;
+  lk_lt_sd[0] = cosf(az) * cosf(el); lk_lt_sd[1] = sinf(az) * cosf(el); lk_lt_sd[2] = sinf(el); lk_lt_sK = (1.08f - lk_lt_sS) / (lk_lt_sd[2] > 0.2f ? lk_lt_sd[2] : 0.2f); }
+void lk_lt_sun_nudge(float daz, float del) {   /* SUN TEST AID (user 2026-11-04, also the base of a later day / night cycle): pad L5 (or R5) held + right stick turns / raises the sun
+     (src/input.c, patched below); applied in lk_lt_step at most every 4th frame (each change recomputes the light of the screen) */
+  if (daz == 0.0f && del == 0.0f) return;
+  lk_lt_azd = fmodf(lk_lt_azd + daz + 360.0f, 360.0f); lk_lt_eld += del; if (lk_lt_eld < 5.0f) lk_lt_eld = 5.0f; if (lk_lt_eld > 89.0f) lk_lt_eld = 89.0f; lk_lt_sunmov = 1; }
 static int lk_lt_sunp(void) {   /* v5 prototype: LANDSTALKER_SUN=1..3 (soft / medium / strong shadows), _SUN_AZ (degrees in the world x/y plane, 110 = from the lower left of the screen like the painted light: +y faces are the brightest, user 2026-11-03), _SUN_EL (elevation) */
   static int v = -1; int r;   /* v6: part of the Lighting option (user 2026-11-03: 'gehoert alles zu Lighting'), strength 2 unless LANDSTALKER_SUN says otherwise (0 = no sun) */
-  if (v < 0) { const char *e = getenv("LANDSTALKER_SUN"), *a = getenv("LANDSTALKER_SUN_AZ"), *l = getenv("LANDSTALKER_SUN_EL"); float az = a ? (float)atof(a) : 90.0f, el = l ? (float)atof(l) : 55.0f;   /* az 90 (user 2026-11-03: Nigel's shadow along the isometric grid; the sun exactly from the lower left = world +y, was 110); el 55 (user 2026-11-03: 'Nigels Schatten wirkt draussen sehr lang', chose 55 of 40 / 55 / 65; was 40) */
+  if (v < 0) { const char *e = getenv("LANDSTALKER_SUN"), *a = getenv("LANDSTALKER_SUN_AZ"), *l = getenv("LANDSTALKER_SUN_EL"); float az = a ? (float)atof(a) : lk_lt_azd, el = l ? (float)atof(l) : lk_lt_eld;   /* az 90 (user 2026-11-03: Nigel's shadow along the isometric grid; the sun exactly from the lower left = world +y, was 110); el 55 (user 2026-11-03: 'Nigels Schatten wirkt draussen sehr lang', chose 55 of 40 / 55 / 65; was 40) */
     v = e ? atoi(e) : 1; if (v < 0 || v > 3) v = 1;   /* v7: default 1 = soft (user 2026-11-03: 'ich denke leicht') */
-    az *= 3.14159265f / 180.0f; el *= 3.14159265f / 180.0f;
-    lk_lt_sd[0] = cosf(az) * cosf(el); lk_lt_sd[1] = sinf(az) * cosf(el); lk_lt_sd[2] = sinf(el);
-    lk_lt_sS = v == 1 ? 0.80f : v == 2 ? 0.70f : 0.60f; lk_lt_sK = (1.08f - lk_lt_sS) / (lk_lt_sd[2] > 0.2f ? lk_lt_sd[2] : 0.2f); }
+    lk_lt_azd = az; lk_lt_eld = el;
+    lk_lt_sS = v == 1 ? 0.80f : v == 2 ? 0.70f : 0.60f; lk_lt_sunset(); }
   r = lk_lt_get() ? v : 0;
   return r;
 }
@@ -628,6 +634,15 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
   { static int lastopt = -1; if (lk_lt_get() != lastopt) { lastopt = lk_lt_get(); lk_lt_room = -2; } }   /* v6: the option changes what is built (flames, sun) */
   if (lk_o_room != lk_lt_room || h != lk_lt_hash) { lk_lt_room = lk_o_room; lk_lt_hash = h; lk_lt_retry = 12; lk_lt_newroom(); }
   else if (lk_lt_nl == 0 && lk_lt_retry > 0 && (fr & 7) == 0) { lk_lt_retry--; if (!lk_lt_sun || lk_lt_pahash() != lk_lt_pah) lk_lt_newroom(); }
+  { static int wait; static const char *at = (const char *)1;   /* the sun moved (L5 + right stick, or test aid LANDSTALKER_SUN_AT="frame:az:el,..."): new direction, drop the computed blocks */
+    if (at == (const char *)1) at = getenv("LANDSTALKER_SUN_AT");
+    if (at) { char l[256], *t; snprintf(l, sizeof l, "%%s", at); for (t = strtok(l, ","); t; t = strtok(NULL, ",")) { long f; float a2, e2; if (sscanf(t, "%%ld:%%f:%%f", &f, &a2, &e2) == 3 && f == fr) { lk_lt_azd = a2; lk_lt_eld = e2; lk_lt_sunmov = 1; wait = 0; } } }
+    if (wait > 0) wait--;
+    if (lk_lt_sunmov && wait == 0) { extern void lk_osd_say(const char *t); char m[40];
+      lk_lt_sunmov = 0; wait = 4; lk_lt_sunset();
+      if (lk_lt_sun) { lk_lt_free(); lk_lt_horizon(); }
+      snprintf(m, sizeof m, "SUN DIR %%d HEIGHT %%d", (int)(lk_lt_azd + 0.5f) %% 360, (int)(lk_lt_eld + 0.5f)); lk_osd_say(m);
+      printf("sun: azimuth %%.0f elevation %%.0f (frame %%ld)\n", lk_lt_azd, lk_lt_eld, fr); } }
   lk_lt_on = (lk_lt_nl > 0 || lk_lt_sun) && !lk_hd_n;
   if (lk_lt_on && lk_lt_umax >= lk_lt_umin) {   /* v7 PREFETCH (user: 'jetzt haben wir Ruckler'): blocks that came into view while walking cost ~1 ms each, up to 13 in one
       frame; compute up to 2.5 ms / 6 blocks per frame of the ring 2 blocks around the area drawn last frame, so they are ready before they are needed */
@@ -772,3 +787,18 @@ rep("      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src ==
     "      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n")
 open(p, "w").write(s)
 print("vdp_render.c patched:", VER)
+
+# ---- src/input.c: SUN TEST AID (user 2026-11-04): hold pad L5 (or R5; SDL paddle 3 / 4, the lower back buttons) + right stick: left / right turns the sun, up / down raises it
+pi = os.path.join(root, "src/input.c")
+t = open(pi).read()
+if "lk_lt_sun_nudge" not in t:
+    a = "        if (d[LK_BCOORD] && !prev[LK_BCOORD]) platform_display_toggle_coords();\n"
+    assert t.count(a) == 1, "input.c: coordinate line changed"
+    t = t.replace(a, a + "        { extern void lk_lt_sun_nudge(float daz, float del);   /* SUN TEST AID (tools/patch_lights.py) */\n"
+        "          if (lk_pad_code_down(pads, LKP(SDL_CONTROLLER_BUTTON_PADDLE3)) || lk_pad_code_down(pads, LKP(SDL_CONTROLLER_BUTTON_PADDLE4))) {\n"
+        "            int ax = lk_pad_axis(pads, SDL_CONTROLLER_AXIS_RIGHTX), ay = lk_pad_axis(pads, SDL_CONTROLLER_AXIS_RIGHTY);\n"
+        "            float fx = (ax > 8000 || ax < -8000) ? (float)ax / 32767.0f : 0.0f, fy = (ay > 8000 || ay < -8000) ? (float)ay / 32767.0f : 0.0f;\n"
+        "            lk_lt_sun_nudge(2.0f * fx, -1.0f * fy); } }\n", 1)
+    open(pi, "w").write(t)
+    print("input.c patched: sun test aid (L5 / R5 + right stick)")
+
