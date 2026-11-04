@@ -23,16 +23,20 @@ SEEDS = {
     (0x44, 4): [(-1, 0)], (0x44, 8): [(-12, -6), (-1, -1)], (0x44, 16): [(-12, -6), (-1, -1)], (0x44, 12): [(-11, -6), (-1, -2)],
     (0x48, 4): [(-1, -10)], (0x48, 8): [(-1, -9), (-10, -12)], (0x48, 16): [(-1, -9), (-10, -12)], (0x48, 12): [(-1, -10), (-9, -12)],
 }
-# (animation, frame) -> box (x0, y0, x1, y1) of pixels that are never boot: the scabbard end runs into the boot without an outline
+# (animation, frame) -> box (x0, y0, x1, y1) or list of boxes of pixels that are never boot: the scabbard end runs into the boot without an outline
 CUT = {(0x20, 0): (-128, -128, 127, -8), (0x28, 0): (-128, -128, 127, -8),   # poses 41 / 45 (jump): everything above the boot shaft
        (0x08, 12): (-2, -7, 0, -5), (0x18, 12): (-2, -7, 0, -5),             # poses 6 / 28 (walk): the scabbard end on the right boot
        (0x1C, 4): (12, -9, 14, -8),                                          # pose 34: scabbard end right of the boot top
-       (0x40, 0): (-9, -10, -4, -8)}                                         # pose 61: scabbard end on the left boot
+       (0x40, 0): [(-7, -10, -4, -9), (-9, -8, -5, -8), (-9, -7, -6, -7), (-9, -6, -7, -6)]}                                         # pose 61: scabbard end on the left boot
 NOTES = {(0x08, 12): 'walk, raised sole: its rim sat too high for the 30 % rule', (0x38, 4): 'swing: the arc (sword colours) touches the boots',
          (0x3C, 4): 'swing: boot cuff above a grey strap', (0x20, 0): 'jump: the scabbard end runs into the boot shaft without an outline'}   # C comments
 BROWN = {3, 4, 5, 8}
 BOOTCOL = {0: (0x0ACE, 0x04AE, 0x0048, 0x0024), 5: (0x0ECC, 0x0E88, 0x0A44, 0x0622), 6: (0x0EEE, 0x0AAA, 0x0886, 0x0444),
            7: (0x0AEA, 0x04C4, 0x0282, 0x0040), 8: (0x0A8A, 0x0646, 0x0424, 0x0202)}   # entries 8 / 3 / 4 / 5, must match lk_bc_col
+
+def _boxes(key):
+    v = CUT.get(key, [])
+    return [v] if isinstance(v, tuple) else list(v)
 
 def c_table():
     """the lk_bc_seed table for patch_bootcol.py"""
@@ -40,12 +44,12 @@ def c_table():
     for i, (a, f) in enumerate(keys):
         sd = SEEDS.get((a, f), [])
         xs = ', '.join(str(x) for x, _ in sd) or '0'; ys = ', '.join(str(y) for _, y in sd) or '0'
-        bx = CUT.get((a, f), (1, 1, 0, 0))
-        e = '  { 0x%02X, %d, %d, { %d, %d, %d, %d }, { %s }, { %s } }' % ((a, f, len(sd)) + tuple(bx) + (xs, ys)) + (',' if i < len(keys) - 1 else ' };')
+        bx = (_boxes((a, f)) + [(1, 1, 0, 0)] * 4)[:4]
+        e = '  { 0x%02X, %d, %d, { %s }, { %s }, { %s } }' % (a, f, len(sd), ', '.join('{ %d, %d, %d, %d }' % q for q in bx), xs, ys) + (',' if i < len(keys) - 1 else ' };')
         if (a, f) in NOTES: e += '   /* ' + NOTES[(a, f)] + ' */'
         lines.append(e)
-    return ('static const struct { uint8 anim, frm, n; int8_t cut[4], x[%d], y[%d]; } lk_bc_seed[] = {   /* from tools/bootcol_check.py SEEDS / CUT: n > 0 = the boot '
-            'areas are the ones holding these pixels (pose space); cut = box x0, y0, x1, y1 of pixels that are never boot (x0 > x1 = none) */\n' % (n, n) + '\n'.join(lines) + '\n')
+    return ('static const struct { uint8 anim, frm, n; int8_t cut[4][4], x[%d], y[%d]; } lk_bc_seed[] = {   /* from tools/bootcol_check.py SEEDS / CUT: n > 0 = the boot '
+            'areas are the ones holding these pixels (pose space); cut = up to 4 boxes x0, y0, x1, y1 of pixels that are never boot (x0 > x1 = none) */\n' % (n, n) + '\n'.join(lines) + '\n')
 
 def _rom_helpers(rom):
     import romsprite
@@ -127,7 +131,7 @@ def boots(pix, key):
             if H < 34 or sum(y for _, y in cc) * 10 < len(cc) * (10 * bot - 3 * H): continue
             if len(cc) < 20 and any(pix.get((x + dx, y + dy)) in (1, 13, 14) for x, y in cc for dx in (-1, 0, 1) for dy in (-1, 0, 1)): continue
             res |= set(cc)
-    if key in CUT: x0, y0, x1, y1 = CUT[key]; res = {q for q in res if not (x0 <= q[0] <= x1 and y0 <= q[1] <= y1)}
+    for x0, y0, x1, y1 in _boxes(key): res = {q for q in res if not (x0 <= q[0] <= x1 and y0 <= q[1] <= y1)}
     return res
 
 def _png(path, buf, S):
