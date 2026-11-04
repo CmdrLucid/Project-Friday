@@ -9,7 +9,7 @@ The SEEDS / CUT tables below are the ONE source of the hand fixes: patch_bootcol
 Rule (same as the C code): 4-connected areas of the browns 3 / 4 / 5 / 8 of the assembled pose; an area is a boot when its centre lies
 in the lowest 30 % of a figure at least 34 px tall, unless it is small (< 20 px) and touches entry 1 / 13 / 14 (scabbard highlight,
 sword colours); poses in SEEDS take exactly the areas holding the seed pixels; CUT drops boot pixels above a row; animation $48
-frames >= 20 are not Nigel.  Output images stay local (they show ROM graphics)."""
+frames >= 20 are not Nigel; CUT boxes are never boot (scabbard ends merged into a boot).  Output images stay local (they show ROM graphics)."""
 import os, struct, sys, zlib
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -23,9 +23,11 @@ SEEDS = {
     (0x44, 4): [(-1, 0)], (0x44, 8): [(-12, -6), (-1, -1)], (0x44, 16): [(-12, -6), (-1, -1)], (0x44, 12): [(-11, -6), (-1, -2)],
     (0x48, 4): [(-1, -10)], (0x48, 8): [(-1, -9), (-10, -12)], (0x48, 16): [(-1, -9), (-10, -12)], (0x48, 12): [(-1, -10), (-9, -12)],
 }
-CUT = {(0x20, 0): -7, (0x28, 0): -7}   # poses 41 / 45 (jump): the scabbard end runs into the boot shaft without an outline
+# (animation, frame) -> box (x0, y0, x1, y1) of pixels that are never boot: the scabbard end runs into the boot without an outline
+CUT = {(0x20, 0): (-128, -128, 127, -8), (0x28, 0): (-128, -128, 127, -8),   # poses 41 / 45 (jump): everything above the boot shaft
+       (0x08, 12): (-2, -7, 0, -5), (0x18, 12): (-2, -7, 0, -5)}             # poses 6 / 28 (walk): the scabbard end on the right boot
 NOTES = {(0x08, 12): 'walk, raised sole: its rim sat too high for the 30 % rule', (0x38, 4): 'swing: the arc (sword colours) touches the boots',
-         (0x3C, 4): 'swing: boot cuff above a grey strap', (0x20, 0): 'jump: the scabbard end runs into the boot shaft without an outline'}
+         (0x3C, 4): 'swing: boot cuff above a grey strap', (0x20, 0): 'jump: the scabbard end runs into the boot shaft without an outline'}   # C comments
 BROWN = {3, 4, 5, 8}
 BOOTCOL = {0: (0x0ACE, 0x04AE, 0x0048, 0x0024), 5: (0x0ECC, 0x0E88, 0x0A44, 0x0622), 6: (0x0EEE, 0x0AAA, 0x0886, 0x0444),
            7: (0x0AEA, 0x04C4, 0x0282, 0x0040), 8: (0x0A8A, 0x0646, 0x0424, 0x0202)}   # entries 8 / 3 / 4 / 5, must match lk_bc_col
@@ -36,11 +38,12 @@ def c_table():
     for i, (a, f) in enumerate(keys):
         sd = SEEDS.get((a, f), [])
         xs = ', '.join(str(x) for x, _ in sd) or '0'; ys = ', '.join(str(y) for _, y in sd) or '0'
-        e = '  { 0x%02X, %d, %d, %d, { %s }, { %s } }' % (a, f, len(sd), CUT.get((a, f), -128), xs, ys) + (',' if i < len(keys) - 1 else ' };')
+        bx = CUT.get((a, f), (1, 1, 0, 0))
+        e = '  { 0x%02X, %d, %d, { %d, %d, %d, %d }, { %s }, { %s } }' % ((a, f, len(sd)) + tuple(bx) + (xs, ys)) + (',' if i < len(keys) - 1 else ' };')
         if (a, f) in NOTES: e += '   /* ' + NOTES[(a, f)] + ' */'
         lines.append(e)
-    return ('static const struct { uint8 anim, frm, n; int8_t cut, x[%d], y[%d]; } lk_bc_seed[] = {   /* from tools/bootcol_check.py SEEDS / CUT: n > 0 = the boot '
-            'areas are the ones holding these pixels (pose space); cut = boot pixels only from this row down (-128 = all) */\n' % (n, n) + '\n'.join(lines) + '\n')
+    return ('static const struct { uint8 anim, frm, n; int8_t cut[4], x[%d], y[%d]; } lk_bc_seed[] = {   /* from tools/bootcol_check.py SEEDS / CUT: n > 0 = the boot '
+            'areas are the ones holding these pixels (pose space); cut = box x0, y0, x1, y1 of pixels that are never boot (x0 > x1 = none) */\n' % (n, n) + '\n'.join(lines) + '\n')
 
 def _rom_helpers(rom):
     import romsprite
@@ -122,7 +125,7 @@ def boots(pix, key):
             if H < 34 or sum(y for _, y in cc) * 10 < len(cc) * (10 * bot - 3 * H): continue
             if len(cc) < 20 and any(pix.get((x + dx, y + dy)) in (1, 13, 14) for x, y in cc for dx in (-1, 0, 1) for dy in (-1, 0, 1)): continue
             res |= set(cc)
-    if key in CUT: res = {q for q in res if q[1] >= CUT[key]}
+    if key in CUT: x0, y0, x1, y1 = CUT[key]; res = {q for q in res if not (x0 <= q[0] <= x1 and y0 <= q[1] <= y1)}
     return res
 
 def _png(path, buf, S):

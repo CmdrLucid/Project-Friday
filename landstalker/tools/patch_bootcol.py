@@ -64,14 +64,14 @@ static lk_bc_mask_t lk_bc_cache[19 * 32];
 static int lk_bc_brown(int v) { return v == 3 || v == 4 || v == 5 || v == 8; }
 static const uint64_t *lk_bc_mask(const lk_o_ent_t *e) {
   static int16_t gt[LK_BC_G][LK_BC_G]; static uint8 gc[LK_BC_G][LK_BC_G]; static int16_t lab[LK_BC_G][LK_BC_G]; static int16_t stk[LK_BC_G * LK_BC_G][2];
-  int ai = e->anim / 4, fi = e->frm / 4, pc, cum = 0, x, y, top = 1 << 20, bot = -(1 << 20), nc = 0, si = -1, k, cut = -1000;
+  int ai = e->anim / 4, fi = e->frm / 4, pc, cum = 0, x, y, top = 1 << 20, bot = -(1 << 20), nc = 0, si = -1, k, cx0 = 1, cy0 = 1, cx1 = 0, cy1 = 0;
   lk_bc_mask_t *c;
   if (e->sgi != 0 || (e->anim & 3) || (e->frm & 3) || ai < 0 || ai >= 19 || fi < 0 || fi >= 32 || !e->tiles) return 0;
   c = &lk_bc_cache[ai * 32 + fi];
   if (c->done) return c->any ? c->m : 0;
   c->done = 1; c->any = 0; memset(c->m, 0, sizeof c->m);
   if (e->anim == 0x48 && e->frm >= 20) return 0;
-  for (k = 0; k < (int)(sizeof lk_bc_seed / sizeof lk_bc_seed[0]); k++) if (lk_bc_seed[k].anim == e->anim && lk_bc_seed[k].frm == e->frm) { if (lk_bc_seed[k].n) si = k; if (lk_bc_seed[k].cut != -128) cut = lk_bc_seed[k].cut + LK_BC_OY; }
+  for (k = 0; k < (int)(sizeof lk_bc_seed / sizeof lk_bc_seed[0]); k++) if (lk_bc_seed[k].anim == e->anim && lk_bc_seed[k].frm == e->frm) { if (lk_bc_seed[k].n) si = k; cx0 = lk_bc_seed[k].cut[0] + LK_BC_OX; cy0 = lk_bc_seed[k].cut[1] + LK_BC_OY; cx1 = lk_bc_seed[k].cut[2] + LK_BC_OX; cy1 = lk_bc_seed[k].cut[3] + LK_BC_OY; }
   memset(gc, 0, sizeof gc); memset(lab, 0, sizeof lab);
   for (pc = 0; pc < e->np; pc++) {                /* assemble the pose like lk_o_sprpiece (tiles column-major per piece, no flip) */
     int w = e->pws[pc], h = e->phs[pc], cx, cy, px, py;
@@ -102,7 +102,7 @@ static const uint64_t *lk_bc_mask(const lk_o_ent_t *e) {
         if (rx >= 0 && rx < LK_BC_G && ry >= 0 && ry < LK_BC_G && !lab[ry][rx] && lk_bc_brown(gc[ry][rx])) { lab[ry][rx] = (int16_t)nc; stk[sp][0] = (int16_t)rx; stk[sp][1] = (int16_t)ry; sp++; } }
     }
     if (si < 0) { int H = bot - top + 1; take = H >= 34 && 10 * sumy >= (long)n * (10 * bot - 3 * H) && !(n < 20 && nsw); }   /* centre in the lowest 30 %; small brown bits at the scabbard / sword (its end, the hilt) are no boot */
-    if (take) { int x2, y2; for (y2 = top; y2 <= bot; y2++) for (x2 = 0; x2 < LK_BC_G; x2++) if (lab[y2][x2] == nc && y2 >= cut) { int g = gt[y2][x2]; c->m[g >> 6] |= 1ull << (g & 63); c->any = 1; } }
+    if (take) { int x2, y2; for (y2 = top; y2 <= bot; y2++) for (x2 = 0; x2 < LK_BC_G; x2++) if (lab[y2][x2] == nc && !(x2 >= cx0 && x2 <= cx1 && y2 >= cy0 && y2 <= cy1)) { int g = gt[y2][x2]; c->m[g >> 6] |= 1ull << (g & 63); c->any = 1; } }
   }
   if (getenv("LANDSTALKER_BOOTCOL_DBG")) { int q, nb = 0; for (q = 0; q < 64; q++) nb += __builtin_popcountll(c->m[q]); printf("bootcol: anim %X frm %X boot px %d\n", e->anim, e->frm, nb); }   /* test aid: compare with the Python check */
   return c->any ? c->m : 0;
