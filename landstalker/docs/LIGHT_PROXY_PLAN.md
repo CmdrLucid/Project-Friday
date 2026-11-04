@@ -150,25 +150,25 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
 - All Mercator outdoor one-offs of the 2026-11-04 survey are done (632 church, 31 castle, 638, 636, 637). Next: other towns' walls / towers on request, the cliff edge lines of room 603.
 - SURVEY TOOL `landstalker/tools/proxysurvey.py` (2026-11-04): `--run OUTDIR` warps headless through every outdoor room (DBG=5, batches of 16 warps, replay prefix of rec_20261103_1803, the user's save copied) and ranks the automatic proxies: WALK (hip / lathe over walkable cells), TENT (wall read as roof), FLAT (tall object without shape), WALL0 (blocked height 0 runs). `--log LOG` re-scores a saved log. First full run: top = 488 ROUTE_AFTER_DESTEL_2, 565, 362 KN_LABYRINTH_EXTERIOR, 529, 425, 454, 515, 424, 183 RYUMA_RAFT_PIER; most top hits are FOREST canopy blocks on routes (hips up to ~240 over walkable cells), i.e. a repeating pattern, not town one-offs.
 
-## Forests (2026-11-04, user: 'der Schatten soll nach dem Baum oder Busch aussehen und nicht wie ein Block')
-- The survey's top rooms are FOREST blocks on the routes: a regular grid of painted round crowns, ONE crown per map cell, trunks visible at the front edge. In the
+## Bush blocks and trees (2026-11-04, user: 'der Schatten soll nach dem Baum oder Busch aussehen und nicht wie ein Block'; 'das sind Busch-Sprites, keine Baeume, die einstufigen')
+- The survey's top rooms are BUSH blocks on the routes (one step high; the user: bush sprites, not trees): a regular grid of painted round bushes, ONE per map cell, short stems visible at the front edge. In the
   height map the block is a WALKABLE slab one step (16) above the ground (room 488: cells at height 9 around ground 8); the automatic proposal read the tall drawn
   area as a building (hips up to 238 over the slab: a big dark block over the path and Nigel).
-- New correction ops `trees` / `pines` [x0,y0,x1,y1] (+ optional `h`, `r`, `base`; `patch_lights.py` proxy type 5): every RAISED cell of the rectangle (game height
-  >= base + 8) gets one tree: `trees` = a sphere crown radius r (default 6) whose top is the cell's game height (or base + h) + a trunk (radius 1.5),
+- New correction ops `bushes` / `pines` [x0,y0,x1,y1] (+ optional `h`, `r`, `base`; `patch_lights.py` proxy type 5): every RAISED cell of the rectangle (game height
+  >= base + 8) gets one shape: `bushes` = a sphere radius r (default 6) whose top is the cell's game height (or base + h) + a stem (radius 1.5),
   `pines` = a cone from base + 4 to base + h, radius r (default 7); radius at most 8 (stays inside its cell). In those cells the sun march uses the BASE
-  (most common game height on the ring around the rectangle, ties -> the lower; or `base`), not the raised slab: light passes between the trunks, the shadow
-  outline is the row of crowns. The view ray (where a pixel sits) is unchanged; canopy pixels belong to the trees' object (no self shadow).
-  Measured on room 488 (`remake/tools/proxy_overlay.py` with a test OBJ of crown silhouette circles): r 6 with the top on the slab matches the painted crowns;
+  (most common game height on the ring around the rectangle, ties -> the lower; or `base`), not the raised slab: light passes between the stems, the shadow
+  outline is the row of bushes. The view ray (where a pixel sits) is unchanged; bush block pixels belong to the bushes' object (no self shadow).
+  Measured on room 488 (`remake/tools/proxy_overlay.py` with a test OBJ of silhouette circles): r 6 with the top on the slab matches the painted bushes;
   small pines: cones 30 high.
-- Forest shadows are SHORT (16 high -> ~11 units at sun elevation 55) and fall to -y = behind the canopy as seen by the camera, so a forest casts almost no
-  visible shadow; the gain is that the wrong block shadows are gone. Tall single trees (big tree of room 488: `remake/recipes/proxy_tree_488.py`,
+- Bush block shadows are SHORT (16 high -> ~11 units at sun elevation 55) and fall to -y = behind the bushes as seen by the camera, so a bush block casts almost no
+  visible shadow; the gain is that the wrong block shadows are gone. Tall single trees (the big tree in front of the bushes of room 488: `remake/recipes/proxy_tree_488.py`,
   new `proxy.lathe` = stacked frustums from a profile [(z, r), ...] measured on the silhouette: a circle of radius r at height z is widest at
   V = (cx + cy) / 2 - z with half width r * sqrt(2)) use the `mesh` op.
-- Room 488 done: trees 44..58 x 28..33, 26..37 x 33..36, 26..31 x 37..44; pines 32..33 x 37..44, 34..37 x 37..38 (h 30); remove 32,39 (hip #2 up to 218);
+- Room 488 done: bushes 44..58 x 28..33, 26..37 x 33..36, 26..31 x 37..44; pines 32..33 x 37..44, 34..37 x 37..38 (h 30); remove 32,39 (hip #2 up to 218);
   mesh tree_488 (cells 33..38 x 38..43, box up to 271 replaced, drawn tip 212). Check: warp `488:48.08,26.08,0080` (path: block shadow gone),
   `488:39.08,40.08,0080` (big tree); Lighting Off byte-identical; Mercator 632 / 637 frames identical to the previous build. USER CHECK OPEN.
-- Next: the other forest rooms of the survey (565, 362, 529, 425, 454, 515, 424, 183, ...): cells from the height map (raised walkable slab) + a look at the picture.
+- Next: the other bush block rooms of the survey (565, 362, 529, 425, 454, 515, 424, 183, ...): cells from the height map (raised walkable slab) + a look at the picture.
 - Packaging copies `data/**/*.json` and `*.obj` (AppImage / Windows zip). Lighting Off / indoor byte-identical; only frame 2100 of rec_20261103_1803 changed (church).
 - Refined 2026-11-04 (user: 'verfeinere die 3d Form der Kirche'): the entrance gable was 13 units too high (ridge 107 -> 94, read from the gable apex U 720 / V 538 and the
   eave corners U 688 / V 583, U 750 / V 548 of the picture) and too short at the front (x 392 -> 400 = over the column cells x 24 of the height map). It now starts at x 340 INSIDE the

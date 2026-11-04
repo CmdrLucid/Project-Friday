@@ -42,7 +42,7 @@ import os, sys
 root = sys.argv[1]
 VER = "LK_LIGHTS v7"
 import json
-CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "trees": (6, 4), "pines": (7, 4)}
+CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4)}
 def mesh_cells(path):   # an OBJ (game coordinates) -> {(sx, sy): top height} on the 4 unit grid of the light field (sub column centres), max over all faces
     vs, top = [], {}
     for line in open(path):
@@ -76,7 +76,7 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
                     top = mesh_cells(os.path.join(os.path.dirname(path), e["file"])); mi = len(MESHES)
                     MESHES.append(", ".join("{%d, %d, %d}" % (sx, sy, int(round(h))) for (sx, sy), h in sorted(top.items()) if 0 <= sx < 296 and 0 <= sy < 296))
                     a = a + [mi]; n += 1
-                if op in (6, 7):   # trees / pines: + top above the base (0 = the game's height of each cell), crown radius (0 = default), base (-999 = automatic)
+                if op in (6, 7):   # bushes / pines: + top above the base (0 = the game's height of each cell), crown radius (0 = default), base (-999 = automatic)
                     a = a + [int(e.get("h", 0)), int(e.get("r", 0)), int(e.get("base", -999))]; n += 3
                 rows.append("{%d, %d, {%s}}" % (int(room), op, ", ".join(str(v) for v in a + [0] * (7 - n))))
     print("patch_lights: %d light proxy corrections from %s" % (len(rows), path))
@@ -114,7 +114,7 @@ static int16_t lk_lt_gh[74][74];   /* v6: the game's heights (lk_lt_top = ours: 
 static int16_t lk_lt_fh[LK_LT_FN][LK_LT_FN], lk_lt_fo[LK_LT_FN][LK_LT_FN]; static int lk_lt_fhmax;   /* v7: object top + owner object per sub column */
 typedef struct { float x, y; int16_t h, hh, U, V0, w, obj; } lk_lt_card;   /* upright card facing the sun, silhouette = drawn layer A picture: v7 one per SMALL object (tree, post), one per cell of class 3 objects (v6) */
 static lk_lt_card lk_lt_c[1024]; static int lk_lt_nc;
-typedef struct { uint8 type; int16_t x0, y0, x1, y1, z0, eave, ridge, obj, part; } lk_lt_proxy;   /* LIGHT PROXY (docs/LIGHT_PROXY_PLAN.md): invisible shape for light only; type 1 hip (box to eave + hip roof to ridge), 2 cone (centre (x0, y0), radius x1, z0 .. ridge); type 5 TREES (data op trees / pines: CELLS x0..x1 / y0..y1, part 0 round crown / 1 pine cone, z0 = base, eave = top above base or 0 = each cell's game height, ridge = radius): one tree per raised cell */
+typedef struct { uint8 type; int16_t x0, y0, x1, y1, z0, eave, ridge, obj, part; } lk_lt_proxy;   /* LIGHT PROXY (docs/LIGHT_PROXY_PLAN.md): invisible shape for light only; type 1 hip (box to eave + hip roof to ridge), 2 cone (centre (x0, y0), radius x1, z0 .. ridge); type 5 BUSHES / PINES (data op bushes / pines: CELLS x0..x1 / y0..y1, part 0 round bush / 1 pine cone, z0 = base, eave = top above base or 0 = each cell's game height, ridge = radius): one tree per raised cell */
 static lk_lt_proxy lk_lt_px[255]; static int lk_lt_npx; static uint8 lk_lt_prof[255][96];   /* type 3 LATHE (centre (x0, y0), z0, height ridge - z0): radius per unit of height from the sprite's drawn width per row (like Blender's screw modifier) */ static uint8 lk_lt_fp[LK_LT_FN][LK_LT_FN];   /* proxies of the room; lk_lt_fp = proxy + 1 of every sub column (0 none) */
 
 static int16_t lk_lt_vt[LK_LT_FN][LK_LT_FN], lk_lt_vg[LK_LT_FN][LK_LT_FN], lk_lt_vm[74][74]; static int lk_lt_rayA;   /* lk_lt_vg: proxy step 1b, the same without the proxies (pixels not drawn in layer A are ground: they pass the proxies); lk_lt_rayA = the pixel is drawn in layer A */   /* v7 speed: lk_lt_fcell of every sub column; per cell the 3 x 3 max of it (32767 = void / object near: no skip) */
@@ -224,7 +224,7 @@ static float lk_lt_sunvis(float px, float py, float pz, int self) {   /* v7: sha
       if (o && o == self) continue;
       h = lk_lt_gh[cy][cx] == -32768 ? -1e9f : (float)lk_lt_gh[cy][cx]; { int ob = lk_lt_obj[cy][cx]; if (ob > 0 && ob < 1024 && lk_lt_ocl[ob] == 1) h = (float)lk_lt_sgnd[ob]; }
       { int q = lk_lt_fp[sy][sx];
-        if (q && lk_lt_px[q - 1].type == 5) { const lk_lt_proxy *P = &lk_lt_px[q - 1];   /* a tree of a forest: crown sphere (or pine cone) + trunk over the base, light passes between the trees */
+        if (q && lk_lt_px[q - 1].type == 5) { const lk_lt_proxy *P = &lk_lt_px[q - 1];   /* a bush of a bush block: sphere (or pine cone) + stem over the base, light passes between the stems */
           float top = P->eave > 0 ? (float)(P->z0 + P->eave) : (float)lk_lt_gh[cy][cx], rr = (float)P->ridge, zb = (float)P->z0, ddx = x - (16.0f * cx + 8.0f), ddy = y - (16.0f * cy + 8.0f), dh = sqrtf(ddx * ddx + ddy * ddy), cl, zc;
           if (P->part) { zc = zb + 4.0f; cl = z >= top ? sqrtf(dh * dh + (z - top) * (z - top)) : z >= zc ? dh - rr * (top - z) / (top - zc) : 9999.0f; }
           else { zc = top - rr; cl = sqrtf(dh * dh + (z - zc) * (z - zc)) - rr; }
@@ -511,7 +511,7 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
           P->type = 4; P->part = a[4]; P->obj = (int16_t)id; lk_lt_ocl[id] = 2; P->x0 = (int16_t)(16 * a[0]); P->y0 = (int16_t)(16 * a[1]); P->x1 = (int16_t)(16 * a[2] + 16); P->y1 = (int16_t)(16 * a[3] + 16); P->z0 = 0; P->eave = P->ridge = 0;
           if (lk_lt_dbg == 5) printf("correction: room %%d adds mesh %%d as #%%d\n", lk_o_room, a[4], lk_lt_npx - 1); }
         if ((op == 6 || op == 7) && lk_lt_npx < 255) { lk_lt_proxy *P = &lk_lt_px[lk_lt_npx++]; int id = 1000 + (q %% 24), base = a[6];   /* FORESTS (user 2026-11-04: 'der Schatten soll nach dem Baum oder Busch aussehen und nicht wie ein Block'):
-            one round crown (trees) or cone (pines) per raised cell, on a regular grid like the painted forest; the game's raised forest block itself casts nothing */
+            one round bush (bushes; the one step forest blocks are BUSH sprites, user) or cone (pines) per raised cell, on a regular grid like the painting; the game's raised block itself casts nothing */
           if (base == -999) { int vals[64], cnt[64], nv = 0, i, best = 0; base = 0;   /* automatic base: the most common game height on the ring of cells around the rectangle */
             for (y = a[1] - 1; y <= a[3] + 1; y++) for (x = a[0] - 1; x <= a[2] + 1; x++) { int g;
               if (x >= a[0] && x <= a[2] && y >= a[1] && y <= a[3]) continue;
@@ -520,13 +520,13 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
             for (x = 0; x < nv; x++) if (cnt[x] > best || (cnt[x] == best && vals[x] < base)) { best = cnt[x]; base = vals[x]; } }   /* a tie: the lower one */
           P->type = 5; P->part = (int16_t)(op - 6); P->obj = (int16_t)id; lk_lt_ocl[id] = 2; P->x0 = a[0]; P->y0 = a[1]; P->x1 = a[2]; P->y1 = a[3];
           P->z0 = (int16_t)base; P->eave = a[4]; P->ridge = (int16_t)(a[5] > 0 ? a[5] : op == 6 ? 6 : 7); if (P->ridge > 8) P->ridge = 8;   /* radius <= half a cell: a crown never reaches into the next cell */
-          if (lk_lt_dbg == 5) printf("correction: room %%d adds %%s #%%d cells %%d..%%d x %%d..%%d base %%d top %%d radius %%d\n", lk_o_room, op == 6 ? "trees" : "pines", lk_lt_npx - 1, a[0], a[2], a[1], a[3], base, a[4], P->ridge); } } }
+          if (lk_lt_dbg == 5) printf("correction: room %%d adds %%s #%%d cells %%d..%%d x %%d..%%d base %%d top %%d radius %%d\n", lk_o_room, op == 6 ? "bushes" : "pines", lk_lt_npx - 1, a[0], a[2], a[1], a[3], base, a[4], P->ridge); } } }
     for (j = 0; j < LK_LT_FN; j++) for (i = 0; i < LK_LT_FN; i++) { lk_lt_fh[j][i] = -32768; lk_lt_fo[j][i] = 0; }   /* clean-up: the field holds the proxies only */
     for (k = 0; k < lk_lt_npx; k++) { const lk_lt_proxy *P = &lk_lt_px[k]; int i0, i1, j0, j1;   /* rasterise (4 units, sub column centres) */
       if (P->type == 4) { const int16_t (*m)[3] = lk_lt_meshes[P->part]; int e; if (!m) continue;   /* mesh: its stamped tops */
         for (e = 0; m[e][0] >= 0; e++) { int sx = m[e][0], sy = m[e][1], h = m[e][2]; if (lk_lt_fo[sy][sx] && lk_lt_fh[sy][sx] >= h) continue; lk_lt_fh[sy][sx] = (int16_t)h; lk_lt_fo[sy][sx] = P->obj; lk_lt_fp[sy][sx] = (uint8)(k + 1); }
         continue; }
-      if (P->type == 5) { int cx, cy, sx, sy;   /* trees: every RAISED cell (game height >= base + 8) of the rectangle gets a tree; its sub columns all belong to it (the march uses the base there, not the raised block) */
+      if (P->type == 5) { int cx, cy, sx, sy;   /* bushes / pines: every RAISED cell (game height >= base + 8) of the rectangle gets one; its sub columns all belong to it (the march uses the base there, not the raised block) */
         for (cy = P->y0; cy <= P->y1; cy++) for (cx = P->x0; cx <= P->x1; cx++) { int g; float top, r = (float)P->ridge;
           if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74 || (g = lk_lt_gh[cy][cx]) == -32768 || g < P->z0 + 8) continue;
           top = P->eave > 0 ? (float)(P->z0 + P->eave) : (float)g;

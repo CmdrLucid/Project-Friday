@@ -1,6 +1,6 @@
-"""LIGHT PROXY: the big tree of room 488 (ROUTE_AFTER_DESTEL_2; landstalker/docs/LIGHT_PROXY_PLAN.md 'Forests', user 2026-11-04: 'der Schatten soll nach dem Baum
+"""LIGHT PROXY: the big tree of room 488 (ROUTE_AFTER_DESTEL_2; landstalker/docs/LIGHT_PROXY_PLAN.md 'Bush blocks and trees', user 2026-11-04: 'der Schatten soll nach dem Baum
 oder Busch aussehen und nicht wie ein Block'). An invisible shape for the lighting only (never drawn). Why: the automatic proposal made a box with a hip roof
-(cells 34..36 x 39..41, z 176 .. 271) out of the big tree in front of the forest: 65 too high and square.
+(cells 34..36 x 39..41, z 176 .. 271) out of the big tree in front of the bush block: 65 too high and square.
 Measured on the original picture (remake/tools/rom_picture.py ROM 488 900 320 320 200, layer A silhouette per picture row around the axis U 1104):
 the tree stands on the walkable cells 34..37 x 39..42 (axis x 576, y 656, ground 128); a circle of radius r at height z is widest at V = 616 - z with
 half width r * sqrt(2), so the drawn half widths 3 / 10 / 28 / 40 / 52 / 61 / 47 at V 412 / 420 / 432 / 444 / 456 / 464..480 / 488 give the profile below
