@@ -28,58 +28,6 @@
     ],
     "488": [
       {
-        "op": "bushes",
-        "cells": [
-          44,
-          28,
-          58,
-          33
-        ],
-        "why": "Bush block (bush sprites, user 2026-11-04: shadow like the bush, not a block): automatic hip up to 238 over the walkable bush slab"
-      },
-      {
-        "op": "bushes",
-        "cells": [
-          26,
-          33,
-          37,
-          36
-        ],
-        "why": "Bush block (bush sprites, user 2026-11-04: shadow like the bush, not a block): automatic hip up to 218 over the walkable bush slab"
-      },
-      {
-        "op": "bushes",
-        "cells": [
-          26,
-          37,
-          31,
-          44
-        ],
-        "why": "Bush block (bush sprites, user 2026-11-04: shadow like the bush, not a block): automatic hip up to 218 over the walkable bush slab"
-      },
-      {
-        "op": "pines",
-        "cells": [
-          32,
-          37,
-          33,
-          44
-        ],
-        "h": 30,
-        "why": "Small pines left of the big tree (blocked height 9 cells); drawn tips ~30 above the ground (cone overlay)"
-      },
-      {
-        "op": "pines",
-        "cells": [
-          34,
-          37,
-          37,
-          38
-        ],
-        "h": 30,
-        "why": "Small pines behind the big tree"
-      },
-      {
         "op": "remove",
         "cells": [
           32,

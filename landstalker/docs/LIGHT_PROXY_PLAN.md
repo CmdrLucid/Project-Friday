@@ -175,6 +175,23 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
   AUTOMATICALLY by their GRAPHICS BLOCKS (the same tiles / blocks in every room of a tileset), not per room data and not by guessing from pixels: learn the bush
   and pine block ids once (room 488), at room entry mark the raised cells drawn with them as `bushes` / `pines`; `data/light_proxies.json` only for exceptions
   (big single trees). Check a few rooms against the original before trusting it. Works for modded rooms too.
+
+## Object catalogue (2026-11-04, user: 'nicht nur eine Bush Detection, generell etwas fuer wiederkehrende Objekte' / 'wuerde dann auch greifen, sollten wir mal Raeume modden')
+- `landstalker/data/object_blocks.json` = classes (bush: sphere r 6; pine: cone r 7, h 30) + per TILESET the layer A block ids that draw them. Rooms are built from
+  16 x 16 blocks of the tileset's blockset, so an object is the same block id in every room of that tileset (and in modded rooms).
+- Runtime (`patch_lights.py`, at room entry after the automatic proposal, before the per room corrections): the block that draws the TOP of cell (x, y) at height h is
+  layer A block (x - h, y - h) (`$FF7C02`); of all cells on that view diagonal the highest one owns it. Catalogue hit -> the cell's class (SMALL free standing objects keep
+  their sprite lathe). Components of equal class (4-connected): base = most common game height on the ring (ties: lower); bush cells must be raised (>= base + 8: the side
+  faces / back edge of a bush block also draw low cells in front / behind), bush top = max(cell height, base + 16), pine top = max(cell height, base + h). Automatic hips
+  whose part is >= half catalogue cells are dropped; other proxies skip catalogue cells. Per cell tables `lk_lt_tk / tr / tb / tt / to` (the data ops `bushes` / `pines`
+  write the same tables and override). DBG=5: 'catalogue: room R tileset T: n bush cells, m pine cells, k groups' + dropped hips.
+- Tool `landstalker/tools/blockcat.py`: `stats [TS]` (top blocks of cell tops per tileset), `sheet TS OUT.png [--ids ..]` (each block alone 4 x + in its picture with a red
+  frame; local, ROM-derived), `cells ROOM` (classification preview, without the runtime's raised rule).
+- Tileset 17 labelled from three sheets of its 48 most used top blocks (bush 11 ids, pine 15 ids; $064 = back edge overhang, not a bush; $0BD = rope fence, later class).
+  Room 488: 178 bush + 50 pine cells, hips #0..#2 dropped; the hand entries `bushes` / `pines` were removed (picture within 67..219 px of the hand version); the big
+  tree mesh + remove stay. Before / after (headless, rec_20261103_1803 warps): 490, 525, 529, 362 lose the dark patches over Nigel / the path (`~/Mockups/katalog_raum*_vorher_nachher.png`).
+  Lighting Off and Mercator 632 / 637 byte-identical.
+- NEXT: label tilesets 0, 7, 12, 13, 14 the same way (sheets), more classes on request (fences, posts, single trees).
 - (superseded by the plan above if it works) Next: the other bush block rooms of the survey (565, 362, 529, 425, 454, 515, 424, 183, ...): cells from the height map (raised walkable slab) + a look at the picture.
 - Packaging copies `data/**/*.json` and `*.obj` (AppImage / Windows zip). Lighting Off / indoor byte-identical; only frame 2100 of rec_20261103_1803 changed (church).
 - Refined 2026-11-04 (user: 'verfeinere die 3d Form der Kirche'): the entrance gable was 13 units too high (ridge 107 -> 94, read from the gable apex U 720 / V 538 and the

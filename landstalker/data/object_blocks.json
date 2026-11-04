@@ -1,0 +1,56 @@
+{
+  "_about": [
+    "OBJECT CATALOGUE for the light proxies (docs/LIGHT_PROXY_PLAN.md 'Object catalogue'): our own data, block ids only, nothing from the ROM.",
+    "Rooms are built from 16 x 16 graphics blocks; the blockset belongs to the TILESET (room table byte 4 & $1F), so a recurring object (bush, pine) uses the same",
+    "layer A block ids in every room of a tileset. A cell whose TOP is drawn by one of these blocks (block (x - h, y - h), the highest cell of the view diagonal)",
+    "gets the class shape; groups of equal class stand on the most common height around them. Small free standing objects keep their sprite lathe.",
+    "Read by tools/patch_lights.py at build time. Find / check blocks: tools/blockcat.py ROM stats TILESET, sheet TILESET OUT.png, cells ROOM.",
+    "classes: shape sphere (bush: top = the cell's game height, at least base + 16, radius r) / cone (pine: base + 4 .. max(cell height, base + h), radius r).",
+    "Not listed on purpose: tileset 17 $064 = the back edge of a bush block overhanging the ground behind it (not a bush of its own)."
+  ],
+  "classes": {
+    "bush": {
+      "shape": "sphere",
+      "r": 6
+    },
+    "pine": {
+      "shape": "cone",
+      "r": 7,
+      "h": 30
+    }
+  },
+  "tilesets": {
+    "17": {
+      "bush": [
+        "086",
+        "041",
+        "042",
+        "043",
+        "040",
+        "06C",
+        "067",
+        "068",
+        "06A",
+        "0B4",
+        "12D"
+      ],
+      "pine": [
+        "01A",
+        "01B",
+        "01D",
+        "018",
+        "01F",
+        "039",
+        "031",
+        "03F",
+        "02F",
+        "08F",
+        "037",
+        "036",
+        "02E",
+        "046",
+        "024"
+      ]
+    }
+  }
+}

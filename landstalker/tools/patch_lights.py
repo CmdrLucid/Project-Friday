@@ -63,6 +63,19 @@ def mesh_cells(path):   # an OBJ (game coordinates) -> {(sx, sy): top height} on
                         z = w1 * a[2] + w2 * b[2] + w3 * c[2]
                         if z > top.get((sx, sy), -1e9): top[(sx, sy)] = z
     return top
+def cat_table():   # data/object_blocks.json (OBJECT CATALOGUE, LIGHT_PROXY_PLAN 'Object catalogue'): per tileset the layer A blocks that draw a recurring object -> class
+    path = os.environ.get("LANDSTALKER_OBJCAT_JSON") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "object_blocks.json")
+    rows, cls = [], []
+    if os.path.isfile(path):
+        d = json.load(open(path)); names = list(d["classes"].keys())
+        for n in names:
+            c = d["classes"][n]; cls.append("{%d, %d, %d}" % ({"sphere": 1, "cone": 2}[c["shape"]], int(c.get("r", 6)), int(c.get("h", 16))))
+        for ts, m in sorted(d["tilesets"].items(), key=lambda kv: int(kv[0])):
+            for n, ids in m.items():
+                for i in ids: rows.append("{%d, %d, %d}" % (int(ts), int(i, 16), names.index(n) + 1))
+    print("patch_lights: object catalogue: %d classes, %d blocks from %s" % (len(cls), len(rows), path))
+    return ("static const int16_t lk_lt_catc[][3] = { {0, 0, 0}%s };\n" % "".join(", " + c for c in cls) +
+            "static const int16_t lk_lt_cat[][3] = { %s };\n" % ", ".join(rows + ["{-1, 0, 0}"]))
 MESHES = []
 def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN step 2) -> C rows {room, op, a[7]}
     path = os.environ.get("LANDSTALKER_LIGHTPROXY_JSON") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "light_proxies.json")
@@ -115,6 +128,8 @@ static int16_t lk_lt_fh[LK_LT_FN][LK_LT_FN], lk_lt_fo[LK_LT_FN][LK_LT_FN]; stati
 typedef struct { float x, y; int16_t h, hh, U, V0, w, obj; } lk_lt_card;   /* upright card facing the sun, silhouette = drawn layer A picture: v7 one per SMALL object (tree, post), one per cell of class 3 objects (v6) */
 static lk_lt_card lk_lt_c[1024]; static int lk_lt_nc;
 typedef struct { uint8 type; int16_t x0, y0, x1, y1, z0, eave, ridge, obj, part; } lk_lt_proxy;   /* LIGHT PROXY (docs/LIGHT_PROXY_PLAN.md): invisible shape for light only; type 1 hip (box to eave + hip roof to ridge), 2 cone (centre (x0, y0), radius x1, z0 .. ridge); type 5 BUSHES / PINES (data op bushes / pines: CELLS x0..x1 / y0..y1, part 0 round bush / 1 pine cone, z0 = base, eave = top above base or 0 = each cell's game height, ridge = radius): one tree per raised cell */
+static uint8 lk_lt_tk[74][74], lk_lt_tr[74][74]; static int16_t lk_lt_tb[74][74], lk_lt_tt[74][74], lk_lt_to[74][74];   /* RECURRING OBJECTS per cell (catalogue + data ops bushes / pines):
+     kind 1 round bush (sphere radius tr, top tt) / 2 pine (cone base tb + 4 .. tt, radius tr), base tb, owner object lk_lt_to (= the type 5 proxy's obj); 0 = none */
 static lk_lt_proxy lk_lt_px[255]; static int lk_lt_npx; static uint8 lk_lt_prof[255][96];   /* type 3 LATHE (centre (x0, y0), z0, height ridge - z0): radius per unit of height from the sprite's drawn width per row (like Blender's screw modifier) */ static uint8 lk_lt_fp[LK_LT_FN][LK_LT_FN];   /* proxies of the room; lk_lt_fp = proxy + 1 of every sub column (0 none) */
 
 static int16_t lk_lt_vt[LK_LT_FN][LK_LT_FN], lk_lt_vg[LK_LT_FN][LK_LT_FN], lk_lt_vm[74][74]; static int lk_lt_rayA;   /* lk_lt_vg: proxy step 1b, the same without the proxies (pixels not drawn in layer A are ground: they pass the proxies); lk_lt_rayA = the pixel is drawn in layer A */   /* v7 speed: lk_lt_fcell of every sub column; per cell the 3 x 3 max of it (32767 = void / object near: no skip) */
@@ -230,9 +245,9 @@ static float lk_lt_sunvis(float px, float py, float pz, int self) {   /* v7: sha
       if (o && o == self) continue;
       h = lk_lt_gh[cy][cx] == -32768 ? -1e9f : (float)lk_lt_gh[cy][cx]; { int ob = lk_lt_obj[cy][cx]; if (ob > 0 && ob < 1024 && lk_lt_ocl[ob] == 1) h = (float)lk_lt_sgnd[ob]; }
       { int q = lk_lt_fp[sy][sx];
-        if (q && lk_lt_px[q - 1].type == 5) { const lk_lt_proxy *P = &lk_lt_px[q - 1];   /* a bush of a bush block: sphere (or pine cone) + stem over the base, light passes between the stems */
-          float top = P->eave > 0 ? (float)(P->z0 + P->eave) : (float)lk_lt_gh[cy][cx], rr = (float)P->ridge, zb = (float)P->z0, ddx = x - (16.0f * cx + 8.0f), ddy = y - (16.0f * cy + 8.0f), dh = sqrtf(ddx * ddx + ddy * ddy), cl, zc;
-          if (P->part) { zc = zb + 4.0f; cl = z >= top ? sqrtf(dh * dh + (z - top) * (z - top)) : z >= zc ? dh - rr * (top - z) / (top - zc) : 9999.0f; }
+        if (q && lk_lt_px[q - 1].type == 5 && lk_lt_tk[cy][cx]) {   /* a recurring object: bush (sphere) or pine (cone) + stem over the base, light passes between the stems */
+          float top = (float)lk_lt_tt[cy][cx], rr = (float)lk_lt_tr[cy][cx], zb = (float)lk_lt_tb[cy][cx], ddx = x - (16.0f * cx + 8.0f), ddy = y - (16.0f * cy + 8.0f), dh = sqrtf(ddx * ddx + ddy * ddy), cl, zc;
+          if (lk_lt_tk[cy][cx] == 2) { zc = zb + 4.0f; cl = z >= top ? sqrtf(dh * dh + (z - top) * (z - top)) : z >= zc ? dh - rr * (top - z) / (top - zc) : 9999.0f; }
           else { zc = top - rr; cl = sqrtf(dh * dh + (z - zc) * (z - zc)) - rr; }
           if (z <= zc && dh - 1.5f < cl) cl = dh - 1.5f;   /* trunk */
           if (cl <= 0.0f) return 0.0f; r = LK_LT_PEN * cl / (t * hl); if (r < res) res = r;
@@ -502,6 +517,40 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
       else for (kk = 0; kk < 96; kk++) if (lk_lt_prof[k][kk] == 255) lk_lt_prof[k][kk] = kk ? lk_lt_prof[k][kk - 1] : 0;
       P->x1 = 0; for (kk = 0; kk < 96; kk++) if (lk_lt_prof[k][kk] > P->x1) P->x1 = lk_lt_prof[k][kk]; }
     lk_lt_nc = 0; (void)c;   /* the cards were only the measurement of the small objects */
+    memset(lk_lt_tk, 0, sizeof lk_lt_tk); memset(lk_lt_to, 0, sizeof lk_lt_to);
+    { static uint8 lut[1024], cls[74][74]; static int8_t bh[74][74]; static uint8 bx2[74][74], by2[74][74]; int ts = OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F, q, n = 0, nb = 0, np = 0;
+      /* OBJECT CATALOGUE (data/object_blocks.json, user 2026-11-04: 'generell etwas fuer wiederkehrende Objekte'): the layer A block that draws the TOP of cell (x, y) at height h
+         is block (x - h, y - h) (of all cells on that view diagonal the highest one is seen); a block of the catalogue makes the cell a recurring object (bush, pine) */
+      memset(lut, 0, sizeof lut); memset(cls, 0, sizeof cls); memset(bh, -1, sizeof bh);
+      for (q = 0; lk_lt_cat[q][0] >= 0; q++) if (lk_lt_cat[q][0] == ts) lut[lk_lt_cat[q][1] & 1023] = (uint8)lk_lt_cat[q][2];
+      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x), h, bx, by; if (w == 0x4000 || !w) continue;
+        h = (w >> 8) & 15; bx = x - h; by = y - h; if (bx < 0 || by < 0) continue;
+        if (h > bh[by][bx]) { bh[by][bx] = (int8_t)h; bx2[by][bx] = (uint8)x; by2[by][bx] = (uint8)y; } }
+      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (bh[y][x] >= 0) { int c = lut[UW(0xFF7C02 + 148 * y + 2 * x) & 1023], cx = bx2[y][x], cy = by2[y][x], ob = lk_lt_obj[cy][cx];
+        if (c && !(ob > 0 && ob < 1024 && lk_lt_ocl[ob] == 1) && lk_lt_gh[cy][cx] != -32768) cls[cy][cx] = (uint8)c; }   /* a SMALL free standing object keeps its sprite lathe */
+      { static uint8 inq[74][74]; memset(inq, 0, sizeof inq);   /* inq: cell already in a component (each cell is looked at once) */
+      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (cls[y][x] && !inq[y][x]) {   /* components of equal class: base = most common game height on their ring (ties: the lower) */
+        static uint8 st[74 * 74][2]; int sp = 0, m, vals[64], cnt[64], nv = 0, i, best = 0, base = 0, c = cls[y][x], ncell = 0;
+        st[sp][0] = (uint8)x; st[sp][1] = (uint8)y; sp++; inq[y][x] = 1;
+        for (m = 0; m < sp; m++) { int cx = st[m][0], cy = st[m][1], d; static const int dd[4][2] = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} }; ncell++;
+          for (d = 0; d < 4; d++) { int nx = cx + dd[d][0], ny = cy + dd[d][1], g; if (nx < 0 || ny < 0 || nx >= 74 || ny >= 74 || inq[ny][nx]) continue;
+            if (cls[ny][nx] == c) { inq[ny][nx] = 1; st[sp][0] = (uint8)nx; st[sp][1] = (uint8)ny; sp++; continue; }
+            if (cls[ny][nx] || (g = lk_lt_gh[ny][nx]) == -32768) continue;
+            for (i = 0; i < nv && vals[i] != g; i++) ; if (i == nv) { if (nv == 64) continue; vals[nv] = g; cnt[nv++] = 0; } cnt[i]++; } }
+        for (i = 0; i < nv; i++) if (cnt[i] > best || (cnt[i] == best && vals[i] < base)) { best = cnt[i]; base = vals[i]; }
+        if (!nv) base = lk_lt_gh[y][x] - 16;
+        for (m = 0; m < sp; m++) { int cx = st[m][0], cy = st[m][1], g = lk_lt_gh[cy][cx], kind = lk_lt_catc[c][0], top = kind == 1 ? (g > base + 16 ? g : base + 16) : (g > base + lk_lt_catc[c][2] ? g : base + lk_lt_catc[c][2]);
+          if (kind == 1 && g < base + 8) continue;   /* a bush only on a RAISED cell: the side faces / back edge of a bush block also draw the top of lower cells in front / behind */
+          lk_lt_tk[cy][cx] = (uint8)kind; lk_lt_tr[cy][cx] = (uint8)lk_lt_catc[c][1]; lk_lt_tb[cy][cx] = (int16_t)base; lk_lt_tt[cy][cx] = (int16_t)top; lk_lt_to[cy][cx] = 1031; if (kind == 1) nb++; else np++; }
+        n++; } }
+      if (nb + np && lk_lt_npx < 255) { int m, kept = 0; lk_lt_proxy *P;
+        for (m = 0; m < lk_lt_npx; m++) { const lk_lt_proxy *Q = &lk_lt_px[m]; int tot = 0, hit = 0, cx, cy;   /* automatic hips mostly over catalogue cells go */
+          if (Q->type == 1 && Q->part) for (cy = Q->y0 >> 4; cy < (Q->y1 + 15) >> 4 && cy < 74; cy++) for (cx = Q->x0 >> 4; cx < (Q->x1 + 15) >> 4 && cx < 74; cx++) if (cx >= 0 && cy >= 0 && lk_lt_part[cy][cx] == Q->part) { tot++; if (lk_lt_to[cy][cx]) hit++; }
+          if (tot && 2 * hit >= tot) { if (lk_lt_dbg == 5) printf("catalogue: room %%d drops hip #%%d (%%d of %%d cells are recurring objects)\n", lk_o_room, m, hit, tot); continue; }
+          if (kept != m) { lk_lt_px[kept] = lk_lt_px[m]; memcpy(lk_lt_prof[kept], lk_lt_prof[m], 96); } kept++; }
+        lk_lt_npx = kept;
+        P = &lk_lt_px[lk_lt_npx++]; P->type = 5; P->part = 0; P->obj = 1031; lk_lt_ocl[1031] = 2; P->x0 = P->y0 = 0; P->x1 = P->y1 = 73; P->z0 = P->eave = P->ridge = 0; }
+      if (lk_lt_dbg == 5) printf("catalogue: room %%d tileset %%d: %%d bush cells, %%d pine cells, %%d groups\n", lk_o_room, ts, nb, np, n); }
     { int q; memset(lk_lt_flat, 0, sizeof lk_lt_flat);   /* CORRECTIONS (data/light_proxies.json, LIGHT_PROXY_PLAN step 2) */
       for (q = 0; lk_lt_corr[q].room >= 0; q++) { const int16_t *a = lk_lt_corr[q].a; int op = lk_lt_corr[q].op;
         if (lk_lt_corr[q].room != lk_o_room) continue;
@@ -524,27 +573,29 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
               if (x < 0 || y < 0 || x >= 74 || y >= 74 || (g = lk_lt_gh[y][x]) == -32768) continue;
               for (i = 0; i < nv && vals[i] != g; i++) ; if (i == nv) { if (nv == 64) continue; vals[nv] = g; cnt[nv++] = 0; } cnt[i]++; }
             for (x = 0; x < nv; x++) if (cnt[x] > best || (cnt[x] == best && vals[x] < base)) { best = cnt[x]; base = vals[x]; } }   /* a tie: the lower one */
-          P->type = 5; P->part = (int16_t)(op - 6); P->obj = (int16_t)id; lk_lt_ocl[id] = 2; P->x0 = a[0]; P->y0 = a[1]; P->x1 = a[2]; P->y1 = a[3];
-          P->z0 = (int16_t)base; P->eave = a[4]; P->ridge = (int16_t)(a[5] > 0 ? a[5] : op == 6 ? 6 : 7); if (P->ridge > 8) P->ridge = 8;   /* radius <= half a cell: a crown never reaches into the next cell */
+          P->type = 5; P->part = 0; P->obj = (int16_t)id; lk_lt_ocl[id] = 2; P->x0 = a[0]; P->y0 = a[1]; P->x1 = a[2]; P->y1 = a[3]; P->z0 = (int16_t)base; P->eave = a[4];
+          P->ridge = (int16_t)(a[5] > 0 ? a[5] : op == 6 ? 6 : 7); if (P->ridge > 8) P->ridge = 8;   /* radius <= half a cell: a crown never reaches into the next cell */
+          for (y = a[1]; y <= a[3]; y++) for (x = a[0]; x <= a[2]; x++) { int g;   /* every RAISED cell of the rectangle (game height >= base + 8) */
+            if (x < 0 || y < 0 || x >= 74 || y >= 74 || (g = lk_lt_gh[y][x]) == -32768 || g < base + 8) continue;
+            lk_lt_tk[y][x] = (uint8)(op - 5); lk_lt_tr[y][x] = (uint8)P->ridge; lk_lt_tb[y][x] = (int16_t)base; lk_lt_tt[y][x] = (int16_t)(a[4] > 0 ? base + a[4] : g); lk_lt_to[y][x] = (int16_t)id; }
           if (lk_lt_dbg == 5) printf("correction: room %%d adds %%s #%%d cells %%d..%%d x %%d..%%d base %%d top %%d radius %%d\n", lk_o_room, op == 6 ? "bushes" : "pines", lk_lt_npx - 1, a[0], a[2], a[1], a[3], base, a[4], P->ridge); } } }
     for (j = 0; j < LK_LT_FN; j++) for (i = 0; i < LK_LT_FN; i++) { lk_lt_fh[j][i] = -32768; lk_lt_fo[j][i] = 0; }   /* clean-up: the field holds the proxies only */
     for (k = 0; k < lk_lt_npx; k++) { const lk_lt_proxy *P = &lk_lt_px[k]; int i0, i1, j0, j1;   /* rasterise (4 units, sub column centres) */
       if (P->type == 4) { const int16_t (*m)[3] = lk_lt_meshes[P->part]; int e; if (!m) continue;   /* mesh: its stamped tops */
         for (e = 0; m[e][0] >= 0; e++) { int sx = m[e][0], sy = m[e][1], h = m[e][2]; if (lk_lt_fo[sy][sx] && lk_lt_fh[sy][sx] >= h) continue; lk_lt_fh[sy][sx] = (int16_t)h; lk_lt_fo[sy][sx] = P->obj; lk_lt_fp[sy][sx] = (uint8)(k + 1); }
         continue; }
-      if (P->type == 5) { int cx, cy, sx, sy;   /* bushes / pines: every RAISED cell (game height >= base + 8) of the rectangle gets one; its sub columns all belong to it (the march uses the base there, not the raised block) */
-        for (cy = P->y0; cy <= P->y1; cy++) for (cx = P->x0; cx <= P->x1; cx++) { int g; float top, r = (float)P->ridge;
-          if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74 || (g = lk_lt_gh[cy][cx]) == -32768 || g < P->z0 + 8) continue;
-          top = P->eave > 0 ? (float)(P->z0 + P->eave) : (float)g;
-          for (sy = 4 * cy; sy < 4 * cy + 4; sy++) for (sx = 4 * cx; sx < 4 * cx + 4; sx++) { float dx = 4.0f * sx + 2.0f - (16.0f * cx + 8.0f), dy = 4.0f * sy + 2.0f - (16.0f * cy + 8.0f), d = sqrtf(dx * dx + dy * dy), h = (float)P->z0;
-            if (d < r) h = P->part ? top - (top - (float)P->z0 - 4.0f) * d / r : top - r + sqrtf(r * r - d * d);
+      if (P->type == 5) { int cx, cy, sx, sy;   /* recurring objects (catalogue / data ops): the cells this proxy owns; all their sub columns belong to it (the march uses the base there, not the raised block) */
+        for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) { float top, r, zb; if (!lk_lt_tk[cy][cx] || lk_lt_to[cy][cx] != P->obj) continue;
+          top = (float)lk_lt_tt[cy][cx]; r = (float)lk_lt_tr[cy][cx]; zb = (float)lk_lt_tb[cy][cx];
+          for (sy = 4 * cy; sy < 4 * cy + 4; sy++) for (sx = 4 * cx; sx < 4 * cx + 4; sx++) { float dx = 4.0f * sx + 2.0f - (16.0f * cx + 8.0f), dy = 4.0f * sy + 2.0f - (16.0f * cy + 8.0f), d = sqrtf(dx * dx + dy * dy), h = zb;
+            if (d < r) h = lk_lt_tk[cy][cx] == 2 ? top - (top - zb - 4.0f) * d / r : top - r + sqrtf(r * r - d * d);
             lk_lt_fh[sy][sx] = (int16_t)h; lk_lt_fo[sy][sx] = P->obj; lk_lt_fp[sy][sx] = (uint8)(k + 1); } }
         continue; }
       if (P->type == 1) { i0 = P->x0 >> 2; i1 = (P->x1 >> 2) - 1; j0 = P->y0 >> 2; j1 = (P->y1 >> 2) - 1; }
       else { i0 = (P->x0 - P->x1 - 2) >> 2; i1 = (P->x0 + P->x1 + 2) >> 2; j0 = (P->y0 - P->x1 - 2) >> 2; j1 = (P->y0 + P->x1 + 2) >> 2; }
       for (j = j0 < 0 ? 0 : j0; j <= j1 && j < LK_LT_FN; j++) for (i = i0 < 0 ? 0 : i0; i <= i1 && i < LK_LT_FN; i++) { float x = 4.0f * i + 2.0f, y = 4.0f * j + 2.0f, h;
         if (P->type == 1 && P->part && (lk_lt_part[j >> 2][i >> 2] != P->part || !lk_lt_pkeep[j >> 2][i >> 2])) continue;
-        if (lk_lt_flat[j >> 2][i >> 2]) continue;   /* data: flat */   /* only the part's own cells: its box is a rectangle, the part may not be (a phantom wall cast the dark stripe in front of the church) */
+        if (lk_lt_flat[j >> 2][i >> 2] || lk_lt_tk[j >> 2][i >> 2]) continue;   /* data: flat; recurring objects have their own shape */   /* only the part's own cells: its box is a rectangle, the part may not be (a phantom wall cast the dark stripe in front of the church) */
         if (P->type == 1) { float w = (float)(P->x1 - P->x0), hh = (float)(P->y1 - P->y0), d = x - P->x0, half = 0.5f * (w < hh ? w : hh);
           if (P->x1 - x < d) d = P->x1 - x; if (y - P->y0 < d) d = y - P->y0; if (P->y1 - y < d) d = P->y1 - y;
           h = half > 0.0f ? (float)P->eave + (float)(P->ridge - P->eave) * d / half : (float)P->ridge; if (h > P->ridge) h = (float)P->ridge; }
@@ -770,7 +821,7 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
 }
 
 ''' % VER
-MODULE = MODULE.replace("/*LK_LT_CORR*/", corr_table())
+MODULE = MODULE.replace("/*LK_LT_CORR*/", corr_table() + cat_table())
 
 a = "static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {\n"
 rep(a, MODULE + a)
