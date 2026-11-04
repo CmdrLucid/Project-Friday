@@ -690,7 +690,7 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
         if (!f) continue;
         lk_lt_pos(U, V, z, &px, &py);
         L->x = px + (f == 2 ? 6.0f : 0.0f); L->y = py + (f == 3 ? 6.0f : 0.0f); L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; L->lava = 0; L->base = lk_o_grp[k].base;
-        L->k = 1.0f; L->rad = LK_LT_RAD; if (L->base == 0x098AAA) { L->k = 1.6f; L->rad = 170.0f; }   /* the standing torches of the castle (user 2026-11-04: 'im Schloss zu dunkel, koennte nur diese Art der Fackel mehr Licht abgeben?') */
+        L->k = 1.0f; L->rad = LK_LT_RAD; if (L->base == 0x098AAA) { L->k = 1.5f; L->rad = 260.0f; }   /* the standing torches of the castle (user 2026-11-04: 'im Schloss zu dunkel, koennte nur diese Art der Fackel mehr Licht abgeben?') */
         lk_lt_nl++; }
     }
   }
