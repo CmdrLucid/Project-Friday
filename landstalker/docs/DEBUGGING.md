@@ -1579,3 +1579,18 @@ Goal (SOUND_PLAN section 12): GPGX's `vdp_ctrl.c` decode replaced by `tools/lkvd
 - Sun test aid: `LANDSTALKER_SUN_AT=2300:180:30` / `2300:0:25` change the shadows (Nigel's long shadow across the path at 180 / 30); without it the frame is byte-identical (md5); Lighting Off + SUN_AT byte-identical.
 - Pitfall: `patch_lights.py`'s C module is a Python `%` format string: every `%` in C (printf, modulo) must be `%%` (two build failures).
 
+## Castle torches and indoor shadows (2026-11-05, Deck, Opus 5.5)
+- User screenshots of room 55 (MERCATOR_CASTLE_ENTRANCE_HALLWAY): a lit BOX around each standing torch, castle too dark, then a huge shadow block, frayed edges, jagged knight shadows.
+- DBG=1 now prints each light's flame entry: all castle standing torches are `$098AAA` (Tileset02Anim01). Lights of room 55: (485,399,65), (792,248,56), (693,399,65); none inside a solid.
+- Box cause: the indoor view ray (`lk_lt_ray`) put the wall / floor pixels behind a torch pillar on the pillar's 16 x 16 collision column (cells (29,24) / (42,24), height 4) right under the flame.
+  Fix `lk_lt_thin`: layer B pixels pass through a column that CARRIES a flame (light within one cell, z >= top - 8); column = <= 4 cells of one height and the same blocked
+  flag, void / higher walls beside it allowed (room 87: walkable pillar cells of height 5 in front of a blocked wall of height 5). First try without the flame
+  condition made the back wall pieces of row 16 (height 96, void behind) 'thin' = the huge wrong dark wall (probe: L0 term 63 -> 0, face 3 -> face 1).
+- A flame's own pillar shaded the room (light 1 unit above the column top): `lk_lt_solid` uses the floor of thin columns. The far right shadow block of room 55 is real:
+  an off-screen standing torch in an alcove (cell 49,15, `3#` beside walls of height 6) shines out only through its opening.
+- Soft edges: indoor march takes min(IPEN 4 * clearance / distance); figure shadows from torches = share of the 3 x 3 sprite pixels; torches as 2-point area lights
+  (offsets (3.5,-3.5,1) / (-3.5,3.5,-1)). Cost (DBG=5 'blocks' lines, rooms 55 / 59): point 3.5 / 4.1 ms avg (peak 23 / 25), 2 points 4.4 / 5.5 (33 / 44), 4 points 7.7 / 9.1 (62 / 80, rejected).
+- Strength: `$098AAA` k 1.5, reach 260 (others 1.0 / 120).
+- `tools/lightedges.py castle --run OUT`: 47 rooms in ~1 min; before the pillar rule fix room 87 1190 edge px (torch boxes), after the fixes the top rooms 86 / 87 show mostly real step / face edges.
+- Lighting Off byte-identical (md5 of the 488 frame), outdoor 488 / 637 frames unchanged after every step.
+
