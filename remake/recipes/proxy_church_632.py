@@ -14,7 +14,7 @@ bpy.ops.wm.read_factory_settings(use_empty=True)
 PARTS = [
     ("hall",   240, 800, 376, 928, 16, 64, 109, "hip", None),
     ("house",  240, 928, 326, 992, 16, 64, 83, "hip", None),
-    ("porch",  360, 828, 392, 900, 16, 64, 107, "gable", "x"),
+    ("porch",  340, 833, 400, 895, 16, 64, 94, "gable", "x"),    # runs into the hall roof (valley = the cross gable of the picture); front over the columns (cells x 24)
 ]
 
 def part_mesh(x0, y0, x1, y1, z0, ze, zr, roof, axis):

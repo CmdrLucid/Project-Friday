@@ -109,12 +109,17 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
 
 ## Blender shapes for one-offs (2026-11-04, user: 'blender')
 - Recipe `remake/recipes/proxy_church_632.py` (run: `python3 remake/tools/build_asset.py proxy_church_632`, Blender Flatpak headless, ~5 s): parts in GAME
-  coordinates (hall 240..376 x 800..928 eave 64 hip top 109; yellow house 240..326 x 928..992 eave 64 top 83; entrance gable 360..392 x 828..900 ridge 107 along x),
-  measured on the original picture of room 632 (roof flat tops and wall corners, projection U = x - y + 1184, V = (x + y) / 2 - z; overlay script of the session in /tmp).
+  coordinates (hall 240..376 x 800..928 eave 64 hip top 109; yellow house 240..326 x 928..992 eave 64 top 83; entrance gable 340..400 x 833..895 eave 64 ridge 94 along x; refined 2026-11-04, see below),
+  measured on the original picture of room 632 (roof flat tops and wall corners, projection U = x - y + 1184, V = (x + y) / 2 - z; overlay: `remake/tools/proxy_overlay.py`).
   Writes `landstalker/data/proxies/church_632.obj` (OUR geometry, committed) + a game-camera preview (`~/.landstalker_remake/assets/proxy_church_632/preview.png`, local).
 - Correction op `mesh [x0,y0,x1,y1] + "file"`: the rectangle's automatic shapes go, `patch_lights.py` rasterises the OBJ at BUILD time (top height per 4 unit sub
   column, max over all faces) into a C table (`lk_lt_meshN`); at room entry it is stamped as proxy type 4 (object id 1000+). Room 632: church cells 15..24 x 50..61 (1512 sub columns);
   the tulip garden behind it (same game object, cells 15..23 x 46..49) flat.
 - Packaging copies `data/**/*.json` and `*.obj` (AppImage / Windows zip). Lighting Off / indoor byte-identical; only frame 2100 of rec_20261103_1803 changed (church).
-- Simplified: the entrance is one gable along x (the picture shows a cross gable); refine in the recipe if the user sees it.
+- Refined 2026-11-04 (user: 'verfeinere die 3d Form der Kirche'): the entrance gable was 13 units too high (ridge 107 -> 94, read from the gable apex U 720 / V 538 and the
+  eave corners U 688 / V 583, U 750 / V 548 of the picture) and too short at the front (x 392 -> 400 = over the column cells x 24 of the height map). It now starts at x 340 INSIDE the
+  hall: its south slope meets the hall's east hip slope in a 45 deg valley, which is the vertical roof line of the picture (the 'cross gable'). Check: overlay of the OBJ edges
+  on `remake/tools/rom_picture.py ROM 632 400 360 400 340` with `remake/tools/proxy_overlay.py` (apex, eave corners and valley on the picture's lines). Height map rows 50..61 confirm the footprints (hall 4 = 64,
+  house x 15..19, door cell (19, 60) height 1). Result rec_20261103_1803 frame 2100 (lightshots): 1596 pixels changed, only the strip in front of the
+  church's south wall and next to the door (a little brighter = shorter gable shadow); Lighting Off byte-identical (0 pixels).
 
