@@ -7,12 +7,54 @@
     "ops: flat [x0,y0,x1,y1]      - nothing in these cells casts or carries a shape (flower beds, signs); the game's box stays",
     "     water [x0,y0,x1,y1,h]   - these cells are a water floor at height h (river / pond the automatic rule missed)",
     "     remove [x0,y0,x1,y1]    - drop the automatic shapes whose centre lies in these cells",
-    "     hip [x0,y0,x1,y1,z0,eave,ridge] - an own building shape: walls from z0 to eave, hip roof up to ridge"
+    "     hip [x0,y0,x1,y1,z0,eave,ridge] - an own building shape: walls from z0 to eave, hip roof up to ridge",
+    "     mesh [x0,y0,x1,y1] + \"file\" - a Blender shape (data/proxies/<file>.obj, game coordinates; recipe in remake/recipes/proxy_*.py) replaces the automatic shapes in these cells"
   ],
   "rooms": {
+    "632": [
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          50,
+          24,
+          61
+        ],
+        "file": "proxies/church_632.obj",
+        "why": "Mercator church complex (hall with hip roof, yellow house, entrance gable); remake/recipes/proxy_church_632.py, user 2026-11-04 'blender'"
+      },
+      {
+        "op": "flat",
+        "cells": [
+          15,
+          46,
+          23,
+          49
+        ],
+        "why": "tulip garden behind the church (same object as the church): the drawn tulips are no roof"
+      }
+    ],
     "635": [
-      {"op": "flat", "cells": [43, 26, 46, 39], "why": "long flower bed east of the houses: the drawn tulips became a hip roof that shaded Nigel (rec_20261103_2201 marker 2805)"},
-      {"op": "flat", "cells": [43, 47, 46, 60], "why": "the second long flower bed (same as above)"}
+      {
+        "op": "flat",
+        "cells": [
+          43,
+          26,
+          46,
+          39
+        ],
+        "why": "long flower bed east of the houses: the drawn tulips became a hip roof that shaded Nigel (rec_20261103_2201 marker 2805)"
+      },
+      {
+        "op": "flat",
+        "cells": [
+          43,
+          47,
+          46,
+          60
+        ],
+        "why": "the second long flower bed (same as above)"
+      }
     ]
   }
 }

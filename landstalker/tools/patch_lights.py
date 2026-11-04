@@ -42,7 +42,28 @@ import os, sys
 root = sys.argv[1]
 VER = "LK_LIGHTS v7"
 import json
-CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7)}
+CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4)}
+def mesh_cells(path):   # an OBJ (game coordinates) -> {(sx, sy): top height} on the 4 unit grid of the light field (sub column centres), max over all faces
+    vs, top = [], {}
+    for line in open(path):
+        t = line.split()
+        if not t: continue
+        if t[0] == "v": vs.append(tuple(float(q) for q in t[1:4]))
+        elif t[0] == "f":
+            idx = [int(q.split("/")[0]) - 1 for q in t[1:]]
+            for k in range(1, len(idx) - 1):
+                a, b, c = vs[idx[0]], vs[idx[k]], vs[idx[k + 1]]
+                den = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1])
+                if abs(den) < 1e-6: continue   # a wall seen from above
+                for sy in range(int(min(a[1], b[1], c[1]) // 4), int(max(a[1], b[1], c[1]) // 4) + 1):
+                    for sx in range(int(min(a[0], b[0], c[0]) // 4), int(max(a[0], b[0], c[0]) // 4) + 1):
+                        x, y = 4 * sx + 2, 4 * sy + 2
+                        w1 = ((b[1] - c[1]) * (x - c[0]) + (c[0] - b[0]) * (y - c[1])) / den; w2 = ((c[1] - a[1]) * (x - c[0]) + (a[0] - c[0]) * (y - c[1])) / den; w3 = 1 - w1 - w2
+                        if min(w1, w2, w3) < -1e-6: continue
+                        z = w1 * a[2] + w2 * b[2] + w3 * c[2]
+                        if z > top.get((sx, sy), -1e9): top[(sx, sy)] = z
+    return top
+MESHES = []
 def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN step 2) -> C rows {room, op, a[7]}
     path = os.environ.get("LANDSTALKER_LIGHTPROXY_JSON") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "light_proxies.json")
     rows = []
@@ -51,9 +72,16 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
             for e in lst:
                 op, n = CORR_OPS[e["op"]]; a = [int(v) for v in e["cells"]]
                 assert len(a) == n, ("light_proxies.json: room %s op %s needs %d numbers" % (room, e["op"], n))
+                if op == 5:   # mesh: the rectangle's automatic shapes go, the mesh is stamped (a[4] = mesh number)
+                    top = mesh_cells(os.path.join(os.path.dirname(path), e["file"])); mi = len(MESHES)
+                    MESHES.append(", ".join("{%d, %d, %d}" % (sx, sy, int(round(h))) for (sx, sy), h in sorted(top.items()) if 0 <= sx < 296 and 0 <= sy < 296))
+                    a = a + [mi]; n += 1
                 rows.append("{%d, %d, {%s}}" % (int(room), op, ", ".join(str(v) for v in a + [0] * (7 - n))))
     print("patch_lights: %d light proxy corrections from %s" % (len(rows), path))
-    return "static const lk_lt_corr_t lk_lt_corr[] = { " + ", ".join(rows + ["{-1, 0, {0}}"]) + " };\n"
+    mesh = "".join("static const int16_t lk_lt_mesh%d[][3] = { %s, {-1, -1, -1} };\n" % (i, m) for i, m in enumerate(MESHES))
+    mesh += "static const int16_t (*const lk_lt_meshes[])[3] = { " + ", ".join(["lk_lt_mesh%d" % i for i in range(len(MESHES))] + ["0"]) + " };\n"
+    print("patch_lights: %d light proxy meshes (%s cells)" % (len(MESHES), ", ".join(str(m.count("{")) for m in MESHES)))
+    return "static const lk_lt_corr_t lk_lt_corr[] = { " + ", ".join(rows + ["{-1, 0, {0}}"]) + " };\n" + mesh
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
 if VER in s:
@@ -461,15 +489,21 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
       for (q = 0; lk_lt_corr[q].room >= 0; q++) { const int16_t *a = lk_lt_corr[q].a; int op = lk_lt_corr[q].op;
         if (lk_lt_corr[q].room != lk_o_room) continue;
         if (op == 1) for (y = a[1]; y <= a[3]; y++) for (x = a[0]; x <= a[2]; x++) if (x >= 0 && y >= 0 && x < 74 && y < 74) lk_lt_flat[y][x] = 1;
-        if (op == 1 || op == 3) { int m, kept = 0; for (m = 0; m < lk_lt_npx; m++) { const lk_lt_proxy *P = &lk_lt_px[m]; int cx = (P->type == 1 ? (P->x0 + P->x1) / 2 : P->x0) >> 4, cy = (P->type == 1 ? (P->y0 + P->y1) / 2 : P->y0) >> 4;
+        if (op == 1 || op == 3 || op == 5) { int m, kept = 0; for (m = 0; m < lk_lt_npx; m++) { const lk_lt_proxy *P = &lk_lt_px[m]; int cx = (P->type == 1 ? (P->x0 + P->x1) / 2 : P->x0) >> 4, cy = (P->type == 1 ? (P->y0 + P->y1) / 2 : P->y0) >> 4;
             if (cx >= a[0] && cx <= a[2] && cy >= a[1] && cy <= a[3]) { if (lk_lt_dbg == 5) printf("correction: room %%d drops proxy #%%d\n", lk_o_room, m); continue; }
             if (kept != m) { lk_lt_px[kept] = lk_lt_px[m]; memcpy(lk_lt_prof[kept], lk_lt_prof[m], 96); } kept++; }
           lk_lt_npx = kept; }
         if (op == 4 && lk_lt_npx < 255) { lk_lt_proxy *P = &lk_lt_px[lk_lt_npx++]; int id = 1000 + (q %% 24);
           P->type = 1; P->part = 0; P->obj = (int16_t)id; lk_lt_ocl[id] = 2; P->x0 = (int16_t)(16 * a[0]); P->y0 = (int16_t)(16 * a[1]); P->x1 = (int16_t)(16 * a[2] + 16); P->y1 = (int16_t)(16 * a[3] + 16); P->z0 = a[4]; P->eave = a[5]; P->ridge = a[6];
-          if (lk_lt_dbg == 5) printf("correction: room %%d adds hip #%%d\n", lk_o_room, lk_lt_npx - 1); } } }
+          if (lk_lt_dbg == 5) printf("correction: room %%d adds hip #%%d\n", lk_o_room, lk_lt_npx - 1); }
+        if (op == 5 && lk_lt_npx < 255) { lk_lt_proxy *P = &lk_lt_px[lk_lt_npx++]; int id = 1000 + (q %% 24);   /* a Blender shape (data/proxies/*.obj, stamped at build time) */
+          P->type = 4; P->part = a[4]; P->obj = (int16_t)id; lk_lt_ocl[id] = 2; P->x0 = (int16_t)(16 * a[0]); P->y0 = (int16_t)(16 * a[1]); P->x1 = (int16_t)(16 * a[2] + 16); P->y1 = (int16_t)(16 * a[3] + 16); P->z0 = 0; P->eave = P->ridge = 0;
+          if (lk_lt_dbg == 5) printf("correction: room %%d adds mesh %%d as #%%d\n", lk_o_room, a[4], lk_lt_npx - 1); } } }
     for (j = 0; j < LK_LT_FN; j++) for (i = 0; i < LK_LT_FN; i++) { lk_lt_fh[j][i] = -32768; lk_lt_fo[j][i] = 0; }   /* clean-up: the field holds the proxies only */
     for (k = 0; k < lk_lt_npx; k++) { const lk_lt_proxy *P = &lk_lt_px[k]; int i0, i1, j0, j1;   /* rasterise (4 units, sub column centres) */
+      if (P->type == 4) { const int16_t (*m)[3] = lk_lt_meshes[P->part]; int e; if (!m) continue;   /* mesh: its stamped tops */
+        for (e = 0; m[e][0] >= 0; e++) { int sx = m[e][0], sy = m[e][1], h = m[e][2]; if (lk_lt_fo[sy][sx] && lk_lt_fh[sy][sx] >= h) continue; lk_lt_fh[sy][sx] = (int16_t)h; lk_lt_fo[sy][sx] = P->obj; lk_lt_fp[sy][sx] = (uint8)(k + 1); }
+        continue; }
       if (P->type == 1) { i0 = P->x0 >> 2; i1 = (P->x1 >> 2) - 1; j0 = P->y0 >> 2; j1 = (P->y1 >> 2) - 1; }
       else { i0 = (P->x0 - P->x1 - 2) >> 2; i1 = (P->x0 + P->x1 + 2) >> 2; j0 = (P->y0 - P->x1 - 2) >> 2; j1 = (P->y0 + P->x1 + 2) >> 2; }
       for (j = j0 < 0 ? 0 : j0; j <= j1 && j < LK_LT_FN; j++) for (i = i0 < 0 ? 0 : i0; i <= i1 && i < LK_LT_FN; i++) { float x = 4.0f * i + 2.0f, y = 4.0f * j + 2.0f, h;

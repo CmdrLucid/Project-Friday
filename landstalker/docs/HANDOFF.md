@@ -29,6 +29,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a201. 2026-10-30 (late, Deck, Opus 5.5): SPRINT ANIMATION built (`tools/patch_sprintanim.py`, LK_SPRINTANIM v1; SPRINT_IDEAS last entry): variant G applied at runtime to Nigel's walk frames while sprinting. Headless-checked (front view); user check open, especially the back view (walking up).
 
+## 0a260. 2026-11-04 (Deck, Opus 5.5): user 'blender' -> church complex of room 632 as a Blender light proxy (recipe + OBJ + op mesh + packaging). NEXT -75.
+
 ## 0a259. 2026-11-03 (latest, Deck, Opus 5.5): user 'Mach die Korrekturdatei' -> data/light_proxies.json + loader (build time) + packaging; first entries room 635 flower beds flat. NEXT -74.
 
 ## 0a258. 2026-11-03 (latest, Deck, Opus 5.5): user: shadows along the isometric grid -> azimuth 90; 'dunkler Streifen vor der Kirche' -> phantom wall from protruding collision cells + water merged the church into terrain, both fixed (LIGHT_PROXY_PLAN). NEXT -73.
@@ -501,6 +503,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-04 (Opus 5.5, `dev` pushed):** light proxies incl. correction file (`data/light_proxies.json`) and the first Blender shape (church 632). Not yet played by the user: water, azimuth 90, church fixes, correction file, church mesh.
 - **2026-11-03 latest (Opus 5.5, `dev` pushed, `main` = v1.7.0):** sun defaults now strength 1 / elevation 55 / azimuth 90 (all user choices); light proxies + water rule + church fixes built and checked headless (Lighting Off / indoor byte-identical). User has NOT played the last builds (water, church, azimuth). Open: correction file for one-offs (room 635 flower beds, Blender church mesh), cliff edge lines in room 603.
 - **2026-11-03 latest (Opus 5.5, `dev` 6d71fd4 + docs, `main` = v1.7.0):** LIGHT PROXIES (docs/LIGHT_PROXY_PLAN.md) step 1 + 1b + clean-up built: outdoors the sun uses invisible shapes (hip roof houses, lathe trees from the sprite) + the game height map; v6 cards and the guessing rules are gone; Nigel's figure shadows only from his own pixels. All verified headless on the user's recordings 1803 / 2114 / 2149 / 2201 / 2230 (Lighting Off + indoor byte-identical). The user saw kulissen1.html (step 1) and played step 1 (rec 2230); NOT yet played: 1b + clean-up. Next: step 2 correction file (+ Blender meshes for one-offs, user agreed). Recording workflow: sword swings (pad bit $40) mark wrong spots, `tools/lightshots.sh` + `contactsheet.py --ratio`.
 - **2026-11-03 night, very last:** Nigel's church shadow fixed (block from the shelf's book figures, candle smear); built, headless checked, user check open.
@@ -604,6 +607,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **Deck round 10 (2026-10-11, user played full height in Gumi, save slot 1):** R4 works but moved to R2 (right trigger, the last free shoulder button; F4 unchanged). User saw garbage at the bottom while walking and a tearing look like the old wave effect. Cause found headless (detector `rigid shift of band vs picture`, 17 of 1000 frames in a Gumi walk): the game flushes the VDP queue (scroll + tiles of the NEXT frame) while the display is off in the HInt band, and the renderer drew the band lines after that flush. Fix: `lk_tall_prerender` renders the remaining lines at the moment of the display-off write (patch_tall.py, vdp_ctrl.c hook). Result: 0 of 1000 / 2200 frames non-rigid at WIDE=0 and 32, work RAM identical to TALL=0 (only stack word $FFEE as before), no RTS/no-function lines. NOT yet seen by the user: ask them to walk in Gumi with R2 on (and WIDE 32/48).
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-75. **NEXT (2026-11-04):** user looks at the church in the game (Mercator); more Blender one-offs on request (castle tower / bridge / well), workflow in LIGHT_PROXY_PLAN 'Blender shapes'; cliff edge lines room 603.
 -74. **NEXT (2026-11-03, latest):** correction file DONE (LIGHT_PROXY_PLAN 'Step 2'); user plays (Mercator incl. room 635 beds, church front, shadow direction); next data entries from new sword-marker recordings; then the `mesh` op + a Blender church; cliff edge lines room 603.
 -73. **NEXT (2026-11-03, latest):** user plays the new build (water, trees, clean-up); then step 2 correction file for one-offs (room 635 flower beds, church Blender mesh); church marker 397 of rec_20261103_2256 not looked at yet.
 -72. **NEXT (2026-11-03, latest):** clean-up DONE (LIGHT_PROXY_PLAN 'Clean-up done'); step 2 = correction file `landstalker/data/light_proxies.json` (built in at build time like the Friday hints) with flat / water / remove / hip / MESH (Blender, one-offs: church first); first entries: room 635 flower beds flat, pond / river water.

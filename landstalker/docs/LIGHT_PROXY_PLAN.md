@@ -107,3 +107,14 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
 - How to add an entry: find the cells with `LANDSTALKER_LIGHTING_PROBE` (position / 16) or the `DBG=5` proxy list, add a line with a `why`, rebuild (13 s).
 - Open: `mesh` op for Blender shapes of one-offs (church), the cliff edge lines of room 603.
 
+## Blender shapes for one-offs (2026-11-04, user: 'blender')
+- Recipe `remake/recipes/proxy_church_632.py` (run: `python3 remake/tools/build_asset.py proxy_church_632`, Blender Flatpak headless, ~5 s): parts in GAME
+  coordinates (hall 240..376 x 800..928 eave 64 hip top 109; yellow house 240..326 x 928..992 eave 64 top 83; entrance gable 360..392 x 828..900 ridge 107 along x),
+  measured on the original picture of room 632 (roof flat tops and wall corners, projection U = x - y + 1184, V = (x + y) / 2 - z; overlay script of the session in /tmp).
+  Writes `landstalker/data/proxies/church_632.obj` (OUR geometry, committed) + a game-camera preview (`~/.landstalker_remake/assets/proxy_church_632/preview.png`, local).
+- Correction op `mesh [x0,y0,x1,y1] + "file"`: the rectangle's automatic shapes go, `patch_lights.py` rasterises the OBJ at BUILD time (top height per 4 unit sub
+  column, max over all faces) into a C table (`lk_lt_meshN`); at room entry it is stamped as proxy type 4 (object id 1000+). Room 632: church cells 15..24 x 50..61 (1512 sub columns);
+  the tulip garden behind it (same game object, cells 15..23 x 46..49) flat.
+- Packaging copies `data/**/*.json` and `*.obj` (AppImage / Windows zip). Lighting Off / indoor byte-identical; only frame 2100 of rec_20261103_1803 changed (church).
+- Simplified: the entrance is one gable along x (the picture shows a cross gable); refine in the recipe if the user sees it.
+
