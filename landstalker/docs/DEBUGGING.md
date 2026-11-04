@@ -1602,4 +1602,4 @@ Goal (SOUND_PLAN section 12): GPGX's `vdp_ctrl.c` decode replaced by `tools/lkvd
   middle and frames 321.. show 58 pixels of colours 45 / 46, EquippedSword $FF114E = 4 (Gaia) for save 1. `lk_sfx_scrtint` mixes them 85 % with the sword tint:
   arc brown (Off) -> green (On), md5 differs only in the swing frames.
 - Lesson: look at the whole frame (the swing is in the middle of the screen, my first crops showed the top left: user correction).
-
+- Particles on screens (2026-11-05 late): `lk_sfx_scrpix` collects the sword pixel positions (index x + lk_wide_e) while the screen renderer draws, `lk_sfx_step` with `lk_sfx_scrm = 1` spawns from them in the next frame; frames 326..338 of file_select_slot1_slash.txt show the green motes.

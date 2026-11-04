@@ -10,8 +10,9 @@ then 'etwas staerker', 'Gaia gruen', 'Partikel noch staerker' = mock-up 4 `~/Moc
  * particles live in screen space (8..18 frames), a deterministic random stream seeded by the frame number: picture only, the game state
    and the sound are untouched (option Off = bit exact).
 Option: Options > Video > Sword Effects Off / On (id 46, ~/.landstalker_swordfx, env LANDSTALKER_SWORDFX=0|1), default ON since 2026-11-05 (was Off).
-Screens (file select, user 2026-11-05: the Gaia sword of save 1 stayed brown while Nigel swings it there): lk_sfx_scrtint tints the sword colours 45 / 46
-of sprites in the screen renderer (patch_own.py lk_scr_line) with the equipped sword's effect colour (no particles there).
+Screens (file select, user 2026-11-05: the Gaia sword of save 1 stayed brown while Nigel swings it there; then 'Partikeleffekte auch im File Select'): lk_sfx_scrpix
+tints the sword colours 45 / 46 of sprites in the screen renderer (patch_own.py lk_scr_line) with the equipped sword's effect colour and spawns the same particles
+from those pixels (collected while drawing, used the next frame).
 Test aid: LANDSTALKER_SWORDFX_KIND=1..4 = draw another sword's effect (while any of the four swords is equipped).
 Map path of lk_own_row only (swings happen on the map).  Needs patch_own.py and patch_modernhud.py before it.  Idempotent.
 usage: patch_swordfx.py path/to/genrecomp"""
@@ -46,6 +47,7 @@ static void lk_sfx_put(int x, int y, uint32_t rgb, float a) {
   if (a > 1.0f) a = 1.0f;
   { uint32_t al = (uint32_t)(a * 255.0f); if ((lk_sfx_buf[y][x] >> 24) < al) lk_sfx_buf[y][x] = (al << 24) | (rgb & 0xFFFFFF); lk_sfx_line[y] = 1; }
 }
+static int lk_sfx_scrm; static int16_t lk_sfx_sax[4096], lk_sfx_say[4096]; static int lk_sfx_sna;   /* screens (file select): the frame is drawn by the screen renderer; sword pixels collected while drawing (spawn points of the next frame) */
 static void lk_sfx_step(void) {   /* once per frame (first composed line): swing state, spawn from this frame's arc pixels, move + draw the particles */
   static int16_t ax[4096], ay[4096]; int na = 0, x, y, k, w = 320 + 2 * lk_wide_e, sw = SB(0xFF114E) & 0xFF, ph = SB(0xFF542C) & 0x0F;
   long fr = platform_frame_number(); int keep;
@@ -53,9 +55,10 @@ static void lk_sfx_step(void) {   /* once per frame (first composed line): swing
   for (y = 0; y < 224; y++) if (lk_sfx_line[y]) { memset(lk_sfx_buf[y], 0, sizeof lk_sfx_buf[y]); lk_sfx_line[y] = 0; }
   { static int tk = -1; if (tk < 0) { const char *e = getenv("LANDSTALKER_SWORDFX_KIND"); tk = (e && *e) ? atoi(e) : 0; } if (tk >= 1 && tk <= 4 && sw >= 1 && sw <= 4) sw = tk; }   /* test aid: the effect of another sword (picture only) */
   lk_sfx_kind = (sw >= 1 && sw <= 4) ? sw : 0;
-  lk_sfx_act = lk_sfx_kind && ph >= 1 && ph <= 4;
+  lk_sfx_act = lk_sfx_kind && (lk_sfx_scrm ? lk_sfx_sna > 0 : (ph >= 1 && ph <= 4));
   if (!lk_sfx_kind) lk_sfx_np = 0;
-  if (lk_sfx_act) for (y = 0; y < 224 && na < 4096; y++) for (x = 0; x < w && x < LK_OSW && na < 4096; x++) { uint16 v = lk_o_spr[y][x]; if ((v & 0x200) && ((v & 0x3F) == 45 || (v & 0x3F) == 46)) { ax[na] = (int16_t)x; ay[na] = (int16_t)y; na++; } }
+  if (lk_sfx_scrm) { for (k = 0; k < lk_sfx_sna; k++) { ax[na] = lk_sfx_sax[k]; ay[na] = lk_sfx_say[k]; na++; } lk_sfx_sna = 0; }   /* screens: the sword pixels of the frame before */
+  else if (lk_sfx_act) for (y = 0; y < 224 && na < 4096; y++) for (x = 0; x < w && x < LK_OSW && na < 4096; x++) { uint16 v = lk_o_spr[y][x]; if ((v & 0x200) && ((v & 0x3F) == 45 || (v & 0x3F) == 46)) { ax[na] = (int16_t)x; ay[na] = (int16_t)y; na++; } }
   if (na) {   /* spawn (mock-up 4 rates) */
     int n = lk_sfx_kind == 1 ? lk_sfx_ri(3, 5) : lk_sfx_kind == 3 ? ((fr & 1) == 0) : lk_sfx_ri(2, 4);
     for (k = 0; k < n && lk_sfx_np < LK_SFX_N; k++) {
@@ -95,20 +98,23 @@ static inline int lk_sfx_mix(int col, uint32_t rgb, unsigned a) {   /* a = 0..25
 }
 static int lk_sfx_linebegin(int line) {   /* once per composed line: 1 = this line needs the per-pixel call (option on and a swing / particles) */
   if (!lk_sfx_get()) return 0;
-  if (lk_sfx_frame != platform_frame_number()) lk_sfx_step();
+  if (lk_sfx_frame != platform_frame_number()) { lk_sfx_scrm = 0; lk_sfx_step(); }
   return lk_sfx_act || (line >= 0 && line < 224 && lk_sfx_line[line]);
 }
-int lk_sfx_scrtint(int ci, int col) {   /* screen renderer (file select): a sprite pixel of the sword colours 45 / 46 -> the equipped sword's effect colour, like the swing arc on the map
+int lk_sfx_scrpix(int line, int x, int ci, int col) {   /* every pixel of the screen renderer: ci = palette entry of a winning sprite pixel, else -1 */   /* screen renderer (file select): a sprite pixel of the sword colours 45 / 46 -> the equipped sword's effect colour, like the swing arc on the map
      (the file select loads the slot's equipment: GameSelect_LoadSlotAndPalette $00FAF0 -> EquippedSword $FF114E and the sword palette) */
-  int sw;
+  int sw, i = x + lk_wide_e;
+  if (!lk_sfx_get()) return col;
+  if (lk_sfx_frame != platform_frame_number()) { lk_sfx_scrm = 1; lk_sfx_step(); }   /* a frame of the screen renderer: particles from the sword pixels (user 2026-11-05: 'Partikeleffekte auch im File Select') */
   { static long dbg = -2, cur = -1; static int cnt[64]; long fr = platform_frame_number();   /* test aid: LANDSTALKER_SFX_SCRDBG=frame prints the palette entries of the sprite pixels of that frame */
     if (dbg == -2) { const char *e = getenv("LANDSTALKER_SFX_SCRDBG"); dbg = e ? (strcmp(e, "all") ? atol(e) : -9) : -1; }
     if (dbg == -9) { static long lf = -1; static int n45; if (fr != lf) { if (lf >= 0 && n45) printf("sfx scr: frame %%ld %%d sword-colour pixels, sword %%d\n", lf, n45, SB(0xFF114E) & 0xFF); lf = fr; n45 = 0; } if (ci == 45 || ci == 46) n45++; }
     if (dbg >= 0) { if (fr == dbg) { cnt[ci & 63]++; cur = fr; } else if (cur >= 0) { int k; printf("sfx scr: frame %%ld sprite colours:", cur); for (k = 0; k < 64; k++) if (cnt[k]) printf(" %%d:%%d", k, cnt[k]); printf(" sword %%d\n", SB(0xFF114E) & 0xFF); cur = -1; } } }
-  if ((ci != 45 && ci != 46) || !lk_sfx_get()) return col;
-  sw = SB(0xFF114E) & 0xFF; { static int tk = -1; if (tk < 0) { const char *e = getenv("LANDSTALKER_SWORDFX_KIND"); tk = (e && *e) ? atoi(e) : 0; } if (tk >= 1 && tk <= 4 && sw >= 1 && sw <= 4) sw = tk; }
-  if (sw < 1 || sw > 4) return col;
-  return lk_sfx_mix(col, lk_sfx_tint[sw][ci - 45], 217);
+  if (ci == 45 || ci == 46) { sw = SB(0xFF114E) & 0xFF; { static int tk = -1; if (tk < 0) { const char *e = getenv("LANDSTALKER_SWORDFX_KIND"); tk = (e && *e) ? atoi(e) : 0; } if (tk >= 1 && tk <= 4 && sw >= 1 && sw <= 4) sw = tk; }
+    if (sw >= 1 && sw <= 4) { col = lk_sfx_mix(col, lk_sfx_tint[sw][ci - 45], 217);
+      if (line >= 0 && line < 224 && i >= 0 && i < LK_OSW && lk_sfx_sna < 4096) { lk_sfx_sax[lk_sfx_sna] = (int16_t)i; lk_sfx_say[lk_sfx_sna] = (int16_t)line; lk_sfx_sna++; } } }
+  if (line >= 0 && line < 224 && lk_sfx_line[line] && i >= 0 && i < LK_OSW) { uint32_t b = lk_sfx_buf[line][i]; if (b >> 24) col = lk_sfx_mix(col, b, b >> 24); }
+  return col;
 }
 static int lk_sfx_pix(int line, int i, int sp, int col) {   /* one composed map pixel: sp = the winning sprite pixel (0 when a plane / window won) */
   if (lk_sfx_act && (sp & 0x200)) { int pk = sp & 0x3F; if (pk == 45 || pk == 46) col = lk_sfx_mix(col, lk_sfx_tint[lk_sfx_kind][pk - 45], 217); }   /* 85 %% the sword colour */
@@ -127,10 +133,10 @@ rep("      lk_mh_hit = nohud ? lk_mh_pix(line, i, &col) : 0;   /* LK_MHUD v3 */\
 open(p, "w").write(s)
 print("vdp_render.c patched:", VER)
 # screen renderer hook (file select): forward declaration + the call on the winning sprite pixel
-rep("static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {", "int lk_sfx_scrtint(int ci, int col);   /* %s */\nstatic int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {" % VER)
+rep("static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {", "int lk_sfx_scrpix(int line, int x, int ci, int col);   /* %s */\nstatic int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {" % VER)
 rep("    else { cc = sel >= 0 ? lk_scr_cramw(sel) : bgcol; if (x + ex < 8 && (lk_rg[0] & 0x20)) { cc = bgcol; wi = 0; } col32 = pixel_lut[1][cc]; }\n",
     "    else { cc = sel >= 0 ? lk_scr_cramw(sel) : bgcol; if (x + ex < 8 && (lk_rg[0] & 0x20)) { cc = bgcol; wi = 0; } col32 = pixel_lut[1][cc];\n"
-    "      if (sel >= 0 && wi == &spi[x + 48]) col32 = (uint32_t)lk_sfx_scrtint(sel & 0x3F, (int)col32); }   /* %s: sword colours on screens (file select) */\n" % VER)
+    "      col32 = (uint32_t)lk_sfx_scrpix(line, x, (sel >= 0 && sel < 0x1000000 && wi == &spi[x + 48]) ? (sel & 0x3F) : -1, (int)col32); }   /* %s: sword colours + particles on screens (file select) */\n" % VER)
 open(p, "w").write(s)
 print("vdp_render.c patched: screen sword tint")
 

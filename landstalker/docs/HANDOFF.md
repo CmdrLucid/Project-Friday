@@ -29,6 +29,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a201. 2026-10-30 (late, Deck, Opus 5.5): SPRINT ANIMATION built (`tools/patch_sprintanim.py`, LK_SPRINTANIM v1; SPRINT_IDEAS last entry): variant G applied at runtime to Nigel's walk frames while sprinting. Headless-checked (front view); user check open, especially the back view (walking up).
 
+## 0a275. 2026-11-05 late (Deck, Opus 5.5): user: particles in the file select swing too -> `lk_sfx_scrpix` (screen renderer collects the sword pixels, the same particle step spawns from them the next frame). NEXT -86.
+
 ## 0a274. 2026-11-05 evening (Deck, Opus 5.5): user: sword effects default ON + the file select swing showed the Gaia sword brown -> default On, screen renderer tints the sword colours 45 / 46 (`lk_sfx_scrtint`); new replay `docs/replays/file_select_slot1_slash.txt` (the swing happens after the chosen box moved to the middle; my first crops looked at the top left = wrong place, user). NEXT -85.
 
 ## 0a273. 2026-11-05 (Deck, Opus 5.5): user: look for hard light edges as bugs in general -> memory `feedback-light-hard-edges` + `tools/lightedges.py`; it found torch boxes in room 87 (pillar rule: same flag, walls beside allowed); indoor torches as 2-point area lights (soft step shadows, +1 ms). NEXT -85.
