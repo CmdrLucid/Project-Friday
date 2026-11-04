@@ -5,7 +5,7 @@ committed) and a preview with the game camera to the recipe's R_OUT folder (loca
 Part = (name, x0, y0, x1, y1, z0, eave, ridge, roof, axis):  roof 'hip' = walls up to eave, 45 deg slopes up to a flat top at ridge ('hip:N': the top starts N units in, steeper);
 'gable' = a ridge along axis 'x' or 'y'; 'flat' (or ridge <= eave) = a plain box. The game reads the OBJ as a height field (top per 4 unit column).
 A part can also be a dict {'name', 'poly': [(x, y), ...] (convex, counter-clockwise on screen does not matter), 'z0', 'z1'} = a prism with a flat top,
-e.g. cylinder(...) for round towers."""
+e.g. cylinder(...) for round towers; with a 'top' poly (same length) the top face differs from the bottom: lathe(...) stacks such frustums (round trees)."""
 import bpy, math, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import blx
 
@@ -30,8 +30,13 @@ def cylinder(name, cx, cy, r, z0, z1, a0=0, a1=360, n=24):
     if a1 - a0 >= 360: pts = pts[:-1]
     return {"name": name, "poly": [(round(x, 2), round(y, 2)) for x, y in pts], "z0": z0, "z1": z1}
 
-def prism_mesh(poly, z0, z1):
-    n = len(poly); v = [(x, y, z0) for x, y in poly] + [(x, y, z1) for x, y in poly]
+def lathe(name, cx, cy, profile, n=24):
+    """a round solid (big tree) from a profile [(z, radius), ...] bottom to top: one frustum part per step (a radius 0 ends in a point)"""
+    ring = lambda r: [(round(cx + max(r, 0.25) * math.cos(2 * math.pi * i / n), 2), round(cy + max(r, 0.25) * math.sin(2 * math.pi * i / n), 2)) for i in range(n)]
+    return [{"name": "%s_%d" % (name, k), "poly": ring(r0), "top": ring(r1), "z0": z0, "z1": z1} for k, ((z0, r0), (z1, r1)) in enumerate(zip(profile, profile[1:]))]
+
+def prism_mesh(poly, z0, z1, top=None):
+    n = len(poly); v = [(x, y, z0) for x, y in poly] + [(x, y, z1) for x, y in (top or poly)]
     f = [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)] + [tuple(range(n - 1, -1, -1)), tuple(range(n, 2 * n))]
     return v, f
 
@@ -42,7 +47,7 @@ def build(name, parts, title, colours=None, target=(0, 0, 40), ground_z=16, px_p
     bpy.ops.wm.read_factory_settings(use_empty=True)
     verts, faces = [], []
     for part in parts:
-        if isinstance(part, dict): pname = part["name"]; v, f = prism_mesh(part["poly"], part["z0"], part["z1"])
+        if isinstance(part, dict): pname = part["name"]; v, f = prism_mesh(part["poly"], part["z0"], part["z1"], part.get("top"))
         else: pname = part[0]; v, f = part_mesh(*part[1:])
         n = len(verts)
         verts += v; faces += [tuple(n + k for k in q) for q in f]
