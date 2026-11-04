@@ -171,7 +171,11 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
 - SUN TEST AID (2026-11-04, user: 'mit dem rechten Stick den Sonnenstand aendern'): pad L5 (or R5) held + right stick (x: azimuth 2 deg / frame, y: elevation 1 deg / frame, 5..89);
   `lk_lt_sun_nudge` -> `lk_lt_step` sets the direction (`lk_lt_sunset`), drops the computed blocks (`lk_lt_free`) and redoes `lk_lt_horizon`, at most every 4th frame;
   headless `LANDSTALKER_SUN_AT="2300:180:30,..."` (frame:azimuth:elevation). The same path is the base of a day / night cycle (then spread the recompute over frames).
-- Next: the other bush block rooms of the survey (565, 362, 529, 425, 454, 515, 424, 183, ...): cells from the height map (raised walkable slab) + a look at the picture.
+- PLAN (2026-11-04, on dev b0da39d; user: 'das macht deutlich mehr Sinn und wuerde dann auch greifen, sollten wir mal Raeume modden'): find bush blocks / pines
+  AUTOMATICALLY by their GRAPHICS BLOCKS (the same tiles / blocks in every room of a tileset), not per room data and not by guessing from pixels: learn the bush
+  and pine block ids once (room 488), at room entry mark the raised cells drawn with them as `bushes` / `pines`; `data/light_proxies.json` only for exceptions
+  (big single trees). Check a few rooms against the original before trusting it. Works for modded rooms too.
+- (superseded by the plan above if it works) Next: the other bush block rooms of the survey (565, 362, 529, 425, 454, 515, 424, 183, ...): cells from the height map (raised walkable slab) + a look at the picture.
 - Packaging copies `data/**/*.json` and `*.obj` (AppImage / Windows zip). Lighting Off / indoor byte-identical; only frame 2100 of rec_20261103_1803 changed (church).
 - Refined 2026-11-04 (user: 'verfeinere die 3d Form der Kirche'): the entrance gable was 13 units too high (ridge 107 -> 94, read from the gable apex U 720 / V 538 and the
   eave corners U 688 / V 583, U 750 / V 548 of the picture) and too short at the front (x 392 -> 400 = over the column cells x 24 of the height map). It now starts at x 340 INSIDE the

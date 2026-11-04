@@ -517,6 +517,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-04 evening (Opus 5.5, `dev` pushed):** `tools/proxysurvey.py` committed; light proxy ops `bushes` / `pines` (one-step blocks = bush sprites, user) + room 488 incl. the big tree (Blender lathe); SUN TEST AID pad L5 / R5 + right stick. Verified HEADLESS only (warp shots, md5: Lighting Off and default sun byte-identical, Mercator unchanged); the user has not played it yet. Build is in ~/ProjectL/landstalker/build (the launcher uses it). Pictures `~/Mockups/wald_488_*.png`.
 - **2026-11-04 later 5 (Opus 5.5, `dev` pushed):** north gate 637 proxy (LIGHT_PROXY_PLAN 'ROOM 637'), picture `~/Mockups/nordtor.png` (Off / before / after). Not yet played by the user.
 - **2026-11-04 later 4 (Opus 5.5, `dev` pushed):** rocky arch room 636 proxy (LIGHT_PROXY_PLAN 'ROOM 636'), picture `~/Mockups/felsbogen.png` (Off / before / after). Not yet played by the user.
 - **2026-11-04 later 3 (Opus 5.5, `dev` pushed):** fountain court room 638 proxy (LIGHT_PROXY_PLAN 'ROOM 638'). Pictures for the user: `~/Mockups/brunnenhof_mauer.png` (Off / before / after). Not yet played by the user.

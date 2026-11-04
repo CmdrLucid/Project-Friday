@@ -198,3 +198,4 @@
 - L1554: Lighting v4..v6 and the sun prototype (2026-11-03 evening / night, Deck, Opus 5.5)
 - L1559: Sun v7: shadows in the roof shape (2026-11-03 late night, Deck, Opus 5.5)
 - L1568: Light proxies (2026-11-03 latest, Deck, Opus 5.5)
+- L1574: Bush blocks, big tree, sun test aid (2026-11-04 evening, Deck, Opus 5.5)
