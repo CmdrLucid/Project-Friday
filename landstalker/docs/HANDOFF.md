@@ -29,6 +29,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a201. 2026-10-30 (late, Deck, Opus 5.5): SPRINT ANIMATION built (`tools/patch_sprintanim.py`, LK_SPRINTANIM v1; SPRINT_IDEAS last entry): variant G applied at runtime to Nigel's walk frames while sprinting. Headless-checked (front view); user check open, especially the back view (walking up).
 
+## 0a271. 2026-11-05 (Deck, Opus 5.5): user checked castle interior request -> torch light box fixed (thin columns: layer B pixels pass through), castle torches ($098AAA) brighter + farther (k 1.6, reach 170); pictures `~/Mockups/schloss_fackeln_*`. NEXT -85.
+
 ## 0a270. 2026-11-04 night (Deck, Opus 5.5): user 'continue with the shapes' -> survey rerun; walkable rule (no automatic roof column over walkable ground of its base height); survey top 522 -> 24; pictures `~/Mockups/begehbar_raum*_vorher_nachher.png`. NEXT -84 unchanged (+ lathes on walkable cells).
 
 ## 0a269. 2026-11-04 night (Deck, Opus 5.5): user 'continue' -> object catalogue labelled for all six outdoor tilesets (227 blocks; class flowerbed = flat), pine height from the automatic measurement; pictures `~/Mockups/katalog_raum*_vorher_nachher.png`. NEXT -84.
@@ -633,6 +635,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **Deck round 10 (2026-10-11, user played full height in Gumi, save slot 1):** R4 works but moved to R2 (right trigger, the last free shoulder button; F4 unchanged). User saw garbage at the bottom while walking and a tearing look like the old wave effect. Cause found headless (detector `rigid shift of band vs picture`, 17 of 1000 frames in a Gumi walk): the game flushes the VDP queue (scroll + tiles of the NEXT frame) while the display is off in the HInt band, and the renderer drew the band lines after that flush. Fix: `lk_tall_prerender` renders the remaining lines at the moment of the display-off write (patch_tall.py, vdp_ctrl.c hook). Result: 0 of 1000 / 2200 frames non-rigid at WIDE=0 and 32, work RAM identical to TALL=0 (only stack word $FFEE as before), no RTS/no-function lines. NOT yet seen by the user: ask them to walk in Gumi with R2 on (and WIDE 32/48).
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-85. **NEXT (2026-11-05, latest):** user plays the castle with Lighting On (torches without the box, brighter: enough? too much?); outdoor checks of -84 still open.
 -84. **NEXT (2026-11-04 night, latest):** user plays outdoor rooms with Lighting On (routes after Destel 488 / 490, Gumi forests 425, crossing 454, Mercator 630) + tries the sun test aid (L5 + right stick); then more catalogue classes on request (rope fences, posts, big single trees) or Mercator Blender one-offs.
 -83. **NEXT (2026-11-04 night, latest):** label the other outdoor tilesets (0, 7, 12, 13, 14) in `data/object_blocks.json` with `tools/blockcat.py sheet` (bush / pine; then fences, posts, single trees on request); user plays route rooms (488, 490, 525, 529) with Lighting On + tries the sun test aid (L5 + right stick).
 -82. **NEXT (2026-11-04 evening, latest):** user tries the sun test aid (L5 + right stick, outdoors, Lighting On) at small objects (bushes, pines, room 488) and says which sun looks good; then `bushes` / `pines` for the other survey rooms (565, 362, 529, 425, 454, 515, 424, 183).

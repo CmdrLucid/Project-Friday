@@ -118,7 +118,7 @@ void lk_lt_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; 
 #define LK_LT_RAD 120.0f   /* v2: was 90, the floor under high wall torches stayed dark (room 177) */
 typedef struct { int16_t z[1024]; uint8 face[1024]; uint8 nl, li[LK_LT_NL]; uint8 term[LK_LT_NL][1024]; uint8 sun[1024]; } lk_lt_blk;
 static lk_lt_blk *lk_lt_b[LK_LT_BH][LK_LT_BW];
-typedef struct { float x, y, z; float r, g, b; int lava; } lk_lt_light;
+typedef struct { float x, y, z; float r, g, b; int lava; uint32_t base; float k, rad; } lk_lt_light;   /* k: strength, rad: reach (LK_LT_RAD; castle torches more, user 2026-11-04) */   /* base: the AnimatedTilesetData entry of the flame (kind of torch) */
 static lk_lt_light lk_lt_l[LK_LT_ML]; static int lk_lt_nl, lk_lt_room = -2, lk_lt_zmax; static uint32_t lk_lt_hash; static long lk_lt_frame = -1;
 static int16_t lk_lt_top[74][74];
 static int16_t lk_lt_gh[74][74];   /* v6: the game's heights (lk_lt_top = ours: outdoor objects raised to their drawn height for the view ray); the sun's shadow march uses these + lk_lt_fh */
@@ -192,11 +192,14 @@ static int lk_lt_rayf(int U, int V, int *zo) {   /* v7: outdoors with objects: t
   if (cf) { *zo = cz; return cf; }
   return 0;
 }
+static int16_t lk_lt_thin[74][74];   /* indoors: a THIN free standing column (pillar / post: <= 4 blocked cells of one height, higher than all neighbours) -> the floor around it, else -32768;
+     layer B pixels (walls / floors behind it) pass through it, only its own layer A pixels sit on it (user 2026-11-04: the torches stood in a lit box = the pillar's collision column) */
 static int lk_lt_ray(int U, int V, int *zo) {   /* geometry of one picture pixel: 0 none, 1 floor, 2 face +x, 3 face +y; *zo = z of the hit */
   int D = U - 1184, z, pcx = -999, pcy = -999, ptop = -32768, pin = 0, cf = 0, cz = 0;
   if (lk_lt_sun && lk_lt_fhmax > -32768) return lk_lt_rayf(U, V, zo);   /* v7 */
   for (z = lk_lt_zmax; z >= -16; z--) {
     int cx = lk_lt_fdiv(2 * V + 2 * z + D, 32), cy = lk_lt_fdiv(2 * V + 2 * z - D, 32), top = lk_lt_cell(cx, cy), in = top > -32768;
+    if (in && !lk_lt_rayA && !lk_lt_sun && cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_thin[cy][cx] > -32768) top = lk_lt_thin[cy][cx];
     if (in && !lk_lt_rob && lk_lt_obj[cy][cx]) lk_lt_rob = lk_lt_obj[cy][cx];
     if (cf && in && z > top && !lk_lt_dent(cx, cy, cf)) cf = 0;   /* v3: back on room cells after a void gap (beside a corridor that sticks out of the room, church room 700): the gap was no wall; v4: at any distance (a pit in front of the walkway of room 5 = void, was a high wall), unless those cells are a narrow door niche in the wall (room 5) */
     if (z <= top) { *zo = z; return (cx == pcx && cy == pcy) || pcx == -999 || z == top ? 1 : lk_lt_side(cx, cy, pcx, pcy, z); }
@@ -210,9 +213,10 @@ static void lk_lt_pos(int U, int V, int z, float *x, float *y) { int D = U - 118
 static int lk_lt_solid(float x, float y, float z) { return z < (float)lk_lt_cell((int)floorf(x / 16.0f), (int)floorf(y / 16.0f)) - 0.5f; }
 static float lk_lt_term(float px, float py, float pz, float nx, float ny, float nz, const lk_lt_light *L, int shadow) {
   float vx = L->x - px, vy = L->y - py, vz = L->z - pz, d = sqrtf(vx * vx + vy * vy + vz * vz), ndl, att, t;
-  if (d >= LK_LT_RAD || d < 0.001f) return d < 0.001f ? 1.0f : 0.0f;
+  float rad = L->rad > 0.0f ? L->rad : LK_LT_RAD, kk = L->k > 0.0f ? L->k : 1.0f;
+  if (d >= rad || d < 0.001f) return d < 0.001f ? kk : 0.0f;
   ndl = (nx * vx + ny * vy + nz * vz) / d; if (ndl < 0) ndl = 0;
-  att = 1.0f - d / LK_LT_RAD; att *= att;
+  att = kk * (1.0f - d / rad) * (1.0f - d / rad);
   if (shadow) {   /* v3: march from 3 units in front of the surface (a wall pixel lies on the cell border: the march along the wall hit the wall itself = box-shaped shadows, user: church wall by the books) */
     float sx = px + nx * 3.0f, sy = py + ny * 3.0f, sz = pz + nz * 3.0f, wx = L->x - sx, wy = L->y - sy, wz = L->z - sz, e = sqrtf(wx * wx + wy * wy + wz * wz);
     for (t = 2.0f; t < e - 3.0f; t += 2.0f) if (lk_lt_solid(sx + wx * t / e, sy + wy * t / e, sz + wz * t / e)) return 0.0f;
@@ -616,6 +620,19 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
   lk_lt_free(); lk_lt_nl = 0; lk_lt_zmax = 0;
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x); lk_lt_top[y][x] = (int16_t)(w == 0x4000 ? -32768 : 16 * ((w >> 8) & 15)); if (w != 0x4000 && lk_lt_top[y][x] > lk_lt_zmax) lk_lt_zmax = lk_lt_top[y][x]; }
   memcpy(lk_lt_gh, lk_lt_top, sizeof lk_lt_gh); lk_lt_fhmax = -32768; lk_lt_nc = 0; memset(lk_lt_obj, 0, sizeof lk_lt_obj);
+  { static uint8 done[74][74]; static int16_t st[16][2]; memset(done, 0, sizeof done);   /* thin columns (lk_lt_thin) */
+    for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) lk_lt_thin[y][x] = -32768;
+    for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x), h = lk_lt_top[y][x], n = 0, m, ok = 1, gnd = -32768;
+      if (done[y][x] || w == 0x4000 || !((w >> 8) & 0x60) || h <= 0) continue;
+      st[n][0] = (int16_t)x; st[n][1] = (int16_t)y; n++; done[y][x] = 1;
+      for (m = 0; m < n && ok; m++) { int d, cx = st[m][0], cy = st[m][1]; static const int dd[4][2] = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
+        for (d = 0; d < 4; d++) { int nx = cx + dd[d][0], ny = cy + dd[d][1], t; if (nx < 0 || ny < 0 || nx >= 74 || ny >= 74) { ok = 0; break; }
+          t = lk_lt_top[ny][nx];
+          if (t == h && !done[ny][nx]) { int w2 = UW(0xFFD192 + 148 * ny + 2 * nx); if (!((w2 >> 8) & 0x60) || n >= 4) { ok = 0; break; } done[ny][nx] = 1; st[n][0] = (int16_t)nx; st[n][1] = (int16_t)ny; n++; continue; }
+          if (t == h) continue;
+          if (t == -32768 || t > h - 16) { ok = 0; break; }   /* next to void or a higher / equal block: part of a wall, not free standing */
+          if (t > gnd) gnd = t; } }
+      if (ok && gnd > -32768) for (m = 0; m < n; m++) lk_lt_thin[st[m][1]][st[m][0]] = (int16_t)gnd; } }
   lk_lt_sun = lk_lt_sunp() && lk_lt_isout(lk_o_room);   /* v5 */
   memset(lk_lt_wat, 0, sizeof lk_lt_wat);
   if (lk_lt_sun) { int pass, ch = 1, nw = 0;   /* proxies: WATER = a void cell whose picture is painted (river, pond): a floor 8 below its lowest neighbour (user: 'Nigels Schatten biegt sich am Fluss auf als waere das eine Wand');
@@ -655,7 +672,7 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
         { int U = su / n, V = sv / n, z = 0, f = lk_lt_ray(U, V, &z); float px, py; lk_lt_light *L = &lk_lt_l[lk_lt_nl];
           if (!f) continue;
           lk_lt_pos(U, V, z, &px, &py);
-          L->x = px; L->y = py; L->z = (float)z + 10.0f; L->r = cr; L->g = cg; L->b = cb; L->lava = 1; lk_lt_nl++; }
+          L->x = px; L->y = py; L->z = (float)z + 10.0f; L->r = cr; L->g = cg; L->b = cb; L->lava = 1; L->base = lk_o_grp[k].base; L->k = 1.0f; L->rad = LK_LT_RAD; lk_lt_nl++; }
       }
       #undef LK_LT_IN
       continue;
@@ -672,11 +689,13 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
       { int U = su / n, V = sv / n, z = 0, f = lk_lt_ray(U, V, &z); float px, py; lk_lt_light *L = &lk_lt_l[lk_lt_nl];
         if (!f) continue;
         lk_lt_pos(U, V, z, &px, &py);
-        L->x = px + (f == 2 ? 6.0f : 0.0f); L->y = py + (f == 3 ? 6.0f : 0.0f); L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; L->lava = 0; lk_lt_nl++; }
+        L->x = px + (f == 2 ? 6.0f : 0.0f); L->y = py + (f == 3 ? 6.0f : 0.0f); L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; L->lava = 0; L->base = lk_o_grp[k].base;
+        L->k = 1.0f; L->rad = LK_LT_RAD; if (L->base == 0x098AAA) { L->k = 1.6f; L->rad = 170.0f; }   /* the standing torches of the castle (user 2026-11-04: 'im Schloss zu dunkel, koennte nur diese Art der Fackel mehr Licht abgeben?') */
+        lk_lt_nl++; }
     }
   }
   if (lk_lt_dbg == 3) { for (y = 18; y < 34; y++) { printf("hm %%2d:", y); for (x = 18; x < 44; x++) printf(" %%4d", lk_lt_top[y][x] == -32768 ? -1 : lk_lt_top[y][x]); printf("\n"); } }
-  if (lk_lt_dbg) { printf("lighting: room %%d, %%d lights\n", lk_o_room, lk_lt_nl); for (k = 0; k < lk_lt_nl; k++) printf("  light %%d at (%%.0f, %%.0f, %%.0f)\n", k, lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z); }
+  if (lk_lt_dbg) { printf("lighting: room %%d, %%d lights\n", lk_o_room, lk_lt_nl); for (k = 0; k < lk_lt_nl; k++) printf("  light %%d at (%%.0f, %%.0f, %%.0f) flame $%%06X%%s\n", k, lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z, (unsigned)lk_lt_l[k].base, lk_lt_solid(lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z) ? " INSIDE A SOLID" : ""); }
 }
 static int lk_lt_swtest(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LIGHTING_SWORD"); v = e ? atoi(e) : 0; if (v < 0 || v > 4) v = 0; } return v; }   /* test aid: sword glow colour 1..4 without that sword */
 static void lk_lt_step(void) {   /* once per frame: room / height map change, flicker, figures */
