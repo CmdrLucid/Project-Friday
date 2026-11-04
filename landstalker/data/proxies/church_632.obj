@@ -1,0 +1,65 @@
+# light proxy: Mercator church complex, room 632 (remake/recipes/proxy_church_632.py). GAME coordinates x east, y south, z up, world units.
+# our own geometry measured on the original picture; read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh').
+v 240 800 16
+v 376 800 16
+v 376 928 16
+v 240 928 16
+v 240 800 64
+v 376 800 64
+v 376 928 64
+v 240 928 64
+v 285 845 109
+v 331 845 109
+v 331 883 109
+v 285 883 109
+v 240 928 16
+v 326 928 16
+v 326 992 16
+v 240 992 16
+v 240 928 64
+v 326 928 64
+v 326 992 64
+v 240 992 64
+v 259 947 83
+v 307 947 83
+v 307 973 83
+v 259 973 83
+v 340 833 16
+v 400 833 16
+v 400 895 16
+v 340 895 16
+v 340 833 64
+v 400 833 64
+v 400 895 64
+v 340 895 64
+v 340 864 94
+v 400 864 94
+f 1 2 6 5
+f 2 3 7 6
+f 3 4 8 7
+f 4 1 5 8
+f 1 4 3 2
+f 5 6 10 9
+f 6 7 11 10
+f 7 8 12 11
+f 8 5 9 12
+f 9 10 11 12
+f 13 14 18 17
+f 14 15 19 18
+f 15 16 20 19
+f 16 13 17 20
+f 13 16 15 14
+f 17 18 22 21
+f 18 19 23 22
+f 19 20 24 23
+f 20 17 21 24
+f 21 22 23 24
+f 25 26 30 29
+f 26 27 31 30
+f 27 28 32 31
+f 28 25 29 32
+f 25 28 27 26
+f 29 30 34 33
+f 31 32 33 34
+f 29 33 32
+f 30 31 34

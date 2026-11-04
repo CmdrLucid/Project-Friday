@@ -1,0 +1,167 @@
+{
+  "_about": [
+    "Corrections for the LIGHT PROXIES (docs/LIGHT_PROXY_PLAN.md): our own data, room ids and map coordinates only, nothing from the ROM.",
+    "Read by tools/patch_lights.py at build time (compiled into the game). Coordinates: map cells (16 world units each, as in the game's height map), rectangles inclusive.",
+    "Heights in world units (ground is usually 16, one height step = 16). Find cells / proposals: LANDSTALKER_LIGHTING_DBG=5 prints 'proxy: room R #n ...', =7 shows the proxies,",
+    "LANDSTALKER_LIGHTING_PROBE=x0,line,x1,frame prints the world position of picture pixels (cell = position / 16).",
+    "ops: flat [x0,y0,x1,y1]      - nothing in these cells casts or carries a shape (flower beds, signs); the game's box stays",
+    "     water [x0,y0,x1,y1,h]   - these cells are a water floor at height h (river / pond the automatic rule missed)",
+    "     remove [x0,y0,x1,y1]    - drop the automatic shapes whose centre lies in these cells",
+    "     hip [x0,y0,x1,y1,z0,eave,ridge] - an own building shape: walls from z0 to eave, hip roof up to ridge",
+    "     mesh [x0,y0,x1,y1] + \"file\" - a Blender shape (data/proxies/<file>.obj, game coordinates; recipe in remake/recipes/proxy_*.py) replaces the automatic shapes in these cells",
+    "     bushes [x0,y0,x1,y1] (+ \"h\", \"r\", \"base\") - a BUSH block (the one step \"forest\" blocks are bush sprites): one round bush per RAISED cell (game height >= base + 8), the raised block itself casts nothing; bush top = the cell's game height (or base + h), radius r (default 6, max 8), base = most common height around the rectangle (or \"base\")",
+    "     pines [x0,y0,x1,y1] (+ \"h\", \"r\", \"base\") - the same with a cone per cell (pine rows), trunk 4 high"
+  ],
+  "rooms": {
+    "31": [
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          14,
+          62,
+          34
+        ],
+        "file": "proxies/castle_31.obj",
+        "why": "Mercator castle facade (height map has the castle only as blocked height 0 cells: no facade, a hip up to 204 on the stairs); centre tower, stairs, two pine planters; remake/recipes/proxy_castle_31.py, user 2026-11-04 'weiter mit den naechsten Formen'"
+      }
+    ],
+    "488": [
+      {
+        "op": "remove",
+        "cells": [
+          32,
+          39,
+          32,
+          39
+        ],
+        "why": "Automatic hip #2 (x 416..608, up to 218) over the forest + pines of object 2"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          38,
+          38,
+          43
+        ],
+        "file": "proxies/tree_488.obj",
+        "why": "The big tree in front of the forest (automatic box up to 271, drawn tip ~212); remake/recipes/proxy_tree_488.py"
+      }
+    ],
+    "632": [
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          50,
+          24,
+          61
+        ],
+        "file": "proxies/church_632.obj",
+        "why": "Mercator church complex (hall with hip roof, yellow house, entrance gable); remake/recipes/proxy_church_632.py, user 2026-11-04 'blender'"
+      },
+      {
+        "op": "flat",
+        "cells": [
+          15,
+          46,
+          23,
+          49
+        ],
+        "why": "tulip garden behind the church (same object as the church): the drawn tulips are no roof"
+      }
+    ],
+    "635": [
+      {
+        "op": "flat",
+        "cells": [
+          43,
+          26,
+          46,
+          39
+        ],
+        "why": "long flower bed east of the houses: the drawn tulips became a hip roof that shaded Nigel (rec_20261103_2201 marker 2805)"
+      },
+      {
+        "op": "flat",
+        "cells": [
+          43,
+          47,
+          46,
+          60
+        ],
+        "why": "the second long flower bed (same as above)"
+      }
+    ],
+    "636": [
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          10,
+          16,
+          62
+        ],
+        "file": "proxies/arch_636.obj",
+        "why": "Mercator rocky arch room: city wall (height map 3) + three round half towers (became small cones up to 62 / 76) + the terraced grass mound over the river; remake/recipes/proxy_arch_636.py, user 2026-11-04 'mach direkt weiter'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          18,
+          38,
+          25,
+          40
+        ],
+        "why": "the mound's tree clumps as automatic hips (the mesh above has the terraces and the pine crowns)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          24,
+          41,
+          25,
+          42
+        ],
+        "why": "automatic hip up to 142 on the WALKABLE terrace of the mound (cells 24..25 x 41..42)"
+      }
+    ],
+    "637": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          12,
+          15,
+          46
+        ],
+        "file": "proxies/gate_637.obj",
+        "why": "Mercator north gate: gate wall + gatehouse, two round half towers and the high wall behind them were flat (height map column 15 only); remake/recipes/proxy_gate_637.py, user 2026-11-04 'mach direkt weiter'"
+      }
+    ],
+    "638": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          12,
+          20,
+          59
+        ],
+        "file": "proxies/wall_638.obj",
+        "why": "Mercator fountain court: city wall (height map: blocked height 0) with three round half towers (single height 9 cells) and the north wall; the automatic strip in front of the wall had a hip up to 247; remake/recipes/proxy_wall_638.py, user 2026-11-04 'weiter damit'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          24,
+          18,
+          28,
+          21
+        ],
+        "why": "pine group at the north wall: the automatic hip went up to 222 (wall behind counted); the mesh above has the pines (tops 96)"
+      }
+    ]
+  }
+}

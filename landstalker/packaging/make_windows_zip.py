@@ -61,6 +61,10 @@ def main():
     copy(os.path.join(ROOT, "docs", "symbols.json"), os.path.join(pkg, "docs", "symbols.json"))
     copy(os.path.join(ROOT, "docs", "ENTITIES.md"), os.path.join(pkg, "docs", "ENTITIES.md"))   # read by tools/patch_shadow.py (entity names -> figure table); missing = the first start fails (found by the AppImage first-run test 2026-10-25)
     copy(os.path.join(ROOT, "docs", "ROOMS.md"), os.path.join(pkg, "docs", "ROOMS.md"))   # read by tools/roommap.py (room names -> map areas)
+    for dp, dn, fn in sorted(os.walk(os.path.join(ROOT, "data"))):   # our own data read at build time (light proxy corrections + Blender shapes, tools/patch_lights.py)
+        for f in sorted(fn):
+            if f.endswith((".json", ".obj")):
+                rel = os.path.relpath(os.path.join(dp, f), ROOT); copy(os.path.join(ROOT, rel), os.path.join(pkg, rel))
     for f in sorted(os.listdir(os.path.join(ROOT, "lang"))):   # translations (our own text, tools/langbuild.py builds them on the player's machine)
         if f.endswith(".json"):
             copy(os.path.join(ROOT, "lang", f), os.path.join(pkg, "lang", f))
