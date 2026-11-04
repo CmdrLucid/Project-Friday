@@ -18,7 +18,10 @@ The own map renderer recolours only the BOOT pixels instead:
    7 Healing green, 8 Spike dark violet; none ($3C) = the original brown.  The current brightness of the pixel (palette fades,
    flash bands) is kept: boot colour x (current colour / the default colour of that entry, DefaultPlayerPal $00901C).
  * applied before Lighting, so flames / sun shade the new colour like the rest of Nigel.
-Picture only, the game state is untouched (option Off = bit exact).  Not on screens drawn by the screen renderer (file select).
+Picture only, the game state is untouched (option Off = bit exact).  v2 (user: 'im File Select sollen die bei eingeschalteter Option auch
+sichtbar sein'): on screens drawn by the screen renderer (file select) Nigel's pose is found by its tiles in VRAM (palette line 2 sprites,
+lowest tile = start; hash + compare against every pose of sprite graphic 0) and gets the same mask; lk_bc_sflag marks the boot pixels
+while the sprites of a line are collected.
 Option: Options > Graphics > Boot Colors Off / On (id 48, ~/.landstalker_bootcol, env LANDSTALKER_BOOTCOL=0|1), default Off.
 Test aid: LANDSTALKER_BOOTCOL_KIND=5..8 = show those boots whatever is equipped (option on); LANDSTALKER_BOOTCOL_DBG=1 prints the boot pixel
 count of every pose when its mask is built.
@@ -28,7 +31,7 @@ import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import bootcol_check   # SEEDS / CUT: the hand fixes, one source for the C table and the Python reference
 root = sys.argv[1]
-VER = "LK_BOOTCOL v1"
+VER = "LK_BOOTCOL v2"
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
 if VER in s:
@@ -109,24 +112,73 @@ static const uint64_t *lk_bc_mask(const lk_o_ent_t *e) {
   return c->any ? c->m : 0;
 }
 static PIXEL_OUT_T lk_bc_md(int c) { return pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; }
-static const uint16 lk_bc_col[4][4] = {           /* entries 8 / 3 / 4 / 5 (highlight, light, mid, dark) per boots 5..8, MD colour words */
-  { 0x0ECC, 0x0E88, 0x0A44, 0x0622 },             /* 5 Fireproof: blue-violet like its icon */
-  { 0x0EEE, 0x0AAA, 0x0886, 0x0444 },             /* 6 Iron: steel grey */
-  { 0x0AEA, 0x04C4, 0x0282, 0x0040 },             /* 7 Healing: green */
-  { 0x0A8A, 0x0646, 0x0424, 0x0202 } };           /* 8 Spike: dark violet */
-static int lk_bc_linebegin(void) { lk_bc_kind = lk_bc_curkind(); return lk_bc_kind != 0; }
-static PIXEL_OUT_T lk_bc_pix(int sl, int si, int sp, PIXEL_OUT_T col) {   /* one composed map pixel won by a sprite pixel */
+@COLTABLE@static int lk_bc_linebegin(void) { lk_bc_kind = lk_bc_curkind(); return lk_bc_kind != 0; }
+static PIXEL_OUT_T lk_bc_tint(int pk, PIXEL_OUT_T col) {   /* palette entry pk (line 2 browns 40 / 35 / 36 / 37) -> the boots' colour at the pixel's current brightness */
   static const int ent[4] = { 8, 3, 4, 5 }; int k, ch; uint32_t b, o, r = (uint32_t)col & 0xFF000000u; unsigned sb = 0, sc = 0;
-  if (sl < 0 || sl >= 224 || si < 0 || si >= LK_OSW || lk_bc_st[sl][si] != lk_bc_stamp || lk_bc_kind < 5 || lk_bc_kind > 8) return col;
-  switch (sp & 0x3F) { case 40: k = 0; break; case 35: k = 1; break; case 36: k = 2; break; case 37: k = 3; break; default: return col; }
+  if (lk_bc_kind < 5 || lk_bc_kind > 8) return col;
+  switch (pk & 0x3F) { case 40: k = 0; break; case 35: k = 1; break; case 36: k = 2; break; case 37: k = 3; break; default: return col; }
   b = (uint32_t)lk_bc_md(OW(0x901C + 2 * ent[k])); o = (uint32_t)lk_bc_md(lk_bc_col[lk_bc_kind - 5][k]);   /* DefaultPlayerPal entry / the boots' colour */
   for (ch = 0; ch < 24; ch += 8) { sb += (b >> ch) & 255; sc += ((uint32_t)col >> ch) & 255; }
   if (!sb) return col;
   for (ch = 0; ch < 24; ch += 8) { unsigned v = (((o >> ch) & 255) * sc + sb / 2) / sb; r |= (uint32_t)(v > 255 ? 255 : v) << ch; }   /* keep the current brightness (fades, flash bands) */
   return (PIXEL_OUT_T)r;
 }
+static PIXEL_OUT_T lk_bc_pix(int sl, int si, int sp, PIXEL_OUT_T col) {   /* one composed map pixel won by a sprite pixel */
+  if (sl < 0 || sl >= 224 || si < 0 || si >= LK_OSW || lk_bc_st[sl][si] != lk_bc_stamp) return col;
+  return lk_bc_tint(sp, col);
+}
+static int lk_bc_pose(int anim, int frm, lk_o_ent_t *e, uint8 *tiles) {   /* one of Nigel's poses straight from the ROM (like lk_o_entload, no entity): returns the tile count */
+  uint32_t base = OL(0x120000), ap = OL(base + (uint32_t)OW(0x120004) * 4 + (uint32_t)anim), pos = OL(ap + (uint32_t)frm); int tl = 0, guard, n = 0, k;
+  e->sgi = 0; e->anim = anim; e->frm = frm; e->np = 0; e->tiles = tiles; e->vis = 1;
+  if (pos >= 0x200000u) return 0;
+  for (;;) { int b1 = OB(pos), b2 = OB(pos + 1), yy = (b1 << 1) & 0xF8, xx = (b2 << 1) & 0xF8; pos += 2; if (yy > 127) yy -= 256; if (xx > 127) xx -= 256;
+    e->pxs[e->np] = xx; e->pys[e->np] = yy; e->pws[e->np] = (b1 & 3) + 1; e->phs[e->np] = (b2 & 3) + 1; e->np++; if ((b2 & 0x80) || e->np >= 8) break; }
+  for (guard = 0; guard < 64; guard++) { int h = OW(pos), c = h & 0x0FFF, i; pos += 2;
+    if (h & 0x8000) { for (i = 0; i < c * 2 && tl + i < 0x4000; i++) tiles[tl + i] = 0; tl += c * 2; }
+    else if (h & 0x2000) { tl += lk_o_lz77(pos, tiles + tl, 0x4000 - tl); break; }
+    else { for (i = 0; i < c * 2 && tl + i < 0x4000; i++) tiles[tl + i] = (uint8)OB(pos + (uint32_t)i); pos += (uint32_t)c * 2; tl += c * 2; }
+    if (h & 0x4000) break; }
+  for (k = 0; k < e->np; k++) n += e->pws[k] * e->phs[k];
+  return (n * 32 <= tl) ? n : 0;
+}
 
-'''.replace("@VER@", VER).replace("@SEEDTABLE@", bootcol_check.c_table())
+'''.replace("@VER@", VER).replace("@SEEDTABLE@", bootcol_check.c_table()).replace("@COLTABLE@", bootcol_check.c_colours())
+
+SCREEN = r"""/* @VER@: boots on screens drawn by the screen renderer (file select): the pose is found by its tiles in VRAM */
+typedef struct { uint8 done; uint8 n; uint32_t h; } lk_bc_ph_t;
+static lk_bc_ph_t lk_bc_ph[19 * 32];               /* per pose (animation / 4 * 32 + frame / 4): tile count + hash of its tiles */
+static const uint64_t *lk_bc_smask; static int lk_bc_sbase, lk_bc_sn; static long lk_bc_sframe = -1; static uint32_t lk_bc_slast; static const uint64_t *lk_bc_slastm; static uint8 lk_bc_sflag[416];
+static uint32_t lk_bc_hash(const uint8 *d, int n) { uint32_t h = 2166136261u; int i; for (i = 0; i < n; i++) h = (h ^ d[i]) * 16777619u; return h; }
+static void lk_bc_scrframe(int sat) {
+  long fr = platform_frame_number(); int id, cnt, mint = 0x7FF, ntl = 0, nanim, a, f, i; uint8 vt[64 * 32]; uint32_t vh;
+  if (fr == lk_bc_sframe) return;
+  lk_bc_sframe = fr; lk_bc_smask = 0; lk_bc_kind = lk_bc_curkind(); if (!lk_bc_kind) return;
+  for (id = 0, cnt = 0; cnt < 80; cnt++) {          /* Nigel's pieces = the palette line 2 sprites; his tiles start at the lowest tile number */
+    int sz = LK_VW(sat + 8 * id + 2), at = LK_VW(sat + 8 * id + 4);
+    if (((at >> 13) & 3) == 2) { if ((at & 0x7FF) < mint) mint = at & 0x7FF; ntl += (((sz >> 10) & 3) + 1) * (((sz >> 8) & 3) + 1); }
+    id = sz & 0x7F; if (!id) break;
+  }
+  if (!ntl || ntl > 64) return;
+  for (i = 0; i < ntl * 32; i++) vt[i] = (uint8)LK_VB((mint * 32 + i) & 0xFFFF);
+  vh = lk_bc_hash(vt, ntl * 32);
+  if (vh == lk_bc_slast && lk_bc_slastm) { lk_bc_smask = lk_bc_slastm; lk_bc_sbase = mint; lk_bc_sn = ntl; return; }   /* same pose as before: no search */
+  nanim = (OW(0x120008) - OW(0x120004)); if (nanim > 19) nanim = 19;
+  for (a = 0; a < nanim; a++) {                    /* frames of an animation: up to the next animation's frame list (the same order as tools/bootcol_check.py) */
+    uint32_t tb = OL(0x120000) + (uint32_t)OW(0x120004) * 4, ap = OL(tb + 4u * (uint32_t)a), nx = ap + 64; int nf, a2;
+    for (a2 = 0; a2 < nanim; a2++) { uint32_t q = OL(tb + 4u * (uint32_t)a2); if (q > ap && q < nx) nx = q; }
+    nf = (int)((nx - ap) / 4); if (nf > 32) nf = 32;
+    for (f = 0; f < nf; f++) {
+    lk_bc_ph_t *ph = &lk_bc_ph[a * 32 + f];
+    if (!ph->done) { static lk_o_ent_t pe; static uint8 pt[0x4000]; int n = lk_bc_pose(4 * a, 4 * f, &pe, pt); ph->done = 1; ph->n = (uint8)n; ph->h = n ? lk_bc_hash(pt, n * 32) : 0; }
+    if (ph->n == ntl && ph->h == vh) {
+      static lk_o_ent_t pe; static uint8 pt[0x4000];
+      if (a == 18 && f >= 5) continue;            /* animation $48 frames >= 20: not Nigel */
+      if (lk_bc_pose(4 * a, 4 * f, &pe, pt) == ntl && !memcmp(pt, vt, (size_t)ntl * 32)) { lk_bc_smask = lk_bc_slastm = lk_bc_mask(&pe); lk_bc_sbase = mint; lk_bc_sn = ntl; lk_bc_slast = vh; if (getenv("LANDSTALKER_BOOTCOL_DBG")) printf("bootcol screen: frame %ld pose anim %X frm %X tiles %d at %d\n", fr, 4 * a, 4 * f, ntl, mint); return; }
+    }
+    }
+  }
+}
+"""
 
 # 1. globals before the sprite piece drawer
 a = "static void lk_o_sprpiece(const uint8 *td, int tile0, int sx, int sy, int w, int h, int pal, int prio, int hf, int vf) {\n"
@@ -150,5 +202,14 @@ rep(a, "      if (draw) { lk_bc_cur = (offs[k] == 0 && lk_bc_curkind()) ? lk_bc_
 rep("int lk_sfx_ln = lk_sfx_linebegin(line);", "int lk_sfx_ln = lk_sfx_linebegin(line); int lk_bc_ln = lk_bc_linebegin();   /* %s */" % VER)
 a = "      if (lk_lt_ln && !black && (src == 1 || src == 2 || src == 3)) col = lk_lt_pix("
 rep(a, "      if (lk_bc_ln && !black && src == 1) col = lk_bc_pix(sl, si, sp, col);   /* %s */\n" % VER + a)
+open(p, "w").write(s)
+# 7. screens (file select): find the pose, flag its boot pixels while the sprites are collected, tint them like on the map
+rep("static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {", SCREEN.replace("@VER@", VER) + "static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {")
+a = "  for (x = -ex; x < 320 + ex; x++) { sp[x + 48] = -1; spi[x + 48].rep = 0; "
+rep(a, "  lk_bc_scrframe(sat); memset(lk_bc_sflag, 0, sizeof lk_bc_sflag);   /* " + VER + " */\n" + a)
+a = "sp[sx + 48] = lk_scr_rgb >= 0 ? (0x1000000 | lk_scr_rgb) : pal * 16 + ci;"
+rep(a, a + " if (lk_bc_smask && pal == 2 && tile >= lk_bc_sbase && tile - lk_bc_sbase < lk_bc_sn && ((lk_bc_smask[tile - lk_bc_sbase] >> ((py & 7) * 8 + (hf ? 7 - px : px))) & 1)) lk_bc_sflag[sx + 48] = 1;   /* " + VER + " */")
+a = "      col32 = (uint32_t)lk_sfx_scrpix(line, x,"
+rep(a, "      if (lk_bc_smask && sel >= 0 && sel < 0x1000000 && wi == &spi[x + 48] && lk_bc_sflag[x + 48]) col32 = (uint32_t)lk_bc_tint(sel & 0x3F, (PIXEL_OUT_T)col32);   /* " + VER + " */\n" + a)
 open(p, "w").write(s)
 print("vdp_render.c patched:", VER)

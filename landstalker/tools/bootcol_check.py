@@ -51,6 +51,12 @@ def c_table():
     return ('static const struct { uint8 anim, frm, n; int8_t cut[4][4], x[%d], y[%d]; } lk_bc_seed[] = {   /* from tools/bootcol_check.py SEEDS / CUT: n > 0 = the boot '
             'areas are the ones holding these pixels (pose space); cut = up to 4 boxes x0, y0, x1, y1 of pixels that are never boot (x0 > x1 = none) */\n' % (n, n) + '\n'.join(lines) + '\n')
 
+def c_colours():
+    """the lk_bc_col table for patch_bootcol.py (entries 8 / 3 / 4 / 5 per boots 5..8)"""
+    names = {5: 'Fireproof', 6: 'Iron', 7: 'Healing', 8: 'Spike'}
+    rows = ['  { %s }%s   /* %d %s */' % (', '.join('0x%04X' % w for w in BOOTCOL[k]), ',' if k < 8 else ' };', k, names[k]) for k in (5, 6, 7, 8)]
+    return 'static const uint16 lk_bc_col[4][4] = {   /* from tools/bootcol_check.py BOOTCOL: entries 8 / 3 / 4 / 5 (highlight, light, mid, dark), MD colour words */\n' + '\n'.join(rows) + '\n'
+
 def _rom_helpers(rom):
     import romsprite
     L = lambda a: struct.unpack('>I', rom[a:a + 4])[0]
