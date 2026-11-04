@@ -113,8 +113,20 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
   measured on the original picture of room 632 (roof flat tops and wall corners, projection U = x - y + 1184, V = (x + y) / 2 - z; overlay: `remake/tools/proxy_overlay.py`).
   Writes `landstalker/data/proxies/church_632.obj` (OUR geometry, committed) + a game-camera preview (`~/.landstalker_remake/assets/proxy_church_632/preview.png`, local).
 - Correction op `mesh [x0,y0,x1,y1] + "file"`: the rectangle's automatic shapes go, `patch_lights.py` rasterises the OBJ at BUILD time (top height per 4 unit sub
-  column, max over all faces) into a C table (`lk_lt_meshN`); at room entry it is stamped as proxy type 4 (object id 1000+). Room 632: church cells 15..24 x 50..61 (1512 sub columns);
+  column, max over all faces) into a C table (`lk_lt_meshN`); at room entry it is stamped as proxy type 4 (object id 1000+). Room 632: church cells 15..24 x 50..61 (1512 sub columns, 1536 since the refined entrance);
   the tulip garden behind it (same game object, cells 15..23 x 46..49) flat.
+- Shared code since 2026-11-04: `remake/lib/proxy.py` (`part_mesh` box / hip / 'hip:N' steep cushion / gable / flat, `build()` writes the OBJ + preview); the church
+  recipe uses it (OBJ byte-identical). Measuring: `remake/tools/rom_picture.py ROM ROOM U0 V0 W H DIR`, then `remake/tools/proxy_overlay.py DIR OBJ OUT.png SCALE GROUND_Z`
+  with the recipe's OBJ or a hand-made grid OBJ (rung planes every 8 units at a wall line read heights; a 64 unit ground grid reads x / y).
+- ROOM 31 (Mercator castle facade, 2026-11-04, user: 'weiter mit den naechsten Formen'): the height map holds the castle only as BLOCKED cells of height 0 (rows 14..28),
+  so the automatic proposal made NO facade (its wall pixels were read as ground and the right facade got dark blotches = shadows of things in front, Lighting On) and
+  merged stairs + tower + planters into one hip up to 204 (#0..#2 at cells 36..47 x 29..34). `remake/recipes/proxy_castle_31.py` -> `data/proxies/castle_31.obj`, op `mesh`
+  cells 21..62 x 14..34 (drops #0..#2, keeps the four planters of rows 40..43 and the statue): facade x 352..992 front y 464 cornice 176 roll to 192 (deep box back to y 224),
+  centre tower x 624..720 y 448..496 cornice 228 cushion top 252 (door niche = cells (41, 30), (42, 30); row 31 = free landing), stairs from the height map, the two
+  pine planters (cells 36..38 / 45..47, rows 29..32) as hips 32 -> 64. Check (warp test, `LANDSTALKER_WARP=31:42.08,31.08,0030` at 2100 from rec_20261103_1803 frame 2040):
+  blotches gone, only the figure shadows remain; Lighting Off byte-identical; church frame unchanged. Sun from +y = the facade's shadow falls behind the castle (invisible).
+- Candidates not done yet (DBG=5 survey 2026-11-04): room 638 (fountain court: city wall x 288..320 became a hip with ridge 247, the round towers are no shapes),
+  636 (rocky arch over the river), 637 (north gate).
 - Packaging copies `data/**/*.json` and `*.obj` (AppImage / Windows zip). Lighting Off / indoor byte-identical; only frame 2100 of rec_20261103_1803 changed (church).
 - Refined 2026-11-04 (user: 'verfeinere die 3d Form der Kirche'): the entrance gable was 13 units too high (ridge 107 -> 94, read from the gable apex U 720 / V 538 and the
   eave corners U 688 / V 583, U 750 / V 548 of the picture) and too short at the front (x 392 -> 400 = over the column cells x 24 of the height map). It now starts at x 340 INSIDE the
