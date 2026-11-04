@@ -225,6 +225,8 @@ python3 tools/patch_subpix.py .deps/genrecomp
 python3 tools/patch_swordfx.py .deps/genrecomp
 # Lighting: flames light the room from the height map geometry, figures cast shadows; Off by default (Options > Graphics > Lighting, LANDSTALKER_LIGHTING; tools/patch_lights.py; needs patch_own / patch_modernhud / patch_swordfx)
 python3 tools/patch_lights.py .deps/genrecomp
+# Boot colours: Nigel's boots drawn in the equipped boots' colour (only the boot pixels of his poses); Off by default (Options > Graphics > Boot Colors, LANDSTALKER_BOOTCOL; tools/patch_bootcol.py; needs patch_own / patch_swordfx / patch_lights)
+python3 tools/patch_bootcol.py .deps/genrecomp
 # Room map: binding Map (pad L4, key M) = schematic map of the current area over the paused game (data: tools/roommap.py -> build/roommap; tools/patch_roommap.py, docs/MAP.md)
 python3 tools/patch_roommap.py .deps/genrecomp
 # VDP data path step 3.0: path counters in vdp_ctrl.c (LANDSTALKER_VDPCOUNT=file; inert without it; tools/patch_vdpcount.py, docs/SOUND_PLAN.md section 12)
