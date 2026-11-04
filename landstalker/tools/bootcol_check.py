@@ -34,7 +34,7 @@ BROWN = {3, 4, 5, 8}
 BOOTCOL = {0: (0x0ACE, 0x04AE, 0x0048, 0x0024),     # entries 8 / 3 / 4 / 5 per boots; the C table lk_bc_col is generated from this
            5: (0x0CCC, 0x0A88, 0x0644, 0x0422),     # Fireproof: muted blue-violet (user 2026-11-04: step B of the muted previews, after trying C; the icon colours were too loud)
            6: (0x0EEE, 0x0AAA, 0x0886, 0x0444),     # Iron: steel grey
-           7: (0x0CEC, 0x06A6, 0x0464, 0x0242),     # Healing: muted green
+           7: (0x0AEA, 0x04C4, 0x0284, 0x0042),     # Healing: the icon's green, darker (user 2026-11-04: option 2, 'naeher an die Farbe des Icons ohne zu grell')
            8: (0x0A8A, 0x0646, 0x0424, 0x0202)}     # Spike: dark violet
 
 def _boxes(key):
