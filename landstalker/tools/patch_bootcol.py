@@ -150,33 +150,40 @@ static lk_bc_ph_t lk_bc_ph[19 * 32];               /* per pose (animation / 4 * 
 static const uint64_t *lk_bc_smask; static int lk_bc_sbase, lk_bc_sn; static long lk_bc_sframe = -1; static uint32_t lk_bc_slast; static const uint64_t *lk_bc_slastm; static uint8 lk_bc_sflag[416];
 static uint32_t lk_bc_hash(const uint8 *d, int n) { uint32_t h = 2166136261u; int i; for (i = 0; i < n; i++) h = (h ^ d[i]) * 16777619u; return h; }
 static void lk_bc_scrframe(int sat) {
-  long fr = platform_frame_number(); int id, cnt, mint = 0x7FF, ntl = 0, nanim, a, f, i; uint8 vt[64 * 32]; uint32_t vh;
+  long fr = platform_frame_number(); int id, cnt, mint = 0x7FF, ntl = 0, nanim, a, f, i; static uint8 vt[64 * 32]; uint32_t hn[65]; uint8 hv[65];
   if (fr == lk_bc_sframe) return;
   lk_bc_sframe = fr; lk_bc_smask = 0; lk_bc_kind = lk_bc_curkind(); if (!lk_bc_kind) return;
-  for (id = 0, cnt = 0; cnt < 80; cnt++) {          /* Nigel's pieces = the palette line 2 sprites; his tiles start at the lowest tile number */
-    int sz = LK_VW(sat + 8 * id + 2), at = LK_VW(sat + 8 * id + 4);
-    if (((at >> 13) & 3) == 2) { if ((at & 0x7FF) < mint) mint = at & 0x7FF; ntl += (((sz >> 10) & 3) + 1) * (((sz >> 8) & 3) + 1); }
+  for (id = 0, cnt = 0; cnt < 80; cnt++) {          /* Nigel's pieces = palette line 2 sprites; his tiles start at the lowest tile number (the table can hold stale pieces of an */
+    int sz = LK_VW(sat + 8 * id + 2), at = LK_VW(sat + 8 * id + 4);   /* earlier, bigger pose: only the start is taken from it, the pose's own tile count decides) */
+    if (((at >> 13) & 3) == 2) { if ((at & 0x7FF) < mint) mint = at & 0x7FF; ntl++; }
     id = sz & 0x7F; if (!id) break;
   }
-  if (!ntl || ntl > 64) return;
-  for (i = 0; i < ntl * 32; i++) vt[i] = (uint8)LK_VB((mint * 32 + i) & 0xFFFF);
-  vh = lk_bc_hash(vt, ntl * 32);
-  if (vh == lk_bc_slast && lk_bc_slastm) { lk_bc_smask = lk_bc_slastm; lk_bc_sbase = mint; lk_bc_sn = ntl; return; }   /* same pose as before: no search */
+  if (!ntl) return;
+  for (i = 0; i < 64 * 32; i++) vt[i] = (uint8)LK_VB((mint * 32 + i) & 0xFFFF);
+  memset(hv, 0, sizeof hv);
+  if (lk_bc_slastm && lk_bc_sn > 0 && lk_bc_sn <= 64 && lk_bc_hash(vt, lk_bc_sn * 32) == lk_bc_slast) { lk_bc_smask = lk_bc_slastm; lk_bc_sbase = mint; return; }   /* same pose as before: no search */
   nanim = (OW(0x120008) - OW(0x120004)); if (nanim > 19) nanim = 19;
   for (a = 0; a < nanim; a++) {                    /* frames of an animation: up to the next animation's frame list (the same order as tools/bootcol_check.py) */
     uint32_t tb = OL(0x120000) + (uint32_t)OW(0x120004) * 4, ap = OL(tb + 4u * (uint32_t)a), nx = ap + 64; int nf, a2;
     for (a2 = 0; a2 < nanim; a2++) { uint32_t q = OL(tb + 4u * (uint32_t)a2); if (q > ap && q < nx) nx = q; }
     nf = (int)((nx - ap) / 4); if (nf > 32) nf = 32;
     for (f = 0; f < nf; f++) {
-    lk_bc_ph_t *ph = &lk_bc_ph[a * 32 + f];
-    if (!ph->done) { static lk_o_ent_t pe; static uint8 pt[0x4000]; int n = lk_bc_pose(4 * a, 4 * f, &pe, pt); ph->done = 1; ph->n = (uint8)n; ph->h = n ? lk_bc_hash(pt, n * 32) : 0; }
-    if (ph->n == ntl && ph->h == vh) {
-      static lk_o_ent_t pe; static uint8 pt[0x4000];
+      lk_bc_ph_t *ph = &lk_bc_ph[a * 32 + f]; int n;
       if (a == 18 && f >= 5) continue;            /* animation $48 frames >= 20: not Nigel */
-      if (lk_bc_pose(4 * a, 4 * f, &pe, pt) == ntl && !memcmp(pt, vt, (size_t)ntl * 32)) { lk_bc_smask = lk_bc_slastm = lk_bc_mask(&pe); lk_bc_sbase = mint; lk_bc_sn = ntl; lk_bc_slast = vh; if (getenv("LANDSTALKER_BOOTCOL_DBG")) printf("bootcol screen: frame %ld pose anim %X frm %X tiles %d at %d\n", fr, 4 * a, 4 * f, ntl, mint); return; }
-    }
+      if (!ph->done) { static lk_o_ent_t pe; static uint8 pt[0x4000]; int m = lk_bc_pose(4 * a, 4 * f, &pe, pt); ph->done = 1; ph->n = (uint8)(m <= 64 ? m : 0); ph->h = ph->n ? lk_bc_hash(pt, ph->n * 32) : 0; }
+      n = ph->n; if (!n) continue;
+      if (!hv[n]) { hn[n] = lk_bc_hash(vt, n * 32); hv[n] = 1; }
+      if (hn[n] == ph->h) {
+        static lk_o_ent_t pe; static uint8 pt[0x4000];
+        if (lk_bc_pose(4 * a, 4 * f, &pe, pt) == n && !memcmp(pt, vt, (size_t)n * 32)) {
+          lk_bc_smask = lk_bc_slastm = lk_bc_mask(&pe); lk_bc_sbase = mint; lk_bc_sn = n; lk_bc_slast = ph->h;
+          if (getenv("LANDSTALKER_BOOTCOL_DBG")) printf("bootcol screen: frame %ld pose anim %X frm %X tiles %d at %d (%d line-2 sprites)\n", fr, 4 * a, 4 * f, n, mint, ntl);
+          return;
+        }
+      }
     }
   }
+  if (getenv("LANDSTALKER_BOOTCOL_DBG")) printf("bootcol screen: frame %ld no pose found (%d line-2 sprites from tile %d)\n", fr, ntl, mint);
 }
 """
 
