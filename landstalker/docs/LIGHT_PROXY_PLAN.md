@@ -200,6 +200,13 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
   unchanged (single pines keep their sprite lathe); Lighting Off byte-identical; church 632 frame byte-identical; north gate 637: 328 px differ (shade on the
   paving behind the big tower).
 - NEXT: more classes on request (rope fences $0BD in tileset 17, posts, single big trees), user check in play.
+- WALKABLE RULE (2026-11-04 night, user: 'continue with the shapes'): the rerun survey (`proxysurvey.py --run`, now minus the hips the catalogue drops) showed the
+  rest of the WALK cases are walkable GROUND read as an object (forest clearing 362 hip up to 80 over 108 walkable cells, Ryuma raft pier 183 terraces up to 102,
+  565 / 529 / 515 ...). Rule in `patch_lights.py`: an automatic hip (type 1 with a part) stamps no column over a walkable cell (`lk_lt_walk`: height map word not
+  `$4x` / `$2x` blocked) whose game height is <= its base z0 (Nigel would stand inside it). Houses (blocked cells) unchanged: Mercator 630 / 632 / 637 frames and
+  Lighting Off byte-identical; 183 / 362 lose the wrong dark patches (`~/Mockups/begehbar_raum*_vorher_nachher.png`). The survey no longer scores hip WALK
+  (the game leaves those columns out); top score 522 -> 24 (left: lathes on walkable cells, a few TENT, WALL0).
+- NEXT: the remaining lathes on walkable cells (447, 570, 474, 454), more catalogue classes on request (rope fences $0BD in tileset 17, posts, single big trees), user check in play.
 - (superseded by the plan above if it works) Next: the other bush block rooms of the survey (565, 362, 529, 425, 454, 515, 424, 183, ...): cells from the height map (raised walkable slab) + a look at the picture.
 - Packaging copies `data/**/*.json` and `*.obj` (AppImage / Windows zip). Lighting Off / indoor byte-identical; only frame 2100 of rec_20261103_1803 changed (church).
 - Refined 2026-11-04 (user: 'verfeinere die 3d Form der Kirche'): the entrance gable was 13 units too high (ridge 107 -> 94, read from the gable apex U 720 / V 538 and the

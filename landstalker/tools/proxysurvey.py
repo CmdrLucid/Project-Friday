@@ -3,7 +3,7 @@
 (docs/LIGHT_PROXY_PLAN.md 'Blender shapes'), so the next Blender one-offs can be picked without walking there.
 --run: headless runs of build/landstalker (batches of 16 warps, 4 in parallel) that warp through all ROOMS (default: every outdoor room of lk_lt_isout = tilesets 0 / 7 / 12 / 13 / 14 / 17)
        with LANDSTALKER_LIGHTING_DBG=5 (replay prefix of a user recording that ends in Mercator; the user's save is copied, never touched); --log: reuse such a log.
-Per room it reads the 'proxy: room R #n hip / lathe' and 'object N flat (drawn H high)' lines and the room's height map (tools/romroom.py) and scores:
+Per room it reads the 'proxy: room R #n hip / lathe' and 'object N flat (drawn H high)' lines (minus the hips the object catalogue drops) and the room's height map (tools/romroom.py) and scores:
   WALK   a hip / lathe standing over WALKABLE cells (free height map cells; for a hip only the cells of its part = height z0) more than 24 units above\n         their floor = Nigel walks inside a shape (worst kind);
   TENT   a hip whose ridge is far above its eave on a narrow box (ridge - eave > 2 x the short side): usually a wall or tower read as a roof;
   FLAT   an object left flat although it is drawn >= 60 high (walls, towers, gates without any shape);
@@ -66,9 +66,13 @@ def score(rom, log):
     hip = re.compile(r"proxy: room (\d+) #(\d+) hip x (\d+)\.\.(\d+) y (\d+)\.\.(\d+) z0 (-?\d+) eave (-?\d+) ridge (-?\d+)")
     lat = re.compile(r"proxy: room (\d+) #(\d+) lathe at (\d+),(\d+) z (-?\d+)\.\.(-?\d+) max r (\d+)")
     flt = re.compile(r"proxy: room (\d+) object (\d+) flat \(drawn (\d+) high\)")
-    seen = set()
+    seen = set(); gone = set(); cdrop = re.compile(r"catalogue: room (\d+) drops hip #(\d+)")
+    for l in open(log, errors="replace"):   # hips the object catalogue (data/object_blocks.json) drops at room entry do not count
+        m = cdrop.search(l)
+        if m: gone.add((m.group(1), m.group(2)))
     for l in open(log, errors="replace"):
         m = hip.search(l) or lat.search(l) or flt.search(l)
+        if m and m.re is hip and (m.group(1), m.group(2)) in gone: continue
         if not m: continue
         key = (m.re.pattern[:20],) + m.groups()
         if key in seen: continue
@@ -82,7 +86,8 @@ def score(rom, log):
                 # the game stamps a hip only on its PART's own cells (equal height cells of the object = height z0), not on the whole box
                 bad = [(cx, cy) for cx in range(x0 // 16, (x1 + 15) // 16) for cy in range(y0 // 16, (y1 + 15) // 16)
                        if (cx, cy) in hm and not hm[(cx, cy)][1] and 16 * hm[(cx, cy)][0] == z0 and zr - z0 > 24]
-                if bad: walk += len(bad); notes.append("WALK hip #%s x %d..%d y %d..%d ridge %d over %d walkable cells" % (g[1], x0, x1, y0, y1, zr, len(bad)))
+                # since 2026-11-04 the game itself leaves those columns out (patch_lights.py: no automatic hip over walkable cells of its base height): not counted any more
+                if bad: notes.append("(walk hip #%s: %d walkable cells left out by the game)" % (g[1], len(bad)))
                 if zr - ze > 2 * min(x1 - x0, y1 - y0): tent += 1; notes.append("TENT hip #%s x %d..%d y %d..%d eave %d ridge %d" % (g[1], x0, x1, y0, y1, ze, zr))
             elif rx is lat:
                 x, y, za, zb, r = map(int, g[2:]); c = (x // 16, y // 16)

@@ -29,6 +29,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a201. 2026-10-30 (late, Deck, Opus 5.5): SPRINT ANIMATION built (`tools/patch_sprintanim.py`, LK_SPRINTANIM v1; SPRINT_IDEAS last entry): variant G applied at runtime to Nigel's walk frames while sprinting. Headless-checked (front view); user check open, especially the back view (walking up).
 
+## 0a270. 2026-11-04 night (Deck, Opus 5.5): user 'continue with the shapes' -> survey rerun; walkable rule (no automatic roof column over walkable ground of its base height); survey top 522 -> 24; pictures `~/Mockups/begehbar_raum*_vorher_nachher.png`. NEXT -84 unchanged (+ lathes on walkable cells).
+
 ## 0a269. 2026-11-04 night (Deck, Opus 5.5): user 'continue' -> object catalogue labelled for all six outdoor tilesets (227 blocks; class flowerbed = flat), pine height from the automatic measurement; pictures `~/Mockups/katalog_raum*_vorher_nachher.png`. NEXT -84.
 
 ## 0a268. 2026-11-04 night (Deck, Opus 5.5): user: not only bushes, a general catalogue for recurring objects -> `data/object_blocks.json` + runtime recognition by the top block of each cell + `tools/blockcat.py`; tileset 17 labelled (bush / pine); 488 hand entries replaced; pictures `~/Mockups/katalog_raum*_vorher_nachher.png`. NEXT -83.

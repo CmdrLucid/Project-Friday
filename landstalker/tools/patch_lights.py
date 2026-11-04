@@ -130,6 +130,7 @@ static lk_lt_card lk_lt_c[1024]; static int lk_lt_nc;
 typedef struct { uint8 type; int16_t x0, y0, x1, y1, z0, eave, ridge, obj, part; } lk_lt_proxy;   /* LIGHT PROXY (docs/LIGHT_PROXY_PLAN.md): invisible shape for light only; type 1 hip (box to eave + hip roof to ridge), 2 cone (centre (x0, y0), radius x1, z0 .. ridge); type 5 BUSHES / PINES (data op bushes / pines: CELLS x0..x1 / y0..y1, part 0 round bush / 1 pine cone, z0 = base, eave = top above base or 0 = each cell's game height, ridge = radius): one tree per raised cell */
 static uint8 lk_lt_tk[74][74], lk_lt_tr[74][74]; static int16_t lk_lt_tb[74][74], lk_lt_tt[74][74], lk_lt_to[74][74];   /* RECURRING OBJECTS per cell (catalogue + data ops bushes / pines):
      kind 1 round bush (sphere radius tr, top tt) / 2 pine (cone base tb + 4 .. tt, radius tr) / 3 flat (flower bed: no shape, none over it), base tb, owner object lk_lt_to (= the type 5 proxy's obj); 0 = none */
+static uint8 lk_lt_walk[74][74];   /* the game's height map cell is walkable (not blocked, $4x / $2x clear): an automatic hip never stands on such a cell of its own base height (Nigel would be inside it) */
 static lk_lt_proxy lk_lt_px[255]; static int lk_lt_npx; static uint8 lk_lt_prof[255][96];   /* type 3 LATHE (centre (x0, y0), z0, height ridge - z0): radius per unit of height from the sprite's drawn width per row (like Blender's screw modifier) */ static uint8 lk_lt_fp[LK_LT_FN][LK_LT_FN];   /* proxies of the room; lk_lt_fp = proxy + 1 of every sub column (0 none) */
 
 static int16_t lk_lt_vt[LK_LT_FN][LK_LT_FN], lk_lt_vg[LK_LT_FN][LK_LT_FN], lk_lt_vm[74][74]; static int lk_lt_rayA;   /* lk_lt_vg: proxy step 1b, the same without the proxies (pixels not drawn in layer A are ground: they pass the proxies); lk_lt_rayA = the pixel is drawn in layer A */   /* v7 speed: lk_lt_fcell of every sub column; per cell the 3 x 3 max of it (32767 = void / object near: no skip) */
@@ -523,7 +524,7 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
          is block (x - h, y - h) (of all cells on that view diagonal the highest one is seen); a block of the catalogue makes the cell a recurring object (bush, pine) */
       memset(lut, 0, sizeof lut); memset(cls, 0, sizeof cls); memset(bh, -1, sizeof bh);
       for (q = 0; lk_lt_cat[q][0] >= 0; q++) if (lk_lt_cat[q][0] == ts) lut[lk_lt_cat[q][1] & 1023] = (uint8)lk_lt_cat[q][2];
-      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x), h, bx, by; if (w == 0x4000 || !w) continue;
+      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x), h, bx, by; lk_lt_walk[y][x] = (uint8)(w != 0x4000 && !((w >> 8) & 0x60)); if (w == 0x4000 || !w) continue;
         h = (w >> 8) & 15; bx = x - h; by = y - h; if (bx < 0 || by < 0) continue;
         if (h > bh[by][bx]) { bh[by][bx] = (int8_t)h; bx2[by][bx] = (uint8)x; by2[by][bx] = (uint8)y; } }
       for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (bh[y][x] >= 0) { int c = lut[UW(0xFF7C02 + 148 * y + 2 * x) & 1023], cx = bx2[y][x], cy = by2[y][x], ob = lk_lt_obj[cy][cx];
@@ -596,6 +597,7 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
       else { i0 = (P->x0 - P->x1 - 2) >> 2; i1 = (P->x0 + P->x1 + 2) >> 2; j0 = (P->y0 - P->x1 - 2) >> 2; j1 = (P->y0 + P->x1 + 2) >> 2; }
       for (j = j0 < 0 ? 0 : j0; j <= j1 && j < LK_LT_FN; j++) for (i = i0 < 0 ? 0 : i0; i <= i1 && i < LK_LT_FN; i++) { float x = 4.0f * i + 2.0f, y = 4.0f * j + 2.0f, h;
         if (P->type == 1 && P->part && (lk_lt_part[j >> 2][i >> 2] != P->part || !lk_lt_pkeep[j >> 2][i >> 2])) continue;
+        if (P->type == 1 && P->part && lk_lt_walk[j >> 2][i >> 2] && lk_lt_gh[j >> 2][i >> 2] <= P->z0) continue;   /* WALKABLE ground (clearings, paths, terraces read as an object): no solid over it (user 2026-11-04: 'weiter mit den Formen'; survey WALK) */
         if (lk_lt_flat[j >> 2][i >> 2] || lk_lt_tk[j >> 2][i >> 2]) continue;   /* data: flat; recurring objects have their own shape */   /* only the part's own cells: its box is a rectangle, the part may not be (a phantom wall cast the dark stripe in front of the church) */
         if (P->type == 1) { float w = (float)(P->x1 - P->x0), hh = (float)(P->y1 - P->y0), d = x - P->x0, half = 0.5f * (w < hh ? w : hh);
           if (P->x1 - x < d) d = P->x1 - x; if (y - P->y0 < d) d = y - P->y0; if (P->y1 - y < d) d = P->y1 - y;
