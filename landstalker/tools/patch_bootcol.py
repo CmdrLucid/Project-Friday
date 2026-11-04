@@ -9,8 +9,9 @@ The own map renderer recolours only the BOOT pixels instead:
    an area is a boot when its centre lies in the lowest 30 % of the figure (figures at least 34 px tall) and it is not a small (< 20 px)
    piece touching the scabbard highlight (entry 1) or the sword colours (13 / 14: the scabbard end hangs at boot height); the lying / falling poses
    (animations $40 / $44 / $48) and the walk pose with the raised sole ($08 / $18 frame 12) use hand picked seed pixels, the jump poses
-   ($20 / $28 frame 0, scabbard end merged into the boot shaft) a row cut (lk_bc_seed, checked with the user on 2026-11-04 on numbered
-   pose sheets: bed picture, gloves in the lying poses, raised sole rim of pose 6, scabbard end of pose 41);
+   ($20 / $28 frame 0, scabbard end merged into the boot shaft) a row cut, two swing poses ($38 / $3C frame 4: the arc in the sword
+   colours touches the boots) seeds too (lk_bc_seed, checked with the user on 2026-11-04 on numbered pose sheets: bed picture, gloves in
+   the lying poses, poses 6 / 28 raised sole rim, 41 / 45 scabbard end, 54 back boot, 58 boot cuff);
    animation $48 frames >= 20 (not Nigel) get no mask.  Masks are cached per (animation, frame), in tile space (64 bits per tile),
    so flips need nothing extra.
  * colours per boots (EquippedBoots $FF1150; from the item icons, InvItemPal $007896): 5 Fireproof blue-violet, 6 Iron steel grey,
@@ -24,6 +25,8 @@ count of every pose when its mask is built.
 Needs patch_own.py, patch_swordfx.py, patch_lights.py before it.  Idempotent.
 usage: patch_bootcol.py path/to/genrecomp"""
 import os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import bootcol_check   # SEEDS / CUT: the hand fixes, one source for the C table and the Python reference
 root = sys.argv[1]
 VER = "LK_BOOTCOL v1"
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
@@ -55,14 +58,7 @@ static int lk_bc_curkind(void) {                  /* 5..8 = boots to show, 0 = n
 MASK = r'''/* @VER@: boot mask of one of Nigel's poses */
 typedef struct { uint8 done, any; uint64_t m[64]; } lk_bc_mask_t;
 static lk_bc_mask_t lk_bc_cache[19 * 32];
-static const struct { uint8 anim, frm, n; int8_t cut, x[5], y[5]; } lk_bc_seed[] = {   /* n > 0: the boot areas are the ones holding these pixels (pose space); cut: boot pixels only from this row down (-128 = all) */
-  { 0x08, 12, 5, -128, { -1, -10, -11, -12, -10 }, { -7, -13, -8, -6, 0 } },   /* walk, raised boot seen from below: its rim sat too high for the 30 % rule */
-  { 0x18, 12, 5, -128, { -1, -10, -11, -12, -10 }, { -7, -13, -8, -6, 0 } },
-  { 0x20, 0, 0, -7, { 0 }, { 0 } }, { 0x28, 0, 0, -7, { 0 }, { 0 } },   /* jump: the scabbard end runs into the boot shaft without an outline */
-  { 0x40, 8, 2, -128, { -4, 6 }, { -5, -15 } }, { 0x44, 4, 1, -128, { -1 }, { 0 } }, { 0x44, 8, 2, -128, { -12, -1 }, { -6, -1 } }, { 0x44, 16, 2, -128, { -12, -1 }, { -6, -1 } },
-  { 0x44, 12, 2, -128, { -11, -1 }, { -6, -2 } }, { 0x48, 4, 1, -128, { -1 }, { -10 } }, { 0x48, 8, 2, -128, { -1, -10 }, { -9, -12 } }, { 0x48, 16, 2, -128, { -1, -10 }, { -9, -12 } },
-  { 0x48, 12, 2, -128, { -1, -9 }, { -10, -12 } } };
-#define LK_BC_G 128
+@SEEDTABLE@#define LK_BC_G 128
 #define LK_BC_OX 64
 #define LK_BC_OY 96
 static int lk_bc_brown(int v) { return v == 3 || v == 4 || v == 5 || v == 8; }
@@ -129,7 +125,7 @@ static PIXEL_OUT_T lk_bc_pix(int sl, int si, int sp, PIXEL_OUT_T col) {   /* one
   return (PIXEL_OUT_T)r;
 }
 
-'''.replace("@VER@", VER)
+'''.replace("@VER@", VER).replace("@SEEDTABLE@", bootcol_check.c_table())
 
 # 1. globals before the sprite piece drawer
 a = "static void lk_o_sprpiece(const uint8 *td, int tile0, int sx, int sy, int w, int h, int pal, int prio, int hf, int vf) {\n"
