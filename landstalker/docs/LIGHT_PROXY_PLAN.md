@@ -141,7 +141,13 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
   on the drawn terraces in the overlay), two pine clumps hips 48 -> 72. Corrections: `mesh` 12..16 x 10..62, `remove` 18..25 x 38..40 and 24..25 x 41..42 (the automatic
   pines at cells (23, 41) / (23, 42) / (20, 44) stay). Check: warp `636:24.08,44.08,0010` (NOT onto the mound: `636:21.08,40.08` triggers a transition to room 669);
   the blob on the river is gone; Lighting Off byte-identical.
-- Candidates not done yet (DBG=5 survey 2026-11-04): 637 (north gate).
+- ROOM 637 (Mercator north gate, 2026-11-04, user: 'mach direkt weiter'): gate wall, gatehouse, two round towers and the high wall behind were all 'flat' (height map:
+  column 15 heights 6 / 8 only; the gate wall stands behind the WALKABLE column 15 of rows 30..41). `remake/recipes/proxy_gate_637.py` -> `data/proxies/gate_637.obj`:
+  gate wall face x 240 y 480..672 top 128, gatehouse y 560..608 to 160, left half tower (x 240, centre y 702, top 199), big half tower (face x 256, centre y 476, top 222),
+  high wall face x 256 y 288..448 top 232 / 236 / 200 / 192, pine row on cells 16..20 of row 21 (hip 32 -> 96). Correction `mesh` 13..15 x 12..46 (drops nothing; the
+  pine L of object 2 keeps its automatic hip, ridge 109 fits the drawn tops). Check: warp `637:19.08,34.08,0020`: the left tower's shadow reaches the path in front of the
+  door, the big tower's falls up-right; Lighting Off byte-identical.
+- All Mercator outdoor one-offs of the 2026-11-04 survey are done (632 church, 31 castle, 638, 636, 637). Next: other towns' walls / towers on request, the cliff edge lines of room 603.
 - Packaging copies `data/**/*.json` and `*.obj` (AppImage / Windows zip). Lighting Off / indoor byte-identical; only frame 2100 of rec_20261103_1803 changed (church).
 - Refined 2026-11-04 (user: 'verfeinere die 3d Form der Kirche'): the entrance gable was 13 units too high (ridge 107 -> 94, read from the gable apex U 720 / V 538 and the
   eave corners U 688 / V 583, U 750 / V 548 of the picture) and too short at the front (x 392 -> 400 = over the column cells x 24 of the height map). It now starts at x 340 INSIDE the

@@ -29,6 +29,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a201. 2026-10-30 (late, Deck, Opus 5.5): SPRINT ANIMATION built (`tools/patch_sprintanim.py`, LK_SPRINTANIM v1; SPRINT_IDEAS last entry): variant G applied at runtime to Nigel's walk frames while sprinting. Headless-checked (front view); user check open, especially the back view (walking up).
 
+## 0a265. 2026-11-04 (Deck, Opus 5.5): user 'mach direkt weiter' -> Mercator north gate (637): gate wall, gatehouse, two half towers, high wall, pine row as Blender light proxy (`proxy_gate_637.py`); all were flat before. Mercator one-offs done. NEXT -80.
+
 ## 0a264. 2026-11-04 (Deck, Opus 5.5): user 'mach direkt weiter' -> Mercator rocky arch room (636): city wall + three half towers + the terraced mound over the river (terraces from the height map) as Blender light proxy (`proxy_arch_636.py`); a hip up to 142 on a walkable terrace removed. NEXT -79.
 
 ## 0a263. 2026-11-04 (Deck, Opus 5.5): user 'weiter damit' -> Mercator fountain court (room 638) city wall + three round half towers + north wall + pines as Blender light proxy (`proxy_wall_638.py`, new `proxy.cylinder`); automatic wall strip on the walkable bank (hip 247) and pine hip 222 removed. NEXT -78.
@@ -511,6 +513,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-04 later 5 (Opus 5.5, `dev` pushed):** north gate 637 proxy (LIGHT_PROXY_PLAN 'ROOM 637'), picture `~/Mockups/nordtor.png` (Off / before / after). Not yet played by the user.
 - **2026-11-04 later 4 (Opus 5.5, `dev` pushed):** rocky arch room 636 proxy (LIGHT_PROXY_PLAN 'ROOM 636'), picture `~/Mockups/felsbogen.png` (Off / before / after). Not yet played by the user.
 - **2026-11-04 later 3 (Opus 5.5, `dev` pushed):** fountain court room 638 proxy (LIGHT_PROXY_PLAN 'ROOM 638'). Pictures for the user: `~/Mockups/brunnenhof_mauer.png` (Off / before / after). Not yet played by the user.
 - **2026-11-04 later 2 (Opus 5.5, `dev` pushed):** castle facade room 31 proxy (LIGHT_PROXY_PLAN 'ROOM 31'), shared `remake/lib/proxy.py`. Before / after picture for the user: `~/Mockups/burg_vorher_nachher.png`. Not yet played by the user.
@@ -619,6 +622,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **Deck round 10 (2026-10-11, user played full height in Gumi, save slot 1):** R4 works but moved to R2 (right trigger, the last free shoulder button; F4 unchanged). User saw garbage at the bottom while walking and a tearing look like the old wave effect. Cause found headless (detector `rigid shift of band vs picture`, 17 of 1000 frames in a Gumi walk): the game flushes the VDP queue (scroll + tiles of the NEXT frame) while the display is off in the HInt band, and the renderer drew the band lines after that flush. Fix: `lk_tall_prerender` renders the remaining lines at the moment of the display-off write (patch_tall.py, vdp_ctrl.c hook). Result: 0 of 1000 / 2200 frames non-rigid at WIDE=0 and 32, work RAM identical to TALL=0 (only stack word $FFEE as before), no RTS/no-function lines. NOT yet seen by the user: ask them to walk in Gumi with R2 on (and WIDE 32/48).
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-80. **NEXT (2026-11-04, latest):** user plays Mercator with Lighting On: church 632, castle 31, fountain court 638, rocky arch 636, north gate 637 (pictures in ~/Mockups); then other towns' one-offs on request (same workflow, LIGHT_PROXY_PLAN 'Blender shapes'); cliff edge lines room 603.
 -79. **NEXT (2026-11-04, latest):** user looks at Mercator with Lighting On (632 church, 31 castle, 638 fountain court, 636 rocky arch); next Blender candidate 637 (north gate); cliff edge lines room 603.
 -78. **NEXT (2026-11-04, latest):** user looks at Mercator with Lighting On: church 632, castle 31, fountain court 638; next Blender candidates 636 (rocky arch over the river), 637 (north gate); cliff edge lines room 603.
 -77. **NEXT (2026-11-04, latest):** user looks at the castle (room 31) and the church (632) with Lighting On; next Blender candidates from the DBG=5 survey: room 638 (city wall + round towers, wall became a hip with ridge 247), 636 (rocky arch), 637 (north gate); cliff edge lines room 603.

@@ -102,6 +102,19 @@
         "why": "automatic hip up to 142 on the WALKABLE terrace of the mound (cells 24..25 x 41..42)"
       }
     ],
+    "637": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          12,
+          15,
+          46
+        ],
+        "file": "proxies/gate_637.obj",
+        "why": "Mercator north gate: gate wall + gatehouse, two round half towers and the high wall behind them were flat (height map column 15 only); remake/recipes/proxy_gate_637.py, user 2026-11-04 'mach direkt weiter'"
+      }
+    ],
     "638": [
       {
         "op": "mesh",
