@@ -29,7 +29,7 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a201. 2026-10-30 (late, Deck, Opus 5.5): SPRINT ANIMATION built (`tools/patch_sprintanim.py`, LK_SPRINTANIM v1; SPRINT_IDEAS last entry): variant G applied at runtime to Nigel's walk frames while sprinting. Headless-checked (front view); user check open, especially the back view (walking up).
 
-## 0a276. 2026-11-04 night (system date; the entries before it say 11-05) (Deck, Opus 5.5): user: boots should show on Nigel like sword / armour, optional under Graphics -> Boot Colors (`tools/patch_bootcol.py`, INDEX status first entry); user reviewed the boot masks on pose sheets (bed out, gloves in poses 5 / 9 out); sheath ends excluded after an in-game shot. NEXT -87.
+## 0a276. 2026-11-04 night (system date; the entries before it say 11-05) (Deck, Opus 5.5): user: boots should show on Nigel like sword / armour, optional under Graphics -> Boot Colors (`tools/patch_bootcol.py`, INDEX status first entry); user reviewed the boot masks on pose sheets (bed out, gloves in poses 5 / 9 out); sheath ends excluded after an in-game shot; then the user named poses 6 (raised sole rim stayed brown) and 41 (scabbard end merged into the boot) on the numbered sheets -> seeds / row cut (numbered sheets: pose numbers = order of first appearance in the animation table of sprite graphic 0). NEXT -87.
 
 ## 0a275. 2026-11-05 late (Deck, Opus 5.5): user: particles in the file select swing too -> `lk_sfx_scrpix` (screen renderer collects the sword pixels, the same particle step spawns from them the next frame). NEXT -86.
 
