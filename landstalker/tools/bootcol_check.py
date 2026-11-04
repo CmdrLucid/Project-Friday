@@ -27,7 +27,7 @@ SEEDS = {
 CUT = {(0x20, 0): (-128, -128, 127, -8), (0x28, 0): (-128, -128, 127, -8),   # poses 41 / 45 (jump): everything above the boot shaft
        (0x08, 12): (-2, -7, 0, -5), (0x18, 12): (-2, -7, 0, -5),             # poses 6 / 28 (walk): the scabbard end on the right boot
        (0x1C, 4): (12, -9, 14, -8),                                          # pose 34: scabbard end right of the boot top
-       (0x40, 0): (-6, -10, -5, -9)}                                         # pose 61: scabbard end on the left boot
+       (0x40, 0): (-9, -10, -4, -8)}                                         # pose 61: scabbard end on the left boot
 NOTES = {(0x08, 12): 'walk, raised sole: its rim sat too high for the 30 % rule', (0x38, 4): 'swing: the arc (sword colours) touches the boots',
          (0x3C, 4): 'swing: boot cuff above a grey strap', (0x20, 0): 'jump: the scabbard end runs into the boot shaft without an outline'}   # C comments
 BROWN = {3, 4, 5, 8}
