@@ -134,6 +134,14 @@ if __name__ == "__main__":
             for n, i, ra, bl, nr in rows: print("   $%03X  %5d  %6d  %7d  %5d" % (i, n, ra, bl, nr))
     elif cmd == "sheet":
         ts = int(a[2]); ids = [int(v, 16) for v in a[a.index("--ids") + 1].split(",")] if "--ids" in a else [i for _, i, _, _, _ in stats(rom, ts, top)[0]]
+        if "--green" in a:   # only blocks whose own opaque pixels are mostly green (bushes, pines, hedges): faster labelling
+            f = float(a[a.index("--green") + 1]); keep = []
+            for bid in ids:
+                e = example(rom, ts, bid)
+                if not e: continue
+                px = alone(rom, e[0], e[1] - e[3], e[2] - e[3], 1); op = [(px[i], px[i + 1], px[i + 2]) for i in range(0, len(px), 3) if (px[i], px[i + 1], px[i + 2]) != (90, 90, 90)]
+                if op and sum(1 for r, g, b2 in op if g > r and g >= b2) >= f * len(op) and len(op) >= 40: keep.append(bid)
+            ids = keep
         sheet(rom, ts, a[3], ids)
     elif cmd == "cells":
         room = int(a[2]); c = classify(rom, room); ab = {"bush": "B", "pine": "P", "tree": "T", "flat": "f"}

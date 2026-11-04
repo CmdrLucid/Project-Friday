@@ -191,7 +191,15 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
   Room 488: 178 bush + 50 pine cells, hips #0..#2 dropped; the hand entries `bushes` / `pines` were removed (picture within 67..219 px of the hand version); the big
   tree mesh + remove stay. Before / after (headless, rec_20261103_1803 warps): 490, 525, 529, 362 lose the dark patches over Nigel / the path (`~/Mockups/katalog_raum*_vorher_nachher.png`).
   Lighting Off and Mercator 632 / 637 byte-identical.
-- NEXT: label tilesets 0, 7, 12, 13, 14 the same way (sheets), more classes on request (fences, posts, single trees).
+- NEXT: label tilesets 0, 7, 12, 13, 14 the same way (sheets), more classes on request (fences, posts, single trees).- ALL SIX outdoor tilesets labelled (2026-11-04 night, `blockcat.py sheet TS OUT --top 120 --green 0.5`: only blocks whose own pixels are mostly green; the filter
+  keeps 24 of the 26 hand labels of tileset 17): tileset 0 (Mercator) flowerbed 12 + pine 7, 7 (Massan) pine 17 + bush 2, 12 (Gumi forests) pine 52 + bush 22,
+  13 pine 47 + bush 4, 14 pine 25 + bush 13, 17 bush 11 + pine 15 (227 blocks). New class `flowerbed` = shape `flat` (kind 3: no shape, no automatic shape over it,
+  like the per room op `flat`). Pines: top = max(cell height, base + h, ridge of the automatic hip that covered the cell) (the proposal measures the drawn
+  height; room 637's big pines reach ~109, the default h 30 was measured on small pines).
+  Before / after (headless): 425, 454, 630, 447 lose the dark patches over Nigel / the path (`~/Mockups/katalog_raum*_vorher_nachher.png`), Massan 601 nearly
+  unchanged (single pines keep their sprite lathe); Lighting Off byte-identical; church 632 frame byte-identical; north gate 637: 328 px differ (shade on the
+  paving behind the big tower).
+- NEXT: more classes on request (rope fences $0BD in tileset 17, posts, single big trees), user check in play.
 - (superseded by the plan above if it works) Next: the other bush block rooms of the survey (565, 362, 529, 425, 454, 515, 424, 183, ...): cells from the height map (raised walkable slab) + a look at the picture.
 - Packaging copies `data/**/*.json` and `*.obj` (AppImage / Windows zip). Lighting Off / indoor byte-identical; only frame 2100 of rec_20261103_1803 changed (church).
 - Refined 2026-11-04 (user: 'verfeinere die 3d Form der Kirche'): the entrance gable was 13 units too high (ridge 107 -> 94, read from the gable apex U 720 / V 538 and the
