@@ -29,6 +29,8 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a201. 2026-10-30 (late, Deck, Opus 5.5): SPRINT ANIMATION built (`tools/patch_sprintanim.py`, LK_SPRINTANIM v1; SPRINT_IDEAS last entry): variant G applied at runtime to Nigel's walk frames while sprinting. Headless-checked (front view); user check open, especially the back view (walking up).
 
+## 0a273. 2026-11-05 (Deck, Opus 5.5): user: look for hard light edges as bugs in general -> memory `feedback-light-hard-edges` + `tools/lightedges.py`; it found torch boxes in room 87 (pillar rule: same flag, walls beside allowed); indoor torches as 2-point area lights (soft step shadows, +1 ms). NEXT -85.
+
 ## 0a272. 2026-11-05 later (Deck, Opus 5.5): user screenshots of room 55 -> thin columns only under flames (void neighbour allowed), flame pillar casts no shadow, soft indoor shadow edges, soft figure shadows from torches; castle torches reach 260; pictures `~/Mockups/schloss_*`. NEXT -85 (user plays the castle).
 
 ## 0a271. 2026-11-05 (Deck, Opus 5.5): user checked castle interior request -> torch light box fixed (thin columns: layer B pixels pass through), castle torches ($098AAA) brighter + farther (k 1.5, reach 260 after 'light pool groesser'); pictures `~/Mockups/schloss_fackeln_*`. NEXT -85.

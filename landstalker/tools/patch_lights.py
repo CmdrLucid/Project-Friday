@@ -221,6 +221,19 @@ static float lk_lt_term(float px, float py, float pz, float nx, float ny, float 
   if (d >= rad || d < 0.001f) return d < 0.001f ? kk : 0.0f;
   ndl = (nx * vx + ny * vy + nz * vz) / d; if (ndl < 0) ndl = 0;
   att = kk * (1.0f - d / rad) * (1.0f - d / rad);
+  if (shadow && !lk_lt_sun) {   /* indoors the flame is a small AREA (user 2026-11-05: hard step shadows): the shadow share of 2 points 5 units apart along the screen's x (world (1, -1): softens edges along both world axes), each with the soft clearance edge
+       (4 points cost twice the time, 60..80 ms block peaks at room entry; 2 points measured 2026-11-05) */
+    static const float off[2][3] = { {3.5f, -3.5f, 1.0f}, {-3.5f, 3.5f, -1.0f} };
+    float sx = px + nx * 3.0f, sy = py + ny * 3.0f, sz = pz + nz * 3.0f, sum = 0.0f; int o;
+    for (o = 0; o < 2; o++) { float wx = L->x + off[o][0] - sx, wy = L->y + off[o][1] - sy, wz = L->z + off[o][2] - sz, e = sqrtf(wx * wx + wy * wy + wz * wz), res = 1.0f;
+      for (t = 2.0f; t < e - 3.0f; t += 2.0f) { float qx = sx + wx * t / e, qy = sy + wy * t / e, qz = sz + wz * t / e, cl, r; int cx, cy, top;
+        if (lk_lt_solid(qx, qy, qz)) { res = 0.0f; break; }
+        cx = (int)floorf(qx / 16.0f); cy = (int)floorf(qy / 16.0f); top = lk_lt_cell(cx, cy);
+        if (cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_thin[cy][cx] > -32768) top = lk_lt_thin[cy][cx];
+        if (top > -32768) { cl = qz - (float)top; r = LK_LT_IPEN * cl / t; if (r < res) res = r; } }
+      sum += res < 0.0f ? 0.0f : res; }
+    return att * (0.25f + 0.75f * ndl) * sum * 0.5f;
+  }
   if (shadow) {   /* v3: march from 3 units in front of the surface (a wall pixel lies on the cell border: the march along the wall hit the wall itself = box-shaped shadows, user: church wall by the books) */
     float sx = px + nx * 3.0f, sy = py + ny * 3.0f, sz = pz + nz * 3.0f, wx = L->x - sx, wy = L->y - sy, wz = L->z - sz, e = sqrtf(wx * wx + wy * wy + wz * wz), res = 1.0f;
     for (t = 2.0f; t < e - 3.0f; t += 2.0f) { float qx = sx + wx * t / e, qy = sy + wy * t / e, qz = sz + wz * t / e, cl, r;
@@ -635,15 +648,15 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
   { static uint8 done[74][74]; static int16_t st[16][2]; memset(done, 0, sizeof done);   /* thin columns (lk_lt_thin) */
     for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) lk_lt_thin[y][x] = -32768;
     for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x), h = lk_lt_top[y][x], n = 0, m, ok = 1, gnd = -32768;
-      if (done[y][x] || w == 0x4000 || !((w >> 8) & 0x60) || h <= 0) continue;
+      if (done[y][x] || w == 0x4000 || h <= 0) continue;
       st[n][0] = (int16_t)x; st[n][1] = (int16_t)y; n++; done[y][x] = 1;
       for (m = 0; m < n && ok; m++) { int d, cx = st[m][0], cy = st[m][1]; static const int dd[4][2] = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
         for (d = 0; d < 4; d++) { int nx = cx + dd[d][0], ny = cy + dd[d][1], t; if (nx < 0 || ny < 0 || nx >= 74 || ny >= 74) { ok = 0; break; }
           t = lk_lt_top[ny][nx];
-          if (t == h && !done[ny][nx]) { int w2 = UW(0xFFD192 + 148 * ny + 2 * nx); if (!((w2 >> 8) & 0x60) || n >= 4) { ok = 0; break; } done[ny][nx] = 1; st[n][0] = (int16_t)nx; st[n][1] = (int16_t)ny; n++; continue; }
-          if (t == h) continue;
-          if (t == -32768) continue;   /* a void gap beside it counts as lower (pillars at the edge of a stairwell, entrance hall room 55, user 2026-11-05) */
-          if (t > h - 16) { ok = 0; break; }   /* a higher / equal block beside it: part of a wall, not free standing */
+          if (t == h) { int w2 = UW(0xFFD192 + 148 * ny + 2 * nx);   /* same height: the same column only with the same blocked flag (room 87: walkable pillar cells of height 5 in front of a blocked wall of height 5) */
+            if (((w2 >> 8) & 0x60) != ((w >> 8) & 0x60) || done[ny][nx]) continue;
+            if (n >= 4) { ok = 0; break; } done[ny][nx] = 1; st[n][0] = (int16_t)nx; st[n][1] = (int16_t)ny; n++; continue; }
+          if (t == -32768 || t > h) continue;   /* a void gap (stairwell, room 55) or a higher wall behind it: still a pillar (only columns that CARRY a flame stay thin, below) */
           if (t > gnd) gnd = t; } }
       if (ok && gnd > -32768 && !(getenv("LANDSTALKER_LT_THIN") && atoi(getenv("LANDSTALKER_LT_THIN")) == 0)) for (m = 0; m < n; m++) lk_lt_thin[st[m][1]][st[m][0]] = (int16_t)gnd; } }   /* test aid: LANDSTALKER_LT_THIN=0 switches the rule off */
   lk_lt_sun = lk_lt_sunp() && lk_lt_isout(lk_o_room);   /* v5 */
