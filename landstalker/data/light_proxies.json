@@ -69,6 +69,39 @@
         "why": "the second long flower bed (same as above)"
       }
     ],
+    "636": [
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          10,
+          16,
+          62
+        ],
+        "file": "proxies/arch_636.obj",
+        "why": "Mercator rocky arch room: city wall (height map 3) + three round half towers (became small cones up to 62 / 76) + the terraced grass mound over the river; remake/recipes/proxy_arch_636.py, user 2026-11-04 'mach direkt weiter'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          18,
+          38,
+          25,
+          40
+        ],
+        "why": "the mound's tree clumps as automatic hips (the mesh above has the terraces and the pine crowns)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          24,
+          41,
+          25,
+          42
+        ],
+        "why": "automatic hip up to 142 on the WALKABLE terrace of the mound (cells 24..25 x 41..42)"
+      }
+    ],
     "638": [
       {
         "op": "mesh",

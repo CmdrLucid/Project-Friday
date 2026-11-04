@@ -133,7 +133,15 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
   `proxy.cylinder`), north wall y 272..288 x 272..496 top 196, pines hip 48 -> 96. Corrections: `mesh` cells 14..20 x 12..59 (drops the strip + a tower stub) and
   `remove` 24..28 x 18..21 (the pine hip). Check (warp `638:19.08,46.08,0030` / `638:24.08,40.08,0030`): the tower shadow falls up-right along the bank (sun from +y),
   Nigel on the bank is lit except in tower 1's shadow; Lighting Off byte-identical. The two stone pillars in the pool (cells (23, 22), (23, 24), height 5) were right already.
-- Candidates not done yet (DBG=5 survey 2026-11-04): 636 (rocky arch over the river), 637 (north gate).
+- ROOM 636 (Mercator rocky arch over the river, 2026-11-04, user: 'mach direkt weiter'): the same city wall (height map: column 14 height 3, towers height 12)
+  had no wall shape and the towers became small cones (z to 62 / 76, lathes #13 / #15 / #18 / #19); the terraced grass mound bridging the river (cells 18..25 x 38..42,
+  walkable heights 2..5) became hips, one up to 142 on a WALKABLE terrace (cells 24..25 x 41..42) = a dark blob on the river next to it.
+  `remake/recipes/proxy_arch_636.py` -> `data/proxies/arch_636.obj`: wall x 224..240 y 192..960 top 179 (constant here, merlons 175 / 183), half towers radius 32
+  (centres y 446 / 687 / 920, tops 159 / 184 / 188: drawn BELOW the wall top), the mound's terraces copied cell by cell from the height map (their top faces lie exactly
+  on the drawn terraces in the overlay), two pine clumps hips 48 -> 72. Corrections: `mesh` 12..16 x 10..62, `remove` 18..25 x 38..40 and 24..25 x 41..42 (the automatic
+  pines at cells (23, 41) / (23, 42) / (20, 44) stay). Check: warp `636:24.08,44.08,0010` (NOT onto the mound: `636:21.08,40.08` triggers a transition to room 669);
+  the blob on the river is gone; Lighting Off byte-identical.
+- Candidates not done yet (DBG=5 survey 2026-11-04): 637 (north gate).
 - Packaging copies `data/**/*.json` and `*.obj` (AppImage / Windows zip). Lighting Off / indoor byte-identical; only frame 2100 of rec_20261103_1803 changed (church).
 - Refined 2026-11-04 (user: 'verfeinere die 3d Form der Kirche'): the entrance gable was 13 units too high (ridge 107 -> 94, read from the gable apex U 720 / V 538 and the
   eave corners U 688 / V 583, U 750 / V 548 of the picture) and too short at the front (x 392 -> 400 = over the column cells x 24 of the height map). It now starts at x 340 INSIDE the
