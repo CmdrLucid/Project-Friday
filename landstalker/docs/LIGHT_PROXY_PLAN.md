@@ -125,8 +125,15 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
   centre tower x 624..720 y 448..496 cornice 228 cushion top 252 (door niche = cells (41, 30), (42, 30); row 31 = free landing), stairs from the height map, the two
   pine planters (cells 36..38 / 45..47, rows 29..32) as hips 32 -> 64. Check (warp test, `LANDSTALKER_WARP=31:42.08,31.08,0030` at 2100 from rec_20261103_1803 frame 2040):
   blotches gone, only the figure shadows remain; Lighting Off byte-identical; church frame unchanged. Sun from +y = the facade's shadow falls behind the castle (invisible).
-- Candidates not done yet (DBG=5 survey 2026-11-04): room 638 (fountain court: city wall x 288..320 became a hip with ridge 247, the round towers are no shapes),
-  636 (rocky arch over the river), 637 (north gate).
+- ROOM 638 (Mercator fountain court, 2026-11-04, user: 'weiter damit'): the height map has the city wall only as blocked height 0 (column 17) and the round towers
+  as single blocked height 9 cells (column 18, rows 26..29 / 38..41 / 50..53); the automatic proposal made a 32 wide strip x 288..320 (= the WALKABLE bank, cells 18..19)
+  with a hip up to 247 (Nigel on the bank stood in its shadow) and gave the pines at the north wall (cells 25..27 x 19..20) a hip up to 222. `remake/recipes/proxy_wall_638.py`
+  -> `data/proxies/wall_638.obj`: west wall x 272..288 (one cell, face 288) y 272..912 on ground 48, its drawn top FALLS towards the back (forced perspective of the art,
+  scanned per picture column: 245 / 236 / 234 / 221 / 212 / 204), three half towers radius 32 on the face (centres y 832 / 640 / 448, tops 257 / 241 / 220, new
+  `proxy.cylinder`), north wall y 272..288 x 272..496 top 196, pines hip 48 -> 96. Corrections: `mesh` cells 14..20 x 12..59 (drops the strip + a tower stub) and
+  `remove` 24..28 x 18..21 (the pine hip). Check (warp `638:19.08,46.08,0030` / `638:24.08,40.08,0030`): the tower shadow falls up-right along the bank (sun from +y),
+  Nigel on the bank is lit except in tower 1's shadow; Lighting Off byte-identical. The two stone pillars in the pool (cells (23, 22), (23, 24), height 5) were right already.
+- Candidates not done yet (DBG=5 survey 2026-11-04): 636 (rocky arch over the river), 637 (north gate).
 - Packaging copies `data/**/*.json` and `*.obj` (AppImage / Windows zip). Lighting Off / indoor byte-identical; only frame 2100 of rec_20261103_1803 changed (church).
 - Refined 2026-11-04 (user: 'verfeinere die 3d Form der Kirche'): the entrance gable was 13 units too high (ridge 107 -> 94, read from the gable apex U 720 / V 538 and the
   eave corners U 688 / V 583, U 750 / V 548 of the picture) and too short at the front (x 392 -> 400 = over the column cells x 24 of the height map). It now starts at x 340 INSIDE the

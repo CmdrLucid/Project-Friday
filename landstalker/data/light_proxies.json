@@ -68,6 +68,29 @@
         ],
         "why": "the second long flower bed (same as above)"
       }
+    ],
+    "638": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          12,
+          20,
+          59
+        ],
+        "file": "proxies/wall_638.obj",
+        "why": "Mercator fountain court: city wall (height map: blocked height 0) with three round half towers (single height 9 cells) and the north wall; the automatic strip in front of the wall had a hip up to 247; remake/recipes/proxy_wall_638.py, user 2026-11-04 'weiter damit'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          24,
+          18,
+          28,
+          21
+        ],
+        "why": "pine group at the north wall: the automatic hip went up to 222 (wall behind counted); the mesh above has the pines (tops 96)"
+      }
     ]
   }
 }

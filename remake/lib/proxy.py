@@ -3,8 +3,10 @@ A light proxy is an invisible shape for the game's lighting only (never drawn). 
 (x east, y south, z up, world units; one map cell = 16) and call build(); the OBJ goes to landstalker/data/proxies/<name>.obj (our own geometry,
 committed) and a preview with the game camera to the recipe's R_OUT folder (local only).
 Part = (name, x0, y0, x1, y1, z0, eave, ridge, roof, axis):  roof 'hip' = walls up to eave, 45 deg slopes up to a flat top at ridge ('hip:N': the top starts N units in, steeper);
-'gable' = a ridge along axis 'x' or 'y'; 'flat' (or ridge <= eave) = a plain box. The game reads the OBJ as a height field (top per 4 unit column)."""
-import bpy, os, sys
+'gable' = a ridge along axis 'x' or 'y'; 'flat' (or ridge <= eave) = a plain box. The game reads the OBJ as a height field (top per 4 unit column).
+A part can also be a dict {'name', 'poly': [(x, y), ...] (convex, counter-clockwise on screen does not matter), 'z0', 'z1'} = a prism with a flat top,
+e.g. cylinder(...) for round towers."""
+import bpy, math, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import blx
 
 def part_mesh(x0, y0, x1, y1, z0, ze, zr, roof, axis):
@@ -21,14 +23,28 @@ def part_mesh(x0, y0, x1, y1, z0, ze, zr, roof, axis):
         else: v += [((x0 + x1) / 2, y0, zr), ((x0 + x1) / 2, y1, zr)]; f += [(7, 4, 8, 9), (5, 6, 9, 8), (4, 5, 8), (6, 7, 9)]
     return v, f
 
+def cylinder(name, cx, cy, r, z0, z1, a0=0, a1=360, n=24):
+    """round tower as a prism part; a0..a1 in degrees (0 = +x east, 90 = +y south): a0 = -90, a1 = 90 is a half tower standing out of a wall along y"""
+    k = max(2, int(n * (a1 - a0) / 360))
+    pts = [(cx + r * math.cos(math.radians(a0 + (a1 - a0) * i / k)), cy + r * math.sin(math.radians(a0 + (a1 - a0) * i / k))) for i in range(k + 1)]
+    if a1 - a0 >= 360: pts = pts[:-1]
+    return {"name": name, "poly": [(round(x, 2), round(y, 2)) for x, y in pts], "z0": z0, "z1": z1}
+
+def prism_mesh(poly, z0, z1):
+    n = len(poly); v = [(x, y, z0) for x, y in poly] + [(x, y, z1) for x, y in poly]
+    f = [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)] + [tuple(range(n - 1, -1, -1)), tuple(range(n, 2 * n))]
+    return v, f
+
 def build(name, parts, title, colours=None, target=(0, 0, 40), ground_z=16, px_per_unit=3, size=(720, 540)):
     """parts -> Blender objects + landstalker/data/proxies/<name>.obj + preview.png in R_OUT"""
     out = os.environ.get("R_OUT", "/tmp/proxy_" + name); os.makedirs(out, exist_ok=True)
     obj = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "landstalker", "data", "proxies", name + ".obj")
     bpy.ops.wm.read_factory_settings(use_empty=True)
     verts, faces = [], []
-    for pname, x0, y0, x1, y1, z0, ze, zr, roof, axis in parts:
-        v, f = part_mesh(x0, y0, x1, y1, z0, ze, zr, roof, axis); n = len(verts)
+    for part in parts:
+        if isinstance(part, dict): pname = part["name"]; v, f = prism_mesh(part["poly"], part["z0"], part["z1"])
+        else: pname = part[0]; v, f = part_mesh(*part[1:])
+        n = len(verts)
         verts += v; faces += [tuple(n + k for k in q) for q in f]
         me = bpy.data.meshes.new(pname); me.from_pydata([(x, -y, z) for (x, y, z) in v], [], f); me.update()   # Blender: y = north
         ob = bpy.data.objects.new(pname, me); bpy.context.scene.collection.objects.link(ob)
