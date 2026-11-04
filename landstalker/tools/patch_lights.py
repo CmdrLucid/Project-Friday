@@ -123,6 +123,7 @@ static lk_lt_light lk_lt_l[LK_LT_ML]; static int lk_lt_nl, lk_lt_room = -2, lk_l
 static int16_t lk_lt_top[74][74];
 static int16_t lk_lt_gh[74][74];   /* v6: the game's heights (lk_lt_top = ours: outdoor objects raised to their drawn height for the view ray); the sun's shadow march uses these + lk_lt_fh */
 #define LK_LT_FN 296                /* v7: fine object height field, 4 units per entry (74 * 16 / 4) */
+#define LK_LT_IPEN 4.0f            /* indoor soft shadow edges (lk_lt_term): lit share = min over the march of IPEN * clearance / distance */
 #define LK_LT_PEN 12.0f             /* v7: penumbra: lit share = min over the march of PEN * clearance / horizontal distance */
 static int16_t lk_lt_fh[LK_LT_FN][LK_LT_FN], lk_lt_fo[LK_LT_FN][LK_LT_FN]; static int lk_lt_fhmax;   /* v7: object top + owner object per sub column */
 typedef struct { float x, y; int16_t h, hh, U, V0, w, obj; } lk_lt_card;   /* upright card facing the sun, silhouette = drawn layer A picture: v7 one per SMALL object (tree, post), one per cell of class 3 objects (v6) */
@@ -143,6 +144,9 @@ static float lk_lt_flk[LK_LT_ML];
 static lk_lt_light lk_lt_sw; static float lk_lt_swk; static int lk_lt_swon;   /* v3: glow of Nigel's sword (EquippedSword $FF114E 1..4), a light that moves: no cache, no shadow */
 typedef struct { float fx, fy, fz; int ax, ay; float sun; int tag; } lk_lt_fig;   /* tag (v7): entity offset / 0x80 + 1 = lk_lt_spre of its own sprite pixels */
 static lk_lt_fig lk_lt_f[16]; static int lk_lt_nf, lk_lt_on;
+static int16_t lk_lt_thin[74][74];   /* indoors: a THIN free standing column (pillar / post: <= 4 blocked cells of one height, higher than all neighbours) -> the floor around it, else -32768;
+     layer B pixels (walls / floors behind it) pass through it, only its own layer A pixels sit on it (user 2026-11-04: the torches stood in a lit box = the pillar's collision column);
+     kept only under a flame; such a pillar casts no shadow either (its 16 x 16 collision column under its own flame shaded the room: user 2026-11-05) */
 static int lk_lt_sun, lk_lt_ztop;   /* v5: outdoor room lit by the sun (tilesets 0 / 7 / 12 / 13 / 14 / 17), highest floor */
 static float lk_lt_sd[3] = { -0.72f, -0.26f, 0.64f }, lk_lt_sS = 0.70f, lk_lt_sK = 0.6f;   /* v5: unit vector to the sun, shadow level, sun strength (lk_lt_sunp) */
 static double lk_lt_bms, lk_lt_pms; static int lk_lt_bn, lk_lt_pfn, lk_lt_pre, lk_lt_odn;   /* lk_lt_odn: v7 blocks computed on demand this frame (max 6: a room entry needed 60..80 = one 90 ms frame; the rest are drawn unlit for a few frames of the dark fade in) */   /* v7 test aid (DBG=5): block time of the last frame on demand / prefetched */
@@ -192,8 +196,6 @@ static int lk_lt_rayf(int U, int V, int *zo) {   /* v7: outdoors with objects: t
   if (cf) { *zo = cz; return cf; }
   return 0;
 }
-static int16_t lk_lt_thin[74][74];   /* indoors: a THIN free standing column (pillar / post: <= 4 blocked cells of one height, higher than all neighbours) -> the floor around it, else -32768;
-     layer B pixels (walls / floors behind it) pass through it, only its own layer A pixels sit on it (user 2026-11-04: the torches stood in a lit box = the pillar's collision column) */
 static int lk_lt_ray(int U, int V, int *zo) {   /* geometry of one picture pixel: 0 none, 1 floor, 2 face +x, 3 face +y; *zo = z of the hit */
   int D = U - 1184, z, pcx = -999, pcy = -999, ptop = -32768, pin = 0, cf = 0, cz = 0;
   if (lk_lt_sun && lk_lt_fhmax > -32768) return lk_lt_rayf(U, V, zo);   /* v7 */
@@ -210,7 +212,9 @@ static int lk_lt_ray(int U, int V, int *zo) {   /* geometry of one picture pixel
   return 0;
 }
 static void lk_lt_pos(int U, int V, int z, float *x, float *y) { int D = U - 1184; *x = (float)(2 * V + 2 * z + D) * 0.5f; *y = (float)(2 * V + 2 * z - D) * 0.5f; }
-static int lk_lt_solid(float x, float y, float z) { return z < (float)lk_lt_cell((int)floorf(x / 16.0f), (int)floorf(y / 16.0f)) - 0.5f; }
+static int lk_lt_solid(float x, float y, float z) { int cx = (int)floorf(x / 16.0f), cy = (int)floorf(y / 16.0f), t = lk_lt_cell(cx, cy);
+  if (!lk_lt_sun && cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_thin[cy][cx] > -32768) t = lk_lt_thin[cy][cx];
+  return z < (float)t - 0.5f; }
 static float lk_lt_term(float px, float py, float pz, float nx, float ny, float nz, const lk_lt_light *L, int shadow) {
   float vx = L->x - px, vy = L->y - py, vz = L->z - pz, d = sqrtf(vx * vx + vy * vy + vz * vz), ndl, att, t;
   float rad = L->rad > 0.0f ? L->rad : LK_LT_RAD, kk = L->k > 0.0f ? L->k : 1.0f;
@@ -218,8 +222,16 @@ static float lk_lt_term(float px, float py, float pz, float nx, float ny, float 
   ndl = (nx * vx + ny * vy + nz * vz) / d; if (ndl < 0) ndl = 0;
   att = kk * (1.0f - d / rad) * (1.0f - d / rad);
   if (shadow) {   /* v3: march from 3 units in front of the surface (a wall pixel lies on the cell border: the march along the wall hit the wall itself = box-shaped shadows, user: church wall by the books) */
-    float sx = px + nx * 3.0f, sy = py + ny * 3.0f, sz = pz + nz * 3.0f, wx = L->x - sx, wy = L->y - sy, wz = L->z - sz, e = sqrtf(wx * wx + wy * wy + wz * wz);
-    for (t = 2.0f; t < e - 3.0f; t += 2.0f) if (lk_lt_solid(sx + wx * t / e, sy + wy * t / e, sz + wz * t / e)) return 0.0f;
+    float sx = px + nx * 3.0f, sy = py + ny * 3.0f, sz = pz + nz * 3.0f, wx = L->x - sx, wy = L->y - sy, wz = L->z - sz, e = sqrtf(wx * wx + wy * wy + wz * wz), res = 1.0f;
+    for (t = 2.0f; t < e - 3.0f; t += 2.0f) { float qx = sx + wx * t / e, qy = sy + wy * t / e, qz = sz + wz * t / e, cl, r;
+      if (lk_lt_solid(qx, qy, qz)) return 0.0f;
+      if (!lk_lt_sun) {   /* SOFT EDGES indoors (user 2026-11-05: 'ausgefranzte Ecken'): a ray that passes just over a block top loses part of the light (clearance / distance), so the
+           16 x 16 steps of the height map no longer give hard stair edges; the share grows over LK_LT_IPEN units of clearance per unit of distance */
+        int cx = (int)floorf(qx / 16.0f), cy = (int)floorf(qy / 16.0f), top = lk_lt_cell(cx, cy);
+        if (cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_thin[cy][cx] > -32768) top = lk_lt_thin[cy][cx];
+        if (top > -32768) { cl = qz - (float)top; r = LK_LT_IPEN * cl / t; if (r < res) res = r; } } }
+    if (res < 0.0f) res = 0.0f;
+    return att * (0.25f + 0.75f * ndl) * res;
   }
   return att * (0.25f + 0.75f * ndl);
 }
@@ -630,9 +642,10 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
           t = lk_lt_top[ny][nx];
           if (t == h && !done[ny][nx]) { int w2 = UW(0xFFD192 + 148 * ny + 2 * nx); if (!((w2 >> 8) & 0x60) || n >= 4) { ok = 0; break; } done[ny][nx] = 1; st[n][0] = (int16_t)nx; st[n][1] = (int16_t)ny; n++; continue; }
           if (t == h) continue;
-          if (t == -32768 || t > h - 16) { ok = 0; break; }   /* next to void or a higher / equal block: part of a wall, not free standing */
+          if (t == -32768) continue;   /* a void gap beside it counts as lower (pillars at the edge of a stairwell, entrance hall room 55, user 2026-11-05) */
+          if (t > h - 16) { ok = 0; break; }   /* a higher / equal block beside it: part of a wall, not free standing */
           if (t > gnd) gnd = t; } }
-      if (ok && gnd > -32768) for (m = 0; m < n; m++) lk_lt_thin[st[m][1]][st[m][0]] = (int16_t)gnd; } }
+      if (ok && gnd > -32768 && !(getenv("LANDSTALKER_LT_THIN") && atoi(getenv("LANDSTALKER_LT_THIN")) == 0)) for (m = 0; m < n; m++) lk_lt_thin[st[m][1]][st[m][0]] = (int16_t)gnd; } }   /* test aid: LANDSTALKER_LT_THIN=0 switches the rule off */
   lk_lt_sun = lk_lt_sunp() && lk_lt_isout(lk_o_room);   /* v5 */
   memset(lk_lt_wat, 0, sizeof lk_lt_wat);
   if (lk_lt_sun) { int pass, ch = 1, nw = 0;   /* proxies: WATER = a void cell whose picture is painted (river, pond): a floor 8 below its lowest neighbour (user: 'Nigels Schatten biegt sich am Fluss auf als waere das eine Wand');
@@ -695,6 +708,11 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
     }
   }
   if (lk_lt_dbg == 3) { for (y = 18; y < 34; y++) { printf("hm %%2d:", y); for (x = 18; x < 44; x++) printf(" %%4d", lk_lt_top[y][x] == -32768 ? -1 : lk_lt_top[y][x]); printf("\n"); } }
+  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (lk_lt_thin[y][x] > -32768) { int keep = 0;   /* only a column that CARRIES a flame (a light within one cell, at or above its top) stays thin:
+       wall pieces at the edge of the void looked like free standing columns too (user 2026-11-05: big wrong shadow in room 55) */
+    for (k = 0; k < lk_lt_nl; k++) { int lx = (int)floorf(lk_lt_l[k].x / 16.0f), ly = (int)floorf(lk_lt_l[k].y / 16.0f); if (abs(lx - x) <= 1 && abs(ly - y) <= 1 && lk_lt_l[k].z >= (float)lk_lt_top[y][x] - 8.0f) keep = 1; }
+    if (!keep) lk_lt_thin[y][x] = -32768;
+    else if (lk_lt_dbg == 1) printf("thin column: room %%d cell %%d,%%d top %%d floor %%d\n", lk_o_room, x, y, lk_lt_top[y][x], lk_lt_thin[y][x]); }
   if (lk_lt_dbg) { printf("lighting: room %%d, %%d lights\n", lk_o_room, lk_lt_nl); for (k = 0; k < lk_lt_nl; k++) printf("  light %%d at (%%.0f, %%.0f, %%.0f) flame $%%06X%%s\n", k, lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z, (unsigned)lk_lt_l[k].base, lk_lt_solid(lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z) ? " INSIDE A SOLID" : ""); }
 }
 static int lk_lt_swtest(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LIGHTING_SWORD"); v = e ? atoi(e) : 0; if (v < 0 || v > 4) v = 0; } return v; }   /* test aid: sword glow colour 1..4 without that sword */
@@ -771,9 +789,11 @@ static float lk_lt_shadowed(float px, float py, float pz, const lk_lt_light *L, 
     dx = 1.4142f * (tx * (qx - F->fx) + ty * (qy - F->fy)); hh = qz - F->fz;
     if (dx < -16.0f || dx > 16.0f || hh < -6.0f || hh > 56.0f) continue;
     mx = F->ax + (int)lrintf(dx) + lk_wide_e; my = F->ay - (int)lrintf(hh);
-    if (mx >= 0 && mx < LK_OSW && my >= 0 && my < 224 && (lk_o_spr[my][mx] & 0x200) && lk_lt_spre[my][mx] == F->tag) {   /* v7: the books on the church shelf are figures too: their pixels made Nigel's shadow a block (user rec_20261103_2149) */
-      float ex = L->x - px, ey = L->y - py, ez = L->z - pz, d = t * sqrtf(ex * ex + ey * ey + ez * ez), w = (60.0f - d) * (1.0f / 40.0f);   /* v7: a candle close to the head stretched the shadow far and jagged: fade from 20 to 60 units */
-      return w >= 1.0f ? 1.0f : w > 0.0f ? w : 0.0f; }
+    { int hit = 0, a2, b2;   /* SOFT EDGE (user 2026-11-05: 'ausgefranzt' at the knights' shadows): the share of the 3 x 3 sprite pixels around the hit, not one pixel */
+      for (b2 = -1; b2 <= 1; b2++) for (a2 = -1; a2 <= 1; a2++) { int ux = mx + a2, uy = my + b2;
+        if (ux >= 0 && ux < LK_OSW && uy >= 0 && uy < 224 && (lk_o_spr[uy][ux] & 0x200) && lk_lt_spre[uy][ux] == F->tag) hit++; }   /* v7: the books on the church shelf are figures too: their pixels made Nigel's shadow a block (user rec_20261103_2149) */
+      if (hit) { float ex = L->x - px, ey = L->y - py, ez = L->z - pz, d = t * sqrtf(ex * ex + ey * ey + ez * ez), w = (60.0f - d) * (1.0f / 40.0f);   /* v7: a candle close to the head stretched the shadow far and jagged: fade from 20 to 60 units */
+        w = w >= 1.0f ? 1.0f : w > 0.0f ? w : 0.0f; return w * (float)hit / 9.0f; } }
   }
   return 0.0f;
 }
