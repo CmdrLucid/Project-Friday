@@ -1594,3 +1594,12 @@ Goal (SOUND_PLAN section 12): GPGX's `vdp_ctrl.c` decode replaced by `tools/lkvd
 - `tools/lightedges.py castle --run OUT`: 47 rooms in ~1 min; before the pillar rule fix room 87 1190 edge px (torch boxes), after the fixes the top rooms 86 / 87 show mostly real step / face edges.
 - Lighting Off byte-identical (md5 of the 488 frame), outdoor 488 / 637 frames unchanged after every step.
 
+## Sword effects default On + file select swing colour (2026-11-05 evening, Deck, Opus 5.5)
+- Default: `lk_sfx_get` returns 1 when `~/.landstalker_swordfx` is missing (env `LANDSTALKER_SWORDFX` still wins). The user's own file holds 1.
+- File select: the screen renderer (`lk_scr_line`, patch_own.py) draws it, the map path hook (`lk_sfx_pix` in `lk_own_row`) never ran there. Test aid
+  `LANDSTALKER_SFX_SCRDBG=frame` (sprite palette entries of that frame) / `=all` (frames with sword colour pixels): with `docs/replays/massan.txt` no frame
+  has colours 45 / 46 (its press at 261 skips the swing); with `docs/replays/file_select_slot1_slash.txt` (massan.txt cut at 253) the chosen slot box moves to the
+  middle and frames 321.. show 58 pixels of colours 45 / 46, EquippedSword $FF114E = 4 (Gaia) for save 1. `lk_sfx_scrtint` mixes them 85 % with the sword tint:
+  arc brown (Off) -> green (On), md5 differs only in the swing frames.
+- Lesson: look at the whole frame (the swing is in the middle of the screen, my first crops showed the top left: user correction).
+

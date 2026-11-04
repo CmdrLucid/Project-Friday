@@ -200,3 +200,4 @@
 - L1568: Light proxies (2026-11-03 latest, Deck, Opus 5.5)
 - L1574: Bush blocks, big tree, sun test aid (2026-11-04 evening, Deck, Opus 5.5)
 - L1582: Castle torches and indoor shadows (2026-11-05, Deck, Opus 5.5)
+- L1597: Sword effects default On + file select swing colour (2026-11-05 evening, Deck, Opus 5.5)
