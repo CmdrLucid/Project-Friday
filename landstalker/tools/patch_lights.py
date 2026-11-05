@@ -22,7 +22,7 @@ licht3.html, 'ja, bau es als Option ein').  In rooms with flame tiles the own ma
    they cast shadows: a light ray from a scenery pixel that crosses a silhouette is blocked (only light / figure pairs closer than the radius).
    v4: for the shadow the cut-out turns to face each light (a camera-facing card was seen edge-on by lights beside the figure = thin streaks).
  * v4: a void gap is kept as a wall when the room cells behind it are a narrow niche (<= 3 cells across, a door in the wall: room 5).
- * Colour: ambient 0.55 (slightly cool) + 2.2 x the warm light sum, clamped at 2.4; only in rooms with at least one flame light, map frames only
+ * Colour: ambient 0.85 (v8, user 2026-11-05; was 0.55) (slightly cool) + 2.2 x the warm light sum, clamped at 2.4; only in rooms with at least one flame light, map frames only
    (not the screens / menus), not with HD tile packs.  Picture only (Off = bit exact).
 Option: Options > Graphics > Lighting Off / On (id 47, ~/.landstalker_lighting, env LANDSTALKER_LIGHTING=0|1), default Off.
 Test aid: LANDSTALKER_LIGHTING_DBG=1 prints the lights of every new room; =2 shows the geometry colours instead of the picture;
@@ -716,7 +716,7 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
         if (!f) continue;
         lk_lt_pos(U, V, z, &px, &py);
         L->x = px + (f == 2 ? 6.0f : 0.0f); L->y = py + (f == 3 ? 6.0f : 0.0f); L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; L->lava = 0; L->base = lk_o_grp[k].base;
-        L->k = 1.0f; L->rad = LK_LT_RAD; if (L->base == 0x098AAA) { L->k = 1.5f; L->rad = 260.0f; }   /* the standing torches of the castle (user 2026-11-04: 'im Schloss zu dunkel, koennte nur diese Art der Fackel mehr Licht abgeben?') */
+        L->k = 1.0f; L->rad = LK_LT_RAD; if (L->base == 0x098AAA) { L->k = 1.15f; L->rad = 260.0f; }   /* the standing torches of the castle (user 2026-11-04: 'im Schloss zu dunkel, koennte nur diese Art der Fackel mehr Licht abgeben?'; 2026-11-05: base light 0.85, then this torch a bit weaker: k 1.5 -> 1.15) */
         lk_lt_nl++; }
     }
   }
@@ -827,8 +827,11 @@ static int lk_lt_figsun(float px, float py, float pz) {   /* v5: the way scenery
   return 0;
 }
 static int lk_lt_linebegin(void) { if (!lk_lt_get()) return 0; if (lk_lt_frame != platform_frame_number()) lk_lt_step(); return lk_lt_on; }
+static float lk_lt_amb = -1.0f;   /* indoor base light (unlit share of the original brightness): 0.85 (user 2026-11-05: castle too dark, picked 85 %% of 55 / 70 / 85; was 0.55); test aid LANDSTALKER_LT_AMB=0.70 */
 static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one composed map pixel; sp = winning sprite pixel or 0 */
-  float ar = 0.55f * 0.93f, ag = 0.55f * 0.96f, ab = 0.55f * 1.06f, sr = 0, sg = 0, sb = 0, tl = 0, tb = 0; int k, j = -1;
+  float ar, ag, ab, sr = 0, sg = 0, sb = 0, tl = 0, tb = 0; int k, j = -1;
+  if (lk_lt_amb < 0.0f) { const char *e = getenv("LANDSTALKER_LT_AMB"); lk_lt_amb = e ? (float)atof(e) : 0.85f; if (lk_lt_amb < 0.0f || lk_lt_amb > 1.5f) lk_lt_amb = 0.85f; }
+  ar = lk_lt_amb * 0.93f; ag = lk_lt_amb * 0.96f; ab = lk_lt_amb * 1.06f;
   if (U < lk_lt_umin) lk_lt_umin = U; if (U > lk_lt_umax) lk_lt_umax = U; if (V < lk_lt_vmin) lk_lt_vmin = V; if (V > lk_lt_vmax) lk_lt_vmax = V;   /* v7: area for the prefetch */
   if ((sp & 0x200) && (j = lk_lt_figat(x, line)) >= 0) {   /* a figure pixel: lit at its cut-out position, facing the camera */
     const lk_lt_fig *F = &lk_lt_f[j]; float dx = (float)(x - F->ax), px = F->fx + dx * 0.5f, py = F->fy - dx * 0.5f, pz = F->fz + (float)(F->ay - line);
