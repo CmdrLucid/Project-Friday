@@ -120,7 +120,7 @@ void lk_lt_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; 
 #define LK_LT_NL 8                      /* lights per block (v3: the nearest ones; was the first 6) */
 #define LK_LT_ML 96                     /* lights per room (v3: lava fields; was 32) */
 #define LK_LT_RAD 120.0f   /* v2: was 90, the floor under high wall torches stayed dark (room 177) */
-typedef struct { int16_t z[1024]; uint8 face[1024]; uint8 nl, li[LK_LT_NL]; uint8 term[LK_LT_NL][1024]; uint8 sun[1024]; uint8 ao[1024]; } lk_lt_blk;   /* v8 ao: room light share 0..255 (corner shadows) */
+typedef struct { int16_t z[1024]; uint8 face[1024]; uint8 nl, li[LK_LT_NL]; uint8 term[LK_LT_NL][1024]; uint8 sun[1024]; uint8 ao[1024]; uint8 beam[1024], pool[1024]; } lk_lt_blk;   /* v8 ao: room light share 0..255 (corner shadows) */
 static lk_lt_blk *lk_lt_b[LK_LT_BH][LK_LT_BW];
 typedef struct { float x, y, z; float r, g, b; int lava; uint32_t base; float k, rad; } lk_lt_light;   /* k: strength, rad: reach (LK_LT_RAD; castle torches more, user 2026-11-04) */   /* base: the AnimatedTilesetData entry of the flame (kind of torch) */
 static lk_lt_light lk_lt_l[LK_LT_ML]; static int lk_lt_nl, lk_lt_room = -2, lk_lt_zmax; static uint32_t lk_lt_hash; static long lk_lt_frame = -1;
@@ -278,6 +278,80 @@ static float lk_lt_keyvis(float px, float py, float pz) {   /* v8: share of the 
     d = z - hh + 0.5f; if (d <= 0.0f) return 0.0f;
     r = kpen * d / (t * hl); if (r < res) res = r; }
   return res; }
+/* v8 LIGHT SHAFTS (user 2026-11-05: 'leichte Lichtstrahlen ... durch die Decke in einen etwas staubigen Raum, ganz leicht Partikel in den Sonnenstrahlen'; 'nicht immer ganz gleich in jedem Raum'):
+   key light rooms get 0..3 shafts along the key light direction (lk_lt_sd); per room a fixed mix from the room number: count, place (open floor of the main height), width, strength,
+   tint, dust.  Per block pixel: pool = share of the surface inside the shaft (lit with the key light's shadows, b->sun), beam = glow integrated along the view ray; per frame: dust motes. */
+typedef struct { float x, y, z, r, k, cr, cg, cb, h; int nd; } lk_lt_shaft_t;
+typedef struct { float t, ang, rad, ph, sp, tw; } lk_lt_mote_t;
+#define LK_LT_NSH 3
+#define LK_LT_NMO 48
+static lk_lt_shaft_t lk_lt_sh[LK_LT_NSH]; static int lk_lt_nsh; static lk_lt_mote_t lk_lt_mo[LK_LT_NSH][LK_LT_NMO];
+static uint8 lk_lt_dmap[512 * 512]; static int16_t lk_lt_dmz[512 * 512]; static int lk_lt_dl[LK_LT_NSH * LK_LT_NMO * 2], lk_lt_dn;
+static uint32_t lk_lt_rng;
+static float lk_lt_rnd(void) { lk_lt_rng = lk_lt_rng * 1664525u + 1013904223u; return (float)(lk_lt_rng >> 8) * (1.0f / 16777216.0f); }
+static int lk_lt_shopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_SHAFT"); v = e ? atoi(e) : 1; } return v; }   /* test aid: 0 none, 1 some rooms (default), 2 every key light room, 3 = 2 + shaft #0 beside Nigel (pictures) */
+static int lk_lt_shwait; static void lk_lt_free(void);
+static void lk_lt_shsetup(void) {
+  static int16_t cand[5476][2]; int n = 0, x, y, k, want, tries;
+  lk_lt_nsh = 0; if (!lk_lt_key || lk_lt_shopt() <= 0 || lk_lt_zref == -32768) return;
+  lk_lt_rng = (uint32_t)(lk_o_room + 1) * 2654435761u ^ 0x9E3779B9u; lk_lt_rnd(); lk_lt_rnd();
+  if (lk_lt_shopt() == 1 && lk_lt_rnd() < 0.35f) return;   /* about two rooms in three */
+  for (y = 1; y < 73; y++) for (x = 1; x < 73; x++) { int a, b2, ok = lk_lt_top[y][x] == lk_lt_zref;   /* open floor: the cell and its 8 neighbours at the main height */
+    for (b2 = y - 1; ok && b2 <= y + 1; b2++) for (a = x - 1; a <= x + 1; a++) if (lk_lt_top[b2][a] != lk_lt_zref) { ok = 0; break; }
+    if (ok) { cand[n][0] = (int16_t)x; cand[n][1] = (int16_t)y; n++; } }
+  if (!n) return;
+  want = 1 + (int)(lk_lt_rnd() * 3.0f); if (want > LK_LT_NSH) want = LK_LT_NSH;
+  for (tries = 0; tries < 40 && lk_lt_nsh < want; tries++) { int c = (int)(lk_lt_rnd() * (float)n), ok = 1; float cx, cy, w; lk_lt_shaft_t *S;
+    if (c >= n) c = n - 1; cx = 16.0f * cand[c][0] + 8.0f; cy = 16.0f * cand[c][1] + 8.0f;
+    for (k = 0; k < lk_lt_nsh; k++) if (fabsf(lk_lt_sh[k].x - cx) + fabsf(lk_lt_sh[k].y - cy) < 72.0f) ok = 0;
+    if (!ok) continue;
+    S = &lk_lt_sh[lk_lt_nsh++]; S->x = cx + (lk_lt_rnd() - 0.5f) * 10.0f; S->y = cy + (lk_lt_rnd() - 0.5f) * 10.0f; S->z = (float)lk_lt_zref;
+    S->r = 10.0f + lk_lt_rnd() * 14.0f; S->k = 0.55f + lk_lt_rnd() * 0.45f; S->h = 150.0f + lk_lt_rnd() * 90.0f; S->nd = 10 + (int)(lk_lt_rnd() * 38.0f); if (S->nd > LK_LT_NMO) S->nd = LK_LT_NMO;
+    w = lk_lt_rnd(); S->cr = 1.0f - 0.12f * (1.0f - w); S->cg = 0.96f; S->cb = 0.80f + 0.2f * (1.0f - w);   /* warm (w = 1) .. cool white */
+    for (k = 0; k < S->nd; k++) { lk_lt_mote_t *M = &lk_lt_mo[lk_lt_nsh - 1][k]; M->t = lk_lt_rnd() * S->h; M->ang = lk_lt_rnd() * 6.2831853f; M->rad = sqrtf(lk_lt_rnd()) * 0.85f;
+      M->ph = lk_lt_rnd() * 6.2831853f; M->sp = 0.04f + lk_lt_rnd() * 0.10f; M->tw = 0.02f + lk_lt_rnd() * 0.05f; } }
+  if (lk_lt_shopt() == 3) lk_lt_shwait = 12;   /* placed beside Nigel once he stands in the room (lk_lt_shstep) */
+  if (lk_lt_dbg == 1) for (k = 0; k < lk_lt_nsh; k++) printf("shaft: room %%d #%%d at (%%.0f, %%.0f, %%.0f) r %%.0f k %%.2f h %%.0f motes %%d\n", lk_o_room, k, lk_lt_sh[k].x, lk_lt_sh[k].y, lk_lt_sh[k].z, lk_lt_sh[k].r, lk_lt_sh[k].k, lk_lt_sh[k].h, lk_lt_sh[k].nd);
+}
+static float lk_lt_shdist(const lk_lt_shaft_t *S, float px, float py, float pz, float *sv) {   /* distance of a point from the shaft's axis (+ position along it) */
+  float vx = px - S->x, vy = py - S->y, vz = pz - S->z, s2 = vx * lk_lt_sd[0] + vy * lk_lt_sd[1] + vz * lk_lt_sd[2], qx = vx - s2 * lk_lt_sd[0], qy = vy - s2 * lk_lt_sd[1], qz = vz - s2 * lk_lt_sd[2];
+  *sv = s2; return sqrtf(qx * qx + qy * qy + qz * qz); }
+static void lk_lt_shblock(lk_lt_blk *b, int U0, int V0) {   /* pool + beam of one block */
+  int i, k; memset(b->beam, 0, sizeof b->beam); memset(b->pool, 0, sizeof b->pool);
+  for (k = 0; k < lk_lt_nsh; k++) { const lk_lt_shaft_t *S = &lk_lt_sh[k];
+    float u0 = S->x - S->y + 1184.0f, v0 = (S->x + S->y) * 0.5f - S->z, u1 = u0 + (lk_lt_sd[0] - lk_lt_sd[1]) * S->h, v1 = v0 + ((lk_lt_sd[0] + lk_lt_sd[1]) * 0.5f - lk_lt_sd[2]) * S->h, m = S->r * 2.0f + 8.0f;
+    if ((float)(U0 + 32) < fminf(u0, u1) - m || (float)U0 > fmaxf(u0, u1) + m || (float)(V0 + 32) < fminf(v0, v1) - m - 20.0f || (float)V0 > fmaxf(v0, v1) + m + 20.0f) continue;
+    for (i = 0; i < 1024; i++) { int U = U0 + (i & 31), V = V0 + (i >> 5), zs = b->face[i] ? b->z[i] : (int)S->z - 24; float sum = 0.0f, z, px, py, sv, q, w;
+      if (b->face[i]) { lk_lt_pos(U, V, zs, &px, &py); q = lk_lt_shdist(S, px, py, (float)zs, &sv);
+        if (q < S->r * 1.25f && sv > -8.0f) { w = (S->r * 1.25f - q) / (S->r * 0.6f); if (w > 1.0f) w = 1.0f; w = w * w * (3.0f - 2.0f * w) * S->k; w += (float)b->pool[i] * (1.0f / 255.0f); b->pool[i] = (uint8)(w >= 1.0f ? 255 : (int)(w * 255.0f)); } }
+      for (z = (float)zs + 2.0f; z < S->z + S->h * lk_lt_sd[2]; z += 4.0f) { float fa; lk_lt_pos(U, V, (int)z, &px, &py); q = lk_lt_shdist(S, px, py, z, &sv);
+        if (q >= S->r || sv < 0.0f || sv > S->h) continue;
+        w = 1.0f - q / S->r; fa = sv < 24.0f ? sv / 24.0f : sv > S->h - 50.0f ? (S->h - sv) / 50.0f : 1.0f; sum += w * w * fa; }
+      sum *= 0.45f * S->k; sum += (float)b->beam[i] * (1.0f / 255.0f); b->beam[i] = (uint8)(sum >= 1.0f ? 255 : (int)(sum * 255.0f)); }
+    if (lk_lt_dbg == 9) { int nb = 0, np = 0, mb = 0; for (i = 0; i < 1024; i++) { if (b->beam[i]) nb++; if (b->pool[i]) np++; if (b->beam[i] > mb) mb = b->beam[i]; } if (nb || np) printf("shaft block %%d,%%d: beam %%d px (max %%d) pool %%d px\n", U0, V0, nb, mb, np); } }
+}
+static void lk_lt_shstep(long fr) {   /* dust motes: drift slowly down the shaft, swirl, twinkle; drawn into a small map (picture coordinates & 511) with their height for the occlusion test */
+  int k, j; float ex, ey, ez, fx, fy, fz, l;
+  for (j = 0; j < lk_lt_dn; j++) lk_lt_dmap[lk_lt_dl[j]] = 0;
+  if (lk_lt_shwait > 0 && --lk_lt_shwait == 0 && lk_lt_key) { lk_lt_shaft_t *S = &lk_lt_sh[0]; if (!lk_lt_nsh) { lk_lt_nsh = 1; S->r = 16.0f; S->k = 0.8f; S->h = 200.0f; S->nd = 30; S->cr = 1.0f; S->cg = 0.96f; S->cb = 0.85f; }
+    { int jj, cx, cy; for (jj = 0; jj < lk_lt_nf; jj++) if (lk_lt_f[jj].tag == 1) break;   /* Nigel (entity 0) of this frame's figure list */
+      if (jj < lk_lt_nf) { S->x = lk_lt_f[jj].fx + 8.0f; S->y = lk_lt_f[jj].fy + 44.0f; } else { S->x = (float)SW(0xFF5414) + 8.0f; S->y = (float)SW(0xFF5416) + 44.0f; }
+      cx = (int)(S->x / 16.0f); cy = (int)(S->y / 16.0f); S->z = (cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_top[cy][cx] != -32768) ? (float)lk_lt_top[cy][cx] : (float)lk_lt_zref; }
+    lk_lt_free(); if (lk_lt_dbg == 1) printf("shaft: test #0 at (%%.0f, %%.0f, %%.0f)\n", S->x, S->y, S->z); }
+  lk_lt_dn = 0; if (!lk_lt_nsh) return;
+  ex = lk_lt_sd[1]; ey = -lk_lt_sd[0]; ez = 0.0f; l = sqrtf(ex * ex + ey * ey); if (l < 1e-3f) { ex = 1.0f; ey = 0.0f; l = 1.0f; } ex /= l; ey /= l;   /* a basis across the shaft */
+  fx = lk_lt_sd[1] * ez - lk_lt_sd[2] * ey; fy = lk_lt_sd[2] * ex - lk_lt_sd[0] * ez; fz = lk_lt_sd[0] * ey - lk_lt_sd[1] * ex;
+  for (k = 0; k < lk_lt_nsh; k++) { const lk_lt_shaft_t *S = &lk_lt_sh[k];
+    for (j = 0; j < S->nd; j++) { lk_lt_mote_t *M = &lk_lt_mo[k][j]; float a, rr, px, py, pz, br, fa; int U, V, idx, v;
+      M->t -= M->sp; if (M->t < 4.0f) M->t += S->h - 8.0f; M->ang += 0.006f + 0.004f * M->sp * 10.0f;
+      a = M->ang + 0.6f * sinf(M->ph + (float)fr * 0.011f); rr = M->rad * S->r;
+      px = S->x + lk_lt_sd[0] * M->t + (ex * cosf(a) + fx * sinf(a)) * rr; py = S->y + lk_lt_sd[1] * M->t + (ey * cosf(a) + fy * sinf(a)) * rr; pz = S->z + lk_lt_sd[2] * M->t + (ez * cosf(a) + fz * sinf(a)) * rr;
+      fa = M->t < 20.0f ? M->t / 20.0f : M->t > S->h - 40.0f ? (S->h - M->t) / 40.0f : 1.0f; if (fa <= 0.0f) continue;
+      br = (0.35f + 0.65f * (0.5f + 0.5f * sinf(M->ph * 3.0f + (float)fr * M->tw))) * fa * (1.0f - 0.5f * M->rad) * S->k;
+      U = (int)lrintf(px - py + 1184.0f); V = (int)lrintf((px + py) * 0.5f - pz); idx = ((V & 511) << 9) | (U & 511);
+      v = (int)(br * 150.0f); if (v < 8) continue; if (v > 255) v = 255;
+      if (lk_lt_dmap[idx] < v) { if (!lk_lt_dmap[idx] && lk_lt_dn < LK_LT_NSH * LK_LT_NMO * 2) lk_lt_dl[lk_lt_dn++] = idx; lk_lt_dmap[idx] = (uint8)v; lk_lt_dmz[idx] = (int16_t)pz; } } }
+}
 static float lk_lt_term(float px, float py, float pz, float nx, float ny, float nz, const lk_lt_light *L, int shadow) {
   float vx = L->x - px, vy = L->y - py, vz = L->z - pz, d = sqrtf(vx * vx + vy * vy + vz * vz), ndl, att, t;
   float rad = L->rad > 0.0f ? L->rad : LK_LT_RAD, kk = L->k > 0.0f ? L->k : 1.0f;
@@ -398,8 +472,11 @@ static const lk_lt_blk *lk_lt_block(int bx, int by) {   /* the block, computed o
   static int16_t robj[1024];
   for (i = 0; i < 1024; i++) { int z = 0, pal, pr; lk_lt_rob = 0; lk_lt_rayA = lk_o_fetch(lk_o_pa, U0 + (i & 31), V0 + (i >> 5), &pal, &pr, 0) != 0; b->face[i] = (uint8)lk_lt_ray(U0 + (i & 31), V0 + (i >> 5), &z); b->z[i] = (int16_t)z; robj[i] = (int16_t)lk_lt_rob; }
   lk_lt_rayA = 1;
-  for (i = 0; i < 1024; i++) { float px, py; b->ao[i] = 255;   /* v8 room light */
-    if (lk_lt_aor && b->face[i]) { lk_lt_pos(U0 + (i & 31), V0 + (i >> 5), b->z[i], &px, &py); b->ao[i] = (uint8)(int)(lk_lt_aoval(px, py, b->z[i], b->face[i]) * 255.0f + 0.5f); } }
+  { int pass2; for (pass2 = 0; pass2 < 2; pass2++) for (i = 0; i < 1024; i++) { float px, py; int an = i & ~0x21;   /* v8 room light; SPEED (measured 2026-11-05: 2..4 ms per block, room entry 20..45 ms frames): the even pixel of each 2 x 2 first, the others copy it when they lie on the same surface (soft light changes slowly) */
+    if ((i == an) != (pass2 == 0)) continue;
+    b->ao[i] = 255; if (!lk_lt_aor || !b->face[i]) continue;
+    if (pass2 && b->face[an] == b->face[i] && abs(b->z[an] - b->z[i]) <= 2) { b->ao[i] = b->ao[an]; continue; }
+    lk_lt_pos(U0 + (i & 31), V0 + (i >> 5), b->z[i], &px, &py); b->ao[i] = (uint8)(int)(lk_lt_aoval(px, py, b->z[i], b->face[i]) * 255.0f + 0.5f); } }
   { float bd[LK_LT_NL]; for (k = 0; k < lk_lt_nl; k++) {   /* the nearest lights of the block (picture distance of the light's projection) */
     float lu = lk_lt_l[k].x - lk_lt_l[k].y + 1184.0f, lv = (lk_lt_l[k].x + lk_lt_l[k].y) * 0.5f - lk_lt_l[k].z, du = lu - (float)(U0 + 16), dv = lv - (float)(V0 + 16), d2 = du * du + dv * dv; int m;
     if (fabsf(du) >= LK_LT_RAD * 1.6f + 24.0f || fabsf(dv) >= LK_LT_RAD * 1.6f + 24.0f) continue;
@@ -423,13 +500,16 @@ static const lk_lt_blk *lk_lt_block(int bx, int by) {   /* the block, computed o
     { float vis = lk_lt_sunvis(px + nx * 3.0f, py + ny * 3.0f, (float)b->z[i] + nz * 3.0f, ob) * ndl;
       b->sun[i] = (uint8)(vis >= 1.0f ? 255 : vis <= 0.0f ? 0 : (int)(vis * 255.0f)); }
   }
-  if (lk_lt_key) for (i = 0; i < 1024; i++) {   /* v8 key light share; a face turned away keeps its painted shading (as the sun) */
-    int f = b->face[i]; float px, py, nx = f == 2 ? 1.0f : 0.0f, ny = f == 3 ? 1.0f : 0.0f, nz = f == 1 ? 1.0f : 0.0f, vis;
+  if (lk_lt_key) { int pass2; for (pass2 = 0; pass2 < 2; pass2++) for (i = 0; i < 1024; i++) {   /* v8 key light share; a face turned away keeps its painted shading (as the sun); 2 x 2 like the room light */
+    int f = b->face[i], an = i & ~0x21; float px, py, nx = f == 2 ? 1.0f : 0.0f, ny = f == 3 ? 1.0f : 0.0f, nz = f == 1 ? 1.0f : 0.0f, vis;
+    if ((i == an) != (pass2 == 0)) continue;
     b->sun[i] = 255; if (!f) continue;
+    if (pass2 && b->face[an] == f && abs(b->z[an] - b->z[i]) <= 2) { b->sun[i] = b->sun[an]; continue; }
     if (f != 1 && nx * lk_lt_sd[0] + ny * lk_lt_sd[1] <= 0.0f) continue;
     lk_lt_pos(U0 + (i & 31), V0 + (i >> 5), b->z[i], &px, &py);
     vis = lk_lt_keyvis(px + nx * 3.0f, py + ny * 3.0f, (float)b->z[i] + nz * 3.0f);
-    b->sun[i] = (uint8)(vis >= 1.0f ? 255 : vis <= 0.0f ? 0 : (int)(vis * 255.0f)); }
+    b->sun[i] = (uint8)(vis >= 1.0f ? 255 : vis <= 0.0f ? 0 : (int)(vis * 255.0f)); } }
+  if (lk_lt_nsh) lk_lt_shblock(b, U0, V0); else { memset(b->beam, 0, sizeof b->beam); memset(b->pool, 0, sizeof b->pool); }   /* v8 light shafts */
   for (k = 0; k < b->nl; k++) for (i = 0; i < 1024; i++) {
     int f = b->face[i]; float px, py, t;
     if (!f) continue;
@@ -820,6 +900,7 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
     if (!keep) lk_lt_thin[y][x] = -32768;
     else if (lk_lt_dbg == 1) printf("thin column: room %%d cell %%d,%%d top %%d floor %%d\n", lk_o_room, x, y, lk_lt_top[y][x], lk_lt_thin[y][x]); }
   lk_lt_key = lk_lt_aor && !lk_lt_nl && lk_lt_keyopt() > 0; if (lk_lt_key) lk_lt_keyset();   /* v8 key light: indoors, rooms without flames */
+  lk_lt_shsetup();   /* v8 light shafts */
   if (lk_lt_dbg) { printf("lighting: room %%d, %%d lights\n", lk_o_room, lk_lt_nl); for (k = 0; k < lk_lt_nl; k++) printf("  light %%d at (%%.0f, %%.0f, %%.0f) flame $%%06X%%s\n", k, lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z, (unsigned)lk_lt_l[k].base, lk_lt_solid(lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z) ? " INSIDE A SOLID" : ""); }
 }
 static int lk_lt_swtest(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LIGHTING_SWORD"); v = e ? atoi(e) : 0; if (v < 0 || v > 4) v = 0; } return v; }   /* test aid: sword glow colour 1..4 without that sword */
@@ -842,6 +923,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
       snprintf(m, sizeof m, "SUN DIR %%d HEIGHT %%d", (int)(lk_lt_azd + 0.5f) %% 360, (int)(lk_lt_eld + 0.5f)); lk_osd_say(m);
       printf("sun: azimuth %%.0f elevation %%.0f (frame %%ld)\n", lk_lt_azd, lk_lt_eld, fr); } }
   lk_lt_on = (lk_lt_nl > 0 || lk_lt_sun || lk_lt_aor) && !lk_hd_n;   /* v8: room light */
+  lk_lt_shstep(fr);   /* v8 dust motes */
   if (lk_lt_on && lk_lt_umax >= lk_lt_umin) {   /* v7 PREFETCH (user: 'jetzt haben wir Ruckler'): blocks that came into view while walking cost ~1 ms each, up to 13 in one
       frame; compute up to 2.5 ms / 6 blocks per frame of the ring 2 blocks around the area drawn last frame, so they are ready before they are needed */
     struct timespec t0; int bx, by, n = 0, bx0 = lk_lt_fdiv(lk_lt_umin, 32) - 2, bx1 = lk_lt_fdiv(lk_lt_umax, 32) + 2, by0 = lk_lt_fdiv(lk_lt_vmin, 32) - 2, by1 = lk_lt_fdiv(lk_lt_vmax, 32) + 2;
@@ -922,8 +1004,10 @@ static int lk_lt_figsun(float px, float py, float pz) {   /* v5: the way scenery
 }
 static int lk_lt_linebegin(void) { if (!lk_lt_get()) return 0; if (lk_lt_frame != platform_frame_number()) lk_lt_step(); return lk_lt_on; }
 static float lk_lt_amb = -1.0f;   /* indoor base light (unlit share of the original brightness): 0.85 (user 2026-11-05: castle too dark, picked 85 %% of 55 / 70 / 85; was 0.55); test aid LANDSTALKER_LT_AMB=0.70 */
+static int lk_lt_bm, lk_lt_bz;   /* v8: beam glow + surface height of the current pixel (set by the key light branch) */
 static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one composed map pixel; sp = winning sprite pixel or 0 */
   float ar, ag, ab, sr = 0, sg = 0, sb = 0, tl = 0, tb = 0; int k, j = -1;
+  lk_lt_bm = 0; lk_lt_bz = -32768;
   if (lk_lt_amb < 0.0f) { const char *e = getenv("LANDSTALKER_LT_AMB"); lk_lt_amb = e ? (float)atof(e) : 0.85f; if (lk_lt_amb < 0.0f || lk_lt_amb > 1.5f) lk_lt_amb = 0.85f; }
   ar = lk_lt_amb * 0.93f; ag = lk_lt_amb * 0.96f; ab = lk_lt_amb * 1.06f;
   if (!lk_lt_nl && !lk_lt_sun) ar = ag = ab = 1.0f;   /* v8: a room without flames keeps the original brightness (only the corner shadows) */
@@ -950,13 +1034,16 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
       o = (cx >= 0 && cy >= 0 && cx < 74 && cy < 74) ? lk_lt_obj[cy][cx] : 0; if (!o) return (int)(0xFF000000u | (uint32_t)(g * 0x010101));
       h = (uint32_t)o * 2654435761u; return (int)(0xFF000000u | ((uint32_t)((g + (int)((h >> 8) & 127)) / 2) << 16) | ((uint32_t)((g + (int)((h >> 16) & 127)) / 2) << 8) | (uint32_t)((g + (int)((h >> 24) & 127)) / 2)); }
     if (!b->face[i]) return col;
+    if (lk_lt_dbg == 10) return (int)(0xFF000000u | ((uint32_t)b->beam[i] << 16) | ((uint32_t)b->pool[i] << 8) | (uint32_t)(b->sun[i] >> 2));   /* v8 test aid: shafts (red beam, green pool, blue key light) */
     if (lk_lt_dbg == 8) { int g = b->ao[i]; return (int)(0xFF000000u | (uint32_t)(g * 0x010101)); }   /* v8 test aid: room light share as grey */
     if (lk_lt_sun) { float u = (float)b->sun[i] * (1.0f / 255.0f);   /* v5: sky light (cool) + sun (warm), figures' shadows take the sun */
       if (u > 0.0f && lk_lt_nf) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); if (lk_lt_figsun(px, py, (float)b->z[i])) u = 0.0f; }
       ar = lk_lt_sS * 0.95f + lk_lt_sK * u; ag = lk_lt_sS * 0.98f + lk_lt_sK * u * 0.97f; ab = lk_lt_sS * 1.06f + lk_lt_sK * u * 0.90f; }
     else if (lk_lt_key) { float u = (float)b->sun[i] * (1.0f / 255.0f);   /* v8 key light: shadow level + slightly warm light, figures cast shadows */
-      if (u > 0.0f && lk_lt_nf) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); if (lk_lt_figsun(px, py, (float)b->z[i])) u = 0.0f; }
-      ar = lk_lt_kA * 0.97f + lk_lt_kK * u * 1.04f; ag = lk_lt_kA * 0.99f + lk_lt_kK * u; ab = lk_lt_kA * 1.05f + lk_lt_kK * u * 0.92f; }
+      if (u > 0.0f && lk_lt_nf) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); if (lk_lt_figsun(px, py, (float)b->z[i])) u *= 0.45f; }   /* a figure's shadow under the wide light from above is light (its edge is hard: keep the step small) */
+      ar = lk_lt_kA * 0.97f + lk_lt_kK * u * 1.04f; ag = lk_lt_kA * 0.99f + lk_lt_kK * u; ab = lk_lt_kA * 1.05f + lk_lt_kK * u * 0.92f;
+      if (b->pool[i]) { float p = (float)b->pool[i] * (1.0f / 255.0f) * u * 1.30f; ar += p * lk_lt_sh[0].cr; ag += p * lk_lt_sh[0].cg; ab += p * lk_lt_sh[0].cb; }   /* v8 shaft: light pool (with the key light's shadows) */
+      lk_lt_bm = b->beam[i]; lk_lt_bz = b->z[i]; }
     { static int px0 = -2, py0, px1; static long pfr = 1260; if (px0 == -2) { const char *e = getenv("LANDSTALKER_LIGHTING_PROBE"); px0 = -1; if (e && sscanf(e, "%%d,%%d,%%d,%%ld", &px0, &py0, &px1, &pfr) < 2) px0 = -1; if (px1 < px0) px1 = px0; }   /* test aid: one picture pixel's geometry + light terms */
       if (x >= px0 && x <= px1 && (x - px0) %% 4 == 0 && line == py0 && platform_frame_number() == pfr) { float qx, qy; lk_lt_pos(U, V, b->z[i], &qx, &qy); printf("probe: x %%d U %%d V %%d face %%d z %%d pos (%%.0f, %%.0f) sun %%d nl %%d:", x, U, V, b->face[i], b->z[i], qx, qy, b->sun[i], b->nl);
         for (k = 0; k < b->nl; k++) { const lk_lt_light *L = &lk_lt_l[b->li[k]]; printf(" L%%d t%%d n%%.2f", b->li[k], b->term[k][i], lk_lt_term(qx, qy, (float)b->z[i], b->face[i] == 2, b->face[i] == 3, b->face[i] == 1, L, 0)); } printf("\n"); } }
@@ -975,6 +1062,9 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
   { uint32_t c = (uint32_t)col; float fr = ar + 2.2f * sr, fg = ag + 2.2f * sg, fb = ab + 2.2f * sb; int r, g, bl;
     if (fr > 2.4f) fr = 2.4f; if (fg > 2.4f) fg = 2.4f; if (fb > 2.4f) fb = 2.4f;
     r = (int)((float)((c >> 16) & 255) * fr); g = (int)((float)((c >> 8) & 255) * fg); bl = (int)((float)(c & 255) * fb);
+    if (lk_lt_nsh) { int d = lk_lt_dmap[((V & 511) << 9) | (U & 511)]; float gl = (float)lk_lt_bm * (0.80f + 0.20f * sinf((float)lk_lt_frame * 0.02f + (float)U * 0.07f + (float)V * 0.03f)) * 0.75f;   /* v8 shafts: beam glow (slow shimmer) + dust motes in front of the surface */
+      if (d && (lk_lt_bz == -32768 || lk_lt_dmz[((V & 511) << 9) | (U & 511)] >= lk_lt_bz - 2)) gl += (float)d * 0.80f;
+      if (gl > 0.0f) { r += (int)(gl * lk_lt_sh[0].cr); g += (int)(gl * lk_lt_sh[0].cg); bl += (int)(gl * lk_lt_sh[0].cb); } }
     if (r > 255) r = 255; if (g > 255) g = 255; if (bl > 255) bl = 255;
     return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)bl); }
 }
