@@ -256,6 +256,28 @@ static float lk_lt_aoval(float px, float py, int z, int f) {   /* v8: room light
   { int cx = (int)floorf(px / 16.0f), cy = (int)floorf(py / 16.0f); if (f == 1 && cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_wat[cy][cx]) z = 32767; }   /* v8: painted water (our fill) gets no depth darkening: it meets water pixels without geometry (left as they are) = a hard edge */
   if (lk_lt_zref > -32768 && z < lk_lt_zref) { float dd = (float)(lk_lt_zref - z) / 64.0f; if (dd > 1.0f) dd = 1.0f; ao *= 1.0f - 0.18f * dd; }   /* depth: lower levels a little darker */
   return ao < 0.35f ? 0.35f : ao > 1.0f ? 1.0f : ao; }
+static int lk_lt_key;                 /* v8 KEY LIGHT (user 2026-11-05: 'nirgends sieht man wirklich das Licht ... schraeg einfallen damit Schatten geworfen werden'): indoor rooms without flames get a soft light from above at an angle (lk_lt_sd), with shadows */
+static float lk_lt_kA = 0.80f, lk_lt_kK = 0.30f, lk_lt_kaz = 135.0f, lk_lt_kel = 50.0f;   /* shadow level, light strength, direction (degrees as the sun: azimuth in the world x / y plane, 135 = from the screen's left) */
+static int lk_lt_keyopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_KEY"), *a = getenv("LANDSTALKER_LT_KAZ"), *l = getenv("LANDSTALKER_LT_KEL"), *s2 = getenv("LANDSTALKER_LT_KS");   /* test aids */
+    v = e ? atoi(e) : 1; if (a) lk_lt_kaz = (float)atof(a); if (l) lk_lt_kel = (float)atof(l); if (lk_lt_kel < 10.0f) lk_lt_kel = 10.0f; if (lk_lt_kel > 89.0f) lk_lt_kel = 89.0f;
+    if (s2) { lk_lt_kA = (float)atof(s2); if (lk_lt_kA < 0.3f || lk_lt_kA > 1.0f) lk_lt_kA = 0.80f; } lk_lt_kK = 1.10f - lk_lt_kA; }
+  return v; }
+static void lk_lt_keyset(void) { float az = lk_lt_kaz * 3.14159265f / 180.0f, el = lk_lt_kel * 3.14159265f / 180.0f; lk_lt_sd[0] = cosf(az) * cosf(el); lk_lt_sd[1] = sinf(az) * cosf(el); lk_lt_sd[2] = sinf(el); }
+static float lk_lt_keyvis(float px, float py, float pz) {   /* v8: share of the key light that reaches a point: march towards it through the height map (back wall voids = walls up to the room's top + 128), soft penumbra */
+  static float kbw = -1.0f; float hl = sqrtf(lk_lt_sd[0] * lk_lt_sd[0] + lk_lt_sd[1] * lk_lt_sd[1]), res = 1.0f, t, wt;
+  static float kpen = -1.0f; if (kpen < 0.0f) { const char *e = getenv("LANDSTALKER_LT_KPEN"); kpen = e ? (float)atof(e) : 3.0f; if (kpen < 0.5f) kpen = 0.5f; }   /* penumbra: smaller = softer (sun 12; the light from above is a wide opening, soft shadows: lightedges / user rule 'harte Lichtkanten = Fehler') */
+  if (kbw < 0.0f) { const char *e = getenv("LANDSTALKER_LT_KBW"); kbw = e ? (float)atof(e) : 40.0f; if (kbw < 0.0f) kbw = 0.0f; }   /* test aid: height of the back walls for the key light above the main floor */
+  wt = (lk_lt_zref > -32768 ? (float)lk_lt_zref : 0.0f) + kbw; if (wt < (float)lk_lt_ztop + 1.0f) wt = (float)lk_lt_ztop + 1.0f;   /* the light falls in from inside the room (an opening above it): a back wall shades only a band along its foot, not the whole room (room 12) */
+  int dx = lk_lt_sd[0] > 0.01f ? 1 : lk_lt_sd[0] < -0.01f ? -1 : 0, dy = lk_lt_sd[1] > 0.01f ? 1 : lk_lt_sd[1] < -0.01f ? -1 : 0;
+  if (hl < 1e-3f) hl = 1e-3f;
+  for (t = 2.0f; t < 600.0f; t += t < 32.0f ? 1.0f : 2.0f) {
+    float x = px + lk_lt_sd[0] * t, y = py + lk_lt_sd[1] * t, z = pz + lk_lt_sd[2] * t, hh, d, r; int h;
+    if (z > wt) return res;
+    h = lk_lt_aoh(x, y, dx, dy); if (h == -32768) continue;
+    if (h == 32767) { if (z > (lk_lt_zref > -32768 ? (float)lk_lt_zref : 0.0f) + kbw) continue; hh = 1e9f; } else hh = (float)h;
+    d = z - hh + 0.5f; if (d <= 0.0f) return 0.0f;
+    r = kpen * d / (t * hl); if (r < res) res = r; }
+  return res; }
 static float lk_lt_term(float px, float py, float pz, float nx, float ny, float nz, const lk_lt_light *L, int shadow) {
   float vx = L->x - px, vy = L->y - py, vz = L->z - pz, d = sqrtf(vx * vx + vy * vy + vz * vz), ndl, att, t;
   float rad = L->rad > 0.0f ? L->rad : LK_LT_RAD, kk = L->k > 0.0f ? L->k : 1.0f;
@@ -401,6 +423,13 @@ static const lk_lt_blk *lk_lt_block(int bx, int by) {   /* the block, computed o
     { float vis = lk_lt_sunvis(px + nx * 3.0f, py + ny * 3.0f, (float)b->z[i] + nz * 3.0f, ob) * ndl;
       b->sun[i] = (uint8)(vis >= 1.0f ? 255 : vis <= 0.0f ? 0 : (int)(vis * 255.0f)); }
   }
+  if (lk_lt_key) for (i = 0; i < 1024; i++) {   /* v8 key light share; a face turned away keeps its painted shading (as the sun) */
+    int f = b->face[i]; float px, py, nx = f == 2 ? 1.0f : 0.0f, ny = f == 3 ? 1.0f : 0.0f, nz = f == 1 ? 1.0f : 0.0f, vis;
+    b->sun[i] = 255; if (!f) continue;
+    if (f != 1 && nx * lk_lt_sd[0] + ny * lk_lt_sd[1] <= 0.0f) continue;
+    lk_lt_pos(U0 + (i & 31), V0 + (i >> 5), b->z[i], &px, &py);
+    vis = lk_lt_keyvis(px + nx * 3.0f, py + ny * 3.0f, (float)b->z[i] + nz * 3.0f);
+    b->sun[i] = (uint8)(vis >= 1.0f ? 255 : vis <= 0.0f ? 0 : (int)(vis * 255.0f)); }
   for (k = 0; k < b->nl; k++) for (i = 0; i < 1024; i++) {
     int f = b->face[i]; float px, py, t;
     if (!f) continue;
@@ -703,6 +732,7 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
           if (t > gnd) gnd = t; } }
       if (ok && gnd > -32768 && !(getenv("LANDSTALKER_LT_THIN") && atoi(getenv("LANDSTALKER_LT_THIN")) == 0)) for (m = 0; m < n; m++) lk_lt_thin[st[m][1]][st[m][0]] = (int16_t)gnd; } }   /* test aid: LANDSTALKER_LT_THIN=0 switches the rule off */
   lk_lt_sun = lk_lt_sunp() && lk_lt_isout(lk_o_room);   /* v5 */
+  lk_lt_key = 0; if (lk_lt_sun) lk_lt_sunset();   /* v8: lk_lt_sd may hold the key light of the room before */
   lk_lt_aor = !lk_lt_sun && lk_lt_aoopt() && lk_o_room >= 0 && !lk_lt_isout(lk_o_room) && !(lk_o_room >= 139 && lk_o_room <= 143) && lk_o_room != 148;   /* v8: indoors, not the intro */
   memset(lk_lt_vw, 0, sizeof lk_lt_vw); lk_lt_zref = -32768;
   if (lk_lt_aor) { int hist[16] = { 0 }, m, ok, best = 0;
@@ -789,6 +819,7 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
     for (k = 0; k < lk_lt_nl; k++) { int lx = (int)floorf(lk_lt_l[k].x / 16.0f), ly = (int)floorf(lk_lt_l[k].y / 16.0f); if (abs(lx - x) <= 1 && abs(ly - y) <= 1 && lk_lt_l[k].z >= (float)lk_lt_top[y][x] - 8.0f) keep = 1; }
     if (!keep) lk_lt_thin[y][x] = -32768;
     else if (lk_lt_dbg == 1) printf("thin column: room %%d cell %%d,%%d top %%d floor %%d\n", lk_o_room, x, y, lk_lt_top[y][x], lk_lt_thin[y][x]); }
+  lk_lt_key = lk_lt_aor && !lk_lt_nl && lk_lt_keyopt() > 0; if (lk_lt_key) lk_lt_keyset();   /* v8 key light: indoors, rooms without flames */
   if (lk_lt_dbg) { printf("lighting: room %%d, %%d lights\n", lk_o_room, lk_lt_nl); for (k = 0; k < lk_lt_nl; k++) printf("  light %%d at (%%.0f, %%.0f, %%.0f) flame $%%06X%%s\n", k, lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z, (unsigned)lk_lt_l[k].base, lk_lt_solid(lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z) ? " INSIDE A SOLID" : ""); }
 }
 static int lk_lt_swtest(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LIGHTING_SWORD"); v = e ? atoi(e) : 0; if (v < 0 || v > 4) v = 0; } return v; }   /* test aid: sword glow colour 1..4 without that sword */
@@ -839,7 +870,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     if (ax == -128 && ay == -128) continue;
     lk_lt_f[lk_lt_nf].fx = (float)SW(b + 0x14); lk_lt_f[lk_lt_nf].fy = (float)SW(b + 0x16); lk_lt_f[lk_lt_nf].fz = (float)(int16_t)SW(b + 0x12);
     lk_lt_f[lk_lt_nf].ax = ax; lk_lt_f[lk_lt_nf].ay = ay; lk_lt_f[lk_lt_nf].tag = (o >> 7) + 1;
-    lk_lt_f[lk_lt_nf].sun = lk_lt_sun ? lk_lt_sd[2] * lk_lt_sunvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f, 0) : 0.0f;
+    lk_lt_f[lk_lt_nf].sun = lk_lt_sun ? lk_lt_sd[2] * lk_lt_sunvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f, 0) : lk_lt_key ? lk_lt_keyvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f) : 0.0f;
     lk_lt_nf++;
   }
   for (k = 0; k < lk_lt_nl; k++) for (j = 0; j < lk_lt_nf; j++) {
@@ -902,6 +933,7 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
     for (k = 0; k < lk_lt_nl; k++) { float t = lk_lt_term(px, py, pz, 0.7071f, 0.7071f, 0.0f, &lk_lt_l[k], 0) * lk_lt_flk[k]; sr += t * lk_lt_l[k].r; sg += t * lk_lt_l[k].g; sb += t * lk_lt_l[k].b; }
     if (lk_lt_swon) { float t = lk_lt_term(px, py, pz, 0.7071f, 0.7071f, 0.0f, &lk_lt_sw, 0) * 0.5f; sr += t * lk_lt_sw.r; sg += t * lk_lt_sw.g; sb += t * lk_lt_sw.b; }   /* v3 */
     if (lk_lt_sun) { float u = F->sun; ar = lk_lt_sS * 0.95f + lk_lt_sK * u; ag = lk_lt_sS * 0.98f + lk_lt_sK * u * 0.97f; ab = lk_lt_sS * 1.06f + lk_lt_sK * u * 0.90f; }   /* v5 */
+    else if (lk_lt_key) { float u = F->sun; ar = lk_lt_kA * 0.97f + lk_lt_kK * u * 1.04f; ag = lk_lt_kA * 0.99f + lk_lt_kK * u; ab = lk_lt_kA * 1.05f + lk_lt_kK * u * 0.92f; }   /* v8 */
   } else {
     const lk_lt_blk *b = lk_lt_block(lk_lt_fdiv(U, 32), lk_lt_fdiv(V, 32)); int i;
     if (lk_lt_dbg == 4) { int pa = 0, pra = 0, pb = 0, prb = 0, ia = lk_o_fetch(lk_o_pa, U, V, &pa, &pra, 0), ib = lk_o_fetch(lk_o_pb, U, V, &pb, &prb, 0); uint32_t c = (uint32_t)col;   /* v5 test aid: priority pixels (layer A magenta, B cyan) */
@@ -922,6 +954,9 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
     if (lk_lt_sun) { float u = (float)b->sun[i] * (1.0f / 255.0f);   /* v5: sky light (cool) + sun (warm), figures' shadows take the sun */
       if (u > 0.0f && lk_lt_nf) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); if (lk_lt_figsun(px, py, (float)b->z[i])) u = 0.0f; }
       ar = lk_lt_sS * 0.95f + lk_lt_sK * u; ag = lk_lt_sS * 0.98f + lk_lt_sK * u * 0.97f; ab = lk_lt_sS * 1.06f + lk_lt_sK * u * 0.90f; }
+    else if (lk_lt_key) { float u = (float)b->sun[i] * (1.0f / 255.0f);   /* v8 key light: shadow level + slightly warm light, figures cast shadows */
+      if (u > 0.0f && lk_lt_nf) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); if (lk_lt_figsun(px, py, (float)b->z[i])) u = 0.0f; }
+      ar = lk_lt_kA * 0.97f + lk_lt_kK * u * 1.04f; ag = lk_lt_kA * 0.99f + lk_lt_kK * u; ab = lk_lt_kA * 1.05f + lk_lt_kK * u * 0.92f; }
     { static int px0 = -2, py0, px1; static long pfr = 1260; if (px0 == -2) { const char *e = getenv("LANDSTALKER_LIGHTING_PROBE"); px0 = -1; if (e && sscanf(e, "%%d,%%d,%%d,%%ld", &px0, &py0, &px1, &pfr) < 2) px0 = -1; if (px1 < px0) px1 = px0; }   /* test aid: one picture pixel's geometry + light terms */
       if (x >= px0 && x <= px1 && (x - px0) %% 4 == 0 && line == py0 && platform_frame_number() == pfr) { float qx, qy; lk_lt_pos(U, V, b->z[i], &qx, &qy); printf("probe: x %%d U %%d V %%d face %%d z %%d pos (%%.0f, %%.0f) sun %%d nl %%d:", x, U, V, b->face[i], b->z[i], qx, qy, b->sun[i], b->nl);
         for (k = 0; k < b->nl; k++) { const lk_lt_light *L = &lk_lt_l[b->li[k]]; printf(" L%%d t%%d n%%.2f", b->li[k], b->term[k][i], lk_lt_term(qx, qy, (float)b->z[i], b->face[i] == 2, b->face[i] == 3, b->face[i] == 1, L, 0)); } printf("\n"); } }
