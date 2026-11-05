@@ -416,7 +416,8 @@ static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before th
       { lk_am_p *P = lk_am_new(want); if (!P) break; P->gz = pz;
         if (want == 1) { P->x = px - 30.0f; P->y = py + 30.0f; P->z = pz + 90.0f + lk_am_rnd() * 70.0f; P->vx = 0.22f + lk_am_rnd() * 0.15f; P->vy = -0.18f - lk_am_rnd() * 0.12f; P->vz = -0.30f - lk_am_rnd() * 0.20f; P->life = (int16_t)((P->z - pz) / -P->vz + 60.0f); }
         else if (want == 2) { P->x = px; P->y = py; P->z = pz + 6.0f + lk_am_rnd() * 14.0f; P->life = (int16_t)(240 + lk_am_rnd() * 240.0f); }
-        else { P->x = px; P->y = py; P->z = pz + 110.0f + lk_am_rnd() * 30.0f; P->vz = -3.2f; P->life = 120; } } } }
+        else { float ztop = (px + py) * 0.5f - (float)lk_lt_vmin + 8.0f;   /* above the top of the picture (user 2026-11-05: 'Wassertropfen muessen ueber dem Raum anfangen zu fallen, sonst spawnen sie aus dem Nichts') */
+          P->x = px; P->y = py; P->z = ztop > pz + 110.0f ? ztop + lk_am_rnd() * 20.0f : pz + 110.0f + lk_am_rnd() * 30.0f; P->vz = -3.2f; P->life = (int16_t)((P->z - pz) / 3.2f + 20.0f); } } } }
   for (k = 0; k < lk_lt_nl; k++) { const lk_lt_light *L = &lk_lt_l[k]; lk_am_p *P;   /* sparks / embers from the flames of the room */
     if (L->lava ? !(lk_am_bio & 16) || lk_am_rnd() > 0.05f : !(lk_am_bio & 4) || lk_am_rnd() > 0.05f) continue;
     if (!(P = lk_am_new(L->lava ? 4 : 3))) break;
