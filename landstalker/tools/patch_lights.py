@@ -284,7 +284,7 @@ static float lk_lt_keyvis(float px, float py, float pz) {   /* v8: share of the 
 typedef struct { float x, y, z, r, k, cr, cg, cb, h, d[3]; int nd; } lk_lt_shaft_t;   /* d: unit vector up the shaft (to the opening in the ceiling) */
 typedef struct { float t, ang, rad, ph, sp, tw; } lk_lt_mote_t;
 #define LK_LT_NSH 3
-#define LK_LT_NMO 48
+#define LK_LT_NMO 112
 static lk_lt_shaft_t lk_lt_sh[LK_LT_NSH]; static int lk_lt_nsh; static lk_lt_mote_t lk_lt_mo[LK_LT_NSH][LK_LT_NMO];
 static uint8 lk_lt_dmap[512 * 512]; static int16_t lk_lt_dmz[512 * 512]; static int lk_lt_dl[LK_LT_NSH * LK_LT_NMO * 2], lk_lt_dn;
 static uint32_t lk_lt_rng;
@@ -307,7 +307,7 @@ static void lk_lt_shsetup(void) {
     for (k = 0; k < lk_lt_nsh; k++) if (fabsf(lk_lt_sh[k].x - cx) + fabsf(lk_lt_sh[k].y - cy) < 72.0f) ok = 0;
     if (!ok) continue;
     S = &lk_lt_sh[lk_lt_nsh++]; S->x = cx + (lk_lt_rnd() - 0.5f) * 10.0f; S->y = cy + (lk_lt_rnd() - 0.5f) * 10.0f; S->z = (float)lk_lt_zref;
-    S->r = 22.0f + lk_lt_rnd() * 26.0f;   /* user 2026-11-05: 'breiter mit besserem Verlauf, Octopath Traveler Stil' (was 10..24) */ S->k = 0.55f + lk_lt_rnd() * 0.45f; S->h = 150.0f + lk_lt_rnd() * 90.0f; S->nd = 10 + (int)(lk_lt_rnd() * 38.0f); if (S->nd > LK_LT_NMO) S->nd = LK_LT_NMO;
+    S->r = 22.0f + lk_lt_rnd() * 26.0f;   /* user 2026-11-05: 'breiter mit besserem Verlauf, Octopath Traveler Stil' (was 10..24) */ S->k = 0.55f + lk_lt_rnd() * 0.45f; S->h = 150.0f + lk_lt_rnd() * 90.0f; S->nd = 40 + (int)(lk_lt_rnd() * 60.0f);   /* user 2026-11-05: 'ein paar mehr Staubpartikel' (was 10..48) */ if (S->nd > LK_LT_NMO) S->nd = LK_LT_NMO;
     { float az = (lk_lt_kaz + (lk_lt_rnd() - 0.5f) * 50.0f) * 3.14159265f / 180.0f, el = (74.0f + lk_lt_rnd() * 12.0f) * 3.14159265f / 180.0f;   /* user 2026-11-05: 'viel zu steil ... als wuerden die links aus der Wand kommen, nicht von der Decke': nearly vertical, 74..86 degrees, leaning roughly like the key light */
       S->d[0] = cosf(az) * cosf(el); S->d[1] = sinf(az) * cosf(el); S->d[2] = sinf(el); }
     w = lk_lt_rnd(); S->cr = 0.84f + 0.08f * w; S->cg = 0.88f + 0.04f * w; S->cb = 0.92f - 0.02f * w;   /* user 2026-11-05: 'weniger hell, fahles Licht': pale grey white, a hint warmer or cooler per room */
@@ -339,7 +339,7 @@ static void lk_lt_shblock(lk_lt_blk *b, int U0, int V0) {   /* pool + beam of on
 static void lk_lt_shstep(long fr) {   /* dust motes: drift slowly down the shaft, swirl, twinkle; drawn into a small map (picture coordinates & 511) with their height for the occlusion test */
   int k, j;
   for (j = 0; j < lk_lt_dn; j++) lk_lt_dmap[lk_lt_dl[j]] = 0;
-  if (lk_lt_shwait > 0 && --lk_lt_shwait == 0 && lk_lt_key) { lk_lt_shaft_t *S = &lk_lt_sh[0]; if (!lk_lt_nsh) { lk_lt_nsh = 1; S->r = 32.0f; S->k = 0.8f; S->h = 200.0f; S->nd = 30; S->cr = 0.88f; S->cg = 0.90f; S->cb = 0.92f; S->d[0] = -0.17f; S->d[1] = 0.17f; S->d[2] = 0.97f; }
+  if (lk_lt_shwait > 0 && --lk_lt_shwait == 0 && lk_lt_key) { lk_lt_shaft_t *S = &lk_lt_sh[0]; if (!lk_lt_nsh) { lk_lt_nsh = 1; S->r = 32.0f; S->k = 0.8f; S->h = 200.0f; S->nd = 70; S->cr = 0.88f; S->cg = 0.90f; S->cb = 0.92f; S->d[0] = -0.17f; S->d[1] = 0.17f; S->d[2] = 0.97f; }
     { int jj, cx, cy; for (jj = 0; jj < lk_lt_nf; jj++) if (lk_lt_f[jj].tag == 1) break;   /* Nigel (entity 0) of this frame's figure list */
       if (jj < lk_lt_nf) { S->x = lk_lt_f[jj].fx + 8.0f; S->y = lk_lt_f[jj].fy + 44.0f; } else { S->x = (float)SW(0xFF5414) + 8.0f; S->y = (float)SW(0xFF5416) + 44.0f; }
       cx = (int)(S->x / 16.0f); cy = (int)(S->y / 16.0f); S->z = (cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_top[cy][cx] != -32768) ? (float)lk_lt_top[cy][cx] : (float)lk_lt_zref; }
