@@ -361,6 +361,97 @@ static void lk_lt_shstep(long fr) {   /* dust motes: drift slowly down the shaft
       v = (int)(br * 150.0f); if (v < 8) continue; if (v > 255) v = 255;
       if (lk_lt_dmap[idx] < v) { if (!lk_lt_dmap[idx] && lk_lt_dn < LK_LT_NSH * LK_LT_NMO * 2) lk_lt_dl[lk_lt_dn++] = idx; lk_lt_dmap[idx] = (uint8)v; lk_lt_dmz[idx] = (int16_t)pz; } } }
 }
+/* v8 AMBIENT PARTICLES (user 2026-11-05 night: 'Umgebungs-Partikel je Gegend' chosen from the modern effects list, MODERN_IDEAS (C) 2): leaves drifting down on routes / in forests,
+   fireflies in shaded spots there, sparks rising from flames, embers over lava, water drops in caves (a small splash where they land).  Particles live in the room's world
+   (positions on the computed surfaces), are drawn into a small map in picture coordinates (& 511) with their height + depth, so walls / figures in front hide them. */
+#define LK_AM_N 224
+typedef struct { float x, y, z, vx, vy, vz, ph, gz; int16_t age, life; uint8_t kind; } lk_am_p;   /* kind 1 leaf, 2 firefly, 3 spark, 4 ember, 5 drop, 6 splash */
+static lk_am_p lk_am_ps[LK_AM_N]; static int lk_am_np, lk_am_bio;
+static uint32_t lk_am_map[512 * 512]; static int16_t lk_am_mz[512 * 512], lk_am_md[512 * 512]; static int lk_am_dl[LK_AM_N * 10], lk_am_dn; static uint32_t lk_am_rng = 12345u;
+static float lk_am_rnd(void) { lk_am_rng = lk_am_rng * 1664525u + 1013904223u; return (float)(lk_am_rng >> 8) * (1.0f / 16777216.0f); }
+static int lk_am_o = -1;   /* Options > Graphics > Particles On / Off (id 49, user 2026-11-05: 'bitte als Partikeleffekte optional machen im Menue'), ~/.landstalker_particles, env LANDSTALKER_AMBIENT=0|1 wins, default On (needs Lighting On) */
+int lk_am_get(void) { if (lk_am_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_AMBIENT"); char pth[512]; FILE *f; int v = 1; snprintf(pth, sizeof pth, "%%s/.landstalker_particles", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%%d", &v) != 1) v = 1; fclose(f); } if (e) v = atoi(e); lk_am_o = v ? 1 : 0; } return lk_am_o; }
+void lk_am_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_am_get(); lk_am_o = v ? 1 : 0; snprintf(pth, sizeof pth, "%%s/.landstalker_particles", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%d\n", lk_am_o); fclose(f); } }
+static int lk_am_opt(void) { return lk_am_get(); }
+static int lk_am_force(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_AMBIENT_FORCE"); v = e ? atoi(e) : 0; } return v; }   /* test aid: these kinds in every lit room (bits: 1 leaves, 2 fireflies, 4 sparks, 8 drops, 16 embers) */
+static void lk_am_setup(void) {   /* kinds of the room (lk_lt_newroom, after the lights) */
+  int ts = lk_o_room >= 0 ? (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) : -1, k;
+  lk_am_np = 0; lk_am_bio = 0; lk_am_rng = (uint32_t)(lk_o_room + 7) * 2246822519u;
+  if (lk_o_room < 0 || (lk_o_room >= 139 && lk_o_room <= 143) || lk_o_room == 148) return;   /* (the option is asked every frame in lk_am_step: switching it in the menu works at once) */
+  if (lk_lt_sun && (ts == 7 || ts == 12)) lk_am_bio |= 1 | 2;   /* routes / forests (room table $0A0A00 byte 4: tilesets 7 / 12) */
+  if (ts == 4 || ts == 5 || ts == 9) lk_am_bio |= 8;   /* caves, waterfall shrine, swamp shrine */
+  for (k = 0; k < lk_lt_nl; k++) lk_am_bio |= lk_lt_l[k].lava ? 16 : 4;
+  if (lk_am_force()) lk_am_bio = lk_am_force();
+}
+static int lk_am_surf(int U, int V, float *px, float *py, float *pz, int *sun) {   /* the floor under a picture pixel from the computed blocks (0: not computed / no floor) */
+  int bx = lk_lt_fdiv(U, 32), by = lk_lt_fdiv(V, 32), i; const lk_lt_blk *b;
+  if (bx < 0 || by < 0 || bx >= LK_LT_BW || by >= LK_LT_BH || !(b = lk_lt_b[by][bx])) return 0;
+  i = ((V & 31) << 5) | (U & 31); if (b->face[i] != 1) return 0;
+  lk_lt_pos(U, V, b->z[i], px, py); *pz = (float)b->z[i]; *sun = lk_lt_sun ? b->sun[i] : 255; return 1; }
+static void lk_am_px(int U, int V, float z, float d, uint32_t rgb, float a, int add) {   /* one particle pixel (the strongest wins); map word: rgb + alpha 0..127 in bits 24..30 + additive flag bit 31 */
+  int q = ((V & 511) << 9) | (U & 511), al = (int)(a * 127.0f + 0.5f);
+  if (al <= 0) return; if (al > 127) al = 127;
+  if (lk_am_map[q] && (int)((lk_am_map[q] >> 24) & 0x7F) >= al) return;
+  if (!lk_am_map[q] && lk_am_dn < LK_AM_N * 10) lk_am_dl[lk_am_dn++] = q;
+  lk_am_map[q] = (rgb & 0xFFFFFFu) | ((uint32_t)al << 24) | (add ? 0x80000000u : 0u); lk_am_mz[q] = (int16_t)z; lk_am_md[q] = (int16_t)d; }
+static void lk_am_dot(const lk_am_p *P, int du, int dv, uint32_t rgb, float a, int add) {
+  int U = (int)lrintf(P->x - P->y + 1184.0f) + du, V = (int)lrintf((P->x + P->y) * 0.5f - P->z) + dv; lk_am_px(U, V, P->z, P->x + P->y, rgb, a, add); }
+static lk_am_p *lk_am_new(int kind) { lk_am_p *P; if (lk_am_np >= LK_AM_N) return 0; P = &lk_am_ps[lk_am_np++]; memset(P, 0, sizeof *P); P->kind = (uint8_t)kind; P->ph = lk_am_rnd() * 6.2831853f; return P; }
+static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before the drawn area is reset): spawn, move, draw */
+  int j, k, nff = 0; (void)fr;
+  for (j = 0; j < lk_am_dn; j++) lk_am_map[lk_am_dl[j]] = 0;
+  lk_am_dn = 0;
+  if (!lk_am_opt()) { lk_am_np = 0; return; }
+  if (!lk_am_bio || lk_lt_umax < lk_lt_umin) return;
+  for (j = 0; j < lk_am_np; j++) if (lk_am_ps[j].kind == 2) nff++;
+  { int tries; float px, py, pz; int sun;   /* spawns on the floor of the area drawn last frame */
+    for (tries = 0; tries < 6; tries++) { int U = lk_lt_umin + (int)(lk_am_rnd() * (float)(lk_lt_umax - lk_lt_umin + 1)), V = lk_lt_vmin + (int)(lk_am_rnd() * (float)(lk_lt_vmax - lk_lt_vmin + 1)), want = 0; float r = lk_am_rnd();
+      if ((lk_am_bio & 1) && r < 0.028f) want = 1; else if ((lk_am_bio & 2) && r > 0.975f && nff < 16) want = 2; else if ((lk_am_bio & 8) && r > 0.40f && r < 0.408f) want = 5;
+      if (!want || !lk_am_surf(U, V, &px, &py, &pz, &sun)) continue;
+      if (want == 2 && sun > 140) continue;   /* fireflies only in the shade */
+      { lk_am_p *P = lk_am_new(want); if (!P) break; P->gz = pz;
+        if (want == 1) { P->x = px - 30.0f; P->y = py + 30.0f; P->z = pz + 90.0f + lk_am_rnd() * 70.0f; P->vx = 0.22f + lk_am_rnd() * 0.15f; P->vy = -0.18f - lk_am_rnd() * 0.12f; P->vz = -0.30f - lk_am_rnd() * 0.20f; P->life = (int16_t)((P->z - pz) / -P->vz + 60.0f); }
+        else if (want == 2) { P->x = px; P->y = py; P->z = pz + 6.0f + lk_am_rnd() * 14.0f; P->life = (int16_t)(240 + lk_am_rnd() * 240.0f); }
+        else { P->x = px; P->y = py; P->z = pz + 110.0f + lk_am_rnd() * 30.0f; P->vz = -3.2f; P->life = 120; } } } }
+  for (k = 0; k < lk_lt_nl; k++) { const lk_lt_light *L = &lk_lt_l[k]; lk_am_p *P;   /* sparks / embers from the flames of the room */
+    if (L->lava ? !(lk_am_bio & 16) || lk_am_rnd() > 0.05f : !(lk_am_bio & 4) || lk_am_rnd() > 0.05f) continue;
+    if (!(P = lk_am_new(L->lava ? 4 : 3))) break;
+    P->x = L->x + (lk_am_rnd() - 0.5f) * (L->lava ? 40.0f : 4.0f); P->y = L->y + (lk_am_rnd() - 0.5f) * (L->lava ? 40.0f : 4.0f); P->z = L->z - (L->lava ? 8.0f : 2.0f);
+    P->vx = (lk_am_rnd() - 0.5f) * 0.25f; P->vy = (lk_am_rnd() - 0.5f) * 0.25f; P->vz = L->lava ? 0.30f + lk_am_rnd() * 0.30f : 0.55f + lk_am_rnd() * 0.40f; P->life = (int16_t)(L->lava ? 60 + lk_am_rnd() * 50.0f : 22 + lk_am_rnd() * 22.0f); }
+  for (j = 0, k = 0; j < lk_am_np; j++) { lk_am_p *P = &lk_am_ps[j]; float t, a;
+    if (++P->age >= P->life) continue;
+    t = (float)P->age;
+    if (P->kind == 1) {   /* leaf: sways while it drifts down, lies on the ground for a moment, fades */
+      static const uint32_t lc[4] = { 0x6E962Eu, 0xA89632u, 0x8C5A28u, 0x587A28u }; float sw = sinf(P->ph + t * 0.09f);
+      if (P->z > P->gz) { P->x += P->vx + 0.35f * sw; P->y += P->vy + 0.35f * cosf(P->ph * 0.7f + t * 0.07f); P->z += P->vz; if (P->z < P->gz) P->z = P->gz; }
+      a = P->life - P->age < 40 ? (float)(P->life - P->age) / 40.0f : 1.0f; a *= t < 15.0f ? t / 15.0f : 1.0f;
+      lk_am_dot(P, 0, 0, lc[(int)(P->ph * 0.6f) & 3], 0.95f * a, 0); lk_am_dot(P, sw > 0.0f ? 1 : -1, 0, lc[(int)(P->ph * 0.6f) & 3], 0.70f * a, 0); }
+    else if (P->kind == 2) {   /* firefly: slow wander, bob, blink, soft glow */
+      float br = 0.5f + 0.5f * sinf(P->ph + t * 0.06f); P->vx += (lk_am_rnd() - 0.5f) * 0.03f; P->vy += (lk_am_rnd() - 0.5f) * 0.03f;
+      if (P->vx > 0.25f) P->vx = 0.25f; if (P->vx < -0.25f) P->vx = -0.25f; if (P->vy > 0.25f) P->vy = 0.25f; if (P->vy < -0.25f) P->vy = -0.25f;
+      P->x += P->vx; P->y += P->vy; P->z += 0.08f * sinf(P->ph * 1.3f + t * 0.05f);
+      a = (t < 40.0f ? t / 40.0f : 1.0f) * (P->life - P->age < 40 ? (float)(P->life - P->age) / 40.0f : 1.0f) * (br > 0.25f ? (br - 0.25f) / 0.75f : 0.0f);
+      lk_am_dot(P, 0, 0, 0xFFF078u, 0.85f * a, 1); lk_am_dot(P, 1, 0, 0xC8E650u, 0.30f * a, 1); lk_am_dot(P, -1, 0, 0xC8E650u, 0.30f * a, 1); lk_am_dot(P, 0, 1, 0xC8E650u, 0.30f * a, 1); lk_am_dot(P, 0, -1, 0xC8E650u, 0.30f * a, 1); }
+    else if (P->kind == 3 || P->kind == 4) {   /* spark / ember: rises, cools from yellow to red, fades */
+      float f = t / (float)P->life; uint32_t c = f < 0.3f ? 0xFFE68Cu : f < 0.65f ? 0xFF9030u : 0xC8441Eu;
+      P->x += P->vx + (P->kind == 4 ? 0.15f * sinf(P->ph + t * 0.1f) : 0.0f); P->y += P->vy; P->z += P->vz; P->vz *= P->kind == 3 ? 0.975f : 0.995f;
+      lk_am_dot(P, 0, 0, c, (1.0f - f) * (P->kind == 3 ? 0.9f : 0.75f), 1); }
+    else if (P->kind == 5) {   /* water drop: falls, then a splash where it lands */
+      P->z += P->vz; if (P->z <= P->gz) { P->z = P->gz; P->kind = 6; P->age = 0; P->life = 12; }
+      else { lk_am_dot(P, 0, 0, 0xC8DCF0u, 0.75f, 0); lk_am_dot(P, 0, -1, 0xC8DCF0u, 0.45f, 0); } }
+    else if (P->kind == 6) {   /* splash: a small ring widening on the floor */
+      int rr = 1 + P->age / 4; a = 0.7f * (1.0f - t / (float)P->life);
+      lk_am_dot(P, rr, 0, 0xDCEBFAu, a, 0); lk_am_dot(P, -rr, 0, 0xDCEBFAu, a, 0); lk_am_dot(P, 0, (rr + 1) / 2, 0xDCEBFAu, a, 0); lk_am_dot(P, 0, -(rr + 1) / 2, 0xDCEBFAu, a, 0); }
+    lk_am_ps[k++] = *P; }
+  lk_am_np = k; }
+static void lk_am_mix(int U, int V, int zs, int fd, int *r, int *g, int *b) {   /* blend the particle of this picture pixel (zs: surface height, -32768 = none; fd: depth x + y of a figure pixel, -32768 = scenery) */
+  int q = ((V & 511) << 9) | (U & 511); uint32_t m = lk_am_map[q]; float a; int cr, cg, cb;
+  if (!m) return;
+  if (zs != -32768 && lk_am_mz[q] < zs - 2) return;   /* behind / under the surface */
+  if (fd != -32768 && lk_am_md[q] < fd - 4) return;   /* behind the figure */
+  a = (float)((m >> 24) & 0x7F) * (1.0f / 127.0f); cr = (int)((m >> 16) & 255); cg = (int)((m >> 8) & 255); cb = (int)(m & 255);
+  if (m & 0x80000000u) { *r += (int)((float)cr * a); *g += (int)((float)cg * a); *b += (int)((float)cb * a); }
+  else { *r += (int)((float)(cr - *r) * a); *g += (int)((float)(cg - *g) * a); *b += (int)((float)(cb - *b) * a); } }
 static float lk_lt_term(float px, float py, float pz, float nx, float ny, float nz, const lk_lt_light *L, int shadow) {
   float vx = L->x - px, vy = L->y - py, vz = L->z - pz, d = sqrtf(vx * vx + vy * vy + vz * vz), ndl, att, t;
   float rad = L->rad > 0.0f ? L->rad : LK_LT_RAD, kk = L->k > 0.0f ? L->k : 1.0f;
@@ -957,6 +1048,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
     else if (lk_lt_dbg == 1) printf("thin column: room %%d cell %%d,%%d top %%d floor %%d\n", lk_o_room, x, y, lk_lt_top[y][x], lk_lt_thin[y][x]); }
   lk_lt_key = lk_lt_aor && !lk_lt_nl && lk_lt_keyopt() > 0; if (lk_lt_key) lk_lt_keyset();   /* v8 key light: indoors, rooms without flames */
   lk_lt_shsetup();   /* v8 light shafts */
+  lk_am_setup();   /* v8 ambient particles */
   if (lk_lt_dbg) { printf("lighting: room %%d, %%d lights\n", lk_o_room, lk_lt_nl); for (k = 0; k < lk_lt_nl; k++) printf("  light %%d at (%%.0f, %%.0f, %%.0f) flame $%%06X%%s\n", k, lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z, (unsigned)lk_lt_l[k].base, lk_lt_solid(lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z) ? " INSIDE A SOLID" : ""); }
 }
 static int lk_lt_swtest(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LIGHTING_SWORD"); v = e ? atoi(e) : 0; if (v < 0 || v > 4) v = 0; } return v; }   /* test aid: sword glow colour 1..4 without that sword */
@@ -981,6 +1073,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
       printf("sun: azimuth %%.0f elevation %%.0f (frame %%ld)\n", lk_lt_azd, lk_lt_eld, fr); } }
   lk_lt_on = (lk_lt_nl > 0 || lk_lt_sun || lk_lt_aor) && !lk_hd_n;   /* v8: room light */
   lk_lt_shstep(fr);   /* v8 dust motes */
+  if (lk_lt_on) lk_am_step(fr); else if (lk_am_dn) { int jj; for (jj = 0; jj < lk_am_dn; jj++) lk_am_map[lk_am_dl[jj]] = 0; lk_am_dn = 0; }   /* v8 ambient particles */
   { static int tv = -1; static struct timespec tl; static double sum, mx; static int n, over; struct timespec tn;   /* test aid LANDSTALKER_LT_TIME=1: headless frame time (emulation + picture) between two lit frames, per 300 frames */
     if (tv < 0) { const char *e = getenv("LANDSTALKER_LT_TIME"); tv = e && atoi(e) > 0; }
     if (tv) { clock_gettime(CLOCK_MONOTONIC, &tn); if (tl.tv_sec) { double d = (double)(tn.tv_sec - tl.tv_sec) * 1000.0 + (double)(tn.tv_nsec - tl.tv_nsec) / 1e6; if (d < 200.0) { sum += d; n++; if (d > mx) mx = d; if (d > 12.0) over++; } }
@@ -1115,13 +1208,13 @@ static float lk_lt_amb = -1.0f;   /* indoor base light (unlit share of the origi
 static int lk_lt_bm, lk_lt_bz;   /* v8: beam glow + surface height of the current pixel (set by the key light branch) */
 static int lk_lt_voidglow(int U, int V, int col) {   /* v8 shafts over pixels without geometry (the black void below a walkway, painted pixels the view ray missed): beam + motes only */
   const lk_lt_blk *b; int i, d, r, g, bl; float gl; uint32_t c = (uint32_t)col;
-  if (!lk_lt_nsh || !(b = lk_lt_block(lk_lt_fdiv(U, 32), lk_lt_fdiv(V, 32)))) return col;
+  if ((!lk_lt_nsh && !lk_am_dn) || !(b = lk_lt_block(lk_lt_fdiv(U, 32), lk_lt_fdiv(V, 32)))) return col;
   i = ((V & 31) << 5) | (U & 31);   /* (the view ray of a backdrop pixel often meets a pit wall far below: its beam is integrated from there, fine) */
   if (lk_lt_dbg == 10) return (int)(0xFF000000u | ((uint32_t)b->beam[i] << 16) | 0x30);   /* test aid: dark blue = void pixel reached */
-  d = lk_lt_dmap[((V & 511) << 9) | (U & 511)];
-  gl = (float)b->beam[i] * 0.38f + (float)d * 0.50f;
-  if (gl <= 0.0f) return col;
+  d = lk_lt_nsh ? lk_lt_dmap[((V & 511) << 9) | (U & 511)] : 0;
+  gl = lk_lt_nsh ? (float)b->beam[i] * 0.38f + (float)d * 0.50f : 0.0f;
   r = (int)((c >> 16) & 255) + (int)(gl * lk_lt_sh[0].cr); g = (int)((c >> 8) & 255) + (int)(gl * lk_lt_sh[0].cg); bl = (int)(c & 255) + (int)(gl * lk_lt_sh[0].cb);
+  if (lk_am_dn) lk_am_mix(U, V, -32768, -32768, &r, &g, &bl);   /* v8 ambient particles over the void */
   if (r > 255) r = 255; if (g > 255) g = 255; if (bl > 255) bl = 255;
   return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)bl); }
 static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one composed map pixel; sp = winning sprite pixel or 0 */
@@ -1153,11 +1246,13 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
       o = (cx >= 0 && cy >= 0 && cx < 74 && cy < 74) ? lk_lt_obj[cy][cx] : 0; if (!o) return (int)(0xFF000000u | (uint32_t)(g * 0x010101));
       h = (uint32_t)o * 2654435761u; return (int)(0xFF000000u | ((uint32_t)((g + (int)((h >> 8) & 127)) / 2) << 16) | ((uint32_t)((g + (int)((h >> 16) & 127)) / 2) << 8) | (uint32_t)((g + (int)((h >> 24) & 127)) / 2)); }
     if (!b->face[i]) return lk_lt_voidglow(U, V, col);   /* v8: shafts also where the view ray found nothing */
+    lk_lt_bz = b->z[i];   /* v8: surface height for the motes / particles (all branches) */
     if (lk_lt_key && !lk_lt_nl && !lk_lt_dbg && !(lk_lt_nfb && (b->sun[i] || b->pool[i]) && lk_lt_infb(x, line))) {   /* v8 SPEED: the finished static light (no figure shadow can reach this pixel) */
       uint32_t c = (uint32_t)col; int r = (int)((((c >> 16) & 255) * b->km[0][i] + 128) >> 8), g = (int)((((c >> 8) & 255) * b->km[1][i] + 128) >> 8), bl = (int)(((c & 255) * b->km[2][i] + 128) >> 8);
       if (lk_lt_nsh) { int q = ((V & 511) << 9) | (U & 511), d = lk_lt_dmap[q]; float gl = (float)b->beam[i] * 0.38f;
         if (d && lk_lt_dmz[q] >= b->z[i] - 2) gl += (float)d * 0.50f;
         if (gl > 0.0f) { r += (int)(gl * lk_lt_sh[0].cr); g += (int)(gl * lk_lt_sh[0].cg); bl += (int)(gl * lk_lt_sh[0].cb); } }
+      if (lk_am_dn) lk_am_mix(U, V, b->z[i], -32768, &r, &g, &bl);   /* v8 ambient particles */
       if (r > 255) r = 255; if (g > 255) g = 255; if (bl > 255) bl = 255;
       return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)bl); }
     if (lk_lt_dbg == 10) return (int)(0xFF000000u | ((uint32_t)b->beam[i] << 16) | ((uint32_t)b->pool[i] << 8) | (uint32_t)(b->sun[i] >> 2));   /* v8 test aid: shafts (red beam, green pool, blue key light) */
@@ -1207,6 +1302,7 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
     if (lk_lt_nsh) { int d = lk_lt_dmap[((V & 511) << 9) | (U & 511)]; float gl = (float)lk_lt_bm * 0.38f;   /* user 2026-11-05: the beam stands still (no shimmer), only the motes move */   /* v8 shafts: beam glow (pale, user 2026-11-05) (slow shimmer) + dust motes in front of the surface */
       if (d && (lk_lt_bz == -32768 || lk_lt_dmz[((V & 511) << 9) | (U & 511)] >= lk_lt_bz - 2)) gl += (float)d * 0.50f;
       if (gl > 0.0f) { r += (int)(gl * lk_lt_sh[0].cr); g += (int)(gl * lk_lt_sh[0].cg); bl += (int)(gl * lk_lt_sh[0].cb); } }
+    if (lk_am_dn) lk_am_mix(U, V, lk_lt_bz, j >= 0 ? (int)(lk_lt_f[j].fx + lk_lt_f[j].fy) : -32768, &r, &g, &bl);   /* v8 ambient particles (a figure pixel: depth test against the figure) */
     if (r > 255) r = 255; if (g > 255) g = 255; if (bl > 255) bl = 255;
     return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)bl); }
 }
