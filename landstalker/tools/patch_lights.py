@@ -148,7 +148,7 @@ static float lk_lt_flk[LK_LT_ML];
 static lk_lt_light lk_lt_sw; static float lk_lt_swk; static int lk_lt_swon;   /* v3: glow of Nigel's sword (EquippedSword $FF114E 1..4), a light that moves: no cache, no shadow */
 typedef struct { float fx, fy, fz; int ax, ay; float sun; int tag; } lk_lt_fig;   /* tag (v7): entity offset / 0x80 + 1 = lk_lt_spre of its own sprite pixels */
 static lk_lt_fig lk_lt_f[16]; static int lk_lt_nf, lk_lt_on;
-static float lk_lt_fb[16][12]; static int lk_lt_nfb, lk_lt_fbj[16], lk_lt_fmask; static void lk_lt_fmkbuild(void);   /* v8 SPEED: per figure the screen region its shadow can fall into (key light): its card box x0 y0 x1 y1 swept along (ex, ey); figsun only there, only those figures */
+static float lk_lt_fb[512][12]; static int lk_lt_nfb, lk_lt_fbj[512], lk_lt_fmall, lk_lt_fmask, lk_lt_pbox[LK_LT_ML][16][4], lk_lt_curx, lk_lt_cury;   /* pbox: v8 SPEED, screen box of each flame / figure shadow (lk_lt_shadowed skips pixels outside) */ static void lk_lt_fmkbuild(void);   /* v8 SPEED: per figure the screen region its shadow can fall into (key light): its card box x0 y0 x1 y1 swept along (ex, ey); figsun only there, only those figures */
 static int16_t lk_lt_thin[74][74];   /* indoors: a THIN free standing column (pillar / post: <= 4 blocked cells of one height, higher than all neighbours) -> the floor around it, else -32768;
      layer B pixels (walls / floors behind it) pass through it, only its own layer A pixels sit on it (user 2026-11-04: the torches stood in a lit box = the pillar's collision column);
      kept only under a flame; such a pillar casts no shadow either (its 16 x 16 collision column under its own flame shaded the room: user 2026-11-05) */
@@ -1022,7 +1022,6 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
       B[0] = (float)lk_lt_f[j].ax - 20.0f; B[2] = (float)lk_lt_f[j].ax + 20.0f; B[1] = (float)lk_lt_f[j].ay - 60.0f; B[3] = (float)lk_lt_f[j].ay + 10.0f;
       B[4] = fabsf(ex) > 0.5f ? 1.0f / ex : 0.0f; B[5] = fabsf(ey) > 0.5f ? 1.0f / ey : 0.0f;
       B[6] = B[0] + (ex < 0.0f ? ex : 0.0f); B[8] = B[2] + (ex > 0.0f ? ex : 0.0f); B[7] = B[1] + (ey < 0.0f ? ey : 0.0f); B[9] = B[3] + (ey > 0.0f ? ey : 0.0f); B[10] = ex; B[11] = ey; } }
-  lk_lt_fmkbuild();
 
   for (k = 0; k < lk_lt_nl; k++) for (j = 0; j < lk_lt_nf; j++) {
     float dx = lk_lt_l[k].x - lk_lt_f[j].fx, dy = lk_lt_l[k].y - lk_lt_f[j].fy, dz = lk_lt_l[k].z - lk_lt_f[j].fz - 20.0f;
@@ -1030,9 +1029,22 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < (LK_LT_RAD + 24.0f) * (LK_LT_RAD + 24.0f);
     if (hd < 1.0f) { lk_lt_pn[k][j][0] = 0.7071f; lk_lt_pn[k][j][1] = 0.7071f; } else { lk_lt_pn[k][j][0] = dx / hd; lk_lt_pn[k][j][1] = dy / hd; }   /* v4 */
   }
+  lk_lt_fmall = 0;
+  for (k = 0; k < lk_lt_nl; k++) for (j = 0; j < lk_lt_nf; j++) if (lk_lt_pair[k][j]) {   /* v8 SPEED (user 2026-11-05: 'gerne noch die Fackelraeume optimieren'): the screen box a flame's figure shadow can fall into:
+       the card corners and the points 62 units further away from the flame (lk_lt_shadowed fades the shadow out at 60 units behind the figure) */
+    const lk_lt_light *L = &lk_lt_l[k]; const lk_lt_fig *F = &lk_lt_f[j]; float tx = lk_lt_pn[k][j][1], ty = -lk_lt_pn[k][j][0], x0 = 1e9f, x1 = -1e9f, y0 = 1e9f, y1 = -1e9f, *B; int c, e2;
+    for (c = 0; c < 4; c++) { float sc = (c & 1) ? 12.0f : -12.0f, h = (c & 2) ? 58.0f : -8.0f, qx = F->fx + sc * tx, qy = F->fy + sc * ty, qz = F->fz + h, vx = qx - L->x, vy = qy - L->y, vz = qz - L->z, l = sqrtf(vx * vx + vy * vy + vz * vz), m;
+      if (l < 1.0f) l = 1.0f; m = 62.0f / l;
+      for (e2 = 0; e2 < 2; e2++) { float px = qx + vx * m * (float)e2 - F->fx, py = qy + vy * m * (float)e2 - F->fy, pz = qz + vz * m * (float)e2 - F->fz, sx = (float)F->ax + px - py, sy = (float)F->ay + (px + py) * 0.5f - pz;
+        if (sx < x0) x0 = sx; if (sx > x1) x1 = sx; if (sy < y0) y0 = sy; if (sy > y1) y1 = sy; } }
+    lk_lt_pbox[k][j][0] = (int)floorf(x0) - 14; lk_lt_pbox[k][j][1] = (int)floorf(y0) - 14; lk_lt_pbox[k][j][2] = (int)ceilf(x1) + 14; lk_lt_pbox[k][j][3] = (int)ceilf(y1) + 14;
+    if (lk_lt_nfb >= 512) { lk_lt_fmall = 1; continue; }   /* (too many pairs: every pixel tests every figure, as before) */
+    B = lk_lt_fb[lk_lt_nfb]; lk_lt_fbj[lk_lt_nfb++] = j;
+    B[0] = B[6] = x0 - 14.0f; B[2] = B[8] = x1 + 14.0f; B[1] = B[7] = y0 - 14.0f; B[3] = B[9] = y1 + 14.0f; B[4] = B[5] = B[10] = B[11] = 0.0f; }
+  lk_lt_fmkbuild();
 }
 static uint16_t lk_lt_fmk[224][LK_OSW]; static int lk_lt_fmky0 = 224, lk_lt_fmky1 = -1;   /* v8 SPEED: per frame a screen mask of the figures whose shadow can reach a pixel (rows fmky0..fmky1 in use) */
-static int lk_lt_infb(int x, int y) { int xi = x + lk_wide_e; lk_lt_fmask = (y >= 0 && y < 224 && xi >= 0 && xi < LK_OSW) ? lk_lt_fmk[y][xi] : 0; return lk_lt_fmask != 0; }
+static int lk_lt_infb(int x, int y) { int xi = x + lk_wide_e; if (lk_lt_fmall) { lk_lt_fmask = 0xFFFF; return 1; } lk_lt_fmask = (y >= 0 && y < 224 && xi >= 0 && xi < LK_OSW) ? lk_lt_fmk[y][xi] : 0; return lk_lt_fmask != 0; }
 static void lk_lt_fmkbuild(void) {   /* rasterise every figure's swept card (B: x0 y0 x1 y1, 1 / ex, 1 / ey, bbox, ex ey in 10 / 11) */
   int j, y;
   for (y = lk_lt_fmky0; y <= lk_lt_fmky1; y++) memset(lk_lt_fmk[y], 0, sizeof lk_lt_fmk[y]);
@@ -1052,7 +1064,8 @@ static int lk_lt_figat(int x, int y) {   /* figure whose box holds screen pixel 
 static float lk_lt_shadowed(float px, float py, float pz, const lk_lt_light *L, int k) {   /* the ray scenery pixel -> light crosses a figure's silhouette: 0..1 (v7: only the figure's OWN sprite pixels, fading with the distance pixel -> figure) */
   int j; for (j = 0; j < lk_lt_nf; j++) {
     const lk_lt_fig *F = &lk_lt_f[j]; float den, num, t, qx, qy, qz, dx, hh, nx, ny, tx, ty; int mx, my;
-    if (!lk_lt_pair[k][j]) continue;
+    if (!lk_lt_pair[k][j] || !(lk_lt_fmask & (1 << j))) continue;   /* v8 SPEED: lk_lt_fmask from lk_lt_infb of this pixel */
+    { const int *pb = lk_lt_pbox[k][j]; if (lk_lt_curx < pb[0] || lk_lt_curx > pb[2] || lk_lt_cury < pb[1] || lk_lt_cury > pb[3]) continue; }   /* v8 SPEED: outside this flame's shadow box of the figure */
     nx = lk_lt_pn[k][j][0]; ny = lk_lt_pn[k][j][1];   /* v4: card through the foot point, facing the light */
     den = nx * (L->x - px) + ny * (L->y - py); num = nx * (F->fx - px) + ny * (F->fy - py);
     if (fabsf(den) < 1e-4f) continue;
@@ -1150,11 +1163,16 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
     { static int px0 = -2, py0, px1; static long pfr = 1260; if (px0 == -2) { const char *e = getenv("LANDSTALKER_LIGHTING_PROBE"); px0 = -1; if (e && sscanf(e, "%%d,%%d,%%d,%%ld", &px0, &py0, &px1, &pfr) < 2) px0 = -1; if (px1 < px0) px1 = px0; }   /* test aid: one picture pixel's geometry + light terms */
       if (x >= px0 && x <= px1 && (x - px0) %% 4 == 0 && line == py0 && platform_frame_number() == pfr) { float qx, qy; lk_lt_pos(U, V, b->z[i], &qx, &qy); printf("probe: x %%d U %%d V %%d face %%d z %%d pos (%%.0f, %%.0f) sun %%d nl %%d:", x, U, V, b->face[i], b->z[i], qx, qy, b->sun[i], b->nl);
         for (k = 0; k < b->nl; k++) { const lk_lt_light *L = &lk_lt_l[b->li[k]]; printf(" L%%d t%%d n%%.2f", b->li[k], b->term[k][i], lk_lt_term(qx, qy, (float)b->z[i], b->face[i] == 2, b->face[i] == 3, b->face[i] == 1, L, 0)); } printf("\n"); } }
+    int fm = lk_lt_nfb && lk_lt_nf ? lk_lt_infb(x, line) : 0;   /* v8 SPEED: figures whose flame shadow can reach this pixel (lk_lt_fmask) */
+    lk_lt_curx = x; lk_lt_cury = line;
     for (k = 0; k < b->nl; k++) {
       float t = (float)b->term[k][i] * (1.0f / 255.0f); const lk_lt_light *L;
       if (t <= 0.0f) continue;
       L = &lk_lt_l[b->li[k]];
-      if (lk_lt_nf) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); { float w = lk_lt_shadowed(px, py, (float)b->z[i], L, b->li[k]); if (w >= 1.0f) { tb += t; continue; } if (w > 0.0f) { tb += t * w; t *= 1.0f - w; } } }
+      if (fm) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); { static int st[LK_LT_ML], st2[LK_LT_ML]; static float sw2[LK_LT_ML]; int li = b->li[k], key = (line << 11) | (x & 2047); float w;   /* v8 SPEED: one test per 2 pixels of a line (even x computes, odd x takes its left neighbour; the shadow edge is soft anyway) */
+        static int half = -1; if (half < 0) { const char *e = getenv("LANDSTALKER_LT_SHHALF"); half = e ? atoi(e) : 1; }   /* test aid: 0 = every pixel */
+        if (half && (x & 1) && st[li] == key - 1 && st2[li] == lk_lt_frame) w = sw2[li]; else { w = lk_lt_shadowed(px, py, (float)b->z[i], L, li); st[li] = key; st2[li] = (int)lk_lt_frame; sw2[li] = w; }
+        if (w >= 1.0f) { tb += t; continue; } if (w > 0.0f) { tb += t * w; t *= 1.0f - w; } } }
       tl += t; t *= lk_lt_flk[b->li[k]]; sr += t * L->r; sg += t * L->g; sb += t * L->b;
     }
     if (b->ao[i] < 255) { float a = (float)b->ao[i] * (1.0f / 255.0f); ar *= a; ag *= a; ab *= a; }   /* v8 room light: corner shadows take the base light only */
