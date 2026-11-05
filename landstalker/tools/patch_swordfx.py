@@ -117,7 +117,10 @@ int lk_sfx_scrpix(int line, int x, int ci, int col) {   /* every pixel of the sc
   return col;
 }
 static int lk_sfx_pix(int line, int i, int sp, int col) {   /* one composed map pixel: sp = the winning sprite pixel (0 when a plane / window won) */
-  if (lk_sfx_act && (sp & 0x200)) { int pk = sp & 0x3F; if (pk == 45 || pk == 46) col = lk_sfx_mix(col, lk_sfx_tint[lk_sfx_kind][pk - 45], 217); }   /* 85 %% the sword colour */
+  if (lk_sfx_act && (sp & 0x200)) { int pk = sp & 0x3F, sl = line - lk_sm_syn, si = i - lk_sm_sxn;   /* 85 %% the sword colour */
+    { static int dg = -1; static long lf = -1; static int nn, no; long fr = platform_frame_number(); if (dg < 0) dg = getenv("LANDSTALKER_SFX_NIGDBG") != NULL;   /* test aid: sword colour pixels of Nigel / of other sprites per swing frame */
+      if (dg && (pk == 45 || pk == 46)) { if (fr != lf) { if (lf >= 0) printf("sfx nig: frame %%ld nigel %%d other %%d\n", lf, nn, no); lf = fr; nn = no = 0; } if (sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW && lk_ss_nig[sl][si]) nn++; else no++; } }
+    if ((pk == 45 || pk == 46) && sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW && lk_ss_nig[sl][si]) col = lk_sfx_mix(col, lk_sfx_tint[lk_sfx_kind][pk - 45], 217); }   /* only Nigel's own pixels (lk_ss_nig): the stones of the charged Gaia sword use the same colours 45 / 46 and turned green (user 2026-11-05) */
   if (line >= 0 && line < 224 && lk_sfx_line[line] && i >= 0 && i < LK_OSW) { uint32_t b = lk_sfx_buf[line][i]; if (b >> 24) col = lk_sfx_mix(col, b, b >> 24); }
   return col;
 }
