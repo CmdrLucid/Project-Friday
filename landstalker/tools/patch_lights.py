@@ -24,6 +24,10 @@ licht3.html, 'ja, bau es als Option ein').  In rooms with flame tiles the own ma
  * v4: a void gap is kept as a wall when the room cells behind it are a narrow niche (<= 3 cells across, a door in the wall: room 5).
  * Colour: ambient 0.85 (v8, user 2026-11-05; was 0.55) (slightly cool) + 2.2 x the warm light sum, clamped at 2.4; only in rooms with at least one flame light, map frames only
    (not the screens / menus), not with HD tile packs.  Picture only (Off = bit exact).
+ * v8 ROOM LIGHT (user 2026-11-05, idea 1 for flat dungeon rooms): every indoor room (not only rooms with flames; not the intro) gets soft corner
+   shadows from the height map (lk_lt_aoval: per direction the highest occluder angle within 40 units, fading with distance; void cells on the -x / -y side
+   with no room cell behind them count as back walls (lk_lt_vw); wall feet darker; floors below the room's main height (lk_lt_zref) up to 18 % darker);
+   rooms without flames keep the original brightness apart from that.  Test aids LANDSTALKER_LT_AO=0 (off), LANDSTALKER_LIGHTING_DBG=8 (share as grey).
 Option: Options > Graphics > Lighting Off / On (id 47, ~/.landstalker_lighting, env LANDSTALKER_LIGHTING=0|1), default Off.
 Test aid: LANDSTALKER_LIGHTING_DBG=1 prints the lights of every new room; =2 shows the geometry colours instead of the picture;
 LANDSTALKER_LIGHTING_SWORD=1..4 = sword glow of that sword (Magic / Ice / Thunder / Gaia) whatever is equipped.
@@ -40,7 +44,7 @@ Figures: shadows only from their own sprite pixels (lk_lt_spre), flame shadows f
 Needs patch_own.py, patch_modernhud.py and patch_swordfx.py before it.  Idempotent.  usage: patch_lights.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_LIGHTS v7"
+VER = "LK_LIGHTS v8"
 import json
 CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4)}
 def mesh_cells(path):   # an OBJ (game coordinates) -> {(sx, sy): top height} on the 4 unit grid of the light field (sub column centres), max over all faces
@@ -116,7 +120,7 @@ void lk_lt_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; 
 #define LK_LT_NL 8                      /* lights per block (v3: the nearest ones; was the first 6) */
 #define LK_LT_ML 96                     /* lights per room (v3: lava fields; was 32) */
 #define LK_LT_RAD 120.0f   /* v2: was 90, the floor under high wall torches stayed dark (room 177) */
-typedef struct { int16_t z[1024]; uint8 face[1024]; uint8 nl, li[LK_LT_NL]; uint8 term[LK_LT_NL][1024]; uint8 sun[1024]; } lk_lt_blk;
+typedef struct { int16_t z[1024]; uint8 face[1024]; uint8 nl, li[LK_LT_NL]; uint8 term[LK_LT_NL][1024]; uint8 sun[1024]; uint8 ao[1024]; } lk_lt_blk;   /* v8 ao: room light share 0..255 (corner shadows) */
 static lk_lt_blk *lk_lt_b[LK_LT_BH][LK_LT_BW];
 typedef struct { float x, y, z; float r, g, b; int lava; uint32_t base; float k, rad; } lk_lt_light;   /* k: strength, rad: reach (LK_LT_RAD; castle torches more, user 2026-11-04) */   /* base: the AnimatedTilesetData entry of the flame (kind of torch) */
 static lk_lt_light lk_lt_l[LK_LT_ML]; static int lk_lt_nl, lk_lt_room = -2, lk_lt_zmax; static uint32_t lk_lt_hash; static long lk_lt_frame = -1;
@@ -205,7 +209,8 @@ static int lk_lt_ray(int U, int V, int *zo) {   /* geometry of one picture pixel
     if (in && !lk_lt_rob && lk_lt_obj[cy][cx]) lk_lt_rob = lk_lt_obj[cy][cx];
     if (cf && in && z > top && !lk_lt_dent(cx, cy, cf)) cf = 0;   /* v3: back on room cells after a void gap (beside a corridor that sticks out of the room, church room 700): the gap was no wall; v4: at any distance (a pit in front of the walkway of room 5 = void, was a high wall), unless those cells are a narrow door niche in the wall (room 5) */
     if (z <= top) { *zo = z; return (cx == pcx && cy == pcy) || pcx == -999 || z == top ? 1 : lk_lt_side(cx, cy, pcx, pcy, z); }
-    if (pcx != -999 && pin && !in && z > ptop && !cf) { int ty = lk_lt_cell(pcx, cy), tx = lk_lt_cell(cx, pcy); cz = z; cf = cx == pcx ? 3 : cy == pcy ? 2 : (ty == -32768 && tx > -32768 ? 3 : 2); }   /* back wall candidate: the side that leads into the void */
+    if (pcx != -999 && pin && !in && z >= ptop && !cf) {   /* v8: >= (was >): a ray leaving the room exactly at the floor's back edge found nothing = a 1 pixel seam between floor and back wall (room 200 / 185, lightedges) */
+      int ty = lk_lt_cell(pcx, cy), tx = lk_lt_cell(cx, pcy); cz = z; cf = cx == pcx ? 3 : cy == pcy ? 2 : (ty == -32768 && tx > -32768 ? 3 : 2); }   /* back wall candidate: the side that leads into the void */
     pcx = cx; pcy = cy; ptop = top; pin = in;
   }
   if (cf) { *zo = cz; return cf; }
@@ -215,6 +220,37 @@ static void lk_lt_pos(int U, int V, int z, float *x, float *y) { int D = U - 118
 static int lk_lt_solid(float x, float y, float z) { int cx = (int)floorf(x / 16.0f), cy = (int)floorf(y / 16.0f), t = lk_lt_cell(cx, cy);
   if (!lk_lt_sun && cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_thin[cy][cx] > -32768) t = lk_lt_thin[cy][cx];
   return z < (float)t - 0.5f; }
+static int lk_lt_aor;                 /* v8 ROOM LIGHT (user 2026-11-05, idea 1: 'Dungeon-Raeume ohne Lichtquelle wirken flach'): indoor rooms get soft corner shadows (ambient occlusion from the height map), also rooms without flames */
+static uint8 lk_lt_vw[74][74];        /* v8: void cell that is a BACK WALL seen from the room: bit 0 looking -x, bit 1 looking -y (no room cell within 8 cells further on: not a pit / gap) */
+static int lk_lt_zref = -32768;       /* v8: the room's main floor height (most walkable cells); lower floors get a little darker (depth) */
+static int lk_lt_aoopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_AO"); v = e ? atoi(e) : 1; } return v; }   /* test aid: LANDSTALKER_LT_AO=0 switches the room light off */
+static int lk_lt_aoh(float x, float y, int dx, int dy) {   /* v8: top of what stands at (x, y) seen from direction (dx, dy); a back wall void = very high, other void = nothing */
+  int cx = (int)floorf(x / 16.0f), cy = (int)floorf(y / 16.0f), t;
+  if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) return (dx < 0 || dy < 0) ? 32767 : -32768;
+  t = lk_lt_top[cy][cx]; if (t != -32768) return t;
+  if ((dx < 0 && (lk_lt_vw[cy][cx] & 1)) || (dy < 0 && (lk_lt_vw[cy][cx] & 2))) return 32767;
+  return -32768; }
+#define LK_LT_AOR 40.0f   /* v8: reach of the corner shadows (units; a cell is 16) */
+#define LK_LT_AOK 0.55f   /* v8: strength of the corner shadows */
+static float lk_lt_aoval(float px, float py, int z, int f) {   /* v8: room light share of a surface point (1 = open floor): per direction the highest occluder angle, fading with distance (soft, no cell steps) */
+  static float dv[16][2]; static int di[16][2], init;   /* 16 directions (8 gave visible facets) */
+  float nx = f == 2 ? 1.0f : 0.0f, ny = f == 3 ? 1.0f : 0.0f, x0 = px + nx * 2.0f, y0 = py + ny * 2.0f, sum = 0.0f, ao; int k, n = 0;
+  if (!init) { for (k = 0; k < 16; k++) { float a = (float)k * 0.39269908f; dv[k][0] = cosf(a); dv[k][1] = sinf(a); di[k][0] = dv[k][0] > 0.01f ? 1 : dv[k][0] < -0.01f ? -1 : 0; di[k][1] = dv[k][1] > 0.01f ? 1 : dv[k][1] < -0.01f ? -1 : 0; } init = 1; }
+  if (f != 1) { int fl = lk_lt_aoh(x0, y0, 0, 0); if (fl > z) z = fl; }   /* a wall point just below the floor in front of it (view ray rounding): measure from the floor, else a thin dark line at the wall foot */
+  for (k = 0; k < 16; k++) { float best = 0.0f, d;
+    if (f != 1 && dv[k][0] * nx + dv[k][1] * ny < -0.1f) continue;   /* a wall: only the half space in front of it */
+    n++;
+    for (d = 2.0f; d < LK_LT_AOR; d += 2.0f) { float fall = 1.0f - d / LK_LT_AOR, t, sn; int h;
+      if (fall <= best) break;
+      h = lk_lt_aoh(x0 + dv[k][0] * d, y0 + dv[k][1] * d, di[k][0], di[k][1]);
+      if (h <= z) continue;
+      t = (float)(h - z) / d; sn = t / sqrtf(1.0f + t * t) * fall; if (sn > best) best = sn; }
+    sum += best; }
+  ao = n ? 1.0f - LK_LT_AOK * sum / (float)n : 1.0f;
+  if (f != 1) { int fl = lk_lt_aoh(x0, y0, 0, 0);   /* the foot of a wall: darker just above the floor in front of it */
+    if (fl > -32768 && z >= fl) { float c = 1.0f - (float)(z - fl) / 24.0f; if (c > 0.0f) ao *= 1.0f - 0.30f * c; } }
+  if (lk_lt_zref > -32768 && z < lk_lt_zref) { float dd = (float)(lk_lt_zref - z) / 64.0f; if (dd > 1.0f) dd = 1.0f; ao *= 1.0f - 0.18f * dd; }   /* depth: lower levels a little darker */
+  return ao < 0.35f ? 0.35f : ao > 1.0f ? 1.0f : ao; }
 static float lk_lt_term(float px, float py, float pz, float nx, float ny, float nz, const lk_lt_light *L, int shadow) {
   float vx = L->x - px, vy = L->y - py, vz = L->z - pz, d = sqrtf(vx * vx + vy * vy + vz * vz), ndl, att, t;
   float rad = L->rad > 0.0f ? L->rad : LK_LT_RAD, kk = L->k > 0.0f ? L->k : 1.0f;
@@ -335,6 +371,8 @@ static const lk_lt_blk *lk_lt_block(int bx, int by) {   /* the block, computed o
   static int16_t robj[1024];
   for (i = 0; i < 1024; i++) { int z = 0, pal, pr; lk_lt_rob = 0; lk_lt_rayA = lk_o_fetch(lk_o_pa, U0 + (i & 31), V0 + (i >> 5), &pal, &pr, 0) != 0; b->face[i] = (uint8)lk_lt_ray(U0 + (i & 31), V0 + (i >> 5), &z); b->z[i] = (int16_t)z; robj[i] = (int16_t)lk_lt_rob; }
   lk_lt_rayA = 1;
+  for (i = 0; i < 1024; i++) { float px, py; b->ao[i] = 255;   /* v8 room light */
+    if (lk_lt_aor && b->face[i]) { lk_lt_pos(U0 + (i & 31), V0 + (i >> 5), b->z[i], &px, &py); b->ao[i] = (uint8)(int)(lk_lt_aoval(px, py, b->z[i], b->face[i]) * 255.0f + 0.5f); } }
   { float bd[LK_LT_NL]; for (k = 0; k < lk_lt_nl; k++) {   /* the nearest lights of the block (picture distance of the light's projection) */
     float lu = lk_lt_l[k].x - lk_lt_l[k].y + 1184.0f, lv = (lk_lt_l[k].x + lk_lt_l[k].y) * 0.5f - lk_lt_l[k].z, du = lu - (float)(U0 + 16), dv = lv - (float)(V0 + 16), d2 = du * du + dv * dv; int m;
     if (fabsf(du) >= LK_LT_RAD * 1.6f + 24.0f || fabsf(dv) >= LK_LT_RAD * 1.6f + 24.0f) continue;
@@ -660,6 +698,20 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
           if (t > gnd) gnd = t; } }
       if (ok && gnd > -32768 && !(getenv("LANDSTALKER_LT_THIN") && atoi(getenv("LANDSTALKER_LT_THIN")) == 0)) for (m = 0; m < n; m++) lk_lt_thin[st[m][1]][st[m][0]] = (int16_t)gnd; } }   /* test aid: LANDSTALKER_LT_THIN=0 switches the rule off */
   lk_lt_sun = lk_lt_sunp() && lk_lt_isout(lk_o_room);   /* v5 */
+  lk_lt_aor = !lk_lt_sun && lk_lt_aoopt() && lk_o_room >= 0 && !lk_lt_isout(lk_o_room) && !(lk_o_room >= 139 && lk_o_room <= 143) && lk_o_room != 148;   /* v8: indoors, not the intro */
+  memset(lk_lt_vw, 0, sizeof lk_lt_vw); lk_lt_zref = -32768;
+  if (lk_lt_aor) { int hist[16] = { 0 }, m, ok, best = 0;
+    for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x);
+      if (w != 0x4000 && !((w >> 8) & 0x60)) hist[(w >> 8) & 15]++;   /* walkable cell */
+      if (lk_lt_top[y][x] != -32768) continue;
+      for (ok = 1, m = 1; m <= 8 && x - m >= 0; m++) if (lk_lt_top[y][x - m] != -32768) { ok = 0; break; } if (ok) lk_lt_vw[y][x] |= 1;
+      for (ok = 1, m = 1; m <= 8 && y - m >= 0; m++) if (lk_lt_top[y - m][x] != -32768) { ok = 0; break; } if (ok) lk_lt_vw[y][x] |= 2; }
+    { static uint8 v2[74][74]; memcpy(v2, lk_lt_vw, sizeof v2);   /* a back wall is WIDE: >= 4 such void cells in a row along the wall (a water channel running to the room edge is narrow, room 185) */
+      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int a, r;
+        if (v2[y][x] & 1) { for (r = 1, a = y - 1; a >= 0 && (v2[a][x] & 1); a--) r++; for (a = y + 1; a < 74 && (v2[a][x] & 1); a++) r++; if (r < 4) lk_lt_vw[y][x] &= (uint8)~1; }
+        if (v2[y][x] & 2) { for (r = 1, a = x - 1; a >= 0 && (v2[y][a] & 2); a--) r++; for (a = x + 1; a < 74 && (v2[y][a] & 2); a++) r++; if (r < 4) lk_lt_vw[y][x] &= (uint8)~2; } } }
+    for (m = 1; m < 16; m++) if (hist[m] > hist[best]) best = m;
+    if (hist[best] > 0) lk_lt_zref = 16 * best; }
   memset(lk_lt_wat, 0, sizeof lk_lt_wat);
   if (lk_lt_sun) { int pass, ch = 1, nw = 0;   /* proxies: WATER = a void cell whose picture is painted (river, pond): a floor 8 below its lowest neighbour (user: 'Nigels Schatten biegt sich am Fluss auf als waere das eine Wand');
        our copy only (lk_lt_top / lk_lt_gh), unpainted void (the black outside) stays void */
@@ -737,7 +789,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) h = (h ^ (uint32_t)UW(0xFFD192 + 148 * y + 2 * x)) * 16777619u;
   { static int lastopt = -1; if (lk_lt_get() != lastopt) { lastopt = lk_lt_get(); lk_lt_room = -2; } }   /* v6: the option changes what is built (flames, sun) */
   if (lk_o_room != lk_lt_room || h != lk_lt_hash) { lk_lt_room = lk_o_room; lk_lt_hash = h; lk_lt_retry = 12; lk_lt_newroom(); }
-  else if (lk_lt_nl == 0 && lk_lt_retry > 0 && (fr & 7) == 0) { lk_lt_retry--; if (!lk_lt_sun || lk_lt_pahash() != lk_lt_pah) lk_lt_newroom(); }
+  else if (lk_lt_nl == 0 && lk_lt_retry > 0 && (fr & 7) == 0) { lk_lt_retry--; if ((!lk_lt_sun && !lk_lt_aor) || lk_lt_pahash() != lk_lt_pah) lk_lt_newroom(); }   /* v8: room light rooms like the sun: only when the picture changed */
   { static int wait; static const char *at = (const char *)1;   /* the sun moved (L5 + right stick, or test aid LANDSTALKER_SUN_AT="frame:az:el,..."): new direction, drop the computed blocks */
     if (at == (const char *)1) at = getenv("LANDSTALKER_SUN_AT");
     if (at) { char l[256], *t; snprintf(l, sizeof l, "%%s", at); for (t = strtok(l, ","); t; t = strtok(NULL, ",")) { long f; float a2, e2; if (sscanf(t, "%%ld:%%f:%%f", &f, &a2, &e2) == 3 && f == fr) { lk_lt_azd = a2; lk_lt_eld = e2; lk_lt_sunmov = 1; wait = 0; } } }
@@ -747,7 +799,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
       if (lk_lt_sun) { lk_lt_free(); lk_lt_horizon(); }
       snprintf(m, sizeof m, "SUN DIR %%d HEIGHT %%d", (int)(lk_lt_azd + 0.5f) %% 360, (int)(lk_lt_eld + 0.5f)); lk_osd_say(m);
       printf("sun: azimuth %%.0f elevation %%.0f (frame %%ld)\n", lk_lt_azd, lk_lt_eld, fr); } }
-  lk_lt_on = (lk_lt_nl > 0 || lk_lt_sun) && !lk_hd_n;
+  lk_lt_on = (lk_lt_nl > 0 || lk_lt_sun || lk_lt_aor) && !lk_hd_n;   /* v8: room light */
   if (lk_lt_on && lk_lt_umax >= lk_lt_umin) {   /* v7 PREFETCH (user: 'jetzt haben wir Ruckler'): blocks that came into view while walking cost ~1 ms each, up to 13 in one
       frame; compute up to 2.5 ms / 6 blocks per frame of the ring 2 blocks around the area drawn last frame, so they are ready before they are needed */
     struct timespec t0; int bx, by, n = 0, bx0 = lk_lt_fdiv(lk_lt_umin, 32) - 2, bx1 = lk_lt_fdiv(lk_lt_umax, 32) + 2, by0 = lk_lt_fdiv(lk_lt_vmin, 32) - 2, by1 = lk_lt_fdiv(lk_lt_vmax, 32) + 2;
@@ -832,6 +884,7 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
   float ar, ag, ab, sr = 0, sg = 0, sb = 0, tl = 0, tb = 0; int k, j = -1;
   if (lk_lt_amb < 0.0f) { const char *e = getenv("LANDSTALKER_LT_AMB"); lk_lt_amb = e ? (float)atof(e) : 0.85f; if (lk_lt_amb < 0.0f || lk_lt_amb > 1.5f) lk_lt_amb = 0.85f; }
   ar = lk_lt_amb * 0.93f; ag = lk_lt_amb * 0.96f; ab = lk_lt_amb * 1.06f;
+  if (!lk_lt_nl && !lk_lt_sun) ar = ag = ab = 1.0f;   /* v8: a room without flames keeps the original brightness (only the corner shadows) */
   if (U < lk_lt_umin) lk_lt_umin = U; if (U > lk_lt_umax) lk_lt_umax = U; if (V < lk_lt_vmin) lk_lt_vmin = V; if (V > lk_lt_vmax) lk_lt_vmax = V;   /* v7: area for the prefetch */
   if ((sp & 0x200) && (j = lk_lt_figat(x, line)) >= 0) {   /* a figure pixel: lit at its cut-out position, facing the camera */
     const lk_lt_fig *F = &lk_lt_f[j]; float dx = (float)(x - F->ax), px = F->fx + dx * 0.5f, py = F->fy - dx * 0.5f, pz = F->fz + (float)(F->ay - line);
@@ -854,6 +907,7 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
       o = (cx >= 0 && cy >= 0 && cx < 74 && cy < 74) ? lk_lt_obj[cy][cx] : 0; if (!o) return (int)(0xFF000000u | (uint32_t)(g * 0x010101));
       h = (uint32_t)o * 2654435761u; return (int)(0xFF000000u | ((uint32_t)((g + (int)((h >> 8) & 127)) / 2) << 16) | ((uint32_t)((g + (int)((h >> 16) & 127)) / 2) << 8) | (uint32_t)((g + (int)((h >> 24) & 127)) / 2)); }
     if (!b->face[i]) return col;
+    if (lk_lt_dbg == 8) { int g = b->ao[i]; return (int)(0xFF000000u | (uint32_t)(g * 0x010101)); }   /* v8 test aid: room light share as grey */
     if (lk_lt_sun) { float u = (float)b->sun[i] * (1.0f / 255.0f);   /* v5: sky light (cool) + sun (warm), figures' shadows take the sun */
       if (u > 0.0f && lk_lt_nf) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); if (lk_lt_figsun(px, py, (float)b->z[i])) u = 0.0f; }
       ar = lk_lt_sS * 0.95f + lk_lt_sK * u; ag = lk_lt_sS * 0.98f + lk_lt_sK * u * 0.97f; ab = lk_lt_sS * 1.06f + lk_lt_sK * u * 0.90f; }
@@ -867,6 +921,7 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
       if (lk_lt_nf) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); { float w = lk_lt_shadowed(px, py, (float)b->z[i], L, b->li[k]); if (w >= 1.0f) { tb += t; continue; } if (w > 0.0f) { tb += t * w; t *= 1.0f - w; } } }
       tl += t; t *= lk_lt_flk[b->li[k]]; sr += t * L->r; sg += t * L->g; sb += t * L->b;
     }
+    if (b->ao[i] < 255) { float a = (float)b->ao[i] * (1.0f / 255.0f); ar *= a; ag *= a; ab *= a; }   /* v8 room light: corner shadows take the base light only */
     if (tb > 0.0f) { float d = 1.0f - 0.5f * tb / (tb + tl + 0.05f); ar *= d; ag *= d; ab *= d; }   /* v4: a figure's shadow also takes part of the base light (share of the blocked light), so the silhouette reads (user 2026-11-03) */
     if (lk_lt_swon) { int f = b->face[i]; float px, py, t; lk_lt_pos(U, V, b->z[i], &px, &py);   /* v3 sword glow */
       t = lk_lt_term(px, py, (float)b->z[i], f == 2 ? 1.0f : 0.0f, f == 3 ? 1.0f : 0.0f, f == 1 ? 1.0f : 0.0f, &lk_lt_sw, 0); sr += t * lk_lt_sw.r; sg += t * lk_lt_sw.g; sb += t * lk_lt_sw.b; }
