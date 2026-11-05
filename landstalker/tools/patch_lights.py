@@ -378,7 +378,7 @@ static void lk_am_setup(void) {   /* kinds of the room (lk_lt_newroom, after the
   int ts = lk_o_room >= 0 ? (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) : -1, k;
   lk_am_np = 0; lk_am_bio = 0; lk_am_rng = (uint32_t)(lk_o_room + 7) * 2246822519u;
   if (lk_o_room < 0 || (lk_o_room >= 139 && lk_o_room <= 143) || lk_o_room == 148) return;   /* (the option is asked every frame in lk_am_step: switching it in the menu works at once) */
-  if (lk_lt_sun && (ts == 7 || ts == 12)) lk_am_bio |= 1 | 2;   /* routes / forests (room table $0A0A00 byte 4: tilesets 7 / 12) */
+  /* leaves (1) removed and fireflies (2) kept for a later day / night cycle (user 2026-11-05: 'die Blaetter raus', 'Gluehwuermchen heben wir uns auf fuer den Tag-Nacht-Zyklus'); both still work with LANDSTALKER_AMBIENT_FORCE */
   if (ts == 4 || ts == 5 || ts == 9) lk_am_bio |= 8;   /* caves, waterfall shrine, swamp shrine */
   for (k = 0; k < lk_lt_nl; k++) lk_am_bio |= lk_lt_l[k].lava ? 16 : 4;
   if (lk_am_force()) lk_am_bio = lk_am_force();
@@ -408,6 +408,9 @@ static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before th
     for (tries = 0; tries < 6; tries++) { int U = lk_lt_umin + (int)(lk_am_rnd() * (float)(lk_lt_umax - lk_lt_umin + 1)), V = lk_lt_vmin + (int)(lk_am_rnd() * (float)(lk_lt_vmax - lk_lt_vmin + 1)), want = 0; float r = lk_am_rnd();
       if ((lk_am_bio & 1) && r < 0.028f) want = 1; else if ((lk_am_bio & 2) && r > 0.975f && nff < 16) want = 2; else if ((lk_am_bio & 8) && r > 0.40f && r < 0.408f) want = 5;
       if (!want || !lk_am_surf(U, V, &px, &py, &pz, &sun)) continue;
+      if (want == 5) { int cx = (int)floorf(px / 16.0f), cy = (int)floorf(py / 16.0f), w2;   /* drops land on WALKABLE floor only (user 2026-11-05: 'nicht immer nur am Boden': tops of walls / pillars / boxes are floor faces too) */
+        if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) continue;
+        w2 = UW(0xFFD192 + 148 * cy + 2 * cx); if (w2 == 0x4000 || ((w2 >> 8) & 0x60) || (int)pz != 16 * ((w2 >> 8) & 15)) continue; }
       if (want == 2 && sun > 140) continue;   /* fireflies only in the shade */
       { lk_am_p *P = lk_am_new(want); if (!P) break; P->gz = pz;
         if (want == 1) { P->x = px - 30.0f; P->y = py + 30.0f; P->z = pz + 90.0f + lk_am_rnd() * 70.0f; P->vx = 0.22f + lk_am_rnd() * 0.15f; P->vy = -0.18f - lk_am_rnd() * 0.12f; P->vz = -0.30f - lk_am_rnd() * 0.20f; P->life = (int16_t)((P->z - pz) / -P->vz + 60.0f); }
