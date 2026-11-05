@@ -868,6 +868,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       if (ok && gnd > -32768 && !(getenv("LANDSTALKER_LT_THIN") && atoi(getenv("LANDSTALKER_LT_THIN")) == 0)) for (m = 0; m < n; m++) lk_lt_thin[st[m][1]][st[m][0]] = (int16_t)gnd; } }   /* test aid: LANDSTALKER_LT_THIN=0 switches the rule off */
   lk_lt_sun = lk_lt_sunp() && lk_lt_isout(lk_o_room);   /* v5 */
   lk_lt_key = 0; if (lk_lt_sun) lk_lt_sunset();   /* v8: lk_lt_sd may hold the key light of the room before */
+  if (lk_lt_dbg == 1 && lk_lt_sun) printf("sun: room %%d az %%.0f el %%.0f dir %%.2f %%.2f %%.2f\n", lk_o_room, lk_lt_azd, lk_lt_eld, lk_lt_sd[0], lk_lt_sd[1], lk_lt_sd[2]);
   lk_lt_aor = !lk_lt_sun && lk_lt_aoopt() && lk_o_room >= 0 && !lk_lt_isout(lk_o_room) && !(lk_o_room >= 139 && lk_o_room <= 143) && lk_o_room != 148;   /* v8: indoors, not the intro */
   memset(lk_lt_vw, 0, sizeof lk_lt_vw); lk_lt_zref = -32768;
   if (lk_lt_aor) { int hist[16] = { 0 }, m, ok, best = 0;
@@ -1205,7 +1206,7 @@ rep("int lk_sfx_ln = lk_sfx_linebegin(line);   /* LK_SWORDFX v1 */\n",
     "int lk_sfx_ln = lk_sfx_linebegin(line);   /* LK_SWORDFX v1 */\n    int lk_lt_ln = lk_lt_linebegin();   /* %s */\n" % VER)
 rep("      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n",
     "      if (lk_lt_ln && !black && (src == 1 || src == 2 || src == 3)) col = lk_lt_pix(x, line, ubase + x - lk_sm_sxn, vbase - lk_sm_syn, src == 1 ? sp : 0, col);   /* %s */\n" % VER +
-    "      else if (lk_lt_ln && !black && !margin && (src == 0 || src == 6 || src == 7)) col = lk_lt_voidglow(ubase + x - lk_sm_sxn, vbase - lk_sm_syn, col);   /* LK_LIGHTS v8 shafts over the void */\n" +
+    "      else if (lk_lt_ln && !black && (src == 0 || src == 6 || src == 7)) col = lk_lt_voidglow(ubase + x - lk_sm_sxn, vbase - lk_sm_syn, col);   /* LK_LIGHTS v8 shafts over the void */\n" +
     "      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n")
 open(p, "w").write(s)
 print("vdp_render.c patched:", VER)

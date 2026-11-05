@@ -58,7 +58,7 @@ static void lk_sfx_step(void) {   /* once per frame (first composed line): swing
   lk_sfx_act = lk_sfx_kind && (lk_sfx_scrm ? lk_sfx_sna > 0 : (ph >= 1 && ph <= 4));
   if (!lk_sfx_kind) lk_sfx_np = 0;
   if (lk_sfx_scrm) { for (k = 0; k < lk_sfx_sna; k++) { ax[na] = lk_sfx_sax[k]; ay[na] = lk_sfx_say[k]; na++; } lk_sfx_sna = 0; }   /* screens: the sword pixels of the frame before */
-  else if (lk_sfx_act) for (y = 0; y < 224 && na < 4096; y++) for (x = 0; x < w && x < LK_OSW && na < 4096; x++) { uint16 v = lk_o_spr[y][x]; if ((v & 0x200) && ((v & 0x3F) == 45 || (v & 0x3F) == 46)) { ax[na] = (int16_t)x; ay[na] = (int16_t)y; na++; } }
+  else if (lk_sfx_act) for (y = 0; y < 224 && na < 4096; y++) for (x = 0; x < w && x < LK_OSW && na < 4096; x++) { uint16 v = lk_o_spr[y][x]; if ((v & 0x200) && ((v & 0x3F) == 45 || (v & 0x3F) == 46) && lk_ss_nig[y][x]) { ax[na] = (int16_t)x; ay[na] = (int16_t)y; na++; } }   /* only Nigel's pixels (user 2026-11-05: green motes at the Gaia rocks / other sprites of the same colours) */
   if (na) {   /* spawn (mock-up 4 rates) */
     int n = lk_sfx_kind == 1 ? lk_sfx_ri(3, 5) : lk_sfx_kind == 3 ? ((fr & 1) == 0) : lk_sfx_ri(2, 4);
     for (k = 0; k < n && lk_sfx_np < LK_SFX_N; k++) {
