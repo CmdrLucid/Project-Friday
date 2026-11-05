@@ -1017,7 +1017,7 @@ static int lk_lt_voidglow(int U, int V, int col) {   /* v8 shafts over pixels wi
   i = ((V & 31) << 5) | (U & 31);   /* (the view ray of a backdrop pixel often meets a pit wall far below: its beam is integrated from there, fine) */
   if (lk_lt_dbg == 10) return (int)(0xFF000000u | ((uint32_t)b->beam[i] << 16) | 0x30);   /* test aid: dark blue = void pixel reached */
   d = lk_lt_dmap[((V & 511) << 9) | (U & 511)];
-  gl = (float)b->beam[i] * (0.80f + 0.20f * sinf((float)lk_lt_frame * 0.02f + (float)U * 0.07f + (float)V * 0.03f)) * 0.42f + (float)d * 0.50f;
+  gl = (float)b->beam[i] * 0.38f + (float)d * 0.50f;
   if (gl <= 0.0f) return col;
   r = (int)((c >> 16) & 255) + (int)(gl * lk_lt_sh[0].cr); g = (int)((c >> 8) & 255) + (int)(gl * lk_lt_sh[0].cg); bl = (int)(c & 255) + (int)(gl * lk_lt_sh[0].cb);
   if (r > 255) r = 255; if (g > 255) g = 255; if (bl > 255) bl = 255;
@@ -1079,7 +1079,7 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
   { uint32_t c = (uint32_t)col; float fr = ar + 2.2f * sr, fg = ag + 2.2f * sg, fb = ab + 2.2f * sb; int r, g, bl;
     if (fr > 2.4f) fr = 2.4f; if (fg > 2.4f) fg = 2.4f; if (fb > 2.4f) fb = 2.4f;
     r = (int)((float)((c >> 16) & 255) * fr); g = (int)((float)((c >> 8) & 255) * fg); bl = (int)((float)(c & 255) * fb);
-    if (lk_lt_nsh) { int d = lk_lt_dmap[((V & 511) << 9) | (U & 511)]; float gl = (float)lk_lt_bm * (0.80f + 0.20f * sinf((float)lk_lt_frame * 0.02f + (float)U * 0.07f + (float)V * 0.03f)) * 0.42f;   /* v8 shafts: beam glow (pale, user 2026-11-05) (slow shimmer) + dust motes in front of the surface */
+    if (lk_lt_nsh) { int d = lk_lt_dmap[((V & 511) << 9) | (U & 511)]; float gl = (float)lk_lt_bm * 0.38f;   /* user 2026-11-05: the beam stands still (no shimmer), only the motes move */   /* v8 shafts: beam glow (pale, user 2026-11-05) (slow shimmer) + dust motes in front of the surface */
       if (d && (lk_lt_bz == -32768 || lk_lt_dmz[((V & 511) << 9) | (U & 511)] >= lk_lt_bz - 2)) gl += (float)d * 0.50f;
       if (gl > 0.0f) { r += (int)(gl * lk_lt_sh[0].cr); g += (int)(gl * lk_lt_sh[0].cg); bl += (int)(gl * lk_lt_sh[0].cb); } }
     if (r > 255) r = 255; if (g > 255) g = 255; if (bl > 255) bl = 255;
