@@ -47,3 +47,16 @@ The blend (LK_SUBPIX v3, weight 5/16) is soft while sprinting. Sharp variant: th
 ## (B) status 2026-10-31
 Friday hints DONE (Select, `tools/patch_friday.py`, `lang/friday_hints.json`, `docs/FRIDAY_HINTS.md`); the user reviews the texts. The map part is still open.
 
+
+## (C) Modern effects (user 2026-11-05 night: 'was koennen wir mit Effekten noch tun, um das Spiel moderner aussehen zu lassen'; rests on dev cb5acc3, Lighting v8)
+Picture only, every effect switchable, Off = original. Proposed list (user's picks marked CHOSEN):
+1. Cloud shadows drifting over outdoor maps (cheap) - 'ggf.' (maybe, after the others).
+2. CHOSEN: ambient particles per area: leaves on routes, fireflies in shaded forest spots, embers over lava / torches, water drips in caves (dust in light shafts exists).
+3. CHOSEN: water: reflections of Nigel / enemies in rivers and ponds, glints, rings when wading.
+4. CHOSEN: heat haze over lava and big fires.
+5. Hit feedback (sparks, white flash, light shake) - not chosen.
+6. CHOSEN: enemies dissolve into particles when defeated.
+7. Dust puffs (sprint / landing), splashes - not chosen.
+8. Item / magic effects (pickup sparkle, chest light, EkeEke aura, church save glow) - not chosen.
+9. Nigel's silhouette behind walls - not chosen.
+Order agreed: 2 -> 6 -> 4 -> 3 -> (1). Each one first as a preview video for the user.
