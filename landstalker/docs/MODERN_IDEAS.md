@@ -61,3 +61,4 @@ Picture only, every effect switchable, Off = original. Proposed list (user's pic
 9. Nigel's silhouette behind walls - not chosen.
 Order agreed: 2 -> 6 -> 4 -> 3 -> (1). Each one first as a preview video for the user.
 - 2026-11-05 night, after the first preview (dev 5874320): leaves REMOVED (user); fireflies kept in the code but OFF until a future DAY / NIGHT CYCLE (user: 'heben wir uns auf fuer den Tag-Nacht-Zyklus, die passen gut in die Nacht'; `LANDSTALKER_AMBIENT_FORCE=2` shows them); drops only on walkable floor. New idea noted: day / night cycle (tint, fireflies at night, lit windows?) - not planned yet.
+2026-11-05 night (dev 0b91956): Particles (id 49) and Enemy Dissolve (id 50, tools/patch_dissolve.py) BUILT; shafts lengthened; next: heat haze.

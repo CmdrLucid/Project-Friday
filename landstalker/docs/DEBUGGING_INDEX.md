@@ -203,3 +203,4 @@
 - L1597: Sword effects default On + file select swing colour (2026-11-05 evening, Deck, Opus 5.5)
 - L1607: Boot Colors option + release v1.8.0 (2026-11-04 night, Deck, Opus 5.5)
 - L1616: Lighting v8: room light, key light, light shafts, speed (2026-11-05, Deck, Opus 5.5)
+- L1623: Modern effects: ambient particles, enemy dissolve (2026-11-05 night, Deck, Opus 5.5)
