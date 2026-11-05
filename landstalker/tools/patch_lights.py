@@ -287,6 +287,7 @@ typedef struct { float x, y, z, r, k, cr, cg, cb, h, d[3]; int nd; } lk_lt_shaft
 typedef struct { float t, ang, rad, ph, sp, tw; } lk_lt_mote_t;
 #define LK_LT_NSH 3
 #define LK_LT_NMO 112
+#define LK_LT_MOTEH 230.0f   /* dust only in the lower part of the (now very long) shaft, where it is seen */
 static lk_lt_shaft_t lk_lt_sh[LK_LT_NSH]; static int lk_lt_nsh; static lk_lt_mote_t lk_lt_mo[LK_LT_NSH][LK_LT_NMO];
 static uint8 lk_lt_dmap[512 * 512]; static int16_t lk_lt_dmz[512 * 512]; static int lk_lt_dl[LK_LT_NSH * LK_LT_NMO * 2], lk_lt_dn;
 static uint32_t lk_lt_rng;
@@ -310,11 +311,11 @@ static void lk_lt_shsetup(void) {
     for (k = 0; k < lk_lt_nsh; k++) if (fabsf(lk_lt_sh[k].x - cx) + fabsf(lk_lt_sh[k].y - cy) < 72.0f) ok = 0;
     if (!ok) continue;
     S = &lk_lt_sh[lk_lt_nsh++]; S->x = cx + (lk_lt_rnd() - 0.5f) * 10.0f; S->y = cy + (lk_lt_rnd() - 0.5f) * 10.0f; S->z = (float)lk_lt_zref;
-    S->r = 22.0f + lk_lt_rnd() * 26.0f;   /* user 2026-11-05: 'breiter mit besserem Verlauf, Octopath Traveler Stil' (was 10..24) */ S->k = 0.55f + lk_lt_rnd() * 0.45f; S->h = 150.0f + lk_lt_rnd() * 90.0f; S->nd = 40 + (int)(lk_lt_rnd() * 60.0f);   /* user 2026-11-05: 'ein paar mehr Staubpartikel' (was 10..48) */ if (S->nd > LK_LT_NMO) S->nd = LK_LT_NMO;
+    S->r = 22.0f + lk_lt_rnd() * 26.0f;   /* user 2026-11-05: 'breiter mit besserem Verlauf, Octopath Traveler Stil' (was 10..24) */ S->k = 0.55f + lk_lt_rnd() * 0.45f; S->h = 460.0f + lk_lt_rnd() * 60.0f;   /* user 2026-11-05: shafts must leave the picture at the top (from the ceiling, not starting in the middle of the room): far above every back wall */ S->nd = 40 + (int)(lk_lt_rnd() * 60.0f);   /* user 2026-11-05: 'ein paar mehr Staubpartikel' (was 10..48) */ if (S->nd > LK_LT_NMO) S->nd = LK_LT_NMO;
     { float az = (lk_lt_kaz + (lk_lt_rnd() - 0.5f) * 50.0f) * 3.14159265f / 180.0f, el = (74.0f + lk_lt_rnd() * 12.0f) * 3.14159265f / 180.0f;   /* user 2026-11-05: 'viel zu steil ... als wuerden die links aus der Wand kommen, nicht von der Decke': nearly vertical, 74..86 degrees, leaning roughly like the key light */
       S->d[0] = cosf(az) * cosf(el); S->d[1] = sinf(az) * cosf(el); S->d[2] = sinf(el); }
     w = lk_lt_rnd(); S->cr = 0.84f + 0.08f * w; S->cg = 0.88f + 0.04f * w; S->cb = 0.92f - 0.02f * w;   /* user 2026-11-05: 'weniger hell, fahles Licht': pale grey white, a hint warmer or cooler per room */
-    for (k = 0; k < S->nd; k++) { lk_lt_mote_t *M = &lk_lt_mo[lk_lt_nsh - 1][k]; M->t = lk_lt_rnd() * S->h; M->ang = lk_lt_rnd() * 6.2831853f; M->rad = sqrtf(lk_lt_rnd()) * 0.85f;
+    for (k = 0; k < S->nd; k++) { lk_lt_mote_t *M = &lk_lt_mo[lk_lt_nsh - 1][k]; M->t = lk_lt_rnd() * LK_LT_MOTEH; M->ang = lk_lt_rnd() * 6.2831853f; M->rad = sqrtf(lk_lt_rnd()) * 0.85f;
       M->ph = lk_lt_rnd() * 6.2831853f; M->sp = 0.04f + lk_lt_rnd() * 0.10f; M->tw = 0.02f + lk_lt_rnd() * 0.05f; } }
   if (lk_lt_dbg == 1) for (k = 0; k < lk_lt_nsh; k++) printf("shaft: room %%d #%%d at (%%.0f, %%.0f, %%.0f) r %%.0f k %%.2f h %%.0f motes %%d\n", lk_o_room, k, lk_lt_sh[k].x, lk_lt_sh[k].y, lk_lt_sh[k].z, lk_lt_sh[k].r, lk_lt_sh[k].k, lk_lt_sh[k].h, lk_lt_sh[k].nd);
 }
@@ -334,7 +335,7 @@ static void lk_lt_shblock(lk_lt_blk *b, int U0, int V0) {   /* pool + beam of on
       for (z = (float)zs + 2.0f; z < S->z + S->h * S->d[2]; z += 4.0f) { float fa; lk_lt_pos(U, V, (int)z, &px, &py); q = lk_lt_shdist(S, px, py, z, &sv);
         if (q >= S->r || sv < 0.0f || sv > S->h) continue;
         w = 1.0f - (q / S->r) * (q / S->r); w *= w;   /* soft gaussian-like edge, no rim */
-        fa = sv < 70.0f ? sv / 70.0f : 1.0f; if (sv > S->h - 70.0f) fa *= (S->h - sv) / 70.0f; fa *= 0.55f + 0.45f * sv / S->h;   /* fades into the floor, brighter towards the opening, soft top */
+        fa = sv < 70.0f ? sv / 70.0f : 1.0f; if (sv > S->h - 70.0f) fa *= (S->h - sv) / 70.0f; fa *= sv < 220.0f ? 0.55f + 0.45f * sv / 220.0f : 1.0f;   /* fades into the floor, brighter towards the opening, soft top */
         sum += w * fa; }
       sum *= 0.26f * S->k;   /* the wider beam is crossed by more samples */ sum += (float)b->beam[i] * (1.0f / 255.0f); b->beam[i] = (uint8)(sum >= 1.0f ? 255 : (int)(sum * 255.0f)); }
     if (lk_lt_dbg == 9) { int nb = 0, np = 0, mb = 0; for (i = 0; i < 1024; i++) { if (b->beam[i]) nb++; if (b->pool[i]) np++; if (b->beam[i] > mb) mb = b->beam[i]; } if (nb || np) printf("shaft block %%d,%%d: beam %%d px (max %%d) pool %%d px\n", U0, V0, nb, mb, np); } }
@@ -342,7 +343,7 @@ static void lk_lt_shblock(lk_lt_blk *b, int U0, int V0) {   /* pool + beam of on
 static void lk_lt_shstep(long fr) {   /* dust motes: drift slowly down the shaft, swirl, twinkle; drawn into a small map (picture coordinates & 511) with their height for the occlusion test */
   int k, j;
   for (j = 0; j < lk_lt_dn; j++) lk_lt_dmap[lk_lt_dl[j]] = 0;
-  if (lk_lt_shwait > 0 && --lk_lt_shwait == 0 && lk_lt_key) { lk_lt_shaft_t *S = &lk_lt_sh[0]; if (!lk_lt_nsh) { lk_lt_nsh = 1; S->r = 32.0f; S->k = 0.8f; S->h = 200.0f; S->nd = 70; S->cr = 0.88f; S->cg = 0.90f; S->cb = 0.92f; S->d[0] = -0.17f; S->d[1] = 0.17f; S->d[2] = 0.97f; }
+  if (lk_lt_shwait > 0 && --lk_lt_shwait == 0 && lk_lt_key) { lk_lt_shaft_t *S = &lk_lt_sh[0]; if (!lk_lt_nsh) { lk_lt_nsh = 1; S->r = 32.0f; S->k = 0.8f; S->h = 480.0f; S->nd = 70; S->cr = 0.88f; S->cg = 0.90f; S->cb = 0.92f; S->d[0] = -0.17f; S->d[1] = 0.17f; S->d[2] = 0.97f; }
     { int jj, cx, cy; for (jj = 0; jj < lk_lt_nf; jj++) if (lk_lt_f[jj].tag == 1) break;   /* Nigel (entity 0) of this frame's figure list */
       if (jj < lk_lt_nf) { int on = lk_lt_shopt() == 4; S->x = lk_lt_f[jj].fx + (on ? 2.0f : 8.0f); S->y = lk_lt_f[jj].fy + (on ? 2.0f : 44.0f); }   /* 4: right on Nigel (his shadow in the shaft) */ else { S->x = (float)SW(0xFF5414) + 8.0f; S->y = (float)SW(0xFF5416) + 44.0f; }
       cx = (int)(S->x / 16.0f); cy = (int)(S->y / 16.0f); S->z = (cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_top[cy][cx] != -32768) ? (float)lk_lt_top[cy][cx] : (float)lk_lt_zref; }
@@ -352,10 +353,10 @@ static void lk_lt_shstep(long fr) {   /* dust motes: drift slowly down the shaft
     ex = S->d[1]; ey = -S->d[0]; l = sqrtf(ex * ex + ey * ey); if (l < 1e-3f) { ex = 1.0f; ey = 0.0f; l = 1.0f; } ex /= l; ey /= l;   /* a basis across the shaft */
     fx = S->d[1] * ez - S->d[2] * ey; fy = S->d[2] * ex - S->d[0] * ez; fz = S->d[0] * ey - S->d[1] * ex;
     for (j = 0; j < S->nd; j++) { lk_lt_mote_t *M = &lk_lt_mo[k][j]; float a, rr, px, py, pz, br, fa; int U, V, idx, v;
-      M->t -= M->sp; if (M->t < 4.0f) M->t += S->h - 8.0f; M->ang += 0.006f + 0.004f * M->sp * 10.0f;
+      M->t -= M->sp; if (M->t < 4.0f) M->t += LK_LT_MOTEH - 8.0f; M->ang += 0.006f + 0.004f * M->sp * 10.0f;
       a = M->ang + 0.6f * sinf(M->ph + (float)fr * 0.011f); rr = M->rad * S->r;
       px = S->x + S->d[0] * M->t + (ex * cosf(a) + fx * sinf(a)) * rr; py = S->y + S->d[1] * M->t + (ey * cosf(a) + fy * sinf(a)) * rr; pz = S->z + S->d[2] * M->t + (ez * cosf(a) + fz * sinf(a)) * rr;
-      fa = M->t < 20.0f ? M->t / 20.0f : M->t > S->h - 40.0f ? (S->h - M->t) / 40.0f : 1.0f; if (fa <= 0.0f) continue;
+      fa = M->t < 20.0f ? M->t / 20.0f : M->t > LK_LT_MOTEH - 40.0f ? (LK_LT_MOTEH - M->t) / 40.0f : 1.0f; if (fa <= 0.0f) continue;
       br = (0.35f + 0.65f * (0.5f + 0.5f * sinf(M->ph * 3.0f + (float)fr * M->tw))) * fa * (1.0f - 0.5f * M->rad) * S->k;
       U = (int)lrintf(px - py + 1184.0f); V = (int)lrintf((px + py) * 0.5f - pz); idx = ((V & 511) << 9) | (U & 511);
       v = (int)(br * 150.0f); if (v < 8) continue; if (v > 255) v = 255;
