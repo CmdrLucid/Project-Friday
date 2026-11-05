@@ -231,7 +231,9 @@ static int lk_lt_aoh(float x, float y, int dx, int dy) {   /* v8: top of what st
   if ((dx < 0 && (lk_lt_vw[cy][cx] & 1)) || (dy < 0 && (lk_lt_vw[cy][cx] & 2))) return 32767;
   return -32768; }
 #define LK_LT_AOR 40.0f   /* v8: reach of the corner shadows (units; a cell is 16) */
-#define LK_LT_AOK 0.55f   /* v8: strength of the corner shadows */
+static float lk_lt_aoenv(const char *n, float d) { const char *e = getenv(n); float v = e ? (float)atof(e) : d; return v < 0.0f ? 0.0f : v > 1.5f ? 1.5f : v; }
+static float lk_lt_aok = -1.0f, lk_lt_aotop = -1.0f;   /* v8: strength of the corner shadows (test aid LANDSTALKER_LT_AOK) and how much darker walls are than floors under the light from above (LANDSTALKER_LT_AOTOP) */
+#define LK_LT_AOK lk_lt_aok
 static float lk_lt_aoval(float px, float py, int z, int f) {   /* v8: room light share of a surface point (1 = open floor): per direction the highest occluder angle, fading with distance (soft, no cell steps) */
   static float dv[16][2]; static int di[16][2], init;   /* 16 directions (8 gave visible facets) */
   float nx = f == 2 ? 1.0f : 0.0f, ny = f == 3 ? 1.0f : 0.0f, x0 = px + nx * 2.0f, y0 = py + ny * 2.0f, sum = 0.0f, ao; int k, n = 0;
@@ -246,9 +248,12 @@ static float lk_lt_aoval(float px, float py, int z, int f) {   /* v8: room light
       if (h <= z) continue;
       t = (float)(h - z) / d; sn = t / sqrtf(1.0f + t * t) * fall; if (sn > best) best = sn; }
     sum += best; }
+  if (lk_lt_aok < 0.0f) { lk_lt_aok = lk_lt_aoenv("LANDSTALKER_LT_AOK", 0.55f); lk_lt_aotop = lk_lt_aoenv("LANDSTALKER_LT_AOTOP", 0.0f); }
   ao = n ? 1.0f - LK_LT_AOK * sum / (float)n : 1.0f;
+  if (f != 1 && lk_lt_aotop > 0.0f) ao *= 1.0f - lk_lt_aotop;   /* light from above: a wall gets less of it than a floor */
   if (f != 1) { int fl = lk_lt_aoh(x0, y0, 0, 0);   /* the foot of a wall: darker just above the floor in front of it */
     if (fl > -32768 && z >= fl) { float c = 1.0f - (float)(z - fl) / 24.0f; if (c > 0.0f) ao *= 1.0f - 0.30f * c; } }
+  { int cx = (int)floorf(px / 16.0f), cy = (int)floorf(py / 16.0f); if (f == 1 && cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_wat[cy][cx]) z = 32767; }   /* v8: painted water (our fill) gets no depth darkening: it meets water pixels without geometry (left as they are) = a hard edge */
   if (lk_lt_zref > -32768 && z < lk_lt_zref) { float dd = (float)(lk_lt_zref - z) / 64.0f; if (dd > 1.0f) dd = 1.0f; ao *= 1.0f - 0.18f * dd; }   /* depth: lower levels a little darker */
   return ao < 0.35f ? 0.35f : ao > 1.0f ? 1.0f : ao; }
 static float lk_lt_term(float px, float py, float pz, float nx, float ny, float nz, const lk_lt_light *L, int shadow) {
@@ -713,12 +718,18 @@ static void lk_lt_newroom(void) {   /* height map + lights of the current room *
     for (m = 1; m < 16; m++) if (hist[m] > hist[best]) best = m;
     if (hist[best] > 0) lk_lt_zref = 16 * best; }
   memset(lk_lt_wat, 0, sizeof lk_lt_wat);
-  if (lk_lt_sun) { int pass, ch = 1, nw = 0;   /* proxies: WATER = a void cell whose picture is painted (river, pond): a floor 8 below its lowest neighbour (user: 'Nigels Schatten biegt sich am Fluss auf als waere das eine Wand');
+  if (lk_lt_sun || lk_lt_aor) { int pass, ch = 1, nw = 0; static int16_t org[74][74];   /* v8: also indoors (room light): painted water beside a walkway was void = an endless wall down = a dark box on the water (room 185, lightedges) */
+    memcpy(org, lk_lt_top, sizeof org);
+    /* proxies: WATER = a void cell whose picture is painted (river, pond): a floor 8 below its lowest neighbour (user: 'Nigels Schatten biegt sich am Fluss auf als waere das eine Wand');
        our copy only (lk_lt_top / lk_lt_gh), unpainted void (the black outside) stays void */
     for (pass = 0; pass < 12 && ch; pass++) { static int16_t nh[74][74]; ch = 0;
-      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int m = 9999, a, b2, U, V, pal, pr; nh[y][x] = lk_lt_top[y][x];
+      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int m = 9999, a, b2, U, V, pal, pr, wo = 0; nh[y][x] = lk_lt_top[y][x];
         if (lk_lt_top[y][x] != -32768) continue;
-        for (b2 = y - 1; b2 <= y + 1; b2++) for (a = x - 1; a <= x + 1; a++) if (a >= 0 && b2 >= 0 && a < 74 && b2 < 74 && lk_lt_top[b2][a] != -32768 && lk_lt_top[b2][a] < m) m = lk_lt_top[b2][a];
+        if (!lk_lt_sun) { int e1 = 0, e2 = 0, e3 = 0, e4 = 0, d;   /* v8 indoors: never a back wall void, and only between room cells (a channel / pool INSIDE the room): room cells within 8 on both sides along x or along y, else a front edge wall (painted down into the black) would become a floor */
+          if (lk_lt_vw[y][x]) continue;
+          for (d = 1; d <= 8; d++) { if (x - d >= 0 && org[y][x - d] != -32768) e1 = 1; if (x + d < 74 && org[y][x + d] != -32768) e2 = 1; if (y - d >= 0 && org[y - d][x] != -32768) e3 = 1; if (y + d < 74 && org[y + d][x] != -32768) e4 = 1; }
+          if (!((e1 && e2) || (e3 && e4))) { if (!pass) continue; wo = 1; } }   /* v8: outside that only as a continuation of water found already (the water runs on to the room edge in the picture, room 185), at the water's height */
+        for (b2 = y - 1; b2 <= y + 1; b2++) for (a = x - 1; a <= x + 1; a++) if (a >= 0 && b2 >= 0 && a < 74 && b2 < 74 && lk_lt_top[b2][a] != -32768 && lk_lt_top[b2][a] < m && (!wo || lk_lt_wat[b2][a])) m = lk_lt_top[b2][a];
         if (m == 9999) continue;
         m = pass == 0 ? m - 8 : m; if (m < 0) m = 0;
         U = 16 * (x - y) + 1184; V = 8 * (x + y) + 8 - m;
