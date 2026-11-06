@@ -29,6 +29,7 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a201. 2026-10-30 (late, Deck, Opus 5.5): SPRINT ANIMATION built (`tools/patch_sprintanim.py`, LK_SPRINTANIM v1; SPRINT_IDEAS last entry): variant G applied at runtime to Nigel's walk frames while sprinting. Headless-checked (front view); user check open, especially the back view (walking up).
 
+## 0a285. 2026-11-06 later 5 (Deck, Opus 5.5): added light (shafts, motes, particles, windows) fades with the game's palette fade at room changes (`lk_lt_fadek`); fewer fireflies. NEXT -94 stays.
 ## 0a284. 2026-11-06 later 4 (Deck, Opus 5.5): fireflies only in spots at bushes / trees / water, none in towns, few in Destel; window light shadows on the floor only. NEXT -94 stays (user checks at night).
 ## 0a283. 2026-11-06 later 3 (Deck, Opus 5.5): Day / Night v3: clean window glass (mask between frame pixels), warm window light on the ground with figure shadows (merged per wall), fireflies at night outdoors; user: morning / evening colours good. Details INDEX status first entry. NEXT -94.
 ## 0a282. 2026-11-06 later 2 (Deck, Opus 5.5): user feedback -> Day / Night colours v2 (redder, longer twilight, brighter night), sword glow outdoors at night, LIT WINDOWS (tileset 0 houses), water v2 (docks floor no longer water, calmer ripple), clouds faster (commit aa2db18). Heat Haze confirmed 'gut'. Details INDEX status first entry. NEXT -93.
