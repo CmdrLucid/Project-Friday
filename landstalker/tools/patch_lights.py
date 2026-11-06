@@ -123,7 +123,7 @@ void lk_lt_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; 
 typedef struct { int16_t z[1024]; uint8 face[1024]; uint8 nl, li[LK_LT_NL]; uint8 term[LK_LT_NL][1024]; uint8 sun[1024]; uint8 ao[1024]; uint8 beam[1024], pool[1024]; uint16_t km[3][1024]; uint8 sunn[1024]; int16_t robj[1024]; int sungen; } lk_lt_blk;   /* LK_DAYNIGHT v1: sunn = sun share for the NEXT sun direction (lk_lt_sdn), valid when sungen == lk_dn_gen; robj = object of the view ray per pixel (kept for sun-only recomputes) */   /* km: v8 SPEED, key light rooms: the finished light factor (x 256) of every pixel (user 2026-11-05: 'generell ruckeliger') */   /* v8 ao: room light share 0..255 (corner shadows) */
 static lk_lt_blk *lk_lt_b[LK_LT_BH][LK_LT_BW]; static int lk_lt_gen;   /* v8 MT: bumped by lk_lt_free (worker results of an older generation are dropped) */
 typedef struct { float x, y, z; float r, g, b; int lava; uint32_t base; float k, rad; } lk_lt_light;   /* k: strength, rad: reach (LK_LT_RAD; castle torches more, user 2026-11-04) */   /* base: the AnimatedTilesetData entry of the flame (kind of torch) */
-static lk_lt_light lk_lt_l[LK_LT_ML]; static int lk_lt_nl, lk_lt_room = -2, lk_lt_zmax; static uint32_t lk_lt_hash; static long lk_lt_frame = -1;
+static lk_lt_light lk_lt_l[LK_LT_ML]; static int lk_lt_nfl, lk_lt_nl, lk_lt_room = -2, lk_lt_zmax; static uint32_t lk_lt_hash; static long lk_lt_frame = -1;
 static int16_t lk_lt_top[74][74];
 static int16_t lk_lt_gh[74][74];   /* v6: the game's heights (lk_lt_top = ours: outdoor objects raised to their drawn height for the view ray); the sun's shadow march uses these + lk_lt_fh */
 #define LK_LT_FN 296                /* v7: fine object height field, 4 units per entry (74 * 16 / 4) */
@@ -160,7 +160,7 @@ static float lk_lt_sd[3] = { -0.72f, -0.26f, 0.64f }, lk_lt_sS = 0.70f, lk_lt_sK
    (lk_dn_mix 0..256) and then swapped.  Blocks made during a step compute both.  Used by the day / night cycle and by the sun test aid (L5 + right stick, was: drop all blocks). */
 static float lk_lt_sdn[3]; static int16_t lk_lt_hdn[74][74]; static volatile int lk_dn_hdok; static int lk_dn_upd, lk_dn_gen = 1, lk_dn_mix, lk_dn_on, lk_dn_night; static float lk_dn_amb3[3], lk_dn_sun3[3], lk_dn_sunk = 1.0f;   /* upd: 0 none, 1 the worker computes sunn, 2 crossfade */
 static __thread const float *lk_lt_sdp; static __thread int16_t (*lk_lt_hdp)[74];
-static void lk_dn_cancel(void);   /* per thread: the direction / early exit field the sun march uses (0 = lk_lt_sd / lk_lt_hd) */
+static void lk_dn_cancel(void); static int lk_dn_iswt(uint32 c); int lk_dn_get(void);   /* per thread: the direction / early exit field the sun march uses (0 = lk_lt_sd / lk_lt_hd) */
 static double lk_lt_bms, lk_lt_pms; static int lk_lt_bn, lk_lt_pfn, lk_lt_pre, lk_lt_odn;   /* lk_lt_odn: v7 blocks computed on demand this frame (max 6: a room entry needed 60..80 = one 90 ms frame; the rest are drawn unlit for a few frames of the dark fade in) */   /* v7 test aid (DBG=5): block time of the last frame on demand / prefetched */
 static int lk_lt_umin = 1 << 30, lk_lt_umax = -(1 << 30), lk_lt_vmin = 1 << 30, lk_lt_vmax = -(1 << 30);   /* v7: picture area drawn in the last frame (prefetch around it) */   /* v7 test aid (DBG=5): time spent computing blocks in the last frame */
 static int lk_lt_retry;               /* a new room whose planes were not built yet: look for lights again a few times */
@@ -388,7 +388,7 @@ static void lk_am_setup(void) {   /* kinds of the room (lk_lt_newroom, after the
   if (lk_o_room < 0 || (lk_o_room >= 139 && lk_o_room <= 143) || lk_o_room == 148) return;   /* (the option is asked every frame in lk_am_step: switching it in the menu works at once) */
   /* leaves (1) removed and fireflies (2) kept for a later day / night cycle (user 2026-11-05: 'die Blaetter raus', 'Gluehwuermchen heben wir uns auf fuer den Tag-Nacht-Zyklus'); both still work with LANDSTALKER_AMBIENT_FORCE */
   if (ts == 4 || ts == 5 || ts == 9) lk_am_bio |= 8;   /* caves, waterfall shrine, swamp shrine */
-  for (k = 0; k < lk_lt_nl; k++) lk_am_bio |= lk_lt_l[k].lava ? 16 : 4;
+  for (k = 0; k < lk_lt_nl; k++) if (lk_lt_l[k].lava != 2) lk_am_bio |= lk_lt_l[k].lava ? 16 : 4;   /* (window lights: no sparks) */
   if (lk_am_force()) lk_am_bio = lk_am_force();
 }
 static int lk_am_surf(int U, int V, float *px, float *py, float *pz, int *sun) {   /* the floor under a picture pixel from the computed blocks (0: not computed / no floor) */
@@ -410,11 +410,11 @@ static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before th
   for (j = 0; j < lk_am_dn; j++) lk_am_map[lk_am_dl[j]] = 0;
   lk_am_dn = 0;
   if (!lk_am_opt()) { lk_am_np = 0; return; }
-  if (!lk_am_bio || lk_lt_umax < lk_lt_umin) return;
+  if ((!lk_am_bio && !(lk_dn_night && lk_lt_sun)) || lk_lt_umax < lk_lt_umin) return;   /* LK_DAYNIGHT v3: at night outdoors fireflies even without other particles (user 2026-11-06: 'Gluehwuermchen im Wald nachts ergaenzen') */
   for (j = 0; j < lk_am_np; j++) if (lk_am_ps[j].kind == 2) nff++;
   { int tries; float px, py, pz; int sun;   /* spawns on the floor of the area drawn last frame */
     for (tries = 0; tries < 6; tries++) { int U = lk_lt_umin + (int)(lk_am_rnd() * (float)(lk_lt_umax - lk_lt_umin + 1)), V = lk_lt_vmin + (int)(lk_am_rnd() * (float)(lk_lt_vmax - lk_lt_vmin + 1)), want = 0; float r = lk_am_rnd();
-      if ((lk_am_bio & 1) && r < 0.028f) want = 1; else if (((lk_am_bio & 2) || (lk_dn_night && lk_lt_sun)) && r > 0.975f && nff < 16) want = 2; else if ((lk_am_bio & 8) && r > 0.40f && r < 0.408f) want = 5;
+      if ((lk_am_bio & 1) && r < 0.028f) want = 1; else if (((lk_am_bio & 2) || (lk_dn_night && lk_lt_sun)) && r > 0.975f && nff < 24) want = 2; else if ((lk_am_bio & 8) && r > 0.40f && r < 0.408f) want = 5;
       if (!want || !lk_am_surf(U, V, &px, &py, &pz, &sun)) continue;
       if (want == 5) { int cx = (int)floorf(px / 16.0f), cy = (int)floorf(py / 16.0f), w2;   /* drops land on WALKABLE floor only (user 2026-11-05: 'nicht immer nur am Boden': tops of walls / pillars / boxes are floor faces too) */
         if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) continue;
@@ -426,6 +426,7 @@ static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before th
         else { float ztop = (px + py) * 0.5f - (float)lk_lt_vmin + 8.0f;   /* above the top of the picture (user 2026-11-05: 'Wassertropfen muessen ueber dem Raum anfangen zu fallen, sonst spawnen sie aus dem Nichts') */
           P->x = px; P->y = py; P->z = ztop > pz + 110.0f ? ztop + lk_am_rnd() * 20.0f : pz + 110.0f + lk_am_rnd() * 30.0f; P->vz = -3.2f; P->life = (int16_t)((P->z - pz) / 3.2f + 20.0f); } } } }
   for (k = 0; k < lk_lt_nl; k++) { const lk_lt_light *L = &lk_lt_l[k]; lk_am_p *P;   /* sparks / embers from the flames of the room */
+    if (L->lava == 2) continue;   /* LK_DAYNIGHT v3: window lights */
     if (L->lava ? !(lk_am_bio & 16) || lk_am_rnd() > 0.05f : !(lk_am_bio & 4) || lk_am_rnd() > 0.05f) continue;
     if (!(P = lk_am_new(L->lava ? 4 : 3))) break;
     P->x = L->x + (lk_am_rnd() - 0.5f) * (L->lava ? 40.0f : 4.0f); P->y = L->y + (lk_am_rnd() - 0.5f) * (L->lava ? 40.0f : 4.0f); P->z = L->z - (L->lava ? 8.0f : 2.0f);
@@ -1080,6 +1081,29 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
     for (k = 0; k < lk_lt_nl; k++) { int lx = (int)floorf(lk_lt_l[k].x / 16.0f), ly = (int)floorf(lk_lt_l[k].y / 16.0f); if (abs(lx - x) <= 1 && abs(ly - y) <= 1 && lk_lt_l[k].z >= (float)lk_lt_top[y][x] - 8.0f) keep = 1; }
     if (!keep) lk_lt_thin[y][x] = -32768;
     else if (lk_lt_dbg == 1) printf("thin column: room %%d cell %%d,%%d top %%d floor %%d\n", lk_o_room, x, y, lk_lt_top[y][x], lk_lt_thin[y][x]); }
+  lk_lt_nfl = lk_lt_nl;   /* LK_DAYNIGHT v3: the flames (lava, torches); window lights follow */
+  if (lk_lt_sun && lk_dn_get() && lk_o_room >= 0 && (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) == 0) {   /* v3 WINDOW LIGHT (user 2026-11-06: 'auf den Boden vor dem Haus fallendes Licht aus den Fenstern', 'muss fuer Nigels Schatten beruecksichtigt werden'):
+       one weak warm light in front of every window (tileset 0 window tiles, one group per window), strength = the window glow (lk_lt_flk = lk_dn_wk), figures cast shadows from it like from a torch */
+    static uint8 wseen[152][304]; static int16_t st[512][2]; int r0, c0;
+    memset(wseen, 0, sizeof wseen);
+    #define LK_DN_ISW(rr, cc) (lk_dn_iswt(lk_o_pa[rr][cc]) || lk_dn_iswt(lk_o_pb[rr][cc]))
+    for (r0 = 0; r0 < 152; r0++) for (c0 = 0; c0 < 304; c0++) { int sp = 0, n = 0, su = 0, sv = 0;
+      if (wseen[r0][c0] || !LK_DN_ISW(r0, c0)) continue;
+      wseen[r0][c0] = 1; st[sp][0] = (int16_t)r0; st[sp][1] = (int16_t)c0; sp++;
+      while (sp) { int rr, cc, dr, dc; sp--; rr = st[sp][0]; cc = st[sp][1]; n++; su += cc * 8 + 4; sv += rr * 8 + 4;
+        for (dr = -1; dr <= 1; dr++) for (dc = -1; dc <= 1; dc++) { int r2 = rr + dr, c2 = cc + dc; if (r2 >= 0 && r2 < 152 && c2 >= 0 && c2 < 304 && !wseen[r2][c2] && LK_DN_ISW(r2, c2) && sp < 512) { wseen[r2][c2] = 1; st[sp][0] = (int16_t)r2; st[sp][1] = (int16_t)c2; sp++; } } }
+      if (n > 12 || lk_lt_nl >= LK_LT_ML) continue;
+      { int U = su / n, V = sv / n, z = 0, f = lk_lt_ray(U, V, &z); float px, py; lk_lt_light *L = &lk_lt_l[lk_lt_nl];
+        if (f != 2 && f != 3) continue;   /* the window must sit on a wall facing the viewer */
+        lk_lt_pos(U, V, z, &px, &py);
+        L->x = px + (f == 2 ? 14.0f : 0.0f); L->y = py + (f == 3 ? 14.0f : 0.0f); L->z = (float)z - 6.0f; L->r = 1.0f; L->g = 0.68f; L->b = 0.32f; L->lava = 2; L->base = (uint32_t)f;
+        { int q, mg = 0; for (q = lk_lt_nfl; q < lk_lt_nl; q++) { lk_lt_light *M = &lk_lt_l[q]; float ddx = M->x - L->x, ddy = M->y - L->y, ddz = M->z - L->z;   /* windows of one wall within 56 units share one light (fewer lights: Mercator had 42) */
+            if (M->base == (uint32_t)f && ddx * ddx + ddy * ddy + ddz * ddz < 56.0f * 56.0f) { M->x = (M->x + L->x) * 0.5f; M->y = (M->y + L->y) * 0.5f; M->z = (M->z + L->z) * 0.5f; M->k += 0.12f; mg = 1; break; } }
+          if (mg) continue; }
+        L->k = 0.30f; L->rad = 76.0f; lk_lt_nl++;   /* weak and short: a room holds up to ~40 windows (k 0.85 / reach 120 lit whole towns like day) */
+        if (lk_lt_dbg == 1) printf("window light: room %%d at (%%.0f, %%.0f, %%.0f) face %%d\n", lk_o_room, L->x, L->y, L->z, f); } }
+    #undef LK_DN_ISW
+  }
   lk_lt_key = lk_lt_aor && !lk_lt_nl && lk_lt_keyopt() > 0; if (lk_lt_key) lk_lt_keyset();   /* v8 key light: indoors, rooms without flames */
   lk_lt_shsetup();   /* v8 light shafts */
   lk_am_setup();   /* v8 ambient particles */
@@ -1108,15 +1132,27 @@ static void lk_dn_eval(double t, float *az, float *el) {   /* time of day (hours
   else { *az = 90.0f - 80.0f * cosf(3.14159265f * (q > 1.0f ? 1.0f : q)); *el = em > 12.0f ? em : 12.0f;   /* the moon: the same path in the night, weak cold light with soft shadows */
     lk_dn_sun3[0] = 0.55f * fm; lk_dn_sun3[1] = 0.68f * fm; lk_dn_sun3[2] = 1.00f * fm; }
   lk_dn_sunk = fs; lk_dn_night = es < -6.0f; }
+static int lk_dn_iswt(uint32 c) { int t; if (!(c & 0x10000)) return 0; t = (int)(c & 0x7FF); return t == 195 || t == 196 || t == 199 || t == 210 || t == 211; }   /* v3: a plane cell holds a window tile */
 static int lk_dn_win;   /* v2 LIT WINDOWS (user 2026-11-06: 'beleuchtete Fenster nachts find ich gut'): window glass glows warm from dusk on.  Tileset 0 (Ryuma, Mercator, Verla houses):
    the window tiles 195 / 196 / 199 / 210 / 211 (right walls: the same, mirrored), glass = colour indexes 1 / 14 of palette line 0 (the walls of these tiles use 2 / 3 / 4 / 13; the church windows share
    the wall grey and are left out; the log huts of tileset 7 have no glass).  Strength = 1 - the sun factor (lk_dn_sunk). */
-static float lk_dn_wk;
-static int lk_dn_winpix(const uint8 *t, int pick, int col) {
-  long o; int ti, idx = pick & 15, r, g, b, w; uint32_t c = (uint32_t)col, gl;
-  if ((pick >> 4) != 0 || (idx != 1 && idx != 14) || !t || t < lk_o_tiles || t >= lk_o_tiles + sizeof lk_o_tiles) return col;
-  o = (long)(t - lk_o_tiles); ti = (int)(o >> 5);
-  if (ti != 195 && ti != 196 && ti != 199 && ti != 210 && ti != 211) return col;
+static float lk_dn_wk; static uint8 lk_dn_wm[6][8]; static int lk_dn_wmroom = -2;   /* v3: glass mask per window tile (bit x of row y, tile-native coordinates) */
+static const int lk_dn_wt[6] = { 195, 196, 199, 200, 210, 211 };   /* tileset 0 window tiles, as left | right pairs (195 196) (199 200) (210 211); right walls draw them mirrored */
+static void lk_dn_wmask(void) {   /* v3 (user 2026-11-06: 'Ecken im Fenster, Randpixel unsauber'): glass = index 1 / 14 pixels BETWEEN two frame pixels (index 15) of the same row of the
+     pair; v2 lit every 1 / 14 pixel of the tiles: the light outer frame edge beside the black frame and the sill glowed */
+  int p, y, x;
+  lk_dn_wmroom = lk_o_room; memset(lk_dn_wm, 0, sizeof lk_dn_wm);
+  for (p = 0; p < 3; p++) for (y = 0; y < 8; y++) { int v[16], f0 = -1, f1 = -1;
+    for (x = 0; x < 16; x++) { int t = lk_dn_wt[2 * p + (x >> 3)], b = lk_o_tiles[t * 32 + y * 4 + ((x & 7) >> 1)]; v[x] = (x & 1) ? (b & 15) : (b >> 4); if (v[x] == 15) { if (f0 < 0) f0 = x; f1 = x; } }
+    for (x = f0 + 1; f0 >= 0 && x < f1; x++) if (v[x] == 1 || v[x] == 14) lk_dn_wm[2 * p + (x >> 3)][y] |= (uint8)(1u << (x & 7)); } }
+static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col) {
+  long o; int ti, idx = pick & 15, r, g, b, w, k; uint32_t c = (uint32_t)col, gl;
+  if ((pick >> 4) != 0 || (idx != 1 && idx != 14) || !fi->t || fi->t < lk_o_tiles || fi->t >= lk_o_tiles + sizeof lk_o_tiles) return col;
+  o = (long)(fi->t - lk_o_tiles); ti = (int)(o >> 5);
+  for (k = 0; k < 6 && lk_dn_wt[k] != ti; k++) ;
+  if (k >= 6) return col;
+  if (lk_dn_wmroom != lk_o_room) lk_dn_wmask();
+  if (!(lk_dn_wm[k][fi->iy & 7] >> (fi->ix & 7) & 1)) return col;
   gl = idx == 1 ? 0xFFC864u : 0xE89A48u;   /* warm lamp light; the darker glass a deeper orange */
   w = (int)(lk_dn_wk * 235.0f);
   r = (int)((c >> 16) & 255); g = (int)((c >> 8) & 255); b = (int)(c & 255);
@@ -1182,7 +1218,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) h = (h ^ (uint32_t)UW(0xFFD192 + 148 * y + 2 * x)) * 16777619u;
   { static int lastopt = -1; if (lk_lt_get() != lastopt) { lastopt = lk_lt_get(); lk_lt_room = -2; } }   /* v6: the option changes what is built (flames, sun) */
   if (lk_o_room != lk_lt_room || h != lk_lt_hash) { lk_lt_room = lk_o_room; lk_lt_hash = h; lk_lt_retry = 12; lk_lt_newroom(); }
-  else if (lk_lt_nl == 0 && lk_lt_retry > 0 && (fr & 7) == 0) { lk_lt_retry--; if ((!lk_lt_sun && !lk_lt_aor) || lk_lt_pahash() != lk_lt_pah) lk_lt_newroom(); }   /* v8: room light rooms like the sun: only when the picture changed */
+  else if (lk_lt_nfl == 0 && lk_lt_retry > 0 && (fr & 7) == 0) { lk_lt_retry--; if ((!lk_lt_sun && !lk_lt_aor) || lk_lt_pahash() != lk_lt_pah) lk_lt_newroom(); }   /* v8: room light rooms like the sun: only when the picture changed */
   lk_dn_frame(fr, idle);   /* LK_DAYNIGHT v1: the time of day, the sun test aid (L5 + right stick) and smooth sun steps (was: drop every block when the sun moved) */
   lk_lt_on = (lk_lt_nl > 0 || lk_lt_sun || lk_lt_aor) && !lk_hd_n;   /* v8: room light */
   lk_lt_shstep(fr);   /* v8 dust motes */
@@ -1201,16 +1237,16 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     lk_lt_jobstart(); }
   else if (idle && lk_lt_jn) lk_lt_jobstart();   /* LK_DAYNIGHT v1: sun jobs without a prefetch */
   lk_lt_umin = lk_lt_vmin = 1 << 30; lk_lt_umax = lk_lt_vmax = -(1 << 30); lk_lt_odn = 0;
-  for (k = 0; k < lk_lt_nl; k++) lk_lt_flk[k] = lk_lt_l[k].lava ? 1.0f + 0.10f * sinf((float)fr * 0.045f + (float)k * 0.9f)   /* lava: slow glow */
+  for (k = 0; k < lk_lt_nl; k++) lk_lt_flk[k] = lk_lt_l[k].lava == 2 ? (lk_dn_on ? lk_dn_wk : 0.0f) : lk_lt_l[k].lava ? 1.0f + 0.10f * sinf((float)fr * 0.045f + (float)k * 0.9f)   /* LK_DAYNIGHT v3: window lights burn with the window glow; lava: slow glow */
                                                  : 1.0f + 0.12f * sinf((float)fr * 0.21f + (float)k * 2.1f) + 0.06f * sinf((float)fr * 0.53f + (float)k * 1.3f);
   {   /* v3 sword glow (user 2026-11-03: all swords except the basic one, in the sword's colour): only where the room is lit; stronger while swinging */
     static const float swc[5][3] = { { 0, 0, 0 }, { 1.0f, 0.50f, 0.15f }, { 0.45f, 0.75f, 1.0f }, { 0.95f, 0.85f, 0.35f }, { 0.35f, 1.0f, 0.45f } };   /* Magic, Ice, Thunder, Gaia (lk_sfx_tint) */
     int sw = SB(0xFF114E) & 0xFF, swt = lk_lt_swtest(), act = SB(0xFF542C) & 0x0F, swing = act >= 1 && act <= 4; float want;
     if (swt) sw = swt;
-    lk_lt_swon = lk_lt_on && (lk_lt_nl > 0 || (lk_dn_on && lk_dn_sunk < 0.7f)) && sw >= 1 && sw <= 4;   /* v5: not in rooms lit only by the sun; LK_DAYNIGHT v2: outdoors at dusk / night too (user 2026-11-06: 'nachts sollten die Schwerteffekte auch draussen Licht abgeben') */
+    lk_lt_swon = lk_lt_on && (lk_lt_nfl > 0 || (lk_dn_on && lk_dn_sunk < 0.7f)) && sw >= 1 && sw <= 4;   /* v5: not in rooms lit only by the sun; LK_DAYNIGHT v2: outdoors at dusk / night too (user 2026-11-06: 'nachts sollten die Schwerteffekte auch draussen Licht abgeben') */
     want = swing ? 1.0f : 0.0f;   /* user 2026-11-03: no light while walking, only while swinging */ lk_lt_swk += (want - lk_lt_swk) * (want > lk_lt_swk ? 0.6f : 0.15f);
     if (lk_lt_swk < 0.02f) lk_lt_swon = 0;
-    if (lk_lt_swon) { float f = (1.0f + 0.05f * sinf((float)fr * 0.3f)) * (lk_lt_nl > 0 || !lk_dn_on ? 1.0f : (0.7f - lk_dn_sunk) / 0.7f * 1.3f);   /* (outdoors: grows as the sun fades) */
+    if (lk_lt_swon) { float f = (1.0f + 0.05f * sinf((float)fr * 0.3f)) * (lk_lt_nfl > 0 || !lk_dn_on ? 1.0f : (0.7f - lk_dn_sunk) / 0.7f * 1.3f);   /* (outdoors: grows as the sun fades) */
       lk_lt_sw.x = (float)SW(0xFF5414); lk_lt_sw.y = (float)SW(0xFF5416); lk_lt_sw.z = (float)(int16_t)SW(0xFF5412) + 18.0f;
       lk_lt_sw.r = swc[sw][0] * lk_lt_swk * 0.8f * f; lk_lt_sw.g = swc[sw][1] * lk_lt_swk * 0.8f * f; lk_lt_sw.b = swc[sw][2] * lk_lt_swk * 0.8f * f; lk_lt_sw.lava = 0; }
   }
@@ -1242,7 +1278,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
   for (k = 0; k < lk_lt_nl; k++) for (j = 0; j < lk_lt_nf; j++) {
     float dx = lk_lt_l[k].x - lk_lt_f[j].fx, dy = lk_lt_l[k].y - lk_lt_f[j].fy, dz = lk_lt_l[k].z - lk_lt_f[j].fz - 20.0f;
     float hd = sqrtf(dx * dx + dy * dy);
-    lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < (LK_LT_RAD + 24.0f) * (LK_LT_RAD + 24.0f);
+    lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < (LK_LT_RAD + 24.0f) * (LK_LT_RAD + 24.0f) && !(lk_lt_l[k].lava == 2 && lk_lt_flk[k] <= 0.004f);   /* (LK_DAYNIGHT v3: an unlit window light casts no figure shadow) */
     if (hd < 1.0f) { lk_lt_pn[k][j][0] = 0.7071f; lk_lt_pn[k][j][1] = 0.7071f; } else { lk_lt_pn[k][j][0] = dx / hd; lk_lt_pn[k][j][1] = dy / hd; }   /* v4 */
   }
   lk_lt_fmall = 0;
@@ -1340,7 +1376,7 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
   if (U < lk_lt_umin) lk_lt_umin = U; if (U > lk_lt_umax) lk_lt_umax = U; if (V < lk_lt_vmin) lk_lt_vmin = V; if (V > lk_lt_vmax) lk_lt_vmax = V;   /* v7: area for the prefetch */
   if ((sp & 0x200) && (j = lk_lt_figat(x, line)) >= 0) {   /* a figure pixel: lit at its cut-out position, facing the camera */
     const lk_lt_fig *F = &lk_lt_f[j]; float dx = (float)(x - F->ax), px = F->fx + dx * 0.5f, py = F->fy - dx * 0.5f, pz = F->fz + (float)(F->ay - line);
-    for (k = 0; k < lk_lt_nl; k++) { float t = lk_lt_term(px, py, pz, 0.7071f, 0.7071f, 0.0f, &lk_lt_l[k], 0) * lk_lt_flk[k]; sr += t * lk_lt_l[k].r; sg += t * lk_lt_l[k].g; sb += t * lk_lt_l[k].b; }
+    for (k = 0; k < lk_lt_nl; k++) { if (lk_lt_l[k].lava == 2 && lk_lt_flk[k] <= 0.004f) continue; float t = lk_lt_term(px, py, pz, 0.7071f, 0.7071f, 0.0f, &lk_lt_l[k], 0) * lk_lt_flk[k]; sr += t * lk_lt_l[k].r; sg += t * lk_lt_l[k].g; sb += t * lk_lt_l[k].b; }
     if (lk_lt_swon) { float t = lk_lt_term(px, py, pz, 0.7071f, 0.7071f, 0.0f, &lk_lt_sw, 0) * 0.5f; sr += t * lk_lt_sw.r; sg += t * lk_lt_sw.g; sb += t * lk_lt_sw.b; }   /* v3 */
     if (lk_lt_sun && lk_dn_on) { float u = F->sun; ar = lk_dn_amb3[0] + lk_dn_sun3[0] * u; ag = lk_dn_amb3[1] + lk_dn_sun3[1] * u; ab = lk_dn_amb3[2] + lk_dn_sun3[2] * u; }   /* LK_DAYNIGHT v1 */
     else if (lk_lt_sun) { float u = F->sun; ar = lk_lt_sS * 0.95f + lk_lt_sK * u; ag = lk_lt_sS * 0.98f + lk_lt_sK * u * 0.97f; ab = lk_lt_sS * 1.06f + lk_lt_sK * u * 0.90f; }   /* v5 */
@@ -1402,11 +1438,12 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
       float t = (float)b->term[k][i] * (1.0f / 255.0f); const lk_lt_light *L;
       if (t <= 0.0f) continue;
       L = &lk_lt_l[b->li[k]];
+      if (L->lava == 2) { if (lk_lt_flk[b->li[k]] <= 0.004f) continue; t *= lk_lt_flk[b->li[k]] > 1.0f ? 1.0f : lk_lt_flk[b->li[k]]; }   /* LK_DAYNIGHT v3: window light by day = nothing; its shadow share follows its strength */
       if (fm) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); { static int st[LK_LT_ML], st2[LK_LT_ML]; static float sw2[LK_LT_ML]; int li = b->li[k], key = (line << 11) | (x & 2047); float w;   /* v8 SPEED: one test per 2 pixels of a line (even x computes, odd x takes its left neighbour; the shadow edge is soft anyway) */
         static int half = -1; if (half < 0) { const char *e = getenv("LANDSTALKER_LT_SHHALF"); half = e ? atoi(e) : 1; }   /* test aid: 0 = every pixel */
         if (half && (x & 1) && st[li] == key - 1 && st2[li] == lk_lt_frame) w = sw2[li]; else { w = lk_lt_shadowed(px, py, (float)b->z[i], L, li); st[li] = key; st2[li] = (int)lk_lt_frame; sw2[li] = w; }
         if (w >= 1.0f) { tb += t; continue; } if (w > 0.0f) { tb += t * w; t *= 1.0f - w; } } }
-      tl += t; t *= lk_lt_flk[b->li[k]]; sr += t * L->r; sg += t * L->g; sb += t * L->b;
+      tl += t; if (L->lava != 2) t *= lk_lt_flk[b->li[k]]; sr += t * L->r; sg += t * L->g; sb += t * L->b;
     }
     if (b->ao[i] < 255) { float a = (float)b->ao[i] * (1.0f / 255.0f); ar *= a; ag *= a; ab *= a; }   /* v8 room light: corner shadows take the base light only */
     if (tb > 0.0f) { float d = 1.0f - 0.5f * tb / (tb + tl + 0.05f); ar *= d; ag *= d; ab *= d; }   /* v4: a figure's shadow also takes part of the base light (share of the blocked light), so the silhouette reads (user 2026-11-03) */
@@ -1440,7 +1477,7 @@ rep("int lk_sfx_ln = lk_sfx_linebegin(line);   /* LK_SWORDFX v1 */\n",
 rep("      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n",
     "      if (lk_lt_ln && !black && (src == 1 || src == 2 || src == 3)) col = lk_lt_pix(x, line, ubase + x - lk_sm_sxn, vbase - lk_sm_syn, src == 1 ? sp : 0, col);   /* %s */\n" % VER +
     "      else if (lk_lt_ln && !black && (src == 0 || src == 6 || src == 7)) col = lk_lt_voidglow(ubase + x - lk_sm_sxn, vbase - lk_sm_syn, col);   /* LK_LIGHTS v8 shafts over the void */\n" +
-    "      if (lk_lt_ln && lk_dn_win && !black && (src == 2 || src == 3)) col = lk_dn_winpix(src == 2 ? afi.t : bfi.t, pick, col);   /* LK_DAYNIGHT v2 lit windows */\n" +
+    "      if (lk_lt_ln && lk_dn_win && !black && (src == 2 || src == 3)) col = lk_dn_winpix(src == 2 ? &afi : &bfi, pick, col);   /* LK_DAYNIGHT v3 lit windows */\n" +
     "      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n")
 open(p, "w").write(s)
 print("vdp_render.c patched:", VER)
