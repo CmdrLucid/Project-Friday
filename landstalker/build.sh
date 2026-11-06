@@ -231,6 +231,8 @@ python3 tools/patch_bootcol.py .deps/genrecomp
 python3 tools/patch_dissolve.py .deps/genrecomp
 # Heat Haze: the air above lava, fireplaces and castle standing torches wobbles; On by default (Options > Graphics > Heat Haze, LANDSTALKER_HAZE; tools/patch_haze.py; needs patch_own / patch_subpix / patch_modernhud / patch_dissolve)
 python3 tools/patch_haze.py .deps/genrecomp
+# Water Reflections: calmer water colour + the figures mirrored on the water; On by default (Options > Graphics > Water Reflections, LANDSTALKER_WATER; tools/patch_water.py; needs patch_own / patch_lights / patch_haze)
+python3 tools/patch_water.py .deps/genrecomp
 # Room map: binding Map (pad L4, key M) = schematic map of the current area over the paused game (data: tools/roommap.py -> build/roommap; tools/patch_roommap.py, docs/MAP.md)
 python3 tools/patch_roommap.py .deps/genrecomp
 # VDP data path step 3.0: path counters in vdp_ctrl.c (LANDSTALKER_VDPCOUNT=file; inert without it; tools/patch_vdpcount.py, docs/SOUND_PLAN.md section 12)
