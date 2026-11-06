@@ -29,6 +29,7 @@ Done so far: timing model fixed (was ~40 frames ahead of the real core), ref-vs-
 
 ## 0a201. 2026-10-30 (late, Deck, Opus 5.5): SPRINT ANIMATION built (`tools/patch_sprintanim.py`, LK_SPRINTANIM v1; SPRINT_IDEAS last entry): variant G applied at runtime to Nigel's walk frames while sprinting. Headless-checked (front view); user check open, especially the back view (walking up).
 
+## 0a287. 2026-11-06 later 7 (Deck, Opus 5.5): night room entry flash fixed (missing light blocks drawn with the time of day's light instead of daylight). NEXT -94 stays.
 ## 0a286. 2026-11-06 later 6 (Deck, Opus 5.5): water reflection shows the sword swing (+-48 px) and Boot Colors; fireflies stay inside the room. NEXT -94 stays.
 ## 0a285. 2026-11-06 later 5 (Deck, Opus 5.5): added light (shafts, motes, particles, windows) fades with the game's palette fade at room changes (`lk_lt_fadek`); fewer fireflies. NEXT -94 stays.
 ## 0a284. 2026-11-06 later 4 (Deck, Opus 5.5): fireflies only in spots at bushes / trees / water, none in towns, few in Destel; window light shadows on the floor only. NEXT -94 stays (user checks at night).
