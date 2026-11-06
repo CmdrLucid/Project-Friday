@@ -102,7 +102,7 @@ int lk_gl_frame(long fr, float *fu, int *iu, float *lp, float *lc, float *lf, fl
   fu[10] = lk_lt_kA; fu[11] = lk_lt_kK; fu[12] = lk_lt_fadek; fu[13] = lk_lt_sh[0].cr; fu[14] = lk_lt_sh[0].cg; fu[15] = lk_lt_sh[0].cb;
   fu[16] = lk_lt_sw.x; fu[17] = lk_lt_sw.y; fu[18] = lk_lt_sw.z; fu[19] = lk_lt_sw.rad > 0.0f ? lk_lt_sw.rad : LK_LT_RAD; fu[20] = lk_lt_sw.r; fu[21] = lk_lt_sw.g; fu[22] = lk_lt_sw.b; fu[23] = lk_lt_sw.k > 0.0f ? lk_lt_sw.k : 1.0f;
   iu[9] = lk_lt_nf; iu[10] = lk_lt_nfb > 0; iu[11] = lk_lt_fmall; iu[12] = lk_wide_e; iu[13] = lk_am_dn != 0; iu[14] = lk_lt_nsh;
-  fu[24] = lk_lt_sd[0]; fu[25] = lk_lt_sd[1]; fu[26] = lk_lt_sd[2];
+  { const float *sdd = lk_lt_sun && lk_dn_on && lk_lt_sdf[2] > 0.0f ? lk_lt_sdf : lk_lt_sd; fu[24] = sdd[0]; fu[25] = sdd[1]; fu[26] = sdd[2]; }   /* LK_DAYNIGHT v5: figure shadows with the blended direction (lk_lt_figsun) */
   for (k = 0; k < LK_LT_NSH; k++) { const lk_lt_shaft_t *S = &lk_lt_sh[k]; fu[32 + 8 * k] = S->x; fu[33 + 8 * k] = S->y; fu[34 + 8 * k] = S->z; fu[35 + 8 * k] = S->r; fu[36 + 8 * k] = S->d[0]; fu[37 + 8 * k] = S->d[1]; fu[38 + 8 * k] = S->d[2]; fu[39 + 8 * k] = 0.0f; }
   for (k = 0; k < LK_LT_ML; k++) { const lk_lt_light *Lq = &lk_lt_l[k];
     lp[4 * k] = Lq->x; lp[4 * k + 1] = Lq->y; lp[4 * k + 2] = Lq->z; lp[4 * k + 3] = Lq->rad > 0.0f ? Lq->rad : LK_LT_RAD;

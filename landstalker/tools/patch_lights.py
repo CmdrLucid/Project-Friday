@@ -158,6 +158,7 @@ static float lk_lt_sd[3] = { -0.72f, -0.26f, 0.64f }, lk_lt_sS = 0.70f, lk_lt_sK
    die Zeichnung der Schatten ruckelt; eine Taste fuer den Zeitraffer; optional im Menue').  SMOOTH SUN STEPS: the blocks keep showing the shadows of the current direction (lk_lt_sd)
    while the light worker computes the share for the next direction (lk_lt_sdn, early exit field lk_lt_hdn) into b->sunn; when every block has it, the two are crossfaded
    (lk_dn_mix 0..256) and then swapped.  Blocks made during a step compute both.  Used by the day / night cycle and by the sun test aid (L5 + right stick, was: drop all blocks). */
+static double lk_dn_st0 = -1.0, lk_dn_st1 = -1.0; static float lk_lt_sdf[3];   /* LK_DAYNIGHT v5: time of the shown direction / of the next one; the direction the figures' sun shadows use (blended) */
 static float lk_lt_sdn[3]; static int16_t lk_lt_hdn[74][74]; static volatile int lk_dn_hdok; static int lk_dn_upd, lk_dn_gen = 1, lk_dn_mix, lk_dn_on, lk_dn_night; static float lk_dn_amb3[3], lk_dn_sun3[3], lk_dn_sunk = 1.0f;   /* upd: 0 none, 1 the worker computes sunn, 2 crossfade */
 static __thread const float *lk_lt_sdp; static __thread int16_t (*lk_lt_hdp)[74];
 static void lk_dn_cancel(void); static int lk_dn_iswt(uint32 c); int lk_dn_get(void);
@@ -1150,6 +1151,13 @@ static void lk_dn_lerp(const float *E, const float (*C)[3], int n, float e, floa
   int k; if (e <= E[0]) { o[0] = C[0][0]; o[1] = C[0][1]; o[2] = C[0][2]; return; }
   for (k = 1; k < n; k++) if (e <= E[k]) { float t = (e - E[k - 1]) / (E[k] - E[k - 1]); int c; for (c = 0; c < 3; c++) o[c] = C[k - 1][c] + (C[k][c] - C[k - 1][c]) * t; return; }
   o[0] = C[n - 1][0]; o[1] = C[n - 1][1]; o[2] = C[n - 1][2]; }
+static float lk_dn_minel(void) { static float v = -1.0f; if (v < 0.0f) { const char *e = getenv("LANDSTALKER_DN_MINEL"); v = e ? (float)atof(e) : 22.0f; if (v < 5.0f) v = 5.0f; if (v > 60.0f) v = 60.0f; } return v; }
+static void lk_dn_dir(double t, float *az, float *el) {   /* LK_DAYNIGHT v5 (user 2026-11-06: 'Schatten sehr lang abends und morgens', 'der Schatten springt einmal komplett 180 Grad wenn die Nacht wieder zum Tag wird'):
+     the light's direction only.  Sun 6:00 -> 18:00 from az 10 to 170 (as v1); the MOON now walks the path BACKWARDS 18:00 -> 6:00 (170 -> 10), so the shadow direction is continuous at
+     dusk and dawn (v1..v4: the moon started at 10 again = a ~160 deg jump); lowest elevation LANDSTALKER_DN_MINEL (22, was 12: shadows at most ~2.5 x the height instead of ~4.7 x) */
+  float p = (float)(fmod(t - 6.0 + 48.0, 24.0) / 12.0), q = (float)(fmod(t - 18.0 + 48.0, 24.0) / 12.0), es = 58.0f * sinf(3.14159265f * p), em = 40.0f * sinf(3.14159265f * q), mn = lk_dn_minel();
+  if (es > -3.0f) { *az = 90.0f - 80.0f * cosf(3.14159265f * p); *el = es > mn ? es : mn; }
+  else { *az = 90.0f + 80.0f * cosf(3.14159265f * (q > 1.0f ? 1.0f : q)); *el = em > mn ? em : mn; } }
 static void lk_dn_eval(double t, float *az, float *el) {   /* time of day (hours) -> shadow direction + colours (lk_dn_amb3, lk_dn_sun3 before the sun strength factor) */
   /* v2 (user 2026-11-06: 'Farben morgens / abends roetlicher', 'Uebergang Abend -> Nacht wirkt recht ploetzlich', 'nachts schon sehr dunkel'): redder low sun, twilight over twice the elevation range, brighter night */
   static const float EA[9] = { -90, -16, -9, -3, 2, 7, 14, 28, 90 };   /* sky light, relative to the noon sky light (lk_lt_sS * 0.95 / 0.98 / 1.06): night blue, blue hour, violet-red, red dusk, day */
@@ -1160,9 +1168,10 @@ static void lk_dn_eval(double t, float *az, float *el) {   /* time of day (hours
   float es = 58.0f * sinf(3.14159265f * p), em = 40.0f * sinf(3.14159265f * q), fs = lk_dn_ss(-3.0f, 10.0f, es), fm = 0.38f * lk_dn_ss(0.0f, 10.0f, em) * lk_dn_ss(-3.0f, -14.0f, es), a3[3], c3[3];   /* v2: the sun fades over 13 deg (was 9), the moon a bit stronger */
   float N[3] = { lk_lt_sS * 0.95f, lk_lt_sS * 0.98f, lk_lt_sS * 1.06f };
   lk_dn_lerp(EA, CA, 9, es, a3); lk_dn_amb3[0] = N[0] * a3[0]; lk_dn_amb3[1] = N[1] * a3[1]; lk_dn_amb3[2] = N[2] * a3[2];
-  if (es > -3.0f) { lk_dn_lerp(ES, CS, 6, es, c3); *az = 90.0f - 80.0f * cosf(3.14159265f * p); *el = es > 12.0f ? es : 12.0f;   /* the sun: from the upper left of the world to the lower right over noon (az 90 = the day light the user picked), shadows at most ~4.7 x the height */
+  lk_dn_dir(t, az, el);   /* LK_DAYNIGHT v5: direction in its own function (the smooth steps look ahead) */
+  if (es > -3.0f) { lk_dn_lerp(ES, CS, 6, es, c3);   /* the sun: from the upper left of the world to the lower right over noon (az 90 = the day light the user picked), shadows at most ~4.7 x the height */
     lk_dn_sun3[0] = c3[0] * fs; lk_dn_sun3[1] = 0.97f * c3[1] * fs; lk_dn_sun3[2] = 0.90f * c3[2] * fs; }
-  else { *az = 90.0f - 80.0f * cosf(3.14159265f * (q > 1.0f ? 1.0f : q)); *el = em > 12.0f ? em : 12.0f;   /* the moon: the same path in the night, weak cold light with soft shadows */
+  else {   /* the moon: weak cold light with soft shadows (direction: lk_dn_dir) */
     lk_dn_sun3[0] = 0.55f * fm; lk_dn_sun3[1] = 0.68f * fm; lk_dn_sun3[2] = 1.00f * fm; }
   lk_dn_sunk = fs; lk_dn_night = es < -6.0f; }
 static int lk_dn_iswt(uint32 c) { int t; if (!(c & 0x10000)) return 0; t = (int)(c & 0x7FF); return t == 195 || t == 196 || t == 199 || t == 210 || t == 211; }   /* v3: a plane cell holds a window tile */
@@ -1221,9 +1230,16 @@ static void lk_dn_frame(long fr, int idle) {   /* once per lit frame in lk_lt_st
     k = (1.08f - lk_lt_sS) / (lk_lt_sd[2] > 0.2f ? lk_lt_sd[2] : 0.2f); lk_dn_sun3[0] *= k; lk_dn_sun3[1] *= k; lk_dn_sun3[2] *= k;
     lk_dn_wk = 1.0f - lk_dn_sunk; lk_dn_win = lk_dn_wk > 0.02f && lk_o_room >= 0 && (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) == 0; }   /* v2 lit windows (tileset 0) */   /* the sun strength of lk_lt_sunset for the direction the blocks show */
   if (!lk_lt_sun) return;
-  if (lk_dn_upd == 0 && idle) { float daz = fabsf(fmodf(lk_lt_azt - lk_lt_azd + 540.0f, 360.0f) - 180.0f), del = fabsf(lk_lt_elt - lk_lt_eld);
-    if (daz >= 1.5f || del >= 1.0f) { float a = lk_lt_azt * 3.14159265f / 180.0f, e = lk_lt_elt * 3.14159265f / 180.0f;   /* a SUN STEP: the next direction, its early exit field; the worker computes the blocks' share */
-      lk_dn_naz = lk_lt_azt; lk_dn_nel = lk_lt_elt; lk_lt_sdn[0] = cosf(a) * cosf(e); lk_lt_sdn[1] = sinf(a) * cosf(e); lk_lt_sdn[2] = sinf(e);
+  if (lk_dn_upd == 0 && idle) { float taz = lk_lt_azt, tel = lk_lt_elt, daz, del; int smooth = lk_dn_on;
+    if (smooth) {   /* LK_DAYNIGHT v5 SMOOTH STEPS (user 2026-11-06: 'Schatten ruckeln Stueck fuer Stueck statt smooth mit dem Sonnenstand zu wandern'): the next direction is where the light will be
+         LANDSTALKER_DN_LOOK game hours (0.12 = ~1.6 deg) after the shown one; the crossfade then follows the clock over the whole step (was: a jump + 0.35 s fade every 1.5 deg) */
+      static double look = -1.0; double dt; if (look < 0.0) { const char *e = getenv("LANDSTALKER_DN_LOOK"); look = e ? atof(e) : 0.12; if (look < 0.02) look = 0.02; if (look > 1.0) look = 1.0; }
+      dt = lk_dn_st0 < 0.0 ? 99.0 : fmod(lk_dn_t - lk_dn_st0 + 48.0, 24.0); if (dt > 12.0) dt -= 24.0;
+      if (lk_dn_st0 < 0.0 || dt > 2.0 * look || dt < -look) lk_dn_st0 = lk_dn_t;   /* first step / a jump of the clock: the step starts now (the blocks show their direction until the swap) */
+      lk_dn_st1 = fmod(lk_dn_st0 + look, 24.0); lk_dn_dir(lk_dn_st1, &taz, &tel); }
+    daz = fabsf(fmodf(taz - lk_lt_azd + 540.0f, 360.0f) - 180.0f); del = fabsf(tel - lk_lt_eld);
+    if (smooth ? (daz >= 0.05f || del >= 0.05f) : (daz >= 1.5f || del >= 1.0f)) { float a = taz * 3.14159265f / 180.0f, e = tel * 3.14159265f / 180.0f;   /* a SUN STEP: the next direction, its early exit field; the worker computes the blocks' share */
+      lk_dn_naz = taz; lk_dn_nel = tel; lk_lt_sdn[0] = cosf(a) * cosf(e); lk_lt_sdn[1] = sinf(a) * cosf(e); lk_lt_sdn[2] = sinf(e);
       lk_dn_hdok = 0; lk_dn_gen++; lk_dn_upd = 1; lk_dn_mix = 0;   /* (the worker computes lk_lt_hdn first, lk_lt_jobrun) */
       if (lk_lt_sunmov && !lk_dn_get()) { snprintf(m, sizeof m, "SUN DIR %%d HEIGHT %%d", (int)(lk_lt_azt + 0.5f) %% 360, (int)(lk_lt_elt + 0.5f)); lk_osd_say(m); printf("sun: azimuth %%.0f elevation %%.0f (frame %%ld)\n", lk_lt_azt, lk_lt_elt, fr); }
       lk_lt_sunmov = 0;
@@ -1235,12 +1251,20 @@ static void lk_dn_frame(long fr, int idle) {   /* once per lit frame in lk_lt_st
       if (lk_lt_jn >= LK_LT_JMAX) { left++; continue; }
       lk_lt_jsun[lk_lt_jn] = b; lk_lt_jbx[lk_lt_jn] = x; lk_lt_jby[lk_lt_jn] = y; lk_lt_jn++; }
     if (!lk_lt_jn && !left) { if (!lk_dn_hdok) lk_lt_hdcalc(lk_lt_sdn, lk_lt_hdn), lk_dn_hdok = 1; lk_dn_upd = 2; } }
-  else if (lk_dn_upd == 2) { lk_dn_mix += lk_dn_fast ? 40 : 12; if (lk_dn_mix > 256) lk_dn_mix = 256;   /* crossfade ~0.35 s (time-lapse ~0.1 s) */
+  else if (lk_dn_upd == 2) { int rate = lk_dn_fast ? 40 : 12;   /* crossfade ~0.35 s (time-lapse ~0.1 s) */
+    if (lk_dn_on && lk_dn_st0 >= 0.0) { double span = fmod(lk_dn_st1 - lk_dn_st0 + 48.0, 24.0), dt = fmod(lk_dn_t - lk_dn_st0 + 48.0, 24.0); int tgt; if (dt > 12.0) dt = 0.0;   /* v5: follow the clock, never faster than the old fade */
+      tgt = span > 1e-6 ? (int)(256.0 * dt / span) : 256; if (tgt > 256) tgt = 256; if (tgt > lk_dn_mix) lk_dn_mix = tgt < lk_dn_mix + rate ? tgt : lk_dn_mix + rate; }
+    else lk_dn_mix += rate;
+    if (lk_dn_mix > 256) lk_dn_mix = 256;
+    if (lk_dn_dbg >= 2) printf("daynight: frame %%ld time %%.4f mix %%d\n", fr, lk_dn_t, lk_dn_mix);
     if (lk_dn_mix >= 256 && idle) { int x, y;   /* swap: the blocks show the new direction */
       for (y = 0; y < LK_LT_BH; y++) for (x = 0; x < LK_LT_BW; x++) { lk_lt_blk *b = lk_lt_b[y][x]; if (!b) continue;
         if (b->sungen == lk_dn_gen) memcpy(b->sun, b->sunn, sizeof b->sun); else { free(b); lk_lt_b[y][x] = 0; } }
       memcpy(lk_lt_sd, lk_lt_sdn, sizeof lk_lt_sd); memcpy(lk_lt_hd, lk_lt_hdn, sizeof lk_lt_hd); lk_lt_azd = lk_dn_naz; lk_lt_eld = lk_dn_nel;
-      lk_lt_sK = (1.08f - lk_lt_sS) / (lk_lt_sd[2] > 0.2f ? lk_lt_sd[2] : 0.2f); lk_dn_upd = 0; lk_dn_mix = 0; } }
+      lk_lt_sK = (1.08f - lk_lt_sS) / (lk_lt_sd[2] > 0.2f ? lk_lt_sd[2] : 0.2f); lk_dn_upd = 0; lk_dn_mix = 0; if (lk_dn_on) lk_dn_st0 = lk_dn_st1; } }
+  { float m = lk_dn_upd == 2 ? (float)lk_dn_mix * (1.0f / 256.0f) : 0.0f, l; int k;   /* v5: the figures' sun shadows turn with the blended direction */
+    for (k = 0; k < 3; k++) lk_lt_sdf[k] = lk_lt_sd[k] + (lk_lt_sdn[k] - lk_lt_sd[k]) * m; l = sqrtf(lk_lt_sdf[0] * lk_lt_sdf[0] + lk_lt_sdf[1] * lk_lt_sdf[1] + lk_lt_sdf[2] * lk_lt_sdf[2]);
+    if (l > 1e-6f) for (k = 0; k < 3; k++) lk_lt_sdf[k] /= l; else memcpy(lk_lt_sdf, lk_lt_sd, sizeof lk_lt_sdf); }
 }
 static float lk_lt_fadecalc(void) {   /* v5: colour sum of the 64 colours the own renderer DRAWS with this frame (lk_o_pix) / of the room's palette words ($FF0080, Mega Drive word 0BBB0GGG0RRR0, x 36)
      (user 2026-11-06 recording rec_20261106_1305, KN cave 171: light shafts drawn over the black pause of a room change; v4 used the RAM palette $FF0ED0, which still held the full colours
@@ -1395,7 +1419,7 @@ static int lk_lt_figdir(const float *sd, float px, float py, float pz) {   /* v5
   }
   return 0;
 }
-static int lk_lt_figsun(float px, float py, float pz) { return lk_lt_figdir(lk_lt_sd, px, py, pz); }
+static int lk_lt_figsun(float px, float py, float pz) { return lk_lt_figdir(lk_lt_sun && lk_dn_on && lk_lt_sdf[2] > 0.0f ? lk_lt_sdf : lk_lt_sd, px, py, pz); }   /* LK_DAYNIGHT v5: blended direction during a step */
 static int lk_lt_linebegin(void) { if (!lk_lt_get()) return 0; if (lk_lt_frame != platform_frame_number()) lk_lt_step(); return lk_lt_on; }
 static float lk_lt_amb = -1.0f;   /* indoor base light (unlit share of the original brightness): 0.85 (user 2026-11-05: castle too dark, picked 85 %% of 55 / 70 / 85; was 0.55); test aid LANDSTALKER_LT_AMB=0.70 */
 static int lk_lt_bm, lk_lt_bz;   /* v8: beam glow + surface height of the current pixel (set by the key light branch) */

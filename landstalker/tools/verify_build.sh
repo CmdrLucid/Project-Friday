@@ -65,6 +65,7 @@ chk "Schwert-Effekte (Option)"                       $G/ext/Genesis-Plus-GX/core
 chk "Stiefelfarben (Option)"                         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_BOOTCOL v2"
 chk "Licht (Option)"                                $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LIGHTS v8"
 chk "Tag / Nacht (Option)"                          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DAYNIGHT v1"
+chk "Tag / Nacht v5 (fliessende Schatten)"          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DAYNIGHT v5"
 chk "Zeitraffer-Taste (L5 + R5)"                    $G/src/input.c "lk_dn_fasttoggle"
 chk "Gegner zerfallen (Option)"                     $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DISSOLVE v1"
 chk "Hitzeflimmern (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_HAZE v1"
