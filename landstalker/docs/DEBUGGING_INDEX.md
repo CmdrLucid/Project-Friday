@@ -206,3 +206,4 @@
 - L1623: Modern effects: ambient particles, enemy dissolve (2026-11-05 night, Deck, Opus 5.5)
 - L1632: Modern effects 2: heat haze, water reflections, cloud shadows (2026-11-06, Deck, Opus 5.5)
 - L1640: Session 2026-11-06 later: day / night fixes, fade factor, light workers, GPU filters (Deck, Opus 5.5)
+- L1649: Session 2026-11-06 GPU step 2 measurement + GPU lighting GL1 (Deck, Opus 5.5)
