@@ -162,7 +162,7 @@ static float lk_lt_sdn[3]; static int16_t lk_lt_hdn[74][74]; static volatile int
 static __thread const float *lk_lt_sdp; static __thread int16_t (*lk_lt_hdp)[74];
 static void lk_dn_cancel(void); static int lk_dn_iswt(uint32 c); int lk_dn_get(void);
 static float lk_lt_fadek = 1.0f;   /* v4 (user 2026-11-06: 'beim Raumwechsel blenden die beleuchteten Fenster und die Lichtstrahlen nicht richtig mit aus / ein'): brightness of the drawn colours (lk_o_pix, v5) against the room's palette ($FF0080, DarkenActivePalette $0009BE) 0..1; every ADDED light (shafts, motes, particles, window glass / window lights) is scaled by it */   /* per thread: the direction / early exit field the sun march uses (0 = lk_lt_sd / lk_lt_hd) */
-static double lk_lt_bms, lk_lt_pms; static int lk_lt_bn, lk_lt_pfn, lk_lt_pre, lk_lt_odn;   /* lk_lt_odn: v7 blocks computed on demand this frame (max 6: a room entry needed 60..80 = one 90 ms frame; the rest are drawn unlit for a few frames of the dark fade in) */   /* v7 test aid (DBG=5): block time of the last frame on demand / prefetched */
+static int lk_lt_odcap = 6; static double lk_lt_lbms; static int lk_lt_lbn, lk_lt_lpfn; static double lk_lt_bms, lk_lt_pms; static int lk_lt_bn, lk_lt_pfn, lk_lt_pre, lk_lt_odn;   /* lk_lt_odn: v7 blocks computed on demand this frame (max 6: a room entry needed 60..80 = one 90 ms frame; the rest are drawn unlit for a few frames of the dark fade in) */   /* v7 test aid (DBG=5): block time of the last frame on demand / prefetched */
 static int lk_lt_umin = 1 << 30, lk_lt_umax = -(1 << 30), lk_lt_vmin = 1 << 30, lk_lt_vmax = -(1 << 30);   /* v7: picture area drawn in the last frame (prefetch around it) */   /* v7 test aid (DBG=5): time spent computing blocks in the last frame */
 static int lk_lt_retry;               /* a new room whose planes were not built yet: look for lights again a few times */
 static uint32_t lk_lt_pah;            /* v7: hash of the layer A plane at the last rebuild (outdoors a retry rebuilds only when the picture changed: 12 rebuilds of 40..70 ms each stuttered) */
@@ -455,6 +455,8 @@ static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before th
     P->vx = (lk_am_rnd() - 0.5f) * 0.25f; P->vy = (lk_am_rnd() - 0.5f) * 0.25f; P->vz = L->lava ? 0.30f + lk_am_rnd() * 0.30f : 0.55f + lk_am_rnd() * 0.40f; P->life = (int16_t)(L->lava ? 60 + lk_am_rnd() * 50.0f : 22 + lk_am_rnd() * 22.0f); }
   for (j = 0, k = 0; j < lk_am_np; j++) { lk_am_p *P = &lk_am_ps[j]; float t, a;
     if (++P->age >= P->life) continue;
+    if (P->kind != 2 && P->kind != 5) { int cx = (int)floorf(P->x / 16.0f), cy = (int)floorf(P->y / 16.0f);   /* v9 (user 2026-11-06, recording rec_20261106_1322 frame 2688: sparks over the black void beside the waterfall shrine 178): a particle over a cell outside the room is gone (fireflies turn back, drops land on floor cells) */
+      if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74 || UW(0xFFD192 + 148 * cy + 2 * cx) == 0x4000) continue; }
     t = (float)P->age;
     if (P->kind == 1) {   /* leaf: sways while it drifts down, lies on the ground for a moment, fades */
       static const uint32_t lc[4] = { 0x6E962Eu, 0xA89632u, 0x8C5A28u, 0x587A28u }; float sw = sinf(P->ph + t * 0.09f);
@@ -678,7 +680,7 @@ static const lk_lt_blk *lk_lt_block(int bx, int by) {   /* the block, computed o
   lk_lt_blk *b;
   if (bx < 0 || by < 0 || bx >= LK_LT_BW || by >= LK_LT_BH) return 0;
   if ((b = lk_lt_b[by][bx])) return b;
-  if (!lk_lt_pre && lk_lt_odn >= 6) return 0;
+  if (!lk_lt_pre && lk_lt_odn >= lk_lt_odcap) return 0;   /* v9: with worker threads the main thread computes none (lk_lt_odcap 0; missing blocks get the base light, lk_lt_pix) */
   if (!lk_lt_pre) lk_lt_odn++;
   struct timespec lk_bt0; clock_gettime(CLOCK_MONOTONIC, &lk_bt0); if (lk_lt_pre) lk_lt_pfn++; else lk_lt_bn++;
   if (!(b = lk_lt_blockcalc(bx, by))) return 0;
@@ -689,24 +691,29 @@ static const lk_lt_blk *lk_lt_block(int bx, int by) {   /* the block, computed o
    LK_LT_WMS ms), publishes its blocks (lk_lt_b is only ever written by the main thread), then hands out the next list.  Room changes / lk_lt_free happen after that wait.
    Windows build: no thread, the list is worked off on the main thread with the old 2.5 ms budget. */
 #define LK_LT_JMAX 64
-#define LK_LT_WMS 11.0
+#define LK_LT_WMS 14.0   /* v9: 14 (was 11; the workers run beside the frame, the main thread no longer waits) */
 static int lk_lt_jn, lk_lt_jbx[LK_LT_JMAX], lk_lt_jby[LK_LT_JMAX], lk_lt_jgen; static lk_lt_blk *lk_lt_jres[LK_LT_JMAX], *lk_lt_jsun[LK_LT_JMAX];   /* jsun: LK_DAYNIGHT v1 sun-only job (the block gets sunn for lk_lt_sdn) */
-static void lk_lt_jobrun(double ms) { struct timespec t0; int j; clock_gettime(CLOCK_MONOTONIC, &t0);
-  if (lk_dn_upd && !lk_dn_hdok) { lk_lt_hdcalc(lk_lt_sdn, lk_lt_hdn); lk_dn_hdok = 1; }   /* LK_DAYNIGHT v1: the early exit field of the next sun direction (was 3..6 ms on the main thread at every step) */
-  for (j = 0; j < lk_lt_jn; j++) { lk_lt_jres[j] = 0; if (j && lk_sm_ms_since(&t0) > ms) continue;
+static volatile int lk_lt_jnext, lk_lt_nact = 1;   /* v9 MT: next job of the list (atomic), active workers of this list */
+static void lk_lt_jobrun(double ms) { struct timespec t0; int j, done = 0; clock_gettime(CLOCK_MONOTONIC, &t0);   /* several workers take jobs from one list (v9) */
+  if (lk_dn_upd && !lk_dn_hdok) { lk_lt_hdcalc(lk_lt_sdn, lk_lt_hdn); lk_dn_hdok = 1; }   /* LK_DAYNIGHT v1: the early exit field of the next sun direction (a list with sun work runs on one worker only) */
+  for (;;) { j = __atomic_fetch_add(&lk_lt_jnext, 1, __ATOMIC_RELAXED); if (j >= lk_lt_jn) break;
+    lk_lt_jres[j] = 0; if (done && lk_sm_ms_since(&t0) > ms) continue;
+    done++;
     if (lk_lt_jsun[j]) { lk_lt_blk *b = lk_lt_jsun[j]; lk_lt_sdp = lk_lt_sdn; lk_lt_hdp = lk_lt_hdn; lk_lt_sunfill(b, lk_lt_jbx[j] * 32, lk_lt_jby[j] * 32, b->sunn); lk_lt_sdp = 0; lk_lt_hdp = 0; b->sungen = lk_dn_gen; continue; }
     lk_lt_jres[j] = lk_lt_blockcalc(lk_lt_jbx[j], lk_lt_jby[j]); } }
 #if !defined(_WIN32)
 #include <pthread.h>
-static pthread_t lk_lt_th; static pthread_mutex_t lk_lt_mx = PTHREAD_MUTEX_INITIALIZER; static pthread_cond_t lk_lt_cvgo = PTHREAD_COND_INITIALIZER, lk_lt_cvdone = PTHREAD_COND_INITIALIZER; static int lk_lt_thst, lk_lt_busy;   /* thst: 0 not started, 1 running, -1 failed */
-static void *lk_lt_worker(void *arg) { (void)arg;
-  for (;;) { pthread_mutex_lock(&lk_lt_mx); while (!lk_lt_busy) pthread_cond_wait(&lk_lt_cvgo, &lk_lt_mx); pthread_mutex_unlock(&lk_lt_mx);
-    lk_lt_jobrun(LK_LT_WMS);
-    pthread_mutex_lock(&lk_lt_mx); lk_lt_busy = 0; pthread_cond_signal(&lk_lt_cvdone); pthread_mutex_unlock(&lk_lt_mx); }
+#define LK_LT_NTH 4
+static pthread_t lk_lt_th[LK_LT_NTH]; static pthread_mutex_t lk_lt_mx = PTHREAD_MUTEX_INITIALIZER; static pthread_cond_t lk_lt_cvgo = PTHREAD_COND_INITIALIZER, lk_lt_cvdone = PTHREAD_COND_INITIALIZER;
+static int lk_lt_thst, lk_lt_busy, lk_lt_nth, lk_lt_go;   /* thst: 0 not started, 1 running, -1 failed; busy: workers still on the current list; go: list generation */
+static void *lk_lt_worker(void *arg) { int idx = (int)(intptr_t)arg, seen = 0;
+  for (;;) { pthread_mutex_lock(&lk_lt_mx); while (lk_lt_go == seen) pthread_cond_wait(&lk_lt_cvgo, &lk_lt_mx); seen = lk_lt_go; pthread_mutex_unlock(&lk_lt_mx);
+    if (idx < lk_lt_nact) lk_lt_jobrun(LK_LT_WMS);
+    pthread_mutex_lock(&lk_lt_mx); if (--lk_lt_busy == 0) pthread_cond_signal(&lk_lt_cvdone); pthread_mutex_unlock(&lk_lt_mx); }
   return 0; }
-static int lk_lt_mtopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_MT"); v = e ? atoi(e) : 1; } return v; }   /* test aid: LANDSTALKER_LT_MT=0 = no worker thread */
+static int lk_lt_mtopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_MT"); v = e ? atoi(e) : 3; if (v < 0) v = 0; if (v > LK_LT_NTH) v = LK_LT_NTH; } return v; }   /* workers (v9 default 3; user 2026-11-06: stutter at room changes = 6 blocks of 4..6 ms on the main thread per frame); test aid LANDSTALKER_LT_MT=0 = none */
 #endif
-static int lk_lt_jobwait(int block) {   /* main: publish the worker's blocks; block = 0: only if it is done (returns 0 while it still works), 1: wait for it */
+static int lk_lt_jobwait(int block) {   /* main: publish the workers' blocks; block = 0: only if they are done (returns 0 while they still work), 1: wait for them */
   int j;
 #if !defined(_WIN32)
   if (lk_lt_thst == 1) { int busy; pthread_mutex_lock(&lk_lt_mx); if (block) while (lk_lt_busy) pthread_cond_wait(&lk_lt_cvdone, &lk_lt_mx); busy = lk_lt_busy; pthread_mutex_unlock(&lk_lt_mx); if (busy) return 0; }
@@ -715,11 +722,13 @@ static int lk_lt_jobwait(int block) {   /* main: publish the worker's blocks; bl
     if (lk_lt_jgen == lk_lt_gen && !lk_lt_b[lk_lt_jby[j]][lk_lt_jbx[j]]) { lk_lt_b[lk_lt_jby[j]][lk_lt_jbx[j]] = b; lk_lt_pfn++; } else free(b); }
   lk_lt_jn = 0; return 1; }
 static void lk_lt_jobstart(void) {   /* main: hand out the list (lk_lt_jn entries); no thread: work it off here */
+  int j, sun = 0;
   if (!lk_lt_jn) return;
-  lk_lt_jgen = lk_lt_gen;
+  lk_lt_jgen = lk_lt_gen; lk_lt_jnext = 0;
+  for (j = 0; j < lk_lt_jn; j++) if (lk_lt_jsun[j]) sun = 1;
 #if !defined(_WIN32)
-  if (lk_lt_thst == 0 && lk_lt_mtopt()) { lk_lt_thst = pthread_create(&lk_lt_th, 0, lk_lt_worker, 0) == 0 ? 1 : -1; if (lk_lt_thst == 1) pthread_detach(lk_lt_th); }
-  if (lk_lt_thst == 1) { pthread_mutex_lock(&lk_lt_mx); lk_lt_busy = 1; pthread_cond_signal(&lk_lt_cvgo); pthread_mutex_unlock(&lk_lt_mx); return; }
+  if (lk_lt_thst == 0 && lk_lt_mtopt()) { int k; lk_lt_nth = 0; for (k = 0; k < lk_lt_mtopt(); k++) if (pthread_create(&lk_lt_th[k], 0, lk_lt_worker, (void *)(intptr_t)k) == 0) { pthread_detach(lk_lt_th[k]); lk_lt_nth++; } lk_lt_thst = lk_lt_nth ? 1 : -1; if (lk_lt_thst == 1) lk_lt_odcap = 0; }
+  if (lk_lt_thst == 1) { pthread_mutex_lock(&lk_lt_mx); lk_lt_nact = (sun || (lk_dn_upd && !lk_dn_hdok)) ? 1 : lk_lt_nth; lk_lt_busy = lk_lt_nth; lk_lt_go++; pthread_cond_broadcast(&lk_lt_cvgo); pthread_mutex_unlock(&lk_lt_mx); return; }
 #endif
   lk_lt_jobrun(2.5); lk_lt_jobwait(1); }
 static int lk_lt_isflame(uint32_t base, float *r, float *g, float *bl) {   /* AnimatedTilesetData entries that are light sources (tools/animsurvey.py, user 2026-11-02) */
@@ -1245,6 +1254,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
   int idle = lk_lt_jobwait(0);   /* v8 MT: the worker's blocks, if it is done (the main thread never waits for it here) */
   long fr = platform_frame_number(); int x, y, k, j; uint32_t h = 2166136261u; uint32_t a;
   lk_lt_frame = fr;
+  lk_lt_lbn = lk_lt_bn; lk_lt_lbms = lk_lt_bms; lk_lt_lpfn = lk_lt_pfn;   /* (the last frame's block counts for LANDSTALKER_LT_TIME=2) */
   if (lk_lt_bn || lk_lt_pfn) { if (lk_lt_dbg == 5 && lk_lt_bms + lk_lt_pms > 1.0) printf("blocks: frame %%ld room %%d %%d blocks %%.1f ms, prefetched %%d %%.1f ms\n", fr - 1, lk_o_room, lk_lt_bn, lk_lt_bms, lk_lt_pfn, lk_lt_pms); lk_lt_bn = lk_lt_pfn = 0; lk_lt_bms = lk_lt_pms = 0.0; }
   if (lk_lt_dbg < 0) { const char *e = getenv("LANDSTALKER_LIGHTING_DBG"); lk_lt_dbg = e ? atoi(e) : 0; }
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) h = (h ^ (uint32_t)UW(0xFFD192 + 148 * y + 2 * x)) * 16777619u;
@@ -1257,8 +1267,8 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
   lk_lt_shstep(fr);   /* v8 dust motes */
   if (lk_lt_on) lk_am_step(fr); else if (lk_am_dn) { int jj; for (jj = 0; jj < lk_am_dn; jj++) lk_am_map[lk_am_dl[jj]] = 0; lk_am_dn = 0; }   /* v8 ambient particles */
   { static int tv = -1; static struct timespec tl; static double sum, mx; static int n, over; struct timespec tn;   /* test aid LANDSTALKER_LT_TIME=1: headless frame time (emulation + picture) between two lit frames, per 300 frames */
-    if (tv < 0) { const char *e = getenv("LANDSTALKER_LT_TIME"); tv = e && atoi(e) > 0; }
-    if (tv) { clock_gettime(CLOCK_MONOTONIC, &tn); if (tl.tv_sec) { double d = (double)(tn.tv_sec - tl.tv_sec) * 1000.0 + (double)(tn.tv_nsec - tl.tv_nsec) / 1e6; if (d < 200.0) { sum += d; n++; if (d > mx) mx = d; if (d > 12.0) over++; } }
+    if (tv < 0) { const char *e = getenv("LANDSTALKER_LT_TIME"); tv = e ? atoi(e) : 0; if (tv < 0) tv = 0; }   /* 2 = also every frame > 12 ms */
+    if (tv) { clock_gettime(CLOCK_MONOTONIC, &tn); if (tl.tv_sec) { double d = (double)(tn.tv_sec - tl.tv_sec) * 1000.0 + (double)(tn.tv_nsec - tl.tv_nsec) / 1e6; if (d < 200.0) { sum += d; n++; if (d > mx) mx = d; if (d > 12.0) over++; if (d > 12.0 && tv >= 2) printf("ltslow: frame %%ld room %%d %%.1f ms (blocks %%d / %%.1f ms, prefetched %%d, sun step %%d)\n", fr, lk_o_room, d, lk_lt_lbn, lk_lt_lbms, lk_lt_lpfn, lk_dn_upd); } }
       tl = tn; if (n >= 300) { printf("lttime: frame %%ld room %%d avg %%.2f ms max %%.1f ms >12ms %%d\n", fr, lk_o_room, sum / n, mx, over); sum = mx = 0.0; n = over = 0; } } }
   if (idle && lk_lt_on && lk_lt_umax >= lk_lt_umin) {   /* v7 PREFETCH, v8 MT: the missing blocks of the ring 2 blocks around the area drawn last frame, nearest first, go to the light worker */
     int bx, by, bx0 = lk_lt_fdiv(lk_lt_umin, 32) - 2, bx1 = lk_lt_fdiv(lk_lt_umax, 32) + 2, by0 = lk_lt_fdiv(lk_lt_vmin, 32) - 2, by1 = lk_lt_fdiv(lk_lt_vmax, 32) + 2, cx = (bx0 + bx1) / 2, cy = (by0 + by1) / 2, r, rm;
@@ -1397,7 +1407,7 @@ static int lk_lt_voidglow(int U, int V, int col) {   /* v8 shafts over pixels wi
   d = lk_lt_nsh ? lk_lt_dmap[((V & 511) << 9) | (U & 511)] : 0;
   gl = lk_lt_nsh ? ((float)b->beam[i] * 0.38f + (float)d * 0.50f) * lk_lt_fadek : 0.0f;   /* (v4: fades with the palette) */
   r = (int)((c >> 16) & 255) + (int)(gl * lk_lt_sh[0].cr); g = (int)((c >> 8) & 255) + (int)(gl * lk_lt_sh[0].cg); bl = (int)(c & 255) + (int)(gl * lk_lt_sh[0].cb);
-  if (lk_am_dn) lk_am_mix(U, V, -32768, -32768, &r, &g, &bl);   /* v8 ambient particles over the void */
+  if (lk_am_dn && !(lk_am_map[((V & 511) << 9) | (U & 511)] & 0x80000000u)) lk_am_mix(U, V, -32768, -32768, &r, &g, &bl);   /* v8 ambient particles over the void; v9: only drops / splashes there, glowing ones (sparks, embers, fireflies: additive) not (user: particles outside the room) */
   if (r > 255) r = 255; if (g > 255) g = 255; if (bl > 255) bl = 255;
   return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)bl); }
 static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one composed map pixel; sp = winning sprite pixel or 0 */
@@ -1418,6 +1428,20 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
     const lk_lt_blk *b = lk_lt_block(lk_lt_fdiv(U, 32), lk_lt_fdiv(V, 32)); int i;
     if (lk_lt_dbg == 4) { int pa = 0, pra = 0, pb = 0, prb = 0, ia = lk_o_fetch(lk_o_pa, U, V, &pa, &pra, 0), ib = lk_o_fetch(lk_o_pb, U, V, &pb, &prb, 0); uint32_t c = (uint32_t)col;   /* v5 test aid: priority pixels (layer A magenta, B cyan) */
       if (ia) return (int)(pra ? 0xFFE040E0u : 0xFF902090u); if (ib) return (int)(prb ? 0xFF40E0E0u : (0xFF000000u | ((c >> 2) & 0x3F3F3F))); return (int)(0xFF000000u | ((c >> 2) & 0x3F3F3F)); }
+    if (!b && !lk_lt_sun && lk_lt_odcap == 0) {   /* v9: indoors, a block the workers have not finished yet: the room's base light (flames / shafts come with the block a frame or two later) */
+      uint32_t c = (uint32_t)col; float fr, fg, fb; int r, g, bl;
+      if (lk_lt_key) { fr = lk_lt_kA * 0.97f + lk_lt_kK * 0.6f * 1.04f; fg = lk_lt_kA * 0.99f + lk_lt_kK * 0.6f; fb = lk_lt_kA * 1.05f + lk_lt_kK * 0.6f * 0.92f; }
+      else if (lk_lt_nl) { fr = ar; fg = ag; fb = ab; }
+      else return col;
+      r = (int)((float)((c >> 16) & 255) * fr); g = (int)((float)((c >> 8) & 255) * fg); bl = (int)((float)(c & 255) * fb);
+      if (r > 255) r = 255; if (g > 255) g = 255; if (bl > 255) bl = 255;
+      return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)bl); }
+    if (!b && lk_lt_sun && !lk_dn_on && lk_lt_odcap == 0) {   /* v9: outdoors without the cycle: sky light + sun, unshaded */
+      uint32_t c = (uint32_t)col; float fr = lk_lt_sS * 0.95f + lk_lt_sK, fg = lk_lt_sS * 0.98f + lk_lt_sK * 0.97f, fb = lk_lt_sS * 1.06f + lk_lt_sK * 0.90f; int r, g, bl;
+      if (fr > 2.4f) fr = 2.4f; if (fg > 2.4f) fg = 2.4f; if (fb > 2.4f) fb = 2.4f;
+      r = (int)((float)((c >> 16) & 255) * fr); g = (int)((float)((c >> 8) & 255) * fg); bl = (int)((float)(c & 255) * fb);
+      if (r > 255) r = 255; if (g > 255) g = 255; if (bl > 255) bl = 255;
+      return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)bl); }
     if (!b && lk_lt_sun && lk_dn_on) {   /* LK_DAYNIGHT v5 (user 2026-11-06: 'Mercator Raumwechsel nachts: das Bild flackert kurz'): a block not computed yet (the first frames of a room) got the ORIGINAL colour = daylight;
          at night it flashed bright until the worker had it.  Now: the time of day's sky light + its sun as if unshaded (no shadows yet) */
       uint32_t c = (uint32_t)col; float fr = lk_dn_amb3[0] + lk_dn_sun3[0], fg = lk_dn_amb3[1] + lk_dn_sun3[1], fb = lk_dn_amb3[2] + lk_dn_sun3[2]; int r, g, bl;
