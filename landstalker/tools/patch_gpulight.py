@@ -25,7 +25,7 @@ GL5a (v5, compare only, LANDSTALKER_GL5CMP=1 [+ _SHOW=N, _EVERY=N]): a second sh
 back walls, water, object field, proxies, lathe profiles, bushes / pines, early exit field; lk_gl_shafts; lk_gl_bextra: robj + layer A bit) in 5 planes = flame terms, AO, sun / key share,
 shaft beam / pool, reads it back and compares with the CPU block ('gl5:' lines).  Nothing changes for the player.
 GL5b (v5): the view ray (lk_lt_ray / lk_lt_rayf) on the GPU too (geometry pass); the CPU block keeps the layer A bit it used (b->la: animated tiles).
-GL5c (v5): Light Engine GPU+ (option value 2; env LANDSTALKER_GL5=1 wins): the GPU computes the visible light blocks itself (geometry pass -> 32 x 64 texture, packed pass ->
+GL5c (v5): Light Engine GPU (default since 2026-11-06 late; was the option value GPU+; env LANDSTALKER_GL5=0 = the GL4 path with CPU blocks, also the watchdog's fallback): the GPU computes the visible light blocks itself (geometry pass -> 32 x 64 texture, packed pass ->
 copied into roomT0 / T1 / A / B / K), block table + light lists from lk_gl_blist5, keys lk_gl_wkey (hard = room world, soft = sun steps: stale blocks stay until recomputed),
 budget LANDSTALKER_GL5_CAP (24 visible without data) / _CAP2 (4 ring + stale) per frame, watchdog (timer query, > LANDSTALKER_GL5_MAXMS 5 ms average -> GPU), LANDSTALKER_GL5_TIME=1..3
 debug prints.  The CPU still computes its blocks (fallback, lk_am_surf for particles, Day / Night steps).
@@ -54,7 +54,7 @@ static int lk_gl_postok; static void lk_gl_postinit(void) { int i; for (i = 0; i
 static int lk_gl_pf;          /* flags of the current lk_lt_pix call: 1 figure pixel, 2 figure sun / key shadow, 4 a flame term, 8 particle, 16 figure flame shadow, 32 figure shade in a pool, 64 dust mote */
 static unsigned lk_gl_sunver; /* bumped when the blocks take over the next sun direction (memcpy sun <- sunn) */
 uint32_t lk_gl_unlit[224 * 448], lk_gl_ref[224 * 448]; uint8_t lk_gl_cls[224 * 448], lk_gl_flg[224 * 448]; uint32_t lk_gl_row[224]; long lk_gl_rowfr[224]; int lk_gl_w; long lk_gl_capfr = -9;
-static int lk_gle_o = -1;    /* v5: Options > Display > Light Engine (id 56, ~/.landstalker_lightengine, env LANDSTALKER_LIGHTENGINE=0|1|2 wins): 1 GPU (default), 0 CPU, 2 GPU+ (GL5c: the GPU also computes the light blocks) */
+static int lk_gle_o = -1;    /* v5: Options > Display > Light Engine (id 56, ~/.landstalker_lightengine, env LANDSTALKER_LIGHTENGINE=0|1 wins): 1 GPU (default; the GPU also computes the light blocks, GL5c, user 2026-11-06 'GPU+ kann einfach Standard werden'; old value 2 = GPU), 0 CPU */
 int lk_gle_get(void) { if (lk_gle_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_LIGHTENGINE"); char pth[512]; FILE *f; int v = 1; snprintf(pth, sizeof pth, "%%s/.landstalker_lightengine", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%%d", &v) != 1) v = 1; fclose(f); } if (e) v = atoi(e); lk_gle_o = v < 0 ? 0 : v > 2 ? 2 : v; } return lk_gle_o; }
 void lk_gle_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_gle_get(); lk_gle_o = v < 0 ? 0 : v > 2 ? 2 : v; snprintf(pth, sizeof pth, "%%s/.landstalker_lightengine", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%d\n", lk_gle_o); fclose(f); } }
 static int lk_bl_o = -1;     /* v5 GL5d: Options > Graphics > Bounce Light (id 57, ~/.landstalker_bounce, env LANDSTALKER_BOUNCE=0|1 wins), default Off (user's check first); GPU light engines only */
@@ -850,12 +850,12 @@ static void lk_g5_qpoll(void) { int o; lkGLint av; unsigned long long ns; static
   for (o = 0; o < 2; o++) { if (!lk_g5_qp[o]) continue; av = 0; ns = 0; lk_glGetQueryObjectiv(lk_g5_q[o], 0x8867, &av); if (!av) continue; lk_glGetQueryObjectui64v(lk_g5_q[o], 0x8866, &ns); lk_g5_qp[o] = 0; lk_g5_qsum += (double)ns * 1e-6; }
   if (++lk_g5_qn < 120) return;
   { double avg = lk_g5_qsum / lk_g5_qn; lk_g5_qsum = 0.0; lk_g5_qn = 0; if (lk_glt_qdbg) printf("gl5: block passes %%.3f ms per frame on the GPU (120 frame average)\n", avg);
-    if (mx > 0.0 && avg > mx) { if (++lk_g5_qover >= 2) { lk_g5_slow = 1; printf("gl5: light block pass too slow on this GPU (%%.2f ms > %%.2f ms), Light Engine GPU from now on\n", avg, mx); } } else lk_g5_qover = 0; } }
+    if (mx > 0.0 && avg > mx) { if (++lk_g5_qover >= 2) { lk_g5_slow = 1; printf("gl5: light block pass too slow on this GPU (%%.2f ms > %%.2f ms), the CPU computes the light blocks from now on (GPU light stays)\n", avg, mx); } } else lk_g5_qover = 0; } }
 static long lk_g5_tn, lk_g5_tbl, lk_g5_tfr; static unsigned char lk_g5_pn[38][76]; static double lk_g5_tms, lk_g5_tmax;
 extern int lk_gle_get(void);
 static int lk_g5_realon(void) { if (lk_g5_ron < 0) { const char *e = getenv("LANDSTALKER_GL5"), *c = getenv("LANDSTALKER_GL5_CAP"), *t = getenv("LANDSTALKER_GL5_TIME"); lk_g5_ron = e ? atoi(e) : -1; if (c && atoi(c) > 0) lk_g5_cap = atoi(c); { const char *c2 = getenv("LANDSTALKER_GL5_CAP2"); if (c2 && atoi(c2) >= 0) lk_g5_cap2 = atoi(c2); } lk_g5_tdbg = t ? atoi(t) : 0;
     if (lk_g5_ron > 0) printf("gl5: the GPU computes the light blocks (LANDSTALKER_GL5=1)\n"); if (lk_g5_ron < 0) lk_g5_ron = -2; }
-  return (lk_g5_ron == -2 ? lk_gle_get() == 2 : lk_g5_ron > 0) && lk_g5_st >= 0 && !lk_g5_slow; }   /* option Light Engine GPU+ (env LANDSTALKER_GL5 wins); the block watchdog switches it off */
+  return (lk_g5_ron == -2 ? lk_gle_get() >= 1 : lk_g5_ron > 0) && lk_g5_st >= 0 && !lk_g5_slow; }   /* Light Engine GPU = GL5c (env LANDSTALKER_GL5=0 = the old GPU path with CPU blocks, test aid); the block watchdog falls back to that path */
 /* GL5c sun step swap: when the blocks take over the next sun direction (CPU: memcpy sun <- sunn), the GPU copies roomA.b (sunn) into roomA.g (sun) for every block that has sunn
    (block table .g) in one full texture pass, so no block shows the old direction until it is recomputed (user 2026-11-06: 'beim Rausgehen legt sich kurz was ueber den Screen') */
 static lkGLuint lk_g5_swp, lk_g5_swt, lk_g5_swf; static lkGLint lk_g5_swu[2]; static int lk_g5_swst; static float lk_g5_pdir[6]; static int lk_g5_psunn;
