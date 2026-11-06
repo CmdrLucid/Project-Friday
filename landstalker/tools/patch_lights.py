@@ -1151,10 +1151,10 @@ static void lk_dn_lerp(const float *E, const float (*C)[3], int n, float e, floa
   int k; if (e <= E[0]) { o[0] = C[0][0]; o[1] = C[0][1]; o[2] = C[0][2]; return; }
   for (k = 1; k < n; k++) if (e <= E[k]) { float t = (e - E[k - 1]) / (E[k] - E[k - 1]); int c; for (c = 0; c < 3; c++) o[c] = C[k - 1][c] + (C[k][c] - C[k - 1][c]) * t; return; }
   o[0] = C[n - 1][0]; o[1] = C[n - 1][1]; o[2] = C[n - 1][2]; }
-static float lk_dn_minel(void) { static float v = -1.0f; if (v < 0.0f) { const char *e = getenv("LANDSTALKER_DN_MINEL"); v = e ? (float)atof(e) : 22.0f; if (v < 5.0f) v = 5.0f; if (v > 60.0f) v = 60.0f; } return v; }
+static float lk_dn_minel(void) { static float v = -1.0f; if (v < 0.0f) { const char *e = getenv("LANDSTALKER_DN_MINEL"); v = e ? (float)atof(e) : 35.0f; if (v < 5.0f) v = 5.0f; if (v > 60.0f) v = 60.0f; } return v; }
 static void lk_dn_dir(double t, float *az, float *el) {   /* LK_DAYNIGHT v5 (user 2026-11-06: 'Schatten sehr lang abends und morgens', 'der Schatten springt einmal komplett 180 Grad wenn die Nacht wieder zum Tag wird'):
      the light's direction only.  Sun 6:00 -> 18:00 from az 10 to 170 (as v1); the MOON now walks the path BACKWARDS 18:00 -> 6:00 (170 -> 10), so the shadow direction is continuous at
-     dusk and dawn (v1..v4: the moon started at 10 again = a ~160 deg jump); lowest elevation LANDSTALKER_DN_MINEL (22, was 12: shadows at most ~2.5 x the height instead of ~4.7 x) */
+     dusk and dawn (v1..v4: the moon started at 10 again = a ~160 deg jump); lowest elevation LANDSTALKER_DN_MINEL (35, user 2026-11-06 'nicht unter 35 Grad'; v5 first 22, before 12: shadows at most ~1.4 x the height instead of ~4.7 x) */
   float p = (float)(fmod(t - 6.0 + 48.0, 24.0) / 12.0), q = (float)(fmod(t - 18.0 + 48.0, 24.0) / 12.0), es = 58.0f * sinf(3.14159265f * p), em = 40.0f * sinf(3.14159265f * q), mn = lk_dn_minel();
   if (es > -3.0f) { *az = 90.0f - 80.0f * cosf(3.14159265f * p); *el = es > mn ? es : mn; }
   else { *az = 90.0f + 80.0f * cosf(3.14159265f * (q > 1.0f ? 1.0f : q)); *el = em > mn ? em : mn; } }
