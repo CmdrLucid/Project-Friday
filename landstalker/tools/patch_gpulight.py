@@ -28,7 +28,9 @@ GL5b (v5): the view ray (lk_lt_ray / lk_lt_rayf) on the GPU too (geometry pass);
 GL5c (v5): Light Engine GPU (default since 2026-11-06 late; was the option value GPU+; env LANDSTALKER_GL5=0 = the GL4 path with CPU blocks, also the watchdog's fallback): the GPU computes the visible light blocks itself (geometry pass -> 32 x 64 texture, packed pass ->
 copied into roomT0 / T1 / A / B / K), block table + light lists from lk_gl_blist5, keys lk_gl_wkey (hard = room world, soft = sun steps: stale blocks stay until recomputed),
 budget LANDSTALKER_GL5_CAP (24 visible without data) / _CAP2 (4 ring + stale) per frame, watchdog (timer query, > LANDSTALKER_GL5_MAXMS 5 ms average -> GPU), LANDSTALKER_GL5_TIME=1..3
-debug prints.  The CPU still computes its blocks (fallback, lk_am_surf for particles, Day / Night steps).
+debug prints.  v5 CPU SAVING (user 2026-11-06 'CPU entlasten'): while GL5c runs the CPU computes NO light blocks (no prefetch jobs, no on-demand;
+lk_gl5_cpufr); the particles' floor (lk_am_surf) comes from the GPU blocks' room A / B planes read back through 2 pixel buffers one frame late (lk_gl_surfput, no stall;
+a GPU sun step swap is mirrored, lk_gl_surfswap); test aid LANDSTALKER_GL5_CPUKEEP=1 = the CPU keeps computing.  rec_20261106_1322: user CPU 41.3 s -> 30.2 s (-27 %%), pictures identical.
 Needs the GPU filter path (patch_gpu.py, option GPU Filters On) and a window (the GL context): LANDSTALKER_HIDDEN=1 creates the window hidden (test aid).
 Needs patch_lights.py, patch_bootcol.py, patch_gpu.py before it.  Idempotent.  usage: patch_gpulight.py path/to/genrecomp"""
 import os, sys
@@ -172,6 +174,15 @@ void lk_gl_blist5(int bx, int by, uint32_t *a, uint32_t *b2, int *nlo) { int k, 
     li[m] = (uint8)k; bd[m] = d2; }
   *a = *b2 = 0; *nlo = nl;
   for (k = 0; k < 4; k++) { if (k < nl) *a |= (uint32_t)li[k] << (8 * k); if (k + 4 < nl) *b2 |= (uint32_t)li[k + 4] << (8 * k); } }
+/* v5 CPU saving: the platform hands back the GPU blocks' room A (face sun sunn ao) and room B (z lo hi beam pool) planes one frame later (pixel buffer, no stall) */
+void lk_gl_surfput(int bx, int by, const uint32_t *A, const uint32_t *Bp, int sg) { lk_gs_t *g; int i;
+  if (bx < 0 || by < 0 || bx >= 76 || by >= 38) return;
+  if (!(g = lk_gs[by][bx]) && !(g = lk_gs[by][bx] = (lk_gs_t *)malloc(sizeof *g))) return;
+  for (i = 0; i < 1024; i++) { g->a[i] = (A[i] & 0xFFFFFFu) | (sg ? 0x1000000u : 0u); g->z[i] = (int16_t)(Bp[i] & 0xFFFF); }
+  g->gen = lk_lt_gen; g->dng = lk_dn_gen; }
+void lk_gl_surfswap(void) { int x, y, i; for (y = 0; y < 38; y++) for (x = 0; x < 76; x++) { lk_gs_t *g = lk_gs[y][x]; if (!g || g->gen != lk_lt_gen) continue;   /* a GPU sun step swap: sun <- sunn */
+    for (i = 0; i < 1024; i++) if (g->a[i] >> 24) g->a[i] = (g->a[i] & 0xFF00FFu) | (((g->a[i] >> 16) & 255) << 8); } }
+void lk_gl5_cpuset(void) { lk_gl5_cpufr = platform_frame_number(); }
 void lk_gl_bextra(int bx, int by, uint32_t *o) { const lk_lt_blk *b = lk_lt_b[by][bx]; int i, pal, pr;
   for (i = 0; i < 1024; i++) o[i] = (uint32_t)(uint16_t)(b ? b->robj[i] : 0) | (((b ? b->la[i] : lk_o_fetch(lk_o_pa, bx * 32 + (i & 31), by * 32 + (i >> 5), &pal, &pr, 0) != 0) ? 1u : 0u) << 16); }   /* the bit the block's view ray used */
 const uint16_t *lk_gl_fmk(void) { return &lk_lt_fmk[0][0]; }   /* figure shadow box mask 224 x 448 (lk_lt_infb) */
@@ -213,7 +224,20 @@ void lk_gl_blist(int bx, int by, uint32_t *a, uint32_t *b2, int *nl) { const lk_
     rep("b->face[i] = (uint8)lk_lt_ray(U0 + (i & 31), V0 + (i >> 5), &z); b->z[i] = (int16_t)z; robj[i] = (int16_t)lk_lt_rob; }",
         "b->face[i] = (uint8)lk_lt_ray(U0 + (i & 31), V0 + (i >> 5), &z); b->z[i] = (int16_t)z; robj[i] = (int16_t)lk_lt_rob; b->la[i] = (uint8)lk_lt_rayA; }")
     a = "/* ---- LK_LIGHTS v8: lighting from flames"
-    rep(a, "static int lk_gl_pf, lk_gl_fj; static unsigned lk_gl_sunver;   /* %s (tools/patch_gpulight.py): used inside the Lighting code */\n" % VER + a)
+    rep(a, "static int lk_gl_pf, lk_gl_fj; static unsigned lk_gl_sunver;   /* %s (tools/patch_gpulight.py): used inside the Lighting code */\n" % VER +
+        "long lk_gl5_cpufr = -99;   /* v5 CPU SAVING: frame in which the GPU computed the light blocks (platform_sdl.c); while it is recent the CPU computes none (no prefetch, no on-demand) */\n"
+        "static int lk_gl5_cpuoff(void) { return lk_gl5_cpufr >= platform_frame_number() - 2; }\n"
+        "typedef struct { uint32_t a[1024]; int16_t z[1024]; int gen, dng; } lk_gs_t; static lk_gs_t *lk_gs[38][76];   /* the GPU blocks' face / sun / sunn / sunn-valid + z, read back for the particles (lk_am_surf) */\n" + a)
+    rep("if (idle && lk_lt_on && lk_lt_umax >= lk_lt_umin) {   /* v7 PREFETCH", "if (idle && lk_lt_on && lk_lt_umax >= lk_lt_umin && !lk_gl5_cpuoff()) {   /* v5 GL5: not while the GPU computes the blocks */   /* v7 PREFETCH")
+    rep("if (!lk_lt_pre && lk_lt_odn >= lk_lt_odcap) return 0;", "if (!lk_lt_pre && (lk_lt_odn >= lk_lt_odcap || lk_gl5_cpuoff())) return 0;   /* v5 GL5: no on-demand blocks while the GPU computes them */")
+    rep("  i = ((V & 31) << 5) | (U & 31); if (b->face[i] != 1) return 0;",
+        "  i = ((V & 31) << 5) | (U & 31); if (b->face[i] != 1) return 0;   /* (v5 GL5: no CPU block -> lk_gs below) */")
+    rep("  if (bx < 0 || by < 0 || bx >= LK_LT_BW || by >= LK_LT_BH || !(b = lk_lt_b[by][bx])) return 0;\n  i = ((V & 31) << 5) | (U & 31);",
+        "  if (bx < 0 || by < 0 || bx >= LK_LT_BW || by >= LK_LT_BH) return 0;\n"
+        "  if (!(b = lk_lt_b[by][bx])) { const lk_gs_t *g = lk_gs[by][bx]; uint32_t w; if (!g || g->gen != lk_lt_gen) return 0;   /* v5 GL5: the surface the GPU computed */\n"
+        "    i = ((V & 31) << 5) | (U & 31); w = g->a[i]; if ((w & 255) != 1) return 0; lk_lt_pos(U, V, g->z[i], px, py); *pz = (float)g->z[i];\n"
+        "    { int s0 = (int)((w >> 8) & 255), s1 = (int)((w >> 16) & 255); *sun = lk_lt_sun ? (lk_dn_mix && (w >> 24) && g->dng == lk_dn_gen ? s0 + ((s1 - s0) * lk_dn_mix >> 8) : s0) : 255; } return 1; }\n"
+        "  i = ((V & 31) << 5) | (U & 31);")
     # per line: capture on?
     a = "int lk_lt_ln = lk_lt_linebegin();"
     rep(a, a + " int lk_gl_cap = (lk_gl_getmode() == 2 || (lk_gl_mode == 1 && lk_gl_realok())) && lk_lt_ln && !lk_hd_n && !lk_lt_dbg && w <= 448 && line >= 0 && line < 224, lk_gl_real = lk_gl_cap && lk_gl_mode == 1;   /* %s */" % VER +
@@ -750,7 +774,20 @@ int lk_gpu_lightok(void) { return lk_gpu_get() && lk_gpu_st >= 0 && lk_glt_st >=
    read back and compared.  Console every 300 frames with compared blocks: 'gl5: blocks .. terms exact/off1/worse .. ao exact/off1/worse ..' + the first 16 differences. */
 extern unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint32_t *f2, float *sc); extern void lk_gl_bextra(int bx, int by, uint32_t *o); extern int lk_gl_shafts(float *o); extern void lk_gl_wkey(unsigned *hard, unsigned *soft, float *dirs, int *sunn); extern void lk_gl_blist5(int bx, int by, uint32_t *a, uint32_t *b2, int *nl);
 static int lk_g5_on = -1, lk_g5_st; static lkGLuint lk_g5_prog, lk_g5_fbo, lk_g5_out, lk_g5_wt, lk_g5_w2, lk_g5_fn, lk_g5_px, lk_g5_bx2, lk_g5_f2, lk_g5_geo; static lkGLint lk_g5_u[40];
-LKGL_FN(void, glCopyTexSubImage2D, (lkGLenum, lkGLint, lkGLint, lkGLint, lkGLint, lkGLint, lkGLsizei, lkGLsizei)); LKGL_FN(void, glFinish, (void)); static unsigned lk_g5_wh;
+LKGL_FN(void, glCopyTexSubImage2D, (lkGLenum, lkGLint, lkGLint, lkGLint, lkGLint, lkGLint, lkGLsizei, lkGLsizei)); LKGL_FN(void, glFinish, (void));
+LKGL_FN(void, glGenBuffers, (lkGLsizei, lkGLuint *)); LKGL_FN(void, glBindBuffer, (lkGLenum, lkGLuint)); LKGL_FN(void, glBufferData, (lkGLenum, long, const void *, lkGLenum)); LKGL_FN(void *, glMapBuffer, (lkGLenum, lkGLenum)); LKGL_FN(lkGLboolean, glUnmapBuffer, (lkGLenum));
+extern void lk_gl_surfput(int bx, int by, const uint32_t *A, const uint32_t *Bp, int sg); extern void lk_gl_surfswap(void); extern void lk_gl5_cpuset(void);
+static lkGLuint lk_g5_pbo[2]; static int lk_g5_pbst, lk_g5_pbi, lk_g5_pbn[2], lk_g5_pbx[2][96], lk_g5_pby[2][96], lk_g5_pbsg[2], lk_g5_keep = -1;   /* v5 CPU saving: block planes back to the CPU, one frame late */
+static void lk_g5_pbinit(void) { const char *e = getenv("LANDSTALKER_GL5_CPUKEEP"); lk_g5_keep = e ? atoi(e) : 0; lk_g5_pbst = -1;   /* test aid LANDSTALKER_GL5_CPUKEEP=1: the CPU keeps computing its blocks */
+  *(void **)&lk_glGenBuffers = lk_gpu_fn("glGenBuffers"); *(void **)&lk_glBindBuffer = lk_gpu_fn("glBindBuffer"); *(void **)&lk_glBufferData = lk_gpu_fn("glBufferData"); *(void **)&lk_glMapBuffer = lk_gpu_fn("glMapBuffer"); *(void **)&lk_glUnmapBuffer = lk_gpu_fn("glUnmapBuffer");
+  if (lk_g5_keep || !lk_glGenBuffers || !lk_glBindBuffer || !lk_glBufferData || !lk_glMapBuffer || !lk_glUnmapBuffer) return;
+  lk_glGenBuffers(2, lk_g5_pbo); { int k; for (k = 0; k < 2; k++) { lk_glBindBuffer(0x88EB, lk_g5_pbo[k]); lk_glBufferData(0x88EB, 96L * 32 * 64 * 4, 0, 0x88E1); } } lk_glBindBuffer(0x88EB, 0);
+  if (lk_glGetError()) { printf("gl5: no pixel buffers, the CPU keeps computing its light blocks\n"); return; } lk_g5_pbst = 1; }
+static void lk_g5_pbdrain(void) { int k = lk_g5_pbi ^ 1, j; const uint32_t *m;   /* the buffer filled last frame: hand its blocks to the CPU side */
+  if (lk_g5_pbst <= 0 || !lk_g5_pbn[k]) return;
+  lk_glBindBuffer(0x88EB, lk_g5_pbo[k]); m = (const uint32_t *)lk_glMapBuffer(0x88EB, 0x88B8);
+  if (m) { for (j = 0; j < lk_g5_pbn[k]; j++) lk_gl_surfput(lk_g5_pbx[k][j], lk_g5_pby[k][j], m + j * 2048, m + j * 2048 + 1024, lk_g5_pbsg[k]); lk_glUnmapBuffer(0x88EB); }
+  lk_glBindBuffer(0x88EB, 0); lk_g5_pbn[k] = 0; } static unsigned lk_g5_wh;
 #define LK_G5_Q 24
 static int lk_g5_n, lk_g5_bx[LK_G5_Q], lk_g5_by[LK_G5_Q], lk_g5_nl[LK_G5_Q]; static uint32_t lk_g5_ref[LK_G5_Q][5][1024]; static int lk_g5_maxshow = 16, lk_g5_every = 300; static long lk_g5_cnt[6][3], lk_g5_blocks, lk_g5_frames, lk_g5_last; static int lk_g5_shown;
 static const char *lk_g5_fs = "#version 120\n" @SHADER5@;
@@ -885,7 +922,7 @@ static void lk_g5_prep(void) { unsigned hk, sk; int x, y, sunn; float dirs[6]; l
   if (hk != lk_g5_hk && lk_g5_tdbg > 2) { int tot = 0, nb = 0; for (y = 0; y < 38; y++) for (x = 0; x < 76; x++) { tot += lk_g5_pn[y][x]; nb += lk_g5_pn[y][x] > 0; } printf("gl5: room done: %%d computes of %%d blocks\n", tot, nb); }
   if (hk != lk_g5_hk) { memset(lk_g5_pn, 0, sizeof lk_g5_pn); lk_g5_hk = hk; lk_g5_sk = sk; memset(lk_g5_bt, 0, sizeof lk_g5_bt); memset(lk_g5_bk, 0, sizeof lk_g5_bk); lk_g5_wdirty = 1; }
   else if (sk != lk_g5_sk) { unsigned osk = lk_g5_sk; int swap = lk_g5_psunn && dirs[0] == lk_g5_pdir[3] && dirs[1] == lk_g5_pdir[4] && dirs[2] == lk_g5_pdir[5];   /* the step finished: the new direction is the old 'next' one */
-    if (swap && lk_g5_swap()) { for (y = 0; y < 38; y++) for (x = 0; x < 76; x++) if ((lk_g5_bt[y][x] & 0xFF00u) && lk_g5_bk[y][x] == osk) lk_g5_bk[y][x] = sk; if (lk_g5_tdbg > 1) printf("gl5: sun step swap on the GPU (frame %%ld)\n", platform_frame_number()); }
+    if (swap && lk_g5_swap()) { lk_gl_surfswap(); for (y = 0; y < 38; y++) for (x = 0; x < 76; x++) if ((lk_g5_bt[y][x] & 0xFF00u) && lk_g5_bk[y][x] == osk) lk_g5_bk[y][x] = sk; if (lk_g5_tdbg > 1) printf("gl5: sun step swap on the GPU (frame %%ld)\n", platform_frame_number()); }
     lk_g5_sk = sk; lk_g5_wdirty = 1; for (y = 0; y < 38; y++) for (x = 0; x < 76; x++) lk_g5_bt[y][x] &= ~0xFF00u; }   /* stale: no sunn crossfade until recomputed */
   for (x = 0; x < 6; x++) lk_g5_pdir[x] = dirs[x]; lk_g5_psunn = sunn; }
 static void lk_g5_real(int u0, int u1, int v0, int v1, const float *lp, const float *lc, uint32_t *bt, uint32_t *bl0, uint32_t *bl1) {
@@ -894,6 +931,8 @@ static void lk_g5_real(int u0, int u1, int v0, int v1, const float *lp, const fl
   u0 = v0 = 1 << 30; u1 = v1 = -(1 << 30);   /* only the lines composed this frame (the others hold old positions) */
   for (L = 0; L < 224; L++) { int U, V; if (lk_gl_rowfr[L] != lk_gl_capfr) continue; U = (int)(int16_t)(lk_gl_row[L] & 0xFFFF); V = (int)(int16_t)(lk_gl_row[L] >> 16);
     if (U < u0) u0 = U; if (U + lk_gl_w - 1 > u1) u1 = U + lk_gl_w - 1; if (V < v0) v0 = V; if (V > v1) v1 = V; }
+  if (lk_g5_pbst == 0) lk_g5_pbinit();
+  lk_g5_pbdrain(); if (lk_g5_pbst > 0) lk_gl5_cpuset();   /* v5 CPU saving: the CPU computes no light blocks while this runs */
   if (u1 < u0) return;
   bxa = (int)floorf((float)u0 / 32.0f) - 1; bxb = (int)floorf((float)u1 / 32.0f) + 1; bya = (int)floorf((float)v0 / 32.0f) - 1; byb = (int)floorf((float)v1 / 32.0f) + 1;
   if (bxa < 0) bxa = 0; if (bya < 0) bya = 0; if (bxb > 75) bxb = 75; if (byb > 37) byb = 37;
@@ -929,8 +968,11 @@ static void lk_g5_real(int u0, int u1, int v0, int v1, const float *lp, const fl
     lk_glActiveTexture(0x84CA); lk_glBindTexture(0x0DE1, lk_g5_geo); lk_glCopyTexSubImage2D(0x0DE1, 0, 0, 0, 0, 0, 32, 64);
     lk_glUniform1f(lk_g5_u[29], 2.0f); lk_glViewport(0, 0, 32, 160); lk_glDrawArrays(0x0005, 0, 4);
     lk_glActiveTexture(0x84CC); for (k = 0; k < 5; k++) { lk_glBindTexture(0x0DE1, lk_glt_t[pt[k]]); lk_glCopyTexSubImage2D(0x0DE1, 0, bx * 32, by * 32, 0, 32 * k, 32, 32); }
+    if (lk_g5_pbst > 0 && lk_g5_pbn[lk_g5_pbi] < 96) { int q = lk_g5_pbn[lk_g5_pbi]++; lk_g5_pbx[lk_g5_pbi][q] = bx; lk_g5_pby[lk_g5_pbi][q] = by; lk_g5_pbsg[lk_g5_pbi] = lk_g5_sc[17] > 0.5f;
+      lk_glBindBuffer(0x88EB, lk_g5_pbo[lk_g5_pbi]); lk_glPixelStorei(0x0D02, 0); lk_glPixelStorei(0x0D05, 4); lk_glReadPixels(0, 64, 32, 64, 0x1908, 0x1401, (void *)(intptr_t)(q * 32 * 64 * 4)); lk_glBindBuffer(0x88EB, 0); }   /* room A + room B planes */
     lk_g5_bk[by][bx] = lk_g5_sk; }
   lk_glBindFramebuffer(0x8D40, (lkGLuint)fb0); lk_glActiveTexture(0x84C0);
+  if (lk_g5_pbst > 0 && lk_g5_pbn[lk_g5_pbi]) lk_g5_pbi ^= 1;   /* next frame drains it */
   if (lk_g5_qst == 1) { lk_glEndQuery(0x88BF); lk_g5_qp[lk_g5_qi] = 1; lk_g5_qi ^= 1; } else if (lk_g5_qst == 2) lk_g5_qst = 1;
   if (lk_g5_tdbg && lk_glFinish) { double ms; lk_glFinish(); ms = (double)(SDL_GetPerformanceCounter() - t0) * 1e3 / (double)SDL_GetPerformanceFrequency();
     lk_g5_tms += ms; lk_g5_tbl += n; lk_g5_tn++; if (ms > lk_g5_tmax) lk_g5_tmax = ms;
