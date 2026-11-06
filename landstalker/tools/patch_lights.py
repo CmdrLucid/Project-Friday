@@ -375,6 +375,7 @@ static void lk_lt_shstep(long fr) {   /* dust motes: drift slowly down the shaft
 #define LK_AM_N 224
 typedef struct { float x, y, z, vx, vy, vz, ph, gz; int16_t age, life; uint8_t kind; } lk_am_p;   /* kind 1 leaf, 2 firefly, 3 spark, 4 ember, 5 drop, 6 splash */
 static lk_am_p lk_am_ps[LK_AM_N]; static int lk_am_np, lk_am_bio;
+static int16_t lk_am_spot[16][3]; static int lk_am_nspot, lk_am_ffmax;   /* LK_DAYNIGHT v4: firefly spots of the room (cell x, y, floor z) and the cap */
 static uint32_t lk_am_map[512 * 512]; static int16_t lk_am_mz[512 * 512], lk_am_md[512 * 512]; static int lk_am_dl[LK_AM_N * 10], lk_am_dn; static uint32_t lk_am_rng = 12345u;
 static float lk_am_rnd(void) { lk_am_rng = lk_am_rng * 1664525u + 1013904223u; return (float)(lk_am_rng >> 8) * (1.0f / 16777216.0f); }
 static int lk_am_o = -1;   /* Options > Graphics > Particles On / Off (id 49, user 2026-11-05: 'bitte als Partikeleffekte optional machen im Menue'), ~/.landstalker_particles, env LANDSTALKER_AMBIENT=0|1 wins, default On (needs Lighting On) */
@@ -390,6 +391,20 @@ static void lk_am_setup(void) {   /* kinds of the room (lk_lt_newroom, after the
   if (ts == 4 || ts == 5 || ts == 9) lk_am_bio |= 8;   /* caves, waterfall shrine, swamp shrine */
   for (k = 0; k < lk_lt_nl; k++) if (lk_lt_l[k].lava != 2) lk_am_bio |= lk_lt_l[k].lava ? 16 : 4;   /* (window lights: no sparks) */
   if (lk_am_force()) lk_am_bio = lk_am_force();
+  lk_am_nspot = 0; lk_am_ffmax = 0;
+  if (lk_lt_sun && ts != 0 && !(lk_o_room >= 601 && lk_o_room <= 603) && lk_o_room != 737 && !(lk_o_room >= 31 && lk_o_room <= 33)) {   /* v4 FIREFLY SPOTS (user 2026-11-06: 'nur spothaft, nahe Baeumen oder Straeuchern oder am Wasser, nicht in der Stadt;
+       Ausnahme Destel, aber weniger'): walkable cells next to a bush / pine (lk_lt_tk), a small object (tree, lk_lt_ocl 1) or our water fill; up to 14 spots >= 4 cells apart (Destel 4), 30 fireflies (Destel 8), not in the towns
+       (tileset 0 = Ryuma / Mercator / Verla, Gumi 601..603, Kazalt 737, the castle yard 31..33) */
+    static int16_t cand[2048][3]; int nc = 0, x, y, want = lk_o_room == 726 ? 4 : 14, tries;
+    for (y = 1; y < 73 && nc < 2048; y++) for (x = 1; x < 73 && nc < 2048; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x), a, b2, near = 0;
+      if (w == 0x4000 || ((w >> 8) & 0x60)) continue;
+      for (b2 = y - 1; b2 <= y + 1 && !near; b2++) for (a = x - 1; a <= x + 1; a++) { int ob = lk_lt_obj[b2][a]; if (lk_lt_tk[b2][a] == 1 || lk_lt_tk[b2][a] == 2 || lk_lt_wat[b2][a] || (ob > 0 && ob < 1024 && lk_lt_ocl[ob] == 1)) { near = 1; break; } }
+      if (near) { cand[nc][0] = (int16_t)x; cand[nc][1] = (int16_t)y; cand[nc][2] = (int16_t)(16 * ((w >> 8) & 15)); nc++; } }
+    for (tries = 0; tries < 400 && lk_am_nspot < want && nc; tries++) { int c = (int)(lk_am_rnd() * (float)nc) %% nc, q, ok = 1;
+      for (q = 0; q < lk_am_nspot; q++) if (abs(lk_am_spot[q][0] - cand[c][0]) < 4 && abs(lk_am_spot[q][1] - cand[c][1]) < 4) { ok = 0; break; }
+      if (ok) { lk_am_spot[lk_am_nspot][0] = cand[c][0]; lk_am_spot[lk_am_nspot][1] = cand[c][1]; lk_am_spot[lk_am_nspot][2] = cand[c][2]; lk_am_nspot++; } }
+    lk_am_ffmax = lk_o_room == 726 ? 8 : 30;
+    if (lk_lt_dbg == 1) printf("fireflies: room %%d %%d candidate cells, %%d spots\n", lk_o_room, nc, lk_am_nspot); }
 }
 static int lk_am_surf(int U, int V, float *px, float *py, float *pz, int *sun) {   /* the floor under a picture pixel from the computed blocks (0: not computed / no floor) */
   int bx = lk_lt_fdiv(U, 32), by = lk_lt_fdiv(V, 32), i; const lk_lt_blk *b;
@@ -410,16 +425,21 @@ static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before th
   for (j = 0; j < lk_am_dn; j++) lk_am_map[lk_am_dl[j]] = 0;
   lk_am_dn = 0;
   if (!lk_am_opt()) { lk_am_np = 0; return; }
-  if ((!lk_am_bio && !(lk_dn_night && lk_lt_sun)) || lk_lt_umax < lk_lt_umin) return;   /* LK_DAYNIGHT v3: at night outdoors fireflies even without other particles (user 2026-11-06: 'Gluehwuermchen im Wald nachts ergaenzen') */
+  if ((!lk_am_bio && !(lk_dn_night && lk_am_nspot)) || lk_lt_umax < lk_lt_umin) return;   /* LK_DAYNIGHT v3 / v4: at night fireflies at the room's spots even without other particles */
   for (j = 0; j < lk_am_np; j++) if (lk_am_ps[j].kind == 2) nff++;
+  if (lk_dn_night && lk_am_nspot && nff < lk_am_ffmax && lk_am_rnd() < 0.45f) {   /* v4: a firefly at a spot that is on screen, hovering 6..30 units above its floor within 20 units */
+    int q = (int)(lk_am_rnd() * (float)lk_am_nspot) %% lk_am_nspot; float sx = 16.0f * lk_am_spot[q][0] + 8.0f, sy = 16.0f * lk_am_spot[q][1] + 8.0f, sz = (float)lk_am_spot[q][2];
+    int U = (int)(sx - sy) + 1184, V = (int)((sx + sy) * 0.5f - sz); lk_am_p *P;
+    if (U >= lk_lt_umin - 24 && U <= lk_lt_umax + 24 && V >= lk_lt_vmin - 24 && V <= lk_lt_vmax + 24 && (P = lk_am_new(2))) {
+      P->x = sx + (lk_am_rnd() - 0.5f) * 32.0f; P->y = sy + (lk_am_rnd() - 0.5f) * 32.0f; P->gz = sz; P->z = sz + 6.0f + lk_am_rnd() * 22.0f; P->life = (int16_t)(160 + lk_am_rnd() * 160.0f); nff++; } }   /* a small swarm per spot (shorter life: they stay near it) */
   { int tries; float px, py, pz; int sun;   /* spawns on the floor of the area drawn last frame */
     for (tries = 0; tries < 6; tries++) { int U = lk_lt_umin + (int)(lk_am_rnd() * (float)(lk_lt_umax - lk_lt_umin + 1)), V = lk_lt_vmin + (int)(lk_am_rnd() * (float)(lk_lt_vmax - lk_lt_vmin + 1)), want = 0; float r = lk_am_rnd();
-      if ((lk_am_bio & 1) && r < 0.028f) want = 1; else if (((lk_am_bio & 2) || (lk_dn_night && lk_lt_sun)) && r > 0.975f && nff < 24) want = 2; else if ((lk_am_bio & 8) && r > 0.40f && r < 0.408f) want = 5;
+      if ((lk_am_bio & 1) && r < 0.028f) want = 1; else if ((lk_am_bio & 2) && r > 0.975f && nff < 16) want = 2; else if ((lk_am_bio & 8) && r > 0.40f && r < 0.408f) want = 5;
       if (!want || !lk_am_surf(U, V, &px, &py, &pz, &sun)) continue;
       if (want == 5) { int cx = (int)floorf(px / 16.0f), cy = (int)floorf(py / 16.0f), w2;   /* drops land on WALKABLE floor only (user 2026-11-05: 'nicht immer nur am Boden': tops of walls / pillars / boxes are floor faces too) */
         if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) continue;
         w2 = UW(0xFFD192 + 148 * cy + 2 * cx); if (w2 == 0x4000 || ((w2 >> 8) & 0x60) || (int)pz != 16 * ((w2 >> 8) & 15)) continue; }
-      if (want == 2 && sun > 140 && !lk_dn_night) continue;   /* fireflies only in the shade (LK_DAYNIGHT v1: at night outdoors everywhere, user 2026-11-05: 'Gluehwuermchen ... Tag-Nacht-Zyklus') */
+      if (want == 2 && sun > 140) continue;   /* fireflies only in the shade (test aid LANDSTALKER_AMBIENT_FORCE=2; at night they come from the spots, below) */
       { lk_am_p *P = lk_am_new(want); if (!P) break; P->gz = pz;
         if (want == 1) { P->x = px - 30.0f; P->y = py + 30.0f; P->z = pz + 90.0f + lk_am_rnd() * 70.0f; P->vx = 0.22f + lk_am_rnd() * 0.15f; P->vy = -0.18f - lk_am_rnd() * 0.12f; P->vz = -0.30f - lk_am_rnd() * 0.20f; P->life = (int16_t)((P->z - pz) / -P->vz + 60.0f); }
         else if (want == 2) { P->x = px; P->y = py; P->z = pz + 6.0f + lk_am_rnd() * 14.0f; P->life = (int16_t)(240 + lk_am_rnd() * 240.0f); }
@@ -1439,7 +1459,7 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
       if (t <= 0.0f) continue;
       L = &lk_lt_l[b->li[k]];
       if (L->lava == 2) { if (lk_lt_flk[b->li[k]] <= 0.004f) continue; t *= lk_lt_flk[b->li[k]] > 1.0f ? 1.0f : lk_lt_flk[b->li[k]]; }   /* LK_DAYNIGHT v3: window light by day = nothing; its shadow share follows its strength */
-      if (fm) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); { static int st[LK_LT_ML], st2[LK_LT_ML]; static float sw2[LK_LT_ML]; int li = b->li[k], key = (line << 11) | (x & 2047); float w;   /* v8 SPEED: one test per 2 pixels of a line (even x computes, odd x takes its left neighbour; the shadow edge is soft anyway) */
+      if (fm && !(L->lava == 2 && b->face[i] != 1)) {   /* v4: a window light (from inside the house) throws figure shadows onto the floor only (user 2026-11-06: Nigel's shadow on the house wall makes no sense) */ float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); { static int st[LK_LT_ML], st2[LK_LT_ML]; static float sw2[LK_LT_ML]; int li = b->li[k], key = (line << 11) | (x & 2047); float w;   /* v8 SPEED: one test per 2 pixels of a line (even x computes, odd x takes its left neighbour; the shadow edge is soft anyway) */
         static int half = -1; if (half < 0) { const char *e = getenv("LANDSTALKER_LT_SHHALF"); half = e ? atoi(e) : 1; }   /* test aid: 0 = every pixel */
         if (half && (x & 1) && st[li] == key - 1 && st2[li] == lk_lt_frame) w = sw2[li]; else { w = lk_lt_shadowed(px, py, (float)b->z[i], L, li); st[li] = key; st2[li] = (int)lk_lt_frame; sw2[li] = w; }
         if (w >= 1.0f) { tb += t; continue; } if (w > 0.0f) { tb += t * w; t *= 1.0f - w; } } }
