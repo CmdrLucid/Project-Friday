@@ -108,18 +108,20 @@ int lk_gl_frame(long fr, float *fu, int *iu, float *lp, float *lc, float *lf, fl
         rows 74..147 tree top lk_lt_tt lo / hi, base lk_lt_tb lo / hi; rows 148..221 the game height lk_lt_gh lo / hi;
    fn = 296 x 592 RGBA: rows 0..295 object top lk_lt_fh lo / hi, owner lk_lt_fo lo / hi; rows 296..591 proxy lk_lt_fp, its type, the owner's class lk_lt_ocl;
    px = 26 x 255 RGBA: per proxy x0 y0 | z0 ridge | 96 lathe profile bytes;
+   f2 = 296 x 296 RGBA: the view ray fields lk_lt_vt / lk_lt_vg (layer A / B) lo / hi; w2 rows 148..221 also carry lk_lt_obj in b / a.
    sc: 0 sun room, 1 room light (AO) on, 2 main floor height, 3 AO strength, 4 AO wall share, 5 ztop, 6..8 sun / key direction, 9 key light room, 10 key back wall height, 11 key penumbra. */
-unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, float *sc) { int x, y, k; unsigned h = 2166136261u;
+unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint32_t *f2, float *sc) { int x, y, k; unsigned h = 2166136261u;
   #define LK_GL_H(v) (h = (h ^ (uint32_t)(v)) * 16777619u)
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int o = y * 74 + x, ob = lk_lt_obj[y][x], hc = lk_lt_gh[y][x];
     if (ob > 0 && ob < 1024 && lk_lt_ocl[ob] == 1) { hc = lk_lt_sgnd[ob]; if (hc == -32768) hc = -32767; }
     w[o] = (uint32_t)(uint16_t)lk_lt_top[y][x] | ((uint32_t)(uint16_t)lk_lt_thin[y][x] << 16); w[5476 + o] = (uint32_t)lk_lt_vw[y][x] | ((uint32_t)(lk_lt_wat[y][x] ? 1 : 0) << 8) | ((uint32_t)(uint16_t)lk_lt_hd[y][x] << 16);
-    w2[o] = (uint32_t)(uint16_t)hc | ((uint32_t)lk_lt_tk[y][x] << 16) | ((uint32_t)lk_lt_tr[y][x] << 24); w2[5476 + o] = (uint32_t)(uint16_t)lk_lt_tt[y][x] | ((uint32_t)(uint16_t)lk_lt_tb[y][x] << 16); w2[2 * 5476 + o] = (uint32_t)(uint16_t)lk_lt_gh[y][x];
+    w2[o] = (uint32_t)(uint16_t)hc | ((uint32_t)lk_lt_tk[y][x] << 16) | ((uint32_t)lk_lt_tr[y][x] << 24); w2[5476 + o] = (uint32_t)(uint16_t)lk_lt_tt[y][x] | ((uint32_t)(uint16_t)lk_lt_tb[y][x] << 16); w2[2 * 5476 + o] = (uint32_t)(uint16_t)lk_lt_gh[y][x] | ((uint32_t)(uint16_t)lk_lt_obj[y][x] << 16);
     LK_GL_H(w[o]); LK_GL_H(w[5476 + o]); LK_GL_H(w2[o]); LK_GL_H(w2[5476 + o]); LK_GL_H(w2[2 * 5476 + o]); }
   for (y = 0; y < LK_LT_FN; y++) for (x = 0; x < LK_LT_FN; x++) { int o = y * LK_LT_FN + x, q = lk_lt_fp[y][x], fo = lk_lt_fo[y][x];
     fn[o] = (uint32_t)(uint16_t)lk_lt_fh[y][x] | ((uint32_t)(uint16_t)fo << 16);
     fn[LK_LT_FN * LK_LT_FN + o] = (uint32_t)q | ((uint32_t)(q ? lk_lt_px[q - 1].type : 0) << 8) | ((uint32_t)(fo > 0 && fo < 1024 ? lk_lt_ocl[fo] : 0) << 16);
-    LK_GL_H(fn[o]); LK_GL_H(fn[LK_LT_FN * LK_LT_FN + o]); }
+    f2[o] = (uint32_t)(uint16_t)lk_lt_vt[y][x] | ((uint32_t)(uint16_t)lk_lt_vg[y][x] << 16);
+    LK_GL_H(fn[o]); LK_GL_H(fn[LK_LT_FN * LK_LT_FN + o]); LK_GL_H(f2[o]); }
   for (k = 0; k < 255; k++) { const lk_lt_proxy *P = &lk_lt_px[k]; uint32_t *r = px + k * 26; int j;
     r[0] = (uint32_t)(uint16_t)P->x0 | ((uint32_t)(uint16_t)P->y0 << 16); r[1] = (uint32_t)(uint16_t)P->z0 | ((uint32_t)(uint16_t)P->ridge << 16);
     for (j = 0; j < 24; j++) r[2 + j] = (uint32_t)lk_lt_prof[k][4 * j] | ((uint32_t)lk_lt_prof[k][4 * j + 1] << 8) | ((uint32_t)lk_lt_prof[k][4 * j + 2] << 16) | ((uint32_t)lk_lt_prof[k][4 * j + 3] << 24);
@@ -128,7 +130,8 @@ unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, floa
   sc[5] = (float)lk_lt_ztop; sc[6] = lk_lt_sd[0]; sc[7] = lk_lt_sd[1]; sc[8] = lk_lt_sd[2]; sc[9] = (float)lk_lt_key;
   { const char *e = getenv("LANDSTALKER_LT_KBW"); float v = e ? (float)atof(e) : 40.0f; sc[10] = v < 0.0f ? 0.0f : v; }   /* as lk_lt_keyvisd */
   { const char *e = getenv("LANDSTALKER_LT_KPEN"); float v = e ? (float)atof(e) : 3.0f; sc[11] = v < 0.5f ? 0.5f : v; }
-  for (k = 0; k < 12; k++) { union { float f; uint32_t u; } cv; cv.f = sc[k]; LK_GL_H(cv.u); }
+  sc[12] = (float)lk_lt_zmax; sc[13] = (lk_lt_sun && lk_lt_fhmax > -32768) ? 1.0f : 0.0f;   /* GL5b: the view ray: start height, fine field ray (lk_lt_rayf) or cell ray (lk_lt_ray) */
+  for (k = 0; k < 14; k++) { union { float f; uint32_t u; } cv; cv.f = sc[k]; LK_GL_H(cv.u); }
   #undef LK_GL_H
   return h | 1u; }
 /* v5 GL5a: per block pixel the object of its view ray (b->robj) and whether layer A is drawn there (lk_o_fetch), for the sun's 'own object' rule */
@@ -137,7 +140,7 @@ int lk_gl_shafts(float *o) { int k; for (k = 0; k < LK_LT_NSH; k++) { const lk_l
     a[0] = S->x; a[1] = S->y; a[2] = S->z; a[3] = S->r; a[4] = S->k; a[5] = S->h; a[6] = a[7] = 0.0f; a[8] = S->d[0]; a[9] = S->d[1]; a[10] = S->d[2]; a[11] = 0.0f; }
   return lk_lt_nsh; }
 void lk_gl_bextra(int bx, int by, uint32_t *o) { const lk_lt_blk *b = lk_lt_b[by][bx]; int i, pal, pr;
-  for (i = 0; i < 1024; i++) o[i] = (uint32_t)(uint16_t)(b ? b->robj[i] : 0) | ((lk_o_fetch(lk_o_pa, bx * 32 + (i & 31), by * 32 + (i >> 5), &pal, &pr, 0) != 0 ? 1u : 0u) << 16); }
+  for (i = 0; i < 1024; i++) o[i] = (uint32_t)(uint16_t)(b ? b->robj[i] : 0) | (((b ? b->la[i] : lk_o_fetch(lk_o_pa, bx * 32 + (i & 31), by * 32 + (i >> 5), &pal, &pr, 0) != 0) ? 1u : 0u) << 16); }   /* the bit the block's view ray used */
 const uint16_t *lk_gl_fmk(void) { return &lk_lt_fmk[0][0]; }   /* figure shadow box mask 224 x 448 (lk_lt_infb) */
 /* per light k / figure j: row j = card normal x, y, pair, 0; row 16 + j = the shadow box x0 y0 x1 y1 (96 x 32 RGBA floats) */
 void lk_gl_pairs(float *o) { int k, j; for (j = 0; j < 16; j++) for (k = 0; k < 96; k++) { float *a = o + 4 * (j * 96 + k), *b = o + 4 * ((16 + j) * 96 + k);
@@ -172,6 +175,10 @@ void lk_gl_blist(int bx, int by, uint32_t *a, uint32_t *b2, int *nl) { const lk_
 ''' % VER
     a = "static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {\n"
     rep(a, MODULE + a)
+    # v5 GL5b: the block keeps the 'layer A drawn' bit its view ray used (animated tiles change it between the block's computation and a later look)
+    rep("int16_t robj[1024]; int sungen; } lk_lt_blk;", "int16_t robj[1024]; int sungen; uint8 la[1024]; } lk_lt_blk;")
+    rep("b->face[i] = (uint8)lk_lt_ray(U0 + (i & 31), V0 + (i >> 5), &z); b->z[i] = (int16_t)z; robj[i] = (int16_t)lk_lt_rob; }",
+        "b->face[i] = (uint8)lk_lt_ray(U0 + (i & 31), V0 + (i >> 5), &z); b->z[i] = (int16_t)z; robj[i] = (int16_t)lk_lt_rob; b->la[i] = (uint8)lk_lt_rayA; }")
     a = "/* ---- LK_LIGHTS v8: lighting from flames"
     rep(a, "static int lk_gl_pf, lk_gl_fj; static unsigned lk_gl_sunver;   /* %s (tools/patch_gpulight.py): used inside the Lighting code */\n" % VER + a)
     # per line: capture on?
@@ -378,7 +385,7 @@ void main() {
 SH5 = r'''
 uniform sampler2D roomA; uniform sampler2D roomB; uniform sampler2D btab; uniform sampler2D bli; uniform sampler2D wld;
 uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec2 uBlk; uniform float uSunR; uniform float uAor; uniform float uZref; uniform float uAok; uniform float uAotop; uniform vec2 uDv[16];
-uniform sampler2D wld2; uniform sampler2D fine; uniform sampler2D prx; uniform sampler2D bex; uniform float uZtop; uniform vec3 uSd; uniform float uKey; uniform float uKbw; uniform float uKpen; uniform float uNsh; uniform vec4 uSh[9];
+uniform sampler2D wld2; uniform sampler2D fine; uniform sampler2D prx; uniform sampler2D bex; uniform float uZtop; uniform vec3 uSd; uniform float uKey; uniform float uKbw; uniform float uKpen; uniform float uNsh; uniform vec4 uSh[9]; uniform sampler2D fine2; uniform float uZmax; uniform float uRayF;
 float B(float v) { return floor(v * 255.0 + 0.5); }
 float S16(float lo, float hi) { float v = lo + 256.0 * hi; return v >= 32768.0 ? v - 65536.0 : v; }
 vec4 W(float cx, float cy, float hf) { return texture2D(wld, (vec2(cx, cy + 74.0 * hf) + 0.5) / vec2(74.0, 148.0)); }
@@ -518,10 +525,50 @@ vec2 shafts(float U, float V, float face, float z) {   /* lk_lt_shblock: beam (g
       sum += w * fa; }
     sum *= 0.26 * kk; sum += beam * (1.0 / 255.0); beam = sum >= 1.0 ? 255.0 : floor(sum * 255.0); }
   return vec2(beam, pool); }
-void main() {   /* one 32 x 32 light block in 5 planes (rows 0..31 terms 0..3, 32..63 terms 4..7, 64..95 AO, 96..127 sun / key share, 128..159 shaft beam / pool), as lk_lt_blockcalc stores them */
+float cellT(float cx, float cy) { if (!inr(cx, cy)) return -32768.0; vec4 w = W(cx, cy, 0.0); return S16(B(w.r), B(w.g)); }   /* lk_lt_cell */
+bool dent(float cx, float cy, float cf) {   /* lk_lt_dent */
+  float n = 1.0, ax = cf == 3.0 ? 1.0 : 0.0, ay = cf == 2.0 ? 1.0 : 0.0;
+  for (int d = 1; d <= 3; d++) { if (cellT(cx - float(d) * ax, cy - float(d) * ay) <= -32768.0) break; n += 1.0; }
+  for (int d = 1; d <= 3; d++) { if (cellT(cx + float(d) * ax, cy + float(d) * ay) <= -32768.0) break; n += 1.0; }
+  return n <= 3.0; }
+float fdv(float a, float b) { return floor(a / b); }
+float vtAt(float sx, float sy, float layA) { if (sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return -32768.0; vec4 v = texture2D(fine2, (vec2(sx, sy) + 0.5) / 296.0); return layA > 0.5 ? S16(B(v.r), B(v.g)) : S16(B(v.b), B(v.a)); }
+vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face, z, robj) of one room picture pixel */
+  float D = U - 1184.0, rob = 0.0, cf = 0.0, cz = 0.0, pin = 0.0, ptop = -32768.0, pcx = -999.0, pcy = -999.0;
+  if (uRayF > 0.5) {
+    float z0 = uZtop + 2.0 < uZmax ? uZtop + 2.0 : uZmax;
+    for (int st = 0; st < 2400; st++) { float z = z0 - float(st); if (z < -16.0) break;
+      float sx = fdv(2.0 * V + 2.0 * z + D, 8.0), sy = fdv(2.0 * V + 2.0 * z - D, 8.0), top = vtAt(sx, sy, layA), inn = top > -32768.0 ? 1.0 : 0.0, fo = 0.0;
+      if (inn > 0.5) { vec4 f0 = FN(sx, sy, 0.0); fo = S16(B(f0.b), B(f0.a)); }
+      if (cf > 0.0 && inn > 0.5 && z > top && !dent(floor(sx / 4.0), floor(sy / 4.0), cf)) cf = 0.0;
+      if (inn > 0.5 && rob == 0.0 && fo != 0.0 && layA > 0.5) rob = fo;
+      if (z <= top) { if (fo != 0.0 && layA > 0.5) rob = fo;
+        if ((sx == pcx && sy == pcy) || pcx == -999.0 || z == top) return vec3(1.0, z, rob);
+        if (sx == pcx) return vec3(3.0, z, rob);
+        if (sy == pcy) return vec3(2.0, z, rob);
+        { float ty = vtAt(pcx, sy, 1.0), tx = vtAt(sx, pcy, 1.0); return vec3(z <= ty && z > tx ? 3.0 : 2.0, z, rob); } }
+      if (pcx != -999.0 && pin > 0.5 && inn < 0.5 && z > ptop && cf == 0.0) { float ty = vtAt(pcx, sy, 1.0), tx = vtAt(sx, pcy, 1.0); cz = z; cf = sx == pcx ? 3.0 : sy == pcy ? 2.0 : (ty == -32768.0 && tx > -32768.0 ? 3.0 : 2.0); }
+      pcx = sx; pcy = sy; ptop = top; pin = inn; }
+    return cf > 0.0 ? vec3(cf, cz, rob) : vec3(0.0, 0.0, rob); }
+  for (int st = 0; st < 2400; st++) { float z = uZmax - float(st); if (z < -16.0) break;
+    float cx = fdv(2.0 * V + 2.0 * z + D, 32.0), cy = fdv(2.0 * V + 2.0 * z - D, 32.0), top = cellT(cx, cy), inn = top > -32768.0 ? 1.0 : 0.0;
+    if (inn > 0.5 && layA < 0.5 && uSunR < 0.5) { float n = S16(B(W(cx, cy, 0.0).b), B(W(cx, cy, 0.0).a)); if (n > -32768.0) top = n; }
+    if (inn > 0.5 && rob == 0.0) { vec4 g2 = W2(cx, cy, 2.0); float ob = S16(B(g2.b), B(g2.a)); if (ob != 0.0) rob = ob; }
+    if (cf > 0.0 && inn > 0.5 && z > top && !dent(cx, cy, cf)) cf = 0.0;
+    if (z <= top) {
+      if ((cx == pcx && cy == pcy) || pcx == -999.0 || z == top) return vec3(1.0, z, rob);
+      if (cx == pcx) return vec3(3.0, z, rob);
+      if (cy == pcy) return vec3(2.0, z, rob);
+      { float ty = cellT(pcx, cy), tx = cellT(cx, pcy); return vec3(z <= ty && z > tx ? 3.0 : 2.0, z, rob); } }
+    if (pcx != -999.0 && pin > 0.5 && inn < 0.5 && z >= ptop && cf == 0.0) { float ty = cellT(pcx, cy), tx = cellT(cx, pcy); cz = z; cf = cx == pcx ? 3.0 : cy == pcy ? 2.0 : (ty == -32768.0 && tx > -32768.0 ? 3.0 : 2.0); }
+    pcx = cx; pcy = cy; ptop = top; pin = inn; }
+  return cf > 0.0 ? vec3(cf, cz, rob) : vec3(0.0, 0.0, rob); }
+void main() {   /* one 32 x 32 light block in 7 planes (rows 0..31 terms 0..3, 32..63 terms 4..7, 64..95 AO, 96..127 sun / key share, 128..159 shaft beam / pool, GL5b 160..191 face / z lo / z hi, 192..223 robj lo / hi), as lk_lt_blockcalc stores them */
   vec2 fc = floor(gl_FragCoord.xy); float ix = fc.x, plane = floor(fc.y / 32.0), iy = fc.y - 32.0 * plane, U = uBlk.x * 32.0 + ix, V = uBlk.y * 32.0 + iy;
   vec2 rt = (vec2(U, V) + 0.5) / vec2(2432.0, 1216.0);
   float face = B(texture2D(roomA, rt).r); vec4 Bp = texture2D(roomB, rt); float z = S16(B(Bp.r), B(Bp.g));
+  if (plane > 4.5) { vec4 ex = texture2D(bex, (vec2(ix, iy) + 0.5) / 32.0); vec3 vr = viewray(U, V, B(ex.b)); float zz = vr.y < 0.0 ? vr.y + 65536.0 : vr.y, ro = vr.z < 0.0 ? vr.z + 65536.0 : vr.z;
+    gl_FragColor = plane < 5.5 ? vec4(vr.x, mod(zz, 256.0), floor(zz / 256.0), 0.0) / 255.0 : vec4(mod(ro, 256.0), floor(ro / 256.0), 0.0, 0.0) / 255.0; return; }
   if (plane > 3.5) { vec2 bp = uNsh > 0.5 ? shafts(U, V, face, z) : vec2(0.0); gl_FragColor = vec4(bp.x / 255.0, bp.y / 255.0, 0.0, 0.0); return; }
   if (face < 0.5) { gl_FragColor = plane > 1.5 ? vec4(1.0, 0.0, 0.0, 0.0) : vec4(0.0); return; }
   if (plane > 2.5) { float sv = 0.0;
@@ -618,12 +665,12 @@ int lk_gpu_lightok(void) { return lk_gpu_get() && lk_gpu_st >= 0 && lk_glt_st >=
 /* ---- v5 GL5a: the shadow terms of a light block on the GPU (flame terms with shadow, room light AO), compare only: LANDSTALKER_GL5CMP=1 ----
    Every block the light pass uploads (CPU values) is also computed by this pass from the block's geometry (face / z, already on the GPU) and the world (lk_gl_world),
    read back and compared.  Console every 300 frames with compared blocks: 'gl5: blocks .. terms exact/off1/worse .. ao exact/off1/worse ..' + the first 16 differences. */
-extern unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, float *sc); extern void lk_gl_bextra(int bx, int by, uint32_t *o); extern int lk_gl_shafts(float *o);
-static int lk_g5_on = -1, lk_g5_st; static lkGLuint lk_g5_prog, lk_g5_fbo, lk_g5_out, lk_g5_wt, lk_g5_w2, lk_g5_fn, lk_g5_px, lk_g5_bx2; static lkGLint lk_g5_u[32]; static unsigned lk_g5_wh;
+extern unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint32_t *f2, float *sc); extern void lk_gl_bextra(int bx, int by, uint32_t *o); extern int lk_gl_shafts(float *o);
+static int lk_g5_on = -1, lk_g5_st; static lkGLuint lk_g5_prog, lk_g5_fbo, lk_g5_out, lk_g5_wt, lk_g5_w2, lk_g5_fn, lk_g5_px, lk_g5_bx2, lk_g5_f2; static lkGLint lk_g5_u[32]; static unsigned lk_g5_wh;
 #define LK_G5_Q 24
-static int lk_g5_n, lk_g5_bx[LK_G5_Q], lk_g5_by[LK_G5_Q], lk_g5_nl[LK_G5_Q]; static uint32_t lk_g5_ref[LK_G5_Q][5][1024]; static int lk_g5_maxshow = 16, lk_g5_every = 300; static long lk_g5_cnt[5][3], lk_g5_blocks, lk_g5_frames, lk_g5_last; static int lk_g5_shown;
+static int lk_g5_n, lk_g5_bx[LK_G5_Q], lk_g5_by[LK_G5_Q], lk_g5_nl[LK_G5_Q]; static uint32_t lk_g5_ref[LK_G5_Q][5][1024]; static int lk_g5_maxshow = 16, lk_g5_every = 300; static long lk_g5_cnt[6][3], lk_g5_blocks, lk_g5_frames, lk_g5_last; static int lk_g5_shown;
 static const char *lk_g5_fs = "#version 120\n" @SHADER5@;
-static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", 0 };
+static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", 0 };
 static int lk_g5_want(void) { if (lk_g5_on < 0) { const char *e = getenv("LANDSTALKER_GL5CMP"), *e2 = getenv("LANDSTALKER_GL5CMP_SHOW"), *e3 = getenv("LANDSTALKER_GL5CMP_EVERY"); lk_g5_on = e ? atoi(e) : 0; if (e2) lk_g5_maxshow = atoi(e2); if (e3 && atoi(e3) > 0) lk_g5_every = atoi(e3); } return lk_g5_on > 0 && lk_g5_st >= 0; }
 static int lk_g5_init(void) {
   lkGLint ok = 0, t0 = 0, fb0 = 0; lkGLuint vs, fs; char log[2048]; int i; lkGLenum st;
@@ -634,7 +681,7 @@ static int lk_g5_init(void) {
   if (!ok) { lk_glGetProgramInfoLog(lk_g5_prog, sizeof log, 0, log); printf("gl5: link failed: %%s\n", log); return -1; }
   for (i = 0; lk_g5_un[i]; i++) lk_g5_u[i] = lk_glGetUniformLocation(lk_g5_prog, lk_g5_un[i]);
   lk_glGetIntegerv(0x8069, &t0);
-  lk_g5_out = lk_glt_tex(32, 160, 0x1908, 0x1908); lk_g5_wt = lk_glt_tex(74, 148, 0x1908, 0x1908); lk_g5_w2 = lk_glt_tex(74, 222, 0x1908, 0x1908); lk_g5_fn = lk_glt_tex(296, 592, 0x1908, 0x1908);
+  lk_g5_out = lk_glt_tex(32, 224, 0x1908, 0x1908); lk_g5_f2 = lk_glt_tex(296, 296, 0x1908, 0x1908); lk_g5_wt = lk_glt_tex(74, 148, 0x1908, 0x1908); lk_g5_w2 = lk_glt_tex(74, 222, 0x1908, 0x1908); lk_g5_fn = lk_glt_tex(296, 592, 0x1908, 0x1908);
   lk_g5_px = lk_glt_tex(26, 255, 0x1908, 0x1908); lk_g5_bx2 = lk_glt_tex(32, 32, 0x1908, 0x1908);
   lk_glBindTexture(0x0DE1, (lkGLuint)t0);
   lk_glGetIntegerv(0x8CA6, &fb0); lk_glGenFramebuffers(1, &lk_g5_fbo); lk_glBindFramebuffer(0x8D40, lk_g5_fbo); lk_glFramebufferTexture2D(0x8D40, 0x8CE0, 0x0DE1, lk_g5_out, 0);
@@ -648,16 +695,17 @@ static void lk_g5_queue(int bx, int by, uint32_t (*pk)[1024]) { int i, nl; uint3
   lk_gl_bextra(bx, by, lk_g5_ref[lk_g5_n][3]); for (i = 0; i < 1024; i++) lk_g5_ref[lk_g5_n][3][i] = (lk_g5_ref[lk_g5_n][3][i] & 0x1FFFFu) | (((pk[0][i] >> 8) & 255) << 24);   /* robj | layer A << 16 | CPU sun share << 24 */
   lk_g5_n++; }
 static void lk_g5_run(const float *lp, const float *lc) {   /* after the block / list uploads, before the light pass (units 3 / 7 / 4 / 9 hold room A / room B / block table / lists) */
-  static uint32_t w[5476 * 2], w2[5476 * 3], fnb[296 * 592], pxb[26 * 255], rb[32 * 160], ex[1024]; float sc[16], dv[32], shf[36]; int nsh; unsigned h; int j, k, i; lkGLint fb0 = 0; static const lkGLfloat quad[8] = { -1, -1, 1, -1, -1, 1, 1, 1 };
+  static uint32_t w[5476 * 2], w2[5476 * 3], fnb[296 * 592], pxb[26 * 255], rb[32 * 224], ex[1024], f2b[296 * 296]; float sc[16], dv[32], shf[36]; int nsh; unsigned h; int j, k, i; lkGLint fb0 = 0; static const lkGLfloat quad[8] = { -1, -1, 1, -1, -1, 1, 1, 1 };
   if (lk_g5_st == 0) lk_g5_st = lk_g5_init();
   if (lk_g5_st < 0) { lk_g5_n = 0; return; }
-  h = lk_gl_world(w, w2, fnb, pxb, sc);
+  h = lk_gl_world(w, w2, fnb, pxb, f2b, sc);
   if (h != lk_g5_wh) { lk_glActiveTexture(0x84C0); lk_glBindTexture(0x0DE1, lk_g5_wt); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 74, 148, 0x1908, 0x1401, w);
     lk_glActiveTexture(0x84C1); lk_glBindTexture(0x0DE1, lk_g5_w2); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 74, 222, 0x1908, 0x1401, w2);
     lk_glActiveTexture(0x84C2); lk_glBindTexture(0x0DE1, lk_g5_fn); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 296, 592, 0x1908, 0x1401, fnb);
-    lk_glActiveTexture(0x84C5); lk_glBindTexture(0x0DE1, lk_g5_px); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 26, 255, 0x1908, 0x1401, pxb); lk_g5_wh = h; }
+    lk_glActiveTexture(0x84C5); lk_glBindTexture(0x0DE1, lk_g5_px); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 26, 255, 0x1908, 0x1401, pxb);
+    lk_glActiveTexture(0x84C8); lk_glBindTexture(0x0DE1, lk_g5_f2); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 296, 296, 0x1908, 0x1401, f2b); lk_g5_wh = h; }
   lk_glActiveTexture(0x84C0); lk_glBindTexture(0x0DE1, lk_g5_wt); lk_glActiveTexture(0x84C1); lk_glBindTexture(0x0DE1, lk_g5_w2); lk_glActiveTexture(0x84C2); lk_glBindTexture(0x0DE1, lk_g5_fn);
-  lk_glActiveTexture(0x84C5); lk_glBindTexture(0x0DE1, lk_g5_px); lk_glActiveTexture(0x84C6); lk_glBindTexture(0x0DE1, lk_g5_bx2);
+  lk_glActiveTexture(0x84C5); lk_glBindTexture(0x0DE1, lk_g5_px); lk_glActiveTexture(0x84C6); lk_glBindTexture(0x0DE1, lk_g5_bx2); lk_glActiveTexture(0x84C8); lk_glBindTexture(0x0DE1, lk_g5_f2);
   lk_glActiveTexture(0x84C3); lk_glBindTexture(0x0DE1, lk_glt_t[3]); lk_glActiveTexture(0x84C7); lk_glBindTexture(0x0DE1, lk_glt_t[7]);
   lk_glActiveTexture(0x84C4); lk_glBindTexture(0x0DE1, lk_glt_t[4]); lk_glActiveTexture(0x84C9); lk_glBindTexture(0x0DE1, lk_glt_t[9]); lk_glActiveTexture(0x84C0);
   for (k = 0; k < 16; k++) { float a = (float)k * 0.39269908f; dv[2 * k] = cosf(a); dv[2 * k + 1] = sinf(a); }   /* the directions of lk_lt_aoval (same libm) */
@@ -666,19 +714,23 @@ static void lk_g5_run(const float *lp, const float *lc) {   /* after the block /
   lk_glUniform4fv(lk_g5_u[5], 96, lp); lk_glUniform4fv(lk_g5_u[6], 96, lc);
   lk_glUniform1f(lk_g5_u[8], sc[0]); lk_glUniform1f(lk_g5_u[9], sc[1]); lk_glUniform1f(lk_g5_u[10], sc[2]); lk_glUniform1f(lk_g5_u[11], sc[3]); lk_glUniform1f(lk_g5_u[12], sc[4]);
   lk_glUniform1i(lk_g5_u[14], 1); lk_glUniform1i(lk_g5_u[15], 2); lk_glUniform1i(lk_g5_u[16], 5); lk_glUniform1i(lk_g5_u[17], 6);
+  lk_glUniform1i(lk_g5_u[25], 8); lk_glUniform1f(lk_g5_u[26], sc[12]); lk_glUniform1f(lk_g5_u[27], sc[13]);
   nsh = lk_gl_shafts(shf); lk_glUniform1f(lk_g5_u[23], (float)nsh); lk_glUniform4fv(lk_g5_u[24], 9, shf);
   lk_glUniform1f(lk_g5_u[18], sc[5]); lk_glUniform3f(lk_g5_u[19], sc[6], sc[7], sc[8]); lk_glUniform1f(lk_g5_u[20], sc[9]); lk_glUniform1f(lk_g5_u[21], sc[10]); lk_glUniform1f(lk_g5_u[22], sc[11]);
   { void (*u2v)(lkGLint, lkGLsizei, const lkGLfloat *) = (void (*)(lkGLint, lkGLsizei, const lkGLfloat *))lk_gpu_fn("glUniform2fv"); if (u2v) u2v(lk_g5_u[13], 16, dv); }
-  lk_glGetIntegerv(0x8CA6, &fb0); lk_glBindFramebuffer(0x8D40, lk_g5_fbo); lk_glViewport(0, 0, 32, 160);
+  lk_glGetIntegerv(0x8CA6, &fb0); lk_glBindFramebuffer(0x8D40, lk_g5_fbo); lk_glViewport(0, 0, 32, 224);
   lk_glEnableClientState(0x8074); lk_glVertexPointer(2, 0x1406, 0, quad);
   lk_glPixelStorei(0x0D02, 0); lk_glPixelStorei(0x0D05, 4);
   for (j = 0; j < lk_g5_n; j++) { int nl = lk_g5_nl[j];
     for (i = 0; i < 1024; i++) ex[i] = lk_g5_ref[j][3][i] & 0x1FFFFu;
     lk_glActiveTexture(0x84C6); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 32, 32, 0x1908, 0x1401, ex); lk_glActiveTexture(0x84C0);
     lk_glUniform2f(lk_g5_u[7], (float)lk_g5_bx[j], (float)lk_g5_by[j]); lk_glDrawArrays(0x0005, 0, 4);
-    lk_glReadPixels(0, 0, 32, 160, 0x1908, 0x1401, rb);
+    lk_glReadPixels(0, 0, 32, 224, 0x1908, 0x1401, rb);
     lk_g5_blocks++;
     for (i = 0; i < 1024; i++) { int ix = i & 31, iy = i >> 5, pl, c; uint32_t ex = lk_g5_ref[j][2][i]; int face = (ex >> 8) & 255, z = (int)(int16_t)(ex >> 16);
+      { uint32_t g5 = rb[(5 * 32 + iy) * 32 + ix], g6 = rb[(6 * 32 + iy) * 32 + ix]; int gf = (int)(g5 & 255), gz = (int)(int16_t)((g5 >> 8) & 0xFFFF), gr = (int)(int16_t)(g6 & 0xFFFF), cr = (int)(int16_t)(lk_g5_ref[j][3][i] & 0xFFFF), bad = gf != face || (face && gz != z) || gr != cr;   /* GL5b view ray */
+        lk_g5_cnt[5][bad ? 2 : 0]++;
+        if (bad && lk_g5_shown < lk_g5_maxshow) { lk_g5_shown++; printf("gl5: diff block %%d,%%d pixel %%d,%%d U %%d V %%d ray cpu face %%d z %%d robj %%d gpu face %%d z %%d robj %%d layerA %%d rayf %%d\n", lk_g5_bx[j], lk_g5_by[j], ix, iy, lk_g5_bx[j] * 32 + ix, lk_g5_by[j] * 32 + iy, face, z, cr, gf, gz, gr, (int)((lk_g5_ref[j][3][i] >> 16) & 1), (int)sc[13]); } }
       if (nsh) { uint32_t g = rb[(4 * 32 + iy) * 32 + ix], r = lk_g5_ref[j][4][i]; for (c = 0; c < 2; c++) { int a = (int)((r >> (8 * c)) & 255), b = (int)((g >> (8 * c)) & 255), d = abs(a - b); lk_g5_cnt[4][d == 0 ? 0 : d == 1 ? 1 : 2]++;
         if (d > 1 && lk_g5_shown < lk_g5_maxshow) { lk_g5_shown++; printf("gl5: diff block %%d,%%d pixel %%d,%%d U %%d V %%d %%s cpu %%d gpu %%d face %%d z %%d\n", lk_g5_bx[j], lk_g5_by[j], ix, iy, lk_g5_bx[j] * 32 + ix, lk_g5_by[j] * 32 + iy, c ? "pool" : "beam", a, b, face, z); } } }
       if (!face) continue;
@@ -692,7 +744,7 @@ static void lk_g5_run(const float *lp, const float *lc) {   /* after the block /
   lk_glBindFramebuffer(0x8D40, (lkGLuint)fb0);
   lk_g5_n = 0; lk_g5_frames++;
   if (lk_g5_frames - lk_g5_last >= lk_g5_every) { lk_g5_last = lk_g5_frames;
-    printf("gl5: frames %%ld blocks %%ld terms exact %%ld off1 %%ld worse %%ld | ao exact %%ld off1 %%ld worse %%ld | sun exact %%ld off1 %%ld worse %%ld | key exact %%ld off1 %%ld worse %%ld | shaft exact %%ld off1 %%ld worse %%ld\n", lk_g5_frames, lk_g5_blocks, lk_g5_cnt[0][0], lk_g5_cnt[0][1], lk_g5_cnt[0][2], lk_g5_cnt[1][0], lk_g5_cnt[1][1], lk_g5_cnt[1][2], lk_g5_cnt[2][0], lk_g5_cnt[2][1], lk_g5_cnt[2][2], lk_g5_cnt[3][0], lk_g5_cnt[3][1], lk_g5_cnt[3][2], lk_g5_cnt[4][0], lk_g5_cnt[4][1], lk_g5_cnt[4][2]); } }
+    printf("gl5: frames %%ld blocks %%ld terms exact %%ld off1 %%ld worse %%ld | ao exact %%ld off1 %%ld worse %%ld | sun exact %%ld off1 %%ld worse %%ld | key exact %%ld off1 %%ld worse %%ld | shaft exact %%ld off1 %%ld worse %%ld | view ray same %%ld different %%ld\n", lk_g5_frames, lk_g5_blocks, lk_g5_cnt[0][0], lk_g5_cnt[0][1], lk_g5_cnt[0][2], lk_g5_cnt[1][0], lk_g5_cnt[1][1], lk_g5_cnt[1][2], lk_g5_cnt[2][0], lk_g5_cnt[2][1], lk_g5_cnt[2][2], lk_g5_cnt[3][0], lk_g5_cnt[3][1], lk_g5_cnt[3][2], lk_g5_cnt[4][0], lk_g5_cnt[4][1], lk_g5_cnt[4][2], lk_g5_cnt[5][0], lk_g5_cnt[5][2]); } }
 static long lk_glt_fb[8]; static long lk_glt_n, lk_glt_skip, lk_glt_px, lk_glt_ex, lk_glt_o1, lk_glt_bad, lk_glt_xc, lk_glt_xf[8], lk_glt_cpx[3], lk_glt_cbad[3]; static int lk_glt_shown;
 static int lk_glt_pass(int real) {   /* inside lk_gpu_present after SDL's state is saved; compare (real 0): before the picture upload, unit 0 = recorded unlit picture;
      real (1): after it, unit 0 = the presented picture; returns 1 when lk_glt_out holds the lit picture.  Leaves texture unit 0 active, vertex array enabled */
