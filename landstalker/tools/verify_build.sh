@@ -64,6 +64,8 @@ chk "Sprint-Animation"                               $G/ext/Genesis-Plus-GX/core
 chk "Schwert-Effekte (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SWORDFX v1"
 chk "Stiefelfarben (Option)"                         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_BOOTCOL v2"
 chk "Licht (Option)"                                $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LIGHTS v8"
+chk "Tag / Nacht (Option)"                          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DAYNIGHT v1"
+chk "Zeitraffer-Taste (L5 + R5)"                    $G/src/input.c "lk_dn_fasttoggle"
 chk "Gegner zerfallen (Option)"                     $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DISSOLVE v1"
 chk "Hitzeflimmern (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_HAZE v1"
 chk "Wasserspiegelung (Option)"                    $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_WATER v1"

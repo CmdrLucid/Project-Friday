@@ -7,7 +7,8 @@ A shadowed pixel gets darker (at most LANDSTALKER_CLOUD_K, default 0.20) and a t
 window pixels (HUD, text box) and black lines stay.  Picture only.  Independent of Lighting.  Not with HD graphics.
 Option: Options > Graphics > Cloud Shadows (id 53, ~/.landstalker_clouds, env LANDSTALKER_CLOUDS=0|1 wins), default On.
 Test aids: LANDSTALKER_CLOUD_K=<0..0.6>, LANDSTALKER_CLOUD_COVER=<0..1> (default 0.35), LANDSTALKER_CLOUD_SPEED=<px per frame> (default 0.12), LANDSTALKER_CLOUD_FORCE=1 (every room).
-Needs patch_own.py, patch_water.py before it.  Idempotent.  usage: patch_clouds.py path/to/genrecomp"""
+With Lighting's day / night cycle (LK_DAYNIGHT) the shadows fade with the sun (none at night).
+Needs patch_own.py, patch_lights.py, patch_water.py before it.  Idempotent.  usage: patch_clouds.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
 VER = "LK_CLOUDS v1"
@@ -26,7 +27,7 @@ int lk_cs_get(void) { if (lk_cs_o < 0) { const char *h = getenv("HOME"), *e = ge
 void lk_cs_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_cs_get(); lk_cs_o = v ? 1 : 0; snprintf(pth, sizeof pth, "%%s/.landstalker_clouds", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%d\n", lk_cs_o); fclose(f); } }
 #define LK_CS_N 128   /* noise texture size (tiles) */
 static uint8 lk_cs_tex[LK_CS_N * LK_CS_N];   /* shadow strength 0..255 per texel (cover + soft edge already applied) */
-static int lk_cs_ready, lk_cs_room = -2, lk_cs_out, lk_cs_k = -1, lk_cs_ox, lk_cs_oy; static long lk_cs_frame = -1; static float lk_cs_sp = 0.12f;
+static int lk_cs_ready, lk_cs_room = -2, lk_cs_out, lk_cs_k = -1, lk_cs_ox, lk_cs_oy; static long lk_cs_frame = -1; static float lk_cs_sp = 0.12f; static int lk_cs_kf;
 static float lk_cs_lat(const float *g, int n, float x, float y) {   /* smooth (smoothstep) interpolation of an n x n random lattice, tileable */
   int x0 = (int)floorf(x), y0 = (int)floorf(y); float fx = x - (float)x0, fy = y - (float)y0, a, b, c, d;
   fx = fx * fx * (3.0f - 2.0f * fx); fy = fy * fy * (3.0f - 2.0f * fy);
@@ -60,11 +61,12 @@ static void lk_cs_step(void) {
   if (lk_cs_k < 0) { const char *e = getenv("LANDSTALKER_CLOUD_K"), *f = getenv("LANDSTALKER_CLOUD_SPEED"); float k = e ? (float)atof(e) : 0.20f; if (k < 0.0f) k = 0.0f; if (k > 0.6f) k = 0.6f; lk_cs_k = (int)(k * 256.0f); if (f) lk_cs_sp = (float)atof(f); }
   if (lk_o_room != lk_cs_room) { lk_cs_room = lk_o_room; lk_cs_out = lk_cs_isout(lk_o_room) || getenv("LANDSTALKER_CLOUD_FORCE"); }
   { float t = (float)lk_cs_frame * lk_cs_sp; lk_cs_ox = (int)(t * 256.0f); lk_cs_oy = (int)(t * 0.55f * 256.0f); }   /* wind: towards the lower right of the picture, in 1/256 px */
+  lk_cs_kf = (int)((float)lk_cs_k * lk_dn_cloudf());   /* LK_DAYNIGHT v1 (patch_lights.py): the clouds fade with the sun, none at night */
 }
 static int lk_cs_linebegin(void) {
   if (!lk_cs_get() || lk_hd_n || lk_o_mode != 2) return 0;
   if (lk_cs_frame != platform_frame_number()) lk_cs_step();
-  return lk_cs_out && lk_cs_k > 0;
+  return lk_cs_out && lk_cs_kf > 0;
 }
 static int lk_cs_pix(int U, int V, int col) {   /* U / V: image coordinates of the pixel; 1 texel = 8 picture px (texture period 1024 px, clouds ~170..340 px) */
   int fu = (U << 5) - (lk_cs_ox >> 3), fv = (V << 5) - (lk_cs_oy >> 3), iu = fu >> 8, iv = fv >> 8, au = fu & 255, av = fv & 255, s0, s1, sh, k, r, g, b; uint32_t c = (uint32_t)col;
@@ -74,7 +76,7 @@ static int lk_cs_pix(int U, int V, int col) {   /* U / V: image coordinates of t
     s1 = lk_cs_tex[iv1 * LK_CS_N + iu] * (256 - au) + lk_cs_tex[iv1 * LK_CS_N + iu1] * au;
     sh = ((s0 >> 8) * (256 - av) + (s1 >> 8) * av) >> 8; }
   if (sh <= 0) return col;
-  k = sh * lk_cs_k >> 8;   /* darkening 0..lk_cs_k (of 256) */
+  k = sh * lk_cs_kf >> 8;   /* darkening 0..lk_cs_kf (of 256) */
   r = (int)((c >> 16) & 255); g = (int)((c >> 8) & 255); b = (int)(c & 255);
   r = r * (256 - k) >> 8; g = g * (256 - k * 15 / 16) >> 8; b = b * (256 - k * 3 / 4) >> 8;   /* a touch bluer in the shade */
   return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b); }
