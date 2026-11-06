@@ -235,6 +235,8 @@ python3 tools/patch_haze.py .deps/genrecomp
 python3 tools/patch_water.py .deps/genrecomp
 # Cloud Shadows: soft cloud shadows drift over outdoor maps; On by default (Options > Graphics > Cloud Shadows, LANDSTALKER_CLOUDS; tools/patch_clouds.py; needs patch_own / patch_water)
 python3 tools/patch_clouds.py .deps/genrecomp
+# GPU Filters: scaling + display filters (CRT, CRT Pro, ...) as one OpenGL shader in SDL's GL context, CPU path as fallback; On by default (Options > Display > GPU Filters, LANDSTALKER_GPU; tools/patch_gpu.py)
+python3 tools/patch_gpu.py .deps/genrecomp
 # Room map: binding Map (pad L4, key M) = schematic map of the current area over the paused game (data: tools/roommap.py -> build/roommap; tools/patch_roommap.py, docs/MAP.md)
 python3 tools/patch_roommap.py .deps/genrecomp
 # VDP data path step 3.0: path counters in vdp_ctrl.c (LANDSTALKER_VDPCOUNT=file; inert without it; tools/patch_vdpcount.py, docs/SOUND_PLAN.md section 12)
