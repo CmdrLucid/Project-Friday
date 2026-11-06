@@ -67,6 +67,7 @@ chk "Licht (Option)"                                $G/ext/Genesis-Plus-GX/core/
 chk "Gegner zerfallen (Option)"                     $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DISSOLVE v1"
 chk "Hitzeflimmern (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_HAZE v1"
 chk "Wasserspiegelung (Option)"                    $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_WATER v1"
+chk "Wolkenschatten (Option)"                      $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_CLOUDS v1"
 chk "Weiches Scrollen (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SUBPIX v3"
 chk "Scharfes weiches Scrollen"                       $G/src/platform_sdl.c "LK_SSHARP v1"
 chk "Raumkarte"                                       $G/src/platform_sdl.c "LK_ROOMMAP v12"
