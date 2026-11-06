@@ -25,6 +25,9 @@ GL5a (v5, compare only, LANDSTALKER_GL5CMP=1 [+ _SHOW=N, _EVERY=N]): a second sh
 back walls, water, object field, proxies, lathe profiles, bushes / pines, early exit field; lk_gl_shafts; lk_gl_bextra: robj + layer A bit) in 5 planes = flame terms, AO, sun / key share,
 shaft beam / pool, reads it back and compares with the CPU block ('gl5:' lines).  Nothing changes for the player.
 GL5b (v5): the view ray (lk_lt_ray / lk_lt_rayf) on the GPU too (geometry pass); the CPU block keeps the layer A bit it used (b->la: animated tiles).
+GL5f (v5, step 1): Options > Graphics > Round Figures (id 59, default On, GPU light with GL5c only): in the post pass every figure pixel is relit as a round body
+(width of the figure's own pixels in its row -> normal from the card normal to the side; surface point in front of the card) with flame shadows (one point, 3 unit steps,
+soft clearance) and the sun / key light shaded by the normal (0.4 .. 1.8 x the share); applied as the ratio new / old light on the lit pixel.  Not yet: figures shadowing each other.
 GL5e (v5): Options > Graphics > Sword Shadows (id 58, default On, GPU light with GL5c only): the light pass leaves the sword glow out on scenery pixels (uSwSh) and the post pass
 (lk_gb_run, also used by Bounce Light) adds it back times a soft shadow (march to the sword through the GL5 world texture, LK_LT_IPEN clearance rule); figures keep the unshadowed half glow.
 GL5c (v5): Light Engine GPU (default since 2026-11-06 late; was the option value GPU+; env LANDSTALKER_GL5=0 = the GL4 path with CPU blocks, also the watchdog's fallback): the GPU computes the visible light blocks itself (geometry pass -> 32 x 64 texture, packed pass ->
@@ -67,6 +70,9 @@ void lk_bl_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; 
 static int lk_swsh_o = -1;   /* v5 GL5e: Options > Graphics > Sword Shadows (id 58, ~/.landstalker_swordshadow, env LANDSTALKER_SWORDSHADOW=0|1 wins), default On; GPU light engine only */
 int lk_swsh_get(void) { if (lk_swsh_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_SWORDSHADOW"); char pth[512]; FILE *f; int v = 1; snprintf(pth, sizeof pth, "%%s/.landstalker_swordshadow", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%%d", &v) != 1) v = 1; fclose(f); } if (e) v = atoi(e); lk_swsh_o = v ? 1 : 0; } return lk_swsh_o; }
 void lk_swsh_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_swsh_get(); lk_swsh_o = v ? 1 : 0; snprintf(pth, sizeof pth, "%%s/.landstalker_swordshadow", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%d\n", lk_swsh_o); fclose(f); } }
+static int lk_rf_o = -1;     /* v5 GL5f: Options > Graphics > Round Figures (id 59, ~/.landstalker_roundfig, env LANDSTALKER_ROUNDFIG=0|1 wins), default On; GPU light only */
+int lk_rf_get(void) { if (lk_rf_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_ROUNDFIG"); char pth[512]; FILE *f; int v = 1; snprintf(pth, sizeof pth, "%%s/.landstalker_roundfig", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%%d", &v) != 1) v = 1; fclose(f); } if (e) v = atoi(e); lk_rf_o = v ? 1 : 0; } return lk_rf_o; }
+void lk_rf_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_rf_get(); lk_rf_o = v ? 1 : 0; snprintf(pth, sizeof pth, "%%s/.landstalker_roundfig", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%d\n", lk_rf_o); fclose(f); } }
 int lk_gl_slow;               /* v5: set by the GPU time watchdog (platform_sdl.c): the light pass was too slow -> CPU lighting for the rest of the run (the option is not changed) */
 static int lk_gl_env = -2;    /* LANDSTALKER_GPULT (test aid) wins over the option: 0 CPU, 1 GPU, 2 compare harness */
 int lk_gl_getmode(void) { if (lk_gl_env == -2) { const char *e = getenv("LANDSTALKER_GPULT"); lk_gl_env = e ? atoi(e) : -1; if (e && (lk_gl_env < 0 || lk_gl_env > 2)) lk_gl_env = 0; }
@@ -448,6 +454,8 @@ SHB = r'''
 uniform sampler2D lit; uniform sampler2D unl; uniform sampler2D cls; uniform sampler2D rows; uniform sampler2D roomA; uniform sampler2D roomB; uniform sampler2D rad; uniform sampler2D post; uniform sampler2D btab;
 uniform float uMode; uniform vec3 uBase; uniform float uW; uniform float uK; uniform float uR; uniform float uD; uniform float uPost; uniform vec2 uPh; uniform float uOut;
 uniform sampler2D wld; uniform vec4 uSwP; uniform vec4 uSwC; uniform float uSw; uniform float uSunR;
+uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec4 uLF[96]; uniform vec4 uFG[16]; uniform vec4 uFA[16];
+uniform float uNl; uniform float uAmb; uniform float uSS; uniform float uSK; uniform vec3 uAmb3; uniform vec3 uSun3; uniform float uDn; uniform float uKey; uniform float uKA; uniform float uKK; uniform vec3 uSd; uniform float uE; uniform float uSwon; uniform float uFig;
 float B(float v) { return floor(v * 255.0 + 0.5); }
 float S16(float lo, float hi) { float v = lo + 256.0 * hi; return v >= 32768.0 ? v - 65536.0 : v; }
 vec3 posAt(vec2 q, out float face) {   /* world position + face of a picture pixel from the light blocks (U / V of its line) */
@@ -461,6 +469,40 @@ float topT(float cx, float cy) {   /* the world heights of the GL5 block pass (t
   vec4 w = texture2D(wld, (vec2(cx, cy) + 0.5) / vec2(74.0, 222.0)); float t = S16(B(w.r), B(w.g));
   if (uSunR < 0.5) { float n = S16(B(w.b), B(w.a)); if (n > -32768.0) t = n; }
   return t; }
+float term0(vec3 p, vec3 n, vec4 L, float kk) {   /* the light pass' term (no shadow) */
+  vec3 v = L.xyz - p; float d = sqrt(v.x * v.x + v.y * v.y + v.z * v.z), rad = L.w, ndl, q;
+  if (d >= rad || d < 0.001) return d < 0.001 ? kk : 0.0;
+  ndl = (n.x * v.x + n.y * v.y + n.z * v.z) / d; if (ndl < 0.0) ndl = 0.0;
+  q = 1.0 - d / rad; return kk * q * q * (0.25 + 0.75 * ndl); }
+float termSh(vec3 p, vec3 n, vec4 L, float kk) {   /* with a shadow (one point, 3 unit steps, soft clearance edge indoors; cheaper than lk_lt_term's 2 area points: a figure has many pixels) */
+  float t = term0(p, n, L, kk); if (t <= 0.0) return 0.0;
+  vec3 s = p + n * 3.0, w = L.xyz - s; float e = length(w), res = 1.0;
+  for (int st = 0; st < 140; st++) { float tt = 3.0 + 3.0 * float(st); if (tt >= e - 3.0) break;
+    vec3 q = s + w * tt / e; float top = topT(floor(q.x / 16.0), floor(q.y / 16.0));
+    if (q.z < top - 0.5) return 0.0;
+    if (uSunR < 0.5 && top > -32768.0) { float r = 4.0 * (q.z - top) / tt; if (r < res) res = r; } }
+  return t * max(res, 0.0); }
+vec3 ambient(float u) {   /* the light pass' figure base light for sun share u */
+  vec3 a = vec3(uAmb * 0.93, uAmb * 0.96, uAmb * 1.06);
+  if (uNl < 0.5 && uSunR < 0.5) a = vec3(1.0);
+  if (uSunR > 0.5 && uDn > 0.5) a = uAmb3 + uSun3 * u;
+  else if (uSunR > 0.5) { float k2 = uSK * u; a = vec3(uSS * 0.95 + k2, uSS * 0.98 + k2 * 0.97, uSS * 1.06 + k2 * 0.90); }
+  else if (uKey > 0.5) { float k2 = uKK * u; a = vec3(uKA * 0.97 + k2 * 1.04, uKA * 0.99 + k2, uKA * 1.05 + k2 * 0.92); }
+  return a; }
+vec4 roundFig(vec2 fc, float cl, vec4 L4) {   /* GL5f: a figure as a round body (width of its own pixels in this row): per pixel normal + flame shadows; relit by the ratio new / old light */
+  int j = int(cl - 16.0); vec4 F = uFG[j], Fa = uFA[j]; float line = fc.y, x = fc.x - uE, xl = fc.x, xr = fc.x;
+  for (int k = 1; k <= 24; k++) { float xx = fc.x - float(k); if (xx >= 0.0 && B(texture2D(cls, (vec2(xx, line) + 0.5) / vec2(448.0, 224.0)).r) == cl) xl = xx; }
+  for (int k = 1; k <= 24; k++) { float xx = fc.x + float(k); if (xx < uW && B(texture2D(cls, (vec2(xx, line) + 0.5) / vec2(448.0, 224.0)).r) == cl) xr = xx; }
+  float hw = (xr - xl) * 0.5 + 0.5, u = clamp((fc.x - (xl + xr) * 0.5) / hw, -1.0, 1.0), wv = sqrt(max(1.0 - u * u, 0.0));
+  vec3 tv = vec3(0.7071, -0.7071, 0.0), nc = vec3(0.7071, 0.7071, 0.0), n = normalize(tv * u + nc * wv);
+  float dx = x - Fa.x; vec3 pc = vec3(F.x + dx * 0.5, F.y - dx * 0.5, F.z + (Fa.y - line)), p = pc + nc * (wv * hw * 0.7071);
+  vec3 so = vec3(0.0), sn = vec3(0.0);
+  for (int k = 0; k < 96; k++) { if (float(k) >= uNl) break; vec4 Lf = uLF[k]; if (Lf.y > 0.5 && Lf.x <= 0.004) continue;
+    so += term0(pc, nc, uLP[k], uLC[k].w) * Lf.x * uLC[k].rgb; sn += termSh(p, n, uLP[k], uLC[k].w) * Lf.x * uLC[k].rgb; }
+  if (uSwon > 0.5) { so += term0(pc, nc, uSwP, uSwC.w) * 0.5 * uSwC.rgb; sn += term0(p, n, uSwP, uSwC.w) * 0.5 * uSwC.rgb; }
+  float hc = 0.25 + 0.75 * max(dot(nc, uSd), 0.0), hn = 0.25 + 0.75 * max(dot(n, uSd), 0.0);   /* the sun / key light on the round body */
+  vec3 fo = min(ambient(F.w) + 2.2 * so, vec3(2.4)), fn = min(ambient(F.w * clamp(hn / hc, 0.4, 1.8)) + 2.2 * sn, vec3(2.4));
+  return vec4(min(L4.rgb * 255.0 * fn / max(fo, vec3(0.01)), vec3(255.0)) / 255.0, 1.0); }
 float swlight(vec3 p, vec3 n) {   /* GL5e: the sword glow (lk_lt_term without shadow, as the light pass) times its soft shadow (march to the sword, LK_LT_IPEN clearance rule) */
   vec3 v = uSwP.xyz - p; float d = length(v), rad = uSwP.w;
   if (d >= rad || d < 0.001) return d < 0.001 ? uSwC.w : 0.0;
@@ -481,6 +523,9 @@ void main() {
       vec3 L = texture2D(lit, tc).rgb * 255.0, C = texture2D(unl, tc).rgb * 255.0; s += max(L - C * uBase, vec3(0.0)); n += 1.0; }
     gl_FragColor = vec4(n > 0.0 ? s / n / 255.0 : vec3(0.0), n / 16.0); return; }   /* (alpha: share of scenery pixels) */
   vec2 tc = (fc + 0.5) / vec2(448.0, 224.0); vec4 L4 = texture2D(lit, tc); vec3 L = L4.rgb * 255.0;
+  { float cl0 = B(texture2D(cls, tc).r);
+    if (uFig > 0.5 && cl0 > 15.5 && fc.x < uW) { if (uPost > 0.5) { vec4 a = texture2D(post, (fc + 0.5) / vec2(448.0, 448.0)), b = texture2D(post, (vec2(fc.x, fc.y + 224.0) + 0.5) / vec2(448.0, 448.0)); if (a.rgb != vec3(0.0) || b.rgb != vec3(1.0)) { gl_FragColor = L4; return; } }
+      gl_FragColor = roundFig(fc, cl0, L4); return; } }
   if (fc.x >= uW || B(texture2D(cls, tc).r) != 1.0) { gl_FragColor = L4; return; }
   if (uPost > 0.5) { vec4 a = texture2D(post, (fc + 0.5) / vec2(448.0, 448.0)), b = texture2D(post, (vec2(fc.x, fc.y + 224.0) + 0.5) / vec2(448.0, 448.0)); if (a.rgb != vec3(0.0) || b.rgb != vec3(1.0)) { gl_FragColor = L4; return; } }   /* emissive / HUD */
   float f; vec3 p = posAt(fc, f); if (f < 0.5) { gl_FragColor = L4; return; }
@@ -1006,11 +1051,11 @@ static void lk_g5_real(int u0, int u1, int v0, int v1, const float *lp, const fl
    floor) and distance (LANDSTALKER_BOUNCE_D, 56 units), times its own colour, strength LANDSTALKER_BOUNCE_K (5; first look by eye 2026-11-06: 0.6 / 3 were invisible).  Emissive / HUD pixels (mix after the light) and figures stay as they are.
    GPU light engines only (the CPU engine keeps the old look); off without a light source (no flames / sun / key light). ---- */
 extern int lk_bl_get(void);
-static int lk_gb_st; static lkGLuint lk_gb_prog, lk_gb_fa, lk_gb_fb, lk_gb_ra, lk_gb_out; static lkGLint lk_gb_u[28];
+static int lk_gb_st; static lkGLuint lk_gb_prog, lk_gb_fa, lk_gb_fb, lk_gb_ra, lk_gb_out; static lkGLint lk_gb_u[48];
 static long lk_gsw_fr = -9; static int lk_gsw_on;   /* GL5e: the frame's decision (light pass and post pass must agree) */
-int lk_gsw_frame(int real, int swon) { extern int lk_swsh_get(void); long f = platform_frame_number(); if (lk_gsw_fr != f) { lk_gsw_fr = f; lk_gsw_on = real && swon && lk_swsh_get() && lk_g5_realon() && lk_g5_wh != 0; } return lk_gsw_on; } static float lk_gb_k = -1.0f, lk_gb_r, lk_gb_d;
+int lk_gsw_frame(int real, int swon) { extern int lk_swsh_get(void); long f = platform_frame_number(); if (lk_gsw_fr != f) { lk_gsw_fr = f; lk_gsw_on = real && swon && lk_swsh_get() && lk_g5_realon() && lk_g5_wh != 0 && lk_gb_st >= 0; } return lk_gsw_on; } static float lk_gb_k = -1.0f, lk_gb_r, lk_gb_d;
 static const char *lk_gb_fs = "#version 120\n" @SHADERB@;
-static const char *lk_gb_un[] = { "lit", "unl", "cls", "rows", "roomA", "roomB", "rad", "post", "btab", "uMode", "uBase", "uW", "uK", "uR", "uD", "uPost", "uPh", "uOut", "wld", "uSwP", "uSwC", "uSw", "uSunR", 0 };
+static const char *lk_gb_un[] = { "lit", "unl", "cls", "rows", "roomA", "roomB", "rad", "post", "btab", "uMode", "uBase", "uW", "uK", "uR", "uD", "uPost", "uPh", "uOut", "wld", "uSwP", "uSwC", "uSw", "uSunR", "uLP", "uLC", "uLF", "uFG", "uFA", "uNl", "uAmb", "uSS", "uSK", "uAmb3", "uSun3", "uDn", "uKey", "uKA", "uKK", "uSd", "uE", "uSwon", "uFig", 0 };
 static int lk_gb_init(void) {
   lkGLint ok = 0, t0 = 0, fb0 = 0; lkGLuint vs, fs; char log[2048]; int i; lkGLenum st1, st2;
   { static const char *vsrc = "#version 120\nvoid main() { gl_Position = gl_Vertex; }\n"; vs = lk_glCreateShader(0x8B31); lk_glShaderSource(vs, 1, &vsrc, 0); lk_glCompileShader(vs); lk_glGetShaderiv(vs, 0x8B81, &ok); if (!ok) return -1; }
@@ -1029,16 +1074,17 @@ static int lk_gb_init(void) {
 static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out holds the lit picture, unit 0 = the presented unlit picture); returns 1 when lk_gb_out holds the result */
   static float fu[64], lp[96 * 4], lc[96 * 4], lf[96 * 4], fg[16 * 4], fa[16 * 4]; static int iu[32]; float base[3], phu = 0.0f, phv = 0.0f; int i; lkGLint tb[10], fb0 = 0, unl = 0; static const lkGLfloat quad[8] = { -1, -1, 1, -1, -1, 1, 1, 1 };
   extern int lk_gl_postany;
-  int bon = lk_bl_get(), sw;
+  int bon = lk_bl_get(), sw, fig; extern int lk_rf_get(void);
   if (lk_gb_st < 0) return 0;
   if (!lk_gl_frame(platform_frame_number(), fu, iu, lp, lc, lf, fg, fa)) return 0;   /* the frame's light state (same as the light pass) */
   sw = lk_gsw_fr == platform_frame_number() && lk_gsw_on;   /* GL5e: decided by the light pass this frame */
-  if (!bon && !sw) return 0;
+  fig = lk_rf_get() && iu[9] > 0 && lk_g5_realon() && lk_g5_wh != 0 && (iu[0] || iu[1] || iu[2]);   /* GL5f: figures on screen, a light source, the GL5 world texture */
+  if (!bon && !sw && !fig) return 0;
   if (iu[0] && iu[5]) { base[0] = fu[3]; base[1] = fu[4]; base[2] = fu[5]; }
   else if (iu[0]) { base[0] = fu[1] * 0.95f; base[1] = fu[1] * 0.98f; base[2] = fu[1] * 1.06f; }
   else if (iu[1]) { base[0] = fu[10] * 0.97f; base[1] = fu[10] * 0.99f; base[2] = fu[10] * 1.05f; }
   else if (iu[2]) { base[0] = fu[0] * 0.93f; base[1] = fu[0] * 0.96f; base[2] = fu[0] * 1.06f; }
-  else if (!sw) return 0;   /* no light source in this room */
+  else if (!sw && !fig) return 0;   /* no light source in this room */
   else { base[0] = base[1] = base[2] = 1.0f; bon = 0; }
   { static int dbg = -1; if (dbg < 0) { const char *e = getenv("LANDSTALKER_BOUNCE_DBG"); dbg = e ? atoi(e) : 0; } if (dbg && platform_frame_number() %% 100 == 0) printf("bounce: frame %%ld sun %%d dn %%d key %%d nl %%d base %%.2f %%.2f %%.2f w %%d\n", platform_frame_number(), iu[0], iu[5], iu[1], iu[2], base[0], base[1], base[2], iu[7]); }
   if (lk_gb_st == 0) { lk_gb_st = lk_gb_init(); if (lk_gb_st < 0) return 0; }
@@ -1050,6 +1096,10 @@ static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out ho
   lk_glActiveTexture(0x84C6); lk_glBindTexture(0x0DE1, lk_gb_ra); lk_glActiveTexture(0x84C7); lk_glBindTexture(0x0DE1, lk_glt_t[10]); lk_glActiveTexture(0x84C8); lk_glBindTexture(0x0DE1, lk_glt_t[4]); lk_glActiveTexture(0x84C9); lk_glBindTexture(0x0DE1, lk_g5_wt); lk_glActiveTexture(0x84C0);
   lk_glUseProgram(lk_gb_prog); for (i = 0; i < 9; i++) lk_glUniform1i(lk_gb_u[i], i);
   lk_glUniform1i(lk_gb_u[18], 9); lk_glUniform4f(lk_gb_u[19], fu[16], fu[17], fu[18], fu[19]); lk_glUniform4f(lk_gb_u[20], fu[20], fu[21], fu[22], fu[23]); lk_glUniform1f(lk_gb_u[21], sw ? 1.0f : 0.0f); lk_glUniform1f(lk_gb_u[22], iu[0] ? 1.0f : 0.0f);
+  lk_glUniform4fv(lk_gb_u[23], 96, lp); lk_glUniform4fv(lk_gb_u[24], 96, lc); lk_glUniform4fv(lk_gb_u[25], 96, lf); lk_glUniform4fv(lk_gb_u[26], 16, fg); lk_glUniform4fv(lk_gb_u[27], 16, fa);
+  lk_glUniform1f(lk_gb_u[28], (float)iu[2]); lk_glUniform1f(lk_gb_u[29], fu[0]); lk_glUniform1f(lk_gb_u[30], fu[1]); lk_glUniform1f(lk_gb_u[31], fu[2]); lk_glUniform3f(lk_gb_u[32], fu[3], fu[4], fu[5]); lk_glUniform3f(lk_gb_u[33], fu[6], fu[7], fu[8]);
+  lk_glUniform1f(lk_gb_u[34], (float)iu[5]); lk_glUniform1f(lk_gb_u[35], (float)iu[1]); lk_glUniform1f(lk_gb_u[36], fu[10]); lk_glUniform1f(lk_gb_u[37], fu[11]); lk_glUniform3f(lk_gb_u[38], fu[24], fu[25], fu[26]); lk_glUniform1f(lk_gb_u[39], (float)iu[12]);
+  lk_glUniform1f(lk_gb_u[40], (float)iu[4]); lk_glUniform1f(lk_gb_u[41], fig ? 1.0f : 0.0f);
   lk_glUniform3f(lk_gb_u[10], base[0], base[1], base[2]); lk_glUniform1f(lk_gb_u[11], (float)iu[7]); lk_glUniform1f(lk_gb_u[12], bon ? lk_gb_k : 0.0f); lk_glUniform1f(lk_gb_u[13], lk_gb_r); lk_glUniform1f(lk_gb_u[14], lk_gb_d); lk_glUniform1f(lk_gb_u[15], lk_gl_postany ? 1.0f : 0.0f); lk_glUniform2f(lk_gb_u[16], phu, phv); lk_glUniform1f(lk_gb_u[17], iu[0] ? 1.0f : 0.0f);
   lk_glGetIntegerv(0x8CA6, &fb0); lk_glEnableClientState(0x8074); lk_glVertexPointer(2, 0x1406, 0, quad);
   { static int tdb = -1; if (tdb < 0) { const char *e = getenv("LANDSTALKER_BOUNCE_DBG"); tdb = e ? atoi(e) : 0; } if (tdb >= 2 && lk_glFinish) { static double sum; static int n; Uint64 t0; lk_glFinish(); t0 = SDL_GetPerformanceCounter();
