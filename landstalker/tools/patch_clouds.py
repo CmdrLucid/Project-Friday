@@ -2,11 +2,11 @@
 """Option 'Cloud Shadows' (2026-11-06, user: modern effects list item 1 'Wolkenschatten', 'wolken ja').
 Outdoors (tileset 0 / 7 / 12 / 13 / 14 / 17 like Lighting's sun rooms, not the intro 139..143 / 148, not the dark docks 643) soft cloud shadows drift over
 the map: a tileable fractal noise (128 x 128, two octaves, smooth) laid on the room picture (image coordinates U / V, so the shadows stay on the world while
-the camera scrolls), 1 texel = 8 px (clouds ~170..340 px), drifting slowly to the lower right (wind); cover (share of the picture in shadow) ~35 %%, soft edges.
+the camera scrolls), 1 texel = 8 px (clouds ~170..340 px), drifting to the lower right (wind); cover (share of the picture in shadow) ~35 %%, soft edges.
 A shadowed pixel gets darker (at most LANDSTALKER_CLOUD_K, default 0.20) and a touch bluer.  Map pixels of layers, sprites and neighbour rooms are darkened;
 window pixels (HUD, text box) and black lines stay.  Picture only.  Independent of Lighting.  Not with HD graphics.
 Option: Options > Graphics > Cloud Shadows (id 53, ~/.landstalker_clouds, env LANDSTALKER_CLOUDS=0|1 wins), default On.
-Test aids: LANDSTALKER_CLOUD_K=<0..0.6>, LANDSTALKER_CLOUD_COVER=<0..1> (default 0.35), LANDSTALKER_CLOUD_SPEED=<px per frame> (default 0.12), LANDSTALKER_CLOUD_FORCE=1 (every room).
+Test aids: LANDSTALKER_CLOUD_K=<0..0.6>, LANDSTALKER_CLOUD_COVER=<0..1> (default 0.35), LANDSTALKER_CLOUD_SPEED=<px per frame> (default 0.35, was 0.12), LANDSTALKER_CLOUD_FORCE=1 (every room).
 With Lighting's day / night cycle (LK_DAYNIGHT) the shadows fade with the sun (none at night).
 Needs patch_own.py, patch_lights.py, patch_water.py before it.  Idempotent.  usage: patch_clouds.py path/to/genrecomp"""
 import os, sys
@@ -27,7 +27,7 @@ int lk_cs_get(void) { if (lk_cs_o < 0) { const char *h = getenv("HOME"), *e = ge
 void lk_cs_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_cs_get(); lk_cs_o = v ? 1 : 0; snprintf(pth, sizeof pth, "%%s/.landstalker_clouds", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%d\n", lk_cs_o); fclose(f); } }
 #define LK_CS_N 128   /* noise texture size (tiles) */
 static uint8 lk_cs_tex[LK_CS_N * LK_CS_N];   /* shadow strength 0..255 per texel (cover + soft edge already applied) */
-static int lk_cs_ready, lk_cs_room = -2, lk_cs_out, lk_cs_k = -1, lk_cs_ox, lk_cs_oy; static long lk_cs_frame = -1; static float lk_cs_sp = 0.12f; static int lk_cs_kf;
+static int lk_cs_ready, lk_cs_room = -2, lk_cs_out, lk_cs_k = -1, lk_cs_ox, lk_cs_oy; static long lk_cs_frame = -1; static float lk_cs_sp = 0.35f;   /* px per frame (user 2026-11-06: 'etwas schneller, die bewegen sich kaum'; was 0.12) */ static int lk_cs_kf;
 static float lk_cs_lat(const float *g, int n, float x, float y) {   /* smooth (smoothstep) interpolation of an n x n random lattice, tileable */
   int x0 = (int)floorf(x), y0 = (int)floorf(y); float fx = x - (float)x0, fy = y - (float)y0, a, b, c, d;
   fx = fx * fx * (3.0f - 2.0f * fx); fy = fy * fy * (3.0f - 2.0f * fy);
@@ -84,7 +84,7 @@ static int lk_cs_pix(int U, int V, int col) {   /* U / V: image coordinates of t
 ''' % VER
     a = "static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {\n"
     rep(a, MODULE + a)
-    a = "    int lk_wr_ln = lk_wr_linebegin(line);   /* LK_WATER v1 */\n"
+    a = "    int lk_wr_ln = lk_wr_linebegin(line);   /* LK_WATER v2 */\n"
     rep(a, a + "    int lk_cs_ln = lk_cs_linebegin();   /* %s */\n" % VER)
     a = "      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n"
     rep(a, "      if (lk_cs_ln && !black && (src == 1 || src == 2 || src == 3 || src == 6)) col = lk_cs_pix(ubase + x - lk_sm_sxn, vbase - lk_sm_syn, col);   /* %s */\n" % VER + a)

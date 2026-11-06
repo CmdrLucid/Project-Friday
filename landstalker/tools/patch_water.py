@@ -9,14 +9,15 @@ shrine group $0968CA) and $098EAA are left out; a pixel must also be bluish (blu
 plane under it would be: by default the floor under the figure (user pick B: the reflection starts at the feet; a jump mirrors at the floor);
 LANDSTALKER_WATER_FOOT=0 = foot line + entity z - height of the first lower cell in front of it, within 6 cells (variant A, physically offset); its own sprite pixels (lk_lt_spre tag) of this frame are written upside down into a
 reflection picture (nearer figures win), fading with distance from the mirror line; water pixels mix it in (alpha LANDSTALKER_WATER_ALPHA, default 0.6 (user 2026-11-06: 'etwas staerker, aber nicht viel'; was 0.5))
-read through a small rising ripple (1 px sideways, nearest).  Static tiles with >= 12 pixels in the colour indexes of the animated water tiles (in a palette line the animated water uses) count as water too (only those pixels)
+read through a small slow ripple (v2: under half a pixel, mixed between two neighbours).  Static tiles drawn >= 97 % in the colour indexes of the animated water tiles (in a palette line the animated water uses) count as water too
+(v2, 2026-11-06: v1 took tiles with >= 12 such pixels, which caught the tiled floor of the Mercator docks)
 (docks / sea rooms: few animated tiles among static ones).  Picture only.  Independent of Lighting.  Not with HD graphics.
 Option: Options > Graphics > Water Reflections (id 52, ~/.landstalker_water, env LANDSTALKER_WATER=0|1 wins), default On.
 Test aid: LANDSTALKER_WATER_DBG=1 (room groups + figures every 60 frames), =2 (water pixels magenta).
 Needs patch_own.py, patch_lights.py (lk_lt_spre), patch_dissolve.py, patch_haze.py before it.  Idempotent.  usage: patch_water.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_WATER v1"
+VER = "LK_WATER v2"
 
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
@@ -80,13 +81,14 @@ static int lk_wr_linebegin(int line) {
   if (lk_wr_frame != platform_frame_number()) lk_wr_step();
   return lk_wr_any && line >= 0 && line < 224;
 }
-static int lk_wr_tilewater(long o) {   /* a static tile with at least 12 pixels in the water colours counts as water too (its water coloured pixels only): the docks / sea rooms use few animated tiles among many static ones */
+static int lk_wr_tilewater(long o) {   /* a static tile drawn >= 97 %% in the water colours counts as water too (v2): the docks / sea rooms use few animated tiles among many static ones */
   int ti = (int)(o >> 5), j, n = 0; const uint8 *q;
   if (ti < 0 || ti >= 2304) return 0;
   if (lk_wr_ts[ti]) return lk_wr_ts[ti] == 1;
   q = lk_o_tiles + ((long)ti << 5);
-  for (j = 0; j < 32; j++) { int h = q[j] >> 4, l2 = q[j] & 15; if (h && (lk_wr_idx >> h & 1)) n++; if (l2 && (lk_wr_idx >> l2 & 1)) n++; }
-  lk_wr_ts[ti] = (uint8)(n >= 12 ? 1 : 2); return lk_wr_ts[ti] == 1; }   /* (>= 12 water coloured pixels: also the shore tiles, half bank half water; only their water coloured pixels change) */
+  { int ns = 0; for (j = 0; j < 32; j++) { int h = q[j] >> 4, l2 = q[j] & 15; if (h) { ns++; if (lk_wr_idx >> h & 1) n++; } if (l2) { ns++; if (lk_wr_idx >> l2 & 1) n++; } }
+    lk_wr_ts[ti] = (uint8)((ns >= 48 && n * 100 >= ns * 97) ? 1 : 2); if (lk_wr_dbg == 3 && n >= 8) printf("water: tile %%d set %%d water %%d -> %%d\n", ti, ns, n, lk_wr_ts[ti]); }   /* v2: only tiles drawn (almost) entirely in the water colours (user 2026-11-06: the tiled floor of the Mercator docks 641 got reflections; it shares the colours; v1 took any tile with >= 12 water pixels) */
+  return lk_wr_ts[ti] == 1; }
 static int lk_wr_pix(int line, int i, const uint8 *t, int pick, int col) {   /* a layer pixel: water? then calm colour + reflection */
   long o; int k, r, g, b, l, tk = lk_wr_tk; uint32_t c = (uint32_t)col;
   if (!t || t < lk_o_tiles || t >= lk_o_tiles + sizeof lk_o_tiles) return col;
@@ -101,8 +103,10 @@ static int lk_wr_pix(int line, int i, const uint8 *t, int pick, int col) {   /* 
   if (tk) { l = (r * 77 + g * 151 + b * 28) >> 8;   /* calm blue: 59 %% towards grey, 22 %% darker, a touch of green (deep blue-green) at full strength */
     r += (l - r) * tk * 150 / 65536; g += (l - g) * tk * 150 / 65536; b += (l - b) * tk * 150 / 65536;
     r = r * (256 - tk * 56 / 256) / 256; g = g * (256 - tk * 40 / 256) / 256; b = b * (256 - tk * 64 / 256) / 256; }
-  { int rx = i + (int)lrintf(sinf(0.55f * (float)line + 0.16f * (float)lk_wr_frame)), ry = line; uint32_t q;   /* ripple: the reflection is read 1 px sideways, the wave rises */
-    if (rx >= 0 && rx < LK_OSW && lk_wr_line[ry] && (q = lk_wr_buf[ry][rx]) != 0) { int al = (int)(q >> 24);
+  if (lk_wr_line[line]) { float off = 0.45f * sinf(0.30f * (float)line + 0.07f * (float)lk_wr_frame), p = (float)i + off; int x0 = (int)floorf(p), fw = (int)((p - (float)x0) * 256.0f), k2;   /* v2 ripple (user 2026-11-06: 'wabert zu viel'): under half a pixel, slower, mixed between two neighbours (was 1 px jumps) */
+    for (k2 = 0; k2 < 2; k2++) { int rx = x0 + k2, w8 = k2 ? fw : 256 - fw; uint32_t q; int al;
+      if (rx < 0 || rx >= LK_OSW || !(q = lk_wr_buf[line][rx])) continue;
+      al = (int)(q >> 24) * w8 >> 8;
       r += ((int)((q >> 16) & 255) * 7 / 8 - r) * al / 256; g += ((int)((q >> 8) & 255) * 7 / 8 - g) * al / 256; b += ((int)(q & 255) * 15 / 16 - b) * al / 256; } }
   if (r < 0) r = 0; if (g < 0) g = 0; if (b < 0) b = 0; if (r > 255) r = 255; if (g > 255) g = 255; if (b > 255) b = 255;
   return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b); }

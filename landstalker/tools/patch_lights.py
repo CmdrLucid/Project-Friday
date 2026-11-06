@@ -1086,7 +1086,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
   if (lk_lt_dbg) { printf("lighting: room %%d, %%d lights\n", lk_o_room, lk_lt_nl); for (k = 0; k < lk_lt_nl; k++) printf("  light %%d at (%%.0f, %%.0f, %%.0f) flame $%%06X%%s\n", k, lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z, (unsigned)lk_lt_l[k].base, lk_lt_solid(lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z) ? " INSIDE A SOLID" : ""); }
 }
 static int lk_lt_swtest(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LIGHTING_SWORD"); v = e ? atoi(e) : 0; if (v < 0 || v > 4) v = 0; } return v; }   /* test aid: sword glow colour 1..4 without that sword */
-/* ---- LK_DAYNIGHT v1: the day / night cycle (sun path, moon, light colours by the time of day, time-lapse) ---- */
+/* ---- LK_DAYNIGHT v1 (+ v2 colours 2026-11-06): the day / night cycle (sun path, moon, light colours by the time of day, time-lapse) ---- */
 static double lk_dn_t = -1.0; static volatile int lk_dn_fast = -1; static float lk_dn_naz, lk_dn_nel; static int lk_dn_dbg = -1; static double lk_dn_len = 24.0;
 static float lk_dn_ss(float a, float b, float x) { float t = (x - a) / (b - a); if (t < 0.0f) t = 0.0f; if (t > 1.0f) t = 1.0f; return t * t * (3.0f - 2.0f * t); }
 static void lk_dn_lerp(const float *E, const float (*C)[3], int n, float e, float *o) {   /* piecewise linear over E (ascending) */
@@ -1094,19 +1094,34 @@ static void lk_dn_lerp(const float *E, const float (*C)[3], int n, float e, floa
   for (k = 1; k < n; k++) if (e <= E[k]) { float t = (e - E[k - 1]) / (E[k] - E[k - 1]); int c; for (c = 0; c < 3; c++) o[c] = C[k - 1][c] + (C[k][c] - C[k - 1][c]) * t; return; }
   o[0] = C[n - 1][0]; o[1] = C[n - 1][1]; o[2] = C[n - 1][2]; }
 static void lk_dn_eval(double t, float *az, float *el) {   /* time of day (hours) -> shadow direction + colours (lk_dn_amb3, lk_dn_sun3 before the sun strength factor) */
-  static const float EA[7] = { -90, -12, -4, 3, 10, 25, 90 };   /* sky light, relative to the noon sky light (lk_lt_sS * 0.95 / 0.98 / 1.06): night blue, blue hour, warm dusk, day */
-  static const float CA[7][3] = { { 0.33f, 0.38f, 0.62f }, { 0.33f, 0.38f, 0.62f }, { 0.50f, 0.50f, 0.66f }, { 0.80f, 0.68f, 0.72f }, { 0.97f, 0.92f, 0.88f }, { 1, 1, 1 }, { 1, 1, 1 } };
-  static const float ES[5] = { 0, 5, 12, 30, 90 };   /* sun colour, relative to the day sun (1, 0.97, 0.90): red-orange at the horizon, warm low sun, white at noon */
-  static const float CS[5][3] = { { 1, 0.64f, 0.47f }, { 1, 0.77f, 0.61f }, { 1, 0.96f, 0.91f }, { 1, 1, 1 }, { 1, 1, 1 } };
+  /* v2 (user 2026-11-06: 'Farben morgens / abends roetlicher', 'Uebergang Abend -> Nacht wirkt recht ploetzlich', 'nachts schon sehr dunkel'): redder low sun, twilight over twice the elevation range, brighter night */
+  static const float EA[9] = { -90, -16, -9, -3, 2, 7, 14, 28, 90 };   /* sky light, relative to the noon sky light (lk_lt_sS * 0.95 / 0.98 / 1.06): night blue, blue hour, violet-red, red dusk, day */
+  static const float CA[9][3] = { { 0.45f, 0.50f, 0.72f }, { 0.45f, 0.50f, 0.72f }, { 0.50f, 0.50f, 0.70f }, { 0.66f, 0.52f, 0.62f }, { 0.86f, 0.62f, 0.56f }, { 0.95f, 0.78f, 0.70f }, { 0.99f, 0.92f, 0.88f }, { 1, 1, 1 }, { 1, 1, 1 } };
+  static const float ES[6] = { 0, 4, 9, 16, 30, 90 };   /* sun colour, relative to the day sun (1, 0.97, 0.90): red at the horizon, orange-red low sun, white at noon */
+  static const float CS[6][3] = { { 1, 0.48f, 0.32f }, { 1, 0.56f, 0.38f }, { 1, 0.70f, 0.52f }, { 1, 0.86f, 0.74f }, { 1, 1, 1 }, { 1, 1, 1 } };
   float p = (float)(fmod(t - 6.0 + 48.0, 24.0) / 12.0), q = (float)(fmod(t - 18.0 + 48.0, 24.0) / 12.0);   /* day / night fraction 0..2 (sunrise 6:00, sunset 18:00) */
-  float es = 58.0f * sinf(3.14159265f * p), em = 40.0f * sinf(3.14159265f * q), fs = lk_dn_ss(-1.0f, 8.0f, es), fm = 0.30f * lk_dn_ss(0.0f, 10.0f, em) * lk_dn_ss(-2.0f, -12.0f, es), a3[3], c3[3];
+  float es = 58.0f * sinf(3.14159265f * p), em = 40.0f * sinf(3.14159265f * q), fs = lk_dn_ss(-3.0f, 10.0f, es), fm = 0.38f * lk_dn_ss(0.0f, 10.0f, em) * lk_dn_ss(-3.0f, -14.0f, es), a3[3], c3[3];   /* v2: the sun fades over 13 deg (was 9), the moon a bit stronger */
   float N[3] = { lk_lt_sS * 0.95f, lk_lt_sS * 0.98f, lk_lt_sS * 1.06f };
-  lk_dn_lerp(EA, CA, 7, es, a3); lk_dn_amb3[0] = N[0] * a3[0]; lk_dn_amb3[1] = N[1] * a3[1]; lk_dn_amb3[2] = N[2] * a3[2];
-  if (es > -1.0f) { lk_dn_lerp(ES, CS, 5, es, c3); *az = 90.0f - 80.0f * cosf(3.14159265f * p); *el = es > 12.0f ? es : 12.0f;   /* the sun: from the upper left of the world to the lower right over noon (az 90 = the day light the user picked), shadows at most ~4.7 x the height */
+  lk_dn_lerp(EA, CA, 9, es, a3); lk_dn_amb3[0] = N[0] * a3[0]; lk_dn_amb3[1] = N[1] * a3[1]; lk_dn_amb3[2] = N[2] * a3[2];
+  if (es > -3.0f) { lk_dn_lerp(ES, CS, 6, es, c3); *az = 90.0f - 80.0f * cosf(3.14159265f * p); *el = es > 12.0f ? es : 12.0f;   /* the sun: from the upper left of the world to the lower right over noon (az 90 = the day light the user picked), shadows at most ~4.7 x the height */
     lk_dn_sun3[0] = c3[0] * fs; lk_dn_sun3[1] = 0.97f * c3[1] * fs; lk_dn_sun3[2] = 0.90f * c3[2] * fs; }
   else { *az = 90.0f - 80.0f * cosf(3.14159265f * (q > 1.0f ? 1.0f : q)); *el = em > 12.0f ? em : 12.0f;   /* the moon: the same path in the night, weak cold light with soft shadows */
     lk_dn_sun3[0] = 0.55f * fm; lk_dn_sun3[1] = 0.68f * fm; lk_dn_sun3[2] = 1.00f * fm; }
   lk_dn_sunk = fs; lk_dn_night = es < -6.0f; }
+static int lk_dn_win;   /* v2 LIT WINDOWS (user 2026-11-06: 'beleuchtete Fenster nachts find ich gut'): window glass glows warm from dusk on.  Tileset 0 (Ryuma, Mercator, Verla houses):
+   the window tiles 195 / 196 / 199 / 210 / 211 (right walls: the same, mirrored), glass = colour indexes 1 / 14 of palette line 0 (the walls of these tiles use 2 / 3 / 4 / 13; the church windows share
+   the wall grey and are left out; the log huts of tileset 7 have no glass).  Strength = 1 - the sun factor (lk_dn_sunk). */
+static float lk_dn_wk;
+static int lk_dn_winpix(const uint8 *t, int pick, int col) {
+  long o; int ti, idx = pick & 15, r, g, b, w; uint32_t c = (uint32_t)col, gl;
+  if ((pick >> 4) != 0 || (idx != 1 && idx != 14) || !t || t < lk_o_tiles || t >= lk_o_tiles + sizeof lk_o_tiles) return col;
+  o = (long)(t - lk_o_tiles); ti = (int)(o >> 5);
+  if (ti != 195 && ti != 196 && ti != 199 && ti != 210 && ti != 211) return col;
+  gl = idx == 1 ? 0xFFC864u : 0xE89A48u;   /* warm lamp light; the darker glass a deeper orange */
+  w = (int)(lk_dn_wk * 235.0f);
+  r = (int)((c >> 16) & 255); g = (int)((c >> 8) & 255); b = (int)(c & 255);
+  r += (((int)(gl >> 16) & 255) - r) * w / 256; g += (((int)(gl >> 8) & 255) - g) * w / 256; b += ((int)(gl & 255) - b) * w / 256;
+  return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b); }
 static float lk_dn_cloudf(void) { return lk_dn_on ? lk_dn_sunk : 1.0f; }   /* tools/patch_clouds.py: no cloud shadows at night */
 void lk_dn_fasttoggle(void) { extern void lk_osd_say(const char *t); char m[40]; if (lk_dn_fast < 0) lk_dn_fast = 0; lk_dn_fast = !lk_dn_fast;   /* pad L5 + R5 together (src/input.c) */
   if (lk_dn_t < 0.0) lk_dn_t = 9.0;
@@ -1131,9 +1146,11 @@ static void lk_dn_frame(long fr, int idle) {   /* once per lit frame in lk_lt_st
       if ((sc != 0.0 && fr - lastsay >= 6) || (lk_dn_fast && (int)before != (int)lk_dn_t)) { snprintf(m, sizeof m, "%%02d:%%02d", (int)lk_dn_t, (int)(fmod(lk_dn_t, 1.0) * 60.0)); lk_osd_say(m); lastsay = fr; } }
     if (fr %% 1800 == 0) lk_dn_save(); }
   lk_dn_on = lk_dn_get() && lk_lt_sun;
+  lk_dn_win = 0;
   if (!lk_dn_on) { lk_dn_sunk = 1.0f; lk_dn_night = 0; }
   else { float az, el, k; lk_dn_eval(lk_dn_t, &az, &el); lk_lt_azt = az; lk_lt_elt = el;
-    k = (1.08f - lk_lt_sS) / (lk_lt_sd[2] > 0.2f ? lk_lt_sd[2] : 0.2f); lk_dn_sun3[0] *= k; lk_dn_sun3[1] *= k; lk_dn_sun3[2] *= k; }   /* the sun strength of lk_lt_sunset for the direction the blocks show */
+    k = (1.08f - lk_lt_sS) / (lk_lt_sd[2] > 0.2f ? lk_lt_sd[2] : 0.2f); lk_dn_sun3[0] *= k; lk_dn_sun3[1] *= k; lk_dn_sun3[2] *= k;
+    lk_dn_wk = 1.0f - lk_dn_sunk; lk_dn_win = lk_dn_wk > 0.02f && lk_o_room >= 0 && (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) == 0; }   /* v2 lit windows (tileset 0) */   /* the sun strength of lk_lt_sunset for the direction the blocks show */
   if (!lk_lt_sun) return;
   if (lk_dn_upd == 0 && idle) { float daz = fabsf(fmodf(lk_lt_azt - lk_lt_azd + 540.0f, 360.0f) - 180.0f), del = fabsf(lk_lt_elt - lk_lt_eld);
     if (daz >= 1.5f || del >= 1.0f) { float a = lk_lt_azt * 3.14159265f / 180.0f, e = lk_lt_elt * 3.14159265f / 180.0f;   /* a SUN STEP: the next direction, its early exit field; the worker computes the blocks' share */
@@ -1190,10 +1207,10 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     static const float swc[5][3] = { { 0, 0, 0 }, { 1.0f, 0.50f, 0.15f }, { 0.45f, 0.75f, 1.0f }, { 0.95f, 0.85f, 0.35f }, { 0.35f, 1.0f, 0.45f } };   /* Magic, Ice, Thunder, Gaia (lk_sfx_tint) */
     int sw = SB(0xFF114E) & 0xFF, swt = lk_lt_swtest(), act = SB(0xFF542C) & 0x0F, swing = act >= 1 && act <= 4; float want;
     if (swt) sw = swt;
-    lk_lt_swon = lk_lt_on && lk_lt_nl > 0 && sw >= 1 && sw <= 4;   /* v5: not in rooms lit only by the sun */
+    lk_lt_swon = lk_lt_on && (lk_lt_nl > 0 || (lk_dn_on && lk_dn_sunk < 0.7f)) && sw >= 1 && sw <= 4;   /* v5: not in rooms lit only by the sun; LK_DAYNIGHT v2: outdoors at dusk / night too (user 2026-11-06: 'nachts sollten die Schwerteffekte auch draussen Licht abgeben') */
     want = swing ? 1.0f : 0.0f;   /* user 2026-11-03: no light while walking, only while swinging */ lk_lt_swk += (want - lk_lt_swk) * (want > lk_lt_swk ? 0.6f : 0.15f);
     if (lk_lt_swk < 0.02f) lk_lt_swon = 0;
-    if (lk_lt_swon) { float f = 1.0f + 0.05f * sinf((float)fr * 0.3f);
+    if (lk_lt_swon) { float f = (1.0f + 0.05f * sinf((float)fr * 0.3f)) * (lk_lt_nl > 0 || !lk_dn_on ? 1.0f : (0.7f - lk_dn_sunk) / 0.7f * 1.3f);   /* (outdoors: grows as the sun fades) */
       lk_lt_sw.x = (float)SW(0xFF5414); lk_lt_sw.y = (float)SW(0xFF5416); lk_lt_sw.z = (float)(int16_t)SW(0xFF5412) + 18.0f;
       lk_lt_sw.r = swc[sw][0] * lk_lt_swk * 0.8f * f; lk_lt_sw.g = swc[sw][1] * lk_lt_swk * 0.8f * f; lk_lt_sw.b = swc[sw][2] * lk_lt_swk * 0.8f * f; lk_lt_sw.lava = 0; }
   }
@@ -1423,6 +1440,7 @@ rep("int lk_sfx_ln = lk_sfx_linebegin(line);   /* LK_SWORDFX v1 */\n",
 rep("      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n",
     "      if (lk_lt_ln && !black && (src == 1 || src == 2 || src == 3)) col = lk_lt_pix(x, line, ubase + x - lk_sm_sxn, vbase - lk_sm_syn, src == 1 ? sp : 0, col);   /* %s */\n" % VER +
     "      else if (lk_lt_ln && !black && (src == 0 || src == 6 || src == 7)) col = lk_lt_voidglow(ubase + x - lk_sm_sxn, vbase - lk_sm_syn, col);   /* LK_LIGHTS v8 shafts over the void */\n" +
+    "      if (lk_lt_ln && lk_dn_win && !black && (src == 2 || src == 3)) col = lk_dn_winpix(src == 2 ? afi.t : bfi.t, pick, col);   /* LK_DAYNIGHT v2 lit windows */\n" +
     "      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n")
 open(p, "w").write(s)
 print("vdp_render.c patched:", VER)
