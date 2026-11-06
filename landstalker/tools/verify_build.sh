@@ -70,7 +70,7 @@ chk "Gegner zerfallen (Option)"                     $G/ext/Genesis-Plus-GX/core/
 chk "Hitzeflimmern (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_HAZE v1"
 chk "Wasserspiegelung (Option)"                    $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_WATER v3"
 chk "Wolkenschatten (Option)"                      $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_CLOUDS v1"
-chk "GPU-Filter (Option)"                          $G/src/platform_sdl.c "LK_GPU v1"
+chk "GPU-Filter v2 (Sprint-Glaettung)"            $G/src/platform_sdl.c "LK_GPU v2"
 chk "GPU-Licht v5 (Grafikkarte, Waechter)"  $G/src/platform_sdl.c "LK_GPULT v5"
 chk "GPU-Licht v5 (Light Engine Schalter)"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_GPULT v5"
 chk "Weiches Scrollen (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SUBPIX v3"

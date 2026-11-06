@@ -14,7 +14,7 @@ to LANDSTALKER_SHOT_DIR as present_<frame>_<gpu|cpu>.png (compare the two paths)
 Needs patch_display.py, patch_subpix.py, patch_shot.py, patch_options.py before it.  Idempotent.  usage: patch_gpu.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_GPU v1"
+VER = "LK_GPU v2"
 
 p = os.path.join(root, "src/platform_sdl.c")
 s = open(p).read()
@@ -41,7 +41,7 @@ float beam(float fr8, vec3 h) {   /* vertical beam weight: distance class of the
   return exp(-d * d / (2.0 * sg * sg)); }
 void main() {
   float x = floor(gl_FragCoord.x - origin.x), y = dstSize.y - 1.0 - floor(gl_FragCoord.y - origin.y), yy = y;
-  if (ssh != 0.0) { float y2 = clamp(y + ssh, 0.0, dstSize.y - 1.0); if (okAt(x, y) > 0.5 && okAt(x, y2) > 0.5) yy = y2; }   /* LK_SSHARP: world pixels sample like the output row y2 */
+  if (ssh != 0.0) { float y2 = clamp(y + ssh, 0.0, dstSize.y - 1.0); if (okAt(x, y) * 255.0 > 0.5 && okAt(x, y2) * 255.0 > 0.5) yy = y2; }   /* LK_SSHARP: world pixels sample like the output row y2 (v2: the mask holds 0 / 1, i.e. 1 / 255 as a texture; v1 tested > 0.5 = the shift never ran: sprint wobble with GPU Filters On, user 2026-11-06) */
   vec3 c;
   if (mode == 0) {
     if (exact > 0.5) c = px(floor((x + 0.5) * srcSize.x / dstSize.x), floor((yy + 0.5) * 224.0 / dstSize.y));
