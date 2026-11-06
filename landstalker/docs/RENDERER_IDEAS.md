@@ -146,3 +146,6 @@ Risks: the IPC / export layer, keeping two repos in step (a versioned state form
 
 ## Remake style C and the camera (2026-10-25, Opus 5.5, dev c04a08e) - DECIDED by the user
 Style C = smooth modelled 3D with soft procedural materials (`remake/lib/cmat.py`), original sizes 1:1, pixel figures as camera-facing billboards; the camera turns in 90 degree steps only (sprite direction = facing - quarter turns). Assets are built as Blender recipes from a kit (materials, `lib/massan_a.py`, `lib/props_c.py`) and exported as GLB for the later Godot front end. Open questions for the front end: occlusion when buildings hide Nigel (cut-away / fade), billboard sorting against 3D geometry, how many objects per room the Deck draws at 60 fps.
+
+## GPU (2026-11-06, dev, LK_GPU v1)
+Until now only SDL's final scaling used the GPU; every effect is CPU work. Step 1 DONE: scaling + display filters as one shader (tools/patch_gpu.py), CPU fallback. Step 2 (open): post effects on the finished picture (cloud shadows, heat haze, bloom, depth blur) as shaders; needs per-pixel masks (world / HUD / window / sprite, depth) uploaded with the picture. Step 3 (big, not planned): lighting on the GPU (height map, geometry, lights as textures).
