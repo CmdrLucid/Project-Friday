@@ -935,8 +935,10 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
         for (i = 0; i < nv; i++) if (cnt[i] > best || (cnt[i] == best && vals[i] < base)) { best = cnt[i]; base = vals[i]; }
         if (!nv) base = lk_lt_gh[y][x] - 16;
         for (m = 0; m < sp; m++) { int cx = st[m][0], cy = st[m][1], g = lk_lt_gh[cy][cx], kind = lk_lt_catc[c][0], top = kind == 1 ? (g > base + 16 ? g : base + 16) : (g > base + lk_lt_catc[c][2] ? g : base + lk_lt_catc[c][2]);
+          { int k2, dup = 0; for (k2 = 0; k2 < lk_lt_npx && !dup; k2++) { const lk_lt_proxy *L2 = &lk_lt_px[k2]; float ddx = 16.0f * cx + 8.0f - (float)L2->x0, ddy = 16.0f * cy + 8.0f - (float)L2->y0; if (L2->type == 3 && ddx * ddx + ddy * ddy < 48.0f * 48.0f) dup = 1; }
+            if (dup && kind != 3) { if (lk_lt_dbg == 5) printf("catalogue: room %%d cell %%d,%%d skipped: a lathe tree stands there\n", lk_o_room, cx, cy); continue; } }   /* v8 (user 2026-11-06: 'der Baum wirft 3 Schatten'): the crown blocks of a free standing tree that already has its sprite lathe map to the cells behind it = 3 more pine cones */
           if (kind == 1 && g < base + 8) continue;   /* kind 3 FLAT (flower beds): no shape, and no automatic shape over it either */   /* a bush only on a RAISED cell: the side faces / back edge of a bush block also draw the top of lower cells in front / behind */
-          lk_lt_tk[cy][cx] = (uint8)kind; lk_lt_tr[cy][cx] = (uint8)lk_lt_catc[c][1]; lk_lt_tb[cy][cx] = (int16_t)base; lk_lt_tt[cy][cx] = (int16_t)top; lk_lt_to[cy][cx] = 1031; if (kind == 1) nb++; else if (kind == 2) np++; else nf++; }
+          lk_lt_tk[cy][cx] = (uint8)kind; lk_lt_tr[cy][cx] = (uint8)lk_lt_catc[c][1]; lk_lt_tb[cy][cx] = (int16_t)base; lk_lt_tt[cy][cx] = (int16_t)top; lk_lt_to[cy][cx] = 1031; if (kind == 1) nb++; else if (kind == 2) np++; else nf++; if (lk_lt_dbg == 5) printf("catalogue: room %%d cell %%d,%%d kind %%d base %%d top %%d r %%d\n", lk_o_room, cx, cy, kind, base, top, lk_lt_catc[c][1]); }
         n++; } }
       if (nb + np + nf && lk_lt_npx < 255) { int m, kept = 0; lk_lt_proxy *P;
         for (m = 0; m < lk_lt_npx; m++) { const lk_lt_proxy *Q = &lk_lt_px[m]; int tot = 0, hit = 0, cx, cy;   /* automatic hips mostly over catalogue cells go */
