@@ -1415,6 +1415,13 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
     const lk_lt_blk *b = lk_lt_block(lk_lt_fdiv(U, 32), lk_lt_fdiv(V, 32)); int i;
     if (lk_lt_dbg == 4) { int pa = 0, pra = 0, pb = 0, prb = 0, ia = lk_o_fetch(lk_o_pa, U, V, &pa, &pra, 0), ib = lk_o_fetch(lk_o_pb, U, V, &pb, &prb, 0); uint32_t c = (uint32_t)col;   /* v5 test aid: priority pixels (layer A magenta, B cyan) */
       if (ia) return (int)(pra ? 0xFFE040E0u : 0xFF902090u); if (ib) return (int)(prb ? 0xFF40E0E0u : (0xFF000000u | ((c >> 2) & 0x3F3F3F))); return (int)(0xFF000000u | ((c >> 2) & 0x3F3F3F)); }
+    if (!b && lk_lt_sun && lk_dn_on) {   /* LK_DAYNIGHT v5 (user 2026-11-06: 'Mercator Raumwechsel nachts: das Bild flackert kurz'): a block not computed yet (the first frames of a room) got the ORIGINAL colour = daylight;
+         at night it flashed bright until the worker had it.  Now: the time of day's sky light + its sun as if unshaded (no shadows yet) */
+      uint32_t c = (uint32_t)col; float fr = lk_dn_amb3[0] + lk_dn_sun3[0], fg = lk_dn_amb3[1] + lk_dn_sun3[1], fb = lk_dn_amb3[2] + lk_dn_sun3[2]; int r, g, bl;
+      if (fr > 2.4f) fr = 2.4f; if (fg > 2.4f) fg = 2.4f; if (fb > 2.4f) fb = 2.4f;
+      r = (int)((float)((c >> 16) & 255) * fr); g = (int)((float)((c >> 8) & 255) * fg); bl = (int)((float)(c & 255) * fb);
+      if (r > 255) r = 255; if (g > 255) g = 255; if (bl > 255) bl = 255;
+      return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)bl); }
     if (!b) return col;
     i = ((V & 31) << 5) | (U & 31);
     if (lk_lt_dbg == 2) { static const int dc[4] = { 0x000000, 0x6E6E8C, 0xC8503C, 0x3CAA50 }; return (int)(0xFF000000u | (uint32_t)dc[b->face[i] & 3]); }
