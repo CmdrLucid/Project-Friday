@@ -161,7 +161,7 @@ static float lk_lt_sd[3] = { -0.72f, -0.26f, 0.64f }, lk_lt_sS = 0.70f, lk_lt_sK
 static float lk_lt_sdn[3]; static int16_t lk_lt_hdn[74][74]; static volatile int lk_dn_hdok; static int lk_dn_upd, lk_dn_gen = 1, lk_dn_mix, lk_dn_on, lk_dn_night; static float lk_dn_amb3[3], lk_dn_sun3[3], lk_dn_sunk = 1.0f;   /* upd: 0 none, 1 the worker computes sunn, 2 crossfade */
 static __thread const float *lk_lt_sdp; static __thread int16_t (*lk_lt_hdp)[74];
 static void lk_dn_cancel(void); static int lk_dn_iswt(uint32 c); int lk_dn_get(void);
-static float lk_lt_fadek = 1.0f;   /* v4 (user 2026-11-06: 'beim Raumwechsel blenden die beleuchteten Fenster und die Lichtstrahlen nicht richtig mit aus / ein'): brightness of the shown palette ($FF0ED0) against the room's palette ($FF0080, DarkenActivePalette $0009BE) 0..1; every ADDED light (shafts, motes, particles, window glass / window lights) is scaled by it */   /* per thread: the direction / early exit field the sun march uses (0 = lk_lt_sd / lk_lt_hd) */
+static float lk_lt_fadek = 1.0f;   /* v4 (user 2026-11-06: 'beim Raumwechsel blenden die beleuchteten Fenster und die Lichtstrahlen nicht richtig mit aus / ein'): brightness of the drawn colours (lk_o_pix, v5) against the room's palette ($FF0080, DarkenActivePalette $0009BE) 0..1; every ADDED light (shafts, motes, particles, window glass / window lights) is scaled by it */   /* per thread: the direction / early exit field the sun march uses (0 = lk_lt_sd / lk_lt_hd) */
 static double lk_lt_bms, lk_lt_pms; static int lk_lt_bn, lk_lt_pfn, lk_lt_pre, lk_lt_odn;   /* lk_lt_odn: v7 blocks computed on demand this frame (max 6: a room entry needed 60..80 = one 90 ms frame; the rest are drawn unlit for a few frames of the dark fade in) */   /* v7 test aid (DBG=5): block time of the last frame on demand / prefetched */
 static int lk_lt_umin = 1 << 30, lk_lt_umax = -(1 << 30), lk_lt_vmin = 1 << 30, lk_lt_vmax = -(1 << 30);   /* v7: picture area drawn in the last frame (prefetch around it) */   /* v7 test aid (DBG=5): time spent computing blocks in the last frame */
 static int lk_lt_retry;               /* a new room whose planes were not built yet: look for lights again a few times */
@@ -1233,11 +1233,14 @@ static void lk_dn_frame(long fr, int idle) {   /* once per lit frame in lk_lt_st
       memcpy(lk_lt_sd, lk_lt_sdn, sizeof lk_lt_sd); memcpy(lk_lt_hd, lk_lt_hdn, sizeof lk_lt_hd); lk_lt_azd = lk_dn_naz; lk_lt_eld = lk_dn_nel;
       lk_lt_sK = (1.08f - lk_lt_sS) / (lk_lt_sd[2] > 0.2f ? lk_lt_sd[2] : 0.2f); lk_dn_upd = 0; lk_dn_mix = 0; } }
 }
-static float lk_lt_fadecalc(void) {   /* v4: sum of the colour channels of the 64 shown palette words / of the room's palette words (Mega Drive word 0BBB0GGG0RRR0) */
-  int i, a = 0, t = 0;
-  for (i = 0; i < 64; i++) { int w1 = UW(0xFF0ED0 + 2 * i), w0 = UW(0xFF0080 + 2 * i); a += ((w1 >> 1) & 7) + ((w1 >> 5) & 7) + ((w1 >> 9) & 7); t += ((w0 >> 1) & 7) + ((w0 >> 5) & 7) + ((w0 >> 9) & 7); }
-  if (t < 8) return 1.0f;
-  return a >= t ? 1.0f : (float)a / (float)t; }
+static float lk_lt_fadecalc(void) {   /* v5: colour sum of the 64 colours the own renderer DRAWS with this frame (lk_o_pix) / of the room's palette words ($FF0080, Mega Drive word 0BBB0GGG0RRR0, x 36)
+     (user 2026-11-06 recording rec_20261106_1305, KN cave 171: light shafts drawn over the black pause of a room change; v4 used the RAM palette $FF0ED0, which still held the full colours
+     there, and returned 1 when the room palette was empty) */
+  int i; long a = 0, t = 0;
+  for (i = 0; i < 64; i++) { uint32_t c = (uint32_t)lk_o_colour(112, i); int w0 = UW(0xFF0080 + 2 * i);   /* (the colour really drawn: also the effect palettes lk_o_fxpix of a fade) */ a += (long)((c >> 16) & 255) + (long)((c >> 8) & 255) + (long)(c & 255); t += 36L * (((w0 >> 1) & 7) + ((w0 >> 5) & 7) + ((w0 >> 9) & 7)); }
+  if (t < 200) return 0.0f;   /* no room palette (loading): nothing to add */
+  if (!(LK_REG(1) & 0x40) || lk_loadroom_on()) return 0.0f;   /* v5: display switched off / a room is being loaded (the black pause of a room change: rec_20261106_1305 frames 3374..3387, 3643..3647) */
+  { float k = a >= t ? 1.0f : (float)a / (float)t; return k * k; } }   /* squared: the darkest fade steps (0.13..0.17) leave ~3 %% of the added light; the room itself is still black there */
 static void lk_lt_step(void) {   /* once per frame: room / height map change, flicker, figures */
   int idle = lk_lt_jobwait(0);   /* v8 MT: the worker's blocks, if it is done (the main thread never waits for it here) */
   long fr = platform_frame_number(); int x, y, k, j; uint32_t h = 2166136261u; uint32_t a;
