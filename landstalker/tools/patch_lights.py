@@ -160,7 +160,8 @@ static float lk_lt_sd[3] = { -0.72f, -0.26f, 0.64f }, lk_lt_sS = 0.70f, lk_lt_sK
    (lk_dn_mix 0..256) and then swapped.  Blocks made during a step compute both.  Used by the day / night cycle and by the sun test aid (L5 + right stick, was: drop all blocks). */
 static float lk_lt_sdn[3]; static int16_t lk_lt_hdn[74][74]; static volatile int lk_dn_hdok; static int lk_dn_upd, lk_dn_gen = 1, lk_dn_mix, lk_dn_on, lk_dn_night; static float lk_dn_amb3[3], lk_dn_sun3[3], lk_dn_sunk = 1.0f;   /* upd: 0 none, 1 the worker computes sunn, 2 crossfade */
 static __thread const float *lk_lt_sdp; static __thread int16_t (*lk_lt_hdp)[74];
-static void lk_dn_cancel(void); static int lk_dn_iswt(uint32 c); int lk_dn_get(void);   /* per thread: the direction / early exit field the sun march uses (0 = lk_lt_sd / lk_lt_hd) */
+static void lk_dn_cancel(void); static int lk_dn_iswt(uint32 c); int lk_dn_get(void);
+static float lk_lt_fadek = 1.0f;   /* v4 (user 2026-11-06: 'beim Raumwechsel blenden die beleuchteten Fenster und die Lichtstrahlen nicht richtig mit aus / ein'): brightness of the shown palette ($FF0ED0) against the room's palette ($FF0080, DarkenActivePalette $0009BE) 0..1; every ADDED light (shafts, motes, particles, window glass / window lights) is scaled by it */   /* per thread: the direction / early exit field the sun march uses (0 = lk_lt_sd / lk_lt_hd) */
 static double lk_lt_bms, lk_lt_pms; static int lk_lt_bn, lk_lt_pfn, lk_lt_pre, lk_lt_odn;   /* lk_lt_odn: v7 blocks computed on demand this frame (max 6: a room entry needed 60..80 = one 90 ms frame; the rest are drawn unlit for a few frames of the dark fade in) */   /* v7 test aid (DBG=5): block time of the last frame on demand / prefetched */
 static int lk_lt_umin = 1 << 30, lk_lt_umax = -(1 << 30), lk_lt_vmin = 1 << 30, lk_lt_vmax = -(1 << 30);   /* v7: picture area drawn in the last frame (prefetch around it) */   /* v7 test aid (DBG=5): time spent computing blocks in the last frame */
 static int lk_lt_retry;               /* a new room whose planes were not built yet: look for lights again a few times */
@@ -393,17 +394,17 @@ static void lk_am_setup(void) {   /* kinds of the room (lk_lt_newroom, after the
   if (lk_am_force()) lk_am_bio = lk_am_force();
   lk_am_nspot = 0; lk_am_ffmax = 0;
   if (lk_lt_sun && ts != 0 && !(lk_o_room >= 601 && lk_o_room <= 603) && lk_o_room != 737 && !(lk_o_room >= 31 && lk_o_room <= 33)) {   /* v4 FIREFLY SPOTS (user 2026-11-06: 'nur spothaft, nahe Baeumen oder Straeuchern oder am Wasser, nicht in der Stadt;
-       Ausnahme Destel, aber weniger'): walkable cells next to a bush / pine (lk_lt_tk), a small object (tree, lk_lt_ocl 1) or our water fill; up to 14 spots >= 4 cells apart (Destel 4), 30 fireflies (Destel 8), not in the towns
+       Ausnahme Destel, aber weniger'): walkable cells next to a bush / pine (lk_lt_tk), a small object (tree, lk_lt_ocl 1) or our water fill; up to 6 spots >= 7 cells apart (Destel 3), 10 fireflies (Destel 4) (v5), not in the towns
        (tileset 0 = Ryuma / Mercator / Verla, Gumi 601..603, Kazalt 737, the castle yard 31..33) */
-    static int16_t cand[2048][3]; int nc = 0, x, y, want = lk_o_room == 726 ? 4 : 14, tries;
+    static int16_t cand[2048][3]; int nc = 0, x, y, want = lk_o_room == 726 ? 3 : 6, tries;
     for (y = 1; y < 73 && nc < 2048; y++) for (x = 1; x < 73 && nc < 2048; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x), a, b2, near = 0;
       if (w == 0x4000 || ((w >> 8) & 0x60)) continue;
       for (b2 = y - 1; b2 <= y + 1 && !near; b2++) for (a = x - 1; a <= x + 1; a++) { int ob = lk_lt_obj[b2][a]; if (lk_lt_tk[b2][a] == 1 || lk_lt_tk[b2][a] == 2 || lk_lt_wat[b2][a] || (ob > 0 && ob < 1024 && lk_lt_ocl[ob] == 1)) { near = 1; break; } }
       if (near) { cand[nc][0] = (int16_t)x; cand[nc][1] = (int16_t)y; cand[nc][2] = (int16_t)(16 * ((w >> 8) & 15)); nc++; } }
     for (tries = 0; tries < 400 && lk_am_nspot < want && nc; tries++) { int c = (int)(lk_am_rnd() * (float)nc) %% nc, q, ok = 1;
-      for (q = 0; q < lk_am_nspot; q++) if (abs(lk_am_spot[q][0] - cand[c][0]) < 4 && abs(lk_am_spot[q][1] - cand[c][1]) < 4) { ok = 0; break; }
+      for (q = 0; q < lk_am_nspot; q++) if (abs(lk_am_spot[q][0] - cand[c][0]) < 7 && abs(lk_am_spot[q][1] - cand[c][1]) < 7) { ok = 0; break; }
       if (ok) { lk_am_spot[lk_am_nspot][0] = cand[c][0]; lk_am_spot[lk_am_nspot][1] = cand[c][1]; lk_am_spot[lk_am_nspot][2] = cand[c][2]; lk_am_nspot++; } }
-    lk_am_ffmax = lk_o_room == 726 ? 8 : 30;
+    lk_am_ffmax = lk_o_room == 726 ? 4 : 10;   /* v5 (user 2026-11-06: 'noch zu viele Gluehwuermchen'; was 30 / 8, 14 spots) */
     if (lk_lt_dbg == 1) printf("fireflies: room %%d %%d candidate cells, %%d spots\n", lk_o_room, nc, lk_am_nspot); }
 }
 static int lk_am_surf(int U, int V, float *px, float *py, float *pz, int *sun) {   /* the floor under a picture pixel from the computed blocks (0: not computed / no floor) */
@@ -427,7 +428,7 @@ static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before th
   if (!lk_am_opt()) { lk_am_np = 0; return; }
   if ((!lk_am_bio && !(lk_dn_night && lk_am_nspot)) || lk_lt_umax < lk_lt_umin) return;   /* LK_DAYNIGHT v3 / v4: at night fireflies at the room's spots even without other particles */
   for (j = 0; j < lk_am_np; j++) if (lk_am_ps[j].kind == 2) nff++;
-  if (lk_dn_night && lk_am_nspot && nff < lk_am_ffmax && lk_am_rnd() < 0.45f) {   /* v4: a firefly at a spot that is on screen, hovering 6..30 units above its floor within 20 units */
+  if (lk_dn_night && lk_am_nspot && nff < lk_am_ffmax && lk_am_rnd() < 0.12f) {   /* v4: a firefly at a spot that is on screen, hovering 6..30 units above its floor within 20 units */
     int q = (int)(lk_am_rnd() * (float)lk_am_nspot) %% lk_am_nspot; float sx = 16.0f * lk_am_spot[q][0] + 8.0f, sy = 16.0f * lk_am_spot[q][1] + 8.0f, sz = (float)lk_am_spot[q][2];
     int U = (int)(sx - sy) + 1184, V = (int)((sx + sy) * 0.5f - sz); lk_am_p *P;
     if (U >= lk_lt_umin - 24 && U <= lk_lt_umax + 24 && V >= lk_lt_vmin - 24 && V <= lk_lt_vmax + 24 && (P = lk_am_new(2))) {
@@ -482,7 +483,7 @@ static void lk_am_mix(int U, int V, int zs, int fd, int *r, int *g, int *b) {   
   if (!m) return;
   if (zs != -32768 && lk_am_mz[q] < zs - 2) return;   /* behind / under the surface */
   if (fd != -32768 && lk_am_md[q] < fd - 4) return;   /* behind the figure */
-  a = (float)((m >> 24) & 0x7F) * (1.0f / 127.0f); cr = (int)((m >> 16) & 255); cg = (int)((m >> 8) & 255); cb = (int)(m & 255);
+  a = (float)((m >> 24) & 0x7F) * (1.0f / 127.0f) * lk_lt_fadek; cr = (int)((m >> 16) & 255);   /* (v4: fades with the palette) */ cg = (int)((m >> 8) & 255); cb = (int)(m & 255);
   if (m & 0x80000000u) { *r += (int)((float)cr * a); *g += (int)((float)cg * a); *b += (int)((float)cb * a); }
   else { *r += (int)((float)(cr - *r) * a); *g += (int)((float)(cg - *g) * a); *b += (int)((float)(cb - *b) * a); } }
 static float lk_lt_term(float px, float py, float pz, float nx, float ny, float nz, const lk_lt_light *L, int shadow) {
@@ -1174,7 +1175,7 @@ static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col) {
   if (lk_dn_wmroom != lk_o_room) lk_dn_wmask();
   if (!(lk_dn_wm[k][fi->iy & 7] >> (fi->ix & 7) & 1)) return col;
   gl = idx == 1 ? 0xFFC864u : 0xE89A48u;   /* warm lamp light; the darker glass a deeper orange */
-  w = (int)(lk_dn_wk * 235.0f);
+  w = (int)(lk_dn_wk * lk_lt_fadek * 235.0f);   /* (v4: fades with the palette) */
   r = (int)((c >> 16) & 255); g = (int)((c >> 8) & 255); b = (int)(c & 255);
   r += (((int)(gl >> 16) & 255) - r) * w / 256; g += (((int)(gl >> 8) & 255) - g) * w / 256; b += ((int)(gl & 255) - b) * w / 256;
   return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b); }
@@ -1229,6 +1230,11 @@ static void lk_dn_frame(long fr, int idle) {   /* once per lit frame in lk_lt_st
       memcpy(lk_lt_sd, lk_lt_sdn, sizeof lk_lt_sd); memcpy(lk_lt_hd, lk_lt_hdn, sizeof lk_lt_hd); lk_lt_azd = lk_dn_naz; lk_lt_eld = lk_dn_nel;
       lk_lt_sK = (1.08f - lk_lt_sS) / (lk_lt_sd[2] > 0.2f ? lk_lt_sd[2] : 0.2f); lk_dn_upd = 0; lk_dn_mix = 0; } }
 }
+static float lk_lt_fadecalc(void) {   /* v4: sum of the colour channels of the 64 shown palette words / of the room's palette words (Mega Drive word 0BBB0GGG0RRR0) */
+  int i, a = 0, t = 0;
+  for (i = 0; i < 64; i++) { int w1 = UW(0xFF0ED0 + 2 * i), w0 = UW(0xFF0080 + 2 * i); a += ((w1 >> 1) & 7) + ((w1 >> 5) & 7) + ((w1 >> 9) & 7); t += ((w0 >> 1) & 7) + ((w0 >> 5) & 7) + ((w0 >> 9) & 7); }
+  if (t < 8) return 1.0f;
+  return a >= t ? 1.0f : (float)a / (float)t; }
 static void lk_lt_step(void) {   /* once per frame: room / height map change, flicker, figures */
   int idle = lk_lt_jobwait(0);   /* v8 MT: the worker's blocks, if it is done (the main thread never waits for it here) */
   long fr = platform_frame_number(); int x, y, k, j; uint32_t h = 2166136261u; uint32_t a;
@@ -1239,6 +1245,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
   { static int lastopt = -1; if (lk_lt_get() != lastopt) { lastopt = lk_lt_get(); lk_lt_room = -2; } }   /* v6: the option changes what is built (flames, sun) */
   if (lk_o_room != lk_lt_room || h != lk_lt_hash) { lk_lt_room = lk_o_room; lk_lt_hash = h; lk_lt_retry = 12; lk_lt_newroom(); }
   else if (lk_lt_nfl == 0 && lk_lt_retry > 0 && (fr & 7) == 0) { lk_lt_retry--; if ((!lk_lt_sun && !lk_lt_aor) || lk_lt_pahash() != lk_lt_pah) lk_lt_newroom(); }   /* v8: room light rooms like the sun: only when the picture changed */
+  lk_lt_fadek = lk_lt_fadecalc(); { static int fd = -1; if (fd < 0) { const char *e = getenv("LANDSTALKER_DN_DBG"); fd = e ? atoi(e) : 0; } if (fd == 2 && lk_lt_fadek < 0.995f) printf("fade: frame %%ld room %%d k %%.2f\n", fr, lk_o_room, lk_lt_fadek); }   /* v4 */
   lk_dn_frame(fr, idle);   /* LK_DAYNIGHT v1: the time of day, the sun test aid (L5 + right stick) and smooth sun steps (was: drop every block when the sun moved) */
   lk_lt_on = (lk_lt_nl > 0 || lk_lt_sun || lk_lt_aor) && !lk_hd_n;   /* v8: room light */
   lk_lt_shstep(fr);   /* v8 dust motes */
@@ -1257,7 +1264,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     lk_lt_jobstart(); }
   else if (idle && lk_lt_jn) lk_lt_jobstart();   /* LK_DAYNIGHT v1: sun jobs without a prefetch */
   lk_lt_umin = lk_lt_vmin = 1 << 30; lk_lt_umax = lk_lt_vmax = -(1 << 30); lk_lt_odn = 0;
-  for (k = 0; k < lk_lt_nl; k++) lk_lt_flk[k] = lk_lt_l[k].lava == 2 ? (lk_dn_on ? lk_dn_wk : 0.0f) : lk_lt_l[k].lava ? 1.0f + 0.10f * sinf((float)fr * 0.045f + (float)k * 0.9f)   /* LK_DAYNIGHT v3: window lights burn with the window glow; lava: slow glow */
+  for (k = 0; k < lk_lt_nl; k++) lk_lt_flk[k] = lk_lt_l[k].lava == 2 ? (lk_dn_on ? lk_dn_wk * lk_lt_fadek : 0.0f) : lk_lt_l[k].lava ? 1.0f + 0.10f * sinf((float)fr * 0.045f + (float)k * 0.9f)   /* LK_DAYNIGHT v3: window lights burn with the window glow; lava: slow glow */
                                                  : 1.0f + 0.12f * sinf((float)fr * 0.21f + (float)k * 2.1f) + 0.06f * sinf((float)fr * 0.53f + (float)k * 1.3f);
   {   /* v3 sword glow (user 2026-11-03: all swords except the basic one, in the sword's colour): only where the room is lit; stronger while swinging */
     static const float swc[5][3] = { { 0, 0, 0 }, { 1.0f, 0.50f, 0.15f }, { 0.45f, 0.75f, 1.0f }, { 0.95f, 0.85f, 0.35f }, { 0.35f, 1.0f, 0.45f } };   /* Magic, Ice, Thunder, Gaia (lk_sfx_tint) */
@@ -1382,7 +1389,7 @@ static int lk_lt_voidglow(int U, int V, int col) {   /* v8 shafts over pixels wi
   i = ((V & 31) << 5) | (U & 31);   /* (the view ray of a backdrop pixel often meets a pit wall far below: its beam is integrated from there, fine) */
   if (lk_lt_dbg == 10) return (int)(0xFF000000u | ((uint32_t)b->beam[i] << 16) | 0x30);   /* test aid: dark blue = void pixel reached */
   d = lk_lt_nsh ? lk_lt_dmap[((V & 511) << 9) | (U & 511)] : 0;
-  gl = lk_lt_nsh ? (float)b->beam[i] * 0.38f + (float)d * 0.50f : 0.0f;
+  gl = lk_lt_nsh ? ((float)b->beam[i] * 0.38f + (float)d * 0.50f) * lk_lt_fadek : 0.0f;   /* (v4: fades with the palette) */
   r = (int)((c >> 16) & 255) + (int)(gl * lk_lt_sh[0].cr); g = (int)((c >> 8) & 255) + (int)(gl * lk_lt_sh[0].cg); bl = (int)(c & 255) + (int)(gl * lk_lt_sh[0].cb);
   if (lk_am_dn) lk_am_mix(U, V, -32768, -32768, &r, &g, &bl);   /* v8 ambient particles over the void */
   if (r > 255) r = 255; if (g > 255) g = 255; if (bl > 255) bl = 255;
@@ -1422,7 +1429,7 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
       uint32_t c = (uint32_t)col; int r = (int)((((c >> 16) & 255) * b->km[0][i] + 128) >> 8), g = (int)((((c >> 8) & 255) * b->km[1][i] + 128) >> 8), bl = (int)(((c & 255) * b->km[2][i] + 128) >> 8);
       if (lk_lt_nsh) { int q = ((V & 511) << 9) | (U & 511), d = lk_lt_dmap[q]; float gl = (float)b->beam[i] * 0.38f;
         if (d && lk_lt_dmz[q] >= b->z[i] - 2) gl += (float)d * 0.50f;
-        if (gl > 0.0f) { r += (int)(gl * lk_lt_sh[0].cr); g += (int)(gl * lk_lt_sh[0].cg); bl += (int)(gl * lk_lt_sh[0].cb); } }
+        gl *= lk_lt_fadek; if (gl > 0.0f) { r += (int)(gl * lk_lt_sh[0].cr); g += (int)(gl * lk_lt_sh[0].cg); bl += (int)(gl * lk_lt_sh[0].cb); } }
       if (lk_am_dn) lk_am_mix(U, V, b->z[i], -32768, &r, &g, &bl);   /* v8 ambient particles */
       if (r > 255) r = 255; if (g > 255) g = 255; if (bl > 255) bl = 255;
       return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)bl); }
@@ -1475,7 +1482,7 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
     r = (int)((float)((c >> 16) & 255) * fr); g = (int)((float)((c >> 8) & 255) * fg); bl = (int)((float)(c & 255) * fb);
     if (lk_lt_nsh) { int d = lk_lt_dmap[((V & 511) << 9) | (U & 511)]; float gl = (float)lk_lt_bm * 0.38f;   /* user 2026-11-05: the beam stands still (no shimmer), only the motes move */   /* v8 shafts: beam glow (pale, user 2026-11-05) (slow shimmer) + dust motes in front of the surface */
       if (d && (lk_lt_bz == -32768 || lk_lt_dmz[((V & 511) << 9) | (U & 511)] >= lk_lt_bz - 2)) gl += (float)d * 0.50f;
-      if (gl > 0.0f) { r += (int)(gl * lk_lt_sh[0].cr); g += (int)(gl * lk_lt_sh[0].cg); bl += (int)(gl * lk_lt_sh[0].cb); } }
+      gl *= lk_lt_fadek; if (gl > 0.0f) { r += (int)(gl * lk_lt_sh[0].cr); g += (int)(gl * lk_lt_sh[0].cg); bl += (int)(gl * lk_lt_sh[0].cb); } }
     if (lk_am_dn) lk_am_mix(U, V, lk_lt_bz, j >= 0 ? (int)(lk_lt_f[j].fx + lk_lt_f[j].fy) : -32768, &r, &g, &bl);   /* v8 ambient particles (a figure pixel: depth test against the figure) */
     if (r > 255) r = 255; if (g > 255) g = 255; if (bl > 255) bl = 255;
     return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)bl); }
