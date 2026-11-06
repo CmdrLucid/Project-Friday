@@ -431,8 +431,9 @@ static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before th
   if (lk_dn_night && lk_am_nspot && nff < lk_am_ffmax && lk_am_rnd() < 0.12f) {   /* v4: a firefly at a spot that is on screen, hovering 6..30 units above its floor within 20 units */
     int q = (int)(lk_am_rnd() * (float)lk_am_nspot) %% lk_am_nspot; float sx = 16.0f * lk_am_spot[q][0] + 8.0f, sy = 16.0f * lk_am_spot[q][1] + 8.0f, sz = (float)lk_am_spot[q][2];
     int U = (int)(sx - sy) + 1184, V = (int)((sx + sy) * 0.5f - sz); lk_am_p *P;
-    if (U >= lk_lt_umin - 24 && U <= lk_lt_umax + 24 && V >= lk_lt_vmin - 24 && V <= lk_lt_vmax + 24 && (P = lk_am_new(2))) {
-      P->x = sx + (lk_am_rnd() - 0.5f) * 32.0f; P->y = sy + (lk_am_rnd() - 0.5f) * 32.0f; P->gz = sz; P->z = sz + 6.0f + lk_am_rnd() * 22.0f; P->life = (int16_t)(160 + lk_am_rnd() * 160.0f); nff++; } }   /* a small swarm per spot (shorter life: they stay near it) */
+    float nx2 = sx + (lk_am_rnd() - 0.5f) * 32.0f, ny2 = sy + (lk_am_rnd() - 0.5f) * 32.0f; int wc = (nx2 >= 0.0f && ny2 >= 0.0f && nx2 < 1184.0f && ny2 < 1184.0f) ? UW(0xFFD192 + 148 * (int)(ny2 / 16.0f) + 2 * (int)(nx2 / 16.0f)) : 0x4000;
+    if (wc != 0x4000 && !((wc >> 8) & 0x40) && U >= lk_lt_umin - 24 && U <= lk_lt_umax + 24 && V >= lk_lt_vmin - 24 && V <= lk_lt_vmax + 24 && (P = lk_am_new(2))) {   /* v6: only above a room cell (user 2026-11-06: fireflies outside the room) */
+      P->x = nx2; P->y = ny2; P->gz = sz; P->z = sz + 6.0f + lk_am_rnd() * 22.0f; P->life = (int16_t)(160 + lk_am_rnd() * 160.0f); nff++; } }   /* a small swarm per spot (shorter life: they stay near it) */
   { int tries; float px, py, pz; int sun;   /* spawns on the floor of the area drawn last frame */
     for (tries = 0; tries < 6; tries++) { int U = lk_lt_umin + (int)(lk_am_rnd() * (float)(lk_lt_umax - lk_lt_umin + 1)), V = lk_lt_vmin + (int)(lk_am_rnd() * (float)(lk_lt_vmax - lk_lt_vmin + 1)), want = 0; float r = lk_am_rnd();
       if ((lk_am_bio & 1) && r < 0.028f) want = 1; else if ((lk_am_bio & 2) && r > 0.975f && nff < 16) want = 2; else if ((lk_am_bio & 8) && r > 0.40f && r < 0.408f) want = 5;
@@ -464,6 +465,8 @@ static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before th
       float br = 0.5f + 0.5f * sinf(P->ph + t * 0.06f); P->vx += (lk_am_rnd() - 0.5f) * 0.03f; P->vy += (lk_am_rnd() - 0.5f) * 0.03f;
       if (P->vx > 0.25f) P->vx = 0.25f; if (P->vx < -0.25f) P->vx = -0.25f; if (P->vy > 0.25f) P->vy = 0.25f; if (P->vy < -0.25f) P->vy = -0.25f;
       P->x += P->vx; P->y += P->vy; P->z += 0.08f * sinf(P->ph * 1.3f + t * 0.05f);
+      { int cx = (int)floorf(P->x / 16.0f), cy = (int)floorf(P->y / 16.0f), wc = (cx >= 0 && cy >= 0 && cx < 74 && cy < 74) ? UW(0xFFD192 + 148 * cy + 2 * cx) : 0x4000;   /* v6: drifted over the void / out of the room: turn back */
+        if (wc == 0x4000) { P->vx = -P->vx; P->vy = -P->vy; P->x += 2.0f * P->vx; P->y += 2.0f * P->vy; if (P->life - P->age > 30) P->life = (int16_t)(P->age + 30); } }
       a = (t < 40.0f ? t / 40.0f : 1.0f) * (P->life - P->age < 40 ? (float)(P->life - P->age) / 40.0f : 1.0f) * (br > 0.25f ? (br - 0.25f) / 0.75f : 0.0f);
       lk_am_dot(P, 0, 0, 0xFFF078u, 0.85f * a, 1); lk_am_dot(P, 1, 0, 0xC8E650u, 0.30f * a, 1); lk_am_dot(P, -1, 0, 0xC8E650u, 0.30f * a, 1); lk_am_dot(P, 0, 1, 0xC8E650u, 0.30f * a, 1); lk_am_dot(P, 0, -1, 0xC8E650u, 0.30f * a, 1); }
     else if (P->kind == 3 || P->kind == 4) {   /* spark / ember: rises, cools from yellow to red, fades */

@@ -84,7 +84,7 @@ static int lk_cs_pix(int U, int V, int col) {   /* U / V: image coordinates of t
 ''' % VER
     a = "static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {\n"
     rep(a, MODULE + a)
-    a = "    int lk_wr_ln = lk_wr_linebegin(line);   /* LK_WATER v2 */\n"
+    a = "    int lk_wr_ln = lk_wr_linebegin(line);   /* LK_WATER v3 */\n"
     rep(a, a + "    int lk_cs_ln = lk_cs_linebegin();   /* %s */\n" % VER)
     a = "      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n"
     rep(a, "      if (lk_cs_ln && !black && (src == 1 || src == 2 || src == 3 || src == 6)) col = lk_cs_pix(ubase + x - lk_sm_sxn, vbase - lk_sm_syn, col);   /* %s */\n" % VER + a)

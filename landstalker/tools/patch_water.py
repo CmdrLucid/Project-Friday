@@ -14,10 +14,11 @@ read through a small slow ripple (v2: under half a pixel, mixed between two neig
 (docks / sea rooms: few animated tiles among static ones).  Picture only.  Independent of Lighting.  Not with HD graphics.
 Option: Options > Graphics > Water Reflections (id 52, ~/.landstalker_water, env LANDSTALKER_WATER=0|1 wins), default On.
 Test aid: LANDSTALKER_WATER_DBG=1 (room groups + figures every 60 frames), =2 (water pixels magenta).
-Needs patch_own.py, patch_lights.py (lk_lt_spre), patch_dissolve.py, patch_haze.py before it.  Idempotent.  usage: patch_water.py path/to/genrecomp"""
+v3 (2026-11-06): the scan box is +-48 px wide (sword swings), Boot Colors recolour the reflection too (lk_bc_pix).
+Needs patch_own.py, patch_lights.py (lk_lt_spre), patch_bootcol.py (lk_bc_pix), patch_dissolve.py, patch_haze.py before it.  Idempotent.  usage: patch_water.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_WATER v2"
+VER = "LK_WATER v3"
 
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
@@ -52,6 +53,7 @@ static void lk_wr_step(void) {   /* once per map frame: the reflection picture f
   if (lk_o_room != lk_wr_room) lk_wr_newroom();
   for (y = 0; y < 224; y++) if (lk_wr_line[y]) { memset(lk_wr_buf[y], 0, sizeof lk_wr_buf[y]); lk_wr_line[y] = 0; }
   if (!lk_wr_any || !lk_wr_ak) return;
+  lk_bc_kind = lk_bc_curkind();   /* (Boot Colors: the kind of this frame, also used by lk_bc_pix) */
   for (a = 0xFF11DE; a < 0xFF11DE + 40; a += 2) {   /* the visible figures (same list as Lighting's figures) */
     int o = SW(a), b, ax, ay, fz, cx, cy, gz = 0, M, tag, x, x0, x1, y0;
     if (o & 0x8000) break;
@@ -67,13 +69,14 @@ static void lk_wr_step(void) {   /* once per map frame: the reflection picture f
       if (lk_wr_foot) zw = gz;   /* default (user 2026-11-06 picked B of A / B): mirror at the floor under the figure, the reflection starts at the feet; LANDSTALKER_WATER_FOOT=0 = mirror at the water plane in front (A, physically offset) */
       M = ay + (fz > zw ? fz - zw : 0); }   /* mirror line = foot line + the figure's height above the water plane (a jump mirrors at the water too) */
     nf++;
-    x0 = ax - 28; x1 = ax + 28; y0 = ay - (M - ay) - 72; if (x0 < 0) x0 = 0; if (x1 > LK_OSW - 1) x1 = LK_OSW - 1; if (y0 < 0) y0 = 0;
+    x0 = ax - 48; x1 = ax + 48;   /* v3: the sword swing reaches ~40 px to the side (user 2026-11-06: the sword was missing in the reflection; was +-28) */ y0 = ay - (M - ay) - 72; if (x0 < 0) x0 = 0; if (x1 > LK_OSW - 1) x1 = LK_OSW - 1; if (y0 < 0) y0 = 0;
     for (y = y0; y <= M && y < 224; y++) { int yr = 2 * M - y + 1, d = yr - M, al; if (yr < 0 || yr >= 224) continue;
       al = lk_wr_ak * (88 - d) / 88; if (al <= 4) continue;   /* fades out 88 lines below the mirror line */
       for (x = x0; x <= x1; x++) { int sp = lk_o_spr[y][x];
         if (!(sp & 0x200) || lk_lt_spre[y][x] != tag) continue;
         if (lk_wr_buf[yr][x] && lk_wr_dep[yr][x] > M) continue;   /* a nearer figure's reflection is already there */
-        lk_wr_buf[yr][x] = ((uint32_t)(al > 255 ? 255 : al) << 24) | ((uint32_t)lk_o_colour(y, sp & 0x3F) & 0xFFFFFFu); lk_wr_dep[yr][x] = (int16_t)M; lk_wr_line[yr] = 1; } } }
+        { PIXEL_OUT_T cc = lk_o_colour(y, sp & 0x3F); if (lk_bc_kind) cc = lk_bc_pix(y, x, sp, cc);   /* v3: Boot Colors also in the reflection (user 2026-11-06) */
+          lk_wr_buf[yr][x] = ((uint32_t)(al > 255 ? 255 : al) << 24) | ((uint32_t)cc & 0xFFFFFFu); } lk_wr_dep[yr][x] = (int16_t)M; lk_wr_line[yr] = 1; } } }
   if (lk_wr_dbg == 1 && lk_wr_frame %% 60 == 0) printf("water: frame %%ld room %%d figures %%d\n", lk_wr_frame, lk_o_room, nf);
 }
 static int lk_wr_linebegin(int line) {
