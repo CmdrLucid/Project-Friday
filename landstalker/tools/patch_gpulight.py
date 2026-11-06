@@ -18,11 +18,14 @@ channel) and applied by the GPU after lighting.  The GPU lights the presented 1x
 an FBO texture that the filter shader then samples.  If the GPU fails, lk_gpu_lightok() turns the CPU lighting back on from the next frame.
 Console every 300 compared frames: 'gpult: frames F skipped S pixels P exact E off1 O1 worse W excluded X (fig A figsun B flame C particle D)'
 plus the first 12 pixels with a difference > 1 ('gpult: diff frame .. x .. line .. U .. V .. class .. cpu RRGGBB gpu RRGGBB unlit RRGGBB').
+v5 (2026-11-06, user: 'wie von dir empfohlen'): Options > Display > Light Engine GPU / CPU (id 56, ~/.landstalker_lightengine, env LANDSTALKER_LIGHTENGINE; default GPU;
+LANDSTALKER_GPULT still wins as test aid) + a GPU TIME WATCHDOG (timer query around the light pass; 120 frame average > LANDSTALKER_GPULT_MAXMS, default 6 ms, twice in a row
+-> CPU lighting for the rest of the run, option unchanged; LANDSTALKER_GPULT_TIME=1 prints the average).  The CPU lighting stays the fallback for good (user 2026-11-06).
 Needs the GPU filter path (patch_gpu.py, option GPU Filters On) and a window (the GL context): LANDSTALKER_HIDDEN=1 creates the window hidden (test aid).
 Needs patch_lights.py, patch_bootcol.py, patch_gpu.py before it.  Idempotent.  usage: patch_gpulight.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_GPULT v4"
+VER = "LK_GPULT v5"
 
 # ---------------------------------------------------------------- vdp_render.c: capture + block access
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
@@ -43,7 +46,13 @@ static int lk_gl_postok; static void lk_gl_postinit(void) { int i; for (i = 0; i
 static int lk_gl_pf;          /* flags of the current lk_lt_pix call: 1 figure pixel, 2 figure sun / key shadow, 4 a flame term, 8 particle, 16 figure flame shadow, 32 figure shade in a pool, 64 dust mote */
 static unsigned lk_gl_sunver; /* bumped when the blocks take over the next sun direction (memcpy sun <- sunn) */
 uint32_t lk_gl_unlit[224 * 448], lk_gl_ref[224 * 448]; uint8_t lk_gl_cls[224 * 448], lk_gl_flg[224 * 448]; uint32_t lk_gl_row[224]; long lk_gl_rowfr[224]; int lk_gl_w; long lk_gl_capfr = -9;
-int lk_gl_getmode(void) { if (lk_gl_mode < 0) { const char *e = getenv("LANDSTALKER_GPULT"); lk_gl_mode = e ? atoi(e) : 1; if (lk_gl_mode < 0 || lk_gl_mode > 2) lk_gl_mode = 0; } return lk_gl_mode; }
+static int lk_gle_o = -1;    /* v5: Options > Display > Light Engine (id 56, ~/.landstalker_lightengine, env LANDSTALKER_LIGHTENGINE=0|1 wins): 1 GPU (default), 0 CPU */
+int lk_gle_get(void) { if (lk_gle_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_LIGHTENGINE"); char pth[512]; FILE *f; int v = 1; snprintf(pth, sizeof pth, "%%s/.landstalker_lightengine", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%%d", &v) != 1) v = 1; fclose(f); } if (e) v = atoi(e); lk_gle_o = v ? 1 : 0; } return lk_gle_o; }
+void lk_gle_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_gle_get(); lk_gle_o = v ? 1 : 0; snprintf(pth, sizeof pth, "%%s/.landstalker_lightengine", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%d\n", lk_gle_o); fclose(f); } }
+int lk_gl_slow;               /* v5: set by the GPU time watchdog (platform_sdl.c): the light pass was too slow -> CPU lighting for the rest of the run (the option is not changed) */
+static int lk_gl_env = -2;    /* LANDSTALKER_GPULT (test aid) wins over the option: 0 CPU, 1 GPU, 2 compare harness */
+int lk_gl_getmode(void) { if (lk_gl_env == -2) { const char *e = getenv("LANDSTALKER_GPULT"); lk_gl_env = e ? atoi(e) : -1; if (e && (lk_gl_env < 0 || lk_gl_env > 2)) lk_gl_env = 0; }
+  lk_gl_mode = lk_gl_env >= 0 ? lk_gl_env : (lk_gle_get() && !lk_gl_slow) ? 1 : 0; if (lk_gl_mode == 1 && lk_gl_slow) lk_gl_mode = 0; return lk_gl_mode; }
 static void lk_gl_put(int line, int i, int cls, int U, int V, int c0, int c1, int w) {
   int o = line * 448 + i;
   int q = ((V & 511) << 9) | (U & 511);
@@ -52,11 +61,12 @@ static void lk_gl_put(int line, int i, int cls, int U, int V, int c0, int c1, in
   lk_gl_flg[o] = (uint8_t)(cls ? (lk_gl_pf | ((lk_am_dn && lk_am_map[q]) ? 8 : 0) | ((lk_lt_nsh && lk_lt_dmap[q]) ? 64 : 0)) : 0);
   if (i == 0 || lk_gl_rowfr[line] != platform_frame_number()) { lk_gl_row[line] = ((uint32_t)(uint16_t)(int16_t)(U - i)) | ((uint32_t)(uint16_t)(int16_t)V << 16); lk_gl_rowfr[line] = platform_frame_number(); }
   lk_gl_capfr = platform_frame_number(); lk_gl_w = w; }
+long lk_gl_realcap = -9;   /* v5: frame whose rows were composed unlit for the GPU (the present lights it even if the mode switched since: no unlit frame at a switch) */
 static int lk_gl_pl[224 * 448], lk_gl_pn; int lk_gl_postprev;   /* GL4: pixels with a mix after the light this frame (reset to 'none' at the next frame) */
 static void lk_gl_line(int line, int u0, int v, int w) {   /* GL4, once per captured line: picture position (U = u0 + i, V) + frame stamps */
   long f = platform_frame_number(); int j;
   if (lk_gl_postfr != f) { lk_gl_postfr = f; lk_gl_postprev = lk_gl_postany; lk_gl_postany = 0; for (j = 0; j < lk_gl_pn; j++) { lk_gl_post[0][lk_gl_pl[j]] = 0; lk_gl_post[1][lk_gl_pl[j]] = 0xFFFFFFu; } lk_gl_pn = 0; }
-  lk_gl_row[line] = ((uint32_t)(uint16_t)(int16_t)u0) | ((uint32_t)(uint16_t)(int16_t)v << 16); lk_gl_rowfr[line] = f; lk_gl_capfr = f; lk_gl_w = w; }
+  lk_gl_row[line] = ((uint32_t)(uint16_t)(int16_t)u0) | ((uint32_t)(uint16_t)(int16_t)v << 16); lk_gl_rowfr[line] = f; lk_gl_capfr = f; lk_gl_realcap = f; lk_gl_w = w; }
 static void lk_gl_postset(int o, uint32_t p0, uint32_t p1) { if (lk_gl_pn < 224 * 448) lk_gl_pl[lk_gl_pn++] = o; lk_gl_post[0][o] = p0; lk_gl_post[1][o] = p1; lk_gl_postany = 1; }
 static int lk_gl_classify(int x, int line, int src, int sp2, int black, int U, int V) {   /* GL4: what lk_lt_pix would do with this pixel (+ its side effects) */
   int j; if (black) return 0;
@@ -89,6 +99,13 @@ int lk_gl_frame(long fr, float *fu, int *iu, float *lp, float *lc, float *lf, fl
     lf[4 * k] = k < lk_lt_nl ? lk_lt_flk[k] : 0.0f; lf[4 * k + 1] = Lq->lava == 2 ? 1.0f : 0.0f; lf[4 * k + 2] = lf[4 * k + 3] = 0.0f; }
   for (k = 0; k < 16; k++) { fg[4 * k] = lk_lt_f[k].fx; fg[4 * k + 1] = lk_lt_f[k].fy; fg[4 * k + 2] = lk_lt_f[k].fz; fg[4 * k + 3] = lk_lt_f[k].sun; fa[4 * k] = (float)lk_lt_f[k].ax; fa[4 * k + 1] = (float)lk_lt_f[k].ay; fa[4 * k + 2] = (float)lk_lt_f[k].tag; fa[4 * k + 3] = 0.0f; }
   return 1; }
+/* v5 GL5a: the world of the shadow terms for the GPU: w = 74 x 148 RGBA (rows 0..73: top lo / hi, thin lo / hi; rows 74..147: back wall bits lk_lt_vw, water);
+   sc: 0 sun room, 1 room light (AO) on, 2 main floor height, 3 AO strength, 4 AO wall share.  Returns a hash of all of it (re-upload when it changes). */
+unsigned lk_gl_world(uint32_t *w, float *sc) { int x, y; unsigned h = 2166136261u;
+  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int o = y * 74 + x; w[o] = (uint32_t)(uint16_t)lk_lt_top[y][x] | ((uint32_t)(uint16_t)lk_lt_thin[y][x] << 16); w[5476 + o] = (uint32_t)lk_lt_vw[y][x] | ((uint32_t)(lk_lt_wat[y][x] ? 1 : 0) << 8);
+    h = (h ^ w[o]) * 16777619u; h = (h ^ w[5476 + o]) * 16777619u; }
+  sc[0] = (float)lk_lt_sun; sc[1] = (float)lk_lt_aor; sc[2] = (float)lk_lt_zref; sc[3] = lk_lt_aok < 0.0f ? 0.55f : lk_lt_aok; sc[4] = lk_lt_aotop < 0.0f ? 0.0f : lk_lt_aotop;
+  h = (h ^ (unsigned)lk_lt_sun) * 16777619u; h = (h ^ (unsigned)lk_lt_aor) * 16777619u; h = (h ^ (unsigned)lk_lt_zref) * 16777619u; return h | 1u; }
 const uint16_t *lk_gl_fmk(void) { return &lk_lt_fmk[0][0]; }   /* figure shadow box mask 224 x 448 (lk_lt_infb) */
 /* per light k / figure j: row j = card normal x, y, pair, 0; row 16 + j = the shadow box x0 y0 x1 y1 (96 x 32 RGBA floats) */
 void lk_gl_pairs(float *o) { int k, j; for (j = 0; j < 16; j++) for (k = 0; k < 96; k++) { float *a = o + 4 * (j * 96 + k), *b = o + 4 * ((16 + j) * 96 + k);
@@ -326,6 +343,82 @@ void main() {
   gl_FragColor = fin(o, fc); }
 '''
 
+SH5 = r'''
+uniform sampler2D roomA; uniform sampler2D roomB; uniform sampler2D btab; uniform sampler2D bli; uniform sampler2D wld;
+uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec2 uBlk; uniform float uSunR; uniform float uAor; uniform float uZref; uniform float uAok; uniform float uAotop; uniform vec2 uDv[16];
+float B(float v) { return floor(v * 255.0 + 0.5); }
+float S16(float lo, float hi) { float v = lo + 256.0 * hi; return v >= 32768.0 ? v - 65536.0 : v; }
+vec4 W(float cx, float cy, float hf) { return texture2D(wld, (vec2(cx, cy + 74.0 * hf) + 0.5) / vec2(74.0, 148.0)); }
+bool inr(float cx, float cy) { return cx >= 0.0 && cy >= 0.0 && cx < 74.0 && cy < 74.0; }
+float topT(float cx, float cy) {   /* lk_lt_cell + the thin column rule indoors */
+  if (!inr(cx, cy)) return -32768.0;
+  vec4 w = W(cx, cy, 0.0); float t = S16(B(w.r), B(w.g));
+  if (uSunR < 0.5) { float n = S16(B(w.b), B(w.a)); if (n > -32768.0) t = n; }
+  return t; }
+float termS(vec3 p, vec3 n, vec4 L, float kk) {   /* lk_lt_term with its shadow (2 area points + soft edges indoors, one hard march outdoors) */
+  vec3 v = L.xyz - p; float d = sqrt(v.x * v.x + v.y * v.y + v.z * v.z), rad = L.w;
+  if (d >= rad || d < 0.001) return d < 0.001 ? kk : 0.0;
+  float ndl = (n.x * v.x + n.y * v.y + n.z * v.z) / d; if (ndl < 0.0) ndl = 0.0;
+  float att = kk * (1.0 - d / rad) * (1.0 - d / rad);
+  vec3 s = vec3(p.x + n.x * 3.0, p.y + n.y * 3.0, p.z + n.z * 3.0);
+  if (uSunR < 0.5) { float sum = 0.0;
+    for (int o = 0; o < 2; o++) { vec3 off = o == 0 ? vec3(3.5, -3.5, 1.0) : vec3(-3.5, 3.5, -1.0); vec3 w = vec3(L.x + off.x - s.x, L.y + off.y - s.y, L.z + off.z - s.z);
+      float e = sqrt(w.x * w.x + w.y * w.y + w.z * w.z), res = 1.0;
+      for (int st = 0; st < 400; st++) { float t = 2.0 + 2.0 * float(st); if (t >= e - 3.0) break;
+        vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); float top = topT(floor(q.x / 16.0), floor(q.y / 16.0));
+        if (q.z < top - 0.5) { res = 0.0; break; }
+        if (top > -32768.0) { float r = 4.0 * (q.z - top) / t; if (r < res) res = r; } }
+      sum += res < 0.0 ? 0.0 : res; }
+    return att * (0.25 + 0.75 * ndl) * sum * 0.5; }
+  vec3 w = vec3(L.x - s.x, L.y - s.y, L.z - s.z); float e = sqrt(w.x * w.x + w.y * w.y + w.z * w.z);
+  for (int st = 0; st < 400; st++) { float t = 2.0 + 2.0 * float(st); if (t >= e - 3.0) break;
+    vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); if (q.z < topT(floor(q.x / 16.0), floor(q.y / 16.0)) - 0.5) return 0.0; }
+  return att * (0.25 + 0.75 * ndl); }
+float aoh(float x, float y, float dx, float dy) {   /* lk_lt_aoh */
+  float cx = floor(x / 16.0), cy = floor(y / 16.0);
+  if (!inr(cx, cy)) return (dx < 0.0 || dy < 0.0) ? 32767.0 : -32768.0;
+  vec4 w = W(cx, cy, 0.0); float t = S16(B(w.r), B(w.g)); if (t != -32768.0) return t;
+  float vw = B(W(cx, cy, 1.0).r);
+  if ((dx < 0.0 && mod(vw, 2.0) > 0.5) || (dy < 0.0 && mod(floor(vw / 2.0), 2.0) > 0.5)) return 32767.0;
+  return -32768.0; }
+float aoval(float px, float py, float z, float f) {   /* lk_lt_aoval */
+  float nx = f == 2.0 ? 1.0 : 0.0, ny = f == 3.0 ? 1.0 : 0.0, x0 = px + nx * 2.0, y0 = py + ny * 2.0, sum = 0.0, n = 0.0;
+  if (f != 1.0) { float fl = aoh(x0, y0, 0.0, 0.0); if (fl > z) z = fl; }
+  for (int k = 0; k < 16; k++) { vec2 dv = uDv[k]; float dix = dv.x > 0.01 ? 1.0 : dv.x < -0.01 ? -1.0 : 0.0, diy = dv.y > 0.01 ? 1.0 : dv.y < -0.01 ? -1.0 : 0.0, best = 0.0;
+    if (f != 1.0 && dv.x * nx + dv.y * ny < -0.1) continue;
+    n += 1.0;
+    for (int st = 1; st < 20; st++) { float d = 2.0 * float(st), fall = 1.0 - d / 40.0; if (fall <= best) break;
+      float h = aoh(x0 + dv.x * d, y0 + dv.y * d, dix, diy); if (h <= z) continue;
+      float t = (h - z) / d, sn = t / sqrt(1.0 + t * t) * fall; if (sn > best) best = sn; }
+    sum += best; }
+  float ao = n > 0.0 ? 1.0 - uAok * sum / n : 1.0;
+  if (f != 1.0 && uAotop > 0.0) ao *= 1.0 - uAotop;
+  if (f != 1.0) { float fl = aoh(x0, y0, 0.0, 0.0); if (fl > -32768.0 && z >= fl) { float c = 1.0 - (z - fl) / 24.0; if (c > 0.0) ao *= 1.0 - 0.30 * c; } }
+  { float cx = floor(px / 16.0), cy = floor(py / 16.0); if (f == 1.0 && inr(cx, cy) && B(W(cx, cy, 1.0).g) > 0.5) z = 32767.0; }
+  if (uZref > -32768.0 && z < uZref) { float dd = (uZref - z) / 64.0; if (dd > 1.0) dd = 1.0; ao *= 1.0 - 0.18 * dd; }
+  return ao < 0.35 ? 0.35 : ao > 1.0 ? 1.0 : ao; }
+vec3 P(float U, float V, float z) { float D = U - 1184.0; return vec3((2.0 * V + 2.0 * z + D) * 0.5, (2.0 * V + 2.0 * z - D) * 0.5, z); }
+void main() {   /* one 32 x 32 light block in 3 planes (rows 0..31 terms 0..3, 32..63 terms 4..7, 64..95 AO), as lk_lt_blockcalc stores them */
+  vec2 fc = floor(gl_FragCoord.xy); float ix = fc.x, plane = floor(fc.y / 32.0), iy = fc.y - 32.0 * plane, U = uBlk.x * 32.0 + ix, V = uBlk.y * 32.0 + iy;
+  vec2 rt = (vec2(U, V) + 0.5) / vec2(2432.0, 1216.0);
+  float face = B(texture2D(roomA, rt).r); vec4 Bp = texture2D(roomB, rt); float z = S16(B(Bp.r), B(Bp.g));
+  if (face < 0.5) { gl_FragColor = plane > 1.5 ? vec4(1.0, 0.0, 0.0, 0.0) : vec4(0.0); return; }
+  if (plane < 1.5) {
+    vec3 n = vec3(face == 2.0 ? 1.0 : 0.0, face == 3.0 ? 1.0 : 0.0, face == 1.0 ? 1.0 : 0.0), p = P(U, V, z);
+    float nl = B(texture2D(btab, (uBlk + 0.5) / vec2(76.0, 38.0)).b); vec4 I = texture2D(bli, (vec2(uBlk.x + 76.0 * plane, uBlk.y) + 0.5) / vec2(152.0, 38.0)), o = vec4(0.0);
+    for (int c = 0; c < 4; c++) { if (plane * 4.0 + float(c) >= nl) break;
+      int li = int(B(c == 0 ? I.r : c == 1 ? I.g : c == 2 ? I.b : I.a));
+      float t = termS(p, n, uLP[li], uLC[li].w), q = t > 1.0 ? 255.0 : floor(t * 255.0);
+      if (c == 0) o.r = q; else if (c == 1) o.g = q; else if (c == 2) o.b = q; else o.a = q; }
+    gl_FragColor = o / 255.0; return; }
+  float ao = 255.0;
+  if (uAor > 0.5) { float ax = floor(ix / 2.0) * 2.0, ay = floor(iy / 2.0) * 2.0, fa = face, za = z, ua = U, va = V;
+    if (ax != ix || ay != iy) { float u2 = uBlk.x * 32.0 + ax, v2 = uBlk.y * 32.0 + ay; vec2 r2 = (vec2(u2, v2) + 0.5) / vec2(2432.0, 1216.0); float f2 = B(texture2D(roomA, r2).r); vec4 B2 = texture2D(roomB, r2); float z2 = S16(B(B2.r), B(B2.g));
+      if (f2 == face && abs(z2 - z) <= 2.0) { za = z2; ua = u2; va = v2; } }   /* the 2 x 2 shortcut of lk_lt_blockcalc: the odd pixels copy the even one on the same surface */
+    vec3 p = P(ua, va, za); ao = floor(aoval(p.x, p.y, za, fa) * 255.0 + 0.5); }
+  gl_FragColor = vec4(ao / 255.0, 0.0, 0.0, 0.0); }
+'''
+
 if VER not in s:
     MODULE = r'''/* ---- %s: GPU lighting harness (tools/patch_gpulight.py): offscreen light pass + compare with the CPU result ---- */
 extern int lk_gl_getmode(void); extern int lk_gl_frame(long fr, float *fu, int *iu, float *lp, float *lc, float *lf, float *fg, float *fa); extern unsigned lk_gl_bver(int bx, int by); extern int lk_gl_bsg(int bx, int by);
@@ -336,6 +429,27 @@ extern uint32_t lk_gl_unlit[224 * 448], lk_gl_ref[224 * 448]; extern uint8_t lk_
 LKGL_FN(void, glUniform3f, (lkGLint, lkGLfloat, lkGLfloat, lkGLfloat)); LKGL_FN(void, glUniform4f, (lkGLint, lkGLfloat, lkGLfloat, lkGLfloat, lkGLfloat)); LKGL_FN(void, glUniform4fv, (lkGLint, lkGLsizei, const lkGLfloat *));
 LKGL_FN(void, glGenFramebuffers, (lkGLsizei, lkGLuint *)); LKGL_FN(void, glBindFramebuffer, (lkGLenum, lkGLuint)); LKGL_FN(void, glFramebufferTexture2D, (lkGLenum, lkGLenum, lkGLenum, lkGLuint, lkGLint)); LKGL_FN(lkGLenum, glCheckFramebufferStatus, (lkGLenum));
 static int lk_glt_st;   /* 0 not tried, 1 ready, -1 failed */
+LKGL_FN(void, glGenQueries, (lkGLsizei, lkGLuint *)); LKGL_FN(void, glBeginQuery, (lkGLenum, lkGLuint)); LKGL_FN(void, glEndQuery, (lkGLenum)); LKGL_FN(void, glGetQueryObjectiv, (lkGLuint, lkGLenum, lkGLint *)); LKGL_FN(void, glGetQueryObjectui64v, (lkGLuint, lkGLenum, unsigned long long *));
+/* v5 GPU TIME WATCHDOG (user 2026-11-06: automatic fallback for weak GPUs): a timer query around the real light pass (2 queries, read one frame late);
+   average over 120 frames above LANDSTALKER_GPULT_MAXMS (default 6 ms) in 2 windows in a row -> lk_gl_slow = 1 = CPU lighting for the rest of the run (console line).
+   LANDSTALKER_GPULT_TIME=1 prints the average every 120 frames (test aid, cost budget of GL5).  No timer queries (old GL) = no watchdog. */
+static lkGLuint lk_glt_q[2]; static int lk_glt_qst, lk_glt_qi, lk_glt_qpend[2], lk_glt_qn, lk_glt_qover; static double lk_glt_qsum, lk_glt_qmax = -1.0; static int lk_glt_qdbg = -1;
+static void lk_glt_qinit(void) { *(void **)&lk_glGenQueries = lk_gpu_fn("glGenQueries"); *(void **)&lk_glBeginQuery = lk_gpu_fn("glBeginQuery"); *(void **)&lk_glEndQuery = lk_gpu_fn("glEndQuery");
+  *(void **)&lk_glGetQueryObjectiv = lk_gpu_fn("glGetQueryObjectiv"); *(void **)&lk_glGetQueryObjectui64v = lk_gpu_fn("glGetQueryObjectui64v");
+  if (!lk_glGetQueryObjectui64v) *(void **)&lk_glGetQueryObjectui64v = lk_gpu_fn("glGetQueryObjectui64vEXT");
+  { const char *e = getenv("LANDSTALKER_GPULT_MAXMS"); lk_glt_qmax = e ? atof(e) : 6.0; } { const char *e = getenv("LANDSTALKER_GPULT_TIME"); lk_glt_qdbg = e ? atoi(e) : 0; }
+  if (!lk_glGenQueries || !lk_glBeginQuery || !lk_glEndQuery || !lk_glGetQueryObjectiv || !lk_glGetQueryObjectui64v || !(SDL_GL_ExtensionSupported("GL_ARB_timer_query") || SDL_GL_ExtensionSupported("GL_EXT_timer_query"))) { lk_glt_qst = -1; printf("gpult: no timer queries, no GPU time watchdog\n"); return; }
+  lk_glGenQueries(2, lk_glt_q); lk_glt_qst = 1; }
+static void lk_glt_qresult(void) {   /* finished queries of both slots: add their time */
+  extern int lk_gl_slow; int o; lkGLint av; unsigned long long ns;
+  for (o = 0; o < 2; o++) { if (!lk_glt_qpend[o]) continue; av = 0; ns = 0;
+    lk_glGetQueryObjectiv(lk_glt_q[o], 0x8867, &av); if (!av) continue;
+    lk_glGetQueryObjectui64v(lk_glt_q[o], 0x8866, &ns); lk_glt_qpend[o] = 0; lk_glt_qsum += (double)ns * 1e-6; lk_glt_qn++; }
+  if (lk_glt_qn < 120) return;
+  { double avg = lk_glt_qsum / lk_glt_qn; lk_glt_qsum = 0.0; lk_glt_qn = 0;
+    if (lk_glt_qdbg) printf("gpult: light pass %%.3f ms on the GPU (120 frame average)\n", avg);
+    if (lk_glt_qmax > 0.0 && avg > lk_glt_qmax) { if (++lk_glt_qover >= 2) { lk_gl_slow = 1; printf("gpult: light pass too slow on this GPU (%%.2f ms > %%.2f ms), CPU lighting from now on\n", avg, lk_glt_qmax); } }
+    else lk_glt_qover = 0; } }
 #define LK_GLT_NT 16   /* textures of the pass: 0 unlit, 1 class + tag, 2 rows, 3 room A, 4 block table, 5 / 6 terms, 7 room B, 8 key light, 9 light lists, 10 mix after the light (448 x 448), 11 figure box mask, 12 pairs, 13 motes, 14 particles, 15 particle depths */
 static lkGLuint lk_glt_prog, lk_glt_fbo, lk_glt_out, lk_glt_t[LK_GLT_NT]; static lkGLint lk_glt_u[64];
 static unsigned lk_glt_ver[38][76]; static uint16_t lk_glt_ct[224 * 448]; static uint32_t lk_glt_mo[512 * 512], lk_glt_az[512 * 512]; static float lk_glt_pr[96 * 32 * 4];
@@ -373,12 +487,74 @@ static int lk_glt_init(void) {   /* inside lk_gpu_present (SDL's state saved, te
   memset(lk_glt_ver, 0, sizeof lk_glt_ver);
   printf("gpult: GPU lighting ready (%%s)\n", lk_gl_getmode() == 2 ? "compare" : "real"); return 1; }
 int lk_gpu_lightok(void) { return lk_gpu_get() && lk_gpu_st >= 0 && lk_glt_st >= 0; }   /* vdp_render.c (lk_gl_okfn): may the rows leave the light to the GPU? */
+/* ---- v5 GL5a: the shadow terms of a light block on the GPU (flame terms with shadow, room light AO), compare only: LANDSTALKER_GL5CMP=1 ----
+   Every block the light pass uploads (CPU values) is also computed by this pass from the block's geometry (face / z, already on the GPU) and the world (lk_gl_world),
+   read back and compared.  Console every 300 frames with compared blocks: 'gl5: blocks .. terms exact/off1/worse .. ao exact/off1/worse ..' + the first 16 differences. */
+extern unsigned lk_gl_world(uint32_t *w, float *sc);
+static int lk_g5_on = -1, lk_g5_st; static lkGLuint lk_g5_prog, lk_g5_fbo, lk_g5_out, lk_g5_wt; static lkGLint lk_g5_u[16]; static unsigned lk_g5_wh;
+#define LK_G5_Q 24
+static int lk_g5_n, lk_g5_bx[LK_G5_Q], lk_g5_by[LK_G5_Q], lk_g5_nl[LK_G5_Q]; static uint32_t lk_g5_ref[LK_G5_Q][3][1024]; static long lk_g5_cnt[2][3], lk_g5_blocks, lk_g5_frames, lk_g5_last; static int lk_g5_shown;
+static const char *lk_g5_fs = "#version 120\n" @SHADER5@;
+static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", 0 };
+static int lk_g5_want(void) { if (lk_g5_on < 0) { const char *e = getenv("LANDSTALKER_GL5CMP"); lk_g5_on = e ? atoi(e) : 0; } return lk_g5_on > 0 && lk_g5_st >= 0; }
+static int lk_g5_init(void) {
+  lkGLint ok = 0, t0 = 0, fb0 = 0; lkGLuint vs, fs; char log[2048]; int i; lkGLenum st;
+  { static const char *vsrc = "#version 120\nvoid main() { gl_Position = gl_Vertex; }\n"; vs = lk_glCreateShader(0x8B31); lk_glShaderSource(vs, 1, &vsrc, 0); lk_glCompileShader(vs); lk_glGetShaderiv(vs, 0x8B81, &ok); if (!ok) return -1; }
+  fs = lk_glCreateShader(0x8B30); lk_glShaderSource(fs, 1, &lk_g5_fs, 0); lk_glCompileShader(fs); lk_glGetShaderiv(fs, 0x8B81, &ok);
+  if (!ok) { lk_glGetShaderInfoLog(fs, sizeof log, 0, log); printf("gl5: term shader failed: %%s\n", log); return -1; }
+  lk_g5_prog = lk_glCreateProgram(); lk_glAttachShader(lk_g5_prog, vs); lk_glAttachShader(lk_g5_prog, fs); lk_glLinkProgram(lk_g5_prog); lk_glGetProgramiv(lk_g5_prog, 0x8B82, &ok);
+  if (!ok) { lk_glGetProgramInfoLog(lk_g5_prog, sizeof log, 0, log); printf("gl5: link failed: %%s\n", log); return -1; }
+  for (i = 0; lk_g5_un[i]; i++) lk_g5_u[i] = lk_glGetUniformLocation(lk_g5_prog, lk_g5_un[i]);
+  lk_glGetIntegerv(0x8069, &t0);
+  lk_g5_out = lk_glt_tex(32, 96, 0x1908, 0x1908); lk_g5_wt = lk_glt_tex(74, 148, 0x1908, 0x1908);
+  lk_glBindTexture(0x0DE1, (lkGLuint)t0);
+  lk_glGetIntegerv(0x8CA6, &fb0); lk_glGenFramebuffers(1, &lk_g5_fbo); lk_glBindFramebuffer(0x8D40, lk_g5_fbo); lk_glFramebufferTexture2D(0x8D40, 0x8CE0, 0x0DE1, lk_g5_out, 0);
+  st = lk_glCheckFramebufferStatus(0x8D40); lk_glBindFramebuffer(0x8D40, (lkGLuint)fb0); if (st != 0x8CD5) { printf("gl5: framebuffer incomplete %%04X\n", (unsigned)st); return -1; }
+  printf("gl5: GPU shadow term compare ready\n"); return 1; }
+static void lk_g5_queue(int bx, int by, uint32_t (*pk)[1024]) { int i, nl; uint32_t a, b2;   /* inside the upload loop: the CPU values of a block just uploaded */
+  if (lk_g5_n >= LK_G5_Q) return;
+  lk_gl_blist(bx, by, &a, &b2, &nl); lk_g5_bx[lk_g5_n] = bx; lk_g5_by[lk_g5_n] = by; lk_g5_nl[lk_g5_n] = nl;
+  for (i = 0; i < 1024; i++) { lk_g5_ref[lk_g5_n][0][i] = pk[1][i]; lk_g5_ref[lk_g5_n][1][i] = pk[2][i]; lk_g5_ref[lk_g5_n][2][i] = (pk[0][i] >> 24) | ((pk[0][i] & 255) << 8) | ((pk[3][i] & 0xFFFF) << 16); }
+  lk_g5_n++; }
+static void lk_g5_run(const float *lp, const float *lc) {   /* after the block / list uploads, before the light pass (units 3 / 7 / 4 / 9 hold room A / room B / block table / lists) */
+  static uint32_t w[5476 * 2], rb[32 * 96]; float sc[8], dv[32]; unsigned h; int j, k, i; lkGLint fb0 = 0; static const lkGLfloat quad[8] = { -1, -1, 1, -1, -1, 1, 1, 1 };
+  if (lk_g5_st == 0) lk_g5_st = lk_g5_init();
+  if (lk_g5_st < 0) { lk_g5_n = 0; return; }
+  h = lk_gl_world(w, sc);
+  lk_glActiveTexture(0x84C0); lk_glBindTexture(0x0DE1, lk_g5_wt); if (h != lk_g5_wh) { lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 74, 148, 0x1908, 0x1401, w); lk_g5_wh = h; }
+  lk_glActiveTexture(0x84C3); lk_glBindTexture(0x0DE1, lk_glt_t[3]); lk_glActiveTexture(0x84C7); lk_glBindTexture(0x0DE1, lk_glt_t[7]);
+  lk_glActiveTexture(0x84C4); lk_glBindTexture(0x0DE1, lk_glt_t[4]); lk_glActiveTexture(0x84C9); lk_glBindTexture(0x0DE1, lk_glt_t[9]); lk_glActiveTexture(0x84C0);
+  for (k = 0; k < 16; k++) { float a = (float)k * 0.39269908f; dv[2 * k] = cosf(a); dv[2 * k + 1] = sinf(a); }   /* the directions of lk_lt_aoval (same libm) */
+  lk_glUseProgram(lk_g5_prog);
+  lk_glUniform1i(lk_g5_u[0], 3); lk_glUniform1i(lk_g5_u[1], 7); lk_glUniform1i(lk_g5_u[2], 4); lk_glUniform1i(lk_g5_u[3], 9); lk_glUniform1i(lk_g5_u[4], 0);
+  lk_glUniform4fv(lk_g5_u[5], 96, lp); lk_glUniform4fv(lk_g5_u[6], 96, lc);
+  lk_glUniform1f(lk_g5_u[8], sc[0]); lk_glUniform1f(lk_g5_u[9], sc[1]); lk_glUniform1f(lk_g5_u[10], sc[2]); lk_glUniform1f(lk_g5_u[11], sc[3]); lk_glUniform1f(lk_g5_u[12], sc[4]);
+  { void (*u2v)(lkGLint, lkGLsizei, const lkGLfloat *) = (void (*)(lkGLint, lkGLsizei, const lkGLfloat *))lk_gpu_fn("glUniform2fv"); if (u2v) u2v(lk_g5_u[13], 16, dv); }
+  lk_glGetIntegerv(0x8CA6, &fb0); lk_glBindFramebuffer(0x8D40, lk_g5_fbo); lk_glViewport(0, 0, 32, 96);
+  lk_glEnableClientState(0x8074); lk_glVertexPointer(2, 0x1406, 0, quad);
+  lk_glPixelStorei(0x0D02, 0); lk_glPixelStorei(0x0D05, 4);
+  for (j = 0; j < lk_g5_n; j++) { int nl = lk_g5_nl[j];
+    lk_glUniform2f(lk_g5_u[7], (float)lk_g5_bx[j], (float)lk_g5_by[j]); lk_glDrawArrays(0x0005, 0, 4);
+    lk_glReadPixels(0, 0, 32, 96, 0x1908, 0x1401, rb);
+    lk_g5_blocks++;
+    for (i = 0; i < 1024; i++) { int ix = i & 31, iy = i >> 5, pl, c; uint32_t ex = lk_g5_ref[j][2][i]; int face = (ex >> 8) & 255, z = (int)(int16_t)(ex >> 16);
+      if (!face) continue;
+      for (pl = 0; pl < 3; pl++) { uint32_t g = rb[(pl * 32 + iy) * 32 + ix], r = pl < 2 ? lk_g5_ref[j][pl][i] : (ex & 255);
+        for (c = 0; c < (pl < 2 ? 4 : 1); c++) { int kk = pl * 4 + c, cls = pl < 2 ? 0 : 1, a = (int)((r >> (8 * c)) & 255), b = (int)((g >> (8 * c)) & 255), d = abs(a - b);
+          if (pl < 2 && kk >= nl) continue;
+          if (pl == 2 && !sc[1]) continue;
+          lk_g5_cnt[cls][d == 0 ? 0 : d == 1 ? 1 : 2]++;
+          if (d > 1 && lk_g5_shown < 16) { lk_g5_shown++; printf("gl5: diff block %%d,%%d pixel %%d,%%d U %%d V %%d %%s %%d cpu %%d gpu %%d face %%d z %%d sun %%d\n", lk_g5_bx[j], lk_g5_by[j], ix, iy, lk_g5_bx[j] * 32 + ix, lk_g5_by[j] * 32 + iy, cls ? "ao" : "term", kk, a, b, face, z, (int)sc[0]); } } } } }
+  lk_glBindFramebuffer(0x8D40, (lkGLuint)fb0);
+  lk_g5_n = 0; lk_g5_frames++;
+  if (lk_g5_frames - lk_g5_last >= 300) { lk_g5_last = lk_g5_frames;
+    printf("gl5: frames %%ld blocks %%ld terms exact %%ld off1 %%ld worse %%ld | ao exact %%ld off1 %%ld worse %%ld\n", lk_g5_frames, lk_g5_blocks, lk_g5_cnt[0][0], lk_g5_cnt[0][1], lk_g5_cnt[0][2], lk_g5_cnt[1][0], lk_g5_cnt[1][1], lk_g5_cnt[1][2]); } }
 static long lk_glt_fb[8]; static long lk_glt_n, lk_glt_skip, lk_glt_px, lk_glt_ex, lk_glt_o1, lk_glt_bad, lk_glt_xc, lk_glt_xf[8], lk_glt_cpx[3], lk_glt_cbad[3]; static int lk_glt_shown;
 static int lk_glt_pass(int real) {   /* inside lk_gpu_present after SDL's state is saved; compare (real 0): before the picture upload, unit 0 = recorded unlit picture;
      real (1): after it, unit 0 = the presented picture; returns 1 when lk_glt_out holds the lit picture.  Leaves texture unit 0 active, vertex array enabled */
   float fu[64], lp[96 * 4], lc[96 * 4], lf[96 * 4], fg[16 * 4], fa[16 * 4]; int iu[32], L, i, bx, by, u0 = 1 << 30, u1 = -(1 << 30), v0 = 1 << 30, v1 = -(1 << 30); long fr = platform_frame_number();
   lkGLint fb0 = 0, tb[LK_GLT_NT]; static const lkGLfloat quad[8] = { -1, -1, 1, -1, -1, 1, 1, 1 }; static uint32_t pk[5][1024], bt[38 * 76], bl0[38 * 76], bl1[38 * 76], *rb;
-  if (lk_gl_getmode() != (real ? 1 : 2) || lk_glt_st < 0 || !lk_gl_frame(fr, fu, iu, lp, lc, lf, fg, fa)) return 0;
+  { extern long lk_gl_realcap; int md = lk_gl_getmode(); if (!(real ? (md == 1 || lk_gl_realcap == fr - 1) : md == 2) || lk_glt_st < 0 || !lk_gl_frame(fr, fu, iu, lp, lc, lf, fg, fa)) return 0; }   /* v5: a real frame is lit even if the mode switched after its rows */
   if (lk_glt_st == 0) { lk_glt_st = lk_glt_init(); if (lk_glt_st < 0) return 0; }
   for (i = 0; i < LK_GLT_NT; i++) { lk_glActiveTexture(0x84C0 + i); lk_glGetIntegerv(0x8069, &tb[i]); }
   /* visible blocks: upload what changed */
@@ -387,11 +563,12 @@ static int lk_glt_pass(int real) {   /* inside lk_gpu_present after SDL's state 
     if (v) lk_gl_blist(bx, by, &a, &b2, &nl);
     bt[by * 76 + bx] = (v ? 0xFFu : 0u) | (lk_gl_bsg(bx, by) ? 0xFF00u : 0u) | ((uint32_t)nl << 16); bl0[by * 76 + bx] = a; bl1[by * 76 + bx] = b2;
     if (v && v != lk_glt_ver[by][bx] && bx * 32 + 31 >= u0 && bx * 32 <= u1 && by * 32 + 31 >= v0 && by * 32 <= v1) { static const int pt[5] = { 3, 5, 6, 7, 8 }; int k;
-      lk_gl_bpack(bx, by, pk);
+      lk_gl_bpack(bx, by, pk); if (lk_g5_want()) lk_g5_queue(bx, by, pk);   /* v5 GL5a compare */
       for (k = 0; k < 5; k++) { lk_glActiveTexture(0x84C0 + pt[k]); lk_glBindTexture(0x0DE1, lk_glt_t[pt[k]]); lk_glTexSubImage2D(0x0DE1, 0, bx * 32, by * 32, 32, 32, 0x1908, 0x1401, pk[k]); }
       lk_glt_ver[by][bx] = v; } }
   lk_glActiveTexture(0x84C4); lk_glBindTexture(0x0DE1, lk_glt_t[4]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 76, 38, 0x1908, 0x1401, bt);
   lk_glActiveTexture(0x84C9); lk_glBindTexture(0x0DE1, lk_glt_t[9]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 76, 38, 0x1908, 0x1401, bl0); lk_glTexSubImage2D(0x0DE1, 0, 76, 0, 76, 38, 0x1908, 0x1401, bl1);
+  if (lk_g5_n) lk_g5_run(lp, lc);   /* v5 GL5a compare */
   if (real && (lk_gl_postany || lk_gl_postprev)) { lk_glActiveTexture(0x84CA); lk_glBindTexture(0x0DE1, lk_glt_t[10]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x80E1, 0x1401, lk_gl_post[0]); lk_glTexSubImage2D(0x0DE1, 0, 0, 224, 448, 224, 0x80E1, 0x1401, lk_gl_post[1]); }
   lk_glActiveTexture(0x84CB); lk_glBindTexture(0x0DE1, lk_glt_t[11]); if (iu[10]) lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x190A, 0x1401, lk_gl_fmk());
   lk_glActiveTexture(0x84C2); lk_glBindTexture(0x0DE1, lk_glt_t[2]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 224, 1, 0x1908, 0x1401, lk_gl_row);
@@ -419,7 +596,11 @@ static int lk_glt_pass(int real) {   /* inside lk_gpu_present after SDL's state 
   lk_glUniform1f(lk_glt_u[48], real && lk_gl_postany ? 1.0f : 0.0f);
   lk_glUniform4fv(lk_glt_u[43], 96, lp); lk_glUniform4fv(lk_glt_u[44], 96, lc); lk_glUniform4fv(lk_glt_u[45], 96, lf); lk_glUniform4fv(lk_glt_u[46], 16, fg); lk_glUniform4fv(lk_glt_u[47], 16, fa);
   lk_glGetIntegerv(0x8CA6, &fb0); lk_glBindFramebuffer(0x8D40, lk_glt_fbo); lk_glViewport(0, 0, 448, 224);
+  if (real && lk_glt_qst == 0) lk_glt_qinit();
+  if (real && lk_glt_qst > 0) { lk_glt_qresult(); if (!lk_glt_qpend[lk_glt_qi]) { lk_glBeginQuery(0x88BF, lk_glt_q[lk_glt_qi]); } else real |= 2; }   /* v5 watchdog (2: slot still busy, no query this frame) */
   lk_glEnableClientState(0x8074); lk_glVertexPointer(2, 0x1406, 0, quad); lk_glDrawArrays(0x0005, 0, 4);
+  if (real && lk_glt_qst > 0 && !(real & 2)) { lk_glEndQuery(0x88BF); lk_glt_qpend[lk_glt_qi] = 1; lk_glt_qi ^= 1; }
+  real &= 1;
   if (real) { lk_glBindFramebuffer(0x8D40, (lkGLuint)fb0); for (i = LK_GLT_NT - 1; i >= 0; i--) { lk_glActiveTexture(0x84C0 + i); lk_glBindTexture(0x0DE1, (lkGLuint)tb[i]); } return 1; }
   if (!rb) rb = (uint32_t *)malloc(448 * 224 * 4);
   if (rb) { lk_glPixelStorei(0x0D02, 0); lk_glPixelStorei(0x0D05, 4); lk_glReadPixels(0, 0, 448, 224, 0x80E1, 0x1401, rb); }
@@ -441,6 +622,7 @@ static int lk_glt_pass(int real) {   /* inside lk_gpu_present after SDL's state 
 }
 
 ''' % VER
+    MODULE = MODULE.replace("@SHADER5@", "\n".join('"%s\\n"' % l.replace("\\", "\\\\").replace('"', '\\"') for l in SH5.strip("\n").split("\n")))
     MODULE = MODULE.replace("@SHADER@", "\n".join('"%s\\n"' % l.replace("\\", "\\\\").replace('"', '\\"') for l in SHADER.strip("\n").split("\n")))
     a = "static long lk_gpu_frames;\n"
     assert s.count(a) == 1, "platform_sdl.c: LK_GPU module not found (patch_gpu.py first)"
