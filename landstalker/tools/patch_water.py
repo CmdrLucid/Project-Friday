@@ -6,8 +6,9 @@ $094F2A $09552A $09614A $09700A $09760A $097B4A $09820A $09838A $09912A $09960A,
 shrine group $0968CA) and $098EAA are left out; a pixel must also be bluish (blue > red), which keeps the ship's fluttering sail ($09912A) out.
 (1) Calm blue: water pixels move towards their grey value and get a little darker (LANDSTALKER_WATER_TINT 0..1, default 0 = the original colours, user 2026-11-06: 'blau original').
 (2) Reflections: every figure of the visible list ($FF11DE, entity +$0E / +$10 screen foot, +$12 z, +$14 / +$16 x / y) is mirrored at the line where the water
-plane under it would be (foot line + entity z - height of the first lower cell in front of it, within 6 cells); its own sprite pixels (lk_lt_spre tag) of this frame are written upside down into a
-reflection picture (nearer figures win), fading with distance from the mirror line; water pixels mix it in (alpha LANDSTALKER_WATER_ALPHA, default 0.5)
+plane under it would be: by default the floor under the figure (user pick B: the reflection starts at the feet; a jump mirrors at the floor);
+LANDSTALKER_WATER_FOOT=0 = foot line + entity z - height of the first lower cell in front of it, within 6 cells (variant A, physically offset); its own sprite pixels (lk_lt_spre tag) of this frame are written upside down into a
+reflection picture (nearer figures win), fading with distance from the mirror line; water pixels mix it in (alpha LANDSTALKER_WATER_ALPHA, default 0.6 (user 2026-11-06: 'etwas staerker, aber nicht viel'; was 0.5))
 read through a small rising ripple (1 px sideways, nearest).  Static tiles with >= 12 pixels in the colour indexes of the animated water tiles (in a palette line the animated water uses) count as water too (only those pixels)
 (docks / sea rooms: few animated tiles among static ones).  Picture only.  Independent of Lighting.  Not with HD graphics.
 Option: Options > Graphics > Water Reflections (id 52, ~/.landstalker_water, env LANDSTALKER_WATER=0|1 wins), default On.
@@ -46,7 +47,7 @@ static void lk_wr_step(void) {   /* once per map frame: the reflection picture f
   int a, y, nf = 0;
   lk_wr_frame = platform_frame_number();
   if (lk_wr_dbg < 0) { const char *e = getenv("LANDSTALKER_WATER_DBG"); lk_wr_dbg = e ? atoi(e) : 0; }
-  if (lk_wr_tk < 0) { const char *e = getenv("LANDSTALKER_WATER_TINT"), *f = getenv("LANDSTALKER_WATER_ALPHA"); float t = e ? (float)atof(e) : 0.0f, al = f ? (float)atof(f) : 0.5f; if (t < 0) t = 0; if (t > 1) t = 1; if (al < 0) al = 0; if (al > 1) al = 1; lk_wr_tk = (int)(t * 256.0f); lk_wr_ak = (int)(al * 256.0f); }
+  if (lk_wr_tk < 0) { const char *e = getenv("LANDSTALKER_WATER_TINT"), *f = getenv("LANDSTALKER_WATER_ALPHA"); float t = e ? (float)atof(e) : 0.0f, al = f ? (float)atof(f) : 0.6f; if (t < 0) t = 0; if (t > 1) t = 1; if (al < 0) al = 0; if (al > 1) al = 1; lk_wr_tk = (int)(t * 256.0f); lk_wr_ak = (int)(al * 256.0f); }
   if (lk_o_room != lk_wr_room) lk_wr_newroom();
   for (y = 0; y < 224; y++) if (lk_wr_line[y]) { memset(lk_wr_buf[y], 0, sizeof lk_wr_buf[y]); lk_wr_line[y] = 0; }
   if (!lk_wr_any || !lk_wr_ak) return;
@@ -61,8 +62,8 @@ static void lk_wr_step(void) {   /* once per map frame: the reflection picture f
       for (k = 1; k <= 6 && zw == gz; k++) for (d = 0; d < 3; d++) { int qx = cx + k - (d == 2), qy = cy + k - (d == 1), w3, h3;
         if (qx < 0 || qy < 0 || qx >= 74 || qy >= 74) continue;
         w3 = UW(0xFFD192 + 148 * qy + 2 * qx); h3 = w3 == 0x4000 ? 0 : 16 * ((w3 >> 8) & 15); if (h3 < zw) zw = h3; }
-      if (lk_wr_foot < 0) { const char *e = getenv("LANDSTALKER_WATER_FOOT"); lk_wr_foot = e ? atoi(e) : 0; }
-      if (lk_wr_foot) zw = gz;   /* test aid: mirror at the floor under the figure (reflection starts at the feet) */
+      if (lk_wr_foot < 0) { const char *e = getenv("LANDSTALKER_WATER_FOOT"); lk_wr_foot = e ? atoi(e) : 1; }
+      if (lk_wr_foot) zw = gz;   /* default (user 2026-11-06 picked B of A / B): mirror at the floor under the figure, the reflection starts at the feet; LANDSTALKER_WATER_FOOT=0 = mirror at the water plane in front (A, physically offset) */
       M = ay + (fz > zw ? fz - zw : 0); }   /* mirror line = foot line + the figure's height above the water plane (a jump mirrors at the water too) */
     nf++;
     x0 = ax - 28; x1 = ax + 28; y0 = ay - (M - ay) - 72; if (x0 < 0) x0 = 0; if (x1 > LK_OSW - 1) x1 = LK_OSW - 1; if (y0 < 0) y0 = 0;
