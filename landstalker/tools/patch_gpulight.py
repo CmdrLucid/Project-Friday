@@ -141,7 +141,7 @@ unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int o = y * 74 + x, ob = lk_lt_obj[y][x], hc = lk_lt_gh[y][x];
     if (ob > 0 && ob < 1024 && lk_lt_ocl[ob] == 1) { hc = lk_lt_sgnd[ob]; if (hc == -32768) hc = -32767; }
     w[o] = (uint32_t)(uint16_t)lk_lt_top[y][x] | ((uint32_t)(uint16_t)lk_lt_thin[y][x] << 16); w[5476 + o] = (uint32_t)lk_lt_vw[y][x] | ((uint32_t)(lk_lt_wat[y][x] ? 1 : 0) << 8) | ((uint32_t)(uint16_t)lk_lt_hd[y][x] << 16);
-    w[2 * 5476 + o] = (uint32_t)(uint16_t)lk_lt_hdn[y][x] << 16;   /* GL5c: the early exit field of the NEXT sun direction (sunn) */
+    { extern uint16_t lk_lt_cpk_at(int x, int y); w[2 * 5476 + o] = ((uint32_t)(uint16_t)lk_lt_hdn[y][x] << 16) | lk_lt_cpk_at(x, y); }   /* GL5c: the early exit field of the NEXT sun direction (sunn); low half: side penumbra objects lk_lt_cpk */
     w2[o] = (uint32_t)(uint16_t)hc | ((uint32_t)lk_lt_tk[y][x] << 16) | ((uint32_t)lk_lt_tr[y][x] << 24); w2[5476 + o] = (uint32_t)(uint16_t)lk_lt_tt[y][x] | ((uint32_t)(uint16_t)lk_lt_tb[y][x] << 16); w2[2 * 5476 + o] = (uint32_t)(uint16_t)lk_lt_gh[y][x] | ((uint32_t)(uint16_t)lk_lt_obj[y][x] << 16);
     LK_GL_H(w[o]); LK_GL_H(w[5476 + o]); LK_GL_H(w[2 * 5476 + o]); LK_GL_H(w2[o]); LK_GL_H(w2[5476 + o]); LK_GL_H(w2[2 * 5476 + o]); }
   for (y = 0; y < LK_LT_FN; y++) for (x = 0; x < LK_LT_FN; x++) { int o = y * LK_LT_FN + x, q = lk_lt_fp[y][x], fo = lk_lt_fo[y][x];
@@ -607,7 +607,7 @@ void main() {
 SH5 = r'''
 uniform sampler2D roomA; uniform sampler2D roomB; uniform sampler2D btab; uniform sampler2D bli; uniform sampler2D wld;
 uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec2 uBlk; uniform float uSunR; uniform float uAor; uniform float uZref; uniform float uAok; uniform float uAotop; uniform vec2 uDv[16];
-uniform sampler2D wld2; uniform sampler2D fine; uniform sampler2D prx; uniform sampler2D bex; uniform float uZtop; uniform vec3 uSd; uniform float uKey; uniform float uKbw; uniform float uKpen; uniform float uNsh; uniform vec4 uSh[9]; uniform sampler2D fine2; uniform float uZmax; uniform float uRayF;
+uniform sampler2D wld2; uniform sampler2D fine; uniform sampler2D prx; uniform sampler2D bex; uniform float uSside; uniform float uZtop; uniform vec3 uSd; uniform float uKey; uniform float uKbw; uniform float uKpen; uniform float uNsh; uniform vec4 uSh[9]; uniform sampler2D fine2; uniform float uZmax; uniform float uRayF;
 uniform sampler2D geo; uniform float uMode; uniform vec3 uSdN; uniform float uSunN; uniform float uKA; uniform float uKK; uniform vec3 uShc; uniform float uKm;
 float B(float v) { return floor(v * 255.0 + 0.5); }
 float S16(float lo, float hi) { float v = lo + 256.0 * hi; return v >= 32768.0 ? v - 65536.0 : v; }
@@ -663,6 +663,22 @@ float aoval(float px, float py, float z, float f) {   /* lk_lt_aoval */
 vec3 P(float U, float V, float z) { float D = U - 1184.0; return vec3((2.0 * V + 2.0 * z + D) * 0.5, (2.0 * V + 2.0 * z - D) * 0.5, z); }
 vec4 W2(float cx, float cy, float hf) { return texture2D(wld2, (vec2(cx, cy + 74.0 * hf) + 0.5) / vec2(74.0, 222.0)); }
 vec4 FN(float sx, float sy, float hf) { return texture2D(fine, (vec2(sx, sy + 296.0 * hf) + 0.5) / vec2(296.0, 592.0)); }
+float sidecl(float x, float y, float z, float cx, float cy, float self) {   /* = lk_lt_sidecl (patch_lights.py): horizontal distance to a neighbour cell reaching above z (side penumbra) */
+  float cl = 9999.0;
+  for (int b2 = -1; b2 <= 1; b2++) for (int a2 = -1; a2 <= 1; a2++) { float ax = cx + float(a2), by = cy + float(b2);
+    if ((a2 == 0 && b2 == 0) || ax < 0.0 || by < 0.0 || ax > 73.0 || by > 73.0) continue;
+    vec4 n0 = W2(ax, by, 0.0); float hn = S16(B(n0.r), B(n0.g)); if (hn == -32768.0) continue;
+    vec4 n2 = W2(ax, by, 2.0); float ob = S16(B(n2.b), B(n2.a)); if (self != 0.0 && ob == self) continue;
+    vec4 nf = FN(4.0 * ax + 2.0, 4.0 * by + 2.0, 1.0); float nq = B(nf.r), nt = B(nf.g);
+    if (nq > 0.0 && nt == 3.0) continue;
+    if (nq > 0.0 && nt == 5.0 && B(n0.b) > 0.0) { vec4 n1 = W2(ax, by, 1.0); hn = S16(B(n1.b), B(n1.a)); }
+    float ex, ey;
+    if (hn + 0.5 > z) { ex = a2 > 0 ? 16.0 * ax - x : a2 < 0 ? x - 16.0 * (ax + 1.0) : 0.0; ey = b2 > 0 ? 16.0 * by - y : b2 < 0 ? y - 16.0 * (by + 1.0) : 0.0;
+      ex = max(ex, 0.0); ey = max(ey, 0.0); cl = min(cl, sqrt(ex * ex + ey * ey)); }
+    vec4 wc = W(ax, by, 2.0); float tq = B(wc.r), bb = B(wc.g);
+    if (tq > 0.0 && 4.0 * tq + 0.5 > z) { float bx0 = 16.0 * ax + 4.0 * mod(bb, 4.0), bx1 = 16.0 * ax + 4.0 * (mod(floor(bb / 4.0), 4.0) + 1.0), by0 = 16.0 * by + 4.0 * mod(floor(bb / 16.0), 4.0), by1 = 16.0 * by + 4.0 * (floor(bb / 64.0) + 1.0);
+      ex = x < bx0 ? bx0 - x : x > bx1 ? x - bx1 : 0.0; ey = y < by0 ? by0 - y : y > by1 ? y - by1 : 0.0; cl = min(cl, sqrt(ex * ex + ey * ey)); } }
+  return cl; }
 float sunvis(vec3 sd, float hs, vec3 p, float self) {   /* lk_lt_sunvis: march to the sun through the game heights, the object field, lathes, bushes / pines; soft edge LK_LT_PEN 12 */
   float hl = sqrt(sd.x * sd.x + sd.y * sd.y), res = 1.0, t = 2.0;
   if (hl < 1e-3) hl = 1e-3;
@@ -682,6 +698,7 @@ float sunvis(vec3 sd, float hs, vec3 p, float self) {   /* lk_lt_sunvis: march t
       if (z <= zc && dh - 1.5 < cl) cl = dh - 1.5;
       if (cl <= 0.0) return 0.0; r = 12.0 * cl / (t * hl); if (r < res) res = r;
       d = z - zb + 0.5; if (d <= 0.0) return 0.0; r = 12.0 * d / (t * hl); if (r < res) res = r;
+      if (uSside > 0.5) { float cl2 = sidecl(x, y, z, cx, cy, self); if (cl2 < 9999.0) { r = 12.0 * cl2 / (t * hl); if (r < res) res = r; } }
       if (12.0 * (z - hdv + 0.5) >= res * t * hl) return res;
       continue; }
     if (q > 0.0 && qt == 3.0) {   /* a lathe (tree) with its drawn profile */
@@ -690,11 +707,13 @@ float sunvis(vec3 sd, float hs, vec3 p, float self) {   /* lk_lt_sunvis: march t
       if (kk >= 0.0 && kk < ridge - z0) { vec4 pf = texture2D(prx, (vec2(2.0 + floor(kk / 4.0), q - 1.0) + 0.5) / vec2(26.0, 255.0)); float m = mod(kk, 4.0), pv = B(m < 0.5 ? pf.r : m < 1.5 ? pf.g : m < 2.5 ? pf.b : pf.a);
         float cl = dd - pv; if (cl <= 0.0) return 0.0; r = 12.0 * cl / (t * hl); if (r < res) res = r; }
       d = z - h + 0.5; if (d <= 0.0) return 0.0; r = 12.0 * d / (t * hl); if (r < res) res = r;
+      if (uSside > 0.5) { float cl2 = sidecl(x, y, z, cx, cy, self); if (cl2 < 9999.0) { r = 12.0 * cl2 / (t * hl); if (r < res) res = r; } }
       if (12.0 * (z - hdv + 0.5) >= res * t * hl) return res;
       continue; }
     float fh = S16(B(f0.r), B(f0.g)); if (o != 0.0 && fh > h) h = fh;
     d = z - h + 0.5; if (d <= 0.0) return 0.0;
     r = 12.0 * d / (t * hl); if (r < res) res = r;
+    if (uSside > 0.5) { float cl2 = sidecl(x, y, z, cx, cy, self); if (cl2 < 9999.0) { r = 12.0 * cl2 / (t * hl); if (r < res) res = r; } }
     if (12.0 * (z - hdv + 0.5) >= res * t * hl) return res; }
   return res; }
 float keyvis(vec3 sd, vec3 p) {   /* lk_lt_keyvisd */
@@ -921,7 +940,7 @@ static void lk_g5_pbdrain(void) { int k = lk_g5_pbi ^ 1, j; const uint32_t *m;  
 #define LK_G5_Q 24
 static int lk_g5_n, lk_g5_bx[LK_G5_Q], lk_g5_by[LK_G5_Q], lk_g5_nl[LK_G5_Q]; static uint32_t lk_g5_ref[LK_G5_Q][5][1024]; static int lk_g5_maxshow = 16, lk_g5_every = 300; static long lk_g5_cnt[6][3], lk_g5_blocks, lk_g5_frames, lk_g5_last; static int lk_g5_shown;
 static const char *lk_g5_fs = "#version 120\n" @SHADER5@;
-static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", 0 };
+static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", "uSside", 0 };
 static int lk_g5_want(void) { if (lk_g5_on < 0) { const char *e = getenv("LANDSTALKER_GL5CMP"), *e2 = getenv("LANDSTALKER_GL5CMP_SHOW"), *e3 = getenv("LANDSTALKER_GL5CMP_EVERY"); lk_g5_on = e ? atoi(e) : 0; if (e2) lk_g5_maxshow = atoi(e2); if (e3 && atoi(e3) > 0) lk_g5_every = atoi(e3); } return lk_g5_on > 0 && lk_g5_st >= 0; }
 static int lk_g5_init(void) {
   lkGLint ok = 0, t0 = 0, fb0 = 0; lkGLuint vs, fs; char log[2048]; int i; lkGLenum st;
@@ -965,7 +984,7 @@ static int lk_g5_bind(const float *lp, const float *lc, int fresh) {   /* progra
   lk_glUseProgram(lk_g5_prog);
   lk_glUniform1i(lk_g5_u[2], 4); lk_glUniform1i(lk_g5_u[3], 9); lk_glUniform1i(lk_g5_u[4], 0);
   lk_glUniform4fv(lk_g5_u[5], 96, lp); lk_glUniform4fv(lk_g5_u[6], 96, lc);
-  lk_glUniform1f(lk_g5_u[8], sc[0]); lk_glUniform1f(lk_g5_u[9], sc[1]); lk_glUniform1f(lk_g5_u[10], sc[2]); lk_glUniform1f(lk_g5_u[11], sc[3]); lk_glUniform1f(lk_g5_u[12], sc[4]);
+  { extern int lk_lt_sside_get(void); lk_glUniform1f(lk_g5_u[36], lk_lt_sside_get() ? 1.0f : 0.0f); } lk_glUniform1f(lk_g5_u[8], sc[0]); lk_glUniform1f(lk_g5_u[9], sc[1]); lk_glUniform1f(lk_g5_u[10], sc[2]); lk_glUniform1f(lk_g5_u[11], sc[3]); lk_glUniform1f(lk_g5_u[12], sc[4]);
   lk_glUniform1i(lk_g5_u[14], 1); lk_glUniform1i(lk_g5_u[15], 2); lk_glUniform1i(lk_g5_u[16], 5); lk_glUniform1i(lk_g5_u[17], 6);
   lk_glUniform1i(lk_g5_u[25], 8); lk_glUniform1f(lk_g5_u[26], sc[12]); lk_glUniform1f(lk_g5_u[27], sc[13]); lk_glUniform1i(lk_g5_u[28], 10);
   { int nsh = lk_gl_shafts(shf); lk_glUniform1f(lk_g5_u[23], (float)nsh); lk_glUniform4fv(lk_g5_u[24], 9, shf); sc[31] = (float)nsh; }

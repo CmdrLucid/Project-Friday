@@ -548,6 +548,29 @@ static int lk_lt_sunp(void) {   /* v5 prototype: LANDSTALKER_SUN=1..3 (soft / me
   r = lk_lt_get() ? v : 0;
   return r;
 }
+static uint16_t lk_lt_cpk[74][74];   /* side penumbra: per cell the drawn OBJECT inside it (fine field, not bush / pine / lathe): bits 0..7 top / 4 (rounded up, 0 = none), bits 8..15 fine box x0 x1 y0 y1 (2 bits each); also sent to the GPU (lk_gl_world w row 2) */
+static int lk_lt_sside = 1;   /* side penumbra of the sun march (LANDSTALKER_LT_SSIDE=0 = off, read at room setup) */
+int lk_lt_sside_get(void) { return lk_lt_sside; }
+uint16_t lk_lt_cpk_at(int x, int y) { return lk_lt_cpk[y][x]; }   /* for the GPU port (patch_gpulight.py sunvis) */
+static float lk_lt_sidecl(float x, float y, float z, int cx, int cy, int self) {   /* 2026-11-07 SIDE PENUMBRA (GitHub issue #14, user 'ja'): the closest pass of lk_lt_sunvis only measured
+     the clearance ABOVE the cell under the ray, so a ray passing BESIDE a taller cell (a pine block's base, a cliff, a house) gave a knife-sharp edge.  Horizontal distance from (x, y) to the
+     nearest neighbour cell that reaches above z: game height (bush / pine cells: their base lk_lt_tb, the cone has its own soft edge; lathes skipped) and the drawn object inside it (lk_lt_cpk box).
+     The point's own object is skipped.  Mirrored in patch_gpulight.py sidecl (lockstep).  9999 = nothing */
+  float cl = 9999.0f; int a, b2;
+  for (b2 = cy - 1; b2 <= cy + 1; b2++) for (a = cx - 1; a <= cx + 1; a++) { float hn, ex, ey; int ob, q2; unsigned pk;
+    if ((a == cx && b2 == cy) || a < 0 || b2 < 0 || a >= 74 || b2 >= 74 || lk_lt_gh[b2][a] == -32768) continue;
+    ob = lk_lt_obj[b2][a]; if (self && ob == self) continue;
+    hn = (float)lk_lt_gh[b2][a]; if (ob > 0 && ob < 1024 && lk_lt_ocl[ob] == 1) hn = (float)lk_lt_sgnd[ob];
+    q2 = lk_lt_fp[4 * b2 + 2][4 * a + 2];
+    if (q2 && lk_lt_px[q2 - 1].type == 3) continue;
+    if (q2 && lk_lt_px[q2 - 1].type == 5 && lk_lt_tk[b2][a]) hn = (float)lk_lt_tb[b2][a];
+    if (hn + 0.5f > z) { ex = a > cx ? 16.0f * (float)a - x : a < cx ? x - 16.0f * (float)(a + 1) : 0.0f; ey = b2 > cy ? 16.0f * (float)b2 - y : b2 < cy ? y - 16.0f * (float)(b2 + 1) : 0.0f;
+      if (ex < 0.0f) ex = 0.0f; if (ey < 0.0f) ey = 0.0f; ex = sqrtf(ex * ex + ey * ey); if (ex < cl) cl = ex; }
+    pk = lk_lt_cpk[b2][a];
+    if (pk && 4.0f * (float)(pk & 255) + 0.5f > z) { float bx0 = 16.0f * (float)a + 4.0f * (float)((pk >> 8) & 3), bx1 = 16.0f * (float)a + 4.0f * (float)(((pk >> 10) & 3) + 1),
+        by0 = 16.0f * (float)b2 + 4.0f * (float)((pk >> 12) & 3), by1 = 16.0f * (float)b2 + 4.0f * (float)(((pk >> 14) & 3) + 1);
+      ex = x < bx0 ? bx0 - x : x > bx1 ? x - bx1 : 0.0f; ey = y < by0 ? by0 - y : y > by1 ? y - by1 : 0.0f; ex = sqrtf(ex * ex + ey * ey); if (ex < cl) cl = ex; } }
+  return cl; }
 static float lk_lt_sunvis(float px, float py, float pz, int self) {   /* v7: share of the sun that reaches a point (0..1): march to the sun through the game's
      heights and the fine object field (lk_lt_fh), objects of the pixel's own object skipped (no self shadow: the painting has it); the closest pass gives a soft edge */
   const float *sd = lk_lt_sdp ? lk_lt_sdp : lk_lt_sd; int16_t (*hd)[74] = lk_lt_hdp ? lk_lt_hdp : lk_lt_hd;   /* LK_DAYNIGHT v1 */
@@ -567,16 +590,19 @@ static float lk_lt_sunvis(float px, float py, float pz, int self) {   /* v7: sha
           if (z <= zc && dh - 1.5f < cl) cl = dh - 1.5f;   /* trunk */
           if (cl <= 0.0f) return 0.0f; r = LK_LT_PEN * cl / (t * hl); if (r < res) res = r;
           d = z - zb + 0.5f; if (d <= 0.0f) return 0.0f; r = LK_LT_PEN * d / (t * hl); if (r < res) res = r;
+          if (lk_lt_sside) { float cl2 = lk_lt_sidecl(x, y, z, cx, cy, self); if (cl2 < 9999.0f) { r = LK_LT_PEN * cl2 / (t * hl); if (r < res) res = r; } }
           if (LK_LT_PEN * (z - (float)hd[cy][cx] + 0.5f) >= res * t * hl) return res;
           continue; }
         if (q && lk_lt_px[q - 1].type == 3) { const lk_lt_proxy *P = &lk_lt_px[q - 1]; int kk = (int)floorf(z - (float)P->z0); float ddx = x - P->x0, ddy = y - P->y0, dd = sqrtf(ddx * ddx + ddy * ddy), cl;
           if (kk >= 0 && kk < P->ridge - P->z0) { cl = dd - (float)lk_lt_prof[q - 1][kk]; if (cl <= 0.0f) return 0.0f; r = LK_LT_PEN * cl / (t * hl); if (r < res) res = r; }
           d = z - h + 0.5f; if (d <= 0.0f) return 0.0f; r = LK_LT_PEN * d / (t * hl); if (r < res) res = r;
+          if (lk_lt_sside) { float cl2 = lk_lt_sidecl(x, y, z, cx, cy, self); if (cl2 < 9999.0f) { r = LK_LT_PEN * cl2 / (t * hl); if (r < res) res = r; } }
           if (LK_LT_PEN * (z - (float)hd[cy][cx] + 0.5f) >= res * t * hl) return res;
           continue; }
         if (o && (float)lk_lt_fh[sy][sx] > h) h = (float)lk_lt_fh[sy][sx]; } }
     d = z - h + 0.5f; if (d <= 0.0f) return 0.0f;
     r = LK_LT_PEN * d / (t * hl); if (r < res) res = r;
+    if (lk_lt_sside) { float cl = lk_lt_sidecl(x, y, z, cx, cy, self); if (cl < 9999.0f) { r = LK_LT_PEN * cl / (t * hl); if (r < res) res = r; } }
     if (LK_LT_PEN * (z - (float)hd[cy][cx] + 0.5f) >= res * t * hl) return res;   /* v7 speed: nothing ahead reaches the ray any more (later passes are >= min(res, PEN * 0.64 / hl)) */
   }
 }
@@ -1048,6 +1074,17 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         if (v2[y][x] & 2) { for (r = 1, a = x - 1; a >= 0 && (v2[y][a] & 2); a--) r++; for (a = x + 1; a < 74 && (v2[y][a] & 2); a++) r++; if (r < 4) lk_lt_vw[y][x] &= (uint8)~2; } } }
     for (m = 1; m < 16; m++) if (hist[m] > hist[best]) best = m;
     if (hist[best] > 0) lk_lt_zref = 16 * best; }
+  if (lk_lt_sun && !(getenv("LANDSTALKER_LT_INVIS") && atoi(getenv("LANDSTALKER_LT_INVIS")) == 0)) { static int16_t dn2[74][74]; int ni = 0;   /* 2026-11-07 INVISIBLE BARRIERS outdoors (GitHub issue #14,
+       room 483 north of Destel: 'out of place looking environmental shadow'): height map word $4Fxx = blocked + height 15 (240 units, taller than the screen) marks the invisible walls at a
+       room's edge (483: x 21..23, y 50..60, nothing drawn there); they cast huge shadows with hard edges and no visible caster.  Our copy: such a cell takes the highest height of its
+       non-barrier neighbours, BEFORE the water rule (a painted void cell beside a barrier became a 'water floor' at 232 = an invisible block, room 483 front edge).  Test aid LANDSTALKER_LT_INVIS=0 */
+    memcpy(dn2, lk_lt_top, sizeof dn2);
+    for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x), m = -32768, a, b2; if (w == 0x4000 || (w >> 8) != 0x4F) continue;
+      for (b2 = y - 1; b2 <= y + 1; b2++) for (a = x - 1; a <= x + 1; a++) { int w2; if (a < 0 || b2 < 0 || a >= 74 || b2 >= 74) continue; w2 = UW(0xFFD192 + 148 * b2 + 2 * a);
+        if (w2 == 0x4000 || (w2 >> 8) == 0x4F || lk_lt_top[b2][a] == -32768) continue; if (lk_lt_top[b2][a] > m) m = lk_lt_top[b2][a]; }
+      dn2[y][x] = (int16_t)(m == -32768 ? 0 : m); ni++; }
+    memcpy(lk_lt_top, dn2, sizeof dn2);
+    if (lk_lt_dbg == 1 && ni) printf("invisible barriers: room %%d, %%d cells lowered\n", lk_o_room, ni); }
   memset(lk_lt_wat, 0, sizeof lk_lt_wat);
   if (lk_lt_sun || lk_lt_aor) { int pass, ch = 1, nw = 0; static int16_t org[74][74];   /* v8: also indoors (room light): painted water beside a walkway was void = an endless wall down = a dark box on the water (room 185, lightedges) */
     memcpy(org, lk_lt_top, sizeof org);
@@ -1082,21 +1119,16 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
           if (ok && lo < 9999) { if (bt < lo) lo = bt; if (lo > dn[y][x]) { dn[y][x] = (int16_t)lo; nd++; } } } }
       memcpy(lk_lt_top, dn, sizeof dn);
       if (lk_lt_dbg == 1 && nd) printf("door niches: room %%d, %%d cells filled\n", lk_o_room, nd); }
-    if (lk_lt_sun && !(getenv("LANDSTALKER_LT_INVIS") && atoi(getenv("LANDSTALKER_LT_INVIS")) == 0)) { static int16_t dn2[74][74]; int ni = 0;   /* 2026-11-07 INVISIBLE BARRIERS outdoors (GitHub issue #14,
-         room 483 north of Destel: 'out of place looking environmental shadow'): height map word $4Fxx = blocked + height 15 (240 units, taller than the screen) marks the invisible walls at a
-         room's edge (483: x 21..23, y 50..60, nothing drawn there); they cast huge shadows with hard edges and no visible caster.  Our copy: such a cell takes the highest height of its
-         non-barrier neighbours.  Test aid LANDSTALKER_LT_INVIS=0 */
-      memcpy(dn2, lk_lt_top, sizeof dn2);
-      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x), m = -32768, a, b2; if (w == 0x4000 || (w >> 8) != 0x4F) continue;
-        for (b2 = y - 1; b2 <= y + 1; b2++) for (a = x - 1; a <= x + 1; a++) { int w2; if (a < 0 || b2 < 0 || a >= 74 || b2 >= 74) continue; w2 = UW(0xFFD192 + 148 * b2 + 2 * a);
-          if (w2 == 0x4000 || (w2 >> 8) == 0x4F || lk_lt_top[b2][a] == -32768) continue; if (lk_lt_top[b2][a] > m) m = lk_lt_top[b2][a]; }
-        dn2[y][x] = (int16_t)(m == -32768 ? 0 : m); ni++; }
-      memcpy(lk_lt_top, dn2, sizeof dn2);
-      if (lk_lt_dbg == 1 && ni) printf("invisible barriers: room %%d, %%d cells lowered\n", lk_o_room, ni); }
     memcpy(lk_lt_gh, lk_lt_top, sizeof lk_lt_gh);
     if (lk_lt_dbg == 5) printf("water: room %%d, %%d void cells painted -> floor\n", lk_o_room, nw); }
   { struct timespec t0; clock_gettime(CLOCK_MONOTONIC, &t0);
     if (lk_lt_sun && lk_lt_extrude()) for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (lk_lt_top[y][x] > lk_lt_zmax) lk_lt_zmax = lk_lt_top[y][x];
+    memset(lk_lt_cpk, 0, sizeof lk_lt_cpk);
+    if (lk_lt_sun) for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int i, j, top = -32768, x0 = 4, x1 = -1, y0 = 4, y1 = -1;   /* side penumbra data (lk_lt_cpk) */
+      for (j = 0; j < 4; j++) for (i = 0; i < 4; i++) { int sx = 4 * x + i, sy = 4 * y + j, q = lk_lt_fp[sy][sx], f = lk_lt_fh[sy][sx];
+        if (!lk_lt_fo[sy][sx] || f <= lk_lt_gh[y][x] || (q && (lk_lt_px[q - 1].type == 5 || lk_lt_px[q - 1].type == 3))) continue;
+        if (f > top) top = f; if (i < x0) x0 = i; if (i > x1) x1 = i; if (j < y0) y0 = j; if (j > y1) y1 = j; }
+      if (top > 0) { int tq = (top + 3) / 4; if (tq > 255) tq = 255; lk_lt_cpk[y][x] = (uint16_t)(tq | (x0 << 8) | (x1 << 10) | (y0 << 12) | (y1 << 14)); } }
     if (lk_lt_dbg == 5 && lk_lt_sun) printf("extrude: room %%d %%.1f ms, %%d cards\n", lk_o_room, lk_sm_ms_since(&t0), lk_lt_nc); }   /* v7 test aid: room load cost of the outdoor objects */
   if (lk_lt_sun && lk_lt_fhmax > lk_lt_zmax) lk_lt_zmax = lk_lt_fhmax;   /* v7: the sun march stops above the highest object */
   lk_lt_ztop = lk_lt_zmax; lk_lt_pah = lk_lt_pahash();
@@ -1138,8 +1170,9 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         lk_lt_nl++; }
     }
   }
-  if (lk_lt_dbg == 3) { for (y = 18; y < 34; y++) { printf("hm %%2d:", y); for (x = 18; x < 44; x++) printf(" %%4d", lk_lt_top[y][x] == -32768 ? -1 : lk_lt_top[y][x]); printf("\n"); } }
-  { const char *e = getenv("LANDSTALKER_LT_THINRAY"); lk_lt_thinz = e && atoi(e) == 0 ? 8.0f : 16.0f; }   /* 2026-11-07 (user rec_20261107_1822, room 680: light box + hard shadow at the standing torch
+  if (lk_lt_dbg == 3) { int x0 = 18, y0 = 18; const char *e = getenv("LANDSTALKER_LT_HMWIN"); if (e) sscanf(e, "%%d,%%d", &x0, &y0);   /* LANDSTALKER_LT_HMWIN=x0,y0: the 26 x 16 window printed (lk_lt_top / lk_lt_gh) */
+    for (y = y0; y < y0 + 16 && y < 74; y++) { printf("hm %%2d:", y); for (x = x0; x < x0 + 26 && x < 74; x++) printf(" %%4d", y < 0 || x < 0 ? -2 : lk_lt_top[y][x] == -32768 ? -1 : lk_lt_top[y][x]); printf("  | gh"); for (x = x0; x < x0 + 26 && x < 74; x++) printf(" %%4d", y < 0 || x < 0 ? -2 : lk_lt_gh[y][x] == -32768 ? -1 : lk_lt_gh[y][x]); printf("\n"); } }
+  { const char *e = getenv("LANDSTALKER_LT_THINRAY"); lk_lt_thinz = e && atoi(e) == 0 ? 8.0f : 16.0f; } { const char *e = getenv("LANDSTALKER_LT_SSIDE"); lk_lt_sside = !(e && atoi(e) == 0); }   /* 2026-11-07 (user rec_20261107_1822, room 680: light box + hard shadow at the standing torch
        by the wall): the flame is found 15 below its pillar's collision top (light (293, 415, 49), pillar (17, 25) top 64: the drawn torch stands one cell in front of its collision
        cell, at the room's front edge) -> tolerance 16 (was 8); test aid LANDSTALKER_LT_THINRAY=0 = 8 */
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (lk_lt_thin[y][x] > -32768) { int keep = 0;   /* only a column that CARRIES a flame (a light within one cell, at or above its top) stays thin:
