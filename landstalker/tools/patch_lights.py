@@ -1023,7 +1023,9 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         for (d = 0; d < 4; d++) { int nx = cx + dd[d][0], ny = cy + dd[d][1], t; if (nx < 0 || ny < 0 || nx >= 74 || ny >= 74) { ok = 0; break; }
           t = lk_lt_top[ny][nx];
           if (t == h) { int w2 = UW(0xFFD192 + 148 * ny + 2 * nx);   /* same height: the same column only with the same blocked flag (room 87: walkable pillar cells of height 5 in front of a blocked wall of height 5) */
-            if (((w2 >> 8) & 0x60) != ((w >> 8) & 0x60) || done[ny][nx]) continue;
+            if (((w2 >> 8) & 0x60) != ((w >> 8) & 0x60)) continue;
+            if (done[ny][nx]) { int q2, mine = 0; for (q2 = 0; q2 < n; q2++) if (st[q2][0] == nx && st[q2][1] == ny) mine = 1; if (mine) continue; ok = 0; break; }   /* 2026-11-07: a cell of an EARLIER flood
+               (one that grew too big = a wall) joins this one: the end piece of a long wall is no column (room 86: wall x 38 rows 22..28, the last two cells were 'thin' beside a torch) */
             if (n >= 4) { ok = 0; break; } done[ny][nx] = 1; st[n][0] = (int16_t)nx; st[n][1] = (int16_t)ny; n++; continue; }
           if (t == -32768 || t > h) continue;   /* a void gap (stairwell, room 55) or a higher wall behind it: still a pillar (only columns that CARRY a flame stay thin, below) */
           if (t > gnd) gnd = t; } }
