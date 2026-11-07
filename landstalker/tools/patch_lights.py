@@ -149,6 +149,7 @@ static lk_lt_light lk_lt_sw; static float lk_lt_swk; static int lk_lt_swon;   /*
 typedef struct { float fx, fy, fz; int ax, ay; float sun; int tag; } lk_lt_fig;   /* tag (v7): entity offset / 0x80 + 1 = lk_lt_spre of its own sprite pixels */
 static lk_lt_fig lk_lt_f[16]; static int lk_lt_nf, lk_lt_on;
 static float lk_lt_fb[512][12]; static int lk_lt_nfb, lk_lt_fbj[512], lk_lt_fmall, lk_lt_fmask, lk_lt_pbox[LK_LT_ML][16][4], lk_lt_curx, lk_lt_cury;   /* pbox: v8 SPEED, screen box of each flame / figure shadow (lk_lt_shadowed skips pixels outside) */ static void lk_lt_fmkbuild(void);   /* v8 SPEED: per figure the screen region its shadow can fall into (key light): its card box x0 y0 x1 y1 swept along (ex, ey); figsun only there, only those figures */
+static float lk_lt_thinz = 16.0f;   /* the flame check of lk_lt_thin: a light within one cell at most this far below the column top */
 static int16_t lk_lt_thin[74][74];   /* indoors: a THIN free standing column (pillar / post: <= 4 blocked cells of one height, higher than all neighbours) -> the floor around it, else -32768;
      layer B pixels (walls / floors behind it) pass through it, only its own layer A pixels sit on it (user 2026-11-04: the torches stood in a lit box = the pillar's collision column);
      kept only under a flame; such a pillar casts no shadow either (its 16 x 16 collision column under its own flame shaded the room: user 2026-11-05) */
@@ -1125,14 +1126,12 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
     }
   }
   if (lk_lt_dbg == 3) { for (y = 18; y < 34; y++) { printf("hm %%2d:", y); for (x = 18; x < 44; x++) printf(" %%4d", lk_lt_top[y][x] == -32768 ? -1 : lk_lt_top[y][x]); printf("\n"); } }
+  { const char *e = getenv("LANDSTALKER_LT_THINRAY"); lk_lt_thinz = e && atoi(e) == 0 ? 8.0f : 16.0f; }   /* 2026-11-07 (user rec_20261107_1822, room 680: light box + hard shadow at the standing torch
+       by the wall): the flame is found 15 below its pillar's collision top (light (293, 415, 49), pillar (17, 25) top 64: the drawn torch stands one cell in front of its collision
+       cell, at the room's front edge) -> tolerance 16 (was 8); test aid LANDSTALKER_LT_THINRAY=0 = 8 */
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (lk_lt_thin[y][x] > -32768) { int keep = 0;   /* only a column that CARRIES a flame (a light within one cell, at or above its top) stays thin:
        wall pieces at the edge of the void looked like free standing columns too (user 2026-11-05: big wrong shadow in room 55) */
-    for (k = 0; k < lk_lt_nl; k++) { int lx = (int)floorf(lk_lt_l[k].x / 16.0f), ly = (int)floorf(lk_lt_l[k].y / 16.0f), sv; if (abs(lx - x) <= 1 && abs(ly - y) <= 1 && lk_lt_l[k].z >= (float)lk_lt_top[y][x] - 8.0f) keep = 1;
-      for (sv = 1; sv <= 32 && !keep && !(getenv("LANDSTALKER_LT_THINRAY") && atoi(getenv("LANDSTALKER_LT_THINRAY")) == 0); sv++) {   /* test aid LANDSTALKER_LT_THINRAY=0: old rule */
-        float qx = lk_lt_l[k].x - (float)sv, qy = lk_lt_l[k].y - (float)sv, qz = lk_lt_l[k].z + (float)sv;   /* 2026-11-07 (user rec_20261107_1822, room 680: light box at the standing torch
-          by the wall): the light can sit on the VIEW RAY in front of its pillar (same screen spot, (x, y, z) + s (1, 1, 1); room 680 light (293, 415, 49) = pillar (17, 25) top 64 at s = 15) */
-        int cx2 = (int)floorf(qx / 16.0f), cy2 = (int)floorf(qy / 16.0f); if (cx2 < 0 || cy2 < 0 || cx2 >= 74 || cy2 >= 74) break;
-        if (qz <= (float)lk_lt_top[cy2][cx2] + 2.0f) { if (cx2 == x && cy2 == y && qz >= (float)lk_lt_top[y][x] - 16.0f) keep = 1; break; } } }   /* only the FIRST column the ray meets (not the wall behind it); room 680: the ray meets the pillar's front 9 below its top */
+    for (k = 0; k < lk_lt_nl; k++) { int lx = (int)floorf(lk_lt_l[k].x / 16.0f), ly = (int)floorf(lk_lt_l[k].y / 16.0f); if (abs(lx - x) <= 1 && abs(ly - y) <= 1 && lk_lt_l[k].z >= (float)lk_lt_top[y][x] - lk_lt_thinz) keep = 1; }
     if (!keep) lk_lt_thin[y][x] = -32768;
     else if (lk_lt_dbg == 1) printf("thin column: room %%d cell %%d,%%d top %%d floor %%d\n", lk_o_room, x, y, lk_lt_top[y][x], lk_lt_thin[y][x]); }
   lk_lt_nfl = lk_lt_nl;   /* LK_DAYNIGHT v3: the flames (lava, torches); window lights follow */
