@@ -61,8 +61,13 @@ static int lk_gl_postok; static void lk_gl_postinit(void) { int i; for (i = 0; i
 static int lk_gl_pf;          /* flags of the current lk_lt_pix call: 1 figure pixel, 2 figure sun / key shadow, 4 a flame term, 8 particle, 16 figure flame shadow, 32 figure shade in a pool, 64 dust mote */
 static unsigned lk_gl_sunver; /* bumped when the blocks take over the next sun direction (memcpy sun <- sunn) */
 uint32_t lk_gl_unlit[224 * 448], lk_gl_ref[224 * 448]; uint8_t lk_gl_cls[224 * 448], lk_gl_flg[224 * 448]; uint32_t lk_gl_row[224]; long lk_gl_rowfr[224]; int lk_gl_w; long lk_gl_capfr = -9;
+#ifdef _WIN32
+#define LK_GLE_DEF 0   /* user 2026-11-07: Light Engine CPU by default on Windows (like the Picture Engine) until a Windows user tested the GPU path */
+#else
+#define LK_GLE_DEF 1
+#endif
 static int lk_gle_o = -1;    /* v5: Options > Display > Light Engine (id 56, ~/.landstalker_lightengine, env LANDSTALKER_LIGHTENGINE=0|1 wins): 1 GPU (default; the GPU also computes the light blocks, GL5c, user 2026-11-06 'GPU+ kann einfach Standard werden'; old value 2 = GPU), 0 CPU */
-int lk_gle_get(void) { if (lk_gle_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_LIGHTENGINE"); char pth[512]; FILE *f; int v = 1; snprintf(pth, sizeof pth, "%%s/.landstalker_lightengine", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%%d", &v) != 1) v = 1; fclose(f); } if (e) v = atoi(e); lk_gle_o = v < 0 ? 0 : v > 2 ? 2 : v; } return lk_gle_o; }
+int lk_gle_get(void) { if (lk_gle_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_LIGHTENGINE"); char pth[512]; FILE *f; int v = LK_GLE_DEF; snprintf(pth, sizeof pth, "%%s/.landstalker_lightengine", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%%d", &v) != 1) v = LK_GLE_DEF; fclose(f); } if (e) v = atoi(e); lk_gle_o = v < 0 ? 0 : v > 2 ? 2 : v; } return lk_gle_o; }
 void lk_gle_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_gle_get(); lk_gle_o = v < 0 ? 0 : v > 2 ? 2 : v; snprintf(pth, sizeof pth, "%%s/.landstalker_lightengine", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%d\n", lk_gle_o); fclose(f); } }
 static int lk_bl_o = -1;     /* v5 GL5d: Options > Graphics > Bounce Light (id 57, ~/.landstalker_bounce, env LANDSTALKER_BOUNCE=0|1 wins), default Off (user's check first); GPU light engines only */
 int lk_bl_get(void) { if (lk_bl_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_BOUNCE"); char pth[512]; FILE *f; int v = 0; snprintf(pth, sizeof pth, "%%s/.landstalker_bounce", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%%d", &v) != 1) v = 0; fclose(f); } if (e) v = atoi(e); lk_bl_o = v ? 1 : 0; } return lk_bl_o; }
@@ -502,7 +507,7 @@ float figBlock(vec3 p, vec3 L, int self) {   /* GL5f step 2: share of a flame's 
     if (dx < -18.0 || dx > 18.0 || hh < -8.0 || hh > 58.0) continue;
     float mx = Fa.x + floor(dx + 0.5) + uE, my = Fa.y - floor(hh + 0.5), hit = 0.0;
     for (int b2 = -1; b2 <= 1; b2++) for (int a2 = -1; a2 <= 1; a2++) { float ux = mx + 2.0 * float(a2), uy = my + 2.0 * float(b2); if (ux >= 0.0 && ux < 448.0 && uy >= 0.0 && uy < 224.0 && tagAt2(ux, uy) == Fa.z) hit += 1.0; }
-    if (hit > 0.0) { float w = clamp((60.0 - t * el) * (1.0 / 40.0), 0.0, 1.0); best = max(best, 0.8 * w * hit / 9.0); } }
+    if (hit > 0.0) { float w = clamp((60.0 - t * el) * (1.0 / 40.0), 0.0, 1.0); best = max(best, 0.45 * w * hit / 9.0); } }   /* at most 0.45 (user 2026-11-07: faces too dark; 0.8 made a neighbour 30 % darker = a grey dead figure: sprites are flat cards) */
   return best; }
 float figSun(vec3 p, int self) {   /* GL5f step 2: share of the sun / key light another figure's silhouette blocks at p (lk_lt_figdir; v2 soft: 3 x 3 taps 2 px apart instead of one yes / no tap) */
   vec3 sd = uSd; float hl = length(sd.xy), best = 0.0; if (hl < 1e-3) return 0.0;
@@ -546,17 +551,17 @@ vec4 roundFig(vec2 fc, float cl, vec4 L4) {   /* GL5f: a figure as a round body 
   vec3 so = vec3(0.0), sc = vec3(0.0), sl = vec3(0.0), ss = vec3(0.0);
   for (int k = 0; k < 96; k++) { if (float(k) >= uNl) break; vec4 Lf = uLF[k]; if (Lf.y > 0.5 && Lf.x <= 0.004) continue;
     vec3 lc = Lf.x * uLC[k].rgb; so += term0(pc0, nc, uLP[k], uLC[k].w) * lc; sc += term0(pc, nc, uLP[k], uLC[k].w) * lc;
-    float tn = term0(p, n, uLP[k], uLC[k].w); if (tn <= 0.0) continue; sl += tn * lc;
+    float tn = term0(pc, n, uLP[k], uLC[k].w); if (tn <= 0.0) continue; sl += tn * lc;   /* distance from the CARD (v2 first try used the round surface point p in front of it: a torch behind / beside the figure was farther away = whole figure 15 .. 30 % darker, the user: 'Gesichter teilweise immer noch recht dunkel'); the round normal only turns the angle */
     if (tsh) tn *= figVis(ax, uLP[k].xyz, F.z); if (tn > 0.0 && fsh) tn *= 1.0 - figBlock(pc, uLP[k].xyz, j); ss += tn * lc; }
   if (uSwon > 0.5) { vec3 g0 = term0(pc0, nc, uSwP, uSwC.w) * 0.5 * uSwC.rgb, g = term0(pc, nc, uSwP, uSwC.w) * 0.5 * uSwC.rgb; so += g0; sc += g; sl += g; ss += g; }
   float hc = 0.25 + 0.75 * max(dot(nc, uSd), 0.0), hn = 0.25 + 0.75 * max(dot(n, uSd), 0.0);   /* the sun / key light on the round body */
-  float us = F.w * clamp(hn / hc, 0.4, 1.8), uss = us; if (us > 0.0 && fsh && (uSunR > 0.5 || uKey > 0.5)) uss = us * (1.0 - figSun(pc, j) * (uKey > 0.5 ? 0.55 : 1.0));   /* step 2: another figure's shadow */
+  float us = F.w * clamp(hn / hc, 0.4, 1.8), uss = us; if (us > 0.0 && fsh && (uSunR > 0.5 || uKey > 0.5)) uss = us * (1.0 - figSun(pc, j) * (uKey > 0.5 ? 0.35 : 0.6));   /* at most 0.6 of the sun (was all of it), key light 0.35 (was 0.55) */   /* step 2: another figure's shadow */
   vec3 fo = min(ambient(F0.w) + 2.2 * so, vec3(2.4)), fc0 = min(ambient(F.w) + 2.2 * sc, vec3(2.4)), fl = min(ambient(us) + 2.2 * sl, vec3(2.4)), fs = min(ambient(uss) + 2.2 * ss, vec3(2.4));
      /* fo = the card the light pass used (figure j0), fc0 = the card of the owner j: fc0 / fo moves the pixel's light to its owner UNAMPLIFIED (v2 first try amplified it: the maid
         became brighter whenever Nigel stood in front of her, user rec_20261107_1822) */
   vec3 a = uRfK * (fl / max(fc0, vec3(0.01)) - vec3(1.0));   /* the user wanted the shape stronger (2026-11-06): its deviation x LANDSTALKER_ROUNDFIG_K */
-  vec3 rs = mix(vec3(1.0) + 0.9 * (vec3(1.0) - exp(-max(a, vec3(0.0)) / 0.9)), vec3(1.0) - 0.4 * (vec3(1.0) - exp(min(a, vec3(0.0)) / 0.4)), step(a, vec3(0.0)));
-     /* v2 (user 2026-11-07 'uebergang sanfter machen'): soft knee instead of the hard clamp 0.4 .. 1.9: small deviations stay as strong (slope 1 at 0), large ones approach 0.6 / 1.9 (0.55 first; user 2026-11-07 'Gesichter noch etwas heller')
+  vec3 rs = mix(vec3(1.0) + 0.9 * (vec3(1.0) - exp(-max(a, vec3(0.0)) / 0.9)), vec3(1.0) - 0.3 * (vec3(1.0) - exp(min(a, vec3(0.0)) / 0.3)), step(a, vec3(0.0)));
+     /* v2 (user 2026-11-07 'uebergang sanfter machen'): soft knee instead of the hard clamp 0.4 .. 1.9: small deviations stay as strong (slope 1 at 0), large ones approach 0.7 / 1.9 (0.55, then 0.6; user 2026-11-07 'Gesichter noch etwas heller', 'teilweise immer noch recht dunkel')
         gently (v1: the side away from a torch sat flat at 0.4 = grey maids in room 680) */
   vec3 r = clamp(rs * (fc0 / max(fo, vec3(0.01))) * min(fs / max(fl, vec3(0.01)), vec3(1.0)), vec3(0.3), vec3(1.9));
   return vec4(min(L4.rgb * 255.0 * r, vec3(255.0)) / 255.0, 1.0); }
