@@ -1525,6 +1525,11 @@ static int lk_lt_figdir(const float *sd, float px, float py, float pz) {   /* v5
   }
   return 0;
 }
+static int lk_lt_figface(int f) {   /* 2026-11-07 (user rec_20261107_2031 / room 488 x 41.0E y 52.02: Nigel's jump shadow 'komplett geloest an einer Wand deren Richtung das nicht machbar sein laesst'):
+     a face turned away from the sun keeps the floor's sun share on purpose (its painting is darker already), so a figure's shadow must not be put on it: the sun cannot reach it.
+     Same direction as lk_lt_figsun / the GPU's uSd.  Mirrored in patch_gpulight.py (light pass) */
+  const float *d = lk_lt_sun && lk_dn_on && lk_lt_sdf[2] > 0.0f ? lk_lt_sdf : lk_lt_sd;
+  return !((f == 2 && d[0] <= 0.0f) || (f == 3 && d[1] <= 0.0f)); }
 static int lk_lt_figsun(float px, float py, float pz) { return lk_lt_figdir(lk_lt_sun && lk_dn_on && lk_lt_sdf[2] > 0.0f ? lk_lt_sdf : lk_lt_sd, px, py, pz); }   /* LK_DAYNIGHT v5: blended direction during a step */
 static int lk_lt_linebegin(void) { if (!lk_lt_get()) return 0; if (lk_lt_frame != platform_frame_number()) lk_lt_step(); return lk_lt_on; }
 static float lk_lt_amb = -1.0f;   /* indoor base light (unlit share of the original brightness): 0.85 (user 2026-11-05: castle too dark, picked 85 %% of 55 / 70 / 85; was 0.55); test aid LANDSTALKER_LT_AMB=0.70 */
@@ -1604,11 +1609,11 @@ static int lk_lt_pix(int x, int line, int U, int V, int sp, int col) {   /* one 
     if (lk_lt_dbg == 8) { int g = b->ao[i]; return (int)(0xFF000000u | (uint32_t)(g * 0x010101)); }   /* v8 test aid: room light share as grey */
     if (lk_lt_sun) { float u = (float)b->sun[i] * (1.0f / 255.0f);   /* v5: sky light (cool) + sun (warm), figures' shadows take the sun */
       if (lk_dn_mix && b->sungen == lk_dn_gen) u += ((float)b->sunn[i] * (1.0f / 255.0f) - u) * (float)lk_dn_mix * (1.0f / 256.0f);   /* LK_DAYNIGHT v1: crossfade to the next sun direction */
-      if (u > 0.0f && lk_lt_nf) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); if (lk_lt_figsun(px, py, (float)b->z[i])) u = 0.0f; }
+      if (u > 0.0f && lk_lt_nf && lk_lt_figface(b->face[i])) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); if (lk_lt_figsun(px, py, (float)b->z[i])) u = 0.0f; }
       if (lk_dn_on) { ar = lk_dn_amb3[0] + lk_dn_sun3[0] * u; ag = lk_dn_amb3[1] + lk_dn_sun3[1] * u; ab = lk_dn_amb3[2] + lk_dn_sun3[2] * u; }   /* LK_DAYNIGHT v1 */
       else { ar = lk_lt_sS * 0.95f + lk_lt_sK * u; ag = lk_lt_sS * 0.98f + lk_lt_sK * u * 0.97f; ab = lk_lt_sS * 1.06f + lk_lt_sK * u * 0.90f; } }
     else if (lk_lt_key) { float u = (float)b->sun[i] * (1.0f / 255.0f);   /* v8 key light: shadow level + slightly warm light, figures cast shadows */
-      if (u > 0.0f && lk_lt_nfb && lk_lt_infb(x, line)) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); if (lk_lt_figsun(px, py, (float)b->z[i])) u *= 0.45f; }   /* v8 SPEED: only inside a figure's shadow box */   /* a figure's shadow under the wide light from above is light (its edge is hard: keep the step small) */
+      if (u > 0.0f && lk_lt_nfb && lk_lt_infb(x, line) && lk_lt_figface(b->face[i])) { float px, py; lk_lt_pos(U, V, b->z[i], &px, &py); if (lk_lt_figsun(px, py, (float)b->z[i])) u *= 0.45f; }   /* v8 SPEED: only inside a figure's shadow box */   /* a figure's shadow under the wide light from above is light (its edge is hard: keep the step small) */
       ar = lk_lt_kA * 0.97f + lk_lt_kK * u * 1.04f; ag = lk_lt_kA * 0.99f + lk_lt_kK * u; ab = lk_lt_kA * 1.05f + lk_lt_kK * u * 0.92f;
       if (b->pool[i]) { float p = (float)b->pool[i] * (1.0f / 255.0f) * 0.65f; int q;
         if (lk_lt_nfb && lk_lt_nf && lk_lt_infb(x, line)) { float px, py, sv; lk_lt_pos(U, V, b->z[i], &px, &py);   /* v8: a figure in the shaft shades the pool */

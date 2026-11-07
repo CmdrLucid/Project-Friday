@@ -415,11 +415,11 @@ void main() {
     gl_FragColor = fin(o, fc); return; }
   if (uSun > 0.5) { float u = sun * (1.0 / 255.0);
     if (uMix > 0.5 && sg > 0.5) u += (sunn * (1.0 / 255.0) - u) * uMix * (1.0 / 256.0);
-    if (u > 0.0 && uNf > 0.5) { if (figdir(uSd, pp, fm)) u = 0.0; }
+    if (u > 0.0 && uNf > 0.5 && !((face == 2.0 && uSd.x <= 0.0) || (face == 3.0 && uSd.y <= 0.0))) { if (figdir(uSd, pp, fm)) u = 0.0; }   /* = lk_lt_figface: no figure shadow on a face the sun cannot reach */
     if (uDn > 0.5) a = uAmb3 + uSun3 * u;
     else { float k2 = uSK * u; a = vec3(uSS * 0.95 + k2, uSS * 0.98 + k2 * 0.97, uSS * 1.06 + k2 * 0.90); } }
   else if (uKey > 0.5) { float u = sun * (1.0 / 255.0);
-    if (u > 0.0 && uNfb > 0.5 && infb > 0.5) { if (figdir(uSd, pp, fm)) u *= 0.45; }
+    if (u > 0.0 && uNfb > 0.5 && infb > 0.5 && !((face == 2.0 && uSd.x <= 0.0) || (face == 3.0 && uSd.y <= 0.0))) { if (figdir(uSd, pp, fm)) u *= 0.45; }
     float k2 = uKK * u; a = vec3(uKA * 0.97 + k2 * 1.04, uKA * 0.99 + k2, uKA * 1.05 + k2 * 0.92);
     if (pool > 0.5) { float pq = pool * (1.0 / 255.0) * 0.65;
       if (uNfb > 0.5 && uNf > 0.5 && infb > 0.5) { float sh = 0.0;
