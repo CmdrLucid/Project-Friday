@@ -13,8 +13,8 @@ At the next present the GPU composes the same lines in an offscreen pass (FBO 44
   Known source of differences: the water LEARNS its colours while drawing (lk_wr_pix sets lk_wr_pal / lk_wr_idx at the first animated water pixel of a colour);
   the GPU uses the state after the frame, so the pixels the CPU drew before the learning differ in such frames ('water-learn' frames are counted, not compared).
 Lines not recorded: the seamless room change (lk_sm_state != 0), the neighbour rooms of the seam option (lk_nbn > 0).
-- 4d (v3) THE REAL PATH: Options > Display > Picture Engine CPU / GPU (id 60, ~/.landstalker_pictureengine, env LANDSTALKER_PICTUREENGINE; default CPU until the user's
-  test; LANDSTALKER_GPUCOMP=0|1|2 wins as test aid).  A GPU LINE = every pixel need is on the GPU and nothing reads the CPU row: GPU light on (lk_gl_real), no sword fx /
+- 4d (v3) THE REAL PATH: Options > Display > Picture Engine CPU / GPU (id 60, ~/.landstalker_pictureengine, env LANDSTALKER_PICTUREENGINE; default GPU since 2026-11-07,
+  CPU on Windows builds; LANDSTALKER_GPUCOMP=0|1|2 wins as test aid).  A GPU LINE = every pixel need is on the GPU and nothing reads the CPU row: GPU light on (lk_gl_real), no sword fx /
   dissolve / heat haze / smooth sub-pixel (lk_ss_frac) / HD / depth fx / hard shadow ellipse on the line (lk_sh_row_on, darkened after lk_own_row), not the classic HUD rows,
   no title brand / window / model overlay, no seam capture, no de-dither, no frame recorder, no test aid that reads rows (LANDSTALKER_SHOT, GENRECOMP_ASCII, LANDSTALKER_MAPSHOT).
   For a GPU line lk_own_row skips its pixel loop; lk_gc_side keeps the loop's side effects: the drawn area for the light prefetch / particles (lk_lt_umin..vmax from the exact
@@ -41,8 +41,13 @@ def rep(a, b):
 if VER not in s:
     MODULE = r'''/* ---- @VER@: picture composition on the GPU, compare harness (tools/patch_gpucomp.py, docs/RENDERER_IDEAS.md 'STEP 4 STAGE PLAN') ---- */
 static int lk_gc_mode = -2;   /* LANDSTALKER_GPUCOMP: 0 off (default), 2 compare harness (test aid) */
-static int lk_gco_o = -1;   /* 4d: Options > Display > Picture Engine (id 60, ~/.landstalker_pictureengine, env LANDSTALKER_PICTUREENGINE=0|1 wins): 0 CPU (default until the user's test), 1 GPU */
-int lk_gco_get(void) { if (lk_gco_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_PICTUREENGINE"); char pth[512]; FILE *f; int v = 0; snprintf(pth, sizeof pth, "%s/.landstalker_pictureengine", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); lk_gco_o = v ? 1 : 0; } return lk_gco_o; }
+static int lk_gco_o = -1;   /* 4d: Options > Display > Picture Engine (id 60, ~/.landstalker_pictureengine, env LANDSTALKER_PICTUREENGINE=0|1 wins): 0 CPU, 1 GPU (default since 2026-11-07, user 'ja picture engine = gpu bitte standard (ausgenommen windows)'; Windows builds default CPU until a Windows user tested the GPU path) */
+#ifdef _WIN32
+#define LK_GCO_DEF 0
+#else
+#define LK_GCO_DEF 1
+#endif
+int lk_gco_get(void) { if (lk_gco_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_PICTUREENGINE"); char pth[512]; FILE *f; int v = LK_GCO_DEF; snprintf(pth, sizeof pth, "%s/.landstalker_pictureengine", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = LK_GCO_DEF; fclose(f); } if (e && *e) v = atoi(e); lk_gco_o = v ? 1 : 0; } return lk_gco_o; }
 void lk_gco_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_gco_get(); lk_gco_o = v ? 1 : 0; snprintf(pth, sizeof pth, "%s/.landstalker_pictureengine", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%d\n", lk_gco_o); fclose(f); } }
 static int lk_gc_env = -2, lk_gc_aid;
 int lk_gc_getmode(void) {   /* 0 CPU, 1 REAL PATH (4d: the GPU composes the lines that qualify), 2 compare harness; LANDSTALKER_GPUCOMP (test aid) wins over the option */

@@ -455,7 +455,7 @@ uniform sampler2D lit; uniform sampler2D unl; uniform sampler2D cls; uniform sam
 uniform float uMode; uniform vec3 uBase; uniform float uW; uniform float uK; uniform float uR; uniform float uD; uniform float uPost; uniform vec2 uPh; uniform float uOut;
 uniform sampler2D wld; uniform vec4 uSwP; uniform vec4 uSwC; uniform float uSw; uniform float uSunR;
 uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec4 uLF[96]; uniform vec4 uFG[16]; uniform vec4 uFA[16];
-uniform float uNl; uniform float uAmb; uniform float uSS; uniform float uSK; uniform vec3 uAmb3; uniform vec3 uSun3; uniform float uDn; uniform float uKey; uniform float uKA; uniform float uKK; uniform vec3 uSd; uniform float uE; uniform float uSwon; uniform float uFig; uniform float uNf; uniform float uRfK;
+uniform float uNl; uniform float uAmb; uniform float uSS; uniform float uSK; uniform vec3 uAmb3; uniform vec3 uSun3; uniform float uDn; uniform float uKey; uniform float uKA; uniform float uKK; uniform vec3 uSd; uniform float uE; uniform float uSwon; uniform float uFig; uniform float uNf; uniform float uRfK; uniform float uRfD;
 float B(float v) { return floor(v * 255.0 + 0.5); }
 float S16(float lo, float hi) { float v = lo + 256.0 * hi; return v >= 32768.0 ? v - 65536.0 : v; }
 vec3 posAt(vec2 q, out float face) {   /* world position + face of a picture pixel from the light blocks (U / V of its line) */
@@ -474,14 +474,15 @@ float term0(vec3 p, vec3 n, vec4 L, float kk) {   /* the light pass' term (no sh
   if (d >= rad || d < 0.001) return d < 0.001 ? kk : 0.0;
   ndl = (n.x * v.x + n.y * v.y + n.z * v.z) / d; if (ndl < 0.0) ndl = 0.0;
   q = 1.0 - d / rad; return kk * q * q * (0.25 + 0.75 * ndl); }
-float termSh(vec3 p, vec3 n, vec4 L, float kk) {   /* with a shadow (one point, 3 unit steps, soft clearance edge indoors; cheaper than lk_lt_term's 2 area points: a figure has many pixels) */
-  float t = term0(p, n, L, kk); if (t <= 0.0) return 0.0;
-  vec3 s = p + n * 3.0, w = L.xyz - s; float e = length(w), res = 1.0;
-  for (int st = 0; st < 140; st++) { float tt = 3.0 + 3.0 * float(st); if (tt >= e - 3.0) break;
-    vec3 q = s + w * tt / e; float top = topT(floor(q.x / 16.0), floor(q.y / 16.0));
-    if (q.z < top - 0.5) return 0.0;
-    if (uSunR < 0.5 && top > -32768.0) { float r = 4.0 * (q.z - top) / tt; if (r < res) res = r; } }
-  return t * max(res, 0.0); }
+float figVis(vec3 o, vec3 L, float fz) {   /* GL5f v2 (2026-11-07 user rec_20261107_1740 'scharfe Trennungen'): how much of a flame reaches a figure row; marched from the figure's AXIS o (v1 started at the
+     round surface point pushed towards the camera = inside a counter / wall in front of the figure: whole figure black), cells no higher than the figure's floor fz skipped (no
+     self shadow at the feet), soft edge of at least 6 units (v1 hard 0 / 1 per pixel = sharp splits across a figure) */
+  vec3 w = L - o; float e = length(w), res = 1.0;
+  for (int st = 0; st < 140; st++) { float tt = 4.0 + 3.0 * float(st); if (tt >= e - 3.0) break;
+    vec3 q = o + w * tt / e; float top = topT(floor(q.x / 16.0), floor(q.y / 16.0));
+    if (top <= fz + 0.5) continue;
+    res = min(res, 0.5 + (q.z - top) / max(tt * 0.25, 6.0)); if (res <= 0.0) return 0.0; }
+  return clamp(res, 0.0, 1.0); }
 vec3 ambient(float u) {   /* the light pass' figure base light for sun share u */
   vec3 a = vec3(uAmb * 0.93, uAmb * 0.96, uAmb * 1.06);
   if (uNl < 0.5 && uSunR < 0.5) a = vec3(1.0);
@@ -490,7 +491,7 @@ vec3 ambient(float u) {   /* the light pass' figure base light for sun share u *
   else if (uKey > 0.5) { float k2 = uKK * u; a = vec3(uKA * 0.97 + k2 * 1.04, uKA * 0.99 + k2, uKA * 1.05 + k2 * 0.92); }
   return a; }
 float tagAt2(float x, float y) { return B(texture2D(cls, (vec2(x, y) + 0.5) / vec2(448.0, 224.0)).a); }
-float figBlock(vec3 p, vec3 L, int self) {   /* GL5f step 2: share of a flame's light at p that another figure's silhouette blocks (its card turned to the light, 3 x 3 soft, fading with the distance as lk_lt_shadowed) */
+float figBlock(vec3 p, vec3 L, int self) {   /* GL5f step 2: share of a flame's light at p that another figure's silhouette blocks (its card turned to the light; v2: 3 x 3 taps 2 px apart = softer edge, at most 0.8; fading with the distance as lk_lt_shadowed) */
   float best = 0.0; vec3 e = L - p; float el = length(e);
   for (int i = 0; i < 16; i++) { if (float(i) >= uNf) break; if (i == self) continue;
     vec4 F = uFG[i], Fa = uFA[i]; vec2 h = L.xy - F.xy; float hl = length(h); if (hl < 1e-3) continue; vec2 nn = h / hl;
@@ -498,38 +499,61 @@ float figBlock(vec3 p, vec3 L, int self) {   /* GL5f step 2: share of a flame's 
     float t = num / den; if (t < 0.02 || t > 0.98) continue;
     vec3 q = p + t * e; float tx = nn.y, ty = -nn.x; if (tx - ty < 0.0) { tx = -tx; ty = -ty; }
     float dx = 1.4142 * (tx * (q.x - F.x) + ty * (q.y - F.y)), hh = q.z - F.z;
-    if (dx < -16.0 || dx > 16.0 || hh < -6.0 || hh > 56.0) continue;
+    if (dx < -18.0 || dx > 18.0 || hh < -8.0 || hh > 58.0) continue;
     float mx = Fa.x + floor(dx + 0.5) + uE, my = Fa.y - floor(hh + 0.5), hit = 0.0;
-    for (int b2 = -1; b2 <= 1; b2++) for (int a2 = -1; a2 <= 1; a2++) { float ux = mx + float(a2), uy = my + float(b2); if (ux >= 0.0 && ux < 448.0 && uy >= 0.0 && uy < 224.0 && tagAt2(ux, uy) == Fa.z) hit += 1.0; }
-    if (hit > 0.0) { float w = clamp((60.0 - t * el) * (1.0 / 40.0), 0.0, 1.0); best = max(best, w * hit / 9.0); } }
+    for (int b2 = -1; b2 <= 1; b2++) for (int a2 = -1; a2 <= 1; a2++) { float ux = mx + 2.0 * float(a2), uy = my + 2.0 * float(b2); if (ux >= 0.0 && ux < 448.0 && uy >= 0.0 && uy < 224.0 && tagAt2(ux, uy) == Fa.z) hit += 1.0; }
+    if (hit > 0.0) { float w = clamp((60.0 - t * el) * (1.0 / 40.0), 0.0, 1.0); best = max(best, 0.8 * w * hit / 9.0); } }
   return best; }
-bool figSun(vec3 p, int self) {   /* GL5f step 2: another figure's silhouette between p and the sun / key light (lk_lt_figdir) */
-  vec3 sd = uSd; float hl = length(sd.xy); if (hl < 1e-3) return false;
+float figSun(vec3 p, int self) {   /* GL5f step 2: share of the sun / key light another figure's silhouette blocks at p (lk_lt_figdir; v2 soft: 3 x 3 taps 2 px apart instead of one yes / no tap) */
+  vec3 sd = uSd; float hl = length(sd.xy), best = 0.0; if (hl < 1e-3) return 0.0;
   float nx = sd.x / hl, ny = sd.y / hl, den = nx * sd.x + ny * sd.y, tx = ny, ty = -nx; if (tx - ty < 0.0) { tx = -tx; ty = -ty; }
   for (int i = 0; i < 16; i++) { if (float(i) >= uNf) break; if (i == self) continue;
     vec4 F = uFG[i], Fa = uFA[i];
-    if (abs(F.x - p.x) > 110.0 || abs(F.y - p.y) > 110.0 || p.z > F.z + 56.0) continue;
+    if (abs(F.x - p.x) > 110.0 || abs(F.y - p.y) > 110.0 || p.z > F.z + 58.0) continue;
     float t = (nx * (F.x - p.x) + ny * (F.y - p.y)) / den; if (t <= 0.5) continue;
     vec3 q = p + t * sd; float dx = 1.4142 * (tx * (q.x - F.x) + ty * (q.y - F.y)), hh = q.z - F.z;
-    if (dx < -16.0 || dx > 16.0 || hh < -6.0 || hh > 56.0) continue;
-    float mx = Fa.x + floor(dx + 0.5) + uE, my = Fa.y - floor(hh + 0.5);
-    if (mx >= 0.0 && mx < 448.0 && my >= 0.0 && my < 224.0 && tagAt2(mx, my) == Fa.z) return true; }
-  return false; }
-vec4 roundFig(vec2 fc, float cl, vec4 L4) {   /* GL5f: a figure as a round body (width of its own pixels in this row): per pixel normal + flame shadows; relit by the ratio new / old light */
-  int j = int(cl - 16.0); vec4 F = uFG[j], Fa = uFA[j]; float line = fc.y, x = fc.x - uE, xl = fc.x, xr = fc.x;
-  for (int k = 1; k <= 24; k++) { float xx = fc.x - float(k); if (xx >= 0.0 && B(texture2D(cls, (vec2(xx, line) + 0.5) / vec2(448.0, 224.0)).r) == cl) xl = xx; }
-  for (int k = 1; k <= 24; k++) { float xx = fc.x + float(k); if (xx < uW && B(texture2D(cls, (vec2(xx, line) + 0.5) / vec2(448.0, 224.0)).r) == cl) xr = xx; }
+    if (dx < -18.0 || dx > 18.0 || hh < -8.0 || hh > 58.0) continue;
+    float mx = Fa.x + floor(dx + 0.5) + uE, my = Fa.y - floor(hh + 0.5), hit = 0.0;
+    for (int b2 = -1; b2 <= 1; b2++) for (int a2 = -1; a2 <= 1; a2++) { float ux = mx + 2.0 * float(a2), uy = my + 2.0 * float(b2); if (ux >= 0.0 && ux < 448.0 && uy >= 0.0 && uy < 224.0 && tagAt2(ux, uy) == Fa.z) hit += 1.0; }
+    best = max(best, hit / 9.0); }
+  return best; }
+vec3 rowSpan(float x0, float line, float tg) {   /* the figure's own CONNECTED sprite pixels (owner tag tg) in a row around x0 (gaps up to 3 px, at most 24 px each side): (left, right, found).  v1 took the farthest
+     pixel of the figure within 24 px across any gap: next to another figure / a stretched arm the width jumped from row to row = diagonal hard edges (two maids in room 680) */
+  float xl = x0, xr = x0, f = 0.0, g = 0.0;
+  if (line < 0.0 || line > 223.0) return vec3(x0, x0, 0.0);
+  if (B(texture2D(cls, (vec2(x0, line) + 0.5) / vec2(448.0, 224.0)).a) == tg) f = 1.0;
+  for (int k = 1; k <= 24; k++) { float xx = x0 - float(k); if (xx < 0.0) break; if (B(texture2D(cls, (vec2(xx, line) + 0.5) / vec2(448.0, 224.0)).a) == tg) { xl = xx; f = 1.0; g = 0.0; } else { g += 1.0; if (g > 3.0) break; } }
+  g = 0.0;
+  for (int k = 1; k <= 24; k++) { float xx = x0 + float(k); if (xx >= uW) break; if (B(texture2D(cls, (vec2(xx, line) + 0.5) / vec2(448.0, 224.0)).a) == tg) { xr = xx; f = 1.0; g = 0.0; } else { g += 1.0; if (g > 3.0) break; } }
+  return vec3(xl, xr, f); }
+vec4 roundFig(vec2 fc, float cl, vec4 L4) {   /* GL5f: a figure as a round body (width of its own pixels in this row): per pixel normal + flame shadows; relit by the ratio new / old light.
+     v2 (2026-11-07): the body width is averaged over the row above / below (no stripes where an arm sticks out); only the SHAPE part (normal) is amplified by LANDSTALKER_ROUNDFIG_K,
+     the shadows (terrain: figVis from the figure axis, soft; other figures: figBlock / figSun, soft) multiply unamplified; the sword glow stays as the light pass has it (v1 amplified it =
+     'Nigel lights the other figure'). Test aid LANDSTALKER_ROUNDFIG_DBG bits: 1 no terrain shadow, 2 no figure-on-figure shadow, 4 no shape, 8 show the figure classes, 16 show the position across the body */
+  int j0 = int(cl - 16.0), j = j0; float line = fc.y, x = fc.x - uE, tg = tagAt2(fc.x, line);
+  for (int i = 0; i < 16; i++) { if (float(i) >= uNf) break; if (uFA[i].z == tg) j = i; }   /* v2: the figure that OWNS the sprite pixel (the class = lk_lt_figat = the first figure whose +-16 px box holds the pixel: two maids side by side were one body) */
+  vec4 F = uFG[j], Fa = uFA[j], F0 = uFG[j0], Fa0 = uFA[j0];
+  vec3 s0 = rowSpan(fc.x, line, tg), s1 = rowSpan(fc.x, line - 1.0, tg), s2 = rowSpan(fc.x, line + 1.0, tg);
+  float wsum = 2.0 + s1.z + s2.z, xl = (2.0 * s0.x + s1.z * s1.x + s2.z * s2.x) / wsum, xr = (2.0 * s0.y + s1.z * s1.y + s2.z * s2.y) / wsum;
   float hw = (xr - xl) * 0.5 + 0.5, u = clamp((fc.x - (xl + xr) * 0.5) / hw, -1.0, 1.0), wv = sqrt(max(1.0 - u * u, 0.0));
   vec3 tv = vec3(0.7071, -0.7071, 0.0), nc = vec3(0.7071, 0.7071, 0.0), n = normalize(tv * u + nc * wv);
-  float dx = x - Fa.x; vec3 pc = vec3(F.x + dx * 0.5, F.y - dx * 0.5, F.z + (Fa.y - line)), p = pc + nc * (wv * hw * 0.7071);
-  vec3 so = vec3(0.0), sn = vec3(0.0);
+  float dx = x - Fa.x, dx0 = x - Fa0.x; vec3 pc = vec3(F.x + dx * 0.5, F.y - dx * 0.5, F.z + (Fa.y - line)), p = pc + nc * (wv * hw * 0.7071), ax = vec3(F.x, F.y, max(pc.z, F.z + 2.0));
+  vec3 pc0 = vec3(F0.x + dx0 * 0.5, F0.y - dx0 * 0.5, F0.z + (Fa0.y - line));   /* where the light pass lit this pixel (its card of figure j0): the ratio's denominator */
+  bool tsh = mod(uRfD, 2.0) < 0.5, fsh = mod(floor(uRfD / 2.0), 2.0) < 0.5 && uNf > 1.5, shp = mod(floor(uRfD / 4.0), 2.0) < 0.5;
+  if (!shp) n = nc;
+  if (mod(floor(uRfD / 8.0), 2.0) > 0.5) return vec4(fract(cl * 0.37), fract(cl * 0.61), fract(cl * 0.13 + 0.5), 1.0);   /* DBG 8: which figure a pixel belongs to */
+  if (mod(floor(uRfD / 16.0), 2.0) > 0.5) return vec4(0.5 + 0.5 * u, 0.5 - 0.5 * u, wv, 1.0);   /* DBG 16: position across the body (red = right side) */
+  vec3 so = vec3(0.0), sl = vec3(0.0), ss = vec3(0.0);
   for (int k = 0; k < 96; k++) { if (float(k) >= uNl) break; vec4 Lf = uLF[k]; if (Lf.y > 0.5 && Lf.x <= 0.004) continue;
-    so += term0(pc, nc, uLP[k], uLC[k].w) * Lf.x * uLC[k].rgb; { float tn = termSh(p, n, uLP[k], uLC[k].w); if (tn > 0.0 && uNf > 1.5) tn *= 1.0 - figBlock(p, uLP[k].xyz, j); sn += tn * Lf.x * uLC[k].rgb; } }
-  if (uSwon > 0.5) { so += term0(pc, nc, uSwP, uSwC.w) * 0.5 * uSwC.rgb; sn += term0(p, n, uSwP, uSwC.w) * 0.5 * uSwC.rgb; }
+    vec3 lc = Lf.x * uLC[k].rgb; so += term0(pc0, nc, uLP[k], uLC[k].w) * lc;
+    float tn = term0(p, n, uLP[k], uLC[k].w); if (tn <= 0.0) continue; sl += tn * lc;
+    if (tsh) tn *= figVis(ax, uLP[k].xyz, F.z); if (tn > 0.0 && fsh) tn *= 1.0 - figBlock(pc, uLP[k].xyz, j); ss += tn * lc; }
+  if (uSwon > 0.5) { vec3 g0 = term0(pc0, nc, uSwP, uSwC.w) * 0.5 * uSwC.rgb, g = term0(pc, nc, uSwP, uSwC.w) * 0.5 * uSwC.rgb; so += g0; sl += g; ss += g; }
   float hc = 0.25 + 0.75 * max(dot(nc, uSd), 0.0), hn = 0.25 + 0.75 * max(dot(n, uSd), 0.0);   /* the sun / key light on the round body */
-  float us = F.w * clamp(hn / hc, 0.4, 1.8); if (us > 0.0 && uNf > 1.5 && (uSunR > 0.5 || uKey > 0.5) && figSun(p, j)) us *= uKey > 0.5 ? 0.45 : 0.0;   /* step 2: another figure's shadow */
-  vec3 fo = min(ambient(F.w) + 2.2 * so, vec3(2.4)), fn = min(ambient(us) + 2.2 * sn, vec3(2.4));
-  vec3 r = fn / max(fo, vec3(0.01)); r = clamp(vec3(1.0) + uRfK * (r - vec3(1.0)), vec3(0.4), vec3(1.9));   /* the user wanted it stronger (2026-11-06): the deviation x LANDSTALKER_ROUNDFIG_K */
+  float us = F.w * clamp(hn / hc, 0.4, 1.8), uss = us; if (us > 0.0 && fsh && (uSunR > 0.5 || uKey > 0.5)) uss = us * (1.0 - figSun(pc, j) * (uKey > 0.5 ? 0.55 : 1.0));   /* step 2: another figure's shadow */
+  vec3 fo = min(ambient(F0.w) + 2.2 * so, vec3(2.4)), fl = min(ambient(us) + 2.2 * sl, vec3(2.4)), fs = min(ambient(uss) + 2.2 * ss, vec3(2.4));
+  vec3 rs = clamp(vec3(1.0) + uRfK * (fl / max(fo, vec3(0.01)) - vec3(1.0)), vec3(0.4), vec3(1.9));   /* the user wanted the shape stronger (2026-11-06): its deviation x LANDSTALKER_ROUNDFIG_K */
+  vec3 r = clamp(rs * min(fs / max(fl, vec3(0.01)), vec3(1.0)), vec3(0.3), vec3(1.9));
   return vec4(min(L4.rgb * 255.0 * r, vec3(255.0)) / 255.0, 1.0); }
 float swlight(vec3 p, vec3 n) {   /* GL5e: the sword glow (lk_lt_term without shadow, as the light pass) times its soft shadow (march to the sword, LK_LT_IPEN clearance rule) */
   vec3 v = uSwP.xyz - p; float d = length(v), rad = uSwP.w;
@@ -1083,7 +1107,7 @@ static int lk_gb_st; static lkGLuint lk_gb_prog, lk_gb_fa, lk_gb_fb, lk_gb_ra, l
 static long lk_gsw_fr = -9; static int lk_gsw_on;   /* GL5e: the frame's decision (light pass and post pass must agree) */
 int lk_gsw_frame(int real, int swon) { extern int lk_swsh_get(void); long f = platform_frame_number(); if (lk_gsw_fr != f) { lk_gsw_fr = f; lk_gsw_on = real && swon && lk_swsh_get() && lk_g5_realon() && lk_g5_wh != 0 && lk_gb_st >= 0; } return lk_gsw_on; } static float lk_gb_k = -1.0f, lk_gb_r, lk_gb_d;
 static const char *lk_gb_fs = "#version 120\n" @SHADERB@;
-static const char *lk_gb_un[] = { "lit", "unl", "cls", "rows", "roomA", "roomB", "rad", "post", "btab", "uMode", "uBase", "uW", "uK", "uR", "uD", "uPost", "uPh", "uOut", "wld", "uSwP", "uSwC", "uSw", "uSunR", "uLP", "uLC", "uLF", "uFG", "uFA", "uNl", "uAmb", "uSS", "uSK", "uAmb3", "uSun3", "uDn", "uKey", "uKA", "uKK", "uSd", "uE", "uSwon", "uFig", "uNf", "uRfK", 0 };
+static const char *lk_gb_un[] = { "lit", "unl", "cls", "rows", "roomA", "roomB", "rad", "post", "btab", "uMode", "uBase", "uW", "uK", "uR", "uD", "uPost", "uPh", "uOut", "wld", "uSwP", "uSwC", "uSw", "uSunR", "uLP", "uLC", "uLF", "uFG", "uFA", "uNl", "uAmb", "uSS", "uSK", "uAmb3", "uSun3", "uDn", "uKey", "uKA", "uKK", "uSd", "uE", "uSwon", "uFig", "uNf", "uRfK", "uRfD", 0 };
 static int lk_gb_init(void) {
   lkGLint ok = 0, t0 = 0, fb0 = 0; lkGLuint vs, fs; char log[2048]; int i; lkGLenum st1, st2;
   { static const char *vsrc = "#version 120\nvoid main() { gl_Position = gl_Vertex; }\n"; vs = lk_glCreateShader(0x8B31); lk_glShaderSource(vs, 1, &vsrc, 0); lk_glCompileShader(vs); lk_glGetShaderiv(vs, 0x8B81, &ok); if (!ok) return -1; }
@@ -1127,7 +1151,7 @@ static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out ho
   lk_glUniform4fv(lk_gb_u[23], 96, lp); lk_glUniform4fv(lk_gb_u[24], 96, lc); lk_glUniform4fv(lk_gb_u[25], 96, lf); lk_glUniform4fv(lk_gb_u[26], 16, fg); lk_glUniform4fv(lk_gb_u[27], 16, fa);
   lk_glUniform1f(lk_gb_u[28], (float)iu[2]); lk_glUniform1f(lk_gb_u[29], fu[0]); lk_glUniform1f(lk_gb_u[30], fu[1]); lk_glUniform1f(lk_gb_u[31], fu[2]); lk_glUniform3f(lk_gb_u[32], fu[3], fu[4], fu[5]); lk_glUniform3f(lk_gb_u[33], fu[6], fu[7], fu[8]);
   lk_glUniform1f(lk_gb_u[34], (float)iu[5]); lk_glUniform1f(lk_gb_u[35], (float)iu[1]); lk_glUniform1f(lk_gb_u[36], fu[10]); lk_glUniform1f(lk_gb_u[37], fu[11]); lk_glUniform3f(lk_gb_u[38], fu[24], fu[25], fu[26]); lk_glUniform1f(lk_gb_u[39], (float)iu[12]);
-  lk_glUniform1f(lk_gb_u[40], (float)iu[4]); lk_glUniform1f(lk_gb_u[41], fig ? 1.0f : 0.0f); lk_glUniform1f(lk_gb_u[42], (float)iu[9]); { static float rk = -1.0f; if (rk < 0.0f) { const char *e = getenv("LANDSTALKER_ROUNDFIG_K"); rk = e ? (float)atof(e) : 2.5f; if (rk < 0.0f) rk = 0.0f; } lk_glUniform1f(lk_gb_u[43], rk); }
+  lk_glUniform1f(lk_gb_u[40], (float)iu[4]); lk_glUniform1f(lk_gb_u[41], fig ? 1.0f : 0.0f); lk_glUniform1f(lk_gb_u[42], (float)iu[9]); { static float rk = -1.0f; if (rk < 0.0f) { const char *e = getenv("LANDSTALKER_ROUNDFIG_K"); rk = e ? (float)atof(e) : 2.5f; if (rk < 0.0f) rk = 0.0f; } lk_glUniform1f(lk_gb_u[43], rk); } { static float rd = -1.0f; if (rd < 0.0f) { const char *e = getenv("LANDSTALKER_ROUNDFIG_DBG"); rd = e ? (float)atoi(e) : 0.0f; } lk_glUniform1f(lk_gb_u[44], rd); }
   lk_glUniform3f(lk_gb_u[10], base[0], base[1], base[2]); lk_glUniform1f(lk_gb_u[11], (float)iu[7]); lk_glUniform1f(lk_gb_u[12], bon ? lk_gb_k : 0.0f); lk_glUniform1f(lk_gb_u[13], lk_gb_r); lk_glUniform1f(lk_gb_u[14], lk_gb_d); lk_glUniform1f(lk_gb_u[15], lk_gl_postany ? 1.0f : 0.0f); lk_glUniform2f(lk_gb_u[16], phu, phv); lk_glUniform1f(lk_gb_u[17], iu[0] ? 1.0f : 0.0f);
   lk_glGetIntegerv(0x8CA6, &fb0); lk_glEnableClientState(0x8074); lk_glVertexPointer(2, 0x1406, 0, quad);
   { static int tdb = -1; if (tdb < 0) { const char *e = getenv("LANDSTALKER_BOUNCE_DBG"); tdb = e ? atoi(e) : 0; } if (tdb >= 2 && lk_glFinish) { static double sum; static int n; Uint64 t0; lk_glFinish(); t0 = SDL_GetPerformanceCounter();
