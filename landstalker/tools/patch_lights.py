@@ -914,6 +914,18 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
         int H = C->hh, kk, bad = 0, any = 0; lk_lt_proxy *P; uint8 *R;
         { int cap = 48 + 24 * (lk_lt_bb[C->obj][2] - lk_lt_bb[C->obj][0] > lk_lt_bb[C->obj][3] - lk_lt_bb[C->obj][1] ? lk_lt_bb[C->obj][2] - lk_lt_bb[C->obj][0] + 1 : lk_lt_bb[C->obj][3] - lk_lt_bb[C->obj][1] + 1); if (H > cap) H = cap; if (H > 95) H = 95; }   /* a pine at a house: the drawn run goes on into the wall */
         if (H < 32 || lk_lt_npx >= 255 || (lk_lt_bb[C->obj][2] - lk_lt_bb[C->obj][0] != lk_lt_bb[C->obj][3] - lk_lt_bb[C->obj][1] && H < 48)) {   /* low, or a low row (a tulip row of 1 x 3 cells became a round blob) */ if (lk_lt_dbg == 5) printf("proxy: room %%d object %%d flat (drawn %%d high)\n", lk_o_room, C->obj, C->hh); continue; }   /* tulips, low bushes: no shape, they take the shadows */
+        { const int16_t *Bb = lk_lt_bb[C->obj]; int bx, by, hc = 32767, ok2 = Bb[2] >= Bb[0] && Bb[3] >= Bb[1] && Bb[2] - Bb[0] >= 1 && Bb[3] - Bb[1] >= 1, rel;   /* 2026-11-07 SOLID BLOCK (user rec_20261107_2031,
+             room 488: 'das sind Bueschchen auf die man springen kann, Hoehe nur 16'): a wide small object whose drawn height is explained by its own collision block (height above the ground +
+             the projected depth of its top, 8 px per cell of x + y extent) is that block (a jumpable bush platform), not a tree: the lathe took the drawn rows as height (48 instead of 16)
+             and the drawn foot (the FRONT corner) as its axis (one cell too far forward) = a long shadow in front of the bushes.  Now a low dome over the collision block, its height, its width (only blocks up to 32 high: rooms 537 / 539 have 160 high objects whose drawn profile is better) */
+          if (ok2) for (by = Bb[1]; by <= Bb[3]; by++) for (bx = Bb[0]; bx <= Bb[2]; bx++) { if (bx < 0 || by < 0 || bx >= 74 || by >= 74 || lk_lt_gh[by][bx] == -32768 || lk_lt_obj[by][bx] != C->obj) { ok2 = 0; break; } if (lk_lt_gh[by][bx] < hc) hc = lk_lt_gh[by][bx]; }
+          rel = ok2 ? hc - C->h : 0;
+          if (ok2 && rel >= 8 && rel <= 32 && C->hh <= rel + 8 * ((Bb[2] - Bb[0]) + (Bb[3] - Bb[1]) + 2) + 8) { int rb = 8 * ((Bb[2] - Bb[0] < Bb[3] - Bb[1] ? Bb[2] - Bb[0] : Bb[3] - Bb[1]) + 1);
+            P = &lk_lt_px[lk_lt_npx]; R = lk_lt_prof[lk_lt_npx]; lk_lt_npx++;
+            P->type = 3; P->part = 0; P->obj = C->obj; P->x0 = (int16_t)(8 * (Bb[0] + Bb[2] + 1)); P->y0 = (int16_t)(8 * (Bb[1] + Bb[3] + 1)); P->z0 = C->h; P->eave = C->h; P->ridge = (int16_t)(C->h + rel); P->y1 = 0; P->x1 = (int16_t)rb;
+            for (kk = 0; kk < 96; kk++) { float f = (float)kk / (float)rel; R[kk] = (uint8)(kk < rel ? (float)rb * sqrtf(1.0f - f * f * 0.75f) + 0.5f : 0.0f); }
+            if (lk_lt_dbg == 5) printf("proxy: room %%d #%%d solid block dome at %%d,%%d z %%d..%%d r %%d (object %%d, drawn %%d high = its collision block)\n", lk_o_room, lk_lt_npx - 1, P->x0, P->y0, P->z0, P->ridge, rb, P->obj, C->hh);
+            continue; } }
         P = &lk_lt_px[lk_lt_npx]; R = lk_lt_prof[lk_lt_npx]; lk_lt_npx++;
         P->type = 3; P->part = 0; P->obj = C->obj; P->x0 = (int16_t)C->x; P->y0 = (int16_t)C->y; P->z0 = C->h; P->eave = C->h; P->ridge = (int16_t)(C->h + H); P->y1 = 0;
         for (kk = 0; kk < 96; kk++) { int l = 0, r = 0, pal, pr, g;
@@ -1179,7 +1191,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
     }
   }
   if (lk_lt_dbg == 3) { int x0 = 18, y0 = 18; const char *e = getenv("LANDSTALKER_LT_HMWIN"); if (e) sscanf(e, "%%d,%%d", &x0, &y0);   /* LANDSTALKER_LT_HMWIN=x0,y0: the 26 x 16 window printed (lk_lt_top / lk_lt_gh) */
-    for (y = y0; y < y0 + 16 && y < 74; y++) { printf("hm %%2d:", y); for (x = x0; x < x0 + 26 && x < 74; x++) printf(" %%4d", y < 0 || x < 0 ? -2 : lk_lt_top[y][x] == -32768 ? -1 : lk_lt_top[y][x]); printf("  | gh"); for (x = x0; x < x0 + 26 && x < 74; x++) printf(" %%4d", y < 0 || x < 0 ? -2 : lk_lt_gh[y][x] == -32768 ? -1 : lk_lt_gh[y][x]); printf("\n"); } }
+    for (y = y0; y < y0 + 16 && y < 74; y++) { printf("hm %%2d:", y); for (x = x0; x < x0 + 26 && x < 74; x++) printf(" %%4d", y < 0 || x < 0 ? -2 : lk_lt_top[y][x] == -32768 ? -1 : lk_lt_top[y][x]); printf("  | gh"); for (x = x0; x < x0 + 26 && x < 74; x++) printf(" %%4d", y < 0 || x < 0 ? -2 : lk_lt_gh[y][x] == -32768 ? -1 : lk_lt_gh[y][x]); printf("  | fh"); for (x = x0; x < x0 + 26 && x < 74; x++) { int i2, j2, m = -1; if (y >= 0 && x >= 0) for (j2 = 0; j2 < 4; j2++) for (i2 = 0; i2 < 4; i2++) if (lk_lt_fo[4 * y + j2][4 * x + i2] && lk_lt_fh[4 * y + j2][4 * x + i2] > m) m = lk_lt_fh[4 * y + j2][4 * x + i2]; printf(" %%4d", m); } printf("\n"); } }
   { const char *e = getenv("LANDSTALKER_LT_THINRAY"); lk_lt_thinz = e && atoi(e) == 0 ? 8.0f : 16.0f; } { const char *e = getenv("LANDSTALKER_LT_SSIDE"); lk_lt_sside = !(e && atoi(e) == 0); }   /* 2026-11-07 (user rec_20261107_1822, room 680: light box + hard shadow at the standing torch
        by the wall): the flame is found 15 below its pillar's collision top (light (293, 415, 49), pillar (17, 25) top 64: the drawn torch stands one cell in front of its collision
        cell, at the room's front edge) -> tolerance 16 (was 8); test aid LANDSTALKER_LT_THINRAY=0 = 8 */

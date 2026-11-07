@@ -211,3 +211,4 @@
 - L1669: Session 2026-11-07: STEP 4 stage 4a, GPU picture composition harness (Deck, Opus 5.5)
 - L1682: Session 2026-11-07 evening: Round Figures v2, torch light box, door niches (Deck, Opus 5.5)
 - L1691: GitHub issue #14 (2026-11-07 late, Deck, Opus 5.5)
+- L1698: Session 2026-11-07 night: stutter from the side penumbra, bush platform domes (Deck, Opus 5.5)
