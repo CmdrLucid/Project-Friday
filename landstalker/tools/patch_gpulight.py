@@ -552,7 +552,10 @@ vec4 roundFig(vec2 fc, float cl, vec4 L4) {   /* GL5f: a figure as a round body 
   float hc = 0.25 + 0.75 * max(dot(nc, uSd), 0.0), hn = 0.25 + 0.75 * max(dot(n, uSd), 0.0);   /* the sun / key light on the round body */
   float us = F.w * clamp(hn / hc, 0.4, 1.8), uss = us; if (us > 0.0 && fsh && (uSunR > 0.5 || uKey > 0.5)) uss = us * (1.0 - figSun(pc, j) * (uKey > 0.5 ? 0.55 : 1.0));   /* step 2: another figure's shadow */
   vec3 fo = min(ambient(F0.w) + 2.2 * so, vec3(2.4)), fl = min(ambient(us) + 2.2 * sl, vec3(2.4)), fs = min(ambient(uss) + 2.2 * ss, vec3(2.4));
-  vec3 rs = clamp(vec3(1.0) + uRfK * (fl / max(fo, vec3(0.01)) - vec3(1.0)), vec3(0.4), vec3(1.9));   /* the user wanted the shape stronger (2026-11-06): its deviation x LANDSTALKER_ROUNDFIG_K */
+  vec3 a = uRfK * (fl / max(fo, vec3(0.01)) - vec3(1.0));   /* the user wanted the shape stronger (2026-11-06): its deviation x LANDSTALKER_ROUNDFIG_K */
+  vec3 rs = mix(vec3(1.0) + 0.9 * (vec3(1.0) - exp(-max(a, vec3(0.0)) / 0.9)), vec3(1.0) - 0.45 * (vec3(1.0) - exp(min(a, vec3(0.0)) / 0.45)), step(a, vec3(0.0)));
+     /* v2 (user 2026-11-07 'uebergang sanfter machen'): soft knee instead of the hard clamp 0.4 .. 1.9: small deviations stay as strong (slope 1 at 0), large ones approach 0.55 / 1.9
+        gently (v1: the side away from a torch sat flat at 0.4 = grey maids in room 680) */
   vec3 r = clamp(rs * min(fs / max(fl, vec3(0.01)), vec3(1.0)), vec3(0.3), vec3(1.9));
   return vec4(min(L4.rgb * 255.0 * r, vec3(255.0)) / 255.0, 1.0); }
 float swlight(vec3 p, vec3 n) {   /* GL5e: the sword glow (lk_lt_term without shadow, as the light pass) times its soft shadow (march to the sword, LK_LT_IPEN clearance rule) */
