@@ -27,7 +27,7 @@ shaft beam / pool, reads it back and compares with the CPU block ('gl5:' lines).
 GL5b (v5): the view ray (lk_lt_ray / lk_lt_rayf) on the GPU too (geometry pass); the CPU block keeps the layer A bit it used (b->la: animated tiles).
 GL5f (v5, step 1): Options > Graphics > Round Figures (id 59, default On, GPU light with GL5c only): in the post pass every figure pixel is relit as a round body
 (width of the figure's own pixels in its row -> normal from the card normal to the side; surface point in front of the card) with flame shadows (one point, 3 unit steps,
-soft clearance) and the sun / key light shaded by the normal (0.4 .. 1.8 x the share); applied as the ratio new / old light on the lit pixel, its deviation x LANDSTALKER_ROUNDFIG_K (2.5, user 2026-11-06 'mach den Effekt staerker'; clamped 0.4 .. 1.9).  Step 2: figures shadow each other (flames: another figure's silhouette card turned to the light, as lk_lt_shadowed; sun / key: as lk_lt_figdir).
+soft clearance) and the sun / key light shaded by the normal (0.4 .. 1.8 x the share); applied as the ratio new / old light on the lit pixel, its deviation x LANDSTALKER_ROUNDFIG_K (2.0 since 2026-11-07, was 2.5 after the user's 'mach den Effekt staerker' 2026-11-06; v2 soft knee towards 0.6 .. 1.9).  Step 2: figures shadow each other (flames: another figure's silhouette card turned to the light, as lk_lt_shadowed; sun / key: as lk_lt_figdir).
 GL5e (v5): Options > Graphics > Sword Shadows (id 58, default On, GPU light with GL5c only): the light pass leaves the sword glow out on scenery pixels (uSwSh) and the post pass
 (lk_gb_run, also used by Bounce Light) adds it back times a soft shadow (march to the sword through the GL5 world texture, LK_LT_IPEN clearance rule); figures keep the unshadowed half glow.
 GL5c (v5): Light Engine GPU (default since 2026-11-06 late; was the option value GPU+; env LANDSTALKER_GL5=0 = the GL4 path with CPU blocks, also the watchdog's fallback): the GPU computes the visible light blocks itself (geometry pass -> 32 x 64 texture, packed pass ->
@@ -543,20 +543,22 @@ vec4 roundFig(vec2 fc, float cl, vec4 L4) {   /* GL5f: a figure as a round body 
   if (!shp) n = nc;
   if (mod(floor(uRfD / 8.0), 2.0) > 0.5) return vec4(fract(cl * 0.37), fract(cl * 0.61), fract(cl * 0.13 + 0.5), 1.0);   /* DBG 8: which figure a pixel belongs to */
   if (mod(floor(uRfD / 16.0), 2.0) > 0.5) return vec4(0.5 + 0.5 * u, 0.5 - 0.5 * u, wv, 1.0);   /* DBG 16: position across the body (red = right side) */
-  vec3 so = vec3(0.0), sl = vec3(0.0), ss = vec3(0.0);
+  vec3 so = vec3(0.0), sc = vec3(0.0), sl = vec3(0.0), ss = vec3(0.0);
   for (int k = 0; k < 96; k++) { if (float(k) >= uNl) break; vec4 Lf = uLF[k]; if (Lf.y > 0.5 && Lf.x <= 0.004) continue;
-    vec3 lc = Lf.x * uLC[k].rgb; so += term0(pc0, nc, uLP[k], uLC[k].w) * lc;
+    vec3 lc = Lf.x * uLC[k].rgb; so += term0(pc0, nc, uLP[k], uLC[k].w) * lc; sc += term0(pc, nc, uLP[k], uLC[k].w) * lc;
     float tn = term0(p, n, uLP[k], uLC[k].w); if (tn <= 0.0) continue; sl += tn * lc;
     if (tsh) tn *= figVis(ax, uLP[k].xyz, F.z); if (tn > 0.0 && fsh) tn *= 1.0 - figBlock(pc, uLP[k].xyz, j); ss += tn * lc; }
-  if (uSwon > 0.5) { vec3 g0 = term0(pc0, nc, uSwP, uSwC.w) * 0.5 * uSwC.rgb, g = term0(pc, nc, uSwP, uSwC.w) * 0.5 * uSwC.rgb; so += g0; sl += g; ss += g; }
+  if (uSwon > 0.5) { vec3 g0 = term0(pc0, nc, uSwP, uSwC.w) * 0.5 * uSwC.rgb, g = term0(pc, nc, uSwP, uSwC.w) * 0.5 * uSwC.rgb; so += g0; sc += g; sl += g; ss += g; }
   float hc = 0.25 + 0.75 * max(dot(nc, uSd), 0.0), hn = 0.25 + 0.75 * max(dot(n, uSd), 0.0);   /* the sun / key light on the round body */
   float us = F.w * clamp(hn / hc, 0.4, 1.8), uss = us; if (us > 0.0 && fsh && (uSunR > 0.5 || uKey > 0.5)) uss = us * (1.0 - figSun(pc, j) * (uKey > 0.5 ? 0.55 : 1.0));   /* step 2: another figure's shadow */
-  vec3 fo = min(ambient(F0.w) + 2.2 * so, vec3(2.4)), fl = min(ambient(us) + 2.2 * sl, vec3(2.4)), fs = min(ambient(uss) + 2.2 * ss, vec3(2.4));
-  vec3 a = uRfK * (fl / max(fo, vec3(0.01)) - vec3(1.0));   /* the user wanted the shape stronger (2026-11-06): its deviation x LANDSTALKER_ROUNDFIG_K */
-  vec3 rs = mix(vec3(1.0) + 0.9 * (vec3(1.0) - exp(-max(a, vec3(0.0)) / 0.9)), vec3(1.0) - 0.45 * (vec3(1.0) - exp(min(a, vec3(0.0)) / 0.45)), step(a, vec3(0.0)));
-     /* v2 (user 2026-11-07 'uebergang sanfter machen'): soft knee instead of the hard clamp 0.4 .. 1.9: small deviations stay as strong (slope 1 at 0), large ones approach 0.55 / 1.9
+  vec3 fo = min(ambient(F0.w) + 2.2 * so, vec3(2.4)), fc0 = min(ambient(F.w) + 2.2 * sc, vec3(2.4)), fl = min(ambient(us) + 2.2 * sl, vec3(2.4)), fs = min(ambient(uss) + 2.2 * ss, vec3(2.4));
+     /* fo = the card the light pass used (figure j0), fc0 = the card of the owner j: fc0 / fo moves the pixel's light to its owner UNAMPLIFIED (v2 first try amplified it: the maid
+        became brighter whenever Nigel stood in front of her, user rec_20261107_1822) */
+  vec3 a = uRfK * (fl / max(fc0, vec3(0.01)) - vec3(1.0));   /* the user wanted the shape stronger (2026-11-06): its deviation x LANDSTALKER_ROUNDFIG_K */
+  vec3 rs = mix(vec3(1.0) + 0.9 * (vec3(1.0) - exp(-max(a, vec3(0.0)) / 0.9)), vec3(1.0) - 0.4 * (vec3(1.0) - exp(min(a, vec3(0.0)) / 0.4)), step(a, vec3(0.0)));
+     /* v2 (user 2026-11-07 'uebergang sanfter machen'): soft knee instead of the hard clamp 0.4 .. 1.9: small deviations stay as strong (slope 1 at 0), large ones approach 0.6 / 1.9 (0.55 first; user 2026-11-07 'Gesichter noch etwas heller')
         gently (v1: the side away from a torch sat flat at 0.4 = grey maids in room 680) */
-  vec3 r = clamp(rs * min(fs / max(fl, vec3(0.01)), vec3(1.0)), vec3(0.3), vec3(1.9));
+  vec3 r = clamp(rs * (fc0 / max(fo, vec3(0.01))) * min(fs / max(fl, vec3(0.01)), vec3(1.0)), vec3(0.3), vec3(1.9));
   return vec4(min(L4.rgb * 255.0 * r, vec3(255.0)) / 255.0, 1.0); }
 float swlight(vec3 p, vec3 n) {   /* GL5e: the sword glow (lk_lt_term without shadow, as the light pass) times its soft shadow (march to the sword, LK_LT_IPEN clearance rule) */
   vec3 v = uSwP.xyz - p; float d = length(v), rad = uSwP.w;
@@ -1154,7 +1156,7 @@ static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out ho
   lk_glUniform4fv(lk_gb_u[23], 96, lp); lk_glUniform4fv(lk_gb_u[24], 96, lc); lk_glUniform4fv(lk_gb_u[25], 96, lf); lk_glUniform4fv(lk_gb_u[26], 16, fg); lk_glUniform4fv(lk_gb_u[27], 16, fa);
   lk_glUniform1f(lk_gb_u[28], (float)iu[2]); lk_glUniform1f(lk_gb_u[29], fu[0]); lk_glUniform1f(lk_gb_u[30], fu[1]); lk_glUniform1f(lk_gb_u[31], fu[2]); lk_glUniform3f(lk_gb_u[32], fu[3], fu[4], fu[5]); lk_glUniform3f(lk_gb_u[33], fu[6], fu[7], fu[8]);
   lk_glUniform1f(lk_gb_u[34], (float)iu[5]); lk_glUniform1f(lk_gb_u[35], (float)iu[1]); lk_glUniform1f(lk_gb_u[36], fu[10]); lk_glUniform1f(lk_gb_u[37], fu[11]); lk_glUniform3f(lk_gb_u[38], fu[24], fu[25], fu[26]); lk_glUniform1f(lk_gb_u[39], (float)iu[12]);
-  lk_glUniform1f(lk_gb_u[40], (float)iu[4]); lk_glUniform1f(lk_gb_u[41], fig ? 1.0f : 0.0f); lk_glUniform1f(lk_gb_u[42], (float)iu[9]); { static float rk = -1.0f; if (rk < 0.0f) { const char *e = getenv("LANDSTALKER_ROUNDFIG_K"); rk = e ? (float)atof(e) : 2.5f; if (rk < 0.0f) rk = 0.0f; } lk_glUniform1f(lk_gb_u[43], rk); } { static float rd = -1.0f; if (rd < 0.0f) { const char *e = getenv("LANDSTALKER_ROUNDFIG_DBG"); rd = e ? (float)atoi(e) : 0.0f; } lk_glUniform1f(lk_gb_u[44], rd); }
+  lk_glUniform1f(lk_gb_u[40], (float)iu[4]); lk_glUniform1f(lk_gb_u[41], fig ? 1.0f : 0.0f); lk_glUniform1f(lk_gb_u[42], (float)iu[9]); { static float rk = -1.0f; if (rk < 0.0f) { const char *e = getenv("LANDSTALKER_ROUNDFIG_K"); rk = e ? (float)atof(e) : 2.0f; if (rk < 0.0f) rk = 0.0f; } lk_glUniform1f(lk_gb_u[43], rk); } { static float rd = -1.0f; if (rd < 0.0f) { const char *e = getenv("LANDSTALKER_ROUNDFIG_DBG"); rd = e ? (float)atoi(e) : 0.0f; } lk_glUniform1f(lk_gb_u[44], rd); }
   lk_glUniform3f(lk_gb_u[10], base[0], base[1], base[2]); lk_glUniform1f(lk_gb_u[11], (float)iu[7]); lk_glUniform1f(lk_gb_u[12], bon ? lk_gb_k : 0.0f); lk_glUniform1f(lk_gb_u[13], lk_gb_r); lk_glUniform1f(lk_gb_u[14], lk_gb_d); lk_glUniform1f(lk_gb_u[15], lk_gl_postany ? 1.0f : 0.0f); lk_glUniform2f(lk_gb_u[16], phu, phv); lk_glUniform1f(lk_gb_u[17], iu[0] ? 1.0f : 0.0f);
   lk_glGetIntegerv(0x8CA6, &fb0); lk_glEnableClientState(0x8074); lk_glVertexPointer(2, 0x1406, 0, quad);
   { static int tdb = -1; if (tdb < 0) { const char *e = getenv("LANDSTALKER_BOUNCE_DBG"); tdb = e ? atoi(e) : 0; } if (tdb >= 2 && lk_glFinish) { static double sum; static int n; Uint64 t0; lk_glFinish(); t0 = SDL_GetPerformanceCounter();

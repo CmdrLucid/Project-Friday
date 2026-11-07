@@ -1066,6 +1066,19 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       memcpy(lk_lt_top, nh, sizeof nh); }
     { int q; for (q = 0; lk_lt_corr[q].room >= 0; q++) if (lk_lt_corr[q].room == lk_o_room && lk_lt_corr[q].op == 2) { const int16_t *a = lk_lt_corr[q].a;   /* data: water */
         for (y = a[1]; y <= a[3]; y++) for (x = a[0]; x <= a[2]; x++) if (x >= 0 && y >= 0 && x < 74 && y < 74) { lk_lt_top[y][x] = a[4]; lk_lt_wat[y][x] = 1; nw++; } } }
+    if (lk_lt_sun && !(getenv("LANDSTALKER_LT_DOORFILL") && atoi(getenv("LANDSTALKER_LT_DOORFILL")) == 0)) { static int16_t dn[74][74]; int nd = 0, ax;   /* 2026-11-07 DOOR NICHES outdoors (user rec_20261107_1822,
+         room 635: 'das Haus hat einen harten Kanten Schatten ueber der Tuere'): a door is a 1..3 cell niche in the height map that runs up the WHOLE wall (cell 23,31 height 16 in a wall of 112),
+         so the wall above the door was a deep slot shaded by its sides = a dark band with hard edges.  Our copy: the niche is filled up to the wall (the door sits flush); test aid LANDSTALKER_LT_DOORFILL=0 */
+      memcpy(dn, lk_lt_top, sizeof dn);
+      for (y = 1; y < 73; y++) for (x = 1; x < 73; x++) { int h = lk_lt_top[y][x]; if (h == -32768) continue;
+        for (ax = 0; ax < 2; ax++) { int fx = ax == 0, fy = ax == 1, sx2 = fy, sy2 = fx, n = 1, d, lo = 9999, ok = 1, bt, ft;   /* ax 0: wall face +x (the niche opens to +x, its sides along y); ax 1: face +y */
+          bt = lk_lt_top[y - fy][x - fx]; ft = lk_lt_top[y + fy][x + fx];
+          if (bt == -32768 || bt < h + 32 || ft == -32768 || ft > h + 8) continue;
+          for (d = 1; ; d++) { int cx = x - d * sx2, cy = y - d * sy2, t = (cx >= 0 && cy >= 0) ? lk_lt_top[cy][cx] : -32768; if (t == h) { if (++n > 3) { ok = 0; break; } continue; } if (t == -32768 || t < h + 32) ok = 0; else if (t < lo) lo = t; break; }
+          for (d = 1; ok; d++) { int cx = x + d * sx2, cy = y + d * sy2, t = (cx < 74 && cy < 74) ? lk_lt_top[cy][cx] : -32768; if (t == h) { if (++n > 3) { ok = 0; break; } continue; } if (t == -32768 || t < h + 32) ok = 0; else if (t < lo) lo = t; break; }
+          if (ok && lo < 9999) { if (bt < lo) lo = bt; if (lo > dn[y][x]) { dn[y][x] = (int16_t)lo; nd++; } } } }
+      memcpy(lk_lt_top, dn, sizeof dn);
+      if (lk_lt_dbg == 1 && nd) printf("door niches: room %%d, %%d cells filled\n", lk_o_room, nd); }
     memcpy(lk_lt_gh, lk_lt_top, sizeof lk_lt_gh);
     if (lk_lt_dbg == 5) printf("water: room %%d, %%d void cells painted -> floor\n", lk_o_room, nw); }
   { struct timespec t0; clock_gettime(CLOCK_MONOTONIC, &t0);
@@ -1114,7 +1127,12 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
   if (lk_lt_dbg == 3) { for (y = 18; y < 34; y++) { printf("hm %%2d:", y); for (x = 18; x < 44; x++) printf(" %%4d", lk_lt_top[y][x] == -32768 ? -1 : lk_lt_top[y][x]); printf("\n"); } }
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (lk_lt_thin[y][x] > -32768) { int keep = 0;   /* only a column that CARRIES a flame (a light within one cell, at or above its top) stays thin:
        wall pieces at the edge of the void looked like free standing columns too (user 2026-11-05: big wrong shadow in room 55) */
-    for (k = 0; k < lk_lt_nl; k++) { int lx = (int)floorf(lk_lt_l[k].x / 16.0f), ly = (int)floorf(lk_lt_l[k].y / 16.0f); if (abs(lx - x) <= 1 && abs(ly - y) <= 1 && lk_lt_l[k].z >= (float)lk_lt_top[y][x] - 8.0f) keep = 1; }
+    for (k = 0; k < lk_lt_nl; k++) { int lx = (int)floorf(lk_lt_l[k].x / 16.0f), ly = (int)floorf(lk_lt_l[k].y / 16.0f), sv; if (abs(lx - x) <= 1 && abs(ly - y) <= 1 && lk_lt_l[k].z >= (float)lk_lt_top[y][x] - 8.0f) keep = 1;
+      for (sv = 1; sv <= 32 && !keep && !(getenv("LANDSTALKER_LT_THINRAY") && atoi(getenv("LANDSTALKER_LT_THINRAY")) == 0); sv++) {   /* test aid LANDSTALKER_LT_THINRAY=0: old rule */
+        float qx = lk_lt_l[k].x - (float)sv, qy = lk_lt_l[k].y - (float)sv, qz = lk_lt_l[k].z + (float)sv;   /* 2026-11-07 (user rec_20261107_1822, room 680: light box at the standing torch
+          by the wall): the light can sit on the VIEW RAY in front of its pillar (same screen spot, (x, y, z) + s (1, 1, 1); room 680 light (293, 415, 49) = pillar (17, 25) top 64 at s = 15) */
+        int cx2 = (int)floorf(qx / 16.0f), cy2 = (int)floorf(qy / 16.0f); if (cx2 < 0 || cy2 < 0 || cx2 >= 74 || cy2 >= 74) break;
+        if (qz <= (float)lk_lt_top[cy2][cx2] + 2.0f) { if (cx2 == x && cy2 == y && qz >= (float)lk_lt_top[y][x] - 16.0f) keep = 1; break; } } }   /* only the FIRST column the ray meets (not the wall behind it); room 680: the ray meets the pillar's front 9 below its top */
     if (!keep) lk_lt_thin[y][x] = -32768;
     else if (lk_lt_dbg == 1) printf("thin column: room %%d cell %%d,%%d top %%d floor %%d\n", lk_o_room, x, y, lk_lt_top[y][x], lk_lt_thin[y][x]); }
   lk_lt_nfl = lk_lt_nl;   /* LK_DAYNIGHT v3: the flames (lava, torches); window lights follow */
