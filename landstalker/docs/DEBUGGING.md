@@ -1692,7 +1692,7 @@ Goal (SOUND_PLAN section 12): GPGX's `vdp_ctrl.c` decode replaced by `tools/lkvd
 - Issue: maslowk, v1.8.0, 'Odd looking shadow' north of Destel (4 pictures: box shadow on the path, dark band / blob near the lake, blobs on the water, cliff shadow on the water). Rooms: 483 (picture 1), 490 (2), 525 viewpoint (4). Reproduced with a warp tour (scratch roomtour.py: up to 12 farthest-point walkable cells per room, `proxysurvey.heights`, headless shots) and `LANDSTALKER_DAYNIGHT=0` (fixed sun like v1.8.0).
 - Wrong leads first: the barrier column x 21..23 y 50..60 (world) was not the caster; the side penumbra alone did not change the edge. Probe (MT=0) showed the pixels left of the edge as FACE 2 at z 131..135 = a wall at the front edge: the light's height copy held 232 in rows 62..65 (`LANDSTALKER_LT_HMWIN=24,50`) = painted void cells beside $4F barriers turned into 'water floors' (lowest neighbour - 8). Fix: lower the barriers before the water rule.
 - Side penumbra: probe across a pine block shadow edge (row 45): before 0 -> 192 in one step, after 0, 27, 67, 107, 192 over 16 px.
-- Raw words: $4F00 in 56 rooms (483 72 cells, 485 307, 465 204, 524 152, 525 8, castle 32..35 ...); visible tall terrain uses $0D00 / $0F00 / $4C00 / $4D00.
+- Raw words: word 4F00 (hex) in 56 rooms (483 72 cells, 485 307, 465 204, 524 152, 525 8, castle 32..35 ...); visible tall terrain uses 0D00 / 0F00 / 4C00 / 4D00.
 - lightedges (barrier rule alone, before the water-order fix): 465 427 -> 264; 485 211 -> 266 and 504 355 -> 410 = cliff faces now out of the barrier shadow showing the hard side edges (fixed by the side penumbra).
 
 ## Session 2026-11-07 night: stutter from the side penumbra, bush platform domes (Deck, Opus 5.5)
