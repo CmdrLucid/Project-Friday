@@ -74,6 +74,8 @@ chk "Wolkenschatten (Option)"                      $G/ext/Genesis-Plus-GX/core/v
 chk "GPU-Filter v2 (Sprint-Glaettung)"            $G/src/platform_sdl.c "LK_GPU v2"
 chk "GPU-Licht v5 (Grafikkarte, Waechter)"  $G/src/platform_sdl.c "LK_GPULT v5"
 chk "GPU-Licht v5 (Light Engine Schalter)"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_GPULT v5"
+chk "GPU-Bild 4a (Vergleich, Zeilen)"     $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_GPUCOMP v1"
+chk "GPU-Bild 4a (Vergleich, Shader)"     $G/src/platform_sdl.c "LK_GPUCOMP v1"
 chk "Weiches Scrollen (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SUBPIX v3"
 chk "Scharfes weiches Scrollen"                       $G/src/platform_sdl.c "LK_SSHARP v1"
 chk "Raumkarte"                                       $G/src/platform_sdl.c "LK_ROOMMAP v12"
