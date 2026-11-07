@@ -1082,6 +1082,17 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
           if (ok && lo < 9999) { if (bt < lo) lo = bt; if (lo > dn[y][x]) { dn[y][x] = (int16_t)lo; nd++; } } } }
       memcpy(lk_lt_top, dn, sizeof dn);
       if (lk_lt_dbg == 1 && nd) printf("door niches: room %%d, %%d cells filled\n", lk_o_room, nd); }
+    if (lk_lt_sun && !(getenv("LANDSTALKER_LT_INVIS") && atoi(getenv("LANDSTALKER_LT_INVIS")) == 0)) { static int16_t dn2[74][74]; int ni = 0;   /* 2026-11-07 INVISIBLE BARRIERS outdoors (GitHub issue #14,
+         room 483 north of Destel: 'out of place looking environmental shadow'): height map word $4Fxx = blocked + height 15 (240 units, taller than the screen) marks the invisible walls at a
+         room's edge (483: x 21..23, y 50..60, nothing drawn there); they cast huge shadows with hard edges and no visible caster.  Our copy: such a cell takes the highest height of its
+         non-barrier neighbours.  Test aid LANDSTALKER_LT_INVIS=0 */
+      memcpy(dn2, lk_lt_top, sizeof dn2);
+      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x), m = -32768, a, b2; if (w == 0x4000 || (w >> 8) != 0x4F) continue;
+        for (b2 = y - 1; b2 <= y + 1; b2++) for (a = x - 1; a <= x + 1; a++) { int w2; if (a < 0 || b2 < 0 || a >= 74 || b2 >= 74) continue; w2 = UW(0xFFD192 + 148 * b2 + 2 * a);
+          if (w2 == 0x4000 || (w2 >> 8) == 0x4F || lk_lt_top[b2][a] == -32768) continue; if (lk_lt_top[b2][a] > m) m = lk_lt_top[b2][a]; }
+        dn2[y][x] = (int16_t)(m == -32768 ? 0 : m); ni++; }
+      memcpy(lk_lt_top, dn2, sizeof dn2);
+      if (lk_lt_dbg == 1 && ni) printf("invisible barriers: room %%d, %%d cells lowered\n", lk_o_room, ni); }
     memcpy(lk_lt_gh, lk_lt_top, sizeof lk_lt_gh);
     if (lk_lt_dbg == 5) printf("water: room %%d, %%d void cells painted -> floor\n", lk_o_room, nw); }
   { struct timespec t0; clock_gettime(CLOCK_MONOTONIC, &t0);
