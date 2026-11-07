@@ -769,6 +769,9 @@ static int lk_lt_tileok(uint32_t base, int t) {   /* groups that mix flames with
   if (base == 0x0968CA) return t == 917 || t == 927 || t == 928 || t == 934 || t == 935;
   return 1;
 }
+static int lk_lt_watblk(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_WATBLK"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-07: painted water beside the game's blocked water = same height */
+static int lk_lt_pinewalk(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_PINEWALK"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-07: no catalogue pine on walkable ground of base height */
+static int lk_lt_invmode(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INVIS"); v = e ? atoi(e) : 2; } return v; }   /* 0 off, 1 neighbour heights (first version), 2 void (default) */
 static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 2026-11-03: 'sollten wir nicht eher fixen dass die Haeuser im Raumplan korrekt sind?'):
      the game's height map holds only the low collision boxes of houses / trees; their drawn walls, roofs and crowns are layer A (foreground) pixels
      above the box.  Small raised boxes (<= 128 cells of one height with a lower neighbour; large areas = terrain stay) are raised in OUR copy (lk_lt_top) cell by cell
@@ -993,7 +996,10 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
         for (m = 0; m < sp; m++) { int cx = st[m][0], cy = st[m][1], g = lk_lt_gh[cy][cx], kind = lk_lt_catc[c][0], top = kind == 1 ? (g > base + 16 ? g : base + 16) : (g > base + lk_lt_catc[c][2] ? g : base + lk_lt_catc[c][2]);
           { int k2, dup = 0; for (k2 = 0; k2 < lk_lt_npx && !dup; k2++) { const lk_lt_proxy *L2 = &lk_lt_px[k2]; float ddx = 16.0f * cx + 8.0f - (float)L2->x0, ddy = 16.0f * cy + 8.0f - (float)L2->y0; if (L2->type == 3 && ddx * ddx + ddy * ddy < 48.0f * 48.0f) dup = 1; }
             if (dup && kind != 3) { if (lk_lt_dbg == 5) printf("catalogue: room %%d cell %%d,%%d skipped: a lathe tree stands there\n", lk_o_room, cx, cy); continue; } }   /* v8 (user 2026-11-06: 'der Baum wirft 3 Schatten'): the crown blocks of a free standing tree that already has its sprite lathe map to the cells behind it = 3 more pine cones */
-          if (kind == 1 && g < base + 8) continue;   /* kind 3 FLAT (flower beds): no shape, and no automatic shape over it either */   /* a bush only on a RAISED cell: the side faces / back edge of a bush block also draw the top of lower cells in front / behind */
+          if (kind == 1 && g < base + 8) continue;
+          if (kind == 2 && lk_lt_walk[cy][cx] && g <= base && lk_lt_pinewalk()) { if (lk_lt_dbg == 5) printf("catalogue: room %%d cell %%d,%%d skipped: a pine on walkable ground = the tip of a pine in front\n", lk_o_room, cx, cy); continue; }   /* 2026-11-07 (user, room 488:
+             'spitzer Schatten rechts nahe des Ausgangs'): the upper blocks of a drawn pine also 'draw the top' of the walkable path cells behind it = phantom pines with cone shadows on the path
+             (488 cells 58,23 / 58,24 / 47,45 / 45,46); real pines stand on BLOCKED cells (FORMATS 'Bush blocks'); test aid LANDSTALKER_LT_PINEWALK=0 */   /* kind 3 FLAT (flower beds): no shape, and no automatic shape over it either */   /* a bush only on a RAISED cell: the side faces / back edge of a bush block also draw the top of lower cells in front / behind */
           lk_lt_tk[cy][cx] = (uint8)kind; lk_lt_tr[cy][cx] = (uint8)lk_lt_catc[c][1]; lk_lt_tb[cy][cx] = (int16_t)base; lk_lt_tt[cy][cx] = (int16_t)top; lk_lt_to[cy][cx] = 1031; if (kind == 1) nb++; else if (kind == 2) np++; else nf++; if (lk_lt_dbg == 5) printf("catalogue: room %%d cell %%d,%%d kind %%d base %%d top %%d r %%d\n", lk_o_room, cx, cy, kind, base, top, lk_lt_catc[c][1]); }
         n++; } }
       if (nb + np + nf && lk_lt_npx < 255) { int m, kept = 0; lk_lt_proxy *P;
@@ -1111,7 +1117,9 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
     for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x), m = -32768, a, b2; if (w == 0x4000 || (w >> 8) != 0x4F) continue;
       for (b2 = y - 1; b2 <= y + 1; b2++) for (a = x - 1; a <= x + 1; a++) { int w2; if (a < 0 || b2 < 0 || a >= 74 || b2 >= 74) continue; w2 = UW(0xFFD192 + 148 * b2 + 2 * a);
         if (w2 == 0x4000 || (w2 >> 8) == 0x4F || lk_lt_top[b2][a] == -32768) continue; if (lk_lt_top[b2][a] > m) m = lk_lt_top[b2][a]; }
-      dn2[y][x] = (int16_t)(m == -32768 ? 0 : m); ni++; }
+      dn2[y][x] = lk_lt_invmode() == 1 ? (int16_t)(m == -32768 ? 0 : m) : (int16_t)-32768; ni++; }   /* 2026-11-07 later (user: 'generell Raeume pruefen', room 524): a WIDE barrier area (524: 14 x 11 cells over the
+         painted water) got its ring at the neighbours' heights and its inside at 0 = invisible walls in the water; now a barrier is VOID for the light: the water rule fills it where water is painted,
+         unpainted (black) barriers stay void; LANDSTALKER_LT_INVIS=1 = the first version (neighbour heights) */
     memcpy(lk_lt_top, dn2, sizeof dn2);
     if (lk_lt_dbg == 1 && ni) printf("invisible barriers: room %%d, %%d cells lowered\n", lk_o_room, ni); }
   memset(lk_lt_wat, 0, sizeof lk_lt_wat);
@@ -1126,13 +1134,37 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
           if (lk_lt_vw[y][x]) continue;
           for (d = 1; d <= 8; d++) { if (x - d >= 0 && org[y][x - d] != -32768) e1 = 1; if (x + d < 74 && org[y][x + d] != -32768) e2 = 1; if (y - d >= 0 && org[y - d][x] != -32768) e3 = 1; if (y + d < 74 && org[y + d][x] != -32768) e4 = 1; }
           if (!((e1 && e2) || (e3 && e4))) { if (!pass) continue; wo = 1; } }   /* v8: outside that only as a continuation of water found already (the water runs on to the room edge in the picture, room 185), at the water's height */
-        for (b2 = y - 1; b2 <= y + 1; b2++) for (a = x - 1; a <= x + 1; a++) if (a >= 0 && b2 >= 0 && a < 74 && b2 < 74 && lk_lt_top[b2][a] != -32768 && lk_lt_top[b2][a] < m && (!wo || lk_lt_wat[b2][a])) m = lk_lt_top[b2][a];
+        { int mb = 0;
+        for (b2 = y - 1; b2 <= y + 1; b2++) for (a = x - 1; a <= x + 1; a++) if (a >= 0 && b2 >= 0 && a < 74 && b2 < 74 && lk_lt_top[b2][a] != -32768 && lk_lt_top[b2][a] < m && (!wo || lk_lt_wat[b2][a])) { int w3 = UW(0xFFD192 + 148 * b2 + 2 * a); m = lk_lt_top[b2][a]; mb = w3 != 0x4000 && ((w3 >> 8) & 0x40) && (w3 >> 8) != 0x4F; }
         if (m == 9999) continue;
-        m = pass == 0 ? m - 8 : m; if (m < 0) m = 0;
+        m = pass == 0 && !(mb && lk_lt_sun && lk_lt_watblk()) ? m - 8 : m; if (m < 0) m = 0; }   /* 2026-11-07 (user, room 488: 'spitzer Schatten im Wasser'): beside the game's own WATER (a BLOCKED cell lower than the bank,
+           room 488 '$47' at 112 beside paths at 128) the painted water beyond the map is the same surface: no 8 unit step (it cast a long thin shadow along the border); test aid LANDSTALKER_LT_WATBLK=0 */
         U = 16 * (x - y) + 1184; V = 8 * (x + y) + 8 - m;
         if (!lk_o_fetch(lk_o_pb, U, V, &pal, &pr, 0) && !lk_o_fetch(lk_o_pa, U, V, &pal, &pr, 0)) continue;
         nh[y][x] = (int16_t)m; lk_lt_wat[y][x] = 1; ch = 1; nw++; }
       memcpy(lk_lt_top, nh, sizeof nh); }
+    if (lk_lt_sun && lk_lt_invmode() == 2) { static uint8 sn[74][74]; static uint8 st2[5476][2]; int nm = 0;   /* 2026-11-07 later (room 524): a painted area that holds former INVISIBLE BARRIER cells ($4F, void for
+         the light) was filled from its borders, each border cell at its own neighbour - 8: the fronts met in steps = walls in the water; such an area is FLAT: it takes its lowest height.
+         Only areas with barrier cells (levelling every painted area put the drawn cliff faces of room 470 on a deep floor) */
+      memset(sn, 0, sizeof sn);
+      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int sp = 0, i, lo = 32767, nb4 = 0; if (!lk_lt_wat[y][x] || sn[y][x]) continue;
+        sn[y][x] = 1; st2[sp][0] = (uint8)x; st2[sp][1] = (uint8)y; sp++;
+        for (i = 0; i < sp; i++) { int cx = st2[i][0], cy = st2[i][1], a, b2; if (lk_lt_top[cy][cx] < lo) lo = lk_lt_top[cy][cx]; if ((UW(0xFFD192 + 148 * cy + 2 * cx) >> 8) == 0x4F) nb4++;
+          for (b2 = cy - 1; b2 <= cy + 1; b2++) for (a = cx - 1; a <= cx + 1; a++) if (a >= 0 && b2 >= 0 && a < 74 && b2 < 74 && lk_lt_wat[b2][a] && !sn[b2][a] && sp < 5476) { sn[b2][a] = 1; st2[sp][0] = (uint8)a; st2[sp][1] = (uint8)b2; sp++; } }
+        if (nb4) for (i = 0; i < sp; i++) if (lk_lt_top[st2[i][1]][st2[i][0]] != lo) { lk_lt_top[st2[i][1]][st2[i][0]] = (int16_t)lo; nm++; } }
+      if (lk_lt_dbg == 5 && nm) printf("water: room %%d, %%d cells of painted barrier areas levelled\n", lk_o_room, nm); }
+    if (lk_lt_sun && lk_lt_watblk()) { static uint8 sn[74][74]; static uint8 st2[5476][2]; int nu = 0;   /* 2026-11-07 (user, room 488 'spitzer Schatten im Wasser'): a painted water area that touches the game's
+         own water (a BLOCKED cell 1..8 units above the fill: room 488 '$47' at 112) is that water: the whole area takes its height (the fill started 8 below a walkable dock at 112 = an 8 unit wall along the dock) */
+      memset(sn, 0, sizeof sn);
+      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int sp = 0, i, lvl = 9999; if (!lk_lt_wat[y][x] || sn[y][x]) continue;
+        sn[y][x] = 1; st2[sp][0] = (uint8)x; st2[sp][1] = (uint8)y; sp++;
+        for (i = 0; i < sp; i++) { int cx = st2[i][0], cy = st2[i][1], a, b2, h = lk_lt_top[cy][cx];
+          for (b2 = cy - 1; b2 <= cy + 1; b2++) for (a = cx - 1; a <= cx + 1; a++) { int w3, t; if (a < 0 || b2 < 0 || a >= 74 || b2 >= 74) continue;
+            if (lk_lt_wat[b2][a]) { if (!sn[b2][a] && sp < 5476) { sn[b2][a] = 1; st2[sp][0] = (uint8)a; st2[sp][1] = (uint8)b2; sp++; } continue; }
+            w3 = UW(0xFFD192 + 148 * b2 + 2 * a); t = lk_lt_top[b2][a];
+            if (w3 != 0x4000 && ((w3 >> 8) & 0x40) && (w3 >> 8) != 0x4F && t != -32768 && t > h && t <= h + 8 && t < lvl) lvl = t; } }
+        if (lvl != 9999) for (i = 0; i < sp; i++) if (lk_lt_top[st2[i][1]][st2[i][0]] < lvl) { lk_lt_top[st2[i][1]][st2[i][0]] = (int16_t)lvl; nu++; } }
+      if (lk_lt_dbg == 5 && nu) printf("water: room %%d, %%d painted cells raised to the game's water\n", lk_o_room, nu); }
     { int q; for (q = 0; lk_lt_corr[q].room >= 0; q++) if (lk_lt_corr[q].room == lk_o_room && lk_lt_corr[q].op == 2) { const int16_t *a = lk_lt_corr[q].a;   /* data: water */
         for (y = a[1]; y <= a[3]; y++) for (x = a[0]; x <= a[2]; x++) if (x >= 0 && y >= 0 && x < 74 && y < 74) { lk_lt_top[y][x] = a[4]; lk_lt_wat[y][x] = 1; nw++; } } }
     if (lk_lt_sun && !(getenv("LANDSTALKER_LT_DOORFILL") && atoi(getenv("LANDSTALKER_LT_DOORFILL")) == 0)) { static int16_t dn[74][74]; int nd = 0, ax;   /* 2026-11-07 DOOR NICHES outdoors (user rec_20261107_1822,

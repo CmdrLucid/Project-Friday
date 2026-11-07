@@ -47,6 +47,17 @@
         ],
         "file": "proxies/tree_488.obj",
         "why": "The big tree in front of the forest (automatic box up to 271, drawn tip ~212); remake/recipes/proxy_tree_488.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          43,
+          22,
+          44,
+          23,
+          112
+        ],
+        "why": "2 x 2 walkable cells one step above the river (height map 8 in water 7, nothing drawn there): an invisible block that cast a dark box on the water (user 2026-11-07 'Schatten im Wasser')"
       }
     ],
     "632": [
