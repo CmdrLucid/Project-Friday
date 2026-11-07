@@ -548,28 +548,24 @@ static int lk_lt_sunp(void) {   /* v5 prototype: LANDSTALKER_SUN=1..3 (soft / me
   r = lk_lt_get() ? v : 0;
   return r;
 }
+static uint16_t lk_lt_spk[74][74];   /* side penumbra record per cell: bits 0..7 height / 4 (rounded up, 0 = nothing), bits 8..15 box x0 x1 y0 y1 in fine cells; = the game height (bush / pine: base, lathe: none) as a full cell, or the drawn object (lk_lt_cpk) if it is taller; sent to the GPU (lk_gl_world w row 2 low half) */
 static uint16_t lk_lt_cpk[74][74];   /* side penumbra: per cell the drawn OBJECT inside it (fine field, not bush / pine / lathe): bits 0..7 top / 4 (rounded up, 0 = none), bits 8..15 fine box x0 x1 y0 y1 (2 bits each); also sent to the GPU (lk_gl_world w row 2) */
+static uint8 lk_lt_m3q[74][74];   /* side penumbra SPEED (rec_20261107_2031: stutter with the first version, GPU block 0.63..1.19 ms): per cell the highest thing in its 3 x 3 cells / 4 rounded up; a ray above it skips the neighbour test; also sent to the GPU (fine plane 2, top byte) */
 static int lk_lt_sside = 1;   /* side penumbra of the sun march (LANDSTALKER_LT_SSIDE=0 = off, read at room setup) */
 int lk_lt_sside_get(void) { return lk_lt_sside; }
-uint16_t lk_lt_cpk_at(int x, int y) { return lk_lt_cpk[y][x]; }   /* for the GPU port (patch_gpulight.py sunvis) */
+uint16_t lk_lt_cpk_at(int x, int y) { return lk_lt_spk[y][x]; }   /* (the GPU gets the side record lk_lt_spk) */
+unsigned lk_lt_m3q_at(int x, int y) { return lk_lt_m3q[y][x]; }   /* for the GPU port (patch_gpulight.py sunvis) */
 static float lk_lt_sidecl(float x, float y, float z, int cx, int cy, int self) {   /* 2026-11-07 SIDE PENUMBRA (GitHub issue #14, user 'ja'): the closest pass of lk_lt_sunvis only measured
      the clearance ABOVE the cell under the ray, so a ray passing BESIDE a taller cell (a pine block's base, a cliff, a house) gave a knife-sharp edge.  Horizontal distance from (x, y) to the
-     nearest neighbour cell that reaches above z: game height (bush / pine cells: their base lk_lt_tb, the cone has its own soft edge; lathes skipped) and the drawn object inside it (lk_lt_cpk box).
-     The point's own object is skipped.  Mirrored in patch_gpulight.py sidecl (lockstep).  9999 = nothing */
+     nearest neighbour cell whose SIDE RECORD (lk_lt_spk: height / 4 + box, built per room) reaches above z; the point's own object is skipped.  v2 (rec_20261107_2031 stutter): one record per
+     neighbour instead of 4 lookups + the 3 x 3 bound lk_lt_m3q.  Mirrored in patch_gpulight.py sidecl (lockstep).  9999 = nothing */
   float cl = 9999.0f; int a, b2;
-  for (b2 = cy - 1; b2 <= cy + 1; b2++) for (a = cx - 1; a <= cx + 1; a++) { float hn, ex, ey; int ob, q2; unsigned pk;
-    if ((a == cx && b2 == cy) || a < 0 || b2 < 0 || a >= 74 || b2 >= 74 || lk_lt_gh[b2][a] == -32768) continue;
-    ob = lk_lt_obj[b2][a]; if (self && ob == self) continue;
-    hn = (float)lk_lt_gh[b2][a]; if (ob > 0 && ob < 1024 && lk_lt_ocl[ob] == 1) hn = (float)lk_lt_sgnd[ob];
-    q2 = lk_lt_fp[4 * b2 + 2][4 * a + 2];
-    if (q2 && lk_lt_px[q2 - 1].type == 3) continue;
-    if (q2 && lk_lt_px[q2 - 1].type == 5 && lk_lt_tk[b2][a]) hn = (float)lk_lt_tb[b2][a];
-    if (hn + 0.5f > z) { ex = a > cx ? 16.0f * (float)a - x : a < cx ? x - 16.0f * (float)(a + 1) : 0.0f; ey = b2 > cy ? 16.0f * (float)b2 - y : b2 < cy ? y - 16.0f * (float)(b2 + 1) : 0.0f;
-      if (ex < 0.0f) ex = 0.0f; if (ey < 0.0f) ey = 0.0f; ex = sqrtf(ex * ex + ey * ey); if (ex < cl) cl = ex; }
-    pk = lk_lt_cpk[b2][a];
-    if (pk && 4.0f * (float)(pk & 255) + 0.5f > z) { float bx0 = 16.0f * (float)a + 4.0f * (float)((pk >> 8) & 3), bx1 = 16.0f * (float)a + 4.0f * (float)(((pk >> 10) & 3) + 1),
-        by0 = 16.0f * (float)b2 + 4.0f * (float)((pk >> 12) & 3), by1 = 16.0f * (float)b2 + 4.0f * (float)(((pk >> 14) & 3) + 1);
-      ex = x < bx0 ? bx0 - x : x > bx1 ? x - bx1 : 0.0f; ey = y < by0 ? by0 - y : y > by1 ? y - by1 : 0.0f; ex = sqrtf(ex * ex + ey * ey); if (ex < cl) cl = ex; } }
+  if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74 || z >= 4.0f * (float)lk_lt_m3q[cy][cx] + 0.5f) return cl;   /* nothing around reaches the ray */
+  for (b2 = cy - 1; b2 <= cy + 1; b2++) for (a = cx - 1; a <= cx + 1; a++) { unsigned pk; float bx0, bx1, by0, by1, ex, ey;
+    if ((a == cx && b2 == cy) || a < 0 || b2 < 0 || a >= 74 || b2 >= 74) continue; pk = lk_lt_spk[b2][a]; if (!pk || 4.0f * (float)(pk & 255) + 0.5f <= z) continue;
+    if (self && lk_lt_obj[b2][a] == self) continue;
+    bx0 = 16.0f * (float)a + 4.0f * (float)((pk >> 8) & 3); bx1 = 16.0f * (float)a + 4.0f * (float)(((pk >> 10) & 3) + 1); by0 = 16.0f * (float)b2 + 4.0f * (float)((pk >> 12) & 3); by1 = 16.0f * (float)b2 + 4.0f * (float)(((pk >> 14) & 3) + 1);
+    ex = x < bx0 ? bx0 - x : x > bx1 ? x - bx1 : 0.0f; ey = y < by0 ? by0 - y : y > by1 ? y - by1 : 0.0f; ex = sqrtf(ex * ex + ey * ey); if (ex < cl) cl = ex; }
   return cl; }
 static float lk_lt_sunvis(float px, float py, float pz, int self) {   /* v7: share of the sun that reaches a point (0..1): march to the sun through the game's
      heights and the fine object field (lk_lt_fh), objects of the pixel's own object skipped (no self shadow: the painting has it); the closest pass gives a soft edge */
@@ -1129,6 +1125,18 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         if (!lk_lt_fo[sy][sx] || f <= lk_lt_gh[y][x] || (q && (lk_lt_px[q - 1].type == 5 || lk_lt_px[q - 1].type == 3))) continue;
         if (f > top) top = f; if (i < x0) x0 = i; if (i > x1) x1 = i; if (j < y0) y0 = j; if (j > y1) y1 = j; }
       if (top > 0) { int tq = (top + 3) / 4; if (tq > 255) tq = 255; lk_lt_cpk[y][x] = (uint16_t)(tq | (x0 << 8) | (x1 << 10) | (y0 << 12) | (y1 << 14)); } }
+    memset(lk_lt_m3q, 0, sizeof lk_lt_m3q); memset(lk_lt_spk, 0, sizeof lk_lt_spk);
+    if (lk_lt_sun) { static int16_t hc[74][74]; for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int h = lk_lt_gh[y][x], ob = lk_lt_obj[y][x], q = lk_lt_fp[4 * y + 2][4 * x + 2], ct;   /* lk_lt_spk + lk_lt_m3q */
+        if (h != -32768 && ob > 0 && ob < 1024 && lk_lt_ocl[ob] == 1) h = lk_lt_sgnd[ob];
+        if (q && lk_lt_px[q - 1].type == 3) h = -32768;   /* lathes: own soft shape */
+        else if (q && lk_lt_px[q - 1].type == 5 && lk_lt_tk[y][x]) h = lk_lt_tb[y][x];   /* bush / pine: the base (the crown has its own soft edge) */
+        ct = lk_lt_cpk[y][x] ? 4 * (lk_lt_cpk[y][x] & 255) : -32768;
+        if (ct > h) { lk_lt_spk[y][x] = lk_lt_cpk[y][x]; h = ct; }
+        else if (h > 0) { int tq = (h + 3) / 4; if (tq > 255) tq = 255; lk_lt_spk[y][x] = (uint16_t)(tq | (0 << 8) | (3 << 10) | (0 << 12) | (3 << 14)); }
+        hc[y][x] = (int16_t)(lk_lt_spk[y][x] ? 4 * (lk_lt_spk[y][x] & 255) : -32768); }
+      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int a2, b3, m = -32768, q;
+        for (b3 = y - 1; b3 <= y + 1; b3++) for (a2 = x - 1; a2 <= x + 1; a2++) if (a2 >= 0 && b3 >= 0 && a2 < 74 && b3 < 74 && hc[b3][a2] > m) m = hc[b3][a2];
+        q = m <= 0 ? 0 : (m + 3) / 4; lk_lt_m3q[y][x] = (uint8)(q > 255 ? 255 : q); } }
     if (lk_lt_dbg == 5 && lk_lt_sun) printf("extrude: room %%d %%.1f ms, %%d cards\n", lk_o_room, lk_sm_ms_since(&t0), lk_lt_nc); }   /* v7 test aid: room load cost of the outdoor objects */
   if (lk_lt_sun && lk_lt_fhmax > lk_lt_zmax) lk_lt_zmax = lk_lt_fhmax;   /* v7: the sun march stops above the highest object */
   lk_lt_ztop = lk_lt_zmax; lk_lt_pah = lk_lt_pahash();

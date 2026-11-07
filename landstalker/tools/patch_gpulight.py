@@ -32,7 +32,7 @@ GL5e (v5): Options > Graphics > Sword Shadows (id 58, default On, GPU light with
 (lk_gb_run, also used by Bounce Light) adds it back times a soft shadow (march to the sword through the GL5 world texture, LK_LT_IPEN clearance rule); figures keep the unshadowed half glow.
 GL5c (v5): Light Engine GPU (default since 2026-11-06 late; was the option value GPU+; env LANDSTALKER_GL5=0 = the GL4 path with CPU blocks, also the watchdog's fallback): the GPU computes the visible light blocks itself (geometry pass -> 32 x 64 texture, packed pass ->
 copied into roomT0 / T1 / A / B / K), block table + light lists from lk_gl_blist5, keys lk_gl_wkey (hard = room world, soft = sun steps: stale blocks stay until recomputed),
-budget LANDSTALKER_GL5_CAP (24 visible without data) / _CAP2 (4 ring + stale) per frame, watchdog (timer query, > LANDSTALKER_GL5_MAXMS 5 ms average -> GPU), LANDSTALKER_GL5_TIME=1..3
+budget LANDSTALKER_GL5_CAP (18 visible without data, was 24) / _CAP2 (4 ring + stale) per frame, watchdog (timer query, > LANDSTALKER_GL5_MAXMS 5 ms average -> GPU), LANDSTALKER_GL5_TIME=1..3
 debug prints.  v5 CPU SAVING (user 2026-11-06 'CPU entlasten'): while GL5c runs the CPU computes NO light blocks (no prefetch jobs, no on-demand;
 lk_gl5_cpufr); the particles' floor (lk_am_surf) comes from the GPU blocks' room A / B planes read back through 2 pixel buffers one frame late (lk_gl_surfput, no stall;
 a GPU sun step swap is mirrored, lk_gl_surfswap); test aid LANDSTALKER_GL5_CPUKEEP=1 = the CPU keeps computing.  rec_20261106_1322: user CPU 41.3 s -> 30.2 s (-27 %%), pictures identical.
@@ -146,7 +146,7 @@ unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint
     LK_GL_H(w[o]); LK_GL_H(w[5476 + o]); LK_GL_H(w[2 * 5476 + o]); LK_GL_H(w2[o]); LK_GL_H(w2[5476 + o]); LK_GL_H(w2[2 * 5476 + o]); }
   for (y = 0; y < LK_LT_FN; y++) for (x = 0; x < LK_LT_FN; x++) { int o = y * LK_LT_FN + x, q = lk_lt_fp[y][x], fo = lk_lt_fo[y][x];
     fn[o] = (uint32_t)(uint16_t)lk_lt_fh[y][x] | ((uint32_t)(uint16_t)fo << 16);
-    fn[LK_LT_FN * LK_LT_FN + o] = (uint32_t)q | ((uint32_t)(q ? lk_lt_px[q - 1].type : 0) << 8) | ((uint32_t)(fo > 0 && fo < 1024 ? lk_lt_ocl[fo] : 0) << 16);
+    { extern unsigned lk_lt_m3q_at(int x, int y); fn[LK_LT_FN * LK_LT_FN + o] = (uint32_t)q | ((uint32_t)(q ? lk_lt_px[q - 1].type : 0) << 8) | ((uint32_t)(fo > 0 && fo < 1024 ? lk_lt_ocl[fo] : 0) << 16) | (lk_lt_m3q_at(x >> 2, y >> 2) << 24); }   /* top byte: side penumbra bound lk_lt_m3q of the cell */
     f2[o] = (uint32_t)(uint16_t)lk_lt_vt[y][x] | ((uint32_t)(uint16_t)lk_lt_vg[y][x] << 16);
     LK_GL_H(fn[o]); LK_GL_H(fn[LK_LT_FN * LK_LT_FN + o]); LK_GL_H(f2[o]); }
   for (k = 0; k < 255; k++) { const lk_lt_proxy *P = &lk_lt_px[k]; uint32_t *r = px + k * 26; int j;
@@ -663,21 +663,15 @@ float aoval(float px, float py, float z, float f) {   /* lk_lt_aoval */
 vec3 P(float U, float V, float z) { float D = U - 1184.0; return vec3((2.0 * V + 2.0 * z + D) * 0.5, (2.0 * V + 2.0 * z - D) * 0.5, z); }
 vec4 W2(float cx, float cy, float hf) { return texture2D(wld2, (vec2(cx, cy + 74.0 * hf) + 0.5) / vec2(74.0, 222.0)); }
 vec4 FN(float sx, float sy, float hf) { return texture2D(fine, (vec2(sx, sy + 296.0 * hf) + 0.5) / vec2(296.0, 592.0)); }
-float sidecl(float x, float y, float z, float cx, float cy, float self) {   /* = lk_lt_sidecl (patch_lights.py): horizontal distance to a neighbour cell reaching above z (side penumbra) */
+float sidecl(float x, float y, float z, float cx, float cy, float self, float m3) {   /* = lk_lt_sidecl (patch_lights.py): horizontal distance to a neighbour cell whose side record lk_lt_spk (w row 2 low half) reaches above z */
   float cl = 9999.0;
+  if (z >= 4.0 * m3 + 0.5) return cl;   /* lk_lt_m3q (passed in from the fine plane the march already read): nothing around reaches the ray */
   for (int b2 = -1; b2 <= 1; b2++) for (int a2 = -1; a2 <= 1; a2++) { float ax = cx + float(a2), by = cy + float(b2);
     if ((a2 == 0 && b2 == 0) || ax < 0.0 || by < 0.0 || ax > 73.0 || by > 73.0) continue;
-    vec4 n0 = W2(ax, by, 0.0); float hn = S16(B(n0.r), B(n0.g)); if (hn == -32768.0) continue;
-    vec4 n2 = W2(ax, by, 2.0); float ob = S16(B(n2.b), B(n2.a)); if (self != 0.0 && ob == self) continue;
-    vec4 nf = FN(4.0 * ax + 2.0, 4.0 * by + 2.0, 1.0); float nq = B(nf.r), nt = B(nf.g);
-    if (nq > 0.0 && nt == 3.0) continue;
-    if (nq > 0.0 && nt == 5.0 && B(n0.b) > 0.0) { vec4 n1 = W2(ax, by, 1.0); hn = S16(B(n1.b), B(n1.a)); }
-    float ex, ey;
-    if (hn + 0.5 > z) { ex = a2 > 0 ? 16.0 * ax - x : a2 < 0 ? x - 16.0 * (ax + 1.0) : 0.0; ey = b2 > 0 ? 16.0 * by - y : b2 < 0 ? y - 16.0 * (by + 1.0) : 0.0;
-      ex = max(ex, 0.0); ey = max(ey, 0.0); cl = min(cl, sqrt(ex * ex + ey * ey)); }
-    vec4 wc = W(ax, by, 2.0); float tq = B(wc.r), bb = B(wc.g);
-    if (tq > 0.0 && 4.0 * tq + 0.5 > z) { float bx0 = 16.0 * ax + 4.0 * mod(bb, 4.0), bx1 = 16.0 * ax + 4.0 * (mod(floor(bb / 4.0), 4.0) + 1.0), by0 = 16.0 * by + 4.0 * mod(floor(bb / 16.0), 4.0), by1 = 16.0 * by + 4.0 * (floor(bb / 64.0) + 1.0);
-      ex = x < bx0 ? bx0 - x : x > bx1 ? x - bx1 : 0.0; ey = y < by0 ? by0 - y : y > by1 ? y - by1 : 0.0; cl = min(cl, sqrt(ex * ex + ey * ey)); } }
+    vec4 wc = W(ax, by, 2.0); float tq = B(wc.r), bb = B(wc.g); if (tq == 0.0 || 4.0 * tq + 0.5 <= z) continue;
+    if (self != 0.0 && S16(B(W2(ax, by, 2.0).b), B(W2(ax, by, 2.0).a)) == self) continue;
+    float bx0 = 16.0 * ax + 4.0 * mod(bb, 4.0), bx1 = 16.0 * ax + 4.0 * (mod(floor(bb / 4.0), 4.0) + 1.0), by0 = 16.0 * by + 4.0 * mod(floor(bb / 16.0), 4.0), by1 = 16.0 * by + 4.0 * (floor(bb / 64.0) + 1.0);
+    float ex = x < bx0 ? bx0 - x : x > bx1 ? x - bx1 : 0.0, ey = y < by0 ? by0 - y : y > by1 ? y - by1 : 0.0; cl = min(cl, sqrt(ex * ex + ey * ey)); }
   return cl; }
 float sunvis(vec3 sd, float hs, vec3 p, float self) {   /* lk_lt_sunvis: march to the sun through the game heights, the object field, lathes, bushes / pines; soft edge LK_LT_PEN 12 */
   float hl = sqrt(sd.x * sd.x + sd.y * sd.y), res = 1.0, t = 2.0;
@@ -698,7 +692,7 @@ float sunvis(vec3 sd, float hs, vec3 p, float self) {   /* lk_lt_sunvis: march t
       if (z <= zc && dh - 1.5 < cl) cl = dh - 1.5;
       if (cl <= 0.0) return 0.0; r = 12.0 * cl / (t * hl); if (r < res) res = r;
       d = z - zb + 0.5; if (d <= 0.0) return 0.0; r = 12.0 * d / (t * hl); if (r < res) res = r;
-      if (uSside > 0.5) { float cl2 = sidecl(x, y, z, cx, cy, self); if (cl2 < 9999.0) { r = 12.0 * cl2 / (t * hl); if (r < res) res = r; } }
+      if (uSside > 0.5) { float cl2 = sidecl(x, y, z, cx, cy, self, B(f1.a)); if (cl2 < 9999.0) { r = 12.0 * cl2 / (t * hl); if (r < res) res = r; } }
       if (12.0 * (z - hdv + 0.5) >= res * t * hl) return res;
       continue; }
     if (q > 0.0 && qt == 3.0) {   /* a lathe (tree) with its drawn profile */
@@ -707,13 +701,13 @@ float sunvis(vec3 sd, float hs, vec3 p, float self) {   /* lk_lt_sunvis: march t
       if (kk >= 0.0 && kk < ridge - z0) { vec4 pf = texture2D(prx, (vec2(2.0 + floor(kk / 4.0), q - 1.0) + 0.5) / vec2(26.0, 255.0)); float m = mod(kk, 4.0), pv = B(m < 0.5 ? pf.r : m < 1.5 ? pf.g : m < 2.5 ? pf.b : pf.a);
         float cl = dd - pv; if (cl <= 0.0) return 0.0; r = 12.0 * cl / (t * hl); if (r < res) res = r; }
       d = z - h + 0.5; if (d <= 0.0) return 0.0; r = 12.0 * d / (t * hl); if (r < res) res = r;
-      if (uSside > 0.5) { float cl2 = sidecl(x, y, z, cx, cy, self); if (cl2 < 9999.0) { r = 12.0 * cl2 / (t * hl); if (r < res) res = r; } }
+      if (uSside > 0.5) { float cl2 = sidecl(x, y, z, cx, cy, self, B(f1.a)); if (cl2 < 9999.0) { r = 12.0 * cl2 / (t * hl); if (r < res) res = r; } }
       if (12.0 * (z - hdv + 0.5) >= res * t * hl) return res;
       continue; }
     float fh = S16(B(f0.r), B(f0.g)); if (o != 0.0 && fh > h) h = fh;
     d = z - h + 0.5; if (d <= 0.0) return 0.0;
     r = 12.0 * d / (t * hl); if (r < res) res = r;
-    if (uSside > 0.5) { float cl2 = sidecl(x, y, z, cx, cy, self); if (cl2 < 9999.0) { r = 12.0 * cl2 / (t * hl); if (r < res) res = r; } }
+    if (uSside > 0.5) { float cl2 = sidecl(x, y, z, cx, cy, self, B(f1.a)); if (cl2 < 9999.0) { r = 12.0 * cl2 / (t * hl); if (r < res) res = r; } }
     if (12.0 * (z - hdv + 0.5) >= res * t * hl) return res; }
   return res; }
 float keyvis(vec3 sd, vec3 p) {   /* lk_lt_keyvisd */
@@ -1029,8 +1023,8 @@ static void lk_g5_run(const float *lp, const float *lc) {   /* compare (LANDSTAL
 /* ---- v5 GL5c: the GPU computes the light blocks itself (LANDSTALKER_GL5=1, test aid until the user's check): every visible block that has no GPU data or is stale
    (sun step) gets the geometry pass (view ray) and the packed pass, copied straight into the room textures the light shader reads (roomT0 / T1 / A / B / K);
    block table + light lists come from the GPU side (lk_gl_blist5).  Stale blocks stay on screen until recomputed (no flicker at a sun step); a new room clears all.
-   The CPU light blocks are still computed (fallback, motes / particles depth); LANDSTALKER_GL5_CAP = visible blocks without data per frame (24) / LANDSTALKER_GL5_CAP2 = look-ahead ring + stale blocks per frame (4); ~0.2..0.4 ms per block on the Deck, LANDSTALKER_GL5_TIME=1 prints the GPU time. ---- */
-static int lk_g5_slow, lk_g5_ron = -1, lk_g5_cap = 24, lk_g5_cap2 = 4, lk_g5_tdbg, lk_g5_wdirty = 1; static unsigned lk_g5_hk, lk_g5_sk, lk_g5_bk[38][76]; static uint32_t lk_g5_bt[38][76], lk_g5_l0[38][76], lk_g5_l1[38][76];
+   The CPU light blocks are still computed (fallback, motes / particles depth); LANDSTALKER_GL5_CAP = visible blocks without data per frame (18, was 24) / LANDSTALKER_GL5_CAP2 = look-ahead ring + stale blocks per frame (4); ~0.2..0.4 ms per block on the Deck, LANDSTALKER_GL5_TIME=1 prints the GPU time. ---- */
+static int lk_g5_slow, lk_g5_ron = -1, lk_g5_cap = 18, lk_g5_cap2 = 4,   /* cap 18 (was 24) since 2026-11-07: the side penumbra makes a block ~20 %% dearer, 24 per frame gave extra 20 ms frames after room changes (rec_20261107_2031) */  lk_g5_tdbg, lk_g5_wdirty = 1; static unsigned lk_g5_hk, lk_g5_sk, lk_g5_bk[38][76]; static uint32_t lk_g5_bt[38][76], lk_g5_l0[38][76], lk_g5_l1[38][76];
 static lkGLuint lk_g5_q[2]; static int lk_g5_qst, lk_g5_qi, lk_g5_qp[2], lk_g5_qn, lk_g5_qover; static double lk_g5_qsum;   /* GPU+ watchdog: block pass time per frame (120 frame average > LANDSTALKER_GL5_MAXMS, default 5 ms, twice -> GPU (GL4) for the rest of the run) */
 static void lk_g5_qpoll(void) { int o; lkGLint av; unsigned long long ns; static double mx = -1.0; if (mx < 0.0) { const char *e = getenv("LANDSTALKER_GL5_MAXMS"); mx = e ? atof(e) : 5.0; }
   for (o = 0; o < 2; o++) { if (!lk_g5_qp[o]) continue; av = 0; ns = 0; lk_glGetQueryObjectiv(lk_g5_q[o], 0x8867, &av); if (!av) continue; lk_glGetQueryObjectui64v(lk_g5_q[o], 0x8866, &ns); lk_g5_qp[o] = 0; lk_g5_qsum += (double)ns * 1e-6; }
