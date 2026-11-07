@@ -209,3 +209,4 @@
 - L1649: Session 2026-11-06 GPU step 2 measurement + GPU lighting GL1 (Deck, Opus 5.5)
 - L1658: Session 2026-11-06 late .. 2026-11-07: GL5 complete, user recordings, Day / Night v5 (Deck, Opus 5.5, dev 7ac586e .. 94ae506)
 - L1669: Session 2026-11-07: STEP 4 stage 4a, GPU picture composition harness (Deck, Opus 5.5)
+- L1682: Session 2026-11-07 evening: Round Figures v2, torch light box, door niches (Deck, Opus 5.5)
