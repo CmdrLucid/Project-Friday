@@ -935,7 +935,28 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
           for (g = 0, r = 1; r <= 28; r++) { if (lk_o_fetch(lk_o_pa, C->U + r, C->V0 - kk, &pal, &pr, 0)) g = 0; else if (++g > 1) break; } r -= g;
           if (l >= 27 || r >= 27) { bad++; R[kk] = 255; continue; }   /* the run went on into a wall behind */
           R[kk] = (uint8)((float)(l + r) * 0.5f / 1.4142f + 0.5f); any++; }
+        if (!(getenv("LANDSTALKER_LT_LATHEFIX") && atoi(getenv("LANDSTALKER_LT_LATHEFIX")) == 0)) { int g = 0, top2 = -1, k3, run = 0, seen = 0;   /* test aid LANDSTALKER_LT_LATHEFIX=0 = the old lathe rows */
+          for (k3 = 0; k3 < H; k3++) if (R[k3] > 0 && R[k3] != 255) top2 = k3;
+          if (top2 >= 0 && top2 + 1 < H) { for (k3 = top2 + 1; k3 < H; k3++) { if (R[k3] == 255) bad--; R[k3] = 0; } H = top2 + 1; if (bad < 0) bad = 0; }   /* 'into a wall' rows ABOVE the top: background, not a solid cylinder */
+          for (k3 = 0; k3 < H; ) { int e = k3; if (R[k3] != 255) { k3++; continue; } while (e < H && R[e] == 255) e++;   /* 'into a wall' stretches inside: <= 6 rows = the row below (a pine at a house), longer = empty (cliff / forest background behind a crown, room 483) */
+            { int k4; for (k4 = k3; k4 < e; k4++) R[k4] = (uint8)(e - k3 <= 6 && k3 > 0 ? R[k3 - 1] : 0); } bad -= e - k3; k3 = e; }
+          if (bad < 0) bad = 0;
+          for (k3 = 0; k3 < H; k3++) { int good = R[k3] > 0 && R[k3] != 255; if (good) { if (seen && run >= 8) g = k3; seen = 1; run = 0; } else run++; }   /* the start of the part above the last gap of >= 8 empty rows */
+          if (g == 0) while (g < H && (R[g] == 255 || R[g] == 0)) g++;   /* 2026-11-07 RE-ANCHOR (user: room 483 x 27.0D y 47.0E 'konisch langer Schatten' before 16 h): trees on a cliff top whose drawn run went
+             on down the cliff face (rows 'hidden by a wall' at the BOTTOM) got their foot on the path in front = a 95 high column there.  When the lowest >= 8 rows are wall OR an empty gap of >= 8 rows separates a small
+             thing at the foot from the crown (483 object 11: 8 rows, 41 empty, crown, 31 'wall' rows above = a 95 high column): follow the view ray of
+             the first real row (of the upper part) through the game heights; the tree stands where it meets them (the cliff top), with the height of its real rows only */
+          if (g >= 8 && H - g >= 12) { int D = C->U - 1184, V = C->V0 - g, zz, hit = 0; float hx = 0.0f, hy = 0.0f; int hz = 0;
+            for (zz = lk_lt_zmax + 16; zz >= C->h - 16 && !hit; zz--) { float fx = (float)(2 * V + 2 * zz + D) * 0.5f, fy = (float)(2 * V + 2 * zz - D) * 0.5f; int cx = (int)floorf(fx / 16.0f), cy = (int)floorf(fy / 16.0f), tp;
+              if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) continue; tp = lk_lt_gh[cy][cx]; if (tp == -32768) continue; if (zz <= tp) { hit = 1; hx = fx; hy = fy; hz = tp; } }
+            if (hit && hz > C->h + 4) { int k2; for (k2 = 0; k2 < 96; k2++) R[k2] = (uint8)(k2 + g < 96 && k2 < H - g ? R[k2 + g] : 0);
+              if (lk_lt_dbg == 5) printf("proxy: room %%d #%%d lathe re-anchored: %%d wall rows at the bottom, foot (%%d,%%d) z %%d -> (%%.0f,%%.0f) z %%d\n", lk_o_room, lk_lt_npx - 1, g, P->x0, P->y0, P->z0, hx, hy, hz);
+              P->x0 = (int16_t)hx; P->y0 = (int16_t)hy; P->z0 = (int16_t)hz; P->eave = (int16_t)hz; P->ridge = (int16_t)(hz + H - g); bad -= g; if (bad < 0) bad = 0; H -= g; }
+            else { int k2; for (k2 = g; k2 < 96; k2++) R[k2] = 0; H = g; P->ridge = (int16_t)(P->z0 + H); if (lk_lt_dbg == 5) printf("proxy: room %%d #%%d lathe cut at row %%d (the part above a gap could not be placed)\n", lk_o_room, lk_lt_npx - 1, g); } }
+          else if (g > 0 && g < H && seen) { int k2, gap = 0; for (k2 = 0; k2 < g; k2++) if (R[k2] > 0) gap = 1; if (gap) { for (k2 = g; k2 < 96; k2++) R[k2] = 0; H = g; P->ridge = (int16_t)(P->z0 + H); if (lk_lt_dbg == 5) printf("proxy: room %%d #%%d lathe cut at row %%d (small part above a gap)\n", lk_o_room, lk_lt_npx - 1, g); } } }
+        if (!(getenv("LANDSTALKER_LT_LATHEFIX") && atoi(getenv("LANDSTALKER_LT_LATHEFIX")) == 0)) { while (H > 1 && R[H - 1] == 0) H--; P->ridge = (int16_t)(P->z0 + H); }   /* empty rows at the top */
         P->y1 = (int16_t)bad; P->x1 = 0; for (kk = 0; kk < H; kk++) if (R[kk] != 255 && R[kk] > P->x1) P->x1 = R[kk];
+        if (lk_lt_dbg == 5 && getenv("LANDSTALKER_LT_PROFDBG")) { printf("profile: room %%d #%%d (object %%d) rows 0..%%d:", lk_o_room, lk_lt_npx - 1, C->obj, H - 1); for (kk = 0; kk < H; kk++) printf(" %%d", R[kk] == 255 ? -1 : R[kk]); printf("\n"); }   /* test aid: the lathe radius per row (-1 = into a wall) */
         if (!any) { P->type = 2; P->x1 = (int16_t)((float)C->w * 0.7072f); }
         if (lk_lt_dbg == 5) printf("proxy: room %%d #%%d lathe at %%d,%%d z %%d..%%d max r %%d, %%d rows hidden by a wall (object %%d)\n", lk_o_room, lk_lt_npx - 1, P->x0, P->y0, P->z0, P->ridge, P->x1, bad, P->obj);
         continue; }
