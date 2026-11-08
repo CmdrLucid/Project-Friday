@@ -772,6 +772,7 @@ static int lk_lt_tileok(uint32_t base, int t) {   /* groups that mix flames with
 static int lk_lt_watblk(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_WATBLK"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-07: painted water beside the game's blocked water = same height */
 static int lk_lt_pinewalk(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_PINEWALK"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-07: no catalogue pine on walkable ground of base height */
 static int lk_lt_invmode(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INVIS"); v = e ? atoi(e) : 2; } return v; }   /* 0 off, 1 neighbour heights (first version), 2 void (default) */
+static int lk_lt_archfill(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_ARCHFILL"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: arch gaps in thin tall walls filled */
 static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 2026-11-03: 'sollten wir nicht eher fixen dass die Haeuser im Raumplan korrekt sind?'):
      the game's height map holds only the low collision boxes of houses / trees; their drawn walls, roofs and crowns are layer A (foreground) pixels
      above the box.  Small raised boxes (<= 128 cells of one height with a lower neighbour; large areas = terrain stay) are raised in OUR copy (lk_lt_top) cell by cell
@@ -1122,6 +1123,22 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
          unpainted (black) barriers stay void; LANDSTALKER_LT_INVIS=1 = the first version (neighbour heights) */
     memcpy(lk_lt_top, dn2, sizeof dn2);
     if (lk_lt_dbg == 1 && ni) printf("invisible barriers: room %%d, %%d cells lowered\n", lk_o_room, ni); }
+  if (lk_lt_sun && lk_lt_archfill()) { static int16_t ag[74][74]; int na = 0, ax;   /* 2026-11-08 ARCH GAPS outdoors (user: 'generell Raeume pruefen', room 486 'harte dunkle Balken'): a THIN tall wall
+       (<= 2 cells thick, >= 160 high: 486 x 43..44 at 240) with a 1..3 cell gap far below its top (void or a passage floor) = a drawn arch (open below, wall above); the light saw a slot up to the wall top whose inner face lay in the
+       shadow of the next wall part = a hard dark bar.  Our copy: the gap is filled to the wall height (like the door niches); test aid LANDSTALKER_LT_ARCHFILL=0 */
+    memcpy(ag, lk_lt_top, sizeof ag);
+    for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int t0 = lk_lt_top[y][x]; if (t0 >= 64) continue;
+      for (ax = 0; ax < 2; ax++) { int dx = ax == 0, dy = ax == 1, d, ha = -32768, hb = -32768, da = 0, db = 0, t, k, thin = 1, lo = t0;   /* ax 0: the wall runs along x, ax 1: along y */
+        for (d = 1; d <= 3; d++) { int cx = x - d * dx, cy = y - d * dy; if (cx < 0 || cy < 0) break; t = lk_lt_top[cy][cx]; if (t >= 160) { ha = t; da = d; break; } if (t > lo) lo = t; }
+        for (d = 1; d <= 3; d++) { int cx = x + d * dx, cy = y + d * dy; if (cx >= 74 || cy >= 74) break; t = lk_lt_top[cy][cx]; if (t >= 160) { hb = t; db = d; break; } if (t > lo) lo = t; }
+        if (ha < 160 || ha != hb || da + db - 1 > 3 || lo > ha - 96) continue;   /* the gap (void, or a passage floor: 486 $00 cells at 0 under the arch) lies far below the wall top */
+        for (k = 0; k < 2 && thin; k++) { int ex = k ? x + db * dx : x - da * dx, ey = k ? y + db * dy : y - da * dy, n = 1;   /* the wall ends: thickness across the wall <= 2 */
+          for (d = 1; d <= 3; d++) { int cx = ex - d * dy, cy = ey - d * dx; if (cx < 0 || cy < 0 || lk_lt_top[cy][cx] != ha) break; n++; }
+          for (d = 1; d <= 3; d++) { int cx = ex + d * dy, cy = ey + d * dx; if (cx >= 74 || cy >= 74 || lk_lt_top[cy][cx] != ha) break; n++; }
+          if (n > 2) thin = 0; }
+        if (thin) { ag[y][x] = (int16_t)ha; na++; break; } } }
+    memcpy(lk_lt_top, ag, sizeof ag);
+    if (lk_lt_dbg == 1 && na) printf("arch gaps: room %%d, %%d cells filled\n", lk_o_room, na); }
   memset(lk_lt_wat, 0, sizeof lk_lt_wat);
   if (lk_lt_sun || lk_lt_aor) { int pass, ch = 1, nw = 0; static int16_t org[74][74];   /* v8: also indoors (room light): painted water beside a walkway was void = an endless wall down = a dark box on the water (room 185, lightedges) */
     memcpy(org, lk_lt_top, sizeof org);
@@ -1143,15 +1160,16 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         if (!lk_o_fetch(lk_o_pb, U, V, &pal, &pr, 0) && !lk_o_fetch(lk_o_pa, U, V, &pal, &pr, 0)) continue;
         nh[y][x] = (int16_t)m; lk_lt_wat[y][x] = 1; ch = 1; nw++; }
       memcpy(lk_lt_top, nh, sizeof nh); }
-    if (lk_lt_sun && lk_lt_invmode() == 2) { static uint8 sn[74][74]; static uint8 st2[5476][2]; int nm = 0;   /* 2026-11-07 later (room 524): a painted area that holds former INVISIBLE BARRIER cells ($4F, void for
-         the light) was filled from its borders, each border cell at its own neighbour - 8: the fronts met in steps = walls in the water; such an area is FLAT: it takes its lowest height.
-         Only areas with barrier cells (levelling every painted area put the drawn cliff faces of room 470 on a deep floor) */
+    if (lk_lt_sun && lk_lt_invmode() == 2) { static uint8 sn[74][74]; static uint8 st2[5476][2]; int nm = 0;   /* 2026-11-07 later (room 524): a WIDE barrier area ($4F, void for the light: 524 14 x 11 cells) over painted
+         water was filled from its borders, each border cell at its own neighbour - 8: the fronts met in steps = walls in the water.  A painted area (8-connected) that holds >= 24 barrier cells is
+         FLAT: it takes its lowest height.  Not for every painted area (the drawn cliff faces of room 470 went onto a deep floor = a dark band) nor for a few barrier cells (486: 9 cells in a
+         painted area of 440; the arch gaps are filled before the water rule) */
       memset(sn, 0, sizeof sn);
       for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int sp = 0, i, lo = 32767, nb4 = 0; if (!lk_lt_wat[y][x] || sn[y][x]) continue;
         sn[y][x] = 1; st2[sp][0] = (uint8)x; st2[sp][1] = (uint8)y; sp++;
         for (i = 0; i < sp; i++) { int cx = st2[i][0], cy = st2[i][1], a, b2; if (lk_lt_top[cy][cx] < lo) lo = lk_lt_top[cy][cx]; if ((UW(0xFFD192 + 148 * cy + 2 * cx) >> 8) == 0x4F) nb4++;
           for (b2 = cy - 1; b2 <= cy + 1; b2++) for (a = cx - 1; a <= cx + 1; a++) if (a >= 0 && b2 >= 0 && a < 74 && b2 < 74 && lk_lt_wat[b2][a] && !sn[b2][a] && sp < 5476) { sn[b2][a] = 1; st2[sp][0] = (uint8)a; st2[sp][1] = (uint8)b2; sp++; } }
-        if (nb4) for (i = 0; i < sp; i++) if (lk_lt_top[st2[i][1]][st2[i][0]] != lo) { lk_lt_top[st2[i][1]][st2[i][0]] = (int16_t)lo; nm++; } }
+        if (nb4 >= 24) for (i = 0; i < sp; i++) if (lk_lt_top[st2[i][1]][st2[i][0]] != lo) { lk_lt_top[st2[i][1]][st2[i][0]] = (int16_t)lo; nm++; } }
       if (lk_lt_dbg == 5 && nm) printf("water: room %%d, %%d cells of painted barrier areas levelled\n", lk_o_room, nm); }
     if (lk_lt_sun && lk_lt_watblk()) { static uint8 sn[74][74]; static uint8 st2[5476][2]; int nu = 0;   /* 2026-11-07 (user, room 488 'spitzer Schatten im Wasser'): a painted water area that touches the game's
          own water (a BLOCKED cell 1..8 units above the fill: room 488 '$47' at 112) is that water: the whole area takes its height (the fill started 8 below a walkable dock at 112 = an 8 unit wall along the dock) */

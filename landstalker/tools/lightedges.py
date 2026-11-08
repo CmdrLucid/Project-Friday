@@ -58,7 +58,7 @@ def run(rom_path, rooms, out, batch=16, jobs=4):
             env = dict(PATH=os.environ["PATH"], HOME=os.path.join(d, "home"), LANDSTALKER_WIDE="19", LANDSTALKER_TALL="1", LANDSTALKER_NATIVEPACE="1",
                        LANDSTALKER_QSPLAY=qs, GENRECOMP_INPUTSCRIPT=os.path.join(d, "in.txt"), LANDSTALKER_SAVE=os.path.join(d, "s.srm"),
                        LANDSTALKER_WARP=";".join(warps), LANDSTALKER_WARP_AT=",".join(ats), LANDSTALKER_SHOT=",".join(shots), LANDSTALKER_SHOT_SCALE="1", LANDSTALKER_SHOT_DIR=d)
-            env.update({k: v for k, v in os.environ.items() if k.startswith("LANDSTALKER_LT_") or k.startswith("LANDSTALKER_LIGHTING_") or k.startswith("LANDSTALKER_DAY")})   # test aids pass through (e.g. LANDSTALKER_LT_AMB, LANDSTALKER_DAYTIME=15 = time of day)
+            env.update({k: v for k, v in os.environ.items() if k.startswith("LANDSTALKER_LT_") or k.startswith("LANDSTALKER_LIGHTING_") or k.startswith("LANDSTALKER_DAY") or k.startswith("LANDSTALKER_CLOUD")})   # test aids pass through (e.g. LANDSTALKER_LT_AMB, LANDSTALKER_DAYTIME=15 = time of day)
             while len([p for p in procs if p.poll() is None]) >= jobs: procs[0].wait(); procs = [p for p in procs if p.poll() is None]
             print("lightedges: batch %d lighting %d: %d warps" % (b // batch, light, len(warps)), flush=True)
             procs.append(subprocess.Popen([os.path.join(HERE, "build", "landstalker"), "--headless", "--frames", str(fr + 20), rom_path], env=env,
