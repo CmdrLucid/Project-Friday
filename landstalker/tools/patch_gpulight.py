@@ -813,7 +813,7 @@ float sunShare(vec3 sd, float hs, float U, float V, float face, float z, float r
   vec3 n = vec3(FNX(face), FNY(face), FNZ(face)), pp = P(U, V, z); float ndl = sd.z;
   if (face != 1.0 && n.x * sd.x + n.y * sd.y + (face > 19.5 ? n.z * sd.z : 0.0) <= 0.0) { float vis = 1.0, qx = pp.x - n.x * 2.0, qy = pp.y - n.y * 2.0, sx = floor(qx / 4.0), sy = floor(qy / 4.0);
     if (sx >= 0.0 && sy >= 0.0 && sx < 296.0 && sy < 296.0) { vec4 f1 = FN(sx, sy, 1.0); float gh = S16(B(W2(floor(sx / 4.0), floor(sy / 4.0), 2.0).r), B(W2(floor(sx / 4.0), floor(sy / 4.0), 2.0).g));
-      if (B(f1.r) == 0.0 && gh != -32768.0 && gh <= 48.0 && z <= gh) { vec4 f0 = FN(sx, sy, 0.0); vis = sunvis(sd, hs, vec3(qx, qy, gh + 0.5), S16(B(f0.b), B(f0.a))); } }
+      if (B(f1.r) == 0.0 && !mownh(sx, sy) && gh != -32768.0 && gh <= 48.0 && z <= gh) {   /* LK_GLROOM v1: inside a hand-made model = like a proxy (the wall keeps the sky share; a corner sub column of the model was 0) */ vec4 f0 = FN(sx, sy, 0.0); vis = sunvis(sd, hs, vec3(qx, qy, gh + 0.5), S16(B(f0.b), B(f0.a))); } }
     return floor(ndl * vis * 255.0); }
   float cx = floor((pp.x - n.x * 2.0) / 4.0), cy = floor((pp.y - n.y * 2.0) / 4.0), ob = 0.0;
   if (cx >= 0.0 && cy >= 0.0 && cx < 296.0 && cy < 296.0) { vec4 f0 = FN(cx, cy, 0.0), f1 = FN(cx, cy, 1.0); ob = S16(B(f0.b), B(f0.a)); if (ob > 0.0 && ob < 1024.0 && B(f1.b) == 1.0 && layA < 0.5) ob = 0.0; }
