@@ -670,7 +670,7 @@ static lk_lt_blk *lk_lt_blockcalc(int bx, int by) {   /* v8 MT: computes one blo
     lk_lt_pos(U0 + (i & 31), V0 + (i >> 5), b->z[i], &px, &py); b->ao[i] = (uint8)(int)(lk_lt_aoval(px, py, b->z[i], b->face[i]) * 255.0f + 0.5f); } }
   { float bd[LK_LT_NL]; for (k = 0; k < lk_lt_nl; k++) {   /* the nearest lights of the block (picture distance of the light's projection) */
     float lu = lk_lt_l[k].x - lk_lt_l[k].y + 1184.0f, lv = (lk_lt_l[k].x + lk_lt_l[k].y) * 0.5f - lk_lt_l[k].z, du = lu - (float)(U0 + 16), dv = lv - (float)(V0 + 16), d2 = du * du + dv * dv; int m;
-    if (fabsf(du) >= LK_LT_RAD * 1.6f + 24.0f || fabsf(dv) >= LK_LT_RAD * 1.6f + 24.0f) continue;
+    { float lim = (lk_lt_l[k].rad > 0.0f ? lk_lt_l[k].rad : LK_LT_RAD) * 1.6f + 24.0f; if (fabsf(du) >= lim || fabsf(dv) >= lim) continue; }   /* 2026-11-08 (user: room 58 'harte Schattenkante am Teppich'): the reach of EACH light (castle standing torches 260, was the fixed 120: the block boundary cut a torch that still gave 10 percent) */
     if (b->nl < LK_LT_NL) m = b->nl++; else { int q; m = 0; for (q = 1; q < LK_LT_NL; q++) if (bd[q] > bd[m]) m = q; if (bd[m] <= d2) continue; }
     b->li[m] = (uint8)k; bd[m] = d2;
   } }

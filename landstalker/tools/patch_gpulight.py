@@ -185,7 +185,7 @@ void lk_gl_wkey(unsigned *hard, unsigned *soft, float *dirs, int *sunn) { unsign
 void lk_gl_blist5(int bx, int by, uint32_t *a, uint32_t *b2, int *nlo) { int k, nl = 0, U0 = bx * 32, V0 = by * 32; uint8 li[LK_LT_NL]; float bd[LK_LT_NL];
   for (k = 0; k < lk_lt_nl; k++) {
     float lu = lk_lt_l[k].x - lk_lt_l[k].y + 1184.0f, lv = (lk_lt_l[k].x + lk_lt_l[k].y) * 0.5f - lk_lt_l[k].z, du = lu - (float)(U0 + 16), dv = lv - (float)(V0 + 16), d2 = du * du + dv * dv; int m;
-    if (fabsf(du) >= LK_LT_RAD * 1.6f + 24.0f || fabsf(dv) >= LK_LT_RAD * 1.6f + 24.0f) continue;
+    { float lim = (lk_lt_l[k].rad > 0.0f ? lk_lt_l[k].rad : LK_LT_RAD) * 1.6f + 24.0f; if (fabsf(du) >= lim || fabsf(dv) >= lim) continue; }   /* 2026-11-08 (user: room 58 'harte Schattenkante am Teppich'): the reach of EACH light (castle standing torches 260, was the fixed 120: the block boundary cut a torch that still gave 10 percent) */
     if (nl < LK_LT_NL) m = nl++; else { int q; m = 0; for (q = 1; q < LK_LT_NL; q++) if (bd[q] > bd[m]) m = q; if (bd[m] <= d2) continue; }
     li[m] = (uint8)k; bd[m] = d2; }
   *a = *b2 = 0; *nlo = nl;
