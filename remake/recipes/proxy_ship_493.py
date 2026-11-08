@@ -49,6 +49,7 @@ HULL = [
     ("rail_waist_l", 576, 584, 588, 784, 0, 44, 44, "flat", None),     # side rail logs (drawn ~12 above the main deck)
     ("rail_waist_r", 692, 584, 704, 784, 0, 44, 44, "flat", None),
     cyl("mast", 626, 702, 6, 32, 248),
+    cyl("figurehead", 648, 832, 7, 0, 64),   # the figurehead stands just starboard of the stem (drawn at U 992..1020): a round body, else the stem ridge cut a hard light edge through it (user 2026-11-08)
 ]   # the forecastle rail log (deck 48 + ~12) is NOT in the light shape: a thin diagonal rail becomes a stair of 4 unit sub columns with
 #   small pockets that the room light shades as vertical stripes; for a remake model: rail_along("rail_bow", [FC[0], FC[2], FC[1]], 10, 48, 60)
 

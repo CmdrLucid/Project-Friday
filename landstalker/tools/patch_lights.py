@@ -221,6 +221,12 @@ static const float lk_lt_fbc[15] = { 0.773010453f, 0.881921264f, 0.956940336f, 0
 #define LK_LT_OFF(nx, ny, d) (((nx) != 0.0f && (ny) != 0.0f) ? 5.0f : (d))   /* v9: marches / the room light start further out in front of a SLANTED face (its 4 unit stair steps would shade the point) */
 static float lk_lt_fnx(int f) { return f == 2 ? 1.0f : f >= 4 && f < 20 ? lk_lt_fcs[f - 4] : 0.0f; }   /* normal of a face code: 1 floor, 2 +x, 3 +y, 4..19 slanted (round hulls: a stair of */
 static float lk_lt_fny(int f) { return f == 3 ? 1.0f : f >= 4 && f < 20 ? lk_lt_fsn[f - 4] : 0.0f; }   /* 4 unit sub columns would shade as stripes of +x / +y) */
+static int lk_lt_pinet(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_PINETIER"); v = e ? atoi(e) : 1; } return v; }   /* test aid: 0 = the old smooth cone */
+static float lk_lt_pinr(float f) {   /* v9 PINE PROFILE (user 2026-11-08: 'Lichtform fuer die Kiefer genauer, 3D-Kiefern haben wir im Remake'): radius share at height share f of the crown
+     (0 = crown foot, 1 = tip) like remake/lib/kit_c.py pine(): 6 drooping tiers, each starts at the cone's radius and narrows to 45 %% of it; GLSL pinr() the same */
+  float k, t; if (f < 0.0f || f >= 1.0f) return 0.0f;
+  if (!lk_lt_pinet()) return 1.0f - f;
+  k = floorf(f * 6.0f); t = f * 6.0f - k; return (1.0f - k / 6.0f) * (1.0f - 0.55f * t); }
 static int lk_lt_ifh(int sx, int sy, int thin) {   /* v9: indoor height of a sub column: the data's height (lk_lt_fo = LK_LT_IFO) or the cell's (+ the thin column rule) */
   int cx, cy, t;
   if (sx < 0 || sy < 0 || sx >= LK_LT_FN || sy >= LK_LT_FN) return -32768;
@@ -243,7 +249,7 @@ static int lk_lt_rfocc(int sx, int sy, int z) { return z <= lk_lt_fcell(sx, sy) 
 static int lk_lt_rayf(int U, int V, int *zo) {   /* v7: outdoors with objects: the view ray through the game's heights + the fine object field (4 units), so drawn roofs / crowns
      are where the sun's march sees them (v6 raised whole cells: a church cell stood as a column over the path); faces from the sub column steps; lk_lt_rob = owner of the hit */
   int D = U - 1184, z, psx = -999, psy = -999, ptop = -32768, pin = 0, cf = 0, cz = 0;
-  for (z = lk_lt_ztop + 2 < lk_lt_zmax ? lk_lt_ztop + 2 : lk_lt_zmax; z >= -16; z--) {   /* v7 speed: nothing stands above lk_lt_ztop */
+  for (z = lk_lt_ztop + 2 < lk_lt_zmax ? lk_lt_ztop + 2 : lk_lt_zmax; z >= -40; z--) {   /* v9: down to -40 (the drawn sea of the ship rooms lies at -22; no game height is below 0: rooms without such data unchanged) */   /* v7 speed: nothing stands above lk_lt_ztop */
     int sx = lk_lt_fdiv(2 * V + 2 * z + D, 8), sy = lk_lt_fdiv(2 * V + 2 * z - D, 8), top = sx >= 0 && sy >= 0 && sx < LK_LT_FN && sy < LK_LT_FN ? (lk_lt_rayA ? lk_lt_vt[sy][sx] : lk_lt_vg[sy][sx]) : -32768, in = top > -32768;
     if (cf && in && z > top && !lk_lt_dent(sx >> 2, sy >> 2, cf)) cf = 0;
     if (in && !lk_lt_rob && lk_lt_fo[sy][sx] && lk_lt_rayA) lk_lt_rob = lk_lt_fo[sy][sx];
@@ -275,7 +281,7 @@ static int lk_lt_idiag(int sx, int sy, int z, int f) {   /* v9: the normal of a 
 static int lk_lt_rayi(int U, int V, int *zo) {   /* v9: lk_lt_ray with the fine field indoors (data heights per sub column) and the slabs; a step where neither the current nor the
      previous sub column holds such data decides exactly as lk_lt_ray (cells; LANDSTALKER_LT_IFORCE=1 checks that) */
   int D = U - 1184, z, pcx = -999, pcy = -999, psx = -999, psy = -999, ptop = -32768, pin = 0, pfn = 0, cf = 0, cz = 0;
-  for (z = lk_lt_zmax; z >= -16; z--) {
+  for (z = lk_lt_zmax; z >= -40; z--) {   /* v9: down to -40 (the drawn sea of the ship rooms lies at -22; no game height is below 0: rooms without such data unchanged) */
     int sx = lk_lt_fdiv(2 * V + 2 * z + D, 8), sy = lk_lt_fdiv(2 * V + 2 * z - D, 8), cx = lk_lt_fdiv(sx, 4), cy = lk_lt_fdiv(sy, 4);
     int ins = sx >= 0 && sy >= 0 && sx < LK_LT_FN && sy < LK_LT_FN, sl = ins && lk_lt_rayA && lk_lt_st[sy][sx] > lk_lt_sb[sy][sx], fn = sl || (ins && lk_lt_fo[sy][sx] == LK_LT_IFO);
     int top = lk_lt_ifh(sx, sy, !lk_lt_rayA), in = top > -32768;
@@ -300,7 +306,7 @@ static int lk_lt_ray(int U, int V, int *zo) {   /* geometry of one picture pixel
   int D = U - 1184, z, pcx = -999, pcy = -999, ptop = -32768, pin = 0, cf = 0, cz = 0;
   if (lk_lt_sun && lk_lt_fhmax > -32768) return lk_lt_rayf(U, V, zo);   /* v7 */
   if (lk_lt_ifine) return lk_lt_rayi(U, V, zo);   /* v9 */
-  for (z = lk_lt_zmax; z >= -16; z--) {
+  for (z = lk_lt_zmax; z >= -40; z--) {   /* v9: down to -40 (the drawn sea of the ship rooms lies at -22; no game height is below 0: rooms without such data unchanged) */
     int cx = lk_lt_fdiv(2 * V + 2 * z + D, 32), cy = lk_lt_fdiv(2 * V + 2 * z - D, 32), top = lk_lt_cell(cx, cy), in = top > -32768;
     if (in && !lk_lt_rayA && !lk_lt_sun && cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_thin[cy][cx] > -32768) top = lk_lt_thin[cy][cx];
     if (in && !lk_lt_rob && lk_lt_obj[cy][cx]) lk_lt_rob = lk_lt_obj[cy][cx];
@@ -678,7 +684,7 @@ static float lk_lt_sunvis(float px, float py, float pz, int self) {   /* v7: sha
       { int q = lk_lt_fp[sy][sx];
         if (q && lk_lt_px[q - 1].type == 5 && lk_lt_tk[cy][cx]) {   /* a recurring object: bush (sphere) or pine (cone) + stem over the base, light passes between the stems */
           float top = (float)lk_lt_tt[cy][cx], rr = (float)lk_lt_tr[cy][cx], zb = (float)lk_lt_tb[cy][cx], ddx = x - (16.0f * cx + 8.0f), ddy = y - (16.0f * cy + 8.0f), dh = sqrtf(ddx * ddx + ddy * ddy), cl, zc;
-          if (lk_lt_tk[cy][cx] == 2) { zc = zb + 4.0f; cl = z >= top ? sqrtf(dh * dh + (z - top) * (z - top)) : z >= zc ? dh - rr * (top - z) / (top - zc) : 9999.0f; }
+          if (lk_lt_tk[cy][cx] == 2) { zc = zb + 4.0f; cl = z >= top ? sqrtf(dh * dh + (z - top) * (z - top)) : z >= zc ? dh - rr * lk_lt_pinr((z - zc) / (top - zc)) : 9999.0f; }   /* v9: tiers */
           else { zc = top - rr; cl = sqrtf(dh * dh + (z - zc) * (z - zc)) - rr; }
           if (z <= zc && dh - 1.5f < cl) cl = dh - 1.5f;   /* trunk */
           if (cl <= 0.0f) return 0.0f; r = LK_LT_PEN * cl / (t * hl); if (r < res) res = r;
@@ -1164,6 +1170,8 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
           top = (float)lk_lt_tt[cy][cx]; r = (float)lk_lt_tr[cy][cx]; zb = (float)lk_lt_tb[cy][cx];
           for (sy = 4 * cy; sy < 4 * cy + 4; sy++) for (sx = 4 * cx; sx < 4 * cx + 4; sx++) { float dx = 4.0f * sx + 2.0f - (16.0f * cx + 8.0f), dy = 4.0f * sy + 2.0f - (16.0f * cy + 8.0f), d = sqrtf(dx * dx + dy * dy), h = zb;
             if (d < r) h = lk_lt_tk[cy][cx] == 2 ? top - (top - zb - 4.0f) * d / r : top - r + sqrtf(r * r - d * d);
+            if (d < r && lk_lt_tk[cy][cx] == 2 && lk_lt_pinet()) { int kk; for (kk = 5; kk >= 0; kk--) { float R = r * (1.0f - (float)kk / 6.0f), tt; if (R < d) continue;   /* v9 tiers: the top of the highest tier that reaches d */
+                tt = (1.0f - d / R) / 0.55f; if (tt > 1.0f) tt = 1.0f; h = zb + 4.0f + ((float)kk + tt) / 6.0f * (top - zb - 4.0f); break; } }
             lk_lt_fh[sy][sx] = (int16_t)h; lk_lt_fo[sy][sx] = P->obj; lk_lt_fp[sy][sx] = (uint8)(k + 1); } }
         continue; }
       if (P->type == 1) { i0 = P->x0 >> 2; i1 = (P->x1 >> 2) - 1; j0 = P->y0 >> 2; j1 = (P->y1 >> 2) - 1; }

@@ -191,7 +191,7 @@
           28,
           33,
           58,
-          0
+          -22
         ],
         "why": "Ship at the dock (user 2026-11-08 'Korrektur fuer Schiffbug'): the sea around the ship is painted void; where the hull is drawn the automatic indoor water fill does not reach, the deck cells' side faces ran down endlessly = a dark box over the bow and the water. Water floor at the room's water level 0, only over void cells (left of the ship x <= 35, in front of the bow y >= 52)"
       },
@@ -202,7 +202,7 @@
           44,
           35,
           58,
-          0
+          -22
         ],
         "why": "(same) left of the bow below the gangway cells 34..35,41..43"
       },
@@ -213,7 +213,7 @@
           52,
           48,
           58,
-          0
+          -22
         ],
         "why": "(same) in front of the bow"
       },
@@ -224,7 +224,7 @@
           49,
           46,
           51,
-          0
+          -22
         ],
         "why": "user 2026-11-08 'dunkler Schatten mitten im Wasser': the painted sea right of the hull was void beyond the 3 water cells beside it, so the room light's darkening along the hull ended in a hard edge in the water; water floor at 0 over that void (also below)"
       },
@@ -235,7 +235,7 @@
           24,
           60,
           63,
-          0
+          -22
         ],
         "why": "(same) the sea right of the pier / hull"
       },
@@ -246,9 +246,31 @@
           59,
           46,
           63,
-          0
+          -22
         ],
         "why": "(same) the sea below the bow"
+      },
+      {
+        "op": "water",
+        "cells": [
+          44,
+          33,
+          44,
+          38,
+          -22
+        ],
+        "why": "user 2026-11-08 'bei der Galionsfigur noch harte Kanten': the painted sea lies at -22 (measured: the hull's waterline, remake/recipes/proxy_ship_493.py); all sea cells of the light at that level, so the drawn hull down to its waterline is hull for the light (at 0 a light edge ran through the lower hull and the figurehead)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          44,
+          41,
+          46,
+          48,
+          -22
+        ],
+        "why": "(same) the sea beside the hull; the gangway cells 44..46 x 39..40 and the pier stay at 0"
       },
       {
         "op": "mesh",
@@ -259,7 +281,7 @@
           52
         ],
         "file": "proxies/ship_493.obj",
-        "floor": 0,
+        "floor": -22,
         "why": "user 2026-11-08 'mit Blender kannst du die Form des Schiffes besser nachmachen als in Bauklötzen' + 'in der Genauigkeit, dass wir später echte 3D-Modelle fürs Remake drauf setzen können': hull, decks, rails, mast measured on the drawn ship (remake/recipes/proxy_ship_493.py, game coordinates); replaces the cell heights, the rest of the rectangle is the sea at 0"
       },
       {
@@ -283,7 +305,7 @@
           28,
           33,
           58,
-          0
+          -22
         ],
         "why": "Ship at the dock (user 2026-11-08 'Korrektur fuer Schiffbug'): the sea around the ship is painted void; where the hull is drawn the automatic indoor water fill does not reach, the deck cells' side faces ran down endlessly = a dark box over the bow and the water. Water floor at the room's water level 0, only over void cells (left of the ship x <= 35, in front of the bow y >= 52)"
       },
@@ -294,7 +316,7 @@
           44,
           35,
           58,
-          0
+          -22
         ],
         "why": "(same) left of the bow below the gangway cells 34..35,41..43"
       },
@@ -305,7 +327,7 @@
           52,
           48,
           58,
-          0
+          -22
         ],
         "why": "(same) in front of the bow"
       },
@@ -316,7 +338,7 @@
           49,
           46,
           51,
-          0
+          -22
         ],
         "why": "user 2026-11-08 'dunkler Schatten mitten im Wasser': the painted sea right of the hull was void beyond the 3 water cells beside it, so the room light's darkening along the hull ended in a hard edge in the water; water floor at 0 over that void (also below)"
       },
@@ -327,7 +349,7 @@
           24,
           60,
           63,
-          0
+          -22
         ],
         "why": "(same) the sea right of the pier / hull"
       },
@@ -338,9 +360,31 @@
           59,
           46,
           63,
-          0
+          -22
         ],
         "why": "(same) the sea below the bow"
+      },
+      {
+        "op": "water",
+        "cells": [
+          44,
+          33,
+          44,
+          38,
+          -22
+        ],
+        "why": "user 2026-11-08 'bei der Galionsfigur noch harte Kanten': the painted sea lies at -22 (measured: the hull's waterline, remake/recipes/proxy_ship_493.py); all sea cells of the light at that level, so the drawn hull down to its waterline is hull for the light (at 0 a light edge ran through the lower hull and the figurehead)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          44,
+          41,
+          46,
+          48,
+          -22
+        ],
+        "why": "(same) the sea beside the hull; the gangway cells 44..46 x 39..40 and the pier stay at 0"
       },
       {
         "op": "mesh",
@@ -351,7 +395,7 @@
           52
         ],
         "file": "proxies/ship_493.obj",
-        "floor": 0,
+        "floor": -22,
         "why": "user 2026-11-08 'mit Blender kannst du die Form des Schiffes besser nachmachen als in Bauklötzen' + 'in der Genauigkeit, dass wir später echte 3D-Modelle fürs Remake drauf setzen können': hull, decks, rails, mast measured on the drawn ship (remake/recipes/proxy_ship_493.py, game coordinates); replaces the cell heights, the rest of the rectangle is the sea at 0"
       },
       {
@@ -375,7 +419,7 @@
           28,
           33,
           58,
-          0
+          -22
         ],
         "why": "Ship at the dock (user 2026-11-08 'Korrektur fuer Schiffbug'): the sea around the ship is painted void; where the hull is drawn the automatic indoor water fill does not reach, the deck cells' side faces ran down endlessly = a dark box over the bow and the water. Water floor at the room's water level 0, only over void cells (left of the ship x <= 35, in front of the bow y >= 52)"
       },
@@ -386,7 +430,7 @@
           44,
           35,
           58,
-          0
+          -22
         ],
         "why": "(same) left of the bow below the gangway cells 34..35,41..43"
       },
@@ -397,7 +441,7 @@
           52,
           48,
           58,
-          0
+          -22
         ],
         "why": "(same) in front of the bow"
       },
@@ -408,7 +452,7 @@
           49,
           46,
           51,
-          0
+          -22
         ],
         "why": "user 2026-11-08 'dunkler Schatten mitten im Wasser': the painted sea right of the hull was void beyond the 3 water cells beside it, so the room light's darkening along the hull ended in a hard edge in the water; water floor at 0 over that void (also below)"
       },
@@ -419,7 +463,7 @@
           24,
           60,
           63,
-          0
+          -22
         ],
         "why": "(same) the sea right of the pier / hull"
       },
@@ -430,9 +474,31 @@
           59,
           46,
           63,
-          0
+          -22
         ],
         "why": "(same) the sea below the bow"
+      },
+      {
+        "op": "water",
+        "cells": [
+          44,
+          33,
+          44,
+          38,
+          -22
+        ],
+        "why": "user 2026-11-08 'bei der Galionsfigur noch harte Kanten': the painted sea lies at -22 (measured: the hull's waterline, remake/recipes/proxy_ship_493.py); all sea cells of the light at that level, so the drawn hull down to its waterline is hull for the light (at 0 a light edge ran through the lower hull and the figurehead)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          44,
+          41,
+          46,
+          48,
+          -22
+        ],
+        "why": "(same) the sea beside the hull; the gangway cells 44..46 x 39..40 and the pier stay at 0"
       },
       {
         "op": "mesh",
@@ -443,7 +509,7 @@
           52
         ],
         "file": "proxies/ship_493.obj",
-        "floor": 0,
+        "floor": -22,
         "why": "user 2026-11-08 'mit Blender kannst du die Form des Schiffes besser nachmachen als in Bauklötzen' + 'in der Genauigkeit, dass wir später echte 3D-Modelle fürs Remake drauf setzen können': hull, decks, rails, mast measured on the drawn ship (remake/recipes/proxy_ship_493.py, game coordinates); replaces the cell heights, the rest of the rectangle is the sea at 0"
       },
       {
@@ -467,7 +533,7 @@
           28,
           33,
           58,
-          0
+          -22
         ],
         "why": "Ship at the dock (user 2026-11-08 'Korrektur fuer Schiffbug'): the sea around the ship is painted void; where the hull is drawn the automatic indoor water fill does not reach, the deck cells' side faces ran down endlessly = a dark box over the bow and the water. Water floor at the room's water level 0, only over void cells (left of the ship x <= 35, in front of the bow y >= 52)"
       },
@@ -478,7 +544,7 @@
           44,
           35,
           58,
-          0
+          -22
         ],
         "why": "(same) left of the bow below the gangway cells 34..35,41..43"
       },
@@ -489,7 +555,7 @@
           52,
           48,
           58,
-          0
+          -22
         ],
         "why": "(same) in front of the bow"
       },
@@ -500,7 +566,7 @@
           49,
           46,
           51,
-          0
+          -22
         ],
         "why": "user 2026-11-08 'dunkler Schatten mitten im Wasser': the painted sea right of the hull was void beyond the 3 water cells beside it, so the room light's darkening along the hull ended in a hard edge in the water; water floor at 0 over that void (also below)"
       },
@@ -511,7 +577,7 @@
           24,
           60,
           63,
-          0
+          -22
         ],
         "why": "(same) the sea right of the pier / hull"
       },
@@ -522,9 +588,31 @@
           59,
           46,
           63,
-          0
+          -22
         ],
         "why": "(same) the sea below the bow"
+      },
+      {
+        "op": "water",
+        "cells": [
+          44,
+          33,
+          44,
+          38,
+          -22
+        ],
+        "why": "user 2026-11-08 'bei der Galionsfigur noch harte Kanten': the painted sea lies at -22 (measured: the hull's waterline, remake/recipes/proxy_ship_493.py); all sea cells of the light at that level, so the drawn hull down to its waterline is hull for the light (at 0 a light edge ran through the lower hull and the figurehead)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          44,
+          41,
+          46,
+          48,
+          -22
+        ],
+        "why": "(same) the sea beside the hull; the gangway cells 44..46 x 39..40 and the pier stay at 0"
       },
       {
         "op": "mesh",
@@ -535,7 +623,7 @@
           52
         ],
         "file": "proxies/ship_493.obj",
-        "floor": 0,
+        "floor": -22,
         "why": "user 2026-11-08 'mit Blender kannst du die Form des Schiffes besser nachmachen als in Bauklötzen' + 'in der Genauigkeit, dass wir später echte 3D-Modelle fürs Remake drauf setzen können': hull, decks, rails, mast measured on the drawn ship (remake/recipes/proxy_ship_493.py, game coordinates); replaces the cell heights, the rest of the rectangle is the sea at 0"
       },
       {

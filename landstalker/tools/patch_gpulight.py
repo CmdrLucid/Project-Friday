@@ -162,8 +162,8 @@ unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint
   sc[12] = (float)lk_lt_zmax; sc[13] = (lk_lt_sun && lk_lt_fhmax > -32768) ? 1.0f : 0.0f;   /* GL5b: the view ray: start height, fine field ray (lk_lt_rayf) or cell ray (lk_lt_ray) */
   sc[14] = lk_lt_sdn[0]; sc[15] = lk_lt_sdn[1]; sc[16] = lk_lt_sdn[2]; sc[17] = (lk_lt_sun && lk_dn_upd && lk_dn_hdok) ? 1.0f : 0.0f;   /* GL5c: sunn for the next sun direction */
   sc[18] = lk_lt_kA; sc[19] = lk_lt_kK; sc[20] = lk_lt_sh[0].cr; sc[21] = lk_lt_sh[0].cg; sc[22] = lk_lt_sh[0].cb; sc[23] = (lk_lt_key && !lk_lt_nl) ? 1.0f : 0.0f;   /* the finished key light km */
-  sc[24] = (float)lk_lt_ifine; sc[25] = (float)lk_lt_nslab;   /* v9: fine field indoors / slabs */
-  for (k = 0; k < 26; k++) { union { float f; uint32_t u; } cv; cv.f = sc[k]; LK_GL_H(cv.u); }
+  sc[24] = (float)lk_lt_ifine; sc[25] = (float)lk_lt_nslab; sc[26] = (float)lk_lt_pinet();   /* v9: fine field indoors / slabs / pine tiers */
+  for (k = 0; k < 27; k++) { union { float f; uint32_t u; } cv; cv.f = sc[k]; LK_GL_H(cv.u); }
   #undef LK_GL_H
   return h | 1u; }
 /* v5 GL5a: per block pixel the object of its view ray (b->robj) and whether layer A is drawn there (lk_o_fetch), for the sun's 'own object' rule */
@@ -614,7 +614,7 @@ void main() {
 SH5 = r'''
 uniform sampler2D roomA; uniform sampler2D roomB; uniform sampler2D btab; uniform sampler2D bli; uniform sampler2D wld;
 uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec2 uBlk; uniform float uSunR; uniform float uAor; uniform float uZref; uniform float uAok; uniform float uAotop; uniform vec2 uDv[16];
-uniform float uIfine; uniform float uNslab;   /* v9 */
+uniform float uIfine; uniform float uNslab; uniform float uPineT;   /* v9 */
 uniform sampler2D wld2; uniform sampler2D fine; uniform sampler2D prx; uniform sampler2D bex; uniform float uSside; uniform float uZtop; uniform vec3 uSd; uniform float uKey; uniform float uKbw; uniform float uKpen; uniform float uNsh; uniform vec4 uSh[9]; uniform sampler2D fine2; uniform float uZmax; uniform float uRayF;
 uniform sampler2D geo; uniform float uMode; uniform vec3 uSdN; uniform float uSunN; uniform float uKA; uniform float uKK; uniform vec3 uShc; uniform float uKm;
 float B(float v) { return floor(v * 255.0 + 0.5); }
@@ -623,6 +623,7 @@ float FNY(float f) { if (f == 3.0) return 1.0; if (f < 4.0 || f > 19.0) return 0
 float S16(float lo, float hi) { float v = lo + 256.0 * hi; return v >= 32768.0 ? v - 65536.0 : v; }
 vec4 W(float cx, float cy, float hf) { return texture2D(wld, (vec2(cx, cy + 74.0 * hf) + 0.5) / vec2(74.0, 222.0)); }
 bool inr(float cx, float cy) { return cx >= 0.0 && cy >= 0.0 && cx < 74.0 && cy < 74.0; }
+float pinr(float f) { if (f < 0.0 || f >= 1.0) return 0.0; if (uPineT < 0.5) return 1.0 - f; float k = floor(f * 6.0), t = f * 6.0 - k; return (1.0 - k / 6.0) * (1.0 - 0.55 * t); }   /* v9 lk_lt_pinr */
 float OFF2(float nx, float ny, float d) { return (nx != 0.0 && ny != 0.0) ? 5.0 : d; }   /* v9 LK_LT_OFF */
 vec4 FN(float sx, float sy, float hf);   /* below */
 vec2 SLB(float sx, float sy) { if (sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return vec2(0.0, -32768.0); vec4 f = FN(sx, sy, 2.0); return vec2(S16(B(f.r), B(f.g)), S16(B(f.b), B(f.a))); }   /* v9: slab bottom / top */
@@ -714,7 +715,7 @@ float sunvis(vec3 sd, float hs, vec3 p, float self) {   /* lk_lt_sunvis: march t
     float hdv = S16(B(W(cx, cy, 1.0 + hs).b), B(W(cx, cy, 1.0 + hs).a)), q = B(f1.r), qt = B(f1.g), r, d;
     if (q > 0.0 && qt == 5.0 && B(g0.b) > 0.0) {   /* a bush (sphere) or pine (cone) + stem */
       vec4 g1 = W2(cx, cy, 1.0); float top = S16(B(g1.r), B(g1.g)), rr = B(g0.a), zb = S16(B(g1.b), B(g1.a)), ddx = x - (16.0 * cx + 8.0), ddy = y - (16.0 * cy + 8.0), dh = sqrt(ddx * ddx + ddy * ddy), cl, zc;
-      if (B(g0.b) == 2.0) { zc = zb + 4.0; cl = z >= top ? sqrt(dh * dh + (z - top) * (z - top)) : z >= zc ? dh - rr * (top - z) / (top - zc) : 9999.0; }
+      if (B(g0.b) == 2.0) { zc = zb + 4.0; cl = z >= top ? sqrt(dh * dh + (z - top) * (z - top)) : z >= zc ? dh - rr * pinr((z - zc) / (top - zc)) : 9999.0; }   /* v9 tiers */
       else { zc = top - rr; cl = sqrt(dh * dh + (z - zc) * (z - zc)) - rr; }
       if (z <= zc && dh - 1.5 < cl) cl = dh - 1.5;
       if (cl <= 0.0) return 0.0; r = 12.0 * cl / (t * hl); if (r < res) res = r;
@@ -825,7 +826,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
   float D = U - 1184.0, rob = 0.0, cf = 0.0, cz = 0.0, pin = 0.0, ptop = -32768.0, pcx = -999.0, pcy = -999.0;
   if (uRayF > 0.5) {
     float z0 = uZtop + 2.0 < uZmax ? uZtop + 2.0 : uZmax;
-    for (int st = 0; st < 2400; st++) { float z = z0 - float(st); if (z < -16.0) break;
+    for (int st = 0; st < 2400; st++) { float z = z0 - float(st); if (z < -40.0) break;
       float sx = fdv(2.0 * V + 2.0 * z + D, 8.0), sy = fdv(2.0 * V + 2.0 * z - D, 8.0), top = vtAt(sx, sy, layA), inn = top > -32768.0 ? 1.0 : 0.0, fo = 0.0;
       if (inn > 0.5) { vec4 f0 = FN(sx, sy, 0.0); fo = S16(B(f0.b), B(f0.a)); }
       if (cf > 0.0 && inn > 0.5 && z > top && !dent(floor(sx / 4.0), floor(sy / 4.0), cf)) cf = 0.0;
@@ -844,7 +845,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
       pcx = sx; pcy = sy; ptop = top; pin = inn; }
     return cf > 0.0 ? vec3(cf, cz, rob) : vec3(0.0, 0.0, rob); }
   if (uIfine > 0.5) { float psx = -999.0, psy = -999.0, pfn = 0.0;   /* v9 lk_lt_rayi */
-    for (int st = 0; st < 2400; st++) { float z = uZmax - float(st); if (z < -16.0) break;
+    for (int st = 0; st < 2400; st++) { float z = uZmax - float(st); if (z < -40.0) break;
       float sx = fdv(2.0 * V + 2.0 * z + D, 8.0), sy = fdv(2.0 * V + 2.0 * z - D, 8.0), cx = floor(sx / 4.0), cy = floor(sy / 4.0);
       bool ins = sx >= 0.0 && sy >= 0.0 && sx < 296.0 && sy < 296.0; vec2 sb = SLB(sx, sy); float fo = 0.0;
       if (ins) { vec4 f0 = FN(sx, sy, 0.0); if (S16(B(f0.b), B(f0.a)) == 2047.0) fo = 1.0; }
@@ -867,7 +868,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
         else { float ty = ifh(psx, sy, 0.0), tx = ifh(sx, psy, 0.0); cf = sx == psx ? 3.0 : sy == psy ? 2.0 : (ty == -32768.0 && tx > -32768.0 ? 3.0 : 2.0); } }
       pcx = cx; pcy = cy; psx = sx; psy = sy; ptop = top; pin = inn; pfn = fn; }
     return cf > 0.0 ? vec3(cf, cz, rob) : vec3(0.0, 0.0, rob); }
-  for (int st = 0; st < 2400; st++) { float z = uZmax - float(st); if (z < -16.0) break;
+  for (int st = 0; st < 2400; st++) { float z = uZmax - float(st); if (z < -40.0) break;
     float cx = fdv(2.0 * V + 2.0 * z + D, 32.0), cy = fdv(2.0 * V + 2.0 * z - D, 32.0), top = cellT(cx, cy), inn = top > -32768.0 ? 1.0 : 0.0;
     if (inn > 0.5 && layA < 0.5 && uSunR < 0.5) { float n = S16(B(W(cx, cy, 0.0).b), B(W(cx, cy, 0.0).a)); if (n > -32768.0) top = n; }
     if (inn > 0.5 && rob == 0.0) { vec4 g2 = W2(cx, cy, 2.0); float ob = S16(B(g2.b), B(g2.a)); if (ob != 0.0) rob = ob; }
@@ -1015,7 +1016,7 @@ static void lk_g5_pbdrain(void) { int k = lk_g5_pbi ^ 1, j; const uint32_t *m;  
 #define LK_G5_Q 24
 static int lk_g5_n, lk_g5_bx[LK_G5_Q], lk_g5_by[LK_G5_Q], lk_g5_nl[LK_G5_Q]; static uint32_t lk_g5_ref[LK_G5_Q][5][1024]; static int lk_g5_maxshow = 16, lk_g5_every = 300; static long lk_g5_cnt[6][3], lk_g5_blocks, lk_g5_frames, lk_g5_last; static int lk_g5_shown;
 static const char *lk_g5_fs = "#version 120\n" @SHADER5@;
-static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", "uSside", "uIfine", "uNslab", 0 };
+static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", "uSside", "uIfine", "uNslab", "uPineT", 0 };
 static int lk_g5_want(void) { if (lk_g5_on < 0) { const char *e = getenv("LANDSTALKER_GL5CMP"), *e2 = getenv("LANDSTALKER_GL5CMP_SHOW"), *e3 = getenv("LANDSTALKER_GL5CMP_EVERY"); lk_g5_on = e ? atoi(e) : 0; if (e2) lk_g5_maxshow = atoi(e2); if (e3 && atoi(e3) > 0) lk_g5_every = atoi(e3); } return lk_g5_on > 0 && lk_g5_st >= 0; }
 static int lk_g5_init(void) {
   lkGLint ok = 0, t0 = 0, fb0 = 0; lkGLuint vs, fs; char log[2048]; int i; lkGLenum st;
@@ -1059,7 +1060,7 @@ static int lk_g5_bind(const float *lp, const float *lc, int fresh) {   /* progra
   lk_glUseProgram(lk_g5_prog);
   lk_glUniform1i(lk_g5_u[2], 4); lk_glUniform1i(lk_g5_u[3], 9); lk_glUniform1i(lk_g5_u[4], 0);
   lk_glUniform4fv(lk_g5_u[5], 96, lp); lk_glUniform4fv(lk_g5_u[6], 96, lc);
-  { extern int lk_lt_sside_get(void); lk_glUniform1f(lk_g5_u[36], lk_lt_sside_get() ? 1.0f : 0.0f); } lk_glUniform1f(lk_g5_u[37], sc[24]); lk_glUniform1f(lk_g5_u[38], sc[25]); lk_glUniform1f(lk_g5_u[8], sc[0]); lk_glUniform1f(lk_g5_u[9], sc[1]); lk_glUniform1f(lk_g5_u[10], sc[2]); lk_glUniform1f(lk_g5_u[11], sc[3]); lk_glUniform1f(lk_g5_u[12], sc[4]);
+  { extern int lk_lt_sside_get(void); lk_glUniform1f(lk_g5_u[36], lk_lt_sside_get() ? 1.0f : 0.0f); } lk_glUniform1f(lk_g5_u[37], sc[24]); lk_glUniform1f(lk_g5_u[38], sc[25]); lk_glUniform1f(lk_g5_u[39], sc[26]); lk_glUniform1f(lk_g5_u[8], sc[0]); lk_glUniform1f(lk_g5_u[9], sc[1]); lk_glUniform1f(lk_g5_u[10], sc[2]); lk_glUniform1f(lk_g5_u[11], sc[3]); lk_glUniform1f(lk_g5_u[12], sc[4]);
   lk_glUniform1i(lk_g5_u[14], 1); lk_glUniform1i(lk_g5_u[15], 2); lk_glUniform1i(lk_g5_u[16], 5); lk_glUniform1i(lk_g5_u[17], 6);
   lk_glUniform1i(lk_g5_u[25], 8); lk_glUniform1f(lk_g5_u[26], sc[12]); lk_glUniform1f(lk_g5_u[27], sc[13]); lk_glUniform1i(lk_g5_u[28], 10);
   { int nsh = lk_gl_shafts(shf); lk_glUniform1f(lk_g5_u[23], (float)nsh); lk_glUniform4fv(lk_g5_u[24], 9, shf); sc[31] = (float)nsh; }
