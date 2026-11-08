@@ -207,6 +207,28 @@
           0
         ],
         "why": "(same) in front of the bow"
+      },
+      {
+        "op": "water",
+        "cells": [
+          36,
+          44,
+          42,
+          44,
+          128
+        ],
+        "why": "The mast / sail row (barrier $4F, 240 high) lowered to about the drawn sail top: its 240 high face reached far above the sail and threw a hard vertical edge over the deck (user 2026-11-08 'immer noch harte Schattenkanten')"
+      },
+      {
+        "op": "water",
+        "cells": [
+          37,
+          49,
+          42,
+          51,
+          48
+        ],
+        "why": "The raised bow (rows 49..51 at 48) is a stepped triangle in the height map; each step had its own vertical face down to the water = vertical stripes over the drawn round hull and a stepped dark notch at the front rail. One closed block for the light"
       }
     ],
     "494": [
@@ -242,6 +264,28 @@
           0
         ],
         "why": "(same) in front of the bow"
+      },
+      {
+        "op": "water",
+        "cells": [
+          36,
+          44,
+          42,
+          44,
+          128
+        ],
+        "why": "The mast / sail row (barrier $4F, 240 high) lowered to about the drawn sail top: its 240 high face reached far above the sail and threw a hard vertical edge over the deck (user 2026-11-08 'immer noch harte Schattenkanten')"
+      },
+      {
+        "op": "water",
+        "cells": [
+          37,
+          49,
+          42,
+          51,
+          48
+        ],
+        "why": "The raised bow (rows 49..51 at 48) is a stepped triangle in the height map; each step had its own vertical face down to the water = vertical stripes over the drawn round hull and a stepped dark notch at the front rail. One closed block for the light"
       }
     ],
     "495": [
@@ -277,6 +321,28 @@
           0
         ],
         "why": "(same) in front of the bow"
+      },
+      {
+        "op": "water",
+        "cells": [
+          36,
+          44,
+          42,
+          44,
+          128
+        ],
+        "why": "The mast / sail row (barrier $4F, 240 high) lowered to about the drawn sail top: its 240 high face reached far above the sail and threw a hard vertical edge over the deck (user 2026-11-08 'immer noch harte Schattenkanten')"
+      },
+      {
+        "op": "water",
+        "cells": [
+          37,
+          49,
+          42,
+          51,
+          48
+        ],
+        "why": "The raised bow (rows 49..51 at 48) is a stepped triangle in the height map; each step had its own vertical face down to the water = vertical stripes over the drawn round hull and a stepped dark notch at the front rail. One closed block for the light"
       }
     ],
     "497": [
@@ -312,6 +378,28 @@
           0
         ],
         "why": "(same) in front of the bow"
+      },
+      {
+        "op": "water",
+        "cells": [
+          36,
+          44,
+          42,
+          44,
+          128
+        ],
+        "why": "The mast / sail row (barrier $4F, 240 high) lowered to about the drawn sail top: its 240 high face reached far above the sail and threw a hard vertical edge over the deck (user 2026-11-08 'immer noch harte Schattenkanten')"
+      },
+      {
+        "op": "water",
+        "cells": [
+          37,
+          49,
+          42,
+          51,
+          48
+        ],
+        "why": "The raised bow (rows 49..51 at 48) is a stepped triangle in the height map; each step had its own vertical face down to the water = vertical stripes over the drawn round hull and a stepped dark notch at the front rail. One closed block for the light"
       }
     ],
     "192": [
