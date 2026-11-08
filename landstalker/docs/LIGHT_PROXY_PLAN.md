@@ -242,3 +242,12 @@ Stages (each on the ship 493..497 first; every stage: rooms without models pixel
 3. CLEAN-UP: mesh ops with a model no longer write the fine field on the GPU path (the CPU fallback keeps it); test aids to switch back.
 4. MORE MODELS: arcade 486, church 632, gate 637, arch 636, castle 31 ... and every later remake model: the same OBJ / GLB in game coordinates serves light and remake.
 Tools: proxy_bgtest.py (background test as the light sees it, LANDSTALKER_LT_DUMPFINE), proxy_overlay.py (edges over the picture), lightedges.py, GL5 view ray compare where it still applies.
+Stage 1 details (read 2026-11-08 in `tools/patch_gpulight.py`): the GL5c geometry pass (shader `main`, uMode 0) runs `viewray(U, V, la)` per block pixel into the 32 x 64 geometry
+texture (rows 0..31 face / z lo / z hi / layer A, rows 32..63 robj lo / hi, channels b / a FREE = room for the model normal); termsP / aoP / sunP / shafts read it via G().
+Plan: (a) patch_lights.py already reads the OBJ files at build time (mesh ops -> lk_lt_meshes sub column lists): also emit the raw TRIANGLES (+ smooth vertex normals) per OBJ;
+(b) at room load (world key change) render the room's model triangles once into a model buffer texture in room picture space (orthographic U / V, depth test on a renderbuffer,
+output z 16 bit + normal); (c) viewray(): if the model buffer has a hit at (U, V) with z above the height field hit and the pixel is not drawn water (a water tile bit in `bex`,
+from lk_lt_wtile), return the model hit with a new face code 'model normal' (20) and write the normal into the free b / a channels; FNX / FNY users in the block passes take it from G();
+(d) then the ship mesh op gets "air" (the fine field keeps overhangs as SLABS for all shadow / AO marches: slabs block every march already; the earlier 'air' try only failed because
+layer B hull pixels fell through the slabs in the VIEW RAY, which (c) replaces) -> the phantom columns over the water (dark bar left of the figurehead) disappear.
+Stage 2 (shadow maps) then gives the exact model shadows; until then the fine field (with slabs) casts them.
