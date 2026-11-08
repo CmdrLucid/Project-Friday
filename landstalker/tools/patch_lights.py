@@ -775,6 +775,7 @@ static int lk_lt_invmode(void) { static int v = -1; if (v < 0) { const char *e =
 static int lk_lt_archfill(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_ARCHFILL"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: arch gaps in thin tall walls filled */
 static int lk_lt_lathe2(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_LATHE2"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: lathe re-anchor ignores the own box, wall foot rows filled */
 static int lk_lt_fillcap(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_FILLCAP"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: inherited painted-void fill capped at the nearby walkable ground - 8 */
+static int lk_lt_doorin(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_DOORIN"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: door niches filled indoors too */
 static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 2026-11-03: 'sollten wir nicht eher fixen dass die Haeuser im Raumplan korrekt sind?'):
      the game's height map holds only the low collision boxes of houses / trees; their drawn walls, roofs and crowns are layer A (foreground) pixels
      above the box.  Small raised boxes (<= 128 cells of one height with a lower neighbour; large areas = terrain stay) are raised in OUR copy (lk_lt_top) cell by cell
@@ -1195,17 +1196,17 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       if (lk_lt_dbg == 5 && nu) printf("water: room %%d, %%d painted cells raised to the game's water\n", lk_o_room, nu); }
     { int q; for (q = 0; lk_lt_corr[q].room >= 0; q++) if (lk_lt_corr[q].room == lk_o_room && lk_lt_corr[q].op == 2) { const int16_t *a = lk_lt_corr[q].a;   /* data: water */
         for (y = a[1]; y <= a[3]; y++) for (x = a[0]; x <= a[2]; x++) if (x >= 0 && y >= 0 && x < 74 && y < 74) { lk_lt_top[y][x] = a[4]; lk_lt_wat[y][x] = 1; nw++; } } }
-    if (lk_lt_sun && !(getenv("LANDSTALKER_LT_DOORFILL") && atoi(getenv("LANDSTALKER_LT_DOORFILL")) == 0)) { static int16_t dn[74][74]; int nd = 0, ax;   /* 2026-11-07 DOOR NICHES outdoors (user rec_20261107_1822,
+    if ((lk_lt_sun || lk_lt_aor) && !(getenv("LANDSTALKER_LT_DOORFILL") && atoi(getenv("LANDSTALKER_LT_DOORFILL")) == 0)) { static int16_t dn[74][74]; int nd = 0, ax;   /* 2026-11-07 DOOR NICHES outdoors (user rec_20261107_1822,
          room 635: 'das Haus hat einen harten Kanten Schatten ueber der Tuere'): a door is a 1..3 cell niche in the height map that runs up the WHOLE wall (cell 23,31 height 16 in a wall of 112),
          so the wall above the door was a deep slot shaded by its sides = a dark band with hard edges.  Our copy: the niche is filled up to the wall (the door sits flush); test aid LANDSTALKER_LT_DOORFILL=0 */
       memcpy(dn, lk_lt_top, sizeof dn);
       for (y = 1; y < 73; y++) for (x = 1; x < 73; x++) { int h = lk_lt_top[y][x]; if (h == -32768) continue;
         for (ax = 0; ax < 2; ax++) { int fx = ax == 0, fy = ax == 1, sx2 = fy, sy2 = fx, n = 1, d, lo = 9999, ok = 1, bt, ft;   /* ax 0: wall face +x (the niche opens to +x, its sides along y); ax 1: face +y */
           bt = lk_lt_top[y - fy][x - fx]; ft = lk_lt_top[y + fy][x + fx];
-          if (bt == -32768 || bt < h + 32 || ft == -32768 || ft > h + 8) continue;
+          if (bt == -32768 && !(!lk_lt_sun && lk_lt_doorin())) continue; if ((bt != -32768 && bt < h + 32) || ft == -32768 || ft > h + 8) continue;   /* 2026-11-08 (user: 'der Schatten der ueber die Tueren im Schloss laeuft', room 58): also INDOORS, and there a door may lead into the void behind the wall (the room's exit through the back wall: 58 cells 35..36,16 at 16 in a wall of 96, void behind); test aid LANDSTALKER_LT_DOORIN=0 */
           for (d = 1; ; d++) { int cx = x - d * sx2, cy = y - d * sy2, t = (cx >= 0 && cy >= 0) ? lk_lt_top[cy][cx] : -32768; if (t == h) { if (++n > 3) { ok = 0; break; } continue; } if (t == -32768 || t < h + 32) ok = 0; else if (t < lo) lo = t; break; }
           for (d = 1; ok; d++) { int cx = x + d * sx2, cy = y + d * sy2, t = (cx < 74 && cy < 74) ? lk_lt_top[cy][cx] : -32768; if (t == h) { if (++n > 3) { ok = 0; break; } continue; } if (t == -32768 || t < h + 32) ok = 0; else if (t < lo) lo = t; break; }
-          if (ok && lo < 9999) { if (bt < lo) lo = bt; if (lo > dn[y][x]) { dn[y][x] = (int16_t)lo; nd++; } } } }
+          if (ok && lo < 9999) { if (bt != -32768 && bt < lo) lo = bt; if (lo > dn[y][x]) { dn[y][x] = (int16_t)lo; nd++; } } } }
       memcpy(lk_lt_top, dn, sizeof dn);
       if (lk_lt_dbg == 1 && nd) printf("door niches: room %%d, %%d cells filled\n", lk_o_room, nd); }
     memcpy(lk_lt_gh, lk_lt_top, sizeof lk_lt_gh);
