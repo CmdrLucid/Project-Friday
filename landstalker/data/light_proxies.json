@@ -217,6 +217,39 @@
         "why": "(same) in front of the bow"
       },
       {
+        "op": "water",
+        "cells": [
+          44,
+          49,
+          46,
+          51,
+          0
+        ],
+        "why": "user 2026-11-08 'dunkler Schatten mitten im Wasser': the painted sea right of the hull was void beyond the 3 water cells beside it, so the room light's darkening along the hull ended in a hard edge in the water; water floor at 0 over that void (also below)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          47,
+          24,
+          60,
+          63,
+          0
+        ],
+        "why": "(same) the sea right of the pier / hull"
+      },
+      {
+        "op": "water",
+        "cells": [
+          26,
+          59,
+          46,
+          63,
+          0
+        ],
+        "why": "(same) the sea below the bow"
+      },
+      {
         "op": "box",
         "units": [
           576,
@@ -278,45 +311,45 @@
         "op": "prism",
         "poly": [
           [
-            592,
+            576,
             784
           ],
           [
-            688,
+            704,
             784
           ],
           [
-            684,
+            698,
             800
           ],
           [
-            674,
+            686,
             814
           ],
           [
-            660,
+            668,
             826
           ],
           [
             640,
-            834
+            836
           ],
           [
-            620,
+            612,
             826
           ],
           [
-            606,
+            594,
             814
           ],
           [
-            596,
+            582,
             800
           ]
         ],
         "top": 48,
         "floor": 0,
-        "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 up to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block)"
+        "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 over the full hull width (576..704, like the rails) to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block; a first try 592..688 left a notch with a hard vertical face at the left rail, user 2026-11-08 'scharfe Kanten links')"
       }
     ],
     "494": [
@@ -354,6 +387,39 @@
         "why": "(same) in front of the bow"
       },
       {
+        "op": "water",
+        "cells": [
+          44,
+          49,
+          46,
+          51,
+          0
+        ],
+        "why": "user 2026-11-08 'dunkler Schatten mitten im Wasser': the painted sea right of the hull was void beyond the 3 water cells beside it, so the room light's darkening along the hull ended in a hard edge in the water; water floor at 0 over that void (also below)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          47,
+          24,
+          60,
+          63,
+          0
+        ],
+        "why": "(same) the sea right of the pier / hull"
+      },
+      {
+        "op": "water",
+        "cells": [
+          26,
+          59,
+          46,
+          63,
+          0
+        ],
+        "why": "(same) the sea below the bow"
+      },
+      {
         "op": "box",
         "units": [
           576,
@@ -415,45 +481,45 @@
         "op": "prism",
         "poly": [
           [
-            592,
+            576,
             784
           ],
           [
-            688,
+            704,
             784
           ],
           [
-            684,
+            698,
             800
           ],
           [
-            674,
+            686,
             814
           ],
           [
-            660,
+            668,
             826
           ],
           [
             640,
-            834
+            836
           ],
           [
-            620,
+            612,
             826
           ],
           [
-            606,
+            594,
             814
           ],
           [
-            596,
+            582,
             800
           ]
         ],
         "top": 48,
         "floor": 0,
-        "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 up to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block)"
+        "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 over the full hull width (576..704, like the rails) to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block; a first try 592..688 left a notch with a hard vertical face at the left rail, user 2026-11-08 'scharfe Kanten links')"
       }
     ],
     "495": [
@@ -491,6 +557,39 @@
         "why": "(same) in front of the bow"
       },
       {
+        "op": "water",
+        "cells": [
+          44,
+          49,
+          46,
+          51,
+          0
+        ],
+        "why": "user 2026-11-08 'dunkler Schatten mitten im Wasser': the painted sea right of the hull was void beyond the 3 water cells beside it, so the room light's darkening along the hull ended in a hard edge in the water; water floor at 0 over that void (also below)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          47,
+          24,
+          60,
+          63,
+          0
+        ],
+        "why": "(same) the sea right of the pier / hull"
+      },
+      {
+        "op": "water",
+        "cells": [
+          26,
+          59,
+          46,
+          63,
+          0
+        ],
+        "why": "(same) the sea below the bow"
+      },
+      {
         "op": "box",
         "units": [
           576,
@@ -552,45 +651,45 @@
         "op": "prism",
         "poly": [
           [
-            592,
+            576,
             784
           ],
           [
-            688,
+            704,
             784
           ],
           [
-            684,
+            698,
             800
           ],
           [
-            674,
+            686,
             814
           ],
           [
-            660,
+            668,
             826
           ],
           [
             640,
-            834
+            836
           ],
           [
-            620,
+            612,
             826
           ],
           [
-            606,
+            594,
             814
           ],
           [
-            596,
+            582,
             800
           ]
         ],
         "top": 48,
         "floor": 0,
-        "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 up to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block)"
+        "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 over the full hull width (576..704, like the rails) to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block; a first try 592..688 left a notch with a hard vertical face at the left rail, user 2026-11-08 'scharfe Kanten links')"
       }
     ],
     "497": [
@@ -628,6 +727,39 @@
         "why": "(same) in front of the bow"
       },
       {
+        "op": "water",
+        "cells": [
+          44,
+          49,
+          46,
+          51,
+          0
+        ],
+        "why": "user 2026-11-08 'dunkler Schatten mitten im Wasser': the painted sea right of the hull was void beyond the 3 water cells beside it, so the room light's darkening along the hull ended in a hard edge in the water; water floor at 0 over that void (also below)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          47,
+          24,
+          60,
+          63,
+          0
+        ],
+        "why": "(same) the sea right of the pier / hull"
+      },
+      {
+        "op": "water",
+        "cells": [
+          26,
+          59,
+          46,
+          63,
+          0
+        ],
+        "why": "(same) the sea below the bow"
+      },
+      {
         "op": "box",
         "units": [
           576,
@@ -689,45 +821,45 @@
         "op": "prism",
         "poly": [
           [
-            592,
+            576,
             784
           ],
           [
-            688,
+            704,
             784
           ],
           [
-            684,
+            698,
             800
           ],
           [
-            674,
+            686,
             814
           ],
           [
-            660,
+            668,
             826
           ],
           [
             640,
-            834
+            836
           ],
           [
-            620,
+            612,
             826
           ],
           [
-            606,
+            594,
             814
           ],
           [
-            596,
+            582,
             800
           ]
         ],
         "top": 48,
         "floor": 0,
-        "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 up to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block)"
+        "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 over the full hull width (576..704, like the rails) to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block; a first try 592..688 left a notch with a hard vertical face at the left rail, user 2026-11-08 'scharfe Kanten links')"
       }
     ],
     "192": [
