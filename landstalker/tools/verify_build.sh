@@ -64,6 +64,8 @@ chk "Sprint-Animation"                               $G/ext/Genesis-Plus-GX/core
 chk "Schwert-Effekte (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SWORDFX v1"
 chk "Stiefelfarben (Option)"                         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_BOOTCOL v2"
 chk "Licht (Option)"                                $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LIGHTS v8"
+chk "Licht fein (drinnen + Platten)"                 $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTFINE v1"
+chk "GPU-Licht fein (Platten)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_GLFINE v1"
 chk "Tag / Nacht (Option)"                          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DAYNIGHT v1"
 chk "Tag / Nacht v5 (fliessende Schatten)"          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DAYNIGHT v5"
 chk "Zeitraffer-Taste (L5 + R5)"                    $G/src/input.c "lk_dn_fasttoggle"

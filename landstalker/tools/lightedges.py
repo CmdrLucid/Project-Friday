@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """lightedges.py ROM ROOMS --run OUTDIR [--top N]   -- finds HARD EDGES in the lighting (user 2026-11-05: 'bei Lichtquellen nach scharfen Kanten als potenziellen Fehler suchen')
    lightedges.py ROM ROOMS --dir OUTDIR             -- re-score the shots of an earlier --run
+LIGHTEDGES_BIN=path runs another binary (e.g. a copy of the build before a change, for before / after pictures).
 ROOMS: comma list of room numbers, or 'castle' (the Mercator castle interior rooms 51..97).
 Per room a headless warp (replay prefix of rec_20261103_1803 up to Mercator, the user's save copied, never touched; Nigel at the walkable cell nearest the room's
 centre, tools/proxysurvey.py start_cell) and one screenshot with Lighting Off and one with Lighting On (batches of 16 warps). Light ratio R = (On + 4) / (Off + 4)
@@ -61,7 +62,7 @@ def run(rom_path, rooms, out, batch=16, jobs=4):
             env.update({k: v for k, v in os.environ.items() if k.startswith("LANDSTALKER_LT_") or k.startswith("LANDSTALKER_LIGHTING_") or k.startswith("LANDSTALKER_DAY") or k.startswith("LANDSTALKER_CLOUD")})   # test aids pass through (e.g. LANDSTALKER_LT_AMB, LANDSTALKER_DAYTIME=15 = time of day)
             while len([p for p in procs if p.poll() is None]) >= jobs: procs[0].wait(); procs = [p for p in procs if p.poll() is None]
             print("lightedges: batch %d lighting %d: %d warps" % (b // batch, light, len(warps)), flush=True)
-            procs.append(subprocess.Popen([os.path.join(HERE, "build", "landstalker"), "--headless", "--frames", str(fr + 20), rom_path], env=env,
+            procs.append(subprocess.Popen([os.environ.get("LIGHTEDGES_BIN") or os.path.join(HERE, "build", "landstalker"), "--headless", "--frames", str(fr + 20), rom_path], env=env,
                                           stdout=open(os.path.join(d, "out.log"), "w"), stderr=subprocess.STDOUT, cwd=HERE))
         plan += [(r, f, b // batch) for r, f in part]
     for p in procs: p.wait()

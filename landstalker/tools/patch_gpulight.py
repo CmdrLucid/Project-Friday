@@ -132,11 +132,12 @@ int lk_gl_frame(long fr, float *fu, int *iu, float *lp, float *lc, float *lf, fl
    w  = 74 x 222 RGBA: rows 0..73 top lo / hi, thin lo / hi; rows 74..147 back wall bits lk_lt_vw, water, early exit field lk_lt_hd lo / hi (current sun / key direction); rows 148..221 b / a: lk_lt_hdn (next sun direction);
    w2 = 74 x 222 RGBA: rows 0..73 sun height (game height, ground of a small object for class 1 objects; -32768 = void) lo / hi, bush / pine kind lk_lt_tk, radius lk_lt_tr;
         rows 74..147 tree top lk_lt_tt lo / hi, base lk_lt_tb lo / hi; rows 148..221 the game height lk_lt_gh lo / hi;
-   fn = 296 x 592 RGBA: rows 0..295 object top lk_lt_fh lo / hi, owner lk_lt_fo lo / hi; rows 296..591 proxy lk_lt_fp, its type, the owner's class lk_lt_ocl;
+   fn = 296 x 888 RGBA: rows 0..295 object top lk_lt_fh lo / hi, owner lk_lt_fo lo / hi (indoors LK_LT_IFO = data height); rows 296..591 proxy lk_lt_fp, its type, the owner's class lk_lt_ocl;
+        rows 592..887 (v9) slab bottom lk_lt_sb lo / hi, top lk_lt_st lo / hi;
    px = 26 x 255 RGBA: per proxy x0 y0 | z0 ridge | 96 lathe profile bytes;
    f2 = 296 x 296 RGBA: the view ray fields lk_lt_vt / lk_lt_vg (layer A / B) lo / hi; w2 rows 148..221 also carry lk_lt_obj in b / a.
    sc: 0 sun room, 1 room light (AO) on, 2 main floor height, 3 AO strength, 4 AO wall share, 5 ztop, 6..8 sun / key direction, 9 key light room, 10 key back wall height, 11 key penumbra. */
-unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint32_t *f2, float *sc) { int x, y, k; unsigned h = 2166136261u;
+unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint32_t *f2, float *sc) { int x, y, k; unsigned h = 2166136261u;   /* LK_GLFINE v1: fn rows 592..887 = slabs */
   #define LK_GL_H(v) (h = (h ^ (uint32_t)(v)) * 16777619u)
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int o = y * 74 + x, ob = lk_lt_obj[y][x], hc = lk_lt_gh[y][x];
     if (ob > 0 && ob < 1024 && lk_lt_ocl[ob] == 1) { hc = lk_lt_sgnd[ob]; if (hc == -32768) hc = -32767; }
@@ -148,7 +149,8 @@ unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint
     fn[o] = (uint32_t)(uint16_t)lk_lt_fh[y][x] | ((uint32_t)(uint16_t)fo << 16);
     { extern unsigned lk_lt_m3q_at(int x, int y); fn[LK_LT_FN * LK_LT_FN + o] = (uint32_t)q | ((uint32_t)(q ? lk_lt_px[q - 1].type : 0) << 8) | ((uint32_t)(fo > 0 && fo < 1024 ? lk_lt_ocl[fo] : 0) << 16) | (lk_lt_m3q_at(x >> 2, y >> 2) << 24); }   /* top byte: side penumbra bound lk_lt_m3q of the cell */
     f2[o] = (uint32_t)(uint16_t)lk_lt_vt[y][x] | ((uint32_t)(uint16_t)lk_lt_vg[y][x] << 16);
-    LK_GL_H(fn[o]); LK_GL_H(fn[LK_LT_FN * LK_LT_FN + o]); LK_GL_H(f2[o]); }
+    fn[2 * LK_LT_FN * LK_LT_FN + o] = (uint32_t)(uint16_t)lk_lt_sb[y][x] | ((uint32_t)(uint16_t)lk_lt_st[y][x] << 16);   /* v9 slabs: bottom lo / hi, top lo / hi */
+    LK_GL_H(fn[o]); LK_GL_H(fn[LK_LT_FN * LK_LT_FN + o]); LK_GL_H(fn[2 * LK_LT_FN * LK_LT_FN + o]); LK_GL_H(f2[o]); }
   for (k = 0; k < 255; k++) { const lk_lt_proxy *P = &lk_lt_px[k]; uint32_t *r = px + k * 26; int j;
     r[0] = (uint32_t)(uint16_t)P->x0 | ((uint32_t)(uint16_t)P->y0 << 16); r[1] = (uint32_t)(uint16_t)P->z0 | ((uint32_t)(uint16_t)P->ridge << 16);
     for (j = 0; j < 24; j++) r[2 + j] = (uint32_t)lk_lt_prof[k][4 * j] | ((uint32_t)lk_lt_prof[k][4 * j + 1] << 8) | ((uint32_t)lk_lt_prof[k][4 * j + 2] << 16) | ((uint32_t)lk_lt_prof[k][4 * j + 3] << 24);
@@ -160,7 +162,8 @@ unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint
   sc[12] = (float)lk_lt_zmax; sc[13] = (lk_lt_sun && lk_lt_fhmax > -32768) ? 1.0f : 0.0f;   /* GL5b: the view ray: start height, fine field ray (lk_lt_rayf) or cell ray (lk_lt_ray) */
   sc[14] = lk_lt_sdn[0]; sc[15] = lk_lt_sdn[1]; sc[16] = lk_lt_sdn[2]; sc[17] = (lk_lt_sun && lk_dn_upd && lk_dn_hdok) ? 1.0f : 0.0f;   /* GL5c: sunn for the next sun direction */
   sc[18] = lk_lt_kA; sc[19] = lk_lt_kK; sc[20] = lk_lt_sh[0].cr; sc[21] = lk_lt_sh[0].cg; sc[22] = lk_lt_sh[0].cb; sc[23] = (lk_lt_key && !lk_lt_nl) ? 1.0f : 0.0f;   /* the finished key light km */
-  for (k = 0; k < 24; k++) { union { float f; uint32_t u; } cv; cv.f = sc[k]; LK_GL_H(cv.u); }
+  sc[24] = (float)lk_lt_ifine; sc[25] = (float)lk_lt_nslab;   /* v9: fine field indoors / slabs */
+  for (k = 0; k < 26; k++) { union { float f; uint32_t u; } cv; cv.f = sc[k]; LK_GL_H(cv.u); }
   #undef LK_GL_H
   return h | 1u; }
 /* v5 GL5a: per block pixel the object of its view ray (b->robj) and whether layer A is drawn there (lk_o_fetch), for the sun's 'own object' rule */
@@ -305,6 +308,8 @@ uniform float uKA; uniform float uKK; uniform float uFade; uniform vec3 uShc; un
 uniform float uNf; uniform float uNfb; uniform float uFall; uniform float uE; uniform vec3 uSd; uniform vec4 uShA[3]; uniform vec4 uShD[3];
 uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec4 uLF[96]; uniform vec4 uFG[16]; uniform vec4 uFA[16]; uniform float uSwSh;
 float B(float v) { return floor(v * 255.0 + 0.5); }
+float FNX(float f) { if (f == 2.0) return 1.0; if (f < 4.0 || f > 19.0) return 0.0; if (f == 4.0) return 0.707106781; if (f == 5.0) return 0.831469612; if (f == 6.0) return 0.923879533; if (f == 7.0) return 0.98078528; if (f == 8.0) return 1.0; if (f == 9.0) return 0.98078528; if (f == 10.0) return 0.923879533; if (f == 11.0) return 0.831469612; if (f == 12.0) return 0.707106781; if (f == 13.0) return 0.555570233; if (f == 14.0) return 0.382683432; if (f == 15.0) return 0.195090322; if (f == 16.0) return 6.123234e-17; if (f == 17.0) return -0.195090322; if (f == 18.0) return -0.382683432; if (f == 19.0) return -0.555570233; return 0.0; }   /* v9 lk_lt_fnx: face codes 4..19 = slanted faces */
+float FNY(float f) { if (f == 3.0) return 1.0; if (f < 4.0 || f > 19.0) return 0.0; if (f == 4.0) return -0.707106781; if (f == 5.0) return -0.555570233; if (f == 6.0) return -0.382683432; if (f == 7.0) return -0.195090322; if (f == 8.0) return 0.0; if (f == 9.0) return 0.195090322; if (f == 10.0) return 0.382683432; if (f == 11.0) return 0.555570233; if (f == 12.0) return 0.707106781; if (f == 13.0) return 0.831469612; if (f == 14.0) return 0.923879533; if (f == 15.0) return 0.98078528; if (f == 16.0) return 1.0; if (f == 17.0) return 0.98078528; if (f == 18.0) return 0.923879533; if (f == 19.0) return 0.831469612; return 0.0; }   /* v9 lk_lt_fny */
 float trc(float v) { return v < 0.0 ? -floor(-v) : floor(v); }   /* C (int) */
 float rne(float v) { float r = floor(v + 0.5); if (r - v == 0.5 && mod(r, 2.0) != 0.0) r -= 1.0; return r; }   /* lrintf */
 float bit(float m, int j) { return mod(floor(m / exp2(float(j))), 2.0); }
@@ -415,11 +420,11 @@ void main() {
     gl_FragColor = fin(o, fc); return; }
   if (uSun > 0.5) { float u = sun * (1.0 / 255.0);
     if (uMix > 0.5 && sg > 0.5) u += (sunn * (1.0 / 255.0) - u) * uMix * (1.0 / 256.0);
-    if (u > 0.0 && uNf > 0.5 && !((face == 2.0 && uSd.x <= 0.0) || (face == 3.0 && uSd.y <= 0.0))) { if (figdir(uSd, pp, fm)) u = 0.0; }   /* = lk_lt_figface: no figure shadow on a face the sun cannot reach */
+    if (u > 0.0 && uNf > 0.5 && !((face == 2.0 && uSd.x <= 0.0) || (face == 3.0 && uSd.y <= 0.0) || (face >= 4.0 && FNX(face) * uSd.x + FNY(face) * uSd.y <= 0.0))) { if (figdir(uSd, pp, fm)) u = 0.0; }   /* = lk_lt_figface: no figure shadow on a face the sun cannot reach */
     if (uDn > 0.5) a = uAmb3 + uSun3 * u;
     else { float k2 = uSK * u; a = vec3(uSS * 0.95 + k2, uSS * 0.98 + k2 * 0.97, uSS * 1.06 + k2 * 0.90); } }
   else if (uKey > 0.5) { float u = sun * (1.0 / 255.0);
-    if (u > 0.0 && uNfb > 0.5 && infb > 0.5 && !((face == 2.0 && uSd.x <= 0.0) || (face == 3.0 && uSd.y <= 0.0))) { if (figdir(uSd, pp, fm)) u *= 0.45; }
+    if (u > 0.0 && uNfb > 0.5 && infb > 0.5 && !((face == 2.0 && uSd.x <= 0.0) || (face == 3.0 && uSd.y <= 0.0) || (face >= 4.0 && FNX(face) * uSd.x + FNY(face) * uSd.y <= 0.0))) { if (figdir(uSd, pp, fm)) u *= 0.45; }
     float k2 = uKK * u; a = vec3(uKA * 0.97 + k2 * 1.04, uKA * 0.99 + k2, uKA * 1.05 + k2 * 0.92);
     if (pool > 0.5) { float pq = pool * (1.0 / 255.0) * 0.65;
       if (uNfb > 0.5 && uNf > 0.5 && infb > 0.5) { float sh = 0.0;
@@ -448,7 +453,7 @@ void main() {
       tl += t; if (Lf.y < 0.5) t *= Lf.x; sr += t * uLC[li].rgb; } }
   if (ao < 254.5) a *= ao * (1.0 / 255.0);
   if (tb > 0.0) { float d = 1.0 - 0.5 * tb / (tb + tl + 0.05); a *= d; }
-  if (uSwon > 0.5 && uSwSh < 0.5) { float t = term(pp, vec3(face == 2.0 ? 1.0 : 0.0, face == 3.0 ? 1.0 : 0.0, face == 1.0 ? 1.0 : 0.0), uSwP, uSwC.w); sr += t * uSwC.rgb; }
+  if (uSwon > 0.5 && uSwSh < 0.5) { float t = term(pp, vec3(FNX(face), FNY(face), face == 1.0 ? 1.0 : 0.0), uSwP, uSwC.w); sr += t * uSwC.rgb; }
   vec3 o = floor(c * min(a + 2.2 * sr, vec3(2.4)));
   if (uNsh > 0.5) { float dz, d = moteAt(q, dz), gl = bm * 0.38; if (d > 0.0 && dz >= bz - 2.0) gl += d * 0.50; gl *= uFade; if (gl > 0.0) o += floor(gl * uShc); }
   if (uAm > 0.5) o = amix(o, q, bz, -32768.0, false);
@@ -462,13 +467,15 @@ uniform sampler2D wld; uniform vec4 uSwP; uniform vec4 uSwC; uniform float uSw; 
 uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec4 uLF[96]; uniform vec4 uFG[16]; uniform vec4 uFA[16];
 uniform float uNl; uniform float uAmb; uniform float uSS; uniform float uSK; uniform vec3 uAmb3; uniform vec3 uSun3; uniform float uDn; uniform float uKey; uniform float uKA; uniform float uKK; uniform vec3 uSd; uniform float uE; uniform float uSwon; uniform float uFig; uniform float uNf; uniform float uRfK; uniform float uRfD;
 float B(float v) { return floor(v * 255.0 + 0.5); }
+float FNX(float f) { if (f == 2.0) return 1.0; if (f < 4.0 || f > 19.0) return 0.0; if (f == 4.0) return 0.707106781; if (f == 5.0) return 0.831469612; if (f == 6.0) return 0.923879533; if (f == 7.0) return 0.98078528; if (f == 8.0) return 1.0; if (f == 9.0) return 0.98078528; if (f == 10.0) return 0.923879533; if (f == 11.0) return 0.831469612; if (f == 12.0) return 0.707106781; if (f == 13.0) return 0.555570233; if (f == 14.0) return 0.382683432; if (f == 15.0) return 0.195090322; if (f == 16.0) return 6.123234e-17; if (f == 17.0) return -0.195090322; if (f == 18.0) return -0.382683432; if (f == 19.0) return -0.555570233; return 0.0; }   /* v9 lk_lt_fnx: face codes 4..19 = slanted faces */
+float FNY(float f) { if (f == 3.0) return 1.0; if (f < 4.0 || f > 19.0) return 0.0; if (f == 4.0) return -0.707106781; if (f == 5.0) return -0.555570233; if (f == 6.0) return -0.382683432; if (f == 7.0) return -0.195090322; if (f == 8.0) return 0.0; if (f == 9.0) return 0.195090322; if (f == 10.0) return 0.382683432; if (f == 11.0) return 0.555570233; if (f == 12.0) return 0.707106781; if (f == 13.0) return 0.831469612; if (f == 14.0) return 0.923879533; if (f == 15.0) return 0.98078528; if (f == 16.0) return 1.0; if (f == 17.0) return 0.98078528; if (f == 18.0) return 0.923879533; if (f == 19.0) return 0.831469612; return 0.0; }   /* v9 lk_lt_fny */
 float S16(float lo, float hi) { float v = lo + 256.0 * hi; return v >= 32768.0 ? v - 65536.0 : v; }
 vec3 posAt(vec2 q, out float face) {   /* world position + face of a picture pixel from the light blocks (U / V of its line) */
   vec4 ro = texture2D(rows, vec2((q.y + 0.5) / 224.0, 0.5)); float U = S16(B(ro.r), B(ro.g)) + q.x, V = S16(B(ro.b), B(ro.a));
   vec2 rt = (vec2(U, V) + 0.5) / vec2(2432.0, 1216.0); face = B(texture2D(roomA, rt).r); vec4 b = texture2D(roomB, rt); float z = S16(B(b.r), B(b.g)), D = U - 1184.0;
   vec2 bq = floor(vec2(U, V) / 32.0); if (bq.x < 0.0 || bq.y < 0.0 || bq.x > 75.0 || bq.y > 37.0 || texture2D(btab, (bq + 0.5) / vec2(76.0, 38.0)).r < 0.5) face = 0.0;   /* a block not computed yet holds another room's data */
   return vec3((2.0 * V + 2.0 * z + D) * 0.5, (2.0 * V + 2.0 * z - D) * 0.5, z); }
-vec3 nrm(float f) { return vec3(f == 2.0 ? 1.0 : 0.0, f == 3.0 ? 1.0 : 0.0, f == 1.0 ? 1.0 : 0.0); }
+vec3 nrm(float f) { return vec3(FNX(f), FNY(f), f == 1.0 ? 1.0 : 0.0); }
 float topT(float cx, float cy) {   /* the world heights of the GL5 block pass (top + thin columns indoors) */
   if (cx < 0.0 || cy < 0.0 || cx >= 74.0 || cy >= 74.0) return -32768.0;
   vec4 w = texture2D(wld, (vec2(cx, cy) + 0.5) / vec2(74.0, 222.0)); float t = S16(B(w.r), B(w.g));
@@ -607,12 +614,26 @@ void main() {
 SH5 = r'''
 uniform sampler2D roomA; uniform sampler2D roomB; uniform sampler2D btab; uniform sampler2D bli; uniform sampler2D wld;
 uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec2 uBlk; uniform float uSunR; uniform float uAor; uniform float uZref; uniform float uAok; uniform float uAotop; uniform vec2 uDv[16];
+uniform float uIfine; uniform float uNslab;   /* v9 */
 uniform sampler2D wld2; uniform sampler2D fine; uniform sampler2D prx; uniform sampler2D bex; uniform float uSside; uniform float uZtop; uniform vec3 uSd; uniform float uKey; uniform float uKbw; uniform float uKpen; uniform float uNsh; uniform vec4 uSh[9]; uniform sampler2D fine2; uniform float uZmax; uniform float uRayF;
 uniform sampler2D geo; uniform float uMode; uniform vec3 uSdN; uniform float uSunN; uniform float uKA; uniform float uKK; uniform vec3 uShc; uniform float uKm;
 float B(float v) { return floor(v * 255.0 + 0.5); }
+float FNX(float f) { if (f == 2.0) return 1.0; if (f < 4.0 || f > 19.0) return 0.0; if (f == 4.0) return 0.707106781; if (f == 5.0) return 0.831469612; if (f == 6.0) return 0.923879533; if (f == 7.0) return 0.98078528; if (f == 8.0) return 1.0; if (f == 9.0) return 0.98078528; if (f == 10.0) return 0.923879533; if (f == 11.0) return 0.831469612; if (f == 12.0) return 0.707106781; if (f == 13.0) return 0.555570233; if (f == 14.0) return 0.382683432; if (f == 15.0) return 0.195090322; if (f == 16.0) return 6.123234e-17; if (f == 17.0) return -0.195090322; if (f == 18.0) return -0.382683432; if (f == 19.0) return -0.555570233; return 0.0; }   /* v9 lk_lt_fnx: face codes 4..19 = slanted faces */
+float FNY(float f) { if (f == 3.0) return 1.0; if (f < 4.0 || f > 19.0) return 0.0; if (f == 4.0) return -0.707106781; if (f == 5.0) return -0.555570233; if (f == 6.0) return -0.382683432; if (f == 7.0) return -0.195090322; if (f == 8.0) return 0.0; if (f == 9.0) return 0.195090322; if (f == 10.0) return 0.382683432; if (f == 11.0) return 0.555570233; if (f == 12.0) return 0.707106781; if (f == 13.0) return 0.831469612; if (f == 14.0) return 0.923879533; if (f == 15.0) return 0.98078528; if (f == 16.0) return 1.0; if (f == 17.0) return 0.98078528; if (f == 18.0) return 0.923879533; if (f == 19.0) return 0.831469612; return 0.0; }   /* v9 lk_lt_fny */
 float S16(float lo, float hi) { float v = lo + 256.0 * hi; return v >= 32768.0 ? v - 65536.0 : v; }
 vec4 W(float cx, float cy, float hf) { return texture2D(wld, (vec2(cx, cy + 74.0 * hf) + 0.5) / vec2(74.0, 222.0)); }
 bool inr(float cx, float cy) { return cx >= 0.0 && cy >= 0.0 && cx < 74.0 && cy < 74.0; }
+float OFF2(float nx, float ny, float d) { return (nx != 0.0 && ny != 0.0) ? 5.0 : d; }   /* v9 LK_LT_OFF */
+vec4 FN(float sx, float sy, float hf);   /* below */
+vec2 SLB(float sx, float sy) { if (sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return vec2(0.0, -32768.0); vec4 f = FN(sx, sy, 2.0); return vec2(S16(B(f.r), B(f.g)), S16(B(f.b), B(f.a))); }   /* v9: slab bottom / top */
+float ifh(float sx, float sy, float thin) {   /* v9 lk_lt_ifh: the data height indoors or the cell (+ thin column rule) */
+  if (sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return -32768.0;
+  vec4 f = FN(sx, sy, 0.0); if (S16(B(f.b), B(f.a)) == 2047.0) return S16(B(f.r), B(f.g));
+  vec4 w = W(floor(sx / 4.0), floor(sy / 4.0), 0.0); float t = S16(B(w.r), B(w.g));
+  if (thin > 0.5) { float n = S16(B(w.b), B(w.a)); if (n > -32768.0) t = n; }
+  return t; }
+float slabcl(float sx, float sy, float z) { vec2 q = SLB(sx, sy); if (q.y <= q.x) return 9999.0; return z <= q.x ? q.x - z : z >= q.y ? z - q.y : 0.0; }   /* v9 lk_lt_slabcl */
+bool slabin(float sx, float sy, float z) { vec2 q = SLB(sx, sy); return q.y > q.x && z > q.x && z < q.y; }   /* v9 lk_lt_slabin */
 float topT(float cx, float cy) {   /* lk_lt_cell + the thin column rule indoors */
   if (!inr(cx, cy)) return -32768.0;
   vec4 w = W(cx, cy, 0.0); float t = S16(B(w.r), B(w.g));
@@ -623,29 +644,34 @@ float termS(vec3 p, vec3 n, vec4 L, float kk) {   /* lk_lt_term with its shadow 
   if (d >= rad || d < 0.001) return d < 0.001 ? kk : 0.0;
   float ndl = (n.x * v.x + n.y * v.y + n.z * v.z) / d; if (ndl < 0.0) ndl = 0.0;
   float att = kk * (1.0 - d / rad) * (1.0 - d / rad);
-  vec3 s = vec3(p.x + n.x * 3.0, p.y + n.y * 3.0, p.z + n.z * 3.0);
+  vec3 s = vec3(p.x + n.x * OFF2(n.x, n.y, 3.0), p.y + n.y * OFF2(n.x, n.y, 3.0), p.z + n.z * 3.0);
   if (uSunR < 0.5) { float sum = 0.0;
     for (int o = 0; o < 2; o++) { vec3 off = o == 0 ? vec3(3.5, -3.5, 1.0) : vec3(-3.5, 3.5, -1.0); vec3 w = vec3(L.x + off.x - s.x, L.y + off.y - s.y, L.z + off.z - s.z);
       float e = sqrt(w.x * w.x + w.y * w.y + w.z * w.z), res = 1.0;
       for (int st = 0; st < 400; st++) { float t = 2.0 + 2.0 * float(st); if (t >= e - 3.0) break;
-        vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); float top = topT(floor(q.x / 16.0), floor(q.y / 16.0));
+        vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); float fx = floor(q.x / 4.0), fy = floor(q.y / 4.0), top = uIfine > 0.5 ? ifh(fx, fy, 1.0) : topT(floor(q.x / 16.0), floor(q.y / 16.0));
+        if (uNslab > 0.5 && slabin(fx, fy, q.z)) { res = 0.0; break; }   /* v9 */
         if (q.z < top - 0.5) { res = 0.0; break; }
+        if (uIfine > 0.5) { float c2 = slabcl(fx, fy, q.z); if (c2 < 9999.0) { float r2 = 4.0 * c2 / t; if (r2 < res) res = r2; } }
         if (top > -32768.0) { float r = 4.0 * (q.z - top) / t; if (r < res) res = r; } }
       sum += res < 0.0 ? 0.0 : res; }
     return att * (0.25 + 0.75 * ndl) * sum * 0.5; }
   vec3 w = vec3(L.x - s.x, L.y - s.y, L.z - s.z); float e = sqrt(w.x * w.x + w.y * w.y + w.z * w.z);
   for (int st = 0; st < 400; st++) { float t = 2.0 + 2.0 * float(st); if (t >= e - 3.0) break;
-    vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); if (q.z < topT(floor(q.x / 16.0), floor(q.y / 16.0)) - 0.5) return 0.0; }
+    vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); if (uNslab > 0.5 && slabin(floor(q.x / 4.0), floor(q.y / 4.0), q.z)) return 0.0; if (q.z < topT(floor(q.x / 16.0), floor(q.y / 16.0)) - 0.5) return 0.0; }
   return att * (0.25 + 0.75 * ndl); }
-float aoh(float x, float y, float dx, float dy) {   /* lk_lt_aoh */
+float aoh2(float x, float y, float dx, float dy, float slab) {   /* lk_lt_aoh2 */
   float cx = floor(x / 16.0), cy = floor(y / 16.0);
   if (!inr(cx, cy)) return (dx < 0.0 || dy < 0.0) ? 32767.0 : -32768.0;
-  vec4 w = W(cx, cy, 0.0); float t = S16(B(w.r), B(w.g)); if (t != -32768.0) return t;
+  vec4 w = W(cx, cy, 0.0); float t = S16(B(w.r), B(w.g));
+  if (uIfine > 0.5) { float sx = floor(x / 4.0), sy = floor(y / 4.0); t = ifh(sx, sy, 0.0); if (slab > 0.5) { vec2 q = SLB(sx, sy); if (q.y > q.x && q.y > t) t = q.y; } }   /* v9 */
+  if (t != -32768.0) return t;
   float vw = B(W(cx, cy, 1.0).r);
   if ((dx < 0.0 && mod(vw, 2.0) > 0.5) || (dy < 0.0 && mod(floor(vw / 2.0), 2.0) > 0.5)) return 32767.0;
   return -32768.0; }
+float aoh(float x, float y, float dx, float dy) { return aoh2(x, y, dx, dy, 1.0); }
 float aoval(float px, float py, float z, float f) {   /* lk_lt_aoval */
-  float nx = f == 2.0 ? 1.0 : 0.0, ny = f == 3.0 ? 1.0 : 0.0, x0 = px + nx * 2.0, y0 = py + ny * 2.0, sum = 0.0, n = 0.0;
+  float nx = FNX(f), ny = FNY(f), x0 = px + nx * OFF2(nx, ny, 2.0), y0 = py + ny * OFF2(nx, ny, 2.0), sum = 0.0, n = 0.0;
   if (f != 1.0) { float fl = aoh(x0, y0, 0.0, 0.0); if (fl > z) z = fl; }
   for (int k = 0; k < 16; k++) { vec2 dv = uDv[k]; float dix = dv.x > 0.01 ? 1.0 : dv.x < -0.01 ? -1.0 : 0.0, diy = dv.y > 0.01 ? 1.0 : dv.y < -0.01 ? -1.0 : 0.0, best = 0.0;
     if (f != 1.0 && dv.x * nx + dv.y * ny < -0.1) continue;
@@ -662,7 +688,7 @@ float aoval(float px, float py, float z, float f) {   /* lk_lt_aoval */
   return ao < 0.35 ? 0.35 : ao > 1.0 ? 1.0 : ao; }
 vec3 P(float U, float V, float z) { float D = U - 1184.0; return vec3((2.0 * V + 2.0 * z + D) * 0.5, (2.0 * V + 2.0 * z - D) * 0.5, z); }
 vec4 W2(float cx, float cy, float hf) { return texture2D(wld2, (vec2(cx, cy + 74.0 * hf) + 0.5) / vec2(74.0, 222.0)); }
-vec4 FN(float sx, float sy, float hf) { return texture2D(fine, (vec2(sx, sy + 296.0 * hf) + 0.5) / vec2(296.0, 592.0)); }
+vec4 FN(float sx, float sy, float hf) { return texture2D(fine, (vec2(sx, sy + 296.0 * hf) + 0.5) / vec2(296.0, 888.0)); }
 float sidecl(float x, float y, float z, float cx, float cy, float self, float m3) {   /* = lk_lt_sidecl (patch_lights.py): horizontal distance to a neighbour cell whose side record lk_lt_spk (w row 2 low half) reaches above z */
   float cl = 9999.0;
   if (z >= 4.0 * m3 + 0.5) return cl;   /* lk_lt_m3q (passed in from the fine plane the march already read): nothing around reaches the ray */
@@ -682,6 +708,7 @@ float sunvis(vec3 sd, float hs, vec3 p, float self) {   /* lk_lt_sunvis: march t
     if (z > uZtop + 1.0 || x < 0.0 || y < 0.0 || x >= 1184.0 || y >= 1184.0) return res;
     float sx = floor(x * 0.25), sy = floor(y * 0.25), cx = floor(sx / 4.0), cy = floor(sy / 4.0);
     vec4 f0 = FN(sx, sy, 0.0), f1 = FN(sx, sy, 1.0); float o = S16(B(f0.b), B(f0.a));
+    if (uNslab > 0.5) { float c2 = slabcl(sx, sy, z); if (c2 <= 0.0) return 0.0; if (c2 < 9999.0) { float r2 = 12.0 * c2 / (t * hl); if (r2 < res) res = r2; } }   /* v9: slabs */
     if (o != 0.0 && o == self) continue;
     vec4 g0 = W2(cx, cy, 0.0); float h = S16(B(g0.r), B(g0.g)); if (h == -32768.0) h = -1e9;
     float hdv = S16(B(W(cx, cy, 1.0 + hs).b), B(W(cx, cy, 1.0 + hs).a)), q = B(f1.r), qt = B(f1.g), r, d;
@@ -720,13 +747,14 @@ float keyvis(vec3 sd, vec3 p) {   /* lk_lt_keyvisd */
     if (t >= 600.0) break;
     float x = p.x + sd.x * t, y = p.y + sd.y * t, z = p.z + sd.z * t, hh;
     if (z > wt) return res;
-    float h = aoh(x, y, dx, dy); if (h == -32768.0) continue;
+    if (uIfine > 0.5) { float c2 = slabcl(floor(x / 4.0), floor(y / 4.0), z); if (c2 <= 0.0) return 0.0; if (c2 < 9999.0) { float r2 = uKpen * c2 / (t * hl); if (r2 < res) res = r2; } }   /* v9 */
+    float h = aoh2(x, y, dx, dy, 0.0); if (h == -32768.0) continue;
     if (h == 32767.0) { if (z > zr + uKbw) continue; hh = 1e9; } else hh = h;
     float d = z - hh + 0.5; if (d <= 0.0) return 0.0;
     float r = uKpen * d / (t * hl); if (r < res) res = r; }
   return res; }
 float sunShare(vec3 sd, float hs, float U, float V, float face, float z, float robj, float layA) {   /* lk_lt_sunfill for one pixel */
-  vec3 n = vec3(face == 2.0 ? 1.0 : 0.0, face == 3.0 ? 1.0 : 0.0, face == 1.0 ? 1.0 : 0.0), pp = P(U, V, z); float ndl = sd.z;
+  vec3 n = vec3(FNX(face), FNY(face), face == 1.0 ? 1.0 : 0.0), pp = P(U, V, z); float ndl = sd.z;
   if (face != 1.0 && n.x * sd.x + n.y * sd.y <= 0.0) { float vis = 1.0, qx = pp.x - n.x * 2.0, qy = pp.y - n.y * 2.0, sx = floor(qx / 4.0), sy = floor(qy / 4.0);
     if (sx >= 0.0 && sy >= 0.0 && sx < 296.0 && sy < 296.0) { vec4 f1 = FN(sx, sy, 1.0); float gh = S16(B(W2(floor(sx / 4.0), floor(sy / 4.0), 2.0).r), B(W2(floor(sx / 4.0), floor(sy / 4.0), 2.0).g));
       if (B(f1.r) == 0.0 && gh != -32768.0 && gh <= 48.0 && z <= gh) { vec4 f0 = FN(sx, sy, 0.0); vis = sunvis(sd, hs, vec3(qx, qy, gh + 0.5), S16(B(f0.b), B(f0.a))); } }
@@ -737,9 +765,9 @@ float sunShare(vec3 sd, float hs, float U, float V, float face, float z, float r
   float vis = sunvis(sd, hs, vec3(pp.x + n.x * 3.0, pp.y + n.y * 3.0, z + n.z * 3.0), ob) * ndl;
   return vis >= 1.0 ? 255.0 : vis <= 0.0 ? 0.0 : floor(vis * 255.0); }
 float keyShare(float U, float V, float face, float z) {   /* the key light share of lk_lt_blockcalc */
-  vec3 n = vec3(face == 2.0 ? 1.0 : 0.0, face == 3.0 ? 1.0 : 0.0, face == 1.0 ? 1.0 : 0.0), pp = P(U, V, z);
+  vec3 n = vec3(FNX(face), FNY(face), face == 1.0 ? 1.0 : 0.0), pp = P(U, V, z);
   if (face != 1.0 && n.x * uSd.x + n.y * uSd.y <= 0.0) return 255.0;
-  float vis = keyvis(uSd, vec3(pp.x + n.x * 3.0, pp.y + n.y * 3.0, z + n.z * 3.0));
+  float vis = keyvis(uSd, vec3(pp.x + n.x * OFF2(n.x, n.y, 3.0), pp.y + n.y * OFF2(n.x, n.y, 3.0), z + n.z * 3.0));
   return vis >= 1.0 ? 255.0 : vis <= 0.0 ? 0.0 : floor(vis * 255.0); }
 float trc(float v) { return v < 0.0 ? -floor(-v) : floor(v); }
 float cellT(float cx, float cy);   /* below */
@@ -751,9 +779,9 @@ vec2 shafts(float U, float V, float face, float z) {   /* lk_lt_shblock: beam (g
     if (bx0 + 32.0 < min(u0, u1) - m || bx0 > max(u0, u1) + m || by0 + 32.0 < min(v0, v1) - m - 20.0 || by0 > max(v0, v1) + m + 20.0) continue;
     float zs = face > 0.5 ? z : trc(A.z) - 24.0, sum = 0.0;
     if (face > 0.5) { vec3 pp = P(U, V, zs); vec3 vv = vec3(pp.x - A.x, pp.y - A.y, zs - A.z); float s2 = vv.x * d.x + vv.y * d.y + vv.z * d.z; vec3 qv = vec3(vv.x - s2 * d.x, vv.y - s2 * d.y, vv.z - s2 * d.z); float q = sqrt(qv.x * qv.x + qv.y * qv.y + qv.z * qv.z);
-      if (q < r * 1.25 && s2 > -8.0) { vec3 n = vec3(face == 2.0 ? 1.0 : 0.0, face == 3.0 ? 1.0 : 0.0, face == 1.0 ? 1.0 : 0.0);
+      if (q < r * 1.25 && s2 > -8.0) { vec3 n = vec3(FNX(face), FNY(face), face == 1.0 ? 1.0 : 0.0);
         float w = (r * 1.25 - q) / (r * 1.1); if (w > 1.0) w = 1.0; w = w * w * (3.0 - 2.0 * w) * kk * 0.8;
-        w *= keyvis(d, vec3(pp.x + n.x * 3.0, pp.y + n.y * 3.0, zs + n.z * 3.0)); w += pool * (1.0 / 255.0); pool = w >= 1.0 ? 255.0 : floor(w * 255.0); } }
+        w *= keyvis(d, vec3(pp.x + n.x * OFF2(n.x, n.y, 3.0), pp.y + n.y * OFF2(n.x, n.y, 3.0), zs + n.z * 3.0)); w += pool * (1.0 / 255.0); pool = w >= 1.0 ? 255.0 : floor(w * 255.0); } }
     for (int st = 0; st < 400; st++) { float zz = zs + 2.0 + 4.0 * float(st); if (zz >= A.z + h * d.z) break;
       vec3 pp = P(U, V, trc(zz)); if (cellT(floor(pp.x / 16.0), floor(pp.y / 16.0)) <= -32768.0) continue;   /* 2026-11-08: only over the room's cells (lk_lt_shblock) */
       vec3 vv = vec3(pp.x - A.x, pp.y - A.y, zz - A.z); float s2 = vv.x * d.x + vv.y * d.y + vv.z * d.z; vec3 qv = vec3(vv.x - s2 * d.x, vv.y - s2 * d.y, vv.z - s2 * d.z); float q = sqrt(qv.x * qv.x + qv.y * qv.y + qv.z * qv.z);
@@ -771,6 +799,28 @@ bool dent(float cx, float cy, float cf) {   /* lk_lt_dent */
   return n <= 3.0; }
 float fdv(float a, float b) { return floor(a / b); }
 float vtAt(float sx, float sy, float layA) { if (sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return -32768.0; vec4 v = texture2D(fine2, (vec2(sx, sy) + 0.5) / 296.0); return layA > 0.5 ? S16(B(v.r), B(v.g)) : S16(B(v.b), B(v.a)); }
+float rfocc(float sx, float sy, float z) { if (z <= vtAt(sx, sy, 1.0)) return 1.0; vec2 q = SLB(sx, sy); return (q.y > q.x && z >= q.x && z <= q.y) ? 1.0 : 0.0; }   /* v9 lk_lt_rfocc */
+float iocc(float sx, float sy, float z, float layA) { if (z <= ifh(sx, sy, 0.0)) return 1.0; if (layA > 0.5) { vec2 q = SLB(sx, sy); if (q.y > q.x && z >= q.x && z <= q.y) return 1.0; } return 0.0; }   /* v9 lk_lt_occ */
+float idiag(float sx, float sy, float z, float f, float layA) {   /* v9 lk_lt_idiag: the normal of a fine field side face from the shape around it (16 directions) */
+  float gx = 0.0, gy = 0.0, k = 0.0;
+  for (int dy = -2; dy <= 2; dy++) for (int dx = 1; dx <= 2; dx++) { float ex = float(dx), ey = float(dy); gx += iocc(sx - ex, sy + ey, z, layA) - iocc(sx + ex, sy + ey, z, layA); gy += iocc(sx + ey, sy - ex, z, layA) - iocc(sx + ey, sy + ex, z, layA); }
+  if (gx + gy <= 0.0) return f;
+  if (0.773010453 * gy - -0.634393284 * gx > 0.0) k += 1.0;
+  if (0.881921264 * gy - -0.471396737 * gx > 0.0) k += 1.0;
+  if (0.956940336 * gy - -0.290284677 * gx > 0.0) k += 1.0;
+  if (0.995184727 * gy - -0.0980171403 * gx > 0.0) k += 1.0;
+  if (0.995184727 * gy - 0.0980171403 * gx > 0.0) k += 1.0;
+  if (0.956940336 * gy - 0.290284677 * gx > 0.0) k += 1.0;
+  if (0.881921264 * gy - 0.471396737 * gx > 0.0) k += 1.0;
+  if (0.773010453 * gy - 0.634393284 * gx > 0.0) k += 1.0;
+  if (0.634393284 * gy - 0.773010453 * gx > 0.0) k += 1.0;
+  if (0.471396737 * gy - 0.881921264 * gx > 0.0) k += 1.0;
+  if (0.290284677 * gy - 0.956940336 * gx > 0.0) k += 1.0;
+  if (0.0980171403 * gy - 0.995184727 * gx > 0.0) k += 1.0;
+  if (-0.0980171403 * gy - 0.995184727 * gx > 0.0) k += 1.0;
+  if (-0.290284677 * gy - 0.956940336 * gx > 0.0) k += 1.0;
+  if (-0.471396737 * gy - 0.881921264 * gx > 0.0) k += 1.0;
+  return k == 4.0 ? 2.0 : k == 12.0 ? 3.0 : 4.0 + k; }
 vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face, z, robj) of one room picture pixel */
   float D = U - 1184.0, rob = 0.0, cf = 0.0, cz = 0.0, pin = 0.0, ptop = -32768.0, pcx = -999.0, pcy = -999.0;
   if (uRayF > 0.5) {
@@ -780,6 +830,11 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
       if (inn > 0.5) { vec4 f0 = FN(sx, sy, 0.0); fo = S16(B(f0.b), B(f0.a)); }
       if (cf > 0.0 && inn > 0.5 && z > top && !dent(floor(sx / 4.0), floor(sy / 4.0), cf)) cf = 0.0;
       if (inn > 0.5 && rob == 0.0 && fo != 0.0 && layA > 0.5) rob = fo;
+      if (uNslab > 0.5 && layA > 0.5) { vec2 sb = SLB(sx, sy); if (sb.y > sb.x && z >= sb.x && z <= sb.y) {   /* v9: a slab */
+        if ((sx == pcx && sy == pcy) || pcx == -999.0 || z == sb.y) return vec3(1.0, z, rob);
+        if (sx == pcx) return vec3(3.0, z, rob);
+        if (sy == pcy) return vec3(2.0, z, rob);
+        return vec3(rfocc(pcx, sy, z) > 0.5 && rfocc(sx, pcy, z) < 0.5 ? 3.0 : 2.0, z, rob); } }
       if (z <= top) { if (fo != 0.0 && layA > 0.5) rob = fo;
         if ((sx == pcx && sy == pcy) || pcx == -999.0 || z == top) return vec3(1.0, z, rob);
         if (sx == pcx) return vec3(3.0, z, rob);
@@ -787,6 +842,30 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
         { float ty = vtAt(pcx, sy, 1.0), tx = vtAt(sx, pcy, 1.0); return vec3(z <= ty && z > tx ? 3.0 : 2.0, z, rob); } }
       if (pcx != -999.0 && pin > 0.5 && inn < 0.5 && z > ptop && cf == 0.0) { float ty = vtAt(pcx, sy, 1.0), tx = vtAt(sx, pcy, 1.0); cz = z; cf = sx == pcx ? 3.0 : sy == pcy ? 2.0 : (ty == -32768.0 && tx > -32768.0 ? 3.0 : 2.0); }
       pcx = sx; pcy = sy; ptop = top; pin = inn; }
+    return cf > 0.0 ? vec3(cf, cz, rob) : vec3(0.0, 0.0, rob); }
+  if (uIfine > 0.5) { float psx = -999.0, psy = -999.0, pfn = 0.0;   /* v9 lk_lt_rayi */
+    for (int st = 0; st < 2400; st++) { float z = uZmax - float(st); if (z < -16.0) break;
+      float sx = fdv(2.0 * V + 2.0 * z + D, 8.0), sy = fdv(2.0 * V + 2.0 * z - D, 8.0), cx = floor(sx / 4.0), cy = floor(sy / 4.0);
+      bool ins = sx >= 0.0 && sy >= 0.0 && sx < 296.0 && sy < 296.0; vec2 sb = SLB(sx, sy); float fo = 0.0;
+      if (ins) { vec4 f0 = FN(sx, sy, 0.0); if (S16(B(f0.b), B(f0.a)) == 2047.0) fo = 1.0; }
+      float sl = (ins && layA > 0.5 && sb.y > sb.x) ? 1.0 : 0.0, fn = (sl > 0.5 || fo > 0.5) ? 1.0 : 0.0, top = ifh(sx, sy, layA > 0.5 ? 0.0 : 1.0), inn = top > -32768.0 ? 1.0 : 0.0;
+      if (inn > 0.5 && rob == 0.0) { vec4 g2 = W2(cx, cy, 2.0); float ob = S16(B(g2.b), B(g2.a)); if (ob != 0.0) rob = ob; }
+      if (cf > 0.0 && inn > 0.5 && z > top && !dent(cx, cy, cf)) cf = 0.0;
+      if (sl > 0.5 && z >= sb.x && z <= sb.y) {
+        if ((sx == psx && sy == psy) || psx == -999.0 || z == sb.y) return vec3(1.0, z, rob);
+        return vec3(idiag(sx, sy, z, sx == psx ? 3.0 : sy == psy ? 2.0 : (iocc(psx, sy, z, layA) > 0.5 && iocc(sx, psy, z, layA) < 0.5 ? 3.0 : 2.0), layA), z, rob); }
+      if (z <= top) {
+        if (fn < 0.5 && pfn < 0.5) {
+          if ((cx == pcx && cy == pcy) || pcx == -999.0 || z == top) return vec3(1.0, z, rob);
+          if (cx == pcx) return vec3(3.0, z, rob);
+          if (cy == pcy) return vec3(2.0, z, rob);
+          { float ty = cellT(pcx, cy), tx = cellT(cx, pcy); return vec3(z <= ty && z > tx ? 3.0 : 2.0, z, rob); } }
+        if ((sx == psx && sy == psy) || psx == -999.0 || z == top) return vec3(1.0, z, rob);
+        return vec3(idiag(sx, sy, z, sx == psx ? 3.0 : sy == psy ? 2.0 : (iocc(psx, sy, z, layA) > 0.5 && iocc(sx, psy, z, layA) < 0.5 ? 3.0 : 2.0), layA), z, rob); }
+      if (pcx != -999.0 && pin > 0.5 && inn < 0.5 && z >= ptop && cf == 0.0) { cz = z;
+        if (fn < 0.5 && pfn < 0.5) { float ty = cellT(pcx, cy), tx = cellT(cx, pcy); cf = cx == pcx ? 3.0 : cy == pcy ? 2.0 : (ty == -32768.0 && tx > -32768.0 ? 3.0 : 2.0); }
+        else { float ty = ifh(psx, sy, 0.0), tx = ifh(sx, psy, 0.0); cf = sx == psx ? 3.0 : sy == psy ? 2.0 : (ty == -32768.0 && tx > -32768.0 ? 3.0 : 2.0); } }
+      pcx = cx; pcy = cy; psx = sx; psy = sy; ptop = top; pin = inn; pfn = fn; }
     return cf > 0.0 ? vec3(cf, cz, rob) : vec3(0.0, 0.0, rob); }
   for (int st = 0; st < 2400; st++) { float z = uZmax - float(st); if (z < -16.0) break;
     float cx = fdv(2.0 * V + 2.0 * z + D, 32.0), cy = fdv(2.0 * V + 2.0 * z - D, 32.0), top = cellT(cx, cy), inn = top > -32768.0 ? 1.0 : 0.0;
@@ -803,7 +882,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
   return cf > 0.0 ? vec3(cf, cz, rob) : vec3(0.0, 0.0, rob); }
 vec4 G(float x, float y) { return texture2D(geo, (vec2(x, y) + 0.5) / vec2(32.0, 64.0)); }
 vec4 termsP(float plane, float face, float z, float U, float V) {   /* flame terms 4 * plane .. 4 * plane + 3 of the block's light list */
-  vec3 n = vec3(face == 2.0 ? 1.0 : 0.0, face == 3.0 ? 1.0 : 0.0, face == 1.0 ? 1.0 : 0.0), p = P(U, V, z);
+  vec3 n = vec3(FNX(face), FNY(face), face == 1.0 ? 1.0 : 0.0), p = P(U, V, z);
   float nl = B(texture2D(btab, (uBlk + 0.5) / vec2(76.0, 38.0)).b); vec4 I = texture2D(bli, (vec2(uBlk.x + 76.0 * plane, uBlk.y) + 0.5) / vec2(152.0, 38.0)), o = vec4(0.0);
   for (int c = 0; c < 4; c++) { if (plane * 4.0 + float(c) >= nl) break;
     int li = int(B(c == 0 ? I.r : c == 1 ? I.g : c == 2 ? I.b : I.a));
@@ -936,7 +1015,7 @@ static void lk_g5_pbdrain(void) { int k = lk_g5_pbi ^ 1, j; const uint32_t *m;  
 #define LK_G5_Q 24
 static int lk_g5_n, lk_g5_bx[LK_G5_Q], lk_g5_by[LK_G5_Q], lk_g5_nl[LK_G5_Q]; static uint32_t lk_g5_ref[LK_G5_Q][5][1024]; static int lk_g5_maxshow = 16, lk_g5_every = 300; static long lk_g5_cnt[6][3], lk_g5_blocks, lk_g5_frames, lk_g5_last; static int lk_g5_shown;
 static const char *lk_g5_fs = "#version 120\n" @SHADER5@;
-static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", "uSside", 0 };
+static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", "uSside", "uIfine", "uNslab", 0 };
 static int lk_g5_want(void) { if (lk_g5_on < 0) { const char *e = getenv("LANDSTALKER_GL5CMP"), *e2 = getenv("LANDSTALKER_GL5CMP_SHOW"), *e3 = getenv("LANDSTALKER_GL5CMP_EVERY"); lk_g5_on = e ? atoi(e) : 0; if (e2) lk_g5_maxshow = atoi(e2); if (e3 && atoi(e3) > 0) lk_g5_every = atoi(e3); } return lk_g5_on > 0 && lk_g5_st >= 0; }
 static int lk_g5_init(void) {
   lkGLint ok = 0, t0 = 0, fb0 = 0; lkGLuint vs, fs; char log[2048]; int i; lkGLenum st;
@@ -948,7 +1027,7 @@ static int lk_g5_init(void) {
   for (i = 0; lk_g5_un[i]; i++) lk_g5_u[i] = lk_glGetUniformLocation(lk_g5_prog, lk_g5_un[i]);
   lk_glGetIntegerv(0x8069, &t0);
   lk_g5_out = lk_glt_tex(32, 224, 0x1908, 0x1908); lk_g5_f2 = lk_glt_tex(296, 296, 0x1908, 0x1908); lk_g5_wt = lk_glt_tex(74, 222, 0x1908, 0x1908); lk_g5_geo = lk_glt_tex(32, 64, 0x1908, 0x1908);
-  *(void **)&lk_glCopyTexSubImage2D = lk_gpu_fn("glCopyTexSubImage2D"); if (!lk_glCopyTexSubImage2D) { printf("gl5: glCopyTexSubImage2D missing\n"); return -1; } *(void **)&lk_glFinish = lk_gpu_fn("glFinish"); lk_g5_w2 = lk_glt_tex(74, 222, 0x1908, 0x1908); lk_g5_fn = lk_glt_tex(296, 592, 0x1908, 0x1908);
+  *(void **)&lk_glCopyTexSubImage2D = lk_gpu_fn("glCopyTexSubImage2D"); if (!lk_glCopyTexSubImage2D) { printf("gl5: glCopyTexSubImage2D missing\n"); return -1; } *(void **)&lk_glFinish = lk_gpu_fn("glFinish"); lk_g5_w2 = lk_glt_tex(74, 222, 0x1908, 0x1908); lk_g5_fn = lk_glt_tex(296, 888, 0x1908, 0x1908);
   lk_g5_px = lk_glt_tex(26, 255, 0x1908, 0x1908); lk_g5_bx2 = lk_glt_tex(32, 32, 0x1908, 0x1908);
   lk_glBindTexture(0x0DE1, (lkGLuint)t0);
   lk_glGetIntegerv(0x8CA6, &fb0); lk_glGenFramebuffers(1, &lk_g5_fbo); lk_glBindFramebuffer(0x8D40, lk_g5_fbo); lk_glFramebufferTexture2D(0x8D40, 0x8CE0, 0x0DE1, lk_g5_out, 0);
@@ -963,13 +1042,13 @@ static void lk_g5_queue(int bx, int by, uint32_t (*pk)[1024]) { int i, nl; uint3
   lk_g5_n++; }
 static float lk_g5_sc[32];
 static int lk_g5_bind(const float *lp, const float *lc, int fresh) {   /* program, textures and uniforms of the block pass (units 0 / 1 / 2 / 5 / 6 / 8 / 10 = world / sun heights / object field / proxies / layer A / view fields / geometry; 4 / 9 = block table / lists) */
-  static uint32_t w[5476 * 3], w2[5476 * 3], fnb[296 * 592], pxb[26 * 255], f2b[296 * 296]; float dv[32], shf[36]; unsigned h; int k; float *sc = lk_g5_sc;
+  static uint32_t w[5476 * 3], w2[5476 * 3], fnb[296 * 888], pxb[26 * 255], f2b[296 * 296]; float dv[32], shf[36]; unsigned h; int k; float *sc = lk_g5_sc;
   if (lk_g5_st == 0) lk_g5_st = lk_g5_init();
   if (lk_g5_st < 0) return 0;
   if (fresh) { h = lk_gl_world(w, w2, fnb, pxb, f2b, sc);
     if (h != lk_g5_wh) { lk_glActiveTexture(0x84C0); lk_glBindTexture(0x0DE1, lk_g5_wt); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 74, 222, 0x1908, 0x1401, w);
       lk_glActiveTexture(0x84C1); lk_glBindTexture(0x0DE1, lk_g5_w2); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 74, 222, 0x1908, 0x1401, w2);
-      lk_glActiveTexture(0x84C2); lk_glBindTexture(0x0DE1, lk_g5_fn); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 296, 592, 0x1908, 0x1401, fnb);
+      lk_glActiveTexture(0x84C2); lk_glBindTexture(0x0DE1, lk_g5_fn); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 296, 888, 0x1908, 0x1401, fnb);
       lk_glActiveTexture(0x84C5); lk_glBindTexture(0x0DE1, lk_g5_px); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 26, 255, 0x1908, 0x1401, pxb);
       lk_glActiveTexture(0x84C8); lk_glBindTexture(0x0DE1, lk_g5_f2); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 296, 296, 0x1908, 0x1401, f2b); lk_g5_wh = h; } }
   lk_glActiveTexture(0x84C0); lk_glBindTexture(0x0DE1, lk_g5_wt); lk_glActiveTexture(0x84C1); lk_glBindTexture(0x0DE1, lk_g5_w2); lk_glActiveTexture(0x84C2); lk_glBindTexture(0x0DE1, lk_g5_fn);
@@ -980,7 +1059,7 @@ static int lk_g5_bind(const float *lp, const float *lc, int fresh) {   /* progra
   lk_glUseProgram(lk_g5_prog);
   lk_glUniform1i(lk_g5_u[2], 4); lk_glUniform1i(lk_g5_u[3], 9); lk_glUniform1i(lk_g5_u[4], 0);
   lk_glUniform4fv(lk_g5_u[5], 96, lp); lk_glUniform4fv(lk_g5_u[6], 96, lc);
-  { extern int lk_lt_sside_get(void); lk_glUniform1f(lk_g5_u[36], lk_lt_sside_get() ? 1.0f : 0.0f); } lk_glUniform1f(lk_g5_u[8], sc[0]); lk_glUniform1f(lk_g5_u[9], sc[1]); lk_glUniform1f(lk_g5_u[10], sc[2]); lk_glUniform1f(lk_g5_u[11], sc[3]); lk_glUniform1f(lk_g5_u[12], sc[4]);
+  { extern int lk_lt_sside_get(void); lk_glUniform1f(lk_g5_u[36], lk_lt_sside_get() ? 1.0f : 0.0f); } lk_glUniform1f(lk_g5_u[37], sc[24]); lk_glUniform1f(lk_g5_u[38], sc[25]); lk_glUniform1f(lk_g5_u[8], sc[0]); lk_glUniform1f(lk_g5_u[9], sc[1]); lk_glUniform1f(lk_g5_u[10], sc[2]); lk_glUniform1f(lk_g5_u[11], sc[3]); lk_glUniform1f(lk_g5_u[12], sc[4]);
   lk_glUniform1i(lk_g5_u[14], 1); lk_glUniform1i(lk_g5_u[15], 2); lk_glUniform1i(lk_g5_u[16], 5); lk_glUniform1i(lk_g5_u[17], 6);
   lk_glUniform1i(lk_g5_u[25], 8); lk_glUniform1f(lk_g5_u[26], sc[12]); lk_glUniform1f(lk_g5_u[27], sc[13]); lk_glUniform1i(lk_g5_u[28], 10);
   { int nsh = lk_gl_shafts(shf); lk_glUniform1f(lk_g5_u[23], (float)nsh); lk_glUniform4fv(lk_g5_u[24], 9, shf); sc[31] = (float)nsh; }
