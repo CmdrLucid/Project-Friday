@@ -213,4 +213,4 @@
 - L1691: GitHub issue #14 (2026-11-07 late, Deck, Opus 5.5)
 - L1698: Session 2026-11-07 night: stutter from the side penumbra, bush platform domes (Deck, Opus 5.5)
 - L1706: Session 2026-11-08 night: shadow scan of all outdoor rooms (Deck, Opus 5.5 + Sonnet reviewers)
-- L1719: Lighting v9: fine field indoors + slabs (2026-11-08, Deck, Opus 5.5)
+- L1719: Lighting v9: fine field indoors + slabs (2026-11-08)
