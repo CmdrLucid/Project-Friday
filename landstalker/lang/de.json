@@ -654,7 +654,7 @@
   "How the picture fits the screen": "Wie das Bild den Schirm füllt",
   "Scanline or CRT look": "Scanlines oder Röhren-Optik",
   "Scaling and filters on the GPU": "Skalierung und Filter per GPU",
-  "GPU: Deck cooler. CPU: fallback": "GPU: Deck kühler. CPU: Reserve",
+  "GPU takes load off the CPU": "GPU entlastet den Prozessor",
   "Window or full screen": "Fenster oder Vollbild",
   "Original or modern life display": "Original- oder moderne Anzeige",
   "Shadow under Nigel for jumps": "Schatten unter Nigel beim Springen",

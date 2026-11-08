@@ -312,7 +312,7 @@ static void lk_h_yn(void) {   /* replaces LoadYesNoPrompt in the Start menu: sam
 static const char *lk_opt_help(int id) {
     switch (id) {
     case 0: return "Wider picture, more of the map"; case 1: return "Map fills the black bar below"; case 4: return "How the picture fits the screen";
-    case 2: return "Scanline or CRT look"; case 55: return "Scaling and filters on the GPU"; case 56: return "GPU: Deck cooler. CPU: fallback"; case 3: return "Window or full screen";
+    case 2: return "Scanline or CRT look"; case 55: return "Scaling and filters on the GPU"; case 56: return "GPU takes load off the CPU"; case 3: return "Window or full screen";
     case 41: return "Original or modern life display"; case 9: return "Shadow under Nigel for jumps"; case 46: return "Flames, ice, sparks on swords"; case 48: return "Boots show the equipped pair";
     case 47: return "Torches, sun and shadows"; case 54: return "The sun moves, nights outdoors"; case 49: return "Fireflies, sparks and drops"; case 50: return "Defeated enemies burst apart";
     case 51: return "Air shimmers above lava"; case 52: return "Figures mirrored on water"; case 53: return "Cloud shadows drift outdoors"; case 18: return "Map stays visible in dialogues";
