@@ -173,6 +173,159 @@
         ],
         "why": "pine group at the north wall: the automatic hip went up to 222 (wall behind counted); the mesh above has the pines (tops 96)"
       }
+    ],
+    "493": [
+      {
+        "op": "water",
+        "cells": [
+          26,
+          28,
+          33,
+          58,
+          0
+        ],
+        "why": "Ship at the dock (user 2026-11-08 'Korrektur fuer Schiffbug'): the sea around the ship is painted void; where the hull is drawn the automatic indoor water fill does not reach, the deck cells' side faces ran down endlessly = a dark box over the bow and the water. Water floor at the room's water level 0, only over void cells (left of the ship x <= 35, in front of the bow y >= 52)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          34,
+          44,
+          35,
+          58,
+          0
+        ],
+        "why": "(same) left of the bow below the gangway cells 34..35,41..43"
+      },
+      {
+        "op": "water",
+        "cells": [
+          36,
+          52,
+          48,
+          58,
+          0
+        ],
+        "why": "(same) in front of the bow"
+      }
+    ],
+    "494": [
+      {
+        "op": "water",
+        "cells": [
+          26,
+          28,
+          33,
+          58,
+          0
+        ],
+        "why": "Ship at the dock (user 2026-11-08 'Korrektur fuer Schiffbug'): the sea around the ship is painted void; where the hull is drawn the automatic indoor water fill does not reach, the deck cells' side faces ran down endlessly = a dark box over the bow and the water. Water floor at the room's water level 0, only over void cells (left of the ship x <= 35, in front of the bow y >= 52)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          34,
+          44,
+          35,
+          58,
+          0
+        ],
+        "why": "(same) left of the bow below the gangway cells 34..35,41..43"
+      },
+      {
+        "op": "water",
+        "cells": [
+          36,
+          52,
+          48,
+          58,
+          0
+        ],
+        "why": "(same) in front of the bow"
+      }
+    ],
+    "495": [
+      {
+        "op": "water",
+        "cells": [
+          26,
+          28,
+          33,
+          58,
+          0
+        ],
+        "why": "Ship at the dock (user 2026-11-08 'Korrektur fuer Schiffbug'): the sea around the ship is painted void; where the hull is drawn the automatic indoor water fill does not reach, the deck cells' side faces ran down endlessly = a dark box over the bow and the water. Water floor at the room's water level 0, only over void cells (left of the ship x <= 35, in front of the bow y >= 52)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          34,
+          44,
+          35,
+          58,
+          0
+        ],
+        "why": "(same) left of the bow below the gangway cells 34..35,41..43"
+      },
+      {
+        "op": "water",
+        "cells": [
+          36,
+          52,
+          48,
+          58,
+          0
+        ],
+        "why": "(same) in front of the bow"
+      }
+    ],
+    "497": [
+      {
+        "op": "water",
+        "cells": [
+          26,
+          28,
+          33,
+          58,
+          0
+        ],
+        "why": "Ship at the dock (user 2026-11-08 'Korrektur fuer Schiffbug'): the sea around the ship is painted void; where the hull is drawn the automatic indoor water fill does not reach, the deck cells' side faces ran down endlessly = a dark box over the bow and the water. Water floor at the room's water level 0, only over void cells (left of the ship x <= 35, in front of the bow y >= 52)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          34,
+          44,
+          35,
+          58,
+          0
+        ],
+        "why": "(same) left of the bow below the gangway cells 34..35,41..43"
+      },
+      {
+        "op": "water",
+        "cells": [
+          36,
+          52,
+          48,
+          58,
+          0
+        ],
+        "why": "(same) in front of the bow"
+      }
+    ],
+    "192": [
+      {
+        "op": "water",
+        "cells": [
+          22,
+          31,
+          24,
+          35,
+          8
+        ],
+        "why": "Invisible barrier column ($4F, 240 high) at x 22 y 31..33 between the wall and the water (user 2026-11-08 'Korrektur fuer Raum 192'): it cast a dark rectangle on the upper floor and turned its neighbours into 232 high 'water'; these cells are the water at its level 8"
+      }
     ]
   }
 }
