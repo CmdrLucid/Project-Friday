@@ -777,6 +777,15 @@ static int lk_lt_archfill(void) { static int v = -1; if (v < 0) { const char *e 
 static int lk_lt_lathe2(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_LATHE2"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: lathe re-anchor ignores the own box, wall foot rows filled */
 static int lk_lt_fillcap(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_FILLCAP"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: inherited painted-void fill capped at the nearby walkable ground - 8 */
 static int lk_lt_doorin(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_DOORIN"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: door niches filled indoors too */
+static int lk_lt_wtile(int U, int V) {   /* 2026-11-08: the picture cell at (U, V) shows an animated WATER tile (the groups of patch_water.py lk_wr_iswater; $099E8A outside the lava rooms 403 / 404) */
+  int rr = V >> 3, cc = U >> 3, k, pl; if (U < 0 || V < 0 || rr >= 152 || cc >= 304) return 0;
+  for (pl = 0; pl < 2; pl++) { uint32 w = pl ? lk_o_pb[rr][cc] : lk_o_pa[rr][cc]; int t; if (!(w & 0x10000)) continue; t = (int)(w & 0x7FF);
+    for (k = 0; k < lk_o_ngrp; k++) { uint32_t b = lk_o_grp[k].base; int t0 = lk_o_grp[k].dest / 32, tn = lk_o_grp[k].words * 2 / 32;
+      if (!(b == 0x094F2A || b == 0x09552A || b == 0x09614A || b == 0x09700A || b == 0x09760A || b == 0x097B4A || b == 0x09820A || b == 0x09838A || b == 0x09912A || b == 0x09960A || (b == 0x099E8A && lk_o_room != 403 && lk_o_room != 404))) continue;
+      if (t >= t0 && t < t0 + tn) return 1; } }
+  return 0; }
+static int lk_lt_inwat(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INWATER"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: painted water indoors */
+static int lk_lt_invin(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INVIN"); v = e ? atoi(e) : 0; } return v; }   /* 2026-11-08: invisible barriers indoors too */
 static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 2026-11-03: 'sollten wir nicht eher fixen dass die Haeuser im Raumplan korrekt sind?'):
      the game's height map holds only the low collision boxes of houses / trees; their drawn walls, roofs and crowns are layer A (foreground) pixels
      above the box.  Small raised boxes (<= 128 cells of one height with a lower neighbour; large areas = terrain stay) are raised in OUR copy (lk_lt_top) cell by cell
@@ -1117,7 +1126,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         if (v2[y][x] & 2) { for (r = 1, a = x - 1; a >= 0 && (v2[y][a] & 2); a--) r++; for (a = x + 1; a < 74 && (v2[y][a] & 2); a++) r++; if (r < 4) lk_lt_vw[y][x] &= (uint8)~2; } } }
     for (m = 1; m < 16; m++) if (hist[m] > hist[best]) best = m;
     if (hist[best] > 0) lk_lt_zref = 16 * best; }
-  if (lk_lt_sun && !(getenv("LANDSTALKER_LT_INVIS") && atoi(getenv("LANDSTALKER_LT_INVIS")) == 0)) { static int16_t dn2[74][74]; int ni = 0;   /* 2026-11-07 INVISIBLE BARRIERS outdoors (GitHub issue #14,
+  if ((lk_lt_sun || (lk_lt_aor && lk_lt_invin())) && !(getenv("LANDSTALKER_LT_INVIS") && atoi(getenv("LANDSTALKER_LT_INVIS")) == 0)) { static int16_t dn2[74][74]; int ni = 0;   /* 2026-11-08: indoors too (18 rooms: ships 493..497, 192, 125, 408 ...: a 240 high invisible wall = dark boxes); LANDSTALKER_LT_INVIN=0 = outdoors only */   /* 2026-11-07 INVISIBLE BARRIERS outdoors (GitHub issue #14,
        room 483 north of Destel: 'out of place looking environmental shadow'): height map word $4Fxx = blocked + height 15 (240 units, taller than the screen) marks the invisible walls at a
        room's edge (483: x 21..23, y 50..60, nothing drawn there); they cast huge shadows with hard edges and no visible caster.  Our copy: such a cell takes the highest height of its
        non-barrier neighbours, BEFORE the water rule (a painted void cell beside a barrier became a 'water floor' at 232 = an invisible block, room 483 front edge).  Test aid LANDSTALKER_LT_INVIS=0 */
@@ -1125,6 +1134,8 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
     for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x), m = -32768, a, b2; if (w == 0x4000 || (w >> 8) != 0x4F) continue;
       for (b2 = y - 1; b2 <= y + 1; b2++) for (a = x - 1; a <= x + 1; a++) { int w2; if (a < 0 || b2 < 0 || a >= 74 || b2 >= 74) continue; w2 = UW(0xFFD192 + 148 * b2 + 2 * a);
         if (w2 == 0x4000 || (w2 >> 8) == 0x4F || lk_lt_top[b2][a] == -32768) continue; if (lk_lt_top[b2][a] > m) m = lk_lt_top[b2][a]; }
+      if (!lk_lt_sun) { int U = 16 * (x - y) + 1184, V0 = 8 * (x + y) + 8 - (m == -32768 ? 0 : m), v, na = 0, pal, pr; for (v = V0 - 64; v < V0 - 16; v++) if (v >= 0 && lk_o_fetch(lk_o_pa, U, v, &pal, &pr, 0)) na++;
+        if (na >= 24) continue; }   /* 2026-11-08 indoors: a barrier with a FOREGROUND object drawn above it stays (ship 493: the mast and the sail stand on the barrier row; voiding it put hard shadow facets on the sail) */
       dn2[y][x] = lk_lt_invmode() == 1 ? (int16_t)(m == -32768 ? 0 : m) : (int16_t)-32768; ni++; }   /* 2026-11-07 later (user: 'generell Raeume pruefen', room 524): a WIDE barrier area (524: 14 x 11 cells over the
          painted water) got its ring at the neighbours' heights and its inside at 0 = invisible walls in the water; now a barrier is VOID for the light: the water rule fills it where water is painted,
          unpainted (black) barriers stay void; LANDSTALKER_LT_INVIS=1 = the first version (neighbour heights) */
@@ -1147,17 +1158,18 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
     memcpy(lk_lt_top, ag, sizeof ag);
     if (lk_lt_dbg == 1 && na) printf("arch gaps: room %%d, %%d cells filled\n", lk_o_room, na); }
   memset(lk_lt_wat, 0, sizeof lk_lt_wat);
-  if (lk_lt_sun || lk_lt_aor) { int pass, ch = 1, nw = 0; static int16_t org[74][74];   /* v8: also indoors (room light): painted water beside a walkway was void = an endless wall down = a dark box on the water (room 185, lightedges) */
+  if (lk_lt_sun || lk_lt_aor) { int pass, ch = 1, nw = 0, inwl; static int16_t org[74][74];   /* v8: also indoors (room light): painted water beside a walkway was void = an endless wall down = a dark box on the water (room 185, lightedges) */
     memcpy(org, lk_lt_top, sizeof org);
     /* proxies: WATER = a void cell whose picture is painted (river, pond): a floor 8 below its lowest neighbour (user: 'Nigels Schatten biegt sich am Fluss auf als waere das eine Wand');
        our copy only (lk_lt_top / lk_lt_gh), unpainted void (the black outside) stays void */
+    { int a3, b4; inwl = 32767; for (b4 = 0; b4 < 74; b4++) for (a3 = 0; a3 < 74; a3++) if (org[b4][a3] != -32768 && org[b4][a3] < inwl) inwl = org[b4][a3]; inwl = inwl == 32767 || lk_lt_sun ? -1 : (inwl - 8 < 0 ? 0 : inwl - 8); }
     for (pass = 0; pass < 12 && ch; pass++) { static int16_t nh[74][74]; ch = 0;
-      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int m = 9999, a, b2, U, V, pal, pr, wo = 0; nh[y][x] = lk_lt_top[y][x];
+      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int m = 9999, a, b2, U, V, pal, pr, wo = 0, iw = 0; nh[y][x] = lk_lt_top[y][x];
         if (lk_lt_top[y][x] != -32768) continue;
         if (!lk_lt_sun) { int e1 = 0, e2 = 0, e3 = 0, e4 = 0, d;   /* v8 indoors: never a back wall void, and only between room cells (a channel / pool INSIDE the room): room cells within 8 on both sides along x or along y, else a front edge wall (painted down into the black) would become a floor */
           if (lk_lt_vw[y][x]) continue;
           for (d = 1; d <= 8; d++) { if (x - d >= 0 && org[y][x - d] != -32768) e1 = 1; if (x + d < 74 && org[y][x + d] != -32768) e2 = 1; if (y - d >= 0 && org[y - d][x] != -32768) e3 = 1; if (y + d < 74 && org[y + d][x] != -32768) e4 = 1; }
-          if (!((e1 && e2) || (e3 && e4))) { if (!pass) continue; wo = 1; } }   /* v8: outside that only as a continuation of water found already (the water runs on to the room edge in the picture, room 185), at the water's height */
+          if (!((e1 && e2) || (e3 && e4))) { if (!pass) { if (!lk_lt_inwat() || inwl < 0) continue; iw = 1; } else wo = 1; } }   /* 2026-11-08 iw: an open edge cell indoors may still be WATER (ship rooms 493..497: the sea around the ship) */   /* v8: outside that only as a continuation of water found already (the water runs on to the room edge in the picture, room 185), at the water's height */
         { int mb = 0;
         for (b2 = y - 1; b2 <= y + 1; b2++) for (a = x - 1; a <= x + 1; a++) if (a >= 0 && b2 >= 0 && a < 74 && b2 < 74 && lk_lt_top[b2][a] != -32768 && lk_lt_top[b2][a] < m && (!wo || lk_lt_wat[b2][a])) { int w3 = UW(0xFFD192 + 148 * b2 + 2 * a); m = lk_lt_top[b2][a]; mb = w3 != 0x4000 && ((w3 >> 8) & 0x40) && (w3 >> 8) != 0x4F; }
         if (m == 9999) continue;
@@ -1168,8 +1180,10 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
              the fill (no real neighbour) must not lie above the walkable ground within 3 cells - 8: the yellow house's front wall (blocked 64) is painted into the void, its fill at 64 ran along the whole painted
              grass border at the room's front edge = an invisible 64 high wall that hid the pine shadows next to their trunks; test aid LANDSTALKER_LT_FILLCAP=0 */ }   /* 2026-11-07 (user, room 488: 'spitzer Schatten im Wasser'): beside the game's own WATER (a BLOCKED cell lower than the bank,
            room 488 '$47' at 112 beside paths at 128) the painted water beyond the map is the same surface: no 8 unit step (it cast a long thin shadow along the border); test aid LANDSTALKER_LT_WATBLK=0 */
+        if (iw) m = inwl;   /* the room's water level: below its lowest cell */
         U = 16 * (x - y) + 1184; V = 8 * (x + y) + 8 - m;
         if (!lk_o_fetch(lk_o_pb, U, V, &pal, &pr, 0) && !lk_o_fetch(lk_o_pa, U, V, &pal, &pr, 0)) continue;
+        if (iw && !lk_lt_wtile(U, V)) continue;   /* only where an animated water tile is drawn (else a front edge wall painted into the black would become a floor) */
         nh[y][x] = (int16_t)m; lk_lt_wat[y][x] = 1; ch = 1; nw++; }
       memcpy(lk_lt_top, nh, sizeof nh); }
     if (lk_lt_sun && lk_lt_invmode() == 2) { static uint8 sn[74][74]; static uint8 st2[5476][2]; int nm = 0;   /* 2026-11-07 later (room 524): a WIDE barrier area ($4F, void for the light: 524 14 x 11 cells) over painted
