@@ -251,118 +251,28 @@
         "why": "(same) the sea below the bow"
       },
       {
-        "op": "box",
-        "units": [
-          576,
-          704,
-          688,
-          720,
-          32
-        ],
-        "why": "v9 fine field (user 2026-11-08 'Luft unterm Segel'): the mast / sail barrier row 44 ($4F, 240 high) is deck again for the light (32); the mast and the sail get their own shapes below (was: the whole row a 128 high wall = a solid block under the sail)"
-      },
-      {
-        "op": "prism",
-        "poly": [
-          [
-            630,
-            698
-          ],
-          [
-            646,
-            698
-          ],
-          [
-            646,
-            708
-          ],
-          [
-            630,
-            708
-          ]
-        ],
-        "top": 248,
-        "why": "the mast: a thin column on the deck up to the drawn masthead, BEHIND the sail (smaller y)"
-      },
-      {
-        "op": "prism",
-        "poly": [
-          [
-            576,
-            708
-          ],
-          [
-            688,
-            708
-          ],
-          [
-            688,
-            712
-          ],
-          [
-            576,
-            712
-          ]
-        ],
-        "top": 232,
-        "bottom": 56,
-        "why": "the sail: a thin floating slab from the yard (~232) down to its lower edge (~56), air below it: the light passes under the sail onto the deck"
-      },
-      {
-        "op": "prism",
-        "poly": [
-          [
-            576,
-            784
-          ],
-          [
-            704,
-            784
-          ],
-          [
-            698,
-            800
-          ],
-          [
-            686,
-            814
-          ],
-          [
-            668,
-            826
-          ],
-          [
-            640,
-            836
-          ],
-          [
-            612,
-            826
-          ],
-          [
-            594,
-            814
-          ],
-          [
-            582,
-            800
-          ]
-        ],
-        "top": 48,
-        "floor": 0,
-        "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 over the full hull width (576..704, like the rails) to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block; a first try 592..688 left a notch with a hard vertical face at the left rail, user 2026-11-08 'scharfe Kanten links')"
-      },
-      {
-        "op": "carve",
+        "op": "mesh",
         "cells": [
           36,
           33,
           43,
           52
         ],
-        "bg": "sea",
+        "file": "proxies/ship_493.obj",
         "floor": 0,
-        "why": "user 2026-11-08 'die 3D-Formen dem Sprite an sich nachformen': the hull (cells, bow prism) is carved at room load to the DRAWN ship: every sub column is lowered until its top and its front edge down to the water land on drawn ship pixels (not sea); the sail slab keeps only the heights drawn in layer A"
+        "why": "user 2026-11-08 'mit Blender kannst du die Form des Schiffes besser nachmachen als in Bauklötzen' + 'in der Genauigkeit, dass wir später echte 3D-Modelle fürs Remake drauf setzen können': hull, decks, rails, mast measured on the drawn ship (remake/recipes/proxy_ship_493.py, game coordinates); replaces the cell heights, the rest of the rectangle is the sea at 0"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          44,
+          42,
+          44
+        ],
+        "file": "proxies/ship_493_sail.obj",
+        "air": true,
+        "why": "the sail as its own shape: floats from 56 to 232 above the deck, the light passes under it"
       }
     ],
     "494": [
@@ -433,118 +343,28 @@
         "why": "(same) the sea below the bow"
       },
       {
-        "op": "box",
-        "units": [
-          576,
-          704,
-          688,
-          720,
-          32
-        ],
-        "why": "v9 fine field (user 2026-11-08 'Luft unterm Segel'): the mast / sail barrier row 44 ($4F, 240 high) is deck again for the light (32); the mast and the sail get their own shapes below (was: the whole row a 128 high wall = a solid block under the sail)"
-      },
-      {
-        "op": "prism",
-        "poly": [
-          [
-            630,
-            698
-          ],
-          [
-            646,
-            698
-          ],
-          [
-            646,
-            708
-          ],
-          [
-            630,
-            708
-          ]
-        ],
-        "top": 248,
-        "why": "the mast: a thin column on the deck up to the drawn masthead, BEHIND the sail (smaller y)"
-      },
-      {
-        "op": "prism",
-        "poly": [
-          [
-            576,
-            708
-          ],
-          [
-            688,
-            708
-          ],
-          [
-            688,
-            712
-          ],
-          [
-            576,
-            712
-          ]
-        ],
-        "top": 232,
-        "bottom": 56,
-        "why": "the sail: a thin floating slab from the yard (~232) down to its lower edge (~56), air below it: the light passes under the sail onto the deck"
-      },
-      {
-        "op": "prism",
-        "poly": [
-          [
-            576,
-            784
-          ],
-          [
-            704,
-            784
-          ],
-          [
-            698,
-            800
-          ],
-          [
-            686,
-            814
-          ],
-          [
-            668,
-            826
-          ],
-          [
-            640,
-            836
-          ],
-          [
-            612,
-            826
-          ],
-          [
-            594,
-            814
-          ],
-          [
-            582,
-            800
-          ]
-        ],
-        "top": 48,
-        "floor": 0,
-        "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 over the full hull width (576..704, like the rails) to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block; a first try 592..688 left a notch with a hard vertical face at the left rail, user 2026-11-08 'scharfe Kanten links')"
-      },
-      {
-        "op": "carve",
+        "op": "mesh",
         "cells": [
           36,
           33,
           43,
           52
         ],
-        "bg": "sea",
+        "file": "proxies/ship_493.obj",
         "floor": 0,
-        "why": "user 2026-11-08 'die 3D-Formen dem Sprite an sich nachformen': the hull (cells, bow prism) is carved at room load to the DRAWN ship: every sub column is lowered until its top and its front edge down to the water land on drawn ship pixels (not sea); the sail slab keeps only the heights drawn in layer A"
+        "why": "user 2026-11-08 'mit Blender kannst du die Form des Schiffes besser nachmachen als in Bauklötzen' + 'in der Genauigkeit, dass wir später echte 3D-Modelle fürs Remake drauf setzen können': hull, decks, rails, mast measured on the drawn ship (remake/recipes/proxy_ship_493.py, game coordinates); replaces the cell heights, the rest of the rectangle is the sea at 0"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          44,
+          42,
+          44
+        ],
+        "file": "proxies/ship_493_sail.obj",
+        "air": true,
+        "why": "the sail as its own shape: floats from 56 to 232 above the deck, the light passes under it"
       }
     ],
     "495": [
@@ -615,118 +435,28 @@
         "why": "(same) the sea below the bow"
       },
       {
-        "op": "box",
-        "units": [
-          576,
-          704,
-          688,
-          720,
-          32
-        ],
-        "why": "v9 fine field (user 2026-11-08 'Luft unterm Segel'): the mast / sail barrier row 44 ($4F, 240 high) is deck again for the light (32); the mast and the sail get their own shapes below (was: the whole row a 128 high wall = a solid block under the sail)"
-      },
-      {
-        "op": "prism",
-        "poly": [
-          [
-            630,
-            698
-          ],
-          [
-            646,
-            698
-          ],
-          [
-            646,
-            708
-          ],
-          [
-            630,
-            708
-          ]
-        ],
-        "top": 248,
-        "why": "the mast: a thin column on the deck up to the drawn masthead, BEHIND the sail (smaller y)"
-      },
-      {
-        "op": "prism",
-        "poly": [
-          [
-            576,
-            708
-          ],
-          [
-            688,
-            708
-          ],
-          [
-            688,
-            712
-          ],
-          [
-            576,
-            712
-          ]
-        ],
-        "top": 232,
-        "bottom": 56,
-        "why": "the sail: a thin floating slab from the yard (~232) down to its lower edge (~56), air below it: the light passes under the sail onto the deck"
-      },
-      {
-        "op": "prism",
-        "poly": [
-          [
-            576,
-            784
-          ],
-          [
-            704,
-            784
-          ],
-          [
-            698,
-            800
-          ],
-          [
-            686,
-            814
-          ],
-          [
-            668,
-            826
-          ],
-          [
-            640,
-            836
-          ],
-          [
-            612,
-            826
-          ],
-          [
-            594,
-            814
-          ],
-          [
-            582,
-            800
-          ]
-        ],
-        "top": 48,
-        "floor": 0,
-        "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 over the full hull width (576..704, like the rails) to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block; a first try 592..688 left a notch with a hard vertical face at the left rail, user 2026-11-08 'scharfe Kanten links')"
-      },
-      {
-        "op": "carve",
+        "op": "mesh",
         "cells": [
           36,
           33,
           43,
           52
         ],
-        "bg": "sea",
+        "file": "proxies/ship_493.obj",
         "floor": 0,
-        "why": "user 2026-11-08 'die 3D-Formen dem Sprite an sich nachformen': the hull (cells, bow prism) is carved at room load to the DRAWN ship: every sub column is lowered until its top and its front edge down to the water land on drawn ship pixels (not sea); the sail slab keeps only the heights drawn in layer A"
+        "why": "user 2026-11-08 'mit Blender kannst du die Form des Schiffes besser nachmachen als in Bauklötzen' + 'in der Genauigkeit, dass wir später echte 3D-Modelle fürs Remake drauf setzen können': hull, decks, rails, mast measured on the drawn ship (remake/recipes/proxy_ship_493.py, game coordinates); replaces the cell heights, the rest of the rectangle is the sea at 0"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          44,
+          42,
+          44
+        ],
+        "file": "proxies/ship_493_sail.obj",
+        "air": true,
+        "why": "the sail as its own shape: floats from 56 to 232 above the deck, the light passes under it"
       }
     ],
     "497": [
@@ -797,118 +527,28 @@
         "why": "(same) the sea below the bow"
       },
       {
-        "op": "box",
-        "units": [
-          576,
-          704,
-          688,
-          720,
-          32
-        ],
-        "why": "v9 fine field (user 2026-11-08 'Luft unterm Segel'): the mast / sail barrier row 44 ($4F, 240 high) is deck again for the light (32); the mast and the sail get their own shapes below (was: the whole row a 128 high wall = a solid block under the sail)"
-      },
-      {
-        "op": "prism",
-        "poly": [
-          [
-            630,
-            698
-          ],
-          [
-            646,
-            698
-          ],
-          [
-            646,
-            708
-          ],
-          [
-            630,
-            708
-          ]
-        ],
-        "top": 248,
-        "why": "the mast: a thin column on the deck up to the drawn masthead, BEHIND the sail (smaller y)"
-      },
-      {
-        "op": "prism",
-        "poly": [
-          [
-            576,
-            708
-          ],
-          [
-            688,
-            708
-          ],
-          [
-            688,
-            712
-          ],
-          [
-            576,
-            712
-          ]
-        ],
-        "top": 232,
-        "bottom": 56,
-        "why": "the sail: a thin floating slab from the yard (~232) down to its lower edge (~56), air below it: the light passes under the sail onto the deck"
-      },
-      {
-        "op": "prism",
-        "poly": [
-          [
-            576,
-            784
-          ],
-          [
-            704,
-            784
-          ],
-          [
-            698,
-            800
-          ],
-          [
-            686,
-            814
-          ],
-          [
-            668,
-            826
-          ],
-          [
-            640,
-            836
-          ],
-          [
-            612,
-            826
-          ],
-          [
-            594,
-            814
-          ],
-          [
-            582,
-            800
-          ]
-        ],
-        "top": 48,
-        "floor": 0,
-        "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 over the full hull width (576..704, like the rails) to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block; a first try 592..688 left a notch with a hard vertical face at the left rail, user 2026-11-08 'scharfe Kanten links')"
-      },
-      {
-        "op": "carve",
+        "op": "mesh",
         "cells": [
           36,
           33,
           43,
           52
         ],
-        "bg": "sea",
+        "file": "proxies/ship_493.obj",
         "floor": 0,
-        "why": "user 2026-11-08 'die 3D-Formen dem Sprite an sich nachformen': the hull (cells, bow prism) is carved at room load to the DRAWN ship: every sub column is lowered until its top and its front edge down to the water land on drawn ship pixels (not sea); the sail slab keeps only the heights drawn in layer A"
+        "why": "user 2026-11-08 'mit Blender kannst du die Form des Schiffes besser nachmachen als in Bauklötzen' + 'in der Genauigkeit, dass wir später echte 3D-Modelle fürs Remake drauf setzen können': hull, decks, rails, mast measured on the drawn ship (remake/recipes/proxy_ship_493.py, game coordinates); replaces the cell heights, the rest of the rectangle is the sea at 0"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          44,
+          42,
+          44
+        ],
+        "file": "proxies/ship_493_sail.obj",
+        "air": true,
+        "why": "the sail as its own shape: floats from 56 to 232 above the deck, the light passes under it"
       }
     ],
     "192": [

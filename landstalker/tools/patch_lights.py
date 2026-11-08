@@ -265,10 +265,10 @@ static int lk_lt_rayf(int U, int V, int *zo) {   /* v7: outdoors with objects: t
   if (cf) { *zo = cz; return cf; }
   return 0;
 }
-static int lk_lt_idiag(int sx, int sy, int z, int f) {   /* v9: the normal of a fine field side face from the shape around it: occupancy gradient over 5 x 5 sub columns at the hit height,
+static int lk_lt_idiag(int sx, int sy, int z, int f) {   /* v9: the normal of a fine field side face from the shape around it: occupancy gradient over 7 x 7 sub columns at the hit height,
      quantised to 16 directions by sign tests against fixed boundary vectors (no atan: the GLSL copy idiag gives the same code); a straight wall stays 2 / 3 */
   int dx, dy, gx = 0, gy = 0, j, k = 0;
-  for (dy = -2; dy <= 2; dy++) for (dx = 1; dx <= 2; dx++) { gx += lk_lt_occ(sx - dx, sy + dy, z, 0) - lk_lt_occ(sx + dx, sy + dy, z, 0); gy += lk_lt_occ(sx + dy, sy - dx, z, 0) - lk_lt_occ(sx + dy, sy + dx, z, 0); }
+  for (dy = -3; dy <= 3; dy++) for (dx = 1; dx <= 3; dx++) { gx += lk_lt_occ(sx - dx, sy + dy, z, 0) - lk_lt_occ(sx + dx, sy + dy, z, 0); gy += lk_lt_occ(sx + dy, sy - dx, z, 0) - lk_lt_occ(sx + dy, sy + dx, z, 0); }
   if (gx + gy <= 0) return f;   /* no direction towards the camera: keep the step's face */
   for (j = 0; j < 15; j++) if (lk_lt_fbc[j] * (float)gy - lk_lt_fbs[j] * (float)gx > 0.0f) k++;
   return k == 4 ? 2 : k == 12 ? 3 : 4 + k; }

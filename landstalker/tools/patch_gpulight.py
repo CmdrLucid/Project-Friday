@@ -803,7 +803,7 @@ float rfocc(float sx, float sy, float z) { if (z <= vtAt(sx, sy, 1.0)) return 1.
 float iocc(float sx, float sy, float z, float layA) { if (z <= ifh(sx, sy, 0.0)) return 1.0; if (layA > 0.5) { vec2 q = SLB(sx, sy); if (q.y > q.x && z >= q.x && z <= q.y) return 1.0; } return 0.0; }   /* v9 lk_lt_occ */
 float idiag(float sx, float sy, float z, float f, float layA) {   /* v9 lk_lt_idiag: the normal of a fine field side face from the shape around it (16 directions) */
   float gx = 0.0, gy = 0.0, k = 0.0;
-  for (int dy = -2; dy <= 2; dy++) for (int dx = 1; dx <= 2; dx++) { float ex = float(dx), ey = float(dy); gx += iocc(sx - ex, sy + ey, z, layA) - iocc(sx + ex, sy + ey, z, layA); gy += iocc(sx + ey, sy - ex, z, layA) - iocc(sx + ey, sy + ex, z, layA); }
+  for (int dy = -3; dy <= 3; dy++) for (int dx = 1; dx <= 3; dx++) { float ex = float(dx), ey = float(dy); gx += iocc(sx - ex, sy + ey, z, layA) - iocc(sx + ex, sy + ey, z, layA); gy += iocc(sx + ey, sy - ex, z, layA) - iocc(sx + ey, sy + ex, z, layA); }
   if (gx + gy <= 0.0) return f;
   if (0.773010453 * gy - -0.634393284 * gx > 0.0) k += 1.0;
   if (0.881921264 * gy - -0.471396737 * gx > 0.0) k += 1.0;
