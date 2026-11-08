@@ -1348,14 +1348,15 @@ static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine 
    Exact by construction (the picture is drawn block by block).  GPU only (GPU-first): the triangles go into the model buffer + key light shadow map like a Blender mesh;
    their sub columns are owned with kind 2 (lk_lt_mown = 2: AO / depth darkening / key light keep the field = the same boxes).  Thin pillars under a flame: the model has
    the floor (lk_lt_thin), kind 3 (the GPU view ray asks the field there), sub columns of a hand-made model (kind 1), rooms with slabs (not yet).  The CPU keeps today's field.
-   LANDSTALKER_LT_ROOMMODEL = 0 off (default for now) / 1 every indoor room / room list "600,250"; LANDSTALKER_LT_ROOMOBJ=prefix writes prefix_<room>.obj (remake base frame,
+   LANDSTALKER_LT_ROOMMODEL = 0 off / 1 every room (DEFAULT since 2026-11-09) / room list "600,250"; LANDSTALKER_LT_ROOMOBJ=prefix writes prefix_<room>.obj (remake base frame,
    local only, never in git: it is derived from the ROM). */
 #define LK_LT_RMMAX 60000
 #define LK_LT_RMEPS 0.01f   /* the model sits 2/100 unit towards -x and 1/100 towards -y: a sub column is [x0, x1) like in the field rays, so a view ray through an edge picks the same face as the field
    (x more than y: on a front corner the field ray takes the +x face) */
 static float lk_lt_rmt[LK_LT_RMMAX * 18]; static int lk_lt_rmn, lk_lt_rmover;
 static int lk_lt_roomopt(int room) { static int v = -2; static int rl[64], nrl; const char *e;
-  if (v == -2) { v = 0; nrl = 0; e = getenv("LANDSTALKER_LT_ROOMMODEL"); if (e && *e) { if (strchr(e, ',') || atoi(e) > 1) { const char *q = e; v = 2; while (*q && nrl < 64) { rl[nrl++] = atoi(q); q = strchr(q, ','); if (!q) break; q++; } } else v = atoi(e) ? 1 : 0; } }
+  if (v == -2) { v = 1; nrl = 0; e = getenv("LANDSTALKER_LT_ROOMMODEL");   /* DEFAULT ON since 2026-11-09 (user: 'diesen einen Weg'; 294 rooms pixel-identical) */
+                if (e && *e) { if (strchr(e, ',') || atoi(e) > 1) { const char *q = e; v = 2; while (*q && nrl < 64) { rl[nrl++] = atoi(q); q = strchr(q, ','); if (!q) break; q++; } } else v = atoi(e) ? 1 : 0; } }
   if (v == 1) return 1; if (v == 2) { int i; for (i = 0; i < nrl; i++) if (rl[i] == room) return 1; } return 0; }
 static void lk_lt_rmquad(const float *a, const float *b, const float *c, const float *d, float nx, float ny, float nz) {   /* two triangles a b c / a c d, flat normal */
   const float *v[6]; int i; float e1[3], e2[3], cr; if (lk_lt_rmn + 2 > LK_LT_RMMAX) { lk_lt_rmover = 1; return; }
