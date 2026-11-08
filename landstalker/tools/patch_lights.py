@@ -158,6 +158,8 @@ static int16_t lk_lt_fh[LK_LT_FN][LK_LT_FN], lk_lt_fo[LK_LT_FN][LK_LT_FN]; stati
    take the old paths (lk_lt_ifine = 0, lk_lt_nslab = 0: bit exact).  Test aids LANDSTALKER_LT_FINE=0 (data ignored), LANDSTALKER_LT_IFORCE=1 (fine indoor paths without data: must equal the old ones) */
 #define LK_LT_IFO 2047
 static int16_t lk_lt_sb[LK_LT_FN][LK_LT_FN], lk_lt_st[LK_LT_FN][LK_LT_FN]; static int lk_lt_ifine, lk_lt_nslab;
+static uint8 lk_lt_hk[LK_LT_FN][LK_LT_FN], lk_lt_hs[LK_LT_FN][LK_LT_FN]; static int16_t lk_lt_hb[LK_LT_FN][LK_LT_FN];   /* v9 SLAB HALO (soft shadow SIDES of slabs, user 2026-11-08):
+   per sub column within 2 of a slab: the nearest slab sub column (hk = 1 + (dx + 2) + 5 (dy + 2), 0 none) and its interval (bottom hb, height 2 hs) */
 typedef struct { float x, y; int16_t h, hh, U, V0, w, obj; } lk_lt_card;   /* upright card facing the sun, silhouette = drawn layer A picture: v7 one per SMALL object (tree, post), one per cell of class 3 objects (v6) */
 static lk_lt_card lk_lt_c[1024]; static int lk_lt_nc;
 typedef struct { uint8 type; int16_t x0, y0, x1, y1, z0, eave, ridge, obj, part; } lk_lt_proxy;   /* LIGHT PROXY (docs/LIGHT_PROXY_PLAN.md): invisible shape for light only; type 1 hip (box to eave + hip roof to ridge), 2 cone (centre (x0, y0), radius x1, z0 .. ridge); type 5 BUSHES / PINES (data op bushes / pines: CELLS x0..x1 / y0..y1, part 0 round bush / 1 pine cone, z0 = base, eave = top above base or 0 = each cell's game height, ridge = radius): one tree per raised cell */
@@ -241,6 +243,13 @@ static int lk_lt_slabin(int sx, int sy, float z) { return lk_lt_hasslab(sx, sy) 
 static float lk_lt_slabcl(int sx, int sy, float z) {   /* v9: vertical clearance of a point from the slab of its sub column (9999 = none, 0 = inside) */
   float b, t; if (!lk_lt_hasslab(sx, sy)) return 9999.0f;
   b = (float)lk_lt_sb[sy][sx]; t = (float)lk_lt_st[sy][sx]; return z <= b ? b - z : z >= t ? z - t : 0.0f; }
+static float lk_lt_halocl(float x, float y, float z) {   /* v9: horizontal distance from (x, y) to the nearest slab beside it whose height range holds z (9999 = none); GLSL halocl() the same */
+  int sx = (int)floorf(x / 4.0f), sy = (int)floorf(y / 4.0f), k; float b, t, x0, y0, ex, ey;
+  if (sx < 0 || sy < 0 || sx >= LK_LT_FN || sy >= LK_LT_FN || !(k = lk_lt_hk[sy][sx])) return 9999.0f;
+  b = (float)lk_lt_hb[sy][sx]; t = b + 2.0f * (float)lk_lt_hs[sy][sx]; if (z <= b || z >= t) return 9999.0f;
+  x0 = 4.0f * (float)(sx + (k - 1) %% 5 - 2); y0 = 4.0f * (float)(sy + (k - 1) / 5 - 2);
+  ex = x < x0 ? x0 - x : x > x0 + 4.0f ? x - x0 - 4.0f : 0.0f; ey = y < y0 ? y0 - y : y > y0 + 4.0f ? y - y0 - 4.0f : 0.0f;
+  return sqrtf(ex * ex + ey * ey); }
 static int lk_lt_occ(int sx, int sy, int z, int thin) {   /* v9: integer height z is solid at a sub column for the view ray (ground or, for layer A, a slab) */
   if (z <= lk_lt_ifh(sx, sy, thin)) return 1;
   return lk_lt_rayA && lk_lt_hasslab(sx, sy) && z >= lk_lt_sb[sy][sx] && z <= lk_lt_st[sy][sx]; }
@@ -384,7 +393,8 @@ static float lk_lt_keyvisd(const float *sd, float px, float py, float pz) {   /*
   for (t = 2.0f; t < 600.0f; t += t < 32.0f ? 1.0f : 2.0f) {
     float x = px + sd[0] * t, y = py + sd[1] * t, z = pz + sd[2] * t, hh, d, r; int h;
     if (z > wt) return res;
-    if (lk_lt_ifine) { float c2 = lk_lt_slabcl((int)floorf(x / 4.0f), (int)floorf(y / 4.0f), z); if (c2 <= 0.0f) return 0.0f; if (c2 < 9999.0f) { r = kpen * c2 / (t * hl); if (r < res) res = r; } }   /* v9: light passes under a slab */
+    if (lk_lt_ifine) { float c2 = lk_lt_slabcl((int)floorf(x / 4.0f), (int)floorf(y / 4.0f), z), c3 = lk_lt_halocl(x, y, z); if (c2 <= 0.0f) return 0.0f; if (c2 < 9999.0f) { r = kpen * c2 / (t * hl); if (r < res) res = r; }
+      if (c3 < 9999.0f) { r = kpen * c3 / (t * hl); if (r < res) res = r; } }   /* v9: light passes under a slab; soft slab sides */
     h = lk_lt_aoh2(x, y, dx, dy, 0); if (h == -32768) continue;
     if (h == 32767) { if (z > (lk_lt_zref > -32768 ? (float)lk_lt_zref : 0.0f) + kbw) continue; hh = 1e9f; } else hh = (float)h;
     d = z - hh + 0.5f; if (d <= 0.0f) return 0.0f;
@@ -609,7 +619,8 @@ static float lk_lt_term(float px, float py, float pz, float nx, float ny, float 
       for (t = 2.0f; t < e - 3.0f; t += 2.0f) { float qx = sx + wx * t / e, qy = sy + wy * t / e, qz = sz + wz * t / e, cl, r; int cx, cy, top;
         if (lk_lt_solid(qx, qy, qz)) { res = 0.0f; break; }
         if (lk_lt_ifine) { int fx = (int)floorf(qx / 4.0f), fy = (int)floorf(qy / 4.0f); float c2 = lk_lt_slabcl(fx, fy, qz); top = lk_lt_ifh(fx, fy, 1);   /* v9: fine heights + slabs */
-          if (c2 < 9999.0f) { r = LK_LT_IPEN * c2 / t; if (r < res) res = r; } }
+          if (c2 < 9999.0f) { r = LK_LT_IPEN * c2 / t; if (r < res) res = r; }
+          c2 = lk_lt_halocl(qx, qy, qz); if (c2 < 9999.0f) { r = LK_LT_IPEN * c2 / t; if (r < res) res = r; } }   /* soft slab sides */
         else { cx = (int)floorf(qx / 16.0f); cy = (int)floorf(qy / 16.0f); top = lk_lt_cell(cx, cy);
           if (cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_thin[cy][cx] > -32768) top = lk_lt_thin[cy][cx]; }
         if (top > -32768) { cl = qz - (float)top; r = LK_LT_IPEN * cl / t; if (r < res) res = r; } }
@@ -681,6 +692,7 @@ static float lk_lt_sunvis(float px, float py, float pz, int self) {   /* v7: sha
     if (z > (float)lk_lt_ztop + 1.0f || x < 0.0f || y < 0.0f || x >= 74.0f * 16.0f || y >= 74.0f * 16.0f) return res;
     { int sx = (int)(x * 0.25f), sy = (int)(y * 0.25f); cx = sx >> 2; cy = sy >> 2; o = lk_lt_fo[sy][sx];
       if (lk_lt_nslab && lk_lt_st[sy][sx] > lk_lt_sb[sy][sx]) { float c2 = lk_lt_slabcl(sx, sy, z); if (c2 <= 0.0f) return 0.0f; r = LK_LT_PEN * c2 / (t * hl); if (r < res) res = r; }   /* v9: slabs (no owner) */
+      if (lk_lt_nslab) { float c3 = lk_lt_halocl(x, y, z); if (c3 < 9999.0f) { r = LK_LT_PEN * c3 / (t * hl); if (r < res) res = r; } }   /* v9: soft slab sides */
       if (o && o == self) continue;
       h = lk_lt_gh[cy][cx] == -32768 ? -1e9f : (float)lk_lt_gh[cy][cx]; { int ob = lk_lt_obj[cy][cx]; if (ob > 0 && ob < 1024 && lk_lt_ocl[ob] == 1) h = (float)lk_lt_sgnd[ob]; }
       { int q = lk_lt_fp[sy][sx];
@@ -1264,6 +1276,11 @@ static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine 
     if (!lk_lt_sun && lk_lt_fo[y][x] == LK_LT_IFO) { nfine++; if (lk_lt_fh[y][x] > mx) mx = lk_lt_fh[y][x]; }
     if (lk_lt_st[y][x] > lk_lt_sb[y][x]) { nsl++; if (lk_lt_st[y][x] > mx) mx = lk_lt_st[y][x]; } }
   lk_lt_nslab = nsl > 0; lk_lt_ifine = !lk_lt_sun && (nfine || nsl || fforce);
+  memset(lk_lt_hk, 0, sizeof lk_lt_hk);
+  if (nsl) for (y = 0; y < LK_LT_FN; y++) for (x = 0; x < LK_LT_FN; x++) { int dx, dy, bd = 99; if (lk_lt_st[y][x] > lk_lt_sb[y][x]) continue;   /* the slab halo */
+    for (dy = -2; dy <= 2; dy++) for (dx = -2; dx <= 2; dx++) { int ax = x + dx, ay = y + dy, d = dx * dx + dy * dy, hs;
+      if (ax < 0 || ay < 0 || ax >= LK_LT_FN || ay >= LK_LT_FN || lk_lt_st[ay][ax] <= lk_lt_sb[ay][ax] || d >= bd) continue;
+      bd = d; lk_lt_hk[y][x] = (uint8)(1 + (dx + 2) + 5 * (dy + 2)); lk_lt_hb[y][x] = lk_lt_sb[ay][ax]; hs = (lk_lt_st[ay][ax] - lk_lt_sb[ay][ax] + 1) / 2; lk_lt_hs[y][x] = (uint8)(hs > 255 ? 255 : hs); } }
   if (lk_lt_sun && nsl && mx > lk_lt_fhmax) lk_lt_fhmax = mx;   /* the fine view ray (lk_lt_rayf) also in a sun room with slabs only */
   if (!lk_lt_sun && mx > lk_lt_zmax) lk_lt_zmax = mx;
   if (lk_lt_dbg == 1 && (nfine || nsl)) printf("fine: room %%d, %%d fine sub columns, %%d slab sub columns, top %%d\n", lk_o_room, nfine, nsl, mx); }

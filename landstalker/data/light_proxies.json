@@ -35,6 +35,44 @@
         "why": "Mercator castle facade (height map has the castle only as blocked height 0 cells: no facade, a hip up to 204 on the stairs); centre tower, stairs, two pine planters; remake/recipes/proxy_castle_31.py, user 2026-11-04 'weiter mit den naechsten Formen'"
       }
     ],
+    "192": [
+      {
+        "op": "water",
+        "cells": [
+          22,
+          31,
+          24,
+          35,
+          8
+        ],
+        "why": "Invisible barrier column ($4F, 240 high) at x 22 y 31..33 between the wall and the water (user 2026-11-08 'Korrektur fuer Raum 192'): it cast a dark rectangle on the upper floor and turned its neighbours into 232 high 'water'; these cells are the water at its level 8"
+      }
+    ],
+    "486": [
+      {
+        "op": "water",
+        "cells": [
+          43,
+          30,
+          44,
+          63,
+          0
+        ],
+        "why": "user 2026-11-08 'die grosse Bruecke mit den Boegen' + 'ungefaehr reicht nicht': the arcade cells (240 = collision) are ground for the light; the wall itself comes from arcade_486.obj"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          30,
+          44,
+          63
+        ],
+        "file": "proxies/arcade_486.obj",
+        "air": true,
+        "why": "three piers (solid) with stepped corbel brackets (slabs with soft sides: the light passes under them), measured on the drawn layer A wall (remake/recipes/proxy_arcade_486.py); the arch-gap fill skips these cells"
+      }
+    ],
     "488": [
       {
         "op": "remove",
@@ -67,120 +105,6 @@
           112
         ],
         "why": "2 x 2 walkable cells one step above the river (height map 8 in water 7, nothing drawn there): an invisible block that cast a dark box on the water (user 2026-11-07 'Schatten im Wasser')"
-      }
-    ],
-    "632": [
-      {
-        "op": "mesh",
-        "cells": [
-          15,
-          50,
-          24,
-          61
-        ],
-        "file": "proxies/church_632.obj",
-        "why": "Mercator church complex (hall with hip roof, yellow house, entrance gable); remake/recipes/proxy_church_632.py, user 2026-11-04 'blender'"
-      },
-      {
-        "op": "flat",
-        "cells": [
-          15,
-          46,
-          23,
-          49
-        ],
-        "why": "tulip garden behind the church (same object as the church): the drawn tulips are no roof"
-      }
-    ],
-    "635": [
-      {
-        "op": "flat",
-        "cells": [
-          43,
-          26,
-          46,
-          39
-        ],
-        "why": "long flower bed east of the houses: the drawn tulips became a hip roof that shaded Nigel (rec_20261103_2201 marker 2805)"
-      },
-      {
-        "op": "flat",
-        "cells": [
-          43,
-          47,
-          46,
-          60
-        ],
-        "why": "the second long flower bed (same as above)"
-      }
-    ],
-    "636": [
-      {
-        "op": "mesh",
-        "cells": [
-          12,
-          10,
-          16,
-          62
-        ],
-        "file": "proxies/arch_636.obj",
-        "why": "Mercator rocky arch room: city wall (height map 3) + three round half towers (became small cones up to 62 / 76) + the terraced grass mound over the river; remake/recipes/proxy_arch_636.py, user 2026-11-04 'mach direkt weiter'"
-      },
-      {
-        "op": "remove",
-        "cells": [
-          18,
-          38,
-          25,
-          40
-        ],
-        "why": "the mound's tree clumps as automatic hips (the mesh above has the terraces and the pine crowns)"
-      },
-      {
-        "op": "remove",
-        "cells": [
-          24,
-          41,
-          25,
-          42
-        ],
-        "why": "automatic hip up to 142 on the WALKABLE terrace of the mound (cells 24..25 x 41..42)"
-      }
-    ],
-    "637": [
-      {
-        "op": "mesh",
-        "cells": [
-          13,
-          12,
-          15,
-          46
-        ],
-        "file": "proxies/gate_637.obj",
-        "why": "Mercator north gate: gate wall + gatehouse, two round half towers and the high wall behind them were flat (height map column 15 only); remake/recipes/proxy_gate_637.py, user 2026-11-04 'mach direkt weiter'"
-      }
-    ],
-    "638": [
-      {
-        "op": "mesh",
-        "cells": [
-          14,
-          12,
-          20,
-          59
-        ],
-        "file": "proxies/wall_638.obj",
-        "why": "Mercator fountain court: city wall (height map: blocked height 0) with three round half towers (single height 9 cells) and the north wall; the automatic strip in front of the wall had a hip up to 247; remake/recipes/proxy_wall_638.py, user 2026-11-04 'weiter damit'"
-      },
-      {
-        "op": "remove",
-        "cells": [
-          24,
-          18,
-          28,
-          21
-        ],
-        "why": "pine group at the north wall: the automatic hip went up to 222 (wall behind counted); the mesh above has the pines (tops 96)"
       }
     ],
     "493": [
@@ -639,17 +563,118 @@
         "why": "the sail as its own shape: floats from 56 to 232 above the deck, the light passes under it"
       }
     ],
-    "192": [
+    "632": [
       {
-        "op": "water",
+        "op": "mesh",
         "cells": [
-          22,
-          31,
+          15,
+          50,
           24,
-          35,
-          8
+          61
         ],
-        "why": "Invisible barrier column ($4F, 240 high) at x 22 y 31..33 between the wall and the water (user 2026-11-08 'Korrektur fuer Raum 192'): it cast a dark rectangle on the upper floor and turned its neighbours into 232 high 'water'; these cells are the water at its level 8"
+        "file": "proxies/church_632.obj",
+        "why": "Mercator church complex (hall with hip roof, yellow house, entrance gable); remake/recipes/proxy_church_632.py, user 2026-11-04 'blender'"
+      },
+      {
+        "op": "flat",
+        "cells": [
+          15,
+          46,
+          23,
+          49
+        ],
+        "why": "tulip garden behind the church (same object as the church): the drawn tulips are no roof"
+      }
+    ],
+    "635": [
+      {
+        "op": "flat",
+        "cells": [
+          43,
+          26,
+          46,
+          39
+        ],
+        "why": "long flower bed east of the houses: the drawn tulips became a hip roof that shaded Nigel (rec_20261103_2201 marker 2805)"
+      },
+      {
+        "op": "flat",
+        "cells": [
+          43,
+          47,
+          46,
+          60
+        ],
+        "why": "the second long flower bed (same as above)"
+      }
+    ],
+    "636": [
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          10,
+          16,
+          62
+        ],
+        "file": "proxies/arch_636.obj",
+        "why": "Mercator rocky arch room: city wall (height map 3) + three round half towers (became small cones up to 62 / 76) + the terraced grass mound over the river; remake/recipes/proxy_arch_636.py, user 2026-11-04 'mach direkt weiter'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          18,
+          38,
+          25,
+          40
+        ],
+        "why": "the mound's tree clumps as automatic hips (the mesh above has the terraces and the pine crowns)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          24,
+          41,
+          25,
+          42
+        ],
+        "why": "automatic hip up to 142 on the WALKABLE terrace of the mound (cells 24..25 x 41..42)"
+      }
+    ],
+    "637": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          12,
+          15,
+          46
+        ],
+        "file": "proxies/gate_637.obj",
+        "why": "Mercator north gate: gate wall + gatehouse, two round half towers and the high wall behind them were flat (height map column 15 only); remake/recipes/proxy_gate_637.py, user 2026-11-04 'mach direkt weiter'"
+      }
+    ],
+    "638": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          12,
+          20,
+          59
+        ],
+        "file": "proxies/wall_638.obj",
+        "why": "Mercator fountain court: city wall (height map: blocked height 0) with three round half towers (single height 9 cells) and the north wall; the automatic strip in front of the wall had a hip up to 247; remake/recipes/proxy_wall_638.py, user 2026-11-04 'weiter damit'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          24,
+          18,
+          28,
+          21
+        ],
+        "why": "pine group at the north wall: the automatic hip went up to 222 (wall behind counted); the mesh above has the pines (tops 96)"
       }
     ]
   }
