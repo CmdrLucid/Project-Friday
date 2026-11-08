@@ -626,7 +626,7 @@ uniform sampler2D roomA; uniform sampler2D roomB; uniform sampler2D btab; unifor
 uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec2 uBlk; uniform float uSunR; uniform float uAor; uniform float uZref; uniform float uAok; uniform float uAotop; uniform vec2 uDv[16];
 uniform float uIfine; uniform float uNslab; uniform float uPineT; uniform float uBushE;   /* v9 */
 uniform sampler2D wld2; uniform sampler2D fine; uniform sampler2D prx; uniform sampler2D bex; uniform float uSside; uniform float uZtop; uniform vec3 uSd; uniform float uKey; uniform float uKbw; uniform float uKpen; uniform float uNsh; uniform vec4 uSh[9]; uniform sampler2D fine2; uniform float uZmax; uniform float uRayF;
-uniform sampler2D mdl; uniform vec4 uMo; uniform float uMdl; uniform vec4 uSm; uniform vec3 uE1; uniform vec3 uE2; uniform vec4 uSm2; uniform vec3 uE12; uniform vec3 uE22;   /* + the next sun step's map (third part) */   /* + stage 2: the key light SHADOW MAP in the right half (uSm = s0, t0, texels per unit, on) */   /* LK_GLMODEL v1: model buffer (z * 8 + 32768 in r / g, octahedral normal in b / a), its room picture origin + size, on */
+uniform sampler2D mdl; uniform vec4 uMo; uniform float uMdl; uniform vec4 uSmo; uniform vec4 uSm; uniform vec3 uE1; uniform vec3 uE2; uniform vec4 uSm2; uniform vec3 uE12; uniform vec3 uE22;   /* + the next sun step's map (third part) */   /* + stage 2: the key light SHADOW MAP in the right half (uSm = s0, t0, texels per unit, on) */   /* LK_GLMODEL v1: model buffer (z * 8 + 32768 in r / g, octahedral normal in b / a), its room picture origin + size, on */
 float gBest = 0.0, gBH = 0.0, gBX = 0.0, gBY = 0.0; vec3 gN = vec3(0.0, 0.0, 1.0); vec2 gMB = vec2(0.0, 0.0); float gGen = 0.0, gMH = 0.0, gMS = 0.0, gKM = 0.0;   /* gKM: the key light march of keyShare (the model's own sub columns come from the shadow map) */   /* gMH: the view ray returned the model; gMS: this pixel is a model SIDE face (AO sees the ground below the model) */   /* LK_GLMODEL v1: the real normal of a model pixel (face code 20) / its raw bytes from the model buffer */
 vec3 octdec(vec2 b) { vec2 e = b / 255.0 * 2.0 - 1.0; vec3 n = vec3(e.x, e.y, 1.0 - abs(e.x) - abs(e.y)); if (n.z < 0.0) { vec2 w = (1.0 - abs(n.yx)) * vec2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0); n.x = w.x; n.y = w.y; } return normalize(n); }
 float fclassic(vec3 n) { if (n.z > 0.94) return 1.0; float a = degrees(atan(n.y, n.x)), k = floor((a + 45.0) / 11.25 + 0.5); return clamp(4.0 + k, 4.0, 19.0); }   /* the nearest old face code (room A for the light pass / CPU readers) */
@@ -703,6 +703,7 @@ float aoh2(float x, float y, float dx, float dy, float slab) {   /* lk_lt_aoh2 *
   vec4 w = W(cx, cy, 0.0); float t = S16(B(w.r), B(w.g));
   if (uIfine > 0.5) { float sx = floor(x / 4.0), sy = floor(y / 4.0); t = ifh(sx, sy, 0.0); if (slab > 0.5) { vec2 q = SLB(sx, sy); if (q.y > q.x && q.y > t) t = q.y; }   /* v9 */
     if (uMdl > 0.5 && sx >= 0.0 && sy >= 0.0 && sx < 296.0 && sy < 296.0) { float gx = x / 4.0 - 0.5, gy = y / 4.0 - 0.5, ax = floor(gx), ay = floor(gy), fx = gx - ax, fy = gy - ay;
+      if (gKM > 0.5 && uSm.w > 1.5 && slab < 0.5 && mowng(sx, sy)) return -32768.0;   /* test aid LANDSTALKER_LT_ROOMSM=1: the boxes are in the shadow map */
       if (mownh(ax, ay) || mownh(ax + 1.0, ay) || mownh(ax, ay + 1.0) || mownh(ax + 1.0, ay + 1.0)) {   /* near a model: the 4 sub column heights interpolated (no 4 unit stairs in the AO, user 2026-11-08 'harte Kanten') */
         float h00 = aohm(ax, ay, slab), h10 = aohm(ax + 1.0, ay, slab), h01 = aohm(ax, ay + 1.0, slab), h11 = aohm(ax + 1.0, ay + 1.0, slab);
         if (h00 > -32768.0 && h10 > -32768.0 && h01 > -32768.0 && h11 > -32768.0 && (gKM < 0.5 || slab > 0.5)) t = mix(mix(h00, h10, fx), mix(h01, h11, fx), fy);
@@ -756,7 +757,7 @@ float sunvis(vec3 sd, float hs, vec3 p, float self) {   /* lk_lt_sunvis: march t
     if (uNslab > 0.5) { float c2 = slabcl(sx, sy, z); if (c2 <= 0.0) return 0.0; if (c2 < 9999.0) { float r2 = 12.0 * c2 / (t * hl); if (r2 < res) res = r2; }
       float c3 = halocl(x, y, z); if (c3 < 9999.0) { float r3 = 12.0 * c3 / (t * hl); if (r3 < res) res = r3; } }   /* v9: slabs + soft sides */
     if (o != 0.0 && o == self) continue;
-    if (gKM > 0.5 && uSm.w > 0.5 && mownh(sx, sy)) continue;   /* LK_GLMODEL v1: a model's own sub columns: the shadow map has it (LK_GLROOM v1: hand-made models only) */
+    if (gKM > 0.5 && uSm.w > 0.5 && (mownh(sx, sy) || (uSm.w > 1.5 && mowng(sx, sy)))) continue;   /* LK_GLMODEL v1: a model's own sub columns: the shadow map has it (LK_GLROOM v1: hand-made models only) */
     vec4 g0 = W2(cx, cy, 0.0); float h = S16(B(g0.r), B(g0.g)); if (h == -32768.0) h = -1e9;
     float hdv = S16(B(W(cx, cy, 1.0 + hs).b), B(W(cx, cy, 1.0 + hs).a)), q = B(f1.r), qt = B(f1.g), r, d;
     if (q > 0.0 && qt == 5.0 && B(g0.b) > 0.0) {   /* a bush (sphere) or pine (cone) + stem */
@@ -820,11 +821,11 @@ float smD(vec2 c, float hs) { if (c.x < 0.0 || c.y < 0.0 || c.x >= 1024.0 || c.y
 float smvis2(vec3 p, vec3 n, vec3 sd, float hs, float kp) {   /* n: the receiver's normal (receiver plane bias: a tap expects the receiver's own plane, so a flat or slanted surface never shadows itself) */   /* stage 2: light share from a MODEL SHADOW MAP (hs 0: key / sun, 1: next sun step): blocker search, then a filter whose width grows with the distance to the blocker (the march's penumbra rule, kp) */
   vec4 sm = hs > 0.5 ? uSm2 : uSm; if (sm.w < 0.5) return 1.0;
   vec3 e1 = hs > 0.5 ? uE12 : uE1, e2 = hs > 0.5 ? uE22 : uE2;
-  vec3 d = normalize(sd); float dp = dot(p, d), bs = 0.0, bn = 0.0, lit = 0.0, nd = max(dot(n, d), 0.25); vec2 c = (vec2(dot(p, e1), dot(p, e2)) - sm.xy) * sm.z, g = -vec2(dot(n, e1), dot(n, e2)) / nd;   /* g: depth change of the receiver's plane per unit */
-  for (int j = -2; j <= 2; j++) for (int i = -2; i <= 2; i++) { vec2 o = vec2(float(i), float(j)) * 2.0; float D = smD(c + o * sm.z, hs), e = dp + dot(o, g); if (D > e + 1.5) { bs += D - e; bn += 1.0; } }
+  vec3 d = normalize(sd); p += d * uSmo.x; float dp = dot(p, d), bs = 0.0, bn = 0.0, lit = 0.0, nd = max(dot(n, d), 0.25); vec2 c = (vec2(dot(p, e1), dot(p, e2)) - sm.xy) * sm.z, g = -vec2(dot(n, e1), dot(n, e2)) / nd;   /* LK_GLROOM v1 tunables uSmo: x = receiver moved towards the light, y = least filter width, z = depth bias (default 0 / 0.75 / 1.5 = before) */   /* g: depth change of the receiver's plane per unit */
+  for (int j = -2; j <= 2; j++) for (int i = -2; i <= 2; i++) { vec2 o = vec2(float(i), float(j)) * 2.0; float D = smD(c + o * sm.z, hs), e = dp + dot(o, g); if (D > e + uSmo.z) { bs += D - e; bn += 1.0; } }
   if (bn < 0.5) return 1.0;
-  float w = clamp((bs / bn) * sqrt(d.x * d.x + d.y * d.y) / kp, 0.75, 12.0);
-  for (int j = -3; j <= 3; j++) for (int i = -3; i <= 3; i++) { vec2 o = vec2(float(i), float(j)) * w / 3.0; float D = smD(c + o * sm.z, hs); if (D <= dp + dot(o, g) + 1.5) lit += 1.0; }
+  float w = clamp((bs / bn) * sqrt(d.x * d.x + d.y * d.y) / kp, uSmo.y, 12.0);
+  for (int j = -3; j <= 3; j++) for (int i = -3; i <= 3; i++) { vec2 o = vec2(float(i), float(j)) * w / 3.0; float D = smD(c + o * sm.z, hs); if (D <= dp + dot(o, g) + uSmo.z) lit += 1.0; }
   return lit / 49.0; }
 float smvis(vec3 p, vec3 n) { return smvis2(p, n, uSd, 0.0, mod(abs(uKpen), 2000.0)); }
 float keyShare(float U, float V, float face, float z) {   /* the key light share of lk_lt_blockcalc */
@@ -1120,7 +1121,7 @@ static void lk_g5_pbdrain(void) { int k = lk_g5_pbi ^ 1, j; const uint32_t *m;  
 #define LK_G5_Q 24
 static int lk_g5_n, lk_g5_bx[LK_G5_Q], lk_g5_by[LK_G5_Q], lk_g5_nl[LK_G5_Q]; static uint32_t lk_g5_ref[LK_G5_Q][5][1024]; static int lk_g5_maxshow = 16, lk_g5_every = 300; static long lk_g5_cnt[6][3], lk_g5_blocks, lk_g5_frames, lk_g5_last; static int lk_g5_shown;
 static const char *lk_g5_fs = "#version 120\n" @SHADER5@;
-static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", "uSside", "uIfine", "uNslab", "uPineT", "uBushE", "mdl", "uMo", "uMdl", "uSm", "uE1", "uE2", "uSm2", "uE12", "uE22", 0 };
+static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", "uSside", "uIfine", "uNslab", "uPineT", "uBushE", "mdl", "uMo", "uMdl", "uSm", "uE1", "uE2", "uSm2", "uE12", "uE22", "uSmo", 0 };
 static int lk_g5_want(void) { if (lk_g5_on < 0) { const char *e = getenv("LANDSTALKER_GL5CMP"), *e2 = getenv("LANDSTALKER_GL5CMP_SHOW"), *e3 = getenv("LANDSTALKER_GL5CMP_EVERY"); lk_g5_on = e ? atoi(e) : 0; if (e2) lk_g5_maxshow = atoi(e2); if (e3 && atoi(e3) > 0) lk_g5_every = atoi(e3); } return lk_g5_on > 0 && lk_g5_st >= 0; }
 /* ---- LK_GLMODEL v1 (REAL 3D LIGHT SHAPES stage 1, 2026-11-08, user: 'echte 3D-Formen brauchen wir doch fuers Remake ohnehin' + 'GPU-Weg'): at a new room world the room's model
    triangles (lk_gl_mlist: the Blender meshes of data/light_proxies.json) are rasterized once into a MODEL BUFFER in ROOM PICTURE space: orthographic along the view ray (1, 1, 1),
@@ -1134,20 +1135,21 @@ LKGL_FN(void, glGenRenderbuffers, (lkGLsizei, lkGLuint *)); LKGL_FN(void, glBind
 LKGL_FN(void, glFramebufferRenderbuffer, (lkGLenum, lkGLenum, lkGLenum, lkGLuint)); LKGL_FN(void, glDepthFunc, (lkGLenum)); LKGL_FN(void, glDepthMask, (lkGLboolean));
 #define LK_GM_SZ 1024   /* one shadow map */
 #define LK_GM_MB 2048   /* LK_GLROOM v1: the model buffer (whole rooms: up to ~1750 x 1100 picture pixels); texture 4096 x 2048 = model buffer | shadow map 0 | shadow map 1 (each 1024 x 1024) */
-static int lk_gm_st, lk_gm_on, lk_gm_dbg = -1; static lkGLuint lk_gm_prog, lk_gm_fbo, lk_gm_tex, lk_gm_rb; static lkGLint lk_gm_uo, lk_gm_ug; static float lk_gm_mo[4];
+static int lk_gm_roomsm(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_ROOMSM"); v = e ? atoi(e) : 0; } return v; }   /* LK_GLROOM v1 test aid */
+static int lk_gm_st, lk_gm_on, lk_gm_dbg = -1; static lkGLuint lk_gm_prog, lk_gm_fbo, lk_gm_tex, lk_gm_rb; static lkGLint lk_gm_uo, lk_gm_ug, lk_gm_ub; static float lk_gm_mo[4];
 /* stage 2 (key light SHADOW MAP, right half of the same texture): the models seen from the key light direction d (lk_lt_sd), orthographic, s = p . e1, t = p . e2, depth = p . d
    (nearest to the light kept), texels per unit uSm.z; redrawn when the room world or d changes.  LANDSTALKER_LT_MODELSM=0 = off (test aid: stage 1 only) */
-static lkGLuint lk_gs_prog; static lkGLint lk_gs_u[3]; static float lk_gs_sm[4], lk_gs_e1[3], lk_gs_e2[3], lk_gs_sm2[4], lk_gs_e12[3], lk_gs_e22[3]; static int lk_gs_opt = -1;
+static lkGLuint lk_gs_prog; static lkGLint lk_gs_u[4]; static float lk_gs_sm[4], lk_gs_e1[3], lk_gs_e2[3], lk_gs_sm2[4], lk_gs_e12[3], lk_gs_e22[3]; static int lk_gs_opt = -1;
 static const char *lk_gs_vs = "#version 120\nuniform vec4 uSm; uniform vec3 uE1; uniform vec3 uE2; uniform vec3 uD; varying float vD;\n"
   "void main() { vec3 p = gl_Vertex.xyz; vD = dot(p, uD); vec2 c = (vec2(dot(p, uE1), dot(p, uE2)) - uSm.xy) * uSm.z;\n"
   "  gl_Position = vec4(c.x / 512.0 - 1.0, c.y / 512.0 - 1.0, -vD / 4096.0, 1.0); }\n";
-static const char *lk_gs_fs = "#version 120\nvarying float vD;\n"
-  "void main() { float q = clamp(floor(vD * 8.0 + 32768.5), 1.0, 65535.0); gl_FragColor = vec4(mod(q, 256.0), floor(q / 256.0), 0.0, 0.0) / 255.0; }\n";
+static const char *lk_gs_fs = "#version 120\nvarying float vD; uniform float uSmB;\n"
+  "void main() { if (uSmB > 0.5 && gl_FrontFacing == (uSmB < 1.5)) discard;   /* LK_GLROOM v1: back face shadow map (only the faces turned away from the light) */ float q = clamp(floor(vD * 8.0 + 32768.5), 1.0, 65535.0); gl_FragColor = vec4(mod(q, 256.0), floor(q / 256.0), 0.0, 0.0) / 255.0; }\n";
 static const char *lk_gm_vs = "#version 120\nuniform vec4 uMo; varying vec3 vN; varying float vZ;\n"
   "void main() { vec3 p = gl_Vertex.xyz; float U = p.x - p.y + 1184.0, V = (p.x + p.y) * 0.5 - p.z; vN = gl_Normal; vZ = p.z;\n"
   "  gl_Position = vec4((U - uMo.x + 0.5) / uMo.z * 2.0 - 1.0, (V - uMo.y + 0.5) / uMo.w * 2.0 - 1.0, -p.z / 4096.0, 1.0); }\n";
-static const char *lk_gm_fs = "#version 120\nvarying vec3 vN; varying float vZ; uniform float uGen;\n"
-  "void main() { if (uGen > 0.5 && vN.x + vN.y + vN.z < -0.01) discard; vec3 n = normalize(vN);   /* LK_GLROOM v1: a generated room model's -x / -y walls (back faces) never in the model buffer: at box edges they won the depth tie */ n /= abs(n.x) + abs(n.y) + abs(n.z); vec2 e = n.xy;\n"
+static const char *lk_gm_fs = "#version 120\nvarying vec3 vN; varying float vZ; uniform float uGen; uniform float uBack;\n"
+  "void main() { if (uGen > 0.5 && vN.x + vN.y + vN.z < -0.01) discard; if (uBack > 0.5 && dot(vN, vN) > 2.25) discard; vec3 n = normalize(vN);   /* LK_GLROOM v1: a generated room model's -x / -y walls (back faces) never in the model buffer: at box edges they won the depth tie */ n /= abs(n.x) + abs(n.y) + abs(n.z); vec2 e = n.xy;\n"
   "  if (n.z < 0.0) e = (1.0 - abs(n.yx)) * vec2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0);\n"
   "  e = floor((e * 0.5 + 0.5) * 255.0 + 0.5); float q = clamp(floor(vZ * 8.0 + 32768.5 + (uGen > 0.5 ? 16384.0 : 0.0)), 1.0, 65535.0);   /* LK_GLROOM v1: a generated room model = z * 8 + 49152 (hand-made models unchanged) */\n"
   "  gl_FragColor = vec4(mod(q, 256.0), floor(q / 256.0), e.x, e.y) / 255.0; }\n";
@@ -1163,12 +1165,12 @@ static int lk_gm_init(void) { lkGLint ok = 0, fb0 = 0, t0 = 0; lkGLuint vs, fs; 
   if (!ok) { lk_glGetShaderInfoLog(fs, sizeof log, 0, log); printf("gl5: model fragment shader failed: %%s\n", log); return -1; }
   lk_gm_prog = lk_glCreateProgram(); lk_glAttachShader(lk_gm_prog, vs); lk_glAttachShader(lk_gm_prog, fs); lk_glLinkProgram(lk_gm_prog); lk_glGetProgramiv(lk_gm_prog, 0x8B82, &ok);
   if (!ok) { lk_glGetProgramInfoLog(lk_gm_prog, sizeof log, 0, log); printf("gl5: model link failed: %%s\n", log); return -1; }
-  lk_gm_uo = lk_glGetUniformLocation(lk_gm_prog, "uMo"); lk_gm_ug = lk_glGetUniformLocation(lk_gm_prog, "uGen");
+  lk_gm_uo = lk_glGetUniformLocation(lk_gm_prog, "uMo"); lk_gm_ug = lk_glGetUniformLocation(lk_gm_prog, "uGen"); lk_gm_ub = lk_glGetUniformLocation(lk_gm_prog, "uBack");
   { const char *e = getenv("LANDSTALKER_LT_MODELSM"); lk_gs_opt = e ? atoi(e) : 1; }
   if (lk_gs_opt) { lkGLuint v2 = lk_glCreateShader(0x8B31), f2 = lk_glCreateShader(0x8B30); lk_glShaderSource(v2, 1, &lk_gs_vs, 0); lk_glCompileShader(v2); lk_glShaderSource(f2, 1, &lk_gs_fs, 0); lk_glCompileShader(f2);
     lk_gs_prog = lk_glCreateProgram(); lk_glAttachShader(lk_gs_prog, v2); lk_glAttachShader(lk_gs_prog, f2); lk_glLinkProgram(lk_gs_prog); lk_glGetProgramiv(lk_gs_prog, 0x8B82, &ok);
     if (!ok) { lk_glGetProgramInfoLog(lk_gs_prog, sizeof log, 0, log); printf("gl5: shadow map program failed: %%s\n", log); lk_gs_opt = 0; }
-    else { lk_gs_u[0] = lk_glGetUniformLocation(lk_gs_prog, "uSm"); lk_gs_u[1] = lk_glGetUniformLocation(lk_gs_prog, "uE1"); lk_gs_u[2] = lk_glGetUniformLocation(lk_gs_prog, "uE2"); } }
+    else { lk_gs_u[0] = lk_glGetUniformLocation(lk_gs_prog, "uSm"); lk_gs_u[1] = lk_glGetUniformLocation(lk_gs_prog, "uE1"); lk_gs_u[2] = lk_glGetUniformLocation(lk_gs_prog, "uE2"); lk_gs_u[3] = lk_glGetUniformLocation(lk_gs_prog, "uSmB"); } }
   lk_glGetIntegerv(0x8069, &t0); lk_gm_tex = lk_glt_tex(LK_GM_MB + 2 * LK_GM_SZ, LK_GM_MB, 0x1908, 0x1908); lk_glBindTexture(0x0DE1, (lkGLuint)t0);
   lk_glGenRenderbuffers(1, &lk_gm_rb); lk_glBindRenderbuffer(0x8D41, lk_gm_rb); lk_glRenderbufferStorage(0x8D41, 0x81A6, LK_GM_MB + 2 * LK_GM_SZ, LK_GM_MB); lk_glBindRenderbuffer(0x8D41, 0);   /* DEPTH_COMPONENT24 */
   lk_glGetIntegerv(0x8CA6, &fb0); lk_glGenFramebuffers(1, &lk_gm_fbo); lk_glBindFramebuffer(0x8D40, lk_gm_fbo); lk_glFramebufferTexture2D(0x8D40, 0x8CE0, 0x0DE1, lk_gm_tex, 0);
@@ -1193,20 +1195,25 @@ static void lk_gm_render(const float *sc) {   /* at a new room world / key direc
   lk_glClearColor(0.0f, 0.0f, 0.0f, 0.0f); lk_glClearDepth(1.0); lk_glClear(0x4100);
   lk_glUseProgram(lk_gm_prog); lk_glUniform4f(lk_gm_uo, u0, v0, W, H);
   lk_glEnableClientState(0x8074); lk_glEnableClientState(0x8075);
-  for (i = 0; i < n; i++) { lk_glUniform1f(lk_gm_ug, i == lk_gl_mgenix ? 1.0f : 0.0f); lk_glVertexPointer(3, 0x1406, 24, tri[i]); lk_glNormalPointer(0x1406, 24, tri[i] + 3); lk_glDrawArrays(0x0004, 0, 3 * nt[i]); }
+  for (i = 0; i < n; i++) { static int mb = -1; if (mb < 0) { const char *e = getenv("LANDSTALKER_LT_MBACK"); mb = e ? atoi(e) : 0; }
+    lk_glUniform1f(lk_gm_ub, mb && i != lk_gl_mgenix ? 1.0f : 0.0f);   /* test aid LANDSTALKER_LT_MBACK=1: a hand model's camera-averted triangles out of the model buffer */
+    lk_glUniform1f(lk_gm_ug, i == lk_gl_mgenix ? 1.0f : 0.0f); lk_glVertexPointer(3, 0x1406, 24, tri[i]); lk_glNormalPointer(0x1406, 24, tri[i] + 3); lk_glDrawArrays(0x0004, 0, 3 * nt[i]); }
   { int hs; lk_gs_sm2[3] = 0.0f; for (hs = 0; hs < 2 && lk_gs_opt > 0; hs++) { float d[3], l, e1[3], e2[3], s0 = 1e9f, s1 = -1e9f, t0 = 1e9f, t1 = -1e9f, k, *SM = hs ? lk_gs_sm2 : lk_gs_sm;   /* stage 2: shadow maps (key light / sun, next sun step) */
-    if (n == 1 && lk_gl_mgenix == 0) continue;   /* LK_GLROOM v1: only the generated room model: no shadow map */
+    if (n == 1 && lk_gl_mgenix == 0 && !lk_gm_roomsm()) continue;   /* LK_GLROOM v1: only the generated room model: no shadow map (test aid LANDSTALKER_LT_ROOMSM=1: the boxes in the shadow maps too) */
     if (hs == 0 && !(sc[9] > 0.5f || sc[0] > 0.5f)) continue; if (hs == 1 && !(sc[0] > 0.5f && sc[17] > 0.5f)) continue;
     d[0] = hs ? sc[14] : sc[6]; d[1] = hs ? sc[15] : sc[7]; d[2] = hs ? sc[16] : sc[8]; l = sqrtf(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]); if (l < 1e-3f || d[2] <= 0.02f * l) continue;
     d[0] /= l; d[1] /= l; d[2] /= l; e1[0] = -d[1]; e1[1] = d[0]; e1[2] = 0.0f; l = sqrtf(e1[0] * e1[0] + e1[1] * e1[1]); if (l < 1e-3f) { e1[0] = 1.0f; e1[1] = 0.0f; l = 1.0f; } e1[0] /= l; e1[1] /= l;
     e2[0] = d[1] * e1[2] - d[2] * e1[1]; e2[1] = d[2] * e1[0] - d[0] * e1[2]; e2[2] = d[0] * e1[1] - d[1] * e1[0];
-    for (i = 0; i < n; i++) if (i != lk_gl_mgenix) for (j = 0; j < 3 * nt[i]; j++) { const float *v = tri[i] + 6 * j; float a = v[0] * e1[0] + v[1] * e1[1] + v[2] * e1[2], b = v[0] * e2[0] + v[1] * e2[1] + v[2] * e2[2];
+    for (i = 0; i < n; i++) if (i != lk_gl_mgenix || lk_gm_roomsm()) for (j = 0; j < 3 * nt[i]; j++) { const float *v = tri[i] + 6 * j; float a = v[0] * e1[0] + v[1] * e1[1] + v[2] * e1[2], b = v[0] * e2[0] + v[1] * e2[1] + v[2] * e2[2];
         if (a < s0) s0 = a; if (a > s1) s1 = a; if (b < t0) t0 = b; if (b > t1) t1 = b; }
     s0 -= 16.0f; t0 -= 16.0f; s1 += 16.0f; t1 += 16.0f; k = 1000.0f / (s1 - s0 > t1 - t0 ? s1 - s0 : t1 - t0); if (k > 4.0f) k = 4.0f;
-    SM[0] = s0; SM[1] = t0; SM[2] = k; SM[3] = 1.0f; memcpy(hs ? lk_gs_e12 : lk_gs_e1, e1, sizeof e1); memcpy(hs ? lk_gs_e22 : lk_gs_e2, e2, sizeof e2);
+    SM[0] = s0; SM[1] = t0; SM[2] = k; SM[3] = lk_gm_roomsm() && lk_gl_mgenix >= 0 ? 2.0f : 1.0f;   /* 2 = the room boxes are in it (the marches leave them out) */ memcpy(hs ? lk_gs_e12 : lk_gs_e1, e1, sizeof e1); memcpy(hs ? lk_gs_e22 : lk_gs_e2, e2, sizeof e2);
     lk_glViewport(LK_GM_MB + LK_GM_SZ * hs, 0, LK_GM_SZ, LK_GM_SZ); lk_glUseProgram(lk_gs_prog); lk_glUniform4f(lk_gs_u[0], s0, t0, k, 1.0f); lk_glUniform3f(lk_gs_u[1], e1[0], e1[1], e1[2]); lk_glUniform3f(lk_gs_u[2], e2[0], e2[1], e2[2]);
     lk_glUniform3f(lk_glGetUniformLocation(lk_gs_prog, "uD"), d[0], d[1], d[2]); lk_glDisableClientState(0x8075);
-    for (i = 0; i < n; i++) if (i != lk_gl_mgenix) { lk_glVertexPointer(3, 0x1406, 24, tri[i]); lk_glDrawArrays(0x0004, 0, 3 * nt[i]); }   /* LK_GLROOM v1: the generated box model casts through the field march (the same boxes, exact + soft; a shadow map gave PCF lines at every box edge) */
+    { static int sb = -1; if (sb < 0) { const char *e = getenv("LANDSTALKER_LT_SMBACK"); sb = e ? atoi(e) : 1; } lk_glUniform1f(lk_gs_u[3], (float)sb); }   /* LK_GLROOM v1 BACK FACE SHADOW MAPS (2026-11-08): only the triangles turned AWAY from the light;
+      a lit face can no longer shadow itself at an edge (the PCF taps caught the neighbouring face: dark lines along every wall corner of a hand-made model, church 632 corner 89 -> 208);
+      needs outward counter-clockwise triangles (Blender meshes: checked; the room model: lk_lt_rmquad).  LANDSTALKER_LT_SMBACK=0 = old (all triangles), 2 = only the light-facing ones (test) */
+    for (i = 0; i < n; i++) if (i != lk_gl_mgenix || lk_gm_roomsm()) { lk_glVertexPointer(3, 0x1406, 24, tri[i]); lk_glDrawArrays(0x0004, 0, 3 * nt[i]); }   /* LK_GLROOM v1: the generated box model casts through the field march (the same boxes, exact + soft; a shadow map gave PCF lines at every box edge) */
     lk_glEnableClientState(0x8075);
     if (lk_gm_dbg) printf("gl5: shadow map %%d: s %%.0f..%%.0f t %%.0f..%%.0f, %%.2f texels per unit, d %%.2f %%.2f %%.2f\n", hs, s0, s1, t0, t1, k, d[0], d[1], d[2]); } }
   if (!na) lk_glDisableClientState(0x8075); if (!va) lk_glDisableClientState(0x8074);
@@ -1267,6 +1274,8 @@ static int lk_g5_bind(const float *lp, const float *lc, int fresh) {   /* progra
       pd[0] = sc[6]; pd[1] = sc[7]; pd[2] = sc[8]; pd[3] = sc[14]; pd[4] = sc[15]; pd[5] = sc[16]; pd[6] = sc[17]; lk_gm_render(sc); lk_glUseProgram(lk_g5_prog); } }   /* stage 2: a new key / sun direction */
   lk_glUniform4f(lk_g5_u[44], lk_gs_sm[0], lk_gs_sm[1], lk_gs_sm[2], lk_gs_sm[3]); lk_glUniform3f(lk_g5_u[45], lk_gs_e1[0], lk_gs_e1[1], lk_gs_e1[2]); lk_glUniform3f(lk_g5_u[46], lk_gs_e2[0], lk_gs_e2[1], lk_gs_e2[2]);
   lk_glUniform4f(lk_g5_u[47], lk_gs_sm2[0], lk_gs_sm2[1], lk_gs_sm2[2], lk_gs_sm2[3]); lk_glUniform3f(lk_g5_u[48], lk_gs_e12[0], lk_gs_e12[1], lk_gs_e12[2]); lk_glUniform3f(lk_g5_u[49], lk_gs_e22[0], lk_gs_e22[1], lk_gs_e22[2]);
+  { static float so[4] = { -1.0f }; if (so[0] < -0.5f) { const char *e = getenv("LANDSTALKER_LT_SMO"); so[0] = 0.0f; so[1] = 0.75f; so[2] = 1.5f; so[3] = 0.0f; if (e) sscanf(e, "%%f,%%f,%%f", &so[0], &so[1], &so[2]); }
+    lk_glUniform4f(lk_g5_u[50], so[0], so[1], so[2], so[3]); }   /* LK_GLROOM v1: shadow map filter tunables (test aid LANDSTALKER_LT_SMO=offset,minwidth,bias) */
   lk_glUniform1i(lk_g5_u[41], 11); lk_glUniform4f(lk_g5_u[42], lk_gm_mo[0], lk_gm_mo[1], lk_gm_mo[2], lk_gm_mo[3]); lk_glUniform1f(lk_g5_u[43], lk_gm_on ? (lk_gm_dbg == 20 ? 1.25f : lk_gm_dbg >= 3 ? (float)(lk_gm_dbg - 1) : 1.0f) : 0.0f);   /* LK_GLMODEL v1 */
   lk_glUniform1i(lk_g5_u[14], 1); lk_glUniform1i(lk_g5_u[15], 2); lk_glUniform1i(lk_g5_u[16], 5); lk_glUniform1i(lk_g5_u[17], 6);
   lk_glUniform1i(lk_g5_u[25], 8); lk_glUniform1f(lk_g5_u[26], sc[12]); lk_glUniform1f(lk_g5_u[27], sc[13]); lk_glUniform1i(lk_g5_u[28], 10);

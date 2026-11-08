@@ -97,7 +97,7 @@ def mesh_tris(path):   # REAL 3D LIGHT SHAPES stage 1 (LK_LTMODEL v1, 2026-11-08
             for tj in inc[key(vs[v])]:
                 g = unit(fn[tj])
                 if g[0] * f[0] + g[1] * f[1] + g[2] * f[2] > 0.819: sn = [sn[i] + fn[tj][i] for i in range(3)]   # area weighted
-            n = unit(sn); out += [vs[v][0], vs[v][1], vs[v][2], flip * n[0], flip * n[1], flip * n[2]]
+            n = unit(sn); k = 2.0 * flip if flip < 0 else 1.0; out += [vs[v][0], vs[v][1], vs[v][2], k * n[0], k * n[1], k * n[2]]   # a flipped (camera-averted) triangle carries its normal at length 2 (LK_GLROOM v1: the model buffer can leave such back faces out)
     return out
 MTRI = {}; MSURF = {}   # mesh number -> triangle list (only meshes from an OBJ file) / "surface": true
 def prism_cells(poly, top, bot):   # v9 "prism" op: a polygon footprint (world units) -> {(sx, sy): (top, bottom)} at the sub column centres (4 sx + 2, 4 sy + 2)
@@ -1358,7 +1358,9 @@ static int lk_lt_roomopt(int room) { static int v = -2; static int rl[64], nrl; 
   if (v == -2) { v = 0; nrl = 0; e = getenv("LANDSTALKER_LT_ROOMMODEL"); if (e && *e) { if (strchr(e, ',') || atoi(e) > 1) { const char *q = e; v = 2; while (*q && nrl < 64) { rl[nrl++] = atoi(q); q = strchr(q, ','); if (!q) break; q++; } } else v = atoi(e) ? 1 : 0; } }
   if (v == 1) return 1; if (v == 2) { int i; for (i = 0; i < nrl; i++) if (rl[i] == room) return 1; } return 0; }
 static void lk_lt_rmquad(const float *a, const float *b, const float *c, const float *d, float nx, float ny, float nz) {   /* two triangles a b c / a c d, flat normal */
-  const float *v[6]; int i; if (lk_lt_rmn + 2 > LK_LT_RMMAX) { lk_lt_rmover = 1; return; }
+  const float *v[6]; int i; float e1[3], e2[3], cr; if (lk_lt_rmn + 2 > LK_LT_RMMAX) { lk_lt_rmover = 1; return; }
+  for (i = 0; i < 3; i++) { e1[i] = b[i] - a[i]; e2[i] = c[i] - a[i]; } cr = (e1[1] * e2[2] - e1[2] * e2[1]) * nx + (e1[2] * e2[0] - e1[0] * e2[2]) * ny + (e1[0] * e2[1] - e1[1] * e2[0]) * nz;
+  if (cr < 0.0f) { const float *t = b; b = d; d = t; }   /* counter-clockwise around the outward normal, like the Blender meshes (back face shadow maps) */
   v[0] = a; v[1] = b; v[2] = c; v[3] = a; v[4] = c; v[5] = d;
   for (i = 0; i < 6; i++) { float *o = lk_lt_rmt + 18 * lk_lt_rmn + 6 * (i %% 3) + (i >= 3 ? 18 : 0); o[0] = v[i][0] - 2.0f * LK_LT_RMEPS; o[1] = v[i][1] - LK_LT_RMEPS; o[2] = v[i][2]; o[3] = nx; o[4] = ny; o[5] = nz; }
   lk_lt_rmn += 2; }
