@@ -250,6 +250,7 @@ static float lk_lt_halocl(float x, float y, float z) {   /* v9: horizontal dista
   x0 = 4.0f * (float)(sx + (k - 1) %% 5 - 2); y0 = 4.0f * (float)(sy + (k - 1) / 5 - 2);
   ex = x < x0 ? x0 - x : x > x0 + 4.0f ? x - x0 - 4.0f : 0.0f; ey = y < y0 ? y0 - y : y > y0 + 4.0f ? y - y0 - 4.0f : 0.0f;
   return sqrtf(ex * ex + ey * ey); }
+static int lk_lt_kslant(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_KSLANT"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: key light fades in over slanted faces */
 static int lk_lt_occ(int sx, int sy, int z, int thin) {   /* v9: integer height z is solid at a sub column for the view ray (ground or, for layer A, a slab) */
   if (z <= lk_lt_ifh(sx, sy, thin)) return 1;
   return lk_lt_rayA && lk_lt_hasslab(sx, sy) && z >= lk_lt_sb[sy][sx] && z <= lk_lt_st[sy][sx]; }
@@ -800,9 +801,13 @@ static lk_lt_blk *lk_lt_blockcalc(int bx, int by) {   /* v8 MT: computes one blo
     if ((i == an) != (pass2 == 0)) continue;
     b->sun[i] = 255; if (!f) continue;
     if (pass2 && b->face[an] == f && abs(b->z[an] - b->z[i]) <= 2) { b->sun[i] = b->sun[an]; continue; }
-    if (f != 1 && nx * lk_lt_sd[0] + ny * lk_lt_sd[1] <= 0.0f) continue;
+    { float kw = 1.0f, ndl = nx * lk_lt_sd[0] + ny * lk_lt_sd[1];
+      if (f >= 4 && f < 20 && lk_lt_kslant()) { kw = (ndl + 0.25f) * 2.0f; if (kw > 1.0f) kw = 1.0f; }   /* 2026-11-08 (user: ship 493 bow 'noch unsauber'): a round hull's stair of slanted faces alternates codes 12 (ndl 0: was skipped = 255) and 13 (ndl 0.13: marched, in the figurehead's shadow = 0) = hard vertical stripes; slanted faces now fade the key light share in over ndl -0.25 .. +0.25 (one 22.5 degree face step = a quarter); LANDSTALKER_LT_KSLANT=0 = old (GLSL keyShare: uKpen magnitude >= 2000) */
+      else if (f != 1 && ndl <= 0.0f) kw = 0.0f;
+      if (kw <= 0.0f) continue;
     lk_lt_pos(U0 + (i & 31), V0 + (i >> 5), b->z[i], &px, &py);
     vis = lk_lt_keyvis(px + nx * LK_LT_OFF(nx, ny, 3.0f), py + ny * LK_LT_OFF(nx, ny, 3.0f), (float)b->z[i] + nz * 3.0f);
+      vis = 1.0f - kw * (1.0f - (vis < 0.0f ? 0.0f : vis > 1.0f ? 1.0f : vis)); }
     b->sun[i] = (uint8)(vis >= 1.0f ? 255 : vis <= 0.0f ? 0 : (int)(vis * 255.0f)); } }
   if (lk_lt_nsh) lk_lt_shblock(b, U0, V0); else { memset(b->beam, 0, sizeof b->beam); memset(b->pool, 0, sizeof b->pool); }   /* v8 light shafts */
   if (lk_lt_key && !lk_lt_nl) for (i = 0; i < 1024; i++) {   /* v8 SPEED: the static light of a key light room, finished once (lk_lt_pix applies it; figure shadows take the full path) */
