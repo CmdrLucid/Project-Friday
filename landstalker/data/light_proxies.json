@@ -18,7 +18,8 @@
     "         \"floor\": the rest of its bounding cells gets height f (indoors). Ops run in list order; a later op's floor never overwrites an earlier op's shape.",
     "     mesh (+ \"air\": true) - a Blender shape whose parts floating more than 4 units above the ground become slabs; indoors a mesh replaces the cell heights (+ \"floor\").",
     "     Slanted side faces of these shapes indoors get their own normal (16 directions from the shape around them). Test aids: LANDSTALKER_LT_FINE=0 (fine ops off),",
-    "     LANDSTALKER_LT_IFORCE=1 (fine indoor paths without data: pictures must equal the old ones), LANDSTALKER_LIGHTING_DBG=1 prints 'fine: room R ...', LANDSTALKER_LT_DUMPFILE=prefix writes the light heights of each room."
+    "     LANDSTALKER_LT_IFORCE=1 (fine indoor paths without data: pictures must equal the old ones), LANDSTALKER_LIGHTING_DBG=1 prints 'fine: room R ...', LANDSTALKER_LT_DUMPFILE=prefix writes the light heights of each room.",
+    "     carve {\"cells\": [x0,y0,x1,y1], \"bg\": \"sea\" | \"layera\", \"floor\": f} - at room load the shapes in these cells follow the DRAWN picture: every sub column is lowered until its top and its front edge land on drawn object pixels (sea = nothing drawn or a water tile), slabs keep the heights drawn in layer A, then a 3 x 3 median (LANDSTALKER_LT_CARVEMED). Outdoors every building shape / mesh is carved automatically to layer A (LANDSTALKER_LT_CARVEOUT=0 = off)."
   ],
   "rooms": {
     "31": [
