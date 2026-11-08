@@ -99,7 +99,7 @@ def mesh_tris(path):   # REAL 3D LIGHT SHAPES stage 1 (LK_LTMODEL v1, 2026-11-08
                 if g[0] * f[0] + g[1] * f[1] + g[2] * f[2] > 0.819: sn = [sn[i] + fn[tj][i] for i in range(3)]   # area weighted
             n = unit(sn); out += [vs[v][0], vs[v][1], vs[v][2], flip * n[0], flip * n[1], flip * n[2]]
     return out
-MTRI = {}   # mesh number -> triangle list (only meshes from an OBJ file)
+MTRI = {}; MSURF = {}   # mesh number -> triangle list (only meshes from an OBJ file) / "surface": true
 def prism_cells(poly, top, bot):   # v9 "prism" op: a polygon footprint (world units) -> {(sx, sy): (top, bottom)} at the sub column centres (4 sx + 2, 4 sy + 2)
     out = {}; xs = [p[0] for p in poly]; ys = [p[1] for p in poly]
     for sy in range(int(min(ys)) // 4, int(max(ys)) // 4 + 1):
@@ -141,7 +141,7 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
                 op, n = CORR_OPS[e["op"]]; a = [int(v) for v in (e["units"] if op in (8, 9) else e["cells"])]   # v9: box / slab in WORLD units (x1 / y1 exclusive), the rest in cells
                 assert len(a) == n, ("light_proxies.json: room %s op %s needs %d numbers" % (room, e["op"], n))
                 if op == 5:   # mesh: the rectangle's automatic shapes go, the mesh is stamped (a[4] = mesh number)
-                    top = mesh_cells(os.path.join(os.path.dirname(path), e["file"])); mi = len(MESHES); MTRI[mi] = mesh_tris(os.path.join(os.path.dirname(path), e["file"]))
+                    top = mesh_cells(os.path.join(os.path.dirname(path), e["file"])); mi = len(MESHES); MTRI[mi] = mesh_tris(os.path.join(os.path.dirname(path), e["file"])); MSURF[mi] = 1 if e.get("surface") else 0   # LK_LTMODEL v1: only VERIFIED models are real 3D light shapes ("surface": true; the older outdoor proxies lean on the carve; LANDSTALKER_LT_MODELALL=1 = all, test aid)
                     MESHES.append(", ".join("{%d, %d, %d, %d}" % (sx, sy, int(round(h[0])), int(round(h[1]))) for (sx, sy), h in sorted(top.items()) if 0 <= sx < 296 and 0 <= sy < 296))
                     a = a + [mi, 1 if e.get("air") else 0, int(e.get("floor", -999))]; n += 3   # v9: "air": parts whose bottom floats above the ground become slabs; "floor": indoors the rectangle's sub columns the mesh does not cover get this height
                 if op == 10:   # v9 carve: + background mode (1 "sea", 2 "layera"), floor
@@ -155,8 +155,9 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
     print("patch_lights: %d light proxy meshes (%s cells)" % (len(MESHES), ", ".join(str(m.count("{")) for m in MESHES)))
     mesh += "".join("static const float lk_lt_mtri%d[] = { %s };\n" % (i, ", ".join("%.3ff" % v for v in MTRI[i])) for i in sorted(MTRI))
     mesh += "static const float *const lk_lt_mtris[] = { " + ", ".join(["lk_lt_mtri%d" % i if i in MTRI else "0" for i in range(len(MESHES))] + ["0"]) + " };\n"
+    mesh += "static const unsigned char lk_lt_msurf[] = { " + ", ".join([str(MSURF.get(i, 0)) for i in range(len(MESHES))] + ["0"]) + " };\n"
     mesh += "static const int lk_lt_mtrin[] = { " + ", ".join([str(len(MTRI[i]) // 18) if i in MTRI else "0" for i in range(len(MESHES))] + ["0"]) + " };   /* LK_LTMODEL v1: triangles per mesh */\n"
-    print("patch_lights: model triangles for the GPU: %s" % ", ".join("%d" % (len(MTRI[i]) // 18) for i in sorted(MTRI)))
+    print("patch_lights: model triangles for the GPU: %s" % ", ".join("%d%s" % (len(MTRI[i]) // 18, "" if MSURF.get(i) else "(test)") for i in sorted(MTRI)))
     return "static const lk_lt_corr_t lk_lt_corr[] = { " + ", ".join(rows + ["{-1, 0, {0}}"]) + " };\n" + mesh
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
@@ -199,6 +200,9 @@ static int16_t lk_lt_fh[LK_LT_FN][LK_LT_FN], lk_lt_fo[LK_LT_FN][LK_LT_FN]; stati
    shadow march keep the fine field.  Test aid LANDSTALKER_LT_MODEL=0 = off (the old fine field view ray). */
 static uint8 lk_lt_mown[LK_LT_FN][LK_LT_FN]; static int16_t lk_lt_mg[LK_LT_FN][LK_LT_FN], lk_lt_mb[LK_LT_FN][LK_LT_FN];   /* + lk_lt_mb: the model's bottom (above mg + 4 = it floats: air below for the GPU's AO / key light) */ static int lk_lt_nmodel;
 static int lk_lt_modelopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_MODEL"); v = e ? atoi(e) : 1; } return v; }
+static int lk_lt_modelall(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_MODELALL"); v = e ? atoi(e) : 0; } return v; }   /* test aid: every Blender mesh as a real surface, also the unverified ones */
+static int lk_lt_msok(int mi);   /* after the tables (LK_LT_CORR) */
+static int lk_lt_modelout(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_MODELOUT"); v = e ? atoi(e) : 1; } return v; }   /* outdoor rooms too (sun; 2026-11-08 late), test aid =0 */
 static int16_t lk_lt_sb[LK_LT_FN][LK_LT_FN], lk_lt_st[LK_LT_FN][LK_LT_FN]; static int lk_lt_ifine, lk_lt_nslab;
 static uint8 lk_lt_hk[LK_LT_FN][LK_LT_FN], lk_lt_hs[LK_LT_FN][LK_LT_FN]; static int16_t lk_lt_hb[LK_LT_FN][LK_LT_FN];   /* v9 SLAB HALO (soft shadow SIDES of slabs, user 2026-11-08):
    per sub column within 2 of a slab: the nearest slab sub column (hk = 1 + (dx + 2) + 5 (dy + 2), 0 none) and its interval (bottom hb, height 2 hs) */
@@ -215,6 +219,7 @@ static int16_t lk_lt_hd[74][74];   /* v7 speed: per cell the highest thing (fiel
 static int16_t lk_lt_bb[1024][5], lk_lt_sgnd[1024], lk_lt_omax[1024]; static uint8 lk_lt_ocl[1024];   /* lk_lt_sgnd: v7 ground around a SMALL object (its collision box is no picture: light and shadow use the ground + the card) */ static int16_t lk_lt_part[74][74], lk_lt_pb[2048][4]; static uint8 lk_lt_pkeep[74][74], lk_lt_wat[74][74], lk_lt_flat[74][74];   /* lk_lt_flat: cells marked flat by data/light_proxies.json */
 typedef struct { int16_t room; uint8 op; int16_t a[7]; } lk_lt_corr_t;   /* corrections from data/light_proxies.json (op 1 flat, 2 water, 3 remove, 4 hip; cells inclusive, heights in units) */
 /*LK_LT_CORR*/   /* lk_lt_wat: water cells filled by us (no part of any object) */ static int16_t lk_lt_pb2[2048][4];   /* box of the kept cells per part */   /* v7: equal height parts of the objects + their boxes (mirror boxes of the fine field) */   /* v7: per outdoor object: footprint box (cells) + cell count; class 1 small (one card), 2 building (fine field), 3 other (a card per cell, v6) */
+static int lk_lt_msok(int mi) { return lk_lt_mtrin[mi] > 0 && (lk_lt_msurf[mi] || lk_lt_modelall()); }
 static int16_t lk_lt_obj[74][74];
 static float lk_lt_flk[LK_LT_ML];
 static lk_lt_light lk_lt_sw; static float lk_lt_swk; static int lk_lt_swon;   /* v3: glow of Nigel's sword (EquippedSword $FF114E 1..4), a light that moves: no cache, no shadow */
@@ -1313,11 +1318,13 @@ static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine 
           for (sy = y0 < 0 ? 0 : y0; sy <= y1 && sy < LK_LT_FN; sy++) for (sx = x0 < 0 ? 0 : x0; sx <= x1 && sx < LK_LT_FN; sx++) if (lk_lt_ifh(sx, sy, 0) > a[5] || md[sy][sx] > a[5]) { lk_lt_fh[sy][sx] = md[sy][sx]; lk_lt_fo[sy][sx] = LK_LT_IFO; } } }
       if (lk_lt_dbg == 5 || lk_lt_dbg == 1) printf("fine: room %%d carve x %%d..%%d y %%d..%%d (%%s, floor %%d): %%d columns lowered, %%d slabs trimmed\n", lk_o_room, a[0], a[2], a[1], a[3], a[4] == 2 ? "layer A" : "sea", a[5], nc, ns);
       continue; }
+    if (op == 5 && lk_lt_meshes[a[4]] && lk_lt_modelopt() && lk_lt_msok(a[4]) && (!lk_lt_sun || lk_lt_modelout())) { const int16_t (*m)[4] = lk_lt_meshes[a[4]]; int e; lk_lt_nmodel++;   /* LK_LTMODEL v1: model ownership (indoors + outdoors) before the op stamps */
+      for (e = 0; m[e][0] >= 0; e++) { int g; sx = m[e][0]; sy = m[e][1]; if (lk_lt_mown[sy][sx]) continue; g = lk_lt_sun ? lk_lt_gh[sy >> 2][sx >> 2] : lk_lt_ifh(sx, sy, 0);
+        lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = m[e][3]; lk_lt_mg[sy][sx] = (int16_t)(a[6] != -999 ? a[6] : g == -32768 || m[e][3] < g ? m[e][3] : g); } }   /* the ground below the model = the op's "floor" if given (ship: the sea), else the lower of the ground and the model's bottom (the game's cell height under a ship / house is its deck / roof: collision, not picture) */
     if (op == 5) { const int16_t (*m)[4] = lk_lt_meshes[a[4]]; int e, nsb = 0, nso = 0; if (!m || (lk_lt_sun && !a[5])) continue;   /* outdoors: solid meshes are lk_lt_extrude's */
       memset(cov, 0, sizeof cov);
-      { int mdl = !lk_lt_sun && lk_lt_modelopt() && lk_lt_mtrin[a[4]] > 0; if (mdl) lk_lt_nmodel++;
+      {
       for (e = 0; m[e][0] >= 0; e++) { int g; sx = m[e][0]; sy = m[e][1]; g = lk_lt_sun ? lk_lt_gh[sy >> 2][sx >> 2] : lk_lt_ifh(sx, sy, 0); cov[sy][sx] = 1;   /* indoors the ground as earlier ops shaped it (a box under a sail) */
-        if (mdl && !lk_lt_mown[sy][sx]) { lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = m[e][3]; lk_lt_mg[sy][sx] = (int16_t)(a[6] != -999 ? a[6] : g == -32768 || m[e][3] < g ? m[e][3] : g); }   /* LK_LTMODEL v1: the ground below the model = the op's "floor" if given (ship: the sea), else the lower of the ground and the model's bottom (the game's cell height under a ship is its deck: collision, not picture) */
         if (a[5] && (g == -32768 || m[e][3] > g + 4)) { lk_lt_sb[sy][sx] = m[e][3]; lk_lt_st[sy][sx] = m[e][2]; nsb++; }   /* "air": floats above the ground = a slab */
         else if (!lk_lt_sun && m[e][2] != -999) { lk_lt_fh[sy][sx] = m[e][2]; lk_lt_fo[sy][sx] = LK_LT_IFO; nso++; } } }   /* -999: a prism that keeps the cell's height (cookie cutter) */
       if (!lk_lt_sun && a[6] != -999) for (sy = 4 * a[1]; sy < 4 * a[3] + 4 && sy < LK_LT_FN; sy++) for (sx = 4 * a[0]; sx < 4 * a[2] + 4 && sx < LK_LT_FN; sx++)

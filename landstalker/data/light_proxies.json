@@ -17,6 +17,7 @@
     "         with \"bottom\" a floating SLAB from bottom to top (air below: sails, arches, bridges, crowns; only layer A pixels sit on it, every shadow tests it);",
     "         \"floor\": the rest of its bounding cells gets height f (indoors). Ops run in list order; a later op's floor never overwrites an earlier op's shape.",
     "     mesh (+ \"air\": true) - a Blender shape whose parts floating more than 4 units above the ground become slabs; indoors a mesh replaces the cell heights (+ \"floor\").",
+    "     mesh + \"surface\": true (2026-11-08, REAL 3D LIGHT SHAPES, GPU only) - a VERIFIED model (measured on the drawn picture, background test clean): the GPU light uses its real surfaces (model buffer for the view ray, shadow maps for the key light / sun); only for models precise enough for the remake, the older outdoor proxies lean on the carve and stay field shapes.",
     "     Slanted side faces of these shapes indoors get their own normal (16 directions from the shape around them). Test aids: LANDSTALKER_LT_FINE=0 (fine ops off),",
     "     LANDSTALKER_LT_IFORCE=1 (fine indoor paths without data: pictures must equal the old ones), LANDSTALKER_LIGHTING_DBG=1 prints 'fine: room R ...', LANDSTALKER_LT_DUMPFILE=prefix writes the light heights of each room.",
     "     carve {\"cells\": [x0,y0,x1,y1], \"bg\": \"sea\" | \"layera\", \"floor\": f} - at room load the shapes in these cells follow the DRAWN picture: every sub column is lowered until its top and its front edge land on drawn object pixels (sea = nothing drawn or a water tile), slabs keep the heights drawn in layer A, then a 3 x 3 median (LANDSTALKER_LT_CARVEMED). Outdoors every building shape / mesh is carved automatically to layer A (LANDSTALKER_LT_CARVEOUT=0 = off)."
@@ -205,6 +206,7 @@
           52
         ],
         "file": "proxies/ship_493.obj",
+        "surface": true,
         "floor": -22,
         "why": "user 2026-11-08 'mit Blender kannst du die Form des Schiffes besser nachmachen als in Bauklötzen' + 'in der Genauigkeit, dass wir später echte 3D-Modelle fürs Remake drauf setzen können': hull, decks, rails, mast measured on the drawn ship (remake/recipes/proxy_ship_493.py, game coordinates); replaces the cell heights, the rest of the rectangle is the sea at 0"
       },
@@ -217,6 +219,7 @@
           44
         ],
         "file": "proxies/ship_493_sail.obj",
+        "surface": true,
         "air": true,
         "why": "the sail as its own shape: floats from 56 to 232 above the deck, the light passes under it"
       },
@@ -229,6 +232,7 @@
           52
         ],
         "file": "proxies/ship_493_fig.obj",
+        "surface": true,
         "air": true,
         "why": "user 2026-11-08 'links von der Galionsfigur ist auch noch ein harter Schatten': the figurehead as its own shape from the drawn statue bottom (z 22) to 64 with air below (drawn in layer A); in the solid hull mesh it was a column down to the sea over the drawn water (background test remake/tools/proxy_bgtest.py)"
       }
@@ -331,6 +335,7 @@
           52
         ],
         "file": "proxies/ship_493.obj",
+        "surface": true,
         "floor": -22,
         "why": "user 2026-11-08 'mit Blender kannst du die Form des Schiffes besser nachmachen als in Bauklötzen' + 'in der Genauigkeit, dass wir später echte 3D-Modelle fürs Remake drauf setzen können': hull, decks, rails, mast measured on the drawn ship (remake/recipes/proxy_ship_493.py, game coordinates); replaces the cell heights, the rest of the rectangle is the sea at 0"
       },
@@ -343,6 +348,7 @@
           44
         ],
         "file": "proxies/ship_493_sail.obj",
+        "surface": true,
         "air": true,
         "why": "the sail as its own shape: floats from 56 to 232 above the deck, the light passes under it"
       },
@@ -355,6 +361,7 @@
           52
         ],
         "file": "proxies/ship_493_fig.obj",
+        "surface": true,
         "air": true,
         "why": "user 2026-11-08 'links von der Galionsfigur ist auch noch ein harter Schatten': the figurehead as its own shape from the drawn statue bottom (z 22) to 64 with air below (drawn in layer A); in the solid hull mesh it was a column down to the sea over the drawn water (background test remake/tools/proxy_bgtest.py)"
       }
@@ -457,6 +464,7 @@
           52
         ],
         "file": "proxies/ship_493.obj",
+        "surface": true,
         "floor": -22,
         "why": "user 2026-11-08 'mit Blender kannst du die Form des Schiffes besser nachmachen als in Bauklötzen' + 'in der Genauigkeit, dass wir später echte 3D-Modelle fürs Remake drauf setzen können': hull, decks, rails, mast measured on the drawn ship (remake/recipes/proxy_ship_493.py, game coordinates); replaces the cell heights, the rest of the rectangle is the sea at 0"
       },
@@ -469,6 +477,7 @@
           44
         ],
         "file": "proxies/ship_493_sail.obj",
+        "surface": true,
         "air": true,
         "why": "the sail as its own shape: floats from 56 to 232 above the deck, the light passes under it"
       },
@@ -481,6 +490,7 @@
           52
         ],
         "file": "proxies/ship_493_fig.obj",
+        "surface": true,
         "air": true,
         "why": "user 2026-11-08 'links von der Galionsfigur ist auch noch ein harter Schatten': the figurehead as its own shape from the drawn statue bottom (z 22) to 64 with air below (drawn in layer A); in the solid hull mesh it was a column down to the sea over the drawn water (background test remake/tools/proxy_bgtest.py)"
       }
@@ -583,6 +593,7 @@
           52
         ],
         "file": "proxies/ship_493.obj",
+        "surface": true,
         "floor": -22,
         "why": "user 2026-11-08 'mit Blender kannst du die Form des Schiffes besser nachmachen als in Bauklötzen' + 'in der Genauigkeit, dass wir später echte 3D-Modelle fürs Remake drauf setzen können': hull, decks, rails, mast measured on the drawn ship (remake/recipes/proxy_ship_493.py, game coordinates); replaces the cell heights, the rest of the rectangle is the sea at 0"
       },
@@ -595,6 +606,7 @@
           44
         ],
         "file": "proxies/ship_493_sail.obj",
+        "surface": true,
         "air": true,
         "why": "the sail as its own shape: floats from 56 to 232 above the deck, the light passes under it"
       },
@@ -607,6 +619,7 @@
           52
         ],
         "file": "proxies/ship_493_fig.obj",
+        "surface": true,
         "air": true,
         "why": "user 2026-11-08 'links von der Galionsfigur ist auch noch ein harter Schatten': the figurehead as its own shape from the drawn statue bottom (z 22) to 64 with air below (drawn in layer A); in the solid hull mesh it was a column down to the sea over the drawn water (background test remake/tools/proxy_bgtest.py)"
       }
