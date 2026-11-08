@@ -1197,18 +1197,26 @@ static int lk_lt_bgpix(int U, int V, int mode) {   /* v9 CARVE: the room picture
   if (a) return lk_lt_iswt(lk_o_pa[rr][cc]);
   b = lk_o_fetch(lk_o_pb, U, V, &pal, &pr, 0) != 0;
   return !b || lk_lt_iswt(lk_o_pb[rr][cc]); }
-static int lk_lt_cvok(int sx, int sy, int h, int fl, int mode) {   /* v9 carve: a column of top h at sub column (sx, sy) agrees with the picture: its top and its FRONT EDGE (nearest the camera) down to
-     near the floor all land on drawn object pixels (a ghost column in front of a drawn side face would reach below the drawn waterline = sea there) */
-  int z, D = 4 * sx - 4 * sy + 1184;
-  if (lk_lt_bgpix(D, 2 * sx + 2 * sy + 2 - h, mode)) return 0;   /* top centre (4 sx + 2, 4 sy + 2, h) */
-  for (z = h; z > fl + 6; z -= 4) if (lk_lt_bgpix(D, 2 * sx + 2 * sy + 4 - z, mode)) return 0;   /* front edge (4 sx + 4, 4 sy + 4, z) */
-  return 1; }
+static int lk_lt_cvh(int sx, int sy, int H, int fl, int mode) {   /* v9 carve, fast form of lk_lt_cvok: the highest top <= H that agrees with the picture (fl = floor): the front edge is
+     scanned once from the bottom up (the first drawn gap caps the column), then the top is lowered onto drawn pixels */
+  int z, D = 4 * sx - 4 * sy + 1184, hm = H, h;
+  for (z = fl + 8; z <= H; z += 2) if (lk_lt_bgpix(D, 2 * sx + 2 * sy + 4 - z, mode)) { hm = z - 1; break; }
+  for (h = hm; h > fl; h--) if (!lk_lt_bgpix(D, 2 * sx + 2 * sy + 2 - h, mode)) return h;
+  return fl; }
+static int lk_lt_carveout(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_CARVEOUT"); v = e ? atoi(e) : 1; } return v; }   /* test aid: 0 = outdoor shapes not carved */
 static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine heights indoors (lk_lt_fo = LK_LT_IFO) and slabs (indoors + outdoors); after lk_lt_extrude */
   static int fopt = -1, fforce = 0; static uint8 cov[LK_LT_FN][LK_LT_FN]; int q, x, y, mx = -32768, nfine = 0, nsl = 0;
   if (fopt < 0) { const char *e = getenv("LANDSTALKER_LT_FINE"); fopt = e ? atoi(e) : 1; e = getenv("LANDSTALKER_LT_IFORCE"); fforce = e ? atoi(e) : 0; }
   for (y = 0; y < LK_LT_FN; y++) for (x = 0; x < LK_LT_FN; x++) { lk_lt_sb[y][x] = 0; lk_lt_st[y][x] = -32768; }
   if (!lk_lt_sun) for (y = 0; y < LK_LT_FN; y++) for (x = 0; x < LK_LT_FN; x++) { lk_lt_fh[y][x] = -32768; lk_lt_fo[y][x] = 0; lk_lt_fp[y][x] = 0; }   /* indoors the field holds the data only */
   lk_lt_ifine = 0; lk_lt_nslab = 0;
+  if (fopt && lk_lt_sun && lk_lt_carveout()) { int nc = 0, sx, sy; struct timespec t0; clock_gettime(CLOCK_MONOTONIC, &t0);   /* OUTDOOR CARVE (user 2026-11-08: 'selbiges gilt fuer andere 3D-Formen'): the
+       automatic building shapes (hip proxies) and Blender meshes are carved to the drawn layer A picture of the object (houses: roofs and walls are layer A) */
+    for (sy = 0; sy < LK_LT_FN; sy++) for (sx = 0; sx < LK_LT_FN; sx++) { int o = lk_lt_fo[sy][sx], qq = lk_lt_fp[sy][sx], g, H, h, t;
+      if (o <= 0 || o >= 1024 || !qq) continue; t = lk_lt_px[qq - 1].type; if (t != 1 && t != 4) continue;
+      g = lk_lt_gh[sy >> 2][sx >> 2]; H = lk_lt_fh[sy][sx]; if (g == -32768 || H <= g) continue;
+      h = lk_lt_cvh(sx, sy, H, g, 2); if (h != H) { lk_lt_fh[sy][sx] = (int16_t)h; nc++; } }
+    if (lk_lt_dbg == 1 || lk_lt_dbg == 5) printf("fine: room %%d outdoor carve: %%d sub columns lowered (%%.1f ms)\n", lk_o_room, nc, lk_sm_ms_since(&t0)); }
   if (fopt) for (q = 0; lk_lt_corr[q].room >= 0; q++) { const int16_t *a = lk_lt_corr[q].a; int op = lk_lt_corr[q].op, sx, sy;
     if (lk_lt_corr[q].room != lk_o_room) continue;
     if (op == 8 || op == 9) { int i0 = a[0] >> 2, i1 = (a[2] >> 2) - 1, j0 = a[1] >> 2, j1 = (a[3] >> 2) - 1;   /* box (indoors) / slab: WORLD units, x1 / y1 exclusive */
@@ -1220,7 +1228,7 @@ static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine 
     if (op == 10) { int x0 = 4 * a[0], x1 = 4 * a[2] + 3, y0 = 4 * a[1], y1 = 4 * a[3] + 3, nc = 0, ns = 0;   /* CARVE (user 2026-11-08: 'die 3D-Formen dem Sprite an sich nachformen'): every sub column
            of the rectangle is lowered until it agrees with the drawn picture (lk_lt_cvok); slabs keep only the heights whose points land on layer A pixels */
       for (sy = y0 < 0 ? 0 : y0; sy <= y1 && sy < LK_LT_FN; sy++) for (sx = x0 < 0 ? 0 : x0; sx <= x1 && sx < LK_LT_FN; sx++) { int H = lk_lt_sun ? -32768 : lk_lt_ifh(sx, sy, 0), h;
-        if (H > a[5]) { for (h = H; h > a[5] && !lk_lt_cvok(sx, sy, h, a[5], a[4]); h -= 2) ; if (h < a[5]) h = a[5]; if (h != H) nc++; lk_lt_fh[sy][sx] = (int16_t)h; lk_lt_fo[sy][sx] = LK_LT_IFO; }
+        if (H > a[5]) { h = lk_lt_cvh(sx, sy, H, a[5], a[4]); if (h != H) nc++; lk_lt_fh[sy][sx] = (int16_t)h; lk_lt_fo[sy][sx] = LK_LT_IFO; }
         if (lk_lt_hasslab(sx, sy)) { int t = lk_lt_st[sy][sx], b = lk_lt_sb[sy][sx], z, D = 4 * sx - 4 * sy + 1184, zt = -32768, zb = -32768;
           for (z = t; z >= b; z--) if (!lk_lt_bgpix(D, 2 * sx + 2 * sy + 2 - z, 2)) { if (zt == -32768) zt = z; zb = z; }
           if (zt == -32768) { lk_lt_sb[sy][sx] = 0; lk_lt_st[sy][sx] = -32768; } else { lk_lt_sb[sy][sx] = (int16_t)zb; lk_lt_st[sy][sx] = (int16_t)(zt > zb ? zt : zb + 1); } if (zt != t || zb != b) ns++; } }
@@ -1411,6 +1419,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       for (y = y0; y < y0 + 8 && y < 74; y++) { printf("lighttop %%2d:", y); for (x = x0; x < x0 + 12 && x < 74; x++) printf(" %%6d%%s", lk_lt_top[y][x], lk_lt_wat[y][x] ? "w" : " "); printf("\n"); } } }
   { struct timespec t0; clock_gettime(CLOCK_MONOTONIC, &t0);
     if (lk_lt_sun && lk_lt_extrude()) for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (lk_lt_top[y][x] > lk_lt_zmax) lk_lt_zmax = lk_lt_top[y][x];
+    lk_lt_finebuild();   /* v9 (before the side penumbra data: it reads the carved field) */
     memset(lk_lt_cpk, 0, sizeof lk_lt_cpk);
     if (lk_lt_sun) for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int i, j, top = -32768, x0 = 4, x1 = -1, y0 = 4, y1 = -1;   /* side penumbra data (lk_lt_cpk) */
       for (j = 0; j < 4; j++) for (i = 0; i < 4; i++) { int sx = 4 * x + i, sy = 4 * y + j, q = lk_lt_fp[sy][sx], f = lk_lt_fh[sy][sx];
@@ -1430,7 +1439,6 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         for (b3 = y - 1; b3 <= y + 1; b3++) for (a2 = x - 1; a2 <= x + 1; a2++) if (a2 >= 0 && b3 >= 0 && a2 < 74 && b3 < 74 && hc[b3][a2] > m) m = hc[b3][a2];
         q = m <= 0 ? 0 : (m + 3) / 4; lk_lt_m3q[y][x] = (uint8)(q > 255 ? 255 : q); } }
     if (lk_lt_dbg == 5 && lk_lt_sun) printf("extrude: room %%d %%.1f ms, %%d cards\n", lk_o_room, lk_sm_ms_since(&t0), lk_lt_nc); }   /* v7 test aid: room load cost of the outdoor objects */
-  lk_lt_finebuild();   /* v9 */
   if (lk_lt_sun && lk_lt_fhmax > lk_lt_zmax) lk_lt_zmax = lk_lt_fhmax;   /* v7: the sun march stops above the highest object */
   lk_lt_ztop = lk_lt_zmax; lk_lt_pah = lk_lt_pahash();
   if (lk_lt_sun) lk_lt_horizon();   /* v7 speed */
