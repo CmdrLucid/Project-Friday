@@ -350,6 +350,18 @@
         "top": 48,
         "floor": 0,
         "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 over the full hull width (576..704, like the rails) to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block; a first try 592..688 left a notch with a hard vertical face at the left rail, user 2026-11-08 'scharfe Kanten links')"
+      },
+      {
+        "op": "carve",
+        "cells": [
+          36,
+          33,
+          43,
+          52
+        ],
+        "bg": "sea",
+        "floor": 0,
+        "why": "user 2026-11-08 'die 3D-Formen dem Sprite an sich nachformen': the hull (cells, bow prism) is carved at room load to the DRAWN ship: every sub column is lowered until its top and its front edge down to the water land on drawn ship pixels (not sea); the sail slab keeps only the heights drawn in layer A"
       }
     ],
     "494": [
@@ -520,6 +532,18 @@
         "top": 48,
         "floor": 0,
         "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 over the full hull width (576..704, like the rails) to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block; a first try 592..688 left a notch with a hard vertical face at the left rail, user 2026-11-08 'scharfe Kanten links')"
+      },
+      {
+        "op": "carve",
+        "cells": [
+          36,
+          33,
+          43,
+          52
+        ],
+        "bg": "sea",
+        "floor": 0,
+        "why": "user 2026-11-08 'die 3D-Formen dem Sprite an sich nachformen': the hull (cells, bow prism) is carved at room load to the DRAWN ship: every sub column is lowered until its top and its front edge down to the water land on drawn ship pixels (not sea); the sail slab keeps only the heights drawn in layer A"
       }
     ],
     "495": [
@@ -690,6 +714,18 @@
         "top": 48,
         "floor": 0,
         "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 over the full hull width (576..704, like the rails) to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block; a first try 592..688 left a notch with a hard vertical face at the left rail, user 2026-11-08 'scharfe Kanten links')"
+      },
+      {
+        "op": "carve",
+        "cells": [
+          36,
+          33,
+          43,
+          52
+        ],
+        "bg": "sea",
+        "floor": 0,
+        "why": "user 2026-11-08 'die 3D-Formen dem Sprite an sich nachformen': the hull (cells, bow prism) is carved at room load to the DRAWN ship: every sub column is lowered until its top and its front edge down to the water land on drawn ship pixels (not sea); the sail slab keeps only the heights drawn in layer A"
       }
     ],
     "497": [
@@ -860,6 +896,18 @@
         "top": 48,
         "floor": 0,
         "why": "the raised bow (rows 49..51, stepped triangle in the height map) as one smooth pointed shape at 48 over the full hull width (576..704, like the rails) to the figurehead; the rest of its rectangle is the sea at 0 (was: one closed 48 high block; a first try 592..688 left a notch with a hard vertical face at the left rail, user 2026-11-08 'scharfe Kanten links')"
+      },
+      {
+        "op": "carve",
+        "cells": [
+          36,
+          33,
+          43,
+          52
+        ],
+        "bg": "sea",
+        "floor": 0,
+        "why": "user 2026-11-08 'die 3D-Formen dem Sprite an sich nachformen': the hull (cells, bow prism) is carved at room load to the DRAWN ship: every sub column is lowered until its top and its front edge down to the water land on drawn ship pixels (not sea); the sail slab keeps only the heights drawn in layer A"
       }
     ],
     "192": [

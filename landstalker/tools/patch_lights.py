@@ -46,7 +46,7 @@ import os, sys
 root = sys.argv[1]
 VER = "LK_LIGHTS v8"
 import json
-CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4), "box": (8, 5), "slab": (9, 6)}
+CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4), "box": (8, 5), "slab": (9, 6), "carve": (10, 4)}
 def mesh_cells(path):   # an OBJ (game coordinates) -> {(sx, sy): (top, bottom)} on the 4 unit grid of the light field (sub column centres), max / min over all faces (v9: the bottom for slabs)
     vs, top, bot = [], {}, {}
     for line in open(path):
@@ -112,6 +112,8 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
                     top = mesh_cells(os.path.join(os.path.dirname(path), e["file"])); mi = len(MESHES)
                     MESHES.append(", ".join("{%d, %d, %d, %d}" % (sx, sy, int(round(h[0])), int(round(h[1]))) for (sx, sy), h in sorted(top.items()) if 0 <= sx < 296 and 0 <= sy < 296))
                     a = a + [mi, 1 if e.get("air") else 0, int(e.get("floor", -999))]; n += 3   # v9: "air": parts whose bottom floats above the ground become slabs; "floor": indoors the rectangle's sub columns the mesh does not cover get this height
+                if op == 10:   # v9 carve: + background mode (1 "sea", 2 "layera"), floor
+                    a = a + [{"sea": 1, "layera": 2}[e.get("bg", "sea")], int(e.get("floor", 0))]; n += 2
                 if op in (6, 7):   # bushes / pines: + top above the base (0 = the game's height of each cell), crown radius (0 = default), base (-999 = automatic)
                     a = a + [int(e.get("h", 0)), int(e.get("r", 0)), int(e.get("base", -999))]; n += 3
                 rows.append("{%d, %d, {%s}}" % (int(room), op, ", ".join(str(v) for v in a + [0] * (7 - n))))
@@ -1182,6 +1184,25 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
   }
   return n;
 }
+static int lk_lt_iswt(uint32 w) { int t, k; if (!(w & 0x10000)) return 0; t = (int)(w & 0x7FF);   /* v9: a plane cell word shows an animated water tile (the groups of lk_lt_wtile) */
+  for (k = 0; k < lk_o_ngrp; k++) { uint32_t b = lk_o_grp[k].base; int t0 = lk_o_grp[k].dest / 32, tn = lk_o_grp[k].words * 2 / 32;
+    if (!(b == 0x094F2A || b == 0x09552A || b == 0x09614A || b == 0x09700A || b == 0x09760A || b == 0x097B4A || b == 0x09820A || b == 0x09838A || b == 0x09912A || b == 0x09960A || (b == 0x099E8A && lk_o_room != 403 && lk_o_room != 404))) continue;
+    if (t >= t0 && t < t0 + tn) return 1; }
+  return 0; }
+static int lk_lt_bgpix(int U, int V, int mode) {   /* v9 CARVE: the room picture pixel (U, V) is BACKGROUND: mode 1 'sea' = nothing drawn or the drawn pixel is a water tile; 2 'layera' = no layer A pixel */
+  int pal, pr, a, b, rr = V >> 3, cc = U >> 3;
+  if (U < 0 || V < 0 || rr >= 152 || cc >= 304) return 1;
+  a = lk_o_fetch(lk_o_pa, U, V, &pal, &pr, 0) != 0;
+  if (mode == 2) return !a;
+  if (a) return lk_lt_iswt(lk_o_pa[rr][cc]);
+  b = lk_o_fetch(lk_o_pb, U, V, &pal, &pr, 0) != 0;
+  return !b || lk_lt_iswt(lk_o_pb[rr][cc]); }
+static int lk_lt_cvok(int sx, int sy, int h, int fl, int mode) {   /* v9 carve: a column of top h at sub column (sx, sy) agrees with the picture: its top and its FRONT EDGE (nearest the camera) down to
+     near the floor all land on drawn object pixels (a ghost column in front of a drawn side face would reach below the drawn waterline = sea there) */
+  int z, D = 4 * sx - 4 * sy + 1184;
+  if (lk_lt_bgpix(D, 2 * sx + 2 * sy + 2 - h, mode)) return 0;   /* top centre (4 sx + 2, 4 sy + 2, h) */
+  for (z = h; z > fl + 6; z -= 4) if (lk_lt_bgpix(D, 2 * sx + 2 * sy + 4 - z, mode)) return 0;   /* front edge (4 sx + 4, 4 sy + 4, z) */
+  return 1; }
 static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine heights indoors (lk_lt_fo = LK_LT_IFO) and slabs (indoors + outdoors); after lk_lt_extrude */
   static int fopt = -1, fforce = 0; static uint8 cov[LK_LT_FN][LK_LT_FN]; int q, x, y, mx = -32768, nfine = 0, nsl = 0;
   if (fopt < 0) { const char *e = getenv("LANDSTALKER_LT_FINE"); fopt = e ? atoi(e) : 1; e = getenv("LANDSTALKER_LT_IFORCE"); fforce = e ? atoi(e) : 0; }
@@ -1195,6 +1216,23 @@ static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine 
       for (sy = j0 < 0 ? 0 : j0; sy <= j1 && sy < LK_LT_FN; sy++) for (sx = i0 < 0 ? 0 : i0; sx <= i1 && sx < LK_LT_FN; sx++)
         if (op == 8) { lk_lt_fh[sy][sx] = a[4]; lk_lt_fo[sy][sx] = LK_LT_IFO; } else { lk_lt_sb[sy][sx] = a[4]; lk_lt_st[sy][sx] = a[5]; }
       if (lk_lt_dbg == 5) printf("fine: room %%d %%s x %%d..%%d y %%d..%%d %%d %%d\n", lk_o_room, op == 8 ? "box" : "slab", a[0], a[2], a[1], a[3], a[4], op == 9 ? a[5] : 0);
+      continue; }
+    if (op == 10) { int x0 = 4 * a[0], x1 = 4 * a[2] + 3, y0 = 4 * a[1], y1 = 4 * a[3] + 3, nc = 0, ns = 0;   /* CARVE (user 2026-11-08: 'die 3D-Formen dem Sprite an sich nachformen'): every sub column
+           of the rectangle is lowered until it agrees with the drawn picture (lk_lt_cvok); slabs keep only the heights whose points land on layer A pixels */
+      for (sy = y0 < 0 ? 0 : y0; sy <= y1 && sy < LK_LT_FN; sy++) for (sx = x0 < 0 ? 0 : x0; sx <= x1 && sx < LK_LT_FN; sx++) { int H = lk_lt_sun ? -32768 : lk_lt_ifh(sx, sy, 0), h;
+        if (H > a[5]) { for (h = H; h > a[5] && !lk_lt_cvok(sx, sy, h, a[5], a[4]); h -= 2) ; if (h < a[5]) h = a[5]; if (h != H) nc++; lk_lt_fh[sy][sx] = (int16_t)h; lk_lt_fo[sy][sx] = LK_LT_IFO; }
+        if (lk_lt_hasslab(sx, sy)) { int t = lk_lt_st[sy][sx], b = lk_lt_sb[sy][sx], z, D = 4 * sx - 4 * sy + 1184, zt = -32768, zb = -32768;
+          for (z = t; z >= b; z--) if (!lk_lt_bgpix(D, 2 * sx + 2 * sy + 2 - z, 2)) { if (zt == -32768) zt = z; zb = z; }
+          if (zt == -32768) { lk_lt_sb[sy][sx] = 0; lk_lt_st[sy][sx] = -32768; } else { lk_lt_sb[sy][sx] = (int16_t)zb; lk_lt_st[sy][sx] = (int16_t)(zt > zb ? zt : zb + 1); } if (zt != t || zb != b) ns++; } }
+      { static int16_t md[LK_LT_FN][LK_LT_FN]; int pass, mopt = 2; const char *e = getenv("LANDSTALKER_LT_CARVEMED"); if (e) mopt = atoi(e);   /* smoothing: 3 x 3 median of the carved heights (gaps in the
+           drawing, e.g. sea between a figurehead and the hull, cut single notches = hard little shadows); test aid LANDSTALKER_LT_CARVEMED=n passes (default 2, 0 = off) */
+        for (pass = 0; pass < mopt && !lk_lt_sun; pass++) {
+          for (sy = y0 < 0 ? 0 : y0; sy <= y1 && sy < LK_LT_FN; sy++) for (sx = x0 < 0 ? 0 : x0; sx <= x1 && sx < LK_LT_FN; sx++) { int v[9], n = 0, i, j, t;
+            for (j = -1; j <= 1; j++) for (i = -1; i <= 1; i++) { int h = lk_lt_ifh(sx + i, sy + j, 0); v[n++] = h == -32768 ? a[5] : h; }
+            for (i = 1; i < 9; i++) for (j = i; j > 0 && v[j - 1] > v[j]; j--) { t = v[j]; v[j] = v[j - 1]; v[j - 1] = t; }
+            md[sy][sx] = (int16_t)v[4]; }
+          for (sy = y0 < 0 ? 0 : y0; sy <= y1 && sy < LK_LT_FN; sy++) for (sx = x0 < 0 ? 0 : x0; sx <= x1 && sx < LK_LT_FN; sx++) if (lk_lt_ifh(sx, sy, 0) > a[5] || md[sy][sx] > a[5]) { lk_lt_fh[sy][sx] = md[sy][sx]; lk_lt_fo[sy][sx] = LK_LT_IFO; } } }
+      if (lk_lt_dbg == 5 || lk_lt_dbg == 1) printf("fine: room %%d carve x %%d..%%d y %%d..%%d (%%s, floor %%d): %%d columns lowered, %%d slabs trimmed\n", lk_o_room, a[0], a[2], a[1], a[3], a[4] == 2 ? "layer A" : "sea", a[5], nc, ns);
       continue; }
     if (op == 5) { const int16_t (*m)[4] = lk_lt_meshes[a[4]]; int e, nsb = 0, nso = 0; if (!m || (lk_lt_sun && !a[5])) continue;   /* outdoors: solid meshes are lk_lt_extrude's */
       memset(cov, 0, sizeof cov);
