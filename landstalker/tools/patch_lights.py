@@ -221,6 +221,8 @@ static const float lk_lt_fbc[15] = { 0.773010453f, 0.881921264f, 0.956940336f, 0
 #define LK_LT_OFF(nx, ny, d) (((nx) != 0.0f && (ny) != 0.0f) ? 5.0f : (d))   /* v9: marches / the room light start further out in front of a SLANTED face (its 4 unit stair steps would shade the point) */
 static float lk_lt_fnx(int f) { return f == 2 ? 1.0f : f >= 4 && f < 20 ? lk_lt_fcs[f - 4] : 0.0f; }   /* normal of a face code: 1 floor, 2 +x, 3 +y, 4..19 slanted (round hulls: a stair of */
 static float lk_lt_fny(int f) { return f == 3 ? 1.0f : f >= 4 && f < 20 ? lk_lt_fsn[f - 4] : 0.0f; }   /* 4 unit sub columns would shade as stripes of +x / +y) */
+static int lk_lt_bushe(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_BUSHELL"); v = e ? atoi(e) : 1; } return v; }   /* v9 test aid: 0 = the old round sphere */
+#define LK_LT_BSQ (lk_lt_bushe() ? 0.8f : 1.0f)   /* v9 BUSH (user 2026-11-08 'fuer die Buesche bitte auch, gab es auch schon eine Remake-Form'): the crown of remake/lib/kit_c.py bushes() = squashed to 0.8 of its width, air below on a Y stem */
 static int lk_lt_pinet(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_PINETIER"); v = e ? atoi(e) : 1; } return v; }   /* test aid: 0 = the old smooth cone */
 static float lk_lt_pinr(float f) {   /* v9 PINE PROFILE (user 2026-11-08: 'Lichtform fuer die Kiefer genauer, 3D-Kiefern haben wir im Remake'): radius share at height share f of the crown
      (0 = crown foot, 1 = tip) like remake/lib/kit_c.py pine(): 6 drooping tiers, each starts at the cone's radius and narrows to 45 %% of it; GLSL pinr() the same */
@@ -685,7 +687,7 @@ static float lk_lt_sunvis(float px, float py, float pz, int self) {   /* v7: sha
         if (q && lk_lt_px[q - 1].type == 5 && lk_lt_tk[cy][cx]) {   /* a recurring object: bush (sphere) or pine (cone) + stem over the base, light passes between the stems */
           float top = (float)lk_lt_tt[cy][cx], rr = (float)lk_lt_tr[cy][cx], zb = (float)lk_lt_tb[cy][cx], ddx = x - (16.0f * cx + 8.0f), ddy = y - (16.0f * cy + 8.0f), dh = sqrtf(ddx * ddx + ddy * ddy), cl, zc;
           if (lk_lt_tk[cy][cx] == 2) { zc = zb + 4.0f; cl = z >= top ? sqrtf(dh * dh + (z - top) * (z - top)) : z >= zc ? dh - rr * lk_lt_pinr((z - zc) / (top - zc)) : 9999.0f; }   /* v9: tiers */
-          else { zc = top - rr; cl = sqrtf(dh * dh + (z - zc) * (z - zc)) - rr; }
+          else { float q = LK_LT_BSQ; zc = top - rr * q; cl = sqrtf(dh * dh + (z - zc) * (z - zc) / (q * q)) - rr; }   /* v9: squashed crown (q 1 = the old sphere) */
           if (z <= zc && dh - 1.5f < cl) cl = dh - 1.5f;   /* trunk */
           if (cl <= 0.0f) return 0.0f; r = LK_LT_PEN * cl / (t * hl); if (r < res) res = r;
           d = z - zb + 0.5f; if (d <= 0.0f) return 0.0f; r = LK_LT_PEN * d / (t * hl); if (r < res) res = r;
@@ -1169,7 +1171,7 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
         for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) { float top, r, zb; if (!lk_lt_tk[cy][cx] || lk_lt_tk[cy][cx] == 3 || lk_lt_to[cy][cx] != P->obj) continue;
           top = (float)lk_lt_tt[cy][cx]; r = (float)lk_lt_tr[cy][cx]; zb = (float)lk_lt_tb[cy][cx];
           for (sy = 4 * cy; sy < 4 * cy + 4; sy++) for (sx = 4 * cx; sx < 4 * cx + 4; sx++) { float dx = 4.0f * sx + 2.0f - (16.0f * cx + 8.0f), dy = 4.0f * sy + 2.0f - (16.0f * cy + 8.0f), d = sqrtf(dx * dx + dy * dy), h = zb;
-            if (d < r) h = lk_lt_tk[cy][cx] == 2 ? top - (top - zb - 4.0f) * d / r : top - r + sqrtf(r * r - d * d);
+            if (d < r) h = lk_lt_tk[cy][cx] == 2 ? top - (top - zb - 4.0f) * d / r : top - r * LK_LT_BSQ + LK_LT_BSQ * sqrtf(r * r - d * d);
             if (d < r && lk_lt_tk[cy][cx] == 2 && lk_lt_pinet()) { int kk; for (kk = 5; kk >= 0; kk--) { float R = r * (1.0f - (float)kk / 6.0f), tt; if (R < d) continue;   /* v9 tiers: the top of the highest tier that reaches d */
                 tt = (1.0f - d / R) / 0.55f; if (tt > 1.0f) tt = 1.0f; h = zb + 4.0f + ((float)kk + tt) / 6.0f * (top - zb - 4.0f); break; } }
             lk_lt_fh[sy][sx] = (int16_t)h; lk_lt_fo[sy][sx] = P->obj; lk_lt_fp[sy][sx] = (uint8)(k + 1); } }
@@ -1333,7 +1335,9 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
           for (d = 1; d <= 3; d++) { int cx = ex - d * dy, cy = ey - d * dx; if (cx < 0 || cy < 0 || lk_lt_top[cy][cx] != ha) break; n++; }
           for (d = 1; d <= 3; d++) { int cx = ex + d * dy, cy = ey + d * dx; if (cx >= 74 || cy >= 74 || lk_lt_top[cy][cx] != ha) break; n++; }
           if (n > 2) thin = 0; }
-        if (thin) { ag[y][x] = (int16_t)ha; na++; break; } } }
+        if (thin) { int q, own = 0; for (q = 0; lk_lt_corr[q].room >= 0; q++) { const int16_t *a = lk_lt_corr[q].a;   /* v9: a gap under a data shape with "air" (op mesh: its arch as a slab) stays open */
+            if (lk_lt_corr[q].room == lk_o_room && lk_lt_corr[q].op == 5 && a[5] && x >= a[0] && x <= a[2] && y >= a[1] && y <= a[3]) own = 1; }
+          if (!own) { ag[y][x] = (int16_t)ha; na++; } break; } } }
     memcpy(lk_lt_top, ag, sizeof ag);
     if (lk_lt_dbg == 1 && na) printf("arch gaps: room %%d, %%d cells filled\n", lk_o_room, na); }
   memset(lk_lt_wat, 0, sizeof lk_lt_wat);
