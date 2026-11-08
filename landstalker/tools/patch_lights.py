@@ -1342,6 +1342,71 @@ static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine 
   if (lk_lt_sun && nsl && mx > lk_lt_fhmax) lk_lt_fhmax = mx;   /* the fine view ray (lk_lt_rayf) also in a sun room with slabs only */
   if (!lk_lt_sun && mx > lk_lt_zmax) lk_lt_zmax = mx;
   if (lk_lt_dbg == 1 && (nfine || nsl)) printf("fine: room %%d, %%d fine sub columns, %%d slab sub columns, top %%d\n", lk_o_room, nfine, nsl, mx); }
+/* LK_LTROOM v1 (WHOLE ROOMS AS 3D MODELS step (a), 2026-11-08, user: 'bauen wir dann einfach schon jeden Raum aus Formen nach? inklusive Boeden und Waenden?' -> plan
+   LIGHT_PROXY_PLAN 'WHOLE ROOMS AS 3D MODELS'): at room load the light's own height field indoors (lk_lt_ifh after every rule: invisible barriers, door niches, water,
+   data boxes) becomes a BOX MODEL: one top quad per run of equal sub columns, one wall per run of equal height steps (down to -40 at the void, where the view ray stops).
+   Exact by construction (the picture is drawn block by block).  GPU only (GPU-first): the triangles go into the model buffer + key light shadow map like a Blender mesh;
+   their sub columns are owned with kind 2 (lk_lt_mown = 2: AO / depth darkening / key light keep the field = the same boxes).  Thin pillars under a flame: the model has
+   the floor (lk_lt_thin), kind 3 (the GPU view ray asks the field there), sub columns of a hand-made model (kind 1), rooms with slabs (not yet).  The CPU keeps today's field.
+   LANDSTALKER_LT_ROOMMODEL = 0 off (default for now) / 1 every indoor room / room list "600,250"; LANDSTALKER_LT_ROOMOBJ=prefix writes prefix_<room>.obj (remake base frame,
+   local only, never in git: it is derived from the ROM). */
+#define LK_LT_RMMAX 60000
+#define LK_LT_RMEPS 0.01f   /* the model sits 2/100 unit towards -x and 1/100 towards -y: a sub column is [x0, x1) like in the field rays, so a view ray through an edge picks the same face as the field
+   (x more than y: on a front corner the field ray takes the +x face) */
+static float lk_lt_rmt[LK_LT_RMMAX * 18]; static int lk_lt_rmn, lk_lt_rmover;
+static int lk_lt_roomopt(int room) { static int v = -2; static int rl[64], nrl; const char *e;
+  if (v == -2) { v = 0; nrl = 0; e = getenv("LANDSTALKER_LT_ROOMMODEL"); if (e && *e) { if (strchr(e, ',') || atoi(e) > 1) { const char *q = e; v = 2; while (*q && nrl < 64) { rl[nrl++] = atoi(q); q = strchr(q, ','); if (!q) break; q++; } } else v = atoi(e) ? 1 : 0; } }
+  if (v == 1) return 1; if (v == 2) { int i; for (i = 0; i < nrl; i++) if (rl[i] == room) return 1; } return 0; }
+static void lk_lt_rmquad(const float *a, const float *b, const float *c, const float *d, float nx, float ny, float nz) {   /* two triangles a b c / a c d, flat normal */
+  const float *v[6]; int i; if (lk_lt_rmn + 2 > LK_LT_RMMAX) { lk_lt_rmover = 1; return; }
+  v[0] = a; v[1] = b; v[2] = c; v[3] = a; v[4] = c; v[5] = d;
+  for (i = 0; i < 6; i++) { float *o = lk_lt_rmt + 18 * lk_lt_rmn + 6 * (i %% 3) + (i >= 3 ? 18 : 0); o[0] = v[i][0] - 2.0f * LK_LT_RMEPS; o[1] = v[i][1] - LK_LT_RMEPS; o[2] = v[i][2]; o[3] = nx; o[4] = ny; o[5] = nz; }
+  lk_lt_rmn += 2; }
+static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the current indoor room (after the thin column pruning) */
+  static int16_t H[LK_LT_FN + 2][LK_LT_FN + 2]; static uint8 vis[LK_LT_FN][LK_LT_FN]; int sx, sy, x0, nown = 0; const int VZ = -40;
+  lk_lt_rmn = 0; lk_lt_rmover = 0;
+  if (lk_lt_sun || !lk_lt_modelopt() || !lk_lt_roomopt(lk_o_room) || lk_lt_nslab) return;
+  #define LK_RMH(x, y) H[(y) + 1][(x) + 1]
+  for (sy = -1; sy <= LK_LT_FN; sy++) for (sx = -1; sx <= LK_LT_FN; sx++) { int h = -32768;
+    if (sx >= 0 && sy >= 0 && sx < LK_LT_FN && sy < LK_LT_FN) {
+      if (lk_lt_mown[sy][sx]) h = lk_lt_mg[sy][sx];   /* a hand-made model: its ground (the model itself has its own mesh) */
+      else if (lk_lt_thin[sy >> 2][sx >> 2] > -32768) h = lk_lt_thin[sy >> 2][sx >> 2];   /* a thin pillar under a flame: the floor around it (as the light sees it) */
+      else h = lk_lt_ifh(sx, sy, 0); }
+    LK_RMH(sx, sy) = (int16_t)h; }
+  memset(vis, 0, sizeof vis);
+  for (sy = 0; sy < LK_LT_FN; sy++) for (sx = 0; sx < LK_LT_FN; sx++) { int h = LK_RMH(sx, sy), x1 = sx, y1 = sy, ok = 1, i;   /* tops: greedy rectangles of equal height (x first, then y) */
+    if (h == -32768 || lk_lt_mown[sy][sx] || vis[sy][sx]) continue;
+    while (x1 + 1 < LK_LT_FN && LK_RMH(x1 + 1, sy) == h && !lk_lt_mown[sy][x1 + 1] && !vis[sy][x1 + 1]) x1++;
+    while (ok && y1 + 1 < LK_LT_FN) { for (i = sx; i <= x1; i++) if (LK_RMH(i, y1 + 1) != h || lk_lt_mown[y1 + 1][i] || vis[y1 + 1][i]) { ok = 0; break; } if (ok) y1++; }
+    { int a2, b2; for (b2 = sy; b2 <= y1; b2++) for (a2 = sx; a2 <= x1; a2++) vis[b2][a2] = 1; }
+    { float z = (float)h, X0 = 4.0f * sx, X1 = 4.0f * (x1 + 1), Y0 = 4.0f * sy, Y1 = 4.0f * (y1 + 1), a[3] = { X0, Y0, z }, b[3] = { X1, Y0, z }, c[3] = { X1, Y1, z }, d[3] = { X0, Y1, z }; lk_lt_rmquad(a, b, c, d, 0.0f, 0.0f, 1.0f); } }
+  for (x0 = -1; x0 < LK_LT_FN; x0++) for (sy = 0; sy < LK_LT_FN; ) {   /* walls on the boundary x = 4 (x0 + 1) between sub columns x0 and x0 + 1, runs along y */
+    int a = LK_RMH(x0, sy), b = LK_RMH(x0 + 1, sy), y1 = sy, lo, hi; float X, n;
+    if (a == -32768 && b == -32768) { sy++; continue; } if (a == -32768) a = VZ; if (b == -32768) b = VZ; if (a == b) { sy++; continue; }
+    while (y1 + 1 < LK_LT_FN) { int a2 = LK_RMH(x0, y1 + 1), b2 = LK_RMH(x0 + 1, y1 + 1); if (a2 == -32768 && b2 == -32768) break; if (a2 == -32768) a2 = VZ; if (b2 == -32768) b2 = VZ; if (a2 != a || b2 != b) break; y1++; }
+    lo = a < b ? a : b; hi = a < b ? b : a; X = 4.0f * (x0 + 1); n = a > b ? 1.0f : -1.0f;
+    { float Y0 = 4.0f * sy, Y1 = 4.0f * (y1 + 1), p[3] = { X, Y0, (float)lo }, q[3] = { X, Y1, (float)lo }, r[3] = { X, Y1, (float)hi }, t[3] = { X, Y0, (float)hi }; lk_lt_rmquad(p, q, r, t, n, 0.0f, 0.0f); }
+    sy = y1 + 1; }
+  { int y0; for (y0 = -1; y0 < LK_LT_FN; y0++) for (sx = 0; sx < LK_LT_FN; ) {   /* walls on the boundary y = 4 (y0 + 1), runs along x */
+    int a = LK_RMH(sx, y0), b = LK_RMH(sx, y0 + 1), x1 = sx, lo, hi; float Y, n;
+    if (a == -32768 && b == -32768) { sx++; continue; } if (a == -32768) a = VZ; if (b == -32768) b = VZ; if (a == b) { sx++; continue; }
+    while (x1 + 1 < LK_LT_FN) { int a2 = LK_RMH(x1 + 1, y0), b2 = LK_RMH(x1 + 1, y0 + 1); if (a2 == -32768 && b2 == -32768) break; if (a2 == -32768) a2 = VZ; if (b2 == -32768) b2 = VZ; if (a2 != a || b2 != b) break; x1++; }
+    lo = a < b ? a : b; hi = a < b ? b : a; Y = 4.0f * (y0 + 1); n = a > b ? 1.0f : -1.0f;
+    { float X0 = 4.0f * sx, X1 = 4.0f * (x1 + 1), p[3] = { X0, Y, (float)lo }, q[3] = { X1, Y, (float)lo }, r[3] = { X1, Y, (float)hi }, t[3] = { X0, Y, (float)hi }; lk_lt_rmquad(p, q, r, t, 0.0f, n, 0.0f); }
+    sx = x1 + 1; } }
+  if (lk_lt_rmover) { printf("room model: room %%d needs more than %%d triangles, off here\n", lk_o_room, LK_LT_RMMAX); lk_lt_rmn = 0; return; }
+  if (!lk_lt_rmn) return;
+  for (sy = 0; sy < LK_LT_FN; sy++) for (sx = 0; sx < LK_LT_FN; sx++) if (!lk_lt_mown[sy][sx] && LK_RMH(sx, sy) != -32768) {
+    lk_lt_mown[sy][sx] = lk_lt_thin[sy >> 2][sx >> 2] == -32768 ? 2 : 3; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = LK_RMH(sx, sy); nown++; }   /* kind 2: a generated box column, not floating, its ground = its top;
+       kind 3: a thin pillar's cell (the model has its floor, the GPU view ray asks the field: layer A pixels sit on the pillar) */
+  lk_lt_nmodel++;
+  if (lk_lt_dbg == 1 || lk_lt_dbg == 5) printf("room model: room %%d, %%d triangles, %%d sub columns owned\n", lk_o_room, lk_lt_rmn, nown);
+  { const char *e = getenv("LANDSTALKER_LT_ROOMOBJ"); if (e && *e) { char pth[600]; FILE *f; int i; snprintf(pth, sizeof pth, "%%s_%%d.obj", e, lk_o_room); f = fopen(pth, "w");   /* test aid: the box model as OBJ (game units, z up) */
+      if (f) { fprintf(f, "# Project-Friday room %%d box model (LK_LTROOM v1), game units, z up; derived from the ROM: never commit\n", lk_o_room);
+        for (i = 0; i < 3 * lk_lt_rmn; i++) fprintf(f, "v %%g %%g %%g\n", lk_lt_rmt[6 * i] + 2.0f * LK_LT_RMEPS, lk_lt_rmt[6 * i + 1] + LK_LT_RMEPS, lk_lt_rmt[6 * i + 2]);
+        for (i = 0; i < lk_lt_rmn; i++) fprintf(f, "f %%d %%d %%d\n", 3 * i + 1, 3 * i + 2, 3 * i + 3); fclose(f); } } }
+  #undef LK_RMH
+}
 static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first: it reads everything rebuilt here) */   /* height map + lights of the current room */
   int x, y, k; static uint8 seen[152][304];
   lk_lt_jobwait(1);
@@ -1581,6 +1646,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
     for (k = 0; k < lk_lt_nl; k++) { int lx = (int)floorf(lk_lt_l[k].x / 16.0f), ly = (int)floorf(lk_lt_l[k].y / 16.0f); if (abs(lx - x) <= 1 && abs(ly - y) <= 1 && lk_lt_l[k].z >= (float)lk_lt_top[y][x] - lk_lt_thinz) keep = 1; }
     if (!keep) lk_lt_thin[y][x] = -32768;
     else if (lk_lt_dbg == 1) printf("thin column: room %%d cell %%d,%%d top %%d floor %%d\n", lk_o_room, x, y, lk_lt_top[y][x], lk_lt_thin[y][x]); }
+  lk_lt_roombuild();   /* LK_LTROOM v1: after the thin column pruning (it reads lk_lt_thin) */
   lk_lt_nfl = lk_lt_nl;   /* LK_DAYNIGHT v3: the flames (lava, torches); window lights follow */
   if (lk_lt_sun && lk_dn_get() && lk_o_room >= 0 && (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) == 0) {   /* v3 WINDOW LIGHT (user 2026-11-06: 'auf den Boden vor dem Haus fallendes Licht aus den Fenstern', 'muss fuer Nigels Schatten beruecksichtigt werden'):
        one weak warm light in front of every window (tileset 0 window tiles, one group per window), strength = the window glow (lk_lt_flk = lk_dn_wk), figures cast shadows from it like from a torch */
