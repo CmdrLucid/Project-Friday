@@ -773,6 +773,7 @@ static int lk_lt_watblk(void) { static int v = -1; if (v < 0) { const char *e = 
 static int lk_lt_pinewalk(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_PINEWALK"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-07: no catalogue pine on walkable ground of base height */
 static int lk_lt_invmode(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INVIS"); v = e ? atoi(e) : 2; } return v; }   /* 0 off, 1 neighbour heights (first version), 2 void (default) */
 static int lk_lt_archfill(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_ARCHFILL"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: arch gaps in thin tall walls filled */
+static int lk_lt_lathe2(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_LATHE2"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: lathe re-anchor ignores the own box, wall foot rows filled */
 static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 2026-11-03: 'sollten wir nicht eher fixen dass die Haeuser im Raumplan korrekt sind?'):
      the game's height map holds only the low collision boxes of houses / trees; their drawn walls, roofs and crowns are layer A (foreground) pixels
      above the box.  Small raised boxes (<= 128 cells of one height with a lower neighbour; large areas = terrain stay) are raised in OUR copy (lk_lt_top) cell by cell
@@ -952,8 +953,11 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
              the first real row (of the upper part) through the game heights; the tree stands where it meets them (the cliff top), with the height of its real rows only */
           if (g >= 8 && H - g >= 12) { int D = C->U - 1184, V = C->V0 - g, zz, hit = 0; float hx = 0.0f, hy = 0.0f; int hz = 0;
             for (zz = lk_lt_zmax + 16; zz >= C->h - 16 && !hit; zz--) { float fx = (float)(2 * V + 2 * zz + D) * 0.5f, fy = (float)(2 * V + 2 * zz - D) * 0.5f; int cx = (int)floorf(fx / 16.0f), cy = (int)floorf(fy / 16.0f), tp;
-              if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) continue; tp = lk_lt_gh[cy][cx]; if (tp == -32768) continue; if (zz <= tp) { hit = 1; hx = fx; hy = fy; hz = tp; } }
-            if (hit && hz > C->h + 4) { int k2; for (k2 = 0; k2 < 96; k2++) R[k2] = (uint8)(k2 + g < 96 && k2 < H - g ? R[k2 + g] : 0);
+              if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) continue; tp = lk_lt_gh[cy][cx]; if (tp == -32768) continue;
+              if (lk_lt_obj[cy][cx] == C->obj && lk_lt_lathe2()) continue;   /* 2026-11-08 (user, room 638: 'Schatten losgeloest von den Baeumen'): never the tree's OWN collision box (the pines before the river bank stood on it, 48 up) */
+              if (zz <= tp) { hit = 1; hx = fx; hy = fy; hz = tp; } }
+            if (hit && (hz > C->h + 4 || lk_lt_lathe2())) { int k2;   /* 2026-11-08 (room 638): also onto the GROUND: a pine drawn further back in its cell starts 9 rows above the card foot (empty rows, no wall); it stands where its view ray meets the ground (was: cut = no tree) */
+              for (k2 = 0; k2 < 96; k2++) R[k2] = (uint8)(k2 + g < 96 && k2 < H - g ? R[k2 + g] : 0);
               if (lk_lt_dbg == 5) printf("proxy: room %%d #%%d lathe re-anchored: %%d wall rows at the bottom, foot (%%d,%%d) z %%d -> (%%.0f,%%.0f) z %%d\n", lk_o_room, lk_lt_npx - 1, g, P->x0, P->y0, P->z0, hx, hy, hz);
               P->x0 = (int16_t)hx; P->y0 = (int16_t)hy; P->z0 = (int16_t)hz; P->eave = (int16_t)hz; P->ridge = (int16_t)(hz + H - g); bad -= g; if (bad < 0) bad = 0; H -= g; }
             else { int k2; for (k2 = g; k2 < 96; k2++) R[k2] = 0; H = g; P->ridge = (int16_t)(P->z0 + H); if (lk_lt_dbg == 5) printf("proxy: room %%d #%%d lathe cut at row %%d (the part above a gap could not be placed)\n", lk_o_room, lk_lt_npx - 1, g); } }
