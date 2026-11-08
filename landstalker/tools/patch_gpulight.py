@@ -138,6 +138,7 @@ unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int o = y * 74 + x, ob = lk_lt_obj[y][x], hc = lk_lt_gh[y][x];
     if (ob > 0 && ob < 1024 && lk_lt_ocl[ob] == 1) { hc = lk_lt_sgnd[ob]; if (hc == -32768) hc = -32767; }
     w[o] = (uint32_t)(uint16_t)lk_lt_top[y][x] | ((uint32_t)(uint16_t)lk_lt_thin[y][x] << 16); w[5476 + o] = (uint32_t)lk_lt_vw[y][x] | ((uint32_t)(lk_lt_wat[y][x] ? 1 : 0) << 8) | ((uint32_t)(uint16_t)lk_lt_hd[y][x] << 16);
+    { int i2, j2; for (j2 = 0; j2 < 4; j2++) for (i2 = 0; i2 < 4; i2++) if (lk_lt_mown[4 * y + j2][4 * x + i2] == 1) w[5476 + o] |= 1u << 9; }   /* LK_GLROOM v1: the cell holds a hand-made model (bit 9) */
     { extern uint16_t lk_lt_cpk_at(int x, int y); w[2 * 5476 + o] = ((uint32_t)(uint16_t)lk_lt_hdn[y][x] << 16) | lk_lt_cpk_at(x, y); }   /* GL5c: the early exit field of the NEXT sun direction (sunn); low half: side penumbra objects lk_lt_cpk */
     w2[o] = (uint32_t)(uint16_t)hc | ((uint32_t)lk_lt_tk[y][x] << 16) | ((uint32_t)lk_lt_tr[y][x] << 24); w2[5476 + o] = (uint32_t)(uint16_t)lk_lt_tt[y][x] | ((uint32_t)(uint16_t)lk_lt_tb[y][x] << 16); w2[2 * 5476 + o] = (uint32_t)(uint16_t)lk_lt_gh[y][x] | ((uint32_t)(uint16_t)lk_lt_obj[y][x] << 16);
     LK_GL_H(w[o]); LK_GL_H(w[5476 + o]); LK_GL_H(w[2 * 5476 + o]); LK_GL_H(w2[o]); LK_GL_H(w2[5476 + o]); LK_GL_H(w2[2 * 5476 + o]); }
@@ -644,6 +645,7 @@ vec4 FN(float sx, float sy, float hf);   /* below */
 float smvis2(vec3 p, vec3 n, vec3 sd, float hs, float kp);   /* below */
 bool mownd(float sx, float sy) { if (uMdl < 0.5 || sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return false; return B(FN(sx, sy, 4.0).r) > 0.5; }   /* LK_GLMODEL v1: model owned sub column (any kind) */
 bool mownh(float sx, float sy) { if (uMdl < 0.5 || sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return false; float r = B(FN(sx, sy, 4.0).r); return r > 0.5 && r < 1.5; }   /* LK_GLROOM v1: owned by a HAND-MADE model (kind 1) */
+bool cellmdl(float cx, float cy);   /* below (LK_GLROOM v1) */
 bool mowng(float sx, float sy) { if (uMdl < 0.5 || sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return false; return B(FN(sx, sy, 4.0).r) > 1.5; }   /* LK_GLROOM v1: a GENERATED room box column (kind 2, or 3 = a thin pillar's cell: the field answers) */   /* LK_GLMODEL v1: model owned sub column */
 vec2 SLB(float sx, float sy) { if (sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return vec2(0.0, -32768.0); vec4 f = FN(sx, sy, 2.0); return vec2(S16(B(f.r), B(f.g)), S16(B(f.b), B(f.a))); }   /* v9: slab bottom / top */
 float ifh(float sx, float sy, float thin) {   /* v9 lk_lt_ifh: the data height indoors or the cell (+ thin column rule) */
@@ -701,6 +703,7 @@ float aoh2(float x, float y, float dx, float dy, float slab) {   /* lk_lt_aoh2 *
   float cx = floor(x / 16.0), cy = floor(y / 16.0);
   if (!inr(cx, cy)) return (dx < 0.0 || dy < 0.0) ? 32767.0 : -32768.0;
   vec4 w = W(cx, cy, 0.0); float t = S16(B(w.r), B(w.g));
+  if (uIfine < 0.5 && cellmdl(cx, cy)) { float sx = floor(x / 4.0), sy = floor(y / 4.0); if (mownh(sx, sy)) { vec4 f4 = FN(sx, sy, 4.0), f0 = FN(sx, sy, 0.0); float g = S16(B(f4.b), B(f4.a)), fo = S16(B(f0.b), B(f0.a)), fh = S16(B(f0.r), B(f0.g)); t = fo != 0.0 && fh > g ? fh : g; } }   /* LK_GLROOM v1 outdoors: a model's area = the model's stamped top or the ground (no collision box) */
   if (uIfine > 0.5) { float sx = floor(x / 4.0), sy = floor(y / 4.0); t = ifh(sx, sy, 0.0); if (slab > 0.5) { vec2 q = SLB(sx, sy); if (q.y > q.x && q.y > t) t = q.y; }   /* v9 */
     if (uMdl > 0.5 && sx >= 0.0 && sy >= 0.0 && sx < 296.0 && sy < 296.0) { float gx = x / 4.0 - 0.5, gy = y / 4.0 - 0.5, ax = floor(gx), ay = floor(gy), fx = gx - ax, fy = gy - ay;
       if (gKM > 0.5 && uSm.w > 1.5 && slab < 0.5 && mowng(sx, sy)) return -32768.0;   /* test aid LANDSTALKER_LT_ROOMSM=1: the boxes are in the shadow map */
@@ -728,18 +731,20 @@ float aoval(float px, float py, float z, float f) {   /* lk_lt_aoval */
   if (uMdl > 2.5 && gMS > 0.5) return clamp(ao, 0.0, 1.0) * (uMdl > 3.5 ? 0.0 : 1.0) + (uMdl > 3.5 ? n / 16.0 : 0.0);   /* LK_GLMODEL v1 test aid: 3 = horizon part only, 4 = number of directions / 16 */
   if (f != 1.0 && uAotop > 0.0) ao *= 1.0 - uAotop;
   if (f != 1.0) { float fl = aoh(x0, y0, 0.0, 0.0); if (fl > -32768.0 && z >= fl) { float c = 1.0 - (z - fl) / 24.0; if (c > 0.0) ao *= 1.0 - 0.30 * c; } }
-  { float cx = floor(px / 16.0), cy = floor(py / 16.0); if (f == 1.0 && inr(cx, cy) && B(W(cx, cy, 1.0).g) > 0.5) z = 32767.0; }
-  if (f == 1.0 && uMdl > 0.5 && px >= 0.0 && py >= 0.0 && px < 1184.0 && py < 1184.0) { vec4 f4 = FN(floor(px / 4.0), floor(py / 4.0), 4.0); if (B(f4.r) > 0.5 && B(f4.r) < 1.5 && z <= S16(B(f4.b), B(f4.a)) + 0.5) z = 32767.0; }   /* LK_GLMODEL v1: the ground below a model (the ship's sea) is not darkened by depth: the game's cells there are the deck, not water */
+  { float cx = floor(px / 16.0), cy = floor(py / 16.0); if (f == 1.0 && inr(cx, cy) && mod(B(W(cx, cy, 1.0).g), 2.0) > 0.5) z = 32767.0; }
+  if (f == 1.0 && uMdl > 0.5 && uSunR < 0.5 && px >= 0.0 && py >= 0.0 && px < 1184.0 && py < 1184.0) { vec4 f4 = FN(floor(px / 4.0), floor(py / 4.0), 4.0); if (B(f4.r) > 0.5 && B(f4.r) < 1.5 && z <= S16(B(f4.b), B(f4.a)) + 0.5) z = 32767.0; }   /* LK_GLMODEL v1: the ground below a model (the ship's sea) is not darkened by depth: the game's cells there are the deck, not water */
   if (uZref > -32768.0 && z < uZref) { float dd = (uZref - z) / 64.0; if (dd > 1.0) dd = 1.0; ao *= 1.0 - 0.18 * dd; }
   return ao < 0.35 ? 0.35 : ao > 1.0 ? 1.0 : ao; }
 vec3 P(float U, float V, float z) { float D = U - 1184.0; return vec3((2.0 * V + 2.0 * z + D) * 0.5, (2.0 * V + 2.0 * z - D) * 0.5, z); }
 vec4 W2(float cx, float cy, float hf) { return texture2D(wld2, (vec2(cx, cy + 74.0 * hf) + 0.5) / vec2(74.0, 222.0)); }
 vec4 FN(float sx, float sy, float hf) { return texture2D(fine, (vec2(sx, sy + 296.0 * hf) + 0.5) / vec2(296.0, 1480.0)); }
+bool cellmdl(float cx, float cy) { return uMdl > 0.5 && inr(cx, cy) && B(W(cx, cy, 1.0).g) > 1.5; }   /* LK_GLROOM v1: the cell holds a hand-made model (w2 bit 9) */
 float sidecl(float x, float y, float z, float cx, float cy, float self, float m3) {   /* = lk_lt_sidecl (patch_lights.py): horizontal distance to a neighbour cell whose side record lk_lt_spk (w row 2 low half) reaches above z */
   float cl = 9999.0;
   if (z >= 4.0 * m3 + 0.5) return cl;   /* lk_lt_m3q (passed in from the fine plane the march already read): nothing around reaches the ray */
   for (int b2 = -1; b2 <= 1; b2++) for (int a2 = -1; a2 <= 1; a2++) { float ax = cx + float(a2), by = cy + float(b2);
     if ((a2 == 0 && b2 == 0) || ax < 0.0 || by < 0.0 || ax > 73.0 || by > 73.0) continue;
+    if (gKM > 0.5 && uSm.w > 0.5 && cellmdl(ax, by)) continue;   /* LK_GLROOM v1: a model cell's record holds its collision box; the shadow map has the model */
     vec4 wc = W(ax, by, 2.0); float tq = B(wc.r), bb = B(wc.g); if (tq == 0.0 || 4.0 * tq + 0.5 <= z) continue;
     if (self != 0.0 && S16(B(W2(ax, by, 2.0).b), B(W2(ax, by, 2.0).a)) == self) continue;
     float bx0 = 16.0 * ax + 4.0 * mod(bb, 4.0), bx1 = 16.0 * ax + 4.0 * (mod(floor(bb / 4.0), 4.0) + 1.0), by0 = 16.0 * by + 4.0 * mod(floor(bb / 16.0), 4.0), by1 = 16.0 * by + 4.0 * (floor(bb / 64.0) + 1.0);

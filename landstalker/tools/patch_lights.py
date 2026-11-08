@@ -1280,6 +1280,13 @@ static int lk_lt_cvh(int sx, int sy, int H, int fl, int mode) {   /* v9 carve, f
   for (h = hm; h > fl; h--) if (!lk_lt_bgpix(D, 2 * sx + 2 * sy + 2 - h, mode)) return h;
   return fl; }
 static int lk_lt_carveout(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_CARVEOUT"); v = e ? atoi(e) : 1; } return v; }   /* test aid: 0 = outdoor shapes not carved */
+static int lk_lt_ringg(int x0, int y0, int x1, int y1) {   /* LK_GLROOM v1: the most common game height on the ring of cells around a rectangle (a tie: the lower one), the ground of a model's area */
+  int vals[64], cnt[64], nv = 0, i, x, y, best = 0, base = 0;
+  for (y = y0 - 1; y <= y1 + 1; y++) for (x = x0 - 1; x <= x1 + 1; x++) { int g; if (x >= x0 && x <= x1 && y >= y0 && y <= y1) continue;
+    if (x < 0 || y < 0 || x >= 74 || y >= 74 || (g = lk_lt_gh[y][x]) == -32768) continue;
+    for (i = 0; i < nv && vals[i] != g; i++) ; if (i == nv) { if (nv == 64) continue; vals[nv] = g; cnt[nv++] = 0; } cnt[i]++; }
+  for (i = 0; i < nv; i++) if (cnt[i] > best || (cnt[i] == best && vals[i] < base)) { best = cnt[i]; base = vals[i]; }
+  return base; }
 static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine heights indoors (lk_lt_fo = LK_LT_IFO) and slabs (indoors + outdoors); after lk_lt_extrude */
   static int fopt = -1, fforce = 0; static uint8 cov[LK_LT_FN][LK_LT_FN]; int q, x, y, mx = -32768, nfine = 0, nsl = 0;
   if (fopt < 0) { const char *e = getenv("LANDSTALKER_LT_FINE"); fopt = e ? atoi(e) : 1; e = getenv("LANDSTALKER_LT_IFORCE"); fforce = e ? atoi(e) : 0; }
@@ -1320,7 +1327,13 @@ static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine 
       continue; }
     if (op == 5 && lk_lt_meshes[a[4]] && lk_lt_modelopt() && lk_lt_msok(a[4]) && (!lk_lt_sun || lk_lt_modelout())) { const int16_t (*m)[4] = lk_lt_meshes[a[4]]; int e; lk_lt_nmodel++;   /* LK_LTMODEL v1: model ownership (indoors + outdoors) before the op stamps */
       for (e = 0; m[e][0] >= 0; e++) { int g; sx = m[e][0]; sy = m[e][1]; if (lk_lt_mown[sy][sx]) continue; g = lk_lt_sun ? lk_lt_gh[sy >> 2][sx >> 2] : lk_lt_ifh(sx, sy, 0);
-        lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = m[e][3]; lk_lt_mg[sy][sx] = (int16_t)(a[6] != -999 ? a[6] : g == -32768 || m[e][3] < g ? m[e][3] : g); } }   /* the ground below the model = the op's "floor" if given (ship: the sea), else the lower of the ground and the model's bottom (the game's cell height under a ship / house is its deck / roof: collision, not picture) */
+        lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = m[e][3]; lk_lt_mg[sy][sx] = (int16_t)(a[6] != -999 ? a[6] : g == -32768 || m[e][3] < g ? m[e][3] : g); } 
+      if (lk_lt_sun) { int gnd = a[6] != -999 ? a[6] : lk_lt_ringg(a[0], a[1], a[2], a[3]), nc = 0;   /* LK_GLROOM v1 CLEAN-UP outdoors (LIGHT_PROXY_PLAN stage 3, 2026-11-09): the whole op rectangle belongs to the
+           surface model, the GPU light sees the model + the ground only there (the game's collision boxes / stand-ins next to the model made dark corner lines, church 632) */
+        static uint8 mc[74][74]; memset(mc, 0, sizeof mc); for (e = 0; m[e][0] >= 0; e++) mc[m[e][1] >> 2][m[e][0] >> 2] = 1;   /* only the cells the model stands in (the op rectangle may hold a neighbour house) */
+        for (sy = 4 * a[1]; sy < 4 * a[3] + 4 && sy < LK_LT_FN; sy++) for (sx = 4 * a[0]; sx < 4 * a[2] + 4 && sx < LK_LT_FN; sx++) if (sx >= 0 && sy >= 0 && mc[sy >> 2][sx >> 2] && !lk_lt_mown[sy][sx]) {
+          lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)gnd; nc++; }
+        if (lk_lt_dbg == 5) printf("model: room %%d mesh %%d clean-up %%d sub columns at ground %%d\n", lk_o_room, a[4], nc, gnd); } }   /* the ground below the model = the op's "floor" if given (ship: the sea), else the lower of the ground and the model's bottom (the game's cell height under a ship / house is its deck / roof: collision, not picture) */
     if (op == 5) { const int16_t (*m)[4] = lk_lt_meshes[a[4]]; int e, nsb = 0, nso = 0; if (!m || (lk_lt_sun && !a[5])) continue;   /* outdoors: solid meshes are lk_lt_extrude's */
       memset(cov, 0, sizeof cov);
       {
