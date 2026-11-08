@@ -68,6 +68,38 @@ def mesh_cells(path):   # an OBJ (game coordinates) -> {(sx, sy): (top, bottom)}
                         if z > top.get((sx, sy), -1e9): top[(sx, sy)] = z
                         if z < bot.get((sx, sy), 1e9): bot[(sx, sy)] = z
     return {k: (top[k], bot[k]) for k in top}
+def mesh_tris(path):   # REAL 3D LIGHT SHAPES stage 1 (LK_LTMODEL v1, 2026-11-08): an OBJ -> flat list of triangles x y z nx ny nz per corner for the GPU model buffer;
+    # smooth normals over neighbouring faces within 35 degrees (round hull = smooth, box edges stay hard); a triangle turned away from the camera (+1, +1, +1) gets its normals flipped
+    # (it is hidden on a closed mesh anyway; on an open sheet such as the sail the visible side is the other one)
+    import math
+    vs, tris = [], []
+    for line in open(path):
+        t = line.split()
+        if not t: continue
+        if t[0] == "v": vs.append(tuple(float(q) for q in t[1:4]))
+        elif t[0] == "f":
+            idx = [int(q.split("/")[0]) - 1 for q in t[1:]]
+            for k in range(1, len(idx) - 1): tris.append((idx[0], idx[k], idx[k + 1]))
+    key = lambda v: (round(v[0], 2), round(v[1], 2), round(v[2], 2))
+    fn, inc = [], {}
+    for ti, (a, b, c) in enumerate(tris):
+        A, B, C = vs[a], vs[b], vs[c]; u = [B[i] - A[i] for i in range(3)]; w = [C[i] - A[i] for i in range(3)]
+        n = (u[1] * w[2] - u[2] * w[1], u[2] * w[0] - u[0] * w[2], u[0] * w[1] - u[1] * w[0]); fn.append(n)
+        for v in (a, b, c): inc.setdefault(key(vs[v]), []).append(ti)
+    unit = lambda n: (lambda l: (n[0] / l, n[1] / l, n[2] / l) if l > 1e-9 else (0.0, 0.0, 1.0))(math.sqrt(n[0] ** 2 + n[1] ** 2 + n[2] ** 2))
+    out = []
+    for ti, tr in enumerate(tris):
+        f = unit(fn[ti])
+        if f == (0.0, 0.0, 1.0) and fn[ti] == (0, 0, 0): continue   # degenerate
+        flip = -1.0 if f[0] + f[1] + f[2] < 0 else 1.0
+        for v in tr:
+            sn = [0.0, 0.0, 0.0]
+            for tj in inc[key(vs[v])]:
+                g = unit(fn[tj])
+                if g[0] * f[0] + g[1] * f[1] + g[2] * f[2] > 0.819: sn = [sn[i] + fn[tj][i] for i in range(3)]   # area weighted
+            n = unit(sn); out += [vs[v][0], vs[v][1], vs[v][2], flip * n[0], flip * n[1], flip * n[2]]
+    return out
+MTRI = {}   # mesh number -> triangle list (only meshes from an OBJ file)
 def prism_cells(poly, top, bot):   # v9 "prism" op: a polygon footprint (world units) -> {(sx, sy): (top, bottom)} at the sub column centres (4 sx + 2, 4 sy + 2)
     out = {}; xs = [p[0] for p in poly]; ys = [p[1] for p in poly]
     for sy in range(int(min(ys)) // 4, int(max(ys)) // 4 + 1):
@@ -109,7 +141,7 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
                 op, n = CORR_OPS[e["op"]]; a = [int(v) for v in (e["units"] if op in (8, 9) else e["cells"])]   # v9: box / slab in WORLD units (x1 / y1 exclusive), the rest in cells
                 assert len(a) == n, ("light_proxies.json: room %s op %s needs %d numbers" % (room, e["op"], n))
                 if op == 5:   # mesh: the rectangle's automatic shapes go, the mesh is stamped (a[4] = mesh number)
-                    top = mesh_cells(os.path.join(os.path.dirname(path), e["file"])); mi = len(MESHES)
+                    top = mesh_cells(os.path.join(os.path.dirname(path), e["file"])); mi = len(MESHES); MTRI[mi] = mesh_tris(os.path.join(os.path.dirname(path), e["file"]))
                     MESHES.append(", ".join("{%d, %d, %d, %d}" % (sx, sy, int(round(h[0])), int(round(h[1]))) for (sx, sy), h in sorted(top.items()) if 0 <= sx < 296 and 0 <= sy < 296))
                     a = a + [mi, 1 if e.get("air") else 0, int(e.get("floor", -999))]; n += 3   # v9: "air": parts whose bottom floats above the ground become slabs; "floor": indoors the rectangle's sub columns the mesh does not cover get this height
                 if op == 10:   # v9 carve: + background mode (1 "sea", 2 "layera"), floor
@@ -121,6 +153,10 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
     mesh = "".join("static const int16_t lk_lt_mesh%d[][4] = { %s, {-1, -1, -1, -1} };\n" % (i, m) for i, m in enumerate(MESHES))
     mesh += "static const int16_t (*const lk_lt_meshes[])[4] = { " + ", ".join(["lk_lt_mesh%d" % i for i in range(len(MESHES))] + ["0"]) + " };\n"
     print("patch_lights: %d light proxy meshes (%s cells)" % (len(MESHES), ", ".join(str(m.count("{")) for m in MESHES)))
+    mesh += "".join("static const float lk_lt_mtri%d[] = { %s };\n" % (i, ", ".join("%.3ff" % v for v in MTRI[i])) for i in sorted(MTRI))
+    mesh += "static const float *const lk_lt_mtris[] = { " + ", ".join(["lk_lt_mtri%d" % i if i in MTRI else "0" for i in range(len(MESHES))] + ["0"]) + " };\n"
+    mesh += "static const int lk_lt_mtrin[] = { " + ", ".join([str(len(MTRI[i]) // 18) if i in MTRI else "0" for i in range(len(MESHES))] + ["0"]) + " };   /* LK_LTMODEL v1: triangles per mesh */\n"
+    print("patch_lights: model triangles for the GPU: %s" % ", ".join("%d" % (len(MTRI[i]) // 18) for i in sorted(MTRI)))
     return "static const lk_lt_corr_t lk_lt_corr[] = { " + ", ".join(rows + ["{-1, 0, {0}}"]) + " };\n" + mesh
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
@@ -157,6 +193,12 @@ static int16_t lk_lt_fh[LK_LT_FN][LK_LT_FN], lk_lt_fo[LK_LT_FN][LK_LT_FN]; stati
    Only layer A pixels find their surface on a slab (the one pixel rule), every shadow march, the room light and the key light test it.  Rooms without such data
    take the old paths (lk_lt_ifine = 0, lk_lt_nslab = 0: bit exact).  Test aids LANDSTALKER_LT_FINE=0 (data ignored), LANDSTALKER_LT_IFORCE=1 (fine indoor paths without data: must equal the old ones) */
 #define LK_LT_IFO 2047
+/* REAL 3D LIGHT SHAPES stage 1 (LK_LTMODEL v1, 2026-11-08, user: 'echte 3D-Formen brauchen wir doch fuers Remake ohnehin', LIGHT_PROXY_PLAN 'REAL 3D LIGHT SHAPES'): indoors every sub column a
+   Blender mesh (op mesh with an OBJ file) stamps is marked as MODEL OWNED (lk_lt_mown) and keeps the ground below the model (lk_lt_mg, the height before the first mesh stamped it).
+   GPU only (GPU-first rule): the GPU view ray takes the model's real surface from a model buffer and sees the ground below the model in owned sub columns; the CPU and every
+   shadow march keep the fine field.  Test aid LANDSTALKER_LT_MODEL=0 = off (the old fine field view ray). */
+static uint8 lk_lt_mown[LK_LT_FN][LK_LT_FN]; static int16_t lk_lt_mg[LK_LT_FN][LK_LT_FN], lk_lt_mb[LK_LT_FN][LK_LT_FN];   /* + lk_lt_mb: the model's bottom (above mg + 4 = it floats: air below for the GPU's AO / key light) */ static int lk_lt_nmodel;
+static int lk_lt_modelopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_MODEL"); v = e ? atoi(e) : 1; } return v; }
 static int16_t lk_lt_sb[LK_LT_FN][LK_LT_FN], lk_lt_st[LK_LT_FN][LK_LT_FN]; static int lk_lt_ifine, lk_lt_nslab;
 static uint8 lk_lt_hk[LK_LT_FN][LK_LT_FN], lk_lt_hs[LK_LT_FN][LK_LT_FN]; static int16_t lk_lt_hb[LK_LT_FN][LK_LT_FN];   /* v9 SLAB HALO (soft shadow SIDES of slabs, user 2026-11-08):
    per sub column within 2 of a slab: the nearest slab sub column (hk = 1 + (dx + 2) + 5 (dy + 2), 0 none) and its interval (bottom hb, height 2 hs) */
@@ -1238,7 +1280,7 @@ static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine 
   if (fopt < 0) { const char *e = getenv("LANDSTALKER_LT_FINE"); fopt = e ? atoi(e) : 1; e = getenv("LANDSTALKER_LT_IFORCE"); fforce = e ? atoi(e) : 0; }
   for (y = 0; y < LK_LT_FN; y++) for (x = 0; x < LK_LT_FN; x++) { lk_lt_sb[y][x] = 0; lk_lt_st[y][x] = -32768; }
   if (!lk_lt_sun) for (y = 0; y < LK_LT_FN; y++) for (x = 0; x < LK_LT_FN; x++) { lk_lt_fh[y][x] = -32768; lk_lt_fo[y][x] = 0; lk_lt_fp[y][x] = 0; }   /* indoors the field holds the data only */
-  lk_lt_ifine = 0; lk_lt_nslab = 0;
+  lk_lt_ifine = 0; lk_lt_nslab = 0; memset(lk_lt_mown, 0, sizeof lk_lt_mown); lk_lt_nmodel = 0;
   if (fopt && lk_lt_sun && lk_lt_carveout()) { int nc = 0, sx, sy; struct timespec t0; clock_gettime(CLOCK_MONOTONIC, &t0);   /* OUTDOOR CARVE (user 2026-11-08: 'selbiges gilt fuer andere 3D-Formen'): the
        automatic building shapes (hip proxies) and Blender meshes are carved to the drawn layer A picture of the object (houses: roofs and walls are layer A) */
     for (sy = 0; sy < LK_LT_FN; sy++) for (sx = 0; sx < LK_LT_FN; sx++) { int o = lk_lt_fo[sy][sx], qq = lk_lt_fp[sy][sx], g, H, h, t;
@@ -1273,9 +1315,11 @@ static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine 
       continue; }
     if (op == 5) { const int16_t (*m)[4] = lk_lt_meshes[a[4]]; int e, nsb = 0, nso = 0; if (!m || (lk_lt_sun && !a[5])) continue;   /* outdoors: solid meshes are lk_lt_extrude's */
       memset(cov, 0, sizeof cov);
+      { int mdl = !lk_lt_sun && lk_lt_modelopt() && lk_lt_mtrin[a[4]] > 0; if (mdl) lk_lt_nmodel++;
       for (e = 0; m[e][0] >= 0; e++) { int g; sx = m[e][0]; sy = m[e][1]; g = lk_lt_sun ? lk_lt_gh[sy >> 2][sx >> 2] : lk_lt_ifh(sx, sy, 0); cov[sy][sx] = 1;   /* indoors the ground as earlier ops shaped it (a box under a sail) */
+        if (mdl && !lk_lt_mown[sy][sx]) { lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = m[e][3]; lk_lt_mg[sy][sx] = (int16_t)(a[6] != -999 ? a[6] : g == -32768 || m[e][3] < g ? m[e][3] : g); }   /* LK_LTMODEL v1: the ground below the model = the op's "floor" if given (ship: the sea), else the lower of the ground and the model's bottom (the game's cell height under a ship is its deck: collision, not picture) */
         if (a[5] && (g == -32768 || m[e][3] > g + 4)) { lk_lt_sb[sy][sx] = m[e][3]; lk_lt_st[sy][sx] = m[e][2]; nsb++; }   /* "air": floats above the ground = a slab */
-        else if (!lk_lt_sun && m[e][2] != -999) { lk_lt_fh[sy][sx] = m[e][2]; lk_lt_fo[sy][sx] = LK_LT_IFO; nso++; } }   /* -999: a prism that keeps the cell's height (cookie cutter) */
+        else if (!lk_lt_sun && m[e][2] != -999) { lk_lt_fh[sy][sx] = m[e][2]; lk_lt_fo[sy][sx] = LK_LT_IFO; nso++; } } }   /* -999: a prism that keeps the cell's height (cookie cutter) */
       if (!lk_lt_sun && a[6] != -999) for (sy = 4 * a[1]; sy < 4 * a[3] + 4 && sy < LK_LT_FN; sy++) for (sx = 4 * a[0]; sx < 4 * a[2] + 4 && sx < LK_LT_FN; sx++)
         if (sx >= 0 && sy >= 0 && !cov[sy][sx] && lk_lt_fo[sy][sx] != LK_LT_IFO) { lk_lt_fh[sy][sx] = a[6]; lk_lt_fo[sy][sx] = LK_LT_IFO; }   /* "floor": the rest of the rectangle (not what an earlier op shaped) */
       if (lk_lt_dbg == 5) printf("fine: room %%d mesh %%d: %%d solid, %%d slab sub columns, floor %%d\n", lk_o_room, a[4], nso, nsb, a[6]); } }

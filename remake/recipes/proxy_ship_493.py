@@ -46,8 +46,10 @@ HULL = [
     ("rail_stern_r", 692, 528, 704, 556, 32, 64, 64, "flat", None),
     ("rail_stern_fl", 576, 556, 588, 584, 32, 48, 48, "flat", None),  # below it the front post of the stern castle (48 in the height map)
     ("rail_stern_fr", 692, 556, 704, 584, 32, 48, 48, "flat", None),
-    ("rail_waist_l", 576, 584, 588, 784, 0, 44, 44, "flat", None),     # side rail logs (drawn ~12 above the main deck)
-    ("rail_waist_r", 692, 584, 704, 784, 0, 44, 44, "flat", None),
+    ("rail_waist_l", 576, 584, 588, 744, 0, 44, 44, "flat", None),     # side rail logs (drawn ~12 above the main deck)
+    ("rail_waist_r", 692, 584, 704, 744, 0, 44, 44, "flat", None),
+    ("rail_bow_l", 576, 744, 588, 784, 32, 44, 44, "flat", None),     # over the tapering bow the rail log sits on the deck (2026-11-08, real 3D light shapes: a box down to 0 stuck out of the
+    ("rail_bow_r", 692, 744, 704, 784, 32, 44, 44, "flat", None),     #   slanted bow side as a small face = a vertical light streak, user 'harte Kanten')
     cyl("mast", 626, 702, 6, 32, 248),
 ]   # the forecastle rail log (deck 48 + ~12) is NOT in the light shape: a thin diagonal rail becomes a stair of 4 unit sub columns with
 #   small pockets that the room light shades as vertical stripes; for a remake model: rail_along("rail_bow", [FC[0], FC[2], FC[1]], 10, 48, 60)
