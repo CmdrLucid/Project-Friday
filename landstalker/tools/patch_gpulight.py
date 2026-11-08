@@ -627,7 +627,7 @@ uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec2 uBlk; uniform float uSu
 uniform float uIfine; uniform float uNslab; uniform float uPineT; uniform float uBushE;   /* v9 */
 uniform sampler2D wld2; uniform sampler2D fine; uniform sampler2D prx; uniform sampler2D bex; uniform float uSside; uniform float uZtop; uniform vec3 uSd; uniform float uKey; uniform float uKbw; uniform float uKpen; uniform float uNsh; uniform vec4 uSh[9]; uniform sampler2D fine2; uniform float uZmax; uniform float uRayF;
 uniform sampler2D mdl; uniform vec4 uMo; uniform float uMdl; uniform vec4 uSm; uniform vec3 uE1; uniform vec3 uE2; uniform vec4 uSm2; uniform vec3 uE12; uniform vec3 uE22;   /* + the next sun step's map (third part) */   /* + stage 2: the key light SHADOW MAP in the right half (uSm = s0, t0, texels per unit, on) */   /* LK_GLMODEL v1: model buffer (z * 8 + 32768 in r / g, octahedral normal in b / a), its room picture origin + size, on */
-float gBest = 0.0, gBH = 0.0, gBX = 0.0, gBY = 0.0; vec3 gN = vec3(0.0, 0.0, 1.0); vec2 gMB = vec2(0.0, 0.0); float gMH = 0.0, gMS = 0.0, gKM = 0.0;   /* gKM: the key light march of keyShare (the model's own sub columns come from the shadow map) */   /* gMH: the view ray returned the model; gMS: this pixel is a model SIDE face (AO sees the ground below the model) */   /* LK_GLMODEL v1: the real normal of a model pixel (face code 20) / its raw bytes from the model buffer */
+float gBest = 0.0, gBH = 0.0, gBX = 0.0, gBY = 0.0; vec3 gN = vec3(0.0, 0.0, 1.0); vec2 gMB = vec2(0.0, 0.0); float gGen = 0.0, gMH = 0.0, gMS = 0.0, gKM = 0.0;   /* gKM: the key light march of keyShare (the model's own sub columns come from the shadow map) */   /* gMH: the view ray returned the model; gMS: this pixel is a model SIDE face (AO sees the ground below the model) */   /* LK_GLMODEL v1: the real normal of a model pixel (face code 20) / its raw bytes from the model buffer */
 vec3 octdec(vec2 b) { vec2 e = b / 255.0 * 2.0 - 1.0; vec3 n = vec3(e.x, e.y, 1.0 - abs(e.x) - abs(e.y)); if (n.z < 0.0) { vec2 w = (1.0 - abs(n.yx)) * vec2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0); n.x = w.x; n.y = w.y; } return normalize(n); }
 float fclassic(vec3 n) { if (n.z > 0.94) return 1.0; float a = degrees(atan(n.y, n.x)), k = floor((a + 45.0) / 11.25 + 0.5); return clamp(4.0 + k, 4.0, 19.0); }   /* the nearest old face code (room A for the light pass / CPU readers) */
 uniform sampler2D geo; uniform float uMode; uniform vec3 uSdN; uniform float uSunN; uniform float uKA; uniform float uKK; uniform vec3 uShc; uniform float uKm;
@@ -898,7 +898,7 @@ vec2 gdec(float U, float V, float zm) {   /* LK_GLROOM v1: the generated room mo
     if (fc > 1.5) zf = ceil(zx) - 1.0;   /* the field's whole z (first whole z inside the wall's sub column).  Tried 2026-11-08: the NEAREST whole z (user: 'wenn das neue genauer ist, nimm das') ->
        exact only on every 2nd pixel column (odd D: half a unit off), and the flame / AO terms are tuned to the field point: a 2 pixel light band on room 680's stair (user: 'hier verlaeuft ein dunkler Streifen') */
     float hsx = fdv(2.0 * V + 2.0 * zf + D, 8.0), hsy = fdv(2.0 * V + 2.0 * zf - D, 8.0);
-    if (mowng(hsx, hsy) || mowng(floor((q.x - mn.x * 0.5) / 4.0), floor((q.y - mn.y * 0.5) / 4.0))) {
+    if (gGen > 0.5) {   /* the buffer's surface is the generated room model (a hand-made model keeps its own path) */
       bool foot = false; if (fc > 1.5 && zx == floor(zx)) { float lsx = fdv(2.0 * V + 2.0 * zx + D, 8.0), lsy = fdv(2.0 * V + 2.0 * zx - D, 8.0); vec4 lf = FN(lsx, lsy, 4.0); foot = B(lf.r) > 0.5 && zx <= S16(B(lf.b), B(lf.a)); }   /* the ray meets the wall
          exactly at its foot edge (whole z on the top of the sub column in front): the field takes that top, the buffer's depth tie may take the wall */
       if (fc > 0.5 && !foot && !(fc > 1.5 && mod(D, 4.0) == 0.0) && mowng(hsx, hsy) && B(FN(hsx, hsy, 4.0).r) < 2.5 && zf <= S16(B(FN(hsx, hsy, 4.0).b), B(FN(hsx, hsy, 4.0).a))) { gfc = fc; gz = zf; }
@@ -909,7 +909,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
   float D = U - 1184.0, rob = 0.0, cf = 0.0, cz = 0.0, pin = 0.0, ptop = -32768.0, pcx = -999.0, pcy = -999.0;
   if (uRayF > 0.5) { float zmo = -99999.0;
     if (uMdl > 0.5) { float mu = U - uMo.x, mv = V - uMo.y; if (mu >= 0.0 && mv >= 0.0 && mu < uMo.z && mv < uMo.w) { vec4 m = texture2D(mdl, (vec2(mu, mv) + 0.5) / vec2(4096.0, 2048.0)); float e = B(m.r) + 256.0 * B(m.g);
-      if (e > 0.5) { zmo = (e - 32768.0) / 8.0; gMB = vec2(B(m.b), B(m.a)); } } }   /* LK_GLMODEL v1 outdoors: both layers (first try layer A only: walls drawn in layer B then lay under their own model = shadowed by it) */
+      if (e > 0.5) { gGen = e > 45056.0 ? 1.0 : 0.0; zmo = (e - (gGen > 0.5 ? 49152.0 : 32768.0)) / 8.0; gMB = vec2(B(m.b), B(m.a)); } } }   /* LK_GLMODEL v1 outdoors: both layers (first try layer A only: walls drawn in layer B then lay under their own model = shadowed by it) */
     vec2 gd = zmo > -99998.0 ? gdec(U, V, zmo) : vec2(-1.0, 0.0); if (gd.x > -0.5 && gd.x < 0.5) zmo = -99999.0;   /* LK_GLROOM v1: the generated ground model outdoors (objects stay the field's: kind 3) */
     float z0 = max(uZtop + 2.0 < uZmax ? uZtop + 2.0 : uZmax, ceil(zmo));
     for (int st = 0; st < 2400; st++) { float z = z0 - float(st); if (z < -40.0) break;
@@ -935,7 +935,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
     return cf > 0.0 ? vec3(cf, cz, rob) : vec3(0.0, 0.0, rob); }
   if (uIfine > 0.5) { float psx = -999.0, psy = -999.0, pfn = 0.0, zm = -99999.0;   /* v9 lk_lt_rayi */
     if (uMdl > 0.5) { float mu = U - uMo.x, mv = V - uMo.y; if (mu >= 0.0 && mv >= 0.0 && mu < uMo.z && mv < uMo.w) { vec4 m = texture2D(mdl, (vec2(mu, mv) + 0.5) / vec2(4096.0, 2048.0)); float e = B(m.r) + 256.0 * B(m.g);
-      if (e > 0.5) { zm = (e - 32768.0) / 8.0; gMB = vec2(B(m.b), B(m.a)); } } }   /* LK_GLMODEL v1: the model's first surface on this view ray */
+      if (e > 0.5) { gGen = e > 45056.0 ? 1.0 : 0.0; zm = (e - (gGen > 0.5 ? 49152.0 : 32768.0)) / 8.0; gMB = vec2(B(m.b), B(m.a)); } } }   /* LK_GLMODEL v1: the model's first surface on this view ray */
     vec2 gd = gdec(U, V, zm); float gfc = gd.x, gz = gd.y; if (gfc > -0.5 && gfc < 0.5) zm = -99999.0;   /* LK_GLROOM v1: decided BEFORE the field ray (a fallback must let the field start at its own first z, else it skips the top in front of a wall foot) */
     float zst = max(uZmax, ceil(zm));
     for (int st = 0; st < 2400; st++) { float z = zst - float(st); if (z < -40.0) break;
@@ -968,7 +968,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
     return cf > 0.0 ? vec3(cf, cz, rob) : vec3(0.0, 0.0, rob); }
   vec2 gc = vec2(-1.0, 0.0);   /* LK_GLROOM v1: the cell ray (outdoor rooms without objects) with a generated room model: decided before the march, as in the fine rays */
   if (uMdl > 0.5) { float mu = U - uMo.x, mv = V - uMo.y; if (mu >= 0.0 && mv >= 0.0 && mu < uMo.z && mv < uMo.w) { vec4 m = texture2D(mdl, (vec2(mu, mv) + 0.5) / vec2(4096.0, 2048.0)); float e = B(m.r) + 256.0 * B(m.g);
-    if (e > 0.5) { gMB = vec2(B(m.b), B(m.a)); gc = gdec(U, V, (e - 32768.0) / 8.0); } } }
+    if (e > 0.5) { gMB = vec2(B(m.b), B(m.a)); gGen = e > 45056.0 ? 1.0 : 0.0; gc = gdec(U, V, (e - (gGen > 0.5 ? 49152.0 : 32768.0)) / 8.0); } } }
   for (int st = 0; st < 2400; st++) { float z = uZmax - float(st); if (z < -40.0) break;
     if (gc.x > 0.5 && z <= gc.y) { gMH = 1.0; float hx2 = fdv(2.0 * V + 2.0 * gc.y + D, 8.0), hy2 = fdv(2.0 * V + 2.0 * gc.y - D, 8.0); if (rob == 0.0) { vec4 g2 = W2(floor(hx2 / 4.0), floor(hy2 / 4.0), 2.0); rob = S16(B(g2.b), B(g2.a)); } return vec3(gc.x, gc.y, rob); }
     float cx = fdv(2.0 * V + 2.0 * z + D, 32.0), cy = fdv(2.0 * V + 2.0 * z - D, 32.0), top = cellT(cx, cy), inn = top > -32768.0 ? 1.0 : 0.0;
@@ -1149,7 +1149,7 @@ static const char *lk_gm_vs = "#version 120\nuniform vec4 uMo; varying vec3 vN; 
 static const char *lk_gm_fs = "#version 120\nvarying vec3 vN; varying float vZ; uniform float uGen;\n"
   "void main() { if (uGen > 0.5 && vN.x + vN.y + vN.z < -0.01) discard; vec3 n = normalize(vN);   /* LK_GLROOM v1: a generated room model's -x / -y walls (back faces) never in the model buffer: at box edges they won the depth tie */ n /= abs(n.x) + abs(n.y) + abs(n.z); vec2 e = n.xy;\n"
   "  if (n.z < 0.0) e = (1.0 - abs(n.yx)) * vec2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0);\n"
-  "  e = floor((e * 0.5 + 0.5) * 255.0 + 0.5); float q = clamp(floor(vZ * 8.0 + 32768.5), 1.0, 65535.0);\n"
+  "  e = floor((e * 0.5 + 0.5) * 255.0 + 0.5); float q = clamp(floor(vZ * 8.0 + 32768.5 + (uGen > 0.5 ? 16384.0 : 0.0)), 1.0, 65535.0);   /* LK_GLROOM v1: a generated room model = z * 8 + 49152 (hand-made models unchanged) */\n"
   "  gl_FragColor = vec4(mod(q, 256.0), floor(q / 256.0), e.x, e.y) / 255.0; }\n";
 static int lk_gm_init(void) { lkGLint ok = 0, fb0 = 0, t0 = 0; lkGLuint vs, fs; char log[1024]; lkGLenum st;
   { const char *e = getenv("LANDSTALKER_GL5_MODELDBG"); lk_gm_dbg = e ? atoi(e) : 0; }
