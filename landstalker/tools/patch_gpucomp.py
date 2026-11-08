@@ -42,11 +42,7 @@ if VER not in s:
     MODULE = r'''/* ---- @VER@: picture composition on the GPU, compare harness (tools/patch_gpucomp.py, docs/RENDERER_IDEAS.md 'STEP 4 STAGE PLAN') ---- */
 static int lk_gc_mode = -2;   /* LANDSTALKER_GPUCOMP: 0 off (default), 2 compare harness (test aid) */
 static int lk_gco_o = -1;   /* 4d: Options > Display > Picture Engine (id 60, ~/.landstalker_pictureengine, env LANDSTALKER_PICTUREENGINE=0|1 wins): 0 CPU, 1 GPU (default since 2026-11-07, user 'ja picture engine = gpu bitte standard (ausgenommen windows)'; Windows builds default CPU until a Windows user tested the GPU path) */
-#ifdef _WIN32
-#define LK_GCO_DEF 0
-#else
-#define LK_GCO_DEF 1
-#endif
+#define LK_GCO_DEF 1   /* 2026-11-08: GPU on Windows too (user); unused since the one 'Renderer' row (follows lk_gle_get) */
 extern int lk_gle_get(void);
 int lk_gco_get(void) { if (lk_gco_o < 0) { const char *e = getenv("LANDSTALKER_PICTUREENGINE"); lk_gco_o = (e && *e) ? (atoi(e) ? 1 : 0) : (lk_gle_get() ? 1 : 0); } return lk_gco_o; }   /* 2026-11-08 (user: options menu clean-up): ONE row 'Renderer' (Light Engine id 56) sets both; the Picture Engine follows it, LANDSTALKER_PICTUREENGINE still wins */
 void lk_gco_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_gco_get(); lk_gco_o = v ? 1 : 0; snprintf(pth, sizeof pth, "%s/.landstalker_pictureengine", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%d\n", lk_gco_o); fclose(f); } }
