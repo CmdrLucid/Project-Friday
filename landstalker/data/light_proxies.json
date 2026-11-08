@@ -219,6 +219,18 @@
         "file": "proxies/ship_493_sail.obj",
         "air": true,
         "why": "the sail as its own shape: floats from 56 to 232 above the deck, the light passes under it"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          51,
+          41,
+          52
+        ],
+        "file": "proxies/ship_493_fig.obj",
+        "air": true,
+        "why": "user 2026-11-08 'links von der Galionsfigur ist auch noch ein harter Schatten': the figurehead as its own shape from the drawn statue bottom (z 22) to 64 with air below (drawn in layer A); in the solid hull mesh it was a column down to the sea over the drawn water (background test remake/tools/proxy_bgtest.py)"
       }
     ],
     "494": [
@@ -333,6 +345,18 @@
         "file": "proxies/ship_493_sail.obj",
         "air": true,
         "why": "the sail as its own shape: floats from 56 to 232 above the deck, the light passes under it"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          51,
+          41,
+          52
+        ],
+        "file": "proxies/ship_493_fig.obj",
+        "air": true,
+        "why": "user 2026-11-08 'links von der Galionsfigur ist auch noch ein harter Schatten': the figurehead as its own shape from the drawn statue bottom (z 22) to 64 with air below (drawn in layer A); in the solid hull mesh it was a column down to the sea over the drawn water (background test remake/tools/proxy_bgtest.py)"
       }
     ],
     "495": [
@@ -447,6 +471,18 @@
         "file": "proxies/ship_493_sail.obj",
         "air": true,
         "why": "the sail as its own shape: floats from 56 to 232 above the deck, the light passes under it"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          51,
+          41,
+          52
+        ],
+        "file": "proxies/ship_493_fig.obj",
+        "air": true,
+        "why": "user 2026-11-08 'links von der Galionsfigur ist auch noch ein harter Schatten': the figurehead as its own shape from the drawn statue bottom (z 22) to 64 with air below (drawn in layer A); in the solid hull mesh it was a column down to the sea over the drawn water (background test remake/tools/proxy_bgtest.py)"
       }
     ],
     "497": [
@@ -561,6 +597,18 @@
         "file": "proxies/ship_493_sail.obj",
         "air": true,
         "why": "the sail as its own shape: floats from 56 to 232 above the deck, the light passes under it"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          51,
+          41,
+          52
+        ],
+        "file": "proxies/ship_493_fig.obj",
+        "air": true,
+        "why": "user 2026-11-08 'links von der Galionsfigur ist auch noch ein harter Schatten': the figurehead as its own shape from the drawn statue bottom (z 22) to 64 with air below (drawn in layer A); in the solid hull mesh it was a column down to the sea over the drawn water (background test remake/tools/proxy_bgtest.py)"
       }
     ],
     "632": [

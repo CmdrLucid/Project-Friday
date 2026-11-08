@@ -49,7 +49,6 @@ HULL = [
     ("rail_waist_l", 576, 584, 588, 784, 0, 44, 44, "flat", None),     # side rail logs (drawn ~12 above the main deck)
     ("rail_waist_r", 692, 584, 704, 784, 0, 44, 44, "flat", None),
     cyl("mast", 626, 702, 6, 32, 248),
-    cyl("figurehead", 648, 832, 7, 0, 64),   # the figurehead stands just starboard of the stem (drawn at U 992..1020): a round body, else the stem ridge cut a hard light edge through it (user 2026-11-08)
 ]   # the forecastle rail log (deck 48 + ~12) is NOT in the light shape: a thin diagonal rail becomes a stair of 4 unit sub columns with
 #   small pockets that the room light shades as vertical stripes; for a remake model: rail_along("rail_bow", [FC[0], FC[2], FC[1]], 10, 48, 60)
 
@@ -57,4 +56,9 @@ SAIL_FRONT = [(576 + 14 * k, 710 + 3.0 * math.sin(math.pi * k / 8)) for k in ran
 SAIL = [{"name": "sail_%d" % k, "poly": [SAIL_FRONT[k], SAIL_FRONT[k + 1], (SAIL_FRONT[k + 1][0], SAIL_FRONT[k + 1][1] - 4), (SAIL_FRONT[k][0], SAIL_FRONT[k][1] - 4)], "z0": 56, "z1": 232} for k in range(8)]   # 4 thick, one convex piece per segment
 
 proxy.build("ship_493", HULL, "ship at the dock, rooms 493..497: hull, decks, rails, mast", target=(640, 690, 40), ground_z=SEA, px_per_unit=2.5)
+FIG = [cyl("figurehead", 648, 832, 7, 22, 64)]   # the figurehead stands just starboard of the stem (drawn at U 992..1020): a round body, else the stem ridge cut a hard light edge through it (user 2026-11-08);
+#   v2 (user 2026-11-08 'links von der Galionsfigur ist auch noch ein harter Schatten' + background test remake/tools/proxy_bgtest.py): the drawn statue ends at z ~22 (lowest
+#   statue pixel V 720 at U ~1005 on the camera side of the body), water is drawn below it; in the solid mesh the body became a column down to the sea = a wall over the drawn
+#   water. Now its own OBJ with op 'mesh' + "air" (the statue is drawn in layer A, so the view ray sits on the slab)
+proxy.build("ship_493_fig", FIG, "ship at the dock, rooms 493..497: the figurehead (op mesh + air)", target=(648, 832, 40), ground_z=SEA, px_per_unit=4)
 proxy.build("ship_493_sail", SAIL, "ship at the dock, rooms 493..497: the sail (op mesh + air)", target=(632, 710, 140), ground_z=SEA, px_per_unit=2.5)

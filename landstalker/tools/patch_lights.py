@@ -1459,6 +1459,8 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
   { struct timespec t0; clock_gettime(CLOCK_MONOTONIC, &t0);
     if (lk_lt_sun && lk_lt_extrude()) for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (lk_lt_top[y][x] > lk_lt_zmax) lk_lt_zmax = lk_lt_top[y][x];
     lk_lt_finebuild();   /* v9 (before the side penumbra data: it reads the carved field) */
+    { const char *e = getenv("LANDSTALKER_LT_DUMPFINE"); if (e && *e && lk_lt_ifine) { char pth[600]; FILE *f; int sx, sy; snprintf(pth, sizeof pth, "%%s_%%d.txt", e, lk_o_room); f = fopen(pth, "w");   /* 2026-11-08 test aid (remake/tools/proxy_bgtest.py): the light's fine heights indoors after all ops, one line per sub column row: 'height' or 'height/slab bottom/slab top' */
+        if (f) { for (sy = 0; sy < LK_LT_FN; sy++) { for (sx = 0; sx < LK_LT_FN; sx++) { int h = lk_lt_ifh(sx, sy, 0); if (lk_lt_hasslab(sx, sy)) fprintf(f, "%%d/%%d/%%d ", h, lk_lt_sb[sy][sx], lk_lt_st[sy][sx]); else fprintf(f, "%%d ", h); } fprintf(f, "\n"); } fclose(f); } } }
     memset(lk_lt_cpk, 0, sizeof lk_lt_cpk);
     if (lk_lt_sun) for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int i, j, top = -32768, x0 = 4, x1 = -1, y0 = 4, y1 = -1;   /* side penumbra data (lk_lt_cpk) */
       for (j = 0; j < 4; j++) for (i = 0; i < 4; i++) { int sx = 4 * x + i, sy = 4 * y + j, q = lk_lt_fp[sy][sx], f = lk_lt_fh[sy][sx];
