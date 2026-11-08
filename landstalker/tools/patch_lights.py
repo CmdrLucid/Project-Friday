@@ -786,6 +786,7 @@ static int lk_lt_wtile(int U, int V) {   /* 2026-11-08: the picture cell at (U, 
   return 0; }
 static int lk_lt_inwat(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INWATER"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: painted water indoors */
 static int lk_lt_invin(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INVIN"); v = e ? atoi(e) : 0; } return v; }   /* 2026-11-08: invisible barriers indoors too */
+static int lk_lt_rimfill(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_RIMFILL"); v = e ? atoi(e) : 0; } return v; }   /* 2026-11-08: drawn floor rim indoors */
 static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 2026-11-03: 'sollten wir nicht eher fixen dass die Haeuser im Raumplan korrekt sind?'):
      the game's height map holds only the low collision boxes of houses / trees; their drawn walls, roofs and crowns are layer A (foreground) pixels
      above the box.  Small raised boxes (<= 128 cells of one height with a lower neighbour; large areas = terrain stay) are raised in OUR copy (lk_lt_top) cell by cell
@@ -1224,6 +1225,22 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
           if (ok && lo < 9999) { if (bt != -32768 && bt < lo) lo = bt; if (lo > dn[y][x]) { dn[y][x] = (int16_t)lo; nd++; } } } }
       memcpy(lk_lt_top, dn, sizeof dn);
       if (lk_lt_dbg == 1 && nd) printf("door niches: room %%d, %%d cells filled\n", lk_o_room, nd); }
+    if (!lk_lt_sun && lk_lt_aor && lk_lt_rimfill()) { static uint8 tcnt[2048]; static int16_t rf[74][74]; int nr = 0;   /* 2026-11-08 FLOOR RIM indoors (user: 'Innenraeume pruefen', rooms 246 / 250 / 242 / 162: a dark band
+         with stepped ends along the front edge of floors): many rooms draw their floor one cell further than the last room cell; the light saw the floor's front face going down there.  A void cell
+         right in front (+x / +y) of a walkable cell becomes floor at that height when the picture at its would-be top shows a FLOOR TILE of the room (a tile seen >= 3 times at the centres of the
+         walkable cells); real side faces (castle) use other tiles.  One cell deep.  Test aid LANDSTALKER_LT_RIMFILL=0 */
+      memset(tcnt, 0, sizeof tcnt); memcpy(rf, lk_lt_top, sizeof rf);
+      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x), h = lk_lt_top[y][x], U, V, rr, cc, pl; if (h == -32768 || w == 0x4000 || ((w >> 8) & 0x60) || lk_lt_wat[y][x]) continue;
+        U = 16 * (x - y) + 1184; V = 8 * (x + y) + 8 - h; rr = V >> 3; cc = U >> 3; if (U < 0 || V < 0 || rr >= 152 || cc >= 304) continue;
+        for (pl = 0; pl < 2; pl++) { uint32 c = pl ? lk_o_pb[rr][cc] : lk_o_pa[rr][cc]; if ((c & 0x10000) && tcnt[c & 0x7FF] < 255) tcnt[c & 0x7FF]++; } }
+      for (y = 1; y < 74; y++) for (x = 1; x < 74; x++) { int d; if (lk_lt_top[y][x] != -32768) continue;
+        for (d = 0; d < 2; d++) { int bx = x - (d == 0), by = y - (d == 1), w = UW(0xFFD192 + 148 * by + 2 * bx), h = lk_lt_top[by][bx], U, V, rr, cc, pl, hit = 0;
+          if (h == -32768 || w == 0x4000 || ((w >> 8) & 0x60) || lk_lt_wat[by][bx]) continue;
+          U = 16 * (x - y) + 1184; V = 8 * (x + y) + 8 - h; rr = V >> 3; cc = U >> 3; if (U < 0 || V < 0 || rr >= 152 || cc >= 304) continue;
+          for (pl = 0; pl < 2; pl++) { uint32 c = pl ? lk_o_pb[rr][cc] : lk_o_pa[rr][cc]; if ((c & 0x10000) && tcnt[c & 0x7FF] >= 3) hit = 1; }
+          if (hit) { if (rf[y][x] == -32768 || h > rf[y][x]) rf[y][x] = (int16_t)h; } } }
+      for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (lk_lt_top[y][x] == -32768 && rf[y][x] != -32768) { lk_lt_top[y][x] = rf[y][x]; nr++; }
+      if (lk_lt_dbg == 1 && nr) printf("floor rim: room %%d, %%d cells\n", lk_o_room, nr); }
     memcpy(lk_lt_gh, lk_lt_top, sizeof lk_lt_gh);
     if (lk_lt_dbg == 5) printf("water: room %%d, %%d void cells painted -> floor\n", lk_o_room, nw); }
   { const char *e = getenv("LANDSTALKER_LT_DUMPTOP"); int x0, y0; if (e && sscanf(e, "%%d,%%d", &x0, &y0) == 2) { printf("lighttop: room %%d cells x %%d.. y %%d..\n", lk_o_room, x0, y0);   /* test aid: the light's heights (lk_lt_top) after the water rule, 12 x 8 cells */
