@@ -382,6 +382,7 @@ static int lk_lt_keyopt(void) { static int v = -1; if (v < 0) { const char *e = 
     v = e ? atoi(e) : 1; if (a) lk_lt_kaz = (float)atof(a); if (l) lk_lt_kel = (float)atof(l); if (lk_lt_kel < 10.0f) lk_lt_kel = 10.0f; if (lk_lt_kel > 89.0f) lk_lt_kel = 89.0f;
     if (s2) { lk_lt_kA = (float)atof(s2); if (lk_lt_kA < 0.3f || lk_lt_kA > 1.0f) lk_lt_kA = 0.80f; } lk_lt_kK = 1.10f - lk_lt_kA; }
   return v; }
+static int lk_lt_kbwsoft(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_KBWSOFT"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: soft key light shadow of back walls */
 static void lk_lt_keyset(void) { float az = lk_lt_kaz * 3.14159265f / 180.0f, el = lk_lt_kel * 3.14159265f / 180.0f; lk_lt_sd[0] = cosf(az) * cosf(el); lk_lt_sd[1] = sinf(az) * cosf(el); lk_lt_sd[2] = sinf(el); }
 static float lk_lt_keyvisd(const float *sd, float px, float py, float pz) {   /* v8: share of the light from direction sd that reaches a point: march towards it through the height map (back wall voids = walls up to the room's top + 128), soft penumbra */
   static float kbw = -1.0f; float hl = sqrtf(sd[0] * sd[0] + sd[1] * sd[1]), res = 1.0f, t, wt;
@@ -392,11 +393,11 @@ static float lk_lt_keyvisd(const float *sd, float px, float py, float pz) {   /*
   if (hl < 1e-3f) hl = 1e-3f;
   for (t = 2.0f; t < 600.0f; t += t < 32.0f ? 1.0f : 2.0f) {
     float x = px + sd[0] * t, y = py + sd[1] * t, z = pz + sd[2] * t, hh, d, r; int h;
-    if (z > wt) return res;
+    if (z > wt && (!lk_lt_kbwsoft() || kpen * (z - wt) >= res * t * hl)) return res;   /* 2026-11-08 kbwsoft: march on above the walls until the penumbra cannot shrink any more (as the sun march) */
     if (lk_lt_ifine) { float c2 = lk_lt_slabcl((int)floorf(x / 4.0f), (int)floorf(y / 4.0f), z), c3 = lk_lt_halocl(x, y, z); if (c2 <= 0.0f) return 0.0f; if (c2 < 9999.0f) { r = kpen * c2 / (t * hl); if (r < res) res = r; }
       if (c3 < 9999.0f) { r = kpen * c3 / (t * hl); if (r < res) res = r; } }   /* v9: light passes under a slab; soft slab sides */
     h = lk_lt_aoh2(x, y, dx, dy, 0); if (h == -32768) continue;
-    if (h == 32767) { if (z > (lk_lt_zref > -32768 ? (float)lk_lt_zref : 0.0f) + kbw) continue; hh = 1e9f; } else hh = (float)h;
+    if (h == 32767) { if (lk_lt_kbwsoft()) hh = (lk_lt_zref > -32768 ? (float)lk_lt_zref : 0.0f) + kbw; else { if (z > (lk_lt_zref > -32768 ? (float)lk_lt_zref : 0.0f) + kbw) continue; hh = 1e9f; } } else hh = (float)h;   /* 2026-11-08: a back wall is kbw high for the key light, with the same soft penumbra as any other edge (was: infinitely high below kbw = knife-sharp shadow line along back walls, room 250 / 162); LANDSTALKER_LT_KBWSOFT=0 = old (GLSL keyvis: sign of uKpen) */
     d = z - hh + 0.5f; if (d <= 0.0f) return 0.0f;
     r = kpen * d / (t * hl); if (r < res) res = r; }
   return res; }
@@ -903,6 +904,7 @@ static int lk_lt_wtile(int U, int V) {   /* 2026-11-08: the picture cell at (U, 
   return 0; }
 static int lk_lt_inwat(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INWATER"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: painted water indoors */
 static int lk_lt_invin(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INVIN"); v = e ? atoi(e) : 0; } return v; }   /* 2026-11-08: invisible barriers indoors too */
+static int lk_lt_vwnear(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_VWNEAR"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: back walls need the room in front of them */
 static int lk_lt_rimfill(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_RIMFILL"); v = e ? atoi(e) : 0; } return v; }   /* 2026-11-08: drawn floor rim indoors */
 static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 2026-11-03: 'sollten wir nicht eher fixen dass die Haeuser im Raumplan korrekt sind?'):
      the game's height map holds only the low collision boxes of houses / trees; their drawn walls, roofs and crowns are layer A (foreground) pixels
@@ -1316,8 +1318,11 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
     for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x);
       if (w != 0x4000 && !((w >> 8) & 0x60)) hist[(w >> 8) & 15]++;   /* walkable cell */
       if (lk_lt_top[y][x] != -32768) continue;
-      for (ok = 1, m = 1; m <= 8 && x - m >= 0; m++) if (lk_lt_top[y][x - m] != -32768) { ok = 0; break; } if (ok) lk_lt_vw[y][x] |= 1;
-      for (ok = 1, m = 1; m <= 8 && y - m >= 0; m++) if (lk_lt_top[y - m][x] != -32768) { ok = 0; break; } if (ok) lk_lt_vw[y][x] |= 2; }
+      for (ok = 1, m = 1; m <= 8 && x - m >= 0; m++) if (lk_lt_top[y][x - m] != -32768) { ok = 0; break; } if (ok && lk_lt_vwnear()) { for (ok = 0, m = 1; m <= 8 && x + m < 74; m++) if (lk_lt_top[y][x + m] != -32768) { ok = 1; break; } } if (ok) lk_lt_vw[y][x] |= 1;
+      for (ok = 1, m = 1; m <= 8 && y - m >= 0; m++) if (lk_lt_top[y - m][x] != -32768) { ok = 0; break; } if (ok && lk_lt_vwnear()) { for (ok = 0, m = 1; m <= 8 && y + m < 74; m++) if (lk_lt_top[y + m][x] != -32768) { ok = 1; break; } } if (ok) lk_lt_vw[y][x] |= 2; }
+      /* 2026-11-08 FRONT VOID (user: cave floor rims 246 / 250 / 242 / 162, 'dunkles Band am vorderen Bodenrand'): a back wall must also have the ROOM on its near side (a room cell within 8 at +x / +y);
+         before, every void cell with nothing at -x counted, also the black IN FRONT of the room (row y = 33 of room 250), so the key light (from -x / +y) and the room light AO met a wall
+         right in front of the floor's front edge = a hard dark band along it.  Test aid LANDSTALKER_LT_VWNEAR=0 = old */
     { static uint8 v2[74][74]; memcpy(v2, lk_lt_vw, sizeof v2);   /* a back wall is WIDE: >= 4 such void cells in a row along the wall (a water channel running to the room edge is narrow, room 185) */
       for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int a, r;
         if (v2[y][x] & 1) { for (r = 1, a = y - 1; a >= 0 && (v2[a][x] & 1); a--) r++; for (a = y + 1; a < 74 && (v2[a][x] & 1); a++) r++; if (r < 4) lk_lt_vw[y][x] &= (uint8)~1; }

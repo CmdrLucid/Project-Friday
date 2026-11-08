@@ -160,7 +160,7 @@ unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint
   sc[0] = (float)lk_lt_sun; sc[1] = (float)lk_lt_aor; sc[2] = (float)lk_lt_zref; sc[3] = lk_lt_aok < 0.0f ? 0.55f : lk_lt_aok; sc[4] = lk_lt_aotop < 0.0f ? 0.0f : lk_lt_aotop;
   sc[5] = (float)lk_lt_ztop; sc[6] = lk_lt_sd[0]; sc[7] = lk_lt_sd[1]; sc[8] = lk_lt_sd[2]; sc[9] = (float)lk_lt_key;
   { const char *e = getenv("LANDSTALKER_LT_KBW"); float v = e ? (float)atof(e) : 40.0f; sc[10] = v < 0.0f ? 0.0f : v; }   /* as lk_lt_keyvisd */
-  { const char *e = getenv("LANDSTALKER_LT_KPEN"); float v = e ? (float)atof(e) : 3.0f; sc[11] = v < 0.5f ? 0.5f : v; }
+  { const char *e = getenv("LANDSTALKER_LT_KPEN"), *e2 = getenv("LANDSTALKER_LT_KBWSOFT"); float v = e ? (float)atof(e) : 3.0f; sc[11] = v < 0.5f ? 0.5f : v; if (e2 && !atoi(e2)) sc[11] = -sc[11]; }   /* 2026-11-08: negative = old knife-sharp back wall (lk_lt_kbwsoft) */
   sc[12] = (float)lk_lt_zmax; sc[13] = (lk_lt_sun && lk_lt_fhmax > -32768) ? 1.0f : 0.0f;   /* GL5b: the view ray: start height, fine field ray (lk_lt_rayf) or cell ray (lk_lt_ray) */
   sc[14] = lk_lt_sdn[0]; sc[15] = lk_lt_sdn[1]; sc[16] = lk_lt_sdn[2]; sc[17] = (lk_lt_sun && lk_dn_upd && lk_dn_hdok) ? 1.0f : 0.0f;   /* GL5c: sunn for the next sun direction */
   sc[18] = lk_lt_kA; sc[19] = lk_lt_kK; sc[20] = lk_lt_sh[0].cr; sc[21] = lk_lt_sh[0].cg; sc[22] = lk_lt_sh[0].cb; sc[23] = (lk_lt_key && !lk_lt_nl) ? 1.0f : 0.0f;   /* the finished key light km */
@@ -757,13 +757,13 @@ float keyvis(vec3 sd, vec3 p) {   /* lk_lt_keyvisd */
     if (st > 0) t += t < 32.0 ? 1.0 : 2.0;
     if (t >= 600.0) break;
     float x = p.x + sd.x * t, y = p.y + sd.y * t, z = p.z + sd.z * t, hh;
-    if (z > wt) return res;
-    if (uIfine > 0.5) { float c2 = slabcl(floor(x / 4.0), floor(y / 4.0), z), c3 = halocl(x, y, z); if (c2 <= 0.0) return 0.0; if (c2 < 9999.0) { float r2 = uKpen * c2 / (t * hl); if (r2 < res) res = r2; }
-      if (c3 < 9999.0) { float r3 = uKpen * c3 / (t * hl); if (r3 < res) res = r3; } }   /* v9 */
+    if (z > wt && (uKpen < 0.0 || uKpen * (z - wt) >= res * t * hl)) return res;   /* 2026-11-08 lk_lt_kbwsoft */
+    if (uIfine > 0.5) { float c2 = slabcl(floor(x / 4.0), floor(y / 4.0), z), c3 = halocl(x, y, z); if (c2 <= 0.0) return 0.0; if (c2 < 9999.0) { float r2 = abs(uKpen) * c2 / (t * hl); if (r2 < res) res = r2; }
+      if (c3 < 9999.0) { float r3 = abs(uKpen) * c3 / (t * hl); if (r3 < res) res = r3; } }   /* v9 */
     float h = aoh2(x, y, dx, dy, 0.0); if (h == -32768.0) continue;
-    if (h == 32767.0) { if (z > zr + uKbw) continue; hh = 1e9; } else hh = h;
+    if (h == 32767.0) { if (uKpen > 0.0) hh = zr + uKbw; else { if (z > zr + uKbw) continue; hh = 1e9; } } else hh = h;   /* 2026-11-08 lk_lt_kbwsoft */
     float d = z - hh + 0.5; if (d <= 0.0) return 0.0;
-    float r = uKpen * d / (t * hl); if (r < res) res = r; }
+    float r = abs(uKpen) * d / (t * hl); if (r < res) res = r; }
   return res; }
 float sunShare(vec3 sd, float hs, float U, float V, float face, float z, float robj, float layA) {   /* lk_lt_sunfill for one pixel */
   vec3 n = vec3(FNX(face), FNY(face), face == 1.0 ? 1.0 : 0.0), pp = P(U, V, z); float ndl = sd.z;
