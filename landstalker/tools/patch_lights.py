@@ -342,7 +342,8 @@ static void lk_lt_shblock(lk_lt_blk *b, int U0, int V0) {   /* pool + beam of on
         if (q < S->r * 1.25f && sv > -8.0f) { float nx = b->face[i] == 2 ? 1.0f : 0.0f, ny = b->face[i] == 3 ? 1.0f : 0.0f, nz = b->face[i] == 1 ? 1.0f : 0.0f;
           w = (S->r * 1.25f - q) / (S->r * 1.1f); if (w > 1.0f) w = 1.0f; w = w * w * (3.0f - 2.0f * w) * S->k * 0.8f;   /* soft wide edge */
           w *= lk_lt_keyvisd(S->d, px + nx * 3.0f, py + ny * 3.0f, (float)zs + nz * 3.0f);   /* the shaft's own shadows (v8 MT: no global swap) */ w += (float)b->pool[i] * (1.0f / 255.0f); b->pool[i] = (uint8)(w >= 1.0f ? 255 : (int)(w * 255.0f)); } }
-      for (z = (float)zs + 2.0f; z < S->z + S->h * S->d[2]; z += 4.0f) { float fa; lk_lt_pos(U, V, (int)z, &px, &py); q = lk_lt_shdist(S, px, py, z, &sv);
+      for (z = (float)zs + 2.0f; z < S->z + S->h * S->d[2]; z += 4.0f) { float fa; lk_lt_pos(U, V, (int)z, &px, &py); if (lk_lt_cell((int)floorf(px / 16.0f), (int)floorf(py / 16.0f)) == -32768) continue;   /* 2026-11-08 (user: 'Innenraeume generell pruefen', rooms 237 / 238 / 363 / 101 / 312 ...): the shaft exists only over the room's cells, not in the black void outside it (pale wedges with hard edges); GLSL shafts() the same */
+        q = lk_lt_shdist(S, px, py, z, &sv);
         if (q >= S->r || sv < 0.0f || sv > S->h) continue;
         w = 1.0f - (q / S->r) * (q / S->r); w *= w;   /* soft gaussian-like edge, no rim */
         fa = sv < 70.0f ? sv / 70.0f : 1.0f; if (sv > S->h - 70.0f) fa *= (S->h - sv) / 70.0f; fa *= sv < 220.0f ? 0.55f + 0.45f * sv / 220.0f : 1.0f;   /* fades into the floor, brighter towards the opening, soft top */

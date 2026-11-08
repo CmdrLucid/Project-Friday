@@ -742,6 +742,7 @@ float keyShare(float U, float V, float face, float z) {   /* the key light share
   float vis = keyvis(uSd, vec3(pp.x + n.x * 3.0, pp.y + n.y * 3.0, z + n.z * 3.0));
   return vis >= 1.0 ? 255.0 : vis <= 0.0 ? 0.0 : floor(vis * 255.0); }
 float trc(float v) { return v < 0.0 ? -floor(-v) : floor(v); }
+float cellT(float cx, float cy);   /* below */
 vec2 shafts(float U, float V, float face, float z) {   /* lk_lt_shblock: beam (glow along the view ray) and pool (lit floor inside the shaft, with the shaft's own shadows), quantised per shaft as the CPU */
   float beam = 0.0, pool = 0.0, bx0 = uBlk.x * 32.0, by0 = uBlk.y * 32.0;
   for (int k = 0; k < 3; k++) { if (float(k) >= uNsh) break;
@@ -754,7 +755,8 @@ vec2 shafts(float U, float V, float face, float z) {   /* lk_lt_shblock: beam (g
         float w = (r * 1.25 - q) / (r * 1.1); if (w > 1.0) w = 1.0; w = w * w * (3.0 - 2.0 * w) * kk * 0.8;
         w *= keyvis(d, vec3(pp.x + n.x * 3.0, pp.y + n.y * 3.0, zs + n.z * 3.0)); w += pool * (1.0 / 255.0); pool = w >= 1.0 ? 255.0 : floor(w * 255.0); } }
     for (int st = 0; st < 400; st++) { float zz = zs + 2.0 + 4.0 * float(st); if (zz >= A.z + h * d.z) break;
-      vec3 pp = P(U, V, trc(zz)); vec3 vv = vec3(pp.x - A.x, pp.y - A.y, zz - A.z); float s2 = vv.x * d.x + vv.y * d.y + vv.z * d.z; vec3 qv = vec3(vv.x - s2 * d.x, vv.y - s2 * d.y, vv.z - s2 * d.z); float q = sqrt(qv.x * qv.x + qv.y * qv.y + qv.z * qv.z);
+      vec3 pp = P(U, V, trc(zz)); if (cellT(floor(pp.x / 16.0), floor(pp.y / 16.0)) <= -32768.0) continue;   /* 2026-11-08: only over the room's cells (lk_lt_shblock) */
+      vec3 vv = vec3(pp.x - A.x, pp.y - A.y, zz - A.z); float s2 = vv.x * d.x + vv.y * d.y + vv.z * d.z; vec3 qv = vec3(vv.x - s2 * d.x, vv.y - s2 * d.y, vv.z - s2 * d.z); float q = sqrt(qv.x * qv.x + qv.y * qv.y + qv.z * qv.z);
       if (q >= r || s2 < 0.0 || s2 > h) continue;
       float w = 1.0 - (q / r) * (q / r); w *= w;
       float fa = s2 < 70.0 ? s2 / 70.0 : 1.0; if (s2 > h - 70.0) fa *= (h - s2) / 70.0; fa *= s2 < 220.0 ? 0.55 + 0.45 * s2 / 220.0 : 1.0;
