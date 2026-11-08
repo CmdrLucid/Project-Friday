@@ -201,7 +201,7 @@ static int16_t lk_lt_fh[LK_LT_FN][LK_LT_FN], lk_lt_fo[LK_LT_FN][LK_LT_FN]; stati
 static uint8 lk_lt_mown[LK_LT_FN][LK_LT_FN]; static int16_t lk_lt_mg[LK_LT_FN][LK_LT_FN], lk_lt_mb[LK_LT_FN][LK_LT_FN];   /* + lk_lt_mb: the model's bottom (above mg + 4 = it floats: air below for the GPU's AO / key light) */ static int lk_lt_nmodel;
 static int lk_lt_modelopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_MODEL"); v = e ? atoi(e) : 1; } return v; }
 static int lk_lt_modelall(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_MODELALL"); v = e ? atoi(e) : 0; } return v; }   /* test aid: every Blender mesh as a real surface, also the unverified ones */
-static int lk_lt_msok(int mi);   /* after the tables (LK_LT_CORR) */
+static int lk_lt_msok(int mi);   /* after the tables (LK_LT_CORR) */ static int lk_lt_roomopt(int room);   /* LK_LTROOM v1, below */
 static int lk_lt_modelout(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_MODELOUT"); v = e ? atoi(e) : 1; } return v; }   /* outdoor rooms too (sun; 2026-11-08 late), test aid =0 */
 static int16_t lk_lt_sb[LK_LT_FN][LK_LT_FN], lk_lt_st[LK_LT_FN][LK_LT_FN]; static int lk_lt_ifine, lk_lt_nslab;
 static uint8 lk_lt_hk[LK_LT_FN][LK_LT_FN], lk_lt_hs[LK_LT_FN][LK_LT_FN]; static int16_t lk_lt_hb[LK_LT_FN][LK_LT_FN];   /* v9 SLAB HALO (soft shadow SIDES of slabs, user 2026-11-08):
@@ -1333,7 +1333,7 @@ static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine 
   for (y = 0; y < LK_LT_FN; y++) for (x = 0; x < LK_LT_FN; x++) {
     if (!lk_lt_sun && lk_lt_fo[y][x] == LK_LT_IFO) { nfine++; if (lk_lt_fh[y][x] > mx) mx = lk_lt_fh[y][x]; }
     if (lk_lt_st[y][x] > lk_lt_sb[y][x]) { nsl++; if (lk_lt_st[y][x] > mx) mx = lk_lt_st[y][x]; } }
-  lk_lt_nslab = nsl > 0; lk_lt_ifine = !lk_lt_sun && (nfine || nsl || fforce);
+  lk_lt_nslab = nsl > 0; lk_lt_ifine = !lk_lt_sun && (nfine || nsl || fforce || (!nsl && lk_lt_modelopt() && lk_lt_roomopt(lk_o_room)));   /* LK_LTROOM v1: a room model indoors runs the fine paths (CPU + GPU, as LANDSTALKER_LT_IFORCE=1: same picture) */
   memset(lk_lt_hk, 0, sizeof lk_lt_hk);
   if (nsl) for (y = 0; y < LK_LT_FN; y++) for (x = 0; x < LK_LT_FN; x++) { int dx, dy, bd = 99; if (lk_lt_st[y][x] > lk_lt_sb[y][x]) continue;   /* the slab halo */
     for (dy = -2; dy <= 2; dy++) for (dx = -2; dx <= 2; dx++) { int ax = x + dx, ay = y + dy, d = dx * dx + dy * dy, hs;
@@ -1364,12 +1364,15 @@ static void lk_lt_rmquad(const float *a, const float *b, const float *c, const f
   lk_lt_rmn += 2; }
 static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the current indoor room (after the thin column pruning) */
   static int16_t H[LK_LT_FN + 2][LK_LT_FN + 2]; static uint8 vis[LK_LT_FN][LK_LT_FN]; int sx, sy, x0, nown = 0; const int VZ = -40;
-  lk_lt_rmn = 0; lk_lt_rmover = 0;
-  if (lk_lt_sun || !lk_lt_modelopt() || !lk_lt_roomopt(lk_o_room) || lk_lt_nslab) return;
+  struct timespec t0; lk_lt_rmn = 0; lk_lt_rmover = 0;
+  if (!lk_lt_modelopt() || !lk_lt_roomopt(lk_o_room) || lk_lt_nslab || (lk_lt_sun && !lk_lt_modelout())) return;   /* outdoors too (user 2026-11-08: 'genauso fuer Aussenraeume ... diesen einen Weg') */
+  clock_gettime(CLOCK_MONOTONIC, &t0);
   #define LK_RMH(x, y) H[(y) + 1][(x) + 1]
   for (sy = -1; sy <= LK_LT_FN; sy++) for (sx = -1; sx <= LK_LT_FN; sx++) { int h = -32768;
     if (sx >= 0 && sy >= 0 && sx < LK_LT_FN && sy < LK_LT_FN) {
       if (lk_lt_mown[sy][sx]) h = lk_lt_mg[sy][sx];   /* a hand-made model: its ground (the model itself has its own mesh) */
+      else if (lk_lt_sun) h = lk_lt_fhmax > -32768 ? lk_lt_vg[sy][sx] : lk_lt_top[sy >> 2][sx >> 2];   /* outdoors: what the room's view ray sees: with objects the fine ray's ground (lk_lt_horizon: game heights, small
+         objects flattened; the objects stay the field's, kind 3), without objects the cell ray's heights (lk_lt_top) */
       else if (lk_lt_thin[sy >> 2][sx >> 2] > -32768) h = lk_lt_thin[sy >> 2][sx >> 2];   /* a thin pillar under a flame: the floor around it (as the light sees it) */
       else h = lk_lt_ifh(sx, sy, 0); }
     LK_RMH(sx, sy) = (int16_t)h; }
@@ -1396,11 +1399,12 @@ static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the curr
     sx = x1 + 1; } }
   if (lk_lt_rmover) { printf("room model: room %%d needs more than %%d triangles, off here\n", lk_o_room, LK_LT_RMMAX); lk_lt_rmn = 0; return; }
   if (!lk_lt_rmn) return;
+  { const char *e = getenv("LANDSTALKER_LT_ROOMOWN"); if (e && !atoi(e)) goto rmnoown; }   /* test aid: =0 the model without ownership marks */
   for (sy = 0; sy < LK_LT_FN; sy++) for (sx = 0; sx < LK_LT_FN; sx++) if (!lk_lt_mown[sy][sx] && LK_RMH(sx, sy) != -32768) {
-    lk_lt_mown[sy][sx] = lk_lt_thin[sy >> 2][sx >> 2] == -32768 ? 2 : 3; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = LK_RMH(sx, sy); nown++; }   /* kind 2: a generated box column, not floating, its ground = its top;
-       kind 3: a thin pillar's cell (the model has its floor, the GPU view ray asks the field: layer A pixels sit on the pillar) */
-  lk_lt_nmodel++;
-  if (lk_lt_dbg == 1 || lk_lt_dbg == 5) printf("room model: room %%d, %%d triangles, %%d sub columns owned\n", lk_o_room, lk_lt_rmn, nown);
+    lk_lt_mown[sy][sx] = lk_lt_sun ? (lk_lt_fhmax == -32768 || (lk_lt_vt[sy][sx] == lk_lt_vg[sy][sx] && !lk_lt_fo[sy][sx]) ? 2 : 3) : lk_lt_thin[sy >> 2][sx >> 2] == -32768 ? 2 : 3; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = LK_RMH(sx, sy); nown++; }   /* kind 2: a generated box column, not floating, its ground = its top;
+       kind 3: a thin pillar's cell indoors / a sub column under an object outdoors (house, crown: the model has the ground, the GPU view ray asks the field: layer A pixels sit on the object) */
+  rmnoown: lk_lt_nmodel++;
+  printf("room model: room %%d, %%d triangles, %%d sub columns owned, %%.2f ms\n", lk_o_room, lk_lt_rmn, nown, lk_sm_ms_since(&t0));   /* one line per room load (load time check) */
   { const char *e = getenv("LANDSTALKER_LT_ROOMOBJ"); if (e && *e) { char pth[600]; FILE *f; int i; snprintf(pth, sizeof pth, "%%s_%%d.obj", e, lk_o_room); f = fopen(pth, "w");   /* test aid: the box model as OBJ (game units, z up) */
       if (f) { fprintf(f, "# Project-Friday room %%d box model (LK_LTROOM v1), game units, z up; derived from the ROM: never commit\n", lk_o_room);
         for (i = 0; i < 3 * lk_lt_rmn; i++) fprintf(f, "v %%g %%g %%g\n", lk_lt_rmt[6 * i] + 2.0f * LK_LT_RMEPS, lk_lt_rmt[6 * i + 1] + LK_LT_RMEPS, lk_lt_rmt[6 * i + 2]);
