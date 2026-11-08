@@ -774,6 +774,7 @@ static int lk_lt_pinewalk(void) { static int v = -1; if (v < 0) { const char *e 
 static int lk_lt_invmode(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INVIS"); v = e ? atoi(e) : 2; } return v; }   /* 0 off, 1 neighbour heights (first version), 2 void (default) */
 static int lk_lt_archfill(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_ARCHFILL"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: arch gaps in thin tall walls filled */
 static int lk_lt_lathe2(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_LATHE2"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: lathe re-anchor ignores the own box, wall foot rows filled */
+static int lk_lt_fillcap(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_FILLCAP"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: inherited painted-void fill capped at the nearby walkable ground - 8 */
 static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 2026-11-03: 'sollten wir nicht eher fixen dass die Haeuser im Raumplan korrekt sind?'):
      the game's height map holds only the low collision boxes of houses / trees; their drawn walls, roofs and crowns are layer A (foreground) pixels
      above the box.  Small raised boxes (<= 128 cells of one height with a lower neighbour; large areas = terrain stay) are raised in OUR copy (lk_lt_top) cell by cell
@@ -1158,7 +1159,12 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         { int mb = 0;
         for (b2 = y - 1; b2 <= y + 1; b2++) for (a = x - 1; a <= x + 1; a++) if (a >= 0 && b2 >= 0 && a < 74 && b2 < 74 && lk_lt_top[b2][a] != -32768 && lk_lt_top[b2][a] < m && (!wo || lk_lt_wat[b2][a])) { int w3 = UW(0xFFD192 + 148 * b2 + 2 * a); m = lk_lt_top[b2][a]; mb = w3 != 0x4000 && ((w3 >> 8) & 0x40) && (w3 >> 8) != 0x4F; }
         if (m == 9999) continue;
-        m = pass == 0 && !(mb && lk_lt_sun && lk_lt_watblk()) ? m - 8 : m; if (m < 0) m = 0; }   /* 2026-11-07 (user, room 488: 'spitzer Schatten im Wasser'): beside the game's own WATER (a BLOCKED cell lower than the bank,
+        m = pass == 0 && !(mb && lk_lt_sun && lk_lt_watblk()) ? m - 8 : m; if (m < 0) m = 0; 
+        if (pass > 0 && lk_lt_sun && lk_lt_fillcap()) { int a2, b3, g = 32767; for (b3 = y - 3; b3 <= y + 3; b3++) for (a2 = x - 3; a2 <= x + 3; a2++) { int w4; if (a2 < 0 || b3 < 0 || a2 >= 74 || b3 >= 74 || org[b3][a2] == -32768) continue;
+            w4 = UW(0xFFD192 + 148 * b3 + 2 * a2); if (w4 != 0x4000 && !((w4 >> 8) & 0x60) && org[b3][a2] < g) g = org[b3][a2]; }
+          if (g != 32767 && m > g - 8) m = g - 8 < 0 ? 0 : g - 8; }   /* 2026-11-08 (user rec_20261108_0715, Mercator 632 in front of the church: 'losgeloeste Buschschatten'): a cell that only INHERITS
+             the fill (no real neighbour) must not lie above the walkable ground within 3 cells - 8: the yellow house's front wall (blocked 64) is painted into the void, its fill at 64 ran along the whole painted
+             grass border at the room's front edge = an invisible 64 high wall that hid the pine shadows next to their trunks; test aid LANDSTALKER_LT_FILLCAP=0 */ }   /* 2026-11-07 (user, room 488: 'spitzer Schatten im Wasser'): beside the game's own WATER (a BLOCKED cell lower than the bank,
            room 488 '$47' at 112 beside paths at 128) the painted water beyond the map is the same surface: no 8 unit step (it cast a long thin shadow along the border); test aid LANDSTALKER_LT_WATBLK=0 */
         U = 16 * (x - y) + 1184; V = 8 * (x + y) + 8 - m;
         if (!lk_o_fetch(lk_o_pb, U, V, &pal, &pr, 0) && !lk_o_fetch(lk_o_pa, U, V, &pal, &pr, 0)) continue;
@@ -1204,6 +1210,8 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       if (lk_lt_dbg == 1 && nd) printf("door niches: room %%d, %%d cells filled\n", lk_o_room, nd); }
     memcpy(lk_lt_gh, lk_lt_top, sizeof lk_lt_gh);
     if (lk_lt_dbg == 5) printf("water: room %%d, %%d void cells painted -> floor\n", lk_o_room, nw); }
+  { const char *e = getenv("LANDSTALKER_LT_DUMPTOP"); int x0, y0; if (e && sscanf(e, "%%d,%%d", &x0, &y0) == 2) { printf("lighttop: room %%d cells x %%d.. y %%d..\n", lk_o_room, x0, y0);   /* test aid: the light's heights (lk_lt_top) after the water rule, 12 x 8 cells */
+      for (y = y0; y < y0 + 8 && y < 74; y++) { printf("lighttop %%2d:", y); for (x = x0; x < x0 + 12 && x < 74; x++) printf(" %%6d%%s", lk_lt_top[y][x], lk_lt_wat[y][x] ? "w" : " "); printf("\n"); } } }
   { struct timespec t0; clock_gettime(CLOCK_MONOTONIC, &t0);
     if (lk_lt_sun && lk_lt_extrude()) for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (lk_lt_top[y][x] > lk_lt_zmax) lk_lt_zmax = lk_lt_top[y][x];
     memset(lk_lt_cpk, 0, sizeof lk_lt_cpk);
