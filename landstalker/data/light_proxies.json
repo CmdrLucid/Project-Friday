@@ -682,6 +682,7 @@
           62
         ],
         "file": "proxies/arch_636.obj",
+        "surface": true,
         "why": "Mercator rocky arch room: city wall (height map 3) + three round half towers (became small cones up to 62 / 76) + the terraced grass mound over the river; remake/recipes/proxy_arch_636.py, user 2026-11-04 'mach direkt weiter'"
       },
       {
