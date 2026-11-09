@@ -10,6 +10,7 @@ RE-MEASURED 2026-11-09 (HANDOFF 0a357; projection U = x - y + 1184, V = (x + y) 
   west wall: face x 224 (column 13), ONE CELL BEHIND the 2026-11-04 shape: the pine row stands on column 14 (catalogue pines, blockcat cells 636)
           in front of it, between the towers; top 176 in every merlon block where the picture does not cut it;
   north wall: face y 192 (the far tower's right edge U 1232 = x 240), merlon tops 168;
+  every part stands on the real ground 16 (user 2026-11-09 saw the z 0 bottoms of the mound as 'ein Teil zu weit vorne');
   mound: the height map's terraces (unchanged); the two round trees on the walkable crown cells (21..22, 39): trunks on the terrace (z 64,
           trunk feet U 894 V 427 / U 910 V 436 = within the cells), crowns to 91 / 93 (trees.SMALL_ROUND_636); the left pine clump (cells 18..19 x 38..40,
           collision 48) = three catalogue pines on base 32 placed by their tips (base 48 would put them a cell outside the clump, as at the castle
@@ -33,16 +34,16 @@ def pine(name, U, V, base):   # the catalogue pine (as proxy_castle_31.pine) pla
     return proxy.revolve(name, cx, cy, prof[:-1] + [(base + 30, 0.05)], n=12)
 
 PARTS = [
-    ("wall",    208, 192, 224, 960, 0, 176, 176, "flat", None),          # west wall, face x 224 (column 13)
-    ("north",   224, 176, 464, 192, 0, 168, 168, "flat", None),          # north wall, face y 192
-    ("tower_0", 224, 192, 240, 224, 0, 208, 208, "flat", None),          # towers = collision boxes in column 14
-    ("tower_1", 224, 400, 240, 464, 0, 208, 208, "flat", None),
-    ("tower_2", 224, 640, 240, 704, 0, 208, 208, "flat", None),
-    ("tower_3", 224, 880, 240, 944, 0, 208, 208, "flat", None),
+    ("wall",    208, 192, 224, 960, 16, 176, 176, "flat", None),          # west wall, face x 224 (column 13)
+    ("north",   224, 176, 464, 192, 16, 168, 168, "flat", None),          # north wall, face y 192
+    ("tower_0", 224, 192, 240, 224, 16, 208, 208, "flat", None),          # towers = collision boxes in column 14
+    ("tower_1", 224, 400, 240, 464, 16, 208, 208, "flat", None),
+    ("tower_2", 224, 640, 240, 704, 16, 208, 208, "flat", None),
+    ("tower_3", 224, 880, 240, 944, 16, 208, 208, "flat", None),
     trees.round_tree("tree_a", 346, 636, 64, trees.SMALL_ROUND_636),     # the two round trees on the mound (walkable crown cells 21..22, 39)
     trees.round_tree("tree_b", 363, 637, 64, trees.SMALL_ROUND_636),
     pine("pine_0", 864, 401, 32), pine("pine_1", 846, 409, 32), pine("pine_2", 834, 417, 32),   # left clump (cells 18..19 x 38..40)
-] + [("t%d_%d" % c, 16 * c[0], 16 * c[1], 16 * c[0] + 16, 16 * c[1] + 16, 0, 16 * h, 16 * h, "flat", None) for c, h in sorted(MOUND.items()) if c not in ((21, 39), (22, 39))]
+] + [("t%d_%d" % c, 16 * c[0], 16 * c[1], 16 * c[0] + 16, 16 * c[1] + 16, 16, 16 * h, 16 * h, "flat", None) for c, h in sorted(MOUND.items()) if c not in ((21, 39), (22, 39))]
 
 proxy.build("arch_636", PARTS, "Mercator rocky arch over the river and city wall, room 636",
             {}, target=(300, 640, 80), ground_z=16, px_per_unit=1.0, size=(1000, 900))
