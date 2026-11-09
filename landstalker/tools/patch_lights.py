@@ -1416,7 +1416,8 @@ static void lk_lt_omlathe(float cx, float cy, const float *rr, const float *zz, 
 static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines / lathe trees as meshes + their sub columns owned (before the room box model) */
   int cx, cy, k, sx, sy, nobj = 0; float rr[200], zz[200]; int n;
   lk_lt_omn = 0; lk_lt_omover = 0;
-  if (!lk_lt_objopt() || !lk_lt_modelopt()) return;
+  if (!lk_lt_sun || !lk_lt_objopt() || !lk_lt_modelopt()) return;   /* outdoors only: the catalogue (lk_lt_tk) and lathes are built by the outdoor rules and are NOT cleared indoors
+     (indoor rooms got the previous outdoor room's 144 trees as phantom models, 2026-11-09 sweep) */
   for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) { int kind = lk_lt_tk[cy][cx]; float top, r, zb, zc, q, X = 16.0f * cx + 8.0f, Y = 16.0f * cy + 8.0f;
     if (kind != 1 && kind != 2) continue;
     top = (float)lk_lt_tt[cy][cx]; r = (float)lk_lt_tr[cy][cx]; zb = (float)lk_lt_tb[cy][cx]; if (r < 1.0f || top <= zb + 2.0f) continue;
