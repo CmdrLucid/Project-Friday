@@ -217,3 +217,4 @@
 - L1726: Session 2026-11-08 evening: front void + soft back wall key shadow (Deck, Opus 5.5)
 - L1735: Real 3D light shapes stage 1 + 2 (2026-11-08 late)
 - L1743: Session 2026-11-08 night .. 2026-11-09: whole rooms as 3D models, church 632, trees as surfaces, entry stutter (Deck, Opus 5.5 + 1 Sonnet scan agent)
+- L1751: Session 2026-11-09 late: outdoor shapes re-measured as surfaces, furniture on legs, AO under floating parts (Deck, Opus 5.5 + 1 Sonnet doc agent)
