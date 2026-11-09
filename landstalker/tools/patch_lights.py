@@ -1330,7 +1330,9 @@ static void lk_lt_finebuild(void) {   /* v9: data ops box / slab / mesh -> fine 
         lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = m[e][3]; lk_lt_mg[sy][sx] = (int16_t)(a[6] != -999 ? a[6] : g == -32768 || m[e][3] < g ? m[e][3] : g); } 
       if (lk_lt_sun) { int gnd = a[6] != -999 ? a[6] : lk_lt_ringg(a[0], a[1], a[2], a[3]), nc = 0;   /* LK_GLROOM v1 CLEAN-UP outdoors (LIGHT_PROXY_PLAN stage 3, 2026-11-09): the whole op rectangle belongs to the
            surface model, the GPU light sees the model + the ground only there (the game's collision boxes / stand-ins next to the model made dark corner lines, church 632) */
-        static uint8 mc[74][74]; memset(mc, 0, sizeof mc); for (e = 0; m[e][0] >= 0; e++) mc[m[e][1] >> 2][m[e][0] >> 2] = 1;   /* only the cells the model stands in (the op rectangle may hold a neighbour house) */
+        static uint8 mc[74][74]; memset(mc, 0, sizeof mc); for (e = 0; m[e][0] >= 0; e++) mc[m[e][1] >> 2][m[e][0] >> 2] = 1;   /* the cells the model stands in (the op rectangle may hold a neighbour house) */
+        { int cx, cy; for (cy = a[1]; cy <= a[3]; cy++) for (cx = a[0]; cx <= a[2]; cx++) if (cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_gh[cy][cx] != -32768 && lk_lt_gh[cy][cx] > gnd + 8) mc[cy][cx] = 1; }   /* + the raised COLLISION cells of the
+           rectangle that no model covers (632: the yellow house's collision reaches one row in front of its drawing; its side records made a dark line) */
         for (sy = 4 * a[1]; sy < 4 * a[3] + 4 && sy < LK_LT_FN; sy++) for (sx = 4 * a[0]; sx < 4 * a[2] + 4 && sx < LK_LT_FN; sx++) if (sx >= 0 && sy >= 0 && mc[sy >> 2][sx >> 2] && !lk_lt_mown[sy][sx]) {
           lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)gnd; nc++; }
         if (lk_lt_dbg == 5) printf("model: room %%d mesh %%d clean-up %%d sub columns at ground %%d\n", lk_o_room, a[4], nc, gnd); } }   /* the ground below the model = the op's "floor" if given (ship: the sea), else the lower of the ground and the model's bottom (the game's cell height under a ship / house is its deck / roof: collision, not picture) */

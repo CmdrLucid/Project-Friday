@@ -142,6 +142,8 @@ unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint
     { extern uint16_t lk_lt_cpk_at(int x, int y); w[2 * 5476 + o] = ((uint32_t)(uint16_t)lk_lt_hdn[y][x] << 16) | lk_lt_cpk_at(x, y); }   /* GL5c: the early exit field of the NEXT sun direction (sunn); low half: side penumbra objects lk_lt_cpk */
     w2[o] = (uint32_t)(uint16_t)hc | ((uint32_t)lk_lt_tk[y][x] << 16) | ((uint32_t)lk_lt_tr[y][x] << 24); w2[5476 + o] = (uint32_t)(uint16_t)lk_lt_tt[y][x] | ((uint32_t)(uint16_t)lk_lt_tb[y][x] << 16); w2[2 * 5476 + o] = (uint32_t)(uint16_t)lk_lt_gh[y][x] | ((uint32_t)(uint16_t)lk_lt_obj[y][x] << 16);
     LK_GL_H(w[o]); LK_GL_H(w[5476 + o]); LK_GL_H(w[2 * 5476 + o]); LK_GL_H(w2[o]); LK_GL_H(w2[5476 + o]); LK_GL_H(w2[2 * 5476 + o]); }
+  { const char *e = getenv("LANDSTALKER_LT_CPKDUMP"); int x0, y0; if (e && sscanf(e, "%%d,%%d", &x0, &y0) == 2) { extern uint16_t lk_lt_cpk_at(int x, int y); printf("cpkdump room %%d around %%d,%%d (cpk hex / model bit / gh):\n", lk_o_room, x0, y0);   /* test aid: side penumbra records */
+    for (y = y0 - 2; y <= y0 + 2; y++) { printf("cpk %%2d:", y); for (x = x0 - 3; x <= x0 + 3; x++) printf("  %%2d:%%04X/%%d/%%d", x, lk_lt_cpk_at(x, y), (w[5476 + y * 74 + x] >> 9) & 1, lk_lt_gh[y][x]); printf("\n"); } } }
   for (y = 0; y < LK_LT_FN; y++) for (x = 0; x < LK_LT_FN; x++) { int o = y * LK_LT_FN + x, q = lk_lt_fp[y][x], fo = lk_lt_fo[y][x];
     fn[o] = (uint32_t)(uint16_t)lk_lt_fh[y][x] | ((uint32_t)(uint16_t)fo << 16);
     { extern unsigned lk_lt_m3q_at(int x, int y); fn[LK_LT_FN * LK_LT_FN + o] = (uint32_t)q | ((uint32_t)(q ? lk_lt_px[q - 1].type : 0) << 8) | ((uint32_t)(fo > 0 && fo < 1024 ? lk_lt_ocl[fo] : 0) << 16) | (lk_lt_m3q_at(x >> 2, y >> 2) << 24); }   /* top byte: side penumbra bound lk_lt_m3q of the cell */
@@ -895,6 +897,7 @@ float idiag(float sx, float sy, float z, float f, float layA) {   /* v9 lk_lt_id
   if (-0.290284677 * gy - 0.956940336 * gx > 0.0) k += 1.0;
   if (-0.471396737 * gy - 0.881921264 * gx > 0.0) k += 1.0;
   return k == 4.0 ? 2.0 : k == 12.0 ? 3.0 : 4.0 + k; }
+float mfc(vec3 mn) { return mn.z > 0.94 ? 1.0 : mn.x > 0.995 ? 2.0 : mn.y > 0.995 ? 3.0 : 20.0; }   /* LK_GLROOM v1: a hand model's (near) axis wall = the classic +x / +y face (the stored normal is up to 0.004 off: code 20 sent a straight wall down the slanted-face rules, church 632 door wall dark) */
 vec2 gdec(float U, float V, float zm) {   /* LK_GLROOM v1: the generated room model's answer for a view ray, decided before the field ray: (face, whole z), (0, 0) = the field answers, (-1, 0) = no generated model here */
   float D = U - 1184.0, gfc = -1.0, gz = 0.0;
   if (uMdl > 1.2 && uMdl < 1.3 && zm > -99998.0) return vec2(0.0, 0.0);   /* test aid LANDSTALKER_GL5_MODELDBG=20: every model hit answered by the field */
@@ -920,7 +923,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
     float z0 = max(uZtop + 2.0 < uZmax ? uZtop + 2.0 : uZmax, ceil(zmo));
     for (int st = 0; st < 2400; st++) { float z = z0 - float(st); if (z < -40.0) break;
       if (gd.x > 0.5) { if (z <= gd.y) { gMH = 1.0; float hx2 = fdv(2.0 * V + 2.0 * gd.y + D, 8.0), hy2 = fdv(2.0 * V + 2.0 * gd.y - D, 8.0); if (rob == 0.0 && layA > 0.5) { vec4 f0 = FN(hx2, hy2, 0.0); rob = S16(B(f0.b), B(f0.a)); } return vec3(gd.x, gd.y, rob); } }
-      else if (z <= zmo) { vec3 mn = octdec(gMB); gMH = 1.0; return vec3(mn.z > 0.94 ? 1.0 : 20.0, floor(zmo + 0.5), rob); }
+      else if (z <= zmo) { vec3 mn = octdec(gMB); gMH = 1.0; return vec3(mfc(mn), floor(zmo + 0.5), rob); }
       float sx = fdv(2.0 * V + 2.0 * z + D, 8.0), sy = fdv(2.0 * V + 2.0 * z - D, 8.0), top = vtAt(sx, sy, layA), inn = top > -32768.0 ? 1.0 : 0.0, fo = 0.0;
       float mo = -99999.0; if (uMdl > 0.5 && sx >= 0.0 && sy >= 0.0 && sx < 296.0 && sy < 296.0) { vec4 f4 = FN(sx, sy, 4.0); if (B(f4.r) > 0.5 && B(f4.r) < 1.5) { mo = S16(B(f4.b), B(f4.a)); top = mo; inn = mo > -32768.0 ? 1.0 : 0.0; } }   /* owned by a hand-made model: the ground below the model (LK_GLROOM v1: generated kinds 2 / 3 stay field columns) */
       if (inn > 0.5) { vec4 f0 = FN(sx, sy, 0.0); fo = S16(B(f0.b), B(f0.a)); }
@@ -948,7 +951,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
       if (gfc > 0.5) { if (z <= gz) { gMH = 1.0; float hx2 = fdv(2.0 * V + 2.0 * gz + D, 8.0), hy2 = fdv(2.0 * V + 2.0 * gz - D, 8.0);
           if (rob == 0.0) { vec4 g2 = W2(floor(hx2 / 4.0), floor(hy2 / 4.0), 2.0); rob = S16(B(g2.b), B(g2.a)); }   /* the cell's object, as the field ray takes it at its hit */
           return vec3(gfc, gz, rob); } }
-      else if (z <= zm) { vec3 mn = octdec(gMB); gMH = 1.0; return vec3(mn.z > 0.94 ? 1.0 : 20.0, floor(zm + 0.5), rob); }   /* LK_GLMODEL v1: reached the model surface before any field hit */
+      else if (z <= zm) { vec3 mn = octdec(gMB); gMH = 1.0; return vec3(mfc(mn), floor(zm + 0.5), rob); }   /* LK_GLMODEL v1: reached the model surface before any field hit */
       float sx = fdv(2.0 * V + 2.0 * z + D, 8.0), sy = fdv(2.0 * V + 2.0 * z - D, 8.0), cx = floor(sx / 4.0), cy = floor(sy / 4.0);
       bool ins = sx >= 0.0 && sy >= 0.0 && sx < 296.0 && sy < 296.0; vec2 sb = SLB(sx, sy); float fo = 0.0;
       if (ins) { vec4 f0 = FN(sx, sy, 0.0); if (S16(B(f0.b), B(f0.a)) == 2047.0) fo = 1.0; }
