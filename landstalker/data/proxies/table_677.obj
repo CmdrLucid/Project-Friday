@@ -1,0 +1,72 @@
+# light proxy: Mercator table(s), room 677 (remake/tools/furniture_ops.py, remake/lib/furniture.py). GAME coordinates x east, y south, z up, world units.
+# our own geometry (measured table, placed on the cells that draw it); read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh').
+v 335 319 11
+v 368 319 11
+v 368 352 11
+v 335 352 11
+v 335 319 16
+v 368 319 16
+v 368 352 16
+v 335 352 16
+v 337 321 0
+v 341 321 0
+v 341 325 0
+v 337 325 0
+v 337 321 11
+v 341 321 11
+v 341 325 11
+v 337 325 11
+v 363 321 0
+v 367 321 0
+v 367 325 0
+v 363 325 0
+v 363 321 11
+v 367 321 11
+v 367 325 11
+v 363 325 11
+v 363 347 0
+v 367 347 0
+v 367 351 0
+v 363 351 0
+v 363 347 11
+v 367 347 11
+v 367 351 11
+v 363 351 11
+v 337 347 0
+v 341 347 0
+v 341 351 0
+v 337 351 0
+v 337 347 11
+v 341 347 11
+v 341 351 11
+v 337 351 11
+f 1 2 6 5
+f 2 3 7 6
+f 3 4 8 7
+f 4 1 5 8
+f 1 4 3 2
+f 5 6 7 8
+f 9 10 14 13
+f 10 11 15 14
+f 11 12 16 15
+f 12 9 13 16
+f 9 12 11 10
+f 13 14 15 16
+f 17 18 22 21
+f 18 19 23 22
+f 19 20 24 23
+f 20 17 21 24
+f 17 20 19 18
+f 21 22 23 24
+f 25 26 30 29
+f 26 27 31 30
+f 27 28 32 31
+f 28 25 29 32
+f 25 28 27 26
+f 29 30 31 32
+f 33 34 38 37
+f 34 35 39 38
+f 35 36 40 39
+f 36 33 37 40
+f 33 36 35 34
+f 37 38 39 40

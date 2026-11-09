@@ -1,5 +1,5 @@
-# light proxy: Table on legs, room 670 (remake/recipes/proxy_table_670.py). GAME coordinates x east, y south, z up, world units.
-# our own geometry measured on the original picture; read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh').
+# light proxy: Mercator table(s), room 670 (remake/tools/furniture_ops.py, remake/lib/furniture.py). GAME coordinates x east, y south, z up, world units.
+# our own geometry (measured table, placed on the cells that draw it); read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh').
 v 351 351 11
 v 400 351 11
 v 400 384 11
