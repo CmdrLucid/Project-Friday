@@ -740,31 +740,32 @@ float aoh2(float x, float y, float dx, float dy, float slab) {   /* lk_lt_aoh2 *
   if ((dx < 0.0 && mod(vw, 2.0) > 0.5) || (dy < 0.0 && mod(floor(vw / 2.0), 2.0) > 0.5)) return 32767.0;
   return -32768.0; }
 float aoh(float x, float y, float dx, float dy) { return aoh2(x, y, dx, dy, 1.0); }
-float aoflt(float x, float y, out float b) {   /* LK_GLAOFLT v1 (user 2026-11-09, table 670: 'drunter sollte es nicht so hell sein, weil der Tisch den Schatten wirft'): the FLOATING part of a
+float aoflt(float x, float y, out float b) {   /* LK_GLAOFLT v2 (user 2026-11-09, table 670: 'drunter sollte es nicht so hell sein, weil der Tisch den Schatten wirft'): the FLOATING part of a
      hand model sub column (bottom above ground + 4, as mslabcl) -> its top, its bottom in b; -32768 = none.  aoh treats such parts as AIR (no columns down to the
      ground under the ship's overhangs), so without this the floor under a table top saw open sky */
   b = 0.0; float sx = floor(x / 4.0), sy = floor(y / 4.0); if (uAoflt < 0.5 || uHand < 0.5 || uMdl < 0.5 || sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return -32768.0;
   vec4 f4 = FN(sx, sy, 4.0); if (B(f4.r) < 0.5 || B(f4.g) <= 4.0) return -32768.0;
   b = S16(B(f4.b), B(f4.a)) + B(f4.g); vec4 f0 = FN(sx, sy, 0.0); float t = S16(B(f0.r), B(f0.g)); return t > b ? t : -32768.0; }
 float aoval(float px, float py, float z, float f) {   /* lk_lt_aoval */
-  float nx = FNX(f), ny = FNY(f), x0 = px + nx * OFF2(nx, ny, 2.0), y0 = py + ny * OFF2(nx, ny, 2.0), sum = 0.0, n = 0.0;
+  float nx = FNX(f), ny = FNY(f), x0 = px + nx * OFF2(nx, ny, 2.0), y0 = py + ny * OFF2(nx, ny, 2.0), sum = 0.0, n = 0.0, cov = 0.0;
   if (f != 1.0) { float fl = aoh(x0, y0, 0.0, 0.0); if (fl > z) z = fl; }
   for (int k = 0; k < 16; k++) { vec2 dv = uDv[k]; float dix = dv.x > 0.01 ? 1.0 : dv.x < -0.01 ? -1.0 : 0.0, diy = dv.y > 0.01 ? 1.0 : dv.y < -0.01 ? -1.0 : 0.0, best = 0.0;
     if (f != 1.0 && dv.x * nx + dv.y * ny < -0.1) continue;
     n += 1.0;
-    if (uAoflt > 0.5 && uHand > 0.5 && uMdl > 0.5) {   /* LK_GLAOFLT v1: a floating part only hides the sky ABOVE its bottom: under it (cover) everything above the edge seen from here, beside it the band bottom .. top */
+    if (uAoflt > 0.5 && uHand > 0.5 && uMdl > 0.5) {   /* LK_GLAOFLT v2: a floating part only hides the sky ABOVE its bottom: under it (cover) everything above the edge seen from here, beside it the band bottom .. top */
       float cb0, ct0 = aoflt(x0, y0, cb0), lb = cb0, amt = 0.0, smin = 1.0, smax = 0.0, dn = 0.0; bool ins = ct0 > -32768.0 && cb0 > z;
       for (int st = 1; st < 20; st++) { float d = 2.0 * float(st), bb, tt = aoflt(x0 + dv.x * d, y0 + dv.y * d, bb); bool here = tt > -32768.0 && bb > z;
-        if (ins) { if (here) { lb = bb; continue; } float e = (lb - z) / d; amt = 1.0 - e / sqrt(1.0 + e * e); ins = false; break; }
+        if (ins) { if (here) { lb = bb; continue; } float e = (lb - z) / d, se = e / sqrt(1.0 + e * e); amt = 1.0 - (uAoflt > 1.5 && f == 1.0 ? se * se : se); ins = false; break; }   /* LK_GLAOFLT v2: under the part the sky ABOVE the edge (elevation asin se .. 90) is hidden; its share of the light from a uniform sky on a floor is 1 - se^2 (Lambert: weight 2 sin cos per elevation), v1 took 1 - se (the table 670 floor only 25 percent darker, user 2026-11-09: 'direkt unter der Platte noch ein hellerer gruener Streifen') */
         if (here) { float e1 = (bb - z) / d, e2 = (tt - z) / d; smin = min(smin, e1 / sqrt(1.0 + e1 * e1)); smax = max(smax, e2 / sqrt(1.0 + e2 * e2)); if (dn == 0.0) dn = d; } }
       if (ins) amt = 1.0;
+      if (f == 1.0 && ct0 > -32768.0 && cb0 > z) cov += amt;   /* LK_GLAOFLT v2: the share a part ABOVE a FLOOR point hides (a table top; walls / the ship hull keep v1) */
       else if (dn > 0.0) amt = max(amt, (smax - smin) * (1.0 - dn / 40.0));   /* beside it: the whole part as ONE band (nearest top .. farthest bottom), not step by step (a 41 step at the table edge) */
       best = amt; }
     for (int st = 1; st < 20; st++) { float d = 2.0 * float(st), fall = 1.0 - d / 40.0; if (fall <= best) break;
       float h = aoh(x0 + dv.x * d, y0 + dv.y * d, dix, diy); if (h <= z) continue;
       float t = (h - z) / d, sn = t / sqrt(1.0 + t * t) * fall; if (sn > best) { best = sn; if (sn > gBest) { gBest = sn; gBH = h; gBX = x0 + dv.x * d; gBY = y0 + dv.y * d; } } }
     sum += best; }
-  float ao = n > 0.0 ? 1.0 - uAok * sum / n : 1.0;
+  float ao = n > 0.0 ? 1.0 - uAok * sum / n - (uAoflt > 1.5 ? (uAoflt - 2.0 - uAok) * cov / n : 0.0) : 1.0;   /* LK_GLAOFLT v2: the room light comes from above, a part over the point holds it back stronger than a corner: strength uAoflt - 2 (LANDSTALKER_LT_AOCOV, default 0.75; the corner strength uAok is 0.55; user 2026-11-09: 0.55 'duerfte noch etwas kraeftiger sein', 1.0 'zu stark') */
   if (uMdl > 4.5 && gMS > 0.5) { if (uMdl < 5.5) return clamp((gBH - z) / 255.0, 0.0, 1.0); if (uMdl < 6.5) return mod(gBX, 256.0) / 255.0; if (uMdl < 7.5) return mod(gBY, 256.0) / 255.0; return clamp(z + 64.0, 0.0, 255.0) / 255.0; }   /* test aid 6..9: strongest occluder height above z / its x / y (mod 256) / z + 64 */
   if (uMdl > 2.5 && gMS > 0.5) return clamp(ao, 0.0, 1.0) * (uMdl > 3.5 ? 0.0 : 1.0) + (uMdl > 3.5 ? n / 16.0 : 0.0);   /* LK_GLMODEL v1 test aid: 3 = horizon part only, 4 = number of directions / 16 */
   if (f != 1.0 && uAotop > 0.0) ao *= 1.0 - uAotop;
@@ -1361,7 +1362,7 @@ static int lk_g5_bind(const float *lp, const float *lc, int fresh) {   /* progra
   { static float pd[7]; if (lk_gm_on && lk_gs_opt > 0 && (sc[6] != pd[0] || sc[7] != pd[1] || sc[8] != pd[2] || sc[14] != pd[3] || sc[15] != pd[4] || sc[16] != pd[5] || sc[17] != pd[6])) {
       pd[0] = sc[6]; pd[1] = sc[7]; pd[2] = sc[8]; pd[3] = sc[14]; pd[4] = sc[15]; pd[5] = sc[16]; pd[6] = sc[17]; lk_gm_render(sc, 1); lk_glUseProgram(lk_g5_prog); } }   /* stage 2: a new key / sun direction */
   lk_glUniform2f(lk_g5_u[51], (float)lk_gs_slot[0], (float)lk_gs_slot[1]);   /* LK_GLOBJ v1 */ lk_glUniform1f(lk_g5_u[52], sc[28]);
-  { static int af = -1; if (af < 0) { const char *e = getenv("LANDSTALKER_LT_AOFLT"); af = e ? atoi(e) != 0 : 1; } lk_glUniform1f(lk_g5_u[53], (float)af); }   /* LK_GLAOFLT v1: floating model parts cover the AO (0 = old: air) */
+  { static int af = -1; if (af < 0) { const char *e = getenv("LANDSTALKER_LT_AOFLT"); af = e ? atoi(e) : 2; if (af < 0 || af > 2) af = 2; } { static float ck = -1.0f; if (ck < 0.0f) { const char *e = getenv("LANDSTALKER_LT_AOCOV"); ck = e ? (float)atof(e) : 0.75f; if (ck < 0.0f || ck > 1.0f) ck = 0.75f; } lk_glUniform1f(lk_g5_u[53], af == 2 ? 2.0f + ck : (float)af); } }   /* LK_GLAOFLT v2: floating model parts cover the AO (2 = Lambert share under the part, 1 = v1 linear share, 0 = old: air) */
   lk_glUniform4f(lk_g5_u[44], lk_gs_sm[0], lk_gs_sm[1], lk_gs_sm[2], lk_gs_sm[3]); lk_glUniform3f(lk_g5_u[45], lk_gs_e1[0], lk_gs_e1[1], lk_gs_e1[2]); lk_glUniform3f(lk_g5_u[46], lk_gs_e2[0], lk_gs_e2[1], lk_gs_e2[2]);
   lk_glUniform4f(lk_g5_u[47], lk_gs_sm2[0], lk_gs_sm2[1], lk_gs_sm2[2], lk_gs_sm2[3]); lk_glUniform3f(lk_g5_u[48], lk_gs_e12[0], lk_gs_e12[1], lk_gs_e12[2]); lk_glUniform3f(lk_g5_u[49], lk_gs_e22[0], lk_gs_e22[1], lk_gs_e22[2]);
   { static float so[4] = { -1.0f }; if (so[0] < -0.5f) { const char *e = getenv("LANDSTALKER_LT_SMO"); so[0] = 0.0f; so[1] = 0.75f; so[2] = 1.5f; so[3] = 0.0f; if (e) sscanf(e, "%%f,%%f,%%f", &so[0], &so[1], &so[2]); }

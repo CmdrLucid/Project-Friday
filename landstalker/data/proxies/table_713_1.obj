@@ -1,9 +1,9 @@
 # light proxy: mercator table / bench / side table, room 713 (remake/tools/furniture_ops.py, remake/lib/furniture.py). GAME coordinates x east, y south, z up, world units.
 # our own geometry (measured table, placed on the cells that draw it); read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh').
-v 255 255 11
-v 288 255 11
-v 288 288 11
-v 255 288 11
+v 255 255 13
+v 288 255 13
+v 288 288 13
+v 255 288 13
 v 255 255 16
 v 288 255 16
 v 288 288 16
@@ -12,34 +12,34 @@ v 257 257 0
 v 261 257 0
 v 261 261 0
 v 257 261 0
-v 257 257 11
-v 261 257 11
-v 261 261 11
-v 257 261 11
+v 257 257 13
+v 261 257 13
+v 261 261 13
+v 257 261 13
 v 283 257 0
 v 287 257 0
 v 287 261 0
 v 283 261 0
-v 283 257 11
-v 287 257 11
-v 287 261 11
-v 283 261 11
+v 283 257 13
+v 287 257 13
+v 287 261 13
+v 283 261 13
 v 283 283 0
 v 287 283 0
 v 287 287 0
 v 283 287 0
-v 283 283 11
-v 287 283 11
-v 287 287 11
-v 283 287 11
+v 283 283 13
+v 287 283 13
+v 287 287 13
+v 283 287 13
 v 257 283 0
 v 261 283 0
 v 261 287 0
 v 257 287 0
-v 257 283 11
-v 261 283 11
-v 261 287 11
-v 257 287 11
+v 257 283 13
+v 261 283 13
+v 261 287 13
+v 257 287 13
 f 1 2 6 5
 f 2 3 7 6
 f 3 4 8 7

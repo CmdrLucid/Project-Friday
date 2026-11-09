@@ -1,9 +1,9 @@
 # light proxy: castle table, room 97 (remake/tools/furniture_ops.py, remake/lib/furniture.py). GAME coordinates x east, y south, z up, world units.
 # our own geometry (measured table, placed on the cells that draw it); read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh').
-v 319 335 10
-v 368 335 10
-v 368 384 10
-v 319 384 10
+v 319 335 8
+v 368 335 8
+v 368 384 8
+v 319 384 8
 v 319 335 16
 v 368 335 16
 v 368 384 16
@@ -12,34 +12,34 @@ v 320 336 0
 v 325 336 0
 v 325 341 0
 v 320 341 0
-v 320 336 10
-v 325 336 10
-v 325 341 10
-v 320 341 10
+v 320 336 8
+v 325 336 8
+v 325 341 8
+v 320 341 8
 v 363 336 0
 v 368 336 0
 v 368 341 0
 v 363 341 0
-v 363 336 10
-v 368 336 10
-v 368 341 10
-v 363 341 10
+v 363 336 8
+v 368 336 8
+v 368 341 8
+v 363 341 8
 v 363 379 0
 v 368 379 0
 v 368 384 0
 v 363 384 0
-v 363 379 10
-v 368 379 10
-v 368 384 10
-v 363 384 10
+v 363 379 8
+v 368 379 8
+v 368 384 8
+v 363 384 8
 v 320 379 0
 v 325 379 0
 v 325 384 0
 v 320 384 0
-v 320 379 10
-v 325 379 10
-v 325 384 10
-v 320 384 10
+v 320 379 8
+v 325 379 8
+v 325 384 8
+v 320 384 8
 f 1 2 6 5
 f 2 3 7 6
 f 3 4 8 7
