@@ -930,7 +930,8 @@
         ],
         "file": "proxies/church_632.obj",
         "surface": true,
-        "why": "Mercator church complex (hall with hip roof, yellow house, entrance gable); remake/recipes/proxy_church_632.py, user 2026-11-04 'blender'"
+        "floor": 16,
+        "why": "Mercator church complex (hall with hip roof, yellow house, entrance gable); remake/recipes/proxy_church_632.py, user 2026-11-04 'blender' | floor 16 (2026-11-09 night, user: at 16:12 'zieht sich ein Streifen durch die Kirche'): the ring rule lk_lt_ringg gave ground 32 (void edge + the blocked terrace behind), the clean-up left a 16 high collision sockel 3..6 units in front of the hall walls; the church stands on ground 16 (game height 1)"
       },
       {
         "op": "flat",

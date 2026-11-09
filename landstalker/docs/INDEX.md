@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-09 night, latest (dev, Opus 5.5): church 632 band at 16 h fixed** (outdoor clean-up ground from lk_lt_ringg was 32, church op floor 16). HANDOFF 0a365, NEXT -149 (vase streak options open).
 - **2026-11-09 night, latest (dev, Opus 5.5): WIDE FIRES (LK_LTWIDE v1 / LK_GLWIDE v1, LANDSTALKER_LT_WIDE=0 = old):** hearths light from 6 points over their drawn width (soft shadows by the fireplace); one light object per vase. HANDOFF 0a364, NEXT -148.
 - **2026-11-09 night, latest (dev, Opus 5.5 + Sonnet survey): DECORATION SURVEY + FIRST ROUND LIGHT SHAPE (vase pair 670 / 671 / 694, fitted lathe, furniture.VASE / lathe()).** remake/tools/deco_survey.py; HANDOFF 0a363, NEXT -147 (user OK open, next: braziers / knights / barrels / chapel / pews).
 - **2026-11-09 night, later (dev, Opus 5.5): table edge bands re-measured (Mercator thick 3, castle 8: the bright carpet strip under the edge was the model's side face) + AO under floating parts v2 (Lambert share on floors, strength LANDSTALKER_LT_AOCOV 0.75).** HANDOFF 0a362, NEXT -146; user picked this version (IV) on a 4-version comparison sheet.
