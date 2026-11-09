@@ -122,7 +122,8 @@ int lk_gl_frame(long fr, float *fu, int *iu, float *lp, float *lc, float *lf, fl
   for (k = 0; k < LK_LT_ML; k++) { const lk_lt_light *Lq = &lk_lt_l[k];
     lp[4 * k] = Lq->x; lp[4 * k + 1] = Lq->y; lp[4 * k + 2] = Lq->z; lp[4 * k + 3] = Lq->rad > 0.0f ? Lq->rad : LK_LT_RAD;
     lc[4 * k] = Lq->r; lc[4 * k + 1] = Lq->g; lc[4 * k + 2] = Lq->b; lc[4 * k + 3] = Lq->k > 0.0f ? Lq->k : 1.0f;
-    lf[4 * k] = k < lk_lt_nl ? lk_lt_flk[k] : 0.0f; lf[4 * k + 1] = Lq->lava == 2 ? 1.0f : 0.0f; lf[4 * k + 2] = lk_gl_wideopt() ? Lq->hw : 0.0f; lf[4 * k + 3] = (float)Lq->tan + 4.0f * floorf(Lq->hv + 0.5f); }   /* LK_GLWIDE v2: w = along (1 x / 2 y) + 4 * half height */   /* LK_GLWIDE v2: the fire width for termS */
+    lf[4 * k] = k < lk_lt_nl ? lk_lt_flk[k] : 0.0f; lf[4 * k + 1] = Lq->lava == 2 ? 1.0f : 0.0f; lf[4 * k + 2] = lk_gl_wideopt() ? Lq->hw : 0.0f; lf[4 * k + 3] = (float)Lq->tan + 4.0f * floorf(Lq->hv + 0.5f);
+    if (k < lk_lt_nl && Lq->own > 0.0f && !(lk_gl_wideopt() && Lq->hw > 0.5f)) lf[4 * k + 3] = -Lq->own; }   /* LK_GLCARRIER v1: w = -radius for a flame on its own stand (set by patch_lights from data "carrier"; LANDSTALKER_LT_CARRIER=0 = off) */   /* LK_GLWIDE v2: w = along (1 x / 2 y) + 4 * half height */   /* LK_GLWIDE v2: the fire width for termS */
   for (k = 0; k < 16; k++) { fg[4 * k] = lk_lt_f[k].fx; fg[4 * k + 1] = lk_lt_f[k].fy; fg[4 * k + 2] = lk_lt_f[k].fz; fg[4 * k + 3] = lk_lt_f[k].sun; fa[4 * k] = (float)lk_lt_f[k].ax; fa[4 * k + 1] = (float)lk_lt_f[k].ay; fa[4 * k + 2] = (float)lk_lt_f[k].tag; fa[4 * k + 3] = 0.0f; }
   return 1; }
 /* v5 GL5a: the world of the shadow terms for the GPU (re-upload when the returned hash changes):
@@ -697,6 +698,8 @@ float topT(float cx, float cy) {   /* lk_lt_cell + the thin column rule indoors 
 float termS(vec3 p, vec3 n, vec4 L, float kk, vec2 wf) {   /* lk_lt_term with its shadow (2 area points + soft edges indoors, one hard march outdoors); LK_GLWIDE v2: wf = (half width, along 1 x / 2 y) of a wide fire */
   vec3 v = L.xyz - p; float d = sqrt(v.x * v.x + v.y * v.y + v.z * v.z), rad = L.w;
   if (d >= rad || d < 0.001) return d < 0.001 ? kk : 0.0;
+  float own = wf.x < 0.5 && wf.y < -0.5 ? -wf.y : 0.0;   /* LK_GLCARRIER v1 (brazier stands, user 2026-11-09 'next forms'): a flame on its own stand: march samples in the stand's column
+     (closer than own to the flame's axis, below the flame) do not shadow it (the bowl under the fire darkened the whole room; the painting has no such shadow) */
   float ndl = (n.x * v.x + n.y * v.y + n.z * v.z) / d; if (gSoft > 0.5) ndl = 0.5 + 0.5 * ndl; if (ndl < 0.0) ndl = 0.0;   /* LK_GLSOFTR v1: round model surface = wrapped (half the direction contrast) */
   float att = kk * (1.0 - d / rad) * (1.0 - d / rad);
   vec3 s = vec3(p.x + n.x * OFF2(n.x, n.y, 3.0), p.y + n.y * OFF2(n.x, n.y, 3.0), p.z + n.z * 3.0);
@@ -708,7 +711,8 @@ float termS(vec3 p, vec3 n, vec4 L, float kk, vec2 wf) {   /* lk_lt_term with it
       vec3 off = wf.x > 0.5 ? (wt < 1.5 ? vec3(1.0, 0.0, 0.0) : vec3(0.0, 1.0, 0.0)) * wf.x * ((float(o) + 0.5) / 3.0 - 1.0) + vec3(0.0, 0.0, wv * (mod(float(o), 2.0) < 0.5 ? -0.5 : 0.5)) : (o == 0 ? vec3(3.5, -3.5, 1.0) : vec3(-3.5, 3.5, -1.0)); vec3 w = vec3(L.x + off.x - s.x, L.y + off.y - s.y, L.z + off.z - s.z);
       float e = sqrt(w.x * w.x + w.y * w.y + w.z * w.z), res = 1.0;
       for (int st = 0; st < 400; st++) { float t = 2.0 + 2.0 * float(st); if (t >= e - 3.0) break;
-        vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); float fx = floor(q.x / 4.0), fy = floor(q.y / 4.0), top = uIfine > 0.5 ? ifh(fx, fy, 1.0) : topT(floor(q.x / 16.0), floor(q.y / 16.0));
+        vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); if (own > 0.0 && q.z < L.z && length(q.xy - L.xy) < own) continue;
+        float fx = floor(q.x / 4.0), fy = floor(q.y / 4.0), top = uIfine > 0.5 ? ifh(fx, fy, 1.0) : topT(floor(q.x / 16.0), floor(q.y / 16.0));
         if (uNslab > 0.5 && slabin(fx, fy, q.z)) { res = 0.0; break; }   /* v9 */
         if (q.z < top - 0.5) { res = 0.0; break; }
         if (uIfine > 0.5) { float c2 = slabcl(fx, fy, q.z); if (c2 < 9999.0) { float r2 = 4.0 * c2 / t; if (r2 < res) res = r2; } c2 = halocl(q.x, q.y, q.z); if (c2 < 9999.0) { float r2 = 4.0 * c2 / t; if (r2 < res) res = r2; } }
@@ -717,7 +721,7 @@ float termS(vec3 p, vec3 n, vec4 L, float kk, vec2 wf) {   /* lk_lt_term with it
     return att * (wf.x > 0.5 ? 1.0 : 0.25 + 0.75 * ndl) * sum / ns; }
   vec3 w = vec3(L.x - s.x, L.y - s.y, L.z - s.z); float e = sqrt(w.x * w.x + w.y * w.y + w.z * w.z);
   for (int st = 0; st < 400; st++) { float t = 2.0 + 2.0 * float(st); if (t >= e - 3.0) break;
-    vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); if (uNslab > 0.5 && slabin(floor(q.x / 4.0), floor(q.y / 4.0), q.z)) return 0.0; if (q.z < topT(floor(q.x / 16.0), floor(q.y / 16.0)) - 0.5) return 0.0; }
+    vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); if (own > 0.0 && q.z < L.z && length(q.xy - L.xy) < own) continue; if (uNslab > 0.5 && slabin(floor(q.x / 4.0), floor(q.y / 4.0), q.z)) return 0.0; if (q.z < topT(floor(q.x / 16.0), floor(q.y / 16.0)) - 0.5) return 0.0; }
   return att * (0.25 + 0.75 * ndl); }
 float mslabcl(float x, float y, float z) {   /* LK_GLMODEL v1: clearance of a point to the FLOATING part of a model sub column (bottom above ground + 4 .. top), 9999 = none */
   float sx = floor(x / 4.0), sy = floor(y / 4.0); if (uHand < 0.5 || uMdl < 0.5 || (gKM > 0.5 && uSm.w > 0.5) || sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return 9999.0;

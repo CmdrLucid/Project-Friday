@@ -50,6 +50,20 @@ CASTLE_TABLE = dict(thick=8, leg=5, inset=0, outline=1)
 # IoU 0.965): axis 4 units in FRONT of the cell centre (+x, +y), 23 units high (the collision box is only 16), profile (height share, radius):
 VASE = dict(h=23.0, dx=4.0, dy=4.0, prof=[(0.0, 3.5), (0.1, 7.75), (0.3, 8.5), (0.6, 7.0), (0.8, 4.75), (0.92, 6.0), (1.0, 5.5)])
 
+# THE BRAZIER STAND (castle, tileset 1, flame $098AAA = Tileset02Anim01): a round foot plate, a thin stem, a knobbed head with the fire bowl on top.
+# Fitted 2026-11-09 to the drawn layer A silhouettes (~/lktest/braz/fit.py, lathe vs picture mask by view rays, prongs / flame above the rim
+# ignored): short stand of room 51 (27, 44) IoU 0.942, tall stand of room 59 (29, 28) IoU 0.955; both: axis 1 unit in front of the cell centre
+# (+x, +y), the same foot and head, the tall stem 24 units longer (stem 4 vs 28). Collision: 2 steps (short) / 4 steps (tall).
+BRAZIER_FOOT = [(0.0, 8.44), (1.0, 9.19), (2.0, 8.19), (3.0, 7.19), (4.0, 6.49), (5.0, 6.28), (6.0, 5.66), (7.0, 4.95), (8.0, 4.24), (9.0, 3.54), (10.0, 2.83)]
+BRAZIER_HEAD = [(1.0, 3.54), (2.0, 4.24), (3.0, 4.95), (4.0, 5.66), (8.0, 5.66), (9.0, 4.66), (10.0, 3.95), (11.0, 4.24), (14.0, 4.24), (15.0, 4.95),
+                (16.0, 5.66), (17.0, 5.66), (18.0, 6.36), (19.0, 6.36), (20.0, 6.78), (21.0, 7.49), (21.5, 6.74)]   # heights above the stem top
+BRAZIER = dict(dx=1.0, dy=1.0, stem={2: 4.0, 4: 28.0})   # stem length by collision steps
+
+def brazier_prof(steps):
+    """the stand's profile [(height, radius)] in units (absolute heights) for a stand of `steps` collision steps"""
+    st = 10.0 + BRAZIER["stem"][steps]
+    return BRAZIER_FOOT + [(st, 2.83)] + [(st + z, r) for z, r in BRAZIER_HEAD]
+
 def lathe(ax, ay, floor, h, prof, seg=24):
     """a closed solid of revolution around (ax, ay) standing on `floor`: rings of `prof` [(height share, radius)], capped top and bottom;
     returns (vertices, faces) with outward counter-clockwise faces (as the Blender meshes, back face shadow maps)"""

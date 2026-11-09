@@ -106,6 +106,18 @@ def vase_pairs(rom, room):
             out.append(dict(cells=(x, y, x, y + 1), floor=v[0] - 1))
     return out
 
+def brazier_stands(rom, room):
+    """the castle's brazier stands (tileset 1, top block $027 / $041 / $043, flame $098AAA): a stand cell (blocked or not) h steps high whose walkable
+    neighbour gives 2 (short stand) or 4 (tall stand) steps; outlines checked on the drawings (~/lktest/braz/ov.py: 51 52 53 54 55 56 57 58 59 60 61
+    62 86 87).  NOT the wall candle of 680 / 707 (same top block, no walkable neighbour)"""
+    if blockcat.tileset(rom, room) != 1: return []
+    c = blockcat.cells(rom, room); out = []
+    for (x, y), v in sorted(c.items()):
+        if v[2] not in (0x027, 0x041, 0x043): continue
+        fl = sorted({n[0] for n in (c.get((x + dx, y + dy)) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))) if n and not n[1] and v[0] - n[0] in (2, 4)})
+        if fl: out.append(dict(cell=(x, y), floor=fl[-1], steps=v[0] - fl[-1]))
+    return out
+
 def lathe_obj(meshes, title):
     """[(vertices, faces), ..] -> OBJ text"""
     s = "# light proxy: %s (remake/tools/furniture_ops.py, remake/lib/furniture.py). GAME coordinates x east, y south, z up, world units.\n" % title
@@ -138,6 +150,18 @@ def main():
                     open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(ms, "vase, room %d" % r))
                     ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x0, yy, x0, yy]), ("file", "proxies/" + fn), ("surface", True), ("floor", 16 * t["floor"]),
                         ("why", "vase pair by the hearth (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py VASE, placed by remake/tools/furniture_ops.py; user 2026-11-09 'Objekte wie diese Vasen als echte 3D-Form fuers Licht'")]))
+            data["rooms"][str(r)] = ops0; n += 1
+        stands = brazier_stands(rom, r)
+        for t in stands: print("room %d: brazier stand cell %d,%d floor %d steps %d OK" % (r, t["cell"][0], t["cell"][1], t["floor"], t["steps"]))
+        if write and stands:
+            ops0 = [e for e in data["rooms"].get(str(r), []) if not (e.get("op") == "mesh" and e.get("file", "").startswith("proxies/brazier_"))]
+            for k, t in enumerate(stands):   # one op per stand (own object rule)
+                (x, y), P = t["cell"], furniture.brazier_prof(t["steps"]); top = P[-1][0]
+                ms = [furniture.lathe(16 * x + 8 + furniture.BRAZIER["dx"], 16 * y + 8 + furniture.BRAZIER["dy"], 16 * t["floor"], top, [(z / top, rr) for z, rr in P])]
+                fn = "brazier_%d.obj" % r if k == 0 else "brazier_%d_%d.obj" % (r, k)
+                open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(ms, "brazier stand (%s), room %d" % ("short" if t["steps"] == 2 else "tall", r)))
+                ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("floor", 16 * t["floor"]), ("carrier", collections.OrderedDict([("r", 12), ("axis", [16 * x + 8 + int(furniture.BRAZIER["dx"]), 16 * y + 8 + int(furniture.BRAZIER["dy"])]), ("z", int(round(16 * t["floor"] + top + 5)))])),
+                    ("why", "brazier stand (collision = a %d high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'" % (16 * t["steps"]))]))
             data["rooms"][str(r)] = ops0; n += 1
         for t in ts: print("room %d: %s cells %d..%d x %d..%d height %d floor %d %s%s%s" % (r, t["type"]["name"] if t["arm"] is None else "L bench", t["cells"][0], t["cells"][2], t["cells"][1], t["cells"][3], t["h"], t["floor"],
                                  "OK" if t["ok"] else "SKIPPED (fragment / not one step above the floor)", "" if not t["ok"] or not t["cont"] else "  CHECK: neighbours at its height " + " ".join("%d,%d" % k for k in t["cont"]),

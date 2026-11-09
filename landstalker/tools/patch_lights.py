@@ -99,7 +99,7 @@ def mesh_tris(path):   # REAL 3D LIGHT SHAPES stage 1 (LK_LTMODEL v1, 2026-11-08
                 if g[0] * f[0] + g[1] * f[1] + g[2] * f[2] > 0.819: sn = [sn[i] + fn[tj][i] for i in range(3)]   # area weighted
             n = unit(sn); k = 2.0 * flip if flip < 0 else 1.0; out += [vs[v][0], vs[v][1], vs[v][2], k * n[0], k * n[1], k * n[2]]   # a flipped (camera-averted) triangle carries its normal at length 2 (LK_GLROOM v1: the model buffer can leave such back faces out)
     return out
-MTRI = {}; MSURF = {}   # mesh number -> triangle list (only meshes from an OBJ file) / "surface": true
+MTRI = {}; MSURF = {}; CARRIER = []   # CARRIER: LK_GLCARRIER v1 rows {room, cells x0 y0 x1 y1, radius} of mesh ops with "carrier": radius   # mesh number -> triangle list (only meshes from an OBJ file) / "surface": true
 def prism_cells(poly, top, bot):   # v9 "prism" op: a polygon footprint (world units) -> {(sx, sy): (top, bottom)} at the sub column centres (4 sx + 2, 4 sy + 2)
     out = {}; xs = [p[0] for p in poly]; ys = [p[1] for p in poly]
     for sy in range(int(min(ys)) // 4, int(max(ys)) // 4 + 1):
@@ -146,6 +146,7 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
                 if op == 5:   # mesh: the rectangle's automatic shapes go, the mesh is stamped (a[4] = mesh number)
                     top = mesh_cells(os.path.join(os.path.dirname(path), e["file"])); mi = len(MESHES); MTRI[mi] = mesh_tris(os.path.join(os.path.dirname(path), e["file"])); MSURF[mi] = 1 if e.get("surface") else 0   # LK_LTMODEL v1: only VERIFIED models are real 3D light shapes ("surface": true; the older outdoor proxies lean on the carve; LANDSTALKER_LT_MODELALL=1 = all, test aid)
                     MESHES.append(", ".join("{%d, %d, %d, %d}" % (sx, sy, int(round(h[0])), int(round(h[1]))) for (sx, sy), h in sorted(top.items()) if 0 <= sx < 296 and 0 <= sy < 296))
+                    if e.get("carrier"): CARRIER.append("{%d, %d, %d, %d, %d, %d, %d, %d, %d}" % (int(room), a[0], a[1], a[2], a[3], int(e["carrier"]["r"]), int(e["carrier"]["axis"][0]), int(e["carrier"]["axis"][1]), int(e["carrier"]["z"])))   # LK_GLCARRIER v1
                     a = a + [mi, 1 if e.get("air") else 0, int(e.get("floor", -999))]; n += 3   # v9: "air": parts whose bottom floats above the ground become slabs; "floor": indoors the rectangle's sub columns the mesh does not cover get this height
                 if op == 10:   # v9 carve: + background mode (1 "sea", 2 "layera"), floor
                     a = a + [{"sea": 1, "layera": 2}[e.get("bg", "sea")], int(e.get("floor", 0))]; n += 2
@@ -164,6 +165,7 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
     mesh += "static const unsigned char lk_lt_msurf[] = { " + ", ".join([str(MSURF.get(i, 0)) for i in range(len(MESHES))] + ["0"]) + " };\n"
     mesh += "static const int lk_lt_mtrin[] = { " + ", ".join([str(len(MTRI[i]) // 18) if i in MTRI else "0" for i in range(len(MESHES))] + ["0"]) + " };   /* LK_LTMODEL v1: triangles per mesh */\n"
     print("patch_lights: model triangles for the GPU: %s" % ", ".join("%d%s" % (len(MTRI[i]) // 18, "" if MSURF.get(i) else "(test)") for i in sorted(MTRI)))
+    mesh += "static const int16_t lk_lt_carrier[][9] = { " + ", ".join(CARRIER + ["{-1, 0, 0, 0, 0, 0, 0, 0, 0}"]) + " };   /* LK_GLCARRIER v1: {room, cells x0 y0 x1 y1, radius, axis x y, flame z}: a flame standing in these cells sits on the stand's axis and is not shadowed by its own stand within radius (data/light_proxies.json \"carrier\") */\n"
     mesh += "static const int16_t lk_lt_uptile[][3] = { " + ", ".join(uptile + ["{-1, 0, 0}"]) + " };   /* LK_LTUNPAINT v1: tileset, painted shadow tile -> the same tile without the shadow (data/light_proxies.json unpaint_tiles) */\n"
     return "static const lk_lt_corr_t lk_lt_corr[] = { " + ", ".join(rows + ["{-1, 0, {0}}"]) + " };\n" + mesh
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
@@ -187,7 +189,7 @@ void lk_lt_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; 
 #define LK_LT_RAD 120.0f   /* v2: was 90, the floor under high wall torches stayed dark (room 177) */
 typedef struct { int16_t z[1024]; uint8 face[1024]; uint8 nl, li[LK_LT_NL]; uint8 term[LK_LT_NL][1024]; uint8 sun[1024]; uint8 ao[1024]; uint8 beam[1024], pool[1024]; uint16_t km[3][1024]; uint8 sunn[1024]; int16_t robj[1024]; int sungen; } lk_lt_blk;   /* LK_DAYNIGHT v1: sunn = sun share for the NEXT sun direction (lk_lt_sdn), valid when sungen == lk_dn_gen; robj = object of the view ray per pixel (kept for sun-only recomputes) */   /* km: v8 SPEED, key light rooms: the finished light factor (x 256) of every pixel (user 2026-11-05: 'generell ruckeliger') */   /* v8 ao: room light share 0..255 (corner shadows) */
 static lk_lt_blk *lk_lt_b[LK_LT_BH][LK_LT_BW]; static int lk_lt_gen;   /* v8 MT: bumped by lk_lt_free (worker results of an older generation are dropped) */
-typedef struct { float x, y, z; float r, g, b; int lava; uint32_t base; float k, rad; float hw; int tan; float hv; } lk_lt_light;   /* LK_LTWIDE v2: hw = half the width of the drawn fire along its wall (0 = a small flame), tan 1 = along x, 2 = along y */   /* k: strength, rad: reach (LK_LT_RAD; castle torches more, user 2026-11-04) */   /* base: the AnimatedTilesetData entry of the flame (kind of torch) */
+typedef struct { float x, y, z; float r, g, b; int lava; uint32_t base; float k, rad; float hw; int tan; float hv; float own; } lk_lt_light;   /* own: LK_GLCARRIER v1 radius of the flame's own stand column (no shadow from it), 0 = none */   /* LK_LTWIDE v2: hw = half the width of the drawn fire along its wall (0 = a small flame), tan 1 = along x, 2 = along y */   /* k: strength, rad: reach (LK_LT_RAD; castle torches more, user 2026-11-04) */   /* base: the AnimatedTilesetData entry of the flame (kind of torch) */
 static lk_lt_light lk_lt_l[LK_LT_ML]; static int lk_lt_nfl, lk_lt_nl, lk_lt_room = -2, lk_lt_zmax; static uint32_t lk_lt_hash; static long lk_lt_frame = -1;
 static int16_t lk_lt_top[74][74];
 static int16_t lk_lt_gh[74][74];   /* v6: the game's heights (lk_lt_top = ours: outdoor objects raised to their drawn height for the view ray); the sun's shadow march uses these + lk_lt_fh */
@@ -673,6 +675,7 @@ static float lk_lt_term(float px, float py, float pz, float nx, float ny, float 
     float sx = px + nx * LK_LT_OFF(nx, ny, 3.0f), sy = py + ny * LK_LT_OFF(nx, ny, 3.0f), sz = pz + nz * 3.0f, sum = 0.0f; int o;
     for (o = 0; o < 2; o++) { float wx = L->x + off[o][0] - sx, wy = L->y + off[o][1] - sy, wz = L->z + off[o][2] - sz, e = sqrtf(wx * wx + wy * wy + wz * wz), res = 1.0f;
       for (t = 2.0f; t < e - 3.0f; t += 2.0f) { float qx = sx + wx * t / e, qy = sy + wy * t / e, qz = sz + wz * t / e, cl, r; int cx, cy, top;
+        if (L->own > 0.0f && qz < L->z && (qx - L->x) * (qx - L->x) + (qy - L->y) * (qy - L->y) < L->own * L->own) continue;   /* LK_GLCARRIER v1: the flame's own stand */
         if (lk_lt_solid(qx, qy, qz)) { res = 0.0f; break; }
         if (lk_lt_ifine) { int fx = (int)floorf(qx / 4.0f), fy = (int)floorf(qy / 4.0f); float c2 = lk_lt_slabcl(fx, fy, qz); top = lk_lt_ifh(fx, fy, 1);   /* v9: fine heights + slabs */
           if (c2 < 9999.0f) { r = LK_LT_IPEN * c2 / t; if (r < res) res = r; }
@@ -686,6 +689,7 @@ static float lk_lt_term(float px, float py, float pz, float nx, float ny, float 
   if (shadow) {   /* v3: march from 3 units in front of the surface (a wall pixel lies on the cell border: the march along the wall hit the wall itself = box-shaped shadows, user: church wall by the books) */
     float sx = px + nx * LK_LT_OFF(nx, ny, 3.0f), sy = py + ny * LK_LT_OFF(nx, ny, 3.0f), sz = pz + nz * 3.0f, wx = L->x - sx, wy = L->y - sy, wz = L->z - sz, e = sqrtf(wx * wx + wy * wy + wz * wz), res = 1.0f;
     for (t = 2.0f; t < e - 3.0f; t += 2.0f) { float qx = sx + wx * t / e, qy = sy + wy * t / e, qz = sz + wz * t / e, cl, r;
+      if (L->own > 0.0f && qz < L->z && (qx - L->x) * (qx - L->x) + (qy - L->y) * (qy - L->y) < L->own * L->own) continue;   /* LK_GLCARRIER v1 */
       if (lk_lt_solid(qx, qy, qz)) return 0.0f;
       if (!lk_lt_sun) {   /* SOFT EDGES indoors (user 2026-11-05: 'ausgefranzte Ecken'): a ray that passes just over a block top loses part of the light (clearance / distance), so the
            16 x 16 steps of the height map no longer give hard stair edges; the share grows over LK_LT_IPEN units of clearance per unit of distance */
@@ -1727,6 +1731,10 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         L->hw = 0.0f; L->tan = 0;   /* LK_LTWIDE v2 (user 2026-11-09 'ja' to wide fires): a fire drawn wider than 2 tiles on a wall (fireplaces) lights from its whole width;
            the picture width of the group = its width along the wall (U = x - y: a run along x or along y moves U by the same amount) */
         { float hw = (float)((cmax - cmin + 1) * 8) * 0.5f - 2.0f; if ((f == 2 || f == 3) && hw >= 10.0f) {   /* >= 3 tiles wide = fireplaces (2 tile candelabras stay small) */ L->hw = hw; L->tan = f == 2 ? 2 : 1; L->hv = (float)((rmax - rmin + 1) * 8) * 0.5f - 2.0f; if (L->hv < 0.0f) L->hv = 0.0f; } }   /* LK_LTWIDE v2: + half its drawn height (on a wall the picture rows = z) */
+        { static int co = -1; int q; if (co < 0) { const char *e = getenv("LANDSTALKER_LT_CARRIER"); co = e ? atoi(e) != 0 : 1; }   /* LK_GLCARRIER v1 (brazier stands, user 2026-11-09 'next forms'): the view ray of the flame's
+             centre hits the stand's model at the bowl's RIM (6 units aside, 4 lower: the bowl shadowed half the room); a flame on a stand = on its axis, 5 above the bowl's top (data "z"; the drawn centre on the axis lies IN the bowl = 'inside a solid') */
+          if (co) for (q = 0; lk_lt_carrier[q][0] >= 0; q++) { const int16_t *c = lk_lt_carrier[q]; int cx = (int)floorf(px / 16.0f), cy = (int)floorf(py / 16.0f);
+            if (c[0] == lk_o_room && cx >= c[1] - 1 && cx <= c[3] + 1 && cy >= c[2] - 1 && cy <= c[4] + 1) { L->x = (float)c[6]; L->y = (float)c[7]; L->z = (float)c[8]; L->own = (float)c[5]; break; } } }
         L->k = 1.0f; L->rad = LK_LT_RAD; if (L->base == 0x098AAA) { L->k = 1.15f; L->rad = 260.0f; }   /* the standing torches of the castle (user 2026-11-04: 'im Schloss zu dunkel, koennte nur diese Art der Fackel mehr Licht abgeben?'; 2026-11-05: base light 0.85, then this torch a bit weaker: k 1.5 -> 1.15) */
         lk_lt_nl++; }
     }
