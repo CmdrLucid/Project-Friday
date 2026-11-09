@@ -37,6 +37,86 @@
         "why": "Mercator castle facade (height map has the castle only as blocked height 0 cells: no facade, a hip up to 204 on the stairs); centre tower, stairs, two pine planters; remake/recipes/proxy_castle_31.py, user 2026-11-04 'weiter mit den naechsten Formen'; RE-MEASURED 2026-11-09 (roof roll, tower crest, planter pines by their tips), surface on (user: 'ja passt')"
       }
     ],
+    "88": [
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          22,
+          19,
+          23
+        ],
+        "file": "proxies/table_88.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "castle table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
+    "89": [
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          22,
+          19,
+          23
+        ],
+        "file": "proxies/table_89.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "castle table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
+    "96": [
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          21,
+          22,
+          23
+        ],
+        "file": "proxies/table_96.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
+    "97": [
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          21,
+          22,
+          23
+        ],
+        "file": "proxies/table_97.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
+    "103": [
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          21,
+          22,
+          23
+        ],
+        "file": "proxies/table_103.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
     "192": [
       {
         "op": "water",
@@ -63,7 +143,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "486": [
@@ -656,7 +736,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "621": [
@@ -672,7 +752,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "622": [
@@ -688,7 +768,67 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
+    "623": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          35,
+          25,
+          37
+        ],
+        "file": "proxies/table_623.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          30,
+          32,
+          32
+        ],
+        "file": "proxies/table_623.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
+    "624": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          35,
+          25,
+          37
+        ],
+        "file": "proxies/table_624.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          30,
+          32,
+          32
+        ],
+        "file": "proxies/table_624.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "632": [
@@ -822,7 +962,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "671": [
@@ -838,7 +978,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "677": [
@@ -854,7 +994,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "687": [
@@ -870,7 +1010,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "688": [
@@ -886,10 +1026,24 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "691": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          15,
+          13,
+          15
+        ],
+        "file": "proxies/table_691.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -902,10 +1056,24 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "692": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          15,
+          13,
+          15
+        ],
+        "file": "proxies/table_692.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -918,7 +1086,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "694": [
@@ -934,7 +1102,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "698": [
@@ -950,10 +1118,116 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
+    "701": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          35,
+          25,
+          37
+        ],
+        "file": "proxies/table_701.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          30,
+          32,
+          32
+        ],
+        "file": "proxies/table_701.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
+    "702": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          35,
+          25,
+          37
+        ],
+        "file": "proxies/table_702.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          30,
+          32,
+          32
+        ],
+        "file": "proxies/table_702.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
+    "708": [
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          15,
+          21,
+          17
+        ],
+        "file": "proxies/table_708.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
+    "710": [
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          15,
+          21,
+          17
+        ],
+        "file": "proxies/table_710.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "713": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          15,
+          13,
+          15
+        ],
+        "file": "proxies/table_713.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -966,10 +1240,24 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "714": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          15,
+          13,
+          15
+        ],
+        "file": "proxies/table_714.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -982,7 +1270,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "717": [
@@ -998,7 +1286,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "718": [
@@ -1014,7 +1302,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "722": [
@@ -1030,7 +1318,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "723": [
@@ -1046,7 +1334,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "724": [
@@ -1062,7 +1350,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "725": [
@@ -1078,7 +1366,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "table on legs (collision = a solid box): the measured Mercator table (remake/lib/furniture.py MERCATOR_TABLE, room 670), placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja'"
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ]
   }

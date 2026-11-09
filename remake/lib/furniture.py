@@ -17,3 +17,7 @@ def table(name, x0, y0, x1, y1, floor, top, thick, leg, inset, outline=0):
 # exactly on its collision cells (22..24 x 22..23 = x 352..400, y 352..384, walkable height 1 = 16); edge band down to ~11 (thickness 5); legs
 # ~4 units (5 picture columns), their floor feet at (354, 381) / (397, 381) / (397, 354) = 2..3 in from the outer corners.
 MERCATOR_TABLE = dict(thick=5, leg=4, inset=1, outline=1)
+
+# THE CASTLE TABLE (Mercator castle rooms, tileset 1: gold rim, curved legs), measured 2026-11-09 on room 96 (cells 20..22 x 21..23, height 1):
+# top corners U 1167.5 / 1120 / 1215 / 1167 = exactly the 3 x 3 cells at z 16, gold edge band ~6, curved legs ~5 wide standing AT the corners.
+CASTLE_TABLE = dict(thick=6, leg=5, inset=0, outline=1)
