@@ -1380,9 +1380,70 @@ static void lk_lt_rmquad(const float *a, const float *b, const float *c, const f
   v[0] = a; v[1] = b; v[2] = c; v[3] = a; v[4] = c; v[5] = d;
   for (i = 0; i < 6; i++) { float *o = lk_lt_rmt + 18 * lk_lt_rmn + 6 * (i %% 3) + (i >= 3 ? 18 : 0); o[0] = v[i][0] - 2.0f * LK_LT_RMEPS; o[1] = v[i][1] - LK_LT_RMEPS; o[2] = v[i][2]; o[3] = nx; o[4] = ny; o[5] = nz; }
   lk_lt_rmn += 2; }
+/* LK_LTOBJ v1 (2026-11-09, user: 'auch Baeume und Bueschen sollten die echten 3D-Flaechen werden fuer das Licht'): the recurring objects as REAL 3D SURFACES.  At room load every
+   bush (catalogue kind 1: crown squashed to LK_LT_BSQ on a 1.5 stem), pine (kind 2: 6 drooping tiers lk_lt_pinr on a stem) and lathe tree (type 3 proxy: radius per unit of
+   height from the drawn sprite, lk_lt_prof) becomes a closed mesh of revolution with smooth normals, EXACTLY the shapes the field marches use; outward counter-clockwise
+   (back face shadow maps).  The GPU puts them into the model buffer (marked z * 8 + 16384: only LAYER A pixels take them = the drawn crowns, the ground around keeps the
+   field) and the shadow maps; their sub columns are hand-model owned (kind 1, ground = the base) so the marches leave them to the shadow map.  GPU only, the CPU keeps
+   the field.  LANDSTALKER_LT_OBJMODEL=1 = on (off by default until the user has seen it). */
+#define LK_LT_OMMAX 120000
+static float lk_lt_omt[LK_LT_OMMAX * 18]; static int lk_lt_omn, lk_lt_omover;
+static int lk_lt_objopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_OBJMODEL"); v = e ? atoi(e) : 0; } return v; }
+static void lk_lt_omtri(const float *a, const float *na, const float *b, const float *nb, const float *c, const float *nc) {
+  float *o; if (lk_lt_omn + 1 > LK_LT_OMMAX) { lk_lt_omover = 1; return; } o = lk_lt_omt + 18 * lk_lt_omn;
+  memcpy(o, a, 12); memcpy(o + 3, na, 12); memcpy(o + 6, b, 12); memcpy(o + 9, nb, 12); memcpy(o + 12, c, 12); memcpy(o + 15, nc, 12); lk_lt_omn++; }
+static void lk_lt_omlathe(float cx, float cy, const float *rr, const float *zz, int n) {   /* a closed surface of revolution: profile rings (radius rr[i] at height zz[i], bottom to top),
+     closed by flat caps where the radius is not 0; per ring edge a flat profile normal, smoothed with its neighbour within 35 degrees (round crowns), steps stay hard */
+  enum { SEG = 12 }; float pn[200][2]; int i, k;
+  if (n < 2 || n > 200) return;
+  for (i = 0; i + 1 < n; i++) { float dr = rr[i + 1] - rr[i], dz = zz[i + 1] - zz[i], l = sqrtf(dr * dr + dz * dz); if (l < 1e-6f) { pn[i][0] = 0.0f; pn[i][1] = 1.0f; } else { pn[i][0] = dz / l; pn[i][1] = -dr / l; } }
+  for (i = 0; i + 1 < n; i++) for (k = 0; k < SEG; k++) {
+    float a0 = 6.2831853f * k / SEG, a1 = 6.2831853f * (k + 1) / SEG, c0 = cosf(a0), s0 = sinf(a0), c1 = cosf(a1), s1 = sinf(a1), nl[2], nu[2], P[4][3], N[4][3];
+    nl[0] = pn[i][0]; nl[1] = pn[i][1]; nu[0] = pn[i][0]; nu[1] = pn[i][1];
+    if (i > 0 && pn[i - 1][0] * pn[i][0] + pn[i - 1][1] * pn[i][1] > 0.819f) { nl[0] += pn[i - 1][0]; nl[1] += pn[i - 1][1]; }
+    if (i + 2 < n && pn[i + 1][0] * pn[i][0] + pn[i + 1][1] * pn[i][1] > 0.819f) { nu[0] += pn[i + 1][0]; nu[1] += pn[i + 1][1]; }
+    { float l = sqrtf(nl[0] * nl[0] + nl[1] * nl[1]); nl[0] /= l; nl[1] /= l; l = sqrtf(nu[0] * nu[0] + nu[1] * nu[1]); nu[0] /= l; nu[1] /= l; }
+    P[0][0] = cx + rr[i] * c0; P[0][1] = cy + rr[i] * s0; P[0][2] = zz[i]; N[0][0] = nl[0] * c0; N[0][1] = nl[0] * s0; N[0][2] = nl[1];
+    P[1][0] = cx + rr[i] * c1; P[1][1] = cy + rr[i] * s1; P[1][2] = zz[i]; N[1][0] = nl[0] * c1; N[1][1] = nl[0] * s1; N[1][2] = nl[1];
+    P[2][0] = cx + rr[i + 1] * c1; P[2][1] = cy + rr[i + 1] * s1; P[2][2] = zz[i + 1]; N[2][0] = nu[0] * c1; N[2][1] = nu[0] * s1; N[2][2] = nu[1];
+    P[3][0] = cx + rr[i + 1] * c0; P[3][1] = cy + rr[i + 1] * s0; P[3][2] = zz[i + 1]; N[3][0] = nu[0] * c0; N[3][1] = nu[0] * s0; N[3][2] = nu[1];
+    if (rr[i] > 1e-3f) lk_lt_omtri(P[0], N[0], P[1], N[1], P[2], N[2]);   /* counter-clockwise seen from outside (angle grows towards +y, height up) */
+    if (rr[i + 1] > 1e-3f) lk_lt_omtri(P[0], N[0], P[2], N[2], P[3], N[3]); }
+  for (k = 0; k < SEG; k++) { float a0 = 6.2831853f * k / SEG, a1 = 6.2831853f * (k + 1) / SEG, up[3] = { 0.0f, 0.0f, 1.0f }, dn[3] = { 0.0f, 0.0f, -1.0f };   /* caps */
+    if (rr[0] > 1e-3f) { float m[3] = { cx, cy, zz[0] }, p0[3] = { cx + rr[0] * cosf(a0), cy + rr[0] * sinf(a0), zz[0] }, p1[3] = { cx + rr[0] * cosf(a1), cy + rr[0] * sinf(a1), zz[0] }; lk_lt_omtri(m, dn, p1, dn, p0, dn); }
+    if (rr[n - 1] > 1e-3f) { float m[3] = { cx, cy, zz[n - 1] }, p0[3] = { cx + rr[n - 1] * cosf(a0), cy + rr[n - 1] * sinf(a0), zz[n - 1] }, p1[3] = { cx + rr[n - 1] * cosf(a1), cy + rr[n - 1] * sinf(a1), zz[n - 1] }; lk_lt_omtri(m, up, p0, up, p1, up); } } }
+static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines / lathe trees as meshes + their sub columns owned (before the room box model) */
+  int cx, cy, k, sx, sy, nobj = 0; float rr[200], zz[200]; int n;
+  lk_lt_omn = 0; lk_lt_omover = 0;
+  if (!lk_lt_objopt() || !lk_lt_modelopt()) return;
+  for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) { int kind = lk_lt_tk[cy][cx]; float top, r, zb, zc, q, X = 16.0f * cx + 8.0f, Y = 16.0f * cy + 8.0f;
+    if (kind != 1 && kind != 2) continue;
+    top = (float)lk_lt_tt[cy][cx]; r = (float)lk_lt_tr[cy][cx]; zb = (float)lk_lt_tb[cy][cx]; if (r < 1.0f || top <= zb + 2.0f) continue;
+    n = 0;
+    if (kind == 1) { int i; q = LK_LT_BSQ; zc = top - r * q;   /* bush: stem, then the squashed crown (polar rings) */
+      rr[n] = 1.5f; zz[n++] = zb; rr[n] = 1.5f; zz[n++] = zc - r * q;
+      for (i = 0; i <= 12; i++) { float th = 3.1415927f * (12 - i) / 12.0f; float rad = r * sinf(th), z = zc - r * q * cosf(th); if (rad < 1.5f && i < 6) rad = 1.5f; rr[n] = rad; zz[n++] = z; } }
+    else { int t; zc = zb + 4.0f;   /* pine: stem, then 6 tiers (each from its full radius to 45 %%), tip */
+      rr[n] = 1.5f; zz[n++] = zb; rr[n] = 1.5f; zz[n++] = zc;
+      for (t = 0; t < 6; t++) { float f0 = t / 6.0f, f1 = (t + 1) / 6.0f, z0 = zc + f0 * (top - zc), z1 = zc + f1 * (top - zc), R0 = r * (1.0f - t / 6.0f);
+        if (!lk_lt_pinet()) { R0 = r * (1.0f - f0); rr[n] = R0; zz[n++] = z0; continue; }
+        rr[n] = R0; zz[n++] = z0; rr[n] = R0 * 0.45f; zz[n++] = z1 - 0.01f; }
+      rr[n] = 0.0f; zz[n++] = top; }
+    lk_lt_omlathe(X, Y, rr, zz, n); nobj++;
+    for (sy = 4 * cy; sy < 4 * cy + 4; sy++) for (sx = 4 * cx; sx < 4 * cx + 4; sx++) if (!lk_lt_mown[sy][sx]) { lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)zb; } }
+  for (k = 0; k < lk_lt_npx; k++) { const lk_lt_proxy *P = &lk_lt_px[k]; int i, hgt = P->ridge - P->z0;   /* lathe trees */
+    if (P->type != 3 || hgt < 2 || hgt > 96) continue;
+    n = 0; rr[n] = 0.0f; zz[n++] = (float)P->z0;
+    for (i = 0; i < hgt && n < 198; i++) { rr[n] = (float)lk_lt_prof[k][i]; zz[n++] = (float)(P->z0 + i) + 0.5f; }
+    rr[n] = 0.0f; zz[n++] = (float)P->ridge;
+    lk_lt_omlathe((float)P->x0, (float)P->y0, rr, zz, n); nobj++;
+    for (sy = 0; sy < LK_LT_FN; sy++) for (sx = 0; sx < LK_LT_FN; sx++) if (lk_lt_fp[sy][sx] == k + 1 && !lk_lt_mown[sy][sx]) { lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = P->z0; } }
+  if (lk_lt_omover) { printf("object models: room %%d needs more than %%d triangles, off here\n", lk_o_room, LK_LT_OMMAX); lk_lt_omn = 0; }
+  if (lk_lt_omn) { lk_lt_nmodel++; printf("object models: room %%d, %%d objects, %%d triangles\n", lk_o_room, nobj, lk_lt_omn); } }
 static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the current indoor room (after the thin column pruning) */
   static int16_t H[LK_LT_FN + 2][LK_LT_FN + 2]; static uint8 vis[LK_LT_FN][LK_LT_FN]; int sx, sy, x0, nown = 0; const int VZ = -40;
   struct timespec t0; lk_lt_rmn = 0; lk_lt_rmover = 0;
+  lk_lt_objbuild();   /* LK_LTOBJ v1: trees / bushes first (their sub columns become hand-model owned) */
   if (!lk_lt_modelopt() || !lk_lt_roomopt(lk_o_room) || lk_lt_nslab || (lk_lt_sun && !lk_lt_modelout())) return;   /* outdoors too (user 2026-11-08: 'genauso fuer Aussenraeume ... diesen einen Weg') */
   clock_gettime(CLOCK_MONOTONIC, &t0);
   #define LK_RMH(x, y) H[(y) + 1][(x) + 1]

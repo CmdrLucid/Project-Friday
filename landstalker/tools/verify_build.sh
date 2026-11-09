@@ -70,6 +70,8 @@ chk "Echte 3D-Lichtformen (Modell-Eigentum)"         $G/ext/Genesis-Plus-GX/core
 chk "GPU-Modellpuffer (echte 3D-Formen)"             $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_GLMODEL v1"
 chk "Raeume als 3D-Modelle (Kastenmodell)"          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTROOM v1"
 chk "GPU-Raummodell (Kastenmodell)"                $G/src/platform_sdl.c "LK_GLROOM v1"
+chk "Baeume / Buesche als 3D-Flaechen"            $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTOBJ v1"
+chk "GPU-Baeume / Buesche"                      $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_GLOBJ v1"
 chk "Tag / Nacht (Option)"                          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DAYNIGHT v1"
 chk "Tag / Nacht v5 (fliessende Schatten)"          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DAYNIGHT v5"
 chk "Zeitraffer-Taste (L5 + R5)"                    $G/src/input.c "lk_dn_fasttoggle"
