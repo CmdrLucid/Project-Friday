@@ -634,6 +634,7 @@
           63
         ],
         "file": "proxies/church_632.obj",
+        "surface": true,
         "why": "Mercator church complex (hall with hip roof, yellow house, entrance gable); remake/recipes/proxy_church_632.py, user 2026-11-04 'blender'"
       },
       {
