@@ -95,6 +95,7 @@
           43
         ],
         "file": "proxies/tree_488.obj",
+        "surface": true,
         "why": "The big tree in front of the forest (automatic box up to 271, drawn tip ~212); remake/recipes/proxy_tree_488.py"
       },
       {
