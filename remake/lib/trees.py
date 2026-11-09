@@ -14,6 +14,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 BIG_TREE_488 = [(0, 5.0), (10, 5.0), (12, 38.0), (16, 43.0), (22, 39.0), (28, 34.0), (34, 29.0), (42, 27.0), (48, 21.0), (56, 17.0),
                 (62, 11.0), (68, 7.0), (74, 4.0), (80, 0.0)]
 
+# SMALL ROUND TREE of room 636 (the two on the walkable crown cells 21..22 x 39 of the mound), measured 2026-11-09: trunk feet on the terrace z 64
+# inside those cells (feet U 894 V 427 / U 910 V 436 = x 346 y 636 / x 363 y 637), drawn crowns about 24 / 27 picture columns wide (r ~ 9) with their tops at 91 / 93.
+SMALL_ROUND_636 = [(0, 2.0), (6, 2.0), (7, 7.0), (11, 9.5), (17, 9.0), (23, 5.5), (28, 0.0)]
+
 def round_tree(name, cx, cy, z0, profile, n=16):
     """the profile as ONE closed light / remake mesh standing at (cx, cy, z0) (proxy.revolve: outward faces, no inner caps)"""
     import proxy
