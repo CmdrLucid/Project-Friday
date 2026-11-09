@@ -743,6 +743,21 @@
         ],
         "why": "pine group at the north wall: the automatic hip went up to 222 (wall behind counted); the mesh above has the pines (tops 96)"
       }
+    ],
+    "670": [
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          22,
+          24,
+          23
+        ],
+        "file": "proxies/table_670.obj",
+        "air": true,
+        "floor": 0,
+        "why": "table on legs (collision = a solid 16 high box): measured table of remake/lib/furniture.py, top 11..16 as a slab with air below, four 4 unit legs; remake/recipes/proxy_table_670.py, user 2026-11-09 'dann mit Tischen etc. weiter'"
+      }
     ]
   }
 }
