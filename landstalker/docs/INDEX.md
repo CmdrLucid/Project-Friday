@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-09 night END OF SESSION (dev, Opus 5.5):** L bench, painted furniture shadows off (GPU), table edges + AO v2 (user picked IV), vase pair round shape, wide + tall fires, church 632 band fixed; seen by the user as pictures / one in-game report, not played after the fixes. Open: vase lip streak decision (clamp fire on round models or accept); next shape braziers ts1; regression sweep. HANDOFF 0a361..0a367, NEXT -145..-151.
 - **2026-11-09 night, latest (dev, Opus 5.5): TALL FIRES (LK_LTWIDE v2 / LK_GLWIDE v2):** fireplaces light from 6 points over width and height with per-point angles; only >= 3 tile fires. Church model checked = fits. HANDOFF 0a366, NEXT -150.
 - **2026-11-09 night, latest (dev, Opus 5.5): church 632 band at 16 h fixed** (outdoor clean-up ground from lk_lt_ringg was 32, church op floor 16). HANDOFF 0a365, NEXT -149 (vase streak options open).
 - **2026-11-09 night, latest (dev, Opus 5.5): WIDE FIRES (LK_LTWIDE v1 / LK_GLWIDE v1, LANDSTALKER_LT_WIDE=0 = old):** hearths light from 6 points over their drawn width (soft shadows by the fireplace); one light object per vase. HANDOFF 0a364, NEXT -148.

@@ -320,4 +320,4 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
  * V: height map raycast (tools/patch_lights.py): room picture pixel (U, V) in the lk_o_pa / romrender space = world (wx, wy, z) with U = wx - wy + 1184, V = (wx + wy) / 2 - z (romrender's origin is exact: room 148 dump 99.9 % equal at offset 0); marching z down, the first column with z <= floor gives the visible surface (same column = floor, else the +x / +y face), leaving the room into void above the last floor = back wall. Checked: room 37 geometry view matches the picture (floor, steps, both walls).
  * V: `romroom.arrays()['HM']` does NOT equal the RAM height map (room 148: 952 of 5476 cells equal; the ROM decode outside the room is 0 instead of $4000 and inside differs too); use `g_HeightMap $FFD192` of a dump / the running game.
  * I: `LANDSTALKER_WARP="room:X.sub,Y.sub,Z"` takes the cell numbers in DECIMAL and the sub-cell / Z in hex (`1A.08` is rejected: 'not armed').
-
+ * V (2026-11-09 night): light data formats (op unpaint, unpaint_tiles, outdoor mesh floor, per light fire width / height): see docs/LIGHT_PROXY_PLAN.md next to 'Correction op mesh'.
