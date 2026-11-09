@@ -713,6 +713,7 @@
           46
         ],
         "file": "proxies/gate_637.obj",
+        "surface": true,
         "why": "Mercator north gate: gate wall + gatehouse merlons, the two corner towers and the high wall behind them were flat (height map column 15 only); remake/recipes/proxy_gate_637.py, user 2026-11-04 'mach direkt weiter'; RE-MEASURED 2026-11-09 on the wall feet (layer A floor edge) + merlon tops: towers are boxes on the collision blocks, walls 16 lower"
       }
     ],
