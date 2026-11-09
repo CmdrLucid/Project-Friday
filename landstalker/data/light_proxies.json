@@ -33,7 +33,8 @@
           34
         ],
         "file": "proxies/castle_31.obj",
-        "why": "Mercator castle facade (height map has the castle only as blocked height 0 cells: no facade, a hip up to 204 on the stairs); centre tower, stairs, two pine planters; remake/recipes/proxy_castle_31.py, user 2026-11-04 'weiter mit den naechsten Formen'"
+        "surface": true,
+        "why": "Mercator castle facade (height map has the castle only as blocked height 0 cells: no facade, a hip up to 204 on the stairs); centre tower, stairs, two pine planters; remake/recipes/proxy_castle_31.py, user 2026-11-04 'weiter mit den naechsten Formen'; RE-MEASURED 2026-11-09 (roof roll, tower crest, planter pines by their tips), surface on (user: 'ja passt')"
       }
     ],
     "192": [
