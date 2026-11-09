@@ -106,6 +106,7 @@ static int lk_gl_classify(int x, int line, int src, int sp2, int black, int U, i
    fu: 0 amb, 1 sS, 2 sK, 3..5 amb3, 6..8 sun3, 9 dn_mix, 10 kA, 11 kK, 12 fadek, 13..15 shaft colour, 16..19 sword x y z rad, 20..23 sword r g b k;
    iu: 0 sun, 1 key, 2 nl, 3 nsh, 4 swon, 5 dn_on, 6 odcap == 0, 7 width, 8 skip bits (none since v2), 9 nf, 10 nfb > 0, 11 fmall, 12 wide e, 13 particles on;
    lp / lc / lf (96 x 4): light x y z rad / r g b k / flicker, window light (lava 2), 0, 0;  fg / fa (16 x 4): figure fx fy fz sun / ax ay */
+static int lk_gl_wideopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_WIDE"); v = e ? atoi(e) != 0 : 1; } return v; }   /* LK_GLWIDE v1: wide fires (0 = old two point flames) */
 int lk_gl_frame(long fr, float *fu, int *iu, float *lp, float *lc, float *lf, float *fg, float *fa) {
   int L, k;
   if (lk_gl_capfr != fr - 1 || lk_gl_w < 1 || lk_gl_w > 448) return 0;
@@ -121,7 +122,7 @@ int lk_gl_frame(long fr, float *fu, int *iu, float *lp, float *lc, float *lf, fl
   for (k = 0; k < LK_LT_ML; k++) { const lk_lt_light *Lq = &lk_lt_l[k];
     lp[4 * k] = Lq->x; lp[4 * k + 1] = Lq->y; lp[4 * k + 2] = Lq->z; lp[4 * k + 3] = Lq->rad > 0.0f ? Lq->rad : LK_LT_RAD;
     lc[4 * k] = Lq->r; lc[4 * k + 1] = Lq->g; lc[4 * k + 2] = Lq->b; lc[4 * k + 3] = Lq->k > 0.0f ? Lq->k : 1.0f;
-    lf[4 * k] = k < lk_lt_nl ? lk_lt_flk[k] : 0.0f; lf[4 * k + 1] = Lq->lava == 2 ? 1.0f : 0.0f; lf[4 * k + 2] = lf[4 * k + 3] = 0.0f; }
+    lf[4 * k] = k < lk_lt_nl ? lk_lt_flk[k] : 0.0f; lf[4 * k + 1] = Lq->lava == 2 ? 1.0f : 0.0f; lf[4 * k + 2] = lk_gl_wideopt() ? Lq->hw : 0.0f; lf[4 * k + 3] = (float)Lq->tan; }   /* LK_GLWIDE v1: the fire width for termS */
   for (k = 0; k < 16; k++) { fg[4 * k] = lk_lt_f[k].fx; fg[4 * k + 1] = lk_lt_f[k].fy; fg[4 * k + 2] = lk_lt_f[k].fz; fg[4 * k + 3] = lk_lt_f[k].sun; fa[4 * k] = (float)lk_lt_f[k].ax; fa[4 * k + 1] = (float)lk_lt_f[k].ay; fa[4 * k + 2] = (float)lk_lt_f[k].tag; fa[4 * k + 3] = 0.0f; }
   return 1; }
 /* v5 GL5a: the world of the shadow terms for the GPU (re-upload when the returned hash changes):
@@ -194,7 +195,7 @@ void lk_gl_wkey(unsigned *hard, unsigned *soft, float *dirs, int *sunn) { unsign
   #define LK_GL_K(hh, v) (hh = (hh ^ (uint32_t)(v)) * 16777619u)
   LK_GL_K(h, lk_lt_gen); LK_GL_K(h, lk_lt_room); LK_GL_K(h, lk_lt_hash); LK_GL_K(h, lk_lt_nl); LK_GL_K(h, lk_lt_nsh); LK_GL_K(h, lk_lt_sun); LK_GL_K(h, lk_lt_key); LK_GL_K(h, lk_lt_aor);
   LK_GL_K(h, lk_lt_ztop); LK_GL_K(h, lk_lt_zmax); LK_GL_K(h, lk_lt_zref); LK_GL_K(h, lk_lt_fhmax); LK_GL_K(h, lk_lt_npx); LK_GL_K(h, lk_o_room);
-  for (k = 0; k < lk_lt_nl; k++) { cv.x = lk_lt_l[k].x; LK_GL_K(h, cv.u); cv.x = lk_lt_l[k].y; LK_GL_K(h, cv.u); cv.x = lk_lt_l[k].z; LK_GL_K(h, cv.u); cv.x = lk_lt_l[k].rad; LK_GL_K(h, cv.u); cv.x = lk_lt_l[k].k; LK_GL_K(h, cv.u); }
+  for (k = 0; k < lk_lt_nl; k++) { cv.x = lk_lt_l[k].hw; LK_GL_K(h, cv.u); cv.x = lk_lt_l[k].x; LK_GL_K(h, cv.u); cv.x = lk_lt_l[k].y; LK_GL_K(h, cv.u); cv.x = lk_lt_l[k].z; LK_GL_K(h, cv.u); cv.x = lk_lt_l[k].rad; LK_GL_K(h, cv.u); cv.x = lk_lt_l[k].k; LK_GL_K(h, cv.u); }
   for (k = 0; k < lk_lt_nsh; k++) { cv.x = lk_lt_sh[k].x; LK_GL_K(h, cv.u); cv.x = lk_lt_sh[k].y; LK_GL_K(h, cv.u); cv.x = lk_lt_sh[k].z; LK_GL_K(h, cv.u); cv.x = lk_lt_sh[k].r; LK_GL_K(h, cv.u); }
   for (k = 0; k < 3; k++) { cv.x = lk_lt_sd[k]; LK_GL_K(f, cv.u); }
   if (lk_lt_sun && lk_dn_upd && lk_dn_hdok) { LK_GL_K(f, lk_dn_gen); for (k = 0; k < 3; k++) { cv.x = lk_lt_sdn[k]; LK_GL_K(f, cv.u); } }
@@ -648,7 +649,7 @@ void main() {
 
 SH5 = r'''
 uniform sampler2D roomA; uniform sampler2D roomB; uniform sampler2D btab; uniform sampler2D bli; uniform sampler2D wld;
-uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec2 uBlk; uniform float uSunR; uniform float uAor; uniform float uZref; uniform float uAok; uniform float uAotop; uniform vec2 uDv[16];
+uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec4 uLF[96]; uniform vec2 uBlk; uniform float uSunR; uniform float uAor; uniform float uZref; uniform float uAok; uniform float uAotop; uniform vec2 uDv[16];
 uniform float uIfine; uniform float uNslab; uniform float uPineT; uniform float uBushE;   /* v9 */
 uniform sampler2D wld2; uniform sampler2D fine; uniform sampler2D prx; uniform sampler2D bex; uniform float uSside; uniform float uZtop; uniform vec3 uSd; uniform float uKey; uniform float uKbw; uniform float uKpen; uniform float uNsh; uniform vec4 uSh[9]; uniform sampler2D fine2; uniform float uZmax; uniform float uRayF;
 uniform sampler2D mdl; uniform vec4 uMo; uniform float uMdl; uniform vec4 uSmo; uniform vec2 uSmSl; uniform float uHand; uniform float uAoflt; uniform vec4 uSm; uniform vec3 uE1; uniform vec3 uE2; uniform vec4 uSm2; uniform vec3 uE12; uniform vec3 uE22;   /* + the next sun step's map (third part) */   /* + stage 2: the key light SHADOW MAP in the right half (uSm = s0, t0, texels per unit, on) */   /* LK_GLMODEL v1: model buffer (z * 8 + 32768 in r / g, octahedral normal in b / a), its room picture origin + size, on */
@@ -693,14 +694,17 @@ float topT(float cx, float cy) {   /* lk_lt_cell + the thin column rule indoors 
   vec4 w = W(cx, cy, 0.0); float t = S16(B(w.r), B(w.g));
   if (uSunR < 0.5) { float n = S16(B(w.b), B(w.a)); if (n > -32768.0) t = n; }
   return t; }
-float termS(vec3 p, vec3 n, vec4 L, float kk) {   /* lk_lt_term with its shadow (2 area points + soft edges indoors, one hard march outdoors) */
+float termS(vec3 p, vec3 n, vec4 L, float kk, vec2 wf) {   /* lk_lt_term with its shadow (2 area points + soft edges indoors, one hard march outdoors); LK_GLWIDE v1: wf = (half width, along 1 x / 2 y) of a wide fire */
   vec3 v = L.xyz - p; float d = sqrt(v.x * v.x + v.y * v.y + v.z * v.z), rad = L.w;
   if (d >= rad || d < 0.001) return d < 0.001 ? kk : 0.0;
   float ndl = (n.x * v.x + n.y * v.y + n.z * v.z) / d; if (ndl < 0.0) ndl = 0.0;
   float att = kk * (1.0 - d / rad) * (1.0 - d / rad);
   vec3 s = vec3(p.x + n.x * OFF2(n.x, n.y, 3.0), p.y + n.y * OFF2(n.x, n.y, 3.0), p.z + n.z * 3.0);
   if (uSunR < 0.5) { float sum = 0.0;
-    for (int o = 0; o < 2; o++) { vec3 off = o == 0 ? vec3(3.5, -3.5, 1.0) : vec3(-3.5, 3.5, -1.0); vec3 w = vec3(L.x + off.x - s.x, L.y + off.y - s.y, L.z + off.z - s.z);
+    float ns = wf.x > 0.5 ? 6.0 : 2.0;   /* LK_GLWIDE v1 (user 2026-11-09: the hearth shone through a 0.1 unit gap between two vases = a bright streak; a real fire is ~30 wide):
+       a wide fire lights from 6 points spread over its drawn width along its wall -> half shadows behind objects it partly sees; small flames keep the 2 points */
+    for (int o = 0; o < 6; o++) { if (float(o) >= ns) break;
+      vec3 off = wf.x > 0.5 ? (wf.y < 1.5 ? vec3(1.0, 0.0, 0.0) : vec3(0.0, 1.0, 0.0)) * wf.x * ((float(o) + 0.5) / 3.0 - 1.0) : (o == 0 ? vec3(3.5, -3.5, 1.0) : vec3(-3.5, 3.5, -1.0)); vec3 w = vec3(L.x + off.x - s.x, L.y + off.y - s.y, L.z + off.z - s.z);
       float e = sqrt(w.x * w.x + w.y * w.y + w.z * w.z), res = 1.0;
       for (int st = 0; st < 400; st++) { float t = 2.0 + 2.0 * float(st); if (t >= e - 3.0) break;
         vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); float fx = floor(q.x / 4.0), fy = floor(q.y / 4.0), top = uIfine > 0.5 ? ifh(fx, fy, 1.0) : topT(floor(q.x / 16.0), floor(q.y / 16.0));
@@ -709,7 +713,7 @@ float termS(vec3 p, vec3 n, vec4 L, float kk) {   /* lk_lt_term with its shadow 
         if (uIfine > 0.5) { float c2 = slabcl(fx, fy, q.z); if (c2 < 9999.0) { float r2 = 4.0 * c2 / t; if (r2 < res) res = r2; } c2 = halocl(q.x, q.y, q.z); if (c2 < 9999.0) { float r2 = 4.0 * c2 / t; if (r2 < res) res = r2; } }
         if (top > -32768.0) { float r = 4.0 * (q.z - top) / t; if (r < res) res = r; } }
       sum += res < 0.0 ? 0.0 : res; }
-    return att * (0.25 + 0.75 * ndl) * sum * 0.5; }
+    return att * (0.25 + 0.75 * ndl) * sum / ns; }
   vec3 w = vec3(L.x - s.x, L.y - s.y, L.z - s.z); float e = sqrt(w.x * w.x + w.y * w.y + w.z * w.z);
   for (int st = 0; st < 400; st++) { float t = 2.0 + 2.0 * float(st); if (t >= e - 3.0) break;
     vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); if (uNslab > 0.5 && slabin(floor(q.x / 4.0), floor(q.y / 4.0), q.z)) return 0.0; if (q.z < topT(floor(q.x / 16.0), floor(q.y / 16.0)) - 0.5) return 0.0; }
@@ -1034,7 +1038,7 @@ vec4 termsP(float plane, float face, float z, float U, float V) {   /* flame ter
   float nl = B(texture2D(btab, (uBlk + 0.5) / vec2(76.0, 38.0)).b); vec4 I = texture2D(bli, (vec2(uBlk.x + 76.0 * plane, uBlk.y) + 0.5) / vec2(152.0, 38.0)), o = vec4(0.0);
   for (int c = 0; c < 4; c++) { if (plane * 4.0 + float(c) >= nl) break;
     int li = int(B(c == 0 ? I.r : c == 1 ? I.g : c == 2 ? I.b : I.a));
-    float t = termS(p, n, uLP[li], uLC[li].w), q = t > 1.0 ? 255.0 : floor(t * 255.0);
+    float t = termS(p, n, uLP[li], uLC[li].w, uLF[li].zw), q = t > 1.0 ? 255.0 : floor(t * 255.0);
     if (c == 0) o.r = q; else if (c == 1) o.g = q; else if (c == 2) o.b = q; else o.a = q; }
   return o; }
 vec3 anchor(float ix, float iy, float face, float z) {   /* the 2 x 2 shortcut of lk_lt_blockcalc (AO, key light): the odd pixels use the even one on the same surface; returns (ix, iy, z) to compute at */
@@ -1165,7 +1169,7 @@ static void lk_g5_pbdrain(void) { int k = lk_g5_pbi ^ 1, j; const uint32_t *m;  
 #define LK_G5_Q 24
 static int lk_g5_n, lk_g5_bx[LK_G5_Q], lk_g5_by[LK_G5_Q], lk_g5_nl[LK_G5_Q]; static uint32_t lk_g5_ref[LK_G5_Q][5][1024]; static int lk_g5_maxshow = 16, lk_g5_every = 300; static long lk_g5_cnt[6][3], lk_g5_blocks, lk_g5_frames, lk_g5_last; static int lk_g5_shown;
 static const char *lk_g5_fs = "#version 120\n" @SHADER5@;
-static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", "uSside", "uIfine", "uNslab", "uPineT", "uBushE", "mdl", "uMo", "uMdl", "uSm", "uE1", "uE2", "uSm2", "uE12", "uE22", "uSmo", "uSmSl", "uHand", "uAoflt", 0 };
+static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", "uSside", "uIfine", "uNslab", "uPineT", "uBushE", "mdl", "uMo", "uMdl", "uSm", "uE1", "uE2", "uSm2", "uE12", "uE22", "uSmo", "uSmSl", "uHand", "uAoflt", "uLF", 0 };   /* 54 uLF: LK_GLWIDE v1 */
 static int lk_g5_want(void) { if (lk_g5_on < 0) { const char *e = getenv("LANDSTALKER_GL5CMP"), *e2 = getenv("LANDSTALKER_GL5CMP_SHOW"), *e3 = getenv("LANDSTALKER_GL5CMP_EVERY"); lk_g5_on = e ? atoi(e) : 0; if (e2) lk_g5_maxshow = atoi(e2); if (e3 && atoi(e3) > 0) lk_g5_every = atoi(e3); } return lk_g5_on > 0 && lk_g5_st >= 0; }
 /* ---- LK_GLMODEL v1 (REAL 3D LIGHT SHAPES stage 1, 2026-11-08, user: 'echte 3D-Formen brauchen wir doch fuers Remake ohnehin' + 'GPU-Weg'): at a new room world the room's model
    triangles (lk_gl_mlist: the Blender meshes of data/light_proxies.json) are rasterized once into a MODEL BUFFER in ROOM PICTURE space: orthographic along the view ray (1, 1, 1),
@@ -1338,6 +1342,7 @@ static void lk_g5_queue(int bx, int by, uint32_t (*pk)[1024]) { int i, nl; uint3
   lk_gl_bextra(bx, by, lk_g5_ref[lk_g5_n][3]); for (i = 0; i < 1024; i++) lk_g5_ref[lk_g5_n][3][i] = (lk_g5_ref[lk_g5_n][3][i] & 0x1FFFFu) | (((pk[0][i] >> 8) & 255) << 24);   /* robj | layer A << 16 | CPU sun share << 24 */
   lk_g5_n++; }
 static float lk_g5_sc[32];
+static const float *lk_g5_lf;   /* LK_GLWIDE v1: the frame's per light extras (uLF: flicker, lava, fire half width, along) */
 static int lk_g5_bind(const float *lp, const float *lc, int fresh) {   /* program, textures and uniforms of the block pass (units 0 / 1 / 2 / 5 / 6 / 8 / 10 = world / sun heights / object field / proxies / layer A / view fields / geometry; 4 / 9 = block table / lists) */
   static uint32_t w[5476 * 3], w2[5476 * 3], fnb[296 * 1480], pxb[26 * 255], f2b[296 * 296]; float dv[32], shf[36]; unsigned h; int k; float *sc = lk_g5_sc;
   if (lk_g5_st == 0) lk_g5_st = lk_g5_init();
@@ -1357,7 +1362,7 @@ static int lk_g5_bind(const float *lp, const float *lc, int fresh) {   /* progra
   for (k = 0; k < 16; k++) { float a = (float)k * 0.39269908f; dv[2 * k] = cosf(a); dv[2 * k + 1] = sinf(a); }   /* the directions of lk_lt_aoval (same libm) */
   lk_glUseProgram(lk_g5_prog);
   lk_glUniform1i(lk_g5_u[2], 4); lk_glUniform1i(lk_g5_u[3], 9); lk_glUniform1i(lk_g5_u[4], 0);
-  lk_glUniform4fv(lk_g5_u[5], 96, lp); lk_glUniform4fv(lk_g5_u[6], 96, lc);
+  lk_glUniform4fv(lk_g5_u[5], 96, lp); lk_glUniform4fv(lk_g5_u[6], 96, lc); if (lk_g5_lf) lk_glUniform4fv(lk_g5_u[54], 96, lk_g5_lf);   /* LK_GLWIDE v1 */
   { extern int lk_lt_sside_get(void); lk_glUniform1f(lk_g5_u[36], lk_lt_sside_get() ? 1.0f : 0.0f); } lk_glUniform1f(lk_g5_u[37], sc[24]); lk_glUniform1f(lk_g5_u[38], sc[25]); lk_glUniform1f(lk_g5_u[39], sc[26]); lk_glUniform1f(lk_g5_u[40], sc[27]); lk_glUniform1f(lk_g5_u[8], sc[0]); lk_glUniform1f(lk_g5_u[9], sc[1]); lk_glUniform1f(lk_g5_u[10], sc[2]); lk_glUniform1f(lk_g5_u[11], sc[3]); lk_glUniform1f(lk_g5_u[12], sc[4]);
   { static float pd[7]; if (lk_gm_on && lk_gs_opt > 0 && (sc[6] != pd[0] || sc[7] != pd[1] || sc[8] != pd[2] || sc[14] != pd[3] || sc[15] != pd[4] || sc[16] != pd[5] || sc[17] != pd[6])) {
       pd[0] = sc[6]; pd[1] = sc[7]; pd[2] = sc[8]; pd[3] = sc[14]; pd[4] = sc[15]; pd[5] = sc[16]; pd[6] = sc[17]; lk_gm_render(sc, 1); lk_glUseProgram(lk_g5_prog); } }   /* stage 2: a new key / sun direction */
@@ -1604,6 +1609,7 @@ static int lk_glt_pass(int real) {   /* inside lk_gpu_present after SDL's state 
       lk_glt_ver[by][bx] = v; } }
   lk_glActiveTexture(0x84C4); lk_glBindTexture(0x0DE1, lk_glt_t[4]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 76, 38, 0x1908, 0x1401, bt);
   lk_glActiveTexture(0x84C9); lk_glBindTexture(0x0DE1, lk_glt_t[9]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 76, 38, 0x1908, 0x1401, bl0); lk_glTexSubImage2D(0x0DE1, 0, 76, 0, 76, 38, 0x1908, 0x1401, bl1);
+  lk_g5_lf = lf;   /* LK_GLWIDE v1 */
   if (lk_g5_n) lk_g5_run(lp, lc);   /* v5 GL5a compare */
   if (g5r) lk_g5_real(u0, u1, v0, v1, lp, lc, bt, bl0, bl1); }   /* v5 GL5c */
   if (real && (lk_gl_postany || lk_gl_postprev)) { lk_glActiveTexture(0x84CA); lk_glBindTexture(0x0DE1, lk_glt_t[10]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x80E1, 0x1401, lk_gl_post[0]); lk_glTexSubImage2D(0x0DE1, 0, 0, 224, 448, 224, 0x80E1, 0x1401, lk_gl_post[1]); }

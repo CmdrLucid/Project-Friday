@@ -187,7 +187,7 @@ void lk_lt_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; 
 #define LK_LT_RAD 120.0f   /* v2: was 90, the floor under high wall torches stayed dark (room 177) */
 typedef struct { int16_t z[1024]; uint8 face[1024]; uint8 nl, li[LK_LT_NL]; uint8 term[LK_LT_NL][1024]; uint8 sun[1024]; uint8 ao[1024]; uint8 beam[1024], pool[1024]; uint16_t km[3][1024]; uint8 sunn[1024]; int16_t robj[1024]; int sungen; } lk_lt_blk;   /* LK_DAYNIGHT v1: sunn = sun share for the NEXT sun direction (lk_lt_sdn), valid when sungen == lk_dn_gen; robj = object of the view ray per pixel (kept for sun-only recomputes) */   /* km: v8 SPEED, key light rooms: the finished light factor (x 256) of every pixel (user 2026-11-05: 'generell ruckeliger') */   /* v8 ao: room light share 0..255 (corner shadows) */
 static lk_lt_blk *lk_lt_b[LK_LT_BH][LK_LT_BW]; static int lk_lt_gen;   /* v8 MT: bumped by lk_lt_free (worker results of an older generation are dropped) */
-typedef struct { float x, y, z; float r, g, b; int lava; uint32_t base; float k, rad; } lk_lt_light;   /* k: strength, rad: reach (LK_LT_RAD; castle torches more, user 2026-11-04) */   /* base: the AnimatedTilesetData entry of the flame (kind of torch) */
+typedef struct { float x, y, z; float r, g, b; int lava; uint32_t base; float k, rad; float hw; int tan; } lk_lt_light;   /* LK_LTWIDE v1: hw = half the width of the drawn fire along its wall (0 = a small flame), tan 1 = along x, 2 = along y */   /* k: strength, rad: reach (LK_LT_RAD; castle torches more, user 2026-11-04) */   /* base: the AnimatedTilesetData entry of the flame (kind of torch) */
 static lk_lt_light lk_lt_l[LK_LT_ML]; static int lk_lt_nfl, lk_lt_nl, lk_lt_room = -2, lk_lt_zmax; static uint32_t lk_lt_hash; static long lk_lt_frame = -1;
 static int16_t lk_lt_top[74][74];
 static int16_t lk_lt_gh[74][74];   /* v6: the game's heights (lk_lt_top = ours: outdoor objects raised to their drawn height for the view ray); the sun's shadow march uses these + lk_lt_fh */
@@ -1502,7 +1502,7 @@ static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the curr
 static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first: it reads everything rebuilt here) */   /* height map + lights of the current room */
   int x, y, k; static uint8 seen[152][304];
   lk_lt_jobwait(1);
-  lk_lt_free(); lk_lt_nl = 0; lk_lt_zmax = 0;
+  lk_lt_free(); lk_lt_nl = 0; lk_lt_zmax = 0; memset(lk_lt_l, 0, sizeof lk_lt_l);   /* LK_LTWIDE v1: every light starts small (hw 0) */
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x); lk_lt_top[y][x] = (int16_t)(w == 0x4000 ? -32768 : 16 * ((w >> 8) & 15)); if (w != 0x4000 && lk_lt_top[y][x] > lk_lt_zmax) lk_lt_zmax = lk_lt_top[y][x]; }
   memcpy(lk_lt_gh, lk_lt_top, sizeof lk_lt_gh); lk_lt_fhmax = -32768; lk_lt_nc = 0; memset(lk_lt_obj, 0, sizeof lk_lt_obj);
   { static uint8 done[74][74]; static int16_t st[16][2]; memset(done, 0, sizeof done);   /* thin columns (lk_lt_thin) */
@@ -1712,11 +1712,11 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       continue;
     }
     for (r0 = 0; r0 < 152; r0++) for (c0 = 0; c0 < 304; c0++) {
-      static int16_t st[4096][2]; int sp = 0, n = 0, su = 0, sv = 0;
+      static int16_t st[4096][2]; int sp = 0, n = 0, su = 0, sv = 0, cmin = 9999, cmax = -1;
       #define LK_LT_IS(rr, cc) ((((lk_o_pa[rr][cc] & 0x10000) && (int)(lk_o_pa[rr][cc] & 0x7FF) >= t0 && (int)(lk_o_pa[rr][cc] & 0x7FF) < t0 + tn && lk_lt_tileok(lk_o_grp[k].base, (int)(lk_o_pa[rr][cc] & 0x7FF)))) || (((lk_o_pb[rr][cc] & 0x10000) && (int)(lk_o_pb[rr][cc] & 0x7FF) >= t0 && (int)(lk_o_pb[rr][cc] & 0x7FF) < t0 + tn && lk_lt_tileok(lk_o_grp[k].base, (int)(lk_o_pb[rr][cc] & 0x7FF)))))
       if (seen[r0][c0] || !LK_LT_IS(r0, c0)) continue;
       seen[r0][c0] = 1; st[sp][0] = (int16_t)r0; st[sp][1] = (int16_t)c0; sp++;
-      while (sp) { int rr, cc, dr, dc; sp--; rr = st[sp][0]; cc = st[sp][1]; n++; su += cc * 8 + 4; sv += rr * 8 + 4;
+      while (sp) { int rr, cc, dr, dc; sp--; rr = st[sp][0]; cc = st[sp][1]; n++; su += cc * 8 + 4; sv += rr * 8 + 4; if (cc < cmin) cmin = cc; if (cc > cmax) cmax = cc;
         for (dr = -1; dr <= 1; dr++) for (dc = -1; dc <= 1; dc++) { int r2 = rr + dr, c2 = cc + dc; if (r2 >= 0 && r2 < 152 && c2 >= 0 && c2 < 304 && !seen[r2][c2] && LK_LT_IS(r2, c2) && sp < 4096) { seen[r2][c2] = 1; st[sp][0] = (int16_t)r2; st[sp][1] = (int16_t)c2; sp++; } } }
       #undef LK_LT_IS
       if (n > 40 || lk_lt_nl >= LK_LT_ML) continue;
@@ -1724,6 +1724,9 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         if (!f) continue;
         lk_lt_pos(U, V, z, &px, &py);
         L->x = px + 6.0f * lk_lt_fnx(f); L->y = py + 6.0f * lk_lt_fny(f); L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; L->lava = 0; L->base = lk_o_grp[k].base;
+        L->hw = 0.0f; L->tan = 0;   /* LK_LTWIDE v1 (user 2026-11-09 'ja' to wide fires): a fire drawn wider than 2 tiles on a wall (fireplaces) lights from its whole width;
+           the picture width of the group = its width along the wall (U = x - y: a run along x or along y moves U by the same amount) */
+        { float hw = (float)((cmax - cmin + 1) * 8) * 0.5f - 2.0f; if ((f == 2 || f == 3) && hw >= 6.0f) { L->hw = hw; L->tan = f == 2 ? 2 : 1; } }
         L->k = 1.0f; L->rad = LK_LT_RAD; if (L->base == 0x098AAA) { L->k = 1.15f; L->rad = 260.0f; }   /* the standing torches of the castle (user 2026-11-04: 'im Schloss zu dunkel, koennte nur diese Art der Fackel mehr Licht abgeben?'; 2026-11-05: base light 0.85, then this torch a bit weaker: k 1.5 -> 1.15) */
         lk_lt_nl++; }
     }
@@ -1765,7 +1768,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
   lk_lt_key = lk_lt_aor && !lk_lt_nl && lk_lt_keyopt() > 0; if (lk_lt_key) lk_lt_keyset();   /* v8 key light: indoors, rooms without flames */
   lk_lt_shsetup();   /* v8 light shafts */
   lk_am_setup();   /* v8 ambient particles */
-  if (lk_lt_dbg) { printf("lighting: room %%d, %%d lights\n", lk_o_room, lk_lt_nl); for (k = 0; k < lk_lt_nl; k++) printf("  light %%d at (%%.0f, %%.0f, %%.0f) flame $%%06X%%s\n", k, lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z, (unsigned)lk_lt_l[k].base, lk_lt_solid(lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z) ? " INSIDE A SOLID" : ""); }
+  if (lk_lt_dbg) { printf("lighting: room %%d, %%d lights\n", lk_o_room, lk_lt_nl); for (k = 0; k < lk_lt_nl; k++) printf("  light %%d at (%%.0f, %%.0f, %%.0f) flame $%%06X half width %%.0f along %%s%%s\n", k, lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z, (unsigned)lk_lt_l[k].base, lk_lt_l[k].hw, lk_lt_l[k].tan == 1 ? "x" : lk_lt_l[k].tan == 2 ? "y" : "-", lk_lt_solid(lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z) ? " INSIDE A SOLID" : ""); }
 }
 static int lk_lt_swtest(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LIGHTING_SWORD"); v = e ? atoi(e) : 0; if (v < 0 || v > 4) v = 0; } return v; }   /* test aid: sword glow colour 1..4 without that sword */
 /* ---- LK_DAYNIGHT v1 (+ v2 colours 2026-11-06): the day / night cycle (sun path, moon, light colours by the time of day, time-lapse) ---- */
