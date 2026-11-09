@@ -73,6 +73,7 @@ chk "Raeume als 3D-Modelle (Kastenmodell)"          $G/ext/Genesis-Plus-GX/core/
 chk "GPU-Raummodell (Kastenmodell)"                $G/src/platform_sdl.c "LK_GLROOM v1"
 chk "GPU-AO unter schwebenden Modellteilen"        $G/src/platform_sdl.c "LK_GLAOFLT v2"
 chk "GPU-Licht: breite Feuer (Kamine)"             $G/src/platform_sdl.c "LK_GLWIDE v2"
+chk "GPU-Licht: runde Modelle weich vom Feuer"       $G/src/platform_sdl.c "LK_GLSOFTR v1"
 chk "Licht: Feuerbreite je Flamme"                  $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTWIDE v2"
 chk "Baeume / Buesche als 3D-Flaechen"            $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTOBJ v1"
 chk "GPU-Baeume / Buesche"                      $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_GLOBJ v1"
