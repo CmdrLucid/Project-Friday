@@ -44,3 +44,26 @@ MERCATOR_TABLE = dict(thick=3, leg=4, inset=1, outline=1)
 # EDGE BAND re-measured 2026-11-09 night (picture rows vs GPU model buffer, room 96): the gold band + its black outline reach 8 rows below the top
 # face edge (z 8), thickness 6 lit the lowest 2 rows as floor -> thickness 8.
 CASTLE_TABLE = dict(thick=8, leg=5, inset=0, outline=1)
+
+# THE VASE (Mercator houses, tileset 2: the pair by the hearth of 670 / 671 / 694, user 2026-11-09 'Objekte wie diese Vasen als echte 3D-Form fuers
+# Licht'), fitted 2026-11-09 night to the drawn layer A silhouette of 670 (~/lktest/vase/fit2.py: view rays through a lathe vs the picture mask,
+# IoU 0.965): axis 4 units in FRONT of the cell centre (+x, +y), 23 units high (the collision box is only 16), profile (height share, radius):
+VASE = dict(h=23.0, dx=4.0, dy=4.0, prof=[(0.0, 3.5), (0.1, 7.75), (0.3, 8.5), (0.6, 7.0), (0.8, 4.75), (0.92, 6.0), (1.0, 5.5)])
+
+def lathe(ax, ay, floor, h, prof, seg=24):
+    """a closed solid of revolution around (ax, ay) standing on `floor`: rings of `prof` [(height share, radius)], capped top and bottom;
+    returns (vertices, faces) with outward counter-clockwise faces (as the Blender meshes, back face shadow maps)"""
+    import math
+    v, f = [], []
+    for t, r in prof:
+        for k in range(seg):
+            a = 2 * math.pi * k / seg; v.append((ax + r * math.cos(a), ay + r * math.sin(a), floor + t * h))
+    n = len(prof)
+    for i in range(n - 1):
+        for k in range(seg):
+            a0 = i * seg + k; a1 = i * seg + (k + 1) % seg; f.append((a0, a1, a1 + seg, a0 + seg))
+    v.append((ax, ay, floor + prof[-1][0] * h)); top = len(v) - 1
+    f += [((n - 1) * seg + k, (n - 1) * seg + (k + 1) % seg, top) for k in range(seg)]
+    v.append((ax, ay, floor + prof[0][0] * h)); bot = len(v) - 1
+    f += [((k + 1) % seg, k, bot) for k in range(seg)]
+    return v, f

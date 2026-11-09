@@ -93,6 +93,28 @@ def tables(rom, room):
             found.append(dict(cells=(x0 if arm is None else arm, y0, x1, y1), h=h, floor=floor, ok=ok, type=T, arm=arm, cont=cont))
     return found
 
+# ROUND OBJECTS (lathes of remake/lib/furniture.py): finder per arrangement (checked on the drawings, ~/lktest/vase/outline.py) -> list of axes + floor
+def vase_pairs(rom, room):
+    """the vase pair by the hearth of the Mercator houses 670 / 671 / 694: $157 (back) over $061 (front) at the same walkable height h, the wall
+    (blocked, height 0) west of them; the vases stand on the floor h - 1.  NOT 685 / 686 (the same blocks on a shelf: drawn lower) and 717 / 718
+    ($157 next to $2A0): other arrangements, not measured yet"""
+    if blockcat.tileset(rom, room) != 2: return []
+    c = blockcat.cells(rom, room); out = []
+    for (x, y), v in sorted(c.items()):
+        w = c.get((x, y + 1)); wall = c.get((x - 1, y))
+        if v[2] == 0x157 and not v[1] and v[0] > 0 and w and w[2] == 0x061 and w[0] == v[0] and not w[1] and wall and wall[1] and wall[0] == 0:
+            out.append(dict(cells=(x, y, x, y + 1), floor=v[0] - 1))
+    return out
+
+def lathe_obj(meshes, title):
+    """[(vertices, faces), ..] -> OBJ text"""
+    s = "# light proxy: %s (remake/tools/furniture_ops.py, remake/lib/furniture.py). GAME coordinates x east, y south, z up, world units.\n" % title
+    s += "# our own geometry (measured lathe, placed on the cells that draw it); read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh').\n"
+    vs, fs, b = [], [], 0
+    for v, f in meshes:
+        vs += v; fs += [tuple(i + b for i in q) for q in f]; b += len(v)
+    return s + "".join("v %.3f %.3f %.3f\n" % p for p in vs) + "".join("f " + " ".join(str(i + 1) for i in q) + "\n" for q in fs)
+
 def main():
     a = [s for s in sys.argv[1:] if not s.startswith("--")]
     rom = open(a[0], "rb").read(); write = "--write" in sys.argv
@@ -103,6 +125,18 @@ def main():
         try: ts = tables(rom, r)
         except Exception as e: print("room %d: skipped (%s)" % (r, e)); continue
         good = [t for t in ts if t["ok"]]
+        vases = vase_pairs(rom, r)
+        for t in vases: print("room %d: vase pair cells %d..%d x %d..%d floor %d OK" % (r, t["cells"][0], t["cells"][2], t["cells"][1], t["cells"][3], t["floor"]))
+        if write and vases:
+            ops0 = [e for e in data["rooms"].get(str(r), []) if not (e.get("op") == "mesh" and e.get("file", "").startswith("proxies/vase_"))]
+            for k, t in enumerate(vases):
+                x0, y0, x1, y1 = t["cells"]; V = furniture.VASE
+                ms = [furniture.lathe(16 * x0 + 8 + V["dx"], 16 * yy + 8 + V["dy"], 16 * t["floor"], V["h"], V["prof"]) for yy in (y0, y1)]
+                fn = "vase_%d.obj" % r if k == 0 else "vase_%d_%d.obj" % (r, k)
+                open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(ms, "vase pair, room %d" % r))
+                ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x0, y0, x1, y1]), ("file", "proxies/" + fn), ("surface", True), ("floor", 16 * t["floor"]),
+                    ("why", "vase pair by the hearth (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py VASE, placed by remake/tools/furniture_ops.py; user 2026-11-09 'Objekte wie diese Vasen als echte 3D-Form fuers Licht'")]))
+            data["rooms"][str(r)] = ops0; n += 1
         for t in ts: print("room %d: %s cells %d..%d x %d..%d height %d floor %d %s%s%s" % (r, t["type"]["name"] if t["arm"] is None else "L bench", t["cells"][0], t["cells"][2], t["cells"][1], t["cells"][3], t["h"], t["floor"],
                                  "OK" if t["ok"] else "SKIPPED (fragment / not one step above the floor)", "" if not t["ok"] or not t["cont"] else "  CHECK: neighbours at its height " + " ".join("%d,%d" % k for k in t["cont"]),
                                  ""))

@@ -1041,6 +1041,19 @@
       {
         "op": "mesh",
         "cells": [
+          18,
+          24,
+          18,
+          25
+        ],
+        "file": "proxies/vase_670.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "vase pair by the hearth (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py VASE, placed by remake/tools/furniture_ops.py; user 2026-11-09 'Objekte wie diese Vasen als echte 3D-Form fuers Licht'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           22,
           22,
           24,
@@ -1065,6 +1078,19 @@
       }
     ],
     "671": [
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          24,
+          18,
+          25
+        ],
+        "file": "proxies/vase_671.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "vase pair by the hearth (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py VASE, placed by remake/tools/furniture_ops.py; user 2026-11-09 'Objekte wie diese Vasen als echte 3D-Form fuers Licht'"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -1255,6 +1281,19 @@
       }
     ],
     "694": [
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          24,
+          18,
+          25
+        ],
+        "file": "proxies/vase_694.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "vase pair by the hearth (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py VASE, placed by remake/tools/furniture_ops.py; user 2026-11-09 'Objekte wie diese Vasen als echte 3D-Form fuers Licht'"
+      },
       {
         "op": "mesh",
         "cells": [
