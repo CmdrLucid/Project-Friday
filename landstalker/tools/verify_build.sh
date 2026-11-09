@@ -66,6 +66,7 @@ chk "Stiefelfarben (Option)"                         $G/ext/Genesis-Plus-GX/core
 chk "Licht (Option)"                                $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LIGHTS v8"
 chk "Licht fein (drinnen + Platten)"                 $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTFINE v1"
 chk "GPU-Licht fein (Platten)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_GLFINE v1"
+chk "GPU-Licht: gemalte Moebelschatten aus"          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_GLUNPAINT v1"
 chk "Echte 3D-Lichtformen (Modell-Eigentum)"         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTMODEL v1"
 chk "GPU-Modellpuffer (echte 3D-Formen)"             $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_GLMODEL v1"
 chk "Raeume als 3D-Modelle (Kastenmodell)"          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTROOM v1"

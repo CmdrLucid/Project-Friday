@@ -144,6 +144,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          20,
+          20,
+          21,
+          21
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "486": [
@@ -737,6 +748,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          15,
+          20,
+          17,
+          21
+        ],
+        "floor": 0,
+        "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "621": [
@@ -753,6 +775,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          15,
+          20,
+          17,
+          21
+        ],
+        "floor": 0,
+        "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "622": [
@@ -769,14 +802,25 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          23,
+          23,
+          26,
+          24
+        ],
+        "floor": 0,
+        "why": "44 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "623": [
       {
         "op": "mesh",
         "cells": [
-          25,
-          35,
+          24,
+          34,
           25,
           37
         ],
@@ -794,19 +838,41 @@
           32,
           32
         ],
-        "file": "proxies/table_623.obj",
+        "file": "proxies/table_623_1.obj",
         "surface": true,
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          24,
+          34,
+          25,
+          37
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the L bench (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          32,
+          30,
+          32,
+          32
+        ],
+        "floor": 0,
+        "why": "14 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "624": [
       {
         "op": "mesh",
         "cells": [
-          25,
-          35,
+          24,
+          34,
           25,
           37
         ],
@@ -824,11 +890,33 @@
           32,
           32
         ],
-        "file": "proxies/table_624.obj",
+        "file": "proxies/table_624_1.obj",
         "surface": true,
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          24,
+          34,
+          25,
+          37
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the L bench (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          32,
+          30,
+          32,
+          32
+        ],
+        "floor": 0,
+        "why": "14 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "632": [
@@ -963,6 +1051,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          22,
+          22,
+          24,
+          23
+        ],
+        "floor": 0,
+        "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "671": [
@@ -979,6 +1078,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          22,
+          22,
+          24,
+          23
+        ],
+        "floor": 0,
+        "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "677": [
@@ -995,6 +1105,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          21,
+          20,
+          22,
+          21
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "687": [
@@ -1011,6 +1132,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          17,
+          15,
+          18,
+          16
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "688": [
@@ -1027,6 +1159,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          17,
+          15,
+          18,
+          16
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "691": [
@@ -1052,11 +1195,22 @@
           17,
           17
         ],
-        "file": "proxies/table_691.obj",
+        "file": "proxies/table_691_1.obj",
         "surface": true,
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          16,
+          16,
+          17,
+          17
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "692": [
@@ -1082,11 +1236,22 @@
           17,
           17
         ],
-        "file": "proxies/table_692.obj",
+        "file": "proxies/table_692_1.obj",
         "surface": true,
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          16,
+          16,
+          17,
+          17
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "694": [
@@ -1103,6 +1268,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          22,
+          22,
+          24,
+          23
+        ],
+        "floor": 0,
+        "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "698": [
@@ -1119,14 +1295,25 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          17,
+          17,
+          19,
+          18
+        ],
+        "floor": 0,
+        "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "701": [
       {
         "op": "mesh",
         "cells": [
-          25,
-          35,
+          24,
+          34,
           25,
           37
         ],
@@ -1144,19 +1331,41 @@
           32,
           32
         ],
-        "file": "proxies/table_701.obj",
+        "file": "proxies/table_701_1.obj",
         "surface": true,
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          24,
+          34,
+          25,
+          37
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the L bench (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          32,
+          30,
+          32,
+          32
+        ],
+        "floor": 0,
+        "why": "14 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "702": [
       {
         "op": "mesh",
         "cells": [
-          25,
-          35,
+          24,
+          34,
           25,
           37
         ],
@@ -1174,11 +1383,33 @@
           32,
           32
         ],
-        "file": "proxies/table_702.obj",
+        "file": "proxies/table_702_1.obj",
         "surface": true,
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          24,
+          34,
+          25,
+          37
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the L bench (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          32,
+          30,
+          32,
+          32
+        ],
+        "floor": 0,
+        "why": "14 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "708": [
@@ -1236,11 +1467,22 @@
           17,
           17
         ],
-        "file": "proxies/table_713.obj",
+        "file": "proxies/table_713_1.obj",
         "surface": true,
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          16,
+          16,
+          17,
+          17
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "714": [
@@ -1266,11 +1508,22 @@
           17,
           17
         ],
-        "file": "proxies/table_714.obj",
+        "file": "proxies/table_714_1.obj",
         "surface": true,
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          16,
+          16,
+          17,
+          17
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "717": [
@@ -1287,6 +1540,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          18,
+          16,
+          19,
+          17
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "718": [
@@ -1303,6 +1567,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          18,
+          16,
+          19,
+          17
+        ],
+        "floor": 0,
+        "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "722": [
@@ -1319,6 +1594,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          20,
+          23,
+          23,
+          25
+        ],
+        "floor": 0,
+        "why": "62 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "723": [
@@ -1335,6 +1621,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          20,
+          23,
+          23,
+          25
+        ],
+        "floor": 0,
+        "why": "62 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "724": [
@@ -1351,6 +1648,17 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          15,
+          20,
+          17,
+          21
+        ],
+        "floor": 0,
+        "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
     "725": [
@@ -1367,7 +1675,55 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "unpaint",
+        "cells": [
+          15,
+          20,
+          17,
+          21
+        ],
+        "floor": 0,
+        "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
+    ]
+  },
+  "unpaint_tiles": {
+    "_about": "LK_GLUNPAINT v1: per tileset [painted shadow tile, the same tile without the shadow] (hex tile numbers), used by op 'unpaint'; written by remake/tools/furniture_ops.py UNPAINT_TILES",
+    "2": [
+      [
+        "04B",
+        "006"
+      ],
+      [
+        "04C",
+        "006"
+      ],
+      [
+        "05C",
+        "006"
+      ],
+      [
+        "34C",
+        "367"
+      ],
+      [
+        "34D",
+        "367"
+      ],
+      [
+        "35B",
+        "367"
+      ],
+      [
+        "35C",
+        "367"
+      ],
+      [
+        "35D",
+        "367"
+      ]
     ]
   }
 }

@@ -13,6 +13,24 @@ def table(name, x0, y0, x1, y1, floor, top, thick, leg, inset, outline=0):
         parts.append(("%s_leg%d" % (name, k), lx, ly, lx + leg, ly + leg, floor, u, u, "flat", None))
     return parts
 
+def top_on_legs(name, rects, legs, floor, top, thick, leg, outline=0):
+    """a piece of any outline: a top made of several rectangles `rects` [(x0, y0, x1, y1), ..] (top face at `top`, `thick` units thick, each
+    reaching `outline` beyond its back sides x0 / y0 like table()) on square legs `leg` units wide whose min corners are `legs` [(lx, ly), ..]
+    (only where the drawing has a leg: an L bench has none at its inner corner); returns proxy parts (boxes)"""
+    u = top - thick
+    parts = [("%s_top%d" % (name, k), x0 - outline, y0 - outline, x1, y1, u, top, top, "flat", None) for k, (x0, y0, x1, y1) in enumerate(rects)]
+    return parts + [("%s_leg%d" % (name, k), lx, ly, lx + leg, ly + leg, floor, u, u, "flat", None) for k, (lx, ly) in enumerate(legs)]
+
+def l_bench(name, x0, y0, x1, y1, ax0, floor, top, thick, leg, inset, outline=0):
+    """the L BENCH of the Mercator bedrooms (623 / 624 / 701 / 702, user 2026-11-09: 'der geht als L um die Ecke'): a long arm x0..x1 / y0..y1
+    (one cell wide, along y) and at its back end y0 a short arm reaching west to ax0 (one cell deep, y0 .. y0 + 16).  Legs as drawn (feet
+    measured on the picture of 623, ~/lktest/bench/legs.py: (401, 605) (413, 605) at the front end, (412, 545) at the outer back corner,
+    (384, 556) at the west end of the short arm; the leg behind it is hidden, placed symmetric); NO leg at the inner corner (floor there)."""
+    rects = [(x0, y0, x1, y1), (ax0, y0, x0, y0 + 16)]
+    legs = [(x0 + inset, y1 - inset - leg), (x1 - inset - leg, y1 - inset - leg), (x1 - inset - leg, y0 + inset),
+            (ax0 + inset, y0 + inset), (ax0 + inset, y0 + 16 - inset - leg)]
+    return top_on_legs(name, rects, legs, floor, top, thick, leg, outline)
+
 # THE MERCATOR TABLE (room 670, MERCATOR_HOUSE_NEAR_WELL_FIRST_FLOOR), measured 2026-11-09 on 8x zooms of the drawing: the top's four corners sit
 # exactly on its collision cells (22..24 x 22..23 = x 352..400, y 352..384, walkable height 1 = 16); edge band down to ~11 (thickness 5); legs
 # ~4 units (5 picture columns), their floor feet at (354, 381) / (397, 381) / (397, 354) = 2..3 in from the outer corners.

@@ -29,6 +29,23 @@ TYPES = [
          shape=furniture.CASTLE_TABLE),
 ]
 
+# PAINTED SHADOWS UNDER THE PIECES (user 2026-11-09: 'der Schatten unterm Tisch ist schon im Sprite drin ... den Teppich unter dem Tisch im normalen
+# Gruen zeichnen, so dass der Tisch nur unseren Schatten wirft'): per tileset the plane B tiles the artist drew with the shadow -> the same tile without
+# it (checked on the drawings, ~/lktest/unsh/try.py): carpet under the Mercator tables $34C / $34D / $35B / $35C / $35D (green index 14 -> olive 2;
+# used NOWHERE else in tileset 2) -> plain carpet $367; stone floor in shadow $04B / $04C / $05C -> plain floor $006 (these three are ALSO the
+# shadows of beds / walls elsewhere, so only on a piece's floor footprint).  The game draws them at runtime (LK_GLUNPAINT v1, GPU light only).
+UNPAINT_TILES = {2: {0x34C: 0x367, 0x34D: 0x367, 0x35B: 0x367, 0x35C: 0x367, 0x35D: 0x367, 0x04B: 0x006, 0x04C: 0x006, 0x05C: 0x006}}
+
+def unpaint_hits(rom, room, ts, cells, floor):
+    """number of plane B cells with a painted shadow tile on the floor footprint of the cells (romrender, the same walk as lk_gl_unpaint)"""
+    import romrender
+    rep = UNPAINT_TILES.get(ts, {}); pb = romrender.rom_planes(rom, room)[3]; x0, y0, x1, y1 = cells; hit = set()
+    for Y in range(16 * y0, 16 * y1 + 16, 2):
+        for X in range(16 * x0, 16 * x1 + 16, 2):
+            k = ((X - Y + 1184) >> 3, ((X + Y) // 2 - floor) >> 3); t = pb.t.get(k)
+            if t and t[0] in rep: hit.add(k)
+    return len(hit)
+
 def boxes_obj(parts, title):
     """flat boxes (proxy part tuples) -> OBJ text, faces outward (as remake/lib/proxy.part_mesh)"""
     v, f = [], []
@@ -64,7 +81,16 @@ def tables(rom, room):
             ring = [hgt(x, y) for x in range(x0 - 1, x1 + 2) for y in (y0 - 1, y1 + 1)] + [hgt(x, y) for y in range(y0, y1 + 1) for x in (x0 - 1, x1 + 1)]
             floor = collections.Counter(ring).most_common(1)[0][0]
             ok = (len(comp) == (x1 - x0 + 1) * (y1 - y0 + 1) and h > 0 and floor == h - 1 and T["ok"](lambda x, y: c.get((x, y), (0, 0, 0))[2], x0, y0, x1, y1))
-            found.append(dict(cells=(x0, y0, x1, y1), h=h, floor=floor, ok=ok, type=T))
+            blk = lambda x, y: c.get((x, y), (0, 0, 0))[2]
+            arm = None   # the L bench (623 / 624 / 701 / 702): a bench whose back end turns west, corner $144 + arm end $36D at the same height
+            if ok and blk(x0, y0) == 0x0A3 and blk(x0, y0 - 1) == 0x144 and blk(x0 - 1, y0 - 1) == 0x36D and hgt(x0, y0 - 1) == h == hgt(x0 - 1, y0 - 1):
+                arm = x0 - 1; y0 -= 1
+            box = {(x, y) for x in range(x0 if arm is None else arm, x1 + 1) for y in range(y0, y1 + 1)}
+            mine = comp | ({(arm, y0), (x0, y0)} if arm is not None else set())
+            # a neighbour at the piece's height that is walkable and not part of it = the piece may continue (missed L / fragment): report it
+            cont = sorted(k for k in {(x + dx, y + dy) for (x, y) in mine for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))} - mine
+                          if k in c and c[k][0] == h and not c[k][1])
+            found.append(dict(cells=(x0 if arm is None else arm, y0, x1, y1), h=h, floor=floor, ok=ok, type=T, arm=arm, cont=cont))
     return found
 
 def main():
@@ -77,21 +103,27 @@ def main():
         try: ts = tables(rom, r)
         except Exception as e: print("room %d: skipped (%s)" % (r, e)); continue
         good = [t for t in ts if t["ok"]]
-        for t in ts: print("room %d: %s cells %d..%d x %d..%d height %d floor %d %s" % (r, t["type"]["name"], t["cells"][0], t["cells"][2], t["cells"][1], t["cells"][3], t["h"], t["floor"], "OK" if t["ok"] else "SKIPPED (fragment / not one step above the floor)"))
+        for t in ts: print("room %d: %s cells %d..%d x %d..%d height %d floor %d %s%s%s" % (r, t["type"]["name"] if t["arm"] is None else "L bench", t["cells"][0], t["cells"][2], t["cells"][1], t["cells"][3], t["h"], t["floor"],
+                                 "OK" if t["ok"] else "SKIPPED (fragment / not one step above the floor)", "" if not t["ok"] or not t["cont"] else "  CHECK: neighbours at its height " + " ".join("%d,%d" % k for k in t["cont"]),
+                                 ""))
         if not good or not write: continue
-        parts = []
-        for k, t in enumerate(good):
-            x0, y0, x1, y1 = t["cells"]
-            parts += furniture.table("table%d" % k, 16 * x0, 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["floor"], 16 * t["h"], **t["type"]["shape"])
-        fn = "table_%d.obj" % r
-        open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(boxes_obj(parts, "Mercator table(s), room %d" % r))
-        ops = [e for e in data["rooms"].get(str(r), []) if not (e.get("op") == "mesh" and e.get("file", "").startswith("proxies/table_"))]
-        for t in good:
-            x0, y0, x1, y1 = t["cells"]
+        ops = [e for e in data["rooms"].get(str(r), []) if not (e.get("op") == "mesh" and e.get("file", "").startswith("proxies/table_")) and e.get("op") != "unpaint"]
+        for k, t in enumerate(good):   # ONE OBJ per piece: every mesh op loads its file as a model of its own (two ops on one file = every triangle twice)
+            x0, y0, x1, y1 = t["cells"]; sh = t["type"]["shape"]
+            if t["arm"] is None: parts = furniture.table("table0", 16 * x0, 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["floor"], 16 * t["h"], **sh)
+            else: parts = furniture.l_bench("lbench0", 16 * (t["arm"] + 1), 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["arm"], 16 * t["floor"], 16 * t["h"], **sh)
+            fn = "table_%d.obj" % r if k == 0 else "table_%d_%d.obj" % (r, k)
+            open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(boxes_obj(parts, "%s, room %d" % (t["type"]["name"] if t["arm"] is None else "L bench", r)))
             ops.append(collections.OrderedDict([("op", "mesh"), ("cells", [x0, y0, x1, y1]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
                 ("why", "%s on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'" % t["type"]["name"])]))
+        for t in good:   # LK_GLUNPAINT v1: the painted shadow on the piece's floor footprint goes while the GPU light shades the model
+            x0, y0, x1, y1 = t["cells"]; nh = unpaint_hits(rom, r, t["type"]["ts"], t["cells"], 16 * t["floor"])
+            if nh: ops.append(collections.OrderedDict([("op", "unpaint"), ("cells", [x0, y0, x1, y1]), ("floor", 16 * t["floor"]),
+                ("why", "%d painted shadow tiles under the %s (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')" % (nh, t["type"]["name"] if t["arm"] is None else "L bench"))]))
         data["rooms"][str(r)] = ops; n += 1
     if write:
+        data["unpaint_tiles"] = collections.OrderedDict([("_about", "LK_GLUNPAINT v1: per tileset [painted shadow tile, the same tile without the shadow] (hex tile numbers), used by op 'unpaint'; written by remake/tools/furniture_ops.py UNPAINT_TILES")]
+            + [(str(ts), [["%03X" % f, "%03X" % t] for f, t in sorted(m.items())]) for ts, m in sorted(UNPAINT_TILES.items())])
         data["rooms"] = collections.OrderedDict(sorted(data["rooms"].items(), key=lambda t: int(t[0])))
         open(jp, "w").write(json.dumps(data, indent=2, ensure_ascii=False) + "\n"); print("written: %d rooms" % n)
 

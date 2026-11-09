@@ -46,7 +46,7 @@ import os, sys
 root = sys.argv[1]
 VER = "LK_LIGHTS v8"
 import json
-CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4), "box": (8, 5), "slab": (9, 6), "carve": (10, 4)}
+CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4), "box": (8, 5), "slab": (9, 6), "carve": (10, 4), "unpaint": (11, 4)}
 def mesh_cells(path):   # an OBJ (game coordinates) -> {(sx, sy): (top, bottom)} on the 4 unit grid of the light field (sub column centres), max / min over all faces (v9: the bottom for slabs)
     vs, top, bot = [], {}, {}
     for line in open(path):
@@ -127,8 +127,11 @@ def cat_table():   # data/object_blocks.json (OBJECT CATALOGUE, LIGHT_PROXY_PLAN
 MESHES = []
 def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN step 2) -> C rows {room, op, a[7]}
     path = os.environ.get("LANDSTALKER_LIGHTPROXY_JSON") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "light_proxies.json")
-    rows = []
+    rows = []; uprows = []; uptile = []   # LK_LTUNPAINT v1: op 11 rows go to the END (lk_lt_corr indices q of the older ops stay: proxy ids 1000 + q % 24)
     if os.path.isfile(path):
+        for ts, lst in sorted(json.load(open(path)).get("unpaint_tiles", {}).items()):
+            if ts.startswith("_"): continue
+            for f, t in lst: uptile.append("{%d, 0x%X, 0x%X}" % (int(ts), int(f, 16), int(t, 16)))
         for room, lst in sorted(json.load(open(path))["rooms"].items(), key=lambda kv: int(kv[0])):
             for e in lst:
                 if e["op"] == "prism":   # v9: compiled like a mesh (op 5): "poly" [[x, y], ...] world units, "top" (or "cell" = keep the cell's own height: a cookie cutter), "bottom" (= a slab, air below), "floor"
@@ -146,10 +149,13 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
                     a = a + [mi, 1 if e.get("air") else 0, int(e.get("floor", -999))]; n += 3   # v9: "air": parts whose bottom floats above the ground become slabs; "floor": indoors the rectangle's sub columns the mesh does not cover get this height
                 if op == 10:   # v9 carve: + background mode (1 "sea", 2 "layera"), floor
                     a = a + [{"sea": 1, "layera": 2}[e.get("bg", "sea")], int(e.get("floor", 0))]; n += 2
+                if op == 11:   # LK_LTUNPAINT v1: + the floor height in units (the painted shadow lies on the floor footprint of the cells)
+                    uprows.append("{%d, 11, {%s}}" % (int(room), ", ".join(str(v) for v in a + [int(e.get("floor", 0)), 0, 0]))); continue
                 if op in (6, 7):   # bushes / pines: + top above the base (0 = the game's height of each cell), crown radius (0 = default), base (-999 = automatic)
                     a = a + [int(e.get("h", 0)), int(e.get("r", 0)), int(e.get("base", -999))]; n += 3
                 rows.append("{%d, %d, {%s}}" % (int(room), op, ", ".join(str(v) for v in a + [0] * (7 - n))))
-    print("patch_lights: %d light proxy corrections from %s" % (len(rows), path))
+    rows += uprows
+    print("patch_lights: %d light proxy corrections from %s (%d unpaint, %d unpaint tiles)" % (len(rows), path, len(uprows), len(uptile)))
     mesh = "".join("static const int16_t lk_lt_mesh%d[][4] = { %s, {-1, -1, -1, -1} };\n" % (i, m) for i, m in enumerate(MESHES))
     mesh += "static const int16_t (*const lk_lt_meshes[])[4] = { " + ", ".join(["lk_lt_mesh%d" % i for i in range(len(MESHES))] + ["0"]) + " };\n"
     print("patch_lights: %d light proxy meshes (%s cells)" % (len(MESHES), ", ".join(str(m.count("{")) for m in MESHES)))
@@ -158,6 +164,7 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
     mesh += "static const unsigned char lk_lt_msurf[] = { " + ", ".join([str(MSURF.get(i, 0)) for i in range(len(MESHES))] + ["0"]) + " };\n"
     mesh += "static const int lk_lt_mtrin[] = { " + ", ".join([str(len(MTRI[i]) // 18) if i in MTRI else "0" for i in range(len(MESHES))] + ["0"]) + " };   /* LK_LTMODEL v1: triangles per mesh */\n"
     print("patch_lights: model triangles for the GPU: %s" % ", ".join("%d%s" % (len(MTRI[i]) // 18, "" if MSURF.get(i) else "(test)") for i in sorted(MTRI)))
+    mesh += "static const int16_t lk_lt_uptile[][3] = { " + ", ".join(uptile + ["{-1, 0, 0}"]) + " };   /* LK_LTUNPAINT v1: tileset, painted shadow tile -> the same tile without the shadow (data/light_proxies.json unpaint_tiles) */\n"
     return "static const lk_lt_corr_t lk_lt_corr[] = { " + ", ".join(rows + ["{-1, 0, {0}}"]) + " };\n" + mesh
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()

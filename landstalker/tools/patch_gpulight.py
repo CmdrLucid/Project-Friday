@@ -254,6 +254,25 @@ void lk_gl_blist(int bx, int by, uint32_t *a, uint32_t *b2, int *nl) { const lk_
 ''' % VER
     a = "static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {\n"
     rep(a, MODULE + a)
+    # LK_GLUNPAINT v1 (user 2026-11-09: 'kannst du den Teppich unter dem Tisch im normalen Gruen zeichnen, so dass der Tisch nur unseren Schatten wirft?'):
+    # the shadow the artist PAINTED under furniture on legs (darker carpet / floor tiles) would double our GPU model shadow; while the GPU light with the
+    # 3D models is on, the plane B cells on the floor footprint of a piece (data/light_proxies.json op 'unpaint') draw the same tile without the shadow
+    # (unpaint_tiles, per tileset).  Lighting off / CPU light / LANDSTALKER_LT_UNPAINT=0: the original tiles (the CPU light keeps the table as a box).
+    rep(a, r'''/* LK_GLUNPAINT v1 (tools/patch_gpulight.py): painted furniture shadows off while the GPU light shades the furniture models */
+static int lk_gl_upopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_UNPAINT"); v = e ? atoi(e) : 1; } return v; }
+void lk_gl_unpaint(void) { int q, ts = -1;
+  if (!lk_gl_upopt() || !lk_lt_get() || !lk_lt_modelopt() || lk_gl_getmode() != 1 || !lk_gl_realok()) return;
+  for (q = 0; lk_lt_corr[q].room >= 0; q++) { const int16_t *a = lk_lt_corr[q].a; int X, Y;
+    if (lk_lt_corr[q].op != 11 || lk_lt_corr[q].room != lk_o_room) continue;
+    if (ts < 0) ts = OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F;   /* the room's tileset (as lk_lt_shafts) */
+    for (Y = 16 * a[1]; Y < 16 * a[3] + 16; Y += 2) for (X = 16 * a[0]; X < 16 * a[2] + 16; X += 2) {   /* the floor footprint of the cells, 2 unit steps */
+      int cc = (X - Y + 1184) >> 3, rr = ((X + Y) / 2 - a[4]) >> 3, k; uint32 w;
+      if (cc < 0 || cc >= 304 || rr < 0 || rr >= 152) continue;
+      w = lk_o_pb[rr][cc]; if (!(w & 0x10000)) continue;
+      for (k = 0; lk_lt_uptile[k][0] >= 0; k++) if (lk_lt_uptile[k][0] == ts && (int)(w & 0x7FF) == lk_lt_uptile[k][1]) { lk_o_pb[rr][cc] = (w & ~0x7FFu) | (uint32)lk_lt_uptile[k][2]; break; } } } }
+''' + a)
+    rep("static void lk_o_build(void) {", "void lk_gl_unpaint(void);   /* LK_GLUNPAINT v1 (tools/patch_gpulight.py) */\nstatic void lk_o_build(void) {")
+    rep("  lk_o_exon = 0; lk_o_sprites(chosen, 1, 0,", "  lk_gl_unpaint();   /* LK_GLUNPAINT v1: painted furniture shadows off under the GPU light (tools/patch_gpulight.py) */\n  lk_o_exon = 0; lk_o_sprites(chosen, 1, 0,")
     # v5 GL5b: the block keeps the 'layer A drawn' bit its view ray used (animated tiles change it between the block's computation and a later look)
     rep("int16_t robj[1024]; int sungen; } lk_lt_blk;", "int16_t robj[1024]; int sungen; uint8 la[1024]; } lk_lt_blk;")
     rep("b->face[i] = (uint8)lk_lt_ray(U0 + (i & 31), V0 + (i >> 5), &z); b->z[i] = (int16_t)z; robj[i] = (int16_t)lk_lt_rob; }",
