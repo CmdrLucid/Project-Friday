@@ -1385,17 +1385,17 @@ static void lk_lt_rmquad(const float *a, const float *b, const float *c, const f
    height from the drawn sprite, lk_lt_prof) becomes a closed mesh of revolution with smooth normals, EXACTLY the shapes the field marches use; outward counter-clockwise
    (back face shadow maps).  The GPU puts them into the model buffer (marked z * 8 + 16384: only LAYER A pixels take them = the drawn crowns, the ground around keeps the
    field) and the shadow maps; their sub columns are hand-model owned (kind 1, ground = the base) so the marches leave them to the shadow map.  GPU only, the CPU keeps
-   the field.  LANDSTALKER_LT_OBJMODEL=1 = on (off by default until the user has seen it). */
+   the field.  DEFAULT ON since 2026-11-09 (user: "ja"); LANDSTALKER_LT_OBJMODEL=0 = off. */
 unsigned lk_lt_mgen;   /* generation of the generated meshes (room model / objects), for the GPU vertex buffers */
 #define LK_LT_OMMAX 240000   /* 4 dense forest rooms (425 / 561 / 566 / 567) needed more than 120000 */
 static float lk_lt_omt[LK_LT_OMMAX * 18]; static int lk_lt_omn, lk_lt_omover;
-static int lk_lt_objopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_OBJMODEL"); v = e ? atoi(e) : 0; } return v; }
+static int lk_lt_objopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_OBJMODEL"); v = e ? atoi(e) : 1; } return v; }
 static void lk_lt_omtri(const float *a, const float *na, const float *b, const float *nb, const float *c, const float *nc) {
   float *o; if (lk_lt_omn + 1 > LK_LT_OMMAX) { lk_lt_omover = 1; return; } o = lk_lt_omt + 18 * lk_lt_omn;
   memcpy(o, a, 12); memcpy(o + 3, na, 12); memcpy(o + 6, b, 12); memcpy(o + 9, nb, 12); memcpy(o + 12, c, 12); memcpy(o + 15, nc, 12); lk_lt_omn++; }
 static void lk_lt_omlathe(float cx, float cy, const float *rr, const float *zz, int n) {   /* a closed surface of revolution: profile rings (radius rr[i] at height zz[i], bottom to top),
      closed by flat caps where the radius is not 0; per ring edge a flat profile normal, smoothed with its neighbour within 35 degrees (round crowns), steps stay hard */
-  enum { SEG = 12 }; float pn[200][2]; int i, k;
+  float pn[200][2]; int i, k, SEG = 8; for (i = 0; i < n && i < 200; i++) if (rr[i] > 8.0f) SEG = 12;   /* 8 segments for small crowns (smooth normals keep them round), 12 for big trees */
   if (n < 2 || n > 200) return;
   for (i = 0; i + 1 < n; i++) { float dr = rr[i + 1] - rr[i], dz = zz[i + 1] - zz[i], l = sqrtf(dr * dr + dz * dz); if (l < 1e-6f) { pn[i][0] = 0.0f; pn[i][1] = 1.0f; } else { pn[i][0] = dz / l; pn[i][1] = -dr / l; } }
   for (i = 0; i + 1 < n; i++) for (k = 0; k < SEG; k++) {
