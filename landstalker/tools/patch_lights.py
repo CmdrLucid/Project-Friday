@@ -1386,7 +1386,8 @@ static void lk_lt_rmquad(const float *a, const float *b, const float *c, const f
    (back face shadow maps).  The GPU puts them into the model buffer (marked z * 8 + 16384: only LAYER A pixels take them = the drawn crowns, the ground around keeps the
    field) and the shadow maps; their sub columns are hand-model owned (kind 1, ground = the base) so the marches leave them to the shadow map.  GPU only, the CPU keeps
    the field.  LANDSTALKER_LT_OBJMODEL=1 = on (off by default until the user has seen it). */
-#define LK_LT_OMMAX 120000
+unsigned lk_lt_mgen;   /* generation of the generated meshes (room model / objects), for the GPU vertex buffers */
+#define LK_LT_OMMAX 240000   /* 4 dense forest rooms (425 / 561 / 566 / 567) needed more than 120000 */
 static float lk_lt_omt[LK_LT_OMMAX * 18]; static int lk_lt_omn, lk_lt_omover;
 static int lk_lt_objopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_OBJMODEL"); v = e ? atoi(e) : 0; } return v; }
 static void lk_lt_omtri(const float *a, const float *na, const float *b, const float *nb, const float *c, const float *nc) {
@@ -1442,7 +1443,7 @@ static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines /
   if (lk_lt_omn) { lk_lt_nmodel++; printf("object models: room %%d, %%d objects, %%d triangles\n", lk_o_room, nobj, lk_lt_omn); } }
 static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the current indoor room (after the thin column pruning) */
   static int16_t H[LK_LT_FN + 2][LK_LT_FN + 2]; static uint8 vis[LK_LT_FN][LK_LT_FN]; int sx, sy, x0, nown = 0; const int VZ = -40;
-  struct timespec t0; lk_lt_rmn = 0; lk_lt_rmover = 0;
+  struct timespec t0; lk_lt_rmn = 0; lk_lt_rmover = 0; lk_lt_mgen++;   /* LK_GLOBJ v1: the generated meshes change: the GPU uploads them again */
   lk_lt_objbuild();   /* LK_LTOBJ v1: trees / bushes first (their sub columns become hand-model owned) */
   if (!lk_lt_modelopt() || !lk_lt_roomopt(lk_o_room) || lk_lt_nslab || (lk_lt_sun && !lk_lt_modelout())) return;   /* outdoors too (user 2026-11-08: 'genauso fuer Aussenraeume ... diesen einen Weg') */
   clock_gettime(CLOCK_MONOTONIC, &t0);
