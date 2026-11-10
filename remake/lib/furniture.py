@@ -39,6 +39,64 @@ def l_bench(name, x0, y0, x1, y1, ax0, floor, top, thick, leg, inset, outline=0)
 # Platte noch ein hellerer gruener Streifen') -> thickness 3.
 MERCATOR_TABLE = dict(thick=3, leg=4, inset=1, outline=1)
 
+# NEAR-FINAL MERCATOR TABLE (2026-11-10, reference room 670 cells 22..24 x 22..23, ~/lktest/table2): the drawing (1 px grid) shows a top with ROUNDED
+# corners, a raised light rim ~2 wide (bright top + darker inner slope), a black groove ~1 and a recessed dark field; the slab side ~3 high; four ROUND
+# legs ~4 wide (shaded dark / black line / light / dark), foot rounded, centres ~2.6 in from the top's outer corners. Fitted by projection (tablechk.py).
+MERCATOR_FINE = dict(rc=3.0, ex0=1.0, ey0=1.0, ex1=1.0, ey1=1.0, rim=2.0, groove=1.0, depth=0.75, re=0.75, leg_r=2.0, sx=43.25, sy=27.25, lx=-0.75, ly=-0.75, seg=16)
+
+def sweep_rr(x0, y0, x1, y1, rc, prof, nc=6):
+    """a closed solid swept along a rounded rectangle (corner radius rc): prof [(d, z)] with d = distance in from the outline, from the bottom cap ring to
+    the top cap ring (both caps flat, filled from the centre); returns (vertices, outward faces)"""
+    import math
+    cs = [((x1 - rc, y0 + rc), -90.0), ((x1 - rc, y1 - rc), 0.0), ((x0 + rc, y1 - rc), 90.0), ((x0 + rc, y0 + rc), 180.0)]   # counter-clockwise seen from +z with y south? see below
+    path = []
+    for (cx, cy), a0 in cs:
+        for k in range(nc + 1):
+            a = math.radians(a0 + 90.0 * k / nc); path.append((cx, cy, math.cos(a), math.sin(a)))
+    n = len(path); V, F = [], []
+    for d, z in prof:
+        for cx, cy, nx, ny in path: V.append((cx + (rc - d) * nx, cy + (rc - d) * ny, z))
+    for i in range(len(prof) - 1):
+        for j in range(n): F.append((i * n + j, i * n + (j + 1) % n, (i + 1) * n + (j + 1) % n, (i + 1) * n + j))
+    xc, yc = (x0 + x1) / 2, (y0 + y1) / 2
+    V.append((xc, yc, prof[0][1])); b = len(V) - 1; F += [(b, (j + 1) % n, j) for j in range(n)]
+    last = (len(prof) - 1) * n; V.append((xc, yc, prof[-1][1])); t = len(V) - 1; F += [(t, last + j, last + (j + 1) % n) for j in range(n)]
+    # orientation: make the faces point away from the solid (test the signed volume)
+    vol = 0.0
+    for q in F:
+        for k in range(1, len(q) - 1):
+            a, b2, c = V[q[0]], V[q[k]], V[q[k + 1]]
+            vol += a[0] * (b2[1] * c[2] - b2[2] * c[1]) - a[1] * (b2[0] * c[2] - b2[2] * c[0]) + a[2] * (b2[0] * c[1] - b2[1] * c[0])
+    if vol < 0: F = [tuple(reversed(q)) for q in F]
+    return V, F
+
+def _arc(cx, cz, r, a0, a1, n=3):
+    import math
+    return [(cx + r * math.cos(math.radians(a0 + (a1 - a0) * k / n)), cz + r * math.sin(math.radians(a0 + (a1 - a0) * k / n))) for k in range(n + 1)]
+
+def tray_top(x0, y0, x1, y1, top, thick, P):
+    """the table top: rounded-rectangle slab (plan corner radius rc), outer edges rounded re, a raised rim `rim` wide, then a groove `groove` wide down to
+    the recessed field (depth below the rim top); profile (d in from the outline, z) swept along the outline"""
+    re, w, g, dp = P["re"], P["rim"], P["groove"], P["depth"]; u = top - thick; D = w + 0.3   # the field cap ring (must stay < rc)
+    prof = [(D, u)] + _arc(re, u + re, re, 270.0, 180.0) + _arc(re, top - re, re, 180.0, 90.0)   # bottom out to the rounded outer edges, the side up
+    prof += [(w - 0.35, top), (w, top - 0.2), (w + 0.05, top - dp + 0.1), (w + 0.25, top - dp), (D, top - dp)]   # rim top, its inner edge down into the groove, the field
+    return sweep_rr(x0, y0, x1, y1, P["rc"], prof)
+
+def _qs(n=3):
+    """quarter circle samples (cos, sin) from 0 to 90 degrees"""
+    import math
+    return [(math.cos(math.radians(90.0 * k / n)), math.sin(math.radians(90.0 * k / n))) for k in range(n + 1)]
+
+def mercator_table_mesh(x0, y0, x1, y1, floor, top, thick, P=None):
+    """near-final Mercator table on the cells' outer box x0..x1 / y0..y1 (units): the tray top + four round legs"""
+    P = P or MERCATOR_FINE; X0, Y0, X1, Y1 = x0 - P["ex0"], y0 - P["ey0"], x1 + P["ex1"], y1 + P["ey1"]
+    ms = [tray_top(X0, Y0, X1, Y1, top, thick, P)]; r = P["leg_r"]; u = top - thick
+    mx, my = (X0 + X1) / 2 + P["lx"], (Y0 + Y1) / 2 + P["ly"]   # leg centres: spacing sx / sy measured on the drawn feet, around the top's centre
+    leg = [(0.0, 0.0), (r - 0.6, 0.0), (r - 0.15, 0.25), (r, 0.8), (r, u - floor + 0.4), (0.0, u - floor + 0.4)]   # rounded foot, top 0.4 inside the slab
+    for lx, ly in ((mx - P["sx"] / 2, my - P["sy"] / 2), (mx + P["sx"] / 2, my - P["sy"] / 2), (mx + P["sx"] / 2, my + P["sy"] / 2), (mx - P["sx"] / 2, my + P["sy"] / 2)):
+        ms.append(revolve(lx, ly, floor, leg, seg=P["seg"]))
+    return ms
+
 # THE CASTLE TABLE (Mercator castle rooms, tileset 1: gold rim, curved legs), measured 2026-11-09 on room 96 (cells 20..22 x 21..23, height 1):
 # top corners U 1167.5 / 1120 / 1215 / 1167 = exactly the 3 x 3 cells at z 16, gold edge band ~6, curved legs ~5 wide standing AT the corners.
 # EDGE BAND re-measured 2026-11-09 night (picture rows vs GPU model buffer, room 96): the gold band + its black outline reach 8 rows below the top
