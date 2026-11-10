@@ -8,7 +8,7 @@ A = F.CHURCH_ANGEL4; AX, AY = A['axis']; XW = A['wing_x']; AU = AX - AY + 1184.0
 mask = {tuple(p) for p in json.load(open('/home/deck/lktest/angel3/mask.json'))}
 wing = {(int(math.floor(AU + du)) - U0, V0p + v - V0) for du, v in A['wing']}   # window pixel coords
 vtop = max(v for u, v in wing)
-region = wing | {p for p in mask if p[1] <= g('join_v', 72)}
+region = wing | {p for p in mask if p[1] <= g('join_v', 64)}
 S = 4; SIG = g('wsig', 0.7)
 us = [p[0] for p in region]; vs = [p[1] for p in region]; gu0, gv0 = min(us) - 3, min(vs) - 3; GW, GH = (max(us) - gu0 + 7) * S, (max(vs) - gv0 + 7) * S
 base = [[1.0 if (gu0 + i // S, gv0 + j // S) in region else 0.0 for i in range(GW)] for j in range(GH)]
@@ -41,7 +41,7 @@ def relief(cu, cv):
     rows = g('rows', [0.38, 0.66]); Lmax = g('Lmax', 26.0); row = sum(1 for r0 in rows if rr > r0 * Lmax)
     stagger = (th / nb + 0.5 * row) % 1.0; ridge = math.sin(math.pi * stagger) ** 0.6
     return g('feather_h', 0.35) * ridge - g('row_step', 0.25) * row, rr
-def thick(d): return min(g('wing_t', 1.3), 0.15 + d * 0.55 / S) if d > 0 else 0.0
+def thick(d): return min(g('wing_t', 1.3), 0.03 + d * 0.55 / S) if d > 0 else 0.0
 verts = []; idx = {}
 def vid(i, j, side):
     k = (i, j, side)
@@ -49,6 +49,14 @@ def vid(i, j, side):
     cu = gu0 + (i + 0.5) / S; cv = gv0 + (j + 0.5) / S; d = dist[j][i]; t = thick(d) / 2
     rel, rr = relief(cu, cv) if side > 0 else (0.0, 0.0)
     off = side * t + (rel * min(1.0, d / (2 * S)) if side > 0 else 0.0)
+    if d <= 1.5:   # boundary vertex: slide onto the smoothed outline (field 0.5) along the field gradient
+        for _ in range(6):
+            fx = (cu - gu0) * S - 0.5; fy = (cv - gv0) * S - 0.5; ii = min(GW - 2, max(0, int(fx))); jj = min(GH - 2, max(0, int(fy))); a_ = fx - ii; b_ = fy - jj
+            fv = (fld[jj][ii] * (1 - a_) + fld[jj][ii + 1] * a_) * (1 - b_) + (fld[jj + 1][ii] * (1 - a_) + fld[jj + 1][ii + 1] * a_) * b_
+            gx = ((fld[jj][ii + 1] - fld[jj][ii]) * (1 - b_) + (fld[jj + 1][ii + 1] - fld[jj + 1][ii]) * b_) * S; gy = ((fld[jj + 1][ii] - fld[jj][ii]) * (1 - a_) + (fld[jj + 1][ii + 1] - fld[jj][ii + 1]) * a_) * S
+            gl = (gx * gx + gy * gy) ** 0.5
+            if gl < 1e-6: break
+            st = max(-0.3, min(0.3, (0.5 - fv) / gl)); cu += st * gx / gl; cv += st * gy / gl
     U = U0 + cu; Vp = V0 + cv; y = XW + 1184.0 - U; z = (XW + y) / 2.0 - Vp
     sd = -1 if cu < AXC else 1; ru, rv = RT[sd]; cupt = g('cup', 0.012) * ((cu - ru) ** 2 + (cv - rv) ** 2) if (cu - AXC) * sd > 0 else 0.0
     T = cupt + off   # along the view ray: the picture point stays; but thickness should be along x (the plane normal): use x for the thickness, ray for the cup
