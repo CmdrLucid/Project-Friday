@@ -4,6 +4,7 @@ Goal: the whole world as real 3D models in STYLE C (user 2026-10-25, after three
 The recompiled game (`landstalker/`) stays the LOGIC CORE; the remake draws its state (plan: docs in `landstalker/docs/RENDERER_IDEAS.md`, 'Godot front end'). Logic changes are allowed in the remake only, as switchable hooks; with the remake off the original stays bit exact.
 
 ## Rules
+- `MODELS.md` = every 3D form with its REFERENCE in the game (rooms, cells, blocks, reference picture window), its code, fit numbers and state (LIGHT / NEAR-FINAL / FINAL); update it with every model change (user 2026-11-10).
 - Assets are made ONE AT A TIME and shown to the user for approval before they are placed (the user's wish 2026-10-24). The list and its order: `ASSETS.md`.
 - Only RECIPES, helper code and docs live in git. Everything generated (textures, GLB models, previews, room dumps) stays on the user's machine in `~/.landstalker_remake/` and is never committed. Textures are produced by our own generators (no ROM art); room data from the user's own ROM is local too.
 - Units: 1 unit = 1 pixel of the original = 1/16 of a map cell; game coordinates x east, y south, z up (`landstalker/docs/FORMATS.md`, 'Height map = a real height field'). In Blender y = NORTH (game y negated), so nothing is mirrored and the GLB comes out x east, y up, z south.
