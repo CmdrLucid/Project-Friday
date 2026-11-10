@@ -118,6 +118,51 @@ def brazier_stands(rom, room):
         if fl: out.append(dict(cell=(x, y), floor=fl[-1], steps=v[0] - fl[-1]))
     return out
 
+ROMPATH = [None]
+BARREL_REF = (71, 21, 15, 1)   # the reference barrel (room, cell, floor steps) the picture match compares with (the fit's barrel, alone in front of the wall)
+_pics = {}
+def _picture(room):
+    """the whole room picture from the user's ROM (remake/tools/rom_picture.py into /tmp, never into git)"""
+    if room not in _pics:
+        import subprocess, proxy_overlay
+        d = "/tmp/lk_furn_pic_%d" % room
+        if not os.path.exists(d + "/full.png"):
+            subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "rom_picture.py"), ROMPATH[0], str(room), "0", "0", "2432", "1216", d], capture_output=True, check=True)
+        _pics[room] = proxy_overlay.read_png(d + "/full.png")
+    return _pics[room]
+def _lathe_sil(prof):
+    """picture offsets (du, dv) covered by a lathe standing at the picture point of its axis foot"""
+    import math
+    top = prof[-1][0]; out = []
+    def rad(z):
+        for (z0, r0), (z1, r1) in zip(prof, prof[1:]):
+            if z0 <= z <= z1: return r0 + (r1 - r0) * (z - z0) / (z1 - z0)
+        return -1
+    for dv in range(-int(top) - 24, 14):
+        for du in range(-18, 19):
+            for zi in range(0, int(top * 4) + 1):
+                z = zi / 4.0; x = (2 * (dv + 0.5) + 2 * z + du + 0.5) / 2; y = (2 * (dv + 0.5) + 2 * z - du - 0.5) / 2
+                if math.hypot(x, y) <= rad(z): out.append((du, dv)); break
+    return out
+def _sample(room, cx, cy, fl, sil, dx, dy):
+    w, h, c, F = _picture(room); ax, ay = 16 * cx + 8 + dx, 16 * cy + 8 + dy; U = int(round(ax - ay + 1184)); V = int(round((ax + ay) / 2 - fl))
+    return [tuple(F[V + dv][(U + du) * c:(U + du) * c + 3]) if 0 <= V + dv < h and 0 <= U + du < w else None for du, dv in sil]
+
+def barrels(rom, room):
+    """the barrels of the cellars / storerooms (tileset 15): every walkable cell whose picture, with a barrel standing on the floor one step below its top,
+    matches the reference barrel (BARREL_REF) in >= 50 % of the barrel's silhouette pixels (2026-11-10: barrels 0.56 (half hidden behind the cupboard of 72)
+    .. 1.00, everything else <= 0.39; top block ids alone missed the barrels drawn against a wall: 71 (14, 15) $062, (14, 19) $0C2).
+    Found: 65 66 68 69 71 72 78 79 (outlines checked on the drawings, ~/lktest/barrel/ov.py)"""
+    if blockcat.tileset(rom, room) != 15: return []
+    B = furniture.BARREL
+    if "sil" not in _pics: _pics["sil"] = _lathe_sil(B["prof"]); r0, x0, y0, f0 = BARREL_REF; _pics["ref"] = _sample(r0, x0, y0, 16 * f0, _pics["sil"], B["dx"], B["dy"])
+    sil, ref, out = _pics["sil"], _pics["ref"], []
+    for (x, y), v in sorted(blockcat.cells(rom, room).items()):
+        if v[1] or v[0] < 1: continue
+        s = _sample(room, x, y, 16 * (v[0] - 1), sil, B["dx"], B["dy"])
+        if sum(1 for a, b in zip(s, ref) if a == b) >= 0.5 * len(ref): out.append(dict(cell=(x, y), floor=v[0] - 1))
+    return out
+
 def lathe_obj(meshes, title):
     """[(vertices, faces), ..] -> OBJ text"""
     s = "# light proxy: %s (remake/tools/furniture_ops.py, remake/lib/furniture.py). GAME coordinates x east, y south, z up, world units.\n" % title
@@ -129,8 +174,8 @@ def lathe_obj(meshes, title):
 
 def main():
     a = [s for s in sys.argv[1:] if not s.startswith("--")]
-    rom = open(a[0], "rb").read(); write = "--write" in sys.argv
-    rooms = [int(r) for r in sys.argv[sys.argv.index("--rooms") + 1].split(",")] if "--rooms" in sys.argv else [r for r in range(816) if blockcat.tileset(rom, r) in {T["ts"] for T in TYPES}]
+    rom = open(a[0], "rb").read(); write = "--write" in sys.argv; ROMPATH[0] = a[0]
+    rooms = [int(r) for r in sys.argv[sys.argv.index("--rooms") + 1].split(",")] if "--rooms" in sys.argv else [r for r in range(816) if blockcat.tileset(rom, r) in {T["ts"] for T in TYPES} | {1, 2, 15}]   # + the round shapes' tilesets (braziers 1, vases 2, barrels 15)
     jp = os.path.join(ROOT, "landstalker", "data", "light_proxies.json"); data = json.load(open(jp), object_pairs_hook=collections.OrderedDict)
     n = 0
     for r in rooms:
@@ -162,6 +207,18 @@ def main():
                 open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(ms, "brazier stand (%s), room %d" % ("short" if t["steps"] == 2 else "tall", r)))
                 ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("floor", 16 * t["floor"]), ("carrier", collections.OrderedDict([("r", 12), ("axis", [16 * x + 8 + int(furniture.BRAZIER["dx"]), 16 * y + 8 + int(furniture.BRAZIER["dy"])]), ("z", int(round(16 * t["floor"] + top + 5)))])),
                     ("why", "brazier stand (collision = a %d high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'" % (16 * t["steps"]))]))
+            data["rooms"][str(r)] = ops0; n += 1
+        bars = barrels(rom, r)
+        for t in bars: print("room %d: barrel cell %d,%d floor %d OK" % (r, t["cell"][0], t["cell"][1], t["floor"]))
+        if write and bars:
+            ops0 = [e for e in data["rooms"].get(str(r), []) if not (e.get("op") == "mesh" and e.get("file", "").startswith("proxies/barrel_"))]
+            for k, t in enumerate(bars):   # one op per barrel (own object rule)
+                (x, y), B = t["cell"], furniture.BARREL; top = B["prof"][-1][0]
+                ms = [furniture.lathe(16 * x + 8 + B["dx"], 16 * y + 8 + B["dy"], 16 * t["floor"], top, [(z / top, rr) for z, rr in B["prof"]])]
+                fn = "barrel_%d.obj" % r if k == 0 else "barrel_%d_%d.obj" % (r, k)
+                open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(ms, "barrel, room %d" % r))
+                ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("floor", 16 * t["floor"]),
+                    ("why", "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)")]))
             data["rooms"][str(r)] = ops0; n += 1
         for t in ts: print("room %d: %s cells %d..%d x %d..%d height %d floor %d %s%s%s" % (r, t["type"]["name"] if t["arm"] is None else "L bench", t["cells"][0], t["cells"][2], t["cells"][1], t["cells"][3], t["h"], t["floor"],
                                  "OK" if t["ok"] else "SKIPPED (fragment / not one step above the floor)", "" if not t["ok"] or not t["cont"] else "  CHECK: neighbours at its height " + " ".join("%d,%d" % k for k in t["cont"]),

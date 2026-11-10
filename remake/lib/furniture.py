@@ -59,6 +59,13 @@ BRAZIER_HEAD = [(1.0, 3.54), (2.0, 4.24), (3.0, 4.95), (4.0, 5.66), (8.0, 5.66),
                 (16.0, 5.66), (17.0, 5.66), (18.0, 6.36), (19.0, 6.36), (20.0, 6.78), (21.0, 7.49), (21.5, 6.74)]   # heights above the stem top
 BRAZIER = dict(dx=1.0, dy=1.0, stem={2: 4.0, 4: 28.0})   # stem length by collision steps
 
+# THE BARREL (cellars / storerooms of tileset 15, top blocks $051 / $094 / $290 / $35B, one barrel per walkable cell one step above the floor):
+# fitted 2026-11-10 to the single barrel of room 71 (21, 15) (~/lktest/barrel/fitq.py: a symmetric barrel grid search, then the rings; IoU 0.986
+# with a FLAT top, a free profile reached 0.994 only with a domed top = the open lid drawn as a cone): axis 2 units in front of the cell
+# centre (+x, +y), 19 high (the collision box is 16), profile (height, radius) bottom to top with the hoop bulges:
+BARREL = dict(dx=2.0, dy=2.0, prof=[(0.0, 8.0), (1.58, 8.46), (3.17, 8.83), (4.75, 8.62), (6.33, 9.33), (7.92, 9.71), (9.5, 10.25), (11.08, 9.46),
+                                    (12.67, 9.33), (14.25, 9.38), (15.83, 8.83), (17.42, 8.46), (19.0, 7.5)])
+
 def brazier_prof(steps):
     """the stand's profile [(height, radius)] in units (absolute heights) for a stand of `steps` collision steps"""
     st = 10.0 + BRAZIER["stem"][steps]

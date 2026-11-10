@@ -733,6 +733,321 @@
         "why": "brazier stand (collision = a 64 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
       }
     ],
+    "65": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          35,
+          14,
+          35
+        ],
+        "file": "proxies/barrel_65.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          27,
+          22,
+          27
+        ],
+        "file": "proxies/barrel_65_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          28,
+          22,
+          28
+        ],
+        "file": "proxies/barrel_65_2.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "66": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          35,
+          14,
+          35
+        ],
+        "file": "proxies/barrel_66.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          27,
+          22,
+          27
+        ],
+        "file": "proxies/barrel_66_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          28,
+          22,
+          28
+        ],
+        "file": "proxies/barrel_66_2.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "68": [
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          26,
+          24,
+          26
+        ],
+        "file": "proxies/barrel_68.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          26,
+          25,
+          26
+        ],
+        "file": "proxies/barrel_68_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          26,
+          26,
+          26
+        ],
+        "file": "proxies/barrel_68_2.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "69": [
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          26,
+          24,
+          26
+        ],
+        "file": "proxies/barrel_69.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          26,
+          25,
+          26
+        ],
+        "file": "proxies/barrel_69_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          26,
+          26,
+          26
+        ],
+        "file": "proxies/barrel_69_2.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "71": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          15,
+          14,
+          15
+        ],
+        "file": "proxies/barrel_71.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          19,
+          14,
+          19
+        ],
+        "file": "proxies/barrel_71_1.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          20,
+          14,
+          20
+        ],
+        "file": "proxies/barrel_71_2.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          15,
+          21,
+          15
+        ],
+        "file": "proxies/barrel_71_3.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "72": [
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          18,
+          21,
+          18
+        ],
+        "file": "proxies/barrel_72.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          18,
+          22,
+          18
+        ],
+        "file": "proxies/barrel_72_1.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          18,
+          23,
+          18
+        ],
+        "file": "proxies/barrel_72_2.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "78": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          28,
+          23,
+          28
+        ],
+        "file": "proxies/barrel_78.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          29,
+          23,
+          29
+        ],
+        "file": "proxies/barrel_78_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "79": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          28,
+          23,
+          28
+        ],
+        "file": "proxies/barrel_79.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          29,
+          23,
+          29
+        ],
+        "file": "proxies/barrel_79_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
     "86": [
       {
         "op": "mesh",
