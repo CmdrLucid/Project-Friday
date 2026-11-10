@@ -197,6 +197,62 @@ def angel(cx, cy, floor, A=None):
         out.append(box8(cs))
     return out
 
+# NEAR-FINAL BARREL GEOMETRY (user 2026-11-10: forms close to the final remake version right away, materials later; reference + numbers in remake/MODELS.md):
+# the fitted outline BARREL["prof"] is the outer envelope (= the hoops); measured on the drawing of room 71 (21, 15) by which pixels are hoop grey
+# (72,72,72 / 36,36,36) at which model height (~/lktest/barrel/hoops.py): hoops at z 1..3.5, 9..11.5, 15.5..17.5, the top rim = a metal ring; the wood
+# between the hoops lies 0.35 lower, 16 staves with shallow V grooves, the lid recessed 1.5 below the rim with 4 planks along the screen axis (1, -1).
+BARREL_HOOPS = [(1.0, 3.5), (9.0, 11.5), (15.5, 17.5)]
+
+def barrel_mesh(ax, ay, floor, seg=64, staves=16):
+    """near-final barrel: [(vertices, faces)] in world units (closed, outward quads / triangles)"""
+    import math
+    P = BARREL["prof"]; top = P[-1][0]
+    def env(z):
+        for (z0, r0), (z1, r1) in zip(P, P[1:]):
+            if z0 <= z <= z1: return r0 + (r1 - r0) * (z - z0) / (z1 - z0)
+        return P[-1][1]
+    def hoop(z): return any(a <= z <= b for a, b in BARREL_HOOPS) or z >= top - 0.6 or z <= 0.6   # + the stave ends (chimes) at top and bottom
+    def rad(z, th):
+        r = env(z)
+        if hoop(z): return r
+        g = abs(((th / (2 * math.pi) * staves) % 1.0) - 0.5) * 2.0          # 0 at a stave seam, 1 in the stave middle
+        return r - 0.35 - 0.18 * (1.0 - min(1.0, g * 3.0))                   # wood below the hoops + a V groove at each seam
+    zs = sorted(set([round(0.25 * k, 2) for k in range(0, int(top * 4) + 1)] + [a for h in BARREL_HOOPS for a in h] + [top]))
+    V, F = [], []
+    def add(p): V.append(p); return len(V) - 1
+    rings = [[add((ax + rad(z, 2 * math.pi * j / seg) * math.cos(2 * math.pi * j / seg), ay + rad(z, 2 * math.pi * j / seg) * math.sin(2 * math.pi * j / seg), floor + z)) for j in range(seg)] for z in zs]
+    for a, b in zip(rings, rings[1:]):
+        for j in range(seg): F.append((a[j], a[(j + 1) % seg], b[(j + 1) % seg], b[j]))
+    bot = add((ax, ay, floor))
+    for j in range(seg): F.append((rings[0][(j + 1) % seg], rings[0][j], bot))
+    # top: rim lip inwards (to radius rt - 0.9), inner wall down 1.5, lid with 4 planks (grooves 0.25 deep between them, along the screen axis (1, -1))
+    rt = env(top); ri = rt - 0.9; zl = top - 1.5
+    lip = [add((ax + ri * math.cos(2 * math.pi * j / seg), ay + ri * math.sin(2 * math.pi * j / seg), floor + top)) for j in range(seg)]
+    inner = [add((ax + ri * math.cos(2 * math.pi * j / seg), ay + ri * math.sin(2 * math.pi * j / seg), floor + zl)) for j in range(seg)]
+    for j in range(seg):
+        F.append((rings[-1][j], rings[-1][(j + 1) % seg], lip[(j + 1) % seg], lip[j]))
+        F.append((lip[j], lip[(j + 1) % seg], inner[(j + 1) % seg], inner[j]))
+    n = 24; grid = {}
+    for i in range(-n, n + 1):
+        for k in range(-n, n + 1):
+            u, w = ri * i / n, ri * k / n                                      # u along (1, -1) / sqrt 2 (plank direction), w across
+            if u * u + w * w > (ri * 1.02) ** 2: continue
+            gw = abs(((w / ri + 1.0) * 2.0) % 1.0 - 0.5) * 2.0                   # 4 planks across: 0 at a joint
+            dz = -0.25 * (1.0 - min(1.0, gw * 4.0))
+            grid[(i, k)] = add((ax + (u + w) / math.sqrt(2), ay + (w - u) / math.sqrt(2), floor + zl + dz))
+    for (i, k), a in grid.items():
+        b, c, d = grid.get((i + 1, k)), grid.get((i + 1, k + 1)), grid.get((i, k + 1))
+        if b is not None and c is not None and d is not None: F.append((a, d, c, b))
+    # close the gap between the lid grid edge and the inner wall bottom: a fan from each inner wall vertex to the nearest grid vertices
+    edge = [(math.atan2(V[g][1] - ay, V[g][0] - ax), g) for (i, k), g in grid.items() if any(nb not in grid for nb in ((i + 1, k), (i - 1, k), (i, k + 1), (i, k - 1)))]
+    edge.sort()
+    for t in range(len(edge)):
+        a1, g1 = edge[t]; a2, g2 = edge[(t + 1) % len(edge)]
+        j1 = int(round((a1 % (2 * math.pi)) / (2 * math.pi) * seg)) % seg; j2 = int(round((a2 % (2 * math.pi)) / (2 * math.pi) * seg)) % seg
+        F.append((inner[j1], g2, g1) if False else (g1, g2, inner[j2]))
+        if j1 != j2: F.append((g1, inner[j2], inner[j1]))
+    return [(V, F)]
+
 def brazier_prof(steps):
     """the stand's profile [(height, radius)] in units (absolute heights) for a stand of `steps` collision steps"""
     st = 10.0 + BRAZIER["stem"][steps]

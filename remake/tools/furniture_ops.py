@@ -280,7 +280,8 @@ def main():
                 ops0 = [e for e in data["rooms"].get(str(r), []) if not (e.get("op") == "mesh" and e.get("file", "").startswith("proxies/%s_" % kind))]
                 for k, t in enumerate(found):   # one op per object (own object rule)
                     (x, y), B = t["cell"], getattr(furniture, K["shape"]); top = B["prof"][-1][0]
-                    ms = [furniture.lathe(16 * x + 8 + B["dx"], 16 * y + 8 + B["dy"], 16 * t["floor"], top, [(z / top, rr) for z, rr in B["prof"]])]
+                    if kind == "barrel": ms = furniture.barrel_mesh(16 * x + 8 + B["dx"], 16 * y + 8 + B["dy"], 16 * t["floor"])   # near-final (remake/MODELS.md)
+                    else: ms = [furniture.lathe(16 * x + 8 + B["dx"], 16 * y + 8 + B["dy"], 16 * t["floor"], top, [(z / top, rr) for z, rr in B["prof"]])]
                     fn = "%s_%d.obj" % (kind, r) if k == 0 else "%s_%d_%d.obj" % (kind, r, k)
                     open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(ms, "%s, room %d" % (kind, r)))
                     ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("floor", 16 * t["floor"]),

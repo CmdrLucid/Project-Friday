@@ -56,7 +56,10 @@ FINAL = with material, approved by the user.
 - Game: cellars / storerooms, tileset 15: 23 barrels in rooms 65 66 68 69 71 72 78 79; found by a PICTURE MATCH against the reference (>= 50 % of the
   silhouette pixels identical; barrels drawn against a wall have other top blocks, e.g. 71 (14, 15) $062).
 - Reference: room 71 cell (21, 15), floor 1 step (16); axis 2 units in front of the cell centre, 19 high, flat top. IoU 0.986 (`~/lktest/barrel/fitq.py`).
-- State: LIGHT. TODO near-final: staves, raised hoops at the drawn heights, rim + recessed lid planks.
+- State: NEAR-FINAL geometry (2026-11-10, `furniture.barrel_mesh()`, `BARREL_HOOPS`): hoops at z 1..3.5 / 9..11.5 / 15.5..17.5 measured from the hoop-grey
+  pixels (72,72,72 / 36,36,36) per model height (`~/lktest/barrel/hoops.py`), wood 0.35 below the hoops, 16 staves with V grooves, chimes at top / bottom,
+  top metal rim, lid recessed 1.5 with 4 planks along the screen axis. Projection IoU 0.980 (688 px, 2 outside, 12 missed at the rim back edge / foot),
+  `~/lktest/barrel/objcheck.py`. Clay preview `~/.landstalker_remake/assets/barrel/clay_all.png`. User OK open. Material later (dark wood, grey iron).
 
 ## Clay jar  (`furniture.JAR`, lathe; ops by `round_found(.., "jar")`)
 - Game: tileset 8 (chapels + wooden houses): 39 jars in 480 526 593 594 595 597 598 599 604 606 607 608 727 728 730 731 732 734 736 741 743 744 745 (picture match).
