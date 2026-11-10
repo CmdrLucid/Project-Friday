@@ -298,7 +298,11 @@ def main():
             if t["arm"] is None: parts = furniture.table("table0", 16 * x0, 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["floor"], 16 * t["h"], **sh)
             else: parts = furniture.l_bench("lbench0", 16 * (t["arm"] + 1), 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["arm"], 16 * t["floor"], 16 * t["h"], **sh)
             fn = "table_%d.obj" % r if k == 0 else "table_%d_%d.obj" % (r, k)
-            open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(boxes_obj(parts, "%s, room %d" % (t["type"]["name"] if t["arm"] is None else "L bench", r)))
+            title = "%s, room %d" % (t["type"]["name"] if t["arm"] is None else "L bench", r)
+            if t["arm"] is None and blockcat.cells(rom, r)[(x0, y0)][2] == 0x030:   # the Mercator TABLE on legs: near-final shape (remake/MODELS.md)
+                txt = lathe_obj(furniture.mercator_table_mesh(16 * x0, 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["floor"], 16 * t["h"], sh["thick"]), title)
+            else: txt = boxes_obj(parts, title)
+            open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(txt)
             ops.append(collections.OrderedDict([("op", "mesh"), ("cells", [x0, y0, x1, y1]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
                 ("why", "%s on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'" % t["type"]["name"])]))
         for t in good:   # LK_GLUNPAINT v1: the painted shadow on the piece's floor footprint goes while the GPU light shades the model

@@ -42,7 +42,7 @@ MERCATOR_TABLE = dict(thick=3, leg=4, inset=1, outline=1)
 # NEAR-FINAL MERCATOR TABLE (2026-11-10, reference room 670 cells 22..24 x 22..23, ~/lktest/table2): the drawing (1 px grid) shows a top with ROUNDED
 # corners, a raised light rim ~2 wide (bright top + darker inner slope), a black groove ~1 and a recessed dark field; the slab side ~3 high; four ROUND
 # legs ~4 wide (shaded dark / black line / light / dark), foot rounded, centres ~2.6 in from the top's outer corners. Fitted by projection (tablechk.py).
-MERCATOR_FINE = dict(rc=3.0, ex0=1.0, ey0=1.0, ex1=1.0, ey1=1.0, rim=2.0, groove=1.0, depth=0.0, re=0.75, leg_r=2.0, sx=43.25, sy=27.25, lx=-0.75, ly=-0.75, seg=16)
+MERCATOR_FINE = dict(rc=3.0, ex0=1.0, ey0=1.0, ex1=1.0, ey1=1.0, rim=2.0, groove=1.0, depth=0.0, re=0.75, leg_r=2.0, i0=1.625, i1=3.125, seg=16)
 
 def sweep_rr(x0, y0, x1, y1, rc, prof, nc=6):
     """a closed solid swept along a rounded rectangle (corner radius rc): prof [(d, z)] with d = distance in from the outline, from the bottom cap ring to
@@ -92,9 +92,10 @@ def mercator_table_mesh(x0, y0, x1, y1, floor, top, thick, P=None):
     """near-final Mercator table on the cells' outer box x0..x1 / y0..y1 (units): the tray top + four round legs"""
     P = P or MERCATOR_FINE; X0, Y0, X1, Y1 = x0 - P["ex0"], y0 - P["ey0"], x1 + P["ex1"], y1 + P["ey1"]
     ms = [tray_top(X0, Y0, X1, Y1, top, thick, P)]; r = P["leg_r"]; u = top - thick
-    mx, my = (X0 + X1) / 2 + P["lx"], (Y0 + Y1) / 2 + P["ly"]   # leg centres: spacing sx / sy measured on the drawn feet, around the top's centre
+    i0, i1 = P["i0"], P["i1"]   # leg centres in from the cell box: i0 from the back sides x0 / y0, i1 from the front sides (670: spacing 43.25 x 27.25 on the
+    # drawn feet; front / back split from the feet's picture rows, a shift along (1, 1) is otherwise invisible)
     leg = [(0.0, 0.0), (r - 0.6, 0.0), (r - 0.15, 0.25), (r, 0.8), (r, u - floor + 0.4), (0.0, u - floor + 0.4)]   # rounded foot, top 0.4 inside the slab
-    for lx, ly in ((mx - P["sx"] / 2, my - P["sy"] / 2), (mx + P["sx"] / 2, my - P["sy"] / 2), (mx + P["sx"] / 2, my + P["sy"] / 2), (mx - P["sx"] / 2, my + P["sy"] / 2)):
+    for lx, ly in ((x0 + i0, y0 + i0), (x1 - i1, y0 + i0), (x1 - i1, y1 - i1), (x0 + i0, y1 - i1)):
         ms.append(revolve(lx, ly, floor, leg, seg=P["seg"]))
     return ms
 

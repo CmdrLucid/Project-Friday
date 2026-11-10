@@ -108,7 +108,19 @@ FINAL = with material, approved by the user.
   In-game 59 light unchanged (152). Previews `~/.landstalker_remake/assets/brazier/` (crown_both.png sprite vs model + 4 views, crown_all.png, clay_all.png,
   zoom_crown_game.png). USER OK 2026-11-10 ('yes passt'). Material later (grey iron foot / bowl / claws, gold stem and knob).
 
-## Tables, benches, side tables, castle tables, L bench  (`furniture.MERCATOR_TABLE / CASTLE_TABLE`, `table()`, `top_on_legs()`, `l_bench()`; ops by `tables()`)
+## Mercator table  (`furniture.MERCATOR_FINE`, near-final `mercator_table_mesh(x0, y0, x1, y1, floor, top, thick)`; ops by `tables()` for pieces with $030 at the back corner)
+- Game: tileset 2, 2 x 2 .. 4 x 3 cells, walkable 1 step: 477 620 621 622 670 671 677 687 688 691 692 694 698 713 714 717 718 722 723 724 725 (21 pieces).
+- Reference: room 670 cells 22..24 x 22..23 (x 352..400, y 352..384), floor 0, top 16; window U0 1150 V0 300 96 x 96 (`~/lktest/table2/w670`).
+  Drawing: top with ROUNDED corners, light rim band + black line + dark field (= paint, NOT a recess: user 2026-11-10 'eine grade Platte'), side ~3, four
+  ROUND legs ~4 wide (dark / black line / light / dark shading), rounded feet. Layer A holds no painted shadow here.
+- State: NEAR-FINAL geometry v2 (2026-11-10): flat slab swept along a rounded rectangle (corner radius 3, edges rounded 0.75, thickness 3 kept from the
+  light fix 0a362), plan = the cell box grown 1 on every side; legs radius 2, centres 1.625 in from the back sides (x0 / y0) and 3.125 from the front
+  sides (670 feet: spacing 43.25 x 27.25; the back / front split read from the feet's picture rows). Projection IoU 0.999 in 670 (2 px outside,
+  0 missed; old boxes 0.929), all 11 sizes / rooms checked 0.896 .. 0.999 with 2 px outside each (misses = things on / beside the table),
+  `~/lktest/table2/tablechk.py` / `allchk.py`. Clay preview `~/.landstalker_remake/assets/table/clay_all.png`. USER OK 2026-11-10 ('yes').
+  v1 had a raised rim + recessed field: user 'Mittelfeld nicht vertieft'. Material later (orange-brown wood, darker top paint, olive legs).
+
+## Benches, side tables, castle tables, L bench (the Mercator TABLE: own entry above)  (`furniture.MERCATOR_TABLE / CASTLE_TABLE`, `table()`, `top_on_legs()`, `l_bench()`; ops by `tables()`)
 - Game: tileset 2 Mercator tables / benches / side tables (top blocks $030 $04A $04C $04D $06E $06A $0A3 $18A $312..$314) and tileset 1 castle tables
   ($114 back corner ...): 40 pieces in 32 rooms (HANDOFF 0a360); L bench 623 624 701 702 (0a361); side tables 691 692 713 714.
 - Reference: Mercator table room 670 (HANDOFF 0a360 / 0a362: top thickness 3 = the drawn edge band), castle table room 96 (3 x 3 cells, gold rim, thickness 8),
