@@ -42,7 +42,7 @@ MERCATOR_TABLE = dict(thick=3, leg=4, inset=1, outline=1)
 # NEAR-FINAL MERCATOR TABLE (2026-11-10, reference room 670 cells 22..24 x 22..23, ~/lktest/table2): the drawing (1 px grid) shows a top with ROUNDED
 # corners, a raised light rim ~2 wide (bright top + darker inner slope), a black groove ~1 and a recessed dark field; the slab side ~3 high; four ROUND
 # legs ~4 wide (shaded dark / black line / light / dark), foot rounded, centres ~2.6 in from the top's outer corners. Fitted by projection (tablechk.py).
-MERCATOR_FINE = dict(rc=3.0, ex0=1.0, ey0=1.0, ex1=1.0, ey1=1.0, rim=2.0, groove=1.0, depth=0.75, re=0.75, leg_r=2.0, sx=43.25, sy=27.25, lx=-0.75, ly=-0.75, seg=16)
+MERCATOR_FINE = dict(rc=3.0, ex0=1.0, ey0=1.0, ex1=1.0, ey1=1.0, rim=2.0, groove=1.0, depth=0.0, re=0.75, leg_r=2.0, sx=43.25, sy=27.25, lx=-0.75, ly=-0.75, seg=16)
 
 def sweep_rr(x0, y0, x1, y1, rc, prof, nc=6):
     """a closed solid swept along a rounded rectangle (corner radius rc): prof [(d, z)] with d = distance in from the outline, from the bottom cap ring to
@@ -79,7 +79,8 @@ def tray_top(x0, y0, x1, y1, top, thick, P):
     the recessed field (depth below the rim top); profile (d in from the outline, z) swept along the outline"""
     re, w, g, dp = P["re"], P["rim"], P["groove"], P["depth"]; u = top - thick; D = w + 0.3   # the field cap ring (must stay < rc)
     prof = [(D, u)] + _arc(re, u + re, re, 270.0, 180.0) + _arc(re, top - re, re, 180.0, 90.0)   # bottom out to the rounded outer edges, the side up
-    prof += [(w - 0.35, top), (w, top - 0.2), (w + 0.05, top - dp + 0.1), (w + 0.25, top - dp), (D, top - dp)]   # rim top, its inner edge down into the groove, the field
+    if dp > 0: prof += [(w - 0.35, top), (w, top - 0.2), (w + 0.05, top - dp + 0.1), (w + 0.25, top - dp), (D, top - dp)]   # rim + recessed field (v1, user: no)
+    else: prof += [(D, top)]   # a straight flat top (user 2026-11-10: 'Mittelfeld nicht vertieft, eine grade Platte'); the light rim of the drawing = paint
     return sweep_rr(x0, y0, x1, y1, P["rc"], prof)
 
 def _qs(n=3):
