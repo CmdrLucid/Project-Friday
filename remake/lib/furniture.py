@@ -77,7 +77,7 @@ def _arc(cx, cz, r, a0, a1, n=3):
 def tray_top(x0, y0, x1, y1, top, thick, P):
     """the table top: rounded-rectangle slab (plan corner radius rc), outer edges rounded re, a raised rim `rim` wide, then a groove `groove` wide down to
     the recessed field (depth below the rim top); profile (d in from the outline, z) swept along the outline"""
-    re, w, g, dp = P["re"], P["rim"], P["groove"], P["depth"]; u = top - thick; D = w + 0.3   # the field cap ring (must stay < rc)
+    re, w, g, dp = P["re"], P["rim"], P["groove"], P["depth"]; u = top - thick; D = min(w + 0.3, 0.8 * P["rc"])   # the cap ring (must stay < rc, else it folds over at the corners = dots)
     # the BOTTOM outer edge stays SHARP and the front faces on the cell box (user 2026-11-10 in 670: bright carpet rows right under the top): the GPU
     # model buffer is finer than a game pixel, a rounded / grown bottom edge covers half carpet rows below the drawn edge band and lights them as the side
     prof = [(D, u), (0.0, u)] + _arc(re, top - re, re, 180.0, 90.0)   # bottom out to the sharp outer edge, the side up to the rounded top edge
@@ -137,7 +137,7 @@ def sweep_poly(poly, rc, prof, star, nc=6):
 def l_bench_mesh(x0, y0, x1, y1, ax0, floor, top, thick, P=None, ad=16.0, aw=0.0):
     """near-final L BENCH (623 / 624 / 701 / 702): the long arm x0..x1 / y0..y1 (along y) and at its back end the short arm reaching west to ax0
     (y0 .. y0 + 16), the same flat rounded slab + round legs as the Mercator table (MERCATOR_FINE), no leg at the inner corner (as drawn)"""
-    P = P or MERCATOR_FINE; e = P["ex0"]; u = top - thick; re = P["re"]; D = P["rim"] + 0.3
+    P = P or MERCATOR_FINE; e = P["ex0"]; u = top - thick; re = P["re"]; D = min(P["rim"] + 0.3, 0.8 * P["rc"])
     ax0 = ax0 + aw   # ad = depth of the short arm (along y), aw = its west end moved east
     # grown by e only on the BACK sides (-x / -y faces: the drawn outline, as the table), the front faces (+x / +y) exactly on the cells (MODELING_LESSONS 4)
     poly = [(ax0 - e, y0 - e), (x1, y0 - e), (x1, y1), (x0 - e, y1), (x0 - e, y0 + ad), (ax0 - e, y0 + ad)]
@@ -154,6 +154,44 @@ def l_bench_mesh(x0, y0, x1, y1, ax0, floor, top, thick, P=None, ad=16.0, aw=0.0
 # EDGE BAND re-measured 2026-11-09 night (picture rows vs GPU model buffer, room 96): the gold band + its black outline reach 8 rows below the top
 # face edge (z 8), thickness 6 lit the lowest 2 rows as floor -> thickness 8.
 CASTLE_TABLE = dict(thick=8, leg=5, inset=0, outline=1)
+
+# NEAR-FINAL CASTLE TABLE (2026-11-10, reference room 96 cells 20..22 x 21..23, ~/lktest/ctable): square plan corners (the drawing's corners are pointed),
+# a thick flat top (8: the gold / olive / dark bands on its side are paint), short CURVED legs at the corners (~6 px wide at the top, a narrow ankle
+# ~4, the foot ~6 turned out towards the corner). Same rules as the Mercator table: bottom outer edge sharp, front faces on the cells, back +1.
+CASTLE_FINE = dict(rc=1.5, ex0=1.0, re=0.75, li=2.5, sa=4.0, sb=1.0, prof=[(0.0, 2.7, 0.0), (0.3, 2.7, 0.2), (0.55, 2.5, 0.2), (0.66, 1.8, 0.0), (0.8, 1.7, 0.0),
+                   (0.88, 2.6, 0.9), (0.96, 2.6, 1.3), (1.0, 1.9, 1.3)], seg=16)   # leg rings from the slab down: (share of the leg height from the top, radius, shift out)
+
+def ring_stack(rings, seg=16, cap_top=True, cap_bot=True):
+    """closed solid from rings [(cx, cy, z, r)] top to bottom (own centre per ring), capped at both ends; (vertices, outward faces)"""
+    import math
+    V, F = [], []
+    for cx, cy, z, r in rings: V.extend((cx + r * math.cos(2 * math.pi * j / seg), cy + r * math.sin(2 * math.pi * j / seg), z) for j in range(seg))
+    n = len(rings)
+    for i in range(n - 1):
+        for j in range(seg): a = i * seg + j; b = i * seg + (j + 1) % seg; F.append((a, a + seg, b + seg, b))
+    V.append(rings[0][:3]); t = len(V) - 1; F += [(t, (j + 1) % seg, j) for j in range(seg)]
+    V.append(rings[-1][:3]); bt = len(V) - 1; F += [(bt, (n - 1) * seg + j, (n - 1) * seg + (j + 1) % seg) for j in range(seg)]
+    vol = 0.0
+    for q in F:
+        for k in range(1, len(q) - 1):
+            a, b2, c = V[q[0]], V[q[k]], V[q[k + 1]]
+            vol += a[0] * (b2[1] * c[2] - b2[2] * c[1]) - a[1] * (b2[0] * c[2] - b2[2] * c[0]) + a[2] * (b2[0] * c[1] - b2[1] * c[0])
+    if vol < 0: F = [tuple(reversed(q)) for q in F]
+    return V, F
+
+def castle_table_mesh(x0, y0, x1, y1, floor, top, thick, P=None):
+    """near-final castle table on the cell box x0..x1 / y0..y1 (units): flat thick top + four curved legs whose feet turn out towards their corner"""
+    import math
+    P = P or CASTLE_FINE; e = P["ex0"]; u = top - thick; re = P["re"]; D = 0.8 * P["rc"]
+    prof = [(D, u), (0.0, u)] + _arc(re, top - re, re, 180.0, 90.0) + [(D, top)]
+    ms = [sweep_rr(x0 - e, y0 - e, x1, y1, P["rc"], prof)]
+    H = u - floor + 0.4; li = P["li"]
+    sa, sb = P["sa"], P["sb"]   # the two SIDE legs (left = x0 / y1 corner, right = x1 / y0 corner): sa in along x, sb in along y (mirrored)
+    for (cx, cy, sx, sy) in ((x0 + li, y0 + li, -1, -1), (x1 - sb, y0 + sa, 1, -1), (x1 - li, y1 - li, 1, 1), (x0 + sa, y1 - sb, -1, 1)):
+        k = 1 / math.sqrt(2)
+        rings = [(cx + sx * k * o, cy + sy * k * o, floor + H - t * H, r) for t, r, o in P["prof"]]
+        ms.append(ring_stack(rings, seg=P["seg"]))
+    return ms
 
 # THE VASE (Mercator houses, tileset 2: the pair by the hearth of 670 / 671 / 694, user 2026-11-09 'Objekte wie diese Vasen als echte 3D-Form fuers
 # Licht'), fitted 2026-11-09 night to the drawn layer A silhouette of 670 (~/lktest/vase/fit2.py: view rays through a lathe vs the picture mask,
