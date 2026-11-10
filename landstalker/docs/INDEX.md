@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-10 (dev, Opus 5.5): CHURCH ANGEL v4 = exact light model (rings with own centres + wing pixel sheets, IoU 0.998 in the game projection).** Remake sculpt pending (user go). HANDOFF 0a375, NEXT -157.
 - **2026-11-10 (dev, Opus 5.5): CHURCH ANGEL STATUE + PEDESTAL (613 614 699 700 721): data op "ground" (LK_LTGROUND v1) for void pedestal cells, furniture.CHURCH_ANGEL (v2 after the user's marks).** Open: darker wall left of the niche / bright strip (HANDOFF 0a373, NEXT -156).
 - **2026-11-10 (dev, Opus 5.5): CHURCH ALTAR (613 614 699 700 721), CHAPEL LECTERN + ANGEL STATUE (597 607 736) as light shapes** (furniture.ALTAR / LECTERN / plated_box, ANGEL = body lathe + wing plate rows, op "air"). Altar checked in 613; chapel not reachable by warp. HANDOFF 0a371, NEXT -155.
 - **2026-11-10 (dev, Opus 5.5): CLAY JARS as round light shapes (39 in 23 tileset 8 rooms incl. the chapel; furniture.JAR, generic picture match furniture_ops.ROUND / round_found()).** Outlines checked; in-game shots not possible (warp leaves these rooms black). HANDOFF 0a370, NEXT -154.
