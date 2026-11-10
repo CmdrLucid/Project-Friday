@@ -1971,8 +1971,9 @@
         ],
         "file": "proxies/lectern_597.obj",
         "surface": true,
+        "air": true,
         "floor": 0,
-        "why": "lectern (collision = a box): the fitted body + top plate of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "lectern (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "mesh",
@@ -2125,8 +2126,9 @@
         ],
         "file": "proxies/lectern_607.obj",
         "surface": true,
+        "air": true,
         "floor": 0,
-        "why": "lectern (collision = a box): the fitted body + top plate of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "lectern (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "mesh",
@@ -2195,8 +2197,9 @@
         ],
         "file": "proxies/altar_613.obj",
         "surface": true,
+        "air": true,
         "floor": 16,
-        "why": "altar (collision = a box): the fitted body + top plate of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       }
     ],
     "614": [
@@ -2210,8 +2213,9 @@
         ],
         "file": "proxies/altar_614.obj",
         "surface": true,
+        "air": true,
         "floor": 16,
-        "why": "altar (collision = a box): the fitted body + top plate of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       }
     ],
     "620": [
@@ -2878,8 +2882,9 @@
         ],
         "file": "proxies/altar_699.obj",
         "surface": true,
+        "air": true,
         "floor": 16,
-        "why": "altar (collision = a box): the fitted body + top plate of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       }
     ],
     "700": [
@@ -2893,8 +2898,9 @@
         ],
         "file": "proxies/altar_700.obj",
         "surface": true,
+        "air": true,
         "floor": 16,
-        "why": "altar (collision = a box): the fitted body + top plate of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       }
     ],
     "701": [
@@ -3180,8 +3186,9 @@
         ],
         "file": "proxies/altar_721.obj",
         "surface": true,
+        "air": true,
         "floor": 16,
-        "why": "altar (collision = a box): the fitted body + top plate of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       }
     ],
     "722": [
@@ -3432,8 +3439,9 @@
         ],
         "file": "proxies/lectern_736.obj",
         "surface": true,
+        "air": true,
         "floor": 0,
-        "why": "lectern (collision = a box): the fitted body + top plate of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "lectern (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "mesh",

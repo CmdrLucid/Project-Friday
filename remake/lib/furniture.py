@@ -90,16 +90,25 @@ def hexa(x0, x1, y0, y1, zb, zt):
 # ox / oy = plate overhang on the +x / +y side, t = plate thickness.
 # THE CHAPEL LECTERN ($2EF, 597 / 607 / 736, one cell, collision 16): 597 (27, 26) IoU 0.947 (the carved notch in its +x face is not in the silhouette);
 # the top really slopes (flat top: 0.912), rising towards +y
-LECTERN = dict(x0=1.5, x1=16.5, y0=2.5, y1=16.5, h=20.0, a=0.0, b=0.15, ox=0.0, oy=1.0, t=3.0)
+LECTERN = dict(x0=1.5, x1=16.5, y0=2.5, y1=16.5, h=20.0, a=0.0, b=0.15, ox=2.0, oy=1.0, t=5.5, ns=-1, nd=4.0, fz=4.0)
 # THE CHURCH ALTAR ($181 over $185, tileset 3: 613 614 699 700 721, cells x, y .. y + 1, collision 1 step): 613 (26, 27) IoU 0.970, flat top, the plate
 # overhangs 2 on +x and 4.5 on +y (the front end)
-ALTAR = dict(x0=3.5, x1=17.0, y0=2.0, y1=33.0, h=19.5, a=-0.05, b=0.0, ox=2.0, oy=4.5, t=2.5)
+ALTAR = dict(x0=3.5, x1=17.0, y0=2.0, y1=34.5, h=19.5, a=-0.05, b=0.0, ox=2.0, oy=3.0, t=3.0, ns=1, nd=4.0, fz=4.0)
+# THE NICHE (user 2026-11-10 on the outlines: 'die Pulte sind keine 4ecke, sondern haben hinten diesen Ausschnitt'): both have a knee niche at one end:
+# the end face is set back nd = 4 units from fz = 4 above the floor up to the plate, a foot stays below it.  Read from the drawn pixels (~/lktest/pult/grid_p.png /
+# grid_a.png: the recessed end edge 4 px in from the foot and the plate, the foot ledge 4 rows above the bottom corner); ns = which end (-1: the -y end =
+# lectern, +1: the +y end = altar); then the rest refitted with the niche fixed (~/lktest/pew/fitf.py: lectern 0.943 (0.929 without the niche, same window),
+# altar 0.969)
 
 def plated_box(cx, cy, floor, L):
     """box furniture L (LECTERN / ALTAR) at the cell (cx, cy) on `floor` (units): body up to the plate + the plate as (vertices, faces) meshes in world units"""
     X0, X1, Y0, Y1 = 16 * cx + L["x0"], 16 * cx + L["x1"], 16 * cy + L["y0"], 16 * cy + L["y1"]; xc, yc = (X0 + X1) / 2, (Y0 + Y1) / 2
     top = lambda x, y: floor + L["h"] + L["a"] * (x - xc) + L["b"] * (y - yc)
-    return [hexa(X0, X1, Y0, Y1, lambda x, y: floor, lambda x, y: top(x, y) - L["t"]), hexa(X0, X1 + L["ox"], Y0, Y1 + L["oy"], lambda x, y: top(x, y) - L["t"], top)]
+    under = lambda x, y: top(x, y) - L["t"]; flo = lambda x, y: floor; foot = lambda x, y: floor + L["fz"]
+    if L.get("nd", 0) <= 0: body = [hexa(X0, X1, Y0, Y1, flo, under)]
+    elif L["ns"] > 0: body = [hexa(X0, X1, Y0, Y1 - L["nd"], flo, under), hexa(X0, X1, Y1 - L["nd"], Y1, flo, foot)]   # niche at the +y end, the foot below it
+    else: body = [hexa(X0, X1, Y0 + L["nd"], Y1, flo, under), hexa(X0, X1, Y0, Y0 + L["nd"], flo, foot)]                  # niche at the -y end
+    return body + [hexa(X0, X1 + L["ox"], Y0, Y1 + L["oy"], under, top)]
 
 # THE ANGEL STATUE (chapel, tileset 8: on the 1 step platform $2EB / $2EC of 597 / 607 / 736, cell 27, 24; 2026-11-10 user 'baenke statue und pult'):
 # a winged figure = BODY lathe + WINGS as a thin plate. Body fitted by view rays to the drawn silhouette with the wing zone as don't care

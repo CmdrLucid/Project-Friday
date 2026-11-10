@@ -236,8 +236,8 @@ def main():
                 for k, t in enumerate(got):
                     (x, y) = t["cell"]; fn = "%s_%d.obj" % (kind, r) if k == 0 else "%s_%d_%d.obj" % (kind, r, k)
                     open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(furniture.plated_box(x, y, 16 * t["floor"], getattr(furniture, shape)), "%s, room %d" % (kind, r)))
-                    ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y + h]), ("file", "proxies/" + fn), ("surface", True), ("floor", 16 * t["floor"]),
-                        ("why", "%s (collision = a box): the fitted body + top plate of remake/lib/furniture.py %s, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'" % (kind, shape))]))
+                    ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y + h]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
+                        ("why", "%s (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py %s, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'" % (kind, shape))]))
                 data["rooms"][str(r)] = ops0; n += 1
         ang = angels(rom, r)
         for t in ang: print("room %d: angel statue cell %d,%d floor %d OK" % (r, t["cell"][0], t["cell"][1], t["floor"]))
