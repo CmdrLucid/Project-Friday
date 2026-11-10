@@ -220,3 +220,4 @@
 - L1751: Session 2026-11-09 late: outdoor shapes re-measured as surfaces, furniture on legs, AO under floating parts (Deck, Opus 5.5 + 1 Sonnet doc agent)
 - L1758: Session 2026-11-09 night: L bench, painted furniture shadows, table edges, vases, wide / tall fires, church band (Deck, Opus 5.5 + 1 Sonnet survey agent)
 - L1768: Session 2026-11-10: decoration shapes -> near-final remake geometry (Deck, Opus 5.5, no agents)
+- L1775: Session 2026-11-10 late: furniture on legs near-final, church angel sculpt (Deck, Opus 5.5, no agents)

@@ -43,7 +43,12 @@ FINAL = with material, approved by the user.
   wie rechts', option 1 of `wings_mirror.png`: mirror axis = the body axis y 444.5; the artist drew the left wing ~6 lower, so the game picture is
   no longer exact: IoU 0.848, 42 px outside = REMAKE MODEL ONLY, the light keeps CHURCH_ANGEL4), depth along the wall normal, feathers on both faces;
   HAIR not a bob ('die gehen im Sprite hinter die Statue'): from the parting over the crown, beside the face and back down behind the head / shoulders.
-  Next (user 2026-11-10): the FACE must look human ('das muss schon menschlich aussehen'); then the child's face and the arms.
+  v6..v7 metaball faces ('menschlich', 'weiblicher'): not good enough -> v8 OWN POLYGON HEAD (user choice over an AI generator): `head.py` = a grid
+  shaped by female head profiles (front / back / width per height, Catmull-Rom; face section a superellipse 2.6 at the eyes, 2.0 at the mouth) +
+  sculpt brushes (almond eyes with lids, sockets, high cheekbones, small straight nose, cupid's bow lips, round chin) + a HAIR SHELL that follows
+  the skull (hairline on a smooth curve, volume at the sides, fine strands); the metaball hair is gone except the panel down the back. v9 chin
+  rounder ('Kinn ist noch komisch'), v10 no 'Pausbacken' (narrower beside the mouth, cheekbones higher). User on v10: 'etwas besser, aber da
+  muessen wir spaeter nochmal ran'. Previews `sculpt_v6_face .. sculpt_v10_cheeks.png`. Next: the face again, then the child's face and the arms.
 - Open: 1 reddish pixel right of the robe foot in the lit picture (613).
 
 ## Chapel angel statue  (`furniture.ANGEL`, `angel(cx, cy, floor)`; ops by `angels()`)

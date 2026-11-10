@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-10 late END OF SESSION (dev, Opus 5.5):** all furniture on legs + lectern / altar near-final in the light (user OK on previews, not played); church angel sculpt v10 with an own polygon head (face: 'spaeter nochmal ran'). HANDOFF 0a385, NEXT -165.
 - **2026-11-10 (dev, Opus 5.5): CHURCH ANGEL SCULPT v5** (mirrored wings in the wall plane, hair down the back, diagonal child, spiral folds; remake model only, light unchanged). HANDOFF 0a384, NEXT -164 (human face).
 - **2026-11-10 (dev, Opus 5.5): CHURCH ANGEL SCULPT v1** (metaball body + feathered wing mesh, IoU 0.972; user: child in the arms, thinner neck, model the hair). HANDOFF 0a383, NEXT -163.
 - **2026-11-10 (dev, Opus 5.5): CASTLE TABLE near-final; all 40 furniture pieces on legs are near-final light meshes** (user 'passt' each; 96 / 670 checked headless). HANDOFF 0a382, NEXT -162 (chapel angel redo).
@@ -481,6 +482,7 @@ _Last update (2026-10-10, evening): dev merged into main (code_ranges, seeds for
 
 | Symptom | Root cause | Fix | DBG § |
 |---|---|---|---|
+| Bright carpet half rows right under a near-final table top in play (670, 2026-11-10, user) | the GPU model buffer rasterises the real triangles finer than a game pixel; the v2 top was grown 1 at the front and its bottom outer edge rounded, so it covered half carpet rows below the drawn edge band and lit them as the slab's side | furniture tops: bottom outer edge sharp, front faces exactly on the cell box (back +1 = the drawn outline), remake/lib/furniture.py MERCATOR_FINE / tray_top | DEBUGGING 'Session 2026-11-10 late' |
 | Stutter (77..124 ms) entering Mercator 632 after the file select, light 'fully loaded' late (2026-11-09) | the room / object models added model tests to every AO / march sample of every room (3x GPU per light block) + the first shadow map pass compiled a driver variant (27 ms) | uniform uHand gates per-sample tests, hand bit in texels already read, no side records for hand cells, shadow shader warm-up with the exact vertex state (user: 'viel besser beim Start') | Session 2026-11-08 night .. 2026-11-09 |
 | Indoor rooms lit with phantom trees (headless sweep, 2026-11-09) | lk_lt_tk / lathes only rebuilt outdoors; lk_lt_objbuild read the previous outdoor room's catalogue | object models outdoors only | Session 2026-11-08 night .. 2026-11-09 |
 | Dark 1 px lines along wall corners of hand models as surfaces (church 632, 2026-11-08) | shadow map PCF taps catch the neighbouring face | back face shadow maps (only light-averted triangles) | Session 2026-11-08 night .. 2026-11-09 |
