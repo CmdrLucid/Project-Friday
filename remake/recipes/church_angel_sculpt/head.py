@@ -18,7 +18,7 @@ def lin(tab, x):   # Catmull-Rom through the profile knots (smooth, no terraces)
 YF = g('prof_front', [(0.0, 0.0), (0.015, 0.14), (0.04, 0.24), (0.08, 0.29), (0.14, 0.30), (0.18, 0.35), (0.22, 0.36), (0.27, 0.345), (0.36, 0.345), (0.47, 0.345),
                       (0.55, 0.37), (0.62, 0.38), (0.72, 0.36), (0.82, 0.30), (0.92, 0.2), (0.97, 0.12), (0.995, 0.04), (1.0, 0.0)])
 YB = g('prof_back', [(0.0, 0.0), (0.06, -0.10), (0.18, -0.20), (0.3, -0.30), (0.42, -0.42), (0.55, -0.48), (0.7, -0.49), (0.85, -0.40), (0.95, -0.24), (0.985, -0.12), (1.0, 0.0)])
-WW = g('prof_width', [(0.0, 0.0), (0.02, 0.07), (0.05, 0.115), (0.12, 0.172), (0.22, 0.25), (0.34, 0.30), (0.48, 0.325), (0.62, 0.335), (0.78, 0.31), (0.9, 0.24), (0.97, 0.14), (0.995, 0.05), (1.0, 0.0)])
+WW = g('prof_width', [(0.0, 0.0), (0.02, 0.07), (0.05, 0.115), (0.12, 0.16), (0.22, 0.215), (0.34, 0.275), (0.48, 0.325), (0.62, 0.335), (0.78, 0.31), (0.9, 0.24), (0.97, 0.14), (0.995, 0.05), (1.0, 0.0)])
 PF = g('face_flat', 2.6)
 V = []
 for j in range(NV + 1):
@@ -26,8 +26,8 @@ for j in range(NV + 1):
     for i in range(NU):
         th = 2 * math.pi * i / NU; c, sn = math.cos(th), math.sin(th)            # th 0 = forward (+Y)
         w = lin(WW, Z)
-        if c >= 0:   # front half: superellipse |x/w|^p + |y/yf|^p = 1
-            e = 2.0 / PF; X = w * sn; Y = lin(YF, Z) * abs(c) ** e   # flatter face front; no power on X (a cusp = a crease down the middle)
+        if c >= 0:   # front half: superellipse |x/w|^p + |y/yf|^p = 1 (flatter at the eyes, rounder at the mouth / chin: no 'Pausbacken')
+            e = 2.0 / (2.0 + (PF - 2.0) * sm(0.2, 0.45, Z)); X = w * sn; Y = lin(YF, Z) * abs(c) ** e   # flatter face front; no power on X (a cusp = a crease down the middle)
         else: X = w * sn; Y = lin(YB, Z) * abs(c)
         L = math.hypot(sn, c); V.append([X, Y, Z, sn, c, 0.0])
 # normals for the brushes: from the shape (finite differences on the grid)
@@ -60,7 +60,9 @@ def pushy(c, r, h, aniso=(1, 1)):
         v[1] += h * gau(d2, r) * sm(0.05, 0.3, Y)
 S = g('h_feat', 1.0)
 for sg in (-1, 1):
-    push((sg * 0.2, 0.41), 0.07, 0.012 * S, aniso=(1.4, 1, 0.8))                     # high soft cheekbones
+    push((sg * 0.2, g('cheekbone_z', 0.46)), 0.07, g('cheekbone_h', 0.009) * S, aniso=(1.5, 1, 0.7))   # cheekbones, high
+    pushy((sg * g('cheek_x', 0.145), g('cheek_z', 0.37)), g('cheek_r', 0.075), g('cheek_h', 0.014) * S, aniso=(1.0, 0.9))   # full round cheeks (the 'apples') under and outside the eyes
+    pushy((sg * 0.075, 0.32), 0.04, g('nasolabial', -0.003) * S, aniso=(0.7, 1.4))   # a soft dip beside the nose wing (no hard fold)
     pushy((sg * 0.125, 0.497), 0.046, -0.05 * S, aniso=(1.4, 0.75))                 # eye socket
     pushy((sg * 0.125, 0.494), 0.033, 0.034 * S, aniso=(1.6, 0.68))                 # the eyeball (almond)
     for k3 in range(7):                                                               # upper lid: an almond arc, a crisp edge
@@ -107,7 +109,7 @@ for j in range(NV + 1):
 def base_pt(Z, th):   # the base head surface at height Z, angle th (as the grid) + its outward normal (finite differences)
     def P(Z, th):
         w = lin(WW, Z); c, sn = math.cos(th), math.sin(th)
-        if c >= 0: e = 2.0 / PF; return (w * sn, lin(YF, Z) * abs(c) ** e, Z)
+        if c >= 0: e = 2.0 / (2.0 + (PF - 2.0) * sm(0.2, 0.45, Z)); return (w * sn, lin(YF, Z) * abs(c) ** e, Z)
         return (w * sn, lin(YB, Z) * abs(c), Z)
     p = P(Z, th); a = P(Z, th + 1e-3); b = P(Z, th - 1e-3); u = P(min(1.0, Z + 1e-3), th); d = P(max(0.0, Z - 1e-3), th)
     tx = [a[k] - b[k] for k in range(3)]; tz = [u[k] - d[k] for k in range(3)]
