@@ -131,10 +131,15 @@ FINAL = with material, approved by the user.
   16 / 18 equal). IoU 0.891 (old boxes 0.875; misses = the black outline line under the front edge, as the old boxes). Clay preview
   `~/.landstalker_remake/assets/benches/clay_all.png`. In-game 623 / 691 before / after: no strips, near identical.
 
-## Castle tables (the Mercator table, benches, side table, L bench: own entries above)  (`furniture.MERCATOR_TABLE / CASTLE_TABLE`, `table()`, `top_on_legs()`, `l_bench()`; ops by `tables()`)
-- Game: tileset 2 Mercator tables / benches / side tables (top blocks $030 $04A $04C $04D $06E $06A $0A3 $18A $312..$314) and tileset 1 castle tables
-  ($114 back corner ...): 40 pieces in 32 rooms (HANDOFF 0a360); L bench 623 624 701 702 (0a361); side tables 691 692 713 714.
-- Reference: Mercator table room 670 (HANDOFF 0a360 / 0a362: top thickness 3 = the drawn edge band), castle table room 96 (3 x 3 cells, gold rim, thickness 8),
-  L bench room 623 (legs measured on the olive leg colours, `~/lktest/bench/legs.py`).
-- The painted shadows under them are replaced at runtime (LK_GLUNPAINT, `UNPAINT_TILES`).
-- State: LIGHT (boxes + legs). TODO near-final: leg shapes as drawn (turned / curved), plank lines, rims.
+## Castle table  (`furniture.CASTLE_FINE`, near-final `castle_table_mesh(x0, y0, x1, y1, floor, top, thick)`; ops by `tables()` for tileset 1)
+- Game: tileset 1, top block $114 at the back corner: 3 x 3 in 96 97 103 708 710, 3 x 2 in 88 89; walkable 1 step.
+- Reference: room 96 cells 20..22 x 21..23 (x 320..368, y 336..384), top 16; window U0 1110 V0 296 112 x 100 (`~/lktest/ctable/w96`). Drawing: nearly
+  POINTED corners, thick top whose side shows gold / olive / dark bands (= paint), dark red field (paint), short CURVED legs (6 px wide at the top, a
+  narrow ankle 4, the foot 6 turned out). Layer A also holds the painted shadow under the table: the mask drops carpet colours and shadow red next to
+  carpet (`~/lktest/ctable/chk.py`).
+- State: NEAR-FINAL v1 (2026-11-10, USER OK 'passt'): flat slab thickness 8 (from 0a362), corner radius 1.5 (0.75 left a column outside at the side
+  corners), top edges rounded 0.75, bottom edge sharp, back +1, fronts on the cells; legs = `ring_stack` (rings with own centres: top r 2.7, ankle 1.7,
+  foot 2.6 shifted 1.3 out towards the corner), back / front legs 2.5 in from the corner, the two side legs 4 in along x / 1 along y (mirrored; fitted on
+  the drawn feet). IoU 0.915 (old boxes 0.883; 24 px outside at the feet; most misses = the dais step below). Clay preview
+  `~/.landstalker_remake/assets/castle_table/clay_all.png`. Material later (gold rim + bands, dark red inlay, olive legs).
+- All pieces on legs: the painted shadows under them are replaced at runtime (LK_GLUNPAINT, `furniture_ops.UNPAINT_TILES`, tileset 2 only).

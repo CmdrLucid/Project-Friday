@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-10 (dev, Opus 5.5): CASTLE TABLE near-final; all 40 furniture pieces on legs are near-final light meshes** (user 'passt' each; 96 / 670 checked headless). HANDOFF 0a382, NEXT -162 (chapel angel redo).
 - **2026-11-10 (dev, Opus 5.5): Mercator BENCH / SIDE TABLE / L BENCH near-final** (user 'passt'; table v3 = sharp bottom edge after the user's carpet strip report). HANDOFF 0a380 / 0a381; next the castle table.
 - **2026-11-10 (dev, Opus 5.5): MERCATOR TABLE NEAR-FINAL v2** (flat rounded slab, round legs, IoU 0.999 on 670; user OK on clay previews; light switched for 21 tables, 670 / 722 checked headless). HANDOFF 0a379, NEXT -161 (benches, side table, L bench, castle table).
 - **2026-11-10 (dev, Opus 5.5): LECTERN + ALTAR NEAR-FINAL v2** (rounded slab, rounded knee cove along the whole back side, user-checked on clay previews; light ops switched, 613 checked headless). HANDOFF 0a378, NEXT -160 (tables / benches).
