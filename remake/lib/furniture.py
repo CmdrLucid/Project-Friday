@@ -336,11 +336,11 @@ def tube(pts, radii, seg=10):
 # fitted outline (Catmull-Rom through the knots), an OPEN bowl on top (grey, inner radius 5.3, 2.5 deep) and its PRONGS as drawn (window rows 48..60 of the
 # short reference): two tall curved prongs left / right of the flame (screen offset ~5.5 px, rising ~11 above the rim) + two more behind them, and a short
 # leaf on each side pointing outwards along the screen axis (offset ~9..11 px, ~4 above the rim). The flame itself is light / paint, no geometry.
-BRAZIER_PRONGS = dict(rim_rel=18.0, rim=6.0, claws=[45.0, 135.0, 225.0, 315.0], out=4.5, h=6.5, th=1.3, bend=2.8, flare=1)
-# v3 (user: 'eher so, wie du beschreibst - ausserdem sind es nur 4, du hast jetzt 6', then '1' = four EQUAL claws like a real crown): four identical
-# claws on the diagonals (90 degrees apart), each a TULIP curve: up first, then flaring out (radius r0 + out t^bend, height h (1 - (1 - t)^bend)), pointed.
-# Seen from the game camera the front pair reads as the tall prongs left / right of the flame and the back pair as the side claws. Grid fit on the projection
-# with a fixed mask window (~/lktest/braz/gridc6.py): IoU 0.940 short (unequal claws reached 0.956 but looked wrong from other sides; hooks 'out then up' 0.918).
+BRAZIER_PRONGS = dict(rim_rel=18.0, rim=6.0, claws=[45.0, 135.0, 225.0, 315.0], shaft=1, L=8.0, lean=8.0, hook_frac=0.4, hook=75.0, th=1.3, taper=3.0)
+# v4 (user: 'nicht so abrupt abgeknickt ... eigentlich ist die Zacke fast gerade und nur der Haken am Ende macht die Kurve'): four EQUAL claws on the diagonals
+# (45 / 135 / 225 / 315 deg from the screen-right axis), each a nearly straight shaft L 8 leaning out 8 deg, only its last 40 % bends outwards on a smooth arc
+# by 75 deg (the hook); base radius 1.3, thick until the hook, then a point (taper exponent 3).  The front pair reads as the tall prongs beside the flame, the back pair as the side claws.
+# Projection IoU 0.928 short (grid ~/lktest/braz/gridc7.py: the straight-shaft family tops out at 0.928; the tulip v3 was 0.934 but bent too early).
 
 def brazier_mesh(ax, ay, floor, steps, SPL=False):
     import math
@@ -352,13 +352,21 @@ def brazier_mesh(ax, ay, floor, steps, SPL=False):
         return (ax + (s_ + f_) / SQ, ay + (f_ - s_) / SQ, floor + z)
     rr = BP["rim"] - 0.45
     for c in BP["claws"]:   # hook: outwards first, then up, pointed; c = angle or (angle, out, h)
-        ang, out, h = (c, BP["out"], BP["h"]) if not isinstance(c, (tuple, list)) else c
+        ang, out, h = (c, BP.get("out", 0.0), BP.get("h", 0.0)) if not isinstance(c, (tuple, list)) else c
         pts = []; NP = 17
         for k in range(NP):
             t = k / (NP - 1.0)
-            if BP.get("flare"): pts.append(at(ang, rr + out * t ** BP["bend"], top - 0.3 + h * (1.0 - (1.0 - t) ** BP["bend"])))   # up first, then out (tulip)
+            if BP.get("shaft"):   # v4: a nearly STRAIGHT shaft leaning out by `lean` degrees, only the last `hook_frac` of its length turns out by `hook` degrees
+                L = BP["L"]; sL = t * L; ls = (1.0 - BP["hook_frac"]) * L; a0 = math.radians(BP["lean"])
+                if sL <= ls: dr, dz = sL * math.sin(a0), sL * math.cos(a0)
+                else:
+                    u = (sL - ls) / (L - ls); turn = math.radians(BP["hook"]); Rk = (L - ls) / turn   # an arc: the direction turns smoothly (no kink)
+                    th_ = a0 + turn * u
+                    dr = ls * math.sin(a0) + Rk * (math.cos(a0) - math.cos(th_)); dz = ls * math.cos(a0) + Rk * (math.sin(th_) - math.sin(a0))
+                pts.append(at(ang, rr + dr, top - 0.3 + dz))
+            elif BP.get("flare"): pts.append(at(ang, rr + out * t ** BP["bend"], top - 0.3 + h * (1.0 - (1.0 - t) ** BP["bend"])))   # up first, then out (tulip)
             else: pts.append(at(ang, rr + out * (1.0 - (1.0 - t) ** BP["bend"]), top - 0.3 + h * t ** BP["bend"]))                # out first, then up (hook)
-        th = BP["th"]; meshes.append(tube(pts, [max(0.08, th * (1.0 - (k / (NP - 1.0)) ** 1.6)) for k in range(NP)], seg=12))
+        th = BP["th"]; meshes.append(tube(pts, [max(0.08, th * (1.0 - (k / (NP - 1.0)) ** BP.get("taper", 1.6))) for k in range(NP)], seg=12))
     return meshes
 
 # NEAR-FINAL VASE (reference room 670 (18, 24) / (18, 25), remake/MODELS.md): the drawing shows an OPEN mouth (dark inside, lip ring ~18 px wide -> outer
