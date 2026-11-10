@@ -33,11 +33,17 @@ FINAL = with material, approved by the user.
 - State: LIGHT (v5, 2026-11-10). Near-final try with relief from the drawing's shading (`~/lktest/angel3/fine.py`, clay previews
   `~/lktest/angel3/clay_all.png`) = NOT good enough (lumpy, flat wings). TODO near-final: model from parts (head + hair + face, torso, two arms holding
   the swaddled child, bell robe with spiral folds, wings attached at the shoulder blades, cupped, feather rows), keep the silhouette exact.
-- NEAR-FINAL SCULPT in progress (2026-11-10, `remake/recipes/church_angel_sculpt/`): body = metaballs (robe on the measured rings, fold grooves, torso,
-  arms, child, veiled head) kept inside a smoothed drawing outline; wings = own clean mesh (feather rows, cup, joined behind the body, all depth along the
-  view ray). v1 preview `~/.landstalker_remake/assets/church_angel/sculpt_v1.png`, projection IoU 0.972 (1 px outside). User on v1: the chest object is
-  unclear in the drawing, 'ich tendiere zum Kind' (swaddled child; else crossed arms); neck / head transition too thick; HAIR must be modelled as in the
-  sprite. Own notes: folds too weak, the wing join behind the body reads as a cape from behind (limit it to shoulder height). Light still uses v5.
+- NEAR-FINAL SCULPT in progress (2026-11-10, `remake/recipes/church_angel_sculpt/`, README there): body = metaballs (robe on the measured rings with
+  smooth spiral folds, torso, arms, child, head, hair, face) kept inside a smoothed drawing outline (post.py); wings = own clean mesh (wing.py).
+  Versions / user decisions (previews `~/.landstalker_remake/assets/church_angel/sculpt_v1..v5.png`):
+  v1 first blockout; v2 'Kind' (swaddled child, the drawn chest ring = the cloth around its face), thin neck, 'Haare wie im Sprite';
+  v3 child held DIAGONALLY ('schraeg gehalten'), robe folds, face; v4 'orientier dich am Sprite' (read the head on the 1 px grid), right wing fixed
+  ('schlechter': cliff at the root, sharp row steps, rectangular notch from cutting the join at a row, floating wing -> fade-in, smooth steps, stem
+  behind the body to the shoulder); v5: WINGS MIRRORED in the wall plane at the same height (user 'gespiegelt und parallel zur Wand, links gleich
+  wie rechts', option 1 of `wings_mirror.png`: mirror axis = the body axis y 444.5; the artist drew the left wing ~6 lower, so the game picture is
+  no longer exact: IoU 0.848, 42 px outside = REMAKE MODEL ONLY, the light keeps CHURCH_ANGEL4), depth along the wall normal, feathers on both faces;
+  HAIR not a bob ('die gehen im Sprite hinter die Statue'): from the parting over the crown, beside the face and back down behind the head / shoulders.
+  Next (user 2026-11-10): the FACE must look human ('das muss schon menschlich aussehen'); then the child's face and the arms.
 - Open: 1 reddish pixel right of the robe foot in the lit picture (613).
 
 ## Chapel angel statue  (`furniture.ANGEL`, `angel(cx, cy, floor)`; ops by `angels()`)

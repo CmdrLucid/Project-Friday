@@ -63,6 +63,14 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
   offset (thickness, relief, cup) ALONG THE VIEW RAY (1, 1, 1): a thickness along the plane normal widens the game picture. Join wings behind the body or
   they float.
 
+- A drawn figure need not be symmetric (church angel: the left wing ~6 lower than the mirrored right one). When the user wants a symmetric real object,
+  measure the mismatch first and show it (overlay: covered / hidden behind the body / missed), then let the user choose; a symmetric remake model can
+  leave the game picture, the LIGHT then keeps the exact shape (2026-11-10).
+- Thin parts mirrored in 3D need their depth offsets along the PLANE NORMAL; offsets along the view ray keep the picture but make a mirrored pair look
+  different from any other side (2026-11-10).
+- Read the figure's small parts on the 1 px grid before modelling them and ask when unclear (hair: first long locks, then a bob, user: the hair goes
+  BEHIND the statue) (2026-11-10).
+
 ## 4. Light side effects (every model is also a light shape)
 - A shape under or next to a FLAME moves the flame light (its position comes from the view ray of the flame's picture centre): check the light list
   (LANDSTALKER_LIGHTING_DBG=1) before / after. Stands carry their flame (`carrier` data: light on the axis above the bowl, no self shadow).
