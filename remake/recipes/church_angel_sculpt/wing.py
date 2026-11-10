@@ -8,8 +8,16 @@ A = F.CHURCH_ANGEL4; AX, AY = A['axis']; XW = A['wing_x']; AU = AX - AY + 1184.0
 mask = {tuple(p) for p in json.load(open('/home/deck/lktest/angel3/mask.json'))}
 wing = {(int(math.floor(AU + du)) - U0, V0p + v - V0) for du, v in A['wing']}   # window pixel coords
 vtop = max(v for u, v in wing)
-region = wing | {p for p in mask if p[1] <= g('join_v', 64)}
-S = 4; SIG = g('wsig', 0.7)
+near = {p for p in mask if p[1] <= g('join_v', 70) and any((p[0] + a, p[1] + b) in wing for a in range(-g('join_d', 3), g('join_d', 3) + 1) for b in range(-2, 3))}
+region = wing | near   # the wings join the back only near their roots (v3's straight cut at a row made a rectangular notch, user: 'schlechter')
+# each wing continues BEHIND the body down to the shoulder (the drawing hides its lower part behind the head / body): a stem below its root
+def _root(side):
+    px = [p for p in wing if (p[0] + U0 + 0.5 - AU < 0) == (side < 0)]; vm = sum(p[1] for p in px) / len(px)
+    return min(px, key=lambda p: abs(p[0] + U0 + 0.5 - AU) + 0.3 * abs(p[1] - vm))
+for sd in (-1, 1):
+    ru_, rv_ = _root(sd)
+    region |= {p for p in mask if abs(p[0] - ru_) <= g('stem_w', 3) and rv_ <= p[1] <= g('shoulder_v', 66)}
+S = g('wgrid', 6); SIG = g('wsig', 0.7)
 us = [p[0] for p in region]; vs = [p[1] for p in region]; gu0, gv0 = min(us) - 3, min(vs) - 3; GW, GH = (max(us) - gu0 + 7) * S, (max(vs) - gv0 + 7) * S
 base = [[1.0 if (gu0 + i // S, gv0 + j // S) in region else 0.0 for i in range(GW)] for j in range(GH)]
 R = int(3 * SIG * S) + 1; ker = [math.exp(-0.5 * (k / (SIG * S)) ** 2) for k in range(-R, R + 1)]; ks = sum(ker); ker = [k / ks for k in ker]
@@ -36,11 +44,12 @@ def root(side):
 RT = {-1: root(-1), 1: root(1)}; AXC = AU - U0
 def relief(cu, cv):
     side = -1 if cu < AXC else 1; ru, rv = RT[side]; dx, dy = cu - ru, cv - rv; rr = math.hypot(dx, dy); th = math.atan2(dy, dx)
-    if (cu - AXC) * side < 1.0: return 0.0, rr   # behind the body: plain
-    nb = g('fan', 0.17); ph = (th / nb) % 1.0; ridge = math.sin(math.pi * ph) ** 0.6   # rounded feather ridge across each band
-    rows = g('rows', [0.38, 0.66]); Lmax = g('Lmax', 26.0); row = sum(1 for r0 in rows if rr > r0 * Lmax)
-    stagger = (th / nb + 0.5 * row) % 1.0; ridge = math.sin(math.pi * stagger) ** 0.6
-    return g('feather_h', 0.35) * ridge - g('row_step', 0.25) * row, rr
+    fade = max(0.0, min(1.0, ((cu - AXC) * side - 2.0) / 4.0))   # the feathers fade in away from the body (no cliff at the root)
+    nb = g('fan', 0.17); rows = g('rows', [0.38, 0.66]); Lmax = g('Lmax', 26.0)
+    sm = lambda x: 0.0 if x <= 0 else 1.0 if x >= 1 else x * x * (3 - 2 * x)
+    row = sum(sm((rr - r0 * Lmax) / 1.2 + 0.5) for r0 in rows)               # smooth step between the feather rows
+    stagger = (th / nb + 0.5 * row) % 1.0; ridge = math.sin(math.pi * stagger) ** g('ridge_pow', 1.0)
+    return fade * (g('feather_h', 0.35) * ridge - g('row_step', 0.25) * row), rr
 def thick(d): return min(g('wing_t', 1.3), 0.03 + d * 0.55 / S) if d > 0 else 0.0
 verts = []; idx = {}
 def vid(i, j, side):
