@@ -46,7 +46,7 @@ import os, sys
 root = sys.argv[1]
 VER = "LK_LIGHTS v8"
 import json
-CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4), "box": (8, 5), "slab": (9, 6), "carve": (10, 4), "unpaint": (11, 4)}
+CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4), "box": (8, 5), "slab": (9, 6), "carve": (10, 4), "unpaint": (11, 4), "ground": (12, 5)}   # ground (LK_LTGROUND v1): cells x0 y0 x1 y1 + height: VOID cells of the game's height map that are drawn as solid (church statue pedestal) get this height
 def mesh_cells(path):   # an OBJ (game coordinates) -> {(sx, sy): (top, bottom)} on the 4 unit grid of the light field (sub column centres), max / min over all faces (v9: the bottom for slabs)
     vs, top, bot = [], {}, {}
     for line in open(path):
@@ -1633,6 +1633,11 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       if (lk_lt_dbg == 5 && nu) printf("water: room %%d, %%d painted cells raised to the game's water\n", lk_o_room, nu); }
     { int q; for (q = 0; lk_lt_corr[q].room >= 0; q++) if (lk_lt_corr[q].room == lk_o_room && lk_lt_corr[q].op == 2) { const int16_t *a = lk_lt_corr[q].a;   /* data: water */
         for (y = a[1]; y <= a[3]; y++) for (x = a[0]; x <= a[2]; x++) if (x >= 0 && y >= 0 && x < 74 && y < 74) { lk_lt_top[y][x] = a[4]; lk_lt_wat[y][x] = 1; nw++; } } }
+    { static int go = -1; int q; if (go < 0) { const char *e = getenv("LANDSTALKER_LT_GROUND"); go = e ? atoi(e) != 0 : 1; }   /* LK_LTGROUND v1 (user 2026-11-10 'Sockel und Statuen in den Kirchen'):
+         the church statue's pedestal stands in cells the game leaves VOID (not walkable): the light saw a wall up to the room top there; data op "ground" gives them their drawn height.
+         Only void cells change (the game's own cells stay); test aid LANDSTALKER_LT_GROUND=0 = old */
+      if (go) for (q = 0; lk_lt_corr[q].room >= 0; q++) if (lk_lt_corr[q].room == lk_o_room && lk_lt_corr[q].op == 12) { const int16_t *a = lk_lt_corr[q].a;
+        for (y = a[1]; y <= a[3]; y++) for (x = a[0]; x <= a[2]; x++) if (x >= 0 && y >= 0 && x < 74 && y < 74 && lk_lt_top[y][x] == -32768) { lk_lt_top[y][x] = a[4]; if (a[4] > lk_lt_zmax) lk_lt_zmax = a[4]; } } }
     if ((lk_lt_sun || lk_lt_aor) && !(getenv("LANDSTALKER_LT_DOORFILL") && atoi(getenv("LANDSTALKER_LT_DOORFILL")) == 0)) { static int16_t dn[74][74]; int nd = 0, ax;   /* 2026-11-07 DOOR NICHES outdoors (user rec_20261107_1822,
          room 635: 'das Haus hat einen harten Kanten Schatten ueber der Tuere'): a door is a 1..3 cell niche in the height map that runs up the WHOLE wall (cell 23,31 height 16 in a wall of 112),
          so the wall above the door was a deep slot shaded by its sides = a dark band with hard edges.  Our copy: the niche is filled up to the wall (the door sits flush); test aid LANDSTALKER_LT_DOORFILL=0 */

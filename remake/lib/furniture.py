@@ -118,6 +118,17 @@ def plated_box(cx, cy, floor, L):
 ANGEL = dict(dx=3.5, dy=3.5, back=6.0, prof=[(0.0, 5.7), (2.0, 5.45), (4.0, 4.99), (6.0, 4.74), (8.0, 4.99), (10.0, 4.74), (12.0, 4.49), (14.0, 4.24), (16.0, 4.6), (18.0, 4.95), (20.0, 6.01), (22.0, 7.03), (24.0, 5.66), (26.0, 5.66), (28.0, 5.66), (30.0, 5.66), (32.0, 5.66), (34.0, 5.66), (36.0, 5.66), (38.0, 5.66), (40.0, 5.55), (42.0, 7.05), (44.0, 3.6), (46.0, 0.77), (48.0, 0.5), (48.5, 0.71)],
              wing=[(47.5, -9.0, -6.0), (46.5, -12.0, -5.0), (45.5, -20.0, -4.0), (44.5, -21.0, -4.0), (43.5, -21.0, -6.0), (42.5, -20.0, -8.0), (41.5, -20.0, -8.0), (40.5, -20.0, -8.0), (39.5, -19.0, -8.0), (38.5, -18.0, -8.0), (37.5, -18.0, -8.0), (37.5, 13.0, 16.0), (36.5, -17.0, -8.0), (36.5, 12.0, 16.0), (35.5, -17.0, -8.0), (35.5, 10.0, 16.0), (34.5, -16.0, -8.0), (34.5, 8.0, 16.0), (33.5, -16.0, -8.0), (33.5, 8.0, 16.0), (32.5, -15.0, -8.0), (32.5, 8.0, 16.0), (31.5, -14.0, -8.0), (31.5, 8.0, 16.0), (30.5, -14.0, -8.0), (30.5, 8.0, 16.0), (29.5, -13.0, -8.0), (29.5, 8.0, 16.0), (28.5, -12.0, -8.0), (28.5, 8.0, 16.0), (27.5, -11.0, -8.0), (27.5, 8.0, 16.0), (26.5, -10.0, -8.0), (26.5, 8.0, 16.0), (25.5, -10.0, -8.0), (25.5, 8.0, 16.0), (24.5, -10.0, -8.0), (24.5, 8.0, 16.0), (23.5, -10.0, -8.0), (23.5, 8.0, 16.0), (22.5, -9.0, -8.0), (22.5, 8.0, 16.0), (21.5, -9.0, -8.0), (21.5, 8.0, 16.0), (20.5, 8.0, 16.0), (19.5, 10.0, 16.0), (18.5, 10.0, 16.0), (17.5, 9.0, 12.0)])   # wing rows: (top height, picture offset left, right of the axis (U units))
 
+# THE CHURCH ANGEL STATUE (tileset 3: 613 614 699 700 721, pixel-identical there; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'): stands in a NICHE of
+# the -x wall on a 2 x 2 cell pedestal (cells 22..23 x 27..28, 16 high on the dais floor 16; its front face flush with the wall line x = 384, read from the
+# drawn rim / bottom corners, ~/lktest/cangel/pov.png) that the game's height map leaves VOID (the light saw a wall up to the room top there) -> data op
+# "ground" (LK_LTGROUND v1) gives those cells height 32.  The statue is NOT the chapel drawing (17 % of the pixels equal): axis fixed from its foot point on
+# the red top (picture U 1109.75 V 377.5 -> the front of a base of radius ~6 -> axis (368.5, 442.5) = the pedestal centre). v2 after the user's marks
+# ('an den markierten Stellen bist du drueber und den Standfuss hast du ausgelassen'): the body may NEVER stick out of the drawing (score = covered - 12 x outside,
+# grown from thin rings, radius <= 7.5 = robe / torso, ~/lktest/cangel/fitg.py), all rows down to the pedestal top (the foot); the wings = what the body leaves
+# (rows above the robe foot, left of the robe to the wing tip); together IoU 0.927 with 0 pixels outside the drawing (~/lktest/cangel/ov.png)
+CHURCH_ANGEL = dict(dx=8.5, dy=2.5, back=6.0, prof=[(0.0, 6.75), (2.0, 7.25), (4.0, 4.75), (6.0, 5.75), (8.0, 5.75), (10.0, 5.75), (12.0, 5.25), (14.0, 4.75), (16.0, 6.75), (18.0, 7.5), (20.0, 7.5), (22.0, 7.5), (24.0, 7.5), (26.0, 7.5), (28.0, 7.5), (30.0, 6.75), (32.0, 4.75), (34.0, 4.75), (36.0, 3.5), (38.0, 1.0), (40.0, 0.3), (42.0, 0.3), (44.0, 0.3)],
+                    wing=[(41.5, 8.0, 11.0), (40.5, 7.0, 14.0), (39.5, 6.0, 22.0), (38.5, 6.0, 23.0), (37.5, 5.0, 23.0), (36.5, 1.0, 3.0), (36.5, 5.0, 22.0), (35.5, 3.0, 22.0), (34.5, 5.0, 22.0), (33.5, 6.0, 21.0), (32.5, 6.0, 22.0), (31.5, -15.0, -11.0), (31.5, 7.0, 23.0), (30.5, -17.0, -10.0), (30.5, 7.0, 23.0), (29.5, -18.0, -9.0), (29.5, 9.0, 22.0), (28.5, -19.0, -9.0), (28.5, 9.0, 21.0), (27.5, -20.0, -10.0), (27.5, 10.0, 21.0), (26.5, -22.0, -10.0), (26.5, 10.0, 20.0), (25.5, -24.0, -11.0), (25.5, 11.0, 21.0), (24.5, -27.0, -11.0), (24.5, 11.0, 20.0), (23.5, -28.0, -11.0), (23.5, 11.0, 18.0), (22.5, -29.0, -11.0), (22.5, 11.0, 18.0), (21.5, -28.0, -11.0), (21.5, 11.0, 16.0), (20.5, -26.0, -11.0), (20.5, 11.0, 16.0), (19.5, -24.0, -11.0), (19.5, 11.0, 15.0), (18.5, -22.0, -11.0), (18.5, 11.0, 15.0), (17.5, -22.0, -11.0), (17.5, 11.0, 13.0), (16.5, -22.0, -11.0), (16.5, 11.0, 14.0), (15.5, -22.0, -11.0), (15.5, 11.0, 12.0), (14.5, -22.0, -10.0), (14.5, 10.0, 11.0), (14.5, 12.0, 13.0), (13.5, -22.0, -10.0), (12.5, -22.0, -9.0), (11.5, -22.0, -9.0), (10.5, -22.0, -9.0), (9.5, -21.0, -9.0), (8.5, -19.0, -9.0), (7.5, -17.0, -16.0), (7.5, -14.0, -12.0), (7.5, -11.0, -9.0), (6.5, -11.0, -10.0), (5.5, -10.0, -9.0)])
+
 def box8(v):
     """8 corners (bottom 4 then top 4, same order) -> (vertices, outward quads)"""
     f = [(0, 3, 2, 1), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
@@ -128,9 +139,9 @@ def box8(v):
         out.append(q if sum(n[i] * fc[i] for i in range(3)) > 0 else tuple(reversed(q)))
     return list(v), out
 
-def angel(cx, cy, floor):
-    """the angel statue of the cell (cx, cy) standing on `floor` (units): [body lathe, wing row plates ...] in world units"""
-    A = ANGEL; ax, ay = 16 * cx + 8 + A["dx"], 16 * cy + 8 + A["dy"]; top = A["prof"][-1][0]
+def angel(cx, cy, floor, A=None):
+    """an angel statue (A = ANGEL / CHURCH_ANGEL) of the cell (cx, cy) standing on `floor` (units): [body lathe, wing row plates ...] in world units"""
+    A = A or ANGEL; ax, ay = 16 * cx + 8 + A["dx"], 16 * cy + 8 + A["dy"]; top = A["prof"][-1][0]
     out = [lathe(ax, ay, floor, top, [(z / top, r) for z, r in A["prof"]])]
     S = ax + ay - A["back"]; Dax = ax - ay
     for zt, dl, dr in A["wing"]:

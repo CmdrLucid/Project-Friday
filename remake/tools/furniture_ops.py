@@ -183,6 +183,17 @@ def angels(rom, room):
     if blockcat.tileset(rom, room) != 8: return []
     return [dict(cell=(x, y), floor=v[0]) for (x, y), v in sorted(blockcat.cells(rom, room).items()) if v[2] == 0x2EB and v[1] and v[0] >= 1]
 
+def church_angels(rom, room):
+    """the church angel statue in its wall niche (tileset 3): the picture of the statue + pedestal window equal to the one of 613 (>= 95 %% of the pixels;
+    613 614 699 700 721 are pixel-identical there) and the pedestal cells 22..23 x 27..28 void in the height map -> the pedestal (op "ground", height 32)
+    + the statue (furniture.CHURCH_ANGEL on the pedestal's corner cell 22, 27)"""
+    if blockcat.tileset(rom, room) != 3: return []
+    a = blockcat.arrays(rom, room)
+    if not a or any(a["HM"].get((x - 12, y - 12)) != 0x4000 for x in (22, 23) for y in (27, 28)): return []
+    ref, pic = _picture(613), _picture(room)
+    same = sum(1 for v in range(320, 400) for u in range(1064, 1150) if ref[3][v][u * 3:u * 3 + 3] == pic[3][v][u * 3:u * 3 + 3])
+    return [dict(cell=(22, 27), floor=2)] if same >= 0.95 * 80 * 86 else []
+
 def lathe_obj(meshes, title):
     """[(vertices, faces), ..] -> OBJ text"""
     s = "# light proxy: %s (remake/tools/furniture_ops.py, remake/lib/furniture.py). GAME coordinates x east, y south, z up, world units.\n" % title
@@ -248,6 +259,17 @@ def main():
                 open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(furniture.angel(x, y, 16 * t["floor"]), "angel statue, room %d" % r))
                 ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
                     ("why", "angel statue on its platform (collision = the platform only): body lathe + wing plate of remake/lib/furniture.py ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'")]))
+            data["rooms"][str(r)] = ops0; n += 1
+        cang = church_angels(rom, r)
+        for t in cang: print("room %d: church angel statue + pedestal cells 22..23 x 27..28 OK" % r)
+        if write and cang:
+            ops0 = [e for e in data["rooms"].get(str(r), []) if not ((e.get("op") == "mesh" and e.get("file", "").startswith("proxies/church_angel_")) or e.get("op") == "ground")]
+            fn = "church_angel_%d.obj" % r
+            open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(furniture.angel(22, 27, 32, furniture.CHURCH_ANGEL), "church angel statue, room %d" % r))
+            ops0.append(collections.OrderedDict([("op", "ground"), ("cells", [22, 27, 23, 28, 32]),
+                ("why", "the statue's pedestal in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')")]))
+            ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [22, 27, 23, 28]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 32),
+                ("why", "church angel statue on its pedestal: body lathe + wing plate of remake/lib/furniture.py CHURCH_ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'")]))
             data["rooms"][str(r)] = ops0; n += 1
         for kind, K in ROUND.items():
             found = round_found(rom, r, kind)

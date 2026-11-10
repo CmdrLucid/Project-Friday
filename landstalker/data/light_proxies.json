@@ -2200,6 +2200,31 @@
         "air": true,
         "floor": 16,
         "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          22,
+          27,
+          23,
+          28,
+          32
+        ],
+        "why": "the statue's pedestal in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          27,
+          23,
+          28
+        ],
+        "file": "proxies/church_angel_613.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "church angel statue on its pedestal: body lathe + wing plate of remake/lib/furniture.py CHURCH_ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
       }
     ],
     "614": [
@@ -2216,6 +2241,31 @@
         "air": true,
         "floor": 16,
         "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          22,
+          27,
+          23,
+          28,
+          32
+        ],
+        "why": "the statue's pedestal in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          27,
+          23,
+          28
+        ],
+        "file": "proxies/church_angel_614.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "church angel statue on its pedestal: body lathe + wing plate of remake/lib/furniture.py CHURCH_ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
       }
     ],
     "620": [
@@ -2885,6 +2935,31 @@
         "air": true,
         "floor": 16,
         "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          22,
+          27,
+          23,
+          28,
+          32
+        ],
+        "why": "the statue's pedestal in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          27,
+          23,
+          28
+        ],
+        "file": "proxies/church_angel_699.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "church angel statue on its pedestal: body lathe + wing plate of remake/lib/furniture.py CHURCH_ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
       }
     ],
     "700": [
@@ -2901,6 +2976,31 @@
         "air": true,
         "floor": 16,
         "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          22,
+          27,
+          23,
+          28,
+          32
+        ],
+        "why": "the statue's pedestal in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          27,
+          23,
+          28
+        ],
+        "file": "proxies/church_angel_700.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "church angel statue on its pedestal: body lathe + wing plate of remake/lib/furniture.py CHURCH_ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
       }
     ],
     "701": [
@@ -3189,6 +3289,31 @@
         "air": true,
         "floor": 16,
         "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          22,
+          27,
+          23,
+          28,
+          32
+        ],
+        "why": "the statue's pedestal in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          27,
+          23,
+          28
+        ],
+        "file": "proxies/church_angel_721.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "church angel statue on its pedestal: body lathe + wing plate of remake/lib/furniture.py CHURCH_ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
       }
     ],
     "722": [
