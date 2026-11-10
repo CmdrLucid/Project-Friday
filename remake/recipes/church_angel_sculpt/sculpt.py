@@ -10,6 +10,9 @@ KS = 1 / 0.575   # a lone metaball shows its surface at 0.575 of its radius (thr
 def ks(st): return 1.0 / math.sqrt(1.0 - (0.6 / st) ** (1.0 / 3.0))   # surface share sqrt(1 - (threshold / stiffness)^(1/3)); stiffer = less blending
 ST = 2.0   # default stiffness; the upper body parts use STU (crisper parts)
 def ball(s, f, z, r, neg=False, st=None): st = st or ST; return dict(type='BALL', co=W(s, f, z), radius=r * ks(st), neg=neg, stiffness=st)
+def ellip(s, f, z, rs, rf, rz, neg=False, st=None):   # ellipsoid with its axes along s / f / z (local frame turned -45 degrees about z)
+    st = st or ST; c = math.cos(math.radians(-22.5)); sn = math.sin(math.radians(-22.5)); k = ks(st)
+    return dict(type='ELLIPSOID', co=W(s, f, z), radius=k, size=[rs, rf, rz], quat=[c, 0.0, 0.0, sn], neg=neg, stiffness=st)
 def caps(p, q, r, neg=False, st=None):
     st = st or ST   # capsule between p and q (local s f z); Blender capsule = along its local x, half length size_x
     a, b = W(*p), W(*q); m = [(a[i] + b[i]) / 2 for i in range(3)]; d = [b[i] - a[i] for i in range(3)]; L = math.sqrt(sum(t * t for t in d)) or 1e-6
@@ -25,14 +28,22 @@ body = []
 k = g('robe_k', 0.86)
 for zi in range(0, 25):
     z = float(zi); body.append(ball(ip(C, z), 0.0, z, ip(R, z) * k))
-# spiral FOLDS of the twisted robe: negative capsules winding up (the drawn light stripes run from upper left to lower right)
-nf = g('folds', 4); turn = g('fold_turn', 0.55)   # turns over the robe height
+# spiral FOLDS of the twisted robe (v3, user: 'Gewand wie du sagst'): deep grooves (negative capsules) and rounded ridges between them winding up;
+# the drawn light stripes run from upper left to lower right
+nf = g('folds', 5); turn = g('fold_turn', 0.6)
 for j in range(nf):
-    pts = []
-    for zi in range(1, 24, 2):
-        z = float(zi); th = 2 * math.pi * (j / nf + turn * z / 24.0); r = ip(R, z) + g('fold_out', 0.35)
-        pts.append((ip(C, z) + r * math.cos(th), r * math.sin(th), z))
-    for p, q in zip(pts, pts[1:]): body.append(caps(p, q, g('fold_r', 0.75), neg=True))
+    for kind in ('groove', 'ridge'):
+        pts = []
+        ph = 0.0 if kind == 'groove' else 0.5
+        for zi in range(2, 43):                                                    # every half unit: a smooth groove, no bead chain; ends below the chest
+            z = zi * 0.5; th = 2 * math.pi * ((j + ph) / nf + turn * z / 24.0)
+            r = ip(R, z) * k + (g('fold_out', 0.05) if kind == 'groove' else -g('ridge_in', 0.55))
+            pts.append((ip(C, z) + r * math.cos(th), r * math.sin(th), z))
+        for p, q in zip(pts, pts[1:]):
+            fade = max(0.0, min(1.0, (g('fold_end', 19.0) - q[2]) / 4.0))   # the folds run out under the chest (local z above the pedestal)
+            if fade <= 0.05: continue
+            if kind == 'groove': body.append(caps(p, q, g('fold_r', 0.8) * fade, neg=True))
+            else: body.append(caps(p, q, g('ridge_r', 0.8) * fade))
 # UPPER BODY (v2, user: 'Hals/Kopf Uebergang noch zu dick', 'die Haare ... wie im Sprite', child 'ich tendiere zum Kind'): read on the 1 px grid of 613:
 # head rows 54..61 (centre z ~42 at the axis), a small face at its lower middle, HAIR parted in the middle falling in two locks beside the face to the
 # shoulders; the chest RING right under the chin = the swaddling cloth around the child's face (light rim = cloth, dark centre = face), held upright
@@ -42,18 +53,50 @@ body.append(ball(0.6, -0.9, 33.6, g('shoulder_r', 4.4)))                  # shou
 body.append(caps((0.8, -0.2, 35.0), (0.9, 0.0, 39.2), g('neck_r', 1.35)))   # thin neck
 body.append(ball(0.9, -0.1, 42.2, g('skull_r', 2.9)))                     # skull
 body.append(ball(1.0, 1.9, 41.0, 1.55))                                   # face (chin / cheeks forward)
-body.append(ball(0.9, -0.7, 42.9, g('hair_r', 3.1)))                       # hair over the skull (a bit behind)
-for sg in (-1, 1):                                                        # the two locks beside the face down to the shoulders, a little wavy
-    top = (0.9 + sg * g('lock_s0', 2.1), 0.4, 43.2); mid = (0.9 + sg * g('lock_sm', 2.6), 0.6, 39.8); bot = (0.9 + sg * g('lock_s1', 2.7), -0.3, 36.6)
+# HAIR (v3b): a closed MASS over the top, back and sides of the skull (centre behind the face: the face stays free) + the two locks beside the face down to
+# the shoulders; the STRANDS are shallow grooves in that mass from the middle parting down over the skull and along the locks (a statue's hair)
+HC = (0.9, g('hair_f', -0.7), 42.5); HR = g('hair_r', 3.45)
+body.append(ball(HC[0], HC[1], HC[2], HR))
+for sg in (-1, 1):
+    LS = g('lock_s', 2.45); top = (0.9 + sg * 2.0, 0.2, 42.6); mid = (0.9 + sg * LS, 0.4, 39.6); bot = (0.9 + sg * (LS + 0.1), -0.4, 36.6)
     body.append(caps(top, mid, g('lock_r', 1.45))); body.append(caps(mid, bot, g('lock_r', 1.45) * 0.92))
+NS = g('hstrands', 9)
+for sg in (-1, 1):
+    for i in range(NS):
+        t = i / (NS - 1.0); fp = 2.0 - 4.6 * t                                    # start on the parting, front .. back
+        pts = []
+        for k3 in range(0, 6):                                                    # down the skull from the parting to the ear
+            ff = fp * 0.75; R0 = math.sqrt(max(0.5, HR * HR - ff * ff))   # the strand lies ON the head's sphere: smaller arcs further back / front
+            a3 = math.radians(90 - 16 * k3); rr = R0 + (g('groove_out', 0.2) if g('hair_mode', 'ridge') == 'groove' else g('ridge_out', -0.15))
+            pts.append((HC[0] + sg * rr * math.cos(a3), HC[1] + ff, HC[2] + rr * math.sin(a3)))
+        if t < 0.45:                                                              # the front strands continue down the locks
+            for k3 in range(1, 4):
+                zz = pts[-1][2] - 1.8 * k3; pts.append((0.9 + sg * (LS + g('lock_r', 1.45) * 0.7), pts[-1][1] + 0.2, zz))
+        for p, q in zip(pts, pts[1:]):
+            if g('hair_mode', 'ridge') == 'groove': body.append(caps(p, q, g('groove_r', 0.3), neg=True, st=6.0))
+            else: body.append(caps(p, q, g('ridge_hr', 0.5), st=g('ridge_hst', 6.0)))   # strand = a low rounded ridge on the mass
+for j in range(-2, 3):                                                       # the back of the head: strands from the crown down to the nape
+    ss = 0.9 + 0.75 * j; R0 = math.sqrt(max(0.5, HR * HR - (0.75 * j) ** 2)) + g('ridge_out', -0.15); pts = []
+    for k3 in range(0, 6):
+        a3 = math.radians(90 + 18 * k3); pts.append((ss, HC[1] + R0 * math.cos(a3), HC[2] + R0 * math.sin(a3)))
+    for p, q in zip(pts, pts[1:]): body.append(caps(p, q, g('ridge_hr', 0.5), st=g('ridge_hst', 6.0)))
+body.append(caps((0.9, 2.0, HC[2] + HR + 0.1), (0.9, -3.0, HC[2] + HR - 0.4), 0.28, neg=True, st=6.0))   # the middle parting
+# FACE (v3, user: 'auch das Gesicht'): nose, brow, eye hollows, chin
+FC = (1.0, 1.9, 41.0)
+body.append(caps((1.0, 3.15, 41.7), (1.0, 3.45, 40.8), g('nose_r', 0.38), st=6.0))          # nose
+body.append(caps((0.1, 2.75, 42.2), (1.9, 2.75, 42.2), 0.45, st=6.0))                     # brow
+for sg in (-1, 1): body.append(ball(1.0 + sg * 0.62, 3.05, 41.65, g('eye_r', 0.42), neg=True, st=6.0))   # eye hollows
+body.append(ball(1.0, 2.7, 39.6, 0.75, st=6.0))                                             # chin
 # ARMS around the child: upper arm shoulder -> elbow, forearm elbow -> under the bundle (they cross)
 for sg in (-1, 1):
-    sh = (0.6 + sg * 4.2, -0.4, 34.0); el = (0.6 + sg * 5.6, 1.4, 28.6); ha = (0.6 - sg * 0.8, 4.4, 26.9)
+    sh = (0.6 + sg * 4.2, -0.4, 34.0); el = (0.6 + sg * 5.6, 1.4, 28.6 + (1.2 if sg < 0 else 0.0)); ha = (0.6 - sg * 1.2, 4.6, 27.2 + (2.2 if sg > 0 else 0.0))
     body.append(caps(sh, el, 1.55)); body.append(caps(el, ha, 1.4))
 # the CHILD: swaddled bundle held upright against the chest, its hooded head at the top with the face recessed (the drawn ring)
-body.append(caps((0.7, 3.0, 27.6), (0.7, 3.6, 32.0), g('bundle_r', 2.4)))
-body.append(ball(0.7, 3.8, 33.2, g('chood_r', 2.35)))
-body.append(ball(0.7, 5.7, 33.0, g('cface_r', 1.15), neg=True))
+CH = (g('ch_s', -0.6), 3.9, g('ch_z', 33.0)); CF = (g('cf_s', 4.0), 3.0, g('cf_z', 27.2))   # child's head / feet (held diagonally, user)
+body.append(caps(((CH[0] + CF[0]) / 2 * 0.5 + CH[0] * 0.5, 3.6, (CH[2] + CF[2]) / 2 * 0.5 + CH[2] * 0.5), CF, g('bundle_r', 2.3)))
+body.append(ball(CH[0], CH[1], CH[2], g('chood_r', 2.35)))
+body.append(ball(CH[0] - 0.25, CH[1] + 1.9, CH[2] + 0.15, g('cface_r', 1.15), neg=True))
+body.append(ball(CH[0] - 0.2, CH[1] + 1.2, CH[2] + 0.1, 0.9))                       # the child's little face inside the hood
 # WINGS: in the plane x = XW (parallel to the niche's back wall, v5), filled from the drawn wing pixels; a point keeps its picture position when moved along the
 # view ray (1, 1, 1) = the CUP (outer feathers come forward, invisible in the game view); feathers = shallow negative grooves fanning out from the wing root
 XW = A['wing_x']; AU = AX - AY + 1184.0; V0p = A['v0']
