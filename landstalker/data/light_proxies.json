@@ -2204,18 +2204,29 @@
       {
         "op": "ground",
         "cells": [
-          22,
+          23,
           27,
           23,
           28,
           32
         ],
-        "why": "the statue's pedestal in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+        "why": "the statue's pedestal (1 x 2 cells) in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          23,
+          26,
+          23,
+          29,
+          16
+        ],
+        "why": "the niche floor beside the pedestal (the niche is 1 cell deep, x 368..384, and 4 cells wide, y 416..480, read from its drawn corners; the ground op fills only cells still void after the pedestal)"
       },
       {
         "op": "mesh",
         "cells": [
-          22,
+          23,
           27,
           23,
           28
@@ -2245,18 +2256,29 @@
       {
         "op": "ground",
         "cells": [
-          22,
+          23,
           27,
           23,
           28,
           32
         ],
-        "why": "the statue's pedestal in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+        "why": "the statue's pedestal (1 x 2 cells) in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          23,
+          26,
+          23,
+          29,
+          16
+        ],
+        "why": "the niche floor beside the pedestal (the niche is 1 cell deep, x 368..384, and 4 cells wide, y 416..480, read from its drawn corners; the ground op fills only cells still void after the pedestal)"
       },
       {
         "op": "mesh",
         "cells": [
-          22,
+          23,
           27,
           23,
           28
@@ -2939,18 +2961,29 @@
       {
         "op": "ground",
         "cells": [
-          22,
+          23,
           27,
           23,
           28,
           32
         ],
-        "why": "the statue's pedestal in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+        "why": "the statue's pedestal (1 x 2 cells) in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          23,
+          26,
+          23,
+          29,
+          16
+        ],
+        "why": "the niche floor beside the pedestal (the niche is 1 cell deep, x 368..384, and 4 cells wide, y 416..480, read from its drawn corners; the ground op fills only cells still void after the pedestal)"
       },
       {
         "op": "mesh",
         "cells": [
-          22,
+          23,
           27,
           23,
           28
@@ -2980,18 +3013,29 @@
       {
         "op": "ground",
         "cells": [
-          22,
+          23,
           27,
           23,
           28,
           32
         ],
-        "why": "the statue's pedestal in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+        "why": "the statue's pedestal (1 x 2 cells) in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          23,
+          26,
+          23,
+          29,
+          16
+        ],
+        "why": "the niche floor beside the pedestal (the niche is 1 cell deep, x 368..384, and 4 cells wide, y 416..480, read from its drawn corners; the ground op fills only cells still void after the pedestal)"
       },
       {
         "op": "mesh",
         "cells": [
-          22,
+          23,
           27,
           23,
           28
@@ -3293,18 +3337,29 @@
       {
         "op": "ground",
         "cells": [
-          22,
+          23,
           27,
           23,
           28,
           32
         ],
-        "why": "the statue's pedestal in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+        "why": "the statue's pedestal (1 x 2 cells) in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          23,
+          26,
+          23,
+          29,
+          16
+        ],
+        "why": "the niche floor beside the pedestal (the niche is 1 cell deep, x 368..384, and 4 cells wide, y 416..480, read from its drawn corners; the ground op fills only cells still void after the pedestal)"
       },
       {
         "op": "mesh",
         "cells": [
-          22,
+          23,
           27,
           23,
           28
