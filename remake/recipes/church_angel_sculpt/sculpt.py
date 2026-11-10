@@ -52,66 +52,72 @@ body.append(ball(0.6, -0.8, 27.0, 5.0))                                   # tors
 body.append(ball(0.6, -0.9, 33.6, g('shoulder_r', 4.4)))                  # shoulders
 HEAD0 = len(body)   # the head is its own metaball group at a finer resolution (the face is ~4 units)
 body.append(caps((0.8, -0.2, 35.0), (0.9, 0.0, 39.2), g('neck_r', 1.35)))   # thin neck
-body.append(ball(0.9, -0.1, 42.2, g('skull_r', 2.9)))                     # skull
+if not g('head_mesh', True): body.append(ball(0.9, -0.1, 42.2, g('skull_r', 2.9)))   # skull (the polygon head of head.py replaces it)
 # HAIR (v5, user: 'Haare sind kein Pagenkopf, die gehen im Sprite hinter die Statue'): from the middle parting over the crown, framing the face at the sides
 # (the drawn lobes beside the face) and then falling BACK and down behind the head and the shoulders (long hair down the back, hidden in the game view)
 HC = (0.9, g('hair_f', -0.4), g('crown_z', 42.8)); HR = g('hair_r', 2.95)
-body.append(ball(HC[0], HC[1], HC[2], HR))                                              # crown
-for sg in (-1, 1):                                                                       # the sides beside the face, sweeping back
-    body.append(caps((0.9 + sg * 2.35, g('side_f', -0.2), 42.6), (0.9 + sg * 2.4, -1.4, 40.4), g('side_r', 1.3))); body.append(caps((0.9 + sg * 2.4, -1.4, 40.4), (0.9 + sg * 1.5, -2.6, 37.8), g('side_r', 1.3) * 0.95))   # framing the face at the temples, into the back hair
-body.append(caps((0.9, -1.6, 42.0), (0.9, -2.6, 37.5), g('back_r1', 2.9)))              # the hair down the back: over the nape ...
-body.append(caps((0.9, -2.6, 37.5), (0.9, -3.1, g('back_z', 30.5)), g('back_r2', 3.1)))  # ... behind the shoulders, a little wider
-NS = g('hstrands', 9)
-for sg in (-1, 1):                                                                       # strands from the parting over the crown, then back and down
-    for i in range(NS):
-        t = i / (NS - 1.0); ff = (2.0 - 4.2 * t) * 0.75; R0 = math.sqrt(max(0.5, HR * HR - (ff - HC[1]) ** 2)) + g('ridge_out', -0.15); pts = []
-        for k3 in range(0, 5):
-            a3 = math.radians(90 - 15 * k3); pts.append((HC[0] + sg * R0 * math.cos(a3), ff, HC[2] + R0 * math.sin(a3)))
+if g('hair_mb', False):   # v5 metaball hair (v8: the hair shell of head.py; only the panel down the back stays)
+    body.append(ball(HC[0], HC[1], HC[2], HR))                                              # crown
+    for sg in (-1, 1):                                                                       # the sides beside the face, sweeping back
+        body.append(caps((0.9 + sg * 2.35, g('side_f', -0.2), 42.6), (0.9 + sg * 2.4, -1.4, 40.4), g('side_r', 1.3))); body.append(caps((0.9 + sg * 2.4, -1.4, 40.4), (0.9 + sg * 1.5, -2.6, 37.8), g('side_r', 1.3) * 0.95))   # framing the face at the temples, into the back hair
+    body.append(caps((0.9, -1.6, 42.0), (0.9, -2.6, 37.5), g('back_r1', 2.9)))              # the hair down the back: over the nape ...
+    body.append(caps((0.9, -2.6, 37.5), (0.9, -3.1, g('back_z', 30.5)), g('back_r2', 3.1)))  # ... behind the shoulders, a little wider
+    NS = g('hstrands', 9)
+    for sg in (-1, 1):                                                                       # strands from the parting over the crown, then back and down
+        for i in range(NS):
+            t = i / (NS - 1.0); ff = (2.0 - 4.2 * t) * 0.75; R0 = math.sqrt(max(0.5, HR * HR - (ff - HC[1]) ** 2)) + g('ridge_out', -0.15); pts = []
+            for k3 in range(0, 5):
+                a3 = math.radians(90 - 15 * k3); pts.append((HC[0] + sg * R0 * math.cos(a3), ff, HC[2] + R0 * math.sin(a3)))
+            last = pts[-1]
+            for k3 in range(1, 5):                                                           # sweeping back and down behind the ear
+                pts.append((last[0] + sg * 0.15 * k3, last[1] - 0.75 * k3 - 0.2 * t * k3, last[2] - 1.1 * k3))
+            for p, q in zip(pts, pts[1:]): body.append(caps(p, q, g('ridge_hr', 0.45), st=g('ridge_hst', 6.0)))
+    for j in range(-3, 4):                                                                   # strands down the back of the head and the back
+        ss = 0.9 + 0.8 * j; pts = []
+        for k3 in range(0, 6):
+            a3 = math.radians(90 + 18 * k3); R0 = math.sqrt(max(0.5, HR * HR - (0.8 * j) ** 2)) + g('ridge_out', -0.15)
+            pts.append((ss, HC[1] + R0 * math.cos(a3), HC[2] + R0 * math.sin(a3)))
         last = pts[-1]
-        for k3 in range(1, 5):                                                           # sweeping back and down behind the ear
-            pts.append((last[0] + sg * 0.15 * k3, last[1] - 0.75 * k3 - 0.2 * t * k3, last[2] - 1.1 * k3))
+        for k3 in range(1, 5): pts.append((ss + 0.15 * j * k3 / 4, last[1] - 0.2 * k3 - 0.15, last[2] - 2.0 * k3))
         for p, q in zip(pts, pts[1:]): body.append(caps(p, q, g('ridge_hr', 0.45), st=g('ridge_hst', 6.0)))
-for j in range(-3, 4):                                                                   # strands down the back of the head and the back
-    ss = 0.9 + 0.8 * j; pts = []
-    for k3 in range(0, 6):
-        a3 = math.radians(90 + 18 * k3); R0 = math.sqrt(max(0.5, HR * HR - (0.8 * j) ** 2)) + g('ridge_out', -0.15)
-        pts.append((ss, HC[1] + R0 * math.cos(a3), HC[2] + R0 * math.sin(a3)))
-    last = pts[-1]
-    for k3 in range(1, 5): pts.append((ss + 0.15 * j * k3 / 4, last[1] - 0.2 * k3 - 0.15, last[2] - 2.0 * k3))
-    for p, q in zip(pts, pts[1:]): body.append(caps(p, q, g('ridge_hr', 0.45), st=g('ridge_hst', 6.0)))
-body.append(caps((0.9, 2.0, HC[2] + HR + 0.1), (0.9, -2.6, HC[2] + HR - 0.4), 0.26, neg=True, st=6.0))   # the middle parting
-# FACE (v6, user: 'das muss schon menschlich aussehen'): built from the parts of a human face in a face frame (origin O = the middle of the face oval,
-# s right, f forward, z up; units; chin to hairline ~4): oval, forehead, cheekbones, jaw + chin, eye sockets with eyeballs and lids, brow ridge,
-# nose bridge / tip / wings, lips with a mouth line; stiff parts (little blending) at the head group's fine resolution
-O = (1.0, g('face_f', 1.25), g('face_z', 41.5)); FS = g('face_scale', 1.0)
-def Fp(s3, f3, z3): return (O[0] + s3 * FS, O[1] + f3 * FS, O[2] + z3 * FS)
-FST = g('face_st', 3.0)
-# v7 (user: 'das ist eine Goettinnen-Statue, das Gesicht sollte weiblicher sein'): a narrower oval tapering softly to a small delicate chin, high soft
-# cheeks, no brow ridge but fine high arched brows, larger almond eyes, a small narrow nose with a slightly lifted tip, full but narrow lips; softer blends
-body.append(ellip(*Fp(0, 0.1, 0.05), 1.15 * FS, 1.1 * FS, 1.7 * FS, st=2.6))              # the face oval (narrower)
-body.append(ball(*Fp(0, 0.3, 0.95), 1.05 * FS, st=2.6))                                    # forehead, smooth and round
-for sg in (-1, 1):
-    body.append(ball(*Fp(sg * 0.62, 0.72, -0.05), 0.55 * FS, st=FST))                       # high soft cheeks
-    body.append(caps(Fp(sg * 0.72, 0.4, -0.55), Fp(sg * 0.22, 0.8, -1.38), 0.36 * FS, st=FST))   # jaw tapering to the chin (V)
-body.append(ball(*Fp(0, 0.92, -1.45), 0.3 * FS, st=FST))                                   # small delicate chin
-for sg in (-1, 1):                                                                          # larger almond eyes: socket, eyeball, lids
-    body.append(ellip(*Fp(sg * 0.48, 1.24, 0.3), g('sock_rs', 0.3) * FS, 0.2 * FS, g('sock_rz', 0.2) * FS, neg=True, st=5.0))
-    body.append(ellip(*Fp(sg * 0.48, g('eyeball_f', 1.0), 0.28), 0.33 * FS, 0.22 * FS, 0.21 * FS, st=6.0))
-    for k3, (a0, a1) in enumerate(((0.2, 0.48), (0.48, 0.8))):                                # upper lid, almond arc, outer end a little lifted
-        body.append(caps(Fp(sg * a0, 1.1, 0.4 + 0.05 * (1 - k3)), Fp(sg * a1, 1.06, 0.42 + 0.03 * k3), 0.065 * FS, st=6.0))
-    body.append(caps(Fp(sg * 0.24, 1.06, 0.17), Fp(sg * 0.76, 1.02, 0.22), 0.04 * FS, st=6.0))   # lower lid
-    for k3, (a0, a1, z0, z1) in enumerate(((0.14, 0.5, 0.7, 0.82), (0.5, 0.9, 0.82, 0.7))):     # fine, high arched brows
-        body.append(caps(Fp(sg * a0, 1.1, z0), Fp(sg * a1, 0.98, z1), 0.07 * FS, st=5.0))
-body.append(caps(Fp(0, 1.16, 0.45), Fp(0, 1.42, -0.2), 0.12 * FS, st=5.0))                # nose bridge (narrow)
-body.append(ball(*Fp(0, 1.47, -0.24), 0.16 * FS, st=5.0))                                  # small nose tip, a little lifted
-for sg in (-1, 1): body.append(ball(*Fp(sg * 0.15, 1.3, -0.32), 0.11 * FS, st=5.0))        # narrow nose wings
-body.append(ball(*Fp(0, 1.3, -0.5), 0.07 * FS, neg=True, st=6.0))                           # philtrum dip
-for sg in (-1, 1):                                                                          # full upper lip with a cupid's bow, narrow
-    body.append(caps(Fp(sg * 0.03, 1.23, -0.7), Fp(sg * 0.15, 1.22, -0.66), 0.09 * FS, st=4.0))
-    body.append(caps(Fp(sg * 0.15, 1.22, -0.66), Fp(sg * 0.29, 1.14, -0.74), 0.06 * FS, st=4.0))
-body.append(ellip(*Fp(0, 1.15, -0.88), 0.21 * FS, 0.11 * FS, 0.1 * FS, st=4.0))            # full lower lip
-body.append(caps(Fp(-0.31, 1.33, -0.79), Fp(0.31, 1.33, -0.79), 0.04 * FS, neg=True, st=6.0))   # the line between the lips
-for sg in (-1, 1): body.append(ball(*Fp(sg * 0.34, 1.16, -0.8), 0.05 * FS, neg=True, st=6.0))   # mouth corners (soft)
+    body.append(caps((0.9, 2.0, HC[2] + HR + 0.1), (0.9, -2.6, HC[2] + HR - 0.4), 0.26, neg=True, st=6.0))   # the middle parting
+
+else:
+    body.append(caps((0.9, -2.0, 41.0), (0.9, -2.6, 37.5), g('back_r1', 2.0))); body.append(caps((0.9, -2.6, 37.5), (0.9, -3.1, g('back_z', 30.5)), g('back_r2', 2.6)))   # the hair down the back
+if not g('head_mesh', True):
+    # FACE (v6, user: 'das muss schon menschlich aussehen'): built from the parts of a human face in a face frame (origin O = the middle of the face oval,
+    # s right, f forward, z up; units; chin to hairline ~4): oval, forehead, cheekbones, jaw + chin, eye sockets with eyeballs and lids, brow ridge,
+    # nose bridge / tip / wings, lips with a mouth line; stiff parts (little blending) at the head group's fine resolution
+    O = (1.0, g('face_f', 1.25), g('face_z', 41.5)); FS = g('face_scale', 1.0)
+    def Fp(s3, f3, z3): return (O[0] + s3 * FS, O[1] + f3 * FS, O[2] + z3 * FS)
+    FST = g('face_st', 3.0)
+    # v7 (user: 'das ist eine Goettinnen-Statue, das Gesicht sollte weiblicher sein'): a narrower oval tapering softly to a small delicate chin, high soft
+    # cheeks, no brow ridge but fine high arched brows, larger almond eyes, a small narrow nose with a slightly lifted tip, full but narrow lips; softer blends
+    body.append(ellip(*Fp(0, 0.1, 0.05), 1.15 * FS, 1.1 * FS, 1.7 * FS, st=2.6))              # the face oval (narrower)
+    body.append(ball(*Fp(0, 0.3, 0.95), 1.05 * FS, st=2.6))                                    # forehead, smooth and round
+    for sg in (-1, 1):
+        body.append(ball(*Fp(sg * 0.62, 0.72, -0.05), 0.55 * FS, st=FST))                       # high soft cheeks
+        body.append(caps(Fp(sg * 0.72, 0.4, -0.55), Fp(sg * 0.22, 0.8, -1.38), 0.36 * FS, st=FST))   # jaw tapering to the chin (V)
+    body.append(ball(*Fp(0, 0.92, -1.45), 0.3 * FS, st=FST))                                   # small delicate chin
+    for sg in (-1, 1):                                                                          # larger almond eyes: socket, eyeball, lids
+        body.append(ellip(*Fp(sg * 0.48, 1.24, 0.3), g('sock_rs', 0.3) * FS, 0.2 * FS, g('sock_rz', 0.2) * FS, neg=True, st=5.0))
+        body.append(ellip(*Fp(sg * 0.48, g('eyeball_f', 1.0), 0.28), 0.33 * FS, 0.22 * FS, 0.21 * FS, st=6.0))
+        for k3, (a0, a1) in enumerate(((0.2, 0.48), (0.48, 0.8))):                                # upper lid, almond arc, outer end a little lifted
+            body.append(caps(Fp(sg * a0, 1.1, 0.4 + 0.05 * (1 - k3)), Fp(sg * a1, 1.06, 0.42 + 0.03 * k3), 0.065 * FS, st=6.0))
+        body.append(caps(Fp(sg * 0.24, 1.06, 0.17), Fp(sg * 0.76, 1.02, 0.22), 0.04 * FS, st=6.0))   # lower lid
+        for k3, (a0, a1, z0, z1) in enumerate(((0.14, 0.5, 0.7, 0.82), (0.5, 0.9, 0.82, 0.7))):     # fine, high arched brows
+            body.append(caps(Fp(sg * a0, 1.1, z0), Fp(sg * a1, 0.98, z1), 0.07 * FS, st=5.0))
+    body.append(caps(Fp(0, 1.16, 0.45), Fp(0, 1.42, -0.2), 0.12 * FS, st=5.0))                # nose bridge (narrow)
+    body.append(ball(*Fp(0, 1.47, -0.24), 0.16 * FS, st=5.0))                                  # small nose tip, a little lifted
+    for sg in (-1, 1): body.append(ball(*Fp(sg * 0.15, 1.3, -0.32), 0.11 * FS, st=5.0))        # narrow nose wings
+    body.append(ball(*Fp(0, 1.3, -0.5), 0.07 * FS, neg=True, st=6.0))                           # philtrum dip
+    for sg in (-1, 1):                                                                          # full upper lip with a cupid's bow, narrow
+        body.append(caps(Fp(sg * 0.03, 1.23, -0.7), Fp(sg * 0.15, 1.22, -0.66), 0.09 * FS, st=4.0))
+        body.append(caps(Fp(sg * 0.15, 1.22, -0.66), Fp(sg * 0.29, 1.14, -0.74), 0.06 * FS, st=4.0))
+    body.append(ellip(*Fp(0, 1.15, -0.88), 0.21 * FS, 0.11 * FS, 0.1 * FS, st=4.0))            # full lower lip
+    body.append(caps(Fp(-0.31, 1.33, -0.79), Fp(0.31, 1.33, -0.79), 0.04 * FS, neg=True, st=6.0))   # the line between the lips
+    for sg in (-1, 1): body.append(ball(*Fp(sg * 0.34, 1.16, -0.8), 0.05 * FS, neg=True, st=6.0))   # mouth corners (soft)
+
 HEAD1 = len(body)
 # ARMS around the child: upper arm shoulder -> elbow, forearm elbow -> under the bundle (they cross)
 for sg in (-1, 1):

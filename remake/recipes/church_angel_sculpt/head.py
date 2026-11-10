@@ -1,0 +1,153 @@
+# head.py OUT : the goddess head as ONE clean polygon mesh (user 2026-11-10: 'eigenes Kopfmodell'): a sphere grid shaped into a female head by sculpt
+# brushes (scale / taper / Gaussian push-pull along the normal) in a head frame (X right, Y forward = the face, Z up; Z 0 = chin, 1 = crown; head height
+# H units), then placed on the statue (head axis at the measured place). Proportions: eyes at Z 0.5, brows 0.58, nose base 0.28, mouth 0.19, chin 0.
+import json, math, sys
+P = json.load(open('/home/deck/lktest/sculpt/params.json')); g = lambda k, d: P.get(k, d)
+NU, NV = g('h_nu', 180), g('h_nv', 140)
+def gau(d2, r): return math.exp(-d2 / (r * r))
+def sm(a, b, x): t = max(0.0, min(1.0, (x - a) / (b - a))); return t * t * (3 - 2 * t)
+# BASE from human head PROFILES (female, head height 1, chin 0 .. crown 1): front profile yf, back profile yb, half width w per height Z; each horizontal
+# section = front half a superellipse (flatter face) + back half an ellipse
+def lin(tab, x):   # Catmull-Rom through the profile knots (smooth, no terraces)
+    xs = [p[0] for p in tab]; ys = [p[1] for p in tab]
+    if x <= xs[0]: return ys[0]
+    if x >= xs[-1]: return ys[-1]
+    i = max(k for k in range(len(xs) - 1) if xs[k] <= x); t = (x - xs[i]) / (xs[i + 1] - xs[i])
+    p0 = ys[max(0, i - 1)]; p1 = ys[i]; p2 = ys[i + 1]; p3 = ys[min(len(ys) - 1, i + 2)]
+    return 0.5 * (2 * p1 + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (-p0 + 3 * p1 - 3 * p2 + p3) * t ** 3)
+YF = g('prof_front', [(0.0, 0.0), (0.03, 0.22), (0.08, 0.30), (0.14, 0.31), (0.18, 0.35), (0.22, 0.36), (0.27, 0.345), (0.36, 0.345), (0.47, 0.345),
+                      (0.55, 0.37), (0.62, 0.38), (0.72, 0.36), (0.82, 0.30), (0.92, 0.2), (0.97, 0.12), (0.995, 0.04), (1.0, 0.0)])
+YB = g('prof_back', [(0.0, 0.0), (0.06, -0.10), (0.18, -0.20), (0.3, -0.30), (0.42, -0.42), (0.55, -0.48), (0.7, -0.49), (0.85, -0.40), (0.95, -0.24), (0.985, -0.12), (1.0, 0.0)])
+WW = g('prof_width', [(0.0, 0.0), (0.04, 0.09), (0.12, 0.17), (0.22, 0.25), (0.34, 0.30), (0.48, 0.325), (0.62, 0.335), (0.78, 0.31), (0.9, 0.24), (0.97, 0.14), (0.995, 0.05), (1.0, 0.0)])
+PF = g('face_flat', 2.6)
+V = []
+for j in range(NV + 1):
+    Z = 1.0 - j / NV
+    for i in range(NU):
+        th = 2 * math.pi * i / NU; c, sn = math.cos(th), math.sin(th)            # th 0 = forward (+Y)
+        w = lin(WW, Z)
+        if c >= 0:   # front half: superellipse |x/w|^p + |y/yf|^p = 1
+            e = 2.0 / PF; X = w * sn; Y = lin(YF, Z) * abs(c) ** e   # flatter face front; no power on X (a cusp = a crease down the middle)
+        else: X = w * sn; Y = lin(YB, Z) * abs(c)
+        L = math.hypot(sn, c); V.append([X, Y, Z, sn, c, 0.0])
+# normals for the brushes: from the shape (finite differences on the grid)
+def fixnormals():
+    for j in range(NV + 1):
+        for i in range(NU):
+            a = V[j * NU + i]; r = V[j * NU + (i + 1) % NU]; l = V[j * NU + (i - 1) % NU]
+            u = V[max(0, j - 1) * NU + i]; d = V[min(NV, j + 1) * NU + i]
+            tx = [r[k] - l[k] for k in range(3)]; tz = [u[k] - d[k] for k in range(3)]
+            n = (tx[1] * tz[2] - tx[2] * tz[1], tx[2] * tz[0] - tx[0] * tz[2], tx[0] * tz[1] - tx[1] * tz[0]); L = math.sqrt(sum(q * q for q in n)) or 1
+            a[3], a[4], a[5] = -n[0] / L, -n[1] / L, -n[2] / L   # outward
+fixnormals()
+BASE = [list(v) for v in V]   # the head without the face features: the hair follows it
+def push(c, r, h, aniso=(1, 1, 1), front=True):
+    """Gaussian brush along the base normal: centre c (X, Z) on the face (front side), radius r, height h (+ out / - in)"""
+    for v in V:
+        X, Y, Z, nx, ny, nz = v
+        if front and Y <= 0: continue
+        d2 = ((X - c[0]) / aniso[0]) ** 2 + ((Z - c[1]) / aniso[2]) ** 2
+        if d2 > 9 * r * r: continue
+        w = gau(d2, r) * (sm(0.0, 0.25, Y) if front else 1.0); L = math.sqrt(nx * nx + ny * ny + nz * nz) or 1
+        v[0] += h * w * nx / L; v[1] += h * w * ny / L; v[2] += h * w * nz / L
+def pushy(c, r, h, aniso=(1, 1)):
+    """brush straight forward (+Y): features on the face front (nose, lips, chin)"""
+    for v in V:
+        X, Y, Z = v[0], v[1], v[2]
+        if Y <= 0.05: continue
+        d2 = ((X - c[0]) / aniso[0]) ** 2 + ((Z - c[1]) / aniso[1]) ** 2
+        if d2 > 9 * r * r: continue
+        v[1] += h * gau(d2, r) * sm(0.05, 0.3, Y)
+S = g('h_feat', 1.0)
+for sg in (-1, 1):
+    push((sg * 0.2, 0.41), 0.07, 0.012 * S, aniso=(1.4, 1, 0.8))                     # high soft cheekbones
+    pushy((sg * 0.125, 0.497), 0.046, -0.05 * S, aniso=(1.4, 0.75))                 # eye socket
+    pushy((sg * 0.125, 0.494), 0.033, 0.034 * S, aniso=(1.6, 0.68))                 # the eyeball (almond)
+    for k3 in range(7):                                                               # upper lid: an almond arc, a crisp edge
+        t3 = k3 / 6.0; xx = sg * (0.072 + 0.106 * t3); zz = 0.506 + 0.018 * math.sin(math.pi * t3) + 0.004 * t3
+        pushy((xx, zz), 0.011, 0.009 * S, aniso=(1.5, 0.7))
+    for k3 in range(5):                                                               # lower lid, flatter
+        t3 = k3 / 4.0; xx = sg * (0.08 + 0.095 * t3); zz = 0.482 - 0.008 * math.sin(math.pi * t3)
+        pushy((xx, zz), 0.009, 0.005 * S, aniso=(1.5, 0.7))
+    pushy((sg * 0.135, 0.575), 0.026, 0.006 * S, aniso=(3.0, 0.55))                 # fine brow
+for k in range(14):                                                                   # NOSE: root -> tip, straight, narrow, small, a little lifted
+    t = k / 13.0; z = 0.52 - 0.23 * t; hgt = (0.01 + 0.085 * t ** 1.3) * S; wid = 0.02 + 0.012 * t
+    pushy((0.0, z), wid, hgt * 0.3, aniso=(1.0, 1.6))
+pushy((0.0, 0.29), 0.022, 0.03 * S, aniso=(1.15, 0.85))                               # nose tip
+for sg in (-1, 1): pushy((sg * 0.03, 0.276), 0.016, 0.016 * S)                        # nostril wings
+pushy((0.0, 0.257), 0.012, -0.008 * S, aniso=(1.6, 1))                                # under the nose
+pushy((0.0, 0.235), 0.01, -0.004 * S, aniso=(0.8, 1.6))                               # philtrum
+for sg in (-1, 1): pushy((sg * 0.02, 0.212), 0.018, 0.012 * S, aniso=(1.3, 0.6))      # upper lip, cupid's bow
+pushy((0.0, 0.198), 0.055, -0.006 * S, aniso=(1.0, 0.08))                             # the mouth line
+for sg in (-1, 1): pushy((sg * 0.055, 0.198), 0.008, -0.008 * S)                      # mouth corners
+pushy((0.0, 0.178), 0.024, 0.016 * S, aniso=(1.5, 0.65))                              # full lower lip
+pushy((0.0, 0.14), 0.02, -0.008 * S, aniso=(2.0, 0.7))                                # the dip under the lower lip
+pushy((0.0, 0.08), 0.04, 0.016 * S, aniso=(1.1, 0.9))                                 # small round chin
+# place: head frame -> local statue frame (s, f, z) -> world (as sculpt.py W)
+sys.path.insert(0, '/home/deck/ProjectL/remake/lib'); import furniture as F
+A = F.CHURCH_ANGEL4; AX, AY = A['axis']; FLO = 32.0; SQ2 = math.sqrt(2)
+H = g('head_h', 6.6); HS, HF, HZ = g('head_s', 0.95), g('head_f', -0.2), g('chin_z', 39.4)
+def W(s, f, z): return (AX + (s + f) / SQ2, AY + (f - s) / SQ2, FLO + z)
+tilt = math.radians(g('head_tilt', 8.0))                                              # a little bowed (looking down at the child)
+out = []
+for X, Y, Z, *_ in V:   # (rows of the grid: j = 0 the crown)
+    Zc = Z - 0.5; Yr = Y * math.cos(tilt) + Zc * math.sin(tilt); Zr = -Y * math.sin(tilt) + Zc * math.cos(tilt) + 0.5
+    out.append(W(HS + X * H, HF + Yr * H, HZ + Zr * H))
+# HAIR SHELL (v8): follows the skull: a shell over the base head from the middle parting down, the hairline high on the forehead, lower at the temples
+# (framing the face = the drawn hair beside the face), behind the ears down to the nape (the long hair down the back continues as the metaball panel);
+# strands = ridges along the meridians from the crown; closed shell (outer + inner surface + rim)
+def hairline(th):   # th = angle around the vertical axis, 0 = the face
+    a = abs(((th + math.pi) % (2 * math.pi)) - math.pi)
+    return lin([(0.0, g('hl_front', 0.79)), (0.35, 0.77), (0.7, g('hl_temple', 0.66)), (1.15, g('hl_side', 0.42)), (1.6, g('hl_ear', 0.30)), (2.4, 0.14), (math.pi, 0.1)], a)
+HT = g('hair_t', 0.07); NSTR = g('h_strands', 46); RH = g('strand_h', 0.018)
+inhair = [[False] * NU for _ in range(NV + 1)]
+for j in range(NV + 1):
+    for i in range(NU):
+        b = BASE[j * NU + i]; th = 2 * math.pi * i / NU; inhair[j][i] = b[2] >= hairline(th)
+def base_pt(Z, th):   # the base head surface at height Z, angle th (as the grid) + its outward normal (finite differences)
+    def P(Z, th):
+        w = lin(WW, Z); c, sn = math.cos(th), math.sin(th)
+        if c >= 0: e = 2.0 / PF; return (w * sn, lin(YF, Z) * abs(c) ** e, Z)
+        return (w * sn, lin(YB, Z) * abs(c), Z)
+    p = P(Z, th); a = P(Z, th + 1e-3); b = P(Z, th - 1e-3); u = P(min(1.0, Z + 1e-3), th); d = P(max(0.0, Z - 1e-3), th)
+    tx = [a[k] - b[k] for k in range(3)]; tz = [u[k] - d[k] for k in range(3)]
+    n = (tx[1] * tz[2] - tx[2] * tz[1], tx[2] * tz[0] - tx[0] * tz[2], tx[0] * tz[1] - tx[1] * tz[0]); L = math.sqrt(sum(q * q for q in n)) or 1
+    n = [-q / L for q in n]
+    if n[0] * p[0] + n[1] * p[1] + n[2] * (p[2] - 0.5) < 0: n = [-q for q in n]
+    return p, n
+def hv(j, i, outer):
+    th = 2 * math.pi * i / NU; Z = max(1.0 - j / NV, hairline(th))   # vertices below the hairline slide up onto it: a smooth hair edge
+    p, n = base_pt(Z, th)
+    edge = min(1.0, (Z - hairline(th)) / 0.05)                         # the shell thins out to the hairline
+    rid = RH * (0.5 + 0.5 * math.cos(NSTR * th)) ** 2 * (1 - math.exp(-((1 - Z) / 0.08) ** 2))
+    a_ = abs(((th + math.pi) % (2 * math.pi)) - math.pi); vol = lin([(0.0, g('hv_front', 0.05)), (0.7, g('hv_temple', 0.12)), (1.3, g('hv_side', 0.17)), (2.2, g('hv_back', 0.13)), (math.pi, 0.12)], a_)
+    vol *= 1.0 - 0.6 * sm(0.75, 1.0, Z)
+    t = (vol * (0.3 + 0.7 * edge) + rid * edge) if outer else -0.004
+    return [p[0] + t * n[0], p[1] + t * n[1], p[2] + t * n[2]]
+HV, HF_ = [], []; idxh = {}
+def hid(j, i, o):
+    k = (j, i % NU, o)
+    if k not in idxh: idxh[k] = len(HV); HV.append(hv(j, i % NU, o))
+    return idxh[k]
+cells = {(j, i) for j in range(NV) for i in range(NU) if inhair[j][i] or inhair[j][(i + 1) % NU] or inhair[j + 1][i] or inhair[j + 1][(i + 1) % NU]}
+for (j, i) in cells:
+    HF_.append((hid(j, i, 1), hid(j, i + 1, 1), hid(j + 1, i + 1, 1), hid(j + 1, i, 1)))
+    HF_.append((hid(j, i, 0), hid(j + 1, i, 0), hid(j + 1, i + 1, 0), hid(j, i + 1, 0)))
+for (j, i) in cells:   # rim along the region boundary
+    for (nj, ni), (a0, a1) in (((j - 1, i), ((j, i), (j, i + 1))), ((j, i + 1), ((j, i + 1), (j + 1, i + 1))), ((j + 1, i), ((j + 1, i + 1), (j + 1, i))), ((j, i - 1), ((j + 1, i), (j, i)))):
+        if (nj, ni % NU) not in cells: HF_.append((hid(a0[0], a0[1], 1), hid(a0[0], a0[1], 0), hid(a1[0], a1[1], 0), hid(a1[0], a1[1], 1)))
+F_ = []
+for j in range(NV):
+    for i in range(NU):
+        a = j * NU + i; b = j * NU + (i + 1) % NU; c = (j + 1) * NU + (i + 1) % NU; d = (j + 1) * NU + i
+        F_.append((a, b, c, d))
+with open(sys.argv[1], 'w') as fo:
+    for p in out: fo.write('v %.4f %.4f %.4f\n' % p)
+    for q in F_: fo.write('f ' + ' '.join(str(k + 1) for k in q) + '\n')
+if len(sys.argv) > 2:
+    with open(sys.argv[2], 'w') as fo:
+        for X, Y, Z in HV:
+            Zc = Z - 0.5; Yr = Y * math.cos(tilt) + Zc * math.sin(tilt); Zr = -Y * math.sin(tilt) + Zc * math.cos(tilt) + 0.5
+            fo.write('v %.4f %.4f %.4f\n' % W(HS + X * H, HF + Yr * H, HZ + Zr * H))
+        for q in HF_: fo.write('f ' + ' '.join(str(k + 1) for k in q) + '\n')
+print('head', len(out), 'verts', 'hair', len(HV))
