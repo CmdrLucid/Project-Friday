@@ -336,11 +336,15 @@ def tube(pts, radii, seg=10):
 # fitted outline (Catmull-Rom through the knots), an OPEN bowl on top (grey, inner radius 5.3, 2.5 deep) and its PRONGS as drawn (window rows 48..60 of the
 # short reference): two tall curved prongs left / right of the flame (screen offset ~5.5 px, rising ~11 above the rim) + two more behind them, and a short
 # leaf on each side pointing outwards along the screen axis (offset ~9..11 px, ~4 above the rim). The flame itself is light / paint, no geometry.
-BRAZIER_PRONGS = dict(rim_rel=18.0, rim=6.0, claws=[45.0, 135.0, 225.0, 315.0], shaft=1, L=8.0, lean=8.0, hook_frac=0.4, hook=75.0, th=1.3, taper=3.0)
+BRAZIER_PRONGS = dict(rim_rel=18.0, rim=6.0, claws=[45.0, 135.0, 225.0, 315.0], shaft=1, L=7.0, lean=25.0, hook_frac=0.4, hook=60.0, th=1.3, taper=3.0, base_r=5.0)
 # v4 (user: 'nicht so abrupt abgeknickt ... eigentlich ist die Zacke fast gerade und nur der Haken am Ende macht die Kurve'): four EQUAL claws on the diagonals
 # (45 / 135 / 225 / 315 deg from the screen-right axis), each a nearly straight shaft L 8 leaning out 8 deg, only its last 40 % bends outwards on a smooth arc
 # by 75 deg (the hook); base radius 1.3, thick until the hook, then a point (taper exponent 3).  The front pair reads as the tall prongs beside the flame, the back pair as the side claws.
 # Projection IoU 0.928 short (grid ~/lktest/braz/gridc7.py: the straight-shaft family tops out at 0.928; the tulip v3 was 0.934 but bent too early).
+# v5 (user: 'im Sprite sehen sie aus, als wuerden sie nicht so steil nach oben gehen, sondern in einem flacheren Winkel'): the shafts lean out 35 deg, L 10,
+# hook 60 deg, rooted 3 from the axis inside the bowl (flat claws only fit the drawing when they start further in): IoU 0.934 (~/lktest/braz/gridc9.py).
+# Rooted that deep they looked like stumps from the side -> user '2': rooted AT THE RIM (r 5.0), lean 25 deg, L 7, hook 60 deg: IoU 0.922 (gridc10.py;
+# at the rim 15 deg would give 0.934, 20 deg 0.925, 25 deg 0.922 - 25 chosen because the user wants them flatter).
 
 def brazier_mesh(ax, ay, floor, steps, SPL=False):
     import math
@@ -350,7 +354,7 @@ def brazier_mesh(ax, ay, floor, steps, SPL=False):
     def at(ang, rho, z):   # angle from the screen-right axis s = (1, -1) / sqrt 2 towards the viewer axis f = (1, 1) / sqrt 2
         s_ = rho * math.cos(math.radians(ang)); f_ = rho * math.sin(math.radians(ang))
         return (ax + (s_ + f_) / SQ, ay + (f_ - s_) / SQ, floor + z)
-    rr = BP["rim"] - 0.45
+    rr = BP.get("base_r", BP["rim"] - 0.45)
     for c in BP["claws"]:   # hook: outwards first, then up, pointed; c = angle or (angle, out, h)
         ang, out, h = (c, BP.get("out", 0.0), BP.get("h", 0.0)) if not isinstance(c, (tuple, list)) else c
         pts = []; NP = 17
