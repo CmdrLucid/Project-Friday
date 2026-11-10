@@ -745,7 +745,7 @@
         "file": "proxies/barrel_65.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -758,7 +758,7 @@
         "file": "proxies/barrel_65_1.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -771,7 +771,7 @@
         "file": "proxies/barrel_65_2.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       }
     ],
     "66": [
@@ -786,7 +786,7 @@
         "file": "proxies/barrel_66.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -799,7 +799,7 @@
         "file": "proxies/barrel_66_1.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -812,7 +812,7 @@
         "file": "proxies/barrel_66_2.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       }
     ],
     "68": [
@@ -827,7 +827,7 @@
         "file": "proxies/barrel_68.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -840,7 +840,7 @@
         "file": "proxies/barrel_68_1.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -853,7 +853,7 @@
         "file": "proxies/barrel_68_2.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       }
     ],
     "69": [
@@ -868,7 +868,7 @@
         "file": "proxies/barrel_69.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -881,7 +881,7 @@
         "file": "proxies/barrel_69_1.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -894,7 +894,7 @@
         "file": "proxies/barrel_69_2.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       }
     ],
     "71": [
@@ -909,7 +909,7 @@
         "file": "proxies/barrel_71.obj",
         "surface": true,
         "floor": 16,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -922,7 +922,7 @@
         "file": "proxies/barrel_71_1.obj",
         "surface": true,
         "floor": 16,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -935,7 +935,7 @@
         "file": "proxies/barrel_71_2.obj",
         "surface": true,
         "floor": 16,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -948,7 +948,7 @@
         "file": "proxies/barrel_71_3.obj",
         "surface": true,
         "floor": 16,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       }
     ],
     "72": [
@@ -963,7 +963,7 @@
         "file": "proxies/barrel_72.obj",
         "surface": true,
         "floor": 16,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -976,7 +976,7 @@
         "file": "proxies/barrel_72_1.obj",
         "surface": true,
         "floor": 16,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -989,7 +989,7 @@
         "file": "proxies/barrel_72_2.obj",
         "surface": true,
         "floor": 16,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       }
     ],
     "78": [
@@ -1004,7 +1004,7 @@
         "file": "proxies/barrel_78.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -1017,7 +1017,7 @@
         "file": "proxies/barrel_78_1.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       }
     ],
     "79": [
@@ -1032,7 +1032,7 @@
         "file": "proxies/barrel_79.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       },
       {
         "op": "mesh",
@@ -1045,7 +1045,7 @@
         "file": "proxies/barrel_79_1.obj",
         "surface": true,
         "floor": 0,
-        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, placed by remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+        "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       }
     ],
     "86": [
@@ -1254,6 +1254,21 @@
         ],
         "floor": 0,
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      }
+    ],
+    "480": [
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          19,
+          17,
+          19
+        ],
+        "file": "proxies/jar_480.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       }
     ],
     "486": [
@@ -1831,6 +1846,288 @@
         "surface": true,
         "air": true,
         "why": "user 2026-11-08 'links von der Galionsfigur ist auch noch ein harter Schatten': the figurehead as its own shape from the drawn statue bottom (z 22) to 64 with air below (drawn in layer A); in the solid hull mesh it was a column down to the sea over the drawn water (background test remake/tools/proxy_bgtest.py)"
+      }
+    ],
+    "526": [
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          15,
+          21,
+          15
+        ],
+        "file": "proxies/jar_526.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          16,
+          21,
+          16
+        ],
+        "file": "proxies/jar_526_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "593": [
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          14,
+          17,
+          14
+        ],
+        "file": "proxies/jar_593.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          14,
+          18,
+          14
+        ],
+        "file": "proxies/jar_593_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "594": [
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          14,
+          18,
+          14
+        ],
+        "file": "proxies/jar_594.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          14,
+          19,
+          14
+        ],
+        "file": "proxies/jar_594_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "595": [
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          14,
+          18,
+          14
+        ],
+        "file": "proxies/jar_595.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          14,
+          19,
+          14
+        ],
+        "file": "proxies/jar_595_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "597": [
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          25,
+          30,
+          25
+        ],
+        "file": "proxies/jar_597.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "598": [
+      {
+        "op": "mesh",
+        "cells": [
+          38,
+          23,
+          38,
+          23
+        ],
+        "file": "proxies/jar_598.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          23,
+          39,
+          23
+        ],
+        "file": "proxies/jar_598_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "599": [
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          14,
+          18,
+          14
+        ],
+        "file": "proxies/jar_599.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          14,
+          19,
+          14
+        ],
+        "file": "proxies/jar_599_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "604": [
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          25,
+          28,
+          25
+        ],
+        "file": "proxies/jar_604.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          29,
+          25,
+          29,
+          25
+        ],
+        "file": "proxies/jar_604_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          25,
+          30,
+          25
+        ],
+        "file": "proxies/jar_604_2.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "606": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          19,
+          14,
+          19
+        ],
+        "file": "proxies/jar_606.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "607": [
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          25,
+          30,
+          25
+        ],
+        "file": "proxies/jar_607.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "608": [
+      {
+        "op": "mesh",
+        "cells": [
+          38,
+          23,
+          38,
+          23
+        ],
+        "file": "proxies/jar_608.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          23,
+          39,
+          23
+        ],
+        "file": "proxies/jar_608_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       }
     ],
     "620": [
@@ -2864,6 +3161,262 @@
         ],
         "floor": 0,
         "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      }
+    ],
+    "727": [
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          14,
+          15,
+          14
+        ],
+        "file": "proxies/jar_727.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "728": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          17,
+          14,
+          17
+        ],
+        "file": "proxies/jar_728.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          18,
+          14,
+          18
+        ],
+        "file": "proxies/jar_728_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "730": [
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          14,
+          26,
+          14
+        ],
+        "file": "proxies/jar_730.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "731": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          15,
+          14,
+          15
+        ],
+        "file": "proxies/jar_731.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          16,
+          14,
+          16
+        ],
+        "file": "proxies/jar_731_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "732": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          19,
+          14,
+          19
+        ],
+        "file": "proxies/jar_732.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          20,
+          14,
+          20
+        ],
+        "file": "proxies/jar_732_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "734": [
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          14,
+          20,
+          14
+        ],
+        "file": "proxies/jar_734.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "736": [
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          25,
+          30,
+          25
+        ],
+        "file": "proxies/jar_736.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "741": [
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          15,
+          22,
+          15
+        ],
+        "file": "proxies/jar_741.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          15,
+          23,
+          15
+        ],
+        "file": "proxies/jar_741_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "743": [
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          15,
+          20,
+          15
+        ],
+        "file": "proxies/jar_743.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          15,
+          21,
+          15
+        ],
+        "file": "proxies/jar_743_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "744": [
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          22,
+          15,
+          22
+        ],
+        "file": "proxies/jar_744.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          23,
+          15,
+          23
+        ],
+        "file": "proxies/jar_744_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "745": [
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          15,
+          21,
+          15
+        ],
+        "file": "proxies/jar_745.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          16,
+          21,
+          16
+        ],
+        "file": "proxies/jar_745_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       }
     ]
   },

@@ -66,6 +66,12 @@ BRAZIER = dict(dx=1.0, dy=1.0, stem={2: 4.0, 4: 28.0})   # stem length by collis
 BARREL = dict(dx=2.0, dy=2.0, prof=[(0.0, 8.0), (1.58, 8.46), (3.17, 8.83), (4.75, 8.62), (6.33, 9.33), (7.92, 9.71), (9.5, 10.25), (11.08, 9.46),
                                     (12.67, 9.33), (14.25, 9.38), (15.83, 8.83), (17.42, 8.46), (19.0, 7.5)])
 
+# THE CLAY JAR (chapels of tileset 8, the jar by the angel statue of 597 / 607 / 736): fitted 2026-11-10 to room 597 (30, 25) (~/lktest/jar/fitc.py: free
+# rings, then the top 2 rings held at radius >= 5 = the open mouth as a flat lip, IoU 0.986; free 0.990 only with a cone top): axis 3 units in front of
+# the cell centre (+x, +y), 23 high (collision 16), belly r 8.5, neck r 4.7, lip r 5.7
+JAR = dict(dx=3.0, dy=3.0, prof=[(0.0, 7.24), (1.05, 8.28), (2.09, 7.78), (3.14, 7.99), (4.18, 8.49), (8.36, 8.49), (9.41, 7.49), (10.45, 7.78), (11.5, 6.78),
+                                 (12.55, 6.07), (13.59, 5.36), (14.64, 5.66), (15.68, 4.66), (16.73, 4.95), (17.77, 4.95), (18.82, 4.66), (19.86, 5.91), (21.95, 5.66), (23.0, 5.16)])
+
 def brazier_prof(steps):
     """the stand's profile [(height, radius)] in units (absolute heights) for a stand of `steps` collision steps"""
     st = 10.0 + BRAZIER["stem"][steps]
