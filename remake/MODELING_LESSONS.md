@@ -32,6 +32,8 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
   ray-march estimates differ by up to half a pixel at the edges.
 - Keep every part INSIDE its carrier: the church angel's wings first swept back along the screen axis and reached into the niche's back-wall cells; the light
   then cut the wall (hard edges, user 2026-11-10). Wings parallel to the back wall fit. Check the x / y range of the mesh against the carrier.
+- Fitted outline radii carry the drawing's PIXEL STEPS (ripples on a jar neck / belly); a real turned object is smooth: smooth the radii once (3-tap) and
+  accept a few edge pixels (jar 0.962 -> 0.948, 4 px outside) instead of modelling the stairs (2026-11-10).
 - Detail can be moved ALONG THE VIEW RAY (1, 1, 1) without changing the game picture (depth of wings, relief, lid recess) - but relief taken from the
   drawing's shading alone gives lumps, not real parts (church angel try 2026-11-10): figures need real parts (head, arms, child, folds, feathers).
 

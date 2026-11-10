@@ -253,6 +253,41 @@ def barrel_mesh(ax, ay, floor, seg=64, staves=16):
         if j1 != j2: F.append((g1, inner[j2], inner[j1]))
     return [(V, F)]
 
+def revolve(ax, ay, floor, pts, seg=64):
+    """a closed solid of revolution around (ax, ay) from a profile polyline pts [(r, z)] that starts and ends on the axis (r = 0), e.g. outside up, over a lip,
+    inside down; faces follow the polyline direction (outward like lathe())"""
+    import math
+    V, F = [], []; rings = []
+    for r, z in pts:
+        if r <= 1e-6: V.append((ax, ay, floor + z)); rings.append(("pole", len(V) - 1))
+        else:
+            b = len(V); V.extend((ax + r * math.cos(2 * math.pi * j / seg), ay + r * math.sin(2 * math.pi * j / seg), floor + z) for j in range(seg)); rings.append(("ring", b))
+    for (ka, a), (kb, b) in zip(rings, rings[1:]):
+        if ka == "ring" and kb == "ring":
+            for j in range(seg): F.append((a + j, a + (j + 1) % seg, b + (j + 1) % seg, b + j))
+        elif ka == "pole" and kb == "ring":
+            for j in range(seg): F.append((a, b + (j + 1) % seg, b + j)) if False else F.append((b + j, a, b + (j + 1) % seg))
+        elif ka == "ring" and kb == "pole":
+            for j in range(seg): F.append((a + j, a + (j + 1) % seg, b))
+    return V, F
+
+# NEAR-FINAL CLAY JAR (reference room 597 (30, 25), remake/MODELS.md): the fitted outline JAR["prof"] outside; the drawing shows an OPEN mouth (black inside,
+# rows 43..48 of the reference window, ~10 px wide -> inner radius 3.6) inside a grey lip ring (outer r 5.7): the lip is rolled over (round top at z 23) into a
+# hollow neck 6 deep with a flat inner bottom; the red band on the shoulder and the grey lower body are paint (material later).
+def jar_mesh(ax, ay, floor, seg=64, BASE_R=6.2, LIP_DROP=0.8, SMOOTH=1):
+    import math
+    J = JAR; out = [(BASE_R, 0.0), (7.0, 0.6), (7.7, 1.05)] + [(r, z) for z, r in J["prof"][2:-1]]   # outside up to the lip's outer edge; the foot bevelled so
+    # that its front edge stays above picture row 71 (exact triangle projection: the sampled fit let the foot ring stick out 1 row)
+    for _ in range(SMOOTH):   # the fitted radii carry the drawing's pixel steps (ripples); a real jar is smooth: 3-tap average, ends kept
+        out = [out[0]] + [((a[0] + 2 * b[0] + c[0]) / 4.0, b[1]) for a, b, c in zip(out, out[1:], out[2:])] + [out[-1]]
+    zt = J["prof"][-1][0]; ro = J["prof"][-2][1]; ri = 3.6
+    lip = []
+    for k in range(1, 8):                                                   # half round over the top from the outer edge to the inner edge
+        t = math.pi * k / 8; c = (ro + ri) / 2; w = (ro - ri) / 2
+        lip.append((c + w * math.cos(t), zt - LIP_DROP + LIP_DROP * math.sin(t)))
+    inside = [(ri, zt - 1.2), (ri - 0.2, zt - 4.0), (ri - 0.5, zt - 6.0), (0.0, zt - 6.0)]
+    return [revolve(ax, ay, floor, [(0.0, 0.0)] + out + lip + inside, seg)]
+
 def brazier_prof(steps):
     """the stand's profile [(height, radius)] in units (absolute heights) for a stand of `steps` collision steps"""
     st = 10.0 + BRAZIER["stem"][steps]

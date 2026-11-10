@@ -61,12 +61,15 @@ FINAL = with material, approved by the user.
 - State: NEAR-FINAL geometry (2026-11-10, `furniture.barrel_mesh()`, `BARREL_HOOPS`): hoops at z 1..3.5 / 9..11.5 / 15.5..17.5 measured from the hoop-grey
   pixels (72,72,72 / 36,36,36) per model height (`~/lktest/barrel/hoops.py`), wood 0.35 below the hoops, 16 staves with V grooves, chimes at top / bottom,
   top metal rim, lid recessed 1.5 with 4 planks along the screen axis. Projection IoU 0.980 (688 px, 2 outside, 12 missed at the rim back edge / foot),
-  `~/lktest/barrel/objcheck.py`. Clay preview `~/.landstalker_remake/assets/barrel/clay_all.png`. User OK open. Material later (dark wood, grey iron).
+  `~/lktest/barrel/objcheck.py`. Clay preview `~/.landstalker_remake/assets/barrel/clay_all.png`. USER OK 2026-11-10 ('Das Fass passt'). Material later (dark wood, grey iron).
 
 ## Clay jar  (`furniture.JAR`, lathe; ops by `round_found(.., "jar")`)
 - Game: tileset 8 (chapels + wooden houses): 39 jars in 480 526 593 594 595 597 598 599 604 606 607 608 727 728 730 731 732 734 736 741 743 744 745 (picture match).
 - Reference: room 597 cell (30, 25), floor 0; axis 3 units in front, 23 high, belly r 8.5, neck 4.7, lip 5.7. IoU 0.986 (`~/lktest/jar/fitc.py`).
-- State: LIGHT. TODO near-final: OPEN mouth (hollow neck), rolled lip, painted band as a slight groove?
+- State: NEAR-FINAL geometry (2026-11-10, `furniture.jar_mesh()` via `revolve()`): open mouth (the drawing is black inside, ~10 px -> inner radius 3.6),
+  rolled lip (half round over the top), hollow neck 6 deep, foot bevelled so its front edge stays above picture row 71, outline radii smoothed once (3-tap)
+  to remove the drawing's pixel-step ripples. Projection IoU 0.948 (578 px, 4 outside; unsmoothed 0.962 but rippled), `~/lktest/jar/objcheck.py`.
+  Red shoulder band and grey lower body = paint (material later). Clay preview `~/.landstalker_remake/assets/jar/clay_all.png`. User OK open.
 
 ## Vase pair by the hearth  (`furniture.VASE`, lathe; ops by `vase_pairs()`)
 - Game: Mercator houses, tileset 2, rooms 670 671 694: $157 (back) over $061 (front), same walkable height, wall west; floor h - 1.

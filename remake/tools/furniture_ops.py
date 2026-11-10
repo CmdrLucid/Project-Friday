@@ -281,6 +281,7 @@ def main():
                 for k, t in enumerate(found):   # one op per object (own object rule)
                     (x, y), B = t["cell"], getattr(furniture, K["shape"]); top = B["prof"][-1][0]
                     if kind == "barrel": ms = furniture.barrel_mesh(16 * x + 8 + B["dx"], 16 * y + 8 + B["dy"], 16 * t["floor"])   # near-final (remake/MODELS.md)
+                    elif kind == "jar": ms = furniture.jar_mesh(16 * x + 8 + B["dx"], 16 * y + 8 + B["dy"], 16 * t["floor"])
                     else: ms = [furniture.lathe(16 * x + 8 + B["dx"], 16 * y + 8 + B["dy"], 16 * t["floor"], top, [(z / top, rr) for z, rr in B["prof"]])]
                     fn = "%s_%d.obj" % (kind, r) if k == 0 else "%s_%d_%d.obj" % (kind, r, k)
                     open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(ms, "%s, room %d" % (kind, r)))
