@@ -139,7 +139,8 @@ def l_bench_mesh(x0, y0, x1, y1, ax0, floor, top, thick, P=None, ad=16.0, aw=0.0
     (y0 .. y0 + 16), the same flat rounded slab + round legs as the Mercator table (MERCATOR_FINE), no leg at the inner corner (as drawn)"""
     P = P or MERCATOR_FINE; e = P["ex0"]; u = top - thick; re = P["re"]; D = P["rim"] + 0.3
     ax0 = ax0 + aw   # ad = depth of the short arm (along y), aw = its west end moved east
-    poly = [(ax0 - e, y0 - e), (x1 + e, y0 - e), (x1 + e, y1 + e), (x0 - e, y1 + e), (x0 - e, y0 + ad + e), (ax0 - e, y0 + ad + e)]
+    # grown by e only on the BACK sides (-x / -y faces: the drawn outline, as the table), the front faces (+x / +y) exactly on the cells (MODELING_LESSONS 4)
+    poly = [(ax0 - e, y0 - e), (x1, y0 - e), (x1, y1), (x0 - e, y1), (x0 - e, y0 + ad), (ax0 - e, y0 + ad)]
     prof = [(D, u), (0.0, u)] + _arc(re, top - re, re, 180.0, 90.0) + [(D, top)]   # sharp bottom edge (see tray_top)
     ms = [sweep_poly(poly, P["rc"], prof, ((x0 + x1) / 2, y0 + 8))]
     r = P["leg_r"]; i0, i1 = P["i0"], P["i1"]
