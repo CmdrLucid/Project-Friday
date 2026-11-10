@@ -43,6 +43,12 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 - Catmull-Rom smoothing overshoots at sharp steps of a turned profile (brazier knob / foot): use it only on soft outlines (vases), linear on stepped ones.
 - Drawn parts that are no geometry (flames, glows) are DON'T CARE in the silhouette check, not 'outside' (brazier: the flame between the prongs).
 
+- COUNT the parts with the user before fitting several of them: the picture cannot tell front from back parts at the same screen offset (brazier: 2 drawn
+  prongs per side were 1 front + 1 back claw; I first built 6). When the best pixel fit needs UNEQUAL parts that are equal in reality, prefer equal parts
+  (a real object) and accept 1..3 % less IoU (user '1', 2026-11-10).
+- The silhouette check window must be FIXED (not derived from the model's own coverage), else a model that misses a part looks better (brazier grid).
+- Tubes (claws, horns, handles) need a parallel-transport frame; a fixed reference vector flips the cross-section where the tube turns steep = visible kinks.
+
 ## 4. Light side effects (every model is also a light shape)
 - A shape under or next to a FLAME moves the flame light (its position comes from the view ray of the flame's picture centre): check the light list
   (LANDSTALKER_LIGHTING_DBG=1) before / after. Stands carry their flame (`carrier` data: light on the axis above the bowl, no self shadow).

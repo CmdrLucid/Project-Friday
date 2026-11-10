@@ -318,10 +318,13 @@ def tube(pts, radii, seg=10):
     def norm(v):
         l = math.sqrt(sum(c * c for c in v)) or 1.0; return tuple(c / l for c in v)
     def cross(a, b): return (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
-    rings = []
-    for i, (p, r) in enumerate(zip(pts, radii)):
+    rings = []; a = None
+    for i, (p, r) in enumerate(zip(pts, radii)):   # parallel transport frame: the cross-section does not flip where the tube turns steep (no kinks)
         d = norm(tuple(pts[min(i + 1, len(pts) - 1)][k] - pts[max(i - 1, 0)][k] for k in range(3)))
-        a = norm(cross(d, (0.0, 0.0, 1.0) if abs(d[2]) < 0.9 else (1.0, 0.0, 0.0))); b = cross(d, a)
+        if a is None: a = norm(cross(d, (0.0, 0.0, 1.0) if abs(d[2]) < 0.9 else (1.0, 0.0, 0.0)))
+        else:
+            dot = sum(a[k] * d[k] for k in range(3)); a = norm(tuple(a[k] - dot * d[k] for k in range(3)))
+        b = cross(d, a)
         b0 = len(V); V.extend(tuple(p[k] + r * (math.cos(2 * math.pi * j / seg) * a[k] + math.sin(2 * math.pi * j / seg) * b[k]) for k in range(3)) for j in range(seg)); rings.append(b0)
     for a0, a1 in zip(rings, rings[1:]):
         for j in range(seg): F.append((a0 + j, a0 + (j + 1) % seg, a1 + (j + 1) % seg, a1 + j))
@@ -333,13 +336,11 @@ def tube(pts, radii, seg=10):
 # fitted outline (Catmull-Rom through the knots), an OPEN bowl on top (grey, inner radius 5.3, 2.5 deep) and its PRONGS as drawn (window rows 48..60 of the
 # short reference): two tall curved prongs left / right of the flame (screen offset ~5.5 px, rising ~11 above the rim) + two more behind them, and a short
 # leaf on each side pointing outwards along the screen axis (offset ~9..11 px, ~4 above the rim). The flame itself is light / paint, no geometry.
-BRAZIER_PRONGS = dict(rim_rel=18.0, rim=6.0, petals=[(47.0, 7.0, 1.3), (133.0, 7.0, 1.3), (227.0, 7.0, 1.3), (313.0, 7.0, 1.3)], petal_out=0.5,
-                      leaves=[(0.0, 4.0, 4.2), (180.0, 4.0, 4.2)])
-# v2 after the user ('die Krone oben stimmt noch gar nicht mit dem Sprite ueberein'): read on the 1 px grid of the short reference (~/lktest/braz/crown.png):
-# the bowl opening is the dark ellipse around the flame's foot, centre row 57 = z 32 (rim r ~6) - the old outline's top 3.5 units (r up to 7.5) were the CROWN.
-# The tall prong left / right of the flame (rows 48..60, 2 px grey, ~6 px from the axis) = a FRONT and a BACK petal at the same screen offset drawn as one
-# (petals at +-40 / +-140 degrees from the screen-right axis, 5.5 high, leaning out 1.3); the short leaf on each side (rows 53..56, reaching ~12 px out) =
-# a petal at 0 / 180 degrees bent outwards (3.0 out, 2.6 up).  petals: (angle, height, base thickness); leaves: (angle, outward, up).
+BRAZIER_PRONGS = dict(rim_rel=18.0, rim=6.0, claws=[45.0, 135.0, 225.0, 315.0], out=4.5, h=6.5, th=1.3, bend=2.8, flare=1)
+# v3 (user: 'eher so, wie du beschreibst - ausserdem sind es nur 4, du hast jetzt 6', then '1' = four EQUAL claws like a real crown): four identical
+# claws on the diagonals (90 degrees apart), each a TULIP curve: up first, then flaring out (radius r0 + out t^bend, height h (1 - (1 - t)^bend)), pointed.
+# Seen from the game camera the front pair reads as the tall prongs left / right of the flame and the back pair as the side claws. Grid fit on the projection
+# with a fixed mask window (~/lktest/braz/gridc6.py): IoU 0.940 short (unequal claws reached 0.956 but looked wrong from other sides; hooks 'out then up' 0.918).
 
 def brazier_mesh(ax, ay, floor, steps, SPL=False):
     import math
@@ -350,12 +351,14 @@ def brazier_mesh(ax, ay, floor, steps, SPL=False):
         s_ = rho * math.cos(math.radians(ang)); f_ = rho * math.sin(math.radians(ang))
         return (ax + (s_ + f_) / SQ, ay + (f_ - s_) / SQ, floor + z)
     rr = BP["rim"] - 0.45
-    for ang, h, th in BP["petals"]:   # upright petal on the rim, leaning out, pointed
-        pts = [at(ang, rr + BP["petal_out"] * (k / 6.0) ** 1.5, top - 0.3 + h * k / 6.0) for k in range(7)]
-        meshes.append(tube(pts, [th, th, th * 0.9, th * 0.75, th * 0.55, th * 0.35, 0.08]))
-    for ang, out, up in BP["leaves"]:   # side petal bent outwards
-        pts = [at(ang, rr + out * k / 5.0, top - 0.3 + up * math.sin(math.pi * 0.5 * k / 5.0)) for k in range(6)]
-        meshes.append(tube(pts, [1.15, 1.1, 0.95, 0.75, 0.45, 0.08]))
+    for c in BP["claws"]:   # hook: outwards first, then up, pointed; c = angle or (angle, out, h)
+        ang, out, h = (c, BP["out"], BP["h"]) if not isinstance(c, (tuple, list)) else c
+        pts = []; NP = 17
+        for k in range(NP):
+            t = k / (NP - 1.0)
+            if BP.get("flare"): pts.append(at(ang, rr + out * t ** BP["bend"], top - 0.3 + h * (1.0 - (1.0 - t) ** BP["bend"])))   # up first, then out (tulip)
+            else: pts.append(at(ang, rr + out * (1.0 - (1.0 - t) ** BP["bend"]), top - 0.3 + h * t ** BP["bend"]))                # out first, then up (hook)
+        th = BP["th"]; meshes.append(tube(pts, [max(0.08, th * (1.0 - (k / (NP - 1.0)) ** 1.6)) for k in range(NP)], seg=12))
     return meshes
 
 # NEAR-FINAL VASE (reference room 670 (18, 24) / (18, 25), remake/MODELS.md): the drawing shows an OPEN mouth (dark inside, lip ring ~18 px wide -> outer

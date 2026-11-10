@@ -87,14 +87,14 @@ FINAL = with material, approved by the user.
   same foot and head, stem 4 vs 28. Not placed: 55..58 (29, 24) / (42, 24) (in void cells, needs a carrier), 680 / 707 (wall candle, other object).
 - Reference: room 51 (27, 44) short (IoU 0.942), room 59 (29, 28) tall (0.955); axis 1 unit in front of the cell centre. The flame light sits on the axis
   5 above the bowl and ignores its own stand (data `carrier`, LK_GLCARRIER v1).
-- State: NEAR-FINAL geometry v2 (2026-11-10, `furniture.brazier_mesh(ax, ay, floor, steps)`, `BRAZIER_PRONGS`), after the user ('die Krone oben stimmt
-  noch gar nicht mit dem Sprite ueberein'): read on the 1 px grid (`~/lktest/braz/crown.png`): the BOWL opening = the dark ellipse around the flame's foot,
-  centre row 57 of the short reference = z 32 (rim r 6.0, 18 above the stem top); the old outline's top 3.5 units were the CROWN. Crown = 4 upright petals
-  at +-47 / +-133 degrees from the screen-right axis (front + back petal at the same screen offset = the one tall prong drawn left / right of the flame),
-  7 high, base radius 1.3, leaning out 0.5, + 2 side petals at 0 / 180 degrees bent outwards (4.0 out, 4.2 up). Projection IoU 0.951 short / 0.962 tall.
-  Turned body linear (a spline overshot the knob / foot edges); open bowl 2.5 deep. Flame pixels = don't care. In-game 59 unchanged light (152).
-  Previews `~/.landstalker_remake/assets/brazier/` (clay_all.png, crown_all.png close-up, crown_cmp.png sprite vs model, zoom_crown_game.png). User OK open.
-  Material later (grey iron foot / bowl / petals, gold stem and knob).
+- State: NEAR-FINAL geometry v3 (2026-11-10, `furniture.brazier_mesh(ax, ay, floor, steps)`, `BRAZIER_PRONGS`). History: v1 prongs wrong; v2 6 petals
+  ('die Krone stimmt noch gar nicht', then 'es sind nur 4'); unequal claws fitted the picture best (0.956) but looked wrong from other sides -> user chose
+  '1' = FOUR EQUAL CLAWS like a real crown. Now: bowl rim z 32 of the short stand (18 above the stem top, the dark ellipse around the flame's foot), r 6.0,
+  open 2.5 deep; four identical claws on the diagonals (45 / 135 / 225 / 315 deg from the screen-right axis), TULIP curve (up first, then flaring out:
+  out 4.5, h 6.5, bend 2.8), base radius 1.3 tapering to a point, tube with a parallel-transport frame (no kinks). The front pair reads as the tall prongs
+  beside the flame, the back pair as the side claws. Projection IoU 0.934 short (room 51) / 0.948 tall (59) (`~/lktest/braz/chk.py`, grid `gridc6.py`).
+  In-game 59 light unchanged (152). Previews `~/.landstalker_remake/assets/brazier/` (crown_cmp.png sprite vs model, crown_all.png, clay_all.png,
+  zoom_crown_game.png). User OK open. Material later (grey iron foot / bowl / claws, gold stem and knob).
 
 ## Tables, benches, side tables, castle tables, L bench  (`furniture.MERCATOR_TABLE / CASTLE_TABLE`, `table()`, `top_on_legs()`, `l_bench()`; ops by `tables()`)
 - Game: tileset 2 Mercator tables / benches / side tables (top blocks $030 $04A $04C $04D $06E $06A $0A3 $18A $312..$314) and tileset 1 castle tables
