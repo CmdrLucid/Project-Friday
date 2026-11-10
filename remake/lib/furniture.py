@@ -288,6 +288,39 @@ def jar_mesh(ax, ay, floor, seg=64, BASE_R=6.2, LIP_DROP=0.8, SMOOTH=1):
     inside = [(ri, zt - 1.2), (ri - 0.2, zt - 4.0), (ri - 0.5, zt - 6.0), (0.0, zt - 6.0)]
     return [revolve(ax, ay, floor, [(0.0, 0.0)] + out + lip + inside, seg)]
 
+def vessel_mesh(ax, ay, floor, prof, ri, depth, foot=None, smooth=1, lip_drop=0.8, seg=64, spline=False):
+    """near-final open vessel (jar / vase): outside = prof [(z, r)] (absolute heights, the last knot = the top of the lip), the second last = the lip's outer
+    edge; a rolled lip (half round) to the inner radius ri, a hollow neck `depth` deep with a flat bottom; foot = replacement for the first knots
+    [(r, z), ..] (bevel); outline radii smoothed `smooth` times (3-tap: the drawing's pixel steps)"""
+    import math
+    out = (list(foot) if foot else [(prof[0][1], prof[0][0])]) + [(r, z) for z, r in prof[(len(foot) if foot else 1):-1]]
+    for _ in range(smooth):
+        out = [out[0]] + [((a[0] + 2 * b[0] + c[0]) / 4.0, b[1]) for a, b, c in zip(out, out[1:], out[2:])] + [out[-1]]
+    if spline and len(out) >= 3:   # Catmull-Rom through the knots, 4 steps per span: no kinks between the measured knots, the knots themselves unchanged
+        q = [out[0]] + out + [out[-1]]; res = []
+        for i in range(1, len(q) - 2):
+            p0, p1, p2, p3 = q[i - 1], q[i], q[i + 1], q[i + 2]
+            for k in range(4):
+                t = k / 4.0; t2 = t * t; t3 = t2 * t
+                res.append(tuple(0.5 * (2 * p1[j] + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2 + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3) for j in (0, 1)))
+        out = res + [out[-1]]
+    zt = prof[-1][0]; ro = out[-1][0]; lip = []
+    for k in range(1, 8):
+        t = math.pi * k / 8; c = (ro + ri) / 2; w = (ro - ri) / 2
+        lip.append((c + w * math.cos(t), zt - lip_drop + lip_drop * math.sin(t)))
+    inside = [(ri, zt - 1.2), (ri - 0.2, zt - depth * 0.6), (ri - 0.5, zt - depth), (0.0, zt - depth)]
+    return [revolve(ax, ay, floor, [(0.0, 0.0)] + out + lip + inside, seg)]
+
+# NEAR-FINAL VASE (reference room 670 (18, 24) / (18, 25), remake/MODELS.md): the drawing shows an OPEN mouth (dark inside, lip ring ~18 px wide -> outer
+# r 6.0, inner ~12 px -> ri 4.2) over a short neck, wide shoulder and belly; the white glaze pattern is paint (material later).
+# v2 outline (2026-11-10): refitted with the vase's OWN pixels (the black floor shadow under the foot left out) on the LEFT half of the front vase (the right
+# half overlaps the back vase), knots every 2 units, never outside (~/lktest/vase2/fitv.py: 251 of 257 px, 0 outside); the old VASE lathe was 0.914 in the
+# exact projection.
+VASE_PROF2 = [(0.0, 3.5), (2.0, 5.5), (4.0, 6.75), (6.0, 8.25), (8.0, 8.5), (10.0, 8.5), (12.0, 8.0), (14.0, 6.75), (16.0, 5.75), (18.0, 5.25), (20.0, 5.25),
+              (22.0, 5.5), (22.5, 5.5)]
+def vase_mesh(ax, ay, floor):
+    return vessel_mesh(ax, ay, floor, VASE_PROF2, ri=4.2, depth=7.0, smooth=0, lip_drop=0.5, spline=True)
+
 def brazier_prof(steps):
     """the stand's profile [(height, radius)] in units (absolute heights) for a stand of `steps` collision steps"""
     st = 10.0 + BRAZIER["stem"][steps]

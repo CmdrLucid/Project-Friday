@@ -69,13 +69,18 @@ FINAL = with material, approved by the user.
 - State: NEAR-FINAL geometry (2026-11-10, `furniture.jar_mesh()` via `revolve()`): open mouth (the drawing is black inside, ~10 px -> inner radius 3.6),
   rolled lip (half round over the top), hollow neck 6 deep, foot bevelled so its front edge stays above picture row 71, outline radii smoothed once (3-tap)
   to remove the drawing's pixel-step ripples. Projection IoU 0.948 (578 px, 4 outside; unsmoothed 0.962 but rippled), `~/lktest/jar/objcheck.py`.
-  Red shoulder band and grey lower body = paint (material later). Clay preview `~/.landstalker_remake/assets/jar/clay_all.png`. User OK open.
+  Red shoulder band and grey lower body = paint (material later). Clay preview `~/.landstalker_remake/assets/jar/clay_all.png`. USER OK 2026-11-10 ('Ja, passt').
 
 ## Vase pair by the hearth  (`furniture.VASE`, lathe; ops by `vase_pairs()`)
 - Game: Mercator houses, tileset 2, rooms 670 671 694: $157 (back) over $061 (front), same walkable height, wall west; floor h - 1.
 - Reference: room 670 cells (18, 24) / (18, 25); axis 4 units in front, 23 high. IoU 0.965 (`~/lktest/vase/fit2.py`). Not placed: 685 / 686 (on a shelf
   in void cells, needs the shelf as a carrier like the church niche), 717 / 718 (other arrangement).
-- State: LIGHT. TODO near-final: open mouth, lip; recheck the fit with the colour mask (painted shadow?).
+- State: NEAR-FINAL geometry (2026-11-10, `furniture.vase_mesh()` = `vessel_mesh()` with `VASE_PROF2`): outline REFITTED with the vase's own pixels
+  (the black painted floor shadow under the foot left out) on the left half of the front vase, knots every 2 units, never outside (`~/lktest/vase2/fitv.py`:
+  foot 3.5, belly 8.5 at z 8..10, neck 5.25, lip 5.5, top 22.5), Catmull-Rom through the knots (no kinks); open mouth (dark inside, ri 4.2), rolled lip,
+  hollow neck 7. Both vases projected: IoU 0.971 (956 px, 8 outside at the back vase's lower right edge, 20 missed at the lip back edges), `~/lktest/vase2/chk.py`.
+  In-game 670 (`~/lktest/vase2/zoom.png`): the bright lip streak between the two vases (HANDOFF 0a364..0a367) is GONE. White glaze pattern = paint.
+  Clay preview `~/.landstalker_remake/assets/vase/clay_all.png`. User OK open.
 
 ## Brazier stand  (`furniture.BRAZIER_FOOT / BRAZIER_HEAD`, `brazier_prof(steps)`; ops by `brazier_stands()`)
 - Game: castle, tileset 1, flame $098AAA (Tileset02Anim01); top blocks $027 / $041 / $043; 36 stands in 51..62, 86, 87. Short (2 steps) and tall (4 steps):

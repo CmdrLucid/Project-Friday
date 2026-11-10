@@ -21,6 +21,9 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
   void as a wall up to the room top. Church angel: niche 1 cell deep and 4 wide, pedestal 1 x 2 (first guessed 2 x 2 = wrong), data op `ground`.
 - A free profile fit can prefer a WRONG shape that matches pixels better (barrel / jar top as a cone, IoU 0.994 vs flat 0.986): fix the physically right
   class first (flat top, symmetric barrel), then refine.
+- Old fits made with the sampled ray method and the raw layer A mask must be REFITTED when a model goes near-final: the vase lathe was 0.965 sampled but only
+  0.914 in the exact triangle projection (it included the painted floor shadow under the foot). Refit on the object's own pixels, on the half that no
+  neighbour overlaps (2026-11-10).
 - Find all copies of a decoration by a PICTURE MATCH against a reference copy, not by top block ids (objects against a wall get other blocks).
 - The warp test aid (LANDSTALKER_WARP) does not reach every room from the test save (chapels, cellars stay black): a black shot is no result.
 

@@ -221,7 +221,7 @@ def main():
             for t in vases:   # ONE op (= one light object) PER VASE: the light never shades an object by itself (own object rule), so a pair in one op let the
                 x0, y0, x1, y1 = t["cells"]; V = furniture.VASE   # hearth shine through the back vase onto the front one (a bright streak, user 2026-11-09)
                 for yy in (y0, y1):
-                    ms = [furniture.lathe(16 * x0 + 8 + V["dx"], 16 * yy + 8 + V["dy"], 16 * t["floor"], V["h"], V["prof"])]
+                    ms = furniture.vase_mesh(16 * x0 + 8 + V["dx"], 16 * yy + 8 + V["dy"], 16 * t["floor"])   # near-final (remake/MODELS.md)
                     fn = "vase_%d.obj" % r if k == 0 else "vase_%d_%d.obj" % (r, k); k += 1
                     open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(ms, "vase, room %d" % r))
                     ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x0, yy, x0, yy]), ("file", "proxies/" + fn), ("surface", True), ("floor", 16 * t["floor"]),
