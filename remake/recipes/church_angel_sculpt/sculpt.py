@@ -50,9 +50,9 @@ for j in range(nf):
 ST = g('stu', 5.0)
 body.append(ball(0.6, -0.8, 27.0, 5.0))                                   # torso under the arms
 body.append(ball(0.6, -0.9, 33.6, g('shoulder_r', 4.4)))                  # shoulders
+HEAD0 = len(body)   # the head is its own metaball group at a finer resolution (the face is ~4 units)
 body.append(caps((0.8, -0.2, 35.0), (0.9, 0.0, 39.2), g('neck_r', 1.35)))   # thin neck
 body.append(ball(0.9, -0.1, 42.2, g('skull_r', 2.9)))                     # skull
-body.append(ball(1.0, g('face_f', 1.3), g('face_z', 41.4), 1.5))          # face (recessed between the hair lobes)
 # HAIR (v5, user: 'Haare sind kein Pagenkopf, die gehen im Sprite hinter die Statue'): from the middle parting over the crown, framing the face at the sides
 # (the drawn lobes beside the face) and then falling BACK and down behind the head and the shoulders (long hair down the back, hidden in the game view)
 HC = (0.9, g('hair_f', -0.4), g('crown_z', 42.8)); HR = g('hair_r', 2.95)
@@ -80,13 +80,37 @@ for j in range(-3, 4):                                                          
     for k3 in range(1, 5): pts.append((ss + 0.15 * j * k3 / 4, last[1] - 0.2 * k3 - 0.15, last[2] - 2.0 * k3))
     for p, q in zip(pts, pts[1:]): body.append(caps(p, q, g('ridge_hr', 0.45), st=g('ridge_hst', 6.0)))
 body.append(caps((0.9, 2.0, HC[2] + HR + 0.1), (0.9, -2.6, HC[2] + HR - 0.4), 0.26, neg=True, st=6.0))   # the middle parting
-# FACE (v3, user: 'auch das Gesicht'): nose, brow, eye hollows, chin
-FC = (1.0, 1.9, 41.0)
-dF = g('face_f', 1.3) - 1.9; dZ = g('face_z', 41.4) - 41.0
-body.append(caps((1.0, 3.15 + dF, 41.7 + dZ), (1.0, 3.45 + dF, 40.8 + dZ), g('nose_r', 0.38), st=6.0))          # nose
-body.append(caps((0.1, 2.75 + dF, 42.2 + dZ), (1.9, 2.75 + dF, 42.2 + dZ), 0.45, st=6.0))                     # brow
-for sg in (-1, 1): body.append(ball(1.0 + sg * 0.62, 3.05 + dF, 41.65 + dZ, g('eye_r', 0.42), neg=True, st=6.0))   # eye hollows
-body.append(ball(1.0, 2.7 + dF, 39.6 + dZ, 0.75, st=6.0))                                             # chin
+# FACE (v6, user: 'das muss schon menschlich aussehen'): built from the parts of a human face in a face frame (origin O = the middle of the face oval,
+# s right, f forward, z up; units; chin to hairline ~4): oval, forehead, cheekbones, jaw + chin, eye sockets with eyeballs and lids, brow ridge,
+# nose bridge / tip / wings, lips with a mouth line; stiff parts (little blending) at the head group's fine resolution
+O = (1.0, g('face_f', 1.25), g('face_z', 41.5)); FS = g('face_scale', 1.0)
+def Fp(s3, f3, z3): return (O[0] + s3 * FS, O[1] + f3 * FS, O[2] + z3 * FS)
+FST = g('face_st', 4.0)
+body.append(ellip(*Fp(0, 0.1, -0.1), 1.3 * FS, 1.15 * FS, 1.75 * FS, st=3.0))             # the face oval
+body.append(ball(*Fp(0, 0.35, 0.95), 1.12 * FS, st=FST))                                    # forehead
+for sg in (-1, 1):
+    body.append(ball(*Fp(sg * 0.78, 0.62, -0.15), 0.62 * FS, st=FST))                       # cheekbones
+    body.append(caps(Fp(sg * 0.85, 0.35, -0.7), Fp(sg * 0.35, 0.75, -1.55), 0.42 * FS, st=FST))   # jaw line to the chin
+body.append(ball(*Fp(0, 0.95, -1.62), 0.42 * FS, st=FST))                                   # chin
+for sg in (-1, 1):                                                                          # eyes: socket, eyeball, upper + lower lid
+    body.append(ball(*Fp(sg * 0.5, 1.22, 0.3), 0.3 * FS, neg=True, st=4.0))
+    body.append(ellip(*Fp(sg * 0.5, g('eyeball_f', 1.02), 0.28), 0.3 * FS, 0.22 * FS, 0.2 * FS, st=6.0))
+    for k3, (a0, a1) in enumerate(((0.25, 0.5), (0.5, 0.76))):                                # upper lid in two pieces (arched)
+        body.append(caps(Fp(sg * a0, 1.12, 0.4 + 0.04 * (1 - k3)), Fp(sg * a1, 1.1, 0.4 + 0.04 * k3), 0.075 * FS, st=6.0))
+    body.append(caps(Fp(sg * 0.3, 1.08, 0.16), Fp(sg * 0.72, 1.06, 0.18), 0.05 * FS, st=6.0))   # lower lid
+    for k3, (a0, a1, z0, z1) in enumerate(((0.12, 0.5, 0.62, 0.7), (0.5, 0.92, 0.7, 0.6))):     # brow: soft, arched, blended into the forehead
+        body.append(caps(Fp(sg * a0, 1.18, z0), Fp(sg * a1, 1.08, z1), 0.13 * FS, st=3.0))
+body.append(caps(Fp(0, 1.22, 0.5), Fp(0, 1.55, -0.28), 0.16 * FS, st=5.0))                # nose bridge
+body.append(ball(*Fp(0, 1.6, -0.34), 0.21 * FS, st=5.0))                                   # nose tip
+for sg in (-1, 1): body.append(ball(*Fp(sg * 0.2, 1.4, -0.42), 0.14 * FS, st=5.0))         # nose wings
+body.append(ball(*Fp(0, 1.38, -0.62), 0.09 * FS, neg=True, st=6.0))                         # philtrum dip
+for sg in (-1, 1):                                                                          # upper lip: cupid's bow (two arcs), tapering out
+    body.append(caps(Fp(sg * 0.04, 1.38, -0.84), Fp(sg * 0.2, 1.37, -0.8), 0.11 * FS, st=4.0))
+    body.append(caps(Fp(sg * 0.2, 1.37, -0.8), Fp(sg * 0.36, 1.28, -0.88), 0.07 * FS, st=4.0))
+body.append(ellip(*Fp(0, 1.3, -1.04), 0.26 * FS, 0.12 * FS, 0.1 * FS, st=4.0))             # lower lip (fuller in the middle)
+body.append(caps(Fp(-0.38, 1.5, -0.93), Fp(0.38, 1.5, -0.93), 0.05 * FS, neg=True, st=6.0))   # the line between the lips
+for sg in (-1, 1): body.append(ball(*Fp(sg * 0.42, 1.25, -0.95), 0.06 * FS, neg=True, st=6.0))   # mouth corners
+HEAD1 = len(body)
 # ARMS around the child: upper arm shoulder -> elbow, forearm elbow -> under the bundle (they cross)
 for sg in (-1, 1):
     sh = (0.6 + sg * 4.2, -0.4, 34.0); el = (0.6 + sg * 5.6, 1.4, 28.6 + (1.2 if sg < 0 else 0.0)); ha = (0.6 - sg * 1.2, 4.6, 27.2 + (2.2 if sg > 0 else 0.0))
@@ -132,5 +156,5 @@ for side in ((-1, 1) if g('mb_wings', False) else ()):
             a3, b3 = fr(q0), fr(q1); m3 = [(a3[i] + b3[i]) / 2 for i in range(3)]; dd = [b3[i] - a3[i] for i in range(3)]; LL = sum(t * t for t in dd) ** 0.5 or 1e-6
             x = [t / LL for t in dd]; axv = [0.0, -x[2], x[1]]; sn = sum(t * t for t in axv) ** 0.5; ang = _m.atan2(sn, x[0]); axv = [t / sn for t in axv] if sn > 1e-9 else [0, 0, 1]
             body.append(dict(type='CAPSULE', co=m3, radius=g('groove_r', 0.32) * KS, size=[LL / 2, 0, 0], quat=[_m.cos(ang / 2)] + [t * _m.sin(ang / 2) for t in axv], neg=True, stiffness=2.0))
-json.dump(dict(groups=[dict(name='body', elements=body, threshold=0.6)]), open('parts.json', 'w'))
+json.dump(dict(groups=[dict(name='body', elements=body[:HEAD0] + body[HEAD1:], threshold=0.6), dict(name='head', elements=body[HEAD0:HEAD1], threshold=0.6, res=g('head_res', 0.07))]), open('parts.json', 'w'))
 print(len(body), 'elements')

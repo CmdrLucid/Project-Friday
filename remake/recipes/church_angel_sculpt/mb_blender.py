@@ -4,7 +4,7 @@ bpy.ops.wm.read_factory_settings(use_empty=True)
 E = json.load(open(os.environ['MB_IN'])); res = float(os.environ.get('MB_RES', '0.35'))
 out = open(os.environ['MB_OUT'], 'w'); base = 1
 for gi, grp in enumerate(E['groups']):
-    nm = 'G' + chr(65 + gi) + 'x'; mb = bpy.data.metaballs.new(nm); mb.resolution = res; mb.render_resolution = res; mb.threshold = grp.get('threshold', 0.6)
+    nm = 'G' + chr(65 + gi) + 'x'; mb = bpy.data.metaballs.new(nm); r_ = grp.get('res', res); mb.resolution = r_; mb.render_resolution = r_; mb.threshold = grp.get('threshold', 0.6)
     ob = bpy.data.objects.new(nm, mb); bpy.context.scene.collection.objects.link(ob)
     for e in grp['elements']:
         el = mb.elements.new(); el.type = e['type']; el.co = e['co']; el.radius = e['radius']; el.stiffness = e.get('stiffness', 2.0)
