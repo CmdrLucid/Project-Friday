@@ -233,7 +233,7 @@ def main():
             ops0 = [e for e in data["rooms"].get(str(r), []) if not (e.get("op") == "mesh" and e.get("file", "").startswith("proxies/brazier_"))]
             for k, t in enumerate(stands):   # one op per stand (own object rule)
                 (x, y), P = t["cell"], furniture.brazier_prof(t["steps"]); top = P[-1][0]
-                ms = [furniture.lathe(16 * x + 8 + furniture.BRAZIER["dx"], 16 * y + 8 + furniture.BRAZIER["dy"], 16 * t["floor"], top, [(z / top, rr) for z, rr in P])]
+                ms = furniture.brazier_mesh(16 * x + 8 + furniture.BRAZIER["dx"], 16 * y + 8 + furniture.BRAZIER["dy"], 16 * t["floor"], t["steps"])   # near-final (remake/MODELS.md)
                 fn = "brazier_%d.obj" % r if k == 0 else "brazier_%d_%d.obj" % (r, k)
                 open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(ms, "brazier stand (%s), room %d" % ("short" if t["steps"] == 2 else "tall", r)))
                 ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("floor", 16 * t["floor"]), ("carrier", collections.OrderedDict([("r", 12), ("axis", [16 * x + 8 + int(furniture.BRAZIER["dx"]), 16 * y + 8 + int(furniture.BRAZIER["dy"])]), ("z", int(round(16 * t["floor"] + top + 5)))])),

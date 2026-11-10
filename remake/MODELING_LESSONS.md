@@ -40,6 +40,9 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 - Detail can be moved ALONG THE VIEW RAY (1, 1, 1) without changing the game picture (depth of wings, relief, lid recess) - but relief taken from the
   drawing's shading alone gives lumps, not real parts (church angel try 2026-11-10): figures need real parts (head, arms, child, folds, feathers).
 
+- Catmull-Rom smoothing overshoots at sharp steps of a turned profile (brazier knob / foot): use it only on soft outlines (vases), linear on stepped ones.
+- Drawn parts that are no geometry (flames, glows) are DON'T CARE in the silhouette check, not 'outside' (brazier: the flame between the prongs).
+
 ## 4. Light side effects (every model is also a light shape)
 - A shape under or next to a FLAME moves the flame light (its position comes from the view ray of the flame's picture centre): check the light list
   (LANDSTALKER_LIGHTING_DBG=1) before / after. Stands carry their flame (`carrier` data: light on the axis above the bowl, no self shadow).

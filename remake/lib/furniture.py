@@ -311,6 +311,48 @@ def vessel_mesh(ax, ay, floor, prof, ri, depth, foot=None, smooth=1, lip_drop=0.
     inside = [(ri, zt - 1.2), (ri - 0.2, zt - depth * 0.6), (ri - 0.5, zt - depth), (0.0, zt - depth)]
     return [revolve(ax, ay, floor, [(0.0, 0.0)] + out + lip + inside, seg)]
 
+def tube(pts, radii, seg=10):
+    """a closed tapered tube along the polyline pts [(x, y, z)] with radii per point (cones at the ends): (vertices, faces)"""
+    import math
+    V, F = [], []
+    def norm(v):
+        l = math.sqrt(sum(c * c for c in v)) or 1.0; return tuple(c / l for c in v)
+    def cross(a, b): return (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
+    rings = []
+    for i, (p, r) in enumerate(zip(pts, radii)):
+        d = norm(tuple(pts[min(i + 1, len(pts) - 1)][k] - pts[max(i - 1, 0)][k] for k in range(3)))
+        a = norm(cross(d, (0.0, 0.0, 1.0) if abs(d[2]) < 0.9 else (1.0, 0.0, 0.0))); b = cross(d, a)
+        b0 = len(V); V.extend(tuple(p[k] + r * (math.cos(2 * math.pi * j / seg) * a[k] + math.sin(2 * math.pi * j / seg) * b[k]) for k in range(3)) for j in range(seg)); rings.append(b0)
+    for a0, a1 in zip(rings, rings[1:]):
+        for j in range(seg): F.append((a0 + j, a0 + (j + 1) % seg, a1 + (j + 1) % seg, a1 + j))
+    V.append(pts[0]); s0 = len(V) - 1; V.append(pts[-1]); s1 = len(V) - 1
+    for j in range(seg): F.append((rings[0] + (j + 1) % seg, rings[0] + j, s0)); F.append((rings[-1] + j, rings[-1] + (j + 1) % seg, s1))
+    return V, F
+
+# NEAR-FINAL BRAZIER STAND (references room 51 (27, 44) short, 59 (29, 28) tall; remake/MODELS.md): the turned body (foot disc, stem, knobbed head) from the
+# fitted outline (Catmull-Rom through the knots), an OPEN bowl on top (grey, inner radius 5.3, 2.5 deep) and its PRONGS as drawn (window rows 48..60 of the
+# short reference): two tall curved prongs left / right of the flame (screen offset ~5.5 px, rising ~11 above the rim) + two more behind them, and a short
+# leaf on each side pointing outwards along the screen axis (offset ~9..11 px, ~4 above the rim). The flame itself is light / paint, no geometry.
+BRAZIER_PRONGS = dict(tall=[(0.0, 3.9), (180.0, 3.9)], tall_h=6.5, leaf=[(0.0, 6.2), (180.0, 6.2)], leaf_h=0.0, leaf_out=3.2)
+
+def brazier_mesh(ax, ay, floor, steps, RIM=5.8, SPL=False):
+    import math
+    P = brazier_prof(steps); top = P[-1][0]
+    prof = P[:-2] + [(top - 0.5, RIM), (top, RIM)]   # the bowl's rim (lip outer edge)
+    out = []
+    body = vessel_mesh(ax, ay, floor, prof, ri=RIM - 1.0, depth=2.5, smooth=0, lip_drop=0.4, spline=SPL)
+    meshes = list(body); BP = BRAZIER_PRONGS; SQ = math.sqrt(2.0)
+    def at(ang, rho, z):   # angle from the screen-right axis s = (1, -1) / sqrt 2 towards the viewer axis f = (1, 1) / sqrt 2
+        s_ = rho * math.cos(math.radians(ang)); f_ = rho * math.sin(math.radians(ang))
+        return (ax + (s_ + f_) / SQ, ay + (f_ - s_) / SQ, floor + z)
+    for ang, rho in BP["tall"]:   # tall prong: from inside the bowl up, curving a little outwards, tip pointed
+        pts = [at(ang, rho - 0.6 + 1.6 * (k / 6.0) ** 2, top - 1.0 + BP["tall_h"] * k / 6.0) for k in range(7)]
+        meshes.append(tube(pts, [0.8, 0.8, 0.7, 0.6, 0.45, 0.3, 0.1]))
+    for ang, rho in BP["leaf"]:   # side leaf: from the rim outwards and a little up
+        pts = [at(ang, rho + BP["leaf_out"] * k / 5.0, top - 0.5 + BP["leaf_h"] * math.sin(math.pi * 0.5 * k / 5.0)) for k in range(6)]
+        meshes.append(tube(pts, [0.9, 0.85, 0.75, 0.6, 0.4, 0.1]))
+    return meshes
+
 # NEAR-FINAL VASE (reference room 670 (18, 24) / (18, 25), remake/MODELS.md): the drawing shows an OPEN mouth (dark inside, lip ring ~18 px wide -> outer
 # r 6.0, inner ~12 px -> ri 4.2) over a short neck, wide shoulder and belly; the white glaze pattern is paint (material later).
 # v2 outline (2026-11-10): refitted with the vase's OWN pixels (the black floor shadow under the foot left out) on the LEFT half of the front vase (the right

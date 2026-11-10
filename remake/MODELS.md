@@ -80,14 +80,20 @@ FINAL = with material, approved by the user.
   foot 3.5, belly 8.5 at z 8..10, neck 5.25, lip 5.5, top 22.5), Catmull-Rom through the knots (no kinks); open mouth (dark inside, ri 4.2), rolled lip,
   hollow neck 7. Both vases projected: IoU 0.971 (956 px, 8 outside at the back vase's lower right edge, 20 missed at the lip back edges), `~/lktest/vase2/chk.py`.
   In-game 670 (`~/lktest/vase2/zoom.png`): the bright lip streak between the two vases (HANDOFF 0a364..0a367) is GONE. White glaze pattern = paint.
-  Clay preview `~/.landstalker_remake/assets/vase/clay_all.png`. User OK open.
+  Clay preview `~/.landstalker_remake/assets/vase/clay_all.png`. USER OK 2026-11-10 ('Passt ja').
 
 ## Brazier stand  (`furniture.BRAZIER_FOOT / BRAZIER_HEAD`, `brazier_prof(steps)`; ops by `brazier_stands()`)
 - Game: castle, tileset 1, flame $098AAA (Tileset02Anim01); top blocks $027 / $041 / $043; 36 stands in 51..62, 86, 87. Short (2 steps) and tall (4 steps):
   same foot and head, stem 4 vs 28. Not placed: 55..58 (29, 24) / (42, 24) (in void cells, needs a carrier), 680 / 707 (wall candle, other object).
 - Reference: room 51 (27, 44) short (IoU 0.942), room 59 (29, 28) tall (0.955); axis 1 unit in front of the cell centre. The flame light sits on the axis
   5 above the bowl and ignores its own stand (data `carrier`, LK_GLCARRIER v1).
-- State: LIGHT. TODO near-final: the prongs around the bowl, hollow bowl, knobs on the stem (drawn).
+- State: NEAR-FINAL geometry (2026-11-10, `furniture.brazier_mesh(ax, ay, floor, steps)`, `BRAZIER_PRONGS`): turned body from the fitted outline (linear, a
+  spline overshot the knob / foot edges), an OPEN bowl (rim r 5.8, 2.5 deep; the old outline's top knot r 7.5 was the prong spread, not the bowl), two tall
+  tapered prongs left / right of the flame (screen axis, rising 6.5) and a short leaf on each side pointing outwards (as drawn in rows 48..55 of the short
+  reference: grey prongs, flame between them). The flame pixels (252,72,72 / 216,216,216 / 180,180,180 / 216,216,108 near the axis) are don't care.
+  Projection IoU 0.954 short (room 51) / 0.964 tall (room 59), `~/lktest/braz/chk.py WINDOW CX CY FLOORSTEPS STEPS OBJ TOPROW`. In-game 59: light unchanged
+  (152), prongs softly shaded (`~/lktest/braz/zoom_n59.png`). Clay preview `~/.landstalker_remake/assets/brazier/clay_all.png` (short row 1, tall row 2).
+  User OK open. Material later (grey iron foot / bowl / prongs, gold stem and knob).
 
 ## Tables, benches, side tables, castle tables, L bench  (`furniture.MERCATOR_TABLE / CASTLE_TABLE`, `table()`, `top_on_legs()`, `l_bench()`; ops by `tables()`)
 - Game: tileset 2 Mercator tables / benches / side tables (top blocks $030 $04A $04C $04D $06E $06A $0A3 $18A $312..$314) and tileset 1 castle tables
