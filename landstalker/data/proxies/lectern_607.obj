@@ -1,0 +1,30 @@
+# light proxy: lectern, room 607 (remake/tools/furniture_ops.py, remake/lib/furniture.py). GAME coordinates x east, y south, z up, world units.
+# our own geometry (measured lathe, placed on the cells that draw it); read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh').
+v 433.500 418.500 0.000
+v 448.500 418.500 0.000
+v 448.500 432.500 0.000
+v 433.500 432.500 0.000
+v 433.500 418.500 15.950
+v 448.500 418.500 15.950
+v 448.500 432.500 18.050
+v 433.500 432.500 18.050
+v 433.500 418.500 15.950
+v 448.500 418.500 15.950
+v 448.500 433.500 18.200
+v 433.500 433.500 18.200
+v 433.500 418.500 18.950
+v 448.500 418.500 18.950
+v 448.500 433.500 21.200
+v 433.500 433.500 21.200
+f 1 4 3 2
+f 5 6 7 8
+f 1 2 6 5
+f 2 3 7 6
+f 3 4 8 7
+f 4 1 5 8
+f 9 12 11 10
+f 13 14 15 16
+f 9 10 14 13
+f 10 11 15 14
+f 11 12 16 15
+f 12 9 13 16

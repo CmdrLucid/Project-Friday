@@ -167,6 +167,22 @@ def round_found(rom, room, kind):
         if sum(1 for a, b in zip(s, ref) if a == b) >= 0.5 * len(ref): out.append(dict(cell=(x, y), floor=v[0] - 1))
     return out
 
+def lecterns(rom, room):
+    """the chapel lectern (tileset 8, top block $2EF, walkable one step above the floor): 597 607 736 (same cell 27, 26)"""
+    if blockcat.tileset(rom, room) != 8: return []
+    return [dict(cell=(x, y), floor=v[0] - 1) for (x, y), v in sorted(blockcat.cells(rom, room).items()) if v[2] == 0x2EF and not v[1] and v[0] >= 1]
+
+def altars(rom, room):
+    """the church altar (tileset 3: $181 over $185 at the same walkable height, one step above the floor): 613 614 699 700 721"""
+    if blockcat.tileset(rom, room) != 3: return []
+    c = blockcat.cells(rom, room)
+    return [dict(cell=(x, y), floor=v[0] - 1) for (x, y), v in sorted(c.items()) if v[2] == 0x181 and not v[1] and v[0] >= 1 and c.get((x, y + 1), (0, 1, 0))[2] == 0x185 and c[(x, y + 1)][0] == v[0]]
+
+def angels(rom, room):
+    """the chapel angel statue (tileset 8, top block $2EB on the blocked 1 step platform $2EB / $2EC): 597 607 736 (cell 27, 24); stands ON the platform"""
+    if blockcat.tileset(rom, room) != 8: return []
+    return [dict(cell=(x, y), floor=v[0]) for (x, y), v in sorted(blockcat.cells(rom, room).items()) if v[2] == 0x2EB and v[1] and v[0] >= 1]
+
 def lathe_obj(meshes, title):
     """[(vertices, faces), ..] -> OBJ text"""
     s = "# light proxy: %s (remake/tools/furniture_ops.py, remake/lib/furniture.py). GAME coordinates x east, y south, z up, world units.\n" % title
@@ -179,7 +195,7 @@ def lathe_obj(meshes, title):
 def main():
     a = [s for s in sys.argv[1:] if not s.startswith("--")]
     rom = open(a[0], "rb").read(); write = "--write" in sys.argv; ROMPATH[0] = a[0]
-    rooms = [int(r) for r in sys.argv[sys.argv.index("--rooms") + 1].split(",")] if "--rooms" in sys.argv else [r for r in range(816) if blockcat.tileset(rom, r) in {T["ts"] for T in TYPES} | {1, 2} | {K["ts"] for K in ROUND.values()}]   # + the round shapes' tilesets (braziers 1, vases 2, ROUND)
+    rooms = [int(r) for r in sys.argv[sys.argv.index("--rooms") + 1].split(",")] if "--rooms" in sys.argv else [r for r in range(816) if blockcat.tileset(rom, r) in {T["ts"] for T in TYPES} | {1, 2, 3, 8} | {K["ts"] for K in ROUND.values()}]   # + the round shapes' tilesets (braziers 1, vases 2, ROUND)
     jp = os.path.join(ROOT, "landstalker", "data", "light_proxies.json"); data = json.load(open(jp), object_pairs_hook=collections.OrderedDict)
     n = 0
     for r in rooms:
@@ -211,6 +227,27 @@ def main():
                 open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(ms, "brazier stand (%s), room %d" % ("short" if t["steps"] == 2 else "tall", r)))
                 ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("floor", 16 * t["floor"]), ("carrier", collections.OrderedDict([("r", 12), ("axis", [16 * x + 8 + int(furniture.BRAZIER["dx"]), 16 * y + 8 + int(furniture.BRAZIER["dy"])]), ("z", int(round(16 * t["floor"] + top + 5)))])),
                     ("why", "brazier stand (collision = a %d high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'" % (16 * t["steps"]))]))
+            data["rooms"][str(r)] = ops0; n += 1
+        for kind, finder, shape, h in (("lectern", lecterns, "LECTERN", 0), ("altar", altars, "ALTAR", 1)):   # h: extra cells along y
+            got = finder(rom, r)
+            for t in got: print("room %d: %s cell %d,%d floor %d OK" % (r, kind, t["cell"][0], t["cell"][1], t["floor"]))
+            if write and got:
+                ops0 = [e for e in data["rooms"].get(str(r), []) if not (e.get("op") == "mesh" and e.get("file", "").startswith("proxies/%s_" % kind))]
+                for k, t in enumerate(got):
+                    (x, y) = t["cell"]; fn = "%s_%d.obj" % (kind, r) if k == 0 else "%s_%d_%d.obj" % (kind, r, k)
+                    open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(furniture.plated_box(x, y, 16 * t["floor"], getattr(furniture, shape)), "%s, room %d" % (kind, r)))
+                    ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y + h]), ("file", "proxies/" + fn), ("surface", True), ("floor", 16 * t["floor"]),
+                        ("why", "%s (collision = a box): the fitted body + top plate of remake/lib/furniture.py %s, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'" % (kind, shape))]))
+                data["rooms"][str(r)] = ops0; n += 1
+        ang = angels(rom, r)
+        for t in ang: print("room %d: angel statue cell %d,%d floor %d OK" % (r, t["cell"][0], t["cell"][1], t["floor"]))
+        if write and ang:
+            ops0 = [e for e in data["rooms"].get(str(r), []) if not (e.get("op") == "mesh" and e.get("file", "").startswith("proxies/angel_"))]
+            for k, t in enumerate(ang):
+                (x, y) = t["cell"]; fn = "angel_%d.obj" % r if k == 0 else "angel_%d_%d.obj" % (r, k)
+                open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(furniture.angel(x, y, 16 * t["floor"]), "angel statue, room %d" % r))
+                ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
+                    ("why", "angel statue on its platform (collision = the platform only): body lathe + wing plate of remake/lib/furniture.py ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'")]))
             data["rooms"][str(r)] = ops0; n += 1
         for kind, K in ROUND.items():
             found = round_found(rom, r, kind)

@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-10 (dev, Opus 5.5): CHURCH ALTAR (613 614 699 700 721), CHAPEL LECTERN + ANGEL STATUE (597 607 736) as light shapes** (furniture.ALTAR / LECTERN / plated_box, ANGEL = body lathe + wing plate rows, op "air"). Altar checked in 613; chapel not reachable by warp. HANDOFF 0a371, NEXT -155.
 - **2026-11-10 (dev, Opus 5.5): CLAY JARS as round light shapes (39 in 23 tileset 8 rooms incl. the chapel; furniture.JAR, generic picture match furniture_ops.ROUND / round_found()).** Outlines checked; in-game shots not possible (warp leaves these rooms black). HANDOFF 0a370, NEXT -154.
 - **2026-11-10 (dev, Opus 5.5): BARRELS as round light shapes (23 in 65 66 68 69 71 72 78 79; furniture.BARREL, furniture_ops.barrels() by PICTURE MATCH against a reference barrel).** Headless only, USER LOOK open. HANDOFF 0a369, NEXT -153.
 - **2026-11-10 (dev, Opus 5.5): BRAZIER STANDS as round light shapes (castle 51..62, 86, 87; furniture.BRAZIER, furniture_ops.brazier_stands) + LK_GLCARRIER v1** (a flame on its stand sits on the axis above the bowl and is not shadowed by its own stand; LANDSTALKER_LT_CARRIER=0 = old). Headless only, USER LOOK open. HANDOFF 0a368, NEXT -152.

@@ -1964,6 +1964,33 @@
       {
         "op": "mesh",
         "cells": [
+          27,
+          26,
+          27,
+          26
+        ],
+        "file": "proxies/lectern_597.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "lectern (collision = a box): the fitted body + top plate of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          24,
+          27,
+          24
+        ],
+        "file": "proxies/angel_597.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "angel statue on its platform (collision = the platform only): body lathe + wing plate of remake/lib/furniture.py ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           30,
           25,
           30,
@@ -2091,6 +2118,33 @@
       {
         "op": "mesh",
         "cells": [
+          27,
+          26,
+          27,
+          26
+        ],
+        "file": "proxies/lectern_607.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "lectern (collision = a box): the fitted body + top plate of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          24,
+          27,
+          24
+        ],
+        "file": "proxies/angel_607.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "angel statue on its platform (collision = the platform only): body lathe + wing plate of remake/lib/furniture.py ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           30,
           25,
           30,
@@ -2128,6 +2182,36 @@
         "surface": true,
         "floor": 0,
         "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "613": [
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          27,
+          26,
+          28
+        ],
+        "file": "proxies/altar_613.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "altar (collision = a box): the fitted body + top plate of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      }
+    ],
+    "614": [
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          27,
+          26,
+          28
+        ],
+        "file": "proxies/altar_614.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "altar (collision = a box): the fitted body + top plate of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       }
     ],
     "620": [
@@ -2783,6 +2867,36 @@
         "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
+    "699": [
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          27,
+          26,
+          28
+        ],
+        "file": "proxies/altar_699.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "altar (collision = a box): the fitted body + top plate of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      }
+    ],
+    "700": [
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          27,
+          26,
+          28
+        ],
+        "file": "proxies/altar_700.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "altar (collision = a box): the fitted body + top plate of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      }
+    ],
     "701": [
       {
         "op": "mesh",
@@ -3055,6 +3169,21 @@
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
+    "721": [
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          27,
+          26,
+          28
+        ],
+        "file": "proxies/altar_721.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "altar (collision = a box): the fitted body + top plate of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      }
+    ],
     "722": [
       {
         "op": "mesh",
@@ -3293,6 +3422,33 @@
       }
     ],
     "736": [
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          26,
+          27,
+          26
+        ],
+        "file": "proxies/lectern_736.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "lectern (collision = a box): the fitted body + top plate of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          24,
+          27,
+          24
+        ],
+        "file": "proxies/angel_736.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "angel statue on its platform (collision = the platform only): body lathe + wing plate of remake/lib/furniture.py ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+      },
       {
         "op": "mesh",
         "cells": [

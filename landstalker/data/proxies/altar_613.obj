@@ -1,0 +1,30 @@
+# light proxy: altar, room 613 (remake/tools/furniture_ops.py, remake/lib/furniture.py). GAME coordinates x east, y south, z up, world units.
+# our own geometry (measured lathe, placed on the cells that draw it); read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh').
+v 419.500 434.000 16.000
+v 433.000 434.000 16.000
+v 433.000 465.000 16.000
+v 419.500 465.000 16.000
+v 419.500 434.000 33.337
+v 433.000 434.000 32.663
+v 433.000 465.000 32.663
+v 419.500 465.000 33.337
+v 419.500 434.000 33.337
+v 435.000 434.000 32.562
+v 435.000 469.500 32.562
+v 419.500 469.500 33.337
+v 419.500 434.000 35.837
+v 435.000 434.000 35.062
+v 435.000 469.500 35.062
+v 419.500 469.500 35.837
+f 1 4 3 2
+f 5 6 7 8
+f 1 2 6 5
+f 2 3 7 6
+f 3 4 8 7
+f 4 1 5 8
+f 9 12 11 10
+f 13 14 15 16
+f 9 10 14 13
+f 10 11 15 14
+f 11 12 16 15
+f 12 9 13 16

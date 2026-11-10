@@ -72,6 +72,66 @@ BARREL = dict(dx=2.0, dy=2.0, prof=[(0.0, 8.0), (1.58, 8.46), (3.17, 8.83), (4.7
 JAR = dict(dx=3.0, dy=3.0, prof=[(0.0, 7.24), (1.05, 8.28), (2.09, 7.78), (3.14, 7.99), (4.18, 8.49), (8.36, 8.49), (9.41, 7.49), (10.45, 7.78), (11.5, 6.78),
                                  (12.55, 6.07), (13.59, 5.36), (14.64, 5.66), (15.68, 4.66), (16.73, 4.95), (17.77, 4.95), (18.82, 4.66), (19.86, 5.91), (21.95, 5.66), (23.0, 5.16)])
 
+def hexa(x0, x1, y0, y1, zb, zt):
+    """a closed six-sided solid over the rectangle x0..x1 x y0..y1: bottom heights zb(x, y), top heights zt(x, y) at the 4 corners (planes, slopes allowed);
+    returns (vertices, faces) with outward counter-clockwise quads (as lathe())"""
+    c = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+    v = [(x, y, zb(x, y)) for x, y in c] + [(x, y, zt(x, y)) for x, y in c]
+    f = [(0, 3, 2, 1), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+    m = [sum(p[i] for p in v) / 8.0 for i in range(3)]; out = []
+    for q in f:   # orient every quad outward (normal away from the centre)
+        a, b, d = v[q[0]], v[q[1]], v[q[3]]; e1 = [b[i] - a[i] for i in range(3)]; e2 = [d[i] - a[i] for i in range(3)]
+        n = (e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]); fc = [sum(v[k][i] for k in q) / 4.0 - m[i] for i in range(3)]
+        out.append(q if sum(n[i] * fc[i] for i in range(3)) > 0 else tuple(reversed(q)))
+    return v, out
+
+# BOX FURNITURE WITH A TOP PLATE (body + a top plate that may overhang on the +x / +y side, top plane may slope), fitted by view rays to the drawn
+# silhouette (~/lktest/pew/fit.py, multi start over the slopes): units from the corner of the first cell, h at the centre, a / b = slope per unit along x / y,
+# ox / oy = plate overhang on the +x / +y side, t = plate thickness.
+# THE CHAPEL LECTERN ($2EF, 597 / 607 / 736, one cell, collision 16): 597 (27, 26) IoU 0.947 (the carved notch in its +x face is not in the silhouette);
+# the top really slopes (flat top: 0.912), rising towards +y
+LECTERN = dict(x0=1.5, x1=16.5, y0=2.5, y1=16.5, h=20.0, a=0.0, b=0.15, ox=0.0, oy=1.0, t=3.0)
+# THE CHURCH ALTAR ($181 over $185, tileset 3: 613 614 699 700 721, cells x, y .. y + 1, collision 1 step): 613 (26, 27) IoU 0.970, flat top, the plate
+# overhangs 2 on +x and 4.5 on +y (the front end)
+ALTAR = dict(x0=3.5, x1=17.0, y0=2.0, y1=33.0, h=19.5, a=-0.05, b=0.0, ox=2.0, oy=4.5, t=2.5)
+
+def plated_box(cx, cy, floor, L):
+    """box furniture L (LECTERN / ALTAR) at the cell (cx, cy) on `floor` (units): body up to the plate + the plate as (vertices, faces) meshes in world units"""
+    X0, X1, Y0, Y1 = 16 * cx + L["x0"], 16 * cx + L["x1"], 16 * cy + L["y0"], 16 * cy + L["y1"]; xc, yc = (X0 + X1) / 2, (Y0 + Y1) / 2
+    top = lambda x, y: floor + L["h"] + L["a"] * (x - xc) + L["b"] * (y - yc)
+    return [hexa(X0, X1, Y0, Y1, lambda x, y: floor, lambda x, y: top(x, y) - L["t"]), hexa(X0, X1 + L["ox"], Y0, Y1 + L["oy"], lambda x, y: top(x, y) - L["t"], top)]
+
+# THE ANGEL STATUE (chapel, tileset 8: on the 1 step platform $2EB / $2EC of 597 / 607 / 736, cell 27, 24; 2026-11-10 user 'baenke statue und pult'):
+# a winged figure = BODY lathe + WINGS as a thin plate. Body fitted by view rays to the drawn silhouette with the wing zone as don't care
+# (~/lktest/angel/fit.py, IoU 0.863: the figure is not round), axis 3.5 units in front of the cell centre; the wings = the drawn pixels the body does not
+# cover, one row run per picture row (~/lktest/angel/wing.py), standing in a plate 2 thick facing the viewer (plane x + y = axis sum - BACK: the depth is
+# not in the picture, BACK = 6 chosen = just behind the body). Body + wings cover the drawn statue with IoU 0.921 (~/lktest/angel/ov.png).
+ANGEL = dict(dx=3.5, dy=3.5, back=6.0, prof=[(0.0, 5.7), (2.0, 5.45), (4.0, 4.99), (6.0, 4.74), (8.0, 4.99), (10.0, 4.74), (12.0, 4.49), (14.0, 4.24), (16.0, 4.6), (18.0, 4.95), (20.0, 6.01), (22.0, 7.03), (24.0, 5.66), (26.0, 5.66), (28.0, 5.66), (30.0, 5.66), (32.0, 5.66), (34.0, 5.66), (36.0, 5.66), (38.0, 5.66), (40.0, 5.55), (42.0, 7.05), (44.0, 3.6), (46.0, 0.77), (48.0, 0.5), (48.5, 0.71)],
+             wing=[(47.5, -9.0, -6.0), (46.5, -12.0, -5.0), (45.5, -20.0, -4.0), (44.5, -21.0, -4.0), (43.5, -21.0, -6.0), (42.5, -20.0, -8.0), (41.5, -20.0, -8.0), (40.5, -20.0, -8.0), (39.5, -19.0, -8.0), (38.5, -18.0, -8.0), (37.5, -18.0, -8.0), (37.5, 13.0, 16.0), (36.5, -17.0, -8.0), (36.5, 12.0, 16.0), (35.5, -17.0, -8.0), (35.5, 10.0, 16.0), (34.5, -16.0, -8.0), (34.5, 8.0, 16.0), (33.5, -16.0, -8.0), (33.5, 8.0, 16.0), (32.5, -15.0, -8.0), (32.5, 8.0, 16.0), (31.5, -14.0, -8.0), (31.5, 8.0, 16.0), (30.5, -14.0, -8.0), (30.5, 8.0, 16.0), (29.5, -13.0, -8.0), (29.5, 8.0, 16.0), (28.5, -12.0, -8.0), (28.5, 8.0, 16.0), (27.5, -11.0, -8.0), (27.5, 8.0, 16.0), (26.5, -10.0, -8.0), (26.5, 8.0, 16.0), (25.5, -10.0, -8.0), (25.5, 8.0, 16.0), (24.5, -10.0, -8.0), (24.5, 8.0, 16.0), (23.5, -10.0, -8.0), (23.5, 8.0, 16.0), (22.5, -9.0, -8.0), (22.5, 8.0, 16.0), (21.5, -9.0, -8.0), (21.5, 8.0, 16.0), (20.5, 8.0, 16.0), (19.5, 10.0, 16.0), (18.5, 10.0, 16.0), (17.5, 9.0, 12.0)])   # wing rows: (top height, picture offset left, right of the axis (U units))
+
+def box8(v):
+    """8 corners (bottom 4 then top 4, same order) -> (vertices, outward quads)"""
+    f = [(0, 3, 2, 1), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+    m = [sum(p[i] for p in v) / 8.0 for i in range(3)]; out = []
+    for q in f:
+        a, b, d = v[q[0]], v[q[1]], v[q[3]]; e1 = [b[i] - a[i] for i in range(3)]; e2 = [d[i] - a[i] for i in range(3)]
+        n = (e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]); fc = [sum(v[k][i] for k in q) / 4.0 - m[i] for i in range(3)]
+        out.append(q if sum(n[i] * fc[i] for i in range(3)) > 0 else tuple(reversed(q)))
+    return list(v), out
+
+def angel(cx, cy, floor):
+    """the angel statue of the cell (cx, cy) standing on `floor` (units): [body lathe, wing row plates ...] in world units"""
+    A = ANGEL; ax, ay = 16 * cx + 8 + A["dx"], 16 * cy + 8 + A["dy"]; top = A["prof"][-1][0]
+    out = [lathe(ax, ay, floor, top, [(z / top, r) for z, r in A["prof"]])]
+    S = ax + ay - A["back"]; Dax = ax - ay
+    for zt, dl, dr in A["wing"]:
+        cs = []
+        for z in (floor + zt - 1.0, floor + zt):
+            for D, w in ((Dax + dl, -0.7), (Dax + dr, -0.7), (Dax + dr, 0.7), (Dax + dl, 0.7)):
+                cs.append(((S + D) / 2 + w, (S - D) / 2 + w, z))
+        out.append(box8(cs))
+    return out
+
 def brazier_prof(steps):
     """the stand's profile [(height, radius)] in units (absolute heights) for a stand of `steps` collision steps"""
     st = 10.0 + BRAZIER["stem"][steps]
