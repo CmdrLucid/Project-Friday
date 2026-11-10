@@ -52,6 +52,11 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 - Joins: let a part GROW out of its carrier (lead-in points hugging the carrier's surface, half sunk in) instead of standing a capped tube on an edge;
   a widened foot makes lumps where the carrier is narrower than its rim (brazier claws, 2026-11-10).
 
+- A notch at a SILHOUETTE CORNER can be the end-on profile of a feature that runs along the whole HIDDEN side (altar / lectern knee cove), not a cut at that
+  end: ask which face the visible faces rule out (a recess on a visible face would show in its shading) (user 2026-11-10).
+- Rounded edges shrink the silhouette by ~0.3 r; grow a rounded slab by that much (r 1.25 -> 0.4) so its outline stays on the drawn line.
+- Do not add parts the drawing cannot show unless the user asks (lectern book ledge: 'buchleiste weg', 2026-11-10).
+
 ## 4. Light side effects (every model is also a light shape)
 - A shape under or next to a FLAME moves the flame light (its position comes from the view ray of the flame's picture centre): check the light list
   (LANDSTALKER_LIGHTING_DBG=1) before / after. Stands carry their flame (`carrier` data: light on the axis above the bowl, no self shadow).

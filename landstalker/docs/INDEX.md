@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-10 (dev, Opus 5.5): LECTERN + ALTAR NEAR-FINAL v2** (rounded slab, rounded knee cove along the whole back side, user-checked on clay previews; light ops switched, 613 checked headless). HANDOFF 0a378, NEXT -160 (tables / benches).
 - **2026-11-10 END OF SESSION (dev, Opus 5.5):** decoration shapes: barrel, jar, vase, brazier now NEAR-FINAL remake geometry (user-approved on clay previews, not played); church angel v5 / altar / lectern / chapel angel / tables = light shapes; remake/MODELS.md + MODELING_LESSONS.md new; LK_GLCARRIER v1, LK_LTGROUND v1. HANDOFF 0a377, NEXT -159 (lectern + altar).
 - **2026-11-10 (dev, Opus 5.5): church angel v5 + measured niche (1 deep, 4 wide; wings parallel to the back wall, no more wall cut).** Next: remake-ready pass over all forms (NEXT -158).
 - **2026-11-10 (dev, Opus 5.5): CHURCH ANGEL v4 = exact light model (rings with own centres + wing pixel sheets, IoU 0.998 in the game projection).** Remake sculpt pending (user go). HANDOFF 0a375, NEXT -157.

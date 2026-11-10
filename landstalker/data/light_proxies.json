@@ -1973,7 +1973,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "lectern (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "lectern (collision = a box): the near-final body with the rounded cove along its back + the rounded top slab ('air': the slab over the cove) of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "mesh",
@@ -2128,7 +2128,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "lectern (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "lectern (collision = a box): the near-final body with the rounded cove along its back + the rounded top slab ('air': the slab over the cove) of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "mesh",
@@ -2199,7 +2199,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "altar (collision = a box): the near-final body with the rounded cove along its back + the rounded top slab ('air': the slab over the cove) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "ground",
@@ -2251,7 +2251,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "altar (collision = a box): the near-final body with the rounded cove along its back + the rounded top slab ('air': the slab over the cove) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "ground",
@@ -2956,7 +2956,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "altar (collision = a box): the near-final body with the rounded cove along its back + the rounded top slab ('air': the slab over the cove) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "ground",
@@ -3008,7 +3008,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "altar (collision = a box): the near-final body with the rounded cove along its back + the rounded top slab ('air': the slab over the cove) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "ground",
@@ -3332,7 +3332,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "altar (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "altar (collision = a box): the near-final body with the rounded cove along its back + the rounded top slab ('air': the slab over the cove) of remake/lib/furniture.py ALTAR, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "ground",
@@ -3621,7 +3621,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "lectern (collision = a box): the fitted body + top plate + knee niche ('air': the plate over the niche = a slab) of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "lectern (collision = a box): the near-final body with the rounded cove along its back + the rounded top slab ('air': the slab over the cove) of remake/lib/furniture.py LECTERN, placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "mesh",

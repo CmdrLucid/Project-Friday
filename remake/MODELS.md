@@ -42,17 +42,27 @@ FINAL = with material, approved by the user.
 - State: LIGHT, OUTDATED. TODO: redo like the church angel (colour mask, ring stack, wings parallel to the wall behind), then near-final.
 - Note: chapels cannot be reached with LANDSTALKER_WARP from the test save (black picture) - check in play.
 
-## Church altar  (`furniture.ALTAR`, `plated_box(cx, cy, floor, ALTAR)`; ops by `altars()`)
+## Church altar  (`furniture.ALTAR`, near-final `plated_mesh(cx, cy, floor, ALTAR)`; ops by `altars()`)
 - Game: tileset 3, rooms 613 614 699 700 721, cells (26, 27..28) = $181 over $185, walkable 1 step above the dais floor 16.
-- Reference: room 613, window around U 1112 V 352 (`~/lktest/pew/a613`). Box body + top plate (overhang +x 2, +y 3, thickness 3) + KNEE NICHE at the +y end
-  (end face set back 4 from 4 above the floor up to the plate, read from the pixels `~/lktest/pult/grid_a.png`). IoU 0.969.
-- State: LIGHT. TODO near-final: gold trim lines along the plate and the body edges (drawn), the niche's inner edges.
+- Reference: room 613, window U0 1112 V0 352 (`~/lktest/pew/a613`). Drawing: dark wooden slab (edge = a lighter band between two black lines) on a grey-olive
+  stone body; NO gold trim on the altar itself (the gold belongs to the dais step).
+- Shape: body + slab (overhang +x 2, +y 3, thickness 3). The KNEE COVE is a rounded hollow along the WHOLE -x side (the back, hidden in the game view; user
+  2026-11-10: 'eine Rundung ... entlang der ganzen Laenge'); the drawing shows it only as the notch at the left silhouette corner, where the back side is
+  seen end on. Earlier versions (step niche at the +y end) were wrong.
+- State: NEAR-FINAL geometry v2 (2026-11-10): body = the cove profile extruded along y, ends rounded 0.75, flat sharp foot; cove depth D 5 at the foot top
+  (4 above the floor), superellipse p 1.5 up to the slab, foot edge rounded 0.75 (`PLATED_FINE["cove"]["x-"]`, fitted by projection,
+  `~/lktest/pult2/fitcove.py`); slab = rounded box r 1.25, grown 0.4 on every side + top so its silhouette keeps the drawn outline. Projection IoU 0.888
+  (old box 0.887, same window; the window includes some plane B outline pixels, so only relative), `~/lktest/pult2/chk.py`. Clay preview
+  `~/.landstalker_remake/assets/altar/clay_all.png` (original | game view + 60 / 120 / 180). User saw v2 2026-11-10 (no change asked). Material later.
 
-## Chapel lectern  (`furniture.LECTERN`, `plated_box(..., LECTERN)`; ops by `lecterns()`)
+## Chapel lectern  (`furniture.LECTERN`, near-final `plated_mesh(..., LECTERN)`; ops by `lecterns()`)
 - Game: tileset 8, rooms 597 607 736, cell (27, 26) = $2EF, walkable 1 step.
-- Reference: room 597, window U0 1152 V0 368 (96 x 88). Body + sloped top plate (0.15 per unit towards +y, thickness 5.5, overhang +x 2, +y 1) + knee niche
-  at the -y end (set back 4, from 4 up). IoU 0.943 (`~/lktest/pult/grid_p.png`).
-- State: LIGHT. TODO near-final: book-rest lip at the low edge of the plate, carved panel lines.
+- Reference: room 597, window U0 1152 V0 368 (96 x 88). Drawing: thick sloped wooden slab (its side faces = the lighter dither band) on a wooden body.
+- Shape: body + slab sloped 0.15 per unit rising towards +y, thickness 5.5, overhang +x 2, +y 1; rounded KNEE COVE along the whole -y side (seen as the
+  notch at the right silhouette corner).
+- State: NEAR-FINAL geometry v2 (2026-11-10): as the altar, cove D 3, foot 3, p 2 (`PLATED_FINE["cove"]["y-"]`), the slab sheared to the slope.
+  IoU 0.957 (old box 0.947). Book ledge tried in v1 and REMOVED (user: 'buchleiste weg'); no carved panels (not in the drawing).
+  Clay preview `~/.landstalker_remake/assets/lectern/clay_all.png`, both: `.../lectern/pult_altar.png`.
 
 ## Barrel  (`furniture.BARREL`, lathe; ops by `round_found(.., "barrel")`)
 - Game: cellars / storerooms, tileset 15: 23 barrels in rooms 65 66 68 69 71 72 78 79; found by a PICTURE MATCH against the reference (>= 50 % of the
