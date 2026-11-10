@@ -121,7 +121,17 @@ FINAL = with material, approved by the user.
   `~/lktest/table2/tablechk.py` / `allchk.py`. Clay preview `~/.landstalker_remake/assets/table/clay_all.png`. USER OK 2026-11-10 ('yes').
   v1 had a raised rim + recessed field: user 'Mittelfeld nicht vertieft'. Material later (orange-brown wood, darker top paint, olive legs).
 
-## Benches, side tables, castle tables, L bench (the Mercator TABLE: own entry above)  (`furniture.MERCATOR_TABLE / CASTLE_TABLE`, `table()`, `top_on_legs()`, `l_bench()`; ops by `tables()`)
+## Mercator bench, side table, L bench  (`mercator_table_mesh` for the bench $0A3 1 x 3 and the side table $18A 1 x 1; `l_bench_mesh` for the L bench)
+- Game: bench 623 624 701 702 (32, 30..32); side table 691 692 713 714 (13, 15); L bench 623 624 701 702 (long arm 25 x 34..37, short arm west to 24 at 34).
+- Reference: bench room 623 (`~/lktest/bench2/w623`), side table 691 (`~/lktest/bench2/w691`), L bench 623 (`~/lktest/lbench/w623`). Drawn like the table
+  (rounded corners, painted rim, round legs): the table shape with the SAME numbers fits the bench and the side table exactly (no drawn pixel missed in
+  their own area). The L bench's short arm is partly drawn on plane B: its mask = the bench colours on the full picture (`~/lktest/lbench/fitarm.py`).
+- State: NEAR-FINAL v1 (2026-11-10, USER OK 'passt'): L bench = flat slab swept along the L outline (`sweep_poly`: convex corners and the inner corner
+  rounded 2, back sides +1, fronts on the cells, bottom edge sharp), five round legs (none at the inner corner, as drawn); short arm 16 deep (fit:
+  16 / 18 equal). IoU 0.891 (old boxes 0.875; misses = the black outline line under the front edge, as the old boxes). Clay preview
+  `~/.landstalker_remake/assets/benches/clay_all.png`. In-game 623 / 691 before / after: no strips, near identical.
+
+## Castle tables (the Mercator table, benches, side table, L bench: own entries above)  (`furniture.MERCATOR_TABLE / CASTLE_TABLE`, `table()`, `top_on_legs()`, `l_bench()`; ops by `tables()`)
 - Game: tileset 2 Mercator tables / benches / side tables (top blocks $030 $04A $04C $04D $06E $06A $0A3 $18A $312..$314) and tileset 1 castle tables
   ($114 back corner ...): 40 pieces in 32 rooms (HANDOFF 0a360); L bench 623 624 701 702 (0a361); side tables 691 692 713 714.
 - Reference: Mercator table room 670 (HANDOFF 0a360 / 0a362: top thickness 3 = the drawn edge band), castle table room 96 (3 x 3 cells, gold rim, thickness 8),

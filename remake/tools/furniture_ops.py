@@ -299,8 +299,10 @@ def main():
             else: parts = furniture.l_bench("lbench0", 16 * (t["arm"] + 1), 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["arm"], 16 * t["floor"], 16 * t["h"], **sh)
             fn = "table_%d.obj" % r if k == 0 else "table_%d_%d.obj" % (r, k)
             title = "%s, room %d" % (t["type"]["name"] if t["arm"] is None else "L bench", r)
-            if t["arm"] is None and blockcat.cells(rom, r)[(x0, y0)][2] == 0x030:   # the Mercator TABLE on legs: near-final shape (remake/MODELS.md)
+            if t["arm"] is None and blockcat.cells(rom, r)[(x0, y0)][2] in (0x030, 0x0A3, 0x18A):   # Mercator table / bench / side table: near-final (remake/MODELS.md)
                 txt = lathe_obj(furniture.mercator_table_mesh(16 * x0, 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["floor"], 16 * t["h"], sh["thick"]), title)
+            elif t["arm"] is not None and t["type"]["ts"] == 2:   # the L bench: near-final
+                txt = lathe_obj(furniture.l_bench_mesh(16 * (t["arm"] + 1), 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["arm"], 16 * t["floor"], 16 * t["h"], sh["thick"]), title)
             else: txt = boxes_obj(parts, title)
             open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(txt)
             ops.append(collections.OrderedDict([("op", "mesh"), ("cells", [x0, y0, x1, y1]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
