@@ -110,6 +110,70 @@ def plated_box(cx, cy, floor, L):
     else: body = [hexa(X0, X1, Y0 + L["nd"], Y1, flo, under), hexa(X0, X1, Y0, Y0 + L["nd"], flo, foot)]                  # niche at the -y end
     return body + [hexa(X0, X1 + L["ox"], Y0, Y1 + L["oy"], under, top)]
 
+# NEAR-FINAL LECTERN / ALTAR (2026-11-10 user 'mit deinem vorschlag weitermachen'): the same measured boxes (LECTERN / ALTAR above) built from ROUNDED boxes
+# (soft edges as in style C; the drawings show plain boxes: the altar = a dark wooden slab, its edge a lighter band between two black lines, on a stone
+# body; the lectern = a thick sloped wooden slab on a wooden body). Rounding radii and the lectern's book ledge in PLATED_FINE; the body keeps a sharp,
+# flat foot on the floor; the slope of the lectern top is a shear (z += a dx + b dy). Checked by projecting the triangles (~/lktest/pult2/chk.py).
+PLATED_FINE = dict(rb=0.75, rp=1.25, gp=0.4, gb=0.0, rf=0.75, lip=dict(inset_y=2.0, inset_x=2.0, d=1.5, h=1.0, r=0.5))
+
+def rbox(x0, x1, y0, y1, z0, z1, r, n=4, flat_bottom=False, shear=None):
+    """a box with all edges rounded by r (n steps per quarter), as (vertices, outward quads); flat_bottom: the bottom stays a sharp flat face on z0;
+    shear (a, b, xc, yc): z += a (x - xc) + b (y - yc) afterwards (sloped slabs)"""
+    import math
+    r = min(r, (x1 - x0) / 2 - 1e-3, (y1 - y0) / 2 - 1e-3, (z1 - z0) / 2 - 1e-3)
+    lo = (x0 + r, y0 + r, z0 if flat_bottom else z0 + r); hi = (x1 - r, y1 - r, z1 - r)
+    ed = [math.tan(math.radians(45.0 * k / n)) for k in range(n + 1)]          # direction offsets 0 .. 1 = 0 .. 45 degrees
+    def axis(i): return [-1 - 1e-9 - e for e in reversed(ed[1:])] + [-1.0, 1.0] + [1 + 1e-9 + e for e in ed[1:]]   # +-1 = the flat part, beyond = edge zone
+    def place(q):
+        c = []; d = []
+        for i in range(3):
+            if q[i] < -1: c.append(lo[i]); d.append(q[i] + 1)
+            elif q[i] > 1: c.append(hi[i]); d.append(q[i] - 1)
+            else: c.append(lo[i] + (hi[i] - lo[i]) * (q[i] + 1) / 2); d.append(0.0)
+        L = math.sqrt(sum(t * t for t in d)) or 1.0
+        p = [c[i] + r * d[i] / L for i in range(3)]
+        if flat_bottom: p[2] = max(p[2], z0)
+        if shear: p[2] += shear[0] * (p[0] - shear[2]) + shear[1] * (p[1] - shear[3])
+        return tuple(p)
+    E = 2 + ed[-1]                                                               # the outermost parameter = the face plane of the cube
+    V, idx, F = [], {}, []
+    def vid(q):
+        k = tuple(round(t, 9) for t in q)
+        if k not in idx: idx[k] = len(V); V.append(place(q))
+        return idx[k]
+    for ax in range(3):
+        for sg in (-1, 1):
+            o = [i for i in range(3) if i != ax]; A, B = axis(o[0]), axis(o[1])
+            A = [-E] + A + [E]; B = [-E] + B + [E]
+            for i in range(len(A) - 1):
+                for j in range(len(B) - 1):
+                    quad = []
+                    for (a, b) in ((A[i], B[j]), (A[i + 1], B[j]), (A[i + 1], B[j + 1]), (A[i], B[j + 1])):
+                        q = [0, 0, 0]; q[ax] = sg * E; q[o[0]] = a; q[o[1]] = b; quad.append(vid(q))
+                    if len(set(quad)) < 3: continue
+                    if (sg > 0) == (ax == 1): quad.reverse()
+                    F.append(tuple(quad))
+    return V, F
+
+def plated_mesh(cx, cy, floor, L, P=None):
+    """near-final lectern / altar (the measured box L) as [(vertices, faces)]: rounded body (+ foot under the knee niche), rounded top slab
+    (lectern: sloped, + a small book ledge along its low -y edge)"""
+    P = P or PLATED_FINE
+    X0, X1, Y0, Y1 = 16 * cx + L["x0"], 16 * cx + L["x1"], 16 * cy + L["y0"], 16 * cy + L["y1"]; xc, yc = (X0 + X1) / 2, (Y0 + Y1) / 2
+    top = floor + L["h"]; under = top - L["t"]; sh = (L["a"], L["b"], xc, yc); nd, fz = L.get("nd", 0), L["fz"]
+    # the body ends 0.5 inside the slab (sheared like it, so no gap under a sloped slab)
+    if nd <= 0: ms = [rbox(X0, X1, Y0, Y1, floor, under + 0.5, P["rb"], flat_bottom=True)]
+    elif L["ns"] > 0: ms = [rbox(X0, X1, Y0, Y1 - nd, floor, under + 0.5, P["rb"], flat_bottom=True), rbox(X0, X1, Y1 - nd - 1.0, Y1, floor, floor + fz, P["rf"], flat_bottom=True)]
+    else: ms = [rbox(X0, X1, Y0 + nd, Y1, floor, under + 0.5, P["rb"], flat_bottom=True), rbox(X0, X1, Y0, Y0 + nd + 1.0, floor, floor + fz, P["rf"], flat_bottom=True)]
+    if L["a"] or L["b"]:   # the body's top follows the slope: shear only its upper vertices (above the foot)
+        ms = [(([(x, y, z + (L["a"] * (x - xc) + L["b"] * (y - yc)) * (z - floor) / (under + 0.5 - floor)) for x, y, z in v] if k == 0 else v), f) for k, (v, f) in enumerate(ms)]
+    g = P.get("gp", 0.0)   # the rounded slab grows by g on every side + top: its silhouette then keeps the drawn outline (a rounded edge shows ~0.3 r inside)
+    ms.append(rbox(X0 - g, X1 + L["ox"] + g, Y0 - g, Y1 + L["oy"] + g, under, top + g, P["rp"], shear=sh))
+    if L["b"] > 0 and P.get("lip"):   # book ledge on the LOW end (-y) of the sloped lectern top, set in so it stays inside the drawn outline
+        q = P["lip"]; ly0 = Y0 + q["inset_y"]; zt = top + L["b"] * (ly0 + q["d"] / 2 - yc)
+        ms.append(rbox(X0 + q["inset_x"], X1 + L["ox"] - q["inset_x"], ly0, ly0 + q["d"], zt - 1.0, zt + q["h"], q["r"]))
+    return ms
+
 # THE ANGEL STATUE (chapel, tileset 8: on the 1 step platform $2EB / $2EC of 597 / 607 / 736, cell 27, 24; 2026-11-10 user 'baenke statue und pult'):
 # a winged figure = BODY lathe + WINGS as a thin plate. Body fitted by view rays to the drawn silhouette with the wing zone as don't care
 # (~/lktest/angel/fit.py, IoU 0.863: the figure is not round), axis 3.5 units in front of the cell centre; the wings = the drawn pixels the body does not
