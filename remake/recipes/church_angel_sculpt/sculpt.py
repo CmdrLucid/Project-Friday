@@ -53,29 +53,31 @@ body.append(ball(0.6, -0.9, 33.6, g('shoulder_r', 4.4)))                  # shou
 body.append(caps((0.8, -0.2, 35.0), (0.9, 0.0, 39.2), g('neck_r', 1.35)))   # thin neck
 body.append(ball(0.9, -0.1, 42.2, g('skull_r', 2.9)))                     # skull
 body.append(ball(1.0, g('face_f', 1.3), g('face_z', 41.4), 1.5))          # face (recessed between the hair lobes)
-# HAIR (v4, user: 'Haare sind noch nicht gut, orientier dich am Sprite'): the sprite (1 px grid, rows 54..62) shows a BOB: a round crown, then two full ROUNDED
-# hair lobes beside the face down to about the chin, WIDER than the crown (12 px vs 8), each with its highlight high on the outside; the small face lies
-# recessed between them at the lower middle; below is already the shadow under the head (no locks down to the shoulders)
-HC = (0.9, g('hair_f', -0.3), g('crown_z', 42.8)); HR = g('hair_r', 2.95)
+# HAIR (v5, user: 'Haare sind kein Pagenkopf, die gehen im Sprite hinter die Statue'): from the middle parting over the crown, framing the face at the sides
+# (the drawn lobes beside the face) and then falling BACK and down behind the head and the shoulders (long hair down the back, hidden in the game view)
+HC = (0.9, g('hair_f', -0.4), g('crown_z', 42.8)); HR = g('hair_r', 2.95)
 body.append(ball(HC[0], HC[1], HC[2], HR))                                              # crown
-LCS = {sg: (0.9 + sg * g('lobe_s', 2.55), g('lobe_f', 0.2), g('lobe_z', 40.9)) for sg in (-1, 1)}
-for sg in (-1, 1): body.append(ellip(LCS[sg][0], LCS[sg][1], LCS[sg][2], g('lobe_rs', 1.75), g('lobe_rf', 2.5), g('lobe_rz', 2.45), st=g('lobe_st', 3.0)))   # hair lobes (softer: they flow out of the crown)
+for sg in (-1, 1):                                                                       # the sides beside the face, sweeping back
+    body.append(caps((0.9 + sg * 2.3, 0.6, 42.0), (0.9 + sg * 2.4, -1.0, 40.0), g('side_r', 1.5))); body.append(caps((0.9 + sg * 2.4, -1.0, 40.0), (0.9 + sg * 1.5, -2.6, 37.8), g('side_r', 1.5) * 0.95))   # into the back hair
+body.append(caps((0.9, -1.6, 42.0), (0.9, -2.6, 37.5), g('back_r1', 2.9)))              # the hair down the back: over the nape ...
+body.append(caps((0.9, -2.6, 37.5), (0.9, -3.1, g('back_z', 30.5)), g('back_r2', 3.1)))  # ... behind the shoulders, a little wider
 NS = g('hstrands', 9)
-for sg in (-1, 1):                                                                       # strands: from the parting over the crown, then down the lobe
+for sg in (-1, 1):                                                                       # strands from the parting over the crown, then back and down
     for i in range(NS):
-        t = i / (NS - 1.0); ff = (2.1 - 4.4 * t) * 0.75; R0 = math.sqrt(max(0.5, HR * HR - (ff - HC[1]) ** 2)) + g('ridge_out', -0.15); pts = []
+        t = i / (NS - 1.0); ff = (2.0 - 4.2 * t) * 0.75; R0 = math.sqrt(max(0.5, HR * HR - (ff - HC[1]) ** 2)) + g('ridge_out', -0.15); pts = []
         for k3 in range(0, 5):
             a3 = math.radians(90 - 15 * k3); pts.append((HC[0] + sg * R0 * math.cos(a3), ff, HC[2] + R0 * math.sin(a3)))
-        LC = LCS[sg]
-        for k3 in range(1, 4):                                                           # down the lobe's outside, bulging out with it
-            zz = pts[-1][2] - 1.3; u = (zz - LC[2]) / g('lobe_rz', 2.45); fr = max(0.0, 1 - ((ff - LC[1]) / g('lobe_rf', 2.5)) ** 2)
-            bul = g('lobe_rs', 1.75) * math.sqrt(max(0.0, 1 - u * u)) * math.sqrt(fr) * 0.95
-            pts.append((LC[0] + sg * (bul - 0.1), ff, zz))
+        last = pts[-1]
+        for k3 in range(1, 5):                                                           # sweeping back and down behind the ear
+            pts.append((last[0] + sg * 0.15 * k3, last[1] - 0.75 * k3 - 0.2 * t * k3, last[2] - 1.1 * k3))
         for p, q in zip(pts, pts[1:]): body.append(caps(p, q, g('ridge_hr', 0.45), st=g('ridge_hst', 6.0)))
-for j in range(-2, 3):                                                                   # the back of the head: strands from the crown down to the nape
-    ss = 0.9 + 0.75 * j; R0 = math.sqrt(max(0.5, HR * HR - (0.75 * j) ** 2)) + g('ridge_out', -0.15); pts = []
+for j in range(-3, 4):                                                                   # strands down the back of the head and the back
+    ss = 0.9 + 0.8 * j; pts = []
     for k3 in range(0, 6):
-        a3 = math.radians(90 + 18 * k3); pts.append((ss, HC[1] + R0 * math.cos(a3), HC[2] + R0 * math.sin(a3)))
+        a3 = math.radians(90 + 18 * k3); R0 = math.sqrt(max(0.5, HR * HR - (0.8 * j) ** 2)) + g('ridge_out', -0.15)
+        pts.append((ss, HC[1] + R0 * math.cos(a3), HC[2] + R0 * math.sin(a3)))
+    last = pts[-1]
+    for k3 in range(1, 5): pts.append((ss + 0.15 * j * k3 / 4, last[1] - 0.2 * k3 - 0.15, last[2] - 2.0 * k3))
     for p, q in zip(pts, pts[1:]): body.append(caps(p, q, g('ridge_hr', 0.45), st=g('ridge_hst', 6.0)))
 body.append(caps((0.9, 2.0, HC[2] + HR + 0.1), (0.9, -2.6, HC[2] + HR - 0.4), 0.26, neg=True, st=6.0))   # the middle parting
 # FACE (v3, user: 'auch das Gesicht'): nose, brow, eye hollows, chin

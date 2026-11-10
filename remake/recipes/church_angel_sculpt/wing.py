@@ -7,6 +7,19 @@ P = json.load(open('/home/deck/lktest/sculpt/params.json')); g = lambda k, d: P.
 A = F.CHURCH_ANGEL4; AX, AY = A['axis']; XW = A['wing_x']; AU = AX - AY + 1184.0; V0p = A['v0']; U0, V0 = 1064, 280
 mask = {tuple(p) for p in json.load(open('/home/deck/lktest/angel3/mask.json'))}
 wing = {(int(math.floor(AU + du)) - U0, V0p + v - V0) for du, v in A['wing']}   # window pixel coords
+# MIRRORED WINGS (user 2026-11-10: 'gespiegelt und parallel zur Wand, links soll gleich sein wie rechts', option 1 = the same height): in the plane x = XW the
+# right wing = the left one mirrored at y = YC (the body axis in the plane, 444.5: fits by itself); the template = the left side's statue pixels that also
+# lie inside the right side's statue pixels when mirrored (a part behind the head / body is hidden), next to the drawn left wing. The game picture of the
+# drawn wings is NOT kept exactly any more (the artist drew the left wing ~6 lower): remake model only, the light keeps CHURCH_ANGEL4.
+YC = g('wing_yc', 444.5)
+def _toplane(u, v): U = U0 + u + 0.5; Vv = V0 + v + 0.5; y = XW + 1184 - U; return y, (XW + y) / 2 - Vv
+def _topix(y, z): U = XW - y + 1184; Vv = (XW + y) / 2 - z; return int(math.floor(U - U0)), int(math.floor(Vv - V0))
+def _mir(p): y, z = _toplane(*p); return _topix(2 * YC - y, z)
+if g('mirror', True):
+    _ax = AU - U0; _Lw = {p for p in wing if p[0] + 0.5 < _ax}
+    _aL = {p for p in mask if p[0] + 0.5 < _ax}; _aR = {p for p in mask if p[0] + 0.5 > _ax}; _mR = {_mir(p) for p in _aR}
+    _T = {p for p in _aL if p in _mR and any((p[0] + a, p[1] + b) in _Lw for a in (-1, 0, 1) for b in (-1, 0, 1))}
+    wing = _T | {_mir(p) for p in _T}
 vtop = max(v for u, v in wing)
 near = {p for p in mask if p[1] <= g('join_v', 70) and any((p[0] + a, p[1] + b) in wing for a in range(-g('join_d', 3), g('join_d', 3) + 1) for b in range(-2, 3))}
 region = wing | near   # the wings join the back only near their roots (v3's straight cut at a row made a rectangular notch, user: 'schlechter')
@@ -38,16 +51,18 @@ for _ in range(2):
                 for a, b, w in ((1, 0, 1), (0, 1, 1), (1, 1, 1.414), (-1, 1, 1.414)):
                     if 0 <= i + a < GW and 0 <= j + b < GH: dist[j][i] = min(dist[j][i], dist[j + b][i + a] + w)
 # wing roots (picture coords) at the shoulders, one per side
-def root(side):
-    px = [p for p in wing if (p[0] + U0 + 0.5 - AU < 0) == (side < 0)]; vm = sum(p[1] for p in px) / len(px)
-    q = min(px, key=lambda p: abs(p[0] + U0 + 0.5 - AU) + 0.3 * abs(p[1] - vm)); return (q[0] + 0.5, q[1] + 0.5)
-RT = {-1: root(-1), 1: root(1)}; AXC = AU - U0
-def relief(cu, cv):
-    side = -1 if cu < AXC else 1; ru, rv = RT[side]; dx, dy = cu - ru, cv - rv; rr = math.hypot(dx, dy); th = math.atan2(dy, dx)
-    fade = max(0.0, min(1.0, ((cu - AXC) * side - 2.0) / 4.0))   # the feathers fade in away from the body (no cliff at the root)
+def _proot():   # the left wing root in plane coordinates (y, z); the right one is its mirror
+    px = [p for p in wing if p[0] + U0 + 0.5 - AU < 0]; vm = sum(p[1] for p in px) / len(px)
+    q = min(px, key=lambda p: abs(p[0] + U0 + 0.5 - AU) + 0.3 * abs(p[1] - vm)); return _toplane(*q)
+PR = _proot(); AXC = AU - U0
+RT = {-1: _topix(*PR), 1: _topix(2 * YC - PR[0], PR[1])}
+def relief(cu, cv):   # in the plane, mirrored about y = YC: the same feathers on both sides
+    y, z = _toplane(cu - 0.5, cv - 0.5); side = 1 if y < YC else -1                   # y < YC = picture right
+    yy = YC - abs(y - YC); dx, dy = (PR[0] - yy), (z - PR[1]); rr = math.hypot(dx, dy); th = math.atan2(dy, dx)
+    fade = max(0.0, min(1.0, (abs(y - YC) - 2.0) / 4.0))   # the feathers fade in away from the body (no cliff at the root)
     nb = g('fan', 0.17); rows = g('rows', [0.38, 0.66]); Lmax = g('Lmax', 26.0)
     sm = lambda x: 0.0 if x <= 0 else 1.0 if x >= 1 else x * x * (3 - 2 * x)
-    row = sum(sm((rr - r0 * Lmax) / 1.2 + 0.5) for r0 in rows)               # smooth step between the feather rows
+    row = sum(sm((rr - r0 * Lmax) / 1.2 + 0.5) for r0 in rows)
     stagger = (th / nb + 0.5 * row) % 1.0; ridge = math.sin(math.pi * stagger) ** g('ridge_pow', 1.0)
     return fade * (g('feather_h', 0.35) * ridge - g('row_step', 0.25) * row), rr
 def thick(d): return min(g('wing_t', 1.3), 0.03 + d * 0.55 / S) if d > 0 else 0.0
@@ -56,8 +71,8 @@ def vid(i, j, side):
     k = (i, j, side)
     if k in idx: return idx[k]
     cu = gu0 + (i + 0.5) / S; cv = gv0 + (j + 0.5) / S; d = dist[j][i]; t = thick(d) / 2
-    rel, rr = relief(cu, cv) if side > 0 else (0.0, 0.0)
-    off = side * t + (rel * min(1.0, d / (2 * S)) if side > 0 else 0.0)
+    rel, rr = relief(cu, cv)
+    off = side * t + (rel if side > 0 else -g('back_rel', 0.6) * rel) * min(1.0, d / (2 * S))   # feathers on both faces (the back a bit flatter)
     if d <= 1.5:   # boundary vertex: slide onto the smoothed outline (field 0.5) along the field gradient
         for _ in range(6):
             fx = (cu - gu0) * S - 0.5; fy = (cv - gv0) * S - 0.5; ii = min(GW - 2, max(0, int(fx))); jj = min(GH - 2, max(0, int(fy))); a_ = fx - ii; b_ = fy - jj
@@ -67,9 +82,10 @@ def vid(i, j, side):
             if gl < 1e-6: break
             st = max(-0.3, min(0.3, (0.5 - fv) / gl)); cu += st * gx / gl; cv += st * gy / gl
     U = U0 + cu; Vp = V0 + cv; y = XW + 1184.0 - U; z = (XW + y) / 2.0 - Vp
-    sd = -1 if cu < AXC else 1; ru, rv = RT[sd]; cupt = g('cup', 0.012) * ((cu - ru) ** 2 + (cv - rv) ** 2) if (cu - AXC) * sd > 0 else 0.0
+    _y, _z = _toplane(cu - 0.5, cv - 0.5); _yy = YC - abs(_y - YC); cupt = g('cup', 0.012) * ((_yy - PR[0]) ** 2 + (_z - PR[1]) ** 2) if abs(_y - YC) > 1.0 else 0.0
     T = cupt + off   # along the view ray: the picture point stays; but thickness should be along x (the plane normal): use x for the thickness, ray for the cup
-    p = (XW + T, y + T, z + T)   # thickness, feather relief and cup all along the view ray: the game picture stays exactly the drawn wing
+    if g('mirror', True): p = (XW + g('cupn', 0.004) * (cupt / g('cup', 0.012)) + off, y, z)   # MIRRORED (true 3D symmetry): depth along the plane normal x, a small cup (tips ~2 forward)
+    else: p = (XW + T, y + T, z + T)   # thickness, feather relief and cup all along the view ray: the game picture stays exactly the drawn wing
     idx[k] = len(verts); verts.append(p); return idx[k]
 faces = []
 for j in range(GH - 1):
