@@ -333,24 +333,29 @@ def tube(pts, radii, seg=10):
 # fitted outline (Catmull-Rom through the knots), an OPEN bowl on top (grey, inner radius 5.3, 2.5 deep) and its PRONGS as drawn (window rows 48..60 of the
 # short reference): two tall curved prongs left / right of the flame (screen offset ~5.5 px, rising ~11 above the rim) + two more behind them, and a short
 # leaf on each side pointing outwards along the screen axis (offset ~9..11 px, ~4 above the rim). The flame itself is light / paint, no geometry.
-BRAZIER_PRONGS = dict(tall=[(0.0, 3.9), (180.0, 3.9)], tall_h=6.5, leaf=[(0.0, 6.2), (180.0, 6.2)], leaf_h=0.0, leaf_out=3.2)
+BRAZIER_PRONGS = dict(rim_rel=18.0, rim=6.0, petals=[(47.0, 7.0, 1.3), (133.0, 7.0, 1.3), (227.0, 7.0, 1.3), (313.0, 7.0, 1.3)], petal_out=0.5,
+                      leaves=[(0.0, 4.0, 4.2), (180.0, 4.0, 4.2)])
+# v2 after the user ('die Krone oben stimmt noch gar nicht mit dem Sprite ueberein'): read on the 1 px grid of the short reference (~/lktest/braz/crown.png):
+# the bowl opening is the dark ellipse around the flame's foot, centre row 57 = z 32 (rim r ~6) - the old outline's top 3.5 units (r up to 7.5) were the CROWN.
+# The tall prong left / right of the flame (rows 48..60, 2 px grey, ~6 px from the axis) = a FRONT and a BACK petal at the same screen offset drawn as one
+# (petals at +-40 / +-140 degrees from the screen-right axis, 5.5 high, leaning out 1.3); the short leaf on each side (rows 53..56, reaching ~12 px out) =
+# a petal at 0 / 180 degrees bent outwards (3.0 out, 2.6 up).  petals: (angle, height, base thickness); leaves: (angle, outward, up).
 
-def brazier_mesh(ax, ay, floor, steps, RIM=5.8, SPL=False):
+def brazier_mesh(ax, ay, floor, steps, SPL=False):
     import math
-    P = brazier_prof(steps); top = P[-1][0]
-    prof = P[:-2] + [(top - 0.5, RIM), (top, RIM)]   # the bowl's rim (lip outer edge)
-    out = []
-    body = vessel_mesh(ax, ay, floor, prof, ri=RIM - 1.0, depth=2.5, smooth=0, lip_drop=0.4, spline=SPL)
-    meshes = list(body); BP = BRAZIER_PRONGS; SQ = math.sqrt(2.0)
+    P = brazier_prof(steps); BP = BRAZIER_PRONGS; st = 10.0 + BRAZIER["stem"][steps]; top = st + BP["rim_rel"]
+    prof = [p for p in P if p[0] < top - 0.4] + [(top - 0.4, BP["rim"]), (top, BP["rim"])]
+    meshes = list(vessel_mesh(ax, ay, floor, prof, ri=BP["rim"] - 0.9, depth=2.5, smooth=0, lip_drop=0.4, spline=SPL)); SQ = math.sqrt(2.0)
     def at(ang, rho, z):   # angle from the screen-right axis s = (1, -1) / sqrt 2 towards the viewer axis f = (1, 1) / sqrt 2
         s_ = rho * math.cos(math.radians(ang)); f_ = rho * math.sin(math.radians(ang))
         return (ax + (s_ + f_) / SQ, ay + (f_ - s_) / SQ, floor + z)
-    for ang, rho in BP["tall"]:   # tall prong: from inside the bowl up, curving a little outwards, tip pointed
-        pts = [at(ang, rho - 0.6 + 1.6 * (k / 6.0) ** 2, top - 1.0 + BP["tall_h"] * k / 6.0) for k in range(7)]
-        meshes.append(tube(pts, [0.8, 0.8, 0.7, 0.6, 0.45, 0.3, 0.1]))
-    for ang, rho in BP["leaf"]:   # side leaf: from the rim outwards and a little up
-        pts = [at(ang, rho + BP["leaf_out"] * k / 5.0, top - 0.5 + BP["leaf_h"] * math.sin(math.pi * 0.5 * k / 5.0)) for k in range(6)]
-        meshes.append(tube(pts, [0.9, 0.85, 0.75, 0.6, 0.4, 0.1]))
+    rr = BP["rim"] - 0.45
+    for ang, h, th in BP["petals"]:   # upright petal on the rim, leaning out, pointed
+        pts = [at(ang, rr + BP["petal_out"] * (k / 6.0) ** 1.5, top - 0.3 + h * k / 6.0) for k in range(7)]
+        meshes.append(tube(pts, [th, th, th * 0.9, th * 0.75, th * 0.55, th * 0.35, 0.08]))
+    for ang, out, up in BP["leaves"]:   # side petal bent outwards
+        pts = [at(ang, rr + out * k / 5.0, top - 0.3 + up * math.sin(math.pi * 0.5 * k / 5.0)) for k in range(6)]
+        meshes.append(tube(pts, [1.15, 1.1, 0.95, 0.75, 0.45, 0.08]))
     return meshes
 
 # NEAR-FINAL VASE (reference room 670 (18, 24) / (18, 25), remake/MODELS.md): the drawing shows an OPEN mouth (dark inside, lip ring ~18 px wide -> outer
