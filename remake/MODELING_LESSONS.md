@@ -57,6 +57,12 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 - Rounded edges shrink the silhouette by ~0.3 r; grow a rounded slab by that much (r 1.25 -> 0.4) so its outline stays on the drawn line.
 - Do not add parts the drawing cannot show unless the user asks (lectern book ledge: 'buchleiste weg', 2026-11-10).
 
+- FIGURES (church angel sculpt, 2026-11-10): build them from PARTS as Blender metaballs (smooth unions; negative elements carve folds), radii as SURFACE
+  radii (a lone metaball shows 0.575 of its radius at threshold 0.6, stiffness 2); keep them inside the drawing by moving outside vertices WITHOUT depth
+  change onto a SMOOTHED outline (blurred mask at 0.5) - a snap to the pixel cells leaves stairs. Thin parts (wings) as their own mesh with every depth
+  offset (thickness, relief, cup) ALONG THE VIEW RAY (1, 1, 1): a thickness along the plane normal widens the game picture. Join wings behind the body or
+  they float.
+
 ## 4. Light side effects (every model is also a light shape)
 - A shape under or next to a FLAME moves the flame light (its position comes from the view ray of the flame's picture centre): check the light list
   (LANDSTALKER_LIGHTING_DBG=1) before / after. Stands carry their flame (`carrier` data: light on the axis above the bowl, no self shadow).

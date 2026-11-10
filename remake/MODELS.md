@@ -33,6 +33,11 @@ FINAL = with material, approved by the user.
 - State: LIGHT (v5, 2026-11-10). Near-final try with relief from the drawing's shading (`~/lktest/angel3/fine.py`, clay previews
   `~/lktest/angel3/clay_all.png`) = NOT good enough (lumpy, flat wings). TODO near-final: model from parts (head + hair + face, torso, two arms holding
   the swaddled child, bell robe with spiral folds, wings attached at the shoulder blades, cupped, feather rows), keep the silhouette exact.
+- NEAR-FINAL SCULPT in progress (2026-11-10, `remake/recipes/church_angel_sculpt/`): body = metaballs (robe on the measured rings, fold grooves, torso,
+  arms, child, veiled head) kept inside a smoothed drawing outline; wings = own clean mesh (feather rows, cup, joined behind the body, all depth along the
+  view ray). v1 preview `~/.landstalker_remake/assets/church_angel/sculpt_v1.png`, projection IoU 0.972 (1 px outside). User on v1: the chest object is
+  unclear in the drawing, 'ich tendiere zum Kind' (swaddled child; else crossed arms); neck / head transition too thick; HAIR must be modelled as in the
+  sprite. Own notes: folds too weak, the wing join behind the body reads as a cape from behind (limit it to shoulder height). Light still uses v5.
 - Open: 1 reddish pixel right of the robe foot in the lit picture (613).
 
 ## Chapel angel statue  (`furniture.ANGEL`, `angel(cx, cy, floor)`; ops by `angels()`)
