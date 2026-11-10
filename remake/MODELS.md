@@ -4,6 +4,8 @@ One entry per model (user 2026-11-10: 'notiere zum jeweiligen Modell, welche Ref
 koennen'). RULE (same day): every form is measured EXACTLY on the drawing and its GEOMETRY is built close to the final remake version right away
 (materials later); the light uses that geometry (`landstalker/data/proxies/*.obj`, ops in `landstalker/data/light_proxies.json`).
 
+Lessons for the modelling work: `MODELING_LESSONS.md` (read first).
+
 ## How to look at a reference
 - Picture of a room from your own ROM (local, never in git): `python3 remake/tools/rom_picture.py ROM ROOM U0 V0 W H OUTDIR` -> `full.png` (both planes),
   `layerA.png` (objects with alpha). Picture coordinates: `U = x - y + 1184`, `V = (x + y) / 2 - z` (game units, 1 cell = 16).
