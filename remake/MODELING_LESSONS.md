@@ -49,6 +49,9 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 - The silhouette check window must be FIXED (not derived from the model's own coverage), else a model that misses a part looks better (brazier grid).
 - Tubes (claws, horns, handles) need a parallel-transport frame; a fixed reference vector flips the cross-section where the tube turns steep = visible kinks.
 
+- Joins: let a part GROW out of its carrier (lead-in points hugging the carrier's surface, half sunk in) instead of standing a capped tube on an edge;
+  a widened foot makes lumps where the carrier is narrower than its rim (brazier claws, 2026-11-10).
+
 ## 4. Light side effects (every model is also a light shape)
 - A shape under or next to a FLAME moves the flame light (its position comes from the view ray of the flame's picture centre): check the light list
   (LANDSTALKER_LIGHTING_DBG=1) before / after. Stands carry their flame (`carrier` data: light on the axis above the bowl, no self shadow).

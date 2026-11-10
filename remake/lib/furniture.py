@@ -336,7 +336,7 @@ def tube(pts, radii, seg=10):
 # fitted outline (Catmull-Rom through the knots), an OPEN bowl on top (grey, inner radius 5.3, 2.5 deep) and its PRONGS as drawn (window rows 48..60 of the
 # short reference): two tall curved prongs left / right of the flame (screen offset ~5.5 px, rising ~11 above the rim) + two more behind them, and a short
 # leaf on each side pointing outwards along the screen axis (offset ~9..11 px, ~4 above the rim). The flame itself is light / paint, no geometry.
-BRAZIER_PRONGS = dict(rim_rel=18.0, rim=6.0, claws=[45.0, 135.0, 225.0, 315.0], shaft=1, L=7.0, lean=25.0, hook_frac=0.4, hook=60.0, th=1.3, taper=3.0, base_r=5.0)
+BRAZIER_PRONGS = dict(rim_rel=18.0, rim=6.0, claws=[45.0, 135.0, 225.0, 315.0], shaft=1, L=7.0, lean=20.0, hook_frac=0.4, hook=45.0, th=1.3, taper=3.0, base_r=5.3, root=2.6)
 # v4 (user: 'nicht so abrupt abgeknickt ... eigentlich ist die Zacke fast gerade und nur der Haken am Ende macht die Kurve'): four EQUAL claws on the diagonals
 # (45 / 135 / 225 / 315 deg from the screen-right axis), each a nearly straight shaft L 8 leaning out 8 deg, only its last 40 % bends outwards on a smooth arc
 # by 75 deg (the hook); base radius 1.3, thick until the hook, then a point (taper exponent 3).  The front pair reads as the tall prongs beside the flame, the back pair as the side claws.
@@ -345,6 +345,9 @@ BRAZIER_PRONGS = dict(rim_rel=18.0, rim=6.0, claws=[45.0, 135.0, 225.0, 315.0], 
 # hook 60 deg, rooted 3 from the axis inside the bowl (flat claws only fit the drawing when they start further in): IoU 0.934 (~/lktest/braz/gridc9.py).
 # Rooted that deep they looked like stumps from the side -> user '2': rooted AT THE RIM (r 5.0), lean 25 deg, L 7, hook 60 deg: IoU 0.922 (gridc10.py;
 # at the rim 15 deg would give 0.934, 20 deg 0.925, 25 deg 0.922 - 25 chosen because the user wants them flatter).
+# v6 (user: 'viel besser - nur die Verbindung von Klaue zu Schale muss sauberer werden'): each claw GROWS out of the bowl's outer wall: 4 lead-in points
+# hug the wall half sunk in (from 2.6 below the rim), then the shaft from r 5.3 at the rim; refitted with the root (~/lktest/braz/gridc11.py): lean 20 deg,
+# L 7, hook 45 deg: IoU 0.920 short (a cap / seam on the rim is gone; a wider foot made lumps outside the narrower wall below the rim).
 
 def brazier_mesh(ax, ay, floor, steps, SPL=False):
     import math
@@ -370,7 +373,17 @@ def brazier_mesh(ax, ay, floor, steps, SPL=False):
                 pts.append(at(ang, rr + dr, top - 0.3 + dz))
             elif BP.get("flare"): pts.append(at(ang, rr + out * t ** BP["bend"], top - 0.3 + h * (1.0 - (1.0 - t) ** BP["bend"])))   # up first, then out (tulip)
             else: pts.append(at(ang, rr + out * (1.0 - (1.0 - t) ** BP["bend"]), top - 0.3 + h * t ** BP["bend"]))                # out first, then up (hook)
-        th = BP["th"]; meshes.append(tube(pts, [max(0.08, th * (1.0 - (k / (NP - 1.0)) ** BP.get("taper", 1.6))) for k in range(NP)], seg=12))
+        th = BP["th"]; radii = [max(0.08, th * (1.0 - (k / (NP - 1.0)) ** BP.get("taper", 1.6))) for k in range(NP)]
+        if BP.get("root"):   # v6 (user: 'die Verbindung von Klaue zu Schale muss sauberer werden'): the claw GROWS out of the bowl's outer wall below the rim:
+            # 3 lead-in points on the wall (inside the wall material, rising along it) with a foot that widens into the wall, so no cap / seam shows at the rim
+            def rout(z):   # the bowl's outer radius at height z (the profile below the rim)
+                for (z0, r0), (z1, r1) in zip(prof, prof[1:]):
+                    if z0 <= z <= z1: return r0 + (r1 - r0) * (z - z0) / max(1e-6, z1 - z0)
+                return prof[-1][1]
+            zs = [top - BP["root"] * f for f in (1.0, 0.7, 0.45, 0.2)]
+            lead = [at(ang, rout(z) - 0.55 * th, z) for z in zs]          # half sunk into the outer wall, hugging it up to the rim
+            pts = lead + pts; radii = [th * 0.85, th, th, th] + radii
+        meshes.append(tube(pts, radii, seg=12))
     return meshes
 
 # NEAR-FINAL VASE (reference room 670 (18, 24) / (18, 25), remake/MODELS.md): the drawing shows an OPEN mouth (dark inside, lip ring ~18 px wide -> outer

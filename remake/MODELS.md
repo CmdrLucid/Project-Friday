@@ -91,9 +91,10 @@ FINAL = with material, approved by the user.
   ('die Krone stimmt noch gar nicht', then 'es sind nur 4'); unequal claws fitted the picture best (0.956) but looked wrong from other sides -> user chose
   '1' = FOUR EQUAL CLAWS like a real crown; v4: 'nicht so abrupt abgeknickt - die Zacke ist fast gerade, nur der Haken am Ende macht die Kurve'. Now: bowl rim z 32 of the short stand (18 above the stem top, the dark ellipse around the flame's foot), r 6.0,
   open 2.5 deep; four identical claws on the diagonals (45 / 135 / 225 / 315 deg from the screen-right axis), rooted at the rim (r 5.0): a nearly
-  STRAIGHT shaft L 7 leaning out 25 deg (v5, user: 'flacherer Winkel', then '2' = rooted at the rim, not deep in the bowl), only the last 40 % bends out
-  on a smooth arc by 60 deg (the hook), radius 1.3 until the hook then a point (taper 3), parallel-transport tube. The front pair reads as the tall prongs
-  beside the flame, the back pair as the side claws. Projection IoU 0.922 short (room 51) / 0.939 tall (59) (`~/lktest/braz/chk.py`, grids `gridc7.py` .. `gridc10.py`).
+  STRAIGHT shaft L 7 leaning out 20 deg (v5, user: 'flacherer Winkel', then '2' = rooted at the rim, not deep in the bowl), only the last 40 % bends out
+  on a smooth arc by 45 deg (the hook), radius 1.3 until the hook then a point (taper 3), parallel-transport tube. v6 ('die Verbindung von Klaue zu Schale
+  muss sauberer werden'): each claw GROWS out of the bowl's outer wall (4 lead-in points hugging the wall half sunk in, from 2.6 below the rim). The front pair reads as the tall prongs
+  beside the flame, the back pair as the side claws. Projection IoU 0.920 short (room 51) / 0.937 tall (59) (`~/lktest/braz/chk.py`, grids `gridc7.py` .. `gridc11.py`).
   In-game 59 light unchanged (152). Previews `~/.landstalker_remake/assets/brazier/` (crown_both.png sprite vs model + 4 views, crown_all.png, clay_all.png,
   zoom_crown_game.png). User OK open. Material later (grey iron foot / bowl / claws, gold stem and knob).
 
