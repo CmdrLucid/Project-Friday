@@ -90,10 +90,10 @@ def hexa(x0, x1, y0, y1, zb, zt):
 # ox / oy = plate overhang on the +x / +y side, t = plate thickness.
 # THE CHAPEL LECTERN ($2EF, 597 / 607 / 736, one cell, collision 16): 597 (27, 26) IoU 0.947 (the carved notch in its +x face is not in the silhouette);
 # the top really slopes (flat top: 0.912), rising towards +y
-LECTERN = dict(x0=1.5, x1=16.5, y0=2.5, y1=16.5, h=20.0, a=0.0, b=0.15, ox=2.0, oy=1.0, t=5.5, ns=-1, nd=4.0, fz=4.0)
+LECTERN = dict(cove="y-", x0=1.5, x1=16.5, y0=2.5, y1=16.5, h=20.0, a=0.0, b=0.15, ox=2.0, oy=1.0, t=5.5, ns=-1, nd=4.0, fz=4.0)
 # THE CHURCH ALTAR ($181 over $185, tileset 3: 613 614 699 700 721, cells x, y .. y + 1, collision 1 step): 613 (26, 27) IoU 0.970, flat top, the plate
 # overhangs 2 on +x and 4.5 on +y (the front end)
-ALTAR = dict(x0=3.5, x1=17.0, y0=2.0, y1=34.5, h=19.5, a=-0.05, b=0.0, ox=2.0, oy=3.0, t=3.0, ns=1, nd=4.0, fz=4.0)
+ALTAR = dict(cove="x-", x0=3.5, x1=17.0, y0=2.0, y1=34.5, h=19.5, a=-0.05, b=0.0, ox=2.0, oy=3.0, t=3.0, ns=1, nd=4.0, fz=4.0)
 # THE NICHE (user 2026-11-10 on the outlines: 'die Pulte sind keine 4ecke, sondern haben hinten diesen Ausschnitt'): both have a knee niche at one end:
 # the end face is set back nd = 4 units from fz = 4 above the floor up to the plate, a foot stays below it.  Read from the drawn pixels (~/lktest/pult/grid_p.png /
 # grid_a.png: the recessed end edge 4 px in from the foot and the plate, the foot ledge 4 rows above the bottom corner); ns = which end (-1: the -y end =
@@ -114,7 +114,7 @@ def plated_box(cx, cy, floor, L):
 # (soft edges as in style C; the drawings show plain boxes: the altar = a dark wooden slab, its edge a lighter band between two black lines, on a stone
 # body; the lectern = a thick sloped wooden slab on a wooden body). Rounding radii and the lectern's book ledge in PLATED_FINE; the body keeps a sharp,
 # flat foot on the floor; the slope of the lectern top is a shear (z += a dx + b dy). Checked by projecting the triangles (~/lktest/pult2/chk.py).
-PLATED_FINE = dict(rb=0.75, rp=1.25, gp=0.4, gb=0.0, rf=0.75, lip=dict(inset_y=2.0, inset_x=2.0, d=1.5, h=1.0, r=0.5))
+PLATED_FINE = dict(rb=0.75, rp=1.25, gp=0.4, cove={"x-": dict(D=5.0, fz=4.0, p=1.5, rf=0.75), "y-": dict(D=3.0, fz=3.0, p=2.0, rf=0.75)})
 
 def rbox(x0, x1, y0, y1, z0, z1, r, n=4, flat_bottom=False, shear=None):
     """a box with all edges rounded by r (n steps per quarter), as (vertices, outward quads); flat_bottom: the bottom stays a sharp flat face on z0;
@@ -155,24 +155,67 @@ def rbox(x0, x1, y0, y1, z0, z1, r, n=4, flat_bottom=False, shear=None):
                     F.append(tuple(quad))
     return V, F
 
+def _offset_poly(P, e):
+    """move every vertex of the closed counter-clockwise polygon P [(a, z)] inward by e (averaged edge normals)"""
+    import math
+    out = []; n = len(P)
+    for i in range(n):
+        (a0, z0), (a1, z1), (a2, z2) = P[i - 1], P[i], P[(i + 1) % n]
+        ns = []
+        for (da, dz) in ((a1 - a0, z1 - z0), (a2 - a1, z2 - z1)):
+            L = math.hypot(da, dz) or 1.0; ns.append((-dz / L, da / L))      # inward normal of a counter-clockwise edge
+        m = (ns[0][0] + ns[1][0], ns[0][1] + ns[1][1]); L = math.hypot(*m) or 1.0; c = max(0.5, (m[0] * ns[0][0] + m[1] * ns[0][1]) / L)
+        out.append((a1 + e * m[0] / L / c, z1 + e * m[1] / L / c))
+    return out
+
+def cove_profile(A0, A1, floor, under0, under1, C, n=10):
+    """cross section of the body (counter-clockwise in (a, z), a across, A0 = the cove side): front face a = A1, the COVE on the A0 side = a rounded
+    hollow under the slab along the whole length (user 2026-11-10: 'eine Rundung ... entlang der ganzen Laenge'): depth D at the foot top zf, running out
+    to 0 at the slab (superellipse exponent p), the foot ledge below it (its outer edge rounded by rf)"""
+    D, zf, pw, rf = C["D"], floor + C["fz"], C["p"], C["rf"]
+    pts = [(A0, floor), (A1, floor), (A1, under1), (A0, under0)]
+    for k in range(1, n + 1):                                                   # from the slab down to the deepest point
+        t = k / n; z = under0 - t * (under0 - zf); u = (z - zf) / (under0 - zf)
+        pts.append((A0 + D * max(0.0, 1 - u ** pw) ** (1 / pw), z))
+    pts += [(A0 + rf, zf), (A0 + rf * 0.29, zf - rf * 0.29), (A0, zf - rf)]
+    return pts
+
+def extrude_rounded(prof, L0, L1, along, r, floor, nr=4):
+    """the closed profile [(a, z)] extruded from L0 to L1 along 'x' or 'y' (a = the other axis), both ends rounded by r (the profile shrinks inward
+    near the ends), the bottom stays flat on floor; returns (vertices, outward faces)"""
+    import math
+    rings = []
+    for k in range(nr, -1, -1): th = math.pi / 2 * k / nr; rings.append((L0 + r - r * math.sin(th), r - r * math.cos(th)))
+    for k in range(0, nr + 1): th = math.pi / 2 * k / nr; rings.append((L1 - r + r * math.sin(th), r - r * math.cos(th)))
+    V, F = [], []; m = len(prof)
+    def put(l, a, z): V.append((l, a, z) if along == "x" else (a, l, z))
+    for l, e in rings:
+        for (a, z), (a0, z0) in zip(_offset_poly(prof, e), prof): put(l, a, floor if abs(z0 - floor) < 1e-6 else z)
+    for i in range(len(rings) - 1):
+        for j in range(m):
+            q = (i * m + j, i * m + (j + 1) % m, (i + 1) * m + (j + 1) % m, (i + 1) * m + j); F.append(q)
+    ca = sum(a for a, z in prof) / m; cz = sum(z for a, z in prof) / m
+    for i, sg in ((0, -1), (len(rings) - 1, 1)):                                # end caps: fan from an inner point (the profile is star shaped from it)
+        put(rings[i][0], *(lambda p: p)(_star(prof))); c = len(V) - 1
+        for j in range(m): F.append((c, i * m + (j + 1) % m, i * m + j) if sg < 0 else (c, i * m + j, i * m + (j + 1) % m))
+    if along == "y": F = [tuple(reversed(q)) for q in F]                        # (l, a) swapped -> mirrored handedness
+    return V, F
+
+def _star(prof):
+    """a point from which the body profile is star shaped: low on the front side"""
+    a0 = min(a for a, z in prof); a1 = max(a for a, z in prof); z0 = min(z for a, z in prof); z1 = max(z for a, z in prof)
+    return (a1 - 0.3 * (a1 - a0), z0 + 0.3 * (z1 - z0))
+
 def plated_mesh(cx, cy, floor, L, P=None):
-    """near-final lectern / altar (the measured box L) as [(vertices, faces)]: rounded body (+ foot under the knee niche), rounded top slab
-    (lectern: sloped, + a small book ledge along its low -y edge)"""
-    P = P or PLATED_FINE
+    """near-final lectern / altar (the measured box L) as [(vertices, faces)]: body with the rounded COVE along the whole cove side (L["cove"]:
+    "x-" = the -x side, the altar; "y-" = the -y side, the lectern), ends rounded; rounded top slab (lectern: sloped)"""
+    P = P or PLATED_FINE; C = dict(P["cove"][L["cove"]])
     X0, X1, Y0, Y1 = 16 * cx + L["x0"], 16 * cx + L["x1"], 16 * cy + L["y0"], 16 * cy + L["y1"]; xc, yc = (X0 + X1) / 2, (Y0 + Y1) / 2
-    top = floor + L["h"]; under = top - L["t"]; sh = (L["a"], L["b"], xc, yc); nd, fz = L.get("nd", 0), L["fz"]
-    # the body ends 0.5 inside the slab (sheared like it, so no gap under a sloped slab)
-    if nd <= 0: ms = [rbox(X0, X1, Y0, Y1, floor, under + 0.5, P["rb"], flat_bottom=True)]
-    elif L["ns"] > 0: ms = [rbox(X0, X1, Y0, Y1 - nd, floor, under + 0.5, P["rb"], flat_bottom=True), rbox(X0, X1, Y1 - nd - 1.0, Y1, floor, floor + fz, P["rf"], flat_bottom=True)]
-    else: ms = [rbox(X0, X1, Y0 + nd, Y1, floor, under + 0.5, P["rb"], flat_bottom=True), rbox(X0, X1, Y0, Y0 + nd + 1.0, floor, floor + fz, P["rf"], flat_bottom=True)]
-    if L["a"] or L["b"]:   # the body's top follows the slope: shear only its upper vertices (above the foot)
-        ms = [(([(x, y, z + (L["a"] * (x - xc) + L["b"] * (y - yc)) * (z - floor) / (under + 0.5 - floor)) for x, y, z in v] if k == 0 else v), f) for k, (v, f) in enumerate(ms)]
+    top = floor + L["h"]; t = L["t"]; uz = lambda x, y: top + L["a"] * (x - xc) + L["b"] * (y - yc) - t + 0.5   # the body ends 0.5 inside the slab
+    if L["cove"] == "x-": prof = cove_profile(X0, X1, floor, uz(X0, yc), uz(X1, yc), C); body = extrude_rounded(prof, Y0, Y1, "y", P["rb"], floor)
+    else: prof = cove_profile(Y0, Y1, floor, uz(xc, Y0), uz(xc, Y1), C); body = extrude_rounded(prof, X0, X1, "x", P["rb"], floor)
     g = P.get("gp", 0.0)   # the rounded slab grows by g on every side + top: its silhouette then keeps the drawn outline (a rounded edge shows ~0.3 r inside)
-    ms.append(rbox(X0 - g, X1 + L["ox"] + g, Y0 - g, Y1 + L["oy"] + g, under, top + g, P["rp"], shear=sh))
-    if L["b"] > 0 and P.get("lip"):   # book ledge on the LOW end (-y) of the sloped lectern top, set in so it stays inside the drawn outline
-        q = P["lip"]; ly0 = Y0 + q["inset_y"]; zt = top + L["b"] * (ly0 + q["d"] / 2 - yc)
-        ms.append(rbox(X0 + q["inset_x"], X1 + L["ox"] - q["inset_x"], ly0, ly0 + q["d"], zt - 1.0, zt + q["h"], q["r"]))
-    return ms
+    return [body, rbox(X0 - g, X1 + L["ox"] + g, Y0 - g, Y1 + L["oy"] + g, top - t, top + g, P["rp"], shear=(L["a"], L["b"], xc, yc))]
 
 # THE ANGEL STATUE (chapel, tileset 8: on the 1 step platform $2EB / $2EC of 597 / 607 / 736, cell 27, 24; 2026-11-10 user 'baenke statue und pult'):
 # a winged figure = BODY lathe + WINGS as a thin plate. Body fitted by view rays to the drawn silhouette with the wing zone as don't care
