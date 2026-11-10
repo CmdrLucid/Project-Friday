@@ -65,6 +65,12 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 - One light object per physical object (the light never shades an object by itself): one op per vase / barrel / stand.
 - Compare lit shots only with the same LANDSTALKER_LIGHTING_DBG setting; check zoomed before / after pictures for hard edges (user rule: hard edges = bugs).
 
+- **The GPU model buffer is finer than a game pixel** (2026-11-10, user in 670: 'wieder die hellen gruenen Teppichzeilen direkt unter der Tischplatte'): a
+  slab whose BOTTOM outer edge is rounded or moved off the pixel grid (front grown 1) covers HALF carpet rows below the drawn edge band, and those half rows
+  are lit as the slab's side face = bright strips. Keep the bottom outer edges of furniture tops SHARP and the visible front faces on the drawn / cell
+  boundary (as the old boxes); round only edges whose rounding stays inside the drawn object. A 0-missed projection check does not catch this
+  (it counts pixel centres): look at the in-game zoom.
+
 ## 5. Tools and paths
 - Blender (Flatpak) needs `--filesystem=home` for scripts / files outside the sandbox; an ortho camera at distance > 100 needs `clip_end` raised; point the
   camera with a TRACK_TO constraint.

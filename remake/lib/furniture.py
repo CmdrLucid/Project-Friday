@@ -42,7 +42,7 @@ MERCATOR_TABLE = dict(thick=3, leg=4, inset=1, outline=1)
 # NEAR-FINAL MERCATOR TABLE (2026-11-10, reference room 670 cells 22..24 x 22..23, ~/lktest/table2): the drawing (1 px grid) shows a top with ROUNDED
 # corners, a raised light rim ~2 wide (bright top + darker inner slope), a black groove ~1 and a recessed dark field; the slab side ~3 high; four ROUND
 # legs ~4 wide (shaded dark / black line / light / dark), foot rounded, centres ~2.6 in from the top's outer corners. Fitted by projection (tablechk.py).
-MERCATOR_FINE = dict(rc=3.0, ex0=1.0, ey0=1.0, ex1=1.0, ey1=1.0, rim=2.0, groove=1.0, depth=0.0, re=0.75, leg_r=2.0, i0=1.625, i1=3.125, seg=16)
+MERCATOR_FINE = dict(rc=2.0, ex0=1.0, ey0=1.0, ex1=0.0, ey1=0.0, rim=2.0, groove=1.0, depth=0.0, re=0.75, leg_r=2.0, i0=1.625, i1=3.125, seg=16)
 
 def sweep_rr(x0, y0, x1, y1, rc, prof, nc=6):
     """a closed solid swept along a rounded rectangle (corner radius rc): prof [(d, z)] with d = distance in from the outline, from the bottom cap ring to
@@ -78,7 +78,9 @@ def tray_top(x0, y0, x1, y1, top, thick, P):
     """the table top: rounded-rectangle slab (plan corner radius rc), outer edges rounded re, a raised rim `rim` wide, then a groove `groove` wide down to
     the recessed field (depth below the rim top); profile (d in from the outline, z) swept along the outline"""
     re, w, g, dp = P["re"], P["rim"], P["groove"], P["depth"]; u = top - thick; D = w + 0.3   # the field cap ring (must stay < rc)
-    prof = [(D, u)] + _arc(re, u + re, re, 270.0, 180.0) + _arc(re, top - re, re, 180.0, 90.0)   # bottom out to the rounded outer edges, the side up
+    # the BOTTOM outer edge stays SHARP and the front faces on the cell box (user 2026-11-10 in 670: bright carpet rows right under the top): the GPU
+    # model buffer is finer than a game pixel, a rounded / grown bottom edge covers half carpet rows below the drawn edge band and lights them as the side
+    prof = [(D, u), (0.0, u)] + _arc(re, top - re, re, 180.0, 90.0)   # bottom out to the sharp outer edge, the side up to the rounded top edge
     if dp > 0: prof += [(w - 0.35, top), (w, top - 0.2), (w + 0.05, top - dp + 0.1), (w + 0.25, top - dp), (D, top - dp)]   # rim + recessed field (v1, user: no)
     else: prof += [(D, top)]   # a straight flat top (user 2026-11-10: 'Mittelfeld nicht vertieft, eine grade Platte'); the light rim of the drawing = paint
     return sweep_rr(x0, y0, x1, y1, P["rc"], prof)
@@ -96,6 +98,53 @@ def mercator_table_mesh(x0, y0, x1, y1, floor, top, thick, P=None):
     # drawn feet; front / back split from the feet's picture rows, a shift along (1, 1) is otherwise invisible)
     leg = [(0.0, 0.0), (r - 0.6, 0.0), (r - 0.15, 0.25), (r, 0.8), (r, u - floor + 0.4), (0.0, u - floor + 0.4)]   # rounded foot, top 0.4 inside the slab
     for lx, ly in ((x0 + i0, y0 + i0), (x1 - i1, y0 + i0), (x1 - i1, y1 - i1), (x0 + i0, y1 - i1)):
+        ms.append(revolve(lx, ly, floor, leg, seg=P["seg"]))
+    return ms
+
+def sweep_poly(poly, rc, prof, star, nc=6):
+    """like sweep_rr for any axis-parallel polygon `poly` [(x, y), ..]: convex corners rounded by rc, concave (inner) corners by rc as well (the arc
+    then bends the other way); prof [(d, z)], d = distance in from the outline; both caps filled from `star` (a point that sees the whole outline)"""
+    import math
+    n = len(poly); path = []
+    area = sum(poly[i][0] * poly[(i + 1) % n][1] - poly[(i + 1) % n][0] * poly[i][1] for i in range(n))
+    if area < 0: poly = poly[::-1]                                              # counter-clockwise in (x, y) (interior on the left)
+    for i in range(n):
+        v = poly[i]; a = poly[i - 1]; b = poly[(i + 1) % n]
+        e1 = (v[0] - a[0], v[1] - a[1]); e2 = (b[0] - v[0], b[1] - v[1]); l1 = math.hypot(*e1); l2 = math.hypot(*e2)
+        e1 = (e1[0] / l1, e1[1] / l1); e2 = (e2[0] / l2, e2[1] / l2)
+        n1 = (-e1[1], e1[0]); n2 = (-e2[1], e2[0])                                 # left (= inward) normals
+        sg = 1.0 if e1[0] * e2[1] - e1[1] * e2[0] > 0 else -1.0                    # +1 convex, -1 concave
+        c = (v[0] + sg * rc * (n1[0] + n2[0]), v[1] + sg * rc * (n1[1] + n2[1]))
+        d0 = (-sg * n1[0], -sg * n1[1]); d1 = (-sg * n2[0], -sg * n2[1])
+        a0 = math.atan2(d0[1], d0[0]); a1 = math.atan2(d1[1], d1[0]); da = (a1 - a0 + math.pi) % (2 * math.pi) - math.pi
+        for k in range(nc + 1):
+            t = a0 + da * k / nc; path.append((c, (math.cos(t), math.sin(t)), sg))
+    m = len(path); V, F = [], []
+    for d, z in prof:
+        for c, (dx, dy), sg in path: V.append((c[0] + (rc - sg * d) * dx, c[1] + (rc - sg * d) * dy, z))   # convex: in = towards the centre, concave: away
+    for i in range(len(prof) - 1):
+        for j in range(m): F.append((i * m + j, i * m + (j + 1) % m, (i + 1) * m + (j + 1) % m, (i + 1) * m + j))
+    V.append((star[0], star[1], prof[0][1])); b = len(V) - 1; F += [(b, (j + 1) % m, j) for j in range(m)]
+    last = (len(prof) - 1) * m; V.append((star[0], star[1], prof[-1][1])); t = len(V) - 1; F += [(t, last + j, last + (j + 1) % m) for j in range(m)]
+    vol = 0.0
+    for q in F:
+        for k in range(1, len(q) - 1):
+            a, b2, c = V[q[0]], V[q[k]], V[q[k + 1]]
+            vol += a[0] * (b2[1] * c[2] - b2[2] * c[1]) - a[1] * (b2[0] * c[2] - b2[2] * c[0]) + a[2] * (b2[0] * c[1] - b2[1] * c[0])
+    if vol < 0: F = [tuple(reversed(q)) for q in F]
+    return V, F
+
+def l_bench_mesh(x0, y0, x1, y1, ax0, floor, top, thick, P=None, ad=16.0, aw=0.0):
+    """near-final L BENCH (623 / 624 / 701 / 702): the long arm x0..x1 / y0..y1 (along y) and at its back end the short arm reaching west to ax0
+    (y0 .. y0 + 16), the same flat rounded slab + round legs as the Mercator table (MERCATOR_FINE), no leg at the inner corner (as drawn)"""
+    P = P or MERCATOR_FINE; e = P["ex0"]; u = top - thick; re = P["re"]; D = P["rim"] + 0.3
+    ax0 = ax0 + aw   # ad = depth of the short arm (along y), aw = its west end moved east
+    poly = [(ax0 - e, y0 - e), (x1 + e, y0 - e), (x1 + e, y1 + e), (x0 - e, y1 + e), (x0 - e, y0 + ad + e), (ax0 - e, y0 + ad + e)]
+    prof = [(D, u), (0.0, u)] + _arc(re, top - re, re, 180.0, 90.0) + [(D, top)]   # sharp bottom edge (see tray_top)
+    ms = [sweep_poly(poly, P["rc"], prof, ((x0 + x1) / 2, y0 + 8))]
+    r = P["leg_r"]; i0, i1 = P["i0"], P["i1"]
+    leg = [(0.0, 0.0), (r - 0.6, 0.0), (r - 0.15, 0.25), (r, 0.8), (r, u - floor + 0.4), (0.0, u - floor + 0.4)]
+    for lx, ly in ((x0 + i0, y1 - i1), (x1 - i1, y1 - i1), (x1 - i1, y0 + i0), (ax0 + i0, y0 + i0), (ax0 + i0, y0 + ad - i1)):
         ms.append(revolve(lx, ly, floor, leg, seg=P["seg"]))
     return ms
 
