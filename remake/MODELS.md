@@ -96,7 +96,7 @@ FINAL = with material, approved by the user.
   muss sauberer werden'): each claw GROWS out of the bowl's outer wall (4 lead-in points hugging the wall half sunk in, from 2.6 below the rim). The front pair reads as the tall prongs
   beside the flame, the back pair as the side claws. Projection IoU 0.920 short (room 51) / 0.937 tall (59) (`~/lktest/braz/chk.py`, grids `gridc7.py` .. `gridc11.py`).
   In-game 59 light unchanged (152). Previews `~/.landstalker_remake/assets/brazier/` (crown_both.png sprite vs model + 4 views, crown_all.png, clay_all.png,
-  zoom_crown_game.png). User OK open. Material later (grey iron foot / bowl / claws, gold stem and knob).
+  zoom_crown_game.png). USER OK 2026-11-10 ('yes passt'). Material later (grey iron foot / bowl / claws, gold stem and knob).
 
 ## Tables, benches, side tables, castle tables, L bench  (`furniture.MERCATOR_TABLE / CASTLE_TABLE`, `table()`, `top_on_legs()`, `l_bench()`; ops by `tables()`)
 - Game: tileset 2 Mercator tables / benches / side tables (top blocks $030 $04A $04C $04D $06E $06A $0A3 $18A $312..$314) and tileset 1 castle tables

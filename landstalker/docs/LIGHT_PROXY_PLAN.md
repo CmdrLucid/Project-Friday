@@ -278,3 +278,9 @@ stand-ins); (d) recurring objects from the catalogue as models; (e) roll out, th
 **Status 2026-11-08 night, later (dev 41b6e28, HANDOFF 0a343):** the generator runs OUTDOORS too (ground of the room's own view ray; objects stay field = kind 3 until they have models), model buffer 2048 x 2048, 96 rooms pixel-identical. Next: replace collision boxes / stand-ins by measured models one object type at a time (furniture indoors: beds / tables / counters; then houses outdoors), every step with a before / after check.
 
 **Status 2026-11-09 early (HANDOFF 0a345 / 0a346):** room model DEFAULT ON (294 rooms identical); back face shadow maps default (no PCF lines along model edges); generated surfaces marked in the model buffer. Hand models as surfaces need the CLEAN-UP first: the field must drop the collision / stand-in columns inside a surface model's area (corner lines at 632 come from them).
+
+## 2026-11-10: data keys "carrier" and op "ground" (Opus 5.5)
+- Mesh op key `"carrier": {"r": 12, "axis": [x, y], "z": Z}` (LK_GLCARRIER v1, patch_lights.py table lk_lt_carrier + patch_gpulight.py): a flame light whose ray point lies within 1 cell of the op's cells is moved to the stand's axis at height Z (5 above the bowl) and every shadow march (CPU lk_lt_term both loops, GPU termS both loops, uLF.w = -r) skips samples below the flame within r of it. Test aid LANDSTALKER_LT_CARRIER=0. Used by the castle brazier stands.
+- Op `"ground"`: `"cells": [x0, y0, x1, y1, height]` (LK_LTGROUND v1, op 12): height map cells that are VOID (0x4000) but drawn as solid get `height` (only void cells change; ops apply in file order, so a smaller area first). Test aid LANDSTALKER_LT_GROUND=0. Used by the church angel's pedestal (23 x 27..28 = 32) and niche floor (23 x 26..29 = 16) in 613 614 699 700 721.
+- Since 2026-11-10 the decoration shapes are near-final remake geometry (remake/MODELS.md); the light proxies are those meshes.
+
