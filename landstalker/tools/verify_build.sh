@@ -124,6 +124,7 @@ chk "ASL-Makro"                                     $G/include/genrecomp/m68k.h 
 chk "DIVS-Absturzschutz"                            $G/include/genrecomp/m68k.h          "LANDSTALKER_DIVS"
 chk "FM-Puffer-Begrenzung"                          $G/ext/Genesis-Plus-GX/core/sound/sound.c "LANDSTALKER_FMCLAMP"
 chk "Shader-Vorwaermung vor dem Titel (LK_SHWARM v1)"     $G/src/platform_sdl.c                "LK_SHWARM v1"
+chk "Schwert-Schatten durch das feine Feld (LK_SWSHFINE v1)" $G/src/platform_sdl.c              "LK_SWSHFINE v1"
 if [ -f build/landstalker ]; then echo "  [ok]  build/landstalker vorhanden ($(date -r build/landstalker '+%d.%m. %H:%M'))"; ok=$((ok+1))
 else echo "  [FEHLT] build/landstalker existiert nicht"; bad=$((bad+1)); fi
 echo

@@ -609,16 +609,32 @@ vec4 roundFig(vec2 fc, float cl, vec4 L4) {   /* GL5f: a figure as a round body 
         gently (v1: the side away from a torch sat flat at 0.4 = grey maids in room 680) */
   vec3 r = clamp(rs * (fc0 / max(fo, vec3(0.01))) * min(fs / max(fl, vec3(0.01)), vec3(1.0)), vec3(0.3), vec3(1.9));
   return vec4(min(L4.rgb * 255.0 * r, vec3(255.0)) / 255.0, 1.0); }
-float swlight(vec3 p, vec3 n) {   /* GL5e: the sword glow (lk_lt_term without shadow, as the light pass) times its soft shadow (march to the sword, LK_LT_IPEN clearance rule) */
+uniform sampler2D fine; uniform float uFn;
+vec4 FNb(float sx, float sy, float hf) { return texture2D(fine, (vec2(sx, sy + 296.0 * hf) + 0.5) / vec2(296.0, 1480.0)); }
+float swocc(vec3 q, float tt, inout float res) {   /* LK_SWSHFINE v1: 1 = q is inside the scenery; else the clearance shrinks res (soft edge, LK_LT_IPEN rule) */
+  float top = topT(floor(q.x / 16.0), floor(q.y / 16.0)), sx = floor(q.x / 4.0), sy = floor(q.y / 4.0);
+  if (uFn > 0.5 && sx >= 0.0 && sy >= 0.0 && sx < 296.0 && sy < 296.0) {   /* (user 2026-11-11: 'nachts neben einem grossen Baum mit dem Schwert schlagen: der Schatten sieht aus wie eine Box') */
+    vec4 f0 = FNb(sx, sy, 0.0), f4 = FNb(sx, sy, 4.0), f2 = FNb(sx, sy, 2.0); float fo = S16(B(f0.b), B(f0.a)), fh = S16(B(f0.r), B(f0.g)), k = B(f4.r);
+    float sb = S16(B(f2.r), B(f2.g)), st = S16(B(f2.b), B(f2.a));
+    if (st > sb && q.z > sb && q.z < st) return 1.0;   /* v9 slab (floating part) */
+    if (st > sb) { float c = q.z <= sb ? sb - q.z : q.z - st, r = 4.0 * c / tt; if (r < res) res = r; }
+    if (k > 0.5 && k < 1.5) {   /* a hand-made model's sub column (tree, statue, furniture): ground g, air up to g + gap, the model up to its top */
+      float g = S16(B(f4.b), B(f4.a)), gap = B(f4.g), mt = fo != 0.0 && fh > g ? fh : g;
+      if (q.z < g - 0.5) return 1.0;
+      if (gap > 4.0 && q.z < g + gap) { float r = 4.0 * min(q.z - g, g + gap - q.z) / tt; if (r < res) res = r; return 0.0; }
+      top = mt; }
+    else if (fo == 2047.0) top = fh; }   /* the data height indoors (ops box / mesh) */
+  if (q.z < top - 0.5) return 1.0;
+  if (top > -32768.0) { float r = 4.0 * (q.z - top) / tt; if (r < res) res = r; }
+  return 0.0; }
+float swlight(vec3 p, vec3 n) {   /* GL5e: the sword glow (lk_lt_term without shadow, as the light pass) times its soft shadow (march to the sword, LK_LT_IPEN clearance rule; LK_SWSHFINE v1: through the fine field) */
   vec3 v = uSwP.xyz - p; float d = length(v), rad = uSwP.w;
   if (d >= rad || d < 0.001) return d < 0.001 ? uSwC.w : 0.0;
   float ndl = max(dot(n, v) / d, 0.0), q = 1.0 - d / rad, t = uSwC.w * q * q * (0.25 + 0.75 * ndl);
   if (t <= 0.0) return 0.0;
   vec3 s = p + n * 3.0, w = uSwP.xyz - s; float e = length(w), res = 1.0;
   for (int st = 0; st < 200; st++) { float tt = 2.0 + 2.0 * float(st); if (tt >= e - 3.0) break;
-    vec3 qq = s + w * tt / e; float top = topT(floor(qq.x / 16.0), floor(qq.y / 16.0));
-    if (qq.z < top - 0.5) return 0.0;
-    if (top > -32768.0) { float r = 4.0 * (qq.z - top) / tt; if (r < res) res = r; } }
+    if (swocc(s + w * tt / e, tt, res) > 0.5) return 0.0; }
   return t * max(res, 0.0); }
 void main() {
   vec2 fc = floor(gl_FragCoord.xy);
@@ -1537,7 +1553,7 @@ static int lk_gb_st; static lkGLuint lk_gb_prog, lk_gb_fa, lk_gb_fb, lk_gb_ra, l
 static long lk_gsw_fr = -9; static int lk_gsw_on;   /* GL5e: the frame's decision (light pass and post pass must agree) */
 int lk_gsw_frame(int real, int swon) { extern int lk_swsh_get(void); long f = platform_frame_number(); if (lk_gsw_fr != f) { lk_gsw_fr = f; lk_gsw_on = real && swon && lk_swsh_get() && lk_g5_realon() && lk_g5_wh != 0 && lk_gb_st >= 0; } return lk_gsw_on; } static float lk_gb_k = -1.0f, lk_gb_r, lk_gb_d;
 static const char *lk_gb_fs = "#version 120\n" @SHADERB@;
-static const char *lk_gb_un[] = { "lit", "unl", "cls", "rows", "roomA", "roomB", "rad", "post", "btab", "uMode", "uBase", "uW", "uK", "uR", "uD", "uPost", "uPh", "uOut", "wld", "uSwP", "uSwC", "uSw", "uSunR", "uLP", "uLC", "uLF", "uFG", "uFA", "uNl", "uAmb", "uSS", "uSK", "uAmb3", "uSun3", "uDn", "uKey", "uKA", "uKK", "uSd", "uE", "uSwon", "uFig", "uNf", "uRfK", "uRfD", 0 };
+static const char *lk_gb_un[] = { "lit", "unl", "cls", "rows", "roomA", "roomB", "rad", "post", "btab", "uMode", "uBase", "uW", "uK", "uR", "uD", "uPost", "uPh", "uOut", "wld", "uSwP", "uSwC", "uSw", "uSunR", "uLP", "uLC", "uLF", "uFG", "uFA", "uNl", "uAmb", "uSS", "uSK", "uAmb3", "uSun3", "uDn", "uKey", "uKA", "uKK", "uSd", "uE", "uSwon", "uFig", "uNf", "uRfK", "uRfD", "fine", "uFn", 0 };
 static int lk_gb_init(void) {
   lkGLint ok = 0, t0 = 0, fb0 = 0; lkGLuint vs, fs; char log[2048]; int i; lkGLenum st1, st2;
   { static const char *vsrc = "#version 120\nvoid main() { gl_Position = gl_Vertex; }\n"; vs = lk_glCreateShader(0x8B31); lk_glShaderSource(vs, 1, &vsrc, 0); lk_glCompileShader(vs); lk_glGetShaderiv(vs, 0x8B81, &ok); if (!ok) return -1; }
@@ -1554,7 +1570,7 @@ static int lk_gb_init(void) {
   { const char *e = getenv("LANDSTALKER_BOUNCE_K"), *r = getenv("LANDSTALKER_BOUNCE_R"), *d = getenv("LANDSTALKER_BOUNCE_D"); lk_gb_k = e ? (float)atof(e) : 5.0f; lk_gb_r = r ? (float)atof(r) : 96.0f; lk_gb_d = d ? (float)atof(d) : 56.0f; }
   printf("bounce: ready\n"); return 1; }
 static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out holds the lit picture, unit 0 = the presented unlit picture); returns 1 when lk_gb_out holds the result */
-  static float fu[64], lp[96 * 4], lc[96 * 4], lf[96 * 4], fg[16 * 4], fa[16 * 4]; static int iu[32]; float base[3], phu = 0.0f, phv = 0.0f; int i; lkGLint tb[10], fb0 = 0, unl = 0; static const lkGLfloat quad[8] = { -1, -1, 1, -1, -1, 1, 1, 1 };
+  static float fu[64], lp[96 * 4], lc[96 * 4], lf[96 * 4], fg[16 * 4], fa[16 * 4]; static int iu[32]; float base[3], phu = 0.0f, phv = 0.0f; int i; lkGLint tb[11], fb0 = 0, unl = 0; static const lkGLfloat quad[8] = { -1, -1, 1, -1, -1, 1, 1, 1 };
   extern int lk_gl_postany;
   int bon = lk_bl_get(), sw, fig; extern int lk_rf_get(void);
   if (lk_gb_st < 0) return 0;
@@ -1571,12 +1587,13 @@ static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out ho
   { static int dbg = -1; if (dbg < 0) { const char *e = getenv("LANDSTALKER_BOUNCE_DBG"); dbg = e ? atoi(e) : 0; } if (dbg && platform_frame_number() %% 100 == 0) printf("bounce: frame %%ld sun %%d dn %%d key %%d nl %%d base %%.2f %%.2f %%.2f w %%d\n", platform_frame_number(), iu[0], iu[5], iu[1], iu[2], base[0], base[1], base[2], iu[7]); }
   if (lk_gb_st == 0) { lk_gb_st = lk_gb_init(); if (lk_gb_st < 0) return 0; }
   lk_glGetIntegerv(0x8069, &unl);   /* unit 0 (active) = the presented unlit picture */
-  for (i = 0; i < 10; i++) { lk_glActiveTexture(0x84C0 + i); lk_glGetIntegerv(0x8069, &tb[i]); }
+  for (i = 0; i < 11; i++) { lk_glActiveTexture(0x84C0 + i); lk_glGetIntegerv(0x8069, &tb[i]); }
   { extern long lk_gl_rowfr[224], lk_gl_capfr; extern uint32_t lk_gl_row[224]; int L; for (L = 0; L < 224; L++) if (lk_gl_rowfr[L] == lk_gl_capfr) { int U = (int)(int16_t)(lk_gl_row[L] & 0xFFFF), V = (int)(int16_t)(lk_gl_row[L] >> 16) - L; phu = (float)(((U %% 4) + 4) %% 4); phv = (float)(((V %% 4) + 4) %% 4); break; } }   /* cells on the room picture grid */
   lk_glActiveTexture(0x84C0); lk_glBindTexture(0x0DE1, lk_glt_out); lk_glActiveTexture(0x84C1); lk_glBindTexture(0x0DE1, (lkGLuint)unl); lk_glActiveTexture(0x84C2); lk_glBindTexture(0x0DE1, lk_glt_t[1]);
   lk_glActiveTexture(0x84C3); lk_glBindTexture(0x0DE1, lk_glt_t[2]); lk_glActiveTexture(0x84C4); lk_glBindTexture(0x0DE1, lk_glt_t[3]); lk_glActiveTexture(0x84C5); lk_glBindTexture(0x0DE1, lk_glt_t[7]);
-  lk_glActiveTexture(0x84C6); lk_glBindTexture(0x0DE1, lk_gb_ra); lk_glActiveTexture(0x84C7); lk_glBindTexture(0x0DE1, lk_glt_t[10]); lk_glActiveTexture(0x84C8); lk_glBindTexture(0x0DE1, lk_glt_t[4]); lk_glActiveTexture(0x84C9); lk_glBindTexture(0x0DE1, lk_g5_wt); lk_glActiveTexture(0x84C0);
+  lk_glActiveTexture(0x84C6); lk_glBindTexture(0x0DE1, lk_gb_ra); lk_glActiveTexture(0x84C7); lk_glBindTexture(0x0DE1, lk_glt_t[10]); lk_glActiveTexture(0x84C8); lk_glBindTexture(0x0DE1, lk_glt_t[4]); lk_glActiveTexture(0x84C9); lk_glBindTexture(0x0DE1, lk_g5_wt); lk_glActiveTexture(0x84CA); lk_glBindTexture(0x0DE1, lk_g5_fn); lk_glActiveTexture(0x84C0);   /* LK_SWSHFINE v1: unit 10 = the fine field of the block pass */
   lk_glUseProgram(lk_gb_prog); for (i = 0; i < 9; i++) lk_glUniform1i(lk_gb_u[i], i);
+  { static int fo = -1; if (fo < 0) { const char *e = getenv("LANDSTALKER_SWORDSH_FINE"); fo = e ? atoi(e) : 1; } lk_glUniform1i(lk_gb_u[45], 10); lk_glUniform1f(lk_gb_u[46], fo && lk_g5_fn ? 1.0f : 0.0f); }   /* LK_SWSHFINE v1 (=0: the old 16 unit cells) */
   lk_glUniform1i(lk_gb_u[18], 9); lk_glUniform4f(lk_gb_u[19], fu[16], fu[17], fu[18], fu[19]); lk_glUniform4f(lk_gb_u[20], fu[20], fu[21], fu[22], fu[23]); lk_glUniform1f(lk_gb_u[21], sw ? 1.0f : 0.0f); lk_glUniform1f(lk_gb_u[22], iu[0] ? 1.0f : 0.0f);
   lk_glUniform4fv(lk_gb_u[23], 96, lp); lk_glUniform4fv(lk_gb_u[24], 96, lc); lk_glUniform4fv(lk_gb_u[25], 96, lf); lk_glUniform4fv(lk_gb_u[26], 16, fg); lk_glUniform4fv(lk_gb_u[27], 16, fa);
   lk_glUniform1f(lk_gb_u[28], (float)iu[2]); lk_glUniform1f(lk_gb_u[29], fu[0]); lk_glUniform1f(lk_gb_u[30], fu[1]); lk_glUniform1f(lk_gb_u[31], fu[2]); lk_glUniform3f(lk_gb_u[32], fu[3], fu[4], fu[5]); lk_glUniform3f(lk_gb_u[33], fu[6], fu[7], fu[8]);
@@ -1590,7 +1607,7 @@ static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out ho
   if (bon) { lk_glUniform1f(lk_gb_u[9], 0.0f); lk_glBindFramebuffer(0x8D40, lk_gb_fa); lk_glViewport(0, 0, 113, 57); lk_glDrawArrays(0x0005, 0, 4); }
   lk_glUniform1f(lk_gb_u[9], 1.0f); lk_glBindFramebuffer(0x8D40, lk_gb_fb); lk_glViewport(0, 0, 448, 224); lk_glDrawArrays(0x0005, 0, 4);
   lk_glBindFramebuffer(0x8D40, (lkGLuint)fb0);
-  for (i = 9; i >= 0; i--) { lk_glActiveTexture(0x84C0 + i); lk_glBindTexture(0x0DE1, (lkGLuint)tb[i]); }
+  for (i = 10; i >= 0; i--) { lk_glActiveTexture(0x84C0 + i); lk_glBindTexture(0x0DE1, (lkGLuint)tb[i]); }
   return 1; }
 
 static long lk_glt_fb[8]; static long lk_glt_n, lk_glt_skip, lk_glt_px, lk_glt_ex, lk_glt_o1, lk_glt_bad, lk_glt_xc, lk_glt_xf[8], lk_glt_cpx[3], lk_glt_cbad[3]; static int lk_glt_shown;
