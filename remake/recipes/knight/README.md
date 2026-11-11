@@ -13,3 +13,12 @@ same drawing. The castle's dark armour on a stand (tileset 15, $0B5: 63 64 83 84
 - v1 (2026-11-11): blockout, IoU 0.824 (71 px outside, 108 missed), yaw 0 (it faces +y, out of the wall), twist 25, feet turned out 22. Read from the
   fit: the drawing follows the sprite convention (level shoulders, feet pointing in two directions), so no single facing fits everything.
   Preview `~/.landstalker_remake/assets/knight/knight_v1.png`. Waiting for the user's look before the details (plates, visor, hands, shield rim).
+- v2 / v3 (2026-11-11, user 'ja', then 'diese 2 vertikalen Linien sind noch komisch'): plate-armour details (pointed sabatons, shin ridges, winged knee
+  cops, fauld of three hoops, belt, collar, helm with brow rim and eye-slit ledge, ONE plume falling to the side, pauldron lames, couters, gauntlet cuff +
+  fist, lance with butt / tassel tufts / socket / leaf head, shield with a raised rim); the stuck-on keel and nasal ridge removed. The feet point in two
+  directions as drawn (`splay_r` 45, `splay_l` 30). IoU 0.817 (71 outside, 115 missed), ~10000 faces.
+- IN THE LIGHT since 2026-11-11: `remake/tools/furniture_ops.py` knights() / knight_obj() -> `data/proxies/knight_ROOM[_k].obj` (14 knights, 7 rooms).
+  A wall block west / east of the cell: `xmin` / `xmax` -> the lance / shield SLIDE ALONG THE VIEW RAY to the cell's edge (same game picture, nothing
+  inside the wall). 678 is not reachable by warp (black); checked in 695 (`695:27.08,27.08,0010`): no boxes or cut walls; edge pixels at the corner
+  knight 415 -> 563 (shading on the figure where the model and the drawing differ), whole picture 3699 -> 3826.
+

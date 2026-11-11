@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-11 evening (dev, Fable 5.2): ARMOUR KNIGHTS as light shapes (14 in 678 679 695 696 697 719 720; remake/recipes/knight parts model v3, IoU 0.817)**; checked headless in 695, not played. HANDOFF 0a388, NEXT -168 (user look; castle armour stand).
 - **2026-11-11 later (dev, Fable 5.2): CHAPEL ANGEL = the church sculpt mirrored (597 607 736, built, not checkable by warp); ARMOUR KNIGHT blockout v1** (remake/recipes/knight, IoU 0.824, not in the light yet). HANDOFF 0a387, NEXT -167.
 - **2026-11-11 (dev, Fable 5.2): CHURCH ANGEL SCULPT v18 = remake model finished (user 'ja'); its LIGHT VARIANT is the light proxy now** (figure faces out of the wall, wings as drawn on its back, folded arms + scroll; 16000 triangles, IoU 0.947; 613 checked headless, no new hard edges; not played). HANDOFF 0a386, NEXT -166 (user look, then chapel angel redo).
 - **2026-11-10 late END OF SESSION (dev, Opus 5.5):** all furniture on legs + lectern / altar near-final in the light (user OK on previews, not played); church angel sculpt v10 with an own polygon head (face: 'spaeter nochmal ran'). HANDOFF 0a385, NEXT -165.

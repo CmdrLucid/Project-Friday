@@ -183,6 +183,25 @@ def angels(rom, room):
     if blockcat.tileset(rom, room) != 8: return []
     return [dict(cell=(x, y), floor=v[0]) for (x, y), v in sorted(blockcat.cells(rom, room).items()) if v[2] == 0x2EB and v[1] and v[0] >= 1]
 
+def knights(rom, room):
+    """the armour knight of the Mercator houses (tileset 2): a walkable-height 2 cell with the top block $19C or $2D7 (678 679 695 696 697 719 720; every
+    one is the same drawing at the same place in its cell, checked pixel by pixel against 678 cell 30, 26); it stands on the floor 2 steps below the cell's top"""
+    if blockcat.tileset(rom, room) != 2: return []
+    hm = blockcat.arrays(rom, room)["HM"]; wall = lambda x, y: hm.get((x - 12, y - 12), 0x4000) == 0x4000   # a wall / void cell beside the knight: the model must stay out of it
+    return [dict(cell=(x, y), floor=v[0] - 2, west=wall(x - 1, y), east=wall(x + 1, y)) for (x, y), v in sorted(blockcat.cells(rom, room).items()) if v[2] in (0x19C, 0x2D7) and not v[1] and v[0] >= 2]
+
+def knight_obj(x, y, floor, room, west=False, east=False):
+    """the knight's parts model (remake/recipes/knight/knight.py, pure Python) at cell (x, y) on `floor` (units) -> OBJ text"""
+    import subprocess, tempfile
+    d = tempfile.mkdtemp(); pj = os.path.join(d, "p.json"); ob = os.path.join(d, "k.obj")
+    P = dict(cx=16 * x + 8.0, cy=16 * y + 8.0, floor=float(floor))
+    if west: P["xmin"] = 16 * x + 0.5       # a wall block to the west / east: the lance / the shield slide along the view ray to the cell's edge (knight.py W)
+    if east: P["xmax"] = 16 * x + 15.5
+    json.dump(P, open(pj, "w"))
+    subprocess.run([sys.executable, os.path.join(ROOT, "remake", "recipes", "knight", "knight.py"), ob, pj], check=True, stdout=subprocess.DEVNULL)
+    t = open(ob).read().split("\n", 1)
+    return "# light proxy: armour knight, room %d cell %d, %d (remake/recipes/knight/knight.py, placed by remake/tools/furniture_ops.py). GAME coordinates x east, y south, z up, world units.\n" % (room, x, y) + t[1]
+
 def church_angels(rom, room):
     """the church angel statue in its wall niche (tileset 3): the picture of the statue + pedestal window equal to the one of 613 (>= 95 %% of the pixels;
     613 614 699 700 721 are pixel-identical there) and the pedestal cells 23 x 27..28 + niche 23 x 26..29 void in the height map -> the pedestal (op "ground", height 32)
@@ -273,6 +292,16 @@ def main():
                 open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(chapel_angel_obj(SC, x, y, 16 * t["floor"], r) if sc else lathe_obj(furniture.angel(x, y, 16 * t["floor"]), "angel statue, room %d" % r))
                 ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
                     ("why", ("angel statue on its platform (collision = the platform only): the CHURCH angel's sculpt light variant MIRRORED at the diagonal (user 2026-11-11: the same statue, 'nur unseren vorhandenen fuers Licht dort hinstellen'; it faces +y out of the back wall, the wings on its back, the right wing cut at the wall block x = 464)" if sc else "angel statue on its platform (collision = the platform only): body lathe + wing plate of remake/lib/furniture.py ANGEL") + " ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'")]))
+            data["rooms"][str(r)] = ops0; n += 1
+        kn = knights(rom, r)
+        for t in kn: print("room %d: armour knight cell %d,%d floor %d OK" % (r, t["cell"][0], t["cell"][1], t["floor"]))
+        if write and kn:
+            ops0 = [e for e in data["rooms"].get(str(r), []) if not (e.get("op") == "mesh" and e.get("file", "").startswith("proxies/knight_"))]
+            for k, t in enumerate(kn):   # one op per object (own object rule)
+                (x, y) = t["cell"]; fn = "knight_%d.obj" % r if k == 0 else "knight_%d_%d.obj" % (r, k)
+                open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(knight_obj(x, y, 16 * t["floor"], r, t["west"], t["east"]))
+                ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
+                    ("why", "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'")]))
             data["rooms"][str(r)] = ops0; n += 1
         cang = church_angels(rom, r)
         for t in cang: print("room %d: church angel statue + pedestal 23 x 27..28 + niche 23 x 26..29 OK" % r)

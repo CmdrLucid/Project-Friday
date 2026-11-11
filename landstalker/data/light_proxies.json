@@ -2727,6 +2727,66 @@
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
+    "678": [
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          26,
+          30,
+          26
+        ],
+        "file": "proxies/knight_678.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          26,
+          33,
+          26
+        ],
+        "file": "proxies/knight_678_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      }
+    ],
+    "679": [
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          26,
+          30,
+          26
+        ],
+        "file": "proxies/knight_679.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          26,
+          33,
+          26
+        ],
+        "file": "proxies/knight_679_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      }
+    ],
     "687": [
       {
         "op": "mesh",
@@ -2914,6 +2974,96 @@
         ],
         "floor": 0,
         "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      }
+    ],
+    "695": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          23,
+          23,
+          23
+        ],
+        "file": "proxies/knight_695.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          23,
+          34,
+          23
+        ],
+        "file": "proxies/knight_695_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      }
+    ],
+    "696": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          23,
+          23,
+          23
+        ],
+        "file": "proxies/knight_696.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          23,
+          34,
+          23
+        ],
+        "file": "proxies/knight_696_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      }
+    ],
+    "697": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          23,
+          23,
+          23
+        ],
+        "file": "proxies/knight_697.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          23,
+          34,
+          23
+        ],
+        "file": "proxies/knight_697_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
       }
     ],
     "698": [
@@ -3317,6 +3467,66 @@
         ],
         "floor": 0,
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      }
+    ],
+    "719": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          23,
+          23,
+          23
+        ],
+        "file": "proxies/knight_719.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          23,
+          34,
+          23
+        ],
+        "file": "proxies/knight_719_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      }
+    ],
+    "720": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          23,
+          23,
+          23
+        ],
+        "file": "proxies/knight_720.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          23,
+          34,
+          23
+        ],
+        "file": "proxies/knight_720_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
       }
     ],
     "721": [

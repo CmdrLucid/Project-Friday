@@ -184,6 +184,7 @@ FINAL = with material, approved by the user.
 ## Armour knight  (`remake/recipes/knight/knight.py`; not in the light yet)
 - Game: Mercator houses, tileset 2, top blocks $19C / $2D7: rooms 678 679 (cells 30 / 33, 26), 695 696 697 719 720 (34, 23 and 23, 23); all one drawing.
 - Reference: room 678 cell (30, 26), window U0 1216 V0 392 (64 x 80); own pixels by colour from layer A (painted shadow under the feet left out).
-- State: BLOCKOUT v1 (2026-11-11), IoU 0.824, parts model in pure Python. Waiting for the user's look. TODO: details, then light proxy via furniture_ops.
+- State: LIGHT (v3, 2026-11-11): parts model with plate details, IoU 0.817; 14 knights in 7 rooms through `furniture_ops.knights()`; checked headless in
+  695, not played. TODO near-final: finer plates / fingers / visor, a closer outline (shoulders, feet).
 - The castle's dark armour on a stand (tileset 15, $0B5: 63 64 83 84 93) is a different object: TODO after this one.
 
