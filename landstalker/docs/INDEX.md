@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-11 evening (dev, Opus 5.5): BEDS as light shapes (51 in 30 rooms; remake/recipes/bed, two variants: light = top tilted as drawn, IoU 0.948)**; built, lightedges checked headless, not played. HANDOFF 0a393, NEXT -172.
 - **2026-11-11 END OF SESSION (dev, Fable 5.2):** church angel sculpt finished + in the light, chapel angel mirrored, armour knights (14) and armour stands (12, two variants) as light shapes; all headless-checked, nothing played. Survey of what is left: HANDOFF NEXT -171. HANDOFF 0a392.
 - **2026-11-11 night (dev, Fable 5.2): ARMOUR STANDS as light shapes (12 in castle rooms 63 64 83 84; remake/recipes/knight/stand.py v3, symmetric, IoU 0.780)**; checked headless in 63 / 83, not played. HANDOFF 0a390, NEXT -170.
 - **2026-11-11 night (dev, Fable 5.2): ARMOUR KNIGHT v7 finished for now** (visor helm, two barbed feathers; user 'dann done'), proxies + build current, 695 checked headless, not played. HANDOFF 0a389, NEXT -169.

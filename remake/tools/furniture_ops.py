@@ -223,6 +223,52 @@ def stand_obj(x, y, floor, room, west=False, north=False, south=False):
     t = open(ob).read().split("\n", 1)
     return "# light proxy: armour on a stand, room %d cell %d, %d (remake/recipes/knight/stand.py, placed by remake/tools/furniture_ops.py). GAME coordinates x east, y south, z up, world units.\n" % (room, x, y) + t[1]
 
+BED_REF = {"x": (623, 23, 23, 0), "y": (620, 14, 15, 0)}   # the reference beds: room, head / back cell, floor steps (orient "x": head at the west wall, 3 x 2
+                                                           # cells; "y": head at the north wall, 2 x 3 = mirrored, but shaded on its own: own reference)
+def _bed_sil():
+    """picture offsets (du, dv) of the bed model (light variant, orient x) from the picture point of its box corner (x0, y0, floor)"""
+    if "bedsil" not in _pics:
+        import subprocess, tempfile
+        sys.path.insert(0, os.path.join(ROOT, "remake", "recipes", "bed")); import chk_cls
+        d = tempfile.mkdtemp(); pj = os.path.join(d, "p.json"); ob = os.path.join(d, "b.obj")
+        json.dump(dict(x0=0.0, y0=0.0, floor=0.0, orient="x", tilt=3.0, n=1), open(pj, "w"))
+        subprocess.run([sys.executable, os.path.join(ROOT, "remake", "recipes", "bed", "bed.py"), ob, pj], check=True)
+        _pics["bedsil"] = sorted(chk_cls.raster(chk_cls.load_obj(ob), 1184, 0))   # keys = (x - y, (x + y) / 2 - z)
+    return _pics["bedsil"]
+def _bed_sample(room, x0, y0, fl, mirror):
+    w, h, c, F = _picture(room); U = x0 - y0 + 1184; V = (x0 + y0) // 2 - fl; out = []
+    for du, dv in _bed_sil():
+        u = U - du if mirror else U + du; v = V + dv
+        out.append(tuple(F[v][u * c:u * c + 3]) if 0 <= v < h and 0 <= u < w else None)
+    return out
+
+def beds(rom, room, ratio=False):
+    """the bed of the Mercator / Ryuma houses (tileset 2; remake/recipes/bed): a 3 x 2 (head west, orient x) or 2 x 3 (head north, orient y = the same drawing
+    mirrored) block of walkable cells whose picture matches the reference bed of its orientation (BED_REF) in >= 60 %% of the model's silhouette
+    pixels (mirrored for orient y); the bed stands on the floor one step below its cells"""
+    if blockcat.tileset(rom, room) != 2: return []
+    for o in ("x", "y"):
+        if ("bedref", o) not in _pics: r0, x0, y0, f0 = BED_REF[o]; _pics[("bedref", o)] = _bed_sample(r0, 16 * x0, 16 * y0, 16 * f0, o == "y")
+    c = blockcat.cells(rom, room); out = []
+    for (x, y), v in sorted(c.items()):
+        if v[1] or v[0] < 1: continue
+        for orient, (nx, ny) in (("x", (3, 2)), ("y", (2, 3))):
+            box = [(x + i, y + j) for i in range(nx) for j in range(ny)]
+            if not all(k in c and not c[k][1] and c[k][0] == v[0] for k in box): continue
+            s = _bed_sample(room, 16 * x, 16 * y, 16 * (v[0] - 1), orient == "y")
+            ref = _pics[("bedref", orient)]; q = sum(1 for a, b in zip(s, ref) if a == b) / float(len(ref))
+            if q >= 0.6 or ratio: out.append(dict(cell=(x, y), orient=orient, floor=v[0] - 1, q=q))
+    return out
+
+def bed_obj(x, y, orient, floor, room):
+    """the bed's parts model (remake/recipes/bed/bed.py, LIGHT variant: the top tilted as drawn) with its box corner at cell (x, y) on `floor` (units) -> OBJ text"""
+    import subprocess, tempfile
+    d = tempfile.mkdtemp(); pj = os.path.join(d, "p.json"); ob = os.path.join(d, "b.obj")
+    json.dump(dict(x0=16.0 * x, y0=16.0 * y, floor=float(floor), orient=orient, tilt=3.0, umin=0.5, wmin=0.5), open(pj, "w"))
+    subprocess.run([sys.executable, os.path.join(ROOT, "remake", "recipes", "bed", "bed.py"), ob, pj], check=True, stdout=subprocess.DEVNULL)
+    t = open(ob).read().split("\n", 1)
+    return "# light proxy: bed, room %d cell %d, %d, orient %s (remake/recipes/bed/bed.py light variant, placed by remake/tools/furniture_ops.py). GAME coordinates x east, y south, z up, world units.\n" % (room, x, y, orient) + t[1]
+
 def church_angels(rom, room):
     """the church angel statue in its wall niche (tileset 3): the picture of the statue + pedestal window equal to the one of 613 (>= 95 %% of the pixels;
     613 614 699 700 721 are pixel-identical there) and the pedestal cells 23 x 27..28 + niche 23 x 26..29 void in the height map -> the pedestal (op "ground", height 32)
@@ -333,6 +379,17 @@ def main():
                 open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(stand_obj(x, y, 16 * t["floor"], r, t["west"], t["north"], t["south"]))
                 ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
                     ("why", "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'")]))
+            data["rooms"][str(r)] = ops0; n += 1
+        bd = beds(rom, r)
+        for t in bd: print("room %d: bed cell %d,%d orient %s floor %d match %.2f OK" % (r, t["cell"][0], t["cell"][1], t["orient"], t["floor"], t["q"]))
+        if write and bd:
+            ops0 = [e for e in data["rooms"].get(str(r), []) if not (e.get("op") == "mesh" and e.get("file", "").startswith("proxies/bed_"))]
+            for k, t in enumerate(bd):   # one op per object (own object rule)
+                (x, y) = t["cell"]; fn = "bed_%d.obj" % r if k == 0 else "bed_%d_%d.obj" % (r, k)
+                open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(bed_obj(x, y, t["orient"], 16 * t["floor"], r))
+                x1, y1 = (x + 2, y + 1) if t["orient"] == "x" else (x + 1, y + 2)
+                ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x1, y1]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
+                    ("why", "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (%.2f) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'" % t["q"])]))
             data["rooms"][str(r)] = ops0; n += 1
         cang = church_angels(rom, r)
         for t in cang: print("room %d: church angel statue + pedestal 23 x 27..28 + niche 23 x 26..29 OK" % r)

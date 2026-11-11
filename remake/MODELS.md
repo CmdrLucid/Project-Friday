@@ -195,3 +195,7 @@ FINAL = with material, approved by the user.
   IoU 0.780); LIGHT = `"variant": "light"`, as drawn (IoU 0.905), 12 stands in 63 64 83 84 through `furniture_ops.armour_stands()` (93 left out);
   checked headless in 63 / 83, not played.
 
+
+## Bed  (`remake/recipes/bed/bed.py`; ops by `furniture_ops.beds()`)
+- Tileset 2 houses, 51 beds in 30 rooms (3 x 2 head west / 2 x 3 head north, mirrored). Board on four legs, ONE pillow, blanket hanging to z 3.5.
+- Two variants: remake = level (`tilt` 0); light = as drawn, top tilted up 3 towards the back wall (IoU 0.948). Details: `remake/recipes/bed/README.md`.

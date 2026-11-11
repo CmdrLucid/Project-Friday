@@ -1409,6 +1409,20 @@
       {
         "op": "mesh",
         "cells": [
+          17,
+          16,
+          18,
+          18
+        ],
+        "file": "proxies/bed_477.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.91) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           20,
           20,
           21,
@@ -2466,7 +2480,85 @@
         "why": "church angel statue on its pedestal: the SCULPT's light variant (remake/recipes/church_angel_sculpt/light.obj: the figure faces out of the wall, feathered wings as drawn on its back, folded arms with the scroll; ~16000 triangles; 'air': the wings float = slabs), user 2026-11-11 'ja', placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
       }
     ],
+    "616": [
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          18,
+          18,
+          19
+        ],
+        "file": "proxies/bed_616.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.93) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
+    "617": [
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          18,
+          18,
+          19
+        ],
+        "file": "proxies/bed_617.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.93) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
+    "618": [
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          20,
+          17,
+          22
+        ],
+        "file": "proxies/bed_618.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
+    "619": [
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          20,
+          17,
+          22
+        ],
+        "file": "proxies/bed_619.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
     "620": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          15,
+          15,
+          17
+        ],
+        "file": "proxies/bed_620.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -2497,6 +2589,20 @@
       {
         "op": "mesh",
         "cells": [
+          14,
+          15,
+          15,
+          17
+        ],
+        "file": "proxies/bed_621.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           15,
           20,
           17,
@@ -2524,6 +2630,20 @@
       {
         "op": "mesh",
         "cells": [
+          16,
+          24,
+          17,
+          26
+        ],
+        "file": "proxies/bed_622.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           23,
           23,
           26,
@@ -2548,6 +2668,62 @@
       }
     ],
     "623": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          23,
+          25,
+          24
+        ],
+        "file": "proxies/bed_623.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          27,
+          25,
+          28
+        ],
+        "file": "proxies/bed_623_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.99) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          32,
+          25,
+          33
+        ],
+        "file": "proxies/bed_623_2.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.78) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          23,
+          32,
+          24
+        ],
+        "file": "proxies/bed_623_3.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -2600,6 +2776,62 @@
       }
     ],
     "624": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          23,
+          25,
+          24
+        ],
+        "file": "proxies/bed_624.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          27,
+          25,
+          28
+        ],
+        "file": "proxies/bed_624_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.99) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          32,
+          25,
+          33
+        ],
+        "file": "proxies/bed_624_2.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.78) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          23,
+          32,
+          24
+        ],
+        "file": "proxies/bed_624_3.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -2876,7 +3108,111 @@
         "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
+    "673": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          17,
+          14,
+          19
+        ],
+        "file": "proxies/bed_673.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.96) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          17,
+          18,
+          19
+        ],
+        "file": "proxies/bed_673_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
+    "674": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          17,
+          14,
+          19
+        ],
+        "file": "proxies/bed_674.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.96) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          17,
+          18,
+          19
+        ],
+        "file": "proxies/bed_674_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
+    "675": [
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          13,
+          19,
+          14
+        ],
+        "file": "proxies/bed_675.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.96) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          17,
+          19,
+          18
+        ],
+        "file": "proxies/bed_675_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.99) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
     "677": [
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          22,
+          18,
+          24
+        ],
+        "file": "proxies/bed_677.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -2963,7 +3299,53 @@
         "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
       }
     ],
+    "683": [
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          20,
+          20,
+          21
+        ],
+        "file": "proxies/bed_683.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.82) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
+    "684": [
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          20,
+          20,
+          21
+        ],
+        "file": "proxies/bed_684.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.82) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
     "687": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          19,
+          16,
+          20
+        ],
+        "file": "proxies/bed_687.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.99) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -2994,6 +3376,20 @@
       {
         "op": "mesh",
         "cells": [
+          14,
+          19,
+          16,
+          20
+        ],
+        "file": "proxies/bed_688.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.99) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           17,
           15,
           18,
@@ -3015,6 +3411,38 @@
         ],
         "floor": 0,
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      }
+    ],
+    "689": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          13,
+          14,
+          15
+        ],
+        "file": "proxies/bed_689.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
+    "690": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          13,
+          14,
+          15
+        ],
+        "file": "proxies/bed_690.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
       }
     ],
     "691": [
@@ -3097,6 +3525,22 @@
         ],
         "floor": 0,
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      }
+    ],
+    "693": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          18,
+          15,
+          19
+        ],
+        "file": "proxies/bed_693.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
       }
     ],
     "694": [
@@ -3377,6 +3821,62 @@
       {
         "op": "mesh",
         "cells": [
+          23,
+          23,
+          25,
+          24
+        ],
+        "file": "proxies/bed_701.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          27,
+          25,
+          28
+        ],
+        "file": "proxies/bed_701_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.99) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          32,
+          25,
+          33
+        ],
+        "file": "proxies/bed_701_2.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.78) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          23,
+          32,
+          24
+        ],
+        "file": "proxies/bed_701_3.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           24,
           34,
           25,
@@ -3429,6 +3929,62 @@
       {
         "op": "mesh",
         "cells": [
+          23,
+          23,
+          25,
+          24
+        ],
+        "file": "proxies/bed_702.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          27,
+          25,
+          28
+        ],
+        "file": "proxies/bed_702_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.99) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          32,
+          25,
+          33
+        ],
+        "file": "proxies/bed_702_2.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.78) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          23,
+          32,
+          24
+        ],
+        "file": "proxies/bed_702_3.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           24,
           34,
           25,
@@ -3477,6 +4033,68 @@
         "why": "14 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
+    "704": [
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          25,
+          31,
+          27
+        ],
+        "file": "proxies/bed_704.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.94) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          25,
+          35,
+          27
+        ],
+        "file": "proxies/bed_704_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.99) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
+    "705": [
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          33,
+          29,
+          35
+        ],
+        "file": "proxies/bed_705.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.98) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
+    "706": [
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          33,
+          29,
+          35
+        ],
+        "file": "proxies/bed_706.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.98) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
     "708": [
       {
         "op": "mesh",
@@ -3491,6 +4109,22 @@
         "air": true,
         "floor": 0,
         "why": "castle table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
+    "709": [
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          33,
+          29,
+          35
+        ],
+        "file": "proxies/bed_709.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.98) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
       }
     ],
     "710": [
@@ -3591,7 +4225,53 @@
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
       }
     ],
+    "715": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          18,
+          15,
+          19
+        ],
+        "file": "proxies/bed_715.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
+    "716": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          18,
+          15,
+          19
+        ],
+        "file": "proxies/bed_716.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      }
+    ],
     "717": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          19,
+          14,
+          21
+        ],
+        "file": "proxies/bed_717.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -3619,6 +4299,20 @@
       }
     ],
     "718": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          19,
+          14,
+          21
+        ],
+        "file": "proxies/bed_718.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -3761,6 +4455,20 @@
       {
         "op": "mesh",
         "cells": [
+          23,
+          16,
+          25,
+          17
+        ],
+        "file": "proxies/bed_722.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           20,
           23,
           23,
@@ -3785,6 +4493,20 @@
       }
     ],
     "723": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          16,
+          25,
+          17
+        ],
+        "file": "proxies/bed_723.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -3815,6 +4537,20 @@
       {
         "op": "mesh",
         "cells": [
+          14,
+          15,
+          15,
+          17
+        ],
+        "file": "proxies/bed_724.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           15,
           20,
           17,
@@ -3839,6 +4575,20 @@
       }
     ],
     "725": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          15,
+          15,
+          17
+        ],
+        "file": "proxies/bed_725.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
       {
         "op": "mesh",
         "cells": [
