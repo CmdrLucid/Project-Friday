@@ -74,21 +74,21 @@ _L = [sum(_L[(k + d) % NA] * w for d, w in ((-3, 1), (-2, 2), (-1, 3), (0, 4), (
 def reach(th): x = (th + math.pi) / (2 * math.pi) * NA; k = int(math.floor(x)); t = x - k; return _L[k % NA] * (1 - t) + _L[(k + 1) % NA] * t
 sm_ = lambda x: 0.0 if x <= 0 else 1.0 if x >= 1 else x * x * (3 - 2 * x)
 def blade(x, wu=3.0):   # cross-section of one feather, x 0 .. 1 across it: rounded, tilted like a shingle, a fine shaft
-    return 0.55 * math.sqrt(max(0.0, 1.0 - (2 * x - 1) ** 2)) + 0.45 * (1.0 - x) * sm_(x * wu / 0.7) + 0.14 * math.exp(-((x - 0.5) * wu / 0.22) ** 2)   # wu = the feather's width in units: the step and the shaft keep an absolute width (no stairs on the grid)
+    return 0.55 * math.sqrt(max(0.0, 1.0 - (2 * x - 1) ** 2)) + 0.45 * (1.0 - x) * sm_(x * wu / 1.1) + 0.14 * math.exp(-((x - 0.5) * wu / 0.22) ** 2)   # wu = the feather's width in units: the step and the shaft keep an absolute width (no stairs on the grid)
 ROWS = g('rows3', [0.34, 0.62]); NB = g('fan3', 0.2); TIP = g('tip', 0.09); FH = g('feather_h', 0.55); RS = g('row_step', 0.38)
 def relief(cu, cv):   # in the plane, mirrored about y = YC: the same feathers on both sides
     y, z = _toplane(cu - 0.5, cv - 0.5); a = abs(y - YC); dx, dy = a - A0, z - Z0; rr = math.hypot(dx, dy); th = math.atan2(dy, dx); L = reach(th); q = rr / L
     fade = sm_((a - 2.5) / 3.0) * sm_((rr - 2.0) / 4.0)   # the feathers fade in away from the body and the root (no cliff)
     h = 0.0; k = 0
-    for k in range(3):
+    for k in range(len(ROWS) + 1):
         nb = NB; x = (th / nb + 0.5 * k) % 1.0
-        if k == 2: h = FH * blade(x, nb * rr) - RS * k; break
+        if k == len(ROWS): h = FH * blade(x, nb * rr) - RS * k; break
         end = ROWS[k] + TIP * (1.0 - (2 * x - 1) ** 2)            # the rounded tip: the middle of the feather reaches further
         if q < end:
-            t = sm_((end - q) * L / 0.8)                           # the step at the tip (0.5 units wide), down onto the next row
+            t = sm_((end - q) * L / 1.2)                           # the step at the tip (0.5 units wide), down onto the next row
             nb2 = NB; x2 = (th / nb2 + 0.5 * (k + 1)) % 1.0; below = FH * blade(x2, nb * rr) - RS * (k + 1)
             h = below + t * (FH * blade(x, nb * rr) - RS * k - below); break
-    return fade * (h + RS * 2), rr
+    return fade * (h + RS * len(ROWS)), rr
 def thick(d): return min(g('wing_t', 1.3), 0.03 + d * 0.55 / S) if d > 0 else 0.0
 verts = []; idx = {}
 def vid(i, j, side):

@@ -40,9 +40,10 @@ for j in range(NZ + 1):
     # above the hips the dress follows the TORSO (the metaball belly ball made a ledge over the robe): wider than deep, centre a little back, up into the shoulders
     tb = max(0.0, min(1.0, (z - 16.0) / 9.0)); tb = tb * tb * (3 - 2 * tb)
     c = c * (1 - tb) + 0.6 * tb; cf = -0.8 * tb; rs = r0 * (1 - tb) + g('torso_rs', 5.0) * tb; rf = r0 * (1 - tb) + g('torso_rf', 4.0) * tb
+    dm = max(0.0, (z - (ZT - 3.5)) / 3.5); dm = math.sqrt(max(0.0, 1.0 - dm * dm)); rs *= dm; rf *= dm   # the top closes as a dome inside the shoulders (a flat lid showed as a ledge on the chest)
     fade = max(0.0, min(1.0, (FE + 2.0 - z) / 5.0)); fade = fade * fade * (3 - 2 * fade)
     hem = 0.35 * math.exp(-z / 1.2)                                                      # the hem spreads a little on the pedestal
-    amp = AMP * (0.85 + 0.25 * math.sin(0.45 * z + 1.0))
+    amp = AMP * (0.85 + 0.25 * math.sin(0.45 * z + 1.0)) * (0.45 + 0.55 * min(1.0, z / 3.0))   # calmer at the hem (a rounded foot as drawn, no spikes)
     for i in range(NT):
         th = 2 * math.pi * i / NT; d = hem + amp * fade * fold(th, z)
         SF.append((c + (rs + d) * math.cos(th), cf + (rf + d) * math.sin(th), z, th))

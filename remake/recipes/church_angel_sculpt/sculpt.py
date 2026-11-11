@@ -49,12 +49,13 @@ for j in range(nf):
 # shoulders; the chest RING right under the chin = the swaddling cloth around the child's face (light rim = cloth, dark centre = face), held upright
 ST = g('stu', 5.0)
 if g('torso', True): body.append(ball(0.6, -0.8, 27.0, 5.0))                                   # torso under the arms
-body.append(ball(0.6, -0.9, 33.6, g('shoulder_r', 4.4)))                  # shoulders
+body.append(ball(0.6, -0.9, g('shoulder_z', 33.6), g('shoulder_r', 4.4)))                  # shoulders
 if g('traps', True):   # v11: sloping shoulders into the neck (the neck stood on the shoulder dome like a post with a rim)
-    for sg in (-1, 1): body.append(caps((0.8 + sg * 0.7, -0.5, 37.6), (0.6 + sg * 3.7, -0.5, 35.0), 1.25, st=2.5))
-    body.append(caps((0.8, -0.2, 35.0), (0.9, 0.0, 39.2), g('neck_r', 1.35), st=2.5))   # the neck also in the body group: it blends into the shoulders (the head group's copy alone left a rim)
+    tz = g('trap_z', 37.6)
+    for sg in (-1, 1): body.append(caps((0.8 + sg * 0.7, -0.5, tz), (0.6 + sg * 3.7, -0.5, tz - 2.6), g('trap_r', 1.25), st=2.5))
+    body.append(caps((0.8, -0.2, g('neck_z0', 35.0)), (0.9, 0.0, g('neck_z1', 39.2)), g('neck_r', 1.35), st=2.5))   # the neck also in the body group: it blends into the shoulders (the head group's copy alone left a rim)
 HEAD0 = len(body)   # the head is its own metaball group at a finer resolution (the face is ~4 units)
-body.append(caps((0.8, -0.2, 35.0), (0.9, 0.0, 39.2), g('neck_r', 1.35)))   # thin neck
+body.append(caps((0.8, -0.2, g('neck_z0', 35.0)), (0.9, 0.0, g('neck_z1', 39.2)), g('neck_r', 1.35)))   # thin neck
 if not g('head_mesh', True): body.append(ball(0.9, -0.1, 42.2, g('skull_r', 2.9)))   # skull (the polygon head of head.py replaces it)
 # HAIR (v5, user: 'Haare sind kein Pagenkopf, die gehen im Sprite hinter die Statue'): from the middle parting over the crown, framing the face at the sides
 # (the drawn lobes beside the face) and then falling BACK and down behind the head and the shoulders (long hair down the back, hidden in the game view)
@@ -122,16 +123,26 @@ if not g('head_mesh', True):
     for sg in (-1, 1): body.append(ball(*Fp(sg * 0.34, 1.16, -0.8), 0.05 * FS, neg=True, st=6.0))   # mouth corners (soft)
 
 HEAD1 = len(body)
-# ARMS around the child: upper arm shoulder -> elbow, forearm elbow -> under the bundle (they cross)
-for sg in (-1, 1):
-    sh = (0.6 + sg * 4.2, -0.4, 34.0); el = (0.6 + sg * 5.6, 1.4, 28.6 + (1.2 if sg < 0 else 0.0)); ha = (0.6 - sg * 1.2, 4.6, 27.2 + (2.2 if sg > 0 else 0.0))
-    body.append(caps(sh, el, 1.55)); body.append(caps(el, ha, 1.4))
-# the CHILD: swaddled bundle held upright against the chest, its hooded head at the top with the face recessed (the drawn ring)
-CH = (g('ch_s', -0.6), 3.9, g('ch_z', 33.0)); CF = (g('cf_s', 4.0), 3.0, g('cf_z', 27.2))   # child's head / feet (held diagonally, user)
-body.append(caps(((CH[0] + CF[0]) / 2 * 0.5 + CH[0] * 0.5, 3.6, (CH[2] + CF[2]) / 2 * 0.5 + CH[2] * 0.5), CF, g('bundle_r', 2.3)))
-body.append(ball(CH[0], CH[1], CH[2], g('chood_r', 2.35)))
-body.append(ball(CH[0] - 0.25, CH[1] + 1.9, CH[2] + 0.15, g('cface_r', 1.15), neg=True))
-body.append(ball(CH[0] - 0.2, CH[1] + 1.2, CH[2] + 0.1, 0.9))                       # the child's little face inside the hood
+# v12 (user: 'das Kind in den Armen ist glaub ich eher eine Schriftrolle', 'das 3D Modell dem Sprite moeglichst aehnlich'): read on the 1 px grid, the
+# drawing shows a RING under the chin (14 px wide, 9 rows: shoulders on top, the elbows at the sides, the forearms / hands meeting in front below) and in
+# its dark middle a small object with a bright top and a brown body (4 x 5 px) = a SCROLL held upright against the chest in both hands (scroll.py).
+# The arms: shoulder -> elbow (out and down) -> wrist (forward, in to the middle), wide sleeves hanging under the forearms (the ring's lower arc)
+if g('scroll', True):
+    for sg in (-1, 1):
+        sh = (0.7 + sg * 4.0, -0.3, g('sh_z', 33.5)); el = (0.7 + sg * 5.0, 1.3, 30.3); wr = (0.7 + sg * 1.7, 4.3, 28.4)
+        body.append(caps(sh, el, g('uarm_r', 1.45), st=3.0)); body.append(caps(el, wr, g('farm_r', 1.2), st=3.0))
+        body.append(ball(*el, 1.5, st=3.0))                                                                          # the elbow under the cloth
+        body.append(caps((0.7 + sg * 4.3, 1.9, 29.0), (0.7 + sg * 1.9, 4.2, 27.3), g('sleeve_r', 0.95), st=2.5))      # the sleeve hanging under the forearm
+        body.append(ball(0.7 + sg * 1.0, 4.6, 28.7, 0.95, st=3.0))                                                    # the hand around the scroll
+else:
+    for sg in (-1, 1):
+        sh = (0.6 + sg * 4.2, -0.4, 34.0); el = (0.6 + sg * 5.6, 1.4, 28.6 + (1.2 if sg < 0 else 0.0)); ha = (0.6 - sg * 1.2, 4.6, 27.2 + (2.2 if sg > 0 else 0.0))
+        body.append(caps(sh, el, 1.55)); body.append(caps(el, ha, 1.4))
+    CH = (g('ch_s', -0.6), 3.9, g('ch_z', 33.0)); CF = (g('cf_s', 4.0), 3.0, g('cf_z', 27.2))   # child's head / feet (held diagonally, user)
+    body.append(caps(((CH[0] + CF[0]) / 2 * 0.5 + CH[0] * 0.5, 3.6, (CH[2] + CF[2]) / 2 * 0.5 + CH[2] * 0.5), CF, g('bundle_r', 2.3)))
+    body.append(ball(CH[0], CH[1], CH[2], g('chood_r', 2.35)))
+    body.append(ball(CH[0] - 0.25, CH[1] + 1.9, CH[2] + 0.15, g('cface_r', 1.15), neg=True))
+    body.append(ball(CH[0] - 0.2, CH[1] + 1.2, CH[2] + 0.1, 0.9))                       # the child's little face inside the hood
 # WINGS: in the plane x = XW (parallel to the niche's back wall, v5), filled from the drawn wing pixels; a point keeps its picture position when moved along the
 # view ray (1, 1, 1) = the CUP (outer feathers come forward, invisible in the game view); feathers = shallow negative grooves fanning out from the wing root
 XW = A['wing_x']; AU = AX - AY + 1184.0; V0p = A['v0']

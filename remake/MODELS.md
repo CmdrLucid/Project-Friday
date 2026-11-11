@@ -54,6 +54,9 @@ FINAL = with material, approved by the user.
 - v11 (2026-11-11, `sculpt_v11_mouth.png`, `sculpt_v11_all.png`): face = no shelf beside the mouth (user: 'viel besser'); long parted hair swept back,
   the dress as a polygon lathe with drapery folds (`robe.py`), feathers in three shingle rows from the shoulder. Waiting for the user's look; open: child's face, arms.
 
+- v12 (2026-11-11, `sculpt_v12_scroll.png`): compared 1 : 1 with the sprite in the exact game projection (`gv.sh`): head to the drawn size, NO child but
+  an upright SCROLL in both hands (user), arms as the drawn ring, bolder folds / feathers. Open: user's look; mirrored wings vs the drawn ones (light).
+
 ## Chapel angel statue  (`furniture.ANGEL`, `angel(cx, cy, floor)`; ops by `angels()`)
 - Game: chapels, tileset 8, rooms 597 607 736, cell (27, 24) = top block $2EB on the blocked 1-step platform $2EB / $2EC (cells 26..28 x 24), floor 16.
 - Reference: room 597, window U0 1184 V0 304 (96 x 112). NOT the church drawing (17 % equal pixels).

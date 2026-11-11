@@ -26,3 +26,14 @@ v11 (2026-11-11, user: 'neben dem Mund komisch geformt', then 'schau dir Haare, 
 - `wing.py` feathers: a fan from the SHOULDER (`wr_a`, `wr_z`) in three rows (coverts, secondaries, primaries), each feather a shingle blade with a
   shaft and a rounded tip; rows follow the wing's reach per direction. Old version: git history.
 - Close-ups: `fhead.sh TAG` (bare head), `hh.sh TAG` (head + hair), `up.sh`, `face.sh`. Check: IoU 0.831 (51 px outside, wings mirrored + hair).
+
+v12 (2026-11-11, user: 'das Kind ist glaub ich eher eine Schriftrolle', goal: 'dem Sprite moeglichst aehnlich ... wie die Statue in einem 3D Remake
+aussehen wuerde, so dass es auch fuers Licht stimmt'):
+- `gameview.py` / `gv.sh TAG`: the model in the EXACT game projection (orthographic camera at 30 degrees elevation, the model's z scaled by sqrt(2 / 3),
+  window = the sprite crop, 14 px per game pixel) beside and over the original sprite. Use it before every change: it showed the head was 8 px wide
+  against 11.5 drawn, and that the drawing has NO child: a ring (shoulders, elbows, forearms / hands meeting in front) with a small bright-topped object.
+- `scroll.py` (new): an upright scroll in both hands against the chest; `sculpt.py`: arms with elbows out, wide sleeves, hands (param `scroll`; false =
+  the old child bundle).
+- Head to the drawn size: `head_h` 8.4, `chin_z` 36.4, more hair volume, shoulders lower (`shoulder_z`, `trap_z`, `sh_z`), short neck.
+- Bolder as drawn: 6 robe folds (`rfolds`, `rturn` 0.52), feathers in two rows, wider (`fan3` 0.3, `rows3`), the dress top closes as a dome.
+- Check: IoU 0.830 (48 px outside, 165 missed: mostly the mirrored wings, the user's choice of 2026-11-10; open question whether to go back to the drawn wings).
