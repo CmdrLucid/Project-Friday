@@ -52,7 +52,7 @@ for j in range(NZ + 1):
 oR = [0.0] * (NZ + 1); oL = [0.0] * (NZ + 1)
 for j in range(NZ + 1):
     for i in range(NT):
-        s_, f_, z_, th = SF[j * NT + i]; lo, hi = lim((AX + AY) / 2.0 + f_ / SQ2 - (FLO + z_)); oR[j] = max(oR[j], s_ - hi + 0.1); oL[j] = max(oL[j], lo - s_ + 0.1)
+        s_, f_, z_, th = SF[j * NT + i]; lo, hi = lim((AX + AY) / 2.0 + f_ / SQ2 - (FLO + z_)); oR[j] = max(oR[j], s_ - hi + g('sq_margin', 0.1)); oL[j] = max(oL[j], lo - s_ + g('sq_margin', 0.1))
 def spread(o):   # widen (max over +-0.5 unit) and smooth along z
     n = len(o); m = [max(o[max(0, j - 3):j + 4]) for j in range(n)]; out = []
     for j in range(n):

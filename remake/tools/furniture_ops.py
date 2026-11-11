@@ -265,13 +265,15 @@ def main():
         if write and cang:
             ops0 = [e for e in data["rooms"].get(str(r), []) if not ((e.get("op") == "mesh" and e.get("file", "").startswith("proxies/church_angel_")) or e.get("op") == "ground")]
             fn = "church_angel_%d.obj" % r
-            open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(furniture.church_angel4(32), "church angel statue (exact light model v4), room %d" % r))
+            SCULPT = os.path.join(ROOT, "remake", "recipes", "church_angel_sculpt", "light.obj")   # the sculpt's light variant (2026-11-11, user: remake model mirrored, the light
+            sculpt = os.path.exists(SCULPT) and "--angel-v5" not in sys.argv                         # gets the wings as drawn); --angel-v5 = the ring model CHURCH_ANGEL4 again
+            open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(open(SCULPT).read() if sculpt else lathe_obj(furniture.church_angel4(32), "church angel statue (exact light model v4), room %d" % r))
             ops0.append(collections.OrderedDict([("op", "ground"), ("cells", [23, 27, 23, 28, 32]),
                 ("why", "the statue's pedestal (1 x 2 cells) in the wall niche: void in the game's height map (the light saw a wall up to the room top), drawn as a 16 high box on the dais floor 16 (LK_LTGROUND v1; user 2026-11-10 'Sockel und Statuen in den Kirchen ja')")]))
             ops0.append(collections.OrderedDict([("op", "ground"), ("cells", [23, 26, 23, 29, 16]),
                 ("why", "the niche floor beside the pedestal (the niche is 1 cell deep, x 368..384, and 4 cells wide, y 416..480, read from its drawn corners; the ground op fills only cells still void after the pedestal)")]))
             ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [23, 27, 23, 28]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 32),
-                ("why", "church angel statue on its pedestal: exact light model of remake/lib/furniture.py CHURCH_ANGEL4 = rings with own centres + wing pixel sheets ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'")]))
+                ("why", ("church angel statue on its pedestal: the SCULPT's light variant (remake/recipes/church_angel_sculpt/light.obj: the figure faces out of the wall, feathered wings as drawn on its back, folded arms with the scroll; ~16000 triangles; 'air': the wings float = slabs), user 2026-11-11 'ja'" if sculpt else "church angel statue on its pedestal: exact light model of remake/lib/furniture.py CHURCH_ANGEL4 = rings with own centres + wing pixel sheets ('air': the wings float = slabs)") + ", placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'")]))
             data["rooms"][str(r)] = ops0; n += 1
         for kind, K in ROUND.items():
             found = round_found(rom, r, kind)

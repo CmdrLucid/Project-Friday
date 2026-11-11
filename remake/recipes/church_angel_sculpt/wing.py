@@ -58,7 +58,7 @@ if g('complete', True):
         if hi > 1e8: hi = max(lmin.values())
         return lo - 1.5 <= y <= hi + 1.5
     mask1 = mask | {(p[0] + a_, p[1] + b_) for p in mask for a_, b_ in ((1, 0), (-1, 0), (0, 1), (0, -1))}   # + the dark outline pixels between head and wing
-    fill = {p for p in mask1 if p not in wing and _btw(p)}
+    fill = {p for p in mask1 if p not in wing and _btw(p) and (p in mask or _pl(p)[1] > g('fill_zhi', 69.5))}   # the outline pixels only up at the head (below they stuck out beside the waist)
     region = wing | fill
     for _ in range(g('close_n', 1)):   # closing: fill notches / single holes (only with statue pixels: the outline never grows past the drawing)
         grow = {(p[0] + a_, p[1] + b_) for p in region for a_ in (-1, 0, 1) for b_ in (-1, 0, 1)}

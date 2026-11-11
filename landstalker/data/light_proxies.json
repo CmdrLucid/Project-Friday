@@ -2235,7 +2235,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "church angel statue on its pedestal: exact light model of remake/lib/furniture.py CHURCH_ANGEL4 = rings with own centres + wing pixel sheets ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
+        "why": "church angel statue on its pedestal: the SCULPT's light variant (remake/recipes/church_angel_sculpt/light.obj: the figure faces out of the wall, feathered wings as drawn on its back, folded arms with the scroll; ~16000 triangles; 'air': the wings float = slabs), user 2026-11-11 'ja', placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
       }
     ],
     "614": [
@@ -2287,7 +2287,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "church angel statue on its pedestal: exact light model of remake/lib/furniture.py CHURCH_ANGEL4 = rings with own centres + wing pixel sheets ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
+        "why": "church angel statue on its pedestal: the SCULPT's light variant (remake/recipes/church_angel_sculpt/light.obj: the figure faces out of the wall, feathered wings as drawn on its back, folded arms with the scroll; ~16000 triangles; 'air': the wings float = slabs), user 2026-11-11 'ja', placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
       }
     ],
     "620": [
@@ -2992,7 +2992,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "church angel statue on its pedestal: exact light model of remake/lib/furniture.py CHURCH_ANGEL4 = rings with own centres + wing pixel sheets ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
+        "why": "church angel statue on its pedestal: the SCULPT's light variant (remake/recipes/church_angel_sculpt/light.obj: the figure faces out of the wall, feathered wings as drawn on its back, folded arms with the scroll; ~16000 triangles; 'air': the wings float = slabs), user 2026-11-11 'ja', placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
       }
     ],
     "700": [
@@ -3044,7 +3044,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "church angel statue on its pedestal: exact light model of remake/lib/furniture.py CHURCH_ANGEL4 = rings with own centres + wing pixel sheets ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
+        "why": "church angel statue on its pedestal: the SCULPT's light variant (remake/recipes/church_angel_sculpt/light.obj: the figure faces out of the wall, feathered wings as drawn on its back, folded arms with the scroll; ~16000 triangles; 'air': the wings float = slabs), user 2026-11-11 'ja', placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
       }
     ],
     "701": [
@@ -3368,7 +3368,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "church angel statue on its pedestal: exact light model of remake/lib/furniture.py CHURCH_ANGEL4 = rings with own centres + wing pixel sheets ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
+        "why": "church angel statue on its pedestal: the SCULPT's light variant (remake/recipes/church_angel_sculpt/light.obj: the figure faces out of the wall, feathered wings as drawn on its back, folded arms with the scroll; ~16000 triangles; 'air': the wings float = slabs), user 2026-11-11 'ja', placed by remake/tools/furniture_ops.py; user 2026-11-10 'Sockel und Statuen in den Kirchen ja'"
       }
     ],
     "722": [

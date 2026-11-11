@@ -67,6 +67,9 @@ FINAL = with material, approved by the user.
 - v18 (2026-11-11, `sculpt_v18_scroll.png`): the scroll lies in the folded arms, a hand over each end. User's decision: TWO variants = remake model with
   mirrored wings (`params.json`), light model with the wings as drawn (`params_light.json`, IoU 0.914; not built into the light yet).
 
+- LIGHT since 2026-11-11: the sculpt's light variant (`remake/recipes/church_angel_sculpt/light.obj` from `export_light.sh`, written by `furniture_ops.py`;
+  `--angel-v5` = CHURCH_ANGEL4 again). Remake model v18 FINISHED (user 'ja'): `~/.landstalker_remake/assets/church_angel/sculpt_v18_remake.obj`.
+
 ## Chapel angel statue  (`furniture.ANGEL`, `angel(cx, cy, floor)`; ops by `angels()`)
 - Game: chapels, tileset 8, rooms 597 607 736, cell (27, 24) = top block $2EB on the blocked 1-step platform $2EB / $2EC (cells 26..28 x 24), floor 16.
 - Reference: room 597, window U0 1184 V0 304 (96 x 112). NOT the church drawing (17 % equal pixels).

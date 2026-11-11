@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-11 (dev, Fable 5.2): CHURCH ANGEL SCULPT v18 = remake model finished (user 'ja'); its LIGHT VARIANT is the light proxy now** (figure faces out of the wall, wings as drawn on its back, folded arms + scroll; 16000 triangles, IoU 0.947; 613 checked headless, no new hard edges; not played). HANDOFF 0a386, NEXT -166 (user look, then chapel angel redo).
 - **2026-11-10 late END OF SESSION (dev, Opus 5.5):** all furniture on legs + lectern / altar near-final in the light (user OK on previews, not played); church angel sculpt v10 with an own polygon head (face: 'spaeter nochmal ran'). HANDOFF 0a385, NEXT -165.
 - **2026-11-10 (dev, Opus 5.5): CHURCH ANGEL SCULPT v5** (mirrored wings in the wall plane, hair down the back, diagonal child, spiral folds; remake model only, light unchanged). HANDOFF 0a384, NEXT -164 (human face).
 - **2026-11-10 (dev, Opus 5.5): CHURCH ANGEL SCULPT v1** (metaball body + feathered wing mesh, IoU 0.972; user: child in the arms, thinner neck, model the hair). HANDOFF 0a383, NEXT -163.
