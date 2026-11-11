@@ -63,6 +63,12 @@ if g('complete', True):
     for _ in range(g('close_n', 1)):   # closing: fill notches / single holes (only with statue pixels: the outline never grows past the drawing)
         grow = {(p[0] + a_, p[1] + b_) for p in region for a_ in (-1, 0, 1) for b_ in (-1, 0, 1)}
         region |= {p for p in grow if p in mask1 and sum(((p[0] + a_, p[1] + b_) in region) for a_, b_ in ((1, 0), (-1, 0), (0, 1), (0, -1))) >= 3}
+    if g('mirror_left', True):   # v17 (user: 'der rechte Fluegel sollte gleich sein wie der linke, nur gespiegelt'): the completed LEFT half mirrored at the body's axis
+        RL = {p for p in region if _pl(p)[0] >= YB}; us_ = [p[0] for p in mask]; vs_ = [p[1] for p in mask]; region = set(RL)
+        for u_ in range(min(us_) - 30, max(us_) + 31):
+            for v_ in range(min(vs_) - 20, max(vs_) + 21):
+                y, z = _toplane(u_, v_)
+                if y < YB and _topix(2 * YB - y, z) in RL: region.add((u_, v_))
     print('complete wings: drawn', len(wing), 'filled', len(region) - len(wing))
 S = g('wgrid', 6); SIG = g('wsig', 0.7)
 us = [p[0] for p in region]; vs = [p[1] for p in region]; gu0, gv0 = min(us) - 3, min(vs) - 3; GW, GH = (max(us) - gu0 + 7) * S, (max(vs) - gv0 + 7) * S

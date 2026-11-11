@@ -60,6 +60,10 @@ FINAL = with material, approved by the user.
 - v13 (2026-11-11, `sculpt_v13_facing.png`): the figure faces OUT OF THE WALL (+x), wings on its back as drawn (each its own pixels, completed
   behind the body), folded arms with the scroll lying in them; projection IoU 0.898 (23 px outside, 102 missed). Waiting for the user's look.
 
+- v14 .. v17 (2026-11-11, `sculpt_v17_mirror.png`): wings complete across the back, feathers from the top inner corner in three rows, folded arms with
+  the scroll between arms and chest, comparison render lit from the front right; v17 = the right wing is the MIRRORED left one (user), IoU 0.792
+  (v16 with each wing as drawn: 0.914). Open: user's look; which variant the light gets.
+
 ## Chapel angel statue  (`furniture.ANGEL`, `angel(cx, cy, floor)`; ops by `angels()`)
 - Game: chapels, tileset 8, rooms 597 607 736, cell (27, 24) = top block $2EB on the blocked 1-step platform $2EB / $2EC (cells 26..28 x 24), floor 16.
 - Reference: room 597, window U0 1184 V0 304 (96 x 112). NOT the church drawing (17 % equal pixels).

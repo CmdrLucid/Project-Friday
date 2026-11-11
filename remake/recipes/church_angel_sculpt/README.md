@@ -67,3 +67,8 @@ v16 (2026-11-11, user: 'der rechte Fluegel wirkt chaotischer als der linke', 'di
   broken rows). Now the bridge rises to the wings' full height from 1.5 to 6 units beside the body's axis (also over the dark outline pixels between
   head and wing: `mask1`), and the reach is the LAST wing point on each ray. Costs 21 px outside (IoU 0.919 -> 0.914): check before using it for the light.
 - Scroll: axis at the chest (f 3.2 .. 4.0, r 0.9), the forearms further out (`ff_top` 5.2, `ff_low` 4.7): it lies between arms and chest.
+
+v17 (2026-11-11, user: 'der rechte Fluegel sollte gleich sein wie der linke, nur gespiegelt'): `mirror_left`: the completed LEFT half (drawn left wing +
+bridge) mirrored at the body's axis (y = 449.25) = a symmetric pair. The drawn right wing is shorter and rounder than the mirrored left one: IoU 0.914 ->
+0.792 (77 px outside, 190 missed; the right tip reaches ~8 px further up / right than drawn). Remake model; for the light this needs a decision
+(`mirror_left` false = v16, each wing as drawn).
