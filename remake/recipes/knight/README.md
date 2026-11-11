@@ -33,3 +33,13 @@ same drawing. The castle's dark armour on a stand (tileset 15, $0B5: 63 64 83 84
   the low comb removed (only its ends showed as nubs). ~16000 faces, IoU 0.823 (66 outside, 113 missed). Rebuilt; 695: edge pixels at the corner knight
   415 (no knight shape) -> 608, right knight 386 -> 413, whole picture 3699 -> 3937 (shading on the figures; no boxes / cut walls seen). Not played.
   Export (not in git): `~/.landstalker_remake/assets/knight/knight_v7.obj`, sheet `knight_v7.png`.
+
+## Armour on a stand (castle, tileset 15) - `stand.py`
+- Game: top block $0B5, blocked cells: rooms 63 64 (19, 25 / 28 / 31; floor 2 = z 32), 83 84 (15, 21 / 24 / 27; floor 1), 93 (30, 27). Reference: room 63
+  cell (19, 28), `rom_picture.py ROM 63 1008 280 72 110 DIR`, the armour's layer A component = `mask63.json` (local).
+- `stand.py OUT.obj [params.json]` reuses the part makers of knight.py (everything above '# ---- the figure', incl. `visor()`): stepped round foot (radius
+  6.7, exactly on the cell centre), pole, fauld of three hoops + two tassets, breastplate with a round boss, collar, round helm with a visor, ball
+  pauldrons, hanging arms with gauntlets. It faces +x (out of the west wall), yaw 79 (11 degrees towards the camera, from the line through the pauldrons).
+- v1 (2026-11-11): IoU 0.896 (33 outside, 66 missed). As DRAWN the armour sits 1.9 off the pole's axis, the near pauldron is big and high (r 4.0), the
+  far one small (r 2.9), the far arm shorter: fitted so; from the front the model is lopsided. Open (user): keep as drawn, or a symmetric remake variant
+  + this one for the light (as with the angel's wings). Not in the light yet. Preview `~/.landstalker_remake/assets/armour_stand/stand_v1.png`.

@@ -186,5 +186,10 @@ FINAL = with material, approved by the user.
 - Reference: room 678 cell (30, 26), window U0 1216 V0 392 (64 x 80); own pixels by colour from layer A (painted shadow under the feet left out).
 - State: LIGHT + remake model v7 FINISHED for now (user 2026-11-11 'dann done'): plate details, a helm with a visor (eye slit in the front only), two
   barbed feathers from one holder; IoU 0.823, ~16000 faces; 14 knights in 7 rooms through `furniture_ops.knights()`; checked headless in 695, not played.
-- The castle's dark armour on a stand (tileset 15, $0B5: 63 64 83 84 93) is a different object: TODO after this one.
+- The castle's dark armour on a stand: next section.
+
+## Armour on a stand  (`remake/recipes/knight/stand.py`; not in the light yet)
+- Game: castle, tileset 15, top block $0B5 (blocked cells): rooms 63 64 (19, 25 / 28 / 31), 83 84 (15, 21 / 24 / 27), 93 (30, 27).
+- Reference: room 63 cell (19, 28) on floor 32, window U0 1008 V0 280 (72 x 110), layer A component.
+- State: v1 (2026-11-11), IoU 0.896, fitted as drawn (lopsided: big near pauldron, small far one, off the pole's axis). Waiting for the user's look.
 

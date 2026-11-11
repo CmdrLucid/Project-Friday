@@ -76,38 +76,7 @@ def plate(c, yaw, outline, t, bend=0.0, n=14):
     for i in range(m): a = n * m + i; b = n * m + (i + 1) % m; fs.append((a, a + R, b + R, b))   # rim
     add(vs, fs)
 
-# ---- the figure ---------------------------------------------------------------------------------------------------------------------------------------
-H = g('scale', 1.0)
-# The drawing follows the sprite convention (a figure 'facing south-west' is drawn with level shoulders): the LEGS face `yaw` (default 20 degrees from +y
-# towards the camera) with the feet turned out, the UPPER BODY (torso, shoulders, arms, helm) is turned `twist` degrees further towards the camera.
-TW = g('twist', 25.0); _c, _s = math.cos(math.radians(-TW)), math.sin(math.radians(-TW))
-def T(p): return (p[0] * _c - p[1] * _s, p[0] * _s + p[1] * _c, p[2])   # upper-body point -> body frame (turned towards +s... the camera side)
-# v2 (user 'ja' on the blockout): the DETAILS of plate armour: pointed sabatons, greaves with a shin ridge, winged knee cops, cuisses, a fauld of three
-# hoops, a breastplate with a keel and a belt, a collar, a great helm with a brow rim, eye slit ledge, breaths ridge and a comb of plumes, pauldrons of
-# three lames, couters, flared gauntlet cuffs with a fist, the lance (butt, shaft, two tassel tufts, a leaf head with a midrib), the kite shield with a rim
-for sg in (-1, 1):
-    # the two feet point in different directions in the drawing: the right one out to its side, the left one forward
-    hip = (sg * 3.2, 0.0, 16.5); knee = (-3.8, 1.6, 9.3) if sg < 0 else (2.5, 1.8, 9.3); ank = (-3.9, 2.0, 2.6) if sg < 0 else (1.7, 2.2, 2.6)
-    sp = math.radians(-g('splay_r', 45.0) if sg < 0 else g('splay_l', 30.0)); fd = (math.sin(sp), math.cos(sp))   # the foot's direction (s, f)
-    heel = (ank[0] - 1.2 * fd[0], ank[1] - 1.2 * fd[1], 1.5); toe = (ank[0] + 5.6 * fd[0], ank[1] + 5.6 * fd[1], 0.95)
-    capsule(heel, toe, 2.1, 0.9, flat=0.75)                                          # sabaton with a pointed toe
-    capsule((ank[0] + 0.6 * fd[0], ank[1] + 0.6 * fd[1], 2.7), (ank[0] + 3.0 * fd[0], ank[1] + 3.0 * fd[1], 2.0), 1.35, 1.0)   # the instep plates
-    capsule(ank, knee, 1.8, 2.2)                                                      # greave
-    capsule((ank[0], ank[1] + 1.5, ank[2] + 0.6), (knee[0], knee[1] + 1.6, knee[2] - 1.2), 0.5, 0.6, nu=8, cap=2)              # its shin ridge
-    ellipsoid((knee[0], knee[1] + 1.0, knee[2] + 0.2), (2.15, 1.8, 2.0))              # knee cop
-    ellipsoid((knee[0] + sg * 1.9, knee[1] + 0.3, knee[2] + 0.2), (0.9, 1.5, 1.5))    # its side wing
-    capsule(knee, hip, 2.3, 2.85)                                                     # cuisse
-lathe((0.0, 0.2), [(12.6, 6.1, 4.8), (13.4, 6.2, 4.9), (14.2, 5.9, 4.6), (14.3, 5.75, 4.5), (15.2, 5.85, 4.6), (16.0, 5.55, 4.35), (16.1, 5.4, 4.25), (17.0, 5.5, 4.3), (17.8, 5.2, 4.1), (18.6, 4.8, 3.8)], sq=2.3)   # fauld: three hoops
-TC = T((0.0, 0.3, 0))[:2]
-lathe(TC, [(18.0, 4.9, 3.9), (18.5, 5.1, 4.1), (19.0, 4.9, 3.9), (19.2, 4.55, 3.65), (20.0, 4.6, 3.75), (21.5, 5.3, 4.4), (23.8, 5.9, 4.85), (25.8, 5.75, 4.5), (27.4, 4.7, 3.7), (28.3, 3.3, 3.0)], sq=2.3, rot=-TW)   # belt, waist, breastplate
-# (v3, user: 'diese 2 vertikalen Linien sind noch komisch': the keel down the breastplate and the ridge down the helm's face were stuck-on rods: removed)
-lathe(T((0.0, 0.2, 0))[:2], [(27.7, 4.0, 3.7), (28.4, 4.35, 4.0), (29.1, 4.2, 3.9), (29.6, 3.6, 3.4)], sq=2.0, rot=-TW)                                    # the collar (yellow)
-HZ = g('helm_z', 28.9); HC = T((-0.5, 0.5, 0))[:2]
-lathe(HC, [(HZ, 3.9, 4.2), (HZ + 0.8, 4.6, 4.9), (HZ + 2.9, 4.85, 5.2), (HZ + 4.4, 4.85, 5.2), (HZ + 5.3, 4.7, 5.05),
-           (HZ + 6.8, 4.1, 4.4), (HZ + 7.9, 2.9, 3.1), (HZ + 8.6, 1.4, 1.5), (HZ + 8.8, 0.3, 0.3)], sq=2.0, rot=-TW)                                         # great helm: a smooth skull (v5: the eye slit is NOT a groove all around any more; it is cut into the visor's front only, as drawn)
-# v4 (user: 'das sieht mir noch nicht nach einem Helm mit Visier aus'): a VISOR as its own plate over the face: it stands out from the helm, a blunt
-# snout (deepest a little below its middle, front centre), its upper edge under the eye slit (the slit = the dark gap between the visor and the brow rim),
-# hinged at the temples (round pivots); a row of breath slots as small sunk dents is too fine for this size: left out. Plus a low comb over the skull.
+# shared part makers that use the upper-body turn T() and the helm axis HCU of the figure that calls them (also used by ../knight/stand.py)
 def visor(c, rs, rf, z0, z1, depth, half=78.0, nphi=36, nz=40, t=0.35, slit=(0.68, 0.84), slit_half=52.0):
     """shell over the helm's front: angles -half .. +half degrees around the vertical axis through c (0 = the front), heights z0 .. z1. Below the EYE
     SLIT it is the snout (stands `t` + up to `depth` in front of the helm, deepest front centre a little below its middle), above the slit a brow plate;
@@ -135,13 +104,6 @@ def visor(c, rs, rf, z0, z1, depth, half=78.0, nphi=36, nz=40, t=0.35, slit=(0.6
     for j in range(nz):     # the two ends
         fs.append((idx(0, j, 1), idx(0, j + 1, 1), idx(0, j + 1, 0), idx(0, j, 0))); fs.append((idx(nphi, j, 1), idx(nphi, j, 0), idx(nphi, j + 1, 0), idx(nphi, j + 1, 1)))
     add(vs, fs)
-HCU = (-0.5, 0.5)
-visor(HCU, 4.85, 5.2, HZ + 0.5, HZ + 5.4, g('visor_depth', 2.4))
-for sg in (-1, 1): ellipsoid(T((HCU[0] + sg * 5.15, HCU[1] + 0.9, HZ + 3.0)), (0.45, 0.85, 0.85), nu=12, nv=8, rot=-TW)   # the visor's pivots at the temples
-# (the low comb is gone: only its two ends showed, as nubs on the dome)
-# v6 (user: 'oben am Helm sind es Federn ... sieht im Sprite wie 2 Stueck aus'): TWO FEATHERS as drawn: a short upright one at the front of the top and a
-# long one sweeping over to the figure's left / back with a drooping tip. A feather = a thin curved blade (quill at the base, the vane widest before the
-# middle, a pointed tip, a raised shaft down its middle, a little cupped), its flat side turned to the game camera (the drawing shows their full width)
 def feather(path, wmax, n=64, m=20, thick=0.15, barbs=22, splits=((0.34, 1), (0.52, -1), (0.63, 1), (0.78, -1))):
     pts = [T(p) for p in path]                                         # in the placed body frame (= world offsets at yaw 0)
     def at(a):                                                         # Catmull-Rom through the path points
@@ -175,6 +137,46 @@ def feather(path, wmax, n=64, m=20, thick=0.15, barbs=22, splits=((0.34, 1), (0.
     for i in range(m): fs.append((i, (m + 1) + i, (m + 1) + i + 1, i + 1)); e = n * R; fs.append((e + i, e + i + 1, e + (m + 1) + i + 1, e + (m + 1) + i))
     V.extend(vs); F.extend([tuple(x + len(V) - len(vs) for x in f) for f in fs])   # already placed: bypass T again (see RAW below)
     RAW.update(range(len(V) - len(vs), len(V)))
+RAW = set()
+# ---- the figure ---------------------------------------------------------------------------------------------------------------------------------------
+H = g('scale', 1.0)
+# The drawing follows the sprite convention (a figure 'facing south-west' is drawn with level shoulders): the LEGS face `yaw` (default 20 degrees from +y
+# towards the camera) with the feet turned out, the UPPER BODY (torso, shoulders, arms, helm) is turned `twist` degrees further towards the camera.
+TW = g('twist', 25.0); _c, _s = math.cos(math.radians(-TW)), math.sin(math.radians(-TW))
+def T(p): return (p[0] * _c - p[1] * _s, p[0] * _s + p[1] * _c, p[2])   # upper-body point -> body frame (turned towards +s... the camera side)
+# v2 (user 'ja' on the blockout): the DETAILS of plate armour: pointed sabatons, greaves with a shin ridge, winged knee cops, cuisses, a fauld of three
+# hoops, a breastplate with a keel and a belt, a collar, a great helm with a brow rim, eye slit ledge, breaths ridge and a comb of plumes, pauldrons of
+# three lames, couters, flared gauntlet cuffs with a fist, the lance (butt, shaft, two tassel tufts, a leaf head with a midrib), the kite shield with a rim
+for sg in (-1, 1):
+    # the two feet point in different directions in the drawing: the right one out to its side, the left one forward
+    hip = (sg * 3.2, 0.0, 16.5); knee = (-3.8, 1.6, 9.3) if sg < 0 else (2.5, 1.8, 9.3); ank = (-3.9, 2.0, 2.6) if sg < 0 else (1.7, 2.2, 2.6)
+    sp = math.radians(-g('splay_r', 45.0) if sg < 0 else g('splay_l', 30.0)); fd = (math.sin(sp), math.cos(sp))   # the foot's direction (s, f)
+    heel = (ank[0] - 1.2 * fd[0], ank[1] - 1.2 * fd[1], 1.5); toe = (ank[0] + 5.6 * fd[0], ank[1] + 5.6 * fd[1], 0.95)
+    capsule(heel, toe, 2.1, 0.9, flat=0.75)                                          # sabaton with a pointed toe
+    capsule((ank[0] + 0.6 * fd[0], ank[1] + 0.6 * fd[1], 2.7), (ank[0] + 3.0 * fd[0], ank[1] + 3.0 * fd[1], 2.0), 1.35, 1.0)   # the instep plates
+    capsule(ank, knee, 1.8, 2.2)                                                      # greave
+    capsule((ank[0], ank[1] + 1.5, ank[2] + 0.6), (knee[0], knee[1] + 1.6, knee[2] - 1.2), 0.5, 0.6, nu=8, cap=2)              # its shin ridge
+    ellipsoid((knee[0], knee[1] + 1.0, knee[2] + 0.2), (2.15, 1.8, 2.0))              # knee cop
+    ellipsoid((knee[0] + sg * 1.9, knee[1] + 0.3, knee[2] + 0.2), (0.9, 1.5, 1.5))    # its side wing
+    capsule(knee, hip, 2.3, 2.85)                                                     # cuisse
+lathe((0.0, 0.2), [(12.6, 6.1, 4.8), (13.4, 6.2, 4.9), (14.2, 5.9, 4.6), (14.3, 5.75, 4.5), (15.2, 5.85, 4.6), (16.0, 5.55, 4.35), (16.1, 5.4, 4.25), (17.0, 5.5, 4.3), (17.8, 5.2, 4.1), (18.6, 4.8, 3.8)], sq=2.3)   # fauld: three hoops
+TC = T((0.0, 0.3, 0))[:2]
+lathe(TC, [(18.0, 4.9, 3.9), (18.5, 5.1, 4.1), (19.0, 4.9, 3.9), (19.2, 4.55, 3.65), (20.0, 4.6, 3.75), (21.5, 5.3, 4.4), (23.8, 5.9, 4.85), (25.8, 5.75, 4.5), (27.4, 4.7, 3.7), (28.3, 3.3, 3.0)], sq=2.3, rot=-TW)   # belt, waist, breastplate
+# (v3, user: 'diese 2 vertikalen Linien sind noch komisch': the keel down the breastplate and the ridge down the helm's face were stuck-on rods: removed)
+lathe(T((0.0, 0.2, 0))[:2], [(27.7, 4.0, 3.7), (28.4, 4.35, 4.0), (29.1, 4.2, 3.9), (29.6, 3.6, 3.4)], sq=2.0, rot=-TW)                                    # the collar (yellow)
+HZ = g('helm_z', 28.9); HC = T((-0.5, 0.5, 0))[:2]
+lathe(HC, [(HZ, 3.9, 4.2), (HZ + 0.8, 4.6, 4.9), (HZ + 2.9, 4.85, 5.2), (HZ + 4.4, 4.85, 5.2), (HZ + 5.3, 4.7, 5.05),
+           (HZ + 6.8, 4.1, 4.4), (HZ + 7.9, 2.9, 3.1), (HZ + 8.6, 1.4, 1.5), (HZ + 8.8, 0.3, 0.3)], sq=2.0, rot=-TW)                                         # great helm: a smooth skull (v5: the eye slit is NOT a groove all around any more; it is cut into the visor's front only, as drawn)
+# v4 (user: 'das sieht mir noch nicht nach einem Helm mit Visier aus'): a VISOR as its own plate over the face: it stands out from the helm, a blunt
+# snout (deepest a little below its middle, front centre), its upper edge under the eye slit (the slit = the dark gap between the visor and the brow rim),
+# hinged at the temples (round pivots); a row of breath slots as small sunk dents is too fine for this size: left out. Plus a low comb over the skull.
+HCU = (-0.5, 0.5)
+visor(HCU, 4.85, 5.2, HZ + 0.5, HZ + 5.4, g('visor_depth', 2.4))
+for sg in (-1, 1): ellipsoid(T((HCU[0] + sg * 5.15, HCU[1] + 0.9, HZ + 3.0)), (0.45, 0.85, 0.85), nu=12, nv=8, rot=-TW)   # the visor's pivots at the temples
+# (the low comb is gone: only its two ends showed, as nubs on the dome)
+# v6 (user: 'oben am Helm sind es Federn ... sieht im Sprite wie 2 Stueck aus'): TWO FEATHERS as drawn: a short upright one at the front of the top and a
+# long one sweeping over to the figure's left / back with a drooping tip. A feather = a thin curved blade (quill at the base, the vane widest before the
+# middle, a pointed tip, a raised shaft down its middle, a little cupped), its flat side turned to the game camera (the drawing shows their full width)
 RAW = set()
 FB = g('feather_base', (-0.1, 0.5, HZ + 8.3))   # both feathers grow out of ONE holder on the helm's top (user: 'aus dem selben Ursprungspunkt')
 ellipsoid(T(FB), (0.75, 0.75, 0.65), nu=12, nv=8)
