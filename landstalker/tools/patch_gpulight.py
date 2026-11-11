@@ -376,7 +376,7 @@ bool figdir(vec3 sd, vec3 p, float fm) {   /* lk_lt_figdir */
     if (mx >= 0.0 && mx < 448.0 && my >= 0.0 && my < 224.0 && ownAt(mx, my, Fa.z)) return true; }
   return false; }
 float shadowed(vec3 p, int li, float fm, float cx, float cy) {   /* lk_lt_shadowed */
-  vec4 L = uLP[li];
+  vec4 L = uLP[li]; float best = 0.0;   /* LK_LTSHMAX v1: the strongest figure on the ray, not the first */
   for (int j = 0; j < 16; j++) { if (float(j) >= uNf) break;
     vec4 P = texture2D(pairs, (vec2(float(li), float(j)) + 0.5) / vec2(96.0, 32.0)); if (P.z < 0.5 || bit(fm, j) < 0.5) continue;
     vec4 pb = texture2D(pairs, (vec2(float(li), float(16 + j)) + 0.5) / vec2(96.0, 32.0)); if (cx < pb.x || cx > pb.z || cy < pb.y || cy > pb.w) continue;
@@ -392,8 +392,8 @@ float shadowed(vec3 p, int li, float fm, float cx, float cy) {   /* lk_lt_shadow
     for (int b2 = -1; b2 <= 1; b2++) for (int a2 = -1; a2 <= 1; a2++) { float ux = mx + float(a2), uy = my + float(b2);
       if (ux >= 0.0 && ux < 448.0 && uy >= 0.0 && uy < 224.0 && ownAt(ux, uy, Fa.z)) hit += 1.0; }
     if (hit > 0.0) { vec3 e = L.xyz - p; float d = t * sqrt(e.x * e.x + e.y * e.y + e.z * e.z), w = (60.0 - d) * (1.0 / 40.0);
-      w = w >= 1.0 ? 1.0 : w > 0.0 ? w : 0.0; return w * hit / 9.0; } }
-  return 0.0; }
+      w = w >= 1.0 ? 1.0 : w > 0.0 ? w : 0.0; best = max(best, w * hit / 9.0); if (best >= 1.0) return best; } }
+  return best; }   /* LK_LTSHMAX v1 */
 vec3 amix(vec3 r, vec2 q, float zs, float fd, bool noadd) {   /* lk_am_mix (noadd: only drops / splashes, the void) */
   vec4 m = texture2D(amap, q); if (m == vec4(0.0)) return r;
   float al = B(m.a); bool add = al > 127.5; if (add) { al -= 128.0; if (noadd) return r; }

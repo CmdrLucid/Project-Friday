@@ -2021,6 +2021,9 @@ static int lk_lt_figat(int x, int y) {   /* figure whose box holds screen pixel 
   int j; for (j = 0; j < lk_lt_nf; j++) { int dx = x - lk_lt_f[j].ax, dy = lk_lt_f[j].ay - y; if (dx >= -16 && dx <= 16 && dy >= -6 && dy <= 56) return j; } return -1;
 }
 static float lk_lt_shadowed(float px, float py, float pz, const lk_lt_light *L, int k) {   /* the ray scenery pixel -> light crosses a figure's silhouette: 0..1 (v7: only the figure's OWN sprite pixels, fading with the distance pixel -> figure) */
+  /* LK_LTSHMAX v1 (2026-11-11, user: 'stellt sich Nigel hinter die Figur, fehlt auf einmal deren Schatten vor ihr'): the STRONGEST figure on the ray, not the first one found
+     (Nigel is figure 0: his faded far shadow (w ~ 0) ended the search before the soldier right in front).  LANDSTALKER_LT_SHMAX=0 = old (first hit). */
+  static int smx = -1; float best = 0.0f; if (smx < 0) { const char *e = getenv("LANDSTALKER_LT_SHMAX"); smx = e ? atoi(e) != 0 : 1; }
   int j; for (j = 0; j < lk_lt_nf; j++) {
     const lk_lt_fig *F = &lk_lt_f[j]; float den, num, t, qx, qy, qz, dx, hh, nx, ny, tx, ty; int mx, my;
     if (!lk_lt_pair[k][j] || !(lk_lt_fmask & (1 << j))) continue;   /* v8 SPEED: lk_lt_fmask from lk_lt_infb of this pixel */
@@ -2038,9 +2041,9 @@ static float lk_lt_shadowed(float px, float py, float pz, const lk_lt_light *L, 
       for (b2 = -1; b2 <= 1; b2++) for (a2 = -1; a2 <= 1; a2++) { int ux = mx + a2, uy = my + b2;
         if (ux >= 0 && ux < LK_OSW && uy >= 0 && uy < 224 && (lk_o_spr[uy][ux] & 0x200) && (lk_lt_spre[uy][ux] == F->tag || lk_lt_spre2[uy][ux] == F->tag)) hit++; }   /* LK_LTHIDE v1: also where another figure hides it */   /* v7: the books on the church shelf are figures too: their pixels made Nigel's shadow a block (user rec_20261103_2149) */
       if (hit) { float ex = L->x - px, ey = L->y - py, ez = L->z - pz, d = t * sqrtf(ex * ex + ey * ey + ez * ez), w = (60.0f - d) * (1.0f / 40.0f);   /* v7: a candle close to the head stretched the shadow far and jagged: fade from 20 to 60 units */
-        w = w >= 1.0f ? 1.0f : w > 0.0f ? w : 0.0f; return w * (float)hit / 9.0f; } }
+        w = w >= 1.0f ? 1.0f : w > 0.0f ? w : 0.0f; if (!smx) return w * (float)hit / 9.0f; w *= (float)hit / 9.0f; if (w > best) best = w; if (best >= 1.0f) return best; } }   /* LK_LTSHMAX v1 */
   }
-  return 0.0f;
+  return best;
 }
 static int lk_lt_figdir(const float *sd, float px, float py, float pz) {   /* v5: the way scenery pixel -> a far light in direction sd crosses a figure (a card through its foot point, facing the light); v8: any direction (sun, key light, shaft) */
   int j; float hx = sd[0], hy = sd[1], hl = sqrtf(hx * hx + hy * hy), nx, ny, tx, ty, den;
