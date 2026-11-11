@@ -22,3 +22,5 @@ same drawing. The castle's dark armour on a stand (tileset 15, $0B5: 63 64 83 84
   inside the wall). 678 is not reachable by warp (black); checked in 695 (`695:27.08,27.08,0010`): no boxes or cut walls; edge pixels at the corner
   knight 415 -> 563 (shading on the figure where the model and the drawing differ), whole picture 3699 -> 3826.
 
+- v4 (2026-11-11, user: 'das sieht mir noch nicht nach einem Helm mit Visier aus'): `visor()` = a plate of its own over the face (a pointed snout, its
+  upper edge under the eye slit, round pivots at the temples), a low comb, ONE smooth plume (capsule chain). IoU 0.821. Proxies rewritten, game rebuilt.
