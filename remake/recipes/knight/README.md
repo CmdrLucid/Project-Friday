@@ -24,3 +24,5 @@ same drawing. The castle's dark armour on a stand (tileset 15, $0B5: 63 64 83 84
 
 - v4 (2026-11-11, user: 'das sieht mir noch nicht nach einem Helm mit Visier aus'): `visor()` = a plate of its own over the face (a pointed snout, its
   upper edge under the eye slit, round pivots at the temples), a low comb, ONE smooth plume (capsule chain). IoU 0.821. Proxies rewritten, game rebuilt.
+- v5 (2026-11-11, user: 'der Visierschlitz geht im Modell rundum statt nur bei der Augenpartie wie im Sprite'): the helm's skull is smooth all around;
+  the eye slit is a sunk band in the visor's front only (+-52 degrees, `visor(slit=, slit_half=)`), a brow plate above it. Proxies rewritten, rebuilt.

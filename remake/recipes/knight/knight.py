@@ -103,20 +103,25 @@ lathe(TC, [(18.0, 4.9, 3.9), (18.5, 5.1, 4.1), (19.0, 4.9, 3.9), (19.2, 4.55, 3.
 # (v3, user: 'diese 2 vertikalen Linien sind noch komisch': the keel down the breastplate and the ridge down the helm's face were stuck-on rods: removed)
 lathe(T((0.0, 0.2, 0))[:2], [(27.7, 4.0, 3.7), (28.4, 4.35, 4.0), (29.1, 4.2, 3.9), (29.6, 3.6, 3.4)], sq=2.0, rot=-TW)                                    # the collar (yellow)
 HZ = g('helm_z', 28.9); HC = T((-0.5, 0.5, 0))[:2]
-lathe(HC, [(HZ, 3.9, 4.2), (HZ + 0.8, 4.6, 4.9), (HZ + 2.9, 4.85, 5.2), (HZ + 3.6, 4.8, 5.15), (HZ + 3.8, 4.45, 4.75), (HZ + 4.5, 4.45, 4.75), (HZ + 4.7, 5.0, 5.4), (HZ + 5.3, 4.9, 5.25),
-           (HZ + 6.8, 4.1, 4.4), (HZ + 7.9, 2.9, 3.1), (HZ + 8.6, 1.4, 1.5), (HZ + 8.8, 0.3, 0.3)], sq=2.0, rot=-TW)                                         # great helm: cheeks, the eye slit's ledge, brow rim, dome
+lathe(HC, [(HZ, 3.9, 4.2), (HZ + 0.8, 4.6, 4.9), (HZ + 2.9, 4.85, 5.2), (HZ + 4.4, 4.85, 5.2), (HZ + 5.3, 4.7, 5.05),
+           (HZ + 6.8, 4.1, 4.4), (HZ + 7.9, 2.9, 3.1), (HZ + 8.6, 1.4, 1.5), (HZ + 8.8, 0.3, 0.3)], sq=2.0, rot=-TW)                                         # great helm: a smooth skull (v5: the eye slit is NOT a groove all around any more; it is cut into the visor's front only, as drawn)
 # v4 (user: 'das sieht mir noch nicht nach einem Helm mit Visier aus'): a VISOR as its own plate over the face: it stands out from the helm, a blunt
 # snout (deepest a little below its middle, front centre), its upper edge under the eye slit (the slit = the dark gap between the visor and the brow rim),
 # hinged at the temples (round pivots); a row of breath slots as small sunk dents is too fine for this size: left out. Plus a low comb over the skull.
-def visor(c, rs, rf, z0, z1, depth, half=78.0, nphi=28, nz=12, t=0.35):
-    """shell over the helm's front: angles -half .. +half degrees around the vertical axis through c (0 = the front), heights z0 .. z1; the outer face
-    stands `t` + the snout's `depth` (front centre, at 40 % of the height) in front of the helm (radii rs / rf there)"""
-    vs, fs = [], []
+def visor(c, rs, rf, z0, z1, depth, half=78.0, nphi=36, nz=40, t=0.35, slit=(0.68, 0.84), slit_half=52.0):
+    """shell over the helm's front: angles -half .. +half degrees around the vertical axis through c (0 = the front), heights z0 .. z1. Below the EYE
+    SLIT it is the snout (stands `t` + up to `depth` in front of the helm, deepest front centre a little below its middle), above the slit a brow plate;
+    the slit itself (the share `slit` of the height, only within +-slit_half degrees = over the eyes, user: 'nur bei der Augenpartie') lies sunk to the
+    helm's surface = a dark gap in the front only"""
+    vs, fs = [], []; sm = lambda a, b, x: (lambda q: q * q * (3 - 2 * q))(max(0.0, min(1.0, (x - a) / (b - a))))
     def P(i, j, outer):
         ph = math.radians(-half + 2 * half * i / nphi); v = j / nz; z = z0 + (z1 - z0) * v
         w = math.cos(math.radians(90.0) * (ph / math.radians(half))) ** 1.7                       # 1 at the front centre, 0 at the pivots: a pointed snout, flat cheeks
-        prof = math.sin(math.pi * min(1.0, max(0.0, (v + 0.12) / 1.12)) ** 0.8)                   # along the height: strongest below the middle
-        r = (t + depth * w * (0.25 + 0.75 * prof)) if outer else -0.15
+        vv = min(1.0, v / slit[0]); prof = math.sin(math.pi * min(1.0, max(0.0, (vv + 0.12) / 1.12)) ** 0.8)   # the snout's height profile (below the slit)
+        r = t + (depth * w * (0.25 + 0.75 * prof) if v <= slit[0] else 0.2 + 0.45 * w)             # snout / brow plate
+        inslit = sm(slit[0] - 0.03, slit[0] + 0.02, v) * (1 - sm(slit[1] - 0.02, slit[1] + 0.03, v)) * (1 - sm(slit_half - 8.0, slit_half, abs(math.degrees(ph))))
+        r = r * (1 - inslit) + 0.02 * inslit
+        if not outer: r = -0.15
         return T((HCU[0] + (rs + r) * math.sin(ph), HCU[1] + (rf + r) * math.cos(ph), z))
     for outer in (1, 0):
         for j in range(nz + 1):
@@ -131,7 +136,7 @@ def visor(c, rs, rf, z0, z1, depth, half=78.0, nphi=28, nz=12, t=0.35):
         fs.append((idx(0, j, 1), idx(0, j + 1, 1), idx(0, j + 1, 0), idx(0, j, 0))); fs.append((idx(nphi, j, 1), idx(nphi, j, 0), idx(nphi, j + 1, 0), idx(nphi, j + 1, 1)))
     add(vs, fs)
 HCU = (-0.5, 0.5)
-visor(HCU, 4.85, 5.2, HZ + 0.5, HZ + 3.85, g('visor_depth', 2.4))
+visor(HCU, 4.85, 5.2, HZ + 0.5, HZ + 5.4, g('visor_depth', 2.4))
 for sg in (-1, 1): ellipsoid(T((HCU[0] + sg * 5.15, HCU[1] + 0.9, HZ + 3.0)), (0.45, 0.85, 0.85), nu=12, nv=8, rot=-TW)   # the visor's pivots at the temples
 capsule(T((HCU[0], HCU[1] + 3.6, HZ + 7.3)), T((HCU[0], HCU[1] - 3.8, HZ + 7.5)), 0.55, 0.5, nu=8, cap=3)                # a low comb over the skull
 # the crest: ONE plume from the top of the helm falling over to the figure's left and back (the drawn yellow band lies level over the helm's top, to the
