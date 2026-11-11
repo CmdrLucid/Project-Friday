@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-11 END OF SESSION (dev, Opus 5.5):** beds as light shapes (51), save-load freeze fixed (shader warm-up / loading screen), sword glow shadow through the fine field, whole-room scan of the light shapes (no regressions); all headless, NOTHING played. User backlog from rec_20261111_2006: HANDOFF NEXT -175. HANDOFF 0a398.
 - **2026-11-11 evening (dev, Opus 5.5): SWORD GLOW BOX SHADOW FIXED (LK_SWSHFINE v1):** the sword light's shadow marched 16 unit cells (a box at the tree of 488 at night); now the fine field (model shapes). Checked headless 488 (night) + 695; NOT played. HANDOFF 0a396.
 - **2026-11-11 evening (dev, Opus 5.5): SAVE LOAD FREEZE FIXED (LK_SHWARM v1, user: 'Loesung bauen, notfalls Ladescreen'):** shaders compiled before the title; cold cache = loading screen ~18 s once, then the save load's worst frame 196 ms (was 18.5 s); warm = 155 ms, no screen. Built (verify 117 ok), measured hidden-window, NOT played. HANDOFF 0a395, NEXT -174.
 - **2026-11-11 evening (dev, Opus 5.5): SAVE LOAD FREEZE explained (not fixed):** first lit frame compiles the GPU light shaders (g5 6 s + bounce 12.5 s) when the Mesa cache is cold; warm 0.2 s. Bug catalog + HANDOFF 0a394, NEXT -173.
