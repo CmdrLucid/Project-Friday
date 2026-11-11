@@ -93,11 +93,16 @@ sys.path.insert(0, '/home/deck/ProjectL/remake/lib'); import furniture as F
 A = F.CHURCH_ANGEL4; AX, AY = A['axis']; FLO = 32.0; SQ2 = math.sqrt(2)
 H = g('head_h', 6.6); HS, HF, HZ = g('head_s', 0.95), g('head_f', -0.2), g('chin_z', 39.4)
 def W(s, f, z): return (AX + (s + f) / SQ2, AY + (f - s) / SQ2, FLO + z)
+# v13: the figure FACES OUT OF THE WALL (+x; user: 'die Fluegel muessen am Ruecken anliegen, parallel zum Koerper'), not the camera: the body frame
+# (s = its left / right, f = its front) is turned 45 degrees about the body's axis; positions stay where they are in the picture
+def WH(dx, dy, z):   # head-frame offsets (right, forward) from the head's axis
+    if g('face_x', True): dx, dy = (dx + dy) / SQ2, (dy - dx) / SQ2
+    return W(HS + dx, HF + dy, z)
 tilt = math.radians(g('head_tilt', 8.0))                                              # a little bowed (looking down at the child)
 out = []
 for X, Y, Z, *_ in V:   # (rows of the grid: j = 0 the crown)
     Zc = Z - 0.5; Yr = Y * math.cos(tilt) + Zc * math.sin(tilt); Zr = -Y * math.sin(tilt) + Zc * math.cos(tilt) + 0.5
-    out.append(W(HS + X * H, HF + Yr * H, HZ + Zr * H))
+    out.append(WH(X * H, Yr * H, HZ + Zr * H))
 # HAIR SHELL (v8): follows the skull: a shell over the base head from the middle parting down, the hairline high on the forehead, lower at the temples
 # (framing the face = the drawn hair beside the face), behind the ears down to the nape (the long hair down the back continues as the metaball panel);
 # strands = ridges along the meridians from the crown; closed shell (outer + inner surface + rim)
@@ -171,6 +176,6 @@ if len(sys.argv) > 2:
     with open(sys.argv[2], 'w') as fo:
         for X, Y, Z in HV:
             Zc = Z - 0.5; Yr = Y * math.cos(tilt) + Zc * math.sin(tilt); Zr = -Y * math.sin(tilt) + Zc * math.cos(tilt) + 0.5
-            fo.write('v %.4f %.4f %.4f\n' % W(HS + X * H, HF + Yr * H, HZ + Zr * H))
+            fo.write('v %.4f %.4f %.4f\n' % WH(X * H, Yr * H, HZ + Zr * H))
         for q in HF_: fo.write('f ' + ' '.join(str(k + 1) for k in q) + '\n')
 print('head', len(out), 'verts', 'hair', len(HV))

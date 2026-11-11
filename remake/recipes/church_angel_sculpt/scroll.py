@@ -4,7 +4,11 @@ import json, math, sys
 sys.path.insert(0, '/home/deck/ProjectL/remake/lib'); import furniture as F
 P = json.load(open('/home/deck/lktest/sculpt/params.json')); g = lambda k, d: P.get(k, d)
 A = F.CHURCH_ANGEL4; AX, AY = A['axis']; FLO = 32.0; SQ2 = math.sqrt(2)
-def W(s, f, z): return (AX + (s + f) / SQ2, AY + (f - s) / SQ2, FLO + z)
+# v13: the figure FACES OUT OF THE WALL (+x; user: 'die Fluegel muessen am Ruecken anliegen, parallel zum Koerper'), not the camera: the body frame
+# (s = its left / right, f = its front) is turned 45 degrees about the body's axis; positions stay where they are in the picture
+def W(s, f, z):
+    if g('face_x', True): ds, df = s - 0.7, f; s, f = 0.7 + (ds + df) / SQ2, (df - ds) / SQ2
+    return (AX + (s + f) / SQ2, AY + (f - s) / SQ2, FLO + z)
 B = g('scroll_b', [0.7, 4.6, 27.4]); T = g('scroll_t', [0.7, 3.7, 34.6]); R = g('scroll_r', 1.2)
 ax = [T[i] - B[i] for i in range(3)]; L = math.sqrt(sum(t * t for t in ax)); ax = [t / L for t in ax]
 e1 = [1.0, 0.0, 0.0]; e2 = [ax[1] * e1[2] - ax[2] * e1[1], ax[2] * e1[0] - ax[0] * e1[2], ax[0] * e1[1] - ax[1] * e1[0]]; n2 = math.sqrt(sum(t * t for t in e2)); e2 = [t / n2 for t in e2]

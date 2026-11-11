@@ -46,7 +46,9 @@ for j in range(NZ + 1):
     amp = AMP * (0.85 + 0.25 * math.sin(0.45 * z + 1.0)) * (0.45 + 0.55 * min(1.0, z / 3.0))   # calmer at the hem (a rounded foot as drawn, no spikes)
     for i in range(NT):
         th = 2 * math.pi * i / NT; d = hem + amp * fade * fold(th, z)
-        SF.append((c + (rs + d) * math.cos(th), cf + (rf + d) * math.sin(th), z, th))
+        ds, df = (rs + d) * math.cos(th), cf + (rf + d) * math.sin(th)
+        if g('face_x', True): ds, df = (ds + df) / SQ2, (df - ds) / SQ2   # v13: the figure faces out of the wall (+x): the section is turned 45 degrees about the row's centre
+        SF.append((c + ds, df, z, math.atan2(df, ds)))
 oR = [0.0] * (NZ + 1); oL = [0.0] * (NZ + 1)
 for j in range(NZ + 1):
     for i in range(NT):

@@ -5,7 +5,12 @@ A = F.CHURCH_ANGEL4; AX, AY = A['axis']; FLO = 32.0; SQ2 = math.sqrt(2)
 RZ = [z for z, c, r in A['rings']]; C = {z: c for z, c, r in A['rings']}; R = {z: r for z, c, r in A['rings']}
 def ip(t, z):
     z = max(RZ[0], min(RZ[-1], z)); i = min(int(z // 2), len(RZ) - 2); u = (z - RZ[i]) / 2.0; return t[RZ[i]] + (t[RZ[i + 1]] - t[RZ[i]]) * u
-def W(s, f, z): return [AX + (s + f) / SQ2, AY + (f - s) / SQ2, FLO + z]   # s = screen right, f = towards the viewer, z up from the pedestal top
+# v13: the figure FACES OUT OF THE WALL (+x; user: 'die Fluegel muessen am Ruecken anliegen, parallel zum Koerper'), not the camera: the body frame
+# (s = its left / right, f = its front) is turned 45 degrees about the body's axis; positions stay where they are in the picture
+_P = json.load(open('params.json')); _ROT = _P.get('face_x', True); _S0 = 0.7
+def W(s, f, z):
+    if _ROT: ds, df = s - _S0, f; s, f = _S0 + (ds + df) / SQ2, (df - ds) / SQ2
+    return [AX + (s + f) / SQ2, AY + (f - s) / SQ2, FLO + z]   # s = screen right, f = towards the viewer, z up from the pedestal top
 KS = 1 / 0.575   # a lone metaball shows its surface at 0.575 of its radius (threshold 0.6, stiffness 2): radii below are SURFACE radii
 def ks(st): return 1.0 / math.sqrt(1.0 - (0.6 / st) ** (1.0 / 3.0))   # surface share sqrt(1 - (threshold / stiffness)^(1/3)); stiffer = less blending
 ST = 2.0   # default stiffness; the upper body parts use STU (crisper parts)
@@ -127,7 +132,15 @@ HEAD1 = len(body)
 # drawing shows a RING under the chin (14 px wide, 9 rows: shoulders on top, the elbows at the sides, the forearms / hands meeting in front below) and in
 # its dark middle a small object with a bright top and a brown body (4 x 5 px) = a SCROLL held upright against the chest in both hands (scroll.py).
 # The arms: shoulder -> elbow (out and down) -> wrist (forward, in to the middle), wide sleeves hanging under the forearms (the ring's lower arc)
-if g('scroll', True):
+if g('scroll', True) and g('folded', True):
+    # v13 (user: 'eher verschraenkte Arme, in denen die Schriftrolle liegt, nicht aufrecht gehalten'): the arms FOLDED across the chest (each forearm
+    # across the front, the hand at the other elbow, one forearm over the other), wide sleeves hanging under them; the scroll lies in them (scroll.py)
+    for sg, zf, ff in ((-1, 30.3, 4.5), (1, 29.2, 4.0)):   # the s- arm lies on top / in front
+        sh = (0.7 + sg * 4.0, -0.2, g('sh_z', 33.5)); el = (0.7 + sg * 5.0, 1.6, zf - 0.5); ha = (0.7 - sg * 2.7, ff, zf)
+        body.append(caps(sh, el, g('uarm_r', 1.45), st=3.0)); body.append(ball(*el, 1.55, st=3.0)); body.append(caps(el, ha, g('farm_r', 1.25), st=3.0))
+        body.append(caps((el[0] - sg * 0.6, el[1] + 0.5, el[2] - 1.3), (ha[0] + sg * 1.2, ha[1] - 0.2, ha[2] - 1.5), g('sleeve_r', 0.95), st=2.5))   # the sleeve hanging under the forearm
+        body.append(ball(ha[0] - sg * 0.5, ha[1], ha[2], 0.9, st=3.0))                                                                                # the hand
+elif g('scroll', True):
     for sg in (-1, 1):
         sh = (0.7 + sg * 4.0, -0.3, g('sh_z', 33.5)); el = (0.7 + sg * 5.0, 1.3, 30.3); wr = (0.7 + sg * 1.7, 4.3, 28.4)
         body.append(caps(sh, el, g('uarm_r', 1.45), st=3.0)); body.append(caps(el, wr, g('farm_r', 1.2), st=3.0))

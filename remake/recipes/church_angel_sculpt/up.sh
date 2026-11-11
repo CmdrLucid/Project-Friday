@@ -10,5 +10,5 @@ keep=[f for f in F if all(V[i][2]>=32+23 and (V[i][0]-375.75)+(V[i][1]-449.25)>-
 used=sorted({i for f in keep for i in f}); m={o:n for n,o in enumerate(used)}
 open('/home/deck/lktest/sculpt/up.obj','w').write(''.join('v %.4f %.4f %.4f\n'%V[i] for i in used)+''.join('f '+' '.join(str(m[i]+1) for i in f)+'\n' for f in keep))
 PY
-R_OUT=$PWD R_OBJ=$PWD/up.obj R_SCALE=${S:-24} R_PRE=up R_VIEWS="0:5,35:15,90:5,0:35.26" flatpak run --filesystem=home org.blender.Blender -b --python $PWD/clay2.py > r2.log 2>&1
+R_OUT=$PWD R_OBJ=$PWD/up.obj R_SCALE=${S:-24} R_PRE=up R_VIEWS="0:5,45:10,100:10,0:30" flatpak run --filesystem=home org.blender.Blender -b --python $PWD/clay2.py > r2.log 2>&1
 ffmpeg -loglevel error -y -i up_0.png -i up_1.png -i up_2.png -i up_3.png -filter_complex "hstack=inputs=4,scale=1800:-1" up_all.png; echo up $(grep -c Saved r2.log)

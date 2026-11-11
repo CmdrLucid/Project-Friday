@@ -37,3 +37,14 @@ aussehen wuerde, so dass es auch fuers Licht stimmt'):
 - Head to the drawn size: `head_h` 8.4, `chin_z` 36.4, more hair volume, shoulders lower (`shoulder_z`, `trap_z`, `sh_z`), short neck.
 - Bolder as drawn: 6 robe folds (`rfolds`, `rturn` 0.52), feathers in two rows, wider (`fan3` 0.3, `rows3`), the dress top closes as a dome.
 - Check: IoU 0.830 (48 px outside, 165 missed: mostly the mirrored wings, the user's choice of 2026-11-10; open question whether to go back to the drawn wings).
+
+v13 (2026-11-11, user: 'die Figur sieht aus, als waere sie nach vorn und zu den Fluegeln hin gedreht; die Fluegel muessen am Ruecken anliegen, parallel
+zum Koerper', 'kein Loch ... eine komplette Form', 'eher verschraenkte Arme, in denen die Schriftrolle liegt'):
+- `face_x` (all part scripts): the FIGURE FACES OUT OF THE WALL (+x), not the camera: the body frame is turned 45 degrees about the body's axis, so the
+  wings (plane x = 371) lie on its back. Evidence in the drawing: both wings span the same heights in the wall plane (the left one is drawn lower only by
+  the isometric view), and the arm ring sits 1 px right of the body's axis (as a front turned to +x gives).
+- `wing.py` `complete` (with `mirror` false): each wing = its OWN drawn pixels (they are not mirror images in the drawing), completed: statue pixels
+  between the two wings in the plane (hidden behind the body, z 57 .. 69.5) are filled = one piece across the back, notches closed; the feather fan
+  starts at each shoulder blade (`wr_a` from the body's axis y = 449.25, `wr_z` 63), reach per side; depth along the plane normal. IoU 0.830 -> 0.898.
+- `sculpt.py` `folded`: arms folded across the chest (hand at the other elbow), sleeves; `scroll.py`: the scroll lies diagonally in them.
+- Open: forearms still lumpy, feathers flat in the game view's light, the face is mostly hidden from the game camera (hair + view from above).

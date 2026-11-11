@@ -30,6 +30,33 @@ def _root(side):
 for sd in (-1, 1):
     ru_, rv_ = _root(sd)
     region |= {p for p in mask if abs(p[0] - ru_) <= g('stem_w', 3) and rv_ <= p[1] <= g('shoulder_v', 66)}
+# v13 (user: the figure faces out of the wall, 'die Fluegel muessen am Ruecken anliegen, parallel zum Koerper', 'kein Loch ... eine komplette Form'): each
+# wing = ITS OWN drawn pixels in the wall plane (no mirroring: the drawing is the reference, also for the light) made COMPLETE: the part the body hides in
+# the picture is filled across the back (statue pixels that lie between the two wings in the plane), small notches closed
+if g('complete', True):
+    YB = AY   # the body's axis in the plane (the figure faces +x, its back on the plane)
+    def _pl(p): return _toplane(*p)
+    Lw = {p for p in wing if _pl(p)[0] > YB}; Rw = {p for p in wing if _pl(p)[0] <= YB}
+    lmin = {}; rmax = {}
+    for p in wing:
+        y, z = _pl(p); k = int(math.floor(z))
+        if y > YB: lmin[k] = min(lmin.get(k, 1e9), y)
+        if y <= YB + 2 and p in wing: pass
+    for p in wing:
+        y, z = _pl(p); k = int(math.floor(z))
+        if y < g('wing_rsplit', 446.0): rmax[k] = max(rmax.get(k, -1e9), y)
+    zlo = g('fill_zlo', 57.0)
+    def _btw(p):
+        y, z = _pl(p); k = int(math.floor(z))
+        if z < zlo or z > g('fill_zhi', 69.5): return False   # the bridge across the back only up to the shoulders (no lump behind the head)
+        lo = max((rmax.get(k + d, -1e9) for d in (-1, 0, 1)), default=-1e9); hi = min((lmin.get(k + d, 1e9) for d in (-1, 0, 1)), default=1e9)
+        return lo > -1e8 and hi < 1e8 and lo - 1.5 <= y <= hi + 1.5
+    fill = {p for p in mask if p not in wing and _btw(p)}
+    region = wing | fill
+    for _ in range(g('close_n', 1)):   # closing: fill notches / single holes (only with statue pixels: the outline never grows past the drawing)
+        grow = {(p[0] + a_, p[1] + b_) for p in region for a_ in (-1, 0, 1) for b_ in (-1, 0, 1)}
+        region |= {p for p in grow if p in mask and sum(((p[0] + a_, p[1] + b_) in region) for a_, b_ in ((1, 0), (-1, 0), (0, 1), (0, -1))) >= 3}
+    print('complete wings: drawn', len(wing), 'filled', len(region) - len(wing))
 S = g('wgrid', 6); SIG = g('wsig', 0.7)
 us = [p[0] for p in region]; vs = [p[1] for p in region]; gu0, gv0 = min(us) - 3, min(vs) - 3; GW, GH = (max(us) - gu0 + 7) * S, (max(vs) - gv0 + 7) * S
 base = [[1.0 if (gu0 + i // S, gv0 + j // S) in region else 0.0 for i in range(GW)] for j in range(GH)]
@@ -60,25 +87,27 @@ RT = {-1: _topix(*PR), 1: _topix(2 * YC - PR[0], PR[1])}
 # rows like a real wing (short COVERTS at the root on top, then SECONDARIES, then the long PRIMARIES to the outline); every feather = a rounded blade
 # lying like a SHINGLE over its neighbour (high edge -> low edge, then a crisp step up), a fine shaft down its middle, a ROUNDED TIP that ends with a
 # step down onto the next row; the rows follow the wing's own reach in every direction (root -> outline), not circles
-A0 = g('wr_a', 3.0); Z0 = g('wr_z', 62.0)   # the fan's root at the SHOULDER (the measured 'root' lies in the middle of the wing: a fan around it read as a shell)
+A0 = g('wr_a', 3.0); Z0 = g('wr_z', 63.0); YM = AY if g('complete', True) else YC   # the fan's root at the SHOULDER BLADE, the same on both sides of the body's axis
 def _ins(y, z):
     U = XW - y + 1184.0; Vv = (XW + y) / 2.0 - z; i = int((U - U0 - gu0) * S); j = int((Vv - V0 - gv0) * S)
     return 0 <= i < GW and 0 <= j < GH and inside[j][i]
-_side = 1 if PR[0] > YC else -1
-def _reach(th):
-    r = 1.0
-    while r < 60 and (_ins(YC + _side * (A0 + r * math.cos(th)), Z0 + r * math.sin(th)) or r < 3.0): r += 0.25
-    return r
-NA = 240; _L = [_reach(-math.pi + 2 * math.pi * k / NA) for k in range(NA)]
-_L = [sum(_L[(k + d) % NA] * w for d, w in ((-3, 1), (-2, 2), (-1, 3), (0, 4), (1, 3), (2, 2), (3, 1))) / 16.0 for k in range(NA)]   # smoothed
-def reach(th): x = (th + math.pi) / (2 * math.pi) * NA; k = int(math.floor(x)); t = x - k; return _L[k % NA] * (1 - t) + _L[(k + 1) % NA] * t
+NA = 240
+def _mk(sd):
+    def _reach(th):
+        r = 1.0
+        while r < 60 and (_ins(YM + sd * (A0 + r * math.cos(th)), Z0 + r * math.sin(th)) or r < 3.0): r += 0.25
+        return r
+    L_ = [_reach(-math.pi + 2 * math.pi * k / NA) for k in range(NA)]
+    return [sum(L_[(k + d) % NA] * w for d, w in ((-3, 1), (-2, 2), (-1, 3), (0, 4), (1, 3), (2, 2), (3, 1))) / 16.0 for k in range(NA)]   # smoothed
+_LS = {1: _mk(1), -1: _mk(-1)}
+def reach(th, sd): x = (th + math.pi) / (2 * math.pi) * NA; k = int(math.floor(x)); t = x - k; L_ = _LS[sd]; return L_[k % NA] * (1 - t) + L_[(k + 1) % NA] * t
 sm_ = lambda x: 0.0 if x <= 0 else 1.0 if x >= 1 else x * x * (3 - 2 * x)
 def blade(x, wu=3.0):   # cross-section of one feather, x 0 .. 1 across it: rounded, tilted like a shingle, a fine shaft
     return 0.55 * math.sqrt(max(0.0, 1.0 - (2 * x - 1) ** 2)) + 0.45 * (1.0 - x) * sm_(x * wu / 1.1) + 0.14 * math.exp(-((x - 0.5) * wu / 0.22) ** 2)   # wu = the feather's width in units: the step and the shaft keep an absolute width (no stairs on the grid)
 ROWS = g('rows3', [0.34, 0.62]); NB = g('fan3', 0.2); TIP = g('tip', 0.09); FH = g('feather_h', 0.55); RS = g('row_step', 0.38)
 def relief(cu, cv):   # in the plane, mirrored about y = YC: the same feathers on both sides
-    y, z = _toplane(cu - 0.5, cv - 0.5); a = abs(y - YC); dx, dy = a - A0, z - Z0; rr = math.hypot(dx, dy); th = math.atan2(dy, dx); L = reach(th); q = rr / L
-    fade = sm_((a - 2.5) / 3.0) * sm_((rr - 2.0) / 4.0)   # the feathers fade in away from the body and the root (no cliff)
+    y, z = _toplane(cu - 0.5, cv - 0.5); a = abs(y - YM); dx, dy = a - A0, z - Z0; rr = math.hypot(dx, dy); th = math.atan2(dy, dx); L = reach(th, 1 if y > YM else -1); q = rr / L
+    fade = sm_((a - 1.0) / 3.0) * sm_((rr - 3.0) / 6.0)   # smooth at the shoulder blade (the converging feathers made a star-shaped pit)   # the feathers fade in away from the body and the root (no cliff)
     h = 0.0; k = 0
     for k in range(len(ROWS) + 1):
         nb = NB; x = (th / nb + 0.5 * k) % 1.0
@@ -106,9 +135,9 @@ def vid(i, j, side):
             if gl < 1e-6: break
             st = max(-0.3, min(0.3, (0.5 - fv) / gl)); cu += st * gx / gl; cv += st * gy / gl
     U = U0 + cu; Vp = V0 + cv; y = XW + 1184.0 - U; z = (XW + y) / 2.0 - Vp
-    _y, _z = _toplane(cu - 0.5, cv - 0.5); _yy = YC - abs(_y - YC); cupt = g('cup', 0.012) * ((_yy - PR[0]) ** 2 + (_z - PR[1]) ** 2) if abs(_y - YC) > 1.0 else 0.0
+    _y, _z = _toplane(cu - 0.5, cv - 0.5); _yy = YC - abs(_y - YC); cupt = g('cup', 0.012) * ((abs(_y - AY) - 3.0) ** 2 + (_z - 63.0) ** 2) if g('complete', True) else (g('cup', 0.012) * ((_yy - PR[0]) ** 2 + (_z - PR[1]) ** 2) if abs(_y - YC) > 1.0 else 0.0)
     T = cupt + off   # along the view ray: the picture point stays; but thickness should be along x (the plane normal): use x for the thickness, ray for the cup
-    if g('mirror', True): p = (XW + g('cupn', 0.004) * (cupt / g('cup', 0.012)) + off, y, z)   # MIRRORED (true 3D symmetry): depth along the plane normal x, a small cup (tips ~2 forward)
+    if g('mirror', True) or g('complete', True): p = (XW + g('cupn', 0.004) * (cupt / g('cup', 0.012)) + off, y, z)   # MIRRORED (true 3D symmetry): depth along the plane normal x, a small cup (tips ~2 forward)
     else: p = (XW + T, y + T, z + T)   # thickness, feather relief and cup all along the view ray: the game picture stays exactly the drawn wing
     idx[k] = len(verts); verts.append(p); return idx[k]
 faces = []
@@ -128,4 +157,4 @@ with open(sys.argv[1], 'w') as fo:
 print('wing', len(verts), 'verts', len(faces), 'faces', 'roots', RT)
 if len(sys.argv) > 2:   # debug: the wing region in plane coordinates (a = distance from the axis, z), one char per unit
     print('root a0 %.1f z0 %.1f' % (A0, Z0))
-    for zz in range(88, 50, -1): print('%3d ' % zz + ''.join('#' if _ins(YC + _side * (aa + 0.5), zz + 0.5) else '.' for aa in range(0, 36)))
+    for zz in range(80, 48, -1): print('%3d ' % zz + ''.join('#' if _ins(YM + aa + 0.5, zz + 0.5) else '.' for aa in range(30, -31, -1)))

@@ -57,6 +57,9 @@ FINAL = with material, approved by the user.
 - v12 (2026-11-11, `sculpt_v12_scroll.png`): compared 1 : 1 with the sprite in the exact game projection (`gv.sh`): head to the drawn size, NO child but
   an upright SCROLL in both hands (user), arms as the drawn ring, bolder folds / feathers. Open: user's look; mirrored wings vs the drawn ones (light).
 
+- v13 (2026-11-11, `sculpt_v13_facing.png`): the figure faces OUT OF THE WALL (+x), wings on its back as drawn (each its own pixels, completed
+  behind the body), folded arms with the scroll lying in them; projection IoU 0.898 (23 px outside, 102 missed). Waiting for the user's look.
+
 ## Chapel angel statue  (`furniture.ANGEL`, `angel(cx, cy, floor)`; ops by `angels()`)
 - Game: chapels, tileset 8, rooms 597 607 736, cell (27, 24) = top block $2EB on the blocked 1-step platform $2EB / $2EC (cells 26..28 x 24), floor 16.
 - Reference: room 597, window U0 1184 V0 304 (96 x 112). NOT the church drawing (17 % equal pixels).
