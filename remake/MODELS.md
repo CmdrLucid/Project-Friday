@@ -191,5 +191,5 @@ FINAL = with material, approved by the user.
 ## Armour on a stand  (`remake/recipes/knight/stand.py`; not in the light yet)
 - Game: castle, tileset 15, top block $0B5 (blocked cells): rooms 63 64 (19, 25 / 28 / 31), 83 84 (15, 21 / 24 / 27), 93 (30, 27).
 - Reference: room 63 cell (19, 28) on floor 32, window U0 1008 V0 280 (72 x 110), layer A component.
-- State: v1 (2026-11-11), IoU 0.896, fitted as drawn (lopsided: big near pauldron, small far one, off the pole's axis). Waiting for the user's look.
+- State: v2 (2026-11-11): symmetric real 3D (user), fauld + hip tassets, stand visible in the game view; IoU 0.789. Waiting for the user's look; then the light.
 

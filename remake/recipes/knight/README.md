@@ -43,3 +43,9 @@ same drawing. The castle's dark armour on a stand (tileset 15, $0B5: 63 64 83 84
 - v1 (2026-11-11): IoU 0.896 (33 outside, 66 missed). As DRAWN the armour sits 1.9 off the pole's axis, the near pauldron is big and high (r 4.0), the
   far one small (r 2.9), the far arm shorter: fitted so; from the front the model is lopsided. Open (user): keep as drawn, or a symmetric remake variant
   + this one for the light (as with the angel's wings). Not in the light yet. Preview `~/.landstalker_remake/assets/armour_stand/stand_v1.png`.
+- v2 (2026-11-11, user: 'richtig in 3D bauen fuers Remake, die kleinere Schulter ergibt sich im echten 3D Modell durch die Perspektive', 'die Platten
+  unten sind noch nicht gut', 'der Staender ist aus der Spielperspektive kaum zu erkennen'): SYMMETRIC and centred on the pole (equal pauldrons r 3.7,
+  equal arms; in the game view the helm hides part of the far pauldron); the fauld = a bell of three stepped lames ending at z 12.8, two pointed TASSETS
+  at the hips (`plate()`, turned 40 degrees outwards) so the front stays open; the stand = a thicker pole with a turned collar and a taller stepped foot,
+  visible between the tassets from the game camera. IoU 0.789 (98 outside, 117 missed: the drawing has the armour ~2 px off the pole and unequal
+  shoulders). Preview `stand_v2.png`. Not in the light yet.
