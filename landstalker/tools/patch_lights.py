@@ -586,6 +586,8 @@ static int lk_am_surf(int U, int V, float *px, float *py, float *pz, int *sun) {
   lk_lt_pos(U, V, b->z[i], px, py); *pz = (float)b->z[i]; *sun = lk_lt_sun ? (lk_dn_mix && b->sungen == lk_dn_gen ? b->sun[i] + (((int)b->sunn[i] - b->sun[i]) * lk_dn_mix >> 8) : b->sun[i]) : 255; return 1; }
 static void lk_am_px(int U, int V, float z, float d, uint32_t rgb, float a, int add) {   /* one particle pixel (the strongest wins); map word: rgb + alpha 0..127 in bits 24..30 + additive flag bit 31 */
   int q = ((V & 511) << 9) | (U & 511), al = (int)(a * 127.0f + 0.5f);
+  if (U < lk_lt_umin - 8 || U > lk_lt_umax + 8 || V < lk_lt_vmin - 8 || V > lk_lt_vmax + 8) return;   /* LK_AMWRAP v1 (2026-11-11, user rec_20261111_2006 room 62: 'die Partikel kommen aus dem Baenkchen'): the map is 512 x 512 and WRAPS;
+     sparks of the gallery brazier at U 1599 (off screen) landed on U 1087 = over the bench.  Only particles on the picture area (448 x 224 + 8) are drawn: no alias possible. */
   if (al <= 0) return; if (al > 127) al = 127;
   if (lk_am_map[q] && (int)((lk_am_map[q] >> 24) & 0x7F) >= al) return;
   if (!lk_am_map[q] && lk_am_dn < LK_AM_N * 10) lk_am_dl[lk_am_dn++] = q;
@@ -624,6 +626,7 @@ static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before th
     if (L->lava ? !(lk_am_bio & 16) || lk_am_rnd() > 0.05f : !(lk_am_bio & 4) || lk_am_rnd() > 0.05f) continue;
     if (!(P = lk_am_new(L->lava ? 4 : 3))) break;
     P->x = L->x + (lk_am_rnd() - 0.5f) * (L->lava ? 40.0f : 4.0f); P->y = L->y + (lk_am_rnd() - 0.5f) * (L->lava ? 40.0f : 4.0f); P->z = L->z - (L->lava ? 8.0f : 2.0f);
+    { static int dbg = -1; if (dbg < 0) dbg = getenv("LANDSTALKER_AM_DBG") != 0; if (dbg) printf("am: frame %%ld spark of light %%d at (%%.0f, %%.0f, %%.0f) U %%d V %%d\n", platform_frame_number(), k, P->x, P->y, P->z, (int)lrintf(P->x - P->y + 1184.0f), (int)lrintf((P->x + P->y) * 0.5f - P->z)); }   /* test aid LANDSTALKER_AM_DBG */
     P->vx = (lk_am_rnd() - 0.5f) * 0.25f; P->vy = (lk_am_rnd() - 0.5f) * 0.25f; P->vz = L->lava ? 0.30f + lk_am_rnd() * 0.30f : 0.55f + lk_am_rnd() * 0.40f; P->life = (int16_t)(L->lava ? 60 + lk_am_rnd() * 50.0f : 22 + lk_am_rnd() * 22.0f); }
   for (j = 0, k = 0; j < lk_am_np; j++) { lk_am_p *P = &lk_am_ps[j]; float t, a;
     if (++P->age >= P->life) continue;
