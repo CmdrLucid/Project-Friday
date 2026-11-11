@@ -1444,12 +1444,18 @@ static void lk_g5_run(const float *lp, const float *lc) {   /* compare (LANDSTAL
    block table + light lists come from the GPU side (lk_gl_blist5).  Stale blocks stay on screen until recomputed (no flicker at a sun step); a new room clears all.
    The CPU light blocks are still computed (fallback, motes / particles depth); LANDSTALKER_GL5_CAP = visible blocks without data per frame (18, was 24) / LANDSTALKER_GL5_CAP2 = look-ahead ring + stale blocks per frame (4); ~0.2..0.4 ms per block on the Deck, LANDSTALKER_GL5_TIME=1 prints the GPU time. ---- */
 static int lk_g5_slow, lk_g5_ron = -1, lk_g5_cap = 18, lk_g5_cap2 = 4,   /* cap 18 (was 24) since 2026-11-07: the side penumbra makes a block ~20 %% dearer, 24 per frame gave extra 20 ms frames after room changes (rec_20261107_2031) */  lk_g5_tdbg, lk_g5_wdirty = 1; static unsigned lk_g5_hk, lk_g5_sk, lk_g5_bk[38][76]; static uint32_t lk_g5_bt[38][76], lk_g5_l0[38][76], lk_g5_l1[38][76];
-static lkGLuint lk_g5_q[2]; static int lk_g5_qst, lk_g5_qi, lk_g5_qp[2], lk_g5_qn, lk_g5_qover; static double lk_g5_qsum;   /* GPU+ watchdog: block pass time per frame (120 frame average > LANDSTALKER_GL5_MAXMS, default 5 ms, twice -> GPU (GL4) for the rest of the run) */
+static lkGLuint lk_g5_q[2]; static int lk_g5_qst, lk_g5_qi, lk_g5_qp[2], lk_g5_qn, lk_g5_qover; static double lk_g5_qsum;
+static int lk_g5_qb[2]; static double lk_g5_bms = -1.0;   /* LK_GL5RING v1 (2026-11-11, user rec_20261111_2006: stutter in Mercator 632): blocks in each timer query, running GPU ms per block.
+   The Deck GPU idles at 200 MHz (measured 88 %% of the time in 632, desktop mode): a look-ahead block then costs ~2.5 ms instead of ~0.4, and 4 ring blocks per frame
+   made 21..29 ms frames while walking.  The ring (not visible yet) now gets as many blocks as fit into LANDSTALKER_GL5_RINGMS (5 ms) at the measured cost (ring now 2 blocks wide, LANDSTALKER_GL5_RING; nearest ring first, the side the camera moves to first), at least 1,
+   at most CAP2, and none in a frame that already computes visible blocks; visible blocks keep their budget (CAP).  LANDSTALKER_GL5_RINGMS=0 = old fixed CAP2. */   /* GPU+ watchdog: block pass time per frame (120 frame average > LANDSTALKER_GL5_MAXMS, default 5 ms, twice -> GPU (GL4) for the rest of the run) */
 static void lk_g5_qpoll(void) { int o; lkGLint av; unsigned long long ns; static double mx = -1.0; if (mx < 0.0) { const char *e = getenv("LANDSTALKER_GL5_MAXMS"); mx = e ? atof(e) : 5.0; }
-  for (o = 0; o < 2; o++) { if (!lk_g5_qp[o]) continue; av = 0; ns = 0; lk_glGetQueryObjectiv(lk_g5_q[o], 0x8867, &av); if (!av) continue; lk_glGetQueryObjectui64v(lk_g5_q[o], 0x8866, &ns); lk_g5_qp[o] = 0; lk_g5_qsum += (double)ns * 1e-6; }
+  for (o = 0; o < 2; o++) { if (!lk_g5_qp[o]) continue; av = 0; ns = 0; lk_glGetQueryObjectiv(lk_g5_q[o], 0x8867, &av); if (!av) continue; lk_glGetQueryObjectui64v(lk_g5_q[o], 0x8866, &ns); lk_g5_qp[o] = 0; lk_g5_qsum += (double)ns * 1e-6;
+    if (lk_g5_qb[o] > 0) { double per = (double)ns * 1e-6 / (double)lk_g5_qb[o]; lk_g5_bms = lk_g5_bms < 0.0 ? per : lk_g5_bms * 0.75 + per * 0.25; } }   /* LK_GL5RING v1 */
   if (++lk_g5_qn < 120) return;
   { double avg = lk_g5_qsum / lk_g5_qn; lk_g5_qsum = 0.0; lk_g5_qn = 0; if (lk_glt_qdbg) printf("gl5: block passes %%.3f ms per frame on the GPU (120 frame average)\n", avg);
     if (mx > 0.0 && avg > mx) { if (++lk_g5_qover >= 2) { lk_g5_slow = 1; printf("gl5: light block pass too slow on this GPU (%%.2f ms > %%.2f ms), the CPU computes the light blocks from now on (GPU light stays)\n", avg, mx); } } else lk_g5_qover = 0; } }
+static int lk_g5_rc = 4, lk_g5_rw = 2; static float lk_g5_mu, lk_g5_mv;   /* LK_GL5RING v1: ring blocks allowed this frame */
 static long lk_g5_tn, lk_g5_tbl, lk_g5_tfr; static unsigned char lk_g5_pn[38][76]; static double lk_g5_tms, lk_g5_tmax;
 extern int lk_gle_get(void);
 static int lk_g5_realon(void) { if (lk_g5_ron < 0) { const char *e = getenv("LANDSTALKER_GL5"), *c = getenv("LANDSTALKER_GL5_CAP"), *t = getenv("LANDSTALKER_GL5_TIME"); lk_g5_ron = e ? atoi(e) : -1; if (c && atoi(c) > 0) lk_g5_cap = atoi(c); { const char *c2 = getenv("LANDSTALKER_GL5_CAP2"); if (c2 && atoi(c2) >= 0) lk_g5_cap2 = atoi(c2); } lk_g5_tdbg = t ? atoi(t) : 0;
@@ -1494,16 +1500,24 @@ static void lk_g5_real(int u0, int u1, int v0, int v1, const float *lp, const fl
   for (L = 0; L < 224; L++) { int U, V; if (lk_gl_rowfr[L] != lk_gl_capfr) continue; U = (int)(int16_t)(lk_gl_row[L] & 0xFFFF); V = (int)(int16_t)(lk_gl_row[L] >> 16);
     if (U < u0) u0 = U; if (U + lk_gl_w - 1 > u1) u1 = U + lk_gl_w - 1; if (V < v0) v0 = V; if (V > v1) v1 = V; }
   if (lk_g5_pbst == 0) lk_g5_pbinit();
+  if (u1 >= u0) { static int pu = 1 << 30, pv; if (pu != (1 << 30) && abs(u0 - pu) < 64 && abs(v0 - pv) < 64) { lk_g5_mu = lk_g5_mu * 0.9f + 0.1f * (float)(u0 - pu); lk_g5_mv = lk_g5_mv * 0.9f + 0.1f * (float)(v0 - pv); } else lk_g5_mu = lk_g5_mv = 0.0f; pu = u0; pv = v0; }   /* LK_GL5RING v1: camera motion (blocks ahead first) */
   lk_g5_pbdrain(); if (lk_g5_pbst > 0) lk_gl5_cpuset();   /* v5 CPU saving: the CPU computes no light blocks while this runs */
   if (u1 < u0) return;
-  bxa = (int)floorf((float)u0 / 32.0f) - 1; bxb = (int)floorf((float)u1 / 32.0f) + 1; bya = (int)floorf((float)v0 / 32.0f) - 1; byb = (int)floorf((float)v1 / 32.0f) + 1;
+  { static int rw = -1; if (rw < 0) { const char *e = getenv("LANDSTALKER_GL5_RING"); rw = e ? atoi(e) : 2; if (rw < 1) rw = 1; if (rw > 4) rw = 4; } lk_g5_rw = rw; }   /* LK_GL5RING v1: look-ahead ring width in blocks (was 1) */
+  bxa = (int)floorf((float)u0 / 32.0f) - lk_g5_rw; bxb = (int)floorf((float)u1 / 32.0f) + lk_g5_rw; bya = (int)floorf((float)v0 / 32.0f) - lk_g5_rw; byb = (int)floorf((float)v1 / 32.0f) + lk_g5_rw;
   if (bxa < 0) bxa = 0; if (bya < 0) bya = 0; if (bxb > 75) bxb = 75; if (byb > 37) byb = 37;
-  { int base = 0; for (pass = 0; pass < 4 && n < 96; pass++) { int cap;   /* 0 visible without data (up to CAP), then visible stale, ring without data, ring stale (together CAP2 more) */
-    if (pass == 2) base = n; cap = pass < 2 ? lk_g5_cap : base + lk_g5_cap2;   /* visible blocks (missing, then stale: a sun step) get the big budget, the ring the small one */
+  { int base = 0; for (pass = 0; pass < 2 + 4 * lk_g5_rw && n < 96; pass++) { int cap;   /* LK_GL5RING v1: ring passes per distance (nearest ring first), the side the camera moves to first */   /* 0 visible without data (up to CAP), then visible stale, ring without data, ring stale (together CAP2 more) */
+    if (pass == 2) { static double rms = -1.0; int rc = lk_g5_cap2; base = n; if (rms < 0.0) { const char *e = getenv("LANDSTALKER_GL5_RINGMS"); rms = e ? atof(e) : 5.0; }   /* LK_GL5RING v1 */
+      if (rms > 0.0) { if (base > 0) rc = 0; else if (lk_g5_bms > 0.0) { int k = (int)(rms / lk_g5_bms); if (k < 1) k = 1; if (k < rc) rc = k; } } lk_g5_rc = rc; }
+    cap = pass < 2 ? lk_g5_cap : base + lk_g5_rc;   /* visible blocks (missing, then stale: a sun step) get the big budget, the ring the small one */
     for (by = bya; by <= byb && n < cap && n < 96; by++) for (bx = bxa; bx <= bxb && n < cap && n < 96; bx++) {
       int vis = bx * 32 + 31 >= u0 && bx * 32 <= u1 && by * 32 + 31 >= v0 && by * 32 <= v1, nod = !lk_g5_bt[by][bx], st = !nod && lk_g5_bk[by][bx] != lk_g5_sk;
       if ((pass < 2) != (vis != 0)) continue;
       if ((pass & 1) ? !st : !nod) continue;
+      if (pass >= 2) { int ex0 = bx * 32 + 31 < u0 ? (u0 - bx * 32) / 32 : bx * 32 > u1 ? (bx * 32 - u1 + 31) / 32 : 0, ey0 = by * 32 + 31 < v0 ? (v0 - by * 32) / 32 : by * 32 > v1 ? (by * 32 - v1 + 31) / 32 : 0, dd = ex0 > ey0 ? ex0 : ey0;   /* LK_GL5RING v1 */
+        if (dd < 1) dd = 1; if (dd != 1 + (pass - 2) / 4) continue;
+        { int ah = (lk_g5_mu > 0.05f && bx * 32 > u1) || (lk_g5_mu < -0.05f && bx * 32 + 31 < u0) || (lk_g5_mv > 0.05f && by * 32 > v1) || (lk_g5_mv < -0.05f && by * 32 + 31 < v0);
+          if (ah != ((((pass - 2) / 2) & 1) == 0)) continue; } }
       if (lk_g5_tdbg > 2 && platform_frame_number() %% 97 == 0) printf("gl5: frame %%ld pick %%d,%%d pass %%d (u %%d..%%d v %%d..%%d) bt %%08X bk %%08X sk %%08X\n", platform_frame_number(), bx, by, pass, u0, u1, v0, v1, lk_g5_bt[by][bx], lk_g5_bk[by][bx], lk_g5_sk);
       if (lk_g5_tdbg > 2 && nod && lk_g5_pn[by][bx]) printf("gl5: REPICK frame %%ld block %%d,%%d picked %%d times bt %%08X\n", platform_frame_number(), bx, by, lk_g5_pn[by][bx], lk_g5_bt[by][bx]);
       if (lk_g5_pn[by][bx] < 255) lk_g5_pn[by][bx]++;
@@ -1514,7 +1528,7 @@ static void lk_g5_real(int u0, int u1, int v0, int v1, const float *lp, const fl
   if (lk_g5_tdbg && lk_glFinish) { lk_glFinish(); t0 = SDL_GetPerformanceCounter(); }
   if (!lk_g5_bind(lp, lc, lk_g5_wdirty)) return;
   if (lk_g5_qst == 0) { if (lk_glt_qst == 0) lk_glt_qinit(); if (lk_glt_qst > 0) { lk_glGenQueries(2, lk_g5_q); lk_g5_qst = 1; } else lk_g5_qst = -1; }
-  if (lk_g5_qst > 0 && !lk_g5_qp[lk_g5_qi]) lk_glBeginQuery(0x88BF, lk_g5_q[lk_g5_qi]); else if (lk_g5_qst > 0) lk_g5_qst = 2;   /* 2: slot busy, no query this frame */
+  if (lk_g5_qst > 0 && !lk_g5_qp[lk_g5_qi]) { lk_glBeginQuery(0x88BF, lk_g5_q[lk_g5_qi]); lk_g5_qb[lk_g5_qi] = n; } else if (lk_g5_qst > 0) lk_g5_qst = 2;   /* 2: slot busy, no query this frame */
   lk_g5_wdirty = 0;
   for (j = 0; j < n; j++) { uint32_t a, b2; int nl; bx = lx[j]; by = ly[j]; lk_gl_blist5(bx, by, &a, &b2, &nl);
     lk_g5_l0[by][bx] = a; lk_g5_l1[by][bx] = b2; lk_g5_bt[by][bx] = 0xFFu | (lk_g5_sc[17] > 0.5f ? 0xFF00u : 0u) | ((uint32_t)nl << 16);
