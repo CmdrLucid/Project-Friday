@@ -139,13 +139,36 @@ HCU = (-0.5, 0.5)
 visor(HCU, 4.85, 5.2, HZ + 0.5, HZ + 5.4, g('visor_depth', 2.4))
 for sg in (-1, 1): ellipsoid(T((HCU[0] + sg * 5.15, HCU[1] + 0.9, HZ + 3.0)), (0.45, 0.85, 0.85), nu=12, nv=8, rot=-TW)   # the visor's pivots at the temples
 capsule(T((HCU[0], HCU[1] + 3.6, HZ + 7.3)), T((HCU[0], HCU[1] - 3.8, HZ + 7.5)), 0.55, 0.5, nu=8, cap=3)                # a low comb over the skull
-# the crest: ONE plume from the top of the helm falling over to the figure's left and back (the drawn yellow band lies level over the helm's top, to the
-# picture's right, its end a little lower)
-PATH = g('plume', [(-0.5, 0.6, HZ + 8.6), (0.6, -0.4, HZ + 9.9), (2.4, -1.7, HZ + 9.8), (3.6, -2.6, HZ + 8.9), (4.4, -3.1, HZ + 7.6)]); NP = 14
-PP = []
-for k in range(NP):
-    a = k / (NP - 1.0) * (len(PATH) - 1); i = min(int(a), len(PATH) - 2); u = a - i; PP.append(T(tuple(PATH[i][j] + (PATH[i + 1][j] - PATH[i][j]) * u for j in range(3))))
-for k in range(NP - 1): capsule(PP[k], PP[k + 1], 1.2 - 0.45 * k / NP, 1.2 - 0.45 * (k + 1) / NP, nu=12, cap=3)   # one smooth plume (a chain of balls looked like a caterpillar)
+# v6 (user: 'oben am Helm sind es Federn ... sieht im Sprite wie 2 Stueck aus'): TWO FEATHERS as drawn: a short upright one at the front of the top and a
+# long one sweeping over to the figure's left / back with a drooping tip. A feather = a thin curved blade (quill at the base, the vane widest before the
+# middle, a pointed tip, a raised shaft down its middle, a little cupped), its flat side turned to the game camera (the drawing shows their full width)
+def feather(path, wmax, n=26, m=9, thick=0.16):
+    pts = [T(p) for p in path]                                         # in the placed body frame (= world offsets at yaw 0)
+    def at(a):                                                         # Catmull-Rom through the path points
+        x = a * (len(pts) - 1); i = min(int(x), len(pts) - 2); u = x - i
+        p0, p1, p2, p3 = pts[max(0, i - 1)], pts[i], pts[i + 1], pts[min(len(pts) - 1, i + 2)]
+        return tuple(0.5 * (2 * p1[k] + (-p0[k] + p2[k]) * u + (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * u * u + (-p0[k] + 3 * p1[k] - 3 * p2[k] + p3[k]) * u ** 3) for k in range(3))
+    view = (0.577, 0.577, 0.577); vs, fs = [], []
+    for j in range(n + 1):
+        a = j / n; p = at(a); q = at(min(1.0, a + 0.02)); o = at(max(0.0, a - 0.02)); t = tuple(q[k] - o[k] for k in range(3)); l = math.sqrt(sum(x * x for x in t)); t = tuple(x / l for x in t)
+        wd = (t[1] * view[2] - t[2] * view[1], t[2] * view[0] - t[0] * view[2], t[0] * view[1] - t[1] * view[0]); l = math.sqrt(sum(x * x for x in wd)); wd = tuple(x / l for x in wd)
+        nr = (wd[1] * t[2] - wd[2] * t[1], wd[2] * t[0] - wd[0] * t[2], wd[0] * t[1] - wd[1] * t[0])   # towards the camera
+        w = 0.22 + (wmax - 0.22) * (max(0.0, math.sin(math.pi * min(1.0, max(0.0, (a - 0.08) / 0.92)) ** 0.75)) ** 0.8)   # a bare quill, then the vane
+        if a > 0.97: w *= (1.0 - a) / 0.03 * 0.8 + 0.2
+        for side in (1, -1):
+            for i in range(m + 1):
+                u = -1.0 + 2.0 * i / m; h = thick * (1 - u * u) + (0.2 * math.exp(-(u / 0.16) ** 2) if side > 0 else 0.0) + 0.0; cup = -0.22 * u * u * w / wmax
+                vs.append(tuple(p[k] + wd[k] * u * w / 2 + nr[k] * (side * h + cup) for k in range(3)))
+    R = 2 * (m + 1)
+    for j in range(n):
+        for i in range(m):
+            a_ = j * R + i; fs.append((a_, a_ + 1, a_ + R + 1, a_ + R)); b_ = j * R + (m + 1) + i; fs.append((b_, b_ + R, b_ + R + 1, b_ + 1))
+    for i in range(m): fs.append((i, (m + 1) + i, (m + 1) + i + 1, i + 1)); e = n * R; fs.append((e + i, e + i + 1, e + (m + 1) + i + 1, e + (m + 1) + i))
+    V.extend(vs); F.extend([tuple(x + len(V) - len(vs) for x in f) for f in fs])   # already placed: bypass T again (see RAW below)
+    RAW.update(range(len(V) - len(vs), len(V)))
+RAW = set()
+feather(g('feather1', [(-0.6, 1.0, HZ + 8.2), (-0.8, 1.2, HZ + 9.4), (-0.9, 1.3, HZ + 10.5), (-0.7, 1.2, HZ + 11.4)]), 1.8, n=16)
+feather(g('feather2', [(0.2, 0.2, HZ + 8.3), (0.9, -0.5, HZ + 9.4), (2.3, -1.5, HZ + 9.8), (3.7, -2.4, HZ + 9.1), (4.6, -3.0, HZ + 7.7)]), 2.5, n=30)
 for sg, sx in ((-1, -6.4), (1, 6.9)):                                                                                                                       # pauldrons: a cap + two lames down the arm
     ellipsoid(T((sx, 0.1, 26.6 if sg < 0 else 27.3)), (3.2 if sg < 0 else 3.5, 3.4, 2.5 if sg < 0 else 2.9), rot=-TW)
     ellipsoid(T((sx + sg * 0.7, 0.1, 25.0)), (2.75, 2.9, 1.5), rot=-TW); ellipsoid(T((sx + sg * 1.0, 0.1, 23.8)), (2.45, 2.6, 1.3), rot=-TW)
