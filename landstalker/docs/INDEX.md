@@ -7,6 +7,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
+- **2026-11-11 END OF SESSION (dev, Fable 5.2):** church angel sculpt finished + in the light, chapel angel mirrored, armour knights (14) and armour stands (12, two variants) as light shapes; all headless-checked, nothing played. Survey of what is left: HANDOFF NEXT -171. HANDOFF 0a392.
 - **2026-11-11 night (dev, Fable 5.2): ARMOUR STANDS as light shapes (12 in castle rooms 63 64 83 84; remake/recipes/knight/stand.py v3, symmetric, IoU 0.780)**; checked headless in 63 / 83, not played. HANDOFF 0a390, NEXT -170.
 - **2026-11-11 night (dev, Fable 5.2): ARMOUR KNIGHT v7 finished for now** (visor helm, two barbed feathers; user 'dann done'), proxies + build current, 695 checked headless, not played. HANDOFF 0a389, NEXT -169.
 - **2026-11-11 evening (dev, Fable 5.2): ARMOUR KNIGHTS as light shapes (14 in 678 679 695 696 697 719 720; remake/recipes/knight parts model v3, IoU 0.817)**; checked headless in 695, not played. HANDOFF 0a388, NEXT -168 (user look; castle armour stand).
