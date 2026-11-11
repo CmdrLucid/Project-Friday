@@ -1987,7 +1987,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "angel statue on its platform (collision = the platform only): body lathe + wing plate of remake/lib/furniture.py ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "angel statue on its platform (collision = the platform only): the CHURCH angel's sculpt light variant MIRRORED at the diagonal (user 2026-11-11: the same statue, 'nur unseren vorhandenen fuers Licht dort hinstellen'; it faces +y out of the back wall, the wings on its back, the right wing cut at the wall block x = 464) ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "mesh",
@@ -2142,7 +2142,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "angel statue on its platform (collision = the platform only): body lathe + wing plate of remake/lib/furniture.py ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "angel statue on its platform (collision = the platform only): the CHURCH angel's sculpt light variant MIRRORED at the diagonal (user 2026-11-11: the same statue, 'nur unseren vorhandenen fuers Licht dort hinstellen'; it faces +y out of the back wall, the wings on its back, the right wing cut at the wall block x = 464) ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "mesh",
@@ -3635,7 +3635,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "angel statue on its platform (collision = the platform only): body lathe + wing plate of remake/lib/furniture.py ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
+        "why": "angel statue on its platform (collision = the platform only): the CHURCH angel's sculpt light variant MIRRORED at the diagonal (user 2026-11-11: the same statue, 'nur unseren vorhandenen fuers Licht dort hinstellen'; it faces +y out of the back wall, the wings on its back, the right wing cut at the wall block x = 464) ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'"
       },
       {
         "op": "mesh",

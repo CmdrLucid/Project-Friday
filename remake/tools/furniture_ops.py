@@ -194,6 +194,19 @@ def church_angels(rom, room):
     same = sum(1 for v in range(320, 400) for u in range(1064, 1150) if ref[3][v][u * 3:u * 3 + 3] == pic[3][v][u * 3:u * 3 + 3])
     return [dict(cell=(22, 27), floor=2)] if same >= 0.95 * 80 * 86 else []
 
+def chapel_angel_obj(src, x, y, floor, room):
+    """the chapel statue = the church angel's light sculpt (remake/recipes/church_angel_sculpt/light.obj, axis 375.75 / 449.25, on z 32) MIRRORED at the diagonal
+    (x <-> y: the picture mirrored left / right, as the chapel drawing shows it: the raised wing at the upper left), its axis 5 / 4 units in front of the centre
+    of cell (x, y) (matched against the 597 picture: axis U 1233), on `floor`; nothing may enter the wall block right of the platform (x >= 16 * (x + 2)):
+    the right wing is cut there (in the drawing the wall's front face hides it from there on)"""
+    AX, AY = furniture.CHURCH_ANGEL4["axis"]; CX, CY = 16 * x + 8 + 5.0, 16 * y + 8 + 4.0; XMAX = 16 * (x + 2) - 0.5; XMIN = 16 * (x - 1) + 0.5; YMIN = 16 * y + 0.5
+    out = ["# light proxy: chapel angel statue, room %d = the church angel sculpt (light variant) mirrored at the diagonal (remake/tools/furniture_ops.py chapel_angel_obj). GAME coordinates x east, y south, z up, world units.\n" % room]
+    for l in open(src):
+        if l.startswith("v "):
+            vx, vy, vz = map(float, l.split()[1:4]); out.append("v %.3f %.3f %.3f\n" % (max(XMIN, min(XMAX, CX + (vy - AY))), max(YMIN, CY + (vx - AX)), vz - 32.0 + floor))
+        elif l.startswith("f "): out.append("f " + " ".join(reversed(l.split()[1:])) + "\n")
+    return "".join(out)
+
 def lathe_obj(meshes, title):
     """[(vertices, faces), ..] -> OBJ text"""
     s = "# light proxy: %s (remake/tools/furniture_ops.py, remake/lib/furniture.py). GAME coordinates x east, y south, z up, world units.\n" % title
@@ -256,9 +269,10 @@ def main():
             ops0 = [e for e in data["rooms"].get(str(r), []) if not (e.get("op") == "mesh" and e.get("file", "").startswith("proxies/angel_"))]
             for k, t in enumerate(ang):
                 (x, y) = t["cell"]; fn = "angel_%d.obj" % r if k == 0 else "angel_%d_%d.obj" % (r, k)
-                open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(lathe_obj(furniture.angel(x, y, 16 * t["floor"]), "angel statue, room %d" % r))
+                SC = os.path.join(ROOT, "remake", "recipes", "church_angel_sculpt", "light.obj"); sc = os.path.exists(SC) and "--angel-v5" not in sys.argv
+                open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(chapel_angel_obj(SC, x, y, 16 * t["floor"], r) if sc else lathe_obj(furniture.angel(x, y, 16 * t["floor"]), "angel statue, room %d" % r))
                 ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
-                    ("why", "angel statue on its platform (collision = the platform only): body lathe + wing plate of remake/lib/furniture.py ANGEL ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'")]))
+                    ("why", ("angel statue on its platform (collision = the platform only): the CHURCH angel's sculpt light variant MIRRORED at the diagonal (user 2026-11-11: the same statue, 'nur unseren vorhandenen fuers Licht dort hinstellen'; it faces +y out of the back wall, the wings on its back, the right wing cut at the wall block x = 464)" if sc else "angel statue on its platform (collision = the platform only): body lathe + wing plate of remake/lib/furniture.py ANGEL") + " ('air': the wings float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-10 'baenke statue und pult'")]))
             data["rooms"][str(r)] = ops0; n += 1
         cang = church_angels(rom, r)
         for t in cang: print("room %d: church angel statue + pedestal 23 x 27..28 + niche 23 x 26..29 OK" % r)

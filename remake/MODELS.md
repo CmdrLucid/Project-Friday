@@ -74,7 +74,9 @@ FINAL = with material, approved by the user.
 - Game: chapels, tileset 8, rooms 597 607 736, cell (27, 24) = top block $2EB on the blocked 1-step platform $2EB / $2EC (cells 26..28 x 24), floor 16.
 - Reference: room 597, window U0 1184 V0 304 (96 x 112). NOT the church drawing (17 % equal pixels).
 - Fit: old method (body lathe with a don't-care wing zone + wing pixel rows in a plate, BACK 6), IoU 0.921, probably includes the painted shadow.
-- State: LIGHT, OUTDATED. TODO: redo like the church angel (colour mask, ring stack, wings parallel to the wall behind), then near-final.
+- State: LIGHT since 2026-11-11 = the CHURCH angel's sculpt light variant mirrored at the diagonal (user: the same statue, 'nur unseren vorhandenen fuers
+  Licht dort hinstellen'; `furniture_ops.chapel_angel_obj`: axis 5 / 4 in front of the cell centre, matched on the 597 picture; the right wing cut at the wall
+  block x = 464). Body + raised wing fit the drawing in the overlay; built, NOT checkable by warp, not played. The old ANGEL lathe: `--angel-v5`.
 - Note: chapels cannot be reached with LANDSTALKER_WARP from the test save (black picture) - check in play.
 
 ## Church altar  (`furniture.ALTAR`, near-final `plated_mesh(cx, cy, floor, ALTAR)`; ops by `altars()`)
@@ -178,3 +180,10 @@ FINAL = with material, approved by the user.
   the drawn feet). IoU 0.915 (old boxes 0.883; 24 px outside at the feet; most misses = the dais step below). Clay preview
   `~/.landstalker_remake/assets/castle_table/clay_all.png`. Material later (gold rim + bands, dark red inlay, olive legs).
 - All pieces on legs: the painted shadows under them are replaced at runtime (LK_GLUNPAINT, `furniture_ops.UNPAINT_TILES`, tileset 2 only).
+
+## Armour knight  (`remake/recipes/knight/knight.py`; not in the light yet)
+- Game: Mercator houses, tileset 2, top blocks $19C / $2D7: rooms 678 679 (cells 30 / 33, 26), 695 696 697 719 720 (34, 23 and 23, 23); all one drawing.
+- Reference: room 678 cell (30, 26), window U0 1216 V0 392 (64 x 80); own pixels by colour from layer A (painted shadow under the feet left out).
+- State: BLOCKOUT v1 (2026-11-11), IoU 0.824, parts model in pure Python. Waiting for the user's look. TODO: details, then light proxy via furniture_ops.
+- The castle's dark armour on a stand (tileset 15, $0B5: 63 64 83 84 93) is a different object: TODO after this one.
+
