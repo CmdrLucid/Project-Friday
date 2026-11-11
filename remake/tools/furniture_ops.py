@@ -202,6 +202,27 @@ def knight_obj(x, y, floor, room, west=False, east=False):
     t = open(ob).read().split("\n", 1)
     return "# light proxy: armour knight, room %d cell %d, %d (remake/recipes/knight/knight.py, placed by remake/tools/furniture_ops.py). GAME coordinates x east, y south, z up, world units.\n" % (room, x, y) + t[1]
 
+def armour_stands(rom, room):
+    """the armour on a stand of the castle (tileset 15): a BLOCKED cell with the top block $0B5 whose collision column is 2 steps high (63 64: cells 19, 25 /
+    28 / 31 on floor 2; 83 84: 15, 21 / 24 / 27 on floor 1; all the same drawing, checked against 63 cell 19, 28). Room 93 (cell 30, 27, height 0 in a
+    void height map) is left out. The model's shoulders reach into the cells north / south: where one of them is a wall, the model slides out of it"""
+    if blockcat.tileset(rom, room) != 15: return []
+    hm = blockcat.arrays(rom, room)["HM"]; free = lambda x, y: hm.get((x - 12, y - 12), 0x4000) & 0x4000 == 0
+    return [dict(cell=(x, y), floor=v[0] - 2, west=not free(x - 1, y), north=not free(x, y - 1), south=not free(x, y + 1)) for (x, y), v in sorted(blockcat.cells(rom, room).items())
+            if v[2] == 0x0B5 and v[1] and v[0] >= 2]
+
+def stand_obj(x, y, floor, room, west=False, north=False, south=False):
+    """the stand's parts model (remake/recipes/knight/stand.py, pure Python) at cell (x, y) on `floor` (units) -> OBJ text"""
+    import subprocess, tempfile
+    d = tempfile.mkdtemp(); pj = os.path.join(d, "p.json"); ob = os.path.join(d, "s.obj"); P = dict(cx=16 * x + 8.0, cy=16 * y + 8.0, floor=float(floor))
+    if west: P["xmin"] = 16 * x + 0.5
+    if north: P["ymin"] = 16 * y + 0.5
+    if south: P["ymax"] = 16 * y + 15.5
+    json.dump(P, open(pj, "w"))
+    subprocess.run([sys.executable, os.path.join(ROOT, "remake", "recipes", "knight", "stand.py"), ob, pj], check=True, stdout=subprocess.DEVNULL)
+    t = open(ob).read().split("\n", 1)
+    return "# light proxy: armour on a stand, room %d cell %d, %d (remake/recipes/knight/stand.py, placed by remake/tools/furniture_ops.py). GAME coordinates x east, y south, z up, world units.\n" % (room, x, y) + t[1]
+
 def church_angels(rom, room):
     """the church angel statue in its wall niche (tileset 3): the picture of the statue + pedestal window equal to the one of 613 (>= 95 %% of the pixels;
     613 614 699 700 721 are pixel-identical there) and the pedestal cells 23 x 27..28 + niche 23 x 26..29 void in the height map -> the pedestal (op "ground", height 32)
@@ -238,7 +259,7 @@ def lathe_obj(meshes, title):
 def main():
     a = [s for s in sys.argv[1:] if not s.startswith("--")]
     rom = open(a[0], "rb").read(); write = "--write" in sys.argv; ROMPATH[0] = a[0]
-    rooms = [int(r) for r in sys.argv[sys.argv.index("--rooms") + 1].split(",")] if "--rooms" in sys.argv else [r for r in range(816) if blockcat.tileset(rom, r) in {T["ts"] for T in TYPES} | {1, 2, 3, 8} | {K["ts"] for K in ROUND.values()}]   # + the round shapes' tilesets (braziers 1, vases 2, ROUND)
+    rooms = [int(r) for r in sys.argv[sys.argv.index("--rooms") + 1].split(",")] if "--rooms" in sys.argv else [r for r in range(816) if blockcat.tileset(rom, r) in {T["ts"] for T in TYPES} | {1, 2, 3, 8, 15} | {K["ts"] for K in ROUND.values()}]   # + the round shapes' tilesets (braziers 1, vases 2, ROUND)
     jp = os.path.join(ROOT, "landstalker", "data", "light_proxies.json"); data = json.load(open(jp), object_pairs_hook=collections.OrderedDict)
     n = 0
     for r in rooms:
@@ -302,6 +323,16 @@ def main():
                 open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(knight_obj(x, y, 16 * t["floor"], r, t["west"], t["east"]))
                 ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
                     ("why", "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'")]))
+            data["rooms"][str(r)] = ops0; n += 1
+        sd = armour_stands(rom, r)
+        for t in sd: print("room %d: armour stand cell %d,%d floor %d OK" % (r, t["cell"][0], t["cell"][1], t["floor"]))
+        if write and sd:
+            ops0 = [e for e in data["rooms"].get(str(r), []) if not (e.get("op") == "mesh" and e.get("file", "").startswith("proxies/stand_"))]
+            for k, t in enumerate(sd):   # one op per object (own object rule)
+                (x, y) = t["cell"]; fn = "stand_%d.obj" % r if k == 0 else "stand_%d_%d.obj" % (r, k)
+                open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(stand_obj(x, y, 16 * t["floor"], r, t["west"], t["north"], t["south"]))
+                ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
+                    ("why", "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'")]))
             data["rooms"][str(r)] = ops0; n += 1
         cang = church_angels(rom, r)
         for t in cang: print("room %d: church angel statue + pedestal 23 x 27..28 + niche 23 x 26..29 OK" % r)

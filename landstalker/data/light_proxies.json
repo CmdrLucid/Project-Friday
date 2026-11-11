@@ -733,6 +733,94 @@
         "why": "brazier stand (collision = a 64 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
       }
     ],
+    "63": [
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          25,
+          19,
+          25
+        ],
+        "file": "proxies/stand_63.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          28,
+          19,
+          28
+        ],
+        "file": "proxies/stand_63_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          31,
+          19,
+          31
+        ],
+        "file": "proxies/stand_63_2.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      }
+    ],
+    "64": [
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          25,
+          19,
+          25
+        ],
+        "file": "proxies/stand_64.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          28,
+          19,
+          28
+        ],
+        "file": "proxies/stand_64_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          31,
+          19,
+          31
+        ],
+        "file": "proxies/stand_64_2.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      }
+    ],
     "65": [
       {
         "op": "mesh",
@@ -1046,6 +1134,94 @@
         "surface": true,
         "floor": 0,
         "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "83": [
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          21,
+          15,
+          21
+        ],
+        "file": "proxies/stand_83.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          24,
+          15,
+          24
+        ],
+        "file": "proxies/stand_83_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          27,
+          15,
+          27
+        ],
+        "file": "proxies/stand_83_2.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      }
+    ],
+    "84": [
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          21,
+          15,
+          21
+        ],
+        "file": "proxies/stand_84.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          24,
+          15,
+          24
+        ],
+        "file": "proxies/stand_84_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          27,
+          15,
+          27
+        ],
+        "file": "proxies/stand_84_2.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
       }
     ],
     "86": [

@@ -49,3 +49,8 @@ same drawing. The castle's dark armour on a stand (tileset 15, $0B5: 63 64 83 84
   at the hips (`plate()`, turned 40 degrees outwards) so the front stays open; the stand = a thicker pole with a turned collar and a taller stepped foot,
   visible between the tassets from the game camera. IoU 0.789 (98 outside, 117 missed: the drawing has the armour ~2 px off the pole and unequal
   shoulders). Preview `stand_v2.png`. Not in the light yet.
+- v3 (2026-11-11, user: 'Schultern sitzen zu hoch fuers 3D Remake Modell, sonst passts, oder Kopf zu niedrig'): pauldrons at z 26.9 (was 29.8), the helm
+  0.9 higher on a taller collar. IoU 0.780. IN THE LIGHT: `furniture_ops.py` armour_stands() / stand_obj() -> `data/proxies/stand_ROOM[_k].obj`, 12 stands
+  in 63 64 83 84 (all pixel-identical to 63 cell 19, 28; walls west / north / south -> xmin / ymin / ymax, parts slide along the view ray; room 93 left
+  out: height 0 in a void height map). Built; headless before / after: 63 (`63:26.08,26.08,0020`) edge pixels 3921 -> 4056, 83 (`83:21.08,22.08,0010`)
+  608 -> 1000 (shading on the armours, they are darker than the lit block before; no boxes / cut walls seen). Not played.

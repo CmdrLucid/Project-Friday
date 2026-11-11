@@ -188,8 +188,9 @@ FINAL = with material, approved by the user.
   barbed feathers from one holder; IoU 0.823, ~16000 faces; 14 knights in 7 rooms through `furniture_ops.knights()`; checked headless in 695, not played.
 - The castle's dark armour on a stand: next section.
 
-## Armour on a stand  (`remake/recipes/knight/stand.py`; not in the light yet)
+## Armour on a stand  (`remake/recipes/knight/stand.py`)
 - Game: castle, tileset 15, top block $0B5 (blocked cells): rooms 63 64 (19, 25 / 28 / 31), 83 84 (15, 21 / 24 / 27), 93 (30, 27).
 - Reference: room 63 cell (19, 28) on floor 32, window U0 1008 V0 280 (72 x 110), layer A component.
-- State: v2 (2026-11-11): symmetric real 3D (user), fauld + hip tassets, stand visible in the game view; IoU 0.789. Waiting for the user's look; then the light.
+- State: LIGHT + remake model v3 (2026-11-11, user 'sonst passts'): symmetric real 3D, shoulders lowered, fauld + hip tassets, stand visible in the game
+  view; IoU 0.780; 12 stands in 63 64 83 84 through `furniture_ops.armour_stands()` (93 left out); checked headless in 63 / 83, not played.
 
