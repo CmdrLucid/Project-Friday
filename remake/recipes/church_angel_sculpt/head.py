@@ -15,7 +15,7 @@ def lin(tab, x):   # Catmull-Rom through the profile knots (smooth, no terraces)
     i = max(k for k in range(len(xs) - 1) if xs[k] <= x); t = (x - xs[i]) / (xs[i + 1] - xs[i])
     p0 = ys[max(0, i - 1)]; p1 = ys[i]; p2 = ys[i + 1]; p3 = ys[min(len(ys) - 1, i + 2)]
     return 0.5 * (2 * p1 + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (-p0 + 3 * p1 - 3 * p2 + p3) * t ** 3)
-YF = g('prof_front', [(0.0, 0.0), (0.015, 0.14), (0.04, 0.24), (0.08, 0.29), (0.14, 0.30), (0.18, 0.35), (0.22, 0.36), (0.27, 0.345), (0.36, 0.345), (0.47, 0.345),
+YF = g('prof_front', [(0.0, 0.0), (0.015, 0.13), (0.04, 0.225), (0.08, 0.272), (0.14, 0.298), (0.2, 0.318), (0.27, 0.334), (0.36, 0.343), (0.47, 0.345),
                       (0.55, 0.37), (0.62, 0.38), (0.72, 0.36), (0.82, 0.30), (0.92, 0.2), (0.97, 0.12), (0.995, 0.04), (1.0, 0.0)])
 YB = g('prof_back', [(0.0, 0.0), (0.06, -0.10), (0.18, -0.20), (0.3, -0.30), (0.42, -0.42), (0.55, -0.48), (0.7, -0.49), (0.85, -0.40), (0.95, -0.24), (0.985, -0.12), (1.0, 0.0)])
 WW = g('prof_width', [(0.0, 0.0), (0.02, 0.07), (0.05, 0.115), (0.12, 0.16), (0.22, 0.215), (0.34, 0.275), (0.48, 0.325), (0.62, 0.335), (0.78, 0.31), (0.9, 0.24), (0.97, 0.14), (0.995, 0.05), (1.0, 0.0)])
@@ -79,10 +79,13 @@ pushy((0.0, 0.29), 0.022, 0.03 * S, aniso=(1.15, 0.85))                         
 for sg in (-1, 1): pushy((sg * 0.03, 0.276), 0.016, 0.016 * S)                        # nostril wings
 pushy((0.0, 0.257), 0.012, -0.008 * S, aniso=(1.6, 1))                                # under the nose
 pushy((0.0, 0.235), 0.01, -0.004 * S, aniso=(0.8, 1.6))                               # philtrum
-for sg in (-1, 1): pushy((sg * 0.02, 0.212), 0.018, 0.012 * S, aniso=(1.3, 0.6))      # upper lip, cupid's bow
-pushy((0.0, 0.198), 0.055, -0.006 * S, aniso=(1.0, 0.08))                             # the mouth line
-for sg in (-1, 1): pushy((sg * 0.055, 0.198), 0.008, -0.008 * S)                      # mouth corners
-pushy((0.0, 0.178), 0.024, 0.016 * S, aniso=(1.5, 0.65))                              # full lower lip
+# v11 (user: 'neben dem Mund komisch geformt'): the base front profile no longer carries the lips (that made a shelf across the WHOLE face width at
+# mouth height = a muzzle); the mouth sits on a soft LOCAL mound (the dental arch, about as wide as the mouth) that fades into the cheeks
+pushy((0.0, g('mound_z', 0.2)), g('mound_r', 0.075), g('mound_h', 0.026) * S, aniso=(1.1, 0.7))
+for sg in (-1, 1): pushy((sg * 0.026, 0.212), 0.019, 0.011 * S, aniso=(1.6, 0.55))      # upper lip, cupid's bow
+pushy((0.0, 0.198), 0.068, -0.006 * S, aniso=(1.0, 0.065))                             # the mouth line
+for sg in (-1, 1): pushy((sg * 0.068, 0.198), 0.013, -0.005 * S)                      # mouth corners (soft)
+pushy((0.0, 0.18), 0.024, 0.012 * S, aniso=(2.1, 0.55))                              # full lower lip
 pushy((0.0, 0.14), 0.02, -0.008 * S, aniso=(2.0, 0.7))                                # the dip under the lower lip
 pushy((0.0, 0.085), 0.055, g('chin_h', 0.006) * S, aniso=(1.3, 1.0))                  # soft round chin
 # place: head frame -> local statue frame (s, f, z) -> world (as sculpt.py W)
