@@ -1793,3 +1793,10 @@ Plan LIGHT_PROXY_PLAN 'WHOLE ROOMS AS 3D MODELS'; HANDOFF 0a342 .. 0a352; dev 11
 - WHOLE-ROOM SCAN (0a397): lightedges 122 rooms x 13 h / 22 h x models on / LT_MODEL=0 (12 min): deltas ~0 except 86 +64, 721 +26, 613 +23, 700 +22. TRAP: LT_MODEL=0 keeps the fine field of the ops (not 'no shape').
 - USER RECORDING rec_20261111_2006 (replays exact): backlog HANDOFF NEXT -175 (54 figure light, 62 stairs box + flame particles, 632 stutter, piano 85, 58 wall patch, 33 trees without shadows).
 - Builds: verify_build 118 ok (LK_SHWARM v1, LK_SWSHFINE v1).
+
+## Session 2026-11-11 late: room 54 'Nigel wirft Licht' = holes in hidden figures' shadows (Deck, Opus 5.5, no agents)
+- User (rec_20261111_2006, throne room 54, frames 2760..3600): left of the soldier / Arthur it gets LIGHTER when Nigel walks past on their right.
+- Method: `tools/lightshots.sh` bursts every 6 frames 2840..3320 with Lighting On / Off; a map of 'On brighter / darker than Off' and side-by-side crops. The figure shadows (blue in the map) lost a Nigel-shaped part whenever Nigel stood in front of a figure.
+- Cause: `lk_lt_shadowed` / `lk_lt_figdir` (and GLSL shadowed / figBlock / figSun / the sun figure test) hit a figure's silhouette only where `lk_lt_spre` (tag of the TOP sprite pixel) equals the figure's tag; covered pixels belong to the front figure.
+- Fix LK_LTHIDE v1 (`patch_lights.py`, `patch_gpulight.py`, `patch_gpucomp.py`): `lk_lt_spre2` = first hidden figure's tag per pixel (written where a sprite pixel is skipped because one is already there, cleared with lk_o_spr per frame); tests accept both tags. GPU class texture RGBA (class, class, hidden tag, tag); gpucomp's spe texture LA (tag, hidden tag). Switch `LANDSTALKER_LT_HIDE=0`.
+- Checks: Lighting Off 81 / 81 frames bit exact; HIDE=0 vs the old build differs only in the HUD hearts / a few sparkles, which also differ between two runs of the same build (real-time noise); On: shadows whole (36 frames changed, all at overlapping figures).

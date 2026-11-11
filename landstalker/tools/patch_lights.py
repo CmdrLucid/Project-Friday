@@ -2036,7 +2036,7 @@ static float lk_lt_shadowed(float px, float py, float pz, const lk_lt_light *L, 
     mx = F->ax + (int)lrintf(dx) + lk_wide_e; my = F->ay - (int)lrintf(hh);
     { int hit = 0, a2, b2;   /* SOFT EDGE (user 2026-11-05: 'ausgefranzt' at the knights' shadows): the share of the 3 x 3 sprite pixels around the hit, not one pixel */
       for (b2 = -1; b2 <= 1; b2++) for (a2 = -1; a2 <= 1; a2++) { int ux = mx + a2, uy = my + b2;
-        if (ux >= 0 && ux < LK_OSW && uy >= 0 && uy < 224 && (lk_o_spr[uy][ux] & 0x200) && lk_lt_spre[uy][ux] == F->tag) hit++; }   /* v7: the books on the church shelf are figures too: their pixels made Nigel's shadow a block (user rec_20261103_2149) */
+        if (ux >= 0 && ux < LK_OSW && uy >= 0 && uy < 224 && (lk_o_spr[uy][ux] & 0x200) && (lk_lt_spre[uy][ux] == F->tag || lk_lt_spre2[uy][ux] == F->tag)) hit++; }   /* LK_LTHIDE v1: also where another figure hides it */   /* v7: the books on the church shelf are figures too: their pixels made Nigel's shadow a block (user rec_20261103_2149) */
       if (hit) { float ex = L->x - px, ey = L->y - py, ez = L->z - pz, d = t * sqrtf(ex * ex + ey * ey + ez * ez), w = (60.0f - d) * (1.0f / 40.0f);   /* v7: a candle close to the head stretched the shadow far and jagged: fade from 20 to 60 units */
         w = w >= 1.0f ? 1.0f : w > 0.0f ? w : 0.0f; return w * (float)hit / 9.0f; } }
   }
@@ -2055,7 +2055,7 @@ static int lk_lt_figdir(const float *sd, float px, float py, float pz) {   /* v5
     dx = 1.4142f * (tx * (qx - F->fx) + ty * (qy - F->fy)); hh = qz - F->fz;
     if (dx < -16.0f || dx > 16.0f || hh < -6.0f || hh > 56.0f) continue;
     mx = F->ax + (int)lrintf(dx) + lk_wide_e; my = F->ay - (int)lrintf(hh);
-    if (mx >= 0 && mx < LK_OSW && my >= 0 && my < 224 && (lk_o_spr[my][mx] & 0x200) && lk_lt_spre[my][mx] == F->tag) return 1;   /* v7: own pixels only */
+    if (mx >= 0 && mx < LK_OSW && my >= 0 && my < 224 && (lk_o_spr[my][mx] & 0x200) && (lk_lt_spre[my][mx] == F->tag || lk_lt_spre2[my][mx] == F->tag)) return 1;   /* LK_LTHIDE v1 */   /* v7: own pixels only */
   }
   return 0;
 }
@@ -2206,6 +2206,17 @@ assert s.count("lk_ss_nig[Y][X] = (uint8)lk_ss_cur;") == 3
 s = s.replace("lk_ss_nig[Y][X] = (uint8)lk_ss_cur;", "lk_ss_nig[Y][X] = (uint8)lk_ss_cur; lk_lt_spre[Y][X] = (uint8)lk_lt_ecur; /*LK_LT_ENT*/")
 rep("    lk_ss_cur = offs[k] == 0;   /* LK_SUBPIX v3: Nigel's pieces (also the sprint pose canvas) */\n", "    lk_ss_cur = offs[k] == 0;   /* LK_SUBPIX v3: Nigel's pieces (also the sprint pose canvas) */\n    lk_lt_ecur = (offs[k] >> 7) + 1; /*LK_LT_ENT*/\n")
 rep("    lk_ss_cur = 0;\n    if (draw && lk_o_exon)", "    lk_ss_cur = 0; lk_lt_ecur = 0; /*LK_LT_ENT*/\n    if (draw && lk_o_exon)")
+# LK_LTHIDE v1 (2026-11-11, user rec_20261111_2006 room 54: 'als wuerde Nigel Licht werfen statt Schatten' = left of the soldier / Arthur it got LIGHTER while Nigel
+# passed on their right): a figure's shadow is cut from its OWN sprite pixels (lk_lt_spre); where another figure is drawn in front of it, those pixels belonged to the
+# front figure, so the hidden figure's shadow got a hole in the shape of the front figure.  lk_lt_spre2 keeps the tag of the first figure HIDDEN under a sprite
+# pixel (sprite layer: first drawn wins); the shadow tests accept either tag.  Light only (Lighting Off untouched); LANDSTALKER_LT_HIDE=0 = old (no second layer).
+rep("static uint8 lk_lt_spre[224][LK_OSW]; static int lk_lt_ecur; /*LK_LT_ENT*/\n",
+    "static uint8 lk_lt_spre[224][LK_OSW]; static int lk_lt_ecur; /*LK_LT_ENT*/\nstatic uint8 lk_lt_spre2[224][LK_OSW]; static int lk_lt_hide = -1;   /* LK_LTHIDE v1: tag of a figure hidden under the sprite pixel, 0 none */\n")
+a = "Y >= 224 || (lk_o_spr[Y][X] & 0x200)) continue;"
+assert s.count(a) == 3, s.count(a)
+s = s.replace(a, "Y >= 224) continue; if (lk_o_spr[Y][X] & 0x200) { if (lk_lt_hide && lk_lt_ecur && lk_lt_spre[Y][X] != (uint8)lk_lt_ecur && !lk_lt_spre2[Y][X]) lk_lt_spre2[Y][X] = (uint8)lk_lt_ecur; continue; }   /* LK_LTHIDE v1 */")
+rep("  if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr);",
+    "  if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr); if (lk_lt_hide < 0) { const char *e = getenv(\"LANDSTALKER_LT_HIDE\"); lk_lt_hide = e ? atoi(e) != 0 : 1; } if (lk_lt_hide) memset(lk_lt_spre2, 0, sizeof lk_lt_spre2);   /* LK_LTHIDE v1 */")
 rep("int lk_sfx_ln = lk_sfx_linebegin(line);   /* LK_SWORDFX v1 */\n",
     "int lk_sfx_ln = lk_sfx_linebegin(line);   /* LK_SWORDFX v1 */\n    int lk_lt_ln = lk_lt_linebegin();   /* %s */\n" % VER)
 rep("      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n",

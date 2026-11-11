@@ -226,8 +226,8 @@ const uint16_t *lk_gl_fmk(void) { return &lk_lt_fmk[0][0]; }   /* figure shadow 
 /* per light k / figure j: row j = card normal x, y, pair, 0; row 16 + j = the shadow box x0 y0 x1 y1 (96 x 32 RGBA floats) */
 void lk_gl_pairs(float *o) { int k, j; for (j = 0; j < 16; j++) for (k = 0; k < 96; k++) { float *a = o + 4 * (j * 96 + k), *b = o + 4 * ((16 + j) * 96 + k);
   a[0] = lk_lt_pn[k][j][0]; a[1] = lk_lt_pn[k][j][1]; a[2] = lk_lt_pair[k][j] ? 1.0f : 0.0f; a[3] = 0.0f; b[0] = (float)lk_lt_pbox[k][j][0]; b[1] = (float)lk_lt_pbox[k][j][1]; b[2] = (float)lk_lt_pbox[k][j][2]; b[3] = (float)lk_lt_pbox[k][j][3]; } }
-/* class + own-sprite tag per screen pixel (luminance / alpha): the silhouettes of the figure shadows */
-void lk_gl_clstag(uint16_t *o) { int y, x; for (y = 0; y < 224; y++) for (x = 0; x < 448; x++) o[y * 448 + x] = (uint16_t)(lk_gl_cls[y * 448 + x] | (((lk_o_spr[y][x] & 0x200) ? lk_lt_spre[y][x] : 0) << 8)); }
+/* class + own-sprite tag per screen pixel (RGBA: class, class, hidden figure tag (LK_LTHIDE v1, lk_lt_spre2), tag): the silhouettes of the figure shadows */
+void lk_gl_clstag(uint32_t *o) { int y, x; for (y = 0; y < 224; y++) for (x = 0; x < 448; x++) { uint32_t c = lk_gl_cls[y * 448 + x] & 255u; int sp = (lk_o_spr[y][x] & 0x200) != 0; o[y * 448 + x] = c | (c << 8) | ((uint32_t)(sp ? lk_lt_spre2[y][x] : 0) << 16) | ((uint32_t)(sp ? lk_lt_spre[y][x] : 0) << 24); } }
 /* dust motes (dmap | dmz << 8) and particle depths (mz | md << 16) as RGBA words, 512 x 512 */
 const uint32_t *lk_gl_am(void) { return lk_am_map; }
 #define LK_GL_BB(q) { int bx_ = (q) & 511, by_ = (q) >> 9; if (bx_ < bb[0]) bb[0] = bx_; if (bx_ > bb[2]) bb[2] = bx_; if (by_ < bb[1]) bb[1] = by_; if (by_ > bb[3]) bb[3] = by_; }
@@ -356,6 +356,7 @@ vec4 fin(vec3 o, vec2 fc) {   /* GL4: the emissive mix after the light (offset p
     if (a.rgb != vec3(0.0) || b.rgb != vec3(1.0)) { vec3 p0 = vec3(B(a.r), B(a.g), B(a.b)), p1 = vec3(B(b.r), B(b.g), B(b.b)); o = floor(p0 + (p1 - p0) * o / 255.0 + 0.5); } }
   return vec4(clamp(o, 0.0, 255.0) / 255.0, 1.0); }
 float tagAt(float x, float y) { return B(texture2D(cls, (vec2(x, y) + 0.5) / vec2(448.0, 224.0)).a); }
+bool ownAt(float x, float y, float t) { vec4 c = texture2D(cls, (vec2(x, y) + 0.5) / vec2(448.0, 224.0)); return B(c.a) == t || B(c.b) == t; }   /* LK_LTHIDE v1: own pixel, also where another figure hides it */
 float term(vec3 p, vec3 n, vec4 LP, float kk) {   /* lk_lt_term without shadow */
   vec3 v = LP.xyz - p; float d = sqrt(v.x * v.x + v.y * v.y + v.z * v.z), rad = LP.w, ndl, q;
   if (d >= rad || d < 0.001) return d < 0.001 ? kk : 0.0;
@@ -372,7 +373,7 @@ bool figdir(vec3 sd, vec3 p, float fm) {   /* lk_lt_figdir */
     vec3 q = p + t * sd; float dx = 1.4142 * (tx * (q.x - F.x) + ty * (q.y - F.y)), hh = q.z - F.z;
     if (dx < -16.0 || dx > 16.0 || hh < -6.0 || hh > 56.0) continue;
     float mx = Fa.x + rne(dx) + uE, my = Fa.y - rne(hh);
-    if (mx >= 0.0 && mx < 448.0 && my >= 0.0 && my < 224.0 && tagAt(mx, my) == Fa.z) return true; }
+    if (mx >= 0.0 && mx < 448.0 && my >= 0.0 && my < 224.0 && ownAt(mx, my, Fa.z)) return true; }
   return false; }
 float shadowed(vec3 p, int li, float fm, float cx, float cy) {   /* lk_lt_shadowed */
   vec4 L = uLP[li];
@@ -389,7 +390,7 @@ float shadowed(vec3 p, int li, float fm, float cx, float cy) {   /* lk_lt_shadow
     if (dx < -16.0 || dx > 16.0 || hh < -6.0 || hh > 56.0) continue;
     float mx = Fa.x + rne(dx) + uE, my = Fa.y - rne(hh), hit = 0.0;
     for (int b2 = -1; b2 <= 1; b2++) for (int a2 = -1; a2 <= 1; a2++) { float ux = mx + float(a2), uy = my + float(b2);
-      if (ux >= 0.0 && ux < 448.0 && uy >= 0.0 && uy < 224.0 && tagAt(ux, uy) == Fa.z) hit += 1.0; }
+      if (ux >= 0.0 && ux < 448.0 && uy >= 0.0 && uy < 224.0 && ownAt(ux, uy, Fa.z)) hit += 1.0; }
     if (hit > 0.0) { vec3 e = L.xyz - p; float d = t * sqrt(e.x * e.x + e.y * e.y + e.z * e.z), w = (60.0 - d) * (1.0 / 40.0);
       w = w >= 1.0 ? 1.0 : w > 0.0 ? w : 0.0; return w * hit / 9.0; } }
   return 0.0; }
@@ -540,6 +541,7 @@ vec3 ambient(float u) {   /* the light pass' figure base light for sun share u *
   else if (uKey > 0.5) { float k2 = uKK * u; a = vec3(uKA * 0.97 + k2 * 1.04, uKA * 0.99 + k2, uKA * 1.05 + k2 * 0.92); }
   return a; }
 float tagAt2(float x, float y) { return B(texture2D(cls, (vec2(x, y) + 0.5) / vec2(448.0, 224.0)).a); }
+bool ownAt2(float x, float y, float t) { vec4 c = texture2D(cls, (vec2(x, y) + 0.5) / vec2(448.0, 224.0)); return B(c.a) == t || B(c.b) == t; }   /* LK_LTHIDE v1 */
 float figBlock(vec3 p, vec3 L, int self) {   /* GL5f step 2: share of a flame's light at p that another figure's silhouette blocks (its card turned to the light; v2: 3 x 3 taps 2 px apart = softer edge, at most 0.8; fading with the distance as lk_lt_shadowed) */
   float best = 0.0; vec3 e = L - p; float el = length(e);
   for (int i = 0; i < 16; i++) { if (float(i) >= uNf) break; if (i == self) continue;
@@ -550,7 +552,7 @@ float figBlock(vec3 p, vec3 L, int self) {   /* GL5f step 2: share of a flame's 
     float dx = 1.4142 * (tx * (q.x - F.x) + ty * (q.y - F.y)), hh = q.z - F.z;
     if (dx < -18.0 || dx > 18.0 || hh < -8.0 || hh > 58.0) continue;
     float mx = Fa.x + floor(dx + 0.5) + uE, my = Fa.y - floor(hh + 0.5), hit = 0.0;
-    for (int b2 = -1; b2 <= 1; b2++) for (int a2 = -1; a2 <= 1; a2++) { float ux = mx + 2.0 * float(a2), uy = my + 2.0 * float(b2); if (ux >= 0.0 && ux < 448.0 && uy >= 0.0 && uy < 224.0 && tagAt2(ux, uy) == Fa.z) hit += 1.0; }
+    for (int b2 = -1; b2 <= 1; b2++) for (int a2 = -1; a2 <= 1; a2++) { float ux = mx + 2.0 * float(a2), uy = my + 2.0 * float(b2); if (ux >= 0.0 && ux < 448.0 && uy >= 0.0 && uy < 224.0 && ownAt2(ux, uy, Fa.z)) hit += 1.0; }
     if (hit > 0.0) { float w = clamp((60.0 - t * el) * (1.0 / 40.0), 0.0, 1.0); best = max(best, 0.45 * w * hit / 9.0); } }   /* at most 0.45 (user 2026-11-07: faces too dark; 0.8 made a neighbour 30 % darker = a grey dead figure: sprites are flat cards) */
   return best; }
 float figSun(vec3 p, int self) {   /* GL5f step 2: share of the sun / key light another figure's silhouette blocks at p (lk_lt_figdir; v2 soft: 3 x 3 taps 2 px apart instead of one yes / no tap) */
@@ -563,7 +565,7 @@ float figSun(vec3 p, int self) {   /* GL5f step 2: share of the sun / key light 
     vec3 q = p + t * sd; float dx = 1.4142 * (tx * (q.x - F.x) + ty * (q.y - F.y)), hh = q.z - F.z;
     if (dx < -18.0 || dx > 18.0 || hh < -8.0 || hh > 58.0) continue;
     float mx = Fa.x + floor(dx + 0.5) + uE, my = Fa.y - floor(hh + 0.5), hit = 0.0;
-    for (int b2 = -1; b2 <= 1; b2++) for (int a2 = -1; a2 <= 1; a2++) { float ux = mx + 2.0 * float(a2), uy = my + 2.0 * float(b2); if (ux >= 0.0 && ux < 448.0 && uy >= 0.0 && uy < 224.0 && tagAt2(ux, uy) == Fa.z) hit += 1.0; }
+    for (int b2 = -1; b2 <= 1; b2++) for (int a2 = -1; a2 <= 1; a2++) { float ux = mx + 2.0 * float(a2), uy = my + 2.0 * float(b2); if (ux >= 0.0 && ux < 448.0 && uy >= 0.0 && uy < 224.0 && ownAt2(ux, uy, Fa.z)) hit += 1.0; }
     best = max(best, hit / 9.0); }
   return best; }
 vec3 rowSpan(float x0, float line, float tg) {   /* the figure's own CONNECTED sprite pixels (owner tag tg) in a row around x0 (gaps up to 3 px, at most 24 px each side): (left, right, found).  v1 took the farthest
@@ -1106,7 +1108,7 @@ if VER not in s:
     MODULE = r'''/* ---- %s: GPU lighting harness (tools/patch_gpulight.py): offscreen light pass + compare with the CPU result ---- */
 extern int lk_gl_getmode(void); extern int lk_gl_frame(long fr, float *fu, int *iu, float *lp, float *lc, float *lf, float *fg, float *fa); extern unsigned lk_gl_bver(int bx, int by); extern int lk_gl_bsg(int bx, int by);
 extern void lk_gl_bpack(int bx, int by, uint32_t (*o)[1024]); extern void lk_gl_blist(int bx, int by, uint32_t *a, uint32_t *b2, int *nl); extern const uint16_t *lk_gl_fmk(void);
-extern void lk_gl_pairs(float *o); extern void lk_gl_clstag(uint16_t *o); extern const uint32_t *lk_gl_am(void); extern void lk_gl_motes(uint32_t *o, int *bb); extern void lk_gl_amzd(uint32_t *o, int *bb);
+extern void lk_gl_pairs(float *o); extern void lk_gl_clstag(uint32_t *o); extern const uint32_t *lk_gl_am(void); extern void lk_gl_motes(uint32_t *o, int *bb); extern void lk_gl_amzd(uint32_t *o, int *bb);
 extern uint32_t lk_gl_post[2][224 * 448]; extern int lk_gl_postany, lk_gl_postprev;
 extern uint32_t lk_gl_unlit[224 * 448], lk_gl_ref[224 * 448]; extern uint8_t lk_gl_cls[224 * 448], lk_gl_flg[224 * 448]; extern uint32_t lk_gl_row[224];
 LKGL_FN(void, glUniform3f, (lkGLint, lkGLfloat, lkGLfloat, lkGLfloat)); LKGL_FN(void, glUniform4f, (lkGLint, lkGLfloat, lkGLfloat, lkGLfloat, lkGLfloat)); LKGL_FN(void, glUniform4fv, (lkGLint, lkGLsizei, const lkGLfloat *));
@@ -1135,7 +1137,7 @@ static void lk_glt_qresult(void) {   /* finished queries of both slots: add thei
     else lk_glt_qover = 0; } }
 #define LK_GLT_NT 16   /* textures of the pass: 0 unlit, 1 class + tag, 2 rows, 3 room A, 4 block table, 5 / 6 terms, 7 room B, 8 key light, 9 light lists, 10 mix after the light (448 x 448), 11 figure box mask, 12 pairs, 13 motes, 14 particles, 15 particle depths */
 static lkGLuint lk_glt_prog, lk_glt_fbo, lk_glt_out, lk_glt_t[LK_GLT_NT]; static lkGLint lk_glt_u[64];
-static unsigned lk_glt_ver[38][76]; static uint16_t lk_glt_ct[224 * 448]; static uint32_t lk_glt_mo[512 * 512], lk_glt_az[512 * 512]; static float lk_glt_pr[96 * 32 * 4];
+static unsigned lk_glt_ver[38][76]; static uint32_t lk_glt_ct[224 * 448]; static uint32_t lk_glt_mo[512 * 512], lk_glt_az[512 * 512]; static float lk_glt_pr[96 * 32 * 4];
 static const char *lk_glt_fs = "#version 120\n" @SHADER@;
 static const char *lk_glt_un[] = { "unl", "cls", "rows", "roomA", "btab", "roomT0", "roomT1", "roomB", "roomK", "bli", "post", "fmk", "pairs", "motes", "amap", "amzd",
   "uAmb", "uSS", "uSK", "uAmb3", "uSun3", "uMix", "uSun", "uNl", "uDn", "uOd0", "uKey", "uNsh", "uSwon", "uAm", "uKA", "uKK", "uFade", "uShc", "uSwP", "uSwC", "uNf", "uNfb", "uFall", "uE", "uSd", "uShA", "uShD",
@@ -1158,7 +1160,7 @@ static int lk_glt_init(void) {   /* inside lk_gpu_present (SDL's state saved, te
   for (i = 0; lk_glt_un[i]; i++) lk_glt_u[i] = lk_glGetUniformLocation(lk_glt_prog, lk_glt_un[i]);
   lk_glGetIntegerv(0x8069, &t0);
   lk_glt_out = lk_glt_tex(448, 224, 0x1908, 0x1908);
-  lk_glt_t[0] = lk_glt_tex(448, 224, 0x1908, 0x80E1); lk_glt_t[1] = lk_glt_tex(448, 224, 0x190A, 0x190A); lk_glt_t[2] = lk_glt_tex(224, 1, 0x1908, 0x1908);
+  lk_glt_t[0] = lk_glt_tex(448, 224, 0x1908, 0x80E1); lk_glt_t[1] = lk_glt_tex(448, 224, 0x1908, 0x1908); lk_glt_t[2] = lk_glt_tex(224, 1, 0x1908, 0x1908);
   lk_glt_t[3] = lk_glt_tex(2432, 1216, 0x1908, 0x1908); lk_glt_t[4] = lk_glt_tex(76, 38, 0x1908, 0x1908); lk_glt_t[5] = lk_glt_tex(2432, 1216, 0x1908, 0x1908); lk_glt_t[6] = lk_glt_tex(2432, 1216, 0x1908, 0x1908);
   lk_glt_t[7] = lk_glt_tex(2432, 1216, 0x1908, 0x1908); lk_glt_t[8] = lk_glt_tex(2432, 1216, 0x1908, 0x1908); lk_glt_t[9] = lk_glt_tex(152, 38, 0x1908, 0x1908); lk_glt_t[10] = lk_glt_tex(448, 448, 0x1908, 0x1908);
   lk_glt_t[11] = lk_glt_tex(448, 224, 0x190A, 0x190A); lk_glt_t[12] = lk_glt_tex(96, 32, 0x8814, 0x1908);
@@ -1639,7 +1641,7 @@ static int lk_glt_pass(int real) {   /* inside lk_gpu_present after SDL's state 
   if (real && (lk_gl_postany || lk_gl_postprev)) { lk_glActiveTexture(0x84CA); lk_glBindTexture(0x0DE1, lk_glt_t[10]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x80E1, 0x1401, lk_gl_post[0]); lk_glTexSubImage2D(0x0DE1, 0, 0, 224, 448, 224, 0x80E1, 0x1401, lk_gl_post[1]); }
   lk_glActiveTexture(0x84CB); lk_glBindTexture(0x0DE1, lk_glt_t[11]); if (iu[10]) lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x190A, 0x1401, lk_gl_fmk());
   lk_glActiveTexture(0x84C2); lk_glBindTexture(0x0DE1, lk_glt_t[2]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 224, 1, 0x1908, 0x1401, lk_gl_row);
-  lk_gl_clstag(lk_glt_ct); lk_glActiveTexture(0x84C1); lk_glBindTexture(0x0DE1, lk_glt_t[1]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x190A, 0x1401, lk_glt_ct);
+  lk_gl_clstag(lk_glt_ct); lk_glActiveTexture(0x84C1); lk_glBindTexture(0x0DE1, lk_glt_t[1]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x1908, 0x1401, lk_glt_ct);
   if (iu[10]) { lk_gl_pairs(lk_glt_pr); lk_glActiveTexture(0x84CC); lk_glBindTexture(0x0DE1, lk_glt_t[12]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 96, 32, 0x1908, 0x1406, lk_glt_pr); }
   lk_glPixelStorei(0x0CF2, 512);   /* motes / particles: sub-rectangles of the 512 x 512 maps */
   { int bb[4]; lk_gl_motes(lk_glt_mo, bb); if (bb[2] >= bb[0]) { lk_glActiveTexture(0x84CD); lk_glBindTexture(0x0DE1, lk_glt_t[13]); lk_glTexSubImage2D(0x0DE1, 0, bb[0], bb[1], bb[2] - bb[0] + 1, bb[3] - bb[1] + 1, 0x1908, 0x1401, lk_glt_mo + bb[1] * 512 + bb[0]); } }

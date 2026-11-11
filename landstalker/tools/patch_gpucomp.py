@@ -154,7 +154,7 @@ void lk_gc_wclass(uint8_t *o) { int t;   /* per tile: 1 = in an animated water g
     else { const uint8 *q = lk_o_tiles + ob; int j, n = 0, ns = 0; for (j = 0; j < 32; j++) { int h = q[j] >> 4, l2 = q[j] & 15; if (h) { ns++; if (lk_wr_idx >> h & 1) n++; } if (l2) { ns++; if (lk_wr_idx >> l2 & 1) n++; } } c = (ns >= 48 && n * 100 >= ns * 97) ? 2 : 0; }
     o[t] = (uint8_t)c; } }
 const uint32_t *lk_gc_wrbuf(void) { return &lk_wr_buf[0][0]; }
-const uint8_t *lk_gc_spre(void) { return &lk_lt_spre[0][0]; }   /* figure tag of every sprite pixel (the light's class tag, lk_gl_clstag) */
+const uint8_t *lk_gc_spre(void) { static uint8_t b[224 * 448 * 2]; int i; for (i = 0; i < 224 * 448; i++) { b[2 * i] = (&lk_lt_spre[0][0])[i]; b[2 * i + 1] = (&lk_lt_spre2[0][0])[i]; } return b; }   /* figure tag of every sprite pixel + the tag of a figure hidden under it (LK_LTHIDE v1), luminance alpha (the light's class tag, lk_gl_clstag) */
 void lk_gc_water(int *tk, int *pal, int *idx) { *tk = lk_wr_tk > 0 ? lk_wr_tk : 0; *pal = lk_wr_pal; *idx = lk_wr_idx; }
 const uint8_t *lk_gc_clouds(int *ox8, int *oy8, int *kf) { *ox8 = lk_cs_ox >> 3; *oy8 = lk_cs_oy >> 3; *kf = lk_cs_kf; return lk_cs_tex; }   /* 128 x 128 */
 void lk_gc_mhud(uint8_t *o, int *y0, int *y1) { int y, x; *y0 = lk_mh_y0; *y1 = lk_mh_y1;   /* 464 x 240 RGBA: colour + alpha */
@@ -268,8 +268,8 @@ static const char *lk_gc_fs = "#version 120\n"
 "  float k = 0.0;\n"   /* lk_gl_classify */
 "  if (!black) { if (src >= 1.0 && src <= 3.0) { k = 1.0; if (src == 1.0 && s200) { for (int j = 0; j < 16; j++) { if (float(j) >= uNf) break; vec4 fv = uFig[j / 2]; vec2 fj = (j - 2 * (j / 2)) == 0 ? fv.xy : fv.zw; float dx = x - fj.x, dy = fj.y - line; if (dx >= -16.0 && dx <= 16.0 && dy >= -6.0 && dy <= 56.0) { k = 16.0 + float(j); break; } } } }\n"
 "    else if (src == 0.0) k = 3.0; }\n"
-"  if (uMode > 5.5) { vec4 st = texture2D(spr, vec2((i + 0.5) / 448.0, (line + 0.5) / 224.0)); float tg = bit(by(st.a), 1.0) > 0.5 ? by(texture2D(spe, vec2((i + 0.5) / 448.0, (line + 0.5) / 224.0)).r) : 0.0;\n"   /* the light's class tag (lk_gl_clstag): class | figure tag of the unshifted sprite pixel << 8 */
-"    gl_FragColor = vec4(vec3(k / 255.0), tg / 255.0); return; }\n"
+"  if (uMode > 5.5) { vec4 st = texture2D(spr, vec2((i + 0.5) / 448.0, (line + 0.5) / 224.0)); vec4 se = texture2D(spe, vec2((i + 0.5) / 448.0, (line + 0.5) / 224.0)); float tg = bit(by(st.a), 1.0) > 0.5 ? by(se.r) : 0.0, tg2 = bit(by(st.a), 1.0) > 0.5 ? by(se.a) : 0.0;\n"   /* the light's class tag (lk_gl_clstag): class | figure tag of the unshifted sprite pixel << 8 */
+"    gl_FragColor = vec4(k / 255.0, k / 255.0, tg2 / 255.0, tg / 255.0); return; }\n"
 "  if (uMode > 0.5 && uMode < 1.5) { float m = black ? 512.0 : pick + 64.0 * src; gl_FragColor = vec4(mod(m, 256.0) / 255.0, floor(m / 256.0) / 255.0, k / 255.0, 1.0); return; }\n"
 "  vec3 col = black ? by3(margin ? rowt(5.0, line).rgb : rowt(6.0, line).rgb) : by3(texture2D(pal, vec2((pick + 0.5) / 64.0, (line + 0.5) / 224.0)).rgb);\n"
 "  if (uMode < 0.5) { gl_FragColor = vec4(col / 255.0, 1.0); return; }\n"
@@ -287,7 +287,7 @@ static long lk_gc_n, lk_gc_lines, lk_gc_px, lk_gc_ex, lk_gc_md, lk_gc_cd, lk_gc_
 static int lk_gc_init(void) {
   static const char *un[] = { "rows", "pal", "win", "spr", "pln", "til", "wcl", "wrb", "rip", "mhd", "cst", "fbt", "spe", "uMode", "uFig", "uNf", "uDnM", "uCs", "uWr", "uMh", "uReal", "uYo" }; lkGLint ok = 0; lkGLuint vs, fs; char log[2048]; int i;
   static const int tw[LK_GC_NT] = { 16, 64, 320, 448, 304, 1024, 48, 448, 448, 464, 128, 1, 448 }, th[LK_GC_NT] = { 224, 224, 224, 224, 304, 72, 48, 224, 224, 240, 128, 1, 224 };
-  static const lkGLenum tf[LK_GC_NT] = { 0x1908, 0x1908, 0x190A, 0x190A, 0x1908, 0x1909, 0x1909, 0x1908, 0x190A, 0x1908, 0x1909, 0x1908, 0x1909 };   /* unit 11 = fbt: the presented picture (lk_gpu_tex) is bound there */
+  static const lkGLenum tf[LK_GC_NT] = { 0x1908, 0x1908, 0x190A, 0x190A, 0x1908, 0x1909, 0x1909, 0x1908, 0x190A, 0x1908, 0x1909, 0x1908, 0x190A };   /* unit 11 = fbt: the presented picture (lk_gpu_tex) is bound there */
   if (!lk_glGenFramebuffers) { *(void **)&lk_glGenFramebuffers = lk_gpu_fn("glGenFramebuffers"); *(void **)&lk_glBindFramebuffer = lk_gpu_fn("glBindFramebuffer");
     *(void **)&lk_glFramebufferTexture2D = lk_gpu_fn("glFramebufferTexture2D"); *(void **)&lk_glCheckFramebufferStatus = lk_gpu_fn("glCheckFramebufferStatus"); }
   if (!lk_glUniform4fv) *(void **)&lk_glUniform4fv = lk_gpu_fn("glUniform4fv");
@@ -325,7 +325,7 @@ static void lk_gc_upload(void) {   /* the frame's data -> textures (units 0..10,
   lk_glActiveTexture(0x84C8); lk_glBindTexture(0x0DE1, lk_gc_t[8]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x190A, 0x1401, lk_gc_rip);
   lk_glActiveTexture(0x84C9); lk_glBindTexture(0x0DE1, lk_gc_t[9]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 464, 240, 0x1908, 0x1401, mhb);
   lk_glActiveTexture(0x84CA); lk_glBindTexture(0x0DE1, lk_gc_t[10]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 128, 128, 0x1909, 0x1401, cst);
-  lk_glActiveTexture(0x84CC); lk_glBindTexture(0x0DE1, lk_gc_t[12]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x1909, 0x1401, lk_gc_spre());
+  lk_glActiveTexture(0x84CC); lk_glBindTexture(0x0DE1, lk_gc_t[12]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x190A, 0x1401, lk_gc_spre());
   lk_glUseProgram(lk_gc_prog); for (i = 0; i < LK_GC_NT; i++) lk_glUniform1i(lk_gc_u[i], i);
   lk_glUniform4fv(lk_gc_u[LK_GC_NT + 1], 8, fig); lk_glUniform1f(lk_gc_u[LK_GC_NT + 2], (float)nf); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 3], 12, dnm);
   lk_glUniform3f(lk_gc_u[LK_GC_NT + 4], (float)ox8, (float)oy8, (float)kf); lk_glUniform3f(lk_gc_u[LK_GC_NT + 5], (float)tk, (float)wpal, (float)widx); lk_glUniform2f(lk_gc_u[LK_GC_NT + 6], (float)my0, (float)my1);
@@ -411,15 +411,14 @@ static void lk_gc_real2(lkGLuint tcls, lkGLuint tpost) {   /* 4d, inside the rea
     a = "  lk_glActiveTexture(0x84C0); lk_glBindTexture(0x0DE1, lk_gpu_tex); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, sw, 224, 0x80E1, 0x1401, fb);\n  if (lk_glt_pass(1))"
     assert s.count(a) == 1, "platform_sdl.c: picture upload anchor not found"
     s = s.replace(a, a.replace("\n  if (lk_glt_pass(1))", "\n  lk_gc_real1();   /* %s: real path, the GPU lines */\n  if (lk_glt_pass(1))" % VER))
-    a = "  lk_gl_clstag(lk_glt_ct); lk_glActiveTexture(0x84C1); lk_glBindTexture(0x0DE1, lk_glt_t[1]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x190A, 0x1401, lk_glt_ct);\n"
+    a = "  lk_gl_clstag(lk_glt_ct); lk_glActiveTexture(0x84C1); lk_glBindTexture(0x0DE1, lk_glt_t[1]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x1908, 0x1401, lk_glt_ct);\n"
     assert s.count(a) == 1, "platform_sdl.c: class tag upload anchor not found"
     s = s.replace(a, a + "  if (real) lk_gc_real2(lk_glt_t[1], lk_glt_t[10]);   /* %s: the GPU lines' class tags + mixes */\n" % VER)
     a = "static int lk_glt_pass(int real) {"
     assert s.count(a) == 1
     s = s.replace(a, "static void lk_gc_real2(lkGLuint tcls, lkGLuint tpost);   /* %s */\n" % VER + a)
-    a = "lk_glt_t[1] = lk_glt_tex(448, 224, 0x190A, 0x190A);"
+    a = "lk_glt_t[1] = lk_glt_tex(448, 224, 0x1908, 0x1908);"   # RGBA since LK_LTHIDE v1 (patch_gpulight.py): the GPU composition renders into it
     assert s.count(a) == 1, "platform_sdl.c: class texture anchor not found"
-    s = s.replace(a, "lk_glt_t[1] = lk_glt_tex(448, 224, 0x1908, 0x190A);   /* %s: RGBA (was luminance alpha, same values) so the GPU composition can render into it */ " % VER)
     open(p, "w").write(s)
     print("platform_sdl.c patched:", VER)
 else:
