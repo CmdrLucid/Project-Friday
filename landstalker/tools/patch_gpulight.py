@@ -1455,6 +1455,9 @@ static void lk_g5_qpoll(void) { int o; lkGLint av; unsigned long long ns; static
   if (++lk_g5_qn < 120) return;
   { double avg = lk_g5_qsum / lk_g5_qn; lk_g5_qsum = 0.0; lk_g5_qn = 0; if (lk_glt_qdbg) printf("gl5: block passes %%.3f ms per frame on the GPU (120 frame average)\n", avg);
     if (mx > 0.0 && avg > mx) { if (++lk_g5_qover >= 2) { lk_g5_slow = 1; printf("gl5: light block pass too slow on this GPU (%%.2f ms > %%.2f ms), the CPU computes the light blocks from now on (GPU light stays)\n", avg, mx); } } else lk_g5_qover = 0; } }
+static int lk_g5_vc = 18;   /* LK_GL5ENTRY v1 (2026-11-11, user: 'Haenger von Mercator'): after a room change (new hard key) the visible blocks without data are spread
+   over the fade-in by the measured GPU time (LANDSTALKER_GL5_ENTRYMS, 18 ms, for 40 frames; a frame of 20 or 33 ms both miss exactly one vsync; was CAP 18 at once = 5 frames of 60..87 ms at 200 MHz); a block not computed yet
+   shows the flat base light (no shadows) while the picture is still dark (fade-in of 632: frames 604..624); at most 18 / 2.5 = 7 blocks per frame (632: all done by frame 616, frames 27..37 ms instead of 5 frames of 58..87 ms).  LANDSTALKER_GL5_ENTRYMS=0 = old. */
 static int lk_g5_rc = 4, lk_g5_rw = 2; static float lk_g5_mu, lk_g5_mv;   /* LK_GL5RING v1: ring blocks allowed this frame */
 static long lk_g5_tn, lk_g5_tbl, lk_g5_tfr; static unsigned char lk_g5_pn[38][76]; static double lk_g5_tms, lk_g5_tmax;
 extern int lk_gle_get(void);
@@ -1509,7 +1512,11 @@ static void lk_g5_real(int u0, int u1, int v0, int v1, const float *lp, const fl
   { int base = 0; for (pass = 0; pass < 2 + 4 * lk_g5_rw && n < 96; pass++) { int cap;   /* LK_GL5RING v1: ring passes per distance (nearest ring first), the side the camera moves to first */   /* 0 visible without data (up to CAP), then visible stale, ring without data, ring stale (together CAP2 more) */
     if (pass == 2) { static double rms = -1.0; int rc = lk_g5_cap2; base = n; if (rms < 0.0) { const char *e = getenv("LANDSTALKER_GL5_RINGMS"); rms = e ? atof(e) : 5.0; }   /* LK_GL5RING v1 */
       if (rms > 0.0) { if (base > 0) rc = 0; else if (lk_g5_bms > 0.0) { int k = (int)(rms / lk_g5_bms); if (k < 1) k = 1; if (k < rc) rc = k; } } lk_g5_rc = rc; }
-    cap = pass < 2 ? lk_g5_cap : base + lk_g5_rc;   /* visible blocks (missing, then stale: a sun step) get the big budget, the ring the small one */
+    if (pass == 0) { static unsigned lhk; static long efr = -1000; static double ems = -1.0; long fr = platform_frame_number(); lk_g5_vc = lk_g5_cap;   /* LK_GL5ENTRY v1 */
+      if (ems < 0.0) { const char *e = getenv("LANDSTALKER_GL5_ENTRYMS"); ems = e ? atof(e) : 18.0; }
+      if (lk_g5_hk != lhk) { lhk = lk_g5_hk; efr = fr; }
+      if (ems > 0.0 && fr - efr < 40) { int k = (int)(ems / (lk_g5_bms > 2.5 ? lk_g5_bms : 2.5));   /* at least 2.5 ms per block assumed: the estimate of the last room can be from a faster clock */ if (k < 2) k = 2; if (k < lk_g5_vc) lk_g5_vc = k; } }
+    cap = pass < 2 ? lk_g5_vc : base + lk_g5_rc;   /* visible blocks (missing, then stale: a sun step) get the big budget, the ring the small one */
     for (by = bya; by <= byb && n < cap && n < 96; by++) for (bx = bxa; bx <= bxb && n < cap && n < 96; bx++) {
       int vis = bx * 32 + 31 >= u0 && bx * 32 <= u1 && by * 32 + 31 >= v0 && by * 32 <= v1, nod = !lk_g5_bt[by][bx], st = !nod && lk_g5_bk[by][bx] != lk_g5_sk;
       if ((pass < 2) != (vis != 0)) continue;
