@@ -241,6 +241,8 @@ python3 tools/patch_gpu.py .deps/genrecomp
 python3 tools/patch_gpulight.py .deps/genrecomp
 # Picture composition on the GPU, STEP 4 stage 4a = compare harness only, nothing changes for the player: LANDSTALKER_GPUCOMP=2 composes the map lines on the GPU and compares with lk_own_row (tools/patch_gpucomp.py; needs patch_own / patch_gpu / patch_gpulight)
 python3 tools/patch_gpucomp.py .deps/genrecomp
+# Shader warm-up before the title (LK_SHWARM v1, user 2026-11-11: loading a save froze ~18 s while the GPU light shaders compiled on a cold driver cache): all big GPU programs compiled at the first frame, loading screen 'PREPARING LIGHTING' only when it takes longer than 0.25 s (tools/patch_shaderwarm.py; LANDSTALKER_SHWARM=0 = off)
+python3 tools/patch_shaderwarm.py .deps/genrecomp
 # Room map: binding Map (pad L4, key M) = schematic map of the current area over the paused game (data: tools/roommap.py -> build/roommap; tools/patch_roommap.py, docs/MAP.md)
 python3 tools/patch_roommap.py .deps/genrecomp
 # VDP data path step 3.0: path counters in vdp_ctrl.c (LANDSTALKER_VDPCOUNT=file; inert without it; tools/patch_vdpcount.py, docs/SOUND_PLAN.md section 12)
