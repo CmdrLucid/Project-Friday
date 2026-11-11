@@ -135,7 +135,7 @@ HEAD1 = len(body)
 if g('scroll', True) and g('folded', True):
     # v13 (user: 'eher verschraenkte Arme, in denen die Schriftrolle liegt, nicht aufrecht gehalten'): the arms FOLDED across the chest (each forearm
     # across the front, the hand at the other elbow, one forearm over the other), wide sleeves hanging under them; the scroll lies in them (scroll.py)
-    for sg, zf, ff in ((-1, 30.7, 4.6), (1, 28.7, 4.1)):   # the s- arm lies on top / in front (v15: further apart + stiffer blending: no bulge where they cross)
+    for sg, zf, ff in ((-1, 30.7, g('ff_top', 5.2)), (1, 28.7, g('ff_low', 4.7))):   # v16: the forearms a little further out: the scroll lies BETWEEN them and the chest   # the s- arm lies on top / in front (v15: further apart + stiffer blending: no bulge where they cross)
         sh = (0.7 + sg * 4.0, -0.2, g('sh_z', 33.5)); el = (0.7 + sg * 5.0, 1.7, zf - 0.6); mid = (0.7 + sg * 1.2, ff - 0.3, zf - 0.1); ha = (0.7 - sg * 2.9, ff, zf)
         # v14 (user: 'die Unterarme sind zu knubbelig'): one even limb (no elbow ball, no separate sleeve roll, no hand ball): upper arm, a forearm that
         # tapers a little to the wrist, a small flat hand; soft blending

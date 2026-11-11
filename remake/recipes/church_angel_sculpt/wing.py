@@ -48,14 +48,21 @@ if g('complete', True):
     zlo = g('fill_zlo', 57.0)
     def _btw(p):
         y, z = _pl(p); k = int(math.floor(z))
-        if z < zlo or z > g('fill_zhi', 69.5): return False   # the bridge across the back only up to the shoulders (no lump behind the head)
+        # the bridge across the back up to the shoulders in the middle, rising to the wings' full height from 1.5 to 6 units beside the body's axis:
+        # v16 (user: 'der rechte Fluegel wirkt chaotischer'): the head hides the right wing's inner top in the picture; it was a notch with a loose
+        # lobe above it, and the feather fan's centre lay outside the wing. Now both wings are complete at the top inner corner.
+        zt = g('fill_zhi', 69.5) + (76.0 - g('fill_zhi', 69.5)) * max(0.0, min(1.0, (abs(y - YB) - 1.5) / 4.5))
+        if z < zlo or z > zt: return False
         lo = max((rmax.get(k + d, -1e9) for d in (-1, 0, 1)), default=-1e9); hi = min((lmin.get(k + d, 1e9) for d in (-1, 0, 1)), default=1e9)
-        return lo > -1e8 and hi < 1e8 and lo - 1.5 <= y <= hi + 1.5
-    fill = {p for p in mask if p not in wing and _btw(p)}
+        if lo < -1e8: lo = min(rmax.values())    # above / below a wing's drawn rows: from its innermost drawn column
+        if hi > 1e8: hi = max(lmin.values())
+        return lo - 1.5 <= y <= hi + 1.5
+    mask1 = mask | {(p[0] + a_, p[1] + b_) for p in mask for a_, b_ in ((1, 0), (-1, 0), (0, 1), (0, -1))}   # + the dark outline pixels between head and wing
+    fill = {p for p in mask1 if p not in wing and _btw(p)}
     region = wing | fill
     for _ in range(g('close_n', 1)):   # closing: fill notches / single holes (only with statue pixels: the outline never grows past the drawing)
         grow = {(p[0] + a_, p[1] + b_) for p in region for a_ in (-1, 0, 1) for b_ in (-1, 0, 1)}
-        region |= {p for p in grow if p in mask and sum(((p[0] + a_, p[1] + b_) in region) for a_, b_ in ((1, 0), (-1, 0), (0, 1), (0, -1))) >= 3}
+        region |= {p for p in grow if p in mask1 and sum(((p[0] + a_, p[1] + b_) in region) for a_, b_ in ((1, 0), (-1, 0), (0, 1), (0, -1))) >= 3}
     print('complete wings: drawn', len(wing), 'filled', len(region) - len(wing))
 S = g('wgrid', 6); SIG = g('wsig', 0.7)
 us = [p[0] for p in region]; vs = [p[1] for p in region]; gu0, gv0 = min(us) - 3, min(vs) - 3; GW, GH = (max(us) - gu0 + 7) * S, (max(vs) - gv0 + 7) * S
@@ -94,8 +101,8 @@ def _ins(y, z):
 NA = 240
 def _mk(sd):
     def _reach(th):
-        r = 1.0
-        while r < 60 and (_ins(YM + sd * (A0 + r * math.cos(th)), Z0 + r * math.sin(th)) or r < 3.0): r += 0.25
+        r = 45.0   # from far out inwards: the LAST wing point on the ray (a notch on the way must not end the feather)
+        while r > 3.0 and not _ins(YM + sd * (A0 + r * math.cos(th)), Z0 + r * math.sin(th)): r -= 0.25
         return r
     L_ = [_reach(-math.pi + 2 * math.pi * k / NA) for k in range(NA)]
     return [sum(L_[(k + d) % NA] * w for d, w in ((-3, 1), (-2, 2), (-1, 3), (0, 4), (1, 3), (2, 2), (3, 1))) / 16.0 for k in range(NA)]   # smoothed

@@ -61,3 +61,9 @@ v15 (2026-11-11, user: 'mit Gold und Licht sehen die Fluegel sehr dunkel aus, li
 lit from the front right (GV_SUN 25, 48): the feathers show like in the clay views. Also: forearms further apart with stiffer blending (no bulge where
 they cross), wing grid 9 per pixel (`wgrid`, finer feather edges), stronger feathers (`feather_h` 1.3, `groove` 0.6), head upright (`head_tilt` 0,
 `hl_front` 0.83: the face shows from the game camera). IoU 0.919.
+
+v16 (2026-11-11, user: 'der rechte Fluegel wirkt chaotischer als der linke', 'die Schriftrolle liegt vor den Armen statt in den Armen'):
+- Right wing: the head hides its inner top in the picture -> a notch with a loose lobe, and the feather fan's centre lay OUTSIDE the wing (reach 3 =
+  broken rows). Now the bridge rises to the wings' full height from 1.5 to 6 units beside the body's axis (also over the dark outline pixels between
+  head and wing: `mask1`), and the reach is the LAST wing point on each ray. Costs 21 px outside (IoU 0.919 -> 0.914): check before using it for the light.
+- Scroll: axis at the chest (f 3.2 .. 4.0, r 0.9), the forearms further out (`ff_top` 5.2, `ff_low` 4.7): it lies between arms and chest.
