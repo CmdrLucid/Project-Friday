@@ -56,15 +56,39 @@ def _proot():   # the left wing root in plane coordinates (y, z); the right one 
     q = min(px, key=lambda p: abs(p[0] + U0 + 0.5 - AU) + 0.3 * abs(p[1] - vm)); return _toplane(*q)
 PR = _proot(); AXC = AU - U0
 RT = {-1: _topix(*PR), 1: _topix(2 * YC - PR[0], PR[1])}
+# v11 FEATHERS (user: 'schau dir die Fluegel nochmal an'; soft radial bands on a thin sheet read as a scallop shell): a fan from the wing root in three
+# rows like a real wing (short COVERTS at the root on top, then SECONDARIES, then the long PRIMARIES to the outline); every feather = a rounded blade
+# lying like a SHINGLE over its neighbour (high edge -> low edge, then a crisp step up), a fine shaft down its middle, a ROUNDED TIP that ends with a
+# step down onto the next row; the rows follow the wing's own reach in every direction (root -> outline), not circles
+A0 = g('wr_a', 3.0); Z0 = g('wr_z', 62.0)   # the fan's root at the SHOULDER (the measured 'root' lies in the middle of the wing: a fan around it read as a shell)
+def _ins(y, z):
+    U = XW - y + 1184.0; Vv = (XW + y) / 2.0 - z; i = int((U - U0 - gu0) * S); j = int((Vv - V0 - gv0) * S)
+    return 0 <= i < GW and 0 <= j < GH and inside[j][i]
+_side = 1 if PR[0] > YC else -1
+def _reach(th):
+    r = 1.0
+    while r < 60 and (_ins(YC + _side * (A0 + r * math.cos(th)), Z0 + r * math.sin(th)) or r < 3.0): r += 0.25
+    return r
+NA = 240; _L = [_reach(-math.pi + 2 * math.pi * k / NA) for k in range(NA)]
+_L = [sum(_L[(k + d) % NA] * w for d, w in ((-3, 1), (-2, 2), (-1, 3), (0, 4), (1, 3), (2, 2), (3, 1))) / 16.0 for k in range(NA)]   # smoothed
+def reach(th): x = (th + math.pi) / (2 * math.pi) * NA; k = int(math.floor(x)); t = x - k; return _L[k % NA] * (1 - t) + _L[(k + 1) % NA] * t
+sm_ = lambda x: 0.0 if x <= 0 else 1.0 if x >= 1 else x * x * (3 - 2 * x)
+def blade(x, wu=3.0):   # cross-section of one feather, x 0 .. 1 across it: rounded, tilted like a shingle, a fine shaft
+    return 0.55 * math.sqrt(max(0.0, 1.0 - (2 * x - 1) ** 2)) + 0.45 * (1.0 - x) * sm_(x * wu / 0.7) + 0.14 * math.exp(-((x - 0.5) * wu / 0.22) ** 2)   # wu = the feather's width in units: the step and the shaft keep an absolute width (no stairs on the grid)
+ROWS = g('rows3', [0.34, 0.62]); NB = g('fan3', 0.2); TIP = g('tip', 0.09); FH = g('feather_h', 0.55); RS = g('row_step', 0.38)
 def relief(cu, cv):   # in the plane, mirrored about y = YC: the same feathers on both sides
-    y, z = _toplane(cu - 0.5, cv - 0.5); side = 1 if y < YC else -1                   # y < YC = picture right
-    yy = YC - abs(y - YC); dx, dy = (PR[0] - yy), (z - PR[1]); rr = math.hypot(dx, dy); th = math.atan2(dy, dx)
-    fade = max(0.0, min(1.0, (abs(y - YC) - 2.0) / 4.0))   # the feathers fade in away from the body (no cliff at the root)
-    nb = g('fan', 0.17); rows = g('rows', [0.38, 0.66]); Lmax = g('Lmax', 26.0)
-    sm = lambda x: 0.0 if x <= 0 else 1.0 if x >= 1 else x * x * (3 - 2 * x)
-    row = sum(sm((rr - r0 * Lmax) / 1.2 + 0.5) for r0 in rows)
-    stagger = (th / nb + 0.5 * row) % 1.0; ridge = math.sin(math.pi * stagger) ** g('ridge_pow', 1.0)
-    return fade * (g('feather_h', 0.35) * ridge - g('row_step', 0.25) * row), rr
+    y, z = _toplane(cu - 0.5, cv - 0.5); a = abs(y - YC); dx, dy = a - A0, z - Z0; rr = math.hypot(dx, dy); th = math.atan2(dy, dx); L = reach(th); q = rr / L
+    fade = sm_((a - 2.5) / 3.0) * sm_((rr - 2.0) / 4.0)   # the feathers fade in away from the body and the root (no cliff)
+    h = 0.0; k = 0
+    for k in range(3):
+        nb = NB; x = (th / nb + 0.5 * k) % 1.0
+        if k == 2: h = FH * blade(x, nb * rr) - RS * k; break
+        end = ROWS[k] + TIP * (1.0 - (2 * x - 1) ** 2)            # the rounded tip: the middle of the feather reaches further
+        if q < end:
+            t = sm_((end - q) * L / 0.8)                           # the step at the tip (0.5 units wide), down onto the next row
+            nb2 = NB; x2 = (th / nb2 + 0.5 * (k + 1)) % 1.0; below = FH * blade(x2, nb * rr) - RS * (k + 1)
+            h = below + t * (FH * blade(x, nb * rr) - RS * k - below); break
+    return fade * (h + RS * 2), rr
 def thick(d): return min(g('wing_t', 1.3), 0.03 + d * 0.55 / S) if d > 0 else 0.0
 verts = []; idx = {}
 def vid(i, j, side):
@@ -102,3 +126,6 @@ with open(sys.argv[1], 'w') as fo:
     for p in verts: fo.write('v %.4f %.4f %.4f\n' % p)
     for q in faces: fo.write('f ' + ' '.join(str(i + 1) for i in q) + '\n')
 print('wing', len(verts), 'verts', len(faces), 'faces', 'roots', RT)
+if len(sys.argv) > 2:   # debug: the wing region in plane coordinates (a = distance from the axis, z), one char per unit
+    print('root a0 %.1f z0 %.1f' % (A0, Z0))
+    for zz in range(88, 50, -1): print('%3d ' % zz + ''.join('#' if _ins(YC + _side * (aa + 0.5), zz + 0.5) else '.' for aa in range(0, 36)))

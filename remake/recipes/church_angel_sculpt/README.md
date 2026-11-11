@@ -15,3 +15,14 @@ Pipeline (`run.sh '{"robe_k": 0.7}'`, then `wing.py`, `post.py`, merge, `rend.sh
   smoothed outline; feathers = analytic relief (bands fanning out from each wing root, two staggered rows); thickness, relief and cup all ALONG THE VIEW
   RAY (1, 1, 1): the game picture stays exactly the drawn wing.
 - `chk.py`: projection check against the mask (drawn / covered / outside / missed / IoU).
+
+v11 (2026-11-11, user: 'neben dem Mund komisch geformt', then 'schau dir Haare, Gewand und Fluegel nochmal an'):
+- `head.py` face: the base front profile carries NO lips (it made a shelf across the whole face at mouth height); the mouth sits on a local mound.
+- `head.py` hair: long hair parted in the middle on its own finer grid (`h_nuh` 360): arch hairline, the sides fall beside the face to the jaw and sweep
+  back behind the shoulders (curtain below `hair_hang`), strands = lines of constant Y from the parting; NOT clamped by post.py (it dented the strands;
+  6 px outside at the crown).
+- `robe.py` (new): the dress as ONE polygon lathe (spiral drapery folds, up over the torso into the shoulders; rows that would leave the drawn outline
+  are squeezed smoothly); the metaball robe / torso are off (`robe_from` 25, `folds` 0, `torso` false); sloping shoulders, the neck blends in.
+- `wing.py` feathers: a fan from the SHOULDER (`wr_a`, `wr_z`) in three rows (coverts, secondaries, primaries), each feather a shingle blade with a
+  shaft and a rounded tip; rows follow the wing's reach per direction. Old version: git history.
+- Close-ups: `fhead.sh TAG` (bare head), `hh.sh TAG` (head + hair), `up.sh`, `face.sh`. Check: IoU 0.831 (51 px outside, wings mirrored + hair).

@@ -26,7 +26,7 @@ g = lambda k, d: P.get(k, d)
 body = []
 # ROBE: one ball per unit of height on the measured ring centres (radius a bit under the ring: metaballs swell where they overlap)
 k = g('robe_k', 0.86)
-for zi in range(0, 25):
+for zi in range(g('robe_from', 0), 25):   # v11: robe_from 18 = the robe below is the polygon mesh of robe.py (params: folds 0)
     z = float(zi); body.append(ball(ip(C, z), 0.0, z, ip(R, z) * k))
 # spiral FOLDS of the twisted robe (v3, user: 'Gewand wie du sagst'): deep grooves (negative capsules) and rounded ridges between them winding up;
 # the drawn light stripes run from upper left to lower right
@@ -48,8 +48,11 @@ for j in range(nf):
 # head rows 54..61 (centre z ~42 at the axis), a small face at its lower middle, HAIR parted in the middle falling in two locks beside the face to the
 # shoulders; the chest RING right under the chin = the swaddling cloth around the child's face (light rim = cloth, dark centre = face), held upright
 ST = g('stu', 5.0)
-body.append(ball(0.6, -0.8, 27.0, 5.0))                                   # torso under the arms
+if g('torso', True): body.append(ball(0.6, -0.8, 27.0, 5.0))                                   # torso under the arms
 body.append(ball(0.6, -0.9, 33.6, g('shoulder_r', 4.4)))                  # shoulders
+if g('traps', True):   # v11: sloping shoulders into the neck (the neck stood on the shoulder dome like a post with a rim)
+    for sg in (-1, 1): body.append(caps((0.8 + sg * 0.7, -0.5, 37.6), (0.6 + sg * 3.7, -0.5, 35.0), 1.25, st=2.5))
+    body.append(caps((0.8, -0.2, 35.0), (0.9, 0.0, 39.2), g('neck_r', 1.35), st=2.5))   # the neck also in the body group: it blends into the shoulders (the head group's copy alone left a rim)
 HEAD0 = len(body)   # the head is its own metaball group at a finer resolution (the face is ~4 units)
 body.append(caps((0.8, -0.2, 35.0), (0.9, 0.0, 39.2), g('neck_r', 1.35)))   # thin neck
 if not g('head_mesh', True): body.append(ball(0.9, -0.1, 42.2, g('skull_r', 2.9)))   # skull (the polygon head of head.py replaces it)

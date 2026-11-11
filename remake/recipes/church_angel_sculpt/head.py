@@ -101,14 +101,15 @@ for X, Y, Z, *_ in V:   # (rows of the grid: j = 0 the crown)
 # HAIR SHELL (v8): follows the skull: a shell over the base head from the middle parting down, the hairline high on the forehead, lower at the temples
 # (framing the face = the drawn hair beside the face), behind the ears down to the nape (the long hair down the back continues as the metaball panel);
 # strands = ridges along the meridians from the crown; closed shell (outer + inner surface + rim)
+# v11 (user: 'schau dir die Haare nochmal an'; the shell ended at the skull = a cap with a rim, ribs fanning from the crown like a beanie): LONG hair
+# parted in the middle: the hairline an arch from the parting over the temples (the face opening = the drawn 'hood'), the sides cover the ears and fall
+# as a CURTAIN past the chin onto the shoulders and the back (it leaves the skull at Z = ZK and hangs, flaring a little); strands run from the PARTING
+# sideways and down (lines of constant Y over the top), a little wavy and uneven; a parting groove on top
+ZB = g('hair_bottom', -0.62); ZK = g('hair_hang', 0.40); NH = g('h_nh', 190)
 def hairline(th):   # th = angle around the vertical axis, 0 = the face
     a = abs(((th + math.pi) % (2 * math.pi)) - math.pi)
-    return lin([(0.0, g('hl_front', 0.79)), (0.35, 0.77), (0.7, g('hl_temple', 0.66)), (1.15, g('hl_side', 0.42)), (1.6, g('hl_ear', 0.30)), (2.4, 0.14), (math.pi, 0.1)], a)
+    return max(ZB, lin([(0.0, g('hl_front', 0.80)), (0.3, 0.765), (0.6, g('hl_temple', 0.65)), (0.85, 0.48), (1.0, 0.30), (1.2, 0.06), (1.5, -0.3), (1.75, ZB), (2.0, ZB), (math.pi, ZB)], a))   # beside the face to the jaw, then swept BACK behind the shoulders (user: 'kein Pagenkopf')
 HT = g('hair_t', 0.07); NSTR = g('h_strands', 46); RH = g('strand_h', 0.018)
-inhair = [[False] * NU for _ in range(NV + 1)]
-for j in range(NV + 1):
-    for i in range(NU):
-        b = BASE[j * NU + i]; th = 2 * math.pi * i / NU; inhair[j][i] = b[2] >= hairline(th)
 def base_pt(Z, th):   # the base head surface at height Z, angle th (as the grid) + its outward normal (finite differences)
     def P(Z, th):
         w = lin(WW, Z); c, sn = math.cos(th), math.sin(th)
@@ -120,27 +121,44 @@ def base_pt(Z, th):   # the base head surface at height Z, angle th (as the grid
     n = [-q / L for q in n]
     if n[0] * p[0] + n[1] * p[1] + n[2] * (p[2] - 0.5) < 0: n = [-q for q in n]
     return p, n
+YE_F, YE_B = lin(YF, 0.6), lin(YB, 0.6)
+def strand_u(p, Z, th):   # the strand coordinate: over the top (Z >= 0.6) the angle where the line of constant Y meets the head's widest ring, below = th
+    a = abs(((th + math.pi) % (2 * math.pi)) - math.pi)
+    if Z < 0.6: return a
+    if p[1] >= 0: e = 2.0 / PF; return math.acos(max(0.0, min(1.0, p[1] / YE_F)) ** (1.0 / e))
+    return math.pi - math.acos(max(0.0, min(1.0, p[1] / YE_B)))
+NUH = g('h_nuh', 360)   # the hair's own finer grid around (a strand = ~8 columns; 180 columns under-sampled the strands = terraces)
 def hv(j, i, outer):
-    th = 2 * math.pi * i / NU; Z = max(1.0 - j / NV, hairline(th))   # vertices below the hairline slide up onto it: a smooth hair edge
-    p, n = base_pt(Z, th)
-    edge = min(1.0, (Z - hairline(th)) / 0.05)                         # the shell thins out to the hairline
-    rid = RH * (0.5 + 0.5 * math.cos(NSTR * th)) ** 2 * (1 - math.exp(-((1 - Z) / 0.08) ** 2))
+    th = 2 * math.pi * i / NUH; hl = hairline(th); Zh = 1.0 - (1.0 - ZB) * j / NH; Z = max(Zh, hl)   # vertices below the hairline slide up onto it: a smooth hair edge
+    Zs = ZK + 0.5 * ((Z - ZK) + math.sqrt((Z - ZK) ** 2 + 0.01)); p, n = base_pt(min(1.0, Zs), th)   # smooth max(Z, ZK): no crease where the hair leaves the skull
+    dh = (hairline(th + 0.02) - hairline(th - 0.02)) / 0.04
+    edge = max(0.0, min(1.0, (Z - hl) / math.sqrt(1.0 + (dh / 0.33) ** 2) / 0.06))   # the shell thins out to the hairline by the true distance to it (a band by height alone made terraces along its steep part)
+    edge = edge * edge * (3 - 2 * edge)
+    u = strand_u(p, Zs, th); ph = NSTR * (u + 0.02 * math.sin(7 * u) + 0.012 * math.sin(17 * u + 1.0)) + 0.7 * math.sin(4.0 * Z + 3.0 * u)   # uneven strand widths, a little wavy
+    kk = math.floor(ph / (2 * math.pi)); ak = 0.55 + 0.45 * math.sin(12.9898 * kk + 4.1) ** 2
+    rid = RH * (ak * (0.5 + 0.5 * math.cos(ph)) ** 0.8 + 0.25 * (0.5 + 0.5 * math.cos(2.0 * ph + 1.0)))
     a_ = abs(((th + math.pi) % (2 * math.pi)) - math.pi); vol = lin([(0.0, g('hv_front', 0.05)), (0.7, g('hv_temple', 0.12)), (1.3, g('hv_side', 0.17)), (2.2, g('hv_back', 0.13)), (math.pi, 0.12)], a_)
-    vol *= 1.0 - 0.6 * sm(0.75, 1.0, Z)
-    t = (vol * (0.3 + 0.7 * edge) + rid * edge) if outer else -0.004
-    return [p[0] + t * n[0], p[1] + t * n[1], p[2] + t * n[2]]
+    vol *= 1.0 - 0.85 * sm(0.7, 1.0, Zs)
+    part = -g('part_d', 0.022) * math.exp(-(p[0] / 0.02) ** 2) * sm(0.62, 0.75, Zs) * sm(-0.42, -0.25, p[1])   # the middle parting (from the forehead over the crown)
+    t = (vol * (0.3 + 0.7 * edge) + rid * edge + part * edge) if outer else -0.004
+    q = [p[0] + t * n[0], p[1] + t * n[1], p[2] + t * n[2]]
+    if Zs > Z:   # the curtain: hangs from the skull's ring at ZK, flaring a little outward and back
+        d = Zs - Z; hl_ = math.hypot(n[0], n[1]) or 1.0; fl = g('hair_flare', 0.05) * d + g('hair_bulge', 0.03) * math.sin(math.pi * min(1.0, d / (ZK - ZB)))
+        q = [q[0] + fl * n[0] / hl_, q[1] + fl * n[1] / hl_ - g('hair_backd', 0.16) * d, Z]
+    return q
 HV, HF_ = [], []; idxh = {}
 def hid(j, i, o):
-    k = (j, i % NU, o)
-    if k not in idxh: idxh[k] = len(HV); HV.append(hv(j, i % NU, o))
+    k = (j, i % NUH, o)
+    if k not in idxh: idxh[k] = len(HV); HV.append(hv(j, i % NUH, o))
     return idxh[k]
-cells = {(j, i) for j in range(NV) for i in range(NU) if inhair[j][i] or inhair[j][(i + 1) % NU] or inhair[j + 1][i] or inhair[j + 1][(i + 1) % NU]}
+inh = [[(1.0 - (1.0 - ZB) * j / NH) >= hairline(2 * math.pi * i / NUH) for i in range(NUH)] for j in range(NH + 1)]
+cells = {(j, i) for j in range(NH) for i in range(NUH) if inh[j][i] or inh[j][(i + 1) % NUH] or inh[j + 1][i] or inh[j + 1][(i + 1) % NUH]}
 for (j, i) in cells:
     HF_.append((hid(j, i, 1), hid(j, i + 1, 1), hid(j + 1, i + 1, 1), hid(j + 1, i, 1)))
     HF_.append((hid(j, i, 0), hid(j + 1, i, 0), hid(j + 1, i + 1, 0), hid(j, i + 1, 0)))
 for (j, i) in cells:   # rim along the region boundary
     for (nj, ni), (a0, a1) in (((j - 1, i), ((j, i), (j, i + 1))), ((j, i + 1), ((j, i + 1), (j + 1, i + 1))), ((j + 1, i), ((j + 1, i + 1), (j + 1, i))), ((j, i - 1), ((j + 1, i), (j, i)))):
-        if (nj, ni % NU) not in cells: HF_.append((hid(a0[0], a0[1], 1), hid(a0[0], a0[1], 0), hid(a1[0], a1[1], 0), hid(a1[0], a1[1], 1)))
+        if (nj, ni % NUH) not in cells: HF_.append((hid(a0[0], a0[1], 1), hid(a0[0], a0[1], 0), hid(a1[0], a1[1], 0), hid(a1[0], a1[1], 1)))
 F_ = []
 for j in range(NV):
     for i in range(NU):
