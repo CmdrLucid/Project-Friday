@@ -103,11 +103,12 @@ _LS = {1: _mk(1), -1: _mk(-1)}
 def reach(th, sd): x = (th + math.pi) / (2 * math.pi) * NA; k = int(math.floor(x)); t = x - k; L_ = _LS[sd]; return L_[k % NA] * (1 - t) + L_[(k + 1) % NA] * t
 sm_ = lambda x: 0.0 if x <= 0 else 1.0 if x >= 1 else x * x * (3 - 2 * x)
 def blade(x, wu=3.0):   # cross-section of one feather, x 0 .. 1 across it: rounded, tilted like a shingle, a fine shaft
-    return 0.55 * math.sqrt(max(0.0, 1.0 - (2 * x - 1) ** 2)) + 0.45 * (1.0 - x) * sm_(x * wu / 1.1) + 0.14 * math.exp(-((x - 0.5) * wu / 0.22) ** 2)   # wu = the feather's width in units: the step and the shaft keep an absolute width (no stairs on the grid)
+    gr = -g('groove', 0.45) * (math.exp(-(x * wu / 0.4) ** 2) + math.exp(-((1.0 - x) * wu / 0.4) ** 2))   # v14: a narrow dark groove between two feathers (the drawn dark lines)
+    return gr + 0.55 * math.sqrt(max(0.0, 1.0 - (2 * x - 1) ** 2)) + 0.45 * (1.0 - x) * sm_(x * wu / 1.1) + 0.14 * math.exp(-((x - 0.5) * wu / 0.22) ** 2)   # wu = the feather's width in units: the step and the shaft keep an absolute width (no stairs on the grid)
 ROWS = g('rows3', [0.34, 0.62]); NB = g('fan3', 0.2); TIP = g('tip', 0.09); FH = g('feather_h', 0.55); RS = g('row_step', 0.38)
 def relief(cu, cv):   # in the plane, mirrored about y = YC: the same feathers on both sides
     y, z = _toplane(cu - 0.5, cv - 0.5); a = abs(y - YM); dx, dy = a - A0, z - Z0; rr = math.hypot(dx, dy); th = math.atan2(dy, dx); L = reach(th, 1 if y > YM else -1); q = rr / L
-    fade = sm_((a - 1.0) / 3.0) * sm_((rr - 3.0) / 6.0)   # smooth at the shoulder blade (the converging feathers made a star-shaped pit)   # the feathers fade in away from the body and the root (no cliff)
+    fade = sm_((a - 1.0) / 3.0) * sm_((rr - 4.0) / 5.0)   # smooth at the shoulder blade (the converging feathers made a star-shaped pit)   # the feathers fade in away from the body and the root (no cliff)
     h = 0.0; k = 0
     for k in range(len(ROWS) + 1):
         nb = NB; x = (th / nb + 0.5 * k) % 1.0

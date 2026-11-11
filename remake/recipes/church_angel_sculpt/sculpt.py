@@ -136,10 +136,12 @@ if g('scroll', True) and g('folded', True):
     # v13 (user: 'eher verschraenkte Arme, in denen die Schriftrolle liegt, nicht aufrecht gehalten'): the arms FOLDED across the chest (each forearm
     # across the front, the hand at the other elbow, one forearm over the other), wide sleeves hanging under them; the scroll lies in them (scroll.py)
     for sg, zf, ff in ((-1, 30.3, 4.5), (1, 29.2, 4.0)):   # the s- arm lies on top / in front
-        sh = (0.7 + sg * 4.0, -0.2, g('sh_z', 33.5)); el = (0.7 + sg * 5.0, 1.6, zf - 0.5); ha = (0.7 - sg * 2.7, ff, zf)
-        body.append(caps(sh, el, g('uarm_r', 1.45), st=3.0)); body.append(ball(*el, 1.55, st=3.0)); body.append(caps(el, ha, g('farm_r', 1.25), st=3.0))
-        body.append(caps((el[0] - sg * 0.6, el[1] + 0.5, el[2] - 1.3), (ha[0] + sg * 1.2, ha[1] - 0.2, ha[2] - 1.5), g('sleeve_r', 0.95), st=2.5))   # the sleeve hanging under the forearm
-        body.append(ball(ha[0] - sg * 0.5, ha[1], ha[2], 0.9, st=3.0))                                                                                # the hand
+        sh = (0.7 + sg * 4.0, -0.2, g('sh_z', 33.5)); el = (0.7 + sg * 5.0, 1.7, zf - 0.6); mid = (0.7 + sg * 1.2, ff - 0.3, zf - 0.1); ha = (0.7 - sg * 2.9, ff, zf)
+        # v14 (user: 'die Unterarme sind zu knubbelig'): one even limb (no elbow ball, no separate sleeve roll, no hand ball): upper arm, a forearm that
+        # tapers a little to the wrist, a small flat hand; soft blending
+        ar = g('uarm_r', 1.4); fr = g('farm_r', 1.2)
+        body.append(caps(sh, el, ar, st=2.4)); body.append(caps(el, mid, fr, st=2.4)); body.append(caps(mid, ha, fr * 0.88, st=2.4))
+        body.append(ellip(ha[0] - sg * 0.7, ha[1] + 0.05, ha[2], 0.85, 0.5, 0.7, st=3.0))                               # the hand, flat on the other arm
 elif g('scroll', True):
     for sg in (-1, 1):
         sh = (0.7 + sg * 4.0, -0.3, g('sh_z', 33.5)); el = (0.7 + sg * 5.0, 1.3, 30.3); wr = (0.7 + sg * 1.7, 4.3, 28.4)

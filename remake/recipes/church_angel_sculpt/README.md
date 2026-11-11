@@ -48,3 +48,10 @@ zum Koerper', 'kein Loch ... eine komplette Form', 'eher verschraenkte Arme, in 
   starts at each shoulder blade (`wr_a` from the body's axis y = 449.25, `wr_z` 63), reach per side; depth along the plane normal. IoU 0.830 -> 0.898.
 - `sculpt.py` `folded`: arms folded across the chest (hand at the other elbow), sleeves; `scroll.py`: the scroll lies diagonally in them.
 - Open: forearms still lumpy, feathers flat in the game view's light, the face is mostly hidden from the game camera (hair + view from above).
+
+v14 (2026-11-11, user marked a gap between the left wing and the body: 'so wuerde ein Fluegel nicht aussehen'; forearms 'zu knubbelig'; feathers):
+- `fill_zlo` 50: the bridge across the back reaches down to the wings' lowest feathers (the body is narrower than the drawing at the waist: the wall
+  showed through between wing and body). IoU 0.898 -> 0.922.
+- The feather fan starts at the wing's TOP INNER corner (`wr_a` 1.5, `wr_z` 71): feathers hang down along the back, then turn outward to the tip, in
+  three rows, a dark groove between two feathers (`groove`). A fan around the shoulder blade (v13) became a sunburst once the wing was complete.
+- Arms: one even limb (no elbow / hand balls, no sleeve roll), a small flat hand.
