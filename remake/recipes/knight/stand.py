@@ -15,6 +15,9 @@ capsule((0.0, 0.0, 3.0), (0.0, 0.0, 14.5), 0.95, 0.95, nu=12, cap=2)
 lathe((0.0, 0.0), [(6.6, 0.95, 0.95), (6.9, 1.55, 1.55), (7.5, 1.55, 1.55), (7.8, 0.95, 0.95)], nu=20)   # a turned collar on the pole (v2: the stand must read from the game view)
 #                                                                              # the pole
 BF = g('body_f', 0.3)
+# TWO VARIANTS (user 2026-11-11): the default = the REMAKE model (real symmetric 3D); `"variant": "light"` = the LIGHT model AS DRAWN (the armour ~2 off the
+# pole's axis, the near pauldron big and high, the far one small, the far arm shorter, the helm lower): it covers the sprite's pixels (IoU ~0.9)
+LIGHT = g('variant', 'remake') == 'light'
 N0 = len(V)   # the armour hangs a little off the pole's axis (read from the drawing): everything from here on is shifted by `off` (s, f) at the end
 # v2 (user: 'die Platten unten an der Ruestung sind noch nicht gut', 'der Staender ist aus der Spielperspektive kaum zu erkennen'): the fauld = a short bell
 # of three overlapping lames (each a little wider than the one above, a step between), ending at z 12.8; the TASSETS hang at the two HIPS (pointed plates,
@@ -25,19 +28,19 @@ for sg in (-1, 1): plate((sg * 4.5, BF + 2.9, 10.3), sg * g('tasset_yaw', 40.0),
 lathe((0.0, BF), [(16.6, 4.6, 3.8), (17.2, 4.9, 4.0), (17.8, 4.6, 3.8), (18.6, 4.5, 3.75), (20.5, 5.3, 4.5), (23.0, 5.9, 4.9), (25.2, 5.7, 4.6), (26.6, 4.6, 3.8), (27.3, 3.3, 3.0)], sq=2.3)      # belt, waist, breastplate
 ellipsoid((0.0, BF + 4.1, 21.2), (2.9, 1.5, 2.7))                                                                                                # the round boss on the breastplate
 lathe((0.0, BF), [(26.6, 3.9, 3.7), (27.6, 4.3, 4.1), (28.6, 4.1, 3.9), (29.2, 3.6, 3.4)], sq=2.0)                                                                 # the collar
-HZ = g('helm_z', 28.5); HCU = (g('helm_s', 0.0), BF + 0.3)   # v3 (user: 'Schultern sitzen zu hoch ... oder Kopf zu niedrig'): the helm a little higher on a taller collar, the pauldrons lower
+HZ = g('helm_z', 27.6 if LIGHT else 28.5); HCU = (g('helm_s', 1.6 if LIGHT else 0.0), BF + 0.3)   # v3 (user: 'Schultern sitzen zu hoch ... oder Kopf zu niedrig'): the helm a little higher on a taller collar, the pauldrons lower
 lathe(HCU, [(HZ, 3.9, 4.1), (HZ + 0.8, 4.8, 5.0), (HZ + 3.2, 5.3, 5.5), (HZ + 5.4, 5.25, 5.45), (HZ + 7.4, 4.6, 4.8), (HZ + 9.0, 3.3, 3.5), (HZ + 10.0, 1.7, 1.8), (HZ + 10.4, 0.3, 0.3)], sq=2.0)   # the round helm
 visor(HCU, 5.3, 5.5, HZ + 0.6, HZ + 6.2, g('visor_depth', 1.5), slit=(0.66, 0.82))
 for sg in (-1, 1): ellipsoid((HCU[0] + sg * 5.6, HCU[1] + 0.8, HZ + 3.4), (0.45, 0.9, 0.9), nu=12, nv=8)                                           # the visor's pivots
 for sg in (-1, 1):
-    sh = (sg * 8.0, BF, g('pauldron_z', 26.9))   # v2 (user: 'richtig in 3D bauen'): SYMMETRIC; the far pauldron looks smaller in the game view because the helm hides part of it
-    ellipsoid(sh, (3.7, 3.7, 3.5))                                                                                                              # the big ball pauldron, high beside the helm
-    ellipsoid((sg * 8.5, BF, 24.0), (2.7, 2.8, 1.5))                                                                                             # a lame under it
-    el = (sg * 8.9, BF + 0.4, 19.4); ha = (sg * 8.7, BF + 1.5, 12.8)
-    capsule((sg * 8.5, BF, 24.6), el, 2.0, 1.8); ellipsoid(el, (2.05, 2.1, 1.9)); capsule(el, ha, 1.75, 1.55)                                    # upper arm, couter, forearm
+    sh = ((-8.4, BF, 30.6) if sg < 0 else (7.4, BF, 28.8)) if LIGHT else (sg * 8.0, BF, g('pauldron_z', 26.9))   # v2 (user: 'richtig in 3D bauen'): SYMMETRIC; the far pauldron looks smaller in the game view because the helm hides part of it
+    ellipsoid(sh, ((4.0, 4.0, 3.8) if sg < 0 else (2.9, 2.9, 2.7)) if LIGHT else (3.7, 3.7, 3.5))                                                                                                              # the big ball pauldron, high beside the helm
+    ellipsoid((sg * 8.5, BF, 26.6 if LIGHT else 24.0), (2.7, 2.8, 1.5))                                                                                             # a lame under it
+    el = (sg * 8.9, BF + 0.4, 19.4); ha = (sg * 8.7, BF + 1.5, (12.6 if sg < 0 else 15.0) if LIGHT else 12.8)
+    capsule((sg * 8.5, BF, 26.0 if LIGHT else 24.6), el, 2.0, 1.8); ellipsoid(el, (2.05, 2.1, 1.9)); capsule(el, ha, 1.75, 1.55)                                    # upper arm, couter, forearm
     capsule((ha[0], ha[1], ha[2] + 0.8), (ha[0], ha[1] + 0.3, ha[2] - 1.4), 2.0, 1.6, nu=14, cap=3)                                              # gauntlet cuff
     ellipsoid((ha[0], ha[1] + 0.5, ha[2] - 2.6), (1.6, 1.8, 1.7))                                                                                # the hanging hand
-OFF = g('off', [0.0, 0.0])   # v2: centred on the pole (the drawing shows it ~2 off; a real stand carries it in the middle)
+OFF = g('off', [-1.9, -0.4] if LIGHT else [0.0, 0.0])   # v2: centred on the pole (the drawing shows it ~2 off; a real stand carries it in the middle)
 for k in range(N0, len(V)): V[k] = (V[k][0] + OFF[0], V[k][1] + OFF[1], V[k][2])
 YAW = g('yaw', 79.0); ct, st = math.cos(math.radians(YAW)), math.sin(math.radians(YAW)); BX, BY = g('body', [0.0, 0.0])
 CX, CY, FLO = g('cx', 312.0), g('cy', 456.0), g('floor', 32.0)

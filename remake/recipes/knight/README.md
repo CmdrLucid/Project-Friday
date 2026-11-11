@@ -54,3 +54,8 @@ same drawing. The castle's dark armour on a stand (tileset 15, $0B5: 63 64 83 84
   in 63 64 83 84 (all pixel-identical to 63 cell 19, 28; walls west / north / south -> xmin / ymin / ymax, parts slide along the view ray; room 93 left
   out: height 0 in a void height map). Built; headless before / after: 63 (`63:26.08,26.08,0020`) edge pixels 3921 -> 4056, 83 (`83:21.08,22.08,0010`)
   608 -> 1000 (shading on the armours, they are darker than the lit block before; no boxes / cut walls seen). Not played.
+- TWO VARIANTS (2026-11-11, user: 'wir haben doch gesagt das asymmetrische behalten wir fuer das Lichtobjekt im Spiel' - the symmetric model was built
+  into the light by mistake): `stand.py` default = the REMAKE model (symmetric v3); `"variant": "light"` = AS DRAWN (off the pole's axis, unequal pauldrons,
+  shorter far arm, lower helm) with the new fauld / tassets / stand, IoU 0.905 (35 outside, 56 missed). furniture_ops writes the light variant. Rebuilt;
+  edge pixels 63: 3921 (no shape) / 4056 (symmetric) / 4084 (as drawn); 83: 608 / 1000 / 1037 = the rise comes from the shading of the figures as such,
+  not from the outline mismatch.

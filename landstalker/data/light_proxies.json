@@ -746,7 +746,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+        "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
       },
       {
         "op": "mesh",
@@ -760,7 +760,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+        "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
       },
       {
         "op": "mesh",
@@ -774,7 +774,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+        "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
       }
     ],
     "64": [
@@ -790,7 +790,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+        "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
       },
       {
         "op": "mesh",
@@ -804,7 +804,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+        "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
       },
       {
         "op": "mesh",
@@ -818,7 +818,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+        "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
       }
     ],
     "65": [
@@ -1149,7 +1149,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+        "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
       },
       {
         "op": "mesh",
@@ -1163,7 +1163,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+        "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
       },
       {
         "op": "mesh",
@@ -1177,7 +1177,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+        "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
       }
     ],
     "84": [
@@ -1193,7 +1193,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+        "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
       },
       {
         "op": "mesh",
@@ -1207,7 +1207,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+        "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
       },
       {
         "op": "mesh",
@@ -1221,7 +1221,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+        "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
       }
     ],
     "86": [

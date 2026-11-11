@@ -214,7 +214,7 @@ def armour_stands(rom, room):
 def stand_obj(x, y, floor, room, west=False, north=False, south=False):
     """the stand's parts model (remake/recipes/knight/stand.py, pure Python) at cell (x, y) on `floor` (units) -> OBJ text"""
     import subprocess, tempfile
-    d = tempfile.mkdtemp(); pj = os.path.join(d, "p.json"); ob = os.path.join(d, "s.obj"); P = dict(cx=16 * x + 8.0, cy=16 * y + 8.0, floor=float(floor))
+    d = tempfile.mkdtemp(); pj = os.path.join(d, "p.json"); ob = os.path.join(d, "s.obj"); P = dict(cx=16 * x + 8.0, cy=16 * y + 8.0, floor=float(floor), variant="light")   # the LIGHT variant = as drawn (user 2026-11-11: the symmetric model is for the remake)
     if west: P["xmin"] = 16 * x + 0.5
     if north: P["ymin"] = 16 * y + 0.5
     if south: P["ymax"] = 16 * y + 15.5
@@ -332,7 +332,7 @@ def main():
                 (x, y) = t["cell"]; fn = "stand_%d.obj" % r if k == 0 else "stand_%d_%d.obj" % (r, k)
                 open(os.path.join(ROOT, "landstalker", "data", "proxies", fn), "w").write(stand_obj(x, y, 16 * t["floor"], r, t["west"], t["north"], t["south"]))
                 ops0.append(collections.OrderedDict([("op", "mesh"), ("cells", [x, y, x, y]), ("file", "proxies/" + fn), ("surface", True), ("air", True), ("floor", 16 * t["floor"]),
-                    ("why", "armour on a stand (collision = a 2 step block): our symmetric parts model of remake/recipes/knight/stand.py ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'")]))
+                    ("why", "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'")]))
             data["rooms"][str(r)] = ops0; n += 1
         cang = church_angels(rom, r)
         for t in cang: print("room %d: church angel statue + pedestal 23 x 27..28 + niche 23 x 26..29 OK" % r)
