@@ -135,13 +135,17 @@ HEAD1 = len(body)
 if g('scroll', True) and g('folded', True):
     # v13 (user: 'eher verschraenkte Arme, in denen die Schriftrolle liegt, nicht aufrecht gehalten'): the arms FOLDED across the chest (each forearm
     # across the front, the hand at the other elbow, one forearm over the other), wide sleeves hanging under them; the scroll lies in them (scroll.py)
-    for sg, zf, ff in ((-1, 30.7, g('ff_top', 5.2)), (1, 28.7, g('ff_low', 4.7))):   # v16: the forearms a little further out: the scroll lies BETWEEN them and the chest   # the s- arm lies on top / in front (v15: further apart + stiffer blending: no bulge where they cross)
-        sh = (0.7 + sg * 4.0, -0.2, g('sh_z', 33.5)); el = (0.7 + sg * 5.0, 1.7, zf - 0.6); mid = (0.7 + sg * 1.2, ff - 0.3, zf - 0.1); ha = (0.7 - sg * 2.9, ff, zf)
-        # v14 (user: 'die Unterarme sind zu knubbelig'): one even limb (no elbow ball, no separate sleeve roll, no hand ball): upper arm, a forearm that
-        # tapers a little to the wrist, a small flat hand; soft blending
-        ar = g('uarm_r', 1.4); fr = g('farm_r', 1.2)
-        body.append(caps(sh, el, ar, st=2.4)); body.append(caps(el, mid, fr, st=4.5)); body.append(caps(mid, ha, fr * 0.88, st=4.5))
-        body.append(ellip(ha[0] - sg * 0.7, ha[1] + 0.05, ha[2], 0.85, 0.5, 0.7, st=3.0))                               # the hand, flat on the other arm
+    # v18 (user: 'die Schriftrolle wird noch nicht gut gehalten'): the scroll LIES in the folded arms like in a cradle: nearly level across the body on
+    # top of the two forearms, leaning against the chest, between the upper arms; the upper arm's hand lies over one end, the lower arm's hand cups the
+    # other end from below / in front. (shoulder, elbow, middle of the forearm, wrist, hand)
+    ARMS = g('arms', [[[-3.3, -0.2, 33.5], [-4.3, 1.7, 29.5], [-0.5, 4.5, 29.9], [2.5, 4.9, 30.5], [3.3, 4.75, 31.5]],
+                      [[4.7, -0.2, 33.5], [5.7, 1.7, 28.4], [1.9, 4.3, 28.7], [-1.4, 4.7, 29.4], [-2.3, 4.55, 30.5]]])
+    for sh, el, mid, wr, hd in ARMS:
+        ar = g('uarm_r', 1.4); fr = g('farm_r', 1.1)
+        body.append(caps(sh, el, ar, st=2.4)); body.append(caps(el, mid, fr, st=4.5)); body.append(caps(mid, wr, fr * 0.9, st=4.5))
+        body.append(caps(wr, (hd[0], hd[1], hd[2] - 0.55), 0.8, st=4.0))                                          # the wrist turning up to the scroll
+        for ds in (-0.5, 0.0, 0.5):                                                                              # the hand: a flat pad of fingers lying over the roll
+            body.append(caps((hd[0] + ds, hd[1], hd[2] - 0.55), (hd[0] + ds, hd[1] - 0.3, hd[2] + 0.6), 0.5, st=3.0))
 elif g('scroll', True):
     for sg in (-1, 1):
         sh = (0.7 + sg * 4.0, -0.3, g('sh_z', 33.5)); el = (0.7 + sg * 5.0, 1.3, 30.3); wr = (0.7 + sg * 1.7, 4.3, 28.4)

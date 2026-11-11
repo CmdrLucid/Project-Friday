@@ -64,6 +64,9 @@ FINAL = with material, approved by the user.
   the scroll between arms and chest, comparison render lit from the front right; v17 = the right wing is the MIRRORED left one (user), IoU 0.792
   (v16 with each wing as drawn: 0.914). Open: user's look; which variant the light gets.
 
+- v18 (2026-11-11, `sculpt_v18_scroll.png`): the scroll lies in the folded arms, a hand over each end. User's decision: TWO variants = remake model with
+  mirrored wings (`params.json`), light model with the wings as drawn (`params_light.json`, IoU 0.914; not built into the light yet).
+
 ## Chapel angel statue  (`furniture.ANGEL`, `angel(cx, cy, floor)`; ops by `angels()`)
 - Game: chapels, tileset 8, rooms 597 607 736, cell (27, 24) = top block $2EB on the blocked 1-step platform $2EB / $2EC (cells 26..28 x 24), floor 16.
 - Reference: room 597, window U0 1184 V0 304 (96 x 112). NOT the church drawing (17 % equal pixels).

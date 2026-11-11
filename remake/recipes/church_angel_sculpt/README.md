@@ -72,3 +72,10 @@ v17 (2026-11-11, user: 'der rechte Fluegel sollte gleich sein wie der linke, nur
 bridge) mirrored at the body's axis (y = 449.25) = a symmetric pair. The drawn right wing is shorter and rounder than the mirrored left one: IoU 0.914 ->
 0.792 (77 px outside, 190 missed; the right tip reaches ~8 px further up / right than drawn). Remake model; for the light this needs a decision
 (`mirror_left` false = v16, each wing as drawn).
+
+v18 (2026-11-11, user: 'die Schriftrolle wird noch nicht gut gehalten'; then the remake model is finished): the scroll LIES in the folded arms (nearly
+level across the body on the forearms, against the chest, `scroll_b` / `scroll_t`), a hand as a flat pad of fingers over each end (`arms` = shoulder,
+elbow, forearm middle, wrist, hand per arm). `scroll.py` had a non-orthogonal section frame (a lying scroll became a blade): fixed. `arm.sh` = close-ups.
+TWO VARIANTS (user's decision 2026-11-11): `params.json` = the REMAKE model (`mirror_left` true, symmetric wings, IoU 0.790); `params_light.json` =
+the LIGHT model (`mirror_left` false, each wing as drawn, IoU 0.914). Exports (not in git): `~/.landstalker_remake/assets/church_angel/sculpt_v18_remake.obj`,
+`sculpt_v18_light.obj`. The light in the game still uses CHURCH_ANGEL4 v5 until the light variant is built in and checked for hard edges.

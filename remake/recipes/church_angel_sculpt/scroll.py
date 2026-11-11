@@ -11,7 +11,10 @@ def W(s, f, z):
     return (AX + (s + f) / SQ2, AY + (f - s) / SQ2, FLO + z)
 B = g('scroll_b', [0.7, 4.6, 27.4]); T = g('scroll_t', [0.7, 3.7, 34.6]); R = g('scroll_r', 1.2)
 ax = [T[i] - B[i] for i in range(3)]; L = math.sqrt(sum(t * t for t in ax)); ax = [t / L for t in ax]
-e1 = [1.0, 0.0, 0.0]; e2 = [ax[1] * e1[2] - ax[2] * e1[1], ax[2] * e1[0] - ax[0] * e1[2], ax[0] * e1[1] - ax[1] * e1[0]]; n2 = math.sqrt(sum(t * t for t in e2)); e2 = [t / n2 for t in e2]
+def _x(a, b): return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+def _n(a): l = math.sqrt(sum(t * t for t in a)); return [t / l for t in a]
+_ref = [0.0, 0.0, 1.0] if abs(ax[2]) < 0.9 else [1.0, 0.0, 0.0]   # an ORTHONORMAL frame across the axis (a fixed e1 = (1, 0, 0) flattened a lying scroll to a blade)
+e1 = _n(_x(ax, _ref)); e2 = _x(ax, e1)
 NT = 96; prof = []   # (distance along the axis, radius factor): hollow end, rounded rim, shaft, rounded rim, hollow end
 for k in range(5): prof.append((0.35 - 0.35 * k / 4, 0.12 + 0.6 * k / 4))            # bottom hollow -> rim
 for k in range(1, 7): a = math.pi / 2 * k / 6; prof.append((0.25 - 0.25 * math.cos(a) * 1.0 + 0.0, 0.72 + 0.28 * math.sin(a)))
