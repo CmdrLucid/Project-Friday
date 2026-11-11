@@ -138,11 +138,11 @@ def visor(c, rs, rf, z0, z1, depth, half=78.0, nphi=36, nz=40, t=0.35, slit=(0.6
 HCU = (-0.5, 0.5)
 visor(HCU, 4.85, 5.2, HZ + 0.5, HZ + 5.4, g('visor_depth', 2.4))
 for sg in (-1, 1): ellipsoid(T((HCU[0] + sg * 5.15, HCU[1] + 0.9, HZ + 3.0)), (0.45, 0.85, 0.85), nu=12, nv=8, rot=-TW)   # the visor's pivots at the temples
-capsule(T((HCU[0], HCU[1] + 3.6, HZ + 7.3)), T((HCU[0], HCU[1] - 3.8, HZ + 7.5)), 0.55, 0.5, nu=8, cap=3)                # a low comb over the skull
+# (the low comb is gone: only its two ends showed, as nubs on the dome)
 # v6 (user: 'oben am Helm sind es Federn ... sieht im Sprite wie 2 Stueck aus'): TWO FEATHERS as drawn: a short upright one at the front of the top and a
 # long one sweeping over to the figure's left / back with a drooping tip. A feather = a thin curved blade (quill at the base, the vane widest before the
 # middle, a pointed tip, a raised shaft down its middle, a little cupped), its flat side turned to the game camera (the drawing shows their full width)
-def feather(path, wmax, n=26, m=9, thick=0.16):
+def feather(path, wmax, n=64, m=20, thick=0.15, barbs=22, splits=((0.34, 1), (0.52, -1), (0.63, 1), (0.78, -1))):
     pts = [T(p) for p in path]                                         # in the placed body frame (= world offsets at yaw 0)
     def at(a):                                                         # Catmull-Rom through the path points
         x = a * (len(pts) - 1); i = min(int(x), len(pts) - 2); u = x - i
@@ -155,10 +155,19 @@ def feather(path, wmax, n=26, m=9, thick=0.16):
         nr = (wd[1] * t[2] - wd[2] * t[1], wd[2] * t[0] - wd[0] * t[2], wd[0] * t[1] - wd[1] * t[0])   # towards the camera
         w = 0.22 + (wmax - 0.22) * (max(0.0, math.sin(math.pi * min(1.0, max(0.0, (a - 0.08) / 0.92)) ** 0.75)) ** 0.8)   # a bare quill, then the vane
         if a > 0.97: w *= (1.0 - a) / 0.03 * 0.8 + 0.2
+        vane = max(0.0, min(1.0, (a - 0.1) / 0.08))                    # 0 on the bare quill
         for side in (1, -1):
             for i in range(m + 1):
-                u = -1.0 + 2.0 * i / m; h = thick * (1 - u * u) + (0.2 * math.exp(-(u / 0.16) ** 2) if side > 0 else 0.0) + 0.0; cup = -0.22 * u * u * w / wmax
-                vs.append(tuple(p[k] + wd[k] * u * w / 2 + nr[k] * (side * h + cup) for k in range(3)))
+                u = -1.0 + 2.0 * i / m; sd = 1 if u > 0 else -1
+                # v7 (user: 'noch mehr nach Feder aussehen lassen / detaillierter'): BARBS = fine ridges running from the shaft outwards and towards the tip
+                # (herringbone) on both faces, a finely scalloped edge, and a few SPLITS where the vane has parted (a notch from the edge towards the shaft)
+                ws = w * (1.0 - 0.07 * vane * (0.5 + 0.5 * math.sin(2 * math.pi * (barbs * a + 0.25))) ** 3)
+                for (sa, ss_) in splits:
+                    if ss_ == sd: ws *= 1.0 - 0.42 * math.exp(-((a - sa) / 0.011) ** 2)
+                barb = 0.055 * vane * math.sin(2 * math.pi * (barbs * a - 1.9 * abs(u))) * min(1.0, max(0.0, (abs(u) - 0.1) / 0.15)) * (1 - 0.6 * abs(u) ** 3)
+                shaft = (0.22 - 0.12 * a) * math.exp(-(u / 0.13) ** 2)
+                h = thick * (1 - u * u) + barb + (shaft if side > 0 else 0.4 * shaft); cup = -0.25 * u * u * w / wmax
+                vs.append(tuple(p[k] + wd[k] * u * ws / 2 + nr[k] * (side * h + cup) for k in range(3)))
     R = 2 * (m + 1)
     for j in range(n):
         for i in range(m):
@@ -167,8 +176,10 @@ def feather(path, wmax, n=26, m=9, thick=0.16):
     V.extend(vs); F.extend([tuple(x + len(V) - len(vs) for x in f) for f in fs])   # already placed: bypass T again (see RAW below)
     RAW.update(range(len(V) - len(vs), len(V)))
 RAW = set()
-feather(g('feather1', [(-0.6, 1.0, HZ + 8.2), (-0.8, 1.2, HZ + 9.4), (-0.9, 1.3, HZ + 10.5), (-0.7, 1.2, HZ + 11.4)]), 1.8, n=16)
-feather(g('feather2', [(0.2, 0.2, HZ + 8.3), (0.9, -0.5, HZ + 9.4), (2.3, -1.5, HZ + 9.8), (3.7, -2.4, HZ + 9.1), (4.6, -3.0, HZ + 7.7)]), 2.5, n=30)
+FB = g('feather_base', (-0.1, 0.5, HZ + 8.3))   # both feathers grow out of ONE holder on the helm's top (user: 'aus dem selben Ursprungspunkt')
+ellipsoid(T(FB), (0.75, 0.75, 0.65), nu=12, nv=8)
+feather([FB, (FB[0] - 0.5, FB[1] + 0.5, HZ + 9.5), (FB[0] - 0.9, FB[1] + 0.8, HZ + 10.6), (FB[0] - 0.9, FB[1] + 0.8, HZ + 11.6)], 1.8, n=40, barbs=12, splits=((0.55, -1),))
+feather([FB, (0.9, -0.5, HZ + 9.4), (2.3, -1.5, HZ + 9.8), (3.7, -2.4, HZ + 9.1), (4.6, -3.0, HZ + 7.7)], 2.5)
 for sg, sx in ((-1, -6.4), (1, 6.9)):                                                                                                                       # pauldrons: a cap + two lames down the arm
     ellipsoid(T((sx, 0.1, 26.6 if sg < 0 else 27.3)), (3.2 if sg < 0 else 3.5, 3.4, 2.5 if sg < 0 else 2.9), rot=-TW)
     ellipsoid(T((sx + sg * 0.7, 0.1, 25.0)), (2.75, 2.9, 1.5), rot=-TW); ellipsoid(T((sx + sg * 1.0, 0.1, 23.8)), (2.45, 2.6, 1.3), rot=-TW)

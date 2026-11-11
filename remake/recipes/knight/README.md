@@ -28,3 +28,8 @@ same drawing. The castle's dark armour on a stand (tileset 15, $0B5: 63 64 83 84
   the eye slit is a sunk band in the visor's front only (+-52 degrees, `visor(slit=, slit_half=)`), a brow plate above it. Proxies rewritten, rebuilt.
 - v6 (2026-11-11, user: 'oben am Helm sind es Federn ... im Sprite 2 Stueck'): `feather()` = a thin curved blade (quill, vane, shaft ridge, cupped, its flat
   side to the game camera; assumes yaw 0); TWO feathers: a short upright one at the front, a long one sweeping to the figure's left / back. IoU ~0.82.
+- v7 (2026-11-11, user: 'die 2 Federn aus demselben Ursprungspunkt ... detaillierter, dann done') = FINISHED for now: both feathers grow from one holder
+  on the helm's top (`feather_base`); `feather()` with BARBS (herringbone ridges on both faces), a finely scalloped edge and a few SPLITS in the vane;
+  the low comb removed (only its ends showed as nubs). ~16000 faces, IoU 0.823 (66 outside, 113 missed). Rebuilt; 695: edge pixels at the corner knight
+  415 (no knight shape) -> 608, right knight 386 -> 413, whole picture 3699 -> 3937 (shading on the figures; no boxes / cut walls seen). Not played.
+  Export (not in git): `~/.landstalker_remake/assets/knight/knight_v7.obj`, sheet `knight_v7.png`.
