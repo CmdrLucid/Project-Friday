@@ -55,3 +55,9 @@ v14 (2026-11-11, user marked a gap between the left wing and the body: 'so wuerd
 - The feather fan starts at the wing's TOP INNER corner (`wr_a` 1.5, `wr_z` 71): feathers hang down along the back, then turn outward to the tip, in
   three rows, a dark groove between two feathers (`groove`). A fan around the shoulder blade (v13) became a sunburst once the wing was complete.
 - Arms: one even limb (no elbow / hand balls, no sleeve roll), a small flat hand.
+
+v15 (2026-11-11, user: 'mit Gold und Licht sehen die Fluegel sehr dunkel aus, liegt das nur am Licht?'): YES, only the comparison render's light:
+`gameview.py` lit from the picture's upper left (-55, 50), which is parallel to the wall plane = the wings got grazing light and the body's shadow. Now
+lit from the front right (GV_SUN 25, 48): the feathers show like in the clay views. Also: forearms further apart with stiffer blending (no bulge where
+they cross), wing grid 9 per pixel (`wgrid`, finer feather edges), stronger feathers (`feather_h` 1.3, `groove` 0.6), head upright (`head_tilt` 0,
+`hl_front` 0.83: the face shows from the game camera). IoU 0.919.

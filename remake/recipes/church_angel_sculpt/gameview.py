@@ -16,8 +16,8 @@ col = [float(t) for t in E('GV_COL', '0.80,0.56,0.12').split(',')]; bs.inputs['B
 me.materials.append(mat)
 sc = bpy.context.scene; sc.render.engine = 'BLENDER_EEVEE' if 'BLENDER_EEVEE' in [e.identifier for e in bpy.types.RenderSettings.bl_rna.properties['engine'].enum_items] else 'BLENDER_EEVEE_NEXT'
 sc.render.resolution_x = int(W * PX); sc.render.resolution_y = int(H * PX); sc.render.film_transparent = False
-w = bpy.data.worlds.new('w'); sc.world = w; w.use_nodes = True; w.node_tree.nodes['Background'].inputs[0].default_value = (0.45, 0.45, 0.33, 1); w.node_tree.nodes['Background'].inputs[1].default_value = 0.35
-sy, se = [float(t) for t in E('GV_SUN', '-55,50').split(',')]
+w = bpy.data.worlds.new('w'); sc.world = w; w.use_nodes = True; w.node_tree.nodes['Background'].inputs[0].default_value = (0.45, 0.45, 0.33, 1); w.node_tree.nodes['Background'].inputs[1].default_value = 0.5
+sy, se = [float(t) for t in E('GV_SUN', '25,48').split(',')]   # from the front right of the picture: the wall plane (wings) is lit; '-55,50' grazed it = dark wings (not a model fault)
 sun = bpy.data.objects.new('sun', bpy.data.lights.new('sun', 'SUN')); sun.data.energy = 4.5; sc.collection.objects.link(sun)
 # window centre -> a world point on the view ray: x - y = Uc - 1184, (x + y) / 2 - z = Vc at z = 55
 Uc, Vc = U0 + W / 2, V0 + H / 2; z = 55.0; xmy = Uc - 1184; xpy = 2 * (Vc + z); x = (xpy + xmy) / 2; y = (xpy - xmy) / 2
