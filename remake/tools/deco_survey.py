@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""deco_survey.py ROM OUTDIR [--top N]
+"""deco_survey.py ROM OUTDIR [--top N] [--todo] [--max N]
 SURVEY of recurring decoration objects (vases, barrels, chests, beds, ...) in the INDOOR rooms, for the light proxies (like the tables of furniture_ops.py).
 A group = 4-connected cells that are blocked or stand above the room floor (floor = most common walkable height), are not part of the wall (blocked
 height-0 cells connected to the rim of the map) and not covered by a 'proxies/table_' mesh op of data/light_proxies.json.  Groups up to 4 x 4 cells, height
@@ -37,10 +37,12 @@ def label(img, W, x0, y0, text, k=3):
 def table_cells(data, r):
     s = set()
     for e in data["rooms"].get(str(r), []):
-        if e.get("op") == "mesh" and e.get("file", "").startswith("proxies/table_"):
-            x0, y0, x1, y1 = e["cells"]; s |= {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)}
+        if e.get("op") == "mesh" and (ALLMESH or e.get("file", "").startswith("proxies/table_")):   # --todo: every mesh op counts as done
+            x0, y0, x1, y1 = e["cells"][:4]; s |= {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)}
     return s
 
+ALLMESH = "--todo" in sys.argv   # --todo: leave out the cells of EVERY mesh op (what is still without a light shape)
+MAXG = int(sys.argv[sys.argv.index("--max") + 1]) if "--max" in sys.argv else 4   # --max N: groups up to N x N cells (default 4; 8 also finds counters, shelves, hearths)
 BL = []   # (tileset, room, [(cell, h, top block)], floor) of every kept group, for the per-block ranking
 
 def groups(rom, r, tabs):
@@ -69,7 +71,7 @@ def groups(rom, r, tabs):
         seen |= comp
         xs = [k[0] for k in comp]; ys = [k[1] for k in comp]; w = max(xs) - min(xs) + 1; d = max(ys) - min(ys) + 1
         hh = max(c[k][0] for k in comp) - floor
-        if w > 4 or d > 4 or hh > 4 or hh < 1: continue
+        if w > MAXG or d > MAXG or hh > 4 or hh < 1: continue
         A = sorted({c[k][2] for k in comp if c[k][2]}); B = sorted({c[k][3] for k in comp}) if not A else []
         sig = (blockcat.tileset(rom, r), tuple(A), tuple(B), w, d, hh)
         BL.append((blockcat.tileset(rom, r), r, [(k, c[k][0], c[k][2] or c[k][3]) for k in sorted(comp)], floor))
@@ -79,6 +81,7 @@ def groups(rom, r, tabs):
 def main():
     a = [s for s in sys.argv[1:] if not s.startswith("--")]; top = int(sys.argv[sys.argv.index("--top") + 1]) if "--top" in sys.argv else 40
     if "--top" in sys.argv: a = [s for s in a if s != str(top)]
+    if "--max" in sys.argv: a = [s for s in a if s != str(MAXG)] if len(a) > 2 else a
     rom = open(a[0], "rb").read(); od = a[1]; os.makedirs(od, exist_ok=True)
     data = json.load(open(os.path.join(ROOT, "landstalker", "data", "light_proxies.json")))
     outdoor = set(blockcat.outdoor_rooms(rom)); sigs = collections.defaultdict(list)
