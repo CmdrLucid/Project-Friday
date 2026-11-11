@@ -540,6 +540,7 @@ static void lk_lt_shstep(long fr) {   /* dust motes: drift slowly down the shaft
       br = (0.35f + 0.65f * (0.5f + 0.5f * sinf(M->ph * 3.0f + (float)fr * M->tw))) * fa * (1.0f - 0.5f * M->rad) * S->k;
       U = (int)lrintf(px - py + 1184.0f); V = (int)lrintf((px + py) * 0.5f - pz); idx = ((V & 511) << 9) | (U & 511);
       v = (int)(br * 150.0f); if (v < 8) continue; if (v > 255) v = 255;
+      if (U < lk_lt_umin - 8 || U > lk_lt_umax + 8 || V < lk_lt_vmin - 8 || V > lk_lt_vmax + 8) continue;   /* LK_AMWRAP v1: the mote map wraps at 512 like the particle map (off-screen motes would show 512 away) */
       if (lk_lt_dmap[idx] < v) { if (!lk_lt_dmap[idx] && lk_lt_dn < LK_LT_NSH * LK_LT_NMO * 2) lk_lt_dl[lk_lt_dn++] = idx; lk_lt_dmap[idx] = (uint8)v; lk_lt_dmz[idx] = (int16_t)pz; } } }
 }
 /* v8 AMBIENT PARTICLES (user 2026-11-05 night: 'Umgebungs-Partikel je Gegend' chosen from the modern effects list, MODERN_IDEAS (C) 2): leaves drifting down on routes / in forests,
