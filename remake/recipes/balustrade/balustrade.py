@@ -19,31 +19,74 @@ BAL = [(0.0, 1.6), (0.4, 1.6), (0.6, 1.25), (1.1, 1.5), (1.5, 1.25), (2.0, 1.5),
 BAL_H = 7.5
 
 # per room: floor, handrail top, runs = (axis, fixed coordinate of the rail centre line, from, to) in world units; posts = (x, y, top)
-ROOMS = {
-    95: dict(floor=32, top=44, depth=5.0, runs=[("y", 317.5, 304.0, 448.0), ("x", 445.5, 240.0, 320.0)], posts=[]),
-    89: dict(floor=16, top=32, depth=4.5, runs=[("y", 448.0, 304.0, 427.0), ("x", 304.0, 448.0, 459.0)],
+ROOMS = {   # path = centre line of the rail (axis-parallel polyline, corners MITRED as drawn: the handrail / plinth meet in a clean V, no baluster
+           # on the corner itself, the nearest ones ~5.5 units either side (16x zoom of 95, 2026-11-13)); posts = (x, y, top): the rail stops at their faces
+    95: dict(floor=32, top=44, depth=5.0, path=[(317.5, 304.0), (317.5, 445.5), (240.0, 445.5)], posts=[]),
+    89: dict(floor=16, top=32, depth=4.5, path=[(448.0, 427.0), (448.0, 304.0), (459.0, 304.0)],
              posts=[(448.0, 429.5, 34.0), (448.0, 302.5, 33.0), (462.0, 305.0, 37.0)]),
 }
 PL_H, RAIL_H, SPACE = 1.5, 3.0, 8.0
 PHASE = 0.0   # baluster centres at lo + PHASE + 8 i (measured: the drawn balusters sit on the 8 grid)
 
+def band(path, d):
+    """outline polygon of a band of width d around an axis-parallel open polyline (mitred corners, square ends)"""
+    import math
+    def nrm(a, b):
+        dx, dy = b[0] - a[0], b[1] - a[1]; l = math.hypot(dx, dy); return (-dy / l, dx / l)
+    L, R = [], []
+    n = len(path)
+    for i, p in enumerate(path):
+        ns = []
+        if i > 0: ns.append(nrm(path[i - 1], p))
+        if i < n - 1: ns.append(nrm(p, path[i + 1]))
+        if len(ns) == 1: off = ns[0]
+        else: off = (ns[0][0] + ns[1][0], ns[0][1] + ns[1][1])        # 90 degree corner: the mitre point (both offsets add up)
+        L.append((p[0] + off[0] * d / 2, p[1] + off[1] * d / 2)); R.append((p[0] - off[0] * d / 2, p[1] - off[1] * d / 2))
+    return L + R[::-1]
+
+def split(path, posts, gap):
+    """cut the path where a post stands (the rail ends gap from the post centre); returns sub-paths"""
+    import math
+    pts = [path[0]]; out = []
+    for a, b in zip(path, path[1:]):
+        cuts = []
+        for x, y, _ in posts:
+            if abs(a[0] - b[0]) < 1e-6 and abs(x - a[0]) < 3 and min(a[1], b[1]) - 3 <= y <= max(a[1], b[1]) + 3: cuts.append(abs(y - a[1]))
+            if abs(a[1] - b[1]) < 1e-6 and abs(y - a[1]) < 3 and min(a[0], b[0]) - 3 <= x <= max(a[0], b[0]) + 3: cuts.append(abs(x - a[0]))
+        L = math.hypot(b[0] - a[0], b[1] - a[1]); u = ((b[0] - a[0]) / L, (b[1] - a[1]) / L)
+        for t in sorted(cuts):
+            if t - gap > 1e-3: pts.append((a[0] + u[0] * (t - gap), a[1] + u[1] * (t - gap)))
+            if len(pts) > 1: out.append(pts)
+            pts = [(a[0] + u[0] * min(L, t + gap), a[1] + u[1] * min(L, t + gap))]
+        pts.append(b)
+    if len(pts) > 1 and math.hypot(pts[-1][0] - pts[0][0], pts[-1][1] - pts[0][1]) > 1e-3: out.append(pts)
+    return [p for p in out if sum(math.hypot(q[0] - r[0], q[1] - r[1]) for q, r in zip(p, p[1:])) > 0.5]
+
+def sweep(path, d, z0, z1, r):
+    """a rounded bar of width d from z0 to z1 along the path (mitred corners, ends rounded by r in plan): furniture.sweep_poly over the band outline"""
+    poly = band(path, d)
+    prof = [(r, z0), (r * 0.3, z0 + r * 0.3), (0.0, z0 + r), (0.0, z1 - r), (r * 0.3, z1 - r * 0.3), (r, z1)]
+    k = 1 if len(path) > 2 else 0
+    star = path[k] if len(path) > 2 else ((path[0][0] + path[-1][0]) / 2, (path[0][1] + path[-1][1]) / 2)
+    return F.sweep_poly(poly, min(r, d / 2 - 0.05), prof, star, nc=4)
+
 def build(room):
+    import math
     P = ROOMS[room]; fl, top, d = P["floor"], P["top"], P["depth"]; solid, rail = [], []
     zb0, zb1 = fl + PL_H, top - RAIL_H                         # baluster span
-    for axis, c, a0, a1 in P["runs"]:
-        lo, hi = min(a0, a1), max(a0, a1)
-        if axis == "y":
-            solid.append(F.rbox(c - d / 2, c + d / 2, lo, hi, fl, fl + PL_H, 0.6, n=2, flat_bottom=True))
-            rail.append(F.rbox(c - d / 2, c + d / 2, lo, hi, top - RAIL_H, top, 1.2, n=3))
-        else:
-            solid.append(F.rbox(lo, hi, c - d / 2, c + d / 2, fl, fl + PL_H, 0.6, n=2, flat_bottom=True))
-            rail.append(F.rbox(lo, hi, c - d / 2, c + d / 2, top - RAIL_H, top, 1.2, n=3))
-        n = int((hi - lo - PHASE) / SPACE + 1e-6) + 1
-        for i in range(n):
-            t = lo + PHASE + i * SPACE
-            if t < lo + 1.0 or t > hi - 1.0: continue
-            bx, by = (c, t) if axis == "y" else (t, c)
-            s = (zb1 - zb0) / BAL_H
+    for sub in split(P["path"], P["posts"], 2.2):
+        solid.append(sweep(sub, d, fl, fl + PL_H, 0.6))
+        rail.append(sweep(sub, d, top - RAIL_H, top, 1.2))
+    s = (zb1 - zb0) / BAL_H
+    for a, b in zip(P["path"], P["path"][1:]):                 # balusters on the 8 grid of each straight run (measured phase), not on corners / posts
+        L = math.hypot(b[0] - a[0], b[1] - a[1]); u = ((b[0] - a[0]) / L, (b[1] - a[1]) / L)
+        axis_y = abs(u[0]) < 0.5; c0 = a[1] if axis_y else a[0]; sg = 1 if (u[1] if axis_y else u[0]) > 0 else -1
+        for i in range(-200, 200):
+            g = PHASE + SPACE * i                              # world grid coordinate along the run
+            t = (g - c0) * sg
+            if t < 3.0 or t > L - 3.0: continue
+            bx, by = (a[0], g) if axis_y else (g, a[1])
+            if any(math.hypot(bx - x, by - y) < 4.5 for x, y, _ in P["posts"]): continue
             solid.append(F.lathe(bx, by, zb0, 1.0, [(z * s, r) for z, r in BAL], seg=12))
     for x, y, pt in P["posts"]:
         solid.append(F.rbox(x - 2.2, x + 2.2, y - 2.2, y + 2.2, fl, pt - 4.0, 0.5, n=2, flat_bottom=True))
