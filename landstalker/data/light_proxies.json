@@ -4525,6 +4525,20 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          12,
+          17,
+          13
+        ],
+        "file": "proxies/house_bookshelf_693.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house bookshelf (tileset 2, 48 high = its collision) with bottle, frame, crate, three small boxes on top + the small side table on legs in front of it (block $30C, collision a solid 1 step box) with a vase: remake/recipes/house_bookshelf/house_bookshelf.py, measured on rom_picture 693 by overlay (10x zoom check)"
       }
     ],
     "694": [
@@ -5321,6 +5335,20 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          12,
+          17,
+          13
+        ],
+        "file": "proxies/house_bookshelf_715.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house bookshelf (tileset 2, 48 high = its collision) with bottle, frame, crate, three small boxes on top + the small side table on legs in front of it (block $30C, collision a solid 1 step box) with a vase: remake/recipes/house_bookshelf/house_bookshelf.py, measured on rom_picture 693 by overlay (10x zoom check)"
       }
     ],
     "716": [
@@ -5337,6 +5365,20 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          12,
+          17,
+          13
+        ],
+        "file": "proxies/house_bookshelf_716.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house bookshelf (tileset 2, 48 high = its collision) with bottle, frame, crate, three small boxes on top + the small side table on legs in front of it (block $30C, collision a solid 1 step box) with a vase: remake/recipes/house_bookshelf/house_bookshelf.py, measured on rom_picture 693 by overlay (10x zoom check)"
       }
     ],
     "717": [
