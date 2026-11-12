@@ -49,9 +49,9 @@ patch_bootcol / patch_dissolve anchors: confirmed). Line numbers = lines in the 
 0. Baseline GPU pictures (outdoor, torch, key light, shaft, particle, water, ship rooms) before touching anything; GPU mode for lightshots.sh; lightedges default --gpu.
 1. Remove the hidden coupling: iu[6] = 1 always (uOd0 constant). Pictures identical.
 2. Remove the compare harness (GPULT=2, lk_gl_put / unlit / ref / flg, lk_glt_pass(0) + statistics, GL5CMP, gpucmp.sh).
-3. Remove GL5=0, GL5_CPUKEEP, the lk_g5_slow fallback to CPU blocks (decide: on slow keep the GPU light and log, or light off) and the GL4 CPU-block upload (bver / bpack / blist / bsg).
+3. Remove GL5=0, GL5_CPUKEEP, the lk_g5_slow fallback to CPU blocks (DECIDED, user 2026-11-12: 'wenn GPU-Licht nicht geht, dann wird standardmaessig das Licht aus' = slow / unavailable GPU light -> Lighting Off) and the GL4 CPU-block upload (bver / bpack / blist / bsg).
 4. vdp_render: no `lk_lt_pix` / `lk_lt_voidglow` else-branch; `lk_gl_real` = lighting on && GPU ok; no GPU = rows untouched. Delete lk_lt_pix, voidglow, term,
    shadowed / figdir / figface; adjust the patch_bootcol / patch_dissolve anchors in the same step.
 5. Remove prefetch ring, on-demand lk_lt_block, workers; delete blockcalc, sunfill, shblock, aoval / aoh, lk_lt_b; patch_gpucomp drops lk_lt_block; lk_am_surf only via lk_gs.
-6. Renderer option 56 = picture engine only; light = `lk_lt_get() && lk_gpu_lightok()`; the 6 ms watchdog turns light off instead of CPU (decide with the user).
+6. Renderer option 56 = picture engine only; light = `lk_lt_get() && lk_gpu_lightok()`; the 6 ms watchdog turns light OFF instead of CPU (decided, see step 3).
 7. Dead statics, verify_build.sh markers, docs (INDEX, LESSONS, FORMATS, options help text), re-run the baseline.
