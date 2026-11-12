@@ -27,6 +27,8 @@ TYPES = [
          shape=furniture.MERCATOR_TABLE),   # $312..$314 = the middle row of the 4 x 3 table (722 / 723)
     dict(name="castle table", ts=1, blocks={0x114, 0x115, 0x116, 0x148, 0x149, 0x0EF, 0x119, 0x10B}, ok=lambda blk, x0, y0, x1, y1: blk(x0, y0) == 0x114,
          shape=furniture.CASTLE_TABLE),
+    dict(name="castle room table (tileset 15)", ts=15, blocks={0x022, 0x023, 0x025, 0x044, 0x392, 0x3E0, 0x3E1, 0x3E2}, ok=lambda blk, x0, y0, x1, y1: blk(x0, y0) == 0x022,   # $3E0..$3E2: the middle pieces of the 3 x 2 table of 63 / 64
+         shape=furniture.CASTLE_TABLE),   # 2026-11-12: the bedrooms / halls of tileset 15 (63..72, 77..) had no table type at all (lightedges --gpu, room 67)
 ]
 
 # PAINTED SHADOWS UNDER THE PIECES (user 2026-11-09: 'der Schatten unterm Tisch ist schon im Sprite drin ... den Teppich unter dem Tisch im normalen

@@ -1192,6 +1192,20 @@
         "air": true,
         "floor": 32,
         "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          29,
+          30,
+          31,
+          31
+        ],
+        "file": "proxies/table_63.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "64": [
@@ -1236,6 +1250,20 @@
         "air": true,
         "floor": 32,
         "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          29,
+          30,
+          31,
+          31
+        ],
+        "file": "proxies/table_64.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "65": [
@@ -1277,6 +1305,20 @@
         "surface": true,
         "floor": 0,
         "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          34,
+          20,
+          37
+        ],
+        "file": "proxies/table_65.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "66": [
@@ -1318,6 +1360,36 @@
         "surface": true,
         "floor": 0,
         "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          34,
+          20,
+          37
+        ],
+        "file": "proxies/table_66.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
+    "67": [
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          17,
+          20,
+          18
+        ],
+        "file": "proxies/table_67.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "68": [
@@ -1495,6 +1567,22 @@
         "surface": true,
         "floor": 16,
         "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "77": [
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          17,
+          20,
+          18
+        ],
+        "file": "proxies/table_77.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "78": [
