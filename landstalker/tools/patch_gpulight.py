@@ -63,8 +63,9 @@ static unsigned lk_gl_sunver; /* bumped when the blocks take over the next sun d
 uint32_t lk_gl_unlit[224 * 448], lk_gl_ref[224 * 448]; uint8_t lk_gl_cls[224 * 448], lk_gl_flg[224 * 448]; uint32_t lk_gl_row[224]; long lk_gl_rowfr[224]; int lk_gl_w; long lk_gl_capfr = -9;
 #define LK_GLE_DEF 1   /* GPU on every system since 2026-11-08 (user: 'GPU-Weg einschlagen' + 'bitte GPU auch auf Windows zum Standard'; was CPU on Windows since 2026-11-07); the watchdog / lk_gpu_lightok still fall back to the CPU */
 static int lk_gle_o = -1;    /* v5: Options > Display > Light Engine (id 56, ~/.landstalker_lightengine, env LANDSTALKER_LIGHTENGINE=0|1 wins): 1 GPU (default; the GPU also computes the light blocks, GL5c, user 2026-11-06 'GPU+ kann einfach Standard werden'; old value 2 = GPU), 0 CPU */
-int lk_gle_get(void) { if (lk_gle_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_LIGHTENGINE"); char pth[512]; FILE *f; int v = LK_GLE_DEF; snprintf(pth, sizeof pth, "%%s/.landstalker_lightengine", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%%d", &v) != 1) v = LK_GLE_DEF; fclose(f); } if (e) v = atoi(e); lk_gle_o = v < 0 ? 0 : v > 2 ? 2 : v; } return lk_gle_o; }
-void lk_gle_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_gle_get(); lk_gle_o = v < 0 ? 0 : v > 2 ? 2 : v; snprintf(pth, sizeof pth, "%%s/.landstalker_lightengine", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%d\n", lk_gle_o); fclose(f); } }
+int lk_gle_get(void) { return 1; }   /* CPU light removal 2026-11-12 (user: 'die Option weggeben, weil es die dann ohnehin nicht mehr gibt'): no Options row 'Renderer' (id 56) any more, the GPU is always
+   wanted; without a working GPU light the light is OFF (lk_gl_lighton), the picture compositor falls back by itself; ~/.landstalker_lightengine / LANDSTALKER_LIGHTENGINE are ignored */
+void lk_gle_set(int v) { (void)v; }
 static int lk_bl_o = -1;     /* v5 GL5d: Options > Graphics > Bounce Light (id 57, ~/.landstalker_bounce, env LANDSTALKER_BOUNCE=0|1 wins), default Off (user's check first); GPU light engines only */
 int lk_bl_get(void) { if (lk_bl_o < 0) { const char *e = getenv("LANDSTALKER_BOUNCE"); lk_bl_o = e ? (atoi(e) ? 1 : 0) : 1; } return lk_bl_o; }   /* 2026-11-08 (user: options menu clean-up): no menu row any more, ON with Lighting (GPU light); the env still switches it for tests; the old file is ignored */
 void lk_bl_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_bl_get(); lk_bl_o = v ? 1 : 0; snprintf(pth, sizeof pth, "%%s/.landstalker_bounce", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%d\n", lk_bl_o); fclose(f); } }
@@ -75,9 +76,8 @@ static int lk_rf_o = -1;     /* v5 GL5f: Options > Graphics > Round Figures (id 
 int lk_rf_get(void) { if (lk_rf_o < 0) { const char *e = getenv("LANDSTALKER_ROUNDFIG"); lk_rf_o = e ? (atoi(e) ? 1 : 0) : 1; } return lk_rf_o; }   /* 2026-11-08 (user: options menu clean-up): no menu row any more, ON with Lighting (GPU light); the env still switches it for tests; the old file is ignored */
 void lk_rf_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_rf_get(); lk_rf_o = v ? 1 : 0; snprintf(pth, sizeof pth, "%%s/.landstalker_roundfig", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%d\n", lk_rf_o); fclose(f); } }
 int lk_gl_slow;               /* v5: set by the GPU time watchdog (platform_sdl.c): the light pass was too slow -> CPU lighting for the rest of the run (the option is not changed) */
-static int lk_gl_env = -2;    /* LANDSTALKER_GPULT (test aid) wins over the option: 0 CPU, 1 GPU, 2 compare harness */
-int lk_gl_getmode(void) { if (lk_gl_env == -2) { const char *e = getenv("LANDSTALKER_GPULT"); lk_gl_env = e ? atoi(e) : -1; if (e && (lk_gl_env < 0 || lk_gl_env > 2)) lk_gl_env = 0; }
-  lk_gl_mode = lk_gl_env >= 0 ? lk_gl_env : (lk_gle_get() && !lk_gl_slow) ? 1 : 0; if (lk_gl_mode == 1 && lk_gl_slow) lk_gl_mode = 0; return lk_gl_mode; }
+int lk_gl_getmode(void) { lk_gl_mode = lk_gl_slow ? 0 : 1; return lk_gl_mode; }   /* CPU light removal 2026-11-12: 1 GPU light, 0 = the watchdog found it too slow -> Lighting OFF (user: 'wenn GPU-Licht nicht geht, dann wird standardmaessig das Licht aus'); LANDSTALKER_GPULT (CPU light / compare harness) is gone */
+int lk_gl_lighton(void) { return lk_gl_getmode() == 1 && lk_gl_realok(); }   /* the light runs only on the GPU: GPU filters working and not too slow, else the original picture */
 static void lk_gl_put(int line, int i, int cls, int U, int V, int c0, int c1, int w) {
   int o = line * 448 + i;
   int q = ((V & 511) << 9) | (U & 511);
@@ -112,7 +112,7 @@ int lk_gl_frame(long fr, float *fu, int *iu, float *lp, float *lc, float *lf, fl
   if (lk_gl_capfr != fr - 1 || lk_gl_w < 1 || lk_gl_w > 448) return 0;
   for (L = 0; L < 224; L++) if (lk_gl_rowfr[L] != lk_gl_capfr) memset(lk_gl_cls + L * 448, 0, 448);   /* lines not captured this frame: no light */
   fu[0] = lk_lt_amb < 0.0f ? 0.85f : lk_lt_amb; fu[1] = lk_lt_sS; fu[2] = lk_lt_sK; for (k = 0; k < 3; k++) { fu[3 + k] = lk_dn_amb3[k]; fu[6 + k] = lk_dn_sun3[k]; } fu[9] = (float)lk_dn_mix;
-  iu[0] = lk_lt_sun; iu[1] = lk_lt_key; iu[2] = lk_lt_nl; iu[3] = lk_lt_nsh; iu[4] = lk_lt_swon; iu[5] = lk_dn_on; iu[6] = lk_lt_odcap == 0; iu[7] = lk_gl_w;
+  iu[0] = lk_lt_sun; iu[1] = lk_lt_key; iu[2] = lk_lt_nl; iu[3] = lk_lt_nsh; iu[4] = lk_lt_swon; iu[5] = lk_dn_on; iu[6] = 1; iu[7] = lk_gl_w;   /* CPU light removal step 1 (2026-11-12): the GPU base light for blocks not computed yet no longer hangs on the CPU worker threads (lk_lt_odcap) */
   iu[8] = 0;
   fu[10] = lk_lt_kA; fu[11] = lk_lt_kK; fu[12] = lk_lt_fadek; fu[13] = lk_lt_sh[0].cr; fu[14] = lk_lt_sh[0].cg; fu[15] = lk_lt_sh[0].cb;
   fu[16] = lk_lt_sw.x; fu[17] = lk_lt_sw.y; fu[18] = lk_lt_sw.z; fu[19] = lk_lt_sw.rad > 0.0f ? lk_lt_sw.rad : LK_LT_RAD; fu[20] = lk_lt_sw.r; fu[21] = lk_lt_sw.g; fu[22] = lk_lt_sw.b; fu[23] = lk_lt_sw.k > 0.0f ? lk_lt_sw.k : 1.0f;
@@ -283,7 +283,8 @@ void lk_gl_unpaint(void) { int q, ts = -1;
     rep("b->face[i] = (uint8)lk_lt_ray(U0 + (i & 31), V0 + (i >> 5), &z); b->z[i] = (int16_t)z; robj[i] = (int16_t)lk_lt_rob; }",
         "b->face[i] = (uint8)lk_lt_ray(U0 + (i & 31), V0 + (i >> 5), &z); b->z[i] = (int16_t)z; robj[i] = (int16_t)lk_lt_rob; b->la[i] = (uint8)lk_lt_rayA; }")
     a = "/* ---- LK_LIGHTS v8: lighting from flames"
-    rep(a, "static int lk_gl_pf, lk_gl_fj; static unsigned lk_gl_sunver;   /* %s (tools/patch_gpulight.py): used inside the Lighting code */\n" % VER +
+    rep(a, "int lk_gl_lighton(void);   /* CPU light removal 2026-11-12: the light needs the GPU (tools/patch_gpulight.py) */\n"
+        "static int lk_gl_pf, lk_gl_fj; static unsigned lk_gl_sunver;   /* %s (tools/patch_gpulight.py): used inside the Lighting code */\n" % VER +
         "long lk_gl5_cpufr = -99;   /* v5 CPU SAVING: frame in which the GPU computed the light blocks (platform_sdl.c); while it is recent the CPU computes none (no prefetch, no on-demand) */\n"
         "static int lk_gl5_cpuoff(void) { return lk_gl5_cpufr >= platform_frame_number() - 2; }\n"
         "typedef struct { uint32_t a[1024]; int16_t z[1024]; int gen, dng; } lk_gs_t; static lk_gs_t *lk_gs[38][76];   /* the GPU blocks' face / sun / sunn / sunn-valid + z, read back for the particles (lk_am_surf) */\n" + a)
@@ -297,17 +298,17 @@ void lk_gl_unpaint(void) { int q, ts = -1;
         "    i = ((V & 31) << 5) | (U & 31); w = g->a[i]; if ((w & 255) != 1) return 0; lk_lt_pos(U, V, g->z[i], px, py); *pz = (float)g->z[i];\n"
         "    { int s0 = (int)((w >> 8) & 255), s1 = (int)((w >> 16) & 255); *sun = lk_lt_sun ? (lk_dn_mix && (w >> 24) && g->dng == lk_dn_gen ? s0 + ((s1 - s0) * lk_dn_mix >> 8) : s0) : 255; } return 1; }\n"
         "  i = ((V & 31) << 5) | (U & 31);")
+    # CPU light removal 2026-11-12: no GPU light = no light at all (the original picture, as Lighting Off)
+    rep("static int lk_lt_linebegin(void) { if (!lk_lt_get()) return 0;", "static int lk_lt_linebegin(void) { if (!lk_lt_get() || !lk_gl_lighton()) return 0;")
     # per line: capture on?
     a = "int lk_lt_ln = lk_lt_linebegin();"
-    rep(a, a + " int lk_gl_cap = (lk_gl_getmode() == 2 || (lk_gl_mode == 1 && lk_gl_realok())) && lk_lt_ln && !lk_hd_n && !lk_lt_dbg && w <= 448 && line >= 0 && line < 224, lk_gl_real = lk_gl_cap && lk_gl_mode == 1;   /* %s */" % VER +
+    rep(a, a + " int lk_gl_real = lk_lt_ln && !lk_hd_n && !lk_lt_dbg && w <= 448 && line >= 0 && line < 224;   /* %s */" % VER +
            " if (lk_gl_real) { if (!lk_gl_postok) lk_gl_postinit(); lk_gl_line(line, ubase - e - lk_sm_sxn, vbase - lk_sm_syn, w); }")
-    # around the lighting call of the composed pixel
+    # around the lighting call of the composed pixel: the GPU lights it; CPU light removal 2026-11-12: the CPU calls lk_lt_pix / lk_lt_voidglow are gone (+ the compare capture lk_gl_put)
     a = "      if (lk_lt_ln && !black && (src == 1 || src == 2 || src == 3)) col = lk_lt_pix("
-    rep(a, "      int lk_gl_c0 = col, lk_gl_k = 0; uint32_t lk_gl_p0 = 0, lk_gl_p1 = 0xFFFFFFu; lk_gl_pf = 0;   /* %s */\n" % VER +
-           "      if (lk_gl_real) lk_gl_k = lk_gl_classify(x, line, src, src == 1 ? sp : 0, black, ubase + x - lk_sm_sxn, vbase - lk_sm_syn);   /* GL4: the GPU lights it */\n      else " + a.lstrip())
-    a = "      else if (lk_lt_ln && !black && (src == 0 || src == 6 || src == 7)) col = lk_lt_voidglow("
-    i0 = s.index(a); i1 = s.index("\n", i0) + 1
-    s = s[:i1] + ("      if (lk_gl_cap && !lk_gl_real) lk_gl_put(line, i, black ? 0 : (src >= 1 && src <= 3) ? 1 : (src == 0 || src == 6 || src == 7) ? 3 : 0, ubase + x - lk_sm_sxn, vbase - lk_sm_syn, lk_gl_c0, col, w);   /* %s */\n" % VER) + s[i1:]
+    i0 = s.index(a); i1 = s.index("\n", s.index("col = lk_lt_voidglow(", i0)) + 1
+    s = s[:i0] + ("      int lk_gl_k = 0; uint32_t lk_gl_p0 = 0, lk_gl_p1 = 0xFFFFFFu; lk_gl_pf = 0;   /* %s */\n" % VER +
+           "      if (lk_gl_real) lk_gl_k = lk_gl_classify(x, line, src, src == 1 ? sp : 0, black, ubase + x - lk_sm_sxn, vbase - lk_sm_syn);   /* GL4: the GPU lights it (the only light since 2026-11-12) */\n") + s[i1:]
     # flags inside lk_lt_pix
     rep("if ((sp & 0x200) && (j = lk_lt_figat(x, line)) >= 0) {", "if ((sp & 0x200) && (j = lk_lt_figat(x, line)) >= 0) { lk_gl_pf |= 1;")
     rep("if (lk_lt_figsun(px, py, (float)b->z[i])) u = 0.0f; }", "if (lk_lt_figsun(px, py, (float)b->z[i])) { u = 0.0f; lk_gl_pf |= 2; } }")
