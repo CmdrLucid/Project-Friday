@@ -1206,6 +1206,34 @@
         "air": true,
         "floor": 32,
         "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          19,
+          30,
+          20
+        ],
+        "file": "proxies/castle_bed_63.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "castle bed (tileset 15, collision = a 1 step box): near-final model of remake/recipes/castle_bed/castle_bed.py (legs, frame rail, blanket, one pillow, headboard; measured on room 67, placement checked by overlay; user 2026-11-12 'einsetzen')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          23,
+          30,
+          24
+        ],
+        "file": "proxies/castle_bed_63_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "castle bed (tileset 15, collision = a 1 step box): near-final model of remake/recipes/castle_bed/castle_bed.py (legs, frame rail, blanket, one pillow, headboard; measured on room 67, placement checked by overlay; user 2026-11-12 'einsetzen')"
       }
     ],
     "64": [
@@ -1264,6 +1292,34 @@
         "air": true,
         "floor": 32,
         "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          19,
+          30,
+          20
+        ],
+        "file": "proxies/castle_bed_64.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "castle bed (tileset 15, collision = a 1 step box): near-final model of remake/recipes/castle_bed/castle_bed.py (legs, frame rail, blanket, one pillow, headboard; measured on room 67, placement checked by overlay; user 2026-11-12 'einsetzen')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          23,
+          30,
+          24
+        ],
+        "file": "proxies/castle_bed_64_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "castle bed (tileset 15, collision = a 1 step box): near-final model of remake/recipes/castle_bed/castle_bed.py (legs, frame rail, blanket, one pillow, headboard; measured on room 67, placement checked by overlay; user 2026-11-12 'einsetzen')"
       }
     ],
     "65": [
@@ -1390,6 +1446,34 @@
         "air": true,
         "floor": 0,
         "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          13,
+          17,
+          14
+        ],
+        "file": "proxies/castle_bed_67.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle bed (tileset 15, collision = a 1 step box): near-final model of remake/recipes/castle_bed/castle_bed.py (legs, frame rail, blanket, one pillow, headboard; measured on room 67, placement checked by overlay; user 2026-11-12 'einsetzen')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          13,
+          22,
+          13
+        ],
+        "file": "proxies/castle_bench_67.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "upholstered castle bench on cabriole legs (tileset 15, collision = a 1 step box, air below): near-final model of remake/recipes/castle_bench/castle_bench.py, measured on room 67; user 2026-11-12 'einsetzen'"
       }
     ],
     "68": [
@@ -1583,6 +1667,34 @@
         "air": true,
         "floor": 0,
         "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          13,
+          17,
+          14
+        ],
+        "file": "proxies/castle_bed_77.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle bed (tileset 15, collision = a 1 step box): near-final model of remake/recipes/castle_bed/castle_bed.py (legs, frame rail, blanket, one pillow, headboard; measured on room 67, placement checked by overlay; user 2026-11-12 'einsetzen')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          13,
+          22,
+          13
+        ],
+        "file": "proxies/castle_bench_77.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "upholstered castle bench on cabriole legs (tileset 15, collision = a 1 step box, air below): near-final model of remake/recipes/castle_bench/castle_bench.py, measured on room 67; user 2026-11-12 'einsetzen'"
       }
     ],
     "78": [
@@ -1936,6 +2048,22 @@
         "air": true,
         "floor": 0,
         "why": "castle table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      }
+    ],
+    "108": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          15,
+          15,
+          16
+        ],
+        "file": "proxies/castle_bed_108.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle bed (tileset 15, collision = a 1 step box): near-final model of remake/recipes/castle_bed/castle_bed.py (legs, frame rail, blanket, one pillow, headboard; measured on room 67, placement checked by overlay; user 2026-11-12 'einsetzen')"
       }
     ],
     "192": [

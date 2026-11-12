@@ -214,3 +214,7 @@ FINAL = with material, approved by the user.
 ## Shop counter  (`remake/recipes/counter/counter.py`; rooms 695 / 696 / 697 / 719 / 720; REMAKE ONLY)
 - Island 2 x 6 with a small cloth on the top, wall counter 6 x 1: plank top, vertical boards. Not a light shape: the collision box is the drawing,
   sub-pixel details only made dotted lines in the light (README).
+
+## Castle bed + bench  (`remake/recipes/castle_bed/castle_bed.py`, `remake/recipes/castle_bench/castle_bench.py`; tileset 15)
+- Bed: legs, frame rail, blanket, pillow, headboard (rooms 63 / 64 x2, 67, 77, 108). Bench: padded seat on four cabriole legs (67, 77; 72's short one open).
+  Same model in the light (`surface` + `air`). Measured on room 67 (README).
