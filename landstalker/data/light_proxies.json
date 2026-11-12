@@ -6568,6 +6568,83 @@
         },
         "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'"
       }
+    ],
+    "95": [
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          19,
+          19,
+          27
+        ],
+        "file": "proxies/rail_95.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "balustrade around the stairwell of room 95: the height map holds it as SOLID cells 32 above the floor (x 19 rows 19..27, row 27 x 15..19: box shadows); the drawn rail MEASURED with proxy_overlay (6x): outer edge x 320 / y 448, handrail top z 44 (floor 32), 3 high, 5 deep; balusters 4 x 4 every 8 units (the light's 4 unit grid, like room 62); user 2026-11-12 'Gelaender in 95 sollte ein 3D-Modell sein'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          19,
+          19,
+          27
+        ],
+        "file": "proxies/rail_95_rail.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "the handrail of the room 95 balustrade (slabs: 'air')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          27,
+          18,
+          27
+        ],
+        "file": "proxies/rail_95.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "balustrade around the stairwell of room 95: the height map holds it as SOLID cells 32 above the floor (x 19 rows 19..27, row 27 x 15..19: box shadows); the drawn rail MEASURED with proxy_overlay (6x): outer edge x 320 / y 448, handrail top z 44 (floor 32), 3 high, 5 deep; balusters 4 x 4 every 8 units (the light's 4 unit grid, like room 62); user 2026-11-12 'Gelaender in 95 sollte ein 3D-Modell sein'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          27,
+          18,
+          27
+        ],
+        "file": "proxies/rail_95_rail.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "the handrail of the room 95 balustrade (slabs: 'air')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          14,
+          16,
+          14
+        ],
+        "file": "proxies/brazier_95.obj",
+        "surface": true,
+        "floor": 32,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            250,
+            235
+          ],
+          "z": 96
+        },
+        "why": "castle standing torch of room 95 (collision cell (16, 14) walkable, top block $2D): the brazier lathe of 51..62 on the floor 32, axis MEASURED with proxy_overlay; user 2026-11-12"
+      }
     ]
   },
   "unpaint_tiles": {
