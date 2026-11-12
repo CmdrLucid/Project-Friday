@@ -101,6 +101,9 @@ for _f in sorted(_glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file_
     for _n, _l in enumerate(open(_f, errors="replace"), 1):
         if re.search(r"(?<![_\w])mkdir\([^;)]*,\s*0[0-7]{3}\)", _l) and "lk_mkdir" not in _l and "return mkdir" not in _l and "mkdir(dir, 0755);" not in _l:
             errors.append(f"{os.path.basename(_f)}:{_n}: POSIX mkdir(path, mode) does not compile on Windows (MinGW): use lk_mkdir(path) (tools/patch_shot.py)")
+import subprocess as _sp   # 2026-11-12: the Contents blocks of HANDOFF / INDEX / LESSONS must be current (tools/make_toc.py; the pre-commit hook refreshes them)
+_r = _sp.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "make_toc.py"), "--check"], capture_output=True, text=True)
+if _r.returncode: errors.append("Contents block stale: " + _r.stdout.strip().replace("\n", "; "))
 print(f"symbols.json: {len(addr_of)} entries; named-but-missing: {len(named_missing)}; errors: {len(errors)}")
 for e in errors: print("ERROR:", e)
 if errors:

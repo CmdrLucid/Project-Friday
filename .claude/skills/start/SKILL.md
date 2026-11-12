@@ -10,13 +10,13 @@ Counterpart at the end of a session: `/sitzung-beenden`.
 
 ## 1. Read (in this order, do NOT read huge files whole)
 1. `CLAUDE.md` (already in context) and the memory index (`MEMORY.md`, already in context).
-2. `docs/HANDOFF.md` is ~300 KB: never read it whole. Read:
-   - lines 1-11 (read order, idea files, summary),
-   - the NEWEST `## 0aNNN` entry: `grep -n '^## 0a' docs/HANDOFF.md | sort -t a -k2 -n | tail -3` (numbers are not in file order; the highest number is the latest), then `sed -n '/^## 0aNNN\./p'`,
-   - section `## 2. NEXT STEPS`: only the first 2-3 entries (lowest negative number = newest),
-   - section `## 3. How the user works` + `3a` (Deck rules) once per session (`grep -n '^## [0-9]' docs/HANDOFF.md` for line numbers; cut long lines with `cut -c1-800`).
-3. `docs/LESSONS.md`: sections 1-3 and the LAST ~15 entries of section 9 (fragile spots, newest at the end).
-4. `docs/INDEX.md`: the Status block (section 1) only; the rest on demand (bug catalog, tool cheat sheet, debug playbook).
+1b. The big docs (HANDOFF ~560 KB, INDEX ~520 KB, LESSONS ~160 KB, CODE_MAP ~150 KB) start with a generated **Contents block with line numbers** (tools/make_toc.py, make_code_map.py): read ONLY that block first (`sed -n '1,/<!-- \/TOC -->/p' docs/FILE | cut -c1-400`; CODE_MAP: the first ~25 lines), then `sed -n 'A,Bp' docs/FILE | cut -c1-800` for the parts it names. Never read these files whole.
+2. `docs/HANDOFF.md`: from its Contents block take
+   - the lines right after the block (read order, idea files) and the newest `0aNNN` entry ('Newest entries' lists them with line numbers; the 0a numbers are not in file order),
+   - section `2. NEXT STEPS`: only the first 2-3 entries ('NEXT STEPS, newest first' gives their lines),
+   - sections `3. How the user works` + `3a` (Deck rules) once per session.
+3. `docs/LESSONS.md`: sections 1-3 and the LAST ~15 entries of section 9 (the Contents block names their lines; newest at the end).
+4. `docs/INDEX.md`: the Status block (section 1) only, the newest entries first (lines in the Contents block); the rest on demand (bug catalog, tool cheat sheet, debug playbook).
 5. Only when the topic needs it: `docs/DEBUGGING_INDEX.md` -> the matching part of `DEBUGGING.md`; idea files (`HUD_IDEAS.md`, `SPRINT_IDEAS.md`, `BOSS_RUSH_IDEAS.md`, `RENDERER_IDEAS.md`, `TIMING_PLAN.md`); for the remake `remake/README.md` + `remake/ASSETS.md`.
 6. Names / ids: `python3 tools/sym.py <addr|text>`, `docs/ROOMS.md` / `ENTITIES.md` / `ITEMS.md` / `FLAGS.md`. Never read `symbols.json` whole.
 
