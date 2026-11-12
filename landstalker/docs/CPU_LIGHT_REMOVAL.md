@@ -10,6 +10,8 @@ patch_bootcol / patch_dissolve anchors: confirmed). Line numbers = lines in the 
 ## 0. Progress
 - 2026-11-12 late: steps 1, 2 (behaviour: GPULT gone, lk_gl_put gone; compare pass / GL5CMP code still there, dead), 3 (behaviour: GL5 unavailable / slow -> lk_gl_slow = Lighting off; GL4 upload code dead), 4 (done) and 6 (row removed; lk_gle_get() returns 1) DONE, commits bd39a5c / d9ab321 / 3efc06b. Open: 5, the dead code of 2 / 3, 7. Baselines ~/lktest/cpurm.
 
+- 2026-11-12 night: steps 5 and 7 DONE (f594a01): ALL STEPS DONE. Found on the way: thread-local lk_lt_rayA had to default to 1 (it was set by the first CPU block). This file is history now.
+
 ## 1. How GPU vs CPU is decided today
 - Master switch `lk_lt_get()` [L186] (Options Lighting, LANDSTALKER_LIGHTING, ~/.landstalker_lighting). Off = original picture.
 - Option Renderer (id 56, patch_options.py) -> `lk_gle_get()` [G66] (~/.landstalker_lightengine, LANDSTALKER_LIGHTENGINE, default GPU). ALSO drives the

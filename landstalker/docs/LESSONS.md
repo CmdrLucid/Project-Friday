@@ -11,8 +11,8 @@
 - 6. Cloud sandbox setup (no ROM, no SDL by default): lines 65-74
 - 7. Merge note: lines 75-77
 - 8. Roadmap after the compat work (user wishes, 2026-10-10): lines 78-85
-- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 86-457
-  - 201 entries, newest at the END; the last 12: 445 (2026-11-11) The Deck GPU clock idles at 200 MH...; 446 (2026-11-11) A shadow test that returns at the...; 447 (2026-11-11) Thin drawn parts vs the 4 unit lig...; 448 (2026-11-11) Wrapping screen maps (512 x 512, i...; 449 (2026-11-12) Plane A cell words carry flags abo...; 450 (2026-11-12) The light's cell heights come from...; 451 (2026-11-12) Sub-pixel model details make dotte...; 452 (2026-11-12) Judge the light only by GPU pictur...; 453 (2026-11-12) Sub-pixel steps make dotted light...; 454 (2026-11-12) "Narrow" is not enough for a door...; 455 (2026-11-12) Read the light direction from the...; 456 (2026-11-12) A wall-side object drawn at a NORT...
+- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 86-458
+  - 202 entries, newest at the END; the last 12: 446 (2026-11-11) A shadow test that returns at the...; 447 (2026-11-11) Thin drawn parts vs the 4 unit lig...; 448 (2026-11-11) Wrapping screen maps (512 x 512, i...; 449 (2026-11-12) Plane A cell words carry flags abo...; 450 (2026-11-12) The light's cell heights come from...; 451 (2026-11-12) Sub-pixel model details make dotte...; 452 (2026-11-12) Judge the light only by GPU pictur...; 453 (2026-11-12) Sub-pixel steps make dotted light...; 454 (2026-11-12) "Narrow" is not enough for a door...; 455 (2026-11-12) Read the light direction from the...; 456 (2026-11-12) A wall-side object drawn at a NORT...; 457 (2026-11-12) Removing dead code can remove a si...
 
 <!-- /TOC -->
 
@@ -454,3 +454,4 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 - **(2026-11-12) "Narrow" is not enough for a door niche** (lk_lt_dent): a corridor 2 cells wide passed as a niche and the pixel ray kept a void gap as its surface; a niche is also shallow (LK_LTNICHE v1). Rules about void cells need both width and depth.
 - **(2026-11-12) Read the light direction from the drawn shading** (lit +x faces = doors / drawer fronts): the key light from the left (135) shone under tables against the art; now 330 / 60.
 - **(2026-11-12) A wall-side object drawn at a NORTH wall is often the west wall drawing mirrored over x = y** (armour stands 78 / 79): mirror the model (s -> -s, faces reversed) + yaw 90 - yaw; compare IoU before choosing.
+- **(2026-11-12) Removing dead code can remove a side effect**: the CPU light blocks were never read by the GPU, but the first one left the thread-local `lk_lt_rayA = 1` on the main thread, which other main-thread rays relied on. Before deleting a subsystem, list the globals / thread-locals it WRITES (not only what reads it); verify with pictures of several rooms after a warp, and bisect with an old build in a git worktree (patch files swapped between old / new).
