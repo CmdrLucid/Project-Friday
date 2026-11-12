@@ -45,9 +45,10 @@ for k in range(N0, len(V)): V[k] = (V[k][0] + OFF[0], V[k][1] + OFF[1], V[k][2])
 YAW = g('yaw', 79.0); ct, st = math.cos(math.radians(YAW)), math.sin(math.radians(YAW)); BX, BY = g('body', [0.0, 0.0])
 CX, CY, FLO = g('cx', 312.0), g('cy', 456.0), g('floor', 32.0)
 XMIN, XMAX, YMIN, YMAX = g('xmin', -1e9), g('xmax', 1e9), g('ymin', -1e9), g('ymax', 1e9)
+MIR = bool(g('mirror', False))   # 2026-11-12: the armour at a NORTH wall (rooms 78 / 79) = the west wall drawing mirrored over the x = y diagonal: mirror (s -> -s) + yaw 90 - 79 = 11
 def W(p):
     """body frame -> world; a vertex beyond xmin / xmax / ymin (a wall block beside the cell) slides along the view ray (1, 1, 1) back to the bound"""
-    s, f, z = p; x, y, z = CX + BX + s * ct + f * st, CY + BY - s * st + f * ct, FLO + max(0.0, z) * H
+    s, f, z = p; s = -s if MIR else s; x, y, z = CX + BX + s * ct + f * st, CY + BY - s * st + f * ct, FLO + max(0.0, z) * H
     if x > XMAX: d = x - XMAX; x, y, z = x - d, y - d, z - d
     if x < XMIN: d = XMIN - x; x, y, z = x + d, y + d, z + d
     if y < YMIN: d = YMIN - y; x, y, z = x + d, y + d, z + d
@@ -56,5 +57,5 @@ def W(p):
 with open(sys.argv[1], 'w') as fo:
     fo.write("# armour on a stand (remake/recipes/knight/stand.py): our own geometry from parts. GAME coordinates x east, y south, z up, world units.\n")
     for p in V: fo.write('v %.3f %.3f %.3f\n' % W(p))
-    for q in F: fo.write('f ' + ' '.join(str(i + 1) for i in q) + '\n')
+    for q in F: fo.write('f ' + ' '.join(str(i + 1) for i in (q[::-1] if MIR else q)) + '\n')   # mirrored: keep the faces outward
 print('stand', len(V), 'verts', len(F), 'faces')

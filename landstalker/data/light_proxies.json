@@ -1831,6 +1831,34 @@
         "surface": true,
         "floor": 0,
         "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          17,
+          26,
+          17
+        ],
+        "file": "proxies/stand_78.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour on a stand at a north wall (tileset 15, top block $274, collision = a walkable 2 step block): remake/recipes/knight/stand.py LIGHT variant MIRRORED (the west wall drawing of 63 mirrored over x = y; mirror + yaw 11: IoU 0.898 / 0.875 vs 0.668 unmirrored), measured on rom_picture 78"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          29,
+          17,
+          29,
+          17
+        ],
+        "file": "proxies/stand_78_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour on a stand at a north wall (tileset 15, top block $274, collision = a walkable 2 step block): remake/recipes/knight/stand.py LIGHT variant MIRRORED (the west wall drawing of 63 mirrored over x = y; mirror + yaw 11: IoU 0.898 / 0.875 vs 0.668 unmirrored), measured on rom_picture 78"
       }
     ],
     "79": [
@@ -1859,6 +1887,34 @@
         "surface": true,
         "floor": 0,
         "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          17,
+          26,
+          17
+        ],
+        "file": "proxies/stand_79.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour on a stand at a north wall (tileset 15, top block $274, collision = a walkable 2 step block): remake/recipes/knight/stand.py LIGHT variant MIRRORED (the west wall drawing of 63 mirrored over x = y; mirror + yaw 11: IoU 0.898 / 0.875 vs 0.668 unmirrored), measured on rom_picture 78"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          29,
+          17,
+          29,
+          17
+        ],
+        "file": "proxies/stand_79_1.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "armour on a stand at a north wall (tileset 15, top block $274, collision = a walkable 2 step block): remake/recipes/knight/stand.py LIGHT variant MIRRORED (the west wall drawing of 63 mirrored over x = y; mirror + yaw 11: IoU 0.898 / 0.875 vs 0.668 unmirrored), measured on rom_picture 78"
       }
     ],
     "83": [
