@@ -199,3 +199,10 @@ FINAL = with material, approved by the user.
 ## Bed  (`remake/recipes/bed/bed.py`; ops by `furniture_ops.beds()`)
 - Tileset 2 houses, 51 beds in 30 rooms (3 x 2 head west / 2 x 3 head north, mirrored). Board on four legs, ONE pillow, blanket hanging to z 3.5.
 - Two variants: remake = level (`tilt` 0); light = as drawn, top tilted up 3 towards the back wall (IoU 0.948). Details: `remake/recipes/bed/README.md`.
+
+## Grand piano  (`remake/recipes/piano/model3d.py` on the measured plan of `piano.py`; room 85 only)
+- Reference: room 85 MERCATOR_CASTLE_BANQUET_ROOM, cells x 13..16, y 21..25 (`rom_picture.py ROM 85 970 180 170 170`).
+- Plan MEASURED: the front S curve from the drawn case bottom edge (each bottom pixel at z 7 -> one floor point), case z 7..20, legs at the drawn feet.
+- Near-final geometry (user 2026-11-12 'ja, passt'): open case (plinth chamfer, rim lip, soundboard 3 below the rim), iron plate + 3 struts, key bed /
+  keys / fallboard / cheeks, three turned legs with brass feet, lid hinged on the spine with rounded edge (inset 0.1 to stay inside the drawn lid) +
+  prop stick. Same model in the light (no separate variant: the drawing is consistent). Silhouette IoU 0.912, 44 px outside the drawing. No music desk (not drawn).

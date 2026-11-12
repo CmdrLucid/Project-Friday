@@ -4983,7 +4983,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "grand piano (collision = a 32 high box: the light saw a block): case FLOATING from z 7 on three legs (only painted shadow under it, user 2026-11-12 'da ist nur Schatten drunter') + keyboard; the S curve of the front MEASURED from the drawn bottom edge of the case (each pixel at z 7 -> one floor point, user 2026-11-12 'die S-Kurve passt noch gar nicht'), remake/recipes/piano/piano.py"
+        "why": "grand piano (collision = a 32 high box: the light saw a block): NEAR-FINAL 3D MODEL (remake/recipes/piano/model3d.py, user 2026-11-12 'bau es als echtes 3D' / 'ja, passt'): open case with rim + soundboard, iron frame, keys, three turned legs; case floating from z 7 (only painted shadow under it); the S curve of the front MEASURED from the drawn bottom edge of the case (each pixel at z 7 -> one floor point, user 2026-11-12 'die S-Kurve passt noch gar nicht'), remake/recipes/piano/piano.py"
       },
       {
         "op": "mesh",
@@ -4996,7 +4996,7 @@
         "file": "proxies/piano_85_lid.obj",
         "surface": true,
         "air": true,
-        "why": "the piano's lid, propped open (second op: GPU = its own triangles; CPU fallback: one slab per sub column, the lid replaces the case's slab under it), remake/recipes/piano/piano.py"
+        "why": "the piano's lid with rounded edge + prop stick, propped open (remake/recipes/piano/model3d.py; second op: GPU = its own triangles; CPU fallback: one slab per sub column, the lid replaces the case's slab under it), remake/recipes/piano/piano.py"
       },
       {
         "op": "unpaint",
