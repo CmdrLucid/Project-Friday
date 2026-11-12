@@ -1389,6 +1389,19 @@
         "air": true,
         "floor": 0,
         "why": "low castle bench on cabriole legs (tileset 15, blocks $085 $088, collision = a walkable 1 step box, air below): remake/recipes/castle_bench/castle_bench.py (inset 1.8), legs and seat measured on rom_picture 65 by overlay; same bench as 67 (user 2026-11-12 'einsetzen')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          21,
+          15,
+          23
+        ],
+        "file": "proxies/castle_chest_65.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "castle chest of drawers (= its 32 high collision box) with a round clay pot on the north cell instead of the 48 high cube (tileset 15, blocks $05C $38D $04E): remake/recipes/castle_chest/castle_chest.py, measured on rom_picture 65 by overlay"
       }
     ],
     "66": [
@@ -1458,6 +1471,19 @@
         "air": true,
         "floor": 0,
         "why": "low castle bench on cabriole legs (tileset 15, blocks $085 $088, collision = a walkable 1 step box, air below): remake/recipes/castle_bench/castle_bench.py (inset 1.8), legs and seat measured on rom_picture 65 by overlay; same bench as 67 (user 2026-11-12 'einsetzen')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          21,
+          15,
+          23
+        ],
+        "file": "proxies/castle_chest_66.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "castle chest of drawers (= its 32 high collision box) with a round clay pot on the north cell instead of the 48 high cube (tileset 15, blocks $05C $38D $04E): remake/recipes/castle_chest/castle_chest.py, measured on rom_picture 65 by overlay"
       }
     ],
     "67": [
@@ -1502,6 +1528,19 @@
         "air": true,
         "floor": 0,
         "why": "upholstered castle bench on cabriole legs (tileset 15, collision = a 1 step box, air below): near-final model of remake/recipes/castle_bench/castle_bench.py, measured on room 67; user 2026-11-12 'einsetzen'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          15,
+          15,
+          20
+        ],
+        "file": "proxies/castle_sideboard_67.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "castle bedroom west wall row (tileset 15): wardrobe 48 + bookcase 32 (= the stepped collision, fit the drawing), nightstand drawn 21 high (collision 16), vase + cup on the bookcase: remake/recipes/castle_sideboard/castle_sideboard.py, measured on rom_picture 67 by overlay"
       }
     ],
     "68": [
@@ -1751,6 +1790,19 @@
         "air": true,
         "floor": 0,
         "why": "upholstered castle bench on cabriole legs (tileset 15, collision = a 1 step box, air below): near-final model of remake/recipes/castle_bench/castle_bench.py, measured on room 67; user 2026-11-12 'einsetzen'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          15,
+          15,
+          20
+        ],
+        "file": "proxies/castle_sideboard_77.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "castle bedroom west wall row (tileset 15): wardrobe 48 + bookcase 32 (= the stepped collision, fit the drawing), nightstand drawn 21 high (collision 16), vase + cup on the bookcase: remake/recipes/castle_sideboard/castle_sideboard.py, measured on rom_picture 67 by overlay"
       }
     ],
     "78": [
@@ -3313,6 +3365,20 @@
         ],
         "floor": 0,
         "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          15,
+          20,
+          15
+        ],
+        "file": "proxies/house_dresser_620.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house chest of drawers (top 33) + small bookcase (top 42) with vase / bottle (tileset 2, blocks $001 $02E $096 $0CC, collision = one 48 high box): remake/recipes/house_dresser/house_dresser.py, measured on rom_picture 620 by overlay"
       }
     ],
     "621": [
@@ -3354,6 +3420,20 @@
         ],
         "floor": 0,
         "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          15,
+          20,
+          15
+        ],
+        "file": "proxies/house_dresser_621.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house chest of drawers (top 33) + small bookcase (top 42) with vase / bottle (tileset 2, blocks $001 $02E $096 $0CC, collision = one 48 high box): remake/recipes/house_dresser/house_dresser.py, measured on rom_picture 620 by overlay"
       }
     ],
     "622": [
@@ -5504,6 +5584,20 @@
         ],
         "floor": 0,
         "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          15,
+          20,
+          15
+        ],
+        "file": "proxies/house_dresser_724.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house chest of drawers (top 33) + small bookcase (top 42) with vase / bottle (tileset 2, blocks $001 $02E $096 $0CC, collision = one 48 high box): remake/recipes/house_dresser/house_dresser.py, measured on rom_picture 620 by overlay"
       }
     ],
     "725": [
@@ -5545,6 +5639,20 @@
         ],
         "floor": 0,
         "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          15,
+          20,
+          15
+        ],
+        "file": "proxies/house_dresser_725.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house chest of drawers (top 33) + small bookcase (top 42) with vase / bottle (tileset 2, blocks $001 $02E $096 $0CC, collision = one 48 high box): remake/recipes/house_dresser/house_dresser.py, measured on rom_picture 620 by overlay"
       }
     ],
     "727": [
