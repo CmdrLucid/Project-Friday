@@ -1746,6 +1746,20 @@
         "surface": true,
         "floor": 16,
         "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          18,
+          19,
+          18
+        ],
+        "file": "proxies/castle_bench_72.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "short castle bench on cabriole legs (tileset 15, collision = a walkable 1 step box, air below): remake/recipes/castle_bench/castle_bench.py (2 cells, inset 1.8), seat and legs checked on rom_picture 72 by overlay"
       }
     ],
     "77": [
