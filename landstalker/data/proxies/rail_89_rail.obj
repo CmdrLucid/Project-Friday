@@ -1,0 +1,29 @@
+# light proxy: balustrade of room 89 (stairwell, along x 446..450), handrail slabs z 29..32; measured on the original picture with remake/tools/proxy_overlay.py (6x). GAME coordinates x east, y south, z up, world units; our own geometry
+v 446 304 29
+v 450 304 29
+v 446 424 29
+v 450 424 29
+v 446 304 32
+v 450 304 32
+v 446 424 32
+v 450 424 32
+f 3 4 2 1
+f 6 8 7 5
+f 2 6 5 1
+f 7 8 4 3
+f 5 7 3 1
+f 4 8 6 2
+v 450 302 29
+v 459 302 29
+v 450 306 29
+v 459 306 29
+v 450 302 32
+v 459 302 32
+v 450 306 32
+v 459 306 32
+f 11 12 10 9
+f 14 16 15 13
+f 10 14 13 9
+f 15 16 12 11
+f 13 15 11 9
+f 12 16 14 10
