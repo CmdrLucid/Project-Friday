@@ -53,5 +53,9 @@ patch_bootcol / patch_dissolve anchors: confirmed). Line numbers = lines in the 
 4. vdp_render: no `lk_lt_pix` / `lk_lt_voidglow` else-branch; `lk_gl_real` = lighting on && GPU ok; no GPU = rows untouched. Delete lk_lt_pix, voidglow, term,
    shadowed / figdir / figface; adjust the patch_bootcol / patch_dissolve anchors in the same step.
 5. Remove prefetch ring, on-demand lk_lt_block, workers; delete blockcalc, sunfill, shblock, aoval / aoh, lk_lt_b; patch_gpucomp drops lk_lt_block; lk_am_surf only via lk_gs.
-6. Renderer option 56 = picture engine only; light = `lk_lt_get() && lk_gpu_lightok()`; the 6 ms watchdog turns light OFF instead of CPU (decided, see step 3).
+6. REMOVE the Options row 'Renderer' (Display page, id 56 in tools/patch_options.py lk_ids_video; it sets the Light Engine AND the Picture Engine, value text CPU / GPU at the
+   `id == 56 || id == 60` line; files ~/.landstalker_lightengine, LANDSTALKER_LIGHTENGINE) - user 2026-11-12: 'die Option im Optionsmenue weggeben, weil es die dann ohnehin nicht mehr gibt'.
+   The picture compositor (patch_gpucomp.py `lk_gco_get()` follows `lk_gle_get()`) then decides by itself: GPU when the GPU works, else the plain picture path (no choice row).
+   Light = `lk_lt_get() && lk_gpu_lightok()`; the 6 ms watchdog turns the light OFF (decided, step 3). Also: the row's help text, LANG translations (tools/lang*), docs/options lists,
+   the id 60 name, and keep the other ids of the page unchanged (saved option files use the ids).
 7. Dead statics, verify_build.sh markers, docs (INDEX, LESSONS, FORMATS, options help text), re-run the baseline.
