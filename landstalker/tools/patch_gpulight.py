@@ -78,14 +78,6 @@ void lk_rf_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; 
 int lk_gl_slow;               /* v5: set by the GPU time watchdog (platform_sdl.c): the light pass was too slow -> CPU lighting for the rest of the run (the option is not changed) */
 int lk_gl_getmode(void) { lk_gl_mode = lk_gl_slow ? 0 : 1; return lk_gl_mode; }   /* CPU light removal 2026-11-12: 1 GPU light, 0 = the watchdog found it too slow -> Lighting OFF (user: 'wenn GPU-Licht nicht geht, dann wird standardmaessig das Licht aus'); LANDSTALKER_GPULT (CPU light / compare harness) is gone */
 int lk_gl_lighton(void) { return lk_gl_getmode() == 1 && lk_gl_realok(); }   /* the light runs only on the GPU: GPU filters working and not too slow, else the original picture */
-static void lk_gl_put(int line, int i, int cls, int U, int V, int c0, int c1, int w) {
-  int o = line * 448 + i;
-  int q = ((V & 511) << 9) | (U & 511);
-  if (cls == 1 && (lk_gl_pf & 1)) cls = 16 + lk_gl_fj;   /* a figure pixel: class 16 + figure */
-  lk_gl_unlit[o] = (uint32_t)c0; lk_gl_ref[o] = (uint32_t)c1; lk_gl_cls[o] = (uint8_t)cls;
-  lk_gl_flg[o] = (uint8_t)(cls ? (lk_gl_pf | ((lk_am_dn && lk_am_map[q]) ? 8 : 0) | ((lk_lt_nsh && lk_lt_dmap[q]) ? 64 : 0)) : 0);
-  if (i == 0 || lk_gl_rowfr[line] != platform_frame_number()) { lk_gl_row[line] = ((uint32_t)(uint16_t)(int16_t)(U - i)) | ((uint32_t)(uint16_t)(int16_t)V << 16); lk_gl_rowfr[line] = platform_frame_number(); }
-  lk_gl_capfr = platform_frame_number(); lk_gl_w = w; }
 long lk_gl_realcap = -9;   /* v5: frame whose rows were composed unlit for the GPU (the present lights it even if the mode switched since: no unlit frame at a switch) */
 static int lk_gl_pl[224 * 448], lk_gl_pn; int lk_gl_postprev;   /* GL4: pixels with a mix after the light this frame (reset to 'none' at the next frame) */
 static void lk_gl_line(int line, int u0, int v, int w) {   /* GL4, once per captured line: picture position (U = u0 + i, V) + frame stamps */
@@ -305,18 +297,10 @@ void lk_gl_unpaint(void) { int q, ts = -1;
     rep(a, a + " int lk_gl_real = lk_lt_ln && !lk_hd_n && !lk_lt_dbg && w <= 448 && line >= 0 && line < 224;   /* %s */" % VER +
            " if (lk_gl_real) { if (!lk_gl_postok) lk_gl_postinit(); lk_gl_line(line, ubase - e - lk_sm_sxn, vbase - lk_sm_syn, w); }")
     # around the lighting call of the composed pixel: the GPU lights it; CPU light removal 2026-11-12: the CPU calls lk_lt_pix / lk_lt_voidglow are gone (+ the compare capture lk_gl_put)
-    a = "      if (lk_lt_ln && !black && (src == 1 || src == 2 || src == 3)) col = lk_lt_pix("
-    i0 = s.index(a); i1 = s.index("\n", s.index("col = lk_lt_voidglow(", i0)) + 1
+    a = "      /* LK_LIGHTS: the map pixel is lit on the GPU"
+    i0 = s.index(a); i1 = s.index("\n", i0) + 1
     s = s[:i0] + ("      int lk_gl_k = 0; uint32_t lk_gl_p0 = 0, lk_gl_p1 = 0xFFFFFFu; lk_gl_pf = 0;   /* %s */\n" % VER +
            "      if (lk_gl_real) lk_gl_k = lk_gl_classify(x, line, src, src == 1 ? sp : 0, black, ubase + x - lk_sm_sxn, vbase - lk_sm_syn);   /* GL4: the GPU lights it (the only light since 2026-11-12) */\n") + s[i1:]
-    # flags inside lk_lt_pix
-    rep("if ((sp & 0x200) && (j = lk_lt_figat(x, line)) >= 0) {", "if ((sp & 0x200) && (j = lk_lt_figat(x, line)) >= 0) { lk_gl_pf |= 1;")
-    rep("if (lk_lt_figsun(px, py, (float)b->z[i])) u = 0.0f; }", "if (lk_lt_figsun(px, py, (float)b->z[i])) { u = 0.0f; lk_gl_pf |= 2; } }")
-    rep("      if (t <= 0.0f) continue;\n", "      if (t <= 0.0f) continue;\n      lk_gl_pf |= 4;   /* %s */\n" % VER)
-    rep("if ((sp & 0x200) && (j = lk_lt_figat(x, line)) >= 0) { lk_gl_pf |= 1;", "if ((sp & 0x200) && (j = lk_lt_figat(x, line)) >= 0) { lk_gl_pf |= 1; lk_gl_fj = j;")
-    rep("if (lk_lt_figsun(px, py, (float)b->z[i])) u *= 0.45f; }", "if (lk_lt_figsun(px, py, (float)b->z[i])) { u *= 0.45f; lk_gl_pf |= 2; } }")
-    rep("if (w >= 1.0f) { tb += t; continue; }", "if (w > 0.0f) lk_gl_pf |= 16; if (w >= 1.0f) { tb += t; continue; }")
-    rep("if (sh > 0.0f) { float cd = 1.0f - 0.30f * sh;", "if (sh > 0.0f) { float cd = 1.0f - 0.30f * sh; lk_gl_pf |= 32;")
     rep("memcpy(lk_lt_sd, lk_lt_sdn, sizeof lk_lt_sd);", "memcpy(lk_lt_sd, lk_lt_sdn, sizeof lk_lt_sd); lk_gl_sunver++;")
     # GL4: emissive mixes after the light point -> 'mix after the light' (applied to black and white) when the GPU lights the pixel
     def fx(cond, call):

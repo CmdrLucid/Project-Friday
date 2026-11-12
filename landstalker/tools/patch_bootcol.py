@@ -207,7 +207,7 @@ rep(a, "      if (draw) { lk_bc_cur = (offs[k] == 0 && lk_bc_curkind()) ? lk_bc_
        "        lk_o_sprpiece(e->tiles, cum, e->ax + xx - 128, e->ay + e->pys[pc] - 128, e->pws[pc], e->phs[pc], (e->ts >> 13) & 3, e->prio, (e->ts >> 11) & 1, (e->ts >> 12) & 1); lk_bc_cur = 0; }\n")
 # 6. the composed pixel, before Lighting
 rep("int lk_sfx_ln = lk_sfx_linebegin(line);", "int lk_sfx_ln = lk_sfx_linebegin(line); int lk_bc_ln = lk_bc_linebegin();   /* %s */" % VER)
-a = "      if (lk_lt_ln && !black && (src == 1 || src == 2 || src == 3)) col = lk_lt_pix("
+a = "      /* LK_LIGHTS: the map pixel is lit on the GPU"
 rep(a, "      if (lk_bc_ln && !black && src == 1) col = lk_bc_pix(sl, si, sp, col);   /* %s */\n" % VER + a)
 open(p, "w").write(s)
 # 7. screens (file select): find the pose, flag its boot pixels while the sprites are collected, tint them like on the map
