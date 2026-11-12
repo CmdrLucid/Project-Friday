@@ -446,12 +446,54 @@
       {
         "op": "mesh",
         "cells": [
+          29,
+          24,
+          29,
+          24
+        ],
+        "file": "proxies/brazier_55.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            473,
+            393
+          ],
+          "z": 64
+        },
+        "why": "brazier stand (collision = a 64 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          42,
+          24,
+          42,
+          24
+        ],
+        "file": "proxies/brazier_55_1.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            681,
+            393
+          ],
+          "z": 64
+        },
+        "why": "brazier stand (collision = a 64 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           49,
           15,
           49,
           15
         ],
-        "file": "proxies/brazier_55.obj",
+        "file": "proxies/brazier_55_2.obj",
         "surface": true,
         "floor": 16,
         "carrier": {
@@ -480,12 +522,54 @@
       {
         "op": "mesh",
         "cells": [
+          29,
+          24,
+          29,
+          24
+        ],
+        "file": "proxies/brazier_56.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            473,
+            393
+          ],
+          "z": 64
+        },
+        "why": "brazier stand (collision = a 64 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          42,
+          24,
+          42,
+          24
+        ],
+        "file": "proxies/brazier_56_1.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            681,
+            393
+          ],
+          "z": 64
+        },
+        "why": "brazier stand (collision = a 64 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           49,
           15,
           49,
           15
         ],
-        "file": "proxies/brazier_56.obj",
+        "file": "proxies/brazier_56_2.obj",
         "surface": true,
         "floor": 16,
         "carrier": {
@@ -514,12 +598,54 @@
       {
         "op": "mesh",
         "cells": [
+          29,
+          24,
+          29,
+          24
+        ],
+        "file": "proxies/brazier_57.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            473,
+            393
+          ],
+          "z": 64
+        },
+        "why": "brazier stand (collision = a 64 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          42,
+          24,
+          42,
+          24
+        ],
+        "file": "proxies/brazier_57_1.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            681,
+            393
+          ],
+          "z": 64
+        },
+        "why": "brazier stand (collision = a 64 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           49,
           15,
           49,
           15
         ],
-        "file": "proxies/brazier_57.obj",
+        "file": "proxies/brazier_57_2.obj",
         "surface": true,
         "floor": 16,
         "carrier": {
@@ -548,12 +674,54 @@
       {
         "op": "mesh",
         "cells": [
+          29,
+          24,
+          29,
+          24
+        ],
+        "file": "proxies/brazier_58.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            473,
+            393
+          ],
+          "z": 64
+        },
+        "why": "brazier stand (collision = a 64 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          42,
+          24,
+          42,
+          24
+        ],
+        "file": "proxies/brazier_58_1.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            681,
+            393
+          ],
+          "z": 64
+        },
+        "why": "brazier stand (collision = a 64 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           49,
           15,
           49,
           15
         ],
-        "file": "proxies/brazier_58.obj",
+        "file": "proxies/brazier_58_2.obj",
         "surface": true,
         "floor": 16,
         "carrier": {

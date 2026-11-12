@@ -114,7 +114,7 @@ def brazier_stands(rom, room):
     c = blockcat.cells(rom, room); out = []
     for (x, y), v in sorted(c.items()):
         if v[2] not in (0x027, 0x041, 0x043): continue
-        fl = sorted({n[0] for n in (c.get((x + dx, y + dy)) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))) if n and not n[1] and v[0] - n[0] in (2, 4)})
+        fl = sorted({n[0] for n in (c.get((x + dx, y + dy), (0, False, 0, 0)) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))) if n and not n[1] and v[0] - n[0] in (2, 4)})   # a cell missing in blockcat.cells = height map word 0 = walkable floor 0 (room 58's hall: its stands were missed, 2026-11-12)
         if fl: out.append(dict(cell=(x, y), floor=fl[-1], steps=v[0] - fl[-1]))
     return out
 
