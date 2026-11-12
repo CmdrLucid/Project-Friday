@@ -779,18 +779,27 @@ float aoflt(float x, float y, out float b) {   /* LK_GLAOFLT v2 (user 2026-11-09
 float aoval(float px, float py, float z, float f) {   /* lk_lt_aoval */
   float nx = FNX(f), ny = FNY(f), x0 = px + nx * OFF2(nx, ny, 2.0), y0 = py + ny * OFF2(nx, ny, 2.0), sum = 0.0, n = 0.0, cov = 0.0;
   if (f != 1.0) { float fl = aoh(x0, y0, 0.0, 0.0); if (fl > z) z = fl; }
+  float fc = 0.0, fcb = 0.0;   /* LK_GLAOSOFT v1 (user 2026-11-12, table 67: 'sieht nach harten Kanten aus'): the share of the point UNDER a floating part, bilinear over the 4 nearest
+                                  sub columns (was: its own sub column only = 4 unit stairs along the table top's outline) */
+  if (uAoflt > 0.5 && uHand > 0.5 && uMdl > 0.5) { float gx = x0 / 4.0 - 0.5, gy = y0 / 4.0 - 0.5, ax = floor(gx), ay = floor(gy), ux = gx - ax, uy = gy - ay;
+    for (int j = 0; j < 4; j++) { float ix = float(j - 2 * (j / 2)), iy = float(j / 2), bq, tq = aoflt((ax + ix) * 4.0 + 2.0, (ay + iy) * 4.0 + 2.0, bq);
+      if (tq > -32768.0 && bq > z) { fc += (ix > 0.5 ? ux : 1.0 - ux) * (iy > 0.5 ? uy : 1.0 - uy); fcb = max(fcb, bq); } } }
   for (int k = 0; k < 16; k++) { vec2 dv = uDv[k]; float dix = dv.x > 0.01 ? 1.0 : dv.x < -0.01 ? -1.0 : 0.0, diy = dv.y > 0.01 ? 1.0 : dv.y < -0.01 ? -1.0 : 0.0, best = 0.0;
     if (f != 1.0 && dv.x * nx + dv.y * ny < -0.1) continue;
     n += 1.0;
     if (uAoflt > 0.5 && uHand > 0.5 && uMdl > 0.5) {   /* LK_GLAOFLT v2: a floating part only hides the sky ABOVE its bottom: under it (cover) everything above the edge seen from here, beside it the band bottom .. top */
-      float cb0, ct0 = aoflt(x0, y0, cb0), lb = cb0, amt = 0.0, smin = 1.0, smax = 0.0, dn = 0.0; bool ins = ct0 > -32768.0 && cb0 > z;
-      for (int st = 1; st < 20; st++) { float d = 2.0 * float(st), bb, tt = aoflt(x0 + dv.x * d, y0 + dv.y * d, bb); bool here = tt > -32768.0 && bb > z;
-        if (ins) { if (here) { lb = bb; continue; } float e = (lb - z) / d, se = e / sqrt(1.0 + e * e); amt = 1.0 - (uAoflt > 1.5 && f == 1.0 ? se * se : se); ins = false; break; }   /* LK_GLAOFLT v2: under the part the sky ABOVE the edge (elevation asin se .. 90) is hidden; its share of the light from a uniform sky on a floor is 1 - se^2 (Lambert: weight 2 sin cos per elevation), v1 took 1 - se (the table 670 floor only 25 percent darker, user 2026-11-09: 'direkt unter der Platte noch ein hellerer gruener Streifen') */
-        if (here) { float e1 = (bb - z) / d, e2 = (tt - z) / d; smin = min(smin, e1 / sqrt(1.0 + e1 * e1)); smax = max(smax, e2 / sqrt(1.0 + e2 * e2)); if (dn == 0.0) dn = d; } }
-      if (ins) amt = 1.0;
-      if (f == 1.0 && ct0 > -32768.0 && cb0 > z) cov += amt;   /* LK_GLAOFLT v2: the share a part ABOVE a FLOOR point hides (a table top; walls / the ship hull keep v1) */
-      else if (dn > 0.0) amt = max(amt, (smax - smin) * (1.0 - dn / 40.0));   /* beside it: the whole part as ONE band (nearest top .. farthest bottom), not step by step (a 41 step at the table edge) */
-      best = amt; }
+      float cb0, ct0 = aoflt(x0, y0, cb0), U = 0.0, Bd = 0.0; bool own = ct0 > -32768.0 && cb0 > z;
+      float wU = f == 1.0 ? fc : (own ? 1.0 : 0.0);   /* LK_GLAOSOFT v1 (user 2026-11-12, table 67 'harte Kanten'): a FLOOR point blends 'under the part' and 'beside it' by its share under the part (bilinear over 4 sub columns; was 0 / 1 = 4 unit stairs along the outline); walls keep 0 / 1 */
+      for (int pass = 0; pass < 2; pass++) {
+        if (pass == 0 ? wU <= 0.0 : wU >= 1.0) continue;
+        bool ins = pass == 0; float lb = own ? cb0 : fcb, amt = 0.0, smin = 1.0, smax = 0.0, dn = 0.0;
+        for (int st = 1; st < 20; st++) { float d = 2.0 * float(st), bb, tt = aoflt(x0 + dv.x * d, y0 + dv.y * d, bb); bool here = tt > -32768.0 && bb > z;
+          if (ins) { if (here) { lb = bb; continue; } float e = (lb - z) / d, se = e / sqrt(1.0 + e * e); amt = 1.0 - (uAoflt > 1.5 && f == 1.0 ? se * se : se); ins = false; break; }   /* LK_GLAOFLT v2: under the part the sky ABOVE the edge (elevation asin se .. 90) is hidden; its share of the light from a uniform sky on a floor is 1 - se^2 (Lambert: weight 2 sin cos per elevation), v1 took 1 - se (the table 670 floor only 25 percent darker, user 2026-11-09: 'direkt unter der Platte noch ein hellerer gruener Streifen') */
+          if (here) { float e1 = (bb - z) / d, e2 = (tt - z) / d; smin = min(smin, e1 / sqrt(1.0 + e1 * e1)); smax = max(smax, e2 / sqrt(1.0 + e2 * e2)); if (dn == 0.0) dn = d; } }
+        if (ins) amt = 1.0;
+        if (pass == 0) U = amt; else Bd = dn > 0.0 ? (smax - smin) * (1.0 - dn / 40.0) : 0.0; }   /* beside it: the whole part as ONE band (nearest top .. farthest bottom), not step by step (a 41 step at the table edge) */
+      if (f == 1.0) cov += U * wU;   /* LK_GLAOFLT v2: the share a part ABOVE a FLOOR point hides (a table top; walls / the ship hull keep v1) */
+      best = U * wU + Bd * (1.0 - wU); }
     for (int st = 1; st < 20; st++) { float d = 2.0 * float(st), fall = 1.0 - d / 40.0; if (fall <= best) break;
       float h = aoh(x0 + dv.x * d, y0 + dv.y * d, dix, diy); if (h <= z) continue;
       float t = (h - z) / d, sn = t / sqrt(1.0 + t * t) * fall; if (sn > best) { best = sn; if (sn > gBest) { gBest = sn; gBH = h; gBX = x0 + dv.x * d; gBY = y0 + dv.y * d; } } }
