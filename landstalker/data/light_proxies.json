@@ -299,6 +299,17 @@
     ],
     "55": [
       {
+        "op": "box",
+        "units": [
+          752,
+          240,
+          784,
+          256,
+          16
+        ],
+        "why": "floor beside the brazier stand: the game's RAM height map holds cells (47, 15) / (48, 15) at 48 (collision around the stand), drawn is plain floor 16; the 32 high box under the flame (z 56) shaded the wall of the inner corner with a diagonal shadow (user 2026-11-12, room 58: 'auf der Wand duerfte kein Schatten sein, wenn rechts direkt die Fackel steht'; rooms 55..58 share the layout)"
+      },
+      {
         "op": "mesh",
         "cells": [
           49,
@@ -321,6 +332,17 @@
       }
     ],
     "56": [
+      {
+        "op": "box",
+        "units": [
+          752,
+          240,
+          784,
+          256,
+          16
+        ],
+        "why": "floor beside the brazier stand: the game's RAM height map holds cells (47, 15) / (48, 15) at 48 (collision around the stand), drawn is plain floor 16; the 32 high box under the flame (z 56) shaded the wall of the inner corner with a diagonal shadow (user 2026-11-12, room 58: 'auf der Wand duerfte kein Schatten sein, wenn rechts direkt die Fackel steht'; rooms 55..58 share the layout)"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -345,6 +367,17 @@
     ],
     "57": [
       {
+        "op": "box",
+        "units": [
+          752,
+          240,
+          784,
+          256,
+          16
+        ],
+        "why": "floor beside the brazier stand: the game's RAM height map holds cells (47, 15) / (48, 15) at 48 (collision around the stand), drawn is plain floor 16; the 32 high box under the flame (z 56) shaded the wall of the inner corner with a diagonal shadow (user 2026-11-12, room 58: 'auf der Wand duerfte kein Schatten sein, wenn rechts direkt die Fackel steht'; rooms 55..58 share the layout)"
+      },
+      {
         "op": "mesh",
         "cells": [
           49,
@@ -367,6 +400,17 @@
       }
     ],
     "58": [
+      {
+        "op": "box",
+        "units": [
+          752,
+          240,
+          784,
+          256,
+          16
+        ],
+        "why": "floor beside the brazier stand: the game's RAM height map holds cells (47, 15) / (48, 15) at 48 (collision around the stand), drawn is plain floor 16; the 32 high box under the flame (z 56) shaded the wall of the inner corner with a diagonal shadow (user 2026-11-12, room 58: 'auf der Wand duerfte kein Schatten sein, wenn rechts direkt die Fackel steht'; rooms 55..58 share the layout)"
+      },
       {
         "op": "mesh",
         "cells": [
