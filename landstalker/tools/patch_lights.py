@@ -275,7 +275,10 @@ static int lk_lt_dent(int cx, int cy, int cf) {   /* v4: room cell (cx, cy) is p
   int n = 1, d, ax = cf == 3, ay = cf == 2;
   for (d = 1; d <= 3 && lk_lt_cell(cx - d * ax, cy - d * ay) > -32768; d++) n++;
   for (d = 1; d <= 3 && lk_lt_cell(cx + d * ax, cy + d * ay) > -32768; d++) n++;
-  return n <= 3;
+  if (n > 3) return 0;
+  for (d = 1; d <= 4 && lk_lt_cell(cx - d * ay, cy - d * ax) > -32768; d++) ;   /* LK_LTNICHE v1 (user 2026-11-12, room 703 'harte Kanten': a dark stripe on the corridor wall): a niche is also SHALLOW;
+     a corridor 2 cells wide that runs >= 4 cells on to the back is no niche: the ray must leave the void gap in front of it (else the gap's face was kept = the wrong surface) */
+  return d <= 4;
 }
 static const float lk_lt_fcs[16] = { 0.707106781f, 0.831469612f, 0.923879533f, 0.98078528f, 1.0f, 0.98078528f, 0.923879533f, 0.831469612f, 0.707106781f, 0.555570233f, 0.382683432f, 0.195090322f, 6.123234e-17f, -0.195090322f, -0.382683432f, -0.555570233f }, lk_lt_fsn[16] = { -0.707106781f, -0.555570233f, -0.382683432f, -0.195090322f, 0.0f, 0.195090322f, 0.382683432f, 0.555570233f, 0.707106781f, 0.831469612f, 0.923879533f, 0.98078528f, 1.0f, 0.98078528f, 0.923879533f, 0.831469612f };   /* v9: face codes 4 + k = a SLANTED side face of the fine field indoors, normal at -45 + 11.25 k degrees (k 4 / 12 = codes 2 / 3) */
 static const float lk_lt_fbc[15] = { 0.773010453f, 0.881921264f, 0.956940336f, 0.995184727f, 0.995184727f, 0.956940336f, 0.881921264f, 0.773010453f, 0.634393284f, 0.471396737f, 0.290284677f, 0.0980171403f, -0.0980171403f, -0.290284677f, -0.471396737f }, lk_lt_fbs[15] = { -0.634393284f, -0.471396737f, -0.290284677f, -0.0980171403f, 0.0980171403f, 0.290284677f, 0.471396737f, 0.634393284f, 0.773010453f, 0.881921264f, 0.956940336f, 0.995184727f, 0.995184727f, 0.956940336f, 0.881921264f };   /* the boundaries between the 16 directions (-39.375 + 11.25 j degrees); the same literals in patch_gpulight.py */

@@ -947,7 +947,9 @@ bool dent(float cx, float cy, float cf) {   /* lk_lt_dent */
   float n = 1.0, ax = cf == 3.0 ? 1.0 : 0.0, ay = cf == 2.0 ? 1.0 : 0.0;
   for (int d = 1; d <= 3; d++) { if (cellT(cx - float(d) * ax, cy - float(d) * ay) <= -32768.0) break; n += 1.0; }
   for (int d = 1; d <= 3; d++) { if (cellT(cx + float(d) * ax, cy + float(d) * ay) <= -32768.0) break; n += 1.0; }
-  return n <= 3.0; }
+  if (n > 3.0) return false;
+  for (int d = 1; d <= 4; d++) { if (cellT(cx - float(d) * ay, cy - float(d) * ax) <= -32768.0) return true; }   /* LK_LTNICHE v1 (lk_lt_dent): a niche is shallow; a corridor running >= 4 cells back is none */
+  return false; }
 float fdv(float a, float b) { return floor(a / b); }
 float vtAt(float sx, float sy, float layA) { if (sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return -32768.0; vec4 v = texture2D(fine2, (vec2(sx, sy) + 0.5) / 296.0); return layA > 0.5 ? S16(B(v.r), B(v.g)) : S16(B(v.b), B(v.a)); }
 float rfocc(float sx, float sy, float z) { if (z <= vtAt(sx, sy, 1.0)) return 1.0; vec2 q = SLB(sx, sy); return (q.y > q.x && z >= q.x && z <= q.y) ? 1.0 : 0.0; }   /* v9 lk_lt_rfocc */
