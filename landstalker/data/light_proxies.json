@@ -2547,6 +2547,27 @@
         "air": true,
         "floor": 0,
         "why": "castle table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          13,
+          25,
+          13
+        ],
+        "file": "proxies/brazier_96.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            394,
+            219
+          ],
+          "z": 64
+        },
+        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'"
       }
     ],
     "97": [
@@ -2563,6 +2584,27 @@
         "air": true,
         "floor": 0,
         "why": "castle table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          13,
+          25,
+          13
+        ],
+        "file": "proxies/brazier_97.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            394,
+            219
+          ],
+          "z": 64
+        },
+        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'"
       }
     ],
     "103": [
@@ -2579,6 +2621,27 @@
         "air": true,
         "floor": 0,
         "why": "castle table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          13,
+          25,
+          13
+        ],
+        "file": "proxies/brazier_103.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            394,
+            219
+          ],
+          "z": 64
+        },
+        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'"
       }
     ],
     "108": [
@@ -6458,6 +6521,52 @@
         "surface": true,
         "floor": 0,
         "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      }
+    ],
+    "99": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          26,
+          14,
+          26
+        ],
+        "file": "proxies/brazier_99.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            218,
+            427
+          ],
+          "z": 64
+        },
+        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'"
+      }
+    ],
+    "100": [
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          16,
+          15,
+          16
+        ],
+        "file": "proxies/brazier_100.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            234,
+            267
+          ],
+          "z": 64
+        },
+        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'"
       }
     ]
   },
