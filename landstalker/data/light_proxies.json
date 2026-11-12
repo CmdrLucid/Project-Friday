@@ -4997,6 +4997,18 @@
         "surface": true,
         "air": true,
         "why": "the piano's lid, propped open (second op: GPU = its own triangles; CPU fallback: one slab per sub column, the lid replaces the case's slab under it), remake/recipes/piano/piano.py"
+      },
+      {
+        "op": "unpaint",
+        "layer": "a",
+        "tiles": [
+          126,
+          38,
+          136,
+          40
+        ],
+        "colour": 5,
+        "why": "the piano's painted shadow = dots of colour 5 (36, 36, 0) in its OWN plane A tiles below the case (tile rows 38..40; the case / legs / keyboard use other colours there, the gold frame above row 38 uses colour 5 too): dropped while the GPU light shades the model (LK_GLUNPAINTA v1; user 2026-11-12 'unterm Klavier wie beim Tisch ... gemalter Schatten, der bei Lighting On wegkommen sollte')"
       }
     ]
   },

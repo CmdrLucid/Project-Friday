@@ -141,6 +141,9 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
                     xs = [k[0] for k in c]; ys = [k[1] for k in c]
                     a = [min(xs) // 4, min(ys) // 4, max(xs) // 4, max(ys) // 4, mi, 0 if bot is None else 1, int(e.get("floor", -999))]
                     rows.append("{%d, 5, {%s}}" % (int(room), ", ".join(str(v) for v in a))); continue
+                if e["op"] == "unpaint" and e.get("layer") == "a":   # LK_GLUNPAINTA v1: painted shadow DOTS in the object's own plane A tiles (room 85 piano): "tiles" [tc0, tr0, tc1, tr1] (8 x 8 tile grid of the room picture) + "colour" (the shadow's index): a[5] = 1
+                    t4 = [int(v) for v in e["tiles"]]; assert len(t4) == 4 and 0 < int(e["colour"]) < 16
+                    uprows.append("{%d, 11, {%s}}" % (int(room), ", ".join(str(v) for v in t4 + [int(e["colour"]), 1, 0]))); continue
                 op, n = CORR_OPS[e["op"]]; a = [int(v) for v in (e["units"] if op in (8, 9) else e["cells"])]   # v9: box / slab in WORLD units (x1 / y1 exclusive), the rest in cells
                 assert len(a) == n, ("light_proxies.json: room %s op %s needs %d numbers" % (room, e["op"], n))
                 if op == 5:   # mesh: the rectangle's automatic shapes go, the mesh is stamped (a[4] = mesh number)

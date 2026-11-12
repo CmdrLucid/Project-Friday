@@ -202,7 +202,8 @@ static const char *lk_gc_fs = "#version 120\n"
 "  if (bit(hi, 3.0) > 0.5) ix = 7.0 - ix; if (bit(hi, 4.0) > 0.5) iy = 7.0 - iy; ixy = vec2(ix, iy);\n"
 "  float a = t * 32.0 + iy * 4.0 + floor(ix / 2.0);\n"
 "  float b = by(texture2D(til, vec2((mod(a, 1024.0) + 0.5) / 1024.0, (floor(a / 1024.0) + 0.5) / 72.0)).r);\n"
-"  return vec4(mod(ix, 2.0) < 0.5 ? floor(b / 16.0) : mod(b, 16.0), mod(floor(hi / 32.0), 4.0), floor(hi / 128.0), t); }\n"
+"  float ci = mod(ix, 2.0) < 0.5 ? floor(b / 16.0) : mod(b, 16.0); if (by(c.a) < 16.0 && ci == by(c.a)) return vec4(0.0);\n"   /* LK_GLUNPAINTA v1 */
+"  return vec4(ci, mod(floor(hi / 32.0), 4.0), floor(hi / 128.0), t); }\n"
 "vec3 boot(vec3 c, float pk, float line) {\n"   /* lk_bc_tint */
 "  float k = -1.0; pk = mod(pk, 64.0); if (pk == 40.0) k = 0.0; else if (pk == 35.0) k = 1.0; else if (pk == 36.0) k = 2.0; else if (pk == 37.0) k = 3.0; if (k < 0.0) return c;\n"
 "  vec3 o = by3(rowt(8.0 + k, line).rgb), b = by3(rowt(12.0 + k, line).rgb); float sb = b.r + b.g + b.b, sc = c.r + c.g + c.b; if (sb <= 0.0) return c;\n"
@@ -312,7 +313,7 @@ static void lk_gc_upload(void) {   /* the frame's data -> textures (units 0..10,
   int i, L, k, tk, wpal, widx, ox8, oy8, kf, my0, my1, nf; const uint32_t *pa, *pb; const uint8_t *cst; float fig[32], dnm[48];
   memcpy(rows, lk_gc_rows, sizeof lk_gc_rowsu); lk_gc_nl = 0; for (L = 0; L < 224; L++) if (lk_gc_rowfr[L] != lk_gc_capfr) rows[L * 64 + 4] = 0; else lk_gc_nl++;   /* lines not recorded this frame: skipped */
   pa = lk_gc_planes(); pb = lk_gc_planesb();
-  for (k = 0; k < 2; k++) { const uint32_t *P = k ? pb : pa; uint8_t *o = pl + k * 152 * 304 * 4; for (i = 0; i < 152 * 304; i++) { uint32_t c = P[i]; o[4 * i] = (uint8_t)c; o[4 * i + 1] = (uint8_t)(c >> 8); o[4 * i + 2] = (c & 0x10000) ? 255 : 0; o[4 * i + 3] = 255; } }
+  for (k = 0; k < 2; k++) { const uint32_t *P = k ? pb : pa; uint8_t *o = pl + k * 152 * 304 * 4; for (i = 0; i < 152 * 304; i++) { uint32_t c = P[i]; o[4 * i] = (uint8_t)c; o[4 * i + 1] = (uint8_t)(c >> 8); o[4 * i + 2] = (c & 0x10000) ? 255 : 0; o[4 * i + 3] = (c & 0x20000u) ? (uint8_t)((c >> 18) & 15u) : 255; }   /* LK_GLUNPAINTA v1: alpha < 16 = a colour dropped in this cell */ }
   lk_gc_sprb(sprb); lk_gc_wclass(wc); lk_gc_water(&tk, &wpal, &widx); cst = lk_gc_clouds(&ox8, &oy8, &kf); lk_gc_mhud(mhb, &my0, &my1); lk_gc_dnmask(dnm); nf = lk_gc_figs(fig);
   lk_glActiveTexture(0x84C0); lk_glBindTexture(0x0DE1, lk_gc_t[0]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 16, 224, 0x1908, 0x1401, rows);
   lk_glActiveTexture(0x84C1); lk_glBindTexture(0x0DE1, lk_gc_t[1]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 64, 224, 0x80E1, 0x1401, lk_gc_pal);

@@ -480,7 +480,9 @@ static inline __attribute__((always_inline)) int lk_o_fetch(uint32 (*pl)[304], i
   t = w & 0x7FF; if (t * 32 + 31 >= (int)sizeof lk_o_tiles) return 0;
   b = lk_o_tiles[t * 32 + iy * 4 + ix / 2]; *pal = (w >> 13) & 3; *prio = (w >> 15) & 1;
   if (fi) { fi->t = &lk_o_tiles[t * 32]; fi->ix = ix; fi->iy = iy; fi->hf = (w >> 11) & 1; fi->vf = (w >> 12) & 1; }
-  return (ix % 2 == 0) ? (b >> 4) : (b & 15);
+  b = (ix % 2 == 0) ? (b >> 4) : (b & 15);
+  if ((c & 0x20000u) && b == (int)((c >> 18) & 15u)) return 0;   /* LK_GLUNPAINTA v1 (tools/patch_gpulight.py lk_gl_unpaint): a painted shadow colour dropped under the GPU light */
+  return b;
 }
 static void lk_o_roomdump(int rm, int cam0, int cam2) {   /* test aid for the 3D room prototype (tools/room3d_proto.c, docs/RENDERER_IDEAS.md): LANDSTALKER_ROOMDUMP=<dir> LANDSTALKER_ROOMDUMP_ROOM=<n> [LANDSTALKER_ROOMDUMP_FRAME=<f>]: once, the room's two layers as full pictures (RGBA, alpha 0 = transparent, 1 = low priority, 2 = high priority; U = x, V = y of the image), the height map and the camera; local files only, nothing of it goes into git */
   const char *d = getenv("LANDSTALKER_ROOMDUMP"), *rr = getenv("LANDSTALKER_ROOMDUMP_ROOM"), *ff = getenv("LANDSTALKER_ROOMDUMP_FRAME"); static int done; char path[700]; FILE *f; int lay, U, V, pl[2];
@@ -939,7 +941,8 @@ static int lk_sm_fetch(uint32 (*pl)[304], int U, int V, int *pal, int *prio) {  
   w = (int)(c & 0xFFFF); if (w & 0x800) ix = 7 - ix; if (w & 0x1000) iy = 7 - iy;
   t = w & 0x7FF; if (t * 32 + 31 >= (int)sizeof lk_sm_tiles) return 0;
   b = lk_sm_tiles[t * 32 + iy * 4 + ix / 2]; *pal = (w >> 13) & 3; *prio = (w >> 15) & 1;
-  return (ix % 2 == 0) ? (b >> 4) : (b & 15);
+  b = (ix % 2 == 0) ? (b >> 4) : (b & 15); if ((c & 0x20000u) && b == (int)((c >> 18) & 15u)) return 0;   /* LK_GLUNPAINTA v1 */
+  return b;
 }
 /* ---- S3 step 2: NEIGHBOUR ROOMS from the ROM (docs/STAGE3_INVENTORY.md): graphics of any room without the game loading it: tile graphics (`DecompressLZ77Gfx`), block definitions (C port of `DecompBigTiles $00D09C`, tools/romgfx.py `bigtiles`), room map (tools/patch_roommodel.py), room palette; layer images in the same format as lk_o_pa / lk_o_pb ---- */
 extern int lk_rm_layer(int room, int layer, int x, int y);

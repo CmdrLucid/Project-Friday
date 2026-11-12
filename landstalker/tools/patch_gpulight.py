@@ -266,6 +266,9 @@ void lk_gl_unpaint(void) { int q, ts = -1;
   if (!lk_gl_upopt() || !lk_lt_get() || !lk_lt_modelopt() || lk_gl_getmode() != 1 || !lk_gl_realok()) return;
   for (q = 0; lk_lt_corr[q].room >= 0; q++) { const int16_t *a = lk_lt_corr[q].a; int X, Y;
     if (lk_lt_corr[q].op != 11 || lk_lt_corr[q].room != lk_o_room) continue;
+    if (a[5] == 1) { int tc, tr;   /* LK_GLUNPAINTA v1: shadow dots painted INTO the object's plane A tiles: lk_o_fetch / the GPU compositor drop colour a[4] there (bits 17 / 18..21) */
+      for (tr = a[1]; tr <= a[3]; tr++) for (tc = a[0]; tc <= a[2]; tc++) if (tc >= 0 && tc < 304 && tr >= 0 && tr < 152 && (lk_o_pa[tr][tc] & 0x10000)) lk_o_pa[tr][tc] = (lk_o_pa[tr][tc] & 0x1FFFFu) | 0x20000u | ((uint32)(a[4] & 15) << 18);
+      continue; }
     if (ts < 0) ts = OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F;   /* the room's tileset (as lk_lt_shafts) */
     for (Y = 16 * a[1]; Y < 16 * a[3] + 16; Y += 2) for (X = 16 * a[0]; X < 16 * a[2] + 16; X += 2) {   /* the floor footprint of the cells, 2 unit steps */
       int cc = (X - Y + 1184) >> 3, rr = ((X + Y) / 2 - a[4]) >> 3, k; uint32 w;
