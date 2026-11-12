@@ -1375,6 +1375,20 @@
         "air": true,
         "floor": 0,
         "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          39,
+          14,
+          40
+        ],
+        "file": "proxies/castle_bench_65.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "low castle bench on cabriole legs (tileset 15, blocks $085 $088, collision = a walkable 1 step box, air below): remake/recipes/castle_bench/castle_bench.py (inset 1.8), legs and seat measured on rom_picture 65 by overlay; same bench as 67 (user 2026-11-12 'einsetzen')"
       }
     ],
     "66": [
@@ -1430,6 +1444,20 @@
         "air": true,
         "floor": 0,
         "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          39,
+          14,
+          40
+        ],
+        "file": "proxies/castle_bench_66.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "low castle bench on cabriole legs (tileset 15, blocks $085 $088, collision = a walkable 1 step box, air below): remake/recipes/castle_bench/castle_bench.py (inset 1.8), legs and seat measured on rom_picture 65 by overlay; same bench as 67 (user 2026-11-12 'einsetzen')"
       }
     ],
     "67": [
@@ -1515,6 +1543,20 @@
         "surface": true,
         "floor": 0,
         "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          18,
+          22,
+          21
+        ],
+        "file": "proxies/kitchen_table_68.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle kitchen table (tileset 15, 4 x 4, collision = a solid 1 step box, air below): remake/recipes/kitchen_table/kitchen_table.py (thin slab 11..16, four straight legs), measured on rom_picture 68 by overlay"
       }
     ],
     "69": [
@@ -1556,6 +1598,20 @@
         "surface": true,
         "floor": 0,
         "why": "barrel (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py BARREL, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          18,
+          22,
+          21
+        ],
+        "file": "proxies/kitchen_table_69.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "castle kitchen table (tileset 15, 4 x 4, collision = a solid 1 step box, air below): remake/recipes/kitchen_table/kitchen_table.py (thin slab 11..16, four straight legs), measured on rom_picture 68 by overlay"
       }
     ],
     "71": [
@@ -3676,6 +3732,54 @@
         "why": "pine group at the north wall: the automatic hip went up to 222 (wall behind counted); the mesh above has the pines (tops 96)"
       }
     ],
+    "664": [
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          16,
+          30,
+          17
+        ],
+        "file": "proxies/castle_sofa_664.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "L-shaped castle sofa bench on cabriole legs (tileset 1, blocks $198 $19C $19D, collision = a walkable 1 step L, air below): remake/recipes/castle_sofa/castle_sofa.py, measured on rom_picture 664 (corner points converted to world units), placement of 666 checked by overlay"
+      }
+    ],
+    "665": [
+      {
+        "op": "mesh",
+        "cells": [
+          58,
+          16,
+          60,
+          17
+        ],
+        "file": "proxies/castle_sofa_665.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "L-shaped castle sofa bench on cabriole legs (tileset 1, blocks $198 $19C $19D, collision = a walkable 1 step L, air below): remake/recipes/castle_sofa/castle_sofa.py, measured on rom_picture 664 (corner points converted to world units), placement of 666 checked by overlay"
+      }
+    ],
+    "666": [
+      {
+        "op": "mesh",
+        "cells": [
+          58,
+          52,
+          60,
+          53
+        ],
+        "file": "proxies/castle_sofa_666.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "L-shaped castle sofa bench on cabriole legs (tileset 1, blocks $198 $19C $19D, collision = a walkable 1 step L, air below): remake/recipes/castle_sofa/castle_sofa.py, measured on rom_picture 664 (corner points converted to world units), placement of 666 checked by overlay"
+      }
+    ],
     "670": [
       {
         "op": "mesh",
@@ -4158,6 +4262,34 @@
         ],
         "floor": 0,
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          12,
+          19,
+          12
+        ],
+        "file": "proxies/house_shelf_691.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house corner: the 64 high collision column (tileset 2, blocks $00D $00E $326) holds a clay jar, a glass cabinet (32 high) with vase + box, AIR, and a wall shelf (z 60..64, brackets, plate stack): remake/recipes/house_shelf/house_shelf.py, measured on rom_picture 691 by overlay (was a solid 64 high wall block for the light)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          12,
+          13,
+          14
+        ],
+        "file": "proxies/house_hearth_691.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house hearth (tileset 2, blocks $166 $185 $17A $188, collision = a 32 high box) with kettle + crate on top, and the wall shelf above it (z 60..64, not in the collision: had no shadow) with plates + bottle: remake/recipes/house_hearth/house_hearth.py, measured on rom_picture 691 by overlay"
       }
     ],
     "692": [
@@ -4199,6 +4331,34 @@
         ],
         "floor": 0,
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          12,
+          19,
+          12
+        ],
+        "file": "proxies/house_shelf_692.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house corner: the 64 high collision column (tileset 2, blocks $00D $00E $326) holds a clay jar, a glass cabinet (32 high) with vase + box, AIR, and a wall shelf (z 60..64, brackets, plate stack): remake/recipes/house_shelf/house_shelf.py, measured on rom_picture 691 by overlay (was a solid 64 high wall block for the light)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          12,
+          13,
+          14
+        ],
+        "file": "proxies/house_hearth_692.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house hearth (tileset 2, blocks $166 $185 $17A $188, collision = a 32 high box) with kettle + crate on top, and the wall shelf above it (z 60..64, not in the collision: had no shadow) with plates + bottle: remake/recipes/house_hearth/house_hearth.py, measured on rom_picture 691 by overlay"
       }
     ],
     "693": [
@@ -4751,6 +4911,20 @@
         "air": true,
         "floor": 16,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.98) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          35,
+          36,
+          35
+        ],
+        "file": "proxies/stool_705.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "small stool (tileset 2, block $20D, collision = a walkable 1 step box, air below): remake/recipes/kitchen_table/kitchen_table.py (slab 10..16, four straight legs r 2.2), measured on rom_picture 705 by overlay"
       }
     ],
     "706": [
@@ -4767,6 +4941,20 @@
         "air": true,
         "floor": 16,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.98) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          35,
+          36,
+          35
+        ],
+        "file": "proxies/stool_706.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "small stool (tileset 2, block $20D, collision = a walkable 1 step box, air below): remake/recipes/kitchen_table/kitchen_table.py (slab 10..16, four straight legs r 2.2), measured on rom_picture 705 by overlay"
       }
     ],
     "708": [
@@ -4799,6 +4987,20 @@
         "air": true,
         "floor": 16,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.98) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          35,
+          36,
+          35
+        ],
+        "file": "proxies/stool_709.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "small stool (tileset 2, block $20D, collision = a walkable 1 step box, air below): remake/recipes/kitchen_table/kitchen_table.py (slab 10..16, four straight legs r 2.2), measured on rom_picture 705 by overlay"
       }
     ],
     "710": [
@@ -4856,6 +5058,34 @@
         ],
         "floor": 0,
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          12,
+          19,
+          12
+        ],
+        "file": "proxies/house_shelf_713.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house corner: the 64 high collision column (tileset 2, blocks $00D $00E $326) holds a clay jar, a glass cabinet (32 high) with vase + box, AIR, and a wall shelf (z 60..64, brackets, plate stack): remake/recipes/house_shelf/house_shelf.py, measured on rom_picture 691 by overlay (was a solid 64 high wall block for the light)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          12,
+          13,
+          14
+        ],
+        "file": "proxies/house_hearth_713.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house hearth (tileset 2, blocks $166 $185 $17A $188, collision = a 32 high box) with kettle + crate on top, and the wall shelf above it (z 60..64, not in the collision: had no shadow) with plates + bottle: remake/recipes/house_hearth/house_hearth.py, measured on rom_picture 691 by overlay"
       }
     ],
     "714": [
@@ -4897,6 +5127,34 @@
         ],
         "floor": 0,
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          12,
+          19,
+          12
+        ],
+        "file": "proxies/house_shelf_714.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house corner: the 64 high collision column (tileset 2, blocks $00D $00E $326) holds a clay jar, a glass cabinet (32 high) with vase + box, AIR, and a wall shelf (z 60..64, brackets, plate stack): remake/recipes/house_shelf/house_shelf.py, measured on rom_picture 691 by overlay (was a solid 64 high wall block for the light)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          12,
+          13,
+          14
+        ],
+        "file": "proxies/house_hearth_714.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "house hearth (tileset 2, blocks $166 $185 $17A $188, collision = a 32 high box) with kettle + crate on top, and the wall shelf above it (z 60..64, not in the collision: had no shadow) with plates + bottle: remake/recipes/house_hearth/house_hearth.py, measured on rom_picture 691 by overlay"
       }
     ],
     "715": [

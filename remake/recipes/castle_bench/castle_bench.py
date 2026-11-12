@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""castle_bench.py OUT.obj x0 x1 y0 y1 floor - the upholstered BENCH of the Mercator castle bedrooms (tileset 15, blocks $370 $371 $06F; rooms 67 / 77:
+"""castle_bench.py OUT.obj x0 x1 y0 y1 floor [inset=2.6] - the upholstered BENCH of the Mercator castle bedrooms (tileset 15, blocks $370 $371 $06F; rooms 67 / 77:
 cells x 20..22, y 13, collision height 1) as a near-final 3D model = light shape: a padded seat (z 9 .. 16, soft rounded edges; its top and front
 measured on rom_picture 67: top at the collision box, front band ~7 high) on four CABRIOLE legs (knee out, ankle in, a small foot out), air below.
 GAME coordinates x east, y south, z up."""
@@ -29,4 +29,4 @@ def write_obj(path, ps, title):
     print("%s: %d parts" % (path, len(ps)))
 
 if __name__ == "__main__":
-    a = sys.argv; write_obj(a[1], parts(*map(float, a[2:7])), "castle bench")
+    a = sys.argv; write_obj(a[1], parts(*map(float, a[2:7]), inset=float(a[7]) if len(a) > 7 else 2.6), "castle bench")
