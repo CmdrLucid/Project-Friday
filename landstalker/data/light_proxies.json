@@ -2531,6 +2531,27 @@
         "air": true,
         "floor": 16,
         "why": "castle table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          14,
+          16,
+          14
+        ],
+        "file": "proxies/brazier_89.obj",
+        "surface": true,
+        "floor": 16,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            250,
+            235
+          ],
+          "z": 80
+        },
+        "why": "castle standing torch (not found by furniture_ops brazier_stands): the lathe of 51..62 on floor 16, axis MEASURED with proxy_overlay = flame light point + (-11, -4); user 2026-11-12 '89 und 73 auch noch'"
       }
     ],
     "96": [
@@ -6644,6 +6665,29 @@
           "z": 96
         },
         "why": "castle standing torch of room 95 (collision cell (16, 14) walkable, top block $2D): the brazier lathe of 51..62 on the floor 32, axis MEASURED with proxy_overlay; user 2026-11-12"
+      }
+    ],
+    "73": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          29,
+          25,
+          29
+        ],
+        "file": "proxies/brazier_73.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            394,
+            475
+          ],
+          "z": 64
+        },
+        "why": "castle standing torch (not found by furniture_ops brazier_stands): the lathe of 51..62 on floor 0, axis MEASURED with proxy_overlay = flame light point + (-11, -4); user 2026-11-12 '89 und 73 auch noch'"
       }
     ]
   },
