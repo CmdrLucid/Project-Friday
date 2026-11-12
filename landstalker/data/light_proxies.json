@@ -2369,6 +2369,48 @@
         ],
         "colour": 5,
         "why": "the piano's painted shadow = dots of colour 5 (36, 36, 0) in its OWN plane A tiles below the case (tile rows 38..40; the case / legs / keyboard use other colours there, the gold frame above row 38 uses colour 5 too): dropped while the GPU light shades the model (LK_GLUNPAINTA v1; user 2026-11-12 'unterm Klavier wie beim Tisch ... gemalter Schatten, der bei Lighting On wegkommen sollte')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          13,
+          32,
+          13
+        ],
+        "file": "proxies/brazier_85.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            506,
+            219
+          ],
+          "z": 64
+        },
+        "why": "brazier stand of the banquet room (collision = a blocked floor cell, height 0; the finder only knows the tileset 1 hall stands): the same lathe as 51..62 (remake/lib/furniture.py BRAZIER), axis MEASURED on the drawing with proxy_overlay (the drawn stand sits ~11 units -x / 4 units -y of the flame tile's light point, partly in front of the wall cell); user 2026-11-12 'setz mal das 3D-Modell richtig ein, wir haben es ja schon' (hard shadow strip left of the column)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          27,
+          14,
+          28
+        ],
+        "file": "proxies/brazier_85_1.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            218,
+            443
+          ],
+          "z": 64
+        },
+        "why": "brazier stand of the banquet room (collision = a blocked floor cell, height 0; the finder only knows the tileset 1 hall stands): the same lathe as 51..62 (remake/lib/furniture.py BRAZIER), axis MEASURED on the drawing with proxy_overlay (the drawn stand sits ~11 units -x / 4 units -y of the flame tile's light point, partly in front of the wall cell); user 2026-11-12 'setz mal das 3D-Modell richtig ein, wir haben es ja schon' (hard shadow strip left of the column)"
       }
     ],
     "86": [
