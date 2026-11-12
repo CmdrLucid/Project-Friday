@@ -1815,3 +1815,14 @@ HANDOFF 0a406 .. 0a416; dev c1feda6 .. 9047567.
 - Shop counters 695..720: the model's sub-pixel details gave dotted lines in the GPU light (1/8 unit depth in the model buffer): no light shape; lesson in LESSONS 9.
 - tools/lightedges.py --gpu: hidden-window present shots; the edge count is noisy (flicker, dither) -> look at the ratio pictures. Found room 67: tileset 15 had no table type.
 - Room 67 thin vertical line below the bed / table: OLD (before this session's ops); ruled out by measurement: shaft beam clip, shaft pool penumbra, window as area light (5 directions), bed rail height. GL5 key / ao per-pixel maps show no line. Mapping present -> room picture for warp 67:16.08,20.08,0010: U = sx / 2 + 844, V = sy / 2 + 175.5. LANDSTALKER_LT_SHAFT=0 shifts the room's random sequence (not a clean A/B).
+
+## Session 2026-11-12 afternoon: furniture shapes, key light direction, AO stairs, niche stripe, CPU light removal plan (Deck, Opus 5.5 lead + Sonnet agents)
+
+Build dev 48c243a (verify_build: 126 ok). Evidence (all hidden-window GPU present shots via tools/lightedges.py --gpu unless noted):
+- Furniture: every shape overlaid on rom_picture (remake/tools/proxy_overlay.py, 5..10x); clay previews ~/.landstalker_remake/assets/furniture_1112/ (cases_v1 / v2). CPU edge counts before / after (30 rooms): mostly equal or lower; 664 199 -> 256 (cushion 0.6 step) -> 196 after the flush cushion; 78 / 79 +40 = shading inside the armour (was washed out white).
+- Key light: LANDSTALKER_LT_KAZ=330 / KEL=60 test aids first, then defaults; edge scan houses 8111 -> 7938, castle 4119 -> 4097; 59 / 613 / 715 slightly more (old edges moved).
+- AO stairs (67): LANDSTALKER_LT_KEY=0 kept the stairs -> AO term; LK_GLAOFLT v2 cover was 0 / 1 per sub column. LK_GLAOSOFT v1: 670 and 493 pictures unchanged.
+- Room 703 stripe: LANDSTALKER_LT_KEY=0 and LANDSTALKER_LT_CARRIER=0 kept it; Nigel moved (lightedges with a patched start_cell) kept it; LANDSTALKER_LIGHTING_PROBE=100,80,180,2200 showed face 3, z 105, pos (323..331, 367) for x 116..124 (other x: face 2 at x 287). lk_lt_dent(19, 22, 3) counted the corridor width 2 -> niche. A first guess (small flame area points inside the wall, LK_GLFLAMEPT) changed nothing and was reverted.
+- LK_LTNICHE v1: GPU pictures of rooms 5 / 56 / 59 / 61 / 87 / 493 pixel identical old vs new; CPU pictures of 56 / 59 / 61 changed (CPU-only light boxes, not on the GPU).
+- CPU vs GPU: room 59 CPU shot showed vertical light boxes, the GPU shot none -> judge only GPU shots. Warp test aid leaves 68 69 73 100 106 625 626 663 685 black also with Lighting Off.
+- CPU light removal: inventory docs/CPU_LIGHT_REMOVAL.md (Sonnet Explore agent; spot-checked: iu[6] = lk_lt_odcap == 0 coupling, patch_gpucomp.py:124 lk_lt_block, patch_bootcol.py:210 / patch_dissolve.py:82 anchors).

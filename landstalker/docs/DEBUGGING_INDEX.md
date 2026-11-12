@@ -225,3 +225,4 @@
 - L1789: Session 2026-11-11 evening: beds, save-load freeze, sword glow box, whole-room scan (Deck, Opus 5.5 lead + 1 Sonnet scan agent)
 - L1797: Session 2026-11-11 late: room 54 'Nigel wirft Licht' = holes in hidden figures' shadows (Deck, Opus 5.5, no agents)
 - L1810: Session 2026-11-12: 3D light shapes (piano, pines, castle furniture), painted shadow dots, room 67 line hunt (Deck, Opus 5.5, no agents)
+- L1819: Session 2026-11-12 afternoon: furniture shapes, key light direction, AO stairs, niche stripe, CPU light removal plan (Deck, Opus 5.5 lead + Sonnet agents)

@@ -62,14 +62,14 @@ if other:
     def rows(es): return ["; ".join("%s `$%06X` (%s)" % (e["name"], sk(e), tier(e["confidence"])) for e in es[i:i + 30]) for i in range(0, len(es), 30)]   # 30 names per line
     grp = collections.OrderedDict()   # 2026-11-12: one block per address range (was ONE line of ~1500 names), each its own ### heading = a TOC entry
     for e in sorted(other, key=sk):
-        a0 = sk(e); key = "RAM $FF0000-$FFFFFF" if a0 >= 0xFF0000 else "ROM $%02X0000-$%02XFFFF" % (a0 >> 16, a0 >> 16)
+        a0 = sk(e); key = "RAM" if a0 >= 0xFF0000 else "ROM bank %02X" % (a0 >> 16)   # no $ / 0x range bounds: tools/unknowns.py scan-docs would take them for addresses
         grp.setdefault(key, []).append(e)
     for key, es in grp.items():
         if key.startswith("RAM"):   # RAM is large: split by $1000 pages
             pg = collections.OrderedDict()
             for e in es: pg.setdefault(sk(e) >> 12, []).append(e)
             for p0, pe in pg.items():
-                out += ["### `own/RAM $%06X-$%06X`  (%d)" % (p0 << 12, (p0 << 12) + 0xFFF, len(pe))] + rows(pe) + [""]
+                out += ["### `own/RAM page %03Xxxx`  (%d)" % (p0, len(pe))] + rows(pe) + [""]
         else: out += ["### `own/%s`  (%d)" % (key, len(es))] + rows(es) + [""]
 # TABLE OF CONTENTS with line numbers (user 2026-11-12: 'sollte unsere Codemap nicht ein Inhaltsverzeichnis haben, wenn Claude sie liest?'): one line per area with its
 # line range and every source file's line, so a reader takes the TOC (top of the file) and then only the lines it needs (sed -n 'A,Bp')
