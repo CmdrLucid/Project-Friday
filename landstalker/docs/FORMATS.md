@@ -322,3 +322,6 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
  * I: `LANDSTALKER_WARP="room:X.sub,Y.sub,Z"` takes the cell numbers in DECIMAL and the sub-cell / Z in hex (`1A.08` is rejected: 'not armed').
  * V (2026-11-09 night): light data formats (op unpaint, unpaint_tiles, outdoor mesh floor, per light fire width / height): see docs/LIGHT_PROXY_PLAN.md next to 'Correction op mesh'.
  * V (2026-11-10): light data: mesh op key "carrier" {r, axis [x, y], z} (LK_GLCARRIER v1: a flame on its stand sits on the axis at z and its own stand within r does not shadow it) and op "ground" cells x0 y0 x1 y1 + height (LK_LTGROUND v1: void height map cells drawn as solid get that height; only void cells change). Details in docs/LIGHT_PROXY_PLAN.md.
+
+## Plane A cell words of the own renderer (lk_o_pa) - flags above bit 16 (2026-11-12)
+* V: bit 16 = cell present, bits 0..15 = the VDP tile word; bit 17 = drop one colour index, bits 18..21 = that index (LK_GLUNPAINTA v1, set by lk_gl_unpaint for data/light_proxies.json op `unpaint` with `layer: a`, GPU light + 3D models only; lk_o_fetch / lk_sm_fetch return 0 for it, the GPU compositor gets it in the plane texture's alpha, 255 = none). Hash / compare plane words with mask 0x1FFFF.

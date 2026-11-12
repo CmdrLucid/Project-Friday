@@ -224,3 +224,4 @@
 - L1781: Session 2026-11-11: church angel sculpt finished + figures as light shapes (chapel angel, armour knights, armour stands) (Deck, Fable 5.2, no agents)
 - L1789: Session 2026-11-11 evening: beds, save-load freeze, sword glow box, whole-room scan (Deck, Opus 5.5 lead + 1 Sonnet scan agent)
 - L1797: Session 2026-11-11 late: room 54 'Nigel wirft Licht' = holes in hidden figures' shadows (Deck, Opus 5.5, no agents)
+- L1810: Session 2026-11-12: 3D light shapes (piano, pines, castle furniture), painted shadow dots, room 67 line hunt (Deck, Opus 5.5, no agents)
