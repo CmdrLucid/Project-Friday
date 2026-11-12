@@ -210,3 +210,7 @@ FINAL = with material, approved by the user.
 ## Courtyard pine  (`remake/recipes/pine_court/pine.py`; rooms 32 / 33)
 - The left Mercator castle court's own pine sprite; the approved style C pine (asset 2) in a TRIMMED variant (even tiers, short regular tips, no jitter: a gardener's tree, user 2026-11-12 'ja, passt'), fitted to it (IoU 0.93), 15 pines placed by a template match
   of the sprite (`feet.json`). Same model in the light (`surface`). Details: `remake/recipes/pine_court/README.md`.
+
+## Shop counter  (`remake/recipes/counter/counter.py`; rooms 695 / 696 / 697 / 719 / 720; REMAKE ONLY)
+- Island 2 x 6 with a small cloth on the top, wall counter 6 x 1: plank top, vertical boards. Not a light shape: the collision box is the drawing,
+  sub-pixel details only made dotted lines in the light (README).
