@@ -6,4 +6,5 @@ d="$(git rev-parse --show-toplevel)/landstalker"
 for f in HANDOFF.md INDEX.md LESSONS.md; do
   git diff --cached --quiet -- "$d/docs/$f" || { python3 "$d/tools/make_toc.py" "$d/docs/$f" >/dev/null && git add "$d/docs/$f"; }
 done
+python3 "$d/tools/check_proxies.py" || { echo "commit blocked: light shapes must be real 3D models (CLAUDE.md)"; exit 1; }
 python3 "$d/tools/check_docs.py" || { echo "commit blocked: fix docs/symbols.json (or git commit --no-verify)"; exit 1; }

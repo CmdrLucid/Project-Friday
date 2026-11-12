@@ -4,6 +4,8 @@
 **Before doing anything there read `landstalker/docs/HANDOFF.md` (state + next steps + how the user works), then `landstalker/docs/LESSONS.md`, then `landstalker/docs/INDEX.md`** (status, Deck paths, rules, bug catalog,
 tool cheat sheet, debug playbook). Details: `landstalker/docs/DEBUGGING.md`.
 
+**LIGHT SHAPES = REAL 3D MODELS, ALWAYS (user said it 3 times, last 2026-11-13):** every light shape / proxy OBJ is a near-final 3D model (Blender clay preview for the user's OK), measured on the drawing; never boxes / prisms / 4 x 4 posts, not even as a first step or because an old proxy was boxes (LESSONS top, tools/check_proxies.py).
+
 Hard rules: never commit ROMs, generated C or ROM-derived binaries; user has only a Steam Deck (commands are pasted
 into Konsole, always print progress); **branch workflow: all work goes to `dev`; `main` = last state verified on the Deck, merged from `dev` only when the user asks (PR dev -> main)**; (if a session instruction names another branch, merge/rebase it into `dev` at the end); no PR unless asked;
 update the Status block in INDEX.md and the bug catalog whenever something is learned.
