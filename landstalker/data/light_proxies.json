@@ -3434,7 +3434,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "house chest of drawers (top 33) + small bookcase (top 42) with vase / bottle (tileset 2, blocks $001 $02E $096 $0CC, collision = one 48 high box): remake/recipes/house_dresser/house_dresser.py, measured on rom_picture 620 by overlay"
+        "why": "house chest of drawers (top 33) + small bookcase (top 48 = collision) with vase, bottle, picture frame (tileset 2, blocks $001 $02E $096 $0CC, collision = one 48 high box): remake/recipes/house_dresser/house_dresser.py, measured on rom_picture 620 by overlay"
       }
     ],
     "621": [
@@ -3489,7 +3489,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "house chest of drawers (top 33) + small bookcase (top 42) with vase / bottle (tileset 2, blocks $001 $02E $096 $0CC, collision = one 48 high box): remake/recipes/house_dresser/house_dresser.py, measured on rom_picture 620 by overlay"
+        "why": "house chest of drawers (top 33) + small bookcase (top 48 = collision) with vase, bottle, picture frame (tileset 2, blocks $001 $02E $096 $0CC, collision = one 48 high box): remake/recipes/house_dresser/house_dresser.py, measured on rom_picture 620 by overlay"
       }
     ],
     "622": [
@@ -5653,7 +5653,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "house chest of drawers (top 33) + small bookcase (top 42) with vase / bottle (tileset 2, blocks $001 $02E $096 $0CC, collision = one 48 high box): remake/recipes/house_dresser/house_dresser.py, measured on rom_picture 620 by overlay"
+        "why": "house chest of drawers (top 33) + small bookcase (top 48 = collision) with vase, bottle, picture frame (tileset 2, blocks $001 $02E $096 $0CC, collision = one 48 high box): remake/recipes/house_dresser/house_dresser.py, measured on rom_picture 620 by overlay"
       }
     ],
     "725": [
@@ -5708,7 +5708,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "house chest of drawers (top 33) + small bookcase (top 42) with vase / bottle (tileset 2, blocks $001 $02E $096 $0CC, collision = one 48 high box): remake/recipes/house_dresser/house_dresser.py, measured on rom_picture 620 by overlay"
+        "why": "house chest of drawers (top 33) + small bookcase (top 48 = collision) with vase, bottle, picture frame (tileset 2, blocks $001 $02E $096 $0CC, collision = one 48 high box): remake/recipes/house_dresser/house_dresser.py, measured on rom_picture 620 by overlay"
       }
     ],
     "727": [

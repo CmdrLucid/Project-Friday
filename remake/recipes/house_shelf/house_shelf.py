@@ -9,16 +9,17 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.jo
 from furniture import rbox, lathe
 from castle_bench import write_obj
 
-JAR = [(0.0, 4.0), (0.15, 6.5), (0.45, 7.0), (0.75, 5.5), (0.88, 3.6), (1.0, 4.2)]
+JAR = [(0.0, 3.8), (0.15, 6.0), (0.45, 6.4), (0.75, 5.1), (0.88, 3.4), (1.0, 4.0)]
 
 def parts(x0, y0, z0):
     X = lambda v: x0 + v; Y = lambda v: y0 + v
     out = [lathe(X(8.0), Y(13.0), z0, 22.0, JAR),                                        # clay jar on the floor, in front of the cabinet's left
            rbox(X(18.0), X(48.0), Y(0.0), Y(16.0), z0, z0 + 32.0, 0.8, n=2),             # glass cabinet
-           rbox(X(37.0), X(45.0), Y(5.0), Y(13.0), z0 + 32.0, z0 + 39.0, 0.4, n=1),      # box on the cabinet
+           rbox(X(35.5), X(43.5), Y(3.5), Y(11.5), z0 + 32.0, z0 + 39.0, 0.4, n=1),      # box on the cabinet
            lathe(X(31.7), Y(11.7), z0 + 32.0, 10.0, [(0.0, 1.6), (0.3, 2.6), (0.7, 1.4), (1.0, 1.8)], seg=12),   # small vase
            rbox(X(0.0), X(48.0), Y(0.0), Y(16.0), z0 + 60.0, z0 + 64.0, 0.6, n=2),       # wall shelf
-           lathe(X(31.6), Y(8.1), z0 + 64.0, 5.0, [(0.0, 4.5), (0.2, 5.6), (1.0, 5.6)], seg=16)]                # plate stack
+           lathe(X(31.6), Y(8.1), z0 + 64.0, 7.0, [(0.0, 4.5), (0.2, 5.6), (1.0, 5.6)], seg=16)]                # plate stack
+    out.append(rbox(X(14.5), X(24.5), Y(10.0), Y(11.5), z0 + 64.0, z0 + 75.0, 0.3, n=1))          # picture frame standing on the shelf
     for bx in (6.0, 42.0):                                                                # brackets under the shelf (thin wedges against the wall)
         out.append(rbox(X(bx - 0.75), X(bx + 0.75), Y(0.0), Y(9.0), z0 + 53.0, z0 + 60.2, 0.3, n=1, shear=None))
     return out
