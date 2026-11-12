@@ -63,7 +63,7 @@ def cabinet(x0, x1, y0, y1, z0, z1, face, rows, top=1.5, over=0.8, side=1.2, bac
                     for j in range(20):
                         bw, bh = BOOKS[(j + i * 3) % len(BOOKS)]
                         if u + bw > ub: break
-                        B(u, u + bw - 0.2, 1.5, D - back - 0.3, za + 1.2, za + 1.2 + (h - 2.4) * bh, 0.2); u += bw
+                        B(u, u + bw, 1.5, D - back - 0.3, za + 1.2, za + 1.2 + (h - 2.4) * bh, 0.2); u += bw
         elif kind in ("shelf", "open"):
             B(side, W - side, 0.0, D - back, za, za + 1.2)                                               # the shelf board
             if kind == "shelf" and books:
@@ -71,7 +71,7 @@ def cabinet(x0, x1, y0, y1, z0, z1, face, rows, top=1.5, over=0.8, side=1.2, bac
                 while True:
                     bw, bh = BOOKS[j % len(BOOKS)]; j += 1
                     if u + bw > W - side - 0.4: break
-                    B(u, u + bw - 0.2, 1.5, D - back - 0.3, za + 1.2, za + 1.2 + (h - 2.4) * bh, 0.2); u += bw
+                    B(u, u + bw, 1.5, D - back - 0.3, za + 1.2, za + 1.2 + (h - 2.4) * bh, 0.2); u += bw
     B(0.0, W, 0.0, 1.0, z, zt) if zt - z > 0.3 else None                                                 # front rail under the top
     return out
 
