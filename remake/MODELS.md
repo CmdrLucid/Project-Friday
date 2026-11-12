@@ -208,5 +208,5 @@ FINAL = with material, approved by the user.
   prop stick. Same model in the light (no separate variant: the drawing is consistent). Silhouette IoU 0.912, 44 px outside the drawing. No music desk (not drawn).
 
 ## Courtyard pine  (`remake/recipes/pine_court/pine.py`; rooms 32 / 33)
-- The left Mercator castle court's own pine sprite; the approved style C pine (asset 2) fitted to it (IoU 0.88), 15 pines placed by a template match
+- The left Mercator castle court's own pine sprite; the approved style C pine (asset 2) in a TRIMMED variant (even tiers, short regular tips, no jitter: a gardener's tree, user 2026-11-12 'ja, passt'), fitted to it (IoU 0.93), 15 pines placed by a template match
   of the sprite (`feet.json`). Same model in the light (`surface`). Details: `remake/recipes/pine_court/README.md`.

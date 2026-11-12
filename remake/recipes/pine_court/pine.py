@@ -32,11 +32,15 @@ def cyl(x, y, z0, z1, r0, r1, seg=12):
     for k in range(seg): F.append([b[k], b[(k + 1) % seg], t[(k + 1) % seg], t[k]])
     return F
 
+class _Calm:   # 'trimmed' (user 2026-11-12: the court pines are cared for by a gardener): no random jitter, evenly turned tiers
+    def __init__(self, seed): self.k = seed
+    def random(self): return 0.5
+
 def pine_parts(x, y, z0, P, seed=11):
-    rnd = random.Random(seed); parts = []; T = P['tiers']
+    rnd = _Calm(seed) if P.get('trim') else random.Random(seed); parts = []; T = P['tiers']
     for i in range(T):
         f = i / T; z0t = z0 + P['zb'] + f * (P['H'] - P['zb'] - P['th']); r = P['R'] * (1 - P['taper'] * f) + 1.0; h = P['th'] - 3.0 * f
-        parts.append(tier_solid(x, y, z0t, r, h, 14 - i, rnd.random() * math.pi, rnd, P))
+        parts.append(tier_solid(x, y, z0t, r, h, (P.get('tips', 14) - i) if not P.get('trim') else P.get('tips', 14), (rnd.random() * math.pi) if not P.get('trim') else (i % 2) * math.pi / P.get('tips', 14), rnd, P))
     parts.append(cyl(x, y, z0 + 1.5, z0 + P['zb'] + 2, P['tr'], P['tr'] * 0.8))       # trunk
     parts.append(cyl(x, y, z0, z0 + 2.0, P['tr'] * 1.7, P['tr']))                       # root flare
     return parts
