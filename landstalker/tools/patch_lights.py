@@ -479,7 +479,7 @@ static int lk_lt_shwait; static void lk_lt_free(void);
 static void lk_lt_shsetup(void) {
   static int16_t cand[5476][2]; int n = 0, x, y, k, want, tries;
   lk_lt_nsh = 0; if (!lk_lt_key || lk_lt_shopt() <= 0 || lk_lt_zref == -32768) return;
-  { int ts = OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F; if (ts == 2 || ts == 8) return; }   /* user 2026-11-05: no shafts in houses (tileset 2: town houses / shops / inns, 8: huts / churches / Kazalt; room table $0A0A00 byte 4) */
+  { int ts = OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F; if (ts == 2 || ts == 8 || ts == 1 || ts == 15 || ts == 3) return; }   /* user 2026-11-05: no shafts in houses (tileset 2: town houses / shops / inns, 8: huts / churches / Kazalt; room table $0A0A00 byte 4); user 2026-11-12 (castle bedroom 67: 'Lichtstrahl von oben wie in einem Dungeon? das ist kein Dungeon-Raum'): neither in the castle (1: halls 51..62, 15: rooms 63..72) nor church / ship (3) = ceiling shafts only in dungeons, caves, ruins */
   lk_lt_rng = (uint32_t)(lk_o_room + 1) * 2654435761u ^ 0x9E3779B9u; lk_lt_rnd(); lk_lt_rnd();
   if (lk_lt_shopt() >= 3) lk_lt_shwait = 4;   /* test aid: placed beside Nigel once he stands in the room (lk_lt_shstep) */
   if (lk_lt_shopt() == 1 && lk_lt_rnd() < 0.35f) return;   /* about two rooms in three */
