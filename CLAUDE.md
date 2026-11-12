@@ -12,7 +12,7 @@ The interpreter fallback (`tools/patch_interp.py`) is TEMPORARY: it logs every a
 the goal is an empty log, then opt-in only (INDEX.md section 1 item 8 + "Interpreter fallback policy").
 
 Symbols: record every learned address with a human name in `landstalker/docs/symbols.json` (see INDEX.md 'Symbol rule'); never document with bare addresses only (future modding goal).
-**Look names up with `python3 landstalker/tools/sym.py <addr|text>` (one line per hit; `--near N`, `-v`); never read `symbols.json` whole (5000+ entries, sorted by address, one entry per line). Overview by area: `landstalker/docs/CODE_MAP.md`. Tools that write symbols.json use `tools/symfile.py` (`python3 tools/symfile.py` repairs the format; `check_docs.py` enforces it).**
+**Look names up with `python3 landstalker/tools/sym.py <addr|text>` (one line per hit; `--near N`, `-v`); never read `symbols.json` whole (5000+ entries, sorted by address, one entry per line). Overview by area: `landstalker/docs/CODE_MAP.md` (150 KB: read only its Contents block = the first ~25 lines, then `sed -n 'A,Bp'` the lines it names; never the whole file). Tools that write symbols.json use `tools/symfile.py` (`python3 tools/symfile.py` repairs the format; `check_docs.py` enforces it).**
 
 Ids (room numbers, entity types, items, story flags) and ROM table addresses: look them up in `landstalker/docs/ROOMS.md`, `ENTITIES.md`, `ITEMS.md`, `FLAGS.md` (from Dinopony/landstalker-lib, see INDEX.md section 6) before guessing; add new sightings there via the import tools.
 
