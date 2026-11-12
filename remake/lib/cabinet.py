@@ -54,7 +54,7 @@ def cabinet(x0, x1, y0, y1, z0, z1, face, rows, top=1.5, over=0.8, side=1.2, bac
                 ua, ub = side + i * cw + 0.6, side + (i + 1) * cw - 0.6; vm = (D - back) / 2 + 0.5
                 if what == "bottles":
                     for t in (0.22, 0.5, 0.78):
-                        ax, ay, _, _ = M(ua + t * (ub - ua), ua + t * (ub - ua), vm, vm)
+                        xa, xb, ya, yb = M(ua + t * (ub - ua), ua + t * (ub - ua), vm, vm); ax, ay = (xa + xb) / 2, (ya + yb) / 2
                         out.append(lathe(ax, ay, za + 1.2, (h - 1.2) * 0.75, [(0.0, 1.1), (0.6, 1.2), (0.75, 0.5), (1.0, 0.5)], seg=10))
                 elif what == "plates":
                     B(ua + 0.6, ub - 0.6, vm - 1.0, vm + 1.0, za + 1.2, za + 1.2 + (h - 1.2) * 0.8, 0.8)  # upright plate stack
