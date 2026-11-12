@@ -117,11 +117,10 @@ static void lk_gc_wscan(int u0, int v0, int w) {   /* 4d: the water learns its c
 static void lk_gc_side(PIXEL_OUT_T *row, int line, int w, int e, int u0, int v, int black_line, int text, int wline, int tb, int nohud, int wlo, int whi, int hint, int water) {   /* 4d: what the skipped row loop leaves for others */
   int i, l = -1, r = -1; long f = platform_frame_number();
   if (water && lk_wr_any && lk_gc_scanfr != f) { lk_gc_scanfr = f; lk_gc_wscan(u0, v, w); }
-  for (i = 0; i < w && l < 0; i++) if (lk_gc_src1(line, i, e, u0, v, black_line, text, wline, tb, nohud, wlo, whi, hint)) l = i;   /* lk_gl_classify: the drawn picture area (prefetch, particles) + on-demand light blocks */
+  for (i = 0; i < w && l < 0; i++) if (lk_gc_src1(line, i, e, u0, v, black_line, text, wline, tb, nohud, wlo, whi, hint)) l = i;   /* lk_gl_classify: the drawn picture area (GL5 ring, particles) */
   for (i = w - 1; l >= 0 && i >= l && r < 0; i--) if (lk_gc_src1(line, i, e, u0, v, black_line, text, wline, tb, nohud, wlo, whi, hint)) r = i;
-  if (l >= 0) { int U = u0 + l, U2 = u0 + r, bx, by = lk_lt_fdiv(v, 32);
-    if (U < lk_lt_umin) lk_lt_umin = U; if (U2 > lk_lt_umax) lk_lt_umax = U2; if (v < lk_lt_vmin) lk_lt_vmin = v; if (v > lk_lt_vmax) lk_lt_vmax = v;
-    for (bx = lk_lt_fdiv(U, 32); bx <= lk_lt_fdiv(U2, 32); bx++) (void)lk_lt_block(bx, by); }
+  if (l >= 0) { int U = u0 + l, U2 = u0 + r;   /* the drawn area (GL5 ring); no CPU light blocks since 2026-11-12 */
+    if (U < lk_lt_umin) lk_lt_umin = U; if (U2 > lk_lt_umax) lk_lt_umax = U2; if (v < lk_lt_vmin) lk_lt_vmin = v; if (v > lk_lt_vmax) lk_lt_vmax = v; }
   for (i = 0; i < w; i++) row[i] = 0;   /* alpha 0 = 'the GPU composes this pixel'; what is drawn into the row later (overlays) wins on the GPU */
   lk_gl_postany = 1;   /* the GPU writes the mix after the light of these lines: the light pass must read it */
   lk_o_shline = -1; }
@@ -406,8 +405,8 @@ static void lk_gc_real2(lkGLuint tcls, lkGLuint tpost) {   /* 4d, inside the rea
     a = "static int lk_gpu_present(const uint8_t *fb, int sw, const lk_rect *r, int ow, int oh, int fx) {\n"
     assert s.count(a) == 1, "platform_sdl.c: lk_gpu_present not found"
     s = s.replace(a, MODULE + a)
-    a = "  lk_glt_pass(0);   /* LK_GPULT v5: compare harness */\n"
-    assert s.count(a) == 1, "platform_sdl.c: lk_glt_pass(0) anchor not found"
+    a = "  lk_glActiveTexture(0x84C0); lk_glBindTexture(0x0DE1, lk_gpu_tex); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, sw, 224, 0x80E1, 0x1401, fb);\n"   # (was the GPULT compare call lk_glt_pass(0), gone 2026-11-12)
+    assert s.count(a) == 1, "platform_sdl.c: picture upload anchor not found (lk_gc_pass)"
     s = s.replace(a, "  lk_gc_pass();   /* %s: compare harness */\n" % VER + a)
     a = "  lk_glActiveTexture(0x84C0); lk_glBindTexture(0x0DE1, lk_gpu_tex); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, sw, 224, 0x80E1, 0x1401, fb);\n  if (lk_glt_pass(1))"
     assert s.count(a) == 1, "platform_sdl.c: picture upload anchor not found"

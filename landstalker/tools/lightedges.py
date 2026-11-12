@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""lightedges.py ROM ROOMS --run OUTDIR [--gpu] [--top N]   -- finds HARD EDGES in the lighting (user 2026-11-05: 'bei Lichtquellen nach scharfen Kanten als potenziellen Fehler suchen')
+"""lightedges.py ROM ROOMS --run OUTDIR [--headless] [--top N]   (GPU hidden window by default since 2026-11-12; --headless = unlit, useless for light)   -- finds HARD EDGES in the lighting (user 2026-11-05: 'bei Lichtquellen nach scharfen Kanten als potenziellen Fehler suchen')
    lightedges.py ROM ROOMS --dir OUTDIR             -- re-score the shots of an earlier --run
 LIGHTEDGES_BIN=path runs another binary (e.g. a copy of the build before a change, for before / after pictures).
 ROOMS: comma list of room numbers, or 'castle' (the Mercator castle interior rooms 51..97).
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     a = sys.argv[1:]; rom_path = a[0]
     rooms = list(range(51, 98)) if a[1] == "castle" else [int(v) for v in a[1].split(",")]
     top = int(a[a.index("--top") + 1]) if "--top" in a else 40
-    if "--run" in a: out = a[a.index("--run") + 1]; run(rom_path, rooms, out, gpu="--gpu" in a)
+    if "--run" in a: out = a[a.index("--run") + 1]; run(rom_path, rooms, out, gpu="--headless" not in a)   # GPU (hidden window) by default since 2026-11-12 (the CPU light is gone: headless = unlit); --gpu still accepted
     else: out = a[a.index("--dir") + 1]
     print("edge px  room   (pictures: %s/edges_ROOM.png, magenta = hard light edge without a picture edge)" % out)
     for n, r, note in score(out)[:top]: print("%7d  %4d  %s" % (n, r, note))

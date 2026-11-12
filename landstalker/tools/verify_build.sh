@@ -97,7 +97,6 @@ chk "Licht: verdeckte Figuren werfen ganze Schatten" $G/ext/Genesis-Plus-GX/core
 chk "GPU-Licht: verdeckte Figuren (Shader)"   $G/src/platform_sdl.c "LK_LTHIDE v1"
 chk "GPU-Licht: Vorausrechnen nach Zeit (Ruckler)" $G/src/platform_sdl.c "LK_GL5RING v1"
 chk "GPU-Licht: Raumwechsel verteilt (Haenger)"   $G/src/platform_sdl.c "LK_GL5ENTRY v1"
-chk "Licht: staerkster Figurenschatten (CPU)"      $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTSHMAX v1"
 chk "Licht: staerkster Figurenschatten (GPU)"      $G/src/platform_sdl.c "LK_LTSHMAX v1"
 chk "Partikel: keine Geister-Funken (Kartenrand)"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_AMWRAP v1"
 chk "Weiches Scrollen (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SUBPIX v3"

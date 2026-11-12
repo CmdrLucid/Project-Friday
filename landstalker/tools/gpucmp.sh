@@ -1,7 +1,8 @@
 #!/bin/bash
 # gpucmp.sh REC OUTDIR [FRAMES] [BIN] : replay a user recording (~/aufnahmen/rec_<t>) WINDOWED but hidden (the GPU paths need SDL's GL context) with its options,
-# Lighting On, and keep the console in OUTDIR/out.log (the 'gpult:' / 'gl5:' compare lines).  Extra env via EXTRA="LANDSTALKER_GL5CMP=1 LANDSTALKER_GPULT=2 ...".
-# Example: EXTRA="LANDSTALKER_GL5CMP=1" tools/gpucmp.sh ~/aufnahmen/rec_20261106_1322 /tmp/g5 ; grep '^gl5:' /tmp/g5/out.log | tail
+# Lighting On, and keep the console in OUTDIR/out.log ('gpult:' / 'gl5:' lines).  Extra env via EXTRA="LANDSTALKER_GL5_TIME=4 LANDSTALKER_GPULT_TIME=1 ...".
+# (The CPU-vs-GPU compare modes LANDSTALKER_GPULT=2 / LANDSTALKER_GL5CMP were removed with the CPU light, 2026-11-12.)
+# Example: EXTRA="LANDSTALKER_GL5_TIME=4" tools/gpucmp.sh ~/aufnahmen/rec_20261106_1322 /tmp/g5 ; grep '^gl5:' /tmp/g5/out.log | tail
 # Local test aid only (ROM + recordings stay on the Deck).
 R=$1; O=$2; F=$3; B=${4:-build/landstalker}; ROM=/home/deck/Documents/NonSteamGames/landstalker/landstalker.md
 cd "$(dirname "$0")/.." || exit 1
