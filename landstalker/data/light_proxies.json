@@ -37,6 +37,140 @@
         "why": "Mercator castle facade (height map has the castle only as blocked height 0 cells: no facade, a hip up to 204 on the stairs); centre tower, stairs, two pine planters; remake/recipes/proxy_castle_31.py, user 2026-11-04 'weiter mit den naechsten Formen'; RE-MEASURED 2026-11-09 (roof roll, tower crest, planter pines by their tips), surface on (user: 'ja passt')"
       }
     ],
+    "32": [
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          54,
+          32,
+          57
+        ],
+        "file": "proxies/pine_court_a.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "courtyard pines (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group a)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          55,
+          40,
+          57
+        ],
+        "file": "proxies/pine_court_b.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "courtyard pines (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group b)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          47,
+          40,
+          48
+        ],
+        "file": "proxies/pine_court_c.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "courtyard pines (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group c)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          35,
+          41,
+          36
+        ],
+        "file": "proxies/pine_court_d.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "courtyard pines (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group d)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          31,
+          40,
+          31
+        ],
+        "file": "proxies/pine_court_e.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "courtyard pine (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group e)"
+      }
+    ],
+    "33": [
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          54,
+          32,
+          57
+        ],
+        "file": "proxies/pine_court_a.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "courtyard pines (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group a)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          55,
+          40,
+          57
+        ],
+        "file": "proxies/pine_court_b.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "courtyard pines (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group b)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          47,
+          40,
+          48
+        ],
+        "file": "proxies/pine_court_c.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "courtyard pines (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group c)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          35,
+          41,
+          36
+        ],
+        "file": "proxies/pine_court_d.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "courtyard pines (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group d)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          31,
+          40,
+          31
+        ],
+        "file": "proxies/pine_court_e.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "courtyard pine (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group e)"
+      }
+    ],
     "51": [
       {
         "op": "mesh",
@@ -1337,6 +1471,47 @@
         "air": true,
         "floor": 16,
         "why": "armour on a stand (collision = a 2 step block): our parts model of remake/recipes/knight/stand.py in its LIGHT variant = as drawn (IoU 0.905; the symmetric variant is the remake model) ('air': helm, pauldrons, arms and the armour over the thin pole float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach diese Ruestung als naechstes' / 'sonst passts'"
+      }
+    ],
+    "85": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          21,
+          16,
+          25
+        ],
+        "file": "proxies/piano_85_case.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "grand piano (collision = a 32 high box: the light saw a block): NEAR-FINAL 3D MODEL (remake/recipes/piano/model3d.py, user 2026-11-12 'bau es als echtes 3D' / 'ja, passt'): open case with rim + soundboard, iron frame, keys, three turned legs; case floating from z 7 (only painted shadow under it); the S curve of the front MEASURED from the drawn bottom edge of the case (each pixel at z 7 -> one floor point, user 2026-11-12 'die S-Kurve passt noch gar nicht'), remake/recipes/piano/piano.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          21,
+          16,
+          24
+        ],
+        "file": "proxies/piano_85_lid.obj",
+        "surface": true,
+        "air": true,
+        "why": "the piano's lid with rounded edge + prop stick, propped open (remake/recipes/piano/model3d.py; second op: GPU = its own triangles; CPU fallback: one slab per sub column, the lid replaces the case's slab under it), remake/recipes/piano/piano.py"
+      },
+      {
+        "op": "unpaint",
+        "layer": "a",
+        "tiles": [
+          126,
+          38,
+          136,
+          40
+        ],
+        "colour": 5,
+        "why": "the piano's painted shadow = dots of colour 5 (36, 36, 0) in its OWN plane A tiles below the case (tile rows 38..40; the case / legs / keyboard use other colours there, the gold frame above row 38 uses colour 5 too): dropped while the GPU light shades the model (LK_GLUNPAINTA v1; user 2026-11-12 'unterm Klavier wie beim Tisch ... gemalter Schatten, der bei Lighting On wegkommen sollte')"
       }
     ],
     "86": [
@@ -5012,47 +5187,6 @@
         "surface": true,
         "floor": 0,
         "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
-      }
-    ],
-    "85": [
-      {
-        "op": "mesh",
-        "cells": [
-          13,
-          21,
-          16,
-          25
-        ],
-        "file": "proxies/piano_85_case.obj",
-        "surface": true,
-        "air": true,
-        "floor": 0,
-        "why": "grand piano (collision = a 32 high box: the light saw a block): NEAR-FINAL 3D MODEL (remake/recipes/piano/model3d.py, user 2026-11-12 'bau es als echtes 3D' / 'ja, passt'): open case with rim + soundboard, iron frame, keys, three turned legs; case floating from z 7 (only painted shadow under it); the S curve of the front MEASURED from the drawn bottom edge of the case (each pixel at z 7 -> one floor point, user 2026-11-12 'die S-Kurve passt noch gar nicht'), remake/recipes/piano/piano.py"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          13,
-          21,
-          16,
-          24
-        ],
-        "file": "proxies/piano_85_lid.obj",
-        "surface": true,
-        "air": true,
-        "why": "the piano's lid with rounded edge + prop stick, propped open (remake/recipes/piano/model3d.py; second op: GPU = its own triangles; CPU fallback: one slab per sub column, the lid replaces the case's slab under it), remake/recipes/piano/piano.py"
-      },
-      {
-        "op": "unpaint",
-        "layer": "a",
-        "tiles": [
-          126,
-          38,
-          136,
-          40
-        ],
-        "colour": 5,
-        "why": "the piano's painted shadow = dots of colour 5 (36, 36, 0) in its OWN plane A tiles below the case (tile rows 38..40; the case / legs / keyboard use other colours there, the gold frame above row 38 uses colour 5 too): dropped while the GPU light shades the model (LK_GLUNPAINTA v1; user 2026-11-12 'unterm Klavier wie beim Tisch ... gemalter Schatten, der bei Lighting On wegkommen sollte')"
       }
     ]
   },
