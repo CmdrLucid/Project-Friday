@@ -1402,6 +1402,20 @@
         "surface": true,
         "floor": 0,
         "why": "castle chest of drawers (= its 32 high collision box) with a round clay pot on the north cell instead of the 48 high cube (tileset 15, blocks $05C $38D $04E): remake/recipes/castle_chest/castle_chest.py, measured on rom_picture 65 by overlay"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          31,
+          14,
+          34
+        ],
+        "file": "proxies/castle_wardrobes_65.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'castle_wardrobes' as a real model (remake/recipes/case/case.py spec castle_wardrobes_65, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents), checked by overlay on rom_picture 65 + clay preview"
       }
     ],
     "66": [
@@ -1484,6 +1498,20 @@
         "surface": true,
         "floor": 0,
         "why": "castle chest of drawers (= its 32 high collision box) with a round clay pot on the north cell instead of the 48 high cube (tileset 15, blocks $05C $38D $04E): remake/recipes/castle_chest/castle_chest.py, measured on rom_picture 65 by overlay"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          31,
+          14,
+          34
+        ],
+        "file": "proxies/castle_wardrobes_66.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'castle_wardrobes' as a real model (remake/recipes/case/case.py spec castle_wardrobes_65, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents), checked by overlay on rom_picture 65 + clay preview"
       }
     ],
     "67": [
@@ -1596,6 +1624,20 @@
         "air": true,
         "floor": 0,
         "why": "castle kitchen table (tileset 15, 4 x 4, collision = a solid 1 step box, air below): remake/recipes/kitchen_table/kitchen_table.py (thin slab 11..16, four straight legs), measured on rom_picture 68 by overlay"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          17,
+          13,
+          21
+        ],
+        "file": "proxies/castle_plate_rack_68.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'castle_plate_rack' as a real model (remake/recipes/case/case.py spec castle_plate_rack_68, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents), checked by overlay on rom_picture 68 + clay preview"
       }
     ],
     "69": [
@@ -1651,6 +1693,20 @@
         "air": true,
         "floor": 0,
         "why": "castle kitchen table (tileset 15, 4 x 4, collision = a solid 1 step box, air below): remake/recipes/kitchen_table/kitchen_table.py (thin slab 11..16, four straight legs), measured on rom_picture 68 by overlay"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          17,
+          13,
+          21
+        ],
+        "file": "proxies/castle_plate_rack_69.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'castle_plate_rack' as a real model (remake/recipes/case/case.py spec castle_plate_rack_68, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents), checked by overlay on rom_picture 68 + clay preview"
       }
     ],
     "71": [
@@ -1760,6 +1816,20 @@
         "air": true,
         "floor": 16,
         "why": "short castle bench on cabriole legs (tileset 15, collision = a walkable 1 step box, air below): remake/recipes/castle_bench/castle_bench.py (2 cells, inset 1.8), seat and legs checked on rom_picture 72 by overlay"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          18,
+          25,
+          18
+        ],
+        "file": "proxies/castle_wardrobe_72.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "case furniture 'castle_wardrobe' as a real model (remake/recipes/case/case.py spec castle_wardrobe_72, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents), checked by overlay on rom_picture 72 + clay preview"
       }
     ],
     "77": [
@@ -1873,6 +1943,20 @@
         "air": true,
         "floor": 0,
         "why": "armour on a stand at a north wall (tileset 15, top block $274, collision = a walkable 2 step block): remake/recipes/knight/stand.py LIGHT variant MIRRORED (the west wall drawing of 63 mirrored over x = y; mirror + yaw 11: IoU 0.898 / 0.875 vs 0.668 unmirrored), measured on rom_picture 78"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          28,
+          17,
+          29
+        ],
+        "file": "proxies/castle_spear_rack_78.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'castle_spear_rack' as a real model (remake/recipes/case/case.py spec castle_spear_rack_78, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents), checked by overlay on rom_picture 78 + clay preview"
       }
     ],
     "79": [
@@ -1929,6 +2013,20 @@
         "air": true,
         "floor": 0,
         "why": "armour on a stand at a north wall (tileset 15, top block $274, collision = a walkable 2 step block): remake/recipes/knight/stand.py LIGHT variant MIRRORED (the west wall drawing of 63 mirrored over x = y; mirror + yaw 11: IoU 0.898 / 0.875 vs 0.668 unmirrored), measured on rom_picture 78"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          28,
+          17,
+          29
+        ],
+        "file": "proxies/castle_spear_rack_79.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'castle_spear_rack' as a real model (remake/recipes/case/case.py spec castle_spear_rack_78, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents), checked by overlay on rom_picture 78 + clay preview"
       }
     ],
     "83": [
@@ -3653,6 +3751,20 @@
         ],
         "floor": 0,
         "why": "14 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          34,
+          23,
+          37
+        ],
+        "file": "proxies/inn_cabinet_623.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'inn_cabinet' as a real model (remake/recipes/case/case.py spec inn_cabinet_623, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents), checked by overlay on rom_picture 623 + clay preview"
       }
     ],
     "624": [
@@ -3761,6 +3873,20 @@
         ],
         "floor": 0,
         "why": "14 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          34,
+          23,
+          37
+        ],
+        "file": "proxies/inn_cabinet_624.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'inn_cabinet' as a real model (remake/recipes/case/case.py spec inn_cabinet_623, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents), checked by overlay on rom_picture 623 + clay preview"
       }
     ],
     "632": [
@@ -4921,6 +5047,20 @@
         ],
         "floor": 0,
         "why": "14 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          34,
+          23,
+          37
+        ],
+        "file": "proxies/inn_cabinet_701.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'inn_cabinet' as a real model (remake/recipes/case/case.py spec inn_cabinet_623, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents), checked by overlay on rom_picture 623 + clay preview"
       }
     ],
     "702": [
@@ -5029,6 +5169,20 @@
         ],
         "floor": 0,
         "why": "14 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          34,
+          23,
+          37
+        ],
+        "file": "proxies/inn_cabinet_702.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'inn_cabinet' as a real model (remake/recipes/case/case.py spec inn_cabinet_623, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents), checked by overlay on rom_picture 623 + clay preview"
       }
     ],
     "704": [

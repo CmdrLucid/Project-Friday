@@ -4,11 +4,11 @@ GPU shadow maps get edge twins. Reliefs are >= 1 unit (drawer gaps, recessed pan
 0a413). GAME coordinates x east, y south, z up, units.
 
 cabinet(x0, x1, y0, y1, z0, z1, face, rows, ...) builds a case standing in the box x0..x1 / y0..y1 with its FRONT on side `face` ('+x', '+y', '-x', '-y')
-and `rows` from the bottom up: ('plinth', h) | ('drawers', h, n) | ('doors', h, n) | ('glass', h, n) | ('shelf', h) (open compartment with books) |
-('open', h) (empty compartment). The heights are scaled to fill z0 .. z1 - top."""
+and `rows` from the bottom up: ('plinth', h) | ('drawers', h, n) | ('doors', h, n) | ('glass', h, n) | ('shelf', h[, n[, contents]]) (open compartment(s): n compartments with
+dividers; contents 'books' (default) / 'bottles' / 'plates' (upright plate stacks) / None) | ('open', h[, n]) (empty compartments). The heights are scaled to fill z0 .. z1 - top."""
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from furniture import rbox
+from furniture import rbox, lathe
 
 def _mapper(x0, x1, y0, y1, face):
     """local (u across the front, v depth from the front plane inwards, z) -> world box"""
@@ -46,6 +46,24 @@ def cabinet(x0, x1, y0, y1, z0, z1, face, rows, top=1.5, over=0.8, side=1.2, bac
                 B(u0, u0 + fw, 0.0, 1.0, za, zb); B(u1 - fw, u1, 0.0, 1.0, za, zb)                       # door frame: stiles
                 B(u0 + fw, u1 - fw, 0.0, 1.0, za, za + fw); B(u0 + fw, u1 - fw, 0.0, 1.0, zb - fw, zb)   # rails
                 if kind == "doors": B(u0 + fw, u1 - fw, 1.0, 1.6, za + fw, zb - fw, 0.2)                 # the panel, 1 recessed
+        elif kind in ("shelf", "open") and (n > 1 or (len(rw) > 3 and rw[3] in ("bottles", "plates", None))):
+            B(side, W - side, 0.0, D - back, za, za + 1.2)                                               # the shelf board
+            cw = (W - 2 * side) / n; what = (rw[3] if len(rw) > 3 else "books") if kind == "shelf" else None
+            for i in range(1, n): uu = side + i * cw; B(uu - 0.6, uu + 0.6, 0.0, D - back, za, zb)       # dividers
+            for i in range(n):
+                ua, ub = side + i * cw + 0.6, side + (i + 1) * cw - 0.6; vm = (D - back) / 2 + 0.5
+                if what == "bottles":
+                    for t in (0.22, 0.5, 0.78):
+                        ax, ay, _, _ = M(ua + t * (ub - ua), ua + t * (ub - ua), vm, vm)
+                        out.append(lathe(ax, ay, za + 1.2, (h - 1.2) * 0.75, [(0.0, 1.1), (0.6, 1.2), (0.75, 0.5), (1.0, 0.5)], seg=10))
+                elif what == "plates":
+                    B(ua + 0.6, ub - 0.6, vm - 1.0, vm + 1.0, za + 1.2, za + 1.2 + (h - 1.2) * 0.8, 0.8)  # upright plate stack
+                elif what == "books":
+                    u = ua
+                    for j in range(20):
+                        bw, bh = BOOKS[(j + i * 3) % len(BOOKS)]
+                        if u + bw > ub: break
+                        B(u, u + bw - 0.2, 1.5, D - back - 0.3, za + 1.2, za + 1.2 + (h - 2.4) * bh, 0.2); u += bw
         elif kind in ("shelf", "open"):
             B(side, W - side, 0.0, D - back, za, za + 1.2)                                               # the shelf board
             if kind == "shelf" and books:
