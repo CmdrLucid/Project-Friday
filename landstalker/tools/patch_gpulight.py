@@ -1148,7 +1148,7 @@ static void lk_glt_qresult(void) {   /* finished queries of both slots: add thei
   if (lk_glt_qn < 120) return;
   { double avg = lk_glt_qsum / lk_glt_qn; lk_glt_qsum = 0.0; lk_glt_qn = 0;
     if (lk_glt_qdbg) printf("gpult: light pass %%.3f ms on the GPU (120 frame average)\n", avg);
-    if (lk_glt_qmax > 0.0 && avg > lk_glt_qmax) { if (++lk_glt_qover >= 2) { lk_gl_slow = 1; printf("gpult: light pass too slow on this GPU (%%.2f ms > %%.2f ms), CPU lighting from now on\n", avg, lk_glt_qmax); } }
+    if (lk_glt_qmax > 0.0 && avg > lk_glt_qmax) { if (++lk_glt_qover >= 2) { lk_gl_slow = 1; printf("gpult: light pass too slow on this GPU (%%.2f ms > %%.2f ms), Lighting off from now on\n", avg, lk_glt_qmax); } }
     else lk_glt_qover = 0; } }
 #define LK_GLT_NT 16   /* textures of the pass: 0 unlit, 1 class + tag, 2 rows, 3 room A, 4 block table, 5 / 6 terms, 7 room B, 8 key light, 9 light lists, 10 mix after the light (448 x 448), 11 figure box mask, 12 pairs, 13 motes, 14 particles, 15 particle depths */
 static lkGLuint lk_glt_prog, lk_glt_fbo, lk_glt_out, lk_glt_t[LK_GLT_NT]; static lkGLint lk_glt_u[64];
@@ -1464,21 +1464,22 @@ static int lk_g5_qb[2]; static double lk_g5_bms = -1.0;   /* LK_GL5RING v1 (2026
    The Deck GPU idles at 200 MHz (measured 88 %% of the time in 632, desktop mode): a look-ahead block then costs ~2.5 ms instead of ~0.4, and 4 ring blocks per frame
    made 21..29 ms frames while walking.  The ring (not visible yet) now gets as many blocks as fit into LANDSTALKER_GL5_RINGMS (5 ms) at the measured cost (ring now 2 blocks wide, LANDSTALKER_GL5_RING; nearest ring first, the side the camera moves to first), at least 1,
    at most CAP2, and none in a frame that already computes visible blocks; visible blocks keep their budget (CAP).  LANDSTALKER_GL5_RINGMS=0 = old fixed CAP2. */   /* GPU+ watchdog: block pass time per frame (120 frame average > LANDSTALKER_GL5_MAXMS, default 5 ms, twice -> GPU (GL4) for the rest of the run) */
-static void lk_g5_qpoll(void) { int o; lkGLint av; unsigned long long ns; static double mx = -1.0; if (mx < 0.0) { const char *e = getenv("LANDSTALKER_GL5_MAXMS"); mx = e ? atof(e) : 5.0; }
+static void lk_g5_qpoll(void) { int o; lkGLint av; unsigned long long ns; static double mx = -1.0; if (mx < 0.0) { const char *e = getenv("LANDSTALKER_GL5_MAXMS"); mx = e ? atof(e) : 8.0; }   /* CPU light removal 2026-11-12: too slow now means Lighting OFF (no CPU blocks any more), so the limit is 8 ms (Deck at 200 MHz measured up to ~4 ms in Mercator) */
   for (o = 0; o < 2; o++) { if (!lk_g5_qp[o]) continue; av = 0; ns = 0; lk_glGetQueryObjectiv(lk_g5_q[o], 0x8867, &av); if (!av) continue; lk_glGetQueryObjectui64v(lk_g5_q[o], 0x8866, &ns); lk_g5_qp[o] = 0; lk_g5_qsum += (double)ns * 1e-6;
     if (lk_g5_qb[o] > 0) { double per = (double)ns * 1e-6 / (double)lk_g5_qb[o]; lk_g5_bms = lk_g5_bms < 0.0 ? per : lk_g5_bms * 0.75 + per * 0.25; } }   /* LK_GL5RING v1 */
   if (++lk_g5_qn < 120) return;
   { double avg = lk_g5_qsum / lk_g5_qn; lk_g5_qsum = 0.0; lk_g5_qn = 0; if (lk_glt_qdbg) printf("gl5: block passes %%.3f ms per frame on the GPU (120 frame average)\n", avg);
-    if (mx > 0.0 && avg > mx) { if (++lk_g5_qover >= 2) { lk_g5_slow = 1; printf("gl5: light block pass too slow on this GPU (%%.2f ms > %%.2f ms), the CPU computes the light blocks from now on (GPU light stays)\n", avg, mx); } } else lk_g5_qover = 0; } }
+    if (mx > 0.0 && avg > mx) { if (++lk_g5_qover >= 2) { lk_g5_slow = 1; printf("gl5: light block pass too slow on this GPU (%%.2f ms > %%.2f ms), Lighting off from now on\n", avg, mx); } } else lk_g5_qover = 0; } }
 static int lk_g5_vc = 18;   /* LK_GL5ENTRY v1 (2026-11-11, user: 'Haenger von Mercator'): after a room change (new hard key) the visible blocks without data are spread
    over the fade-in by the measured GPU time (LANDSTALKER_GL5_ENTRYMS, 18 ms, for 40 frames; a frame of 20 or 33 ms both miss exactly one vsync; was CAP 18 at once = 5 frames of 60..87 ms at 200 MHz); a block not computed yet
    shows the flat base light (no shadows) while the picture is still dark (fade-in of 632: frames 604..624); at most 18 / 2.5 = 7 blocks per frame (632: all done by frame 616, frames 27..37 ms instead of 5 frames of 58..87 ms).  LANDSTALKER_GL5_ENTRYMS=0 = old. */
 static int lk_g5_rc = 4, lk_g5_rw = 2; static float lk_g5_mu, lk_g5_mv;   /* LK_GL5RING v1: ring blocks allowed this frame */
 static long lk_g5_tn, lk_g5_tbl, lk_g5_tfr; static unsigned char lk_g5_pn[38][76]; static double lk_g5_tms, lk_g5_tmax;
 extern int lk_gle_get(void);
-static int lk_g5_realon(void) { if (lk_g5_ron < 0) { const char *e = getenv("LANDSTALKER_GL5"), *c = getenv("LANDSTALKER_GL5_CAP"), *t = getenv("LANDSTALKER_GL5_TIME"); lk_g5_ron = e ? atoi(e) : -1; if (c && atoi(c) > 0) lk_g5_cap = atoi(c); { const char *c2 = getenv("LANDSTALKER_GL5_CAP2"); if (c2 && atoi(c2) >= 0) lk_g5_cap2 = atoi(c2); } lk_g5_tdbg = t ? atoi(t) : 0;
-    if (lk_g5_ron > 0) printf("gl5: the GPU computes the light blocks (LANDSTALKER_GL5=1)\n"); if (lk_g5_ron < 0) lk_g5_ron = -2; }
-  return (lk_g5_ron == -2 ? lk_gle_get() >= 1 : lk_g5_ron > 0) && lk_g5_st >= 0 && !lk_g5_slow; }   /* Light Engine GPU = GL5c (env LANDSTALKER_GL5=0 = the old GPU path with CPU blocks, test aid); the block watchdog falls back to that path */
+static int lk_g5_realon(void) { extern int lk_gl_slow; if (lk_g5_ron < 0) { const char *c = getenv("LANDSTALKER_GL5_CAP"), *t = getenv("LANDSTALKER_GL5_TIME"); lk_g5_ron = 1; if (c && atoi(c) > 0) lk_g5_cap = atoi(c); { const char *c2 = getenv("LANDSTALKER_GL5_CAP2"); if (c2 && atoi(c2) >= 0) lk_g5_cap2 = atoi(c2); } lk_g5_tdbg = t ? atoi(t) : 0;
+  }
+  if ((lk_g5_st < 0 || lk_g5_slow) && !lk_gl_slow) { lk_gl_slow = 1; printf("gl5: no GPU light blocks, Lighting off\n"); }   /* CPU light removal 2026-11-12: no GL4 fallback with CPU blocks any more (user: GPU light unavailable / too slow -> Lighting off) */
+  return lk_g5_st >= 0 && !lk_g5_slow; }   /* GL5c = the light blocks always on the GPU (LANDSTALKER_GL5=0 is gone) */   /* Light Engine GPU = GL5c (env LANDSTALKER_GL5=0 = the old GPU path with CPU blocks, test aid); the block watchdog falls back to that path */
 /* GL5c sun step swap: when the blocks take over the next sun direction (CPU: memcpy sun <- sunn), the GPU copies roomA.b (sunn) into roomA.g (sun) for every block that has sunn
    (block table .g) in one full texture pass, so no block shows the old direction until it is recomputed (user 2026-11-06: 'beim Rausgehen legt sich kurz was ueber den Screen') */
 static lkGLuint lk_g5_swp, lk_g5_swt, lk_g5_swf; static lkGLint lk_g5_swu[2]; static int lk_g5_swst; static float lk_g5_pdir[6]; static int lk_g5_psunn;
