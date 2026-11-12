@@ -5,15 +5,15 @@
 - 0. One-paragraph summary: lines 51-56
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 731-742
 - 1. Where we are: lines 743-871
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 872-1081
-- 3. How the user works (important): lines 1082-1097
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1098-1122
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1123-1131
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1132-1179
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1180-1189
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1190-1191
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1192-1194
-- NEXT STEPS, newest first: -176 873, -175 874, -174 883, -173 884, -172 885, -171 886, -170 887, -169 888, -168 889, -167 890
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 872-1086
+- 3. How the user works (important): lines 1087-1102
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1103-1127
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1128-1136
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1137-1184
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1185-1194
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1195-1196
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1197-1199
+- NEXT STEPS, newest first: -177 873, -176 878, -175 879, -174 888, -173 889, -172 890, -171 891, -170 892, -169 893, -168 894
 - Newest entries:
   - 0a416 line 186: 2026-11-12 (Deck, Opus 5.5; dev). Room 67 user look at the castle bed: (1) 'Bett wirkt graeulich' at the he...
   - 0a415 line 185: 2026-11-12 (Deck, Opus 5.5; dev). Castle BEDS + BENCH (tileset 15) as near-final 3D light shapes (user: cla...
@@ -870,6 +870,11 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-177. **NEXT (2026-11-12 afternoon): REMOVE THE CPU LIGHT (user decision: 'gleich ganz ausbauen'; only the GPU light stays, without GPU support Lighting is simply Off = original picture).** Do it AFTER the user tested this afternoon's build (light direction 330/60, no ceiling shafts in the castle, LK_GLAOSOFT, LK_LTNICHE, new furniture), so a problem can be told apart. Three steps:
+  (1) INVENTORY (Sonnet Explore agent started 2026-11-12, result to be checked by the lead): which code runs only for the CPU light (per-pixel terms, blockcalc, worker, CPU sun / key / AO / shafts) and which CPU code the GPU still needs (height maps, fine field, slabs, light list, mesh load + upload, figures, particles / dust motes, fade, flat base light for blocks not computed yet), plus test aids that use the CPU light.
+  (2) REMOVE in small steps; after each: build + GPU pictures of a fixed room list pixel identical before / after (tools/lightedges.py --gpu); no-GPU = Lighting Off.
+  (3) CLEAN UP: test tools GPU only (lightedges default --gpu, lightshots, headless SHOT), docs (INDEX, LESSONS, memory feedback-gpu-cpu-fallback), options help text.
+  Until then: no more CPU light fixes or alignment work; judge pictures only by GPU shots (the CPU pictures show CPU-only faults, e.g. the vertical light boxes of room 59).
 -176. **NEXT (2026-11-12 END):** (1) USER LOOK in the game: piano 85, entrance hall 58 (wall beside the right brazier, both hall stands), left castle court 32 / 33 at daytime (trimmed pines), castle bedroom 67 (table, bed, bench). (2) User recordings with a sword marker: room 62 bench flicker (0a405), room 54 'Nigel wirft Licht statt Schatten'. (3) Optional: the thin vertical line in 67 below the bed / table (0a416: old; dump the remaining GL5 terms per pixel there), the short bench of 72, more furniture only where the drawing differs from its box by >= ~2 units (0a413 lesson). Done from -175: (2) room 62, (3) 632 (0a400 / 0a401), (4) piano, (5) room 58, (6) room 33.
 -175. **NEXT (2026-11-11 late, USER BACKLOG from recording `rec_20261111_2006` (replays EXACT; markers = sword presses, pad $40; the first 4 at 216 / 303 / 322 / 345 are file-select presses, not markers; shots before every marker: `tools/lightshots.sh ~/aufnahmen/rec_20261111_2006 OUT 1422,2887,3009,3145,3748,4211,4936,5449,5616,7097,7365,7724`) + chat):** proposed order (user to confirm):
   (1) room 54 (throne room, frames 2760..3600): 'beim Hin- und Hergehen sieht es eher so aus als wuerde Nigel Licht werfen statt Schatten' - compare Lighting On / Off ratio around Nigel while walking (markers 2899 / 3021 / 3157); probably affects every room.

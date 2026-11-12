@@ -6,13 +6,13 @@
 - 2. Lessons about the code base: lines 34-42
 - 3. Rule: seeds from the interpreter log: lines 43-45
 - 3b. Rule: heuristic scans must be bounded (but code is not only bel...: lines 46-48
-- 4. To-do backlog (priority order): lines 49-58
-- 5. Open questions / assumptions: lines 59-63
-- 6. Cloud sandbox setup (no ROM, no SDL by default): lines 64-73
-- 7. Merge note: lines 74-76
-- 8. Roadmap after the compat work (user wishes, 2026-10-10): lines 77-84
-- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 85-451
-  - 196 entries, newest at the END; the last 12: 439 (2026-11-11) A Python function named like a loo...; 440 (2026-11-11) Every change to GPU shader TEXT co...; 441 (2026-11-11) Beds (and other pieces) are drawn...; 442 (2026-11-11) A per-pixel 'owner' layer only kno...; 443 (2026-11-11) Headless runs never show the GPU l...; 444 (2026-11-11) The Deck GPU clock idles at 200 MH...; 445 (2026-11-11) A shadow test that returns at the...; 446 (2026-11-11) Thin drawn parts vs the 4 unit lig...; 447 (2026-11-11) Wrapping screen maps (512 x 512, i...; 448 (2026-11-12) Plane A cell words carry flags abo...; 449 (2026-11-12) The light's cell heights come from...; 450 (2026-11-12) Sub-pixel model details make dotte...
+- 4. To-do backlog (priority order): lines 49-59
+- 5. Open questions / assumptions: lines 60-64
+- 6. Cloud sandbox setup (no ROM, no SDL by default): lines 65-74
+- 7. Merge note: lines 75-77
+- 8. Roadmap after the compat work (user wishes, 2026-10-10): lines 78-85
+- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 86-452
+  - 196 entries, newest at the END; the last 12: 440 (2026-11-11) A Python function named like a loo...; 441 (2026-11-11) Every change to GPU shader TEXT co...; 442 (2026-11-11) Beds (and other pieces) are drawn...; 443 (2026-11-11) A per-pixel 'owner' layer only kno...; 444 (2026-11-11) Headless runs never show the GPU l...; 445 (2026-11-11) The Deck GPU clock idles at 200 MH...; 446 (2026-11-11) A shadow test that returns at the...; 447 (2026-11-11) Thin drawn parts vs the 4 unit lig...; 448 (2026-11-11) Wrapping screen maps (512 x 512, i...; 449 (2026-11-12) Plane A cell words carry flags abo...; 450 (2026-11-12) The light's cell heights come from...; 451 (2026-11-12) Sub-pixel model details make dotte...
 
 <!-- /TOC -->
 
@@ -47,6 +47,7 @@ Lessons learned (what cost time and how to avoid it) plus the prioritised backlo
 genrecomp's address-table scan invents functions in any data. `recomp.json` carries `code_ranges` ([$200,$30000)); measure with `tools/code_extent.py` and explain findings with `tools/split_report.py`. After a change of the ranges: build, `check_splits`, regression pass. Findings of the analysis (2026-10-10): split_report classes P (pointer-only) and N (nothing refers) are bogus starts; R (real jsr/bsr target) are real entries and the CUT function is the suspect.
 
 ## 4. To-do backlog (priority order)
+0. (2026-11-12, user decision) REMOVE THE CPU LIGHT, GPU light only (HANDOFF NEXT -177: inventory -> removal in small pixel-identical steps -> tools / docs GPU only). Until then no CPU light fixes; judge by GPU pictures.
 1. (DONE, verified 2026-10-10) `$017CC0` seed removal fixed the Massan NPC bug.
 2. Regression pass (intro, Massan, church save, shops, inn map, text timing).
 3. (IN PROGRESS, fix on dev: code_ranges) Review the `check_splits` spots (123 reported on 2026-10-10, mostly `jt_*` jump-table entries near the ROM start; earlier list of 6 non-table spots: `$00AA6A $00CC0C $025D96 $026948 $034300 $090880`) and the interp-log seeds above.
