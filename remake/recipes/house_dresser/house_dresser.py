@@ -7,11 +7,13 @@ import os, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.join(HERE, "..", "..", "lib")); sys.path.insert(0, os.path.join(HERE, "..", "castle_bench"))
 from furniture import rbox, lathe
 from castle_bench import write_obj
+import cabinet
 
 def parts(x0, y0, z0):
     X = lambda v: x0 + v; Y = lambda v: y0 + v
-    return [rbox(X(0.0), X(48.0), Y(2.0), Y(16.0), z0, z0 + 33.0, 0.7, n=2),                  # chest of drawers
-            rbox(X(48.0), X(64.0), Y(0.0), Y(16.0), z0, z0 + 48.0, 0.7, n=2),                 # bookcase (= the collision height)
+    out = cabinet.cabinet(X(0.0), X(48.0), Y(2.0), Y(16.0), z0, z0 + 33.0, '+y', [('plinth', 2)] + [('drawers', 7, 3)] * 4)   # chest: 3 x 4 drawers
+    out += cabinet.cabinet(X(48.0), X(64.0), Y(0.0), Y(16.0), z0, z0 + 48.0, '+y', [('plinth', 2), ('doors', 12, 1), ('shelf', 14), ('shelf', 14)])   # bookcase
+    return out + [
             lathe(X(54.0), Y(2.5), z0 + 48.0, 9.0, [(0.0, 1.6), (0.35, 2.4), (0.75, 1.3), (1.0, 1.6)], seg=12),   # vase on the bookcase
             lathe(X(37.25), Y(8.75), z0 + 33.0, 6.0, [(0.0, 2.2), (0.6, 2.6), (0.85, 1.2), (1.0, 1.0)], seg=12),   # bottle on the drawers
             rbox(X(14.0), X(24.0), Y(9.5), Y(11.0), z0 + 33.0, z0 + 43.0, 0.3, n=1)]                             # picture frame on the drawers

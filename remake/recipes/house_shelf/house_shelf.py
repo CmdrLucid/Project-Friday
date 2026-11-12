@@ -8,13 +8,16 @@ import os, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.join(HERE, "..", "..", "lib")); sys.path.insert(0, os.path.join(HERE, "..", "castle_bench"))
 from furniture import rbox, lathe
 from castle_bench import write_obj
+import cabinet
 
 JAR = [(0.0, 3.8), (0.15, 6.0), (0.45, 6.4), (0.75, 5.1), (0.88, 3.4), (1.0, 4.0)]
 
 def parts(x0, y0, z0):
     X = lambda v: x0 + v; Y = lambda v: y0 + v
     out = [lathe(X(8.0), Y(13.0), z0, 22.0, JAR),                                        # clay jar on the floor, in front of the cabinet's left
-           rbox(X(18.0), X(48.0), Y(0.0), Y(16.0), z0, z0 + 32.0, 0.8, n=2),             # glass cabinet
+           ]
+    out += cabinet.cabinet(X(18.0), X(48.0), Y(0.0), Y(16.0), z0, z0 + 32.0, '+y', [('plinth', 2), ('glass', 28, 2)])   # glass cabinet: plinth, two glass doors
+    out += [
            rbox(X(35.5), X(43.5), Y(3.5), Y(11.5), z0 + 32.0, z0 + 39.0, 0.4, n=1),      # box on the cabinet
            lathe(X(31.7), Y(11.7), z0 + 32.0, 10.0, [(0.0, 1.6), (0.3, 2.6), (0.7, 1.4), (1.0, 1.8)], seg=12),   # small vase
            rbox(X(0.0), X(48.0), Y(0.0), Y(16.0), z0 + 60.0, z0 + 64.0, 0.6, n=2),       # wall shelf

@@ -9,11 +9,13 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.jo
 sys.path.insert(0, os.path.join(HERE, "..", "kitchen_table"))
 from furniture import rbox, lathe
 from castle_bench import write_obj
+import cabinet
 import kitchen_table
 
 def parts(x0, y0, z0):
     X = lambda v: x0 + v; Y = lambda v: y0 + v
-    out = [rbox(X(0.0), X(80.0), Y(0.0), Y(16.0), z0, z0 + 48.0, 0.6, n=2),                                   # bookshelf
+    out = cabinet.cabinet(X(0.0), X(80.0), Y(0.0), Y(16.0), z0, z0 + 48.0, '+y', [('plinth', 2), ('drawers', 9, 5), ('shelf', 12), ('shelf', 12), ('shelf', 12)])   # bookshelf
+    out += [
            lathe(X(7.0), Y(3.0), z0 + 48.0, 13.0, [(0.0, 1.9), (0.7, 2.0), (0.85, 1.0), (1.0, 1.0)], seg=12), # tall bottle
            rbox(X(41.0), X(51.0), Y(12.0), Y(13.5), z0 + 48.0, z0 + 58.0, 0.3, n=1),                         # picture frame
            rbox(X(60.5), X(68.5), Y(4.5), Y(12.5), z0 + 48.0, z0 + 55.0, 0.4, n=1)]                          # crate

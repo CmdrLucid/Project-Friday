@@ -7,11 +7,12 @@ import os, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.join(HERE, "..", "..", "lib")); sys.path.insert(0, os.path.join(HERE, "..", "castle_bench"))
 from furniture import rbox, lathe
 from castle_bench import write_obj
+import cabinet
 
 POT = [(0.0, 6.0), (0.15, 8.3), (0.45, 9.0), (0.75, 7.9), (0.88, 6.2), (0.95, 6.5), (1.0, 6.5)]
 
 def parts(x0, y0, z0):
-    return [rbox(x0, x0 + 16.0, y0, y0 + 48.0, z0, z0 + 32.0, 0.5, n=2), lathe(x0 + 8.0, y0 + 8.0, z0 + 32.0, 15.0, POT)]
+    return cabinet.cabinet(x0, x0 + 16.0, y0, y0 + 48.0, z0, z0 + 32.0, '+x', [('plinth', 2)] + [('drawers', 7, 3)] * 4) + [lathe(x0 + 8.0, y0 + 8.0, z0 + 32.0, 15.0, POT)]
 
 if __name__ == "__main__":
     a = sys.argv; write_obj(a[1], parts(*map(float, a[2:5])), "castle chest with pot")

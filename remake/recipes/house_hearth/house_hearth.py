@@ -8,6 +8,7 @@ import os, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.join(HERE, "..", "..", "lib")); sys.path.insert(0, os.path.join(HERE, "..", "castle_bench"))
 from furniture import rbox, lathe
 from castle_bench import write_obj
+import cabinet
 
 KETTLE = [(0.0, 4.5), (0.2, 7.0), (0.55, 7.6), (0.85, 6.8), (1.0, 7.2)]
 PLATES = [(0.0, 4.5), (0.2, 5.5), (1.0, 5.5)]
@@ -15,7 +16,8 @@ FLASK = [(0.0, 1.5), (0.15, 2.8), (0.35, 3.0), (0.55, 2.2), (0.65, 0.9), (1.0, 0
 
 def parts(x0, y0, z0):
     X = lambda v: x0 + v; Y = lambda v: y0 + v
-    out = [rbox(X(0.0), X(16.0), Y(0.0), Y(48.0), z0, z0 + 32.0, 0.6, n=2),                 # brick hearth = the collision box
+    out = cabinet.hearth(X(0.0), X(16.0), Y(0.0), Y(48.0), z0, z0 + 32.0, '+x', open_u=(0.37, 0.77), open_h=0.6, depth=10.0)   # brick hearth, fire opening east
+    out += [
             lathe(X(10.0), Y(26.0), z0 + 32.0, 11.0, KETTLE),                                # kettle on the hearth
             rbox(X(2.0), X(10.0), Y(0.0), Y(7.0), z0 + 32.0, z0 + 39.0, 0.4, n=1),          # small crate at the back
             rbox(X(0.0), X(14.0), Y(0.0), Y(48.0), z0 + 60.0, z0 + 64.0, 0.6, n=2),         # wall shelf
