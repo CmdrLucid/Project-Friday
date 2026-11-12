@@ -5,15 +5,15 @@
 - 0. One-paragraph summary: lines 51-56
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 733-744
 - 1. Where we are: lines 745-874
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 875-1090
-- 3. How the user works (important): lines 1091-1106
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1107-1131
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1132-1140
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1141-1188
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1189-1198
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1199-1200
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1201-1203
-- NEXT STEPS, newest first: -178 876, -177 877, -176 882, -175 883, -174 892, -173 893, -172 894, -171 895, -170 896, -169 897
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 875-1091
+- 3. How the user works (important): lines 1092-1107
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1108-1132
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1133-1141
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1142-1189
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1190-1199
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1200-1201
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1202-1204
+- NEXT STEPS, newest first: -179 876, -178 877, -177 878, -176 883, -175 884, -174 893, -173 894, -172 895, -171 896, -170 897
 - Newest entries:
   - 0a418 line 186: 2026-11-12 evening (Deck, Opus 5.5; dev). User played the afternoon build: item list of -176 (1) 'passt'. R...
   - 0a417 line 187: 2026-11-12 afternoon (Deck, Opus 5.5 lead; dev 48c243a). Furniture as real 3D light shapes, key light direc...
@@ -873,6 +873,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-179. **NEXT (2026-11-12 late): CPU light removal steps 5 + 7 (code clean-up, nothing visible): delete CPU light blocks (lk_lt_block / blockcalc / sunfill / shblock / aoval / term, workers + prefetch, lk_lt_b; lk_am_surf only via lk_gs; patch_gpucomp lk_gc_side + lk_gl_classify drop their lk_lt_block calls), the GL4 CPU-block upload + compare pass + GL5CMP in patch_gpulight.py, tools/gpucmp.sh; lightshots.sh + lightedges.py default GPU mode (hidden window); verify_build markers; memory feedback-gpu-cpu-fallback. After every build: lightedges --gpu on 5,32,56,58,59,62,67,85,87,174,488,493,561,613,632,680 vs ~/lktest/cpurm/base_rooms (python3 ~/lktest/cpurm/cmpdirs.py) + the 61 replay frames vs base_r62. USER TEST of phase A: Lighting looks as before; Display page without 'Renderer'.
 -178. **NEXT (2026-11-12 evening):** user to play room 62 again (Nigel's shadow near the standing torches, LK_LTPAIRRAD v1); Mercator stutter: no work (user: Game Mode); then -177 (CPU light removal) as planned, the afternoon build is now confirmed by the user.
 -177. **NEXT (2026-11-12 afternoon): REMOVE THE CPU LIGHT (user decision: 'gleich ganz ausbauen'; only the GPU light stays, without GPU support Lighting is simply Off = original picture).** Do it AFTER the user tested this afternoon's build (light direction 330/60, no ceiling shafts in the castle, LK_GLAOSOFT, LK_LTNICHE, new furniture), so a problem can be told apart. Three steps:
   PLAN + INVENTORY: docs/CPU_LIGHT_REMOVAL.md (done 2026-11-12, Sonnet survey spot-checked by the lead; steps 0..7). (1) INVENTORY: which code runs only for the CPU light (per-pixel terms, blockcalc, worker, CPU sun / key / AO / shafts) and which CPU code the GPU still needs (height maps, fine field, slabs, light list, mesh load + upload, figures, particles / dust motes, fade, flat base light for blocks not computed yet), plus test aids that use the CPU light.
