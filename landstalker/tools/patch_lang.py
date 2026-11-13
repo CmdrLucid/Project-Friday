@@ -79,7 +79,7 @@ static LkLgStr *lk_lg_str; static int lk_lg_nstr;
 static LkLgName *lk_lg_name; static int lk_lg_nname;
 static const LkLgStr *lk_lg_cur; static int lk_lg_pos, lk_lg_ext, lk_lg_extcode; static int lk_lg_wstart = 1, lk_lg_lstart;   /* LK_LGWRAP v1 */
 static uint8_t *lk_lg_data;                                   /* the loaded language file (word streams are read from it) */
-static int lk_lg_on, lk_lg_hooked;
+static int lk_lg_on, lk_lg_hooked; uint8_t lk_vt_gl[128][8]; int lk_vt_on; static int lk_vt_ok;   /* LK_JPMENU v1 (below) */
 static uint8_t lk_lg_mg[128], lk_lg_mgl[128][8];   /* menu font glyphs (8x8, 1bpp) of the extra characters, by character code */
 static uint16_t lk_lg_ui[8][2]; static int lk_lg_nui;                  /* language file block 'ui': key, value (docs/TEXT_LAYER.md) */
 static char lk_lg_codes[8][16], lk_lg_names[8][32]; static int lk_lg_nlang = 1, lk_lg_sel;   /* [0] = English (the original), then the languages of lang/index.txt */
@@ -225,9 +225,10 @@ int lk_names_get(void) {
     return lk_lg_nmopt;
 }
 static int lk_lg_exists(const char *p) { FILE *f = fopen(p, "rb"); if (f) { fclose(f); return 1; } return 0; }
+static int lk_vt_ja(void) { return lk_lg_on && !strcmp(lk_lg_codes[lk_lg_sel], "ja"); }   /* LK_JPMENU v1 */
 static void lk_lg_apply(int i) {   /* switch the language now: 0 = English (original), others from <exe dir>/lang/<code>.bin */
     char path[600];
-    lk_lg_gen++;
+    lk_lg_gen++; lk_vt_on = 0;   /* LK_JPMENU v1: set again below for Japanese */
     if (i < 0 || i >= lk_lg_nlang) i = 0;
     lk_lg_sel = i;
     if (i == 0) {   /* English: the original text, or with the Japanese names the generated en.jpn.bin (LK_LGNAMES v1) */
@@ -240,6 +241,7 @@ static void lk_lg_apply(int i) {   /* switch the language now: 0 = English (orig
     else { snprintf(path, sizeof path, "%s/%s.jpn.bin", lk_lg_dir, lk_lg_codes[i]); if (!lk_names_get() || !lk_lg_exists(path)) snprintf(path, sizeof path, "%s/%s.bin", lk_lg_dir, lk_lg_codes[i]); }
     lk_lg_load(path);
     if (!lk_lg_on) lk_lg_sel = 0;
+    lk_vt_on = lk_vt_ok && lk_vt_ja();   /* LK_JPMENU v1 */
 }
 /* LK_JPITEMS v1 (user 2026-11-14: 'am liebsten die Sprites aus der originalen japanischen Fassung'; Options > Items: Original / Japanese, ~/.landstalker_items, env LANDSTALKER_ITEMS):
    four items are different things in the Japanese original (36 Pink Book, 41 T-back, 48 Bunny-chan, 54 bunny suit). Pictures: read at start from the player's own Japanese ROM in the folder
@@ -269,6 +271,35 @@ static long lk_ji_frame(const uint8_t *r, long sz, int id, uint32_t *start) {   
     if (pos > (uint32_t)sz || pos - fp > 0x4000u) return -1;
     *start = fp; return (long)(pos - fp);
 }
+/* LK_JPMENU v1 (user 2026-11-13: 'in der japanischen Fassung haben die Items sehr wohl Kana-Namen' / 'wir sind auf unserem Renderer, keine Mega-Drive-Beschraenkung'): the item names of the
+   Start menu lists in Japanese = the original kana names, drawn with the Japanese MENU font.  Both are read at start from the player's Japanese ROM (font $00DBF2: 8x8 1bpp, slot = Japanese
+   character code; names: the table after the special names, $2A43A).  The menu row words get VIRTUAL tile numbers $780 + Japanese code: nothing is written to VRAM, the own screen
+   renderer (patch_own.py lk_scr_cell) draws those cells from lk_vt_gl (ink = colour 1 like Expand1bppTo4bpp $00DAD8).  Voicing marks ($7B / $7C, stored BEFORE the kana) go into the row
+   ABOVE the kana like the Japanese PopulateItemSlot (row 1 of the 9 x 2 slot = marks, row 2 = kana; at most 8 kana).  Other languages: untouched (lk_vt_on = 0). */
+static uint8_t lk_vt_nm[64][24], lk_vt_nl[64];
+static void lk_vt_load(const uint8_t *r) {
+    static const uint8_t sig[8] = { 0x41, 0xF9, 0x00, 0xFF, 0x2C, 0x84, 0x43, 0xFA }; uint32_t p = 0x2A3E4u; int i, c;   /* the special names (15) + the default name (1), then the 64 items at $2A43A */
+    if (memcmp(r + 0xD978, sig, 8) || 0xD980 + (int16_t)(r[0xD980] << 8 | r[0xD981]) != 0xDBF2) { fprintf(stderr, "lang: Japanese menu font not where expected: menus stay English\n"); return; }
+    for (c = 0; c < 128; c++) memcpy(lk_vt_gl[c], r + 0xDBF2 + 8 * c, 8);
+    for (i = 0; i < 15 + 1; i++) p += 1u + r[p];
+    for (i = 0; i < 64; i++) { int n = r[p], k, cols = 0; for (k = 0; k < n; k++) if (r[p + 1 + k] != 0x7B && r[p + 1 + k] != 0x7C) cols++;
+        if (n < (int)sizeof lk_vt_nm[0] && cols <= 9) { memcpy(lk_vt_nm[i], r + p + 1, (size_t)n); lk_vt_nl[i] = (uint8_t)n; } p += 1u + (uint32_t)n; }
+    lk_vt_ok = 1;
+}
+static void (*lk_vt_o_wn)(void);
+static int lk_vt_ja(void);
+static void lk_vt_h_wn(void) {   /* PopulateItemSlot_WriteItemName $00D5E4: d0 = string index (< $40 = item), d1 low byte != 0 = highlighted ($C000), a0 = slot (row 1) in the RAM tilemap */
+    int idx = (int)(g_m68k.d[0] & 0xFFFF), k, col = 0; uint32_t a1 = g_m68k.a[0]; uint16_t base = (g_m68k.d[1] & 0xFF) ? 0xC000 : 0xA000;
+    lk_vt_on = lk_vt_ok && lk_vt_ja();
+    if (!lk_vt_on || idx >= 0x40 || !lk_vt_nl[idx]) { lk_vt_o_wn(); return; }
+    for (k = 0; k < 9; k++) bus_write16(a1 + 2u * (uint32_t)k, (uint16_t)(base | 0x780));   /* row 1: blank (Japanese space), the marks below */
+    for (k = 0; k < lk_vt_nl[idx]; k++) { int c = lk_vt_nm[idx][k] & 0x7F;
+        if (c == 0x7B || c == 0x7C) bus_write16(a1 + 2u * (uint32_t)col, (uint16_t)(base | (0x780 + c)));
+        else { bus_write16(a1 + 0x48u + 2u * (uint32_t)col, (uint16_t)(base | (0x780 + c))); col++; } }
+    for (; col < 9; col++) bus_write16(a1 + 0x48u + 2u * (uint32_t)col, (uint16_t)(base | 0x780));
+    g_m68k.a[1] = a1; g_m68k.a[0] = a1 + 0x12u; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | 0xFFFFu;
+    func_table_rts();
+}
 static int lk_ji_try(const char *path) {   /* a Japanese Landstalker ROM (2 MB, header region 'J', name LAND STALKER)? then copy the four item frames to $810000 */
     static const int ids[4] = { 36, 41, 48, 54 }; FILE *f; uint8_t hd[0x200]; uint8_t *r; long sz; uint32_t off = 0; int i, k;
     if (!(f = fopen(path, "rb"))) return 0;
@@ -280,6 +311,7 @@ static int lk_ji_try(const char *path) {   /* a Japanese Landstalker ROM (2 MB, 
             for (k = 0; k < len; k++) lk_ji_mem[(off + (uint32_t)k) ^ 1] = r[st + (uint32_t)k];
             lk_ji_id[lk_ji_n] = (uint8_t)ids[i]; lk_ji_slot[lk_ji_n] = lk_ji_rd32(tab + (uint32_t)((ids[i] >> 3) & 7) * 4u) + (uint32_t)(ids[i] & 7) * 4u;
             lk_ji_old[lk_ji_n] = lk_ji_rd32(lk_ji_slot[lk_ji_n]); lk_ji_new[lk_ji_n] = 0x810000u + off; lk_ji_n++; off += ((uint32_t)len + 1u) & ~1u; } }
+    lk_vt_load(r);   /* LK_JPMENU v1 */
     free(r); fprintf(stderr, "lang: the Japanese item pictures from %s\n", path); return 1;
 }
 static int lk_ji_avail(void) {   /* looked up once per start: a Japanese ROM in the folder of the started ROM (LANDSTALKER_JPROM=<file> names one) */
@@ -352,7 +384,7 @@ static void lk_lang_install(void) {
     lk_lang_map();
     lk_lg_o_ics = func_table_lookup(0x022FCC); lk_lg_o_dc = func_table_lookup(0x0246B2); lk_lg_o_gnc = func_table_lookup(0x023044); lk_lg_o_skip = func_table_lookup(0x0294B6); lk_lg_o_dma = func_table_lookup(0x000DD6); lk_lg_o_pc = func_table_lookup(0x0231E2);
     if (lk_lg_o_ics && lk_lg_o_dc && lk_lg_o_gnc && lk_lg_o_skip && lk_lg_o_dma) {
-        func_table_register(0x022FCC, lk_lg_h_ics); func_table_register(0x0246B2, lk_lg_h_dc); func_table_register(0x023044, lk_lg_h_gnc); func_table_register(0x0294B6, lk_lg_h_skip); func_table_register(0x000DD6, lk_lg_h_dma); if (lk_lg_o_pc) func_table_register(0x0231E2, lk_lg_h_pc); lk_lg_hooked = 1;
+        func_table_register(0x022FCC, lk_lg_h_ics); func_table_register(0x0246B2, lk_lg_h_dc); func_table_register(0x023044, lk_lg_h_gnc); func_table_register(0x0294B6, lk_lg_h_skip); func_table_register(0x000DD6, lk_lg_h_dma); if (lk_lg_o_pc) func_table_register(0x0231E2, lk_lg_h_pc); lk_vt_o_wn = func_table_lookup(0x00D5E4); if (lk_vt_o_wn) func_table_register(0x00D5E4, lk_vt_h_wn); lk_lg_hooked = 1;
     } else { fprintf(stderr, "lang: InitCompString / DecodeChar / GetNextChar / SkipToStringIndex not all found (%p %p %p %p)\n", (void *)lk_lg_o_ics, (void *)lk_lg_o_dc, (void *)lk_lg_o_gnc, (void *)lk_lg_o_skip); lk_lg_nlang = 1; return; }
     if (!want) {                                                            /* LANDSTALKER_LANG=<code> overrides the saved ~/.landstalker_lang */
         char code[16] = "";
