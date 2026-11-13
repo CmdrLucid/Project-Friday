@@ -193,6 +193,17 @@ def castle_table_mesh(x0, y0, x1, y1, floor, top, thick, P=None):
         ms.append(ring_stack(rings, seg=P["seg"]))
     return ms
 
+# NEAR-FINAL CASTLE ROOM TABLE (tileset 15 bedrooms 63..67 / 77; reference room 67 cells 19..20 x 17..18, measured 2026-11-13 at 10x with proxy_overlay):
+# a thin top board (3.5 thick, edges rounded 1; the orange frame on it is paint), no apron, four straight square legs (3.6 wide, edges rounded 0.6)
+# right under the corners (centre 2.3 in from the board's edge), from the floor to the board.  User 2026-11-13: 'Schlafzimmer-Tische' as real models.
+CASTLE_ROOM_TABLE = dict(thick=3.5, re=1.0, leg=3.6, lin=2.3, lre=0.6)
+def castle_room_table_mesh(x0, y0, x1, y1, floor, top, P=None):
+    P = P or CASTLE_ROOM_TABLE; t = P["thick"]; ms = [rbox(x0, x1, y0, y1, top - t, top, P["re"], n=3)]
+    h = P["leg"] / 2.0
+    for cx, cy in ((x0 + P["lin"], y0 + P["lin"]), (x1 - P["lin"], y0 + P["lin"]), (x1 - P["lin"], y1 - P["lin"]), (x0 + P["lin"], y1 - P["lin"])):
+        ms.append(rbox(cx - h, cx + h, cy - h, cy + h, floor, top - t + 0.3, P["lre"], n=2, flat_bottom=True))
+    return ms
+
 # THE VASE (Mercator houses, tileset 2: the pair by the hearth of 670 / 671 / 694, user 2026-11-09 'Objekte wie diese Vasen als echte 3D-Form fuers
 # Licht'), fitted 2026-11-09 night to the drawn layer A silhouette of 670 (~/lktest/vase/fit2.py: view rays through a lathe vs the picture mask,
 # IoU 0.965): axis 4 units in FRONT of the cell centre (+x, +y), 23 units high (the collision box is only 16), profile (height share, radius):
