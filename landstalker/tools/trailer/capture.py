@@ -16,7 +16,7 @@ HOME = os.path.expanduser("~")
 OUT = os.path.join(HOME, ".landstalker_trailer")
 GAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 ROM = "/home/deck/Documents/NonSteamGames/landstalker/landstalker.md"
-REC = os.path.join(HOME, "aufnahmen")
+REC = os.path.join(HOME, "Project-Friday-Test/aufnahmen")
 REPL = os.path.join(GAME, "docs", "replays")
 QUICK = {"LANDSTALKER_QUICK": "1", "LANDSTALKER_QUICK_SLOTS": "0,19"}
 

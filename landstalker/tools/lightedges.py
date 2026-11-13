@@ -13,7 +13,7 @@ import os, struct, subprocess, sys, zlib
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import proxysurvey as ps
 
-REC = os.path.expanduser("~/aufnahmen/rec_20261103_1803"); T = "20261103_1803"
+REC = os.path.expanduser("~/Project-Friday-Test/aufnahmen/rec_20261103_1803"); T = "20261103_1803"
 HERE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def rd(p):
@@ -51,7 +51,7 @@ def run(rom_path, rooms, out, batch=16, jobs=4, gpu=False):
             (x, y), h = s; warps.append("%d:%d.08,%d.08,%04X" % (r, x, y, 16 * h)); ats.append(str(fr)); shots.append(str(fr + 100)); part.append((r, fr + 100)); fr += 160
         for light in (0, 1):
             d = os.path.join(out, "b%02d_%d" % (b // batch, light)); os.makedirs(os.path.join(d, "home"), exist_ok=True)
-            subprocess.run("cp ~/aufnahmen/opts_%s/.landstalker_* %s/home/ 2>/dev/null; echo %d > %s/home/.landstalker_lighting; cp ~/aufnahmen/save_%s.srm %s/s.srm" % (T, d, light, d, T, d), shell=True)
+            subprocess.run("cp ~/Project-Friday-Test/aufnahmen/opts_%s/.landstalker_* %s/home/ 2>/dev/null; echo %d > %s/home/.landstalker_lighting; cp ~/Project-Friday-Test/aufnahmen/save_%s.srm %s/s.srm" % (T, d, light, d, T, d), shell=True)
             with open(REC + ".txt") as f, open(os.path.join(d, "in.txt"), "w") as o:
                 for l in f:
                     if int(l.split()[0]) < 2040: o.write(l)

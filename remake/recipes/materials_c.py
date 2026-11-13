@@ -1,5 +1,5 @@
 """STYLE C material library preview (lib/cmat.py LIB): one rounded block per material (ground materials as flat slabs), each rendered on its own from the
-game camera with the C light -> ~/.landstalker_remake/assets/materials_c/<name>.png; the labelled sheet: ~/hdvenv/bin/python remake/tools/sheet.py materials_c.
+game camera with the C light -> ~/.landstalker_remake/assets/materials_c/<name>.png; the labelled sheet: ~/Project-Friday-Test/hdvenv/bin/python remake/tools/sheet.py materials_c.
 Run: python3 remake/tools/build_asset.py materials_c"""
 import bpy, bmesh, sys, os, math
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lib")); import blx, cmat

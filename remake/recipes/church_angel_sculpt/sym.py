@@ -5,7 +5,7 @@ import sys, json, math
 sys.path.insert(0,'/home/deck/ProjectL/remake/lib'); import furniture as F
 A=F.CHURCH_ANGEL4; AX,AY=A['axis']; XW=A['wing_x']; AU=AX-AY+1184.0; V0p=A['v0']; U0,V0=1064,280
 wing={(int(math.floor(AU+du))-U0, V0p+v-V0) for du,v in A['wing']}
-mask={tuple(p) for p in json.load(open('/home/deck/lktest/angel3/mask.json'))}
+mask={tuple(p) for p in json.load(open('/home/deck/Project-Friday-Test/lktest/angel3/mask.json'))}
 ax=AU-U0
 Lw={p for p in wing if p[0]+0.5<ax}; Rw=wing-Lw
 allowL={p for p in mask if p[0]+0.5<ax}; allowR={p for p in mask if p[0]+0.5>ax}
@@ -22,4 +22,4 @@ for yc10 in range(4380,4520,5):
     res.append((covL+covR, covL, covR, yc, dz, len(T)))
 res.sort(reverse=True)
 for r in res[:5]: print('cov L %.3f R %.3f yc %.1f dz %d T %d'%r[1:])
-b=res[0]; json.dump(dict(yc=b[3], dz=b[4]), open('/home/deck/lktest/sculpt/sym.json','w'))
+b=res[0]; json.dump(dict(yc=b[3], dz=b[4]), open('/home/deck/Project-Friday-Test/lktest/sculpt/sym.json','w'))

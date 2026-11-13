@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """LANDSTALKER_LOCKDISPLAY=1 makes the switches for the widescreen width (pad L2 / F3) and the full height (R2 / F4) do nothing (idempotent).
 Widescreen width and full height change the game behaviour slightly (entities in the margins become active earlier), so a recording
-(~/Landstalker_Aufnahme.sh) must not change them half way. Must run AFTER patch_wide.py / patch_tall.py (they create the functions).
+(~/Project-Friday-Test/Landstalker_Aufnahme.sh) must not change them half way. Must run AFTER patch_wide.py / patch_tall.py (they create the functions).
 usage: patch_lockdisplay.py path/to/genrecomp"""
 import os, sys
 pp = os.path.join(sys.argv[1], "src/platform_sdl.c")

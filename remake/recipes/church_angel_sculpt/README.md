@@ -1,8 +1,8 @@
 # Church angel sculpt (near-final remake geometry, work in progress since 2026-11-10)
 
 Recipe only (no ROM data): the statue's pixel mask `mask.json` and the reference picture are made locally from the user's ROM
-(`~/lktest/angel3/mask.json`, `remake/tools/rom_picture.py ROM 613 1064 280 96 112 DIR`) and never go into git. The scripts still use the work
-folder `~/lktest/sculpt/` (copy them there, or adjust the paths) and `/home/deck/lktest/pult2/chk.py` (projection helper) / `clay.py` (Blender preview).
+(`~/Project-Friday-Test/lktest/angel3/mask.json`, `remake/tools/rom_picture.py ROM 613 1064 280 96 112 DIR`) and never go into git. The scripts still use the work
+folder `~/Project-Friday-Test/lktest/sculpt/` (copy them there, or adjust the paths) and `/home/deck/Project-Friday-Test/lktest/pult2/chk.py` (projection helper) / `clay.py` (Blender preview).
 
 Pipeline (`run.sh '{"robe_k": 0.7}'`, then `wing.py`, `post.py`, merge, `rend.sh`):
 - `sculpt.py`: the BODY as Blender metaballs in game coordinates (robe = balls on the measured rings of `furniture.CHURCH_ANGEL4`, spiral fold grooves =

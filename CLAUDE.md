@@ -6,6 +6,8 @@ tool cheat sheet, debug playbook). Details: `landstalker/docs/DEBUGGING.md`.
 
 **LIGHT SHAPES = REAL 3D MODELS, ALWAYS (user said it 3 times, last 2026-11-13):** every light shape / proxy OBJ is a near-final 3D model (Blender clay preview for the user's OK), measured on the drawing; never boxes / prisms / 4 x 4 posts, not even as a first step or because an old proxy was boxes (LESSONS top, tools/check_proxies.py).
 
+**Test / work files on the Deck (user 2026-11-13): NEVER loose in the home folder.** Everything test-related lives in `~/Project-Friday-Test/` (recordings `aufnahmen/`, replays `massan.txt` / `intro.txt`, test shots `lktest/`, `Mockups/`, `remake_tools/`, `hdvenv/`, reference clones `landstalker_disasm/` / `landstalker-lib/`, old copies `ProjectL_alt/` / `ProjectL_eu/` / `ProjectL_Archiv/`, test launch scripts); scratch output in `~/Project-Friday-Test/lktest/<topic>` (not /tmp: 7 GB RAM disk) and delete it when the topic is done. Only `~/Landstalker.sh` (the user's launcher) and the hidden `~/.landstalker_*` settings stay in home.
+
 Hard rules: never commit ROMs, generated C or ROM-derived binaries; user has only a Steam Deck (commands are pasted
 into Konsole, always print progress); **branch workflow: all work goes to `dev`; `main` = last state verified on the Deck, merged from `dev` only when the user asks (PR dev -> main)**; (if a session instruction names another branch, merge/rebase it into `dev` at the end); no PR unless asked;
 update the Status block in INDEX.md and the bug catalog whenever something is learned.
@@ -18,7 +20,7 @@ Symbols: record every learned address with a human name in `landstalker/docs/sym
 
 Ids (room numbers, entity types, items, story flags) and ROM table addresses: look them up in `landstalker/docs/ROOMS.md`, `ENTITIES.md`, `ITEMS.md`, `FLAGS.md` (from Dinopony/landstalker-lib, see INDEX.md section 6) before guessing; add new sightings there via the import tools.
 
-Releases: tag `v*` on `main` -> GitHub Actions (`.github/workflows/release.yml`) builds `Project-Friday-x86_64.AppImage` (no ROM, nothing generated; the game is built on the user's machine from his own ROM by `landstalker/firstrun.py`); see HANDOFF section 1 + DEBUGGING 'Release session 2026-10-15'. Git: this clone uses the GitHub no-reply e-mail; the repository history was squashed on 2026-10-15 (old copy: `~/ProjectL_alt`, private, never push). Never commit game code, not even snippets.
+Releases: tag `v*` on `main` -> GitHub Actions (`.github/workflows/release.yml`) builds `Project-Friday-x86_64.AppImage` (no ROM, nothing generated; the game is built on the user's machine from his own ROM by `landstalker/firstrun.py`); see HANDOFF section 1 + DEBUGGING 'Release session 2026-10-15'. Git: this clone uses the GitHub no-reply e-mail; the repository history was squashed on 2026-10-15 (old copy: `~/Project-Friday-Test/ProjectL_alt`, private, never push). Never commit game code, not even snippets.
 
 Before the last push of a session run `python3 landstalker/tools/check_docs.py -v` (0 errors) and follow the end-of-session checklist in `landstalker/docs/HANDOFF.md` (section 3b). Enable the hook in a fresh clone: `git config core.hooksPath .githooks`.
 

@@ -1,5 +1,5 @@
 import bpy, math, os
-OUT = os.environ.get('R_OUT', '/home/deck/lktest/angel3'); OBJ = os.environ.get('R_OBJ', '/home/deck/lktest/angel3/angel.obj')
+OUT = os.environ.get('R_OUT', '/home/deck/Project-Friday-Test/lktest/angel3'); OBJ = os.environ.get('R_OBJ', '/home/deck/Project-Friday-Test/lktest/angel3/angel.obj')
 bpy.ops.wm.read_factory_settings(use_empty=True)
 V, F = [], []
 for l in open(OBJ):

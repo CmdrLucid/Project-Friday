@@ -2,7 +2,7 @@
 # = the pixel outline with rounded stairs; vertices below the pedestal top -> on it; a vertex outside is moved WITHOUT depth change
 # (dx = dU / 2, dy = -dU / 2, dz = -dV keeps x + y) up the field's gradient until it reaches the 0.5 level
 import json, sys, math
-exec(open('/home/deck/lktest/sculpt/chk.py').read().split("if __name__")[0])
+exec(open('/home/deck/Project-Friday-Test/lktest/sculpt/chk.py').read().split("if __name__")[0])
 V, Fc = load(sys.argv[1]); FLO = 32.0; SIG = float(sys.argv[3]) if len(sys.argv) > 3 else 0.7
 S = 4   # field samples per pixel
 us = [p[0] for p in mask]; vs = [p[1] for p in mask]; gu0, gv0 = min(us) - 4, min(vs) - 4; GW, GH = (max(us) - gu0 + 9) * S, (max(vs) - gv0 + 9) * S

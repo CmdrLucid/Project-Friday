@@ -1,11 +1,11 @@
 #!/bin/bash
-# Landstalker mit Eingabe-Aufnahme (fuer die Funktions-Messung, siehe docs/replays/README.md). Installiert als ~/Landstalker_Aufnahme.sh
+# Landstalker mit Eingabe-Aufnahme (fuer die Funktions-Messung, siehe docs/replays/README.md). Installiert als ~/Project-Friday-Test/Landstalker_Aufnahme.sh
 # (Vorlage im Repo: landstalker/tools/Landstalker_Aufnahme.sh; v2 2026-10-30).
-#   ~/Landstalker_Aufnahme.sh          normal: spielt mit einer Kopie deines echten Spielstands; am Ende wird sie zurueckgeschrieben
+#   ~/Project-Friday-Test/Landstalker_Aufnahme.sh          normal: spielt mit einer Kopie deines echten Spielstands; am Ende wird sie zurueckgeschrieben
 #                                      (Speichern / Schnellspeichern waehrend der Aufnahme bleibt erhalten; Sicherung des alten Stands: landstalker.srm.vor_<zeit>)
-#   ~/Landstalker_Aufnahme.sh neu      neues Spiel: leerer Spielstand (Intro, Anfang)
-# Optional ein Name dahinter, z.B.:  ~/Landstalker_Aufnahme.sh normal laden   (wird Teil des Dateinamens)
-# Ergebnis in ~/aufnahmen:  rec_<zeit>_<name>.txt (Tasten), .chk (Pruefzeilen), .cfg (Breitbild / Hoehe / Schnellspeichern-Zeitpunkte), .qs (Schnellspeichern / -laden),
+#   ~/Project-Friday-Test/Landstalker_Aufnahme.sh neu      neues Spiel: leerer Spielstand (Intro, Anfang)
+# Optional ein Name dahinter, z.B.:  ~/Project-Friday-Test/Landstalker_Aufnahme.sh normal laden   (wird Teil des Dateinamens)
+# Ergebnis in ~/Project-Friday-Test/aufnahmen:  rec_<zeit>_<name>.txt (Tasten), .chk (Pruefzeilen), .cfg (Breitbild / Hoehe / Schnellspeichern-Zeitpunkte), .qs (Schnellspeichern / -laden),
 #   save_<zeit>_<name>.srm (Spielstand vom ANFANG der Aufnahme, bleibt unveraendert), save_<zeit>_<name>_ende.srm (Stand am Ende), opts_<zeit>_<name>/ (Optionen beim Start)
 # v2: (1) das Spiel schreibt in eine Arbeitskopie, nicht mehr in save_<zeit>.srm (sonst startet die Wiedergabe mit dem Stand vom ENDE, HANDOFF 0a189);
 #     (2) Schnellspeichern / -laden wird mit Bildnummer aufgezeichnet (LANDSTALKER_QSLOG) und als LANDSTALKER_QSPLAY in die .cfg geschrieben;
@@ -14,7 +14,7 @@
 #     (5) der live benutzte Nativ-Tempo-Wert kommt als LANDSTALKER_NATIVEPACE in die .cfg (Standard An seit 2026-10-30).
 ROM=/home/deck/Documents/NonSteamGames/landstalker/landstalker.md
 SAVE=/home/deck/Documents/NonSteamGames/landstalker/landstalker.srm
-DIR=$HOME/aufnahmen
+DIR=$HOME/Project-Friday-Test/aufnahmen
 MODE=${1:-normal}
 LABEL=${2:-}
 STAMP=$(date +%Y%m%d_%H%M)

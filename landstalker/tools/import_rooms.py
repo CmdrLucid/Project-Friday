@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Room numbers -> names. Reads constants/map_codes.hpp of Dinopony/landstalker-lib (local clone, default ~/landstalker-lib)
+"""Room numbers -> names. Reads constants/map_codes.hpp of Dinopony/landstalker-lib (local clone, default ~/Project-Friday-Test/landstalker-lib)
 and writes docs/rooms.json (id -> name) and docs/ROOMS.md (grouped table). Our own observations live in OBSERVED below
 (room ids as the coordinate overlay shows them, decimal = g_RmNum1 $FF1204). Re-run after editing OBSERVED.
-Usage: python3 tools/import_rooms.py [~/landstalker-lib]"""
+Usage: python3 tools/import_rooms.py [~/Project-Friday-Test/landstalker-lib]"""
 import json, os, re, sys
 
-LIB = os.path.expanduser(sys.argv[1] if len(sys.argv) > 1 else "~/landstalker-lib")
+LIB = os.path.expanduser(sys.argv[1] if len(sys.argv) > 1 else "~/Project-Friday-Test/landstalker-lib")
 DOCS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs")
 OBSERVED = {  # id: what we saw (user / replay), see FORMATS.md section 2
     597: "save of the old replay loads here (church), user 2026-10-11",

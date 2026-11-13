@@ -33,7 +33,7 @@ TYPES = [
 
 # PAINTED SHADOWS UNDER THE PIECES (user 2026-11-09: 'der Schatten unterm Tisch ist schon im Sprite drin ... den Teppich unter dem Tisch im normalen
 # Gruen zeichnen, so dass der Tisch nur unseren Schatten wirft'): per tileset the plane B tiles the artist drew with the shadow -> the same tile without
-# it (checked on the drawings, ~/lktest/unsh/try.py): carpet under the Mercator tables $34C / $34D / $35B / $35C / $35D (green index 14 -> olive 2;
+# it (checked on the drawings, ~/Project-Friday-Test/lktest/unsh/try.py): carpet under the Mercator tables $34C / $34D / $35B / $35C / $35D (green index 14 -> olive 2;
 # used NOWHERE else in tileset 2) -> plain carpet $367; stone floor in shadow $04B / $04C / $05C -> plain floor $006 (these three are ALSO the
 # shadows of beds / walls elsewhere, so only on a piece's floor footprint).  The game draws them at runtime (LK_GLUNPAINT v1, GPU light only).
 UNPAINT_TILES = {2: {0x34C: 0x367, 0x34D: 0x367, 0x35B: 0x367, 0x35C: 0x367, 0x35D: 0x367, 0x04B: 0x006, 0x04C: 0x006, 0x05C: 0x006}}
@@ -95,7 +95,7 @@ def tables(rom, room):
             found.append(dict(cells=(x0 if arm is None else arm, y0, x1, y1), h=h, floor=floor, ok=ok, type=T, arm=arm, cont=cont))
     return found
 
-# ROUND OBJECTS (lathes of remake/lib/furniture.py): finder per arrangement (checked on the drawings, ~/lktest/vase/outline.py) -> list of axes + floor
+# ROUND OBJECTS (lathes of remake/lib/furniture.py): finder per arrangement (checked on the drawings, ~/Project-Friday-Test/lktest/vase/outline.py) -> list of axes + floor
 def vase_pairs(rom, room):
     """the vase pair by the hearth of the Mercator houses 670 / 671 / 694: $157 (back) over $061 (front) at the same walkable height h, the wall
     (blocked, height 0) west of them; the vases stand on the floor h - 1.  NOT 685 / 686 (the same blocks on a shelf: drawn lower) and 717 / 718
@@ -110,7 +110,7 @@ def vase_pairs(rom, room):
 
 def brazier_stands(rom, room):
     """the castle's brazier stands (tileset 1, top block $027 / $041 / $043, flame $098AAA): a stand cell (blocked or not) h steps high whose walkable
-    neighbour gives 2 (short stand) or 4 (tall stand) steps; outlines checked on the drawings (~/lktest/braz/ov.py: 51 52 53 54 55 56 57 58 59 60 61
+    neighbour gives 2 (short stand) or 4 (tall stand) steps; outlines checked on the drawings (~/Project-Friday-Test/lktest/braz/ov.py: 51 52 53 54 55 56 57 58 59 60 61
     62 86 87).  NOT the wall candle of 680 / 707 (same top block, no walkable neighbour)"""
     if blockcat.tileset(rom, room) != 1: return []
     c = blockcat.cells(rom, room); out = []
@@ -157,7 +157,7 @@ ROUND = collections.OrderedDict([
 def round_found(rom, room, kind):
     """every walkable cell whose picture, with the object standing on the floor one step below the cell's top, matches the reference copy in >= 50 % of
     the object's silhouette pixels (2026-11-10 barrels: real copies 0.56 (half hidden behind the cupboard of 72) .. 1.00, everything else <= 0.39; top
-    block ids alone missed the barrels drawn against a wall: 71 (14, 15) $062, (14, 19) $0C2).  Outlines checked on the drawings (~/lktest/barrel/ov.py)"""
+    block ids alone missed the barrels drawn against a wall: 71 (14, 15) $062, (14, 19) $0C2).  Outlines checked on the drawings (~/Project-Friday-Test/lktest/barrel/ov.py)"""
     K = ROUND[kind]
     if blockcat.tileset(rom, room) != K["ts"]: return []
     B = getattr(furniture, K["shape"])

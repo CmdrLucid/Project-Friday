@@ -2,7 +2,7 @@
 An invisible shape for the lighting only (never drawn): gate wall with the gatehouse merlons, two corner towers, the high wall behind.
 RE-MEASURED 2026-11-09 (HANDOFF 0a353; the 2026-11-04 version stood up to 42 units in front of the drawing and 16 units too high).
 Projection U = x - y + 1184, V = (x + y) / 2 - z (docs/FORMATS.md). Floor z 32 (height map step 2), moat water z 8.
-How (all on the composed room picture, ~/lktest/g637 scratch scripts):
+How (all on the composed room picture, ~/Project-Friday-Test/lktest/g637 scratch scripts):
   * WALL FEET: the cobble floor in front of every wall is drawn in LAYER A, the walls in layer B, so the upper edge of the layer A floor
     per picture column IS the wall foot (on z 32 every foot pixel fixes x and y):
       gate wall      x 240 (U 768..944 = y 481..655, every column 239..241),

@@ -2,7 +2,7 @@
 # brushes (scale / taper / Gaussian push-pull along the normal) in a head frame (X right, Y forward = the face, Z up; Z 0 = chin, 1 = crown; head height
 # H units), then placed on the statue (head axis at the measured place). Proportions: eyes at Z 0.5, brows 0.58, nose base 0.28, mouth 0.19, chin 0.
 import json, math, sys
-P = json.load(open('/home/deck/lktest/sculpt/params.json')); g = lambda k, d: P.get(k, d)
+P = json.load(open('/home/deck/Project-Friday-Test/lktest/sculpt/params.json')); g = lambda k, d: P.get(k, d)
 NU, NV = g('h_nu', 180), g('h_nv', 140)
 def gau(d2, r): return math.exp(-d2 / (r * r))
 def sm(a, b, x): t = max(0.0, min(1.0, (x - a) / (b - a))); return t * t * (3 - 2 * t)

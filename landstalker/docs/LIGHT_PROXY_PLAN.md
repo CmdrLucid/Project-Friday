@@ -1,6 +1,6 @@
 # Light proxies: invisible 3D shapes for lighting (plan, 2026-11-03)
 
-Status: STEP 1 BUILT 2026-11-03 (user check open, mock-ups `~/Mockups/kulissen1.html`); plan agreed by the user ('klingt sinnvoll'). Rests on `dev` f8e8713 (LK_LIGHTS v7).
+Status: STEP 1 BUILT 2026-11-03 (user check open, mock-ups `~/Project-Friday-Test/Mockups/kulissen1.html`); plan agreed by the user ('klingt sinnvoll'). Rests on `dev` f8e8713 (LK_LIGHTS v7).
 
 ## Why
 Lighting v5..v7 guesses the 3D shape of every object from the painted picture (layer A) plus the game's
@@ -88,7 +88,7 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
 
 ## Sun along the grid + church stripe (2026-11-03, user: 'Schatten im gleichen Winkel wie die isometrische Ansicht', 'nur der dunkle Streifen vor der Kirche')
 - Sun azimuth 90 by default (was 110): exactly from the lower left = world +y, shadows run along the isometric grid up-right; +y faces get the full sun,
-  +x faces are edge-on (they keep their painting). Elevation 55 (user choice of 40 / 55 / 65 on `~/Mockups/sonnenhoehe.html`).
+  +x faces are edge-on (they keep their painting). Elevation 55 (user choice of 40 / 55 / 65 on `~/Project-Friday-Test/Mockups/sonnenhoehe.html`).
 - Hip proxies are rasterised only on the part's OWN cells (the part box is a rectangle, the part may not be), without single cells sticking out of
   the part (<= 1 neighbour of the same part: steps / bumps of the collision; room 632 object 8 had two at column 24 = a phantom wall).
 - WATER cells (our fill) are no part of any object: the painted border void of room 632 had merged the church with it into one terrain object
@@ -190,14 +190,14 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
   frame; local, ROM-derived), `cells ROOM` (classification preview, without the runtime's raised rule).
 - Tileset 17 labelled from three sheets of its 48 most used top blocks (bush 11 ids, pine 15 ids; $064 = back edge overhang, not a bush; $0BD = rope fence, later class).
   Room 488: 178 bush + 50 pine cells, hips #0..#2 dropped; the hand entries `bushes` / `pines` were removed (picture within 67..219 px of the hand version); the big
-  tree mesh + remove stay. Before / after (headless, rec_20261103_1803 warps): 490, 525, 529, 362 lose the dark patches over Nigel / the path (`~/Mockups/katalog_raum*_vorher_nachher.png`).
+  tree mesh + remove stay. Before / after (headless, rec_20261103_1803 warps): 490, 525, 529, 362 lose the dark patches over Nigel / the path (`~/Project-Friday-Test/Mockups/katalog_raum*_vorher_nachher.png`).
   Lighting Off and Mercator 632 / 637 byte-identical.
 - NEXT: label tilesets 0, 7, 12, 13, 14 the same way (sheets), more classes on request (fences, posts, single trees).- ALL SIX outdoor tilesets labelled (2026-11-04 night, `blockcat.py sheet TS OUT --top 120 --green 0.5`: only blocks whose own pixels are mostly green; the filter
   keeps 24 of the 26 hand labels of tileset 17): tileset 0 (Mercator) flowerbed 12 + pine 7, 7 (Massan) pine 17 + bush 2, 12 (Gumi forests) pine 52 + bush 22,
   13 pine 47 + bush 4, 14 pine 25 + bush 13, 17 bush 11 + pine 15 (227 blocks). New class `flowerbed` = shape `flat` (kind 3: no shape, no automatic shape over it,
   like the per room op `flat`). Pines: top = max(cell height, base + h, ridge of the automatic hip that covered the cell) (the proposal measures the drawn
   height; room 637's big pines reach ~109, the default h 30 was measured on small pines).
-  Before / after (headless): 425, 454, 630, 447 lose the dark patches over Nigel / the path (`~/Mockups/katalog_raum*_vorher_nachher.png`), Massan 601 nearly
+  Before / after (headless): 425, 454, 630, 447 lose the dark patches over Nigel / the path (`~/Project-Friday-Test/Mockups/katalog_raum*_vorher_nachher.png`), Massan 601 nearly
   unchanged (single pines keep their sprite lathe); Lighting Off byte-identical; church 632 frame byte-identical; north gate 637: 328 px differ (shade on the
   paving behind the big tower).
 - NEXT: more classes on request (rope fences $0BD in tileset 17, posts, single big trees), user check in play.
@@ -205,7 +205,7 @@ Blender-Weg fuer genauere Formen?' -> yes for one-offs like the church / castle 
   rest of the WALK cases are walkable GROUND read as an object (forest clearing 362 hip up to 80 over 108 walkable cells, Ryuma raft pier 183 terraces up to 102,
   565 / 529 / 515 ...). Rule in `patch_lights.py`: an automatic hip (type 1 with a part) stamps no column over a walkable cell (`lk_lt_walk`: height map word not
   `$4x` / `$2x` blocked) whose game height is <= its base z0 (Nigel would stand inside it). Houses (blocked cells) unchanged: Mercator 630 / 632 / 637 frames and
-  Lighting Off byte-identical; 183 / 362 lose the wrong dark patches (`~/Mockups/begehbar_raum*_vorher_nachher.png`). The survey no longer scores hip WALK
+  Lighting Off byte-identical; 183 / 362 lose the wrong dark patches (`~/Project-Friday-Test/Mockups/begehbar_raum*_vorher_nachher.png`). The survey no longer scores hip WALK
   (the game leaves those columns out); top score 522 -> 24 (left: lathes on walkable cells, a few TENT, WALL0).
 - NEXT: the remaining lathes on walkable cells (447, 570, 474, 454), more catalogue classes on request (rope fences $0BD in tileset 17, posts, single big trees), user check in play.
 - (superseded by the plan above if it works) Next: the other bush block rooms of the survey (565, 362, 529, 425, 454, 515, 424, 183, ...): cells from the height map (raised walkable slab) + a look at the picture.

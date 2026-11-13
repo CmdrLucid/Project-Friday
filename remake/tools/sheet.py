@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """sheet.py materials_c   puts the per-material renders of recipes/materials_c.py into one labelled sheet
-(~/.landstalker_remake/assets/materials_c/sheet.png).  Needs pillow (run with ~/hdvenv/bin/python)."""
+(~/.landstalker_remake/assets/materials_c/sheet.png).  Needs pillow (run with ~/Project-Friday-Test/hdvenv/bin/python)."""
 import os, sys
 from PIL import Image, ImageDraw, ImageFont
 d = os.path.join(os.path.expanduser("~"), ".landstalker_remake", "assets", sys.argv[1] if len(sys.argv) > 1 else "materials_c")

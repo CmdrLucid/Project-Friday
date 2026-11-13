@@ -5,7 +5,7 @@ footage, music, frames and the video stay in `~/.landstalker_trailer/` (ROM-deri
 
 1. `cc -O2 -o ~/.landstalker_trailer/crtpipe crtpipe.c -lm`: applies the game's own display filters (`tools/display_core.c`: sharp, Scanlines, CRT, CRT Pro, CRT Curved) to raw frames.
 2. `~/.landstalker_trailer/venv/bin/python capture.py sheet <source> [step]`: contact sheet of a recording (find frame ranges).
-   `capture.py all` / `capture.py clip <name>`: frames of every clip in `clips.py` (headless replay of `~/aufnahmen` / `docs/replays` recordings with their save copies,
+   `capture.py all` / `capture.py clip <name>`: frames of every clip in `clips.py` (headless replay of `~/Project-Friday-Test/aufnahmen` / `docs/replays` recordings with their save copies,
    isolated HOME so the user's settings never change; `LANDSTALKER_SHOT` frames, Quick Equip via `LANDSTALKER_WINSHOT` + `LANDSTALKER_EQHOLD` / `_EQDIR`).
 3. `render.py [--preview] [--from S --to S]`: composes the trailer at 1920x1080 / 60 fps on the bars of the music (`~/.landstalker_trailer/music/song.mp3`,
    bar 1.4275 s from 1.23 s, measured), writes `~/.landstalker_trailer/trailer.mp4`.
