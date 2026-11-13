@@ -3637,6 +3637,518 @@
   "03FF": {
    "h": "a138cc63",
    "t": "{Speaker}Jetzt werden die{SoftNewLine}Steuern gesenkt, und ich krieg{SoftNewLine}mehr Lohn... hoffentlich.{WaitInput}"
+  },
+  "0400": {
+   "h": "cfee7cb1",
+   "t": "{Speaker}Seltsam! Riesige{SoftNewLine}Monster, wie Soldaten, sind{SoftNewLine}Herzog Merkator gefolgt!{ContinuePrompt}"
+  },
+  "0401": {
+   "h": "953e9c82",
+   "t": "{Speaker}Wie seltsam!.....{WaitInput}"
+  },
+  "0402": {
+   "h": "74f970d2",
+   "t": "{Speaker}Mir ist egal, wem{SoftNewLine}das Schloss gehört. Ich bleibe{SoftNewLine}immer der Gärtner dieses{SoftNewLine}Gartens...{WaitInput}"
+  },
+  "0403": {
+   "h": "410e7787",
+   "t": "{Speaker}Kikerikiiiii!{WaitInput}"
+  },
+  "0404": {
+   "h": "550361f0",
+   "t": "{Speaker}Kikeri-kikeri-ki....{WaitInput}"
+  },
+  "0405": {
+   "h": "59a32d2e",
+   "t": "{Speaker}Oh, das ist die{SoftNewLine}Küchentür! Ein so vornehmer{SoftNewLine}Gast wie Ihr sollte den{SoftNewLine}Haupteingang nehmen....{WaitInput}"
+  },
+  "0406": {
+   "h": "ccc37ed2",
+   "t": "{Speaker}Lalala... lala...{SoftNewLine}Warum ich so gut drauf bin?{SoftNewLine}Na ja, als ich den Garten{SoftNewLine}gekehrt hab,{ContinuePrompt}"
+  },
+  "0407": {
+   "h": "c4b830bb",
+   "t": "{Speaker}ist mir ein{SoftNewLine}wunderschöner Haarschmuck{SoftNewLine}vor die Füße gefallen, ein{SoftNewLine}sündhaft teurer! Glück gehabt!{WaitInput}"
+  },
+  "0408": {
+   "h": "14b6a2e4",
+   "t": "{Speaker}Diese Tür ist{SoftNewLine}nichts für einen Helden!{SoftNewLine}Würdet Ihr bitte den{SoftNewLine}Haupteingang benutzen?{WaitInput}"
+  },
+  "0409": {
+   "h": "8acbf68e",
+   "t": "{Speaker}Seltsame{SoftNewLine}gepanzerte Soldaten sind{SoftNewLine}plötzlich ins Schloss gestürmt!{SoftNewLine}General {=arthur}{ContinuePrompt}"
+  },
+  "040A": {
+   "h": "93432943",
+   "t": "{Speaker}kämpft ganz allein{SoftNewLine}gegen sie! Bitte rettet ihn!{SoftNewLine}SCHNELL!!{WaitInput}"
+  },
+  "040B": {
+   "h": "3bf55bff",
+   "t": "{Speaker}Wo ist der Herzog{SoftNewLine}hin? Was hat er nur vor?{WaitInput}"
+  },
+  "040C": {
+   "h": "a271705b",
+   "t": "{Speaker}Das Fest ist gleich{SoftNewLine}bereit. Seht Euch gern im{SoftNewLine}Schloss um.{WaitInput}"
+  },
+  "040D": {
+   "h": "bc7be087",
+   "t": "{Speaker}Herr {=nigel}, das{SoftNewLine}Fest ist bereit. Es findet im{SoftNewLine}Bankettsaal im zweiten Stock{SoftNewLine}statt.{WaitInput}"
+  },
+  "040E": {
+   "h": "46b1bbd6",
+   "t": "{Speaker}Ihr könnt jetzt{SoftNewLine}nicht hinaus. Es wird dunkel.{ContinuePrompt}"
+  },
+  "040F": {
+   "h": "a83a1916",
+   "t": "{Speaker}Es ist zu Eurer{SoftNewLine}Sicherheit. Bitte ruht Euch{SoftNewLine}heute Nacht in Eurem Zimmer{SoftNewLine}aus.{WaitInput}"
+  },
+  "0410": {
+   "h": "b064160a",
+   "t": "{Speaker}Mir ist eine Plage{SoftNewLine}für den Herzog und die Stadt.{SoftNewLine}Bitte besiegt ihn für uns!{WaitInput}"
+  },
+  "0411": {
+   "h": "951d0a2a",
+   "t": "{Speaker}Schön, Euch{SoftNewLine}wiederzusehen! Bitte geht{SoftNewLine}hinauf zum Herzog.{WaitInput}"
+  },
+  "0412": {
+   "h": "f0f84c64",
+   "t": "{Speaker}Heute könnt Ihr{SoftNewLine}nicht hinaus.{WaitInput}"
+  },
+  "0413": {
+   "h": "56a2d587",
+   "t": "{Speaker}Alles ist bereit!{SoftNewLine}Würdet Ihr bitte in den{SoftNewLine}Bankettsaal hinaufgehen?{WaitInput}"
+  },
+  "0414": {
+   "h": "31d103c7",
+   "t": "{Speaker}Heute könnt Ihr{SoftNewLine}nicht hinaus. Bitte ruht Euch{SoftNewLine}in Eurem Zimmer aus.{WaitInput}"
+  },
+  "0415": {
+   "h": "31bbef26",
+   "t": "{Speaker}Wir zählen darauf,{SoftNewLine}dass Ihr heil zurückkehrt!{WaitInput}"
+  },
+  "0416": {
+   "h": "374110b9",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}erwartet Euch!{WaitInput}"
+  },
+  "0417": {
+   "h": "026ea50a",
+   "t": "{Speaker}Ab hier beginnen{SoftNewLine}die Übungsräume der Soldaten.{WaitInput}"
+  },
+  "0418": {
+   "h": "a8966b28",
+   "t": "{Speaker}Verzeiht, junger{SoftNewLine}Herr! Die neuen Angestellten{SoftNewLine}benehmen sich den Gästen{SoftNewLine}gegenüber oft unhöflich...{ContinuePrompt}"
+  },
+  "0419": {
+   "h": "35cd8086",
+   "t": "{Speaker}Ich muss mich in{SoftNewLine}ihrem Namen demütigst{SoftNewLine}entschuldigen..... bitte{SoftNewLine}verzeiht uns.{WaitInput}"
+  },
+  "041A": {
+   "h": "e02da50f",
+   "t": "{Speaker}Bei der Arbeit hier{SoftNewLine}sehe ich den Adel aus allen{SoftNewLine}möglichen Ländern.{ContinuePrompt}"
+  },
+  "041B": {
+   "h": "513efd67",
+   "t": "{Speaker}Erst neulich durfte{SoftNewLine}ich Prinzessin {=lara} von{SoftNewLine}Ahorn kennenlernen. Die war{SoftNewLine}wirklich süß!{ContinuePrompt}"
+  },
+  "041C": {
+   "h": "62bf7cad",
+   "t": "{Speaker}Aber seitdem......{SoftNewLine}nichts mehr!{WaitInput}"
+  },
+  "041D": {
+   "h": "6d0fdf3e",
+   "t": "{Speaker}Wir dürfen mit den{SoftNewLine}Gästen nicht sprechen... Bitte{SoftNewLine}entschuldigt mich.{WaitInput}"
+  },
+  "041E": {
+   "h": "c78c0f31",
+   "t": "{Speaker}Die Gemälde und{SoftNewLine}Kunstwerke in diesem Schloss{SoftNewLine}sind für ihren{ContinuePrompt}"
+  },
+  "041F": {
+   "h": "12a25628",
+   "t": "{Speaker}historischen Wert{SoftNewLine}berühmt. Dieses Bild hier ist{SoftNewLine}übrigens vom berühmten Van{SoftNewLine}Duff. Wenn Ihr{ContinuePrompt}"
+  },
+  "0420": {
+   "h": "2a62333d",
+   "t": "{Speaker}es unbedingt wollt,{SoftNewLine}verkauft es der Herzog sicher.{SoftNewLine}Nur 50.000 Taler... ein{SoftNewLine}Schnäppchen!{WaitInput}"
+  },
+  "0421": {
+   "h": "f836c6ca",
+   "t": "{Speaker}Kunst sammeln ist{SoftNewLine}das Hobby des Herzogs.{WaitInput}"
+  },
+  "0422": {
+   "h": "b8894101",
+   "t": "{Speaker}Stellt Euch vor!{SoftNewLine}Herr {=zak}, der Drakonier,{SoftNewLine}will dieses Bild kaufen!{ContinuePrompt}"
+  },
+  "0423": {
+   "h": "3728b840",
+   "t": "{Speaker}Ist Kopfgeldjäger{SoftNewLine}wirklich so ein einträglicher{SoftNewLine}Beruf? Hmmmmm.....{WaitInput}"
+  },
+  "0424": {
+   "h": "bc37bede",
+   "t": "{Speaker}Dieses Schloss ist{SoftNewLine}so groß, dass ich einen ganzen{SoftNewLine}Tag brauche, um die Wände zu{SoftNewLine}putzen...{WaitInput}"
+  },
+  "0425": {
+   "h": "47c3e8dd",
+   "t": "{Speaker}Wände putzen ist{SoftNewLine}harte Arbeit. Deshalb mach ich{SoftNewLine}heute frei!{WaitInput}"
+  },
+  "0426": {
+   "h": "2b3714e6",
+   "t": "{Speaker}Herr {=dexter}? Nein,{SoftNewLine}ich weiß nicht, wo er ist. Er{SoftNewLine}war schon weg, als ich{ContinuePrompt}"
+  },
+  "0427": {
+   "h": "0ebf6a62",
+   "t": "{Speaker}sein Zimmer putzen{SoftNewLine}kam.....{WaitInput}"
+  },
+  "0428": {
+   "h": "31505632",
+   "t": "{Speaker}Das dort ist Euer{SoftNewLine}Zimmermädchen. Sie bringt Euch{SoftNewLine}auf Euer Zimmer.{WaitInput}"
+  },
+  "0429": {
+   "h": "e5bc16bf",
+   "t": "{Speaker}Ein böser Magier{SoftNewLine}quält Herzog Merkator. Der{SoftNewLine}Herzog hat eine offene{SoftNewLine}Auseinandersetzung{ContinuePrompt}"
+  },
+  "042A": {
+   "h": "d97de7f6",
+   "t": "{Speaker}bisher aus{SoftNewLine}Rücksicht auf die Bürger{SoftNewLine}vermieden, aber...{ContinuePrompt}"
+  },
+  "042B": {
+   "h": "bb2687a6",
+   "t": "{Speaker}mehr darüber{SoftNewLine}erfahrt Ihr beim Festmahl.{ContinuePrompt}"
+  },
+  "042C": {
+   "h": "02ed8fd2",
+   "t": "{Speaker}Ihr braucht jetzt{SoftNewLine}Ruhe.{WaitInput}"
+  },
+  "042D": {
+   "h": "046152ae",
+   "t": "{Speaker}An der Tür zu Mirs{SoftNewLine}Turm liegt eine Barriere. Ich{SoftNewLine}glaube, General {=arthur}{ContinuePrompt}"
+  },
+  "042E": {
+   "h": "e6a5346a",
+   "t": "{Speaker}hat einen Weg{SoftNewLine}gefunden, sie zu brechen.{WaitInput}"
+  },
+  "042F": {
+   "h": "a1d571ad",
+   "t": "{Speaker}{=nigel}, hmm... den{SoftNewLine}Namen hab ich doch schon mal{SoftNewLine}gehört.... Aber natürlich! Du{SoftNewLine}bist der, der{ContinuePrompt}"
+  },
+  "0430": {
+   "h": "0e1e0d69",
+   "t": "{Speaker}die Statue von{SoftNewLine}Jypta gestohlen hat, oder?{NewLine}"
+  },
+  "0431": {
+   "h": "ef64ce6f",
+   "t": "{Speaker}Wusst ich's doch!{SoftNewLine}Aber keine Sorge... dein{SoftNewLine}Geheimnis ist bei mir sicher.....{ContinuePrompt}"
+  },
+  "0432": {
+   "h": "04898292",
+   "t": "{Speaker}Na klar bist du's!{SoftNewLine}Ein alter Kopfgeldjäger{SoftNewLine}erkennt einen Dieb sofort!{ContinuePrompt}"
+  },
+  "0433": {
+   "h": "74697d28",
+   "t": "{Speaker}Aber keine Sorge!{SoftNewLine}Die 5000 Taler Kopfgeld auf{SoftNewLine}dich sind Peanuts für mich!{WaitInput}"
+  },
+  "0434": {
+   "h": "ee3ccccf",
+   "t": "{Speaker}Dieses prächtige{SoftNewLine}Schloss lohnt eine{SoftNewLine}Erkundung.....{WaitInput}"
+  },
+  "0435": {
+   "h": "ef67510a",
+   "t": "{Speaker}Ein Festmahl! Gibt's{SoftNewLine}auch was, das ich mag, rohes{SoftNewLine}Fleisch zum Beispiel?{WaitInput}"
+  },
+  "0436": {
+   "h": "30e2332e",
+   "t": "{Speaker}Wenn du willst,{SoftNewLine}darfst du morgen hinter mir{SoftNewLine}hertrotten.{ContinuePrompt}"
+  },
+  "0437": {
+   "h": "9ce04be9",
+   "t": "{Speaker}Muss ziemlich{SoftNewLine}lästig sein, so ein Hänfling zu{SoftNewLine}sein!{WaitInput}"
+  },
+  "0438": {
+   "h": "1f1848e6",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}war in Gamoor ein berühmter{SoftNewLine}Schwertkämpfer. Ich bewundere{SoftNewLine}ihn.{WaitInput}"
+  },
+  "0439": {
+   "h": "9dd75329",
+   "t": "{Speaker}Vom Herzog{SoftNewLine}eingeladen zu werden ist eine{SoftNewLine}große Ehre! Über 20 Jahre hab{SoftNewLine}ich auf{ContinuePrompt}"
+  },
+  "043A": {
+   "h": "ed41027b",
+   "t": "{Speaker}diese Chance{SoftNewLine}gewartet... aber du siehst{SoftNewLine}sehr jung aus! Wie alt bist{SoftNewLine}du?{WaitInput}"
+  },
+  "043B": {
+   "h": "3e8be5c3",
+   "t": "{Speaker}Ich würde mein{SoftNewLine}Leben geben, um ihm dienen zu{SoftNewLine}dürfen!{WaitInput}"
+  },
+  "043C": {
+   "h": "e742e24a",
+   "t": "{Speaker}Ich bin stolz auf{SoftNewLine}meine Arbeit!{WaitInput}"
+  },
+  "043D": {
+   "h": "a4807505",
+   "t": "{Speaker}Herr {=nigel},{SoftNewLine}würdet Ihr bitte in den{SoftNewLine}Bankettsaal gehen?{WaitInput}"
+  },
+  "043E": {
+   "h": "e742e24a",
+   "t": "{Speaker}Ich bin stolz auf{SoftNewLine}meine Arbeit!{WaitInput}"
+  },
+  "043F": {
+   "h": "996b3363",
+   "t": "{Speaker}Guten Morgen, Herr{SoftNewLine}{=nigel}!{WaitInput}"
+  },
+  "0440": {
+   "h": "1e020b10",
+   "t": "{Speaker}Wir müssen uns{SoftNewLine}jeden Tag um hohe Gäste{SoftNewLine}kümmern. Das geht manchmal{SoftNewLine}ganz schön an die Nerven.{WaitInput}"
+  },
+  "0441": {
+   "h": "ead332ef",
+   "t": "{Speaker}Viel Spaß auf dem{SoftNewLine}Fest!{WaitInput}"
+  },
+  "0442": {
+   "h": "9abf37b2",
+   "t": "{Speaker}Wir müssen uns{SoftNewLine}jeden Tag um hohe Gäste{SoftNewLine}kümmern. Das kann einen echt{SoftNewLine}fertig machen...{WaitInput}"
+  },
+  "0443": {
+   "h": "0acdd0a0",
+   "t": "{Speaker}Herr {=zak} und{SoftNewLine}Herr {=dexter} sind heute früh{SoftNewLine}aufgebrochen.{WaitInput}"
+  },
+  "0444": {
+   "h": "f3d51054",
+   "t": "{Speaker}Verzeihung, aber{SoftNewLine}wir bereiten gerade das Fest{SoftNewLine}vor.{WaitInput}"
+  },
+  "0445": {
+   "h": "a27fdb60",
+   "t": "{Speaker}Alle warten schon.{SoftNewLine}Bitte tretet ein.{WaitInput}"
+  },
+  "0446": {
+   "h": "bb8c1c7f",
+   "t": "{Speaker}Es tut mir leid,{SoftNewLine}aber Herzog Merkator hat sich{SoftNewLine}zurückgezogen. Er fühlt sich{SoftNewLine}heute Abend nicht wohl...{WaitInput}"
+  },
+  "0447": {
+   "h": "654a9486",
+   "t": "{Speaker}Herr {=zak} ist{SoftNewLine}schon vor einer Weile{SoftNewLine}gegangen.....{WaitInput}"
+  },
+  "0448": {
+   "h": "d7126cde",
+   "t": "{Speaker}Wuff, wuff...{WaitInput}"
+  },
+  "0449": {
+   "h": "f118227a",
+   "t": "{Speaker}Wau-wau!{WaitInput}"
+  },
+  "044A": {
+   "h": "fb25c28c",
+   "t": "{Speaker}Ich gehöre zur{SoftNewLine}Leibgarde des Herzogs. Ich{SoftNewLine}beschütze den Herzog mit{SoftNewLine}meinem Leben!{WaitInput}"
+  },
+  "044B": {
+   "h": "49cf6006",
+   "t": "{Speaker}Der Herzog ist ein{SoftNewLine}Ehrenmann, aber ein bisschen{SoftNewLine}nervös.{WaitInput}"
+  },
+  "044C": {
+   "h": "c236a63f",
+   "t": "{Speaker}Es heißt, noch nie{SoftNewLine}hat jemand diesen Turm lebend{SoftNewLine}verlassen. Bitte seid{SoftNewLine}vorsichtig!{WaitInput}"
+  },
+  "044D": {
+   "h": "e9a25945",
+   "t": "{Speaker}Ich bin die Zofe{SoftNewLine}des Herzogs. Wenn Ihr etwas{SoftNewLine}braucht, ruft bitte eine der{SoftNewLine}anderen Zofen.{WaitInput}"
+  },
+  "044E": {
+   "h": "87c5b96b",
+   "t": "{Speaker}Es ist Zeit für das{SoftNewLine}Festmahl. Der Bankettsaal ist{SoftNewLine}im zweiten Stock.{WaitInput}"
+  },
+  "044F": {
+   "h": "d2ea91e0",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}ist gerade nicht da.{WaitInput}"
+  },
+  "0450": {
+   "h": "2e85b072",
+   "t": "{Speaker}Das ist die{SoftNewLine}Bibliothek. Am glücklichsten{SoftNewLine}bin ich, wenn ich von vielen{SoftNewLine}Büchern umgeben bin.{WaitInput}"
+  },
+  "0451": {
+   "h": "95cd7107",
+   "t": "{Speaker}In Mirs Turm{SoftNewLine}hineinzukommen ist fast{SoftNewLine}unmöglich. Diese Barriere lässt{SoftNewLine}sich nicht brechen.{WaitInput}"
+  },
+  "0452": {
+   "h": "b044cec4",
+   "t": "{Speaker}Ich hab mich{SoftNewLine}gewundert, als ich zwei{SoftNewLine}schreckliche Monster gesehen{SoftNewLine}hab, die einer tollen Schönheit{ContinuePrompt}"
+  },
+  "0453": {
+   "h": "d7cbf40f",
+   "t": "{Speaker}aus dem Keller{SoftNewLine}gefolgt sind! Wer waren die?{SoftNewLine}Und was haben die da{SoftNewLine}gemacht?{WaitInput}"
+  },
+  "0454": {
+   "h": "a3d1585e",
+   "t": "{Speaker}He, Junge! Bist du{SoftNewLine}neu hier? Heute Abend ist{SoftNewLine}Bankett, also schwing die{SoftNewLine}Hufe!{ContinuePrompt}"
+  },
+  "0455": {
+   "h": "66168ff0",
+   "t": "{Speaker}Oh!... Seid Ihr etwa{SoftNewLine}ein Gast? Hoppla!... äh,{SoftNewLine}ähm...... verzeiht, junger Herr!{WaitInput}"
+  },
+  "0456": {
+   "h": "35340616",
+   "t": "{Speaker}Ich bin fix und{SoftNewLine}fertig! Ein Bankett{SoftNewLine}auszurichten ist kein{SoftNewLine}Zuckerschlecken!{WaitInput}"
+  },
+  "0457": {
+   "h": "420fd2bf",
+   "t": "{Speaker}Hicks!... hoppla...{SoftNewLine}Äh, dieser Kochwein braucht{SoftNewLine}mehr Salz!... hicks!...{WaitInput}"
+  },
+  "0458": {
+   "h": "5c3d7093",
+   "t": "{Speaker}Wie egoistisch sie{SoftNewLine}ist! Sie hat zu mir gesagt:{SoftNewLine}\"Ich bin auf Diät. Bringen Sie{SoftNewLine}mir ein Sondermenü{ContinuePrompt}"
+  },
+  "0459": {
+   "h": "5efc5ad7",
+   "t": "{Speaker}ohne Fleisch und{SoftNewLine}ohne Fisch!\" Ich kann sie echt{SoftNewLine}nicht leiden! Aber Gast ist{SoftNewLine}Gast...{WaitInput}"
+  },
+  "045A": {
+   "h": "a5fa2fed",
+   "t": "{Speaker}Ich kann sie nicht{SoftNewLine}leiden! Sie lässt ihr Zimmer{SoftNewLine}unordentlich, und ihr Bad{ContinuePrompt}"
+  },
+  "045B": {
+   "h": "b72c4382",
+   "t": "{Speaker}sieht immer{SoftNewLine}furchtbar aus! So eine{SoftNewLine}ungezogene Frau hab ich noch{SoftNewLine}nie gesehen!{WaitInput}"
+  },
+  "045C": {
+   "h": "1ee29ec8",
+   "t": "{Speaker}Wir dürfen mit den{SoftNewLine}Gästen nicht sprechen.{WaitInput}"
+  },
+  "045D": {
+   "h": "2a6566f5",
+   "t": "{Speaker}Nach dem Bankett{SoftNewLine}dürfen wir die Reste essen.{ContinuePrompt}"
+  },
+  "045E": {
+   "h": "49f379c3",
+   "t": "{Speaker}Das ist die einzige{SoftNewLine}Freude bei dieser Arbeit.{WaitInput}"
+  },
+  "045F": {
+   "h": "8ee9c890",
+   "t": "{Speaker}Sind noch viele{SoftNewLine}Reste da drin? Oh, welch ein{SoftNewLine}Glückstag!{WaitInput}"
+  },
+  "0460": {
+   "h": "26e1707c",
+   "t": "{Speaker}Ich bin pappsatt!{SoftNewLine}Hast du den Rinderbraten{SoftNewLine}gesehen?{ContinuePrompt}"
+  },
+  "0461": {
+   "h": "7e280de6",
+   "t": "{Speaker}Ich hab zu viel{SoftNewLine}gegessen! Nie wieder! Übrigens,{SoftNewLine}weißt du, wann das nächste{SoftNewLine}Bankett ist?{WaitInput}"
+  },
+  "0462": {
+   "h": "aba803b7",
+   "t": "{Speaker}Ups! Tut mir leid!{SoftNewLine}Ich... Oh... wer bist du? Ich{SoftNewLine}dachte, du wärst mein Chef!{ContinuePrompt}"
+  },
+  "0463": {
+   "h": "6c0a023c",
+   "t": "{Speaker}Der schimpft immer{SoftNewLine}mit mir...{WaitInput}"
+  },
+  "0464": {
+   "h": "6b874bef",
+   "t": "{Speaker}Ich mach gerade{SoftNewLine}Pause.{WaitInput}"
+  },
+  "0465": {
+   "h": "a11d9755",
+   "t": "{Speaker}Ich mach schon seit{SoftNewLine}zehn Uhr morgens Pause!{SoftNewLine}Hehehe...{WaitInput}"
+  },
+  "0466": {
+   "h": "bcd38902",
+   "t": "{Speaker}Was? Das Fest ist{SoftNewLine}vorbei? Aaah.... Pause!!{WaitInput}"
+  },
+  "0467": {
+   "h": "fcc5237c",
+   "t": "{Speaker}Dieser Eintopf muss{SoftNewLine}himmlisch schmecken! Der{SoftNewLine}köchelt schon seit drei Tagen!{WaitInput}"
+  },
+  "0468": {
+   "h": "099db760",
+   "t": "{Speaker}So ein Bankett ist{SoftNewLine}die beste Gelegenheit, mein{SoftNewLine}Können als Koch zu zeigen!{WaitInput}"
+  },
+  "0469": {
+   "h": "184293df",
+   "t": "{Speaker}Ich war sehr{SoftNewLine}enttäuscht, dass kaum einer{SoftNewLine}seinen Teller leer gegessen{SoftNewLine}hat!{ContinuePrompt}"
+  },
+  "046A": {
+   "h": "10c90f60",
+   "t": "{Speaker}Was ist da drin{SoftNewLine}passiert?{WaitInput}"
+  },
+  "046B": {
+   "h": "d3fb7c77",
+   "t": "{Speaker}Wann kommt der{SoftNewLine}Herzog zurück? Ich muss sein{SoftNewLine}Abendessen planen.{WaitInput}"
+  },
+  "046C": {
+   "h": "9b246233",
+   "t": "{Speaker}Es gibt gebratenen{SoftNewLine}Gamoor-Hummer und{SoftNewLine}Jakobsmuscheln! Meeresfrüchte{SoftNewLine}sind{ContinuePrompt}"
+  },
+  "046D": {
+   "h": "95da01b7",
+   "t": "{Speaker}eine Leibspeise des{SoftNewLine}Herzogs.{WaitInput}"
+  },
+  "046E": {
+   "h": "eb793ca6",
+   "t": "{Speaker}Wie war das Essen?{SoftNewLine}Das Menü war doch etwas ganz{SoftNewLine}Besonderes, oder?{ContinuePrompt}"
+  },
+  "046F": {
+   "h": "cf382944",
+   "t": "{Speaker}Wär ich doch nur{SoftNewLine}mit Euch zum Bankett{SoftNewLine}gegangen... Was? Ihr habt{SoftNewLine}nichts gegessen! Wieso denn?{WaitInput}"
+  },
+  "0470": {
+   "h": "f2e9c946",
+   "t": "{Speaker}Herr {=zak} isst{SoftNewLine}nur rohes Fleisch? Das wusste{SoftNewLine}ich nicht!...{WaitInput}"
+  },
+  "0471": {
+   "h": "30af99e6",
+   "t": "{Speaker}Hat Herrn {=zak}{SoftNewLine}der gebratene Hummer{SoftNewLine}geschmeckt?{WaitInput}"
+  },
+  "0472": {
+   "h": "78b6901f",
+   "t": "{Speaker}Habt Ihr Euch schon{SoftNewLine}im Schloss umgesehen?{WaitInput}"
+  },
+  "0473": {
+   "h": "c7b42a20",
+   "t": "{Speaker}Herr {=nigel}! Das{SoftNewLine}Fest ist bereit. Würdet Ihr{SoftNewLine}bitte in den Bankettsaal{SoftNewLine}kommen?{WaitInput}"
+  },
+  "0474": {
+   "h": "a87af870",
+   "t": "{Speaker}Bitte kommt in den{SoftNewLine}Bankettsaal. Er ist im zweiten{SoftNewLine}Stock.{WaitInput}"
+  },
+  "0475": {
+   "h": "3a0cf867",
+   "t": "{Speaker}Ihr könnt jetzt{SoftNewLine}noch nicht gehen....{WaitInput}"
+  },
+  "0476": {
+   "h": "fe123997",
+   "t": "{Speaker}Vor langer Zeit{SoftNewLine}gab es einen gewaltigen Krieg{SoftNewLine}auf dem Festland. König Nolo{SoftNewLine}benutzte diese Insel{ContinuePrompt}"
+  },
+  "0477": {
+   "h": "bd7ea05e",
+   "t": "{Speaker}als Stützpunkt. Als{SoftNewLine}der Krieg vorbei war, wurden{SoftNewLine}die Festungen und Labyrinthe{SoftNewLine}einfach{ContinuePrompt}"
+  },
+  "0478": {
+   "h": "5fa4891a",
+   "t": "{Speaker}aufgegeben... viele{SoftNewLine}davon stehen bis heute!{WaitInput}"
+  },
+  "0479": {
+   "h": "411b094f",
+   "t": "{Speaker}Der Dunkle{SoftNewLine}Zauberer im Turm ist sehr{SoftNewLine}gerissen! Der Turm selbst ist{SoftNewLine}wie ein{ContinuePrompt}"
+  },
+  "047A": {
+   "h": "bf33ca83",
+   "t": "{Speaker}mehrstöckiges{SoftNewLine}Labyrinth. Und eine Barriere{SoftNewLine}schützt den Zauberer vor{SoftNewLine}Eindringlingen...{WaitInput}"
+  },
+  "047B": {
+   "h": "01ec22f4",
+   "t": "{Speaker}Ich hab heute einen{SoftNewLine}Bonus gekriegt! Kommst du mit{SoftNewLine}zu Grihnpie und siehst zu, wie{SoftNewLine}ich ihn verdopple?{WaitInput}"
+  },
+  "047C": {
+   "h": "51396eee",
+   "t": "{Speaker}Oh, verzeiht! Wir{SoftNewLine}dachten, Ihr wärt einer{SoftNewLine}unserer Soldaten! Haben wir{SoftNewLine}Euch erschreckt?{ContinuePrompt}"
+  },
+  "047D": {
+   "h": "80115843",
+   "t": "{Speaker}Wir müssen jeden{SoftNewLine}Tag neue Taktiken lernen!{WaitInput}"
+  },
+  "047E": {
+   "h": "da96fec1",
+   "t": "{Speaker}Die anderen{SoftNewLine}Soldaten machen draußen ihre{SoftNewLine}Runde.{WaitInput}"
+  },
+  "047F": {
+   "h": "35b0fc5c",
+   "t": "{Speaker}Alle sind beim{SoftNewLine}Training. Ich? Na ja, äh...{SoftNewLine}ähm...{ContinuePrompt}"
   }
  },
  "names": {
