@@ -39,22 +39,6 @@
    "h": "a5f81da4",
    "t": "{=ink}: ...lady "
   },
-  "0010": {
-   "h": "d3b49744",
-   "t": "Tried to make Friday wear{SoftNewLine}{Item}.{ContinuePrompt}"
-  },
-  "0019": {
-   "h": "34b495ae",
-   "t": "'You've conquered {Number}%{SoftNewLine}of this island!'{ContinuePrompt}{SoftNewLine}...Bunny-chan told you.{ContinuePrompt}"
-  },
-  "001A": {
-   "h": "9e60926b",
-   "t": "It smelled faintly of a young{SoftNewLine}girl...{ContinuePrompt}"
-  },
-  "001B": {
-   "h": "1306b765",
-   "t": "The contents were so wild, it{SoftNewLine}only made you dizzy.....{ContinuePrompt}"
-  },
   "001C": {
    "h": "c583a176",
    "t": "Something totally baffling{SoftNewLine}happened!{ContinuePrompt}"
@@ -86,30 +70,6 @@
   "005B": {
    "h": "babf82cc",
    "t": "{Speaker}Now, now, that{SoftNewLine}won't do! That belongs to the{SoftNewLine}goddess. Put it back, please!{WaitInput}"
-  },
-  "0080": {
-   "h": "290fd398",
-   "t": "{Speaker}W-wait! D-don't{SoftNewLine}touch that book! It's full of{SoftNewLine}dangerous spells! Yes, spells!{WaitInput}"
-  },
-  "0081": {
-   "h": "68cb8b13",
-   "t": "{Speaker}For goodness' sake!{SoftNewLine}It's really not for children{Pause1s}.{Pause1s}.{Pause1s}.{ContinuePrompt}"
-  },
-  "0083": {
-   "h": "bf58e43c",
-   "t": "{Speaker}Oh dear... Very{SoftNewLine}well. O goddess, forgive me!{WaitInput}"
-  },
-  "0084": {
-   "h": "c82b5833",
-   "t": "{Speaker}W-wonderful book,{SoftNewLine}eh? Please keep it a secret{SoftNewLine}from the villagers, will you?{WaitInput}"
-  },
-  "0085": {
-   "h": "70006961",
-   "t": "{Speaker}Wise choice, my{SoftNewLine}child! You'll go far in this{SoftNewLine}world. Ahem.{WaitInput}"
-  },
-  "0086": {
-   "h": "afd6e028",
-   "t": "{Speaker}No, no! Don't take{SoftNewLine}it outside! If anyone sees it,{SoftNewLine}my reputation is ruined!{WaitInput}"
   },
   "0087": {
    "h": "2ca27c51",
@@ -2474,6 +2434,76 @@
   "087C": {
    "h": "f7a87af6",
    "t": "{Speaker}...{Pause1s}...{Pause1s}...{Pause1s}Oh! ...I'm{SoftNewLine}going! Of course I'm going!!{SoftNewLine}What took you so long?{Pause1s}"
+  }
+ },
+ "items_jp": {
+  "names": {
+   "item:36": {
+    "h": "3efabac9",
+    "t": "Pink{BreakSpace}Book"
+   },
+   "item:41": {
+    "h": "01a05ca1",
+    "t": "T-Back"
+   },
+   "item:48": {
+    "h": "be9230df",
+    "t": "Bunny-chan"
+   },
+   "item:54": {
+    "h": "fdfa66f8",
+    "t": "Bunny{BreakSpace}Suit"
+   }
+  },
+  "strings": {
+   "0010": {
+    "h": "d3b49744",
+    "t": "Tried to make {=friday}{SoftNewLine}wear {Item}.{ContinuePrompt}"
+   },
+   "0019": {
+    "h": "34b495ae",
+    "t": "'You've conquered {Number}%{SoftNewLine}of this island!'{ContinuePrompt}{SoftNewLine}...Bunny-chan told you.{ContinuePrompt}"
+   },
+   "001A": {
+    "h": "9e60926b",
+    "t": "It smelled faintly{SoftNewLine}of a young girl...{ContinuePrompt}"
+   },
+   "001B": {
+    "h": "1306b765",
+    "t": "The contents were so wild,{SoftNewLine}it only made you dizzy.....{ContinuePrompt}"
+   },
+   "0080": {
+    "h": "290fd398",
+    "t": "{Speaker}W-wait! D-don't{SoftNewLine}touch that book! It's... full of{SoftNewLine}dangerous spells! Yes, spells!{WaitInput}"
+   },
+   "0081": {
+    "h": "68cb8b13",
+    "t": "{Speaker}For goodness' sake!{SoftNewLine}It's really not for children{Pause1s}.{Pause1s}.{Pause1s}.{ContinuePrompt}"
+   },
+   "0083": {
+    "h": "bf58e43c",
+    "t": "{Speaker}Oh dear... Very{SoftNewLine}well. O goddess, forgive me!{WaitInput}"
+   },
+   "0084": {
+    "h": "c82b5833",
+    "t": "{Speaker}W-wonderful book,{SoftNewLine}eh? Please keep it a secret{SoftNewLine}from the villagers, will you?{WaitInput}"
+   },
+   "0085": {
+    "h": "70006961",
+    "t": "{Speaker}Wise choice, my{SoftNewLine}child! You'll go far in this{SoftNewLine}world. Ahem.{WaitInput}"
+   },
+   "0086": {
+    "h": "afd6e028",
+    "t": "{Speaker}No, no! Don't take{SoftNewLine}it outside! If anyone sees it,{SoftNewLine}my reputation is ruined!{WaitInput}"
+   },
+   "087D": {
+    "h": "ad5e02a5",
+    "t": "{Speaker}What's this outfit?!{SoftNewLine}You think I'd wear something{SoftNewLine}this naughty? Nigel, you perv!{WaitInput}"
+   },
+   "087E": {
+    "h": "bfd57179",
+    "t": "{Speaker}Kyaa, thanks, Nigel!{SoftNewLine}I always wanted to wear a{SoftNewLine}bunny girl outfit once!!{WaitInput}"
+   }
   }
  }
 }

@@ -33,7 +33,7 @@ extern uint8_t bus_read8(uint32_t addr);
 extern void bus_write8(uint32_t addr, uint8_t v);
 extern long platform_frame_number(void);
 extern uint8_t bus_peek8(uint32_t addr);   /* LK_OWNPEEK: the same read without the bus clock (bus_tick_cycles / guard): the entity loader reads the ROM byte by byte, with No Sprite Limit on that was half of the run time */
-static int OB(uint32_t a) { return a < 0x200000u ? (int)bus_peek8(a) : 0; }   /* ROM only; garbage pointers read 0 */
+static int OB(uint32_t a) { return (a < 0x200000u || (a >> 16) == 0x81u) ? (int)bus_peek8(a) : 0; }   /* ROM only (+ $81xxxx: the Japanese item pictures, LK_JPITEMS v1 tools/patch_lang.py); garbage pointers read 0 */
 #define OW(a) ((OB(a) << 8) | OB((a) + 1))
 #define OL(a) ((uint32_t)(((uint32_t)OW(a) << 16) | (uint32_t)OW((a) + 2)))
 static int lk_o_sprmode = 1, lk_o_cammode = 2, lk_o_u0, lk_o_v0, lk_o_vote_room = -1, lk_o_bu, lk_o_bv, lk_o_upred, lk_o_vpred; static float lk_o_vu[64], lk_o_vv[32];

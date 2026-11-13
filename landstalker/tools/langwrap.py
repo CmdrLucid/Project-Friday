@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """langwrap.py: line breaking for translations (docs/TRANSLATION.md section 4).  Library + tool:
-   langwrap.py ROM lang/xx.json src.json   -- src.json = {"XXXX": "text", ...} written WITHOUT {SoftNewLine} ('|' = a forced line break);
+   langwrap.py ROM lang/xx.json src.json [--items-jp]   -- (--items-jp: into the block 'items_jp', used while Options > Items = Japanese)  src.json = {"XXXX": "text", ...} written WITHOUT {SoftNewLine} ('|' = a forced line break);
                                              every entry is wrapped with the real text font widths of the ROM and stored in lang/xx.json
                                              with the hash of the English source (h).  Prints a warning for lines that do not fit.
 The font widths come from the player's ROM (tools/romtext.py rule: advance = rightmost pixel column + 3, space 8); nothing of the ROM is written.
@@ -103,8 +103,10 @@ def main():
         s, bad = wrap(W, t)
         for b in bad: print("%s: line too long (%d px): %s" % (k, text_width(W, b), b))
         if lb.ctl_names(en[k]) != [c for c in lb.ctl_names(s) if not c.startswith("=")]: print("%s: control codes differ: %s vs %s" % (k, lb.ctl_names(en[k]), lb.ctl_names(s)))
-        lang.setdefault("strings", {})[k] = {"h": hashlib.sha1(en[k].encode("utf-8")).hexdigest()[:8], "t": s}; n += 1
-    lang["strings"] = dict(sorted(lang["strings"].items()))
+        tgt = lang.setdefault("items_jp", {}) if "--items-jp" in sys.argv else lang   # --items-jp: block 'items_jp' (lines for Options > Items = Japanese, LK_JPITEMS v1)
+        tgt.setdefault("strings", {})[k] = {"h": hashlib.sha1(en[k].encode("utf-8")).hexdigest()[:8], "t": s}; n += 1
+    for tgt in (lang, lang.get("items_jp", {})):
+        if "strings" in tgt: tgt["strings"] = dict(sorted(tgt["strings"].items()))
     open(sys.argv[2], "w", encoding="utf-8").write(json.dumps(lang, ensure_ascii=False, indent=1) + "\n")
     print("langwrap: %d entries wrapped into %s" % (n, sys.argv[2]))
 

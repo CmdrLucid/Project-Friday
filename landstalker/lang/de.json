@@ -72,7 +72,7 @@
   },
   "0010": {
    "h": "d3b49744",
-   "t": "Du versuchst,{SoftNewLine}{=friday} {Item} anzuziehen.{ContinuePrompt}"
+   "t": "Du versuchst, {=friday}{SoftNewLine}{Item} zu geben.{ContinuePrompt}"
   },
   "0011": {
    "h": "907b3994",
@@ -324,7 +324,7 @@
   },
   "0080": {
    "h": "290fd398",
-   "t": "{Speaker}Uff... d-das Buch{SoftNewLine}da! Fass das bloß nicht an,{SoftNewLine}Kind!{WaitInput}"
+   "t": "{Speaker}Vorsicht, mein Kind!{SoftNewLine}Das Buch ist gefährlich, voller{SoftNewLine}unberechenbarer Zauber!{WaitInput}"
   },
   "0081": {
    "h": "68cb8b13",
@@ -336,11 +336,11 @@
   },
   "0083": {
    "h": "bf58e43c",
-   "t": "{Speaker}Na schön... aber{SoftNewLine}verrat es bloß keinem!{WaitInput}"
+   "t": "{Speaker}Na gut, aber sag{SoftNewLine}nicht, ich hätte dich nicht{SoftNewLine}gewarnt!{WaitInput}"
   },
   "0084": {
    "h": "c82b5833",
-   "t": "{Speaker}Hehehe... ein{SoftNewLine}wunderbares Buch, nicht wahr?{SoftNewLine}Aber nichts für Anfänger.{SoftNewLine}Darum halte ich es geheim.{WaitInput}"
+   "t": "{Speaker}Ein wunderbares{SoftNewLine}Buch, nicht wahr? Aber nichts{SoftNewLine}für Anfänger, darum halte ich{SoftNewLine}es geheim.{WaitInput}"
   },
   "0085": {
    "h": "70006961",
@@ -348,7 +348,7 @@
   },
   "0086": {
    "h": "afd6e028",
-   "t": "{Speaker}Nein, nein! Nimm das{SoftNewLine}nicht mit! Wenn das{SoftNewLine}rauskommt, bin ich erledigt!{WaitInput}"
+   "t": "{Speaker}Nein, nein! Nimm es{SoftNewLine}nicht mit! Die Welt ist noch{SoftNewLine}nicht bereit für seine{SoftNewLine}Zauberkraft!{WaitInput}"
   },
   "0087": {
    "h": "2ca27c51",
@@ -9299,5 +9299,67 @@
   "Localized": "Lokalisiert",
   "Japanese": "Japanisch",
   "Localized or Japanese names": "Namen: lokal oder japanisch"
+ },
+ "items_jp": {
+  "names": {
+   "item:36": {
+    "h": "3efabac9",
+    "t": "Rosa{BreakSpace}Heft"
+   },
+   "item:41": {
+    "h": "01a05ca1",
+    "t": "Tanga"
+   },
+   "item:48": {
+    "h": "be9230df",
+    "t": "Bunny-chan"
+   },
+   "item:54": {
+    "h": "fdfa66f8",
+    "t": "Häschen{Hyphen}kostüm"
+   }
+  },
+  "strings": {
+   "0010": {
+    "h": "d3b49744",
+    "t": "Du versuchst, {=friday}{SoftNewLine}{Item} anzuziehen.{ContinuePrompt}"
+   },
+   "0019": {
+    "h": "34b495ae",
+    "t": "'Du hast {Number}% dieser{SoftNewLine}Insel geschafft!'{ContinuePrompt}{SoftNewLine}...verriet dir Bunny-chan.{ContinuePrompt}"
+   },
+   "001A": {
+    "h": "9e60926b",
+    "t": "Es duftet ganz zart{SoftNewLine}nach einem jungen Mädchen...{ContinuePrompt}"
+   },
+   "001B": {
+    "h": "1306b765",
+    "t": "Der Inhalt war so heftig,{SoftNewLine}dass dir nur schwindlig{SoftNewLine}wurde.....{ContinuePrompt}"
+   },
+   "0080": {
+    "h": "290fd398",
+    "t": "{Speaker}Uff... d-das Heft{SoftNewLine}da! Fass das bloß nicht an,{SoftNewLine}Kind!{WaitInput}"
+   },
+   "0083": {
+    "h": "bf58e43c",
+    "t": "{Speaker}Na schön... aber{SoftNewLine}verrat es bloß keinem!{WaitInput}"
+   },
+   "0084": {
+    "h": "c82b5833",
+    "t": "{Speaker}Hehehe... ein{SoftNewLine}wunderbares Heft, nicht wahr?{SoftNewLine}Bitte verrat es keinem im{SoftNewLine}Dorf!{WaitInput}"
+   },
+   "0086": {
+    "h": "afd6e028",
+    "t": "{Speaker}Nein, nein! Nimm das{SoftNewLine}nicht mit! Wenn das{SoftNewLine}rauskommt, ist mein Ruf{SoftNewLine}ruiniert!{WaitInput}"
+   },
+   "087D": {
+    "h": "ad5e02a5",
+    "t": "{Speaker}Was soll das für{SoftNewLine}ein Kostüm sein?! Glaubst du,{SoftNewLine}ich zieh so was Unanständiges{SoftNewLine}an? {=nigel}, du Lüstling!{WaitInput}"
+   },
+   "087E": {
+    "h": "bfd57179",
+    "t": "{Speaker}Kyaa, danke,{SoftNewLine}{=nigel}! Ich wollte schon{SoftNewLine}immer mal ein Häschenkostüm{SoftNewLine}tragen!!{WaitInput}"
+   }
+  }
  }
 }

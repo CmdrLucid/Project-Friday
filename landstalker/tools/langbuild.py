@@ -151,8 +151,9 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
     nm_tab = load_names(); base = lang.get("meta", {}).get("names", lang.get("meta", {}).get("code", "en")[:2])
     lang = json.loads(json.dumps(lang))   # a copy: the placeholders are resolved per variant
     for blk in ("strings", "names"):
-        for ent in lang.get(blk, {}).values():
-            if "{=" in ent.get("t", ""): ent["t"] = resolve(ent["t"], nm_tab, base, variant)
+        for d in (lang.get(blk, {}), lang.get("items_jp", {}).get(blk, {})):   # LK_JPITEMS v1: block 'items_jp' = lines / names for Options > Items = Japanese
+            for ent in d.values():
+                if "{=" in ent.get("t", ""): ent["t"] = resolve(ent["t"], nm_tab, base, variant)
     strs, names, blob, dropped = [], [], bytearray(), []
     def check(key, ent):
         src = en.get(key)
@@ -160,7 +161,8 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
         if hashlib.sha1(src.encode("utf-8")).hexdigest()[:8] != ent["h"]: return "English source differs from the one translated"
         if ctl_names(src) != ctl_names(ent["t"]): return "control codes differ: %s vs %s" % (ctl_names(src), ctl_names(ent["t"]))
         return None
-    for key, ent in lang.get("strings", {}).items():
+    sl = [(k, e, int(k, 16)) for k, e in lang.get("strings", {}).items()] + [(k, e, int(k, 16) | 0x8000) for k, e in lang.get("items_jp", {}).get("strings", {}).items()]   # Items = Japanese: id | $8000
+    for key, ent, sid in sl:
         why = check(key, ent)
         if why: dropped.append((key, why)); continue
         words = []
@@ -171,14 +173,15 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
             elif t == "c": words.append(~HANDLER[v] & 0xFFFF)
             else: dropped.append((key, "name-only code in a string")); break
         else:
-            strs.append((int(key, 16), len(blob), len(words))); blob += b"".join(struct.pack(">H", w) for w in words) + b"\xff\xff"
-    for key, ent in lang.get("names", {}).items():
+            strs.append((sid, len(blob), len(words))); blob += b"".join(struct.pack(">H", w) for w in words) + b"\xff\xff"
+    nl = [(k, e, 0) for k, e in lang.get("names", {}).items()] + [(k, e, 0x80) for k, e in lang.get("items_jp", {}).get("names", {}).items()]   # Items = Japanese: item name index | $80
+    for key, ent, ibit in nl:
         why = check(key, ent)
         if why: dropped.append((key, why)); continue
         tab, idx = key.split(":")
         try: data = bytes(v for t, v in tokens(ent["t"]))
         except ValueError as e: dropped.append((key, str(e))); continue
-        names.append((TABLES[tab], int(idx), len(blob), len(data))); blob += data
+        names.append((TABLES[tab], int(idx) | ibit, len(blob), len(data))); blob += data
     ui = [(UI_KEYS[k], v) for k, v in lang.get("ui_values", lang.get("ui", {})).items()]
     texts = []
     for k, v in lang.get("ui_text", {}).items():
@@ -205,7 +208,7 @@ def main():
     if os.path.isdir(sys.argv[2]):                  # directory mode: every lang/*.json -> <out>/<code>.bin + <out>/index.txt ("code<TAB>name", English is built in)
         outdir = sys.argv[3]; os.makedirs(outdir, exist_ok=True); idx = []; jl = jp_names_lang(en, load_names())
         for f in sorted(os.listdir(sys.argv[2])):
-            if not f.endswith(".json") or f in ("friday_hints.json", "names.json"): continue   # friday_hints.json = the Friday Hints texts (tools/patch_friday.py), names.json = the Names option table: not languages
+            if not f.endswith(".json") or f in ("friday_hints.json", "names.json", "en_items.json"): continue   # en_items.json = the Japanese items for the original English (en.items.bin, below)   # friday_hints.json = the Friday Hints texts (tools/patch_friday.py), names.json = the Names option table: not languages
             code = f[:-5]
             meta = build_one(rom, en, os.path.join(sys.argv[2], f), os.path.join(outdir, code + ".bin"))
             lj = json.load(open(os.path.join(sys.argv[2], f), encoding="utf-8"))
@@ -213,6 +216,10 @@ def main():
                 for k, ent in ((jl or {}).get(blk) or {}).items(): lj.setdefault(blk, {}).setdefault(k, ent)
             build_one(rom, en, lj, os.path.join(outdir, code + ".jpn.bin"), "jp")   # the same language with the Japanese character names
             idx.append("%s\t%s" % (code, meta.get("name", code)))
+        ei = os.path.join(sys.argv[2], "en_items.json")   # LK_JPITEMS v1: Options > Items = Japanese with the original English
+        ej = json.load(open(ei, encoding="utf-8")) if os.path.exists(ei) else None
+        if ej: build_one(rom, en, ej, os.path.join(outdir, "en.items.bin"))
+        if jl and ej: jl["items_jp"] = ej.get("items_jp", {})
         if jl: build_one(rom, en, jl, os.path.join(outdir, "en.jpn.bin"), "jp")   # the original English with the Japanese names
         open(os.path.join(outdir, "index.txt"), "w", encoding="utf-8").write("\n".join(idx) + ("\n" if idx else ""))
         print("langbuild: index.txt with %d languages" % len(idx))
