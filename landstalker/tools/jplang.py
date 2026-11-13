@@ -222,6 +222,13 @@ def main():
         tab, i = key.split(':'); data = bytes(code.get(x[1], 0) if x[0] == 'g' else 0 for x in tok(v))
         if any(c > 0xFF for c in (code.get(x[1], 0) for x in tok(v) if x[0] == 'g')): continue
         nm.append((lb.TABLES[tab], int(i), len(blob), len(data))); blob += data
+    # LK_JPITEMS v2 (user 2026-11-13: 'im Englischen passt es, auf Japanisch ist es wieder das Spell Book'): item names stay English in Japanese (8x8 menu font, no kana),
+    # so Options > Items = Japanese needs the English names of the four items here too (index | $80, ROM glyph codes < $6C = the same in ja.bin)
+    eij = json.load(open(os.path.join(HERE, '..', 'lang', 'en_items.json'), encoding='utf-8')).get('items_jp', {}).get('names', {})
+    for key, ent in eij.items():
+        tab, i = key.split(':'); data = bytes(v for t, v in lb.tokens(ent['t']))
+        assert all(c < 0x6C for c in data), key
+        nm.append((lb.TABLES[tab], int(i) | 0x80, len(blob), len(data))); blob += data
     gl = sorted((c, r) for c, r in rows.items() if c)
     hdr = b'LKLG' + struct.pack('>HHHHHH', 3, len(strs), len(nm), 0, len(gl), 0)
     data = hdr + b''.join(struct.pack('>HIH', *s) for s in strs) + b''.join(struct.pack('>BBIB', *n) for n in nm)
