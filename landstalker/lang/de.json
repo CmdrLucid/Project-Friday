@@ -4280,7 +4280,7 @@
   },
   "04A0": {
    "h": "fe524645",
-   "t": "{Speaker}Aaargh! Dabei{SoftNewLine}wollte ich doch nur ein paar{SoftNewLine}mickrige Schätze! Jetzt sind{SoftNewLine}wir pleite!{ContinuePrompt}"
+   "t": "{Speaker}Kiiih! Dabei wollte{SoftNewLine}ich doch nur ein paar mickrige{SoftNewLine}Schätze! Jetzt sind wir pleite!{ContinuePrompt}"
   },
   "04A1": {
    "h": "121a238a",
@@ -4296,7 +4296,7 @@
   },
   "04A4": {
    "h": "0e47382a",
-   "t": "{Speaker}Stinkig...{SoftNewLine}schleimig... IGITT!! Wärter! Ich{SoftNewLine}will ein besseres Zimmer!!{WaitInput}"
+   "t": "{Speaker}Stinkig...{SoftNewLine}schleimig... IGITT!! Kiiih!{SoftNewLine}Wärter! Ich will ein besseres{SoftNewLine}Zimmer!!{WaitInput}"
   },
   "04A5": {
    "h": "d3b9e550",
@@ -4340,7 +4340,7 @@
   },
   "04AF": {
    "h": "0df8029f",
-   "t": "{Speaker}Nur weil er es{SoftNewLine}gesagt hat, bist du{SoftNewLine}hergekommen... Wie gutgläubig{SoftNewLine}du bist...!{WaitInput}"
+   "t": "{Speaker}Du hast dem Herzog{SoftNewLine}einfach geglaubt und bist{SoftNewLine}hergekommen... Was für ein{SoftNewLine}reines Herz...!{WaitInput}"
   },
   "04B0": {
    "h": "5459898b",
@@ -4392,7 +4392,7 @@
   },
   "04BC": {
    "h": "bd163300",
-   "t": "{Speaker}Du kennst diesen{SoftNewLine}Wald wohl schon besser als{SoftNewLine}ich! Willst du nicht mein{SoftNewLine}Nachfolger werden?{WaitInput}"
+   "t": "{Speaker}Du kennst diesen{SoftNewLine}Wald wohl schon besser als{SoftNewLine}ich! Willst du nicht mein{SoftNewLine}Nachfolger werden? Hahaha!{WaitInput}"
   },
   "04BD": {
    "h": "3d937c91",
@@ -4400,7 +4400,7 @@
   },
   "04BE": {
    "h": "4aaf4d27",
-   "t": "{Speaker}Deine Güte werde{SoftNewLine}ich nie vergessen!{WaitInput}"
+   "t": "{Speaker}Deine Güte werde{SoftNewLine}ich nie vergessen! Wuff!{WaitInput}"
   },
   "04BF": {
    "h": "ff248955",
@@ -4597,6 +4597,454 @@
   "04EF": {
    "h": "dcf14c0f",
    "t": "{Speaker}So lange in diesem{SoftNewLine}dunklen, engen Tunnel{SoftNewLine}eingesperrt zu sein, hat mich{SoftNewLine}echt fertiggemacht!{WaitInput}"
+  },
+  "04F0": {
+   "h": "f9f6d81f",
+   "t": "{Speaker}iiiiIIIIEK!!!{WaitInput}"
+  },
+  "04F1": {
+   "h": "7d211c3a",
+   "t": "{Speaker}Vielen Dank! Du{SoftNewLine}sahst beim Kämpfen soo toll{SoftNewLine}aus!{WaitInput}"
+  },
+  "04F2": {
+   "h": "2e6a4c3c",
+   "t": "{Speaker}Schau nicht MICH{SoftNewLine}an... schnapp ihn dir!{WaitInput}"
+  },
+  "04F3": {
+   "h": "90271eec",
+   "t": "{Speaker}Die Männer des{SoftNewLine}Herzogs sagten, mit dem{SoftNewLine}Graben sei Schluss, weil sie{SoftNewLine}gefunden hätten,{ContinuePrompt}"
+  },
+  "04F4": {
+   "h": "f660698f",
+   "t": "{Speaker}wonach sie suchten.{WaitInput}"
+  },
+  "04F5": {
+   "h": "f2c2d63e",
+   "t": "{Speaker}Das Schwert hab{SoftNewLine}ich gefunden, aber dem Herzog{SoftNewLine}hab ich nichts davon gesagt!{WaitInput}"
+  },
+  "04F6": {
+   "h": "1540b81f",
+   "t": "{Speaker}Hauruck! Grabt!{SoftNewLine}Grabt!{WaitInput}"
+  },
+  "04F7": {
+   "h": "05aafcc8",
+   "t": "{Speaker}Ich hab's ja geahnt:{SoftNewLine}Das war keine gewöhnliche{SoftNewLine}Mine. So wild drauflos gräbt{SoftNewLine}doch keiner.{ContinuePrompt}"
+  },
+  "04F8": {
+   "h": "51348c3a",
+   "t": "{Speaker}Aber wer hätte{SoftNewLine}gedacht, dass die wirklich{SoftNewLine}einen sagenhaften Schatz{SoftNewLine}suchen!{WaitInput}"
+  },
+  "04F9": {
+   "h": "ec309b07",
+   "t": "{Speaker}Ich muss{SoftNewLine}weitermachen. Hier geht's um{SoftNewLine}unser Leben...{WaitInput}"
+  },
+  "04FA": {
+   "h": "98812dd2",
+   "t": "{Speaker}Nur durch den{SoftNewLine}Tunnel in der Mine kommt man{SoftNewLine}nach Destel.{ContinuePrompt}"
+  },
+  "04FB": {
+   "h": "545f166b",
+   "t": "{Speaker}Das Schwert? Das{SoftNewLine}haben wir zufällig beim Graben{SoftNewLine}des Tunnels gefunden.{WaitInput}"
+  },
+  "04FC": {
+   "h": "2d401837",
+   "t": "{Speaker}Ich kann den{SoftNewLine}Menschen nicht mehr trauen!{WaitInput}"
+  },
+  "04FD": {
+   "h": "8d461ea4",
+   "t": "{Speaker}Lauter riesige{SoftNewLine}Soldaten haben mein Haus{SoftNewLine}verwüstet!!...{WaitInput}"
+  },
+  "04FE": {
+   "h": "09dab963",
+   "t": "{Speaker}Warum sind{SoftNewLine}Menschen nur so grob?! Aus{SoftNewLine}dem Nichts kamen sie und{SoftNewLine}haben unsere{ContinuePrompt}"
+  },
+  "04FF": {
+   "h": "c754e350",
+   "t": "{Speaker}Blumenbeete{SoftNewLine}zertrampelt... Hätten sie nach{SoftNewLine}dem Juwel gefragt, hätte ich's{SoftNewLine}ihnen doch gegeben...{ContinuePrompt}"
+  },
+  "0500": {
+   "h": "5c9ed00c",
+   "t": "{Speaker}Das Juwel? Einer{SoftNewLine}namens Merkator hat es{SoftNewLine}gefunden und mitgenommen.{ContinuePrompt}"
+  },
+  "0501": {
+   "h": "be553b51",
+   "t": "{Speaker}Was will er nur{SoftNewLine}mit so einem wertlosen Ding?{SoftNewLine}Blumen und Samen sind viel{SoftNewLine}hübscher... und{ContinuePrompt}"
+  },
+  "0502": {
+   "h": "6cb9af32",
+   "t": "{Speaker}sie duften auch{SoftNewLine}noch!{WaitInput}"
+  },
+  "0503": {
+   "h": "568f1b76",
+   "t": "{Speaker}Ich war im{SoftNewLine}Gasthaus und erzählte von der{SoftNewLine}uralten Höhle unter dem Dorf,{SoftNewLine}da{ContinuePrompt}"
+  },
+  "0504": {
+   "h": "1cb13daa",
+   "t": "{Speaker}stürmte so ein{SoftNewLine}Fremder hier herunter, brach{SoftNewLine}das Siegel auf und verschwand{SoftNewLine}in der Höhle...{WaitInput}"
+  },
+  "0505": {
+   "h": "91c6fcfa",
+   "t": "{Speaker}So eine{SoftNewLine}Unverschämtheit hab ich mein{SoftNewLine}Lebtag nicht erlebt!{WaitInput}"
+  },
+  "0506": {
+   "h": "087d75d8",
+   "t": "{Speaker}Das hektische Leben{SoftNewLine}in vollen Städten mag ich{SoftNewLine}nicht, darum lebe ich hier in{SoftNewLine}aller Ruhe{ContinuePrompt}"
+  },
+  "0507": {
+   "h": "14a4a2a8",
+   "t": "{Speaker}bei den Zwergen.{SoftNewLine}Und dann so etwas! Unerhört!{ContinuePrompt}"
+  },
+  "0508": {
+   "h": "a992ef16",
+   "t": "{Speaker}Gierige Menschen{SoftNewLine}sind zu allem fähig, das sag{SoftNewLine}ich dir.{WaitInput}"
+  },
+  "0509": {
+   "h": "1f7b91cc",
+   "t": "{Speaker}Ich bin auch mal{SoftNewLine}hinuntergestiegen, um mir die{SoftNewLine}Höhle anzusehen, aber für{SoftNewLine}einen alten Mann wie mich...{ContinuePrompt}"
+  },
+  "050A": {
+   "h": "d0a190a1",
+   "t": "{Speaker}Und ich glaube{SoftNewLine}nicht, dass du es schaffst.{WaitInput}"
+  },
+  "050B": {
+   "h": "12d3d018",
+   "t": "{Speaker}Wir wollen doch{SoftNewLine}nur in Frieden leben...{WaitInput}"
+  },
+  "050C": {
+   "h": "cd25de6c",
+   "t": "{Speaker}Zwerge sind sehr{SoftNewLine}fromm.{WaitInput}"
+  },
+  "050D": {
+   "h": "181877d1",
+   "t": "{Speaker}Hatte ich Angst!{SoftNewLine}Die Soldaten waren doppelt so{SoftNewLine}groß wie ich!{WaitInput}"
+  },
+  "050E": {
+   "h": "58588a66",
+   "t": "{Speaker}Zum Netten Zwerg,{SoftNewLine}Waren aller Art!{ContinuePrompt}"
+  },
+  "050F": {
+   "h": "52e6a3a7",
+   "t": "{Speaker}Ich bin der Nette!{SoftNewLine}Mein Bruder ist es nicht...{WaitInput}"
+  },
+  "0510": {
+   "h": "6589e340",
+   "t": "{Speaker}Willkommen im Dorf{SoftNewLine}Destel.{WaitInput}"
+  },
+  "0511": {
+   "h": "e016db14",
+   "t": "{Speaker}Dieser Brunnen ist{SoftNewLine}der Eingang zu einer uralten{SoftNewLine}Höhle, in der Monster hausen.{WaitInput}"
+  },
+  "0512": {
+   "h": "9fa6f728",
+   "t": "{Speaker}Manchmal, spät in{SoftNewLine}der Nacht, hört man es in{SoftNewLine}diesem Brunnen brüllen... Mir{SoftNewLine}wird ganz anders.{WaitInput}"
+  },
+  "0513": {
+   "h": "22812a83",
+   "t": "{Speaker}Mein Blumenbeet ist{SoftNewLine}ruiniert..... Was haben die bloß{SoftNewLine}gesucht?{ContinuePrompt}"
+  },
+  "0514": {
+   "h": "96bef071",
+   "t": "{Speaker}Ich hab doch gar{SoftNewLine}nichts, was die wollen{SoftNewLine}könnten.{WaitInput}"
+  },
+  "0515": {
+   "h": "a637d0a5",
+   "t": "{Speaker}Riesige, grobe{SoftNewLine}Soldaten stürmten in mein{SoftNewLine}Haus und wollten wissen, wo{SoftNewLine}das Juwel ist!{ContinuePrompt}"
+  },
+  "0516": {
+   "h": "289f4b14",
+   "t": "{Speaker}Wovon reden die{SoftNewLine}bloß? Ich hab nichts als{SoftNewLine}Blumensamen.{WaitInput}"
+  },
+  "0517": {
+   "h": "674f908e",
+   "t": "{Speaker}Stell dir vor,{SoftNewLine}Herzog Merkator tauchte{SoftNewLine}plötzlich auf und kaufte mir{SoftNewLine}jedes einzelne Floß ab!{ContinuePrompt}"
+  },
+  "0518": {
+   "h": "cb1a9952",
+   "t": "{Speaker}Ganze 6 Taler hat{SoftNewLine}er mir dafür gezahlt! Er{SoftNewLine}sagte, er will zum Schrein.{WaitInput}"
+  },
+  "0519": {
+   "h": "7ceb205b",
+   "t": "{Speaker}Tut mir leid! Alles{SoftNewLine}ausverkauft... Zum Schrein{SoftNewLine}kommst du noch durch die{SoftNewLine}Höhle unter{ContinuePrompt}"
+  },
+  "051A": {
+   "h": "488fea40",
+   "t": "{Speaker}Destel, aber... die{SoftNewLine}soll ziemlich gefährlich sein.{WaitInput}"
+  },
+  "051B": {
+   "h": "89d4c5d1",
+   "t": "{Speaker}Schöner Wasserfall,{SoftNewLine}was? Die Leute von Destel{SoftNewLine}achten sehr darauf, dass das{SoftNewLine}Wasser sauber bleibt.{WaitInput}"
+  },
+  "051C": {
+   "h": "b49c7c2a",
+   "t": "{Speaker}Von den{SoftNewLine}Schatzjägern, die an diesen{SoftNewLine}See kommen, kann ich prima{SoftNewLine}leben.{WaitInput}"
+  },
+  "051D": {
+   "h": "bb69c406",
+   "t": "{Speaker}Ach du meine Güte,{SoftNewLine}ein Fremder! Du bist seit 300{SoftNewLine}Jahren unser erster Besuch.{ContinuePrompt}"
+  },
+  "051E": {
+   "h": "c13808ed",
+   "t": "{Speaker}W-was? Oben an{SoftNewLine}der Oberfläche ist schon{SoftNewLine}wieder ein Tyrann an die{SoftNewLine}Macht gekommen?{WaitInput}"
+  },
+  "051F": {
+   "h": "9ecd18f0",
+   "t": "{Speaker}König Nolo hat uns{SoftNewLine}ewige Jugend geschenkt, weil{SoftNewLine}wir ihm seinen unterirdischen{SoftNewLine}Palast gebaut haben.{ContinuePrompt}"
+  },
+  "0520": {
+   "h": "ea89013f",
+   "t": "{Speaker}Mir gefällt das{SoftNewLine}ruhige Leben hier unten. Ich{SoftNewLine}will nicht zurück an die{SoftNewLine}Oberfläche...{WaitInput}"
+  },
+  "0521": {
+   "h": "63fdba09",
+   "t": "{Speaker}Zum Palast musst{SoftNewLine}du durch ein riesiges,{SoftNewLine}verzwicktes Labyrinth.{ContinuePrompt}"
+  },
+  "0522": {
+   "h": "973a75fd",
+   "t": "{Speaker}König Nolo hat es{SoftNewLine}höchstpersönlich entworfen.{ContinuePrompt}"
+  },
+  "0523": {
+   "h": "6e7b1ea5",
+   "t": "{Speaker}Nicht mal wir{SoftNewLine}kommen da durch.{ContinuePrompt}"
+  },
+  "0524": {
+   "h": "3cdbebdf",
+   "t": "{Speaker}Was war das nur{SoftNewLine}für ein Geizhals!{WaitInput}"
+  },
+  "0525": {
+   "h": "2a82775b",
+   "t": "{Speaker}Einen Priester{SoftNewLine}gibt's hier unten nicht. Aber{SoftNewLine}ich hab 300 Jahre lang über{SoftNewLine}die Göttin nachgesonnen,{ContinuePrompt}"
+  },
+  "0526": {
+   "h": "60af3a54",
+   "t": "{Speaker}also spiele ich{SoftNewLine}eben den Aushilfspriester.{WaitInput}"
+  },
+  "0527": {
+   "h": "c105eee7",
+   "t": "{Speaker}Ich hab für König{SoftNewLine}Nolo geschuftet, um ewig zu{SoftNewLine}leben.{ContinuePrompt}"
+  },
+  "0528": {
+   "h": "2f93f027",
+   "t": "{Speaker}Aber jetzt{SoftNewLine}vertrödle ich nur noch meine{SoftNewLine}Zeit{Pause1s}...{Pause1s}...{Pause1s}seufz!...{ContinuePrompt}"
+  },
+  "0529": {
+   "h": "407f8203",
+   "t": "{Speaker}Hast du ein paar{SoftNewLine}Comics dabei?{WaitInput}"
+  },
+  "052A": {
+   "h": "e3c4d903",
+   "t": "{Speaker}Im Labyrinth hausen{SoftNewLine}drei Monster, die man die{SoftNewLine}Torwächter der Hölle nennt.{ContinuePrompt}"
+  },
+  "052B": {
+   "h": "4c4eb2fe",
+   "t": "{Speaker}Erst wenn du sie{SoftNewLine}besiegst, öffnet sich das Tor{SoftNewLine}zum Palast. König Nolo dachte{SoftNewLine}wirklich an alles!{WaitInput}"
+  },
+  "052C": {
+   "h": "c08fa472",
+   "t": "{Speaker}Hallo! Ich pass nur{SoftNewLine}auf den Laden auf. Der{SoftNewLine}Besitzer ging vor 200 Jahren{SoftNewLine}fort und kam nie wieder.{WaitInput}"
+  },
+  "052D": {
+   "h": "7ee9edf3",
+   "t": "{Speaker}So, jetzt geht{SoftNewLine}unser Abenteuer los!!{WaitInput}"
+  },
+  "052E": {
+   "h": "cb514713",
+   "t": "{Speaker}Ach du liebe Zeit...{SoftNewLine}ein MANN!!{WaitInput}"
+  },
+  "052F": {
+   "h": "23fe35f9",
+   "t": "{Speaker}Das muss ich Opa{SoftNewLine}erzählen!{WaitInput}"
+  },
+  "0530": {
+   "h": "322c6241",
+   "t": "{Speaker}....{Pause1s}....o...{Pause1s}...au....{Pause1s}...{WaitInput}"
+  },
+  "0531": {
+   "h": "1f58d5fb",
+   "t": "{Speaker}Er schläft immer{SoftNewLine}noch... Dabei sieht er gar{SoftNewLine}nicht wie ein Faulpelz aus.....{WaitInput}"
+  },
+  "0532": {
+   "h": "44500725",
+   "t": "{Speaker}Lass ihn eine Weile{SoftNewLine}schlafen. Ihr könnt in unserem{SoftNewLine}Dorf bleiben, so lange ihr{SoftNewLine}wollt.{ContinuePrompt}"
+  },
+  "0533": {
+   "h": "3e503916",
+   "t": "{Speaker}Juhu! Das ist eine{SoftNewLine}tolle Idee!{ContinuePrompt}"
+  },
+  "0534": {
+   "h": "dd709028",
+   "t": "{Speaker}Aber wir haben es{SoftNewLine}eilig. {=nigel}! AUFWACHEN!! Wir{SoftNewLine}müssen {Pause1sOrInput}weiter auf{SoftNewLine}Schatzsuche!{WaitInput}"
+  },
+  "0535": {
+   "h": "f2ba1686",
+   "t": "{Speaker}Hallo! Geht's dir{SoftNewLine}wieder gut? ...äh...{Pause1sOrInput}Wo ist denn{SoftNewLine}deine Freundin? Du weißt{SoftNewLine}schon, das Mini-Mädchen.{WaitInput}"
+  },
+  "0536": {
+   "h": "8723a2d0",
+   "t": "{Speaker}Was fällt dir ein,{SoftNewLine}mich 'Mini' zu nennen?! Du{SoftNewLine}haariger Grobian! Bäh!{WaitInput}"
+  },
+  "0537": {
+   "h": "0cf145b0",
+   "t": "{Speaker}Ups! T-tut mir leid!{SoftNewLine}Ganz schön empfindlich, die{SoftNewLine}Kleine, was?{WaitInput}"
+  },
+  "0538": {
+   "h": "b6f59212",
+   "t": "{Speaker}Die Leute aus Gumi{SoftNewLine}haben die Brücke zertrümmert!{SoftNewLine}Die Brücke ist kaputt!{ContinuePrompt}"
+  },
+  "0539": {
+   "h": "97d68c4f",
+   "t": "{Speaker}Die sind bestimmt{SoftNewLine}von bösen Geistern besessen!!{SoftNewLine}Sagt es doch bitte jemand dem{SoftNewLine}Bürgermeister!!{WaitInput}"
+  },
+  "053A": {
+   "h": "d7eb6dd6",
+   "t": "{Speaker}Was für ein lauter{SoftNewLine}Junge!{ContinuePrompt}"
+  },
+  "053B": {
+   "h": "90c7bd59",
+   "t": "{Speaker}Darf ich mich{SoftNewLine}vorstellen? Ich bin {=prospero}.{SoftNewLine}Was führt dich zu mir?{WaitInput}"
+  },
+  "053C": {
+   "h": "7435b17f",
+   "t": "{Speaker}Hmmm... du bist{SoftNewLine}also auf der Suche nach den{SoftNewLine}Schätzen von König Nolo{SoftNewLine}hierhergekommen...{ContinuePrompt}"
+  },
+  "053D": {
+   "h": "e1b58db6",
+   "t": "{Speaker}Tut mir leid, aber{SoftNewLine}über die Schätze weiß ich rein{SoftNewLine}gar nichts...{ContinuePrompt}"
+  },
+  "053E": {
+   "h": "e433d129",
+   "t": "{Speaker}Allerdings bin ich{SoftNewLine}erst neulich auf ein{SoftNewLine}Bruchstück einer Schrift{ContinuePrompt}"
+  },
+  "053F": {
+   "h": "18a3a9a0",
+   "t": "{Speaker}über die Legende{SoftNewLine}von König Nolo gestoßen...{ContinuePrompt}"
+  },
+  "0540": {
+   "h": "1a35c5cc",
+   "t": "{Speaker}Was stand drin?{ContinuePrompt}"
+  },
+  "0541": {
+   "h": "b2deebb5",
+   "t": "{Speaker}'Vor langer, langer{SoftNewLine}Zeit, im Zeitalter König Nolos,{SoftNewLine}kam ein gewaltiges Heer in{SoftNewLine}dieses Land.'{ContinuePrompt}"
+  },
+  "0542": {
+   "h": "d3c5f9e6",
+   "t": "{Speaker}Aber warum{SoftNewLine}hierher? Der Krieg tobte doch{SoftNewLine}auf dem Festland...{ContinuePrompt}"
+  },
+  "0543": {
+   "h": "61e51a09",
+   "t": "{Speaker}Was sollen{SoftNewLine}Soldaten mit einer Insel?{ContinuePrompt}"
+  },
+  "0544": {
+   "h": "18569e93",
+   "t": "{Speaker}Sie müssen{SoftNewLine}gekommen sein, um etwas sehr{SoftNewLine}Wertvolles von König Nolo zu{SoftNewLine}beschützen...{ContinuePrompt}"
+  },
+  "0545": {
+   "h": "37685aa9",
+   "t": "{Speaker}Na klar!! Das ist{SoftNewLine}es!{WaitInput}"
+  },
+  "0546": {
+   "h": "43902164",
+   "t": "{Speaker}Langsam, langsam.{ContinuePrompt}"
+  },
+  "0547": {
+   "h": "1788a393",
+   "t": "{Speaker}Es gibt keinen{SoftNewLine}Grund anzunehmen, dass sie die{SoftNewLine}Schätze des Königs beschützt{SoftNewLine}haben!{ContinuePrompt}"
+  },
+  "0548": {
+   "h": "da5ecd41",
+   "t": "{Speaker}Vielleicht nicht,{SoftNewLine}aber ich spür's einfach. Sonst{SoftNewLine}noch was?{ContinuePrompt}"
+  },
+  "0549": {
+   "h": "60260768",
+   "t": "{Speaker}Ich schlage in{SoftNewLine}meinen Büchern nach. Komm{SoftNewLine}später wieder, vielleicht hab{SoftNewLine}ich dann etwas für dich...{WaitInput}"
+  },
+  "054A": {
+   "h": "be277354",
+   "t": "{Speaker}{=nigel}! Kurz{SoftNewLine}nachdem du fort warst, ist{SoftNewLine}etwas Schreckliches passiert!{ContinuePrompt}"
+  },
+  "054B": {
+   "h": "3f36fcdf",
+   "t": "{Speaker}Kaum hatten wir{SoftNewLine}die Brücke repariert, kamen{SoftNewLine}Schläger aus Gumi und{SoftNewLine}entführten{ContinuePrompt}"
+  },
+  "054C": {
+   "h": "d3b64cb9",
+   "t": "{Speaker}Fara...! Oh, mein{SoftNewLine}kleines Mädchen...!{WaitInput}"
+  },
+  "054D": {
+   "h": "22b999c5",
+   "t": "{Speaker}He, {=nigel}! Sieh{SoftNewLine}mal, der Seitenweg! Da kommen{SoftNewLine}wir den Hügel hoch!{WaitInput}"
+  },
+  "054E": {
+   "h": "3de44b36",
+   "t": "{Speaker}Schau! Da ist Fara!{SoftNewLine}Lass uns hier runter!{ContinuePrompt}"
+  },
+  "054F": {
+   "h": "ad2e6ebd",
+   "t": "{Speaker}Okay! Komm schon!{WaitInput}"
+  },
+  "0550": {
+   "h": "aac4f660",
+   "t": "{Speaker}Bumm-bumm, yo!{SoftNewLine}Opfergabe, Segensgabe, alles{SoftNewLine}echt, was ich hier habe,{ContinuePrompt}"
+  },
+  "0551": {
+   "h": "7597020a",
+   "t": "{Speaker}unberührt und{SoftNewLine}unverführt, nimm das Mädchen,{SoftNewLine}wie's gebührt! Bumm-bumm, yo!{WaitInput}"
+  },
+  "0552": {
+   "h": "ad484dcd",
+   "t": "{=nigel} hält {Item}{SoftNewLine}hoch über die Statue.{WaitInput}"
+  },
+  "0553": {
+   "h": "cef36ebf",
+   "t": "{Speaker}Du! Wie bist du{SoftNewLine}hier reingekommen? Stör nicht{SoftNewLine}unsere heilige Zeremonie!{WaitInput}"
+  },
+  "0554": {
+   "h": "443ab360",
+   "t": "{Speaker}Ork-König!{SoftNewLine}Ork-König!{WaitInput}"
+  },
+  "0555": {
+   "h": "8d66e349",
+   "t": "{Speaker}Grrrrr....{SoftNewLine}Gaorrrrrrrrrr GRAAWWRRRR!!!{WaitInput}"
+  },
+  "0556": {
+   "h": "62f8657e",
+   "t": "{Speaker}Ach, {=nigel}...{SoftNewLine}seufz!... Ich wusste, dass du{SoftNewLine}kommst!{ContinuePrompt}"
+  },
+  "0557": {
+   "h": "6a0fae2b",
+   "t": "{Speaker}Ich möchte mich{SoftNewLine}noch einmal bedanken! Komm{SoftNewLine}doch zu mir nach Hause, wenn{SoftNewLine}du hier fertig bist!{WaitInput}"
+  },
+  "0558": {
+   "h": "900fe091",
+   "t": "{Speaker}{=nigel}! Dank dir{SoftNewLine}sind die Leute aus Massan{SoftNewLine}jetzt unsere guten Freunde.{ContinuePrompt}"
+  },
+  "0559": {
+   "h": "843dc27d",
+   "t": "{Speaker}Wir reparieren den{SoftNewLine}Weg! Geh nur kurz zur Seite...{WaitInput}"
+  },
+  "055A": {
+   "h": "87df22df",
+   "t": "{Speaker}Eins, zwei, drei!{ContinuePrompt}"
+  },
+  "055B": {
+   "h": "f3983fe5",
+   "t": "{Speaker}Hau-ruck!{SoftNewLine}Hau-RUCK!!{WaitInput}"
+  },
+  "055C": {
+   "h": "06c0876b",
+   "t": "{Speaker}So! Jetzt kannst du{SoftNewLine}den Weg jederzeit benutzen!{WaitInput}"
+  },
+  "055D": {
+   "h": "284d521d",
+   "t": "{Speaker}Ich hab's gehört!{SoftNewLine}Ich hab's gehört!{WaitInput}"
+  },
+  "055E": {
+   "h": "49883aca",
+   "t": "{Speaker}Die Diebe haben den{SoftNewLine}Bürgermeister umgebracht! Was{SoftNewLine}für ein Unglück!{ContinuePrompt}"
+  },
+  "055F": {
+   "h": "0d0fecdf",
+   "t": "{Speaker}Das muss ich allen{SoftNewLine}in der Stadt erzählen!{WaitInput}"
   }
  },
  "names": {
