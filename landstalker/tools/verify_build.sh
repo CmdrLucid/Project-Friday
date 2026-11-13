@@ -90,6 +90,7 @@ chk "Sprache: Namen-Option (japanische Originalnamen)" $G/src/func_table.c "LK_L
 chk "Sprache: Wortumbruch zur Laufzeit"          $G/src/func_table.c "LK_LGWRAP v1"
 chk "Japanisch: Kana-Itemnamen im Dialog"     $G/src/func_table.c "LK_JPITEMS v3"
 chk "Japanisch: Kana-Itemnamen im Menue"      $G/src/func_table.c "LK_JPMENU v1"
+chk "Sprachen: eigene Schriftbank (Koreanisch)" $G/src/func_table.c "LK_LGKO v1"
 chk "Licht: Pfeil ueber der Textbox unbeleuchtet"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_OVWUNLIT v1"
 chk "Zeitraffer-Taste (L5 + R5)"                    $G/src/input.c "lk_dn_fasttoggle"
 chk "Gegner zerfallen (Option)"                     $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DISSOLVE v1"

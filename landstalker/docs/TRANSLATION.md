@@ -56,3 +56,11 @@ Area by area (Massan + Gumi first): read the Japanese scene, note tone / jokes, 
 - Accents: LK_LGFR v1 (tools/langbuild.py): e-acute e-grave e-circ e-diaer a-grave a-circ u-grave u-circ u-diaer o-circ i-circ i-diaer c-cedilla + capitals E-acute E-grave E-circ A-grave O-circ C-cedilla; no oe ligature, no other capitals with accents (write A / U / I). Own UI text only e-acute e-grave a-grave e-circ c-cedilla o-circ a-circ (bytes $80..$86).
 - No space before ! ? : ; (the wrap would orphan the mark). Item sentences without an article before {Item} ('Trouve: {Item}.').
 - Sources and tools (local): ~/Project-Friday-Test/lktest/lang/work_fr/ (RULES.md, glossary.txt, blockN.txt), src_fr/fullN.py, extra_fr.json (names / UI / items_jp), tools chkfull_fr.py / chkwrap_fr.py / applyfull_fr.sh, French release text strings_fr.json (frdump.py; apostrophes lost in that decode).
+
+## 9. Korean = `lang/ko.json`, menu name 'Korean' (done 2026-11-13)
+- Translated from the JAPANESE original (user: word order, speech levels and forms of address carry over); content / split from the English release like every language. Names = the Japanese originals in Hangul (names.json 'ko'); particles after a placeholder are chosen for the Korean name (라일이 / 라일을); no particle directly after {Item} ('{Item}, 손에 넣었다.').
+- Voices: villagers plain with a light country flavour (~구먼, ~여); old men 하게체; staff 합니다 / 해요체 with '{=nigel} 님'; Friday 반말 ('메롱!'); the Duke '쿠쿠쿠', '{=nigel} 군'; Kayla '오호호호', '꼬마', '끼이익!'; the Massan boy says 형. Gold = 금화 ... 닢. Places: 메르카토르, 류마, 마산, 구미, 바라, 데스텔, 그린메이즈, 미르의 탑.
+- Characters: Hangul + the game's ASCII glyphs and arrows; no '~' (fixed space of langwrap), no '…', no Hanja.
+- Font: Galmuri 11 (SIL OFL 1.1, lang/OFL-Galmuri.txt), lang/ko_glyphs.dat from tools/kofont.py (needs Galmuri11.bdf from the Galmuri release, kept locally in ~/Project-Friday-Test/lktest/ko/).
+- Sources and tools (local): ~/Project-Friday-Test/lktest/lang/work_ko/ (RULES.md, jp_names.txt, blockN.txt), src_ko/fullN.py, extra_ko.json, tools chkfull_ko.py / chkwrap_ko.py / applyfull_ko.sh.
+- Not done: Korean in the menus (8x8 font: item names, Yes / No / Use / Equip, our options pages stay English).

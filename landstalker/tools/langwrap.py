@@ -25,7 +25,11 @@ def widths(rom):
     W = {ch: w(i) for i, ch in enumerate(sd.MAIN)}
     for ch, base in (("ä", "a"), ("ö", "o"), ("ü", "u"), ("Ä", "A"), ("Ö", "O"), ("Ü", "U")): W[ch] = W[base]
     W["ß"] = 9
-    for ch, (base, mk) in lb.FR_SET.items(): W[ch] = W[base]   # LK_LGFR v1: French accents keep the width of their letter (the cedilla / marks stay inside it)
+    for ch, (base, mk) in lb.FR_SET.items(): W[ch] = W[base]
+    try:   # LK_LGKO v1: Hangul widths from lang/ko_glyphs.dat (rightmost pixel column + 3, like the printer)
+        for cp in range(0xAC00, 0xD7A4):
+            rows = lb.ko_glyph_rows(chr(cp)); last = max([k for r in rows for k in range(12) if r & (0x8000 >> k)] or [8]); W[chr(cp)] = last + 3
+    except OSError: pass   # LK_LGFR v1: French accents keep the width of their letter (the cedilla / marks stay inside it)
     return W
 
 

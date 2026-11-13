@@ -181,11 +181,47 @@ def jp_names_lang(en, names):
     return lang
 
 
+# LK_LGKO v1 (user 2026-11-13: Korean, based on the Japanese original): Hangul syllables from lang/ko_glyphs.dat (Galmuri 11, OFL; tools/kofont.py), codes assigned per
+# language file: the characters of the NAMES first on byte codes (the name tables are bytes), the rest on $101.. (16-bit glyph words, language file version 3 like ja.bin);
+# low bytes the printer treats specially ($00 space, $40 / $47 speech blips, $7B / $7C marks) and the name codes $69..$6B are never used.
+KO_LO = [c for c in range(0x56, 0x100) if c not in (0x69, 0x6A, 0x6B, 0x7B, 0x7C)]
+KO_HI = [c for c in range(0x101, 0x889) if (c & 0xFF) not in (0x00, 0x40, 0x47, 0x7B, 0x7C)]
+
+
+def ko_glyph_rows(ch):
+    d = getattr(ko_glyph_rows, "d", None)
+    if d is None: d = ko_glyph_rows.d = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lang", "ko_glyphs.dat"), "rb").read()
+    i = ord(ch) - 0xAC00; return [struct.unpack(">H", d[6 + 22 * i + 2 * k:8 + 22 * i + 2 * k])[0] for k in range(11)] + [0] * 4
+
+
+def ko_codes(lang):
+    import re
+    hang = lambda t: [c for c in re.sub(r"\{[^}]*\}", "", t) if 0xAC00 <= ord(c) <= 0xD7A3]
+    first, rest = [], []
+    for blk in ("names", "item_dialog"):
+        for e in lang.get(blk, {}).values():
+            for c in hang(e["t"]):
+                if c not in first: first.append(c)
+    freq = {}
+    for e in list(lang.get("strings", {}).values()) + list(lang.get("items_jp", {}).get("strings", {}).values()):
+        for c in hang(e["t"]): freq[c] = freq.get(c, 0) + 1
+    rest = sorted((c for c in freq if c not in first), key=lambda c: -freq[c])
+    lo, hi, code = list(KO_LO), list(KO_HI), {}
+    for c in first + rest: code[c] = (lo or hi).pop(0)
+    return code
+
+
 def build_one(rom, en, lang_path, out_path, variant="local"):
     lang = json.load(open(lang_path, encoding="utf-8")) if isinstance(lang_path, str) else lang_path
     nm_tab = load_names(); base = lang.get("meta", {}).get("names", lang.get("meta", {}).get("code", "en")[:2])
     global EXTRA, UI_BYTES; fr = base == "fr"; EXTRA, UI_BYTES = (EXTRA_FR, UI_BYTES_FR) if fr else (EXTRA_DE, UI_BYTES_DE)   # LK_LGFR v1
     lang = json.loads(json.dumps(lang))   # a copy: the placeholders are resolved per variant
+    ko = base == "ko"
+    if ko:   # LK_LGKO v1: resolve the placeholders first, then give every Hangul syllable a code
+        for blk in ("strings", "names", "item_dialog"):
+            for ent in lang.get(blk, {}).values():
+                if "{=" in ent.get("t", ""): ent["t"] = resolve(ent["t"], nm_tab, base, variant)
+        EXTRA, UI_BYTES = ko_codes(lang), {}
     for blk in ("strings", "names"):
         for d in (lang.get(blk, {}), lang.get("items_jp", {}).get(blk, {})):   # LK_JPITEMS v1: block 'items_jp' = lines / names for Options > Items = Japanese
             for ent in d.values():
@@ -211,11 +247,12 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
         else:
             strs.append((sid, len(blob), len(words))); blob += b"".join(struct.pack(">H", w) for w in words) + b"\xff\xff"
     nl = [(k, e, 0) for k, e in lang.get("names", {}).items()] + [(k, e, 0x80) for k, e in lang.get("items_jp", {}).get("names", {}).items()]   # Items = Japanese: item name index | $80
+    nl += [(k, e, 0x40) for k, e in lang.get("item_dialog", {}).items()]   # LK_LGKO v1: item names used only by {Item} in the dialogue (patch_lang.py LK_JPITEMS v3: index | $40)
     for key, ent, ibit in nl:
         why = check(key, ent)
         if why: dropped.append((key, why)); continue
         tab, idx = key.split(":")
-        try: data = bytes(v for t, v in tokens(ent["t"]))
+        try: data = b"".join(struct.pack(">H", v) for t, v in tokens(ent["t"])) if ko else bytes(v for t, v in tokens(ent["t"]))   # LK_LGKO v1: 16-bit name codes (file version 4)
         except ValueError as e: dropped.append((key, str(e))); continue
         names.append((TABLES[tab], int(idx) | ibit, len(blob), len(data))); blob += data
     ui = [(UI_KEYS[k], v) for k, v in lang.get("ui_values", lang.get("ui", {})).items()]
@@ -226,10 +263,12 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
         except (ValueError, UnicodeEncodeError): dropped.append(("ui_text:" + k, "unsupported character")); continue
         if any(c > 0x86 or (c > 0x7E and c < 0x80) for c in vb) or len(kb) > 255 or len(vb) > 255: dropped.append(("ui_text:" + k, "unsupported character")); continue
         texts.append(bytes([len(kb), len(vb)]) + kb + vb)
-    glyphs = make_glyphs_fr(rom) if fr else make_glyphs(rom)
-    out = b"LKLG" + struct.pack(">HHHHHH", 2, len(strs), len(names), len(ui), len(glyphs), len(texts))
+    glyphs = {} if ko else (make_glyphs_fr(rom) if fr else make_glyphs(rom))
+    ver = 2
+    if ko: glyphs = {c: pack(ko_glyph_rows(ch)) + bytes(8) for ch, c in EXTRA.items()}; ver = 4   # LK_LGKO v1: 16-bit glyph codes + 16-bit name codes (language file version 4)
+    out = b"LKLG" + struct.pack(">HHHHHH", ver, len(strs), len(names), len(ui), len(glyphs), len(texts))
     out += b"".join(struct.pack(">HIH", *e) for e in strs) + b"".join(struct.pack(">BBIB", *e) for e in names)
-    out += b"".join(struct.pack(">HH", *e) for e in ui) + b"".join(bytes([c]) + d for c, d in sorted(glyphs.items())) + b"".join(texts) + bytes(blob)
+    out += b"".join(struct.pack(">HH", *e) for e in ui) + b"".join((struct.pack(">H", c) if ver >= 3 else bytes([c])) + d for c, d in sorted(glyphs.items())) + b"".join(texts) + bytes(blob)
     open(out_path, "wb").write(out)
     print("langbuild: %d strings, %d names, %d ui values, %d glyphs, %d ui texts -> %s (%d bytes); dropped %d" % (len(strs), len(names), len(ui), len(glyphs), len(texts), out_path, len(out), len(dropped)))
     for k, w in dropped: print("  dropped", k, "-", w)

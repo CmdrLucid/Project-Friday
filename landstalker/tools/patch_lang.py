@@ -19,9 +19,11 @@ if VER not in s:
     assert s.count(a) == 1, "bus.c layout changed"
     s = s.replace(a, '''/* ---- ''' + VER + ''' (tools/patch_lang.py): extra memory for the text layer at $800000 (64 KB, 68k word order = native 16-bit stores) ---- */
 uint8_t lk_lang_mem[0x10000];
+uint8_t lk_font_mem[0x10000];   /* LK_LGFONT v1: the text font of a language file at $820000 (own bank: codes up to $7FF = 2047 glyphs; Korean needs ~1100) */
 void lk_lang_map(void) {
     cpu_memory_map *m = &m68k.memory_map[0x80];
     m->base = lk_lang_mem; m->read8 = NULL; m->read16 = NULL; m->write8 = NULL; m->write16 = NULL;
+    m = &m68k.memory_map[0x82]; m->base = lk_font_mem; m->read8 = NULL; m->read16 = NULL; m->write8 = NULL; m->write16 = NULL;
 }
 void lk_lang_rom_patch32(uint32_t addr, uint32_t v) {   /* writes a long into the in-memory ROM image (native 16-bit words, like bus_read16 reads them) */
     cpu_memory_map *m = &m68k.memory_map[(addr >> 16) & 0xFF];
@@ -57,7 +59,7 @@ if VER in s:
 anchor = "static void lk_qs_install(void) {"
 assert s.count(anchor) == 1, "func_table.c: run patch_quicksave.py first"
 module = r'''/* ---- ''' + VER + r''': text layer (tools/patch_lang.py, docs/TEXT_LAYER.md) ---- */
-extern uint8_t lk_lang_mem[0x10000];
+extern uint8_t lk_lang_mem[0x10000]; extern uint8_t lk_font_mem[0x10000];   /* LK_LGFONT v1 */
 extern void lk_lang_map(void);
 extern void lk_lang_rom_patch32(uint32_t addr, uint32_t v);
 extern uint8_t lk_ji_mem[0x10000];
@@ -79,7 +81,7 @@ static LkLgStr *lk_lg_str; static int lk_lg_nstr;
 static LkLgName *lk_lg_name; static int lk_lg_nname;
 static const LkLgStr *lk_lg_cur; static int lk_lg_pos, lk_lg_ext, lk_lg_extcode; static int lk_lg_wstart = 1, lk_lg_lstart;   /* LK_LGWRAP v1 */
 static uint8_t *lk_lg_data;                                   /* the loaded language file (word streams are read from it) */
-static int lk_lg_on, lk_lg_hooked; uint8_t lk_vt_gl[128][8]; int lk_vt_on; static int lk_vt_ok;   /* LK_JPMENU v1 (below) */
+static int lk_lg_on, lk_lg_hooked, lk_lg_wide;   /* LK_LGKO v1: lk_lg_wide = language file version 4: name entries hold 16-bit codes (Korean) */ uint8_t lk_vt_gl[128][8]; int lk_vt_on; static int lk_vt_ok;   /* LK_JPMENU v1 (below) */
 static uint8_t lk_lg_mg[128], lk_lg_mgl[128][8];   /* menu font glyphs (8x8, 1bpp) of the extra characters, by character code */
 static uint16_t lk_lg_ui[8][2]; static int lk_lg_nui;                  /* language file block 'ui': key, value (docs/TEXT_LAYER.md) */
 static char lk_lg_codes[8][16], lk_lg_names[8][32]; static int lk_lg_nlang = 1, lk_lg_sel;   /* [0] = English (the original), then the languages of lang/index.txt */
@@ -89,6 +91,17 @@ static void (*lk_lg_o_pc)(void); static int lk_lg_inpc;   /* LK_JPITEMS v3 (user
    control of the dialogue printer: PopItem, LoadUncompressedString -> SkipToStringIndex; NOT ProcessChar: its control jump table tail-calls the handler after a wrapper returned) the item name is the DIALOGUE one: names with index | $40 (tools/jplang.py,
    Japanese kana names) are used only there; the menus (8x8 menu font, PopulateItemSlot_WriteItemName $00D5E4) keep the normal names */
 static void lk_lg_h_pc(void) { int sv = lk_lg_inpc; lk_lg_inpc = 1; lk_lg_o_pc(); lk_lg_inpc = sv; }
+static void (*lk_lg_o_cpy)(void);
+static void lk_lg_h_cpy(void) {   /* LK_LGKO v1: CopyStringToBuffer $02335C (a2 = name characters, d7 = count - 1 -> words at $FF119E, $FFFF end, $FF1844 = the buffer): our 16-bit names */
+    uint32_t a2 = g_m68k.a[2], a1 = 0xFF119Eu; int n, i;
+    if (!lk_lg_wide || a2 < 0x808000u || a2 >= 0x810000u) { lk_lg_o_cpy(); return; }
+    n = (int)(int16_t)(g_m68k.d[7] & 0xFFFF) + 1;
+    bus_write32(0xFF1844u, a1);
+    for (i = 0; i < n; i++) { bus_write16(a1, bus_read16(a2)); a1 += 2; a2 += 2; }
+    bus_write16(a1, 0xFFFF);
+    g_m68k.a[1] = a1; g_m68k.a[2] = a2; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | 0xFFFFu; g_m68k.d[0] &= 0xFFFF0000u;
+    func_table_rts();
+}
 static void lk_lg_put8(uint32_t off, uint8_t v) { lk_lang_mem[off ^ 1] = v; }
 static void lk_lg_put16(uint32_t off, uint16_t v) { *(uint16_t *)(lk_lang_mem + off) = v; }
 static uint16_t lk_lg_be16(const uint8_t *p) { return (uint16_t)(p[0] << 8 | p[1]); }
@@ -105,10 +118,11 @@ static void lk_lg_load(const char *path) {
     lk_lg_unload();
     if (!f) { fprintf(stderr, "lang: cannot open %s\n", path); return; }
     fseek(f, 0, SEEK_END); sz = ftell(f); fseek(f, 0, SEEK_SET); d = malloc((size_t)sz); if (fread(d, 1, (size_t)sz, f) != (size_t)sz) { fclose(f); free(d); return; } fclose(f);
-    if (sz < 16 || memcmp(d, "LKLG", 4) || (lk_lg_be16(d + 4) != 2 && lk_lg_be16(d + 4) != 3)) {   /* version 3 (tools/jplang.py): glyph entries with a 16-bit code */ fprintf(stderr, "lang: %s is not a language file (version 2 expected: run tools/langbuild.py again)\n", path); free(d); return; }
+    if (sz < 16 || memcmp(d, "LKLG", 4) || (lk_lg_be16(d + 4) < 2 || lk_lg_be16(d + 4) > 4)) {   /* version 3 (tools/jplang.py): glyph entries with a 16-bit code */ fprintf(stderr, "lang: %s is not a language file (version 2 expected: run tools/langbuild.py again)\n", path); free(d); return; }
     ns = lk_lg_be16(d + 6); nn = lk_lg_be16(d + 8); nu = lk_lg_be16(d + 10); ng = lk_lg_be16(d + 12); nt = lk_lg_be16(d + 14);
     q = d + 16; lk_lg_data = d; lk_lang_map(); memset(lk_lang_mem, 0, sizeof lk_lang_mem);
-    {   int gs = lk_lg_be16(d + 4) == 3 ? 40 : 39;   /* glyph entry: (u8 | u16 code) + 30 bytes main font + 8 bytes menu font */
+    lk_lg_wide = lk_lg_be16(d + 4) == 4;
+    {   int gs = lk_lg_be16(d + 4) >= 3 ? 40 : 39;   /* glyph entry: (u8 | u16 code) + 30 bytes main font + 8 bytes menu font */
         const uint8_t *se = q, *ne = se + 8 * ns, *ue = ne + 7 * nn, *ge = ue + 4 * nu, *te = ge + gs * ng, *blob = te;
         { const uint8_t *tp = te; int t; lk_lg_text = calloc((size_t)nt + 1, sizeof *lk_lg_text); lk_lg_ntext = nt;
           for (t = 0; t < nt; t++) { int kl = tp[0], vl = tp[1]; lk_lg_text[t].k = malloc((size_t)kl + 1); memcpy(lk_lg_text[t].k, tp + 2, (size_t)kl); lk_lg_text[t].k[kl] = 0; lk_lg_text[t].v = malloc((size_t)vl + 1); memcpy(lk_lg_text[t].v, tp + 2 + kl, (size_t)vl); lk_lg_text[t].v[vl] = 0; tp += 2 + kl + vl; }
@@ -124,13 +138,14 @@ static void lk_lg_load(const char *path) {
         }
         lk_lg_nname = nn;
         for (i = 0; i < nu && i < 8; i++) { lk_lg_ui[i][0] = lk_lg_be16(ue + 4 * i); lk_lg_ui[i][1] = lk_lg_be16(ue + 4 * i + 2); } lk_lg_nui = nu < 8 ? nu : 8;
-        /* font: the ROM's glyphs 0..$6B (30 bytes each) + the new ones, at $801000; MainFontPtr $022E84 -> there */
-        for (i = 0; i < 0x6C * 30; i += 2) lk_lg_put16(0x1000u + (uint32_t)i, bus_read16(0x02A884u + (uint32_t)i));
+        /* font: the ROM's glyphs 0..$6B (30 bytes each) + the new ones, at $820000 (LK_LGFONT v1, own 64 KB bank); MainFontPtr $022E84 -> there */
+        memset(lk_font_mem, 0, sizeof lk_font_mem);
+        for (i = 0; i < 0x6C * 30; i += 2) *(uint16_t *)(lk_font_mem + i) = bus_read16(0x02A884u + (uint32_t)i);
         for (i = 0; i < ng; i++) { const uint8_t *g = ge + gs * i; int k, c = gs == 40 ? lk_lg_be16(g) : g[0]; const uint8_t *gd = g + gs - 38;
-            if (0x1000u + 30u * (uint32_t)c + 30u > 0x8000u) continue;   /* the names start at $808000 */
-            for (k = 0; k < 30; k += 2) lk_lg_put16(0x1000u + 30u * (uint32_t)c + (uint32_t)k, lk_lg_be16(gd + k));
+            if (30u * (uint32_t)c + 30u > 0x10000u) continue;   /* LK_LGFONT v1: codes up to $888 fit the bank */
+            for (k = 0; k < 30; k += 2) *(uint16_t *)(lk_font_mem + 30u * (uint32_t)c + (uint32_t)k) = lk_lg_be16(gd + k);
             if (c < 128) { lk_lg_mg[c] = 1; memcpy(lk_lg_mgl[c], gd + 30, 8); } }
-        lk_lang_rom_patch32(0x022E84u, 0x801000u);
+        lk_lang_rom_patch32(0x022E84u, 0x820000u);
     }
     fprintf(stderr, "lang: loaded %s: %d strings, %d names, %d glyphs\n", path, ns, nn, ng);
     lk_lg_on = 1;
@@ -150,7 +165,7 @@ static void lk_lg_h_ics(void) {   /* InitCompString $022FCC: D0 = string id */
    Before the first letter of every word the real x (word $FF1194) + the word's width (font rule of tools/romtext.py) is checked; if it does not end before LK_LG_XMAX a
    SoftNewLine is sent first.  Works for any speaker name length and every language; LANDSTALKER_LANGWRAP=0 = off */
 #define LK_LG_XMAX 284
-static int lk_lg_gw(uint16_t c) { int last = -1, r, k; if (c == 0) return 8; for (r = 0; r < 15; r++) { uint16_t v = bus_read16(0x801000u + 30u * c + 2u * (uint32_t)r); for (k = 0; k < 12; k++) if ((v & (0x8000u >> k)) && k > last) last = k; } return last + 3; }
+static int lk_lg_gw(uint16_t c) { int last = -1, r, k; if (c == 0) return 8; for (r = 0; r < 15; r++) { uint16_t v = bus_read16(0x820000u + 30u * c + 2u * (uint32_t)r); for (k = 0; k < 12; k++) if ((v & (0x8000u >> k)) && k > last) last = k; } return last + 3; }
 static void lk_lg_h_dc(void) {    /* DecodeChar $0246B2: the next character in the Huffman character domain: glyph < $55, control $56 + k, end $55 */
     if (lk_lg_cur) {
         uint16_t w = lk_lg_pos < lk_lg_cur->n ? lk_lg_be16(lk_lg_cur->w + 2 * lk_lg_pos++) : 0xFFFF; uint8_t ch;
@@ -185,11 +200,11 @@ static void lk_lg_h_skip(void) {  /* SkipToStringIndex $0294B6: A2 = table, D1 =
     if (tab < 0) return;
     lk_lang_map();
     if (tab == 3 && idx < 0x40 && lk_lg_inpc) for (i = 0; i < lk_lg_nname; i++) if (lk_lg_name[i].tab == 3 && lk_lg_name[i].idx == (idx | 0x40)) {   /* LK_JPITEMS v3 */
-        g_m68k.a[2] = lk_lg_name[i].addr; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | (uint32_t)(lk_lg_name[i].n - 1); return; }
+        g_m68k.a[2] = lk_lg_name[i].addr; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | (uint32_t)((lk_lg_wide ? lk_lg_name[i].n / 2 : lk_lg_name[i].n) - 1); return; }
     if (tab == 3 && idx < 0x80 && lk_items_get()) for (i = 0; i < lk_lg_nname; i++) if (lk_lg_name[i].tab == 3 && lk_lg_name[i].idx == (idx | 0x80)) {   /* LK_JPITEMS v1 */
-        g_m68k.a[2] = lk_lg_name[i].addr; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | (uint32_t)(lk_lg_name[i].n - 1); return; }
+        g_m68k.a[2] = lk_lg_name[i].addr; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | (uint32_t)((lk_lg_wide ? lk_lg_name[i].n / 2 : lk_lg_name[i].n) - 1); return; }
     for (i = 0; i < lk_lg_nname; i++) if (lk_lg_name[i].tab == tab && lk_lg_name[i].idx == idx) {
-        g_m68k.a[2] = lk_lg_name[i].addr; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | (uint32_t)(lk_lg_name[i].n - 1); return; }
+        g_m68k.a[2] = lk_lg_name[i].addr; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | (uint32_t)((lk_lg_wide ? lk_lg_name[i].n / 2 : lk_lg_name[i].n) - 1); return; }
 }
 static void lk_lg_h_dma(void) {   /* QueueDMAOp $000DD6: the menu font (g_Buffer + $84 = $FF2C84, expanded 1bpp -> 4bpp, 32 bytes per tile slot) goes to VRAM $0000: put the extra characters' tiles in first */
     if (lk_lg_on && g_m68k.a[0] == 0xFF2C84u && g_m68k.a[1] == 0 && lk_lg_o_dma) {
@@ -384,7 +399,7 @@ static void lk_lang_install(void) {
     lk_lang_map();
     lk_lg_o_ics = func_table_lookup(0x022FCC); lk_lg_o_dc = func_table_lookup(0x0246B2); lk_lg_o_gnc = func_table_lookup(0x023044); lk_lg_o_skip = func_table_lookup(0x0294B6); lk_lg_o_dma = func_table_lookup(0x000DD6); lk_lg_o_pc = func_table_lookup(0x0231E2);
     if (lk_lg_o_ics && lk_lg_o_dc && lk_lg_o_gnc && lk_lg_o_skip && lk_lg_o_dma) {
-        func_table_register(0x022FCC, lk_lg_h_ics); func_table_register(0x0246B2, lk_lg_h_dc); func_table_register(0x023044, lk_lg_h_gnc); func_table_register(0x0294B6, lk_lg_h_skip); func_table_register(0x000DD6, lk_lg_h_dma); if (lk_lg_o_pc) func_table_register(0x0231E2, lk_lg_h_pc); lk_vt_o_wn = func_table_lookup(0x00D5E4); if (lk_vt_o_wn) func_table_register(0x00D5E4, lk_vt_h_wn); lk_lg_hooked = 1;
+        func_table_register(0x022FCC, lk_lg_h_ics); func_table_register(0x0246B2, lk_lg_h_dc); func_table_register(0x023044, lk_lg_h_gnc); func_table_register(0x0294B6, lk_lg_h_skip); func_table_register(0x000DD6, lk_lg_h_dma); if (lk_lg_o_pc) func_table_register(0x0231E2, lk_lg_h_pc); lk_lg_o_cpy = func_table_lookup(0x02335C); if (lk_lg_o_cpy) func_table_register(0x02335C, lk_lg_h_cpy); lk_vt_o_wn = func_table_lookup(0x00D5E4); if (lk_vt_o_wn) func_table_register(0x00D5E4, lk_vt_h_wn); lk_lg_hooked = 1;
     } else { fprintf(stderr, "lang: InitCompString / DecodeChar / GetNextChar / SkipToStringIndex not all found (%p %p %p %p)\n", (void *)lk_lg_o_ics, (void *)lk_lg_o_dc, (void *)lk_lg_o_gnc, (void *)lk_lg_o_skip); lk_lg_nlang = 1; return; }
     if (!want) {                                                            /* LANDSTALKER_LANG=<code> overrides the saved ~/.landstalker_lang */
         char code[16] = "";
