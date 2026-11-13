@@ -686,11 +686,15 @@ float termS(vec3 p, vec3 n, vec4 L, float kk, vec2 wf) {   /* lk_lt_term with it
       for (int st = 0; st < 400; st++) { float t = 2.0 + 2.0 * float(st); if (t >= e - 3.0) break;
         vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); if (own > 0.0 && q.z < L.z && length(q.xy - L.xy) < own) continue;
         float fx = floor(q.x / 4.0), fy = floor(q.y / 4.0), top = uIfine > 0.5 ? ifh(fx, fy, 1.0) : topT(floor(q.x / 16.0), floor(q.y / 16.0));
-        if (own > 0.0 && uProng < 0.999 && length(q.xy - L.xy) < own) {   /* LK_GLPRONG v1 (user 2026-11-13, room 99 'mach diesen Schatten noch weicher'): the bowl's PRONGS rise above the flame
-             (L.z = bowl top + 5) and cast hard vertical stripes up the wall; in the stand's own column above the flame they now hold back only uProng of the light, with a soft
-             clearance edge (LANDSTALKER_LT_PRONG, default 0.4; 1 = old hard prong shadow, 0 = none) */
-          bool hit = (uNslab > 0.5 && slabin(fx, fy, q.z)) || q.z < top - 0.5; float cl = hit ? 0.0 : (top > -32768.0 ? clamp(4.0 * (q.z - top) / t, 0.0, 1.0) : 1.0);
-          res = min(res, 1.0 - uProng * (1.0 - cl)); continue; }
+        if (own > 0.0 && length(q.xy - L.xy) < own) {   /* LK_GLPRONG v2 (user 2026-11-13, room 99: 'mach diesen Schatten noch weicher', then 'die Flamme sitzt in der Mitte der 4 Zacken,
+             nur 2 duerften Schatten werfen'): the flame (L.z = bowl top + 5) sits ABOVE the prong tips; the generic soft edge 4 * clearance / t (no light size, built for occluders
+             far from the light) darkened every ray grazing over the 4 prongs near the flame -> 4 hard stripes up the wall (2 prongs x the 2 area points).  In the stand's own column
+             the edge now uses the flame's size: the cone from the receiver to a flame of radius 3 has radius 3 t / e at the occluder; visible share 0.5 + 0.5 clearance / cone.
+             uProng (LANDSTALKER_LT_PRONG) scales the prong shadow; DEFAULT 0 = no prong shadow above the flame: with 1 the stripes stayed (lktest/sweep1113 v2), because the
+             light's height field knows the stand only on the 4 unit grid (or the 16 unit cell): the 1..2 unit prongs become 4 x 4 blocks whose edges make the stripes.  Physically
+             the flame above the tips throws no prong shadow upward anyway; below the flame the stand column stays skipped (LK_GLCARRIER v1).  v1 (0.4 x the old edge) is gone */
+          bool hit = uNslab > 0.5 && slabin(fx, fy, q.z); float cn = max(3.0 * t / e, 0.5), vis = hit ? 0.0 : (top > -32768.0 ? clamp(0.5 + 0.5 * (q.z - top) / cn, 0.0, 1.0) : 1.0);
+          res = min(res, 1.0 - uProng * (1.0 - vis)); continue; }
         if (uNslab > 0.5 && slabin(fx, fy, q.z)) { res = 0.0; break; }   /* v9 */
         if (q.z < top - 0.5) { res = 0.0; break; }
         if (uIfine > 0.5) { float c2 = slabcl(fx, fy, q.z); if (c2 < 9999.0) { float r2 = 4.0 * c2 / t; if (r2 < res) res = r2; } c2 = halocl(q.x, q.y, q.z); if (c2 < 9999.0) { float r2 = 4.0 * c2 / t; if (r2 < res) res = r2; } }
@@ -1347,7 +1351,7 @@ static int lk_g5_bind(const float *lp, const float *lc, int fresh) {   /* progra
   for (k = 0; k < 16; k++) { float a = (float)k * 0.39269908f; dv[2 * k] = cosf(a); dv[2 * k + 1] = sinf(a); }   /* the directions of lk_lt_aoval (same libm) */
   lk_glUseProgram(lk_g5_prog);
   lk_glUniform1i(lk_g5_u[2], 4); lk_glUniform1i(lk_g5_u[3], 9); lk_glUniform1i(lk_g5_u[4], 0);
-  lk_glUniform4fv(lk_g5_u[5], 96, lp); lk_glUniform4fv(lk_g5_u[6], 96, lc); if (lk_g5_lf) lk_glUniform4fv(lk_g5_u[54], 96, lk_g5_lf); { static int sr = -1; if (sr < 0) { const char *e = getenv("LANDSTALKER_LT_SOFTR"); sr = e ? atoi(e) != 0 : 0; } lk_glUniform1f(lk_g5_u[55], (float)sr); } { static float pr = -1.0f; if (pr < 0.0f) { const char *e = getenv("LANDSTALKER_LT_PRONG"); pr = e ? (float)atof(e) : 0.4f; if (pr < 0.0f || pr > 1.0f) pr = 0.4f; } lk_glUniform1f(lk_g5_u[56], pr); }   /* LK_GLPRONG v1 */   /* LK_GLSOFTR v1 */   /* LK_GLWIDE v2 */
+  lk_glUniform4fv(lk_g5_u[5], 96, lp); lk_glUniform4fv(lk_g5_u[6], 96, lc); if (lk_g5_lf) lk_glUniform4fv(lk_g5_u[54], 96, lk_g5_lf); { static int sr = -1; if (sr < 0) { const char *e = getenv("LANDSTALKER_LT_SOFTR"); sr = e ? atoi(e) != 0 : 0; } lk_glUniform1f(lk_g5_u[55], (float)sr); } { static float pr = -1.0f; if (pr < 0.0f) { const char *e = getenv("LANDSTALKER_LT_PRONG"); pr = e ? (float)atof(e) : 0.0f; if (pr < 0.0f || pr > 1.0f) pr = 0.0f; } lk_glUniform1f(lk_g5_u[56], pr); }   /* LK_GLPRONG v2 */   /* LK_GLSOFTR v1 */   /* LK_GLWIDE v2 */
   { extern int lk_lt_sside_get(void); lk_glUniform1f(lk_g5_u[36], lk_lt_sside_get() ? 1.0f : 0.0f); } lk_glUniform1f(lk_g5_u[37], sc[24]); lk_glUniform1f(lk_g5_u[38], sc[25]); lk_glUniform1f(lk_g5_u[39], sc[26]); lk_glUniform1f(lk_g5_u[40], sc[27]); lk_glUniform1f(lk_g5_u[8], sc[0]); lk_glUniform1f(lk_g5_u[9], sc[1]); lk_glUniform1f(lk_g5_u[10], sc[2]); lk_glUniform1f(lk_g5_u[11], sc[3]); lk_glUniform1f(lk_g5_u[12], sc[4]);
   { static float pd[7]; if (lk_gm_on && lk_gs_opt > 0 && (sc[6] != pd[0] || sc[7] != pd[1] || sc[8] != pd[2] || sc[14] != pd[3] || sc[15] != pd[4] || sc[16] != pd[5] || sc[17] != pd[6])) {
       pd[0] = sc[6]; pd[1] = sc[7]; pd[2] = sc[8]; pd[3] = sc[14]; pd[4] = sc[15]; pd[5] = sc[16]; pd[6] = sc[17]; lk_gm_render(sc, 1); lk_glUseProgram(lk_g5_prog); } }   /* stage 2: a new key / sun direction */

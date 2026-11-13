@@ -76,7 +76,7 @@ chk "GPU-AO unter schwebenden Modellteilen"        $G/src/platform_sdl.c "LK_GLA
 chk "GPU-Licht: breite Feuer (Kamine)"             $G/src/platform_sdl.c "LK_GLWIDE v2"
 chk "GPU-Licht: runde Modelle weich vom Feuer"       $G/src/platform_sdl.c "LK_GLSOFTR v1"
 chk "GPU-Licht: Feuer ohne Schatten des eigenen Staenders" $G/src/platform_sdl.c "LK_GLCARRIER v1"
-chk "GPU-Licht: weiche Schatten der Schalenzacken"  $G/src/platform_sdl.c "LK_GLPRONG v1"
+chk "GPU-Licht: weiche Schatten der Schalenzacken"  $G/src/platform_sdl.c "LK_GLPRONG v2"
 chk "Licht: Traeger-Tabelle der Feuerstaender"     $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_GLCARRIER v1"
 chk "Licht: Boden fuer leere Felder (Kirchensockel)" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTGROUND v1"
 chk "Licht: Feuerbreite je Flamme"                  $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTWIDE v2"
