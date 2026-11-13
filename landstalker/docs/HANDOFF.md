@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 52-57
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 742-753
-- 1. Where we are: lines 754-886
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 887-1113
-- 3. How the user works (important): lines 1114-1129
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1130-1154
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1155-1163
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1164-1211
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1212-1221
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1222-1223
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1224-1226
-- NEXT STEPS, newest first: -189 888, -188 889, -187 890, -186 891, -185 892, -184 893, -183 894, -182 895, -181 896, -180 897
+- 1. Where we are: lines 754-887
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 888-1114
+- 3. How the user works (important): lines 1115-1130
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1131-1155
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1156-1164
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1165-1212
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1213-1222
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1223-1224
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1225-1227
+- NEXT STEPS, newest first: -189 889, -188 890, -187 891, -186 892, -185 893, -184 894, -183 895, -182 896, -181 897, -180 898
 - Newest entries:
   - 0a426 line 187: 2026-11-14 (Deck, Opus 5.5 + 8 Sonnet agents for the mapping): JAPANESE = THE ORIGINAL TEXT (LK_JPLANG v1,...
   - 0a425 line 188: 2026-11-14 (Deck, Opus 5.5): OPTIONS > ITEMS: ORIGINAL / JAPANESE (LK_JPITEMS v1, user: 'am liebsten die Sp...
@@ -752,6 +752,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-14 END (Opus 5.5 + 8 Sonnet agents for the Japanese mapping, `dev` pushed, main = v1.9.1):** German dialogue COMPLETE (2126 strings), English (original tone) 'English (JP)' COMPLETE (617 strings), Options > Items Original / Japanese (pictures from the player's Japanese ROM), Japanese as a language (original text from the player's Japanese ROM, only listed when it is found). All headless-verified (screenshots of the Massan priest / Destel church); the user has NOT played any of it yet. Open: user test, Japanese mapping fixes on report, then French.
 - **2026-11-13 NIGHT END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** German translation in progress: names of the German release + Names option (Japanese originals), style guide docs/TRANSLATION.md, 1036 of ~2175 strings (Massan, Gumi, shops / churches / inns, Ryuma, Mercator town / harbour / castle); user played Massan in German ('sprachlich gut', fixes confirmed 'sieht gut aus'); Ryuma + Mercator not played. Home clean-up done (~/Project-Friday-Test). Details 0a423.
 - **2026-11-13 LATE END (Opus 5.5, no agents): RELEASE v1.9.0 (main = dev, tag v1.9.0).** Room sweep (clean except room 99), stand flame stripes fixed at the root (phantom pillars from one-cell-off stand ops, 12 rooms), night window tops of right walls lit, Lighting default On, release notes in the user's wording. Headless / GPU shots only; the user saw the before / after pictures, did not play the last build. Details 0a421 + INDEX status.
 - **2026-11-13 END (Opus 5.5, no agents, `dev` pushed, main = v1.8.0):** CPU light removed from play and code (user played: 'alles gut', Display without 'Renderer', Lighting <-> GPU Filters coupled); room 62 flame shadow fix (LK_LTPAIRRAD v1); real 3D light shapes for 11 rooms' standing torches, the balustrades of 95 / 89 / 62 (59..61), the bedroom tables (ts 15), the messy dining table 98 / 99, the shop counters; room 95 stair corners fixed. HEADLESS verified (GPU shots before / after, overlays, lightedges); user approved every model on clay previews, NOT played yet except the CPU-removal build. Mercator entry stutter: user tests in Game Mode. Details 0a419 / 0a420 + INDEX status.

@@ -327,3 +327,9 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
 
 ## Plane A cell words of the own renderer (lk_o_pa) - flags above bit 16 (2026-11-12)
 * V: bit 16 = cell present, bits 0..15 = the VDP tile word; bit 17 = drop one colour index, bits 18..21 = that index (LK_GLUNPAINTA v1, set by lk_gl_unpaint for data/light_proxies.json op `unpaint` with `layer: a`, GPU light + 3D models only; lk_o_fetch / lk_sm_fetch return 0 for it, the GPU compositor gets it in the plane texture's alpha, 255 = none). Hash / compare plane words with mask 0x1FFFF.
+
+## Japanese ROM text layout, item frame pointers, language file v3 (2026-11-14, Opus 5.5; V = decoder output equals the disassembly's strings for indices 0..2025 + headless screenshots)
+- V Japanese ROM ('Koutei no Zaihou'): Huffman char offsets $23C94, trees $23E8E, 8 string bank pointers $38532 (begin code $E9, controls $EA + k with the US meanings; voicing marks 123 / 124 stand BEFORE the kana), main font $2B4B8 (30-byte glyphs as US), name tables char $2A2EA / special $2A3E4 / item $2A43A, menu font $DBF2. Details TEXT_LAYER section 10.
+- V Item pictures: sprite graphic $23; frame pointer of item id = long at (anim table of $23) + ((id >> 3) & 7) * 4 -> + (id & 7) * 4. The Japanese ROM draws items 36 / 41 / 48 / 54 differently (Pink Book, T-back, Bunny-chan, bunny suit). TEXT_LAYER section 9.
+- V Printer: PrintCharDirect_Body $023612 / ProcessChar $0230CA compare only the low byte ($00 space, $7B / $7C voicing marks, CHR_BEGIN_TALK $47, CHR_ELLIPSIS_DOT $40); the glyph offset uses the whole word -> extended glyph codes above $FF work if their low byte avoids those values.
+- V Language file version 3 (tools/jplang.py): like version 2, but glyph entries are 40 bytes (u16 code + 30 + 8).

@@ -229,3 +229,4 @@
 - L1830: Session 2026-11-12 evening / night: room 62 flame shadow, Mercator stutter measured, CPU light removed (Deck, Opus 5.5, no agents)
 - L1835: Session 2026-11-13: light shapes as real 3D models (stands, balustrades, tables, counters) (Deck, Opus 5.5, no agents)
 - L1842: Session 2026-11-13 afternoon / evening: room sweep, v1.9.0 + hotfix v1.9.1, home clean-up, German translation (Deck, Opus 5.5, no agents)
+- L1850: Session 2026-11-14: German + English (original tone) complete, Options > Items, Japanese language (Deck, Opus 5.5; 8 Sonnet agents for the Japanese mapping)
