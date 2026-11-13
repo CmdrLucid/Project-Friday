@@ -96,9 +96,13 @@
    "h": "96ea8904",
    "t": "Bürgermeister"
   },
+  "char:02": {
+   "h": "03fd7b81",
+   "t": "{=hahna}"
+  },
   "char:03": {
    "h": "c6301afb",
-   "t": "Geier"
+   "t": "{=pockets}"
   },
   "char:05": {
    "h": "89ff3122",
@@ -111,6 +115,10 @@
   "char:07": {
    "h": "0f775394",
    "t": "Gastwirt"
+  },
+  "char:08": {
+   "h": "0f511658",
+   "t": "{=prospero}"
   },
   "char:09": {
    "h": "96ea8904",
@@ -160,9 +168,17 @@
    "h": "89ff3122",
    "t": "Besitzer"
   },
+  "char:24": {
+   "h": "9ba31e7f",
+   "t": "{=fahl}"
+  },
   "char:25": {
    "h": "89ff3122",
    "t": "Besitzer"
+  },
+  "char:26": {
+   "h": "55f99091",
+   "t": "{=ludwig}"
   },
   "char:27": {
    "h": "89ff3122",
@@ -172,9 +188,17 @@
    "h": "b45c5249",
    "t": "Priester"
   },
+  "char:30": {
+   "h": "8bae3f7d",
+   "t": "{=arthur}"
+  },
+  "char:31": {
+   "h": "50f27cd8",
+   "t": "{=julie}"
+  },
   "char:32": {
    "h": "a9db9067",
-   "t": "Juna"
+   "t": "{=june}"
   },
   "char:33": {
    "h": "dcec1bd0",
@@ -224,21 +248,53 @@
    "h": "89ff3122",
    "t": "Besitzer"
   },
+  "char:46": {
+   "h": "7cfb7805",
+   "t": "{=kayla}"
+  },
+  "char:47": {
+   "h": "abe7435e",
+   "t": "{=wally}"
+  },
+  "char:48": {
+   "h": "0480691e",
+   "t": "{=ink}"
+  },
   "char:49": {
    "h": "081677f6",
    "t": "Dux"
   },
   "char:50": {
    "h": "c970db69",
-   "t": "Zack"
+   "t": "{=zak}"
+  },
+  "char:51": {
+   "h": "c6fd6a7c",
+   "t": "{=dexter}"
   },
   "char:53": {
    "h": "b45c5249",
    "t": "Priester"
   },
+  "char:54": {
+   "h": "da55b559",
+   "t": "{=lara}"
+  },
+  "char:55": {
+   "h": "9f9b55bf",
+   "t": "{=einstein}"
+  },
   "char:56": {
    "h": "1c9809c6",
    "t": "Waldstein"
+  },
+  "char:57": {
+   "h": "4193634a",
+   "t": "{=kado}"
+  },
+  "char:59": {
+   "h": "6441dd07",
+   "t": "{=helga}"
   },
   "item:00": {
    "h": "6a119137",
@@ -562,23 +618,43 @@
   },
   "special:00": {
    "h": "275632bb",
-   "t": "Niels"
+   "t": "{=nigel}"
   },
   "special:01": {
    "h": "d166e844",
-   "t": "Flora"
+   "t": "{=friday}"
   },
   "special:03": {
    "h": "cdf92988",
    "t": "Ork-König"
   },
+  "special:08": {
+   "h": "adcee155",
+   "t": "{=tibor}"
+  },
   "special:09": {
    "h": "081677f6",
    "t": "Dux"
   },
+  "special:10": {
+   "h": "04b125de",
+   "t": "{=spinner}"
+  },
+  "special:11": {
+   "h": "aafd0187",
+   "t": "{=pixie}"
+  },
+  "special:12": {
+   "h": "72438c18",
+   "t": "{=trixie}"
+  },
   "special:13": {
    "h": "0941ee80",
    "t": "Nolo"
+  },
+  "special:14": {
+   "h": "9ba31e7f",
+   "t": "{=fahl}"
   }
  },
  "ui": {
@@ -618,7 +694,7 @@
   "SAME NUMBER: CONNECTED DOORS": "GLEICHE ZAHL: VERBUNDENE TUEREN",
   "Smooth Scrolling": "Weiches Scrollen",
   "Sprint Key": "Sprint-Taste",
-  "Friday Hints": "Floras Hinweise",
+  "Friday Hints": "{=friday:gen} Hinweise",
   "Sword Effects": "Schwert-Effekte",
   "Lighting": "Licht",
   "Boot Colors": "Stiefelfarben",
@@ -645,7 +721,7 @@
   "GPU takes load off the CPU": "GPU entlastet den Prozessor",
   "Window or full screen": "Fenster oder Vollbild",
   "Original or modern life display": "Original- oder moderne Anzeige",
-  "Shadow under Nigel for jumps": "Schatten unter Niels beim Springen",
+  "Shadow under Nigel for jumps": "Schatten unter {=nigel} beim Springen",
   "Flames, ice, sparks on swords": "Flammen, Eis, Funken am Schwert",
   "Boots show the equipped pair": "Stiefel zeigen die getragenen",
   "Torches, sun and shadows": "Fackeln, Sonne und Schatten",
@@ -673,9 +749,9 @@
   "B goes back to the menu bar": "B führt zurück zur Menüleiste",
   "Objects stay on moving platforms": "Objekte bleiben auf Plattformen",
   "Gaia attack without freezing": "Gaia-Angriff ohne Standbild",
-  "How much enemies hurt Nigel": "Wie stark Gegner Niels treffen",
+  "How much enemies hurt Nigel": "Wie stark Gegner {=nigel} treffen",
   "How much health enemies have": "Wie viel Leben Gegner haben",
-  "Select: Friday says where to go": "Select: Flora gibt Hinweise",
+  "Select: Friday says where to go": "Select: {=friday} gibt Hinweise",
   "Language of texts and menus": "Sprache von Texten und Menüs",
   "Options": "Optionen",
   "Video": "Video",
@@ -753,7 +829,7 @@
   "LEATHER": "LEDER",
   "NONE": "NICHTS",
   "SABR": "SPSR",
-  "Restores HP, Friday revives you": "Heilt HP, Flora belebt dich",
+  "Restores HP, Friday revives you": "Heilt HP, {=friday} belebt dich",
   "Charged: flames engulf the enemy": "Geladen: Flammen hüllen Feind ein",
   "Charged: ice whirlwind freezes": "Geladen: Eiswirbel friert ein",
   "Charged: lightning bolt": "Geladen: Blitzschlag",
@@ -780,10 +856,10 @@
   "Entry to the Casino": "Eintritt ins Kasino",
   "Cuts down discolored trees": "Fällt verfärbte Bäume",
   "Lights up dark rooms": "Erhellt dunkle Räume",
-  "Makes Miro run from Nigel": "Miro flieht vor Niels",
+  "Makes Miro run from Nigel": "Miro flieht vor {=nigel}",
   "Powers the Lighthouse light": "Betreibt das Leuchtturmlicht",
   "Breaks the Mir Tower barrier": "Bricht die Barriere von Mirs Turm",
-  "Calls Einstein, talks to dogs": "Ruft Einstein, spricht mit Hunden",
+  "Calls Einstein, talks to dogs": "Ruft {=einstein}, spricht mit Hunden",
   "Lets you buy from the warehouse": "Erlaubt Kauf im Lagerhaus",
   "Jewel for the Gola Eye": "Juwel für das Gola-Auge",
   "Shows where the 5 jewels are": "Zeigt, wo die 5 Juwelen sind",
@@ -796,8 +872,12 @@
   "Opens locked doors": "Öffnet verschlossene Türen",
   "Allows entry to Mercator": "Erlaubt Einlass in Merkator",
   "Rings near a Life Stock": "Klingelt nahe eines Lebensvorrats",
-  "Makes Friday happy or mad": "Macht Flora froh oder wütend",
+  "Makes Friday happy or mad": "Macht {=friday} froh oder wütend",
   "Gola treasure for the Palace": "Gola-Schatz für den Palast",
-  "NOT NOW": "JETZT NICHT"
+  "NOT NOW": "JETZT NICHT",
+  "Names": "Namen",
+  "Localized": "Lokalisiert",
+  "Japanese": "Japanisch",
+  "Character names: localized or Japanese": "Figurennamen: lokalisiert oder japanisch"
  }
 }

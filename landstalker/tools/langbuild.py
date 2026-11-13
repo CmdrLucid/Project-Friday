@@ -106,8 +106,53 @@ def preview(rom, glyphs, path, text):
     png(path, W, H, px)
 
 
-def build_one(rom, en, lang_path, out_path):
-    lang = json.load(open(lang_path))
+NAMES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lang", "names.json")
+
+
+def load_names():
+    """lang/names.json: key -> {en, de, jp, auto} (the Names option; LK_LGNAMES v1)"""
+    try: d = json.load(open(NAMES_FILE, encoding="utf-8"))
+    except (OSError, ValueError): return {}
+    return {k: v for k, v in d.items() if not k.startswith("_")}
+
+
+def name_form(names, key, form, base, variant):
+    """{=key} / {=key:gen}: the name in the language 'base' (de / en) or the Japanese original (variant 'jp'); German genitive: + s, or an apostrophe after s / x / z"""
+    e = names.get(key)
+    if e is None: raise ValueError("unknown name placeholder {=%s}" % key)
+    n = e["jp"] if variant == "jp" else e.get(base, e["en"])
+    if form == "gen":
+        if base == "de": return n + "'" if n[-1] in "sxzß" else n + "s"
+        return n + "'s"
+    return n
+
+
+def resolve(text, names, base, variant):
+    import re
+    return re.sub(r"\{=([a-z0-9_]+)(?::([a-z]+))?\}", lambda m: name_form(names, m.group(1), m.group(2), base, variant), text)
+
+
+def jp_names_lang(en, names):
+    """the original English text with the Japanese character names (en.jpn.bin): every English string / name table entry that contains a localized name word"""
+    import re
+    rep = [(e["en"], e["jp"]) for e in names.values() if e.get("auto", True) and e["en"] != e["jp"]]
+    if not rep: return None
+    pat = re.compile(r"\b(" + "|".join(re.escape(a) for a, b in rep) + r")\b"); m = dict(rep)
+    lang = {"meta": {"code": "en", "name": "English"}, "strings": {}, "names": {}}
+    for k, v in en.items():
+        if k.startswith("item:") or k.startswith("menu:"): continue
+        t = pat.sub(lambda x: m[x.group(1)], v)
+        if t != v: lang["names" if ":" in k else "strings"][k] = {"h": hashlib.sha1(v.encode("utf-8")).hexdigest()[:8], "t": t}
+    return lang
+
+
+def build_one(rom, en, lang_path, out_path, variant="local"):
+    lang = json.load(open(lang_path, encoding="utf-8")) if isinstance(lang_path, str) else lang_path
+    nm_tab = load_names(); base = lang.get("meta", {}).get("names", lang.get("meta", {}).get("code", "en")[:2])
+    lang = json.loads(json.dumps(lang))   # a copy: the placeholders are resolved per variant
+    for blk in ("strings", "names"):
+        for ent in lang.get(blk, {}).values():
+            if "{=" in ent.get("t", ""): ent["t"] = resolve(ent["t"], nm_tab, base, variant)
     strs, names, blob, dropped = [], [], bytearray(), []
     def check(key, ent):
         src = en.get(key)
@@ -137,6 +182,7 @@ def build_one(rom, en, lang_path, out_path):
     ui = [(UI_KEYS[k], v) for k, v in lang.get("ui_values", lang.get("ui", {})).items()]
     texts = []
     for k, v in lang.get("ui_text", {}).items():
+        if "{=" in v: v = resolve(v, nm_tab, base, variant)
         try: vb = bytes(UI_BYTES.get(c) or ord(c) for c in v); kb = k.encode("ascii")
         except (ValueError, UnicodeEncodeError): dropped.append(("ui_text:" + k, "unsupported character")); continue
         if any(c > 0x86 or (c > 0x7E and c < 0x80) for c in vb) or len(kb) > 255 or len(vb) > 255: dropped.append(("ui_text:" + k, "unsupported character")); continue
@@ -157,12 +203,17 @@ def main():
     rom = open(sys.argv[1], "rb").read()
     en = sd.decode_all(rom)
     if os.path.isdir(sys.argv[2]):                  # directory mode: every lang/*.json -> <out>/<code>.bin + <out>/index.txt ("code<TAB>name", English is built in)
-        outdir = sys.argv[3]; os.makedirs(outdir, exist_ok=True); idx = []
+        outdir = sys.argv[3]; os.makedirs(outdir, exist_ok=True); idx = []; jl = jp_names_lang(en, load_names())
         for f in sorted(os.listdir(sys.argv[2])):
-            if not f.endswith(".json") or f == "friday_hints.json": continue   # friday_hints.json = the Friday Hints texts (tools/patch_friday.py), not a language
+            if not f.endswith(".json") or f in ("friday_hints.json", "names.json"): continue   # friday_hints.json = the Friday Hints texts (tools/patch_friday.py), names.json = the Names option table: not languages
             code = f[:-5]
             meta = build_one(rom, en, os.path.join(sys.argv[2], f), os.path.join(outdir, code + ".bin"))
+            lj = json.load(open(os.path.join(sys.argv[2], f), encoding="utf-8"))
+            for blk in ("strings", "names"):   # LK_LGNAMES v1: entries not translated yet = the original English with the Japanese names
+                for k, ent in ((jl or {}).get(blk) or {}).items(): lj.setdefault(blk, {}).setdefault(k, ent)
+            build_one(rom, en, lj, os.path.join(outdir, code + ".jpn.bin"), "jp")   # the same language with the Japanese character names
             idx.append("%s\t%s" % (code, meta.get("name", code)))
+        if jl: build_one(rom, en, jl, os.path.join(outdir, "en.jpn.bin"), "jp")   # the original English with the Japanese names
         open(os.path.join(outdir, "index.txt"), "w", encoding="utf-8").write("\n".join(idx) + ("\n" if idx else ""))
         print("langbuild: index.txt with %d languages" % len(idx))
     else:

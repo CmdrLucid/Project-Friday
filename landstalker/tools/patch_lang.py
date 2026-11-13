@@ -166,16 +166,34 @@ static void lk_lg_exedir(void) {
 }
 static int lk_lg_gen;
 int lk_lang_gen(void) { return lk_lg_gen; }   /* counts language switches (caches of translated renderings, patch_iteminfo.py) */
+static int lk_lg_nmopt = -1;   /* LK_LGNAMES v1 (user 2026-11-13: 'die originalen Namen lassen und auf Wunsch mit extra Option die originalen aus dem Japanischen'): 0 = localized names, 1 = the Japanese originals
+   (Options > Names; ~/.landstalker_names, env LANDSTALKER_NAMES): loads <code>.jpn.bin instead of <code>.bin, and for English the generated en.jpn.bin (the original text with the names swapped) */
+int lk_names_get(void) {
+    if (lk_lg_nmopt < 0) { const char *e = getenv("LANDSTALKER_NAMES"); char path[512], line[16]; FILE *f; lk_lg_nmopt = 0;
+        if (e && *e) lk_lg_nmopt = atoi(e) != 0;
+        else { lk_lg_home(path, sizeof path, ".landstalker_names"); if ((f = fopen(path, "r"))) { if (fgets(line, sizeof line, f)) lk_lg_nmopt = atoi(line) != 0; fclose(f); } } }
+    return lk_lg_nmopt;
+}
+static int lk_lg_exists(const char *p) { FILE *f = fopen(p, "rb"); if (f) { fclose(f); return 1; } return 0; }
 static void lk_lg_apply(int i) {   /* switch the language now: 0 = English (original), others from <exe dir>/lang/<code>.bin */
     char path[600];
     lk_lg_gen++;
     if (i < 0 || i >= lk_lg_nlang) i = 0;
     lk_lg_sel = i;
-    if (i == 0) { lk_lg_unload(); return; }
+    if (i == 0) {   /* English: the original text, or with the Japanese names the generated en.jpn.bin (LK_LGNAMES v1) */
+        snprintf(path, sizeof path, "%s/en.jpn.bin", lk_lg_dir);
+        if (lk_names_get() && lk_lg_exists(path)) { lk_lg_load(path); lk_lg_sel = 0; return; }
+        lk_lg_unload(); return; }
     if (lk_lg_codes[i][0] == '#') snprintf(path, sizeof path, "%s", lk_lg_binfile);   /* LANDSTALKER_LANGBIN test aid */
-    else snprintf(path, sizeof path, "%s/%s.bin", lk_lg_dir, lk_lg_codes[i]);
+    else { snprintf(path, sizeof path, "%s/%s.jpn.bin", lk_lg_dir, lk_lg_codes[i]); if (!lk_names_get() || !lk_lg_exists(path)) snprintf(path, sizeof path, "%s/%s.bin", lk_lg_dir, lk_lg_codes[i]); }
     lk_lg_load(path);
     if (!lk_lg_on) lk_lg_sel = 0;
+}
+void lk_names_step(void) {   /* Options > Names: Localized <-> Japanese, applied at once, saved */
+    char path[512]; FILE *f;
+    lk_lg_nmopt = !lk_names_get();
+    lk_lg_home(path, sizeof path, ".landstalker_names"); f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", lk_lg_nmopt); fclose(f); }
+    if (lk_lg_hooked) lk_lg_apply(lk_lg_sel);
 }
 uint32_t lk_lang_ui(int key, uint32_t def) { int i; for (i = 0; i < lk_lg_nui; i++) if (lk_lg_ui[i][0] == key) return lk_lg_ui[i][1]; return def; }   /* layout value of the current language or the original (US) value */
 const char *lk_lang_tr(const char *en) {   /* our own UI text: the translation of an English word / phrase of the options menus (or the English text itself) */
@@ -217,7 +235,7 @@ static void lk_lang_install(void) {
         else { lk_lg_home(path, sizeof path, ".landstalker_lang"); if ((f = fopen(path, "r"))) { if (fgets(line, sizeof line, f)) { char *nl = strpbrk(line, "\r\n"); if (nl) *nl = 0; snprintf(code, sizeof code, "%s", line); } fclose(f); } }
         for (i = 1; i < lk_lg_nlang; i++) if (!strcmp(code, lk_lg_codes[i])) want = i;
     }
-    if (want) lk_lg_apply(want);
+    if (want || lk_names_get()) lk_lg_apply(want);   /* LK_LGNAMES v1: English with the Japanese names loads en.jpn.bin */
 }
 '''
 s = s.replace(anchor, module + anchor, 1)
