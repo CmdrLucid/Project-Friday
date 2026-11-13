@@ -6743,6 +6743,52 @@
         },
         "why": "castle standing torch (not found by furniture_ops brazier_stands): the lathe of 51..62 on floor 0, axis MEASURED with proxy_overlay = flame light point + (-11, -4); user 2026-11-12 '89 und 73 auch noch'"
       }
+    ],
+    "74": [
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          21,
+          33,
+          21
+        ],
+        "file": "proxies/brazier_74.obj",
+        "surface": true,
+        "floor": 16,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            522,
+            347
+          ],
+          "z": 80
+        },
+        "why": "castle standing torch (collision cell (32, 21) a column 64 high on floor 16; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = flame light point + (-11, -4); deco survey 2026-11-13"
+      }
+    ],
+    "75": [
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          21,
+          33,
+          21
+        ],
+        "file": "proxies/brazier_75.obj",
+        "surface": true,
+        "floor": 16,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            522,
+            347
+          ],
+          "z": 80
+        },
+        "why": "castle standing torch (collision cell (32, 21) a column 64 high on floor 16; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = flame light point + (-11, -4); deco survey 2026-11-13"
+      }
     ]
   },
   "unpaint_tiles": {
