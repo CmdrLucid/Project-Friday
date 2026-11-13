@@ -854,6 +854,274 @@
    "h": "bb1f96be",
    "t": "↖ STADT VERLA{SoftNewLine}↙ MIRS TURM{SoftNewLine}STADT MERKATOR ↘{WaitInput}"
   },
+  "0105": {
+   "h": "b1273c9f",
+   "t": "RAUM #1 BETTY ROSS{WaitInput}"
+  },
+  "0106": {
+   "h": "76c9404c",
+   "t": "RAUM #2 RUBY STILLE{WaitInput}"
+  },
+  "0107": {
+   "h": "ec14704b",
+   "t": "RAUM #3 HANS LUFTLÄUFER{WaitInput}"
+  },
+  "0108": {
+   "h": "ed5c79ef",
+   "t": "RAUM #4 MARIA HYSTERIA{WaitInput}"
+  },
+  "0109": {
+   "h": "7a9c9a28",
+   "t": "RAUM #5 TIM HELL{WaitInput}"
+  },
+  "010A": {
+   "h": "25083072",
+   "t": "RAUM #6 LARS E.{WaitInput}"
+  },
+  "010B": {
+   "h": "c1fecf3c",
+   "t": "RAUM #7 DIRK DER DUNKLE{WaitInput}"
+  },
+  "010C": {
+   "h": "bb32f6e8",
+   "t": "RAUM #8 WODINI{WaitInput}"
+  },
+  "010D": {
+   "h": "e0b0c755",
+   "t": "RAUM #9 SACK UND GASSE{WaitInput}"
+  },
+  "010E": {
+   "h": "d1c3355d",
+   "t": "WÄCHTER DER UNTOTEN{WaitInput}"
+  },
+  "010F": {
+   "h": "5aeadac7",
+   "t": "DER RÄTSLER DER TIEFE{SoftNewLine}STELLT DICH AUF DIE PROBE{SoftNewLine}DRUM HALT DEN KOPF KLAR{ContinuePrompt}"
+  },
+  "0110": {
+   "h": "623f9e39",
+   "t": "UND DAS SCHWERT IN RUH{WaitInput}"
+  },
+  "0111": {
+   "h": "fb9e7b3e",
+   "t": "BETTY ROSS{SoftNewLine}226-291{WaitInput}"
+  },
+  "0112": {
+   "h": "86e58eb5",
+   "t": "BETTY STICKTE EINEN SAUM{SoftNewLine}GELB UND ROT UND WEISS{SoftNewLine}BLEIBT ALLES IN DER REIH'{ContinuePrompt}"
+  },
+  "0113": {
+   "h": "29f6cd39",
+   "t": "GELINGT DIR DER BEWEIS{WaitInput}"
+  },
+  "0114": {
+   "h": "8ca0d9bc",
+   "t": "RUBY STILLE{SoftNewLine}220-280{WaitInput}"
+  },
+  "0115": {
+   "h": "a38bb448",
+   "t": "RUBY LEBTE STILL{SoftNewLine}SIE MACHTE KEINEN LAUT{SoftNewLine}UND TAT NIE GEWALT{ContinuePrompt}"
+  },
+  "0116": {
+   "h": "6c83f32b",
+   "t": "BIS SIE IM{SoftNewLine}GRABE LAG{WaitInput}"
+  },
+  "0117": {
+   "h": "a3ff26ac",
+   "t": "HANS LUFTLÄUFER{SoftNewLine}199-266{WaitInput}"
+  },
+  "0118": {
+   "h": "af277fb8",
+   "t": "HANS KANNTE DEN TRICK{SoftNewLine}AUF DER LUFT ZU GEHN{SoftNewLine}SPRINGST DU, MIT GLÜCK{ContinuePrompt}"
+  },
+  "0119": {
+   "h": "6de04198",
+   "t": "SIEHST DU IHN DORT NOCH STEHN{WaitInput}"
+  },
+  "011A": {
+   "h": "0da3d6db",
+   "t": "MARIA HYSTERIA{SoftNewLine}202-276{WaitInput}"
+  },
+  "011B": {
+   "h": "fc01282b",
+   "t": "MARIA WAR EIFERSÜCHTIG{SoftNewLine}SIE WARF MIT TOPF UND PFANNE{SoftNewLine}SIE NAHM WOHL GAR EIN LEBEN{ContinuePrompt}"
+  },
+  "011C": {
+   "h": "7b4e7f3c",
+   "t": "MIT EINEM STEIN IN HÄNDEN{WaitInput}"
+  },
+  "011D": {
+   "h": "225d6ae0",
+   "t": "TIM HELL{SoftNewLine}186-222{WaitInput}"
+  },
+  "011E": {
+   "h": "84bb6f65",
+   "t": "TIM LAGERTE SO GERN{SoftNewLine}NEBEN HELLEM LICHT{SoftNewLine}LAS BÜCHER AN DER LAMPE{ContinuePrompt}"
+  },
+  "011F": {
+   "h": "bd716fce",
+   "t": "UND WURDE SO RECHT HELLE{WaitInput}"
+  },
+  "0120": {
+   "h": "dafa5663",
+   "t": "LARS E.{SoftNewLine}177-246{WaitInput}"
+  },
+  "0121": {
+   "h": "fb6cc649",
+   "t": "LARS E. WAR VERSESSEN{SoftNewLine}AUF DINGE, DIE NICHT SEIN{SoftNewLine}DOCH ER LERNTE:{ContinuePrompt}"
+  },
+  "0122": {
+   "h": "c9137cee",
+   "t": "WER HIER STIEHLT,{SoftNewLine}FÄLLT BEIM RÄTSEL REIN{WaitInput}"
+  },
+  "0123": {
+   "h": "ee29a96f",
+   "t": "DIRK DER DUNKLE{SoftNewLine}222-249{WaitInput}"
+  },
+  "0124": {
+   "h": "54e64576",
+   "t": "MAN HASSTE DEN MÖRDER DIRK{SoftNewLine}SEINE OPFER TÜRMTEN SICH{SoftNewLine}DOCH WER DURCHS SCHWERT LEBT{ContinuePrompt}"
+  },
+  "0125": {
+   "h": "e4d7bc87",
+   "t": "STIRBT AUCH DURCHS SCHWERT{WaitInput}"
+  },
+  "0126": {
+   "h": "8cf400ee",
+   "t": "WODINI{SoftNewLine}77-125{WaitInput}"
+  },
+  "0127": {
+   "h": "b22d05cf",
+   "t": "HIER RUHT WODINI{SoftNewLine}ZAUBERER OHNEGLEICHEN{SoftNewLine}SO DÜNN WAR SEIN LEIB{ContinuePrompt}"
+  },
+  "0128": {
+   "h": "76cd4d8b",
+   "t": "ER DREHTE SICH - UND WAR WEG{WaitInput}"
+  },
+  "0129": {
+   "h": "c6727e79",
+   "t": "SACK UND GASSE{SoftNewLine}199-276{WaitInput}"
+  },
+  "012A": {
+   "h": "a563aec6",
+   "t": "LIEGT DEINES HERZENS ZIEL{SoftNewLine}AN EINEM FERNEN STRAND{SoftNewLine}SO BRAUCHT ES EINEN FEUERBALL{ContinuePrompt}"
+  },
+  "012B": {
+   "h": "a17cadcd",
+   "t": "DER DIR DIE TÜR AUFTUT{WaitInput}"
+  },
+  "012C": {
+   "h": "3d03b68e",
+   "t": "{Speaker}DIESER BÖSE TURM DER{SoftNewLine}IRRWEGE LOCKT DICH AN{SoftNewLine}UND HÄLT DICH EWIG FEST{ContinuePrompt}"
+  },
+  "012D": {
+   "h": "4562810f",
+   "t": "{Speaker}SETZT DU EINEN FUSS IN{SoftNewLine}DIESEN BÖSEN TURM, SO{SoftNewLine}ENTKOMMST DU NIE MEHR{ContinuePrompt}"
+  },
+  "012E": {
+   "h": "bc9849fa",
+   "t": "{Speaker}NIMMST DU DEN WEG DER{SoftNewLine}MÜHSAL, SO FÜHRT DICH{SoftNewLine}DIE HAND DER GÖTTIN{WaitInput}"
+  },
+  "012F": {
+   "h": "18cf2ed5",
+   "t": "{Speaker}DER WEG ERSCHEINT, HAST{SoftNewLine}DU DEN MUT, DICH DER{SoftNewLine}FINSTEREN GRUBE ZU STELLEN{WaitInput}"
+  },
+  "0130": {
+   "h": "a0fc201d",
+   "t": "{Speaker}EINE WAND AUS TRUG{SoftNewLine}HEMMT VIELLEICHT DEINE REISE{ContinuePrompt}"
+  },
+  "0131": {
+   "h": "d008da3d",
+   "t": "{Speaker}WAS DU VOR AUGEN{SoftNewLine}SIEHST{SoftNewLine}IST VIELLEICHT GAR NICHT DA{WaitInput}"
+  },
+  "0132": {
+   "h": "8a64302f",
+   "t": "{Speaker}FINDE DEN ORT, DER DEN{SoftNewLine}RAUM KRÜMMT UND DICH IN{SoftNewLine}EIN ANDERES REICH TRÄGT{ContinuePrompt}"
+  },
+  "0133": {
+   "h": "9417139c",
+   "t": "{Speaker}BEWAHRE DIE RUHE, DENN{SoftNewLine}EIN LEERER RAUM KANN DEN{SoftNewLine}SCHLÜSSEL BERGEN{WaitInput}"
+  },
+  "0134": {
+   "h": "b227d7d8",
+   "t": "↙ MIRS TURM   STADT MERKATOR ↗{WaitInput}"
+  },
+  "0135": {
+   "h": "612558fe",
+   "t": "NEBEN DEM SCHATTEN{WaitInput}"
+  },
+  "0136": {
+   "h": "1275118a",
+   "t": "DAS BÖSE IST AUSSER SICH{SoftNewLine}VOR ZORN AUF DICH{SoftNewLine}DOCH TRITTST DU BEISEITE{ContinuePrompt}"
+  },
+  "0137": {
+   "h": "0820c184",
+   "t": "GANZ HEIMLICH, SO{SoftNewLine}MACHT DIE WAHRHEIT DICH FREI{WaitInput}"
+  },
+  "0138": {
+   "h": "7be7ead6",
+   "t": "Keine Antwort.{SoftNewLine}Scheint tot zu sein.{WaitInput}"
+  },
+  "0139": {
+   "h": "f2683ce8",
+   "t": "MITTE DES GRÜNEN LABYRINTHS{WaitInput}"
+  },
+  "013A": {
+   "h": "b86bd9bb",
+   "t": "↖ GRÜNES LABYRINTH   DORF MASSAN ↘{WaitInput}"
+  },
+  "013B": {
+   "h": "e9458acb",
+   "t": "LOBENSWERT, DASS DU SO{SoftNewLine}WEIT GEKOMMEN BIST, DOCH{SoftNewLine}HIER ENDET DEINE REISE{WaitInput}"
+  },
+  "013C": {
+   "h": "fd95ec9e",
+   "t": "NACH LANGEM SCHLAF KEHRE{SoftNewLine}ICH IN DIESE WELT ZURÜCK{WaitInput}"
+  },
+  "013D": {
+   "h": "5ae6095d",
+   "t": "WEH DEM, DER DEN SCHATZ{SoftNewLine}DES KÖNIGS BEGEHRT! FLUCH{SoftNewLine}DEM, DER SEINEN SCHLAF STÖRT!{WaitInput}"
+  },
+  "013E": {
+   "h": "64a6d932",
+   "t": "{Speaker}Kehr jetzt um,{SoftNewLine}dann kriegst{SoftNewLine}du was Schönes, okay?{NewLine}"
+  },
+  "013F": {
+   "h": "2bb01935",
+   "t": "DIESER ORT GEHÖRT MIR{WaitInput}"
+  },
+  "0140": {
+   "h": "92e53add",
+   "t": "↗BERGLAND{SoftNewLine} ↙MERKATOR   GRÜNES LABYRINTH↘{WaitInput}"
+  },
+  "0141": {
+   "h": "642319d1",
+   "t": "↗SEE{SoftNewLine} ↙DORF DESTEL{SoftNewLine}BERGLAND↘{WaitInput}"
+  },
+  "0142": {
+   "h": "d9d22d64",
+   "t": "↗DORF DESTEL{SoftNewLine} ↙KELKETO-WASSERFALL{SoftNewLine}STADT VERLA↘{WaitInput}"
+  },
+  "0143": {
+   "h": "10b0a62e",
+   "t": "↖MINE VON VERLA   STADT VERLA↗{WaitInput}"
+  },
+  "0144": {
+   "h": "a0a48bf4",
+   "t": "BIST DU MUTIG UND GEWANDT{SoftNewLine}FIND DIE GÖTTIN, WECK SIE AUF!{WaitInput}"
+  },
+  "0145": {
+   "h": "4c4900e3",
+   "t": "ROULETTE{WaitInput}"
+  },
+  "0146": {
+   "h": "677e2daa",
+   "t": "HÜHNERRENNEN{WaitInput}"
+  },
+  "0147": {
+   "h": "521cfd97",
+   "t": "HÜHNERWERFEN{WaitInput}"
+  },
   "0148": {
    "h": "06a4c0f9",
    "t": "{Speaker}Der Schatz von{SoftNewLine}König Nolo? Ach ja! Ich...{Pause1s}äh...{Pause1s}{SoftNewLine}keine Ahnung!{WaitInput}"
