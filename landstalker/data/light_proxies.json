@@ -2563,8 +2563,8 @@
         ],
         "file": "proxies/rail_89.obj",
         "surface": true,
-        "floor": 16,
-        "why": "balustrade of room 89: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12"
+        "floor": 0,
+        "why": "balustrade of room 89: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12 || 2026-11-13 (user, 95: 'komische Ecken im Licht' on the steps): the op floor of the rail cells = the stair / well height under them (was the room floor: a false 32 high strip beside the steps whose top lit up as boxes on the treads); the model carries the stairwell's side wall under the rail"
       },
       {
         "op": "mesh",
@@ -2577,8 +2577,8 @@
         "file": "proxies/rail_89_rail.obj",
         "surface": true,
         "air": true,
-        "floor": 16,
-        "why": "the handrail of the room 89 balustrade (remake/recipes/balustrade; 'air': it floats above the balusters' gaps)"
+        "floor": 0,
+        "why": "the handrail of the room 89 balustrade (remake/recipes/balustrade; 'air')"
       }
     ],
     "96": [
@@ -6621,60 +6621,6 @@
       {
         "op": "mesh",
         "cells": [
-          19,
-          19,
-          19,
-          27
-        ],
-        "file": "proxies/rail_95.obj",
-        "surface": true,
-        "floor": 32,
-        "why": "balustrade of room 95: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          19,
-          19,
-          19,
-          27
-        ],
-        "file": "proxies/rail_95_rail.obj",
-        "surface": true,
-        "air": true,
-        "floor": 32,
-        "why": "the handrail of the room 95 balustrade (remake/recipes/balustrade; 'air': it floats above the balusters' gaps)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          15,
-          27,
-          18,
-          27
-        ],
-        "file": "proxies/rail_95.obj",
-        "surface": true,
-        "floor": 32,
-        "why": "balustrade of room 95: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          15,
-          27,
-          18,
-          27
-        ],
-        "file": "proxies/rail_95_rail.obj",
-        "surface": true,
-        "air": true,
-        "floor": 32,
-        "why": "the handrail of the room 95 balustrade (remake/recipes/balustrade; 'air': it floats above the balusters' gaps)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
           16,
           14,
           16,
@@ -6692,6 +6638,87 @@
           "z": 96
         },
         "why": "castle standing torch of room 95 (collision cell (16, 14) walkable, top block $2D): the brazier lathe of 51..62 on the floor 32, axis MEASURED with proxy_overlay; user 2026-11-12"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          19,
+          19,
+          20
+        ],
+        "file": "proxies/rail_95.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "balustrade of room 95: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12 || 2026-11-13 (user, 95: 'komische Ecken im Licht' on the steps): the op floor of the rail cells = the stair / well height under them (was the room floor: a false 32 high strip beside the steps whose top lit up as boxes on the treads); the model carries the stairwell's side wall under the rail"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          19,
+          19,
+          20
+        ],
+        "file": "proxies/rail_95_rail.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "the handrail of the room 95 balustrade (remake/recipes/balustrade; 'air')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          21,
+          19,
+          27
+        ],
+        "file": "proxies/rail_95.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "balustrade of room 95: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12 || 2026-11-13 (user, 95: 'komische Ecken im Licht' on the steps): the op floor of the rail cells = the stair / well height under them (was the room floor: a false 32 high strip beside the steps whose top lit up as boxes on the treads); the model carries the stairwell's side wall under the rail"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          21,
+          19,
+          27
+        ],
+        "file": "proxies/rail_95_rail.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "the handrail of the room 95 balustrade (remake/recipes/balustrade; 'air')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          27,
+          18,
+          27
+        ],
+        "file": "proxies/rail_95.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "balustrade of room 95: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12 || 2026-11-13 (user, 95: 'komische Ecken im Licht' on the steps): the op floor of the rail cells = the stair / well height under them (was the room floor: a false 32 high strip beside the steps whose top lit up as boxes on the treads); the model carries the stairwell's side wall under the rail"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          27,
+          18,
+          27
+        ],
+        "file": "proxies/rail_95_rail.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "the handrail of the room 95 balustrade (remake/recipes/balustrade; 'air')"
       }
     ],
     "73": [

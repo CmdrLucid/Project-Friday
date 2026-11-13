@@ -6,6 +6,7 @@ Recipe only (no ROM data).  Measured on the drawing (remake/tools/rom_picture.py
   * a low plinth (bottom rail) on the floor, 1.5 high, 5 deep, edges rounded;
   * the handrail: a rounded bar 3 high, 5 deep (light grey top band in the drawing), edges r 1.2;
   * posts (89 / 62): square post with a turned ball cap.
+  * the stairwell's side wall under the rail (wall = its bottom z): the light needs it, the op 'floor' of the rail cells is the stair / well height
 Parameters per room in ROOMS below (outer edge line measured with proxy_overlay; rail axes along x or y).
   python3 remake/recipes/balustrade/balustrade.py ROOM OUTDIR   -> OUTDIR/rail_ROOM.obj (plinth, balusters, posts) + OUTDIR/rail_ROOM_rail.obj (handrail: op 'air')
 """
@@ -21,8 +22,8 @@ BAL_H = 7.5
 # per room: floor, handrail top, runs = (axis, fixed coordinate of the rail centre line, from, to) in world units; posts = (x, y, top)
 ROOMS = {   # path = centre line of the rail (axis-parallel polyline, corners MITRED as drawn: the handrail / plinth meet in a clean V, no baluster
            # on the corner itself, the nearest ones ~5.5 units either side (16x zoom of 95, 2026-11-13)); posts = (x, y, top): the rail stops at their faces
-    95: dict(floor=32, top=44, depth=5.0, path=[(317.5, 304.0), (317.5, 445.5), (240.0, 445.5)], posts=[]),
-    89: dict(floor=16, top=32, depth=4.5, path=[(448.0, 427.0), (448.0, 304.0), (459.0, 304.0)],
+    95: dict(floor=32, top=44, depth=5.0, wall=0, path=[(317.5, 304.0), (317.5, 445.5), (240.0, 445.5)], posts=[]),
+    89: dict(floor=16, top=32, depth=4.5, wall=0, path=[(448.0, 427.0), (448.0, 304.0), (459.0, 304.0)],
              posts=[(448.0, 429.5, 34.0), (448.0, 302.5, 33.0), (462.0, 305.0, 37.0)]),
 }
 PL_H, RAIL_H, SPACE = 1.5, 3.0, 8.0
@@ -74,6 +75,8 @@ def build(room):
     import math
     P = ROOMS[room]; fl, top, d = P["floor"], P["top"], P["depth"]; solid, rail = [], []
     zb0, zb1 = fl + PL_H, top - RAIL_H                         # baluster span
+    if P.get("wall") is not None and P["wall"] < fl:   # the stairwell's side wall under the rail (the room floor's edge): from the well bottom up to the floor
+        solid.append(sweep(P["path"], d, P["wall"], fl, 0.3))
     for sub in split(P["path"], P["posts"], 2.2):
         solid.append(sweep(sub, d, fl, fl + PL_H, 0.6))
         rail.append(sweep(sub, d, top - RAIL_H, top, 1.2))
