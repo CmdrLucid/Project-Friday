@@ -4149,6 +4149,454 @@
   "047F": {
    "h": "35b0fc5c",
    "t": "{Speaker}Alle sind beim{SoftNewLine}Training. Ich? Na ja, äh...{SoftNewLine}ähm...{ContinuePrompt}"
+  },
+  "0480": {
+   "h": "89ce6ca2",
+   "t": "{Speaker}I-ich pass auf den{SoftNewLine}Laden auf, solange die anderen{SoftNewLine}weg sind!{WaitInput}"
+  },
+  "0481": {
+   "h": "dd45e3ad",
+   "t": "{Speaker}Das ist unsere{SoftNewLine}allerneueste Formation! Na,{SoftNewLine}wie gefällt sie Euch?{WaitInput}"
+  },
+  "0482": {
+   "h": "10999d02",
+   "t": "{Speaker}Abgeschaut haben{SoftNewLine}wir sie uns von ein paar{SoftNewLine}Monstern, die wir in einer{SoftNewLine}Höhle gesehen haben.{WaitInput}"
+  },
+  "0483": {
+   "h": "27160183",
+   "t": "{Speaker}Nicht stören! Es{SoftNewLine}ist zwar nur Training, aber{SoftNewLine}ich muss mich trotzdem{SoftNewLine}konzentrieren!{WaitInput}"
+  },
+  "0484": {
+   "h": "a7089777",
+   "t": "{Speaker}Aus dem Weg,{SoftNewLine}Kleiner! Das hier ist ernst.{SoftNewLine}Ich hab 60 Taler auf diesen{SoftNewLine}Kampf gesetzt!{WaitInput}"
+  },
+  "0485": {
+   "h": "d4079a28",
+   "t": "{Speaker}Herr {=nigel},{SoftNewLine}willkommen im Schloss. Genießt{SoftNewLine}Euren Aufenthalt!{WaitInput}"
+  },
+  "0486": {
+   "h": "c15bc949",
+   "t": "{Speaker}Ich glaube, das{SoftNewLine}Fest ist jetzt bereit.{ContinuePrompt}"
+  },
+  "0487": {
+   "h": "62d4cf96",
+   "t": "{Speaker}Wollt Ihr nicht in{SoftNewLine}den Bankettsaal gehen?{WaitInput}"
+  },
+  "0488": {
+   "h": "166e388d",
+   "t": "{Speaker}Was? Ihr wollt{SoftNewLine}wirklich in den Turm? Das ist{SoftNewLine}ein überaus gefährlicher Ort!{ContinuePrompt}"
+  },
+  "0489": {
+   "h": "12dcde7c",
+   "t": "{Speaker}Wusstet Ihr, dass{SoftNewLine}am Eingang des Turms eine{SoftNewLine}magische Barriere liegt?{ContinuePrompt}"
+  },
+  "048A": {
+   "h": "75cef9fe",
+   "t": "{Speaker}Ich habe{SoftNewLine}nachgeforscht: Um die Barriere{SoftNewLine}zu brechen, braucht man einen{SoftNewLine}Armreif.{ContinuePrompt}"
+  },
+  "048B": {
+   "h": "38b33840",
+   "t": "{Speaker}Er liegt irgendwo{SoftNewLine}in der Gruft unter der Kirche.{SoftNewLine}Ich schicke immer wieder{ContinuePrompt}"
+  },
+  "048C": {
+   "h": "8fb78607",
+   "t": "{Speaker}meine besten{SoftNewLine}Kundschafter hinein, doch{SoftNewLine}irgendwie kommt keiner{SoftNewLine}zurück... Ich glaube,{ContinuePrompt}"
+  },
+  "048D": {
+   "h": "9946bea0",
+   "t": "{Speaker}dort unten{SoftNewLine}schützen Fallen oder{SoftNewLine}dergleichen den Armreif.{WaitInput}"
+  },
+  "048E": {
+   "h": "53207c90",
+   "t": "{Speaker}Herr {=nigel}! Holt{SoftNewLine}den Armreif und besiegt Mir{SoftNewLine}für den Herzog!{WaitInput}"
+  },
+  "048F": {
+   "h": "a897e4db",
+   "t": "{Speaker}{=dexter} und {=zak}{SoftNewLine}waren eben hier. Sie haben{SoftNewLine}mich gefragt, wie man die{ContinuePrompt}"
+  },
+  "0490": {
+   "h": "9d5b7cac",
+   "t": "{Speaker}Barriere bricht,{SoftNewLine}und sind zur Gruft{SoftNewLine}aufgebrochen. Herr {=nigel},{SoftNewLine}ich muss Euch warnen:{ContinuePrompt}"
+  },
+  "0491": {
+   "h": "e68a960f",
+   "t": "{Speaker}Die Monster dort{SoftNewLine}unten sind sehr klug.{SoftNewLine}Vielleicht hat Mir sie{SoftNewLine}verzaubert.{ContinuePrompt}"
+  },
+  "0492": {
+   "h": "cf14107f",
+   "t": "{Speaker}Bedenkt: Mit dem{SoftNewLine}Schwert allein werdet Ihr den{SoftNewLine}Armreif kaum finden.{ContinuePrompt}"
+  },
+  "0493": {
+   "h": "8fae08c9",
+   "t": "{Speaker}Passt gut auf Euch{SoftNewLine}auf!{WaitInput}"
+  },
+  "0494": {
+   "h": "250284a0",
+   "t": "{Speaker}...geht... nach oben{SoftNewLine}und... schlagt auf die...{SoftNewLine}Rüstung...{WaitInput}"
+  },
+  "0495": {
+   "h": "d1b5162f",
+   "t": "{Speaker}Schön, Euch{SoftNewLine}wiederzusehen! Wie Ihr seht,{SoftNewLine}bin ich wieder ganz geheilt.{ContinuePrompt}"
+  },
+  "0496": {
+   "h": "04385ba6",
+   "t": "{Speaker}Ich will alles tun,{SoftNewLine}damit Merkator ein gutes{SoftNewLine}Zuhause für seine Bürger wird.{ContinuePrompt}"
+  },
+  "0497": {
+   "h": "ae93c614",
+   "t": "{Speaker}Ich habe lange über{SoftNewLine}die Politik und das Militär{SoftNewLine}nachgedacht. Ehrlich gesagt{ContinuePrompt}"
+  },
+  "0498": {
+   "h": "c5c8bd11",
+   "t": "{Speaker}taugte ich nie zum{SoftNewLine}Soldaten. {=julie} und ich{SoftNewLine}sprachen oft darüber, nun bin{SoftNewLine}ich sicher:{ContinuePrompt}"
+  },
+  "0499": {
+   "h": "7a821b87",
+   "t": "{Speaker}Ich kann diese{SoftNewLine}Stadt auch ohne Armee zum{SoftNewLine}Blühen bringen!{ContinuePrompt}"
+  },
+  "049A": {
+   "h": "0b8163c8",
+   "t": "{Speaker}Deshalb habe ich im{SoftNewLine}Stadtbrunnen ein Kasino{SoftNewLine}gebaut, damit die Steuern{SoftNewLine}sinken.{ContinuePrompt}"
+  },
+  "049B": {
+   "h": "a9882d56",
+   "t": "{Speaker}Schaut doch mal{SoftNewLine}vorbei, wenn Ihr Zeit habt.{ContinuePrompt}"
+  },
+  "049C": {
+   "h": "3a64d083",
+   "t": "{Speaker}Besucht mich, wann{SoftNewLine}immer Ihr wollt! Gebt gut auf{SoftNewLine}Euch acht!{WaitInput}"
+  },
+  "049D": {
+   "h": "6b175d66",
+   "t": "{Speaker}Nanu, Herr {=nigel}!{SoftNewLine}Hättet Ihr wohl gern das{SoftNewLine}hier?{ContinuePrompt}"
+  },
+  "049E": {
+   "h": "78582b7a",
+   "t": "{Speaker}Dieses Zimmer ist{SoftNewLine}besonderen Gästen{SoftNewLine}vorbehalten.{WaitInput}"
+  },
+  "049F": {
+   "h": "bddeee24",
+   "t": "{Speaker}He! Wie bist du{SoftNewLine}entkommen?! Mit dir bin ich{SoftNewLine}noch lange nicht fertig!!{WaitInput}"
+  },
+  "04A0": {
+   "h": "fe524645",
+   "t": "{Speaker}Aaargh! Dabei{SoftNewLine}wollte ich doch nur ein paar{SoftNewLine}mickrige Schätze! Jetzt sind{SoftNewLine}wir pleite!{ContinuePrompt}"
+  },
+  "04A1": {
+   "h": "121a238a",
+   "t": "{Speaker}Da hast du uns ja{SoftNewLine}wieder was Schönes{SoftNewLine}eingebrockt!!{ContinuePrompt}"
+  },
+  "04A2": {
+   "h": "1e9010d9",
+   "t": "{Speaker}Die einzige Fahrt{SoftNewLine}zurück aufs Festland, die wir{SoftNewLine}uns leisten konnten, war das{SoftNewLine}Gefangenenschiff,{ContinuePrompt}"
+  },
+  "04A3": {
+   "h": "64450a7d",
+   "t": "{Speaker}also hab ich mich{SoftNewLine}verhaften lassen! Aber puh!{SoftNewLine}Was für ein Gestank! Hier halt{SoftNewLine}ich's nicht aus!{ContinuePrompt}"
+  },
+  "04A4": {
+   "h": "0e47382a",
+   "t": "{Speaker}Stinkig...{SoftNewLine}schleimig... IGITT!! Wärter! Ich{SoftNewLine}will ein besseres Zimmer!!{WaitInput}"
+  },
+  "04A5": {
+   "h": "d3b9e550",
+   "t": "{Speaker}Das vergess ich dir{SoftNewLine}nie, {=nigel}!! Eines Tages zahl{SoftNewLine}ich's dir heim, das schwör{SoftNewLine}ich!!{WaitInput}"
+  },
+  "04A6": {
+   "h": "8415372d",
+   "t": "{Speaker}...rülps!...{WaitInput}"
+  },
+  "04A7": {
+   "h": "8608326b",
+   "t": "{Speaker}Her mit den{SoftNewLine}Schätzen!{WaitInput}"
+  },
+  "04A8": {
+   "h": "1e7f3948",
+   "t": "{Speaker}Es stiiiiinkt...{WaitInput}"
+  },
+  "04A9": {
+   "h": "ad0d11e8",
+   "t": "{Speaker}...RÜLPS!!...{WaitInput}"
+  },
+  "04AA": {
+   "h": "99e4dfae",
+   "t": "{Speaker}Schleiiiimig...{WaitInput}"
+  },
+  "04AB": {
+   "h": "c3fe4bc3",
+   "t": "{Speaker}Schon gut, schon{SoftNewLine}gut! So eine Schwertkunst...{SoftNewLine}Ich war verblendet, du hast{SoftNewLine}mich überzeugt!{ContinuePrompt}"
+  },
+  "04AC": {
+   "h": "ed57651d",
+   "t": "{Speaker}Nimm die Schätze{SoftNewLine}ruhig, sie gehören alle dir!{SoftNewLine}Nur hör bitte auf, mich zu{SoftNewLine}hauen!{WaitInput}"
+  },
+  "04AD": {
+   "h": "a963927c",
+   "t": "{Speaker}Das Herumirren in{SoftNewLine}diesem Keller hat uns völlig{SoftNewLine}erschöpft! Unsere Füße sind{SoftNewLine}ganz geschwollen. Bitte geht{ContinuePrompt}"
+  },
+  "04AE": {
+   "h": "6f60f6e3",
+   "t": "{Speaker}voraus und rettet{SoftNewLine}die Prinzessin. Der Herzog hat{SoftNewLine}Fräulein {=lara} gefangen{SoftNewLine}genommen... bitte findet sie!{WaitInput}"
+  },
+  "04AF": {
+   "h": "0df8029f",
+   "t": "{Speaker}Nur weil er es{SoftNewLine}gesagt hat, bist du{SoftNewLine}hergekommen... Wie gutgläubig{SoftNewLine}du bist...!{WaitInput}"
+  },
+  "04B0": {
+   "h": "5459898b",
+   "t": "{Speaker}Ich bin der alte{SoftNewLine}Gol, Hüter des Grünen{SoftNewLine}Labyrinths. Schon mein Vater{ContinuePrompt}"
+  },
+  "04B1": {
+   "h": "83a8a416",
+   "t": "{Speaker}war hier Hüter.{SoftNewLine}Was kann ich für dich tun,{SoftNewLine}junger Freund?{ContinuePrompt}"
+  },
+  "04B2": {
+   "h": "8c78092f",
+   "t": "{Speaker}{Item},{SoftNewLine}hmmmm... Ja, das liegt tief in{SoftNewLine}diesem Wald verborgen, aber...{ContinuePrompt}"
+  },
+  "04B3": {
+   "h": "d4172871",
+   "t": "{Speaker}die frechen kleinen{SoftNewLine}Wichtel, die hier hausen, haben{SoftNewLine}die Wege verändert.{ContinuePrompt}"
+  },
+  "04B4": {
+   "h": "780b67d1",
+   "t": "{Speaker}Brauchst du ein{SoftNewLine}paar Tipps, wie man sich im{SoftNewLine}Wald zurechtfindet?{NewLine}"
+  },
+  "04B5": {
+   "h": "6354d1f3",
+   "t": "{Speaker}Erstens: Schau{SoftNewLine}nicht auf die Stämme. Siehst{SoftNewLine}du eine Lücke zwischen{ContinuePrompt}"
+  },
+  "04B6": {
+   "h": "7c5dd584",
+   "t": "{Speaker}den Kronen zweier{SoftNewLine}Baumreihen, kann das ein Weg{SoftNewLine}sein. Kommst du dort nicht{SoftNewLine}weiter,{ContinuePrompt}"
+  },
+  "04B7": {
+   "h": "2d75edb9",
+   "t": "{Speaker}dann spring mal.{SoftNewLine}Vielleicht liegt eine{SoftNewLine}versteckte Stufe oder ein{SoftNewLine}Hindernis vor dir.{ContinuePrompt}"
+  },
+  "04B8": {
+   "h": "e81e2353",
+   "t": "{Speaker}Außerdem gibt es{SoftNewLine}viele Unterführungen. Manche{SoftNewLine}sind Abkürzungen, manche{SoftNewLine}nicht.{ContinuePrompt}"
+  },
+  "04B9": {
+   "h": "d2d7ff09",
+   "t": "{Speaker}Präg dir die{SoftNewLine}Umgebung gut ein, bevor du in{SoftNewLine}eine Unterführung steigst.{ContinuePrompt}"
+  },
+  "04BA": {
+   "h": "4d659a38",
+   "t": "{Speaker}{Item}{SoftNewLine}liegt im Nordosten dieses{SoftNewLine}Waldes.{WaitInput}"
+  },
+  "04BB": {
+   "h": "d7f96950",
+   "t": "{Speaker}{Item} hast{SoftNewLine}du also gefunden!{ContinuePrompt}"
+  },
+  "04BC": {
+   "h": "bd163300",
+   "t": "{Speaker}Du kennst diesen{SoftNewLine}Wald wohl schon besser als{SoftNewLine}ich! Willst du nicht mein{SoftNewLine}Nachfolger werden?{WaitInput}"
+  },
+  "04BD": {
+   "h": "3d937c91",
+   "t": "{Speaker}Wau-wau{WaitInput}"
+  },
+  "04BE": {
+   "h": "4aaf4d27",
+   "t": "{Speaker}Deine Güte werde{SoftNewLine}ich nie vergessen!{WaitInput}"
+  },
+  "04BF": {
+   "h": "ff248955",
+   "t": "{Speaker}Ach, Besuch! Sehen{SoftNewLine}kann ich dich nicht, aber du{SoftNewLine}wirkst munter. Willst du was{SoftNewLine}essen?{ContinuePrompt}"
+  },
+  "04C0": {
+   "h": "c8330aef",
+   "t": "{Speaker}Sehen kann ich dich{SoftNewLine}nicht, aber du wirkst{SoftNewLine}zufrieden. Komm wieder, wann{SoftNewLine}immer du willst.{ContinuePrompt}"
+  },
+  "04C1": {
+   "h": "14a1a3d3",
+   "t": "{Speaker}Sehen kann ich dich{SoftNewLine}nicht, aber du wirkst mutig.{SoftNewLine}Mach's gut!{WaitInput}"
+  },
+  "04C2": {
+   "h": "29547ce5",
+   "t": "{Speaker}Mümmel... Guten{SoftNewLine}Tag! Fühl dich wie zu Hause.{SoftNewLine}Hohoho... mümmel...{WaitInput}"
+  },
+  "04C3": {
+   "h": "6eddd390",
+   "t": "{Speaker}Wuff! Wuff!{SoftNewLine}Wau-wau-wau!{WaitInput}"
+  },
+  "04C4": {
+   "h": "cd5f4217",
+   "t": "{Speaker}Erst wenn diese{SoftNewLine}elende Hexe besiegt ist,{SoftNewLine}bekommen wir unsere wahre{SoftNewLine}Gestalt zurück.{WaitInput}"
+  },
+  "04C5": {
+   "h": "5b65bfdc",
+   "t": "{Speaker}Nochmals danke für{SoftNewLine}alles, was du getan hast!{WaitInput}"
+  },
+  "04C6": {
+   "h": "71d6075d",
+   "t": "{Speaker}Ich will zu Bell!{SoftNewLine}Ich will zu Bell!{WaitInput}"
+  },
+  "04C7": {
+   "h": "97a7e8a6",
+   "t": "{Speaker}Bist du auf Reisen?{SoftNewLine}Dann kehr lieber um. Alle{SoftNewLine}Leute aus der Stadt wurden{ContinuePrompt}"
+  },
+  "04C8": {
+   "h": "f7764808",
+   "t": "{Speaker}plötzlich von{SoftNewLine}seltsamen Soldaten in die{SoftNewLine}Berge verschleppt. Ich war da{SoftNewLine}gerade am Meer{ContinuePrompt}"
+  },
+  "04C9": {
+   "h": "581b2d88",
+   "t": "{Speaker}zum Angeln... Übrig{SoftNewLine}sind nur noch ein Priester und{SoftNewLine}ein kranker alter Mann...{WaitInput}"
+  },
+  "04CA": {
+   "h": "1ef7d5f0",
+   "t": "{Speaker}Ich hab gehört, du{SoftNewLine}hast die Leute dieser Stadt{SoftNewLine}gerettet! Bravo! Gut gemacht!{WaitInput}"
+  },
+  "04CB": {
+   "h": "fdeeab19",
+   "t": "{Speaker}...hust...hust...{WaitInput}"
+  },
+  "04CC": {
+   "h": "85da59b2",
+   "t": "{Speaker}Ein Wunder! Seit{SoftNewLine}alle heil zurück sind, bin ich{SoftNewLine}auf einmal kerngesund!{WaitInput}"
+  },
+  "04CD": {
+   "h": "ddab8335",
+   "t": "{Speaker}Warum hat Herzog{SoftNewLine}Merkator nur alle Leute{SoftNewLine}weggebracht?..{WaitInput}"
+  },
+  "04CE": {
+   "h": "1c9b9e46",
+   "t": "{Speaker}Ich bin so froh,{SoftNewLine}dass alles wieder seinen Gang{SoftNewLine}geht...{WaitInput}"
+  },
+  "04CF": {
+   "h": "9a11eb55",
+   "t": "{Speaker}Bitte, erledige das{SoftNewLine}Monster!{WaitInput}"
+  },
+  "04D0": {
+   "h": "960917c1",
+   "t": "{Speaker}Wir kommen alle{SoftNewLine}aus Verla. Herzog Merkator{SoftNewLine}hat uns gezwungen, in dieser{SoftNewLine}Mine zu graben.{ContinuePrompt}"
+  },
+  "04D1": {
+   "h": "5e510d44",
+   "t": "{Speaker}Seine Soldaten{SoftNewLine}haben auch unsere Familien{SoftNewLine}gefangen genommen... bitte{SoftNewLine}rette sie!{ContinuePrompt}"
+  },
+  "04D2": {
+   "h": "72468204",
+   "t": "{Speaker}Diese Mine teilt{SoftNewLine}sich in drei Stollen. Unsere{SoftNewLine}Freunde{ContinuePrompt}"
+  },
+  "04D3": {
+   "h": "575a63d4",
+   "t": "{Speaker}stecken irgendwo in{SoftNewLine}den beiden anderen fest. Bitte{SoftNewLine}hilf uns!{WaitInput}"
+  },
+  "04D4": {
+   "h": "dd76bb72",
+   "t": "{Speaker}Puh! Was für eine{SoftNewLine}Erleichterung! Schluss mit der{SoftNewLine}Buddelei! Jetzt such ich mir{SoftNewLine}wieder meine alte Arbeit.{WaitInput}"
+  },
+  "04D5": {
+   "h": "1173b494",
+   "t": "{Speaker}IIIIIIIEK!!!{WaitInput}"
+  },
+  "04D6": {
+   "h": "29c4a614",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}tauchte plötzlich in der Stadt{SoftNewLine}auf und befahl seinen{SoftNewLine}Handlangern,{ContinuePrompt}"
+  },
+  "04D7": {
+   "h": "1f41d54d",
+   "t": "{Speaker}uns hierher zu{SoftNewLine}bringen. Dabei hielt ich ihn für{SoftNewLine}so einen feinen Herrn...{WaitInput}"
+  },
+  "04D8": {
+   "h": "515a7277",
+   "t": "{Speaker}Warum hat Herzog{SoftNewLine}Merkator nur so etwas{SoftNewLine}Schreckliches getan?{WaitInput}"
+  },
+  "04D9": {
+   "h": "6061f3e8",
+   "t": "{Speaker}H-hilfe! H-hilft mir{SoftNewLine}denn keiner?!{WaitInput}"
+  },
+  "04DA": {
+   "h": "a1d27109",
+   "t": "{Speaker}Hatte ich eine{SoftNewLine}Angst!{WaitInput}"
+  },
+  "04DB": {
+   "h": "adb93f10",
+   "t": "{Speaker}Die Angst in dieser{SoftNewLine}Mine werde ich mein Leben lang{SoftNewLine}nicht vergessen.{WaitInput}"
+  },
+  "04DC": {
+   "h": "62947cf0",
+   "t": "{Speaker}Uns geht's gut!{SoftNewLine}Mach ihn fertig!{WaitInput}"
+  },
+  "04DD": {
+   "h": "a8e3ebc3",
+   "t": "{Speaker}Was hat der Herzog{SoftNewLine}in dieser Mine eigentlich{SoftNewLine}gesucht?{ContinuePrompt}"
+  },
+  "04DE": {
+   "h": "1ebf138f",
+   "t": "{Speaker}Wir mussten{SoftNewLine}morgens, mittags und nachts{SoftNewLine}graben, einfach drauflos!{WaitInput}"
+  },
+  "04DF": {
+   "h": "c458dee6",
+   "t": "{Speaker}Der Herzog und{SoftNewLine}seine Soldaten sind nach{SoftNewLine}Destel gezogen. Die Zwerge in{SoftNewLine}dem Dorf sind alle{ContinuePrompt}"
+  },
+  "04E0": {
+   "h": "66f7dd2f",
+   "t": "{Speaker}friedlich und{SoftNewLine}gutmütig. Sie haben keine{SoftNewLine}Waffen, um sich zu wehren.{ContinuePrompt}"
+  },
+  "04E1": {
+   "h": "04054bff",
+   "t": "{Speaker}Ich fürchte, das{SoftNewLine}wird ein Blutbad...{WaitInput}"
+  },
+  "04E2": {
+   "h": "3b0d5e39",
+   "t": "{Speaker}Los! LOS!!....{WaitInput}"
+  },
+  "04E3": {
+   "h": "0f4f3060",
+   "t": "{Speaker}Was der Herzog{SoftNewLine}jetzt wohl wieder treibt...?{ContinuePrompt}"
+  },
+  "04E4": {
+   "h": "9eafa3fd",
+   "t": "{Speaker}{=nigel}! Ich glaube{SoftNewLine}echt, nur du kannst den{SoftNewLine}Herzog besiegen! Verpass ihm{SoftNewLine}eine Abreibung!{WaitInput}"
+  },
+  "04E5": {
+   "h": "e05226f1",
+   "t": "{Speaker}Halt durch!{WaitInput}"
+  },
+  "04E6": {
+   "h": "667ce3e4",
+   "t": "{Speaker}Der Herzog hat uns{SoftNewLine}bestimmt für die Schätze{SoftNewLine}verkauft. Er muss seine Seele{SoftNewLine}dem Teufel verschrieben haben!{WaitInput}"
+  },
+  "04E7": {
+   "h": "43b90b22",
+   "t": "{Speaker}Ich kenne den{SoftNewLine}Bürgermeister von Destel. Er{SoftNewLine}kauft hier oft Fisch. Ein{SoftNewLine}herzensguter Mann.{ContinuePrompt}"
+  },
+  "04E8": {
+   "h": "e495b3f1",
+   "t": "{Speaker}Er sagt, sie leben{SoftNewLine}dort friedlich und züchten{SoftNewLine}herrlich duftende Blumen...{WaitInput}"
+  },
+  "04E9": {
+   "h": "91169569",
+   "t": "{Speaker}Er bringt uns um!!{WaitInput}"
+  },
+  "04EA": {
+   "h": "d0e1962a",
+   "t": "{Speaker}Westlich dieser{SoftNewLine}Mine liegt ein kleines Dorf. Ich{SoftNewLine}hab gesehen, wie Herzog{SoftNewLine}Merkator{ContinuePrompt}"
+  },
+  "04EB": {
+   "h": "7e782cf0",
+   "t": "{Speaker}mit seinen Soldaten{SoftNewLine}die Straße dorthin{SoftNewLine}entlangmarschiert ist.{ContinuePrompt}"
+  },
+  "04EC": {
+   "h": "91f746c2",
+   "t": "{Speaker}Weißt du etwas{SoftNewLine}darüber? Was geht hier bloß{SoftNewLine}vor?{WaitInput}"
+  },
+  "04ED": {
+   "h": "b0cdafde",
+   "t": "{Speaker}Der Tunnel{SoftNewLine}zwischen Merkator und Verla{SoftNewLine}ist endlich frei.{ContinuePrompt}"
+  },
+  "04EE": {
+   "h": "bdc3f023",
+   "t": "{Speaker}Jetzt kann ich{SoftNewLine}jeden Tag zu Grihnpie gehen!{ContinuePrompt}"
+  },
+  "04EF": {
+   "h": "dcf14c0f",
+   "t": "{Speaker}So lange in diesem{SoftNewLine}dunklen, engen Tunnel{SoftNewLine}eingesperrt zu sein, hat mich{SoftNewLine}echt fertiggemacht!{WaitInput}"
   }
  },
  "names": {
