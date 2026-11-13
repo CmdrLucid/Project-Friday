@@ -208,7 +208,7 @@ def main():
     if os.path.isdir(sys.argv[2]):                  # directory mode: every lang/*.json -> <out>/<code>.bin + <out>/index.txt ("code<TAB>name", English is built in)
         outdir = sys.argv[3]; os.makedirs(outdir, exist_ok=True); idx = []; jl = jp_names_lang(en, load_names())
         for f in sorted(os.listdir(sys.argv[2])):
-            if not f.endswith(".json") or f in ("friday_hints.json", "names.json", "en_items.json"): continue   # en_items.json = the Japanese items for the original English (en.items.bin, below)   # friday_hints.json = the Friday Hints texts (tools/patch_friday.py), names.json = the Names option table: not languages
+            if not f.endswith(".json") or f in ("friday_hints.json", "names.json", "en_items.json", "ja_map.json"): continue   # ja_map.json: tools/jplang.py   # en_items.json = the Japanese items for the original English (en.items.bin, below)   # friday_hints.json = the Friday Hints texts (tools/patch_friday.py), names.json = the Names option table: not languages
             code = f[:-5]
             meta = build_one(rom, en, os.path.join(sys.argv[2], f), os.path.join(outdir, code + ".bin"))
             lj = json.load(open(os.path.join(sys.argv[2], f), encoding="utf-8"))

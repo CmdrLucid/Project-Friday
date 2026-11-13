@@ -101,10 +101,11 @@ static void lk_lg_load(const char *path) {
     lk_lg_unload();
     if (!f) { fprintf(stderr, "lang: cannot open %s\n", path); return; }
     fseek(f, 0, SEEK_END); sz = ftell(f); fseek(f, 0, SEEK_SET); d = malloc((size_t)sz); if (fread(d, 1, (size_t)sz, f) != (size_t)sz) { fclose(f); free(d); return; } fclose(f);
-    if (sz < 16 || memcmp(d, "LKLG", 4) || lk_lg_be16(d + 4) != 2) { fprintf(stderr, "lang: %s is not a language file (version 2 expected: run tools/langbuild.py again)\n", path); free(d); return; }
+    if (sz < 16 || memcmp(d, "LKLG", 4) || (lk_lg_be16(d + 4) != 2 && lk_lg_be16(d + 4) != 3)) {   /* version 3 (tools/jplang.py): glyph entries with a 16-bit code */ fprintf(stderr, "lang: %s is not a language file (version 2 expected: run tools/langbuild.py again)\n", path); free(d); return; }
     ns = lk_lg_be16(d + 6); nn = lk_lg_be16(d + 8); nu = lk_lg_be16(d + 10); ng = lk_lg_be16(d + 12); nt = lk_lg_be16(d + 14);
     q = d + 16; lk_lg_data = d; lk_lang_map(); memset(lk_lang_mem, 0, sizeof lk_lang_mem);
-    {   const uint8_t *se = q, *ne = se + 8 * ns, *ue = ne + 7 * nn, *ge = ue + 4 * nu, *te = ge + 39 * ng, *blob = te;
+    {   int gs = lk_lg_be16(d + 4) == 3 ? 40 : 39;   /* glyph entry: (u8 | u16 code) + 30 bytes main font + 8 bytes menu font */
+        const uint8_t *se = q, *ne = se + 8 * ns, *ue = ne + 7 * nn, *ge = ue + 4 * nu, *te = ge + gs * ng, *blob = te;
         { const uint8_t *tp = te; int t; lk_lg_text = calloc((size_t)nt + 1, sizeof *lk_lg_text); lk_lg_ntext = nt;
           for (t = 0; t < nt; t++) { int kl = tp[0], vl = tp[1]; lk_lg_text[t].k = malloc((size_t)kl + 1); memcpy(lk_lg_text[t].k, tp + 2, (size_t)kl); lk_lg_text[t].k[kl] = 0; lk_lg_text[t].v = malloc((size_t)vl + 1); memcpy(lk_lg_text[t].v, tp + 2 + kl, (size_t)vl); lk_lg_text[t].v[vl] = 0; tp += 2 + kl + vl; }
           blob = tp; }
@@ -121,7 +122,10 @@ static void lk_lg_load(const char *path) {
         for (i = 0; i < nu && i < 8; i++) { lk_lg_ui[i][0] = lk_lg_be16(ue + 4 * i); lk_lg_ui[i][1] = lk_lg_be16(ue + 4 * i + 2); } lk_lg_nui = nu < 8 ? nu : 8;
         /* font: the ROM's glyphs 0..$6B (30 bytes each) + the new ones, at $801000; MainFontPtr $022E84 -> there */
         for (i = 0; i < 0x6C * 30; i += 2) lk_lg_put16(0x1000u + (uint32_t)i, bus_read16(0x02A884u + (uint32_t)i));
-        for (i = 0; i < ng; i++) { const uint8_t *g = ge + 39 * i; int k; for (k = 0; k < 30; k += 2) lk_lg_put16(0x1000u + 30u * g[0] + (uint32_t)k, lk_lg_be16(g + 1 + k)); lk_lg_mg[g[0]] = 1; memcpy(lk_lg_mgl[g[0]], g + 31, 8); }
+        for (i = 0; i < ng; i++) { const uint8_t *g = ge + gs * i; int k, c = gs == 40 ? lk_lg_be16(g) : g[0]; const uint8_t *gd = g + gs - 38;
+            if (0x1000u + 30u * (uint32_t)c + 30u > 0x8000u) continue;   /* the names start at $808000 */
+            for (k = 0; k < 30; k += 2) lk_lg_put16(0x1000u + 30u * (uint32_t)c + (uint32_t)k, lk_lg_be16(gd + k));
+            if (c < 128) { lk_lg_mg[c] = 1; memcpy(lk_lg_mgl[c], gd + 30, 8); } }
         lk_lang_rom_patch32(0x022E84u, 0x801000u);
     }
     fprintf(stderr, "lang: loaded %s: %d strings, %d names, %d glyphs\n", path, ns, nn, ng);
@@ -333,6 +337,7 @@ static void lk_lang_install(void) {
     snprintf(path, sizeof path, "%s/index.txt", lk_lg_dir);
     if ((f = fopen(path, "r"))) {      /* "code<TAB>name" per line, written by tools/langbuild.py */
         while (lk_lg_nlang < 8 && fgets(line, sizeof line, f)) { char *t = strchr(line, '\t'), *nl; if (!t) continue; *t++ = 0; if ((nl = strpbrk(t, "\r\n"))) *nl = 0;
+            if (!strcmp(line, "ja") && !lk_ji_avail()) continue;   /* LK_JPLANG v1: Japanese only while a Japanese ROM lies next to the ROM (user 2026-11-14) */
             snprintf(lk_lg_codes[lk_lg_nlang], sizeof lk_lg_codes[0], "%s", line); snprintf(lk_lg_names[lk_lg_nlang], sizeof lk_lg_names[0], "%s", t); lk_lg_nlang++; }
         fclose(f);
     }

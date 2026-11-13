@@ -573,6 +573,15 @@ def main():
     if args.build_only:
         print("built:", exe)
         return 0
+    # Japanese (the original text): made from a Japanese ROM next to the ROM at every start (~2 s), so a ROM added later works without a rebuild and a removed one
+    # disappears from the language list (tools/jplang.py; user 2026-11-14)
+    work = os.path.dirname(os.path.dirname(exe))
+    jt = os.path.join(work, "tools", "jplang.py")
+    if os.path.isfile(jt):
+        try:
+            subprocess.run([sys.executable, jt, rom, os.path.join(work, "out", "lang")], cwd=work, timeout=120, capture_output=True)
+        except Exception:
+            pass
     env = dict(os.environ)
     env.setdefault("HOME", os.path.expanduser("~"))     # the game keeps its settings in ~/.landstalker_* (Windows: the user profile)
     if WIN:

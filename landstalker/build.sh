@@ -284,6 +284,8 @@ cmake --build build -j"$(nproc)"
 # 3. Languages: every lang/*.json -> build/lang/<code>.bin + index.txt (derived from your ROM's font and text hashes: local only, tools/langbuild.py, docs/TEXT_LAYER.md)
 mkdir -p build/lang
 python3 tools/langbuild.py "$ROM" lang build/lang
+# Japanese (the original text) only if YOUR Japanese ROM lies next to the ROM: build/lang/ja.bin from it (tools/jplang.py, lang/ja_map.json = which Japanese string belongs to which English id)
+python3 tools/jplang.py "$ROM" build/lang
 # room map data (areas, floors, room pictures; local only, ~2 min on all cores, skipped when up to date; tools/roommap.py, docs/MAP.md)
 python3 tools/roommap.py "$ROM" build/roommap
 

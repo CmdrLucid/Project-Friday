@@ -67,3 +67,20 @@ Four items are different things in the Japanese original (`Koutei no Zaihou`): 3
   Lines that follow the item: 0010 (give / make Friday WEAR), 0019 (Oracle Stone / Bunny-chan), 001A (Pawn Ticket use / the T-back smell), 001B (Spell Book / Pink Book read),
   0080..0086 (the Destel church priest and his book), 087D / 087E (Friday's two answers to the cake / the suit).
 - Choosing 'English (JP)' sets Items = Japanese (and back if the player steps on to another language without touching the Items row).
+
+## 10. Japanese = the original text (LK_JPLANG v1, 2026-11-14)
+- Only when the player's Japanese ROM ('Koutei no Zaihou', 2 MB, header region 'J', name LAND STALKER) lies next to the ROM: `tools/jplang.py ROM OUTDIR` (a build.sh step AND run by
+  firstrun.py at every start, ~2 s: a ROM added later works without a rebuild) writes OUTDIR/ja.bin + the index line `ja<TAB>Japanese`; the runtime lists 'ja' only while
+  `lk_ji_avail()` finds that ROM. Nothing Japanese is shipped: `lang/ja_map.json` holds numbers only (+ 36 own kana lines, see below).
+- Japanese ROM layout used: Huffman char offsets $23C94, trees $23E8E, 8 bank pointers at $38532 (string begin code $E9, controls $EA + k = the US control meanings, the
+  disassembly's '╳' is NewLine), main font $2B4B8 (234 glyphs, 30 bytes, same format as the US font), name tables char $2A2EA / special $2A3E4. The decoder gives 2029 strings,
+  the disassembly 2026 (3 trailing filler entries in bank 8): indices 0..2025 are identical. Voicing marks (code 123 / 124) stand BEFORE the kana.
+- `lang/ja_map.json`: per English id `{"jp": [index, ...], "part": [k, n]}` (n > 1: the English release split one Japanese string; jplang cuts it at page / line / space
+  boundaries in proportion to the English lengths) or `{"text": "..."}` (own kana line: English-only lines, the rewritten ending, lines whose {Item} use differs).
+  Made 2026-11-14: automatic alignment (tools of ~/Project-Friday-Test/lktest/ja) + 8 Sonnet agents matching by meaning + lead review. Where the English release rewrote
+  a line completely, the NPC slot decides (the Japanese mode shows what the same NPC says in the original).
+- Each string: head ({Speaker}) and end codes incl. trailing pauses from the English string, body from the Japanese one; {Item} / {Number} counts must match.
+  Glyph codes: name characters + the most frequent ones $6C..$FF (bytes: name tables), the rest $101..; never the low bytes the printer treats specially ($00, $7B, $7C),
+  on purpose 「 = $147 (CHR_BEGIN_TALK $47: speech blips) and ・ = $140 (CHR_ELLIPSIS_DOT $40). Language file version 3 = glyph entries with a 16-bit code.
+- Kept English: 0000..0003 (Yes / No / Use / Equip) and the debug menus 001D..004D (menu font), item names (the 8x8 menu font has no kana), our own options pages.
+- Headless check: massan.txt replay with LANDSTALKER_LANG=ja shows the Massan priest (005B) in Japanese with his Japanese name; without the Japanese ROM 'ja' is not loaded.
