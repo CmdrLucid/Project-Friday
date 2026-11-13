@@ -1898,6 +1898,582 @@
   "07A1": {
    "h": "9b6f70b4",
    "t": "{Speaker}Whoa! Quit joking,{SoftNewLine}customer!{WaitInput}"
+  },
+  "07A3": {
+   "h": "aece0a0d",
+   "t": "{Speaker}Grr! N-Nigel! You're{SoftNewLine}quite the persistent one!{ContinuePrompt}"
+  },
+  "07A4": {
+   "h": "6652d8e7",
+   "t": "{Speaker}But let's end this{SoftNewLine}game of tag now, shall we?{SoftNewLine}Come here!{WaitInput}"
+  },
+  "07A5": {
+   "h": "dfae0fee",
+   "t": "{Speaker}Fuhahahaha! Watch{SoftNewLine}closely!{ContinuePrompt}"
+  },
+  "07A7": {
+   "h": "f5d64d40",
+   "t": "{Speaker}Now, Princess Lara!{SoftNewLine}If you don't want your head{SoftNewLine}cut off, sing the song{ContinuePrompt}"
+  },
+  "07A8": {
+   "h": "86937bf3",
+   "t": "{Speaker}you were taught as{SoftNewLine}a little girl!{ContinuePrompt}"
+  },
+  "07A9": {
+   "h": "1bfd120c",
+   "t": "{Speaker}No! No! No! I'll{SoftNewLine}never sing it! Not even if I{SoftNewLine}die! No means no!{ContinuePrompt}"
+  },
+  "07AA": {
+   "h": "809c7f1e",
+   "t": "{Speaker}...I see.{SoftNewLine}Threatening a little girl's{SoftNewLine}head won't work, it seems.{ContinuePrompt}"
+  },
+  "07AD": {
+   "h": "81d220f5",
+   "t": "{Speaker}You really would{SoftNewLine}do it, wouldn't you?!{SoftNewLine}...You...win...!{ContinuePrompt}"
+  },
+  "07AF": {
+   "h": "a5ed0ae0",
+   "t": "{Speaker}show to me...a new{SoftNewLine}path! {Pause1s}Mar-go{Pause1s} Rai-hi{Pause1s} ke{Pause1s} Mar-go!{WaitInput}"
+  },
+  "07B0": {
+   "h": "1041505a",
+   "t": "{Speaker}Uwahahaha! At{SoftNewLine}last! King Nole's legendary{SoftNewLine}treasures belong to no one{SoftNewLine}but me! Gwahahaha!{WaitInput}"
+  },
+  "07B1": {
+   "h": "c5de9486",
+   "t": "{Speaker}B-big brother! I{SoftNewLine}knew you'd come to save me...!{ContinuePrompt}"
+  },
+  "07B2": {
+   "h": "d98a9dd6",
+   "t": "{Speaker}Ah! Ah! You are my{SoftNewLine}knight in shining armor! Oh, my{SoftNewLine}knight!{WaitInput}"
+  },
+  "07B3": {
+   "h": "f789fc13",
+   "t": "{Speaker}Ever since that{SoftNewLine}duke locked me in the castle{SoftNewLine}tower, I've waited and waited,{ContinuePrompt}"
+  },
+  "07B4": {
+   "h": "9a215230",
+   "t": "{Speaker}believing my prince{SoftNewLine}would surely come to rescue{SoftNewLine}me!{ContinuePrompt}"
+  },
+  "07B5": {
+   "h": "6d514598",
+   "t": "{Speaker}Kyaa! Kyaa! I'm so{SoftNewLine}happy!! You're even more{SoftNewLine}wonderful than I imagined!{ContinuePrompt}"
+  },
+  "07B6": {
+   "h": "57848e51",
+   "t": "{Speaker}Oh my! Big brother,{SoftNewLine}you're covered in wounds! If{SoftNewLine}we don't treat them right{SoftNewLine}away, they'll{ContinuePrompt}"
+  },
+  "07B7": {
+   "h": "8d54e2c1",
+   "t": "{Speaker}spread! And if{SoftNewLine}germs get into the wounds,{SoftNewLine}you'll catch a terrible{SoftNewLine}disease!{ContinuePrompt}"
+  },
+  "07B8": {
+   "h": "5cb284b3",
+   "t": "{Speaker}Ah, my knight!{SoftNewLine}Waaah, waaah, don't die!{WaitInput}"
+  },
+  "07B9": {
+   "h": "6ee5ed4c",
+   "t": "{Speaker}Nnngh! Cut it out{SoftNewLine}already! I've been listening{SoftNewLine}quietly! Don't you call him{SoftNewLine}your knight!{ContinuePrompt}"
+  },
+  "07BA": {
+   "h": "02f97105",
+   "t": "{Speaker}Besides, Nigel didn't{SoftNewLine}save you because he wanted{SoftNewLine}to!{ContinuePrompt}"
+  },
+  "07BB": {
+   "h": "98388ac1",
+   "t": "{Speaker}It just happened{SoftNewLine}and he had no choice! Don't{SoftNewLine}get the wrong idea! The WRONG{SoftNewLine}idea!{ContinuePrompt}"
+  },
+  "07BC": {
+   "h": "b28aae1c",
+   "t": "{Speaker}Kiiih! What, what,{SoftNewLine}WHAT?! How dare you, you{SoftNewLine}pint-sized brat!{WaitInput}"
+  },
+  "07BD": {
+   "h": "9c13fc02",
+   "t": "{Speaker}Pint-sized?! That's{SoftNewLine}it!! I've had it with you! Take{SoftNewLine}that! And that! And that!{WaitInput}"
+  },
+  "07BE": {
+   "h": "8519835a",
+   "t": "{Speaker}Owwie! Hey! What{SoftNewLine}are you doing?!{WaitInput}"
+  },
+  "07BF": {
+   "h": "5c75fcd8",
+   "t": "{Speaker}Hmph, Moralis,{SoftNewLine}you're too late! Let go! I'm{SoftNewLine}settling this with the shrimp{SoftNewLine}myself!{ContinuePrompt}"
+  },
+  "07C0": {
+   "h": "87a830a0",
+   "t": "{Speaker}Princess! That's{SoftNewLine}enough! I won't tolerate any{SoftNewLine}more rudeness to Mr. Nigel and{SoftNewLine}Miss Friday!{ContinuePrompt}"
+  },
+  "07C1": {
+   "h": "17e92bf8",
+   "t": "{Speaker}...{Pause1s}yes{Pause1s}...I'm sorry,{SoftNewLine}Moralis... but...{Pause1s}but...{Pause1s}I was so{SoftNewLine}scared!...{ContinuePrompt}"
+  },
+  "07C2": {
+   "h": "33c00b20",
+   "t": "{Speaker}Waaah... I couldn't{SoftNewLine}even sleep... every day I{SoftNewLine}threw all sorts of things{SoftNewLine}down from the tower, but{ContinuePrompt}"
+  },
+  "07C3": {
+   "h": "914516d9",
+   "t": "{Speaker}nobody... nobody{SoftNewLine}ever came! Waaah, waaah!{ContinuePrompt}"
+  },
+  "07C4": {
+   "h": "8353a00e",
+   "t": "{Speaker}There, there... Our{SoftNewLine}escort from Maple has just{SoftNewLine}arrived. Let's go home,{SoftNewLine}Princess Lara.{ContinuePrompt}"
+  },
+  "07C5": {
+   "h": "d332133d",
+   "t": "{Speaker}Uh-huh... Waaah,{SoftNewLine}waaah!...{WaitInput}"
+  },
+  "07C6": {
+   "h": "f1d3378a",
+   "t": "{Speaker}Sir Nigel! Even if{SoftNewLine}it was by chance, thank you{SoftNewLine}so much for rescuing the{SoftNewLine}princess!{ContinuePrompt}"
+  },
+  "07C8": {
+   "h": "8dd9bb65",
+   "t": "{Speaker}Maybe I was a{SoftNewLine}little mean to her...? She{SoftNewLine}must have been so lonely, all{SoftNewLine}alone in that{ContinuePrompt}"
+  },
+  "07C9": {
+   "h": "1df90233",
+   "t": "{Speaker}tower for so{SoftNewLine}long... ...But calling you 'my{SoftNewLine}knight'! The nerve!{ContinuePrompt}"
+  },
+  "07CA": {
+   "h": "21dfcf66",
+   "t": "{Speaker}Anyway... no time{SoftNewLine}to stand around, Nigel! Let's{SoftNewLine}chase the duke!{WaitInput}"
+  },
+  "07CB": {
+   "h": "48335b83",
+   "t": "{Speaker}Run! Hurry! Or this{SoftNewLine}witch will change you into a{SoftNewLine}dog!{ContinuePrompt}"
+  },
+  "07CC": {
+   "h": "8d7b6079",
+   "t": "{Speaker}Ihihihi! Too late!{SoftNewLine}Whoever learns my secret{SoftNewLine}becomes....{Pause1sOrInput}a dog!{WaitInput}"
+  },
+  "07CD": {
+   "h": "869e2094",
+   "t": "{Speaker}Ihihihihi... You{SoftNewLine}should have stayed put, but{SoftNewLine}you came all this way!...{ContinuePrompt}"
+  },
+  "07CE": {
+   "h": "19da1848",
+   "t": "{Speaker}You smell{SoftNewLine}dangerous! Who knows what{SoftNewLine}you'll do... I think you'd{SoftNewLine}better{ContinuePrompt}"
+  },
+  "07CF": {
+   "h": "a35896f6",
+   "t": "{Speaker}DIE right here!{SoftNewLine}Slowly... Ihihihi... Can't move,{SoftNewLine}can you? Ha!{WaitInput}"
+  },
+  "07D0": {
+   "h": "e5c64bd5",
+   "t": "{Speaker}Ihihihi!... Step on{SoftNewLine}this switch, and your life is{SoftNewLine}over...{ContinuePrompt}"
+  },
+  "07D1": {
+   "h": "7198fc33",
+   "t": "{Speaker}...ummm... which{SoftNewLine}switch was it again...?{SoftNewLine}Ummm...{Pause1sOrInput}THIS one! Hup!{WaitInput}"
+  },
+  "07D2": {
+   "h": "93dab9ed",
+   "t": "{Speaker}Yikes! Wr-wrong{SoftNewLine}switch! Ugyaaa!{WaitInput}"
+  },
+  "07D3": {
+   "h": "683a1410",
+   "t": "{Speaker}What an{SoftNewLine}astonishing idiot! I'm so{SoftNewLine}stunned, my eyes popped! Now,{SoftNewLine}let's go!{WaitInput}"
+  },
+  "07D4": {
+   "h": "f2fc9bef",
+   "t": "{Speaker}Uooohhn... Uooohhn...{SoftNewLine}it hurts...ooohhn...{WaitInput}"
+  },
+  "07D5": {
+   "h": "92114caf",
+   "t": "{Speaker}Groooaaann... It{SoftNewLine}hurts, it hurts!! Somebody do{SoftNewLine}something...!{ContinuePrompt}"
+  },
+  "07D6": {
+   "h": "aaeb69c8",
+   "t": "{Speaker}Something weird{SoftNewLine}got into my belly and it's{SoftNewLine}running wild! Please help me!{WaitInput}"
+  },
+  "07D7": {
+   "h": "c6e5cf90",
+   "t": "{Speaker}Oh, it's you! I've{SoftNewLine}been fine ever since. Are my{SoftNewLine}sons useful to you?{WaitInput}"
+  },
+  "07DD": {
+   "h": "e08877c8",
+   "t": "{Speaker}Ehehehe...It's me! I{SoftNewLine}came down to see if there{SoftNewLine}was anything good, but{ContinuePrompt}"
+  },
+  "07DE": {
+   "h": "c9e5aad6",
+   "t": "{Speaker}this cave's not my{SoftNewLine}style... You can have the{SoftNewLine}treasure. Good luck, young'un!{WaitInput}"
+  },
+  "07DF": {
+   "h": "49436ad0",
+   "t": "{Speaker}Hihihi! I've received{SoftNewLine}the {Item}. Here's{SoftNewLine}your money, please check it!"
+  },
+  "07E1": {
+   "h": "b36c38a1",
+   "t": "{Speaker}So young, and{SoftNewLine}already a top-class treasure{SoftNewLine}hunter! Hihihi."
+  },
+  "07E2": {
+   "h": "39407801",
+   "t": "{Speaker}With that money,{SoftNewLine}you can play around for quite{SoftNewLine}a while! Hihihi, lucky you!"
+  },
+  "07E4": {
+   "h": "65f99442",
+   "t": "{Speaker}Please help me!{SoftNewLine}They're chasing me!"
+  },
+  "07E6": {
+   "h": "2225d1ed",
+   "t": "{Speaker}You there, sonny!{SoftNewLine}Hand over that little girl{SoftNewLine}quietly, or you'll get hurt!"
+  },
+  "07E7": {
+   "h": "1f69f852",
+   "t": "{Speaker}...get hurt "
+  },
+  "07E8": {
+   "h": "1f69f852",
+   "t": "{Speaker}...get hurt "
+  },
+  "07ED": {
+   "h": "cd99b294",
+   "t": "{Speaker}What's all this{SoftNewLine}jabbering?! Ugh, how annoying!{SoftNewLine}Then I'll take her by force!"
+  },
+  "07EF": {
+   "h": "5d6cb17c",
+   "t": "{Speaker}Kahh! No idea{SoftNewLine}what's going on, but it sounds{SoftNewLine}fun! Let's do this!"
+  },
+  "07F0": {
+   "h": "5344e05f",
+   "t": "{Speaker}Ohohohohoho! You{SoftNewLine}won't get away...."
+  },
+  "07F1": {
+   "h": "b022fe16",
+   "t": "{Speaker}Ufufu! Looks like{SoftNewLine}we shook her off!"
+  },
+  "07F2": {
+   "h": "90bdb23a",
+   "t": "{Speaker}Never mind that.{SoftNewLine}You said something interesting{SoftNewLine}back there, kid. Did you see{SoftNewLine}the treasures?"
+  },
+  "07F3": {
+   "h": "2e634f96",
+   "t": "{Speaker}Not 'kid'! My name{SoftNewLine}is Friday!"
+  },
+  "07F4": {
+   "h": "1bb1b012",
+   "t": "{Speaker}I'm Nigel. Now, talk{SoftNewLine}about the treasure! I saved{SoftNewLine}your life, you know."
+  },
+  "07F5": {
+   "h": "683e2ddc",
+   "t": "{Speaker}To tell the truth,{SoftNewLine}I don't really know..."
+  },
+  "07F6": {
+   "h": "c50b8362",
+   "t": "{Speaker}What?! Quit fooling!{Pause1s}{Pause1s}{Pause1s}"
+  },
+  "07F8": {
+   "h": "29918344",
+   "t": "{Speaker}I don't know{SoftNewLine}exactly where they are, but I{SoftNewLine}know they really exist..."
+  },
+  "07F9": {
+   "h": "ee37d950",
+   "t": "{Speaker}All right! Take me{SoftNewLine}to the general area..."
+  },
+  "07FA": {
+   "h": "c8d91d7e",
+   "t": "{Speaker}After that, my{SoftNewLine}instincts will do the rest!"
+  },
+  "07FB": {
+   "h": "93f96d19",
+   "t": "{Speaker}...Fine, then. Nigel!{SoftNewLine}Follow me!"
+  },
+  "07FC": {
+   "h": "6e1d7ac8",
+   "t": "{Speaker}Wh-what's with{SoftNewLine}that attitude all of a{SoftNewLine}sudden?! I'm not your follower!"
+  },
+  "0803": {
+   "h": "6ace5f5e",
+   "t": "{Speaker}A boy shouldn't{SoftNewLine}fuss over what's done! As long{SoftNewLine}as we get the treasure,{SoftNewLine}right?"
+  },
+  "0804": {
+   "h": "6bf1fc7b",
+   "t": "{Speaker}Ugh! ...W-well, I{SoftNewLine}guess so! In for a copper, in{SoftNewLine}for a gold!"
+  },
+  "0808": {
+   "h": "f0da740e",
+   "t": "{Speaker}Sorry... I built the{SoftNewLine}machine myself on weekends.{SoftNewLine}Looks like it's broken already!{SoftNewLine}Ha ha ha!{WaitInput}"
+  },
+  "080E": {
+   "h": "5b8f49cd",
+   "t": "{Speaker}Oh, too bad! You{SoftNewLine}don't have enough money.{WaitInput}"
+  },
+  "080F": {
+   "h": "5427d339",
+   "t": "{Speaker}Ohhhh...too bad! So{SoftNewLine}close!{WaitInput}"
+  },
+  "0818": {
+   "h": "15065816",
+   "t": "{Speaker}Ta-da-da-daaa! A{SoftNewLine}brand-new room record!{ContinuePrompt}"
+  },
+  "081D": {
+   "h": "ca266728",
+   "t": "{Speaker}No, no! Regular{SoftNewLine}folks aren't allowed past{SoftNewLine}here!{WaitInput}"
+  },
+  "0820": {
+   "h": "c594426f",
+   "t": "{Speaker}Welcome to the{SoftNewLine}Casino Arthurlier! Take your{SoftNewLine}time and have fun, bro!{WaitInput}"
+  },
+  "0823": {
+   "h": "4059a18a",
+   "t": "{Speaker}There's a tree{SoftNewLine}growin' up above. It's real{SoftNewLine}precious, so{ContinuePrompt}"
+  },
+  "0824": {
+   "h": "cdc2f5fb",
+   "t": "{Speaker}I'm watchin' it so{SoftNewLine}nobody messes with it!{WaitInput}"
+  },
+  "0825": {
+   "h": "38cd92ce",
+   "t": "{Speaker}Oh, ya met my pa?{SoftNewLine}Well, all right. If you're in a{SoftNewLine}fix, go cut the tree and make{SoftNewLine}a raft!{WaitInput}"
+  },
+  "0827": {
+   "h": "7bdcf1f0",
+   "t": "{Speaker}Ya cut the tree{SoftNewLine}and didn't even take it?{SoftNewLine}That's just mean!{WaitInput}"
+  },
+  "0828": {
+   "h": "0cb0b159",
+   "t": "{Speaker}Can't go on without{SoftNewLine}a raft. If ya really wanna go{SoftNewLine}down the river, find my son{SoftNewLine}an'{ContinuePrompt}"
+  },
+  "082C": {
+   "h": "9f40e735",
+   "t": "{Speaker}Wow, what a thrill!{SoftNewLine}Where are we going, Nigel?{ContinuePrompt}"
+  },
+  "082D": {
+   "h": "664d3263",
+   "t": "{Speaker}How should I know?!{SoftNewLine}Ask the raft!{WaitInput}"
+  },
+  "082E": {
+   "h": "46a08c12",
+   "t": "{Speaker}Phew! That was{SoftNewLine}scary, but so much fun!{ContinuePrompt}"
+  },
+  "082F": {
+   "h": "df2621e6",
+   "t": "{Speaker}Hmph... must be{SoftNewLine}nice...{WaitInput}"
+  },
+  "0830": {
+   "h": "69146f66",
+   "t": "{Speaker}Hey, Nigel! With{SoftNewLine}this, that dark room will be{SoftNewLine}no problem!{ContinuePrompt}"
+  },
+  "0831": {
+   "h": "b1de2913",
+   "t": "{Speaker}Yeah, that's a big{SoftNewLine}help!{ContinuePrompt}"
+  },
+  "0832": {
+   "h": "b8f7294b",
+   "t": "{Speaker}Let's go! King{SoftNewLine}Nole's treasures are almost{SoftNewLine}ours!{ContinuePrompt}"
+  },
+  "0833": {
+   "h": "b2775d8c",
+   "t": "{Speaker}Almost...? So you{SoftNewLine}DO know where the treasures{SoftNewLine}are?{ContinuePrompt}"
+  },
+  "0834": {
+   "h": "cfe936f1",
+   "t": "{Speaker}Nope! I just have a{SoftNewLine}feeling!{WaitInput}"
+  },
+  "0835": {
+   "h": "bc1dbb4b",
+   "t": "{Speaker}We've been waiting{SoftNewLine}forever, boy! We're not like{SoftNewLine}Dex and those big, dumb oafs!{ContinuePrompt}"
+  },
+  "0836": {
+   "h": "43aa4e1c",
+   "t": "{Speaker}We're the elite of{SoftNewLine}the elite of the duke's Dark{SoftNewLine}Knights! The Unicorn Troopers!{ContinuePrompt}"
+  },
+  "0837": {
+   "h": "fae5bb38",
+   "t": "{Speaker}Off to hell with{SoftNewLine}you! Our elite tactic:{SoftNewLine}'Labyrinth Formation'! Ready,{SoftNewLine}set...go!{ContinuePrompt}"
+  },
+  "0838": {
+   "h": "c2efc371",
+   "t": "{Speaker}Well then, see you{SoftNewLine}later! Guhahahaha!{WaitInput}"
+  },
+  "0839": {
+   "h": "9e5fe807",
+   "t": "{Speaker}Yikes! Already{SoftNewLine}here?! M-must report to the{SoftNewLine}duke at once!{WaitInput}"
+  },
+  "083A": {
+   "h": "6fb40b85",
+   "t": "{Speaker}Oh! If it isn't{SoftNewLine}young Nigel! Hellooo! Nigel, my{SoftNewLine}boy!{ContinuePrompt}"
+  },
+  "083B": {
+   "h": "7e0ca80f",
+   "t": "{Speaker}Hello! Hello! Can{SoftNewLine}you hear me? I'm not one step{SoftNewLine}ahead of you, I'm 1000!{ContinuePrompt}"
+  },
+  "083C": {
+   "h": "5f052bcd",
+   "t": "{Speaker}The last jewel is{SoftNewLine}right in front of me! So I'm in{SoftNewLine}no hurry! Can you see?{ContinuePrompt}"
+  },
+  "083F": {
+   "h": "593ce173",
+   "t": "{Speaker}Am I going slow{SoftNewLine}enough? Can you catch up{SoftNewLine}now? Fuahahaha!{ContinuePrompt}"
+  },
+  "0841": {
+   "h": "e9ee04d9",
+   "t": "{Speaker}Hohoho! Kyahohoho!{SoftNewLine}You'll never get the{SoftNewLine}tweasures! Kyakyakya!{ContinuePrompt}"
+  },
+  "0842": {
+   "h": "9feabba0",
+   "t": "{Speaker}Take my{SoftNewLine}'Wock-'n'-Woll' attack! Here I{SoftNewLine}come!{WaitInput}"
+  },
+  "0843": {
+   "h": "066f58da",
+   "t": "{Speaker}Gyaa! M-me...?{SoftNewLine}L-Lord Nole... banzaaai...!{WaitInput}"
+  },
+  "0844": {
+   "h": "0a4b0249",
+   "t": "{Speaker}You... do you{SoftNewLine}remember me? You humiliated{SoftNewLine}me in front of Lord Mir!{ContinuePrompt}"
+  },
+  "0845": {
+   "h": "dcbd977e",
+   "t": "{Speaker}Ever since, I've{SoftNewLine}lived only to defeat you!{ContinuePrompt}"
+  },
+  "0846": {
+   "h": "14f595e5",
+   "t": "{Speaker}Garlic won't work{SoftNewLine}on me anymore! Prepare{SoftNewLine}yourself, you brat elf!{WaitInput}"
+  },
+  "0847": {
+   "h": "e0d29985",
+   "t": "{Speaker}D-damn! We look{SoftNewLine}exactly the same... so why do{SoftNewLine}I lose...?{ContinuePrompt}"
+  },
+  "0848": {
+   "h": "620eed79",
+   "t": "{Speaker}...I-I see!... I don't{SoftNewLine}have... that girl... Uohh! Guh...{WaitInput}"
+  },
+  "0849": {
+   "h": "b5c33401",
+   "t": "{Speaker}Hey, Nigel! My{SoftNewLine}hometown, Twinkle Village, is{SoftNewLine}just ahead! Can we stop by{SoftNewLine}for a bit?{WaitInput}"
+  },
+  "084A": {
+   "h": "0f161563",
+   "t": "{Speaker}Wow, how{SoftNewLine}nostalgic! Is everybody well?{WaitInput}"
+  },
+  "084B": {
+   "h": "e3f18273",
+   "t": "{Speaker}Bye now! Take{SoftNewLine}care, everyone!{WaitInput}"
+  },
+  "084C": {
+   "h": "557e1837",
+   "t": "{Speaker}My! Isn't it Friday!{SoftNewLine}Long time no see! 256 years,{SoftNewLine}isn't it?{ContinuePrompt}"
+  },
+  "084D": {
+   "h": "3598baa9",
+   "t": "{Speaker}I haven't seen you{SoftNewLine}since King Nole's terrible war.{SoftNewLine}I'm so glad you're well!{ContinuePrompt}"
+  },
+  "084E": {
+   "h": "d068b783",
+   "t": "{Speaker}Eh...? You're{SoftNewLine}looking for King Nole's{SoftNewLine}treasures?{ContinuePrompt}"
+  },
+  "0850": {
+   "h": "291d9944",
+   "t": "{Speaker}Be careful! He's{SoftNewLine}dead, but don't let your guard{SoftNewLine}down!{ContinuePrompt}"
+  },
+  "0851": {
+   "h": "d2a9f82b",
+   "t": "{Speaker}That man would{SoftNewLine}surely crawl back even from{SoftNewLine}hell...{WaitInput}"
+  },
+  "0852": {
+   "h": "2c9b178a",
+   "t": "{Speaker}You make a cute{SoftNewLine}couple with that elf{SoftNewLine}gentleman! Good luck!{WaitInput}"
+  },
+  "0853": {
+   "h": "5b4dd557",
+   "t": "{Speaker}Ara, ara! Isn't it{SoftNewLine}Miss Friday? With a boy, as{SoftNewLine}usual!{ContinuePrompt}"
+  },
+  "0854": {
+   "h": "2375fe35",
+   "t": "{Speaker}Hmm...{Pause1s} ...Hey, he's{SoftNewLine}pretty cute!! Where did you{SoftNewLine}catch him?{ContinuePrompt}"
+  },
+  "0855": {
+   "h": "725a5d53",
+   "t": "{Speaker}Hey! What are you{SoftNewLine}saying! He saved my life! He's{SoftNewLine}my...!{ContinuePrompt}"
+  },
+  "0856": {
+   "h": "fdd0ab73",
+   "t": "{Speaker}Yes, yes, yes, yes!{SoftNewLine}Well, have fun!{WaitInput}"
+  },
+  "0857": {
+   "h": "4d04acdd",
+   "t": "{Speaker}You've always liked{SoftNewLine}boys, haven't you!{WaitInput}"
+  },
+  "0858": {
+   "h": "24f54269",
+   "t": "{Speaker}Phew! What a{SoftNewLine}crazy place! ...By the way, I{SoftNewLine}wonder how Kayla's trio is{SoftNewLine}doing?{WaitInput}"
+  },
+  "0859": {
+   "h": "57624e4d",
+   "t": "{Speaker}Ugh! What's with{SoftNewLine}this forest! I'm getting dizzy!{ContinuePrompt}"
+  },
+  "085A": {
+   "h": "60a22bba",
+   "t": "{Speaker}Wally! Ink! This is{SoftNewLine}your fault! Kiiih!{WaitInput}"
+  },
+  "085B": {
+   "h": "62e31877",
+   "t": "{Speaker}Hyaa {ContinuePrompt}"
+  },
+  "085C": {
+   "h": "b07743f6",
+   "t": "{Speaker}Fweee {WaitInput}"
+  },
+  "085D": {
+   "h": "360cde86",
+   "t": "{Speaker}Oh, well! Let's keep{SoftNewLine}going!{WaitInput}"
+  },
+  "0863": {
+   "h": "82c8dc9d",
+   "t": "{Speaker}Seems you overtook{SoftNewLine}me at some point, Nigel, my{SoftNewLine}boy! But that too was part of{SoftNewLine}my plan...!{ContinuePrompt}"
+  },
+  "0864": {
+   "h": "21400fa1",
+   "t": "{Speaker}Why should I dirty{SoftNewLine}my precious sword on filthy{SoftNewLine}monsters? I left them to you!{ContinuePrompt}"
+  },
+  "0865": {
+   "h": "b496030d",
+   "t": "{Speaker}You've been such a{SoftNewLine}big help this time, Nigel, my{SoftNewLine}boy!{ContinuePrompt}"
+  },
+  "0866": {
+   "h": "c596a132",
+   "t": "{Speaker}Behold these{SoftNewLine}shining treasures! Gold!{SoftNewLine}Jewels! Ahh... it cleanses the{SoftNewLine}soul!{ContinuePrompt}"
+  },
+  "0867": {
+   "h": "315c6181",
+   "t": "{Speaker}Nigel, my boy! I'll{SoftNewLine}share a little with you for{SoftNewLine}your errands....{ContinuePrompt}"
+  },
+  "0869": {
+   "h": "da86d15a",
+   "t": "{Speaker}That's enough to{SoftNewLine}buy a candy! Uwahahaha!{SoftNewLine}Gwahahaha! Hee! Hee! The{SoftNewLine}treasures are mine!{WaitInput}"
+  },
+  "086A": {
+   "h": "bf047557",
+   "t": "{Speaker}Gyuaaaaaaahhh!!!{WaitInput}"
+  },
+  "0874": {
+   "h": "2a55e8bf",
+   "t": "{Speaker}...Ehehe!!..."
+  },
+  "0875": {
+   "h": "63ab9372",
+   "t": "{Speaker}...{Pause1s}my heart! How's{SoftNewLine}that? Happy? Nigel?{Pause1s}.{Pause1s}.{Pause1s}.Nigel?"
+  },
+  "0878": {
+   "h": "b8311271",
+   "t": "{Speaker}Well then! Maybe{SoftNewLine}it's time to go hunt for the{SoftNewLine}next treasure on the{SoftNewLine}continent...{Pause1s}"
+  },
+  "0879": {
+   "h": "b18cff6a",
+   "t": "{Speaker}...Wh-what...{Pause1s}what...{Pause1s}{SoftNewLine}Nigel, you meanie! I HATE you!{SoftNewLine}You'll be beaten and"
+  },
+  "087A": {
+   "h": "e0ca5ce3",
+   "t": "{Speaker}killed without me!{SoftNewLine}Without me, you'd {Pause1s}...you'd die!"
+  },
+  "087B": {
+   "h": "72ed3ec4",
+   "t": "{Speaker}Hey... are you going{SoftNewLine}with me? ...Or not?"
+  },
+  "087C": {
+   "h": "f7a87af6",
+   "t": "{Speaker}...{Pause1s}...{Pause1s}...{Pause1s}Oh! ...I'm{SoftNewLine}going! Of course I'm going!!{SoftNewLine}What took you so long?{Pause1s}"
   }
  }
 }
