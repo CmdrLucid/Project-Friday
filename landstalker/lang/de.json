@@ -5045,6 +5045,454 @@
   "055F": {
    "h": "0d0fecdf",
    "t": "{Speaker}Das muss ich allen{SoftNewLine}in der Stadt erzählen!{WaitInput}"
+  },
+  "0560": {
+   "h": "4e02a787",
+   "t": "{Speaker}Gehen wir zum{SoftNewLine}Versteck der Diebe?{NewLine}"
+  },
+  "0561": {
+   "h": "eded587e",
+   "t": "{Speaker}Los geht's!{WaitInput}"
+  },
+  "0562": {
+   "h": "5ca30f27",
+   "t": "{Speaker}Waas, wir gehen{SoftNewLine}nicht? Laaangweilig!{WaitInput}"
+  },
+  "0563": {
+   "h": "4e02a787",
+   "t": "{Speaker}Gehen wir zum{SoftNewLine}Versteck der Diebe?{NewLine}"
+  },
+  "0564": {
+   "h": "eded587e",
+   "t": "{Speaker}Auf geht's!!{WaitInput}"
+  },
+  "0565": {
+   "h": "128aac4e",
+   "t": "{Speaker}Na gut... diesmal{SoftNewLine}lassen wir's.{WaitInput}"
+  },
+  "0566": {
+   "h": "8cfa0a11",
+   "t": "{Speaker}Gehen wir zurück in{SoftNewLine}die Stadt?{NewLine}"
+  },
+  "0567": {
+   "h": "15450bd0",
+   "t": "{Speaker}Juhu! Los geht's!{WaitInput}"
+  },
+  "0568": {
+   "h": "e0f5223d",
+   "t": "{Speaker}Na gut... dann{SoftNewLine}erkunden wir hier noch ein{SoftNewLine}bisschen.{WaitInput}"
+  },
+  "0569": {
+   "h": "77566c09",
+   "t": "{Speaker}Mensch, {=nigel}! Du{SoftNewLine}hast ja gar nicht alle{SoftNewLine}Schatztruhen geholt! Schau{SoftNewLine}doch mal!{WaitInput}"
+  },
+  "056A": {
+   "h": "16b1910f",
+   "t": "{Speaker}Wer da?!! Du{SoftNewLine}mickriger Wicht... hier kommst{SoftNewLine}du nicht lebend raus! Bugyaaa!{WaitInput}"
+  },
+  "056B": {
+   "h": "b7a6f4b2",
+   "t": "{Speaker}Ich weiß nicht, wer{SoftNewLine}du bist, aber danke! Ich bin{SoftNewLine}fast gestorben vor Hunger und{SoftNewLine}Angst!{ContinuePrompt}"
+  },
+  "056C": {
+   "h": "6c2fb6a5",
+   "t": "{Speaker}Besuch mich, wenn{SoftNewLine}du wieder in der Stadt bist!{SoftNewLine}Ich bin freeeeei!{WaitInput}"
+  },
+  "056D": {
+   "h": "511bff23",
+   "t": "{Speaker}{=nigel}! Wir haben{SoftNewLine}schon auf dich gewartet! Ich{SoftNewLine}möchte dir von Herzen danken!{ContinuePrompt}"
+  },
+  "056E": {
+   "h": "5a4c5b32",
+   "t": "{Speaker}Du glaubst nicht,{SoftNewLine}wie froh ich bin, wieder{SoftNewLine}meiner Arbeit als{SoftNewLine}Bürgermeister nachzugehen!{WaitInput}"
+  },
+  "056F": {
+   "h": "8e2ea930",
+   "t": "{Speaker}Nimm das hier, nur{SoftNewLine}eine kleine Aufmerksamkeit. Ich{SoftNewLine}hoffe, es hilft dir.{ContinuePrompt}"
+  },
+  "0570": {
+   "h": "00755775",
+   "t": "{Speaker}Damit kommst du{SoftNewLine}nach Merkator hinein.{WaitInput}"
+  },
+  "0571": {
+   "h": "c9113dbd",
+   "t": "{Speaker}Ohohohoho! Da bist{SoftNewLine}du ja, Kleiner! Gib mir sofort{SoftNewLine}die kleine Hexe!{WaitInput}"
+  },
+  "0572": {
+   "h": "c0a0ad11",
+   "t": "{Speaker}Wally! Ink! Rudert{SoftNewLine}ans Ufer!{ContinuePrompt}"
+  },
+  "0573": {
+   "h": "2e299b0e",
+   "t": "{Speaker}Ans Ufer!{ContinuePrompt}"
+  },
+  "0574": {
+   "h": "8d964979",
+   "t": "{Speaker}Ans Ufeeer!{WaitInput}"
+  },
+  "0575": {
+   "h": "025a7276",
+   "t": "{Speaker}Was treibt ihr denn{SoftNewLine}da! Beeilung!{ContinuePrompt}"
+  },
+  "0576": {
+   "h": "c142cf35",
+   "t": "{Speaker}Ojemine....{ContinuePrompt}"
+  },
+  "0577": {
+   "h": "439ad42b",
+   "t": "{Speaker}Wir treiben...{SoftNewLine}davon...{WaitInput}"
+  },
+  "0578": {
+   "h": "4ed0bf80",
+   "t": "{Speaker}Neiiin! Ihr{SoftNewLine}Nichtsnutze! Jetzt sind wir{SoftNewLine}erledigt!{WaitInput}"
+  },
+  "0579": {
+   "h": "b96c2212",
+   "t": "{Speaker}{=nigel}! Das ist{SoftNewLine}Gola, einer der{SoftNewLine}Zerstörergötter, die König{SoftNewLine}Nolo verehrt hat!{WaitInput}"
+  },
+  "057A": {
+   "h": "23cdb34d",
+   "t": "{Speaker}Schau! In Golas{SoftNewLine}Körper sind fünf Steine{SoftNewLine}eingelassen...{ContinuePrompt}"
+  },
+  "057B": {
+   "h": "9ba1f886",
+   "t": "{Speaker}Ich les es mal{SoftNewLine}vor... Ungefähr so: 'Sammle{SoftNewLine}alle fünf Steine, um Golas{SoftNewLine}Auge zu erhalten.'{ContinuePrompt}"
+  },
+  "057C": {
+   "h": "7fa51d27",
+   "t": "{Speaker}Hmmmm... der Rest{SoftNewLine}ist fast ganz abgerieben.{ContinuePrompt}"
+  },
+  "057D": {
+   "h": "2a3ad095",
+   "t": "{Speaker}...He!{ContinuePrompt}"
+  },
+  "057E": {
+   "h": "2e06d86c",
+   "t": "{Speaker}Was ist? Siehst du{SoftNewLine}etwas?{ContinuePrompt}"
+  },
+  "057F": {
+   "h": "24b34790",
+   "t": "{Speaker}Schau! Erinnert{SoftNewLine}dich Golas Form an{SoftNewLine}irgendwas?...{ContinuePrompt}"
+  },
+  "0580": {
+   "h": "4cee491b",
+   "t": "{Speaker}Na klar! Das ist{SoftNewLine}eine Karte dieser Insel! Und{SoftNewLine}wenn Gola Feuer speit...{ContinuePrompt}"
+  },
+  "0581": {
+   "h": "1165150d",
+   "t": "{Speaker}...dann ist sein{SoftNewLine}Maul der Vulkan! Genau! Und{SoftNewLine}die fünf Steine...{ContinuePrompt}"
+  },
+  "0582": {
+   "h": "bcb40e1c",
+   "t": "{Speaker}...zeigen, wo die{SoftNewLine}Juwelen liegen! Genial!{ContinuePrompt}"
+  },
+  "0583": {
+   "h": "8756d673",
+   "t": "{Speaker}Dann muss Golas{SoftNewLine}Auge für......... stehen{WaitInput}"
+  },
+  "0584": {
+   "h": "1670f255",
+   "t": "{Speaker}Nein! Nein!{WaitInput}"
+  },
+  "0585": {
+   "h": "ed2b9c35",
+   "t": "{Speaker}Hohohoho! Gesehen,{SoftNewLine}gesehen, gesehen! Jetzt weiß{SoftNewLine}ich, wo die Schätze liegen!{SoftNewLine}Glück muss man haben!{ContinuePrompt}"
+  },
+  "0586": {
+   "h": "210446a1",
+   "t": "{Speaker}Gib mir die{SoftNewLine}Steintafel, dann lass ich deine{SoftNewLine}kleine Freundin frei! Na,{SoftNewLine}abgemacht?{ContinuePrompt}"
+  },
+  "0587": {
+   "h": "13af72fd",
+   "t": "{Speaker}Hilf mir, {=nigel}!{ContinuePrompt}"
+  },
+  "0588": {
+   "h": "517af162",
+   "t": "{Speaker}Mist!{ContinuePrompt}"
+  },
+  "0589": {
+   "h": "a97d325b",
+   "t": "{Speaker}Her damit! Sonst{SoftNewLine}frisst er sie auf!{ContinuePrompt}"
+  },
+  "058A": {
+   "h": "346e0f83",
+   "t": "{Speaker}Verflixt und{SoftNewLine}zugenäht!{WaitInput}"
+  },
+  "058B": {
+   "h": "26d27c9b",
+   "t": "{=nigel} hat {Item}{SoftNewLine}übergeben.{WaitInput}"
+  },
+  "058C": {
+   "h": "aed8a1b2",
+   "t": "{Speaker}Hohohoho! Braver{SoftNewLine}Junge!{WaitInput}"
+  },
+  "058D": {
+   "h": "37468afd",
+   "t": "{Speaker}Die Kleine brauch{SoftNewLine}ich nicht mehr! Tschüssi!{WaitInput}"
+  },
+  "058E": {
+   "h": "1c0e9d21",
+   "t": "{Speaker}Auuuuu!!{ContinuePrompt}"
+  },
+  "058F": {
+   "h": "28e8757a",
+   "t": "{Speaker}Ich könnt platzen!{SoftNewLine}Der verzeih ich nie! {=nigel}!{SoftNewLine}{=nigel}!{ContinuePrompt}"
+  },
+  "0590": {
+   "h": "1a0cada0",
+   "t": "{Speaker}...die... die{SoftNewLine}Steintafel...!{ContinuePrompt}"
+  },
+  "0591": {
+   "h": "937d3a49",
+   "t": "{Speaker}Kein Problem! Ich{SoftNewLine}bin auf dieser Insel geboren,{SoftNewLine}ich hab genug gesehen, um zu{SoftNewLine}wissen, wo die Juwelen liegen!{ContinuePrompt}"
+  },
+  "0592": {
+   "h": "eded587e",
+   "t": "{Speaker}Los geht's!{WaitInput}"
+  },
+  "0593": {
+   "h": "31fffea0",
+   "t": "{Speaker}Ich hab nur so{SoftNewLine}getan, als hätte ich Angst!{ContinuePrompt}"
+  },
+  "0594": {
+   "h": "15eea63a",
+   "t": "{Speaker}Echt? So was hab{SoftNewLine}ich noch nie gesehen...{WaitInput}"
+  },
+  "0595": {
+   "h": "309c1df5",
+   "t": "{Speaker}Hallo. Ich bin Purin,{SoftNewLine}zwölf Jahre alt. Madame Yard{SoftNewLine}ist meine Mama. Spielst du mit{SoftNewLine}mir?{ContinuePrompt}"
+  },
+  "0596": {
+   "h": "660cf470",
+   "t": "{Speaker}Du gefällst mir!{SoftNewLine}Willst du mein Freund sein?{NewLine}"
+  },
+  "0597": {
+   "h": "6150d1e9",
+   "t": "{Speaker}Seufz!... Purin ist{SoftNewLine}traurig... schnief.....{WaitInput}"
+  },
+  "0598": {
+   "h": "9df51e47",
+   "t": "{Speaker}He, {=nigel}! Was{SoftNewLine}denkst du dir eigentlich?!{WaitInput}"
+  },
+  "0599": {
+   "h": "6fcae92e",
+   "t": "{Speaker}Hui!{WaitInput}"
+  },
+  "059A": {
+   "h": "9703adf5",
+   "t": "{Speaker}Die Männer von{SoftNewLine}Merkator machen aus Liebe die{SoftNewLine}dümmsten Sachen...!{WaitInput}"
+  },
+  "059B": {
+   "h": "5dfb5cf0",
+   "t": "{Speaker}Ach, {=julie}!{SoftNewLine}{=julie}! Wenn du mich nicht{SoftNewLine}heiratest, spring ich von{SoftNewLine}dieser Mauer!{ContinuePrompt}"
+  },
+  "059C": {
+   "h": "6f48ded8",
+   "t": "{Speaker}Ich mein's ernst!{SoftNewLine}Nein? Na gut, jetzt geht's los!{SoftNewLine}1{Pause1s}-2{Pause1s}-3!!{WaitInput}"
+  },
+  "059D": {
+   "h": "e7280518",
+   "t": "{Speaker}Autsch!{WaitInput}"
+  },
+  "059E": {
+   "h": "88c16ac9",
+   "t": "{Speaker}Nur geladene Gäste{SoftNewLine}dürfen das Schloss von{SoftNewLine}Merkator betreten!{WaitInput}"
+  },
+  "059F": {
+   "h": "0e3f4f40",
+   "t": "{Speaker}Dieses Schloss ist{SoftNewLine}nichts für einen dreckigen{SoftNewLine}kleinen Bengel wie dich!{SoftNewLine}Verschwinde! Zieh Leine!{WaitInput}"
+  },
+  "05A0": {
+   "h": "893fd6b7",
+   "t": "{Speaker}Jetzt darfst du{SoftNewLine}rein, aber...{ContinuePrompt}"
+  },
+  "05A1": {
+   "h": "35a6e54e",
+   "t": "{Speaker}umsonst kommst du{SoftNewLine}nicht durch dieses Tor!{SoftNewLine}Hehehe...{ContinuePrompt}"
+  },
+  "05A2": {
+   "h": "8f21548c",
+   "t": "{Speaker}Hör mal. Ich bin{SoftNewLine}etwas knapp bei Kasse, und{SoftNewLine}meine zwei Kleinen brauchen{SoftNewLine}neue{ContinuePrompt}"
+  },
+  "05A3": {
+   "h": "70233d1f",
+   "t": "{Speaker}Schuhe...{ContinuePrompt}"
+  },
+  "05A4": {
+   "h": "d7dc4081",
+   "t": "{Speaker}Hehe... für {Number}{SoftNewLine}Taler lass ich dich rein. Na,{SoftNewLine}was meinst du?{NewLine}"
+  },
+  "05A5": {
+   "h": "8e9f28b3",
+   "t": "{Speaker}He, danke! Du musst{SoftNewLine}ja reich sein! Weißt du was...{SoftNewLine}wenn du dein Geld verdoppeln{ContinuePrompt}"
+  },
+  "05A6": {
+   "h": "3a015f89",
+   "t": "{Speaker}willst, gibt's in{SoftNewLine}der Stadt einen Laden namens{SoftNewLine}Grihnpie. Da kannst du{SoftNewLine}gewinnen oder verlieren.{ContinuePrompt}"
+  },
+  "05A7": {
+   "h": "69a15c02",
+   "t": "{Speaker}Alles eine Frage{SoftNewLine}des Glücks!{WaitInput}"
+  },
+  "05A8": {
+   "h": "53dbf45d",
+   "t": "{Speaker}...Mehr hast du{SoftNewLine}nicht? Na gut, geh schon!{WaitInput}"
+  },
+  "05A9": {
+   "h": "f06a84aa",
+   "t": "{Speaker}Was für ein{SoftNewLine}Geizkragen! Na gut, geh schon!{WaitInput}"
+  },
+  "05AA": {
+   "h": "5e6684be",
+   "t": "{Speaker}Ich bin ein Meister{SoftNewLine}der Kampfkunst! Wenn du{SoftNewLine}willst, gebe ich dir eine{SoftNewLine}Lektion.{ContinuePrompt}"
+  },
+  "05AB": {
+   "h": "a61adbdb",
+   "t": "{Speaker}Na, willst du dich{SoftNewLine}mit mir messen?{NewLine}"
+  },
+  "05AC": {
+   "h": "5b197564",
+   "t": "{Speaker}Dann zahl mir {Number}{SoftNewLine}Taler, einverstanden?{NewLine}"
+  },
+  "05AD": {
+   "h": "23691539",
+   "t": "{Speaker}Tut mir leid, aber{SoftNewLine}das ist mein Beruf. Ohne genug{SoftNewLine}Geld geht es nicht. Komm ein{SoftNewLine}andermal wieder.{WaitInput}"
+  },
+  "05AE": {
+   "h": "4b3fb759",
+   "t": "{Speaker}Na gut... übernimm{SoftNewLine}dich nur nicht!{WaitInput}"
+  },
+  "05AF": {
+   "h": "187df815",
+   "t": "{Speaker}Willst du die{SoftNewLine}Regeln hören?{NewLine}"
+  },
+  "05B0": {
+   "h": "fe5b29b4",
+   "t": "{Speaker}Ich verwandle mich{SoftNewLine}in allerlei Monster, die dich{SoftNewLine}eins nach dem anderen{SoftNewLine}angreifen.{ContinuePrompt}"
+  },
+  "05B1": {
+   "h": "225943f0",
+   "t": "{Speaker}Dein Können messe{SoftNewLine}ich an der Zahl der Monster,{SoftNewLine}die du besiegst,{ContinuePrompt}"
+  },
+  "05B2": {
+   "h": "8dad1490",
+   "t": "{Speaker}ohne getroffen zu{SoftNewLine}werden. Ein Treffer, und es{SoftNewLine}ist vorbei.{ContinuePrompt}"
+  },
+  "05B3": {
+   "h": "ae97c784",
+   "t": "{Speaker}Deine Belohnung{SoftNewLine}richtet sich nach der Zahl der{SoftNewLine}besiegten Monster.{SoftNewLine}Verstanden?{ContinuePrompt}"
+  },
+  "05B4": {
+   "h": "73d2027f",
+   "t": "{Speaker}Also,{SoftNewLine}Achtung...{Pause1s}fertig...{Pause1s}LOS!{WaitInput}"
+  },
+  "05B5": {
+   "h": "67969541",
+   "t": "{Speaker}Also,{SoftNewLine}Achtung...{Pause1s}fertig..{Pause1s}LOS!{WaitInput}"
+  },
+  "05B6": {
+   "h": "fee208f7",
+   "t": "{Speaker}Gut gemacht! Du{SoftNewLine}hast Talent. Trotzdem musst{SoftNewLine}du noch viel stärker werden!{ContinuePrompt}"
+  },
+  "05B7": {
+   "h": "ee4cfb26",
+   "t": "{Speaker}Wenn du jetzt{SoftNewLine}aufhörst, gebe ich dir {Number}{SoftNewLine}Taler.{ContinuePrompt}"
+  },
+  "05B8": {
+   "h": "3946fd6d",
+   "t": "{Speaker}Machst du weiter?{NewLine}"
+  },
+  "05B9": {
+   "h": "3900ff54",
+   "t": "{Speaker}{Number} Taler. Nimm{SoftNewLine}sie!{ContinuePrompt}"
+  },
+  "05BA": {
+   "h": "25e1eada",
+   "t": "{Speaker}Komm jederzeit{SoftNewLine}wieder! Hahahaha...{WaitInput}"
+  },
+  "05BB": {
+   "h": "d2bf8184",
+   "t": "{Speaker}Du bist vielleicht{SoftNewLine}schon stärker als die Wachen{SoftNewLine}des Schlosses...{ContinuePrompt}"
+  },
+  "05BC": {
+   "h": "ee4cfb26",
+   "t": "{Speaker}Wenn du jetzt{SoftNewLine}aufhörst, gebe ich dir {Number}{SoftNewLine}Taler.{ContinuePrompt}"
+  },
+  "05BD": {
+   "h": "9fdcc92e",
+   "t": "{Speaker}Willst du{SoftNewLine}weitermachen?{NewLine}"
+  },
+  "05BE": {
+   "h": "1e50d9e8",
+   "t": "{Speaker}Hervorragend!! Du{SoftNewLine}brauchst kein Training mehr!{ContinuePrompt}"
+  },
+  "05BF": {
+   "h": "93df624c",
+   "t": "{Speaker}Nimm {Number} Taler!{SoftNewLine}Willst du trotzdem{SoftNewLine}weitermachen?{NewLine}"
+  },
+  "05C0": {
+   "h": "e4929df7",
+   "t": "{Speaker}I-ich gebe auf! Du{SoftNewLine}bist der Stärkste, dem ich je{SoftNewLine}begegnet bin! Puh...{ContinuePrompt}"
+  },
+  "05C1": {
+   "h": "7c9663b0",
+   "t": "{Speaker}Bitte... nimm die{SoftNewLine}{Number} Taler. Willst du etwa{SoftNewLine}weitermachen?{NewLine}"
+  },
+  "05C2": {
+   "h": "ada694e4",
+   "t": "{Speaker}B....{Pause1s}bitte...{Pause1s} Ich bin{SoftNewLine}fast... am Ende...{ContinuePrompt}"
+  },
+  "05C3": {
+   "h": "d5ff8728",
+   "t": "{Speaker}{Number} Taler... mein{SoftNewLine}ganzes Geld! Du willst IMMER{SoftNewLine}NOCH weiter?{NewLine}"
+  },
+  "05C4": {
+   "h": "3890e7f1",
+   "t": "{Speaker}Schon gut, schon{SoftNewLine}gut! Du bist der größte{SoftNewLine}Schwertkämpfer der Welt! Ich{SoftNewLine}höre auf!{ContinuePrompt}"
+  },
+  "05C5": {
+   "h": "ba089e3d",
+   "t": "{Speaker}Hier,{SoftNewLine}{Item}! Das{SoftNewLine}Kostbarste, was ich besitze.{ContinuePrompt}"
+  },
+  "05C6": {
+   "h": "a0832b77",
+   "t": "{Speaker}Nicht zu fassen! So{SoftNewLine}ein Knirps... Ich brauche{SoftNewLine}Urlaub!{WaitInput}"
+  },
+  "05C7": {
+   "h": "f26a7651",
+   "t": "{Speaker}Hahaha! Dir fehlt{SoftNewLine}noch Erfahrung!{ContinuePrompt}"
+  },
+  "05C8": {
+   "h": "ef2582ce",
+   "t": "{Speaker}Komm... gern{SoftNewLine}wieder! Hahahaha!!{WaitInput}"
+  },
+  "05C9": {
+   "h": "e9ddbbf2",
+   "t": "{Speaker}Willkommen bei{SoftNewLine}Grihnpie! Nur herein! Hab Spaß!{SoftNewLine}Mach Geld!{ContinuePrompt}"
+  },
+  "05CA": {
+   "h": "09aa3de7",
+   "t": "{Speaker}{Number} Taler pro{SoftNewLine}Spiel. Okay?{NewLine}"
+  },
+  "05CB": {
+   "h": "ef273649",
+   "t": "{Speaker}Danke! Soll ich dir{SoftNewLine}erklären, wie's geht?{NewLine}"
+  },
+  "05CC": {
+   "h": "71dad4a1",
+   "t": "{Speaker}Hoppla! Komm{SoftNewLine}wieder, wenn du mehr Geld{SoftNewLine}hast!{WaitInput}"
+  },
+  "05CD": {
+   "h": "abfeef8d",
+   "t": "{Speaker}Schade! Dabei{SoftNewLine}macht's so viel Spaß... Komm{SoftNewLine}ein andermal wieder!{WaitInput}"
+  },
+  "05CE": {
+   "h": "fd3ec818",
+   "t": "{Speaker}Wirf den Ball über{SoftNewLine}die Theke, sodass er auf den{SoftNewLine}beweglichen Platten landet.{ContinuePrompt}"
+  },
+  "05CF": {
+   "h": "d7b64873",
+   "t": "{Speaker}Je schneller die{SoftNewLine}Platte, auf der dein Ball{SoftNewLine}landet, desto mehr gewinnst{SoftNewLine}du! 400, 100, 50.{ContinuePrompt}"
   }
  },
  "names": {
