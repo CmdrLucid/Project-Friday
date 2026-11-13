@@ -7,7 +7,6 @@ import glob, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); PROX = os.path.join(HERE, "..", "data", "proxies")
 LEGACY = {   # box proxies made before the rule was enforced: TO BE REPLACED by real models (HANDOFF NEXT)
     "rail_62_gallery.obj", "rail_62_gallery_rail.obj", "rail_62_left.obj", "rail_62_left_rail.obj", "rail_62_right.obj", "rail_62_right_rail.obj",
-    "rail_95.obj", "rail_95_rail.obj", "rail_89.obj", "rail_89_rail.obj",
     "table_63.obj", "table_64.obj", "table_65.obj", "table_66.obj", "table_67.obj", "table_77.obj",   # tileset 15 tables (2026-11-12): to become real models
     "arcade_486.obj", "wall_638.obj",   # architecture (user approved 2026-11-09); boxy by nature, review when the remake builds them
 }

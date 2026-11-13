@@ -2564,7 +2564,7 @@
         "file": "proxies/rail_89.obj",
         "surface": true,
         "floor": 16,
-        "why": "balustrade along the stairwell of room 89: the height map holds it as SOLID cells 16 above the floor 16 (x 28 rows 19..26: box shadows); the drawn rail MEASURED with proxy_overlay (6x): x 446..450 (on the cell line 27 / 28), balusters 4 x 4 every 8 to z 29, handrail z 29..32 ('air'), end posts + the short return to the big post at the stair top; user 2026-11-13 'ja, bitte auch das Gelaender umsetzen'"
+        "why": "balustrade of room 89: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12"
       },
       {
         "op": "mesh",
@@ -2578,7 +2578,7 @@
         "surface": true,
         "air": true,
         "floor": 16,
-        "why": "the handrail of the room 89 balustrade (slabs: 'air')"
+        "why": "the handrail of the room 89 balustrade (remake/recipes/balustrade; 'air': it floats above the balusters' gaps)"
       }
     ],
     "96": [
@@ -6629,7 +6629,7 @@
         "file": "proxies/rail_95.obj",
         "surface": true,
         "floor": 32,
-        "why": "balustrade around the stairwell of room 95: the height map holds it as SOLID cells 32 above the floor (x 19 rows 19..27, row 27 x 15..19: box shadows); the drawn rail MEASURED with proxy_overlay (6x): outer edge x 320 / y 448, handrail top z 44 (floor 32), 3 high, 5 deep; balusters 4 x 4 every 8 units (the light's 4 unit grid, like room 62); user 2026-11-12 'Gelaender in 95 sollte ein 3D-Modell sein'"
+        "why": "balustrade of room 95: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12"
       },
       {
         "op": "mesh",
@@ -6643,7 +6643,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "the handrail of the room 95 balustrade (slabs: 'air')"
+        "why": "the handrail of the room 95 balustrade (remake/recipes/balustrade; 'air': it floats above the balusters' gaps)"
       },
       {
         "op": "mesh",
@@ -6656,7 +6656,7 @@
         "file": "proxies/rail_95.obj",
         "surface": true,
         "floor": 32,
-        "why": "balustrade around the stairwell of room 95: the height map holds it as SOLID cells 32 above the floor (x 19 rows 19..27, row 27 x 15..19: box shadows); the drawn rail MEASURED with proxy_overlay (6x): outer edge x 320 / y 448, handrail top z 44 (floor 32), 3 high, 5 deep; balusters 4 x 4 every 8 units (the light's 4 unit grid, like room 62); user 2026-11-12 'Gelaender in 95 sollte ein 3D-Modell sein'"
+        "why": "balustrade of room 95: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12"
       },
       {
         "op": "mesh",
@@ -6670,7 +6670,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "the handrail of the room 95 balustrade (slabs: 'air')"
+        "why": "the handrail of the room 95 balustrade (remake/recipes/balustrade; 'air': it floats above the balusters' gaps)"
       },
       {
         "op": "mesh",
