@@ -6592,6 +6592,20 @@
           "z": 64
         },
         "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          19,
+          25,
+          25
+        ],
+        "file": "proxies/dining_98.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "Kayla's messy laid dining table (castle table of 96 + plates, dishes, cups, tipped goblet; bones, food scraps, bottles on the floor around it): NEAR-FINAL model remake/recipes/dining_table/dining98.py, positions read off the object layer; user OK 2026-11-13 ('passt')"
       }
     ],
     "100": [
@@ -6788,6 +6802,22 @@
           "z": 80
         },
         "why": "castle standing torch (collision cell (32, 21) a column 64 high on floor 16; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = flame light point + (-11, -4); deco survey 2026-11-13"
+      }
+    ],
+    "98": [
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          19,
+          25,
+          25
+        ],
+        "file": "proxies/dining_98.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "Kayla's messy laid dining table (castle table of 96 + plates, dishes, cups, tipped goblet; bones, food scraps, bottles on the floor around it): NEAR-FINAL model remake/recipes/dining_table/dining98.py, positions read off the object layer; user OK 2026-11-13 ('passt')"
       }
     ]
   },
