@@ -1,15 +1,17 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
 ### New in {VERSION}
-- **Options menu reorganised:** Display, Graphics, Audio, Movement, Comfort, Difficulty / Help, Keybindings, Language and Quit Game, the same pages in the Start menu tab and on the file select screen.
-- **Sword Effects (On by default):** the four special swords colour their swing arc and give off a few small particles (embers, frost, bolts, green motes), also during the swing on the file select screen.
-- **Boot Colors (Options > Graphics, off by default):** Nigel's boots show the equipped boots (Fireproof, Iron, Healing, Spike), like his sword and armour already do in the original; on the map and on the file select screen.
-- **Lighting (EXPERIMENTAL, Options > Graphics, off by default):** torches, lava and the swords light the rooms and figures cast shadows; outdoors a sun casts the shadows of houses, trees and Nigel. It is still being tuned room by room, so some rooms can show odd shadows or light edges; please report them (a screenshot and the room help a lot).
-- Everything from v1.7.0 is included (a third less CPU load, own video chip data path and system start).
+- **Lighting is now On by default** (Options > Graphics): torches, lava, lit windows and the sword light the rooms, figures cast shadows; outdoors a sun casts the shadows of houses, trees and Nigel. It runs on the graphics chip now, smoother on the Steam Deck and with less load on the processor; without working GPU filters it simply stays off.
+- **Real 3D shapes for the light:** furniture, statues and decorations cast shadows that follow their real form instead of boxes: tables and benches on legs, beds, barrels, jars, vases, brazier stands, armour stands and knights, the church angel, altar and lectern, shop counters, balustrades, the castle courtyard pines.
+- **Day and night outdoors:** the sun moves, shadows get longer in the morning and evening, the light changes colour with the time of day and the windows glow at night.
+- **New optional effects (Options > Graphics, each with its own switch):** particles (fireflies, sparks, drops), enemies dissolving, heat haze over lava, water reflections, cloud shadows.
+- **Fixes:** no freeze when loading a save with Lighting on; no hitch when entering Mercator; shadows that vanished or sat in the wrong place (castle throne room and main hall, the route north of Destel, issue #14); hard light edges and stripes at torches, stairs, doors and furniture.
+- *Steam Deck tip:* if Mercator stutters in desktop mode, play in Game Mode.
+- Everything from v1.8.0 is included.
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM).
-- **Windows 10 / 11 (experimental):** `Project-Friday-windows-x64.zip` (extract the whole zip, start `Project-Friday.exe`).
+- **Windows 10 / 11 (experimental):** `Project-Friday-windows-x64.zip` (extract the whole zip, start `Project-Friday.exe`). The GPU lighting is untested on Windows: if the picture looks wrong, switch Lighting off in Options > Graphics and please report it.
 
 SHA-256 (to check your download, no extra file needed): AppImage `{SHA256}`, Windows zip `{WSHA256}` (built by GitHub Actions from the tagged source).
 
