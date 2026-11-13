@@ -6696,7 +6696,7 @@
   },
   "06FC": {
    "h": "c8a8ed48",
-   "t": "{Speaker}Du hast{SoftNewLine}{Item} nicht dabei?{SoftNewLine}Schnell! Hol welches und komm{SoftNewLine}zurück, damit ich ihn heilen{SoftNewLine}kann.{WaitInput}"
+   "t": "{Speaker}Du hast{SoftNewLine}{Item} nicht dabei?{SoftNewLine}Schnell, hol welches, dann heil{SoftNewLine}ich ihn!{WaitInput}"
   },
   "06FD": {
    "h": "1ad799c9",
@@ -7029,6 +7029,518 @@
   "074F": {
    "h": "ab22bd8d",
    "t": "{Speaker}JAAAAAAARG!!!{SoftNewLine}RRRAAAAARG!!!{WaitInput}"
+  },
+  "0750": {
+   "h": "df5078ff",
+   "t": "{Speaker}Willst du so früh{SoftNewLine}schon sterben? RRAAAAAWRRR!!!{ContinuePrompt}"
+  },
+  "0751": {
+   "h": "08f4403c",
+   "t": "{Speaker}Man nennt mich{SoftNewLine}Slasher!... ...kurz bevor man{SoftNewLine}STIRBT!{ContinuePrompt}"
+  },
+  "0752": {
+   "h": "271aa301",
+   "t": "{Speaker}Ich bin der Leiter{SoftNewLine}der Königlichen Wache im{SoftNewLine}Westtunnel, Herzog Merkator{SoftNewLine}direkt unterstellt!{ContinuePrompt}"
+  },
+  "0753": {
+   "h": "622308fe",
+   "t": "{Speaker}GRAAAARRR!!!{WaitInput}"
+  },
+  "0754": {
+   "h": "83d4b1cf",
+   "t": "{Speaker}JAAAARRRR!!!{ContinuePrompt}"
+  },
+  "0755": {
+   "h": "f7c97f9c",
+   "t": "{Speaker}Gleich stirbst du{SoftNewLine}durch die Hand von Marley!{ContinuePrompt}"
+  },
+  "0756": {
+   "h": "a8566c75",
+   "t": "{Speaker}Ich bin der{SoftNewLine}Hauptmann der Königlichen{SoftNewLine}Wache Nr. 3 von Herzog{SoftNewLine}Merkator!{WaitInput}"
+  },
+  "0757": {
+   "h": "853cd577",
+   "t": "{Speaker}Danke! Ich weiß{SoftNewLine}nicht, wer du bist, aber ich{SoftNewLine}danke dir von Herzen!{WaitInput}"
+  },
+  "0758": {
+   "h": "d354755c",
+   "t": "{Speaker}Bist du dieser{SoftNewLine}Knirps {=nigel}, der Herzog{SoftNewLine}Merkator ständig{SoftNewLine}hinterherrennt?{ContinuePrompt}"
+  },
+  "0759": {
+   "h": "51b92870",
+   "t": "{Speaker}Ich bin Dex, Leiter{SoftNewLine}des Osttunnels der Königlichen{SoftNewLine}Wache Nr. 7!{ContinuePrompt}"
+  },
+  "075A": {
+   "h": "b4206eaa",
+   "t": "{Speaker}Es lebe Herzog{SoftNewLine}Merkator!{ContinuePrompt}"
+  },
+  "075B": {
+   "h": "130d7f5b",
+   "t": "{Speaker}BLAAAAAARRRR!!!{SoftNewLine}GLAAAAARRRR!!!{WaitInput}"
+  },
+  "075C": {
+   "h": "2ea34ffd",
+   "t": "{Speaker}Wir haben heimlich{SoftNewLine}einen Fluchttunnel gegraben.{ContinuePrompt}"
+  },
+  "075D": {
+   "h": "f5d3cfa0",
+   "t": "{Speaker}Im Graben sind wir{SoftNewLine}jetzt Meister, dank Herzog{SoftNewLine}Merkator!{WaitInput}"
+  },
+  "075E": {
+   "h": "5f972bc0",
+   "t": "{Speaker}Siehst du! Gleich{SoftNewLine}ist er durch!{WaitInput}"
+  },
+  "075F": {
+   "h": "45cdc3d0",
+   "t": "{Speaker}Wir haben gerade{SoftNewLine}überlegt, was wir dir als Dank{SoftNewLine}schenken sollen.{ContinuePrompt}"
+  },
+  "0760": {
+   "h": "1b419f27",
+   "t": "{Speaker}Beim Graben in der{SoftNewLine}Mine haben wir ein Schwert{SoftNewLine}gefunden.{Pause1sOrInput} Geh zum Brunnen und{SoftNewLine}hol es dir!{WaitInput}"
+  },
+  "0761": {
+   "h": "bf8648d1",
+   "t": "{Speaker}Hallo, Süßer! Willst{SoftNewLine}du mein...{WaitInput}"
+  },
+  "0762": {
+   "h": "54b64a40",
+   "t": "{Speaker}....Ach, vergiss es!{SoftNewLine}Viel Glück!{WaitInput}"
+  },
+  "0763": {
+   "h": "c1b63a71",
+   "t": "{Speaker}Mist! Wie bist du{SoftNewLine}so schnell hergekommen?{ContinuePrompt}"
+  },
+  "0764": {
+   "h": "3598da51",
+   "t": "{Speaker}Ich lass dich nie{SoftNewLine}gewinnen! Der Schatz gehört{SoftNewLine}mir!{WaitInput}"
+  },
+  "0765": {
+   "h": "c1fc30e2",
+   "t": "{Speaker}Was steht da?!{SoftNewLine}.....kapiert!.... Mach's gut, du{SoftNewLine}Trottel!{WaitInput}"
+  },
+  "0766": {
+   "h": "5715a6e0",
+   "t": "{Speaker}Autsch!!! Aaaargh!{WaitInput}"
+  },
+  "0767": {
+   "h": "310b84e9",
+   "t": "{Speaker}NEIIIIN!!!{SoftNewLine}ackkggghhh...........{WaitInput}"
+  },
+  "0768": {
+   "h": "7ce4e4b0",
+   "t": "{Speaker}Mmmmm!... Kluge{SoftNewLine}Jungenhirne!! Die fress ich{SoftNewLine}jeden Tag am liebsten....{SoftNewLine}lecker!!{ContinuePrompt}"
+  },
+  "0769": {
+   "h": "475ea069",
+   "t": "{Speaker}Hehe.....{WaitInput}"
+  },
+  "076A": {
+   "h": "fdedbab7",
+   "t": "{Speaker}So ein Mist! Kann{SoftNewLine}mir mal jemand sagen, wo's{SoftNewLine}langgeht? Wir haben uns total{SoftNewLine}verlaufen! Wally!{ContinuePrompt}"
+  },
+  "076B": {
+   "h": "8a75a7ff",
+   "t": "{Speaker}Das ist alles deine{SoftNewLine}Schuld! Unser kostbares Juwel{SoftNewLine}kriegt jetzt der Herzog!!{SoftNewLine}Dafür setzt es was!{ContinuePrompt}"
+  },
+  "076C": {
+   "h": "3376aa95",
+   "t": "{Speaker}Da hast du's!!{WaitInput}"
+  },
+  "076D": {
+   "h": "b53135dd",
+   "t": "{Speaker}Auuuuuu!{ContinuePrompt}"
+  },
+  "076E": {
+   "h": "f0c4c865",
+   "t": "{Speaker}Hahaha{ContinuePrompt}"
+  },
+  "076F": {
+   "h": "76b1d423",
+   "t": "{Speaker}Such den Ausweg!{SoftNewLine}Schnell!{WaitInput}"
+  },
+  "0770": {
+   "h": "e12d1800",
+   "t": "{Speaker}Na sieh mal an,{SoftNewLine}{=nigel}! Du lebst ja noch? Wie{SoftNewLine}schade. Hehehe...{ContinuePrompt}"
+  },
+  "0771": {
+   "h": "1eebc7ca",
+   "t": "{Speaker}Aber jetzt ist{SoftNewLine}Schluss für dich! Weiter{SoftNewLine}kannst du mir nicht folgen!{ContinuePrompt}"
+  },
+  "0772": {
+   "h": "4b87e596",
+   "t": "{Speaker}Während du dort{SoftNewLine}vor Wut mit dem Fuß{SoftNewLine}aufstampfst, suche ich in{SoftNewLine}aller Ruhe das letzte Juwel.{ContinuePrompt}"
+  },
+  "0773": {
+   "h": "eaec58d7",
+   "t": "{Speaker}Hahaha!!...{SoftNewLine}Lebewohl, {=nigel}!{ContinuePrompt}"
+  },
+  "0774": {
+   "h": "770fb64e",
+   "t": "{Speaker}Ich bin dir immer{SoftNewLine}einen Schritt voraus!{WaitInput}"
+  },
+  "0775": {
+   "h": "bfd8aa72",
+   "t": "{Speaker}Schau, {=nigel}! Da{SoftNewLine}fährt der Herzog...!{WaitInput}"
+  },
+  "0776": {
+   "h": "c390c306",
+   "t": "{Speaker}Hahaha! Die{SoftNewLine}Aussicht von da unten ist{SoftNewLine}bestimmt herrlich, was?{ContinuePrompt}"
+  },
+  "0777": {
+   "h": "479e4970",
+   "t": "{Speaker}Hörst du mich? Soll{SoftNewLine}ich lauter sprechen? Hahaha!{SoftNewLine}Bis dann!{WaitInput}"
+  },
+  "0778": {
+   "h": "64feffb3",
+   "t": "{Speaker}Was für ein{SoftNewLine}widerlicher Kerl! {=nigel},{SoftNewLine}komm, wir suchen einen Weg,{SoftNewLine}ihm zu folgen.{WaitInput}"
+  },
+  "0779": {
+   "h": "db915f80",
+   "t": "{Speaker}Warum bist du nur{SoftNewLine}so hartnäckig? Ich habe dich{SoftNewLine}wohl unterschätzt!{ContinuePrompt}"
+  },
+  "077A": {
+   "h": "3711865b",
+   "t": "{Speaker}Na los, {=nigel}...{SoftNewLine}auf in den Kampf! Es ist eine{SoftNewLine}große Ehre, durch mein{SoftNewLine}Schwert zu sterben!{WaitInput}"
+  },
+  "077B": {
+   "h": "f9ba73cd",
+   "t": "{Speaker}Unmöglich!...{SoftNewLine}{Pause1s}I-ich...{Pause1s}du...{WaitInput}"
+  },
+  "077C": {
+   "h": "6f9bfd8d",
+   "t": "{Speaker}Hervorragend,{SoftNewLine}{=zak}! Hahahaha! Hab ich{SoftNewLine}dich, Elfenbengel!{ContinuePrompt}"
+  },
+  "077D": {
+   "h": "54b2f0b3",
+   "t": "{Speaker}Mein Auftrag ist{SoftNewLine}erledigt! Zu so einem gemeinen{SoftNewLine}Trick bringst du mich nie{SoftNewLine}wieder!{ContinuePrompt}"
+  },
+  "077E": {
+   "h": "c8f1a2d1",
+   "t": "{Speaker}Du widerst mich an.{SoftNewLine}Ich gehe nach Hause! Hasta la{SoftNewLine}vista!{ContinuePrompt}"
+  },
+  "077F": {
+   "h": "25870dd8",
+   "t": "{Speaker}Warte! Komm{SoftNewLine}zurück! Ich brauche deine...{SoftNewLine}{Pause1sOrInput}W-waaas...? Was ist das?{WaitInput}"
+  },
+  "0780": {
+   "h": "c67c7d2b",
+   "t": "{Speaker}{=nigel}! {=friday}!{SoftNewLine}Alles in Ordnung?{SoftNewLine}Iewz...{Pause1s}eseid...{Pause1s}ebeleb ettiB{Pause1s}.{Pause1s}.{Pause1s}.{WaitInput}"
+  },
+  "0781": {
+   "h": "2cef2b43",
+   "t": "{Speaker}Das war knapp!{ContinuePrompt}"
+  },
+  "0782": {
+   "h": "2ab445a2",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}hat immer noch einen Trumpf{SoftNewLine}im Ärmel.{ContinuePrompt}"
+  },
+  "0783": {
+   "h": "01dcb4ed",
+   "t": "{Speaker}Wie du weißt, will{SoftNewLine}der Herzog mit diesen{SoftNewLine}Schätzen die ganze Welt{SoftNewLine}erobern.{ContinuePrompt}"
+  },
+  "0784": {
+   "h": "7b0ef75e",
+   "t": "{Speaker}Bitte halte ihn auf!{SoftNewLine}Ich wache über dich.{ContinuePrompt}"
+  },
+  "0785": {
+   "h": "b86753c2",
+   "t": "{Speaker}Zum Beweis meiner{SoftNewLine}Worte schenke ich dir einen{SoftNewLine}nützlichen Zauber.{ContinuePrompt}"
+  },
+  "0786": {
+   "h": "2cd250d7",
+   "t": "{Speaker}Damit kannst du die{SoftNewLine}heiligen Bäume fällen. Einer{SoftNewLine}steht vor diesem Turm.{ContinuePrompt}"
+  },
+  "0787": {
+   "h": "01223589",
+   "t": "{Speaker}Der Herzog hat{SoftNewLine}schon die fünf Juwelen, die{SoftNewLine}das Tor zur{ContinuePrompt}"
+  },
+  "0788": {
+   "h": "abae27a6",
+   "t": "{Speaker}sagenhaften{SoftNewLine}Unterwelt öffnen. Geh in die{SoftNewLine}Berge nordwestlich von{SoftNewLine}Merkator.{ContinuePrompt}"
+  },
+  "0789": {
+   "h": "ff11a681",
+   "t": "{Speaker}Dorthin kommst du{SoftNewLine}durch das Nordtor des{SoftNewLine}Schlosses.{WaitInput}"
+  },
+  "078A": {
+   "h": "95fff271",
+   "t": "{Speaker}Ah, gut... du bist{SoftNewLine}entkommen! Das im Schrein tut{SoftNewLine}mir leid, Kumpel.{ContinuePrompt}"
+  },
+  "078B": {
+   "h": "df12493b",
+   "t": "{Speaker}Das war ein{SoftNewLine}Auftrag. Geschäft ist{SoftNewLine}Geschäft.{ContinuePrompt}"
+  },
+  "078C": {
+   "h": "cf0e07cc",
+   "t": "{Speaker}Aber jetzt ist{SoftNewLine}meine Schuld beim Herzog{SoftNewLine}bezahlt. Ab jetzt geht's nur{SoftNewLine}um uns zwei!{ContinuePrompt}"
+  },
+  "078D": {
+   "h": "04dc5373",
+   "t": "{Speaker}Es ist mir ein{SoftNewLine}Vergnügen, gegen einen{SoftNewLine}Ebenbürtigen zu kämpfen!{ContinuePrompt}"
+  },
+  "078E": {
+   "h": "d0946f33",
+   "t": "{Speaker}Willst du den{SoftNewLine}Herzog einholen, dann besiege{SoftNewLine}mich, und ich sag dir, wo er{SoftNewLine}ist!{WaitInput}"
+  },
+  "078F": {
+   "h": "928b9882",
+   "t": "{Speaker}Hör auf! HÖR AUF!!{ContinuePrompt}"
+  },
+  "0790": {
+   "h": "d7a8de04",
+   "t": "{Speaker}Was ist daran{SoftNewLine}fair? Hier oben bist du im{SoftNewLine}Vorteil!{ContinuePrompt}"
+  },
+  "0791": {
+   "h": "6410f4b7",
+   "t": "{Speaker}Hast du überhaupt{SoftNewLine}genug Grips, um zu wissen,{SoftNewLine}was 'fair' heißt?{ContinuePrompt}"
+  },
+  "0792": {
+   "h": "a8cd6e94",
+   "t": "{Speaker}Wa....?! Na schön.{SoftNewLine}Dann gehen wir eben an einen{SoftNewLine}'faireren' Ort!{ContinuePrompt}"
+  },
+  "0793": {
+   "h": "f284e387",
+   "t": "{Speaker}Die Ebene im Norden{SoftNewLine}passt prima. Folgt mir!{WaitInput}"
+  },
+  "0794": {
+   "h": "e7f5da5a",
+   "t": "{Speaker}Ist es dir so{SoftNewLine}recht, Schwesterchen? Ist das{SoftNewLine}fair?{ContinuePrompt}"
+  },
+  "0795": {
+   "h": "16b8edf4",
+   "t": "{Speaker}Gut... dann los!{ContinuePrompt}"
+  },
+  "0796": {
+   "h": "84b2e6db",
+   "t": "{Speaker}Du... du hast{SoftNewLine}gewonnen! Nicht zu fassen,{SoftNewLine}dass du noch ein Kind bist!{ContinuePrompt}"
+  },
+  "0797": {
+   "h": "3e3fe5e1",
+   "t": "{Speaker}Hier, nimm das!{ContinuePrompt}"
+  },
+  "0798": {
+   "h": "18fd90a1",
+   "t": "{Speaker}Benutz es vor der{SoftNewLine}Statue der Göttin unter der{SoftNewLine}Brücke, um dem Herzog zu{SoftNewLine}folgen.{ContinuePrompt}"
+  },
+  "0799": {
+   "h": "938c15b9",
+   "t": "{Speaker}Ich will dich{SoftNewLine}irgendwann wieder{SoftNewLine}herausfordern, also...{Pause1s}komm{SoftNewLine}lebend zurück!{WaitInput}"
+  },
+  "079A": {
+   "h": "cbbe803b",
+   "t": "{Speaker}Erlesene Waren{SoftNewLine}warten auf Sie! Nur auf Sie!{WaitInput}"
+  },
+  "079B": {
+   "h": "bf9ba516",
+   "t": "{Speaker}Kaufen Sie jetzt,{SoftNewLine}sonst müssen Sie einen ganzen{SoftNewLine}Monat warten!{WaitInput}"
+  },
+  "079C": {
+   "h": "75cec899",
+   "t": "{Speaker}Danke, danke! Bis{SoftNewLine}zum nächsten Mal! Bis{SoftNewLine}nächsten Monat!{WaitInput}"
+  },
+  "079D": {
+   "h": "c7e27479",
+   "t": "{Speaker}Ah, ja!{SoftNewLine}{Item}!{WaitInput}"
+  },
+  "079E": {
+   "h": "eb216218",
+   "t": "{Speaker}Gefällt es Ihnen?{NewLine}"
+  },
+  "079F": {
+   "h": "9aee051d",
+   "t": "{Speaker}Ich schicke es{SoftNewLine}direkt in Ihren Laden!{WaitInput}"
+  },
+  "07A0": {
+   "h": "ea888a2a",
+   "t": "{Speaker}Was zögern Sie{SoftNewLine}denn!? Einfach zugreifen!{WaitInput}"
+  },
+  "07A1": {
+   "h": "9b6f70b4",
+   "t": "{Speaker}Machen Sie keine{SoftNewLine}Witze!{WaitInput}"
+  },
+  "07A2": {
+   "h": "733536bb",
+   "t": "{=nigel} hält {Item} in{SoftNewLine}die Höhe!{WaitInput}"
+  },
+  "07A3": {
+   "h": "aece0a0d",
+   "t": "{Speaker}Du schon wieder! Du{SoftNewLine}bist wirklich hartnäckig!{ContinuePrompt}"
+  },
+  "07A4": {
+   "h": "6652d8e7",
+   "t": "{Speaker}Ich denke, es ist{SoftNewLine}Zeit, mit diesem Fangspiel{SoftNewLine}aufzuhören! Komm her!{WaitInput}"
+  },
+  "07A5": {
+   "h": "dfae0fee",
+   "t": "{Speaker}Hahaha! Sieh her!{ContinuePrompt}"
+  },
+  "07A6": {
+   "h": "f5790e49",
+   "t": "{Speaker}Diese{SoftNewLine}wunderschönen Juwelen führen{SoftNewLine}mich zu... {Pause1s}...den Schätzen!{WaitInput}"
+  },
+  "07A7": {
+   "h": "f5d64d40",
+   "t": "{Speaker}Prinzessin {=lara}!{SoftNewLine}Sing das Lied, das du als Kind{SoftNewLine}gelernt hast,{ContinuePrompt}"
+  },
+  "07A8": {
+   "h": "86937bf3",
+   "t": "{Speaker}oder ich schlag dir{SoftNewLine}den Kopf ab!{ContinuePrompt}"
+  },
+  "07A9": {
+   "h": "1bfd120c",
+   "t": "{Speaker}N-nein! Nein, nein!{SoftNewLine}Nein! Für dich sing ich es{SoftNewLine}niemals! Lieber sterbe ich!{ContinuePrompt}"
+  },
+  "07AA": {
+   "h": "809c7f1e",
+   "t": "{Speaker}Gut. Ich dachte mir{SoftNewLine}schon, dass du keine Angst vor{SoftNewLine}dem Tod hast.{ContinuePrompt}"
+  },
+  "07AB": {
+   "h": "76ccc517",
+   "t": "{Speaker}Wie wäre es damit:{SoftNewLine}Sing das Lied, oder ich stecke{SoftNewLine}dir einen Frosch ins Kleid!{WaitInput}"
+  },
+  "07AC": {
+   "h": "eee569f9",
+   "t": "{Speaker}Iiiiiiiiih! Neiiiiiiiiin!{ContinuePrompt}"
+  },
+  "07AD": {
+   "h": "81d220f5",
+   "t": "{Speaker}...G-gut... du... hast{SoftNewLine}gewonnen...!{ContinuePrompt}"
+  },
+  "07AE": {
+   "h": "43eed406",
+   "t": "{Speaker}Oh, Wächter{Pause1s} der{SoftNewLine}Finsternis...{Pause1s}Wenn die fünf{SoftNewLine}Steine sich{Pause1s} hier vereinen...{ContinuePrompt}"
+  },
+  "07AF": {
+   "h": "a5ed0ae0",
+   "t": "{Speaker}zeig mir...den{SoftNewLine}geheimen Weg! {Pause1s}In-nah{Pause1s} Gad'da{Pause1s} da{Pause1s}{SoftNewLine}V'idda!{WaitInput}"
+  },
+  "07B0": {
+   "h": "1041505a",
+   "t": "{Speaker}Hahahaha! Die{SoftNewLine}sagenhaften Schätze gehören{SoftNewLine}mir! Hahahaha!{WaitInput}"
+  },
+  "07B1": {
+   "h": "c5de9486",
+   "t": "{Speaker}Oh, mein Prinz! Ich{SoftNewLine}wusste, dass Ihr kommt, um{SoftNewLine}mich zu retten...!{ContinuePrompt}"
+  },
+  "07B2": {
+   "h": "d98a9dd6",
+   "t": "{Speaker}Ihr seid mein Prinz!{SoftNewLine}Oh, es ist wie ein Märchen,{SoftNewLine}das wahr wird!{WaitInput}"
+  },
+  "07B3": {
+   "h": "f789fc13",
+   "t": "{Speaker}Seit der Herzog{SoftNewLine}mich in diesem Schlossturm{SoftNewLine}eingesperrt hat, habe ich{ContinuePrompt}"
+  },
+  "07B4": {
+   "h": "9a215230",
+   "t": "{Speaker}von dem Tag{SoftNewLine}geträumt, an dem Ihr mich{SoftNewLine}rettet! Oh, mein Prinz!{ContinuePrompt}"
+  },
+  "07B5": {
+   "h": "6d514598",
+   "t": "{Speaker}Ich bin so{SoftNewLine}glücklich!! Ihr seid ja viel{SoftNewLine}süßer, als ich dachte! Kyaa!{ContinuePrompt}"
+  },
+  "07B6": {
+   "h": "57848e51",
+   "t": "{Speaker}Aber... was ist{SoftNewLine}das? Oh, mein Prinz! Ihr seid{SoftNewLine}verwundet! Böse Keime könnten{ContinuePrompt}"
+  },
+  "07B7": {
+   "h": "8d54e2c1",
+   "t": "{Speaker}in Euren Körper{SoftNewLine}dringen! Die Keime würden eine{SoftNewLine}schlimme Krankheit auslösen!{SoftNewLine}Die Krankheit{ContinuePrompt}"
+  },
+  "07B8": {
+   "h": "5cb284b3",
+   "t": "{Speaker}würde meinen{SoftNewLine}Prinzen töten! Buhuhu!{WaitInput}"
+  },
+  "07B9": {
+   "h": "6ee5ed4c",
+   "t": "{Speaker}Jetzt halt aber{SoftNewLine}mal die Luft an, Schwester!{SoftNewLine}Und hör auf, ihn 'mein Prinz'{SoftNewLine}zu nennen!!{ContinuePrompt}"
+  },
+  "07BA": {
+   "h": "02f97105",
+   "t": "{Speaker}Er heißt {=nigel}!{SoftNewLine}Er wollte dich gar nicht{SoftNewLine}retten!{ContinuePrompt}"
+  },
+  "07BB": {
+   "h": "98388ac1",
+   "t": "{Speaker}Das hat sich nur{SoftNewLine}so ergeben! Kapiert? Bild dir{SoftNewLine}bloß nichts ein!{ContinuePrompt}"
+  },
+  "07BC": {
+   "h": "b28aae1c",
+   "t": "{Speaker}Was fällt dir ein!{SoftNewLine}Mit dir hab ich nicht geredet,{SoftNewLine}du halbe Portion!{WaitInput}"
+  },
+  "07BD": {
+   "h": "9c13fc02",
+   "t": "{Speaker}Jetzt reicht's!! Ich{SoftNewLine}hab genug von dir! Da! Und da!{SoftNewLine}Und da!{WaitInput}"
+  },
+  "07BE": {
+   "h": "8519835a",
+   "t": "{Speaker}Au! Au!{WaitInput}"
+  },
+  "07BF": {
+   "h": "5c75fcd8",
+   "t": "{Speaker}Halt dich raus,{SoftNewLine}Moralis! Mit dieser Mini-Hexe{SoftNewLine}werde ich allein fertig!{ContinuePrompt}"
+  },
+  "07C0": {
+   "h": "87a830a0",
+   "t": "{Speaker}Prinzessin!! Herr{SoftNewLine}{=nigel} und Fräulein {=friday}{SoftNewLine}haben Euch das Leben{SoftNewLine}gerettet!{ContinuePrompt}"
+  },
+  "07C1": {
+   "h": "17e92bf8",
+   "t": "{Speaker}...{Pause1s}ja{Pause1s}...tut mir leid...{SoftNewLine}aber...{Pause1s}aber...{Pause1s}ich hatte solche{SoftNewLine}Angst!...{ContinuePrompt}"
+  },
+  "07C2": {
+   "h": "33c00b20",
+   "t": "{Speaker}...schluchz... jeden{SoftNewLine}Tag hab ich etwas vom Turm{SoftNewLine}geworfen, aber{ContinuePrompt}"
+  },
+  "07C3": {
+   "h": "914516d9",
+   "t": "{Speaker}keiner kam! Keiner{SoftNewLine}hat was gemerkt! ...Ich hatte{SoftNewLine}solche Angst!{ContinuePrompt}"
+  },
+  "07C4": {
+   "h": "8353a00e",
+   "t": "{Speaker}...Schon gut, schon{SoftNewLine}gut... Gehen wir nach Hause,{SoftNewLine}Prinzessin {=lara}.{ContinuePrompt}"
+  },
+  "07C5": {
+   "h": "d332133d",
+   "t": "{Speaker}...Buhuhuhu!...{WaitInput}"
+  },
+  "07C6": {
+   "h": "f1d3378a",
+   "t": "{Speaker}Herr {=nigel}! Habt{SoftNewLine}vielen Dank für all Eure Güte!{ContinuePrompt}"
+  },
+  "07C7": {
+   "h": "be7accfb",
+   "t": "{Speaker}Solltet Ihr je aufs{SoftNewLine}Festland kommen, besucht uns{SoftNewLine}in Ahorn!{WaitInput}"
+  },
+  "07C8": {
+   "h": "8dd9bb65",
+   "t": "{Speaker}Armes Ding... Sie{SoftNewLine}ist wohl durchgedreht, so{SoftNewLine}lange allein in diesem{ContinuePrompt}"
+  },
+  "07C9": {
+   "h": "1df90233",
+   "t": "{Speaker}Turm... Aber dich{SoftNewLine}'mein Prinz' zu nennen! So eine{SoftNewLine}Frechheit!{ContinuePrompt}"
+  },
+  "07CA": {
+   "h": "21dfcf66",
+   "t": "{Speaker}Egal... komm! Wir{SoftNewLine}müssen Herzog Merkator{SoftNewLine}einholen!{WaitInput}"
+  },
+  "07CB": {
+   "h": "48335b83",
+   "t": "{Speaker}Lauf weg! Schnell!{SoftNewLine}Sonst verwandelt sie dich in{SoftNewLine}einen Hund!{ContinuePrompt}"
+  },
+  "07CC": {
+   "h": "8d7b6079",
+   "t": "{Speaker}Hihihi! Zu spät!{SoftNewLine}Jetzt bist du....{Pause1sOrInput}ein Hund!{WaitInput}"
+  },
+  "07CD": {
+   "h": "869e2094",
+   "t": "{Speaker}Hihihi... So. Du hast{SoftNewLine}es also doch hierher{SoftNewLine}geschafft!...{ContinuePrompt}"
+  },
+  "07CE": {
+   "h": "19da1848",
+   "t": "{Speaker}Ich weiß nicht,{SoftNewLine}warum, aber du riechst{SoftNewLine}gefährlich für mich. Ich{SoftNewLine}glaube, du solltest{ContinuePrompt}"
+  },
+  "07CF": {
+   "h": "a35896f6",
+   "t": "{Speaker}jetzt STERBEN!{SoftNewLine}Hihihi... Kannst dich nicht{SoftNewLine}rühren, was? Ha!{WaitInput}"
   }
  },
  "names": {
