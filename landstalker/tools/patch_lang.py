@@ -56,7 +56,7 @@ typedef struct { char *k, *v; } LkLgText;                     /* our own UI text
 static LkLgText *lk_lg_text; static int lk_lg_ntext;
 static LkLgStr *lk_lg_str; static int lk_lg_nstr;
 static LkLgName *lk_lg_name; static int lk_lg_nname;
-static const LkLgStr *lk_lg_cur; static int lk_lg_pos, lk_lg_ext, lk_lg_extcode;
+static const LkLgStr *lk_lg_cur; static int lk_lg_pos, lk_lg_ext, lk_lg_extcode; static int lk_lg_wstart = 1, lk_lg_lstart;   /* LK_LGWRAP v1 */
 static uint8_t *lk_lg_data;                                   /* the loaded language file (word streams are read from it) */
 static int lk_lg_on, lk_lg_hooked;
 static uint8_t lk_lg_mg[128], lk_lg_mgl[128][8];   /* menu font glyphs (8x8, 1bpp) of the extra characters, by character code */
@@ -111,11 +111,26 @@ static void lk_lg_h_ics(void) {   /* InitCompString $022FCC: D0 = string id */
     lk_lg_o_ics();
     if (lk_lg_on) { lk_lang_map(); r = bsearch(&key, lk_lg_str, (size_t)lk_lg_nstr, sizeof *lk_lg_str, lk_lg_cmp); }
     lk_lg_cur = r; lk_lg_pos = 0; lk_lg_ext = 0;
+    lk_lg_wstart = 1; lk_lg_lstart = 0;   /* LK_LGWRAP v1 */
     { static int lg_log = -1; if (lg_log < 0) lg_log = getenv("LANDSTALKER_LANGLOG") != NULL; if (lg_log) fprintf(stderr, "lang: string %04X %s at frame %ld\n", id, r ? "TRANSLATED" : "original", (long)platform_frame_number()); }   /* test aid */
 }
+/* LK_LGWRAP v1 state lk_lg_wstart / lk_lg_lstart: declared with lk_lg_cur; (user 2026-11-13: 'ein Buchstabe, der am Zeilenende stehen sollte, rutscht ganz nach links'): the game checks the line end
+   (PrintString_CheckLineWidth $022F66, g_TextXPos > $114) only between words, a word that runs past the 288 px line buffer ((x & $F8) * 8 per 36 tiles) wraps INSIDE the line.
+   Before the first letter of every word the real x (word $FF1194) + the word's width (font rule of tools/romtext.py) is checked; if it does not end before LK_LG_XMAX a
+   SoftNewLine is sent first.  Works for any speaker name length and every language; LANDSTALKER_LANGWRAP=0 = off */
+#define LK_LG_XMAX 284
+static int lk_lg_gw(uint16_t c) { int last = -1, r, k; if (c == 0) return 8; for (r = 0; r < 15; r++) { uint16_t v = bus_read16(0x801000u + 30u * c + 2u * (uint32_t)r); for (k = 0; k < 12; k++) if ((v & (0x8000u >> k)) && k > last) last = k; } return last + 3; }
 static void lk_lg_h_dc(void) {    /* DecodeChar $0246B2: the next character in the Huffman character domain: glyph < $55, control $56 + k, end $55 */
     if (lk_lg_cur) {
         uint16_t w = lk_lg_pos < lk_lg_cur->n ? lk_lg_be16(lk_lg_cur->w + 2 * lk_lg_pos++) : 0xFFFF; uint8_t ch;
+        { static int wr = -1; if (wr < 0) { const char *e = getenv("LANDSTALKER_LANGWRAP"); wr = !(e && atoi(e) == 0); }
+          if (wr && w < 0x8000) {
+            if (w == 0) lk_lg_wstart = 1;
+            else if (lk_lg_wstart) { int i, wd = 0; lk_lg_wstart = 0;
+                for (i = lk_lg_pos - 1; i < lk_lg_cur->n; i++) { uint16_t c = lk_lg_be16(lk_lg_cur->w + 2 * i); if (c == 0 || c >= 0x8000) break; wd += lk_lg_gw(c); }
+                if (!lk_lg_lstart && (int)bus_read16(0xFF1194u) + wd > LK_LG_XMAX) { lk_lg_pos--; lk_lg_lstart = 1; lk_lg_wstart = 1; g_m68k.d[0] = (g_m68k.d[0] & 0xFFFFFF00u) | 0x57u; func_table_rts(); return; }   /* SoftNewLine (control k = 1) */
+                lk_lg_lstart = 0; }
+          } else if (w != 0xFFFF) { lk_lg_wstart = 1; lk_lg_lstart = (w == (uint16_t)~0x0Eu || w == (uint16_t)~0x01u); } }   /* a control: a word ends; SoftNewLine / NewLine start a line */
         if (w == 0xFFFF) { ch = 0x55; lk_lg_cur = NULL; }
         else if (w >= 0x8000) { ch = 0x56; /* control: find k from ~handler */
             static const uint8_t hk[19] = {0x15, 0x0E, 0x01, 0x0B, 0x0C, 0x05, 0x07, 0x06, 0x04, 0x03, 0x02, 0x18, 0x0F, 0x0D, 0x08, 0x09, 0x0A, 0x17, 0x19}; int k;

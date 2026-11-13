@@ -87,6 +87,8 @@ chk "Tag / Nacht v5 (fliessende Schatten)"          $G/ext/Genesis-Plus-GX/core/
 chk "Tag / Nacht: Fensterkopf der rechten Waende"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNWIN197 v1"
 chk "Licht standardmaessig an"                      $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTDEFON v1"
 chk "Sprache: Namen-Option (japanische Originalnamen)" $G/src/func_table.c "LK_LGNAMES v1"
+chk "Sprache: Wortumbruch zur Laufzeit"          $G/src/func_table.c "LK_LGWRAP v1"
+chk "Licht: Pfeil ueber der Textbox unbeleuchtet"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_OVWUNLIT v1"
 chk "Zeitraffer-Taste (L5 + R5)"                    $G/src/input.c "lk_dn_fasttoggle"
 chk "Gegner zerfallen (Option)"                     $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DISSOLVE v1"
 chk "Hitzeflimmern (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_HAZE v1"

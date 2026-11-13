@@ -267,7 +267,7 @@ void lk_gl_unpaint(void) { int q, ts = -1;
     a = "      /* LK_LIGHTS: the map pixel is lit on the GPU"
     i0 = s.index(a); i1 = s.index("\n", i0) + 1
     s = s[:i0] + ("      int lk_gl_k = 0; uint32_t lk_gl_p0 = 0, lk_gl_p1 = 0xFFFFFFu; lk_gl_pf = 0;   /* %s */\n" % VER +
-           "      if (lk_gl_real) lk_gl_k = lk_gl_classify(x, line, src, src == 1 ? sp : 0, black, ubase + x - lk_sm_sxn, vbase - lk_sm_syn);   /* GL4: the GPU lights it (the only light since 2026-11-12) */\n") + s[i1:]
+           "      if (lk_gl_real) lk_gl_k = lk_gl_classify(x, line, src, src == 1 ? sp : 0, black || lk_o_ovw, ubase + x - lk_sm_sxn, vbase - lk_sm_syn);   /* LK_OVWUNLIT v1: arrows above the text box unlit */   /* GL4: the GPU lights it (the only light since 2026-11-12) */\n") + s[i1:]
     rep("memcpy(lk_lt_sd, lk_lt_sdn, sizeof lk_lt_sd);", "memcpy(lk_lt_sd, lk_lt_sdn, sizeof lk_lt_sd); lk_gl_sunver++;")
     # GL4: emissive mixes after the light point -> 'mix after the light' (applied to black and white) when the GPU lights the pixel
     def fx(cond, call):

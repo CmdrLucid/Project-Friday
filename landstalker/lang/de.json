@@ -92,7 +92,7 @@
   },
   "0148": {
    "h": "06a4c0f9",
-   "t": "{Speaker}Der Schatz von König{SoftNewLine}Nolo? Ach ja! Ich...{Pause1s}äh...{Pause1s} keine{SoftNewLine}Ahnung!{WaitInput}"
+   "t": "{Speaker}Der Schatz von{SoftNewLine}König Nolo? Ach ja! Ich...{Pause1s}äh...{Pause1s}{SoftNewLine}keine Ahnung!{WaitInput}"
   },
   "0149": {
    "h": "0c4ed862",
@@ -100,19 +100,19 @@
   },
   "014A": {
    "h": "b721450d",
-   "t": "{Speaker}Nabu Abidabu... Ihr{SoftNewLine}Götter, beschützt meine Fara...{SoftNewLine}bitte, rettet sie!{WaitInput}"
+   "t": "{Speaker}Nabu Abidabu... Ihr{SoftNewLine}Götter, beschützt meine{SoftNewLine}Fara... bitte, rettet sie!{WaitInput}"
   },
   "014B": {
    "h": "e2f26a14",
-   "t": "{Speaker}Oh, {=nigel}! Danke...{SoftNewLine}tausend Dank! Das verdanken wir{SoftNewLine}alles dir!{ContinuePrompt}"
+   "t": "{Speaker}Oh, {=nigel}!{SoftNewLine}Danke... tausend Dank! Das{SoftNewLine}verdanken wir alles dir!{ContinuePrompt}"
   },
   "014C": {
    "h": "1616d4b2",
-   "t": "{Speaker}Ein altes Sprichwort{SoftNewLine}unseres Dorfes sagt: \"Wer{SoftNewLine}gerettet wird, zeigt seinen Dank{SoftNewLine}mit einem funkelnden Stein.\"{ContinuePrompt}"
+   "t": "{Speaker}Ein altes{SoftNewLine}Sprichwort unseres Dorfes{SoftNewLine}sagt: \"Wer gerettet wird,{SoftNewLine}zeigt seinen Dank mit einem{SoftNewLine}funkelnden Stein.\"{ContinuePrompt}"
   },
   "014D": {
    "h": "0b2a81d7",
-   "t": "{Speaker}Das ist der Dank von{SoftNewLine}ganz Massan, {=nigel}. Bitte{SoftNewLine}nimm dieses Juwel!{ContinuePrompt}"
+   "t": "{Speaker}Das ist der Dank{SoftNewLine}von ganz Massan, {=nigel}.{SoftNewLine}Bitte nimm dieses Juwel!{ContinuePrompt}"
   },
   "014E": {
    "h": "299867f6",
@@ -128,11 +128,11 @@
   },
   "0151": {
    "h": "be734382",
-   "t": "{Speaker}Mir geht's gut! Erst{SoftNewLine}die Monster!!{WaitInput}"
+   "t": "{Speaker}Mir geht's gut!{SoftNewLine}Erst die Monster!!{WaitInput}"
   },
   "0152": {
    "h": "4ba8589f",
-   "t": "{Speaker}Ach, {=nigel}...{SoftNewLine}seufz... Du sahst so mutig aus,{SoftNewLine}als du gegen die Ork-Könige{SoftNewLine}gekämpft hast...{ContinuePrompt}"
+   "t": "{Speaker}Ach, {=nigel}...{SoftNewLine}seufz... Du sahst so mutig{SoftNewLine}aus, als du gegen die{SoftNewLine}Ork-Könige gekämpft hast...{ContinuePrompt}"
   },
   "0153": {
    "h": "ffe485ea",
@@ -140,11 +140,11 @@
   },
   "0154": {
    "h": "6586f586",
-   "t": "{Speaker}Irgendwer muss{SoftNewLine}diesen Gumi-Wilden mal Bescheid{SoftNewLine}stoßen! Wär ich nur jünger...{WaitInput}"
+   "t": "{Speaker}Irgendwer muss{SoftNewLine}diesen Gumi-Wilden mal{SoftNewLine}Bescheid stoßen! Wär ich nur{SoftNewLine}jünger...{WaitInput}"
   },
   "0155": {
    "h": "8c948dc9",
-   "t": "{Speaker}Jetzt reicht's! Jetzt{SoftNewLine}ist das Maß voll!! Ich mach{SoftNewLine}das!!{WaitInput}"
+   "t": "{Speaker}Jetzt reicht's!{SoftNewLine}Jetzt ist das Maß voll!! Ich{SoftNewLine}mach das!!{WaitInput}"
   },
   "0156": {
    "h": "e540e309",
@@ -156,7 +156,7 @@
   },
   "0158": {
    "h": "c986c6c4",
-   "t": "{Speaker}Jetzt seh ich's ein...{SoftNewLine}ich hab mich geirrt. Die Gumi{SoftNewLine}sind doch unsere Brüder.{WaitInput}"
+   "t": "{Speaker}Jetzt seh ich's{SoftNewLine}ein... ich hab mich geirrt. Die{SoftNewLine}Gumi sind doch unsere Brüder.{WaitInput}"
   },
   "0159": {
    "h": "326a0ef6",
@@ -168,7 +168,7 @@
   },
   "015B": {
    "h": "513dbf35",
-   "t": "{Speaker}Hoffentlich geht das{SoftNewLine}gut...!{WaitInput}"
+   "t": "{Speaker}Hoffentlich geht{SoftNewLine}das gut...!{WaitInput}"
   },
   "015C": {
    "h": "94f22bb1",
@@ -176,11 +176,11 @@
   },
   "015D": {
    "h": "352a8694",
-   "t": "{Speaker}kehrt endlich wieder{SoftNewLine}Frieden in unser Dorf ein!{SoftNewLine}Ohohoho!{WaitInput}"
+   "t": "{Speaker}kehrt endlich{SoftNewLine}wieder Frieden in unser Dorf{SoftNewLine}ein! Ohohoho!{WaitInput}"
   },
   "015E": {
    "h": "ae1aa331",
-   "t": "{Speaker}Sag mal, großer{SoftNewLine}Bruder! Hast du schon mal Leute{SoftNewLine}getroffen, die anders aussehen{SoftNewLine}als wir?{NewLine}"
+   "t": "{Speaker}Sag mal, großer{SoftNewLine}Bruder! Hast du schon mal{SoftNewLine}Leute getroffen, die anders{SoftNewLine}aussehen als wir?{NewLine}"
   },
   "015F": {
    "h": "2d2694f0",
@@ -196,11 +196,11 @@
   },
   "0162": {
    "h": "ebfbd0bc",
-   "t": "{Speaker}Geh bloß nicht nach{SoftNewLine}Süden, sonst kriegst du was auf{SoftNewLine}die Mütze!{WaitInput}"
+   "t": "{Speaker}Geh bloß nicht nach{SoftNewLine}Süden, sonst kriegst du was{SoftNewLine}auf die Mütze!{WaitInput}"
   },
   "0163": {
    "h": "978d964b",
-   "t": "{Speaker}Ich bin zwar nur ein{SoftNewLine}Kind, aber mutig bin ich wie ein{SoftNewLine}Großer! Die mach ich fertig!{WaitInput}"
+   "t": "{Speaker}Ich bin zwar nur{SoftNewLine}ein Kind, aber mutig bin ich{SoftNewLine}wie ein Großer! Die mach ich{SoftNewLine}fertig!{WaitInput}"
   },
   "0164": {
    "h": "d7f15293",
@@ -208,11 +208,11 @@
   },
   "0165": {
    "h": "e1a43edb",
-   "t": "{Speaker}Mama sieht irgendwie{SoftNewLine}richtig glücklich aus, oder?{WaitInput}"
+   "t": "{Speaker}Mama sieht{SoftNewLine}irgendwie richtig glücklich{SoftNewLine}aus, oder?{WaitInput}"
   },
   "0166": {
    "h": "d1c082d7",
-   "t": "{Speaker}\"Uh-ho, uh-ho! Säen{SoftNewLine}wir die Samen aus, dann wächst{SoftNewLine}es RAUS!{ContinuePrompt}"
+   "t": "{Speaker}\"Uh-ho, uh-ho! Säen{SoftNewLine}wir die Samen aus, dann{SoftNewLine}wächst es RAUS!{ContinuePrompt}"
   },
   "0167": {
    "h": "6e67c0f5",
@@ -228,7 +228,7 @@
   },
   "016A": {
    "h": "427caed0",
-   "t": "{Speaker}Das hab ich selbst{SoftNewLine}gedichtet! Wenn ich's auf dem{SoftNewLine}Markt in Merkator sing, verkauf{SoftNewLine}ich alles!{WaitInput}"
+   "t": "{Speaker}Das hab ich selbst{SoftNewLine}gedichtet! Wenn ich's auf dem{SoftNewLine}Markt in Merkator sing,{SoftNewLine}verkauf ich alles!{WaitInput}"
   },
   "016B": {
    "h": "c062645d",
@@ -236,11 +236,11 @@
   },
   "016C": {
    "h": "1844d65d",
-   "t": "{Speaker}Die haben irgendwas{SoftNewLine}Komisches benutzt, um die Tür{SoftNewLine}aufzukriegen...{WaitInput}"
+   "t": "{Speaker}Die haben{SoftNewLine}irgendwas Komisches benutzt,{SoftNewLine}um die Tür aufzukriegen...{WaitInput}"
   },
   "016D": {
    "h": "94d061eb",
-   "t": "{Speaker}Hör mal, {=nigel}! Ich{SoftNewLine}hab ein neues Lied gedichtet! Es{SoftNewLine}heißt DREI MANN AUS MASSAN:{ContinuePrompt}"
+   "t": "{Speaker}Hör mal, {=nigel}!{SoftNewLine}Ich hab ein neues Lied{SoftNewLine}gedichtet! Es heißt DREI MANN{SoftNewLine}AUS MASSAN:{ContinuePrompt}"
   },
   "016E": {
    "h": "45d4dd32",
@@ -256,23 +256,23 @@
   },
   "0171": {
    "h": "a7f10ac9",
-   "t": "{Speaker}Danke nochmal für{SoftNewLine}neulich! Kauf doch  {Item}  direkt bei{SoftNewLine}uns vom Hof!{WaitInput}"
+   "t": "{Speaker}Danke nochmal für{SoftNewLine}neulich! Kauf doch  {Item}  direkt{SoftNewLine}bei uns vom Hof!{WaitInput}"
   },
   "0172": {
    "h": "0955a2a9",
-   "t": "{Speaker}Laut{SoftNewLine}Eke-Eke-Flurfunk treiben sich in{SoftNewLine}letzter Zeit oft Gumi-Krieger an{SoftNewLine}der{ContinuePrompt}"
+   "t": "{Speaker}Laut{SoftNewLine}Eke-Eke-Flurfunk treiben sich{SoftNewLine}in letzter Zeit oft{SoftNewLine}Gumi-Krieger an der{ContinuePrompt}"
   },
   "0173": {
    "h": "ba6fddf8",
-   "t": "{Speaker}Brücke herum... so{SoftNewLine}erzählt man sich jedenfalls. Und{SoftNewLine}mein Mann? Seelenruhig wie{SoftNewLine}immer...{WaitInput}"
+   "t": "{Speaker}Brücke herum... so{SoftNewLine}erzählt man sich jedenfalls.{SoftNewLine}Und mein Mann? Seelenruhig wie{SoftNewLine}immer...{WaitInput}"
   },
   "0174": {
    "h": "9df7b77d",
-   "t": "{Speaker}M-mein Mann hat{SoftNewLine}gesagt, er hält's nicht mehr{SoftNewLine}aus, und ist mit dem Nachbarn{SoftNewLine}losgestürmt! Der war vielleicht{SoftNewLine}wütend!!{WaitInput}"
+   "t": "{Speaker}M-mein Mann hat{SoftNewLine}gesagt, er hält's nicht mehr{SoftNewLine}aus, und ist mit dem Nachbarn{SoftNewLine}losgestürmt! Der war{SoftNewLine}vielleicht wütend!!{WaitInput}"
   },
   "0175": {
    "h": "5fe53560",
-   "t": "{Speaker}Hallo, {=nigel}! Hallo,{SoftNewLine}{=friday}! Wie geht's euch?{SoftNewLine}Übernehmt euch nicht, ja?{WaitInput}"
+   "t": "{Speaker}Hallo, {=nigel}!{SoftNewLine}Hallo, {=friday}! Wie geht's{SoftNewLine}euch? Übernehmt euch nicht,{SoftNewLine}ja?{WaitInput}"
   },
   "0176": {
    "h": "54d63170",
@@ -280,11 +280,11 @@
   },
   "0177": {
    "h": "c017098c",
-   "t": "{Speaker}Warum wir uns{SoftNewLine}zerstritten haben? Hm, wie war{SoftNewLine}das noch gleich...{Pause1s} Ach, egal!{ContinuePrompt}"
+   "t": "{Speaker}Warum wir uns{SoftNewLine}zerstritten haben? Hm, wie{SoftNewLine}war das noch gleich...{Pause1s} Ach,{SoftNewLine}egal!{ContinuePrompt}"
   },
   "0178": {
    "h": "1c3ac41d",
-   "t": "{Speaker}Frag den Alten im{SoftNewLine}Wasserfallschrein. Der weiß das{SoftNewLine}bestimmt!{WaitInput}"
+   "t": "{Speaker}Frag den Alten im{SoftNewLine}Wasserfallschrein. Der weiß{SoftNewLine}das bestimmt!{WaitInput}"
   },
   "0179": {
    "h": "eedad3f7",
@@ -292,7 +292,7 @@
   },
   "017A": {
    "h": "ac48a488",
-   "t": "{Speaker}Endlich sind Massan{SoftNewLine}und Gumi wieder Schwesterdörfer{SoftNewLine}wie früher! Jetzt kann ich in{SoftNewLine}Frieden alt werden.{WaitInput}"
+   "t": "{Speaker}Endlich sind Massan{SoftNewLine}und Gumi wieder{SoftNewLine}Schwesterdörfer wie früher!{SoftNewLine}Jetzt kann ich in Frieden alt{SoftNewLine}werden.{WaitInput}"
   },
   "017B": {
    "h": "c6f5c3d2",
@@ -312,11 +312,11 @@
   },
   "017F": {
    "h": "4b0fb5a8",
-   "t": "{Speaker}Du hast's geschafft,{SoftNewLine}großer Bruder! Kennst du das{SoftNewLine}Sprichwort \"Beurteile einen Dahl{SoftNewLine}nicht nach seiner Farbe\"? Hehe!{WaitInput}"
+   "t": "{Speaker}Du hast's{SoftNewLine}geschafft, großer Bruder!{SoftNewLine}Kennst du das Sprichwort{SoftNewLine}\"Beurteile einen Dahl nicht{SoftNewLine}nach seiner Farbe\"? Hehe!{WaitInput}"
   },
   "0180": {
    "h": "6daf4678",
-   "t": "{Speaker}Na, sieh mal an... du{SoftNewLine}bist doch ein Schatzjäger, was?{ContinuePrompt}"
+   "t": "{Speaker}Na, sieh mal an...{SoftNewLine}du bist doch ein Schatzjäger,{SoftNewLine}was?{ContinuePrompt}"
   },
   "0181": {
    "h": "0fc62a01",
@@ -324,7 +324,7 @@
   },
   "0182": {
    "h": "db5dfa92",
-   "t": "{Speaker}Übrigens... warst du{SoftNewLine}schon beim Weisen im{SoftNewLine}Wasserfallschrein?{NewLine}"
+   "t": "{Speaker}Übrigens... warst{SoftNewLine}du schon beim Weisen im{SoftNewLine}Wasserfallschrein?{NewLine}"
   },
   "0183": {
    "h": "6c905976",
@@ -332,7 +332,7 @@
   },
   "0184": {
    "h": "e0db6693",
-   "t": "{Speaker}Hahaha! Da fehlt dir{SoftNewLine}wohl noch Erfahrung, Kleiner!{WaitInput}"
+   "t": "{Speaker}Hahaha! Da fehlt{SoftNewLine}dir wohl noch Erfahrung,{SoftNewLine}Kleiner!{WaitInput}"
   },
   "0185": {
    "h": "32d5a3bc",
@@ -340,11 +340,11 @@
   },
   "0186": {
    "h": "d7b83944",
-   "t": "{Speaker}Der Erdrutsch? Tja...{SoftNewLine}wir haben eben echt kein Glück!{ContinuePrompt}"
+   "t": "{Speaker}Der Erdrutsch?{SoftNewLine}Tja... wir haben eben echt{SoftNewLine}kein Glück!{ContinuePrompt}"
   },
   "0187": {
    "h": "9e70ef41",
-   "t": "{Speaker}Das Dorf war leer,{SoftNewLine}da hab ich mal nach Wertsachen{SoftNewLine}geguckt. War aber nix{SoftNewLine}Gescheites dabei.{ContinuePrompt}"
+   "t": "{Speaker}Das Dorf war leer,{SoftNewLine}da hab ich mal nach{SoftNewLine}Wertsachen geguckt. War aber{SoftNewLine}nix Gescheites dabei.{ContinuePrompt}"
   },
   "0188": {
    "h": "bf140a38",
@@ -352,11 +352,11 @@
   },
   "0189": {
    "h": "90f922e3",
-   "t": "{Speaker}Ein paar Taler lagen{SoftNewLine}auch rum, aber die hab ich{SoftNewLine}natürlich{ContinuePrompt}"
+   "t": "{Speaker}Ein paar Taler{SoftNewLine}lagen auch rum, aber die hab{SoftNewLine}ich natürlich{ContinuePrompt}"
   },
   "018A": {
    "h": "1c7c955c",
-   "t": "{Speaker}nicht{SoftNewLine}angerührt...{Pause1s}...{Pause1s}HAHA, VON WEGEN!!!{WaitInput}"
+   "t": "{Speaker}nicht{SoftNewLine}angerührt...{Pause1s}...{Pause1s}HAHA, VON{SoftNewLine}WEGEN!!!{WaitInput}"
   },
   "018B": {
    "h": "3c746fa0",
@@ -368,7 +368,7 @@
   },
   "018D": {
    "h": "aae00385",
-   "t": "{Speaker}Wenn dieser{SoftNewLine}Erdrutsch nicht wäre, kämen wir{SoftNewLine}nach Merkator...{WaitInput}"
+   "t": "{Speaker}Wenn dieser{SoftNewLine}Erdrutsch nicht wäre, kämen{SoftNewLine}wir nach Merkator...{WaitInput}"
   },
   "018E": {
    "h": "aece0a0d",
@@ -384,23 +384,23 @@
   },
   "0191": {
    "h": "a01228f7",
-   "t": "{Speaker}Was das wohl heißen{SoftNewLine}soll?...{WaitInput}"
+   "t": "{Speaker}Was das wohl{SoftNewLine}heißen soll?...{WaitInput}"
   },
   "0192": {
    "h": "4e6046a8",
-   "t": "{Speaker}Na so ein Zufall!{SoftNewLine}Und, wie läuft die Schatzsuche?{SoftNewLine}Ich? Hmm... geht so!{WaitInput}"
+   "t": "{Speaker}Na so ein Zufall!{SoftNewLine}Und, wie läuft die{SoftNewLine}Schatzsuche? Ich? Hmm... geht{SoftNewLine}so!{WaitInput}"
   },
   "0193": {
    "h": "586b2ccf",
-   "t": "{Speaker}He, junger Mann! Ich{SoftNewLine}bin's!{ContinuePrompt}"
+   "t": "{Speaker}He, junger Mann!{SoftNewLine}Ich bin's!{ContinuePrompt}"
   },
   "0194": {
    "h": "3d652850",
-   "t": "{Speaker}Ach, so ein Pech! Ich{SoftNewLine}bin in eine komische Falle{SoftNewLine}getappt, und... jetzt sitz ich{SoftNewLine}hier.{ContinuePrompt}"
+   "t": "{Speaker}Ach, so ein Pech!{SoftNewLine}Ich bin in eine komische Falle{SoftNewLine}getappt, und... jetzt sitz ich{SoftNewLine}hier.{ContinuePrompt}"
   },
   "0195": {
    "h": "23ba4402",
-   "t": "{Speaker}Als alter{SoftNewLine}Schatzjäger saß ich ja schon in{SoftNewLine}so manchem Kerker, aber noch{SoftNewLine}nie in einem, der{ContinuePrompt}"
+   "t": "{Speaker}Als alter{SoftNewLine}Schatzjäger saß ich ja schon{SoftNewLine}in so manchem Kerker, aber{SoftNewLine}noch nie in einem, der{ContinuePrompt}"
   },
   "0196": {
    "h": "83cfe33e",
@@ -408,11 +408,11 @@
   },
   "0197": {
    "h": "8523ff83",
-   "t": "{Speaker}In letzter Zeit{SoftNewLine}kommen so viele zwielichtige{SoftNewLine}Gäste... oh! Sie sind ja ein Gast!{SoftNewLine}Hohoho!{WaitInput}"
+   "t": "{Speaker}In letzter Zeit{SoftNewLine}kommen so viele zwielichtige{SoftNewLine}Gäste... oh! Sie sind ja ein{SoftNewLine}Gast! Hohoho!{WaitInput}"
   },
   "0198": {
    "h": "938ea3e7",
-   "t": "{Speaker}Dieser komische Gast{SoftNewLine}ist auf und davon wie der{SoftNewLine}Wind...{WaitInput}"
+   "t": "{Speaker}Dieser komische{SoftNewLine}Gast ist auf und davon wie{SoftNewLine}der Wind...{WaitInput}"
   },
   "0199": {
    "h": "1b99a8f5",
@@ -424,7 +424,7 @@
   },
   "019B": {
    "h": "6f509cfc",
-   "t": "{Speaker}Großer Bruder!{SoftNewLine}{=friday}! Lasst uns zusammen{SoftNewLine}Fara retten! Aber... meine Beine{SoftNewLine}zittern so, ich kann mich nicht{SoftNewLine}rühren!!{WaitInput}"
+   "t": "{Speaker}Großer Bruder!{SoftNewLine}{=friday}! Lasst uns zusammen{SoftNewLine}Fara retten! Aber... meine{SoftNewLine}Beine zittern so, ich kann{SoftNewLine}mich nicht rühren!!{WaitInput}"
   },
   "019C": {
    "h": "208391f2",
@@ -436,11 +436,11 @@
   },
   "019E": {
    "h": "41f789f6",
-   "t": "{Speaker}Hinter Gumi kommst{SoftNewLine}du ans Meer. Dort teilt sich der{SoftNewLine}Weg in zwei Richtungen.{ContinuePrompt}"
+   "t": "{Speaker}Hinter Gumi kommst{SoftNewLine}du ans Meer. Dort teilt sich{SoftNewLine}der Weg in zwei Richtungen.{ContinuePrompt}"
   },
   "019F": {
    "h": "3c2b5b05",
-   "t": "{Speaker}Rechts geht's nach{SoftNewLine}Merkator, der größten Stadt der{SoftNewLine}Insel,{ContinuePrompt}"
+   "t": "{Speaker}Rechts geht's nach{SoftNewLine}Merkator, der größten Stadt{SoftNewLine}der Insel,{ContinuePrompt}"
   },
   "01A0": {
    "h": "cecbdac0",
@@ -452,7 +452,7 @@
   },
   "01A2": {
    "h": "da3cd433",
-   "t": "{Speaker}Gleich südlich von{SoftNewLine}uns liegt Gumi. Das ist ein{SoftNewLine}wilder Stamm, man weiß nie, was{SoftNewLine}die anstellen!{WaitInput}"
+   "t": "{Speaker}Gleich südlich von{SoftNewLine}uns liegt Gumi. Das ist ein{SoftNewLine}wilder Stamm, man weiß nie,{SoftNewLine}was die anstellen!{WaitInput}"
   },
   "01A3": {
    "h": "653654b4",
@@ -468,7 +468,7 @@
   },
   "01A6": {
    "h": "8ae0f3d1",
-   "t": "{Speaker}Hihi... weißt du, was{SoftNewLine}ich meine?{NewLine}"
+   "t": "{Speaker}Hihi... weißt du,{SoftNewLine}was ich meine?{NewLine}"
   },
   "01A7": {
    "h": "f175f91d",
@@ -484,7 +484,7 @@
   },
   "01AA": {
    "h": "693d1afb",
-   "t": "{Speaker}Fara wurde{SoftNewLine}entführt, weil sie das{SoftNewLine}hübscheste Mädchen im Dorf ist.{SoftNewLine}Ach du meine Güte!{ContinuePrompt}"
+   "t": "{Speaker}Fara wurde{SoftNewLine}entführt, weil sie das{SoftNewLine}hübscheste Mädchen im Dorf{SoftNewLine}ist. Ach du meine Güte!{ContinuePrompt}"
   },
   "01AB": {
    "h": "3e16ea86",
@@ -492,7 +492,7 @@
   },
   "01AC": {
    "h": "a617cb1d",
-   "t": "{Speaker}Ich hab von deinen{SoftNewLine}Heldentaten gehört! Ich weiß{SoftNewLine}schon, ich weiß... das kommt{SoftNewLine}alles von den Eke-Eke, stimmt's?{SoftNewLine}Hihi!{WaitInput}"
+   "t": "{Speaker}Ich hab von deinen{SoftNewLine}Heldentaten gehört! Ich weiß{SoftNewLine}schon, ich weiß... das kommt{SoftNewLine}alles von den Eke-Eke,{SoftNewLine}stimmt's? Hihi!{WaitInput}"
   },
   "01AD": {
    "h": "77ac02e9",
@@ -500,7 +500,7 @@
   },
   "01AE": {
    "h": "76dfd2e6",
-   "t": "{Speaker}Oh! Ihr versteht,{SoftNewLine}was ich sage, werter Reisender?{SoftNewLine}Ich bin ein Mädchen... das heißt,{SoftNewLine}ich war eines, bis{ContinuePrompt}"
+   "t": "{Speaker}Oh! Ihr versteht,{SoftNewLine}was ich sage, werter{SoftNewLine}Reisender? Ich bin ein{SoftNewLine}Mädchen... das heißt, ich war{SoftNewLine}eines, bis{ContinuePrompt}"
   },
   "01AF": {
    "h": "dc699826",
@@ -512,15 +512,15 @@
   },
   "01B1": {
    "h": "92fc590f",
-   "t": "{Speaker}Ach, wie sehr ich{SoftNewLine}mich nach ihm sehne... seufz...{SoftNewLine}aber ich darf nicht zu ihm. Die{SoftNewLine}Hexe sagte,{ContinuePrompt}"
+   "t": "{Speaker}Ach, wie sehr ich{SoftNewLine}mich nach ihm sehne... seufz...{SoftNewLine}aber ich darf nicht zu ihm.{SoftNewLine}Die Hexe sagte,{ContinuePrompt}"
   },
   "01B2": {
    "h": "9b886616",
-   "t": "{Speaker}wenn wir uns in{SoftNewLine}dieser Gestalt begegnen, werden{SoftNewLine}wir nie wieder Menschen...{ContinuePrompt}"
+   "t": "{Speaker}wenn wir uns in{SoftNewLine}dieser Gestalt begegnen,{SoftNewLine}werden wir nie wieder{SoftNewLine}Menschen...{ContinuePrompt}"
   },
   "01B3": {
    "h": "f8cba256",
-   "t": "{Speaker}Der Fluch wird erst{SoftNewLine}gebrochen, wenn {=helga} besiegt{SoftNewLine}ist... auuuuuuh!...{WaitInput}"
+   "t": "{Speaker}Der Fluch wird erst{SoftNewLine}gebrochen, wenn {=helga}{SoftNewLine}besiegt ist... auuuuuuh!...{WaitInput}"
   },
   "01B4": {
    "h": "39f68609",
@@ -528,7 +528,7 @@
   },
   "01B5": {
    "h": "ac21864e",
-   "t": "{Speaker}Ich bin ja so... wuff!{SoftNewLine}Wuff wuff!{ContinuePrompt}"
+   "t": "{Speaker}Ich bin ja so...{SoftNewLine}wuff! Wuff wuff!{ContinuePrompt}"
   },
   "01B6": {
    "h": "6569d64d",
@@ -548,11 +548,11 @@
   },
   "01BA": {
    "h": "ef623ede",
-   "t": "{Speaker}Wenn dir was{SoftNewLine}gefällt, bring's einfach hier zur{SoftNewLine}Theke.{WaitInput}"
+   "t": "{Speaker}Wenn dir was{SoftNewLine}gefällt, bring's einfach hier{SoftNewLine}zur Theke.{WaitInput}"
   },
   "01BB": {
    "h": "cc4c058e",
-   "t": "{Speaker}Heilen und das{SoftNewLine}Heldenbuch führen, das ist meine{SoftNewLine}Aufgabe. Was kann ich für dich{SoftNewLine}tun?{ContinuePrompt}"
+   "t": "{Speaker}Heilen und das{SoftNewLine}Heldenbuch führen, das ist{SoftNewLine}meine Aufgabe. Was kann ich{SoftNewLine}für dich tun?{ContinuePrompt}"
   },
   "01BC": {
    "h": "74f20281",
@@ -572,7 +572,7 @@
   },
   "01C0": {
    "h": "bda50892",
-   "t": "{Speaker}Wenn du übernachten{SoftNewLine}willst, leg den Zettel auf die{SoftNewLine}Theke.{WaitInput}"
+   "t": "{Speaker}Wenn du{SoftNewLine}übernachten willst, leg den{SoftNewLine}Zettel auf die Theke.{WaitInput}"
   },
   "01C1": {
    "h": "c671a6b6",
@@ -592,7 +592,7 @@
   },
   "01C5": {
    "h": "fd6b88fe",
-   "t": "{Speaker}Ich glaube, die Gumi{SoftNewLine}werden von den Orks getäuscht!{SoftNewLine}Fara ist in großer Gefahr...{ContinuePrompt}"
+   "t": "{Speaker}Ich glaube, die Gumi{SoftNewLine}werden von den Orks{SoftNewLine}getäuscht! Fara ist in großer{SoftNewLine}Gefahr...{ContinuePrompt}"
   },
   "01C6": {
    "h": "ac3abc72",
@@ -616,7 +616,7 @@
   },
   "01CB": {
    "h": "ba4d9c4f",
-   "t": "{Speaker}Meinen{SoftNewLine}Aufzeichnungen nach gibt es fünf{SoftNewLine}davon. Wenn sie alle auf dieser{SoftNewLine}Insel sind... dann vielleicht auch{SoftNewLine}König Nolos Schatz.{ContinuePrompt}"
+   "t": "{Speaker}Meinen{SoftNewLine}Aufzeichnungen nach gibt es{SoftNewLine}fünf davon. Wenn sie alle auf{SoftNewLine}dieser Insel sind... dann{SoftNewLine}vielleicht auch König Nolos{SoftNewLine}Schatz.{ContinuePrompt}"
   },
   "01CC": {
    "h": "77ab6446",
@@ -644,19 +644,19 @@
   },
   "01D2": {
    "h": "d8bf9296",
-   "t": "{Speaker}Der Herzog hat also{SoftNewLine}endlich die Maske fallen{SoftNewLine}lassen... Er war schon immer{SoftNewLine}versessen auf{ContinuePrompt}"
+   "t": "{Speaker}Der Herzog hat{SoftNewLine}also endlich die Maske fallen{SoftNewLine}lassen... Er war schon immer{SoftNewLine}versessen auf{ContinuePrompt}"
   },
   "01D3": {
    "h": "47b01c04",
-   "t": "{Speaker}den Schatz von König{SoftNewLine}Nolo.{ContinuePrompt}"
+   "t": "{Speaker}den Schatz von{SoftNewLine}König Nolo.{ContinuePrompt}"
   },
   "01D4": {
    "h": "3a1afcd2",
-   "t": "{Speaker}Als du auf die Insel{SoftNewLine}kamst, war er sich wohl sicher,{SoftNewLine}dass der Schatz{ContinuePrompt}"
+   "t": "{Speaker}Als du auf die Insel{SoftNewLine}kamst, war er sich wohl{SoftNewLine}sicher, dass der Schatz{ContinuePrompt}"
   },
   "01D5": {
    "h": "202a3e33",
-   "t": "{Speaker}wirklich hier liegt...{WaitInput}"
+   "t": "{Speaker}wirklich hier{SoftNewLine}liegt...{WaitInput}"
   },
   "01D6": {
    "h": "39014f84",
@@ -668,15 +668,15 @@
   },
   "01D8": {
    "h": "b98d0a7d",
-   "t": "{Speaker}{=nigel}, ich bitte{SoftNewLine}dich: Lass ihn den Schatz nicht{SoftNewLine}finden! Mach seine finsteren{SoftNewLine}Pläne zunichte!{ContinuePrompt}"
+   "t": "{Speaker}{=nigel}, ich bitte{SoftNewLine}dich: Lass ihn den Schatz{SoftNewLine}nicht finden! Mach seine{SoftNewLine}finsteren Pläne zunichte!{ContinuePrompt}"
   },
   "01D9": {
    "h": "0eb47e52",
-   "t": "{Speaker}Wenn der Herzog den{SoftNewLine}Schatz bekommt... dann gnade{SoftNewLine}uns allen die Göttin!{WaitInput}"
+   "t": "{Speaker}Wenn der Herzog{SoftNewLine}den Schatz bekommt... dann{SoftNewLine}gnade uns allen die Göttin!{WaitInput}"
   },
   "01DA": {
    "h": "26ac2225",
-   "t": "{Speaker}Wer bist du? Fremde{SoftNewLine}haben hier nichts verloren!{SoftNewLine}Verschwinde!{WaitInput}"
+   "t": "{Speaker}Wer bist du?{SoftNewLine}Fremde haben hier nichts{SoftNewLine}verloren! Verschwinde!{WaitInput}"
   },
   "01DB": {
    "h": "096433ef",
@@ -684,15 +684,15 @@
   },
   "01DC": {
    "h": "8f3c594b",
-   "t": "{Speaker}Im Dorf findet{SoftNewLine}gerade ein heiliges Ritual statt.{SoftNewLine}Fremde müssen draußen bleiben!{WaitInput}"
+   "t": "{Speaker}Im Dorf findet{SoftNewLine}gerade ein heiliges Ritual{SoftNewLine}statt. Fremde müssen draußen{SoftNewLine}bleiben!{WaitInput}"
   },
   "01DD": {
    "h": "43d9a1b2",
-   "t": "{Speaker}Hehehe... willkommen{SoftNewLine}in Gumi!{WaitInput}"
+   "t": "{Speaker}Hehehe...{SoftNewLine}willkommen in Gumi!{WaitInput}"
   },
   "01DE": {
    "h": "1a9be36c",
-   "t": "{Speaker}Stell dir vor, wir{SoftNewLine}wurden von so Monstern namens{SoftNewLine}Ork-Könige kontrolliert!{ContinuePrompt}"
+   "t": "{Speaker}Stell dir vor, wir{SoftNewLine}wurden von so Monstern{SoftNewLine}namens Ork-Könige{SoftNewLine}kontrolliert!{ContinuePrompt}"
   },
   "01DF": {
    "h": "9d3fcc67",
@@ -704,11 +704,11 @@
   },
   "01E1": {
    "h": "2e3122b2",
-   "t": "{Speaker}Schrein entweihen{SoftNewLine}und uns selbst beherrschen. Die{SoftNewLine}Massaner müssen wir um{SoftNewLine}Verzeihung bitten...{WaitInput}"
+   "t": "{Speaker}Schrein entweihen{SoftNewLine}und uns selbst beherrschen.{SoftNewLine}Die Massaner müssen wir um{SoftNewLine}Verzeihung bitten...{WaitInput}"
   },
   "01E2": {
    "h": "5efd8194",
-   "t": "{Speaker}Von jetzt an halten{SoftNewLine}wir mit Massan zusammen!{WaitInput}"
+   "t": "{Speaker}Von jetzt an{SoftNewLine}halten wir mit Massan{SoftNewLine}zusammen!{WaitInput}"
   },
   "01E3": {
    "h": "09986f75",
@@ -724,11 +724,11 @@
   },
   "01E6": {
    "h": "19cb9d49",
-   "t": "{Speaker}War ich vorhin{SoftNewLine}unhöflich? Tut mir leid... Aber{SoftNewLine}eins seh ich dir an: Du bist der{SoftNewLine}Typ, der später unterm{SoftNewLine}Pantoffel steht! Hihi.{WaitInput}"
+   "t": "{Speaker}War ich vorhin{SoftNewLine}unhöflich? Tut mir leid... Aber{SoftNewLine}eins seh ich dir an: Du bist{SoftNewLine}der Typ, der später unterm{SoftNewLine}Pantoffel steht! Hihi.{WaitInput}"
   },
   "01E7": {
    "h": "db626c45",
-   "t": "{Speaker}Bei Merkator soll{SoftNewLine}eine Hexe wohnen. Angeblich ist{SoftNewLine}die uralt.{WaitInput}"
+   "t": "{Speaker}Bei Merkator soll{SoftNewLine}eine Hexe wohnen. Angeblich{SoftNewLine}ist die uralt.{WaitInput}"
   },
   "01E8": {
    "h": "57e8c656",
@@ -736,7 +736,7 @@
   },
   "01E9": {
    "h": "c9cd8035",
-   "t": "{Speaker}Nach Merkator? Raus{SoftNewLine}aus dem Dorf und immer nach{SoftNewLine}Westen!{WaitInput}"
+   "t": "{Speaker}Nach Merkator?{SoftNewLine}Raus aus dem Dorf und immer{SoftNewLine}nach Westen!{WaitInput}"
   },
   "01EA": {
    "h": "6815a78d",
@@ -756,7 +756,7 @@
   },
   "01EE": {
    "h": "fcdd3de4",
-   "t": "{Speaker}Puh, bin ich fertig...{SoftNewLine}Ach ja, natürlich! Du kannst{SoftNewLine}jetzt durch.{WaitInput}"
+   "t": "{Speaker}Puh, bin ich{SoftNewLine}fertig... Ach ja, natürlich! Du{SoftNewLine}kannst jetzt durch.{WaitInput}"
   },
   "01EF": {
    "h": "f118227a",
@@ -772,7 +772,7 @@
   },
   "01F2": {
    "h": "a0a5487b",
-   "t": "{Speaker}Ich wär so gern mit{SoftNewLine}den anderen zum Schrein{SoftNewLine}gegangen...{WaitInput}"
+   "t": "{Speaker}Ich wär so gern{SoftNewLine}mit den anderen zum Schrein{SoftNewLine}gegangen...{WaitInput}"
   },
   "01F3": {
    "h": "3f900dda",
@@ -780,11 +780,11 @@
   },
   "01F4": {
    "h": "0028ef7a",
-   "t": "{Speaker}Übertreib's aber{SoftNewLine}nicht. Wenn du müde bist, kannst{SoftNewLine}du gern bei uns übernachten.{WaitInput}"
+   "t": "{Speaker}Übertreib's aber{SoftNewLine}nicht. Wenn du müde bist,{SoftNewLine}kannst du gern bei uns{SoftNewLine}übernachten.{WaitInput}"
   },
   "01F5": {
    "h": "e563fa32",
-   "t": "{Speaker}Die Lehre der Göttin{SoftNewLine}zu verbreiten ist meine{SoftNewLine}Aufgabe... aber in diesem Dorf{SoftNewLine}ist das nicht leicht.{WaitInput}"
+   "t": "{Speaker}Die Lehre der{SoftNewLine}Göttin zu verbreiten ist meine{SoftNewLine}Aufgabe... aber in diesem Dorf{SoftNewLine}ist das nicht leicht.{WaitInput}"
   },
   "01F6": {
    "h": "9d233a09",
@@ -1590,6 +1590,6 @@
   "Names": "Namen",
   "Localized": "Lokalisiert",
   "Japanese": "Japanisch",
-  "Character names: localized or Japanese": "Figurennamen: lokalisiert oder japanisch"
+  "Localized or Japanese names": "Namen: lokal oder japanisch"
  }
 }

@@ -10,7 +10,7 @@ import hashlib, json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import langbuild as lb, stringdump as sd
 
-LIMIT, FIRST = 250, 160
+LIMIT, FIRST = 236, 150   # 2026-11-13: 250 ran past the 288 px line buffer after the indent (letters wrapped to the line start); the runtime check LK_LGWRAP v1 catches the rest
 BREAK_AFTER = ("ContinuePrompt",)
 
 

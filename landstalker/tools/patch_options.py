@@ -324,7 +324,7 @@ static const char *lk_opt_help(int id) {
     case 11: return "Speed the game up on a key"; case 38: return "Hold or toggle fast forward";
     case 14: return "Save anywhere, load any time"; case 10: return "Use items on two extra buttons"; case 35: return "Equip with a key and a direction"; case 16: return "Short item texts in this menu";
     case 17: return "Buy several items at once"; case 36: return "B goes back to the menu bar"; case 15: return "Objects stay on moving platforms"; case 20: return "Gaia attack without freezing";
-    case 12: return "How much enemies hurt Nigel"; case 13: return "How much health enemies have"; case 45: return "Select: Friday says where to go"; case 37: return "Language of texts and menus"; case 61: return "Character names: localized or Japanese";
+    case 12: return "How much enemies hurt Nigel"; case 13: return "How much health enemies have"; case 45: return "Select: Friday says where to go"; case 37: return "Language of texts and menus"; case 61: return "Localized or Japanese names";
     default: return NULL; } }
 static void lk_ii_draw(int id);   /* tools/patch_iteminfo.py */
 static void lk_opt_helpbar(void) {   /* every pass of the bar loop: inside the list = the help of the selected row, else the plain bar */
