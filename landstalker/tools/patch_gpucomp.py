@@ -159,7 +159,7 @@ const uint8_t *lk_gc_clouds(int *ox8, int *oy8, int *kf) { *ox8 = lk_cs_ox >> 3;
 void lk_gc_mhud(uint8_t *o, int *y0, int *y1) { int y, x; *y0 = lk_mh_y0; *y1 = lk_mh_y1;   /* 464 x 240 RGBA: colour + alpha */
   for (y = 0; y < LK_MH_H; y++) for (x = 0; x < LK_MH_W; x++) { uint8_t *q = o + 4 * (y * LK_MH_W + x); int a = (y >= lk_mh_y0 && y <= lk_mh_y1) ? lk_mh_a[y][x] : 0; uint32_t c = (uint32_t)lk_mh_c[y][x];
     q[0] = (uint8_t)(c >> 16); q[1] = (uint8_t)(c >> 8); q[2] = (uint8_t)c; q[3] = (uint8_t)a; } }
-void lk_gc_dnmask(float *m) { int k, y; for (k = 0; k < 6; k++) for (y = 0; y < 8; y++) m[k * 8 + y] = (float)lk_dn_wm[k][y]; }
+void lk_gc_dnmask(float *m) { int k, y; for (k = 0; k < 8; k++) for (y = 0; y < 8; y++) m[k * 8 + y] = (float)lk_dn_wm[k][y]; }   /* LK_DNWIN197 v1: 8 window tiles */
 int lk_gc_learned(void) { return lk_gc_learnfr == lk_gc_capfr || lk_wr_idx != lk_gc_lidx || lk_wr_pal != lk_gc_lpal; }   /* the water learned a colour during the frame */
 int lk_gc_figs(float *f) { int j; for (j = 0; j < lk_lt_nf && j < 16; j++) { f[2 * j] = (float)lk_lt_f[j].ax; f[2 * j + 1] = (float)lk_lt_f[j].ay; } return lk_lt_nf < 16 ? lk_lt_nf : 16; }
 '''.replace("@VER@", VER)
@@ -184,7 +184,7 @@ extern void lk_gc_mhud(uint8_t *o, int *y0, int *y1); extern void lk_gc_dnmask(f
 static const char *lk_gc_fs = "#version 120\n"
 "uniform sampler2D rows; uniform sampler2D pal; uniform sampler2D win; uniform sampler2D spr; uniform sampler2D pln; uniform sampler2D til;\n"
 "uniform sampler2D wcl; uniform sampler2D wrb; uniform sampler2D rip; uniform sampler2D mhd; uniform sampler2D cst; uniform sampler2D fbt; uniform sampler2D spe; uniform float uReal; uniform float uYo;\n"
-"uniform float uMode; uniform vec4 uFig[8]; uniform float uNf; uniform vec4 uDnM[12]; uniform vec3 uCs; uniform vec3 uWr; uniform vec2 uMh;\n"
+"uniform float uMode; uniform vec4 uFig[8]; uniform float uNf; uniform vec4 uDnM[16]; uniform vec3 uCs; uniform vec3 uWr; uniform vec2 uMh;\n"
 "float by(float v) { return floor(v * 255.0 + 0.5); }\n"
 "vec3 by3(vec3 v) { return floor(v * 255.0 + 0.5); }\n"
 "float bit(float v, float n) { return mod(floor(v / exp2(n)), 2.0); }\n"
@@ -209,7 +209,7 @@ static const char *lk_gc_fs = "#version 120\n"
 "  return min(floor((o * sc + floor(sb / 2.0)) / sb), vec3(255.0)); }\n"
 "vec3 winpix(vec3 c, float pick, float t, vec2 ixy, float w) {\n"   /* lk_dn_winpix */
 "  float idx = mod(pick, 16.0), k = -1.0; if (pick >= 16.0 || (idx != 1.0 && idx != 14.0)) return c;\n"
-"  if (t == 195.0) k = 0.0; else if (t == 196.0) k = 1.0; else if (t == 199.0) k = 2.0; else if (t == 200.0) k = 3.0; else if (t == 210.0) k = 4.0; else if (t == 211.0) k = 5.0; if (k < 0.0) return c;\n"
+"  if (t == 195.0) k = 0.0; else if (t == 196.0) k = 1.0; else if (t == 199.0) k = 2.0; else if (t == 200.0) k = 3.0; else if (t == 210.0) k = 4.0; else if (t == 211.0) k = 5.0; else if (t == 197.0) k = 6.0; else if (t == 198.0) k = 7.0; if (k < 0.0) return c;\n"
 "  float n = k * 8.0 + ixy.y, nc = mod(n, 4.0); vec4 mv = uDnM[int(floor(n / 4.0))]; float mk = nc == 0.0 ? mv.x : nc == 1.0 ? mv.y : nc == 2.0 ? mv.z : mv.w;\n"
 "  if (bit(mk, ixy.x) < 0.5) return c;\n"
 "  vec3 g = idx == 1.0 ? vec3(255.0, 200.0, 100.0) : vec3(232.0, 154.0, 72.0);\n"
@@ -309,7 +309,7 @@ static int lk_gc_init(void) {
 static uint8_t lk_gc_rowsu[224 * 64]; static int lk_gc_nl;
 static void lk_gc_upload(void) {   /* the frame's data -> textures (units 0..10, 12) + uniforms; leaves the program in use */
   static uint8_t pl[304 * 304 * 4], wc[48 * 48], mhb[464 * 240 * 4]; static uint16_t sprb[224 * 448]; uint8_t *rows = lk_gc_rowsu;
-  int i, L, k, tk, wpal, widx, ox8, oy8, kf, my0, my1, nf; const uint32_t *pa, *pb; const uint8_t *cst; float fig[32], dnm[48];
+  int i, L, k, tk, wpal, widx, ox8, oy8, kf, my0, my1, nf; const uint32_t *pa, *pb; const uint8_t *cst; float fig[32], dnm[64];
   memcpy(rows, lk_gc_rows, sizeof lk_gc_rowsu); lk_gc_nl = 0; for (L = 0; L < 224; L++) if (lk_gc_rowfr[L] != lk_gc_capfr) rows[L * 64 + 4] = 0; else lk_gc_nl++;   /* lines not recorded this frame: skipped */
   pa = lk_gc_planes(); pb = lk_gc_planesb();
   for (k = 0; k < 2; k++) { const uint32_t *P = k ? pb : pa; uint8_t *o = pl + k * 152 * 304 * 4; for (i = 0; i < 152 * 304; i++) { uint32_t c = P[i]; o[4 * i] = (uint8_t)c; o[4 * i + 1] = (uint8_t)(c >> 8); o[4 * i + 2] = (c & 0x10000) ? 255 : 0; o[4 * i + 3] = (c & 0x20000u) ? (uint8_t)((c >> 18) & 15u) : 255; }   /* LK_GLUNPAINTA v1: alpha < 16 = a colour dropped in this cell */ }
@@ -327,7 +327,7 @@ static void lk_gc_upload(void) {   /* the frame's data -> textures (units 0..10,
   lk_glActiveTexture(0x84CA); lk_glBindTexture(0x0DE1, lk_gc_t[10]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 128, 128, 0x1909, 0x1401, cst);
   lk_glActiveTexture(0x84CC); lk_glBindTexture(0x0DE1, lk_gc_t[12]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x190A, 0x1401, lk_gc_spre());
   lk_glUseProgram(lk_gc_prog); for (i = 0; i < LK_GC_NT; i++) lk_glUniform1i(lk_gc_u[i], i);
-  lk_glUniform4fv(lk_gc_u[LK_GC_NT + 1], 8, fig); lk_glUniform1f(lk_gc_u[LK_GC_NT + 2], (float)nf); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 3], 12, dnm);
+  lk_glUniform4fv(lk_gc_u[LK_GC_NT + 1], 8, fig); lk_glUniform1f(lk_gc_u[LK_GC_NT + 2], (float)nf); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 3], 16, dnm);
   lk_glUniform3f(lk_gc_u[LK_GC_NT + 4], (float)ox8, (float)oy8, (float)kf); lk_glUniform3f(lk_gc_u[LK_GC_NT + 5], (float)tk, (float)wpal, (float)widx); lk_glUniform2f(lk_gc_u[LK_GC_NT + 6], (float)my0, (float)my1);
   lk_glUniform1f(lk_gc_u[LK_GC_NT + 8], 0.0f); }
 static void lk_gc_pass(void) {   /* compare harness, inside lk_gpu_present after SDL's state is saved (texture unit 0 active, unpack alignment 4) */

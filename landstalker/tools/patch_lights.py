@@ -28,7 +28,7 @@ licht3.html, 'ja, bau es als Option ein').  In rooms with flame tiles the own ma
    shadows from the height map (lk_lt_aoval: per direction the highest occluder angle within 40 units, fading with distance; void cells on the -x / -y side
    with no room cell behind them count as back walls (lk_lt_vw); wall feet darker; floors below the room's main height (lk_lt_zref) up to 18 % darker);
    rooms without flames keep the original brightness apart from that.  Test aids LANDSTALKER_LT_AO=0 (off), LANDSTALKER_LIGHTING_DBG=8 (share as grey).
-Option: Options > Graphics > Lighting Off / On (id 47, ~/.landstalker_lighting, env LANDSTALKER_LIGHTING=0|1), default Off.
+Option: Options > Graphics > Lighting Off / On (id 47, ~/.landstalker_lighting, env LANDSTALKER_LIGHTING=0|1), default On since v1.9 (LK_LTDEFON v1, user 2026-11-13; was Off).
 Test aid: LANDSTALKER_LIGHTING_DBG=1 prints the lights of every new room; =2 shows the geometry colours instead of the picture;
 LANDSTALKER_LIGHTING_SWORD=1..4 = sword glow of that sword (Magic / Ice / Thunder / Gaia) whatever is equipped.
 =3 also prints the height map rows 18..33 / columns 18..43; =6 (v7) shows the sun share as grey, tinted by the outdoor object of the hit cell; =7 the light proxies as colours; LANDSTALKER_LIGHTING_PROBE=x0,line[,x1[,frame]] prints face / z / world position / light terms of
@@ -183,7 +183,7 @@ def rep(a, b):
 
 MODULE = r'''/* ---- %s: lighting from flames with height map geometry and figure shadows (tools/patch_lights.py) ---- */
 static int lk_lt_o = -1, lk_lt_dbg = -1;
-int lk_lt_get(void) { if (lk_lt_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_LIGHTING"); char pth[512]; FILE *f; int v = 0; snprintf(pth, sizeof pth, "%%s/.landstalker_lighting", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); lk_lt_o = v ? 1 : 0; } return lk_lt_o; }
+int lk_lt_get(void) { if (lk_lt_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_LIGHTING"); char pth[512]; FILE *f; int v = 1; snprintf(pth, sizeof pth, "%%s/.landstalker_lighting", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%%d", &v) != 1) v = 1; fclose(f); } if (e && *e) v = atoi(e); lk_lt_o = v ? 1 : 0; } return lk_lt_o; }   /* LK_LTDEFON v1 (user 2026-11-13 'ist reif fuer an als Standard'): default On (was Off); without working GPU filters the light stays off anyway (lk_gl_lighton) */
 void lk_lt_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_lt_get(); lk_lt_o = v ? 1 : 0; snprintf(pth, sizeof pth, "%%s/.landstalker_lighting", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%d\n", lk_lt_o); fclose(f); } }
 #define LK_LT_BW 76                     /* blocks of 32 px over the room picture (304 x 152 tiles = 2432 x 1216 px) */
 #define LK_LT_BH 38
@@ -1624,21 +1624,21 @@ static int lk_dn_iswt(uint32 c) { int t; if (!(c & 0x10000)) return 0; t = (int)
 static int lk_dn_win;   /* v2 LIT WINDOWS (user 2026-11-06: 'beleuchtete Fenster nachts find ich gut'): window glass glows warm from dusk on.  Tileset 0 (Ryuma, Mercator, Verla houses):
    the window tiles 195 / 196 / 199 / 210 / 211 (right walls: the same, mirrored), glass = colour indexes 1 / 14 of palette line 0 (the walls of these tiles use 2 / 3 / 4 / 13; the church windows share
    the wall grey and are left out; the log huts of tileset 7 have no glass).  Strength = 1 - the sun factor (lk_dn_sunk). */
-static float lk_dn_wk; static uint8 lk_dn_wm[6][8]; static int lk_dn_wmroom = -2;   /* v3: glass mask per window tile (bit x of row y, tile-native coordinates) */
-static const int lk_dn_wt[6] = { 195, 196, 199, 200, 210, 211 };   /* tileset 0 window tiles, as left | right pairs (195 196) (199 200) (210 211); right walls draw them mirrored */
+static float lk_dn_wk; static uint8 lk_dn_wm[8][8]; static int lk_dn_wmroom = -2;   /* v3: glass mask per window tile (bit x of row y, tile-native coordinates) */
+static const int lk_dn_wt[8] = { 195, 196, 199, 200, 210, 211, 197, 198 };   /* LK_DNWIN197 v1 (user 2026-11-13 'die Fenster nachts in Mercator nicht ganz sauber beleuchtet'): (197 198) = the window TOP of the RIGHT walls (block [197 198 / 196h 195h]: not the mirrored 199 200), its glass stayed unlit */   /* tileset 0 window tiles, as left | right pairs (195 196) (199 200) (210 211); right walls draw them mirrored */
 static void lk_dn_wmask(void) {   /* v3 (user 2026-11-06: 'Ecken im Fenster, Randpixel unsauber'): glass = index 1 / 14 pixels BETWEEN two frame pixels (index 15) of the same row of the
      pair; v2 lit every 1 / 14 pixel of the tiles: the light outer frame edge beside the black frame and the sill glowed */
   int p, y, x;
   lk_dn_wmroom = lk_o_room; memset(lk_dn_wm, 0, sizeof lk_dn_wm);
-  for (p = 0; p < 3; p++) for (y = 0; y < 8; y++) { int v[16], f0 = -1, f1 = -1;
+  for (p = 0; p < 4; p++) for (y = 0; y < 8; y++) { int v[16], f0 = -1, f1 = -1;
     for (x = 0; x < 16; x++) { int t = lk_dn_wt[2 * p + (x >> 3)], b = lk_o_tiles[t * 32 + y * 4 + ((x & 7) >> 1)]; v[x] = (x & 1) ? (b & 15) : (b >> 4); if (v[x] == 15) { if (f0 < 0) f0 = x; f1 = x; } }
     for (x = f0 + 1; f0 >= 0 && x < f1; x++) if (v[x] == 1 || v[x] == 14) lk_dn_wm[2 * p + (x >> 3)][y] |= (uint8)(1u << (x & 7)); } }
 static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col) {
   long o; int ti, idx = pick & 15, r, g, b, w, k; uint32_t c = (uint32_t)col, gl;
   if ((pick >> 4) != 0 || (idx != 1 && idx != 14) || !fi->t || fi->t < lk_o_tiles || fi->t >= lk_o_tiles + sizeof lk_o_tiles) return col;
   o = (long)(fi->t - lk_o_tiles); ti = (int)(o >> 5);
-  for (k = 0; k < 6 && lk_dn_wt[k] != ti; k++) ;
-  if (k >= 6) return col;
+  for (k = 0; k < 8 && lk_dn_wt[k] != ti; k++) ;
+  if (k >= 8) return col;
   if (lk_dn_wmroom != lk_o_room) lk_dn_wmask();
   if (!(lk_dn_wm[k][fi->iy & 7] >> (fi->ix & 7) & 1)) return col;
   gl = idx == 1 ? 0xFFC864u : 0xE89A48u;   /* warm lamp light; the darker glass a deeper orange */
