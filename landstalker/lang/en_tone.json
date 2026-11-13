@@ -1,0 +1,523 @@
+{
+ "meta": {
+  "code": "en_tone",
+  "name": "English (original tone)",
+  "version": 1,
+  "names": "en",
+  "note": "the English release text with the tone, jokes and personalities of the JAPANESE original (docs/TRANSLATION.md); strings not listed here stay the original English"
+ },
+ "strings": {
+  "0004": {
+   "h": "ed0d64e5",
+   "t": "{=wally}: Miss {=kayla} is{SoftNewLine}beautiful "
+  },
+  "0005": {
+   "h": "98befeb2",
+   "t": "{=ink}: ...beautiful "
+  },
+  "0006": {
+   "h": "5ab797cf",
+   "t": "{=wally}: Really, really{SoftNewLine}beautiful "
+  },
+  "0007": {
+   "h": "98befeb2",
+   "t": "{=ink}: ...beautiful "
+  },
+  "0008": {
+   "h": "a3189c16",
+   "t": "{=wally}: She cracks her whip{SoftNewLine}so gracefully "
+  },
+  "0009": {
+   "h": "c7406965",
+   "t": "{=ink}: ...gracefully "
+  },
+  "000A": {
+   "h": "64be07d2",
+   "t": "{=wally}: Such a curvy, whippy{SoftNewLine}lady "
+  },
+  "000B": {
+   "h": "a5f81da4",
+   "t": "{=ink}: ...lady "
+  },
+  "0010": {
+   "h": "d3b49744",
+   "t": "Tried to make Friday wear{SoftNewLine}{Item}.{ContinuePrompt}"
+  },
+  "0019": {
+   "h": "34b495ae",
+   "t": "'You've conquered {Number}%{SoftNewLine}of this island!'{ContinuePrompt}{SoftNewLine}...Bunny-chan told you.{ContinuePrompt}"
+  },
+  "001A": {
+   "h": "9e60926b",
+   "t": "It smelled faintly of a young{SoftNewLine}girl...{ContinuePrompt}"
+  },
+  "001B": {
+   "h": "1306b765",
+   "t": "The contents were so wild, it{SoftNewLine}only made you dizzy.....{ContinuePrompt}"
+  },
+  "001C": {
+   "h": "c583a176",
+   "t": "Something totally baffling{SoftNewLine}happened!{ContinuePrompt}"
+  },
+  "0050": {
+   "h": "6e645a63",
+   "t": "{Speaker}Yep, that there's{SoftNewLine}{Item}. {Number} golds. Fine{SoftNewLine}stuff, ain't it?{WaitInput}"
+  },
+  "0051": {
+   "h": "a08cae4b",
+   "t": "{Speaker}{Number} golds... you{SoftNewLine}gonna buy it?{NewLine}"
+  },
+  "0052": {
+   "h": "eda39126",
+   "t": "{Speaker}Thank ya kindly!{SoftNewLine}Take good care of it, now.{WaitInput}"
+  },
+  "0053": {
+   "h": "130edac5",
+   "t": "{Speaker}Ya ain't got enough{SoftNewLine}golds, mister! Go earn some{SoftNewLine}an' come back!{WaitInput}"
+  },
+  "0054": {
+   "h": "fddb7929",
+   "t": "{Speaker}Huh? Ya ain't{SoftNewLine}buyin'? No window shoppin',{SoftNewLine}mister!{WaitInput}"
+  },
+  "0055": {
+   "h": "36320428",
+   "t": "{Speaker}Hold it right there!{SoftNewLine}Don't go walkin' off with my{SoftNewLine}goods!{WaitInput}"
+  },
+  "005B": {
+   "h": "babf82cc",
+   "t": "{Speaker}Now, now, that{SoftNewLine}won't do! That belongs to the{SoftNewLine}goddess. Put it back, please!{WaitInput}"
+  },
+  "0080": {
+   "h": "290fd398",
+   "t": "{Speaker}W-wait! D-don't{SoftNewLine}touch that book! It's full of{SoftNewLine}dangerous spells! Yes, spells!{WaitInput}"
+  },
+  "0081": {
+   "h": "68cb8b13",
+   "t": "{Speaker}For goodness' sake!{SoftNewLine}It's really not for children{Pause1s}.{Pause1s}.{Pause1s}.{ContinuePrompt}"
+  },
+  "0083": {
+   "h": "bf58e43c",
+   "t": "{Speaker}Oh dear... Very{SoftNewLine}well. O goddess, forgive me!{WaitInput}"
+  },
+  "0084": {
+   "h": "c82b5833",
+   "t": "{Speaker}W-wonderful book,{SoftNewLine}eh? Please keep it a secret{SoftNewLine}from the villagers, will you?{WaitInput}"
+  },
+  "0085": {
+   "h": "70006961",
+   "t": "{Speaker}Wise choice, my{SoftNewLine}child! You'll go far in this{SoftNewLine}world. Ahem.{WaitInput}"
+  },
+  "0086": {
+   "h": "afd6e028",
+   "t": "{Speaker}No, no! Don't take{SoftNewLine}it outside! If anyone sees it,{SoftNewLine}my reputation is ruined!{WaitInput}"
+  },
+  "0087": {
+   "h": "2ca27c51",
+   "t": "{Speaker}Howdy, stranger!{SoftNewLine}Gonna stay the night?{WaitInput}"
+  },
+  "0089": {
+   "h": "d2f86cc3",
+   "t": "{Speaker}Ya want{SoftNewLine}{Item}?{WaitInput}"
+  },
+  "008A": {
+   "h": "a59fee08",
+   "t": "{Speaker}That'll be {Number}{SoftNewLine}golds. Still want it?{NewLine}"
+  },
+  "008B": {
+   "h": "7ce05475",
+   "t": "{Speaker}Much obliged!{WaitInput}"
+  },
+  "008C": {
+   "h": "40e4a915",
+   "t": "{Speaker}Aw... ya can't{SoftNewLine}afford it. Too bad.{WaitInput}"
+  },
+  "008D": {
+   "h": "d56f4654",
+   "t": "{Speaker}Aw... ya don't like{SoftNewLine}it? Too bad.{WaitInput}"
+  },
+  "008E": {
+   "h": "b590aa25",
+   "t": "{Speaker}What're ya doin'!{SoftNewLine}Get outta here!{WaitInput}"
+  },
+  "0090": {
+   "h": "8c53e1c1",
+   "t": "{Speaker}{Number} golds, friend.{SoftNewLine}Stayin' the night?{NewLine}"
+  },
+  "0091": {
+   "h": "3b4b773d",
+   "t": "{Speaker}Your room's{SoftNewLine}upstairs. Go on up.{WaitInput}"
+  },
+  "0092": {
+   "h": "b3cd2110",
+   "t": "{Speaker}Feelin' rested? Well{SoftNewLine}then, off ya go!{WaitInput}"
+  },
+  "0093": {
+   "h": "69f9415d",
+   "t": "{Speaker}Ya ain't got enough{SoftNewLine}golds. Too bad.{WaitInput}"
+  },
+  "0097": {
+   "h": "acabfd41",
+   "t": "{Speaker}Thirty years in the{SoftNewLine}item business! If it's fresh{SoftNewLine}gear ya want, leave it to me!{WaitInput}"
+  },
+  "00AF": {
+   "h": "309d9a5a",
+   "t": "{Speaker}Mercator, town of{SoftNewLine}bargains! 30% off! 40% off!{SoftNewLine}C'mon, buy, buy, buy!{WaitInput}"
+  },
+  "00B7": {
+   "h": "8704c449",
+   "t": "{Speaker}Nigel! Looking for{SoftNewLine}something? I'll give you a good{SoftNewLine}price!{ContinuePrompt}"
+  },
+  "00C1": {
+   "h": "2e18f66e",
+   "t": "{Speaker}Welcome, welcome,{SoftNewLine}ya see! This hotel is the{SoftNewLine}place to stay, ya see!{WaitInput}"
+  },
+  "00C2": {
+   "h": "09750326",
+   "t": "{Speaker}Take care on your{SoftNewLine}trip, ya see.{WaitInput}"
+  },
+  "00C3": {
+   "h": "54015003",
+   "t": "{Speaker}Ah! You can't take{SoftNewLine}that for free, ya see!{WaitInput}"
+  },
+  "00C4": {
+   "h": "87a6169c",
+   "t": "{Speaker}If you're staying,{SoftNewLine}come to the counter, ya see.{SoftNewLine}{Number} golds a night.{WaitInput}"
+  },
+  "00C5": {
+   "h": "102eadc1",
+   "t": "{Speaker}{Number} golds to stay,{SoftNewLine}ya see. OK?{NewLine}"
+  },
+  "00C6": {
+   "h": "08da1bc7",
+   "t": "{Speaker}Thank you kindly,{SoftNewLine}ya see. Rest well, now.{WaitInput}"
+  },
+  "00C7": {
+   "h": "dd7afddc",
+   "t": "{Speaker}Oh, you're all{SoftNewLine}better, ya see! Take care out{SoftNewLine}there.{WaitInput}"
+  },
+  "00C8": {
+   "h": "09909b2b",
+   "t": "{Speaker}Not enough golds,{SoftNewLine}ya see... Maybe next time.{WaitInput}"
+  },
+  "00C9": {
+   "h": "a2c84573",
+   "t": "{Speaker}Not staying, ya{SoftNewLine}see? Come again, then...{WaitInput}"
+  },
+  "00DC": {
+   "h": "c75655db",
+   "t": "{Speaker}You're the hero{SoftNewLine}who saved our town! Special{SoftNewLine}price: just {Number} golds!{NewLine}"
+  },
+  "00E5": {
+   "h": "8f77800e",
+   "t": "{Speaker}Hey! What're you{SoftNewLine}doing?! Bring your parents{SoftNewLine}here, I wanna have a word!{WaitInput}"
+  },
+  "00E6": {
+   "h": "46059097",
+   "t": "{Speaker}You won't go on a{SoftNewLine}rampage, right? Good. Then{SoftNewLine}you're welcome here.{WaitInput}"
+  },
+  "00E7": {
+   "h": "66a321a8",
+   "t": "{Speaker}...Who's this comin'{SoftNewLine}to my Underground Shop, where{SoftNewLine}nobody ever comes?{ContinuePrompt}"
+  },
+  "00E9": {
+   "h": "e2dca1fc",
+   "t": "{Speaker}Come again. You're{SoftNewLine}the only customer I've had in{SoftNewLine}200 years!{WaitInput}"
+  },
+  "00EA": {
+   "h": "992c65b1",
+   "t": "{Speaker}Well, that won't{SoftNewLine}do! In 200 years, nobody ever{SoftNewLine}did such a thing!{WaitInput}"
+  },
+  "0148": {
+   "h": "06a4c0f9",
+   "t": "{Speaker}The treasures of{SoftNewLine}King Nole, ya say...? Hmmm...{SoftNewLine}hmm! ...Never heard of 'em!{WaitInput}"
+  },
+  "0149": {
+   "h": "0c4ed862",
+   "t": "{Speaker}They smashed the{SoftNewLine}bridge... I hope our young{SoftNewLine}hotheads don't do somethin'{SoftNewLine}crazy...{WaitInput}"
+  },
+  "014A": {
+   "h": "b721450d",
+   "t": "{Speaker}Nabu abidabu, nabu{SoftNewLine}abidabu... O gods, please{SoftNewLine}protect my Fara!.....{WaitInput}"
+  },
+  "014C": {
+   "h": "1616d4b2",
+   "t": "{Speaker}Our village's old{SoftNewLine}sayin' goes: 'The saved shall{SoftNewLine}show their true heart with a{SoftNewLine}shining stone.'{ContinuePrompt}"
+  },
+  "014D": {
+   "h": "0b2a81d7",
+   "t": "{Speaker}Nigel, this is from{SoftNewLine}all of us in Massan. Please{SoftNewLine}take this jewel!{ContinuePrompt}"
+  },
+  "014E": {
+   "h": "299867f6",
+   "t": "{Speaker}Don't ya forget{SoftNewLine}about us, now.{WaitInput}"
+  },
+  "0150": {
+   "h": "4553d2a3",
+   "t": "{Speaker}It's just a rumor,{SoftNewLine}but they say the Gumi tribe is{SoftNewLine}ruled by an evil spirit...{WaitInput}"
+  },
+  "0152": {
+   "h": "4ba8589f",
+   "t": "{Speaker}Psst, Nigel... when{SoftNewLine}I was tied up, I got so scared{SoftNewLine}I wet myself a little. Don't{SoftNewLine}tell anyone!{ContinuePrompt}"
+  },
+  "015E": {
+   "h": "ae1aa331",
+   "t": "{Speaker}Hey, big bro! Ever{SoftNewLine}met folks who're a different{SoftNewLine}color than us?{NewLine}"
+  },
+  "015F": {
+   "h": "2d2694f0",
+   "t": "{Speaker}Whoa, really?{WaitInput}"
+  },
+  "0160": {
+   "h": "1c00c1e1",
+   "t": "{Speaker}Well, watch out!{ContinuePrompt}"
+  },
+  "0161": {
+   "h": "06afb3c3",
+   "t": "{Speaker}That's the Gumi{SoftNewLine}tribe. They hate us Massan{SoftNewLine}folk.{ContinuePrompt}"
+  },
+  "0162": {
+   "h": "ebfbd0bc",
+   "t": "{Speaker}Go south an' they'll{SoftNewLine}give ya the jiggly treatment!{WaitInput}"
+  },
+  "0163": {
+   "h": "978d964b",
+   "t": "{Speaker}I may be a kid, but{SoftNewLine}my courage ain't no smaller{SoftNewLine}than a grown-up's! I'll beat{SoftNewLine}'em up!{WaitInput}"
+  },
+  "0164": {
+   "h": "d7f15293",
+   "t": "{Speaker}Waaah!... waaah!...{SoftNewLine}I was so scared...! Papa{SoftNewLine}chased 'em off to the swamp{SoftNewLine}shrine...{WaitInput}"
+  },
+  "0165": {
+   "h": "e1a43edb",
+   "t": "{Speaker}Mom sure looks{SoftNewLine}happy now, huh?{WaitInput}"
+  },
+  "0176": {
+   "h": "54d63170",
+   "t": "{Speaker}I may not look it,{SoftNewLine}but I'm an old lady... Long{SoftNewLine}ago, Massan and Gumi were the{SoftNewLine}best of friends.{ContinuePrompt}"
+  },
+  "0177": {
+   "h": "c017098c",
+   "t": "{Speaker}What started the{SoftNewLine}feud? Let's see, it was...{Pause1s}oh, I{SoftNewLine}forget!{ContinuePrompt}"
+  },
+  "0178": {
+   "h": "1c3ac41d",
+   "t": "{Speaker}Go ask the Old Man{SoftNewLine}at the Waterfall Shrine. He'll{SoftNewLine}remember!{WaitInput}"
+  },
+  "017C": {
+   "h": "ff843f2b",
+   "t": "{Speaker}Careful, though...{SoftNewLine}he's a real grump!{WaitInput}"
+  },
+  "0180": {
+   "h": "6daf4678",
+   "t": "{Speaker}Hmm, you there...{SoftNewLine}you're a treasure hunter,{SoftNewLine}aren'tcha?{ContinuePrompt}"
+  },
+  "0181": {
+   "h": "0fc62a01",
+   "t": "{Speaker}Hahaha, no need to{SoftNewLine}hide it! Years of experience, I{SoftNewLine}sensed it at once!{ContinuePrompt}"
+  },
+  "0183": {
+   "h": "6c905976",
+   "t": "{Speaker}Whoa! Really? Now,{SoftNewLine}now, lyin' is a bad habit,{SoftNewLine}young man!{WaitInput}"
+  },
+  "0184": {
+   "h": "e0db6693",
+   "t": "{Speaker}Oho, I see, I see!{SoftNewLine}You just need more training!{SoftNewLine}Hahaha!{WaitInput}"
+  },
+  "019B": {
+   "h": "6f509cfc",
+   "t": "{Speaker}Big bro! Friday!{SoftNewLine}Let's go save Fara together!{SoftNewLine}...But my legs are shakin' so{SoftNewLine}bad I can't move!{WaitInput}"
+  },
+  "01A1": {
+   "h": "ba403bce",
+   "t": "{Speaker}They're gonna{SoftNewLine}sacrifice Fara! Won't ya help?{WaitInput}"
+  },
+  "01AA": {
+   "h": "693d1afb",
+   "t": "{Speaker}Fara was kidnapped{SoftNewLine}'cause she's the prettiest girl{SoftNewLine}in the village, even if she's a{SoftNewLine}kid. Oh my!{ContinuePrompt}"
+  },
+  "01AB": {
+   "h": "3e16ea86",
+   "t": "{Speaker}That means I'm{SoftNewLine}next! What should I do!{WaitInput}"
+  },
+  "01AC": {
+   "h": "a617cb1d",
+   "t": "{Speaker}I heard about your{SoftNewLine}exploits! I know, I know. It's{SoftNewLine}all thanks to EkeEke, right?{SoftNewLine}Ufufu!{WaitInput}"
+  },
+  "01AD": {
+   "h": "77ac02e9",
+   "t": "{Speaker}Kuuun, kuiiin!{WaitInput}"
+  },
+  "01C1": {
+   "h": "c671a6b6",
+   "t": "{Speaker}Grrrraaah! I've had{SoftNewLine}it! I'm never forgivin' those{SoftNewLine}guys!{WaitInput}"
+  },
+  "01C2": {
+   "h": "d1ee7d47",
+   "t": "{Speaker}I ain't never met{SoftNewLine}anybody so brave. I really{SoftNewLine}respect ya!{WaitInput}"
+  },
+  "01C5": {
+   "h": "fd6b88fe",
+   "t": "{Speaker}Those folks from{SoftNewLine}the south village are bein'{SoftNewLine}tricked by the Orcs! Fara's in{SoftNewLine}danger...{ContinuePrompt}"
+  },
+  "01C6": {
+   "h": "ac3abc72",
+   "t": "{Speaker}Nigel, I'm askin' you{SoftNewLine}too. Please, save Fara!{WaitInput}"
+  },
+  "01D6": {
+   "h": "39014f84",
+   "t": "{Speaker}The duke has{SoftNewLine}abandoned the town. Now he'll{SoftNewLine}stop at nothing.{ContinuePrompt}"
+  },
+  "01D8": {
+   "h": "b98d0a7d",
+   "t": "{Speaker}Nigel! I beg of you!{SoftNewLine}Don't let him get the{SoftNewLine}treasures! Crush his ambition!{ContinuePrompt}"
+  },
+  "01DA": {
+   "h": "26ac2225",
+   "t": "{Speaker}Who're you?{SoftNewLine}Strangers, go on home!{WaitInput}"
+  },
+  "01DB": {
+   "h": "096433ef",
+   "t": "{Speaker}S-sorry, sorry!{WaitInput}"
+  },
+  "01DC": {
+   "h": "8f3c594b",
+   "t": "{Speaker}The village is in{SoftNewLine}the middle of a ritual.{SoftNewLine}Strangers, go on home!{WaitInput}"
+  },
+  "01DD": {
+   "h": "43d9a1b2",
+   "t": "{Speaker}Heh heh... Welcome{SoftNewLine}to the village of Gumi.{WaitInput}"
+  },
+  "01DE": {
+   "h": "1a9be36c",
+   "t": "{Speaker}They say we were{SoftNewLine}bein' controlled by somethin'{SoftNewLine}called an Orc King.{ContinuePrompt}"
+  },
+  "01DF": {
+   "h": "9d3fcc67",
+   "t": "{Speaker}Come to think of{SoftNewLine}it, I don't remember a thing.{WaitInput}"
+  },
+  "01E0": {
+   "h": "9458b483",
+   "t": "{Speaker}Oh, how utterly{SoftNewLine}shameful... Not only did{SoftNewLine}monsters defile our sacred{SoftNewLine}shrine...{ContinuePrompt}"
+  },
+  "01E1": {
+   "h": "2e3122b2",
+   "t": "{Speaker}they even{SoftNewLine}controlled us! We truly owe{SoftNewLine}Massan an apology. Please{SoftNewLine}forgive us.{WaitInput}"
+  },
+  "01E3": {
+   "h": "09986f75",
+   "t": "{Speaker}Bless ya, bless ya!{WaitInput}"
+  },
+  "01E5": {
+   "h": "9a53d9f1",
+   "t": "{Speaker}Strangers, go home!{SoftNewLine}Don't come near me!{WaitInput}"
+  },
+  "01E7": {
+   "h": "db626c45",
+   "t": "{Speaker}They say a witch{SoftNewLine}lives near Mercator. A real{SoftNewLine}old hag, I hear!{WaitInput}"
+  },
+  "01E8": {
+   "h": "57e8c656",
+   "t": "{Speaker}Go 'way!{WaitInput}"
+  },
+  "01EC": {
+   "h": "ddda6681",
+   "t": "{Speaker}Hold on a sec!{SoftNewLine}Emergency repair crew. We'll{SoftNewLine}have it open in{ContinuePrompt}"
+  },
+  "01EE": {
+   "h": "fcdd3de4",
+   "t": "{Speaker}Phew, I'm beat.{SoftNewLine}...Oh, right! Emergency work's{SoftNewLine}done. You can go through{SoftNewLine}anytime now.{WaitInput}"
+  },
+  "01F3": {
+   "h": "3f900dda",
+   "t": "{Speaker}They say you're{SoftNewLine}awful strong! Just don't{SoftNewLine}overdo it. If you're tired,{SoftNewLine}stay at my place.{ContinuePrompt}"
+  },
+  "01FC": {
+   "h": "c7cbfc32",
+   "t": "{Speaker}So young, and{SoftNewLine}already a hero!{WaitInput}"
+  },
+  "0209": {
+   "h": "560839ba",
+   "t": "{Speaker}If you find the{SoftNewLine}treasures, give me half! Ho,{SoftNewLine}ho! Just kidding!{WaitInput}"
+  },
+  "0215": {
+   "h": "35035157",
+   "t": "{Speaker}Next time you're in{SoftNewLine}town, I'll give you{SoftNewLine}extra-special service. Extra{SoftNewLine}special! Ufufu.{WaitInput}"
+  },
+  "022E": {
+   "h": "7d233335",
+   "t": "{Speaker}...fuga fuga... my{SoftNewLine}son is out right now...{WaitInput}"
+  },
+  "022F": {
+   "h": "48c7c741",
+   "t": "{Speaker}...fuga fuga...{SoftNewLine}please avenge my son!{SoftNewLine}...please...!{WaitInput}"
+  },
+  "0230": {
+   "h": "6b6c0ab0",
+   "t": "{Speaker}...fugagaga... fuga{SoftNewLine}fuga...{WaitInput}"
+  },
+  "0231": {
+   "h": "c84c9303",
+   "t": "{Speaker}...fuga fuga... I've{SoftNewLine}got a friend over in{SoftNewLine}Mercator... I wonder if she's{SoftNewLine}well...{ContinuePrompt}"
+  },
+  "0232": {
+   "h": "a1068518",
+   "t": "{Speaker}...her husband{SoftNewLine}collects jars for a hobby, I{SoftNewLine}think...fuga fuga...{WaitInput}"
+  },
+  "0234": {
+   "h": "4fd95564",
+   "t": "{Speaker}Papa always says...{SoftNewLine}..men of the sea don't cry...{SoftNewLine}....sniff!...waaah...{WaitInput}"
+  },
+  "0235": {
+   "h": "2a0a18c4",
+   "t": "{Speaker}Yay!! Papa came{SoftNewLine}back! He's so strong!{WaitInput}"
+  },
+  "023B": {
+   "h": "50839db2",
+   "t": "{Speaker}Hahahahaha! Just{SoftNewLine}kidding! What an honest boy{SoftNewLine}you are!{WaitInput}"
+  },
+  "023F": {
+   "h": "68cbeb79",
+   "t": "{Speaker}The boss is out,{SoftNewLine}see. So I'll explain it for ya,{SoftNewLine}if that's all right.{ContinuePrompt}"
+  },
+  "0242": {
+   "h": "25c6f884",
+   "t": "{Speaker}M-my...boss was{SoftNewLine}killed by the thieves... What{SoftNewLine}am I s'posed to do???{WaitInput}"
+  },
+  "0243": {
+   "h": "8e720947",
+   "t": "{Speaker}Waaah, waaah... I'm{SoftNewLine}sorry!... I'd never have done{SoftNewLine}it if I knew it was the duke's{SoftNewLine}scheme!{WaitInput}"
+  },
+  "0244": {
+   "h": "85465f0c",
+   "t": "{Speaker}Waaah..... Please{SoftNewLine}let me out already... I'm{SoftNewLine}really, really sorry... waaah!{WaitInput}"
+  },
+  "0245": {
+   "h": "9f9520ef",
+   "t": "{Speaker}I'm a new man now!{SoftNewLine}Mr. Arthur's gonna whip me{SoftNewLine}into shape, you'll see!{WaitInput}"
+  },
+  "0255": {
+   "h": "8e954fc0",
+   "t": "{Speaker}We've decided!{SoftNewLine}You're an honorary citizen of{SoftNewLine}Ryuma! Hahaha!{WaitInput}"
+  },
+  "0259": {
+   "h": "8ce46023",
+   "t": "{Speaker}Be a good boy and{SoftNewLine}go see the sights in town, kid!{WaitInput}"
+  },
+  "0271": {
+   "h": "d57ef316",
+   "t": "{Speaker}This is Mercator...{SoftNewLine}When people think money is{SoftNewLine}everything, it's kind of sad,{SoftNewLine}isn't it...{WaitInput}"
+  },
+  "0273": {
+   "h": "01ed725c",
+   "t": "{Speaker}My feet are sore{SoftNewLine}from standin' here all day{SoftNewLine}long, ya hear.{WaitInput}"
+  },
+  "0279": {
+   "h": "a5cfb917",
+   "t": "{Speaker}Wowie!! Madame{SoftNewLine}Yard's is wonderful! I want to{SoftNewLine}live in this town forever!{WaitInput}"
+  },
+  "027B": {
+   "h": "b29125eb",
+   "t": "{Speaker}Your voice is{SoftNewLine}pretty high for a guy... Hasn't{SoftNewLine}broken yet, huh?{WaitInput}"
+  }
+ }
+}
