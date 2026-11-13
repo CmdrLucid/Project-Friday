@@ -623,7 +623,7 @@ void main() {
 
 SH5 = r'''
 uniform sampler2D roomA; uniform sampler2D roomB; uniform sampler2D btab; uniform sampler2D bli; uniform sampler2D wld;
-uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec4 uLF[96]; uniform float uSoftR; uniform vec2 uBlk; uniform float uSunR; uniform float uAor; uniform float uZref; uniform float uAok; uniform float uAotop; uniform vec2 uDv[16];
+uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec4 uLF[96]; uniform float uSoftR; uniform float uProng; uniform vec2 uBlk; uniform float uSunR; uniform float uAor; uniform float uZref; uniform float uAok; uniform float uAotop; uniform vec2 uDv[16];
 uniform float uIfine; uniform float uNslab; uniform float uPineT; uniform float uBushE;   /* v9 */
 uniform sampler2D wld2; uniform sampler2D fine; uniform sampler2D prx; uniform sampler2D bex; uniform float uSside; uniform float uZtop; uniform vec3 uSd; uniform float uKey; uniform float uKbw; uniform float uKpen; uniform float uNsh; uniform vec4 uSh[9]; uniform sampler2D fine2; uniform float uZmax; uniform float uRayF;
 uniform sampler2D mdl; uniform vec4 uMo; uniform float uMdl; uniform vec4 uSmo; uniform vec2 uSmSl; uniform float uHand; uniform float uAoflt; uniform vec4 uSm; uniform vec3 uE1; uniform vec3 uE2; uniform vec4 uSm2; uniform vec3 uE12; uniform vec3 uE22;   /* + the next sun step's map (third part) */   /* + stage 2: the key light SHADOW MAP in the right half (uSm = s0, t0, texels per unit, on) */   /* LK_GLMODEL v1: model buffer (z * 8 + 32768 in r / g, octahedral normal in b / a), its room picture origin + size, on */
@@ -686,6 +686,11 @@ float termS(vec3 p, vec3 n, vec4 L, float kk, vec2 wf) {   /* lk_lt_term with it
       for (int st = 0; st < 400; st++) { float t = 2.0 + 2.0 * float(st); if (t >= e - 3.0) break;
         vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); if (own > 0.0 && q.z < L.z && length(q.xy - L.xy) < own) continue;
         float fx = floor(q.x / 4.0), fy = floor(q.y / 4.0), top = uIfine > 0.5 ? ifh(fx, fy, 1.0) : topT(floor(q.x / 16.0), floor(q.y / 16.0));
+        if (own > 0.0 && uProng < 0.999 && length(q.xy - L.xy) < own) {   /* LK_GLPRONG v1 (user 2026-11-13, room 99 'mach diesen Schatten noch weicher'): the bowl's PRONGS rise above the flame
+             (L.z = bowl top + 5) and cast hard vertical stripes up the wall; in the stand's own column above the flame they now hold back only uProng of the light, with a soft
+             clearance edge (LANDSTALKER_LT_PRONG, default 0.4; 1 = old hard prong shadow, 0 = none) */
+          bool hit = (uNslab > 0.5 && slabin(fx, fy, q.z)) || q.z < top - 0.5; float cl = hit ? 0.0 : (top > -32768.0 ? clamp(4.0 * (q.z - top) / t, 0.0, 1.0) : 1.0);
+          res = min(res, 1.0 - uProng * (1.0 - cl)); continue; }
         if (uNslab > 0.5 && slabin(fx, fy, q.z)) { res = 0.0; break; }   /* v9 */
         if (q.z < top - 0.5) { res = 0.0; break; }
         if (uIfine > 0.5) { float c2 = slabcl(fx, fy, q.z); if (c2 < 9999.0) { float r2 = 4.0 * c2 / t; if (r2 < res) res = r2; } c2 = halocl(q.x, q.y, q.z); if (c2 < 9999.0) { float r2 = 4.0 * c2 / t; if (r2 < res) res = r2; } }
@@ -1141,7 +1146,7 @@ int lk_gpu_lightok(void) { return lk_gpu_get() && lk_gpu_st >= 0 && lk_glt_st >=
    Every block the light pass uploads (CPU values) is also computed by this pass from the block's geometry (face / z, already on the GPU) and the world (lk_gl_world),
    read back and compared.  Console every 300 frames with compared blocks: 'gl5: blocks .. terms exact/off1/worse .. ao exact/off1/worse ..' + the first 16 differences. */
 extern unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint32_t *f2, float *sc); extern void lk_gl_bextra(int bx, int by, uint32_t *o); extern int lk_gl_shafts(float *o); extern void lk_gl_wkey(unsigned *hard, unsigned *soft, float *dirs, int *sunn); extern void lk_gl_blist5(int bx, int by, uint32_t *a, uint32_t *b2, int *nl);
-static int lk_g5_st; static lkGLuint lk_g5_prog, lk_g5_fbo, lk_g5_out, lk_g5_wt, lk_g5_w2, lk_g5_fn, lk_g5_px, lk_g5_bx2, lk_g5_f2, lk_g5_geo; static lkGLint lk_g5_u[56];
+static int lk_g5_st; static lkGLuint lk_g5_prog, lk_g5_fbo, lk_g5_out, lk_g5_wt, lk_g5_w2, lk_g5_fn, lk_g5_px, lk_g5_bx2, lk_g5_f2, lk_g5_geo; static lkGLint lk_g5_u[57];
 LKGL_FN(void, glCopyTexSubImage2D, (lkGLenum, lkGLint, lkGLint, lkGLint, lkGLint, lkGLint, lkGLsizei, lkGLsizei)); LKGL_FN(void, glFinish, (void));
 LKGL_FN(void, glGenBuffers, (lkGLsizei, lkGLuint *)); LKGL_FN(void, glBindBuffer, (lkGLenum, lkGLuint)); LKGL_FN(void, glBufferData, (lkGLenum, long, const void *, lkGLenum)); LKGL_FN(void *, glMapBuffer, (lkGLenum, lkGLenum)); LKGL_FN(lkGLboolean, glUnmapBuffer, (lkGLenum));
 extern void lk_gl_surfput(int bx, int by, const uint32_t *A, const uint32_t *Bp, int sg); extern void lk_gl_surfswap(void);
@@ -1157,7 +1162,7 @@ static void lk_g5_pbdrain(void) { int k = lk_g5_pbi ^ 1, j; const uint32_t *m;  
   if (m) { for (j = 0; j < lk_g5_pbn[k]; j++) lk_gl_surfput(lk_g5_pbx[k][j], lk_g5_pby[k][j], m + j * 2048, m + j * 2048 + 1024, lk_g5_pbsg[k]); lk_glUnmapBuffer(0x88EB); }
   lk_glBindBuffer(0x88EB, 0); lk_g5_pbn[k] = 0; } static unsigned lk_g5_wh;
 static const char *lk_g5_fs = "#version 120\n" @SHADER5@;
-static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", "uSside", "uIfine", "uNslab", "uPineT", "uBushE", "mdl", "uMo", "uMdl", "uSm", "uE1", "uE2", "uSm2", "uE12", "uE22", "uSmo", "uSmSl", "uHand", "uAoflt", "uLF", "uSoftR", 0 };   /* 54 uLF: LK_GLWIDE v2 */
+static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", "uSside", "uIfine", "uNslab", "uPineT", "uBushE", "mdl", "uMo", "uMdl", "uSm", "uE1", "uE2", "uSm2", "uE12", "uE22", "uSmo", "uSmSl", "uHand", "uAoflt", "uLF", "uSoftR", "uProng", 0 };   /* 54 uLF: LK_GLWIDE v2 */
 /* ---- LK_GLMODEL v1 (REAL 3D LIGHT SHAPES stage 1, 2026-11-08, user: 'echte 3D-Formen brauchen wir doch fuers Remake ohnehin' + 'GPU-Weg'): at a new room world the room's model
    triangles (lk_gl_mlist: the Blender meshes of data/light_proxies.json) are rasterized once into a MODEL BUFFER in ROOM PICTURE space: orthographic along the view ray (1, 1, 1),
    U = x - y + 1184, V = (x + y) / 2 - z, depth = -z (nearest = highest z on a ray); per texel z * 8 + 32768 (r / g, 0 = no model) and the octahedral smooth normal (b / a).
@@ -1342,7 +1347,7 @@ static int lk_g5_bind(const float *lp, const float *lc, int fresh) {   /* progra
   for (k = 0; k < 16; k++) { float a = (float)k * 0.39269908f; dv[2 * k] = cosf(a); dv[2 * k + 1] = sinf(a); }   /* the directions of lk_lt_aoval (same libm) */
   lk_glUseProgram(lk_g5_prog);
   lk_glUniform1i(lk_g5_u[2], 4); lk_glUniform1i(lk_g5_u[3], 9); lk_glUniform1i(lk_g5_u[4], 0);
-  lk_glUniform4fv(lk_g5_u[5], 96, lp); lk_glUniform4fv(lk_g5_u[6], 96, lc); if (lk_g5_lf) lk_glUniform4fv(lk_g5_u[54], 96, lk_g5_lf); { static int sr = -1; if (sr < 0) { const char *e = getenv("LANDSTALKER_LT_SOFTR"); sr = e ? atoi(e) != 0 : 0; } lk_glUniform1f(lk_g5_u[55], (float)sr); }   /* LK_GLSOFTR v1 */   /* LK_GLWIDE v2 */
+  lk_glUniform4fv(lk_g5_u[5], 96, lp); lk_glUniform4fv(lk_g5_u[6], 96, lc); if (lk_g5_lf) lk_glUniform4fv(lk_g5_u[54], 96, lk_g5_lf); { static int sr = -1; if (sr < 0) { const char *e = getenv("LANDSTALKER_LT_SOFTR"); sr = e ? atoi(e) != 0 : 0; } lk_glUniform1f(lk_g5_u[55], (float)sr); } { static float pr = -1.0f; if (pr < 0.0f) { const char *e = getenv("LANDSTALKER_LT_PRONG"); pr = e ? (float)atof(e) : 0.4f; if (pr < 0.0f || pr > 1.0f) pr = 0.4f; } lk_glUniform1f(lk_g5_u[56], pr); }   /* LK_GLPRONG v1 */   /* LK_GLSOFTR v1 */   /* LK_GLWIDE v2 */
   { extern int lk_lt_sside_get(void); lk_glUniform1f(lk_g5_u[36], lk_lt_sside_get() ? 1.0f : 0.0f); } lk_glUniform1f(lk_g5_u[37], sc[24]); lk_glUniform1f(lk_g5_u[38], sc[25]); lk_glUniform1f(lk_g5_u[39], sc[26]); lk_glUniform1f(lk_g5_u[40], sc[27]); lk_glUniform1f(lk_g5_u[8], sc[0]); lk_glUniform1f(lk_g5_u[9], sc[1]); lk_glUniform1f(lk_g5_u[10], sc[2]); lk_glUniform1f(lk_g5_u[11], sc[3]); lk_glUniform1f(lk_g5_u[12], sc[4]);
   { static float pd[7]; if (lk_gm_on && lk_gs_opt > 0 && (sc[6] != pd[0] || sc[7] != pd[1] || sc[8] != pd[2] || sc[14] != pd[3] || sc[15] != pd[4] || sc[16] != pd[5] || sc[17] != pd[6])) {
       pd[0] = sc[6]; pd[1] = sc[7]; pd[2] = sc[8]; pd[3] = sc[14]; pd[4] = sc[15]; pd[5] = sc[16]; pd[6] = sc[17]; lk_gm_render(sc, 1); lk_glUseProgram(lk_g5_prog); } }   /* stage 2: a new key / sun direction */
