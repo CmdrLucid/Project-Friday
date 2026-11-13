@@ -829,7 +829,7 @@
           22
         ],
         "file": "proxies/rail_62_gallery.obj",
-        "why": "gallery balustrade (the height map holds it as a solid wall 32 above floor / stair: box shadow with straight edges beside the stairs, user rec_20261111_2006 'die Schatten auf der Treppe passen oft nicht'): posts, a baluster every 8, handrail slabs and the stepped stringer measured on the drawn picture, remake/recipes/proxy_rail_62.py | reused in room 59: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_gallery.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py)"
       },
       {
         "op": "mesh",
@@ -841,7 +841,7 @@
         ],
         "file": "proxies/rail_62_gallery_rail.obj",
         "air": true,
-        "why": "handrail slabs of the gallery balustrade (second op: floats over the first op's stringer = slabs) | reused in room 59: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_gallery_rail.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py) ('air': the handrail floats)"
       },
       {
         "op": "mesh",
@@ -853,7 +853,7 @@
         ],
         "file": "proxies/rail_62_left.obj",
         "floor": 16,
-        "why": "left stair balustrade (the height map holds it as a solid wall 32 above floor / stair: box shadow with straight edges beside the stairs, user rec_20261111_2006 'die Schatten auf der Treppe passen oft nicht'): posts, a baluster every 8, handrail slabs and the stepped stringer measured on the drawn picture, remake/recipes/proxy_rail_62.py | reused in room 59: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_left.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py)"
       },
       {
         "op": "mesh",
@@ -865,7 +865,7 @@
         ],
         "file": "proxies/rail_62_left_rail.obj",
         "air": true,
-        "why": "handrail slabs of the left stair balustrade (second op: floats over the first op's stringer = slabs) | reused in room 59: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_left_rail.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py) ('air': the handrail floats)"
       },
       {
         "op": "mesh",
@@ -877,7 +877,7 @@
         ],
         "file": "proxies/rail_62_right.obj",
         "floor": 16,
-        "why": "right stair balustrade (the height map holds it as a solid wall 32 above floor / stair: box shadow with straight edges beside the stairs, user rec_20261111_2006 'die Schatten auf der Treppe passen oft nicht'): posts, a baluster every 8, handrail slabs and the stepped stringer measured on the drawn picture, remake/recipes/proxy_rail_62.py | reused in room 59: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_right.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py)"
       },
       {
         "op": "mesh",
@@ -889,7 +889,7 @@
         ],
         "file": "proxies/rail_62_right_rail.obj",
         "air": true,
-        "why": "handrail slabs of the right stair balustrade (second op: floats over the first op's stringer = slabs) | reused in room 59: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_right_rail.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py) ('air': the handrail floats)"
       }
     ],
     "60": [
@@ -986,7 +986,7 @@
           22
         ],
         "file": "proxies/rail_62_gallery.obj",
-        "why": "gallery balustrade (the height map holds it as a solid wall 32 above floor / stair: box shadow with straight edges beside the stairs, user rec_20261111_2006 'die Schatten auf der Treppe passen oft nicht'): posts, a baluster every 8, handrail slabs and the stepped stringer measured on the drawn picture, remake/recipes/proxy_rail_62.py | reused in room 60: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_gallery.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py)"
       },
       {
         "op": "mesh",
@@ -998,7 +998,7 @@
         ],
         "file": "proxies/rail_62_gallery_rail.obj",
         "air": true,
-        "why": "handrail slabs of the gallery balustrade (second op: floats over the first op's stringer = slabs) | reused in room 60: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_gallery_rail.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py) ('air': the handrail floats)"
       },
       {
         "op": "mesh",
@@ -1010,7 +1010,7 @@
         ],
         "file": "proxies/rail_62_left.obj",
         "floor": 16,
-        "why": "left stair balustrade (the height map holds it as a solid wall 32 above floor / stair: box shadow with straight edges beside the stairs, user rec_20261111_2006 'die Schatten auf der Treppe passen oft nicht'): posts, a baluster every 8, handrail slabs and the stepped stringer measured on the drawn picture, remake/recipes/proxy_rail_62.py | reused in room 60: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_left.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py)"
       },
       {
         "op": "mesh",
@@ -1022,7 +1022,7 @@
         ],
         "file": "proxies/rail_62_left_rail.obj",
         "air": true,
-        "why": "handrail slabs of the left stair balustrade (second op: floats over the first op's stringer = slabs) | reused in room 60: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_left_rail.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py) ('air': the handrail floats)"
       },
       {
         "op": "mesh",
@@ -1034,7 +1034,7 @@
         ],
         "file": "proxies/rail_62_right.obj",
         "floor": 16,
-        "why": "right stair balustrade (the height map holds it as a solid wall 32 above floor / stair: box shadow with straight edges beside the stairs, user rec_20261111_2006 'die Schatten auf der Treppe passen oft nicht'): posts, a baluster every 8, handrail slabs and the stepped stringer measured on the drawn picture, remake/recipes/proxy_rail_62.py | reused in room 60: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_right.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py)"
       },
       {
         "op": "mesh",
@@ -1046,7 +1046,7 @@
         ],
         "file": "proxies/rail_62_right_rail.obj",
         "air": true,
-        "why": "handrail slabs of the right stair balustrade (second op: floats over the first op's stringer = slabs) | reused in room 60: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_right_rail.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py) ('air': the handrail floats)"
       }
     ],
     "61": [
@@ -1143,7 +1143,7 @@
           22
         ],
         "file": "proxies/rail_62_gallery.obj",
-        "why": "gallery balustrade (the height map holds it as a solid wall 32 above floor / stair: box shadow with straight edges beside the stairs, user rec_20261111_2006 'die Schatten auf der Treppe passen oft nicht'): posts, a baluster every 8, handrail slabs and the stepped stringer measured on the drawn picture, remake/recipes/proxy_rail_62.py | reused in room 61: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_gallery.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py)"
       },
       {
         "op": "mesh",
@@ -1155,7 +1155,7 @@
         ],
         "file": "proxies/rail_62_gallery_rail.obj",
         "air": true,
-        "why": "handrail slabs of the gallery balustrade (second op: floats over the first op's stringer = slabs) | reused in room 61: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_gallery_rail.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py) ('air': the handrail floats)"
       },
       {
         "op": "mesh",
@@ -1167,7 +1167,7 @@
         ],
         "file": "proxies/rail_62_left.obj",
         "floor": 16,
-        "why": "left stair balustrade (the height map holds it as a solid wall 32 above floor / stair: box shadow with straight edges beside the stairs, user rec_20261111_2006 'die Schatten auf der Treppe passen oft nicht'): posts, a baluster every 8, handrail slabs and the stepped stringer measured on the drawn picture, remake/recipes/proxy_rail_62.py | reused in room 61: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_left.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py)"
       },
       {
         "op": "mesh",
@@ -1179,7 +1179,7 @@
         ],
         "file": "proxies/rail_62_left_rail.obj",
         "air": true,
-        "why": "handrail slabs of the left stair balustrade (second op: floats over the first op's stringer = slabs) | reused in room 61: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_left_rail.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py) ('air': the handrail floats)"
       },
       {
         "op": "mesh",
@@ -1191,7 +1191,7 @@
         ],
         "file": "proxies/rail_62_right.obj",
         "floor": 16,
-        "why": "right stair balustrade (the height map holds it as a solid wall 32 above floor / stair: box shadow with straight edges beside the stairs, user rec_20261111_2006 'die Schatten auf der Treppe passen oft nicht'): posts, a baluster every 8, handrail slabs and the stepped stringer measured on the drawn picture, remake/recipes/proxy_rail_62.py | reused in room 61: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_right.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py)"
       },
       {
         "op": "mesh",
@@ -1203,7 +1203,7 @@
         ],
         "file": "proxies/rail_62_right_rail.obj",
         "air": true,
-        "why": "handrail slabs of the right stair balustrade (second op: floats over the first op's stringer = slabs) | reused in room 61: same height map and blocks in the rail area as 62 (checked cell by cell; user 2026-11-12 room 59: Kasten-Schatten am Gelaender)"
+        "why": "castle hall balustrade (rail_62_right_rail.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py) ('air': the handrail floats)"
       }
     ],
     "62": [
@@ -1300,7 +1300,7 @@
           22
         ],
         "file": "proxies/rail_62_gallery.obj",
-        "why": "gallery balustrade (the height map holds it as a solid wall 32 above floor / stair: box shadow with straight edges beside the stairs, user rec_20261111_2006 'die Schatten auf der Treppe passen oft nicht'): posts, a baluster every 8, handrail slabs and the stepped stringer measured on the drawn picture, remake/recipes/proxy_rail_62.py"
+        "why": "castle hall balustrade (rail_62_gallery.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py)"
       },
       {
         "op": "mesh",
@@ -1312,7 +1312,7 @@
         ],
         "file": "proxies/rail_62_gallery_rail.obj",
         "air": true,
-        "why": "handrail slabs of the gallery balustrade (second op: floats over the first op's stringer = slabs)"
+        "why": "castle hall balustrade (rail_62_gallery_rail.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py) ('air': the handrail floats)"
       },
       {
         "op": "mesh",
@@ -1324,7 +1324,7 @@
         ],
         "file": "proxies/rail_62_left.obj",
         "floor": 16,
-        "why": "left stair balustrade (the height map holds it as a solid wall 32 above floor / stair: box shadow with straight edges beside the stairs, user rec_20261111_2006 'die Schatten auf der Treppe passen oft nicht'): posts, a baluster every 8, handrail slabs and the stepped stringer measured on the drawn picture, remake/recipes/proxy_rail_62.py"
+        "why": "castle hall balustrade (rail_62_left.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py)"
       },
       {
         "op": "mesh",
@@ -1336,7 +1336,7 @@
         ],
         "file": "proxies/rail_62_left_rail.obj",
         "air": true,
-        "why": "handrail slabs of the left stair balustrade (second op: floats over the first op's stringer = slabs)"
+        "why": "castle hall balustrade (rail_62_left_rail.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py) ('air': the handrail floats)"
       },
       {
         "op": "mesh",
@@ -1348,7 +1348,7 @@
         ],
         "file": "proxies/rail_62_right.obj",
         "floor": 16,
-        "why": "right stair balustrade (the height map holds it as a solid wall 32 above floor / stair: box shadow with straight edges beside the stairs, user rec_20261111_2006 'die Schatten auf der Treppe passen oft nicht'): posts, a baluster every 8, handrail slabs and the stepped stringer measured on the drawn picture, remake/recipes/proxy_rail_62.py"
+        "why": "castle hall balustrade (rail_62_right.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py)"
       },
       {
         "op": "mesh",
@@ -1360,7 +1360,7 @@
         ],
         "file": "proxies/rail_62_right_rail.obj",
         "air": true,
-        "why": "handrail slabs of the right stair balustrade (second op: floats over the first op's stringer = slabs)"
+        "why": "castle hall balustrade (rail_62_right_rail.obj): NEAR-FINAL model (remake/recipes/balustrade/hall62.py, user OK 2026-11-13): turned balusters, posts with ball caps, round handrail sloped on the stairs, stepped stone stringer; gallery with its 6 measured posts; positions from the 2026-11-11 measurement (proxy_rail_62.py) ('air': the handrail floats)"
       }
     ],
     "63": [
@@ -1418,7 +1418,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+        "why": "castle room table (tileset 15) on legs: NEAR-FINAL model (remake/lib/furniture.py castle_room_table_mesh: thin top 3.5 with rounded edges, straight square legs under the corners; measured on 67 / 63 at 10x; user OK 2026-11-13)"
       },
       {
         "op": "mesh",
@@ -1504,7 +1504,7 @@
         "surface": true,
         "air": true,
         "floor": 32,
-        "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+        "why": "castle room table (tileset 15) on legs: NEAR-FINAL model (remake/lib/furniture.py castle_room_table_mesh: thin top 3.5 with rounded edges, straight square legs under the corners; measured on 67 / 63 at 10x; user OK 2026-11-13)"
       },
       {
         "op": "mesh",
@@ -1587,7 +1587,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+        "why": "castle room table (tileset 15) on legs: NEAR-FINAL model (remake/lib/furniture.py castle_room_table_mesh: thin top 3.5 with rounded edges, straight square legs under the corners; measured on 67 / 63 at 10x; user OK 2026-11-13)"
       },
       {
         "op": "mesh",
@@ -1683,7 +1683,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+        "why": "castle room table (tileset 15) on legs: NEAR-FINAL model (remake/lib/furniture.py castle_room_table_mesh: thin top 3.5 with rounded edges, straight square legs under the corners; measured on 67 / 63 at 10x; user OK 2026-11-13)"
       },
       {
         "op": "mesh",
@@ -1740,7 +1740,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+        "why": "castle room table (tileset 15) on legs: NEAR-FINAL model (remake/lib/furniture.py castle_room_table_mesh: thin top 3.5 with rounded edges, straight square legs under the corners; measured on 67 / 63 at 10x; user OK 2026-11-13)"
       },
       {
         "op": "mesh",
@@ -2058,7 +2058,7 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "castle room table (tileset 15) on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+        "why": "castle room table (tileset 15) on legs: NEAR-FINAL model (remake/lib/furniture.py castle_room_table_mesh: thin top 3.5 with rounded edges, straight square legs under the corners; measured on 67 / 63 at 10x; user OK 2026-11-13)"
       },
       {
         "op": "mesh",

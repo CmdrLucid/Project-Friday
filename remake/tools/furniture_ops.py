@@ -438,6 +438,8 @@ def main():
                 txt = lathe_obj(furniture.mercator_table_mesh(16 * x0, 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["floor"], 16 * t["h"], sh["thick"]), title)
             elif t["arm"] is None and t["type"]["ts"] == 1:   # the castle table: near-final
                 txt = lathe_obj(furniture.castle_table_mesh(16 * x0, 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["floor"], 16 * t["h"], sh["thick"]), title)
+            elif t["arm"] is None and t["type"]["ts"] == 15:   # the castle room table (tileset 15): near-final (2026-11-13)
+                txt = lathe_obj(furniture.castle_room_table_mesh(16 * x0, 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["floor"], 16 * t["h"]), title)
             elif t["arm"] is not None and t["type"]["ts"] == 2:   # the L bench: near-final
                 txt = lathe_obj(furniture.l_bench_mesh(16 * (t["arm"] + 1), 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["arm"], 16 * t["floor"], 16 * t["h"], sh["thick"]), title)
             else: txt = boxes_obj(parts, title)
