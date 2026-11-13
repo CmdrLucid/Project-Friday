@@ -28,6 +28,8 @@ Why not the German ROM as a base / text source: its code differs (1169 routines)
 `ui` = layout values that depend on the word lengths of the language (defaults = the US values, so English needs none): the Yes / No prompt `YesNoPrompt $024724` prints 'Yes' at x `$50` and 'No' at x `$A0` and moves a cursor sprite between FIXED x positions `$D0` / `$120` (`g_VDPSpr02_X`); the German original build uses `$A8` for the second word and `$128` for the cursor (every position that is compared / set in `loc_247E8` / `loc_24804`). Our hook wraps or patches these constants from `ui`; the same mechanism takes later layout values (Use / Equip choice, menu column widths).
 Control codes are written as in `stringdump.py` (`{Speaker}`, `{NewLine}`, `{Item}`, `{Number}`, `{ContinuePrompt}` ...) and must appear in the translation as in the English source (checked). `h` makes sure a translation is only used when the ROM's English text is the one it was written for (US and EU are identical, other versions simply fall back to English).
 
+- Character names in translated strings ALWAYS as `{=key}` (lang/names.json; `{=key:gen}` German genitive): only placeholders follow Options > Names = Japanese (2026-11-13: en_tone.json had 87 literal names).
+
 ## 4. Build step
 `tools/langbuild.py ROM lang/de.json out.bin` (runs in `build.sh` / `firstrun.py` on the player's machine): decodes the ROM's strings, drops translations whose hash does not match, converts the text to word streams / name entries and writes a compact binary (id -> offset) plus the extended font. The game loads it at start (`LANDSTALKER_LANG` / `~/.landstalker_lang`, Options > Language row). English = the original path, bit exact (hooks do nothing).
 

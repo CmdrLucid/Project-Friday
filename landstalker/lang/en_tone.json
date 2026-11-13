@@ -125,7 +125,7 @@
   },
   "00B7": {
    "h": "8704c449",
-   "t": "{Speaker}Nigel! Looking for{SoftNewLine}something? I'll give you a good{SoftNewLine}price!{ContinuePrompt}"
+   "t": "{Speaker}{=nigel}! Looking for{SoftNewLine}something? I'll give you a good{SoftNewLine}price!{ContinuePrompt}"
   },
   "00C1": {
    "h": "2e18f66e",
@@ -205,7 +205,7 @@
   },
   "014D": {
    "h": "0b2a81d7",
-   "t": "{Speaker}Nigel, this is from{SoftNewLine}all of us in Massan. Please{SoftNewLine}take this jewel!{ContinuePrompt}"
+   "t": "{Speaker}{=nigel}, this is from{SoftNewLine}all of us in Massan. Please{SoftNewLine}take this jewel!{ContinuePrompt}"
   },
   "014E": {
    "h": "299867f6",
@@ -217,7 +217,7 @@
   },
   "0152": {
    "h": "4ba8589f",
-   "t": "{Speaker}Psst, Nigel... when{SoftNewLine}I was tied up, I got so scared{SoftNewLine}I wet myself a little. Don't{SoftNewLine}tell anyone!{ContinuePrompt}"
+   "t": "{Speaker}Psst, {=nigel}... when{SoftNewLine}I was tied up, I got so scared{SoftNewLine}I wet myself a little. Don't{SoftNewLine}tell anyone!{ContinuePrompt}"
   },
   "015E": {
    "h": "ae1aa331",
@@ -321,7 +321,7 @@
   },
   "01C6": {
    "h": "ac3abc72",
-   "t": "{Speaker}Nigel, I'm askin' you{SoftNewLine}too. Please, save Fara!{WaitInput}"
+   "t": "{Speaker}{=nigel}, I'm askin' you{SoftNewLine}too. Please, save Fara!{WaitInput}"
   },
   "01D6": {
    "h": "39014f84",
@@ -329,7 +329,7 @@
   },
   "01D8": {
    "h": "b98d0a7d",
-   "t": "{Speaker}Nigel! I beg of you!{SoftNewLine}Don't let him get the{SoftNewLine}treasures! Crush his ambition!{ContinuePrompt}"
+   "t": "{Speaker}{=nigel}! I beg of you!{SoftNewLine}Don't let him get the{SoftNewLine}treasures! Crush his ambition!{ContinuePrompt}"
   },
   "01DA": {
    "h": "26ac2225",
@@ -453,7 +453,7 @@
   },
   "0245": {
    "h": "9f9520ef",
-   "t": "{Speaker}I'm a new man now!{SoftNewLine}Mr. Arthur's gonna whip me{SoftNewLine}into shape, you'll see!{WaitInput}"
+   "t": "{Speaker}I'm a new man now!{SoftNewLine}Mr. {=arthur}'s gonna whip me{SoftNewLine}into shape, you'll see!{WaitInput}"
   },
   "0255": {
    "h": "8e954fc0",
@@ -565,7 +565,7 @@
   },
   "02F0": {
    "h": "325836a2",
-   "t": "{Speaker}How do you do? I'm{SoftNewLine}June, Fahl's official girlfriend!{SoftNewLine}Ufufu!{WaitInput}"
+   "t": "{Speaker}How do you do? I'm{SoftNewLine}June, {=fahl}'s official girlfriend!{SoftNewLine}Ufufu!{WaitInput}"
   },
   "02F1": {
    "h": "116b5b0a",
@@ -593,11 +593,11 @@
   },
   "0318": {
    "h": "6e471ad6",
-   "t": "{Speaker}I shouldn't say so{SoftNewLine}myself, but I'm Ludwig, a{SoftNewLine}composer famous even on the{SoftNewLine}continent. Hic!{ContinuePrompt}"
+   "t": "{Speaker}I shouldn't say so{SoftNewLine}myself, but I'm {=ludwig}, a{SoftNewLine}composer famous even on the{SoftNewLine}continent. Hic!{ContinuePrompt}"
   },
   "0319": {
    "h": "ecaa9ff9",
-   "t": "{Speaker}Princess Lara came{SoftNewLine}all the way from the{SoftNewLine}continent, hic, to study music{SoftNewLine}under me...{ContinuePrompt}"
+   "t": "{Speaker}Princess {=lara} came{SoftNewLine}all the way from the{SoftNewLine}continent, hic, to study music{SoftNewLine}under me...{ContinuePrompt}"
   },
   "031A": {
    "h": "10d3f247",
@@ -657,11 +657,11 @@
   },
   "03A4": {
    "h": "621e7e74",
-   "t": "{Speaker}Kiiih! Kiiih! Who's{SoftNewLine}that woman?! Barging right{SoftNewLine}into Mr. Fahl's room! Kiiih!{WaitInput}"
+   "t": "{Speaker}Kiiih! Kiiih! Who's{SoftNewLine}that woman?! Barging right{SoftNewLine}into Mr. {=fahl}'s room! Kiiih!{WaitInput}"
   },
   "03A5": {
    "h": "f2a1823e",
-   "t": "{Speaker}Hmph! Mr. Fahl and{SoftNewLine}that woman have been talking{SoftNewLine}all night long...!{ContinuePrompt}"
+   "t": "{Speaker}Hmph! Mr. {=fahl} and{SoftNewLine}that woman have been talking{SoftNewLine}all night long...!{ContinuePrompt}"
   },
   "03A6": {
    "h": "d8b89f71",
@@ -677,7 +677,7 @@
   },
   "03BD": {
    "h": "e20e249a",
-   "t": "{Speaker}So you're Nigel?{SoftNewLine}Hmph... pretty cheeky for a{SoftNewLine}brat...{WaitInput}"
+   "t": "{Speaker}So you're {=nigel}?{SoftNewLine}Hmph... pretty cheeky for a{SoftNewLine}brat...{WaitInput}"
   },
   "03C2": {
    "h": "47eeea69",
@@ -689,7 +689,7 @@
   },
   "03F1": {
    "h": "3bb0421f",
-   "t": "{Speaker}M-Mr. Nigel! I... I've{SoftNewLine}liked you ever since I first{SoftNewLine}laid eyes on you!!{ContinuePrompt}"
+   "t": "{Speaker}M-Mr. {=nigel}! I... I've{SoftNewLine}liked you ever since I first{SoftNewLine}laid eyes on you!!{ContinuePrompt}"
   },
   "03FF": {
    "h": "a138cc63",
@@ -737,7 +737,7 @@
   },
   "04A5": {
    "h": "d3b9e550",
-   "t": "{Speaker}I'll pay you back{SoftNewLine}for this someday, Nigel!!{SoftNewLine}Hmph!!{WaitInput}"
+   "t": "{Speaker}I'll pay you back{SoftNewLine}for this someday, {=nigel}!!{SoftNewLine}Hmph!!{WaitInput}"
   },
   "04A6": {
    "h": "8415372d",
@@ -757,7 +757,7 @@
   },
   "04AB": {
    "h": "c3fe4bc3",
-   "t": "{Speaker}S-sorry, Nigel! I{SoftNewLine}got blinded by greed... Losing{SoftNewLine}to you woke me right up!{ContinuePrompt}"
+   "t": "{Speaker}S-sorry, {=nigel}! I{SoftNewLine}got blinded by greed... Losing{SoftNewLine}to you woke me right up!{ContinuePrompt}"
   },
   "04AC": {
    "h": "ed57651d",
@@ -769,7 +769,7 @@
   },
   "04AE": {
    "h": "6f60f6e3",
-   "t": "{Speaker}ahead and save the{SoftNewLine}princess from that hateful{SoftNewLine}duke! Please, Sir Nigel!{WaitInput}"
+   "t": "{Speaker}ahead and save the{SoftNewLine}princess from that hateful{SoftNewLine}duke! Please, Sir {=nigel}!{WaitInput}"
   },
   "04AF": {
    "h": "0df8029f",
@@ -853,7 +853,7 @@
   },
   "04E4": {
    "h": "9eafa3fd",
-   "t": "{Speaker}Mr. Nigel! Beat{SoftNewLine}that rotten duke to a pulp{SoftNewLine}for us!{WaitInput}"
+   "t": "{Speaker}Mr. {=nigel}! Beat{SoftNewLine}that rotten duke to a pulp{SoftNewLine}for us!{WaitInput}"
   },
   "04E6": {
    "h": "667ce3e4",
@@ -949,7 +949,7 @@
   },
   "0569": {
    "h": "77566c09",
-   "t": "{Speaker}Hey, Nigel! You{SoftNewLine}have to take ALL the{SoftNewLine}treasure! Look!{WaitInput}"
+   "t": "{Speaker}Hey, {=nigel}! You{SoftNewLine}have to take ALL the{SoftNewLine}treasure! Look!{WaitInput}"
   },
   "056A": {
    "h": "16b1910f",
@@ -965,7 +965,7 @@
   },
   "056D": {
    "h": "511bff23",
-   "t": "{Speaker}Oh, Sir Nigel! We've{SoftNewLine}been waiting for you! I'm truly{SoftNewLine}grateful!{ContinuePrompt}"
+   "t": "{Speaker}Oh, Sir {=nigel}! We've{SoftNewLine}been waiting for you! I'm truly{SoftNewLine}grateful!{ContinuePrompt}"
   },
   "056E": {
    "h": "5a4c5b32",
@@ -981,7 +981,7 @@
   },
   "0572": {
    "h": "c0a0ad11",
-   "t": "{Speaker}Wally! Ink! Row to{SoftNewLine}the shore, quick!{ContinuePrompt}"
+   "t": "{Speaker}{=wally}! {=ink}! Row to{SoftNewLine}the shore, quick!{ContinuePrompt}"
   },
   "0573": {
    "h": "2e299b0e",
@@ -1009,7 +1009,7 @@
   },
   "0579": {
    "h": "b96c2212",
-   "t": "{Speaker}Nigel! That's a{SoftNewLine}picture of Gola, the god of{SoftNewLine}destruction King Nole{SoftNewLine}worshipped!{WaitInput}"
+   "t": "{Speaker}{=nigel}! That's a{SoftNewLine}picture of Gola, the god of{SoftNewLine}destruction King Nole{SoftNewLine}worshipped!{WaitInput}"
   },
   "057A": {
    "h": "23cdb34d",
@@ -1045,7 +1045,7 @@
   },
   "058F": {
    "h": "28e8757a",
-   "t": "{Speaker}Grrr, I'm so mad!{SoftNewLine}Nigel! You'd better beat them{SoftNewLine}for sure!{ContinuePrompt}"
+   "t": "{Speaker}Grrr, I'm so mad!{SoftNewLine}{=nigel}! You'd better beat them{SoftNewLine}for sure!{ContinuePrompt}"
   },
   "0591": {
    "h": "937d3a49",
@@ -1065,7 +1065,7 @@
   },
   "0598": {
    "h": "9df51e47",
-   "t": "{Speaker}Hey, Nigel! What on{SoftNewLine}earth are you thinking?!{WaitInput}"
+   "t": "{Speaker}Hey, {=nigel}! What on{SoftNewLine}earth are you thinking?!{WaitInput}"
   },
   "05A0": {
    "h": "893fd6b7",
@@ -1077,7 +1077,7 @@
   },
   "05C0": {
    "h": "e4929df7",
-   "t": "{Speaker}I-I give up! I, Fahl,{SoftNewLine}have never met a warrior like{SoftNewLine}you! Huff, huff...{ContinuePrompt}"
+   "t": "{Speaker}I-I give up! I, {=fahl},{SoftNewLine}have never met a warrior like{SoftNewLine}you! Huff, huff...{ContinuePrompt}"
   },
   "05C3": {
    "h": "d5ff8728",
@@ -1161,7 +1161,7 @@
   },
   "0602": {
    "h": "3176e7e2",
-   "t": "{Speaker}Ehehehe... sorry,{SoftNewLine}Nigel!{WaitInput}"
+   "t": "{Speaker}Ehehehe... sorry,{SoftNewLine}{=nigel}!{WaitInput}"
   },
   "0603": {
    "h": "c9bcdf4e",
@@ -1173,7 +1173,7 @@
   },
   "0605": {
    "h": "ce13639c",
-   "t": "{Speaker}Julie, sorry, but{SoftNewLine}lock that door, please...{ContinuePrompt}"
+   "t": "{Speaker}{=julie}, sorry, but{SoftNewLine}lock that door, please...{ContinuePrompt}"
   },
   "0606": {
    "h": "f28e9086",
@@ -1189,11 +1189,11 @@
   },
   "0623": {
    "h": "d2c98b56",
-   "t": "{Speaker}I invited you to{SoftNewLine}the castle as promised... so{SoftNewLine}not a word about Julie, OK?{WaitInput}"
+   "t": "{Speaker}I invited you to{SoftNewLine}the castle as promised... so{SoftNewLine}not a word about {=julie}, OK?{WaitInput}"
   },
   "0624": {
    "h": "bab0ab7a",
-   "t": "{Speaker}I invited you to{SoftNewLine}the castle as promised... so{SoftNewLine}not a word about Julie, OK?{ContinuePrompt}"
+   "t": "{Speaker}I invited you to{SoftNewLine}the castle as promised... so{SoftNewLine}not a word about {=julie}, OK?{ContinuePrompt}"
   },
   "0627": {
    "h": "0550693b",
@@ -1205,7 +1205,7 @@
   },
   "0629": {
    "h": "132793a5",
-   "t": "{Speaker}Hey, hey, Nigel!! I{SoftNewLine}can't keep up with you{SoftNewLine}anymore! She's our rival!{ContinuePrompt}"
+   "t": "{Speaker}Hey, hey, {=nigel}!! I{SoftNewLine}can't keep up with you{SoftNewLine}anymore! She's our rival!{ContinuePrompt}"
   },
   "062A": {
    "h": "19948675",
@@ -1213,7 +1213,7 @@
   },
   "062C": {
    "h": "d161556e",
-   "t": "{Speaker}Sorry, Nigel... I got{SoftNewLine}a little worked up. Ehehe...{WaitInput}"
+   "t": "{Speaker}Sorry, {=nigel}... I got{SoftNewLine}a little worked up. Ehehe...{WaitInput}"
   },
   "062D": {
    "h": "f38e4d84",
@@ -1221,7 +1221,7 @@
   },
   "062E": {
    "h": "4c215e38",
-   "t": "{Speaker}Ink! Wally! Teach{SoftNewLine}him a lesson!{WaitInput}"
+   "t": "{Speaker}{=ink}! {=wally}! Teach{SoftNewLine}him a lesson!{WaitInput}"
   },
   "062F": {
    "h": "ca9fbe39",
@@ -1233,15 +1233,15 @@
   },
   "0644": {
    "h": "b844301f",
-   "t": "{Speaker}Allow me to{SoftNewLine}introduce the pride of our{SoftNewLine}town, the living treasure,{SoftNewLine}composer Mr. Ludwig!{WaitInput}"
+   "t": "{Speaker}Allow me to{SoftNewLine}introduce the pride of our{SoftNewLine}town, the living treasure,{SoftNewLine}composer Mr. {=ludwig}!{WaitInput}"
   },
   "0647": {
    "h": "4185559e",
-   "t": "{Speaker}...It is inspired by{SoftNewLine}Princess Lara of Maple, who{SoftNewLine}studied here until recently.{ContinuePrompt}"
+   "t": "{Speaker}...It is inspired by{SoftNewLine}Princess {=lara} of Maple, who{SoftNewLine}studied here until recently.{ContinuePrompt}"
   },
   "0648": {
    "h": "97271966",
-   "t": "{Speaker}Duke, please tell{SoftNewLine}me! Why did Princess Lara{SoftNewLine}suddenly...?!!{ContinuePrompt}"
+   "t": "{Speaker}Duke, please tell{SoftNewLine}me! Why did Princess {=lara}{SoftNewLine}suddenly...?!!{ContinuePrompt}"
   },
   "0649": {
    "h": "72cd38c7",
@@ -1253,7 +1253,7 @@
   },
   "0653": {
    "h": "f2497b98",
-   "t": "{Speaker}You know... I'm{SoftNewLine}actually a tiny bit grateful{SoftNewLine}to Kayla... hehe. Because if{SoftNewLine}she{ContinuePrompt}"
+   "t": "{Speaker}You know... I'm{SoftNewLine}actually a tiny bit grateful{SoftNewLine}to {=kayla}... hehe. Because if{SoftNewLine}she{ContinuePrompt}"
   },
   "0654": {
    "h": "a97f7a80",
@@ -1265,7 +1265,7 @@
   },
   "0656": {
    "h": "0e2fc88e",
-   "t": "{Speaker}Hey? Are you{SoftNewLine}listening? Nigel?...Nigel!{ContinuePrompt}"
+   "t": "{Speaker}Hey? Are you{SoftNewLine}listening? {=nigel}?...{=nigel}!{ContinuePrompt}"
   },
   "0658": {
    "h": "c0f9d446",
@@ -1273,7 +1273,7 @@
   },
   "0659": {
    "h": "ba978012",
-   "t": "{Speaker}Then what about{SoftNewLine}me...? What do I do?! Hey! Hey!{SoftNewLine}Hey! Nigel! ...Bleeeh!{WaitInput}"
+   "t": "{Speaker}Then what about{SoftNewLine}me...? What do I do?! Hey! Hey!{SoftNewLine}Hey! {=nigel}! ...Bleeeh!{WaitInput}"
   },
   "0662": {
    "h": "5387ebf9",
@@ -1345,7 +1345,7 @@
   },
   "06A5": {
    "h": "c804f0ce",
-   "t": "{Speaker}Ohh! Sir Nigel! I{SoftNewLine}knew it! You did it, just as{SoftNewLine}this old man predicted!{ContinuePrompt}"
+   "t": "{Speaker}Ohh! Sir {=nigel}! I{SoftNewLine}knew it! You did it, just as{SoftNewLine}this old man predicted!{ContinuePrompt}"
   },
   "06A6": {
    "h": "421859c1",
@@ -1353,7 +1353,7 @@
   },
   "06A7": {
    "h": "d2bf5871",
-   "t": "{Speaker}Nigel, my boy! What{SoftNewLine}a great pleasure to see you{SoftNewLine}again!{ContinuePrompt}"
+   "t": "{Speaker}{=nigel}, my boy! What{SoftNewLine}a great pleasure to see you{SoftNewLine}again!{ContinuePrompt}"
   },
   "06A8": {
    "h": "e99fc631",
@@ -1361,7 +1361,7 @@
   },
   "06A9": {
    "h": "dcb3c8a9",
-   "t": "{Speaker}You see, Nigel, I'm{SoftNewLine}always one step ahead of my{SoftNewLine}opponents' thoughts...{ContinuePrompt}"
+   "t": "{Speaker}You see, {=nigel}, I'm{SoftNewLine}always one step ahead of my{SoftNewLine}opponents' thoughts...{ContinuePrompt}"
   },
   "06AA": {
    "h": "3f5d61cc",
@@ -1373,7 +1373,7 @@
   },
   "06AC": {
    "h": "e9f03407",
-   "t": "{Speaker}Miss Kayla{SoftNewLine}Kozwalski! Kukuku... though I{SoftNewLine}believe you've met.{WaitInput}"
+   "t": "{Speaker}Miss {=kayla}{SoftNewLine}Kozwalski! Kukuku... though I{SoftNewLine}believe you've met.{WaitInput}"
   },
   "06AD": {
    "h": "4183d5aa",
@@ -1389,7 +1389,7 @@
   },
   "06B0": {
    "h": "4a464f0a",
-   "t": "{Speaker}Wally! Ink! Give the{SoftNewLine}boy some praise!{ContinuePrompt}"
+   "t": "{Speaker}{=wally}! {=ink}! Give the{SoftNewLine}boy some praise!{ContinuePrompt}"
   },
   "06B1": {
    "h": "0783cd5a",
@@ -1425,11 +1425,11 @@
   },
   "06B9": {
    "h": "d671462c",
-   "t": "{Speaker}Soldiers! Gratefully{SoftNewLine}relieve young Nigel of his{SoftNewLine}jewels!{WaitInput}"
+   "t": "{Speaker}Soldiers! Gratefully{SoftNewLine}relieve young {=nigel} of his{SoftNewLine}jewels!{WaitInput}"
   },
   "06BB": {
    "h": "8353532d",
-   "t": "{Speaker}Well then, Nigel, my{SoftNewLine}boy! Live happily in hell with{SoftNewLine}that beauty! Kukuku...{SoftNewLine}Wahahaha!{WaitInput}"
+   "t": "{Speaker}Well then, {=nigel}, my{SoftNewLine}boy! Live happily in hell with{SoftNewLine}that beauty! Kukuku...{SoftNewLine}Wahahaha!{WaitInput}"
   },
   "06BC": {
    "h": "e590b1a2",
@@ -1465,15 +1465,15 @@
   },
   "06F2": {
    "h": "bc76c163",
-   "t": "{Speaker}Look, Nigel! This{SoftNewLine}dog is hurt! He's dying!{ContinuePrompt}"
+   "t": "{Speaker}Look, {=nigel}! This{SoftNewLine}dog is hurt! He's dying!{ContinuePrompt}"
   },
   "06F3": {
    "h": "13b858ef",
-   "t": "{Speaker}Poor thing... Hang{SoftNewLine}on! I'll cast a healing spell{SoftNewLine}right now... Nigel!{ContinuePrompt}"
+   "t": "{Speaker}Poor thing... Hang{SoftNewLine}on! I'll cast a healing spell{SoftNewLine}right now... {=nigel}!{ContinuePrompt}"
   },
   "06F5": {
    "h": "6ad26b11",
-   "t": "{Speaker}Thanks, Nigel! Now,{SoftNewLine}doggy, I'll fix you right up!{WaitInput}"
+   "t": "{Speaker}Thanks, {=nigel}! Now,{SoftNewLine}doggy, I'll fix you right up!{WaitInput}"
   },
   "06F6": {
    "h": "e05cf622",
@@ -1485,27 +1485,27 @@
   },
   "06FA": {
    "h": "62779921",
-   "t": "{Speaker}But he'll die like{SoftNewLine}this! Please, Nigel!{NewLine}"
+   "t": "{Speaker}But he'll die like{SoftNewLine}this! Please, {=nigel}!{NewLine}"
   },
   "06FB": {
    "h": "8b913ce5",
-   "t": "{Speaker}I hate you, Nigel!{SoftNewLine}Bleeeh!{WaitInput}"
+   "t": "{Speaker}I hate you, {=nigel}!{SoftNewLine}Bleeeh!{WaitInput}"
   },
   "06FE": {
    "h": "4c1b5247",
-   "t": "{Speaker}You must be Nigel,{SoftNewLine}who saved Einstein! He's my{SoftNewLine}precious partner. Thanks a{SoftNewLine}lot!{WaitInput}"
+   "t": "{Speaker}You must be {=nigel},{SoftNewLine}who saved Einstein! He's my{SoftNewLine}precious partner. Thanks a{SoftNewLine}lot!{WaitInput}"
   },
   "06FF": {
    "h": "b208c9db",
-   "t": "{Speaker}Hold it right there!{SoftNewLine}That's fishy! How do you know{SoftNewLine}Nigel's name? Are you the{SoftNewLine}duke's spy...?{ContinuePrompt}"
+   "t": "{Speaker}Hold it right there!{SoftNewLine}That's fishy! How do you know{SoftNewLine}{=nigel}'s name? Are you the{SoftNewLine}duke's spy...?{ContinuePrompt}"
   },
   "0700": {
    "h": "c53df759",
-   "t": "{Speaker}Hey, hey, I'm nobody{SoftNewLine}suspicious! Einstein told me{SoftNewLine}Nigel's name. Einstein's my dog.{ContinuePrompt}"
+   "t": "{Speaker}Hey, hey, I'm nobody{SoftNewLine}suspicious! Einstein told me{SoftNewLine}{=nigel}'s name. Einstein's my dog.{ContinuePrompt}"
   },
   "0705": {
    "h": "3f5ca44e",
-   "t": "{Speaker}Thank you, Mr.{SoftNewLine}Nigel! Woof! The Orcs caught{SoftNewLine}me in the forest and bullied{SoftNewLine}me!{ContinuePrompt}"
+   "t": "{Speaker}Thank you, Mr.{SoftNewLine}{=nigel}! Woof! The Orcs caught{SoftNewLine}me in the forest and bullied{SoftNewLine}me!{ContinuePrompt}"
   },
   "0706": {
    "h": "751dafa6",
@@ -1557,7 +1557,7 @@
   },
   "0721": {
    "h": "4f3ebb96",
-   "t": "{Speaker}Ugh, so close! So{SoftNewLine}frustrating! Hey! Can't you do{SoftNewLine}something, Nigel?!{WaitInput}"
+   "t": "{Speaker}Ugh, so close! So{SoftNewLine}frustrating! Hey! Can't you do{SoftNewLine}something, {=nigel}?!{WaitInput}"
   },
   "0723": {
    "h": "e92ff947",
@@ -1573,7 +1573,7 @@
   },
   "0727": {
    "h": "b67997db",
-   "t": "{Speaker}Woof, woof! Master!{SoftNewLine}Mr. Nigel is calling!{ContinuePrompt}"
+   "t": "{Speaker}Woof, woof! Master!{SoftNewLine}Mr. {=nigel} is calling!{ContinuePrompt}"
   },
   "0728": {
    "h": "ed7b9ae4",
@@ -1597,11 +1597,11 @@
   },
   "072D": {
    "h": "3a43cab9",
-   "t": "{Speaker}Nigel, did you hear{SoftNewLine}that? A dog barking! Einstein{SoftNewLine}came for us!{WaitInput}"
+   "t": "{Speaker}{=nigel}, did you hear{SoftNewLine}that? A dog barking! Einstein{SoftNewLine}came for us!{WaitInput}"
   },
   "072E": {
    "h": "35b4f3a4",
-   "t": "{Speaker}Woof! Mr. Nigel!{SoftNewLine}Miss Friday!{ContinuePrompt}"
+   "t": "{Speaker}Woof! Mr. {=nigel}!{SoftNewLine}Miss Friday!{ContinuePrompt}"
   },
   "072F": {
    "h": "917803ab",
@@ -1617,7 +1617,7 @@
   },
   "0732": {
    "h": "1b8d26e7",
-   "t": "{Speaker}Good for you, Mr.{SoftNewLine}Nigel! Woof, woof!{ContinuePrompt}"
+   "t": "{Speaker}Good for you, Mr.{SoftNewLine}{=nigel}! Woof, woof!{ContinuePrompt}"
   },
   "0733": {
    "h": "a19f71ca",
@@ -1637,7 +1637,7 @@
   },
   "074D": {
    "h": "41a0e1b2",
-   "t": "{Speaker}Sailing's the best!{SoftNewLine}Nigel, you OK with{SoftNewLine}seasickness? Don't you throw{SoftNewLine}up on my{ContinuePrompt}"
+   "t": "{Speaker}Sailing's the best!{SoftNewLine}{=nigel}, you OK with{SoftNewLine}seasickness? Don't you throw{SoftNewLine}up on my{ContinuePrompt}"
   },
   "0750": {
    "h": "df5078ff",
@@ -1701,7 +1701,7 @@
   },
   "076A": {
    "h": "fdedbab7",
-   "t": "{Speaker}What an awful{SoftNewLine}place! I can't tell left from{SoftNewLine}right! Wally!{ContinuePrompt}"
+   "t": "{Speaker}What an awful{SoftNewLine}place! I can't tell left from{SoftNewLine}right! {=wally}!{ContinuePrompt}"
   },
   "076B": {
    "h": "8a75a7ff",
@@ -1717,7 +1717,7 @@
   },
   "0770": {
    "h": "e12d1800",
-   "t": "{Speaker}Well, well, Nigel,{SoftNewLine}my boy! Still alive? Lucky{SoftNewLine}fellow.{ContinuePrompt}"
+   "t": "{Speaker}Well, well, {=nigel},{SoftNewLine}my boy! Still alive? Lucky{SoftNewLine}fellow.{ContinuePrompt}"
   },
   "0771": {
    "h": "1eebc7ca",
@@ -1725,7 +1725,7 @@
   },
   "0773": {
    "h": "eaec58d7",
-   "t": "{Speaker}Kukuku...{SoftNewLine}Wahahaha!! Farewell, Nigel!{SoftNewLine}Come up here if it galls you!{ContinuePrompt}"
+   "t": "{Speaker}Kukuku...{SoftNewLine}Wahahaha!! Farewell, {=nigel}!{SoftNewLine}Come up here if it galls you!{ContinuePrompt}"
   },
   "0774": {
    "h": "770fb64e",
@@ -1733,7 +1733,7 @@
   },
   "0776": {
    "h": "c390c306",
-   "t": "{Speaker}Gwahahaha! Well,{SoftNewLine}Nigel, my boy! Grand view from{SoftNewLine}down there, isn't it?{ContinuePrompt}"
+   "t": "{Speaker}Gwahahaha! Well,{SoftNewLine}{=nigel}, my boy! Grand view from{SoftNewLine}down there, isn't it?{ContinuePrompt}"
   },
   "0777": {
    "h": "479e4970",
@@ -1741,7 +1741,7 @@
   },
   "0778": {
    "h": "64feffb3",
-   "t": "{Speaker}What a hateful{SoftNewLine}man! Nigel, let's find a way to{SoftNewLine}follow him, quick!{WaitInput}"
+   "t": "{Speaker}What a hateful{SoftNewLine}man! {=nigel}, let's find a way to{SoftNewLine}follow him, quick!{WaitInput}"
   },
   "0779": {
    "h": "db915f80",
@@ -1749,7 +1749,7 @@
   },
   "077A": {
    "h": "3711865b",
-   "t": "{Speaker}Come, Nigel, my boy!{SoftNewLine}Come at me from anywhere!{SoftNewLine}Wahahaha!{WaitInput}"
+   "t": "{Speaker}Come, {=nigel}, my boy!{SoftNewLine}Come at me from anywhere!{SoftNewLine}Wahahaha!{WaitInput}"
   },
   "077B": {
    "h": "f9ba73cd",
@@ -1757,7 +1757,7 @@
   },
   "077C": {
    "h": "6f9bfd8d",
-   "t": "{Speaker}W-well done, Zak!{SoftNewLine}Hihahahaha! Serves you right,{SoftNewLine}brat!{ContinuePrompt}"
+   "t": "{Speaker}W-well done, {=zak}!{SoftNewLine}Hihahahaha! Serves you right,{SoftNewLine}brat!{ContinuePrompt}"
   },
   "077D": {
    "h": "54b2f0b3",
@@ -1789,7 +1789,7 @@
   },
   "078E": {
    "h": "d0946f33",
-   "t": "{Speaker}Wanna see the{SoftNewLine}duke? Then beat me! Here I{SoftNewLine}come, Nigel!{WaitInput}"
+   "t": "{Speaker}Wanna see the{SoftNewLine}duke? Then beat me! Here I{SoftNewLine}come, {=nigel}!{WaitInput}"
   },
   "078F": {
    "h": "928b9882",
@@ -1861,7 +1861,7 @@
   },
   "07A3": {
    "h": "aece0a0d",
-   "t": "{Speaker}Grr! N-Nigel! You're{SoftNewLine}quite the persistent one!{ContinuePrompt}"
+   "t": "{Speaker}Grr! N-{=nigel}! You're{SoftNewLine}quite the persistent one!{ContinuePrompt}"
   },
   "07A4": {
    "h": "6652d8e7",
@@ -1873,7 +1873,7 @@
   },
   "07A7": {
    "h": "f5d64d40",
-   "t": "{Speaker}Now, Princess Lara!{SoftNewLine}If you don't want your head{SoftNewLine}cut off, sing the song{ContinuePrompt}"
+   "t": "{Speaker}Now, Princess {=lara}!{SoftNewLine}If you don't want your head{SoftNewLine}cut off, sing the song{ContinuePrompt}"
   },
   "07A8": {
    "h": "86937bf3",
@@ -1937,7 +1937,7 @@
   },
   "07BA": {
    "h": "02f97105",
-   "t": "{Speaker}Besides, Nigel didn't{SoftNewLine}save you because he wanted{SoftNewLine}to!{ContinuePrompt}"
+   "t": "{Speaker}Besides, {=nigel} didn't{SoftNewLine}save you because he wanted{SoftNewLine}to!{ContinuePrompt}"
   },
   "07BB": {
    "h": "98388ac1",
@@ -1961,7 +1961,7 @@
   },
   "07C0": {
    "h": "87a830a0",
-   "t": "{Speaker}Princess! That's{SoftNewLine}enough! I won't tolerate any{SoftNewLine}more rudeness to Mr. Nigel and{SoftNewLine}Miss Friday!{ContinuePrompt}"
+   "t": "{Speaker}Princess! That's{SoftNewLine}enough! I won't tolerate any{SoftNewLine}more rudeness to Mr. {=nigel} and{SoftNewLine}Miss Friday!{ContinuePrompt}"
   },
   "07C1": {
    "h": "17e92bf8",
@@ -1977,7 +1977,7 @@
   },
   "07C4": {
    "h": "8353a00e",
-   "t": "{Speaker}There, there... Our{SoftNewLine}escort from Maple has just{SoftNewLine}arrived. Let's go home,{SoftNewLine}Princess Lara.{ContinuePrompt}"
+   "t": "{Speaker}There, there... Our{SoftNewLine}escort from Maple has just{SoftNewLine}arrived. Let's go home,{SoftNewLine}Princess {=lara}.{ContinuePrompt}"
   },
   "07C5": {
    "h": "d332133d",
@@ -1985,7 +1985,7 @@
   },
   "07C6": {
    "h": "f1d3378a",
-   "t": "{Speaker}Sir Nigel! Even if{SoftNewLine}it was by chance, thank you{SoftNewLine}so much for rescuing the{SoftNewLine}princess!{ContinuePrompt}"
+   "t": "{Speaker}Sir {=nigel}! Even if{SoftNewLine}it was by chance, thank you{SoftNewLine}so much for rescuing the{SoftNewLine}princess!{ContinuePrompt}"
   },
   "07C8": {
    "h": "8dd9bb65",
@@ -1997,7 +1997,7 @@
   },
   "07CA": {
    "h": "21dfcf66",
-   "t": "{Speaker}Anyway... no time{SoftNewLine}to stand around, Nigel! Let's{SoftNewLine}chase the duke!{WaitInput}"
+   "t": "{Speaker}Anyway... no time{SoftNewLine}to stand around, {=nigel}! Let's{SoftNewLine}chase the duke!{WaitInput}"
   },
   "07CB": {
    "h": "48335b83",
@@ -2113,7 +2113,7 @@
   },
   "07F4": {
    "h": "1bb1b012",
-   "t": "{Speaker}I'm Nigel. Now, talk{SoftNewLine}about the treasure! I saved{SoftNewLine}your life, you know."
+   "t": "{Speaker}I'm {=nigel}. Now, talk{SoftNewLine}about the treasure! I saved{SoftNewLine}your life, you know."
   },
   "07F5": {
    "h": "683e2ddc",
@@ -2137,7 +2137,7 @@
   },
   "07FB": {
    "h": "93f96d19",
-   "t": "{Speaker}...Fine, then. Nigel!{SoftNewLine}Follow me!"
+   "t": "{Speaker}...Fine, then. {=nigel}!{SoftNewLine}Follow me!"
   },
   "07FC": {
    "h": "6e1d7ac8",
@@ -2197,7 +2197,7 @@
   },
   "082C": {
    "h": "9f40e735",
-   "t": "{Speaker}Wow, what a thrill!{SoftNewLine}Where are we going, Nigel?{ContinuePrompt}"
+   "t": "{Speaker}Wow, what a thrill!{SoftNewLine}Where are we going, {=nigel}?{ContinuePrompt}"
   },
   "082D": {
    "h": "664d3263",
@@ -2213,7 +2213,7 @@
   },
   "0830": {
    "h": "69146f66",
-   "t": "{Speaker}Hey, Nigel! With{SoftNewLine}this, that dark room will be{SoftNewLine}no problem!{ContinuePrompt}"
+   "t": "{Speaker}Hey, {=nigel}! With{SoftNewLine}this, that dark room will be{SoftNewLine}no problem!{ContinuePrompt}"
   },
   "0831": {
    "h": "b1de2913",
@@ -2253,7 +2253,7 @@
   },
   "083A": {
    "h": "6fb40b85",
-   "t": "{Speaker}Oh! If it isn't{SoftNewLine}young Nigel! Hellooo! Nigel, my{SoftNewLine}boy!{ContinuePrompt}"
+   "t": "{Speaker}Oh! If it isn't{SoftNewLine}young {=nigel}! Hellooo! {=nigel}, my{SoftNewLine}boy!{ContinuePrompt}"
   },
   "083B": {
    "h": "7e0ca80f",
@@ -2301,7 +2301,7 @@
   },
   "0849": {
    "h": "b5c33401",
-   "t": "{Speaker}Hey, Nigel! My{SoftNewLine}hometown, Twinkle Village, is{SoftNewLine}just ahead! Can we stop by{SoftNewLine}for a bit?{WaitInput}"
+   "t": "{Speaker}Hey, {=nigel}! My{SoftNewLine}hometown, Twinkle Village, is{SoftNewLine}just ahead! Can we stop by{SoftNewLine}for a bit?{WaitInput}"
   },
   "084A": {
    "h": "0f161563",
@@ -2357,7 +2357,7 @@
   },
   "0858": {
    "h": "24f54269",
-   "t": "{Speaker}Phew! What a{SoftNewLine}crazy place! ...By the way, I{SoftNewLine}wonder how Kayla's trio is{SoftNewLine}doing?{WaitInput}"
+   "t": "{Speaker}Phew! What a{SoftNewLine}crazy place! ...By the way, I{SoftNewLine}wonder how {=kayla}'s trio is{SoftNewLine}doing?{WaitInput}"
   },
   "0859": {
    "h": "57624e4d",
@@ -2365,7 +2365,7 @@
   },
   "085A": {
    "h": "60a22bba",
-   "t": "{Speaker}Wally! Ink! This is{SoftNewLine}your fault! Kiiih!{WaitInput}"
+   "t": "{Speaker}{=wally}! {=ink}! This is{SoftNewLine}your fault! Kiiih!{WaitInput}"
   },
   "085B": {
    "h": "62e31877",
@@ -2381,7 +2381,7 @@
   },
   "0863": {
    "h": "82c8dc9d",
-   "t": "{Speaker}Seems you overtook{SoftNewLine}me at some point, Nigel, my{SoftNewLine}boy! But that too was part of{SoftNewLine}my plan...!{ContinuePrompt}"
+   "t": "{Speaker}Seems you overtook{SoftNewLine}me at some point, {=nigel}, my{SoftNewLine}boy! But that too was part of{SoftNewLine}my plan...!{ContinuePrompt}"
   },
   "0864": {
    "h": "21400fa1",
@@ -2389,7 +2389,7 @@
   },
   "0865": {
    "h": "b496030d",
-   "t": "{Speaker}You've been such a{SoftNewLine}big help this time, Nigel, my{SoftNewLine}boy!{ContinuePrompt}"
+   "t": "{Speaker}You've been such a{SoftNewLine}big help this time, {=nigel}, my{SoftNewLine}boy!{ContinuePrompt}"
   },
   "0866": {
    "h": "c596a132",
@@ -2397,7 +2397,7 @@
   },
   "0867": {
    "h": "315c6181",
-   "t": "{Speaker}Nigel, my boy! I'll{SoftNewLine}share a little with you for{SoftNewLine}your errands....{ContinuePrompt}"
+   "t": "{Speaker}{=nigel}, my boy! I'll{SoftNewLine}share a little with you for{SoftNewLine}your errands....{ContinuePrompt}"
   },
   "0869": {
    "h": "da86d15a",
@@ -2413,7 +2413,7 @@
   },
   "0875": {
    "h": "63ab9372",
-   "t": "{Speaker}...{Pause1s}my heart! How's{SoftNewLine}that? Happy? Nigel?{Pause1s}.{Pause1s}.{Pause1s}.Nigel?"
+   "t": "{Speaker}...{Pause1s}my heart! How's{SoftNewLine}that? Happy? {=nigel}?{Pause1s}.{Pause1s}.{Pause1s}.{=nigel}?"
   },
   "0878": {
    "h": "b8311271",
@@ -2421,7 +2421,7 @@
   },
   "0879": {
    "h": "b18cff6a",
-   "t": "{Speaker}...Wh-what...{Pause1s}what...{Pause1s}{SoftNewLine}Nigel, you meanie! I HATE you!{SoftNewLine}You'll be beaten and"
+   "t": "{Speaker}...Wh-what...{Pause1s}what...{Pause1s}{SoftNewLine}{=nigel}, you meanie! I HATE you!{SoftNewLine}You'll be beaten and"
   },
   "087A": {
    "h": "e0ca5ce3",
