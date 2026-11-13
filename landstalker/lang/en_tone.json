@@ -1,10 +1,10 @@
 {
  "meta": {
   "code": "en_tone",
-  "name": "English (original tone)",
+  "name": "English (JP)",
   "version": 1,
   "names": "en",
-  "note": "the English release text with the tone, jokes and personalities of the JAPANESE original (docs/TRANSLATION.md); strings not listed here stay the original English"
+  "note": "'English (original tone)': the English release text with the tone, jokes and personalities of the JAPANESE original (docs/TRANSLATION.md section 7); strings not listed here stay the original English. Menu name 'English (JP)' (the long name does not fit the 128 px value column)."
  },
  "strings": {
   "0004": {

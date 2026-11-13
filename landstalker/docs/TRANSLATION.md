@@ -42,3 +42,10 @@ gold = Taler; Duke = Herzog (speaker name Dux); Mercator = Merkator; Kazalt = Ka
 
 ## 6. Process
 Area by area (Massan + Gumi first): read the Japanese scene, note tone / jokes, write the German line and (later) the English 'original tone' line; build; the user plays the area in German and marks what does not fit.
+
+## 7. English (original tone) = `lang/en_tone.json`, menu name 'English (JP)' (done 2026-11-14)
+- Only strings whose tone / joke differs from the Japanese are listed (617); every other string stays the English release text (the game falls back to the ROM text). Names = the English release names (meta names 'en'), Names: Japanese works as for every language.
+- Menu name 'English (JP)': 'English (original tone)' is 198 px, the value column of the window menu has 128 px.
+- Choices made (Japanese original over the English release): Wally / Ink's echo ('...beautiful~', 'whippy lady'), trying to make Friday WEAR an item, 'Bunny-chan' tells the island progress, the priest's embarrassing secret book (not a spell book), Massan / Gumi / underground folk speak a light country dialect ('ain't', 'ya'), the toothless granny's 'fuga fuga', the Ryuma hotel keeper's 'ya see', drunk Ludwig's 'hic', Madame Yard's = a counseling room for troubled grown-ups (not a ballet studio), Kayla's 'Ohohoho' / 'sonny' / 'Kiiih', the duke's 'kukuku' and 'Nigel, my boy', Mir = the duke's YOUNGER brother, Lara calls Nigel 'big brother' / 'my knight', Fara's 'I wet myself a little' line, the gate chant 'Mar-go Rai-hi ke Mar-go', Friday's 'Bleeeh!', the treasure-sinking ending with 'I'm going! Of course I'm going!'.
+- Kept from the English release on purpose: the crypt riddles (they rhyme and carry the puzzle clues), the frog threat at the underground gate (the Japanese threatens to undress the princess), the strawberry shortcake lines (item 54 is named 'Short Cake'; the Japanese gift is a bunny-girl outfit), the farmer's song, the Orc King joke of the gardener (the Japanese line is an untranslatable pun).
+- Workflow as for German, sources in ~/Project-Friday-Test/lktest/lang/src_en/blockN.py, `tools/apply.sh N en_tone`.
