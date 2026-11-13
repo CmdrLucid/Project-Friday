@@ -8,6 +8,11 @@ HERE = os.path.dirname(os.path.abspath(__file__)); PROX = os.path.join(HERE, "..
 LEGACY = {   # box proxies made before the rule was enforced: TO BE REPLACED by real models (HANDOFF NEXT)
     "arcade_486.obj", "wall_638.obj",   # architecture (user approved 2026-11-09); boxy by nature, review when the remake builds them
 }
+RECTILINEAR = {   # objects DRAWN as straight boxes whose model is made of axis-aligned parts on purpose (grooves / boards >= 1 unit): name -> why.
+    # Only with the user's OK; rounding below 1 unit gave dotted light lines (HANDOFF 0a413).
+    "counter_island.obj": "shop counter: plank top + boards with 1 x 1 grooves + cloth 1 thick (trial 2026-11-13, user to confirm)",
+    "counter_wall.obj": "shop wall counter: as the island (trial 2026-11-13, user to confirm)",
+}
 def boxy(path):
     V = []; faces = 0
     for line in open(path):
@@ -23,7 +28,7 @@ def boxy(path):
 bad = []; legacy = []
 for p in sorted(glob.glob(os.path.join(PROX, "*.obj"))):
     n = os.path.basename(p)
-    if boxy(p): (legacy if n in LEGACY else bad).append(n)
+    if boxy(p) and n not in RECTILINEAR: (legacy if n in LEGACY else bad).append(n)
 if "-v" in sys.argv: print("check_proxies: legacy box proxies still to replace: %s" % (", ".join(legacy) or "none"))
 if bad:
     print("check_proxies: BOX-ONLY light shape(s): %s\n  -> build a real near-final 3D model (CLAUDE.md 'LIGHT SHAPES = REAL 3D MODELS', LESSONS top)" % ", ".join(bad)); sys.exit(1)

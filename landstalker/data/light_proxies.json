@@ -5114,6 +5114,32 @@
         "air": true,
         "floor": 0,
         "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          27,
+          27,
+          32
+        ],
+        "file": "proxies/counter_island.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "shop counter: light variant v2 of remake/recipes/counter (sharp plank top flush with the drawn front, boards with 1 x 1 grooves on the painted lines, cloth 1 thick; no sub-unit relief: 0a413). TRIAL 2026-11-13"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          23,
+          32,
+          23
+        ],
+        "file": "proxies/counter_wall.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "shop counter: light variant v2 of remake/recipes/counter (sharp plank top flush with the drawn front, boards with 1 x 1 grooves on the painted lines, cloth 1 thick; no sub-unit relief: 0a413). TRIAL 2026-11-13"
       }
     ],
     "696": [
@@ -5144,6 +5170,32 @@
         "air": true,
         "floor": 0,
         "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          27,
+          27,
+          32
+        ],
+        "file": "proxies/counter_island.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "shop counter: light variant v2 of remake/recipes/counter (sharp plank top flush with the drawn front, boards with 1 x 1 grooves on the painted lines, cloth 1 thick; no sub-unit relief: 0a413). TRIAL 2026-11-13"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          23,
+          32,
+          23
+        ],
+        "file": "proxies/counter_wall.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "shop counter: light variant v2 of remake/recipes/counter (sharp plank top flush with the drawn front, boards with 1 x 1 grooves on the painted lines, cloth 1 thick; no sub-unit relief: 0a413). TRIAL 2026-11-13"
       }
     ],
     "697": [
@@ -5174,6 +5226,32 @@
         "air": true,
         "floor": 0,
         "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          27,
+          27,
+          32
+        ],
+        "file": "proxies/counter_island.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "shop counter: light variant v2 of remake/recipes/counter (sharp plank top flush with the drawn front, boards with 1 x 1 grooves on the painted lines, cloth 1 thick; no sub-unit relief: 0a413). TRIAL 2026-11-13"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          23,
+          32,
+          23
+        ],
+        "file": "proxies/counter_wall.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "shop counter: light variant v2 of remake/recipes/counter (sharp plank top flush with the drawn front, boards with 1 x 1 grooves on the painted lines, cloth 1 thick; no sub-unit relief: 0a413). TRIAL 2026-11-13"
       }
     ],
     "698": [
@@ -6011,6 +6089,32 @@
         "air": true,
         "floor": 0,
         "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          27,
+          27,
+          32
+        ],
+        "file": "proxies/counter_island.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "shop counter: light variant v2 of remake/recipes/counter (sharp plank top flush with the drawn front, boards with 1 x 1 grooves on the painted lines, cloth 1 thick; no sub-unit relief: 0a413). TRIAL 2026-11-13"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          23,
+          32,
+          23
+        ],
+        "file": "proxies/counter_wall.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "shop counter: light variant v2 of remake/recipes/counter (sharp plank top flush with the drawn front, boards with 1 x 1 grooves on the painted lines, cloth 1 thick; no sub-unit relief: 0a413). TRIAL 2026-11-13"
       }
     ],
     "720": [
@@ -6041,6 +6145,32 @@
         "air": true,
         "floor": 0,
         "why": "armour knight with lance and shield (collision = a 2 step block): our parts model of remake/recipes/knight/knight.py ('air': shield, lance head and arms float = slabs), placed by remake/tools/furniture_ops.py; user 2026-11-11 'mach 2 dann' / 'ja'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          27,
+          27,
+          32
+        ],
+        "file": "proxies/counter_island.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "shop counter: light variant v2 of remake/recipes/counter (sharp plank top flush with the drawn front, boards with 1 x 1 grooves on the painted lines, cloth 1 thick; no sub-unit relief: 0a413). TRIAL 2026-11-13"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          23,
+          32,
+          23
+        ],
+        "file": "proxies/counter_wall.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "shop counter: light variant v2 of remake/recipes/counter (sharp plank top flush with the drawn front, boards with 1 x 1 grooves on the painted lines, cloth 1 thick; no sub-unit relief: 0a413). TRIAL 2026-11-13"
       }
     ],
     "721": [
