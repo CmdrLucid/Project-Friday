@@ -2741,6 +2741,454 @@
   "031F": {
    "h": "3d77d520",
    "t": "{Speaker}Vielleicht ist sie{SoftNewLine}dem Herzog mit ihren Launen{SoftNewLine}so auf die Nerven gegangen,{SoftNewLine}dass er sie heimgeschickt{SoftNewLine}hat.....{WaitInput}"
+  },
+  "0320": {
+   "h": "fb48a03c",
+   "t": "{Speaker}Dieser {=ludwig} ist{SoftNewLine}ein ziemlicher Trottel! Ich{SoftNewLine}glaub, der ist ganz verrückt{SoftNewLine}nach dieser Prinzessin...{WaitInput}"
+  },
+  "0321": {
+   "h": "e80d23dc",
+   "t": "{Speaker}{=ludwig}? Als er aus{SoftNewLine}dem Schloss zurückkam, hat er{ContinuePrompt}"
+  },
+  "0322": {
+   "h": "55a45484",
+   "t": "{Speaker}sechs Dahl-Diät{SoftNewLine}gekippt. Sechs! Dann wurde er{SoftNewLine}ausfallend, und ich musste ihn{SoftNewLine}rauswerfen.{WaitInput}"
+  },
+  "0323": {
+   "h": "5a9d0036",
+   "t": "{Speaker}Wie empfindlich{SoftNewLine}dieser {=ludwig} ist! Er war{SoftNewLine}ganz geschockt, als ich ihn{SoftNewLine}rausgeschmissen hab.{ContinuePrompt}"
+  },
+  "0324": {
+   "h": "485b2cce",
+   "t": "{Speaker}Jetzt ist er{SoftNewLine}irgendwohin verschwunden,{SoftNewLine}wahrscheinlich, um seine{SoftNewLine}Wunden zu lecken.....{ContinuePrompt}"
+  },
+  "0325": {
+   "h": "953b7320",
+   "t": "{Speaker}Diese Künstler soll{SoftNewLine}einer verstehen.{WaitInput}"
+  },
+  "0326": {
+   "h": "c9019d08",
+   "t": "{Speaker}General {=arthur}{SoftNewLine}lebt! Hurra, hurra! Freude,{SoftNewLine}Freude! Feiern wir!{WaitInput}"
+  },
+  "0327": {
+   "h": "d19a679a",
+   "t": "{Speaker}Hoch! Hoch! Auf{SoftNewLine}niedrigere Steuern! Pass auf,{SoftNewLine}Mir, ich komm dich holen!{SoftNewLine}Hicks!{WaitInput}"
+  },
+  "0328": {
+   "h": "781d6c1d",
+   "t": "{Speaker}PROST! PROST!{SoftNewLine}PROST! He, Wirt! Noch 'ne Runde{SoftNewLine}Dahl-Spezial!{ContinuePrompt}"
+  },
+  "0329": {
+   "h": "5ba75b01",
+   "t": "{Speaker}Sind die Steuern{SoftNewLine}schon gesenkt? Haben sie{SoftNewLine}diesen Mir erwischt? Egal!{SoftNewLine}Feiern wir!!{WaitInput}"
+  },
+  "032A": {
+   "h": "71820322",
+   "t": "{Speaker}Warst du schon im{SoftNewLine}Kasino? Total aufregend!{WaitInput}"
+  },
+  "032B": {
+   "h": "9df33af1",
+   "t": "{Speaker}Die Männer in{SoftNewLine}dieser Stadt scheinen sich{SoftNewLine}alle Hals über Kopf{ContinuePrompt}"
+  },
+  "032C": {
+   "h": "92ad28cc",
+   "t": "{Speaker}in irgendeine neue{SoftNewLine}Schönheit vom Festland zu{SoftNewLine}verlieben.....{WaitInput}"
+  },
+  "032D": {
+   "h": "2d7b6a7a",
+   "t": "{Speaker}Willkommen zurück,{SoftNewLine}Held!... Aber... warum so{SoftNewLine}bedrückt? Ist was passiert?{WaitInput}"
+  },
+  "032E": {
+   "h": "ae448f99",
+   "t": "{Speaker}Stimmt das Gerücht{SoftNewLine}über den Herzog? Dann muss er{SoftNewLine}ja wirklich ein ganz übler{SoftNewLine}Kerl sein!{ContinuePrompt}"
+  },
+  "032F": {
+   "h": "ed71e0ec",
+   "t": "{Speaker}Dabei hat er immer{SoftNewLine}gelächelt und so getan, als{SoftNewLine}ginge es ihm nur um das Wohl{SoftNewLine}der Stadt.{WaitInput}"
+  },
+  "0330": {
+   "h": "87f9f47e",
+   "t": "{Speaker}Ganz Merkator{SoftNewLine}redet nur noch von General{SoftNewLine}{=arthur} und seinem neuen{SoftNewLine}Kasino.{WaitInput}"
+  },
+  "0331": {
+   "h": "64154f6d",
+   "t": "{Speaker}Hör auf mich,{SoftNewLine}Kleiner! Verlier niemals,{SoftNewLine}niemals, NIEMALS dein Herz an{SoftNewLine}ein Mädchen!!{WaitInput}"
+  },
+  "0332": {
+   "h": "5f61fd27",
+   "t": "{Speaker}Ach, Prinzessin......{SoftNewLine}Zzzzzzzz.....{WaitInput}"
+  },
+  "0333": {
+   "h": "71f477f5",
+   "t": "{Speaker}Mir... ist so...{SoftNewLine}schlecht......{WaitInput}"
+  },
+  "0334": {
+   "h": "88ce2dda",
+   "t": "{Speaker}Mir ist nicht nur{SoftNewLine}schlecht, ich glaub, ich hab{SoftNewLine}mir auch noch den Knöchel{SoftNewLine}verstaucht.....!{WaitInput}"
+  },
+  "0335": {
+   "h": "1f3aabb3",
+   "t": "{Speaker}Zzzzz... {=julie}.....{WaitInput}"
+  },
+  "0336": {
+   "h": "a4a87edb",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}stammt ursprünglich vom{SoftNewLine}Festland, deshalb lädt er oft{SoftNewLine}Gäste aus seiner{ContinuePrompt}"
+  },
+  "0337": {
+   "h": "69eb752f",
+   "t": "{Speaker}Heimat ein. Erst{SoftNewLine}kürzlich kam ein adliges{SoftNewLine}Mädchen namens {=lara},{ContinuePrompt}"
+  },
+  "0338": {
+   "h": "b01dfb07",
+   "t": "{Speaker}um Klavier zu{SoftNewLine}lernen. Ich hab sie in letzter{SoftNewLine}Zeit nicht mehr gesehen,{SoftNewLine}vielleicht ist sie{SoftNewLine}heimgefahren.....{WaitInput}"
+  },
+  "0339": {
+   "h": "57713497",
+   "t": "{Speaker}Ich hab von dir{SoftNewLine}gehört! Du bist einer von den{SoftNewLine}Söldnern, die losziehen, um{ContinuePrompt}"
+  },
+  "033A": {
+   "h": "3449b989",
+   "t": "{Speaker}Mir zu besiegen und{SoftNewLine}den Frieden{SoftNewLine}wiederherzustellen! Wir zählen{SoftNewLine}auf dich! Mach den Zauberer{SoftNewLine}fertig!{WaitInput}"
+  },
+  "033B": {
+   "h": "b6952257",
+   "t": "{Speaker}He, Held! Wie lief{SoftNewLine}der Kampf gegen Mir? Geht's{SoftNewLine}dir gut?{WaitInput}"
+  },
+  "033C": {
+   "h": "7e79f523",
+   "t": "{Speaker}Wenn das{SoftNewLine}schreckliche Gerücht über den{SoftNewLine}Herzog stimmt, dann war es{SoftNewLine}bestimmt gelogen, dass Mir{ContinuePrompt}"
+  },
+  "033D": {
+   "h": "a90941df",
+   "t": "{Speaker}an den hohen{SoftNewLine}Steuern schuld ist.{WaitInput}"
+  },
+  "033E": {
+   "h": "585fea71",
+   "t": "{Speaker}Unsere Familie{SoftNewLine}dient dem Schloss seit{SoftNewLine}Generationen. Mein Sohn ist{SoftNewLine}jetzt Koch, und{ContinuePrompt}"
+  },
+  "033F": {
+   "h": "e9deafcd",
+   "t": "{Speaker}meine Tochter ist{SoftNewLine}Zofe. Sie dienen Herzog{SoftNewLine}Merkator. Da bist du neidisch,{SoftNewLine}was?{WaitInput}"
+  },
+  "0340": {
+   "h": "461fd5b4",
+   "t": "{Speaker}Mein Sohn hat mir{SoftNewLine}erzählt, dass du zum Turm{SoftNewLine}gehst. Man sagt, der Turm{ContinuePrompt}"
+  },
+  "0341": {
+   "h": "782f14ae",
+   "t": "{Speaker}steckt voller{SoftNewLine}Fallen. Sei bloß vorsichtig!....{WaitInput}"
+  },
+  "0342": {
+   "h": "38011981",
+   "t": "{Speaker}Oh, {=nigel}! Du bist{SoftNewLine}aus dem Turm zurück!{SoftNewLine}Erstaunlich!{WaitInput}"
+  },
+  "0343": {
+   "h": "7672524e",
+   "t": "{Speaker}So ein Dummkopf!{ContinuePrompt}"
+  },
+  "0344": {
+   "h": "d9fd03a8",
+   "t": "{Speaker}Weißt du{SoftNewLine}überhaupt, wie wichtig{SoftNewLine}{Item} ist?{ContinuePrompt}"
+  },
+  "0345": {
+   "h": "728d0628",
+   "t": "{Speaker}Geh ins Grüne{SoftNewLine}Labyrinth und hol{SoftNewLine}{Item} gefälligst{SoftNewLine}selbst!{WaitInput}"
+  },
+  "0346": {
+   "h": "b112ded9",
+   "t": "{Speaker}Endlich sieht er's{SoftNewLine}ein! Sechs Stunden haben wir{SoftNewLine}ihm ins Gewissen geredet!{WaitInput}"
+  },
+  "0347": {
+   "h": "790c5a5d",
+   "t": "{Speaker}Hast du schon von{SoftNewLine}General {=arthur} gehört?{NewLine}"
+  },
+  "0348": {
+   "h": "79595905",
+   "t": "{Speaker}Er befehligt jetzt{SoftNewLine}die Schlosswache. Er macht{SoftNewLine}sich immer noch Sorgen wegen{SoftNewLine}der Pläne des Herzogs.{ContinuePrompt}"
+  },
+  "0349": {
+   "h": "f6a49444",
+   "t": "{Speaker}Er war schwer{SoftNewLine}verletzt... Jetzt steht er{SoftNewLine}unter strenger ärztlicher{SoftNewLine}Aufsicht.{ContinuePrompt}"
+  },
+  "034A": {
+   "h": "f9d0fef5",
+   "t": "{Speaker}Ich finde, General{SoftNewLine}{=arthur} hat es verdient, der{SoftNewLine}nächste Herrscher von{SoftNewLine}Merkator zu werden.{WaitInput}"
+  },
+  "034B": {
+   "h": "4a4ae5ae",
+   "t": "{Speaker}Dieser {=arthur} ist{SoftNewLine}ein fähiger Staatsmann! Er{SoftNewLine}hat ein Kasino eröffnet, damit{SoftNewLine}die Steuern sinken!{WaitInput}"
+  },
+  "034C": {
+   "h": "f97679bd",
+   "t": "{Speaker}Hehehe... geh{SoftNewLine}lieber.... das hier ist nichts{SoftNewLine}für Touristen..... hehehe...{WaitInput}"
+  },
+  "034D": {
+   "h": "7ccbb12f",
+   "t": "{Speaker}Ah, willkommen... im{SoftNewLine}Champion-Motel von Merkator!{SoftNewLine}Helden checken ein, aber sie{ContinuePrompt}"
+  },
+  "034E": {
+   "h": "55ded2ab",
+   "t": "{Speaker}checken nie wieder{SoftNewLine}aus!.....{ContinuePrompt}"
+  },
+  "034F": {
+   "h": "f442980d",
+   "t": "{Speaker}Na, hehe... da ist{SoftNewLine}sie, die unterirdische Gruft.{SoftNewLine}Worauf wartest du noch?...{WaitInput}"
+  },
+  "0350": {
+   "h": "430a69c9",
+   "t": "{Speaker}In dieser Welt wie{SoftNewLine}in der unteren... hehehe...{SoftNewLine}musst du deinen Kopf benutzen.{WaitInput}"
+  },
+  "0351": {
+   "h": "78eed745",
+   "t": "{Speaker}Hehe, das war doch{SoftNewLine}eine gute Übung für dich,{SoftNewLine}oder?... hehe...{WaitInput}"
+  },
+  "0352": {
+   "h": "31116aee",
+   "t": "{Speaker}Stell dich vor die{SoftNewLine}Theke, spring und wirf{ContinuePrompt}"
+  },
+  "0353": {
+   "h": "c6a1199e",
+   "t": "{Speaker}Das ist vielleicht{SoftNewLine}ein bisschen schwierig, aber{SoftNewLine}du kriegst den Dreh schon{SoftNewLine}raus!{WaitInput}"
+  },
+  "0354": {
+   "h": "7455368e",
+   "t": "{Speaker}Uh-ho, uh-ho, dann{SoftNewLine}wächst es RAUS! Bald schon{SoftNewLine}erntest ba-dee-da-duu.....{WaitInput}"
+  },
+  "0355": {
+   "h": "9be8df48",
+   "t": "{Speaker}Mama singt so{SoftNewLine}gern!{WaitInput}"
+  },
+  "0356": {
+   "h": "0308783a",
+   "t": "{Speaker}Hisst die Segel,{SoftNewLine}hey, juchhe, Wellen brechen,{SoftNewLine}hey, juchhe! Hey-hey! Ich bring{SoftNewLine}Mama{ContinuePrompt}"
+  },
+  "0357": {
+   "h": "4668f39f",
+   "t": "{Speaker}ein neues Lied bei!{WaitInput}"
+  },
+  "0358": {
+   "h": "23915645",
+   "t": "{Speaker}Ich weiß nicht, wer{SoftNewLine}ihm das beibringt, aber mein{SoftNewLine}Sohn singt so komische{SoftNewLine}Lieder...{WaitInput}"
+  },
+  "0359": {
+   "h": "5fe5c1a6",
+   "t": "{Speaker}Uh-ho, uh-ho, dann{SoftNewLine}wächst es RAUS! Bald schon{SoftNewLine}erntest ba-dee-da-duu..... Das{SoftNewLine}mag ich!{WaitInput}"
+  },
+  "035A": {
+   "h": "da363b92",
+   "t": "{Speaker}Ich bin Wache im{SoftNewLine}Schloss, aber heute hab ich{SoftNewLine}frei! Ich geh in Grihnpies{SoftNewLine}Spielhaus!{WaitInput}"
+  },
+  "035B": {
+   "h": "a3cecc1e",
+   "t": "{Speaker}Es heißt, die{SoftNewLine}Monster unter der Erde sind{SoftNewLine}viel gerissener als wir!{WaitInput}"
+  },
+  "035C": {
+   "h": "7d1ba2f6",
+   "t": "{Speaker}Wir wünschen dir{SoftNewLine}viel Glück! Und wo du schon{SoftNewLine}dabei bist...... kannst du die{SoftNewLine}Steuern senken lassen?{WaitInput}"
+  },
+  "035D": {
+   "h": "46d4c6c3",
+   "t": "{Speaker}In jungen Jahren{SoftNewLine}hab ich im Schloss gearbeitet.{ContinuePrompt}"
+  },
+  "035E": {
+   "h": "8024c6a9",
+   "t": "{Speaker}Ins Schloss werden{SoftNewLine}wir so gut wie nie eingeladen.{SoftNewLine}Aber ich trage die Erinnerung{ContinuePrompt}"
+  },
+  "035F": {
+   "h": "354ad480",
+   "t": "{Speaker}an seine Pracht{SoftNewLine}immer bei mir...{WaitInput}"
+  },
+  "0360": {
+   "h": "71468baa",
+   "t": "{Speaker}Das Schiff vom{SoftNewLine}Festland ist angekommen! Auf{SoftNewLine}zum Monatsmarkt!{WaitInput}"
+  },
+  "0361": {
+   "h": "8223d06b",
+   "t": "{Speaker}Weißt du, das{SoftNewLine}Gerücht muss stimmen. Als{SoftNewLine}mein Mann in Ryuma war, hat{SoftNewLine}er einen jungen Mann gesehen,{ContinuePrompt}"
+  },
+  "0362": {
+   "h": "06b1c784",
+   "t": "{Speaker}der {Item}{SoftNewLine}weggeworfen hat. Es war der{SoftNewLine}Lehrling des{SoftNewLine}Leuchtturmwärters. Er hat ihn{ContinuePrompt}"
+  },
+  "0363": {
+   "h": "df2c3ae2",
+   "t": "{Speaker}ausgefragt und{SoftNewLine}erfahren, dass Herzog{SoftNewLine}Merkator ihn angestiftet hat,{SoftNewLine}den Sonnenstein zu stehlen!{ContinuePrompt}"
+  },
+  "0364": {
+   "h": "c0570448",
+   "t": "{Speaker}Als er das hörte,{SoftNewLine}kam mein Mann schnell zurück,{SoftNewLine}aber der Herzog war schon{SoftNewLine}weg...{WaitInput}"
+  },
+  "0365": {
+   "h": "da57847a",
+   "t": "{Speaker}Oben läuft immer{SoftNewLine}noch das Verhör.{WaitInput}"
+  },
+  "0366": {
+   "h": "3521b706",
+   "t": "{Speaker}Die sind immer noch{SoftNewLine}oben und reden dem jungen{SoftNewLine}Mann ins Gewissen. Wir müssen{SoftNewLine}uns{ContinuePrompt}"
+  },
+  "0367": {
+   "h": "c5bdfb1f",
+   "t": "{Speaker}auf die Zukunft{SoftNewLine}vorbereiten.....{WaitInput}"
+  },
+  "0368": {
+   "h": "37b1d276",
+   "t": "{Speaker}Erinnerst du dich{SoftNewLine}an den Lehrling vom{SoftNewLine}Leuchtturm? Der arbeitet{SoftNewLine}jetzt bei General {=arthur}!{WaitInput}"
+  },
+  "0369": {
+   "h": "6c9ebf52",
+   "t": "{Speaker}Ein Freund von mir{SoftNewLine}arbeitet im Schloss, weißt du,{SoftNewLine}und der sagt, im Keller gibt's{ContinuePrompt}"
+  },
+  "036A": {
+   "h": "6a8a5358",
+   "t": "{Speaker}ein Labyrinth. Und{SoftNewLine}nicht nur das! Da wimmelt es{SoftNewLine}von gruseligen Monstern! Iiih!{SoftNewLine}Widerlich!{WaitInput}"
+  },
+  "036B": {
+   "h": "643c5674",
+   "t": "{Speaker}Mein Freund hat{SoftNewLine}auch erzählt, dass Schurken{SoftNewLine}und Verbrecher{ContinuePrompt}"
+  },
+  "036C": {
+   "h": "f99e4521",
+   "t": "{Speaker}im Kerker unter{SoftNewLine}dem Schloss gefangen gehalten{SoftNewLine}werden!! Was sagst du dazu?!{WaitInput}"
+  },
+  "036D": {
+   "h": "660ae904",
+   "t": "{Speaker}Papa und die{SoftNewLine}anderen nehmen oben den{SoftNewLine}Lehrling in die Mangel. Das ist{SoftNewLine}der,{ContinuePrompt}"
+  },
+  "036E": {
+   "h": "79ab1848",
+   "t": "{Speaker}der in den{SoftNewLine}Leuchtturm eingebrochen ist.{WaitInput}"
+  },
+  "036F": {
+   "h": "777726f4",
+   "t": "{Speaker}Ja, die sind immer{SoftNewLine}noch oben. Ich glaub, der hat{SoftNewLine}langsam genug.....{WaitInput}"
+  },
+  "0370": {
+   "h": "8771a59a",
+   "t": "{Speaker}Irgendwer muss im{SoftNewLine}Schloss die Führung{SoftNewLine}übernehmen, damit in der{SoftNewLine}Stadt Ordnung herrscht!{WaitInput}"
+  },
+  "0371": {
+   "h": "f1c51921",
+   "t": "{Speaker}Mein Papa und seine{SoftNewLine}Freunde besprechen oben das{SoftNewLine}neue Kasino.{WaitInput}"
+  },
+  "0372": {
+   "h": "8de04858",
+   "t": "{Speaker}Merkator ist eine{SoftNewLine}traditionsreiche Stadt. Hier{SoftNewLine}muss man sich anständig{SoftNewLine}benehmen.{WaitInput}"
+  },
+  "0373": {
+   "h": "cc884f69",
+   "t": "{Speaker}Hoffentlich wird{SoftNewLine}der böse Magier bald besiegt...{SoftNewLine}und unsere Steuern gesenkt.....{WaitInput}"
+  },
+  "0374": {
+   "h": "82a1c75a",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}ist ein gütiger, freundlicher{SoftNewLine}Mann. Neulich kam er in die{SoftNewLine}Stadt und{ContinuePrompt}"
+  },
+  "0375": {
+   "h": "69574dad",
+   "t": "{Speaker}hat mit jedem von{SoftNewLine}uns persönlich gesprochen. Ich{SoftNewLine}war tief beeindruckt.{WaitInput}"
+  },
+  "0376": {
+   "h": "85bc5aeb",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}ist WUNDERbar! Er sieht so{SoftNewLine}sanft, gütig und vornehm aus.{WaitInput}"
+  },
+  "0377": {
+   "h": "9a653817",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}ist WUNDERbar! Er sieht so{SoftNewLine}sanft, gütig und vornehm aus.{ContinuePrompt}"
+  },
+  "0378": {
+   "h": "6ae56fc3",
+   "t": "{Speaker}Hallo, junger Herr!{SoftNewLine}Sie sehen aber schick aus.....{WaitInput}"
+  },
+  "0379": {
+   "h": "bebc6183",
+   "t": "{Speaker}Und? Wie war's? Du{SoftNewLine}hast Herzog Merkator gesehen,{SoftNewLine}oder? Ich bin so neidisch!{WaitInput}"
+  },
+  "037A": {
+   "h": "b8c5ac04",
+   "t": "{Speaker}Und? Wie lief's? Du{SoftNewLine}hast Mir gesehen, oder? War{SoftNewLine}er so stark, wie man sagt?{WaitInput}"
+  },
+  "037B": {
+   "h": "f13a56f6",
+   "t": "{Speaker}Was? Herzog{SoftNewLine}Merkator war wirklich ein{SoftNewLine}Schurke?... Oh, ich hab ihn{SoftNewLine}vorhin noch mit{ContinuePrompt}"
+  },
+  "037C": {
+   "h": "f7e11c33",
+   "t": "{Speaker}seinen Soldaten{SoftNewLine}zum Hafen gehen sehen... Was{SoftNewLine}ist denn da los?{WaitInput}"
+  },
+  "037D": {
+   "h": "42984a53",
+   "t": "{Speaker}Der Herzog war{SoftNewLine}wirklich einer von den Bösen?{SoftNewLine}Ich hätte früher auf dich{SoftNewLine}hören sollen.....{WaitInput}"
+  },
+  "037E": {
+   "h": "e130c3a5",
+   "t": "{Speaker}Wir gewöhnen uns{SoftNewLine}langsam an das Leben ohne{SoftNewLine}Herzog Merkator. Was er wohl{SoftNewLine}gerade{ContinuePrompt}"
+  },
+  "037F": {
+   "h": "2a90b128",
+   "t": "{Speaker}treibt? Was? Er{SoftNewLine}sucht immer noch nach dem{SoftNewLine}Schatz? Hmmm.....!{WaitInput}"
+  },
+  "0380": {
+   "h": "6439064b",
+   "t": "{Speaker}Diese Wahrsagerin{SoftNewLine}ist hier berühmt. Sie kann{SoftNewLine}einen tollen Zauber auf einen{SoftNewLine}legen!{WaitInput}"
+  },
+  "0381": {
+   "h": "df93ef48",
+   "t": "{Speaker}Hehe... ich weiß{SoftNewLine}schon, ich weiß. Du hast sie{SoftNewLine}um einen Zauber gebeten,{SoftNewLine}stimmt's?{ContinuePrompt}"
+  },
+  "0382": {
+   "h": "a96129b9",
+   "t": "{Speaker}Na los! Madame{SoftNewLine}Yards Etablissement ist gleich{SoftNewLine}gegenüber.{WaitInput}"
+  },
+  "0383": {
+   "h": "414a58a7",
+   "t": "{Speaker}Ihre Zauberei ist{SoftNewLine}so berühmt, dass viele Leute{SoftNewLine}extra vom Festland{SoftNewLine}herkommen.{WaitInput}"
+  },
+  "0384": {
+   "h": "4cb4b2dd",
+   "t": "{Speaker}Wieso steht auf{SoftNewLine}dem besten Grundstück der{SoftNewLine}Stadt eine Hundehütte? Das{SoftNewLine}versteh ich nicht!{WaitInput}"
+  },
+  "0385": {
+   "h": "4ae7e021",
+   "t": "{Speaker}Ich würde das{SoftNewLine}Grundstück ja gern kaufen,{SoftNewLine}aber... verkauft dieser Hund{SoftNewLine}nun, oder was?{WaitInput}"
+  },
+  "0386": {
+   "h": "24d34afd",
+   "t": "{Speaker}Wem gehört dieses{SoftNewLine}Grundstück eigentlich?...{SoftNewLine}Herzog Merkator vielleicht?.....{WaitInput}"
+  },
+  "0387": {
+   "h": "49f071de",
+   "t": "{Speaker}Weißt du schon,{SoftNewLine}dass der Herzog geflohen ist?{SoftNewLine}Was soll nur aus uns werden?{WaitInput}"
+  },
+  "0388": {
+   "h": "f5604f56",
+   "t": "{Speaker}Siehst du das{SoftNewLine}Schild?{ContinuePrompt}"
+  },
+  "0389": {
+   "h": "f835e301",
+   "t": "{Speaker}Jetzt ist meine{SoftNewLine}Chance... Ich hab das beste{SoftNewLine}Grundstück in ganz Merkator!{WaitInput}"
+  },
+  "038A": {
+   "h": "3d10d680",
+   "t": "{Speaker}Mist! Das{SoftNewLine}Grundstück hab ich, aber...{SoftNewLine}jetzt hab ich kein Geld mehr,{SoftNewLine}um ein Haus zu bauen!{WaitInput}"
+  },
+  "038B": {
+   "h": "75ce4342",
+   "t": "{Speaker}Der Hafen von{SoftNewLine}Merkator liegt im Süden. Wir{SoftNewLine}haben eine regelmäßige Fähre{SoftNewLine}zum Festland.{WaitInput}"
+  },
+  "038C": {
+   "h": "6bb81969",
+   "t": "{Speaker}Wenn das Schiff{SoftNewLine}anlegt, blüht unser{SoftNewLine}Warenangebot auf.{WaitInput}"
+  },
+  "038D": {
+   "h": "111a957e",
+   "t": "{Speaker}Du meine Güte!{SoftNewLine}Wegen dem Ärger mit dem{SoftNewLine}Leuchtturm kann das Schiff{SoftNewLine}nicht auslaufen!{WaitInput}"
+  },
+  "038E": {
+   "h": "afd2a4d1",
+   "t": "{Speaker}Du meine Güte!{SoftNewLine}Wegen dem Ärger mit dem{SoftNewLine}Leuchtturm kann das Schiff{SoftNewLine}nicht auslaufen!{ContinuePrompt}"
+  },
+  "038F": {
+   "h": "bad36f58",
+   "t": "{Speaker}Du meine Güte,{SoftNewLine}das..... oh! Du hast es{SoftNewLine}repariert? Großartig!{WaitInput}"
   }
  },
  "names": {
