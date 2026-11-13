@@ -7541,6 +7541,706 @@
   "07CF": {
    "h": "a35896f6",
    "t": "{Speaker}jetzt STERBEN!{SoftNewLine}Hihihi... Kannst dich nicht{SoftNewLine}rühren, was? Ha!{WaitInput}"
+  },
+  "07D0": {
+   "h": "e5c64bd5",
+   "t": "{Speaker}Hihihi!... Drücke ich{SoftNewLine}diesen Schalter, ist dein Leben{SoftNewLine}zu Ende...{ContinuePrompt}"
+  },
+  "07D1": {
+   "h": "7198fc33",
+   "t": "{Speaker}...mal sehen...{SoftNewLine}welcher Schalter war es{SoftNewLine}noch...? Vielleicht...{Pause1sOrInput}DIESER!{WaitInput}"
+  },
+  "07D2": {
+   "h": "93dab9ed",
+   "t": "{Speaker}Aaargh! Der{SoftNewLine}falsche!{WaitInput}"
+  },
+  "07D3": {
+   "h": "683a1410",
+   "t": "{Speaker}Was für eine{SoftNewLine}durchgeknallte Hexe! Mir bleibt{SoftNewLine}die Spucke weg! Na komm,{SoftNewLine}weiter!{WaitInput}"
+  },
+  "07D4": {
+   "h": "f2fc9bef",
+   "t": "{Speaker}Ooooohhh...{SoftNewLine}Uuuuhhh...ooooohhh...{WaitInput}"
+  },
+  "07D5": {
+   "h": "92114caf",
+   "t": "{Speaker}Uuuuhhh... Aua,{SoftNewLine}aua!! Hilf mir...!{ContinuePrompt}"
+  },
+  "07D6": {
+   "h": "aaeb69c8",
+   "t": "{Speaker}In meinem Bauch{SoftNewLine}tobt etwas herum! Bitte hilf{SoftNewLine}mir!{WaitInput}"
+  },
+  "07D7": {
+   "h": "c6e5cf90",
+   "t": "{Speaker}Hallo! Ich? Oh, mir{SoftNewLine}geht's wieder gut. Helfen dir{SoftNewLine}meine Kinder?{WaitInput}"
+  },
+  "07D8": {
+   "h": "19cc2046",
+   "t": "{Speaker}Oh! Keine Schmerzen{SoftNewLine}mehr! Herrlich... das tut gut!{ContinuePrompt}"
+  },
+  "07D9": {
+   "h": "b7972d8d",
+   "t": "{Speaker}Ich weiß nicht, wer{SoftNewLine}du bist, aber ich möchte dir{SoftNewLine}wirklich danken!{ContinuePrompt}"
+  },
+  "07DA": {
+   "h": "c07471d4",
+   "t": "{Speaker}Hör zu! Ich habe{SoftNewLine}viele Kinder, die als Zwillinge{SoftNewLine}geboren sind. Jedes ist mit{ContinuePrompt}"
+  },
+  "07DB": {
+   "h": "6b2b005e",
+   "t": "{Speaker}seinem Zwilling{SoftNewLine}verbunden. Findest du beide,{SoftNewLine}kannst du dich vom einen zum{SoftNewLine}anderen versetzen.{ContinuePrompt}"
+  },
+  "07DC": {
+   "h": "490da121",
+   "t": "{Speaker}Ich sage meinen{SoftNewLine}Kindern, dass sie dir helfen{SoftNewLine}sollen. Pass gut auf dich auf!{WaitInput}"
+  },
+  "07DD": {
+   "h": "e08877c8",
+   "t": "{Speaker}Hoho... ich bin's!{SoftNewLine}Ich bin hier runter, um was{SoftNewLine}Schönes zu finden, aber{ContinuePrompt}"
+  },
+  "07DE": {
+   "h": "c9e5aad6",
+   "t": "{Speaker}diese Höhle ist{SoftNewLine}nichts für mich... Den Schatz{SoftNewLine}kannst du haben! Tschüss!{WaitInput}"
+  },
+  "07DF": {
+   "h": "49436ad0",
+   "t": "{Speaker}Hehehe! Hier ist{SoftNewLine}dein Geld für {Item}."
+  },
+  "07E0": {
+   "h": "e6d95783",
+   "t": "{=nigel} bekommt 2000 Taler!"
+  },
+  "07E1": {
+   "h": "b36c38a1",
+   "t": "{Speaker}Für dein Alter bist{SoftNewLine}du ein erstklassiger{SoftNewLine}Schatzjäger... hehehe."
+  },
+  "07E2": {
+   "h": "39407801",
+   "t": "{Speaker}Mit dem Geld musst{SoftNewLine}du eine ganze Weile nicht{SoftNewLine}arbeiten. Ich beneide dich!"
+  },
+  "07E3": {
+   "h": "f33a4c20",
+   "t": "{Speaker}W...was?!"
+  },
+  "07E4": {
+   "h": "65f99442",
+   "t": "{Speaker}Hilf mir, bitte! Ich{SoftNewLine}werde verfolgt!"
+  },
+  "07E5": {
+   "h": "54309e4c",
+   "t": "{Speaker}Wer bist du denn?"
+  },
+  "07E6": {
+   "h": "2225d1ed",
+   "t": "{Speaker}He, du! Gib mir die{SoftNewLine}Kleine! Sonst setzt es was!"
+  },
+  "07E7": {
+   "h": "1f69f852",
+   "t": "{Speaker}...was!"
+  },
+  "07E8": {
+   "h": "1f69f852",
+   "t": "{Speaker}...was!"
+  },
+  "07E9": {
+   "h": "a22d2ba5",
+   "t": "{Speaker}Die wissen, dass{SoftNewLine}ich König Nolos Schätze{SoftNewLine}gesehen habe!{Pause1s}{Pause1s}{Pause1s}"
+  },
+  "07EA": {
+   "h": "8644b8c0",
+   "t": "{Speaker}Die tun alles, um{SoftNewLine}mich zum Reden zu bringen!"
+  },
+  "07EB": {
+   "h": "96327f35",
+   "t": "{Speaker}Die bringen mich{SoftNewLine}vielleicht sogar um! Wer weiß!{SoftNewLine}Also bitte... hilf mir!!"
+  },
+  "07EC": {
+   "h": "4c812c26",
+   "t": "{Speaker}Moment mal! Hast{SoftNewLine}du gerade 'König Nolos{SoftNewLine}Schätze' gesagt?"
+  },
+  "07ED": {
+   "h": "cd99b294",
+   "t": "{Speaker}Was soll das ganze{SoftNewLine}Gequatsche!? Ich hab gesagt,{SoftNewLine}gib mir das Mädchen!"
+  },
+  "07EE": {
+   "h": "7c1983ea",
+   "t": "{Speaker}Lauf! Schnell!!"
+  },
+  "07EF": {
+   "h": "5d6cb17c",
+   "t": "{Speaker}Hmmm... könnte{SoftNewLine}spannend werden! Okay, komm!"
+  },
+  "07F0": {
+   "h": "5344e05f",
+   "t": "{Speaker}Ohohohohoho! Ihr{SoftNewLine}entkommt mir nicht...."
+  },
+  "07F1": {
+   "h": "b022fe16",
+   "t": "{Speaker}Geschafft! Wir{SoftNewLine}haben sie abgehängt! Hihi!"
+  },
+  "07F2": {
+   "h": "90bdb23a",
+   "t": "{Speaker}He, Mädchen! Hast{SoftNewLine}du die sagenhaften Schätze{SoftNewLine}wirklich gesehen?"
+  },
+  "07F3": {
+   "h": "2e634f96",
+   "t": "{Speaker}Ich heiße {=friday}!{SoftNewLine}Nenn mich nicht 'Mädchen'!"
+  },
+  "07F4": {
+   "h": "1bb1b012",
+   "t": "{Speaker}Schon gut... und ich{SoftNewLine}heiße {=nigel}. Jetzt erzähl!{SoftNewLine}Ich hab dir das Leben{SoftNewLine}gerettet."
+  },
+  "07F5": {
+   "h": "683e2ddc",
+   "t": "{Speaker}Ehrlich gesagt hab{SoftNewLine}ich sie gar nicht..."
+  },
+  "07F6": {
+   "h": "c50b8362",
+   "t": "{Speaker}Hör auf mit dem{SoftNewLine}Quatsch!{Pause1s}{Pause1s}{Pause1s}"
+  },
+  "07F7": {
+   "h": "05652191",
+   "t": "{Speaker}Warum sollten die{SoftNewLine}dich jagen, wenn du die{SoftNewLine}Schätze nicht gesehen hast?"
+  },
+  "07F8": {
+   "h": "29918344",
+   "t": "{Speaker}Na ja, GESEHEN hab{SoftNewLine}ich sie nicht, aber ich weiß,{SoftNewLine}dass sie hier irgendwo sind..."
+  },
+  "07F9": {
+   "h": "ee37d950",
+   "t": "{Speaker}Prima! Bring mich{SoftNewLine}ungefähr in die Gegend..."
+  },
+  "07FA": {
+   "h": "c8d91d7e",
+   "t": "{Speaker}Den Rest erledigt{SoftNewLine}dann mein Riecher, und der{SoftNewLine}führt uns zu den Schätzen."
+  },
+  "07FB": {
+   "h": "93f96d19",
+   "t": "{Speaker}Na gut! Dann folg{SoftNewLine}mir, {=nigel}!"
+  },
+  "07FC": {
+   "h": "6e1d7ac8",
+   "t": "{Speaker}Eins wollen wir mal{SoftNewLine}klarstellen: Ich bin nicht dein{SoftNewLine}Gefolge!"
+  },
+  "07FD": {
+   "h": "14a7c0e9",
+   "t": "{Speaker}Ich hab bei der{SoftNewLine}ganzen Sache ein ganz mieses{SoftNewLine}Gefühl..."
+  },
+  "07FE": {
+   "h": "ed71fc4b",
+   "t": "{Speaker}Hoffentlich stimmt{SoftNewLine}das mit den Schätzen, {=friday}.{Pause1s}{Pause1s}{Pause1s}"
+  },
+  "07FF": {
+   "h": "2201576d",
+   "t": "{Speaker}Ich hab dem{SoftNewLine}komischen großen Vogel mein{SoftNewLine}ganzes Geld bezahlt!"
+  },
+  "0800": {
+   "h": "53358985",
+   "t": "{Speaker}Aber das Schiff zur{SoftNewLine}Insel fährt doch nur einmal im{SoftNewLine}Monat!"
+  },
+  "0801": {
+   "h": "378c9854",
+   "t": "{Speaker}Du hast gesagt:{SoftNewLine}'Egal, was es kostet. Ich will{SoftNewLine}SOFORT hin!'"
+  },
+  "0802": {
+   "h": "bd3b2a0f",
+   "t": "{Speaker}...aber 2000 Taler!{SoftNewLine}Das ist mehr als ich....."
+  },
+  "0803": {
+   "h": "6ace5f5e",
+   "t": "{Speaker}Ein Junge jammert{SoftNewLine}nicht über Vergangenes! Der{SoftNewLine}Schatz ist doch mehr wert als{SoftNewLine}2000 Taler, oder?"
+  },
+  "0804": {
+   "h": "6bf1fc7b",
+   "t": "{Speaker}Schon gut... Na ja,{SoftNewLine}wer A sagt, muss auch B{SoftNewLine}sagen!"
+  },
+  "0805": {
+   "h": "0a6a684c",
+   "t": "{Speaker}Noch ein Diät-Dahl!{WaitInput}"
+  },
+  "0806": {
+   "h": "5b1cde9f",
+   "t": "{Speaker}Ein Diät-Dahl,{SoftNewLine}kommt sofort! Bitte sehr! Wie{SoftNewLine}schmeckt's?{WaitInput}"
+  },
+  "0807": {
+   "h": "5cf2ac8d",
+   "t": "{Speaker}Noch einen{SoftNewLine}Ekenol-Punsch! {Pause1s}{Pause1s}...nanu... da{SoftNewLine}kommt nichts...{ContinuePrompt}"
+  },
+  "0808": {
+   "h": "f0da740e",
+   "t": "{Speaker}Tut mir leid...{SoftNewLine}sieht aus, als wär die Anlage{SoftNewLine}kaputt! Selbst gebastelt,{SoftNewLine}hahaha!{WaitInput}"
+  },
+  "0809": {
+   "h": "27b6e2b7",
+   "t": "{Speaker}Willkommen! Spielen{SoftNewLine}wir Roulette!{ContinuePrompt}"
+  },
+  "080A": {
+   "h": "e6fbfca7",
+   "t": "{Speaker}Das Spiel beginnt,{SoftNewLine}wenn du auf die große Kugel{SoftNewLine}steigst! Bleibt die Kugel auf{SoftNewLine}einer roten Platte stehen,{ContinuePrompt}"
+  },
+  "080B": {
+   "h": "a140aa00",
+   "t": "{Speaker}bekommst du 200{SoftNewLine}Taler! 50 Taler pro Spiel!{ContinuePrompt}"
+  },
+  "080C": {
+   "h": "4a6efac6",
+   "t": "{Speaker}Versuchst du dein{SoftNewLine}Glück?{NewLine}"
+  },
+  "080D": {
+   "h": "8458bdb9",
+   "t": "{Speaker}Viel Glück!{WaitInput}"
+  },
+  "080E": {
+   "h": "5b8f49cd",
+   "t": "{Speaker}Tut mir leid...{SoftNewLine}billiger geht's nicht!{WaitInput}"
+  },
+  "080F": {
+   "h": "5427d339",
+   "t": "{Speaker}Ooooh... ganz{SoftNewLine}knapp!{WaitInput}"
+  },
+  "0810": {
+   "h": "81bba6cb",
+   "t": "{Speaker}Herzlichen{SoftNewLine}Glückwunsch! Bitte sehr!{ContinuePrompt}"
+  },
+  "0811": {
+   "h": "e4c38b92",
+   "t": "{Speaker}Bis bald!{WaitInput}"
+  },
+  "0812": {
+   "h": "cfac5da4",
+   "t": "{Speaker}Versuch's gern noch{SoftNewLine}mal!{WaitInput}"
+  },
+  "0813": {
+   "h": "65d45518",
+   "t": "{Speaker}Hallo! Spielen wir{SoftNewLine}Hühnerwerfen! Fang so viele{ContinuePrompt}"
+  },
+  "0814": {
+   "h": "d30c2976",
+   "t": "{Speaker}Hühner, wie du{SoftNewLine}kannst, und wirf sie in den{SoftNewLine}Pferch, bevor die Zeit abläuft!{ContinuePrompt}"
+  },
+  "0815": {
+   "h": "807b20bb",
+   "t": "{Speaker}Der Rekord liegt{SoftNewLine}bei {Number}. Du bekommst 5 Taler{SoftNewLine}pro Huhn.{ContinuePrompt}"
+  },
+  "0816": {
+   "h": "c66f62f1",
+   "t": "{Speaker}Das Spiel beginnt,{SoftNewLine}wenn du auf das rote Feld{SoftNewLine}steigst.{ContinuePrompt}"
+  },
+  "0817": {
+   "h": "bf53e62f",
+   "t": "{Speaker}20 Taler pro Runde.{SoftNewLine}Willst du's versuchen?{NewLine}"
+  },
+  "0818": {
+   "h": "15065816",
+   "t": "{Speaker}Ding-ding! Ding-ding!{SoftNewLine}Neuer Rekord!{ContinuePrompt}"
+  },
+  "0819": {
+   "h": "062de79f",
+   "t": "{Speaker}Willkommen beim{SoftNewLine}Hühnerrennen!{ContinuePrompt}"
+  },
+  "081A": {
+   "h": "3916f945",
+   "t": "{Speaker}Reite auf einem der{SoftNewLine}vier Hühner... Kommt dein Huhn{SoftNewLine}als Erstes an, bekommst du{ContinuePrompt}"
+  },
+  "081B": {
+   "h": "6c62eced",
+   "t": "{Speaker}200 Taler.{ContinuePrompt}"
+  },
+  "081C": {
+   "h": "ecd1849f",
+   "t": "{Speaker}50 Taler pro{SoftNewLine}Rennen. Versuchst du's?{NewLine}"
+  },
+  "081D": {
+   "h": "ca266728",
+   "t": "{Speaker}Tut mir leid. Das{SoftNewLine}hier ist ein privater Bereich.{SoftNewLine}Kein Zutritt!{WaitInput}"
+  },
+  "081E": {
+   "h": "ebcc9f8c",
+   "t": "{Speaker}Oh! Wie ich sehe,{SoftNewLine}hast du ein Kasinoticket.{ContinuePrompt}"
+  },
+  "081F": {
+   "h": "c548e809",
+   "t": "{Speaker}Willst du rein?{NewLine}"
+  },
+  "0820": {
+   "h": "c594426f",
+   "t": "{Speaker}Willkommen im{SoftNewLine}Arthurischen Kasino! Viel Spaß!{WaitInput}"
+  },
+  "0821": {
+   "h": "2a14733e",
+   "t": "{Speaker}Bis dann!{WaitInput}"
+  },
+  "0822": {
+   "h": "a4fc5c7d",
+   "t": "{Speaker}Tut mir leid. Ohne{SoftNewLine}{Item} kommst du hier{SoftNewLine}nicht rein!{WaitInput}"
+  },
+  "0823": {
+   "h": "4059a18a",
+   "t": "{Speaker}Da oben steht ein{SoftNewLine}einzelner Baum. Bäume sind{SoftNewLine}hier unten sehr selten, darum{ContinuePrompt}"
+  },
+  "0824": {
+   "h": "cdc2f5fb",
+   "t": "{Speaker}halte ich Wache!{WaitInput}"
+  },
+  "0825": {
+   "h": "38cd92ce",
+   "t": "{Speaker}Du hast meinen{SoftNewLine}Vater getroffen, ja? Dann geh{SoftNewLine}nur hoch und fäll den Baum{SoftNewLine}für ein Floß!{WaitInput}"
+  },
+  "0826": {
+   "h": "78b37bb4",
+   "t": "{Speaker}Wenn doch nur mehr{SoftNewLine}Bäume unter der Erde wachsen{SoftNewLine}würden...{WaitInput}"
+  },
+  "0827": {
+   "h": "7bdcf1f0",
+   "t": "{Speaker}Warum hast du den{SoftNewLine}Baum gefällt, wenn du das{SoftNewLine}Holz gar nicht brauchst?{WaitInput}"
+  },
+  "0828": {
+   "h": "0cb0b159",
+   "t": "{Speaker}Du brauchst ein{SoftNewLine}Floß. Willst du den Fluss{SoftNewLine}hinunter, dann such meinen{SoftNewLine}Sohn und{ContinuePrompt}"
+  },
+  "0829": {
+   "h": "a87214f9",
+   "t": "{Speaker}hol dir{SoftNewLine}{Item}.{WaitInput}"
+  },
+  "082A": {
+   "h": "d6043906",
+   "t": "{Speaker}Mit {Item}{SoftNewLine}kommst du weiter! Viel Glück!{WaitInput}"
+  },
+  "082B": {
+   "h": "4b3fb759",
+   "t": "{Speaker}Pass gut auf dich{SoftNewLine}auf!{WaitInput}"
+  },
+  "082C": {
+   "h": "9f40e735",
+   "t": "{Speaker}Huiii, ist das wild!{SoftNewLine}Wohin fahren wir, {=nigel}?{ContinuePrompt}"
+  },
+  "082D": {
+   "h": "664d3263",
+   "t": "{Speaker}Weiß ich doch{SoftNewLine}nicht! Frag das Floß!{WaitInput}"
+  },
+  "082E": {
+   "h": "46a08c12",
+   "t": "{Speaker}Ein bisschen{SoftNewLine}gruselig, aber total lustig!{ContinuePrompt}"
+  },
+  "082F": {
+   "h": "df2621e6",
+   "t": "{Speaker}...Du hast's gut!{WaitInput}"
+  },
+  "0830": {
+   "h": "69146f66",
+   "t": "{Speaker}{=nigel}, jetzt{SoftNewLine}können wir zurück in den{SoftNewLine}dunklen Raum!{ContinuePrompt}"
+  },
+  "0831": {
+   "h": "b1de2913",
+   "t": "{Speaker}Ja!{ContinuePrompt}"
+  },
+  "0832": {
+   "h": "b8f7294b",
+   "t": "{Speaker}Los geht's! Bald{SoftNewLine}sind wir bei den Schätzen!{ContinuePrompt}"
+  },
+  "0833": {
+   "h": "b2775d8c",
+   "t": "{Speaker}Bald? Dann weißt{SoftNewLine}du also genau, wo die Schätze{SoftNewLine}sind, oder?{ContinuePrompt}"
+  },
+  "0834": {
+   "h": "cfe936f1",
+   "t": "{Speaker}Nein, aber ich hab{SoftNewLine}das Gefühl, wir kommen näher!{WaitInput}"
+  },
+  "0835": {
+   "h": "bc1dbb4b",
+   "t": "{Speaker}Freut uns! Wir sind{SoftNewLine}nicht wie Dex und die anderen{SoftNewLine}dummen Soldaten!{ContinuePrompt}"
+  },
+  "0836": {
+   "h": "43aa4e1c",
+   "t": "{Speaker}Wir sind die Elite{SoftNewLine}der Elite! Wir sind die{SoftNewLine}Einhorn-Truppe!{ContinuePrompt}"
+  },
+  "0837": {
+   "h": "fae5bb38",
+   "t": "{Speaker}Formation{SoftNewLine}'Labyrinth'! Achtung, fertig...{SoftNewLine}los!{ContinuePrompt}"
+  },
+  "0838": {
+   "h": "c2efc371",
+   "t": "{Speaker}Bis später!{SoftNewLine}Hahahaha!{WaitInput}"
+  },
+  "0839": {
+   "h": "9e5fe807",
+   "t": "{Speaker}Ah... DU bist also{SoftNewLine}schon hier! Das muss ich{SoftNewLine}sofort dem Herzog melden!{WaitInput}"
+  },
+  "083A": {
+   "h": "6fb40b85",
+   "t": "{Speaker}{=nigel}? Bist du{SoftNewLine}das da drüben? Hallo, wie{SoftNewLine}geht's?{ContinuePrompt}"
+  },
+  "083B": {
+   "h": "7e0ca80f",
+   "t": "{Speaker}Hörst du mich?{SoftNewLine}Jetzt bin ich dir 1000 Schritte{SoftNewLine}voraus!{ContinuePrompt}"
+  },
+  "083C": {
+   "h": "5f052bcd",
+   "t": "{Speaker}Das letzte Juwel{SoftNewLine}liegt gleich hinter dieser Tür!{SoftNewLine}Ich habe es nicht eilig! Siehst{SoftNewLine}du?{ContinuePrompt}"
+  },
+  "083D": {
+   "h": "d745a380",
+   "t": "{Speaker}Ich gehe ganz, ganz{SoftNewLine}langsam.{ContinuePrompt}"
+  },
+  "083E": {
+   "h": "22b028f8",
+   "t": "{Speaker}He, {=nigel}! Überhol{SoftNewLine}mich doch! Hahaha! Siehst du{SoftNewLine}mich?{WaitInput}"
+  },
+  "083F": {
+   "h": "593ce173",
+   "t": "{Speaker}Gehe ich langsam{SoftNewLine}genug? Beeil dich! Vielleicht{SoftNewLine}erwischst du mich ja noch!{ContinuePrompt}"
+  },
+  "0840": {
+   "h": "d77e3076",
+   "t": "{Speaker}Hahahahaha!{WaitInput}"
+  },
+  "0841": {
+   "h": "e9ee04d9",
+   "t": "{Speaker}Hohoho! Die Schätze{SoftNewLine}kriegst du nie! Hohoho!{ContinuePrompt}"
+  },
+  "0842": {
+   "h": "9feabba0",
+   "t": "{Speaker}Jetzt kriegst du{SoftNewLine}meinen 'Rock-'n'-Roll'-Angriff{SoftNewLine}ab!{WaitInput}"
+  },
+  "0843": {
+   "h": "066f58da",
+   "t": "{Speaker}Verzeiht... mein{SoftNewLine}König! Ich... hab Euch...{SoftNewLine}enttäuscht...!{WaitInput}"
+  },
+  "0844": {
+   "h": "0a4b0249",
+   "t": "{Speaker}Erinnerst du dich{SoftNewLine}an mich?{ContinuePrompt}"
+  },
+  "0845": {
+   "h": "dcbd977e",
+   "t": "{Speaker}Seit ich in Mirs{SoftNewLine}Turm gegen dich verloren{SoftNewLine}habe, träume ich davon, dich{SoftNewLine}zu besiegen!{ContinuePrompt}"
+  },
+  "0846": {
+   "h": "14f595e5",
+   "t": "{Speaker}Tut mir leid,{SoftNewLine}Knoblauch macht mir keine{SoftNewLine}Angst mehr! Na los, komm!{WaitInput}"
+  },
+  "0847": {
+   "h": "e0d29985",
+   "t": "{Speaker}Warum... ich bin{SoftNewLine}doch genau wie du... in allem...{SoftNewLine}warum also...?{ContinuePrompt}"
+  },
+  "0848": {
+   "h": "620eed79",
+   "t": "{Speaker}...Ich weiß!... Ich{SoftNewLine}habe dieses Mädchen nicht...{SoftNewLine}darum hab ich...{WaitInput}"
+  },
+  "0849": {
+   "h": "b5c33401",
+   "t": "{Speaker}{=nigel}! Gleich da{SoftNewLine}drüben ist mein Heimatdorf!{SoftNewLine}Sollen wir kurz vorbeischauen?{WaitInput}"
+  },
+  "084A": {
+   "h": "0f161563",
+   "t": "{Speaker}Hui, Zwinkerdorf!{SoftNewLine}Wie geht's euch allen?{WaitInput}"
+  },
+  "084B": {
+   "h": "e3f18273",
+   "t": "{Speaker}Tschüss dann!{WaitInput}"
+  },
+  "084C": {
+   "h": "557e1837",
+   "t": "{Speaker}Oh, {=friday}! Stell{SoftNewLine}dir vor, wir haben uns 256{SoftNewLine}Jahre nicht gesehen!{ContinuePrompt}"
+  },
+  "084D": {
+   "h": "3598baa9",
+   "t": "{Speaker}Erinnerst du dich{SoftNewLine}an den schrecklichen Krieg mit{SoftNewLine}König Nolo?{ContinuePrompt}"
+  },
+  "084E": {
+   "h": "d068b783",
+   "t": "{Speaker}Das war doch das{SoftNewLine}Allerschlimmste, oder?{ContinuePrompt}"
+  },
+  "084F": {
+   "h": "847df30b",
+   "t": "{Speaker}Was? DU suchst{SoftNewLine}nach den Schätzen von König{SoftNewLine}Nolo?{ContinuePrompt}"
+  },
+  "0850": {
+   "h": "291d9944",
+   "t": "{Speaker}Sei vorsichtig! Er{SoftNewLine}ist zwar tot, aber...{ContinuePrompt}"
+  },
+  "0851": {
+   "h": "d2a9f82b",
+   "t": "{Speaker}für seine Schätze{SoftNewLine}steigt er bestimmt sogar aus{SoftNewLine}dem Grab...{WaitInput}"
+  },
+  "0852": {
+   "h": "2c9b178a",
+   "t": "{Speaker}Dein Freund ist ja{SoftNewLine}süß, was? Ihr passt gut{SoftNewLine}zusammen!{WaitInput}"
+  },
+  "0853": {
+   "h": "5b4dd557",
+   "t": "{Speaker}{=friday}, du bist es!{SoftNewLine}Na, mal wieder mit einem{SoftNewLine}Jungen unterwegs.{ContinuePrompt}"
+  },
+  "0854": {
+   "h": "2375fe35",
+   "t": "{Speaker}...mal{SoftNewLine}sehen...hmmm...{Pause1s} ...He, der ist ja{SoftNewLine}echt süß!! Wo hast du den{SoftNewLine}denn aufgegabelt?{ContinuePrompt}"
+  },
+  "0855": {
+   "h": "725a5d53",
+   "t": "{Speaker}{=trixie}! Er hat mir{SoftNewLine}das Leben gerettet! Er ist{SoftNewLine}mein...!{ContinuePrompt}"
+  },
+  "0856": {
+   "h": "fdd0ab73",
+   "t": "{Speaker}Schon gut, schon{SoftNewLine}gut! Tut mir leid!{WaitInput}"
+  },
+  "0857": {
+   "h": "4d04acdd",
+   "t": "{Speaker}Du magst Jungs,{SoftNewLine}was? Schon immer!{WaitInput}"
+  },
+  "0858": {
+   "h": "24f54269",
+   "t": "{Speaker}Was für ein{SoftNewLine}verrücktes Labyrinth!{SoftNewLine}Übrigens, ob {=kayla} aus dem{SoftNewLine}Wald herausgefunden hat?{WaitInput}"
+  },
+  "0859": {
+   "h": "57624e4d",
+   "t": "{Speaker}Aaargh! Was ist{SoftNewLine}bloß mit diesem Wald los! Mir{SoftNewLine}wird ganz schwindlig!{ContinuePrompt}"
+  },
+  "085A": {
+   "h": "60a22bba",
+   "t": "{Speaker}Wally! Ink! Das ist{SoftNewLine}eure Schuld! Kiiih!{WaitInput}"
+  },
+  "085B": {
+   "h": "62e31877",
+   "t": "{Speaker}Schuld!....{ContinuePrompt}"
+  },
+  "085C": {
+   "h": "b07743f6",
+   "t": "{Speaker}...uld!....{WaitInput}"
+  },
+  "085D": {
+   "h": "360cde86",
+   "t": "{Speaker}Egal! Weitersuchen!{WaitInput}"
+  },
+  "085E": {
+   "h": "ef9e22e5",
+   "t": "Die 3 Gegenstände leuchten{SoftNewLine}plötzlich hell auf!{WaitInput}"
+  },
+  "085F": {
+   "h": "f3e3c474",
+   "t": "{Speaker}Rrrrrrrrr...{Pause1s}{SoftNewLine}Rrrrrrrr....{Pause1s} Rrrrrr....{SoftNewLine}Rrrrrrrrr...{ContinuePrompt}"
+  },
+  "0860": {
+   "h": "45c1fdcf",
+   "t": "{Speaker}H Ä N D E  W E G !{SoftNewLine}V E R S C H W I N D E !{SoftNewLine}S I E  G E H Ö R E N  M I R !{ContinuePrompt}"
+  },
+  "0861": {
+   "h": "ff541074",
+   "t": "{Speaker}D I E  S C H Ä T Z E !{SoftNewLine}G E H Ö R E N  M I R !{WaitInput}"
+  },
+  "0862": {
+   "h": "4d99382f",
+   "t": "{Speaker}M E I N E . . . . . . . .{SoftNewLine}K O S T B A R E N . . . . .{SoftNewLine}S C H Ä T Z E . . . . . !{WaitInput}"
+  },
+  "0863": {
+   "h": "82c8dc9d",
+   "t": "{Speaker}Du schon wieder!{SoftNewLine}Wie bist du an mir{SoftNewLine}vorbeigekommen? Na, egal...!{ContinuePrompt}"
+  },
+  "0864": {
+   "h": "21400fa1",
+   "t": "{Speaker}Dank dir muss ich{SoftNewLine}mein edles Schwert nicht an{SoftNewLine}diesen dreckigen Monstern{SoftNewLine}schmutzig machen!{ContinuePrompt}"
+  },
+  "0865": {
+   "h": "b496030d",
+   "t": "{Speaker}{=nigel}, du bist{SoftNewLine}wirklich ein nützlicher{SoftNewLine}Laufbursche! Hehehe...{ContinuePrompt}"
+  },
+  "0866": {
+   "h": "c596a132",
+   "t": "{Speaker}Sieh dir diese{SoftNewLine}herrlichen Schätze an! Gold!{SoftNewLine}Juwelen! Wie wunderschön!{ContinuePrompt}"
+  },
+  "0867": {
+   "h": "315c6181",
+   "t": "{Speaker}Ach, mein lieber{SoftNewLine}{=nigel}! Ich bezahle dich für{SoftNewLine}all deine Mühe....{ContinuePrompt}"
+  },
+  "0868": {
+   "h": "2faba1df",
+   "t": "{Speaker}Wie wären 20{SoftNewLine}Taler?{ContinuePrompt}"
+  },
+  "0869": {
+   "h": "da86d15a",
+   "t": "{Speaker}Dafür kriegst du{SoftNewLine}bestimmt einen ganzen{SoftNewLine}Schokoriegel! Hahahahahaha!{WaitInput}"
+  },
+  "086A": {
+   "h": "bf047557",
+   "t": "{Speaker}AAAaaarrrgh!!!{WaitInput}"
+  },
+  "086B": {
+   "h": "76be3b62",
+   "t": "{Speaker}{=nigel}! DU HAST ES{SoftNewLine}GESCHAFFT!!{Pause1s} Du hast den{SoftNewLine}Wächter besiegt! Du hast Gola{SoftNewLine}erledigt!{Pause1s}"
+  },
+  "086C": {
+   "h": "c22c2c90",
+   "t": "{Speaker}Das sind bestimmt{SoftNewLine}Abermillionen Taler... und noch{SoftNewLine}mehr Juwelen! Wahnsinn!{Pause1s}{Pause1s}"
+  },
+  "086D": {
+   "h": "f8f627cc",
+   "t": "{Speaker}Ich zähl sie mal!"
+  },
+  "086E": {
+   "h": "90bf6d7e",
+   "t": "{Speaker}Juhuuuu!!{Pause1s} So viel{SoftNewLine}Geld hab ich mein Lebtag nicht{SoftNewLine}gesehen!{Pause1s}"
+  },
+  "086F": {
+   "h": "cc3ccb4b",
+   "t": "{Speaker}Wir sind reich,{SoftNewLine}{=nigel}, REICH!{Pause1s} Zuerst kaufen{SoftNewLine}wir eine Hütte vor der Stadt,{SoftNewLine}zwei Wagen, einen...{Pause1s}"
+  },
+  "0870": {
+   "h": "42f000fa",
+   "t": "{Speaker}Schon gut, schon{SoftNewLine}gut... he, beruhig dich!"
+  },
+  "0871": {
+   "h": "1a24a8d4",
+   "t": "{Speaker}...Waschbrett und{SoftNewLine}Trockner, ein Dienstmädchen{SoftNewLine}natürlich, und... oh! Etwas,{SoftNewLine}das man nicht kaufen kann...{Pause1s}"
+  },
+  "0872": {
+   "h": "f93be2d0",
+   "t": "{Speaker}Was denn? Hast du{SoftNewLine}eine besondere Waffe{SoftNewLine}gefunden?"
+  },
+  "0873": {
+   "h": "b4aea10d",
+   "t": "{Speaker}Nein, du Dummkopf!{SoftNewLine}Es ist viel wertvoller als{SoftNewLine}das!"
+  },
+  "0874": {
+   "h": "2a55e8bf",
+   "t": "{Speaker}...Hihi!!..."
+  },
+  "0875": {
+   "h": "63ab9372",
+   "t": "{Speaker}...{Pause1s}mein Herz! Das{SoftNewLine}ist dir doch nicht peinlich,{SoftNewLine}{=nigel}?{Pause1s}.{Pause1s}.{Pause1s}.{=nigel}?"
+  },
+  "0876": {
+   "h": "232ab34e",
+   "t": "{Speaker}Wa... hm? Oh! Ich{SoftNewLine}bin wohl kurz eingenickt...{Pause1s}{Pause1s}"
+  },
+  "0877": {
+   "h": "0105ba99",
+   "t": "{Speaker}Weißt du, ich werd{SoftNewLine}das Gefühl nicht los...{Pause1s}{Pause1s}"
+  },
+  "0878": {
+   "h": "b8311271",
+   "t": "{Speaker}Vielleicht wird's{SoftNewLine}Zeit, auf dem Festland nach{SoftNewLine}neuen Schätzen zu suchen...{Pause1s}"
+  },
+  "0879": {
+   "h": "b18cff6a",
+   "t": "{Speaker}...Ich...{Pause1s}ich...{Pause1s} Ich{SoftNewLine}hasse dich! Ich HASSE dich!{SoftNewLine}Ohne mich wirst du verprügelt{SoftNewLine}und"
+  },
+  "087A": {
+   "h": "e0ca5ce3",
+   "t": "{Speaker}umgebracht! Wenn{SoftNewLine}ich nicht wäre, würdest du{SoftNewLine}{Pause1s}...würdest du..."
+  },
+  "087B": {
+   "h": "72ed3ec4",
+   "t": "{Speaker}He, kommst du nun{SoftNewLine}mit oder nicht?"
+  },
+  "087C": {
+   "h": "f7a87af6",
+   "t": "{Speaker}...{Pause1s}...{Pause1s}...{Pause1s}Oh! ...äh, ja,{SoftNewLine}natürlich!! Warum hast du so{SoftNewLine}lange gebraucht?{Pause1s}"
+  },
+  "087D": {
+   "h": "ad5e02a5",
+   "t": "{Speaker}Was soll das! Ein{SoftNewLine}TÖRTCHEN? Ein KLEINES{SoftNewLine}Törtchen?!! Soll das etwa ein{SoftNewLine}Witz sein?{WaitInput}"
+  },
+  "087E": {
+   "h": "bfd57179",
+   "t": "{Speaker}Danke, {=nigel}!{SoftNewLine}Erdbeertörtchen sind mein{SoftNewLine}Allerliebstes!!{WaitInput}"
   }
  },
  "names": {

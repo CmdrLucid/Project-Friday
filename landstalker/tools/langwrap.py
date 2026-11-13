@@ -40,17 +40,19 @@ def text_width(W, s):
         elif tok.startswith("{") and len(tok) > 1: pass
         else:
             g = [v for v in GLUE.values() if v[0] == tok]
-            w += g[0][1] if g else W.get(tok, 9)
+            w += g[0][1] if g else W[" "] if tok == "\x07" else W.get(tok, 9)
     return w
 
 
 def wrap(W, text):
     """text without {SoftNewLine} ('|' forces a break) -> text with {SoftNewLine}s; returns (text, list of too long lines).
-    {Item}, {Number}, pauses and {=name} placeholders are parts of the word they touch (an item name and the full stop after it stay together)."""
+    {Item}, {Number}, pauses and {=name} placeholders are parts of the word they touch (an item name and the full stop after it stay together).
+    '~' = a fixed space: never collapsed, never a break point (spaced-out letters 'F A S S~~N I C H T S' keep their word gaps)."""
     names = []
     def keep(m): names.append(m.group(0)); return "\x10" + chr(0x41 + len(names) - 1)
     text = re.sub(r"\{=[a-z0-9_:]+\}", keep, text)
     for code, (ch, _) in GLUE.items(): text = text.replace(code, ch)
+    text = text.replace("~", "\x07")
     def width(t):
         t = re.sub("\x10.", "{=n}", t)
         return text_width(W, t)
@@ -84,7 +86,7 @@ def wrap(W, text):
     s = re.sub(r"(\{SoftNewLine\})+(?=\{(?:WaitInput|ContinuePrompt|NewLinePrompt)\}|$)", "", s)
     s = re.sub(r"\0(?=[^{\0]|\x10)", "{SoftNewLine}", s).replace("\0", "")
     s = re.sub(r"\{SoftNewLine\}\{SoftNewLine\}", "{SoftNewLine}", s)
-    s = re.sub(r"  +", " ", s)
+    s = re.sub(r"  +", " ", s).replace("\x07", " ")
     for code, (ch, _) in GLUE.items(): s = s.replace(ch, code)
     s = re.sub("\x10(.)", lambda m: names[ord(m.group(1)) - 0x41], s)
     bad = [re.sub("\x10(.)", lambda m: names[ord(m.group(1)) - 0x41], b) for b in bad]
