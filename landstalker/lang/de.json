@@ -3,7 +3,7 @@
   "code": "de",
   "name": "Deutsch",
   "version": 1,
-  "note": "menu, system messages, item names and role names; translated by Claude, to be corrected by the user while playing"
+  "note": "menu, system messages, item / character names (the ORIGINAL German names of 'Die Schaetze von Koenig Nolo', mixed case) and our own UI text; dialogue in progress (docs/TRANSLATION_DE.md)"
  },
  "strings": {
   "0000": {
@@ -92,109 +92,257 @@
   }
  },
  "names": {
+  "char:00": {
+   "h": "96ea8904",
+   "t": "Bürgermeister"
+  },
+  "char:03": {
+   "h": "c6301afb",
+   "t": "Geier"
+  },
+  "char:05": {
+   "h": "89ff3122",
+   "t": "Besitzer"
+  },
+  "char:06": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:07": {
+   "h": "0f775394",
+   "t": "Gastwirt"
+  },
+  "char:09": {
+   "h": "96ea8904",
+   "t": "Bürgermeister"
+  },
+  "char:10": {
+   "h": "34e287be",
+   "t": "Ehefrau"
+  },
+  "char:11": {
+   "h": "0f775394",
+   "t": "Gastwirt"
+  },
+  "char:12": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:13": {
+   "h": "0f775394",
+   "t": "Gastwirt"
+  },
+  "char:14": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:15": {
+   "h": "89ff3122",
+   "t": "Besitzer"
+  },
+  "char:17": {
+   "h": "96ea8904",
+   "t": "Bürgermeister"
+  },
+  "char:18": {
+   "h": "0f775394",
+   "t": "Gastwirt"
+  },
+  "char:19": {
+   "h": "ba83eff4",
+   "t": "Wahrsager"
+  },
+  "char:20": {
+   "h": "89ff3122",
+   "t": "Besitzer"
+  },
+  "char:21": {
+   "h": "89ff3122",
+   "t": "Besitzer"
+  },
+  "char:25": {
+   "h": "89ff3122",
+   "t": "Besitzer"
+  },
+  "char:27": {
+   "h": "89ff3122",
+   "t": "Besitzer"
+  },
+  "char:28": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:32": {
+   "h": "a9db9067",
+   "t": "Juna"
+  },
+  "char:33": {
+   "h": "dcec1bd0",
+   "t": "Diener"
+  },
+  "char:35": {
+   "h": "89ff3122",
+   "t": "Besitzer"
+  },
+  "char:36": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:37": {
+   "h": "96ea8904",
+   "t": "Bürgermeister"
+  },
+  "char:38": {
+   "h": "0f775394",
+   "t": "Gastwirt"
+  },
+  "char:39": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:40": {
+   "h": "89ff3122",
+   "t": "Besitzer"
+  },
+  "char:41": {
+   "h": "89ff3122",
+   "t": "Besitzer"
+  },
+  "char:42": {
+   "h": "89ff3122",
+   "t": "Besitzer"
+  },
+  "char:43": {
+   "h": "0f775394",
+   "t": "Gastwirt"
+  },
+  "char:44": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:45": {
+   "h": "89ff3122",
+   "t": "Besitzer"
+  },
+  "char:49": {
+   "h": "081677f6",
+   "t": "Dux"
+  },
+  "char:50": {
+   "h": "c970db69",
+   "t": "Zack"
+  },
+  "char:53": {
+   "h": "b45c5249",
+   "t": "Priester"
+  },
+  "char:56": {
+   "h": "1c9809c6",
+   "t": "Waldstein"
+  },
   "item:00": {
    "h": "6a119137",
-   "t": "EkeEke"
+   "t": "Eke-Eke"
   },
   "item:01": {
    "h": "86c826b7",
-   "t": "Zauber{BreakSpace}schwert"
+   "t": "Zauber{Hyphen}schwert"
   },
   "item:02": {
    "h": "a86d7878",
-   "t": "Eis{BreakSpace}schwert"
+   "t": "Eis{Hyphen}schwert"
   },
   "item:03": {
    "h": "c89ab09e",
-   "t": "Donner{BreakSpace}schwert"
+   "t": "Donner{Hyphen}schwert"
   },
   "item:04": {
    "h": "ff49c9c1",
-   "t": "Gaia{BreakSpace}schwert"
+   "t": "Schwert{BreakSpace}der Gaia"
   },
   "item:05": {
    "h": "bd415d23",
-   "t": "Feuer{Hyphen}schutz"
+   "t": "Flammen{Hyphen}wächter"
   },
   "item:06": {
    "h": "2bac97b0",
-   "t": "Eisen{BreakSpace}stiefel"
+   "t": "Eisen{Hyphen}stiefel"
   },
   "item:07": {
    "h": "c59bf72a",
-   "t": "Heil{BreakSpace}stiefel"
+   "t": "Heil{Hyphen}stiefel"
   },
   "item:08": {
    "h": "0aa6843f",
-   "t": "Schnee{BreakSpace}spikes"
+   "t": "Schnee{Hyphen}spikes"
   },
   "item:09": {
    "h": "cad6904f",
-   "t": "Stahl{BreakSpace}panzer"
+   "t": "Stahl{Hyphen}harnisch"
   },
   "item:10": {
    "h": "d650dacb",
-   "t": "Chrom{BreakSpace}panzer"
+   "t": "Chrom{Hyphen}harnisch"
   },
   "item:11": {
    "h": "5f49c577",
-   "t": "Muschel{BreakSpace}panzer"
+   "t": "Perlmutt{Hyphen}harnisch"
   },
   "item:12": {
    "h": "91543ccf",
-   "t": "Hyper{BreakSpace}panzer"
+   "t": "Super{Hyphen}harnisch"
   },
   "item:13": {
    "h": "d86d8b04",
-   "t": "Mars{BreakSpace}stein"
+   "t": "Mars{Hyphen}stein"
   },
   "item:14": {
    "h": "05f9572e",
-   "t": "Mond{BreakSpace}stein"
+   "t": "Mond{Hyphen}stein"
   },
   "item:15": {
    "h": "0b9e9903",
-   "t": "Saturn{BreakSpace}stein"
+   "t": "Saturn{Hyphen}stein"
   },
   "item:16": {
    "h": "f41b5cc8",
-   "t": "Venus{BreakSpace}stein"
+   "t": "Venus{Hyphen}stein"
   },
   "item:17": {
    "h": "ebe707a8",
-   "t": "Weck{BreakSpace}buch"
+   "t": "Aufwach{Hyphen}buch"
   },
   "item:18": {
    "h": "4207a267",
-   "t": "Gegengift{BreakSpace}kraut"
+   "t": "Heil{Hyphen}gras"
   },
   "item:19": {
    "h": "4d57fc1e",
-   "t": "Gaia{BreakSpace}Statue"
+   "t": "Statue{BreakSpace}der Gaia"
   },
   "item:20": {
    "h": "d2dacfdb",
-   "t": "Gold{BreakSpace}statue"
+   "t": "Goldene{BreakSpace}Statue"
   },
   "item:21": {
    "h": "cb503f76",
-   "t": "Geist{BreakSpace}heilung"
+   "t": "Psycho{Hyphen}medizin"
   },
   "item:22": {
    "h": "3c346ef4",
-   "t": "Casino{BreakSpace}Ticket"
+   "t": "Kasino{Hyphen}ticket"
   },
   "item:23": {
    "h": "491f42c3",
-   "t": "Axt{BreakSpace}magie"
+   "t": "Axt{Hyphen}zauber"
   },
   "item:24": {
    "h": "ac8b9435",
-   "t": "Blaues{BreakSpace}Band"
+   "t": "Blaue{BreakSpace}Schleife"
   },
   "item:25": {
    "h": "dfbbfa66",
-   "t": "Käufer{BreakSpace}karte"
+   "t": "Käufer{Hyphen}karte"
   },
   "item:26": {
    "h": "93e720cf",
@@ -206,15 +354,15 @@
   },
   "item:28": {
    "h": "05a1ab53",
-   "t": "Anti{BreakPoint}Lähmung"
+   "t": "Anti{Hyphen}lähmung"
   },
   "item:29": {
    "h": "34fcd960",
-   "t": "Jypta{BreakSpace}Statue"
+   "t": "Statue{BreakSpace}von Jypta"
   },
   "item:30": {
    "h": "1cc22b30",
-   "t": "Sonnen{BreakSpace}stein"
+   "t": "Sonnen{Hyphen}stein"
   },
   "item:31": {
    "h": "87432d57",
@@ -222,35 +370,35 @@
   },
   "item:32": {
    "h": "d0cb54fb",
-   "t": "Einstein{BreakSpace}Pfeife"
+   "t": "Einstein{Hyphen}pfeife"
   },
   "item:33": {
    "h": "12f83b6d",
-   "t": "Gegengift{BreakSpace}buch"
+   "t": "Entgiftungs{Hyphen}buch"
   },
   "item:34": {
    "h": "f5992ca9",
-   "t": "Anti{BreakPoint}Fluch"
+   "t": "Anti-Fluch{Hyphen}buch"
   },
   "item:35": {
    "h": "5f97d999",
-   "t": "Chronik{BreakSpace}buch"
+   "t": "Helden{Hyphen}buch"
   },
   "item:36": {
    "h": "3efabac9",
-   "t": "Zauber{BreakSpace}buch"
+   "t": "Zauber{Hyphen}buch"
   },
   "item:37": {
    "h": "ab690e9b",
-   "t": "Gäste{BreakSpace}buch"
+   "t": "Hotel{Hyphen}verzeichnis"
   },
   "item:38": {
    "h": "c9da658f",
-   "t": "Insel{BreakSpace}karte"
+   "t": "Insel{Hyphen}karte"
   },
   "item:39": {
    "h": "ae41fdbd",
-   "t": "Litho{Hyphen}grafie"
+   "t": "Stein{Hyphen}tafel"
   },
   "item:40": {
    "h": "347e88f4",
@@ -258,11 +406,11 @@
   },
   "item:41": {
    "h": "01a05ca1",
-   "t": "Pfand{BreakSpace}schein"
+   "t": "Pfand{Hyphen}zettel"
   },
   "item:42": {
    "h": "82300d53",
-   "t": "Lila{BreakSpace}Juwel"
+   "t": "Purpur{Hyphen}juwel"
   },
   "item:43": {
    "h": "72d819da",
@@ -270,35 +418,31 @@
   },
   "item:44": {
    "h": "94de898c",
-   "t": "Todes{BreakSpace}statue"
-  },
-  "item:45": {
-   "h": "316c57cb",
-   "t": "Dahl"
+   "t": "Todes{Hyphen}statue"
   },
   "item:46": {
    "h": "60772261",
-   "t": "Genesung"
+   "t": "Restau{Hyphen}ration"
   },
   "item:47": {
    "h": "126dd3b7",
-   "t": "Holz{BreakPoint}stämme"
+   "t": "Holz"
   },
   "item:48": {
    "h": "be9230df",
-   "t": "Orakel{BreakSpace}stein"
+   "t": "Orakel{Hyphen}stein"
   },
   "item:49": {
    "h": "4f52aab2",
-   "t": "Idol{BreakSpace}stein"
+   "t": "Idol{Hyphen}stein"
   },
   "item:50": {
    "h": "c67dd20e",
-   "t": "Schlüssel"
+   "t": "Schlüs{Hyphen}sel"
   },
   "item:51": {
    "h": "cfa7bedf",
-   "t": "Passier{BreakSpace}schein"
+   "t": "Sicherheits{Hyphen}pass"
   },
   "item:52": {
    "h": "bcf598e4",
@@ -306,11 +450,11 @@
   },
   "item:53": {
    "h": "d4198662",
-   "t": "Glocke"
+   "t": "Klingel"
   },
   "item:54": {
    "h": "fdfa66f8",
-   "t": "Erdbeer{BreakSpace}torte"
+   "t": "Kuchen"
   },
   "item:55": {
    "h": "47123a5d",
@@ -326,15 +470,15 @@
   },
   "item:58": {
    "h": "863cecc5",
-   "t": "Breit{BreakSpace}schwert"
+   "t": "Breit{Hyphen}schwert"
   },
   "item:59": {
    "h": "46be37f8",
-   "t": "Leder{BreakSpace}panzer"
+   "t": "Leder{Hyphen}harnisch"
   },
   "item:60": {
    "h": "7517cf47",
-   "t": "Leder{BreakSpace}stiefel"
+   "t": "Leder{Hyphen}stiefel"
   },
   "item:61": {
    "h": "6eef6648",
@@ -342,19 +486,11 @@
   },
   "item:62": {
    "h": "64f16280",
-   "t": "Lebens{BreakSpace}vorrat"
+   "t": "Lebens{Hyphen}energie"
   },
   "item:63": {
    "h": "112238c5",
    "t": "No63"
-  },
-  "menu:00": {
-   "h": "bc5af774",
-   "t": "AP"
-  },
-  "menu:01": {
-   "h": "9f2059fa",
-   "t": "DP"
   },
   "menu:02": {
    "h": "528fb1c4",
@@ -362,7 +498,7 @@
   },
   "menu:03": {
    "h": "952f3754",
-   "t": "Start"
+   "t": "Starten"
   },
   "menu:04": {
    "h": "af74f7c5",
@@ -394,31 +530,11 @@
   },
   "menu:11": {
    "h": "0b8efda5",
-   "t": "Wohin?"
-  },
-  "menu:12": {
-   "h": "e8e953e1",
-   "t": "Massan"
-  },
-  "menu:13": {
-   "h": "38f7dd3f",
-   "t": "Gumi"
-  },
-  "menu:14": {
-   "h": "c6036848",
-   "t": "Ryuma"
+   "t": "Nach?"
   },
   "menu:15": {
    "h": "82e3d22f",
-   "t": "Mercator"
-  },
-  "menu:16": {
-   "h": "0dfe797d",
-   "t": "Verla"
-  },
-  "menu:17": {
-   "h": "5d1ce2e8",
-   "t": "Destel"
+   "t": "Merkator"
   },
   "menu:18": {
    "h": "778a2487",
@@ -428,29 +544,9 @@
    "h": "e9d8ee92",
    "t": "Schloss"
   },
-  "menu:20": {
-   "h": "e8e953e1",
-   "t": "Massan"
-  },
-  "menu:21": {
-   "h": "38f7dd3f",
-   "t": "Gumi"
-  },
-  "menu:22": {
-   "h": "c6036848",
-   "t": "Ryuma"
-  },
   "menu:23": {
    "h": "82e3d22f",
-   "t": "Mercator"
-  },
-  "menu:24": {
-   "h": "0dfe797d",
-   "t": "Verla"
-  },
-  "menu:25": {
-   "h": "5d1ce2e8",
-   "t": "Destel"
+   "t": "Merkator"
   },
   "menu:26": {
    "h": "740d324a",
@@ -458,139 +554,31 @@
   },
   "menu:27": {
    "h": "08cd4fb2",
-   "t": "Unterhöhle"
+   "t": "Unter der Höhle"
   },
   "menu:28": {
    "h": "217b6e1b",
-   "t": "Kazalt"
+   "t": "Kasalt"
   },
-  "char:00": {
-   "h": "96ea8904",
-   "t": "Bürgermeister"
+  "special:00": {
+   "h": "275632bb",
+   "t": "Niels"
   },
-  "char:05": {
-   "h": "89ff3122",
-   "t": "Händler"
-  },
-  "char:06": {
-   "h": "b45c5249",
-   "t": "Priester"
-  },
-  "char:07": {
-   "h": "0f775394",
-   "t": "Wirt"
-  },
-  "char:09": {
-   "h": "96ea8904",
-   "t": "Bürgermeister"
-  },
-  "char:10": {
-   "h": "34e287be",
-   "t": "Frau"
-  },
-  "char:11": {
-   "h": "0f775394",
-   "t": "Wirt"
-  },
-  "char:12": {
-   "h": "b45c5249",
-   "t": "Priester"
-  },
-  "char:13": {
-   "h": "0f775394",
-   "t": "Wirt"
-  },
-  "char:14": {
-   "h": "b45c5249",
-   "t": "Priester"
-  },
-  "char:15": {
-   "h": "89ff3122",
-   "t": "Händler"
-  },
-  "char:17": {
-   "h": "96ea8904",
-   "t": "Bürgermeister"
-  },
-  "char:18": {
-   "h": "0f775394",
-   "t": "Wirt"
-  },
-  "char:19": {
-   "h": "ba83eff4",
-   "t": "Kassierer"
-  },
-  "char:20": {
-   "h": "89ff3122",
-   "t": "Händler"
-  },
-  "char:21": {
-   "h": "89ff3122",
-   "t": "Händler"
-  },
-  "char:25": {
-   "h": "89ff3122",
-   "t": "Händler"
-  },
-  "char:27": {
-   "h": "89ff3122",
-   "t": "Händler"
-  },
-  "char:28": {
-   "h": "b45c5249",
-   "t": "Priester"
-  },
-  "char:35": {
-   "h": "89ff3122",
-   "t": "Händler"
-  },
-  "char:36": {
-   "h": "b45c5249",
-   "t": "Priester"
-  },
-  "char:37": {
-   "h": "96ea8904",
-   "t": "Bürgermeister"
-  },
-  "char:38": {
-   "h": "0f775394",
-   "t": "Wirt"
-  },
-  "char:39": {
-   "h": "b45c5249",
-   "t": "Priester"
-  },
-  "char:40": {
-   "h": "89ff3122",
-   "t": "Händler"
-  },
-  "char:41": {
-   "h": "89ff3122",
-   "t": "Händler"
-  },
-  "char:42": {
-   "h": "89ff3122",
-   "t": "Händler"
-  },
-  "char:43": {
-   "h": "0f775394",
-   "t": "Wirt"
-  },
-  "char:44": {
-   "h": "b45c5249",
-   "t": "Priester"
-  },
-  "char:45": {
-   "h": "89ff3122",
-   "t": "Händler"
-  },
-  "char:53": {
-   "h": "b45c5249",
-   "t": "Priester"
+  "special:01": {
+   "h": "d166e844",
+   "t": "Flora"
   },
   "special:03": {
    "h": "cdf92988",
-   "t": "Orkkönig"
+   "t": "Ork-König"
+  },
+  "special:09": {
+   "h": "081677f6",
+   "t": "Dux"
+  },
+  "special:13": {
+   "h": "0941ee80",
+   "t": "Nolo"
   }
  },
  "ui": {
@@ -630,7 +618,7 @@
   "SAME NUMBER: CONNECTED DOORS": "GLEICHE ZAHL: VERBUNDENE TUEREN",
   "Smooth Scrolling": "Weiches Scrollen",
   "Sprint Key": "Sprint-Taste",
-  "Friday Hints": "Friday-Hinweise",
+  "Friday Hints": "Floras Hinweise",
   "Sword Effects": "Schwert-Effekte",
   "Lighting": "Licht",
   "Boot Colors": "Stiefelfarben",
@@ -657,7 +645,7 @@
   "GPU takes load off the CPU": "GPU entlastet den Prozessor",
   "Window or full screen": "Fenster oder Vollbild",
   "Original or modern life display": "Original- oder moderne Anzeige",
-  "Shadow under Nigel for jumps": "Schatten unter Nigel beim Springen",
+  "Shadow under Nigel for jumps": "Schatten unter Niels beim Springen",
   "Flames, ice, sparks on swords": "Flammen, Eis, Funken am Schwert",
   "Boots show the equipped pair": "Stiefel zeigen die getragenen",
   "Torches, sun and shadows": "Fackeln, Sonne und Schatten",
@@ -685,9 +673,9 @@
   "B goes back to the menu bar": "B führt zurück zur Menüleiste",
   "Objects stay on moving platforms": "Objekte bleiben auf Plattformen",
   "Gaia attack without freezing": "Gaia-Angriff ohne Standbild",
-  "How much enemies hurt Nigel": "Wie stark Gegner Nigel treffen",
+  "How much enemies hurt Nigel": "Wie stark Gegner Niels treffen",
   "How much health enemies have": "Wie viel Leben Gegner haben",
-  "Select: Friday says where to go": "Select: Friday gibt Hinweise",
+  "Select: Friday says where to go": "Select: Flora gibt Hinweise",
   "Language of texts and menus": "Sprache von Texten und Menüs",
   "Options": "Optionen",
   "Video": "Video",
@@ -765,7 +753,7 @@
   "LEATHER": "LEDER",
   "NONE": "NICHTS",
   "SABR": "SPSR",
-  "Restores HP, Friday revives you": "Heilt HP, Friday belebt dich",
+  "Restores HP, Friday revives you": "Heilt HP, Flora belebt dich",
   "Charged: flames engulf the enemy": "Geladen: Flammen hüllen Feind ein",
   "Charged: ice whirlwind freezes": "Geladen: Eiswirbel friert ein",
   "Charged: lightning bolt": "Geladen: Blitzschlag",
@@ -789,26 +777,26 @@
   "Restores HP completely": "Füllt HP vollständig auf",
   "Earthquake hurts monsters in range": "Erdbeben trifft Monster ringsum",
   "Fills the sword meter for a while": "Schwertleiste eine Weile voll",
-  "Entry to the Casino": "Eintritt ins Casino",
+  "Entry to the Casino": "Eintritt ins Kasino",
   "Cuts down discolored trees": "Fällt verfärbte Bäume",
   "Lights up dark rooms": "Erhellt dunkle Räume",
-  "Makes Miro run from Nigel": "Miro flieht vor Nigel",
+  "Makes Miro run from Nigel": "Miro flieht vor Niels",
   "Powers the Lighthouse light": "Betreibt das Leuchtturmlicht",
   "Breaks the Mir Tower barrier": "Bricht die Barriere von Mirs Turm",
   "Calls Einstein, talks to dogs": "Ruft Einstein, spricht mit Hunden",
   "Lets you buy from the warehouse": "Erlaubt Kauf im Lagerhaus",
   "Jewel for the Gola Eye": "Juwel für das Gola-Auge",
   "Shows where the 5 jewels are": "Zeigt, wo die 5 Juwelen sind",
-  "Trade HP for gold, only once": "HP gegen Gold, nur einmal",
-  "Opens King Nole Cave again": "Öffnet die Nole-Höhle erneut",
+  "Trade HP for gold, only once": "HP gegen Taler, nur einmal",
+  "Opens King Nole Cave again": "Öffnet die Nolo-Höhle erneut",
   "Random effects, bad or good": "Zufallseffekte, gut oder schlecht",
   "Used to make a raft": "Zum Bau eines Floßes",
   "Shows how much you have done": "Zeigt deinen Fortschritt",
   "Opens the Swamp Shrine door": "Öffnet die Tür im Sumpfschrein",
   "Opens locked doors": "Öffnet verschlossene Türen",
-  "Allows entry to Mercator": "Erlaubt Einlass in Mercator",
+  "Allows entry to Mercator": "Erlaubt Einlass in Merkator",
   "Rings near a Life Stock": "Klingelt nahe eines Lebensvorrats",
-  "Makes Friday happy or mad": "Macht Friday froh oder wütend",
+  "Makes Friday happy or mad": "Macht Flora froh oder wütend",
   "Gola treasure for the Palace": "Gola-Schatz für den Palast",
   "NOT NOW": "JETZT NICHT"
  }
