@@ -22,6 +22,38 @@
    "h": "080fe0b4",
    "t": "{Ctl0}Ausrüsten"
   },
+  "0004": {
+   "h": "ed0d64e5",
+   "t": "{=wally}: Fräulein {=kayla} ist{SoftNewLine}wunderschön."
+  },
+  "0005": {
+   "h": "98befeb2",
+   "t": "{=ink}: ...wunderschön."
+  },
+  "0006": {
+   "h": "5ab797cf",
+   "t": "{=wally}: Wirklich wunderschön."
+  },
+  "0007": {
+   "h": "98befeb2",
+   "t": "{=ink}: ...wunderschön."
+  },
+  "0008": {
+   "h": "a3189c16",
+   "t": "{=wally}: Und wie sie die{SoftNewLine}Peitsche schwingt!"
+  },
+  "0009": {
+   "h": "c7406965",
+   "t": "{=ink}: ...schwingt!"
+  },
+  "000A": {
+   "h": "64be07d2",
+   "t": "{=wally}: Eine Dame mit{SoftNewLine}Glamour."
+  },
+  "000B": {
+   "h": "a5f81da4",
+   "t": "{=ink}: ...Glamour."
+  },
   "000C": {
    "h": "2198e4be",
    "t": "{Item} benutzt.{ContinuePrompt}"
@@ -89,6 +121,738 @@
   "001C": {
    "h": "c583a176",
    "t": "Etwas ist geschehen!{ContinuePrompt}"
+  },
+  "004E": {
+   "h": "a30fbdc4",
+   "t": "{Speaker}Kann ich dir{SoftNewLine}helfen?{WaitInput}"
+  },
+  "004F": {
+   "h": "2cdedc5d",
+   "t": "{Speaker}Danke schön, junger{SoftNewLine}Herr!{WaitInput}"
+  },
+  "0050": {
+   "h": "6e645a63",
+   "t": "{Speaker}Ah, {Item}!{SoftNewLine}Das kostet {Number} Taler. Gute{SoftNewLine}Ware, was?{WaitInput}"
+  },
+  "0051": {
+   "h": "a08cae4b",
+   "t": "{Speaker}{Number} Taler... willst{SoftNewLine}du's kaufen?{NewLine}"
+  },
+  "0052": {
+   "h": "eda39126",
+   "t": "{Speaker}Danke! Geh sorgsam{SoftNewLine}damit um.{WaitInput}"
+  },
+  "0053": {
+   "h": "130edac5",
+   "t": "{Speaker}Das reicht nicht!{SoftNewLine}Verdien dir erst noch ein paar{SoftNewLine}Taler!{WaitInput}"
+  },
+  "0054": {
+   "h": "fddb7929",
+   "t": "{Speaker}Nur am Gucken,{SoftNewLine}was?{WaitInput}"
+  },
+  "0055": {
+   "h": "36320428",
+   "t": "{Speaker}He! Haltet den{SoftNewLine}Dieb!!{WaitInput}"
+  },
+  "0056": {
+   "h": "4125be88",
+   "t": "{Speaker}Hallo! Möchtest du{SoftNewLine}übernachten?{WaitInput}"
+  },
+  "0057": {
+   "h": "6b899a8b",
+   "t": "{Speaker}Pass auf dich auf!{WaitInput}"
+  },
+  "0058": {
+   "h": "be2a4f09",
+   "t": "{Speaker}Nein, nein! Die Ware{SoftNewLine}bleibt schön hier!{WaitInput}"
+  },
+  "0059": {
+   "h": "9ef7ffc8",
+   "t": "{Speaker}Willkommen in{SoftNewLine}unserer Kirche.{WaitInput}"
+  },
+  "005A": {
+   "h": "9118ebdb",
+   "t": "{Speaker}Gib gut acht. Möge{SoftNewLine}die Göttin dich segnen!{WaitInput}"
+  },
+  "005B": {
+   "h": "babf82cc",
+   "t": "{Speaker}Halt! Das gehört{SoftNewLine}der Göttin. Leg das sofort{SoftNewLine}zurück!{WaitInput}"
+  },
+  "005C": {
+   "h": "dae9ba42",
+   "t": "{Speaker}Das hier:{SoftNewLine}{Item}.{WaitInput}"
+  },
+  "005D": {
+   "h": "933f425d",
+   "t": "{Speaker}Brauchst du ein{SoftNewLine}Gegengift?{ContinuePrompt}"
+  },
+  "005E": {
+   "h": "0c2821ed",
+   "t": "{Speaker}Dafür bitte ich um{SoftNewLine}eine Spende von {Number} Talern.{NewLine}"
+  },
+  "005F": {
+   "h": "b7fbbb5e",
+   "t": "{Speaker}Hab Dank. Nun halt{SoftNewLine}still. Das tut gar nicht weh...{WaitInput}"
+  },
+  "0060": {
+   "h": "ec5bd4dd",
+   "t": "{Speaker}Fertig. Das Gift{SoftNewLine}hat deinen Körper verlassen.{ContinuePrompt}"
+  },
+  "0061": {
+   "h": "ca060e56",
+   "t": "{Speaker}Und jetzt sei ein{SoftNewLine}bisschen vorsichtiger, ja?{WaitInput}"
+  },
+  "0062": {
+   "h": "3868a0e6",
+   "t": "{Speaker}Keine Spende? Tut{SoftNewLine}mir leid, dann kann ich nichts{SoftNewLine}tun. Komm ein andermal{SoftNewLine}wieder...{WaitInput}"
+  },
+  "0063": {
+   "h": "1da5273e",
+   "t": "{Speaker}Dann fürchte ich,{SoftNewLine}du weilst nicht mehr lange{SoftNewLine}unter uns...{ContinuePrompt}"
+  },
+  "0064": {
+   "h": "1437d67a",
+   "t": "{Speaker}Möge die Göttin dir{SoftNewLine}gnädig sein...{WaitInput}"
+  },
+  "0065": {
+   "h": "353ec3fd",
+   "t": "{Speaker}Hmm... kein Gift. Da{SoftNewLine}muss nichts entgiftet werden!{WaitInput}"
+  },
+  "0066": {
+   "h": "5afd01de",
+   "t": "{Speaker}Das hier:{SoftNewLine}{Item}. Da steht alles{SoftNewLine}über Flüche drin.{WaitInput}"
+  },
+  "0067": {
+   "h": "494f641f",
+   "t": "{Speaker}Kannst du eine{SoftNewLine}Spende von {Number} Talern{ContinuePrompt}"
+  },
+  "0068": {
+   "h": "6307185f",
+   "t": "{Speaker}für die{SoftNewLine}Fluchbrechung entrichten?{NewLine}"
+  },
+  "0069": {
+   "h": "4152dffe",
+   "t": "{Speaker}Tadaa! Der Fluch{SoftNewLine}ist gebrochen.{WaitInput}"
+  },
+  "006A": {
+   "h": "5cceff89",
+   "t": "{Speaker}Ich würde dir ja{SoftNewLine}gern helfen... aber auf dir{SoftNewLine}liegt gar kein Fluch.{WaitInput}"
+  },
+  "006B": {
+   "h": "2a174dc7",
+   "t": "{Speaker}Das hier:{SoftNewLine}{Item}. Unverzichtbar{SoftNewLine}gegen Wahnvorstellungen.{WaitInput}"
+  },
+  "006C": {
+   "h": "494f641f",
+   "t": "{Speaker}Kannst du eine{SoftNewLine}Spende von {Number} Talern{ContinuePrompt}"
+  },
+  "006D": {
+   "h": "d4f2f241",
+   "t": "{Speaker}für die Heilung{SoftNewLine}entrichten?{NewLine}"
+  },
+  "006E": {
+   "h": "ea01d166",
+   "t": "{Speaker}Aaah... schon{SoftNewLine}besser! Deine{SoftNewLine}Wahnvorstellungen sind weg.{WaitInput}"
+  },
+  "006F": {
+   "h": "7ff42ecd",
+   "t": "{Speaker}W-was...? Du hast{SoftNewLine}doch gar keine{SoftNewLine}Wahnvorstellungen!{WaitInput}"
+  },
+  "0070": {
+   "h": "dae9ba42",
+   "t": "{Speaker}Das hier:{SoftNewLine}{Item}.{WaitInput}"
+  },
+  "0071": {
+   "h": "41332697",
+   "t": "{Speaker}Dein Abenteuer{SoftNewLine}aufschreiben kostet nichts.{SoftNewLine}Soll ich es jetzt festhalten?{NewLine}"
+  },
+  "0072": {
+   "h": "a371bbbd",
+   "t": "{Speaker}Gut, dann schreibe{SoftNewLine}ich dein Abenteuer in dieses{SoftNewLine}Buch.{ContinuePrompt}"
+  },
+  "0073": {
+   "h": "a6bda945",
+   "t": "{Speaker}Fertig! Deine{SoftNewLine}Heldentaten werden für immer{SoftNewLine}in unseren Herzen weiterleben.{ContinuePrompt}"
+  },
+  "0074": {
+   "h": "b1119607",
+   "t": "{Speaker}Nicht? Kennst du{SoftNewLine}das Sprichwort \"Erst denken,{SoftNewLine}dann springen\"?{ContinuePrompt}"
+  },
+  "0075": {
+   "h": "d3ebbd07",
+   "t": "{Speaker}Willst du dein{SoftNewLine}Abenteuer fortsetzen?{NewLine}"
+  },
+  "0076": {
+   "h": "7c8c9736",
+   "t": "{Speaker}Viel Glück! Die{SoftNewLine}Göttin wacht über dich.{WaitInput}"
+  },
+  "0077": {
+   "h": "5c3c091a",
+   "t": "{Speaker}Dann ruh dich gut{SoftNewLine}aus. Möge die Göttin dich auf{SoftNewLine}deinem nächsten Abenteuer{SoftNewLine}segnen!{WaitInput}"
+  },
+  "0078": {
+   "h": "3ef8bab6",
+   "t": "{Speaker}{Number} Taler die{SoftNewLine}Nacht. Leg es auf die Theke,{SoftNewLine}wenn du bleiben willst.{WaitInput}"
+  },
+  "0079": {
+   "h": "0e75ae86",
+   "t": "{Speaker}{Number} Taler. Bleibst{SoftNewLine}du über Nacht?{NewLine}"
+  },
+  "007A": {
+   "h": "9e068b89",
+   "t": "{Speaker}Vielen Dank. Dein{SoftNewLine}Zimmer ist oben.{WaitInput}"
+  },
+  "007B": {
+   "h": "56617c83",
+   "t": "{Speaker}Komm jederzeit{SoftNewLine}wieder, wenn du Ruhe{SoftNewLine}brauchst.{WaitInput}"
+  },
+  "007C": {
+   "h": "49e5c31e",
+   "t": "{Speaker}Du hast nicht genug{SoftNewLine}Taler, oder?{WaitInput}"
+  },
+  "007D": {
+   "h": "d7e32b22",
+   "t": "{Speaker}Wie schade...{WaitInput}"
+  },
+  "007E": {
+   "h": "ec2a5856",
+   "t": "{Speaker}{Item}. Leg{SoftNewLine}es auf die Theke, wenn du es{SoftNewLine}dir ansehen willst.{WaitInput}"
+  },
+  "007F": {
+   "h": "f9daed4b",
+   "t": "{Speaker}Du willst dir{SoftNewLine}{Item} ansehen, ja?{NewLine}"
+  },
+  "0080": {
+   "h": "290fd398",
+   "t": "{Speaker}Uff... d-das Buch{SoftNewLine}da! Fass das bloß nicht an,{SoftNewLine}Kind!{WaitInput}"
+  },
+  "0081": {
+   "h": "68cb8b13",
+   "t": "{Speaker}Um Himmels willen!{SoftNewLine}Das ist wirklich kein{SoftNewLine}Spielzeug...{ContinuePrompt}"
+  },
+  "0082": {
+   "h": "48341c86",
+   "t": "{Speaker}Du willst trotzdem{SoftNewLine}reinschauen?{NewLine}"
+  },
+  "0083": {
+   "h": "bf58e43c",
+   "t": "{Speaker}Na schön... aber{SoftNewLine}verrat es bloß keinem!{WaitInput}"
+  },
+  "0084": {
+   "h": "c82b5833",
+   "t": "{Speaker}Hehehe... ein{SoftNewLine}wunderbares Buch, nicht wahr?{SoftNewLine}Aber nichts für Anfänger.{SoftNewLine}Darum halte ich es geheim.{WaitInput}"
+  },
+  "0085": {
+   "h": "70006961",
+   "t": "{Speaker}Eine weise{SoftNewLine}Entscheidung, mein Kind. Du{SoftNewLine}wirst es im Leben weit{SoftNewLine}bringen.{WaitInput}"
+  },
+  "0086": {
+   "h": "afd6e028",
+   "t": "{Speaker}Nein, nein! Nimm das{SoftNewLine}nicht mit! Wenn das{SoftNewLine}rauskommt, bin ich erledigt!{WaitInput}"
+  },
+  "0087": {
+   "h": "2ca27c51",
+   "t": "{Speaker}Willkommen,{SoftNewLine}Fremder! Willst du{SoftNewLine}übernachten?{WaitInput}"
+  },
+  "0088": {
+   "h": "e0584af2",
+   "t": "{Speaker}Danke schön, junger{SoftNewLine}Herr.{WaitInput}"
+  },
+  "0089": {
+   "h": "d2f86cc3",
+   "t": "{Speaker}Du willst{SoftNewLine}{Item}?{WaitInput}"
+  },
+  "008A": {
+   "h": "a59fee08",
+   "t": "{Speaker}Das macht {Number}{SoftNewLine}Taler. Immer noch{SoftNewLine}interessiert?{NewLine}"
+  },
+  "008B": {
+   "h": "7ce05475",
+   "t": "{Speaker}Vielen Dank!{WaitInput}"
+  },
+  "008C": {
+   "h": "40e4a915",
+   "t": "{Speaker}Ach... zu teuer für{SoftNewLine}dich!{WaitInput}"
+  },
+  "008D": {
+   "h": "d56f4654",
+   "t": "{Speaker}Ach... dann eben{SoftNewLine}nicht.{WaitInput}"
+  },
+  "008E": {
+   "h": "b590aa25",
+   "t": "{Speaker}Was machst du{SoftNewLine}denn da?!{WaitInput}"
+  },
+  "008F": {
+   "h": "b658f69c",
+   "t": "{Speaker}{Number} Taler für ein{SoftNewLine}Einzelzimmer. Bring es einfach{SoftNewLine}zu mir, dann trag ich dich ein.{WaitInput}"
+  },
+  "0090": {
+   "h": "8c53e1c1",
+   "t": "{Speaker}{Number} Taler, mein{SoftNewLine}Freund. Bleibst du über Nacht?{NewLine}"
+  },
+  "0091": {
+   "h": "3b4b773d",
+   "t": "{Speaker}Dein Zimmer ist{SoftNewLine}bereit, junger Herr.{WaitInput}"
+  },
+  "0092": {
+   "h": "b3cd2110",
+   "t": "{Speaker}So! Fühlst du dich{SoftNewLine}nicht gleich besser? Einen{SoftNewLine}schönen Tag noch!{WaitInput}"
+  },
+  "0093": {
+   "h": "69f9415d",
+   "t": "{Speaker}Tut mir leid,{SoftNewLine}billiger geht's wirklich nicht.{WaitInput}"
+  },
+  "0094": {
+   "h": "8527bc9c",
+   "t": "{Speaker}Was...?{WaitInput}"
+  },
+  "0095": {
+   "h": "7dfab065",
+   "t": "{Speaker}Bring es zur Theke,{SoftNewLine}wenn du es dir ansehen willst.{WaitInput}"
+  },
+  "0096": {
+   "h": "4ce83a98",
+   "t": "{Speaker}Ich zeig dir{SoftNewLine}{Item}, ja?{NewLine}"
+  },
+  "0097": {
+   "h": "acabfd41",
+   "t": "{Speaker}Seit dreißig Jahren{SoftNewLine}führe ich diesen Laden! Gute{SoftNewLine}Ware gibt's nur bei mir!{WaitInput}"
+  },
+  "0098": {
+   "h": "2e8093fe",
+   "t": "{Speaker}Danke! Komm bald{SoftNewLine}wieder!{WaitInput}"
+  },
+  "0099": {
+   "h": "8bd9127b",
+   "t": "{Speaker}{Item}{SoftNewLine}kostet {Number} Taler.{WaitInput}"
+  },
+  "009A": {
+   "h": "2c9e2d32",
+   "t": "{Speaker}Macht {Number} Taler,{SoftNewLine}in Ordnung?{NewLine}"
+  },
+  "009B": {
+   "h": "6a25a870",
+   "t": "{Speaker}Danke, danke schön.{WaitInput}"
+  },
+  "009C": {
+   "h": "09de370e",
+   "t": "{Speaker}Da fehlen dir aber{SoftNewLine}noch ein paar Taler.{WaitInput}"
+  },
+  "009D": {
+   "h": "1963d562",
+   "t": "{Speaker}Du weißt gar nicht,{SoftNewLine}was dir entgeht...{WaitInput}"
+  },
+  "009E": {
+   "h": "62c39af1",
+   "t": "{Speaker}He, du! He!!{WaitInput}"
+  },
+  "009F": {
+   "h": "7387c4cd",
+   "t": "{Speaker}Willkommen! Hier{SoftNewLine}kannst du dich ausruhen und{SoftNewLine}sogar Vorräte kaufen!{WaitInput}"
+  },
+  "00A0": {
+   "h": "20c46edf",
+   "t": "{Speaker}Du gehst schon?{SoftNewLine}Viel Glück!{WaitInput}"
+  },
+  "00A1": {
+   "h": "8dd6ac8a",
+   "t": "{Speaker}Ah, ein kluger{SoftNewLine}Käufer! Das ist zur Zeit sehr{SoftNewLine}beliebt. Kann ich nur{SoftNewLine}empfehlen!{WaitInput}"
+  },
+  "00A2": {
+   "h": "8fc1ab90",
+   "t": "{Speaker}Das willst du? {Number}{SoftNewLine}Taler, und es gehört dir.{NewLine}"
+  },
+  "00A3": {
+   "h": "b0240284",
+   "t": "{Speaker}Danke schön. Bleib{SoftNewLine}gesund damit.{WaitInput}"
+  },
+  "00A4": {
+   "h": "85dcf291",
+   "t": "{Speaker}Willst du mich{SoftNewLine}veräppeln? Du hast nicht{SoftNewLine}genug Taler.{WaitInput}"
+  },
+  "00A5": {
+   "h": "1b4f8659",
+   "t": "{Speaker}Hast du's dir{SoftNewLine}anders überlegt?{WaitInput}"
+  },
+  "00A6": {
+   "h": "676ecc3f",
+   "t": "{Speaker}He! Das musst du{SoftNewLine}schon bezahlen!!{WaitInput}"
+  },
+  "00A7": {
+   "h": "401c0774",
+   "t": "{Speaker}{Item}. {Number}{SoftNewLine}Taler pro Nacht. Leg es bitte{SoftNewLine}auf die Theke.{WaitInput}"
+  },
+  "00A8": {
+   "h": "353d28ae",
+   "t": "{Speaker}Eine Übernachtung?{SoftNewLine}{Number} Taler, bitte.{NewLine}"
+  },
+  "00A9": {
+   "h": "1b9bebf7",
+   "t": "{Speaker}Vielen Dank, junger{SoftNewLine}Herr. Ihr Bett ist bereit.{WaitInput}"
+  },
+  "00AA": {
+   "h": "db373ecc",
+   "t": "{Speaker}Gut geschlafen? Auf{SoftNewLine}Wiedersehen.{WaitInput}"
+  },
+  "00AB": {
+   "h": "07278d27",
+   "t": "{Speaker}Es tut mir leid,{SoftNewLine}aber Sie haben nicht genug{SoftNewLine}Taler.{WaitInput}"
+  },
+  "00AC": {
+   "h": "72b555f4",
+   "t": "{Speaker}Nun, falls Sie es{SoftNewLine}sich anders überlegen...{WaitInput}"
+  },
+  "00AD": {
+   "h": "57208c7f",
+   "t": "{Speaker}{Item}.{SoftNewLine}Bring es zur Theke.{WaitInput}"
+  },
+  "00AE": {
+   "h": "c8059fab",
+   "t": "{Speaker}Möchtest du dir{SoftNewLine}{Item} ansehen?{NewLine}"
+  },
+  "00AF": {
+   "h": "309d9a5a",
+   "t": "{Speaker}Merkators{SoftNewLine}Schnäppchenmarkt!! 30%{SoftNewLine}billiger!! 40% billiger!! Na los!{SoftNewLine}Ich hab alles, was du willst!!{WaitInput}"
+  },
+  "00B0": {
+   "h": "7f6d39d4",
+   "t": "{Speaker}Danke, Junge! Komm{SoftNewLine}wieder!{WaitInput}"
+  },
+  "00B1": {
+   "h": "900c3738",
+   "t": "{Speaker}{Item}{SoftNewLine}kostet {Number} Taler. Spottbillig!{WaitInput}"
+  },
+  "00B2": {
+   "h": "f97e6b52",
+   "t": "{Speaker}Das macht {Number}{SoftNewLine}Taler. Soll ich's als Geschenk{SoftNewLine}einpacken?{NewLine}"
+  },
+  "00B3": {
+   "h": "f798bc3f",
+   "t": "{Speaker}Ich danke Ihnen{SoftNewLine}vielmals!{WaitInput}"
+  },
+  "00B4": {
+   "h": "e7b1994c",
+   "t": "{Speaker}Oh la la!! Da fehlen{SoftNewLine}dem Monsieur wohl ein paar{SoftNewLine}Taler.{WaitInput}"
+  },
+  "00B5": {
+   "h": "ce65a02b",
+   "t": "{Speaker}Gefällt es Ihnen{SoftNewLine}nicht? Vielleicht etwas{SoftNewLine}anderes für Monsieur?{WaitInput}"
+  },
+  "00B6": {
+   "h": "7c023a1d",
+   "t": "{Speaker}Moment mal! Billig{SoftNewLine}heißt nicht umsonst!{WaitInput}"
+  },
+  "00B7": {
+   "h": "8704c449",
+   "t": "{Speaker}{=nigel}! Was darf's{SoftNewLine}denn sein?{ContinuePrompt}"
+  },
+  "00B8": {
+   "h": "daa63cf6",
+   "t": "{Speaker}Sag einfach, was{SoftNewLine}du willst, ich mach dir einen{SoftNewLine}guten Preis!{WaitInput}"
+  },
+  "00B9": {
+   "h": "9d1fc70a",
+   "t": "{Speaker}Schau bald wieder{SoftNewLine}vorbei, {=nigel}!{WaitInput}"
+  },
+  "00BA": {
+   "h": "86380861",
+   "t": "{Speaker}Unser bestes Stück:{SoftNewLine}{Item}. Allererste{SoftNewLine}Qualität.{WaitInput}"
+  },
+  "00BB": {
+   "h": "c366ef18",
+   "t": "{Speaker}Unser bestes Stück:{SoftNewLine}{Item}. Wirkt{SoftNewLine}garantiert.{WaitInput}"
+  },
+  "00BC": {
+   "h": "d6ef0833",
+   "t": "{Speaker}Für dich nur {Number}{SoftNewLine}Taler das Stück:{SoftNewLine}{Item}. In Ordnung?{NewLine}"
+  },
+  "00BD": {
+   "h": "fd3815d4",
+   "t": "{Speaker}Danke, {=nigel}! Das{SoftNewLine}wirst du noch gut brauchen{SoftNewLine}können, glaub mir!{WaitInput}"
+  },
+  "00BE": {
+   "h": "f56b1ac0",
+   "t": "{Speaker}Immer noch zu{SoftNewLine}teuer? Billiger geht's wirklich{SoftNewLine}nicht!{WaitInput}"
+  },
+  "00BF": {
+   "h": "d4d9ff5c",
+   "t": "{Speaker}Tut mir echt leid...{WaitInput}"
+  },
+  "00C0": {
+   "h": "77d57864",
+   "t": "{Speaker}Moment mal,{SoftNewLine}{=nigel}! Leg das sofort{SoftNewLine}zurück!{WaitInput}"
+  },
+  "00C1": {
+   "h": "2e18f66e",
+   "t": "{Speaker}Guten Tag, junger{SoftNewLine}Herr. Willkommen in meinem{SoftNewLine}Hotel.{WaitInput}"
+  },
+  "00C2": {
+   "h": "09750326",
+   "t": "{Speaker}Ich wünsche Ihnen{SoftNewLine}eine gute Reise.{WaitInput}"
+  },
+  "00C3": {
+   "h": "54015003",
+   "t": "{Speaker}Nein, nein! Das ist{SoftNewLine}kein Geschenk.{WaitInput}"
+  },
+  "00C4": {
+   "h": "87a6169c",
+   "t": "{Speaker}Bitte komm zur{SoftNewLine}Theke. Eine Übernachtung{SoftNewLine}kostet {Number} Taler.{WaitInput}"
+  },
+  "00C5": {
+   "h": "102eadc1",
+   "t": "{Speaker}{Number} Taler für die{SoftNewLine}Nacht. In Ordnung?{NewLine}"
+  },
+  "00C6": {
+   "h": "08da1bc7",
+   "t": "{Speaker}Vielen Dank, junger{SoftNewLine}Herr. Ruh dich nur schön aus.{WaitInput}"
+  },
+  "00C7": {
+   "h": "dd7afddc",
+   "t": "{Speaker}Oh, du siehst schon{SoftNewLine}viel besser aus. Bis bald!{WaitInput}"
+  },
+  "00C8": {
+   "h": "09909b2b",
+   "t": "{Speaker}Hoppla!... Komm{SoftNewLine}bitte wieder, wenn du mehr{SoftNewLine}Taler hast.{WaitInput}"
+  },
+  "00C9": {
+   "h": "a2c84573",
+   "t": "{Speaker}Willst du dich nicht{SoftNewLine}ausruhen? Komm bald wieder...{WaitInput}"
+  },
+  "00CA": {
+   "h": "6241b022",
+   "t": "{Speaker}Möchtest du dir{SoftNewLine}{Item} ansehen?{WaitInput}"
+  },
+  "00CB": {
+   "h": "1a9d27c2",
+   "t": "{Speaker}Hier, bitteschön.{NewLine}"
+  },
+  "00CC": {
+   "h": "1aaed3da",
+   "t": "{Speaker}...ha...{ContinuePrompt}"
+  },
+  "00CD": {
+   "h": "23b0b47f",
+   "t": "{Speaker}...HAA...{ContinuePrompt}"
+  },
+  "00CE": {
+   "h": "e3c4b0c8",
+   "t": "{Speaker}HATSCHIII!!!...{WaitInput}"
+  },
+  "00CF": {
+   "h": "223096a9",
+   "t": "{Speaker}...tschüssi...{WaitInput}"
+  },
+  "00D0": {
+   "h": "8765b9c7",
+   "t": "{Speaker}...{Item}...{SoftNewLine}hust... ...{Number} Taler... hust,{SoftNewLine}hust!...{WaitInput}"
+  },
+  "00D1": {
+   "h": "2f0cdfe2",
+   "t": "{Speaker}...kaufst{SoftNewLine}du's?...hust...{NewLine}"
+  },
+  "00D2": {
+   "h": "5b10f6bd",
+   "t": "{Speaker}...wirst es nicht...{SoftNewLine}hust, hust... bereuen... hust,{SoftNewLine}hust!...{WaitInput}"
+  },
+  "00D3": {
+   "h": "e85afc0b",
+   "t": "{Speaker}...brauchst... hust,{SoftNewLine}hust... ...mehr... hust, hust...{SoftNewLine}...mehr Taler!...{ContinuePrompt}"
+  },
+  "00D4": {
+   "h": "4ee56d84",
+   "t": "{Speaker}...hust, hust,{SoftNewLine}hust...{WaitInput}"
+  },
+  "00D5": {
+   "h": "c90175a9",
+   "t": "{Speaker}Nein?...hust...{WaitInput}"
+  },
+  "00D6": {
+   "h": "15acb9d0",
+   "t": "{Speaker}Halt!... ...hust,{SoftNewLine}hust... DIEB!... ...hust, hust,{SoftNewLine}hust...{WaitInput}"
+  },
+  "00D7": {
+   "h": "e1ade8e3",
+   "t": "{Speaker}...hust...{SoftNewLine}{Item}..... ansehen?...{SoftNewLine}hust...{WaitInput}"
+  },
+  "00D8": {
+   "h": "f088dd7d",
+   "t": "{Speaker}...bitte... schau...{SoftNewLine}hust!{NewLine}"
+  },
+  "00D9": {
+   "h": "e6abfa6a",
+   "t": "{Speaker}He, willkommen! Was{SoftNewLine}gibt's?{WaitInput}"
+  },
+  "00DA": {
+   "h": "e9e73dbc",
+   "t": "{Speaker}Bis später!{WaitInput}"
+  },
+  "00DB": {
+   "h": "72f4e356",
+   "t": "{Speaker}Unser bestes Stück:{SoftNewLine}{Item}. Ziemlich{SoftNewLine}nützlich, würd ich sagen!{WaitInput}"
+  },
+  "00DC": {
+   "h": "c75655db",
+   "t": "{Speaker}Du hast uns{SoftNewLine}gerettet! Sonderpreis, nur {Number}{SoftNewLine}Taler!{NewLine}"
+  },
+  "00DD": {
+   "h": "66a6d439",
+   "t": "{Speaker}Danke, Held!{WaitInput}"
+  },
+  "00DE": {
+   "h": "259e87e9",
+   "t": "{Speaker}Hoppla! Da fehlen{SoftNewLine}noch ein paar Taler.{WaitInput}"
+  },
+  "00DF": {
+   "h": "639692f2",
+   "t": "{Speaker}Brauchst du also{SoftNewLine}nicht. Schon gut, schon gut.{WaitInput}"
+  },
+  "00E0": {
+   "h": "26ba3044",
+   "t": "{Speaker}Nun ja, umsonst{SoftNewLine}kann ich es dir nicht geben,{SoftNewLine}{=nigel}. Also wirklich!{WaitInput}"
+  },
+  "00E1": {
+   "h": "8c656644",
+   "t": "{Speaker}{Item}!{WaitInput}"
+  },
+  "00E2": {
+   "h": "8950429b",
+   "t": "{Speaker}Mal ansehen?{NewLine}"
+  },
+  "00E3": {
+   "h": "b446f703",
+   "t": "{Speaker}Willkommen in{SoftNewLine}Freundlis Laden!{WaitInput}"
+  },
+  "00E4": {
+   "h": "c0c55f42",
+   "t": "{Speaker}Tschüss! Bis zum{SoftNewLine}nächsten Mal.{WaitInput}"
+  },
+  "00E5": {
+   "h": "8f77800e",
+   "t": "{Speaker}He! Was machst du{SoftNewLine}da? Haben dir deine Eltern das{SoftNewLine}Stehlen beigebracht?{WaitInput}"
+  },
+  "00E6": {
+   "h": "46059097",
+   "t": "{Speaker}Du kannst gern{SoftNewLine}bleiben, solange du keinen{SoftNewLine}Ärger machst.{WaitInput}"
+  },
+  "00E7": {
+   "h": "66a321a8",
+   "t": "{Speaker}Wer kommt denn da{SoftNewLine}in meinen unterirdischen{SoftNewLine}Laden?{ContinuePrompt}"
+  },
+  "00E8": {
+   "h": "d5d950a2",
+   "t": "{Speaker}Ich hatte seit{SoftNewLine}Ewigkeiten keinen Kunden mehr!{WaitInput}"
+  },
+  "00E9": {
+   "h": "e2dca1fc",
+   "t": "{Speaker}Komm bald wieder.{SoftNewLine}Du bist mein einziger Kunde{SoftNewLine}seit 200 Jahren!{WaitInput}"
+  },
+  "00EA": {
+   "h": "992c65b1",
+   "t": "{Speaker}Schurke! In 200{SoftNewLine}Jahren hab ich so eine{SoftNewLine}Frechheit noch nicht erlebt!{WaitInput}"
+  },
+  "00EB": {
+   "h": "0d481fbb",
+   "t": "{Speaker}Kann ich helfen?{SoftNewLine}Möchten Sie übernachten?{SoftNewLine}Unsere Betten sind alle bereit.{WaitInput}"
+  },
+  "00EC": {
+   "h": "9fc132fb",
+   "t": "{Speaker}He! Das gehört uns!{SoftNewLine}Stehen bleiben!{WaitInput}"
+  },
+  "00ED": {
+   "h": "de301ccd",
+   "t": "{Speaker}Vielen Dank, werter{SoftNewLine}Herr. Treten Sie bitte ein.{WaitInput}"
+  },
+  "00EE": {
+   "h": "e27d6d8f",
+   "t": "{Speaker}Neeeiiin... nimm es{SoftNewLine}nicht weeeeeg......{WaitInput}"
+  },
+  "00EF": {
+   "h": "92060236",
+   "t": "{Speaker}Daaaas{SoftNewLine}ist.......{Item}...........{WaitInput}"
+  },
+  "00F0": {
+   "h": "1e4042d2",
+   "t": "{Speaker}Darf ich{SoftNewLine}dein......Abenteuer{SoftNewLine}aufschreeeeeiben........?{NewLine}"
+  },
+  "00F1": {
+   "h": "8ccbe8d2",
+   "t": "{Speaker}Erleeeedigt.............{ContinuePrompt}"
+  },
+  "00F2": {
+   "h": "63afd86c",
+   "t": "{Speaker}Es ist{SoftNewLine}voooorbeeei.......{ContinuePrompt}"
+  },
+  "00F3": {
+   "h": "f1734a70",
+   "t": "{Speaker}Oh, oh......{ContinuePrompt}"
+  },
+  "00F4": {
+   "h": "a05efa30",
+   "t": "{Speaker}Noch{SoftNewLine}weiiiter.....gehen......?{NewLine}"
+  },
+  "00F5": {
+   "h": "8f79b548",
+   "t": "{Speaker}Viel Glüüück....möge{SoftNewLine}die Göööttin.......{WaitInput}"
+  },
+  "00F6": {
+   "h": "3be36dff",
+   "t": "{Speaker}Nun....ruh dich{SoftNewLine}auuuus....{WaitInput}"
+  },
+  "00F7": {
+   "h": "ea7962c4",
+   "t": "{Speaker}Oh, ein{SoftNewLine}Gaaaast......in meinem Grab....{WaitInput}"
+  },
+  "00F8": {
+   "h": "6be44949",
+   "t": "{Speaker}Ich waaarte.....auf{SoftNewLine}dich........{WaitInput}"
+  },
+  "00F9": {
+   "h": "6fbdf500",
+   "t": "{Speaker}Willkommen im{SoftNewLine}Kelketo-Wasserfall-Laden!{WaitInput}"
+  },
+  "00FA": {
+   "h": "baa8efa8",
+   "t": "{Speaker}Die Kelketo-Fälle{SoftNewLine}sind eine echte{SoftNewLine}Sehenswürdigkeit. Komm bald{SoftNewLine}wieder!{WaitInput}"
+  },
+  "00FB": {
+   "h": "99d08fdb",
+   "t": "{Speaker}Was--! Bist du{SoftNewLine}etwa ein Dieb?{WaitInput}"
+  },
+  "00FC": {
+   "h": "9196c5d5",
+   "t": "{Speaker}Freundlis Bruder?{SoftNewLine}Das bin ich! Willkommen in{SoftNewLine}Gierlis Laden!{WaitInput}"
+  },
+  "00FD": {
+   "h": "e476f7dd",
+   "t": "Wehe und Tod allen, die dieses{SoftNewLine}Land betreten....{WaitInput}"
+  },
+  "00FE": {
+   "h": "c30c4b3f",
+   "t": "Willst du weiterkommen, musst{SoftNewLine}du der Göttin nahe sein.{WaitInput}"
+  },
+  "00FF": {
+   "h": "069f421a",
+   "t": "Nur wer den schwereren Weg{SoftNewLine}wählt, kann den Schatz{SoftNewLine}erlangen.{WaitInput}"
+  },
+  "0100": {
+   "h": "c844c2ab",
+   "t": "Du tapfere Seele, deine Mühe{SoftNewLine}wird belohnt, wenn du dein{SoftNewLine}Bestes gibst.{WaitInput}"
+  },
+  "0101": {
+   "h": "45a9210c",
+   "t": "↖ WASSERFALLSCHREIN{SoftNewLine}↙ DORF GUMI{SoftNewLine}DORF MASSAN ↗{WaitInput}"
+  },
+  "0102": {
+   "h": "388bcdc3",
+   "t": "↖ SUMPFSCHREIN{SoftNewLine}↙ DORF GUMI{SoftNewLine}DORF MASSAN ↗{WaitInput}"
+  },
+  "0103": {
+   "h": "80991b2f",
+   "t": "↗ STADT MERKATOR{SoftNewLine}↙ STADT RYUMA{SoftNewLine}DORF GUMI ↘{WaitInput}"
+  },
+  "0104": {
+   "h": "bb1f96be",
+   "t": "↖ STADT VERLA{SoftNewLine}↙ MIRS TURM{SoftNewLine}STADT MERKATOR ↘{WaitInput}"
   },
   "0148": {
    "h": "06a4c0f9",
@@ -256,7 +1020,7 @@
   },
   "0171": {
    "h": "a7f10ac9",
-   "t": "{Speaker}Danke nochmal für{SoftNewLine}neulich! Kauf doch  {Item}  direkt{SoftNewLine}bei uns vom Hof!{WaitInput}"
+   "t": "{Speaker}Danke nochmal für{SoftNewLine}neulich! Kauf doch{SoftNewLine}{Item} direkt bei uns{SoftNewLine}vom Hof!{WaitInput}"
   },
   "0172": {
    "h": "0955a2a9",
@@ -801,6 +1565,350 @@
   "01F9": {
    "h": "0a3731b8",
    "t": "{Speaker}Puh, da kommt man{SoftNewLine}ins Schwitzen! Mach's gut!{WaitInput}"
+  },
+  "01FA": {
+   "h": "fb609bbf",
+   "t": "{Speaker}Hallo, das hier ist{SoftNewLine}Ryuma.{WaitInput}"
+  },
+  "01FB": {
+   "h": "54af1029",
+   "t": "{Speaker}Gibt es denn{SoftNewLine}nirgendwo einen Helden, der{SoftNewLine}uns helfen kann...?{WaitInput}"
+  },
+  "01FC": {
+   "h": "c7cbfc32",
+   "t": "{Speaker}Man sagt, du bist{SoftNewLine}ein Held, junger Mann! So jung{SoftNewLine}und schon ein Held!{WaitInput}"
+  },
+  "01FD": {
+   "h": "24d0daff",
+   "t": "{Speaker}Ich hab eine blonde{SoftNewLine}Schönheit gesehen, die mit{SoftNewLine}zwei lachenden Monstern die{SoftNewLine}Stadt verlassen hat...{WaitInput}"
+  },
+  "01FE": {
+   "h": "3076dc11",
+   "t": "{Speaker}Ein Unglück jagt{SoftNewLine}das nächste. Diesmal haben sie{SoftNewLine}den Leuchtturm kaputt{SoftNewLine}gemacht.{WaitInput}"
+  },
+  "01FF": {
+   "h": "f1a34060",
+   "t": "{Speaker}Wär ich nur ein{SoftNewLine}bisschen älter, dann würd ich{SoftNewLine}diese Diebe aus der Stadt{SoftNewLine}jagen!{WaitInput}"
+  },
+  "0200": {
+   "h": "b9a43f65",
+   "t": "{Speaker}Buhuuu... Papa...{WaitInput}"
+  },
+  "0201": {
+   "h": "4dd27cd3",
+   "t": "{Speaker}Warum hast du mich{SoftNewLine}nicht mitgenommen?{WaitInput}"
+  },
+  "0202": {
+   "h": "4ac971cc",
+   "t": "{Speaker}Du schaffst es,{SoftNewLine}{Item} zu holen, ganz{SoftNewLine}bestimmt! Und diesmal komm{SoftNewLine}ich mit!{WaitInput}"
+  },
+  "0203": {
+   "h": "048ce9b4",
+   "t": "{Speaker}Ryuma ist eine sehr{SoftNewLine}alte Stadt.{ContinuePrompt}"
+  },
+  "0204": {
+   "h": "00708550",
+   "t": "{Speaker}Ob du's glaubst{SoftNewLine}oder nicht, vor langer, langer{SoftNewLine}Zeit war sie viel größer als{SoftNewLine}Merkator. Jeden Tag legten{SoftNewLine}hier große Schiffe an...{WaitInput}"
+  },
+  "0205": {
+   "h": "e521a94b",
+   "t": "{Speaker}Ich hab gehört, in{SoftNewLine}Merkator regiert jetzt ein{SoftNewLine}Herzog Merkator.{WaitInput}"
+  },
+  "0206": {
+   "h": "912fea36",
+   "t": "{Speaker}War dieser Herzog{SoftNewLine}Merkator wirklich so ein{SoftNewLine}Schuft?{WaitInput}"
+  },
+  "0207": {
+   "h": "58a8694b",
+   "t": "{Speaker}Du bist also auch{SoftNewLine}auf Schatzsuche hier? Wo{SoftNewLine}diese Gerüchte nur{SoftNewLine}herkommen...{ContinuePrompt}"
+  },
+  "0208": {
+   "h": "5b0d267e",
+   "t": "{Speaker}Wenn's stimmt, will{SoftNewLine}ich auch ein Stück davon{SoftNewLine}abhaben.{WaitInput}"
+  },
+  "0209": {
+   "h": "560839ba",
+   "t": "{Speaker}Vergiss nicht, mir{SoftNewLine}die Hälfte abzugeben, wenn du{SoftNewLine}den Schatz findest! Hohoho!{SoftNewLine}War nur ein Scherz.{WaitInput}"
+  },
+  "020A": {
+   "h": "c76e13ab",
+   "t": "{Speaker}Diesen Monat läuft{SoftNewLine}das Geschäft miserabel, wegen{SoftNewLine}der Diebe!{WaitInput}"
+  },
+  "020B": {
+   "h": "1beda183",
+   "t": "{Speaker}Ich sag's ja nur{SoftNewLine}gut gemeint: Pack deine Sachen{SoftNewLine}und geh nach Hause!!{ContinuePrompt}"
+  },
+  "020C": {
+   "h": "9abfb2e7",
+   "t": "{Speaker}Du wirst es nicht{SoftNewLine}bereuen, auf mich zu hören...{WaitInput}"
+  },
+  "020D": {
+   "h": "4735cae2",
+   "t": "{Speaker}Danke, {=nigel}. Du{SoftNewLine}bist der Retter unserer Stadt!{WaitInput}"
+  },
+  "020E": {
+   "h": "61ecd040",
+   "t": "{Speaker}Ach, {=nigel}, du{SoftNewLine}bist es! In dieser Stadt jagt{SoftNewLine}ein Unglück das nächste.{ContinuePrompt}"
+  },
+  "020F": {
+   "h": "f7a3e540",
+   "t": "{Speaker}Hast du den{SoftNewLine}Leuchtturm schon gesehen?{SoftNewLine}Ohne sein Licht kommt kein{SoftNewLine}Schiff mehr zu uns.{WaitInput}"
+  },
+  "0210": {
+   "h": "fccb7d10",
+   "t": "{Speaker}Hier ist es in{SoftNewLine}letzter Zeit gefährlich! Eine{SoftNewLine}Diebesbande treibt sich in der{SoftNewLine}Stadt herum.{WaitInput}"
+  },
+  "0211": {
+   "h": "51e77f09",
+   "t": "{Speaker}Ich pack meine{SoftNewLine}Sachen! Wer will schon mit{SoftNewLine}Dieben zusammenleben?{WaitInput}"
+  },
+  "0212": {
+   "h": "51001071",
+   "t": "{Speaker}Jetzt, wo die Diebe{SoftNewLine}weg sind, bleib ich wohl noch{SoftNewLine}ein Weilchen... Mach's gut!{WaitInput}"
+  },
+  "0213": {
+   "h": "c4beef5c",
+   "t": "{Speaker}Oh, ein Besucher?{SoftNewLine}Seit die Diebe hier sind, kommt{SoftNewLine}kaum noch jemand.{WaitInput}"
+  },
+  "0214": {
+   "h": "9842871f",
+   "t": "{Speaker}Ooh... das ist ja{SoftNewLine}schrecklich!!...{WaitInput}"
+  },
+  "0215": {
+   "h": "35035157",
+   "t": "{Speaker}Wenn du wieder in{SoftNewLine}die Stadt kommst, bekommst du{SoftNewLine}ganz besonderen Service...{SoftNewLine}hihi, ganz besonderen!{WaitInput}"
+  },
+  "0216": {
+   "h": "3b4de8b3",
+   "t": "{Speaker}Der Dieb von{SoftNewLine}{Item} ist der Lehrling{SoftNewLine}des Leuchtturmwärters!{ContinuePrompt}"
+  },
+  "0217": {
+   "h": "270c89cc",
+   "t": "{Speaker}Weißt du was?{WaitInput}"
+  },
+  "0218": {
+   "h": "ed8701c2",
+   "t": "{Speaker}Der Ladenbesitzer{SoftNewLine}ist weg. Wo soll ich jetzt{SoftNewLine}meine Kräuter kaufen?{WaitInput}"
+  },
+  "0219": {
+   "h": "095db8e0",
+   "t": "{Speaker}Auch Diebe sind{SoftNewLine}Menschen. Wenn man mit ihnen{SoftNewLine}redet, werden sie es schon{SoftNewLine}einsehen!{WaitInput}"
+  },
+  "021A": {
+   "h": "a4d2f5b9",
+   "t": "{Speaker}Das müssen Teufel{SoftNewLine}sein!!...{WaitInput}"
+  },
+  "021B": {
+   "h": "6c582eff",
+   "t": "{Speaker}Es waren also{SoftNewLine}wirklich Monster?{WaitInput}"
+  },
+  "021C": {
+   "h": "1d7d07e8",
+   "t": "{Speaker}Den Menschen geht{SoftNewLine}es schlecht. Aber eines Tages{SoftNewLine}finden sie bestimmt ihr Glück.{WaitInput}"
+  },
+  "021D": {
+   "h": "a6235be8",
+   "t": "{Speaker}Seit sich die Diebe{SoftNewLine}in der Höhle am Kap{SoftNewLine}eingenistet haben, leben wir{SoftNewLine}alle in Angst.{WaitInput}"
+  },
+  "021E": {
+   "h": "c59944ee",
+   "t": "{Speaker}Ihr Götter, rettet{SoftNewLine}unsere Stadt...{WaitInput}"
+  },
+  "021F": {
+   "h": "ff5e376f",
+   "t": "{Speaker}Du hast die Diebe{SoftNewLine}ganz allein besiegt?! So stark{SoftNewLine}siehst du gar nicht aus!!{WaitInput}"
+  },
+  "0220": {
+   "h": "77f90a40",
+   "t": "{Speaker}Ihr Götter, lasst{SoftNewLine}unseren Leuchtturm bald{SoftNewLine}wieder strahlen!!{WaitInput}"
+  },
+  "0221": {
+   "h": "5b92ec19",
+   "t": "{Speaker}Du hast unserer{SoftNewLine}Stadt schon so oft geholfen.{WaitInput}"
+  },
+  "0222": {
+   "h": "d0ceef54",
+   "t": "{Speaker}Die Diebe sind{SoftNewLine}schnell auf und davon.{SoftNewLine}Feiglinge!!{ContinuePrompt}"
+  },
+  "0223": {
+   "h": "ce456445",
+   "t": "{Speaker}Die Soldaten aus{SoftNewLine}Merkator haben sie bis zum{SoftNewLine}Kap gejagt, aber sie sind{SoftNewLine}ihnen entwischt.{WaitInput}"
+  },
+  "0224": {
+   "h": "69873dd2",
+   "t": "{Speaker}Kann denn niemand{SoftNewLine}diese Diebe vertreiben?!{WaitInput}"
+  },
+  "0225": {
+   "h": "2b8be0a4",
+   "t": "{Speaker}Unglaublich! Wie{SoftNewLine}hast du dich nur ganz allein{SoftNewLine}so tief in die Höhle getraut?{WaitInput}"
+  },
+  "0226": {
+   "h": "0165d04a",
+   "t": "{Speaker}{Item}{SoftNewLine}zurückholen? Das schafft doch{SoftNewLine}keiner! Sag mir, wer das{SoftNewLine}können soll!{WaitInput}"
+  },
+  "0227": {
+   "h": "af9faf7b",
+   "t": "{Speaker}Was?! Du hast{SoftNewLine}{Item} gefunden!{SoftNewLine}Unglaublich!{WaitInput}"
+  },
+  "0228": {
+   "h": "437f40c8",
+   "t": "{Speaker}Ich danke dir von{SoftNewLine}Herzen! Du hast mir das Leben{SoftNewLine}gerettet! Und wenn du den{SoftNewLine}Schatz findest...{ContinuePrompt}"
+  },
+  "0229": {
+   "h": "dddc2188",
+   "t": "{Speaker}...dann kauf mir{SoftNewLine}gleich den ganzen Laden ab!{SoftNewLine}Wahahaha!{ContinuePrompt}"
+  },
+  "022A": {
+   "h": "1c9630d6",
+   "t": "{Speaker}War nur ein kleiner{SoftNewLine}Händlerscherz!{WaitInput}"
+  },
+  "022B": {
+   "h": "ec1cbd89",
+   "t": "{Speaker}Wegen dem{SoftNewLine}Leuchtturm haben auch die{SoftNewLine}Leute in Merkator jede Menge{SoftNewLine}Ärger,{ContinuePrompt}"
+  },
+  "022C": {
+   "h": "c89ea52d",
+   "t": "{Speaker}oder? Und angeblich{SoftNewLine}ist der Herzog einfach{SoftNewLine}verschwunden...{ContinuePrompt}"
+  },
+  "022D": {
+   "h": "b36c2e2a",
+   "t": "{Speaker}Ob der wohl auch{SoftNewLine}hinter einem Sonnenstein her{SoftNewLine}ist?{WaitInput}"
+  },
+  "022E": {
+   "h": "7d233335",
+   "t": "{Speaker}...fuga, fuga... mein{SoftNewLine}Sohn ist gerade nicht da...{WaitInput}"
+  },
+  "022F": {
+   "h": "48c7c741",
+   "t": "{Speaker}...fuga, fuga...{SoftNewLine}bitte räch meinen Sohn!...{SoftNewLine}bitte...!{WaitInput}"
+  },
+  "0230": {
+   "h": "6b6c0ab0",
+   "t": "{Speaker}...fuga, fuga,{SoftNewLine}fuga...{WaitInput}"
+  },
+  "0231": {
+   "h": "c84c9303",
+   "t": "{Speaker}...fuga... eine{SoftNewLine}Freundin von mir wohnt in{SoftNewLine}Merkator... ob's ihr wohl gut{SoftNewLine}geht?...{ContinuePrompt}"
+  },
+  "0232": {
+   "h": "a1068518",
+   "t": "{Speaker}...sammelt ihr Mann{SoftNewLine}wohl immer noch Krüge?...{SoftNewLine}fuga, fuga...{WaitInput}"
+  },
+  "0233": {
+   "h": "1a622fc7",
+   "t": "{Speaker}Mein Papa ist{SoftNewLine}gerade unterwegs. Er sagt, er{SoftNewLine}muss was Wichtiges für die{SoftNewLine}Stadt erledigen.{WaitInput}"
+  },
+  "0234": {
+   "h": "4fd95564",
+   "t": "{Speaker}Papa sagt immer...{SoftNewLine}ein Seemann weint nicht...{SoftNewLine}schnief... buhuuu...{WaitInput}"
+  },
+  "0235": {
+   "h": "2a0a18c4",
+   "t": "{Speaker}Haha!! Papa ist{SoftNewLine}wieder da! Papa ist doch der{SoftNewLine}Stärkste, oder?{WaitInput}"
+  },
+  "0236": {
+   "h": "8fbc80f2",
+   "t": "{Speaker}Schimpf nicht mit{SoftNewLine}meinem Papa!{ContinuePrompt}"
+  },
+  "0237": {
+   "h": "d44ea209",
+   "t": "{Speaker}Er war doch am{SoftNewLine}meisten geschockt, als ihm{SoftNewLine}sein Lehrling den Sonnenstein{SoftNewLine}geklaut hat.{WaitInput}"
+  },
+  "0238": {
+   "h": "7738f638",
+   "t": "{Speaker}Du bist echt cool,{SoftNewLine}großer Bruder! Gleich nach{SoftNewLine}meinem Papa bist du der{SoftNewLine}Größte!{WaitInput}"
+  },
+  "0239": {
+   "h": "6e15fa63",
+   "t": "{Speaker}{=nigel}, du kommst{SoftNewLine}wie gerufen! Mein Lehrling ist{SoftNewLine}bei dem ganzen Durcheinander{SoftNewLine}abgehauen.{ContinuePrompt}"
+  },
+  "023A": {
+   "h": "3d224310",
+   "t": "{Speaker}Willst du nicht an{SoftNewLine}seiner Stelle hier arbeiten?{NewLine}"
+  },
+  "023B": {
+   "h": "50839db2",
+   "t": "{Speaker}Wahahaha! War nur{SoftNewLine}ein Scherz! Was bist du doch{SoftNewLine}für ein gutmütiger Junge!{WaitInput}"
+  },
+  "023C": {
+   "h": "6e485d83",
+   "t": "{Speaker}Schon gut! Die{SoftNewLine}Leute in Ryuma brauchen dich{SoftNewLine}nötiger als ich. Bist ein feiner{SoftNewLine}Kerl! Pass auf dich auf!{WaitInput}"
+  },
+  "023D": {
+   "h": "93bb6c2b",
+   "t": "{Speaker}Mein abgehauener{SoftNewLine}Lehrling kam plötzlich{SoftNewLine}zurück...{ContinuePrompt}"
+  },
+  "023E": {
+   "h": "2e8f0082",
+   "t": "{Speaker}und dann hat er{SoftNewLine}sich mit {Item} aus{SoftNewLine}dem Staub gemacht...{WaitInput}"
+  },
+  "023F": {
+   "h": "68cbeb79",
+   "t": "{Speaker}Der Meister ist{SoftNewLine}grad nicht da, aber ich kann's{SoftNewLine}dir ja erklären, wie das Ding{SoftNewLine}funktioniert.{ContinuePrompt}"
+  },
+  "0240": {
+   "h": "5fd5b277",
+   "t": "{Speaker}Dieser Leuchtturm{SoftNewLine}benutzt einen Sonnenstein, den{SoftNewLine}hellsten Stein im ganzen Land,{SoftNewLine}damit die Schiffe{ContinuePrompt}"
+  },
+  "0241": {
+   "h": "17d8eeb2",
+   "t": "{Speaker}sicher in den Hafen{SoftNewLine}finden.{WaitInput}"
+  },
+  "0242": {
+   "h": "25c6f884",
+   "t": "{Speaker}M-mein... Meister{SoftNewLine}wurde von den Dieben{SoftNewLine}umgebracht... Was mach ich{SoftNewLine}denn jetzt bloß???{WaitInput}"
+  },
+  "0243": {
+   "h": "8e720947",
+   "t": "{Speaker}Uaaah... Tut mir{SoftNewLine}leid!... Hätt ich gewusst, dass{SoftNewLine}der Herzog dahintersteckt,{SoftNewLine}hätt ich das nie gemacht!{WaitInput}"
+  },
+  "0244": {
+   "h": "85465f0c",
+   "t": "{Speaker}Uaaaah...!!! Bitte,{SoftNewLine}lasst mich frei... es tut mir{SoftNewLine}echt leid...{WaitInput}"
+  },
+  "0245": {
+   "h": "9f9520ef",
+   "t": "{Speaker}Ich bin jetzt ein{SoftNewLine}neuer Mensch! Ich arbeite hart{SoftNewLine}bei {=arthur}, um alles{SoftNewLine}wiedergutzumachen!{WaitInput}"
+  },
+  "0246": {
+   "h": "f464679b",
+   "t": "{Speaker}Unter uns: Ich{SoftNewLine}glaube, die Diebe suchen{SoftNewLine}denselben Schatz wie du.{ContinuePrompt}"
+  },
+  "0247": {
+   "h": "ac64e2a5",
+   "t": "{Speaker}In ihrer Höhle gibt{SoftNewLine}es bestimmt irgendeinen{SoftNewLine}Hinweis!{WaitInput}"
+  },
+  "0248": {
+   "h": "ff87c4d8",
+   "t": "{Speaker}Du hast dort eine{SoftNewLine}Steintafel gefunden? Das ist{SoftNewLine}es! Das muss ein Hinweis sein!{SoftNewLine}Zeig her!{ContinuePrompt}"
+  },
+  "0249": {
+   "h": "6977de5f",
+   "t": "{Speaker}Waas?! Man hat sie{SoftNewLine}dir geklaut?{WaitInput}"
+  },
+  "024A": {
+   "h": "c0f6f97c",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}hat für den Schatz seine{SoftNewLine}eigene Stadt im Stich{SoftNewLine}gelassen...{ContinuePrompt}"
+  },
+  "024B": {
+   "h": "be3ee9d8",
+   "t": "{Speaker}Dann muss der{SoftNewLine}legendäre Schatz wirklich{SoftNewLine}existieren!{WaitInput}"
+  },
+  "024C": {
+   "h": "7447cb91",
+   "t": "{Speaker}Würdest du bitte{SoftNewLine}gehen? Wir haben gerade eine{SoftNewLine}Besprechung.{WaitInput}"
+  },
+  "024D": {
+   "h": "8a83c5ec",
+   "t": "{Speaker}Du hast uns also{SoftNewLine}belauscht... Nun ja, der{SoftNewLine}Bürgermeister wollte mit dem{SoftNewLine}Anführer der Diebe{SoftNewLine}verhandeln...{ContinuePrompt}"
+  },
+  "024E": {
+   "h": "fadf6446",
+   "t": "{Speaker}aber er ist nicht{SoftNewLine}zurückgekommen. Was ist da{SoftNewLine}nur passiert?{WaitInput}"
+  },
+  "024F": {
+   "h": "a4367147",
+   "t": "{Speaker}Du hast die Stadt{SoftNewLine}gerettet! Und das ganz allein!{SoftNewLine}Ich kann es kaum glauben!{WaitInput}"
   }
  },
  "names": {

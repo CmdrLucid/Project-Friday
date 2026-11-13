@@ -28,20 +28,39 @@ def widths(rom):
     return W
 
 
+GLUE = {"{Item}": ("\x01", 108), "{Number}": ("\x02", 27), "{Pause1s}": ("\x03", 0), "{Pause1sOrInput}": ("\x04", 0), "{Pause1_5sOrInput}": ("\x05", 0), "{Pause2sOrInput}": ("\x06", 0)}
+NAMEW = 54   # a {=name} placeholder: about six letters
+
+
 def text_width(W, s):
-    s = re.sub(r"\{=[a-z0-9_:]+\}", "Xxxxxx", s)   # a name placeholder: about six letters
-    return sum(W.get(c, 9) for c in re.sub(r"\{[^}]*\}", "", s))
+    w = 0
+    for tok in re.findall(r"\{=[a-z0-9_:]+\}|\{[A-Za-z0-9_]+\}|.", s, re.S):
+        if tok.startswith("{="): w += NAMEW
+        elif tok in GLUE: w += GLUE[tok][1]
+        elif tok.startswith("{") and len(tok) > 1: pass
+        else:
+            g = [v for v in GLUE.values() if v[0] == tok]
+            w += g[0][1] if g else W.get(tok, 9)
+    return w
 
 
 def wrap(W, text):
-    """text without {SoftNewLine} ('|' forces a break) -> text with {SoftNewLine}s; returns (text, list of too long lines)"""
+    """text without {SoftNewLine} ('|' forces a break) -> text with {SoftNewLine}s; returns (text, list of too long lines).
+    {Item}, {Number}, pauses and {=name} placeholders are parts of the word they touch (an item name and the full stop after it stay together)."""
+    names = []
+    def keep(m): names.append(m.group(0)); return "\x10" + chr(0x41 + len(names) - 1)
+    text = re.sub(r"\{=[a-z0-9_:]+\}", keep, text)
+    for code, (ch, _) in GLUE.items(): text = text.replace(code, ch)
+    def width(t):
+        t = re.sub("\x10.", "{=n}", t)
+        return text_width(W, t)
     out, bad = [], []
     parts = re.split(r"(\{[A-Za-z]+\}|\|)", text)
-    line, first, started = "", text.startswith("{Speaker}"), False
+    line, first = "", text.startswith("{Speaker}")
     def flush(force_nl):
         nonlocal line, first
         if line.strip():
-            if text_width(W, line.strip()) > (FIRST if first else LIMIT): bad.append(line.strip())
+            if width(line.strip()) > (FIRST if first else LIMIT): bad.append(line.strip())
             out.append(line.strip()); first = False
         line = ""
         if force_nl: out.append("{SoftNewLine}")
@@ -50,7 +69,6 @@ def wrap(W, text):
         if p == "|": flush(True); continue
         if re.fullmatch(r"\{[A-Za-z]+\}", p):
             name = p[1:-1]
-            if name in ("Item", "Number"): line += p; continue
             flush(False); out.append(p)
             if name in BREAK_AFTER: out.append("\0")   # a line break follows if more text comes
             continue
@@ -59,13 +77,17 @@ def wrap(W, text):
                 if line: line += " "
                 continue
             cand = (line + word) if line else word
-            if line and text_width(W, cand.strip()) > (FIRST if first else LIMIT): flush(True); cand = word
+            if line and width(cand.strip()) > (FIRST if first else LIMIT): flush(True); cand = word
             line = cand
     flush(False)
     s = "".join(out)
     s = re.sub(r"(\{SoftNewLine\})+(?=\{(?:WaitInput|ContinuePrompt|NewLinePrompt)\}|$)", "", s)
-    s = re.sub(r"\0(?=[^{\0]|\{=)", "{SoftNewLine}", s).replace("\0", "")
+    s = re.sub(r"\0(?=[^{\0]|\x10)", "{SoftNewLine}", s).replace("\0", "")
     s = re.sub(r"\{SoftNewLine\}\{SoftNewLine\}", "{SoftNewLine}", s)
+    s = re.sub(r"  +", " ", s)
+    for code, (ch, _) in GLUE.items(): s = s.replace(ch, code)
+    s = re.sub("\x10(.)", lambda m: names[ord(m.group(1)) - 0x41], s)
+    bad = [re.sub("\x10(.)", lambda m: names[ord(m.group(1)) - 0x41], b) for b in bad]
     return s, bad
 
 
