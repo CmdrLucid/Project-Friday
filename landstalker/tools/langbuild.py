@@ -65,6 +65,41 @@ def menu_glyph(rom, base, kind):
     body = r[1:3] + r[4:8]; return bytes([0x44, 0x00] + body)
 
 
+# LK_LGFR v1 (user 2026-11-13: French like German / English (JP)): the accented letters of French, per language file (codes are per language: the German file keeps ä..Ü on these codes).
+# Free codes: $56..$5F and $6C..$6E, $71..$76 (blank menu font slots, outside the ROM's main font).  Lower case: the mark in the free rows 1..2 above the x-height (rows 4..10);
+# capitals: a middle row dropped like Ä, the mark in row 0; cedilla in rows 11..12.  Our own UI text (patch_options.py lk_chr: bytes $80..$86 -> codes $6C..$6E, $71..$74) gets é è à ê ç ô â.
+EXTRA_DE, UI_BYTES_DE = EXTRA, UI_BYTES
+EXTRA_FR = {"é": 0x6C, "è": 0x6D, "à": 0x6E, "ê": 0x71, "ç": 0x72, "ô": 0x73, "â": 0x74, "î": 0x75, "û": 0x76,
+            "ù": 0x56, "ë": 0x57, "ï": 0x58, "ü": 0x59, "É": 0x5A, "À": 0x5B, "Ç": 0x5C, "Ê": 0x5D, "È": 0x5E, "Ô": 0x5F}
+UI_BYTES_FR = {"é": 0x80, "è": 0x81, "à": 0x82, "ê": 0x83, "ç": 0x84, "ô": 0x85, "â": 0x86}
+FR_MARK = {"acute": [0x1000, 0x2000], "grave": [0x2000, 0x1000], "circ": [0x3000, 0x4800], "diaer": [0, 0x4800]}            # rows 1, 2 (12-bit rows, bit 0x8000 = column 0)
+FR_MARK_I = {"circ": [0x4000, 0xA000], "diaer": [0, 0xA000]}                                                                # the narrow i (stem in column 1)
+FR_MARK_CAP = {"acute": 0x1800, "grave": 0x6000, "circ": 0x3000}                                                          # one row (row 0) above a capital
+FR_MENU = {"acute": [0x08, 0x10], "grave": [0x20, 0x10], "circ": [0x10, 0x28], "diaer": [0x44, 0x00]}                     # menu font rows 0, 1
+FR_SET = {"é": ("e", "acute"), "è": ("e", "grave"), "ê": ("e", "circ"), "ë": ("e", "diaer"), "à": ("a", "grave"), "â": ("a", "circ"),
+          "ù": ("u", "grave"), "û": ("u", "circ"), "ü": ("u", "diaer"), "ô": ("o", "circ"), "î": ("i", "circ"), "ï": ("i", "diaer"), "ç": ("c", "ced"),
+          "É": ("E", "acute"), "È": ("E", "grave"), "Ê": ("E", "circ"), "À": ("A", "grave"), "Ô": ("O", "circ"), "Ç": ("C", "ced")}
+
+
+def make_glyphs_fr(rom):
+    g = {}
+    for ch, (base, mk) in FR_SET.items():
+        r = glyph_rows(rom, sd.MAIN.index(base)); mi = sd.MAIN.index(base); m = list(rom[MENUFONT + 8 * mi:MENUFONT + 8 * mi + 8])
+        if mk == "ced":                                  # cedilla under c / C (main rows 11..12; menu: the letter one row up, the hook in row 7)
+            r[11] |= 0x2000; r[12] |= 0x6000; m = m[1:] + [0x10]
+        elif base.isupper():                             # capital: drop a middle row, the mark in row 0 (main) / row 0 + gap (menu), like Ä
+            d = next((i for i in range(1, 10) if r[i] == r[i - 1]), 5)          # drop a row that repeats the one above (keeps E's middle bar)
+            r = [FR_MARK_CAP.get(mk, 0x4800)] + r[:d] + r[d + 1:11] + [0] * 4
+            dm = next((i for i in range(2, 7) if m[i] == m[i - 1]), 3)
+            m = [{"acute": 0x18, "grave": 0x30, "circ": 0x38}.get(mk, 0x44), 0x00] + (m[1:dm] + m[dm + 1:8])[-6:]
+        else:
+            if base == "i": r[1] = r[2] = 0; m[0] = m[1] = 0; marks = FR_MARK_I[mk]; mm = {"circ": [0x40, 0xA0], "diaer": [0x00, 0xA0]}[mk]
+            else: marks = FR_MARK[mk]; mm = FR_MENU[mk]
+            r[1] |= marks[0]; r[2] |= marks[1]; m[0] |= mm[0]; m[1] |= mm[1]
+        g[EXTRA_FR[ch]] = pack(r) + bytes(m)
+    return g
+
+
 def make_glyphs(rom):
     """derived glyphs: small letters get the diaeresis in the free rows above; capitals lose one middle row to make room for it in row 0; a drawn sharp s"""
     dots = 0x4800                                   # columns 1 and 4
@@ -149,6 +184,7 @@ def jp_names_lang(en, names):
 def build_one(rom, en, lang_path, out_path, variant="local"):
     lang = json.load(open(lang_path, encoding="utf-8")) if isinstance(lang_path, str) else lang_path
     nm_tab = load_names(); base = lang.get("meta", {}).get("names", lang.get("meta", {}).get("code", "en")[:2])
+    global EXTRA, UI_BYTES; fr = base == "fr"; EXTRA, UI_BYTES = (EXTRA_FR, UI_BYTES_FR) if fr else (EXTRA_DE, UI_BYTES_DE)   # LK_LGFR v1
     lang = json.loads(json.dumps(lang))   # a copy: the placeholders are resolved per variant
     for blk in ("strings", "names"):
         for d in (lang.get(blk, {}), lang.get("items_jp", {}).get(blk, {})):   # LK_JPITEMS v1: block 'items_jp' = lines / names for Options > Items = Japanese
@@ -190,7 +226,7 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
         except (ValueError, UnicodeEncodeError): dropped.append(("ui_text:" + k, "unsupported character")); continue
         if any(c > 0x86 or (c > 0x7E and c < 0x80) for c in vb) or len(kb) > 255 or len(vb) > 255: dropped.append(("ui_text:" + k, "unsupported character")); continue
         texts.append(bytes([len(kb), len(vb)]) + kb + vb)
-    glyphs = make_glyphs(rom)
+    glyphs = make_glyphs_fr(rom) if fr else make_glyphs(rom)
     out = b"LKLG" + struct.pack(">HHHHHH", 2, len(strs), len(names), len(ui), len(glyphs), len(texts))
     out += b"".join(struct.pack(">HIH", *e) for e in strs) + b"".join(struct.pack(">BBIB", *e) for e in names)
     out += b"".join(struct.pack(">HH", *e) for e in ui) + b"".join(bytes([c]) + d for c, d in sorted(glyphs.items())) + b"".join(texts) + bytes(blob)

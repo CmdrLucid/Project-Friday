@@ -1,6 +1,6 @@
 {
  "_about": "Character names per language for the Names option (Options > Names: Localized / Japanese). Translations write {=key} or {=key:gen} (German genitive) instead of a name; tools/langbuild.py resolves them per variant. 'en' / 'de' = the localized names (English release / German release 'Die Schaetze von Koenig Nolo'), 'jp' = the Japanese original (romanized). 'auto': false = not replaced automatically in the original English text (the word is also part of an item name or too ambiguous). Places stay localized in every variant.",
- "nigel":    {"en": "Nigel",    "de": "Niels",     "jp": "Ryle"},
+ "nigel":    {"en": "Nigel",    "de": "Niels",     "jp": "Ryle", "fr": "Ryle"},
  "friday":   {"en": "Friday",   "de": "Flora",     "jp": "Friday"},
  "kayla":    {"en": "Kayla",    "de": "Kayla",     "jp": "Kara"},
  "wally":    {"en": "Wally",    "de": "Wally",     "jp": "Goose"},

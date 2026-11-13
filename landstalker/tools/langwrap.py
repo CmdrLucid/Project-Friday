@@ -25,6 +25,7 @@ def widths(rom):
     W = {ch: w(i) for i, ch in enumerate(sd.MAIN)}
     for ch, base in (("ä", "a"), ("ö", "o"), ("ü", "u"), ("Ä", "A"), ("Ö", "O"), ("Ü", "U")): W[ch] = W[base]
     W["ß"] = 9
+    for ch, (base, mk) in lb.FR_SET.items(): W[ch] = W[base]   # LK_LGFR v1: French accents keep the width of their letter (the cedilla / marks stay inside it)
     return W
 
 
