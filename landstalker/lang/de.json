@@ -1909,6 +1909,838 @@
   "024F": {
    "h": "a4367147",
    "t": "{Speaker}Du hast die Stadt{SoftNewLine}gerettet! Und das ganz allein!{SoftNewLine}Ich kann es kaum glauben!{WaitInput}"
+  },
+  "0250": {
+   "h": "b6677bfd",
+   "t": "{Speaker}Das Grüne{SoftNewLine}Labyrinth nennt man auch den{SoftNewLine}\"Wald der Verirrten\".{ContinuePrompt}"
+  },
+  "0251": {
+   "h": "0da03e5a",
+   "t": "{Speaker}Es heißt, wer sich{SoftNewLine}einmal in diesen Wald{SoftNewLine}verirrt...... kommt nie wieder{SoftNewLine}heraus.{ContinuePrompt}"
+  },
+  "0252": {
+   "h": "e603d379",
+   "t": "{Speaker}Es ist so{SoftNewLine}gefährlich, dass Herzog{SoftNewLine}Merkator das Betreten sogar{SoftNewLine}verboten hat.{WaitInput}"
+  },
+  "0253": {
+   "h": "ef1e7281",
+   "t": "{Speaker}Der Bürgermeister{SoftNewLine}ist nicht da...{WaitInput}"
+  },
+  "0254": {
+   "h": "3a7a3ace",
+   "t": "{Speaker}Wenn sie den{SoftNewLine}Bürgermeister umbringen, ist{SoftNewLine}es aus mit unserer Stadt...!{WaitInput}"
+  },
+  "0255": {
+   "h": "8e954fc0",
+   "t": "{Speaker}Einstimmig{SoftNewLine}beschlossen! Du bist jetzt{SoftNewLine}Ehrenbürger von Ryuma!{SoftNewLine}Hahaha!{WaitInput}"
+  },
+  "0256": {
+   "h": "8ff02778",
+   "t": "{Speaker}Was willst du{SoftNewLine}eigentlich mit dem Schatz{SoftNewLine}anfangen?{WaitInput}"
+  },
+  "0257": {
+   "h": "d1a536e9",
+   "t": "{Speaker}Oh, unser{SoftNewLine}Ehrenbürger! Wir beraten{SoftNewLine}gerade, wer ins Grüne{SoftNewLine}Labyrinth geht, um{ContinuePrompt}"
+  },
+  "0258": {
+   "h": "c9e41969",
+   "t": "{Speaker}{Item} zu{SoftNewLine}holen.{WaitInput}"
+  },
+  "0259": {
+   "h": "8ce46023",
+   "t": "{Speaker}Sieh dich doch ein{SoftNewLine}bisschen in der Stadt um,{SoftNewLine}Kleiner!{WaitInput}"
+  },
+  "025A": {
+   "h": "e0307f04",
+   "t": "{Speaker}Du kommst{SoftNewLine}ungelegen, Junge. Ich weiß{SoftNewLine}nicht recht, wie ich's sagen{SoftNewLine}soll, aber...{ContinuePrompt}"
+  },
+  "025B": {
+   "h": "74925db3",
+   "t": "{Speaker}wir haben ein{SoftNewLine}Problem. Tust du uns einen{SoftNewLine}Gefallen?{NewLine}"
+  },
+  "025C": {
+   "h": "ccfcbb2a",
+   "t": "{Speaker}Na, du bist ja fix!{SoftNewLine}Bist du sicher? Na gut!{ContinuePrompt}"
+  },
+  "025D": {
+   "h": "de0188ba",
+   "t": "{Speaker}Ihr Versteck ist{SoftNewLine}die Höhle am Kap. Mit dem Floß{SoftNewLine}bist du gleich drüben. Pass{SoftNewLine}gut auf dich auf!{WaitInput}"
+  },
+  "025E": {
+   "h": "1c7b4ee8",
+   "t": "{Speaker}Stimmt, ich sollte{SoftNewLine}erst mal sagen, worum es{SoftNewLine}geht. Du sollst zu ihrem{ContinuePrompt}"
+  },
+  "025F": {
+   "h": "00496451",
+   "t": "{Speaker}Versteck gehen und{SoftNewLine}sie erledigen. Machst du's?{NewLine}"
+  },
+  "0260": {
+   "h": "080f6e7e",
+   "t": "{Speaker}Ich bin enttäuscht{SoftNewLine}von dir, Kleiner...{WaitInput}"
+  },
+  "0261": {
+   "h": "d89c5811",
+   "t": "{Speaker}Ich wusste es doch!{SoftNewLine}So flink wie du bist, bist du{SoftNewLine}kein gewöhnlicher Junge!{WaitInput}"
+  },
+  "0262": {
+   "h": "c7fd39ac",
+   "t": "{Speaker}Es ist schwer,{SoftNewLine}aber... wenn einer das Grüne{SoftNewLine}Labyrinth schafft, dann du,{SoftNewLine}{=nigel}.{ContinuePrompt}"
+  },
+  "0263": {
+   "h": "2c0ea4b3",
+   "t": "{Speaker}Um an den{SoftNewLine}Sonnenstein zu kommen,{SoftNewLine}brauchst du ein gutes{SoftNewLine}Gleichgewicht und{ContinuePrompt}"
+  },
+  "0264": {
+   "h": "228404a2",
+   "t": "{Speaker}musst richtig gut{SoftNewLine}springen können!{WaitInput}"
+  },
+  "0265": {
+   "h": "aee93ee1",
+   "t": "{Speaker}Hast du keine Angst{SoftNewLine}vor den Dieben? Geh nach{SoftNewLine}Hause!{WaitInput}"
+  },
+  "0266": {
+   "h": "02c714e6",
+   "t": "{Speaker}Ich versteck mich{SoftNewLine}hier, weil ich Angst vor den{SoftNewLine}Dieben hab.{WaitInput}"
+  },
+  "0267": {
+   "h": "3c072c41",
+   "t": "{Speaker}Ich hab immer noch{SoftNewLine}Angst... Sind die wirklich weg?{WaitInput}"
+  },
+  "0268": {
+   "h": "d6d72f2b",
+   "t": "{Speaker}Schon wieder ein{SoftNewLine}Verrat! Ich kann niemandem{SoftNewLine}mehr trauen!{WaitInput}"
+  },
+  "0269": {
+   "h": "f118227a",
+   "t": "{Speaker}Wuff-wuff!{WaitInput}"
+  },
+  "026A": {
+   "h": "7e8bb2ac",
+   "t": "{Speaker}Hmmmm... Ich wohne{SoftNewLine}hier, weil ich den Duft des{SoftNewLine}Meeres so liebe.{WaitInput}"
+  },
+  "026B": {
+   "h": "b918e141",
+   "t": "{Speaker}Mit {Item}{SoftNewLine}kommst du nach Merkator rein.{WaitInput}"
+  },
+  "026C": {
+   "h": "18ce26dc",
+   "t": "{Speaker}Ich glaube, hier{SoftNewLine}muss mal ein Exorzist ran.{WaitInput}"
+  },
+  "026D": {
+   "h": "40733767",
+   "t": "{Speaker}Seltsam... Wo ist{SoftNewLine}der Bürgermeister? Da ist{SoftNewLine}doch was faul!{WaitInput}"
+  },
+  "026E": {
+   "h": "ffd6d998",
+   "t": "{Speaker}Was um alles in{SoftNewLine}der Welt wollen diese Diebe{SoftNewLine}bloß?{WaitInput}"
+  },
+  "026F": {
+   "h": "49f55bab",
+   "t": "{Speaker}Eine seltsame{SoftNewLine}blonde Frau hat mir eben{SoftNewLine}meinen Passierschein geklaut!{WaitInput}"
+  },
+  "0270": {
+   "h": "95741c0f",
+   "t": "{Speaker}Ohne Passierschein{SoftNewLine}kommst du hier nicht durch,{SoftNewLine}Bürschchen!{WaitInput}"
+  },
+  "0271": {
+   "h": "d57ef316",
+   "t": "{Speaker}Das hier ist{SoftNewLine}Merkator, wo Geld das{SoftNewLine}Allerwichtigste auf der Welt{SoftNewLine}ist!{WaitInput}"
+  },
+  "0272": {
+   "h": "0c92b5bf",
+   "t": "{Speaker}Hehehe... Sorry{SoftNewLine}wegen neulich. Ich lad dich{SoftNewLine}irgendwann mal ein,{SoftNewLine}versprochen!{WaitInput}"
+  },
+  "0273": {
+   "h": "01ed725c",
+   "t": "{Speaker}Mir tun die Beine{SoftNewLine}weh vom ganzen Rumstehen.{WaitInput}"
+  },
+  "0274": {
+   "h": "4358ba1e",
+   "t": "{Speaker}Merkator ist eine{SoftNewLine}Stadt mit langer Geschichte.{SoftNewLine}Sei willkommen!{WaitInput}"
+  },
+  "0275": {
+   "h": "839e0cf2",
+   "t": "{Speaker}Hallo, {=nigel}! Wie{SoftNewLine}geht's dir?{WaitInput}"
+  },
+  "0276": {
+   "h": "443318ac",
+   "t": "{Speaker}Merkator ist eine{SoftNewLine}wunderschöne Stadt, perfekt{SoftNewLine}für Besichtigungen und{SoftNewLine}Vergnügungen.{WaitInput}"
+  },
+  "0277": {
+   "h": "9a48809c",
+   "t": "{Speaker}Ich bin gerade vom{SoftNewLine}Festland angekommen. Meine{SoftNewLine}Güte, ist die Stadt groß!{WaitInput}"
+  },
+  "0278": {
+   "h": "4bed5acb",
+   "t": "{Speaker}Ich hab gehört, bei{SoftNewLine}Madame Yard können{SoftNewLine}Erwachsene so richtig...{SoftNewLine}abschalten. Hehe!{WaitInput}"
+  },
+  "0279": {
+   "h": "a5cfb917",
+   "t": "{Speaker}Juhuu!! Merkator{SoftNewLine}ist herrlich! Hier will ich für{SoftNewLine}immer bleiben!{WaitInput}"
+  },
+  "027A": {
+   "h": "556a5144",
+   "t": "{Speaker}Die Preise hier sind{SoftNewLine}viel zu hoch. Ich brauch mehr{SoftNewLine}Geld...{WaitInput}"
+  },
+  "027B": {
+   "h": "b29125eb",
+   "t": "{Speaker}Du bist neu in der{SoftNewLine}Stadt, oder? Für dein Aussehen{SoftNewLine}hast du aber 'ne ziemlich hohe{SoftNewLine}Stimme!{WaitInput}"
+  },
+  "027C": {
+   "h": "c4ca9e46",
+   "t": "{Speaker}Mein ganzes Geld{SoftNewLine}ist weg! Ich muss heim, aber{SoftNewLine}ich kann die Überfahrt nicht{SoftNewLine}bezahlen!{WaitInput}"
+  },
+  "027D": {
+   "h": "a137a013",
+   "t": "{Speaker}Dieser junge{SoftNewLine}Tunichtgut war der Lehrling{SoftNewLine}des Leuchtturmwärters. Sein{SoftNewLine}Meister hat ihm voll vertraut,{ContinuePrompt}"
+  },
+  "027E": {
+   "h": "3220d943",
+   "t": "{Speaker}aber er hat{SoftNewLine}{Item} gestohlen!{SoftNewLine}Seinen eigenen Meister hat er{SoftNewLine}verraten!{WaitInput}"
+  },
+  "027F": {
+   "h": "54e3e98f",
+   "t": "{Speaker}Den jungen Leuten{SoftNewLine}heute fehlt es an Biss! Immer{SoftNewLine}nur auf den schnellen Gewinn{SoftNewLine}aus!{WaitInput}"
+  },
+  "0280": {
+   "h": "cdf8991b",
+   "t": "{Speaker}Wir beraten gerade{SoftNewLine}über die Zukunft von{SoftNewLine}Merkator.{WaitInput}"
+  },
+  "0281": {
+   "h": "bdca3759",
+   "t": "{Speaker}Ich fass es nicht!{SoftNewLine}Über 1000 Taler hab ich bei{SoftNewLine}diesem blöden Hühnerrennen{SoftNewLine}verzockt!!{WaitInput}"
+  },
+  "0282": {
+   "h": "4f706fd6",
+   "t": "{Speaker}Ins Schloss kommen{SoftNewLine}unsereins so gut wie nie...{WaitInput}"
+  },
+  "0283": {
+   "h": "1d4b506f",
+   "t": "{Speaker}Der Herzog sucht{SoftNewLine}gerade Söldner.{WaitInput}"
+  },
+  "0284": {
+   "h": "f84d2612",
+   "t": "{Speaker}DU wurdest ins{SoftNewLine}Schloss eingeladen? Dann{SoftNewLine}musst du ja stark sein! Krieg{SoftNewLine}ich ein Autogramm?{WaitInput}"
+  },
+  "0285": {
+   "h": "908a50b0",
+   "t": "{Speaker}Nein, nein, stör{SoftNewLine}mich nicht! Ich brauche{SoftNewLine}höchste Konzentration...{WaitInput}"
+  },
+  "0286": {
+   "h": "332dc2d2",
+   "t": "{Speaker}Was ist, schämst{SoftNewLine}du dich etwa? Mach einfach{SoftNewLine}die Tür auf und geh rein!{WaitInput}"
+  },
+  "0287": {
+   "h": "8a4b87ca",
+   "t": "{Speaker}Na, wie war's?{SoftNewLine}Brauchst du doch noch gar{SoftNewLine}nicht, oder? Hohohoho...!{WaitInput}"
+  },
+  "0288": {
+   "h": "c5fd73b0",
+   "t": "{Speaker}Ich sagte doch,{SoftNewLine}stör mich nicht! Hammana,{SoftNewLine}hammena, hammina...{WaitInput}"
+  },
+  "0289": {
+   "h": "a3e47998",
+   "t": "{Speaker}{Item}! Ich{SoftNewLine}sehe es! Hol es dir!{ContinuePrompt}"
+  },
+  "028A": {
+   "h": "7962916c",
+   "t": "{Speaker}Dann wird der{SoftNewLine}Leuchtturm wieder strahlen!{ContinuePrompt}"
+  },
+  "028B": {
+   "h": "8a1af2a5",
+   "t": "{Speaker}So flink wie du{SoftNewLine}bist, schaffst du das Grüne{SoftNewLine}Labyrinth bestimmt allein.{WaitInput}"
+  },
+  "028C": {
+   "h": "547e6a8c",
+   "t": "{Speaker}Du hast{SoftNewLine}{Item}! Meine{SoftNewLine}Kristallkugel lügt nie....{WaitInput}"
+  },
+  "028D": {
+   "h": "905c9674",
+   "t": "{Speaker}Stör mich bitte{SoftNewLine}nicht, sonst muss ich dich in{SoftNewLine}einen Hund verwandeln!!{ContinuePrompt}"
+  },
+  "028E": {
+   "h": "d6867e07",
+   "t": "{Speaker}Also, wo war ich{SoftNewLine}stehen geblieben?.....{WaitInput}"
+  },
+  "028F": {
+   "h": "d9223f55",
+   "t": "{Speaker}Ach, wär ich doch{SoftNewLine}nur wieder jung.....{WaitInput}"
+  },
+  "0290": {
+   "h": "ac67de3a",
+   "t": "{Speaker}Hallo, Süßer! Bin{SoftNewLine}ich hübsch? Bin ich jung?{SoftNewLine}Lalala!{WaitInput}"
+  },
+  "0291": {
+   "h": "e22a9be9",
+   "t": "{Speaker}Wenn meine Mama{SoftNewLine}wirklich wieder jung wird,{SoftNewLine}kann ich vor allen meinen{SoftNewLine}Freunden angeben!{WaitInput}"
+  },
+  "0292": {
+   "h": "f0798da7",
+   "t": "{Speaker}Schön, dass Mama{SoftNewLine}wieder jung ist, aber... sie ist{SoftNewLine}die ganze Zeit so aufgekratzt!{WaitInput}"
+  },
+  "0293": {
+   "h": "63591d0c",
+   "t": "{Speaker}Monster sind auf{SoftNewLine}dieser Insel selten. Auf dem{SoftNewLine}Festland bringen die einen{SoftNewLine}guten Preis.{WaitInput}"
+  },
+  "0294": {
+   "h": "314094ff",
+   "t": "{Speaker}Ich hab für die{SoftNewLine}Monster eine Tonne Taler{SoftNewLine}bekommen! Jetzt geh ich in{SoftNewLine}Grihnpies Spielhaus.{WaitInput}"
+  },
+  "0295": {
+   "h": "c5084b00",
+   "t": "{Speaker}Ich hab die drei{SoftNewLine}meistgesuchten Verbrecher der{SoftNewLine}Insel geschnappt! Die bringen{ContinuePrompt}"
+  },
+  "0296": {
+   "h": "d516ef10",
+   "t": "{Speaker}einen guten Preis!{WaitInput}"
+  },
+  "0297": {
+   "h": "001472d8",
+   "t": "{Speaker}...grrrrrrrrr...{WaitInput}"
+  },
+  "0298": {
+   "h": "78873c6e",
+   "t": "{Speaker}....huuuUUUUuuuu!!!......{WaitInput}"
+  },
+  "0299": {
+   "h": "73b09234",
+   "t": "{Speaker}JAAARRRG!!.....{WaitInput}"
+  },
+  "029A": {
+   "h": "6b3a6391",
+   "t": "{Speaker}Zisssss!!!.....{WaitInput}"
+  },
+  "029B": {
+   "h": "b83aebcd",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}ist ein Ehrenmann. Dass wir{SoftNewLine}hier so angenehm leben,{ContinuePrompt}"
+  },
+  "029C": {
+   "h": "b4b89716",
+   "t": "{Speaker}verdanken wir{SoftNewLine}allein ihm. Ein Hoch auf Herzog{SoftNewLine}Merkator!{WaitInput}"
+  },
+  "029D": {
+   "h": "9740627f",
+   "t": "{Speaker}W-w-was? Herzog{SoftNewLine}Merkator hat uns im Stich{SoftNewLine}gelassen? Das glaub ich nicht!{WaitInput}"
+  },
+  "029E": {
+   "h": "1687895e",
+   "t": "{Speaker}Ein Hoch auf{SoftNewLine}General {=arthur}!{WaitInput}"
+  },
+  "029F": {
+   "h": "41cdbf48",
+   "t": "{Speaker}Ich hab gehört, ein{SoftNewLine}böser Magier im Süden macht{SoftNewLine}dem Herzog schwer zu{SoftNewLine}schaffen.{ContinuePrompt}"
+  },
+  "02A0": {
+   "h": "10d320fb",
+   "t": "{Speaker}Der erpresst den{SoftNewLine}Herzog bestimmt mit seiner{SoftNewLine}Zauberkraft um Geld.{ContinuePrompt}"
+  },
+  "02A1": {
+   "h": "b5223206",
+   "t": "{Speaker}Deshalb müssen wir{SoftNewLine}so hohe Steuern zahlen...{SoftNewLine}oder?{WaitInput}"
+  },
+  "02A2": {
+   "h": "2745de02",
+   "t": "{Speaker}Du hast Mir{SoftNewLine}besiegt? Wirklich? Und warum{SoftNewLine}guckst du dann so traurig?{WaitInput}"
+  },
+  "02A3": {
+   "h": "b0e6f335",
+   "t": "{Speaker}Was soll nur ohne{SoftNewLine}Herzog Merkator aus uns{SoftNewLine}werden?{WaitInput}"
+  },
+  "02A4": {
+   "h": "d82d7bee",
+   "t": "{Speaker}General {=arthur} hat{SoftNewLine}die Steuern gesenkt. Ein{SoftNewLine}echter Prachtkerl!{WaitInput}"
+  },
+  "02A5": {
+   "h": "e5301cb7",
+   "t": "{Speaker}Willkommen im{SoftNewLine}Hause von Meister {=ludwig}.{SoftNewLine}Falls Sie für eine Musikstunde{SoftNewLine}gekommen sind:{ContinuePrompt}"
+  },
+  "02A6": {
+   "h": "6ed33452",
+   "t": "{Speaker}Meister {=ludwig} ist{SoftNewLine}leider außer Haus.....{WaitInput}"
+  },
+  "02A7": {
+   "h": "0843ce0e",
+   "t": "{Speaker}{=ludwig} ist nicht{SoftNewLine}da! Ich fürchte, es wird{SoftNewLine}dauern, bis er zurückkommt.{WaitInput}"
+  },
+  "02A8": {
+   "h": "9172bd62",
+   "t": "{Speaker}Bist du auch{SoftNewLine}gekommen, um ihn spielen zu{SoftNewLine}hören? Ich bin extra vom{SoftNewLine}Festland angereist,{ContinuePrompt}"
+  },
+  "02A9": {
+   "h": "613afc05",
+   "t": "{Speaker}nur um unseren{SoftNewLine}nationalen Schatz spielen zu{SoftNewLine}hören... wo steckt er bloß?{WaitInput}"
+  },
+  "02AA": {
+   "h": "cbc5c520",
+   "t": "{Speaker}Wie schade! Ich{SoftNewLine}hatte mich so auf seine{SoftNewLine}wunderschöne Musik gefreut.{WaitInput}"
+  },
+  "02AB": {
+   "h": "098604d2",
+   "t": "{Speaker}Ich fahre zurück{SoftNewLine}aufs Festland. Es hat keinen{SoftNewLine}Sinn, noch länger{ContinuePrompt}"
+  },
+  "02AC": {
+   "h": "15ff561b",
+   "t": "{Speaker}auf diesen {=ludwig}{SoftNewLine}zu warten. Was? Der{SoftNewLine}Leuchtturm ist kaputt?{ContinuePrompt}"
+  },
+  "02AD": {
+   "h": "bac7dec9",
+   "t": "{Speaker}Na toll! So ein Mist{SoftNewLine}aber auch!!!{WaitInput}"
+  },
+  "02AE": {
+   "h": "691cab87",
+   "t": "{Speaker}Ich fahr nach{SoftNewLine}Hause. Sieht so aus, als würde{SoftNewLine}ich ihn nie spielen hören.{WaitInput}"
+  },
+  "02AF": {
+   "h": "adb5fa3c",
+   "t": "{Speaker}Kommt her, kommt{SoftNewLine}her!! Greift zu! Wir sind fast{SoftNewLine}ausverkauft!{WaitInput}"
+  },
+  "02B0": {
+   "h": "ecd75112",
+   "t": "{Speaker}Billiger geht's{SoftNewLine}nirgends! Tiefpreisgarantie...{SoftNewLine}jeden Tag!!{WaitInput}"
+  },
+  "02B1": {
+   "h": "cd08d82d",
+   "t": "{Speaker}Dieser Laden ist{SoftNewLine}sogar auf dem Festland{SoftNewLine}berühmt. Ich hab eine riesige{SoftNewLine}Einkaufsliste für{ContinuePrompt}"
+  },
+  "02B2": {
+   "h": "df9ab900",
+   "t": "{Speaker}all meine{SoftNewLine}Freunde.....{WaitInput}"
+  },
+  "02B3": {
+   "h": "6abf0f4d",
+   "t": "{Speaker}Hier ist es immer{SoftNewLine}voll, weil's billiger ist als in{SoftNewLine}dem anderen Laden da drüben.{WaitInput}"
+  },
+  "02B4": {
+   "h": "4a6e3ecb",
+   "t": "{Speaker}Ich Trottel! Ich{SoftNewLine}hab viel zu viel gekauft!{SoftNewLine}Jetzt kann ich mich kaum noch{SoftNewLine}bewegen!{WaitInput}"
+  },
+  "02B5": {
+   "h": "d69c978c",
+   "t": "{Speaker}Minderjährige haben{SoftNewLine}hier keinen Zutritt! Na los,{SoftNewLine}verschwinde! Husch, husch!!{WaitInput}"
+  },
+  "02B6": {
+   "h": "9843e33d",
+   "t": "{Speaker}Du schon wieder!{SoftNewLine}Ich hab doch gesagt, keine{SoftNewLine}Minderjährigen! Raus jetzt!{SoftNewLine}Raus!{WaitInput}"
+  },
+  "02B7": {
+   "h": "bb0cbb6a",
+   "t": "{Speaker}Bitte sehr... nach{SoftNewLine}oben, bitte.{WaitInput}"
+  },
+  "02B8": {
+   "h": "efea778c",
+   "t": "{Speaker}So ein hartnäckiger{SoftNewLine}Bengel! Willst du mich wütend{SoftNewLine}machen? Raus hier!{WaitInput}"
+  },
+  "02B9": {
+   "h": "e0f879f0",
+   "t": "{Speaker}Das hier ist{SoftNewLine}Madame Yards Etablissement.{SoftNewLine}Dafür bist du noch zu jung,{SoftNewLine}Kleiner.{ContinuePrompt}"
+  },
+  "02BA": {
+   "h": "ba56cd43",
+   "t": "{Speaker}Komm wieder, wenn{SoftNewLine}du erwachsen bist!{WaitInput}"
+  },
+  "02BB": {
+   "h": "6524a133",
+   "t": "{Speaker}Na, du hast es{SoftNewLine}aber nötig, Kleiner... Die{SoftNewLine}jungen Leute haben heutzutage{SoftNewLine}wohl viele Sorgen...{WaitInput}"
+  },
+  "02BC": {
+   "h": "d7f00f77",
+   "t": "{Speaker}Hallöchen, mein{SoftNewLine}feiner Herr! Werden Sie doch{SoftNewLine}Mitglied bei Madame Yard!{SoftNewLine}Fragen Sie einfach an der{SoftNewLine}Theke.{WaitInput}"
+  },
+  "02BD": {
+   "h": "38690573",
+   "t": "{Speaker}Grüß mir die kleine{SoftNewLine}Knirps-- äh, ich meine,{SoftNewLine}Fräulein {=friday}!{WaitInput}"
+  },
+  "02BE": {
+   "h": "bfa13ea0",
+   "t": "{Speaker}Nichtmitglieder{SoftNewLine}dürfen nicht nach oben. Tut{SoftNewLine}mir leid.{WaitInput}"
+  },
+  "02BF": {
+   "h": "6289ca5d",
+   "t": "{Speaker}Also, hör gut zu.{SoftNewLine}Das ist ein beliebter Trick{SoftNewLine}unter den jungen Burschen...{ContinuePrompt}"
+  },
+  "02C0": {
+   "h": "81306f51",
+   "t": "{Speaker}Geh zur alten{SoftNewLine}Wahrsagerin und frag sie um{SoftNewLine}Rat. Du wirst angenehm{SoftNewLine}überrascht sein!{WaitInput}"
+  },
+  "02C1": {
+   "h": "c8747f45",
+   "t": "{Speaker}Willkommen bei{SoftNewLine}Madame Yard! Sie ist einfach{SoftNewLine}die Beste!!{WaitInput}"
+  },
+  "02C2": {
+   "h": "e17b1cf3",
+   "t": "{Speaker}Kinder wachsen an{SoftNewLine}ihren Sorgen. Deine Probleme{SoftNewLine}musst du schon selbst lösen.{ContinuePrompt}"
+  },
+  "02C3": {
+   "h": "fe8ffb81",
+   "t": "{Speaker}Für manches gibt{SoftNewLine}es eben keine einfache{SoftNewLine}Lösung.....{WaitInput}"
+  },
+  "02C4": {
+   "h": "6d385e27",
+   "t": "{Speaker}Ganz schön teuer,{SoftNewLine}aber ich fühl mich wie{SoftNewLine}neugeboren! Jetzt muss ich{SoftNewLine}heim und...{ContinuePrompt}"
+  },
+  "02C5": {
+   "h": "39fc5cce",
+   "t": "{Speaker}...das Gelernte{SoftNewLine}üben...{WaitInput}"
+  },
+  "02C6": {
+   "h": "3e5ace1e",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}hat ihm sechs Taler bezahlt,{SoftNewLine}damit er {Item}{SoftNewLine}stiehlt! Sechs!! Hätt er{SoftNewLine}wenigstens mehr verlangt!{WaitInput}"
+  },
+  "02C7": {
+   "h": "435576f0",
+   "t": "{Speaker}Ich hab mir vom{SoftNewLine}vielen Predigen fast den{SoftNewLine}Kiefer ausgerenkt.{WaitInput}"
+  },
+  "02C8": {
+   "h": "6a145553",
+   "t": "{Speaker}Die sollen endlich{SoftNewLine}die Steuern senken!{WaitInput}"
+  },
+  "02C9": {
+   "h": "a9b5b8ed",
+   "t": "{Speaker}Mein Lieblingsspiel{SoftNewLine}ist Roulette! Alles auf eine{SoftNewLine}Karte, und dann: Volltreffer!{WaitInput}"
+  },
+  "02CA": {
+   "h": "8cd4d2e1",
+   "t": "{Speaker}Ich? Ich bin{SoftNewLine}Stammkunde! Heute nehm ich{SoftNewLine}wieder {=julie}... hehe.{WaitInput}"
+  },
+  "02CB": {
+   "h": "1efd21d3",
+   "t": "{Speaker}Ich hab die ganze{SoftNewLine}Woche auf meinen Termin bei{SoftNewLine}Madame Yard gewartet!{ContinuePrompt}"
+  },
+  "02CC": {
+   "h": "59720209",
+   "t": "{Speaker}Wenn ich's mir nur{SoftNewLine}öfter leisten könnte.....{WaitInput}"
+  },
+  "02CD": {
+   "h": "6a4f8645",
+   "t": "{Speaker}...hust, hust... Oh,{SoftNewLine}ein Reisender... wie peinlich...{SoftNewLine}wie du siehst, ist der Laden{SoftNewLine}geschlossen...{ContinuePrompt}"
+  },
+  "02CE": {
+   "h": "4387970e",
+   "t": "{Speaker}Wie du vielleicht{SoftNewLine}weißt, gibt es direkt{SoftNewLine}gegenüber noch einen Laden.{SoftNewLine}Wir beide verkaufen{ContinuePrompt}"
+  },
+  "02CF": {
+   "h": "86c4cad5",
+   "t": "{Speaker}dieselben Waren,{SoftNewLine}aber die drüben sind viel{SoftNewLine}billiger. Ich überlege, den{SoftNewLine}Beruf zu wechseln,{ContinuePrompt}"
+  },
+  "02D0": {
+   "h": "b319baf1",
+   "t": "{Speaker}aber ich weiß{SoftNewLine}nicht, was für ein Laden am{SoftNewLine}besten zu mir passt... hust,{SoftNewLine}hust...{ContinuePrompt}"
+  },
+  "02D1": {
+   "h": "1a3d7183",
+   "t": "{Speaker}Ich mag nicht mal{SoftNewLine}mehr aufstehen, so ein{SoftNewLine}Versager bin ich!.....{WaitInput}"
+  },
+  "02D2": {
+   "h": "5b53ee3b",
+   "t": "{Speaker}Ich will einen neuen{SoftNewLine}Laden aufmachen...... seufz...{SoftNewLine}was soll ich nur tun?...{WaitInput}"
+  },
+  "02D3": {
+   "h": "cb3bf37e",
+   "t": "{Speaker}{=nigel}, wie geht's{SoftNewLine}dir? Hust... Ich hab lange{SoftNewLine}darüber nachgedacht, neu{SoftNewLine}anzufangen,{ContinuePrompt}"
+  },
+  "02D4": {
+   "h": "14eee707",
+   "t": "{Speaker}ein neues Leben...{SoftNewLine}und jetzt hab ich mich endlich{SoftNewLine}entschieden, den Beruf zu{SoftNewLine}wechseln!{ContinuePrompt}"
+  },
+  "02D5": {
+   "h": "ef23b3b7",
+   "t": "{Speaker}Würdest du mir{SoftNewLine}deine Meinung sagen?{NewLine}"
+  },
+  "02D6": {
+   "h": "c1c5a1c7",
+   "t": "{Speaker}Ja, ja, ich weiß, du{SoftNewLine}hast viel zu tun. Komm wieder,{SoftNewLine}wenn du Zeit hast... hust!{WaitInput}"
+  },
+  "02D7": {
+   "h": "45f7844d",
+   "t": "{Speaker}Wie wär's mit einer{SoftNewLine}Drogerie?{NewLine}"
+  },
+  "02D8": {
+   "h": "cd62ec0f",
+   "t": "{Speaker}Hmmm... na gut, wie{SoftNewLine}wär's dann mit einem{SoftNewLine}zwielichtigen Laden?{NewLine}"
+  },
+  "02D9": {
+   "h": "1390f321",
+   "t": "{Speaker}Nun hör mal, ich{SoftNewLine}hab mir das lange überlegt{SoftNewLine}und es auf diese zwei{SoftNewLine}eingegrenzt. Also......{ContinuePrompt}"
+  },
+  "02DA": {
+   "h": "12bb12bd",
+   "t": "{Speaker}such dir einen{SoftNewLine}davon aus. Ich höre auf deinen{SoftNewLine}Rat.{ContinuePrompt}"
+  },
+  "02DB": {
+   "h": "b70ba67e",
+   "t": "{Speaker}Dann frag ich noch{SoftNewLine}einmal.{ContinuePrompt}"
+  },
+  "02DC": {
+   "h": "8d3fd34c",
+   "t": "{Speaker}Du meinst auch?{SoftNewLine}Großartig!! Ab heute bin ich{SoftNewLine}Drogist!{ContinuePrompt}"
+  },
+  "02DD": {
+   "h": "0cd837c3",
+   "t": "{Speaker}Du meinst auch?{SoftNewLine}Dann ist es beschlossen! Ab{SoftNewLine}heute führe ich einen{SoftNewLine}zwielichtigen Laden!{ContinuePrompt}"
+  },
+  "02DE": {
+   "h": "bbe3653d",
+   "t": "{Speaker}Ach übrigens, tust{SoftNewLine}du mir einen Gefallen? Ich{SoftNewLine}möchte, dass du zum{ContinuePrompt}"
+  },
+  "02DF": {
+   "h": "c253b09b",
+   "t": "{Speaker}Großmarkt im{SoftNewLine}Hafenlager von Merkator{SoftNewLine}gehst. Er öffnet, wenn das{SoftNewLine}Schiff vom{ContinuePrompt}"
+  },
+  "02E0": {
+   "h": "d69888b3",
+   "t": "{Speaker}Festland anlegt.{SoftNewLine}Bitte geh hin und hol die Ware{SoftNewLine}für mich ab. Hust, hust...{ContinuePrompt}"
+  },
+  "02E1": {
+   "h": "122f8f5a",
+   "t": "{Speaker}Ich bleib hier und{SoftNewLine}richte alles her. Nimm das{SoftNewLine}hier mit. Das ist eine{SoftNewLine}Käuferkarte der Händlergilde.{ContinuePrompt}"
+  },
+  "02E2": {
+   "h": "67219456",
+   "t": "{Speaker}Hust, hust... warst{SoftNewLine}du schon auf dem Markt? Du{SoftNewLine}bist meine einzige Hoffnung...{WaitInput}"
+  },
+  "02E3": {
+   "h": "7841c756",
+   "t": "{Speaker}Die Ware ist{SoftNewLine}angekommen, und mir geht's{SoftNewLine}richtig gut!{ContinuePrompt}"
+  },
+  "02E4": {
+   "h": "222c5b1e",
+   "t": "{Speaker}Ich bin glücklich{SoftNewLine}mit meinem neuen Laden! Das{SoftNewLine}ist der Wendepunkt meines{SoftNewLine}Lebens!{ContinuePrompt}"
+  },
+  "02E5": {
+   "h": "9a36f937",
+   "t": "{Speaker}Das verdanke ich{SoftNewLine}alles dir, {=nigel}!{ContinuePrompt}"
+  },
+  "02E6": {
+   "h": "434a8d7a",
+   "t": "{Speaker}Als Dank verkauf{SoftNewLine}ich dir alles zu{SoftNewLine}Schleuderpreisen!{ContinuePrompt}"
+  },
+  "02E7": {
+   "h": "d035d6a7",
+   "t": "{Speaker}Komm jederzeit{SoftNewLine}vorbei!{WaitInput}"
+  },
+  "02E8": {
+   "h": "49adf159",
+   "t": "{Speaker}Bei uns gibt's{SoftNewLine}lauter seltene Sachen! Na los,{SoftNewLine}kauf was!{WaitInput}"
+  },
+  "02E9": {
+   "h": "29bb89bd",
+   "t": "{Speaker}War der Markt{SoftNewLine}schon zu? Macht nichts.{SoftNewLine}Nächsten Monat kommt das{SoftNewLine}Schiff wieder.{ContinuePrompt}"
+  },
+  "02EA": {
+   "h": "96839e6b",
+   "t": "{Speaker}Bis dahin werde ich{SoftNewLine}gesund und hole die Ware{SoftNewLine}selbst. Für meinen Sohn muss{SoftNewLine}ich mich anstrengen!{WaitInput}"
+  },
+  "02EB": {
+   "h": "e40a9451",
+   "t": "{Speaker}Papa hätte sich{SoftNewLine}hier besser umschauen sollen,{SoftNewLine}bevor er den Laden{SoftNewLine}aufgemacht hat...{WaitInput}"
+  },
+  "02EC": {
+   "h": "af012121",
+   "t": "{Speaker}Mein Papa denkt{SoftNewLine}darüber nach, den Beruf zu{SoftNewLine}wechseln.{WaitInput}"
+  },
+  "02ED": {
+   "h": "5d37d77f",
+   "t": "{Speaker}Ab heute bin ich{SoftNewLine}der Sohn eines Drogisten! Wow!{WaitInput}"
+  },
+  "02EE": {
+   "h": "f0810449",
+   "t": "{Speaker}Ab heute bin ich{SoftNewLine}der Sohn eines zwielichtigen{SoftNewLine}Ladenbesitzers! Wow!{WaitInput}"
+  },
+  "02EF": {
+   "h": "cbd459d1",
+   "t": "{Speaker}Mein Papa ist ein{SoftNewLine}toller Ladenbesitzer. Ich hab{SoftNewLine}ihn lieb.{WaitInput}"
+  },
+  "02F0": {
+   "h": "325836a2",
+   "t": "{Speaker}Sehr erfreut! Ich{SoftNewLine}bin {=june}, {=fahl:gen} reizende{SoftNewLine}Freundin.{WaitInput}"
+  },
+  "02F1": {
+   "h": "116b5b0a",
+   "t": "{Speaker}Es ist so peinlich!{SoftNewLine}Mein Sohn geht fast jeden Tag{SoftNewLine}zu Madame... Yard oder so!{ContinuePrompt}"
+  },
+  "02F2": {
+   "h": "aa9a0160",
+   "t": "{Speaker}Ich versteh ihn{SoftNewLine}einfach nicht! Ist es da{SoftNewLine}wirklich so toll?{WaitInput}"
+  },
+  "02F3": {
+   "h": "030775ca",
+   "t": "{Speaker}Mir lebt in diesem{SoftNewLine}alten Turm, aber angeblich{SoftNewLine}war er schon lange vor dem{SoftNewLine}Herzog in der Stadt.{ContinuePrompt}"
+  },
+  "02F4": {
+   "h": "329a6fb2",
+   "t": "{Speaker}Es heißt, der{SoftNewLine}Herzog hat ihn wegen eines{SoftNewLine}abscheulichen Verbrechens aus{SoftNewLine}Merkator verbannt.....{WaitInput}"
+  },
+  "02F5": {
+   "h": "030775ca",
+   "t": "{Speaker}Mir lebt in diesem{SoftNewLine}alten Turm, aber angeblich{SoftNewLine}war er schon lange vor dem{SoftNewLine}Herzog in der Stadt.{ContinuePrompt}"
+  },
+  "02F6": {
+   "h": "c474ec57",
+   "t": "{Speaker}Es heißt, der{SoftNewLine}Herzog hat ihn wegen eines{SoftNewLine}abscheulichen Verbrechens aus{SoftNewLine}Merkator verbannt.....{ContinuePrompt}"
+  },
+  "02F7": {
+   "h": "102957d8",
+   "t": "{Speaker}Ach, ich weiß nicht,{SoftNewLine}ob's stimmt. Ich hab's nur von{SoftNewLine}einer Freundin gehört.{ContinuePrompt}"
+  },
+  "02F8": {
+   "h": "c13600cd",
+   "t": "{Speaker}{Item} ist{SoftNewLine}ein kostbares Erz. Man findet{SoftNewLine}es nur tief im Grünen{SoftNewLine}Labyrinth.{WaitInput}"
+  },
+  "02F9": {
+   "h": "24c150d0",
+   "t": "{Speaker}Von meinen{SoftNewLine}Verwandten in Verla hab ich{SoftNewLine}schon lange nichts mehr{SoftNewLine}gehört.....{WaitInput}"
+  },
+  "02FA": {
+   "h": "7311ded7",
+   "t": "{Speaker}Ich hab gehört,{SoftNewLine}Herzog Merkator hat auch{SoftNewLine}Verla nur Ärger gebracht.{WaitInput}"
+  },
+  "02FB": {
+   "h": "ef249780",
+   "t": "{Speaker}Wäre General{SoftNewLine}{=arthur} gestorben, wäre{SoftNewLine}Merkator jetzt eine{SoftNewLine}Geisterstadt!{WaitInput}"
+  },
+  "02FC": {
+   "h": "785019ab",
+   "t": "{Speaker}Ich bin anderer{SoftNewLine}Meinung. Ich finde Madame{SoftNewLine}Yards Etablissement sehr{SoftNewLine}nett.{WaitInput}"
+  },
+  "02FD": {
+   "h": "a5633b23",
+   "t": "{Speaker}Wegen der Barriere{SoftNewLine}an der Tür kommt niemand in{SoftNewLine}Mirs Turm hinein...{WaitInput}"
+  },
+  "02FE": {
+   "h": "f2990354",
+   "t": "{Speaker}...Ach, du bist es...{WaitInput}"
+  },
+  "02FF": {
+   "h": "050d0393",
+   "t": "{Speaker}Das Grüne{SoftNewLine}Labyrinth liegt nördlich vom{SoftNewLine}Schloss. Jedes Jahr{SoftNewLine}verschwinden dort viele{SoftNewLine}Reisende,{ContinuePrompt}"
+  },
+  "0300": {
+   "h": "ae17cc3d",
+   "t": "{Speaker}deshalb hat der{SoftNewLine}Herzog das Betreten des{SoftNewLine}Grünen Labyrinths verboten.{WaitInput}"
+  },
+  "0301": {
+   "h": "bf167f90",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}ist ganz verrückt nach diesem{SoftNewLine}Schatz. Ist der wirklich so{SoftNewLine}viel wert?{WaitInput}"
+  },
+  "0302": {
+   "h": "29148094",
+   "t": "{Speaker}Ich bin mit General{SoftNewLine}{=arthur:gen} Regierung sehr{SoftNewLine}zufrieden.{WaitInput}"
+  },
+  "0303": {
+   "h": "c5b30783",
+   "t": "{Speaker}Ich hab auf der{SoftNewLine}Straße eine tolle Schönheit{SoftNewLine}gesehen. Und ihre zwei{SoftNewLine}Begleiter waren...{ContinuePrompt}"
+  },
+  "0304": {
+   "h": "dc9ab356",
+   "t": "{Speaker}....rate mal!{SoftNewLine}Monster!{WaitInput}"
+  },
+  "0305": {
+   "h": "910343c0",
+   "t": "{Speaker}Willst du den{SoftNewLine}Magier im Turm besiegen?{WaitInput}"
+  },
+  "0306": {
+   "h": "b808e8d0",
+   "t": "{Speaker}Wow! Du bist lebend{SoftNewLine}zurückgekommen!{WaitInput}"
+  },
+  "0307": {
+   "h": "fa2c80f8",
+   "t": "{Speaker}Aber ohne{SoftNewLine}{Item} kann der{SoftNewLine}Leuchtturm nicht leuchten!{SoftNewLine}Wer tut denn so was?{WaitInput}"
+  },
+  "0308": {
+   "h": "5270f8bb",
+   "t": "{Speaker}Wenn der Tunnel{SoftNewLine}zwischen Verla und Merkator{SoftNewLine}wieder offen wäre, wäre Verla{SoftNewLine}nur{ContinuePrompt}"
+  },
+  "0309": {
+   "h": "dbf0db6e",
+   "t": "{Speaker}einen Katzensprung{SoftNewLine}entfernt. Aber ein Erdbeben{SoftNewLine}hat den Tunnel verschüttet.{SoftNewLine}Jetzt kommt man{ContinuePrompt}"
+  },
+  "030A": {
+   "h": "ecc9feb6",
+   "t": "{Speaker}nur noch übers{SoftNewLine}Meer nach Verla.....{WaitInput}"
+  },
+  "030B": {
+   "h": "29dec0e1",
+   "t": "{Speaker}Einer meiner{SoftNewLine}Verwandten hat einen Laden in{SoftNewLine}Verla.{WaitInput}"
+  },
+  "030C": {
+   "h": "3a289f42",
+   "t": "{Speaker}General {=arthur} hat{SoftNewLine}sich dem Herzog bis zuletzt{SoftNewLine}widersetzt.{WaitInput}"
+  },
+  "030D": {
+   "h": "c5572845",
+   "t": "{Speaker}Wie wär's mit einem{SoftNewLine}Fruchtdrink? Vielleicht mein{SoftNewLine}Dahl-Spezial?{ContinuePrompt}"
+  },
+  "030E": {
+   "h": "1674324f",
+   "t": "{Speaker}Der Drink einer{SoftNewLine}neuen Generation!{WaitInput}"
+  },
+  "030F": {
+   "h": "5721addd",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}wirbt gerade Söldner an, um{SoftNewLine}Mir anzugreifen.{ContinuePrompt}"
+  },
+  "0310": {
+   "h": "0e26475c",
+   "t": "{Speaker}Die feiern schon{SoftNewLine}mal im Voraus den Sieg.{WaitInput}"
+  },
+  "0311": {
+   "h": "343ba139",
+   "t": "{Speaker}{=nigel}! Stimmt es,{SoftNewLine}dass du Mir besiegt hast?{WaitInput}"
+  },
+  "0312": {
+   "h": "95b87541",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}ist abgehauen! Was für eine{SoftNewLine}Überraschung!{ContinuePrompt}"
+  },
+  "0313": {
+   "h": "478e2ee8",
+   "t": "{Speaker}Was machen wir{SoftNewLine}denn jetzt?{WaitInput}"
+  },
+  "0314": {
+   "h": "ec9b47c8",
+   "t": "{Speaker}Ich hab umgebaut!{SoftNewLine}Jetzt kann man von oben{SoftNewLine}bestellen, ohne aus dem Bett{SoftNewLine}aufzustehen!{ContinuePrompt}"
+  },
+  "0315": {
+   "h": "9634aa58",
+   "t": "{Speaker}Geh nach oben und{SoftNewLine}bestell was.{WaitInput}"
+  },
+  "0316": {
+   "h": "1d24eaa0",
+   "t": "{Speaker}Wo ist sie nur?...{SoftNewLine}seufz!...... wo ist sie jetzt...{SoftNewLine}oh! Bist du ein Reisender?{ContinuePrompt}"
+  },
+  "0317": {
+   "h": "260b92ae",
+   "t": "{Speaker}Hörst du dir meine{SoftNewLine}Geschichte an?{NewLine}"
+  },
+  "0318": {
+   "h": "6e471ad6",
+   "t": "{Speaker}Es ist wohl{SoftNewLine}überflüssig zu sagen, dass ich{SoftNewLine}{=ludwig} bin, der weltberühmte{SoftNewLine}Komponist vom Festland.{ContinuePrompt}"
+  },
+  "0319": {
+   "h": "ecaa9ff9",
+   "t": "{Speaker}Prinzessin {=lara}{SoftNewLine}kam her, um bei mir zu lernen,{SoftNewLine}aber dann...{ContinuePrompt}"
+  },
+  "031A": {
+   "h": "10d3f247",
+   "t": "{Speaker}war sie plötzlich{SoftNewLine}verschwunden!! Ich fürchte,{SoftNewLine}mein Unterricht war nicht gut{SoftNewLine}genug für sie...{ContinuePrompt}"
+  },
+  "031B": {
+   "h": "3547bd7f",
+   "t": "{Speaker}Sie hätte sich{SoftNewLine}wenigstens verabschieden{SoftNewLine}können... Seufz!... wie süß sie{SoftNewLine}war....{WaitInput}"
+  },
+  "031C": {
+   "h": "c952decd",
+   "t": "{Speaker}Oh, bitte hör mir{SoftNewLine}zu....{NewLine}"
+  },
+  "031D": {
+   "h": "071973c9",
+   "t": "{Speaker}Mir war ein{SoftNewLine}bisschen übel, da bin ich{SoftNewLine}rausgegangen. Prinzessin{SoftNewLine}{=lara}? Nun ja, sie ist...{ContinuePrompt}"
+  },
+  "031E": {
+   "h": "fa06ee46",
+   "t": "{Speaker}eigen... ja, eigen!{SoftNewLine}Ehrlich gesagt ist sie sehr{SoftNewLine}schwierig.{ContinuePrompt}"
+  },
+  "031F": {
+   "h": "3d77d520",
+   "t": "{Speaker}Vielleicht ist sie{SoftNewLine}dem Herzog mit ihren Launen{SoftNewLine}so auf die Nerven gegangen,{SoftNewLine}dass er sie heimgeschickt{SoftNewLine}hat.....{WaitInput}"
   }
  },
  "names": {
