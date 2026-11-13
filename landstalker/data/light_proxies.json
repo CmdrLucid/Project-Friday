@@ -2373,7 +2373,7 @@
       {
         "op": "mesh",
         "cells": [
-          32,
+          31,
           13,
           32,
           13
@@ -2389,12 +2389,12 @@
           ],
           "z": 64
         },
-        "why": "brazier stand of the banquet room (collision = a blocked floor cell, height 0; the finder only knows the tileset 1 hall stands): the same lathe as 51..62 (remake/lib/furniture.py BRAZIER), axis MEASURED on the drawing with proxy_overlay (the drawn stand sits ~11 units -x / 4 units -y of the flame tile's light point, partly in front of the wall cell); user 2026-11-12 'setz mal das 3D-Modell richtig ein, wir haben es ja schon' (hard shadow strip left of the column)"
+        "why": "brazier stand of the banquet room (collision = a blocked floor cell, height 0; the finder only knows the tileset 1 hall stands): the same lathe as 51..62 (remake/lib/furniture.py BRAZIER), axis MEASURED on the drawing with proxy_overlay (the drawn stand sits ~11 units -x / 4 units -y of the flame tile's light point, partly in front of the wall cell); user 2026-11-12 'setz mal das 3D-Modell richtig ein, wir haben es ja schon' (hard shadow strip left of the column); 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
       },
       {
         "op": "mesh",
         "cells": [
-          14,
+          13,
           27,
           14,
           28
@@ -2410,7 +2410,7 @@
           ],
           "z": 64
         },
-        "why": "brazier stand of the banquet room (collision = a blocked floor cell, height 0; the finder only knows the tileset 1 hall stands): the same lathe as 51..62 (remake/lib/furniture.py BRAZIER), axis MEASURED on the drawing with proxy_overlay (the drawn stand sits ~11 units -x / 4 units -y of the flame tile's light point, partly in front of the wall cell); user 2026-11-12 'setz mal das 3D-Modell richtig ein, wir haben es ja schon' (hard shadow strip left of the column)"
+        "why": "brazier stand of the banquet room (collision = a blocked floor cell, height 0; the finder only knows the tileset 1 hall stands): the same lathe as 51..62 (remake/lib/furniture.py BRAZIER), axis MEASURED on the drawing with proxy_overlay (the drawn stand sits ~11 units -x / 4 units -y of the flame tile's light point, partly in front of the wall cell); user 2026-11-12 'setz mal das 3D-Modell richtig ein, wir haben es ja schon' (hard shadow strip left of the column); 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
       }
     ],
     "86": [
@@ -2535,7 +2535,7 @@
       {
         "op": "mesh",
         "cells": [
-          16,
+          15,
           14,
           16,
           14
@@ -2551,7 +2551,7 @@
           ],
           "z": 80
         },
-        "why": "castle standing torch (not found by furniture_ops brazier_stands): the lathe of 51..62 on floor 16, axis MEASURED with proxy_overlay = flame light point + (-11, -4); user 2026-11-12 '89 und 73 auch noch'"
+        "why": "castle standing torch (not found by furniture_ops brazier_stands): the lathe of 51..62 on floor 16, axis MEASURED with proxy_overlay = flame light point + (-11, -4); user 2026-11-12 '89 und 73 auch noch'; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
       },
       {
         "op": "mesh",
@@ -2599,7 +2599,7 @@
       {
         "op": "mesh",
         "cells": [
-          25,
+          24,
           13,
           25,
           13
@@ -2615,7 +2615,7 @@
           ],
           "z": 64
         },
-        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'"
+        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
       }
     ],
     "97": [
@@ -2636,7 +2636,7 @@
       {
         "op": "mesh",
         "cells": [
-          25,
+          24,
           13,
           25,
           13
@@ -2652,7 +2652,7 @@
           ],
           "z": 64
         },
-        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'"
+        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
       }
     ],
     "103": [
@@ -2673,7 +2673,7 @@
       {
         "op": "mesh",
         "cells": [
-          25,
+          24,
           13,
           25,
           13
@@ -2689,7 +2689,7 @@
           ],
           "z": 64
         },
-        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'"
+        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
       }
     ],
     "108": [
@@ -6705,7 +6705,7 @@
       {
         "op": "mesh",
         "cells": [
-          14,
+          13,
           26,
           14,
           26
@@ -6721,7 +6721,7 @@
           ],
           "z": 64
         },
-        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'"
+        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
       },
       {
         "op": "mesh",
@@ -6742,7 +6742,7 @@
       {
         "op": "mesh",
         "cells": [
-          15,
+          14,
           16,
           15,
           16
@@ -6758,14 +6758,14 @@
           ],
           "z": 64
         },
-        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'"
+        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
       }
     ],
     "95": [
       {
         "op": "mesh",
         "cells": [
-          16,
+          15,
           14,
           16,
           14
@@ -6781,7 +6781,7 @@
           ],
           "z": 96
         },
-        "why": "castle standing torch of room 95 (collision cell (16, 14) walkable, top block $2D): the brazier lathe of 51..62 on the floor 32, axis MEASURED with proxy_overlay; user 2026-11-12"
+        "why": "castle standing torch of room 95 (collision cell (16, 14) walkable, top block $2D): the brazier lathe of 51..62 on the floor 32, axis MEASURED with proxy_overlay; user 2026-11-12; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
       },
       {
         "op": "mesh",
@@ -6869,7 +6869,7 @@
       {
         "op": "mesh",
         "cells": [
-          25,
+          24,
           29,
           25,
           29
@@ -6885,14 +6885,14 @@
           ],
           "z": 64
         },
-        "why": "castle standing torch (not found by furniture_ops brazier_stands): the lathe of 51..62 on floor 0, axis MEASURED with proxy_overlay = flame light point + (-11, -4); user 2026-11-12 '89 und 73 auch noch'"
+        "why": "castle standing torch (not found by furniture_ops brazier_stands): the lathe of 51..62 on floor 0, axis MEASURED with proxy_overlay = flame light point + (-11, -4); user 2026-11-12 '89 und 73 auch noch'; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
       }
     ],
     "74": [
       {
         "op": "mesh",
         "cells": [
-          33,
+          32,
           21,
           33,
           21
@@ -6908,14 +6908,14 @@
           ],
           "z": 80
         },
-        "why": "castle standing torch (collision cell (32, 21) a column 64 high on floor 16; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = flame light point + (-11, -4); deco survey 2026-11-13"
+        "why": "castle standing torch (collision cell (32, 21) a column 64 high on floor 16; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = flame light point + (-11, -4); deco survey 2026-11-13; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
       }
     ],
     "75": [
       {
         "op": "mesh",
         "cells": [
-          33,
+          32,
           21,
           33,
           21
@@ -6931,7 +6931,7 @@
           ],
           "z": 80
         },
-        "why": "castle standing torch (collision cell (32, 21) a column 64 high on floor 16; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = flame light point + (-11, -4); deco survey 2026-11-13"
+        "why": "castle standing torch (collision cell (32, 21) a column 64 high on floor 16; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = flame light point + (-11, -4); deco survey 2026-11-13; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
       }
     ],
     "98": [

@@ -1534,13 +1534,18 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         if (!f) continue;
         lk_lt_pos(U, V, z, &px, &py);
         L->x = px + 6.0f * lk_lt_fnx(f); L->y = py + 6.0f * lk_lt_fny(f); L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; L->lava = 0; L->base = lk_o_grp[k].base;
-        L->hw = 0.0f; L->tan = 0;   /* LK_LTWIDE v2 (user 2026-11-09 'ja' to wide fires): a fire drawn wider than 2 tiles on a wall (fireplaces) lights from its whole width;
+        L->hw = 0.0f; L->tan = 0; L->own = 0.0f;   /* own: LK_GLCARRIER v2 sets it below (was stale from an earlier room's light in this slot) */  /* LK_LTWIDE v2 (user 2026-11-09 'ja' to wide fires): a fire drawn wider than 2 tiles on a wall (fireplaces) lights from its whole width;
            the picture width of the group = its width along the wall (U = x - y: a run along x or along y moves U by the same amount) */
         { float hw = (float)((cmax - cmin + 1) * 8) * 0.5f - 2.0f; if ((f == 2 || f == 3) && hw >= 10.0f) {   /* >= 3 tiles wide = fireplaces (2 tile candelabras stay small) */ L->hw = hw; L->tan = f == 2 ? 2 : 1; L->hv = (float)((rmax - rmin + 1) * 8) * 0.5f - 2.0f; if (L->hv < 0.0f) L->hv = 0.0f; } }   /* LK_LTWIDE v2: + half its drawn height (on a wall the picture rows = z) */
         { static int co = -1; int q; if (co < 0) { const char *e = getenv("LANDSTALKER_LT_CARRIER"); co = e ? atoi(e) != 0 : 1; }   /* LK_GLCARRIER v1 (brazier stands, user 2026-11-09 'next forms'): the view ray of the flame's
              centre hits the stand's model at the bowl's RIM (6 units aside, 4 lower: the bowl shadowed half the room); a flame on a stand = on its axis, 5 above the bowl's top (data "z"; the drawn centre on the axis lies IN the bowl = 'inside a solid') */
           if (co) for (q = 0; lk_lt_carrier[q][0] >= 0; q++) { const int16_t *c = lk_lt_carrier[q]; int cx = (int)floorf(px / 16.0f), cy = (int)floorf(py / 16.0f);
-            if (c[0] == lk_o_room && cx >= c[1] - 1 && cx <= c[3] + 1 && cy >= c[2] - 1 && cy <= c[4] + 1) { L->x = (float)c[6]; L->y = (float)c[7]; L->z = (float)c[8]; L->own = (float)c[5]; break; } } }
+            if (c[0] == lk_o_room && cx >= c[1] - 1 && cx <= c[3] + 1 && cy >= c[2] - 1 && cy <= c[4] + 1) { L->x = (float)c[6]; L->y = (float)c[7]; L->z = (float)c[8]; L->own = (float)c[5]; break; } }
+          if (co && L->own <= 0.0f) for (q = 0; lk_lt_carrier[q][0] >= 0; q++) { const int16_t *c = lk_lt_carrier[q]; float dx = (float)c[6] - L->x, dy = (float)c[7] - L->y, dz = (float)c[8] - L->z;   /* LK_GLCARRIER v2 (2026-11-13, room 74):
+               the flame's view ray finds its world point in the light's heights; with the stand's phantom corner pillars gone (data cells widened to the axis cell) the ray of a
+               flame beside a wall passes the stand and lands on the floor BEHIND it (cell match fails, light at (479, 309, 33) instead of the bowl).  Fallback: a stand whose axis
+               lies on the same view ray (1, 1, 1): same picture column (dx = dy) and row (dx + dy = 2 dz) within a few units */
+            if (c[0] == lk_o_room && fabsf(dx - dy) < 16.0f && fabsf(dx + dy - 2.0f * dz) < 24.0f && fabsf(dz) < 128.0f) { L->x = (float)c[6]; L->y = (float)c[7]; L->z = (float)c[8]; L->own = (float)c[5]; break; } } }
         L->k = 1.0f; L->rad = LK_LT_RAD; if (L->base == 0x098AAA) { L->k = 1.15f; L->rad = 260.0f; }   /* the standing torches of the castle (user 2026-11-04: 'im Schloss zu dunkel, koennte nur diese Art der Fackel mehr Licht abgeben?'; 2026-11-05: base light 0.85, then this torch a bit weaker: k 1.5 -> 1.15) */
         lk_lt_nl++; }
     }
