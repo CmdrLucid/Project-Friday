@@ -235,6 +235,8 @@ def build_id(rom_sha):
     files += sorted(os.path.join(HERE, "tools", f) for f in os.listdir(os.path.join(HERE, "tools")) if f.endswith((".py", ".c", ".h", ".json")))
     if os.path.isdir(os.path.join(HERE, "lang")):
         files += sorted(os.path.join(HERE, "lang", f) for f in os.listdir(os.path.join(HERE, "lang")) if f.endswith(".json"))
+    for dp, dn, fn in sorted(os.walk(os.path.join(HERE, "data"))):   # v1.9.1: the light data (light_proxies.json, proxies/*.obj, object_blocks.json) is a build input too
+        dn.sort(); files += [os.path.join(dp, f) for f in sorted(fn)]
     for f in files:
         if os.path.isfile(f):
             h.update(os.path.basename(f).encode())
@@ -350,6 +352,9 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
         pass
     if os.path.isdir(os.path.join(HERE, "lang")):   # translations (our own text), built by tools/langbuild.py (a step of build.sh) into build/lang
         shutil.copytree(os.path.join(HERE, "lang"), os.path.join(work, "lang"))
+    if not os.path.isfile(os.path.join(HERE, "data", "light_proxies.json")):   # v1.9.1 (v1.9.0 bug: data/ was packaged but never copied, the game was built WITHOUT the 3D light shapes)
+        raise RuntimeError("The package is incomplete: data/light_proxies.json is missing (" + os.path.join(HERE, "data") + ").")
+    shutil.copytree(os.path.join(HERE, "data"), os.path.join(work, "data"))   # read by tools/patch_lights.py (tools/../data): light proxy corrections, Blender shapes, object catalogue
     os.makedirs(os.path.join(work, "build", "lang"), exist_ok=True)
     shutil.copy2(os.path.join(HERE, "docs", "symbols.json"), os.path.join(work, "docs", "symbols.json"))
     shutil.copy2(os.path.join(HERE, "docs", "ENTITIES.md"), os.path.join(work, "docs", "ENTITIES.md"))   # read by tools/patch_shadow.py

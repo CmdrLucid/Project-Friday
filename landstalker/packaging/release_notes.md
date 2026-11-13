@@ -1,6 +1,9 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
-### New in {VERSION}
+### Fixed in {VERSION}
+- **v1.9.0 was built without the new 3D light shapes:** the light data was in the download but the first start did not use it, so furniture, statues and decorations cast the old box shadows. This hotfix includes it; if you already built v1.9.0, the game rebuilds itself once on the next start (a few minutes).
+
+### New in v1.9.0
 **A lot has changed in this version, above all the lighting. Please let me know how it runs for you, especially on Windows: the new lighting has not been tested on a Windows PC yet. Feedback, screenshots and the room where something looks odd are very welcome (Issues or Discussions on GitHub).**
 
 - **Lighting is now On by default** (Options > Graphics): torches, lava, lit windows and the sword light the rooms, figures cast shadows; outdoors a sun casts the shadows of houses, trees and Nigel. It runs on the graphics chip now, smoother on the Steam Deck and with less load on the processor; without working GPU filters it simply stays off.

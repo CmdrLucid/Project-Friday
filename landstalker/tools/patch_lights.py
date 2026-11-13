@@ -113,6 +113,7 @@ def prism_cells(poly, top, bot):   # v9 "prism" op: a polygon footprint (world u
     return out
 def cat_table():   # data/object_blocks.json (OBJECT CATALOGUE, LIGHT_PROXY_PLAN 'Object catalogue'): per tileset the layer A blocks that draw a recurring object -> class
     path = os.environ.get("LANDSTALKER_OBJCAT_JSON") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "object_blocks.json")
+    if not os.path.isfile(path): sys.exit("patch_lights: %s is missing (the light data must be next to tools/, v1.9.0 shipped a game built without it)" % path)
     rows, cls = [], []
     if os.path.isfile(path):
         d = json.load(open(path)); names = list(d["classes"].keys())
@@ -127,6 +128,7 @@ def cat_table():   # data/object_blocks.json (OBJECT CATALOGUE, LIGHT_PROXY_PLAN
 MESHES = []
 def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN step 2) -> C rows {room, op, a[7]}
     path = os.environ.get("LANDSTALKER_LIGHTPROXY_JSON") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "light_proxies.json")
+    if not os.path.isfile(path): sys.exit("patch_lights: %s is missing (the light data must be next to tools/, v1.9.0 shipped a game built without it)" % path)
     rows = []; uprows = []; uptile = []   # LK_LTUNPAINT v1: op 11 rows go to the END (lk_lt_corr indices q of the older ops stay: proxy ids 1000 + q % 24)
     if os.path.isfile(path):
         for ts, lst in sorted(json.load(open(path)).get("unpaint_tiles", {}).items()):
