@@ -58,7 +58,7 @@ static void lk_sfx_step(void) {   /* once per frame (first composed line): swing
   lk_sfx_act = lk_sfx_kind && (lk_sfx_scrm ? lk_sfx_sna > 0 : (ph >= 1 && ph <= 4));
   if (!lk_sfx_kind) lk_sfx_np = 0;
   if (lk_sfx_scrm) { for (k = 0; k < lk_sfx_sna; k++) { ax[na] = lk_sfx_sax[k]; ay[na] = lk_sfx_say[k]; na++; } lk_sfx_sna = 0; }   /* screens: the sword pixels of the frame before */
-  else if (lk_sfx_act) for (y = 0; y < 224 && na < 4096; y++) for (x = 0; x < w && x < LK_OSW && na < 4096; x++) { uint16 v = lk_o_spr[y][x]; if ((v & 0x200) && ((v & 0x3F) == 45 || (v & 0x3F) == 46)) { ax[na] = (int16_t)x; ay[na] = (int16_t)y; na++; } }
+  else if (lk_sfx_act) for (y = 0; y < 224 && na < 4096; y++) for (x = 0; x < w && x < LK_OSW && na < 4096; x++) { uint16 v = lk_o_spr[y][x]; if ((v & 0x200) && ((v & 0x3F) == 45 || (v & 0x3F) == 46) && lk_ss_nig[y][x]) { ax[na] = (int16_t)x; ay[na] = (int16_t)y; na++; } }   /* only Nigel's pixels (user 2026-11-05: green motes at the Gaia rocks / other sprites of the same colours) */
   if (na) {   /* spawn (mock-up 4 rates) */
     int n = lk_sfx_kind == 1 ? lk_sfx_ri(3, 5) : lk_sfx_kind == 3 ? ((fr & 1) == 0) : lk_sfx_ri(2, 4);
     for (k = 0; k < n && lk_sfx_np < LK_SFX_N; k++) {
@@ -117,7 +117,10 @@ int lk_sfx_scrpix(int line, int x, int ci, int col) {   /* every pixel of the sc
   return col;
 }
 static int lk_sfx_pix(int line, int i, int sp, int col) {   /* one composed map pixel: sp = the winning sprite pixel (0 when a plane / window won) */
-  if (lk_sfx_act && (sp & 0x200)) { int pk = sp & 0x3F; if (pk == 45 || pk == 46) col = lk_sfx_mix(col, lk_sfx_tint[lk_sfx_kind][pk - 45], 217); }   /* 85 %% the sword colour */
+  if (lk_sfx_act && (sp & 0x200)) { int pk = sp & 0x3F, sl = line - lk_sm_syn, si = i - lk_sm_sxn;   /* 85 %% the sword colour */
+    { static int dg = -1; static long lf = -1; static int nn, no; long fr = platform_frame_number(); if (dg < 0) dg = getenv("LANDSTALKER_SFX_NIGDBG") != NULL;   /* test aid: sword colour pixels of Nigel / of other sprites per swing frame */
+      if (dg && (pk == 45 || pk == 46)) { if (fr != lf) { if (lf >= 0) printf("sfx nig: frame %%ld nigel %%d other %%d\n", lf, nn, no); lf = fr; nn = no = 0; } if (sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW && lk_ss_nig[sl][si]) nn++; else no++; } }
+    if ((pk == 45 || pk == 46) && sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW && lk_ss_nig[sl][si]) col = lk_sfx_mix(col, lk_sfx_tint[lk_sfx_kind][pk - 45], 217); }   /* only Nigel's own pixels (lk_ss_nig): the stones of the charged Gaia sword use the same colours 45 / 46 and turned green (user 2026-11-05) */
   if (line >= 0 && line < 224 && lk_sfx_line[line] && i >= 0 && i < LK_OSW) { uint32_t b = lk_sfx_buf[line][i]; if (b >> 24) col = lk_sfx_mix(col, b, b >> 24); }
   return col;
 }

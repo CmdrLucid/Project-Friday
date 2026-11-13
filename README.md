@@ -34,7 +34,9 @@ With every option switched off, the game plays like the original cartridge. All 
 - **Shadows** (Off / On / Soft): a ground shadow under Nigel and airborne objects, which makes jumps easier to judge.
 - **Sword Effects** (On by default): while Nigel swings one of the four special swords the arc takes the sword's colour and a few small particles come off it: embers (Magic Sword), frost glitter (Ice Sword), little bolts (Thunder Sword), green light motes (Gaia Sword); also during the swing on the file select screen.
 - **Boot Colors** (off by default): Nigel's boots take the colour of the equipped boots (Fireproof, Iron, Healing, Spike), like his sword and armour already do in the original; on the map and on the file select screen.
-- **Lighting** (experimental, off by default): torches, lava and the sword light the room and figures cast shadows; outdoors a sun casts shadows of houses, trees and Nigel. Still being tuned room by room.
+- **Lighting** (On by default, needs GPU Filters): torches, lava, lit windows and the sword light the rooms, figures and furniture cast shadows that follow their real 3D shape; outdoors a sun casts shadows of houses, trees and Nigel. Runs on the graphics chip; without working GPU filters it stays off. Still tuned room by room: please report odd shadows (a screenshot and the room help a lot).
+- **Day / Night** (On by default, with Lighting): the sun moves over the day, shadows get longer in the morning and evening, the light takes the colour of the time of day, windows glow at night.
+- **Particles, Enemy Dissolve, Heat Haze, Water Reflections, Cloud Shadows** (On by default, each with its own switch): fireflies, sparks and drops; defeated enemies burst apart; air shimmers above lava; figures are mirrored on water; cloud shadows drift over the land.
 - **Map Behind Text:** dialogue boxes sit over the map instead of a black band.
 - **No Sprite Limit:** draws every figure of a room, without the cartridge's limit of 20 sprites per line and its flicker (off by default = the original look).
 

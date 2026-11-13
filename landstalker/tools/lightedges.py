@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""lightedges.py ROM ROOMS --run OUTDIR [--top N]   -- finds HARD EDGES in the lighting (user 2026-11-05: 'bei Lichtquellen nach scharfen Kanten als potenziellen Fehler suchen')
+"""lightedges.py ROM ROOMS --run OUTDIR [--headless] [--top N]   (GPU hidden window by default since 2026-11-12; --headless = unlit, useless for light)   -- finds HARD EDGES in the lighting (user 2026-11-05: 'bei Lichtquellen nach scharfen Kanten als potenziellen Fehler suchen')
    lightedges.py ROM ROOMS --dir OUTDIR             -- re-score the shots of an earlier --run
+LIGHTEDGES_BIN=path runs another binary (e.g. a copy of the build before a change, for before / after pictures).
 ROOMS: comma list of room numbers, or 'castle' (the Mercator castle interior rooms 51..97).
 Per room a headless warp (replay prefix of rec_20261103_1803 up to Mercator, the user's save copied, never touched; Nigel at the walkable cell nearest the room's
 centre, tools/proxysurvey.py start_cell) and one screenshot with Lighting Off and one with Lighting On (batches of 16 warps). Light ratio R = (On + 4) / (Off + 4)
@@ -39,7 +40,7 @@ def wr(p, w, h, data):
     def c(t, d): x = struct.pack('>I', len(d)) + t + d; return x + struct.pack('>I', zlib.crc32(t + d) & 0xFFFFFFFF)
     open(p, 'wb').write(b'\x89PNG\r\n\x1a\n' + c(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0)) + c(b'IDAT', zlib.compress(raw)) + c(b'IEND', b''))
 
-def run(rom_path, rooms, out, batch=16, jobs=4):
+def run(rom_path, rooms, out, batch=16, jobs=4, gpu=False):
     rom = open(rom_path, "rb").read(); procs = []; plan = []
     qs = next((l.split("=", 1)[1].strip() for l in open(REC + ".cfg") if "QSPLAY" in l), "")
     for b in range(0, len(rooms), batch):
@@ -58,9 +59,13 @@ def run(rom_path, rooms, out, batch=16, jobs=4):
             env = dict(PATH=os.environ["PATH"], HOME=os.path.join(d, "home"), LANDSTALKER_WIDE="19", LANDSTALKER_TALL="1", LANDSTALKER_NATIVEPACE="1",
                        LANDSTALKER_QSPLAY=qs, GENRECOMP_INPUTSCRIPT=os.path.join(d, "in.txt"), LANDSTALKER_SAVE=os.path.join(d, "s.srm"),
                        LANDSTALKER_WARP=";".join(warps), LANDSTALKER_WARP_AT=",".join(ats), LANDSTALKER_SHOT=",".join(shots), LANDSTALKER_SHOT_SCALE="1", LANDSTALKER_SHOT_DIR=d)
+            if gpu:   # --gpu (2026-11-12): the GPU light the user plays with: a hidden window, the presented picture (present_FRAME_gpu.png)
+                del env["LANDSTALKER_SHOT"]; env.update(LANDSTALKER_PRESENT_SHOT=",".join(shots), LANDSTALKER_HIDDEN="1", LANDSTALKER_NOFOCUSPAUSE="1", SDL_AUDIODRIVER="dummy")
+                env.update({k: os.environ[k] for k in ("DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR") if k in os.environ})
+            env.update({k: v for k, v in os.environ.items() if k.startswith("LANDSTALKER_LT_") or k.startswith("LANDSTALKER_LIGHTING_") or k.startswith("LANDSTALKER_DAY") or k.startswith("LANDSTALKER_CLOUD")})   # test aids pass through (e.g. LANDSTALKER_LT_AMB, LANDSTALKER_DAYTIME=15 = time of day)
             while len([p for p in procs if p.poll() is None]) >= jobs: procs[0].wait(); procs = [p for p in procs if p.poll() is None]
             print("lightedges: batch %d lighting %d: %d warps" % (b // batch, light, len(warps)), flush=True)
-            procs.append(subprocess.Popen([os.path.join(HERE, "build", "landstalker"), "--headless", "--frames", str(fr + 20), rom_path], env=env,
+            procs.append(subprocess.Popen([os.environ.get("LIGHTEDGES_BIN") or os.path.join(HERE, "build", "landstalker")] + ([] if gpu else ["--headless"]) + ["--frames", str(fr + 20), rom_path], env=env,
                                           stdout=open(os.path.join(d, "out.log"), "w"), stderr=subprocess.STDOUT, cwd=HERE))
         plan += [(r, f, b // batch) for r, f in part]
     for p in procs: p.wait()
@@ -72,6 +77,7 @@ def score(out):
     for l in open(os.path.join(out, "plan.txt")):
         r, fr, bi = map(int, l.split())
         po, pn = [os.path.join(out, "b%02d_%d" % (bi, k), "shot_%06d_w358.png" % fr) for k in (0, 1)]
+        if not os.path.isfile(po): po, pn = [os.path.join(out, "b%02d_%d" % (bi, k), "present_%06d_gpu.png" % fr) for k in (0, 1)]   # --gpu runs
         if not (os.path.isfile(po) and os.path.isfile(pn)): rows.append((-1, r, "no shot")); continue
         w, h, ch, A = rd(po); _, _, ch2, B = rd(pn)
         L = lambda D, c, i: 0.3 * D[i * c] + 0.59 * D[i * c + 1] + 0.11 * D[i * c + 2]
@@ -79,9 +85,10 @@ def score(out):
         R = [(ln[i] + 4.0) / (lo[i] + 4.0) for i in range(w * h)]
         mark = bytearray(); n = 0
         for i in range(w * h): mark += bytes(B[i * ch2:i * ch2 + 3])
-        for y in range(24, h - 1):
+        for y in range(0, h - 1):
             for x in range(0, w - 1):
-                if (x > w - 62 and y < 52) or (x > w - 70 and y > h - 22): continue   # HUD corners
+                k = w / 358.0
+                if y < 24 * k or (x > w - 62 * k and y < 52 * k) or (x > w - 70 * k and y > h - 22 * k): continue   # HUD corners (scaled for the 960 wide GPU pictures)
                 i = y * w + x; hit = False
                 for j in (i + 1, i + w):
                     if lo[i] > 10 and lo[j] > 10 and abs(R[i] - R[j]) > 0.25 and abs(lo[i] - lo[j]) < 12: hit = True
@@ -93,7 +100,7 @@ if __name__ == "__main__":
     a = sys.argv[1:]; rom_path = a[0]
     rooms = list(range(51, 98)) if a[1] == "castle" else [int(v) for v in a[1].split(",")]
     top = int(a[a.index("--top") + 1]) if "--top" in a else 40
-    if "--run" in a: out = a[a.index("--run") + 1]; run(rom_path, rooms, out)
+    if "--run" in a: out = a[a.index("--run") + 1]; run(rom_path, rooms, out, gpu="--headless" not in a)   # GPU (hidden window) by default since 2026-11-12 (the CPU light is gone: headless = unlit); --gpu still accepted
     else: out = a[a.index("--dir") + 1]
     print("edge px  room   (pictures: %s/edges_ROOM.png, magenta = hard light edge without a picture edge)" % out)
     for n, r, note in score(out)[:top]: print("%7d  %4d  %s" % (n, r, note))

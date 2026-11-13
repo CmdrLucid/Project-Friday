@@ -47,3 +47,20 @@ The blend (LK_SUBPIX v3, weight 5/16) is soft while sprinting. Sharp variant: th
 ## (B) status 2026-10-31
 Friday hints DONE (Select, `tools/patch_friday.py`, `lang/friday_hints.json`, `docs/FRIDAY_HINTS.md`); the user reviews the texts. The map part is still open.
 
+
+## (C) Modern effects (user 2026-11-05 night: 'was koennen wir mit Effekten noch tun, um das Spiel moderner aussehen zu lassen'; rests on dev cb5acc3, Lighting v8)
+Picture only, every effect switchable, Off = original. Proposed list (user's picks marked CHOSEN):
+1. Cloud shadows drifting over outdoor maps (cheap) - 'ggf.' (maybe, after the others).
+2. CHOSEN: ambient particles per area: leaves on routes, fireflies in shaded forest spots, embers over lava / torches, water drips in caves (dust in light shafts exists).
+3. CHOSEN: water: reflections of Nigel / enemies in rivers and ponds, glints, rings when wading.
+4. CHOSEN: heat haze over lava and big fires.
+5. Hit feedback (sparks, white flash, light shake) - not chosen.
+6. CHOSEN: enemies dissolve into particles when defeated.
+7. Dust puffs (sprint / landing), splashes - not chosen.
+8. Item / magic effects (pickup sparkle, chest light, EkeEke aura, church save glow) - not chosen.
+9. Nigel's silhouette behind walls - not chosen.
+Order agreed: 2 -> 6 -> 4 -> 3 -> (1). Each one first as a preview video for the user.
+- 2026-11-05 night, after the first preview (dev 5874320): leaves REMOVED (user); fireflies kept in the code but OFF until a future DAY / NIGHT CYCLE (user: 'heben wir uns auf fuer den Tag-Nacht-Zyklus, die passen gut in die Nacht'; `LANDSTALKER_AMBIENT_FORCE=2` shows them); drops only on walkable floor. New idea noted: day / night cycle (tint, fireflies at night, lit windows?) - not planned yet.
+2026-11-05 night (dev 0b91956): Particles (id 49) and Enemy Dissolve (id 50, tools/patch_dissolve.py) BUILT; shafts lengthened; next: heat haze.
+2026-11-06 (dev de1396e): Heat Haze (id 51, tools/patch_haze.py), Water Reflections (id 52, tools/patch_water.py; texture kept, original blue, reflection from the feet; glints / wading rings dropped) and Cloud Shadows (id 53, tools/patch_clouds.py) BUILT. List (C) done except item 5/7/8/9 (not chosen). Open idea: day / night cycle (fireflies ready).
+2026-11-06 later (dev d80b624): DAY / NIGHT CYCLE built (Lighting, option id 54; time-lapse L5 + R5). Ideas on top: lit windows at night, indoor brightness by time of day, day length in the menu.

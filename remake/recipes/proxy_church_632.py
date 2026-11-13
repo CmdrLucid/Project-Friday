@@ -8,10 +8,16 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lib")); import proxy
 
 # parts in game coordinates: (name, x0, y0, x1, y1, z0, eave, ridge, roof, ridge axis), see remake/lib/proxy.py
+# RE-MEASURED 2026-11-09 (remake/tools/fit_foot.py + the grey roof terraces / gable profile on the drawn picture; HANDOFF 0a349):
+#   hall: front wall foot y 922 (59 of 59 columns), +x wall x 378 (front and back), back corner y 797, eave = wall top under the roof 60,
+#         flat grey terrace corners -> 45 deg hip up to 107.5 (inset 47.25 on all four sides: x 238 from the symmetric inset);
+#   house: front y 992, left x 240, right x 319, eave 64; terrace corners -> top 79.5, 17 in on every side (-> back y 928);
+#   porch (cross gable, entrance in its +x gable wall): gable wall foot x 394.5, front y 890, gable profile 45 deg from eave 60 to
+#         the apex under the cross (y 856.5, z 93.5) -> y 823..890; it runs into the hall roof (x0 inside the hall).
 PARTS = [
-    ("hall",   240, 800, 376, 928, 16, 64, 109, "hip", None),
-    ("house",  240, 928, 326, 992, 16, 64, 83, "hip", None),
-    ("porch",  340, 833, 400, 895, 16, 64, 94, "gable", "x"),    # runs into the hall roof (valley = the cross gable of the picture); front over the columns (cells x 24)
+    ("hall",   238, 797, 378, 922, 16, 60, 107.5, "hip", None),
+    ("house",  240, 928, 319, 992, 16, 64, 79.5, "hip:17", None),
+    ("porch",  340, 823, 394.5, 890, 16, 60, 93.5, "gable", "x"),
 ]
 
 proxy.build("church_632", PARTS, "Mercator church complex, room 632", {"hall": (200, 200, 205), "house": (215, 180, 90), "porch": (150, 210, 150)}, target=(312, 896, 60))

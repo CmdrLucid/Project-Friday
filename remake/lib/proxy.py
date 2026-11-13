@@ -35,6 +35,26 @@ def lathe(name, cx, cy, profile, n=24):
     ring = lambda r: [(round(cx + max(r, 0.25) * math.cos(2 * math.pi * i / n), 2), round(cy + max(r, 0.25) * math.sin(2 * math.pi * i / n), 2)) for i in range(n)]
     return [{"name": "%s_%d" % (name, k), "poly": ring(r0), "top": ring(r1), "z0": z0, "z1": z1} for k, ((z0, r0), (z1, r1)) in enumerate(zip(profile, profile[1:]))]
 
+def extrude_x(name, x0, x1, prof):
+    """a straight part along x with a measured cross-section prof = [(y, z), ...] (closed, convex or not, any winding): roof rolls, cornices"""
+    n = len(prof); area = sum(prof[i][0] * prof[(i + 1) % n][1] - prof[(i + 1) % n][0] * prof[i][1] for i in range(n))
+    if area > 0: prof = prof[::-1]   # clockwise in the (y, z) plane = outward normals with the faces below (checked: right-hand rule, like part_mesh)
+    v = [(x0, y, z) for y, z in prof] + [(x1, y, z) for y, z in prof]
+    f = [(i, n + i, n + (i + 1) % n, (i + 1) % n) for i in range(n)] + [tuple(range(n)), tuple(range(2 * n - 1, n - 1, -1))]
+    return {"name": name, "verts": v, "faces": f}
+
+def revolve(name, cx, cy, profile, n=12):
+    """ONE closed surface of revolution from a profile [(z, radius), ...] bottom to top (steps allowed: two entries at the same z = a flat ring,
+    e.g. the drooping tiers of a pine); bottom and top capped, faces outward (no inner caps like lathe(): clean for back face shadow maps)"""
+    ring = lambda z, r: [(cx + max(r, 0.05) * math.cos(2 * math.pi * i / n), cy + max(r, 0.05) * math.sin(2 * math.pi * i / n), z) for i in range(n)]
+    v = []; f = []
+    for z, r in profile: v += ring(z, r)
+    for k in range(len(profile) - 1):
+        a, b = k * n, (k + 1) * n
+        f += [(a + i, a + (i + 1) % n, b + (i + 1) % n, b + i) for i in range(n)]
+    f += [tuple(range(n - 1, -1, -1)), tuple(range((len(profile) - 1) * n, len(profile) * n))]
+    return {"name": name, "verts": [(round(x, 3), round(y, 3), z) for x, y, z in v], "faces": f}
+
 def prism_mesh(poly, z0, z1, top=None):
     n = len(poly); v = [(x, y, z0) for x, y in poly] + [(x, y, z1) for x, y in (top or poly)]
     f = [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)] + [tuple(range(n - 1, -1, -1)), tuple(range(n, 2 * n))]
@@ -47,7 +67,8 @@ def build(name, parts, title, colours=None, target=(0, 0, 40), ground_z=16, px_p
     bpy.ops.wm.read_factory_settings(use_empty=True)
     verts, faces = [], []
     for part in parts:
-        if isinstance(part, dict): pname = part["name"]; v, f = prism_mesh(part["poly"], part["z0"], part["z1"], part.get("top"))
+        if isinstance(part, dict) and "verts" in part: pname = part["name"]; v, f = part["verts"], part["faces"]
+        elif isinstance(part, dict): pname = part["name"]; v, f = prism_mesh(part["poly"], part["z0"], part["z1"], part.get("top"))
         else: pname = part[0]; v, f = part_mesh(*part[1:])
         n = len(verts)
         verts += v; faces += [tuple(n + k for k in q) for q in f]

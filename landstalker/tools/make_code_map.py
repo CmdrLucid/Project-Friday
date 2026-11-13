@@ -59,7 +59,34 @@ for area, desc in AREA.items():
         out.append("")
 if other:
     out += ["## Names without a disassembly source (given by this project)", "", "Entries we named ourselves or where the disassembly has no label at that address (RAM variables, inferred roles, game-specific names).", ""]
-    out.append("; ".join("%s `$%06X` (%s)" % (e["name"], sk(e), tier(e["confidence"])) for e in sorted(other, key=sk)))
-    out.append("")
+    def rows(es): return ["; ".join("%s `$%06X` (%s)" % (e["name"], sk(e), tier(e["confidence"])) for e in es[i:i + 30]) for i in range(0, len(es), 30)]   # 30 names per line
+    grp = collections.OrderedDict()   # 2026-11-12: one block per address range (was ONE line of ~1500 names), each its own ### heading = a TOC entry
+    for e in sorted(other, key=sk):
+        a0 = sk(e); key = "RAM" if a0 >= 0xFF0000 else "ROM bank %02X" % (a0 >> 16)   # no $ / 0x range bounds: tools/unknowns.py scan-docs would take them for addresses
+        grp.setdefault(key, []).append(e)
+    for key, es in grp.items():
+        if key.startswith("RAM"):   # RAM is large: split by $1000 pages
+            pg = collections.OrderedDict()
+            for e in es: pg.setdefault(sk(e) >> 12, []).append(e)
+            for p0, pe in pg.items():
+                out += ["### `own/RAM page %03Xxxx`  (%d)" % (p0, len(pe))] + rows(pe) + [""]
+        else: out += ["### `own/%s`  (%d)" % (key, len(es))] + rows(es) + [""]
+# TABLE OF CONTENTS with line numbers (user 2026-11-12: 'sollte unsere Codemap nicht ein Inhaltsverzeichnis haben, wenn Claude sie liest?'): one line per area with its
+# line range and every source file's line, so a reader takes the TOC (top of the file) and then only the lines it needs (sed -n 'A,Bp')
+def toc(off):
+    heads = [(i + off, l) for i, l in enumerate(out) if l.startswith("## ") or l.startswith("### ")]
+    areas = [(n, l) for n, l in heads if l.startswith("## ")]; t = ["## Contents (line numbers in this file; read only the part you need: `sed -n 'A,Bp' docs/CODE_MAP.md`)", ""]
+    for k, (n, l) in enumerate(areas):
+        end = (areas[k + 1][0] - 1) if k + 1 < len(areas) else len(out) + off - pos - 1   # = the last line of the file
+        name = l[3:].split("  (")[0]; fs = [(m, h) for m, h in heads if h.startswith("### ") and n < m <= end]
+        t.append("- **%s** lines %d-%d%s" % (name, n, end, (": " + ", ".join("%s %d" % (h.split("`")[1].split("/")[-1], m) for m, h in fs)) if fs else ""))
+    return t + [""]
+pos = 2   # after the title line and its blank line
+n0 = len(toc(0))
+for _ in range(3):   # the TOC's own length shifts every line below it
+    t = toc(pos + n0 + 1); 
+    if len(t) == n0: break
+    n0 = len(t)
+out[pos:pos] = t
 open(os.path.join(here, "..", "docs", "CODE_MAP.md"), "w").write("\n".join(out))
 print("docs/CODE_MAP.md: %d areas, %d entries, %d without source" % (len([a for a in AREA if a in by]), len(sy), len(other)))

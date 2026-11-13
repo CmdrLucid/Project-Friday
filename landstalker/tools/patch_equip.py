@@ -62,6 +62,7 @@ extern void lk_osd_say(const char *t);
 extern const char *lk_lang_tr(const char *en);   /* tools/patch_lang.py */
 static gen_func_t lk_o_pab_eq;
 static int lk_eq_owned(int id) { M68kContext sv = g_m68k; int q, nc = lk_no_charge; g_m68k.d[0] = (uint32_t)id; lk_no_charge = 1; lk_call(0x022ED0u); lk_no_charge = nc; q = (int16_t)(g_m68k.d[1] & 0xFFFF); g_m68k = sv; return q > 0; }
+extern int lk_gaia_live(void);   /* patch_gaia.py */
 static void lk_eq_apply(int req) {   /* req = kind (0..3) + 4 * mode: 0 = a direction press (test aid LANDSTALKER_EQREQ: first shows, second switches), 1 = next, 2 = previous, 3 = open the strip only (user 2026-10-30: a direction opens the strip, then LEFT / RIGHT move inside it) */
     int cat = req & 3, dir = req >> 2;
     static const uint8_t lay[4][4] = { { 1, 3, 2, 4 }, { 9, 10, 11, 12 }, { 7, 5, 6, 8 }, { 15, 13, 14, 16 } };   /* EquipInventoryLayout $00ECE0 without its header byte: Magic Thunder Ice Gaia / Steel Chrome Shell Hyper / Healing Fireproof Iron Spike / Saturn Mars Moon Venus */
@@ -77,11 +78,13 @@ static void lk_eq_apply(int req) {   /* req = kind (0..3) + 4 * mode: 0 = a dire
     if (j < 0) { lk_snd(0x00DBBEu); snprintf(t, sizeof t, lk_lang_tr("NO OTHER %s"), lk_lang_tr(kind[cat])); lk_osd_say(t); return; }
     { uint16_t w = bus_read16(0xFF1BF0u); w = (uint16_t)((w & ~(0xFu << (4 * cat))) | ((uint16_t)j << (4 * cat))); bus_write16(0xFF1BF0u, w); }
     bus_write8(0xFF114Eu + (uint32_t)cat, j ? lay[cat][j - 1] : 0);
-    { M68kContext sv = g_m68k;
+    { M68kContext sv = g_m68k; int gl = lk_gaia_live(), rs = bus_read8(0xFF114Eu);   /* live Gaia effect: the rocks use the sword graphics + colours 45 / 46 (user 2026-11-05: changing the sword while they fall changed the effect) */
       if (cat == 0) { bus_write16(0xFF120Au, 0); lk_call(0x0103AEu); lk_call(0x01036Cu); lk_call(0x010340u); }
       if (cat == 1) lk_call(0x0076ECu);
+      if (gl) bus_write8(0xFF114Eu, 0x04);                   /* ... so the palette keeps the Gaia colours while they fall */
       lk_call(0x0078B6u);                                    /* UpdateEquipPal: the sword / armour colours of Nigel's sprite in the base palette */
-      if (cat == 0) lk_call(0x0077A6u);                      /* LoadMagicSwordGfx */
+      if (gl) bus_write8(0xFF114Eu, (uint8_t)rs);            /* the new sword is equipped at once (damage, HUD); its graphics + colours come when the rocks are gone (lk_g_end loads them for the equipped sword) */
+      if (cat == 0 && !gl) lk_call(0x0077A6u);               /* LoadMagicSwordGfx */
       lk_call(0x000242u);                                    /* CopyBasePalleteToActivePalette: without it the old colours stay on screen (user: 'sieht noch aus wie Gaia') */
       lk_call(0x0002A8u);                                    /* FlushDMACopyQueue */
       g_m68k = sv; }
