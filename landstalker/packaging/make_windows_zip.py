@@ -66,7 +66,7 @@ def main():
             if f.endswith((".json", ".obj")):
                 rel = os.path.relpath(os.path.join(dp, f), ROOT); copy(os.path.join(ROOT, rel), os.path.join(pkg, rel))
     for f in sorted(os.listdir(os.path.join(ROOT, "lang"))):   # translations (our own text, tools/langbuild.py builds them on the player's machine)
-        if f.endswith(".json") or f in ("ko_glyphs.dat", "OFL-Galmuri.txt"):   # LK_LGKO v1: the Hangul font (Galmuri 11, OFL) for the Korean language
+        if f.endswith(".json") or f in ("ko_glyphs.dat", "ko_glyphs7.dat", "OFL-Galmuri.txt"):   # LK_LGKO v1: the Hangul font (Galmuri 11, OFL) for the Korean language
             copy(os.path.join(ROOT, "lang", f), os.path.join(pkg, "lang", f))
     for f in sorted(os.listdir(os.path.join(ROOT, "tools"))):
         p = os.path.join(ROOT, "tools", f)

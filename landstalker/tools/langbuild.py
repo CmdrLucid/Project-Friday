@@ -267,8 +267,25 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
     ver = 2
     if ko: glyphs = {c: pack(ko_glyph_rows(ch)) + bytes(8) for ch, c in EXTRA.items()}; ver = 4   # LK_LGKO v1: 16-bit glyph codes + 16-bit name codes (language file version 4)
     out = b"LKLG" + struct.pack(">HHHHHH", ver, len(strs), len(names), len(ui), len(glyphs), len(texts))
+    if ver == 4: out += b"\0\0\0\0"   # LK_LGKOMENU v1: u32 offset of the menu trailer (filled below)
     out += b"".join(struct.pack(">HIH", *e) for e in strs) + b"".join(struct.pack(">BBIB", *e) for e in names)
     out += b"".join(struct.pack(">HH", *e) for e in ui) + b"".join((struct.pack(">H", c) if ver >= 3 else bytes([c])) + d for c, d in sorted(glyphs.items())) + b"".join(texts) + bytes(blob)
+    if ver == 4:   # LK_LGKOMENU v1: Start menu item names in Hangul: 'KOMN' + u16 glyph count + 8 bytes each (index 0 = blank) + u8 item count + per item u8 n + n * u16 glyph index
+        d7 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lang", "ko_glyphs7.dat"), "rb").read()
+        mg, mi, items = [bytes(8)], {}, []
+        for i in range(64):
+            ent = lang.get("item_dialog", {}).get("item:%02d" % i); t = ent["t"] if ent and not check("item:%02d" % i, ent) else ""
+            if any(not (0xAC00 <= ord(c) <= 0xD7A3 or c == " ") for c in t) or len(t) > 9: t = ""   # only pure Hangul names fit the 9 menu tiles
+            if len(mg) + len(set(c for c in t if c != " " and c not in mi)) > 256: t = ""   # 256 virtual tiles (patch_lang.py LK_LGKOMENU v1)
+            ix = []
+            for c in t:
+                if c == " ": ix.append(0); continue
+                if c not in mi:
+                    k = ord(c) - 0xAC00; mi[c] = len(mg); mg.append(bytes([0]) + d7[6 + 7 * k:13 + 7 * k])   # rows 1..7 of the tile (row 0 free like the menu letters)
+                ix.append(mi[c])
+            items.append(ix)
+        tr = b"KOMN" + struct.pack(">H", len(mg)) + b"".join(mg) + bytes([64]) + b"".join(bytes([len(ix)]) + b"".join(struct.pack(">H", v) for v in ix) for ix in items)
+        out = out[:16] + struct.pack(">I", len(out)) + out[20:] + tr
     open(out_path, "wb").write(out)
     print("langbuild: %d strings, %d names, %d ui values, %d glyphs, %d ui texts -> %s (%d bytes); dropped %d" % (len(strs), len(names), len(ui), len(glyphs), len(texts), out_path, len(out), len(dropped)))
     for k, w in dropped: print("  dropped", k, "-", w)

@@ -63,4 +63,4 @@ Area by area (Massan + Gumi first): read the Japanese scene, note tone / jokes, 
 - Characters: Hangul + the game's ASCII glyphs and arrows; no '~' (fixed space of langwrap), no '…', no Hanja.
 - Font: Galmuri 11 (SIL OFL 1.1, lang/OFL-Galmuri.txt), lang/ko_glyphs.dat from tools/kofont.py (needs Galmuri11.bdf from the Galmuri release, kept locally in ~/Project-Friday-Test/lktest/ko/).
 - Sources and tools (local): ~/Project-Friday-Test/lktest/lang/work_ko/ (RULES.md, jp_names.txt, blockN.txt), src_ko/fullN.py, extra_ko.json, tools chkfull_ko.py / chkwrap_ko.py / applyfull_ko.sh.
-- Not done: Korean in the menus (8x8 font: item names, Yes / No / Use / Equip, our options pages stay English).
+- Start menu item lists: Korean (LK_LGKOMENU v1: Galmuri 7, lang/ko_glyphs7.dat, virtual tiles drawn by the own renderer). Still English: Yes / No / Use / Equip and our options pages (8x8 menu font paths).

@@ -81,7 +81,7 @@ static LkLgStr *lk_lg_str; static int lk_lg_nstr;
 static LkLgName *lk_lg_name; static int lk_lg_nname;
 static const LkLgStr *lk_lg_cur; static int lk_lg_pos, lk_lg_ext, lk_lg_extcode; static int lk_lg_wstart = 1, lk_lg_lstart;   /* LK_LGWRAP v1 */
 static uint8_t *lk_lg_data;                                   /* the loaded language file (word streams are read from it) */
-static int lk_lg_on, lk_lg_hooked, lk_lg_wide;   /* LK_LGKO v1: lk_lg_wide = language file version 4: name entries hold 16-bit codes (Korean) */ uint8_t lk_vt_gl[128][8]; int lk_vt_on; static int lk_vt_ok;   /* LK_JPMENU v1 (below) */
+static int lk_lg_on, lk_lg_hooked, lk_lg_wide;   /* LK_LGKO v1: lk_lg_wide = language file version 4: name entries hold 16-bit codes (Korean) */ uint8_t lk_vt_gl[384][8]; int lk_vt_on; static int lk_vt_ok, lk_vt_ko; static uint16_t lk_vt_kn[64][10]; static uint8_t lk_vt_kl[64];   /* LK_LGKOMENU v1: virtual tiles (never graphics in the menu VRAM layout: plane A / B name tables): Korean syllable k = tile $600 + k (k < $80) or $700 + k - $80 (k < $100), Japanese menu font $780 + code = index $100 + code */   /* LK_JPMENU v1 (below) */
 static uint8_t lk_lg_mg[128], lk_lg_mgl[128][8];   /* menu font glyphs (8x8, 1bpp) of the extra characters, by character code */
 static uint16_t lk_lg_ui[8][2]; static int lk_lg_nui;                  /* language file block 'ui': key, value (docs/TEXT_LAYER.md) */
 static char lk_lg_codes[8][16], lk_lg_names[8][32]; static int lk_lg_nlang = 1, lk_lg_sel;   /* [0] = English (the original), then the languages of lang/index.txt */
@@ -108,7 +108,8 @@ static uint16_t lk_lg_be16(const uint8_t *p) { return (uint16_t)(p[0] << 8 | p[1
 static uint32_t lk_lg_be32(const uint8_t *p) { return (uint32_t)p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3]; }
 static int lk_lg_cmp(const void *a, const void *b) { return (int)((const LkLgStr *)a)->id - (int)((const LkLgStr *)b)->id; }
 static void lk_lg_unload(void) {
-    lk_lg_cur = NULL; lk_lg_on = 0; lk_lg_nui = 0; memset(lk_lg_mg, 0, sizeof lk_lg_mg);
+    lk_lg_cur = NULL; lk_lg_on = 0; lk_vt_ko = 0; lk_lg_wide = 0;   /* LK_LGKOMENU v1 */
+    lk_lg_nui = 0; memset(lk_lg_mg, 0, sizeof lk_lg_mg);
     { int t; for (t = 0; t < lk_lg_ntext; t++) { free(lk_lg_text[t].k); free(lk_lg_text[t].v); } free(lk_lg_text); lk_lg_text = NULL; lk_lg_ntext = 0; }
     free(lk_lg_str); lk_lg_str = NULL; lk_lg_nstr = 0; free(lk_lg_name); lk_lg_name = NULL; lk_lg_nname = 0; free(lk_lg_data); lk_lg_data = NULL;
     lk_lang_map(); lk_lang_rom_patch32(0x022E84u, 0x02A884u);   /* the original font */
@@ -121,6 +122,16 @@ static void lk_lg_load(const char *path) {
     if (sz < 16 || memcmp(d, "LKLG", 4) || (lk_lg_be16(d + 4) < 2 || lk_lg_be16(d + 4) > 4)) {   /* version 3 (tools/jplang.py): glyph entries with a 16-bit code */ fprintf(stderr, "lang: %s is not a language file (version 2 expected: run tools/langbuild.py again)\n", path); free(d); return; }
     ns = lk_lg_be16(d + 6); nn = lk_lg_be16(d + 8); nu = lk_lg_be16(d + 10); ng = lk_lg_be16(d + 12); nt = lk_lg_be16(d + 14);
     q = d + 16; lk_lg_data = d; lk_lang_map(); memset(lk_lang_mem, 0, sizeof lk_lang_mem);
+    lk_vt_ko = 0;
+    if (lk_lg_be16(d + 4) == 4 && sz >= 20) {   /* LK_LGKOMENU v1: version 4 has a u32 offset of the menu trailer after the header */
+        uint32_t to = lk_lg_be32(d + 16); q = d + 20;
+        if (to + 7u <= (uint32_t)sz && !memcmp(d + to, "KOMN", 4)) {
+            int ng = lk_lg_be16(d + to + 4), g, it, ni; const uint8_t *t = d + to + 6;
+            if (to + 6u + 8u * (uint32_t)ng + 1u <= (uint32_t)sz) {
+                for (g = 0; g < ng && g < 0x100; g++) memcpy(lk_vt_gl[g], t + 8 * g, 8);
+                t += 8 * ng; ni = *t++;
+                for (it = 0; it < ni && it < 64 && t < d + sz; it++) { int n = *t++, k; lk_vt_kl[it] = (uint8_t)(n <= 9 ? n : 0); for (k = 0; k < n && k < 10; k++) lk_vt_kn[it][k] = lk_lg_be16(t + 2 * k); t += 2 * n; }
+                lk_vt_ko = 1; } } }
     lk_lg_wide = lk_lg_be16(d + 4) == 4;
     {   int gs = lk_lg_be16(d + 4) >= 3 ? 40 : 39;   /* glyph entry: (u8 | u16 code) + 30 bytes main font + 8 bytes menu font */
         const uint8_t *se = q, *ne = se + 8 * ns, *ue = ne + 7 * nn, *ge = ue + 4 * nu, *te = ge + gs * ng, *blob = te;
@@ -256,7 +267,7 @@ static void lk_lg_apply(int i) {   /* switch the language now: 0 = English (orig
     else { snprintf(path, sizeof path, "%s/%s.jpn.bin", lk_lg_dir, lk_lg_codes[i]); if (!lk_names_get() || !lk_lg_exists(path)) snprintf(path, sizeof path, "%s/%s.bin", lk_lg_dir, lk_lg_codes[i]); }
     lk_lg_load(path);
     if (!lk_lg_on) lk_lg_sel = 0;
-    lk_vt_on = lk_vt_ok && lk_vt_ja();   /* LK_JPMENU v1 */
+    lk_vt_on = (lk_vt_ok && lk_vt_ja()) || lk_vt_ko;   /* LK_JPMENU v1 / LK_LGKOMENU v1 */
 }
 /* LK_JPITEMS v1 (user 2026-11-14: 'am liebsten die Sprites aus der originalen japanischen Fassung'; Options > Items: Original / Japanese, ~/.landstalker_items, env LANDSTALKER_ITEMS):
    four items are different things in the Japanese original (36 Pink Book, 41 T-back, 48 Bunny-chan, 54 bunny suit). Pictures: read at start from the player's own Japanese ROM in the folder
@@ -295,7 +306,7 @@ static uint8_t lk_vt_nm[64][24], lk_vt_nl[64];
 static void lk_vt_load(const uint8_t *r) {
     static const uint8_t sig[8] = { 0x41, 0xF9, 0x00, 0xFF, 0x2C, 0x84, 0x43, 0xFA }; uint32_t p = 0x2A3E4u; int i, c;   /* the special names (15) + the default name (1), then the 64 items at $2A43A */
     if (memcmp(r + 0xD978, sig, 8) || 0xD980 + (int16_t)(r[0xD980] << 8 | r[0xD981]) != 0xDBF2) { fprintf(stderr, "lang: Japanese menu font not where expected: menus stay English\n"); return; }
-    for (c = 0; c < 128; c++) memcpy(lk_vt_gl[c], r + 0xDBF2 + 8 * c, 8);
+    for (c = 0; c < 128; c++) memcpy(lk_vt_gl[0x100 + c], r + 0xDBF2 + 8 * c, 8);   /* tile $780 + code */
     for (i = 0; i < 15 + 1; i++) p += 1u + r[p];
     for (i = 0; i < 64; i++) { int n = r[p], k, cols = 0; for (k = 0; k < n; k++) if (r[p + 1 + k] != 0x7B && r[p + 1 + k] != 0x7C) cols++;
         if (n < (int)sizeof lk_vt_nm[0] && cols <= 9) { memcpy(lk_vt_nm[i], r + p + 1, (size_t)n); lk_vt_nl[i] = (uint8_t)n; } p += 1u + (uint32_t)n; }
@@ -305,8 +316,14 @@ static void (*lk_vt_o_wn)(void);
 static int lk_vt_ja(void);
 static void lk_vt_h_wn(void) {   /* PopulateItemSlot_WriteItemName $00D5E4: d0 = string index (< $40 = item), d1 low byte != 0 = highlighted ($C000), a0 = slot (row 1) in the RAM tilemap */
     int idx = (int)(g_m68k.d[0] & 0xFFFF), k, col = 0; uint32_t a1 = g_m68k.a[0]; uint16_t base = (g_m68k.d[1] & 0xFF) ? 0xC000 : 0xA000;
-    lk_vt_on = lk_vt_ok && lk_vt_ja();
-    if (!lk_vt_on || idx >= 0x40 || !lk_vt_nl[idx]) { lk_vt_o_wn(); return; }
+    lk_vt_on = (lk_vt_ok && lk_vt_ja()) || lk_vt_ko;
+    if (lk_vt_ko && !lk_vt_ja()) {   /* LK_LGKOMENU v1: Korean: one 7x7 syllable per tile in row 1, row 2 blank */
+        if (idx >= 0x40 || !lk_vt_kl[idx]) { lk_vt_o_wn(); return; }
+        for (k = 0; k < 9; k++) { int g = k < lk_vt_kl[idx] ? lk_vt_kn[idx][k] & 0xFF : 0; bus_write16(a1 + 2u * (uint32_t)k, (uint16_t)(base | (g < 0x80 ? 0x600 + g : 0x700 + g - 0x80))); }
+        for (k = 0; k < 9; k++) bus_write16(a1 + 0x48u + 2u * (uint32_t)k, (uint16_t)(base | 0x600));
+        g_m68k.a[1] = a1; g_m68k.a[0] = a1 + 0x12u; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | 0xFFFFu;
+        func_table_rts(); return; }
+    if (!(lk_vt_ok && lk_vt_ja()) || idx >= 0x40 || !lk_vt_nl[idx]) { lk_vt_o_wn(); return; }
     for (k = 0; k < 9; k++) bus_write16(a1 + 2u * (uint32_t)k, (uint16_t)(base | 0x780));   /* row 1: blank (Japanese space), the marks below */
     for (k = 0; k < lk_vt_nl[idx]; k++) { int c = lk_vt_nm[idx][k] & 0x7F;
         if (c == 0x7B || c == 0x7C) bus_write16(a1 + 2u * (uint32_t)col, (uint16_t)(base | (0x780 + c)));
