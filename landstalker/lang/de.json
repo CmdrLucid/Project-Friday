@@ -6517,6 +6517,518 @@
   "06CF": {
    "h": "34c2c279",
    "t": "{Speaker}Für die Prinzessin{SoftNewLine}krieg ich bestimmt einen guten{SoftNewLine}Preis! Ohohoho... Tschüssi!{WaitInput}"
+  },
+  "06D0": {
+   "h": "814a7b6a",
+   "t": "{Speaker}Du bist gekommen,{SoftNewLine}um mich zu retten, oder? Wie{SoftNewLine}toll! Schon immer hab ich{SoftNewLine}davon geträumt,{ContinuePrompt}"
+  },
+  "06D1": {
+   "h": "f8a8fa51",
+   "t": "{Speaker}von einem Prinzen{SoftNewLine}gerettet zu werden! Hach! Und{SoftNewLine}jetzt erledige diese Echse und{SoftNewLine}rette mich!!{WaitInput}"
+  },
+  "06D2": {
+   "h": "643c401b",
+   "t": "{Speaker}E...Echse? Ich bin{SoftNewLine}ein Drakonier, keine Echse!{SoftNewLine}Egal, wir fliegen los!{WaitInput}"
+  },
+  "06D3": {
+   "h": "8be105ad",
+   "t": "{Speaker}He! Wo willst du{SoftNewLine}hin? Hilfe! Rette mich, mein{SoftNewLine}Prinz!{WaitInput}"
+  },
+  "06D4": {
+   "h": "5d046d87",
+   "t": "{Speaker}Bleib, wo du bist!{SoftNewLine}Sonst stürzt dieses laute{SoftNewLine}Mädchen in den Tod!{ContinuePrompt}"
+  },
+  "06D5": {
+   "h": "3ecd026e",
+   "t": "{Speaker}Tschüss, {=nigel}!{SoftNewLine}War nett, dich kennenzulernen!{SoftNewLine}Vielleicht ein andermal!{WaitInput}"
+  },
+  "06D6": {
+   "h": "0545dcc8",
+   "t": "{Speaker}Hui! Ich fliege!{SoftNewLine}Siehst du? Ich fliege! Sag mal!{SoftNewLine}Hast du überhaupt einen{SoftNewLine}Flugschein?{ContinuePrompt}"
+  },
+  "06D7": {
+   "h": "b2780bfc",
+   "t": "{Speaker}Mein Prinz! Bitte{SoftNewLine}rette miiiich!{WaitInput}"
+  },
+  "06D8": {
+   "h": "193530b0",
+   "t": "{Speaker}Autsch...!{WaitInput}"
+  },
+  "06D9": {
+   "h": "2e07bd6f",
+   "t": "{Speaker}Herr {=nigel}!{ContinuePrompt}"
+  },
+  "06DA": {
+   "h": "6b8916b0",
+   "t": "{Speaker}Der Herzog hat von{SoftNewLine}den dreien von den geheimen{SoftNewLine}Schätzen erfahren{ContinuePrompt}"
+  },
+  "06DB": {
+   "h": "d5ff4958",
+   "t": "{Speaker}und ist mit einem{SoftNewLine}Schiff geflohen... vorher hat{SoftNewLine}er den Leuchtturm zerstört,{SoftNewLine}damit wir ihm{ContinuePrompt}"
+  },
+  "06DC": {
+   "h": "b9152075",
+   "t": "{Speaker}nicht folgen{SoftNewLine}können... Hört zu! Geht zur{SoftNewLine}Ostmauer des Schlosses und{SoftNewLine}öffnet die Tür.{ContinuePrompt}"
+  },
+  "06DD": {
+   "h": "46bed390",
+   "t": "{Speaker}Dort ist ein{SoftNewLine}versteckter Schalter, der das{SoftNewLine}Tor zum Grünen Labyrinth{SoftNewLine}öffnet...{ContinuePrompt}"
+  },
+  "06DE": {
+   "h": "65bc2863",
+   "t": "{Speaker}Das Tor erscheint{SoftNewLine}am Brunnen... Um den{SoftNewLine}Leuchtturm zu reparieren,{ContinuePrompt}"
+  },
+  "06DF": {
+   "h": "67ac971e",
+   "t": "{Speaker}müsst Ihr ins Grüne{SoftNewLine}Labyrinth und {Item}{SoftNewLine}finden...{ContinuePrompt}"
+  },
+  "06E0": {
+   "h": "2ada6783",
+   "t": "{Speaker}Geht nach oben und{SoftNewLine}schlagt auf die Rüstung...{WaitInput}"
+  },
+  "06E1": {
+   "h": "e768d25b",
+   "t": "{Speaker}Schnell! Folgt dem{SoftNewLine}Herzog, so bald Ihr könnt!{SoftNewLine}Lasst ihn nicht{ContinuePrompt}"
+  },
+  "06E2": {
+   "h": "d3508ca0",
+   "t": "{Speaker}an die Schätze! Er{SoftNewLine}ist ein Teufel...{ContinuePrompt}"
+  },
+  "06E3": {
+   "h": "74663ef1",
+   "t": "{Speaker}{=nigel}! Wir zählen{SoftNewLine}darauf, dass Ihr den Herzog{SoftNewLine}aufhaltet!...{WaitInput}"
+  },
+  "06E4": {
+   "h": "3f033451",
+   "t": "{Speaker}Oh, Ihr seid es! Auf{SoftNewLine}der Suche nach dem Ausgang{SoftNewLine}bin ich zufällig hier gelandet.{ContinuePrompt}"
+  },
+  "06E5": {
+   "h": "8f7eafce",
+   "t": "{Speaker}W-was?! Der Herzog{SoftNewLine}hat Prinzessin {=lara}{SoftNewLine}entführt!? Was für ein böser{SoftNewLine}Mann!{ContinuePrompt}"
+  },
+  "06E6": {
+   "h": "917ec40b",
+   "t": "{Speaker}Herr {=nigel}! Ich{SoftNewLine}vertraue auf Euch! Bitte{SoftNewLine}rettet Prinzessin {=lara}!{ContinuePrompt}"
+  },
+  "06E7": {
+   "h": "539e68a0",
+   "t": "{Speaker}Herzog Merkator{SoftNewLine}hat mich einmal nach einem{SoftNewLine}Buch gefragt: 'Die{SoftNewLine}Kriegsgeschichte König Nolos'.{ContinuePrompt}"
+  },
+  "06E8": {
+   "h": "7be41bd7",
+   "t": "{Speaker}Das Buch wurde in{SoftNewLine}der Königsfamilie von Ahorn{SoftNewLine}über Generationen{SoftNewLine}weitergegeben, doch{ContinuePrompt}"
+  },
+  "06E9": {
+   "h": "51642e8d",
+   "t": "{Speaker}es existiert nicht{SoftNewLine}mehr. Die Prinzessin kennt den{SoftNewLine}Inhalt aber auswendig,{ContinuePrompt}"
+  },
+  "06EA": {
+   "h": "00cfeb66",
+   "t": "{Speaker}und ich glaube, der{SoftNewLine}Herzog will sie als Schlüssel{SoftNewLine}zu den Schätzen benutzen,{ContinuePrompt}"
+  },
+  "06EB": {
+   "h": "b0a0d655",
+   "t": "{Speaker}die in dem Buch{SoftNewLine}beschrieben sind.{ContinuePrompt}"
+  },
+  "06EC": {
+   "h": "174b8f6e",
+   "t": "{Speaker}Bitte holt die{SoftNewLine}Prinzessin von Herzog{SoftNewLine}Merkator zurück!{WaitInput}"
+  },
+  "06ED": {
+   "h": "a3615efc",
+   "t": "{Speaker}Lalala, wir lassen{SoftNewLine}Wandrer sich verlaufen und{SoftNewLine}lachen uns dabei halb tot!{ContinuePrompt}"
+  },
+  "06EE": {
+   "h": "c509d1e3",
+   "t": "{Speaker}Lalala, wir{SoftNewLine}verdrehen den Wald und necken{SoftNewLine}alle, die hier irren!{WaitInput}"
+  },
+  "06EF": {
+   "h": "d872ec6a",
+   "t": "{Speaker}Hallo! Du hast dich{SoftNewLine}verlaufen, stimmt's? Sieht man{SoftNewLine}dir an!{ContinuePrompt}"
+  },
+  "06F0": {
+   "h": "0177f333",
+   "t": "{Speaker}Verlaufen!{ContinuePrompt}"
+  },
+  "06F1": {
+   "h": "cabdd8b7",
+   "t": "{Speaker}Haha! Verlaufen!{WaitInput}"
+  },
+  "06F2": {
+   "h": "bc76c163",
+   "t": "{Speaker}Schau, {=nigel}! Der{SoftNewLine}Hund ist schwer verletzt!{ContinuePrompt}"
+  },
+  "06F3": {
+   "h": "13b858ef",
+   "t": "{Speaker}Armer Hund! Ich{SoftNewLine}heile dich mit einem Zauber.{SoftNewLine}{=nigel}!{ContinuePrompt}"
+  },
+  "06F4": {
+   "h": "a1796cde",
+   "t": "{Speaker}Gib mir{SoftNewLine}{Item}!{NewLine}"
+  },
+  "06F5": {
+   "h": "6ad26b11",
+   "t": "{Speaker}Danke! Alles wird{SoftNewLine}gut, armer Hund!{WaitInput}"
+  },
+  "06F6": {
+   "h": "e05cf622",
+   "t": "{Speaker}Juhu! Ihm geht's{SoftNewLine}schon viel besser. Wenn ich{SoftNewLine}nur besser zaubern könnte.{ContinuePrompt}"
+  },
+  "06F7": {
+   "h": "ef817bde",
+   "t": "{Speaker}Tschüss! Pass gut{SoftNewLine}auf dich auf!{WaitInput}"
+  },
+  "06F8": {
+   "h": "a14442e4",
+   "t": "{Speaker}Wau-wau-wau!{ContinuePrompt}"
+  },
+  "06F9": {
+   "h": "f87eb76b",
+   "t": "{Speaker}{=nigel}... ich{SoftNewLine}glaube, er ruft uns...! Komm,{SoftNewLine}wir folgen ihm!{WaitInput}"
+  },
+  "06FA": {
+   "h": "62779921",
+   "t": "{Speaker}Aber... er stirbt{SoftNewLine}doch fast! Bitte!{NewLine}"
+  },
+  "06FB": {
+   "h": "8b913ce5",
+   "t": "{Speaker}Ich hasse dich!!{SoftNewLine}Bäääh!{WaitInput}"
+  },
+  "06FC": {
+   "h": "c8a8ed48",
+   "t": "{Speaker}Du hast{SoftNewLine}{Item} nicht dabei?{SoftNewLine}Schnell! Hol welches und komm{SoftNewLine}zurück, damit ich ihn heilen{SoftNewLine}kann.{WaitInput}"
+  },
+  "06FD": {
+   "h": "1ad799c9",
+   "t": "{Speaker}Wau-wau-wau!{WaitInput}"
+  },
+  "06FE": {
+   "h": "4c1b5247",
+   "t": "{Speaker}Danke, {=nigel} und{SoftNewLine}{=friday}. Ihr habt meinem Hund{SoftNewLine}das Leben gerettet. Er ist{SoftNewLine}mein bester Freund.{WaitInput}"
+  },
+  "06FF": {
+   "h": "b208c9db",
+   "t": "{Speaker}Moooment! Woher{SoftNewLine}kennst du unsere Namen? Bist{SoftNewLine}du etwa ein Spitzel des{SoftNewLine}Herzogs...{ContinuePrompt}"
+  },
+  "0700": {
+   "h": "c53df759",
+   "t": "{Speaker}Nein, nein! {=einstein}{SoftNewLine}hat's mir erzählt. {=einstein} ist{SoftNewLine}mein Hund.{ContinuePrompt}"
+  },
+  "0701": {
+   "h": "bb288586",
+   "t": "{Speaker}Willst du damit{SoftNewLine}sagen, dieser Hund kann... er{SoftNewLine}hat dir unsere Namen gesagt?{ContinuePrompt}"
+  },
+  "0702": {
+   "h": "0af7c332",
+   "t": "{Speaker}Ja, genau! Bitte...{SoftNewLine}nimm das hier als Dank für{SoftNewLine}eure Freundlichkeit.{ContinuePrompt}"
+  },
+  "0703": {
+   "h": "4f21c819",
+   "t": "{Speaker}Damit kannst du{SoftNewLine}mit jedem Hund reden!{SoftNewLine}Probier's doch mal mit {=einstein}!{ContinuePrompt}"
+  },
+  "0704": {
+   "h": "47b2df9d",
+   "t": "{Speaker}Echt? Was für eine{SoftNewLine}wunderbare Pfeife! {=nigel},{SoftNewLine}probier's aus!{WaitInput}"
+  },
+  "0705": {
+   "h": "3f5ca44e",
+   "t": "{Speaker}Danke, {=nigel}!{SoftNewLine}Wuff! Ich wurde von wilden{SoftNewLine}Wald-Orks angegriffen!{ContinuePrompt}"
+  },
+  "0706": {
+   "h": "751dafa6",
+   "t": "{Speaker}Aber dank dir lebe{SoftNewLine}ich und bin wieder gesund!{SoftNewLine}Wuff, wuff!{ContinuePrompt}"
+  },
+  "0707": {
+   "h": "ecc5eac7",
+   "t": "{Speaker}Besuch mich{SoftNewLine}jederzeit!{WaitInput}"
+  },
+  "0708": {
+   "h": "82a314f0",
+   "t": "{Speaker}Huch!! Erschreck{SoftNewLine}mich doch nicht so!{WaitInput}"
+  },
+  "0709": {
+   "h": "28b8e558",
+   "t": "{Speaker}Die Aussicht von{SoftNewLine}hier ist herrlich, was?{SoftNewLine}Tschüss dann!{WaitInput}"
+  },
+  "070A": {
+   "h": "595169cf",
+   "t": "{Speaker}Tadaa!!{WaitInput}"
+  },
+  "070B": {
+   "h": "dacb93b5",
+   "t": "{Speaker}Du hast{SoftNewLine}Riesenglück! Das war's!{WaitInput}"
+  },
+  "070C": {
+   "h": "e631c651",
+   "t": "{Speaker}Huiii! Mir ist ganz{SoftNewLine}schwindlig!{WaitInput}"
+  },
+  "070D": {
+   "h": "79c5aa85",
+   "t": "{Speaker}Hör gut zu!{SoftNewLine}EssagkcaS enie tsi reiH!{WaitInput}"
+  },
+  "070E": {
+   "h": "5855ab2f",
+   "t": "{Speaker}Nur noch ein{SoftNewLine}Stückchen, und du{SoftNewLine}findest...{Pause1s}eine... Sackgasse!{SoftNewLine}Hahaha!{WaitInput}"
+  },
+  "070F": {
+   "h": "33d3a39c",
+   "t": "{Speaker}Du brauchst mich{SoftNewLine}nicht? {Pause1s}Tschüssi!{WaitInput}"
+  },
+  "0710": {
+   "h": "30fa25b4",
+   "t": "{Speaker}Unaufmerksam!{WaitInput}"
+  },
+  "0711": {
+   "h": "29b78c2e",
+   "t": "{Speaker}Hahaha! Versuch's{SoftNewLine}noch mal!{ContinuePrompt}"
+  },
+  "0712": {
+   "h": "f64a2e13",
+   "t": "{Speaker}Nächstes Mal{SoftNewLine}schenk ich dir was Schönes!{WaitInput}"
+  },
+  "0713": {
+   "h": "1c85a941",
+   "t": "{Speaker}Du gibst nicht auf!{SoftNewLine}...Na gut, ein Tipp! Siehst du{SoftNewLine}da unten eine Ranke?{ContinuePrompt}"
+  },
+  "0714": {
+   "h": "bc44b5b5",
+   "t": "{Speaker}Wenn du da{SoftNewLine}runtergehst, kannst du{SoftNewLine}abkürzen.. ein kleines{SoftNewLine}bisschen.{ContinuePrompt}"
+  },
+  "0715": {
+   "h": "f888953a",
+   "t": "{Speaker}Kapiert? Tschüss!{WaitInput}"
+  },
+  "0716": {
+   "h": "fe6094ea",
+   "t": "{Speaker}Du schlägst dich{SoftNewLine}gut! Aber du bist immer noch{SoftNewLine}durcheinander, oder?{ContinuePrompt}"
+  },
+  "0717": {
+   "h": "3332d34c",
+   "t": "{Speaker}Ich geb dir einen{SoftNewLine}Tipp! Geh hier runter und dann{SoftNewLine}nach Süden. Kommst du in eine{ContinuePrompt}"
+  },
+  "0718": {
+   "h": "82139351",
+   "t": "{Speaker}Sackgasse, steig{SoftNewLine}die unsichtbare Treppe hoch{SoftNewLine}und spring runter! Da findest{SoftNewLine}du...{WaitInput}"
+  },
+  "0719": {
+   "h": "a7217fd2",
+   "t": "{Speaker}Sehen kann ich dich{SoftNewLine}nicht, aber schön, dich{SoftNewLine}kennenzulernen.{ContinuePrompt}"
+  },
+  "071A": {
+   "h": "921e8087",
+   "t": "{Speaker}Ich esse gerade zu{SoftNewLine}Mittag. Sehen kann ich's nicht,{SoftNewLine}aber es sieht lecker aus.{SoftNewLine}Willst du was?{ContinuePrompt}"
+  },
+  "071B": {
+   "h": "c928186e",
+   "t": "{Speaker}Du hast es eilig?{ContinuePrompt}"
+  },
+  "071C": {
+   "h": "e6cbbc6d",
+   "t": "{Speaker}Dann nimm das hier{SoftNewLine}mit. Sehen kann ich's nicht,{SoftNewLine}aber es sieht gut aus.{ContinuePrompt}"
+  },
+  "071D": {
+   "h": "1a68e694",
+   "t": "{Speaker}Hat Spaß gemacht,{SoftNewLine}mit dir zu reden! Sehen kann{SoftNewLine}ich dich nicht, aber du bist{SoftNewLine}mein Freund.{WaitInput}"
+  },
+  "071E": {
+   "h": "06faff50",
+   "t": "{Speaker}Viel Glück! Sehen{SoftNewLine}kann ich dich nicht, aber viel{SoftNewLine}Glück!{WaitInput}"
+  },
+  "071F": {
+   "h": "a34a7f70",
+   "t": "{Speaker}{=nigel}, schau! Da{SoftNewLine}drüben glänzt etwas! Das ist{SoftNewLine}bestimmt {Item}!{ContinuePrompt}"
+  },
+  "0720": {
+   "h": "81445fbd",
+   "t": "{Speaker}Aber durch die{SoftNewLine}Bäume kommen wir nicht...{WaitInput}"
+  },
+  "0721": {
+   "h": "4f3ebb96",
+   "t": "{Speaker}Nein, jetzt nicht{SoftNewLine}aufgeben! Nicht, wenn es{SoftNewLine}direkt vor unserer Nase liegt!{WaitInput}"
+  },
+  "0722": {
+   "h": "17fa2e7f",
+   "t": "{Speaker}Oh, ich weiß!{WaitInput}"
+  },
+  "0723": {
+   "h": "e92ff947",
+   "t": "{Speaker}Wir rufen {=einstein}!{SoftNewLine}Der weiß bestimmt, wie man da{SoftNewLine}hinkommt.{ContinuePrompt}"
+  },
+  "0724": {
+   "h": "159875ee",
+   "t": "{Speaker}Aber wie?{ContinuePrompt}"
+  },
+  "0725": {
+   "h": "a9142c00",
+   "t": "{Speaker}Mit deiner Pfeife!{SoftNewLine}Probier's aus!{WaitInput}"
+  },
+  "0726": {
+   "h": "3d781282",
+   "t": "{Speaker}Vielleicht sollten{SoftNewLine}wir noch mal ganz von vorn{SoftNewLine}anfangen...{WaitInput}"
+  },
+  "0727": {
+   "h": "b67997db",
+   "t": "{Speaker}Wau-wau! {=nigel}{SoftNewLine}braucht meine Hilfe!{ContinuePrompt}"
+  },
+  "0728": {
+   "h": "ed7b9ae4",
+   "t": "{Speaker}Woher weißt du{SoftNewLine}das?{ContinuePrompt}"
+  },
+  "0729": {
+   "h": "62c6480e",
+   "t": "{Speaker}Der Wind trägt{SoftNewLine}ganz leise den Ton seiner{SoftNewLine}Pfeife her. Wuff!{ContinuePrompt}"
+  },
+  "072A": {
+   "h": "fa1a6be4",
+   "t": "{Speaker}Er steckt bestimmt{SoftNewLine}in Schwierigkeiten, {=einstein}!{SoftNewLine}Kannst du zu ihm?{ContinuePrompt}"
+  },
+  "072B": {
+   "h": "27cb58f8",
+   "t": "{Speaker}Na klar! Ich bin ein{SoftNewLine}Hund, schon vergessen? Ich{SoftNewLine}schnüffle ihn auf!{ContinuePrompt}"
+  },
+  "072C": {
+   "h": "bf10208d",
+   "t": "{Speaker}Gut, los geht's!{WaitInput}"
+  },
+  "072D": {
+   "h": "3a43cab9",
+   "t": "{Speaker}{=nigel}... Ich hab{SoftNewLine}einen Hund bellen hören! Das{SoftNewLine}ist bestimmt {=einstein}!{WaitInput}"
+  },
+  "072E": {
+   "h": "35b4f3a4",
+   "t": "{Speaker}Wau-wau! {=nigel}!{SoftNewLine}{=friday}!{ContinuePrompt}"
+  },
+  "072F": {
+   "h": "917803ab",
+   "t": "{Speaker}Was ist denn los?{SoftNewLine}...Ah, diese Bäume...?{ContinuePrompt}"
+  },
+  "0730": {
+   "h": "34abc43d",
+   "t": "{Speaker}Lasst mich mal!{SoftNewLine}Geht zurück und bleibt da{SoftNewLine}stehen!{WaitInput}"
+  },
+  "0731": {
+   "h": "4b370c5a",
+   "t": "{Speaker}Fertig!{ContinuePrompt}"
+  },
+  "0732": {
+   "h": "1b8d26e7",
+   "t": "{Speaker}Ich helf dir doch{SoftNewLine}gern, {=nigel}! Wuff!{ContinuePrompt}"
+  },
+  "0733": {
+   "h": "a19f71ca",
+   "t": "{Speaker}Wir gehen jetzt{SoftNewLine}zurück. Besuch mich jederzeit.{ContinuePrompt}"
+  },
+  "0734": {
+   "h": "dc7eec83",
+   "t": "{Speaker}Danke! Macht's gut!{ContinuePrompt}"
+  },
+  "0735": {
+   "h": "6ecc1607",
+   "t": "{Speaker}Du auch, {=friday}!{SoftNewLine}Tschüss! Wuff!{WaitInput}"
+  },
+  "0736": {
+   "h": "53921e6f",
+   "t": "{Speaker}Mein Name ist{SoftNewLine}{=kado}. Ich war einmal ein{SoftNewLine}berühmter Schwertkämpfer.{ContinuePrompt}"
+  },
+  "0737": {
+   "h": "6b3d8f19",
+   "t": "{Speaker}Früher habe ich im{SoftNewLine}Schloss gedient, aber ich bin{SoftNewLine}in Ruhestand gegangen. Das{SoftNewLine}Stadtleben lag mir nicht.{ContinuePrompt}"
+  },
+  "0738": {
+   "h": "49219772",
+   "t": "{Speaker}Bist du ein{SoftNewLine}Schatzjäger? Dann brauchst du{SoftNewLine}ein besseres Schwert als das{SoftNewLine}da...{ContinuePrompt}"
+  },
+  "0739": {
+   "h": "c96998bf",
+   "t": "{Speaker}Es hat eine{SoftNewLine}besondere Kraft.{ContinuePrompt}"
+  },
+  "073A": {
+   "h": "c4aa78dc",
+   "t": "{Speaker}Ist das Schwert{SoftNewLine}voll aufgeladen, verbrennt{SoftNewLine}eine magische Flamme jeden{SoftNewLine}Feind, den es trifft!{ContinuePrompt}"
+  },
+  "073B": {
+   "h": "2517eac2",
+   "t": "{Speaker}Ich glaube, du{SoftNewLine}weißt den Wert dieses{SoftNewLine}Schwertes zu schätzen.{ContinuePrompt}"
+  },
+  "073C": {
+   "h": "c31231c0",
+   "t": "{Speaker}Wie gefällt es dir?{ContinuePrompt}"
+  },
+  "073D": {
+   "h": "a1f3c903",
+   "t": "{Speaker}Es gibt noch andere{SoftNewLine}Zauberschwerter auf dieser{SoftNewLine}Insel.{ContinuePrompt}"
+  },
+  "073E": {
+   "h": "4a7e4acf",
+   "t": "{Speaker}Man nennt sie{SoftNewLine}{Item} und{SoftNewLine}{Item}...{ContinuePrompt}"
+  },
+  "073F": {
+   "h": "1d5beac8",
+   "t": "{Speaker}Und ich weiß nicht,{SoftNewLine}ob es stimmt, aber es soll{SoftNewLine}auch das sagenhafte Schwert{SoftNewLine}der Gaia geben!{WaitInput}"
+  },
+  "0740": {
+   "h": "66ba9627",
+   "t": "{Speaker}Oh, {Item}!{SoftNewLine}Wie bist du da rangekommen?!{SoftNewLine}Damit kann ich den Leuchtturm{SoftNewLine}reparieren!{WaitInput}"
+  },
+  "0741": {
+   "h": "971bf8ff",
+   "t": "{Speaker}Juhu!{WaitInput}"
+  },
+  "0742": {
+   "h": "8841abaa",
+   "t": "{Speaker}Dank dir ist der{SoftNewLine}Leuchtturm wieder ganz in{SoftNewLine}Ordnung!{ContinuePrompt}"
+  },
+  "0743": {
+   "h": "11320172",
+   "t": "{Speaker}Ich hab ihn{SoftNewLine}abgeschlossen, damit uns das{SoftNewLine}nicht noch mal passiert!{WaitInput}"
+  },
+  "0744": {
+   "h": "06b2073d",
+   "t": "{Speaker}Alles bereit! Leinen{SoftNewLine}los!{WaitInput}"
+  },
+  "0745": {
+   "h": "c143608a",
+   "t": "{Speaker}Verla! Alle{SoftNewLine}aussteigen, die hier aussteigen{SoftNewLine}wollen!{ContinuePrompt}"
+  },
+  "0746": {
+   "h": "73eb9b30",
+   "t": "{Speaker}Wir haben noch ein{SoftNewLine}Stück vor uns! Tschüss dann!{WaitInput}"
+  },
+  "0747": {
+   "h": "7c5f8b5e",
+   "t": "{Speaker}Alle bereit? Leinen{SoftNewLine}los!{WaitInput}"
+  },
+  "0748": {
+   "h": "7f5b115b",
+   "t": "{Speaker}Das Schiff legt{SoftNewLine}gleich nach Verla ab! Du{SoftNewLine}fährst umsonst, weil du{ContinuePrompt}"
+  },
+  "0749": {
+   "h": "b819575d",
+   "t": "{Speaker}den Leuchtturm{SoftNewLine}repariert hast! Steigst du{SoftNewLine}jetzt ein?{NewLine}"
+  },
+  "074A": {
+   "h": "def1f36b",
+   "t": "{Speaker}Dann rauf aufs{SoftNewLine}Schiff! Wir legen bald ab!{WaitInput}"
+  },
+  "074B": {
+   "h": "f3672d4e",
+   "t": "{Speaker}Wir legen jetzt ab!{SoftNewLine}Hopp, hopp! Und stör die{SoftNewLine}anderen Fahrgäste nicht!{WaitInput}"
+  },
+  "074C": {
+   "h": "b39941ae",
+   "t": "{Speaker}Na gut, ich warte{SoftNewLine}noch ein bisschen auf dich...{WaitInput}"
+  },
+  "074D": {
+   "h": "41a0e1b2",
+   "t": "{Speaker}{=nigel}, alles in{SoftNewLine}Ordnung? Bist du eine{SoftNewLine}Landratte? Kotz mir bloß{SoftNewLine}nicht auf{ContinuePrompt}"
+  },
+  "074E": {
+   "h": "3b275b1a",
+   "t": "{Speaker}mein schönes neues{SoftNewLine}Deck!{WaitInput}"
+  },
+  "074F": {
+   "h": "ab22bd8d",
+   "t": "{Speaker}JAAAAAAARG!!!{SoftNewLine}RRRAAAAARG!!!{WaitInput}"
   }
  },
  "names": {
