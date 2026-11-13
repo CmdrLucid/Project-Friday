@@ -1142,6 +1142,342 @@
   "05D6": {
    "h": "d0e94c88",
    "t": "{Speaker}You're banned!{SoftNewLine}Banned, you hear?!{WaitInput}"
+  },
+  "05DA": {
+   "h": "95dbf8ca",
+   "t": "{Speaker}Collecting jars is{SoftNewLine}my old man's hobby.... and this{SoftNewLine}old granny's back hurts so...{WaitInput}"
+  },
+  "05DB": {
+   "h": "1cf934fd",
+   "t": "{Speaker}Fuga fuga... can't{SoftNewLine}be helped... This old granny{SoftNewLine}will do it herself.{WaitInput}"
+  },
+  "05DC": {
+   "h": "a6d39e4b",
+   "t": "{Speaker}Fuga fuga... thank{SoftNewLine}you kindly. Oh yes, your{SoftNewLine}reward...{ContinuePrompt}"
+  },
+  "05EA": {
+   "h": "07917d5d",
+   "t": "{Speaker}I know, I know.{SoftNewLine}Brats your age are all the{SoftNewLine}same!{ContinuePrompt}"
+  },
+  "05EC": {
+   "h": "d06bacd3",
+   "t": "{Speaker}There! Now you can{SoftNewLine}get into the Madame Yard's of{SoftNewLine}your dreams! Fohohoho...{ContinuePrompt}"
+  },
+  "05ED": {
+   "h": "6ee43c70",
+   "t": "{Speaker}Well, enjoy{SoftNewLine}yourself...{WaitInput}"
+  },
+  "05F8": {
+   "h": "3302e669",
+   "t": "{Speaker}What are you{SoftNewLine}doing?! You're getting carried{SoftNewLine}away! What kind of place IS{SoftNewLine}this?! I hate it!{WaitInput}"
+  },
+  "05F9": {
+   "h": "abe99aa6",
+   "t": "{Speaker}C-calm down, little{SoftNewLine}one...{ContinuePrompt}"
+  },
+  "05FA": {
+   "h": "8c240658",
+   "t": "{Speaker}My name is Friday!{SoftNewLine}Not 'little one', not 'mini', not{ContinuePrompt}"
+  },
+  "05FC": {
+   "h": "44b5c65c",
+   "t": "{Speaker}F-Friday! I think{SoftNewLine}you've misunderstood... This is{SoftNewLine}a counseling room for troubled{SoftNewLine}grown-ups!{ContinuePrompt}"
+  },
+  "05FD": {
+   "h": "ad35cba3",
+   "t": "{Speaker}Grown-ups have all{SoftNewLine}kinds of worries. So we listen{SoftNewLine}to every last one{ContinuePrompt}"
+  },
+  "05FE": {
+   "h": "7f45aff5",
+   "t": "{Speaker}and cheer them up!{SoftNewLine}That's all we do here!{ContinuePrompt}"
+  },
+  "05FF": {
+   "h": "4cd4e1d8",
+   "t": "{Speaker}That's why Madame{SoftNewLine}Yard's only takes adults. Kids{SoftNewLine}just don't have{ContinuePrompt}"
+  },
+  "0600": {
+   "h": "e86830b5",
+   "t": "{Speaker}grown-up worries{SoftNewLine}yet.{ContinuePrompt}"
+  },
+  "0602": {
+   "h": "3176e7e2",
+   "t": "{Speaker}Ehehehe... sorry,{SoftNewLine}Nigel!{WaitInput}"
+  },
+  "0603": {
+   "h": "c9bcdf4e",
+   "t": "{Speaker}Nuohh! Th-this is{SoftNewLine}bad...!{WaitInput}"
+  },
+  "0604": {
+   "h": "731b8050",
+   "t": "{Speaker}You there! I need a{SoftNewLine}word with you! Come here!{WaitInput}"
+  },
+  "0605": {
+   "h": "ce13639c",
+   "t": "{Speaker}Julie, sorry, but{SoftNewLine}lock that door, please...{ContinuePrompt}"
+  },
+  "0606": {
+   "h": "f28e9086",
+   "t": "{Speaker}Y-yes...! But...n-no{SoftNewLine}violence!....{WaitInput}"
+  },
+  "0607": {
+   "h": "bec4a168",
+   "t": "{Speaker}I hold no grudge{SoftNewLine}against you, but no one must{SoftNewLine}ever know I come here!{ContinuePrompt}"
+  },
+  "060B": {
+   "h": "a786c612",
+   "t": "{Speaker}You're a strong{SoftNewLine}lad. I'm not a general for{SoftNewLine}nothing. I could tell by the{SoftNewLine}way you{ContinuePrompt}"
+  },
+  "0623": {
+   "h": "d2c98b56",
+   "t": "{Speaker}I invited you to{SoftNewLine}the castle as promised... so{SoftNewLine}not a word about Julie, OK?{WaitInput}"
+  },
+  "0624": {
+   "h": "bab0ab7a",
+   "t": "{Speaker}I invited you to{SoftNewLine}the castle as promised... so{SoftNewLine}not a word about Julie, OK?{ContinuePrompt}"
+  },
+  "0627": {
+   "h": "0550693b",
+   "t": "{Speaker}Ohohohoho! So you{SoftNewLine}came, sonny! Ohohohoho!{SoftNewLine}Ohohohohoho!{ContinuePrompt}"
+  },
+  "0628": {
+   "h": "ae62984a",
+   "t": "{Speaker}I've been waiting{SoftNewLine}for you, sonny! Now, come{SoftNewLine}here, quick {NewLine}"
+  },
+  "0629": {
+   "h": "132793a5",
+   "t": "{Speaker}Hey, hey, Nigel!! I{SoftNewLine}can't keep up with you{SoftNewLine}anymore! She's our rival!{ContinuePrompt}"
+  },
+  "062A": {
+   "h": "19948675",
+   "t": "{Speaker}She stole the{SoftNewLine}lithograph from us! I'm so{SoftNewLine}mad! Kiiih!{WaitInput}"
+  },
+  "062C": {
+   "h": "d161556e",
+   "t": "{Speaker}Sorry, Nigel... I got{SoftNewLine}a little worked up. Ehehe...{WaitInput}"
+  },
+  "062D": {
+   "h": "f38e4d84",
+   "t": "{Speaker}Ohohoho! Turning{SoftNewLine}down MY invitation? You're a{SoftNewLine}hundred years too early,{SoftNewLine}sonny!{ContinuePrompt}"
+  },
+  "062E": {
+   "h": "4c215e38",
+   "t": "{Speaker}Ink! Wally! Teach{SoftNewLine}him a lesson!{WaitInput}"
+  },
+  "062F": {
+   "h": "ca9fbe39",
+   "t": "{Speaker}Good job not{SoftNewLine}falling for her charms... but{SoftNewLine}you got a little careless{SoftNewLine}there!{WaitInput}"
+  },
+  "0643": {
+   "h": "5c681f92",
+   "t": "{Speaker}But enough stiff{SoftNewLine}talk. Let us enjoy the{SoftNewLine}banquet! Do you like music?{ContinuePrompt}"
+  },
+  "0644": {
+   "h": "b844301f",
+   "t": "{Speaker}Allow me to{SoftNewLine}introduce the pride of our{SoftNewLine}town, the living treasure,{SoftNewLine}composer Mr. Ludwig!{WaitInput}"
+  },
+  "0647": {
+   "h": "4185559e",
+   "t": "{Speaker}...It is inspired by{SoftNewLine}Princess Lara of Maple, who{SoftNewLine}studied here until recently.{ContinuePrompt}"
+  },
+  "0648": {
+   "h": "97271966",
+   "t": "{Speaker}Duke, please tell{SoftNewLine}me! Why did Princess Lara{SoftNewLine}suddenly...?!!{ContinuePrompt}"
+  },
+  "0649": {
+   "h": "72cd38c7",
+   "t": "{Speaker}Enough! I feel...a{SoftNewLine}bit unwell.{ContinuePrompt}"
+  },
+  "0650": {
+   "h": "41417186",
+   "t": "{Speaker}Hmm, you're tough.{SoftNewLine}Then let's explore the castle{SoftNewLine}a bit more.{WaitInput}"
+  },
+  "0653": {
+   "h": "f2497b98",
+   "t": "{Speaker}You know... I'm{SoftNewLine}actually a tiny bit grateful{SoftNewLine}to Kayla... hehe. Because if{SoftNewLine}she{ContinuePrompt}"
+  },
+  "0654": {
+   "h": "a97f7a80",
+   "t": "{Speaker}hadn't chased me{SoftNewLine}around, I'd never have met{SoftNewLine}you, right? At first I thought{SoftNewLine}you were a loser...{ContinuePrompt}"
+  },
+  "0655": {
+   "h": "dffb450d",
+   "t": "{Speaker}but you came all{SoftNewLine}this way with me, so I{SoftNewLine}changed my mind...! And being{SoftNewLine}with you feels kinda safe...{ContinuePrompt}"
+  },
+  "0656": {
+   "h": "0e2fc88e",
+   "t": "{Speaker}Hey? Are you{SoftNewLine}listening? Nigel?...Nigel!{ContinuePrompt}"
+  },
+  "0658": {
+   "h": "c0f9d446",
+   "t": "{Speaker}What will you do if{SoftNewLine}we really find King Nole's{SoftNewLine}treasures? Go back to the{SoftNewLine}continent?{ContinuePrompt}"
+  },
+  "0659": {
+   "h": "ba978012",
+   "t": "{Speaker}Then what about{SoftNewLine}me...? What do I do?! Hey! Hey!{SoftNewLine}Hey! Nigel! ...Bleeeh!{WaitInput}"
+  },
+  "0662": {
+   "h": "5387ebf9",
+   "t": "{Speaker}Hey, bro! Lend me{SoftNewLine}some dough? {Number} golds'll do.{NewLine}"
+  },
+  "0663": {
+   "h": "9d306650",
+   "t": "{Speaker}What? Tch! No use{SoftNewLine}talkin' to a cheapskate!{WaitInput}"
+  },
+  "0664": {
+   "h": "e0bd595a",
+   "t": "{Speaker}Whoa, generous!{SoftNewLine}Wait here, bro, I'll pay ya{SoftNewLine}back double in a jiffy!{WaitInput}"
+  },
+  "0665": {
+   "h": "e8ee03d4",
+   "t": "{Number} golds, double, just like I{SoftNewLine}promised! Ya gotta trust{SoftNewLine}people! Hahaha!{ContinuePrompt}"
+  },
+  "0666": {
+   "h": "afe9f9b1",
+   "t": "{Speaker}Oh! Oh! A buyer!{SoftNewLine}Medicine? Sure, we've got it!{ContinuePrompt}"
+  },
+  "0667": {
+   "h": "0efca912",
+   "t": "{Speaker}Oh! Oh! A buyer!{SoftNewLine}Shady goods? Sure, we've got{SoftNewLine}'em!{ContinuePrompt}"
+  },
+  "0679": {
+   "h": "20cde85f",
+   "t": "{Speaker}I see a faint light{SoftNewLine}behind you... You've got strong{SoftNewLine}luck, boy...{WaitInput}"
+  },
+  "067A": {
+   "h": "69146f10",
+   "t": "{Speaker}Heh heh heh... It{SoftNewLine}was hell down there, just like{SoftNewLine}I said, eh?{ContinuePrompt}"
+  },
+  "068A": {
+   "h": "fcd605c5",
+   "t": "{Speaker}No need to be so{SoftNewLine}formal. It's not your fault.{SoftNewLine}That elf is just strong.{WaitInput}"
+  },
+  "068F": {
+   "h": "c222aa79",
+   "t": "{Speaker}What are you{SoftNewLine}talking about! We came here{SoftNewLine}to beat you!{ContinuePrompt}"
+  },
+  "0690": {
+   "h": "cc0a4d88",
+   "t": "{Speaker}After all the evil{SoftNewLine}you've done, how can you be{SoftNewLine}so laid-back?!{ContinuePrompt}"
+  },
+  "0692": {
+   "h": "f06dec65",
+   "t": "{Speaker}Hmm, no room for{SoftNewLine}talk, it seems... All right, all{SoftNewLine}right. I'll take you on.{WaitInput}"
+  },
+  "0693": {
+   "h": "cfed60e2",
+   "t": "{Speaker}Whoa, whoa! I give{SoftNewLine}up, I give up!{ContinuePrompt}"
+  },
+  "0694": {
+   "h": "82eeeda5",
+   "t": "{Speaker}Huff... huff...{SoftNewLine}You're strong, young one. I'm{SoftNewLine}beaten. Tell me what you{SoftNewLine}wish!{ContinuePrompt}"
+  },
+  "0699": {
+   "h": "646f4c85",
+   "t": "{Speaker}He's my younger{SoftNewLine}brother. Ever since we were{SoftNewLine}little, his one ambition has{SoftNewLine}been{ContinuePrompt}"
+  },
+  "069D": {
+   "h": "699e0a34",
+   "t": "{Speaker}That's awful... I'm{SoftNewLine}so mad! That duke! Acting all{SoftNewLine}cool!{ContinuePrompt}"
+  },
+  "06A1": {
+   "h": "494d747a",
+   "t": "{Speaker}That duke is only{SoftNewLine}pretending to be a gentleman!{SoftNewLine}What a liar!! I'm so mad!{WaitInput}"
+  },
+  "06A5": {
+   "h": "c804f0ce",
+   "t": "{Speaker}Ohh! Sir Nigel! I{SoftNewLine}knew it! You did it, just as{SoftNewLine}this old man predicted!{ContinuePrompt}"
+  },
+  "06A6": {
+   "h": "421859c1",
+   "t": "{Speaker}Come, come, the{SoftNewLine}duke is waiting! Tell us all{SoftNewLine}about your hardships at the{SoftNewLine}tower!{WaitInput}"
+  },
+  "06A7": {
+   "h": "d2bf5871",
+   "t": "{Speaker}Nigel, my boy! What{SoftNewLine}a great pleasure to see you{SoftNewLine}again!{ContinuePrompt}"
+  },
+  "06A8": {
+   "h": "e99fc631",
+   "t": "{Speaker}And you even{SoftNewLine}brought me the jewel!{SoftNewLine}Kukuku...{WaitInput}"
+  },
+  "06A9": {
+   "h": "dcb3c8a9",
+   "t": "{Speaker}You see, Nigel, I'm{SoftNewLine}always one step ahead of my{SoftNewLine}opponents' thoughts...{ContinuePrompt}"
+  },
+  "06AA": {
+   "h": "3f5d61cc",
+   "t": "{Speaker}Kukuku... Now you're{SoftNewLine}wondering what will become of{SoftNewLine}you, aren't you? Kukuku...{ContinuePrompt}"
+  },
+  "06AB": {
+   "h": "bd546450",
+   "t": "{Speaker}Then let a stunning{SoftNewLine}beauty answer that question,{SoftNewLine}instead of me!{ContinuePrompt}"
+  },
+  "06AC": {
+   "h": "e9f03407",
+   "t": "{Speaker}Miss Kayla{SoftNewLine}Kozwalski! Kukuku... though I{SoftNewLine}believe you've met.{WaitInput}"
+  },
+  "06AD": {
+   "h": "4183d5aa",
+   "t": "{Speaker}Ohohohohoho!{WaitInput}"
+  },
+  "06AE": {
+   "h": "772c75c4",
+   "t": "{Speaker}Thanks for all your{SoftNewLine}hard work, sonny! The duke{SoftNewLine}and I agreed to split King{SoftNewLine}Nole's treasures!{ContinuePrompt}"
+  },
+  "06AF": {
+   "h": "72739f22",
+   "t": "{Speaker}That's why we had{SoftNewLine}you go to the tower! Ohohoho!{SoftNewLine}Such an obedient good boy!{ContinuePrompt}"
+  },
+  "06B0": {
+   "h": "4a464f0a",
+   "t": "{Speaker}Wally! Ink! Give the{SoftNewLine}boy some praise!{ContinuePrompt}"
+  },
+  "06B1": {
+   "h": "0783cd5a",
+   "t": "{Speaker}...praise {ContinuePrompt}"
+  },
+  "06B2": {
+   "h": "0783cd5a",
+   "t": "{Speaker}...praise {ContinuePrompt}"
+  },
+  "06B3": {
+   "h": "ea7bf51f",
+   "t": "{Speaker}Ohohohoho! Shall we{SoftNewLine}have you find the other{SoftNewLine}jewels too? Ohohoho!{ContinuePrompt}"
+  },
+  "06B4": {
+   "h": "7b469303",
+   "t": "{Speaker}Ohohohohoho! This{SoftNewLine}is too much fun! The{SoftNewLine}treasures are ours!{WaitInput}"
+  },
+  "06B5": {
+   "h": "b343f008",
+   "t": "{Speaker}Ohohoho...huh?{ContinuePrompt}"
+  },
+  "06B6": {
+   "h": "341a9dab",
+   "t": "{Speaker}Ayayayaaa!....{ContinuePrompt}"
+  },
+  "06B7": {
+   "h": "970a03a3",
+   "t": "{Speaker}Chooeeee!.....{WaitInput}"
+  },
+  "06B8": {
+   "h": "297c7996",
+   "t": "{Speaker}Noisy fools belong{SoftNewLine}at the bottom of the pit.{SoftNewLine}Split it half and half? Know{SoftNewLine}your place!{ContinuePrompt}"
+  },
+  "06B9": {
+   "h": "d671462c",
+   "t": "{Speaker}Soldiers! Gratefully{SoftNewLine}relieve young Nigel of his{SoftNewLine}jewels!{WaitInput}"
+  },
+  "06BB": {
+   "h": "8353532d",
+   "t": "{Speaker}Well then, Nigel, my{SoftNewLine}boy! Live happily in hell with{SoftNewLine}that beauty! Kukuku...{SoftNewLine}Wahahaha!{WaitInput}"
+  },
+  "06BC": {
+   "h": "e590b1a2",
+   "t": "{Speaker}We'll never lose to{SoftNewLine}the likes of you! And that{SoftNewLine}damned duke... Kiiih! It makes{SoftNewLine}me sick!{ContinuePrompt}"
+  },
+  "06BD": {
+   "h": "b8851353",
+   "t": "{Speaker}Treasure! Gimme{SoftNewLine}gimme!{ContinuePrompt}"
   }
  }
 }
