@@ -5493,6 +5493,518 @@
   "05CF": {
    "h": "d7b64873",
    "t": "{Speaker}Je schneller die{SoftNewLine}Platte, auf der dein Ball{SoftNewLine}landet, desto mehr gewinnst{SoftNewLine}du! 400, 100, 50.{ContinuePrompt}"
+  },
+  "05D0": {
+   "h": "fd4b225c",
+   "t": "{Speaker}Rutscht der Ball{SoftNewLine}runter, hast du verloren! Du{SoftNewLine}hast nur einen Wurf.{ContinuePrompt}"
+  },
+  "05D1": {
+   "h": "7ef7ebcb",
+   "t": "{Speaker}Bereit? Okay! Dann{SoftNewLine}mal los!{WaitInput}"
+  },
+  "05D2": {
+   "h": "75a8bc7b",
+   "t": "{Speaker}Na dann, versuch's{SoftNewLine}mal!{WaitInput}"
+  },
+  "05D3": {
+   "h": "77e246ed",
+   "t": "{Speaker}Herzlichen{SoftNewLine}Glückwunsch! Du gewinnst {Number}{SoftNewLine}Taler! Klasse! Spitze!{WaitInput}"
+  },
+  "05D4": {
+   "h": "f08a7476",
+   "t": "{Speaker}Hoppla! Na ja... das{SoftNewLine}war knapp! Bis zum nächsten{SoftNewLine}Mal!{WaitInput}"
+  },
+  "05D5": {
+   "h": "96c0ad72",
+   "t": "{Speaker}Nein, nein, nein!{SoftNewLine}Bitte... raus hier! Du bist doch{SoftNewLine}ein Profi-Abzocker, oder?{WaitInput}"
+  },
+  "05D6": {
+   "h": "d0e94c88",
+   "t": "{Speaker}Bitte! Geh weg...{SoftNewLine}und komm nie wieder! Ich flehe{SoftNewLine}dich an...{WaitInput}"
+  },
+  "05D7": {
+   "h": "c9524a1f",
+   "t": "{Speaker}Du siehst so{SoftNewLine}kräftig aus. Wenn ich dir was{SoftNewLine}zahle,{ContinuePrompt}"
+  },
+  "05D8": {
+   "h": "3dfb64ba",
+   "t": "{Speaker}würdest du einer{SoftNewLine}alten Frau einen Gefallen tun?{NewLine}"
+  },
+  "05D9": {
+   "h": "e33f7fb6",
+   "t": "{Speaker}Oben ist alles{SoftNewLine}durcheinander. Würdest du die{SoftNewLine}Krüge ordentlich auf die{SoftNewLine}Regale stellen?{ContinuePrompt}"
+  },
+  "05DA": {
+   "h": "95dbf8ca",
+   "t": "{Speaker}Krüge sammeln ist{SoftNewLine}das Hobby meines Mannes....{SoftNewLine}und mein Kreuz tut so weh.{WaitInput}"
+  },
+  "05DB": {
+   "h": "1cf934fd",
+   "t": "{Speaker}Mümmel... Na gut!{SoftNewLine}Dann mach ich's eben selbst.{WaitInput}"
+  },
+  "05DC": {
+   "h": "a6d39e4b",
+   "t": "{Speaker}Mümmel... Vielen{SoftNewLine}Dank. Hier ist dein Lohn...{ContinuePrompt}"
+  },
+  "05DD": {
+   "h": "24696a75",
+   "t": "{Speaker}Hilf mir gern{SoftNewLine}wieder.{WaitInput}"
+  },
+  "05DE": {
+   "h": "55b98eed",
+   "t": "{Speaker}Krüge sammeln ist{SoftNewLine}sein Hobby. Krüge verstreuen{SoftNewLine}und andere aufräumen lassen,{ContinuePrompt}"
+  },
+  "05DF": {
+   "h": "900b728a",
+   "t": "{Speaker}das ist meins.{WaitInput}"
+  },
+  "05E0": {
+   "h": "b8a260ec",
+   "t": "{Speaker}Ich hab's am{SoftNewLine}Rücken. Die Krüge sind mir{SoftNewLine}einfach zu schwer...{WaitInput}"
+  },
+  "05E1": {
+   "h": "677da78b",
+   "t": "{Speaker}Mein Papa arbeitet{SoftNewLine}im Schloss. Manchmal komme{SoftNewLine}ich her{ContinuePrompt}"
+  },
+  "05E2": {
+   "h": "08bf6d73",
+   "t": "{Speaker}und schau ihnen bei{SoftNewLine}der Arbeit zu. Die haben immer{SoftNewLine}so viel zu tun!{WaitInput}"
+  },
+  "05E3": {
+   "h": "0df91c5a",
+   "t": "{Speaker}Ich gehe zu Madame{SoftNewLine}Yard. Kümmere dich um alles,{SoftNewLine}solange ich weg bin.{ContinuePrompt}"
+  },
+  "05E4": {
+   "h": "6ead03ce",
+   "t": "{Speaker}Jawohl!{WaitInput}"
+  },
+  "05E5": {
+   "h": "b07dbd15",
+   "t": "{Speaker}Hier, für dich!{ContinuePrompt}"
+  },
+  "05E6": {
+   "h": "c91ae149",
+   "t": "{=arthur:gen} Gehilfe bekommt {Number}{SoftNewLine}Taler.{ContinuePrompt}"
+  },
+  "05E7": {
+   "h": "67b76fab",
+   "t": "{Speaker}Fragt der Herzog{SoftNewLine}nach mir, lass dir eine{SoftNewLine}Ausrede einfallen. Ich verlass{SoftNewLine}mich auf dich!{ContinuePrompt}"
+  },
+  "05E8": {
+   "h": "13104516",
+   "t": "{Speaker}Verstanden!{WaitInput}"
+  },
+  "05E9": {
+   "h": "73f6f3b7",
+   "t": "{Speaker}So eine{SoftNewLine}Unehrlichkeit hab ich mein{SoftNewLine}Lebtag nicht gesehen!{WaitInput}"
+  },
+  "05EA": {
+   "h": "07917d5d",
+   "t": "{Speaker}Schon gut, schon{SoftNewLine}gut. Die Bengel in deinem Alter{SoftNewLine}wollen da alle unbedingt rein!{ContinuePrompt}"
+  },
+  "05EB": {
+   "h": "afe789d3",
+   "t": "{Speaker}Dein Wunsch ist mir{SoftNewLine}Befehl {Pause1sOrInput}Hammina, hammena,{SoftNewLine}hammana... {Pause1sOrInput}Nehcsnem nenie sua{SoftNewLine}negnuj nehcsid hcam!{WaitInput}"
+  },
+  "05EC": {
+   "h": "d06bacd3",
+   "t": "{Speaker}Bitte sehr! Jetzt{SoftNewLine}kommst du bei Madame Yard{SoftNewLine}hinein! Hihihi...{ContinuePrompt}"
+  },
+  "05ED": {
+   "h": "6ee43c70",
+   "t": "{Speaker}Viel Vergnügen...{WaitInput}"
+  },
+  "05EE": {
+   "h": "fa68f714",
+   "t": "{Speaker}So kann ich dich{SoftNewLine}nicht verzaubern. Geh erst in{SoftNewLine}die Kirche und lass dich{SoftNewLine}heilen.{WaitInput}"
+  },
+  "05EF": {
+   "h": "964ddbb8",
+   "t": "{Speaker}Guten Tag! Zum{SoftNewLine}ersten Mal hier? Madame Yard{SoftNewLine}ist nur für Mitglieder.{ContinuePrompt}"
+  },
+  "05F0": {
+   "h": "7da093d9",
+   "t": "{Speaker}Die Aufnahme{SoftNewLine}kostet 5000 Taler, aber{SoftNewLine}vorher bieten wir eine{SoftNewLine}kostenlose{ContinuePrompt}"
+  },
+  "05F1": {
+   "h": "2e222add",
+   "t": "{Speaker}Probestunde an.{SoftNewLine}Viel Vergnügen!{ContinuePrompt}"
+  },
+  "05F2": {
+   "h": "6e112608",
+   "t": "{Speaker}Linda! Zeig dem{SoftNewLine}Herrn sein Zimmer!{WaitInput}"
+  },
+  "05F3": {
+   "h": "b0d7b6ce",
+   "t": "{Speaker}Hallo, ich bin{SoftNewLine}Linda! Zum ersten Mal hier?{SoftNewLine}Okay, gehen wir nach oben!{SoftNewLine}Ganz locker!{WaitInput}"
+  },
+  "05F4": {
+   "h": "475177ad",
+   "t": "{Speaker}Hier entlang!{WaitInput}"
+  },
+  "05F5": {
+   "h": "b83e345d",
+   "t": "{Speaker}Wo willst du denn{SoftNewLine}hin? Nein, nein! Das Zimmer ist{SoftNewLine}für einen anderen Herrn.{WaitInput}"
+  },
+  "05F6": {
+   "h": "e7841362",
+   "t": "{Speaker}Bereit? Zuerst lass{SoftNewLine}mich mal...{WaitInput}"
+  },
+  "05F7": {
+   "h": "2147d025",
+   "t": "{Speaker}{=nigel}!!!{ContinuePrompt}"
+  },
+  "05F8": {
+   "h": "3302e669",
+   "t": "{Speaker}Was machst du da!{SoftNewLine}Hör sofort auf! Ich hasse dich!{SoftNewLine}Ich hasse dich!{WaitInput}"
+  },
+  "05F9": {
+   "h": "abe99aa6",
+   "t": "{Speaker}Was denn?... He!{SoftNewLine}Beruhig dich, Kleine...{ContinuePrompt}"
+  },
+  "05FA": {
+   "h": "8c240658",
+   "t": "{Speaker}Ich heiße {=friday},{SoftNewLine}Schwester! Kapiert? Nenn mich{SoftNewLine}nicht 'Kleine' oder 'Mini' oder{ContinuePrompt}"
+  },
+  "05FB": {
+   "h": "20daa795",
+   "t": "{Speaker}sonst irgendwie!{ContinuePrompt}"
+  },
+  "05FC": {
+   "h": "44b5c65c",
+   "t": "{Speaker}F-{=friday}! Ich{SoftNewLine}glaube, du hast da was{SoftNewLine}missverstanden... Das hier ist{SoftNewLine}eine Ballettschule!{ContinuePrompt}"
+  },
+  "05FD": {
+   "h": "ad35cba3",
+   "t": "{Speaker}Die Leute kommen{SoftNewLine}her, um sich zu entspannen,{SoftNewLine}Disziplin und Haltung zu lernen{ContinuePrompt}"
+  },
+  "05FE": {
+   "h": "7f45aff5",
+   "t": "{Speaker}und so ihre{SoftNewLine}Alltagssorgen zu lösen!{ContinuePrompt}"
+  },
+  "05FF": {
+   "h": "4cd4e1d8",
+   "t": "{Speaker}Madame Yard nimmt{SoftNewLine}nur Erwachsene auf, weil{SoftNewLine}Ballett den Körper so{SoftNewLine}beansprucht,{ContinuePrompt}"
+  },
+  "0600": {
+   "h": "e86830b5",
+   "t": "{Speaker}dass es einem{SoftNewLine}kleinen Jungen die Knochen{SoftNewLine}verbiegen würde.{ContinuePrompt}"
+  },
+  "0601": {
+   "h": "cbfe6d4e",
+   "t": "{Speaker}.......... {Pause1sOrInput}I...ich...{Pause1sOrInput}Tut{SoftNewLine}mir leid... Ich dachte...{SoftNewLine}{=nigel}... wollte...{ContinuePrompt}"
+  },
+  "0602": {
+   "h": "3176e7e2",
+   "t": "{Speaker}T-tut mir leid,{SoftNewLine}{=nigel}! Hehe...{WaitInput}"
+  },
+  "0603": {
+   "h": "c9bcdf4e",
+   "t": "{Speaker}Ach je! ...welch ein{SoftNewLine}Jammer...!{WaitInput}"
+  },
+  "0604": {
+   "h": "731b8050",
+   "t": "{Speaker}Heda, Bursche! Auf{SoftNewLine}ein Wort! Komm her!{WaitInput}"
+  },
+  "0605": {
+   "h": "ce13639c",
+   "t": "{Speaker}Holde {=julie}!{SoftNewLine}Schließt bitte die Tür...{ContinuePrompt}"
+  },
+  "0606": {
+   "h": "f28e9086",
+   "t": "{Speaker}Gut, aber... k-keine{SoftNewLine}Gewalt!....{WaitInput}"
+  },
+  "0607": {
+   "h": "bec4a168",
+   "t": "{Speaker}Erfährt jemand,{SoftNewLine}dass ich hier Mitglied bin,{SoftNewLine}werde ich zum Gespött von{SoftNewLine}ganz Merkator!{ContinuePrompt}"
+  },
+  "0608": {
+   "h": "061802a1",
+   "t": "{Speaker}Mein Geheimnis muss{SoftNewLine}sterben... {Pause1s}...mit DIR! En garde!!{WaitInput}"
+  },
+  "0609": {
+   "h": "346cbd16",
+   "t": "{Speaker}Nein!{ContinuePrompt}"
+  },
+  "060A": {
+   "h": "7563a31e",
+   "t": "{Speaker}....Ich...ich...{Pause1sOrInput}Ich{SoftNewLine}ergebe mich...{ContinuePrompt}"
+  },
+  "060B": {
+   "h": "a786c612",
+   "t": "{Speaker}Ihr seid ein{SoftNewLine}starker Bursche. Das sah ich{SoftNewLine}gleich daran, wie Ihr das{SoftNewLine}Schwert{ContinuePrompt}"
+  },
+  "060C": {
+   "h": "37341731",
+   "t": "{Speaker}führt.{ContinuePrompt}"
+  },
+  "060D": {
+   "h": "d6728bcb",
+   "t": "{Speaker}Da ich Euch nicht{SoftNewLine}zum Schweigen zwingen kann,{SoftNewLine}bitte ich Euch als Ehrenmann:{ContinuePrompt}"
+  },
+  "060E": {
+   "h": "9d840159",
+   "t": "{Speaker}Verratet keiner{SoftNewLine}Seele, dass Ihr mich hier{SoftNewLine}getroffen habt. Versprecht Ihr{SoftNewLine}es, lade ich Euch{ContinuePrompt}"
+  },
+  "060F": {
+   "h": "fe8a9f56",
+   "t": "{Speaker}ins Schloss ein.{SoftNewLine}Herzog Merkator sucht gerade{SoftNewLine}zuverlässige Söldner.{ContinuePrompt}"
+  },
+  "0610": {
+   "h": "f82fffe2",
+   "t": "{Speaker}Der Herzog wird{SoftNewLine}von Eurem Können begeistert{SoftNewLine}sein.{WaitInput}"
+  },
+  "0611": {
+   "h": "90da0153",
+   "t": "{Speaker}Wie ist Euer Name?{ContinuePrompt}"
+  },
+  "0612": {
+   "h": "4f91e9d6",
+   "t": "{Speaker}...{=nigel}.{ContinuePrompt}"
+  },
+  "0613": {
+   "h": "5ae6ab8b",
+   "t": "{Speaker}Dann erwarte ich{SoftNewLine}Euch im Schloss, Herr {=nigel}!{WaitInput}"
+  },
+  "0614": {
+   "h": "d3985463",
+   "t": "{Speaker}Willkommen, Herr{SoftNewLine}{=nigel}. Von Euren Heldentaten{SoftNewLine}in Ryuma haben wir schon{SoftNewLine}gehört.{ContinuePrompt}"
+  },
+  "0615": {
+   "h": "60ff7e22",
+   "t": "{Speaker}Hier entlang, bitte.{SoftNewLine}Das Schloss könnt Ihr Euch{SoftNewLine}später in Ruhe ansehen.{WaitInput}"
+  },
+  "0616": {
+   "h": "ef8b4c1b",
+   "t": "{Speaker}Bitte wartet hier.{SoftNewLine}Der Herzog wird Euch gleich{SoftNewLine}begrüßen...{WaitInput}"
+  },
+  "0617": {
+   "h": "c5033c0f",
+   "t": "{Speaker}Deel Klesso ma{SoftNewLine}hahm.{ContinuePrompt}"
+  },
+  "0618": {
+   "h": "7212541e",
+   "t": "{Speaker}Das heißt auf{SoftNewLine}Gamoorisch: 'Willkommen in{SoftNewLine}meinem Haus.' Hehehe...{ContinuePrompt}"
+  },
+  "0619": {
+   "h": "42becba0",
+   "t": "{Speaker}Meine Herren, ich{SoftNewLine}habe über jeden von Euch{SoftNewLine}Berichte gelesen.{ContinuePrompt}"
+  },
+  "061A": {
+   "h": "6b2585a3",
+   "t": "{Speaker}{=nigel}, Ihr stammt{SoftNewLine}aus Ahorn. Eure Taten in{SoftNewLine}Ryuma waren vortrefflich!{ContinuePrompt}"
+  },
+  "061B": {
+   "h": "b5f9419e",
+   "t": "{Speaker}{=dexter}, Ihr kommt{SoftNewLine}aus B'el-ar. Euer Ruf als{SoftNewLine}Schwertkämpfer eilt Euch{SoftNewLine}voraus!{ContinuePrompt}"
+  },
+  "061C": {
+   "h": "18f4d4e7",
+   "t": "{Speaker}Und zu guter Letzt{SoftNewLine}{=zak}, der Stolz von{SoftNewLine}Drakonien.{ContinuePrompt}"
+  },
+  "061D": {
+   "h": "9d5d4fa4",
+   "t": "{Speaker}Im ganzen Land{SoftNewLine}kennt man Euch als{SoftNewLine}furchtlosen Kopfgeldjäger.{ContinuePrompt}"
+  },
+  "061E": {
+   "h": "2e1e3007",
+   "t": "{Speaker}Ich möchte jedem{SoftNewLine}von Euch einen Auftrag{SoftNewLine}anbieten. Heute Abend gebe ich{SoftNewLine}ein Bankett{ContinuePrompt}"
+  },
+  "061F": {
+   "h": "f1e06c06",
+   "t": "{Speaker}zu Euren Ehren. Die{SoftNewLine}Einzelheiten besprechen wir{SoftNewLine}beim Fest... bis dann! Hehehe...{WaitInput}"
+  },
+  "0620": {
+   "h": "bc1f61f0",
+   "t": "{Speaker}Euer Zimmer oben{SoftNewLine}ist bereit.{WaitInput}"
+  },
+  "0621": {
+   "h": "e9fbd184",
+   "t": "{Speaker}Ich sage Euch{SoftNewLine}Bescheid, sobald das Fest{SoftNewLine}bereit ist. Fühlt Euch wie zu{SoftNewLine}Hause.{WaitInput}"
+  },
+  "0622": {
+   "h": "6ab25d9e",
+   "t": "{Speaker}Seid gegrüßt, Herr{SoftNewLine}{=nigel}. Das hier ist der{SoftNewLine}Übungsraum.{WaitInput}"
+  },
+  "0623": {
+   "h": "d2c98b56",
+   "t": "{Speaker}Bitte verratet{SoftNewLine}niemandem etwas von {=julie}...{WaitInput}"
+  },
+  "0624": {
+   "h": "bab0ab7a",
+   "t": "{Speaker}Bitte verratet{SoftNewLine}niemandem etwas von {=julie}...{ContinuePrompt}"
+  },
+  "0625": {
+   "h": "7b879605",
+   "t": "{Speaker}Übrigens, ich{SoftNewLine}glaube, es ist Zeit für das{SoftNewLine}Fest.{ContinuePrompt}"
+  },
+  "0626": {
+   "h": "16f99ace",
+   "t": "{Speaker}Wollt Ihr nicht in{SoftNewLine}den Bankettsaal gehen?{WaitInput}"
+  },
+  "0627": {
+   "h": "0550693b",
+   "t": "{Speaker}Ohohohoho! Schön,{SoftNewLine}dich wiederzusehen, Kleiner!{SoftNewLine}Ohohohohoho!{ContinuePrompt}"
+  },
+  "0628": {
+   "h": "ae62984a",
+   "t": "{Speaker}Ich hab schon auf{SoftNewLine}dich gewartet! Na, komm schon{SoftNewLine}her!{NewLine}"
+  },
+  "0629": {
+   "h": "132793a5",
+   "t": "{Speaker}He, {=nigel}! Dich{SoftNewLine}versteh ich überhaupt nicht!{SoftNewLine}Die ist doch unsere Rivalin!{ContinuePrompt}"
+  },
+  "062A": {
+   "h": "19948675",
+   "t": "{Speaker}Die hat uns die{SoftNewLine}Steintafel geklaut! Und sie ist{SoftNewLine}viel älter als ich! So eine{SoftNewLine}Ziege! Hmpf!{WaitInput}"
+  },
+  "062B": {
+   "h": "95a30197",
+   "t": "{Speaker}Herr {=nigel},{SoftNewLine}würdet Ihr bitte in den{SoftNewLine}Bankettsaal kommen? Alle{SoftNewLine}warten schon.{WaitInput}"
+  },
+  "062C": {
+   "h": "d161556e",
+   "t": "{Speaker}Tut mir leid,{SoftNewLine}{=nigel}... ich hab mich ein{SoftNewLine}bisschen aufgeregt... Hehe...{WaitInput}"
+  },
+  "062D": {
+   "h": "f38e4d84",
+   "t": "{Speaker}Du hast mich{SoftNewLine}abblitzen lassen! Mich hat{SoftNewLine}noch NIE jemand abblitzen{SoftNewLine}lassen! Kiiih!{ContinuePrompt}"
+  },
+  "062E": {
+   "h": "4c215e38",
+   "t": "{Speaker}Ink! Wally! Zeigt's{SoftNewLine}ihm!{WaitInput}"
+  },
+  "062F": {
+   "h": "ca9fbe39",
+   "t": "{Speaker}Gut, dass du ihr{SoftNewLine}nicht verfallen bist... aber{SoftNewLine}als sie sich auszog, warst du{SoftNewLine}ganz schön unvorsichtig!{WaitInput}"
+  },
+  "0630": {
+   "h": "f1f28777",
+   "t": "{Speaker}Bitte tretet ein.{ContinuePrompt}"
+  },
+  "0631": {
+   "h": "ee2fc1db",
+   "t": "{Speaker}Ihr seid sicher{SoftNewLine}gespannt, was der Herzog Euch{SoftNewLine}allen zu sagen hat.{WaitInput}"
+  },
+  "0632": {
+   "h": "600c27a6",
+   "t": "{Speaker}Wie Ihr wisst, lebt{SoftNewLine}in dem Turm{ContinuePrompt}"
+  },
+  "0633": {
+   "h": "5ce9be5e",
+   "t": "{Speaker}gleich vor der{SoftNewLine}Stadt ein böser Zauberer. Er{SoftNewLine}ist eine schreckliche Plage für{SoftNewLine}mich und die Stadt.{ContinuePrompt}"
+  },
+  "0634": {
+   "h": "2e83aa13",
+   "t": "{Speaker}Der Name dieses{SoftNewLine}Zauberers ist Mir. Seit er sich{SoftNewLine}in dem Turm niedergelassen{SoftNewLine}hat,{ContinuePrompt}"
+  },
+  "0635": {
+   "h": "fa92d583",
+   "t": "{Speaker}fürchten wir um{SoftNewLine}unser Leben... Wir haben alles{SoftNewLine}getan, was er verlangt hat.{ContinuePrompt}"
+  },
+  "0636": {
+   "h": "f34b7bfe",
+   "t": "{Speaker}Manchmal dachte{SoftNewLine}ich daran, Soldaten zum Turm{SoftNewLine}zu schicken... doch seine{SoftNewLine}starke Magie{ContinuePrompt}"
+  },
+  "0637": {
+   "h": "a7fc0c93",
+   "t": "{Speaker}hätte den{SoftNewLine}unschuldigen Bürgern von{SoftNewLine}Merkator schaden können.{ContinuePrompt}"
+  },
+  "0638": {
+   "h": "b79906a7",
+   "t": "{Speaker}Also habe ich ihm{SoftNewLine}all die Taler gegeben, die er{SoftNewLine}wollte.{ContinuePrompt}"
+  },
+  "0639": {
+   "h": "c54f40d0",
+   "t": "{Speaker}Doch damit ist{SoftNewLine}jetzt Schluss!{ContinuePrompt}"
+  },
+  "063A": {
+   "h": "29038f1a",
+   "t": "{Speaker}...Oh, ich... bitte{SoftNewLine}um Verzeihung! Vielleicht bin{SoftNewLine}ich etwas ins Schwafeln{SoftNewLine}geraten...{ContinuePrompt}"
+  },
+  "063B": {
+   "h": "6cb6a427",
+   "t": "{Speaker}Soll ich es noch{SoftNewLine}einmal sagen?{NewLine}"
+  },
+  "063C": {
+   "h": "f89b2320",
+   "t": "{Speaker}Es ist an der Zeit,{SoftNewLine}diesen Mir zu besiegen.{SoftNewLine}Solange er lebt, wird das{SoftNewLine}friedliche{ContinuePrompt}"
+  },
+  "063D": {
+   "h": "9ab3a7a2",
+   "t": "{Speaker}Merkator niemals{SoftNewLine}wahren Frieden finden.{ContinuePrompt}"
+  },
+  "063E": {
+   "h": "1727e043",
+   "t": "{Speaker}Darum habe ich{SoftNewLine}nach Euch geschickt. IHR sollt{SoftNewLine}Mir besiegen! Natürlich biete{SoftNewLine}ich{ContinuePrompt}"
+  },
+  "063F": {
+   "h": "db05dbcc",
+   "t": "{Speaker}Euch eine reiche{SoftNewLine}Belohnung. Zufällig besitze ich{SoftNewLine}den{ContinuePrompt}"
+  },
+  "0640": {
+   "h": "09f0b42a",
+   "t": "{Speaker}Golan-Smaragd,{SoftNewLine}einen der Nationalschätze{SoftNewLine}dieses schönen Landes.{ContinuePrompt}"
+  },
+  "0641": {
+   "h": "2354b11d",
+   "t": "{Speaker}{=dexter}... {=zak}...{SoftNewLine}und {=nigel}, Ihr werdet für{SoftNewLine}alle Zeiten Helden dieses{SoftNewLine}stolzen Landes{ContinuePrompt}"
+  },
+  "0642": {
+   "h": "eea269a6",
+   "t": "{Speaker}sein! Möge die{SoftNewLine}Göttin Euch drei beschützen!{WaitInput}"
+  },
+  "0643": {
+   "h": "5c681f92",
+   "t": "{Speaker}Das ist alles. Nun{SoftNewLine}lasst uns das Bankett{SoftNewLine}genießen! Mögt Ihr Musik?{SoftNewLine}Hehehe...{ContinuePrompt}"
+  },
+  "0644": {
+   "h": "b844301f",
+   "t": "{Speaker}Darf ich vorstellen:{SoftNewLine}der weltberühmte Komponist{SoftNewLine}und Pianist, Herr {=ludwig}.{WaitInput}"
+  },
+  "0645": {
+   "h": "edf0d53f",
+   "t": "{Speaker}Danke. Heute Abend{SoftNewLine}spiele ich Ihnen mein neuestes{SoftNewLine}Werk.{WaitInput}"
+  },
+  "0646": {
+   "h": "c0e5e7ec",
+   "t": "{Speaker}Bravo! Wundervoll!{SoftNewLine}{=ludwig}, wie heißt denn dieses{SoftNewLine}entzückende Werk?{ContinuePrompt}"
+  },
+  "0647": {
+   "h": "4185559e",
+   "t": "{Speaker}...Ich schrieb es...{SoftNewLine}für Prinzessin {=lara} von{SoftNewLine}Ahorn.{ContinuePrompt}"
+  },
+  "0648": {
+   "h": "97271966",
+   "t": "{Speaker}Herzog, bitte sagt{SoftNewLine}es mir! Ich muss es wissen!{SoftNewLine}Warum ist sie{SoftNewLine}verschwunden?!!...{ContinuePrompt}"
+  },
+  "0649": {
+   "h": "72cd38c7",
+   "t": "{Speaker}Genug! Schweigt!{ContinuePrompt}"
+  },
+  "064A": {
+   "h": "b3ae2a56",
+   "t": "{Speaker}{=ludwig}, Ihr dürft{SoftNewLine}jetzt gehen. Wachen!! Führt{SoftNewLine}ihn hinaus!{WaitInput}"
+  },
+  "064B": {
+   "h": "50b7c4e8",
+   "t": "{Speaker}Wenn Ihr mich{SoftNewLine}entschuldigt, mir ist auf{SoftNewLine}einmal... nicht wohl.{ContinuePrompt}"
+  },
+  "064C": {
+   "h": "3d649b19",
+   "t": "{Speaker}Ich glaube, ich{SoftNewLine}ziehe mich für heute in meine{SoftNewLine}Gemächer zurück...{ContinuePrompt}"
+  },
+  "064D": {
+   "h": "9791038f",
+   "t": "{Speaker}Meine Herren,{SoftNewLine}genießt das Fest.{ContinuePrompt}"
+  },
+  "064E": {
+   "h": "064e7619",
+   "t": "{Speaker}Ich erwarte viel{SoftNewLine}von Euch! Viel Glück.{WaitInput}"
+  },
+  "064F": {
+   "h": "bbbd34a4",
+   "t": "{Speaker}{=nigel}, gehst du{SoftNewLine}schlafen?{NewLine}"
   }
  },
  "names": {
