@@ -10,8 +10,8 @@ LEGACY = {   # box proxies made before the rule was enforced: TO BE REPLACED by 
 }
 RECTILINEAR = {   # objects DRAWN as straight boxes whose model is made of axis-aligned parts on purpose (grooves / boards >= 1 unit): name -> why.
     # Only with the user's OK; rounding below 1 unit gave dotted light lines (HANDOFF 0a413).
-    "counter_island.obj": "shop counter: plank top + boards with 1 x 1 grooves + cloth 1 thick (trial 2026-11-13, user to confirm)",
-    "counter_wall.obj": "shop wall counter: as the island (trial 2026-11-13, user to confirm)",
+    "counter_island.obj": "shop counter: plank top + boards with 1 x 1 grooves + cloth 1 thick (user OK 2026-11-13: 'das passt')",
+    "counter_wall.obj": "shop wall counter: as the island (user OK 2026-11-13: 'das passt')",
 }
 def boxy(path):
     V = []; faces = 0
