@@ -5,15 +5,15 @@
 - 0. One-paragraph summary: lines 51-56
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 735-746
 - 1. Where we are: lines 747-876
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 877-1095
-- 3. How the user works (important): lines 1096-1111
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1112-1136
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1137-1145
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1146-1193
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1194-1203
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1204-1205
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1206-1208
-- NEXT STEPS, newest first: -181 878, -180 879, -179 880, -178 881, -177 882, -176 887, -175 888, -174 897, -173 898, -172 899
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 877-1096
+- 3. How the user works (important): lines 1097-1112
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1113-1137
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1138-1146
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1147-1194
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1195-1204
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1205-1206
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1207-1209
+- NEXT STEPS, newest first: -182 878, -181 879, -180 880, -179 881, -178 882, -177 883, -176 888, -175 889, -174 898, -173 899
 - Newest entries:
   - 0a420 line 186: 2026-11-12 night (Deck, Opus 5.5; dev). User played the final CPU-removal build: 'sieht gut aus'; Mercator...
   - 0a419 line 187: 2026-11-12 night (Deck, Opus 5.5; dev f594a01). CPU light removal finished (HANDOFF -177 / -179, docs/CPU_L...
@@ -875,6 +875,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-182. **NEXT (2026-11-13, user: 'was fehlt uns noch an Lichtobjekten?'):** survey `python3 remake/tools/deco_survey.py ROM /tmp/deco3 --top 40 --todo --max 8` (ranked list + sheets). Still WITHOUT a 3D light shape (objects, not terrain): crystal BALL on a stand ts16 rooms 373 / 374 cell 28,17 (probably the user's 'Kugel', he said 91); castle brazier stands 74 / 75 (ts1 cell 32,21, not found by the finder); Kayla's DINING TABLE with dishes 98 / 99 (ts1 3 x 3, cell 21,21); wooden CRATE / low platform 78 / 79 (ts15 2 x 3, cell 27,25); shop COUNTERS 695 / 696 / 697 / 719 / 720 (island 2 x 6 + wall counter 6 x 1; remake model exists, light shape was dropped 0a413); church BOOK DISPLAY bench + dais 613 / 614 / 699 / 700 / 721; chapel desk ts8 597 / 607 / 736 cell 26,24; wooden stairs / shelves ts6 754 / 765 / 778; (flat: trapdoor 82 / 92). Each: measure on the drawing, near-final model, clay preview, user OK.
 -181. **NEXT (2026-11-13, user: 3rd time the 3D light shape rule; now in CLAUDE.md + LESSONS top + tools/check_proxies.py in the pre-commit hook):** replace the box light proxies by real near-final 3D models, each measured + Blender clay preview for the user's OK: (1) balustrade model (remake/recipes/balustrade, v2 with the mitred corner, user 'ja' 2026-11-13) DONE for 95 / 89 and (2026-11-13) 62 / 59..61 (remake/recipes/balustrade/hall62.py; gallery has 6 posts, not 4); (2) room 95 stair corners FIXED (rail cells' floor = stair / well height + side wall in the balustrade model; 89 too); (3) tileset 15 tables 63..67 / 77 DONE 2026-11-13 (furniture.castle_room_table_mesh; furniture_ops uses it for ts 15). Left in check_proxies LEGACY: arcade 486, wall 638 (architecture). check_proxies.py LEGACY lists them; empty it as they are replaced.
 -180. **NEXT (2026-11-12 night):** USER CHECK of the final build: lighting as before everywhere, especially the torch light (user asked 'zu weit rechts?': which room?), room 62 shadow at the standing torches, Display page without Renderer, Lighting / GPU Filters coupling. Then back to the open list -176 (2) (room 54 'Nigel wirft Licht statt Schatten' recording) / furniture.
 -179. **DONE 2026-11-12 night (0a419). Was: NEXT (2026-11-12 late): CPU light removal steps 5 + 7 (code clean-up, nothing visible): delete CPU light blocks (lk_lt_block / blockcalc / sunfill / shblock / aoval / term, workers + prefetch, lk_lt_b; lk_am_surf only via lk_gs; patch_gpucomp lk_gc_side + lk_gl_classify drop their lk_lt_block calls), the GL4 CPU-block upload + compare pass + GL5CMP in patch_gpulight.py, tools/gpucmp.sh; lightshots.sh + lightedges.py default GPU mode (hidden window); verify_build markers; memory feedback-gpu-cpu-fallback. After every build: lightedges --gpu on 5,32,56,58,59,62,67,85,87,174,488,493,561,613,632,680 vs ~/lktest/cpurm/base_rooms (python3 ~/lktest/cpurm/cmpdirs.py) + the 61 replay frames vs base_r62. USER TEST of phase A: Lighting looks as before; Display page without 'Renderer'.
