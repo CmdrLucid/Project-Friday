@@ -24,7 +24,7 @@ Counterpart at the end of a session: `/sitzung-beenden`.
 - `git status --short`, `git branch --show-current`, `git log --oneline -5`. Must be on `dev` (switch if not; never work on `main`). Untracked user files (videos, pictures) are not ours: do not commit or delete them.
 - `git fetch origin dev && git status -sb` (behind? then `git pull origin dev`).
 - Leftover agent worktrees: `ls .claude/worktrees 2>/dev/null`. They branch from `main`, not `dev` (LESSONS 9): only cherry-pick their commits onto dev after checking the diff; ask the user before removing them.
-- On the Deck (ROM `/home/deck/Documents/NonSteamGames/landstalker/landstalker.md` exists): build state `ls -la landstalker/build/ 2>/dev/null | head`; new interpreter log `ls -la ~/interp.txt 2>/dev/null`; new user recordings `ls -t ~/aufnahmen | head -3`.
+- On the Deck (ROM `/home/deck/Documents/NonSteamGames/landstalker/landstalker.md` exists): build state `ls -la landstalker/build/ 2>/dev/null | head`; new interpreter log `ls -la ~/interp.txt 2>/dev/null`; new user recordings `ls -t ~/Project-Friday-Test/aufnahmen | head -3`.
 
 ## 3. Model and Sonnet sub-agents (user wish 2026-10-30)
 The lead (this session) plans, writes the delicate code, decides and talks to the user. Use **Sonnet sub-agents** (`Agent` tool, `model: "sonnet"`) where they save tokens without risk:

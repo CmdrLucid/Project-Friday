@@ -228,3 +228,4 @@
 - L1819: Session 2026-11-12 afternoon: furniture shapes, key light direction, AO stairs, niche stripe, CPU light removal plan (Deck, Opus 5.5 lead + Sonnet agents)
 - L1830: Session 2026-11-12 evening / night: room 62 flame shadow, Mercator stutter measured, CPU light removed (Deck, Opus 5.5, no agents)
 - L1835: Session 2026-11-13: light shapes as real 3D models (stands, balustrades, tables, counters) (Deck, Opus 5.5, no agents)
+- L1842: Session 2026-11-13 afternoon / evening: room sweep, v1.9.0 + hotfix v1.9.1, home clean-up, German translation (Deck, Opus 5.5, no agents)
