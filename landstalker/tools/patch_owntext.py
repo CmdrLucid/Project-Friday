@@ -27,7 +27,7 @@ static void lk_ot_print(int code, int x, int y, int colour) {   /* PrintCharDire
     if ((code & 0xFF) == 0x7B || (code & 0xFF) == 0x7C) d6 = 3;
     glyph = bus_read32(0x022E84u) + 30u * (uint32_t)code;
     if (x & 1) d2 = ((d2 << 4) & 0xF0) | 0x0A; else d1 = ((d1 << 4) & 0xF0) | 0x0A;
-    a2 = ((const int[]){0, 0x900, 0x1200, 0x1200})[(y & 0x30) >> 4] + (y & 0x0F) * 4 + (x & 0xF8) * 8;
+    a2 = ((const int[]){0, 0x900, 0x1200, 0x1200})[(y & 0x30) >> 4] + (y & 0x0F) * 4 + (x & 0xFFF8) * 8;   /* LK_OWNTEXT v2: andi.b #$F8 on the WORD $FF1194 keeps the high byte (x >= 256: the last ~4 tiles of the line; was & $F8 = wrapped to the line start) */
     for (row = 0; row <= d6; row++) {
         int word = bus_read16(glyph + 2u * (uint32_t)row); uint8_t ink[12];
         for (i = 0; i < 12; i++) ink[i] = (x & 1) ? ((i & 1) ? 0xAA : 0x0A) : ((i & 1) ? 0x0A : 0xAA);

@@ -85,6 +85,10 @@ static uint16_t lk_lg_ui[8][2]; static int lk_lg_nui;                  /* langua
 static char lk_lg_codes[8][16], lk_lg_names[8][32]; static int lk_lg_nlang = 1, lk_lg_sel;   /* [0] = English (the original), then the languages of lang/index.txt */
 static char lk_lg_dir[512], lk_lg_binfile[512];
 static void (*lk_lg_o_dma)(void), (*lk_lg_o_ics)(void), (*lk_lg_o_dc)(void), (*lk_lg_o_gnc)(void), (*lk_lg_o_skip)(void);
+static void (*lk_lg_o_pc)(void); static int lk_lg_inpc;   /* LK_JPITEMS v3 (user 2026-11-13: 'in der japanischen Fassung haben die Items sehr wohl Kana-Namen'): inside HandleItemName $0231E2 (the {Item}
+   control of the dialogue printer: PopItem, LoadUncompressedString -> SkipToStringIndex; NOT ProcessChar: its control jump table tail-calls the handler after a wrapper returned) the item name is the DIALOGUE one: names with index | $40 (tools/jplang.py,
+   Japanese kana names) are used only there; the menus (8x8 menu font, PopulateItemSlot_WriteItemName $00D5E4) keep the normal names */
+static void lk_lg_h_pc(void) { int sv = lk_lg_inpc; lk_lg_inpc = 1; lk_lg_o_pc(); lk_lg_inpc = sv; }
 static void lk_lg_put8(uint32_t off, uint8_t v) { lk_lang_mem[off ^ 1] = v; }
 static void lk_lg_put16(uint32_t off, uint16_t v) { *(uint16_t *)(lk_lang_mem + off) = v; }
 static uint16_t lk_lg_be16(const uint8_t *p) { return (uint16_t)(p[0] << 8 | p[1]); }
@@ -180,6 +184,8 @@ static void lk_lg_h_skip(void) {  /* SkipToStringIndex $0294B6: A2 = table, D1 =
     tab = tbl == 0x029552 ? 0 : tbl == 0x0296E0 ? 1 : tbl == 0x029730 ? 2 : tbl == 0x029732 ? 3 : tbl == 0x029A0A ? 4 : -1;
     if (tab < 0) return;
     lk_lang_map();
+    if (tab == 3 && idx < 0x40 && lk_lg_inpc) for (i = 0; i < lk_lg_nname; i++) if (lk_lg_name[i].tab == 3 && lk_lg_name[i].idx == (idx | 0x40)) {   /* LK_JPITEMS v3 */
+        g_m68k.a[2] = lk_lg_name[i].addr; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | (uint32_t)(lk_lg_name[i].n - 1); return; }
     if (tab == 3 && idx < 0x80 && lk_items_get()) for (i = 0; i < lk_lg_nname; i++) if (lk_lg_name[i].tab == 3 && lk_lg_name[i].idx == (idx | 0x80)) {   /* LK_JPITEMS v1 */
         g_m68k.a[2] = lk_lg_name[i].addr; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | (uint32_t)(lk_lg_name[i].n - 1); return; }
     for (i = 0; i < lk_lg_nname; i++) if (lk_lg_name[i].tab == tab && lk_lg_name[i].idx == idx) {
@@ -344,9 +350,9 @@ static void lk_lang_install(void) {
     e = getenv("LANDSTALKER_LANGBIN");                                     /* test aid: an explicit file becomes an extra language called 'Test' */
     if (e && *e && lk_lg_nlang < 8) { snprintf(lk_lg_binfile, sizeof lk_lg_binfile, "%s", e); snprintf(lk_lg_codes[lk_lg_nlang], sizeof lk_lg_codes[0], "#"); snprintf(lk_lg_names[lk_lg_nlang], sizeof lk_lg_names[0], "Test"); want = lk_lg_nlang++; }
     lk_lang_map();
-    lk_lg_o_ics = func_table_lookup(0x022FCC); lk_lg_o_dc = func_table_lookup(0x0246B2); lk_lg_o_gnc = func_table_lookup(0x023044); lk_lg_o_skip = func_table_lookup(0x0294B6); lk_lg_o_dma = func_table_lookup(0x000DD6);
+    lk_lg_o_ics = func_table_lookup(0x022FCC); lk_lg_o_dc = func_table_lookup(0x0246B2); lk_lg_o_gnc = func_table_lookup(0x023044); lk_lg_o_skip = func_table_lookup(0x0294B6); lk_lg_o_dma = func_table_lookup(0x000DD6); lk_lg_o_pc = func_table_lookup(0x0231E2);
     if (lk_lg_o_ics && lk_lg_o_dc && lk_lg_o_gnc && lk_lg_o_skip && lk_lg_o_dma) {
-        func_table_register(0x022FCC, lk_lg_h_ics); func_table_register(0x0246B2, lk_lg_h_dc); func_table_register(0x023044, lk_lg_h_gnc); func_table_register(0x0294B6, lk_lg_h_skip); func_table_register(0x000DD6, lk_lg_h_dma); lk_lg_hooked = 1;
+        func_table_register(0x022FCC, lk_lg_h_ics); func_table_register(0x0246B2, lk_lg_h_dc); func_table_register(0x023044, lk_lg_h_gnc); func_table_register(0x0294B6, lk_lg_h_skip); func_table_register(0x000DD6, lk_lg_h_dma); if (lk_lg_o_pc) func_table_register(0x0231E2, lk_lg_h_pc); lk_lg_hooked = 1;
     } else { fprintf(stderr, "lang: InitCompString / DecodeChar / GetNextChar / SkipToStringIndex not all found (%p %p %p %p)\n", (void *)lk_lg_o_ics, (void *)lk_lg_o_dc, (void *)lk_lg_o_gnc, (void *)lk_lg_o_skip); lk_lg_nlang = 1; return; }
     if (!want) {                                                            /* LANDSTALKER_LANG=<code> overrides the saved ~/.landstalker_lang */
         char code[16] = "";

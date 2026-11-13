@@ -64,6 +64,10 @@ def jp_names(rom):
         p = start
         for i in range(count):
             n = rom[p]; res['%s:%02d' % (name, i)] = list(rom[p + 1:p + 1 + n]); p += 1 + n
+    # LK_JPITEMS v3: the item names follow (default name: 1 entry, then 64 items, $2A43A) like in the US ROM; in Japanese they are the DIALOGUE item names ({Item})
+    p += 1 + rom[p]
+    for i in range(64):
+        n = rom[p]; res['item:%02d' % i] = list(rom[p + 1:p + 1 + n]); p += 1 + n
     return res
 
 
@@ -220,8 +224,9 @@ def main():
     nm = []
     for key, v in names.items():
         tab, i = key.split(':'); data = bytes(code.get(x[1], 0) if x[0] == 'g' else 0 for x in tok(v))
-        if any(c > 0xFF for c in (code.get(x[1], 0) for x in tok(v) if x[0] == 'g')): continue
-        nm.append((lb.TABLES[tab], int(i), len(blob), len(data))); blob += data
+        if any(c > 0xFF for c in (code.get(x[1], 0) for x in tok(v) if x[0] == 'g')): print('jplang: name %s needs a glyph code > $FF: stays English' % key); continue
+        # item names: index | $40 = only for {Item} in the dialogue (patch_lang.py lk_lg_inpc); the menus keep the English names (8x8 menu font)
+        nm.append((lb.TABLES[tab], int(i) | (0x40 if tab == 'item' else 0), len(blob), len(data))); blob += data
     # LK_JPITEMS v2 (user 2026-11-13: 'im Englischen passt es, auf Japanisch ist es wieder das Spell Book'): item names stay English in Japanese (8x8 menu font, no kana),
     # so Options > Items = Japanese needs the English names of the four items here too (index | $80, ROM glyph codes < $6C = the same in ja.bin)
     eij = json.load(open(os.path.join(HERE, '..', 'lang', 'en_items.json'), encoding='utf-8')).get('items_jp', {}).get('names', {})
