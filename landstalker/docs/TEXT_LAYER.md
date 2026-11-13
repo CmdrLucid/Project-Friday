@@ -83,4 +83,5 @@ Four items are different things in the Japanese original (`Koutei no Zaihou`): 3
   Glyph codes: name characters + the most frequent ones $6C..$FF (bytes: name tables), the rest $101..; never the low bytes the printer treats specially ($00, $7B, $7C),
   on purpose 「 = $147 (CHR_BEGIN_TALK $47: speech blips) and ・ = $140 (CHR_ELLIPSIS_DOT $40). Language file version 3 = glyph entries with a 16-bit code.
 - Kept English: 0000..0003 (Yes / No / Use / Equip) and the debug menus 001D..004D (menu font), item names (the 8x8 menu font has no kana), our own options pages.
+- Glyph codes above $FF need every consumer of the printer's d0 to keep the whole word: the own text box mirror cut it to a byte until LK_OWNTEXT v2 (2026-11-13: Latin letters between the kana).
 - Headless check: massan.txt replay with LANDSTALKER_LANG=ja shows the Massan priest (005B) in Japanese with his Japanese name; without the Japanese ROM 'ja' is not loaded.

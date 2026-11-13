@@ -10,21 +10,21 @@ VRAM $A500 (test aid, `LANDSTALKER_OWN_TEXTLOG`).  Idempotent.
 usage: patch_owntext.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_OWNTEXT v1"
+VER = "LK_OWNTEXT v2"
 
 p = os.path.join(root, "src/func_table.c")
 s = open(p).read()
 if VER not in s:
     a = "static void lk_strip_extend(uint32_t a);\n"
     assert s.count(a) == 1 and "lk_bq_install" in s, "func_table.c: run patch_buyqty.py first"
-    module = r'''/* ---- LK_OWNTEXT v1: mirror of the text tile buffer, built by an own port of the glyph printer (tools/patch_owntext.py) ---- */
+    module = r'''/* ---- LK_OWNTEXT v2: mirror of the text tile buffer, built by an own port of the glyph printer (tools/patch_owntext.py) ---- */
 uint8_t lk_ot_buf[0x1B00], lk_ot_vis[0x1B00]; int lk_ot_visn, lk_ot_ok;
 static gen_func_t lk_ot_o_pc, lk_ot_o_clr, lk_ot_o_scr, lk_ot_o_dma;
 static int lk_ot_inv(void) { return bus_read16(0xFF0FD4u) == 0x921C; }
 static void lk_ot_print(int code, int x, int y, int colour) {   /* PrintCharDirect -> PrintChar: one glyph into the mirror */
     uint32_t glyph; int d6 = 14, d1 = colour & 0xFF, d2 = colour & 0xFF, a2, d5 = y & 0xFF, row, i, k;
-    if (code == 0) return;
-    if (code == 0x7B || code == 0x7C) d6 = 3;
+    if ((code & 0xFF) == 0) return;   /* LK_OWNTEXT v2: the printer compares the LOW byte (cmpi.b) but multiplies the whole word (mulu.w #30): glyph codes $100.. (Japanese, tools/jplang.py) */
+    if ((code & 0xFF) == 0x7B || (code & 0xFF) == 0x7C) d6 = 3;
     glyph = bus_read32(0x022E84u) + 30u * (uint32_t)code;
     if (x & 1) d2 = ((d2 << 4) & 0xF0) | 0x0A; else d1 = ((d1 << 4) & 0xF0) | 0x0A;
     a2 = ((const int[]){0, 0x900, 0x1200, 0x1200})[(y & 0x30) >> 4] + (y & 0x0F) * 4 + (x & 0xF8) * 8;
@@ -53,7 +53,7 @@ static void lk_ot_scroll_step(void) {   /* ScrollTextBuffer $02358E: every 64 by
         memmove(blk, blk + 8, 56); memcpy(blk + 56, head, 8);
     }
 }
-static void lk_ot_h_pc(void) { lk_ot_print((int)(g_m68k.d[0] & 0xFFFFu) & 0xFF, bus_read16(0xFF1194u), bus_read8(0xFF1129u), bus_read8(0xFF112Au)); lk_ot_o_pc(); }
+static void lk_ot_h_pc(void) { lk_ot_print((int)(g_m68k.d[0] & 0xFFFFu), bus_read16(0xFF1194u), bus_read8(0xFF1129u), bus_read8(0xFF112Au)); lk_ot_o_pc(); }
 static void lk_ot_h_clr(void) { memset(lk_ot_buf, 0xAA, lk_ot_inv() ? 0x1200 : 0x1B00); lk_ot_o_clr(); }
 static void lk_ot_h_scr(void) { lk_ot_scroll_step(); lk_ot_o_scr(); }   /* one step: ScrollTextBoxUp $023582 runs it 8 times, each followed by DMACopyTextboxTiles (the hook above) */
 static void lk_ot_h_dma(void) { lk_ot_dma(); lk_ot_o_dma(); }
