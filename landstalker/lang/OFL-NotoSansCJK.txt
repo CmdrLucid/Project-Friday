@@ -1,4 +1,4 @@
-The title screen subtitle in Korean / Japanese (tools/titlefont.py KO17 / JA17) holds glyph bitmaps of Noto Sans CJK KR / JP Bold rendered at 17 px.
+The title screen subtitle in Korean / Japanese (landstalker/tools/titlefont.py KO17 / JA21) holds glyph bitmaps of Noto Sans CJK KR Bold (17 px) and Noto Serif CJK JP Medium (21 px).
 Copyright 2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'. Noto is a trademark of Google Inc.
 
 This Font Software is licensed under the SIL Open Font License,
