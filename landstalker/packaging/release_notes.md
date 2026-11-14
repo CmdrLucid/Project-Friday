@@ -9,6 +9,7 @@
   - **Francais** and **Korean:** translated in the Japanese original's tone (Korean with the Galmuri font, including the options menu).
   - **Japanese:** the original Japanese text, if you put your own Japanese ROM next to your ROM (nothing of it is in the download); our options menu and Friday's hints in kana.
   - **Names:** localized or the Japanese original names. **Items:** the four items that are different things in the Japanese original.
+  - **Title screen:** the subtitle in the language (our own lettering in the title's style).
   - **Bath Scene** (off by default): restores the scene in Kayla's room that the Western releases block with a maid on the door.
   - The translations are written with Claude and not all have been read by native speakers yet: corrections are very welcome.
 - **Friday Hints** (Options > Quality of Life, off by default): press Select and Friday tells you where to go next. The hints follow your progress, only mention what Nigel has actually been told, and get more precise when you listened to an optional character (remembered per save file). In English, German, French, Korean and Japanese.
