@@ -232,3 +232,4 @@
 - L1850: Session 2026-11-14: German + English (original tone) complete, Options > Items, Japanese language (Deck, Opus 5.5; 8 Sonnet agents for the Japanese mapping)
 - L1856: Session 2026-11-13 night-2: Japanese fixes, English (JP) full pass, French, Korean (Deck, Opus 5.5 lead + ~40 Sonnet agent runs)
 - L1864: Session 2026-11-14: dungeon map redesign (Deck, Opus 5.5, no agents)
+- L1870: Session 2026-11-14 evening: keyboard directions + one-press WASD (Deck, Opus 5.5, no agents)
