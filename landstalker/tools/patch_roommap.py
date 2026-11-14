@@ -85,6 +85,23 @@ static void lk_rm_diamond(int cx, int cy, int hw, uint32_t c) { int hh = hw / 2;
 static void lk_rm_text(int x, int y, const char *t, int sc, uint32_t c) {
     for (int i = 0; t[i]; i++) { char ch = t[i] == '_' ? ' ' : t[i]; if (ch >= 'a' && ch <= 'z') ch = (char)(ch - 32); const uint8_t *gl = lk_glyph(ch); for (int r = 0; r < 7; r++) for (int k = 0; k < 5; k++) if (gl[r] & (0x10 >> k)) { lk_rm_fill(x + (i * 6 + k) * sc + sc / 2 + 1, y + r * sc + sc / 2 + 1, sc, sc, 0xFF000000u); lk_rm_fill(x + (i * 6 + k) * sc, y + r * sc, sc, sc, c); } }
 }
+static const char *lk_rm_akey[] = { "SWAMP_SHRINE","MERCATOR_DUNGEON","KN_LABYRINTH","KN_CAVE","KN_PALACE","LAKE_SHRINE","WATERFALL_SHRINE","THIEVES_HIDEOUT","DESTEL_WELL","MIR_TOWER","VERLA_MINES","MASSAN_CAVE","CRYPT","GREENMAZE","HELGAS_HUT","TIBOR","RYUMA_LIGHTHOUSE" };   /* LK_RMNAMES v1: = tools/langbuild.py MAP_AREAS (index = name table 5 entry) */
+static const char *lk_rm_aen[] = { "Swamp Shrine","Mercator Dungeon","King Nole\'s Labyrinth","King Nole\'s Cave","King Nole\'s Palace","Lake Shrine","Waterfall Shrine","Thieves\' Hideout","Destel Well","Mir\'s Tower","Verla Mines","Massan Cave","Crypt","Greenmaze","Helga\'s Hut","Tibor","Ryuma Lighthouse" };
+static void lk_rm_title(int x, int y, const char *key, int sc, uint32_t c) {   /* the dungeon name: from the language file (its font: umlauts, accents, kana, Hangul) or the English name, drawn with the game's text font */
+    extern int lk_lang_area(int idx, uint16_t *out, int max); extern uint16_t bus_read16(uint32_t a); extern uint32_t bus_read32(uint32_t a);
+    static const char MAIN[] = " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz*.,?!/<>:-'\"%#&()=";
+    uint16_t code[48]; int n = 0, idx = -1;
+    for (int i = 0; i < (int)(sizeof lk_rm_akey / sizeof *lk_rm_akey); i++) if (!strcmp(lk_rm_akey[i], key)) idx = i;
+    if (idx >= 0) n = lk_lang_area(idx, code, 48);
+    if (n <= 0) { const char *t = idx >= 0 ? lk_rm_aen[idx] : key; for (n = 0; t[n] && n < 48; n++) { const char *q = strchr(MAIN, t[n] == '_' ? ' ' : t[n]); code[n] = q ? (uint16_t)(q - MAIN) : 0; } }
+    uint32_t font = bus_read32(0x022E84u); int cx = x;
+    for (int i = 0; i < n; i++) {
+        uint16_t g = code[i]; int last = -1; uint16_t rows[15];
+        for (int r = 0; r < 15; r++) { rows[r] = bus_read16(font + 30u * g + 2u * (uint32_t)r); for (int k = 0; k < 12; k++) if ((rows[r] & (0x8000 >> k)) && k > last) last = k; }
+        if (g) for (int r = 0; r < 15; r++) for (int k = 0; k < 12; k++) if (rows[r] & (0x8000 >> k)) { lk_rm_fill(cx + k * sc + sc / 2 + 1, y + r * sc + sc / 2 + 1, sc, sc, 0xFF000000u); lk_rm_fill(cx + k * sc, y + r * sc, sc, sc, c); }
+        cx += (g ? last + 3 : 8) * sc;
+    }
+}
 static uint32_t lk_rm_565(uint16_t v, int dim) { uint32_t r = (v >> 11) & 31, g = (v >> 5) & 63, b = v & 31; r = r * 255 / 31; g = g * 255 / 63; b = b * 255 / 31; if (dim) { r = r * 2 / 5; g = g * 2 / 5; b = b * 2 / 5; } return 0xFF000000u | r << 16 | g << 8 | b; }
 static int lk_rm_lnk(int e, int floor, int area, int *a, int *b) {   /* v13: E line e = a door link on this floor of this area (not stairs): room indexes */
     *a = lk_rm_lookup(lk_rm_e[e][0]); *b = lk_rm_lookup(lk_rm_e[e][1]); if (*a < 0 || *b < 0 || lk_rm_e[e][2]) return 0;
@@ -98,8 +115,8 @@ static void lk_rm_render(int W, int H, int cur, int floor, int blink) {
     int m = H / 22, px0 = m, py0 = m, pw = W - 2 * m, ph = H - 2 * m, sc = H >= 600 ? 3 : 2;
     lk_rm_fill(px0, py0, pw, ph, PANEL);
     for (int t = 0; t < 3; t++) { uint32_t c = t == 1 ? GOLD : GOLDD; lk_rm_fill(px0 + t, py0 + t, pw - 2 * t, 1, c); lk_rm_fill(px0 + t, py0 + ph - 1 - t, pw - 2 * t, 1, c); lk_rm_fill(px0 + t, py0 + t, 1, ph - 2 * t, c); lk_rm_fill(px0 + pw - 1 - t, py0 + t, 1, ph - 2 * t, c); }
-    { char t[80]; extern const char *lk_lang_tr(const char *en); snprintf(t, sizeof t, "%s", lk_rm_anm[area]); lk_rm_text(px0 + 6 * sc, py0 + 5 * sc, t, sc, GOLD);
-      if (nfl > 1) { snprintf(t, sizeof t, "%s %d / %d", lk_lang_tr("FLOOR"), floor + 1, nfl); int xr = px0 + pw - 6 * sc - 3 * 6 * sc, xt = xr - (int)strlen(t) * 6 * sc; lk_rm_text(xt, py0 + 5 * sc, t, sc, floor == cr->floor ? 0xFFF0E0B0u : 0xFFA09070u);
+    { char t[80]; extern const char *lk_lang_tr(const char *en); lk_rm_title(px0 + 6 * sc, py0 + 3 * sc, lk_rm_anm[area], sc, GOLD);   /* LK_RMNAMES v1: the dungeon name in the language, game font */
+      if (nfl > 1) { snprintf(t, sizeof t, "%d / %d", floor + 1, nfl);   /* v13: no word (user: symbols, languages) */ int xr = px0 + pw - 6 * sc - 3 * 6 * sc, xt = xr - (int)strlen(t) * 6 * sc; lk_rm_text(xt, py0 + 5 * sc, t, sc, floor == cr->floor ? 0xFFF0E0B0u : 0xFFA09070u);
                     lk_rm_text(xt - 3 * 6 * sc, py0 + 5 * sc, "L1", sc, floor > 0 ? GOLD : 0xFF504838u); lk_rm_text(xr + 6 * sc, py0 + 5 * sc, "R1", sc, floor + 1 < nfl ? GOLD : 0xFF504838u);   /* v12: the shoulder buttons that change the floor (user: not clear in the UI), dark when that way ends */
                     for (int k = 0; k < nfl && k < 12; k++) lk_rm_fill(px0 + pw - 6 * sc - (nfl - k) * 4 * sc, py0 + 15 * sc, 3 * sc, 2 * sc, k == floor ? GOLD : GOLDD); } }
     /* rooms of this floor that are shown: visited or current (v4: boxes of W x H grid units, tools/roommap.py v5) */

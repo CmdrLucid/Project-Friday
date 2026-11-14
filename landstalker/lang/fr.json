@@ -9356,5 +9356,24 @@
     "t": "{Speaker}Kyaa, merci,{SoftNewLine}{=nigel}! J'ai toujours rêvé de{SoftNewLine}porter un costume de lapin!!{WaitInput}"
    }
   }
+ },
+ "map_areas": {
+  "SWAMP_SHRINE": "Sanctuaire du Marais",
+  "MERCATOR_DUNGEON": "Cachots de Mercator",
+  "KN_LABYRINTH": "Labyrinthe du Roi Nole",
+  "KN_CAVE": "Grotte du Roi Nole",
+  "KN_PALACE": "Palais du Roi Nole",
+  "LAKE_SHRINE": "Sanctuaire du Lac",
+  "WATERFALL_SHRINE": "Sanctuaire des Chutes",
+  "THIEVES_HIDEOUT": "Repaire des Voleurs",
+  "DESTEL_WELL": "Puits de Destel",
+  "MIR_TOWER": "Tour de Mir",
+  "VERLA_MINES": "Mines de Verla",
+  "MASSAN_CAVE": "Grotte de Massan",
+  "CRYPT": "Crypte",
+  "GREENMAZE": "Labyrinthe Vert",
+  "HELGAS_HUT": "Cabane d'Helga",
+  "TIBOR": "Tibor",
+  "RYUMA_LIGHTHOUSE": "Phare de Ryuma"
  }
 }

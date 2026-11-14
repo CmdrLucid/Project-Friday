@@ -20,6 +20,11 @@ MENUFONT = 0xDC76   # 1bpp 8x8 glyphs, 8 bytes each; the menu lists draw names w
 LAYOUT = {"NewLine", "SoftNewLine", "Pause1s", "Pause1sOrInput", "Pause1_5sOrInput", "Pause2sOrInput", "BreakSpace", "BreakPoint", "Hyphen"}
 UI_BYTES = {"ä": 0x80, "ö": 0x81, "ü": 0x82, "ß": 0x83, "Ä": 0x84, "Ö": 0x85, "Ü": 0x86}   # our own UI text (patch_options.py lk_chr maps these bytes to the extra glyph codes)
 TABLES = {name: i for i, (name, _, _) in enumerate(sd.NAME_TABLES)}
+TABLES["area"] = 5   # LK_RMNAMES v1: dungeon names for the room map (name entries table 5, index = MAP_AREAS position)
+MAP_AREAS = [("SWAMP_SHRINE", "Swamp Shrine"), ("MERCATOR_DUNGEON", "Mercator Dungeon"), ("KN_LABYRINTH", "King Nole's Labyrinth"), ("KN_CAVE", "King Nole's Cave"),
+             ("KN_PALACE", "King Nole's Palace"), ("LAKE_SHRINE", "Lake Shrine"), ("WATERFALL_SHRINE", "Waterfall Shrine"), ("THIEVES_HIDEOUT", "Thieves' Hideout"),
+             ("DESTEL_WELL", "Destel Well"), ("MIR_TOWER", "Mir's Tower"), ("VERLA_MINES", "Verla Mines"), ("MASSAN_CAVE", "Massan Cave"), ("CRYPT", "Crypt"),
+             ("GREENMAZE", "Greenmaze"), ("HELGAS_HUT", "Helga's Hut"), ("TIBOR", "Tibor"), ("RYUMA_LIGHTHOUSE", "Ryuma Lighthouse")]   # English = the fallback in the game (patch_roommap.py)
 UI_KEYS = {"yesno_no_x": 1, "yesno_cursor_yes_x": 2, "yesno_cursor_no_x": 3}
 FONT, GLYPH = 0x2A884, 30
 
@@ -202,6 +207,9 @@ def ko_codes(lang):
         for e in lang.get(blk, {}).values():
             for c in hang(e["t"]):
                 if c not in first: first.append(c)
+    for t in lang.get("map_areas", {}).values():
+        for c in hang(t):
+            if c not in first: first.append(c)
     freq = {}
     for e in list(lang.get("strings", {}).values()) + list(lang.get("items_jp", {}).get("strings", {}).values()):
         for c in hang(e["t"]): freq[c] = freq.get(c, 0) + 1
@@ -255,6 +263,12 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
         try: data = b"".join(struct.pack(">H", v) for t, v in tokens(ent["t"])) if ko else bytes(v for t, v in tokens(ent["t"]))   # LK_LGKO v1: 16-bit name codes (file version 4)
         except ValueError as e: dropped.append((key, str(e))); continue
         names.append((TABLES[tab], int(idx) | ibit, len(blob), len(data))); blob += data
+    for i, (key, _) in enumerate(MAP_AREAS):   # LK_RMNAMES v1: block 'map_areas' {KEY: name} (no English source to hash: our own text)
+        t = lang.get("map_areas", {}).get(key)
+        if not t: continue
+        try: toks = tokens(t); data = b"".join(struct.pack(">H", v) for _, v in toks) if ko else bytes(v for _, v in toks)
+        except (ValueError, struct.error) as e: dropped.append(("map_areas:" + key, str(e))); continue
+        names.append((TABLES["area"], i, len(blob), len(data))); blob += data
     ui = [(UI_KEYS[k], v) for k, v in lang.get("ui_values", lang.get("ui", {})).items()]
     texts = []
     for k, v in lang.get("ui_text", {}).items():

@@ -194,6 +194,12 @@ def main():
     for v in names.values():
         for x in tok(v):
             if x[0] == 'g' and x[1] != J_SPACE and x[1] not in name_gl: name_gl.append(x[1])
+    area_toks = {i: text_tokens(jmap.get('map_areas', {})[k]) for i, (k, _) in enumerate(lb.MAP_AREAS) if k in jmap.get('map_areas', {})}   # LK_RMNAMES v1: dungeon names on the room map
+    ag = []
+    for tl in area_toks.values():
+        for x in tl:
+            if x[0] == 'g' and x[1] != J_SPACE and x[1] not in ag: ag.append(x[1])
+    name_gl = ag + [g for g in name_gl if g not in ag]   # the dungeon names first: their glyphs must be byte codes too
     order = name_gl + sorted((g for g in freq if g not in name_gl), key=lambda g: -freq[g])
     code, fixed = {J_SPACE: 0}, {J_TALK: 0x147, J_DOT: 0x140}
     code.update(fixed)
@@ -223,8 +229,9 @@ def main():
         strs.append((int(k, 16), len(blob), len(words))); blob += b''.join(struct.pack('>H', w) for w in words) + b'\xff\xff'; kept += 1
     nm = []
     for key, v in names.items():
-        tab, i = key.split(':'); data = bytes(code.get(x[1], 0) if x[0] == 'g' else 0 for x in tok(v))
-        if any(c > 0xFF for c in (code.get(x[1], 0) for x in tok(v) if x[0] == 'g')): print('jplang: name %s needs a glyph code > $FF: stays English' % key); continue
+        tab, i = key.split(':'); cs = [code.get(x[1], 0) if x[0] == 'g' else 0 for x in tok(v)]
+        data = b''.join(struct.pack('>H', c) for c in cs)   # LK_RMNAMES v1: file version 4 = 16-bit name codes (no byte limit; patch_lang.py CopyStringToBuffer wrapper)
+        if len(data) > 255: continue   # char:60 of the Japanese table is a long leftover, not a name
         # item names: index | $40 = only for {Item} in the dialogue (patch_lang.py lk_lg_inpc); the menus keep the English names (8x8 menu font)
         nm.append((lb.TABLES[tab], int(i) | (0x40 if tab == 'item' else 0), len(blob), len(data))); blob += data
     # LK_JPITEMS v2 (user 2026-11-13: 'im Englischen passt es, auf Japanisch ist es wieder das Spell Book'): item names stay English in Japanese (8x8 menu font, no kana),
@@ -233,9 +240,14 @@ def main():
     for key, ent in eij.items():
         tab, i = key.split(':'); data = bytes(v for t, v in lb.tokens(ent['t']))
         assert all(c < 0x6C for c in data), key
+        data = b''.join(struct.pack('>H', c) for c in data)   # version 4: 16-bit names
         nm.append((lb.TABLES[tab], int(i) | 0x80, len(blob), len(data))); blob += data
+    for i, tl in area_toks.items():   # LK_RMNAMES v1: table 5 = dungeon names (bytes)
+        cs = [code.get(x[1], 0) if x[0] == 'g' else 0 for x in tl]
+        data = b''.join(struct.pack('>H', c) for c in cs); nm.append((lb.TABLES['area'], i, len(blob), len(data))); blob += data
     gl = sorted((c, r) for c, r in rows.items() if c)
-    hdr = b'LKLG' + struct.pack('>HHHHHH', 3, len(strs), len(nm), 0, len(gl), 0)
+    hdr = b'LKLG' + struct.pack('>HHHHHH', 4, len(strs), len(nm), 0, len(gl), 0) + b'\0\0\0\0'   # version 4: 16-bit names; u32 trailer offset 0 (no Korean menu trailer)
+    bad = [n for n in nm if not (0 <= n[0] < 256 and 0 <= n[1] < 256 and 0 <= n[3] < 256)]; assert not bad, bad[:5]
     data = hdr + b''.join(struct.pack('>HIH', *s) for s in strs) + b''.join(struct.pack('>BBIB', *n) for n in nm)
     data += b''.join(struct.pack('>H', c) + lb.pack(r) + bytes(8) for c, r in gl) + bytes(blob)
     open(target, 'wb').write(data)

@@ -389,6 +389,15 @@ const char *lk_lang_tr(const char *en) {   /* our own UI text: the translation o
     return en;
 }
 int lk_lang_count(void) { return lk_lg_nlang; }
+int lk_lang_area(int idx, uint16_t *out, int max) {   /* LK_RMNAMES v1: the dungeon name idx (tools/langbuild.py MAP_AREAS) of the loaded language as glyph codes of its font; 0 = none (English / missing) */
+    int i, n, k;
+    if (!lk_lg_on) return 0;
+    for (i = 0; i < lk_lg_nname; i++) if (lk_lg_name[i].tab == 5 && lk_lg_name[i].idx == idx) {
+        n = lk_lg_wide ? lk_lg_name[i].n / 2 : lk_lg_name[i].n;
+        for (k = 0; k < n && k < max; k++) out[k] = lk_lg_wide ? bus_read16(lk_lg_name[i].addr + 2u * (uint32_t)k) : bus_read8(lk_lg_name[i].addr + (uint32_t)k);
+        return k; }
+    return 0;
+}
 const char *lk_lang_name(int i) { return i >= 0 && i < lk_lg_nlang ? lk_lg_names[i] : "?"; }
 int lk_lang_get(void) { return lk_lg_sel; }
 void lk_lang_step(void) {          /* Options > Language (root row above Quit Game): next language, applied at once and saved in ~/.landstalker_lang */

@@ -9098,5 +9098,24 @@
     "t": "{Speaker}꺄아, 고마워, {=nigel}!{SoftNewLine}토끼 옷, 한번 입어 보고 싶었어!!{WaitInput}"
    }
   }
+ },
+ "map_areas": {
+  "SWAMP_SHRINE": "늪지 신전",
+  "MERCATOR_DUNGEON": "메르카토르 지하 감옥",
+  "KN_LABYRINTH": "노르 왕의 미궁",
+  "KN_CAVE": "노르 왕의 동굴",
+  "KN_PALACE": "노르 왕의 궁전",
+  "LAKE_SHRINE": "호수 신전",
+  "WATERFALL_SHRINE": "폭포 신전",
+  "THIEVES_HIDEOUT": "도적의 은신처",
+  "DESTEL_WELL": "데스텔의 우물",
+  "MIR_TOWER": "미르의 탑",
+  "VERLA_MINES": "바라 광산",
+  "MASSAN_CAVE": "마산 동굴",
+  "CRYPT": "지하 묘지",
+  "GREENMAZE": "그린메이즈",
+  "HELGAS_HUT": "미저리의 오두막",
+  "TIBOR": "트렌트",
+  "RYUMA_LIGHTHOUSE": "류마 등대"
  }
 }

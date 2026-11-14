@@ -9361,5 +9361,24 @@
     "t": "{Speaker}Kyaa, danke,{SoftNewLine}{=nigel}! Ich wollte schon{SoftNewLine}immer mal ein Häschenkostüm{SoftNewLine}tragen!!{WaitInput}"
    }
   }
+ },
+ "map_areas": {
+  "SWAMP_SHRINE": "Sumpfschrein",
+  "MERCATOR_DUNGEON": "Kerker von Merkator",
+  "KN_LABYRINTH": "König Nolos Labyrinth",
+  "KN_CAVE": "König Nolos Höhle",
+  "KN_PALACE": "König Nolos Palast",
+  "LAKE_SHRINE": "Seeschrein",
+  "WATERFALL_SHRINE": "Wasserfallschrein",
+  "THIEVES_HIDEOUT": "Diebesversteck",
+  "DESTEL_WELL": "Brunnen von Destel",
+  "MIR_TOWER": "Mirs Turm",
+  "VERLA_MINES": "Minen von Verla",
+  "MASSAN_CAVE": "Höhle bei Massan",
+  "CRYPT": "Gruft",
+  "GREENMAZE": "Grünes Labyrinth",
+  "HELGAS_HUT": "Helgas Hütte",
+  "TIBOR": "Tibor",
+  "RYUMA_LIGHTHOUSE": "Leuchtturm von Ryuma"
  }
 }

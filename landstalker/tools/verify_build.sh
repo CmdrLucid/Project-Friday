@@ -112,6 +112,7 @@ chk "Partikel: keine Geister-Funken (Kartenrand)"   $G/ext/Genesis-Plus-GX/core/
 chk "Weiches Scrollen (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SUBPIX v3"
 chk "Scharfes weiches Scrollen"                       $G/src/platform_sdl.c "LK_SSHARP v1"
 chk "Raumkarte"                                       $G/src/platform_sdl.c "LK_ROOMMAP v13"
+chk "Raumkarte: Dungeon-Namen je Sprache"         $G/src/platform_sdl.c "LK_RMNAMES v1"
 chk "Eigener Ton-Mischer"                              $G/ext/Genesis-Plus-GX/core/sound/sound.c "LK_MIX v1"
 chk "VDP-Wegzaehler (Diagnose, inaktiv)"              $G/ext/Genesis-Plus-GX/core/vdp_ctrl.c "LK_VDPCOUNT v1"
 chk "Eigener VDP-Datenweg"                           $G/ext/Genesis-Plus-GX/core/vdp_ctrl.c "LK_VDPPORT v11"
