@@ -58,13 +58,16 @@ With every option switched off, the game plays like the original cartridge. All 
 - **Fix Ride Objects:** Nigel now rides along on an object that stands on a moving platform. In the original he slides off; this is a bug fix.
 - **Live Gaia Effect:** the Gaia rocks stay in the world while the screen scrolls.
 
-**Difficulty / Help:** damage taken (25 % to 200 %), enemy HP (50 % to 300 %) and the experimental *Friday Hints* (off by default; press Select and Friday flies out of Nigel's bag and tells you where to go next).
+**Difficulty / Help:** damage taken (25 % to 200 %), enemy HP (50 % to 300 %) and *Friday Hints* (off by default; press Select and Friday flies out of Nigel's bag and tells you where to go next). The hints follow your progress and only mention what Nigel has actually been told: if you listened to an optional character, Friday remembers it (per save file) and gets more precise. English and German so far.
 
-**Experimental, off by default:** a *dungeon map* (bind a button to "Map" in Keybindings; schematic map of the visited rooms of the current dungeon with every door on its real wall, scrolling with the D-pad, floors on L1 / R1). Still being tuned.
+**Dungeon map** (bind a button to "Map" in Keybindings): a map of the visited rooms of the current dungeon, turned like the game's own view, the whole floor at once with every door on its real wall. The D-pad moves a selection, A sets a flag and the map shows the way there, L1 / R1 switch floors; dungeon names in every language.
 
-**Keybindings:** every action can be remapped, for both controller and keyboard.
+**Keybindings:** every action can be remapped, for both controller and keyboard, including the keyboard directions; one row switches the keyboard to W A S D.
 
-**Language:** English or Deutsch (menus, items and system messages are translated so far; dialogue is still English).
+**Language / Region** (own options page):
+- **Language:** English, **Deutsch** (all dialogue, with the names of the original German release), **English (JP)** (every line rewritten in the tone of the Japanese original: its jokes, characters' voices and the scenes the Western release toned down), **Francais** and **Korean** (both translated in the Japanese original's tone), and **Japanese**: the original Japanese text, only if you put your own Japanese ROM next to your ROM. The translations are written with Claude (see below) and not all have been read by native speakers yet; corrections are very welcome.
+- **Names:** localized or the Japanese original names (Ryle instead of Nigel, ...). **Items:** the four items that are different things in the Japanese original.
+- **Bath Scene** (off by default): restores the scene in Kayla's room at Mercator castle that the Western releases block with a maid on the door (the Japanese release lets you in; the scene itself is in every version's data).
 
 Defaults for a new install: 16:9, Full Height, CRT Pro filter, Native Pace, and most Movement / Comfort options on (HUD: Original). Change anything you like in Options.
 
