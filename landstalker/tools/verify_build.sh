@@ -57,6 +57,7 @@ chk "Schnellspeichern / -laden"                     $G/src/func_table.c "LK_QUIC
 chk "Schnell-Ausruesten (R2 + Richtung)"              $G/src/func_table.c "LK_EQUIP v1"
 chk "Schwierigkeit (Schaden / Gegner-HP)"           $G/src/func_table.c "LK_DIFF v2"
 chk "Tastenbelegung (Pad + Tastatur)"                 $G/src/input.c "LK_KEYS v1"
+chk "Tastatur-Richtungen + WASD"                    $G/src/input.c "LK_KBDIR v1"
 chk "Schnellspeichern in Aufnahmen"                 $G/src/input.c "LK_QSREC v1"
 chk "Modernes HUD (Option)"                         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_MHUD v3"
 chk "Sprint (R2)"                                   $G/src/func_table.c "LK_SPRINT v2"

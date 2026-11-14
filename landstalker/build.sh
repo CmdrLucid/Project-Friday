@@ -245,6 +245,8 @@ python3 tools/patch_gpucomp.py .deps/genrecomp
 python3 tools/patch_shaderwarm.py .deps/genrecomp
 # Room map: binding Map (pad L4, key M) = schematic map of the current area over the paused game (data: tools/roommap.py -> build/roommap; tools/patch_roommap.py, docs/MAP.md)
 python3 tools/patch_roommap.py .deps/genrecomp
+# Keyboard directions rebindable + one-press WASD layout (Options > Keybindings; tools/patch_kbdir.py, needs patch_options / patch_keys / patch_roommap)
+python3 tools/patch_kbdir.py .deps/genrecomp
 # VDP data path step 3.0: path counters in vdp_ctrl.c (LANDSTALKER_VDPCOUNT=file; inert without it; tools/patch_vdpcount.py, docs/SOUND_PLAN.md section 12)
 python3 tools/patch_vdpcount.py .deps/genrecomp
 # VDP data path of our own (data / control port, registers, DMA; default ours, LANDSTALKER_VDP=gpgx = GPGX's decode, =check = both compared; tools/patch_vdpport.py + tools/lkvdp.c, docs/SOUND_PLAN.md section 12)
