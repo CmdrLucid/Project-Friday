@@ -234,3 +234,4 @@
 - L1864: Session 2026-11-14: dungeon map redesign (Deck, Opus 5.5, no agents)
 - L1870: Session 2026-11-14 evening: keyboard directions + one-press WASD (Deck, Opus 5.5, no agents)
 - L1875: Session 2026-11-14 midday: Friday hints knowledge review (Deck, Opus 5.5 lead + 3 Sonnet review agents)
+  - L1879: Kayla bath scene restored: the Japanese OneTimeEventFlags record (2026-11-15, Deck, Fable 5.1 lead + Opus / Sonnet / Haiku agents; `tools/patch_bath.py`, `tools/patch_langpage.py`)
