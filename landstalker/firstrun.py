@@ -232,9 +232,9 @@ def build_id(rom_sha):
     h = hashlib.sha1(rom_sha.encode())
     files = [os.path.join(HERE, "recomp.json"), os.path.join(HERE, "docs", "symbols.json"), os.path.join(HERE, "docs", "ENTITIES.md"), os.path.join(HERE, "docs", "ROOMS.md"), os.path.join(HERE, "src", "main.c"),
              os.path.join(HERE, "build.sh"), os.path.join(HERE, "vendor", "genrecomp", "VENDOR_REVISION.txt")]
-    files += sorted(os.path.join(HERE, "tools", f) for f in os.listdir(os.path.join(HERE, "tools")) if f.endswith((".py", ".c", ".h", ".json")))
+    files += sorted(os.path.join(HERE, "tools", f) for f in os.listdir(os.path.join(HERE, "tools")) if f.endswith((".py", ".c", ".h", ".json", ".sh")))
     if os.path.isdir(os.path.join(HERE, "lang")):
-        files += sorted(os.path.join(HERE, "lang", f) for f in os.listdir(os.path.join(HERE, "lang")) if f.endswith(".json"))
+        files += sorted(os.path.join(HERE, "lang", f) for f in os.listdir(os.path.join(HERE, "lang")) if f.endswith((".json", ".dat")))
     for dp, dn, fn in sorted(os.walk(os.path.join(HERE, "data"))):   # v1.9.1: the light data (light_proxies.json, proxies/*.obj, object_blocks.json) is a build input too
         dn.sort(); files += [os.path.join(dp, f) for f in sorted(fn)]
     for f in files:

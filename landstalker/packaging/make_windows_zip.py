@@ -121,6 +121,7 @@ def main():
         copy(pylic, os.path.join(lic, "Python-LICENSE-PSF.txt"))
     copy(os.path.join(ROOT, "..", "README.md"), os.path.join(lic, "Project-Friday-README.md"))
     copy(os.path.join(ROOT, "..", "LICENSE"), os.path.join(lic, "Project-Friday-LICENSE-MIT.txt"))
+    copy(os.path.join(ROOT, "lang", "OFL-Galmuri.txt"), os.path.join(lic, "Galmuri-font-LICENSE-OFL.txt"))   # the Hangul font of the Korean language (release 2.0 check)
     notice = (
         "Project-Friday release package (Windows, 64 bit)\n\n"
         "This package contains NO ROM, NO game data and NO code generated from the game. On the first start the launcher\n"
@@ -135,7 +136,7 @@ def main():
     open(os.path.join(lic, "NOTICE.txt"), "w", newline="\r\n").write(notice)
     open(os.path.join(pkg, "README.txt"), "w", newline="\r\n").write(notice)
     for need in ("genrecomp-LICENSE-MIT.txt", "Genesis-Plus-GX-LICENSE.txt", "Musashi-header-with-licence.h.txt", "zig-LICENSE-MIT.txt",
-                 "SDL2-LICENSE-zlib.txt", "capstone-LICENSE-BSD.txt", "Project-Friday-LICENSE-MIT.txt", "NOTICE.txt"):
+                 "SDL2-LICENSE-zlib.txt", "capstone-LICENSE-BSD.txt", "Project-Friday-LICENSE-MIT.txt", "Galmuri-font-LICENSE-OFL.txt", "NOTICE.txt"):
         if not os.path.isfile(os.path.join(lic, need)):
             sys.exit("licence file missing in the package: " + need)
 

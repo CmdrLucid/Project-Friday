@@ -123,6 +123,7 @@ def main():
     open(os.path.join(lic, "SDL2-LICENSE-zlib.txt"), "w").write(m.group(1).strip() + "\n")
     copy(os.path.join(ROOT, "..", "README.md"), os.path.join(lic, "Project-Friday-README.md"))
     copy(os.path.join(ROOT, "..", "LICENSE"), os.path.join(lic, "Project-Friday-LICENSE-MIT.txt"))
+    copy(os.path.join(ROOT, "lang", "OFL-Galmuri.txt"), os.path.join(lic, "Galmuri-font-LICENSE-OFL.txt"))   # the Hangul font of the Korean language (release 2.0 check)
     open(os.path.join(lic, "NOTICE.txt"), "w").write(
         "Project-Friday release package\n\n"
         "This package contains NO ROM, NO game data and NO code generated from the game. On the first start the\n"
@@ -135,7 +136,7 @@ def main():
         "Zig (MIT) is the bundled C compiler, SDL2 headers (zlib) are used to compile against your system's SDL2.\n")
 
     for need in ("genrecomp-LICENSE-MIT.txt", "Genesis-Plus-GX-LICENSE.txt", "Musashi-header-with-licence.h.txt", "zig-LICENSE-MIT.txt",
-                 "capstone-LICENSE-BSD.txt", "SDL2-LICENSE-zlib.txt", "Project-Friday-LICENSE-MIT.txt", "NOTICE.txt"):
+                 "capstone-LICENSE-BSD.txt", "SDL2-LICENSE-zlib.txt", "Project-Friday-LICENSE-MIT.txt", "Galmuri-font-LICENSE-OFL.txt", "NOTICE.txt"):
         if not os.path.isfile(os.path.join(lic, need)):
             sys.exit("licence file missing in the package: " + need)
 
