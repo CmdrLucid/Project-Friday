@@ -34,6 +34,14 @@ FLAG = {"00.6": "die Tür des Sumpfschreins ist offen", "13.0": "du sitzt im Ver
         "20.4": "du hast die Prinzessin im Verlies gefunden", "20.6": "Arthur hat dir von der Flucht des Herzogs erzählt",
         "26.7": "Dex ist besiegt", "28.7": "du hast den Herzog auf dem Floß bei Destel gesehen",
         "2B.1": "das zweite Floß im Labyrinth liegt bereit", "2B.7": "der Herzog hat dich im Labyrinth verspottet"}
+DE_STR = json.load(open(os.path.join(HERE, "..", "lang", "de.json")))["strings"]
+def heard_txt(ids):
+    """heard:A|B ids -> short German quote of the line(s) (de.json 't', {codes} stripped, first 40 chars)"""
+    out = []
+    for i in ids.split("|"):
+        t = re.sub(r"\{[^}]*\}", " ", DE_STR.get(i.upper(), {}).get("t", "")); t = " ".join(t.split())
+        out.append(("'" + t[:40] + ("..." if len(t) > 40 else "") + "'") if t else i)
+    return " / ".join(out)
 UNSURE = set()
 md = open(os.path.join(HERE, "..", "docs", "FRIDAY_HINTS.md")).read()
 sec = md.split("## 6. UNSURE list", 1)[-1]
@@ -49,6 +57,8 @@ def when(h):
         elif c.startswith("item:"): extra.append("du hast " + ITEM.get(c[5:], "Gegenstand " + c[5:]))
         elif c.startswith("flag:"): extra.append(FLAG.get(c[5:], "Ereignis " + c[5:]))
         elif c.startswith("!flag:"): extra.append("nicht: " + FLAG.get(c[6:], "Ereignis " + c[6:]))
+        elif c.startswith("!heard:"): extra.append("nicht gehört: " + heard_txt(c[7:]))
+        elif c.startswith("heard:"): extra.append("nachdem man gehört hat: " + heard_txt(c[6:]))
     return st, extra
 
 rows = []

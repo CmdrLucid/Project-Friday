@@ -79,6 +79,63 @@ Corrected facts (evidence in the disassembly, verified by the lead):
 - The bridge villager (stage 1) only says Gumi smashed it and to tell the mayor; no scholar.
 Still UNSURE (to check while playing): stage 2 window before the mayor tells about Fara (hint now names only Gumi), when $17.7 (stage 23) is set relative to the purple jewel (stage22_purple may never show), stage 10 flag meaning, stage 31 teleporter place.
 
+## 4e. Flag-gated precise hints (2026-11-14)
+Rule (extends 4c): a hint may name what an OPTIONAL NPC said only behind a flag that proves that talk (SetFlagBitOnTalking / text opcode / cutscene setter; every flag below has exactly one setter, checked over all six setter kinds: talk words, $14xx text opcodes, SetFlagBit calls, bset on g_Flags, sprite behaviour EB_SetFlag $41, room flag tables). The precise variant is a separate entry with the base entry's conditions plus the flag, placed right AFTER its vague base and BEFORE the room / item / next-stage entries that must still override it (the runtime shows the LAST match). Evidence: `~/Project-Friday-Test/lktest/friday_flags/verified.md`.
+
+| hint id | flag | NPC + room | from stage | fact the hint may state |
+|---|---|---|---|---|
+| stage02_fara_seen | $02.2 | Massan villager cutscene $0D (room 592, walking into Massan after Prospero) | 2 | Gumi thugs kidnapped Fara; the bridge is fixed (NOT the Marsh Shrine) |
+| stage20_tower_dexzak | $1A.1 | Arthur, room 83 (castle armory 1F), day 2 | 20 | Dexter and Zak asked how to break the barrier and went to the crypt; an armlet is there |
+| stage20_tower_arthur | $19.7 | Arthur, room 83, only settable at stage 19 | 20 | barrier at the tower entrance; an armlet breaks it; crypt next to the church; traps |
+| stage20_in_crypt_dexzak | $1A.1 | Arthur, room 83 | 20 (in the crypt) | the monsters are clever; the sword alone will not win the armlet |
+| stage20_have_armlet_arthur | $19.7 | Arthur, room 83 | 20 (armlet owned) | the armlet breaks the barrier at Mir's tower entrance |
+| stage22_to_mir_arthur | $19.7 | Arthur, room 83 | 22 | same |
+| stage23_dungeon_lara | $1A.0 | dungeon women, rooms 43 / 45 | 23 (in the dungeon) | the duke holds Princess Lara prisoner down here; find her |
+| stage25_whistle_gol | $1A.7 | Old Gol, room 561 (Greenmaze) | 25 (whistle, no Sun Stone) | Sun Stone in the northeast of the forest; the gnomes changed the paths |
+| stage31_labyrinth_father | $1C.0 | old dwarf, room 406 | 31 (Labyrinth, logs not taken) | a raft is needed for the river; find his son, get logs |
+| stage31_labyrinth_son | $1C.1 | his son (cutscene XS_012B) | 31 (Labyrinth, logs not taken) | go up and cut the tree to make a raft |
+
+Rejected: $19.2 (butler, stage 17: 'an evil magician torments the duke, more at the party') adds nothing actionable beyond `stage17_roam` / `stage18_party` and the banquet itself tells it one stage later. part_a flags: $02.1 (meeting Prospero, part of the mandatory visit, no new fact), $02.7 (it IS the stage 6 flag), $04.7 (Mercator gate opened = mandatory stage-9 entry), $05.0 (Julie / wall-jumper flavour), $05.1 (scared boy flavour).
+Open point: is the $02.2 cutscene (Massan villager, room 592, TA_09 Player_Y $30) unavoidable on the way to Gumi? If it is, its fact belongs into the base `stage02_fara` and the 4c UNSURE 'stage 2 window' is closed; until checked on the Deck it stays a flag-gated variant.
+
+## 4d. 'heard' conditions (LK_FRIDAY v3, 2026-11-14; lead + user: precise hints only after the player READ an optional NPC)
+Most optional talks set no story flag, so the runtime keeps its own record of the lines the player has seen. Conditions: `heard:XXXX` (XXXX = 4-hex string id = key of lang/en_tone.json / de.json) is true when that line was printed in this game; `!heard:XXXX` when not; alternatives `heard:0178|017B|0182` = ANY of them, `!heard:A|B` = NONE of them (up to 16 ids per condition; the conditions of one entry stay AND-combined). Compiled into `lk_fh_h[]` (the ids) + the condition (first, count).
+- **Hook:** the InitCompString wrapper `lk_lg_h_ics` (patch_lang.py) of `InitCompString $022FCC` (D0 = string id). Its only caller is `PrintString` / `PrintString_0` (`$022F1C` / `PrintString_Start $022F2C`), the single entry of every compressed string the game prints (NPC talk, signs, also chest / shop messages: harmless, a hint only asks for the ids it names). Name tables / item names (`SkipToStringIndex $0294B6`) and menu texts (`LoadUncompressedString`) never pass it; Friday's own stream (carrier id $16, `lk_fh_force`) is explicitly skipped (verified: the hint press prints string 0016, no 'heard 0016').
+- **Bitmap:** 512 bytes (4096 ids; the game has 2175), bit n = byte n >> 3, bit n & 7. OURS only, the game never reads it: Hints Off = bit exact. Collected also while Hints are Off, so switching them on mid-game knows the past.
+- **Per save slot, following the game:** `SaveGame $001592` stores the current map into slot `g_SaveSlot $FF0010` (church book, Record Book, quick save = hidden slots 4..7 of patch_quicksave.py, one per file slot); `LoadSavedGame $0015C2` takes it back (the file select also loads every slot for its preview; the last load = the chosen slot); `CopySaveGame $0015E6` (d0 = source, d1 = destination) copies it; `EraseSaveslot $001552` and `GetCurrentSaveSlot $00154C` (which falls through into the erase = the file select's Delete) clear it; a new game (`StartGame $008D84` in the intro room $8B, the same test as patch_quick.py) starts empty and clears that file slot's quick save map (like `lk_qs_wipe`). Game over -> continue reloads the slot like the game's own data.
+- **File:** `<save>.friday` next to the .srm (`lk_sram_file()` in genrecomp.c = the runtime's .srm path, `LANDSTALKER_SAVE` included; `LANDSTALKER_FRIDAY_HEARD=path` wins); layout in FORMATS section 6. Written whole whenever a slot map changes; a missing / bad file = empty maps; no battery RAM = memory only.
+- **Test aids:** `LANDSTALKER_FRIDAY_LOG=1` also prints `friday: heard XXXX at frame N` when a bit is first set and `heard file ... written`; re-running patch_friday.py on a patched tree swaps only the hint tables (`LANDSTALKER_FRIDAY_JSON=test.json python3 tools/patch_friday.py .deps/genrecomp && cmake --build build`, ~5 s).
+- **Headless results (2026-11-14, copy of the user's .srm, scratch HOME, replay massan.txt + Mode held in a window, test json in ~/Project-Friday-Test/lktest/friday_heard/):** the replay prints strings 0066 (frame 4440) and 005B (4831) -> both bits set. Press at 4101 -> `t_base`; at 4651 -> `t_0066_not005B` (heard:0066 + !heard:005B|0001); at 13301 (after 005B) -> `t_or` (heard:0001|005B|0FFF; the !heard:005B|0001 entry no longer holds); Friday's own press printed string 0016 without setting a bit. Quick save at 13300 wrote `s.srm.friday` (4104 bytes, slot 4 = {005B, 0066}, slots 0..3 empty); a fresh run with that .srm + .friday, quick load at 3800 (room 632) and a press at 4301 (no line printed in that run) -> `t_or`; the same run without the .friday file -> `t_base` (persistence works). Bit exact: Hints Off, 14 RAM dumps (every 1000 frames, 0..13000) of the replay identical before / after the change.
+
+## 4f. Heard-gated precise hints (2026-11-14)
+Rule (extends 4c / 4e, uses the `heard:` conditions of 4d): a hint may state what an OPTIONAL NPC said only behind `heard:` of the string id that carries the fact; gate = the LAST text box of that NPC line that holds the fact in EN AND DE (a ContinuePrompt chain is printed box by box, so the last id implies the earlier ones; German often splits the sentence differently, e.g. 042D/042E, 04C7/04C8). Each id was grepped over code/script/en: printed by exactly one NPC (repeats only in other branches of the same NPC), no cutscene prints them. `heard` persists, so 'from stage' = the first stage the line can be heard; the variant sits right AFTER its base and BEFORE the entries that must still override it (LAST match wins). Texts use only the facts below, no names the NPC did not say. Evidence: `~/Project-Friday-Test/lktest/friday_heard/verified.md` (script lines in the checkpoint blocks of section 5).
+
+| hint id | heard | NPC + room | from stage | fact the hint may state |
+|---|---|---|---|---|
+| stage01_prospero_oldman | 0178\|017B\|0182 | Massan villagers (rooms 599, 600 ...) | 0 (hint at 1) | an old sage lives in the Waterfall Shrine and knows more (no name) |
+| stage02_fara_prospero | 01C5 | Prospero, Waterfall Shrine (room 180) | 2 | the Orcs trick the Gumi; Fara is in danger (no boss, no shrine name) |
+| stage03_need_stone_item | 016C | farmer, rooms 425 / 433 / 595 | 3 | the Gumi opened the door with something strange (no stone named) |
+| stage05_to_ryuma_fork | 01A0 | Massan villager, room 592 | 0 | past Gumi the road splits at the sea; left = Ryuma, right = Mercator |
+| stage06_elders_meeting | 024C\|024D | Ryuma house, room 622 | 5 (hint at 6) | people hold a meeting in that house (mayor part only in 024D: not used) |
+| stage18_party_floor | 040D\|0413\|044E\|0474 | castle maids, rooms 55 / 68 / 70 / 85 / 88 | 18 | the banquet hall is upstairs |
+| stage20_tower_barrier_seen | 02FD\|0451\|067F | townsman 673, library 74, tower door message | 20 | a barrier blocks the door of Mir's tower |
+| stage20_tower_barrier | 042E | butler, rooms 51 / 55 / 85 | 19 (hint at 20) | barrier at Mir's tower door; General Arthur knows about breaking it |
+| stage20_tower_crypt | 03B1 | Mercator townsman, room 630 | 20 | Zak and Dexter went down into the crypt |
+| stage25_whistle_jump | 0264 | Ryuma, room 622 | 24 | the Sun Stone needs good balance and good jumping |
+| stage26_verla_mountains | 04C8 | fisherman, room 499 | 26 | soldiers dragged the townspeople off to the mountains |
+| stage26_mines_forks | 04D3 | miner, rooms 255 / 713 | 26 | the mine forks into three tunnels; more captives in the other two |
+| stage27_destel_west | 04EB | captive, rooms 242 / 711 | 26 | a village lies west of the mine; the duke marched there with soldiers |
+| stage27_destel_tunnel | 04FA | rooms 243 / 722 | 27 | the only way to Destel is the tunnel in the mine |
+| stage27_destel_duke | 04DF | rooms 269 / 724 | 27 | the duke and his soldiers went to Destel |
+| stage27_destel_well | 0511 (+ flag:28.7) | Destel dwarf, room 726 | 27 | the well is the entrance to an ancient monster cave |
+| stage31_kazalt_gatekeepers / stage31_labyrinth_gatekeepers | 052B | Kazalt dwarf, room 744 | 31 | three monsters in the labyrinth must be beaten to reach the palace |
+
+Note: stage27_destel_west uses 04EB instead of verified.md's 04EA: the duke / soldiers half of the fact ends in 04EB in both languages (same NPC chain, 04EB printed nowhere else).
+Rejected: stage-0 twin of stage01_prospero_oldman (stage 0 points to the bridge first; Prospero has no stage-0 branch); stage13_teller_famous 0380 (no place, the fortune-teller is known from the stage-13 event); stage19_sleep_room 040F|0414 (the own bedroom is known from the stage-17 event); stage27_destel_well before $28.7 (would point to the well before the raft scene); 01C6 (shrine name DE only); 0156 / 0157 (only 'door won't open' = base); 034F / 03EB / 035B / 0350 (EN / DE differ or no gain); 04CD priest (weaker than 04C8).
+Ungated sharpenings (a MANDATORY line tells it, no gate needed): `stage14_spell` L1 names Madame Yard's (05EC, cutscene 0x49 always follows the spell); `stage07_raft` hideout = cave on the cape, reached by raft (025D printed by both $04.0 setters); `stage18_party` banquet room (all $12.3 setters).
+4c fixes of existing base texts: `stage18_party` L2 'second floor' removed (now in stage18_party_floor); `stage05_to_ryuma` L2 no longer names the fork / Ryuma (now in stage05_to_ryuma_fork); `stage07_raft` L2 'Ryuma's pier' removed (not in 025D).
+Open points: stage 24 / 25 - the Greenmaze / east wall / Sun Stone facts are Arthur's cutscene 0xA0 = the $20.6 talk (stage24_duke_fled); a `stage25_whistle` variant with `flag:20.6` (no heard) is possible but only safe if $20.6 is always set before $24.4 (not proven), and whether g_AdditionalFlags bit 6 (dialogueactions.asm:2424) is $20.6 is unresolved. 067F (the 'magic barrier' system message at the tower door) is in the barrier_seen OR list; idea: a dedicated variant 'we saw the barrier ourselves' if the user wants it. $26.5 (gate of the miner's lines) has no name in FLAGS.md. All heard: entries need the v3 runtime to mark every box of a ContinuePrompt chain (4d hook = every PrintString call: yes).
+
 ## 5. Checkpoint list (same data as the json)
 
 Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
@@ -114,6 +171,14 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 - EN L2: Head south to Gumi and find / where they hold their ritual.
 - DE L1: Fara ist weg! Der Stamm im / Süden führt was im Schilde.
 - DE L2: Geh nach Gumi im Süden und / such ihren Ritualplatz.
+
+### `stage02_fara_seen` (added 2026-11-14, flag-gated, section 4e)
+- when: `stage>=2, flag:02.2`
+- evidence: $02.2 BRIDGE_TO_GUMI_REPAIRED: behaviour 121 of the Massan villager (room 592, visible while $00.0 set) waits for TA_09 (Player_Y $30, code/scripthandling/triggeractions.asm:152-157) and runs CSA_0003 = cutscene $0D: Gumi thugs marched in after the bridge was fixed and kidnapped Fara (code/script/script_cutscenetable.asm:61-65). Proves only 'Gumi thugs kidnapped Fara'; Prospero's Marsh Shrine line (CS_0008_1 code/script/en/characters/script_characters.asm:629-640) needs a second talk without a flag -> the shrine is NOT named. UNSURE: whether the cutscene is unavoidable (section 4e).
+- EN L1: Gumi thugs took Fara! / After them, Nigel - to Gumi!
+- EN L2: Gumi thugs kidnapped Fara. / Cross the bridge to Gumi!
+- DE L1: Die Gumi haben Fara / entführt! Hinterher, Niels!
+- DE L2: Gumi-Schläger haben Fara / entführt. Über die Brücke!
 
 ### `stage02_in_gumi`
 - when: `stage>=2, room:601-607`
@@ -315,6 +380,22 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 - DE L1: Nächster Job: der Magier Mir. / Sein Turm ist magisch versiegelt.
 - DE L2: Such einen Weg an der Sperre / vorbei. Die Gruft hilft dir.
 
+### `stage20_tower_dexzak` (added 2026-11-14, flag-gated, section 4e)
+- when: `stage>=20, !item:1F, flag:1A.1`
+- evidence: $1A.1 = Arthur's day-2 talk (char $1E, room 83 MERCATOR_CASTLE_ARMORY_1F), SetFlagBitOnTalking CS_001E_4 code/script/en/characters/script_characters.asm:3413-3425, branch $14 = stages 20-23 (code/script/en/characters/script_characters.asm:3359): Dexter and Zak asked him how to break the barrier and went to the crypt; the crypt monsters are clever; the armlet is not won by the sword alone. No crypt location in this text.
+- EN L1: Dexter and Zak beat us / to the crypt! Hurry, Nigel!
+- EN L2: A barrier guards Mir's tower. / An armlet waits in the crypt.
+- DE L1: Dexter und Zack sind / längst in der Gruft! Los!
+- DE L2: Vor Mirs Turm ist eine Sperre. / Ein Armreif ist in der Gruft.
+
+### `stage20_tower_arthur` (added 2026-11-14, flag-gated, section 4e)
+- when: `stage>=20, !item:1F, flag:19.7`
+- evidence: $19.7 = Arthur's talk at stage 19 only (branch $13, code/script/en/characters/script_characters.asm:3356), CS_001E_3 code/script/en/characters/script_characters.asm:3396-3410, room 83: magic barrier at the tower entrance, the armlet breaks it, it is in the underground crypt next to the church, traps guard it. Placed after the $1A.1 variant: with both flags the more exact one wins.
+- EN L1: An armlet breaks Mir's / barrier! It's in the crypt.
+- EN L2: Get the armlet from the crypt / next to the church. Traps!
+- DE L1: Ein Armreif bricht die / Sperre! Er liegt in der Gruft.
+- DE L2: Hol den Armreif aus der Gruft / neben der Kirche. Fallen!
+
 ### `stage20_in_crypt`
 - when: `stage>=20, !item:1F, room:646-659`
 - evidence: Crypt rooms 646-659 (651 = armlet room). Riddle rooms; $28.6 = $146 SAW_DEXTER_DIE_IN_CRYPT.
@@ -322,6 +403,14 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 - EN L2: Solve the riddle rooms, cross the / river and reach the armlet room.
 - DE L1: Denk nach, bevor du gehst. / Rätselräume bestrafen Fehler.
 - DE L2: Löse die Rätsel, quere den Fluss / und finde den Armreif-Raum.
+
+### `stage20_in_crypt_dexzak` (added 2026-11-14, flag-gated, section 4e)
+- when: `stage>=20, !item:1F, room:646-659, flag:1A.1`
+- evidence: $1A.1 as `stage20_tower_dexzak` (CS_001E_4 code/script/en/characters/script_characters.asm:3413-3425; DE code/script/de/characters/script_characters.asm:3230-3231): the monsters down there are clever, the sword alone will never get the armlet. Overridden at stage 21 by `stage21_crypt_deeper` like its base.
+- EN L1: Clever monsters here! / Use your head, not just steel!
+- EN L2: The sword alone won't get you / the armlet. Think it through.
+- DE L1: Schlaue Monster hier! / Erst denken, dann zuschlagen!
+- DE L2: Mit dem Schwert allein findest / du den Armreif nie. Denk nach!
 
 ### `stage21_crypt_deeper`
 - when: `stage>=21, !item:1F`
@@ -339,6 +428,14 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 - DE L1: Schickes Armband! Damit gibt die / Sperre sicher nach.
 - DE L2: Bring den Armreif zu Mirs Turm / südlich von Mercator.
 
+### `stage20_have_armlet_arthur` (added 2026-11-14, flag-gated, section 4e)
+- when: `stage>=20, item:1F, flag:19.7`
+- evidence: $19.7 (CS_001E_3 code/script/en/characters/script_characters.asm:3396-3410): the armlet breaks the barrier at Mir's tower entrance.
+- EN L1: We've got the armlet! / Now break Mir's barrier!
+- EN L2: The armlet breaks the barrier / at Mir's tower entrance.
+- DE L1: Der Armreif ist unser! / Jetzt weg mit Mirs Sperre!
+- DE L2: Der Armreif bricht die Sperre / vor dem Eingang von Mirs Turm.
+
 ### `stage22_to_mir`
 - when: `stage>=22`
 - evidence: $14.6 = $A6 (armlet gained; Mercator man: 'Is that the armlet?'). Tower: rooms 750-784 (784 boss arena), approach 464-465 / 475. Next: $17.3 SAW_MIRO_CLOSE_KEYDOOR, $17.6 TOOK_PURPLE_JEWEL, then $17.7 = $BF (stage 23).
@@ -346,6 +443,14 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 - EN L2: Mir's tower is south of Mercator. / Hold the armlet up at the door.
 - DE L1: Die Sperre weicht dem Armreif. / Geh und triff Mir.
 - DE L2: Mirs Turm liegt südlich von / Mercator. Halt den Armreif hoch.
+
+### `stage22_to_mir_arthur` (added 2026-11-14, flag-gated, section 4e)
+- when: `stage>=22, flag:19.7`
+- evidence: $19.7 (CS_001E_3 code/script/en/characters/script_characters.asm:3396-3410): same fact as `stage20_have_armlet_arthur`; `stage22_in_tower` (room entry) still overrides it inside the tower.
+- EN L1: Arthur said the armlet / breaks the barrier. Go!
+- EN L2: Walk to Mir's tower door. The / armlet breaks the barrier.
+- DE L1: Laut Arthur bricht der / Armreif die Sperre. Los!
+- DE L2: Geh zur Tür von Mirs Turm. Der / Armreif bricht die Sperre.
 
 ### `stage22_in_tower`
 - when: `stage>=22, room:750-784`
@@ -378,6 +483,14 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 - EN L2: Search cells and corridors. The / princess is held down here too.
 - DE L1: Eingesperrt! Typisch Herzog. Such / einen Weg aus dem Verlies.
 - DE L2: Durchsuch Zellen und Gänge. Die / Prinzessin sitzt hier auch fest.
+
+### `stage23_dungeon_lara` (added 2026-11-14, flag-gated, section 4e)
+- when: `stage>=23, flag:13.0, flag:1A.0`
+- evidence: $1A.0 = char $11E, CS_011E code/script/en/characters/script_characters.asm:4522-4532 (no progress gate): the women in rooms 43 / 45 (area MERCATOR_DUNGEON) say the duke holds Miss Lara, a princess, prisoner down here; go on and find her. `stage23_princess` ($20.4) overrides it.
+- EN L1: Lara's locked up here! / Let's find her, Nigel!
+- EN L2: The duke holds Princess Lara / down here. Go on, find her!
+- DE L1: Lara sitzt hier auch! / Suchen wir sie, Niels!
+- DE L2: Der Herzog hält Prinzessin / Lara hier fest. Finde sie!
 
 ### `stage23_princess`
 - when: `stage>=23, flag:20.4`
@@ -418,6 +531,14 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 - EN L2: Walk Greenmaze and whistle where / stuck. The dog leads to the stone.
 - DE L1: Pfeife in der Hand. Der Irrgarten / ist ein Wirrwarr aus Bäumen.
 - DE L2: Geh durch den Irrgarten und pfeif, / wenn du hängst. Der Hund hilft.
+
+### `stage25_whistle_gol` (added 2026-11-14, flag-gated, section 4e)
+- when: `stage>=25, item:20, !item:1E, flag:1A.7`
+- evidence: $1A.7 = Old Gol (char $3A, room 561, Greenmaze), CS_003A code/script/en/characters/script_characters.asm:5502-5546, only while the Sun Stone is not owned (5503-5505): keeper of Greenmaze, the gnomes changed the routes, and BOTH yes / no answers end with 'the Sun Stone is in the northeast sector of this forest' (5539, 5542; HandleYesNoPrompt code/scripthandling/scriptfuncs4.asm:54-70). The tree-top / underpass tips come only on 'yes' -> not used.
+- EN L1: Gol said: northeast! / The gnomes moved the paths...
+- EN L2: The Sun Stone lies in the / northeast part of Greenmaze.
+- DE L1: Gol sagt: Nordosten! / Die Zwerge verlegen die Wege!
+- DE L2: Im Grünen Labyrinth liegt der / Sonnenstein im Nordosten.
 
 ### `stage25_sunstone`
 - when: `stage>=25, item:1E`
@@ -555,6 +676,22 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 - DE L1: Ein riesiges Labyrinth. Flüsse / brauchen Flöße, Flöße Holz.
 - DE L2: Fäll einen Baum für Holz und lege / ein Floß. Nutze die Karte.
 
+### `stage31_labyrinth_father` (added 2026-11-14, flag-gated, section 4e)
+- when: `stage>=31, room:355-423, flag:1C.0, !flag:29.5`
+- evidence: $1C.0 = the old dwarf (char $142, room 406), CS_0142 code/script/en/characters/script_characters.asm:5608-5618, text opcode $14E0 on the first talk: you need a raft to go down the river; find his son and get logs. Stale once the logs are taken ($29.5, behaviour 752 in room 415) -> `!flag:29.5`.
+- EN L1: A raft for the river! / Find the dwarf's son first.
+- EN L2: Find the old dwarf's son and / get logs to build a raft.
+- DE L1: Ein Floß muss her! / Such erst den Sohn des Zwergs.
+- DE L2: Finde den Sohn des alten / Zwergs und hol Holzstämme.
+
+### `stage31_labyrinth_son` (added 2026-11-14, flag-gated, section 4e)
+- when: `stage>=31, room:355-423, flag:1C.1, !flag:29.5`
+- evidence: $1C.1 = the son, cutscene XS_012B code/script/en/cutscenes/script_cutscenes.asm:1265-1305 (via CSA_0138 code/scripthandling/dialogueactions.asm:3892-3897), sets $1C.1 at XS:1287 only if $1C.0 is set: go on up and cut the tree to make a raft. He does not hand over the logs (room 415 does, $29.5) -> `!flag:29.5`; `stage31_raft2` / `stage31_taunt` still override.
+- EN L1: Up we go! That tree / will make a fine raft!
+- EN L2: Climb up and cut down the / tree to make a raft.
+- DE L1: Hoch mit uns! Der Baum / gibt ein prima Floß!
+- DE L2: Klettere hoch und fäll den / Baum für ein Floß.
+
 ### `stage31_raft2`
 - when: `stage>=31, flag:2B.1, room:355-423`
 - evidence: $2B.1 = $159 SECOND_RAFT_PLACED_IN_KNL.
@@ -586,6 +723,182 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 - EN L2: Beat the guardian in the arena. / You can do it, Nigel!
 - DE L1: Endspurt. Heil dich, iss einen / EkeEke und los.
 - DE L2: Besiege den Wächter in der Arena. / Du schaffst das, Nigel!
+
+### `stage01_prospero_oldman` (heard-gated, 4f)
+- when: `stage>=1, heard:0178|017B|0182`
+- evidence: 0178 CS_007F code/script/en/characters/script_characters.asm:210-214 / 017B CS_0080 code/script/en/characters/script_characters.asm:229-232 (Massan, stage 0 only), 0182 'Pockets' CS_0003_1 code/script/en/characters/script_characters.asm:246-251 + 280-286 (stage 0-2): a sage / old man lives in the Waterfall Shrine and will know (DE 'der Alte' / 'der Weise im Wasserfallschrein'). Room 180 holds Prospero (ROOMS.md:159), his stage-1 branch sets $00.0 (code/script/en/characters/script_characters.asm:570-576). Prospero is NOT named; no Idol Stone. Placed after stage01_prospero, stage02_fara overrides.
+- EN L1: The Waterfall Shrine! / Its old sage may know more.
+- EN L2: Visit the old sage in the / Waterfall Shrine and ask him.
+- DE L1: Der Wasserfallschrein! / Der weise Alte dort weiß Rat!
+- DE L2: Geh zum Weisen im / Wasserfallschrein. Frag ihn!
+
+### `stage02_fara_prospero` (heard-gated, 4f)
+- when: `stage>=2, heard:01C5`
+- evidence: 01C5 Prospero CS_0008_1 code/script/en/characters/script_characters.asm:630-636 (needs $02.2) / CS_0008 branch $0003 code/script/en/characters/script_characters.asm:581-585: the Gumi are tricked by the Orcs, Fara is in danger (DE 'von den Orks getäuscht'). Not 01C6 (shrine name DE only), no boss name. Placed after stage02_fara_seen.
+- EN L1: Orcs fool the Gumi?! / Poor Fara is in danger!
+- EN L2: Orcs trick the Gumi and Fara / is in danger. On to Gumi!
+- DE L1: Orks täuschen Gumi?! / Fara ist in großer Gefahr!
+- DE L2: Die Orks täuschen die Gumi, / Fara ist in Gefahr. Nach Gumi!
+
+### `stage03_need_stone_item` (heard-gated, 4f)
+- when: `stage>=3, !item:31, heard:016C`
+- evidence: 016C farmer CS_007D branch $0003 code/script/en/characters/script_characters.asm:165-167 (stage 3 only): they used something strange to open the door (DE 'irgendwas Komisches'). No stone named. stage03_have_stone / stage03_door_open still override.
+- EN L1: A strange thing opens / that door! Let's find it.
+- EN L2: The Gumi used something odd / to open that door. Find it!
+- DE L1: Was Komisches öffnet / die Tür! Suchen wir es!
+- DE L2: Die Gumi öffneten die Tür mit / irgendwas Komischem. Such es!
+
+### `stage05_to_ryuma_fork` (heard-gated, 4f)
+- when: `stage>=5, heard:01A0`
+- evidence: 019E-01A0 CS_0083 code/script/en/characters/script_characters.asm:383-397 (Massan room 592, stages 0-1 and 4+; one ContinuePrompt chain, gate = last box 01A0): past Gumi the road splits at the sea, right = Mercator, left = Ryuma (harbour, lighthouse). Carries the fork / Ryuma fact the base stage05_to_ryuma L2 lost (4c).
+- EN L1: To Ryuma, Nigel! Past / Gumi, left at the sea.
+- EN L2: Past Gumi the road splits at / the sea. Left goes to Ryuma.
+- DE L1: Auf nach Ryuma! Hinter / Gumi am Meer links, Niels!
+- DE L2: Hinter Gumi teilt sich der Weg / am Meer: links nach Ryuma.
+
+### `stage06_elders_meeting` (heard-gated, 4f)
+- when: `stage>=6, heard:024C|024D`
+- evidence: 024C CS_00A4 branch $0005 code/script/en/characters/script_characters.asm:1267-1272 / 024D (+024E) branch $0006 code/script/en/characters/script_characters.asm:1273-1277, Ryuma room 622: people hold a meeting in that house (024C); the mandatory request is CS_00A6_1 in the same room (code/script/en/characters/script_characters.asm:1360-1369). The text uses only the 024C fact (the mayor part is in 024D/024E only). `!flag:04.0` dropped (stage07_raft comes later).
+- EN L1: That house with the / meeting! Let's go back.
+- EN L2: Talk again to the people / holding a meeting in Ryuma.
+- DE L1: Die Leute mit der / Besprechung! Nochmal hin!
+- DE L2: Sprich nochmal mit den Leuten / der Besprechung in Ryuma.
+
+### `stage18_party_floor` (heard-gated, 4f)
+- when: `stage>=18, heard:040D|0413|044E|0474`
+- evidence: maids 040D CS_00FC code/script/en/characters/script_characters.asm:3906-3908, 0413 CS_00FD code/script/en/characters/script_characters.asm:3933-3935 (room 55), 044E CS_0109 code/script/en/characters/script_characters.asm:4192-4194 (room 88), 0474 CS_0112 code/script/en/characters/script_characters.asm:4370-4372 (rooms 68/70/85), all branch $0012 = stage 18: the banquet hall is upstairs (common to all four in EN + DE; 'second floor' only in some), so the text says 'upstairs' / 'oben'. stage19_sleep overrides.
+- EN L1: Banquet's upstairs! / Come on, I'm starving!
+- EN L2: The banquet room is upstairs / in the castle.
+- DE L1: Das Bankett ist oben! / Komm, ich verhungere!
+- DE L2: Der Bankettsaal ist oben / im Schloss.
+
+### `stage20_tower_barrier_seen` (heard-gated, 4f)
+- when: `stage>=20, !item:1F, heard:02FD|0451|067F`
+- evidence: 02FD CS_00C3 code/script/en/characters/script_characters.asm:2264-2266 (room 673, stage 20-22), 0451 CS_010A code/script/en/characters/script_characters.asm:4210-4212 (library 74, stage 20-23), 067F = system message at the tower door (cutscene 0x07B, code/script/en/cutscenes/script_cutscenetable.asm:471-472): a barrier blocks the tower door. No Arthur, no armlet.
+- EN L1: A barrier blocks Mir's / tower! How do we break it?
+- EN L2: A barrier blocks the door of / Mir's tower. Find a way past.
+- DE L1: Eine Barriere vor Mirs / Turm! Wie kriegen wir die weg?
+- DE L2: Eine Barriere sperrt die Tür / von Mirs Turm. Such einen Weg.
+
+### `stage20_tower_barrier` (heard-gated, 4f)
+- when: `stage>=20, !item:1F, heard:042E`
+- evidence: 042D/042E butler CS_0021 branch $0013 code/script/en/characters/script_characters.asm:4061-4066 (rooms 51/55/85, stage 19+); gate 042E = last box (DE: barrier in 042D, 'General Arthur hat einen Weg gefunden, sie zu brechen' needs 042E; EN 'was seekin' a way to break through it'): barrier at Mir's tower door, Arthur knows about breaking it -> ask him.
+- EN L1: Arthur knows about the / barrier! Let's ask him.
+- EN L2: A barrier seals Mir's tower. / Ask General Arthur about it.
+- DE L1: Arthur weiß was über / die Barriere! Frag ihn!
+- DE L2: Mirs Turm hat eine Barriere. / Frag General Arthur danach.
+
+### `stage20_tower_crypt` (heard-gated, 4f)
+- when: `stage>=20, !item:1F, heard:03B1`
+- evidence: 03B1 CS_00E2 branch $0014 code/script/en/characters/script_characters.asm:3190-3194 (room 630, stage 20+): Zak and Dexter went down into the crypt (DE 'in die Gruft runtergegangen'). Names known from the banquet (cutscene text 061B/061C). No location, no armlet. Flag variants $1A.1 / $19.7, crypt room and armlet entries come later and override.
+- EN L1: Zak and Dexter are in / the crypt! After them!
+- EN L2: Zak and Dexter went down / into the crypt. Find it!
+- DE L1: Zack und Dexter sind / in der Gruft! Hinterher!
+- DE L2: Zack und Dexter sind in die / Gruft gestiegen. Finde sie!
+
+### `stage25_whistle_jump` (heard-gated, 4f)
+- when: `stage>=25, item:20, !item:1E, heard:0264`
+- evidence: 0263/0264 Ryuma CS_00A6 branch $0018 code/script/en/characters/script_characters.asm:1344-1351 (room 622, stage 24-25); gate 0264 (DE 'springen' only there): reaching the Sun Stone needs good balance and good jumping. stage25_whistle_gol ($1A.7, location) still wins.
+- EN L1: Sun Stone? Balance and / good jumps, Nigel!
+- EN L2: Reaching the Sun Stone takes / balance and good jumping.
+- DE L1: Zum Sonnenstein? Gut / balancieren und springen!
+- DE L2: Zum Sonnenstein brauchst du / Gleichgewicht und Sprungkraft.
+
+### `stage26_verla_mountains` (heard-gated, 4f)
+- when: `stage>=26, heard:04C8`
+- evidence: 04C7/04C8 fisherman CS_011F branch $001A code/script/en/characters/script_characters.asm:4538-4542 (room 499, stage 26); gate 04C8 (DE soldiers + mountains only there): strange soldiers suddenly dragged the townspeople off to the mountains. No room condition: also beats stage26_verla / stage26_ship; the mines room entries and stage 27 override.
+- EN L1: Soldiers took everyone / to the mountains?!
+- EN L2: Soldiers dragged the townsfolk / off to the mountains.
+- DE L1: Soldaten haben alle in / die Berge verschleppt?!
+- DE L2: Seltsame Soldaten schleppten / alle Leute in die Berge.
+
+### `stage26_mines_forks` (heard-gated, 4f)
+- when: `stage>=26, room:227-269, heard:04D3`
+- evidence: 04D2/04D3 miner CS_0120_1 code/script/en/characters/script_characters.asm:4590-4602 (needs $26.5; rooms 255 / 713, stage 26); gate 04D3 (DE 'den beiden anderen'): the mine forks into three tunnels, the other captives are in the other two. stage26_dex_down overrides.
+- EN L1: Three tunnels! More / captives in the other two.
+- EN L2: The mine forks into three / tunnels. Search the other two.
+- DE L1: Drei Stollen! In den / anderen stecken noch Leute.
+- DE L2: Die Mine teilt sich in drei / Stollen. Such in den anderen!
+
+### `stage27_destel_west` (heard-gated, 4f)
+- when: `stage>=27, heard:04EB`
+- evidence: 04EA/04EB captive CS_0126_1 code/script/en/characters/script_characters.asm:4745-4749 (needs $26.7; rooms 242/711, stage 26): a small village lies west of the mine, the duke marched there with his soldiers. Gate = 04EB (not 04EA as in verified.md): the marching / soldiers part ends in 04EB in EN and DE (DE 04EA stops at 'wie Herzog Merkator'); 04EB is printed only by this NPC (code/script/en/characters/script_characters.asm:4748, same chain).
+- EN L1: A village west of the / mine! The duke went there.
+- EN L2: The duke marched his soldiers / to a village west of the mine.
+- DE L1: Ein Dorf westlich der / Mine! Der Herzog zog hin.
+- DE L2: Der Herzog zog mit Soldaten / ins Dorf westlich der Mine.
+
+### `stage27_destel_tunnel` (heard-gated, 4f)
+- when: `stage>=27, heard:04FA`
+- evidence: 04FA CS_012A code/script/en/characters/script_characters.asm:4841-4843 (rooms 243/722, stage 27): the only way to Destel is through (the tunnel in) the mine.
+- EN L1: Destel? Only through / the mine's tunnel!
+- EN L2: The only way to Destel is / the tunnel in the mine.
+- DE L1: Nach Destel? Nur durch / den Minentunnel!
+- DE L2: Nach Destel kommt man nur / durch den Tunnel in der Mine.
+
+### `stage27_destel_duke` (heard-gated, 4f)
+- when: `stage>=27, heard:04DF`
+- evidence: 04DF CS_0123 code/script/en/characters/script_characters.asm:4664-4668 (rooms 269/724, stage 27): the duke and his soldiers went to Destel. The 'peaceful dwarves' part is in 04E0 and not used. Order west < tunnel < duke = the most precise wins.
+- EN L1: To Destel! The duke / and his soldiers went there.
+- EN L2: The duke and his soldiers / went to Destel. Follow them!
+- DE L1: Ab nach Destel, Niels! / Der Herzog zog dorthin.
+- DE L2: Der Herzog und seine Soldaten / zogen nach Destel. Hinterher!
+
+### `stage27_destel_well` (heard-gated, 4f)
+- when: `stage>=27, flag:28.7, heard:0511`
+- evidence: 0511 Destel dwarf CS_0131 branch $001B code/script/en/characters/script_characters.asm:4958-4960 (room 726, stage 27): the well is the entrance to an ancient cave where monsters live (EN tone 'The chief sealed it!' is not in DE nor the original: not used). Only after the raft scene ($28.7), else it would point too early. stage27_in_well overrides.
+- EN L1: That well leads to an / old cave! Monsters, eek!
+- EN L2: The well in Destel leads into / an ancient monster cave.
+- DE L1: Der Brunnen führt in / eine alte Höhle! Monster!
+- DE L2: Der Brunnen in Destel ist der / Eingang zu einer Monsterhöhle.
+
+### `stage31_kazalt_gatekeepers` (heard-gated, 4f)
+- when: `stage>=31, room:737-749, heard:052B`
+- evidence: 052A/052B Kazalt dwarf CS_0138 code/script/en/characters/script_characters.asm:5079-5084 (room 744, no stage gate); gate 052B ('beat them to reach the palace' / DE 'öffnet sich das Tor zum Palast'): three monsters live in the labyrinth. Named only generically (EN 'Gehenna's Gatekeepers' / DE 'Torwächter der Hölle' differ).
+- EN L1: Beat three monsters in / the maze to reach the palace!
+- EN L2: Beat the maze's three monsters / to reach the palace.
+- DE L1: Drei Monster hausen im / Labyrinth. Besieg sie!
+- DE L2: Erst die drei Monster im / Labyrinth, dann der Palast!
+
+### `stage31_labyrinth_gatekeepers` (heard-gated, 4f)
+- when: `stage>=31, room:355-423, heard:052B`
+- evidence: same as stage31_kazalt_gatekeepers (052B, code/script/en/characters/script_characters.asm:5079-5084), shown inside the Labyrinth. stage31_labyrinth_father / _son, stage31_raft2, stage31_taunt override.
+- EN L1: Monsters in this maze! / Beat all three, Nigel!
+- EN L2: Beat all three monsters here / to reach the palace.
+- DE L1: Drei Monster! Besieg / alle, dann zum Palast!
+- DE L2: Besieg alle drei Monster hier, / dann geht das Palasttor auf.
+
+### `stage14_spell` (texts changed 2026-11-14, 4f ungated sharpening)
+- when: `stage>=14`
+- evidence: CSA_003D (code/scripthandling/dialogueactions.asm:832-847) runs cutscene 0x48 (sets $03.4 = stage 14) and, when the spell was accepted, always cutscene 0x49 (script_cutscenetable.asm:278-281): 05EC 'Now you can get into the Madame Yard's of your dreams!' / DE 'Jetzt kommst du bei Madame Yard hinein!' -> L1 may name Madame Yard's. L2 unchanged.
+- EN L1: Madame Yard's lets us / in now! Let's go, Nigel!
+- EN L2: Go through the door at Madame / Yard's and see who is inside.
+- DE L1: Bei Madame Yard kommen / wir jetzt rein, Niels!
+- DE L2: Geh bei Madame Yard's durch die / Tür und sieh, wer drin ist.
+
+### `stage07_raft` (texts changed 2026-11-14, 4f ungated sharpening + 4c fix)
+- when: `stage>=7`
+- evidence: both and only $04.0 setters print 025D right after the flag (CS_00A6_1 code/script/en/characters/script_characters.asm:1360-1369, CS_00A6_2 code/script/en/characters/script_characters.asm:1380-1383): 'Their hideout's the cave on the cape. Cross by raft' / DE 'Ihr Versteck ist die Höhle am Kap. Mit dem Floß...'. The old L2 'Ryuma's pier' is NOT in 025D -> removed.
+- EN L1: A cave on the cape! / Raft over there, Nigel!
+- EN L2: The thieves hide in the cave / on the cape. Cross by raft.
+- DE L1: Die Höhle am Kap! Mit / dem Floß rüber, Niels!
+- DE L2: Die Diebe hausen in der Höhle / am Kap. Mit dem Floß rüber!
+
+### `stage18_party` (texts changed 2026-11-14, 4f 4c fix)
+- when: `stage>=18`
+- evidence: all $12.3 setters (Arthur CS_001E_2 code/script/en/characters/script_characters.asm:3386-3388, maid CS_0112_1 code/script/en/characters/script_characters.asm:4385-4387, XS_005D script_cutscenes.asm:494-501) name the banquet hall, none the floor -> 'second floor' removed from the base L2; it lives in stage18_party_floor ('upstairs').
+- EN L1: The banquet's ready! / Come on, I'm starving!
+- EN L2: Go to the banquet room / in the castle.
+- DE L1: Das Bankett beginnt! / Komm, ich verhungere!
+- DE L2: Geh zum Bankettsaal / im Schloss.
+
+### `stage05_to_ryuma` (L2 changed 2026-11-14, 4f 4c fix)
+- when: `stage>=5`
+- evidence: the fork / Ryuma are told only by the optional CS_0083 (01A0); the stage-5 event is the Red Jewel -> base L2 no longer names the fork or Ryuma (stage05_to_ryuma_fork carries them). L1 unchanged.
+- EN L1: Massan is done! West, Nigel, the treasure won't wait!
+- EN L2: Go through Gumi and follow / the road west.
+- DE L1: Massan ist erledigt! Nach Westen, der Schatz wartet nicht!
+- DE L2: Geh durch Gumi und folg / dem Weg nach Westen.
 
 
 ## 6. UNSURE list (to verify on the Deck, see the id in the json)

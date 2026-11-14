@@ -46,6 +46,21 @@
    ]
   },
   {
+   "id": "stage01_prospero_oldman",
+   "when": [
+    "stage>=1",
+    "heard:0178|017B|0182"
+   ],
+   "en": [
+    "The Waterfall Shrine!|Its old sage may know more.",
+    "Visit the old sage in the|Waterfall Shrine and ask him."
+   ],
+   "de": [
+    "Der Wasserfallschrein!|Der weise Alte dort weiß Rat!",
+    "Geh zum Weisen im|Wasserfallschrein. Frag ihn!"
+   ]
+  },
+  {
    "id": "stage02_fara",
    "when": [
     "stage>=2"
@@ -57,6 +72,36 @@
    "de": [
     "Die Gumi-Leute machen Ärger! Auf nach Gumi, Niels!",
     "Geh nach Gumi im Süden und|such ihren Ritualplatz."
+   ]
+  },
+  {
+   "id": "stage02_fara_seen",
+   "when": [
+    "stage>=2",
+    "flag:02.2"
+   ],
+   "en": [
+    "Gumi thugs took Fara!|After them, Nigel - to Gumi!",
+    "Gumi thugs kidnapped Fara.|Cross the bridge to Gumi!"
+   ],
+   "de": [
+    "Die Gumi haben Fara|entführt! Hinterher, Niels!",
+    "Gumi-Schläger haben Fara|entführt. Über die Brücke!"
+   ]
+  },
+  {
+   "id": "stage02_fara_prospero",
+   "when": [
+    "stage>=2",
+    "heard:01C5"
+   ],
+   "en": [
+    "Orcs fool the Gumi?!|Poor Fara is in danger!",
+    "Orcs trick the Gumi and Fara|is in danger. On to Gumi!"
+   ],
+   "de": [
+    "Orks täuschen Gumi?!|Fara ist in großer Gefahr!",
+    "Die Orks täuschen die Gumi,|Fara ist in Gefahr. Nach Gumi!"
    ]
   },
   {
@@ -87,6 +132,22 @@
    "de": [
     "Die Schreintür ist fest zu. Finden wir einen Weg rein!",
     "Erkunde die Schreine in der Nähe,|such, was die Tür öffnet."
+   ]
+  },
+  {
+   "id": "stage03_need_stone_item",
+   "when": [
+    "stage>=3",
+    "!item:31",
+    "heard:016C"
+   ],
+   "en": [
+    "A strange thing opens|that door! Let's find it.",
+    "The Gumi used something odd|to open that door. Find it!"
+   ],
+   "de": [
+    "Was Komisches öffnet|die Tür! Suchen wir es!",
+    "Die Gumi öffneten die Tür mit|irgendwas Komischem. Such es!"
    ]
   },
   {
@@ -172,11 +233,26 @@
    ],
    "en": [
     "Massan is done! West, Nigel, the treasure won't wait!",
-    "Go through Gumi and west. Take|the fork to Ryuma."
+    "Go through Gumi and follow|the road west."
    ],
    "de": [
     "Massan ist erledigt! Nach Westen, der Schatz wartet nicht!",
-    "Durch Gumi und nach Westen. An|der Gabelung nach Ryuma."
+    "Geh durch Gumi und folg|dem Weg nach Westen."
+   ]
+  },
+  {
+   "id": "stage05_to_ryuma_fork",
+   "when": [
+    "stage>=5",
+    "heard:01A0"
+   ],
+   "en": [
+    "To Ryuma, Nigel! Past|Gumi, left at the sea.",
+    "Past Gumi the road splits at|the sea. Left goes to Ryuma."
+   ],
+   "de": [
+    "Auf nach Ryuma! Hinter|Gumi am Meer links, Niels!",
+    "Hinter Gumi teilt sich der Weg|am Meer: links nach Ryuma."
    ]
   },
   {
@@ -209,17 +285,32 @@
    ]
   },
   {
+   "id": "stage06_elders_meeting",
+   "when": [
+    "stage>=6",
+    "heard:024C|024D"
+   ],
+   "en": [
+    "That house with the|meeting! Let's go back.",
+    "Talk again to the people|holding a meeting in Ryuma."
+   ],
+   "de": [
+    "Die Leute mit der|Besprechung! Nochmal hin!",
+    "Sprich nochmal mit den Leuten|der Besprechung in Ryuma."
+   ]
+  },
+  {
    "id": "stage07_raft",
    "when": [
     "stage>=7"
    ],
    "en": [
-    "Thieves on a cape, huh? We need a ride over there, Nigel!",
-    "Take the raft at Ryuma's pier|to the thieves' hideout."
+    "A cave on the cape!|Raft over there, Nigel!",
+    "The thieves hide in the cave|on the cape. Cross by raft."
    ],
    "de": [
-    "Diebe auf einer Landzunge? Wir brauchen was, das uns rüberbringt!",
-    "Nimm das Floß am Pier von Ryuma|zum Räuberversteck."
+    "Die Höhle am Kap! Mit|dem Floß rüber, Niels!",
+    "Die Diebe hausen in der Höhle|am Kap. Mit dem Floß rüber!"
    ]
   },
   {
@@ -328,11 +419,11 @@
     "stage>=14"
    ],
    "en": [
-    "That spell felt funny... Maybe a locked door opens now?",
+    "Madame Yard's lets us|in now! Let's go, Nigel!",
     "Go through the door at Madame|Yard's and see who is inside."
    ],
    "de": [
-    "Der Zauber kitzelt noch... Geht jetzt vielleicht eine Tür auf?",
+    "Bei Madame Yard kommen|wir jetzt rein, Niels!",
     "Geh bei Madame Yard's durch die|Tür und sieh, wer drin ist."
    ]
   },
@@ -399,12 +490,27 @@
     "stage>=18"
    ],
    "en": [
-    "Dinner is ready! Come on, I'm starving! Don't be late!",
-    "Go to the banquet room on the|second floor of the castle."
+    "The banquet's ready!|Come on, I'm starving!",
+    "Go to the banquet room|in the castle."
    ],
    "de": [
-    "Das Essen ist fertig! Komm, ich verhungere! Sei pünktlich!",
-    "Geh zum Bankettsaal im zweiten|Stock des Schlosses."
+    "Das Bankett beginnt!|Komm, ich verhungere!",
+    "Geh zum Bankettsaal|im Schloss."
+   ]
+  },
+  {
+   "id": "stage18_party_floor",
+   "when": [
+    "stage>=18",
+    "heard:040D|0413|044E|0474"
+   ],
+   "en": [
+    "Banquet's upstairs!|Come on, I'm starving!",
+    "The banquet room is upstairs|in the castle."
+   ],
+   "de": [
+    "Das Bankett ist oben!|Komm, ich verhungere!",
+    "Der Bankettsaal ist oben|im Schloss."
    ]
   },
   {
@@ -436,6 +542,86 @@
    ]
   },
   {
+   "id": "stage20_tower_barrier_seen",
+   "when": [
+    "stage>=20",
+    "!item:1F",
+    "heard:02FD|0451|067F"
+   ],
+   "en": [
+    "A barrier blocks Mir's|tower! How do we break it?",
+    "A barrier blocks the door of|Mir's tower. Find a way past."
+   ],
+   "de": [
+    "Eine Barriere vor Mirs|Turm! Wie kriegen wir die weg?",
+    "Eine Barriere sperrt die Tür|von Mirs Turm. Such einen Weg."
+   ]
+  },
+  {
+   "id": "stage20_tower_barrier",
+   "when": [
+    "stage>=20",
+    "!item:1F",
+    "heard:042E"
+   ],
+   "en": [
+    "Arthur knows about the|barrier! Let's ask him.",
+    "A barrier seals Mir's tower.|Ask General Arthur about it."
+   ],
+   "de": [
+    "Arthur weiß was über|die Barriere! Frag ihn!",
+    "Mirs Turm hat eine Barriere.|Frag General Arthur danach."
+   ]
+  },
+  {
+   "id": "stage20_tower_crypt",
+   "when": [
+    "stage>=20",
+    "!item:1F",
+    "heard:03B1"
+   ],
+   "en": [
+    "Zak and Dexter are in|the crypt! After them!",
+    "Zak and Dexter went down|into the crypt. Find it!"
+   ],
+   "de": [
+    "Zack und Dexter sind|in der Gruft! Hinterher!",
+    "Zack und Dexter sind in die|Gruft gestiegen. Finde sie!"
+   ]
+  },
+  {
+   "id": "stage20_tower_dexzak",
+   "when": [
+    "stage>=20",
+    "!item:1F",
+    "flag:1A.1"
+   ],
+   "en": [
+    "Dexter and Zak beat us|to the crypt! Hurry, Nigel!",
+    "A barrier guards Mir's tower.|An armlet waits in the crypt."
+   ],
+   "de": [
+    "Dexter und Zack sind|längst in der Gruft! Los!",
+    "Vor Mirs Turm ist eine Sperre.|Ein Armreif ist in der Gruft."
+   ]
+  },
+  {
+   "id": "stage20_tower_arthur",
+   "when": [
+    "stage>=20",
+    "!item:1F",
+    "flag:19.7"
+   ],
+   "en": [
+    "An armlet breaks Mir's|barrier! It's in the crypt.",
+    "Get the armlet from the crypt|next to the church. Traps!"
+   ],
+   "de": [
+    "Ein Armreif bricht die|Sperre! Er liegt in der Gruft.",
+    "Hol den Armreif aus der Gruft|neben der Kirche. Fallen!"
+   ]
+  },
+  {
    "id": "stage20_in_crypt",
    "when": [
     "stage>=20",
@@ -449,6 +635,23 @@
    "de": [
     "Vorsicht, Niels! Erst denken, dann gehen. Die Rätsel beißen!",
     "Löse die Rätselräume und schau,|was weiter drin wartet."
+   ]
+  },
+  {
+   "id": "stage20_in_crypt_dexzak",
+   "when": [
+    "stage>=20",
+    "!item:1F",
+    "room:646-659",
+    "flag:1A.1"
+   ],
+   "en": [
+    "Clever monsters here!|Use your head, not just steel!",
+    "The sword alone won't get you|the armlet. Think it through."
+   ],
+   "de": [
+    "Schlaue Monster hier!|Erst denken, dann zuschlagen!",
+    "Mit dem Schwert allein findest|du den Armreif nie. Denk nach!"
    ]
   },
   {
@@ -482,6 +685,22 @@
    ]
   },
   {
+   "id": "stage20_have_armlet_arthur",
+   "when": [
+    "stage>=20",
+    "item:1F",
+    "flag:19.7"
+   ],
+   "en": [
+    "We've got the armlet!|Now break Mir's barrier!",
+    "The armlet breaks the barrier|at Mir's tower entrance."
+   ],
+   "de": [
+    "Der Armreif ist unser!|Jetzt weg mit Mirs Sperre!",
+    "Der Armreif bricht die Sperre|vor dem Eingang von Mirs Turm."
+   ]
+  },
+  {
    "id": "stage22_to_mir",
    "when": [
     "stage>=22"
@@ -493,6 +712,21 @@
    "de": [
     "Auf zu Mirs Turm, Niels! Vielleicht hilft der Armreif?",
     "Mirs Turm steht vor Merkator.|Geh bis zur Tür."
+   ]
+  },
+  {
+   "id": "stage22_to_mir_arthur",
+   "when": [
+    "stage>=22",
+    "flag:19.7"
+   ],
+   "en": [
+    "Arthur said the armlet|breaks the barrier. Go!",
+    "Walk to Mir's tower door. The|armlet breaks the barrier."
+   ],
+   "de": [
+    "Laut Arthur bricht der|Armreif die Sperre. Los!",
+    "Geh zur Tür von Mirs Turm. Der|Armreif bricht die Sperre."
    ]
   },
   {
@@ -552,6 +786,22 @@
    "de": [
     "Eingesperrt?! Dieser fiese Herzog! Such einen Weg raus, Niels!",
     "Durchsuch Zellen und Gänge nach|einem Ausweg. Frag, wer hier ist."
+   ]
+  },
+  {
+   "id": "stage23_dungeon_lara",
+   "when": [
+    "stage>=23",
+    "flag:13.0",
+    "flag:1A.0"
+   ],
+   "en": [
+    "Lara's locked up here!|Let's find her, Nigel!",
+    "The duke holds Princess Lara|down here. Go on, find her!"
+   ],
+   "de": [
+    "Lara sitzt hier auch!|Suchen wir sie, Niels!",
+    "Der Herzog hält Prinzessin|Lara hier fest. Finde sie!"
    ]
   },
   {
@@ -615,6 +865,40 @@
    ]
   },
   {
+   "id": "stage25_whistle_jump",
+   "when": [
+    "stage>=25",
+    "item:20",
+    "!item:1E",
+    "heard:0264"
+   ],
+   "en": [
+    "Sun Stone? Balance and|good jumps, Nigel!",
+    "Reaching the Sun Stone takes|balance and good jumping."
+   ],
+   "de": [
+    "Zum Sonnenstein? Gut|balancieren und springen!",
+    "Zum Sonnenstein brauchst du|Gleichgewicht und Sprungkraft."
+   ]
+  },
+  {
+   "id": "stage25_whistle_gol",
+   "when": [
+    "stage>=25",
+    "item:20",
+    "!item:1E",
+    "flag:1A.7"
+   ],
+   "en": [
+    "Gol said: northeast!|The gnomes moved the paths...",
+    "The Sun Stone lies in the|northeast part of Greenmaze."
+   ],
+   "de": [
+    "Gol sagt: Nordosten!|Die Zwerge verlegen die Wege!",
+    "Im Grünen Labyrinth liegt der|Sonnenstein im Nordosten."
+   ]
+  },
+  {
    "id": "stage25_sunstone",
    "when": [
     "stage>=25",
@@ -659,6 +943,21 @@
    ]
   },
   {
+   "id": "stage26_verla_mountains",
+   "when": [
+    "stage>=26",
+    "heard:04C8"
+   ],
+   "en": [
+    "Soldiers took everyone|to the mountains?!",
+    "Soldiers dragged the townsfolk|off to the mountains."
+   ],
+   "de": [
+    "Soldaten haben alle in|die Berge verschleppt?!",
+    "Seltsame Soldaten schleppten|alle Leute in die Berge."
+   ]
+  },
+  {
    "id": "stage26_mines",
    "when": [
     "stage>=26",
@@ -671,6 +970,22 @@
    "de": [
     "Überall Wachen in dieser Mine! Bleib wachsam, Niels!",
     "Kämpf dich durch die Gänge und such|die Verschwundenen."
+   ]
+  },
+  {
+   "id": "stage26_mines_forks",
+   "when": [
+    "stage>=26",
+    "room:227-269",
+    "heard:04D3"
+   ],
+   "en": [
+    "Three tunnels! More|captives in the other two.",
+    "The mine forks into three|tunnels. Search the other two."
+   ],
+   "de": [
+    "Drei Stollen! In den|anderen stecken noch Leute.",
+    "Die Mine teilt sich in drei|Stollen. Such in den anderen!"
    ]
   },
   {
@@ -704,6 +1019,51 @@
    ]
   },
   {
+   "id": "stage27_destel_west",
+   "when": [
+    "stage>=27",
+    "heard:04EB"
+   ],
+   "en": [
+    "A village west of the|mine! The duke went there.",
+    "The duke marched his soldiers|to a village west of the mine."
+   ],
+   "de": [
+    "Ein Dorf westlich der|Mine! Der Herzog zog hin.",
+    "Der Herzog zog mit Soldaten|ins Dorf westlich der Mine."
+   ]
+  },
+  {
+   "id": "stage27_destel_tunnel",
+   "when": [
+    "stage>=27",
+    "heard:04FA"
+   ],
+   "en": [
+    "Destel? Only through|the mine's tunnel!",
+    "The only way to Destel is|the tunnel in the mine."
+   ],
+   "de": [
+    "Nach Destel? Nur durch|den Minentunnel!",
+    "Nach Destel kommt man nur|durch den Tunnel in der Mine."
+   ]
+  },
+  {
+   "id": "stage27_destel_duke",
+   "when": [
+    "stage>=27",
+    "heard:04DF"
+   ],
+   "en": [
+    "To Destel! The duke|and his soldiers went there.",
+    "The duke and his soldiers|went to Destel. Follow them!"
+   ],
+   "de": [
+    "Ab nach Destel, Niels!|Der Herzog zog dorthin.",
+    "Der Herzog und seine Soldaten|zogen nach Destel. Hinterher!"
+   ]
+  },
+  {
    "id": "stage27_in_destel",
    "when": [
     "stage>=27",
@@ -731,6 +1091,22 @@
    "de": [
     "Er haut auf einem Floß ab! Wir finden einen anderen Weg!",
     "In Destel weiß jemand einen anderen|Weg hinunter zum See."
+   ]
+  },
+  {
+   "id": "stage27_destel_well",
+   "when": [
+    "stage>=27",
+    "flag:28.7",
+    "heard:0511"
+   ],
+   "en": [
+    "That well leads to an|old cave! Monsters, eek!",
+    "The well in Destel leads into|an ancient monster cave."
+   ],
+   "de": [
+    "Der Brunnen führt in|eine alte Höhle! Monster!",
+    "Der Brunnen in Destel ist der|Eingang zu einer Monsterhöhle."
    ]
   },
   {
@@ -850,6 +1226,22 @@
    ]
   },
   {
+   "id": "stage31_kazalt_gatekeepers",
+   "when": [
+    "stage>=31",
+    "room:737-749",
+    "heard:052B"
+   ],
+   "en": [
+    "Beat three monsters in|the maze to reach the palace!",
+    "Beat the maze's three monsters|to reach the palace."
+   ],
+   "de": [
+    "Drei Monster hausen im|Labyrinth. Besieg sie!",
+    "Erst die drei Monster im|Labyrinth, dann der Palast!"
+   ]
+  },
+  {
    "id": "stage31_labyrinth",
    "when": [
     "stage>=31",
@@ -862,6 +1254,56 @@
    "de": [
     "Was für ein irres Labyrinth! Mirs Zauber fällt heilige Bäume...",
     "Such etwas, das dir hilft, übers|Wasser zu kommen. Nutze die Karte."
+   ]
+  },
+  {
+   "id": "stage31_labyrinth_gatekeepers",
+   "when": [
+    "stage>=31",
+    "room:355-423",
+    "heard:052B"
+   ],
+   "en": [
+    "Monsters in this maze!|Beat all three, Nigel!",
+    "Beat all three monsters here|to reach the palace."
+   ],
+   "de": [
+    "Drei Monster! Besieg|alle, dann zum Palast!",
+    "Besieg alle drei Monster hier,|dann geht das Palasttor auf."
+   ]
+  },
+  {
+   "id": "stage31_labyrinth_father",
+   "when": [
+    "stage>=31",
+    "room:355-423",
+    "flag:1C.0",
+    "!flag:29.5"
+   ],
+   "en": [
+    "A raft for the river!|Find the dwarf's son first.",
+    "Find the old dwarf's son and|get logs to build a raft."
+   ],
+   "de": [
+    "Ein Floß muss her!|Such erst den Sohn des Zwergs.",
+    "Finde den Sohn des alten|Zwergs und hol Holzstämme."
+   ]
+  },
+  {
+   "id": "stage31_labyrinth_son",
+   "when": [
+    "stage>=31",
+    "room:355-423",
+    "flag:1C.1",
+    "!flag:29.5"
+   ],
+   "en": [
+    "Up we go! That tree|will make a fine raft!",
+    "Climb up and cut down the|tree to make a raft."
+   ],
+   "de": [
+    "Hoch mit uns! Der Baum|gibt ein prima Floß!",
+    "Klettere hoch und fäll den|Baum für ein Floß."
    ]
   },
   {
