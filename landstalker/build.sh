@@ -253,6 +253,8 @@ python3 tools/patch_bath.py .deps/genrecomp
 python3 tools/patch_introde.py .deps/genrecomp
 # Options page 'Language / Region' (Language, Names, Items, Bath Scene; tools/patch_langpage.py, needs patch_kbdir / patch_bath)
 python3 tools/patch_langpage.py .deps/genrecomp
+# Options menu in Korean / Japanese (escaped UI text + Galmuri 7 glyph table from tools/uiwide.py; tools/patch_uiwide.py, needs patch_lang / patch_options / patch_iteminfo)
+python3 tools/patch_uiwide.py .deps/genrecomp
 # VDP data path step 3.0: path counters in vdp_ctrl.c (LANDSTALKER_VDPCOUNT=file; inert without it; tools/patch_vdpcount.py, docs/SOUND_PLAN.md section 12)
 python3 tools/patch_vdpcount.py .deps/genrecomp
 # VDP data path of our own (data / control port, registers, DMA; default ours, LANDSTALKER_VDP=gpgx = GPGX's decode, =check = both compared; tools/patch_vdpport.py + tools/lkvdp.c, docs/SOUND_PLAN.md section 12)

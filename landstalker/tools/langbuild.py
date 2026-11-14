@@ -233,7 +233,8 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
         for blk in ("strings", "names", "item_dialog"):
             for ent in lang.get(blk, {}).values():
                 if "{=" in ent.get("t", ""): ent["t"] = resolve(ent["t"], nm_tab, base, variant)
-        EXTRA, UI_BYTES = ko_codes(lang, [t for _, t in fh]), {}
+        if lang.get("ui_text"): lang["ui_text"] = {k: resolve(v, nm_tab, base, variant) if "{=" in v else v for k, v in lang["ui_text"].items()}   # LK_UIWIDE v1
+        EXTRA, UI_BYTES = ko_codes(lang, [t for _, t in fh] + list(lang.get("ui_text", {}).values())), {}
     for blk in ("strings", "names"):
         for d in (lang.get(blk, {}), lang.get("items_jp", {}).get(blk, {})):   # LK_JPITEMS v1: block 'items_jp' = lines / names for Options > Items = Japanese
             for ent in d.values():
@@ -282,8 +283,13 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
         except (ValueError, struct.error) as e: dropped.append(("map_areas:" + key, str(e))); continue
         names.append((TABLES["area"], i, len(blob), len(data))); blob += data
     ui = [(UI_KEYS[k], v) for k, v in lang.get("ui_values", lang.get("ui", {})).items()]
-    texts = []
-    for k, v in lang.get("ui_text", {}).items():
+    texts = []; uiw = None
+    if ko and lang.get("ui_text"):   # LK_UIWIDE v1 (release 2.0): Korean UI text = escaped byte strings + glyph table trailer (tools/uiwide.py)
+        import uiwide, langwrap; W2 = langwrap.widths(rom)
+        tl, uiw, skip = uiwide.build(lang["ui_text"], lambda ch: EXTRA.get(ch), lambda ch: W2.get(ch, 12))
+        texts = [bytes([len(kb), len(vb)]) + kb + vb for kb, vb in tl]
+        dropped += [("ui_text:" + k, "stays English (uiwide)") for k in skip]
+    for k, v in ([] if ko else lang.get("ui_text", {}).items()):
         if "{=" in v: v = resolve(v, nm_tab, base, variant)
         try: vb = bytes(UI_BYTES.get(c) or ord(c) for c in v); kb = k.encode("ascii")
         except (ValueError, UnicodeEncodeError): dropped.append(("ui_text:" + k, "unsupported character")); continue
@@ -312,6 +318,7 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
             items.append(ix)
         tr = b"KOMN" + struct.pack(">H", len(mg)) + b"".join(mg) + bytes([64]) + b"".join(bytes([len(ix)]) + b"".join(struct.pack(">H", v) for v in ix) for ix in items)
         out = out[:16] + struct.pack(">I", len(out)) + out[20:] + tr
+    if uiw: out = out + uiw + __import__("uiwide").footer(len(out))   # LK_UIWIDE v1: glyph table + footer at the end
     open(out_path, "wb").write(out)
     print("langbuild: %d strings, %d names, %d ui values, %d glyphs, %d ui texts -> %s (%d bytes); dropped %d" % (len(strs), len(names), len(ui), len(glyphs), len(texts), out_path, len(out), len(dropped)))
     for k, w in dropped: print("  dropped", k, "-", w)

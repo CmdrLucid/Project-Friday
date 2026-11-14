@@ -190,7 +190,12 @@ def main():
     # glyph codes: names first (bytes), then by frequency
     names = jp_names(jrom)
     freq = {}
-    for p in list(pieces.values()) + [x for _, segs in fhj for x in segs]:
+    def _tt(ch):
+        try: return text_tokens(ch)
+        except (ValueError, KeyError): return []
+    uit = jmap.get('ui_text', {})   # LK_UIWIDE v1 (release 2.0): the options menu in kana (tools/uiwide.py)
+    uich = [x for v in uit.values() for ch in v if ord(ch) >= 0x80 for x in _tt(ch)]
+    for p in list(pieces.values()) + [x for _, segs in fhj for x in segs] + [uich]:
         for x in p:
             if x[0] == 'g' and x[1] != J_SPACE: freq[x[1]] = freq.get(x[1], 0) + 1
     name_gl = []
@@ -274,10 +279,17 @@ def main():
         cs = [code.get(x[1], 0) if x[0] == 'g' else 0 for x in tl]
         data = b''.join(struct.pack('>H', c) for c in cs); nm.append((lb.TABLES['area'], i, len(blob), len(data))); blob += data
     gl = sorted((c, r) for c, r in rows.items() if c)
-    hdr = b'LKLG' + struct.pack('>HHHHHH', 4, len(strs), len(nm), 0, len(gl), 0) + b'\0\0\0\0'   # version 4: 16-bit names; u32 trailer offset 0 (no Korean menu trailer)
+    import uiwide
+    def _code(ch):
+        t = _tt(ch); return code.get(t[0][1]) if len(t) == 1 and t[0][0] == 'g' else None
+    tl, uiw, uskip = uiwide.build(uit, _code, lambda ch: W.get(_code(ch), 8))
+    texts = b''.join(bytes([len(kb), len(vb)]) + kb + vb for kb, vb in tl)
+    print('jplang: %d menu texts in kana (%d stay English)' % (len(tl), len(uskip)))
+    hdr = b'LKLG' + struct.pack('>HHHHHH', 4, len(strs), len(nm), 0, len(gl), len(tl)) + b'\0\0\0\0'   # version 4: 16-bit names; u32 trailer offset 0 (no Korean menu trailer)
     bad = [n for n in nm if not (0 <= n[0] < 256 and 0 <= n[1] < 256 and 0 <= n[3] < 256)]; assert not bad, bad[:5]
     data = hdr + b''.join(struct.pack('>HIH', *s) for s in strs) + b''.join(struct.pack('>BBIB', *n) for n in nm)
-    data += b''.join(struct.pack('>H', c) + lb.pack(r) + bytes(8) for c, r in gl) + bytes(blob)
+    data += b''.join(struct.pack('>H', c) + lb.pack(r) + bytes(8) for c, r in gl) + texts + bytes(blob)
+    if tl: data += uiw + uiwide.footer(len(data))   # LK_UIWIDE v1
     open(target, 'wb').write(data)
     idx.append('ja\tJapanese'); open(idxf, 'w', encoding='utf-8').write('\n'.join(idx) + '\n')
     print('jplang: %d Japanese strings (%d stay English: {Item} / {Number} differ), %d names, %d glyphs (highest code $%X) from %s -> %s'

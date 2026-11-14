@@ -26,8 +26,29 @@ def main7(bdf, out):
     open(out, 'wb').write(data); print('kofont: %d of 11172 syllables (7 px) -> %s (%d bytes)' % (len(g), out, len(data)))
 
 
+def main7ja(bdf, out):
+    """release 2.0: Galmuri 7 KANA (U+3040..U+30FF incl. the long vowel mark and the middle dot) for the Japanese options menu (8x8 tiles):
+    'JAG7' + u16 first code point + u16 count + 7 bytes per code point (bit $80 = column 0), same cut as main7"""
+    t = open(bdf, encoding='latin-1').read(); g = {}
+    for m in re.finditer(r'ENCODING (\d+)\n(.*?)ENDCHAR', t, re.S):
+        cp = int(m.group(1))
+        if not 0x3040 <= cp <= 0x30FF: continue
+        b = m.group(2); w, h, xo, yo = map(int, re.search(r'BBX (-?\d+) (-?\d+) (-?\d+) (-?\d+)', b).groups())
+        rows = re.search(r'BITMAP\n(.*)', b, re.S).group(1).split(); r = [0] * 7; top = 7 - h - yo
+        for i, hexrow in enumerate(rows):
+            y = top + i
+            if not 0 <= y < 7: continue
+            v = int(hexrow, 16); n = len(hexrow) * 4
+            for x in range(w):
+                if v >> (n - 1 - x) & 1 and 0 <= x + xo < 8: r[y] |= 0x80 >> (x + xo)
+        g[cp] = r
+    data = b'JAG7' + struct.pack('>HH', 0x3040, 192) + b''.join(bytes(g.get(cp, [0] * 7)) for cp in range(0x3040, 0x3100))
+    open(out, 'wb').write(data); print('kofont: %d kana (7 px) -> %s (%d bytes)' % (len(g), out, len(data)))
+
+
 def main():
     if sys.argv[1] == '--menu': return main7(sys.argv[2], sys.argv[3])   # kofont.py --menu Galmuri7.bdf lang/ko_glyphs7.dat
+    if sys.argv[1] == '--menu-ja': return main7ja(sys.argv[2], sys.argv[3])   # kofont.py --menu-ja Galmuri7.bdf lang/ja_glyphs7.dat
     bdf, out = sys.argv[1], sys.argv[2]
     t = open(bdf, encoding='latin-1').read()
     g = {}

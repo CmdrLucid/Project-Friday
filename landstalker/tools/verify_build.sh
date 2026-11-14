@@ -111,6 +111,7 @@ chk "Figuren-Licht ganze Breite (CPU)"     $G/ext/Genesis-Plus-GX/core/vdp_rende
 chk "Figuren-Licht ganze Breite (GPU)"     $G/src/platform_sdl.c "LK_FIGOWN v1"
 chk "Deutsche Intro-Texte"                 $G/src/func_table.c "LK_INTRODE v1"
 chk "Friday-Hinweise in allen Sprachen"   $G/src/func_table.c "LK_FRIDAY_LANG v1"
+chk "Optionsmenue Koreanisch / Japanisch"  $G/src/func_table.c "LK_UIWIDE v1"
 chk "Licht: verdeckte Figuren werfen ganze Schatten" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTHIDE v1"
 chk "GPU-Licht: verdeckte Figuren (Shader)"   $G/src/platform_sdl.c "LK_LTHIDE v1"
 chk "GPU-Licht: Vorausrechnen nach Zeit (Ruckler)" $G/src/platform_sdl.c "LK_GL5RING v1"

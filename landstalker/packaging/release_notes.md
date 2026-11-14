@@ -6,8 +6,8 @@
 - **New options page Language / Region:**
   - **Deutsch:** every line of dialogue, with the names of the original German release (Niels, Flora, Merkator, ...), and the intro captions of the German release.
   - **English (JP):** every line rewritten in the tone of the Japanese original (its jokes, the characters' voices, the scenes the Western release toned down).
-  - **Francais** and **Korean:** translated in the Japanese original's tone (Korean with the Galmuri font).
-  - **Japanese:** the original Japanese text, if you put your own Japanese ROM next to your ROM (nothing of it is in the download).
+  - **Francais** and **Korean:** translated in the Japanese original's tone (Korean with the Galmuri font, including the options menu).
+  - **Japanese:** the original Japanese text, if you put your own Japanese ROM next to your ROM (nothing of it is in the download); our options menu and Friday's hints in kana.
   - **Names:** localized or the Japanese original names. **Items:** the four items that are different things in the Japanese original.
   - **Bath Scene** (off by default): restores the scene in Kayla's room that the Western releases block with a maid on the door.
   - The translations are written with Claude and not all have been read by native speakers yet: corrections are very welcome.
