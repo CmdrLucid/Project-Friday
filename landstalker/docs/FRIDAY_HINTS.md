@@ -134,7 +134,7 @@ Note: stage27_destel_west uses 04EB instead of verified.md's 04EA: the duke / so
 Rejected: stage-0 twin of stage01_prospero_oldman (stage 0 points to the bridge first; Prospero has no stage-0 branch); stage13_teller_famous 0380 (no place, the fortune-teller is known from the stage-13 event); stage19_sleep_room 040F|0414 (the own bedroom is known from the stage-17 event); stage27_destel_well before $28.7 (would point to the well before the raft scene); 01C6 (shrine name DE only); 0156 / 0157 (only 'door won't open' = base); 034F / 03EB / 035B / 0350 (EN / DE differ or no gain); 04CD priest (weaker than 04C8).
 Ungated sharpenings (a MANDATORY line tells it, no gate needed): `stage14_spell` L1 names Madame Yard's (05EC, cutscene 0x49 always follows the spell); `stage07_raft` hideout = cave on the cape, reached by raft (025D printed by both $04.0 setters); `stage18_party` banquet room (all $12.3 setters).
 4c fixes of existing base texts: `stage18_party` L2 'second floor' removed (now in stage18_party_floor); `stage05_to_ryuma` L2 no longer names the fork / Ryuma (now in stage05_to_ryuma_fork); `stage07_raft` L2 'Ryuma's pier' removed (not in 025D).
-Open points: stage 24 / 25 - the Greenmaze / east wall / Sun Stone facts are Arthur's cutscene 0xA0 = the $20.6 talk (stage24_duke_fled); a `stage25_whistle` variant with `flag:20.6` (no heard) is possible but only safe if $20.6 is always set before $24.4 (not proven), and whether g_AdditionalFlags bit 6 (dialogueactions.asm:2424) is $20.6 is unresolved. 067F (the 'magic barrier' system message at the tower door) is in the barrier_seen OR list; idea: a dedicated variant 'we saw the barrier ourselves' if the user wants it. $26.5 (gate of the miner's lines) has no name in FLAGS.md. All heard: entries need the v3 runtime to mark every box of a ContinuePrompt chain (4d hook = every PrintString call: yes).
+Open points: CLOSED 2026-11-14: stage 24 / 25 is handled by the flag-gated variant `stage25_whistle_arthur` (`flag:20.6`, no proof of order $20.6 vs $24.4 needed: it shows only when both hold, and Gol's heard line `stage25_whistle_gol` stays later in the list and wins); 067F (barrier message at the tower door) is already an alternative in `stage20_tower_barrier_seen`. Still open: $26.5 (gate of the miner's lines) has no name in FLAGS.md. All heard: entries need the v3 runtime to mark every box of a ContinuePrompt chain (4d hook = every PrintString call: yes).
 
 ## 5. Checkpoint list (same data as the json)
 
@@ -531,6 +531,14 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 - EN L2: Walk Greenmaze and whistle where / stuck. The dog leads to the stone.
 - DE L1: Pfeife in der Hand. Der Irrgarten / ist ein Wirrwarr aus Bäumen.
 - DE L2: Geh durch den Irrgarten und pfeif, / wenn du hängst. Der Hund hilft.
+
+### `stage25_whistle_arthur` (added 2026-11-14, flag-gated, section 4e)
+- when: `stage>=25, item:20, !item:1E, flag:20.6`
+- evidence: $20.6 = TALKED_WITH_ARTHUR_REVEALING_DUKE_ESCAPE (Arthur's cutscene 0xA0, see stage24_duke_fled): the Ryuma lighthouse is dark because the Sun Stone was stolen and thrown into Greenmaze; Greenmaze is reached through the tunnel north of the castle. No direction inside Greenmaze (that is Gol's line, stage25_whistle_gol, which comes later in the list and wins).
+- EN L1: Dark lighthouse? Blame / the thief, Nigel!
+- EN L2: The Sun Stone is in Greenmaze, / north of the castle.
+- DE L1: Leuchtturm dunkel? Der / Dieb war's, Niels!
+- DE L2: Sonnenstein: Grünes Labyrinth, / nördlich vom Schloss.
 
 ### `stage25_whistle_gol` (added 2026-11-14, flag-gated, section 4e)
 - when: `stage>=25, item:20, !item:1E, flag:1A.7`

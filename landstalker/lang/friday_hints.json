@@ -882,6 +882,23 @@
    ]
   },
   {
+   "id": "stage25_whistle_arthur",
+   "when": [
+    "stage>=25",
+    "item:20",
+    "!item:1E",
+    "flag:20.6"
+   ],
+   "en": [
+    "Dark lighthouse? Blame|the thief, Nigel!",
+    "The Sun Stone is in Greenmaze,|north of the castle."
+   ],
+   "de": [
+    "Leuchtturm dunkel? Der|Dieb war's, Niels!",
+    "Sonnenstein: Grünes Labyrinth,|nördlich vom Schloss."
+   ]
+  },
+  {
    "id": "stage25_whistle_gol",
    "when": [
     "stage>=25",
