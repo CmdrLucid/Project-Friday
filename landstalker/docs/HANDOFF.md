@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 52-57
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 751-762
-- 1. Where we are: lines 763-897
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 898-1132
-- 3. How the user works (important): lines 1133-1148
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1149-1173
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1174-1182
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1183-1230
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1231-1240
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1241-1242
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1243-1245
-- NEXT STEPS, newest first: -197 899, -196 900, -195 901, -194 902, -193 903, -192 904, -191 905, -190 906, -189 907, -188 908
+- 1. Where we are: lines 763-898
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 899-1133
+- 3. How the user works (important): lines 1134-1149
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1150-1174
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1175-1183
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1184-1231
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1232-1241
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1242-1243
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1244-1246
+- NEXT STEPS, newest first: -197 900, -196 901, -195 902, -194 903, -193 904, -192 905, -191 906, -190 907, -189 908, -188 909
 - Newest entries:
   - 0a435 line 187: 2026-11-13 night, late (Deck, Opus 5.5): Korean item names in the Start menu lists (LK_LGKOMENU v1, Galmuri...
   - 0a434 line 188: 2026-11-13 night, late (Deck, Opus 5.5 + 11 Sonnet agents): KOREAN done (lang/ko.json, Galmuri 11 font, LK_...
@@ -761,6 +761,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-14 END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** dungeon map redesign brainstormed with mock-ups and BUILT (LK_ROOMMAP v13 / roommap v18 / LK_RMNAMES v1: re-layout with short links, graded links around a D-pad selection, A = flag + path, '?' exits, symbols only, dungeon names per language); ja.bin now version 4. Headless only (KN cave mapshot, titles de / ko / ja / fr, Japanese dialogue unchanged), NOT played. Open with the user: play the map (-197), the languages (-189..-194), the Friday hints (-195), further languages (-196).
 - **2026-11-13 NIGHT-2 END (Opus 5.5 + ~40 Sonnet agent runs, `dev` pushed, main = v1.9.1):** user-tested fixes: Japanese stray Latin letters (own text mirror byte cut, user 'passt jetzt'). Done headless, NOT played yet: Items = Japanese names in Japanese, Names = Japanese in English (JP) / German, Japanese kana item names in dialogue + Start menu (LK_JPITEMS v3 / LK_JPMENU v1), line ends no longer jump to the line start (LK_OWNTEXT v2, all languages), English (JP) full pass (2110 strings), FRENCH (lang/fr.json, LK_LGFR v1 accents), KOREAN (lang/ko.json, Galmuri 11 / 7 fonts, own font bank LK_LGFONT v1, 16-bit names LK_LGKO v1, menu names LK_LGKOMENU v1). Next: the user plays the languages (HANDOFF -189..-194; then the Friday hints (-195: user reads them first, then Japanese-Friday voice + translations); further languages proposed in -196 (Portuguese BR, Spanish, Italian).
 - **2026-11-14 END (Opus 5.5 + 8 Sonnet agents for the Japanese mapping, `dev` pushed, main = v1.9.1):** German dialogue COMPLETE (2126 strings), English (original tone) 'English (JP)' COMPLETE (617 strings), Options > Items Original / Japanese (pictures from the player's Japanese ROM), Japanese as a language (original text from the player's Japanese ROM, only listed when it is found). All headless-verified (screenshots of the Massan priest / Destel church); the user has NOT played any of it yet. Open: user test, Japanese mapping fixes on report, then French.
 - **2026-11-13 NIGHT END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** German translation in progress: names of the German release + Names option (Japanese originals), style guide docs/TRANSLATION.md, 1036 of ~2175 strings (Massan, Gumi, shops / churches / inns, Ryuma, Mercator town / harbour / castle); user played Massan in German ('sprachlich gut', fixes confirmed 'sieht gut aus'); Ryuma + Mercator not played. Home clean-up done (~/Project-Friday-Test). Details 0a423.
