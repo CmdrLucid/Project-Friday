@@ -5,15 +5,15 @@
 - 0. One-paragraph summary: lines 52-57
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 751-762
 - 1. Where we are: lines 763-897
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 898-1131
-- 3. How the user works (important): lines 1132-1147
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1148-1172
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1173-1181
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1182-1229
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1230-1239
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1240-1241
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1242-1244
-- NEXT STEPS, newest first: -196 899, -195 900, -194 901, -193 902, -192 903, -191 904, -190 905, -189 906, -188 907, -187 908
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 898-1132
+- 3. How the user works (important): lines 1133-1148
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1149-1173
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1174-1182
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1183-1230
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1231-1240
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1241-1242
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1243-1245
+- NEXT STEPS, newest first: -197 899, -196 900, -195 901, -194 902, -193 903, -192 904, -191 905, -190 906, -189 907, -188 908
 - Newest entries:
   - 0a435 line 187: 2026-11-13 night, late (Deck, Opus 5.5): Korean item names in the Start menu lists (LK_LGKOMENU v1, Galmuri...
   - 0a434 line 188: 2026-11-13 night, late (Deck, Opus 5.5 + 11 Sonnet agents): KOREAN done (lang/ko.json, Galmuri 11 font, LK_...
@@ -896,6 +896,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-197. **NEXT (2026-11-14, dungeon map, user: 'besser ja' to mock-up v5):** direction for the map redesign (docs/MAP.md brainstorm parts 1-3, mock-ups ~/Project-Friday-Test/Mockups/dungeonkarte/mock.py): draw today's layout TURNED like the game (NE = up-right), whole floor always visible, links graded (all faint, current room bright, neighbours medium), D-pad cursor moves the highlight; next mock-up steps: a layout pass that shortens links (doors keep their sides), '?' for unvisited exits, path to a chosen room. Nothing in the game yet; build only after the user OKs a refined mock-up.
 -196. **IDEA / PROPOSAL (2026-11-14, user asked which languages could follow; decide AFTER the user tested de / en_tone / fr / ko / ja and the Friday hints -195):** (1) Portuguese (Brazil) - huge Mega Drive fan base (Tectoy), Latin + a few accents (ã õ ç á é ê ó ...) derived from the ROM font like LK_LGFR, no rebuild; (2) Spanish - big audience, ñ á é í ó ú ¿ ¡, same way; (3) Italian - small effort (à è é ì ò ù). Same workflow as French (worksheets EN / JP / DE / ENJP, agents, chkfull / chkwrap, glossary from a release if one exists, otherwise our own terms). Only with a native proof-reader: Russian (Cyrillic font like the Korean path, upper + lower case) and Chinese (2000+ glyphs, nearly fills the font bank, needs a CJK pixel font). Cost reminder: every language multiplies later text fixes, Friday hints and menu texts.
 -195. **NEXT (2026-11-14, OPEN WITH THE USER FIRST):** Friday Hints (Select key, lang/friday_hints.json, patch_friday.py) exist only in en / de (all other languages show English). Plan agreed in principle: (1) rewrite all 63 hints in the JAPANESE Friday's voice (childlike, girlish, easily offended, sulks / tongue out 'Bäh!', treasure-greedy, jealous of Lara / Linda / Madame Yard's girls, teases and calls the hero by his plain name; voice reference = all Friday lines of the Japanese original), content unchanged; (2) then translate to fr / ko / ja (hints into the language files, because ja / ko have per-file glyph codes; patch_friday picks by language; rebuild). BUT the user first wants to read the current hints himself while playing ('das ist noch ein offener Punkt bei mir'): do not start before he says so. Overview for reading: tools/friday_overview.py.
 -194. **NEXT (2026-11-13 late):** user plays Korean (Options > Language > Korean): Hangul in the box, speaker names, item names in sentences; ideally a native speaker reads it (speech levels / dialect); fixes -> ~/Project-Friday-Test/lktest/lang/src_ko/fullN.py + tools/applyfull_ko.sh N. Korean item names in the Start menu would need the virtual-tile path of LK_JPMENU with a 2-row Hangul font (not done).
