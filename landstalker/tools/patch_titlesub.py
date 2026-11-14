@@ -2,7 +2,7 @@
 """Title screen subtitle in the language (release 2.0, 2026-11-14, user: own lettering, 'option 2').
 While the final title screen runs (lk_brand_on, WaitForStartGame $039988, tools/patch_overlay.py) and the language is de / fr / ko / ja, the
 English 'THE TREASURES OF KING NOLE' is covered in the finished picture and our own lettering (tools/titlefont.py: hand-drawn capitals in
-the title's style; Hangul / kanji from Galmuri 14, SIL OFL) is drawn right-aligned where the English line ends.  The three greys follow the
+the title's style; Hangul / kanji from Noto Sans CJK KR / JP Bold 17 px, SIL OFL, lang/OFL-NotoSansCJK.txt) is drawn right-aligned where the English line ends.  The three greys follow the
 picture: they are scaled from the brightness of a pixel of the English letters in the previous frame (fades stay right).  Picture only
 (nothing in RAM / VRAM changes); English and English (JP) keep the original title.  Test aid: LANDSTALKER_TITLESUB=0 = off.
 Needs patch_overlay.py (LK_BRAND v1) and patch_lang.py.  Idempotent.  usage: patch_titlesub.py path/to/genrecomp"""
