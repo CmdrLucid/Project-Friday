@@ -90,6 +90,8 @@ static int lk_gl_classify(int x, int line, int src, int sp2, int black, int U, i
   if (src >= 1 && src <= 3) {
     if (U < lk_lt_umin) lk_lt_umin = U; if (U > lk_lt_umax) lk_lt_umax = U; if (V < lk_lt_vmin) lk_lt_vmin = V; if (V > lk_lt_vmax) lk_lt_vmax = V;   /* the drawn area (GL5 ring) */
     if ((sp2 & 0x200) && (j = lk_lt_figat(x, line)) >= 0) return 16 + j;
+    if (sp2 & 0x200) { int sl = line - lk_sm_syn, si = x + lk_wide_e - lk_sm_sxn, tg;   /* LK_FIGOWN v1 (2026-11-14, room 81 boulder): a sprite pixel outside every +-16 px figure box belongs to its OWNER figure (wide sprites: the edges were lit as the wall behind = bright streaks) */
+      if (sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW && (tg = lk_lt_spre[sl][si]) != 0) for (j = 0; j < lk_lt_nf && j < 16; j++) if (lk_lt_f[j].tag == tg) return 16 + j; }
     return 1; }
   return (src == 0 || src == 6 || src == 7) ? 3 : 0; }
 /* for the GL side (platform_sdl.c, once per present): 1 = the last frame was captured; fills the frame's light state.
