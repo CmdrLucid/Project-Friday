@@ -4,14 +4,14 @@
 **Since v1.0 the project has grown from "the recompiled game runs" into a full edition: own renderer with widescreen, lighting with real 3D shapes and day / night, sprint, quick save, quick equip and many more comfort options. v2.0 adds what was missing most: the whole game in more languages, a hint companion and a real dungeon map. Feedback is very welcome (Issues or Discussions on GitHub), especially on the translations.**
 
 - **New options page Language / Region:**
-  - **Deutsch:** every line of dialogue, with the names of the original German release (Niels, Flora, Merkator, ...).
+  - **Deutsch:** every line of dialogue, with the names of the original German release (Niels, Flora, Merkator, ...), and the intro captions of the German release.
   - **English (JP):** every line rewritten in the tone of the Japanese original (its jokes, the characters' voices, the scenes the Western release toned down).
   - **Francais** and **Korean:** translated in the Japanese original's tone (Korean with the Galmuri font).
   - **Japanese:** the original Japanese text, if you put your own Japanese ROM next to your ROM (nothing of it is in the download).
   - **Names:** localized or the Japanese original names. **Items:** the four items that are different things in the Japanese original.
   - **Bath Scene** (off by default): restores the scene in Kayla's room that the Western releases block with a maid on the door.
   - The translations are written with Claude and not all have been read by native speakers yet: corrections are very welcome.
-- **Friday Hints** (Options > Quality of Life, off by default): press Select and Friday tells you where to go next. The hints follow your progress, only mention what Nigel has actually been told, and get more precise when you listened to an optional character (remembered per save file). English and German.
+- **Friday Hints** (Options > Quality of Life, off by default): press Select and Friday tells you where to go next. The hints follow your progress, only mention what Nigel has actually been told, and get more precise when you listened to an optional character (remembered per save file). In English, German, French, Korean and Japanese.
 - **Dungeon map, redesigned** (bind "Map" in Keybindings): turned like the game's view, the whole floor at once, a selection on the D-pad, A sets a flag and the map shows the way there, L1 / R1 switch floors, dungeon names in every language.
 - **Keyboard:** the directions can be remapped too; one row switches to W A S D.
 - **Fixes:** big figures (the boulder in the castle basement) no longer get light streaks at their edges.

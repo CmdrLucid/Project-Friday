@@ -204,6 +204,8 @@ static void lk_fh_ask(void) {
     lv = 0;   /* only the gentle level (user 2026-10-31: 'nur die vagen Hinweise, nicht mehr 2-stufig'; the clear level stays in lang/friday_hints.json) */
     de = lk_lg_sel > 0 && !strcmp(lk_lg_codes[lk_lg_sel], "de");
     str.id = 0x16; str.n = lk_fh_e[pick].t[de * 2 + lv].n; str.w = lk_fh_w + 2 * lk_fh_e[pick].t[de * 2 + lv].off;
+    if (!de && lk_lg_on && lk_lg_str && lv == 0) { LkLgStr key, *r; key.id = (uint16_t)(0xE000 + pick);   /* LK_FRIDAY_LANG v1 (release 2.0): the hint in the loaded language (tools/fridaylang.py: fr / ko / ja file strings $E000 + entry) */
+      r = bsearch(&key, lk_lg_str, (size_t)lk_lg_nstr, sizeof *lk_lg_str, lk_lg_cmp); if (r) { str.n = r->n; str.w = r->w; } }
     if (getenv("LANDSTALKER_FRIDAY_LOG")) fprintf(stderr, "friday: frame %ld stage %d/%d/%d room %d -> %s level %d\n", (long)platform_frame_number(), lk_fh_stage[1], lk_fh_stage[2], lk_fh_stage[3], (int)bus_read16(0xFF1204u), lk_fh_id[pick], lv + 1);
     g_m68k = sv;
     { uint8_t sfx = bus_read8(0xFF1154u);   /* g_TalkSoundEffect: Friday's speech blip while she talks (SetSpecialCharacter $02912C: SpecialCharacterSfxList $02913E, entry 1 = Friday) */

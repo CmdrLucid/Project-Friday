@@ -1,6 +1,6 @@
 {
  "version": 1,
- "note": "Friday hints (Select key). Runtime picks the LAST entry whose when-conditions all hold. stage = list 1 of GetFlagProgress (decimal, 0..31) at RAM 0xFF1906, sub2 = 0xFF1907, sub3 = 0xFF1908. flag:BB.b = byte BB (hex) bit b of the story flags at 0xFF1000. item:XX = hex item id owned (nibble at 0xFF1040). room:A-B = current room number, decimal range. en/de = [level 1, level 2], lines split by the pipe sign. Generated from landstalker/docs/FRIDAY_HINTS.md work; texts are our own wording. Since 2026-10-31 only level 1 is shown, in Friday's own voice (user: 'am Stil ihrer Dialoge orientieren'); it is free text: tools/patch_friday.py wraps it at word ends (30 characters per line, 3 lines per page, the game waits for a button between pages), a pipe still forces a line break.",
+ "note": "Friday hints (Select key). Runtime picks the LAST entry whose when-conditions all hold. stage = list 1 of GetFlagProgress (decimal, 0..31) at RAM 0xFF1906, sub2 = 0xFF1907, sub3 = 0xFF1908. flag:BB.b = byte BB (hex) bit b of the story flags at 0xFF1000. item:XX = hex item id owned (nibble at 0xFF1040). room:A-B = current room number, decimal range. en/de = [level 1, level 2], lines split by the pipe sign; since release 2.0 also fr / ko / ja (built into those language files by tools/fridaylang.py, gentle level only). Generated from landstalker/docs/FRIDAY_HINTS.md work; texts are our own wording. Since 2026-10-31 only level 1 is shown, in Friday's own voice (user: 'am Stil ihrer Dialoge orientieren'); it is free text: tools/patch_friday.py wraps it at word ends (30 characters per line, 3 lines per page, the game waits for a button between pages), a pipe still forces a line break.",
  "hints": [
   {
    "id": "stage00_start",
@@ -14,6 +14,18 @@
    "de": [
     "Niels! AUFWACHEN! Der Schatz findet sich nicht allein! Frag rum.",
     "Sprich mit allen in Massan.|Einer erzählt was von der Brücke."
+   ],
+   "fr": [
+    "Ryle! RÉVEILLE-TOI! Le trésor va pas se trouver tout seul! Pose des questions.",
+    "Parle à tout le monde à Massan.|Quelqu'un parle d'un pont."
+   ],
+   "ko": [
+    "라일! 일어나! 보물이 저절로 찾아오진 않아! 여기저기 물어보자!",
+    "마산 사람들에게 다 말을 걸어 봐.|누군가 다리 이야기를 해 줄 거야."
+   ],
+   "ja": [
+    "ライル! おきなさいよっ! たからは ねてても みつからないわよ! まず まわりの人に きいてみましょ!",
+    "マサンの 人たちに みんな はなしかけてね だれかが 橋の ことを いってるわよ"
    ]
   },
   {
@@ -29,6 +41,18 @@
    "de": [
     "Abenteuerzeit, Niels! Mal sehen, wohin die Höhle führt!",
     "Kämpf dich durch die Höhle und|such den Weg nach draußen."
+   ],
+   "fr": [
+    "C'est l'aventure, Ryle! Voyons où mène cette grotte!",
+    "Bats-toi dans la grotte et|cherche la suite du chemin."
+   ],
+   "ko": [
+    "모험이다, 라일! 이 동굴이 어디로 이어지나 보자!",
+    "동굴을 싸우며 지나서|앞으로 갈 길을 찾아봐."
+   ],
+   "ja": [
+    "ぼうけんの じかんよ ライル! この どうくつ どこへ つづくのかな!",
+    "てきを たおしながら どうくつを すすんで さきへの みちを さがしましょ!"
    ]
   },
   {
@@ -43,6 +67,18 @@
    "de": [
     "Die Gumi-Leute haben die Brücke zerlegt?! Frech! Frag mal rum!",
     "Sieh in jedes Haus in Massan.|Vielleicht weiß wer mehr."
+   ],
+   "fr": [
+    "Les Gumi ont cassé le pont?! Quel culot! Demandons autour de nous, Ryle!",
+    "Fouille chaque maison de Massan.|Quelqu'un en sait peut-être plus."
+   ],
+   "ko": [
+    "구미 녀석들이 다리를 부쉈다고?! 너무해! 라일, 물어보러 가자!",
+    "마산의 집을 전부 살펴봐.|누군가 더 알지도 몰라."
+   ],
+   "ja": [
+    "グミ族が 橋を こわしたですって!? ひどいわねっ! ライル まわりの人に きいてみましょ!",
+    "マサンの 家を ぜんぶ まわってみてね だれかが もっと しってるかも"
    ]
   },
   {
@@ -58,6 +94,18 @@
    "de": [
     "Der Wasserfallschrein!|Der weise Alte dort weiß Rat!",
     "Geh zum Weisen im|Wasserfallschrein. Frag ihn!"
+   ],
+   "fr": [
+    "Le Sanctuaire des Chutes!|Son vieux sage en sait plus!",
+    "Va voir le vieux sage du|Sanctuaire des Chutes. Demande-lui!"
+   ],
+   "ko": [
+    "폭포 신전이래!|거기 노인이 더 알걸?",
+    "폭포 신전의 노인을 찾아가서|물어봐."
+   ],
+   "ja": [
+    "滝つぼ老人なら もっと しってるかもっ!",
+    "滝のほこらにいる 滝つぼ老人に あって はなしを きいてみてね"
    ]
   },
   {
@@ -72,6 +120,18 @@
    "de": [
     "Die Gumi-Leute machen Ärger! Auf nach Gumi, Niels!",
     "Geh nach Gumi im Süden und|such ihren Ritualplatz."
+   ],
+   "fr": [
+    "Ces Gumi nous cherchent des ennuis! Allons à Gumi, Ryle!",
+    "Va au sud, à Gumi, et trouve|où ils font leur rituel."
+   ],
+   "ko": [
+    "구미 녀석들은 골칫거리야! 라일, 구미로 가 보자!",
+    "남쪽 구미로 가서|의식을 하는 곳을 찾아봐."
+   ],
+   "ja": [
+    "グミ族って ほんとに こまったやつらね! ライル グミの村へ いってみましょ!",
+    "南の グミの村へ いって やつらの ぎしきの ばしょを さがしてね"
    ]
   },
   {
@@ -87,6 +147,18 @@
    "de": [
     "Die Gumi haben Fara|entführt! Hinterher, Niels!",
     "Gumi-Schläger haben Fara|entführt. Über die Brücke!"
+   ],
+   "fr": [
+    "Les brutes de Gumi ont pris Fara! Après eux, Ryle, à Gumi!",
+    "Des brutes de Gumi ont enlevé Fara.|Traverse le pont vers Gumi!"
+   ],
+   "ko": [
+    "구미 녀석들이 파라를 데려갔대!|라일, 구미로 쫓아가자!",
+    "구미 녀석들이 파라를 납치했어.|다리를 건너 구미로 가!"
+   ],
+   "ja": [
+    "グミ族が ファラを さらったわ! ライル グミの村へ おいかけるのよっ!",
+    "グミ族が ファラを さらったの! 橋を わたって グミの村へ いきましょ!"
    ]
   },
   {
@@ -102,6 +174,18 @@
    "de": [
     "Orks täuschen Gumi?!|Fara ist in großer Gefahr!",
     "Die Orks täuschen die Gumi,|Fara ist in Gefahr. Nach Gumi!"
+   ],
+   "fr": [
+    "Les Orcs trompent les Gumi?! Fara est en danger!",
+    "Les Orcs trompent les Gumi et Fara|est en danger. Direction Gumi!"
+   ],
+   "ko": [
+    "오크가 구미 사람들을 속인다고?! 파라가 위험해!",
+    "오크가 구미 사람들을 속이고|파라가 위험해. 구미로 가자!"
+   ],
+   "ja": [
+    "グミ族は オークに だまされてるのね! ファラが あぶないわっ!",
+    "オークが グミ族を だましてて ファラが あぶないの! グミの村へ いそぎましょ!"
    ]
   },
   {
@@ -117,6 +201,18 @@
    "de": [
     "Brrr... hier ist es gruselig. Schau dich leise um!",
     "Erkunde die Wege rund ums Dorf.|Hier geht etwas vor sich."
+   ],
+   "fr": [
+    "Brrr... c'est lugubre ici. Regarde partout, mais discrètement!",
+    "Explore les chemins autour du village.|Il se passe quelque chose ici."
+   ],
+   "ko": [
+    "으으, 여기 으스스해... 둘러보되 조용히 해!",
+    "마을 주변 길을 살펴봐.|뭔가 심상치 않아."
+   ],
+   "ja": [
+    "ぶるる・・・ ぶきみな村ね まわりを みてみましょ でも こっそりとね!",
+    "村のまわりの みちを たんけんしてみてね ここ なにか あやしいわよ"
    ]
   },
   {
@@ -132,6 +228,18 @@
    "de": [
     "Die Schreintür ist fest zu. Finden wir einen Weg rein!",
     "Erkunde die Schreine in der Nähe,|such, was die Tür öffnet."
+   ],
+   "fr": [
+    "La porte du sanctuaire est bien fermée. Trouvons un moyen d'entrer!",
+    "Explore les sanctuaires voisins pour|trouver ce qui ouvre la porte."
+   ],
+   "ko": [
+    "저 신전 문이 꽉 닫혀 있어! 들어갈 방법을 찾자!",
+    "근처 신전들을 살펴서|문을 여는 걸 찾아봐."
+   ],
+   "ja": [
+    "あの ほこらの トビラ ぴったり しまってるわね! あける ほうほうを さがしましょ!",
+    "ちかくの ほこらを たんけんして トビラを あけるものを さがしてね"
    ]
   },
   {
@@ -148,6 +256,18 @@
    "de": [
     "Was Komisches öffnet|die Tür! Suchen wir es!",
     "Die Gumi öffneten die Tür mit|irgendwas Komischem. Such es!"
+   ],
+   "fr": [
+    "Un truc bizarre ouvre|cette porte! Trouvons-le!",
+    "Les Gumi ont ouvert la porte avec|un truc bizarre. Trouve-le!"
+   ],
+   "ko": [
+    "이상한 물건이 저 문을|연대! 그걸 찾자!",
+    "구미 녀석들이 이상한 걸로|문을 열었대. 그걸 찾아봐!"
+   ],
+   "ja": [
+    "ヘンなものを つかって トビラを あけたのね! それを さがしましょ ライル!",
+    "グミ族は なにか ヘンなものを つかって トビラを あけたのよ それを さがして!"
    ]
   },
   {
@@ -164,6 +284,18 @@
    "de": [
     "Weiter, Niels! Das Beste liegt immer ganz am Ende.",
     "Such den Idol-Stein im tiefsten|Teil dieses Schreins."
+   ],
+   "fr": [
+    "Continue, Ryle! Le meilleur est toujours tout au bout.",
+    "Cherche la Pierre Idole au fond|de ce sanctuaire."
+   ],
+   "ko": [
+    "계속 가, 라일! 좋은 건 항상 맨 끝에 있어!",
+    "이 신전의 가장 깊은 곳에서|사신의 돌을 찾아봐."
+   ],
+   "ja": [
+    "がんばって ライル! いいものは いつも いちばん おくにあるものよ!",
+    "この ほこらの いちばん おくで じゃしんのいしを さがしてね"
    ]
   },
   {
@@ -180,6 +312,18 @@
    "de": [
     "Oh, was für ein schöner Stein! Der Schreintür gefällt der sicher.",
     "Benutz den Idol-Stein an der|Statue am Sumpf-Schrein."
+   ],
+   "fr": [
+    "Oh, quelle jolie pierre! La porte du sanctuaire va l'adorer.",
+    "Utilise la Pierre Idole sur la statue|à l'entrée du Sanctuaire du Marais."
+   ],
+   "ko": [
+    "우와, 예쁜 돌이다! 신전 문이 좋아할 것 같아!",
+    "늪지 신전 입구의 석상에|사신의 돌을 써 봐."
+   ],
+   "ja": [
+    "わあ きれいな いし! あの ほこらの トビラも きっと このいしが すきよ!",
+    "沼地の神殿の いりぐちにある ぞうに じゃしんのいしを つかってみてね"
    ]
   },
   {
@@ -195,6 +339,18 @@
    "de": [
     "Die Tür ist offen! Fara ist bestimmt drin. Beeil dich, Niels!",
     "Geh rein und kämpf dich|bis ganz nach hinten."
+   ],
+   "fr": [
+    "La porte est ouverte! Fara doit être dedans. Vite, Ryle!",
+    "Entre et bats-toi jusqu'au|tout bout."
+   ],
+   "ko": [
+    "문이 열렸어! 파라는 안에 있을 거야. 서둘러, 라일!",
+    "안으로 들어가서|맨 끝까지 싸우며 가."
+   ],
+   "ja": [
+    "トビラが あいたわ! ファラは きっと なかよ いそいで ライル!",
+    "中に はいって いちばん おくまで たたかいながら すすんでね"
    ]
   },
   {
@@ -210,6 +366,18 @@
    "de": [
     "Fara ist bestimmt ganz hinten! Beeil dich, sie braucht uns!",
     "Kämpf dich zum Bossraum durch.|Die Orkkönige hauen fest zu!"
+   ],
+   "fr": [
+    "Fara doit être tout au fond! Vite, Ryle, elle a besoin de nous!",
+    "Bats-toi jusqu'à la salle du boss.|Les Rois Orcs cognent fort, esquive!"
+   ],
+   "ko": [
+    "파라는 맨 안쪽에 있을 거야! 서둘러, 라일, 우릴 기다려!",
+    "보스 방까지 싸우며 가.|오크킹은 세니까 잘 피해!"
+   ],
+   "ja": [
+    "ファラは きっと おくよ! いそいで ライル あの子が あたしたちを まってるわっ!",
+    "ボスの へやまで たたかって すすんでね オークキングは つよいから よけてよっ!"
    ]
   },
   {
@@ -224,6 +392,18 @@
    "de": [
     "Fara ist gerettet! Ihre Familie schuldet uns was... Dank, mein ich!",
     "Geh zum Haus des Bürgermeisters|in Massan: Belohnung abholen."
+   ],
+   "fr": [
+    "On a sauvé Fara! Sa famille nous doit une récompense... Euh, des remerciements!",
+    "Va chez le maire à Massan|et réclame ta récompense."
+   ],
+   "ko": [
+    "파라를 구했다! 가족이 보상해 줄 거야... 아니, 고맙다는 말!",
+    "마산의 촌장 집에 가서|보상을 받아."
+   ],
+   "ja": [
+    "ファラを たすけたわ! おれいが もらえるはずよ・・・じゃなくて ありがとうって いわれるのよね!",
+    "マサンの 村長の 家へ いって ほうしゅうを もらいましょ"
    ]
   },
   {
@@ -238,6 +418,18 @@
    "de": [
     "Massan ist erledigt! Nach Westen, der Schatz wartet nicht!",
     "Geh durch Gumi und folg|dem Weg nach Westen."
+   ],
+   "fr": [
+    "Massan, c'est fini! À l'ouest, Ryle, le trésor n'attend pas!",
+    "Traverse Gumi et suis la route|vers l'ouest."
+   ],
+   "ko": [
+    "마산은 끝났어! 서쪽으로, 라일! 보물이 안 기다려 줘!",
+    "구미를 지나서|서쪽 길을 따라가."
+   ],
+   "ja": [
+    "マサンは おわりね! 西へ ライル たからは まってくれないわよっ!",
+    "グミの村を とおって 西へ のびる みちを すすんでね"
    ]
   },
   {
@@ -253,6 +445,18 @@
    "de": [
     "Auf nach Ryuma! Hinter|Gumi am Meer links, Niels!",
     "Hinter Gumi teilt sich der Weg|am Meer: links nach Ryuma."
+   ],
+   "fr": [
+    "Cap sur Ryuma, Ryle! Après|Gumi, à gauche, vers la mer.",
+    "Après Gumi, la route se sépare|à la mer. À gauche, Ryuma."
+   ],
+   "ko": [
+    "류마로 가, 라일! 구미를 지나 바다에서 왼쪽!",
+    "구미를 지나면 바다 앞에서|길이 갈라져. 왼쪽이 류마야."
+   ],
+   "ja": [
+    "リュマへ ライル! グミの村を すぎて 海のところで ひだりよ!",
+    "グミの むこうで みちが 海のところで わかれてるわ ひだりへ いくと リュマよ"
    ]
   },
   {
@@ -268,6 +472,18 @@
    "de": [
     "Hier haben alle solche Angst! Sehen wir uns im Ort um.",
     "Sieh in jede Ecke des Ortes|und sprich mit allen."
+   ],
+   "fr": [
+    "Tout le monde a l'air si effrayé! Faisons le tour de la ville.",
+    "Fouille chaque coin de la ville|et parle à tout le monde."
+   ],
+   "ko": [
+    "다들 엄청 겁먹은 얼굴이야! 마을을 둘러보자!",
+    "마을 구석구석 살펴보고|모두에게 말을 걸어 봐."
+   ],
+   "ja": [
+    "みんな とっても おびえてるわね! まずは 町を みてまわりましょ!",
+    "町の すみずみまで みて みんなに はなしかけてみてね"
    ]
   },
   {
@@ -282,6 +498,18 @@
    "de": [
     "Die Diebe haben den Bürgermeister?! Frag im Ort rum!",
     "Sprich in Ryuma mit den Leuten,|bis jemand um Hilfe bittet."
+   ],
+   "fr": [
+    "Les voleurs ont pris le maire?! Cette ville a besoin d'aide. Questionne!",
+    "Parle aux gens de Ryuma jusqu'à ce|que quelqu'un te demande de l'aide."
+   ],
+   "ko": [
+    "도적이 촌장을 잡아갔다고?! 이 마을을 도와야 해! 물어보자!",
+    "누군가 도움을 청할 때까지|류마 사람들에게 말을 걸어 봐."
+   ],
+   "ja": [
+    "町長が とうぞくに!? この町は たすけが ひつようね! 人に きいてみましょ!",
+    "たすけを たのまれるまで リュマの人たちに はなしかけてね"
    ]
   },
   {
@@ -297,6 +525,18 @@
    "de": [
     "Die Leute mit der|Besprechung! Nochmal hin!",
     "Sprich nochmal mit den Leuten|der Besprechung in Ryuma."
+   ],
+   "fr": [
+    "La maison de la réunion!|Retournons-y!",
+    "Reparle aux gens qui tiennent|une réunion à Ryuma."
+   ],
+   "ko": [
+    "회의하던 그 집!|다시 가 보자!",
+    "류마에서 회의를 하던|사람들에게 다시 말을 걸어 봐."
+   ],
+   "ja": [
+    "かいぎしてる あの家! もういちど いってみましょ!",
+    "リュマで かいぎを している人たちに もういちど はなしかけてみてね"
    ]
   },
   {
@@ -311,6 +551,18 @@
    "de": [
     "Die Höhle am Kap! Mit|dem Floß rüber, Niels!",
     "Die Diebe hausen in der Höhle|am Kap. Mit dem Floß rüber!"
+   ],
+   "fr": [
+    "Une grotte sur le cap!|En radeau, Ryle!",
+    "Les voleurs se cachent dans la grotte|du cap. Traverse en radeau."
+   ],
+   "ko": [
+    "곶에 동굴이 있대!|라일, 저기까지 뗏목으로!",
+    "도적들은 곶의 동굴에 숨어 있어.|뗏목으로 건너가."
+   ],
+   "ja": [
+    "岬に どうくつが! ライル いかだで わたりましょ!",
+    "とうぞくは 岬の どうくつに かくれてるわ いかだで わたってね"
    ]
   },
   {
@@ -326,6 +578,18 @@
    "de": [
     "Ein Diebesnest! Vorsicht, Niels, die sind überall!",
     "Kämpf dich tiefer in die Höhle und|räum bei den Dieben auf."
+   ],
+   "fr": [
+    "Un repaire de voleurs! Prudence, Ryle, ils sont partout!",
+    "Avance dans la grotte et|occupe-toi des voleurs."
+   ],
+   "ko": [
+    "도적 소굴이다! 조심해, 라일, 사방에 있어!",
+    "동굴 깊숙이 싸우며 들어가|도적들을 해치워."
+   ],
+   "ja": [
+    "とうぞくの アジトよ! ライル きをつけて あちこちに いるわよっ!",
+    "どうくつの おくへ たたかいながら すすんで とうぞくを やっつけてね"
    ]
   },
   {
@@ -340,6 +604,18 @@
    "de": [
     "Hier sind wir fertig, Niels. Zurück nach Ryuma!",
     "Zurück nach Ryuma. Sprich mit den Leuten,|einer hat Neuigkeiten."
+   ],
+   "fr": [
+    "On a fini ici, Ryle. Retournons à Ryuma!",
+    "Retour à Ryuma. Parle aux gens,|quelqu'un a des nouvelles."
+   ],
+   "ko": [
+    "여긴 끝났어, 라일. 류마로 돌아가자!",
+    "류마로 돌아가. 마을에서 말을 걸면|누군가 소식을 줄 거야."
+   ],
+   "ja": [
+    "ここは もう おわりね ライル リュマへ もどりましょ!",
+    "リュマへ もどって 町の人に はなしかけてね きっと しらせが あるわ"
    ]
   },
   {
@@ -354,6 +630,18 @@
    "de": [
     "Ein Passierschein! Ab in die große, reiche Stadt. Einkaufen, Niels!",
     "Geh nach Merkator: zurück zur|Gabelung, anderer Weg."
+   ],
+   "fr": [
+    "Un laissez-passer! La grande ville riche nous laisse entrer. Shopping, Ryle!",
+    "Va à Mercator: reviens à la fourche|à l'ouest de Gumi, prends l'autre chemin."
+   ],
+   "ko": [
+    "통행증이다! 이제 크고 부자인 마을에 들어갈 수 있어. 쇼핑이다, 라일!",
+    "메르카토르로 가: 구미 서쪽|갈림길에서 다른 길로 가."
+   ],
+   "ja": [
+    "つうこうしょうよ! あの 大きな おかねもちの町に はいれるわ! おかいものよ ライル!",
+    "メルカトルへ いくの グミの 西の わかれみちで ほかの みちへ すすんでね"
    ]
   },
   {
@@ -369,6 +657,18 @@
    "de": [
     "Wow, was für eine Stadt! Fragen wir uns mal durch, Niels.",
     "Sprich mit den Leuten.|Irgendwer weist dir den Weg."
+   ],
+   "fr": [
+    "Waouh, quelle ville! Demandons autour, quelqu'un doit savoir des choses.",
+    "Parle aux habitants.|Quelqu'un t'indiquera la route."
+   ],
+   "ko": [
+    "우와, 대단한 마을이야! 물어보자, 누군가 알 거야.",
+    "마을 사람들에게 말을 걸어 봐.|누군가 갈 곳을 알려 줄 거야."
+   ],
+   "ja": [
+    "わあ すごい町! まわりの人に きいてみましょ きっと だれかが しってるわ!",
+    "町の人に はなしかけてね だれかが いくさきを おしえてくれるわよ"
    ]
   },
   {
@@ -383,6 +683,18 @@
    "de": [
     "Diese Stadt verbirgt was. Stöbern wir mal herum, Niels!",
     "Sieh dir jede Ecke der Stadt an,|vorne wie hinten."
+   ],
+   "fr": [
+    "Cette ville cache quelque chose. Fouinons un peu, Ryle!",
+    "Inspecte chaque coin de la ville,|devant comme derrière."
+   ],
+   "ko": [
+    "이 마을은 뭔가 숨기고 있어. 라일, 구석구석 뒤져 보자!",
+    "마을 구석구석 살펴봐.|앞쪽도 뒤쪽도."
+   ],
+   "ja": [
+    "この町 なにか かくしてるわね! ライル ちょっと さがしてみましょ!",
+    "町の すみずみまで しらべてね おもても うらもよ"
    ]
   },
   {
@@ -397,6 +709,18 @@
    "de": [
     "Arthur schleicht zu Madame Yard? Schauen wir mal nach!",
     "Frag bei Madame Yard herum.|Dort weiß wer mehr."
+   ],
+   "fr": [
+    "Arthur s'est faufilé chez Madame Yard? Allons voir!",
+    "Interroge les gens chez Madame Yard.|Quelqu'un là-bas en sait plus."
+   ],
+   "ko": [
+    "돈멜이 핑크 팰리스에 몰래 갔다고? 가서 보자!",
+    "핑크 팰리스에서 물어봐.|거기 누군가 더 알 거야."
+   ],
+   "ja": [
+    "ドンメルが ピンクパレスへ こっそり!? ちょっと のぞいてみましょ!",
+    "ピンクパレスで 人に きいてみてね だれかが しってるわ"
    ]
   },
   {
@@ -411,6 +735,18 @@
    "de": [
     "Eine Wahrsagerin soll helfen? Oh, da gehen wir hin, Niels!",
     "Such ihr Haus, lass sie zaubern.|Dann zu Madame Yard's."
+   ],
+   "fr": [
+    "Une voyante pourrait nous aider? Oh, allons la voir!",
+    "Trouve sa maison et fais-lui jeter|un sort. Puis va chez Madame Yard."
+   ],
+   "ko": [
+    "점쟁이가 도와줄 수 있대? 우와, 만나러 가자!",
+    "점쟁이 집을 찾아 점을 봐 달라고 해.|그다음 핑크 팰리스를 가 봐."
+   ],
+   "ja": [
+    "うらないしが たすけてくれるの? わあ あいにいきましょ!",
+    "うらないしの 家を さがして 魔法を かけてもらってね それから ピンクパレスへ いってみましょ"
    ]
   },
   {
@@ -425,6 +761,18 @@
    "de": [
     "Bei Madame Yard kommen|wir jetzt rein, Niels!",
     "Geh bei Madame Yard's durch die|Tür und sieh, wer drin ist."
+   ],
+   "fr": [
+    "Chez Madame Yard, on peut|entrer! Allons-y, Ryle!",
+    "Passe la porte chez Madame Yard|et regarde qui est là."
+   ],
+   "ko": [
+    "이제 핑크 팰리스가|우릴 들여보내 준대! 가자, 라일!",
+    "핑크 팰리스의 문으로 들어가서|누가 있는지 봐."
+   ],
+   "ja": [
+    "ピンクパレスに はいれるのね! いきましょ ライル!",
+    "ピンクパレスの トビラから 中に はいって だれが いるか みてみましょ"
    ]
   },
   {
@@ -439,6 +787,18 @@
    "de": [
     "Das Schloss lässt uns jetzt rein! Los, Niels!",
     "Geh zum Schloss von Merkator und|triff den Herzog."
+   ],
+   "fr": [
+    "Le château nous laisse entrer! Allez, Ryle!",
+    "Va au château de Mercator et entre|pour rencontrer le Duc."
+   ],
+   "ko": [
+    "이제 성이 우릴 들여보내 준대! 가자, 라일!",
+    "메르카토르 성으로 가서|안에 들어가 공작을 만나."
+   ],
+   "ja": [
+    "お城に はいれるように なったわ! ライル いきましょ!",
+    "メルカトル城まで あるいていって 中で 公爵に あいましょ"
    ]
   },
   {
@@ -454,6 +814,18 @@
    "de": [
     "Irgendwo hier sitzt der Herzog. Großer Saal, großer Stuhl, großes Ego!",
     "Der Herzog sitzt im Thronsaal.|Geh hin und sprich mit ihm."
+   ],
+   "fr": [
+    "Le Duc est quelque part ici. Grande salle, grand fauteuil, grand ego!",
+    "Le Duc est dans la salle du trône.|Va lui parler."
+   ],
+   "ko": [
+    "공작이 여기 어딘가 있어. 큰 방, 큰 의자, 큰 자존심!",
+    "공작은 알현실에 있어.|다가가서 말을 걸어 봐."
+   ],
+   "ja": [
+    "どこかに 公爵が いるはずよ! おおきな へやに おおきな いす おおきな いばりんぼ!",
+    "公爵は おうざの へやに いるわ ちかづいて はなしかけてね"
    ]
   },
   {
@@ -468,6 +840,18 @@
    "de": [
     "Pah, der ist einfach gegangen! Mal sehen, ob die Diener helfen.",
     "Folge dem Diener, der dir ein|Zimmer zeigen will."
+   ],
+   "fr": [
+    "Pff, il est parti comme ça! Voyons si les serviteurs nous aident.",
+    "Suis le serviteur qui propose de|te montrer une chambre."
+   ],
+   "ko": [
+    "흥, 그냥 가 버렸어! 하인들이 도와주는지 보자!",
+    "방을 안내해 주겠다는|하인을 따라가."
+   ],
+   "ja": [
+    "もうっ いっちゃった! めしつかいが たすけてくれるかも きいてみましょ!",
+    "へやへ あんないすると いってくれる めしつかいに ついていってね"
    ]
   },
   {
@@ -482,6 +866,18 @@
    "de": [
     "Ein echtes Schloss, Niels! Schau dich um und red mit allen.",
     "Sprich mit Butler und Küche, bis|das Essen angesagt wird."
+   ],
+   "fr": [
+    "Un vrai château, Ryle! Regardons partout et discutons avec tout le monde.",
+    "Parle au majordome et à la cuisine|jusqu'à l'annonce du dîner."
+   ],
+   "ko": [
+    "진짜 성이다, 라일! 구경하면서 다들에게 말을 걸어 보자!",
+    "만찬 소식이 있을 때까지|집사와 주방 사람들에게 말을 걸어 봐."
+   ],
+   "ja": [
+    "ほんものの お城よ ライル! まわりを みて みんなと おしゃべりしましょ!",
+    "しつじや だいどころの人たちに はなしかけてね ばんさんかいの しらせが あるまでよ"
    ]
   },
   {
@@ -496,6 +892,18 @@
    "de": [
     "Das Bankett beginnt!|Komm, ich verhungere!",
     "Geh zum Bankettsaal|im Schloss."
+   ],
+   "fr": [
+    "Le banquet est prêt!|Viens, je meurs de faim!",
+    "Va à la salle de banquet|du château."
+   ],
+   "ko": [
+    "만찬 준비 다 됐대!|가자, 배고파 죽겠어!",
+    "성의 만찬회장으로|가 봐."
+   ],
+   "ja": [
+    "ばんさんかいの じゅんびが できたわ! いきましょ おなか ぺこぺこ!",
+    "城の中の ばんさんかいの かいじょうへ いきましょ"
    ]
   },
   {
@@ -511,6 +919,18 @@
    "de": [
     "Das Bankett ist oben!|Komm, ich verhungere!",
     "Der Bankettsaal ist oben|im Schloss."
+   ],
+   "fr": [
+    "Le banquet est à l'étage!|Viens, je meurs de faim!",
+    "La salle de banquet est à|l'étage du château."
+   ],
+   "ko": [
+    "만찬회장은 2층이래!|가자, 배고파 죽겠어!",
+    "만찬회장은 성의|2층에 있어."
+   ],
+   "ja": [
+    "ばんさんかいは 上のかいよ! いきましょ おなか ぺこぺこ!",
+    "ばんさんかいの かいじょうは 城の 上のかいに あるわ"
    ]
   },
   {
@@ -525,6 +945,18 @@
    "de": [
     "Ich bin so satt... Lass uns schlafen gehen, Niels.",
     "Geh in dein Schlafzimmer im|Schloss und leg dich hin."
+   ],
+   "fr": [
+    "Je suis pleine... Allons dormir avant demain, Ryle.",
+    "Va dans ta chambre au château|et couche-toi."
+   ],
+   "ko": [
+    "배불러... 내일을 위해 자러 가자, 라일.",
+    "성 안의 네 침실로 가서|잠을 자."
+   ],
+   "ja": [
+    "おなか いっぱい・・・ あしたの ために ねましょ ライル",
+    "城の じぶんの へやへ いって ねましょ"
    ]
   },
   {
@@ -539,6 +971,18 @@
    "de": [
     "Mirs Turm steht vor der Stadt... Hören wir uns erst mal um!",
     "Mirs Turm steht vor Merkator.|Frag im Schloss danach."
+   ],
+   "fr": [
+    "La Tour de Mir est juste hors de la ville... Renseignons-nous d'abord!",
+    "La Tour de Mir est près de Mercator.|Interroge les gens du château."
+   ],
+   "ko": [
+    "미르의 탑은 마을 바로 밖이래... 먼저 물어보자!",
+    "미르의 탑은 메르카토르 바로 밖에 있어.|성 사람들에게 물어봐."
+   ],
+   "ja": [
+    "ミルの塔は 町の すぐそとね・・・ まずは きいてみましょ!",
+    "ミルの塔は メルカトルの すぐそとよ 城の人に きいてみてね"
    ]
   },
   {
@@ -555,6 +999,18 @@
    "de": [
     "Eine Barriere vor Mirs|Turm! Wie kriegen wir die weg?",
     "Eine Barriere sperrt die Tür|von Mirs Turm. Such einen Weg."
+   ],
+   "fr": [
+    "Une barrière bloque la Tour|de Mir! Comment la briser?",
+    "Une barrière bloque la porte de la|Tour de Mir. Trouve un moyen."
+   ],
+   "ko": [
+    "결계가 미르의 탑을|막고 있대! 어떻게 깨지?",
+    "미르의 탑 문을 결계가 막고 있어.|지나갈 방법을 찾아봐."
+   ],
+   "ja": [
+    "ミルの塔に けっかいが! どうやって こわすのかな?",
+    "塔の トビラは けっかいで ふさがれてるわ とおりぬける ほうほうを さがしてね"
    ]
   },
   {
@@ -571,6 +1027,18 @@
    "de": [
     "Arthur weiß was über|die Barriere! Frag ihn!",
     "Mirs Turm hat eine Barriere.|Frag General Arthur danach."
+   ],
+   "fr": [
+    "Arthur sait quelque chose|sur la barrière! Demandons-lui!",
+    "Une barrière scelle la Tour de Mir.|Interroge le Général Arthur."
+   ],
+   "ko": [
+    "돈멜이 결계를 안대!|물어보러 가자!",
+    "결계가 미르의 탑을 막고 있어.|돈멜 장군에게 물어봐."
+   ],
+   "ja": [
+    "ドンメルが けっかいの ことを しってるわ! きいてみましょ!",
+    "ミルの塔は けっかいで とじてるわ ドンメルしょうぐんに きいてみてね"
    ]
   },
   {
@@ -587,6 +1055,18 @@
    "de": [
     "Zack und Dexter sind|in der Gruft! Hinterher!",
     "Zack und Dexter sind in die|Gruft gestiegen. Finde sie!"
+   ],
+   "fr": [
+    "Zak et Dexter sont dans|la crypte! Après eux!",
+    "Zak et Dexter sont descendus|dans la crypte. Trouve-la!"
+   ],
+   "ko": [
+    "제드랑 발보가 지하 묘지에|있대! 쫓아가자!",
+    "제드와 발보가 지하 묘지로|들어갔대. 찾아봐!"
+   ],
+   "ja": [
+    "ゼッドと バーボが 地下ぼちに いるって! おいかけましょ!",
+    "ゼッドと バーボが 地下ぼちに はいっていったわ さがしてみてね"
    ]
   },
   {
@@ -603,6 +1083,18 @@
    "de": [
     "Dexter und Zack sind|längst in der Gruft! Los!",
     "Vor Mirs Turm ist eine Sperre.|Ein Armreif ist in der Gruft."
+   ],
+   "fr": [
+    "Dexter et Zak nous ont devancés|à la crypte! Vite, Ryle!",
+    "Une barrière garde la Tour de Mir.|Un bracelet attend dans la crypte."
+   ],
+   "ko": [
+    "발보랑 제드가 먼저 지하 묘지에 갔어! 서둘러, 라일!",
+    "미르의 탑은 결계가 지키고 있어.|아뮬렛은 지하 묘지에 있대."
+   ],
+   "ja": [
+    "ゼッドと バーボに さきを こされたわ! いそいで ライル!",
+    "ミルの塔は けっかいで まもられてるわ 地下ぼちに アミュレットが あるのよ"
    ]
   },
   {
@@ -619,6 +1111,18 @@
    "de": [
     "Ein Armreif bricht die|Sperre! Er liegt in der Gruft.",
     "Hol den Armreif aus der Gruft|neben der Kirche. Fallen!"
+   ],
+   "fr": [
+    "Un bracelet brise la barrière|de Mir! Il est dans la crypte.",
+    "Prends le bracelet dans la crypte|près de l'église. Des pièges!"
+   ],
+   "ko": [
+    "아뮬렛이 미르의 결계를 깬대! 지하 묘지에 있대.",
+    "교회 옆 지하 묘지에서|아뮬렛을 가져와. 함정 조심!"
+   ],
+   "ja": [
+    "アミュレットで ミルの けっかいが こわせるわ! 地下ぼちに あるのよ!",
+    "アミュレットは 教会の となりの 地下ぼちに あるわ わなに ちゅうい!"
    ]
   },
   {
@@ -635,6 +1139,18 @@
    "de": [
     "Vorsicht, Niels! Erst denken, dann gehen. Die Rätsel beißen!",
     "Löse die Rätselräume und schau,|was weiter drin wartet."
+   ],
+   "fr": [
+    "Prudence, Ryle! Réfléchis avant de bouger. Ces énigmes mordent!",
+    "Résous les salles d'énigmes et vois|ce qui t'attend plus loin."
+   ],
+   "ko": [
+    "조심해, 라일! 발 디디기 전에 생각해. 수수께끼가 물어!",
+    "수수께끼 방들을 풀고|안에 뭐가 있나 봐."
+   ],
+   "ja": [
+    "きをつけて ライル! よく かんがえてから すすんでね なぞなぞは かみつくわよ!",
+    "なぞときの へやを とおって おくに なにが あるか みてみましょ"
    ]
   },
   {
@@ -652,6 +1168,18 @@
    "de": [
     "Schlaue Monster hier!|Erst denken, dann zuschlagen!",
     "Mit dem Schwert allein findest|du den Armreif nie. Denk nach!"
+   ],
+   "fr": [
+    "Des monstres malins ici!|Sers-toi de ta tête, pas que de l'épée!",
+    "L'épée seule ne te donnera pas|le bracelet. Réfléchis bien."
+   ],
+   "ko": [
+    "여기 몬스터는 영리해!|칼만 믿지 말고 머리를 써!",
+    "검만으로는 아뮬렛을 얻을 수 없대.|잘 생각해 봐."
+   ],
+   "ja": [
+    "ここの モンスターは かしこいわ! ちからだけじゃ だめよ あたまを つかって!",
+    "けんだけでは アミュレットは てに はいらないわ よく かんがえてね"
    ]
   },
   {
@@ -667,6 +1195,18 @@
    "de": [
     "Schön gerätselt! Weiter so, Niels, wir kommen voran!",
     "Geh in der Gruft weiter."
+   ],
+   "fr": [
+    "Bien joué pour les énigmes! Continue, Ryle, on avance!",
+    "Continue dans la crypte."
+   ],
+   "ko": [
+    "수수께끼 잘 푼다! 계속 가, 라일, 거의 다 왔어!",
+    "지하 묘지를 계속 가 봐."
+   ],
+   "ja": [
+    "いいわよ ライル その ちょうし! どんどん すすみましょ!",
+    "そのまま 地下ぼちを すすんでね"
    ]
   },
   {
@@ -682,6 +1222,18 @@
    "de": [
     "Ooh, ein glänzender Armreif! Der taugt bestimmt für was...",
     "Mirs Turm steht vor Merkator.|Probier den Armreif dort aus."
+   ],
+   "fr": [
+    "Ooh, un bracelet brillant! Il doit bien servir à quelque chose...",
+    "La Tour de Mir est près de Mercator.|Essaie le bracelet là-bas."
+   ],
+   "ko": [
+    "우와, 반짝이는 아뮬렛! 분명 쓸 데가 있을 거야...",
+    "미르의 탑은 메르카토르 바로 밖에 있어.|거기서 아뮬렛을 써 봐."
+   ],
+   "ja": [
+    "わあ ぴかぴかの アミュレット! きっと なにかに やくに たつわよ!",
+    "ミルの塔は メルカトルの すぐそとよ そこで アミュレットを つかってみてね"
    ]
   },
   {
@@ -698,6 +1250,18 @@
    "de": [
     "Der Armreif ist unser!|Jetzt weg mit Mirs Sperre!",
     "Der Armreif bricht die Sperre|vor dem Eingang von Mirs Turm."
+   ],
+   "fr": [
+    "On a le bracelet!|Brisons la barrière de Mir!",
+    "Le bracelet brise la barrière|à l'entrée de la Tour de Mir."
+   ],
+   "ko": [
+    "아뮬렛을 얻었다!|이제 미르의 결계를 깨자!",
+    "아뮬렛은 미르의 탑 입구에 있는|결계를 깨뜨려."
+   ],
+   "ja": [
+    "アミュレットが てに はいったわ! ミルの けっかいを こわしましょ!",
+    "アミュレットで ミルの塔の いりぐちの けっかいが こわせるわ"
    ]
   },
   {
@@ -712,6 +1276,18 @@
    "de": [
     "Auf zu Mirs Turm, Niels! Vielleicht hilft der Armreif?",
     "Mirs Turm steht vor Merkator.|Geh bis zur Tür."
+   ],
+   "fr": [
+    "Allons voir la Tour de Mir, Ryle! Le bracelet va peut-être aider?",
+    "La Tour de Mir est près de Mercator.|Avance jusqu'à la porte."
+   ],
+   "ko": [
+    "미르의 탑에 가 보자, 라일! 아뮬렛이 도움이 될지도!",
+    "미르의 탑은 메르카토르 바로 밖에 있어.|문 앞까지 가 봐."
+   ],
+   "ja": [
+    "ミルの塔を みにいきましょ ライル! アミュレットが きくかも!",
+    "ミルの塔は メルカトルの すぐそとよ トビラの まえまで いってね"
    ]
   },
   {
@@ -727,6 +1303,18 @@
    "de": [
     "Laut Arthur bricht der|Armreif die Sperre. Los!",
     "Geh zur Tür von Mirs Turm. Der|Armreif bricht die Sperre."
+   ],
+   "fr": [
+    "Arthur dit que le bracelet|brise la barrière. Vas-y!",
+    "Va à la porte de la Tour de Mir.|Le bracelet brise la barrière."
+   ],
+   "ko": [
+    "돈멜이 아뮬렛이 결계를|깬댔어. 가자!",
+    "미르의 탑 문으로 가. 아뮬렛이|결계를 깨뜨려."
+   ],
+   "ja": [
+    "ドンメルが いってたわ アミュレットで けっかいが こわれるって! いきましょ!",
+    "ミルの塔の トビラまで いって アミュレットで けっかいを こわしてね"
    ]
   },
   {
@@ -742,6 +1330,18 @@
    "de": [
     "Überall Fallen! Pass auf, ich trag dich nicht!",
     "Klettere bis oben im Turm|und stell dich Mir."
+   ],
+   "fr": [
+    "Des pièges partout! Attention, je te porterai pas!",
+    "Grimpe jusqu'en haut de la tour|et affronte Mir."
+   ],
+   "ko": [
+    "함정투성이야! 발밑 조심해, 난 안 업어 줘!",
+    "탑 꼭대기까지 올라가서|밀과 맞서."
+   ],
+   "ja": [
+    "わなだらけよ! あしもとに ちゅうい あたしは はこばないわよっ!",
+    "塔の いちばん 上まで のぼって ミルに あいましょ"
    ]
   },
   {
@@ -757,6 +1357,18 @@
    "de": [
     "Das lila Juwel ist unser! Raus aus diesem gruseligen Turm!",
     "Geh zurück nach Merkator und melde|dich beim Herzog im Schloss."
+   ],
+   "fr": [
+    "On a le Joyau Pourpre! Sortons de cette tour flippante!",
+    "Retourne à Mercator et fais ton|rapport au Duc au château."
+   ],
+   "ko": [
+    "보라 쥬얼을 얻었다! 이 으스스한 탑에서 나가자!",
+    "메르카토르로 돌아가서|성의 공작에게 보고해."
+   ],
+   "ja": [
+    "むらさきジュエルを てにいれたわ! この ぶきみな塔から でましょ!",
+    "メルカトルへ もどって 城の 公爵に しらせましょ"
    ]
   },
   {
@@ -771,6 +1383,18 @@
    "de": [
     "Mir war gar nicht der Böse! Sagen wir's dem Herzog, oder...",
     "Der Herzog wartet oben im Schloss.|Bring die Juwelen mit."
+   ],
+   "fr": [
+    "Mir n'était pas le méchant du tout! Disons-le au Duc, je suppose...",
+    "Le Duc attend à l'étage du château.|Emporte les joyaux."
+   ],
+   "ko": [
+    "밀은 전혀 나쁜 사람이 아니었어! 일단 공작에게 말해 주자...",
+    "공작은 성 위층에서 기다려.|쥬얼도 가져가."
+   ],
+   "ja": [
+    "ミルって ぜんぜん わるものじゃ なかったのね! とにかく 公爵に はなしましょ・・・",
+    "公爵は 城の 上のかいで まってるわ ジュエルも もっていってね"
    ]
   },
   {
@@ -786,6 +1410,18 @@
    "de": [
     "Eingesperrt?! Dieser fiese Herzog! Such einen Weg raus, Niels!",
     "Durchsuch Zellen und Gänge nach|einem Ausweg. Frag, wer hier ist."
+   ],
+   "fr": [
+    "Enfermés?! Ce sale Duc! Trouve vite une sortie, Ryle!",
+    "Fouille cellules et couloirs pour|trouver une sortie. Questionne."
+   ],
+   "ko": [
+    "갇혔다고?! 고약한 공작! 나갈 방법을 찾아, 라일, 어서!",
+    "감옥과 복도를 뒤져서|나갈 길을 찾아. 누군가에게 물어봐."
+   ],
+   "ja": [
+    "とじこめられた!? あの 公爵め! でる ほうほうを さがしてよ ライル!",
+    "ろうや つうろを しらべて ここに いる人に きいてみてね"
    ]
   },
   {
@@ -802,6 +1438,18 @@
    "de": [
     "Lara sitzt hier auch!|Suchen wir sie, Niels!",
     "Der Herzog hält Prinzessin|Lara hier fest. Finde sie!"
+   ],
+   "fr": [
+    "Lara est enfermée ici!|Trouvons-la, Ryle!",
+    "Le Duc retient la princesse Lara|ici. Allez, trouve-la!"
+   ],
+   "ko": [
+    "로리아가 여기 갇혀 있어!|찾으러 가자, 라일!",
+    "공작이 로리아 공주를|이 아래 가뒀어. 어서 찾아!"
+   ],
+   "ja": [
+    "ロリアひめが ここに とじこめられてるわ! さがしにいきましょ ライル!",
+    "公爵は ロリアひめを ここに とじこめてるわ さがしだしましょ!"
    ]
   },
   {
@@ -817,6 +1465,18 @@
    "de": [
     "Die Prinzessin ist auch hier! Jetzt nach oben und raus!",
     "Folge den Kerkergängen|nach oben und hinaus."
+   ],
+   "fr": [
+    "La princesse est ici aussi! Cherchons maintenant la sortie par le haut!",
+    "Suis les couloirs du cachot|vers le haut et dehors."
+   ],
+   "ko": [
+    "공주도 여기 있어! 이제 위로 올라가서 나가자!",
+    "감옥 복도를 따라|위로 올라가 나가."
+   ],
+   "ja": [
+    "ひめも ここに いたのね! 上へ でる みちを さがしましょ!",
+    "ろうの つうろを たどって 上へ でましょ"
    ]
   },
   {
@@ -831,6 +1491,18 @@
    "de": [
     "Zack ist mit der Prinzessin weg! Nichts wie raus hier!",
     "Verlass den Kerker und sieh dich|im Schloss um. Jemand weiß mehr."
+   ],
+   "fr": [
+    "Zak est parti avec la princesse! Sortons d'ici!",
+    "Quitte le cachot et regarde dans le|château. Quelqu'un en sait plus."
+   ],
+   "ko": [
+    "제드가 공주를 데리고 도망쳤어! 여기서 나가자!",
+    "감옥에서 나가 성을 둘러봐.|누군가 더 알 거야."
+   ],
+   "ja": [
+    "ゼッドが ひめを つれて にげたわ! ここから でましょ!",
+    "ろうから でて 城の中を みてまわってね だれかが しってるはずよ"
    ]
   },
   {
@@ -846,6 +1518,18 @@
    "de": [
     "Der Herzog ist mit UNSERER Beute weg! Ohne Licht fährt kein Schiff...",
     "Arthur sagte: Ostmauer des Schlosses,|Geheimschalter, dann den Sonnenstein."
+   ],
+   "fr": [
+    "Le Duc s'est enfui avec NOTRE butin! Aucun bateau ne navigue dans le noir...",
+    "Arthur a dit: mur est du château,|interrupteur caché, puis la Pierre Solaire."
+   ],
+   "ko": [
+    "공작이 우리 보물을 갖고 도망쳤어! 어두워서 배도 못 떠!",
+    "돈멜이 말했어: 성 동쪽 벽의|숨은 스위치, 그다음 태양석."
+   ],
+   "ja": [
+    "公爵が あたしたちの たからを もって にげたわ! よるは 船が でないのよ・・・",
+    "ドンメルが いってたわ 城の 東がわの かべに かくしスイッチが あるって それから たいようせきを さがしてね"
    ]
   },
   {
@@ -862,6 +1546,18 @@
    "de": [
     "Eine Pfeife! Im Wald kommt die bestimmt noch gelegen.",
     "Erkunde das Grüne Labyrinth. Kommst du|nicht weiter, probier die Pfeife."
+   ],
+   "fr": [
+    "Un sifflet! Il servira sûrement dans cette forêt.",
+    "Explore le Labyrinthe Vert. Si tu es|bloqué, essaie le sifflet."
+   ],
+   "ko": [
+    "피리다! 그 숲에서 분명 쓸모 있을 거야.",
+    "그린메이즈를 탐험해 봐.|막히면 피리를 써 봐."
+   ],
+   "ja": [
+    "ふえね! きっと あの 森で やくに たつわ!",
+    "まよいの森を たんけんして こまったら ふえを ふいてみてね"
    ]
   },
   {
@@ -879,6 +1575,18 @@
    "de": [
     "Zum Sonnenstein? Gut|balancieren und springen!",
     "Zum Sonnenstein brauchst du|Gleichgewicht und Sprungkraft."
+   ],
+   "fr": [
+    "La Pierre Solaire? De l'équilibre|et de bons sauts, Ryle!",
+    "Pour atteindre la Pierre Solaire,|il faut équilibre et bons sauts."
+   ],
+   "ko": [
+    "태양석? 균형 감각이랑|점프를 잘해야 해, 라일!",
+    "태양석에 닿으려면 균형 감각과|점프 실력이 필요해."
+   ],
+   "ja": [
+    "たいようせき? バランスと ジャンプが だいじよ ライル!",
+    "たいようせきの ところへは バランスかんかくと ジャンプが ひつようよ"
    ]
   },
   {
@@ -896,6 +1604,18 @@
    "de": [
     "Leuchtturm dunkel? Der|Dieb war's, Niels!",
     "Sonnenstein: Grünes Labyrinth,|nördlich vom Schloss."
+   ],
+   "fr": [
+    "Phare éteint? C'est la faute|du voleur, Ryle!",
+    "La Pierre Solaire est dans le Labyrinthe|Vert, au nord du château."
+   ],
+   "ko": [
+    "등대가 꺼졌다고? 도둑 탓이야, 라일!",
+    "태양석은 성 북쪽의|그린메이즈에 있어."
+   ],
+   "ja": [
+    "灯台が くらいのは どろぼうの せいよ ライル!",
+    "たいようせきは 城の 北の まよいの森に あるわ"
    ]
   },
   {
@@ -913,6 +1633,18 @@
    "de": [
     "Gol sagt: Nordosten!|Die Zwerge verlegen die Wege!",
     "Im Grünen Labyrinth liegt der|Sonnenstein im Nordosten."
+   ],
+   "fr": [
+    "Gol a dit: nord-est!|Les gnomes ont changé les chemins...",
+    "La Pierre Solaire se trouve dans|le nord-est du Labyrinthe Vert."
+   ],
+   "ko": [
+    "골 영감이 북동쪽이래!|난쟁이들이 길을 바꿨대...",
+    "태양석은 그린메이즈의|북동쪽에 있어."
+   ],
+   "ja": [
+    "ゴルじいが 北東だって! ノームが みちを かえちゃったのね・・・",
+    "たいようせきは まよいの森の 北東に あるわ"
    ]
   },
   {
@@ -928,6 +1660,18 @@
    "de": [
     "Der Sonnenstein! Oh, so warm! Der Leuchtturm braucht ihn, Niels!",
     "Bring ihn zum Leuchtturmwärter|in Ryuma."
+   ],
+   "fr": [
+    "La Pierre Solaire! Ooh, elle est si chaude! Le phare en a besoin, Ryle!",
+    "Apporte-la au gardien du phare|à Ryuma."
+   ],
+   "ko": [
+    "태양석이다! 우와, 따뜻해! 등대에 필요해, 라일!",
+    "류마의 등대지기에게|가져가."
+   ],
+   "ja": [
+    "たいようせき! わあ あったかーい! 灯台に ひつようよ ライル!",
+    "リュマの 灯台の ばんにんに もっていってね"
    ]
   },
   {
@@ -942,6 +1686,18 @@
    "de": [
     "Der Leuchtturm strahlt wieder! Jetzt bringt uns das Schiff weiter!",
     "Geh zum Hafen von Merkator. Vielleicht|fährt wieder ein Schiff. Frag nach."
+   ],
+   "fr": [
+    "Le phare brille de nouveau! Le bateau peut nous emmener plus loin!",
+    "Va au port de Mercator. Un bateau|repart peut-être. Demande aux marins."
+   ],
+   "ko": [
+    "등대가 다시 빛나! 이제 배가 우릴 더 멀리 데려다줄 거야!",
+    "메르카토르 부두로 가 봐. 배가 다시|뜰지도 몰라. 선원에게 물어봐."
+   ],
+   "ja": [
+    "灯台が また ひかったわ! これで 船が さきへ つれてってくれるわ!",
+    "メルカトルの 港へ いきましょ 船が また でるかも ふなのりに きいてみてね"
    ]
   },
   {
@@ -957,6 +1713,18 @@
    "de": [
     "Wo sind denn alle? Die ganze Stadt ist leer!",
     "Frag herum. Jemand weiß, wohin|alle verschwunden sind."
+   ],
+   "fr": [
+    "Où est tout le monde? La ville entière est vide!",
+    "Questionne les gens. Quelqu'un sait|où tout le monde est parti."
+   ],
+   "ko": [
+    "다들 어디 갔지? 마을이 텅 비었어!",
+    "물어봐. 누군가 모두 어디로|갔는지 알 거야."
+   ],
+   "ja": [
+    "みんな どこ? 町が からっぽよ!",
+    "人に きいてみてね みんなが どこへ いったか しってる人が いるはずよ"
    ]
   },
   {
@@ -972,6 +1740,18 @@
    "de": [
     "Soldaten haben alle in|die Berge verschleppt?!",
     "Seltsame Soldaten schleppten|alle Leute in die Berge."
+   ],
+   "fr": [
+    "Des soldats ont emmené tout le|monde dans les montagnes?!",
+    "Des soldats ont traîné les habitants|dans les montagnes."
+   ],
+   "ko": [
+    "병사들이 모두를 산으로|끌고 갔다고?!",
+    "병사들이 마을 사람들을|산 쪽으로 끌고 갔대."
+   ],
+   "ja": [
+    "兵士が みんなを やまへ つれてったの!?",
+    "兵士が 町の人たちを むりやり やまのほうへ つれていったのよ"
    ]
   },
   {
@@ -987,6 +1767,18 @@
    "de": [
     "Überall Wachen in dieser Mine! Bleib wachsam, Niels!",
     "Kämpf dich durch die Gänge und such|die Verschwundenen."
+   ],
+   "fr": [
+    "Des gardes partout dans cette mine! Reste attentif, Ryle!",
+    "Traverse les galeries et cherche|les disparus."
+   ],
+   "ko": [
+    "이 광산은 경비병투성이야! 정신 바짝 차려, 라일!",
+    "터널을 싸우며 지나서|사라진 사람들을 찾아."
+   ],
+   "ja": [
+    "この こうざん 兵士だらけね! しっかりして ライル!",
+    "あなを たたかいながら すすんで いなくなった 人たちを さがしてね"
    ]
   },
   {
@@ -1003,6 +1795,18 @@
    "de": [
     "Drei Stollen! In den|anderen stecken noch Leute.",
     "Die Mine teilt sich in drei|Stollen. Such in den anderen!"
+   ],
+   "fr": [
+    "Trois tunnels! D'autres captifs|dans les deux autres.",
+    "La mine se divise en trois tunnels.|Fouille les deux autres."
+   ],
+   "ko": [
+    "터널이 세 갈래야! 나머지 둘에|또 갇힌 사람이 있대.",
+    "광산은 세 갈래 터널로 나뉘어.|나머지 둘도 찾아봐."
+   ],
+   "ja": [
+    "あなが 3つ! ほかの 2つにも とらわれた人が いるのね!",
+    "こうざんは 3つの あなに わかれてるわ ほかの 2つも さがしてね"
    ]
   },
   {
@@ -1019,6 +1823,18 @@
    "de": [
     "Dex ist besiegt! Aber die Mine hat noch mehr zu bieten.",
     "Erkunde weiter die Gänge.|Befreie, wen du findest."
+   ],
+   "fr": [
+    "Dex est à terre! Mais cette mine a encore des secrets.",
+    "Continue d'explorer les galeries.|Libère ceux que tu trouves."
+   ],
+   "ko": [
+    "부기르를 쓰러뜨렸어! 근데 이 광산엔 비밀이 더 있어.",
+    "터널을 계속 탐험해.|찾은 사람들을 풀어 줘."
+   ],
+   "ja": [
+    "やっつけたわ! でも この こうざん まだ ひみつが ありそうよ",
+    "そのまま あなを たんけんして みつけた人を たすけてね"
    ]
   },
   {
@@ -1033,6 +1849,18 @@
    "de": [
     "Marley ist Geschichte! Mal sehen, wohin die Mine führt.",
     "Such am hinteren Ende der Mine|nach dem Weg weiter."
+   ],
+   "fr": [
+    "Marley, c'est du passé! Voyons où mène la mine.",
+    "Cherche la suite du chemin tout|au bout de la mine."
+   ],
+   "ko": [
+    "부기스는 끝났어! 광산이 어디로 이어지나 보자!",
+    "광산 맨 끝에서|앞으로 갈 길을 찾아봐."
+   ],
+   "ja": [
+    "ボスは たおしたわ! この こうざんが どこへ つづくか みましょ!",
+    "こうざんの いちばん おくで さきへの みちを さがしてね"
    ]
   },
   {
@@ -1048,6 +1876,18 @@
    "de": [
     "Ein Dorf westlich der|Mine! Der Herzog zog hin.",
     "Der Herzog zog mit Soldaten|ins Dorf westlich der Mine."
+   ],
+   "fr": [
+    "Un village à l'ouest de la|mine! Le Duc y est allé.",
+    "Le Duc a mené ses soldats vers un|village à l'ouest de la mine."
+   ],
+   "ko": [
+    "광산 서쪽에 마을이 있대!|공작이 거기로 갔대.",
+    "공작이 병사들을 이끌고|광산 서쪽 마을로 갔대."
+   ],
+   "ja": [
+    "こうざんの 西に 村が あるのね! 公爵も そこへ いったのよ!",
+    "公爵は 兵士を つれて こうざんの 西の 村へ いったのよ"
    ]
   },
   {
@@ -1063,6 +1903,18 @@
    "de": [
     "Nach Destel? Nur durch|den Minentunnel!",
     "Nach Destel kommt man nur|durch den Tunnel in der Mine."
+   ],
+   "fr": [
+    "Destel? Seulement par le|tunnel de la mine!",
+    "Le seul chemin vers Destel est|le tunnel de la mine."
+   ],
+   "ko": [
+    "데스텔? 광산 터널로만|갈 수 있대!",
+    "데스텔로 가는 길은|광산의 터널뿐이야."
+   ],
+   "ja": [
+    "デステルへは こうざんの あなからだけよ!",
+    "デステルへ いく みちは こうざんの トンネルだけ なのよ"
    ]
   },
   {
@@ -1078,6 +1930,18 @@
    "de": [
     "Ab nach Destel, Niels!|Der Herzog zog dorthin.",
     "Der Herzog und seine Soldaten|zogen nach Destel. Hinterher!"
+   ],
+   "fr": [
+    "Direction Destel! Le Duc et|ses soldats y sont allés.",
+    "Le Duc et ses soldats sont partis|pour Destel. Suis-les!"
+   ],
+   "ko": [
+    "데스텔로! 공작이랑|병사들이 거기 갔대.",
+    "공작과 병사들은 데스텔로 갔어.|쫓아가자!"
+   ],
+   "ja": [
+    "デステルへ! 公爵と 兵士が いったのよ!",
+    "公爵と 兵士は デステルへ いったわ おいかけましょ!"
    ]
   },
   {
@@ -1093,6 +1957,18 @@
    "de": [
     "Grummelige Zwerge! Fragen wir, ob der Herzog hier war.",
     "Sprich mit allen in Destel. Jemand hat|gesehen, wohin der Herzog ist."
+   ],
+   "fr": [
+    "Des nains grincheux! Demandons si le Duc est passé par ici.",
+    "Parle à tout le monde à Destel.|Quelqu'un a vu où le Duc est allé."
+   ],
+   "ko": [
+    "퉁명스러운 난쟁이들! 공작이 여기 왔는지 물어보자!",
+    "데스텔 사람들 모두에게 말을 걸어 봐.|누군가 공작이 간 곳을 봤을 거야."
+   ],
+   "ja": [
+    "ふきげんな ドワーフたちね! 公爵が きたか きいてみましょ!",
+    "デステルの みんなに はなしかけてね だれかが 公爵の いくさきを みてるわ"
    ]
   },
   {
@@ -1108,6 +1984,18 @@
    "de": [
     "Er haut auf einem Floß ab! Wir finden einen anderen Weg!",
     "In Destel weiß jemand einen anderen|Weg hinunter zum See."
+   ],
+   "fr": [
+    "Il s'enfuit sur un radeau! On trouvera un autre chemin, Ryle!",
+    "De retour à Destel, quelqu'un connaît|un autre chemin vers le lac."
+   ],
+   "ko": [
+    "뗏목으로 도망치고 있어! 다른 길을 찾자, 라일!",
+    "데스텔로 돌아가 봐. 호수로 내려가는|다른 길을 누군가 알 거야."
+   ],
+   "ja": [
+    "いかだで にげるつもりね! ほかの みちを さがしましょ ライル!",
+    "デステルへ もどって 湖へ おりる べつの みちを しってる人を さがしてね"
    ]
   },
   {
@@ -1124,6 +2012,18 @@
    "de": [
     "Der Brunnen führt in|eine alte Höhle! Monster!",
     "Der Brunnen in Destel ist der|Eingang zu einer Monsterhöhle."
+   ],
+   "fr": [
+    "Ce puits mène à une vieille|grotte! Des monstres, beurk!",
+    "Le puits de Destel mène à une grotte|antique pleine de monstres."
+   ],
+   "ko": [
+    "그 우물이 오래된 동굴로|이어진대! 몬스터라니, 으악!",
+    "데스텔의 우물은 고대 몬스터|동굴로 이어져 있어."
+   ],
+   "ja": [
+    "あの いどは ふるい どうくつに つづいてるのね! モンスターよ きゃー!",
+    "デステルの いどは むかしの モンスターの どうくつに つづいてるわ"
    ]
   },
   {
@@ -1139,6 +2039,18 @@
    "de": [
     "Igitt, so nass und dunkel! Weiter, irgendwo geht's hier raus.",
     "Kämpf dich durch und hinaus zum|See auf der anderen Seite."
+   ],
+   "fr": [
+    "Beurk, c'est tout mouillé et sombre! Avance, il y a forcément une sortie.",
+    "Bats-toi pour traverser et sortir|jusqu'au lac de l'autre côté."
+   ],
+   "ko": [
+    "으, 축축하고 어두워! 계속 가, 분명 나갈 길이 있어.",
+    "싸우며 지나서 건너편|호수로 나가."
+   ],
+   "ja": [
+    "うえー じめじめして くらい! すすんでね きっと でぐちが あるわ!",
+    "たたかって すすんで むこうがわの 湖へ でましょ"
    ]
   },
   {
@@ -1153,6 +2065,18 @@
    "de": [
     "Der Herzog ist in den Schrein! Lass ihn nicht entkommen!",
     "Folge ihm in den Schrein.|Lass dir Zeit."
+   ],
+   "fr": [
+    "Le Duc est entré dans ce sanctuaire! Ne le laisse pas filer!",
+    "Entre dans le sanctuaire après lui.|Prends ton temps."
+   ],
+   "ko": [
+    "공작이 저 신전으로 들어갔어! 놓치지 마!",
+    "신전에 들어가 쫓아가.|천천히 해도 돼."
+   ],
+   "ja": [
+    "公爵が あの 神殿に はいったわ! にがしちゃ だめよ!",
+    "神殿に はいって おいかけてね あわてずに ゆっくりね"
    ]
   },
   {
@@ -1168,6 +2092,18 @@
    "de": [
     "So viele Stockwerke und Schlüssel! Geduld, Niels. Und oft speichern!",
     "Such Schalter und Schlüssel für|den Weg nach oben. Hab Geduld."
+   ],
+   "fr": [
+    "Tant d'étages et de clés! Patience, Ryle. Et sauvegarde souvent!",
+    "Cherche des interrupteurs et des clés|pour monter. Sois patient."
+   ],
+   "ko": [
+    "층도 열쇠도 많아! 참아, 라일. 자주 저장해!",
+    "스위치와 열쇠를 찾아서|위로 가는 길을 열어. 참을성을 가져."
+   ],
+   "ja": [
+    "かいだんと かぎが いっぱい! ライル がまんがまん セーブも こまめにねっ!",
+    "スイッチや かぎを さがして 上への みちを あけてね ゆっくりとね"
    ]
   },
   {
@@ -1182,6 +2118,18 @@
    "de": [
     "Danke, Mir! Jetzt durchs Nordtor des Schlosses!",
     "Mir sagte: Nordtor des Schlosses,|dann in die Berge im Nordwesten."
+   ],
+   "fr": [
+    "Merci, Mir! Maintenant, par la porte nord du château!",
+    "Mir a dit: porte nord du château,|puis les montagnes au nord-ouest."
+   ],
+   "ko": [
+    "고마워, 밀! 이제 성의 북문으로!",
+    "밀이 말했어: 성의 북문,|그다음 북서쪽의 산."
+   ],
+   "ja": [
+    "ありがとう ミル! つぎは 城の 北もんを とおるのよ!",
+    "ミルが いってたわ 城の 北もん それから 北西の やま"
    ]
   },
   {
@@ -1196,6 +2144,18 @@
    "de": [
     "Das Auge hat was bewirkt! Schnappen wir den Herzog!",
     "Sieh dich dort um, wo du das Auge|benutzt hast. Der Herzog ist nicht weit."
+   ],
+   "fr": [
+    "L'Oeil a fait quelque chose! Attrapons ce Duc!",
+    "Regarde autour de l'endroit où tu as|utilisé l'Oeil. Le Duc n'est pas loin."
+   ],
+   "ko": [
+    "눈이 뭔가 했어! 이제 그 공작을 잡자!",
+    "눈을 쓴 곳 주변을 살펴봐.|공작은 멀리 안 갔어."
+   ],
+   "ja": [
+    "ゴラのめが なにか したわ! 公爵を つかまえにいくわよ!",
+    "ゴラのめを つかった ばしょの まわりを みてね 公爵は ちかくよ"
    ]
   },
   {
@@ -1210,6 +2170,18 @@
    "de": [
     "Da hat sich was geöffnet! Mal sehen, wohin es führt!",
     "Such, was das Auge geöffnet hat."
+   ],
+   "fr": [
+    "Quelque chose s'est ouvert! Voyons où ça mène!",
+    "Cherche ce que l'Oeil a ouvert."
+   ],
+   "ko": [
+    "뭔가 열렸어! 어디로 이어지나 보자!",
+    "눈이 열어 준 곳을 찾아봐."
+   ],
+   "ja": [
+    "なにかが ひらいたわ! どこへ つづくか みにいきましょ!",
+    "ゴラのめで ひらいた ものを さがしてね"
    ]
   },
   {
@@ -1225,6 +2197,18 @@
    "de": [
     "Gruselige Höhle! Pass auf, Niels, hier lauern Fallen!",
     "Arbeite dich durch die Höhle.|Such den Weg weiter."
+   ],
+   "fr": [
+    "Grotte flippante! Attention, Ryle, je sens des pièges!",
+    "Avance dans la grotte.|Cherche la suite du chemin."
+   ],
+   "ko": [
+    "으스스한 동굴! 발밑 조심해, 라일, 함정 냄새가 나!",
+    "동굴을 헤치고 나가.|앞으로 갈 길을 찾아봐."
+   ],
+   "ja": [
+    "ぶきみな どうくつ! ライル あしもとに ちゅうい わなの においがするわ!",
+    "どうくつを すすんで さきへの みちを さがしてね"
    ]
   },
   {
@@ -1240,6 +2224,18 @@
    "de": [
     "Eine Stadt hier draußen? Ausruhen und einkaufen, das Ende ist nah!",
     "Dann folg dem Weg. Der Herzog|kann nicht weit sein."
+   ],
+   "fr": [
+    "Une ville au bout du monde? Reposons-nous et faisons des provisions, la fin approche!",
+    "Puis vois où mène la route.|Le Duc ne doit pas être loin."
+   ],
+   "ko": [
+    "이런 외진 데 마을이? 쉬고 물건 사자, 끝이 가까워!",
+    "그다음 길이 어디로 이어지나 봐.|공작은 멀리 안 갔어."
+   ],
+   "ja": [
+    "こんな ところに 町が! やすんで じゅんびしましょ もうすぐ おわりよ!",
+    "それから みちが どこへ つづくか みてみましょ 公爵は ちかくよ"
    ]
   },
   {
@@ -1256,6 +2252,18 @@
    "de": [
     "Drei Monster hausen im|Labyrinth. Besieg sie!",
     "Erst die drei Monster im|Labyrinth, dann der Palast!"
+   ],
+   "fr": [
+    "Bats trois monstres dans le|labyrinthe pour atteindre le palais!",
+    "Bats les trois monstres du labyrinthe|pour atteindre le palais."
+   ],
+   "ko": [
+    "미궁의 몬스터 셋을 쓰러뜨려야|궁전에 갈 수 있대!",
+    "미궁의 몬스터 셋을 쓰러뜨려야|궁전에 갈 수 있어."
+   ],
+   "ja": [
+    "めいろの 3びきの モンスターを たおせば きゅうでんよ!",
+    "めいろの 3びきの モンスターを たおして きゅうでんへ いきましょ"
    ]
   },
   {
@@ -1271,6 +2279,18 @@
    "de": [
     "Was für ein irres Labyrinth! Mirs Zauber fällt heilige Bäume...",
     "Such etwas, das dir hilft, übers|Wasser zu kommen. Nutze die Karte."
+   ],
+   "fr": [
+    "Quel labyrinthe de fous! Le sort de Mir coupe les arbres sacrés...",
+    "Cherche quelque chose pour traverser|l'eau. Surveille la carte."
+   ],
+   "ko": [
+    "엄청난 미로야! 밀의 마법은 성스러운 나무를 벨 수 있어...",
+    "물을 건너게 해 줄 걸 찾아봐.|지도를 잘 봐."
+   ],
+   "ja": [
+    "なんて めいろ! ミルの 魔法は せいなる きを きれるわ・・・",
+    "みずを わたれる ものを さがしてね ちずを ちゃんと みてね"
    ]
   },
   {
@@ -1287,6 +2307,18 @@
    "de": [
     "Drei Monster! Besieg|alle, dann zum Palast!",
     "Besieg alle drei Monster hier,|dann geht das Palasttor auf."
+   ],
+   "fr": [
+    "Des monstres dans ce labyrinthe!|Bats-les tous les trois, Ryle!",
+    "Bats les trois monstres ici pour|atteindre le palais."
+   ],
+   "ko": [
+    "이 미로에 몬스터가 있어!|셋 다 쓰러뜨려, 라일!",
+    "여기 몬스터 셋을 다 쓰러뜨려야|궁전에 갈 수 있어."
+   ],
+   "ja": [
+    "この めいろに モンスターが! 3びき ぜんぶ たおしてね ライル!",
+    "3びきの モンスターを ぜんぶ たおせば きゅうでんへ いけるわ"
    ]
   },
   {
@@ -1304,6 +2336,18 @@
    "de": [
     "Ein Floß muss her!|Such erst den Sohn des Zwergs.",
     "Finde den Sohn des alten|Zwergs und hol Holzstämme."
+   ],
+   "fr": [
+    "Un radeau pour la rivière!|Trouve d'abord le fils du nain.",
+    "Trouve le fils du vieux nain et|rapporte des bûches pour un radeau."
+   ],
+   "ko": [
+    "강을 건너려면 뗏목!|먼저 노인의 아들을 찾자.",
+    "늙은 난쟁이의 아들을 찾아서|뗏목 만들 통나무를 구해."
+   ],
+   "ja": [
+    "かわに いかだね! まず ドワーフの むすこを さがしましょ!",
+    "ドワーフの おじいさんの むすこを さがして まるたを もらって いかだを つくってね"
    ]
   },
   {
@@ -1321,6 +2365,18 @@
    "de": [
     "Hoch mit uns! Der Baum|gibt ein prima Floß!",
     "Klettere hoch und fäll den|Baum für ein Floß."
+   ],
+   "fr": [
+    "En haut! Cet arbre fera un|beau radeau!",
+    "Grimpe et coupe l'arbre pour|fabriquer un radeau."
+   ],
+   "ko": [
+    "올라가자! 저 나무로|멋진 뗏목을 만들 수 있어!",
+    "위로 올라가 나무를 베어서|뗏목을 만들어."
+   ],
+   "ja": [
+    "上へ いくわよ! あの きで いかだが つくれるわ!",
+    "上へ のぼって きを きって いかだを つくってね"
    ]
   },
   {
@@ -1337,6 +2393,18 @@
    "de": [
     "Das zweite Floß ist bereit! Komm, ich glaub, wir sind ganz nah!",
     "Folge dem Labyrinth. Prüf die Karte auf|Räume, die du noch nicht kennst."
+   ],
+   "fr": [
+    "Le deuxième radeau est prêt! Allez, on dirait qu'on se rapproche!",
+    "Suis le labyrinthe. Regarde la carte pour|les salles que tu n'as pas essayées."
+   ],
+   "ko": [
+    "두 번째 뗏목이 완성됐어! 가자, 점점 가까워지는 느낌이야!",
+    "미로를 계속 가 봐. 지도에서|아직 안 가 본 방을 확인해."
+   ],
+   "ja": [
+    "2つめの いかだが できたわ! なんだか あったかく なってきた!",
+    "めいろを すすんで ちずで まだの へやを たしかめてね"
    ]
   },
   {
@@ -1353,6 +2421,18 @@
    "de": [
     "So ein Angeber! Der Herzog ist irgendwo vor uns. Hinterher!",
     "Weiter so und achte auf deine Energie."
+   ],
+   "fr": [
+    "Quel frimeur! Le Duc est quelque part devant. Rattrape-le!",
+    "Continue et surveille ta santé."
+   ],
+   "ko": [
+    "잘난 척하긴! 공작은 이 앞 어딘가에 있어. 잡자!",
+    "계속 가. 체력을 잘 봐."
+   ],
+   "ja": [
+    "いばりんぼね! 公爵は この さきに いるわ つかまえて!",
+    "すすみながら たいりょくに ちゅうい してね"
    ]
   },
   {
@@ -1368,6 +2448,18 @@
    "de": [
     "Was für ein Ort! Der Schatz muss hier irgendwo sein!",
     "Sieh dich um. Türen und Schalter verbergen|den Weg tiefer hinein."
+   ],
+   "fr": [
+    "Quel endroit! Le trésor doit être quelque part ici!",
+    "Regarde autour. Portes et interrupteurs|cachent peut-être le chemin."
+   ],
+   "ko": [
+    "굉장한 곳이다! 보물이 분명 여기 어딘가 있어!",
+    "둘러봐. 문이나 스위치가|더 깊은 곳으로 가는 길을 숨겼을지도."
+   ],
+   "ja": [
+    "すごいところ! たからは きっと ここの どこかよ!",
+    "まわりを しらべてね とびらや スイッチが おくへの みちを かくしてるかも"
    ]
   },
   {
@@ -1383,6 +2475,18 @@
    "de": [
     "Jetzt gilt's, Niels! Heil dich, dann holen wir uns den Schatz!",
     "Besiege den Wächter in der Arena.|Du schaffst das, Niels!"
+   ],
+   "fr": [
+    "On y est, Ryle! Soigne-toi, puis allons prendre ce trésor!",
+    "Bats le gardien dans l'arène.|Tu peux le faire, Ryle!"
+   ],
+   "ko": [
+    "드디어야, 라일! 회복하고 보물을 차지하자!",
+    "경기장의 수호자를 쓰러뜨려.|할 수 있어, 라일!"
+   ],
+   "ja": [
+    "ここよ ライル! かいふくして たからを とりにいきましょ!",
+    "アリーナの ばんにんを たおしてね ライルなら できるわ!"
    ]
   }
  ]

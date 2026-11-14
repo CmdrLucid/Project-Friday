@@ -58,7 +58,7 @@ With every option switched off, the game plays like the original cartridge. All 
 - **Fix Ride Objects:** Nigel now rides along on an object that stands on a moving platform. In the original he slides off; this is a bug fix.
 - **Live Gaia Effect:** the Gaia rocks stay in the world while the screen scrolls.
 
-**Difficulty / Help:** damage taken (25 % to 200 %), enemy HP (50 % to 300 %) and *Friday Hints* (off by default; press Select and Friday flies out of Nigel's bag and tells you where to go next). The hints follow your progress and only mention what Nigel has actually been told: if you listened to an optional character, Friday remembers it (per save file) and gets more precise. English and German so far.
+**Difficulty / Help:** damage taken (25 % to 200 %), enemy HP (50 % to 300 %) and *Friday Hints* (off by default; press Select and Friday flies out of Nigel's bag and tells you where to go next). The hints follow your progress and only mention what Nigel has actually been told: if you listened to an optional character, Friday remembers it (per save file) and gets more precise. In English, German, French, Korean and Japanese.
 
 **Dungeon map** (bind a button to "Map" in Keybindings): a map of the visited rooms of the current dungeon, turned like the game's own view, the whole floor at once with every door on its real wall. The D-pad moves a selection, A sets a flag and the map shows the way there, L1 / R1 switch floors; dungeon names in every language.
 

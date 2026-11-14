@@ -199,7 +199,7 @@ def ko_glyph_rows(ch):
     i = ord(ch) - 0xAC00; return [struct.unpack(">H", d[6 + 22 * i + 2 * k:8 + 22 * i + 2 * k])[0] for k in range(11)] + [0] * 4
 
 
-def ko_codes(lang):
+def ko_codes(lang, extra=()):
     import re
     hang = lambda t: [c for c in re.sub(r"\{[^}]*\}", "", t) if 0xAC00 <= ord(c) <= 0xD7A3]
     first, rest = [], []
@@ -213,6 +213,8 @@ def ko_codes(lang):
     freq = {}
     for e in list(lang.get("strings", {}).values()) + list(lang.get("items_jp", {}).get("strings", {}).values()):
         for c in hang(e["t"]): freq[c] = freq.get(c, 0) + 1
+    for t in extra:   # release 2.0: the Friday hints of this language (tools/fridaylang.py)
+        for c in hang(t): freq[c] = freq.get(c, 0) + 1
     rest = sorted((c for c in freq if c not in first), key=lambda c: -freq[c])
     lo, hi, code = list(KO_LO), list(KO_HI), {}
     for c in first + rest: code[c] = (lo or hi).pop(0)
@@ -224,12 +226,14 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
     nm_tab = load_names(); base = lang.get("meta", {}).get("names", lang.get("meta", {}).get("code", "en")[:2])
     global EXTRA, UI_BYTES; fr = base == "fr"; EXTRA, UI_BYTES = (EXTRA_FR, UI_BYTES_FR) if fr else (EXTRA_DE, UI_BYTES_DE)   # LK_LGFR v1
     lang = json.loads(json.dumps(lang))   # a copy: the placeholders are resolved per variant
+    import fridaylang   # release 2.0: Friday hints of this language as extra strings $E000 + entry
+    fcode = lang.get("meta", {}).get("code", ""); fh = fridaylang.entries(fcode) if fcode in fridaylang.NAME else []
     ko = base == "ko"
     if ko:   # LK_LGKO v1: resolve the placeholders first, then give every Hangul syllable a code
         for blk in ("strings", "names", "item_dialog"):
             for ent in lang.get(blk, {}).values():
                 if "{=" in ent.get("t", ""): ent["t"] = resolve(ent["t"], nm_tab, base, variant)
-        EXTRA, UI_BYTES = ko_codes(lang), {}
+        EXTRA, UI_BYTES = ko_codes(lang, [t for _, t in fh]), {}
     for blk in ("strings", "names"):
         for d in (lang.get(blk, {}), lang.get("items_jp", {}).get(blk, {})):   # LK_JPITEMS v1: block 'items_jp' = lines / names for Options > Items = Japanese
             for ent in d.values():
@@ -254,6 +258,14 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
             else: dropped.append((key, "name-only code in a string")); break
         else:
             strs.append((sid, len(blob), len(words))); blob += b"".join(struct.pack(">H", w) for w in words) + b"\xff\xff"
+    if fh:   # release 2.0: Friday hints (gentle level), wrapped with the real glyph widths
+        import langwrap; W = langwrap.widths(rom); nfh = 0
+        for sid, t in fh:
+            try: toks = tokens(fridaylang.latin_text(W, fcode, t))
+            except ValueError as e: dropped.append(("friday:%04X" % sid, str(e))); continue
+            words = [v if k == "g" else ~HANDLER[v] & 0xFFFF for k, v in toks if k in ("g", "c")]
+            strs.append((sid, len(blob), len(words))); blob += b"".join(struct.pack(">H", w) for w in words) + b"\xff\xff"; nfh += 1
+        print("langbuild: %d Friday hints (%s)" % (nfh, fcode))
     nl = [(k, e, 0) for k, e in lang.get("names", {}).items()] + [(k, e, 0x80) for k, e in lang.get("items_jp", {}).get("names", {}).items()]   # Items = Japanese: item name index | $80
     nl += [(k, e, 0x40) for k, e in lang.get("item_dialog", {}).items()]   # LK_LGKO v1: item names used only by {Item} in the dialogue (patch_lang.py LK_JPITEMS v3: index | $40)
     for key, ent, ibit in nl:

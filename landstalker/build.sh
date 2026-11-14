@@ -249,6 +249,8 @@ python3 tools/patch_roommap.py .deps/genrecomp
 python3 tools/patch_kbdir.py .deps/genrecomp
 # Kayla's bath scene of the Japanese version (Options > Language / Region > Bath Scene; tools/patch_bath.py, needs patch_options / patch_friday)
 python3 tools/patch_bath.py .deps/genrecomp
+# German intro captions (Language = Deutsch: the wording of the German release; tools/patch_introde.py, needs patch_lang / patch_bath)
+python3 tools/patch_introde.py .deps/genrecomp
 # Options page 'Language / Region' (Language, Names, Items, Bath Scene; tools/patch_langpage.py, needs patch_kbdir / patch_bath)
 python3 tools/patch_langpage.py .deps/genrecomp
 # VDP data path step 3.0: path counters in vdp_ctrl.c (LANDSTALKER_VDPCOUNT=file; inert without it; tools/patch_vdpcount.py, docs/SOUND_PLAN.md section 12)

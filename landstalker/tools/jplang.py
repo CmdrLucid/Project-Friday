@@ -184,10 +184,13 @@ def main():
         if len(members) != n: n = len(members)
         w = [max(8, len(re.sub(r'\{[^}]*\}', '', en[m[2]]))) for m in members]
         for (p, _, k), piece in zip(members, split_parts(t, n, w)): pieces[k] = piece
+    # release 2.0: Friday hints in Japanese (lang/friday_hints.json "ja", tools/fridaylang.py): her name + 「text」, own line wrap below
+    import fridaylang
+    fhj = [(sid, [text_tokens(seg) for seg in (fridaylang.NAME['ja'].rstrip(':') + '「' + t + '」').split('|')]) for sid, t in fridaylang.entries('ja')]
     # glyph codes: names first (bytes), then by frequency
     names = jp_names(jrom)
     freq = {}
-    for p in pieces.values():
+    for p in list(pieces.values()) + [x for _, segs in fhj for x in segs]:
         for x in p:
             if x[0] == 'g' and x[1] != J_SPACE: freq[x[1]] = freq.get(x[1], 0) + 1
     name_gl = []
@@ -227,6 +230,31 @@ def main():
             if x[0] == 'c': words.append(~HL[x[1]] & 0xFFFF)
             else: words.append(code[x[1]])
         strs.append((int(k, 16), len(blob), len(words))); blob += b''.join(struct.pack('>H', w) for w in words) + b'\xff\xff'; kept += 1
+    nfh = 0
+    for sid, segs in fhj:   # release 2.0: wrap at the real glyph widths (236 px like tools/langwrap.py), a ContinuePrompt after every 3 lines and at the end
+        lines = []
+        for seg in segs:
+            cur, w = [], 0
+            for x in seg:
+                if x[0] != 'g': continue
+                gw = W.get(code[x[1]], 8)
+                if cur and w + gw > 236 and x[1] not in (JP_CHARSET.index('、'), JP_CHARSET.index('。'), JP_CHARSET.index('!'), JP_CHARSET.index('?'), JP_CHARSET.index('」')):
+                    sp = max((i for i, c in enumerate(cur) if c == 0), default=-1)   # break at the last space between phrases when there is one
+                    if sp > 0: lines.append(cur[:sp]); cur = cur[sp + 1:]
+                    else: lines.append(cur); cur = []
+                    w = sum(W.get(c, 8) for c in cur)
+                if not cur and code[x[1]] == 0: continue   # no space at a line start
+                cur.append(code[x[1]]); w += gw
+            lines.append(cur)
+        words = []
+        for i, ln in enumerate(lines):
+            if i:
+                if i % 3 == 0: words.append(~HL[K['ContinuePrompt']] & 0xFFFF)
+                words.append(~HL[K['SoftNewLine']] & 0xFFFF)
+            words += ln
+        words.append(~HL[K['ContinuePrompt']] & 0xFFFF)
+        strs.append((sid, len(blob), len(words))); blob += b''.join(struct.pack('>H', w) for w in words) + b'\xff\xff'; nfh += 1
+    print('jplang: %d Friday hints' % nfh)
     nm = []
     for key, v in names.items():
         tab, i = key.split(':'); cs = [code.get(x[1], 0) if x[0] == 'g' else 0 for x in tok(v)]
