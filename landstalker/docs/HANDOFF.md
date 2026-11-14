@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 52-57
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 753-764
-- 1. Where we are: lines 765-901
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 902-1137
-- 3. How the user works (important): lines 1138-1153
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1154-1178
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1179-1187
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1188-1235
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1236-1245
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1246-1247
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1248-1250
-- NEXT STEPS, newest first: -198 903, -197 904, -196 905, -195 906, -194 907, -193 908, -192 909, -191 910, -190 911, -189 912
+- 1. Where we are: lines 765-902
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 903-1139
+- 3. How the user works (important): lines 1140-1155
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1156-1180
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1181-1189
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1190-1237
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1238-1247
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1248-1249
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1250-1252
+- NEXT STEPS, newest first: -199 904, -198 905, -197 906, -196 907, -195 908, -194 909, -193 910, -192 911, -191 912, -190 913
 - Newest entries:
   - 0a437 line 187: 2026-11-14 midday (Deck, Opus 5.5 + 3 Sonnet agents): Friday hints knowledge review (user found the 'schola...
   - 0a436 line 188: 2026-11-14 evening (Deck, Opus 5.5): KEYBOARD DIRECTIONS rebindable + one-press 'WASD Keys' row in Options...
@@ -763,6 +763,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-14 MIDDAY END (Opus 5.5 + 3 Sonnet review agents, `dev` pushed, main = v1.9.1):** Friday hints knowledge review (45 rewritten, 1 deleted, 1 new, stage 25 / 29 / 30 meanings corrected; FRIDAY_HINTS 4c); build compiles 63 hints, texts NOT seen in the game; user reads ~/Project-Friday-Test/Friday_Hinweise.html. User agreed in principle: precise hints behind 'talked with X' flags (NEXT -199). Also today: keyboard WASD (LK_KBDIR v1, next release).
 - **2026-11-14 EVENING END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** keyboard directions rebindable + one-press 'WASD Keys' (LK_KBDIR v1, a player's question). Headless only (menu rows, key file, reset); real keys NOT tested. User: put it into the NEXT release (no release now). Still open from before: play the dungeon map (-197), the languages (-189..-194), Friday hints (-195).
 - **2026-11-14 END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** dungeon map redesign brainstormed with mock-ups and BUILT (LK_ROOMMAP v13 / roommap v18 / LK_RMNAMES v1: re-layout with short links, graded links around a D-pad selection, A = flag + path, '?' exits, symbols only, dungeon names per language); ja.bin now version 4. Headless only (KN cave mapshot, titles de / ko / ja / fr, Japanese dialogue unchanged), NOT played. Open with the user: play the map (-197), the languages (-189..-194), the Friday hints (-195), further languages (-196).
 - **2026-11-13 NIGHT-2 END (Opus 5.5 + ~40 Sonnet agent runs, `dev` pushed, main = v1.9.1):** user-tested fixes: Japanese stray Latin letters (own text mirror byte cut, user 'passt jetzt'). Done headless, NOT played yet: Items = Japanese names in Japanese, Names = Japanese in English (JP) / German, Japanese kana item names in dialogue + Start menu (LK_JPITEMS v3 / LK_JPMENU v1), line ends no longer jump to the line start (LK_OWNTEXT v2, all languages), English (JP) full pass (2110 strings), FRENCH (lang/fr.json, LK_LGFR v1 accents), KOREAN (lang/ko.json, Galmuri 11 / 7 fonts, own font bank LK_LGFONT v1, 16-bit names LK_LGKO v1, menu names LK_LGKOMENU v1). Next: the user plays the languages (HANDOFF -189..-194; then the Friday hints (-195: user reads them first, then Japanese-Friday voice + translations); further languages proposed in -196 (Portuguese BR, Spanish, Italian).
@@ -900,6 +901,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-199. **NEXT (2026-11-14, user: 'fände ich prinzipiell gut, ja'): Friday hints coupled to 'talked with person X' flags = more precise hints where the player DID hear an optional NPC.** After the knowledge review (FRIDAY_HINTS 4c) many hints are vague ('ask around'); add extra json entries AFTER the vague one with a `flag:` condition that proves the optional talk, keeping the precise text. Known candidates: castle steward CS_001E long talks $19.7 (stage $13) / $1A.1 (stage $14) = Mir's barrier + armlet + crypt -> precise stage20_tower / stage20_have_armlet / stage22_to_mir texts (two entries, conditions are AND-only); find more by grepping the `bset` in the talk scripts of the NPCs that tell the leaked facts (Prospero for stage 1, Ryuma elder, Verla / Destel townsfolk, KN dwarves). Not all optional talks set a flag: those stay vague. Runtime needs no change (flag: / !flag: exist). Agent-suitable search (Sonnet), lead checks + writes the texts; then rebuild + friday_overview.
 -198. **NEXT (2026-11-14 evening; user: 'yes' to shipping it in the next release, but no release now):** keyboard test of LK_KBDIR: on a PC / Deck desktop with a keyboard: Options > Keybindings > WASD Keys, then walk with W A S D, J K L for the buttons, open the dungeon map and move the selection with W A S D; Reset Defaults = arrows again. Ideally the player who asked tests it after the next release.
 -197. **NEXT (2026-11-14, dungeon map, user: 'besser ja' to mock-up v5):** direction for the map redesign (docs/MAP.md brainstorm parts 1-3, mock-ups ~/Project-Friday-Test/Mockups/dungeonkarte/mock.py): draw today's layout TURNED like the game (NE = up-right), whole floor always visible, links graded (all faint, current room bright, neighbours medium), D-pad cursor moves the highlight; next mock-up steps: a layout pass that shortens links (doors keep their sides), '?' for unvisited exits, path to a chosen room. BUILT 2026-11-14 (LK_ROOMMAP v13 / roommap v18 / LK_RMNAMES v1, INDEX status): the user plays a dungeon and opens the map (D-pad = selection, A = flag, L1 / R1 = floor, other buttons close).
 -196. **IDEA / PROPOSAL (2026-11-14, user asked which languages could follow; decide AFTER the user tested de / en_tone / fr / ko / ja and the Friday hints -195):** (1) Portuguese (Brazil) - huge Mega Drive fan base (Tectoy), Latin + a few accents (ã õ ç á é ê ó ...) derived from the ROM font like LK_LGFR, no rebuild; (2) Spanish - big audience, ñ á é í ó ú ¿ ¡, same way; (3) Italian - small effort (à è é ì ò ù). Same workflow as French (worksheets EN / JP / DE / ENJP, agents, chkfull / chkwrap, glossary from a release if one exists, otherwise our own terms). Only with a native proof-reader: Russian (Cyrillic font like the Korean path, upper + lower case) and Chinese (2000+ glyphs, nearly fills the font bank, needs a CJK pixel font). Cost reminder: every language multiplies later text fixes, Friday hints and menu texts.
