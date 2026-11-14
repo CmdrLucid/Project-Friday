@@ -9298,7 +9298,13 @@
   "Names": "Noms",
   "Localized": "Localisés",
   "Japanese": "Japonais",
-  "Localized or Japanese names": "Noms: locaux ou japonais"
+  "Localized or Japanese names": "Noms: locaux ou japonais",
+  "Language & Region": "Langue et région",
+  "Bath Scene": "Scène du bain",
+  "Items": "Objets",
+  "Original": "Originaux",
+  "Kayla's bath before the banquet": "Le bain de Kayla avant le banquet (JP)",
+  "Four items as in the Japanese original": "Quatre objets comme dans l'original japonais"
  },
  "items_jp": {
   "names": {

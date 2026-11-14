@@ -247,6 +247,10 @@ python3 tools/patch_shaderwarm.py .deps/genrecomp
 python3 tools/patch_roommap.py .deps/genrecomp
 # Keyboard directions rebindable + one-press WASD layout (Options > Keybindings; tools/patch_kbdir.py, needs patch_options / patch_keys / patch_roommap)
 python3 tools/patch_kbdir.py .deps/genrecomp
+# Kayla's bath scene of the Japanese version (Options > Language / Region > Bath Scene; tools/patch_bath.py, needs patch_options / patch_friday)
+python3 tools/patch_bath.py .deps/genrecomp
+# Options page 'Language / Region' (Language, Names, Items, Bath Scene; tools/patch_langpage.py, needs patch_kbdir / patch_bath)
+python3 tools/patch_langpage.py .deps/genrecomp
 # VDP data path step 3.0: path counters in vdp_ctrl.c (LANDSTALKER_VDPCOUNT=file; inert without it; tools/patch_vdpcount.py, docs/SOUND_PLAN.md section 12)
 python3 tools/patch_vdpcount.py .deps/genrecomp
 # VDP data path of our own (data / control port, registers, DMA; default ours, LANDSTALKER_VDP=gpgx = GPGX's decode, =check = both compared; tools/patch_vdpport.py + tools/lkvdp.c, docs/SOUND_PLAN.md section 12)
