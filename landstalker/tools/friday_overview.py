@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """friday_overview.py [out.html]: readable overview of the Friday hints (lang/friday_hints.json) for checking them while playing:
 when each hint comes (story stage, place, item, event in plain German) and what Friday / Flora says.  Our own text only (no ROM data).
-Default output: ~/Friday_Hinweise.html (open it in the browser)."""
+Default output: ~/Project-Friday-Test/Friday_Hinweise.html (open it in the browser)."""
 import html, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, "..", "lang", "friday_hints.json")))
-OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser("~/Friday_Hinweise.html")
+OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser("~/Project-Friday-Test/Friday_Hinweise.html")
 
 STAGE = {   # main story stage (game's GetFlagProgress) -> what has happened, German
     0: "Spielbeginn", 1: "ein Dorfbewohner in Massan hat von der kaputten Brücke erzählt", 2: "Fara wurde entführt",
@@ -18,9 +18,9 @@ STAGE = {   # main story stage (game's GetFlagProgress) -> what has happened, Ge
     16: "der Herzog hat den Raum nach dem ersten Treffen verlassen", 17: "ein Diener hat dich ins Schlafzimmer gebracht",
     18: "die Küchenfrau hat zum Bankett gerufen", 19: "du warst beim Bankett", 20: "du hast nach dem Bankett geschlafen",
     21: "Krypta: Rätselteil geschafft (unsicher)", 22: "Armreif (Armlet) geholt (unsicher)", 23: "du hast Mir in seinem Turm getroffen",
-    24: "Zak ist aus dem Verlies von Mercator davongeflogen", 25: "der Hund ist geheilt", 26: "der Leuchtturm leuchtet wieder",
-    27: "Marley ist besiegt (Verla-Minen)", 28: "du hast den Herzog in den Seeschrein gehen sehen", 29: "Seeschrein geschafft",
-    30: "nach dem Seeschrein (unsicher)", 31: "der Teleporter in Mercator zu King Nole's Cave ist offen",
+    24: "Zak ist aus dem Verlies von Mercator davongeflogen", 25: "Cutter hat dir Einsteins Pfeife gegeben", 26: "der Leuchtturm leuchtet wieder",
+    27: "Marley ist besiegt (Verla-Minen)", 28: "du hast den Herzog in den Seeschrein gehen sehen", 29: "Seeschrein geschafft, Mir hat dich gerettet",
+    30: "du hast Golas Auge benutzt", 31: "der Teleporter in Mercator zu King Nole's Cave ist offen",
 }
 ROOM = {   # room ranges used by the hints -> place, German
     "0-30": "im Sumpfschrein", "111-114": "in den Arenen am Ende", "115-138": "in King Nole's Palast", "144-172": "in King Nole's Cave",
@@ -30,7 +30,7 @@ ROOM = {   # room ranges used by the hints -> place, German
     "750-784": "in Mirs Turm",
 }
 ITEM = {"1E": "den Sonnenstein", "1F": "den Armreif (Armlet)", "20": "Einsteins Pfeife", "31": "den Götzenstein (Idol Stone)"}
-FLAG = {"13.0": "du sitzt im Verlies von Mercator", "17.6": "du hast den lila Juwel in Mirs Turm genommen",
+FLAG = {"00.6": "die Tür des Sumpfschreins ist offen", "13.0": "du sitzt im Verlies von Mercator", "17.6": "du hast den lila Juwel in Mirs Turm genommen",
         "20.4": "du hast die Prinzessin im Verlies gefunden", "20.6": "Arthur hat dir von der Flucht des Herzogs erzählt",
         "26.7": "Dex ist besiegt", "28.7": "du hast den Herzog auf dem Floß bei Destel gesehen",
         "2B.1": "das zweite Floß im Labyrinth liegt bereit", "2B.7": "der Herzog hat dich im Labyrinth verspottet"}

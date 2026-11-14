@@ -68,6 +68,17 @@ The list ends at stage 31; the rest of the game is covered by room ranges plus f
 ## 4b. Runtime (LK_FRIDAY v2, 2026-10-31, user wishes)
 Only the gentle level (L1) is shown (the user: 'nur die vagen Hinweise'); L2 stays in the data. The text box starts with her name on its own line ('Friday:', German 'Flora:'), plays her speech blip (g_TalkSoundEffect $FF1154 = SpecialCharacterSfxList $02913E entry 1) and she flies out of Nigel's bag while she talks (g_FridayAnimState $FF114B = 1, next state $FF114D = $11, then $31 = back into the bag after the text, as the cutscene actions do). Headless-verified (screenshots, rec_20261029_1729 frame 15000, German).
 
+## 4c. Knowledge review 2026-11-14 (user rule; Opus 5.5 lead + 3 Sonnet review agents)
+User (2026-11-14): 'Friday weiss an dem Punkt nichts von einem Gelehrten und Nigel auch nicht' -> RULE: a hint may only name persons / places / items / facts that Nigel and Friday KNOW when it can show = told by a MANDATORY event before its condition holds (the stage flag's own event, a cutscene, an obligatory talk); things only an optional NPC says are not allowed unless a flag in `when` proves that talk; no spoilers (next event's content, a twist, a boss before it appears); no internal room numbers. Every hint was checked against the dialogue (string ids) and the flag setters; 45 hints rewritten in lang/friday_hints.json (the json is the source now; the EN / DE lines in section 5 below are the OLD 2026-10-31 texts, the evidence notes still apply unless corrected here).
+Corrected facts (evidence in the disassembly, verified by the lead):
+- stage 25 ($24.4) is set by CSA_00C6 (the scene that gives Einstein's whistle), not by curing the dog: `stage25_dog` (needed !item:20) could never show -> deleted.
+- stage 29 ($2A.5) comes with Mir's rescue talk after the Lake Shrine (spell that cuts the sacred trees; north gate of the castle, mountains northwest of Mercator); the old 'duke back at his castle' was wrong.
+- stage 30 ($2A.6) = PostUseGolasEye (Gola's Eye used); nothing says 'castle'. Where the stage 31 teleporter is seen stays UNSURE.
+- The Idol Stone is not consumed; PostUseIdolStone sets $00.6 (swamp shrine door open): `stage03_have_stone` gets `!flag:00.6`, new entry `stage03_door_open` (`flag:00.6`).
+- Mir's barrier / armlet / crypt are told only by optional castle people: the stage 20..22 hints no longer claim them as known.
+- The bridge villager (stage 1) only says Gumi smashed it and to tell the mayor; no scholar.
+Still UNSURE (to check while playing): stage 2 window before the mayor tells about Fara (hint now names only Gumi), when $17.7 (stage 23) is set relative to the purple jewel (stage22_purple may never show), stage 10 flag meaning, stage 31 teleporter place.
+
 ## 5. Checkpoint list (same data as the json)
 
 Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
