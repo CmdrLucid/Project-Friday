@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 783-794
-- 1. Where we are: lines 795-937
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 938-1181
-- 3. How the user works (important): lines 1182-1197
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1198-1222
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1223-1231
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1232-1279
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1280-1289
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1290-1291
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1292-1294
-- NEXT STEPS, newest first: -206 939, -205 940, -204 941, -203 942, -202 943, -201 944, -200 945, -199 946, -198 947, -197 948
+- 1. Where we are: lines 795-938
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 939-1183
+- 3. How the user works (important): lines 1184-1199
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1200-1224
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1225-1233
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1234-1281
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1282-1291
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1292-1293
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1294-1296
+- NEXT STEPS, newest first: -207 940, -206 941, -205 942, -204 943, -203 944, -202 945, -201 946, -200 947, -199 948, -198 949
 - Newest entries:
   - 0a452 line 188: 2026-11-15 late (Deck, Opus 5.5): user recording rec_20261115_2025 (sword swings at trees without shadows:...
   - 0a451 line 190: 2026-11-15 evening (Deck, Opus 5.5): user 'machs doch gleich sauber' for the small sweep leftovers. FIXED:...
@@ -793,6 +793,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-15 END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** USER-CONFIRMED by playing: sprint through doors, Smooth Scrolling always on, room 470 night streaks, room 473 lift shadow. HEADLESS ONLY: room 66 door band, room 28 wall model (clay preview OK), castle 51..54 alcove cabinets, GitHub issue #17 (Item Info, 5 languages), pines re-anchored onto houses / neighbours (LK_LTTREEHOUSE v1), lightedges --spots full sweep (no further big errors). NEXT -207 pine clusters as single pines (user decision), then user test of the headless fixes; then the 2.0 release on request.
 - **2026-11-15 afternoon (Opus 5.5, `dev` pushed):** GitHub issue #17 fixed headless (Item Info index after scrolling, 7 missing texts, ko / ja descriptions were English). Details 0a450. User replies to the issue.
 - **2026-11-15 midday (Opus 5.5, `dev` pushed):** room 66 door band (LK_LTDOORVOID v1) and room 28 back wall (near-final light model wall_28, user OK on the clay preview) fixed headless; lightedges --spots multi-position sweep built and running over all rooms. NOT played. Details 0a449, NEXT -206.
 - **2026-11-15 morning (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** user recordings -> sprint through doors (LK_SPRINT v3), Smooth Scrolling always on (row removed), platform shadow above the picture (LK_SHOFF v1, room 473), room 470 night streaks = GPU ray corner cracks (LK_RAYCORNER v1). Headless / GPU shots only, NOT played. Details 0a448, NEXT -205.
@@ -936,6 +937,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-207. **NEXT (2026-11-15 late, user decision 'generell bei solchen Gruppen einzelne Tannen'): PINE CLUSTERS as single pines.** Clusters of drawn pines are detected as ONE sprite-lathe object (636 #6, r 17 = one shadow). (1) survey all outdoor rooms for multi-pine objects (LANDSTALKER_LIGHTING_DBG=5 'lathe at ... max r >= 14', compare with the drawn crowns), (2) give each drawn pine its own model (the approved courtyard pine, remake/recipes/pine_court; or split the cluster lathe per crown), placed by measurement like furniture_ops (generic placement, no per-room hand work where possible), (3) clay preview of one cluster for the user's OK, then all rooms; check with lightedges --spots. Then user plays 66 / 28 / 51..54 / 632 pine (HANDOFF 0a449..0a452).
 -206. **(1) DONE 2026-11-15 afternoon (no further big light errors; small ones listed in 0a449).** **NEXT (2026-11-15 midday):** (1) read the multi-position sweep results (~/Project-Friday-Test/lktest/sweep/all.txt + keep/edges_*.png), look at EVERY kept picture (the score misses boundaries along drawn lines), fix real light errors (near-final models for light shapes, clay preview first); (2) user plays room 66 (big door top right) and room 28 (right wall beside the statue); (3) user names rooms with trees / pines without shadows (question open).
 -205. **USER 2026-11-15: (1) 'passt', (2) 'ja', (4) 'passt'; (3) shadow still vanished at the very top -> cap raised (160 -> 1024), user re-test room 473: 'passt' = ALL 4 CONFIRMED.** **NEXT (2026-11-15): user plays the 4 fixes of 0a448:** (1) hold Sprint through a door (Massan / Mercator): no slow-down at the room change; (2) Options > Movement has no Smooth Scrolling row, sprint is the smooth 1.5 x; (3) room 473 (lift): its shadow stays while the lift is above the picture; (4) room 470 at night: no bright lines along the cliff edges (also look at other rocky rooms at night). Then continue -204 (3) / the 2.0 release on request.
 -204. **(1) DONE 2026-11-14 (0a442, LK_UIWIDE v1). NEXT (2026-11-14 night): (1) options menu in Korean / Japanese:** wire the translated ui_text (worksheets ~/Project-Friday-Test/lktest/menu_ko_ja/ko.json + ja.json, 227 keys, ko 233 distinct syllables) into the 8x8 option rows (lk_opt_put -> virtual tiles 0x600.. like LK_LGKOMENU / LK_JPMENU, glyphs Galmuri 7 for ko, kana 8x8 for ja) and the help lines (ProcessChar path, language glyph codes); (2) title screen subtitle per language (user: 'the treasures of king nole zu Die Schaetze von Koenig Nolo'): USER CHOSE OWN DRAWN LETTERING (option 2, no ROM graphics): BUILT 2026-11-14 (0a443, LK_TITLESUB v1), user look at the title in de / fr / ko / ja open; (3) user checks intro (German) + hints (fr / ko / ja) in play.
