@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 52-57
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 772-783
-- 1. Where we are: lines 784-922
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 923-1164
-- 3. How the user works (important): lines 1165-1180
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1181-1205
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1206-1214
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1215-1262
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1263-1272
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1273-1274
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1275-1277
-- NEXT STEPS, newest first: -204 924, -203 925, -202 926, -201 927, -200 928, -199 929, -198 930, -197 931, -196 932, -195 933
+- 1. Where we are: lines 784-923
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 924-1165
+- 3. How the user works (important): lines 1166-1181
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1182-1206
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1207-1215
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1216-1263
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1264-1273
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1274-1275
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1276-1278
+- NEXT STEPS, newest first: -204 925, -203 926, -202 927, -201 928, -200 929, -199 930, -198 931, -197 932, -196 933, -195 934
 - Newest entries:
   - 0a447 line 187: 2026-11-15 (Deck, Opus 5.5): user: in German the bar words are now very close - does the arrow cover the wo...
   - 0a446 line 189: 2026-11-15 (Deck, Opus 5.5): Description / help lines and the file select bar checked in all languages (use...
@@ -782,6 +782,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-14 night / 2026-11-15 END (Opus 5.5 lead + 7 Sonnet agents, `dev` pushed, main = v1.9.1): RELEASE 2.0 PREPARATION.** USER-CONFIRMED by playing: room 81 boulder light fix ('passt', LK_FIGOWN v1); title screen look ('looks good', then Japanese reworked); the bar / description fixes were asked by the user after playing. HEADLESS ONLY (not played): German intro captions (LK_INTRODE v1), Friday hints fr / ko / ja (LK_FRIDAY_LANG v1), options menu Korean / Japanese (LK_UIWIDE v1), title subtitle de / fr / ko / ja (LK_TITLESUB v1; ja in the Japanese release's look), 6 too long help lines shortened, file select bar clamp + German 'Kopie'. Release prep: README + release notes drafted (packaging/release_notes.md, user reads before the tag), old settings / key file / saves + local AppImage first run PASS, Galmuri / Noto OFL licences shipped, light sweep 583 rooms (no real bug). Feature freeze until 2.0. NEXT: -204 (3) user plays (German whole game, other languages ~15 min, title / intro / hints / menus), then the 2.0 release on request.
 - **2026-11-14 AFTERNOON (Opus 5.5 + Sonnet agent, uncommitted at hand-back):** Friday hints `heard:` conditions (LK_FRIDAY v3, FRIDAY_HINTS 4d, .friday file per save) for the precise flag / talk-gated hints of NEXT -199. Headless only; the user has not played it. FINAL (2026-11-14): 92 hints = 63 base + 11 flag-gated + 18 heard-gated precise variants, 4 base texts rewritten; build recompiled with the real json, verify_build 138 ok, headless Massan replay prints 'heard 0066 / 005B' and Select at frame 13801 picks stage31_knc (Hints On and Off both run to the end, no errors). Headless only, NOT played; the user reads ~/Project-Friday-Test/Friday_Hinweise.html (now shows heard: conditions as German quotes).
 - **2026-11-14 MIDDAY END (Opus 5.5 + 3 Sonnet review agents, `dev` pushed, main = v1.9.1):** Friday hints knowledge review (45 rewritten, 1 deleted, 1 new, stage 25 / 29 / 30 meanings corrected; FRIDAY_HINTS 4c); build compiles 63 hints, texts NOT seen in the game; user reads ~/Project-Friday-Test/Friday_Hinweise.html. User agreed in principle: precise hints behind 'talked with X' flags (NEXT -199). Also today: keyboard WASD (LK_KBDIR v1, next release).
 - **2026-11-14 EVENING END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** keyboard directions rebindable + one-press 'WASD Keys' (LK_KBDIR v1, a player's question). Headless only (menu rows, key file, reset); real keys NOT tested. User: put it into the NEXT release (no release now). Still open from before: play the dungeon map (-197), the languages (-189..-194), Friday hints (-195).
