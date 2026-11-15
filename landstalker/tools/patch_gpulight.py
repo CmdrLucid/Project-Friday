@@ -974,6 +974,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
         if (sx == pcx) return vec3(3.0, z, rob);
         if (sy == pcy) return vec3(2.0, z, rob);
         return vec3(rfocc(pcx, sy, z) > 0.5 && rfocc(sx, pcy, z) < 0.5 ? 3.0 : 2.0, z, rob); } }
+      if (pcx != -999.0 && sx != pcx && sy != pcy && z > top) { float ca = vtAt(pcx, sy, layA), cb = vtAt(sx, pcy, layA); if (z <= ca || z <= cb) return vec3(z == max(ca, cb) ? 1.0 : z <= ca && !(z <= cb && cb > ca) ? 3.0 : 2.0, z, rob); }   /* LK_RAYCORNER v1 (user 2026-11-15, room 470 at night: bright 1 px lines along the cliff ridges): a ray stepping DIAGONALLY (both sub columns change) slipped through the corner between the two side columns it passes; a hit there is that column's side (3 = the one across y, 2 = across x) or its top */
       if (z <= top) { if (fo != 0.0 && layA > 0.5) rob = fo;
         if ((sx == pcx && sy == pcy) || pcx == -999.0 || z == top) return vec3(1.0, z, rob);
         if (sx == pcx) return vec3(3.0, z, rob);
@@ -1062,7 +1063,10 @@ void main() {   /* uMode 0: GL5b geometry (32 x 64: rows 0..31 face / z lo / z h
   vec2 fc = floor(gl_FragCoord.xy); float ix = fc.x, plane = floor(fc.y / 32.0), iy = fc.y - 32.0 * plane, U = uBlk.x * 32.0 + ix, V = uBlk.y * 32.0 + iy;
   if (uMode < 0.5) { float la = B(texture2D(bex, (vec2(ix, iy) + 0.5) / 32.0).b); vec3 vr = viewray(U, V, la); float zz = vr.y < 0.0 ? vr.y + 65536.0 : vr.y, ro = vr.z < 0.0 ? vr.z + 65536.0 : vr.z;
     gl_FragColor = plane < 0.5 ? vec4(vr.x, mod(zz, 256.0), floor(zz / 256.0), la) / 255.0 : vec4(mod(ro, 256.0), floor(ro / 256.0), gMH * gMB.x, gMH * gMB.y) / 255.0; return; }
-  vec4 g0 = G(ix, iy), g1 = G(ix, iy + 32.0); float face = B(g0.r), z = S16(B(g0.g), B(g0.b)), la = B(g0.a), robj = S16(B(g1.r), B(g1.g));
+  vec4 g0 = G(ix, iy), g1 = G(ix, iy + 32.0);
+  if (B(g0.r) < 0.5 && iy > 0.5 && iy < 30.5) { vec4 gu = G(ix, iy - 1.0), gd2 = G(ix, iy + 1.0); if (B(gu.r) > 0.5 && B(gd2.r) > 0.5) { if (S16(B(gd2.g), B(gd2.b)) >= S16(B(gu.g), B(gu.b))) { g0 = gd2; g1 = G(ix, iy + 33.0); } else { g0 = gu; g1 = G(ix, iy + 31.0); } } }
+  if (B(g0.r) < 0.5 && ix > 0.5 && ix < 30.5) { vec4 gl2 = G(ix - 1.0, iy), gr2 = G(ix + 1.0, iy); if (B(gl2.r) > 0.5 && B(gr2.r) > 0.5) { if (S16(B(gr2.g), B(gr2.b)) >= S16(B(gl2.g), B(gl2.b))) { g0 = gr2; g1 = G(ix + 1.0, iy + 32.0); } else { g0 = gl2; g1 = G(ix - 1.0, iy + 32.0); } } }   /* (left / right too: the block's top and bottom rows have no neighbour above / below) */   /* LK_RAYCORNER v1: a 1 px crack (no surface, a surface right above AND below: the ray slipped between two columns) takes the higher neighbour's hit; a real silhouette has a surface on one side only and stays */
+  float face = B(g0.r), z = S16(B(g0.g), B(g0.b)), la = B(g0.a), robj = S16(B(g1.r), B(g1.g));
   if (face > 19.5) { gN = octdec(vec2(B(g1.b), B(g1.a))); gMS = 1.0; }   /* LK_GLMODEL v1 */
   if (plane < 1.5) { gl_FragColor = face < 0.5 ? vec4(0.0) : termsP(plane, face, z, U, V) / 255.0; return; }
   if (uMode < 1.5) {

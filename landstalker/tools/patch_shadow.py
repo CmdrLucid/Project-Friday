@@ -238,11 +238,25 @@ static void lk_h_ls(void) {
     soft = lk_hd_n > 0 && lk_shadow_soft_get();   /* contact shadows of figures on the ground: HD picture only */
     if (!mode && !soft) return;
     { int room = bus_read16(0xFF1204u); if (room >= 139 && room <= 143) return; }   /* the intro rooms (INTRO_139..143, ROOMS.md): floating platforms and a vine in front of a backdrop, there is no ground the shadow could fall on (user, rec_20261028_2054) */
-    for (k = 0; k < 16; k++) {
-        uint16_t w = bus_read16(0xFF11DEu + 2u * (uint32_t)k);
+    { int nv = 0, nc = 0, sl; uint16_t cw[32]; int cx[32], cy[32];   /* LK_SHOFF v1: candidates = the visible list + platforms ABOVE the screen whose shadow still falls into it */
+      for (k = 0; k < 16; k++) { uint16_t w = bus_read16(0xFF11DEu + 2u * (uint32_t)k); if (w == 0xFFFF) break; cw[nc] = w; cx[nc] = (int)bus_read16(0xFF5400u + w + 0x0E); cy[nc] = (int)bus_read16(0xFF5400u + w + 0x10); nc++; }
+      nv = nc;
+      for (sl = 1; sl < 16 && nc < 32; sl++) {   /* user 2026-11-15, room 473: the lift went up out of the picture and its shadow vanished although the lift is still there.  CheckEntityOnScreen $004144 drops it from the
+                                                     list (sprite Y above line 0), so its screen spot is computed here the same way (iso: X = (x - z - cam0) - (y - z - cam1) + $120, Y = ((x - z - cam0) + (y - z - cam1) + phase) / 2 + $E8), nothing is written to the game */
+          uint32_t o = 0xFF5400u + 0x80u * (uint32_t)sl; int q, inl = 0, d0, d1, sx, sy;
+          if (bus_read8(o) & 0x80) break;
+          if ((bus_read8(o + 0x0C) & 0x40) || (bus_read8(o + 8) & 1) || !lk_sh_angular(bus_read8(o + 0x3B))) continue;
+          for (q = 0; q < nv; q++) if (cw[q] == (uint16_t)(0x80 * sl)) inl = 1;
+          if (inl) continue;
+          d0 = (int)(int16_t)bus_read16(o + 0x14) - (int)(int16_t)bus_read16(o + 0x12) - (int)(int16_t)bus_read16(0xFF1200u);
+          d1 = (int)(int16_t)bus_read16(o + 0x16) - (int)(int16_t)bus_read16(o + 0x12) - (int)(int16_t)bus_read16(0xFF1202u);
+          sx = d0 - d1 + 0x120; sy = ((d0 + d1 + ((bus_read16(0xFF1180u) ^ 1) & 1)) >> 1) + 0xE8;
+          if (sx < 0x60 || sx >= 0x1E0 || sy >= 0x80 || sy < 0x80 - 240) continue;   /* only above the picture (a shadow falls below its caster), at most 240 lines above */
+          cw[nc] = (uint16_t)(0x80 * sl); cx[nc] = sx; cy[nc] = sy; nc++; }
+    for (k = 0; k < nc; k++) {
+        uint16_t w = cw[k];
         uint32_t ent;
-        int dist, flr, rx, ry, ext;
-        if (w == 0xFFFF) break;
+        int dist, flr, rx, ry, ext, sx = cx[k], sy = cy[k];
         ent = 0xFF5400u + w;
         if (bus_read8(ent + 8) & 1) continue;                                    /* hidden entity (LoadSpriteFrames skips it too) */
         if (ent == 0xFF5400u && (bus_read16(ent + 0x2C) & 0x1000)) continue;      /* Nigel climbs a ladder / vine (Action bit 12): he hangs on a wall, there is no ground below him to fall on */
@@ -264,18 +278,19 @@ static void lk_h_ls(void) {
           if (!show || !mode) {                                                 /* on the ground (or Shadow Off): a contact shadow under a figure (creatures only: Nigel, enemies, NPCs), HD picture only */
               if (soft && (ent == 0xFF5400u || lk_sh_figure(bus_read8(ent + 0x3B)))) {
                   int ex = (int)(int16_t)(bus_read16(ent + 0x1A) - bus_read16(ent + 0x18)) + (int)(int16_t)(bus_read16(ent + 0x1E) - bus_read16(ent + 0x1C)), cr = ex * 70 / 100; if (cr < 6) cr = 6; if (cr > 13) cr = 13;
-                  lk_shadow_add_soft((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, cr, cr * 45 / 100 < 3 ? 3 : cr * 45 / 100);
+                  lk_shadow_add_soft((int)sx - 0x80, (int)sy + dist - 0x80, cr, cr * 45 / 100 < 3 ? 3 : cr * 45 / 100);
               }
               continue; } }                                                 /* on the ground (or a tiny hop): no shadow, only things really in the air */
         ext = (int)(int16_t)(bus_read16(ent + 0x1A) - bus_read16(ent + 0x18)) + (int)(int16_t)(bus_read16(ent + 0x1E) - bus_read16(ent + 0x1C));   /* projected width of the box */
         if (ent != 0xFF5400u && lk_sh_angular(bus_read8(ent + 0x3B))) {      /* platforms, crates, blocks: the shadow is their own footprint (user: angular platforms must not cast a round shadow) */
             int wx = (int)(int16_t)(bus_read16(ent + 0x1A) - bus_read16(ent + 0x18)), wy = (int)(int16_t)(bus_read16(ent + 0x1E) - bus_read16(ent + 0x1C));
-            if (mode) lk_shadow_addp((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, wx, wy, 1.0, dist);   /* the full footprint of the box (the platform's legs are see-through, a smaller shadow hid behind them: 'too small' and 'above the platform', user, room 21) */
+            if (mode) lk_shadow_addp((int)sx - 0x80, (int)sy + dist - 0x80, wx, wy, 1.0, dist);   /* the full footprint of the box (the platform's legs are see-through, a smaller shadow hid behind them: 'too small' and 'above the platform', user, room 21) */
             continue;
         }
         rx = ext / 2; if (rx < 6) rx = 6; if (rx > 9) rx = 9; ry = rx * 45 / 100; if (ry < 3) ry = 3;   /* small: Nigel and platforms were too big at 14 / 20 (user), slimes fitted */
-        lk_shadow_add((int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, rx, ry, dist);
-        { static int dbg = -1; static long n; if (dbg < 0) dbg = getenv("LANDSTALKER_SHADOW_DEBUG") != NULL; if (dbg && ++n < 600 && (n % 7) == 1) fprintf(stderr, "shadow: ent %06X dist %d at %d,%d r %d,%d\n", (unsigned)ent, dist, (int)bus_read16(ent + 0x0E) - 0x80, (int)bus_read16(ent + 0x10) + dist - 0x80, rx, ry); }
+        lk_shadow_add((int)sx - 0x80, (int)sy + dist - 0x80, rx, ry, dist);
+        { static int dbg = -1; static long n; if (dbg < 0) dbg = getenv("LANDSTALKER_SHADOW_DEBUG") != NULL; if (dbg && ++n < 600 && (n % 7) == 1) fprintf(stderr, "shadow: ent %06X dist %d at %d,%d r %d,%d\n", (unsigned)ent, dist, (int)sx - 0x80, (int)sy + dist - 0x80, rx, ry); }
+    }
     }
 }
 static gen_func_t lk_o_shmenu;
