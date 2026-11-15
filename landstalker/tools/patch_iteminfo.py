@@ -11,14 +11,14 @@ File ~/.landstalker_iteminfo, env LANDSTALKER_ITEMINFO=0|1 wins, LANDSTALKER_ITE
 usage: patch_iteminfo.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_ITEMINFO v3"
+VER = "LK_ITEMINFO v4"   # v4 (2026-11-15, GitHub issue #17): Use list index with the scroll in tile rows; texts for the counter / story items
 
 p = os.path.join(root, "src/platform_sdl.c")
 s = open(p).read()
 if VER not in s:
     a = "void platform_present_frame(const uint8_t *framebuffer) {"
     assert s.count(a) == 1
-    module = r'''/* ---- LK_ITEMINFO v3: item descriptions in the Start menu (tools/patch_iteminfo.py) ---- */
+    module = r'''/* ---- LK_ITEMINFO v4: item descriptions in the Start menu (tools/patch_iteminfo.py) ---- */
 static int lk_ii_v = -1;   /* Options > Gameplay > Item Info Off / On, default Off; file ~/.landstalker_iteminfo, env LANDSTALKER_ITEMINFO=0|1 wins */
 int lk_ii_get(void) {
     if (lk_ii_v < 0) { char p[512]; FILE *f; const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_ITEMINFO"); int v = 0; snprintf(p, sizeof p, "%s/.landstalker_iteminfo", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e) v = atoi(e); lk_ii_v = v ? 1 : 0; }
@@ -35,7 +35,7 @@ s = open(p).read()
 if VER not in s:
     a = "static void lk_strip_extend(uint32_t a);\n"
     assert s.count(a) == 1 and "lk_carry_install" in s and "lk_ii_cur" in s, "func_table.c: run patch_options.py / patch_carry.py first"
-    module = r'''/* ---- LK_ITEMINFO v3: item descriptions in the bar box (tools/patch_iteminfo.py) ---- */
+    module = r'''/* ---- LK_ITEMINFO v4: item descriptions in the bar box (tools/patch_iteminfo.py) ---- */
 extern int lk_ii_get(void);
 extern long platform_frame_number(void);
 static gen_func_t lk_o_ii_use, lk_o_ii_eq;
@@ -54,6 +54,9 @@ static const struct { uint8_t id; const char *txt; } lk_ii_tab[] = {   /* only w
     { 0x2F, "Used to make a raft" }, { 0x30, "Shows how much you have done" }, { 0x31, "Opens the Swamp Shrine door" }, { 0x32, "Opens locked doors" },
     { 0x33, "Allows entry to Mercator" }, { 0x35, "Rings near a Life Stock" }, { 0x36, "Makes Friday happy or mad" },
     { 0x37, "Gola treasure for the Palace" }, { 0x38, "Gola treasure for the Palace" }, { 0x39, "Gola treasure for the Palace" },
+    /* v4 (issue #17): the items without a use handler, from the scripts (lordmir disassembly: shoptable_specialitems / script_shops, dialogue): counter items of churches / inns / shops, story items */
+    { 0x11, "Church counter: cures ailments" }, { 0x23, "Church counter: record your game" }, { 0x25, "Inn counter: stay the night" }, { 0x26, "Shop counter: see the island map" },
+    { 0x24, "Dangerous book, Destel church" }, { 0x18, "A pretty ribbon someone lost" }, { 0x1D, "The stolen statue of Jypta" },
 };
 static int lk_ii_menu(void) {   /* the Start menu: CheckForMenuOpen $007624, or its item branches (stack seen in the Use list: GameLoop -> $00774A -> $00D3BE ...) */
     int i, d = func_table_depth();
@@ -168,7 +171,7 @@ static void lk_ii_leave(void) { lk_ii_job.on = 0; if (lk_ii_cur >= 0) lk_ii_draw
 static void lk_ii_dbg(const char *w, int id) { static int last = -99; if (getenv("LANDSTALKER_ITEMINFO_DEBUG") && id != last) { printf("iteminfo: %s item $%02X\n", w, id & 0xFF); last = id; } }
 static void lk_h_ii_use(void) {   /* InventoryMenu_UpdateCursorAt: Use list; the bar is drawn BEFORE the original, whose wait for the VBlank runs the queued DMA and gives the game's list bytes back (lk_h_ii_pq) */
     if (lk_ii_get() && lk_ii_menu() && !lk_ii_tabdraw()) {
-        int idx = ((int)bus_read16(0xFF2C06u) + (int)bus_read16(0xFF2C0Cu)) * 2 + (int)bus_read16(0xFF2C0Au);
+        int idx = (((int)bus_read16(0xFF2C06u) >> 2) + (int)bus_read16(0xFF2C0Cu)) * 2 + (int)bus_read16(0xFF2C0Au);   /* v4 (GitHub issue #17, 2026-11-15: wrong / missing descriptions after scrolling): the scroll $FF2C06 counts TILE rows, 4 per item row (it was taken as item rows: from the first scroll on the description of an item further down, or none past the list's end) */
         int id = idx >= 0 && idx < 64 ? bus_read8(0xFF2C5Cu + (uint32_t)idx) : 0xFF;
         lk_ii_dbg("use", id);
         lk_ii_draw(id == 0xFF || (id & 0x80) ? -1 : id);
@@ -207,6 +210,6 @@ static void lk_ii_install(void) {
     s = s.replace(a, module + a, 1)
     h = "        lk_carry_install();   /* LK_CARRY v1 */\n"
     assert s.count(h) == 1
-    s = s.replace(h, h + "        lk_ii_install();   /* LK_ITEMINFO v3 */\n", 1)
+    s = s.replace(h, h + "        lk_ii_install();   /* LK_ITEMINFO v4 */\n", 1)
     open(p, "w").write(s)
     print("func_table.c patched:", VER)

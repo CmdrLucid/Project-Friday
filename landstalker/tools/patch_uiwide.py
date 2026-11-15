@@ -15,7 +15,7 @@ Other languages: no escapes in their files = every path does exactly what it did
 patch_langpage.  Idempotent.  usage: patch_uiwide.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_UIWIDE v1"
+VER = "LK_UIWIDE v1"   # + v2 line (2026-11-15): item descriptions of Item Info in ko / ja
 
 def rep(s, old, new, what):
     assert s.count(old) == 1, what + " layout changed (%d): %s" % (s.count(old), old[:100])
@@ -99,6 +99,7 @@ s = rep(s, "static void lk_ii_putchars(const char *t, int n) { int i; for (i = 0
         "static void lk_ii_putchars(const char *t, int n) { const char *e = t + n; while (t < e && *t) { g_m68k.d[0] = (uint32_t)lk_txc(&t); lk_call(0x0230CAu); } }   /* ProcessChar; " + VER + ": n = bytes (an escape is 2) */", "lk_ii_putchars")
 s = rep(s, "static void lk_ii_print_at(const char *t, int x) { t = lk_lang_tr(t);", "static void lk_ii_print_at(const char *t, int x) { t = lk_lang_trw(t);", "lk_ii_print_at")
 s = rep(s, "return h ? lk_lang_tr(h) : NULL; }", "return h ? lk_lang_trw(h) : NULL; }   /* " + VER + " */", "lk_ii_text")
+s = rep(s, "if (lk_ii_tab[i].id == id) return lk_lang_tr(lk_ii_tab[i].txt);", "if (lk_ii_tab[i].id == id) return lk_lang_trw(lk_ii_tab[i].txt);   /* LK_UIWIDE v2 (2026-11-15): the ITEM descriptions too (they stayed English in ko / ja) */", "lk_ii_text items")
 s = rep(s, "            if (n > budget) n = budget;\n",
         "            if (n > budget) n = budget;\n            if (n > 0 && n < (int)strlen(t) - lk_ii_job.pos && (unsigned char)t[lk_ii_job.pos + n - 1] >= 1 && (unsigned char)t[lk_ii_job.pos + n - 1] <= 8) n++;   /* " + VER + ": never split an escape */\n",
         "lk_ii job split")

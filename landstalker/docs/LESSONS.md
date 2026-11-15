@@ -11,8 +11,8 @@
 - 6. Cloud sandbox setup (no ROM, no SDL by default): lines 71-80
 - 7. Merge note: lines 81-83
 - 8. Roadmap after the compat work (user wishes, 2026-10-10): lines 84-91
-- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 92-490
-  - 228 entries, newest at the END; the last 12: 478 (2026-11-14) Hint texts written from the flag t...; 479 (2026-11-15) A regional 'censorship' can be ONE...; 480 (2026-11-14) A fixed size box is not a sprite's...; 481 (2026-11-14) To see how ANOTHER release draws s...; 482 (2026-11-15) Layouts that CENTRE longer transla...; 483 (2026-11-15) Menu bars with the game's arrow sp...; 484 (2026-11-15) A ray march in fixed z steps that...; 485 (2026-11-15) Anything collected from the game's...; 486 (2026-11-15) 'Script plays Nigel' (g_PlaybackLo...; 487 (2026-11-15) A light sweep with ONE picture per...; 488 (2026-11-15) Never relink build/landstalker whi...; 489 (2026-11-15) Game wall cells can be LOWER than...
+- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 92-491
+  - 229 entries, newest at the END; the last 12: 479 (2026-11-15) A regional 'censorship' can be ONE...; 480 (2026-11-14) A fixed size box is not a sprite's...; 481 (2026-11-14) To see how ANOTHER release draws s...; 482 (2026-11-15) Layouts that CENTRE longer transla...; 483 (2026-11-15) Menu bars with the game's arrow sp...; 484 (2026-11-15) A ray march in fixed z steps that...; 485 (2026-11-15) Anything collected from the game's...; 486 (2026-11-15) 'Script plays Nigel' (g_PlaybackLo...; 487 (2026-11-15) A light sweep with ONE picture per...; 488 (2026-11-15) Never relink build/landstalker whi...; 489 (2026-11-15) Game wall cells can be LOWER than...; 490 (2026-11-15) Menu cursor / scroll words: check...
 
 <!-- /TOC -->
 
@@ -487,3 +487,4 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 - (2026-11-15) A light sweep with ONE picture per room misses most of a room (far doors, corners) and a 'light edge without a picture edge' score misses shadow boundaries that run along drawn lines (railings): use lightedges --spots and LOOK at every flagged picture; the user still finds errors the score cannot see.
 - (2026-11-15) Never relink build/landstalker while a long sweep uses it (a debug build ran a few minutes inside the sweep): debug builds go to a copy, or the sweep chunk is redone.
 - (2026-11-15) Game wall cells can be LOWER than the drawn wall (room 28: 128 vs 176): overlay the cell tops (raised by candidate heights) on rom_picture.py before modelling; low cells make the upper wall a flat top that flames below never light.
+- (2026-11-15) Menu cursor / scroll words: check their UNIT with a RAM dump at a scrolled position before indexing a list (Use list scroll $FF2C06 = tile rows, 4 per item row); a test that never scrolls hides it (issue #17). And a wide-text language path (ko / ja escapes) must cover every caller of lk_lang_tr that prints with ProcessChar.
