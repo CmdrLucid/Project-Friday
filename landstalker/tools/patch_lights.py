@@ -271,6 +271,7 @@ static int lk_lt_side(int cx, int cy, int pcx, int pcy, int z) {   /* v3: which 
   if (z <= tx && z > ty) return 2;
   return 2;
 }
+static int lk_lt_doorvoid(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_DOORVOID"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTDOORVOID v1 test aid */
 static int lk_lt_dent(int cx, int cy, int cf) {   /* v4: room cell (cx, cy) is part of a narrow recess (<= 3 cells wide across the wall) = a door niche in the wall (room 5, user 2026-11-03: light stripe at the right door); the wall beside it stays a wall */
   int n = 1, d, ax = cf == 3, ay = cf == 2;
   for (d = 1; d <= 3 && lk_lt_cell(cx - d * ax, cy - d * ay) > -32768; d++) n++;
@@ -1446,12 +1447,13 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
          so the wall above the door was a deep slot shaded by its sides = a dark band with hard edges.  Our copy: the niche is filled up to the wall (the door sits flush); test aid LANDSTALKER_LT_DOORFILL=0 */
       memcpy(dn, lk_lt_top, sizeof dn);
       for (y = 1; y < 73; y++) for (x = 1; x < 73; x++) { int h = lk_lt_top[y][x]; if (h == -32768) continue;
-        for (ax = 0; ax < 2; ax++) { int fx = ax == 0, fy = ax == 1, sx2 = fy, sy2 = fx, n = 1, d, lo = 9999, ok = 1, bt, ft;   /* ax 0: wall face +x (the niche opens to +x, its sides along y); ax 1: face +y */
+        for (ax = 0; ax < 2; ax++) { int fx = ax == 0, fy = ax == 1, sx2 = fy, sy2 = fx, n = 1, d, lo = 9999, ok = 1, bt, ft, vw = 0;   /* ax 0: wall face +x (the niche opens to +x, its sides along y); ax 1: face +y */
           bt = lk_lt_top[y - fy][x - fx]; ft = lk_lt_top[y + fy][x + fx];
           if (bt == -32768 && !(!lk_lt_sun && lk_lt_doorin())) continue; if ((bt != -32768 && bt < h + 32) || ft == -32768 || ft > h + 8) continue;   /* 2026-11-08 (user: 'der Schatten der ueber die Tueren im Schloss laeuft', room 58): also INDOORS, and there a door may lead into the void behind the wall (the room's exit through the back wall: 58 cells 35..36,16 at 16 in a wall of 96, void behind); test aid LANDSTALKER_LT_DOORIN=0 */
-          for (d = 1; ; d++) { int cx = x - d * sx2, cy = y - d * sy2, t = (cx >= 0 && cy >= 0) ? lk_lt_top[cy][cx] : -32768; if (t == h) { if (++n > 3) { ok = 0; break; } continue; } if (t == -32768 || t < h + 32) ok = 0; else if (t < lo) lo = t; break; }
-          for (d = 1; ok; d++) { int cx = x + d * sx2, cy = y + d * sy2, t = (cx < 74 && cy < 74) ? lk_lt_top[cy][cx] : -32768; if (t == h) { if (++n > 3) { ok = 0; break; } continue; } if (t == -32768 || t < h + 32) ok = 0; else if (t < lo) lo = t; break; }
-          if (ok && lo < 9999) { if (bt != -32768 && bt < lo) lo = bt; if (lo > dn[y][x]) { dn[y][x] = (int16_t)lo; nd++; } } } }
+          for (d = 1; ; d++) { int cx = x - d * sx2, cy = y - d * sy2, t = (cx >= 0 && cy >= 0) ? lk_lt_top[cy][cx] : -32768; if (t == h) { if (++n > 3) { ok = 0; break; } continue; } if (t == -32768 && !lk_lt_sun && bt == -32768 && lk_lt_doorvoid()) vw = 1; else if (t == -32768 || t < h + 32) ok = 0; else if (t < lo) lo = t; break; }
+          for (d = 1; ok; d++) { int cx = x + d * sx2, cy = y + d * sy2, t = (cx < 74 && cy < 74) ? lk_lt_top[cy][cx] : -32768; if (t == h) { if (++n > 3) { ok = 0; break; } continue; } if (t == -32768 && !lk_lt_sun && bt == -32768 && lk_lt_doorvoid()) vw = 1; else if (t == -32768 || t < h + 32) ok = 0; else if (t < lo) lo = t; break; }
+          if (ok && vw) { dn[y][x] = -32768; nd++; }   /* LK_LTDOORVOID v1 (user 2026-11-15, room 66: 'harte Kante im Schatten' at the big door): indoors the walls are VOID cells; a door slot of 1..3 floor-high cells in such a wall with void behind (room 66 cells 16..17,12: $2000 blocked, height 0) was a slot through the whole wall height = the wall above the door a dark band with hard edges.  The slot becomes void = wall like its sides (test aid LANDSTALKER_LT_DOORVOID=0) */
+          else if (ok && lo < 9999) { if (bt != -32768 && bt < lo) lo = bt; if (lo > dn[y][x]) { dn[y][x] = (int16_t)lo; nd++; } } } }
       memcpy(lk_lt_top, dn, sizeof dn);
       if (lk_lt_dbg == 1 && nd) printf("door niches: room %%d, %%d cells filled\n", lk_o_room, nd); }
     if (!lk_lt_sun && lk_lt_aor && lk_lt_rimfill()) { static uint8 tcnt[2048]; static int16_t rf[74][74]; int nr = 0;   /* 2026-11-08 FLOOR RIM indoors (user: 'Innenraeume pruefen', rooms 246 / 250 / 242 / 162: a dark band

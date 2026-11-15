@@ -40,6 +40,7 @@ chk "Namen im generierten C (Name_XXXXXX)"         "$(grep -l "UpdateSprites_017
 chk "Gameplay: Schatten unter Nigel"                 $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SHADOW"
 chk "Plattform-Schatten oberhalb des Bildes"         $G/src/func_table.c "LK_SHOFF v1"
 chk "Licht: Eckenloecher im Lichtstrahl"            $G/src/platform_sdl.c "LK_RAYCORNER v1"
+chk "Licht: Tuerschlitz in Innenwand"               $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTDOORVOID v1"
 chk "Gameplay: Quick Items (Anzeige)"               $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_QUICK v1"
 chk "Gameplay: Quick Items (Tasten, Logik)"         $G/src/func_table.c "lk_quick_install"
 chk "Titelbild: Project Friday (Anzeige)"            $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_BRAND v1"
