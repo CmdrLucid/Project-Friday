@@ -67,8 +67,8 @@ static void lk_bath_install(void) {   /* once per run (a second wrap would call 
     # options menu (tools/patch_options.py module lives in func_table.c): label + help of id 63
     s = rep(s, "static const char *lk_id_name[63] = {", "static const char *lk_id_name[64] = {", "func_table.c lk_id_name size")
     s = rep(s, '"Names", "Items" };', '"Names", "Items", "Bath Scene" };   /* 63: ' + VER + ' */', "func_table.c lk_id_name")
-    s = rep(s, 'case 62: return "Four items as in the Japanese original";',
-            'case 62: return "Four items as in the Japanese original"; case 63: return "Kayla\'s bath before the banquet";', "func_table.c help")
+    s = rep(s, 'case 62: return "Four items as in the JP original";',
+            'case 62: return "Four items as in the JP original"; case 63: return "Kayla\'s bath before the banquet";', "func_table.c help")
     open(p, "w").write(s)
     print("func_table.c patched: " + VER)
 

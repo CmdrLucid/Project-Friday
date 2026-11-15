@@ -9271,7 +9271,7 @@
   "Cures paralysis": "Soigne paralys.",
   "Cures poison and paralysis": "Soigne poison, para.",
   "Restores HP completely": "Rend tous les PV",
-  "Earthquake hurts monsters in range": "Séisme touche les monstres",
+  "Earthquake hits monsters nearby": "Séisme touche les monstres",
   "Fills the sword meter for a while": "Jauge d'épée pleine un temps",
   "Entry to the Casino": "Entrée du Casino",
   "Cuts down discolored trees": "Coupe arbres blêmes",
@@ -9303,8 +9303,8 @@
   "Bath Scene": "Scène du bain",
   "Items": "Objets",
   "Original": "Originaux",
-  "Kayla's bath before the banquet": "Le bain de Kayla avant le banquet (JP)",
-  "Four items as in the Japanese original": "Quatre objets comme dans l'original japonais"
+  "Kayla's bath before the banquet": "Le bain de Kayla (version JP)",
+  "Four items as in the JP original": "Quatre objets de la version JP"
  },
  "items_jp": {
   "names": {

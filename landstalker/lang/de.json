@@ -9276,7 +9276,7 @@
   "Cures paralysis": "Heilt Lähmung",
   "Cures poison and paralysis": "Heilt Gift und Lähmung",
   "Restores HP completely": "Füllt HP vollständig auf",
-  "Earthquake hurts monsters in range": "Erdbeben trifft Monster ringsum",
+  "Earthquake hits monsters nearby": "Erdbeben trifft Monster ringsum",
   "Fills the sword meter for a while": "Schwertleiste eine Weile voll",
   "Entry to the Casino": "Eintritt ins Kasino",
   "Cuts down discolored trees": "Fällt verfärbte Bäume",
@@ -9308,8 +9308,8 @@
   "Bath Scene": "Badeszene",
   "Items": "Gegenstände",
   "Original": "Original",
-  "Kayla's bath before the banquet": "Kaylas Bad vor dem Bankett (Japan)",
-  "Four items as in the Japanese original": "Vier Gegenstände wie im japanischen Original"
+  "Kayla's bath before the banquet": "Kaylas Bad vor dem Bankett",
+  "Four items as in the JP original": "Vier Gegenstände wie in Japan"
  },
  "items_jp": {
   "names": {

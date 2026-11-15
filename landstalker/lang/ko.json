@@ -9312,7 +9312,7 @@
   "Cures paralysis": "마비 치료",
   "Cures poison and paralysis": "독과 마비 치료",
   "Restores HP completely": "HP 전부 회복",
-  "Earthquake hurts monsters in range": "몬스터에 지진 피해",
+  "Earthquake hits monsters nearby": "몬스터에 지진 피해",
   "Fills the sword meter for a while": "잠시 검 게이지 가득",
   "Entry to the Casino": "카지노 입장",
   "Cuts down discolored trees": "변색 나무 벰",
@@ -9345,6 +9345,6 @@
   "Items": "아이템",
   "Original": "원본",
   "Kayla's bath before the banquet": "연회 전 카라의 목욕",
-  "Four items as in the Japanese original": "일본판 아이템 4개"
+  "Four items as in the JP original": "일본판 아이템 4개"
  }
 }

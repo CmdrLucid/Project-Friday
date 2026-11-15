@@ -328,7 +328,7 @@ static const char *lk_opt_help(int id) {
     case 11: return "Speed the game up on a key"; case 38: return "Hold or toggle fast forward";
     case 14: return "Save anywhere, load any time"; case 10: return "Use items on two extra buttons"; case 35: return "Equip with a key and a direction"; case 16: return "Short item texts in this menu";
     case 17: return "Buy several items at once"; case 36: return "B goes back to the menu bar"; case 15: return "Objects stay on moving platforms"; case 20: return "Gaia attack without freezing";
-    case 12: return "How much enemies hurt Nigel"; case 13: return "How much health enemies have"; case 45: return "Select: Friday says where to go"; case 37: return "Language of texts and menus"; case 61: return "Localized or Japanese names"; case 62: return "Four items as in the Japanese original";
+    case 12: return "How much enemies hurt Nigel"; case 13: return "How much health enemies have"; case 45: return "Select: Friday says where to go"; case 37: return "Language of texts and menus"; case 61: return "Localized or Japanese names"; case 62: return "Four items as in the JP original";
     default: return NULL; } }
 static void lk_ii_draw(int id);   /* tools/patch_iteminfo.py */
 static void lk_opt_helpbar(void) {   /* every pass of the bar loop: inside the list = the help of the selected row, else the plain bar */
@@ -437,8 +437,8 @@ static int lk_fs_width(const char *t) {   /* visible width in px of a text print
 static void lk_fs_layout(void) {   /* four words with equal gaps between the equal margins 0x12 .. 0xFE (English: 24 px gaps) */
     static const char *const word[4] = { "Start", "Copy", "Delete", "Options" }; int i, sum = 0, gap, x = 0x12;
     for (i = 0; i < 4; i++) sum += lk_fs_width(word[i]);
-    gap = (0x114 - 0x0C - sum) / 3; if (gap > 24) gap = 24; if (gap < 6) gap = 6;   /* English: 24 px gaps, 236 px in all, starting at 0x12; longer words use up to 264 px (0x0C .. 0x114) with smaller gaps */
-    x += (236 - (sum + 3 * gap)) / 2;
+    gap = (0x104 - 0x12 - sum) / 3; if (gap > 24) gap = 24; if (gap < 6) gap = 6;   /* English: 24 px gaps, 236 px in all, starting at 0x12; longer words use up to 242 px (0x12 .. 0x104: the arrow needs room on the left, the frame on the right; 2026-11-15) with smaller gaps */
+    if (sum + 3 * gap < 236) x += (236 - (sum + 3 * gap)) / 2;   /* 2026-11-15 (user: the German arrow blinked over the left edge): never left of 0x12, the arrow of the first word needs that room */
     for (i = 0; i < 4; i++) { lk_fs_tx[i] = x; lk_fs_ax[i] = x + 0x88; x += lk_fs_width(word[i]) + gap; }
 }
 #define LK_FS_TX0 lk_fs_tx[0]

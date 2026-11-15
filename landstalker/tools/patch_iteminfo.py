@@ -46,7 +46,7 @@ static const struct { uint8_t id; const char *txt; } lk_ii_tab[] = {   /* only w
     { 0x09, "Enemy damage x0.9" }, { 0x0A, "Enemy damage x0.8" }, { 0x0B, "Enemy damage x0.7" }, { 0x0C, "Enemy damage x0.5" },
     { 0x0D, "Immune to poison and paralysis" }, { 0x0E, "Immune to confusion" }, { 0x0F, "Sword charges 2x faster" }, { 0x10, "Sword charges 3x faster" },
     { 0x12, "Cures poison" }, { 0x15, "Cures confusion" }, { 0x1C, "Cures paralysis" }, { 0x2E, "Cures poison and paralysis" }, { 0x2D, "Restores HP completely" },
-    { 0x13, "Earthquake hurts monsters in range" }, { 0x14, "Fills the sword meter for a while" },
+    { 0x13, "Earthquake hits monsters nearby" }, { 0x14, "Fills the sword meter for a while" },
     { 0x16, "Entry to the Casino" }, { 0x17, "Cuts down discolored trees" }, { 0x1A, "Lights up dark rooms" }, { 0x1B, "Makes Miro run from Nigel" },
     { 0x1E, "Powers the Lighthouse light" }, { 0x1F, "Breaks the Mir Tower barrier" }, { 0x20, "Calls Einstein, talks to dogs" },
     { 0x19, "Lets you buy from the warehouse" }, { 0x21, "Jewel for the Gola Eye" }, { 0x22, "Jewel for the Gola Eye" }, { 0x28, "Jewel for the Gola Eye" }, { 0x2A, "Jewel for the Gola Eye" }, { 0x34, "Jewel for the Gola Eye" },
