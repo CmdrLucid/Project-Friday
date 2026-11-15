@@ -95,6 +95,10 @@ def run(rom_path, rooms, out, batch=16, jobs=4, gpu=False, all_spots=False):
     with open(os.path.join(out, "plan.txt"), "w") as f:
         for r, fr, bi, k in plan: f.write("%d %d %d %d\n" % (r, fr, bi, k))
 
+try:
+    import numpy as np; from PIL import Image
+except ImportError:
+    np = None
 MINRUN = int(os.environ.get('LIGHTEDGES_MINRUN', '40'))   # GPU pictures are 960 wide (2.7 px per game pixel): 40 px = a line of ~15 game pixels
 
 def score(out):
@@ -104,6 +108,27 @@ def score(out):
         po, pn = [os.path.join(out, "b%02d_%d" % (bi, k), "shot_%06d_w358.png" % fr) for k in (0, 1)]
         if not os.path.isfile(po): po, pn = [os.path.join(out, "b%02d_%d" % (bi, k), "present_%06d_gpu.png" % fr) for k in (0, 1)]   # --gpu runs
         if not (os.path.isfile(po) and os.path.isfile(pn)): rows.append((-1, r, sp, "no shot")); continue
+        if np is not None:   # fast path (numpy + PIL, e.g. ~/Project-Friday-Test/hdvenv/bin/python): same rule as below
+            A = np.asarray(Image.open(po).convert('RGB'), dtype=np.float32); B = np.asarray(Image.open(pn).convert('RGB'), dtype=np.float32); h, w = A.shape[:2]
+            lo = A @ np.float32([0.3, 0.59, 0.11]); ln = B @ np.float32([0.3, 0.59, 0.11]); R = (ln + 4.0) / (lo + 4.0); hitm = np.zeros((h, w), bool)
+            for dy, dx in ((0, 1), (1, 0)):
+                a, b = (slice(0, h - dy), slice(0, w - dx)), (slice(dy, h), slice(dx, w))
+                hitm[a] |= (lo[a] > 10) & (lo[b] > 10) & (np.abs(R[a] - R[b]) > 0.25) & (np.abs(lo[a] - lo[b]) < 12)
+            k = w / 358.0; yy, xx = np.mgrid[0:h, 0:w]
+            hitm &= ~((yy < 24 * k) | ((xx > w - 62 * k) & (yy < 52 * k)) | ((xx > w - 70 * k) & (yy > h - 22 * k))); hitm[h - 1, :] = False; hitm[:, w - 1] = False
+            hits = set((np.flatnonzero(hitm)).tolist()); mark = bytearray(B.astype(np.uint8).tobytes()); n = 0; seen = set()
+            for i0 in hits:
+                if i0 in seen: continue
+                comp = [i0]; seen.add(i0); q = [i0]
+                while q:
+                    i = q.pop()
+                    for d in (1, -1, w, -w, w + 1, w - 1, -w + 1, -w - 1):
+                        j = i + d
+                        if j in hits and j not in seen: seen.add(j); comp.append(j); q.append(j)
+                if len(comp) >= MINRUN:
+                    n += len(comp)
+                    for i in comp: mark[i * 3:i * 3 + 3] = b'\xff\x00\xff'
+            wr(os.path.join(out, "edges_%d.png" % r if sp == 0 else "edges_%d_%d.png" % (r, sp)), w, h, mark); rows.append((n, r, sp, "")); continue
         w, h, ch, A = rd(po); _, _, ch2, B = rd(pn)
         L = lambda D, c, i: 0.3 * D[i * c] + 0.59 * D[i * c + 1] + 0.11 * D[i * c + 2]
         lo = [L(A, ch, i) for i in range(w * h)]; ln = [L(B, ch2, i) for i in range(w * h)]
