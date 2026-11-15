@@ -11,8 +11,8 @@
 - 6. Cloud sandbox setup (no ROM, no SDL by default): lines 71-80
 - 7. Merge note: lines 81-83
 - 8. Roadmap after the compat work (user wishes, 2026-10-10): lines 84-91
-- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 92-492
-  - 230 entries, newest at the END; the last 12: 480 (2026-11-14) A fixed size box is not a sprite's...; 481 (2026-11-14) To see how ANOTHER release draws s...; 482 (2026-11-15) Layouts that CENTRE longer transla...; 483 (2026-11-15) Menu bars with the game's arrow sp...; 484 (2026-11-15) A ray march in fixed z steps that...; 485 (2026-11-15) Anything collected from the game's...; 486 (2026-11-15) 'Script plays Nigel' (g_PlaybackLo...; 487 (2026-11-15) A light sweep with ONE picture per...; 488 (2026-11-15) Never relink build/landstalker whi...; 489 (2026-11-15) Game wall cells can be LOWER than...; 490 (2026-11-15) Menu cursor / scroll words: check...; 491 (2026-11-15) Light checks on PRESENTED pictures...
+- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 92-493
+  - 231 entries, newest at the END; the last 12: 481 (2026-11-14) To see how ANOTHER release draws s...; 482 (2026-11-15) Layouts that CENTRE longer transla...; 483 (2026-11-15) Menu bars with the game's arrow sp...; 484 (2026-11-15) A ray march in fixed z steps that...; 485 (2026-11-15) Anything collected from the game's...; 486 (2026-11-15) 'Script plays Nigel' (g_PlaybackLo...; 487 (2026-11-15) A light sweep with ONE picture per...; 488 (2026-11-15) Never relink build/landstalker whi...; 489 (2026-11-15) Game wall cells can be LOWER than...; 490 (2026-11-15) Menu cursor / scroll words: check...; 491 (2026-11-15) Light checks on PRESENTED pictures...; 492 (2026-11-15) Measure before 'fixing' 1 px light...
 
 <!-- /TOC -->
 
@@ -489,3 +489,4 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 - (2026-11-15) Game wall cells can be LOWER than the drawn wall (room 28: 128 vs 176): overlay the cell tops (raised by candidate heights) on rom_picture.py before modelling; low cells make the upper wall a flat top that flames below never light.
 - (2026-11-15) Menu cursor / scroll words: check their UNIT with a RAM dump at a scrolled position before indexing a list (Use list scroll $FF2C06 = tile rows, 4 per item row); a test that never scrolls hides it (issue #17). And a wide-text language path (ko / ja escapes) must cover every caller of lk_lang_tr that prints with ProcessChar.
 - (2026-11-15) Light checks on PRESENTED pictures must run with the CRT filter OFF: the scanline rows turn every soft light gradient into rows of 'hard edges' (church 699: 169 edge px with CRT Pro, 0 without); 71 of 83 flagged pictures of the full sweep were this or flames / patterned floors.
+- (2026-11-15) Measure before 'fixing' 1 px light lines: rebuild the old binary too and compare the edge score on several model-heavy rooms. A 'correct' looking change (model buffer at the pixel centre) made it worse because the rest of the light is tuned to the existing convention; remodelling an exact model moved lines instead of removing them.
