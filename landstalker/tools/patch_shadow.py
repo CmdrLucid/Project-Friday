@@ -270,7 +270,7 @@ static void lk_h_ls(void) {
           if (ent == 0xFF5400u || ang) { int su = lk_sh_surface(ent, z); if (su > g) g = su; dist = z - g; }   /* Nigel and platforms / blocks: the floor is the height map or a platform really under the centre (a shadow falls on a platform below, not on one next to it) */
           else dist = z - flr;                                                   /* other objects: the height-map floor only (a block passing under another made the shadow jump) */
           if (dist < 0) dist = 0;
-          if (ent != 0xFF5400u && dist > (ang ? 160 : 40)) continue; }   /* objects far above the floor get no shadow, except platforms (user, room 430: every platform casts its shadow on the grass / the platform below) */
+          if (ent != 0xFF5400u && dist > (ang ? 1024 : 40)) continue; }   /* objects far above the floor get no shadow, except platforms (user, room 430: every platform casts its shadow on the grass / the platform below; LK_SHOFF v1 2026-11-15: no 160 cap any more, the room 473 lift at the top is higher and its shadow vanished) */
         { static uint8_t on[16]; int idx = (w >> 7) & 15;                         /* hysteresis: walking over slopes / steps makes the distance jump by a few units, that must not blink the shadow (user report, room 430) */
           int show = dist >= 6 || (on[idx] && dist >= 2) || (dist >= 2 && ent != 0xFF5400u && lk_sh_angular(bus_read8(ent + 0x3B)));   /* platforms and blocks: a low floating one has a visible rim of shadow too (user, room 21) */
           on[idx] = (uint8_t)show;
