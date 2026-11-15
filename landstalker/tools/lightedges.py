@@ -95,6 +95,8 @@ def run(rom_path, rooms, out, batch=16, jobs=4, gpu=False, all_spots=False):
     with open(os.path.join(out, "plan.txt"), "w") as f:
         for r, fr, bi, k in plan: f.write("%d %d %d %d\n" % (r, fr, bi, k))
 
+MINRUN = int(os.environ.get('LIGHTEDGES_MINRUN', '40'))   # GPU pictures are 960 wide (2.7 px per game pixel): 40 px = a line of ~15 game pixels
+
 def score(out):
     rows = []
     for l in open(os.path.join(out, "plan.txt")):
@@ -106,7 +108,7 @@ def score(out):
         L = lambda D, c, i: 0.3 * D[i * c] + 0.59 * D[i * c + 1] + 0.11 * D[i * c + 2]
         lo = [L(A, ch, i) for i in range(w * h)]; ln = [L(B, ch2, i) for i in range(w * h)]
         R = [(ln[i] + 4.0) / (lo[i] + 4.0) for i in range(w * h)]
-        mark = bytearray(); n = 0
+        mark = bytearray(); n = 0; hits = set()
         for i in range(w * h): mark += bytes(B[i * ch2:i * ch2 + 3])
         for y in range(0, h - 1):
             for x in range(0, w - 1):
@@ -115,7 +117,19 @@ def score(out):
                 i = y * w + x; hit = False
                 for j in (i + 1, i + w):
                     if lo[i] > 10 and lo[j] > 10 and abs(R[i] - R[j]) > 0.25 and abs(lo[i] - lo[j]) < 12: hit = True
-                if hit: n += 1; mark[i * 3:i * 3 + 3] = b'\xff\x00\xff'
+                if hit: hits.add(i)
+        n = 0; seen = set()   # 2026-11-15: only CONNECTED edge pixels count (>= MINRUN in one 8-neighbour cluster = a line); single specks on patterned walls near flames were false alarms
+        for i0 in hits:
+            if i0 in seen: continue
+            comp = [i0]; seen.add(i0); q = [i0]
+            while q:
+                i = q.pop()
+                for d in (1, -1, w, -w, w + 1, w - 1, -w + 1, -w - 1):
+                    j = i + d
+                    if j in hits and j not in seen: seen.add(j); comp.append(j); q.append(j)
+            if len(comp) >= MINRUN:
+                n += len(comp)
+                for i in comp: mark[i * 3:i * 3 + 3] = b'\xff\x00\xff'
         wr(os.path.join(out, "edges_%d.png" % r if sp == 0 else "edges_%d_%d.png" % (r, sp)), w, h, mark); rows.append((n, r, sp, ""))
     return sorted(rows, reverse=True)
 
