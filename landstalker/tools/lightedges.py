@@ -74,7 +74,7 @@ def run(rom_path, rooms, out, batch=16, jobs=4, gpu=False, all_spots=False):
             warps.append("%d:%d.08,%d.08,%04X" % (r, x, y, 16 * h)); ats.append(str(fr)); shots.append(str(fr + 100)); part.append((r, fr + 100, sk)); fr += 160
         for light in (0, 1):
             d = os.path.join(out, "b%02d_%d" % (b // batch, light)); os.makedirs(os.path.join(d, "home"), exist_ok=True)
-            subprocess.run("cp ~/Project-Friday-Test/aufnahmen/opts_%s/.landstalker_* %s/home/ 2>/dev/null; echo %d > %s/home/.landstalker_lighting; cp ~/Project-Friday-Test/aufnahmen/save_%s.srm %s/s.srm" % (T, d, light, d, T, d), shell=True)
+            subprocess.run("cp ~/Project-Friday-Test/aufnahmen/opts_%s/.landstalker_* %s/home/ 2>/dev/null; echo %d > %s/home/.landstalker_lighting; echo '0 0 19 1' > %s/home/.landstalker_display; cp ~/Project-Friday-Test/aufnahmen/save_%s.srm %s/s.srm" % (T, d, light, d, d, T, d), shell=True)   # 2026-11-15: CRT filter 0 (the CRT Pro scanlines turned soft light gradients into rows of false edges)
             with open(REC + ".txt") as f, open(os.path.join(d, "in.txt"), "w") as o:
                 for l in f:
                     if int(l.split()[0]) < 2040: o.write(l)
