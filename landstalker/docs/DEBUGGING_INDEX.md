@@ -236,3 +236,4 @@
 - L1875: Session 2026-11-14 midday: Friday hints knowledge review (Deck, Opus 5.5 lead + 3 Sonnet review agents)
   - L1879: Kayla bath scene restored: the Japanese OneTimeEventFlags record (2026-11-15, Deck, Fable 5.1 lead + Opus / Sonnet / Haiku agents; `tools/patch_bath.py`, `tools/patch_langpage.py`)
 - L1888: Release 2.0 preparation (2026-11-14 night / 2026-11-15, Deck, Opus 5.5 + Sonnet agents)
+- L1899: Session 2026-11-15 (Deck, Opus 5.5, no agents): sprint doors, lift shadow, night streaks, light sweep v2, issue #17, castle alcoves
