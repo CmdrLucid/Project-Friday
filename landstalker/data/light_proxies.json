@@ -23,6 +23,47 @@
     "     carve {\"cells\": [x0,y0,x1,y1], \"bg\": \"sea\" | \"layera\", \"floor\": f} - at room load the shapes in these cells follow the DRAWN picture: every sub column is lowered until its top and its front edge land on drawn object pixels (sea = nothing drawn or a water tile), slabs keep the heights drawn in layer A, then a 3 x 3 median (LANDSTALKER_LT_CARVEMED). Outdoors every building shape / mesh is carved automatically to layer A (LANDSTALKER_LT_CARVEOUT=0 = off)."
   ],
   "rooms": {
+    "28": [
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          18,
+          40,
+          18
+        ],
+        "file": "proxies/wall_28.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "back wall of room 28 (swamp shrine boss room): NEAR-FINAL model (remake/recipes/wall_28, user OK 2026-11-15 on the v2 clay preview): the game's wall cells ($48 = 128) are 48 lower than the drawn wall (top of the ornament band z 176); the light saw the upper third as the flat top of a low wall and the statue's flames lit only the lower part = a hard diagonal edge through the red drapes (user recording). Wall to 176 with bead rows (167 / 134 / 102 / 52, every 8), grille, rails, lattice pilaster frames on the forward blocks"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          19,
+          22,
+          19
+        ],
+        "file": "proxies/wall_28.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "the forward pilaster block (left) of the room 28 back wall (remake/recipes/wall_28)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          19,
+          37,
+          19
+        ],
+        "file": "proxies/wall_28.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "the forward pilaster block (right) of the room 28 back wall (remake/recipes/wall_28)"
+      }
+    ],
     "31": [
       {
         "op": "mesh",
