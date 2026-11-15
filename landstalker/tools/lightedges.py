@@ -113,9 +113,9 @@ def score(out):
             lo = A @ np.float32([0.3, 0.59, 0.11]); ln = B @ np.float32([0.3, 0.59, 0.11]); R = (ln + 4.0) / (lo + 4.0); hitm = np.zeros((h, w), bool)
             for dy, dx in ((0, 1), (1, 0)):
                 a, b = (slice(0, h - dy), slice(0, w - dx)), (slice(dy, h), slice(dx, w))
-                hitm[a] |= (lo[a] > 10) & (lo[b] > 10) & (np.abs(R[a] - R[b]) > 0.25) & (np.abs(lo[a] - lo[b]) < 12)
+                hitm[a] |= (lo[a] > 10) & (lo[b] > 10) & (lo[a] < 170) & (lo[b] < 170) & (np.abs(R[a] - R[b]) > 0.25) & (np.abs(lo[a] - lo[b]) < 12)   # (< 170: flames / glowing sprites are bright already without the light: false alarms)
             k = w / 358.0; yy, xx = np.mgrid[0:h, 0:w]
-            hitm &= ~((yy < 24 * k) | ((xx > w - 62 * k) & (yy < 52 * k)) | ((xx > w - 70 * k) & (yy > h - 22 * k))); hitm[h - 1, :] = False; hitm[:, w - 1] = False
+            hitm &= ~((yy < 34 * k) | ((xx > w - 62 * k) & (yy < 52 * k)) | ((xx > w - 70 * k) & (yy > h - 22 * k))); hitm[h - 1, :] = False; hitm[:, w - 1] = False
             hits = set((np.flatnonzero(hitm)).tolist()); mark = bytearray(B.astype(np.uint8).tobytes()); n = 0; seen = set()
             for i0 in hits:
                 if i0 in seen: continue
