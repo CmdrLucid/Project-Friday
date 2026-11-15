@@ -13,7 +13,7 @@ WARDROBE = [("plinth", 2), ("drawers", 5, 1), ("doors", 40, 2)]
 SPECS = {
     # the two wardrobes on the west wall of the castle rooms 65 / 66 (tileset 15, cells x 14, y 31..34, 48 high): double doors over a drawer rail
     "castle_wardrobes_65": dict(rooms=[65, 66], cells=[14, 31, 14, 34], floor=0,
-                                parts=[("cab", (224, 240, 496, 528, 0, 48), "+x", WARDROBE), ("cab", (224, 240, 528, 560, 0, 48), "+x", WARDROBE)]),
+                                parts=[("cab", (224, 240, 496, 560, 0, 48), "+x", [("plinth", 2), ("drawers", 5, 2), ("doors", 40, 4)])]),   # 2026-11-15: ONE case with four doors (two touching cases left a seam at y 528 = a 1 px light line on the front, room 65 sweep)
     # the plate rack on the west wall of the castle kitchen 68 / 69 (tileset 15, cells x 13, y 17..21, 48 high): five compartments, drawers at the
     # bottom, bottles in the middle row, upright plates on top
     "castle_plate_rack_68": dict(rooms=[68, 69], cells=[13, 17, 13, 21], floor=0,
