@@ -41,6 +41,7 @@ chk "Gameplay: Schatten unter Nigel"                 $G/ext/Genesis-Plus-GX/core
 chk "Plattform-Schatten oberhalb des Bildes"         $G/src/func_table.c "LK_SHOFF v1"
 chk "Licht: Eckenloecher im Lichtstrahl"            $G/src/platform_sdl.c "LK_RAYCORNER v1"
 chk "Licht: Tuerschlitz in Innenwand"               $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTDOORVOID v1"
+chk "Licht: Tanne vor Haus bleibt am Boden"         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTTREEHOUSE v1"
 chk "Item Info: Liste beim Blaettern (Issue 17)"   $G/src/func_table.c "LK_ITEMINFO v4"
 chk "Item Info: Japanisch / Koreanisch"            $G/src/func_table.c "LK_UIWIDE v2"
 chk "Gameplay: Quick Items (Anzeige)"               $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_QUICK v1"
