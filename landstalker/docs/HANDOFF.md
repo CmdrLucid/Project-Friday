@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 789-800
-- 1. Where we are: lines 801-944
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 945-1193
-- 3. How the user works (important): lines 1194-1209
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1210-1234
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1235-1243
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1244-1291
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1292-1301
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1302-1303
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1304-1306
-- NEXT STEPS, newest first: -211 946, -210 947, -209 948, -208 949, -207 950, -206 951, -205 952, -204 953, -203 954, -202 955
+- 1. Where we are: lines 801-945
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 946-1194
+- 3. How the user works (important): lines 1195-1210
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1211-1235
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1236-1244
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1245-1292
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1293-1302
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1303-1304
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1305-1307
+- NEXT STEPS, newest first: -211 947, -210 948, -209 949, -208 950, -207 951, -206 952, -205 953, -204 954, -203 955, -202 956
 - Newest entries:
   - 0a455 line 188: 2026-11-16 (Deck, Opus 5.5): NIGHT WINDOWS EXTENDED (user: Mercator church windows unlit; Massan's open doo...
   - 0a454 line 190: 2026-11-16 (Deck, Opus 5.5): FIREFLIES CAST LIGHT (user: 'Gluehwuermchen nachts zaehlen noch nicht als eige...
@@ -799,6 +799,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-16 END (Opus 5.5, no agents, `dev` pushed 2fd35ee, main = v1.9.1):** ALL HEADLESS ONLY, nothing played yet: pine clusters as single pines (0a453, 10 groups in 8 rooms), fireflies cast light (0a454), night windows (0a455: Mercator church windows, every window its own light, Massan round / shuttered windows; Massan DOOR fill OFF after many rejected rounds). User eye checks on the screenshots: round window / shutter cleaned up on request; doors rejected (shape not iso). NEXT -211 (hand-drawn door light shapes with preview), then user plays -208 / -209 / -210.
 - **2026-11-15 END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** USER-CONFIRMED by playing: sprint through doors, Smooth Scrolling always on, room 470 night streaks, room 473 lift shadow. HEADLESS ONLY: room 66 door band, room 28 wall model (clay preview OK), castle 51..54 alcove cabinets, GitHub issue #17 (Item Info, 5 languages), pines re-anchored onto houses / neighbours (LK_LTTREEHOUSE v1), lightedges --spots full sweep (no further big errors). NEXT -207 pine clusters as single pines (user decision), then user test of the headless fixes; then the 2.0 release on request.
 - **2026-11-15 afternoon (Opus 5.5, `dev` pushed):** GitHub issue #17 fixed headless (Item Info index after scrolling, 7 missing texts, ko / ja descriptions were English). Details 0a450. User replies to the issue.
 - **2026-11-15 midday (Opus 5.5, `dev` pushed):** room 66 door band (LK_LTDOORVOID v1) and room 28 back wall (near-final light model wall_28, user OK on the clay preview) fixed headless; lightedges --spots multi-position sweep built and running over all rooms. NOT played. Details 0a449, NEXT -206.

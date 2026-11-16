@@ -1904,3 +1904,12 @@ Build dev 48c243a (verify_build: 126 ok). Evidence (all hidden-window GPU presen
 - lightedges v2: --spots grid, walkable flood fill avoiding trigger cells, connected clusters (MINRUN 40), HUD band 34, bright pixels out, numpy path, CRT filter off, LT_SHAFT=0 in the sweep. Full sweep 3497 pictures / 586 rooms; 83 flagged -> 12 without the CRT filter.
 - GitHub issue #17: Use list scroll $FF2C06 in tile rows (LK_ITEMINFO v4), 7 texts, ko / ja item texts (LK_UIWIDE v2); headless menu walks en_tone / de / ja / ko.
 - Castle 51..54 alcoves: door niche fill skips raised alcove floors, thin columns skip mesh / modelled-stand cells, left stands (block 0x3CD) modelled. Reverted after measuring: wardrobe 65 remodels, model buffer pixel-centre sampling (worse: 65 107 -> 226, 28 0 -> 56).
+
+## Session 2026-11-16 (Deck, Opus 5.5, no agents): pine clusters, firefly light, night windows
+- Pine clusters: `remake/recipes/pine_cluster/pine_cluster.py` (template of the forest pine from 7 free pines of 636 / 632, 968 px; feet on the cell lattice U % 16 == 0, V % 8 == 7; must stand on a blocked raised height-map cell). Survey `tools/proxysurvey.py --run` (now hidden GPU window; with `--headless` it had found 0 lathes since 2026-11-12). 10 mesh ops; GPU noon ratio 636: one shadow per pine.
+- `LANDSTALKER_LIGHTING_DBG=5` (and =1) leave the presented GPU picture unlit: picture checks without DBG.
+- Fireflies `LK_FFGLOW v1`: lk_am_ffglow() -> lk_gb_run (bounce / sword pass) up to 8 point lights; night shot room 430: stump top lit, 636 4878 px differ.
+- Window lights merge re-check: `LANDSTALKER_WINMERGE`, `LANDSTALKER_GPULT_TIME=1`: Mercator 632 night 21 merged lights 0.25 ms, 31 single 0.26 ms GPU light pass -> merge off.
+- `LK_DNWIN2 v1` lit-window tile list (48 tiles, CPU lk_dn_winpix + GPU gpucomp winpix: both must change; patch_gpulight fx() anchors on the call text). Church windows tileset 0; Massan tileset 7 round windows (flood from hole centre 10, 11, r 7.5) and shutters. `LK_DNGLOW v1` picture map lk_dn_pi (2432 x 1216 bytes, GPU unit 13). Massan doors: whole-tile fill (flat, rejected), flooded black region + lintel row (the black above was the SIGN outline, rejected), ramp / room shading / light pool / flicker variants (rejected: 'nicht isometrisch, passt nicht in die Tuer') -> door fill off (`LANDSTALKER_DNDOOR=1` experimental), HANDOFF -211.
+- Test aids: `~/Project-Friday-Test/lktest/win/run.py OUT DAYTIME 'room:x.08,y.08,ZZZZ;...' ENV=...` (night GPU shots), `mock.py` (fast door mock-ups from the ROM picture).
+
