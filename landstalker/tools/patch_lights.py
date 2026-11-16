@@ -1755,8 +1755,8 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
       if (!ty) continue;
       u0 = ty == 1 ? 8 * c : 8 * c - 6; t0 = ty == 1 ? (float)(8 * r) + 2.5f : (float)(8 * r) - 3.5f; sl = ty == 1 ? -0.5f : 0.5f;
       { int nw = r + 1 >= 152 || LK_DN_T(r + 1, c) != 1;   /* (user 2026-11-16: 'auf der Wand ist doch keine Tuere, da ist nur ein ganz schmales Fenster'): 346 + 373 without the black tile 1 below = a NARROW WINDOW
-           (room 592 167 / 51): the same slanted top, the bottom ends with the drawn slit at the bottom of the 346 row */
-      for (u = u0; u <= u0 + 13; u++) { float top = t0 + sl * (float)(u - u0); int v, v0 = (int)ceilf(top - 0.5f), v1 = (int)floorf(top + 25.0f - 0.5f); if (nw && v1 > 8 * r + 7) v1 = 8 * r + 7;
+           (room 592 167 / 51): the same slanted top, the bottom parallel to the top (iso), 11 px high */
+      for (u = u0; u <= u0 + 13; u++) { float top = t0 + sl * (float)(u - u0); int v, v0 = (int)ceilf(top - 0.5f), v1 = (int)floorf(top + 25.0f - 0.5f); if (nw) v1 = (int)floorf(top + 11.0f - 0.5f);   /* (user: 'unten wieder eine gerade Kante ... wie bei der Tuer'): the narrow window is the same iso parallelogram, 11 px high (covers the drawn slit) */
         for (v = v0; v <= v1; v++) { if (u < 0 || v < 0 || u >= 2432 || v >= 1216) continue; lk_dn_pm[v][u >> 3] |= (uint8)(1u << (u & 7));
           if (!lk_dn_dc[v >> 3][u >> 3]) lk_dn_dc[v >> 3][u >> 3] = 3; lk_dn_dside[v >> 3][u >> 3] = (int8_t)(ty == 1 ? 1 : -1); } } } }   /* (dc 3 = a cell the parallelogram reaches: lintel row; dside: +1 = the light falls out to the lower RIGHT) */
   for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { int t = LK_DN_T(r, c), k, x, y, w2; if (t <= 0 || t >= 2048 || (k = lk_dn_tix[t]) < 0 || lk_dn_tk[k] != 1) continue;   /* LK_DNGLOW v1: Massan's round / shuttered windows join the picture map */
