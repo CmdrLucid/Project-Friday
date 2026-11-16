@@ -777,6 +777,7 @@ static int lk_lt_edgefill(void) { static int v = -1; if (v < 0) { const char *e 
 static int lk_lt_cellpaint(int x, int y, int m) { int du, dv, n = 0, pal, pr, U0 = 16 * (x - y) + 1184, V0 = 8 * (x + y) + 8 - m;   /* painted samples of a cell's top diamond (69 samples, step 2) */
   for (dv = -6; dv <= 6; dv += 2) for (du = -14; du <= 14; du += 2) if (abs(du) * 8 + abs(dv) * 16 <= 128 && (lk_o_fetch(lk_o_pb, U0 + du, V0 + dv, &pal, &pr, 0) || lk_o_fetch(lk_o_pa, U0 + du, V0 + dv, &pal, &pr, 0))) n++;
   return n; }
+static int lk_dn_doormode = 2;   /* LK_DNDOORISO v1: Massan door glow mode (set from LANDSTALKER_DNDOOR in lk_dn_doorcells) */
 static int lk_lt_fillcap(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_FILLCAP"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: inherited painted-void fill capped at the nearby walkable ground - 8 */
 static int lk_lt_doorin(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_DOORIN"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: door niches filled indoors too */
 static int lk_lt_wtile(int U, int V) {   /* 2026-11-08: the picture cell at (U, V) shows an animated WATER tile (the groups of patch_water.py lk_wr_iswater; $099E8A outside the lava rooms 403 / 404) */
@@ -1611,7 +1612,11 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         { int q, mg = 0; static int wm = -1; if (wm < 0) { const char *e = getenv("LANDSTALKER_WINMERGE"); wm = e ? atoi(e) : 0; }   /* LK_DNWIN2 v1 (user 2026-11-16 asked to re-check): every window its own light since the GPU light (Mercator night: 21 merged lights 0.25 ms, 31 single 0.26 ms GPU light pass); =1 the old merge */ for (q = lk_lt_nfl; q < lk_lt_nl && wm; q++) { lk_lt_light *M = &lk_lt_l[q]; float ddx = M->x - L->x, ddy = M->y - L->y, ddz = M->z - L->z;   /* windows of one wall within 56 units share one light (fewer lights: Mercator had 42) */
             if (M->base == (uint32_t)f && ddx * ddx + ddy * ddy + ddz * ddz < 56.0f * 56.0f) { M->x = (M->x + L->x) * 0.5f; M->y = (M->y + L->y) * 0.5f; M->z = (M->z + L->z) * 0.5f; M->k += 0.12f; mg = 1; break; } }
           if (mg) continue; }
-        L->k = kd >= 2 ? 0.42f : 0.30f; L->rad = kd >= 2 ? 92.0f : 76.0f; lk_lt_nl++;   /* LK_DNWIN2 v1: an open door throws more light than a window */   /* weak and short: a room holds up to ~40 windows (k 0.85 / reach 120 lit whole towns like day) */
+        L->k = kd >= 2 ? 0.42f : 0.30f; L->rad = kd >= 2 ? 92.0f : 76.0f;
+        if (kd >= 2 && lk_dn_doormode == 2 && (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) == 7) { int gt; static float dk = -1.0f, dr = -1.0f; if (dk < 0.0f) { const char *e = getenv("LANDSTALKER_DNDOOR_K"), *e2 = getenv("LANDSTALKER_DNDOOR_R"); dk = e ? (float)atof(e) : 0.80f; dr = e2 ? (float)atof(e2) : 80.0f; }
+          L->x = px + 10.0f * lk_lt_fnx(f); L->y = py + 10.0f * lk_lt_fny(f); gt = lk_lt_cell((int)floorf(L->x / 16.0f), (int)floorf(L->y / 16.0f)); L->z = gt > -32768 ? (float)gt + 8.0f : (float)z - 14.0f; L->k = dk; L->rad = dr; }   /* LK_DNDOORISO v1 (user 2026-11-16:
+             'ein bisschen Licht rausleuchten aus der Tuer, am Boden nach vorne'): a Massan door's light sits low in front of the opening (ground + 8, 10 units out) and stronger: a soft warm pool on the ground; test aids LANDSTALKER_DNDOOR_K / _R */
+        lk_lt_nl++;   /* LK_DNWIN2 v1: an open door throws more light than a window */   /* weak and short: a room holds up to ~40 windows (k 0.85 / reach 120 lit whole towns like day) */
         if (lk_lt_dbg == 1) printf("window light: room %%d at (%%.0f, %%.0f, %%.0f) face %%d kind %%d tiles %%d\n", lk_o_room, L->x, L->y, L->z, f, kd, n); } }
     #undef LK_DN_ISW
   }
@@ -1714,7 +1719,7 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
   for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) if (lk_dn_dc[r][c]) { int rr2, cc2, sd = 0; for (rr2 = r; rr2 >= 0 && rr2 >= r - 6 && !sd; rr2--) for (cc2 = c - 2; cc2 <= c + 2 && !sd; cc2++) if (cc2 >= 0 && cc2 < 304 && LK_DN_T(rr2, cc2) == 346) sd = (lk_o_pa[rr2][cc2] & 0x800) ? 1 : -1; lk_dn_dside[r][c] = (int8_t)(sd ? sd : 1); }
   memset(al, 0, sizeof al);   /* allowed cells: the door cells + the cell row below them (NOT above: the black there is the outline of the sign over the door, user comparison 2026-11-16) */
   for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) if (lk_dn_dc[r][c]) { int d; al[r][c] = 1; for (d = -1; d <= 1; d++) if (c + d >= 0 && c + d < 304) { if (0 && r > 0 && !lk_dn_dc[r - 1][c + d]) al[r - 1][c + d] = 1; if (r < 151 && !lk_dn_dc[r + 1][c + d]) al[r + 1][c + d] = 1; } }   /* (+ the row below: the mirrored doors of the right walls continue in 395 / 396) */
-  { static int on = -1; if (on < 0) { const char *e = getenv("LANDSTALKER_DNDOOR"); on = e ? atoi(e) : 0; } if (!on) memset(al, 0, sizeof al); }   /* DOOR FILL OFF by default (user 2026-11-16: the drawn black openings are no clean iso shape; next: one hand-drawn iso light shape per door type, preview first); the doors keep their light in front; test aid LANDSTALKER_DNDOOR=1 = the flooded fill */
+  { static int on = -1; if (on < 0) { const char *e = getenv("LANDSTALKER_DNDOOR"); on = e ? atoi(e) : 2; } lk_dn_doormode = on; if (on != 1) memset(al, 0, sizeof al); }   /* LK_DNDOORISO v1: 2 (default) = the hand-drawn iso parallelogram below; 1 = the old flooded fill; 0 = no door glow */   /* DOOR FILL OFF by default (user 2026-11-16: the drawn black openings are no clean iso shape; next: one hand-drawn iso light shape per door type, preview first); the doors keep their light in front; test aid LANDSTALKER_DNDOOR=1 = the flooded fill */
   sp = 0;   /* seeds: the black pixels of the opening cells (not the threshold 385 / 384: their black specks belong to the floor dither) */
   for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { int t = LK_DN_T(r, c), x, y; if (!lk_dn_dc[r][c] || !al[r][c] || t == 385 || t == 384) continue;
     for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) { U = 8 * c + x; V = 8 * r + y; if (lk_dn_ppix(U, V) == 15 && !(lk_dn_pm[V][U >> 3] >> (U & 7) & 1) && sp < 4096) { lk_dn_pm[V][U >> 3] |= (uint8)(1u << (U & 7)); st[sp][0] = (int16_t)V; st[sp][1] = (int16_t)U; sp++; } } }
@@ -1733,6 +1738,15 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
       for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) { int d, lft = 0, rgt = 0, up = 0, dn = 0; U = 8 * c + x; V = 8 * r + y; if (LK_DN_PB(U, V)) continue;
         for (d = 1; d <= 7; d++) { if (d <= 4 && LK_DN_PB(U - d, V)) lft = 1; if (d <= 4 && LK_DN_PB(U + d, V)) rgt = 1; if (LK_DN_PB(U, V - d)) up = 1; if (LK_DN_PB(U, V + d)) dn = 1; }
         if ((lft && rgt) || (up && dn)) lk_dn_pm[V][U >> 3] |= (uint8)(1u << (U & 7)); } }
+  if (lk_dn_doormode == 2) for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) {   /* LK_DNDOORISO v1 (user 2026-11-16, preview ~/Project-Friday-Test/lktest/massan/door_preview.png: 'die Form passt'): every Massan door
+       opening = ONE iso parallelogram measured on the drawing: vertical jambs 14 px apart, top and bottom parallel to the wall (slope 1 : 2), 25 px high.  Door kind from the opening tile 346 and its
+       3 tall 373 column: 373 RIGHT of 346 (wall running up to the right, faces down-right) or LEFT of it (mirrored, faces down-left).  The light pool below falls out along the wall normal. */
+      int ty = LK_DN_T(r, c) != 346 ? 0 : (c + 1 < 304 && LK_DN_T(r, c + 1) == 373) ? 1 : (c > 0 && LK_DN_T(r, c - 1) == 373) ? 2 : 0, u0, u; float t0, sl;
+      if (!ty) continue;
+      u0 = ty == 1 ? 8 * c : 8 * c - 6; t0 = ty == 1 ? (float)(8 * r) + 2.5f : (float)(8 * r) - 3.5f; sl = ty == 1 ? -0.5f : 0.5f;
+      for (u = u0; u <= u0 + 13; u++) { float top = t0 + sl * (float)(u - u0); int v, v0 = (int)ceilf(top - 0.5f), v1 = (int)floorf(top + 25.0f - 0.5f);
+        for (v = v0; v <= v1; v++) { if (u < 0 || v < 0 || u >= 2432 || v >= 1216) continue; lk_dn_pm[v][u >> 3] |= (uint8)(1u << (u & 7));
+          if (!lk_dn_dc[v >> 3][u >> 3]) lk_dn_dc[v >> 3][u >> 3] = 3; lk_dn_dside[v >> 3][u >> 3] = (int8_t)(ty == 1 ? 1 : -1); } } }   /* (dc 3 = a cell the parallelogram reaches: lintel row; dside: +1 = the light falls out to the lower RIGHT) */
   for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { int t = LK_DN_T(r, c), k, x, y, w2; if (t <= 0 || t >= 2048 || (k = lk_dn_tix[t]) < 0 || lk_dn_tk[k] != 1) continue;   /* LK_DNGLOW v1: Massan's round / shuttered windows join the picture map */
     w2 = (int)(lk_o_pa[r][c] & 0xFFFF);
     for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) { int nx = (w2 & 0x800) ? 7 - x : x, ny = (w2 & 0x1000) ? 7 - y : y; if (lk_dn_tm[k][ny] >> nx & 1) { U = 8 * c + x; V = 8 * r + y; lk_dn_pm[V][U >> 3] |= (uint8)(1u << (U & 7)); } } }
@@ -1755,8 +1769,9 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
     for (dy = -4; dy <= 4; dy++) for (dx = -4; dx <= 4; dx++) { int u2 = U + dx, v2 = V + dy, h; float dd = sqrtf((float)(dx * dx + dy * dy)); if (u2 < 0 || v2 < 0 || u2 >= 2432 || v2 >= 1216 || dd > 4.5f || LK_DN_PB(u2, v2)) continue;
       h = (int)(90.0f * (1.0f - dd / 5.0f)); if (h > (int)lk_dn_pi[v2][u2]) lk_dn_pi[v2][u2] = (uint8)h; } }
   for (V = 0; V < 1215; V++) for (U = 0; U < 2432; U++) { int sd, t; if (!LK_DN_PB(U, V) || LK_DN_PB(U, V + 1) || !lk_dn_dc[V >> 3][U >> 3]) continue;   /* LK_DNGLOW v1 LIGHT POOL (user ok): from the bottom pixel of every opening column the light falls out onto the ground, door shaped, along the wall's normal (2 px across, 1 down per step), fading over 16 steps */
-    sd = lk_dn_dside[V >> 3][U >> 3] ? lk_dn_dside[V >> 3][U >> 3] : 1;
-    for (t = 1; t <= 22; t++) { int k2; float q = 1.0f - (float)t / 23.0f; int h = (int)(127.0f * sqrtf(q) * q);
+    sd = lk_dn_dside[V >> 3][U >> 3] ? lk_dn_dside[V >> 3][U >> 3] : 1; if (lk_dn_doormode == 2) sd = -sd;   /* LK_DNDOORISO v1: dside +1 = out to the lower right (u grows) */
+    if (lk_dn_doormode == 2) continue;   /* LK_DNDOORISO v1: no picture pool for the iso doors (it added light only to the bright pixels of the ground dither = a mesh with hard edges); their real door light lies on the ground instead (lk_lt window lights) */
+    for (t = 1; t <= (lk_dn_doormode == 2 ? 26 : 22); t++) { int k2; float q = 1.0f - (float)t / (lk_dn_doormode == 2 ? 27.0f : 23.0f); int h = (int)((lk_dn_doormode == 2 ? 120.0f : 127.0f) * sqrtf(q) * q);   /* (iso doors: the pool a little longer, user 'ein bisschen Licht am Boden nach vorne') */
       for (k2 = 0; k2 < 2; k2++) { int u2 = U - sd * (2 * t - k2), v2 = V + t; if (u2 < 0 || v2 >= 1216 || u2 >= 2432 || LK_DN_PB(u2, v2)) continue; if (h > (int)lk_dn_pi[v2][u2]) lk_dn_pi[v2][u2] = (uint8)h; } } }
   #undef LK_DN_PB
   lk_dn_pmok = 1;
