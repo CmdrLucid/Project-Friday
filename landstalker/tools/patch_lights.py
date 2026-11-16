@@ -770,6 +770,13 @@ static int lk_lt_pinewalk(void) { static int v = -1; if (v < 0) { const char *e 
 static int lk_lt_invmode(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INVIS"); v = e ? atoi(e) : 2; } return v; }   /* 0 off, 1 neighbour heights (first version), 2 void (default) */
 static int lk_lt_archfill(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_ARCHFILL"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: arch gaps in thin tall walls filled */
 static int lk_lt_lathe2(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_LATHE2"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: lathe re-anchor ignores the own box, wall foot rows filled */
+static int lk_lt_edgefill(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_EDGEFILL"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTEDGEFILL v1 (user 2026-11-16, Massan 592 at night:
+   'der suedwestliche Kartenrand sieht komisch aus ... als wuerde der als Wasser erkannt'): the drawn grass reaches HALF into the outer void row (game word $4000) with a ragged edge; the painted-void fill
+   tested only the cell centre (black there) -> the cells stayed void -> that grass was 'void glow' = the unlit original colours = a bright rim at night.  Outdoors, a void cell next to the ground at
+   height 0 (nothing lies lower) also fills when >= 12 of 69 samples of its top diamond are painted; test aid LANDSTALKER_LT_EDGEFILL=0 = the centre test only */
+static int lk_lt_cellpaint(int x, int y, int m) { int du, dv, n = 0, pal, pr, U0 = 16 * (x - y) + 1184, V0 = 8 * (x + y) + 8 - m;   /* painted samples of a cell's top diamond (69 samples, step 2) */
+  for (dv = -6; dv <= 6; dv += 2) for (du = -14; du <= 14; du += 2) if (abs(du) * 8 + abs(dv) * 16 <= 128 && (lk_o_fetch(lk_o_pb, U0 + du, V0 + dv, &pal, &pr, 0) || lk_o_fetch(lk_o_pa, U0 + du, V0 + dv, &pal, &pr, 0))) n++;
+  return n; }
 static int lk_lt_fillcap(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_FILLCAP"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: inherited painted-void fill capped at the nearby walkable ground - 8 */
 static int lk_lt_doorin(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_DOORIN"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: door niches filled indoors too */
 static int lk_lt_wtile(int U, int V) {   /* 2026-11-08: the picture cell at (U, V) shows an animated WATER tile (the groups of patch_water.py lk_wr_iswater; $099E8A outside the lava rooms 403 / 404) */
@@ -1423,7 +1430,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
            room 488 '$47' at 112 beside paths at 128) the painted water beyond the map is the same surface: no 8 unit step (it cast a long thin shadow along the border); test aid LANDSTALKER_LT_WATBLK=0 */
         if (iw) m = inwl;   /* the room's water level: below its lowest cell */
         U = 16 * (x - y) + 1184; V = 8 * (x + y) + 8 - m;
-        if (!lk_o_fetch(lk_o_pb, U, V, &pal, &pr, 0) && !lk_o_fetch(lk_o_pa, U, V, &pal, &pr, 0)) continue;
+        if (!lk_o_fetch(lk_o_pb, U, V, &pal, &pr, 0) && !lk_o_fetch(lk_o_pa, U, V, &pal, &pr, 0) && !(lk_lt_sun && !iw && !wo && m == 0 && lk_lt_edgefill() && lk_lt_cellpaint(x, y, m) >= 12)) continue;   /* LK_LTEDGEFILL v1 */
         if (iw && !lk_lt_wtile(U, V)) continue;   /* only where an animated water tile is drawn (else a front edge wall painted into the black would become a floor) */
         nh[y][x] = (int16_t)m; lk_lt_wat[y][x] = 1; ch = 1; nw++; }
       memcpy(lk_lt_top, nh, sizeof nh); }
@@ -1588,16 +1595,19 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
     static uint8 wseen[152][304]; static int16_t st[512][2]; int r0, c0;
     memset(wseen, 0, sizeof wseen);
     #define LK_DN_ISW(rr, cc) (lk_dn_iswt(lk_o_pa[rr][cc]) || lk_dn_iswt(lk_o_pb[rr][cc]))
-    for (r0 = 0; r0 < 152; r0++) for (c0 = 0; c0 < 304; c0++) { int sp = 0, n = 0, su = 0, sv = 0, kd = 0;
+    for (r0 = 0; r0 < 152; r0++) for (c0 = 0; c0 < 304; c0++) { int sp = 0, n = 0, su = 0, sv = 0, kd = 0, sh = 0;
       if (wseen[r0][c0] || !LK_DN_ISW(r0, c0)) continue;
       wseen[r0][c0] = 1; st[sp][0] = (int16_t)r0; st[sp][1] = (int16_t)c0; sp++;
-      while (sp) { int rr, cc, dr, dc; sp--; rr = st[sp][0]; cc = st[sp][1]; n++; su += cc * 8 + 4; sv += rr * 8 + 4; { int k1 = lk_dn_iswt(lk_o_pa[rr][cc]), k2 = lk_dn_iswt(lk_o_pb[rr][cc]); if (k1 > kd) kd = k1; if (k2 > kd) kd = k2; }
+      while (sp) { int rr, cc, dr, dc; sp--; rr = st[sp][0]; cc = st[sp][1]; n++; su += cc * 8 + 4; sv += rr * 8 + 4; { int ta = lk_o_pa[rr][cc] & 0x10000 ? (int)(lk_o_pa[rr][cc] & 0x7FF) : -1; if (ta == 327 || ta == 342 || ta == 341 || ta == 326) sh = 1; }   /* LK_DNSHUT v1: a shuttered Massan window */ { int k1 = lk_dn_iswt(lk_o_pa[rr][cc]), k2 = lk_dn_iswt(lk_o_pb[rr][cc]); if (k1 > kd) kd = k1; if (k2 > kd) kd = k2; }
         for (dr = -1; dr <= 1; dr++) for (dc = -1; dc <= 1; dc++) { int r2 = rr + dr, c2 = cc + dc; if (r2 >= 0 && r2 < 152 && c2 >= 0 && c2 < 304 && !wseen[r2][c2] && LK_DN_ISW(r2, c2) && sp < 512) { wseen[r2][c2] = 1; st[sp][0] = (int16_t)r2; st[sp][1] = (int16_t)c2; sp++; } } }
       if (n > 16 || lk_lt_nl >= LK_LT_ML) continue;   /* (LK_DNWIN2 v1: 16, an open door is up to 2 x 6 tiles) */
       { int U = su / n, V = sv / n, z = 0, f = lk_lt_ray(U, V, &z); float px, py; lk_lt_light *L = &lk_lt_l[lk_lt_nl];
         if (f != 2 && f != 3) continue;   /* the window must sit on a wall facing the viewer */
         lk_lt_pos(U, V, z, &px, &py);
-        L->x = px + 14.0f * lk_lt_fnx(f); L->y = py + 14.0f * lk_lt_fny(f); L->z = (float)z - 6.0f; L->r = 1.0f; L->g = 0.68f; L->b = 0.32f; L->lava = 2; L->base = (uint32_t)f;
+        L->x = px + 14.0f * lk_lt_fnx(f); L->y = py + 14.0f * lk_lt_fny(f); L->z = (float)z - 6.0f;
+        if (sh && (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) == 7) { L->x = px + 9.0f * lk_lt_fnx(f); L->y = py + 9.0f * lk_lt_fny(f); L->z = (float)z - 22.0f; { int gt = lk_lt_cell((int)floorf(L->x / 16.0f), (int)floorf(L->y / 16.0f)); if (gt > -32768 && L->z < (float)gt + 4.0f) L->z = (float)gt + 4.0f; } }   /* (never below the ground in front + 4) */   /* LK_DNSHUT v1 (user 2026-11-16: 'das Fenster mit dem
+           Fensterladen darueber, das Licht sollte logischerweise drunter liegen, weil das Licht von innen kommt'): the light sat in the middle of the 3 x 3 tiles = on the propped board, which lit up;
+           it comes out of the gap UNDER the board: lower (22 units) and closer to the wall -> a pool on the ground below, the board stays mostly dark */ L->r = 1.0f; L->g = 0.68f; L->b = 0.32f; L->lava = 2; L->base = (uint32_t)f;
         { int q, mg = 0; static int wm = -1; if (wm < 0) { const char *e = getenv("LANDSTALKER_WINMERGE"); wm = e ? atoi(e) : 0; }   /* LK_DNWIN2 v1 (user 2026-11-16 asked to re-check): every window its own light since the GPU light (Mercator night: 21 merged lights 0.25 ms, 31 single 0.26 ms GPU light pass); =1 the old merge */ for (q = lk_lt_nfl; q < lk_lt_nl && wm; q++) { lk_lt_light *M = &lk_lt_l[q]; float ddx = M->x - L->x, ddy = M->y - L->y, ddz = M->z - L->z;   /* windows of one wall within 56 units share one light (fewer lights: Mercator had 42) */
             if (M->base == (uint32_t)f && ddx * ddx + ddy * ddy + ddz * ddz < 56.0f * 56.0f) { M->x = (M->x + L->x) * 0.5f; M->y = (M->y + L->y) * 0.5f; M->z = (M->z + L->z) * 0.5f; M->k += 0.12f; mg = 1; break; } }
           if (mg) continue; }
@@ -1678,7 +1688,13 @@ static void lk_dn_wmask(void) {   /* v3 (user 2026-11-06: 'Ecken im Fenster, Ran
         if (px < 0 || py < 0 || px >= 24 || py >= 24 || M[py][px] || (P[py][px] != 15 && P[py][px] != 5) || (px - 10) * (px - 10) + (py - 11) * (py - 11) > 56) continue;
         M[py][px] = 1; for (j = 0; j < 4 && sp < 596; j++) { st[sp][0] = (int8_t)(px + (j == 0) - (j == 1)); st[sp][1] = (int8_t)(py + (j == 2) - (j == 3)); sp++; } }
       for (i = 0; i < 9; i++) { int k = lk_dn_tadd(366 + 13 * (i / 3) + (i %% 3), 1); for (y = 0; y < 8 && k >= 0; y++) for (x = 0; x < 8; x++) if (M[8 * (i / 3) + y][8 * (i %% 3) + x]) lk_dn_tm[k][y] |= (uint8)(1u << x); } }
-    for (i = 0; i < 11; i++) { int k = lk_dn_tadd(shut[i], 1); for (y = 0; y < 8 && k >= 0; y++) for (x = i >= 9 ? 5 : 0; x < 8; x++) if (lk_dn_tpix(shut[i], x, y) == 15) lk_dn_tm[k][y] |= (uint8)(1u << x); } } }   /* 323 / 336: only their right part (the gap left of the board; the post outline is further left) */
+    { static const int8_t sc[11][2] = { { 1, 0 }, { 2, 0 }, { 1, 1 }, { 2, 1 }, { 1, 2 }, { 2, 2 }, { 3, 0 }, { 3, 1 }, { 3, 2 }, { 0, 0 }, { 0, 1 } }; static uint8 SB[24][32]; int a2, b2;   /* LK_DNSHUT v1 (user 2026-11-16:
+         'das Licht sollte logischerweise drunter liegen'): the glow took EVERY black pixel of the 3 x 3 window = also the thin outlines around the propped board -> a warm ring framed the board.
+         Now only THICK black (the pixel lies in a 2 x 2 all-black square of the assembled block [323 326 327 328 / 336 341 342 343 / - 354 355 356]): the gap under the board's right side + the small gap left of it */
+      memset(SB, 0, sizeof SB); for (i = 0; i < 11; i++) for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) SB[8 * sc[i][1] + y][8 * sc[i][0] + x] = lk_dn_tpix(shut[i], x, y) == 15 && (i < 9 || x >= 5);
+      for (i = 0; i < 11; i++) { int k = lk_dn_tadd(shut[i], 1); for (y = 0; y < 8 && k >= 0; y++) for (x = 0; x < 8; x++) { int Y = 8 * sc[i][1] + y, X = 8 * sc[i][0] + x, ok = 0; if (!SB[Y][X]) continue;
+          for (a2 = -1; a2 <= 0 && !ok; a2++) for (b2 = -1; b2 <= 0 && !ok; b2++) { int y1 = Y + a2, x1 = X + b2; if (y1 >= 0 && x1 >= 0 && y1 + 1 < 24 && x1 + 1 < 32 && SB[y1][x1] && SB[y1 + 1][x1] && SB[y1][x1 + 1] && SB[y1 + 1][x1 + 1]) ok = 1; }
+          if (ok) lk_dn_tm[k][y] |= (uint8)(1u << x); } } } } }   /* 323 / 336: only their right part (the gap left of the board; the post outline is further left) */
 static uint8 lk_dn_dc[152][304]; static int16_t lk_dn_dcl[64][2]; static int lk_dn_ndc; static uint8 lk_dn_pm[1216][304]; static int lk_dn_pmver, lk_dn_pmok; static uint8 lk_dn_pi[1216][2432];   /* + LK_DNGLOW v1: per picture pixel 128..255 = inside an opening (glow ramp, dim at the edge, bright in the middle), 1..127 = the warm halo around it */   /* LK_DNWIN2 v1: Massan DOOR OPENINGS as a
    pixel mask of the room picture (bit x & 7 of byte [V][U >> 3]; user 2026-11-16 'dein Rechteck sieht gerade aus, was nicht zur isometrischen Tuer passt'): the black opening reaches up into the lintel
    tiles above (334 / 333 / 335: the slanted iso top edge), so it is flooded per door through the black pixels of the door cells + the cell row above them, then the dither pixels inside
