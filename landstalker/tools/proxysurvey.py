@@ -50,11 +50,13 @@ def run(rom, rooms, out, batch=16, jobs=4):
             (x, y), h = s; warps.append("%d:%d.08,%d.08,%04X" % (r, x, y, 16 * h)); ats.append(str(fr)); fr += 160
         env = dict(PATH=os.environ["PATH"], HOME=os.path.join(d, "home"), LANDSTALKER_WIDE="19", LANDSTALKER_TALL="1", LANDSTALKER_NATIVEPACE="1",
                    LANDSTALKER_QSPLAY=qs, GENRECOMP_INPUTSCRIPT=os.path.join(d, "in.txt"), LANDSTALKER_SAVE=os.path.join(d, "s.srm"),
-                   LANDSTALKER_WARP=";".join(warps), LANDSTALKER_WARP_AT=",".join(ats), LANDSTALKER_LIGHTING_DBG="5")
+                   LANDSTALKER_WARP=";".join(warps), LANDSTALKER_WARP_AT=",".join(ats), LANDSTALKER_LIGHTING_DBG="5",
+                   LANDSTALKER_HIDDEN="1", LANDSTALKER_NOFOCUSPAUSE="1", SDL_AUDIODRIVER="dummy")   # 2026-11-15: GPU only light (no light at all with --headless since 2026-11-12) -> a hidden window
+        env.update({k: os.environ[k] for k in ("DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR") if k in os.environ})
         log = os.path.join(d, "survey.log"); logs.append(log)
         while len([p for p in procs if p.poll() is None]) >= jobs: procs[0].wait(); procs = [p for p in procs if p.poll() is None]
         print("proxysurvey: batch %d: %d warps -> %s" % (b // batch, len(warps), log), flush=True)
-        procs.append(subprocess.Popen([os.path.join(here, "build", "landstalker"), "--headless", "--frames", str(fr + 20), rom_path], env=env, stdout=open(log, "w"), stderr=subprocess.STDOUT, cwd=here))
+        procs.append(subprocess.Popen([os.path.join(here, "build", "landstalker"), "--frames", str(fr + 20), rom_path], env=env, stdout=open(log, "w"), stderr=subprocess.STDOUT, cwd=here))
     for p in procs: p.wait()
     allp = os.path.join(out, "survey.log")
     with open(allp, "w") as o:
