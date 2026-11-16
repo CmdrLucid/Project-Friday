@@ -1682,10 +1682,13 @@ static void lk_dn_wmask(void) {   /* v3 (user 2026-11-06: 'Ecken im Fenster, Ran
       for (y = 0; y < 8 && ka >= 0 && kb >= 0; y++) { int v[16], f0 = -1, f1 = -1;
         for (x = 0; x < 16; x++) { v[x] = lk_dn_tpix(lk_dn_wt[2 * p + (x >> 3)], x & 7, y); if (v[x] == 15) { if (f0 < 0) f0 = x; f1 = x; } }
         for (x = f0 + 1; f0 >= 0 && x < f1; x++) if (v[x] == 1 || v[x] == 14) lk_dn_tm[x < 8 ? ka : kb][y] |= (uint8)(1u << (x & 7)); } }
-    for (p = 0; p < 8; p++) { int ka = lk_dn_tadd(lk_dn_ct[2 * p], 1), kb = lk_dn_tadd(lk_dn_ct[2 * p + 1], 1);   /* church: dark glass between the outer frame pixels of the pair row */
-      for (y = 0; y < 8 && ka >= 0 && kb >= 0; y++) { int v[16], f0 = -1, f1 = -1;
-        for (x = 0; x < 16; x++) { v[x] = lk_dn_tpix(lk_dn_ct[2 * p + (x >> 3)], x & 7, y); if (v[x] == 15) { if (f0 < 0) f0 = x; f1 = x; } }
-        for (x = f0 + 1; f0 >= 0 && x < f1; x++) if (v[x] == 15) lk_dn_tm[x < 8 ? ka : kb][y] |= (uint8)(1u << (x & 7)); } } }
+    for (p = 0; p < 8; p++) { int ka = lk_dn_tadd(lk_dn_ct[2 * p], 1), kb = lk_dn_tadd(lk_dn_ct[2 * p + 1], 1), x0 = p < 4 ? 9 : 2;   /* church: the dark glass of the LEAD STRIP only.
+         LK_DNCHGLASS v1 (user 2026-11-16 rec_20261116_1924 Mercator church at night: 'ganz komische gelbe Pixel'): the old rule (every index 15 between the first and the last 15 of the pair row)
+         also lit the dithered arch moulding above the strip, the sill hook below it and (dark-wall window 864..913) the dithered recess right of it = frayed yellow blobs. The window
+         (2 x 4 tiles, 16 x 32 px) has its glass strip 5 px wide at x 9..13 (light wall 866..915) / x 2..6 (dark wall 864..913), rows 11..27 (the black arc above row 11 is the frame) */
+      for (y = 0; y < 8 && ka >= 0 && kb >= 0; y++) { int Y = 8 * (p & 3) + y;
+        if (Y < 11 || Y > 27) continue;
+        for (x = x0; x <= x0 + 4; x++) if (lk_dn_tpix(lk_dn_ct[2 * p + (x >> 3)], x & 7, y) == 15) lk_dn_tm[x < 8 ? ka : kb][y] |= (uint8)(1u << (x & 7)); } } }
   else if (ts == 7) {
     static const int door[5] = { 346, 373, 483, 385, 384 }, shut[11] = { 326, 327, 341, 342, 354, 355, 328, 343, 356, 323, 336 }; int i;
     for (i = 0; i < 5; i++) { int k = lk_dn_tadd(door[i], i < 3 ? 3 : 2);   /* kind 3 = a door tile that glows whole (every colour) */ for (y = 0; y < 8 && k >= 0; y++) for (x = 0; x < 8; x++) { int v = lk_dn_tpix(door[i], x, y);

@@ -926,6 +926,7 @@ bool dent(float cx, float cy, float cf) {   /* lk_lt_dent */
   return false; }
 float fdv(float a, float b) { return floor(a / b); }
 float vtAt(float sx, float sy, float layA) { if (sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return -32768.0; vec4 v = texture2D(fine2, (vec2(sx, sy) + 0.5) / 296.0); return layA > 0.5 ? S16(B(v.r), B(v.g)) : S16(B(v.b), B(v.a)); }
+float vtAtM(float sx, float sy, float layA) { float t = vtAt(sx, sy, layA); if (uMdl > 0.5 && sx >= 0.0 && sy >= 0.0 && sx < 296.0 && sy < 296.0) { vec4 f4 = FN(sx, sy, 4.0); if (B(f4.r) > 0.5 && B(f4.r) < 1.5) t = S16(B(f4.b), B(f4.a)); } return t; }   /* LK_RAYCORNERM v1 (user 2026-11-16 rec_20261116_1924, Mercator church 632 at night: 'Streifen entlang der Kirche'): the corner check took the FIELD height of a sub column a hand-made model owns (the church baked into the field) instead of the ground below the model as the view ray does = on every D mod 4 = 0 pixel column (the ray steps diagonally there) a wall hit one sub column early (z + 4) = a 1 px light stripe every 4 px on every model wall at night */
 float rfocc(float sx, float sy, float z) { if (z <= vtAt(sx, sy, 1.0)) return 1.0; vec2 q = SLB(sx, sy); return (q.y > q.x && z >= q.x && z <= q.y) ? 1.0 : 0.0; }   /* v9 lk_lt_rfocc */
 float iocc(float sx, float sy, float z, float layA) { if (z <= ifh(sx, sy, 0.0)) return 1.0; if (layA > 0.5) { vec2 q = SLB(sx, sy); if (q.y > q.x && z >= q.x && z <= q.y) return 1.0; } return 0.0; }   /* v9 lk_lt_occ */
 float idiag(float sx, float sy, float z, float f, float layA) {   /* v9 lk_lt_idiag: the normal of a fine field side face from the shape around it (16 directions) */
@@ -985,7 +986,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
         if (sx == pcx) return vec3(3.0, z, rob);
         if (sy == pcy) return vec3(2.0, z, rob);
         return vec3(rfocc(pcx, sy, z) > 0.5 && rfocc(sx, pcy, z) < 0.5 ? 3.0 : 2.0, z, rob); } }
-      if (pcx != -999.0 && sx != pcx && sy != pcy && z > top) { float ca = vtAt(pcx, sy, layA), cb = vtAt(sx, pcy, layA); if (z <= ca || z <= cb) return vec3(z == max(ca, cb) ? 1.0 : z <= ca && !(z <= cb && cb > ca) ? 3.0 : 2.0, z, rob); }   /* LK_RAYCORNER v1 (user 2026-11-15, room 470 at night: bright 1 px lines along the cliff ridges): a ray stepping DIAGONALLY (both sub columns change) slipped through the corner between the two side columns it passes; a hit there is that column's side (3 = the one across y, 2 = across x) or its top */
+      if (pcx != -999.0 && sx != pcx && sy != pcy && z > top) { float ca = vtAtM(pcx, sy, layA), cb = vtAtM(sx, pcy, layA); if (z <= ca || z <= cb) return vec3(z == max(ca, cb) ? 1.0 : z <= ca && !(z <= cb && cb > ca) ? 3.0 : 2.0, z, rob); }   /* LK_RAYCORNER v1 (user 2026-11-15, room 470 at night: bright 1 px lines along the cliff ridges): a ray stepping DIAGONALLY (both sub columns change) slipped through the corner between the two side columns it passes; a hit there is that column's side (3 = the one across y, 2 = across x) or its top */
       if (z <= top) { if (fo != 0.0 && layA > 0.5) rob = fo;
         if ((sx == pcx && sy == pcy) || pcx == -999.0 || z == top) return vec3(1.0, z, rob);
         if (sx == pcx) return vec3(3.0, z, rob);
