@@ -214,18 +214,18 @@ static const char *lk_gc_fs = "#version 120\n"
 "vec3 winpix(vec3 c, float pick, float t, vec2 ixy, float w, vec2 uv) {\n"   /* lk_dn_winpix (LK_DNWIN2 v1: the room's tile list) */
 "  float idx = mod(pick, 16.0), k = -1.0;\n"
 "  if (uDnCN > 0.5) { float v = (uv.x >= 0.0 && uv.y >= 0.0 && uv.x < 2432.0 && uv.y < 1216.0) ? by(texture2D(dpm, vec2((uv.x + 0.5) / 2432.0, (uv.y + 0.5) / 1216.0)).r) : 0.0;\n"   /* LK_DNGLOW v1 (as lk_dn_winpix) */
-"    if (v < 0.5) return c; float w0 = floor(w * uDnF / 256.0); if (pick >= 16.0 && v >= 128.0) return c;\n"
+"    if (v > 0.5 || uDnCN < 1.5) { if (v < 0.5) return c; float w0 = floor(w * uDnF / 256.0); if (pick >= 16.0 && v >= 128.0) return c;\n"   /* LK_DNCHDOOR v1: uDnCN 2 = a church room: the map only where set, else the tile list below */
 "    if (v >= 128.0) { float iv = v - 128.0; vec3 rg = floor((vec3(70.0, 26.0, 8.0) * (127.0 - iv) + vec3(240.0, 150.0, 62.0) * iv) / 127.0); return floor((floor(rg * w0 / 235.0) * 154.0 + c * 102.0) / 256.0); }\n"   /* LK_DNFLK v1: 60 % over the drawing (affine: works as the post mix p0 / p1) */
 "    if (v >= 64.0) { float f = floor((v - 64.0) * 2.0 * w0 / 235.0); return min(c + floor(c * vec3(200.0, 145.0, 55.0) * f / 16129.0) + floor(vec3(50.0, 25.0, 6.0) * f / 127.0), vec3(255.0)); }\n"
-"    return min(c + floor(floor(vec3(200.0, 116.0, 34.0) * v * 2.0 / 127.0) * w0 / 235.0), vec3(255.0)); }\n"   /* LK_DNSPILL v1: as lk_dn_winpix */   /* LK_DNWIN2: black tile 1 inside a door */
+"    return min(c + floor(floor(vec3(200.0, 116.0, 34.0) * v * 2.0 / 127.0) * w0 / 235.0), vec3(255.0)); } }\n"   /* LK_DNSPILL v1: as lk_dn_winpix */   /* LK_DNWIN2: black tile 1 inside a door */
 "  if (pick >= 16.0) return c;\n"
 "  for (int j = 0; j < 48; j++) { if (float(j) >= uDnN) break; vec4 tv = uDnT[j / 4]; int jc = j - 4 * (j / 4); float tt = jc == 0 ? tv.x : jc == 1 ? tv.y : jc == 2 ? tv.z : tv.w; if (tt == t || tt == t + 4096.0) { k = float(j); if (tt > 4095.0) idx = 2.0; break; } }\n"
-"  if (idx != 1.0 && idx != 14.0 && idx != 15.0 && idx != 5.0 && idx != 2.0) return c;\n"
+"  if (idx != 1.0 && idx != 14.0 && idx != 15.0 && idx != 5.0 && idx != 2.0 && idx != 13.0) return c;\n"   /* (13: church glass, LK_DNCHGLASS v2) */
 "  if (k == -1.0) return c;\n"
 "  if (k >= 0.0) { float n = k * 8.0 + ixy.y, nc = mod(n, 4.0); vec4 mv = uDnM[int(floor(n / 4.0))]; float mk = nc == 0.0 ? mv.x : nc == 1.0 ? mv.y : nc == 2.0 ? mv.z : mv.w;\n"
 "    if (bit(mk, ixy.x) < 0.5) return c; }\n"
 "  vec3 g = idx == 1.0 ? vec3(255.0, 200.0, 100.0) : idx == 14.0 ? vec3(232.0, 154.0, 72.0) : vec3(224.0, 144.0, 60.0);\n"
-"  if (idx == 15.0 || idx == 5.0 || idx == 2.0) w = floor(w * 200.0 / 235.0); if (idx == 5.0 || idx == 2.0) c = vec3(0.0);\n"
+"  if (idx == 15.0 || idx == 5.0 || idx == 2.0 || idx == 13.0) w = floor(w * 200.0 / 235.0); if (idx == 5.0 || idx == 2.0) c = vec3(0.0);\n"
 "  return vec3(c.r + tdiv((g.r - c.r) * w, 256.0), c.g + tdiv((g.g - c.g) * w, 256.0), c.b + tdiv((g.b - c.b) * w, 256.0)); }\n"
 "vec3 water(vec3 c, float pick, float t, float line, float i, bool rl) {\n"   /* lk_wr_pix */
 "  float wc = by(texture2D(wcl, vec2((mod(t, 48.0) + 0.5) / 48.0, (floor(t / 48.0) + 0.5) / 48.0)).r);\n"
@@ -343,7 +343,7 @@ static void lk_gc_upload(void) {   /* the frame's data -> textures (units 0..10,
   lk_glActiveTexture(0x84CC); lk_glBindTexture(0x0DE1, lk_gc_t[12]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x190A, 0x1401, lk_gc_spre());
   { static int upv = -1; int v; const uint8_t *m = lk_gc_dpm(&v); lk_glActiveTexture(0x84CD); lk_glBindTexture(0x0DE1, lk_gc_t[13]); if (v != upv) { upv = v; lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 2432, 1216, 0x1909, 0x1401, m); } }   /* LK_DNWIN2 v1: uploaded once per room */
   lk_glUseProgram(lk_gc_prog); for (i = 0; i < LK_GC_NT; i++) lk_glUniform1i(lk_gc_u[i], i);
-  lk_glUniform4fv(lk_gc_u[LK_GC_NT + 1], 8, fig); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 9], 4, fig + 32); lk_glUniform1f(lk_gc_u[LK_GC_NT + 2], (float)nf); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 3], 96, dnm); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 10], 12, dnt); lk_glUniform1f(lk_gc_u[LK_GC_NT + 11], (float)dnn); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 12], 32, dnc); lk_glUniform1f(lk_gc_u[LK_GC_NT + 13], lk_gc_dpmok() ? 1.0f : 0.0f); { extern int lk_dn_flk256(void); lk_glUniform1f(lk_gc_u[LK_GC_NT + 14], (float)lk_dn_flk256()); }   /* uDnCN = LK_DNGLOW picture map active */
+  lk_glUniform4fv(lk_gc_u[LK_GC_NT + 1], 8, fig); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 9], 4, fig + 32); lk_glUniform1f(lk_gc_u[LK_GC_NT + 2], (float)nf); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 3], 96, dnm); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 10], 12, dnt); lk_glUniform1f(lk_gc_u[LK_GC_NT + 11], (float)dnn); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 12], 32, dnc); lk_glUniform1f(lk_gc_u[LK_GC_NT + 13], (float)lk_gc_dpmok()); { extern int lk_dn_flk256(void); lk_glUniform1f(lk_gc_u[LK_GC_NT + 14], (float)lk_dn_flk256()); }   /* uDnCN = LK_DNGLOW picture map active */
   lk_glUniform3f(lk_gc_u[LK_GC_NT + 4], (float)ox8, (float)oy8, (float)kf); lk_glUniform3f(lk_gc_u[LK_GC_NT + 5], (float)tk, (float)wpal, (float)widx); lk_glUniform2f(lk_gc_u[LK_GC_NT + 6], (float)my0, (float)my1);
   lk_glUniform1f(lk_gc_u[LK_GC_NT + 8], 0.0f); }
 static void lk_gc_pass(void) {   /* compare harness, inside lk_gpu_present after SDL's state is saved (texture unit 0 active, unpack alignment 4) */

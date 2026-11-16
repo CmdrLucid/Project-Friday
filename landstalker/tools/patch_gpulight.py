@@ -681,6 +681,7 @@ float topT(float cx, float cy) {   /* lk_lt_cell + the thin column rule indoors 
   vec4 w = W(cx, cy, 0.0); float t = S16(B(w.r), B(w.g));
   if (uSunR < 0.5) { float n = S16(B(w.b), B(w.a)); if (n > -32768.0) t = n; }
   return t; }
+float topTM(float qx, float qy) { float fx = floor(qx / 4.0), fy = floor(qy / 4.0); if (uMdl > 0.5 && fx >= 0.0 && fy >= 0.0 && fx < 296.0 && fy < 296.0) { vec4 f4 = FN(fx, fy, 4.0); if (B(f4.r) > 0.5 && B(f4.r) < 1.5) return S16(B(f4.b), B(f4.a)); } return topT(floor(qx / 16.0), floor(qy / 16.0)); }   /* LK_DNMODELSH v1 (user 2026-11-16, Mercator church 632 at night: 'es sieht nicht so aus als wuerde Licht aus den Kirchenfenstern nach aussen fallen'): the outdoor point light march took the 16 unit CELL height; a hand-made model wall stands INSIDE its cell (church south wall y 922 in cell 912..928) -> every wall point started inside the box = shadowed, the church windows lit nothing. Sub columns a model owns use the ground below the model (as the view ray) */
 float termS(vec3 p, vec3 n, vec4 L, float kk, vec2 wf) {   /* lk_lt_term with its shadow (2 area points + soft edges indoors, one hard march outdoors); LK_GLWIDE v2: wf = (half width, along 1 x / 2 y) of a wide fire */
   vec3 v = L.xyz - p; float d = sqrt(v.x * v.x + v.y * v.y + v.z * v.z), rad = L.w;
   if (d >= rad || d < 0.001) return d < 0.001 ? kk : 0.0;
@@ -716,7 +717,7 @@ float termS(vec3 p, vec3 n, vec4 L, float kk, vec2 wf) {   /* lk_lt_term with it
     return att * (wf.x > 0.5 ? 1.0 : 0.25 + 0.75 * ndl) * sum / ns; }
   vec3 w = vec3(L.x - s.x, L.y - s.y, L.z - s.z); float e = sqrt(w.x * w.x + w.y * w.y + w.z * w.z);
   for (int st = 0; st < 400; st++) { float t = 2.0 + 2.0 * float(st); if (t >= e - 3.0) break;
-    vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); if (own > 0.0 && q.z < L.z && length(q.xy - L.xy) < own) continue; if (uNslab > 0.5 && slabin(floor(q.x / 4.0), floor(q.y / 4.0), q.z)) return 0.0; if (q.z < topT(floor(q.x / 16.0), floor(q.y / 16.0)) - 0.5) return 0.0; }
+    vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); if (own > 0.0 && q.z < L.z && length(q.xy - L.xy) < own) continue; if (uNslab > 0.5 && slabin(floor(q.x / 4.0), floor(q.y / 4.0), q.z)) return 0.0; if (q.z < topTM(q.x, q.y) - 0.5) return 0.0; }
   return att * (0.25 + 0.75 * ndl); }
 float mslabcl(float x, float y, float z) {   /* LK_GLMODEL v1: clearance of a point to the FLOATING part of a model sub column (bottom above ground + 4 .. top), 9999 = none */
   float sx = floor(x / 4.0), sy = floor(y / 4.0); if (uHand < 0.5 || uMdl < 0.5 || (gKM > 0.5 && uSm.w > 0.5) || sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return 9999.0;
