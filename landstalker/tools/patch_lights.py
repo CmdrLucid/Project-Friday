@@ -508,7 +508,7 @@ static void lk_lt_shstep(long fr) {   /* dust motes: drift slowly down the shaft
    fireflies in shaded spots there, sparks rising from flames, embers over lava, water drops in caves (a small splash where they land).  Particles live in the room's world
    (positions on the computed surfaces), are drawn into a small map in picture coordinates (& 511) with their height + depth, so walls / figures in front hide them. */
 #define LK_AM_N 224
-typedef struct { float x, y, z, vx, vy, vz, ph, gz; int16_t age, life; uint8_t kind; } lk_am_p;   /* kind 1 leaf, 2 firefly, 3 spark, 4 ember, 5 drop, 6 splash */
+typedef struct { float x, y, z, vx, vy, vz, ph, gz, gl; int16_t age, life; uint8_t kind; } lk_am_p;   /* kind 1 leaf, 2 firefly, 3 spark, 4 ember, 5 drop, 6 splash */
 static lk_am_p lk_am_ps[LK_AM_N]; static int lk_am_np, lk_am_bio;
 static int16_t lk_am_spot[16][3]; static int lk_am_nspot, lk_am_ffmax;   /* LK_DAYNIGHT v4: firefly spots of the room (cell x, y, floor z) and the cap */
 static uint32_t lk_am_map[512 * 512]; static int16_t lk_am_mz[512 * 512], lk_am_md[512 * 512]; static int lk_am_dl[LK_AM_N * 10], lk_am_dn; static uint32_t lk_am_rng = 12345u;
@@ -558,8 +558,16 @@ static void lk_am_px(int U, int V, float z, float d, uint32_t rgb, float a, int 
 static void lk_am_dot(const lk_am_p *P, int du, int dv, uint32_t rgb, float a, int add) {
   int U = (int)lrintf(P->x - P->y + 1184.0f) + du, V = (int)lrintf((P->x + P->y) * 0.5f - P->z) + dv; lk_am_px(U, V, P->z, P->x + P->y, rgb, a, add); }
 static lk_am_p *lk_am_new(int kind) { lk_am_p *P; if (lk_am_np >= LK_AM_N) return 0; P = &lk_am_ps[lk_am_np++]; memset(P, 0, sizeof *P); P->kind = (uint8_t)kind; P->ph = lk_am_rnd() * 6.2831853f; return P; }
+static long lk_am_stfr = -9;   /* LK_FFGLOW v1: frame of the last particle step */
+int lk_am_ffglow(float *o, int max) {   /* LK_FFGLOW v1 (user 2026-11-16: 'Gluehwuermchen ... waehrend die aufblitzen ... kurz zumindest ein schwaches Licht um sich herum werfen'): the glowing fireflies
+     of this frame for the GPU light (platform_sdl.c lk_gb_run): world x, y, z + glow 0..1 (blink x fade in / out x the palette fade); 0 when the particles did not step this frame */
+  int j, n = 0; if (platform_frame_number() - lk_am_stfr > 2) return 0;
+  for (j = 0; j < lk_am_np && n < max; j++) { const lk_am_p *P = &lk_am_ps[j]; float g = P->gl * lk_lt_fadek;
+    if (P->kind != 2 || g < 0.04f) continue;
+    o[4 * n] = P->x; o[4 * n + 1] = P->y; o[4 * n + 2] = P->z; o[4 * n + 3] = g; n++; }
+  return n; }
 static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before the drawn area is reset): spawn, move, draw */
-  int j, k, nff = 0; (void)fr;
+  int j, k, nff = 0; (void)fr; lk_am_stfr = platform_frame_number();
   for (j = 0; j < lk_am_dn; j++) lk_am_map[lk_am_dl[j]] = 0;
   lk_am_dn = 0;
   if (!lk_am_opt()) { lk_am_np = 0; return; }
@@ -608,6 +616,7 @@ static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before th
       { int cx = (int)floorf(P->x / 16.0f), cy = (int)floorf(P->y / 16.0f), wc = (cx >= 0 && cy >= 0 && cx < 74 && cy < 74) ? UW(0xFFD192 + 148 * cy + 2 * cx) : 0x4000;   /* v6: drifted over the void / out of the room: turn back */
         if (wc == 0x4000) { P->vx = -P->vx; P->vy = -P->vy; P->x += 2.0f * P->vx; P->y += 2.0f * P->vy; if (P->life - P->age > 30) P->life = (int16_t)(P->age + 30); } }
       a = (t < 40.0f ? t / 40.0f : 1.0f) * (P->life - P->age < 40 ? (float)(P->life - P->age) / 40.0f : 1.0f) * (br > 0.25f ? (br - 0.25f) / 0.75f : 0.0f);
+      P->gl = a;   /* LK_FFGLOW v1: the glow strength, read by the GPU light (lk_am_ffglow) */
       lk_am_dot(P, 0, 0, 0xFFF078u, 0.85f * a, 1); lk_am_dot(P, 1, 0, 0xC8E650u, 0.30f * a, 1); lk_am_dot(P, -1, 0, 0xC8E650u, 0.30f * a, 1); lk_am_dot(P, 0, 1, 0xC8E650u, 0.30f * a, 1); lk_am_dot(P, 0, -1, 0xC8E650u, 0.30f * a, 1); }
     else if (P->kind == 3 || P->kind == 4) {   /* spark / ember: rises, cools from yellow to red, fades */
       float f = t / (float)P->life; uint32_t c = f < 0.3f ? 0xFFE68Cu : f < 0.65f ? 0xFF9030u : 0xC8441Eu;
