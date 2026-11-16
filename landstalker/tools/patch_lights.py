@@ -1618,8 +1618,8 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
           if (mg) continue; }
         L->k = kd >= 2 ? 0.42f : 0.30f; L->rad = kd >= 2 ? 92.0f : 76.0f;
         lk_dn_ldoor[lk_lt_nl] = 0;
-        if (kd >= 2 && lk_dn_doormode == 2 && (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) == 7) { int gt; static float dk = -1.0f, dr = -1.0f; if (dk < 0.0f) { const char *e = getenv("LANDSTALKER_DNDOOR_K"), *e2 = getenv("LANDSTALKER_DNDOOR_R"); dk = e ? (float)atof(e) : 0.55f; dr = e2 ? (float)atof(e2) : 72.0f;   /* (LK_DNSPILL v1: 0.80 / 80 -> 0.55 / 72, the strip carries the shape) */ }
-          L->x = px + 10.0f * lk_lt_fnx(f); L->y = py + 10.0f * lk_lt_fny(f); gt = lk_lt_cell((int)floorf(L->x / 16.0f), (int)floorf(L->y / 16.0f)); L->z = gt > -32768 ? (float)gt + 8.0f : (float)z - 14.0f; L->k = dk; L->rad = dr; lk_dn_ldoor[lk_lt_nl] = 1; }   /* LK_DNDOORISO v1 (user 2026-11-16:
+        if (kd >= 2 && lk_dn_doormode == 2 && (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) == 7) { int gt; static float dk = -1.0f, dr = -1.0f; if (dk < 0.0f) { const char *e = getenv("LANDSTALKER_DNDOOR_K"), *e2 = getenv("LANDSTALKER_DNDOOR_R"); dk = e ? (float)atof(e) : 0.65f; dr = e2 ? (float)atof(e2) : 80.0f;   /* (LK_DNSPILL v1: 0.80 / 80 -> 0.55 / 72, the strip carries the shape) */ }
+          L->x = px + 5.0f * lk_lt_fnx(f); L->y = py + 5.0f * lk_lt_fny(f); gt = lk_lt_cell((int)floorf((px + 12.0f * lk_lt_fnx(f)) / 16.0f), (int)floorf((py + 12.0f * lk_lt_fny(f)) / 16.0f)); L->z = gt > -32768 ? (float)gt + 22.0f : (float)z; L->k = dk; L->rad = dr;   /* LK_DNSTREAM v1 (user rec_20261116_1549: the strips vanished when Nigel sprinted past, and standing at a door he was hardly lit): the light sat at ground + 8 = Nigel cast a LONG shadow over the strip; now at half door height (ground + 22) in the opening (5 units out): a short shadow behind him, his front lit */ lk_dn_ldoor[lk_lt_nl] = 1; }   /* LK_DNDOORISO v1 (user 2026-11-16:
              'ein bisschen Licht rausleuchten aus der Tuer, am Boden nach vorne'): a Massan door's light sits low in front of the opening (ground + 8, 10 units out) and stronger: a soft warm pool on the ground; test aids LANDSTALKER_DNDOOR_K / _R */
         lk_lt_nl++;   /* LK_DNWIN2 v1: an open door throws more light than a window */   /* weak and short: a room holds up to ~40 windows (k 0.85 / reach 120 lit whole towns like day) */
         if (lk_lt_dbg == 1) printf("window light: room %%d at (%%.0f, %%.0f, %%.0f) face %%d kind %%d tiles %%d\n", lk_o_room, L->x, L->y, L->z, f, kd, n); } }
@@ -1813,7 +1813,17 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
   lk_dn_pmok = 1;
   #undef LK_DN_T
 }
-static int lk_dn_iswt(uint32 c) { int t, k; if (!(c & 0x10000)) return 0; t = (int)(c & 0x7FF); if (lk_dn_wmroom != lk_o_room) { lk_dn_wmask(); lk_dn_doorcells(); } k = lk_dn_tix[t]; return k >= 0 ? lk_dn_tk[k] : 0; }   /* v3: a plane cell holds a window tile (LK_DNWIN2 v1: 1 window, 2 door) */
+static void lk_dn_recheck(void) {   /* LK_DNSTREAM v1 (user 2026-11-16, recording rec_20261116_1549: 'die Lichtstrahlen am Boden ... wenn ich mit Nigel sprinte, dann verschwinden die'): the game streams
+     the room picture in while Nigel walks; the door / window cells were found ONCE at room entry -> doors that came in later had no parallelogram / strip (only a flat black fill).  Once per frame
+     a cheap signature of the cells holding a listed tile; when it changes (new door / window tiles streamed in), the cells and the picture map are rebuilt */
+  static long lf = -1; static uint32_t sig = 0; long f = platform_frame_number(); int r, c; uint32_t h = 2166136261u;
+  if (lk_dn_wmroom != lk_o_room) { lk_dn_wmask(); lk_dn_doorcells(); lf = -1; }
+  if (f == lf) return; lf = f;
+  if (lk_o_room < 0 || (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) != 7) return;
+  for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { uint32 w = lk_o_pa[r][c]; int t; if (!(w & 0x10000)) continue; t = (int)(w & 0x7FF); if (t == 1 || (t < 2048 && lk_dn_tix[t] >= 0)) h = (h ^ (uint32_t)(r * 304 + c) ^ ((uint32_t)t << 18)) * 16777619u; }
+  if (h != sig) { struct timespec t0, t1; static int dbg = -1; if (dbg < 0) { const char *e = getenv("LANDSTALKER_DNSTREAM_DBG"); dbg = e ? atoi(e) : 0; } sig = h; clock_gettime(CLOCK_MONOTONIC, &t0); lk_dn_doorcells(); clock_gettime(CLOCK_MONOTONIC, &t1);
+    if (dbg) printf("dnstream: frame %%ld room %%d cells rebuilt in %%.1f ms\n", f, lk_o_room, (t1.tv_sec - t0.tv_sec) * 1e3 + (t1.tv_nsec - t0.tv_nsec) / 1e6); } }
+static int lk_dn_iswt(uint32 c) { int t, k; if (!(c & 0x10000)) return 0; t = (int)(c & 0x7FF); lk_dn_recheck(); k = lk_dn_tix[t]; return k >= 0 ? lk_dn_tk[k] : 0; }   /* v3: a plane cell holds a window tile (LK_DNWIN2 v1: 1 window, 2 door) */
 int lk_dn_flk256(void) { long f = platform_frame_number(); return (int)(256.0f * (0.97f + 0.03f * sinf((float)f * 0.021f)));   /* LK_DNFLK v1: the openings only breathe slowly (was 0.90 .. 1.0 fast, all in one rhythm); the door lights flicker each on its own */ }   /* LK_DNGLOW v1: a fire inside flickers (doors / Massan windows only) */
 static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col, int U, int V) {
   long o; int ti, idx = pick & 15, r, g, b, w, k; uint32_t c = (uint32_t)col, gl;
@@ -1823,7 +1833,7 @@ static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col, int U, int V) {
     return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b); }
   if ((pick >> 4) != 0 || !fi->t || fi->t < lk_o_tiles || fi->t >= lk_o_tiles + sizeof lk_o_tiles) return col;
   o = (long)(fi->t - lk_o_tiles); ti = (int)(o >> 5);
-  if (lk_dn_wmroom != lk_o_room) { lk_dn_wmask(); lk_dn_doorcells(); }
+  lk_dn_recheck();
   if (lk_dn_pmok) {   /* LK_DNGLOW v1: Massan (tileset 7) only through the picture map: openings glow as a ramp (dark amber at the edge -> warm light in the middle), a halo warms what is around */
     int v = (U >= 0 && V >= 0 && U < 2432 && V < 1216) ? lk_dn_pi[V][U] : 0, w0 = (int)(lk_dn_wk * lk_lt_fadek * 235.0f) * lk_dn_flk256() / 256, iv, rr, gg, bb;
     if (!v) return col;

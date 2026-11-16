@@ -382,7 +382,9 @@ void main() {
   if (z >= 32768.0) z -= 65536.0;
   if (cl > 15.5) {   /* a figure pixel, lit at its card facing the camera */
     int j = int(cl - 16.0); vec4 F = uFG[j]; vec4 Fa = uFA[j]; float dx = x - Fa.x; vec3 pp = vec3(F.x + dx * 0.5, F.y - dx * 0.5, F.z + (Fa.y - line)); vec3 nn = vec3(0.7071, 0.7071, 0.0);
-    for (int k = 0; k < 96; k++) { if (float(k) >= uNl) break; vec4 Lf = uLF[k]; if (Lf.y > 0.5 && Lf.x <= 0.004) continue; float t = term(pp, nn, uLP[k], uLC[k].w) * Lf.x; sr += t * uLC[k].rgb; }
+    for (int k = 0; k < 96; k++) { if (float(k) >= uNl) break; vec4 Lf = uLF[k]; if (Lf.y > 0.5 && Lf.x <= 0.004) continue; float t = term(pp, nn, uLP[k], uLC[k].w) * Lf.x;
+      if (Lf.y > 0.5) { vec3 v = uLP[k].xyz - pp; float d = length(v), q = 1.0 - d / uLP[k].w; if (q > 0.0) t = max(t, uLC[k].w * q * q * 0.75 * Lf.x); }   /* LK_DNFIG v1 (user 2026-11-16 at a Massan door: 'sollte das Licht aus der Tuer Nigels Sprite nicht mehr anleuchten'): a window / door light lights a FIGURE from any side at 0.75 (a flat card lit from behind got 0.25): the warm glow wraps round the body */
+      sr += t * uLC[k].rgb; }
     if (uSwon > 0.5) { float t = term(pp, nn, uSwP, uSwC.w) * 0.5; sr += t * uSwC.rgb; }
     float u = F.w;
     if (uSun > 0.5 && uDn > 0.5) a = uAmb3 + uSun3 * u;
