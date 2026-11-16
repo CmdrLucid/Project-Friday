@@ -23,7 +23,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
-- **2026-11-16 (dev, Opus 5.5): night windows extended (`LK_DNWIN2 v1`): Mercator church windows, Massan open doors / round / shuttered windows glow + throw light; window lights no longer merged (GPU: 0.25 vs 0.26 ms). Headless only (HANDOFF 0a455).**
+- **2026-11-16 (dev, Opus 5.5): night windows extended (`LK_DNWIN2 v1`): Mercator church windows, Massan round / shuttered windows glow + throw light (Massan DOOR fill OFF: no clean iso shape yet, NEXT -211 hand-drawn shape); window lights no longer merged (GPU: 0.25 vs 0.26 ms). Headless only (HANDOFF 0a455).**
 - **2026-11-16 (dev, Opus 5.5): fireflies cast a faint warm light while they blink (`LK_FFGLOW v1`, GPU bounce / sword pass, up to 8, no shadow, radius 32). Headless only (HANDOFF 0a454).**
 - **2026-11-16 night (dev, Opus 5.5): pine clusters as single pines: remake/recipes/pine_cluster (template match + height map collision cells, wild style C pine IoU 0.87), 10 groups in 183 / 425 / 430 / 433 / 474 / 484 / 514 / 636; proxysurvey.py back on the GPU window; LIGHTING_DBG=5 = unlit presented picture. Headless only (HANDOFF 0a453).**
 - **2026-11-15 late (dev, Opus 5.5; rec_20261115_2025): pines without shadows: lathe trees were re-anchored up onto house walls / neighbour pine blocks -> `LK_LTTREEHOUSE v1` (stay on the ground, trunk). Open: pine clusters detected as one object (636). Headless only (HANDOFF 0a452).**
