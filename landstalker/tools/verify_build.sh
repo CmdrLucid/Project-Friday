@@ -51,6 +51,7 @@ chk "Licht: Dachluken in Massan leuchten"           $G/ext/Genesis-Plus-GX/core/
 chk "Licht: Tuerlicht faellt als Streifen auf den Boden" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNSPILL v1"
 chk "Licht: Kirchenfenster Glasform (Bogen, schraeg)"  $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNCHGLASS v2"
 chk "Licht: Kirchentuer leuchtet (Portal + Treppe)"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNCHDOOR v2"
+chk "Licht: Destel-Tueren leuchten, Laterne davor"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNDESTEL v1"
 chk "Licht: Tuerlicht flackert einzeln, Flaechen transparent" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNFLK v1"
 chk "Licht: nachgeladene Massan-Tueren erkannt"      $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNSTREAM v1"
 chk "Licht: Tuerlicht strahlt Figuren an"            $G/src/platform_sdl.c "LK_DNFIG v1"
