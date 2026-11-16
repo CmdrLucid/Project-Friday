@@ -1601,7 +1601,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         { int q, mg = 0; static int wm = -1; if (wm < 0) { const char *e = getenv("LANDSTALKER_WINMERGE"); wm = e ? atoi(e) : 0; }   /* LK_DNWIN2 v1 (user 2026-11-16 asked to re-check): every window its own light since the GPU light (Mercator night: 21 merged lights 0.25 ms, 31 single 0.26 ms GPU light pass); =1 the old merge */ for (q = lk_lt_nfl; q < lk_lt_nl && wm; q++) { lk_lt_light *M = &lk_lt_l[q]; float ddx = M->x - L->x, ddy = M->y - L->y, ddz = M->z - L->z;   /* windows of one wall within 56 units share one light (fewer lights: Mercator had 42) */
             if (M->base == (uint32_t)f && ddx * ddx + ddy * ddy + ddz * ddz < 56.0f * 56.0f) { M->x = (M->x + L->x) * 0.5f; M->y = (M->y + L->y) * 0.5f; M->z = (M->z + L->z) * 0.5f; M->k += 0.12f; mg = 1; break; } }
           if (mg) continue; }
-        L->k = kd == 2 ? 0.42f : 0.30f; L->rad = kd == 2 ? 92.0f : 76.0f; lk_lt_nl++;   /* LK_DNWIN2 v1: an open door throws more light than a window */   /* weak and short: a room holds up to ~40 windows (k 0.85 / reach 120 lit whole towns like day) */
+        L->k = kd >= 2 ? 0.42f : 0.30f; L->rad = kd >= 2 ? 92.0f : 76.0f; lk_lt_nl++;   /* LK_DNWIN2 v1: an open door throws more light than a window */   /* weak and short: a room holds up to ~40 windows (k 0.85 / reach 120 lit whole towns like day) */
         if (lk_lt_dbg == 1) printf("window light: room %%d at (%%.0f, %%.0f, %%.0f) face %%d kind %%d tiles %%d\n", lk_o_room, L->x, L->y, L->z, f, kd, n); } }
     #undef LK_DN_ISW
   }
@@ -1667,9 +1667,9 @@ static void lk_dn_wmask(void) {   /* v3 (user 2026-11-06: 'Ecken im Fenster, Ran
         for (x = 0; x < 16; x++) { v[x] = lk_dn_tpix(lk_dn_ct[2 * p + (x >> 3)], x & 7, y); if (v[x] == 15) { if (f0 < 0) f0 = x; f1 = x; } }
         for (x = f0 + 1; f0 >= 0 && x < f1; x++) if (v[x] == 15) lk_dn_tm[x < 8 ? ka : kb][y] |= (uint8)(1u << (x & 7)); } } }
   else if (ts == 7) {
-    static const int door[4] = { 346, 373, 385, 483 }, shut[11] = { 326, 327, 341, 342, 354, 355, 328, 343, 356, 323, 336 }; int i;
-    for (i = 0; i < 4; i++) { int k = lk_dn_tadd(door[i], 2); for (y = 0; y < 8 && k >= 0; y++) for (x = 0; x < 8; x++) { int v = lk_dn_tpix(door[i], x, y);
-        if (v == 15 || ((v == 2 || v == 5) && ((x > 0 && x < 7 && lk_dn_tpix(door[i], x - 1, y) == 15 && lk_dn_tpix(door[i], x + 1, y) == 15) || (y > 0 && y < 7 && lk_dn_tpix(door[i], x, y - 1) == 15 && lk_dn_tpix(door[i], x, y + 1) == 15)))) lk_dn_tm[k][y] |= (uint8)(1u << x); } }   /* (user 2026-11-16 'Eck in der Tuer links oben': the dithered shading of the opening glows too) */
+    static const int door[5] = { 346, 373, 483, 385, 384 }, shut[11] = { 326, 327, 341, 342, 354, 355, 328, 343, 356, 323, 336 }; int i;
+    for (i = 0; i < 5; i++) { int k = lk_dn_tadd(door[i], i < 3 ? 3 : 2);   /* kind 3 = a door tile that glows whole (every colour) */ for (y = 0; y < 8 && k >= 0; y++) for (x = 0; x < 8; x++) { int v = lk_dn_tpix(door[i], x, y);
+        if (i < 3 || v == 15 || ((v == 2 || v == 5) && ((x > 0 && x < 7 && lk_dn_tpix(door[i], x - 1, y) == 15 && lk_dn_tpix(door[i], x + 1, y) == 15) || (y > 0 && y < 7 && lk_dn_tpix(door[i], x, y - 1) == 15 && lk_dn_tpix(door[i], x, y + 1) == 15)))) lk_dn_tm[k][y] |= (uint8)(1u << x); } }   /* (user 2026-11-16 'Eck in der Tuer links oben', 'die Tuer passt immer noch nicht'): the opening tiles 346 / 373 / 483 (+ tile 1 in door cells) glow WHOLE = a clean rectangle (their drawn wood corner / jagged frame dither looked like holes on the glow); the threshold tiles 385 / 384 keep black + the dither between black (floor towards the outside) */
     { static uint8 P[24][24], M[24][24]; static int8_t st[600][2]; int sp = 0, j;   /* round window: the HOLE = flood from its centre (10, 11) through index 15 / 5 within 7.5 px (user 2026-11-16 'der Ring des runden Fensters sieht unsauber aus': a plain circle caught ring pixels and lit only every second pixel of the dithered hole edge) */
       for (i = 0; i < 9; i++) for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) P[8 * (i / 3) + y][8 * (i %% 3) + x] = (uint8)lk_dn_tpix(366 + 13 * (i / 3) + (i %% 3), x, y);
       memset(M, 0, sizeof M); st[sp][0] = 10; st[sp][1] = 11; sp++;
@@ -1683,7 +1683,7 @@ static uint8 lk_dn_dc[152][304]; static int16_t lk_dn_dcl[64][2]; static int lk_
 static void lk_dn_doorcells(void) { static int16_t st[256][2]; int r, c, sp = 0; lk_dn_ndc = 0; memset(lk_dn_dc, 0, sizeof lk_dn_dc);
   if (lk_dn_wmroom != lk_o_room || lk_o_room < 0 || (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) != 7) return;
   #define LK_DN_T(rr, cc) (int)(lk_o_pa[rr][cc] & 0x10000 ? lk_o_pa[rr][cc] & 0x7FF : 0)
-  for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { int t = LK_DN_T(r, c); if (t >= 0 && t < 2048 && lk_dn_tix[t] >= 0 && lk_dn_tk[lk_dn_tix[t]] == 2 && sp < 256) { st[sp][0] = (int16_t)r; st[sp][1] = (int16_t)c; sp++; lk_dn_dc[r][c] = 2; } }
+  for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { int t = LK_DN_T(r, c); if (t >= 0 && t < 2048 && lk_dn_tix[t] >= 0 && lk_dn_tk[lk_dn_tix[t]] >= 2 && sp < 256) { st[sp][0] = (int16_t)r; st[sp][1] = (int16_t)c; sp++; lk_dn_dc[r][c] = 2; } }
   while (sp) { int dr, dc; sp--; r = st[sp][0]; c = st[sp][1];
     for (dr = -1; dr <= 1; dr++) for (dc = -1; dc <= 1; dc++) { int r2 = r + dr, c2 = c + dc; if (r2 < 0 || c2 < 0 || r2 >= 152 || c2 >= 304 || lk_dn_dc[r2][c2] || LK_DN_T(r2, c2) != 1 || lk_dn_ndc >= 64) continue;
       lk_dn_dc[r2][c2] = 1; lk_dn_dcl[lk_dn_ndc][0] = (int16_t)c2; lk_dn_dcl[lk_dn_ndc][1] = (int16_t)r2; lk_dn_ndc++; if (sp < 256) { st[sp][0] = (int16_t)r2; st[sp][1] = (int16_t)c2; sp++; } } }
@@ -1692,9 +1692,11 @@ static void lk_dn_doorcells(void) { static int16_t st[256][2]; int r, c, sp = 0;
 static int lk_dn_iswt(uint32 c) { int t, k; if (!(c & 0x10000)) return 0; t = (int)(c & 0x7FF); if (lk_dn_wmroom != lk_o_room) { lk_dn_wmask(); lk_dn_doorcells(); } k = lk_dn_tix[t]; return k >= 0 ? lk_dn_tk[k] : 0; }   /* v3: a plane cell holds a window tile (LK_DNWIN2 v1: 1 window, 2 door) */
 static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col, int U, int V) {
   long o; int ti, idx = pick & 15, r, g, b, w, k; uint32_t c = (uint32_t)col, gl;
-  if ((pick >> 4) != 0 || (idx != 1 && idx != 14 && idx != 15 && idx != 5 && idx != 2) || !fi->t || fi->t < lk_o_tiles || fi->t >= lk_o_tiles + sizeof lk_o_tiles) return col;
+  if ((pick >> 4) != 0 || !fi->t || fi->t < lk_o_tiles || fi->t >= lk_o_tiles + sizeof lk_o_tiles) return col;
   o = (long)(fi->t - lk_o_tiles); ti = (int)(o >> 5);
   if (lk_dn_wmroom != lk_o_room) { lk_dn_wmask(); lk_dn_doorcells(); }
+  if (ti >= 0 && ti < 2048 && lk_dn_tix[ti] >= 0 && lk_dn_tk[lk_dn_tix[ti]] == 3) idx = 2;   /* whole-glowing door tile: every colour like the opening's dither (blend from black) */
+  if (idx != 1 && idx != 14 && idx != 15 && idx != 5 && idx != 2) return col;
   if (ti == 1 && idx == 15 && U >= 0 && V >= 0 && U < 2432 && V < 1216 && lk_dn_dc[V >> 3][U >> 3] == 1) k = -2;   /* black tile 1 inside a door */
   else if (ti < 0 || ti >= 2048 || (k = lk_dn_tix[ti]) < 0) return col;
   if (k >= 0 && !(lk_dn_tm[k][fi->iy & 7] >> (fi->ix & 7) & 1)) return col;

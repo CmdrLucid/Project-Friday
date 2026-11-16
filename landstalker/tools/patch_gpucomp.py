@@ -160,7 +160,7 @@ void lk_gc_mhud(uint8_t *o, int *y0, int *y1) { int y, x; *y0 = lk_mh_y0; *y1 = 
   for (y = 0; y < LK_MH_H; y++) for (x = 0; x < LK_MH_W; x++) { uint8_t *q = o + 4 * (y * LK_MH_W + x); int a = (y >= lk_mh_y0 && y <= lk_mh_y1) ? lk_mh_a[y][x] : 0; uint32_t c = (uint32_t)lk_mh_c[y][x];
     q[0] = (uint8_t)(c >> 16); q[1] = (uint8_t)(c >> 8); q[2] = (uint8_t)c; q[3] = (uint8_t)a; } }
 int lk_gc_dncells(float *c) { int k; for (k = 0; k < 64; k++) { c[2 * k] = k < lk_dn_ndc ? (float)lk_dn_dcl[k][0] : -9.0f; c[2 * k + 1] = k < lk_dn_ndc ? (float)lk_dn_dcl[k][1] : -9.0f; } return lk_dn_ndc; }   /* LK_DNWIN2 v1: door cells of tile 1 */
-int lk_gc_dnmask(float *m, float *t) { int k, y; if (lk_dn_wmroom != lk_o_room) { lk_dn_wmask(); lk_dn_doorcells(); } for (k = 0; k < 48; k++) { t[k] = k < lk_dn_ntl ? (float)lk_dn_tl[k] : -1.0f; for (y = 0; y < 8; y++) m[k * 8 + y] = k < lk_dn_ntl ? (float)lk_dn_tm[k][y] : 0.0f; } return lk_dn_ntl; }   /* LK_DNWIN2 v1: the room's glowing tiles (up to 48: houses, church, Massan doors / round / shuttered windows) */
+int lk_gc_dnmask(float *m, float *t) { int k, y; if (lk_dn_wmroom != lk_o_room) { lk_dn_wmask(); lk_dn_doorcells(); } for (k = 0; k < 48; k++) { t[k] = k < lk_dn_ntl ? (float)lk_dn_tl[k] + (lk_dn_tk[k] == 3 ? 4096.0f : 0.0f) : -1.0f;   /* +4096: a door tile that glows whole */ for (y = 0; y < 8; y++) m[k * 8 + y] = k < lk_dn_ntl ? (float)lk_dn_tm[k][y] : 0.0f; } return lk_dn_ntl; }   /* LK_DNWIN2 v1: the room's glowing tiles (up to 48: houses, church, Massan doors / round / shuttered windows) */
 int lk_gc_learned(void) { return lk_gc_learnfr == lk_gc_capfr || lk_wr_idx != lk_gc_lidx || lk_wr_pal != lk_gc_lpal; }   /* the water learned a colour during the frame */
 int lk_gc_figs(float *f) { int j; for (j = 0; j < 16; j++) f[32 + j] = j < lk_lt_nf ? (float)lk_lt_f[j].tag : 0.0f;   /* LK_FIGOWN v1: owner tags (uFigT) */
   for (j = 0; j < lk_lt_nf && j < 16; j++) { f[2 * j] = (float)lk_lt_f[j].ax; f[2 * j + 1] = (float)lk_lt_f[j].ay; } return lk_lt_nf < 16 ? lk_lt_nf : 16; }
@@ -210,8 +210,9 @@ static const char *lk_gc_fs = "#version 120\n"
 "  vec3 o = by3(rowt(8.0 + k, line).rgb), b = by3(rowt(12.0 + k, line).rgb); float sb = b.r + b.g + b.b, sc = c.r + c.g + c.b; if (sb <= 0.0) return c;\n"
 "  return min(floor((o * sc + floor(sb / 2.0)) / sb), vec3(255.0)); }\n"
 "vec3 winpix(vec3 c, float pick, float t, vec2 ixy, float w, vec2 uv) {\n"   /* lk_dn_winpix (LK_DNWIN2 v1: the room's tile list) */
-"  float idx = mod(pick, 16.0), k = -1.0; if (pick >= 16.0 || (idx != 1.0 && idx != 14.0 && idx != 15.0 && idx != 5.0 && idx != 2.0)) return c;\n"
-"  for (int j = 0; j < 48; j++) { if (float(j) >= uDnN) break; vec4 tv = uDnT[j / 4]; int jc = j - 4 * (j / 4); float tt = jc == 0 ? tv.x : jc == 1 ? tv.y : jc == 2 ? tv.z : tv.w; if (tt == t) { k = float(j); break; } }\n"
+"  float idx = mod(pick, 16.0), k = -1.0; if (pick >= 16.0) return c;\n"
+"  for (int j = 0; j < 48; j++) { if (float(j) >= uDnN) break; vec4 tv = uDnT[j / 4]; int jc = j - 4 * (j / 4); float tt = jc == 0 ? tv.x : jc == 1 ? tv.y : jc == 2 ? tv.z : tv.w; if (tt == t || tt == t + 4096.0) { k = float(j); if (tt > 4095.0) idx = 2.0; break; } }\n"
+"  if (idx != 1.0 && idx != 14.0 && idx != 15.0 && idx != 5.0 && idx != 2.0) return c;\n"
 "  if (k < 0.0 && t == 1.0 && idx == 15.0) { vec2 cc = floor(uv / 8.0); for (int j = 0; j < 64; j++) { if (float(j) >= uDnCN) break; vec4 cv = uDnC[j / 2]; vec2 cj = (j - 2 * (j / 2)) == 0 ? cv.xy : cv.zw; if (cj == cc) { k = -2.0; break; } } }\n"   /* LK_DNWIN2: black tile 1 inside a door */
 "  if (k == -1.0) return c;\n"
 "  if (k >= 0.0) { float n = k * 8.0 + ixy.y, nc = mod(n, 4.0); vec4 mv = uDnM[int(floor(n / 4.0))]; float mk = nc == 0.0 ? mv.x : nc == 1.0 ? mv.y : nc == 2.0 ? mv.z : mv.w;\n"
