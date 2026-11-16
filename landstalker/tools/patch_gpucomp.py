@@ -215,7 +215,7 @@ static const char *lk_gc_fs = "#version 120\n"
 "  float idx = mod(pick, 16.0), k = -1.0;\n"
 "  if (uDnCN > 0.5) { float v = (uv.x >= 0.0 && uv.y >= 0.0 && uv.x < 2432.0 && uv.y < 1216.0) ? by(texture2D(dpm, vec2((uv.x + 0.5) / 2432.0, (uv.y + 0.5) / 1216.0)).r) : 0.0;\n"   /* LK_DNGLOW v1 (as lk_dn_winpix) */
 "    if (v < 0.5) return c; float w0 = floor(w * uDnF / 256.0); if (pick >= 16.0 && v >= 128.0) return c;\n"
-"    if (v >= 128.0) { float iv = v - 128.0; vec3 rg = floor((vec3(70.0, 26.0, 8.0) * (127.0 - iv) + vec3(240.0, 150.0, 62.0) * iv) / 127.0); return floor((floor(rg * w0 / 235.0) * 205.0 + c * 51.0) / 256.0); }\n"   /* LK_DNFLK v1: 80 % over the drawing (affine: works as the post mix p0 / p1) */
+"    if (v >= 128.0) { float iv = v - 128.0; vec3 rg = floor((vec3(70.0, 26.0, 8.0) * (127.0 - iv) + vec3(240.0, 150.0, 62.0) * iv) / 127.0); return floor((floor(rg * w0 / 235.0) * 179.0 + c * 77.0) / 256.0); }\n"   /* LK_DNFLK v1: 70 % over the drawing (affine: works as the post mix p0 / p1) */
 "    if (v >= 64.0) { float f = floor((v - 64.0) * 2.0 * w0 / 235.0); return min(c + floor(c * vec3(200.0, 145.0, 55.0) * f / 16129.0) + floor(vec3(50.0, 25.0, 6.0) * f / 127.0), vec3(255.0)); }\n"
 "    return min(c + floor(floor(vec3(200.0, 116.0, 34.0) * v * 2.0 / 127.0) * w0 / 235.0), vec3(255.0)); }\n"   /* LK_DNSPILL v1: as lk_dn_winpix */   /* LK_DNWIN2: black tile 1 inside a door */
 "  if (pick >= 16.0) return c;\n"
