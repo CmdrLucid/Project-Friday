@@ -238,6 +238,7 @@ static float lk_lt_flk[LK_LT_ML];
 static lk_lt_light lk_lt_sw; static float lk_lt_swk; static int lk_lt_swon;   /* v3: glow of Nigel's sword (EquippedSword $FF114E 1..4), a light that moves: no cache, no shadow */
 typedef struct { float fx, fy, fz; int ax, ay; float sun; int tag; } lk_lt_fig;   /* tag (v7): entity offset / 0x80 + 1 = lk_lt_spre of its own sprite pixels */
 static lk_lt_fig lk_lt_f[16]; static int lk_lt_nf, lk_lt_on;
+int lk_lt_nigfig(void) { int j; for (j = 0; j < lk_lt_nf && j < 16; j++) if (lk_lt_f[j].tag == 1) return j; return -1; }   /* LK_SSGPU v2: the figure index of Nigel (tag 1 = entity offset 0) or -1, for the GPU sprint blend */
 static float lk_lt_fb[512][12]; static int lk_lt_nfb, lk_lt_fbj[512], lk_lt_fmall, lk_lt_fmask, lk_lt_pbox[LK_LT_ML][16][4], lk_lt_curx, lk_lt_cury;   /* pbox: v8 SPEED, screen box of each flame / figure shadow (lk_lt_shadowed skips pixels outside) */ static void lk_lt_fmkbuild(void);   /* v8 SPEED: per figure the screen region its shadow can fall into (key light): its card box x0 y0 x1 y1 swept along (ex, ey); figsun only there, only those figures */
 static float lk_lt_thinz = 16.0f;   /* the flame check of lk_lt_thin: a light within one cell at most this far below the column top */
 static int16_t lk_lt_thin[74][74];   /* indoors: a THIN free standing column (pillar / post: <= 4 blocked cells of one height, higher than all neighbours) -> the floor around it, else -32768;
@@ -1771,7 +1772,7 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
       if (LK_DN_T(r, c) != 885 || (lk_o_pa[r][c] & 0x1800) || LK_DN_T(r, c - 1) != 884 || LK_DN_T(r + 1, c - 1) != 900) continue;
       nch++;
       for (u = Ua - 8; u <= Ua + 6; u++) { int v, v0 = u >= Ua - 1 ? Va + 5 - (u - (Ua - 1)) / 2 : Va + 16 - (u - (Ua - 8)) / 2, v1 = Va + 29 + ((Ua + 9) - u) / 2;
-        for (v = v0; v <= v1; v++) { if (u < 0 || v < 0 || u >= 2432 || v >= 1216) continue; lk_dn_pm[v][u >> 3] |= (uint8)(1u << (u & 7)); if (!lk_dn_dc[v >> 3][u >> 3]) lk_dn_dc[v >> 3][u >> 3] = 3; lk_dn_dside[v >> 3][u >> 3] = 1; } } }
+        for (v = v0; v <= v1; v++) { if (u < 0 || v < 0 || u >= 2432 || v >= 1216) continue; lk_dn_pm[v][u >> 3] |= (uint8)(1u << (u & 7)); lk_dn_dc[v >> 3][u >> 3] = 4; lk_dn_dside[v >> 3][u >> 3] = 1; } } }   /* (dc 4 = a church portal cell: even fill, LK_DNCHDOOR v2) */
   if (ts == 0 && !nch) return;   /* other tileset 0 rooms: no picture map (the windows use the tile list) */
   if (ts == 7 && lk_dn_doormode == 2) for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) {   /* LK_DNDOORISO v1 (user 2026-11-16, preview ~/Project-Friday-Test/lktest/massan/door_preview.png: 'die Form passt'): every Massan door
        opening = ONE iso parallelogram measured on the drawing: vertical jambs 14 px apart, top and bottom parallel to the wall (slope 1 : 2), 25 px high.  Door kind from the opening tile 346 and its
@@ -1794,7 +1795,8 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
       if (sty < 0) { const char *e = getenv("LANDSTALKER_DNGLOW"); sty = e ? atoi(e) : 3; }   /* 3 (default, user 2026-11-16 ok): a warm room with depth: dark band under the lintel, a darker inner jamb side, brighter towards the floor */   /* LK_DNGLOW v1 styles (user picks): 0 = bright middle, dark edge; 1 = light from below (brighter towards the floor of the opening, soft edge); 2 = even warm fill with a soft 1 px edge */
       if (f > 1.0f) f = 1.0f; f = f * f * (3.0f - 2.0f * f);
       while (du < 64 && LK_DN_PB(U, V - du - 1)) du++; while (db < 64 && LK_DN_PB(U, V + db + 1)) db++;
-      if (!lk_dn_dc[V >> 3][U >> 3]) i = best <= 1 ? 0.62f : 0.80f;   /* windows (round / shuttered): an even warm fill, a slightly darker rim */
+      if (lk_dn_dc[V >> 3][U >> 3] == 4) { float fr = (float)du / (float)(du + db + 1); i = 0.78f + 0.16f * fr; }   /* LK_DNCHDOOR v2 (user 2026-11-16 rec_20261116_2023: 'die Lichtform der Kirchentuer hat einen komischen dunklen Rahmen'): no warm HALO around the portal either (the 4 px warm add turned the dark olive wall brown = a dark ring round the bright fill; the door light lights the surroundings); the Massan ramp darkens the rim (lintel 5 px, inner jamb 4 px, edge pixel) = a dark frame on the wide portal; the portal: an even warm fill, a little brighter towards the steps, no darker rim */
+      else if (!lk_dn_dc[V >> 3][U >> 3]) i = best <= 1 ? 0.62f : 0.80f;   /* windows (round / shuttered): an even warm fill, a slightly darker rim */
       else if (sty == 0) i = 0.22f + 0.78f * f;
       else if (sty == 1) { float fr = (float)du / (float)(du + db + 1); i = (0.18f + 0.82f * fr * sqrtf(fr)) * (0.55f + 0.45f * f); }
       else if (sty == 2) i = best <= 1 ? 0.55f : 0.80f;
@@ -1810,7 +1812,7 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
         if ((lk_dn_pmside > 0 ? dl : dr2) < 3) i *= 0.62f;   /* the inner jamb in shadow (the side the wall runs into the picture) */
         if (best <= 1) i *= 0.8f; }
       lk_dn_pi[V][U] = (uint8)(128 + (int)(127.0f * i)); }
-    for (dy = -4; dy <= 4; dy++) for (dx = -4; dx <= 4; dx++) { int u2 = U + dx, v2 = V + dy, h; float dd = sqrtf((float)(dx * dx + dy * dy)); if (u2 < 0 || v2 < 0 || u2 >= 2432 || v2 >= 1216 || dd > 4.5f || LK_DN_PB(u2, v2)) continue;
+    if (lk_dn_dc[V >> 3][U >> 3] != 4) for (dy = -4; dy <= 4; dy++) for (dx = -4; dx <= 4; dx++) { int u2 = U + dx, v2 = V + dy, h; float dd = sqrtf((float)(dx * dx + dy * dy)); if (u2 < 0 || v2 < 0 || u2 >= 2432 || v2 >= 1216 || dd > 4.5f || LK_DN_PB(u2, v2)) continue;
       h = (int)(63.0f * (1.0f - dd / 5.0f)); if (h > (int)lk_dn_pi[v2][u2]) lk_dn_pi[v2][u2] = (uint8)h; } }   /* (LK_DNSPILL v1: halo 1..63, door strips 64..127) */
   memset(lk_dn_sb, 0, sizeof lk_dn_sb);
   { int sx0 = 99999, sx1 = -1, sy0 = 99999, sy1 = -1;   /* LK_DNSPILL v1: box of the door strips (for the blur) */
