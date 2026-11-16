@@ -1744,7 +1744,7 @@ static int8_t lk_dn_dside[152][304];   /* per door cell: the side of its door (f
 static int lk_dn_ppix(int U, int V) { int pal, pr; return lk_o_fetch(lk_o_pa, U, V, &pal, &pr, 0); }
 static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[152][304]; int r, c, sp = 0, pass, U, V;
   lk_dn_ndc = 0; memset(lk_dn_dc, 0, sizeof lk_dn_dc); memset(lk_dn_pm, 0, sizeof lk_dn_pm); lk_dn_pmok = 0; lk_dn_pmver++;
-  int ts = lk_o_room >= 0 ? (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) : -1, nch = 0;
+  int ts = lk_o_room >= 0 ? (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) : -1, nch = 0, nds = 0;
   if (lk_dn_wmroom != lk_o_room || lk_o_room < 0 || (ts != 7 && ts != 0)) return;
   #define LK_DN_T(rr, cc) (int)(lk_o_pa[rr][cc] & 0x10000 ? lk_o_pa[rr][cc] & 0x7FF : 0)
   for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { int t = LK_DN_T(r, c); if (t >= 0 && t < 2048 && lk_dn_tix[t] >= 0 && lk_dn_tk[lk_dn_tix[t]] >= 2 && sp < 4096) { st[sp][0] = (int16_t)r; st[sp][1] = (int16_t)c; sp++; lk_dn_dc[r][c] = 2; } }
@@ -1781,11 +1781,12 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
       for (u = Ua - 8; u <= Ua + 6; u++) { int v, v0 = u >= Ua - 1 ? Va + 5 - (u - (Ua - 1)) / 2 : Va + 16 - (u - (Ua - 8)) / 2, v1 = Va + 29 + ((Ua + 9) - u) / 2;
         for (v = v0; v <= v1; v++) { if (u < 0 || v < 0 || u >= 2432 || v >= 1216) continue; lk_dn_pm[v][u >> 3] |= (uint8)(1u << (u & 7)); lk_dn_dc[v >> 3][u >> 3] = 4; lk_dn_dside[v >> 3][u >> 3] = 1; } } }   /* (dc 4 = a church portal cell: even fill, LK_DNCHDOOR v2) */
   if (ts == 7) for (r = 0; r < 152; r++) for (c = 0; c + 1 < 304; c++) {   /* LK_DNDESTEL v1 (user 2026-11-16, preview ~/Project-Friday-Test/lktest/destel/mockA.png 'Tuerform passt'): DESTEL log hut doors = the black opening between the stone jambs, NO Massan sign (346): threshold 384 | 385 (left wall, light falls to the lower left) or 385h | 384h (right wall, lower right); one iso parallelogram 15 x 32, slope 1 : 2, measured on room 726; the hanging LANTERN in front of the opening stays in front (its non-black pixels in the top 12 rows are left out of the shape); even fill as the church portal (dc 4) */
-      int tl = LK_DN_T(r, c), tr2 = LK_DN_T(r, c + 1), fl = (int)(lk_o_pa[r][c] & 0x800), ty = 0, u, dr, dc2, Ux = 8 * c, Vt = 8 * r;
+      int tl = LK_DN_T(r, c), tr2 = LK_DN_T(r, c + 1), fl = (int)(lk_o_pa[r][c] & 0x800), ty = 0, u, dr, dc2, Ux = 8 * c, Vt = 8 * r;   /* (nds counts them: Destel = even window / hatch glow, LK_DNDESTEL v2) */
       if (tl == 384 && tr2 == 385 && !fl) ty = 1; else if (tl == 385 && tr2 == 384 && fl) ty = 2;
       if (!ty) continue;
       for (dr = -6; dr <= 2 && ty; dr++) for (dc2 = -3; dc2 <= 4 && ty; dc2++) if (r + dr >= 0 && r + dr < 152 && c + dc2 >= 0 && c + dc2 < 304 && LK_DN_T(r + dr, c + dc2) == 346) ty = 0;
       if (!ty) continue;
+      nds++;
       for (u = ty == 1 ? Ux + 2 : Ux - 1; u <= (ty == 1 ? Ux + 16 : Ux + 13); u++) { int v, t0 = ty == 1 ? Vt - 27 + (u - (Ux + 2)) / 2 : Vt - 27 + ((Ux + 13) - u) / 2;
         for (v = t0; v <= t0 + 31; v++) { if (u < 0 || v < 0 || u >= 2432 || v >= 1216) continue; if (v < t0 + 12 && lk_dn_ppix(u, v) != 15) continue;
           lk_dn_pm[v][u >> 3] |= (uint8)(1u << (u & 7)); lk_dn_dc[v >> 3][u >> 3] = 4; lk_dn_dside[v >> 3][u >> 3] = (int8_t)(ty == 1 ? -1 : 1); } } }
@@ -1804,6 +1805,7 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
   if (ts == 7) for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { int t = LK_DN_T(r, c), k, x, y, w2; if (t <= 0 || t >= 2048 || (k = lk_dn_tix[t]) < 0 || lk_dn_tk[k] != 1) continue;
     if (t == 354 || t == 355 || t == 356 || t == 328 || t == 343 || t == 323 || t == 336) { int dr, dc2, bd = 0; for (dr = -3; dr <= 3 && !bd; dr++) for (dc2 = -3; dc2 <= 3 && !bd; dc2++) { int t2 = r + dr >= 0 && r + dr < 152 && c + dc2 >= 0 && c + dc2 < 304 ? LK_DN_T(r + dr, c + dc2) : 0; if (t2 == 326 || t2 == 327 || t2 == 341 || t2 == 342) bd = 1; } if (!bd) continue; }   /* LK_DNDESTEL v1: a shutter piece without its board near = plain wall (Destel) */   /* LK_DNGLOW v1: Massan's round / shuttered windows join the picture map */
     w2 = (int)(lk_o_pa[r][c] & 0xFFFF);
+    if (nds && ((t >= 593 && t <= 596) || (t >= 604 && t <= 607) || (t >= 412 && t <= 415) || (t >= 427 && t <= 430) || (t >= 441 && t <= 444))) continue;   /* LK_DNDESTEL v2 (user 2026-11-16: 'bei den Bogenfenstern muss der dunkle Rand weg', the Destel roof hatches looked worse than Massan's; tried: even 60 %% fill without halo = dull brown patches): in Destel the arched windows and roof hatches stay OUT of the picture map and glow through the tile list like Mercator's glass (warm blend ~85 %%, no rim, no halo; lk_dn_pmok 2); Massan keeps its look */
     for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) { int nx = (w2 & 0x800) ? 7 - x : x, ny = (w2 & 0x1000) ? 7 - y : y; if (lk_dn_tm[k][ny] >> nx & 1) { U = 8 * c + x; V = 8 * r + y; lk_dn_pm[V][U >> 3] |= (uint8)(1u << (U & 7)); } } }
   memset(lk_dn_pi, 0, sizeof lk_dn_pi);   /* LK_DNGLOW v1 (user 2026-11-16: 'das sieht nicht nach Licht aus, sondern nach einer gelben Flaeche'): inside = distance to the opening's edge (1..6 px) -> ramp; halo = up to 4 px around */
   for (V = 0; V < 1216; V++) for (U = 0; U < 2432; U++) { int d, best = 7, dx, dy; if (!LK_DN_PB(U, V)) continue; lk_dn_pmside = lk_dn_dside[V >> 3][U >> 3] ? lk_dn_dside[V >> 3][U >> 3] : 1;
@@ -1812,7 +1814,8 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
       if (sty < 0) { const char *e = getenv("LANDSTALKER_DNGLOW"); sty = e ? atoi(e) : 3; }   /* 3 (default, user 2026-11-16 ok): a warm room with depth: dark band under the lintel, a darker inner jamb side, brighter towards the floor */   /* LK_DNGLOW v1 styles (user picks): 0 = bright middle, dark edge; 1 = light from below (brighter towards the floor of the opening, soft edge); 2 = even warm fill with a soft 1 px edge */
       if (f > 1.0f) f = 1.0f; f = f * f * (3.0f - 2.0f * f);
       while (du < 64 && LK_DN_PB(U, V - du - 1)) du++; while (db < 64 && LK_DN_PB(U, V + db + 1)) db++;
-      if (lk_dn_dc[V >> 3][U >> 3] == 4) { float fr = (float)du / (float)(du + db + 1); i = 0.78f + 0.16f * fr; }   /* LK_DNCHDOOR v2 (user 2026-11-16 rec_20261116_2023: 'die Lichtform der Kirchentuer hat einen komischen dunklen Rahmen'): no warm HALO around the portal either (the 4 px warm add turned the dark olive wall brown = a dark ring round the bright fill; the door light lights the surroundings); the Massan ramp darkens the rim (lintel 5 px, inner jamb 4 px, edge pixel) = a dark frame on the wide portal; the portal: an even warm fill, a little brighter towards the steps, no darker rim */
+      if (lk_dn_dc[V >> 3][U >> 3] == 6) i = 1.0f;   /* LK_DNDESTEL v2: the brightest fill (the halo below stays DIMMER than it: a halo brighter than the 60 %% fill read as a dark frame round the opening) */
+      else if (lk_dn_dc[V >> 3][U >> 3] == 4) { float fr = (float)du / (float)(du + db + 1); i = 0.78f + 0.16f * fr; }   /* LK_DNCHDOOR v2 (user 2026-11-16 rec_20261116_2023: 'die Lichtform der Kirchentuer hat einen komischen dunklen Rahmen'): no warm HALO around the portal either (the 4 px warm add turned the dark olive wall brown = a dark ring round the bright fill; the door light lights the surroundings); the Massan ramp darkens the rim (lintel 5 px, inner jamb 4 px, edge pixel) = a dark frame on the wide portal; the portal: an even warm fill, a little brighter towards the steps, no darker rim */
       else if (!lk_dn_dc[V >> 3][U >> 3]) i = best <= 1 ? 0.62f : 0.80f;   /* windows (round / shuttered): an even warm fill, a slightly darker rim */
       else if (sty == 0) i = 0.22f + 0.78f * f;
       else if (sty == 1) { float fr = (float)du / (float)(du + db + 1); i = (0.18f + 0.82f * fr * sqrtf(fr)) * (0.55f + 0.45f * f); }
@@ -1830,10 +1833,10 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
         if (best <= 1) i *= 0.8f; }
       lk_dn_pi[V][U] = (uint8)(128 + (int)(127.0f * i)); }
     if (lk_dn_dc[V >> 3][U >> 3] != 4) for (dy = -4; dy <= 4; dy++) for (dx = -4; dx <= 4; dx++) { int u2 = U + dx, v2 = V + dy, h; float dd = sqrtf((float)(dx * dx + dy * dy)); if (u2 < 0 || v2 < 0 || u2 >= 2432 || v2 >= 1216 || dd > 4.5f || LK_DN_PB(u2, v2)) continue;
-      h = (int)(63.0f * (1.0f - dd / 5.0f)); if (h > (int)lk_dn_pi[v2][u2]) lk_dn_pi[v2][u2] = (uint8)h; } }   /* (LK_DNSPILL v1: halo 1..63, door strips 64..127) */
+      h = (int)((lk_dn_dc[V >> 3][U >> 3] == 6 ? 22.0f : 63.0f) * (1.0f - dd / 5.0f));   /* (LK_DNDESTEL v2: a third of the halo for Destel's windows / hatches) */ if (h > (int)lk_dn_pi[v2][u2]) lk_dn_pi[v2][u2] = (uint8)h; } }   /* (LK_DNSPILL v1: halo 1..63, door strips 64..127) */
   memset(lk_dn_sb, 0, sizeof lk_dn_sb);
   { int sx0 = 99999, sx1 = -1, sy0 = 99999, sy1 = -1;   /* LK_DNSPILL v1: box of the door strips (for the blur) */
-  for (V = 0; V < 1215; V++) for (U = 0; U < 2432; U++) { int sd, t; if (!LK_DN_PB(U, V) || LK_DN_PB(U, V + 1) || !lk_dn_dc[V >> 3][U >> 3]) continue;
+  for (V = 0; V < 1215; V++) for (U = 0; U < 2432; U++) { int sd, t; if (!LK_DN_PB(U, V) || LK_DN_PB(U, V + 1) || !lk_dn_dc[V >> 3][U >> 3] || lk_dn_dc[V >> 3][U >> 3] == 6) continue;
     if (lk_dn_dc[V >> 3][U >> 3] == 4) { int k3, below = 0; for (k3 = 2; k3 <= 14 && !below; k3++) if (LK_DN_PB(U, V + k3)) below = 1; if (below) continue; }   /* LK_DNDESTEL v1: a hole in the shape (the lantern) is no bottom */   /* LK_DNGLOW v1 LIGHT POOL (user ok): from the bottom pixel of every opening column the light falls out onto the ground, door shaped, along the wall's normal (2 px across, 1 down per step), fading over 16 steps */
     sd = lk_dn_dside[V >> 3][U >> 3] ? lk_dn_dside[V >> 3][U >> 3] : 1; if (lk_dn_doormode == 2 && (sd == 2 || sd == -2)) continue; if (lk_dn_doormode == 2) sd = -sd;   /* LK_DNDOORISO v1: dside +1 = out to the lower right (u grows) */
     if (lk_dn_doormode == 2) {   /* LK_DNSPILL v1 (user 2026-11-16: 'kann das Licht aus den Tueren noch mehr so aussehen, als wuerde es wirklich aus der Tuer rauskommen?'): a DOOR-SHAPED strip falls out
@@ -1860,7 +1863,7 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
     for (V = y0; V <= y1; V++) for (U = x0; U <= x1; U++) if (lk_dn_sb[V][U] >= 2 && lk_dn_pi[V][U] < 128) lk_dn_pi[V][U] = (uint8)(64 + lk_dn_sb[V][U] / 2); } }
   #undef LK_DN_PB
   { const char *e = getenv("LANDSTALKER_DN_PIDUMP"); if (e && *e) { char pth[600]; FILE *f; snprintf(pth, sizeof pth, "%%s_%%d.raw", e, lk_o_room); f = fopen(pth, "wb"); if (f) { fwrite(lk_dn_pi, 1, sizeof lk_dn_pi, f); fclose(f); } } }   /* LK_DNSPILL v1 test aid: the picture map 2432 x 1216 bytes */
-  lk_dn_pmok = ts == 0 ? 2 : 1;
+  lk_dn_pmok = (ts == 0 || nds) ? 2 : 1;
   #undef LK_DN_T
 }
 static void lk_dn_recheck(void) {   /* LK_DNSTREAM v1 (user 2026-11-16, recording rec_20261116_1549: 'die Lichtstrahlen am Boden ... wenn ich mit Nigel sprinte, dann verschwinden die'): the game streams
