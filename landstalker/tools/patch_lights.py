@@ -1596,12 +1596,15 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
     static uint8 wseen[152][304]; static int16_t st[512][2]; int r0, c0;
     memset(wseen, 0, sizeof wseen);
     #define LK_DN_ISW(rr, cc) (lk_dn_iswt(lk_o_pa[rr][cc]) || lk_dn_iswt(lk_o_pb[rr][cc]))
-    for (r0 = 0; r0 < 152; r0++) for (c0 = 0; c0 < 304; c0++) { int sp = 0, n = 0, su = 0, sv = 0, kd = 0, sh = 0;
+    for (r0 = 0; r0 < 152; r0++) for (c0 = 0; c0 < 304; c0++) { int sp = 0, n = 0, su = 0, sv = 0, kd = 0, sh = 0, rd = 0, hat = 0;
       if (wseen[r0][c0] || !LK_DN_ISW(r0, c0)) continue;
       wseen[r0][c0] = 1; st[sp][0] = (int16_t)r0; st[sp][1] = (int16_t)c0; sp++;
-      while (sp) { int rr, cc, dr, dc; sp--; rr = st[sp][0]; cc = st[sp][1]; n++; su += cc * 8 + 4; sv += rr * 8 + 4; { int ta = lk_o_pa[rr][cc] & 0x10000 ? (int)(lk_o_pa[rr][cc] & 0x7FF) : -1; if (ta == 327 || ta == 342 || ta == 341 || ta == 326) sh = 1; }   /* LK_DNSHUT v1: a shuttered Massan window */ { int k1 = lk_dn_iswt(lk_o_pa[rr][cc]), k2 = lk_dn_iswt(lk_o_pb[rr][cc]); if (k1 > kd) kd = k1; if (k2 > kd) kd = k2; }
+      while (sp) { int rr, cc, dr, dc; sp--; rr = st[sp][0]; cc = st[sp][1]; n++; su += cc * 8 + 4; sv += rr * 8 + 4; { int ta = lk_o_pa[rr][cc] & 0x10000 ? (int)(lk_o_pa[rr][cc] & 0x7FF) : -1; if (ta == 327 || ta == 342 || ta == 341 || ta == 326) sh = 1; if ((ta >= 412 && ta <= 415) || (ta >= 427 && ta <= 430) || (ta >= 441 && ta <= 444)) hat = 1;
+          if (ta == 346 && rr + 1 < 152 && (lk_o_pa[rr + 1][cc] & 0x10000) && (lk_o_pa[rr + 1][cc] & 0x7FF) == 1) rd = 1; }   /* LK_DNDOORISO v1: a real door has the black tile 1 under its 346 (else a narrow window) */   /* LK_DNSHUT v1: a shuttered Massan window */ { int k1 = lk_dn_iswt(lk_o_pa[rr][cc]), k2 = lk_dn_iswt(lk_o_pb[rr][cc]); if (k1 > kd) kd = k1; if (k2 > kd) kd = k2; }
         for (dr = -1; dr <= 1; dr++) for (dc = -1; dc <= 1; dc++) { int r2 = rr + dr, c2 = cc + dc; if (r2 >= 0 && r2 < 152 && c2 >= 0 && c2 < 304 && !wseen[r2][c2] && LK_DN_ISW(r2, c2) && sp < 512) { wseen[r2][c2] = 1; st[sp][0] = (int16_t)r2; st[sp][1] = (int16_t)c2; sp++; } } }
       if (n > 16 || lk_lt_nl >= LK_LT_ML) continue;   /* (LK_DNWIN2 v1: 16, an open door is up to 2 x 6 tiles) */
+      if (hat && (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) == 7) continue;   /* LK_DNHATCH v1: roof hatches glow only */
+      if (kd >= 2 && !rd && lk_dn_doormode == 2 && (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) == 7) kd = 1;   /* LK_DNDOORISO v1: the narrow window throws a window light, no door light */
       { int U = su / n, V = sv / n, z = 0, f = lk_lt_ray(U, V, &z); float px, py; lk_lt_light *L = &lk_lt_l[lk_lt_nl];
         if (f != 2 && f != 3) continue;   /* the window must sit on a wall facing the viewer */
         lk_lt_pos(U, V, z, &px, &py);
@@ -1699,6 +1702,13 @@ static void lk_dn_wmask(void) {   /* v3 (user 2026-11-06: 'Ecken im Fenster, Ran
       memset(SB, 0, sizeof SB); for (i = 0; i < 11; i++) for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) SB[8 * sc[i][1] + y][8 * sc[i][0] + x] = lk_dn_tpix(shut[i], x, y) == 15 && (i < 9 || x >= 5);
       for (i = 0; i < 11; i++) { int k = lk_dn_tadd(shut[i], 1); for (y = 0; y < 8 && k >= 0; y++) for (x = 0; x < 8; x++) { int Y = 8 * sc[i][1] + y, X = 8 * sc[i][0] + x, ok = 0; if (!SB[Y][X]) continue;
           for (a2 = -1; a2 <= 0 && !ok; a2++) for (b2 = -1; b2 <= 0 && !ok; b2++) { int y1 = Y + a2, x1 = X + b2; if (y1 >= 0 && x1 >= 0 && y1 + 1 < 24 && x1 + 1 < 32 && SB[y1][x1] && SB[y1 + 1][x1] && SB[y1][x1 + 1] && SB[y1 + 1][x1 + 1]) ok = 1; }
+          if (ok) lk_dn_tm[k][y] |= (uint8)(1u << x); } } }
+    { static const int ht[12] = { 415, 414, 413, 412, 430, 429, 428, 427, 444, 443, 442, 441 }; static uint8 HB[24][32]; int a2, b2;   /* LK_DNHATCH v1 (user 2026-11-16: 'muesste nicht auch aus diesen
+         Dachfenstern, wo die mit Klappe auf sind, ein bisschen Licht entweichen?'): the open roof hatches of the Massan / Gumi huts (block [415 414 413 412 / 430 429 428 427 / 444 443 442 441]):
+         the thick black gap under the propped flap (2 x 2 rule as the shutters) glows like the windows; no window light (a roof is no wall face) */
+      memset(HB, 0, sizeof HB); for (i = 0; i < 12; i++) for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) HB[8 * (i / 4) + y][8 * (i %% 4) + x] = lk_dn_tpix(ht[i], x, y) == 15;
+      for (i = 0; i < 12; i++) { int k = lk_dn_tadd(ht[i], 1); for (y = 0; y < 8 && k >= 0; y++) for (x = 0; x < 8; x++) { int Y = 8 * (i / 4) + y, X = 8 * (i %% 4) + x, ok = 0; if (!HB[Y][X]) continue;
+          for (a2 = -1; a2 <= 0 && !ok; a2++) for (b2 = -1; b2 <= 0 && !ok; b2++) { int y1 = Y + a2, x1 = X + b2; if (y1 >= 0 && x1 >= 0 && y1 + 1 < 24 && x1 + 1 < 32 && HB[y1][x1] && HB[y1 + 1][x1] && HB[y1][x1 + 1] && HB[y1 + 1][x1 + 1]) ok = 1; }
           if (ok) lk_dn_tm[k][y] |= (uint8)(1u << x); } } } } }   /* 323 / 336: only their right part (the gap left of the board; the post outline is further left) */
 static uint8 lk_dn_dc[152][304]; static int16_t lk_dn_dcl[64][2]; static int lk_dn_ndc; static uint8 lk_dn_pm[1216][304]; static int lk_dn_pmver, lk_dn_pmok; static uint8 lk_dn_pi[1216][2432];   /* + LK_DNGLOW v1: per picture pixel 128..255 = inside an opening (glow ramp, dim at the edge, bright in the middle), 1..127 = the warm halo around it */   /* LK_DNWIN2 v1: Massan DOOR OPENINGS as a
    pixel mask of the room picture (bit x & 7 of byte [V][U >> 3]; user 2026-11-16 'dein Rechteck sieht gerade aus, was nicht zur isometrischen Tuer passt'): the black opening reaches up into the lintel
@@ -1744,9 +1754,11 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
       int ty = LK_DN_T(r, c) != 346 ? 0 : (c + 1 < 304 && LK_DN_T(r, c + 1) == 373) ? 1 : (c > 0 && LK_DN_T(r, c - 1) == 373) ? 2 : 0, u0, u; float t0, sl;
       if (!ty) continue;
       u0 = ty == 1 ? 8 * c : 8 * c - 6; t0 = ty == 1 ? (float)(8 * r) + 2.5f : (float)(8 * r) - 3.5f; sl = ty == 1 ? -0.5f : 0.5f;
-      for (u = u0; u <= u0 + 13; u++) { float top = t0 + sl * (float)(u - u0); int v, v0 = (int)ceilf(top - 0.5f), v1 = (int)floorf(top + 25.0f - 0.5f);
+      { int nw = r + 1 >= 152 || LK_DN_T(r + 1, c) != 1;   /* (user 2026-11-16: 'auf der Wand ist doch keine Tuere, da ist nur ein ganz schmales Fenster'): 346 + 373 without the black tile 1 below = a NARROW WINDOW
+           (room 592 167 / 51): the same slanted top, the bottom ends with the drawn slit at the bottom of the 346 row */
+      for (u = u0; u <= u0 + 13; u++) { float top = t0 + sl * (float)(u - u0); int v, v0 = (int)ceilf(top - 0.5f), v1 = (int)floorf(top + 25.0f - 0.5f); if (nw && v1 > 8 * r + 7) v1 = 8 * r + 7;
         for (v = v0; v <= v1; v++) { if (u < 0 || v < 0 || u >= 2432 || v >= 1216) continue; lk_dn_pm[v][u >> 3] |= (uint8)(1u << (u & 7));
-          if (!lk_dn_dc[v >> 3][u >> 3]) lk_dn_dc[v >> 3][u >> 3] = 3; lk_dn_dside[v >> 3][u >> 3] = (int8_t)(ty == 1 ? 1 : -1); } } }   /* (dc 3 = a cell the parallelogram reaches: lintel row; dside: +1 = the light falls out to the lower RIGHT) */
+          if (!lk_dn_dc[v >> 3][u >> 3]) lk_dn_dc[v >> 3][u >> 3] = 3; lk_dn_dside[v >> 3][u >> 3] = (int8_t)(ty == 1 ? 1 : -1); } } } }   /* (dc 3 = a cell the parallelogram reaches: lintel row; dside: +1 = the light falls out to the lower RIGHT) */
   for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { int t = LK_DN_T(r, c), k, x, y, w2; if (t <= 0 || t >= 2048 || (k = lk_dn_tix[t]) < 0 || lk_dn_tk[k] != 1) continue;   /* LK_DNGLOW v1: Massan's round / shuttered windows join the picture map */
     w2 = (int)(lk_o_pa[r][c] & 0xFFFF);
     for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) { int nx = (w2 & 0x800) ? 7 - x : x, ny = (w2 & 0x1000) ? 7 - y : y; if (lk_dn_tm[k][ny] >> nx & 1) { U = 8 * c + x; V = 8 * r + y; lk_dn_pm[V][U >> 3] |= (uint8)(1u << (U & 7)); } } }
@@ -1761,6 +1773,13 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
       else if (sty == 0) i = 0.22f + 0.78f * f;
       else if (sty == 1) { float fr = (float)du / (float)(du + db + 1); i = (0.18f + 0.82f * fr * sqrtf(fr)) * (0.55f + 0.45f * f); }
       else if (sty == 2) i = best <= 1 ? 0.55f : 0.80f;
+      else if (lk_dn_doormode == 2) { float fr = (float)du / (float)(du + db + 1); int dl = 0, dr2 = 0, dj; float e;   /* LK_DNDOORISO v1 (user 2026-11-16: 'der dunkle Rahmen ... zu dick, zu prominent, zu wenig Verlauf'):
+          a bright warm opening with a soft gradient: slightly darker under the lintel (fading over 5 px), a faint inner jamb (fading over 4 px), no hard rim */
+        while (dl < 8 && LK_DN_PB(U - dl - 1, V)) dl++; while (dr2 < 8 && LK_DN_PB(U + dr2 + 1, V)) dr2++; dj = lk_dn_pmside > 0 ? dl : dr2;
+        i = 0.66f + 0.28f * fr;
+        e = du < 5 ? 0.80f + 0.04f * (float)du : 1.0f; i *= e;
+        e = dj < 4 ? 0.86f + 0.035f * (float)dj : 1.0f; i *= e;
+        if (best <= 1) i *= 0.93f; }
       else { float fr = (float)du / (float)(du + db + 1); int dl = 0, dr2 = 0; while (dl < 8 && LK_DN_PB(U - dl - 1, V)) dl++; while (dr2 < 8 && LK_DN_PB(U + dr2 + 1, V)) dr2++;
         i = 0.30f + 0.62f * fr; if (du < 2) i *= 0.45f; else if (du < 4) i *= 0.75f;   /* the lintel's shadow */
         if ((lk_dn_pmside > 0 ? dl : dr2) < 3) i *= 0.62f;   /* the inner jamb in shadow (the side the wall runs into the picture) */
