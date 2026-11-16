@@ -46,6 +46,7 @@ chk "Licht: Fensterladen-Licht unter dem Laden"     $G/ext/Genesis-Plus-GX/core/
 chk "Licht: Massan-Tueren als Iso-Parallelogramm"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNDOORISO v1"
 chk "Licht: Dachluken in Massan leuchten"           $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNHATCH v1"
 chk "Licht: Tuerlicht faellt als Streifen auf den Boden" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNSPILL v1"
+chk "Licht: Tuerlicht flackert einzeln, Flaechen transparent" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNFLK v1"
 chk "Licht: Tanne vor Haus bleibt am Boden"         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTTREEHOUSE v1"
 chk "Item Info: Liste beim Blaettern (Issue 17)"   $G/src/func_table.c "LK_ITEMINFO v4"
 chk "Item Info: Japanisch / Koreanisch"            $G/src/func_table.c "LK_UIWIDE v2"

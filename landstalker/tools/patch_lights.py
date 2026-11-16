@@ -777,6 +777,7 @@ static int lk_lt_edgefill(void) { static int v = -1; if (v < 0) { const char *e 
 static int lk_lt_cellpaint(int x, int y, int m) { int du, dv, n = 0, pal, pr, U0 = 16 * (x - y) + 1184, V0 = 8 * (x + y) + 8 - m;   /* painted samples of a cell's top diamond (69 samples, step 2) */
   for (dv = -6; dv <= 6; dv += 2) for (du = -14; du <= 14; du += 2) if (abs(du) * 8 + abs(dv) * 16 <= 128 && (lk_o_fetch(lk_o_pb, U0 + du, V0 + dv, &pal, &pr, 0) || lk_o_fetch(lk_o_pa, U0 + du, V0 + dv, &pal, &pr, 0))) n++;
   return n; }
+static uint8 lk_dn_ldoor[LK_LT_ML];   /* LK_DNFLK v1: light k is a Massan door light (own slow flicker) */
 static int lk_dn_doormode = 2;   /* LK_DNDOORISO v1: Massan door glow mode (set from LANDSTALKER_DNDOOR in lk_dn_doorcells) */
 static int lk_lt_fillcap(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_FILLCAP"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: inherited painted-void fill capped at the nearby walkable ground - 8 */
 static int lk_lt_doorin(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_DOORIN"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: door niches filled indoors too */
@@ -1616,8 +1617,9 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
             if (M->base == (uint32_t)f && ddx * ddx + ddy * ddy + ddz * ddz < 56.0f * 56.0f) { M->x = (M->x + L->x) * 0.5f; M->y = (M->y + L->y) * 0.5f; M->z = (M->z + L->z) * 0.5f; M->k += 0.12f; mg = 1; break; } }
           if (mg) continue; }
         L->k = kd >= 2 ? 0.42f : 0.30f; L->rad = kd >= 2 ? 92.0f : 76.0f;
+        lk_dn_ldoor[lk_lt_nl] = 0;
         if (kd >= 2 && lk_dn_doormode == 2 && (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) == 7) { int gt; static float dk = -1.0f, dr = -1.0f; if (dk < 0.0f) { const char *e = getenv("LANDSTALKER_DNDOOR_K"), *e2 = getenv("LANDSTALKER_DNDOOR_R"); dk = e ? (float)atof(e) : 0.55f; dr = e2 ? (float)atof(e2) : 72.0f;   /* (LK_DNSPILL v1: 0.80 / 80 -> 0.55 / 72, the strip carries the shape) */ }
-          L->x = px + 10.0f * lk_lt_fnx(f); L->y = py + 10.0f * lk_lt_fny(f); gt = lk_lt_cell((int)floorf(L->x / 16.0f), (int)floorf(L->y / 16.0f)); L->z = gt > -32768 ? (float)gt + 8.0f : (float)z - 14.0f; L->k = dk; L->rad = dr; }   /* LK_DNDOORISO v1 (user 2026-11-16:
+          L->x = px + 10.0f * lk_lt_fnx(f); L->y = py + 10.0f * lk_lt_fny(f); gt = lk_lt_cell((int)floorf(L->x / 16.0f), (int)floorf(L->y / 16.0f)); L->z = gt > -32768 ? (float)gt + 8.0f : (float)z - 14.0f; L->k = dk; L->rad = dr; lk_dn_ldoor[lk_lt_nl] = 1; }   /* LK_DNDOORISO v1 (user 2026-11-16:
              'ein bisschen Licht rausleuchten aus der Tuer, am Boden nach vorne'): a Massan door's light sits low in front of the opening (ground + 8, 10 units out) and stronger: a soft warm pool on the ground; test aids LANDSTALKER_DNDOOR_K / _R */
         lk_lt_nl++;   /* LK_DNWIN2 v1: an open door throws more light than a window */   /* weak and short: a room holds up to ~40 windows (k 0.85 / reach 120 lit whole towns like day) */
         if (lk_lt_dbg == 1) printf("window light: room %%d at (%%.0f, %%.0f, %%.0f) face %%d kind %%d tiles %%d\n", lk_o_room, L->x, L->y, L->z, f, kd, n); } }
@@ -1812,7 +1814,7 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
   #undef LK_DN_T
 }
 static int lk_dn_iswt(uint32 c) { int t, k; if (!(c & 0x10000)) return 0; t = (int)(c & 0x7FF); if (lk_dn_wmroom != lk_o_room) { lk_dn_wmask(); lk_dn_doorcells(); } k = lk_dn_tix[t]; return k >= 0 ? lk_dn_tk[k] : 0; }   /* v3: a plane cell holds a window tile (LK_DNWIN2 v1: 1 window, 2 door) */
-int lk_dn_flk256(void) { long f = platform_frame_number(); return (int)(256.0f * (0.90f + 0.06f * sinf((float)f * 0.11f) + 0.04f * sinf((float)f * 0.37f + 1.3f))); }   /* LK_DNGLOW v1: a fire inside flickers (doors / Massan windows only) */
+int lk_dn_flk256(void) { long f = platform_frame_number(); return (int)(256.0f * (0.97f + 0.03f * sinf((float)f * 0.021f)));   /* LK_DNFLK v1: the openings only breathe slowly (was 0.90 .. 1.0 fast, all in one rhythm); the door lights flicker each on its own */ }   /* LK_DNGLOW v1: a fire inside flickers (doors / Massan windows only) */
 static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col, int U, int V) {
   long o; int ti, idx = pick & 15, r, g, b, w, k; uint32_t c = (uint32_t)col, gl;
   if (lk_dn_pmok && lk_dn_wmroom == lk_o_room && (pick >> 4) != 0 && U >= 0 && V >= 0 && U < 2432 && V < 1216 && lk_dn_pi[V][U] && lk_dn_pi[V][U] < 128) { int v = lk_dn_pi[V][U], w0 = (int)(lk_dn_wk * lk_lt_fadek * 235.0f) * lk_dn_flk256() / 256;   /* LK_DNGLOW: the halo / light pool also on the other palette lines (the ground) */
@@ -1826,7 +1828,7 @@ static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col, int U, int V) {
     int v = (U >= 0 && V >= 0 && U < 2432 && V < 1216) ? lk_dn_pi[V][U] : 0, w0 = (int)(lk_dn_wk * lk_lt_fadek * 235.0f) * lk_dn_flk256() / 256, iv, rr, gg, bb;
     if (!v) return col;
     if (v >= 128) { iv = v - 128; rr = (70 * (127 - iv) + 240 * iv) / 127; gg = (26 * (127 - iv) + 150 * iv) / 127; bb = (8 * (127 - iv) + 62 * iv) / 127;
-      r = rr * w0 / 235; g = gg * w0 / 235; b = bb * w0 / 235; }
+      r = rr * w0 / 235; g = gg * w0 / 235; b = bb * w0 / 235; { int o0 = (int)((c >> 16) & 255), o1 = (int)((c >> 8) & 255), o2 = (int)(c & 255); r = (r * 205 + o0 * 51) / 256; g = (g * 205 + o1 * 51) / 256; b = (b * 205 + o2 * 51) / 256; } }   /* LK_DNFLK v1 (user: 'die Flaechen leicht transparent reinlegen'): 80 %% over the drawing */
     else { { r = (int)((c >> 16) & 255); g = (int)((c >> 8) & 255); b = (int)(c & 255); if (v >= 64) { int f = (v - 64) * 2 * w0 / 235; r += (r * 200 * f) / (127 * 127) + 50 * f / 127; g += (g * 145 * f) / (127 * 127) + 25 * f / 127; b += (b * 55 * f) / (127 * 127) + 6 * f / 127;   /* (user: 'zu stark': about half) */ }
       else { int v2 = v * 2; r += 200 * v2 / 127 * w0 / 235; g += 116 * v2 / 127 * w0 / 235; b += 34 * v2 / 127 * w0 / 235; } }   /* LK_DNSPILL v1: 64..127 door strip = a gain on the colour; 1..63 halo = the old warm add */   /* LK_DNSPILL v1: the halo / strip brightens the ground's colours (light), no flat orange on top */ if (r > 255) r = 255; if (g > 255) g = 255; if (b > 255) b = 255; }
     return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b); }
@@ -1923,7 +1925,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     if (tv) { clock_gettime(CLOCK_MONOTONIC, &tn); if (tl.tv_sec) { double d = (double)(tn.tv_sec - tl.tv_sec) * 1000.0 + (double)(tn.tv_nsec - tl.tv_nsec) / 1e6; if (d < 200.0) { sum += d; n++; if (d > mx) mx = d; if (d > 12.0) over++; if (d > 12.0 && tv >= 2) printf("ltslow: frame %%ld room %%d %%.1f ms (sun step %%d)\n", fr, lk_o_room, d, lk_dn_upd); } }
       tl = tn; if (n >= 300) { printf("lttime: frame %%ld room %%d avg %%.2f ms max %%.1f ms >12ms %%d\n", fr, lk_o_room, sum / n, mx, over); sum = mx = 0.0; n = over = 0; } } }
   lk_lt_umin = lk_lt_vmin = 1 << 30; lk_lt_umax = lk_lt_vmax = -(1 << 30);
-  for (k = 0; k < lk_lt_nl; k++) lk_lt_flk[k] = lk_lt_l[k].lava == 2 ? (lk_dn_on ? lk_dn_wk * lk_lt_fadek : 0.0f) : lk_lt_l[k].lava ? 1.0f + 0.10f * sinf((float)fr * 0.045f + (float)k * 0.9f)   /* LK_DAYNIGHT v3: window lights burn with the window glow; lava: slow glow */
+  for (k = 0; k < lk_lt_nl; k++) lk_lt_flk[k] = lk_lt_l[k].lava == 2 ? (lk_dn_on ? lk_dn_wk * lk_lt_fadek * (lk_dn_ldoor[k] ? 1.0f + 0.08f * sinf((float)fr * 0.043f + (float)k * 2.39f) + 0.05f * sinf((float)fr * 0.117f + (float)k * 1.13f) + 0.03f * sinf((float)fr * 0.29f + (float)k * 0.61f) : 1.0f) : 0.0f) :   /* LK_DNFLK v1 (user 2026-11-16: 'die Lichter flackern ein bisschen sehr schnell und alle im gleichen Rhythmus'): each door light its own slow fire flicker */ lk_lt_l[k].lava ? 1.0f + 0.10f * sinf((float)fr * 0.045f + (float)k * 0.9f)   /* LK_DAYNIGHT v3: window lights burn with the window glow; lava: slow glow */
                                                  : 1.0f + 0.12f * sinf((float)fr * 0.21f + (float)k * 2.1f) + 0.06f * sinf((float)fr * 0.53f + (float)k * 1.3f);
   {   /* v3 sword glow (user 2026-11-03: all swords except the basic one, in the sword's colour): only where the room is lit; stronger while swinging */
     static const float swc[5][3] = { { 0, 0, 0 }, { 1.0f, 0.50f, 0.15f }, { 0.45f, 0.75f, 1.0f }, { 0.95f, 0.85f, 0.35f }, { 0.35f, 1.0f, 0.45f } };   /* Magic, Ice, Thunder, Gaia (lk_sfx_tint) */
