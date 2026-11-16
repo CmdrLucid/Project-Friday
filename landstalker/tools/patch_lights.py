@@ -1796,9 +1796,16 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
     if (lk_dn_doormode == 2) {   /* LK_DNSPILL v1 (user 2026-11-16: 'kann das Licht aus den Tueren noch mehr so aussehen, als wuerde es wirklich aus der Tuer rauskommen?'): a DOOR-SHAPED strip falls out
          onto the ground: from every opening column's bottom pixel along the wall normal (2 px across, 1 down per step), 34 steps, fading; the edges are softened below (blur of the strip) and the strip
          brightens the ground's own colours (lk_dn_winpix halo, multiplicative) = no mesh on the dither */
-      int ln = 34; for (t = 1; t <= ln; t++) { int k2; float q = 1.0f - (float)t / (float)(ln + 1); int h = (int)(127.0f * q * sqrtf(q) * (t < 3 ? 0.75f + 0.12f * (float)t : 1.0f));
-        for (k2 = 0; k2 < 2; k2++) { int u2 = U - sd * (2 * t - k2), v2 = V + t; if (u2 < 0 || v2 >= 1216 || u2 >= 2432 || LK_DN_PB(u2, v2)) continue; if (h > (int)lk_dn_sb[v2][u2]) lk_dn_sb[v2][u2] = (uint8)h;
-          if (u2 < sx0) sx0 = u2; if (u2 > sx1) sx1 = u2; if (v2 < sy0) sy0 = v2; if (v2 > sy1) sy1 = v2; } }
+      static int ln = -1; if (ln < 0) { const char *e = getenv("LANDSTALKER_DNSPILL_LEN"); ln = e ? atoi(e) : 22; if (ln < 4) ln = 4; if (ln > 60) ln = 60; } for (t = 1; t <= ln; t++) { int k2; float q = 1.0f - (float)t / (float)(ln + 1); int h = (int)(127.0f * q * sqrtf(q) * (t < 3 ? 0.75f + 0.12f * (float)t : 1.0f));
+        { static float cone = -1.0f; int j, sp; if (cone < 0.0f) { const char *e = getenv("LANDSTALKER_DNSPILL_CONE"); cone = e ? (float)atof(e) : 0.6f; }   /* LK_DNSPILL v2 (user 2026-11-16: 'die Lichtstrahlen am Boden sehen etwas versetzt zur Tuer aus'):
+            straight out of the wall the strip ran 2 : 1 to the side and the ground right in front of the threshold stayed dark; the light FANS OUT like a cone: at step t it spreads +-cone x t along the
+            wall (world step (2 sd, 1) on the picture), fading towards the sides; test aid LANDSTALKER_DNSPILL_CONE (0 = the old straight strip) */
+          static float bias = -1.0f; int jc; if (bias < 0.0f) { const char *e = getenv("LANDSTALKER_DNSPILL_BIAS"); bias = e ? (float)atof(e) : 0.9f; }   /* (user: 'der Anfang gehoert doch einfach vor die Tuer gesetzt'): the strip's axis turns
+            towards the viewer (bias x the wall step per normal step: 1 = straight down the screen) so it starts IN FRONT of the door, not beside it */
+          sp = (int)(cone * (float)t); jc = (int)lroundf(bias * (float)t);
+          for (j = jc - sp; j <= jc + sp; j++) { float fj = sp > 0 ? 1.0f - (float)(j - jc < 0 ? jc - j : j - jc) / (float)(sp + 1) : 1.0f; int hj = (int)((float)h * fj);
+            for (k2 = 0; k2 < 2; k2++) { int u2 = U - sd * (2 * t - k2) + 2 * sd * j, v2 = V + t + j; if (u2 < 0 || v2 < 0 || v2 >= 1216 || u2 >= 2432 || LK_DN_PB(u2, v2)) continue; if (hj > (int)lk_dn_sb[v2][u2]) lk_dn_sb[v2][u2] = (uint8)hj;
+              if (u2 < sx0) sx0 = u2; if (u2 > sx1) sx1 = u2; if (v2 < sy0) sy0 = v2; if (v2 > sy1) sy1 = v2; } } } }
       continue; }
     for (t = 1; t <= (lk_dn_doormode == 2 ? 26 : 22); t++) { int k2; float q = 1.0f - (float)t / (lk_dn_doormode == 2 ? 27.0f : 23.0f); int h = (int)((lk_dn_doormode == 2 ? 120.0f : 127.0f) * sqrtf(q) * q);   /* (iso doors: the pool a little longer, user 'ein bisschen Licht am Boden nach vorne') */
       for (k2 = 0; k2 < 2; k2++) { int u2 = U - sd * (2 * t - k2), v2 = V + t; if (u2 < 0 || v2 >= 1216 || u2 >= 2432 || LK_DN_PB(u2, v2)) continue; if (h > (int)lk_dn_pi[v2][u2]) lk_dn_pi[v2][u2] = (uint8)h; } } }
@@ -1838,7 +1845,7 @@ static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col, int U, int V) {
     int v = (U >= 0 && V >= 0 && U < 2432 && V < 1216) ? lk_dn_pi[V][U] : 0, w0 = (int)(lk_dn_wk * lk_lt_fadek * 235.0f) * lk_dn_flk256() / 256, iv, rr, gg, bb;
     if (!v) return col;
     if (v >= 128) { iv = v - 128; rr = (70 * (127 - iv) + 240 * iv) / 127; gg = (26 * (127 - iv) + 150 * iv) / 127; bb = (8 * (127 - iv) + 62 * iv) / 127;
-      r = rr * w0 / 235; g = gg * w0 / 235; b = bb * w0 / 235; { int o0 = (int)((c >> 16) & 255), o1 = (int)((c >> 8) & 255), o2 = (int)(c & 255); r = (r * 179 + o0 * 77) / 256; g = (g * 179 + o1 * 77) / 256; b = (b * 179 + o2 * 77) / 256; } }   /* LK_DNFLK v1 (user: 'die Flaechen leicht transparent reinlegen', then '70 %% Deckkraft'): 70 %% over the drawing */
+      r = rr * w0 / 235; g = gg * w0 / 235; b = bb * w0 / 235; { int o0 = (int)((c >> 16) & 255), o1 = (int)((c >> 8) & 255), o2 = (int)(c & 255); r = (r * 154 + o0 * 102) / 256; g = (g * 154 + o1 * 102) / 256; b = (b * 154 + o2 * 102) / 256; } }   /* LK_DNFLK v1 (user: 'leicht transparent', '70 %%', then '60 %% Deckkraft'): 60 %% over the drawing */
     else { { r = (int)((c >> 16) & 255); g = (int)((c >> 8) & 255); b = (int)(c & 255); if (v >= 64) { int f = (v - 64) * 2 * w0 / 235; r += (r * 200 * f) / (127 * 127) + 50 * f / 127; g += (g * 145 * f) / (127 * 127) + 25 * f / 127; b += (b * 55 * f) / (127 * 127) + 6 * f / 127;   /* (user: 'zu stark': about half) */ }
       else { int v2 = v * 2; r += 200 * v2 / 127 * w0 / 235; g += 116 * v2 / 127 * w0 / 235; b += 34 * v2 / 127 * w0 / 235; } }   /* LK_DNSPILL v1: 64..127 door strip = a gain on the colour; 1..63 halo = the old warm add */   /* LK_DNSPILL v1: the halo / strip brightens the ground's colours (light), no flat orange on top */ if (r > 255) r = 255; if (g > 255) g = 255; if (b > 255) b = 255; }
     return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b); }
