@@ -1669,7 +1669,8 @@ static void lk_dn_wmask(void) {   /* v3 (user 2026-11-06: 'Ecken im Fenster, Ran
   else if (ts == 7) {
     static const int door[5] = { 346, 373, 483, 385, 384 }, shut[11] = { 326, 327, 341, 342, 354, 355, 328, 343, 356, 323, 336 }; int i;
     for (i = 0; i < 5; i++) { int k = lk_dn_tadd(door[i], i < 3 ? 3 : 2);   /* kind 3 = a door tile that glows whole (every colour) */ for (y = 0; y < 8 && k >= 0; y++) for (x = 0; x < 8; x++) { int v = lk_dn_tpix(door[i], x, y);
-        if (i < 3 || v == 15 || ((v == 2 || v == 5) && ((x > 0 && x < 7 && lk_dn_tpix(door[i], x - 1, y) == 15 && lk_dn_tpix(door[i], x + 1, y) == 15) || (y > 0 && y < 7 && lk_dn_tpix(door[i], x, y - 1) == 15 && lk_dn_tpix(door[i], x, y + 1) == 15)))) lk_dn_tm[k][y] |= (uint8)(1u << x); } }   /* (user 2026-11-16 'Eck in der Tuer links oben', 'die Tuer passt immer noch nicht'): the opening tiles 346 / 373 / 483 (+ tile 1 in door cells) glow WHOLE = a clean rectangle (their drawn wood corner / jagged frame dither looked like holes on the glow); the threshold tiles 385 / 384 keep black + the dither between black (floor towards the outside) */
+        (void)v; continue;   /* LK_DNWIN2 v1: door tiles carry no tile mask: the opening is the per-room pixel mask lk_dn_pm (lk_dn_doorcells) */
+        if (v == 15 || ((v == 2 || v == 5) && ((x > 0 && x < 7 && lk_dn_tpix(door[i], x - 1, y) == 15 && lk_dn_tpix(door[i], x + 1, y) == 15) || (y > 0 && y < 7 && lk_dn_tpix(door[i], x, y - 1) == 15 && lk_dn_tpix(door[i], x, y + 1) == 15)))) lk_dn_tm[k][y] |= (uint8)(1u << x); } }   /* (user 2026-11-16 'Eck in der Tuer links oben', 'die Tuer passt immer noch nicht'): the opening tiles 346 / 373 / 483 (+ tile 1 in door cells) glow in every colour inside the drawn opening (lk_dn_doorin); the threshold tiles 385 / 384 keep black + the dither between black (floor towards the outside) */
     { static uint8 P[24][24], M[24][24]; static int8_t st[600][2]; int sp = 0, j;   /* round window: the HOLE = flood from its centre (10, 11) through index 15 / 5 within 7.5 px (user 2026-11-16 'der Ring des runden Fensters sieht unsauber aus': a plain circle caught ring pixels and lit only every second pixel of the dithered hole edge) */
       for (i = 0; i < 9; i++) for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) P[8 * (i / 3) + y][8 * (i %% 3) + x] = (uint8)lk_dn_tpix(366 + 13 * (i / 3) + (i %% 3), x, y);
       memset(M, 0, sizeof M); st[sp][0] = 10; st[sp][1] = 11; sp++;
@@ -1678,15 +1679,41 @@ static void lk_dn_wmask(void) {   /* v3 (user 2026-11-06: 'Ecken im Fenster, Ran
         M[py][px] = 1; for (j = 0; j < 4 && sp < 596; j++) { st[sp][0] = (int8_t)(px + (j == 0) - (j == 1)); st[sp][1] = (int8_t)(py + (j == 2) - (j == 3)); sp++; } }
       for (i = 0; i < 9; i++) { int k = lk_dn_tadd(366 + 13 * (i / 3) + (i %% 3), 1); for (y = 0; y < 8 && k >= 0; y++) for (x = 0; x < 8; x++) if (M[8 * (i / 3) + y][8 * (i %% 3) + x]) lk_dn_tm[k][y] |= (uint8)(1u << x); } }
     for (i = 0; i < 11; i++) { int k = lk_dn_tadd(shut[i], 1); for (y = 0; y < 8 && k >= 0; y++) for (x = i >= 9 ? 5 : 0; x < 8; x++) if (lk_dn_tpix(shut[i], x, y) == 15) lk_dn_tm[k][y] |= (uint8)(1u << x); } } }   /* 323 / 336: only their right part (the gap left of the board; the post outline is further left) */
-static uint8 lk_dn_dc[152][304]; static int16_t lk_dn_dcl[64][2]; static int lk_dn_ndc;   /* LK_DNWIN2 v1: the all-black tile 1 inside Massan's doors is also plain black elsewhere (rooms 510..539):
-   only its cells joined to a door tile glow (picture cells, chained, up to 64) */
-static void lk_dn_doorcells(void) { static int16_t st[256][2]; int r, c, sp = 0; lk_dn_ndc = 0; memset(lk_dn_dc, 0, sizeof lk_dn_dc);
+static uint8 lk_dn_dc[152][304]; static int16_t lk_dn_dcl[64][2]; static int lk_dn_ndc; static uint8 lk_dn_pm[1216][304]; static int lk_dn_pmver, lk_dn_pmok;   /* LK_DNWIN2 v1: Massan DOOR OPENINGS as a
+   pixel mask of the room picture (bit x & 7 of byte [V][U >> 3]; user 2026-11-16 'dein Rechteck sieht gerade aus, was nicht zur isometrischen Tuer passt'): the black opening reaches up into the lintel
+   tiles above (334 / 333 / 335: the slanted iso top edge), so it is flooded per door through the black pixels of the door cells + the cell row above them, then the dither pixels inside
+   (>= 3 of 4 neighbours in the opening) are added.  lk_dn_dc: 2 = door tile cell, 1 = the all-black tile 1 chained to it (tile 1 is plain black elsewhere, rooms 510..539) */
+static int lk_dn_ppix(int U, int V) { int pal, pr; return lk_o_fetch(lk_o_pa, U, V, &pal, &pr, 0); }
+static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[152][304]; int r, c, sp = 0, pass, U, V;
+  lk_dn_ndc = 0; memset(lk_dn_dc, 0, sizeof lk_dn_dc); memset(lk_dn_pm, 0, sizeof lk_dn_pm); lk_dn_pmok = 0; lk_dn_pmver++;
   if (lk_dn_wmroom != lk_o_room || lk_o_room < 0 || (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) != 7) return;
   #define LK_DN_T(rr, cc) (int)(lk_o_pa[rr][cc] & 0x10000 ? lk_o_pa[rr][cc] & 0x7FF : 0)
-  for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { int t = LK_DN_T(r, c); if (t >= 0 && t < 2048 && lk_dn_tix[t] >= 0 && lk_dn_tk[lk_dn_tix[t]] >= 2 && sp < 256) { st[sp][0] = (int16_t)r; st[sp][1] = (int16_t)c; sp++; lk_dn_dc[r][c] = 2; } }
+  for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { int t = LK_DN_T(r, c); if (t >= 0 && t < 2048 && lk_dn_tix[t] >= 0 && lk_dn_tk[lk_dn_tix[t]] >= 2 && sp < 4096) { st[sp][0] = (int16_t)r; st[sp][1] = (int16_t)c; sp++; lk_dn_dc[r][c] = 2; } }
   while (sp) { int dr, dc; sp--; r = st[sp][0]; c = st[sp][1];
     for (dr = -1; dr <= 1; dr++) for (dc = -1; dc <= 1; dc++) { int r2 = r + dr, c2 = c + dc; if (r2 < 0 || c2 < 0 || r2 >= 152 || c2 >= 304 || lk_dn_dc[r2][c2] || LK_DN_T(r2, c2) != 1 || lk_dn_ndc >= 64) continue;
-      lk_dn_dc[r2][c2] = 1; lk_dn_dcl[lk_dn_ndc][0] = (int16_t)c2; lk_dn_dcl[lk_dn_ndc][1] = (int16_t)r2; lk_dn_ndc++; if (sp < 256) { st[sp][0] = (int16_t)r2; st[sp][1] = (int16_t)c2; sp++; } } }
+      lk_dn_dc[r2][c2] = 1; lk_dn_dcl[lk_dn_ndc][0] = (int16_t)c2; lk_dn_dcl[lk_dn_ndc][1] = (int16_t)r2; lk_dn_ndc++; if (sp < 4096) { st[sp][0] = (int16_t)r2; st[sp][1] = (int16_t)c2; sp++; } } }
+  memset(al, 0, sizeof al);   /* allowed cells: the door cells + the cell row above them (one cell wider each side: the slanted top) */
+  for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) if (lk_dn_dc[r][c]) { int d; al[r][c] = 1; if (r > 0) for (d = -1; d <= 1; d++) if (c + d >= 0 && c + d < 304 && !lk_dn_dc[r - 1][c + d]) al[r - 1][c + d] = 1; }
+  sp = 0;   /* seeds: the black pixels of the opening cells (not the threshold 385 / 384: their black specks belong to the floor dither) */
+  for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { int t = LK_DN_T(r, c), x, y; if (!lk_dn_dc[r][c] || t == 385 || t == 384) continue;
+    for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) { U = 8 * c + x; V = 8 * r + y; if (lk_dn_ppix(U, V) == 15 && !(lk_dn_pm[V][U >> 3] >> (U & 7) & 1) && sp < 4096) { lk_dn_pm[V][U >> 3] |= (uint8)(1u << (U & 7)); st[sp][0] = (int16_t)V; st[sp][1] = (int16_t)U; sp++; } } }
+  while (sp) { int d; sp--; V = st[sp][0]; U = st[sp][1];
+    for (d = 0; d < 4; d++) { int U2 = U + (d == 0) - (d == 1), V2 = V + (d == 2) - (d == 3);
+      if (U2 < 0 || V2 < 0 || U2 >= 2432 || V2 >= 1216 || !al[V2 >> 3][U2 >> 3] || (lk_dn_pm[V2][U2 >> 3] >> (U2 & 7) & 1) || lk_dn_ppix(U2, V2) != 15 || sp >= 4096) continue;
+      lk_dn_pm[V2][U2 >> 3] |= (uint8)(1u << (U2 & 7)); st[sp][0] = (int16_t)V2; st[sp][1] = (int16_t)U2; sp++; } }
+  for (pass = 0; pass < 2; pass++)   /* the dither inside the opening */
+    for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { int x, y; if (!al[r][c]) continue;
+      for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) { int n = 0, d; U = 8 * c + x; V = 8 * r + y; if (lk_dn_pm[V][U >> 3] >> (U & 7) & 1) continue;
+        for (d = 0; d < 4; d++) { int U2 = U + (d == 0) - (d == 1), V2 = V + (d == 2) - (d == 3); if (U2 >= 0 && V2 >= 0 && U2 < 2432 && V2 < 1216 && (lk_dn_pm[V2][U2 >> 3] >> (U2 & 7) & 1)) n++; }
+        if (n >= 3) lk_dn_pm[V][U >> 3] |= (uint8)(1u << (U & 7)); } }
+  #define LK_DN_PB(uu, vv) ((uu) >= 0 && (vv) >= 0 && (uu) < 2432 && (vv) < 1216 && (lk_dn_pm[vv][(uu) >> 3] >> ((uu) & 7) & 1))
+  for (pass = 0; pass < 2; pass++)   /* small gaps (the jamb's 1..4 px shading dither inside the opening, user: dark specks): a pixel with opening pixels within 4 px on both sides of its row or 7 px above and below (the jamb dither of tile 373 is 3 rows high, two tiles meet) */
+    for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) { int x, y; if (!al[r][c]) continue;
+      for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) { int d, lft = 0, rgt = 0, up = 0, dn = 0; U = 8 * c + x; V = 8 * r + y; if (LK_DN_PB(U, V)) continue;
+        for (d = 1; d <= 7; d++) { if (d <= 4 && LK_DN_PB(U - d, V)) lft = 1; if (d <= 4 && LK_DN_PB(U + d, V)) rgt = 1; if (LK_DN_PB(U, V - d)) up = 1; if (LK_DN_PB(U, V + d)) dn = 1; }
+        if ((lft && rgt) || (up && dn)) lk_dn_pm[V][U >> 3] |= (uint8)(1u << (U & 7)); } }
+  #undef LK_DN_PB
+  lk_dn_pmok = 1;
   #undef LK_DN_T
 }
 static int lk_dn_iswt(uint32 c) { int t, k; if (!(c & 0x10000)) return 0; t = (int)(c & 0x7FF); if (lk_dn_wmroom != lk_o_room) { lk_dn_wmask(); lk_dn_doorcells(); } k = lk_dn_tix[t]; return k >= 0 ? lk_dn_tk[k] : 0; }   /* v3: a plane cell holds a window tile (LK_DNWIN2 v1: 1 window, 2 door) */
@@ -1695,10 +1722,9 @@ static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col, int U, int V) {
   if ((pick >> 4) != 0 || !fi->t || fi->t < lk_o_tiles || fi->t >= lk_o_tiles + sizeof lk_o_tiles) return col;
   o = (long)(fi->t - lk_o_tiles); ti = (int)(o >> 5);
   if (lk_dn_wmroom != lk_o_room) { lk_dn_wmask(); lk_dn_doorcells(); }
-  if (ti >= 0 && ti < 2048 && lk_dn_tix[ti] >= 0 && lk_dn_tk[lk_dn_tix[ti]] == 3) idx = 2;   /* whole-glowing door tile: every colour like the opening's dither (blend from black) */
-  if (idx != 1 && idx != 14 && idx != 15 && idx != 5 && idx != 2) return col;
-  if (ti == 1 && idx == 15 && U >= 0 && V >= 0 && U < 2432 && V < 1216 && lk_dn_dc[V >> 3][U >> 3] == 1) k = -2;   /* black tile 1 inside a door */
+  if (lk_dn_pmok && U >= 0 && V >= 0 && U < 2432 && V < 1216 && (lk_dn_pm[V][U >> 3] >> (U & 7) & 1)) { k = -2; idx = 2; }   /* a door opening pixel (any colour, blends from black) */
   else if (ti < 0 || ti >= 2048 || (k = lk_dn_tix[ti]) < 0) return col;
+  if (idx != 1 && idx != 14 && idx != 15 && idx != 5 && idx != 2) return col;
   if (k >= 0 && !(lk_dn_tm[k][fi->iy & 7] >> (fi->ix & 7) & 1)) return col;
   gl = idx == 1 ? 0xFFC864u : idx == 14 ? 0xE89A48u : 0xE0903Cu;   /* warm lamp light; the darker glass a deeper orange; LK_DNWIN2: dark openings (15) and their dither (5 / 2) ONE even warm colour (user 2026-11-16: a lighter dither looked unclean) */
   w = (int)(lk_dn_wk * lk_lt_fadek * 235.0f); if (idx == 15 || idx == 5 || idx == 2) w = w * 200 / 235;   /* (v4: fades with the palette; LK_DNWIN2: dark openings a bit weaker, the same integer steps as the GPU composition) */
