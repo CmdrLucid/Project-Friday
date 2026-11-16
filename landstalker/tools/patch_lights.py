@@ -1667,12 +1667,17 @@ static void lk_dn_wmask(void) {   /* v3 (user 2026-11-06: 'Ecken im Fenster, Ran
         for (x = 0; x < 16; x++) { v[x] = lk_dn_tpix(lk_dn_ct[2 * p + (x >> 3)], x & 7, y); if (v[x] == 15) { if (f0 < 0) f0 = x; f1 = x; } }
         for (x = f0 + 1; f0 >= 0 && x < f1; x++) if (v[x] == 15) lk_dn_tm[x < 8 ? ka : kb][y] |= (uint8)(1u << (x & 7)); } } }
   else if (ts == 7) {
-    static const int door[4] = { 346, 373, 385, 483 }, shut[9] = { 326, 327, 341, 342, 354, 355, 328, 343, 356 }; int i;
+    static const int door[4] = { 346, 373, 385, 483 }, shut[11] = { 326, 327, 341, 342, 354, 355, 328, 343, 356, 323, 336 }; int i;
     for (i = 0; i < 4; i++) { int k = lk_dn_tadd(door[i], 2); for (y = 0; y < 8 && k >= 0; y++) for (x = 0; x < 8; x++) { int v = lk_dn_tpix(door[i], x, y);
-        if (v == 15 || (v == 2 && x > 0 && x < 7 && lk_dn_tpix(door[i], x - 1, y) == 15 && lk_dn_tpix(door[i], x + 1, y) == 15)) lk_dn_tm[k][y] |= (uint8)(1u << x); } }
-    for (i = 0; i < 9; i++) { int t = 366 + 13 * (i / 3) + (i %% 3), k = lk_dn_tadd(t, 1); for (y = 0; y < 8 && k >= 0; y++) for (x = 0; x < 8; x++) { int v = lk_dn_tpix(t, x, y); float dx = (float)(8 * (i %% 3) + x) - 11.5f, dy = (float)(8 * (i / 3) + y) - 11.5f;
-        if ((v == 15 || v == 5) && dx * dx + dy * dy <= 6.5f * 6.5f) lk_dn_tm[k][y] |= (uint8)(1u << x); } }
-    for (i = 0; i < 9; i++) { int k = lk_dn_tadd(shut[i], 1); for (y = 0; y < 8 && k >= 0; y++) for (x = 0; x < 8; x++) if (lk_dn_tpix(shut[i], x, y) == 15) lk_dn_tm[k][y] |= (uint8)(1u << x); } } }
+        if (v == 15 || ((v == 2 || v == 5) && ((x > 0 && x < 7 && lk_dn_tpix(door[i], x - 1, y) == 15 && lk_dn_tpix(door[i], x + 1, y) == 15) || (y > 0 && y < 7 && lk_dn_tpix(door[i], x, y - 1) == 15 && lk_dn_tpix(door[i], x, y + 1) == 15)))) lk_dn_tm[k][y] |= (uint8)(1u << x); } }   /* (user 2026-11-16 'Eck in der Tuer links oben': the dithered shading of the opening glows too) */
+    { static uint8 P[24][24], M[24][24]; static int8_t st[600][2]; int sp = 0, j;   /* round window: the HOLE = flood from its centre (10, 11) through index 15 / 5 within 7.5 px (user 2026-11-16 'der Ring des runden Fensters sieht unsauber aus': a plain circle caught ring pixels and lit only every second pixel of the dithered hole edge) */
+      for (i = 0; i < 9; i++) for (y = 0; y < 8; y++) for (x = 0; x < 8; x++) P[8 * (i / 3) + y][8 * (i %% 3) + x] = (uint8)lk_dn_tpix(366 + 13 * (i / 3) + (i %% 3), x, y);
+      memset(M, 0, sizeof M); st[sp][0] = 10; st[sp][1] = 11; sp++;
+      while (sp) { int px, py; sp--; px = st[sp][0]; py = st[sp][1];
+        if (px < 0 || py < 0 || px >= 24 || py >= 24 || M[py][px] || (P[py][px] != 15 && P[py][px] != 5) || (px - 10) * (px - 10) + (py - 11) * (py - 11) > 56) continue;
+        M[py][px] = 1; for (j = 0; j < 4 && sp < 596; j++) { st[sp][0] = (int8_t)(px + (j == 0) - (j == 1)); st[sp][1] = (int8_t)(py + (j == 2) - (j == 3)); sp++; } }
+      for (i = 0; i < 9; i++) { int k = lk_dn_tadd(366 + 13 * (i / 3) + (i %% 3), 1); for (y = 0; y < 8 && k >= 0; y++) for (x = 0; x < 8; x++) if (M[8 * (i / 3) + y][8 * (i %% 3) + x]) lk_dn_tm[k][y] |= (uint8)(1u << x); } }
+    for (i = 0; i < 11; i++) { int k = lk_dn_tadd(shut[i], 1); for (y = 0; y < 8 && k >= 0; y++) for (x = i >= 9 ? 5 : 0; x < 8; x++) if (lk_dn_tpix(shut[i], x, y) == 15) lk_dn_tm[k][y] |= (uint8)(1u << x); } } }   /* 323 / 336: only their right part (the gap left of the board; the post outline is further left) */
 static uint8 lk_dn_dc[152][304]; static int16_t lk_dn_dcl[64][2]; static int lk_dn_ndc;   /* LK_DNWIN2 v1: the all-black tile 1 inside Massan's doors is also plain black elsewhere (rooms 510..539):
    only its cells joined to a door tile glow (picture cells, chained, up to 64) */
 static void lk_dn_doorcells(void) { static int16_t st[256][2]; int r, c, sp = 0; lk_dn_ndc = 0; memset(lk_dn_dc, 0, sizeof lk_dn_dc);
@@ -1693,9 +1698,9 @@ static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col, int U, int V) {
   if (ti == 1 && idx == 15 && U >= 0 && V >= 0 && U < 2432 && V < 1216 && lk_dn_dc[V >> 3][U >> 3] == 1) k = -2;   /* black tile 1 inside a door */
   else if (ti < 0 || ti >= 2048 || (k = lk_dn_tix[ti]) < 0) return col;
   if (k >= 0 && !(lk_dn_tm[k][fi->iy & 7] >> (fi->ix & 7) & 1)) return col;
-  gl = idx == 1 ? 0xFFC864u : idx == 14 ? 0xE89A48u : idx == 15 ? 0xE0903Cu : 0xF0A850u;   /* warm lamp light; the darker glass a deeper orange; LK_DNWIN2: dark openings (15) a glowing inside, their dither (5 / 2) a bit lighter */
+  gl = idx == 1 ? 0xFFC864u : idx == 14 ? 0xE89A48u : 0xE0903Cu;   /* warm lamp light; the darker glass a deeper orange; LK_DNWIN2: dark openings (15) and their dither (5 / 2) ONE even warm colour (user 2026-11-16: a lighter dither looked unclean) */
   w = (int)(lk_dn_wk * lk_lt_fadek * 235.0f); if (idx == 15 || idx == 5 || idx == 2) w = w * 200 / 235;   /* (v4: fades with the palette; LK_DNWIN2: dark openings a bit weaker, the same integer steps as the GPU composition) */
-  r = (int)((c >> 16) & 255); g = (int)((c >> 8) & 255); b = (int)(c & 255);
+  r = (int)((c >> 16) & 255); g = (int)((c >> 8) & 255); b = (int)(c & 255); if (idx == 5 || idx == 2) r = g = b = 0;   /* the dither pixels of an opening blend from black like its black pixels: one even fill (user: the round window's checker) */
   r += (((int)(gl >> 16) & 255) - r) * w / 256; g += (((int)(gl >> 8) & 255) - g) * w / 256; b += ((int)(gl & 255) - b) * w / 256;
   return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b); }
 static float lk_dn_cloudf(void) { return lk_dn_on ? lk_dn_sunk : 1.0f; }   /* tools/patch_clouds.py: no cloud shadows at night */
