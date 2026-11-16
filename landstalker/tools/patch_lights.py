@@ -1926,6 +1926,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
   if (lk_o_room != lk_lt_room || h != lk_lt_hash) { lk_lt_room = lk_o_room; lk_lt_hash = h; lk_lt_retry = 12; lk_lt_newroom(); }
   else if (lk_lt_nfl == 0 && lk_lt_retry > 0 && (fr & 7) == 0) { lk_lt_retry--; if ((!lk_lt_sun && !lk_lt_aor) || lk_lt_pahash() != lk_lt_pah) lk_lt_newroom(); }   /* v8: room light rooms like the sun: only when the picture changed */
   lk_lt_fadek = lk_lt_fadecalc(); { static int fd = -1; if (fd < 0) { const char *e = getenv("LANDSTALKER_DN_DBG"); fd = e ? atoi(e) : 0; } if (fd == 2 && lk_lt_fadek < 0.995f) printf("fade: frame %%ld room %%d k %%.2f\n", fr, lk_o_room, lk_lt_fadek); }   /* v4 */
+  { static int fd3 = -1; if (fd3 < 0) { const char *e = getenv("LANDSTALKER_DN_DBG"); fd3 = e ? atoi(e) : 0; } if (fd3 == 3) { int q, nw = 0, nwl = 0; for (q = 0; q < lk_lt_nl; q++) if (lk_lt_l[q].lava == 2) { nw++; if (lk_lt_flk[q] > 0.004f) nwl++; } printf("dnlights: frame %%ld nl %%d windows %%d lit %%d dn_on %%d wk %%.2f fade %%.2f flk0 %%.2f nf %%d nfb %%d fmall %%d\n", fr, lk_lt_nl, nw, nwl, lk_dn_on, lk_dn_wk, lk_lt_fadek, lk_lt_nl ? lk_lt_flk[lk_lt_nfl] : 0.0f, lk_lt_nf, lk_lt_nfb, lk_lt_fmall); } }   /* test aid */
   lk_dn_frame(fr, idle);   /* LK_DAYNIGHT v1: the time of day, the sun test aid (L5 + right stick) and smooth sun steps (was: drop every block when the sun moved) */
   lk_lt_on = (lk_lt_nl > 0 || lk_lt_sun || lk_lt_aor) && !lk_hd_n;   /* v8: room light */
   lk_lt_shstep(fr);   /* v8 dust motes */
@@ -1980,7 +1981,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
       /* LK_LTPAIRRAD v1 (2026-11-12, user rec_20261112_1808 room 62: 'beim Hin- und Hergehen verschwindet Nigels Schatten ploetzlich'): the pair test used the fixed 120 + 24 although the castle
          standing torches reach 260 (L->rad): at 144 units the figure's shadow switched off while the torch still lit the floor around it.  Now each light's own reach.  LANDSTALKER_LT_PAIRRAD=0 = old. */
       pr = (prr && lk_lt_l[k].rad > 0.0f ? lk_lt_l[k].rad : LK_LT_RAD) + 24.0f;
-      lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < pr * pr && !(lk_lt_l[k].lava == 2 && lk_lt_flk[k] <= 0.004f); }   /* (LK_DAYNIGHT v3: an unlit window light casts no figure shadow) */
+      lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < pr * pr && !(lk_lt_l[k].lava == 2 && lk_lt_flk[k] <= 0.004f); if (lk_dn_ldoor[k]) lk_lt_pair[k][j] = 0; }   /* LK_DNFIG v1 (user 2026-11-16: 'beim Schwertschlag harte Kante wenn Nigel dort steht'): a Massan door light is a wide glowing opening, not a point: no hard figure shadow from it */   /* (LK_DAYNIGHT v3: an unlit window light casts no figure shadow) */
     if (hd < 1.0f) { lk_lt_pn[k][j][0] = 0.7071f; lk_lt_pn[k][j][1] = 0.7071f; } else { lk_lt_pn[k][j][0] = dx / hd; lk_lt_pn[k][j][1] = dy / hd; }   /* v4 */
   }
   lk_lt_fmall = 0;

@@ -128,7 +128,7 @@ static void lk_gc_side(PIXEL_OUT_T *row, int line, int w, int e, int u0, int v, 
     a = "static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {\n"
     rep(a, MODULE + a)
     a = "    int lk_cs_ln = lk_cs_linebegin();   /* LK_CLOUDS v1 */\n"
-    rep(a, a + "    int lk_gc_md = lk_gc_getmode(), lk_gc_skip = 0, lk_gc_gl = lk_gc_md == 1 && lk_gl_real && !lk_sfx_ln && !lk_dz_ln && !lk_hz_ln && !lk_ss_frac && !lk_hd_n && !fxon && !lk_sh_row_on && (nohud || line >= 24)\n"
+    rep(a, a + "    int lk_gc_md = lk_gc_getmode(), lk_gc_skip = 0, lk_gc_gl = lk_gc_md == 1 && lk_gl_real && !lk_sfx_ln && !lk_dz_ln && !lk_hz_ln && !lk_hd_n && !fxon && !lk_sh_row_on && (nohud || line >= 24)\n"
            "      && !lk_brand_on && !lk_win_on && lk_m_on <= 0 && !lk_sm_capture_now && !lk_gc_block && lk_o_mode == 2;   /* @VER@ 4d: a GPU line (everything its pixels need is on the GPU, nothing reads the CPU row) */\n"
            "    int lk_gc_ln = (lk_gc_md == 2 || lk_gc_gl) && lk_gc_linebegin(line, w, e, ubase - e - lk_sm_sxn, vbase - lk_sm_syn, black_line, text, wline, tb, nohud, wlo, whi, hint,\n"
            "      (lk_bc_ln ? 1 : 0) | (lk_wr_ln ? 2 : 0) | (lk_cs_ln ? 4 : 0) | ((lk_lt_ln && lk_dn_win) ? 8 : 0) | ((lk_gl_real && !lk_sfx_ln && !lk_dz_ln && !lk_hz_ln) ? 16 : 0) | (lk_gc_gl ? 64 : 0));   /* @VER@ */\n"

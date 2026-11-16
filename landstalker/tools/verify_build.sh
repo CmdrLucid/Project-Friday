@@ -49,6 +49,7 @@ chk "Licht: Tuerlicht faellt als Streifen auf den Boden" $G/ext/Genesis-Plus-GX/
 chk "Licht: Tuerlicht flackert einzeln, Flaechen transparent" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNFLK v1"
 chk "Licht: nachgeladene Massan-Tueren erkannt"      $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNSTREAM v1"
 chk "Licht: Tuerlicht strahlt Figuren an"            $G/src/platform_sdl.c "LK_DNFIG v1"
+chk "Licht: Sprint-Feinscrollen auf dem Grafikchip"   $G/src/platform_sdl.c "LK_SSGPU v1"
 chk "Licht: Tanne vor Haus bleibt am Boden"         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTTREEHOUSE v1"
 chk "Item Info: Liste beim Blaettern (Issue 17)"   $G/src/func_table.c "LK_ITEMINFO v4"
 chk "Item Info: Japanisch / Koreanisch"            $G/src/func_table.c "LK_UIWIDE v2"

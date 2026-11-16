@@ -461,7 +461,7 @@ SHB = r'''
 uniform sampler2D lit; uniform sampler2D unl; uniform sampler2D cls; uniform sampler2D rows; uniform sampler2D roomA; uniform sampler2D roomB; uniform sampler2D rad; uniform sampler2D post; uniform sampler2D btab;
 uniform float uMode; uniform vec3 uBase; uniform float uW; uniform float uK; uniform float uR; uniform float uD; uniform float uPost; uniform vec2 uPh; uniform float uOut;
 uniform sampler2D wld; uniform vec4 uSwP; uniform vec4 uSwC; uniform float uSw; uniform float uSunR;
-uniform vec4 uFfP[8]; uniform float uFfN; uniform vec2 uFfK;   /* LK_FFGLOW v1: glowing fireflies (world x y z, glow), count, gain / radius */
+uniform vec4 uFfP[8]; uniform float uFfN; uniform vec2 uFfK; uniform float uSsD; uniform float uSsW;   /* LK_SSGPU v1: smooth sub-pixel blend of the lit picture: neighbour line (-1 / +1, 0 = none), its weight in 16ths */   /* LK_FFGLOW v1: glowing fireflies (world x y z, glow), count, gain / radius */
 uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec4 uLF[96]; uniform vec4 uFG[16]; uniform vec4 uFA[16];
 uniform float uNl; uniform float uAmb; uniform float uSS; uniform float uSK; uniform vec3 uAmb3; uniform vec3 uSun3; uniform float uDn; uniform float uKey; uniform float uKA; uniform float uKK; uniform vec3 uSd; uniform float uE; uniform float uSwon; uniform float uFig; uniform float uNf; uniform float uRfK; uniform float uRfD;
 float B(float v) { return floor(v * 255.0 + 0.5); }
@@ -606,7 +606,11 @@ void main() {
       vec2 tc = (q + 0.5) / vec2(448.0, 224.0); if (B(texture2D(cls, tc).r) != 1.0) continue;
       vec3 L = texture2D(lit, tc).rgb * 255.0, C = texture2D(unl, tc).rgb * 255.0; s += max(L - C * uBase, vec3(0.0)); n += 1.0; }
     gl_FragColor = vec4(n > 0.0 ? s / n / 255.0 : vec3(0.0), n / 16.0); return; }   /* (alpha: share of scenery pixels) */
-  vec2 tc = (fc + 0.5) / vec2(448.0, 224.0); vec4 L4 = texture2D(lit, tc); vec3 L = L4.rgb * 255.0;
+  vec2 tc = (fc + 0.5) / vec2(448.0, 224.0); vec4 L4 = texture2D(lit, tc);
+  if (uSsD != 0.0 && fc.x < uW && fc.y + uSsD >= 0.0 && fc.y + uSsD <= 223.0) { vec2 tn = (vec2(fc.x, fc.y + uSsD) + 0.5) / vec2(448.0, 224.0); float c0 = B(texture2D(cls, tc).r), c1 = B(texture2D(cls, tn).r);
+    if (c0 > 0.5 && c0 < 3.5 && c1 > 0.5 && c1 < 3.5) { vec3 a = L4.rgb * 255.0, b = texture2D(lit, tn).rgb * 255.0; L4 = vec4(floor((a * (16.0 - uSsW) + b * uSsW + 8.0) / 16.0) / 255.0, L4.a); } }   /* LK_SSGPU v1 (user rec_20261116_1549: 'die Lichter vor den Tueren verschwinden beim Sprinten'):
+       the 1.5 x sprint's quarter line blend (patch_subpix lk_ss_apply) on the GPU-lit picture, scenery only (classes 1 / 3; not figures, HUD, text) - the CPU blend forced the CPU composition = no light classes = ambient only */
+  vec3 L = L4.rgb * 255.0;
   { float cl0 = B(texture2D(cls, tc).r);
     if (uFig > 0.5 && cl0 > 15.5 && fc.x < uW) { if (uPost > 0.5) { vec4 a = texture2D(post, (fc + 0.5) / vec2(448.0, 448.0)), b = texture2D(post, (vec2(fc.x, fc.y + 224.0) + 0.5) / vec2(448.0, 448.0)); if (a.rgb != vec3(0.0) || b.rgb != vec3(1.0)) { gl_FragColor = L4; return; } }
       gl_FragColor = roundFig(fc, cl0, L4); return; } }
@@ -1521,7 +1525,7 @@ static int lk_gb_st; static lkGLuint lk_gb_prog, lk_gb_fa, lk_gb_fb, lk_gb_ra, l
 static long lk_gsw_fr = -9; static int lk_gsw_on;   /* GL5e: the frame's decision (light pass and post pass must agree) */
 int lk_gsw_frame(int real, int swon) { extern int lk_swsh_get(void); long f = platform_frame_number(); if (lk_gsw_fr != f) { lk_gsw_fr = f; lk_gsw_on = real && swon && lk_swsh_get() && lk_g5_realon() && lk_g5_wh != 0 && lk_gb_st >= 0; } return lk_gsw_on; } static float lk_gb_k = -1.0f, lk_gb_r, lk_gb_d;
 static const char *lk_gb_fs = "#version 120\n" @SHADERB@;
-static const char *lk_gb_un[] = { "lit", "unl", "cls", "rows", "roomA", "roomB", "rad", "post", "btab", "uMode", "uBase", "uW", "uK", "uR", "uD", "uPost", "uPh", "uOut", "wld", "uSwP", "uSwC", "uSw", "uSunR", "uLP", "uLC", "uLF", "uFG", "uFA", "uNl", "uAmb", "uSS", "uSK", "uAmb3", "uSun3", "uDn", "uKey", "uKA", "uKK", "uSd", "uE", "uSwon", "uFig", "uNf", "uRfK", "uRfD", "fine", "uFn", "uFfP", "uFfN", "uFfK", 0 };
+static const char *lk_gb_un[] = { "lit", "unl", "cls", "rows", "roomA", "roomB", "rad", "post", "btab", "uMode", "uBase", "uW", "uK", "uR", "uD", "uPost", "uPh", "uOut", "wld", "uSwP", "uSwC", "uSw", "uSunR", "uLP", "uLC", "uLF", "uFG", "uFA", "uNl", "uAmb", "uSS", "uSK", "uAmb3", "uSun3", "uDn", "uKey", "uKA", "uKK", "uSd", "uE", "uSwon", "uFig", "uNf", "uRfK", "uRfD", "fine", "uFn", "uFfP", "uFfN", "uFfK", "uSsD", "uSsW", 0 };
 static int lk_gb_init(void) {
   lkGLint ok = 0, t0 = 0, fb0 = 0; lkGLuint vs, fs; char log[2048]; int i; lkGLenum st1, st2;
   { static const char *vsrc = "#version 120\nvoid main() { gl_Position = gl_Vertex; }\n"; vs = lk_glCreateShader(0x8B31); lk_glShaderSource(vs, 1, &vsrc, 0); lk_glCompileShader(vs); lk_glGetShaderiv(vs, 0x8B81, &ok); if (!ok) return -1; }
@@ -1547,7 +1551,7 @@ static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out ho
   fig = lk_rf_get() && iu[9] > 0 && lk_g5_realon() && lk_g5_wh != 0 && (iu[0] || iu[1] || iu[2]);   /* GL5f: figures on screen, a light source, the GL5 world texture */
   static float ffp[8 * 4]; int nffl = 0;
   { extern int lk_am_ffglow(float *o, int max); static int on = -1; if (on < 0) { const char *e = getenv("LANDSTALKER_FFGLOW"); on = e ? atoi(e) : 1; } if (on && iu[0] && iu[5]) nffl = lk_am_ffglow(ffp, 8); }   /* LK_FFGLOW v1: night (sun room + day / night), test aid LANDSTALKER_FFGLOW=0 */
-  if (!bon && !sw && !fig && !nffl) return 0;
+  extern int lk_ss_frac; if (!bon && !sw && !fig && !nffl && !lk_ss_frac) return 0;   /* (LK_SSGPU v1: the sub-pixel blend needs this pass) */
   if (iu[0] && iu[5]) { base[0] = fu[3]; base[1] = fu[4]; base[2] = fu[5]; }
   else if (iu[0]) { base[0] = fu[1] * 0.95f; base[1] = fu[1] * 0.98f; base[2] = fu[1] * 1.06f; }
   else if (iu[1]) { base[0] = fu[10] * 0.97f; base[1] = fu[10] * 0.99f; base[2] = fu[10] * 1.05f; }
@@ -1566,6 +1570,7 @@ static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out ho
   { static int fo = -1; if (fo < 0) { const char *e = getenv("LANDSTALKER_SWORDSH_FINE"); fo = e ? atoi(e) : 1; } lk_glUniform1i(lk_gb_u[45], 10); lk_glUniform1f(lk_gb_u[46], fo && lk_g5_fn ? 1.0f : 0.0f); }   /* LK_SWSHFINE v1 (=0: the old 16 unit cells) */
   { static float fk = -1.0f, fr = 32.0f; if (fk < 0.0f) { const char *e = getenv("LANDSTALKER_FFGLOW_K"), *r = getenv("LANDSTALKER_FFGLOW_R"); fk = e ? (float)atof(e) : 1.2f; if (r) fr = (float)atof(r); }   /* LK_FFGLOW v1: gain, radius in world units */
     lk_glUniform4fv(lk_gb_u[47], 8, ffp); lk_glUniform1f(lk_gb_u[48], (float)nffl); lk_glUniform2f(lk_gb_u[49], fk, fr); }
+  { extern int lk_ss_frac; static int ssw = -1; if (ssw < 0) { const char *e = getenv("LANDSTALKER_SS_WEIGHT"); ssw = e && atoi(e) >= 1 && atoi(e) <= 8 ? atoi(e) : 5; } lk_glUniform1f(lk_gb_u[50], (float)lk_ss_frac); lk_glUniform1f(lk_gb_u[51], (float)ssw); }   /* LK_SSGPU v1 */
   lk_glUniform1i(lk_gb_u[18], 9); lk_glUniform4f(lk_gb_u[19], fu[16], fu[17], fu[18], fu[19]); lk_glUniform4f(lk_gb_u[20], fu[20], fu[21], fu[22], fu[23]); lk_glUniform1f(lk_gb_u[21], sw ? 1.0f : 0.0f); lk_glUniform1f(lk_gb_u[22], iu[0] ? 1.0f : 0.0f);
   lk_glUniform4fv(lk_gb_u[23], 96, lp); lk_glUniform4fv(lk_gb_u[24], 96, lc); lk_glUniform4fv(lk_gb_u[25], 96, lf); lk_glUniform4fv(lk_gb_u[26], 16, fg); lk_glUniform4fv(lk_gb_u[27], 16, fa);
   lk_glUniform1f(lk_gb_u[28], (float)iu[2]); lk_glUniform1f(lk_gb_u[29], fu[0]); lk_glUniform1f(lk_gb_u[30], fu[1]); lk_glUniform1f(lk_gb_u[31], fu[2]); lk_glUniform3f(lk_gb_u[32], fu[3], fu[4], fu[5]); lk_glUniform3f(lk_gb_u[33], fu[6], fu[7], fu[8]);
