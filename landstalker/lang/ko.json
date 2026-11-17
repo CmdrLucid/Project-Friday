@@ -9173,6 +9173,7 @@
   "Map fills the black bar below": "지도가 아래쪽을 채움",
   "How the picture fits the screen": "화면 맞춤 방식",
   "Scanline or CRT look": "주사선 또는 CRT 화면",
+  "Blends pixel patterns like a TV": "TV처럼 픽셀 무늬를 섞음",
   "Scaling and filters on the GPU": "GPU로 확대와 필터 처리",
   "GPU takes load off the CPU": "CPU 대신 GPU 사용",
   "Window or full screen": "창 또는 전체 화면",

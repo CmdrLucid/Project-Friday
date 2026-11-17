@@ -84,7 +84,7 @@ s = open(p).read()
 if VER not in s:
     s = rep(s, "static const int lk_ids_key[15] = { 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114 };",
             "extern void lk_bind_wasd(void);   /* " + VER + " */\nstatic const int lk_ids_key[20] = { 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119 };   /* " + VER + ": + Up / Down / Left / Right 114..117, WASD Keys 118, Reset Defaults 119 */", "func_table.c ids")
-    s = rep(s, "static const int lk_pg_cnt[LK_NPG + 1] = { 11, 6, 12, 3, 5, 8, 3, 15 };", "static const int lk_pg_cnt[LK_NPG + 1] = { 11, 6, 12, 3, 5, 8, 3, 20 };", "func_table.c count")
+    s = rep(s, "static const int lk_pg_cnt[LK_NPG + 1] = { 11, 7, 12, 3, 5, 8, 3, 15 };", "static const int lk_pg_cnt[LK_NPG + 1] = { 11, 7, 12, 3, 5, 8, 3, 20 };", "func_table.c count")
     s = rep(s, "    if (id == 114) return \">\";", "    if (id >= 118) return \">\";", "func_table.c bindtext")
     s = rep(s, "return id >= 100 ? (id == 114 ? \"Reset Defaults\" : lk_bind_name(id - 100))", "return id >= 100 ? (id == 119 ? \"Reset Defaults\" : id == 118 ? \"WASD Keys\" : lk_bind_name(id - 100))", "func_table.c rowname")
     s = rep(s, "if (id == 114) lk_bind_reset(); else {", "if (id == 119) lk_bind_reset(); else if (id == 118) lk_bind_wasd(); else {", "func_table.c change")

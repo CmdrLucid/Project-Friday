@@ -25,7 +25,8 @@ rep("#include <stdio.h>\n", "#include <stdio.h>\n#include <setjmp.h>\n#ifdef _WI
 rep("static uint32_t s_expect[512];\n",
     "static uint32_t s_expect[512];\n"
     "static jmp_buf s_jb[512];     /* where each frame's call can be unwound to */\n"
-    "static int s_unwind_k;\n")
+    "static int s_unwind_k;\n"
+    "static uint32_t s_reset_to;   /* LK_RESETUNWIND v1: pending stack-reset target while unwinding to the bottom frame */\n")
 rep("    if (e && r != e) {\n        if (func_table_lookup(r)) s_tail = r;",
     "    if (e && r != e) {\n"
     "        /* r is an outer frame's return address: that frame's callee was\n"
@@ -37,11 +38,22 @@ rep("    if (e && r != e) {\n        if (func_table_lookup(r)) s_tail = r;",
 rep("    bool found = true;\n    do {\n        s_tail = 0;",
     "    bool found = true;\n"
     "    if (s_call_depth <= 512 && LK_SETJMP(s_jb[s_call_depth - 1]) != 0) {\n"
+    "        if (s_reset_to) {   /* LK_RESETUNWIND v1: unwound to the bottom frame by a stack reset, run the reset code here */\n"
+    "            m68k_addr = s_reset_to; s_reset_to = 0; s_tail = 0; s_call_depth = s_unwind_k + 1; found = true;\n"
+    "        } else {\n"
     "        /* unwound to this frame by func_table_rts: this call has returned */\n"
     "        s_tail = 0;\n"
     "        s_call_depth = s_unwind_k;\n"
     "        return true;\n"
+    "        }\n"
     "    }\n"
-    "    do {\n        s_tail = 0;")
+    "    do {\n        s_tail = 0;\n"
+    "        if (s_call_depth > 1 && s_call_depth <= 512 && (m68k_addr == 0x0004B8u || m68k_addr == 0x0004BEu || m68k_addr == 0x0004DCu)) {\n"
+    "            /* LK_RESETUNWIND v1 (2026-11-17, GitHub #20): ResetAll $0004B8 / EndGame $0004BE / GameOver $0004DC start with lea (ResetSP).w,sp: every 68K\n"
+    "             * frame is gone, so the C frames are dropped too (bottom frame, then the reset code runs there). Without it EndGame from the priest's\n"
+    "             * 'continue? no' (script $0250xx) ran the file select inside the old dialogue frames: the shadow call stack still held the text box routine,\n"
+    "             * the renderer kept treating the frames as map / dialogue (Modern HUD drawn, save slots missing). The 68K state is not touched. */\n"
+    "            s_reset_to = m68k_addr; s_unwind_k = 0; LK_LONGJMP(s_jb[0], 1);\n"
+    "        }")
 open(p, "w").write(s)
 print("func_table.c patched")

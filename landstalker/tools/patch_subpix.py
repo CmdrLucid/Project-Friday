@@ -270,7 +270,7 @@ static int lk_ssh_can(int sw) {   /* LK_SSHARP v1: will lk_disp_present run the 
         extern int lk_wide_e; const int sw = LK_SRC_W + 2 * lk_wide_e; int ow = 1280, oh = 800; lk_rect r; const uint8_t *fb = framebuffer; static uint32_t *ob; static size_t oc;
         lk_ssh_outsize(&ow, &oh); if (!lk_disp_loaded) lk_disp_load(); if (!lk_dd_loaded) lk_dd_load();
         { const char *fx = getenv("LANDSTALKER_OSHOT_FX"); if (fx && *fx) lk_fx_mode = atoi(fx) % LK_FX_N; }
-        if (lk_dd_mode) { lk_dd_par = lk_dd_par_run; if (lk_dd_cap < sw * LK_SRC_H) { free(lk_dd_buf); lk_dd_buf = (uint32_t *)malloc((size_t)sw * LK_SRC_H * 4); lk_dd_cap = lk_dd_buf ? sw * LK_SRC_H : 0; } if (lk_dd_buf) { if (lk_dd_mode == 3) lk_dedither_blend((const uint32_t *)fb, lk_dd_buf, sw); else if (lk_dd_mode == 2) lk_dedither_strong((const uint32_t *)fb, lk_dd_buf, sw); else lk_dedither((const uint32_t *)fb, lk_dd_buf, sw); fb = (const uint8_t *)lk_dd_buf; } }
+        if (lk_dd_mode) { lk_dd_par = lk_dd_par_run; lk_dd_hud(); if (lk_dd_cap < sw * LK_SRC_H) { free(lk_dd_buf); lk_dd_buf = (uint32_t *)malloc((size_t)sw * LK_SRC_H * 4); lk_dd_cap = lk_dd_buf ? sw * LK_SRC_H : 0; } if (lk_dd_buf) { if (lk_dd_mode == 3) lk_dedither_blend((const uint32_t *)fb, lk_dd_buf, sw); else if (lk_dd_mode == 2) lk_dedither_strong((const uint32_t *)fb, lk_dd_buf, sw); else lk_dedither((const uint32_t *)fb, lk_dd_buf, sw); fb = (const uint8_t *)lk_dd_buf; } }
         lk_calc_rect(lk_scale_mode, ow, oh, sw, &r);
         if ((size_t)r.w * r.h > oc) { free(ob); oc = (size_t)r.w * r.h; ob = (uint32_t *)malloc(oc * 4); }
         lk_ssh_d = 0; if (lk_ssh_pend && lk_ssh_setup(r.w, r.h, sw)) lk_ssh_d = lk_ssh_pend;

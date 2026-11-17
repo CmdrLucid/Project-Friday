@@ -18,14 +18,14 @@ s = open(p).read()
 if VER in s:
     print("func_table.c already patched: " + VER)
 else:
-    assert "LK_KBDIR v1" in s or "= { 11, 6, 12, 3, 6, 8, 3, 20 };" in s, "func_table.c: run patch_kbdir.py first"
+    assert "LK_KBDIR v1" in s or "= { 11, 7, 12, 3, 6, 8, 3, 20 };" in s, "func_table.c: run patch_kbdir.py first"
     assert "LK_BATH v1" in s, "func_table.c: run patch_bath.py first"
     s = rep(s, "#define LK_NPG 7", "#define LK_NPG 8   /* " + VER + ": page 8 = Language / Region (Language, Names, Items, Bath Scene) */", "LK_NPG")
     s = rep(s, "#define LK_RLANG 7", "#define LK_RLANG -101   /* " + VER + ": no value rows on the root any more */", "LK_RLANG")
     s = rep(s, "#define LK_RNAMES 8", "#define LK_RNAMES -102", "LK_RNAMES")
     s = rep(s, "#define LK_RITEMS 9", "#define LK_RITEMS -103", "LK_RITEMS")
     s = rep(s, "#define LK_RQUIT 10", "#define LK_RQUIT 8", "LK_RQUIT")
-    s = rep(s, "= { 11, 6, 12, 3, 5, 8, 3, 20 };", "= { 9, 6, 12, 3, 5, 8, 3, 20, 4 };   /* " + VER + " */", "lk_pg_cnt")
+    s = rep(s, "= { 11, 7, 12, 3, 5, 8, 3, 20 };", "= { 9, 7, 12, 3, 5, 8, 3, 20, 4 };   /* " + VER + " */", "lk_pg_cnt")
     s = rep(s, "static const int *const lk_pg_ids[LK_NPG + 1] = {",
             "static const int lk_ids_lang[4] = { 37, 61, 62, 63 };   /* " + VER + ": Language, Names, Items, Bath Scene */\nstatic const int *const lk_pg_ids[LK_NPG + 1] = {", "lk_pg_ids decl")
     s = rep(s, "lk_ids_diff, 0 };", "lk_ids_diff, 0, lk_ids_lang };", "lk_pg_ids")

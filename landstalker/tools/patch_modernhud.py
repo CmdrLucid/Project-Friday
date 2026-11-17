@@ -227,6 +227,11 @@ static void lk_mh_menu_row(PIXEL_OUT_T *row, int w, int e, int line) {   /* Star
   if (lk_mh_fr != platform_frame_number()) { const uint8 *sp = lk_o_sp; lk_o_sp = bus_get_ram(); lk_o_hudbuild(); lk_mh_live = 1; lk_mh_only = 1; lk_mh_begin(w, e); lk_mh_only = 0; lk_mh_live = 0; lk_o_sp = sp; }
   for (k = 0; k < w; k++) { int col = (int)pixel_lut[1][0]; lk_mh_pix(line, k, &col); row[k] = (PIXEL_OUT_T)col; }
 }
+void lk_mh_ddmark(unsigned char *m, int sw, int h) {   /* LK_DDHUD v1 (2026-11-17, GitHub #19): De-Dither leaves the HUD's own pixels (+1 px around them) alone; m = sw x h guard mask of display_core.c */
+  int y, x, dy, dx;
+  for (y = lk_mh_y0; y <= lk_mh_y1 && y < LK_MH_H && y < h; y++) for (x = 0; x < LK_MH_W && x < sw; x++) if (lk_mh_a[y][x])
+    for (dy = -1; dy <= 1; dy++) for (dx = -1; dx <= 1; dx++) { int yy = y + dy, xx = x + dx; if (yy >= 0 && yy < h && xx >= 0 && xx < sw) m[(size_t)yy * sw + xx] = 1; }
+}
 static int lk_mh_pix(int line, int i, int *col) {
   int a; PIXEL_OUT_T c, o; int sh;
   if (line < lk_mh_y0 || line > lk_mh_y1 || i < 0 || i >= LK_MH_W) return 0;

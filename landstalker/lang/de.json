@@ -9137,6 +9137,7 @@
   "Map fills the black bar below": "Karte füllt den Balken unten",
   "How the picture fits the screen": "Wie das Bild den Schirm füllt",
   "Scanline or CRT look": "Scanlines oder Röhren-Optik",
+  "Blends pixel patterns like a TV": "Mischt Pixelmuster wie ein TV",
   "Scaling and filters on the GPU": "Skalierung und Filter per GPU",
   "GPU takes load off the CPU": "GPU entlastet den Prozessor",
   "Window or full screen": "Fenster oder Vollbild",
