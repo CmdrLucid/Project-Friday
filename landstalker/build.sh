@@ -239,6 +239,8 @@ python3 tools/patch_clouds.py .deps/genrecomp
 python3 tools/patch_gpu.py .deps/genrecomp
 # GPU lighting (stage GL1 = harness only, nothing changes for the player): LANDSTALKER_GPULT=2 lights the recorded unlit map picture on the GPU and compares with the CPU (tools/patch_gpulight.py; needs patch_lights / patch_bootcol / patch_gpu)
 python3 tools/patch_gpulight.py .deps/genrecomp
+# test aid: LANDSTALKER_WINSIZE=WxH window size at start (trailer footage in full HD with LANDSTALKER_HIDDEN=1), see tools/patch_winsize.py
+python3 tools/patch_winsize.py .deps/genrecomp
 # Picture composition on the GPU, STEP 4 stage 4a = compare harness only, nothing changes for the player: LANDSTALKER_GPUCOMP=2 composes the map lines on the GPU and compares with lk_own_row (tools/patch_gpucomp.py; needs patch_own / patch_gpu / patch_gpulight)
 python3 tools/patch_gpucomp.py .deps/genrecomp
 # De-Dither on the GPU: the smoothing as a shader pass after the GPU composition, the GPU lines stay on (LK_DDGPU v1, tools/patch_ddgpu.py; CPU de-dither = fallback)
