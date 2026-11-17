@@ -1,9 +1,13 @@
 # Checks a published Windows package on a REAL Windows runner (no ROM needed): the launcher exe, the bundled Python, the patch steps that do not need the ROM,
 # and the compile of genrecomp + Genesis Plus GX with the bundled zig (this is the part that cannot be tested under Wine).
 # Usage: Actions > windows-check > Run workflow, tag = a release tag that contains Project-Friday-windows-x64.zip (default: latest release).
+# BEFORE a release (2026-11-17, user: test AppImage + Windows first, v1.9.0 lesson): push the candidate to the branch release-check
+# (git push -f origin dev:release-check): a Linux job builds the Windows package from that commit like release.yml and the Windows job tests it.
 name: windows-check
 
 on:
+  push:
+    branches: [release-check]
   workflow_dispatch:
     inputs:
       tag:
@@ -15,10 +19,37 @@ permissions:
   contents: read
 
 jobs:
+  package:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsdl2-dev squashfs-tools python3-pip
+      - name: Fetch genrecomp at the pinned revision (landstalker/vendor.lock)
+        run: python3 landstalker/tools/make_vendor.py --fetch
+      - name: Build the Windows package of this commit (like release.yml)
+        run: python3 landstalker/packaging/make_windows_zip.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: winzip
+          path: landstalker/dist/Project-Friday-windows-x64.zip
+          retention-days: 1
+
   windows:
+    needs: package
+    if: always() && (needs.package.result == 'success' || needs.package.result == 'skipped')
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Package built by the package job (push to release-check)
+        if: github.event_name == 'push'
+        uses: actions/download-artifact@v4
+        with:
+          name: winzip
 
       - name: Download the Windows package of the release
         shell: pwsh
@@ -26,8 +57,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag }}
         run: |
+          if (-not (Test-Path Project-Friday-windows-x64.zip)) {
           if ($env:TAG) { gh release download $env:TAG --repo $env:GITHUB_REPOSITORY --pattern "Project-Friday-windows-x64.zip" }
-          else { gh release download --repo $env:GITHUB_REPOSITORY --pattern "Project-Friday-windows-x64.zip" }
+          else { gh release download --repo $env:GITHUB_REPOSITORY --pattern "Project-Friday-windows-x64.zip" } }
           Expand-Archive -Path Project-Friday-windows-x64.zip -DestinationPath pkg
           Get-ChildItem pkg/Project-Friday | Select-Object -First 20 | ForEach-Object { $_.Name }
 
