@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""lightedges.py ROM ROOMS --run OUTDIR [--headless] [--top N]   (GPU hidden window by default since 2026-11-12; --headless = unlit, useless for light)   -- finds HARD EDGES in the lighting (user 2026-11-05: 'bei Lichtquellen nach scharfen Kanten als potenziellen Fehler suchen')
+"""lightedges.py ROM ROOMS --run OUTDIR [--spots] [--headless] [--top N]   (--spots: a grid of positions per room so every part of it is in a picture, not only the centre)   (GPU hidden window by default since 2026-11-12; --headless = unlit, useless for light)   -- finds HARD EDGES in the lighting (user 2026-11-05: 'bei Lichtquellen nach scharfen Kanten als potenziellen Fehler suchen')
    lightedges.py ROM ROOMS --dir OUTDIR             -- re-score the shots of an earlier --run
 LIGHTEDGES_BIN=path runs another binary (e.g. a copy of the build before a change, for before / after pictures).
 ROOMS: comma list of room numbers, or 'castle' (the Mercator castle interior rooms 51..97).
@@ -13,7 +13,7 @@ import os, struct, subprocess, sys, zlib
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import proxysurvey as ps
 
-REC = os.path.expanduser("~/aufnahmen/rec_20261103_1803"); T = "20261103_1803"
+REC = os.path.expanduser("~/Project-Friday-Test/aufnahmen/rec_20261103_1803"); T = "20261103_1803"
 HERE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def rd(p):
@@ -40,18 +40,41 @@ def wr(p, w, h, data):
     def c(t, d): x = struct.pack('>I', len(d)) + t + d; return x + struct.pack('>I', zlib.crc32(t + d) & 0xFFFFFFFF)
     open(p, 'wb').write(b'\x89PNG\r\n\x1a\n' + c(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0)) + c(b'IDAT', zlib.compress(raw)) + c(b'IEND', b''))
 
-def run(rom_path, rooms, out, batch=16, jobs=4, gpu=False):
+def spots(hm, all_spots):
+    """the warp cells of a room: one at the centre (old sweep), or (--spots, 2026-11-15: the one-picture sweep missed room 66's far door) a grid in PICTURE space
+    (u = x - y: 16 px per cell across, v = x + y: 8 px per cell down; the GPU picture shows ~22 x 25 cells) every 14 u / 20 v, each the free cell nearest the grid point"""
+    c = ps.start_cell(hm)
+    if not c or not all_spots: return [c] if c else []
+    x0 = min(q[0] for q in hm); x1 = max(q[0] for q in hm); y0 = min(q[1] for q in hm); y1 = max(q[1] for q in hm); g = lambda q: hm.get(q, (0, False))   # (heights() leaves out the 0 words = free floor at height 0)
+    seen = {c[0]}; todo = [c[0]]   # only cells Nigel can WALK to from the centre cell (free, height step <= 2): free cells outside the drawn room (behind walls, doorways) gave black pictures
+    while todo:
+        x, y = todo.pop()
+        for n in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+            if x0 <= n[0] <= x1 and y0 <= n[1] <= y1 and n not in seen and not g(n)[1] and abs(g(n)[0] - g((x, y))[0]) <= 2: seen.add(n); todo.append(n)
+    trig = {q for q, (h, bl) in hm.items() if not bl and h == 0}   # a non-zero word with height 0 = a door / trigger cell (room 66: the warp onto the door changed the room = black picture)
+    free = [(xy, g(xy)[0]) for xy in seen if not any((xy[0] + dx, xy[1] + dy) in trig for dx in (-1, 0, 1) for dy in (-1, 0, 1))] or [(xy, g(xy)[0]) for xy in seen]
+    us = [x - y for (x, y), _ in free]; vs = [x + y for (x, y), _ in free]; out = []
+    for gu in range(min(us), max(us) + 14, 14):
+        for gv in range(min(vs), max(vs) + 20, 20):
+            best = min(free, key=lambda t: ((t[0][0] - t[0][1]) - gu) ** 2 + (((t[0][0] + t[0][1]) - gv) * 0.7) ** 2)
+            if abs((best[0][0] - best[0][1]) - gu) <= 10 and abs((best[0][0] + best[0][1]) - gv) <= 14 and best not in out: out.append(best)
+    return out or [c]
+
+def run(rom_path, rooms, out, batch=16, jobs=4, gpu=False, all_spots=False):
     rom = open(rom_path, "rb").read(); procs = []; plan = []
+    jobs_all = []
+    for r in rooms:
+        for k, ((x, y), h) in enumerate(spots(ps.heights(rom, r), all_spots)): jobs_all.append((r, k, (x, y), h))
+    print("lightedges: %d rooms, %d pictures" % (len(rooms), len(jobs_all)), flush=True)
+    rooms = jobs_all
     qs = next((l.split("=", 1)[1].strip() for l in open(REC + ".cfg") if "QSPLAY" in l), "")
     for b in range(0, len(rooms), batch):
         warps, ats, shots, fr, part = [], [], [], 2100, []
-        for r in rooms[b:b + batch]:
-            s = ps.start_cell(ps.heights(rom, r))
-            if not s: continue
-            (x, y), h = s; warps.append("%d:%d.08,%d.08,%04X" % (r, x, y, 16 * h)); ats.append(str(fr)); shots.append(str(fr + 100)); part.append((r, fr + 100)); fr += 160
+        for r, sk, (x, y), h in jobs_all[b:b + batch]:
+            warps.append("%d:%d.08,%d.08,%04X" % (r, x, y, 16 * h)); ats.append(str(fr)); shots.append(str(fr + 100)); part.append((r, fr + 100, sk)); fr += 160
         for light in (0, 1):
             d = os.path.join(out, "b%02d_%d" % (b // batch, light)); os.makedirs(os.path.join(d, "home"), exist_ok=True)
-            subprocess.run("cp ~/aufnahmen/opts_%s/.landstalker_* %s/home/ 2>/dev/null; echo %d > %s/home/.landstalker_lighting; cp ~/aufnahmen/save_%s.srm %s/s.srm" % (T, d, light, d, T, d), shell=True)
+            subprocess.run("cp ~/Project-Friday-Test/aufnahmen/opts_%s/.landstalker_* %s/home/ 2>/dev/null; echo %d > %s/home/.landstalker_lighting; echo '0 0 19 1' > %s/home/.landstalker_display; cp ~/Project-Friday-Test/aufnahmen/save_%s.srm %s/s.srm" % (T, d, light, d, d, T, d), shell=True)   # 2026-11-15: CRT filter 0 (the CRT Pro scanlines turned soft light gradients into rows of false edges)
             with open(REC + ".txt") as f, open(os.path.join(d, "in.txt"), "w") as o:
                 for l in f:
                     if int(l.split()[0]) < 2040: o.write(l)
@@ -67,23 +90,50 @@ def run(rom_path, rooms, out, batch=16, jobs=4, gpu=False):
             print("lightedges: batch %d lighting %d: %d warps" % (b // batch, light, len(warps)), flush=True)
             procs.append(subprocess.Popen([os.environ.get("LIGHTEDGES_BIN") or os.path.join(HERE, "build", "landstalker")] + ([] if gpu else ["--headless"]) + ["--frames", str(fr + 20), rom_path], env=env,
                                           stdout=open(os.path.join(d, "out.log"), "w"), stderr=subprocess.STDOUT, cwd=HERE))
-        plan += [(r, f, b // batch) for r, f in part]
+        plan += [(r, f, b // batch, k) for r, f, k in part]
     for p in procs: p.wait()
     with open(os.path.join(out, "plan.txt"), "w") as f:
-        for r, fr, bi in plan: f.write("%d %d %d\n" % (r, fr, bi))
+        for r, fr, bi, k in plan: f.write("%d %d %d %d\n" % (r, fr, bi, k))
+
+try:
+    import numpy as np; from PIL import Image
+except ImportError:
+    np = None
+MINRUN = int(os.environ.get('LIGHTEDGES_MINRUN', '40'))   # GPU pictures are 960 wide (2.7 px per game pixel): 40 px = a line of ~15 game pixels
 
 def score(out):
     rows = []
     for l in open(os.path.join(out, "plan.txt")):
-        r, fr, bi = map(int, l.split())
+        v = list(map(int, l.split())); r, fr, bi = v[:3]; sp = v[3] if len(v) > 3 else 0
         po, pn = [os.path.join(out, "b%02d_%d" % (bi, k), "shot_%06d_w358.png" % fr) for k in (0, 1)]
         if not os.path.isfile(po): po, pn = [os.path.join(out, "b%02d_%d" % (bi, k), "present_%06d_gpu.png" % fr) for k in (0, 1)]   # --gpu runs
-        if not (os.path.isfile(po) and os.path.isfile(pn)): rows.append((-1, r, "no shot")); continue
+        if not (os.path.isfile(po) and os.path.isfile(pn)): rows.append((-1, r, sp, "no shot")); continue
+        if np is not None:   # fast path (numpy + PIL, e.g. ~/Project-Friday-Test/hdvenv/bin/python): same rule as below
+            A = np.asarray(Image.open(po).convert('RGB'), dtype=np.float32); B = np.asarray(Image.open(pn).convert('RGB'), dtype=np.float32); h, w = A.shape[:2]
+            lo = A @ np.float32([0.3, 0.59, 0.11]); ln = B @ np.float32([0.3, 0.59, 0.11]); R = (ln + 4.0) / (lo + 4.0); hitm = np.zeros((h, w), bool)
+            for dy, dx in ((0, 1), (1, 0)):
+                a, b = (slice(0, h - dy), slice(0, w - dx)), (slice(dy, h), slice(dx, w))
+                hitm[a] |= (lo[a] > 10) & (lo[b] > 10) & (lo[a] < 170) & (lo[b] < 170) & (np.abs(R[a] - R[b]) > 0.25) & (np.abs(lo[a] - lo[b]) < 12)   # (< 170: flames / glowing sprites are bright already without the light: false alarms)
+            k = w / 358.0; yy, xx = np.mgrid[0:h, 0:w]
+            hitm &= ~((yy < 34 * k) | ((xx > w - 62 * k) & (yy < 52 * k)) | ((xx > w - 70 * k) & (yy > h - 22 * k))); hitm[h - 1, :] = False; hitm[:, w - 1] = False
+            hits = set((np.flatnonzero(hitm)).tolist()); mark = bytearray(B.astype(np.uint8).tobytes()); n = 0; seen = set()
+            for i0 in hits:
+                if i0 in seen: continue
+                comp = [i0]; seen.add(i0); q = [i0]
+                while q:
+                    i = q.pop()
+                    for d in (1, -1, w, -w, w + 1, w - 1, -w + 1, -w - 1):
+                        j = i + d
+                        if j in hits and j not in seen: seen.add(j); comp.append(j); q.append(j)
+                if len(comp) >= MINRUN:
+                    n += len(comp)
+                    for i in comp: mark[i * 3:i * 3 + 3] = b'\xff\x00\xff'
+            wr(os.path.join(out, "edges_%d.png" % r if sp == 0 else "edges_%d_%d.png" % (r, sp)), w, h, mark); rows.append((n, r, sp, "")); continue
         w, h, ch, A = rd(po); _, _, ch2, B = rd(pn)
         L = lambda D, c, i: 0.3 * D[i * c] + 0.59 * D[i * c + 1] + 0.11 * D[i * c + 2]
         lo = [L(A, ch, i) for i in range(w * h)]; ln = [L(B, ch2, i) for i in range(w * h)]
         R = [(ln[i] + 4.0) / (lo[i] + 4.0) for i in range(w * h)]
-        mark = bytearray(); n = 0
+        mark = bytearray(); n = 0; hits = set()
         for i in range(w * h): mark += bytes(B[i * ch2:i * ch2 + 3])
         for y in range(0, h - 1):
             for x in range(0, w - 1):
@@ -92,15 +142,27 @@ def score(out):
                 i = y * w + x; hit = False
                 for j in (i + 1, i + w):
                     if lo[i] > 10 and lo[j] > 10 and abs(R[i] - R[j]) > 0.25 and abs(lo[i] - lo[j]) < 12: hit = True
-                if hit: n += 1; mark[i * 3:i * 3 + 3] = b'\xff\x00\xff'
-        wr(os.path.join(out, "edges_%d.png" % r), w, h, mark); rows.append((n, r, ""))
+                if hit: hits.add(i)
+        n = 0; seen = set()   # 2026-11-15: only CONNECTED edge pixels count (>= MINRUN in one 8-neighbour cluster = a line); single specks on patterned walls near flames were false alarms
+        for i0 in hits:
+            if i0 in seen: continue
+            comp = [i0]; seen.add(i0); q = [i0]
+            while q:
+                i = q.pop()
+                for d in (1, -1, w, -w, w + 1, w - 1, -w + 1, -w - 1):
+                    j = i + d
+                    if j in hits and j not in seen: seen.add(j); comp.append(j); q.append(j)
+            if len(comp) >= MINRUN:
+                n += len(comp)
+                for i in comp: mark[i * 3:i * 3 + 3] = b'\xff\x00\xff'
+        wr(os.path.join(out, "edges_%d.png" % r if sp == 0 else "edges_%d_%d.png" % (r, sp)), w, h, mark); rows.append((n, r, sp, ""))
     return sorted(rows, reverse=True)
 
 if __name__ == "__main__":
     a = sys.argv[1:]; rom_path = a[0]
     rooms = list(range(51, 98)) if a[1] == "castle" else [int(v) for v in a[1].split(",")]
     top = int(a[a.index("--top") + 1]) if "--top" in a else 40
-    if "--run" in a: out = a[a.index("--run") + 1]; run(rom_path, rooms, out, gpu="--headless" not in a)   # GPU (hidden window) by default since 2026-11-12 (the CPU light is gone: headless = unlit); --gpu still accepted
+    if "--run" in a: out = a[a.index("--run") + 1]; run(rom_path, rooms, out, gpu="--headless" not in a, all_spots="--spots" in a)   # GPU (hidden window) by default since 2026-11-12 (the CPU light is gone: headless = unlit); --gpu still accepted
     else: out = a[a.index("--dir") + 1]
-    print("edge px  room   (pictures: %s/edges_ROOM.png, magenta = hard light edge without a picture edge)" % out)
-    for n, r, note in score(out)[:top]: print("%7d  %4d  %s" % (n, r, note))
+    print("edge px  room spot  (pictures: %s/edges_ROOM[_SPOT].png, magenta = hard light edge without a picture edge)" % out)
+    for n, r, k, note in score(out)[:top]: print("%7d  %4d  %3d  %s" % (n, r, k, note))

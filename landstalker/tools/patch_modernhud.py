@@ -59,6 +59,9 @@ static int lk_mh_pix(int line, int i, int *col);
     a = "lk_q_have[id] = 1; } fclose(f); }\n}\n"
     assert s.count(a) == 1, "vdp_render.c: lk_q_load layout changed"
     s = s.replace(a, "lk_q_have[id] = 1; } fclose(f); }\n  lk_qr_fill();   /* LK_MHUD v3: every icon straight from the ROM (no Start menu capture needed) */\n}\n", 1)
+    a = "static void lk_q_cells(int compact, PIXEL_OUT_T white, PIXEL_OUT_T black) {\n  int s, i, j;\n"
+    assert s.count(a) == 1, "vdp_render.c: lk_q_cells layout changed"
+    s = s.replace(a, a + "  lk_qr_fill();   /* LK_JPITEMS v1: the classic quick bar gets the other pictures after an Items / language switch too */\n", 1)
 
     # build the layer once per frame (first own line of the frame)
     a = "    int wlo = 0, whi = w, tb = lk_tbox_get(), nohud = lk_nohud_get(), wline = ((line == 23 && !nohud) || text);"
@@ -143,7 +146,7 @@ static void lk_mh_disc(int cx, int cy, int r, PIXEL_OUT_T fill, PIXEL_OUT_T whit
     else lk_mh_put(cx + x, cy + y, fill, 165); }
 }
 static void lk_mh_icon(int cx, int cy, int id, PIXEL_OUT_T fill) {   /* 16 x 16 icon of the quick icon cache centred on the disc, 1 px dark outline */
-  int x, y; if (id < 0 || id > 63 || !lk_q_have[id]) return;
+  int x, y; lk_qr_fill(); if (id < 0 || id > 63 || !lk_q_have[id]) return;   /* lk_qr_fill: cheap unless the language / Items option changed (LK_JPITEMS v1) */
   for (y = -1; y <= 16; y++) for (x = -1; x <= 16; x++) { int me = (x >= 0 && y >= 0 && x < 16 && y < 16) && lk_q_mask[id][y * 16 + x], n = 0, i2, j2;
     if (me) continue; for (j2 = -1; j2 <= 1; j2++) for (i2 = -1; i2 <= 1; i2++) { int xx = x + i2, yy = y + j2; if (xx >= 0 && yy >= 0 && xx < 16 && yy < 16 && lk_q_mask[id][yy * 16 + xx]) n = 1; }
     if (n) lk_mh_put(cx - 8 + x, cy - 8 + y, 0x0A0814u, 150); }
@@ -224,6 +227,11 @@ static void lk_mh_menu_row(PIXEL_OUT_T *row, int w, int e, int line) {   /* Star
   if (lk_mh_fr != platform_frame_number()) { const uint8 *sp = lk_o_sp; lk_o_sp = bus_get_ram(); lk_o_hudbuild(); lk_mh_live = 1; lk_mh_only = 1; lk_mh_begin(w, e); lk_mh_only = 0; lk_mh_live = 0; lk_o_sp = sp; }
   for (k = 0; k < w; k++) { int col = (int)pixel_lut[1][0]; lk_mh_pix(line, k, &col); row[k] = (PIXEL_OUT_T)col; }
 }
+void lk_mh_ddmark(unsigned char *m, int sw, int h) {   /* LK_DDHUD v1 (2026-11-17, GitHub #19): De-Dither leaves the HUD's own pixels (+1 px around them) alone; m = sw x h guard mask of display_core.c */
+  int y, x, dy, dx;
+  for (y = lk_mh_y0; y <= lk_mh_y1 && y < LK_MH_H && y < h; y++) for (x = 0; x < LK_MH_W && x < sw; x++) if (lk_mh_a[y][x])
+    for (dy = -1; dy <= 1; dy++) for (dx = -1; dx <= 1; dx++) { int yy = y + dy, xx = x + dx; if (yy >= 0 && yy < h && xx >= 0 && xx < sw) m[(size_t)yy * sw + xx] = 1; }
+}
 static int lk_mh_pix(int line, int i, int *col) {
   int a; PIXEL_OUT_T c, o; int sh;
   if (line < lk_mh_y0 || line > lk_mh_y1 || i < 0 || i >= LK_MH_W) return 0;
@@ -243,7 +251,7 @@ static int lk_qr_decode(int id) {
   if (id < 0 || id > 63) return 0;
   base = OL(0x120000); { int ofs = OW(0x120004 + 4 * 0x23); ap = OL(base + (uint32_t)ofs * 4 + (uint32_t)(((id >> 3) & 7) * 4)); }
   if (ap >= 0x200000u) return 0;
-  fp = OL(ap + (uint32_t)((id & 7) * 4)); if (fp >= 0x200000u) return 0;
+  fp = OL(ap + (uint32_t)((id & 7) * 4)); if (fp >= 0x200000u && (fp >> 16) != 0x81u) return 0;   /* $81xxxx = the Japanese item pictures (LK_JPITEMS v1) */
   pos = fp; for (;;) { int b2 = OB(pos + 1); pos += 2; np++; if ((b2 & 0x80) || np >= 8) break; }
   for (guard = 0; guard < 64; guard++) { int h = OW(pos), n = h & 0x0FFF, i; pos += 2;
     if (h & 0x8000) { for (i = 0; i < n * 2 && tl + i < 0x4000; i++) t[tl + i] = 0; tl += n * 2; }
@@ -256,8 +264,8 @@ static int lk_qr_decode(int id) {
 }
 static PIXEL_OUT_T lk_qr_col(int i) { int c = OW(0x7896 + 2 * (i & 15)); return pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; }
 static void lk_qr_fill(void) {
-  static int done; int id, y, x;
-  if (done) return; done = 1;
+  static int done = -1; int id, y, x; extern int lk_lang_gen(void);
+  if (done == lk_lang_gen()) return; done = lk_lang_gen();   /* again after a language / Items switch (LK_JPITEMS v1: other pictures) */
   for (id = 0; id < 64; id++) {
     int bx0 = 99, by0 = 99, bx1 = -1, by1 = -1, w, h, mx, sw, sh, ox, oy, lit = 0;
     if (!lk_qr_decode(id)) continue;

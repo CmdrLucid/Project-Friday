@@ -1,7 +1,7 @@
 #!/bin/bash
 # export_light.sh : build the LIGHT variant (params_light.json: each wing as drawn, no cup, the robe up to the outline), reduce it to ~16000 triangles
 # (decimate.py) and write light.obj (the light proxy source for remake/tools/furniture_ops.py); the remake parameters are restored afterwards
-cd /home/deck/lktest/sculpt || exit 1
+cd /home/deck/Project-Friday-Test/lktest/sculpt || exit 1
 cp params.json params_remake.json; cp params_light.json params.json
 NOREND=1 ./all.sh "" | tail -1; cp angel_s.obj angel_light_full.obj
 cp params_remake.json params.json

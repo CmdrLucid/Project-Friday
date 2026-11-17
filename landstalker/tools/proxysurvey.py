@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import romroom
 
 ROM_DEF = "/home/deck/Documents/NonSteamGames/landstalker/landstalker.md"
-REC = os.path.expanduser("~/aufnahmen/rec_20261103_1803")   # a recording that reaches Mercator 632 by frame 2040 (any loaded game works)
+REC = os.path.expanduser("~/Project-Friday-Test/aufnahmen/rec_20261103_1803")   # a recording that reaches Mercator 632 by frame 2040 (any loaded game works)
 
 def outdoor_rooms(rom):
     tab = struct.unpack('>I', rom[0xA0A00:0xA0A04])[0]
@@ -38,7 +38,7 @@ def run(rom, rooms, out, batch=16, jobs=4):
     procs, logs = [], []
     for b in range(0, len(rooms), batch):
         d = os.path.join(out, "b%02d" % (b // batch)); os.makedirs(os.path.join(d, "home"), exist_ok=True)
-        subprocess.run("cp ~/aufnahmen/opts_%s/.landstalker_* %s/home/ 2>/dev/null; echo 1 > %s/home/.landstalker_lighting; cp ~/aufnahmen/save_%s.srm %s/s.srm" % (T, d, d, T, d), shell=True)
+        subprocess.run("cp ~/Project-Friday-Test/aufnahmen/opts_%s/.landstalker_* %s/home/ 2>/dev/null; echo 1 > %s/home/.landstalker_lighting; cp ~/Project-Friday-Test/aufnahmen/save_%s.srm %s/s.srm" % (T, d, d, T, d), shell=True)
         with open(REC + ".txt") as f, open(os.path.join(d, "in.txt"), "w") as o:
             for l in f:
                 if int(l.split()[0]) < 2040: o.write(l)
@@ -50,11 +50,13 @@ def run(rom, rooms, out, batch=16, jobs=4):
             (x, y), h = s; warps.append("%d:%d.08,%d.08,%04X" % (r, x, y, 16 * h)); ats.append(str(fr)); fr += 160
         env = dict(PATH=os.environ["PATH"], HOME=os.path.join(d, "home"), LANDSTALKER_WIDE="19", LANDSTALKER_TALL="1", LANDSTALKER_NATIVEPACE="1",
                    LANDSTALKER_QSPLAY=qs, GENRECOMP_INPUTSCRIPT=os.path.join(d, "in.txt"), LANDSTALKER_SAVE=os.path.join(d, "s.srm"),
-                   LANDSTALKER_WARP=";".join(warps), LANDSTALKER_WARP_AT=",".join(ats), LANDSTALKER_LIGHTING_DBG="5")
+                   LANDSTALKER_WARP=";".join(warps), LANDSTALKER_WARP_AT=",".join(ats), LANDSTALKER_LIGHTING_DBG="5",
+                   LANDSTALKER_HIDDEN="1", LANDSTALKER_NOFOCUSPAUSE="1", SDL_AUDIODRIVER="dummy")   # 2026-11-15: GPU only light (no light at all with --headless since 2026-11-12) -> a hidden window
+        env.update({k: os.environ[k] for k in ("DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR") if k in os.environ})
         log = os.path.join(d, "survey.log"); logs.append(log)
         while len([p for p in procs if p.poll() is None]) >= jobs: procs[0].wait(); procs = [p for p in procs if p.poll() is None]
         print("proxysurvey: batch %d: %d warps -> %s" % (b // batch, len(warps), log), flush=True)
-        procs.append(subprocess.Popen([os.path.join(here, "build", "landstalker"), "--headless", "--frames", str(fr + 20), rom_path], env=env, stdout=open(log, "w"), stderr=subprocess.STDOUT, cwd=here))
+        procs.append(subprocess.Popen([os.path.join(here, "build", "landstalker"), "--frames", str(fr + 20), rom_path], env=env, stdout=open(log, "w"), stderr=subprocess.STDOUT, cwd=here))
     for p in procs: p.wait()
     allp = os.path.join(out, "survey.log")
     with open(allp, "w") as o:

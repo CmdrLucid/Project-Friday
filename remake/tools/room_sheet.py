@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """room_sheet.py ROOM_DIR ORIGINAL.png OUT.png   -- comparison sheet of a room blockout (recipes/room_c.py): the original picture (rom_picture.py,
-same window) next to the game view of the remake, below the three turned views (q1..q3) at half size.  Needs pillow (~/hdvenv/bin/python)."""
+same window) next to the game view of the remake, below the three turned views (q1..q3) at half size.  Needs pillow (~/Project-Friday-Test/hdvenv/bin/python)."""
 import os, sys
 from PIL import Image, ImageDraw, ImageFont
 d, orig, outp = sys.argv[1:4]

@@ -4,7 +4,7 @@
 # chest, where the mesh disappears inside the metaball torso. post.py keeps it inside the drawn outline.
 import json, math, sys
 sys.path.insert(0, '/home/deck/ProjectL/remake/lib'); import furniture as F
-P = json.load(open('/home/deck/lktest/sculpt/params.json')); g = lambda k, d: P.get(k, d)
+P = json.load(open('/home/deck/Project-Friday-Test/lktest/sculpt/params.json')); g = lambda k, d: P.get(k, d)
 A = F.CHURCH_ANGEL4; AX, AY = A['axis']; FLO = 32.0; SQ2 = math.sqrt(2)
 RZ = [z for z, c, r in A['rings']]; C = {z: c for z, c, r in A['rings']}; R = {z: r for z, c, r in A['rings']}
 def ip(t, z):
@@ -26,7 +26,7 @@ def fold(th, z):
     return ridge + fine - 0.62
 # the drawn outline per picture row -> limits for s (left / right), so a row that would stick out is SQUEEZED as a whole (smoothly along z) instead of
 # being cut flat by post.py (flat scars on the sides)
-mask = {tuple(p) for p in json.load(open('/home/deck/lktest/angel3/mask.json'))}; U0, V0 = 1064, 280; AU = AX - AY + 1184.0
+mask = {tuple(p) for p in json.load(open('/home/deck/Project-Friday-Test/lktest/angel3/mask.json'))}; U0, V0 = 1064, 280; AU = AX - AY + 1184.0
 _rows = {}
 for u, v in mask: lo, hi = _rows.get(v, (1e9, -1e9)); _rows[v] = (min(lo, u), max(hi, u + 1))
 def lim(Vv):   # s limits at picture row Vv (float), the tighter of the two nearest rows

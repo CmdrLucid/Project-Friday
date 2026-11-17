@@ -228,3 +228,16 @@
 - L1819: Session 2026-11-12 afternoon: furniture shapes, key light direction, AO stairs, niche stripe, CPU light removal plan (Deck, Opus 5.5 lead + Sonnet agents)
 - L1830: Session 2026-11-12 evening / night: room 62 flame shadow, Mercator stutter measured, CPU light removed (Deck, Opus 5.5, no agents)
 - L1835: Session 2026-11-13: light shapes as real 3D models (stands, balustrades, tables, counters) (Deck, Opus 5.5, no agents)
+- L1842: Session 2026-11-13 afternoon / evening: room sweep, v1.9.0 + hotfix v1.9.1, home clean-up, German translation (Deck, Opus 5.5, no agents)
+- L1850: Session 2026-11-14: German + English (original tone) complete, Options > Items, Japanese language (Deck, Opus 5.5; 8 Sonnet agents for the Japanese mapping)
+- L1856: Session 2026-11-13 night-2: Japanese fixes, English (JP) full pass, French, Korean (Deck, Opus 5.5 lead + ~40 Sonnet agent runs)
+- L1864: Session 2026-11-14: dungeon map redesign (Deck, Opus 5.5, no agents)
+- L1870: Session 2026-11-14 evening: keyboard directions + one-press WASD (Deck, Opus 5.5, no agents)
+- L1875: Session 2026-11-14 midday: Friday hints knowledge review (Deck, Opus 5.5 lead + 3 Sonnet review agents)
+  - L1879: Kayla bath scene restored: the Japanese OneTimeEventFlags record (2026-11-15, Deck, Fable 5.1 lead + Opus / Sonnet / Haiku agents; `tools/patch_bath.py`, `tools/patch_langpage.py`)
+- L1888: Release 2.0 preparation (2026-11-14 night / 2026-11-15, Deck, Opus 5.5 + Sonnet agents)
+- L1899: Session 2026-11-15 (Deck, Opus 5.5, no agents): sprint doors, lift shadow, night streaks, light sweep v2, issue #17, castle alcoves
+- L1908: Session 2026-11-16 (Deck, Opus 5.5, no agents): pine clusters, firefly light, night windows
+- L1916: Session 2026-11-16 afternoon (Deck, Opus 5.5, no agents): Massan night round 2, sprint light bug
+- L1924: Session 2026-11-16 evening / 11-17 (Deck, Opus 5.5, no agents): Mercator church at night, sprint sprite jitter, Destel night lights
+- L1934: Session 2026-11-17 later (Deck, Opus 5.5, no agents): GitHub #19 / #20, De-Dither on the GPU

@@ -10,7 +10,7 @@ Result line (key=value, one line per recording; 'time' is NOT part of the compar
 Recordings that do not replay exactly (older builds, option files of the live HOME) show chk=diff@F: expected, recorded, not fixed.
 
 usage: tools/timebench.py [--baseline FILE] [--compare FILE] [--jobs N<=4] [--only SUBSTR] [--bin PATH] [--verify-off] [--counts FILE] [--out FILE] [--keep-traces DIR] [--max-frames N] [--home-opts] [--env K=V ...]
-  --baseline FILE   write the results as the new baseline (e.g. ~/timebench/baseline.txt; keep it OUTSIDE git)
+  --baseline FILE   write the results as the new baseline (e.g. ~/Project-Friday-Test/timebench/baseline.txt; keep it OUTSIDE git)
   --compare FILE    compare this run with a baseline: prints every difference, exit code 1 if there is any (or a recording is missing)
   --verify-off      also run every recording with the trace OFF and require RAM dumps + WAV identical (proof that the trace does not change the time)
   --counts FILE     write the per recording event counts of the trace (kinds, T1 question) to FILE
@@ -22,8 +22,8 @@ import argparse, concurrent.futures as cf, glob, hashlib, os, shlex, shutil, sub
 HERE = os.path.dirname(os.path.abspath(__file__))
 LAND = os.path.dirname(HERE)
 ROM = "/home/deck/Documents/NonSteamGames/landstalker/landstalker.md"
-AUF = "/home/deck/aufnahmen"
-WORK = "/home/deck/timebench/work/%d" % os.getpid()   # one directory per bench process: two benches at the same time must not share a recording's work dir (2026-10-29)
+AUF = "/home/deck/Project-Friday-Test/aufnahmen"
+WORK = "/home/deck/Project-Friday-Test/timebench/work/%d" % os.getpid()   # one directory per bench process: two benches at the same time must not share a recording's work dir (2026-10-29)
 HOME_OPTS = False
 EXTRA_ENV = {}
 
@@ -57,7 +57,7 @@ def jobs_list():
         d["frames"] = (last_frame(d["chk"]) + 1) if os.path.exists(d["chk"]) else last_frame(t) + 120
         if not os.path.exists(d["chk"]): d["chk"] = None
         out.append(d)
-    out.append(dict(name="intro", script="/home/deck/intro.txt", save=None, cfg={}, chk=None, frames=12000))
+    out.append(dict(name="intro", script="/home/deck/Project-Friday-Test/intro.txt", save=None, cfg={}, chk=None, frames=12000))
     out.append(dict(name="massan", script=os.path.join(LAND, "docs/replays/massan.txt"), save=None, cfg={}, chk=None, frames=last_frame(os.path.join(LAND, "docs/replays/massan.txt")) + 120))
     return out
 

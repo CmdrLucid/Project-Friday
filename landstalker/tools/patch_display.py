@@ -55,12 +55,16 @@ static void lk_disp_load(void) {
 static void lk_dd_load(void) {
     const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_DEDITHER"); char path[600]; lk_dd_loaded = 1;
     snprintf(path, sizeof(path), "%s/.landstalker_dither", h ? h : ".");
-    (void)path;   /* De-Dither row hidden 2026-10-25: the saved ~/.landstalker_dither is ignored, only LANDSTALKER_DEDITHER switches it on */
-    if (e && *e) { int a = atoi(e); if (a >= 0 && a < 4) lk_dd_mode = a; }
+    { FILE *f = fopen(path, "r"); if (f) { int a = 0; if (fscanf(f, "%d", &a) == 1 && a >= 0 && a < 4) lk_dd_mode = a; fclose(f); } }   /* LK_DDHUD v1 (2026-11-17, GitHub #19): the De-Dither row is back on the Display page, the saved choice counts again */
+    if (e && *e) { int a = atoi(e); if (a >= 0 && a < 4) lk_dd_mode = a; }   /* env wins (tests) */
 }
 static void lk_dd_save(void) {
     const char *h = getenv("HOME"); char path[600]; snprintf(path, sizeof(path), "%s/.landstalker_dither", h ? h : ".");
     FILE *f = fopen(path, "w"); if (f) { fprintf(f, "%d\n", lk_dd_mode); fclose(f); }
+}
+static void lk_dd_hud(void) {   /* LK_DDHUD v1: Modern HUD = lines 0..23 are map and get smoothed too, only the HUD's own pixels stay sharp; Original HUD = the bar rows stay untouched */
+    extern int lk_nohud_get(void); extern void lk_mh_ddmark(uint8_t *near, int sw, int h);
+    const int m = lk_nohud_get(); lk_dd_skip_top = m ? 0 : LK_DD_SKIP_TOP; lk_dd_hudmark = m ? lk_mh_ddmark : 0;
 }
 void platform_display_cycle_dither(void) {
     if (!lk_dd_loaded) lk_dd_load();
@@ -241,7 +245,7 @@ static void lk_disp_present(const uint8_t *framebuffer) {
     const int sw = LK_SRC_W + 2 * lk_wide_e;
     if (!lk_dd_loaded) lk_dd_load();
     if (lk_dd_mode) {                                   /* de-dither the 320 / 352 / .. x 224 picture before any scaling or filter */
-        lk_dd_par = lk_dd_par_run;
+        lk_dd_par = lk_dd_par_run; lk_dd_hud();
         if (lk_dd_cap < sw * LK_SRC_H) { free(lk_dd_buf); lk_dd_buf = (uint32_t *)malloc((size_t)sw * LK_SRC_H * 4); lk_dd_cap = lk_dd_buf ? sw * LK_SRC_H : 0; }
         if (lk_dd_buf) { if (lk_dd_mode == 3) lk_dedither_blend((const uint32_t *)framebuffer, lk_dd_buf, sw); else if (lk_dd_mode == 2) lk_dedither_strong((const uint32_t *)framebuffer, lk_dd_buf, sw); else lk_dedither((const uint32_t *)framebuffer, lk_dd_buf, sw); framebuffer = (const uint8_t *)lk_dd_buf; }
     }

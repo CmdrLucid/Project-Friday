@@ -5,7 +5,7 @@
  3. form light: local contrast boost (unsharp mask at a large radius) = the volume the 8-bit palette could not show
  4. needle / grass detail: fine strokes (noise stretched along a diagonal) on green areas, amplitude from the local brightness
  5. anti-aliased outlines: the darkest pixels of the original are kept dark (contours)
-Needs numpy / scipy / pillow (venv ~/hdvenv).  Writes OUT_PREFIX_orig4.png (nearest), _epx.png (step 1 only), _hd.png (all steps), _compare.png (three side by side).
+Needs numpy / scipy / pillow (venv ~/Project-Friday-Test/hdvenv).  Writes OUT_PREFIX_orig4.png (nearest), _epx.png (step 1 only), _hd.png (all steps), _compare.png (three side by side).
 Only the user's own screenshot goes in (derived from his ROM): the results stay in ~/.landstalker_remake/ and are never committed."""
 import sys, numpy as np
 from PIL import Image

@@ -66,7 +66,7 @@ def main():
             if f.endswith((".json", ".obj")):
                 rel = os.path.relpath(os.path.join(dp, f), ROOT); copy(os.path.join(ROOT, rel), os.path.join(pkg, rel))
     for f in sorted(os.listdir(os.path.join(ROOT, "lang"))):   # translations (our own text, tools/langbuild.py builds them on the player's machine)
-        if f.endswith(".json"):
+        if f.endswith(".json") or f in ("ko_glyphs.dat", "ko_glyphs7.dat", "ja_glyphs7.dat", "OFL-Galmuri.txt", "OFL-NotoSansCJK.txt"):   # LK_LGKO v1: the Hangul font (Galmuri 11, OFL) for the Korean language
             copy(os.path.join(ROOT, "lang", f), os.path.join(pkg, "lang", f))
     for f in sorted(os.listdir(os.path.join(ROOT, "tools"))):
         p = os.path.join(ROOT, "tools", f)
@@ -121,6 +121,8 @@ def main():
         copy(pylic, os.path.join(lic, "Python-LICENSE-PSF.txt"))
     copy(os.path.join(ROOT, "..", "README.md"), os.path.join(lic, "Project-Friday-README.md"))
     copy(os.path.join(ROOT, "..", "LICENSE"), os.path.join(lic, "Project-Friday-LICENSE-MIT.txt"))
+    copy(os.path.join(ROOT, "lang", "OFL-Galmuri.txt"), os.path.join(lic, "Galmuri-font-LICENSE-OFL.txt"))   # the Hangul font of the Korean language (release 2.0 check)
+    copy(os.path.join(ROOT, "lang", "OFL-NotoSansCJK.txt"), os.path.join(lic, "NotoSansCJK-LICENSE-OFL.txt"))   # glyphs of the Korean / Japanese title subtitle (tools/titlefont.py)
     notice = (
         "Project-Friday release package (Windows, 64 bit)\n\n"
         "This package contains NO ROM, NO game data and NO code generated from the game. On the first start the launcher\n"
@@ -135,7 +137,7 @@ def main():
     open(os.path.join(lic, "NOTICE.txt"), "w", newline="\r\n").write(notice)
     open(os.path.join(pkg, "README.txt"), "w", newline="\r\n").write(notice)
     for need in ("genrecomp-LICENSE-MIT.txt", "Genesis-Plus-GX-LICENSE.txt", "Musashi-header-with-licence.h.txt", "zig-LICENSE-MIT.txt",
-                 "SDL2-LICENSE-zlib.txt", "capstone-LICENSE-BSD.txt", "Project-Friday-LICENSE-MIT.txt", "NOTICE.txt"):
+                 "SDL2-LICENSE-zlib.txt", "capstone-LICENSE-BSD.txt", "Project-Friday-LICENSE-MIT.txt", "Galmuri-font-LICENSE-OFL.txt", "NOTICE.txt"):
         if not os.path.isfile(os.path.join(lic, need)):
             sys.exit("licence file missing in the package: " + need)
 

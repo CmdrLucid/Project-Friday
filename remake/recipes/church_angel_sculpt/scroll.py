@@ -2,7 +2,7 @@
 # around (a spiral: the loose edge is a small step down its length), rounded rims, the end faces a little hollow with the spiral's centre
 import json, math, sys
 sys.path.insert(0, '/home/deck/ProjectL/remake/lib'); import furniture as F
-P = json.load(open('/home/deck/lktest/sculpt/params.json')); g = lambda k, d: P.get(k, d)
+P = json.load(open('/home/deck/Project-Friday-Test/lktest/sculpt/params.json')); g = lambda k, d: P.get(k, d)
 A = F.CHURCH_ANGEL4; AX, AY = A['axis']; FLO = 32.0; SQ2 = math.sqrt(2)
 # v13: the figure FACES OUT OF THE WALL (+x; user: 'die Fluegel muessen am Ruecken anliegen, parallel zum Koerper'), not the camera: the body frame
 # (s = its left / right, f = its front) is turned 45 degrees about the body's axis; positions stay where they are in the picture

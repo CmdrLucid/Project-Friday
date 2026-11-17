@@ -23,6 +23,47 @@
     "     carve {\"cells\": [x0,y0,x1,y1], \"bg\": \"sea\" | \"layera\", \"floor\": f} - at room load the shapes in these cells follow the DRAWN picture: every sub column is lowered until its top and its front edge land on drawn object pixels (sea = nothing drawn or a water tile), slabs keep the heights drawn in layer A, then a 3 x 3 median (LANDSTALKER_LT_CARVEMED). Outdoors every building shape / mesh is carved automatically to layer A (LANDSTALKER_LT_CARVEOUT=0 = off)."
   ],
   "rooms": {
+    "28": [
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          18,
+          40,
+          18
+        ],
+        "file": "proxies/wall_28.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "back wall of room 28 (swamp shrine boss room): NEAR-FINAL model (remake/recipes/wall_28, user OK 2026-11-15 on the v2 clay preview): the game's wall cells ($48 = 128) are 48 lower than the drawn wall (top of the ornament band z 176); the light saw the upper third as the flat top of a low wall and the statue's flames lit only the lower part = a hard diagonal edge through the red drapes (user recording). Wall to 176 with bead rows (167 / 134 / 102 / 52, every 8), grille, rails, lattice pilaster frames on the forward blocks"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          19,
+          22,
+          19
+        ],
+        "file": "proxies/wall_28.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "the forward pilaster block (left) of the room 28 back wall (remake/recipes/wall_28)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          19,
+          37,
+          19
+        ],
+        "file": "proxies/wall_28.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "the forward pilaster block (right) of the room 28 back wall (remake/recipes/wall_28)"
+      }
+    ],
     "31": [
       {
         "op": "mesh",
@@ -175,12 +216,33 @@
       {
         "op": "mesh",
         "cells": [
+          24,
+          23,
+          24,
+          23
+        ],
+        "file": "proxies/brazier_51.obj",
+        "surface": true,
+        "floor": 128,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            393,
+            377
+          ],
+          "z": 168
+        },
+        "why": "brazier stand (collision = a 32 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           27,
           44,
           27,
           44
         ],
-        "file": "proxies/brazier_51.obj",
+        "file": "proxies/brazier_51_1.obj",
         "surface": true,
         "floor": 96,
         "carrier": {
@@ -201,7 +263,7 @@
           32,
           44
         ],
-        "file": "proxies/brazier_51_1.obj",
+        "file": "proxies/brazier_51_2.obj",
         "surface": true,
         "floor": 96,
         "carrier": {
@@ -222,7 +284,7 @@
           35,
           23
         ],
-        "file": "proxies/brazier_51_2.obj",
+        "file": "proxies/brazier_51_3.obj",
         "surface": true,
         "floor": 128,
         "carrier": {
@@ -240,12 +302,33 @@
       {
         "op": "mesh",
         "cells": [
+          24,
+          23,
+          24,
+          23
+        ],
+        "file": "proxies/brazier_52.obj",
+        "surface": true,
+        "floor": 128,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            393,
+            377
+          ],
+          "z": 168
+        },
+        "why": "brazier stand (collision = a 32 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           27,
           44,
           27,
           44
         ],
-        "file": "proxies/brazier_52.obj",
+        "file": "proxies/brazier_52_1.obj",
         "surface": true,
         "floor": 96,
         "carrier": {
@@ -266,7 +349,7 @@
           32,
           44
         ],
-        "file": "proxies/brazier_52_1.obj",
+        "file": "proxies/brazier_52_2.obj",
         "surface": true,
         "floor": 96,
         "carrier": {
@@ -287,7 +370,7 @@
           35,
           23
         ],
-        "file": "proxies/brazier_52_2.obj",
+        "file": "proxies/brazier_52_3.obj",
         "surface": true,
         "floor": 128,
         "carrier": {
@@ -305,12 +388,33 @@
       {
         "op": "mesh",
         "cells": [
+          24,
+          23,
+          24,
+          23
+        ],
+        "file": "proxies/brazier_53.obj",
+        "surface": true,
+        "floor": 128,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            393,
+            377
+          ],
+          "z": 168
+        },
+        "why": "brazier stand (collision = a 32 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           27,
           44,
           27,
           44
         ],
-        "file": "proxies/brazier_53.obj",
+        "file": "proxies/brazier_53_1.obj",
         "surface": true,
         "floor": 96,
         "carrier": {
@@ -331,7 +435,7 @@
           32,
           44
         ],
-        "file": "proxies/brazier_53_1.obj",
+        "file": "proxies/brazier_53_2.obj",
         "surface": true,
         "floor": 96,
         "carrier": {
@@ -352,7 +456,7 @@
           35,
           23
         ],
-        "file": "proxies/brazier_53_2.obj",
+        "file": "proxies/brazier_53_3.obj",
         "surface": true,
         "floor": 128,
         "carrier": {
@@ -370,12 +474,33 @@
       {
         "op": "mesh",
         "cells": [
+          24,
+          23,
+          24,
+          23
+        ],
+        "file": "proxies/brazier_54.obj",
+        "surface": true,
+        "floor": 128,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            393,
+            377
+          ],
+          "z": 168
+        },
+        "why": "brazier stand (collision = a 32 high box): the fitted lathe of remake/lib/furniture.py BRAZIER, placed by remake/tools/furniture_ops.py; user 2026-11-09 'next forms'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           27,
           44,
           27,
           44
         ],
-        "file": "proxies/brazier_54.obj",
+        "file": "proxies/brazier_54_1.obj",
         "surface": true,
         "floor": 96,
         "carrier": {
@@ -396,7 +521,7 @@
           32,
           44
         ],
-        "file": "proxies/brazier_54_1.obj",
+        "file": "proxies/brazier_54_2.obj",
         "surface": true,
         "floor": 96,
         "carrier": {
@@ -417,7 +542,7 @@
           35,
           23
         ],
-        "file": "proxies/brazier_54_2.obj",
+        "file": "proxies/brazier_54_3.obj",
         "surface": true,
         "floor": 128,
         "carrier": {
@@ -2045,6 +2170,75 @@
         "why": "case furniture 'castle_wardrobe' as a real model (remake/recipes/case/case.py spec castle_wardrobe_72, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents), checked by overlay on rom_picture 72 + clay preview"
       }
     ],
+    "73": [
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          29,
+          25,
+          29
+        ],
+        "file": "proxies/brazier_73.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            394,
+            475
+          ],
+          "z": 64
+        },
+        "why": "castle standing torch (not found by furniture_ops brazier_stands): the lathe of 51..62 on floor 0, axis MEASURED with proxy_overlay = flame light point + (-11, -4); user 2026-11-12 '89 und 73 auch noch'; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
+      }
+    ],
+    "74": [
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          21,
+          33,
+          21
+        ],
+        "file": "proxies/brazier_74.obj",
+        "surface": true,
+        "floor": 16,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            522,
+            347
+          ],
+          "z": 80
+        },
+        "why": "castle standing torch (collision cell (32, 21) a column 64 high on floor 16; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = flame light point + (-11, -4); deco survey 2026-11-13; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
+      }
+    ],
+    "75": [
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          21,
+          33,
+          21
+        ],
+        "file": "proxies/brazier_75.obj",
+        "surface": true,
+        "floor": 16,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            522,
+            347
+          ],
+          "z": 80
+        },
+        "why": "castle standing torch (collision cell (32, 21) a column 64 high on floor 16; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = flame light point + (-11, -4); deco survey 2026-11-13; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
+      }
+    ],
     "77": [
       {
         "op": "mesh",
@@ -2581,6 +2775,110 @@
         "why": "the handrail of the room 89 balustrade (remake/recipes/balustrade; 'air')"
       }
     ],
+    "95": [
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          14,
+          16,
+          14
+        ],
+        "file": "proxies/brazier_95.obj",
+        "surface": true,
+        "floor": 32,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            250,
+            235
+          ],
+          "z": 96
+        },
+        "why": "castle standing torch of room 95 (collision cell (16, 14) walkable, top block $2D): the brazier lathe of 51..62 on the floor 32, axis MEASURED with proxy_overlay; user 2026-11-12; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          19,
+          19,
+          20
+        ],
+        "file": "proxies/rail_95.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "balustrade of room 95: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12 || 2026-11-13 (user, 95: 'komische Ecken im Licht' on the steps): the op floor of the rail cells = the stair / well height under them (was the room floor: a false 32 high strip beside the steps whose top lit up as boxes on the treads); the model carries the stairwell's side wall under the rail"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          19,
+          19,
+          20
+        ],
+        "file": "proxies/rail_95_rail.obj",
+        "surface": true,
+        "air": true,
+        "floor": 16,
+        "why": "the handrail of the room 95 balustrade (remake/recipes/balustrade; 'air')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          21,
+          19,
+          27
+        ],
+        "file": "proxies/rail_95.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "balustrade of room 95: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12 || 2026-11-13 (user, 95: 'komische Ecken im Licht' on the steps): the op floor of the rail cells = the stair / well height under them (was the room floor: a false 32 high strip beside the steps whose top lit up as boxes on the treads); the model carries the stairwell's side wall under the rail"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          21,
+          19,
+          27
+        ],
+        "file": "proxies/rail_95_rail.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "the handrail of the room 95 balustrade (remake/recipes/balustrade; 'air')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          27,
+          18,
+          27
+        ],
+        "file": "proxies/rail_95.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "balustrade of room 95: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12 || 2026-11-13 (user, 95: 'komische Ecken im Licht' on the steps): the op floor of the rail cells = the stair / well height under them (was the room floor: a false 32 high strip beside the steps whose top lit up as boxes on the treads); the model carries the stairwell's side wall under the rail"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          27,
+          18,
+          27
+        ],
+        "file": "proxies/rail_95_rail.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "the handrail of the room 95 balustrade (remake/recipes/balustrade; 'air')"
+      }
+    ],
     "96": [
       {
         "op": "mesh",
@@ -2649,6 +2947,82 @@
           "axis": [
             394,
             219
+          ],
+          "z": 64
+        },
+        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
+      }
+    ],
+    "98": [
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          19,
+          25,
+          25
+        ],
+        "file": "proxies/dining_98.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "Kayla's messy laid dining table (castle table of 96 + plates, dishes, cups, tipped goblet; bones, food scraps, bottles on the floor around it): NEAR-FINAL model remake/recipes/dining_table/dining98.py, positions read off the object layer; user OK 2026-11-13 ('passt')"
+      }
+    ],
+    "99": [
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          26,
+          14,
+          26
+        ],
+        "file": "proxies/brazier_99.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            218,
+            427
+          ],
+          "z": 64
+        },
+        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          19,
+          25,
+          25
+        ],
+        "file": "proxies/dining_98.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "Kayla's messy laid dining table (castle table of 96 + plates, dishes, cups, tipped goblet; bones, food scraps, bottles on the floor around it): NEAR-FINAL model remake/recipes/dining_table/dining98.py, positions read off the object layer; user OK 2026-11-13 ('passt')"
+      }
+    ],
+    "100": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          16,
+          15,
+          16
+        ],
+        "file": "proxies/brazier_100.obj",
+        "surface": true,
+        "floor": 0,
+        "carrier": {
+          "r": 12,
+          "axis": [
+            234,
+            267
           ],
           "z": 64
         },
@@ -4334,6 +4708,19 @@
           42
         ],
         "why": "automatic hip up to 142 on the WALKABLE terrace of the mound (cells 24..25 x 41..42)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          24,
+          25,
+          26
+        ],
+        "file": "proxies/pine_cl_636_0.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
       }
     ],
     "637": [
@@ -6701,253 +7088,135 @@
         "why": "jar (collision = a 16 high box): the fitted lathe of remake/lib/furniture.py JAR, found by a picture match in remake/tools/furniture_ops.py; user 2026-11-10 'weiter' (next forms)"
       }
     ],
-    "99": [
+    "183": [
       {
         "op": "mesh",
         "cells": [
-          13,
-          26,
-          14,
-          26
-        ],
-        "file": "proxies/brazier_99.obj",
-        "surface": true,
-        "floor": 0,
-        "carrier": {
-          "r": 12,
-          "axis": [
-            218,
-            427
-          ],
-          "z": 64
-        },
-        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          19,
-          19,
           25,
-          25
+          28,
+          28,
+          31
         ],
-        "file": "proxies/dining_98.obj",
-        "surface": true,
-        "air": true,
-        "floor": 0,
-        "why": "Kayla's messy laid dining table (castle table of 96 + plates, dishes, cups, tipped goblet; bones, food scraps, bottles on the floor around it): NEAR-FINAL model remake/recipes/dining_table/dining98.py, positions read off the object layer; user OK 2026-11-13 ('passt')"
-      }
-    ],
-    "100": [
-      {
-        "op": "mesh",
-        "cells": [
-          14,
-          16,
-          15,
-          16
-        ],
-        "file": "proxies/brazier_100.obj",
-        "surface": true,
-        "floor": 0,
-        "carrier": {
-          "r": 12,
-          "axis": [
-            234,
-            267
-          ],
-          "z": 64
-        },
-        "why": "castle standing torch beside a wall (collision = a blocked floor cell of height 0 or none; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = the flame tile's light point + (-11, -4) like room 85; user 2026-11-12 'Fackel in 103 ... 99 pruefen ... 100, 97, 96'; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
-      }
-    ],
-    "95": [
-      {
-        "op": "mesh",
-        "cells": [
-          15,
-          14,
-          16,
-          14
-        ],
-        "file": "proxies/brazier_95.obj",
+        "file": "proxies/pine_cl_183_0.obj",
         "surface": true,
         "floor": 32,
-        "carrier": {
-          "r": 12,
-          "axis": [
-            250,
-            235
-          ],
-          "z": 96
-        },
-        "why": "castle standing torch of room 95 (collision cell (16, 14) walkable, top block $2D): the brazier lathe of 51..62 on the floor 32, axis MEASURED with proxy_overlay; user 2026-11-12; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          19,
-          19,
-          19,
-          20
-        ],
-        "file": "proxies/rail_95.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "balustrade of room 95: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12 || 2026-11-13 (user, 95: 'komische Ecken im Licht' on the steps): the op floor of the rail cells = the stair / well height under them (was the room floor: a false 32 high strip beside the steps whose top lit up as boxes on the treads); the model carries the stairwell's side wall under the rail"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          19,
-          19,
-          19,
-          20
-        ],
-        "file": "proxies/rail_95_rail.obj",
-        "surface": true,
-        "air": true,
-        "floor": 16,
-        "why": "the handrail of the room 95 balustrade (remake/recipes/balustrade; 'air')"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          19,
-          21,
-          19,
-          27
-        ],
-        "file": "proxies/rail_95.obj",
-        "surface": true,
-        "floor": 0,
-        "why": "balustrade of room 95: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12 || 2026-11-13 (user, 95: 'komische Ecken im Licht' on the steps): the op floor of the rail cells = the stair / well height under them (was the room floor: a false 32 high strip beside the steps whose top lit up as boxes on the treads); the model carries the stairwell's side wall under the rail"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          19,
-          21,
-          19,
-          27
-        ],
-        "file": "proxies/rail_95_rail.obj",
-        "surface": true,
-        "air": true,
-        "floor": 0,
-        "why": "the handrail of the room 95 balustrade (remake/recipes/balustrade; 'air')"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          15,
-          27,
-          18,
-          27
-        ],
-        "file": "proxies/rail_95.obj",
-        "surface": true,
-        "floor": 0,
-        "why": "balustrade of room 95: NEAR-FINAL model (remake/recipes/balustrade, user OK 2026-11-13 on the v2 clay preview): turned ribbed balusters on the 8 grid as drawn, rounded handrail + plinth swept with the mitred corner, posts with ball caps; measured with proxy_overlay (6x / 16x). Replaces the solid cell row of the height map (box shadows) and the box proxy of 2026-11-12 || 2026-11-13 (user, 95: 'komische Ecken im Licht' on the steps): the op floor of the rail cells = the stair / well height under them (was the room floor: a false 32 high strip beside the steps whose top lit up as boxes on the treads); the model carries the stairwell's side wall under the rail"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          15,
-          27,
-          18,
-          27
-        ],
-        "file": "proxies/rail_95_rail.obj",
-        "surface": true,
-        "air": true,
-        "floor": 0,
-        "why": "the handrail of the room 95 balustrade (remake/recipes/balustrade; 'air')"
+        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
       }
     ],
-    "73": [
+    "425": [
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          45,
+          37,
+          46
+        ],
+        "file": "proxies/pine_cl_425_0.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          52,
+          15,
+          54
+        ],
+        "file": "proxies/pine_cl_425_1.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+      }
+    ],
+    "430": [
       {
         "op": "mesh",
         "cells": [
           24,
-          29,
+          31,
           25,
+          32
+        ],
+        "file": "proxies/pine_cl_430_0.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+      }
+    ],
+    "433": [
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          38,
+          25,
+          39
+        ],
+        "file": "proxies/pine_cl_433_0.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+      }
+    ],
+    "474": [
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          28,
+          27,
           29
         ],
-        "file": "proxies/brazier_73.obj",
-        "surface": true,
-        "floor": 0,
-        "carrier": {
-          "r": 12,
-          "axis": [
-            394,
-            475
-          ],
-          "z": 64
-        },
-        "why": "castle standing torch (not found by furniture_ops brazier_stands): the lathe of 51..62 on floor 0, axis MEASURED with proxy_overlay = flame light point + (-11, -4); user 2026-11-12 '89 und 73 auch noch'; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
-      }
-    ],
-    "74": [
-      {
-        "op": "mesh",
-        "cells": [
-          32,
-          21,
-          33,
-          21
-        ],
-        "file": "proxies/brazier_74.obj",
+        "file": "proxies/pine_cl_474_0.obj",
         "surface": true,
         "floor": 16,
-        "carrier": {
-          "r": 12,
-          "axis": [
-            522,
-            347
-          ],
-          "z": 80
-        },
-        "why": "castle standing torch (collision cell (32, 21) a column 64 high on floor 16; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = flame light point + (-11, -4); deco survey 2026-11-13; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
-      }
-    ],
-    "75": [
+        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+      },
       {
         "op": "mesh",
         "cells": [
-          32,
-          21,
-          33,
-          21
+          29,
+          18,
+          30,
+          18
         ],
-        "file": "proxies/brazier_75.obj",
+        "file": "proxies/pine_cl_474_1.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+      }
+    ],
+    "484": [
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          57,
+          36,
+          58
+        ],
+        "file": "proxies/pine_cl_484_0.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+      }
+    ],
+    "514": [
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          47,
+          58,
+          48
+        ],
+        "file": "proxies/pine_cl_514_0.obj",
         "surface": true,
         "floor": 16,
-        "carrier": {
-          "r": 12,
-          "axis": [
-            522,
-            347
-          ],
-          "z": 80
-        },
-        "why": "castle standing torch (collision cell (32, 21) a column 64 high on floor 16; not found by furniture_ops brazier_stands): the lathe of 51..62, axis MEASURED with proxy_overlay = flame light point + (-11, -4); deco survey 2026-11-13; 2026-11-13 (user, room 99 stripes): cells widened to the AXIS cell (the rect was the flame tile's cell, one to the right: the stand's uncovered corner sub columns kept the wall height = phantom pillars above the flame, hard vertical stripes up the wall)"
-      }
-    ],
-    "98": [
-      {
-        "op": "mesh",
-        "cells": [
-          19,
-          19,
-          25,
-          25
-        ],
-        "file": "proxies/dining_98.obj",
-        "surface": true,
-        "air": true,
-        "floor": 0,
-        "why": "Kayla's messy laid dining table (castle table of 96 + plates, dishes, cups, tipped goblet; bones, food scraps, bottles on the floor around it): NEAR-FINAL model remake/recipes/dining_table/dining98.py, positions read off the object layer; user OK 2026-11-13 ('passt')"
+        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
       }
     ]
   },

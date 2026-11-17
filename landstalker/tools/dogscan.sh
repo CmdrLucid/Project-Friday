@@ -1,6 +1,6 @@
 #!/bin/bash
 # dogscan.sh ROM   -- finds the frame where the church is left (room change in the :5 dumps /tmp/refS), dumps every frame of a window behind it for ref and rec,
-# and prints the room timeline and the fastest movers (the dog). Needs build/ from build.sh, $HOME/massan.txt and the /tmp/refS /tmp/recS dumps (--ram-dump :5).
+# and prints the room timeline and the fastest movers (the dog). Needs build/ from build.sh, $HOME/Project-Friday-Test/massan.txt and the /tmp/refS /tmp/recS dumps (--ram-dump :5).
 ROM=${1:?usage: dogscan.sh ROM}
 cd "$(dirname "$0")/.." || exit 1
 F=$(python3 - <<'PY'
@@ -23,8 +23,8 @@ echo "Raumwechsel (Kirche verlassen) in der Referenz bei Frame: $F"
 LO=$((F > 20 ? F - 20 : 0)); HI=$((F + 400))
 rm -rf /tmp/refD /tmp/recD; mkdir -p /tmp/refD /tmp/recD
 echo "Fenster $LO-$HI, jeder Frame ..."
-GENRECOMP_DUMPRANGE=$LO:$HI GENRECOMP_INPUTSCRIPT=$HOME/massan.txt build/genrecomp_build/genrecomp_ref --headless --frames $((HI + 1)) --ram-dump /tmp/refD:1 "$ROM" > /dev/null 2>&1
-GENRECOMP_DUMPRANGE=$LO:$HI GENRECOMP_INPUTSCRIPT=$HOME/massan.txt build/landstalker --headless --frames $((HI + 1)) --ram-dump /tmp/recD:1 "$ROM" > $HOME/recD.log 2>&1
+GENRECOMP_DUMPRANGE=$LO:$HI GENRECOMP_INPUTSCRIPT=$HOME/Project-Friday-Test/massan.txt build/genrecomp_build/genrecomp_ref --headless --frames $((HI + 1)) --ram-dump /tmp/refD:1 "$ROM" > /dev/null 2>&1
+GENRECOMP_DUMPRANGE=$LO:$HI GENRECOMP_INPUTSCRIPT=$HOME/Project-Friday-Test/massan.txt build/landstalker --headless --frames $((HI + 1)) --ram-dump /tmp/recD:1 "$ROM" > $HOME/recD.log 2>&1
 echo "Dumps: $(ls /tmp/refD | wc -l) ref, $(ls /tmp/recD | wc -l) rec"
 echo "=== Raum + Spielerposition ==="; python3 tools/timeline.py /tmp/refD /tmp/recD $LO $HI 40 | head -30
 echo "=== Schnellste Figuren (Hund?) ==="; python3 tools/movers.py /tmp/refD /tmp/recD $LO $HI

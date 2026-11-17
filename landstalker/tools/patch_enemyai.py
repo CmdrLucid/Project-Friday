@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fix: the game hangs in INTRO_141 (2026-10-28, user recordings rec_20261028_2107 / 2123; also in every older build, replays of ~/intro.txt stay in room 141 for good).
+"""Fix: the game hangs in INTRO_141 (2026-10-28, user recordings rec_20261028_2107 / 2123; also in every older build, replays of ~/Project-Friday-Test/intro.txt stay in room 141 for good).
 Cause (call trace of frame 3152 + the ROM): the three golem statues of room 141 (entity type $8B = SPR_GOLEMSTATUE2) run a behaviour script whose last command is $2B EB_LoadSpecialAI
 ($018D72: jmp $1A440C -> $1A86D6): that looks the entity's sprite id (+3A & $3FF) up in EnemyTable ($1A8418, 70 ids, $FFFF at the end). $8B is NOT listed, the not-found branch calls OnTick
 (j_j_OnTick) for the same entity, whose BehavParam / BehavCmd are unchanged -> the same command again -> endless recursion (the log: '[depth] ABORT: call depth 501 at $1A8ADA'), the room never ends.

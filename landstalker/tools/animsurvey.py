@@ -2,7 +2,7 @@
 """animsurvey.py ROM [OUT_HTML]  -- every animated tile group of the ROM (AnimatedTilesetTable $009E04 / AnimatedTilesetData $009E1C, romgfx.anim_list)
 with up to two rooms that use it: the room crop around the animated tiles (marked) played as a GIF, so that light sources (torches, candles, braziers, lava)
 can be named by eye (2026-11-02, Lights from the tile origin instead of the pixel colour, user: 'kannst du Lampen, Flammen an sich identifizieren?').
-Output: one self-contained HTML page (default ~/Mockups/lichter_survey.html; base64 images, it holds ROM-derived pictures: never commit it) and a
+Output: one self-contained HTML page (default ~/Project-Friday-Test/Mockups/lichter_survey.html; base64 images, it holds ROM-derived pictures: never commit it) and a
 text list on stdout: entry index, tileset, ROM address of frame 0, VRAM tiles, frames, delay, rooms.  Needs Pillow (on the Deck ~/.landstalker_trailer/venv/bin/python)."""
 import base64, io, os, struct, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -53,7 +53,7 @@ def crop_gif(rom, room, ent, size=112, scale=3):
     return base64.b64encode(b.getvalue()).decode(), len(cells)
 
 def main():
-    rom = open(sys.argv[1], 'rb').read(); out = sys.argv[2] if len(sys.argv) > 2 else os.path.expanduser('~/Mockups/lichter_survey.html')
+    rom = open(sys.argv[1], 'rb').read(); out = sys.argv[2] if len(sys.argv) > 2 else os.path.expanduser('~/Project-Friday-Test/Mockups/lichter_survey.html')
     ents = entries(rom); by = rooms_by_tileset(rom)
     html = ["<!doctype html><meta charset=utf-8><title>Animierte Kacheln</title><style>body{background:#222;color:#eee;font:15px sans-serif;padding:16px}"
             "div.e{display:inline-block;vertical-align:top;margin:0 14px 18px 0;background:#2c2c2c;padding:8px;border-radius:6px}img{image-rendering:pixelated;display:block;margin-top:4px}"

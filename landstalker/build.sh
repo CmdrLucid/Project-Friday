@@ -239,12 +239,28 @@ python3 tools/patch_clouds.py .deps/genrecomp
 python3 tools/patch_gpu.py .deps/genrecomp
 # GPU lighting (stage GL1 = harness only, nothing changes for the player): LANDSTALKER_GPULT=2 lights the recorded unlit map picture on the GPU and compares with the CPU (tools/patch_gpulight.py; needs patch_lights / patch_bootcol / patch_gpu)
 python3 tools/patch_gpulight.py .deps/genrecomp
+# test aid: LANDSTALKER_WINSIZE=WxH window size at start (trailer footage in full HD with LANDSTALKER_HIDDEN=1), see tools/patch_winsize.py
+python3 tools/patch_winsize.py .deps/genrecomp
 # Picture composition on the GPU, STEP 4 stage 4a = compare harness only, nothing changes for the player: LANDSTALKER_GPUCOMP=2 composes the map lines on the GPU and compares with lk_own_row (tools/patch_gpucomp.py; needs patch_own / patch_gpu / patch_gpulight)
 python3 tools/patch_gpucomp.py .deps/genrecomp
+# De-Dither on the GPU: the smoothing as a shader pass after the GPU composition, the GPU lines stay on (LK_DDGPU v1, tools/patch_ddgpu.py; CPU de-dither = fallback)
+python3 tools/patch_ddgpu.py .deps/genrecomp
 # Shader warm-up before the title (LK_SHWARM v1, user 2026-11-11: loading a save froze ~18 s while the GPU light shaders compiled on a cold driver cache): all big GPU programs compiled at the first frame, loading screen 'PREPARING LIGHTING' only when it takes longer than 0.25 s (tools/patch_shaderwarm.py; LANDSTALKER_SHWARM=0 = off)
 python3 tools/patch_shaderwarm.py .deps/genrecomp
 # Room map: binding Map (pad L4, key M) = schematic map of the current area over the paused game (data: tools/roommap.py -> build/roommap; tools/patch_roommap.py, docs/MAP.md)
 python3 tools/patch_roommap.py .deps/genrecomp
+# Keyboard directions rebindable + one-press WASD layout (Options > Keybindings; tools/patch_kbdir.py, needs patch_options / patch_keys / patch_roommap)
+python3 tools/patch_kbdir.py .deps/genrecomp
+# Kayla's bath scene of the Japanese version (Options > Language / Region > Bath Scene; tools/patch_bath.py, needs patch_options / patch_friday)
+python3 tools/patch_bath.py .deps/genrecomp
+# German intro captions (Language = Deutsch: the wording of the German release; tools/patch_introde.py, needs patch_lang / patch_bath)
+python3 tools/patch_introde.py .deps/genrecomp
+# Options page 'Language / Region' (Language, Names, Items, Bath Scene; tools/patch_langpage.py, needs patch_kbdir / patch_bath)
+python3 tools/patch_langpage.py .deps/genrecomp
+# Options menu in Korean / Japanese (escaped UI text + Galmuri 7 glyph table from tools/uiwide.py; tools/patch_uiwide.py, needs patch_lang / patch_options / patch_iteminfo)
+python3 tools/patch_uiwide.py .deps/genrecomp
+# Title screen subtitle in the language (own lettering tools/titlefont.py; tools/patch_titlesub.py, needs patch_overlay / patch_lang)
+python3 tools/patch_titlesub.py .deps/genrecomp
 # VDP data path step 3.0: path counters in vdp_ctrl.c (LANDSTALKER_VDPCOUNT=file; inert without it; tools/patch_vdpcount.py, docs/SOUND_PLAN.md section 12)
 python3 tools/patch_vdpcount.py .deps/genrecomp
 # VDP data path of our own (data / control port, registers, DMA; default ours, LANDSTALKER_VDP=gpgx = GPGX's decode, =check = both compared; tools/patch_vdpport.py + tools/lkvdp.c, docs/SOUND_PLAN.md section 12)
@@ -284,6 +300,8 @@ cmake --build build -j"$(nproc)"
 # 3. Languages: every lang/*.json -> build/lang/<code>.bin + index.txt (derived from your ROM's font and text hashes: local only, tools/langbuild.py, docs/TEXT_LAYER.md)
 mkdir -p build/lang
 python3 tools/langbuild.py "$ROM" lang build/lang
+# Japanese (the original text) only if YOUR Japanese ROM lies next to the ROM: build/lang/ja.bin from it (tools/jplang.py, lang/ja_map.json = which Japanese string belongs to which English id)
+python3 tools/jplang.py "$ROM" build/lang
 # room map data (areas, floors, room pictures; local only, ~2 min on all cores, skipped when up to date; tools/roommap.py, docs/MAP.md)
 python3 tools/roommap.py "$ROM" build/roommap
 

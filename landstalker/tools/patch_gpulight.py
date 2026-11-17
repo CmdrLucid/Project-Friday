@@ -90,6 +90,8 @@ static int lk_gl_classify(int x, int line, int src, int sp2, int black, int U, i
   if (src >= 1 && src <= 3) {
     if (U < lk_lt_umin) lk_lt_umin = U; if (U > lk_lt_umax) lk_lt_umax = U; if (V < lk_lt_vmin) lk_lt_vmin = V; if (V > lk_lt_vmax) lk_lt_vmax = V;   /* the drawn area (GL5 ring) */
     if ((sp2 & 0x200) && (j = lk_lt_figat(x, line)) >= 0) return 16 + j;
+    if (sp2 & 0x200) { int sl = line - lk_sm_syn, si = x + lk_wide_e - lk_sm_sxn, tg;   /* LK_FIGOWN v1 (2026-11-14, room 81 boulder): a sprite pixel outside every +-16 px figure box belongs to its OWNER figure (wide sprites: the edges were lit as the wall behind = bright streaks) */
+      if (sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW && (tg = lk_lt_spre[sl][si]) != 0) for (j = 0; j < lk_lt_nf && j < 16; j++) if (lk_lt_f[j].tag == tg) return 16 + j; }
     return 1; }
   return (src == 0 || src == 6 || src == 7) ? 3 : 0; }
 /* for the GL side (platform_sdl.c, once per present): 1 = the last frame was captured; fills the frame's light state.
@@ -267,7 +269,7 @@ void lk_gl_unpaint(void) { int q, ts = -1;
     a = "      /* LK_LIGHTS: the map pixel is lit on the GPU"
     i0 = s.index(a); i1 = s.index("\n", i0) + 1
     s = s[:i0] + ("      int lk_gl_k = 0; uint32_t lk_gl_p0 = 0, lk_gl_p1 = 0xFFFFFFu; lk_gl_pf = 0;   /* %s */\n" % VER +
-           "      if (lk_gl_real) lk_gl_k = lk_gl_classify(x, line, src, src == 1 ? sp : 0, black, ubase + x - lk_sm_sxn, vbase - lk_sm_syn);   /* GL4: the GPU lights it (the only light since 2026-11-12) */\n") + s[i1:]
+           "      if (lk_gl_real) lk_gl_k = lk_gl_classify(x, line, src, src == 1 ? sp : 0, black || lk_o_ovw, ubase + x - lk_sm_sxn, vbase - lk_sm_syn);   /* LK_OVWUNLIT v1: arrows above the text box unlit */   /* GL4: the GPU lights it (the only light since 2026-11-12) */\n") + s[i1:]
     rep("memcpy(lk_lt_sd, lk_lt_sdn, sizeof lk_lt_sd);", "memcpy(lk_lt_sd, lk_lt_sdn, sizeof lk_lt_sd); lk_gl_sunver++;")
     # GL4: emissive mixes after the light point -> 'mix after the light' (applied to black and white) when the GPU lights the pixel
     def fx(cond, call):
@@ -275,7 +277,7 @@ void lk_gl_unpaint(void) { int q, ts = -1;
         P0 = call.replace("@", "(int)(0xFF000000u | lk_gl_p0)"); P1 = call.replace("@", "(int)(0xFF000000u | lk_gl_p1)")
         T = call.replace("@", "col")
         rep("      if (%s) col = %s;" % (cond, X), "      if (%s) { if (lk_gl_k) { if (%s != col) { lk_gl_p0 = (uint32_t)%s & 0xFFFFFFu; lk_gl_p1 = (uint32_t)%s & 0xFFFFFFu; } } else col = %s; }   /* %s */" % (cond, T, P0, P1, X, VER))
-    fx("lk_lt_ln && lk_dn_win && !black && (src == 2 || src == 3)", "lk_dn_winpix(src == 2 ? &afi : &bfi, pick, @)")
+    fx("lk_lt_ln && lk_dn_win && !black && (src == 2 || src == 3)", "lk_dn_winpix(src == 2 ? &afi : &bfi, pick, @, ubase + x - lk_sm_sxn, vbase - lk_sm_syn)")   # LK_DNWIN2 v1: + picture position (door cells)
     fx("lk_sfx_ln && !black && src != 4", "lk_sfx_pix(line, i, src == 1 ? sp : 0, @)")
     fx("lk_dz_ln && !black && src != 4", "lk_dz_pix(line, i, @)")
     a = "      lk_mh_hit = nohud ? lk_mh_pix(line, i, &col) : 0;"
@@ -380,7 +382,9 @@ void main() {
   if (z >= 32768.0) z -= 65536.0;
   if (cl > 15.5) {   /* a figure pixel, lit at its card facing the camera */
     int j = int(cl - 16.0); vec4 F = uFG[j]; vec4 Fa = uFA[j]; float dx = x - Fa.x; vec3 pp = vec3(F.x + dx * 0.5, F.y - dx * 0.5, F.z + (Fa.y - line)); vec3 nn = vec3(0.7071, 0.7071, 0.0);
-    for (int k = 0; k < 96; k++) { if (float(k) >= uNl) break; vec4 Lf = uLF[k]; if (Lf.y > 0.5 && Lf.x <= 0.004) continue; float t = term(pp, nn, uLP[k], uLC[k].w) * Lf.x; sr += t * uLC[k].rgb; }
+    for (int k = 0; k < 96; k++) { if (float(k) >= uNl) break; vec4 Lf = uLF[k]; if (Lf.y > 0.5 && Lf.x <= 0.004) continue; float t = term(pp, nn, uLP[k], uLC[k].w) * Lf.x;
+      if (Lf.y > 0.5) { vec3 v = uLP[k].xyz - pp; float d = length(v), q = 1.0 - d / uLP[k].w; if (q > 0.0) t = max(t, uLC[k].w * q * q * 0.75 * Lf.x); }   /* LK_DNFIG v1 (user 2026-11-16 at a Massan door: 'sollte das Licht aus der Tuer Nigels Sprite nicht mehr anleuchten'): a window / door light lights a FIGURE from any side at 0.75 (a flat card lit from behind got 0.25): the warm glow wraps round the body */
+      sr += t * uLC[k].rgb; }
     if (uSwon > 0.5) { float t = term(pp, nn, uSwP, uSwC.w) * 0.5; sr += t * uSwC.rgb; }
     float u = F.w;
     if (uSun > 0.5 && uDn > 0.5) a = uAmb3 + uSun3 * u;
@@ -457,6 +461,7 @@ SHB = r'''
 uniform sampler2D lit; uniform sampler2D unl; uniform sampler2D cls; uniform sampler2D rows; uniform sampler2D roomA; uniform sampler2D roomB; uniform sampler2D rad; uniform sampler2D post; uniform sampler2D btab;
 uniform float uMode; uniform vec3 uBase; uniform float uW; uniform float uK; uniform float uR; uniform float uD; uniform float uPost; uniform vec2 uPh; uniform float uOut;
 uniform sampler2D wld; uniform vec4 uSwP; uniform vec4 uSwC; uniform float uSw; uniform float uSunR;
+uniform vec4 uFfP[8]; uniform float uFfN; uniform vec2 uFfK; uniform float uSsD; uniform float uSsW; uniform float uSsNig;   /* LK_SSGPU v1: smooth sub-pixel blend of the lit picture: neighbour line (-1 / +1, 0 = none), its weight in 16ths */   /* LK_FFGLOW v1: glowing fireflies (world x y z, glow), count, gain / radius */
 uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec4 uLF[96]; uniform vec4 uFG[16]; uniform vec4 uFA[16];
 uniform float uNl; uniform float uAmb; uniform float uSS; uniform float uSK; uniform vec3 uAmb3; uniform vec3 uSun3; uniform float uDn; uniform float uKey; uniform float uKA; uniform float uKK; uniform vec3 uSd; uniform float uE; uniform float uSwon; uniform float uFig; uniform float uNf; uniform float uRfK; uniform float uRfD;
 float B(float v) { return floor(v * 255.0 + 0.5); }
@@ -601,7 +606,12 @@ void main() {
       vec2 tc = (q + 0.5) / vec2(448.0, 224.0); if (B(texture2D(cls, tc).r) != 1.0) continue;
       vec3 L = texture2D(lit, tc).rgb * 255.0, C = texture2D(unl, tc).rgb * 255.0; s += max(L - C * uBase, vec3(0.0)); n += 1.0; }
     gl_FragColor = vec4(n > 0.0 ? s / n / 255.0 : vec3(0.0), n / 16.0); return; }   /* (alpha: share of scenery pixels) */
-  vec2 tc = (fc + 0.5) / vec2(448.0, 224.0); vec4 L4 = texture2D(lit, tc); vec3 L = L4.rgb * 255.0;
+  vec2 tc = (fc + 0.5) / vec2(448.0, 224.0); vec4 L4 = texture2D(lit, tc);
+  if (uSsD != 0.0 && fc.x < uW && fc.y + uSsD >= 0.0 && fc.y + uSsD <= 223.0) { vec2 tn = (vec2(fc.x, fc.y + uSsD) + 0.5) / vec2(448.0, 224.0); float c0 = B(texture2D(cls, tc).r), c1 = B(texture2D(cls, tn).r);
+    bool w0 = (c0 > 0.5 && c0 < 3.5) || (c0 > 15.5 && c0 != 16.0 + uSsNig), w1 = (c1 > 0.5 && c1 < 3.5) || (c1 > 15.5 && c1 != 16.0 + uSsNig);   /* LK_SSGPU v2 (user rec_20261116_2023, church 700: 'beim Sprinten zittern manche Sprites, die Buecher auf der Theke'): v1 blended only scenery, the world sprites (books, counter, NPCs) kept the 3 / 5 px steps while the floor moved 4 = jitter against the floor; now every figure except Nigel (lk_lt_f tag 1 = entity offset 0; he is the camera's centre) as the CPU blend did (lk_ss_w: not Nigel's pixels) */
+    if (w0 && w1) { vec3 a = L4.rgb * 255.0, b = texture2D(lit, tn).rgb * 255.0; L4 = vec4(floor((a * (16.0 - uSsW) + b * uSsW + 8.0) / 16.0) / 255.0, L4.a); } }   /* LK_SSGPU v1 (user rec_20261116_1549: 'die Lichter vor den Tueren verschwinden beim Sprinten'):
+       the 1.5 x sprint's quarter line blend (patch_subpix lk_ss_apply) on the GPU-lit picture, scenery only (classes 1 / 3; not figures, HUD, text) - the CPU blend forced the CPU composition = no light classes = ambient only */
+  vec3 L = L4.rgb * 255.0;
   { float cl0 = B(texture2D(cls, tc).r);
     if (uFig > 0.5 && cl0 > 15.5 && fc.x < uW) { if (uPost > 0.5) { vec4 a = texture2D(post, (fc + 0.5) / vec2(448.0, 448.0)), b = texture2D(post, (vec2(fc.x, fc.y + 224.0) + 0.5) / vec2(448.0, 448.0)); if (a.rgb != vec3(0.0) || b.rgb != vec3(1.0)) { gl_FragColor = L4; return; } }
       gl_FragColor = roundFig(fc, cl0, L4); return; } }
@@ -618,6 +628,10 @@ void main() {
     g += w * min(R.rgb, vec3(0.4)) * 255.0; }   /* one source adds at most ~100 levels of light */
   vec3 C = texture2D(unl, tc).rgb * 255.0, o = L + uK * (C / 255.0) * g * (1.0 / 8.0);
   if (uSw > 0.5) { float t = swlight(p, n); if (t > 0.0) o = min(o + floor(C * (2.2 * t) * uSwC.rgb), max(L, floor(C * 2.4))); }   /* GL5e: added after the light (the light pass leaves it out on scenery) */
+  if (uFfN > 0.5) { vec3 fs = vec3(0.0);   /* LK_FFGLOW v1 (user 2026-11-16): each glowing firefly lights its surroundings softly while it blinks (no shadow: a tiny source a hand above the floor) */
+    for (int j = 0; j < 8; j++) { if (float(j) >= uFfN) break; vec3 v = uFfP[j].xyz - p; float d = length(v); if (d >= uFfK.y || d < 0.001) continue;
+      float q = 1.0 - d / uFfK.y; fs += uFfP[j].w * q * q * (0.35 + 0.65 * max(dot(n, v) / d, 0.0)) * vec3(1.0, 0.96, 0.55); }
+    o = min(o + floor(C * uFfK.x * fs), max(o, floor(C * 1.8))); }
   gl_FragColor = vec4(min(o, vec3(255.0)) / 255.0, 1.0); }
 '''
 
@@ -668,6 +682,7 @@ float topT(float cx, float cy) {   /* lk_lt_cell + the thin column rule indoors 
   vec4 w = W(cx, cy, 0.0); float t = S16(B(w.r), B(w.g));
   if (uSunR < 0.5) { float n = S16(B(w.b), B(w.a)); if (n > -32768.0) t = n; }
   return t; }
+float topTM(float qx, float qy) { float fx = floor(qx / 4.0), fy = floor(qy / 4.0); if (uMdl > 0.5 && fx >= 0.0 && fy >= 0.0 && fx < 296.0 && fy < 296.0) { vec4 f4 = FN(fx, fy, 4.0); if (B(f4.r) > 0.5 && B(f4.r) < 1.5) return S16(B(f4.b), B(f4.a)); } return topT(floor(qx / 16.0), floor(qy / 16.0)); }   /* LK_DNMODELSH v1 (user 2026-11-16, Mercator church 632 at night: 'es sieht nicht so aus als wuerde Licht aus den Kirchenfenstern nach aussen fallen'): the outdoor point light march took the 16 unit CELL height; a hand-made model wall stands INSIDE its cell (church south wall y 922 in cell 912..928) -> every wall point started inside the box = shadowed, the church windows lit nothing. Sub columns a model owns use the ground below the model (as the view ray) */
 float termS(vec3 p, vec3 n, vec4 L, float kk, vec2 wf) {   /* lk_lt_term with its shadow (2 area points + soft edges indoors, one hard march outdoors); LK_GLWIDE v2: wf = (half width, along 1 x / 2 y) of a wide fire */
   vec3 v = L.xyz - p; float d = sqrt(v.x * v.x + v.y * v.y + v.z * v.z), rad = L.w;
   if (d >= rad || d < 0.001) return d < 0.001 ? kk : 0.0;
@@ -703,7 +718,7 @@ float termS(vec3 p, vec3 n, vec4 L, float kk, vec2 wf) {   /* lk_lt_term with it
     return att * (wf.x > 0.5 ? 1.0 : 0.25 + 0.75 * ndl) * sum / ns; }
   vec3 w = vec3(L.x - s.x, L.y - s.y, L.z - s.z); float e = sqrt(w.x * w.x + w.y * w.y + w.z * w.z);
   for (int st = 0; st < 400; st++) { float t = 2.0 + 2.0 * float(st); if (t >= e - 3.0) break;
-    vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); if (own > 0.0 && q.z < L.z && length(q.xy - L.xy) < own) continue; if (uNslab > 0.5 && slabin(floor(q.x / 4.0), floor(q.y / 4.0), q.z)) return 0.0; if (q.z < topT(floor(q.x / 16.0), floor(q.y / 16.0)) - 0.5) return 0.0; }
+    vec3 q = vec3(s.x + w.x * t / e, s.y + w.y * t / e, s.z + w.z * t / e); if (own > 0.0 && q.z < L.z && length(q.xy - L.xy) < own) continue; if (uNslab > 0.5 && slabin(floor(q.x / 4.0), floor(q.y / 4.0), q.z)) return 0.0; if (q.z < topTM(q.x, q.y) - 0.5) return 0.0; }
   return att * (0.25 + 0.75 * ndl); }
 float mslabcl(float x, float y, float z) {   /* LK_GLMODEL v1: clearance of a point to the FLOATING part of a model sub column (bottom above ground + 4 .. top), 9999 = none */
   float sx = floor(x / 4.0), sy = floor(y / 4.0); if (uHand < 0.5 || uMdl < 0.5 || (gKM > 0.5 && uSm.w > 0.5) || sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return 9999.0;
@@ -913,6 +928,7 @@ bool dent(float cx, float cy, float cf) {   /* lk_lt_dent */
   return false; }
 float fdv(float a, float b) { return floor(a / b); }
 float vtAt(float sx, float sy, float layA) { if (sx < 0.0 || sy < 0.0 || sx >= 296.0 || sy >= 296.0) return -32768.0; vec4 v = texture2D(fine2, (vec2(sx, sy) + 0.5) / 296.0); return layA > 0.5 ? S16(B(v.r), B(v.g)) : S16(B(v.b), B(v.a)); }
+float vtAtM(float sx, float sy, float layA) { float t = vtAt(sx, sy, layA); if (uMdl > 0.5 && sx >= 0.0 && sy >= 0.0 && sx < 296.0 && sy < 296.0) { vec4 f4 = FN(sx, sy, 4.0); if (B(f4.r) > 0.5 && B(f4.r) < 1.5) t = S16(B(f4.b), B(f4.a)); } return t; }   /* LK_RAYCORNERM v1 (user 2026-11-16 rec_20261116_1924, Mercator church 632 at night: 'Streifen entlang der Kirche'): the corner check took the FIELD height of a sub column a hand-made model owns (the church baked into the field) instead of the ground below the model as the view ray does = on every D mod 4 = 0 pixel column (the ray steps diagonally there) a wall hit one sub column early (z + 4) = a 1 px light stripe every 4 px on every model wall at night */
 float rfocc(float sx, float sy, float z) { if (z <= vtAt(sx, sy, 1.0)) return 1.0; vec2 q = SLB(sx, sy); return (q.y > q.x && z >= q.x && z <= q.y) ? 1.0 : 0.0; }   /* v9 lk_lt_rfocc */
 float iocc(float sx, float sy, float z, float layA) { if (z <= ifh(sx, sy, 0.0)) return 1.0; if (layA > 0.5) { vec2 q = SLB(sx, sy); if (q.y > q.x && z >= q.x && z <= q.y) return 1.0; } return 0.0; }   /* v9 lk_lt_occ */
 float idiag(float sx, float sy, float z, float f, float layA) {   /* v9 lk_lt_idiag: the normal of a fine field side face from the shape around it (16 directions) */
@@ -972,6 +988,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
         if (sx == pcx) return vec3(3.0, z, rob);
         if (sy == pcy) return vec3(2.0, z, rob);
         return vec3(rfocc(pcx, sy, z) > 0.5 && rfocc(sx, pcy, z) < 0.5 ? 3.0 : 2.0, z, rob); } }
+      if (pcx != -999.0 && sx != pcx && sy != pcy && z > top) { float ca = vtAtM(pcx, sy, layA), cb = vtAtM(sx, pcy, layA); if (z <= ca || z <= cb) return vec3(z == max(ca, cb) ? 1.0 : z <= ca && !(z <= cb && cb > ca) ? 3.0 : 2.0, z, rob); }   /* LK_RAYCORNER v1 (user 2026-11-15, room 470 at night: bright 1 px lines along the cliff ridges): a ray stepping DIAGONALLY (both sub columns change) slipped through the corner between the two side columns it passes; a hit there is that column's side (3 = the one across y, 2 = across x) or its top */
       if (z <= top) { if (fo != 0.0 && layA > 0.5) rob = fo;
         if ((sx == pcx && sy == pcy) || pcx == -999.0 || z == top) return vec3(1.0, z, rob);
         if (sx == pcx) return vec3(3.0, z, rob);
@@ -1060,7 +1077,10 @@ void main() {   /* uMode 0: GL5b geometry (32 x 64: rows 0..31 face / z lo / z h
   vec2 fc = floor(gl_FragCoord.xy); float ix = fc.x, plane = floor(fc.y / 32.0), iy = fc.y - 32.0 * plane, U = uBlk.x * 32.0 + ix, V = uBlk.y * 32.0 + iy;
   if (uMode < 0.5) { float la = B(texture2D(bex, (vec2(ix, iy) + 0.5) / 32.0).b); vec3 vr = viewray(U, V, la); float zz = vr.y < 0.0 ? vr.y + 65536.0 : vr.y, ro = vr.z < 0.0 ? vr.z + 65536.0 : vr.z;
     gl_FragColor = plane < 0.5 ? vec4(vr.x, mod(zz, 256.0), floor(zz / 256.0), la) / 255.0 : vec4(mod(ro, 256.0), floor(ro / 256.0), gMH * gMB.x, gMH * gMB.y) / 255.0; return; }
-  vec4 g0 = G(ix, iy), g1 = G(ix, iy + 32.0); float face = B(g0.r), z = S16(B(g0.g), B(g0.b)), la = B(g0.a), robj = S16(B(g1.r), B(g1.g));
+  vec4 g0 = G(ix, iy), g1 = G(ix, iy + 32.0);
+  if (B(g0.r) < 0.5 && iy > 0.5 && iy < 30.5) { vec4 gu = G(ix, iy - 1.0), gd2 = G(ix, iy + 1.0); if (B(gu.r) > 0.5 && B(gd2.r) > 0.5) { if (S16(B(gd2.g), B(gd2.b)) >= S16(B(gu.g), B(gu.b))) { g0 = gd2; g1 = G(ix, iy + 33.0); } else { g0 = gu; g1 = G(ix, iy + 31.0); } } }
+  if (B(g0.r) < 0.5 && ix > 0.5 && ix < 30.5) { vec4 gl2 = G(ix - 1.0, iy), gr2 = G(ix + 1.0, iy); if (B(gl2.r) > 0.5 && B(gr2.r) > 0.5) { if (S16(B(gr2.g), B(gr2.b)) >= S16(B(gl2.g), B(gl2.b))) { g0 = gr2; g1 = G(ix + 1.0, iy + 32.0); } else { g0 = gl2; g1 = G(ix - 1.0, iy + 32.0); } } }   /* (left / right too: the block's top and bottom rows have no neighbour above / below) */   /* LK_RAYCORNER v1: a 1 px crack (no surface, a surface right above AND below: the ray slipped between two columns) takes the higher neighbour's hit; a real silhouette has a surface on one side only and stays */
+  float face = B(g0.r), z = S16(B(g0.g), B(g0.b)), la = B(g0.a), robj = S16(B(g1.r), B(g1.g));
   if (face > 19.5) { gN = octdec(vec2(B(g1.b), B(g1.a))); gMS = 1.0; }   /* LK_GLMODEL v1 */
   if (plane < 1.5) { gl_FragColor = face < 0.5 ? vec4(0.0) : termsP(plane, face, z, U, V) / 255.0; return; }
   if (uMode < 1.5) {
@@ -1504,11 +1524,11 @@ static void lk_g5_real(int u0, int u1, int v0, int v1, const float *lp, const fl
    floor) and distance (LANDSTALKER_BOUNCE_D, 56 units), times its own colour, strength LANDSTALKER_BOUNCE_K (5; first look by eye 2026-11-06: 0.6 / 3 were invisible).  Emissive / HUD pixels (mix after the light) and figures stay as they are.
    GPU light engines only (the CPU engine keeps the old look); off without a light source (no flames / sun / key light). ---- */
 extern int lk_bl_get(void);
-static int lk_gb_st; static lkGLuint lk_gb_prog, lk_gb_fa, lk_gb_fb, lk_gb_ra, lk_gb_out; static lkGLint lk_gb_u[48];
+static int lk_gb_st; static lkGLuint lk_gb_prog, lk_gb_fa, lk_gb_fb, lk_gb_ra, lk_gb_out; static lkGLint lk_gb_u[56];
 static long lk_gsw_fr = -9; static int lk_gsw_on;   /* GL5e: the frame's decision (light pass and post pass must agree) */
 int lk_gsw_frame(int real, int swon) { extern int lk_swsh_get(void); long f = platform_frame_number(); if (lk_gsw_fr != f) { lk_gsw_fr = f; lk_gsw_on = real && swon && lk_swsh_get() && lk_g5_realon() && lk_g5_wh != 0 && lk_gb_st >= 0; } return lk_gsw_on; } static float lk_gb_k = -1.0f, lk_gb_r, lk_gb_d;
 static const char *lk_gb_fs = "#version 120\n" @SHADERB@;
-static const char *lk_gb_un[] = { "lit", "unl", "cls", "rows", "roomA", "roomB", "rad", "post", "btab", "uMode", "uBase", "uW", "uK", "uR", "uD", "uPost", "uPh", "uOut", "wld", "uSwP", "uSwC", "uSw", "uSunR", "uLP", "uLC", "uLF", "uFG", "uFA", "uNl", "uAmb", "uSS", "uSK", "uAmb3", "uSun3", "uDn", "uKey", "uKA", "uKK", "uSd", "uE", "uSwon", "uFig", "uNf", "uRfK", "uRfD", "fine", "uFn", 0 };
+static const char *lk_gb_un[] = { "lit", "unl", "cls", "rows", "roomA", "roomB", "rad", "post", "btab", "uMode", "uBase", "uW", "uK", "uR", "uD", "uPost", "uPh", "uOut", "wld", "uSwP", "uSwC", "uSw", "uSunR", "uLP", "uLC", "uLF", "uFG", "uFA", "uNl", "uAmb", "uSS", "uSK", "uAmb3", "uSun3", "uDn", "uKey", "uKA", "uKK", "uSd", "uE", "uSwon", "uFig", "uNf", "uRfK", "uRfD", "fine", "uFn", "uFfP", "uFfN", "uFfK", "uSsD", "uSsW", "uSsNig", 0 };
 static int lk_gb_init(void) {
   lkGLint ok = 0, t0 = 0, fb0 = 0; lkGLuint vs, fs; char log[2048]; int i; lkGLenum st1, st2;
   { static const char *vsrc = "#version 120\nvoid main() { gl_Position = gl_Vertex; }\n"; vs = lk_glCreateShader(0x8B31); lk_glShaderSource(vs, 1, &vsrc, 0); lk_glCompileShader(vs); lk_glGetShaderiv(vs, 0x8B81, &ok); if (!ok) return -1; }
@@ -1532,7 +1552,9 @@ static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out ho
   if (!lk_gl_frame(platform_frame_number(), fu, iu, lp, lc, lf, fg, fa)) return 0;   /* the frame's light state (same as the light pass) */
   sw = lk_gsw_fr == platform_frame_number() && lk_gsw_on;   /* GL5e: decided by the light pass this frame */
   fig = lk_rf_get() && iu[9] > 0 && lk_g5_realon() && lk_g5_wh != 0 && (iu[0] || iu[1] || iu[2]);   /* GL5f: figures on screen, a light source, the GL5 world texture */
-  if (!bon && !sw && !fig) return 0;
+  static float ffp[8 * 4]; int nffl = 0;
+  { extern int lk_am_ffglow(float *o, int max); static int on = -1; if (on < 0) { const char *e = getenv("LANDSTALKER_FFGLOW"); on = e ? atoi(e) : 1; } if (on && iu[0] && iu[5]) nffl = lk_am_ffglow(ffp, 8); }   /* LK_FFGLOW v1: night (sun room + day / night), test aid LANDSTALKER_FFGLOW=0 */
+  extern int lk_ss_frac; if (!bon && !sw && !fig && !nffl && !lk_ss_frac) return 0;   /* (LK_SSGPU v1: the sub-pixel blend needs this pass) */
   if (iu[0] && iu[5]) { base[0] = fu[3]; base[1] = fu[4]; base[2] = fu[5]; }
   else if (iu[0]) { base[0] = fu[1] * 0.95f; base[1] = fu[1] * 0.98f; base[2] = fu[1] * 1.06f; }
   else if (iu[1]) { base[0] = fu[10] * 0.97f; base[1] = fu[10] * 0.99f; base[2] = fu[10] * 1.05f; }
@@ -1549,6 +1571,9 @@ static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out ho
   lk_glActiveTexture(0x84C6); lk_glBindTexture(0x0DE1, lk_gb_ra); lk_glActiveTexture(0x84C7); lk_glBindTexture(0x0DE1, lk_glt_t[10]); lk_glActiveTexture(0x84C8); lk_glBindTexture(0x0DE1, lk_glt_t[4]); lk_glActiveTexture(0x84C9); lk_glBindTexture(0x0DE1, lk_g5_wt); lk_glActiveTexture(0x84CA); lk_glBindTexture(0x0DE1, lk_g5_fn); lk_glActiveTexture(0x84C0);   /* LK_SWSHFINE v1: unit 10 = the fine field of the block pass */
   lk_glUseProgram(lk_gb_prog); for (i = 0; i < 9; i++) lk_glUniform1i(lk_gb_u[i], i);
   { static int fo = -1; if (fo < 0) { const char *e = getenv("LANDSTALKER_SWORDSH_FINE"); fo = e ? atoi(e) : 1; } lk_glUniform1i(lk_gb_u[45], 10); lk_glUniform1f(lk_gb_u[46], fo && lk_g5_fn ? 1.0f : 0.0f); }   /* LK_SWSHFINE v1 (=0: the old 16 unit cells) */
+  { static float fk = -1.0f, fr = 32.0f; if (fk < 0.0f) { const char *e = getenv("LANDSTALKER_FFGLOW_K"), *r = getenv("LANDSTALKER_FFGLOW_R"); fk = e ? (float)atof(e) : 1.2f; if (r) fr = (float)atof(r); }   /* LK_FFGLOW v1: gain, radius in world units */
+    lk_glUniform4fv(lk_gb_u[47], 8, ffp); lk_glUniform1f(lk_gb_u[48], (float)nffl); lk_glUniform2f(lk_gb_u[49], fk, fr); }
+  { extern int lk_ss_frac; static int ssw = -1; if (ssw < 0) { const char *e = getenv("LANDSTALKER_SS_WEIGHT"); ssw = e && atoi(e) >= 1 && atoi(e) <= 8 ? atoi(e) : 5; } lk_glUniform1f(lk_gb_u[50], (float)lk_ss_frac); lk_glUniform1f(lk_gb_u[51], (float)ssw); { extern int lk_lt_nigfig(void); lk_glUniform1f(lk_gb_u[52], (float)lk_lt_nigfig()); } }   /* LK_SSGPU v1 */
   lk_glUniform1i(lk_gb_u[18], 9); lk_glUniform4f(lk_gb_u[19], fu[16], fu[17], fu[18], fu[19]); lk_glUniform4f(lk_gb_u[20], fu[20], fu[21], fu[22], fu[23]); lk_glUniform1f(lk_gb_u[21], sw ? 1.0f : 0.0f); lk_glUniform1f(lk_gb_u[22], iu[0] ? 1.0f : 0.0f);
   lk_glUniform4fv(lk_gb_u[23], 96, lp); lk_glUniform4fv(lk_gb_u[24], 96, lc); lk_glUniform4fv(lk_gb_u[25], 96, lf); lk_glUniform4fv(lk_gb_u[26], 16, fg); lk_glUniform4fv(lk_gb_u[27], 16, fa);
   lk_glUniform1f(lk_gb_u[28], (float)iu[2]); lk_glUniform1f(lk_gb_u[29], fu[0]); lk_glUniform1f(lk_gb_u[30], fu[1]); lk_glUniform1f(lk_gb_u[31], fu[2]); lk_glUniform3f(lk_gb_u[32], fu[3], fu[4], fu[5]); lk_glUniform3f(lk_gb_u[33], fu[6], fu[7], fu[8]);

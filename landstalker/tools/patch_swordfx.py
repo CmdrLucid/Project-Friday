@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Sword effects (2026-11-02, user: 'dezenter Effekt je Schwert: Flammen beim Feuerschwert, Blitze beim Donnerschwert ... nicht uebertreiben',
-then 'etwas staerker', 'Gaia gruen', 'Partikel noch staerker' = mock-up 4 `~/Mockups/schwerteffekte4.html`).  While Nigel swings a sword
+then 'etwas staerker', 'Gaia gruen', 'Partikel noch staerker' = mock-up 4 `~/Project-Friday-Test/Mockups/schwerteffekte4.html`).  While Nigel swings a sword
 (Player_ActionHigh $FF542C bits 0..3 = 1..4) the own map renderer tints the swing arc + blade and lets a few 1-2 px particles come off it:
  * the arc / blade pixels are the sprite pixels of colour 45 / 46 (palette line 2, entries 13 / 14): UpdateEquipPal $0078B6 copies the
    sword's two colours there (SwordPalSwaps $007900: none grey, Magic orange / red, Ice blue, Thunder violet / white, Gaia brown);

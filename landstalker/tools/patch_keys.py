@@ -49,12 +49,12 @@ static int lk_bind_pad[LK_NB], lk_bind_key[LK_NB], lk_bind_loaded;
 static int lk_bind_defpad(int i) {
     switch (i) { case LK_BA: return LKP(SDL_CONTROLLER_BUTTON_X); case LK_BB: return LKP(SDL_CONTROLLER_BUTTON_A); case LK_BC: return LKP(SDL_CONTROLLER_BUTTON_B); case LK_BSTART: return LKP(SDL_CONTROLLER_BUTTON_START);
                  case LK_BQ1: return LKP(SDL_CONTROLLER_BUTTON_Y); case LK_BQ2: return LKP(SDL_CONTROLLER_BUTTON_B); case LK_BQSAVE: return LK_PT_L; case LK_BQLOAD: return LKP(SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
-                 case LK_BFF: return LKP(SDL_CONTROLLER_BUTTON_LEFTSTICK); case LK_BFS: return LKP(SDL_CONTROLLER_BUTTON_RIGHTSTICK); case LK_BCOORD: return LKP(SDL_CONTROLLER_BUTTON_PADDLE1); case LK_BEQ: return LKP(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER); case LK_BSPRINT: return LK_PT_R; case LK_BMAP: return 0; }   /* Map: no default button while it is experimental (release v1.5.0, user 2026-10-31); the user binds it in Options > Keybindings */   /* 2026-10-30 (user): Sprint on R2, Quick Equip moved to R1, Fast Forward to L3 */
+                 case LK_BFF: return LKP(SDL_CONTROLLER_BUTTON_LEFTSTICK); case LK_BFS: return 0; case LK_BCOORD: return LKP(SDL_CONTROLLER_BUTTON_PADDLE1); case LK_BEQ: return LKP(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER); case LK_BSPRINT: return LK_PT_R; case LK_BMAP: return LKP(SDL_CONTROLLER_BUTTON_RIGHTSTICK); }   /* v2.0 (user 2026-11-17): Map on by default on R3 (was: no default while experimental), Fullscreen gave R3 up (keyboard F11 / Alt+Enter stay) */   /* 2026-10-30 (user): Sprint on R2, Quick Equip moved to R1, Fast Forward to L3 */
     return 0;
 }
 static int lk_bind_defkey(int i) {
     switch (i) { case LK_BA: return SDL_SCANCODE_Z; case LK_BB: return SDL_SCANCODE_X; case LK_BC: return SDL_SCANCODE_C; case LK_BSTART: return SDL_SCANCODE_RETURN; case LK_BQ1: return SDL_SCANCODE_A; case LK_BQ2: return SDL_SCANCODE_D;
-                 case LK_BQSAVE: return SDL_SCANCODE_F9; case LK_BQLOAD: return SDL_SCANCODE_F10; case LK_BFF: return SDL_SCANCODE_TAB; case LK_BFS: return SDL_SCANCODE_F11; case LK_BCOORD: return SDL_SCANCODE_F5; case LK_BEQ: return SDL_SCANCODE_Q; case LK_BSPRINT: return SDL_SCANCODE_LSHIFT; case LK_BMAP: return 0; }
+                 case LK_BQSAVE: return SDL_SCANCODE_F9; case LK_BQLOAD: return SDL_SCANCODE_F10; case LK_BFF: return SDL_SCANCODE_TAB; case LK_BFS: return SDL_SCANCODE_F11; case LK_BCOORD: return SDL_SCANCODE_F5; case LK_BEQ: return SDL_SCANCODE_Q; case LK_BSPRINT: return SDL_SCANCODE_LSHIFT; case LK_BMAP: return SDL_SCANCODE_M; }
     return 0;
 }
 static void lk_bind_path(char *b, size_t n) { const char *h = getenv("HOME"); snprintf(b, n, "%s/.landstalker_keys", h ? h : "."); }
@@ -70,6 +70,8 @@ static void lk_bind_load(void) {
     int seen[LK_NB]; memset(seen, 0, sizeof seen);
     while (fgets(l, sizeof l, f)) if (sscanf(l, "%31s %d %d", nm, &a, &b) == 3) for (int i = 0; i < LK_NB; i++) if (!strcmp(nm, lk_bind_id[i]) && a >= 0 && a < 200 && b >= 0 && b < SDL_NUM_SCANCODES) { lk_bind_pad[i] = a; lk_bind_key[i] = b; seen[i] = 1; }
     fclose(f);
+    /* v2.0 migration (user 2026-11-17: Map on R3 by default): a saved 'map 0 0' (never bound) takes the new default, and Fullscreen on the old default R3 gives it up */
+    if (seen[LK_BMAP] && !lk_bind_pad[LK_BMAP] && !lk_bind_key[LK_BMAP]) { seen[LK_BMAP] = 0; lk_bind_pad[LK_BMAP] = lk_bind_defpad(LK_BMAP); lk_bind_key[LK_BMAP] = lk_bind_defkey(LK_BMAP); if (lk_bind_pad[LK_BFS] == LKP(SDL_CONTROLLER_BUTTON_RIGHTSTICK)) lk_bind_pad[LK_BFS] = 0; }
     for (int i = 0; i < LK_NB; i++) if (!seen[i]) for (int j = 0; j < LK_NB; j++) if (j != i && seen[j]) { if (lk_bind_pad[i] && lk_bind_pad[i] == lk_bind_pad[j]) lk_bind_pad[i] = 0; if (lk_bind_key[i] && lk_bind_key[i] == lk_bind_key[j]) lk_bind_key[i] = 0; }   /* an action added later (Quick Equip) never steals a button from the saved ones */
 }
 static void lk_bind_init(void) { if (!lk_bind_loaded) lk_bind_load(); }

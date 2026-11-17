@@ -9,13 +9,13 @@ error), even sum -> 3/4 own + 1/4 the line above.  Both frames are equally soft,
 the Modern HUD's pixels (lk_mh_hit, user 2026-10-31 'das HUD wird beim Sprinten unscharf und zittert'), Nigel's pixels (marked while the own renderer draws entity offset 0), window pixels (HUD, text box), black margins, and any pixel something drew over the
 compositor's output afterwards (overlays, menus: the pixel must equal what the compositor wrote, the HD path's rule).  Applied at the top of
 platform_present_frame, so screenshots (LANDSTALKER_SHOT) show it too.  Inert with the HD picture (lk_hd_n) and outside the own map path.
-Switch: Options > Quality of Life > Smooth Scrolling (id 43, last row; user 2026-10-30 'passt alles, einbauen'), default ON; ~/.landstalker_smooth, env LANDSTALKER_SMOOTH=0|1 wins.
+Switch: ALWAYS ON since 2026-11-15 (user: on by default and no options row; was Options > Movement > Smooth Scrolling id 43); env LANDSTALKER_SMOOTH=0 turns it off (test aid).
 While it is On the sprint step is 3 (1.5 x, constant: no 4 / 2 alternation; read every frame) unless LANDSTALKER_SPRINT_STEP is set; Off = sprint 2 x and no blend.
 Without the Sprint button the game state never changes (the blend is picture only).
 Needs patch_own.py, patch_sprint.py and patch_sprintanim.py before it.  Idempotent.  usage: patch_subpix.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_SUBPIX v3"   # v3 (2026-10-31): blend direction from the scroll steps
+VER = "LK_SUBPIX v3"   # v3 (2026-10-31): blend direction from the scroll steps; 2026-11-15: always on (no file, no row)
 
 # ---- vdp_render.c (own renderer): mark Nigel's sprite pixels, remember the world pixels the compositor wrote, the frame's blend direction ----
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
@@ -73,7 +73,7 @@ if VER not in s:
     assert s.count(a) == 1
     module = r'''/* ---- LK_SUBPIX v3: smooth sub-pixel scrolling (tools/patch_subpix.py) ---- */
 static int lk_smooth_o = -1;
-int lk_smooth_get(void) { if (lk_smooth_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_SMOOTH"); char p[512]; FILE *f; int v = 1; snprintf(p, sizeof p, "%s/.landstalker_smooth", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 1; fclose(f); } if (e && *e) v = atoi(e); lk_smooth_o = v ? 1 : 0; } return lk_smooth_o; }   /* Options > Quality of Life > Smooth Scrolling (id 43), default On (user 2026-10-30: 'passt alles, einbauen'); ~/.landstalker_smooth, env LANDSTALKER_SMOOTH=0|1 wins */
+int lk_smooth_get(void) { if (lk_smooth_o < 0) { const char *e = getenv("LANDSTALKER_SMOOTH"); int v = 1; if (e && *e) v = atoi(e); lk_smooth_o = v ? 1 : 0; } return lk_smooth_o; }   /* always On since 2026-11-15 (user: 'standardmaessig an und nicht mehr im Optionsmenue'; the row id 43 is gone, an old ~/.landstalker_smooth is ignored); env LANDSTALKER_SMOOTH=0 = off (test aid) */
 void lk_smooth_set(int v) { const char *h = getenv("HOME"); char p[512]; FILE *f; lk_smooth_get(); lk_smooth_o = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_smooth", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_smooth_o); fclose(f); } }
 extern uint8_t lk_ss_w[224][448]; extern uint32_t lk_ss_ref[224][448]; extern long lk_ss_lgen[224], lk_ss_gen; extern int lk_ss_frac;
 static int lk_ss_wt = -1;   /* LANDSTALKER_SS_WEIGHT=1..8 (16ths); default 5 (2026-10-31: measured on screenshots, 4 left 1.29 / 1.73 lines per frame, 5 gives 1.48 / 1.56, 6 overshoots) */
@@ -270,7 +270,7 @@ static int lk_ssh_can(int sw) {   /* LK_SSHARP v1: will lk_disp_present run the 
         extern int lk_wide_e; const int sw = LK_SRC_W + 2 * lk_wide_e; int ow = 1280, oh = 800; lk_rect r; const uint8_t *fb = framebuffer; static uint32_t *ob; static size_t oc;
         lk_ssh_outsize(&ow, &oh); if (!lk_disp_loaded) lk_disp_load(); if (!lk_dd_loaded) lk_dd_load();
         { const char *fx = getenv("LANDSTALKER_OSHOT_FX"); if (fx && *fx) lk_fx_mode = atoi(fx) % LK_FX_N; }
-        if (lk_dd_mode) { lk_dd_par = lk_dd_par_run; if (lk_dd_cap < sw * LK_SRC_H) { free(lk_dd_buf); lk_dd_buf = (uint32_t *)malloc((size_t)sw * LK_SRC_H * 4); lk_dd_cap = lk_dd_buf ? sw * LK_SRC_H : 0; } if (lk_dd_buf) { if (lk_dd_mode == 3) lk_dedither_blend((const uint32_t *)fb, lk_dd_buf, sw); else if (lk_dd_mode == 2) lk_dedither_strong((const uint32_t *)fb, lk_dd_buf, sw); else lk_dedither((const uint32_t *)fb, lk_dd_buf, sw); fb = (const uint8_t *)lk_dd_buf; } }
+        if (lk_dd_mode) { lk_dd_par = lk_dd_par_run; lk_dd_hud(); if (lk_dd_cap < sw * LK_SRC_H) { free(lk_dd_buf); lk_dd_buf = (uint32_t *)malloc((size_t)sw * LK_SRC_H * 4); lk_dd_cap = lk_dd_buf ? sw * LK_SRC_H : 0; } if (lk_dd_buf) { if (lk_dd_mode == 3) lk_dedither_blend((const uint32_t *)fb, lk_dd_buf, sw); else if (lk_dd_mode == 2) lk_dedither_strong((const uint32_t *)fb, lk_dd_buf, sw); else lk_dedither((const uint32_t *)fb, lk_dd_buf, sw); fb = (const uint8_t *)lk_dd_buf; } }
         lk_calc_rect(lk_scale_mode, ow, oh, sw, &r);
         if ((size_t)r.w * r.h > oc) { free(ob); oc = (size_t)r.w * r.h; ob = (uint32_t *)malloc(oc * 4); }
         lk_ssh_d = 0; if (lk_ssh_pend && lk_ssh_setup(r.w, r.h, sw)) lk_ssh_d = lk_ssh_pend;

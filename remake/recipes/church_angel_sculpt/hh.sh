@@ -1,6 +1,6 @@
 #!/bin/bash
 # hh.sh TAG : head + hair only (before post.py): front, 3/4, side, back, top
-cd /home/deck/lktest/sculpt || exit 1
+cd /home/deck/Project-Friday-Test/lktest/sculpt || exit 1
 python3 head.py headm.obj hairm.obj >/dev/null || exit 1
 python3 - <<'PY'
 V=[];Fs=[]

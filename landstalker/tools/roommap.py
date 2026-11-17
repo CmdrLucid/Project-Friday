@@ -17,7 +17,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import roomgraph, romroom
 
-VERSION = "roommap v17"   # v17: W lines = river / raft passages (KN cave 163 / 165 / 167: user saw 2 doors, the map 3)   # v16: door side from the door cell's floor type (01..04 = NE / SE / SW / NW), not the nearest footprint edge (user: door top left drawn into a room on the left)   # v15: route search through the free lanes for the pairs still apart (any number of bends, at most 8)   # v14: connections keyed by their index (two rooms can be joined twice)   # v13: layout pulled apart by one unit at every box edge (longer bridges, lanes for the bent corridors)   # v12: bent corridors (L / Z / U) for the pairs still apart   # v11: corridors must not cross   # v10: straight free corridors between facing doors count as connected (E lines: last field)   # v9: no door may touch a room it does not lead to (false contacts weigh more than missed doors)   # v8: boxes sized by door count, one slot per door, best of TRIALS randomised placements (user: proportions need not be right, doors must fit)   # v7: floors from a walk over the stairs first; v6: most-linked room next, spot with the smallest total door distance (user: a door into nothing)   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
+VERSION = "roommap v18"   # v18: relayout() - boxes moved for short links, every same-floor link = stub / bend / stub (user 2026-11-14, docs/MAP.md mock-up v6)
+VERSION_OLD = "roommap v17"   # v17: W lines = river / raft passages (KN cave 163 / 165 / 167: user saw 2 doors, the map 3)   # v16: door side from the door cell's floor type (01..04 = NE / SE / SW / NW), not the nearest footprint edge (user: door top left drawn into a room on the left)   # v15: route search through the free lanes for the pairs still apart (any number of bends, at most 8)   # v14: connections keyed by their index (two rooms can be joined twice)   # v13: layout pulled apart by one unit at every box edge (longer bridges, lanes for the bent corridors)   # v12: bent corridors (L / Z / U) for the pairs still apart   # v11: corridors must not cross   # v10: straight free corridors between facing doors count as connected (E lines: last field)   # v9: no door may touch a room it does not lead to (false contacts weigh more than missed doors)   # v8: boxes sized by door count, one slot per door, best of TRIALS randomised placements (user: proportions need not be right, doors must fit)   # v7: floors from a walk over the stairs first; v6: most-linked room next, spot with the smallest total door distance (user: a door into nothing)   # v5: rooms as W x H boxes, neighbours at their door, connectors at the doors (user: connections where there are none)   # v4: height map cells shifted by (12, 12) to the game's cell coordinates   # v3: dungeons only (user 2026-10-31: towns with all their interiors were too cluttered)   # v2: nearest free cell instead of pushing along the line
 TRIALS = 60   # randomised placements per area (v8)
 KMAX = 8      # how far out (grid units) a room may be put from the door that asks for it (v12)
 TW = 112                     # thumbnail width (pixels): the map cells are drawn at most ~1.3 x this at 1280 x 800
@@ -380,7 +381,70 @@ def build(rom):
         lines.append("E %d %d %d %d %d %d %d %d" % (r1, r2, up, round(pa[0] * 10), round(pa[1] * 10), round(pb[0] * 10), round(pb[1] * 10), 1 if k in metall else 0) + "".join(" %d %d" % (round(x * 10), round(y * 10)) for x, y in wp))   # last field: 1 = doors meet or face each other on a free straight corridor
     for k in sorted(water): lines.append("W %d" % k)   # v17: E line number k (0-based, file order) is a river / raft passage (drawn blue)
     for v, o in variants: lines.append("V %d %d" % (v, o))
+    lines = relayout(lines)
     return lines, sorted(pos), areas, pos
+
+
+def relayout(lines):
+    """v18 (2026-11-14, user: 'so viele und lange Verbindungen'; docs/MAP.md mock-up v6): per area and floor the boxes are moved (annealing, single-unit steps) so that the
+    links get short: cost = Manhattan length between the two door stubs + 12 per door that would point away from its partner + 400 per box overlap (1 unit gap) +
+    0.08 x distance to the floor's centre (keeps rooms with stairs only in place).  Every link on one floor is then drawn as door stub - one bend - door stub (E flag 1)."""
+    import random
+    R, E, other = {}, [], []
+    for l in lines:
+        p = l.split()
+        if p[0] == 'R': R[int(p[1])] = [int(x) for x in p[1:]]
+        elif p[0] == 'E': E.append([int(x) for x in p[1:9]])
+    def side(r, u, v):
+        W, H = R[r][10] * 10, R[r][11] * 10; d = {'NW': u, 'SE': W - u, 'NE': v, 'SW': H - v}; return min(d, key=d.get)
+    groups = defaultdict(list)
+    for r, v in R.items(): groups[(v[1], v[2])].append(r)
+    newb = {}
+    for (ai, fl), rs in sorted(groups.items()):
+        rset = set(rs); lk = [k for k, e in enumerate(E) if e[0] in rset and e[1] in rset and not e[2]]
+        if not lk: continue
+        box = {r: [R[r][3], R[r][4], R[r][10], R[r][11]] for r in rs}
+        inc = defaultdict(list)
+        for k in lk: inc[E[k][0]].append(k); inc[E[k][1]].append(k)
+        def stub(r, u, v, kk=0.5):
+            x, y, W, H = box[r]; dx, dy = DIRS[side(r, u, v)]; return (x + u / 10, y + v / 10), (x + u / 10 + dx * kk, y + v / 10 + dy * kk), (dx, dy)
+        def lc(k):
+            e = E[k]; pa, sa, (dxa, dya) = stub(e[0], e[3], e[4]); pb, sb, (dxb, dyb) = stub(e[1], e[5], e[6])
+            c = abs(sa[0] - sb[0]) + abs(sa[1] - sb[1])
+            if (sb[0] - pa[0]) * dxa + (sb[1] - pa[1]) * dya < 0: c += 12
+            if (sa[0] - pb[0]) * dxb + (sa[1] - pb[1]) * dyb < 0: c += 12
+            return c
+        def ov(a, b):
+            x1, y1, w1, h1 = box[a]; x2, y2, w2, h2 = box[b]
+            return not (x1 + w1 + 1 <= x2 or x2 + w2 + 1 <= x1 or y1 + h1 + 1 <= y2 or y2 + h2 + 1 <= y1)
+        def local(r):
+            mx = sum(box[q][0] for q in rs) / len(rs); my = sum(box[q][1] for q in rs) / len(rs)
+            return sum(lc(k) for k in inc[r]) + 400 * sum(1 for q in rs if q != r and ov(r, q)) + 0.08 * (abs(box[r][0] - mx) + abs(box[r][1] - my))
+        rnd = random.Random(ai * 100 + fl); T = 6.0; steps = 1500 * len(rs)
+        decay = (0.05 / 6.0) ** (1.0 / steps)
+        for it in range(steps):
+            r = rnd.choice(rs); dx, dy = rnd.choice(((1, 0), (-1, 0), (0, 1), (0, -1)))
+            c0 = local(r); box[r][0] += dx; box[r][1] += dy; c1 = local(r)
+            if c1 <= c0 or rnd.random() < 2.718 ** ((c0 - c1) / T): pass
+            else: box[r][0] -= dx; box[r][1] -= dy
+            T *= decay
+        mnx = min(box[q][0] for q in rs); mny = min(box[q][1] for q in rs)
+        for r in rs: R[r][3] = box[r][0] - mnx; R[r][4] = box[r][1] - mny
+        for r in rs: box[r][0] -= mnx; box[r][1] -= mny
+        for k in lk:
+            e = E[k]; pa, sa, da = stub(e[0], e[3], e[4]); pb, sb, db = stub(e[1], e[5], e[6])
+            corner = (sb[0], sa[1]) if da[0] != 0 else (sa[0], sb[1])
+            newb[k] = [sa, corner, sb]
+    out, ek = [], 0
+    for l in lines:
+        p = l.split()
+        if p[0] == 'R': out.append("R " + " ".join(str(x) for x in R[int(p[1])]))
+        elif p[0] == 'E':
+            if ek in newb: out.append("E " + " ".join(str(x) for x in E[ek][:7]) + " 1" + "".join(" %d %d" % (round(x * 10), round(y * 10)) for x, y in newb[ek]))
+            else: out.append(l)
+            ek += 1
+        else: out.append(l)
+    return out
 
 def thumb(args):
     """one room drawn from the ROM, shrunk (box filter, black = transparent) to at most TW wide; returns (room, w, h, RGB565 bytes)"""

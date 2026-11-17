@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Names for the unnamed inner labels (loc_XXXX) of the lordmir disassembly: `<Parent>_loc` (dev tool, needs the disassembly checkout ~/landstalker_disasm).
+"""Names for the unnamed inner labels (loc_XXXX) of the lordmir disassembly: `<Parent>_loc` (dev tool, needs the disassembly checkout ~/Project-Friday-Test/landstalker_disasm).
 
 Many of the "unnamed functions" of the generated C are not functions at all but jump targets INSIDE a named function (loop heads, error exits: the
 recompiler registers every branch target it finds). The disassembly shows which: the label `loc_4AB4` stands after `DecompressLZ77Gfx:` in the source.
@@ -14,7 +14,7 @@ import glob, json, os, re, sys
 
 here = os.path.dirname(os.path.abspath(__file__))
 args = [a for a in sys.argv[1:] if not a.startswith("--")]
-D = os.path.expanduser(args[0] if args else "~/landstalker_disasm")
+D = os.path.expanduser(args[0] if args else "~/Project-Friday-Test/landstalker_disasm")
 dry = "--dry" in sys.argv
 sp = os.path.join(here, "..", "docs", "symbols.json")
 doc = json.load(open(sp))

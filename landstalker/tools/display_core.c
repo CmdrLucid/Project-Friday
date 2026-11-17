@@ -247,6 +247,8 @@ static void lk_sb_render_rows(const uint32_t *src, uint32_t *dst, int dw, int sw
    and the pattern goes on at least 2 pixels to one side (pixel two to the left OR right equals the pixel again), so single 1-pixel lines / dots / text strokes on a flat background stay sharp.
    Chequerboards alternate in every row, so the horizontal test is enough for them. src and dst: sw x 224 pixels, 0xFFRRGGBB. */
 #define LK_DD_SKIP_TOP 24   /* the HUD bar (y 5..22) is never touched: its frame / gauge / hearts are drawn with deliberate pixel patterns */
+static int lk_dd_skip_top = LK_DD_SKIP_TOP;   /* LK_DDHUD v1 (2026-11-17, GitHub #19): rows left alone at the top; the platform sets 0 with the Modern HUD (lines 0..23 are map there) */
+static void (*lk_dd_hudmark)(uint8_t *near, int sw, int h);   /* LK_DDHUD v1: marks the Modern HUD's own pixels (+1 px) in the UI guard mask, so hearts / discs / gold stay sharp (0 = none) */
 static inline int lk_dd_nearT(uint32_t a, uint32_t b, int tol) {
     int dr = (int)((a >> 16) & 255) - (int)((b >> 16) & 255), dg = (int)((a >> 8) & 255) - (int)((b >> 8) & 255), db = (int)(a & 255) - (int)(b & 255);
     return dr <= tol && dr >= -tol && dg <= tol && dg >= -tol && db <= tol && db >= -tol;
@@ -283,10 +285,11 @@ static void lk_dd_build_near(const uint32_t *src, int sw) {
             { int yy = y - 3; if (yy >= 0 && yy < LK_SRC_H) row[(size_t)yy * sw + x] = cnt > 0; }
         }
     }
+    if (lk_dd_hudmark) lk_dd_hudmark(row, sw, LK_SRC_H);
 }
 static inline int lk_dd_uinear(const uint32_t *src, int sw, int x, int y) { (void)src; return lk_dd_near ? lk_dd_near[(size_t)y * sw + x] : 0; }
 static void lk_dedither_tol_rows(const uint32_t *src, uint32_t *dst, int sw, int tol, int y0, int y1) {
-    for (int y = y0 < LK_DD_SKIP_TOP ? LK_DD_SKIP_TOP : y0; y < (y1 > LK_SRC_H - 1 ? LK_SRC_H - 1 : y1); y++) {
+    for (int y = y0 < lk_dd_skip_top ? lk_dd_skip_top : y0; y < (y1 > LK_SRC_H - 1 ? LK_SRC_H - 1 : y1); y++) {
         for (int x = 1; x < sw - 1; x++) {
             const uint32_t *r = src + (size_t)y * sw + x, c = r[0];
             uint32_t W = r[-1], E = r[1], N = r[-sw], S = r[sw];
@@ -311,7 +314,7 @@ static void lk_dedither_smooth_rows(const uint32_t *src, uint32_t *dst, int sw, 
        at least 4 neighbours must qualify, 2 of them differ from the centre by more than the tolerance and 1 equals it (pure dots, lines and outlines have no such neighbourhood).
        Dither test: of the pixels of the 5x5 window that are within `range` of the centre (>= 12 of them) at most `ncl` colour clusters (tolerance 6) cover >= 90 % - a floor / carpet / wall made of 2..3 tones,
        but not the shading of a sprite or a picture with many colours. */
-    for (int y = y0 < LK_DD_SKIP_TOP ? LK_DD_SKIP_TOP : y0; y < (y1 > LK_SRC_H - 3 ? LK_SRC_H - 3 : y1); y++) for (int x = 3; x < sw - 3; x++) {
+    for (int y = y0 < lk_dd_skip_top ? lk_dd_skip_top : y0; y < (y1 > LK_SRC_H - 3 ? LK_SRC_H - 3 : y1); y++) for (int x = 3; x < sw - 3; x++) {
         const uint32_t c = src[(size_t)y * sw + x]; int diff = 0, same = 0, in = 0;
         uint32_t r = 0, g = 0, b = 0, wsum = 0;
         { const uint32_t *q = src + (size_t)y * sw + x; if (lk_dd_eq(c, q[-1]) && lk_dd_eq(c, q[1]) && lk_dd_eq(c, q[-sw]) && lk_dd_eq(c, q[sw])) continue; }   /* flat: nothing to do (most of the picture) */
@@ -364,7 +367,7 @@ static void lk_dedither_smooth_rows(const uint32_t *src, uint32_t *dst, int sw, 
    becomes a smooth gradient, no clusters / patterns have to be recognised. `gate` = minimum number of the 8 neighbours that differ from the centre (0 = every pixel, higher = only noisy places, sprite shading stays sharper). */
 static void lk_dedither_bil_rows(const uint32_t *src, uint32_t *dst, int sw, int range, int gate, int y0, int y1) {
     static const int sp[3][3] = { { 16, 11, 8 }, { 11, 8, 4 }, { 8, 4, 3 } };   /* [|dy|][|dx|]: gaussian in the distance */
-    for (int y = y0 < LK_DD_SKIP_TOP ? LK_DD_SKIP_TOP : y0; y < (y1 > LK_SRC_H - 2 ? LK_SRC_H - 2 : y1); y++) for (int x = 2; x < sw - 2; x++) {
+    for (int y = y0 < lk_dd_skip_top ? lk_dd_skip_top : y0; y < (y1 > LK_SRC_H - 2 ? LK_SRC_H - 2 : y1); y++) for (int x = 2; x < sw - 2; x++) {
         const uint32_t c = src[(size_t)y * sw + x]; const int cr = (c >> 16) & 255, cg = (c >> 8) & 255, cb = c & 255;
         unsigned r = 0, g = 0, b = 0, wsum = 0; int diff = 0;
         { const uint32_t *q = src + (size_t)y * sw + x; if (lk_dd_eq(c, q[-1]) && lk_dd_eq(c, q[1]) && lk_dd_eq(c, q[-sw]) && lk_dd_eq(c, q[sw]) && lk_dd_eq(c, q[-sw - 1]) && lk_dd_eq(c, q[-sw + 1]) && lk_dd_eq(c, q[sw - 1]) && lk_dd_eq(c, q[sw + 1])) continue; }   /* flat 3x3: nothing to do (fast path) */
@@ -408,7 +411,7 @@ static void lk_dedither_both(const uint32_t *src, uint32_t *dst, int sw, int tol
 static void lk_dedither_bil(const uint32_t *src, uint32_t *dst, int sw, int range) {
     static uint32_t *last_in, *last_out; static int last_cap, last_key = -1, last_sw;
     lk_dd_ctx c = { src, dst, sw, 0, range, 0, 0, 2 };
-    const size_t bytes = (size_t)sw * LK_SRC_H * 4; const int key = 5000 + range;
+    const size_t bytes = (size_t)sw * LK_SRC_H * 4; const int key = 5000 + range + 100000 * lk_dd_skip_top + (lk_dd_hudmark ? 1 : 0);   /* (LK_DDHUD v1: the HUD guard is part of the result) */
     if (last_cap >= (int)bytes && last_key == key && last_sw == sw && last_in && !memcmp(last_in, src, bytes)) { memcpy(dst, last_out, bytes); return; }
     lk_dd_build_near(src, sw);
     memcpy(dst, src, bytes);

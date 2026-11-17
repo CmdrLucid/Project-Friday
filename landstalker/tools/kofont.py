@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+"""kofont.py Galmuri11.bdf lang/ko_glyphs.dat -- the Hangul syllables for the language 'Korean' (user 2026-11-13).
+
+Source: the pixel font Galmuri 11 by Lee Minseo (SIL Open Font License 1.1, lang/OFL-Galmuri.txt; https://github.com/quiple/galmuri).
+Its Hangul syllables are 11 px high and at most 11 px wide, the same as the capitals of the game's text font (rows 0..10 of the 12 x 15 glyph).
+Output: 'KOGL' + u16 count (11172) + for every syllable U+AC00..U+D7A3: 11 big-endian u16 rows (bit $8000 = column 0), baseline = row 10.
+tools/langbuild.py builds the glyphs of a Korean language file from it (only the syllables the text uses)."""
+import re, struct, sys
+
+def main7(bdf, out):
+    """LK_LGKOMENU v1: Galmuri 7 (7 x 7 px Hangul) for the 8x8 menu tiles: 'KOG7' + u16 count + 7 bytes per syllable (bit $80 = column 0)"""
+    t = open(bdf, encoding='latin-1').read(); g = {}
+    for m in re.finditer(r'ENCODING (\d+)\n(.*?)ENDCHAR', t, re.S):
+        cp = int(m.group(1))
+        if not 0xAC00 <= cp <= 0xD7A3: continue
+        b = m.group(2); w, h, xo, yo = map(int, re.search(r'BBX (-?\d+) (-?\d+) (-?\d+) (-?\d+)', b).groups())
+        rows = re.search(r'BITMAP\n(.*)', b, re.S).group(1).split(); r = [0] * 7; top = 7 - h - yo
+        for i, hexrow in enumerate(rows):
+            y = top + i
+            if not 0 <= y < 7: continue
+            v = int(hexrow, 16); n = len(hexrow) * 4
+            for x in range(w):
+                if v >> (n - 1 - x) & 1 and 0 <= x + xo < 8: r[y] |= 0x80 >> (x + xo)
+        g[cp] = r
+    data = b'KOG7' + struct.pack('>H', 11172) + b''.join(bytes(g.get(cp, [0] * 7)) for cp in range(0xAC00, 0xD7A4))
+    open(out, 'wb').write(data); print('kofont: %d of 11172 syllables (7 px) -> %s (%d bytes)' % (len(g), out, len(data)))
+
+
+def main7ja(bdf, out):
+    """release 2.0: Galmuri 7 KANA (U+3040..U+30FF incl. the long vowel mark and the middle dot) for the Japanese options menu (8x8 tiles):
+    'JAG7' + u16 first code point + u16 count + 7 bytes per code point (bit $80 = column 0), same cut as main7"""
+    t = open(bdf, encoding='latin-1').read(); g = {}
+    for m in re.finditer(r'ENCODING (\d+)\n(.*?)ENDCHAR', t, re.S):
+        cp = int(m.group(1))
+        if not 0x3040 <= cp <= 0x30FF: continue
+        b = m.group(2); w, h, xo, yo = map(int, re.search(r'BBX (-?\d+) (-?\d+) (-?\d+) (-?\d+)', b).groups())
+        rows = re.search(r'BITMAP\n(.*)', b, re.S).group(1).split(); r = [0] * 7; top = 7 - h - yo
+        for i, hexrow in enumerate(rows):
+            y = top + i
+            if not 0 <= y < 7: continue
+            v = int(hexrow, 16); n = len(hexrow) * 4
+            for x in range(w):
+                if v >> (n - 1 - x) & 1 and 0 <= x + xo < 8: r[y] |= 0x80 >> (x + xo)
+        g[cp] = r
+    data = b'JAG7' + struct.pack('>HH', 0x3040, 192) + b''.join(bytes(g.get(cp, [0] * 7)) for cp in range(0x3040, 0x3100))
+    open(out, 'wb').write(data); print('kofont: %d kana (7 px) -> %s (%d bytes)' % (len(g), out, len(data)))
+
+
+def main():
+    if sys.argv[1] == '--menu': return main7(sys.argv[2], sys.argv[3])   # kofont.py --menu Galmuri7.bdf lang/ko_glyphs7.dat
+    if sys.argv[1] == '--menu-ja': return main7ja(sys.argv[2], sys.argv[3])   # kofont.py --menu-ja Galmuri7.bdf lang/ja_glyphs7.dat
+    bdf, out = sys.argv[1], sys.argv[2]
+    t = open(bdf, encoding='latin-1').read()
+    g = {}
+    for m in re.finditer(r'ENCODING (\d+)\n(.*?)ENDCHAR', t, re.S):
+        cp = int(m.group(1))
+        if not 0xAC00 <= cp <= 0xD7A3: continue
+        b = m.group(2)
+        w, h, xo, yo = map(int, re.search(r'BBX (-?\d+) (-?\d+) (-?\d+) (-?\d+)', b).groups())
+        rows = re.search(r'BITMAP\n(.*)', b, re.S).group(1).split()
+        top = 11 - h - yo                                  # row of the glyph's first bitmap row (baseline at row 10: yo = 0 -> bottom row 10)
+        r = [0] * 11
+        for i, hexrow in enumerate(rows):
+            y = top + i
+            if not 0 <= y < 11: continue
+            v = int(hexrow, 16); n = len(hexrow) * 4
+            for x in range(w):
+                if v >> (n - 1 - x) & 1 and 0 <= x + xo < 12: r[y] |= 0x8000 >> (x + xo)
+        g[cp] = r
+    data = b'KOGL' + struct.pack('>H', 11172)
+    for cp in range(0xAC00, 0xD7A4): data += b''.join(struct.pack('>H', v) for v in g.get(cp, [0] * 11))
+    open(out, 'wb').write(data)
+    print('kofont: %d of 11172 syllables -> %s (%d bytes)' % (len(g), out, len(data)))
+
+if __name__ == '__main__':
+    main()

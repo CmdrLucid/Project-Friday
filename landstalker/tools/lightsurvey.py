@@ -3,7 +3,7 @@
 waterfall shrine room 177, user report 2026-11-03): for every tileset one or two rooms are drawn from ROM data (romrender) and every 8 x 8 plane tile
 with at least 5 bright flame-coloured pixels (red >= 200, green >= 120, blue <= 110, red - blue >= 120) is a candidate; candidates are grouped per
 (tileset, tile index) and shown as a room crop (the tile outlined) so that the real light sources can be named by eye.  The confirmed list goes into
-tools/patch_lights.py (lk_lt_static).  Output: one self-contained HTML page (default ~/Mockups/lichter_statisch.html, ROM-derived pictures: never commit)
+tools/patch_lights.py (lk_lt_static).  Output: one self-contained HTML page (default ~/Project-Friday-Test/Mockups/lichter_statisch.html, ROM-derived pictures: never commit)
 and a text list on stdout.  Needs Pillow (on the Deck ~/.landstalker_trailer/venv/bin/python)."""
 import base64, io, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -15,7 +15,7 @@ def flame_px(rgb):
     return r >= 200 and g >= 120 and b <= 110 and r - b >= 120
 
 def main():
-    rom = open(sys.argv[1], 'rb').read(); out = sys.argv[2] if len(sys.argv) > 2 else os.path.expanduser('~/Mockups/lichter_statisch.html')
+    rom = open(sys.argv[1], 'rb').read(); out = sys.argv[2] if len(sys.argv) > 2 else os.path.expanduser('~/Project-Friday-Test/Mockups/lichter_statisch.html')
     by = animsurvey.rooms_by_tileset(rom); cands = {}
     for ts in sorted(by):
         for room in by[ts][:3]:

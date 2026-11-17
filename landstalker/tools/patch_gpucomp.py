@@ -128,7 +128,7 @@ static void lk_gc_side(PIXEL_OUT_T *row, int line, int w, int e, int u0, int v, 
     a = "static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {\n"
     rep(a, MODULE + a)
     a = "    int lk_cs_ln = lk_cs_linebegin();   /* LK_CLOUDS v1 */\n"
-    rep(a, a + "    int lk_gc_md = lk_gc_getmode(), lk_gc_skip = 0, lk_gc_gl = lk_gc_md == 1 && lk_gl_real && !lk_sfx_ln && !lk_dz_ln && !lk_hz_ln && !lk_ss_frac && !lk_hd_n && !fxon && !lk_sh_row_on && (nohud || line >= 24)\n"
+    rep(a, a + "    int lk_gc_md = lk_gc_getmode(), lk_gc_skip = 0, lk_gc_gl = lk_gc_md == 1 && lk_gl_real && !lk_sfx_ln && !lk_dz_ln && !lk_hz_ln && !lk_hd_n && !fxon && !lk_sh_row_on && (nohud || line >= 24)\n"
            "      && !lk_brand_on && !lk_win_on && lk_m_on <= 0 && !lk_sm_capture_now && !lk_gc_block && lk_o_mode == 2;   /* @VER@ 4d: a GPU line (everything its pixels need is on the GPU, nothing reads the CPU row) */\n"
            "    int lk_gc_ln = (lk_gc_md == 2 || lk_gc_gl) && lk_gc_linebegin(line, w, e, ubase - e - lk_sm_sxn, vbase - lk_sm_syn, black_line, text, wline, tb, nohud, wlo, whi, hint,\n"
            "      (lk_bc_ln ? 1 : 0) | (lk_wr_ln ? 2 : 0) | (lk_cs_ln ? 4 : 0) | ((lk_lt_ln && lk_dn_win) ? 8 : 0) | ((lk_gl_real && !lk_sfx_ln && !lk_dz_ln && !lk_hz_ln) ? 16 : 0) | (lk_gc_gl ? 64 : 0));   /* @VER@ */\n"
@@ -159,9 +159,13 @@ const uint8_t *lk_gc_clouds(int *ox8, int *oy8, int *kf) { *ox8 = lk_cs_ox >> 3;
 void lk_gc_mhud(uint8_t *o, int *y0, int *y1) { int y, x; *y0 = lk_mh_y0; *y1 = lk_mh_y1;   /* 464 x 240 RGBA: colour + alpha */
   for (y = 0; y < LK_MH_H; y++) for (x = 0; x < LK_MH_W; x++) { uint8_t *q = o + 4 * (y * LK_MH_W + x); int a = (y >= lk_mh_y0 && y <= lk_mh_y1) ? lk_mh_a[y][x] : 0; uint32_t c = (uint32_t)lk_mh_c[y][x];
     q[0] = (uint8_t)(c >> 16); q[1] = (uint8_t)(c >> 8); q[2] = (uint8_t)c; q[3] = (uint8_t)a; } }
-void lk_gc_dnmask(float *m) { int k, y; for (k = 0; k < 8; k++) for (y = 0; y < 8; y++) m[k * 8 + y] = (float)lk_dn_wm[k][y]; }   /* LK_DNWIN197 v1: 8 window tiles */
+const uint8_t *lk_gc_dpm(int *ver) { *ver = lk_dn_pmver + (lk_dn_pmok ? 1 : 0) * 0x40000000; return &lk_dn_pi[0][0]; }   /* LK_DNGLOW v1: the intensity map (2432 x 1216 bytes) */
+int lk_gc_dpmok(void) { return lk_dn_pmok; }   /* LK_DNWIN2 v1: door opening pixel mask (304 x 1216 bytes) */
+int lk_gc_dncells(float *c) { int k; for (k = 0; k < 64; k++) { c[2 * k] = k < lk_dn_ndc ? (float)lk_dn_dcl[k][0] : -9.0f; c[2 * k + 1] = k < lk_dn_ndc ? (float)lk_dn_dcl[k][1] : -9.0f; } return lk_dn_ndc; }   /* LK_DNWIN2 v1: door cells of tile 1 */
+int lk_gc_dnmask(float *m, float *t) { int k, y; if (lk_dn_wmroom != lk_o_room) { lk_dn_wmask(); lk_dn_doorcells(); } for (k = 0; k < 48; k++) { t[k] = k < lk_dn_ntl ? (float)lk_dn_tl[k] + (lk_dn_tk[k] == 3 ? 4096.0f : 0.0f) : -1.0f;   /* +4096: a door tile that glows whole */ for (y = 0; y < 8; y++) m[k * 8 + y] = k < lk_dn_ntl ? (float)lk_dn_tm[k][y] : 0.0f; } return lk_dn_ntl; }   /* LK_DNWIN2 v1: the room's glowing tiles (up to 48: houses, church, Massan doors / round / shuttered windows) */
 int lk_gc_learned(void) { return lk_gc_learnfr == lk_gc_capfr || lk_wr_idx != lk_gc_lidx || lk_wr_pal != lk_gc_lpal; }   /* the water learned a colour during the frame */
-int lk_gc_figs(float *f) { int j; for (j = 0; j < lk_lt_nf && j < 16; j++) { f[2 * j] = (float)lk_lt_f[j].ax; f[2 * j + 1] = (float)lk_lt_f[j].ay; } return lk_lt_nf < 16 ? lk_lt_nf : 16; }
+int lk_gc_figs(float *f) { int j; for (j = 0; j < 16; j++) f[32 + j] = j < lk_lt_nf ? (float)lk_lt_f[j].tag : 0.0f;   /* LK_FIGOWN v1: owner tags (uFigT) */
+  for (j = 0; j < lk_lt_nf && j < 16; j++) { f[2 * j] = (float)lk_lt_f[j].ax; f[2 * j + 1] = (float)lk_lt_f[j].ay; } return lk_lt_nf < 16 ? lk_lt_nf : 16; }
 '''.replace("@VER@", VER)
     s = s.rstrip("\n") + "\n" + TAIL
     open(p, "w").write(s)
@@ -180,11 +184,11 @@ extern uint32_t lk_gc_fin[224 * 448], lk_gc_p0[224 * 448], lk_gc_p1[224 * 448]; 
 extern const uint32_t *lk_gc_planes(void); extern const uint32_t *lk_gc_planesb(void); extern const uint8_t *lk_gc_tiles(void); extern void lk_gc_sprb(uint16_t *o);
 extern void lk_gc_wclass(uint8_t *o); extern const uint32_t *lk_gc_wrbuf(void); extern void lk_gc_water(int *tk, int *pal, int *idx); extern const uint8_t *lk_gc_clouds(int *ox8, int *oy8, int *kf);
 extern const uint8_t *lk_gc_spre(void); extern long lk_gc_realfr; extern int lk_gc_nreal, lk_gc_block;
-extern void lk_gc_mhud(uint8_t *o, int *y0, int *y1); extern void lk_gc_dnmask(float *m); extern int lk_gc_figs(float *f); extern int lk_gc_learned(void);
+extern void lk_gc_mhud(uint8_t *o, int *y0, int *y1); extern int lk_gc_dnmask(float *m, float *t); extern int lk_gc_dncells(float *c); extern const uint8_t *lk_gc_dpm(int *ver); extern int lk_gc_dpmok(void); extern int lk_gc_figs(float *f); extern int lk_gc_learned(void);
 static const char *lk_gc_fs = "#version 120\n"
-"uniform sampler2D rows; uniform sampler2D pal; uniform sampler2D win; uniform sampler2D spr; uniform sampler2D pln; uniform sampler2D til;\n"
+"uniform sampler2D rows; uniform sampler2D pal; uniform sampler2D win; uniform sampler2D spr; uniform sampler2D pln; uniform sampler2D til; uniform sampler2D dpm;\n"
 "uniform sampler2D wcl; uniform sampler2D wrb; uniform sampler2D rip; uniform sampler2D mhd; uniform sampler2D cst; uniform sampler2D fbt; uniform sampler2D spe; uniform float uReal; uniform float uYo;\n"
-"uniform float uMode; uniform vec4 uFig[8]; uniform float uNf; uniform vec4 uDnM[16]; uniform vec3 uCs; uniform vec3 uWr; uniform vec2 uMh;\n"
+"uniform float uMode; uniform vec4 uFig[8]; uniform vec4 uFigT[4]; uniform float uNf; uniform vec4 uDnM[96]; uniform vec4 uDnT[12]; uniform float uDnN; uniform vec4 uDnC[32]; uniform float uDnCN; uniform float uDnF; uniform vec3 uCs; uniform vec3 uWr; uniform vec2 uMh;\n"
 "float by(float v) { return floor(v * 255.0 + 0.5); }\n"
 "vec3 by3(vec3 v) { return floor(v * 255.0 + 0.5); }\n"
 "float bit(float v, float n) { return mod(floor(v / exp2(n)), 2.0); }\n"
@@ -207,12 +211,21 @@ static const char *lk_gc_fs = "#version 120\n"
 "  float k = -1.0; pk = mod(pk, 64.0); if (pk == 40.0) k = 0.0; else if (pk == 35.0) k = 1.0; else if (pk == 36.0) k = 2.0; else if (pk == 37.0) k = 3.0; if (k < 0.0) return c;\n"
 "  vec3 o = by3(rowt(8.0 + k, line).rgb), b = by3(rowt(12.0 + k, line).rgb); float sb = b.r + b.g + b.b, sc = c.r + c.g + c.b; if (sb <= 0.0) return c;\n"
 "  return min(floor((o * sc + floor(sb / 2.0)) / sb), vec3(255.0)); }\n"
-"vec3 winpix(vec3 c, float pick, float t, vec2 ixy, float w) {\n"   /* lk_dn_winpix */
-"  float idx = mod(pick, 16.0), k = -1.0; if (pick >= 16.0 || (idx != 1.0 && idx != 14.0)) return c;\n"
-"  if (t == 195.0) k = 0.0; else if (t == 196.0) k = 1.0; else if (t == 199.0) k = 2.0; else if (t == 200.0) k = 3.0; else if (t == 210.0) k = 4.0; else if (t == 211.0) k = 5.0; else if (t == 197.0) k = 6.0; else if (t == 198.0) k = 7.0; if (k < 0.0) return c;\n"
-"  float n = k * 8.0 + ixy.y, nc = mod(n, 4.0); vec4 mv = uDnM[int(floor(n / 4.0))]; float mk = nc == 0.0 ? mv.x : nc == 1.0 ? mv.y : nc == 2.0 ? mv.z : mv.w;\n"
-"  if (bit(mk, ixy.x) < 0.5) return c;\n"
-"  vec3 g = idx == 1.0 ? vec3(255.0, 200.0, 100.0) : vec3(232.0, 154.0, 72.0);\n"
+"vec3 winpix(vec3 c, float pick, float t, vec2 ixy, float w, vec2 uv) {\n"   /* lk_dn_winpix (LK_DNWIN2 v1: the room's tile list) */
+"  float idx = mod(pick, 16.0), k = -1.0;\n"
+"  if (uDnCN > 0.5) { float v = (uv.x >= 0.0 && uv.y >= 0.0 && uv.x < 2432.0 && uv.y < 1216.0) ? by(texture2D(dpm, vec2((uv.x + 0.5) / 2432.0, (uv.y + 0.5) / 1216.0)).r) : 0.0;\n"   /* LK_DNGLOW v1 (as lk_dn_winpix) */
+"    if (v > 0.5 || uDnCN < 1.5) { if (v < 0.5) return c; float w0 = floor(w * uDnF / 256.0); if (pick >= 16.0 && v >= 128.0) return c;\n"   /* LK_DNCHDOOR v1: uDnCN 2 = a church room: the map only where set, else the tile list below */
+"    if (v >= 128.0) { float iv = v - 128.0; vec3 rg = floor((vec3(70.0, 26.0, 8.0) * (127.0 - iv) + vec3(240.0, 150.0, 62.0) * iv) / 127.0); return floor((floor(rg * w0 / 235.0) * 154.0 + c * 102.0) / 256.0); }\n"   /* LK_DNFLK v1: 60 % over the drawing (affine: works as the post mix p0 / p1) */
+"    if (v >= 64.0) { float f = floor((v - 64.0) * 2.0 * w0 / 235.0); return min(c + floor(c * vec3(200.0, 145.0, 55.0) * f / 16129.0) + floor(vec3(50.0, 25.0, 6.0) * f / 127.0), vec3(255.0)); }\n"
+"    return min(c + floor(floor(vec3(200.0, 116.0, 34.0) * v * 2.0 / 127.0) * w0 / 235.0), vec3(255.0)); } }\n"   /* LK_DNSPILL v1: as lk_dn_winpix */   /* LK_DNWIN2: black tile 1 inside a door */
+"  if (pick >= 16.0) return c;\n"
+"  for (int j = 0; j < 48; j++) { if (float(j) >= uDnN) break; vec4 tv = uDnT[j / 4]; int jc = j - 4 * (j / 4); float tt = jc == 0 ? tv.x : jc == 1 ? tv.y : jc == 2 ? tv.z : tv.w; if (tt == t || tt == t + 4096.0) { k = float(j); if (tt > 4095.0) idx = 2.0; break; } }\n"
+"  if (idx != 1.0 && idx != 14.0 && idx != 15.0 && idx != 5.0 && idx != 2.0 && idx != 13.0) return c;\n"   /* (13: church glass, LK_DNCHGLASS v2) */
+"  if (k == -1.0) return c;\n"
+"  if (k >= 0.0) { float n = k * 8.0 + ixy.y, nc = mod(n, 4.0); vec4 mv = uDnM[int(floor(n / 4.0))]; float mk = nc == 0.0 ? mv.x : nc == 1.0 ? mv.y : nc == 2.0 ? mv.z : mv.w;\n"
+"    if (bit(mk, ixy.x) < 0.5) return c; }\n"
+"  vec3 g = idx == 1.0 ? vec3(255.0, 200.0, 100.0) : idx == 14.0 ? vec3(232.0, 154.0, 72.0) : vec3(224.0, 144.0, 60.0);\n"
+"  if (idx == 15.0 || idx == 5.0 || idx == 2.0 || idx == 13.0) w = floor(w * 200.0 / 235.0); if (idx == 5.0 || idx == 2.0) c = vec3(0.0);\n"
 "  return vec3(c.r + tdiv((g.r - c.r) * w, 256.0), c.g + tdiv((g.g - c.g) * w, 256.0), c.b + tdiv((g.b - c.b) * w, 256.0)); }\n"
 "vec3 water(vec3 c, float pick, float t, float line, float i, bool rl) {\n"   /* lk_wr_pix */
 "  float wc = by(texture2D(wcl, vec2((mod(t, 48.0) + 0.5) / 48.0, (floor(t / 48.0) + 0.5) / 48.0)).r);\n"
@@ -250,7 +263,7 @@ static const char *lk_gc_fs = "#version 120\n"
 "  float sl = line - syn, si = i - sxn, sp = 0.0;\n"
 "  if (sl >= 0.0 && sl < 224.0 && si >= 0.0 && si < 448.0) { vec4 t = texture2D(spr, vec2((si + 0.5) / 448.0, (sl + 0.5) / 224.0)); sp = by(t.r) + 256.0 * by(t.a); }\n"
 "  bool s200 = bit(sp, 9.0) > 0.5, s100 = bit(sp, 8.0) > 0.5, s400 = bit(sp, 10.0) > 0.5;\n"
-"  bool black = bline; float pick = 0.0, src = 0.0, tile = 0.0; vec2 ixy = vec2(0.0);\n"
+"  bool black = bline, ovw = false; float pick = 0.0, src = 0.0, tile = 0.0; vec2 ixy = vec2(0.0);\n"
 "  if (!black) {\n"
 "    vec2 ia, ib; vec4 A = fetch(U0 + i, V, 0.0, ia), B = fetch(U0 + i, V, 1.0, ib);\n"
 "    if (s200 && s100) { pick = mod(sp, 64.0); src = 1.0; }\n"
@@ -263,10 +276,11 @@ static const char *lk_gc_fs = "#version 120\n"
 "    if (src == 2.0) { tile = A.w; ixy = ia; } else if (src == 3.0) { tile = B.w; ixy = ib; }\n"
 "    if (margin) { if ((line < 23.0 && !nohud) || (wline && !tb)) black = true; }\n"
 "    else { vec4 t = texture2D(win, vec2((x + 0.5) / 320.0, (line + 0.5) / 224.0)); float wp = by(t.r) + 256.0 * by(t.a) - 1.0;\n"
-"      if (wp >= 0.0 && mod(wp, 16.0) > 0.0 && i >= wlo && i < whi) { if (!(text && s200 && s100 && !s400 && bit(wp, 9.0) < 0.5)) { pick = mod(wp, 64.0); src = 4.0; } }\n"
+"      if (wp >= 0.0 && mod(wp, 16.0) > 0.0 && i >= wlo && i < whi) { if (!(text && s200 && s100 && !s400 && bit(wp, 9.0) < 0.5)) { pick = mod(wp, 64.0); src = 4.0; } else ovw = true; }\n"
 "      else if (wp >= 0.0 && !tb && wline) black = true; } }\n"
-"  float k = 0.0;\n"   /* lk_gl_classify */
-"  if (!black) { if (src >= 1.0 && src <= 3.0) { k = 1.0; if (src == 1.0 && s200) { for (int j = 0; j < 16; j++) { if (float(j) >= uNf) break; vec4 fv = uFig[j / 2]; vec2 fj = (j - 2 * (j / 2)) == 0 ? fv.xy : fv.zw; float dx = x - fj.x, dy = fj.y - line; if (dx >= -16.0 && dx <= 16.0 && dy >= -6.0 && dy <= 56.0) { k = 16.0 + float(j); break; } } } }\n"
+"  float k = 0.0;\n"   /* lk_gl_classify; LK_OVWUNLIT v1: a sprite above the text box stays unlit */
+"  if (!black && !ovw) { if (src >= 1.0 && src <= 3.0) { k = 1.0; if (src == 1.0 && s200) { for (int j = 0; j < 16; j++) { if (float(j) >= uNf) break; vec4 fv = uFig[j / 2]; vec2 fj = (j - 2 * (j / 2)) == 0 ? fv.xy : fv.zw; float dx = x - fj.x, dy = fj.y - line; if (dx >= -16.0 && dx <= 16.0 && dy >= -6.0 && dy <= 56.0) { k = 16.0 + float(j); break; } }\n"
+"      if (k < 1.5 && sl >= 0.0 && sl < 224.0 && si >= 0.0 && si < 448.0) { float tg = by(texture2D(spe, vec2((si + 0.5) / 448.0, (sl + 0.5) / 224.0)).r); if (tg > 0.0) for (int j = 0; j < 16; j++) { if (float(j) >= uNf) break; vec4 tv = uFigT[j / 4]; int c = j - 4 * (j / 4); float t = c == 0 ? tv.x : c == 1 ? tv.y : c == 2 ? tv.z : tv.w; if (t == tg) { k = 16.0 + float(j); break; } } } } }\n"   /* LK_FIGOWN v1: sprite pixel outside every figure box = its owner figure (lk_gl_classify) */
 "    else if (src == 0.0) k = 3.0; }\n"
 "  if (uMode > 5.5) { vec4 st = texture2D(spr, vec2((i + 0.5) / 448.0, (line + 0.5) / 224.0)); vec4 se = texture2D(spe, vec2((i + 0.5) / 448.0, (line + 0.5) / 224.0)); float tg = bit(by(st.a), 1.0) > 0.5 ? by(se.r) : 0.0, tg2 = bit(by(st.a), 1.0) > 0.5 ? by(se.a) : 0.0;\n"   /* the light's class tag (lk_gl_clstag): class | figure tag of the unshifted sprite pixel << 8 */
 "    gl_FragColor = vec4(k / 255.0, k / 255.0, tg2 / 255.0, tg / 255.0); return; }\n"
@@ -275,19 +289,20 @@ static const char *lk_gc_fs = "#version 120\n"
 "  if (uMode < 0.5) { gl_FragColor = vec4(col / 255.0, 1.0); return; }\n"
 "  vec3 p0 = vec3(0.0), p1 = vec3(255.0); float bk = by(r7.g), dnw = by(r7.b);\n"
 "  if (bit(f2, 0.0) > 0.5 && !black && src == 1.0 && bit(sp, 11.0) > 0.5 && bk >= 5.0 && bk <= 8.0) col = boot(col, sp, line);\n"
-"  if (bit(f2, 3.0) > 0.5 && !black && (src == 2.0 || src == 3.0)) { vec3 c2 = winpix(col, pick, tile, ixy, dnw); if (c2 != col) { p0 = winpix(p0, pick, tile, ixy, dnw); p1 = winpix(p1, pick, tile, ixy, dnw); } }\n"
+"  if (bit(f2, 3.0) > 0.5 && !black && (src == 2.0 || src == 3.0)) { vec3 c2 = winpix(col, pick, tile, ixy, dnw, vec2(U0 + i, V)); if (c2 != col) { float dv = 0.0; vec2 du = vec2(U0 + i, V); if (uDnCN > 0.5 && du.x >= 0.0 && du.y >= 0.0 && du.x < 2432.0 && du.y < 1216.0) dv = by(texture2D(dpm, vec2((du.x + 0.5) / 2432.0, (du.y + 0.5) / 1216.0)).r);\n"
+"    if (dv > 63.5 && dv < 128.0) col = c2; else { p0 = winpix(p0, pick, tile, ixy, dnw, vec2(U0 + i, V)); p1 = winpix(p1, pick, tile, ixy, dnw, vec2(U0 + i, V)); } } }\n"   /* LK_DNSPILL v1: the halo / door strip brightens the colour BEFORE the light (a gain on the ground's colours, carried by the light); as a post mix (p0 / p1) a gain was impossible */
 "  if (bit(f2, 1.0) > 0.5 && !black && (src == 2.0 || src == 3.0)) col = water(col, pick, tile, line, i, bit(f2, 5.0) > 0.5);\n"
 "  if (bit(f2, 2.0) > 0.5 && !black && src >= 1.0 && src <= 3.0) col = cloud(col, U0 + i, V);\n"
 "  if (nohud) { if (k > 0.0) { vec3 cc = mh(col, line, i); if (cc != col) { p0 = mh(p0, line, i); p1 = mh(p1, line, i); } } else col = mh(col, line, i); }\n"
 "  if (uMode > 4.5) { vec4 f = texture2D(fbt, (fc + 0.5) / vec2(448.0, 224.0)); if (by(f.a) == 0.0 && by3(f.rgb) == vec3(0.0)) gl_FragColor = vec4(col / 255.0, 1.0); else gl_FragColor = f; return; }\n"   /* the presented picture: GPU colour, or what was drawn into the row afterwards */
 "  gl_FragColor = uMode < 2.5 ? vec4(col / 255.0, 1.0) : vec4((uMode < 3.5 ? p0 : p1) / 255.0, 0.0); }\n";
-#define LK_GC_NT 13
-static int lk_gc_st; static lkGLuint lk_gc_prog, lk_gc_fbo, lk_gc_out, lk_gc_pic, lk_gc_t[LK_GC_NT]; static lkGLint lk_gc_u[LK_GC_NT + 10]; static long lk_gc_r2fr = -9;
+#define LK_GC_NT 14
+static int lk_gc_st; static lkGLuint lk_gc_prog, lk_gc_fbo, lk_gc_out, lk_gc_pic, lk_gc_t[LK_GC_NT]; static lkGLint lk_gc_u[LK_GC_NT + 15]; static long lk_gc_r2fr = -9;
 static long lk_gc_n, lk_gc_lines, lk_gc_px, lk_gc_ex, lk_gc_md, lk_gc_cd, lk_gc_src[6], lk_gc_fl, lk_gc_fpx, lk_gc_fex, lk_gc_fc, lk_gc_fk, lk_gc_fm, lk_gc_learn, lk_gc_fchg, lk_gc_ffig, lk_gc_fmix; static int lk_gc_shown, lk_gc_fshown;
 static int lk_gc_init(void) {
-  static const char *un[] = { "rows", "pal", "win", "spr", "pln", "til", "wcl", "wrb", "rip", "mhd", "cst", "fbt", "spe", "uMode", "uFig", "uNf", "uDnM", "uCs", "uWr", "uMh", "uReal", "uYo" }; lkGLint ok = 0; lkGLuint vs, fs; char log[2048]; int i;
-  static const int tw[LK_GC_NT] = { 16, 64, 320, 448, 304, 1024, 48, 448, 448, 464, 128, 1, 448 }, th[LK_GC_NT] = { 224, 224, 224, 224, 304, 72, 48, 224, 224, 240, 128, 1, 224 };
-  static const lkGLenum tf[LK_GC_NT] = { 0x1908, 0x1908, 0x190A, 0x190A, 0x1908, 0x1909, 0x1909, 0x1908, 0x190A, 0x1908, 0x1909, 0x1908, 0x190A };   /* unit 11 = fbt: the presented picture (lk_gpu_tex) is bound there */
+  static const char *un[] = { "rows", "pal", "win", "spr", "pln", "til", "wcl", "wrb", "rip", "mhd", "cst", "fbt", "spe", "dpm", "uMode", "uFig", "uNf", "uDnM", "uCs", "uWr", "uMh", "uReal", "uYo", "uFigT", "uDnT", "uDnN", "uDnC", "uDnCN", "uDnF" }; lkGLint ok = 0; lkGLuint vs, fs; char log[2048]; int i;
+  static const int tw[LK_GC_NT] = { 16, 64, 320, 448, 304, 1024, 48, 448, 448, 464, 128, 1, 448, 2432 }, th[LK_GC_NT] = { 224, 224, 224, 224, 304, 72, 48, 224, 224, 240, 128, 1, 224, 1216 };
+  static const lkGLenum tf[LK_GC_NT] = { 0x1908, 0x1908, 0x190A, 0x190A, 0x1908, 0x1909, 0x1909, 0x1908, 0x190A, 0x1908, 0x1909, 0x1908, 0x190A, 0x1909 };   /* unit 13 = dpm: LK_DNWIN2 door opening mask */   /* unit 11 = fbt: the presented picture (lk_gpu_tex) is bound there */
   if (!lk_glGenFramebuffers) { *(void **)&lk_glGenFramebuffers = lk_gpu_fn("glGenFramebuffers"); *(void **)&lk_glBindFramebuffer = lk_gpu_fn("glBindFramebuffer");
     *(void **)&lk_glFramebufferTexture2D = lk_gpu_fn("glFramebufferTexture2D"); *(void **)&lk_glCheckFramebufferStatus = lk_gpu_fn("glCheckFramebufferStatus"); }
   if (!lk_glUniform4fv) *(void **)&lk_glUniform4fv = lk_gpu_fn("glUniform4fv");
@@ -298,7 +313,7 @@ static int lk_gc_init(void) {
   if (!ok) { lk_glGetShaderInfoLog(fs, sizeof log, 0, log); printf("gpucomp: shader failed: %s\n", log); return -1; }
   lk_gc_prog = lk_glCreateProgram(); lk_glAttachShader(lk_gc_prog, vs); lk_glAttachShader(lk_gc_prog, fs); lk_glLinkProgram(lk_gc_prog); lk_glGetProgramiv(lk_gc_prog, 0x8B82, &ok);
   if (!ok) { lk_glGetProgramInfoLog(lk_gc_prog, sizeof log, 0, log); printf("gpucomp: link failed: %s\n", log); return -1; }
-  for (i = 0; i < LK_GC_NT + 9; i++) lk_gc_u[i] = lk_glGetUniformLocation(lk_gc_prog, un[i]);
+  for (i = 0; i < LK_GC_NT + 15; i++) lk_gc_u[i] = lk_glGetUniformLocation(lk_gc_prog, un[i]);
   for (i = 0; i < LK_GC_NT; i++) { lk_glActiveTexture(0x84C0 + i); lk_gc_t[i] = lk_glt_tex(tw[i], th[i], tf[i], tf[i]); }
   lk_glActiveTexture(0x84C0); lk_gc_out = lk_glt_tex(448, 224, 0x1908, 0x1908); lk_gc_pic = lk_glt_tex(448, 224, 0x1908, 0x80E1);
   lk_glGenFramebuffers(1, &lk_gc_fbo); lk_glBindFramebuffer(0x8D40, lk_gc_fbo); lk_glFramebufferTexture2D(0x8D40, 0x8CE0, 0x0DE1, lk_gc_out, 0);
@@ -309,11 +324,11 @@ static int lk_gc_init(void) {
 static uint8_t lk_gc_rowsu[224 * 64]; static int lk_gc_nl;
 static void lk_gc_upload(void) {   /* the frame's data -> textures (units 0..10, 12) + uniforms; leaves the program in use */
   static uint8_t pl[304 * 304 * 4], wc[48 * 48], mhb[464 * 240 * 4]; static uint16_t sprb[224 * 448]; uint8_t *rows = lk_gc_rowsu;
-  int i, L, k, tk, wpal, widx, ox8, oy8, kf, my0, my1, nf; const uint32_t *pa, *pb; const uint8_t *cst; float fig[32], dnm[64];
+  int i, L, k, tk, wpal, widx, ox8, oy8, kf, my0, my1, nf; const uint32_t *pa, *pb; const uint8_t *cst; float fig[48], dnm[384], dnt[48], dnc[128]; int dnn, dncn;
   memcpy(rows, lk_gc_rows, sizeof lk_gc_rowsu); lk_gc_nl = 0; for (L = 0; L < 224; L++) if (lk_gc_rowfr[L] != lk_gc_capfr) rows[L * 64 + 4] = 0; else lk_gc_nl++;   /* lines not recorded this frame: skipped */
   pa = lk_gc_planes(); pb = lk_gc_planesb();
   for (k = 0; k < 2; k++) { const uint32_t *P = k ? pb : pa; uint8_t *o = pl + k * 152 * 304 * 4; for (i = 0; i < 152 * 304; i++) { uint32_t c = P[i]; o[4 * i] = (uint8_t)c; o[4 * i + 1] = (uint8_t)(c >> 8); o[4 * i + 2] = (c & 0x10000) ? 255 : 0; o[4 * i + 3] = (c & 0x20000u) ? (uint8_t)((c >> 18) & 15u) : 255; }   /* LK_GLUNPAINTA v1: alpha < 16 = a colour dropped in this cell */ }
-  lk_gc_sprb(sprb); lk_gc_wclass(wc); lk_gc_water(&tk, &wpal, &widx); cst = lk_gc_clouds(&ox8, &oy8, &kf); lk_gc_mhud(mhb, &my0, &my1); lk_gc_dnmask(dnm); nf = lk_gc_figs(fig);
+  lk_gc_sprb(sprb); lk_gc_wclass(wc); lk_gc_water(&tk, &wpal, &widx); cst = lk_gc_clouds(&ox8, &oy8, &kf); lk_gc_mhud(mhb, &my0, &my1); dnn = lk_gc_dnmask(dnm, dnt); dncn = lk_gc_dncells(dnc); nf = lk_gc_figs(fig);
   lk_glActiveTexture(0x84C0); lk_glBindTexture(0x0DE1, lk_gc_t[0]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 16, 224, 0x1908, 0x1401, rows);
   lk_glActiveTexture(0x84C1); lk_glBindTexture(0x0DE1, lk_gc_t[1]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 64, 224, 0x80E1, 0x1401, lk_gc_pal);
   lk_glActiveTexture(0x84C2); lk_glBindTexture(0x0DE1, lk_gc_t[2]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 320, 224, 0x190A, 0x1401, lk_gc_win);
@@ -326,8 +341,9 @@ static void lk_gc_upload(void) {   /* the frame's data -> textures (units 0..10,
   lk_glActiveTexture(0x84C9); lk_glBindTexture(0x0DE1, lk_gc_t[9]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 464, 240, 0x1908, 0x1401, mhb);
   lk_glActiveTexture(0x84CA); lk_glBindTexture(0x0DE1, lk_gc_t[10]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 128, 128, 0x1909, 0x1401, cst);
   lk_glActiveTexture(0x84CC); lk_glBindTexture(0x0DE1, lk_gc_t[12]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x190A, 0x1401, lk_gc_spre());
+  { static int upv = -1; int v; const uint8_t *m = lk_gc_dpm(&v); lk_glActiveTexture(0x84CD); lk_glBindTexture(0x0DE1, lk_gc_t[13]); if (v != upv) { upv = v; lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 2432, 1216, 0x1909, 0x1401, m); } }   /* LK_DNWIN2 v1: uploaded once per room */
   lk_glUseProgram(lk_gc_prog); for (i = 0; i < LK_GC_NT; i++) lk_glUniform1i(lk_gc_u[i], i);
-  lk_glUniform4fv(lk_gc_u[LK_GC_NT + 1], 8, fig); lk_glUniform1f(lk_gc_u[LK_GC_NT + 2], (float)nf); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 3], 16, dnm);
+  lk_glUniform4fv(lk_gc_u[LK_GC_NT + 1], 8, fig); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 9], 4, fig + 32); lk_glUniform1f(lk_gc_u[LK_GC_NT + 2], (float)nf); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 3], 96, dnm); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 10], 12, dnt); lk_glUniform1f(lk_gc_u[LK_GC_NT + 11], (float)dnn); lk_glUniform4fv(lk_gc_u[LK_GC_NT + 12], 32, dnc); lk_glUniform1f(lk_gc_u[LK_GC_NT + 13], (float)lk_gc_dpmok()); { extern int lk_dn_flk256(void); lk_glUniform1f(lk_gc_u[LK_GC_NT + 14], (float)lk_dn_flk256()); }   /* uDnCN = LK_DNGLOW picture map active */
   lk_glUniform3f(lk_gc_u[LK_GC_NT + 4], (float)ox8, (float)oy8, (float)kf); lk_glUniform3f(lk_gc_u[LK_GC_NT + 5], (float)tk, (float)wpal, (float)widx); lk_glUniform2f(lk_gc_u[LK_GC_NT + 6], (float)my0, (float)my1);
   lk_glUniform1f(lk_gc_u[LK_GC_NT + 8], 0.0f); }
 static void lk_gc_pass(void) {   /* compare harness, inside lk_gpu_present after SDL's state is saved (texture unit 0 active, unpack alignment 4) */

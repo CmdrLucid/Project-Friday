@@ -232,9 +232,9 @@ def build_id(rom_sha):
     h = hashlib.sha1(rom_sha.encode())
     files = [os.path.join(HERE, "recomp.json"), os.path.join(HERE, "docs", "symbols.json"), os.path.join(HERE, "docs", "ENTITIES.md"), os.path.join(HERE, "docs", "ROOMS.md"), os.path.join(HERE, "src", "main.c"),
              os.path.join(HERE, "build.sh"), os.path.join(HERE, "vendor", "genrecomp", "VENDOR_REVISION.txt")]
-    files += sorted(os.path.join(HERE, "tools", f) for f in os.listdir(os.path.join(HERE, "tools")) if f.endswith((".py", ".c", ".h", ".json")))
+    files += sorted(os.path.join(HERE, "tools", f) for f in os.listdir(os.path.join(HERE, "tools")) if f.endswith((".py", ".c", ".h", ".json", ".sh")))
     if os.path.isdir(os.path.join(HERE, "lang")):
-        files += sorted(os.path.join(HERE, "lang", f) for f in os.listdir(os.path.join(HERE, "lang")) if f.endswith(".json"))
+        files += sorted(os.path.join(HERE, "lang", f) for f in os.listdir(os.path.join(HERE, "lang")) if f.endswith((".json", ".dat")))
     for dp, dn, fn in sorted(os.walk(os.path.join(HERE, "data"))):   # v1.9.1: the light data (light_proxies.json, proxies/*.obj, object_blocks.json) is a build input too
         dn.sort(); files += [os.path.join(dp, f) for f in sorted(fn)]
     for f in files:
@@ -573,6 +573,15 @@ def main():
     if args.build_only:
         print("built:", exe)
         return 0
+    # Japanese (the original text): made from a Japanese ROM next to the ROM at every start (~2 s), so a ROM added later works without a rebuild and a removed one
+    # disappears from the language list (tools/jplang.py; user 2026-11-14)
+    work = os.path.dirname(os.path.dirname(exe))
+    jt = os.path.join(work, "tools", "jplang.py")
+    if os.path.isfile(jt):
+        try:
+            subprocess.run([sys.executable, jt, rom, os.path.join(work, "out", "lang")], cwd=work, timeout=120, capture_output=True)
+        except Exception:
+            pass
     env = dict(os.environ)
     env.setdefault("HOME", os.path.expanduser("~"))     # the game keeps its settings in ~/.landstalker_* (Windows: the user profile)
     if WIN:

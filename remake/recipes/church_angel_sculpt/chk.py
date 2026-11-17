@@ -1,6 +1,6 @@
 import json, sys
-exec(open('/home/deck/lktest/pult2/chk.py').read().split('def check_mesh')[0])
-mask = {tuple(p) for p in json.load(open('/home/deck/lktest/angel3/mask.json'))}; U0, V0 = 1064, 280
+exec(open('/home/deck/Project-Friday-Test/lktest/pult2/chk.py').read().split('def check_mesh')[0])
+mask = {tuple(p) for p in json.load(open('/home/deck/Project-Friday-Test/lktest/angel3/mask.json'))}; U0, V0 = 1064, 280
 def load(fn):
     V, Fc = [], []
     for l in open(fn):

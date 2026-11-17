@@ -3,9 +3,9 @@
 # bands fanning out from each wing root (rounded ridges) in two rows (coverts, primaries) with a small step between rows; CUP along the view ray (1, 1, 1)
 import json, math, sys
 sys.path.insert(0, '/home/deck/ProjectL/remake/lib'); import furniture as F
-P = json.load(open('/home/deck/lktest/sculpt/params.json')); g = lambda k, d: P.get(k, d)
+P = json.load(open('/home/deck/Project-Friday-Test/lktest/sculpt/params.json')); g = lambda k, d: P.get(k, d)
 A = F.CHURCH_ANGEL4; AX, AY = A['axis']; XW = A['wing_x']; AU = AX - AY + 1184.0; V0p = A['v0']; U0, V0 = 1064, 280
-mask = {tuple(p) for p in json.load(open('/home/deck/lktest/angel3/mask.json'))}
+mask = {tuple(p) for p in json.load(open('/home/deck/Project-Friday-Test/lktest/angel3/mask.json'))}
 wing = {(int(math.floor(AU + du)) - U0, V0p + v - V0) for du, v in A['wing']}   # window pixel coords
 # MIRRORED WINGS (user 2026-11-10: 'gespiegelt und parallel zur Wand, links soll gleich sein wie rechts', option 1 = the same height): in the plane x = XW the
 # right wing = the left one mirrored at y = YC (the body axis in the plane, 444.5: fits by itself); the template = the left side's statue pixels that also
