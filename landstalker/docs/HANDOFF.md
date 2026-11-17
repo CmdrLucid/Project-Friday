@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 805-816
-- 1. Where we are: lines 817-964
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 965-1219
-- 3. How the user works (important): lines 1220-1235
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1236-1260
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1261-1269
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1270-1317
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1318-1327
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1328-1329
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1330-1332
-- NEXT STEPS, newest first: -217 966, -216 967, -215 968, -214 969, -213 970, -212 971, -211 972, -210 973, -209 974, -208 975
+- 1. Where we are: lines 817-965
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 966-1220
+- 3. How the user works (important): lines 1221-1236
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1237-1261
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1262-1270
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1271-1318
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1319-1328
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1329-1330
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1331-1333
+- NEXT STEPS, newest first: -217 967, -216 968, -215 969, -214 970, -213 971, -212 972, -211 973, -210 974, -209 975, -208 976
 - Newest entries:
   - 0a463 line 190: 2026-11-17 later (Deck, Opus 5.5, no agents): GITHUB #19 / #20 + DE-DITHER ON THE GPU. #20 (priest 'continu...
   - 0a462 line 188: 2026-11-17 (Deck, Opus 5.5): Destel arched window glow: the two black pixels the user marked in the lit are...
@@ -815,6 +815,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-17 EVENING: user confirmed by playing: Destel night (-216) and De-Dither on the GPU (-217) both "passt".**
 - **2026-11-17 LATER END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** GitHub #20 (priest 'continue? no' -> slots missing) fixed, USER CONFIRMED by playing (rec_20261117_0810). GitHub #19 De-Dither: back in the menu under Filter, saved, HUD-safe for both HUDs, now on the GPU (LK_DDGPU v1) after the user saw outdoor jitter (= dropped frames) - HEADLESS ONLY (frame times, HUD / text box pixels, look). Destel night (-216) still unchecked. NEXT -217.
 - **2026-11-16 EVENING / 11-17 END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** USER-CONFIRMED by playing: church wall stripes gone (LK_RAYCORNERM), church glass / portal / window light (0a457 / 0a458, 'passt' for the session as a whole), sprint book jitter + portal dark frame fixed (0a459: 'Das passt'). HEADLESS ONLY: Destel night lights (0a460..0a462: doors with lantern in front, arched windows from the user's sketch + 2 pixels, hatches / arched windows as Mercator glass). User approved the shapes on mock-ups (portal mock3, Destel door mockA, window sketch). NEXT -216 (Destel walk at night).
 - **2026-11-16 AFTERNOON END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** Massan night round 2 (0a456): map edge rim fixed, shutter ring fixed, doors = iso parallelogram (user OK), narrow window, roof hatches, door light strip in front of the door, per-door flicker, SPRINT light bug (GPU composition was switched off by the 1.5 x blend). User checked GPU shots + played the doors once; the final build (sprint fix, strip in front, 60 %) NOT played. NEXT -212.
@@ -963,8 +964,8 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
--217. **NEXT (2026-11-17 later): user plays with De-Dither on (Light / Medium / Strong) outdoors in Mercator, walking + sprinting, best in Game Mode (0a463):** no jitter, HUD (hearts, sword, quick item discs, gold) sharp, text boxes sharp; then reply to GitHub #19 / #20 (Claude drafts a text on request). Then -216.
--216. **NEXT (2026-11-16 late night): user walks through DESTEL at night (0a460):** door glow (lantern in front of the light), strips in front of the doors, arched windows (sketch area), shutter window + roof hatches, no stray lights. Then -214 / -213 / -212.
+-217. **USER CONFIRMED 2026-11-17 ("rest auch passt"): De-Dither GPU, HUD sharp, no jitter.** **NEXT (2026-11-17 later): user plays with De-Dither on (Light / Medium / Strong) outdoors in Mercator, walking + sprinting, best in Game Mode (0a463):** no jitter, HUD (hearts, sword, quick item discs, gold) sharp, text boxes sharp; then reply to GitHub #19 / #20 (Claude drafts a text on request). Then -216.
+-216. **USER CONFIRMED 2026-11-17 ("destel passt").** **NEXT (2026-11-16 late night): user walks through DESTEL at night (0a460):** door glow (lantern in front of the light), strips in front of the doors, arched windows (sketch area), shutter window + roof hatches, no stray lights. Then -214 / -213 / -212.
 -215. **NEXT (2026-11-16 night): user sprints through the church 700 (books on the counter must not jitter; NPC sprites too) and looks at the portal outside (no dark frame) (0a459).** Then -214 / -213 / -212.
 -214. **NEXT (2026-11-16 late evening): user looks at the church at NIGHT (0a458):** glass shape, light on the walls / grass from the windows, portal light + strip on the cobbles (strength: LANDSTALKER_DNCHDOOR_K / DNSPILL_LEN), sword swing at the portal. Then -213 / -212.
 -213. **NEXT (2026-11-16 evening): user looks at Mercator church at NIGHT (0a457):** walls without stripes, windows = clean warm glass strip with the lead visible; also another room with a 3D model wall at night (e.g. Mercator houses / 66). Then -212.
