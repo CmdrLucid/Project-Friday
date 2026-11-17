@@ -89,9 +89,9 @@ static int lk_gl_classify(int x, int line, int src, int sp2, int black, int U, i
   int j; if (black) return 0;
   if (src >= 1 && src <= 3) {
     if (U < lk_lt_umin) lk_lt_umin = U; if (U > lk_lt_umax) lk_lt_umax = U; if (V < lk_lt_vmin) lk_lt_vmin = V; if (V > lk_lt_vmax) lk_lt_vmax = V;   /* the drawn area (GL5 ring) */
+    if (sp2 & 0x200) { int sl = line - lk_sm_syn, si = x + lk_wide_e - lk_sm_sxn, tg;   /* LK_FIGOWN v1 (2026-11-14, room 81 boulder): a sprite pixel belongs to its OWNER figure (wide sprites: the edges were lit as the wall behind = bright streaks) */
+      if (sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW && (tg = lk_lt_spre[sl][si]) != 0) for (j = 0; j < lk_lt_nf && j < 16; j++) if (lk_lt_f[j].tag == tg) return 16 + j; }   /* LK_FIGOWN2 v1 (user 2026-11-17, room 177: statues look strange while sprinting past; tools/sprinttest.py): the OWNER first, the +-16 px box only without a tag (same in patch_gpucomp.py) */
     if ((sp2 & 0x200) && (j = lk_lt_figat(x, line)) >= 0) return 16 + j;
-    if (sp2 & 0x200) { int sl = line - lk_sm_syn, si = x + lk_wide_e - lk_sm_sxn, tg;   /* LK_FIGOWN v1 (2026-11-14, room 81 boulder): a sprite pixel outside every +-16 px figure box belongs to its OWNER figure (wide sprites: the edges were lit as the wall behind = bright streaks) */
-      if (sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW && (tg = lk_lt_spre[sl][si]) != 0) for (j = 0; j < lk_lt_nf && j < 16; j++) if (lk_lt_f[j].tag == tg) return 16 + j; }
     return 1; }
   return (src == 0 || src == 6 || src == 7) ? 3 : 0; }
 /* for the GL side (platform_sdl.c, once per present): 1 = the last frame was captured; fills the frame's light state.
@@ -1524,7 +1524,7 @@ static void lk_g5_real(int u0, int u1, int v0, int v1, const float *lp, const fl
    floor) and distance (LANDSTALKER_BOUNCE_D, 56 units), times its own colour, strength LANDSTALKER_BOUNCE_K (5; first look by eye 2026-11-06: 0.6 / 3 were invisible).  Emissive / HUD pixels (mix after the light) and figures stay as they are.
    GPU light engines only (the CPU engine keeps the old look); off without a light source (no flames / sun / key light). ---- */
 extern int lk_bl_get(void);
-static int lk_gb_st; static lkGLuint lk_gb_prog, lk_gb_fa, lk_gb_fb, lk_gb_ra, lk_gb_out, lk_gb_hm; static uint8_t lk_gb_hmb[448 * 224]; static int lk_gb_hmon; int lk_ssg_hudmask(uint8_t *m);   /* LK_SSHUD v1 (mask filled by patch_ddgpu.py) */ static lkGLint lk_gb_u[56];
+static int lk_gb_st; static lkGLuint lk_gb_prog, lk_gb_fa, lk_gb_fb, lk_gb_ra, lk_gb_out, lk_gb_hm; static uint8_t lk_gb_hmb[448 * 224]; static int lk_gb_hmon; int lk_ssg_hudmask(uint8_t *m);   /* LK_SSHUD v1 (mask filled by patch_ddgpu.py) */ unsigned lk_ssw_tex(int which) { extern int lk_gl_lighton(void); return which == 0 ? (lk_gl_lighton() ? (unsigned)lk_glt_t[1] : 0u) : (lk_gb_hmon ? (unsigned)lk_gb_hm : 0u); }   /* LK_SSHARP2 v1: for the present shader (patch_gpu.py) */ static lkGLint lk_gb_u[56];
 static long lk_gsw_fr = -9; static int lk_gsw_on;   /* GL5e: the frame's decision (light pass and post pass must agree) */
 int lk_gsw_frame(int real, int swon) { extern int lk_swsh_get(void); long f = platform_frame_number(); if (lk_gsw_fr != f) { lk_gsw_fr = f; lk_gsw_on = real && swon && lk_swsh_get() && lk_g5_realon() && lk_g5_wh != 0 && lk_gb_st >= 0; } return lk_gsw_on; } static float lk_gb_k = -1.0f, lk_gb_r, lk_gb_d;
 static const char *lk_gb_fs = "#version 120\n" @SHADERB@;
@@ -1574,7 +1574,7 @@ static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out ho
   { static int fo = -1; if (fo < 0) { const char *e = getenv("LANDSTALKER_SWORDSH_FINE"); fo = e ? atoi(e) : 1; } lk_glUniform1i(lk_gb_u[45], 10); lk_glUniform1f(lk_gb_u[46], fo && lk_g5_fn ? 1.0f : 0.0f); }   /* LK_SWSHFINE v1 (=0: the old 16 unit cells) */
   { static float fk = -1.0f, fr = 32.0f; if (fk < 0.0f) { const char *e = getenv("LANDSTALKER_FFGLOW_K"), *r = getenv("LANDSTALKER_FFGLOW_R"); fk = e ? (float)atof(e) : 1.2f; if (r) fr = (float)atof(r); }   /* LK_FFGLOW v1: gain, radius in world units */
     lk_glUniform4fv(lk_gb_u[47], 8, ffp); lk_glUniform1f(lk_gb_u[48], (float)nffl); lk_glUniform2f(lk_gb_u[49], fk, fr); }
-  { extern int lk_ss_frac; static int ssw = -1; if (ssw < 0) { const char *e = getenv("LANDSTALKER_SS_WEIGHT"); ssw = e && atoi(e) >= 1 && atoi(e) <= 8 ? atoi(e) : 5; } lk_glUniform1f(lk_gb_u[50], (float)lk_ss_frac); lk_glUniform1f(lk_gb_u[51], (float)ssw); { extern int lk_lt_nigfig(void); lk_glUniform1f(lk_gb_u[52], (float)lk_lt_nigfig()); } lk_glUniform1i(lk_gb_u[53], 11); lk_glUniform1f(lk_gb_u[54], lk_gb_hmon ? 1.0f : 0.0f); }   /* LK_SSGPU v1 + LK_SSHUD v1 */
+  { extern int lk_ss_frac; static int ssw = -1; if (ssw < 0) { const char *e = getenv("LANDSTALKER_SS_WEIGHT"); ssw = e && atoi(e) >= 1 && atoi(e) <= 8 ? atoi(e) : 5; } { extern int lk_ssh_active; lk_glUniform1f(lk_gb_u[50], lk_ssh_active ? 0.0f : (float)lk_ss_frac); }   /* LK_SSHARP2 v1: no soft blend while the sharp shift runs */ lk_glUniform1f(lk_gb_u[51], (float)ssw); { extern int lk_lt_nigfig(void); lk_glUniform1f(lk_gb_u[52], (float)lk_lt_nigfig()); } lk_glUniform1i(lk_gb_u[53], 11); lk_glUniform1f(lk_gb_u[54], lk_gb_hmon ? 1.0f : 0.0f); }   /* LK_SSGPU v1 + LK_SSHUD v1 */
   lk_glUniform1i(lk_gb_u[18], 9); lk_glUniform4f(lk_gb_u[19], fu[16], fu[17], fu[18], fu[19]); lk_glUniform4f(lk_gb_u[20], fu[20], fu[21], fu[22], fu[23]); lk_glUniform1f(lk_gb_u[21], sw ? 1.0f : 0.0f); lk_glUniform1f(lk_gb_u[22], iu[0] ? 1.0f : 0.0f);
   lk_glUniform4fv(lk_gb_u[23], 96, lp); lk_glUniform4fv(lk_gb_u[24], 96, lc); lk_glUniform4fv(lk_gb_u[25], 96, lf); lk_glUniform4fv(lk_gb_u[26], 16, fg); lk_glUniform4fv(lk_gb_u[27], 16, fa);
   lk_glUniform1f(lk_gb_u[28], (float)iu[2]); lk_glUniform1f(lk_gb_u[29], fu[0]); lk_glUniform1f(lk_gb_u[30], fu[1]); lk_glUniform1f(lk_gb_u[31], fu[2]); lk_glUniform3f(lk_gb_u[32], fu[3], fu[4], fu[5]); lk_glUniform3f(lk_gb_u[33], fu[6], fu[7], fu[8]);

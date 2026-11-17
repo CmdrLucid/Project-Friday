@@ -26,11 +26,13 @@ def rep(a, b):
 SHADER = r'''
 uniform sampler2D src; uniform sampler2D okm;
 uniform vec2 texSize; uniform vec2 srcSize; uniform vec2 dstSize; uniform vec2 origin;
-uniform int mode; uniform float whole; uniform float ssh; uniform float exact;
+uniform int mode; uniform float whole; uniform float ssh; uniform float exact; uniform sampler2D clsT; uniform sampler2D hudT; uniform float uCls; uniform float uNig; uniform float uHud;
 vec3 px(float ix, float iy) { return texture2D(src, (vec2(ix, iy) + 0.5) / texSize).rgb; }
 float okAt(float x, float y) {
   float cx = min(floor((2.0 * x + 1.0) * srcSize.x / (2.0 * dstSize.x)), srcSize.x - 1.0), ry = min(floor((2.0 * y + 1.0) * 224.0 / (2.0 * dstSize.y)), 223.0);
-  return texture2D(okm, (vec2(cx, ry) + 0.5) / vec2(448.0, 224.0)).r; }
+  vec2 tq = (vec2(cx, ry) + 0.5) / vec2(448.0, 224.0);
+  if (uCls > 0.5) { float c = floor(texture2D(clsT, tq).r * 255.0 + 0.5); bool w = (c > 0.5 && c < 3.5) || (c > 15.5 && c != 16.0 + uNig); if (uHud > 0.5 && texture2D(hudT, tq).r > 0.5 / 255.0) w = false; return w ? 1.0 / 255.0 : 0.0; }   /* LK_SSHARP2 v1: with the GPU light the world = its light classes (scenery 1..3, figures but Nigel) minus the HUD mask: complete for the GPU composed lines too (the CPU world flags reached row ~136 only) */
+  return texture2D(okm, tq).r; }
 vec3 lin(vec3 c) { return pow(c, vec3(2.2)); }
 vec3 hrow(float r, float x0, float f) {   /* CRT Pro horizontal pass: gaussian (sigma 0.42) over 4 taps in linear light */
   vec3 acc = vec3(0.0); float ws = 0.0;
@@ -96,7 +98,7 @@ LKGL_FN(void, glVertexPointer, (lkGLint, lkGLenum, lkGLsizei, const void *)); LK
 LKGL_FN(void, glClientActiveTexture, (lkGLenum)); LKGL_FN(void, glGetVertexAttribiv, (lkGLuint, lkGLenum, lkGLint *)); LKGL_FN(void, glEnableVertexAttribArray, (lkGLuint)); LKGL_FN(void, glDisableVertexAttribArray, (lkGLuint));
 LKGL_FN(void, glReadPixels, (lkGLint, lkGLint, lkGLsizei, lkGLsizei, lkGLenum, lkGLenum, void *)); LKGL_FN(void, glGetFloatv, (lkGLenum, lkGLfloat *));
 static int lk_gpu_st;   /* 0 not tried, 1 ready, -1 failed (CPU path for the rest of the run) */
-static int lk_gpu_dbg = -1; static lkGLuint lk_gpu_prog, lk_gpu_tex, lk_gpu_okt; static lkGLint lk_gpu_u[12];
+static int lk_gpu_dbg = -1; static lkGLuint lk_gpu_prog, lk_gpu_tex, lk_gpu_okt; static lkGLint lk_gpu_u[16]; static lkGLint lk_gpu_t23[2];
 static const char *lk_gpu_fs = "#version 120\n" @SHADER@;
 static void *lk_gpu_fn(const char *n) { void *f = SDL_GL_GetProcAddress(n); if (!f && lk_gpu_dbg) printf("gpu: missing %%s\n", n); return f; }
 static int lk_gpu_init(void) {   /* once, inside SDL's GL context */
@@ -118,7 +120,7 @@ static int lk_gpu_init(void) {   /* once, inside SDL's GL context */
   if (!ok) { lk_glGetShaderInfoLog(fs, sizeof log, 0, log); printf("gpu: fragment shader failed: %%s\n", log); return -1; }
   lk_gpu_prog = lk_glCreateProgram(); lk_glAttachShader(lk_gpu_prog, vs); lk_glAttachShader(lk_gpu_prog, fs); lk_glLinkProgram(lk_gpu_prog); lk_glGetProgramiv(lk_gpu_prog, 0x8B82, &ok);
   if (!ok) { lk_glGetProgramInfoLog(lk_gpu_prog, sizeof log, 0, log); printf("gpu: link failed: %%s\n", log); return -1; }
-  { static const char *un[11] = { "src", "okm", "texSize", "srcSize", "dstSize", "origin", "mode", "whole", "ssh", "exact", 0 }; int i; for (i = 0; un[i]; i++) lk_gpu_u[i] = lk_glGetUniformLocation(lk_gpu_prog, un[i]); }
+  { static const char *un[16] = { "src", "okm", "texSize", "srcSize", "dstSize", "origin", "mode", "whole", "ssh", "exact", "clsT", "hudT", "uCls", "uNig", "uHud", 0 }; int i; for (i = 0; un[i]; i++) lk_gpu_u[i] = lk_glGetUniformLocation(lk_gpu_prog, un[i]); }
   { lkGLint t0 = 0; lk_glGetIntegerv(0x8069, &t0); lk_glGenTextures(1, &lk_gpu_tex); lk_glGenTextures(1, &lk_gpu_okt);
     lk_glBindTexture(0x0DE1, lk_gpu_tex); lk_glTexImage2D(0x0DE1, 0, 0x1908, 448, 224, 0, 0x80E1, 0x1401, 0);
     lk_glTexParameteri(0x0DE1, 0x2801, 0x2600); lk_glTexParameteri(0x0DE1, 0x2800, 0x2600); lk_glTexParameteri(0x0DE1, 0x2802, 0x812F); lk_glTexParameteri(0x0DE1, 0x2803, 0x812F);
@@ -153,9 +155,13 @@ static int lk_gpu_present(const uint8_t *fb, int sw, const lk_rect *r, int ow, i
   lk_glUniform1i(lk_gpu_u[0], 0); lk_glUniform1i(lk_gpu_u[1], 1); lk_glUniform2f(lk_gpu_u[2], 448.0f, 224.0f); lk_glUniform2f(lk_gpu_u[3], (float)sw, 224.0f); lk_glUniform2f(lk_gpu_u[4], (float)r->w, (float)r->h);
   lk_glUniform2f(lk_gpu_u[5], (float)r->x, (float)(oh - r->y - r->h)); lk_glUniform1i(lk_gpu_u[6], fx); lk_glUniform1f(lk_gpu_u[7], (r->h %% LK_SRC_H) == 0 ? 1.0f : 0.0f);
   lk_glUniform1f(lk_gpu_u[8], lk_ssh_d ? (float)(lk_ssh_d * lk_ssh_k) : 0.0f); lk_glUniform1f(lk_gpu_u[9], exact ? 1.0f : 0.0f);
+  { extern unsigned lk_ssw_tex(int which); extern int lk_lt_nigfig(void); unsigned ct = lk_ssh_d ? lk_ssw_tex(0) : 0u, ht = ct ? lk_ssw_tex(1) : 0u;   /* LK_SSHARP2 v1: unit 2 = light classes, unit 3 = HUD mask */
+    lk_glActiveTexture(0x84C2); lk_glGetIntegerv(0x8069, &lk_gpu_t23[0]); if (ct) lk_glBindTexture(0x0DE1, (lkGLuint)ct); lk_glActiveTexture(0x84C3); lk_glGetIntegerv(0x8069, &lk_gpu_t23[1]); if (ht) lk_glBindTexture(0x0DE1, (lkGLuint)ht); lk_glActiveTexture(0x84C0);
+    lk_glUniform1i(lk_gpu_u[10], 2); lk_glUniform1i(lk_gpu_u[11], 3); lk_glUniform1f(lk_gpu_u[12], ct ? 1.0f : 0.0f); lk_glUniform1f(lk_gpu_u[13], (float)lk_lt_nigfig()); lk_glUniform1f(lk_gpu_u[14], ht ? 1.0f : 0.0f); }
   lk_glViewport(r->x, oh - r->y - r->h, r->w, r->h);
   if (!va) lk_glEnableClientState(0x8074);
   lk_glVertexPointer(2, 0x1406, 0, quad); lk_glDrawArrays(0x0005, 0, 4);
+  lk_glActiveTexture(0x84C2); lk_glBindTexture(0x0DE1, (lkGLuint)lk_gpu_t23[0]); lk_glActiveTexture(0x84C3); lk_glBindTexture(0x0DE1, (lkGLuint)lk_gpu_t23[1]); lk_glActiveTexture(0x84C0);   /* LK_SSHARP2 v1: restore units 2 / 3 */
   { static int shot = -1; static const char *list; static int fn;   /* test aid LANDSTALKER_PRESENT_SHOT: the presented GPU picture */
     if (shot < 0) { list = getenv("LANDSTALKER_PRESENT_SHOT"); shot = list != 0; }
     if (shot && lk_shot_wanted(list, platform_frame_number())) { uint32_t *b = (uint32_t *)malloc((size_t)r->w * r->h * 4), *t = (uint32_t *)malloc((size_t)r->w * r->h * 4); char pth[700]; const char *d = getenv("LANDSTALKER_SHOT_DIR");

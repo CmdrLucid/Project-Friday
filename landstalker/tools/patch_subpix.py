@@ -35,7 +35,7 @@ static void lk_ss_update(int sum, int rm) {   /* once per own map frame, with th
      the frame after the SMALLER step is half a line behind the even motion (behind = content too low while the scroll grows, too high while it shrinks), the frame after the larger one half a line ahead.  The parity rule
      (odd camera sum = too low) held only while the game rounds the scroll down: after a room reload (closing the Start menu, LoadRoomPath) the scroll can round the other way, and the old rule
      blended in the wrong direction = twice the jitter until the next reload (measured on rec_20261031_0756: vs - sum / 2 alternated before the menu visit, constant after it). */
-  lk_ss_frac = (lk_smooth_get() && rm == prm && (d & 1) && d >= -16 && d <= 16 && !lk_hd_n && dv && pdv && (dv > 0) == (pdv > 0) && abs(dv - pdv) == 1) ? ((abs(dv) < abs(pdv)) == (dv > 0) ? 1 : -1) : 0;   /* behind the even motion: scrolling down (dv > 0) = vs too small = content too low (+1), scrolling up = content too high (-1) */
+  lk_ss_frac = (lk_smooth_get() && rm == prm && (d & 1) && d >= -16 && d <= 16 && !lk_hd_n && (dv || pdv) && ((dv >= 0 && pdv >= 0) || (dv <= 0 && pdv <= 0)) && abs(dv - pdv) == 1) ? ((abs(dv) < abs(pdv)) == (dv + pdv > 0) ? 1 : -1) : 0;   /* LK_SSHARP2 v1 (user 2026-11-17 'zittern in 179 beim Sprinten', tools/sprinttest.py): diagonal sprint = vertical steps 1 / 0 alternate; the old rule needed both steps non-zero, so the 1 / 0 wobble was never evened out; the direction now comes from dv + pdv */   /* behind the even motion: scrolling down (dv > 0) = vs too small = content too low (+1), scrolling up = content too high (-1) */
   pvs = lk_ss_vs; pdv = dv;
   { static int lg = -1; if (lg < 0) lg = getenv("LANDSTALKER_SS_LOG") != NULL; if (lg) { const uint8_t *lr = bus_get_ram(); int px = (int16_t)((lr[(0x5414) ^ 1] << 8) | lr[(0x5415) ^ 1]), py = (int16_t)((lr[(0x5416) ^ 1] << 8) | lr[(0x5417) ^ 1]); fprintf(stderr, "ss: gen %ld sum %d d %d room %d frac %d px %d py %d vs %d\n", lk_ss_gen, sum, d, rm, lk_ss_frac, px, py, lk_ss_vs); } }   /* test aid: one line per own map frame */
   psum = sum; prm = rm;
@@ -77,6 +77,7 @@ int lk_smooth_get(void) { if (lk_smooth_o < 0) { const char *e = getenv("LANDSTA
 void lk_smooth_set(int v) { const char *h = getenv("HOME"); char p[512]; FILE *f; lk_smooth_get(); lk_smooth_o = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_smooth", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_smooth_o); fclose(f); } }
 extern uint8_t lk_ss_w[224][448]; extern uint32_t lk_ss_ref[224][448]; extern long lk_ss_lgen[224], lk_ss_gen; extern int lk_ss_frac;
 static int lk_ss_wt = -1;   /* LANDSTALKER_SS_WEIGHT=1..8 (16ths); default 5 (2026-10-31: measured on screenshots, 4 left 1.29 / 1.73 lines per frame, 5 gives 1.48 / 1.56, 6 overshoots) */
+int lk_ssh_active; int lk_ssg_hudmask(uint8_t *m);   /* LK_SSHARP2 v1: 1 = this frame the sharp shift runs (patch_gpulight.py leaves its soft blend out) */
 static const uint8_t *lk_ss_apply(const uint8_t *fb) {
     if (lk_ss_wt < 0) { const char *e = getenv("LANDSTALKER_SS_WEIGHT"); lk_ss_wt = e && atoi(e) >= 1 && atoi(e) <= 8 ? atoi(e) : 5; }
     static uint32_t *buf; static int cap; static long done = -1; extern int lk_wide_e; const int sw = 320 + 2 * lk_wide_e; const uint32_t *src = (const uint32_t *)fb; int y, x, d = lk_ss_frac;
@@ -239,10 +240,17 @@ static inline int lk_ssh_y2(int y, int dh) { int y2 = y + lk_ssh_d * lk_ssh_k; r
     a = "    if (!d || done == lk_ss_gen || sw > 448) return fb;\n"
     assert s.count(a) == 1
     s = s.replace(a, """    lk_ssh_pend = 0;
+    lk_ssh_active = 0;
     if (d && sw <= 448 && lk_ssh_can(sw)) {   /* LK_SSHARP v1: no blend, the display filters shift the world pixels */
-        static long mdone = -1; extern int lk_wide_e;
-        if (mdone != lk_ss_gen) { mdone = lk_ss_gen; for (y = 0; y < 224; y++) { const uint32_t *r0 = src + (size_t)y * sw; uint8_t *m = lk_ssh_ok[y]; if (lk_ss_lgen[y] != lk_ss_gen) { memset(m, 0, 448); continue; } for (x = 0; x < sw; x++) m[x] = (uint8_t)(lk_ss_w[y][x] && r0[x] == lk_ss_ref[y][x]); } }
-        lk_ssh_pend = d; return fb;
+        static long mdone = -1; extern int lk_wide_e; extern long lk_gc_realfr; extern int lk_gc_nreal; extern long platform_frame_number(void);
+        /* LK_SSHARP2 v1 (user 2026-11-17: 'haben wir das Smooth Scrolling nicht so gemacht, dass das Bild scharf bleibt?'): with the GPU light / composition the CPU rows are not the
+           presented picture, the check 'pixel == what the compositor wrote' failed everywhere = an EMPTY mask = no sharp shift, only the soft GPU blend (LK_SSGPU) was left.
+           Now: GPU composed frame -> the world flag alone, minus the HUD (its pixels + 1 px / the Original HUD bar, lk_ssg_hudmask); the soft blend is off while the shift runs. */
+        extern int lk_gl_lighton(void); const int noref = lk_gl_lighton() || (lk_gc_realfr == platform_frame_number() && lk_gc_nreal > 0);   /* GPU light: the CPU rows are not the presented colours (floor pixels failed the check, figures passed) */ static uint8_t hm[448 * 224]; const int hmon = lk_ssg_hudmask(hm);
+        if (mdone != lk_ss_gen) { mdone = lk_ss_gen; for (y = 0; y < 224; y++) { const uint32_t *r0 = src + (size_t)y * sw; uint8_t *m = lk_ssh_ok[y]; if (lk_ss_lgen[y] != lk_ss_gen) { memset(m, 0, 448); continue; } for (x = 0; x < sw; x++) m[x] = (uint8_t)(lk_ss_w[y][x] && (noref || r0[x] == lk_ss_ref[y][x]) && !(hmon && hm[y * 448 + x])); }
+            }
+        { static const char *dm = (const char *)1; if (dm == (const char *)1) dm = getenv("LANDSTALKER_SSH_DUMP"); if (dm && atol(dm) == platform_frame_number()) { FILE *df = fopen("ssh_mask.raw", "wb"); if (df) { fwrite(lk_ssh_ok, 1, sizeof lk_ssh_ok, df); fwrite(&lk_ss_gen, sizeof lk_ss_gen, 1, df); fclose(df); } FILE *dl = fopen("ssh_lgen.raw", "wb"); if (dl) { fwrite(lk_ss_lgen, sizeof lk_ss_lgen[0], 224, dl); fclose(dl); } FILE *dw = fopen("ssh_w.raw", "wb"); if (dw) { fwrite(lk_ss_w, 1, sizeof lk_ss_w, dw); fclose(dw); } } }   /* test aid LANDSTALKER_SSH_DUMP=frame: the sharp-shift mask, line stamps and world flags (cwd) */
+        lk_ssh_pend = d; lk_ssh_active = 1; return fb;
     }
 """ + a, 1)
     a = "static const uint8_t *lk_ss_apply(const uint8_t *fb) {\n"
