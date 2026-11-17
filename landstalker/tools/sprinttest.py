@@ -19,7 +19,7 @@ CASES = {
     "shrine177": ("20261117_1737", 2890, 2915, "room 177 statues while sprinting past (user 2026-11-17)"),
     "shrine179": ("20261117_1737", 17700, 17725, "room 179 sprint on the platform in the light shaft"),
     "shrine180": ("20261117_1737", 22940, 22965, "room 180 sprint (user: jitter / light on the crate)"),
-    "church700": ("20261116_2023", None, None, "church 700 books on the counter (0a459), frames from the recording's first sprint"),
+    "church700": ("20261116_2023", 420, 445, "church 700 books on the counter (0a459), mid sprint"),
 }
 HUD = (0, 0, 260, 72)   # Modern HUD hearts / sword bar at 1280 x 800 (must not move)
 HUDZONES = ((0, 0, 300, 135), (1060, 0, 1280, 140), (1120, 740, 1280, 800))   # tiles touching the HUD (hearts + sword bar, item discs, gold) mix still and moving pixels: not judged
