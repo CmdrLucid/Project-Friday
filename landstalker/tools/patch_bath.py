@@ -9,7 +9,7 @@ maid woman_3 standing ON the door cell (15,28) to Kayla's room 98) while story f
 only this record is missing; docs/DEBUGGING.md 'Kayla bath scene'.)  Entity 2 of room 94 is a second, identical maid shown only after the
 banquet (flag $12.4), so the restored scene stays a pre-banquet window exactly like in Japan.
 
-Option: Options > Language / Region > Bath Scene Off / On (id 63; ~/.landstalker_bath, env LANDSTALKER_BATH=0|1 wins; default Off).
+Option: Options > Language / Region > Bath Scene Off / On (id 63; ~/.landstalker_bath, env LANDSTALKER_BATH=0|1 wins; default On since v1.9.5, user 2026-11-17).
 Off = the game's own table only = bit exact.  On = a wrapper of CheckOneTimeEventFlags runs the game's table first and then applies the
 Japanese record in C (same effect as the table entry: HideSpriteAtD0 $01A30A with d0 = 0, a5 = EntitySlot_1 $FF5480).
 Needs patch_options.py (platform_sdl.c option switch) and patch_friday.py (install hook anchor).  Idempotent.  usage: patch_bath.py path/to/genrecomp"""
@@ -32,9 +32,9 @@ else:
 #include <stdio.h>
 #include <stdlib.h>
 static int lk_bath_o = -1;
-int lk_bath_get(void) {   /* Options > Language / Region > Bath Scene (id 63): ~/.landstalker_bath, env LANDSTALKER_BATH wins; default Off */
-    if (lk_bath_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_BATH"); char pth[512]; FILE *f; int v = 0;
-        snprintf(pth, sizeof pth, "%s/.landstalker_bath", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); }
+int lk_bath_get(void) {   /* Options > Language / Region > Bath Scene (id 63): ~/.landstalker_bath, env LANDSTALKER_BATH wins; default On (v1.9.5, user 2026-11-17) */
+    if (lk_bath_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_BATH"); char pth[512]; FILE *f; int v = 1;
+        snprintf(pth, sizeof pth, "%s/.landstalker_bath", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 1; fclose(f); }
         if (e && *e) v = atoi(e); lk_bath_o = v ? 1 : 0; }
     return lk_bath_o; }
 void lk_bath_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; lk_bath_get(); lk_bath_o = v ? 1 : 0;
