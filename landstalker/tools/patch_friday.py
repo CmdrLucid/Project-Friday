@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Friday Hints (2026-10-31, user: 'Karte + Hinweise ja', Select key, two levels; idea docs/MODERN_IDEAS.md (B)).  Press Select (pad Back = MD Mode, keyboard: the key
 bound to Mode) while Nigel walks and Friday says where to go next, in the game's own text box; (v2) only the gentle level; her name ('Friday:' / German 'Flora:') on the first line, her speech blip, and she comes out of Nigel's bag and goes back afterwards.
-Options > Quality of Life > Friday Hints On / Off (id 45, last row, default OFF since release v1.5.0 = experimental, user 2026-10-31; ~/.landstalker_friday, env LANDSTALKER_FRIDAY=0|1 wins).  Without a Select press nothing
+Options > Quality of Life > Friday Hints On / Off (id 45, last row, default ON since v2.0 (user 2026-11-17; was OFF since v1.5.0 = experimental); ~/.landstalker_friday, env LANDSTALKER_FRIDAY=0|1 wins).  Without a Select press nothing
 changes (the game never reads Mode: bit exact).
 How: the wrapper of ProcessActionButton $0066AC (once per map pass, like Quick Items / Quick Equip) takes the Mode press edge from the MD pad word (so recordings and input
 scripts carry it), when no script runs (g_PlaybackLock $FF12DE = 0) and Nigel lives ($FF543E != 0).  The situation: GetFlagProgress $025318 (the game's own story stage,
@@ -180,7 +180,7 @@ static void lk_fh_h_start(void) {   /* StartGame: a NEW game starts in the intro
     lk_fh_o_start();
 }
 static int lk_fh_o = -1;
-int lk_fh_get(void) { if (lk_fh_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_FRIDAY"); char p[512]; FILE *f; int v = 0; snprintf(p, sizeof p, "%s/.landstalker_friday", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); } if (e && *e) v = atoi(e); lk_fh_o = v ? 1 : 0; } return lk_fh_o; }
+int lk_fh_get(void) { if (lk_fh_o < 0) { const char *h = getenv("HOME"), *e = getenv("LANDSTALKER_FRIDAY"); char p[512]; FILE *f; int v = 1; snprintf(p, sizeof p, "%s/.landstalker_friday", h ? h : "."); f = fopen(p, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 1; fclose(f); } if (e && *e) v = atoi(e); lk_fh_o = v ? 1 : 0; } return lk_fh_o; }
 void lk_fh_set(int v) { const char *h = getenv("HOME"); char p[512]; FILE *f; lk_fh_get(); lk_fh_o = v ? 1 : 0; snprintf(p, sizeof p, "%s/.landstalker_friday", h ? h : "."); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_fh_o); fclose(f); } }
 static gen_func_t lk_o_pab_fh;
 static int lk_fh_stage[4];   /* [1] main story stage, [2] / [3] sub lists */

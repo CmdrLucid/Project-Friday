@@ -24,8 +24,8 @@ if VER not in s:
     s = rep(s, "LK_BSPRINT, LK_BMAP, LK_NB };", "LK_BSPRINT, LK_BMAP, LK_BUP, LK_BDOWN, LK_BLEFT, LK_BRIGHT, LK_NB };   /* " + VER + ": keyboard directions */", "input.c enum")
     s = rep(s, '"Sprint", "Map" };', '"Sprint", "Map", "Up", "Down", "Left", "Right" };', "input.c names")
     s = rep(s, '"sprint", "map" };', '"sprint", "map", "up", "down", "left", "right" };', "input.c ids")
-    s = rep(s, "case LK_BSPRINT: return SDL_SCANCODE_LSHIFT; case LK_BMAP: return 0; }",
-            "case LK_BSPRINT: return SDL_SCANCODE_LSHIFT; case LK_BMAP: return 0;\n                 case LK_BUP: return SDL_SCANCODE_UP; case LK_BDOWN: return SDL_SCANCODE_DOWN; case LK_BLEFT: return SDL_SCANCODE_LEFT; case LK_BRIGHT: return SDL_SCANCODE_RIGHT; }", "input.c defkey")
+    s = rep(s, "case LK_BSPRINT: return SDL_SCANCODE_LSHIFT; case LK_BMAP: return SDL_SCANCODE_M; }",
+            "case LK_BSPRINT: return SDL_SCANCODE_LSHIFT; case LK_BMAP: return SDL_SCANCODE_M;\n                 case LK_BUP: return SDL_SCANCODE_UP; case LK_BDOWN: return SDL_SCANCODE_DOWN; case LK_BLEFT: return SDL_SCANCODE_LEFT; case LK_BRIGHT: return SDL_SCANCODE_RIGHT; }", "input.c defkey")
     # pad column of a direction row: the D-pad / stick, fixed
     s = rep(s, "void lk_bind_label(int i, char *o, size_t n) { char a[16], b[16]; lk_bind_init(); lk_bind_padlabel(lk_bind_pad[i], a, sizeof a);",
             "void lk_bind_label(int i, char *o, size_t n) { char a[16], b[16]; lk_bind_init(); lk_bind_padlabel(lk_bind_pad[i], a, sizeof a); if (i >= LK_BUP) snprintf(a, sizeof a, \"DPAD\");", "input.c label")

@@ -12,8 +12,8 @@
   - **Title screen:** the subtitle in the language (our own lettering in the title's style).
   - **Bath Scene** (off by default): restores the scene in Kayla's room that the Western releases block with a maid on the door.
   - The translations are written with Claude and not all have been read by native speakers yet: corrections are very welcome.
-- **Friday Hints** (Options > Quality of Life, off by default): press Select and Friday tells you where to go next. The hints follow your progress, only mention what Nigel has actually been told, and get more precise when you listened to an optional character (remembered per save file). In English, German, French, Korean and Japanese.
-- **Dungeon map, redesigned** (bind "Map" in Keybindings): turned like the game's view, the whole floor at once, a selection on the D-pad, A sets a flag and the map shows the way there, L1 / R1 switch floors, dungeon names in every language.
+- **Friday Hints** (Options > Quality of Life, on by default): press Select and Friday tells you where to go next. The hints follow your progress, only mention what Nigel has actually been told, and get more precise when you listened to an optional character (remembered per save file). In English, German, French, Korean and Japanese.
+- **Dungeon map, redesigned** (on by default: right stick click R3, keyboard M; Fullscreen moved off R3, F11 / Alt+Enter stay): turned like the game's view, the whole floor at once, a selection on the D-pad, A sets a flag and the map shows the way there, L1 / R1 switch floors, dungeon names in every language.
 - **Keyboard:** the directions can be remapped too; one row switches to W A S D.
 - **Fixes:** big figures (the boulder in the castle basement) no longer get light streaks at their edges.
 - Everything from v1.9.1 is included. Your settings and save files from v1.x keep working.
