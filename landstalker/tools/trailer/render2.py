@@ -169,14 +169,14 @@ shot(3, 4, "church", 60, z=(1.1, 1.0), flash=False, dip=0.25)
 shot(4, 5, "tlapse", 420, z=(1.0, 1.06), flash=False, dip=0.25)
 TL.append((B(5), B(7), "title", {}))
 # loud part 1: light
-shot(7, 9, "castle", 20, "DYNAMIC LIGHTING", "torches, lava and your sword light the world")
+shot(7, 9, "castle", 10, "DYNAMIC LIGHTING", "torches, lava and your sword light the world")
 shot(9, 11, "church", 30, "REAL 3D SHADOWS", "statues, benches and tables cast their true shape")
 shot(11, 13, "lava", 60, "HEAT HAZE  ·  LIGHT SHAFTS", "")
 shot(13, 15, "water", 30, "WATER REFLECTIONS", "")
-shot(15, 17, "intro_n", 330, "SUN SHADOWS", "every house, tree and figure", z=(1.08, 1.0))
+shot(15, 17, "sun", 20, "SUN SHADOWS", "every house, tree and figure", z=(1.08, 1.0))
 # calm part 1: day and night
 shot(17, 20, "tlapse", 20, "DAY  &  NIGHT", "the sun moves across the sky, windows glow after dark", z=(1.0, 1.04), flash=False, speed=1.9)
-shot(20, 23, "m_night", 60, "NIGHT LIGHTS", "lamp-lit doors and windows", flash=False)
+shot(20, 23, "m_night", 10, "NIGHT LIGHTS", "lamp-lit doors and windows", flash=False)
 
 
 # loud part 2: the four swords, original | 2.0 (same input, swords_o = no light / no effects, swords_n = 2.0); a charged swing per sword

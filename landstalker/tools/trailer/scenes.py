@@ -7,14 +7,16 @@ BASES = {
 ORIG = {"lighting": "0", "hud": "0", "swordfx": "0", "bootcol": "0", "daynight": "0"}
 DAY = {"LANDSTALKER_DAYLEN": "100000"}          # time of day stands still (with LANDSTALKER_DAYTIME)
 WALK = [(60, "R"), (250, "D"), (330, "L"), (520, "U"), (600, "R"), (700, "")]   # a loop in Massan (x 21..40, y 38..41)
+# directions with the user's key file: D / R = +X, U / L = -X, DL = +Y, UR = -Y (shoot.py check.chk columns 3 / 4)
 # every scene: warp at 'at', the light settles ~2 s (no shadow build-up on screen), Nigel moves only inside free cells (shoot.py reports STUCK AT WALL)
 SCENES = {
     "castle":   {"warp": "55:48,17", "keep": (130, 330), "input": [(170, "L"), (238, "")], "note": "castle entrance hall 55: along the arched wall towards the guards"},
     "church":   {"warp": "700", "keep": (120, 330), "input": [(170, "R"), (225, "")]},
     "lava":     {"warp": "267:13,58", "keep": (120, 420), "input": [(150, "U"), (362, "")]},
-    "water":    {"warp": "283", "keep": (120, 330), "input": [(150, "L"), (170, "")]},
-    "sun":      {"warp": "592:20,38", "keep": (120, 330), "input": [(150, "R"), (306, "")], "env": dict(DAY, LANDSTALKER_DAYTIME="16.5")},
-    "m_night":  {"warp": "592:20,38", "keep": (120, 330), "input": [(150, "R"), (306, "")], "env": dict(DAY, LANDSTALKER_DAYTIME="22.5")},
+    "water":    {"warp": "474:32,28", "keep": (120, 360), "input": [(150, "DL"), (205, "")], "env": dict(DAY, LANDSTALKER_DAYTIME="10.5"), "note": "Verla shore pier: water in front of Nigel = his reflection is on the water"},
+    "beach":    {"rec": "20261117_1210", "keep": (2150, 2700), "wide": 19, "size": "1920x1200", "vf": "crop=1916:1078:0:61,scale=1920:1080", "note": "user recording 2026-11-17: beach room 455, Nigel in the shallow water = reflection (user pick)"},
+    "sun":      {"warp": "592:22,38", "keep": (120, 330), "input": [(150, "R"), (290, "")], "env": dict(DAY, LANDSTALKER_DAYTIME="16.5")},
+    "m_night":  {"warp": "592:22,38", "keep": (120, 400), "input": [(150, "R"), (290, "")], "env": dict(DAY, LANDSTALKER_DAYTIME="22.5")},
     "tlapse":   {"warp": "632", "keep": (40, 560), "input": [], "env": {"LANDSTALKER_DAYTIME": "14.8", "LANDSTALKER_DAYLEN": "0.5"}},
 }
 # swords: the same input twice (swordfx 0 | 1) for the split screen; Quick Equip by test aid (hold R2 = EQHOLD, direction taps = EQDIR frame:dir 0 up 1 right 2 down 3 left)

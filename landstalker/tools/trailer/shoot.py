@@ -30,9 +30,24 @@ def mask(s):
     return m
 
 
+def rec_env(rec):
+    env = {}
+    for ln in open(os.path.join(REC, f"rec_{rec}.cfg")):
+        for tok in ln.split():
+            if tok.startswith("LANDSTALKER_") and "=" in tok:
+                k, v = tok.split("=", 1)
+                env[k] = v
+    if "LANDSTALKER_QSPLAY" in env:
+        pass
+    return env
+
+
 def build_input(base, sc, path):
     """prefix of the base recording up to base['cut'], then the scene's own lines: (rel_frame, 'UR') pairs relative to sc['at']."""
     lines = []
+    if sc.get("rec"):
+        shutil.copy(os.path.join(REC, f"rec_{sc['rec']}.txt"), path)
+        return
     for ln in open(os.path.join(REC, f"rec_{base['rec']}.txt")):
         p = ln.split()
         if len(p) == 2 and int(p[0]) < base["cut"]:
@@ -56,8 +71,10 @@ def resolve_warp(w):
         return w
     hm = ps.heights(open(ROM, "rb").read(), int(room))
     if xy:
-        x, y = (int(v) for v in xy.split(","))
-        h = hm.get((x, y), (0, False))[0]
+        x, y = (int(v) for v in xy.replace("/", ",").split(","))
+        if (x, y) not in hm:     # a cell without a height word (sand, path): Z 0 there left the room black; keep Nigel's Z, he lands on the floor
+            return "%d:%d.08,%d.08" % (int(room), x, y)
+        h = hm[(x, y)][0]
     else:
         (x, y), h = ps.start_cell(hm)
     return "%d:%d.08,%d.08,%04X" % (int(room), x, y, 16 * h)
@@ -66,13 +83,15 @@ def resolve_warp(w):
 def run(name, frames, outdir):
     sc = SCENES[name]
     base = BASES[sc.get("base", "now")]
+    if sc.get("rec"):
+        base = {"rec": sc["rec"], "cut": 0}
     shutil.rmtree(outdir, ignore_errors=True)
     os.makedirs(os.path.join(outdir, "home"))
     h = os.path.join(outdir, "home")
     for f in glob.glob(os.path.join(REC, f"opts_{base['rec']}", ".landstalker_*")):
         if os.path.isfile(f) and ".bak" not in f:
             shutil.copy(f, h)
-    opts = {"lighting": "1", "gpu": "1", "dither": "0", "lang": "en"}
+    opts = {"lighting": "1", "gpu": "1"} if sc.get("rec") else {"lighting": "1", "gpu": "1", "dither": "0", "lang": "en"}   # a replay keeps the recording's options (other text = other timing)
     opts.update(sc.get("opts", {}))
     for k, v in opts.items():
         open(os.path.join(h, ".landstalker_" + k), "w").write(v + "\n")
@@ -89,6 +108,9 @@ def run(name, frames, outdir):
     for k in ("DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR"):
         if k in os.environ:
             env[k] = os.environ[k]
+    if sc.get("rec"):
+        env.update(rec_env(sc["rec"]))
+        env["LANDSTALKER_WIDE"] = str(sc.get("wide", env.get("LANDSTALKER_WIDE", 39)))
     if "warp" in sc:
         env["LANDSTALKER_WARP"] = sc["warp"] if ";" in sc["warp"] else resolve_warp(sc["warp"])
         env["LANDSTALKER_WARP_AT"] = str(at)
@@ -101,6 +123,12 @@ def run(name, frames, outdir):
     n = len(glob.glob(os.path.join(outdir, "present_*_gpu.png")))
     bad = "LIGHT OFF!" if "Lighting off" in open(os.path.join(outdir, "out.log"), errors="replace").read() else ""
     print(f"[{name}] {n}/{len(frames)} pictures in {time.time() - t0:.0f} s {bad}", flush=True)
+    if sc.get("rec"):   # replay sync against the recording's own checkpoints (every 120 frames)
+        ref = {l.split()[0]: l.split()[1:4] for l in open(os.path.join(REC, f"rec_{sc['rec']}.chk"))}
+        got = {l.split()[0]: l.split()[1:4] for l in open(os.path.join(outdir, "check.chk")) if int(l.split()[0]) % 120 == 0}
+        bad = [f for f in got if f in ref and got[f] != ref[f] and int(f) <= max(frames)]
+        print(f"[{name}] replay sync: {'exact' if not bad else 'DIFFERS from frame ' + min(bad, key=int)}", flush=True)
+        return at
     check_walk(name, at, frames, outdir)
     return at
 
@@ -144,7 +172,7 @@ def check_walk(name, at, frames, outdir):
 def scene_frames(name):
     sc = SCENES[name]
     base = BASES[sc.get("base", "now")]
-    at = sc.get("at", base["cut"] + 40)
+    at = 0 if sc.get("rec") else sc.get("at", base["cut"] + 40)
     a, b = sc["keep"]
     return at, list(range(at + a, at + b + 1))
 
@@ -161,7 +189,7 @@ def shoot(name):
     with open(lst, "w") as f:
         for p in files:
             f.write(f"file '{p}'\nduration {1/60:.6f}\n")
-    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-vf", "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,fps=60",
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-vf", SCENES[name].get("vf", "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2") + ",fps=60",
                     "-c:v", "libx264", "-preset", "slow", "-crf", "10", "-pix_fmt", "yuv444p", o], check=True)
     for p in files:
         os.remove(p)
