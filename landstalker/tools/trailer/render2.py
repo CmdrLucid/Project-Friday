@@ -166,7 +166,7 @@ def shot(k0, k1, name, start, title="", sub="", z=(1.0, 1.07), flash=True, cx=0.
 # ---- the whole trailer on the 60 bars of the song (user feedback 2026-11-17: teaser opening, headlines only, no subtitles) ----
 # opening: one bar per shot on the quiet intro of the song, short dips to black, then the title on black
 TL.append((0.0, B(0), "black", {}))
-shot(0, 1, "lava", 150, z=(1.12, 1.04), flash=False, dip=0.25)
+shot(0, 1, "beach", 250, z=(1.4, 1.5), cx=0.47, cy=0.36, flash=False, dip=0.25)
 shot(1, 2, "m_night", 90, z=(1.0, 1.08), flash=False, dip=0.25)
 shot(2, 3, "swords_n", 205, z=(1.35, 1.45), flash=False, dip=0.25, cx=0.52, cy=0.44)
 shot(3, 4, "castle2", 120, z=(1.1, 1.0), flash=False, dip=0.25)
@@ -181,19 +181,19 @@ shot(15, 17, "sun", 20, "SUN SHADOWS", z=(1.08, 1.0))
 # calm part 1: day and night
 shot(17, 20, "tlapse", 20, "DAY  &  NIGHT", z=(1.0, 1.04), flash=False, speed=1.9)
 shot(20, 22, "m_night", 10, "NIGHT LIGHTS", flash=False)
-shot(22, 23, "fftest", 200, "FIREFLIES", z=(2.0, 2.1), cx=0.2, cy=0.86, flash=False)
+shot(22, 23, "fftest", 200, "PARTICLES", z=(2.0, 2.1), cx=0.2, cy=0.86, flash=False)
 # loud part 2: the four swords, original | 2.0 (same input, swords_o = no light / no effects, swords_n = 2.0)
 for k, nm in enumerate(("ICE SWORD", "THUNDER SWORD", "FIRE SWORD", "GAIA SWORD")):
     TL.append((B(23 + 2 * k), B(25 + 2 * k), "split", dict(left="swords_o", right="swords_n", start=190 + 330 * k, crop=(700, 788), cx=1000, cy=470, title=nm)))
-shot(31, 33, "boots", 0, "BOOT COLORS", z=(2.3, 2.4), cx=0.52, cy=0.44, speed=2.5)
+shot(31, 33, "boots", 0, "VISIBLE BOOT EQUIPMENT", z=(2.3, 2.4), cx=0.52, cy=0.44, speed=2.5)
 # calm part 2: comfort
-TL.append((B(33), B(35), "wipe", dict(left="sun_hud0", right="sun", start=20, title="MODERN HUD")))
+TL.append((B(33), B(35), "wipe", dict(left="hud_o", right="hud_n", start=20, title="MODERN HUD")))
 TL.append((B(35), B(37), "stills", dict(names=["map_a", "map_b", "map_c"], title="DUNGEON MAP")))
 shot(37, 39, "friday", 40, "FRIDAY HINTS", flash=False)
 TL[-1][3]["pos"] = "tl"
 # loud part 3: sprint and the languages
 shot(39, 41, "sprint", 10, "SPRINT")
-LANGS = (("en", "ENGLISH"), ("de", "DEUTSCH"), ("en_tone", "ENGLISH (JAPANESE TONE)"), ("fr", "FRANÇAIS"), ("ko", "한국어"), ("ja", "日本語"))
+LANGS = (("en", "ENGLISH"), ("de", "DEUTSCH"), ("en_tone", "ENGLISH (JAPANESE TONE)"), ("fr", "FRANÇAIS"), ("ko", "한국어"), ("ja", "日本語  ·  WITH YOUR JAPANESE ROM"))
 for k, (code, nm) in enumerate(LANGS):
     TL.append((B(41 + k), B(42 + k), "clip", dict(name="lang_" + code, start=95, title=nm, sub="", z=(1.12, 1.16), flash=True, cx=0.5, cy=0.86, speed=1.0, dip=0.0, pos="tl")))
 TL.append((B(47), B(49), "card", dict(lines=["QUICK SAVE  ·  FAST FORWARD  ·  QUICK EQUIP", "NATIVE PACE  ·  NO SPRITE LIMIT  ·  WIDESCREEN"], bg="lava", start=200)))
@@ -307,8 +307,8 @@ def render_wipe(t, t0, t1, a):
     """the same clip twice (left = before, right = after): a soft divider sweeps from left to right, labels on both sides"""
     i = a["start"] + (t - t0) * 60
     fa, fb = frame(a["left"], i), frame(a["right"], i)
-    u = min(1.0, max(0.0, (t - t0 - 0.4) / (t1 - t0 - 1.0)))
-    x = int(W * (0.08 + 0.84 * (u * u * (3 - 2 * u))))
+    u = min(1.0, max(0.0, (t - t0 - P) / (t1 - t0 - P - 0.35)))   # the old HUD alone for one bar, then the divider sweeps right -> left and uncovers 2.0
+    x = int(W * (1.0 - (u * u * (3 - 2 * u))))
     out = fa.copy(); out.paste(fb.crop((x, 0, W, H)), (x, 0))
     out = finish(out, flash=max(0.0, 1 - (t - t0) / 0.12) * 0.4)
     d = ImageDraw.Draw(out); d.rectangle([x - int(2 * S), 0, x + int(2 * S), H], fill=AMBER)

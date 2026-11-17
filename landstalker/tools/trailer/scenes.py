@@ -45,3 +45,11 @@ SCENES["sprint"] = {"warp": "632:22,40", "keep": (120, 320), "input": [(150, "D"
 SCENES["sun_hud0"] = dict(SCENES["sun"], opts={"hud": "0"})
 SCENES["friday"] = dict(SCENES["fridaytest"], keep=(120, 420))
 SCENES["title_de"] = {"rec": "20261117_0810", "keep": (10, 300), "wide": 19, "size": "1920x1200", "vf": "crop=1916:1078:0:61,scale=1920:1080", "opts": {"lang": "de"}}
+# user 2026-11-17: Modern HUD on another scene (old HUD long enough), particles as one feature with several kinds
+SCENES["hud_o"] = {"warp": "632:30,40", "keep": (120, 480), "input": [(150, "D"), (300, "")], "opts": {"hud": "0"}, "env": dict(DAY, LANDSTALKER_DAYTIME="11")}
+SCENES["hud_n"] = dict(SCENES["hud_o"], opts={"hud": "1"})
+SCENES["leaves"] = {"warp": "458", "keep": (120, 420), "input": [], "env": dict(DAY, LANDSTALKER_DAYTIME="12")}
+SCENES["drops"] = {"warp": "283", "keep": (120, 420), "input": []}
+SCENES["drops178"] = {"warp": "178", "keep": (120, 420), "input": []}
+for _n in ("leaves", "fftest", "castle2", "lava", "drops", "drops178"):   # particle finder: the same scene without particles (diff = where they fly)
+    SCENES[_n + "_np"] = dict(SCENES[_n], env=dict(SCENES[_n].get("env", {}), LANDSTALKER_AMBIENT="0"))
