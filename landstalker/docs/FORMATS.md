@@ -346,3 +346,12 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
 - V (2026-11-15): the Use list scroll word `$FF2C06` counts TILE rows (4 per item row): item index = ((`$FF2C06` >> 2) + `$FF2C0C`) * 2 + `$FF2C0A` (RAM dumps at scrolled positions, GitHub issue #17).
 - V (2026-11-16, ROM render + night shots): night-glowing tiles. Tileset 0 house windows 195 196 199 200 210 211 197 198 (glass index 1 / 14 between frame 15); CHURCH arched windows as left | right pairs 866/867 882/883 898/899 914/915 (light wall) and 864/865 880/881 896/897 912/913 (dark wall), glass = index 15 between the outer frame pixels, lead = 1. Tileset 7 (Massan / Gumi huts; rooms 429 430 441 468 489 510..513 533..539 592 601..603 726): door tiles 346 (top, mirrored on left-facing walls) 373 (side) 483 385 384 (threshold) + tile 1 (all black, ALSO plain black elsewhere: 510..539) inside doors; the sign above a door has black outline pixels in 334 / 333 / 335 (not the opening); round window = 3 x 3 tiles 366..368 / 379..381 / 392..394 (hole index 15 + 5 dither); shuttered window = 326 327 341 342 354 355 + gap in 328 343 356 and the right part of 323 336. Room tileset = byte 4 & 0x1F of the room table at OL(0xA0A00).
 
+## Night opening tiles (2026-11-16 / 17, Opus 5.5; I = measured on romrender pictures, used by patch_lights.py)
+| Item | Tiles / rule | Status |
+|---|---|---|
+| Stone church portal (tileset 0) | layer A 885, 884 left, 900 below 884; rooms 610 / 611 / 630..632 / 711 / 712 | I 2026-11-16 |
+| Church windows (tileset 0) | 2 x 4 pairs 866/867..914/915 (light wall), 864/865..912/913 (dark wall); glass strip x 9..13 / 2..6 | I 2026-11-16 |
+| Destel doors (tileset 7, room 726) | Massan's 373 / 1 / 384 / 385 WITHOUT the sign 346; threshold 384\|385 (left wall) or 385h\|384h (right wall) | I 2026-11-16 |
+| Destel arched windows | native 2 x 4 [593 594 / 604 605 / 595 596 / 606 607], only room 726 | I 2026-11-16 |
+| Tile 354 in Destel | plain wall (in Massan: shutter bottom) | I 2026-11-16 |
+

@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 803-814
-- 1. Where we are: lines 815-960
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 961-1214
-- 3. How the user works (important): lines 1215-1230
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1231-1255
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1256-1264
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1265-1312
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1313-1322
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1323-1324
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1325-1327
-- NEXT STEPS, newest first: -216 962, -215 963, -214 964, -213 965, -212 966, -211 967, -210 968, -209 969, -208 970, -207 971
+- 1. Where we are: lines 815-961
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 962-1215
+- 3. How the user works (important): lines 1216-1231
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1232-1256
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1257-1265
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1266-1313
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1314-1323
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1324-1325
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1326-1328
+- NEXT STEPS, newest first: -216 963, -215 964, -214 965, -213 966, -212 967, -211 968, -210 969, -209 970, -208 971, -207 972
 - Newest entries:
   - 0a462 line 188: 2026-11-17 (Deck, Opus 5.5): Destel arched window glow: the two black pixels the user marked in the lit are...
   - 0a461 line 190: 2026-11-17 (Deck, Opus 5.5, no agents): Destel arched windows + roof hatches: dark rim gone (LK_DNDESTEL v2...
@@ -813,6 +813,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-16 EVENING / 11-17 END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** USER-CONFIRMED by playing: church wall stripes gone (LK_RAYCORNERM), church glass / portal / window light (0a457 / 0a458, 'passt' for the session as a whole), sprint book jitter + portal dark frame fixed (0a459: 'Das passt'). HEADLESS ONLY: Destel night lights (0a460..0a462: doors with lantern in front, arched windows from the user's sketch + 2 pixels, hatches / arched windows as Mercator glass). User approved the shapes on mock-ups (portal mock3, Destel door mockA, window sketch). NEXT -216 (Destel walk at night).
 - **2026-11-16 AFTERNOON END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** Massan night round 2 (0a456): map edge rim fixed, shutter ring fixed, doors = iso parallelogram (user OK), narrow window, roof hatches, door light strip in front of the door, per-door flicker, SPRINT light bug (GPU composition was switched off by the 1.5 x blend). User checked GPU shots + played the doors once; the final build (sprint fix, strip in front, 60 %) NOT played. NEXT -212.
 - **2026-11-16 END (Opus 5.5, no agents, `dev` pushed 2fd35ee, main = v1.9.1):** ALL HEADLESS ONLY, nothing played yet: pine clusters as single pines (0a453, 10 groups in 8 rooms), fireflies cast light (0a454), night windows (0a455: Mercator church windows, every window its own light, Massan round / shuttered windows; Massan DOOR fill OFF after many rejected rounds). User eye checks on the screenshots: round window / shutter cleaned up on request; doors rejected (shape not iso). NEXT -211 (hand-drawn door light shapes with preview), then user plays -208 / -209 / -210.
 - **2026-11-15 END (Opus 5.5, no agents, `dev` pushed, main = v1.9.1):** USER-CONFIRMED by playing: sprint through doors, Smooth Scrolling always on, room 470 night streaks, room 473 lift shadow. HEADLESS ONLY: room 66 door band, room 28 wall model (clay preview OK), castle 51..54 alcove cabinets, GitHub issue #17 (Item Info, 5 languages), pines re-anchored onto houses / neighbours (LK_LTTREEHOUSE v1), lightedges --spots full sweep (no further big errors). NEXT -207 pine clusters as single pines (user decision), then user test of the headless fixes; then the 2.0 release on request.

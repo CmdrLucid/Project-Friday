@@ -239,3 +239,4 @@
 - L1899: Session 2026-11-15 (Deck, Opus 5.5, no agents): sprint doors, lift shadow, night streaks, light sweep v2, issue #17, castle alcoves
 - L1908: Session 2026-11-16 (Deck, Opus 5.5, no agents): pine clusters, firefly light, night windows
 - L1916: Session 2026-11-16 afternoon (Deck, Opus 5.5, no agents): Massan night round 2, sprint light bug
+- L1924: Session 2026-11-16 evening / 11-17 (Deck, Opus 5.5, no agents): Mercator church at night, sprint sprite jitter, Destel night lights
