@@ -5,15 +5,15 @@
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 807-818
 - 1. Where we are: lines 819-968
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 969-1224
-- 3. How the user works (important): lines 1225-1240
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1241-1265
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1266-1274
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1275-1322
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1323-1332
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1333-1334
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1335-1337
-- NEXT STEPS, newest first: -218 970, -217 971, -216 972, -215 973, -214 974, -213 975, -212 976, -211 977, -210 978, -209 979
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 969-1225
+- 3. How the user works (important): lines 1226-1241
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1242-1266
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1267-1275
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1276-1323
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1324-1333
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1334-1335
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1336-1338
+- NEXT STEPS, newest first: -219 970, -218 971, -217 972, -216 973, -215 974, -214 975, -213 976, -212 977, -211 978, -210 979
 - Newest entries:
   - 0a464 line 190: 2026-11-17 evening (Deck, Opus 5.5, no agents): RELEASE v1.9.5 + TRAILER 2.0 WORK. (1) Trailer 2.0 (tools/t...
   - 0a463 line 192: 2026-11-17 later (Deck, Opus 5.5, no agents): GITHUB #19 / #20 + DE-DITHER ON THE GPU. #20 (priest 'continu...
@@ -967,6 +967,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-219. **OPEN (user note 2026-11-17 night, recording follows): room 177 (waterfall shrine): while SPRINTING past them the statues look strange.** Not investigated yet. When the recording is there (newest rec_ in ~/Project-Friday-Test/aufnahmen): replay it, GPU shots of the sprint frames with / without sprint (compare the sprint sub-pixel blend LK_SPRINT / the 1.5 x world sprite blend of 0a459: statues are world sprites or map tiles?).
 -218. **NEXT (2026-11-17 night): after v1.9.5:** collect feedback (GitHub issues: Claude reproduces + fixes, the user answers); trailer 2.0: user records the bath scene (save before the Mercator banquet) + Options > Language / Region with Items = Japanese, user decides particles (only fireflies / denser for the trailer / more visible in game); then render the final trailer for 2.0. The user also plays the bath scene (HANDOFF -201).
 -217. **USER CONFIRMED 2026-11-17 ("rest auch passt"): De-Dither GPU, HUD sharp, no jitter.** **NEXT (2026-11-17 later): user plays with De-Dither on (Light / Medium / Strong) outdoors in Mercator, walking + sprinting, best in Game Mode (0a463):** no jitter, HUD (hearts, sword, quick item discs, gold) sharp, text boxes sharp; then reply to GitHub #19 / #20 (Claude drafts a text on request). Then -216.
 -216. **USER CONFIRMED 2026-11-17 ("destel passt").** **NEXT (2026-11-16 late night): user walks through DESTEL at night (0a460):** door glow (lantern in front of the light), strips in front of the doors, arched windows (sketch area), shutter window + roof hatches, no stray lights. Then -214 / -213 / -212.
