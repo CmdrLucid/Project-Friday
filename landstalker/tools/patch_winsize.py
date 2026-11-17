@@ -39,3 +39,14 @@ else:
     s = s.replace(a, 'if (eh) { const char *pp = eh; long r0, r1; int nn; while (sscanf(pp, "%ld-%ld%n", &r0, &r1, &nn) == 2) { if (frame >= r0 && frame <= r1) { d[LK_BEQ] = 1; any = 1; } pp += nn; if (*pp != \',\') break; pp++; } } }   /* LK_EQHOLDS v1 */')
     open(q, "w").write(s)
     print("input.c patched: LK_EQHOLDS v1")
+
+# test aid LK_MAPHOLD v1: LANDSTALKER_MAPHOLD="a-b,c-d" holds the Map binding in those frame ranges (trailer footage of the dungeon map: a press opens / closes it).
+s = open(q).read()
+if "LK_MAPHOLD" in s:
+    print("input.c already patched: LK_MAPHOLD v1")
+else:
+    a = "   /* LK_EQHOLDS v1 */"
+    assert s.count(a) == 1, "input.c: LK_EQHOLDS line missing (apply it first)"
+    s = s.replace(a, a + '\n    { static const char *mh; static int mhi; if (!mhi) { mhi = 1; mh = getenv("LANDSTALKER_MAPHOLD"); } if (mh) { const char *pp = mh; long r0, r1; int nn; while (sscanf(pp, "%ld-%ld%n", &r0, &r1, &nn) == 2) { if (frame >= r0 && frame <= r1) { d[LK_BMAP] = 1; any = 1; } pp += nn; if (*pp != \',\') break; pp++; } } }   /* LK_MAPHOLD v1 test aid */')
+    open(q, "w").write(s)
+    print("input.c patched: LK_MAPHOLD v1")

@@ -89,10 +89,13 @@ CAPS = {}
 
 
 def caption_layer(title, sub):
+    sub = ""   # user 2026-11-17: headlines only
     key = (title, sub)
     if key in CAPS:
         return CAPS[key]
     ft, fs = font("NotoSans-Light.ttf", 58), font("NotoSans-Regular.ttf", 33)
+    if any(ord(c) > 0x2FFF for c in title):
+        ft = ImageFont.truetype("/usr/share/fonts/noto-cjk/NotoSansCJK-Light.ttc", int(58 * S))
     tw = text_w(title, ft, 9 * S); sw = text_w(sub, fs, 1.5 * S) if sub else 0
     w = int(max(tw, sw) + 120 * S); h = int(170 * S)
     im = Image.new("RGBA", (w, h), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
@@ -114,7 +117,7 @@ def put_caption(img, title, sub, t, t0, t1, pos="bl"):
         return img
     lay = caption_layer(title, sub)
     e = 1 - (1 - a_in) ** 3
-    x = int((70 - 40 * (1 - e)) * S); y = int(H - lay.size[1] - 70 * S) if pos == "bl" else int((H - lay.size[1]) / 2)
+    x = int((70 - 40 * (1 - e)) * S); y = int(H - lay.size[1] - 70 * S) if pos == "bl" else int(150 * S) if pos == "tl" else int((H - lay.size[1]) / 2)
     if a < 1:
         lay = lay.copy(); lay.putalpha(lay.getchannel("A").point(lambda v: int(v * a)))
     img = img.convert("RGBA"); img.alpha_composite(lay, (x, y))
@@ -160,28 +163,43 @@ def shot(k0, k1, name, start, title="", sub="", z=(1.0, 1.07), flash=True, cx=0.
     TL.append((B(k0), B(k1), "clip", dict(name=name, start=start, title=title, sub=sub, z=z, flash=flash, cx=cx, cy=cy, speed=speed, dip=dip)))
 
 
-# opening (user 2026-11-17: teaser montage): one bar per shot on the quiet intro of the song, short dips to black, then the title on black
+# ---- the whole trailer on the 60 bars of the song (user feedback 2026-11-17: teaser opening, headlines only, no subtitles) ----
+# opening: one bar per shot on the quiet intro of the song, short dips to black, then the title on black
 TL.append((0.0, B(0), "black", {}))
 shot(0, 1, "lava", 150, z=(1.12, 1.04), flash=False, dip=0.25)
 shot(1, 2, "m_night", 90, z=(1.0, 1.08), flash=False, dip=0.25)
 shot(2, 3, "swords_n", 205, z=(1.35, 1.45), flash=False, dip=0.25, cx=0.52, cy=0.44)
-shot(3, 4, "church", 60, z=(1.1, 1.0), flash=False, dip=0.25)
+shot(3, 4, "castle2", 120, z=(1.1, 1.0), flash=False, dip=0.25)
 shot(4, 5, "tlapse", 420, z=(1.0, 1.06), flash=False, dip=0.25)
 TL.append((B(5), B(7), "title", {}))
 # loud part 1: light
-shot(7, 9, "castle", 10, "DYNAMIC LIGHTING", "torches, lava and your sword light the world")
-shot(9, 11, "church", 30, "REAL 3D SHADOWS", "statues, benches and tables cast their true shape")
-shot(11, 13, "lava", 60, "HEAT HAZE  ·  LIGHT SHAFTS", "")
-shot(13, 15, "water", 30, "WATER REFLECTIONS", "")
-shot(15, 17, "sun", 20, "SUN SHADOWS", "every house, tree and figure", z=(1.08, 1.0))
+shot(7, 9, "castle2", 0, "DYNAMIC LIGHTING")
+shot(9, 11, "church", 30, "REAL 3D SHADOWS")
+shot(11, 13, "lava", 60, "HEAT HAZE  ·  LIGHT SHAFTS")
+shot(13, 15, "beach", 60, "WATER REFLECTIONS", z=(1.35, 1.45), cx=0.47, cy=0.36)
+shot(15, 17, "sun", 20, "SUN SHADOWS", z=(1.08, 1.0))
 # calm part 1: day and night
-shot(17, 20, "tlapse", 20, "DAY  &  NIGHT", "the sun moves across the sky, windows glow after dark", z=(1.0, 1.04), flash=False, speed=1.9)
-shot(20, 23, "m_night", 10, "NIGHT LIGHTS", "lamp-lit doors and windows", flash=False)
-
-
-# loud part 2: the four swords, original | 2.0 (same input, swords_o = no light / no effects, swords_n = 2.0); a charged swing per sword
-for k, (nm, sub) in enumerate((("ICE SWORD", "Sword Effects: coloured arcs, sparks and light"), ("THUNDER SWORD", ""), ("FIRE SWORD", ""), ("GAIA SWORD", ""))):
-    TL.append((B(23 + 2 * k), B(25 + 2 * k), "split", dict(left="swords_o", right="swords_n", start=190 + 330 * k, crop=(700, 788), cx=1000, cy=470, title=nm, sub=sub)))
+shot(17, 20, "tlapse", 20, "DAY  &  NIGHT", z=(1.0, 1.04), flash=False, speed=1.9)
+shot(20, 22, "m_night", 10, "NIGHT LIGHTS", flash=False)
+shot(22, 23, "fftest", 200, "FIREFLIES", z=(2.0, 2.1), cx=0.2, cy=0.86, flash=False)
+# loud part 2: the four swords, original | 2.0 (same input, swords_o = no light / no effects, swords_n = 2.0)
+for k, nm in enumerate(("ICE SWORD", "THUNDER SWORD", "FIRE SWORD", "GAIA SWORD")):
+    TL.append((B(23 + 2 * k), B(25 + 2 * k), "split", dict(left="swords_o", right="swords_n", start=190 + 330 * k, crop=(700, 788), cx=1000, cy=470, title=nm)))
+shot(31, 33, "boots", 0, "BOOT COLORS", z=(2.3, 2.4), cx=0.52, cy=0.44, speed=2.5)
+# calm part 2: comfort
+TL.append((B(33), B(35), "wipe", dict(left="sun_hud0", right="sun", start=20, title="MODERN HUD")))
+TL.append((B(35), B(37), "stills", dict(names=["map_a", "map_b", "map_c"], title="DUNGEON MAP")))
+shot(37, 39, "friday", 40, "FRIDAY HINTS", flash=False)
+TL[-1][3]["pos"] = "tl"
+# loud part 3: sprint and the languages
+shot(39, 41, "sprint", 10, "SPRINT")
+LANGS = (("en", "ENGLISH"), ("de", "DEUTSCH"), ("en_tone", "ENGLISH (JAPANESE TONE)"), ("fr", "FRANÇAIS"), ("ko", "한국어"), ("ja", "日本語"))
+for k, (code, nm) in enumerate(LANGS):
+    TL.append((B(41 + k), B(42 + k), "clip", dict(name="lang_" + code, start=95, title=nm, sub="", z=(1.25, 1.3), flash=True, cx=0.5, cy=0.78, speed=1.0, dip=0.0, pos="tl")))
+TL.append((B(47), B(49), "card", dict(lines=["QUICK SAVE  ·  FAST FORWARD  ·  QUICK EQUIP", "NATIVE PACE  ·  NO SPRITE LIMIT  ·  WIDESCREEN"], bg="lava", start=200)))
+# calm end: platforms, then the logo
+TL.append((B(49), B(53), "card", dict(lines=["STEAM DECK  ·  LINUX  ·  WINDOWS", "BUILT FROM YOUR OWN ROM"], bg="tlapse", start=500)))
+TL.append((B(53), DUR, "end", {}))
 
 
 def render_intro(t):
@@ -247,7 +265,7 @@ def render_clip(t, t0, t1, a):
         fd = min(1.0, (t - t0) / a["dip"], (t1 - t) / a["dip"])
     img = finish(img, flash=fl, fade=fd)
     if a["title"]:
-        img = put_caption(img, a["title"], a["sub"], t, t0, t1)
+        img = put_caption(img, a["title"], a["sub"], t, t0, t1, pos=a.get("pos", "bl"))
     return img
 
 
@@ -285,6 +303,59 @@ def render_split(t, t0, t1, a):
     return out
 
 
+def render_wipe(t, t0, t1, a):
+    """the same clip twice (left = before, right = after): a soft divider sweeps from left to right, labels on both sides"""
+    i = a["start"] + (t - t0) * 60
+    fa, fb = frame(a["left"], i), frame(a["right"], i)
+    u = min(1.0, max(0.0, (t - t0 - 0.4) / (t1 - t0 - 1.0)))
+    x = int(W * (0.08 + 0.84 * (u * u * (3 - 2 * u))))
+    out = fa.copy(); out.paste(fb.crop((x, 0, W, H)), (x, 0))
+    out = finish(out, flash=max(0.0, 1 - (t - t0) / 0.12) * 0.4)
+    d = ImageDraw.Draw(out); d.rectangle([x - int(2 * S), 0, x + int(2 * S), H], fill=AMBER)
+    ain = min(1.0, (t - t0) / 0.3)
+    if x > 260 * S:
+        out = label(out, "ORIGINAL", x / 2, H - 130 * S, ain, size=28)
+    if x < W - 260 * S:
+        out = label(out, "PROJECT FRIDAY 2.0", (x + W) / 2, H - 130 * S, ain, size=28, color=AMBER)
+    return put_caption(out, a["title"], "", t, t0, t1, pos="tl")
+
+
+STILL = {}
+
+
+def render_stills(t, t0, t1, a):
+    n = len(a["names"]); seg = (t1 - t0) / n
+    k = min(n - 1, int((t - t0) / seg)); u = (t - t0 - k * seg) / seg
+    def get(nm):
+        if nm not in STILL:
+            STILL[nm] = Image.open(os.path.join(OUT, "clips", nm + ".png")).convert("RGB").resize((W, H), Image.LANCZOS)
+        return STILL[nm]
+    im = get(a["names"][k])
+    if k > 0 and u < 0.25:
+        im = Image.blend(get(a["names"][k - 1]), im, u / 0.25)
+    z = 1.0 + 0.06 * (t - t0) / (t1 - t0)
+    im = zoom(im, z, 0.3, 0.35)
+    im = finish(im, flash=max(0.0, 1 - (t - t0) / 0.12) * 0.4)
+    return put_caption(im, a["title"], "", t, t0, t1)
+
+
+def render_card(t, t0, t1, a):
+    bg = frame(a["bg"], a["start"] + (t - t0) * 30).filter(ImageFilter.GaussianBlur(14 * S))
+    fade = min(1.0, (t - t0) / 0.5, (t1 - t) / 0.4)
+    img = finish(bg, fade=0.45)
+    for k, line in enumerate(a["lines"]):
+        img = label(img, line, W / 2, H / 2 - 60 * S + k * 90 * S, max(0.0, min(fade, (t - t0 - 0.25 * k) / 0.5)), f="NotoSans-Light.ttf", size=50, track=8,
+                    color=AMBER if k == len(a["lines"]) - 1 else (255, 255, 255))
+    return img
+
+
+def render_end(t, t0, t1):
+    img = title_card(Image.new("RGB", (W, H)), t - t0)
+    a = min(1.0, max(0.0, (t - t0 - 1.2) / 0.8))
+    img = label(img, "github.com/cmdrlucid/Project-Friday", W / 2, H / 2 + 150 * S, a, size=32, track=4, color=(200, 200, 200))
+    return finish(img, fade=min(1.0, max(0.0, (t1 - t) / 2.0)))
+
+
 def render(t):
     for t0, t1, kind, a in TL:
         if t0 <= t < t1:
@@ -292,6 +363,14 @@ def render(t):
                 return Image.new("RGB", (W, H))
             if kind == "title":
                 return title_card(Image.new("RGB", (W, H)), t - t0)
+            if kind == "wipe":
+                return render_wipe(t, t0, t1, a)
+            if kind == "stills":
+                return render_stills(t, t0, t1, a)
+            if kind == "card":
+                return render_card(t, t0, t1, a)
+            if kind == "end":
+                return render_end(t, t0, t1)
             if kind == "split":
                 return render_split(t, t0, t1, a)
             return render_intro(t) if kind == "intro" else render_clip(t, t0, t1, a)

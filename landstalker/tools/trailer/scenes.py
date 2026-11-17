@@ -15,6 +15,7 @@ SCENES = {
     "lava":     {"warp": "267:13,58", "keep": (120, 420), "input": [(150, "U"), (362, "")]},
     "water":    {"warp": "474:32,28", "keep": (120, 360), "input": [(150, "DL"), (205, "")], "env": dict(DAY, LANDSTALKER_DAYTIME="10.5"), "note": "Verla shore pier: water in front of Nigel = his reflection is on the water"},
     "beach":    {"rec": "20261117_1210", "keep": (2150, 2700), "wide": 19, "size": "1920x1200", "vf": "crop=1916:1078:0:61,scale=1920:1080", "note": "user recording 2026-11-17: beach room 455, Nigel in the shallow water = reflection (user pick)"},
+    "castle2":  {"rec": "20261117_1209", "keep": (1800, 2010), "wide": 19, "size": "1920x1200", "vf": "crop=1916:1078:0:61,scale=1920:1080", "note": "user recording 2026-11-17: castle main hall 62, last run top-left -> bottom-right facing the camera (user pick for Dynamic Lighting)"},
     "sun":      {"warp": "592:22,38", "keep": (120, 330), "input": [(150, "R"), (290, "")], "env": dict(DAY, LANDSTALKER_DAYTIME="16.5")},
     "m_night":  {"warp": "592:22,38", "keep": (120, 400), "input": [(150, "R"), (290, "")], "env": dict(DAY, LANDSTALKER_DAYTIME="22.5")},
     "tlapse":   {"warp": "632", "keep": (40, 560), "input": [], "env": {"LANDSTALKER_DAYTIME": "14.8", "LANDSTALKER_DAYLEN": "0.5"}},
@@ -25,3 +26,22 @@ SW_SEGS = [200, 530, 860, 1190]   # per sword: Quick Equip one step LEFT at s, c
 SCENES["swords_o"] = {"warp": "95:18,33", "keep": (120, 1520), "input": [(140, 'D'), (144, ''), (370, 'C'), (374, ''), (450, 'C'), (454, ''), (700, 'C'), (704, ''), (780, 'C'), (784, ''), (1030, 'C'), (1034, ''), (1110, 'C'), (1114, ''), (1360, 'C'), (1364, ''), (1440, 'C'), (1444, '')], "opts": dict(ORIG, hud="1"),
                      "env": {"LANDSTALKER_EQHOLD": "r+200-r+225,r+530-r+555,r+860-r+885,r+1190-r+1215", "LANDSTALKER_EQDIR": "r+205:0,r+215:3,r+535:0,r+545:3,r+865:0,r+875:3,r+1195:0,r+1205:3,r+1211:3"}}
 SCENES["swords_n"] = dict(SCENES["swords_o"], opts={"swordfx": "1"})
+SCENES["lava_off"] = dict(SCENES["lava"], opts={"lighting": "0"})   # spike ball shadow bug: the same run without light
+SCENES["lava_chip"] = dict(SCENES["lava"], opts={"lighting": "0"}, env={"LANDSTALKER_OWN": "0", "LANDSTALKER_OWN_NOCHIP": "0"})
+# boot colours: Quick Equip DOWN (boots) one step LEFT every 130 frames, Nigel faces the camera in the quiet room 95
+SCENES["boots"] = {"warp": "95:18,33", "keep": (180, 720), "input": [(140, 'D'), (144, '')], "opts": {"bootcol": "1"},
+                  "env": {"LANDSTALKER_EQHOLD": "r+200-r+225,r+330-r+355,r+460-r+485,r+590-r+615", "LANDSTALKER_EQDIR": "r+205:2,r+215:3,r+335:2,r+345:3,r+465:2,r+475:3,r+595:2,r+605:3"}}
+SCENES["fftest"] = {"warp": "458", "keep": (120, 600), "input": [], "env": dict(DAY, LANDSTALKER_DAYTIME="23")}
+SCENES["fridaytest"] = {"warp": "632", "keep": (120, 700), "input": [(180, "M"), (184, ""), (300, "C"), (304, ""), (400, "C"), (404, ""), (500, "C"), (504, "")], "opts": {"friday": "1"}}
+SCENES["talktest"] = {"warp": "700", "keep": (120, 700), "input": [(160, "U"), (163, ""), (180, "C"), (184, ""), (330, "C"), (334, "")], "opts": {"lang": "de"}}
+SCENES["priest"] = {"rec": "20261117_0810", "keep": (240, 1680), "wide": 19, "size": "1920x1200", "vf": "crop=1916:1078:0:61,scale=1920:1080"}
+for _l in ("en", "de", "en_tone", "fr", "ko", "ja"):   # languages montage: the priest's first text box (user rec_20261117_0810, box opens ~640)
+    SCENES["lang_" + _l] = dict(SCENES["priest"], keep=(600, 800), opts={"lang": _l})
+SCENES["maptest"] = {"warp": "166", "keep": (150, 150), "input": [], "env": {"LANDSTALKER_MAPSHOT": "r+150", "LANDSTALKER_OSHOT_SIZE": "1920x1080"}}
+SCENES["map_a"] = dict(SCENES["maptest"])
+SCENES["map_b"] = dict(SCENES["maptest"], env=dict(SCENES["maptest"]["env"], LANDSTALKER_MAPSHOT_SEL="171"))
+SCENES["map_c"] = dict(SCENES["maptest"], env=dict(SCENES["maptest"]["env"], LANDSTALKER_MAPSHOT_SEL="171", LANDSTALKER_MAPSHOT_FLAG="171"))
+SCENES["sprint"] = {"warp": "632:22,40", "keep": (120, 320), "input": [(150, "D"), (280, "")], "env": dict(DAY, LANDSTALKER_DAYTIME="11", LANDSTALKER_SPRINTHOLD="r+150-r+280")}
+SCENES["sun_hud0"] = dict(SCENES["sun"], opts={"hud": "0"})
+SCENES["friday"] = dict(SCENES["fridaytest"], keep=(120, 420))
+SCENES["title_de"] = {"rec": "20261117_0810", "keep": (10, 300), "wide": 19, "size": "1920x1200", "vf": "crop=1916:1078:0:61,scale=1920:1080", "opts": {"lang": "de"}}

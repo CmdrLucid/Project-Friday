@@ -20,7 +20,7 @@ REC = os.path.join(HOME, "Project-Friday-Test", "aufnahmen")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from scenes import SCENES, BASES  # noqa
 
-KEYS = {"U": 1, "D": 2, "L": 4, "R": 8, "B": 0x10, "C": 0x20, "A": 0x40, "S": 0x80}
+KEYS = {"U": 1, "D": 2, "L": 4, "R": 8, "B": 0x10, "C": 0x20, "A": 0x40, "S": 0x80, "M": 0x800}   # M = Mode (Select on the pad: Friday Hints)
 
 
 def mask(s):
