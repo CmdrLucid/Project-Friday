@@ -36,7 +36,7 @@ SCENES["fridaytest"] = {"warp": "632", "keep": (120, 700), "input": [(180, "M"),
 SCENES["talktest"] = {"warp": "700", "keep": (120, 700), "input": [(160, "U"), (163, ""), (180, "C"), (184, ""), (330, "C"), (334, "")], "opts": {"lang": "de"}}
 SCENES["priest"] = {"rec": "20261117_0810", "keep": (240, 1680), "wide": 19, "size": "1920x1200", "vf": "crop=1916:1078:0:61,scale=1920:1080"}
 for _l in ("en", "de", "en_tone", "fr", "ko", "ja"):   # languages montage: the priest's first text box (user rec_20261117_0810, box opens ~640)
-    SCENES["lang_" + _l] = dict(SCENES["priest"], keep=(600, 800), opts={"lang": _l})
+    SCENES["lang_" + _l] = dict(SCENES["priest"], keep=(600, 800), opts={"lang": _l}, vf="crop=1916:1078:0:121,scale=1920:1080")   # cut only at the top: the box's last line sits in the bottom 61 px
 SCENES["maptest"] = {"warp": "166", "keep": (150, 150), "input": [], "env": {"LANDSTALKER_MAPSHOT": "r+150", "LANDSTALKER_OSHOT_SIZE": "1920x1080"}}
 SCENES["map_a"] = dict(SCENES["maptest"])
 SCENES["map_b"] = dict(SCENES["maptest"], env=dict(SCENES["maptest"]["env"], LANDSTALKER_MAPSHOT_SEL="171"))

@@ -21,7 +21,7 @@ import langbuild as lb
 JP_HUFF_OFFS, JP_HUFF_TREES, JP_BANKS, JP_NBANKS, JP_BEGIN = 0x23C94, 0x23E8E, 0x38532, 8, 0xE9
 JP_FONT, JP_NAMES = 0x2B4B8, (("char", 0x2A2EA, 61), ("special", 0x2A3E4, 15))
 J_DAK, J_HANDAK, J_SPACE, J_DOT, J_TALK, J_YESNO = 123, 124, 0, 0xD8, 0xD9, 236
-SKIP_EN = set(range(0x0000, 0x0004)) | set(range(0x001D, 0x004E))   # Yes / No / Use / Equip and the debug menus: drawn with the menu font -> stay English
+SKIP_EN = set(range(0x0002, 0x0004)) | set(range(0x001D, 0x004E))   # Use / Equip and the debug menus stay English; Yes / No (0000 / 0001, the YesNoPrompt $024724 prints them with the dialogue printer) = Japanese (user 2026-11-17)
 HERE = os.path.dirname(os.path.abspath(__file__))
 # order of the Japanese main font (code = index), only used for the few own lines of lang/ja_map.json ("text": English-only lines of the English release)
 JP_CHARSET = ' 0123456789あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんぁぃぅぇぉゃゅょっアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンァィゥェォャュョッ、。゛゜ー!?※東西南北上中下道具屋教会宿神父冒険記録毒呪治療金貨枚買階本売泊客品男女子供人族殿公爵領主兵悪霊年月日財宝地図実灯台家店町村滝岬島海沼湖港城塔森橋団気船箱魔命危美長古老作名商大・「」↘↖↙↗王剣士国本法ABC.'

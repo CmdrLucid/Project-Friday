@@ -195,7 +195,7 @@ TL[-1][3]["pos"] = "tl"
 shot(39, 41, "sprint", 10, "SPRINT")
 LANGS = (("en", "ENGLISH"), ("de", "DEUTSCH"), ("en_tone", "ENGLISH (JAPANESE TONE)"), ("fr", "FRANÇAIS"), ("ko", "한국어"), ("ja", "日本語"))
 for k, (code, nm) in enumerate(LANGS):
-    TL.append((B(41 + k), B(42 + k), "clip", dict(name="lang_" + code, start=95, title=nm, sub="", z=(1.25, 1.3), flash=True, cx=0.5, cy=0.78, speed=1.0, dip=0.0, pos="tl")))
+    TL.append((B(41 + k), B(42 + k), "clip", dict(name="lang_" + code, start=95, title=nm, sub="", z=(1.12, 1.16), flash=True, cx=0.5, cy=0.86, speed=1.0, dip=0.0, pos="tl")))
 TL.append((B(47), B(49), "card", dict(lines=["QUICK SAVE  ·  FAST FORWARD  ·  QUICK EQUIP", "NATIVE PACE  ·  NO SPRITE LIMIT  ·  WIDESCREEN"], bg="lava", start=200)))
 # calm end: platforms, then the logo
 TL.append((B(49), B(53), "card", dict(lines=["STEAM DECK  ·  LINUX  ·  WINDOWS", "BUILT FROM YOUR OWN ROM"], bg="tlapse", start=500)))
