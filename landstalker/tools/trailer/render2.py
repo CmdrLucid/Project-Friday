@@ -156,12 +156,18 @@ def finish(img, flash=0.0, fade=1.0):
 TL = []
 
 
-def shot(k0, k1, name, start, title="", sub="", z=(1.0, 1.07), flash=True, cx=0.5, cy=0.5, speed=1.0):
-    TL.append((B(k0), B(k1), "clip", dict(name=name, start=start, title=title, sub=sub, z=z, flash=flash, cx=cx, cy=cy, speed=speed)))
+def shot(k0, k1, name, start, title="", sub="", z=(1.0, 1.07), flash=True, cx=0.5, cy=0.5, speed=1.0, dip=0.0):
+    TL.append((B(k0), B(k1), "clip", dict(name=name, start=start, title=title, sub=sub, z=z, flash=flash, cx=cx, cy=cy, speed=speed, dip=dip)))
 
 
-# opening: the 4:3 original, then it opens into the 16:9 2.0 picture (the same walk, same frame)
-TL.append((0.0, B(7), "intro", {}))
+# opening (user 2026-11-17: teaser montage): one bar per shot on the quiet intro of the song, short dips to black, then the title on black
+TL.append((0.0, B(0), "black", {}))
+shot(0, 1, "lava", 150, z=(1.12, 1.04), flash=False, dip=0.25)
+shot(1, 2, "m_night", 90, z=(1.0, 1.08), flash=False, dip=0.25)
+shot(2, 3, "swords_n", 205, z=(1.35, 1.45), flash=False, dip=0.25, cx=0.52, cy=0.44)
+shot(3, 4, "church", 60, z=(1.1, 1.0), flash=False, dip=0.25)
+shot(4, 5, "tlapse", 420, z=(1.0, 1.06), flash=False, dip=0.25)
+TL.append((B(5), B(7), "title", {}))
 # loud part 1: light
 shot(7, 9, "castle", 20, "DYNAMIC LIGHTING", "torches, lava and your sword light the world")
 shot(9, 11, "church", 30, "REAL 3D SHADOWS", "statues, benches and tables cast their true shape")
@@ -171,6 +177,11 @@ shot(15, 17, "intro_n", 330, "SUN SHADOWS", "every house, tree and figure", z=(1
 # calm part 1: day and night
 shot(17, 20, "tlapse", 20, "DAY  &  NIGHT", "the sun moves across the sky, windows glow after dark", z=(1.0, 1.04), flash=False, speed=1.9)
 shot(20, 23, "m_night", 60, "NIGHT LIGHTS", "lamp-lit doors and windows", flash=False)
+
+
+# loud part 2: the four swords, original | 2.0 (same input, swords_o = no light / no effects, swords_n = 2.0); a charged swing per sword
+for k, (nm, sub) in enumerate((("ICE SWORD", "Sword Effects: coloured arcs, sparks and light"), ("THUNDER SWORD", ""), ("FIRE SWORD", ""), ("GAIA SWORD", ""))):
+    TL.append((B(23 + 2 * k), B(25 + 2 * k), "split", dict(left="swords_o", right="swords_n", start=190 + 330 * k, crop=(700, 788), cx=1000, cy=470, title=nm, sub=sub)))
 
 
 def render_intro(t):
@@ -231,15 +242,58 @@ def render_clip(t, t0, t1, a):
     u = (t - t0) / (t1 - t0); z0, z1 = a["z"]
     img = zoom(img, z0 + (z1 - z0) * (u * u * (3 - 2 * u) * 0.4 + u * 0.6), a["cx"], a["cy"])
     fl = max(0.0, 1 - (t - t0) / 0.12) * 0.55 if a["flash"] else 0.0
-    img = finish(img, flash=fl)
+    fd = 1.0
+    if a.get("dip"):
+        fd = min(1.0, (t - t0) / a["dip"], (t1 - t) / a["dip"])
+    img = finish(img, flash=fl, fade=fd)
     if a["title"]:
         img = put_caption(img, a["title"], a["sub"], t, t0, t1)
     return img
 
 
+def label(img, text, x, y, a=1.0, f="NotoSans-Regular.ttf", size=30, track=8, color=(255, 255, 255)):
+    fo = font(f, size)
+    lay = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    w = text_w(text, fo, track * S)
+    spaced(d, (x - w / 2, y), text, fo, color + (int(255 * a),), track * S)
+    sh = Image.new("RGBA", (W, H), (0, 0, 0, 0)); sh.putalpha(lay.getchannel("A").filter(ImageFilter.GaussianBlur(8 * S)).point(lambda v: v * 0.8))
+    img = img.convert("RGBA"); img.alpha_composite(sh); img.alpha_composite(lay)
+    return img.convert("RGB")
+
+
+def render_split(t, t0, t1, a):
+    """two clips of the same input side by side, each cropped around Nigel (cx, cy in 1920 x 1080 clip pixels), divider + labels + sword name"""
+    i = a["start"] + (t - t0) * 60
+    zw, zh = a["crop"]
+    cx, cy = a["cx"] * W / 1920, a["cy"] * H / 1080
+    zw, zh = zw * W / 1920, zh * H / 1080
+    box = (cx - zw / 2, cy - zh / 2, cx + zw / 2, cy + zh / 2)
+    half = W // 2
+    out = Image.new("RGB", (W, H))
+    for k, name in enumerate((a["left"], a["right"])):
+        im = frame(name, i).resize((half, H), Image.BICUBIC, box=box)
+        out.paste(im, (k * half, 0))
+    fl = max(0.0, 1 - (t - t0) / 0.12) * 0.45
+    out = finish(out, flash=fl)
+    d = ImageDraw.Draw(out)
+    d.rectangle([half - int(2 * S), 0, half + int(2 * S), H], fill=AMBER)
+    ain = min(1.0, (t - t0) / 0.3)
+    out = label(out, "ORIGINAL", half / 2, 60 * S, ain, size=30)
+    out = label(out, "PROJECT FRIDAY 2.0", half * 1.5, 60 * S, ain, size=30, color=AMBER)
+    if a.get("title"):
+        out = put_caption(out, a["title"], a.get("sub", ""), t, t0, t1)
+    return out
+
+
 def render(t):
     for t0, t1, kind, a in TL:
         if t0 <= t < t1:
+            if kind == "black":
+                return Image.new("RGB", (W, H))
+            if kind == "title":
+                return title_card(Image.new("RGB", (W, H)), t - t0)
+            if kind == "split":
+                return render_split(t, t0, t1, a)
             return render_intro(t) if kind == "intro" else render_clip(t, t0, t1, a)
     return Image.new("RGB", (W, H))
 

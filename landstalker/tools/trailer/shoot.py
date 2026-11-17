@@ -84,7 +84,7 @@ def run(name, frames, outdir):
            "LANDSTALKER_SHOT_DIR": outdir, "LANDSTALKER_PRESENT_SHOT": ",".join(str(f) for f in frames),
            "LANDSTALKER_HIDDEN": "1", "LANDSTALKER_NOFOCUSPAUSE": "1", "SDL_AUDIODRIVER": "dummy",
            "LANDSTALKER_WINSIZE": sc.get("size", "1920x1080"), "LANDSTALKER_WIDE": str(sc.get("wide", 39)), "LANDSTALKER_TALL": str(sc.get("tall", 1)),
-           "GENRECOMP_CHECKLOG": os.path.join(outdir, "check.chk"),
+           "GENRECOMP_CHECKLOG": os.path.join(outdir, "check.chk"), "GENRECOMP_CHECKEVERY": "4",
            "LANDSTALKER_GL5_MAXMS": "1000", "LANDSTALKER_GPULT_MAXMS": "1000"}   # the PNG dump makes frames slow: never let the GPU-time guard switch the light off
     for k in ("DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR"):
         if k in os.environ:
@@ -101,7 +101,44 @@ def run(name, frames, outdir):
     n = len(glob.glob(os.path.join(outdir, "present_*_gpu.png")))
     bad = "LIGHT OFF!" if "Lighting off" in open(os.path.join(outdir, "out.log"), errors="replace").read() else ""
     print(f"[{name}] {n}/{len(frames)} pictures in {time.time() - t0:.0f} s {bad}", flush=True)
+    check_walk(name, at, frames, outdir)
     return at
+
+
+def check_walk(name, at, frames, outdir):
+    """report frames inside the kept range where a direction is held but Nigel does not move (= walks into a wall), and room changes"""
+    sc = SCENES[name]
+    held = []   # (abs frame from, keys)
+    for rel, keys in sorted(sc.get("input", [])):
+        held.append((at + rel, keys))
+    def keys_at(f):
+        k = ""
+        for f0, kk in held:
+            if f0 <= f:
+                k = kk
+        return k
+    pos = {}
+    try:
+        for ln in open(os.path.join(outdir, "check.chk")):
+            p = ln.split()
+            pos[int(p[0])] = (p[1], p[2], p[3])
+    except OSError:
+        return
+    lo, hi = min(frames), max(frames)
+    stuck, rooms, run = [], set(), 0
+    fs = sorted(f for f in pos if lo <= f <= hi)
+    for a, b in zip(fs, fs[1:]):
+        rooms.add(pos[a][0])
+        if any(c in keys_at(a) for c in "UDLR") and pos[a] == pos[b]:
+            run += 1
+            if run == 3:
+                stuck.append(a - at)
+        else:
+            run = 0
+    msg = f"[{name}] rooms in range: {sorted(rooms)}"
+    if stuck:
+        msg += f"  STUCK AT WALL (rel frames): {stuck[:8]}"
+    print(msg, flush=True)
 
 
 def scene_frames(name):
