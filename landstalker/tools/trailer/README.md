@@ -13,3 +13,11 @@ footage, music, frames and the video stay in `~/.landstalker_trailer/` (ROM-deri
 Venv: `python3 -m venv ~/.landstalker_trailer/venv && ~/.landstalker_trailer/venv/bin/pip install pillow numpy`.
 Pitfalls: `LANDSTALKER_WINSHOT` only reads ~200 characters of its frame list (capture.py runs several identical replays); old recordings desync on the
 current build (footage only, check the contact sheets); the opening uses WIDE 0 / TALL 0, the reveal composes the same frames captured twice (0/0 and 39/1).
+
+# Trailer 2.0 (2026-11-17, modern style)
+Footage is shot by the lead itself, no user recording needed: `shoot.py` runs the build in a HIDDEN full-HD window (test aid `LANDSTALKER_WINSIZE`, tools/patch_winsize.py;
+the light exists only on the GPU) with `LANDSTALKER_PRESENT_SHOT` for every frame, warps Nigel into a room (`LANDSTALKER_WARP`, cell from `proxysurvey.start_cell` or `ROOM:X,Y`)
+and drives him with own input lines (`scenes.py`). Each scene becomes `~/.landstalker_trailer/v2/clips/NAME.mp4` (PNGs deleted). `shoot.py survey ROOMS DAYTIME TAG` = one picture per room.
+`render2.py` cuts on the bars of the same song (thin captions, amber accent, push-ins, split screens). Pitfalls: the GPU-time guard switches Lighting off when PNG dumping makes frames slow
+(shoot.py sets `LANDSTALKER_GL5_MAXMS` / `LANDSTALKER_GPULT_MAXMS` = 1000 and prints LIGHT OFF! if it still happens); a warp into the room the base save stands in (700) can leave the
+room black (warp from the room centre); `LANDSTALKER_DAYTIME` starts the clock when the base enters its first outdoor room (frame ~240), not at the warp; `R` = +X, `D` = +Y.
