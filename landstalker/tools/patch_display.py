@@ -37,9 +37,9 @@ PURE = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "display_co
 SDLPART = r'''
 /* LANDSTALKER_DISPLAY: SDL side (see tools/patch_display.py) */
 static int lk_scale_mode, lk_fx_mode, lk_disp_loaded, lk_osd_frames;
-static int lk_dd_mode, lk_dd_loaded;   /* de-dither: 0 off, 1 light, 2 strong, 3 blend (horizontal CRT-like) (own file ~/.landstalker_dither, tools/display_core.c lk_dedither*) */
+static int lk_dd_mode, lk_dd_loaded;   /* de-dither: 0 off, 1 light, 2 medium, 3 strong (menu names since the edge-preserving rework) (own file ~/.landstalker_dither, tools/display_core.c lk_dedither*) */
 static uint32_t *lk_dd_buf; static int lk_dd_cap;
-static const char *lk_dd_names[4] = { "OFF", "LIGHT", "STRONG", "BLEND" };
+static const char *lk_dd_names[4] = { "OFF", "LIGHT", "MEDIUM", "STRONG" };   /* the F6 on-screen names = the menu names (GitHub #19, paul-met 2026-11-17: F6 said Strong / Blend, the menu Medium / Strong) */
 static char lk_osd_text[40];
 static SDL_Texture *lk_fx_tex; static int lk_fx_tw, lk_fx_th;
 static uint32_t *lk_fx_buf;
