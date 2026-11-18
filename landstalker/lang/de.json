@@ -9317,7 +9317,10 @@
   "Items": "Gegenstände",
   "Original": "Original",
   "Kayla's bath before the banquet": "Kaylas Bad vor dem Bankett",
-  "Four items as in the JP original": "Vier Gegenstände wie in Japan"
+  "Four items as in the JP original": "Vier Gegenstände wie in Japan",
+  "D-Pad": "Steuerkreuz",
+  "Alternate": "Alternativ",
+  "Up/Down/Left/Right go diagonally": "Hoch/Runter/Links/Rechts: schräg"
  },
  "items_jp": {
   "names": {

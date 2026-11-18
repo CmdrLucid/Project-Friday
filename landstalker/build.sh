@@ -257,6 +257,8 @@ python3 tools/patch_bath.py .deps/genrecomp
 python3 tools/patch_introde.py .deps/genrecomp
 # Options page 'Language / Region' (Language, Names, Items, Bath Scene; tools/patch_langpage.py, needs patch_kbdir / patch_bath)
 python3 tools/patch_langpage.py .deps/genrecomp
+# Alternate D-pad layout: Up / Down / Left / Right = the diagonal axes (Options > Movement > D-Pad, default Original = bit exact; GitHub #22; tools/patch_altpad.py, needs patch_bath / patch_langpage)
+python3 tools/patch_altpad.py .deps/genrecomp
 # Options menu in Korean / Japanese (escaped UI text + Galmuri 7 glyph table from tools/uiwide.py; tools/patch_uiwide.py, needs patch_lang / patch_options / patch_iteminfo)
 python3 tools/patch_uiwide.py .deps/genrecomp
 # Title screen subtitle in the language (own lettering tools/titlefont.py; tools/patch_titlesub.py, needs patch_overlay / patch_lang)
