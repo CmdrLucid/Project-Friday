@@ -4748,7 +4748,7 @@
         ],
         "file": "proxies/wall_638.obj",
         "surface": true,
-        "why": "Mercator fountain court: city wall (height map: blocked height 0) with three round half towers (single height 9 cells) and the north wall; the automatic strip in front of the wall had a hip up to 247; remake/recipes/proxy_wall_638.py, user 2026-11-04 'weiter damit'"
+        "why": "Mercator fountain court: city wall (height map: blocked height 0) with three round half towers (single height 9 cells) and the north wall; the automatic strip in front of the wall had a hip up to 247; remake/recipes/proxy_wall_638.py, user 2026-11-04 'weiter damit'; v2 2026-11-18 round towers clipped at the collision edge + door niches (user 'C', 'Raum 638 ok')"
       },
       {
         "op": "remove",

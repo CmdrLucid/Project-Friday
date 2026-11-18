@@ -223,3 +223,10 @@ FINAL = with material, approved by the user.
 ## Castle bed + bench  (`remake/recipes/castle_bed/castle_bed.py`, `remake/recipes/castle_bench/castle_bench.py`; tileset 15)
 - Bed: legs, frame rail, blanket, pillow, headboard (rooms 63 / 64 x2, 67, 77, 108). Bench: padded seat on four cabriole legs (67, 77; 72's short one open).
   Same model in the light (`surface` + `air`). Measured on room 67 (README).
+
+## Mercator fountain court city wall with round towers  (`remake/recipes/proxy_wall_638.py` -> `landstalker/data/proxies/wall_638.obj`; room 638 only)
+- Reference: room 638, west wall column 17 (blocked height 0), towers = collision column 18 rows 26..29 / 38..41 / 50..53 (height 9), north wall row 17; window `rom_picture.py ROM 638 480 0 900 620`.
+- Light variant v2 (2026-11-18, user chose 'C' on the overlay, 'Raum 638 ok'): towers drawn ROUND (curved brick rows) but the foot sits on the collision edge x 304 with grass drawn in front -> half cylinder r 32 on the wall face (288, cy) CLIPPED at x 304 (round flanks, flat front). Left edge U 608 exact, right edge U 684 (drawing 688), foot on the drawn grass line. Door niches 4 deep: towers y cy-15..cy-1, z 48..120; wooden wall door y 336..352, z 48..90. Tops flat at the measured heights (the picture cuts them).
+- Light check: lightedges 638 --spots 0 edge px old / new (noon and 17 h); noon practically unchanged, at 17 h the west wall now shades the court (the old box proxy did not; cause not traced).
+- Remake: build symmetric real round towers separately ('remake vs light variant'); the full half cylinder would stand in the drawn grass.
+- STATE: light variant done (user OK 2026-11-18).
