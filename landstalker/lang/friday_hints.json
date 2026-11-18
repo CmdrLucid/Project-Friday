@@ -115,23 +115,23 @@
    ],
    "en": [
     "Those Gumi folk are trouble! Let's head over to Gumi, Nigel!",
-    "Head south to Gumi and find|where they hold their ritual."
+    "Head south to Gumi and|look around the village."
    ],
    "de": [
     "Die Gumi-Leute machen Ärger! Auf nach Gumi, Niels!",
-    "Geh nach Gumi im Süden und|such ihren Ritualplatz."
+    "Geh nach Gumi im Süden und|sieh dich im Dorf um."
    ],
    "fr": [
     "Ces Gumi nous cherchent des ennuis! Allons à Gumi, Ryle!",
-    "Va au sud, à Gumi, et trouve|où ils font leur rituel."
+    "Va au sud, à Gumi, et|regarde autour du village."
    ],
    "ko": [
     "구미 녀석들은 골칫거리야! 라일, 구미로 가 보자!",
-    "남쪽 구미로 가서|의식을 하는 곳을 찾아봐."
+    "남쪽 구미로 가서|마을을 둘러봐."
    ],
    "ja": [
     "グミ族って ほんとに こまったやつらね! ライル グミの村へ いってみましょ!",
-    "南の グミの村へ いって やつらの ぎしきの ばしょを さがしてね"
+    "南の グミの村へ いって 村の ようすを みてきてね"
    ]
   },
   {
@@ -278,24 +278,24 @@
     "room:174-182"
    ],
    "en": [
-    "Keep going, Nigel! The good stuff is always at the end.",
-    "Look for the Idol Stone in the|deepest part of this shrine."
+    "Hmm, nothing for Fara here. Didn't we want to search Gumi?",
+    "What opens the shrine door is not|here. Search Gumi village."
    ],
    "de": [
-    "Weiter, Niels! Das Beste liegt immer ganz am Ende.",
-    "Such den Idol-Stein im tiefsten|Teil dieses Schreins."
+    "Hmm, hier gibt's nichts für Fara. Wollten wir nicht Gumi durchsuchen?",
+    "Was die Schreintür öffnet, ist nicht|hier. Durchsuch das Dorf Gumi."
    ],
    "fr": [
-    "Continue, Ryle! Le meilleur est toujours tout au bout.",
-    "Cherche la Pierre Idole au fond|de ce sanctuaire."
+    "Hmm, rien pour Fara ici. On ne devait pas fouiller Gumi?",
+    "Ce qui ouvre la porte n'est pas|ici. Fouille le village de Gumi."
    ],
    "ko": [
-    "계속 가, 라일! 좋은 건 항상 맨 끝에 있어!",
-    "이 신전의 가장 깊은 곳에서|사신의 돌을 찾아봐."
+    "음, 여긴 파라를 도울 게 없어. 구미 마을을 찾아보기로 했잖아?",
+    "신전 문을 여는 건 여기 없어.|구미 마을을 찾아봐."
    ],
    "ja": [
-    "がんばって ライル! いいものは いつも いちばん おくにあるものよ!",
-    "この ほこらの いちばん おくで じゃしんのいしを さがしてね"
+    "うーん ここには ファラを たすける ものは なさそうね グミの村を さがすんじゃ なかった?",
+    "ほこらの トビラを あけるものは ここには ないわ グミの村を さがしてね"
    ]
   },
   {
@@ -361,23 +361,23 @@
    ],
    "en": [
     "Fara must be at the far end! Hurry, Nigel, she needs us!",
-    "Fight through to the boss room.|Orc Kings hit hard, dodge!"
+    "Fight through to the far end.|Watch your health!"
    ],
    "de": [
     "Fara ist bestimmt ganz hinten! Beeil dich, sie braucht uns!",
-    "Kämpf dich zum Bossraum durch.|Die Orkkönige hauen fest zu!"
+    "Kämpf dich bis ganz hinten durch.|Achte auf deine Herzen!"
    ],
    "fr": [
     "Fara doit être tout au fond! Vite, Ryle, elle a besoin de nous!",
-    "Bats-toi jusqu'à la salle du boss.|Les Rois Orcs cognent fort, esquive!"
+    "Bats-toi jusqu'au fond.|Surveille ta santé!"
    ],
    "ko": [
     "파라는 맨 안쪽에 있을 거야! 서둘러, 라일, 우릴 기다려!",
-    "보스 방까지 싸우며 가.|오크킹은 세니까 잘 피해!"
+    "맨 안쪽까지 싸우며 가.|체력을 잘 살펴!"
    ],
    "ja": [
     "ファラは きっと おくよ! いそいで ライル あの子が あたしたちを まってるわっ!",
-    "ボスの へやまで たたかって すすんでね オークキングは つよいから よけてよっ!"
+    "いちばん おくまで たたかって すすんでね たいりょくに きをつけて!"
    ]
   },
   {
