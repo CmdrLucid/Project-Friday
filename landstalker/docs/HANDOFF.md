@@ -5,15 +5,15 @@
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 815-826
 - 1. Where we are: lines 827-980
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 981-1244
-- 3. How the user works (important): lines 1245-1260
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1261-1285
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1286-1294
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1295-1342
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1343-1352
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1353-1354
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1355-1357
-- NEXT STEPS, newest first: -226 982, -225 983, -224 984, -223 985, -222 986, -221 987, -220 988, -219 989, -218 990, -217 991
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 981-1245
+- 3. How the user works (important): lines 1246-1261
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1262-1286
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1287-1295
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1296-1343
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1344-1353
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1354-1355
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1356-1358
+- NEXT STEPS, newest first: -227 982, -226 983, -225 984, -224 985, -223 986, -222 987, -221 988, -220 989, -219 990, -218 991
 - Newest entries:
   - 0a468 line 190: 2026-11-18 late night 2 (Deck, Opus 5.5, no agents): light shape 638 v2 (round towers clipped at the collis...
   - 0a467 line 192: 2026-11-18 late night (Deck, Opus 5.5, no agents): ROOM 182 LIGHT STRIP (LK_LTDOORPIT v1) + FRIDAY HINTS RE...
@@ -979,6 +979,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-227. **#21 NEXT (2026-11-18 late night 3, user: 'ja' + no more tests from Paul):** Paul: ROUNDFIG_DBG=1 no change, Lighting Off/On no change, night sword light shows the same stripes (ground figure shadow, sun AND point light). Not reproducible on the Deck at room 450 / 455 (morning / afternoon / night). Plan: windows-check runner + Mesa (mesa-dist-win, llvmpipe) screenshot of room 450 with the Windows build -> Windows bug in our code vs. NVIDIA driver. Details DEBUGGING 'Session 2026-11-18 late night'. Also done tonight: arcade 486 v2 (no box proxies left).
 -226. **NEXT (2026-11-18 late night 2): user plays (dev ZIP + build.sh):** Mercator fountain court 638 at day and evening (round towers, wall shadow over the court in the evening); optional: the watchdog message (only when the GPU is too slow; test aid LANDSTALKER_GL5_MAXMS=0.01 LANDSTALKER_LT_RETRY_S=3 shows it). Next light shape: the arcade of room 486 (last box proxy, check_proxies LEGACY). RULE: tell the user before long GPU test runs (they may play / record: rec_20261118_1506 lost its light that way).
 -225. **GitHub #21 (2026-11-18 late night): Paul answered: NVIDIA, driver 621.01, Windows 11 Pro; De-Dither has no effect. His LANDSTALKER_ROUNDFIG_DBG=8 shot (beach, ~/Project-Friday-Test/lktest/issue21/shadow.png; the flat skin-coloured Nigel is the debug view) keeps the vertical stripes right of Nigel OUTSIDE the figure class = the figure's shadow ON THE GROUND (figdir / sun path, patch_gpulight.py), not the figure shading. Shader read for NVIDIA traps (texel centres +0.5, B() rounding, uninitialised locals): all clean, so no blind fix. The user asked Paul for 2 tests: (1) LANDSTALKER_ROUNDFIG_DBG=1 (no Round Figures terrain shadow) - stripes gone? (2) Lighting Off -> On in the menu - stripes still there? NEXT: read his answer, then fix the named part before 2.0. 3D room map (LIGHT_PROXY_PLAN 'WHOLE ROOMS AS 3D MODELS', export first) only AFTER 2.0 (user agreed: too much work before the release).**
 -224. **NEXT (2026-11-18 late night): user plays (dev ZIP + build.sh):** Waterfall Shrine 182 at the chest (the bright strip behind Nigel must be gone); caves / dungeons with pits look as before (49 rooms changed, lightedges clean); Friday in the Waterfall Shrine at stage 3 without the Idol Stone says 'not here, search Gumi'. Idea (user question): use more of the game's FLOOR TYPES in the light rules instead of guessing (stairs 05, ladders 0B / 0C, doors 01..04 / 06) - check case by case.
