@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 817-828
-- 1. Where we are: lines 829-982
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 983-1248
-- 3. How the user works (important): lines 1249-1264
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1265-1289
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1290-1298
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1299-1346
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1347-1356
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1357-1358
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1359-1361
-- NEXT STEPS, newest first: -228 984, -227 985, -226 986, -225 987, -224 988, -223 989, -222 990, -221 991, -220 992, -219 993
+- 1. Where we are: lines 829-983
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 984-1249
+- 3. How the user works (important): lines 1250-1265
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1266-1290
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1291-1299
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1300-1347
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1348-1357
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1358-1359
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1360-1362
+- NEXT STEPS, newest first: -228 985, -227 986, -226 987, -225 988, -224 989, -223 990, -222 991, -221 992, -220 993, -219 994
 - Newest entries:
   - 0a469 line 190: 2026-11-18 night (Deck, Opus 5.5, no agents): arcade 486 v2 (no box proxies left) + GITHUB #21 SOLVED witho...
   - 0a468 line 192: 2026-11-18 late night 2 (Deck, Opus 5.5, no agents): light shape 638 v2 (round towers clipped at the collis...
@@ -827,6 +827,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-18 NIGHT END (Opus 5.5, no agents, `dev` pushed, main = v1.9.7, NO release yet: user 'kommt mit dem nächsten'):** GitHub #21 SOLVED (LK_LTOCL v1: out-of-bounds write, visible only in the zig / clang release packages Windows + AppImage; found on the Deck with a Windows exe under Proton, a native clang build, object bisection and ubsan). Also: room 182 pit strip (LK_LTDOORPIT), Friday Waterfall hint, wall 638 + arcade 486 as real models (no box proxies left), watchdog OSD + retry (LK_LTSLOW). ALL HEADLESS ONLY. Reply text for Paul drafted (user posts). NEXT -228 / -226.
 - **2026-11-18 LATE NIGHT (Opus 5.5, no agents, `dev` pushed, main = v1.9.7):** room 182 light strip fixed (LK_LTDOORPIT v1: the game's pit floor type stops the door niche fill), Friday hint in the Waterfall Shrine corrected (Idol Stone only in Gumi 605) + 2 L2 texts. ALL HEADLESS ONLY (warp + light ratio, lightedges old / new over 49 rooms, build + verify_build 175 ok). Paul has not answered #21. NEXT -224.
 - **2026-11-18 EVENING END (Opus 5.5, no agents, `dev` pushed, main = v1.9.7 fb4f329):** RELEASE v1.9.7 (tested before / after the tag). USER CONFIRMED by playing: room 0 light + Modern HUD (LK_ROOM0), Tibor, room 431 exit shadow gone (LK_PINEEXIT). HEADLESS ONLY: Friday hint Gumi, water drops only in 4 areas + half as many, Gaia stones in room 0. Reverted at the user's wish: shore fade of the reflections. Quiver: staff draft, art ready. OPEN: #21 (Paul), Gaia stones room 0, room 182 light edge, trailer recordings.
 - **2026-11-18 LATER END (Opus 5.5, no agents, `dev` pushed, main = v1.9.6 e224421):** RELEASE v1.9.6 published (AppImage first run + windows-check + download check before / after the tag, 0a466; user added the pip line to the GitHub release text himself). USER CONFIRMED by playing: sprint scrolling ('looks good now'). HEADLESS ONLY (Claude, user asked: 'das Steuerkreuz teste bitte du'): alternate D-pad #22 (8 directions both modes, menu row in 5 languages, saved setting), lithograph text box + no old bar #23, ladder fade-in 185 -> 208 without old bar #23, credits unchanged. OPEN: #21 striped shadow (needs Paul's place / time / GPU), room 182 light edge (-219 d), trailer 2.0 recordings (-218).

@@ -244,3 +244,4 @@
 - L1942: Session 2026-11-17 evening / night: release v1.9.5, trailer 2.0, sharp smooth scrolling on the GPU
 - L1950: Session 2026-11-18: GitHub #21 / #22 / #23 (paul-met), release v1.9.6
 - L1957: Session 2026-11-18 afternoon / evening: room 0 + Tibor, phantom pine on exits, water drops, Quiver art, #21 driver check, release v1.9.7
+- L1968: Session 2026-11-18 late night: room 182 pit strip, Friday Waterfall hint, wall 638 / arcade 486 as real models, watchdog OSD + retry, #21 (Paul) narrowed down

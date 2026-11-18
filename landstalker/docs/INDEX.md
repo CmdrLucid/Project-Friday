@@ -5,13 +5,13 @@
 - 1. Status (update this block every session): lines 25-562
   - newest status entries: 26 2026-11-18 night (dev, Opus 5.5, no agents; headless): GI...; 27 2026-11-18 late night 3 (dev): arcade 486 v2 (one solid p...; 28 2026-11-18 late night 2 (dev, Opus 5.5, no agents; NOT pl...; 29 2026-11-18 late night (dev): GitHub #21 answer from Paul:...; 30 2026-11-18 late night (dev, Opus 5.5, no agents; NOT play...; 31 2026-11-18 evening (dev + main fb4f329, tag v1.9.7, Opus...; 32 2026-11-18 night (dev): LK_WRSHORE v1 (reflections fading...; 33 2026-11-18 night (dev): GitHub #21 (striped figure shadow...
 - 2. Environment and working rules (do not ask the user again): lines 563-582
-- 3. Bug catalog (symptom -> root cause -> fix). All fixes are applie...: lines 583-710
-- 4. Tool cheat sheet (all local, none contain ROM data): lines 711-799
-- 5. Debug playbook (what worked): lines 800-815
-  - Interpreter fallback policy (decided with the user: NOT a permanent crutch): line 809
-- 6. Landstalker facts used so far: lines 816-824
-- Symbol rule (keep the code human readable; needed for modding): lines 825-841
-  - Names for all functions (disassembly <-> ROM address), no assembler needed: line 835
+- 3. Bug catalog (symptom -> root cause -> fix). All fixes are applie...: lines 583-713
+- 4. Tool cheat sheet (all local, none contain ROM data): lines 714-803
+- 5. Debug playbook (what worked): lines 804-819
+  - Interpreter fallback policy (decided with the user: NOT a permanent crutch): line 813
+- 6. Landstalker facts used so far: lines 820-828
+- Symbol rule (keep the code human readable; needed for modding): lines 829-845
+  - Names for all functions (disassembly <-> ROM address), no assembler needed: line 839
 
 <!-- /TOC -->
 
@@ -584,6 +584,9 @@ _Last update (2026-10-10, evening): dev merged into main (code_ranges, seeds for
 
 | Symptom | Root cause | Fix | DBG § |
 |---|---|---|---|
+| Vertical stripes in the characters' ground shadows (sun and sword light) in the RELEASE packages only (GitHub #21, paul-met, Windows / NVIDIA, 2026-11-18); dev build.sh on the Deck clean | out-of-bounds write: lk_lt_extrude sets `lk_lt_ocl[1031]` in a 1024 table; the byte lands in the next variable, which one depends on the compiler: gcc (build.sh) harmless, zig / clang (firstrun.py = Windows zip AND AppImage) the figure shadow data | LK_LTOCL v1 (`lk_lt_ocl[1040]`); found by a native zig build + gcc / clang object bisection + `-fsanitize=undefined` | 2026-11-18 late night (#21 SOLVED) |
+| Bright strip on the wall behind Nigel at the chest, Waterfall Shrine 182 (user 2026-11-18) | the door niche fill took a 3 cell PIT (floor type 07) between two walkways for a door and filled it to 64 | LK_LTDOORPIT v1 (a pit is never a door) | 2026-11-18 late night |
+| Lighting suddenly off, the night 'jumps' to day, until restart (user recording 2026-11-18) | GPU time watchdog: Claude's parallel GPU tests on the same Deck in desktop mode; the watchdog switched Lighting off silently for the run | LK_LTSLOW v1 (OSD message + retry after 30 s, doubled) | 2026-11-18 late night |
 | Dark striped shadow on the strip that marks a map exit (room 431 to 440, user 2026-11-18) | pine proxy of the tile catalogue on the exit cells: they are blocked for NPCs only ($20), the pine-tip skip treated them as blocked = real tree | LK_PINEEXIT v1: skip when the cell is walkable for Nigel (no $40) | INDEX status 2026-11-18 night later |
 | Swamp Shrine room 0: no torch light, Gaia sword stones green (fixed everywhere else), sun / day-night seemingly lost after it; Tibor drawn by the generic renderer (user 2026-11-18) | the own map path loaded rooms only for `rm > 0 && rm < 800` (seam code `rm > 0`): room 0 (and 808..815) never became lk_o_room | LK_ROOM0 v1 (patch_own.py): rooms 0..815 | INDEX status 2026-11-18 night |
 | Modern HUD: the old HUD bar for ~20 frames after climbing a ladder into the next room (thieves' hideout 185 -> 208, GitHub #23, 2026-11-17) | the fade-in after this room change is not a map frame (no UpdateSprites) and the game shows its HUD window; the Modern HUD black rule covered only map frames the own path skipped and the Start menu | LK_MHPIC v1 (patch_modernhud.py): black lines 0..23 on non-map frames with window shadow $FF0FD4 = $9203 during play / pictures, not in the credits | HANDOFF 0a465 |
@@ -714,6 +717,7 @@ Generic lesson: every `func_table: no function` / `RTS to ... has no function` l
 
 | Need | Use |
 |---|---|
+| A bug only in the RELEASE packages (Windows / AppImage) or 'only on one GPU' | first build natively with the release compiler: `python3 tools/zigbuild.py --cc "~/.cache/project-friday-build/zig-0.16.0/zig cc" --out DIR --sdl-cflags "$(sdl2-config --cflags)" --sdl-libs "$(sdl2-config --libs)"` and compare frames with the gcc build (same warp / replay); differs -> bisect objects (gcc + clang .o linked together), then `zig cc -fsanitize=undefined -fno-sanitize=shift -fsanitize-recover=all` on the suspect file. Windows exe: `--cc "zig cc -target x86_64-windows-gnu"` + SDL2 MinGW, run under Proton 10 `files/bin/wine64` (visible window, XAUTHORITY; options read from the exe folder). DEBUGGING '#21 SOLVED' |
 | `firstrun.py [--rom F] [--rebuild] [--cc C] [--no-gui] [--build-only] [--selftest]`, `LANDSTALKER_DATA` | release launcher: ROM dialog (zenity) + SHA-1 check at every start, builds the game on the first start from the user's ROM into `~/.local/share/project-friday` (progress bar), starts it; `--selftest` = compiler + SDL2 check without ROM (CI) |
 | `tools/zigbuild.py [--cc] [--out] [--extra=FLAGS] [--extra-gpgx=FLAGS]` | compile + link without cmake (zig cc / gcc / clang), `PROGRESS n total file` lines; `--extra=-fsanitize=undefined -g` = UBSan build; rebuilds when flags / headers change |
 | `tools/make_vendor.py [--fetch]`, `vendor.lock` | pristine genrecomp + GPGX export (from `.deps`, or `--fetch` = clone the pinned revision) |
