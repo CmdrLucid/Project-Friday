@@ -524,9 +524,10 @@ static void lk_am_setup(void) {   /* kinds of the room (lk_lt_newroom, after the
   lk_am_np = 0; lk_am_bio = 0; lk_am_rng = (uint32_t)(lk_o_room + 7) * 2246822519u;
   if (lk_o_room < 0 || (lk_o_room >= 139 && lk_o_room <= 143) || lk_o_room == 148) return;   /* (the option is asked every frame in lk_am_step: switching it in the menu works at once) */
   /* leaves (1) removed and fireflies (2) kept for a later day / night cycle (user 2026-11-05: 'die Blaetter raus', 'Gluehwuermchen heben wir uns auf fuer den Tag-Nacht-Zyklus'); both still work with LANDSTALKER_AMBIENT_FORCE */
-  if (ts == 4 || ts == 5 || ts == 9) lk_am_bio |= 8;   /* caves, waterfall shrine, swamp shrine */
+  if ((ts == 4 || ts == 5 || ts == 9) && !(lk_o_room >= 0 && lk_o_room <= 30)) lk_am_bio |= 8;   /* caves, waterfall shrine, Tibor; LK_AMSWAMP v1 (user 2026-11-18: 'im Sumpfschrein selber sollten die Wassertropfen nicht sein, die passen da nicht rein'): no drops in the Swamp Shrine, rooms 0..30 (tileset 9, room 11 = tileset 4) */
   for (k = 0; k < lk_lt_nl; k++) if (lk_lt_l[k].lava != 2) lk_am_bio |= lk_lt_l[k].lava ? 16 : 4;   /* (window lights: no sparks) */
   if (lk_am_force()) lk_am_bio = lk_am_force();
+  if (getenv("LANDSTALKER_AM_DBG")) printf("am: room %%d tileset %%d kinds %%X (8 = water drops)\n", lk_o_room, ts, lk_am_bio);   /* LK_AMSWAMP v1 test aid */
   lk_am_nspot = 0; lk_am_ffmax = 0;
   if (lk_lt_sun && ts != 0 && !(lk_o_room >= 601 && lk_o_room <= 603) && lk_o_room != 737 && !(lk_o_room >= 31 && lk_o_room <= 33)) {   /* v4 FIREFLY SPOTS (user 2026-11-06: 'nur spothaft, nahe Baeumen oder Straeuchern oder am Wasser, nicht in der Stadt;
        Ausnahme Destel, aber weniger'): walkable cells next to a bush / pine (lk_lt_tk), a small object (tree, lk_lt_ocl 1) or our water fill; up to 6 spots >= 7 cells apart (Destel 3), 10 fireflies (Destel 4) (v5), not in the towns

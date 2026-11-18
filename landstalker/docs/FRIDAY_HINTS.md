@@ -190,11 +190,11 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 
 ### `stage03_need_stone`
 - when: `stage>=3, !item:31`
-- evidence: $02.4 = $14 SPIED_ON_GUMI_RITUAL. The Swamp Shrine door is shut; needs IDOL_STONE (item $31, used at the statue). UNSURE: where the stone is (Waterfall Shrine rooms 174-182 assumed).
-- EN L1: The shrine door stays shut. But / there is a key-like stone.
-- EN L2: Get the Idol Stone (try the / Waterfall Shrine near Massan).
-- DE L1: Die Tür bleibt zu. Aber es gibt / einen passenden Schlüsselstein.
-- DE L2: Hol den Idol-Stein (versuch den / Wasserfall-Schrein bei Massan).
+- evidence: $02.4 = $14 SPIED_ON_GUMI_RITUAL. The Swamp Shrine door is shut; needs IDOL_STONE (item $31, used at the statue). The stone is found in Gumi village (user 2026-11-18). 2026-11-18 (user): the old text 'That shrine door is shut tight' came before the player had seen the door: now a vague pointer to Gumi.
+- EN L1: Poor Fara! Maybe there's something in Gumi that opens the shrine door. Let's look around!
+- EN L2: Search Gumi village for / whatever opens the shrine door.
+- DE L1: Arme Fara! Vielleicht gibt's in Gumi was, das die Schreintür öffnet. Sehen wir uns um!
+- DE L2: Durchsuch das Dorf Gumi nach / etwas, das die Schreintür öffnet.
 
 ### `stage03_in_waterfall`
 - when: `stage>=3, !item:31, room:174-182`
