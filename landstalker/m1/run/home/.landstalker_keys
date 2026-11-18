@@ -1,0 +1,14 @@
+a 3 29
+b 1 27
+c 0 6
+start 7 40
+q1 4 4
+q2 2 7
+qsave 100 66
+qload 10 67
+ff 8 43
+fs 9 68
+coords 17 62
+eq 11 20
+sprint 101 225
+map 18 16

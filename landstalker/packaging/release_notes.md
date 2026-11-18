@@ -4,7 +4,7 @@
 - **Waterfall Shrine:** no more bright strip on the wall behind Nigel next to the chest (the lighting took a pit for a door and put a floor there). The same fix applies to pits in other caves and dungeons.
 - **Friday Hints:** in the Waterfall Shrine Friday no longer sends you deeper for the Idol Stone (it is not there); she points you back to Gumi.
 - **Mercator fountain court:** the round towers of the city wall are round for the lighting too, and in the evening the high wall now shades the court.
-- **Windows: striped character shadows fixed** (GitHub #21, thanks paul-met): a memory error in the lighting that only the Windows build turned into vertical stripes in the shadows of characters (by sun and by sword light).
+- **Striped character shadows fixed** (GitHub #21, thanks paul-met): a memory error in the lighting turned into vertical stripes in the shadows of characters (by sun and by sword light) in the release packages (Windows and AppImage, built with zig / clang); builds made with gcc happened to hide it.
 - **Weak or busy GPU:** when the GPU is too slow for the lighting, a message now says so (LIGHTING OFF: GPU TOO SLOW) and the lighting tries again after 30 seconds (before, it switched off silently until the next start, which also looked like a jump from night to day).
 
 ### Fixes early in the game (polishing before v2.0)
