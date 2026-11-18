@@ -222,6 +222,34 @@
     "!item:31"
    ],
    "en": [
+    "Poor Fara! Where did the Gumi take her? Let's find out!",
+    "The Gumi took Fara away.|Look for her at the Swamp Shrine."
+   ],
+   "de": [
+    "Arme Fara! Wohin haben die Gumi sie gebracht? Finden wir's raus!",
+    "Die Gumi haben Fara weggebracht.|Such sie am Sumpf-Schrein."
+   ],
+   "fr": [
+    "Pauvre Fara! Où les Gumi l'ont-ils emmenée? Trouvons-la!",
+    "Les Gumi ont emmené Fara.|Cherche-la au Sanctuaire du Marais."
+   ],
+   "ko": [
+    "불쌍한 파라! 구미 사람들이 파라를 어디로 데려갔을까? 찾아보자!",
+    "구미 사람들이 파라를 데려갔어.|늪지 신전에서 찾아봐."
+   ],
+   "ja": [
+    "かわいそうな ファラ! グミ族は ファラを どこへ つれていったのかしら? さがしましょ!",
+    "グミ族が ファラを つれていったの 沼地の神殿を さがしてみてね"
+   ]
+  },
+  {
+   "id": "stage03_need_stone_door",
+   "when": [
+    "stage>=3",
+    "!item:31",
+    "heard:0157|016C"
+   ],
+   "en": [
     "Poor Fara! Maybe there's something in Gumi that opens the shrine door. Let's look around!",
     "Search Gumi village for|whatever opens the shrine door."
    ],
@@ -276,6 +304,35 @@
     "stage>=3",
     "!item:31",
     "room:174-182"
+   ],
+   "en": [
+    "Hmm, no Fara here. Didn't they take her to the swamp?",
+    "Fara is not here.|Look for her at the Swamp Shrine."
+   ],
+   "de": [
+    "Hmm, hier ist keine Fara. Haben sie sie nicht zum Sumpf gebracht?",
+    "Fara ist nicht hier.|Such sie am Sumpf-Schrein."
+   ],
+   "fr": [
+    "Hmm, pas de Fara ici. On ne l'a pas emmenée au marais?",
+    "Fara n'est pas ici.|Cherche-la au Sanctuaire du Marais."
+   ],
+   "ko": [
+    "음, 파라는 여기 없어. 늪 쪽으로 데려간 거 아니야?",
+    "파라는 여기 없어.|늪지 신전에서 찾아봐."
+   ],
+   "ja": [
+    "うーん ファラは ここには いないわ 沼のほうへ つれていかれたんじゃない?",
+    "ファラは ここには いないわ 沼地の神殿を さがしてみてね"
+   ]
+  },
+  {
+   "id": "stage03_in_waterfall_door",
+   "when": [
+    "stage>=3",
+    "!item:31",
+    "room:174-182",
+    "heard:0157|016C"
    ],
    "en": [
     "Hmm, nothing for Fara here. Didn't we want to search Gumi?",
