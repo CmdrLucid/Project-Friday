@@ -2,7 +2,7 @@
 
 ### Fixes early in the game (polishing before v2.0)
 **New since v1.9.6:**
-- **Swamp Shrine entrance (room 0):** the torches give light again, the Modern HUD is shown, and the Gaia sword no longer turns the stones green there. The room was never handed to the new renderer because of its number 0; this also fixes the sun and the day / night look on the paths after it.
+- **Swamp Shrine entrance (room 0):** the torches give light again, the Modern HUD is shown, and the room now gets the same picture fixes as every other room (the Gaia sword effect there should no longer turn the stones green - please tell me if it still does). The room was never handed to the new renderer because of its number 0; this also fixes the sun and the day / night look on the paths after it.
 - **Tibor:** the inside of the tree is now drawn by the new renderer too, with light.
 - **Map exits:** no more strange dark shadow on the little strip that marks the way into the next area (a pine shadow the lighting placed there by mistake).
 - **Friday Hints:** in Gumi Friday no longer talks about a shut shrine door before you have seen it; she now hints that something in Gumi may open it.
