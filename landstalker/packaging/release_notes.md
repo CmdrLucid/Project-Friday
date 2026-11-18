@@ -1,12 +1,13 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
-### Fixes and one new option (polishing before v2.0)
-**New since v1.9.5:**
-- **Alternate D-pad** (#22, Options > Movement > D-Pad, off by default): Up walks up-right, Down down-left, Left up-left, Right down-right, so a normal D-pad or stick never needs the diagonals (like the community patch). The diagonals keep their original meaning. Menus are not changed.
-- **Lithograph** (#23): the text box below the lithograph picture in the thieves' hideout is back (you only heard the letters before).
-- **Modern HUD** (#23): the old HUD bar no longer flashes after climbing a ladder into the next room (thieves' hideout), and it no longer appears above the lithograph.
-- **Sprint:** the picture stays sharp and steady while sprinting (the smooth scrolling now runs on the graphics chip; jitter fixed in the waterfall shrine and the church), and the HUD stays sharp.
-- Everything from v1.9.5 is included (languages, Friday Hints, dungeon map, Bath Scene, night lights, ...). Your settings and save files from v1.x keep working.
+### Fixes early in the game (polishing before v2.0)
+**New since v1.9.6:**
+- **Swamp Shrine entrance (room 0):** the torches give light again, the Modern HUD is shown, and the room now gets the same picture fixes as every other room (the Gaia sword effect there should no longer turn the stones green - please tell me if it still does). The room was never handed to the new renderer because of its number 0; this also fixes the sun and the day / night look on the paths after it.
+- **Tibor:** the inside of the tree is now drawn by the new renderer too, with light.
+- **Map exits:** no more strange dark shadow on the little strip that marks the way into the next area (a pine shadow the lighting placed there by mistake).
+- **Friday Hints:** in Gumi Friday no longer talks about a shut shrine door before you have seen it; she now hints that something in Gumi may open it.
+- **Water drops:** only in the Waterfall Shrine, the thieves' hideout, the Destel well and the Lake Shrine, and fewer of them (no more drops in King Nole's Cave, the Verla mines, the Swamp Shrine, Tibor, Helga's hut and the small caves).
+- Everything from v1.9.6 is included (Alternate D-pad, lithograph text box, first start without pip, ...). Your settings and save files from v1.x keep working.
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM). The first start of a new version builds the game once (a few minutes).

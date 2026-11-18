@@ -1157,7 +1157,7 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
   if (lk_sm_log < 0) { const char *q = getenv("LANDSTALKER_SEAM_LOG"); lk_sm_log = q ? atoi(q) : 0; }
   lk_sm_capture_now = 0; lk_sm_fastload = 0;
   if (lk_nb_chk < 0) { const char *q = getenv("LANDSTALKER_NB_CHECK"); lk_nb_chk = q ? atoi(q) : 0; }
-  if (lk_seam_get() && lk_o_mode == 2 && rm == lk_o_room && rm > 0 && lk_o_disp0) {   /* neighbour rooms of the room that is on screen */
+  if (lk_seam_get() && lk_o_mode == 2 && rm == lk_o_room && rm >= 0 && rm <= 815 && lk_o_disp0) {   /* neighbour rooms of the room that is on screen */
     if (rm != lk_nb_room && lk_sm_state != 1) { lk_nb_room = rm; lk_nb_roomf = fn; lk_nbn = 0; lk_nb_pending = 1; }   /* during a gap (state 1) the old room's neighbours stay: the gap pictures need them */
     if (lk_nb_pending && (fn - lk_nb_roomf >= 2 || lk_sm_state == 2) && (lk_sm_state == 0 || lk_sm_state >= 2)) {   /* seamless (state 2): the time-free load is complete in the first frame of the new room */    /* two frames after the room appeared: the snapshot holds its height map; and its layer images must be built (the alignment compares them) */
       int y2, cells = 0; for (y2 = 0; y2 < 152; y2 += 4) { int x2; for (x2 = 0; x2 < 304; x2 += 4) cells += (lk_o_pa[y2][x2] | lk_o_pb[y2][x2]) >> 16 & 1; }
@@ -1167,7 +1167,7 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
   } else if (!(lk_seam_get() && lk_o_mode == 2)) { lk_nbn = 0; lk_nb_room = -1; }
   { int k, i; for (k = 0; k < lk_nbn; k++) for (i = 0; i < 16; i++) { int c = lk_o_darken(lk_nbl[k].nb->md0[i], lk_sm_nofade ? 0 : lk_o_lvl0); lk_nbl[k].nb->pix0[i] = pixel_lut[1][((c >> 9) & 7) << 6 | ((c >> 5) & 7) << 3 | ((c >> 1) & 7)]; } }
   if (!lk_seam_get() || lk_o_mode != 2 || !lk_o_fx) { lk_sm_state = 0; lk_sm_nofade = 0; lk_sm_prevL = L; return; }
-  if (lk_sm_state == 0 && !lk_o_disp0 && L >= 0xE00 && rm != lk_o_room && lk_o_room >= 0 && rm > 0 && rm < 800) { static long fl0; static int was; lk_sm_fastload = 1; if (lk_sm_log && !was) fl0 = fn; was = 1; (void)fl0; }   /* a normal fade: the black room load is run fast (no stutter) */
+  if (lk_sm_state == 0 && !lk_o_disp0 && L >= 0xE00 && rm != lk_o_room && lk_o_room >= 0 && rm >= 0 && rm <= 815) { static long fl0; static int was; lk_sm_fastload = 1; if (lk_sm_log && !was) fl0 = fn; was = 1; (void)fl0; }   /* a normal fade: the black room load is run fast (no stutter) */
   { static int was2; static long t2; if (!lk_sm_fastload && was2 && lk_sm_log) printf("seam: frame %ld fast room load ended (%ld frames)\n", fn, fn - t2); if (lk_sm_fastload && !was2) { t2 = fn; if (lk_sm_log) printf("seam: frame %ld fast room load starts\n", fn); } was2 = lk_sm_fastload; }
   if (lk_sm_state == 0) {
     lk_sm_nofade = 0;
@@ -1175,7 +1175,7 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
     if (L == 0 && drawn && lk_o_disp0 && lk_o_valid && !lk_sh_hide) {   /* a bright map frame: remember it */
       lk_sm_capture_now = 1; lk_sm_osave0 = cam0; lk_sm_osave2 = cam2; lk_sm_osaveu = u0; lk_sm_osavev = v0; lk_sm_osave_ok = 1; memcpy(lk_sm_pixsave, lk_o_pix, sizeof lk_sm_pixsave);
     }
-    if (L == 0 && rm == lk_o_room && rm > 0 && !lk_sh_hide && lk_nbn > 0) {   /* walk on: the game changes rooms only when g_ControllerPlaybackTimer $FF12DF has counted down to 2 (a delay after entering a cell, ~3 frames held on the door cell centre); on a seamless neighbour door it is set to 2 at once */
+    if (L == 0 && rm == lk_o_room && rm >= 0 && rm <= 815 && !lk_sh_hide && lk_nbn > 0) {   /* walk on: the game changes rooms only when g_ControllerPlaybackTimer $FF12DF has counted down to 2 (a delay after entering a cell, ~3 frames held on the door cell centre); on a seamless neighbour door it is set to 2 at once */
       int px2 = UB(0xFF5400), py2 = UB(0xFF5401), gt = bus_read8(0xFF5423) & 0x3F;
       if (px2 < 74 && py2 < 74 && lk_sm_door(gt) && bus_read8(0xFF12DF) > 2) { int tx2 = 0, ax2 = 0, ay2 = 0, fl2 = 0, bx2 = 0, by2 = 0, k2, isnb = 0;
         if (lk_sm_find(rm, px2, py2, &tx2, &ax2, &ay2, &fl2, &bx2, &by2) && !(fl2 & 0x31)) for (k2 = 0; k2 < lk_nbn; k2++) if (lk_nbl[k2].room == tx2) isnb = 1;
@@ -1184,7 +1184,7 @@ static void lk_seam_step(int rm, int drawn, int cam0, int cam2, int u0, int v0) 
     int early = 0;   /* walk on: the game walks Nigel to the centre of a door cell, holds him there ~5 frames and only then fades: start the seamless gap as soon as he stops on the centre of a door cell */
     if (L == 0 && lk_sm_prevL == 0 && lk_sm_hn >= 3 && lk_sm_hx[0] == lk_sm_hx[1] && lk_sm_hy[0] == lk_sm_hy[1] && (lk_sm_hx[1] != lk_sm_hx[2] || lk_sm_hy[1] != lk_sm_hy[2]) && (lk_sm_hx[0] & 15) == 8 && (lk_sm_hy[0] & 15) == 8) {
       int cx0 = lk_sm_hx[0] >> 4, cy0 = lk_sm_hy[0] >> 4; if (cx0 < 74 && cy0 < 74 && lk_sm_door(UW(0xFFD192 + 148 * cy0 + 2 * cx0) & 0xFF)) early = 1; }
-    if ((early || (L > 0 && lk_sm_prevL == 0)) && rm == lk_o_room && rm > 0 && !lk_sh_hide && lk_sm_rows_ok && lk_sm_osave_ok) {   /* the game starts a fade out (or is about to: early) */
+    if ((early || (L > 0 && lk_sm_prevL == 0)) && rm == lk_o_room && rm >= 0 && rm <= 815 && !lk_sh_hide && lk_sm_rows_ok && lk_sm_osave_ok) {   /* the game starts a fade out (or is about to: early) */
       int px = UB(0xFF5400), py = UB(0xFF5401), tx = 0, ax = 0, ay = 0, fl = 0, bx = 0, by = 0, cw = 0;
       if (px < 74 && py < 74 && lk_sm_find(rm, px, py, &tx, &ax, &ay, &fl, &bx, &by) && bx < 74 && by < 74 && (cw = UW(0xFFD192 + 148 * by + 2 * bx), lk_sm_door(cw & 0xFF)) && !(fl & 0x31)) {
         int tw = lk_rm_cell(tx, ax, ay), ov = 0, cx, cy;
@@ -1288,7 +1288,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
       else { hsA = ((vram[hsb ^ 1] << 8) | vram[(hsb + 1) ^ 1]); hsB = ((vram[(hsb + 2) ^ 1] << 8) | vram[(hsb + 3) ^ 1]); vsA = (vsram[0 ^ 1] << 8) | vsram[1 ^ 1]; vsB = (vsram[2 ^ 1] << 8) | vsram[3 ^ 1]; lk_o_sc_ram = 0; }   /* old way (LANDSTALKER_OWN_SCROLL_VDP=1 / LANDSTALKER_OWN_GSHAKE=1) */
       /* the scroll values stay the VDP's registers: they equal the RAM variables $FF0100 / $FF0102 (hscroll A / B) and $FF0500 / $FF0502 (vscroll A / B) except while an effect writes them directly (the Gaia statue shakes VSRAM) */
       cam0 = US(0xFF1200); cam2 = US(0xFF1202); rm = UW(0xFF1204);
-      if (lk_o_vblog) { static int ns_; int i9, bad = 0, sb = (LK_REG(5) & 0x7F) << 9; for (i9 = 0; i9 < 640; i9++) if (vram[(sb + i9) ^ 1] != r[((0xFF0550 + i9) & 0xFFFF) ^ 1]) bad++; if (bad && rm > 0 && rm < 800 && ns_++ < lk_o_vblog) printf("ownvb: frame %ld room %d sprite table VRAM vs RAM $FF0550: %d of 640 bytes differ\n", platform_frame_number(), rm, bad); }
+      if (lk_o_vblog) { static int ns_; int i9, bad = 0, sb = (LK_REG(5) & 0x7F) << 9; for (i9 = 0; i9 < 640; i9++) if (vram[(sb + i9) ^ 1] != r[((0xFF0550 + i9) & 0xFFFF) ^ 1]) bad++; if (bad && rm >= 0 && rm <= 815 && ns_++ < lk_o_vblog) printf("ownvb: frame %ld room %d sprite table VRAM vs RAM $FF0550: %d of 640 bytes differ\n", platform_frame_number(), rm, bad); }
       if (lk_o_vblog) { static int nl; int w1 = (int16_t)((r[(0xFF0100 & 0xFFFF) ^ 1] << 8) | r[(0xFF0101 & 0xFFFF) ^ 1]), w2 = (int16_t)((r[(0xFF0102 & 0xFFFF) ^ 1] << 8) | r[(0xFF0103 & 0xFFFF) ^ 1]), v1 = (int16_t)((r[(0xFF0500 & 0xFFFF) ^ 1] << 8) | r[(0xFF0501 & 0xFFFF) ^ 1]), v2 = (int16_t)((r[(0xFF0502 & 0xFFFF) ^ 1] << 8) | r[(0xFF0503 & 0xFFFF) ^ 1]);
         if ((int16_t)hsA != w1 || (int16_t)hsB != w2 || (int16_t)vsA != v1 || (int16_t)vsB != v2) { if (nl++ < lk_o_vblog) printf("ownvb: frame %ld VDP hsA %d hsB %d vsA %d vsB %d | RAM FF0100 %d FF0102 %d FF0500 %d FF0502 %d (snapshot of frame %ld)\n", platform_frame_number(), (int16_t)hsA, (int16_t)hsB, (int16_t)vsA, (int16_t)vsB, w1, w2, v1, v2, lk_vb_frame); } }
       { /* which pass' camera does the VDP show? the vertical scroll is (cam0 + cam2) / 2 - 600 of the pass whose camera the game had written when the picture was built (FORMATS 'Scroll registers lag'):
@@ -1334,7 +1334,7 @@ static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {
       else if (lk_sh_hide) { fr_done = 0; lk_o_why = 3; }                                         /* the Start menu is running (CheckForMenuOpen, also its fades): the game's picture stays, the map of RAM is not what is on screen then */
       else if (!(LK_REG(1) & 0x40)) { fr_done = 0; lk_o_why = 4; }                                  /* display switched off at the top of the frame (room load, blackout): the game's black picture stays */
       else if (rm == 141 && (hint & 0xFF) != 0xA0) { fr_done = 0; lk_o_why = 6; }   /* INTRO_141 without a text box (the scene change / black cover frames; the generic renderer is 3 px off in the text box lines and loses sprites at the right margin, so 142 / 143 and the text frames keep the map path): the scripts rewrite the planes / tiles themselves (room 141: a black cover, scene changes), the room's block arrays are not what is on screen: the generic screen renderer follows the VDP's planes (user, rec_20261028_2107) */
-      else if (rm > 0 && rm < 800) { if (rm != lk_o_room && (!lk_o_fx || lk_o_blanked || lk_o_room < 0)) { lk_o_room_load(rm); lk_o_blanked = 0; } { /* which pass are the VDP's sprites from? (the game runs 0, 1 or 2 passes per frame, so the sprite table is sometimes the previous pass' and sometimes the current one): the candidate whose sprite boxes equal the real sprite table's best wins */
+      else if (rm >= 0 && rm <= 815) { /* LK_ROOM0 v1 (user 2026-11-18, Swamp Shrine room 0: no light, Gaia stones green, sun lost after it): rooms 0..815 (was 1..799: room 0 and Tibor 808..815 were never loaded) */ if (rm != lk_o_room && (!lk_o_fx || lk_o_blanked || lk_o_room < 0)) { lk_o_room_load(rm); lk_o_blanked = 0; } { /* which pass are the VDP's sprites from? (the game runs 0, 1 or 2 passes per frame, so the sprite table is sometimes the previous pass' and sometimes the current one): the candidate whose sprite boxes equal the real sprite table's best wins */
         uint32 sat[96], kc[96], kp[96]; int ns = 0, i4 = 0, n4 = 0, nc, np_, mc = 0, mp = 0, i5, j5, base = (LK_REG(5) & 0x7F) << 9;
         for (n4 = 0; n4 < 80 && ns < 96; n4++) { int y = ((LK_SATB(8 * i4) << 8) | LK_SATB(8 * i4 + 1)) & 0x1FF, sz = (LK_SATB(8 * i4 + 2) << 8) | LK_SATB(8 * i4 + 3), x = ((LK_SATB(8 * i4 + 6) << 8) | LK_SATB(8 * i4 + 7)) & 0x1FF;
           lk_o_satw[ns] = (LK_SATB(8 * i4 + 4) << 8) | LK_SATB(8 * i4 + 5); lk_o_satt[ns] = lk_o_satw[ns] & 0x7FF; sat[ns] = (uint32)(x << 20 | y << 8 | ((sz >> 8) & 15)); lk_o_satk[ns] = sat[ns]; ns++; i4 = sz & 0x7F; if (!i4) break; }
