@@ -28,7 +28,7 @@ Console every 300 compared frames: 'gpucomp: frames F lines L pixels P exact E m
 Needs patch_options.py (id 60), patch_own.py and the effect patches (bootcol, water, clouds, daynight, modernhud), patch_gpu.py, patch_gpulight.py before it.  Idempotent.  usage: patch_gpucomp.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_GPUCOMP v4"
+VER = "LK_GPUCOMP v5"
 
 # ---------------------------------------------------------------- vdp_render.c: capture of the compositor's state per line
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
@@ -145,12 +145,14 @@ static void lk_gc_side(PIXEL_OUT_T *row, int line, int w, int e, int u0, int v, 
 const uint32_t *lk_gc_planes(void) { return &lk_o_pa[0][0]; }   /* lk_o_pa then lk_o_pb (152 x 304 each, bit 16 = present, low 16 = tile word) */
 const uint32_t *lk_gc_planesb(void) { return &lk_o_pb[0][0]; }
 const uint8_t *lk_gc_tiles(void) { return lk_o_tiles; }          /* 0x12000 bytes, 4 bits per pixel */
-void lk_gc_sprb(uint16_t *o) { int y, x; for (y = 0; y < 224; y++) for (x = 0; x < 448; x++) o[y * 448 + x] = (uint16_t)(lk_o_spr[y][x] | (lk_bc_st[y][x] == lk_bc_stamp ? 0x800 : 0)); }   /* sprite word + 0x800 boot pixel */
+void lk_gc_sprb(uint16_t *o) { int y, x; for (y = 0; y < 224; y++) for (x = 0; x < 448; x++) o[y * 448 + x] = (uint16_t)(lk_o_spr[y][x] | (lk_bc_st[y][x] == lk_bc_stamp ? 0x800 : 0));
+  { static const char *e = (const char *)1; static long at = -1; if (e == (const char *)1) { e = getenv("LANDSTALKER_DN_SPRDUMP"); if (e && strchr(e, ':')) at = atol(strchr(e, ':') + 1); }   /* test aid (2026-11-18): "PATH:FRAME" = this frame's sprite words (224 x 448 uint16) to PATH */
+    if (e && at >= 0 && platform_frame_number() == at) { char pth[512]; FILE *f; snprintf(pth, sizeof pth, "%.*s", (int)(strchr(e, ':') - e), e); f = fopen(pth, "wb"); if (f) { fwrite(o, 2, 224 * 448, f); fclose(f); } } } }   /* sprite word + 0x800 boot pixel */
 void lk_gc_wclass(uint8_t *o) { int t;   /* per tile: 1 = in an animated water group, 2 = a static tile in the water colours (lk_wr_tilewater, without filling its cache), 0 = not water */
   for (t = 0; t < 2304; t++) { long ob = (long)t << 5; int k, c = 0; for (k = 0; k < lk_o_ngrp; k++) if (lk_wr_g[k] && ob >= lk_o_grp[k].dest && ob < lk_o_grp[k].dest + 2 * lk_o_grp[k].words) break;
     if (k < lk_o_ngrp) c = lk_wr_tok(lk_o_grp[k].base, ob) ? 1 : 0;   /* v4 */
     else if (lk_wr_ts[t]) c = lk_wr_ts[t] == 1 ? 2 : 0;
-    else { const uint8 *q = lk_o_tiles + ob; int j, n = 0, ns = 0; for (j = 0; j < 32; j++) { int h = q[j] >> 4, l2 = q[j] & 15; if (h) { ns++; if (lk_wr_idx >> h & 1) n++; } if (l2) { ns++; if (lk_wr_idx >> l2 & 1) n++; } } c = ((ns >= 48 && n * 100 >= ns * 97) || (lk_wr_sp && ns >= 8 && n == ns)) ? 2 : 0; }   /* v4: + sparse pool tiles (lk_wr_sp, patch_water v4) */
+    else { const uint8 *q = lk_o_tiles + ob; int j, n = 0, ns = 0; for (j = 0; j < 32; j++) { int h = q[j] >> 4, l2 = q[j] & 15; if (h) { ns++; if (lk_wr_idx >> h & 1) n++; } if (l2) { ns++; if (lk_wr_idx >> l2 & 1) n++; } } c = lk_wr_tcls(q, ns, n) == 1 ? 2 : 0; }   /* v5: the same tile rule as lk_wr_tilewater (patch_water lk_wr_tcls: sparse pool tiles v4, pool rim tiles v5) */
     o[t] = (uint8_t)c; } }
 const uint32_t *lk_gc_wrbuf(void) { return &lk_wr_buf[0][0]; }
 const uint8_t *lk_gc_spre(void) { static uint8_t b[224 * 448 * 2]; int i; for (i = 0; i < 224 * 448; i++) { b[2 * i] = (&lk_lt_spre[0][0])[i]; b[2 * i + 1] = (&lk_lt_spre2[0][0])[i]; } return b; }   /* figure tag of every sprite pixel + the tag of a figure hidden under it (LK_LTHIDE v1), luminance alpha (the light's class tag, lk_gl_clstag) */
@@ -263,9 +265,9 @@ static const char *lk_gc_fs = "#version 120\n"
 "  float sl = line - syn, si = i - sxn, sp = 0.0;\n"
 "  if (sl >= 0.0 && sl < 224.0 && si >= 0.0 && si < 448.0) { vec4 t = texture2D(spr, vec2((si + 0.5) / 448.0, (sl + 0.5) / 224.0)); sp = by(t.r) + 256.0 * by(t.a); }\n"
 "  bool s200 = bit(sp, 9.0) > 0.5, s100 = bit(sp, 8.0) > 0.5, s400 = bit(sp, 10.0) > 0.5;\n"
-"  bool black = bline, ovw = false; float pick = 0.0, src = 0.0, tile = 0.0; vec2 ixy = vec2(0.0);\n"
+"  bool black = bline, ovw = false; float pick = 0.0, src = 0.0, tile = 0.0, tA = -1.0; vec2 ixy = vec2(0.0);\n"
 "  if (!black) {\n"
-"    vec2 ia, ib; vec4 A = fetch(U0 + i, V, 0.0, ia), B = fetch(U0 + i, V, 1.0, ib);\n"
+"    vec2 ia, ib; vec4 A = fetch(U0 + i, V, 0.0, ia), B = fetch(U0 + i, V, 1.0, ib); tA = A.w;\n"
 "    if (s200 && s100) { pick = mod(sp, 64.0); src = 1.0; }\n"
 "    else if (A.x > 0.0 && A.z > 0.0) { pick = A.y * 16.0 + A.x; src = 2.0; }\n"
 "    else if (B.x > 0.0 && B.z > 0.0) { pick = B.y * 16.0 + B.x; src = 3.0; }\n"
@@ -290,7 +292,8 @@ static const char *lk_gc_fs = "#version 120\n"
 "  if (uMode < 0.5) { gl_FragColor = vec4(col / 255.0, 1.0); return; }\n"
 "  vec3 p0 = vec3(0.0), p1 = vec3(255.0); float bk = by(r7.g), dnw = by(r7.b);\n"
 "  if (bit(f2, 0.0) > 0.5 && !black && src == 1.0 && bit(sp, 11.0) > 0.5 && bk >= 5.0 && bk <= 8.0) col = boot(col, sp, line);\n"
-"  if (bit(f2, 3.0) > 0.5 && !black && (src == 2.0 || src == 3.0)) { vec3 c2 = winpix(col, pick, tile, ixy, dnw, vec2(U0 + i, V)); if (c2 != col) { float dv = 0.0; vec2 du = vec2(U0 + i, V); if (uDnCN > 0.5 && du.x >= 0.0 && du.y >= 0.0 && du.x < 2432.0 && du.y < 1216.0) dv = by(texture2D(dpm, vec2((du.x + 0.5) / 2432.0, (du.y + 0.5) / 1216.0)).r);\n"
+"  if (bit(f2, 3.0) > 0.5 && !black && (src == 2.0 || src == 3.0 || (src == 0.0 && tA == 25.0 && uDnCN > 0.5 && U0 + i >= 0.0 && V >= 0.0 && U0 + i < 2432.0 && V < 1216.0 && by(texture2D(dpm, vec2((U0 + i + 0.5) / 2432.0, (V + 0.5) / 1216.0)).r) >= 128.0))) { vec3 c2 = winpix(col, pick, tile, ixy, dnw, vec2(U0 + i, V));   /* LK_DNSIGN25 v1: + the BACKDROP (src 0) inside an opening shape (dpm >= 128): the transparent corner of the skull sign tile 25, Gumi door to 605 (as lk_dn_winpix) */\n"
+" if (c2 != col) { float dv = 0.0; vec2 du = vec2(U0 + i, V); if (uDnCN > 0.5 && du.x >= 0.0 && du.y >= 0.0 && du.x < 2432.0 && du.y < 1216.0) dv = by(texture2D(dpm, vec2((du.x + 0.5) / 2432.0, (du.y + 0.5) / 1216.0)).r);\n"
 "    if (dv > 63.5 && dv < 128.0) col = c2; else { p0 = winpix(p0, pick, tile, ixy, dnw, vec2(U0 + i, V)); p1 = winpix(p1, pick, tile, ixy, dnw, vec2(U0 + i, V)); } } }\n"   /* LK_DNSPILL v1: the halo / door strip brightens the colour BEFORE the light (a gain on the ground's colours, carried by the light); as a post mix (p0 / p1) a gain was impossible */
 "  if (bit(f2, 1.0) > 0.5 && !black && (src == 2.0 || src == 3.0)) col = water(col, pick, tile, line, i, bit(f2, 5.0) > 0.5);\n"
 "  if (bit(f2, 2.0) > 0.5 && !black && src >= 1.0 && src <= 3.0) col = cloud(col, U0 + i, V);\n"

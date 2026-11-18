@@ -277,7 +277,7 @@ void lk_gl_unpaint(void) { int q, ts = -1;
         P0 = call.replace("@", "(int)(0xFF000000u | lk_gl_p0)"); P1 = call.replace("@", "(int)(0xFF000000u | lk_gl_p1)")
         T = call.replace("@", "col")
         rep("      if (%s) col = %s;" % (cond, X), "      if (%s) { if (lk_gl_k) { if (%s != col) { lk_gl_p0 = (uint32_t)%s & 0xFFFFFFu; lk_gl_p1 = (uint32_t)%s & 0xFFFFFFu; } } else col = %s; }   /* %s */" % (cond, T, P0, P1, X, VER))
-    fx("lk_lt_ln && lk_dn_win && !black && (src == 2 || src == 3)", "lk_dn_winpix(src == 2 ? &afi : &bfi, pick, @, ubase + x - lk_sm_sxn, vbase - lk_sm_syn)")   # LK_DNWIN2 v1: + picture position (door cells)
+    fx("lk_lt_ln && lk_dn_win && !black && (src == 2 || src == 3 || (src == 0 && lk_dn_inopen(ubase + x - lk_sm_sxn, vbase - lk_sm_syn)))", "lk_dn_winpix(src == 2 ? &afi : src == 3 ? &bfi : 0, pick, @, ubase + x - lk_sm_sxn, vbase - lk_sm_syn)")   # LK_DNWIN2 v1: + picture position (door cells)
     fx("lk_sfx_ln && !black && src != 4", "lk_sfx_pix(line, i, src == 1 ? sp : 0, @)")
     fx("lk_dz_ln && !black && src != 4", "lk_dz_pix(line, i, @)")
     a = "      lk_mh_hit = nohud ? lk_mh_pix(line, i, &col) : 0;"

@@ -356,5 +356,6 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
 | Church windows (tileset 0) | 2 x 4 pairs 866/867..914/915 (light wall), 864/865..912/913 (dark wall); glass strip x 9..13 / 2..6 | I 2026-11-16 |
 | Destel doors (tileset 7, room 726) | Massan's 373 / 1 / 384 / 385 WITHOUT the sign 346; threshold 384\|385 (left wall) or 385h\|384h (right wall) | I 2026-11-16 |
 | Destel arched windows | native 2 x 4 [593 594 / 604 605 / 595 596 / 606 607], only room 726 | I 2026-11-16 |
+| Gumi skull sign door (601..603, to 605) | opening top tile 25 (= 346 with the skull sign, not flipped) at the 346 position, 373h right of it, tile 1 below, threshold 385h 384h; 25 transparent in the opening corner | I 2026-11-19 |
 | Tile 354 in Destel | plain wall (in Massan: shutter bottom) | I 2026-11-16 |
 
