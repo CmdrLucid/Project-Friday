@@ -5,15 +5,15 @@
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 813-824
 - 1. Where we are: lines 825-978
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 979-1240
-- 3. How the user works (important): lines 1241-1256
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1257-1281
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1282-1290
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1291-1338
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1339-1348
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1349-1350
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1351-1353
-- NEXT STEPS, newest first: -224 980, -223 981, -222 982, -221 983, -220 984, -219 985, -218 986, -217 987, -216 988, -215 989
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 979-1241
+- 3. How the user works (important): lines 1242-1257
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1258-1282
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1283-1291
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1292-1339
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1340-1349
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1350-1351
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1352-1354
+- NEXT STEPS, newest first: -225 980, -224 981, -223 982, -222 983, -221 984, -220 985, -219 986, -218 987, -217 988, -216 989
 - Newest entries:
   - 0a467 line 190: 2026-11-18 late night (Deck, Opus 5.5, no agents): ROOM 182 LIGHT STRIP (LK_LTDOORPIT v1) + FRIDAY HINTS RE...
   - 0a466 line 192: 2026-11-18 later (Deck, Opus 5.5, no agents): RELEASE v1.9.6 (user: 'Jo, passt, mach das bitte'). Release n...
@@ -977,6 +977,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-225. **GitHub #21 (2026-11-18 late night): Paul answered: NVIDIA, driver 621.01, Windows 11 Pro; De-Dither has no effect. His LANDSTALKER_ROUNDFIG_DBG=8 shot (beach, ~/Project-Friday-Test/lktest/issue21/shadow.png; the flat skin-coloured Nigel is the debug view) keeps the vertical stripes right of Nigel OUTSIDE the figure class = the figure's shadow ON THE GROUND (figdir / sun path, patch_gpulight.py), not the figure shading. Shader read for NVIDIA traps (texel centres +0.5, B() rounding, uninitialised locals): all clean, so no blind fix. The user asked Paul for 2 tests: (1) LANDSTALKER_ROUNDFIG_DBG=1 (no Round Figures terrain shadow) - stripes gone? (2) Lighting Off -> On in the menu - stripes still there? NEXT: read his answer, then fix the named part before 2.0. 3D room map (LIGHT_PROXY_PLAN 'WHOLE ROOMS AS 3D MODELS', export first) only AFTER 2.0 (user agreed: too much work before the release).**
 -224. **NEXT (2026-11-18 late night): user plays (dev ZIP + build.sh):** Waterfall Shrine 182 at the chest (the bright strip behind Nigel must be gone); caves / dungeons with pits look as before (49 rooms changed, lightedges clean); Friday in the Waterfall Shrine at stage 3 without the Idol Stone says 'not here, search Gumi'. Idea (user question): use more of the game's FLOOR TYPES in the light rules instead of guessing (stairs 05, ladders 0B / 0C, doors 01..04 / 06) - check case by case.
 -223. **RELEASED v1.9.7 (2026-11-18, main fb4f329).** NEXT: user answers GitHub #21 (draft with ROUNDFIG_DBG=8 + De-Dither off + GPU name) and #22 / #23; feedback on v1.9.7 (Gaia stones in room 0); Quiver entry is a staff draft (art in ~/Project-Friday-Test/Quiver, incl. the SteamGridDB cover with lettering); water reflections stay as before (shore fade reverted, ask for a mock-up first).
 -222. **NEXT (2026-11-18 night): user plays (dev ZIP + build.sh):** Swamp Shrine room 0 (torch light, Gaia sword attack without green stones), walking out to the routes 431 / 433 / 436 (sun, day / night), Tibor (808..815, now the own renderer + light shafts). If the sun still goes missing on the routes: a recording (Landstalker_Aufnahme.sh) from inside the shrine out.
