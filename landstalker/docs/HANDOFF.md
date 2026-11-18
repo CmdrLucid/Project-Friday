@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 811-822
-- 1. Where we are: lines 823-973
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 974-1231
-- 3. How the user works (important): lines 1232-1247
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1248-1272
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1273-1281
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1282-1329
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1330-1339
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1340-1341
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1342-1344
-- NEXT STEPS, newest first: -220 975, -219 976, -218 977, -217 978, -216 979, -215 980, -214 981, -213 982, -212 983, -211 984
+- 1. Where we are: lines 823-974
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 975-1232
+- 3. How the user works (important): lines 1233-1248
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1249-1273
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1274-1282
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1283-1330
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1331-1340
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1341-1342
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1343-1345
+- NEXT STEPS, newest first: -220 976, -219 977, -218 978, -217 979, -216 980, -215 981, -214 982, -213 983, -212 984, -211 985
 - Newest entries:
   - 0a466 line 190: 2026-11-18 later (Deck, Opus 5.5, no agents): RELEASE v1.9.6 (user: 'Jo, passt, mach das bitte'). Release n...
   - 0a465 line 192: 2026-11-18 (Deck, Opus 5.5, no agents): GITHUB #21 / #22 / #23 (paul-met). User confirmed the sprint scroll...
@@ -821,6 +821,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-18 LATER END (Opus 5.5, no agents, `dev` pushed, main = v1.9.6 e224421):** RELEASE v1.9.6 published (AppImage first run + windows-check + download check before / after the tag, 0a466; user added the pip line to the GitHub release text himself). USER CONFIRMED by playing: sprint scrolling ('looks good now'). HEADLESS ONLY (Claude, user asked: 'das Steuerkreuz teste bitte du'): alternate D-pad #22 (8 directions both modes, menu row in 5 languages, saved setting), lithograph text box + no old bar #23, ladder fade-in 185 -> 208 without old bar #23, credits unchanged. OPEN: #21 striped shadow (needs Paul's place / time / GPU), room 182 light edge (-219 d), trailer 2.0 recordings (-218).
 - **2026-11-18 END (Opus 5.5, no agents, `dev` pushed, main = v1.9.5):** after the release, all HEADLESS ONLY (not played): sharp smooth scrolling on the GPU + owner-first figure classes + HUD out of the sprint blend (sprinttest PASS 177 / 179 / 180 / church 700), first run without pip, F6 De-Dither names (GitHub #19), Yes / No ko / ja. User wants NO release yet (sprint fix goes into the next one). NEXT -219 (user plays the shrine sprint; room 182 light edge: where exactly?).
 - **2026-11-17 NIGHT (Opus 5.5, no agents, `dev` pushed, main = v1.9.5):** RELEASE v1.9.5 published (tested AppImage + Windows before tagging, 0a464). Defaults now: Map R3 / M, Friday Hints On, Bath Scene On (bath NOT played). Trailer 2.0 preview 5 (headless footage, user reviewed 1..5). NEXT -218.
 - **2026-11-17 EVENING: user confirmed by playing: Destel night (-216) and De-Dither on the GPU (-217) both "passt".**
