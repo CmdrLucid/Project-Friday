@@ -85,7 +85,7 @@ def run(rom_path, rooms, out, batch=16, jobs=4, gpu=False, all_spots=False):
             if gpu:   # --gpu (2026-11-12): the GPU light the user plays with: a hidden window, the presented picture (present_FRAME_gpu.png)
                 del env["LANDSTALKER_SHOT"]; env.update(LANDSTALKER_PRESENT_SHOT=",".join(shots), LANDSTALKER_HIDDEN="1", LANDSTALKER_NOFOCUSPAUSE="1", SDL_AUDIODRIVER="dummy")
                 env.update({k: os.environ[k] for k in ("DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR") if k in os.environ})
-            env.update({k: v for k, v in os.environ.items() if k.startswith("LANDSTALKER_LT_") or k.startswith("LANDSTALKER_LIGHTING_") or k.startswith("LANDSTALKER_DAY") or k.startswith("LANDSTALKER_CLOUD")})   # test aids pass through (e.g. LANDSTALKER_LT_AMB, LANDSTALKER_DAYTIME=15 = time of day)
+            env.update({k: v for k, v in os.environ.items() if k.startswith("LANDSTALKER_LT_") or k.startswith("LANDSTALKER_LIGHTING_") or k.startswith("LANDSTALKER_DAY") or k.startswith("LANDSTALKER_CLOUD") or k.startswith("LANDSTALKER_WATER")})   # test aids pass through (e.g. LANDSTALKER_LT_AMB, LANDSTALKER_DAYTIME=15 = time of day)
             while len([p for p in procs if p.poll() is None]) >= jobs: procs[0].wait(); procs = [p for p in procs if p.poll() is None]
             print("lightedges: batch %d lighting %d: %d warps" % (b // batch, light, len(warps)), flush=True)
             procs.append(subprocess.Popen([os.environ.get("LIGHTEDGES_BIN") or os.path.join(HERE, "build", "landstalker")] + ([] if gpu else ["--headless"]) + ["--frames", str(fr + 20), rom_path], env=env,

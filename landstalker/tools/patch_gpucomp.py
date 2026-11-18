@@ -28,7 +28,7 @@ Console every 300 compared frames: 'gpucomp: frames F lines L pixels P exact E m
 Needs patch_options.py (id 60), patch_own.py and the effect patches (bootcol, water, clouds, daynight, modernhud), patch_gpu.py, patch_gpulight.py before it.  Idempotent.  usage: patch_gpucomp.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_GPUCOMP v3"
+VER = "LK_GPUCOMP v4"
 
 # ---------------------------------------------------------------- vdp_render.c: capture of the compositor's state per line
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
@@ -109,7 +109,7 @@ static void lk_gc_wscan(int u0, int v0, int w) {   /* 4d: the water learns its c
     cell = L ? lk_o_pb[r][c] : lk_o_pa[r][c]; if (!(cell & 0x10000)) continue;
     ob = (long)(cell & 0x7FF) << 5;
     for (k = 0; k < lk_o_ngrp; k++) if (lk_wr_g[k] && ob >= lk_o_grp[k].dest && ob < lk_o_grp[k].dest + 2 * lk_o_grp[k].words) break;
-    if (k >= lk_o_ngrp) continue;
+    if (k >= lk_o_ngrp || !lk_wr_tok(lk_o_grp[k].base, ob)) continue;   /* v4: not the waterfall / torch tiles of a mixed group */
     lk_wr_pal |= (uint16_t)(1u << ((cell >> 13) & 3));
     for (j = 0; j < 32; j++) { int h = lk_o_tiles[ob + j] >> 4, l2 = lk_o_tiles[ob + j] & 15;
       if (h && !(lk_wr_idx >> h & 1)) { lk_wr_idx |= (uint16_t)(1u << h); memset(lk_wr_ts, 0, sizeof lk_wr_ts); }
@@ -148,9 +148,9 @@ const uint8_t *lk_gc_tiles(void) { return lk_o_tiles; }          /* 0x12000 byte
 void lk_gc_sprb(uint16_t *o) { int y, x; for (y = 0; y < 224; y++) for (x = 0; x < 448; x++) o[y * 448 + x] = (uint16_t)(lk_o_spr[y][x] | (lk_bc_st[y][x] == lk_bc_stamp ? 0x800 : 0)); }   /* sprite word + 0x800 boot pixel */
 void lk_gc_wclass(uint8_t *o) { int t;   /* per tile: 1 = in an animated water group, 2 = a static tile in the water colours (lk_wr_tilewater, without filling its cache), 0 = not water */
   for (t = 0; t < 2304; t++) { long ob = (long)t << 5; int k, c = 0; for (k = 0; k < lk_o_ngrp; k++) if (lk_wr_g[k] && ob >= lk_o_grp[k].dest && ob < lk_o_grp[k].dest + 2 * lk_o_grp[k].words) break;
-    if (k < lk_o_ngrp) c = 1;
+    if (k < lk_o_ngrp) c = lk_wr_tok(lk_o_grp[k].base, ob) ? 1 : 0;   /* v4 */
     else if (lk_wr_ts[t]) c = lk_wr_ts[t] == 1 ? 2 : 0;
-    else { const uint8 *q = lk_o_tiles + ob; int j, n = 0, ns = 0; for (j = 0; j < 32; j++) { int h = q[j] >> 4, l2 = q[j] & 15; if (h) { ns++; if (lk_wr_idx >> h & 1) n++; } if (l2) { ns++; if (lk_wr_idx >> l2 & 1) n++; } } c = (ns >= 48 && n * 100 >= ns * 97) ? 2 : 0; }
+    else { const uint8 *q = lk_o_tiles + ob; int j, n = 0, ns = 0; for (j = 0; j < 32; j++) { int h = q[j] >> 4, l2 = q[j] & 15; if (h) { ns++; if (lk_wr_idx >> h & 1) n++; } if (l2) { ns++; if (lk_wr_idx >> l2 & 1) n++; } } c = ((ns >= 48 && n * 100 >= ns * 97) || (lk_wr_sp && ns >= 8 && n == ns)) ? 2 : 0; }   /* v4: + sparse pool tiles (lk_wr_sp, patch_water v4) */
     o[t] = (uint8_t)c; } }
 const uint32_t *lk_gc_wrbuf(void) { return &lk_wr_buf[0][0]; }
 const uint8_t *lk_gc_spre(void) { static uint8_t b[224 * 448 * 2]; int i; for (i = 0; i < 224 * 448; i++) { b[2 * i] = (&lk_lt_spre[0][0])[i]; b[2 * i + 1] = (&lk_lt_spre2[0][0])[i]; } return b; }   /* figure tag of every sprite pixel + the tag of a figure hidden under it (LK_LTHIDE v1), luminance alpha (the light's class tag, lk_gl_clstag) */
