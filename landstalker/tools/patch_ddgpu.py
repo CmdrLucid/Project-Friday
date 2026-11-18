@@ -74,6 +74,11 @@ static int lk_ddg_init(void) {
   ok = lk_glCheckFramebufferStatus(0x8D40) == 0x8CD5; lk_glBindFramebuffer(0x8D40, (lkGLuint)fb0);
   if (!ok) { printf("ddgpu: framebuffer incomplete: CPU de-dither\n"); return -1; }
   return 1; }
+int lk_ssg_hudmask(uint8_t *m) {   /* LK_SSHUD v1 (user 2026-11-17: the HUD got soft while sprinting): the HUD pixels (+1 px) or the Original HUD bar rows for the GPU sprint blend (patch_gpulight.py); 1 = mask filled */
+  int any = 0; lk_dd_hud(); memset(m, 0, 448 * 224);
+  if (lk_dd_hudmark) { lk_dd_hudmark(m, 448, 224); any = 1; }
+  if (lk_dd_skip_top > 0) { memset(m, 1, (size_t)(lk_dd_skip_top > 224 ? 224 : lk_dd_skip_top) * 448); any = 1; }
+  return any; }
 static void lk_ddg_pass(int sw) {   /* in lk_gpu_present after the picture is composed (unit 0 = the picture): the smoothed copy -> unit 0 */
   static const lkGLfloat quad[8] = { -1, -1, 1, -1, -1, 1, 1, 1 }; lkGLint fb0 = 0, vp[4], prog = 0, t1 = 0; extern int lk_hd_active(void);
   if (!lk_dd_loaded) lk_dd_load();

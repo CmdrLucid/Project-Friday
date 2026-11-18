@@ -45,7 +45,7 @@ int lk_mhud_get(void) {
 void lk_mhud_set(int v) { char p[512]; FILE *f; lk_mhud_get(); lk_o_nohud = v ? 1 : 0; lk_mh_path(p, sizeof p); f = fopen(p, "w"); if (f) { fprintf(f, "%d\n", lk_o_nohud); fclose(f); } }
 int lk_nohud_get(void) { return lk_o_nohud < 0 ? lk_mhud_get() : lk_o_nohud; }
 static int lk_mh_hit;
-static int lk_mh_menu(void);
+static int lk_mh_menu(void); static int lk_mh_credits(void);
 static void lk_mh_menu_row(PIXEL_OUT_T *row, int w, int e, int line);
 static void lk_mh_begin(int w, int e);
 static int lk_mh_pix(int line, int i, int *col);
@@ -80,7 +80,7 @@ static int lk_mh_pix(int line, int i, int *col);
     # map frames the own path does not draw: no old bar in lines 0..23
     a = "  if (!fr_done || w != 320 + 2 * e || !map) {"
     assert s.count(a) == 1, "vdp_render.c: own frame gate changed"
-    s = s.replace(a, "  if (!map && (lk_menu_seen || lk_mh_menu()) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { lk_mh_menu_row(row, w, e, line); return; }   /* LK_MHUD v3: Start menu: black + only the hearts (user 2026-10-30) */\n  if (((map && !fr_done) || (!map && (lk_menu_seen || lk_mh_menu()))) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { int k; for (k = 0; k < w; k++) row[k] = (PIXEL_OUT_T)pixel_lut[1][0]; return; }   /* LK_MHUD v3: Modern HUD: black instead of the old bar (also in the Start menu item / equip screens, lk_menu_seen of patch_wide.py; user 2026-10-30) */\n" + a, 1)
+    s = s.replace(a, "  if (!map && (lk_menu_seen || lk_mh_menu()) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { lk_mh_menu_row(row, w, e, line); return; }   /* LK_MHUD v3: Start menu: black + only the hearts (user 2026-10-30) */\n  if (((map && !fr_done) || (!map && (lk_menu_seen || lk_mh_menu() || (bus_get_ram()[0x0FD5 ^ 1] == 0x03 && (lk_picture || platform_frame_number() - lk_world_frame < 300) && !lk_mh_credits())))) && w == 320 + 2 * e && line < 24 && lk_nohud_get()) { int k; for (k = 0; k < w; k++) row[k] = (PIXEL_OUT_T)pixel_lut[1][0]; return; }   /* LK_MHUD v3: Modern HUD: black instead of the old bar (also in the Start menu item / equip screens, lk_menu_seen of patch_wide.py; user 2026-10-30); LK_MHPIC v1 (2026-11-18, GitHub #23): also over every non-map frame that shows the game's HUD window (window shadow g_VDPReg18 $FF0FD4 = $9203 = 3 cells from top) during play (UpdateSprites seen within 300 frames) or over a full-screen picture (lk_picture: lithograph): the fade-in after a ladder room change (room 185 -> 208, thieves' hideout) showed the bar for ~20 frames (GitHub #23); not the credits / title */\n" + a, 1)
 
     module = r'''
 /* ---- LK_MHUD v3: modern HUD layer (tools/patch_modernhud.py, docs/HUD_IDEAS.md entwurf 9) ---- */
@@ -216,6 +216,11 @@ static void lk_mh_begin(int w, int e) {
       if (icon >= 0 && icon < 64 && lk_q_have[icon]) { lk_mh_icon(dcx, dcy, icon, fill); }
     } }
   (void)e; (void)sh; (void)sw;
+}
+static int lk_mh_credits(void) {   /* LK_MHPIC v1: PlayEndCredits $09EBE0 is on the game's call stack (the credits keep the HUD window shadow $9203 but draw their text in lines 0..23: never black there) */
+  static long fr = -2; static int v; long f = platform_frame_number();
+  if (f != fr) { int i, d = func_table_depth(); fr = f; v = 0; for (i = 0; i < d; i++) if (func_table_stack(i) == 0x09EBE0u) { v = 1; break; } }
+  return v;
 }
 static int lk_mh_menu(void) {   /* LK_MHUD v3: CheckForMenuOpen $007624 is on the game's call stack (Start menu set-up / screens; lk_menu_seen of patch_wide.py comes one frame late: the old bar flashed for one frame when the menu opened, user 2026-10-30) */
   static long fr = -2; static int v; long f = platform_frame_number();

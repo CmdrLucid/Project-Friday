@@ -9312,7 +9312,10 @@
   "Items": "Objets",
   "Original": "Originaux",
   "Kayla's bath before the banquet": "Le bain de Kayla (version JP)",
-  "Four items as in the JP original": "Quatre objets de la version JP"
+  "Four items as in the JP original": "Quatre objets de la version JP",
+  "D-Pad": "Croix dir.",
+  "Alternate": "Alternatif",
+  "Up/Down/Left/Right go diagonally": "Haut/Bas/Gauche/Droite: diago."
  },
  "items_jp": {
   "names": {

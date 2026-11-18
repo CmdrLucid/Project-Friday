@@ -789,7 +789,7 @@ static int lk_scr_line(int line, PIXEL_OUT_T *out, int e, int dispforce) {      
   if (!(lk_rg[1] & 0x40) && !dispforce) { for (x = -ex; x < 320 + ex; x++) out[x] = pixel_lut[1][bgcol]; lk_hd_plain(line, out); return 1; }   /* display off: the backdrop */
   pw = pwr == 0 ? 32 : pwr == 1 ? 64 : 128; ph = phr == 0 ? 32 : phr == 1 ? 64 : 128;
   vwin = vbelow ? line >= vpos : line < vpos;
-  if (lk_scr_ismap && line >= 160 && bus_get_ram()[(0xFF0FC5 & 0xFFFF) ^ 1] == 0xA0) vwin = 1;   /* the text box of a map frame: the game's HInt moves the window split to line 160 (hint line $FF0FC5 = $A0, like lk_own_row's `text`); the register shadow does not see that: without this the generic renderer (intro rooms 141..143, display off frames) drew no text box */
+  if ((lk_scr_ismap || (lk_rg[0] & 0x10)) && line >= 160 && bus_get_ram()[(0xFF0FC5 & 0xFFFF) ^ 1] == 0xA0) vwin = 1;   /* the text box of a map frame: the game's HInt moves the window split to line 160 (hint line $FF0FC5 = $A0, like lk_own_row's `text`); the register shadow does not see that: without this the generic renderer (intro rooms 141..143, display off frames) drew no text box; LK_SCRHINT v1 (2026-11-18, GitHub #23): also on every non-map screen with HInt on (reg 0 bit 4: HandleHBlankInterrupt $001184 sets window 28 cells up whenever the hint line is $A0) = the lithograph's second text box (DisplayLithograph $0389D4) */
   hidx = hm == 0 ? 0 : hm == 3 ? line : (line & ~7);
   hsA = LK_VW(hsb + 4 * hidx) & 0x3FF; hsB = LK_VW(hsb + 4 * hidx + 2) & 0x3FF;
   for (x = -ex; x < 320 + ex; x++) { sp[x + 48] = -1; spi[x + 48].rep = 0; }

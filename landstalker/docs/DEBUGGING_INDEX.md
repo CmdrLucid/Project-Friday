@@ -241,3 +241,4 @@
 - L1916: Session 2026-11-16 afternoon (Deck, Opus 5.5, no agents): Massan night round 2, sprint light bug
 - L1924: Session 2026-11-16 evening / 11-17 (Deck, Opus 5.5, no agents): Mercator church at night, sprint sprite jitter, Destel night lights
 - L1934: Session 2026-11-17 later (Deck, Opus 5.5, no agents): GitHub #19 / #20, De-Dither on the GPU
+- L1942: Session 2026-11-17 evening / night: release v1.9.5, trailer 2.0, sharp smooth scrolling on the GPU

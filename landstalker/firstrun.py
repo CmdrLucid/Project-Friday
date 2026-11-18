@@ -9,7 +9,7 @@ Environment: LANDSTALKER_ROM, LANDSTALKER_DATA (data folder), SDL2_CFLAGS / SDL2
 Folder layout next to this file (release):  tools/ docs/symbols.json docs/ENTITIES.md docs/ROOMS.md recomp.json src/main.c vendor/genrecomp/
                                             vendor/zig/zig (optional, else a system compiler is used)
 """
-import hashlib, json, os, re, shlex, shutil, subprocess, sys, time
+import glob, hashlib, json, os, re, shlex, shutil, subprocess, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 WIN = os.name == "nt"
@@ -389,7 +389,29 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
         cmd = [sys.executable, "-m", "pip", "install", "--quiet", "--upgrade", "--target", pylib, "capstone"]
         if os.path.isdir(wheels):
             cmd[5:5] = ["--no-index", "--find-links", wheels]
-        run(cmd, "install capstone")
+        # (user report 2026-11-17: a Steam Deck whose system python has NO pip -> '/usr/bin/python3: No module named pip'.) A wheel is a zip that is installed
+        # by unpacking it into the target folder (capstone's has no .data part): without a working pip we unpack the bundled wheel ourselves.
+        whl = sorted(glob.glob(os.path.join(wheels, "capstone-*.whl"))) if os.path.isdir(wheels) else []
+        has_pip = subprocess.run([sys.executable, "-m", "pip", "--version"], capture_output=True).returncode == 0
+        if has_pip or not whl:
+            try:
+                run(cmd, "install capstone")
+            except Exception:
+                if not whl:
+                    raise
+                has_pip = False
+        if not has_pip and whl:
+            import zipfile
+            log.write("\n$ unpack %s -> %s (no pip)\n" % (whl[-1], pylib))
+            os.makedirs(pylib, exist_ok=True)
+            with zipfile.ZipFile(whl[-1]) as z:
+                z.extractall(pylib)
+            for root, _d, files in os.walk(pylib):
+                for f in files:
+                    if f.endswith(".so") or ".so." in f:
+                        os.chmod(os.path.join(root, f), 0o755)
+            if subprocess.run([sys.executable, "-c", "import capstone"], capture_output=True, env=penv).returncode:
+                raise RuntimeError("capstone could not be installed (no pip, unpacking the bundled wheel did not help)")
     # the patch / generate chain
     for i, st in enumerate(steps):
         args = [rom if a == "$ROM" else a for a in st[1:]]
