@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 811-822
-- 1. Where we are: lines 823-974
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 975-1235
-- 3. How the user works (important): lines 1236-1251
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1252-1276
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1277-1285
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1286-1333
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1334-1343
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1344-1345
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1346-1348
-- NEXT STEPS, newest first: -223 976, -222 977, -221 978, -220 979, -219 980, -218 981, -217 982, -216 983, -215 984, -214 985
+- 1. Where we are: lines 823-975
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 976-1236
+- 3. How the user works (important): lines 1237-1252
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1253-1277
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1278-1286
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1287-1334
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1335-1344
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1345-1346
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1347-1349
+- NEXT STEPS, newest first: -223 977, -222 978, -221 979, -220 980, -219 981, -218 982, -217 983, -216 984, -215 985, -214 986
 - Newest entries:
   - 0a466 line 190: 2026-11-18 later (Deck, Opus 5.5, no agents): RELEASE v1.9.6 (user: 'Jo, passt, mach das bitte'). Release n...
   - 0a465 line 192: 2026-11-18 (Deck, Opus 5.5, no agents): GITHUB #21 / #22 / #23 (paul-met). User confirmed the sprint scroll...
@@ -821,6 +821,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-18 EVENING END (Opus 5.5, no agents, `dev` pushed, main = v1.9.7 fb4f329):** RELEASE v1.9.7 (tested before / after the tag). USER CONFIRMED by playing: room 0 light + Modern HUD (LK_ROOM0), Tibor, room 431 exit shadow gone (LK_PINEEXIT). HEADLESS ONLY: Friday hint Gumi, water drops only in 4 areas + half as many, Gaia stones in room 0. Reverted at the user's wish: shore fade of the reflections. Quiver: staff draft, art ready. OPEN: #21 (Paul), Gaia stones room 0, room 182 light edge, trailer recordings.
 - **2026-11-18 LATER END (Opus 5.5, no agents, `dev` pushed, main = v1.9.6 e224421):** RELEASE v1.9.6 published (AppImage first run + windows-check + download check before / after the tag, 0a466; user added the pip line to the GitHub release text himself). USER CONFIRMED by playing: sprint scrolling ('looks good now'). HEADLESS ONLY (Claude, user asked: 'das Steuerkreuz teste bitte du'): alternate D-pad #22 (8 directions both modes, menu row in 5 languages, saved setting), lithograph text box + no old bar #23, ladder fade-in 185 -> 208 without old bar #23, credits unchanged. OPEN: #21 striped shadow (needs Paul's place / time / GPU), room 182 light edge (-219 d), trailer 2.0 recordings (-218).
 - **2026-11-18 END (Opus 5.5, no agents, `dev` pushed, main = v1.9.5):** after the release, all HEADLESS ONLY (not played): sharp smooth scrolling on the GPU + owner-first figure classes + HUD out of the sprint blend (sprinttest PASS 177 / 179 / 180 / church 700), first run without pip, F6 De-Dither names (GitHub #19), Yes / No ko / ja. User wants NO release yet (sprint fix goes into the next one). NEXT -219 (user plays the shrine sprint; room 182 light edge: where exactly?).
 - **2026-11-17 NIGHT (Opus 5.5, no agents, `dev` pushed, main = v1.9.5):** RELEASE v1.9.5 published (tested AppImage + Windows before tagging, 0a464). Defaults now: Map R3 / M, Friday Hints On, Bath Scene On (bath NOT played). Trailer 2.0 preview 5 (headless footage, user reviewed 1..5). NEXT -218.
