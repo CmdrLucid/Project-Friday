@@ -128,6 +128,7 @@ chk "Zeitraffer-Taste (L5 + R5)"                    $G/src/input.c "lk_dn_fastto
 chk "Gegner zerfallen (Option)"                     $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DISSOLVE v1"
 chk "Hitzeflimmern (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_HAZE v1"
 chk "Wasserspiegelung (Option)"                    $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_WATER v3"
+chk "Spiegelung blendet zum Ufer aus"               $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_WRSHORE v1"
 chk "Wolkenschatten (Option)"                      $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_CLOUDS v1"
 chk "GPU-Filter v2 (Sprint-Glaettung)"            $G/src/platform_sdl.c "LK_GPU v2"
 chk "GPU-Licht v5 (Grafikkarte, Waechter)"  $G/src/platform_sdl.c "LK_GPULT v5"
