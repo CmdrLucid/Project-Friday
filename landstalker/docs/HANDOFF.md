@@ -5,15 +5,15 @@
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 811-822
 - 1. Where we are: lines 823-974
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 975-1233
-- 3. How the user works (important): lines 1234-1249
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1250-1274
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1275-1283
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1284-1331
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1332-1341
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1342-1343
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1344-1346
-- NEXT STEPS, newest first: -221 976, -220 977, -219 978, -218 979, -217 980, -216 981, -215 982, -214 983, -213 984, -212 985
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 975-1234
+- 3. How the user works (important): lines 1235-1250
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1251-1275
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1276-1284
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1285-1332
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1333-1342
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1343-1344
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1345-1347
+- NEXT STEPS, newest first: -222 976, -221 977, -220 978, -219 979, -218 980, -217 981, -216 982, -215 983, -214 984, -213 985
 - Newest entries:
   - 0a466 line 190: 2026-11-18 later (Deck, Opus 5.5, no agents): RELEASE v1.9.6 (user: 'Jo, passt, mach das bitte'). Release n...
   - 0a465 line 192: 2026-11-18 (Deck, Opus 5.5, no agents): GITHUB #21 / #22 / #23 (paul-met). User confirmed the sprint scroll...
@@ -973,6 +973,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-222. **NEXT (2026-11-18 night): user plays (dev ZIP + build.sh):** Swamp Shrine room 0 (torch light, Gaia sword attack without green stones), walking out to the routes 431 / 433 / 436 (sun, day / night), Tibor (808..815, now the own renderer + light shafts). If the sun still goes missing on the routes: a recording (Landstalker_Aufnahme.sh) from inside the shrine out.
 -221. **NEXT (2026-11-18 evening): user plays (dev ZIP + build.sh):** Select in Gumi at stage 3 without the Idol Stone -> Friday points to Gumi (no shut door); Swamp Shrine without water drops. Quiver: the entry is a staff draft (submitted by someone else, under the user's 'Your apps'); icon / screenshot / texts ready in ~/Project-Friday-Test/Quiver (LIESMICH.txt). Review the other Friday hints for knowledge the player cannot have yet (user report: stage 3 door).
 -220. **RELEASED as v1.9.6 (2026-11-18, main e224421). (a) D-pad tested by Claude headless (user: 'das Steuerkreuz teste bitte du'). NEXT: user answers GitHub #22 / #23 (Claude drafts on request), collect feedback;** (b) lithograph in the thieves' hideout with Modern HUD (text boxes visible, no old bar) - needs a save there; (c) ladder in the thieves' hideout (room 185 up into 208) with Modern HUD: no old bar; (d) for #21 shadow stripes: ask Paul for the place: room / save, time of day, GPU; then reproduce with LANDSTALKER_WARP + lightshots. Reply texts for #22 / #23 on request.
 -219. **USER CONFIRMED 2026-11-18 ('Scrolling while sprinting looks good now'); (d) room 182 light edge still open.** **(a) / (b) / (c) / (e) FIXED 2026-11-17 night (headless, tools/sprinttest.py PASS on 177 / 179 / 180 / church 700; NOT played): user list rec_20261117_1737 (waterfall shrine).** Root cause of the recurring sprint jitter: the SHARP smooth scrolling (LK_SSHARP, 2026-10-31) never worked with the GPU light: its world mask was built from the CPU rows (empty with GPU composition) and the CPU world flags reached row ~136 only; the 11-16 fix replaced it by a soft GPU blend that every new layer had to be told about (HUD, Nigel, figures). Now LK_SSHARP2 v1: the present shader reads the world from the GPU light classes (all rows) minus the HUD, the blend is off while the shift runs; the 1 / 0 vertical step pattern of diagonal sprinting (179) is evened out too; LK_FIGOWN2 v1: sprite pixels belong to their owner figure first (statues beside Nigel were 'Nigel' = unshifted, 177). OPEN: (d) room 182 hard light edge; the user plays 177 / 179 / 180 + a church sprint. RULE: run `~/.landstalker_trailer/venv/bin/python tools/sprinttest.py` after every change to the picture path.
