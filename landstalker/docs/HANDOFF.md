@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 821-832
-- 1. Where we are: lines 833-988
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 989-1256
-- 3. How the user works (important): lines 1257-1272
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1273-1297
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1298-1306
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1307-1354
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1355-1364
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1365-1366
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1367-1369
-- NEXT STEPS, newest first: -230 990, -229 991, -228 992, -227 993, -226 994, -225 995, -224 996, -223 997, -222 998, -221 999
+- 1. Where we are: lines 833-989
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 990-1257
+- 3. How the user works (important): lines 1258-1273
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1274-1298
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1299-1307
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1308-1355
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1356-1365
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1366-1367
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1368-1370
+- NEXT STEPS, newest first: -230 991, -229 992, -228 993, -227 994, -226 995, -225 996, -224 997, -223 998, -222 999, -221 1000
 - Newest entries:
   - 0a471 line 190: 2026-11-18 late (Deck, Opus 5.5): USER REPORTS from playing (only RECORDED, user: 'nimm diese Punkte nur ma...
   - 0a470 line 192: 2026-11-18 late (Deck, Opus 5.5, no agents): USER: 'das Wasser in 175 reflektiert nicht' -> LK_WATER v4 + L...
@@ -831,6 +831,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-18 LATE (Opus 5.5, no agents, `dev` pushed, no release):** water reflections in the waterfall shrine (room 175 report) = LK_WATER v4 / LK_GPUCOMP v4, built in ~/ProjectL (what ~/Landstalker.sh starts) and checked ONLY headless with WATER_DBG=2 shots (175 / 174); GPU reflection + other tileset 5 rooms + user test open (-229). New user reports parked without work (0a471 / -230: Friday Gumi door hint, Swamp Shrine torch statue shadows rooms 2 / 5 / 28, room 19 hard edge). Still open from before: release with the #21 fix (-228).
 - **2026-11-18 NIGHT 2 (Opus 5.5, `dev` pushed):** build.sh now uses zig like the downloads (user decision); 2nd memory bug fixed (LK_OSDEXT: ROM load stack overflow, found by gcc ASan); zig and gcc builds replay rec_20261117_1737 exactly; ASan clean over 15120 frames with light. The user's next dev ZIP build uses zig (first build downloads nothing: zig is in ~/.cache/project-friday-build). NOT played.
 - **2026-11-18 NIGHT END (Opus 5.5, no agents, `dev` pushed, main = v1.9.7, NO release yet: user 'kommt mit dem nächsten'):** GitHub #21 SOLVED (LK_LTOCL v1: out-of-bounds write, visible only in the zig / clang release packages Windows + AppImage; found on the Deck with a Windows exe under Proton, a native clang build, object bisection and ubsan). Also: room 182 pit strip (LK_LTDOORPIT), Friday Waterfall hint, wall 638 + arcade 486 as real models (no box proxies left), watchdog OSD + retry (LK_LTSLOW). ALL HEADLESS ONLY. Reply text for Paul drafted (user posts). NEXT -228 / -226.
 - **2026-11-18 LATE NIGHT (Opus 5.5, no agents, `dev` pushed, main = v1.9.7):** room 182 light strip fixed (LK_LTDOORPIT v1: the game's pit floor type stops the door niche fill), Friday hint in the Waterfall Shrine corrected (Idol Stone only in Gumi 605) + 2 L2 texts. ALL HEADLESS ONLY (warp + light ratio, lightedges old / new over 49 rooms, build + verify_build 175 ok). Paul has not answered #21. NEXT -224.
