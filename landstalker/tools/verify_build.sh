@@ -46,6 +46,7 @@ chk "Licht: Fensterlicht trifft 3D-Wände (Kirche)"    $G/src/platform_sdl.c "LK
 chk "Licht: Tuerschlitz in Innenwand"               $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTDOORVOID v1"
 chk "Licht: Grube (Bodentyp 07) ist keine Tuer"      $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTDOORPIT v1"
 chk "Licht: Waechter mit Meldung + Wiedereinschalten" $G/src/platform_sdl.c "LK_LTSLOW v1"
+chk "Licht: Objektklassen-Tabelle gross genug (#21)" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTOCL v1"
 chk "Licht: Kartenrand-Wiese nicht unbeleuchtet"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTEDGEFILL v1"
 chk "Licht: Fensterladen-Licht unter dem Laden"     $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNSHUT v1"
 chk "Licht: Massan-Tueren als Iso-Parallelogramm"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNDOORISO v1"
