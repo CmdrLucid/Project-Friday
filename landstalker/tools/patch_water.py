@@ -18,7 +18,7 @@ v3 (2026-11-06): the scan box is +-48 px wide (sword swings), Boot Colors recolo
 Needs patch_own.py, patch_lights.py (lk_lt_spre), patch_bootcol.py (lk_bc_pix), patch_dissolve.py, patch_haze.py before it.  Idempotent.  usage: patch_water.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_WATER v3"   # + LK_WRSHORE v1 (2026-11-18): reflection fades towards the shore
+VER = "LK_WATER v3"
 
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
@@ -45,15 +45,6 @@ static void lk_wr_newroom(void) {
   lk_wr_idx &= 0xFFFE;
   if (lk_wr_dbg) printf("water: room %%d colour indexes %%04X\n", lk_o_room, lk_wr_idx);
   if (lk_wr_dbg) printf("water: room %%d groups %%d water %%d (%%d %%d %%d %%d %%d %%d %%d %%d)\n", lk_o_room, lk_o_ngrp, lk_wr_any, lk_wr_g[0], lk_wr_g[1], lk_wr_g[2], lk_wr_g[3], lk_wr_g[4], lk_wr_g[5], lk_wr_g[6], lk_wr_g[7]); }
-static int lk_wr_tilewater(long o);
-static int lk_wr_cellw1(uint32 cell) {   /* LK_WRSHORE v1: a layer cell is water (animated water group or a static water tile) */
-  long ob; int k; if (!(cell & 0x10000)) return -1; ob = (long)(cell & 0x7FF) << 5;
-  for (k = 0; k < lk_o_ngrp; k++) if (lk_wr_g[k] && ob >= lk_o_grp[k].dest && ob < lk_o_grp[k].dest + 2 * lk_o_grp[k].words) return 1;
-  return lk_wr_tilewater(ob) ? 1 : 0; }
-static int lk_wr_cellw(int u, int v) {   /* picture point (u, v) lies on water: plane A decides where it has a cell, else plane B */
-  int r = v >> 3, c = u >> 3, a, b; if (u < 0 || v < 0 || r >= 152 || c >= 304) return 0;
-  a = lk_wr_cellw1(lk_o_pa[r][c]); if (a >= 0) return a;
-  b = lk_wr_cellw1(lk_o_pb[r][c]); return b > 0; }
 static void lk_wr_step(void) {   /* once per map frame: the reflection picture from this frame's sprite picture */
   int a, y, nf = 0;
   lk_wr_frame = platform_frame_number();
@@ -86,13 +77,6 @@ static void lk_wr_step(void) {   /* once per map frame: the reflection picture f
         if (lk_wr_buf[yr][x] && lk_wr_dep[yr][x] > M) continue;   /* a nearer figure's reflection is already there */
         { PIXEL_OUT_T cc = lk_o_colour(y, sp & 0x3F); if (lk_bc_kind) cc = lk_bc_pix(y, x, sp, cc);   /* v3: Boot Colors also in the reflection (user 2026-11-06) */
           lk_wr_buf[yr][x] = ((uint32_t)(al > 255 ? 255 : al) << 24) | ((uint32_t)cc & 0xFFFFFFu); } lk_wr_dep[yr][x] = (int16_t)M; lk_wr_line[yr] = 1; } } }
-  { int y2, x2, e2 = lk_wide_e;   /* LK_WRSHORE v1 (user 2026-11-18, room 448: 'wirkt falsch', picked B): the reflection fades towards the shore - full with >= 24 px of water below it in the picture, gone in the last 4 px before land / foam; any shore direction */
-    for (y2 = 0; y2 < 224; y2++) if (lk_wr_line[y2]) for (x2 = 0; x2 < LK_OSW; x2++) { uint32_t q = lk_wr_buf[y2][x2]; int u, v, d, al;
-      if (!q) continue;
-      u = lk_o_u0 + x2 - e2; v = lk_o_v0 + y2;
-      for (d = 0; d < 24; d += 2) if (!lk_wr_cellw(u, v + d)) break;   /* pixels of water below this point (2 px steps, cells are 8 px) */
-      if (d >= 24) continue;
-      al = (int)(q >> 24) * (d > 4 ? d - 4 : 0) / 20; lk_wr_buf[y2][x2] = al > 4 ? (((uint32_t)al << 24) | (q & 0xFFFFFFu)) : 0u; } }
   if (lk_wr_dbg == 1 && lk_wr_frame %% 60 == 0) printf("water: frame %%ld room %%d figures %%d\n", lk_wr_frame, lk_o_room, nf);
 }
 static int lk_wr_linebegin(int line) {
