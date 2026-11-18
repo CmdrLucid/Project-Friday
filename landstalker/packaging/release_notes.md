@@ -1,5 +1,11 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
+### DRAFT for the next release (new since v1.9.7; merge into the text above when tagging)
+- **Waterfall Shrine:** no more bright strip on the wall behind Nigel next to the chest (the lighting took a pit for a door and put a floor there). The same fix applies to pits in other caves and dungeons.
+- **Friday Hints:** in the Waterfall Shrine Friday no longer sends you deeper for the Idol Stone (it is not there); she points you back to Gumi.
+- **Mercator fountain court:** the round towers of the city wall are round for the lighting too, and in the evening the high wall now shades the court.
+- **Weak or busy GPU:** when the GPU is too slow for the lighting, a message now says so (LIGHTING OFF: GPU TOO SLOW) and the lighting tries again after 30 seconds (before, it switched off silently until the next start, which also looked like a jump from night to day).
+
 ### Fixes early in the game (polishing before v2.0)
 **New since v1.9.6:**
 - **Swamp Shrine entrance (room 0):** the torches give light again, the Modern HUD is shown, and the room now gets the same picture fixes as every other room (the Gaia sword effect there should no longer turn the stones green - please tell me if it still does). The room was never handed to the new renderer because of its number 0; this also fixes the sun and the day / night look on the paths after it.

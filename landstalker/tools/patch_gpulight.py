@@ -1120,6 +1120,7 @@ static void lk_glt_qinit(void) { *(void **)&lk_glGenQueries = lk_gpu_fn("glGenQu
   { const char *e = getenv("LANDSTALKER_GPULT_MAXMS"); lk_glt_qmax = e ? atof(e) : 6.0; } { const char *e = getenv("LANDSTALKER_GPULT_TIME"); lk_glt_qdbg = e ? atoi(e) : 0; }
   if (!lk_glGenQueries || !lk_glBeginQuery || !lk_glEndQuery || !lk_glGetQueryObjectiv || !lk_glGetQueryObjectui64v || !(SDL_GL_ExtensionSupported("GL_ARB_timer_query") || SDL_GL_ExtensionSupported("GL_EXT_timer_query"))) { lk_glt_qst = -1; printf("gpult: no timer queries, no GPU time watchdog\n"); return; }
   lk_glGenQueries(2, lk_glt_q); lk_glt_qst = 1; }
+static void lk_lt_slowtrip(const char *who, double avg, double mx);   /* LK_LTSLOW v1 (below) */
 static void lk_glt_qresult(void) {   /* finished queries of both slots: add their time */
   extern int lk_gl_slow; int o; lkGLint av; unsigned long long ns;
   for (o = 0; o < 2; o++) { if (!lk_glt_qpend[o]) continue; av = 0; ns = 0;
@@ -1128,7 +1129,7 @@ static void lk_glt_qresult(void) {   /* finished queries of both slots: add thei
   if (lk_glt_qn < 120) return;
   { double avg = lk_glt_qsum / lk_glt_qn; lk_glt_qsum = 0.0; lk_glt_qn = 0;
     if (lk_glt_qdbg) printf("gpult: light pass %%.3f ms on the GPU (120 frame average)\n", avg);
-    if (lk_glt_qmax > 0.0 && avg > lk_glt_qmax) { if (++lk_glt_qover >= 2) { lk_gl_slow = 1; printf("gpult: light pass too slow on this GPU (%%.2f ms > %%.2f ms), Lighting off from now on\n", avg, lk_glt_qmax); } }
+    if (lk_glt_qmax > 0.0 && avg > lk_glt_qmax) { if (++lk_glt_qover >= 2) { lk_lt_slowtrip("gpult: light pass", avg, lk_glt_qmax); lk_glt_qover = 0; } }
     else lk_glt_qover = 0; } }
 #define LK_GLT_NT 16   /* textures of the pass: 0 unlit, 1 class + tag, 2 rows, 3 room A, 4 block table, 5 / 6 terms, 7 room B, 8 key light, 9 light lists, 10 mix after the light (448 x 448), 11 figure box mask, 12 pairs, 13 motes, 14 particles, 15 particle depths */
 static lkGLuint lk_glt_prog, lk_glt_fbo, lk_glt_out, lk_glt_t[LK_GLT_NT]; static lkGLint lk_glt_u[64];
@@ -1404,7 +1405,7 @@ static void lk_g5_qpoll(void) { int o; lkGLint av; unsigned long long ns; static
     if (lk_g5_qb[o] > 0) { double per = (double)ns * 1e-6 / (double)lk_g5_qb[o]; lk_g5_bms = lk_g5_bms < 0.0 ? per : lk_g5_bms * 0.75 + per * 0.25; } }   /* LK_GL5RING v1 */
   if (++lk_g5_qn < 120) return;
   { double avg = lk_g5_qsum / lk_g5_qn; lk_g5_qsum = 0.0; lk_g5_qn = 0; if (lk_glt_qdbg) printf("gl5: block passes %%.3f ms per frame on the GPU (120 frame average)\n", avg);
-    if (mx > 0.0 && avg > mx) { if (++lk_g5_qover >= 2) { lk_g5_slow = 1; printf("gl5: light block pass too slow on this GPU (%%.2f ms > %%.2f ms), Lighting off from now on\n", avg, mx); } } else lk_g5_qover = 0; } }
+    if (mx > 0.0 && avg > mx) { if (++lk_g5_qover >= 2) { lk_g5_slow = 1; lk_lt_slowtrip("gl5: light block pass", avg, mx); lk_g5_qover = 0; } } else lk_g5_qover = 0; } }
 static int lk_g5_vc = 18;   /* LK_GL5ENTRY v1 (2026-11-11, user: 'Haenger von Mercator'): after a room change (new hard key) the visible blocks without data are spread
    over the fade-in by the measured GPU time (LANDSTALKER_GL5_ENTRYMS, 18 ms, for 40 frames; a frame of 20 or 33 ms both miss exactly one vsync; was CAP 18 at once = 5 frames of 60..87 ms at 200 MHz); a block not computed yet
    shows the flat base light (no shadows) while the picture is still dark (fade-in of 632: frames 604..624); at most 18 / 2.5 = 7 blocks per frame (632: all done by frame 616, frames 27..37 ms instead of 5 frames of 58..87 ms).  LANDSTALKER_GL5_ENTRYMS=0 = old. */
@@ -1591,10 +1592,27 @@ static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out ho
   for (i = 11; i >= 0; i--) { lk_glActiveTexture(0x84C0 + i); lk_glBindTexture(0x0DE1, (lkGLuint)tb[i]); }
   return 1; }
 
+/* LK_LTSLOW v1 (user 2026-11-18: the GPU time watchdog switched Lighting off SILENTLY and for the rest of the run; seen while Claude's GPU tests shared the Deck GPU in
+   desktop mode = 'Licht weg, Nacht springt auf Tag'): when a watchdog (light pass > GPULT_MAXMS or block pass > GL5_MAXMS, 2 windows of 120 frames) trips, an OSD line says so and
+   Lighting comes back by itself after LANDSTALKER_LT_RETRY_S seconds (default 30; 0 = old behaviour, off for the rest of the run); every further trip doubles the wait (at most 300 s).
+   The watchdogs then measure again (counters reset); a GPU that is still too slow trips again.  Turning the GPU+ path back on clears its blocks (g5prev switch in lk_glt_pass). */
+static int lk_lt_sl_on, lk_lt_sl_n; static unsigned lk_lt_sl_t0, lk_lt_sl_wait;
+static void lk_lt_slowtrip(const char *who, double avg, double mx) { extern int lk_gl_slow; double base;
+  { const char *e = getenv("LANDSTALKER_LT_RETRY_S"); base = e ? atof(e) : 30.0; }
+  lk_gl_slow = 1; lk_lt_sl_on = 1; lk_lt_sl_t0 = SDL_GetTicks(); lk_lt_sl_n++;
+  { double w = base * (double)(1 << (lk_lt_sl_n < 5 ? lk_lt_sl_n - 1 : 4)); if (w > 300.0) w = 300.0; lk_lt_sl_wait = base > 0.0 ? (unsigned)(w * 1000.0) : 0; }
+  snprintf(lk_osd_text, sizeof(lk_osd_text), "LIGHTING OFF: GPU TOO SLOW"); lk_osd_frames = 240;
+  if (lk_lt_sl_wait) printf("%%s too slow on this GPU (%%.2f ms > %%.2f ms), Lighting off, retry in %%u s\n", who, avg, mx, lk_lt_sl_wait / 1000u);
+  else printf("%%s too slow on this GPU (%%.2f ms > %%.2f ms), Lighting off from now on\n", who, avg, mx); }
+static void lk_lt_slowtick(void) { extern int lk_gl_slow;
+  if (!lk_lt_sl_on || !lk_lt_sl_wait || (unsigned)(SDL_GetTicks() - lk_lt_sl_t0) < lk_lt_sl_wait) return;
+  lk_lt_sl_on = 0; lk_gl_slow = 0; lk_g5_slow = 0; lk_g5_qover = 0; lk_g5_qsum = 0.0; lk_g5_qn = 0; lk_glt_qover = 0; lk_glt_qsum = 0.0; lk_glt_qn = 0;
+  snprintf(lk_osd_text, sizeof(lk_osd_text), "LIGHTING ON AGAIN"); lk_osd_frames = 120; printf("lighting: retry after the GPU time watchdog (trip %%d)\n", lk_lt_sl_n); }
 static int lk_glt_pass(int real) {   /* inside lk_gpu_present after SDL's state is saved; compare (real 0): before the picture upload, unit 0 = recorded unlit picture;
      real (1): after it, unit 0 = the presented picture; returns 1 when lk_glt_out holds the lit picture.  Leaves texture unit 0 active, vertex array enabled */
   float fu[64], lp[96 * 4], lc[96 * 4], lf[96 * 4], fg[16 * 4], fa[16 * 4]; int iu[32], L, i, bx, by, u0 = 1 << 30, u1 = -(1 << 30), v0 = 1 << 30, v1 = -(1 << 30); long fr = platform_frame_number();
   lkGLint fb0 = 0, tb[LK_GLT_NT]; static const lkGLfloat quad[8] = { -1, -1, 1, -1, -1, 1, 1, 1 }; static uint32_t bt[38 * 76], bl0[38 * 76], bl1[38 * 76];
+  if (real) lk_lt_slowtick();   /* LK_LTSLOW v1 */
   { extern long lk_gl_realcap; int md = lk_gl_getmode(); if (!real || !(md == 1 || lk_gl_realcap == fr - 1) || lk_glt_st < 0 || !lk_gl_frame(fr, fu, iu, lp, lc, lf, fg, fa)) return 0; }   /* v5: a real frame is lit even if the mode switched after its rows */
   if (lk_glt_st == 0) { lk_glt_st = lk_glt_init(); if (lk_glt_st < 0) return 0; }
   for (i = 0; i < LK_GLT_NT; i++) { lk_glActiveTexture(0x84C0 + i); lk_glGetIntegerv(0x8069, &tb[i]); }
