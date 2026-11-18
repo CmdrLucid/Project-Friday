@@ -230,3 +230,9 @@ FINAL = with material, approved by the user.
 - Light check: lightedges 638 --spots 0 edge px old / new (noon and 17 h); noon practically unchanged, at 17 h the west wall now shades the court (the old box proxy did not; cause not traced).
 - Remake: build symmetric real round towers separately ('remake vs light variant'); the full half cylinder would stand in the drawn grass.
 - STATE: light variant done (user OK 2026-11-18).
+
+## Arcade of room 486  (`remake/recipes/proxy_arcade_486.py` -> `landstalker/data/proxies/arcade_486.obj`; room 486 only)
+- Reference: room 486, wall cells x 43..44 (688..720) at 240 with the passages rows 37..39 / 52..54; window `rom_picture.py ROM 486 820 300 700 600`.
+- Light variant v2 (2026-11-18): three piers with stepped corbel brackets and a flat lintel; per run ONE closed solid: elevation = top 240 + the measured underside (PROFILE of v1..v3, user corrections 2026-11-08) through the slice centres, vertical steps between courses, extruded along x; caps ear-clipped (the game's OBJ reader fans n-gons). Overlay on the drawing: outline on the drawn edges.
+- Light check: lightedges 486 --spots 0 edge px old / new at 13 h and 17 h; only thin lines at the course edges change (the old 4 unit stair shadows under the courses are gone).
+- STATE: light variant done (2026-11-18). Remake: real stones / rounded courses later.

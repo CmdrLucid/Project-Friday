@@ -3174,7 +3174,7 @@
         "file": "proxies/arcade_486.obj",
         "surface": true,
         "air": true,
-        "why": "three piers (solid) with stepped corbel brackets (slabs with soft sides: the light passes under them), measured on the drawn layer A wall (remake/recipes/proxy_arcade_486.py); the arch-gap fill skips these cells"
+        "why": "three piers (solid) with stepped corbel brackets (slabs with soft sides: the light passes under them), measured on the drawn layer A wall (remake/recipes/proxy_arcade_486.py); the arch-gap fill skips these cells; v2 2026-11-18: one solid per pier (sloped course undersides, ear-clipped caps) instead of 4 unit slabs"
       }
     ],
     "488": [
