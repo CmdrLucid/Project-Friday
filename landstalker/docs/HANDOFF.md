@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 817-828
-- 1. Where we are: lines 829-983
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 984-1249
-- 3. How the user works (important): lines 1250-1265
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1266-1290
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1291-1299
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1300-1347
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1348-1357
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1358-1359
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1360-1362
-- NEXT STEPS, newest first: -228 985, -227 986, -226 987, -225 988, -224 989, -223 990, -222 991, -221 992, -220 993, -219 994
+- 1. Where we are: lines 829-984
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 985-1250
+- 3. How the user works (important): lines 1251-1266
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1267-1291
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1292-1300
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1301-1348
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1349-1358
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1359-1360
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1361-1363
+- NEXT STEPS, newest first: -228 986, -227 987, -226 988, -225 989, -224 990, -223 991, -222 992, -221 993, -220 994, -219 995
 - Newest entries:
   - 0a469 line 190: 2026-11-18 night (Deck, Opus 5.5, no agents): arcade 486 v2 (no box proxies left) + GITHUB #21 SOLVED witho...
   - 0a468 line 192: 2026-11-18 late night 2 (Deck, Opus 5.5, no agents): light shape 638 v2 (round towers clipped at the collis...
@@ -827,6 +827,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-18 NIGHT 2 (Opus 5.5, `dev` pushed):** build.sh now uses zig like the downloads (user decision); 2nd memory bug fixed (LK_OSDEXT: ROM load stack overflow, found by gcc ASan); zig and gcc builds replay rec_20261117_1737 exactly; ASan clean over 15120 frames with light. The user's next dev ZIP build uses zig (first build downloads nothing: zig is in ~/.cache/project-friday-build). NOT played.
 - **2026-11-18 NIGHT END (Opus 5.5, no agents, `dev` pushed, main = v1.9.7, NO release yet: user 'kommt mit dem nächsten'):** GitHub #21 SOLVED (LK_LTOCL v1: out-of-bounds write, visible only in the zig / clang release packages Windows + AppImage; found on the Deck with a Windows exe under Proton, a native clang build, object bisection and ubsan). Also: room 182 pit strip (LK_LTDOORPIT), Friday Waterfall hint, wall 638 + arcade 486 as real models (no box proxies left), watchdog OSD + retry (LK_LTSLOW). ALL HEADLESS ONLY. Reply text for Paul drafted (user posts). NEXT -228 / -226.
 - **2026-11-18 LATE NIGHT (Opus 5.5, no agents, `dev` pushed, main = v1.9.7):** room 182 light strip fixed (LK_LTDOORPIT v1: the game's pit floor type stops the door niche fill), Friday hint in the Waterfall Shrine corrected (Idol Stone only in Gumi 605) + 2 L2 texts. ALL HEADLESS ONLY (warp + light ratio, lightedges old / new over 49 rooms, build + verify_build 175 ok). Paul has not answered #21. NEXT -224.
 - **2026-11-18 EVENING END (Opus 5.5, no agents, `dev` pushed, main = v1.9.7 fb4f329):** RELEASE v1.9.7 (tested before / after the tag). USER CONFIRMED by playing: room 0 light + Modern HUD (LK_ROOM0), Tibor, room 431 exit shadow gone (LK_PINEEXIT). HEADLESS ONLY: Friday hint Gumi, water drops only in 4 areas + half as many, Gaia stones in room 0. Reverted at the user's wish: shore fade of the reflections. Quiver: staff draft, art ready. OPEN: #21 (Paul), Gaia stones room 0, room 182 light edge, trailer recordings.
@@ -1253,7 +1254,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - They download the branch ZIP **manually** in the browser (curl of the GitHub zip fails). URL pattern: `https://github.com/cmdrlucid/Project-Friday/archive/refs/heads/<branch>.zip`; the folder is `~/Downloads/Project-Friday-<branch with / replaced by ->/landstalker`
   (this session: `ProjectL-ccr-34f3ef0b-tl76g2`; after the merge `Project-Friday-main`; a new session branch gets a new folder name, check `git branch` / the session instruction). Always `unzip -o` (a plain unzip keeps old files). Say the URL in every message that needs a new ZIP.
 - ROM `/home/deck/Documents/NonSteamGames/landstalker/landstalker.md`, save `.../landstalker.srm`; replay `~/Project-Friday-Test/massan.txt` (copy of `docs/replays/massan.txt`); launcher `~/Landstalker.sh`.
-- Build: `set -o pipefail; time ./build.sh ROM 2>&1 | tee ~/build.log; echo "Build exit: ${PIPESTATUS[0]}"` (5 min with the cached .deps, 10-25 min fresh). **After every ZIP update run `bash tools/verify_build.sh`** (markers of all patches + checksum; the user once ran an old build twice without noticing).
+- **Since 2026-11-18 build.sh compiles with zig (like the release packages; `LANDSTALKER_CC=gcc ./build.sh` = old gcc build).** Build: `set -o pipefail; time ./build.sh ROM 2>&1 | tee ~/build.log; echo "Build exit: ${PIPESTATUS[0]}"` (5 min with the cached .deps, 10-25 min fresh). **After every ZIP update run `bash tools/verify_build.sh`** (markers of all patches + checksum; the user once ran an old build twice without noticing).
   Do not trust "exit 0" of a `| tee` pipeline. If `.deps/genrecomp/ext/Genesis-Plus-GX` is empty: `rm -rf .deps` (build.sh now also runs `git submodule update --init`).
 - **Launcher logs the interpreter fallback (since 2026-10-11, user agreed):** `~/Landstalker.sh` exports `LANDSTALKER_INTERP_LOG=$HOME/interp.txt` (backup of the old launcher: `~/Landstalker.sh.bak2`). The file is created only when an address actually runs on the interpreter (a replay of Massan/Gumi 3000 frames wrote none). On the Deck read `~/interp.txt` yourself after the user played further into the game, then `python3 tools/unknowns.py from-log ~/interp.txt --ctx "room/action, build"`, check every address with `tools/disasm.py` / `check_splits.py` (LESSONS 3), seed, rebuild.
 - **Launcher pitfall:** `~/Landstalker.sh` hard-codes the project folder. When the ZIP folder name changes (new branch / `Project-Friday-main`) update it: `sed -i 's#ProjectL-<old>#ProjectL-<new>#' ~/Landstalker.sh`. Verified 2026-10-10: funcdiff `17B50 17CAA --mode move` = 0 mismatches and check_splits no longer lists $017CAA with the new build; the in-game result is only valid if the launcher points to the new folder.

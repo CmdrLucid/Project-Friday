@@ -44,6 +44,8 @@ python3 -c "import capstone" 2>/dev/null || pip install capstone
 python3 tools/patch_runtime.py .deps/genrecomp
 # VDP arrays aligned to 64 bytes: clang (zig cc) assumes 16 and crashed in vectorised code (tools/patch_align.py)
 python3 tools/patch_align.py .deps/genrecomp
+# ROM load: GPGX passes char extension[4], genrecomp's load_archive wrote 16 bytes into it (stack overflow, compiler dependent; found by gcc -fsanitize=address; tools/patch_osdext.py)
+python3 tools/patch_osdext.py .deps/genrecomp
 # Record (GENRECOMP_INPUTLOG) / replay (GENRECOMP_INPUTSCRIPT) controller input
 python3 tools/patch_inputlog.py .deps/genrecomp
 # checkpoint lines every 120 frames (GENRECOMP_CHECKLOG=file) to find where a replay leaves the live recording, see tools/patch_checklog.py
@@ -295,9 +297,22 @@ python3 tools/patch_yesno.py src/recomp
 # 1c. readable names in the generated C: sub_XXXXXX -> Name_XXXXXX from docs/symbols.json (address stays in the name; must run AFTER patch_sprcull; LANDSTALKER_NONAMES_C=1 = off), see tools/rename_generated.py
 python3 tools/rename_generated.py src/recomp
 
-# 2. Compile
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j"$(nproc)"
+# 2. Compile with the SAME compiler as the release packages (user 2026-11-18 after GitHub #21: the Windows zip and the AppImage build with
+#    zig cc = clang through tools/zigbuild.py; a memory bug was invisible with gcc and visible with clang). zig: tools/find_zig.py (pinned version,
+#    downloaded once into ~/.cache/project-friday-build).  LANDSTALKER_CC=gcc ./build.sh = the old cmake / gcc build as a second check
+#    (it also builds build/genrecomp_build/genrecomp_ref for tools/dogscan.sh / funcdiff).
+if [ "${LANDSTALKER_CC:-zig}" = gcc ]; then
+    echo "== compile: cmake / gcc (LANDSTALKER_CC=gcc)"
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+    cmake --build build -j"$(nproc)"
+else
+    ZIG="$(python3 tools/find_zig.py)"
+    echo "== compile: $ZIG cc (like the release packages)"
+    export ZIG_GLOBAL_CACHE_DIR="${ZIG_GLOBAL_CACHE_DIR:-$HOME/.cache/project-friday-build/zigcache}"
+    mkdir -p build
+    python3 tools/zigbuild.py --cc "$ZIG cc" --out build > build/zigbuild.log 2>&1 || { grep -v '^PROGRESS' build/zigbuild.log | tail -30; echo "zig build FAILED (build/zigbuild.log)" >&2; exit 1; }
+    grep -v '^PROGRESS' build/zigbuild.log | tail -4
+fi
 
 # 3. Languages: every lang/*.json -> build/lang/<code>.bin + index.txt (derived from your ROM's font and text hashes: local only, tools/langbuild.py, docs/TEXT_LAYER.md)
 mkdir -p build/lang
