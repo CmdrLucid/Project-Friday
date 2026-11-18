@@ -93,6 +93,7 @@ chk "Schwert-Effekte (Option)"                       $G/ext/Genesis-Plus-GX/core
 chk "Stiefelfarben (Option)"                         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_BOOTCOL v2"
 chk "Licht (Option)"                                $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LIGHTS v8"
 chk "Keine Tropfen im Sumpfschrein"                 $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_AMSWAMP v2"
+chk "Weniger Wassertropfen"                          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_AMDROP v1"
 chk "Keine Phantom-Kiefer auf Ausgaengen"           $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_PINEEXIT v1"
 chk "Licht fein (drinnen + Platten)"                 $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTFINE v1"
 chk "GPU-Licht fein (Platten)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_GLFINE v1"

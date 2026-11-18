@@ -583,7 +583,7 @@ static void lk_am_step(long fr) {   /* once per lit frame (lk_lt_step, before th
       P->x = nx2; P->y = ny2; P->gz = sz; P->z = sz + 6.0f + lk_am_rnd() * 22.0f; P->life = (int16_t)(160 + lk_am_rnd() * 160.0f); nff++; } }   /* a small swarm per spot (shorter life: they stay near it) */
   { int tries; float px, py, pz; int sun;   /* spawns on the floor of the area drawn last frame */
     for (tries = 0; tries < 6; tries++) { int U = lk_lt_umin + (int)(lk_am_rnd() * (float)(lk_lt_umax - lk_lt_umin + 1)), V = lk_lt_vmin + (int)(lk_am_rnd() * (float)(lk_lt_vmax - lk_lt_vmin + 1)), want = 0; float r = lk_am_rnd();
-      if ((lk_am_bio & 1) && r < 0.028f) want = 1; else if ((lk_am_bio & 2) && r > 0.975f && nff < 16) want = 2; else if ((lk_am_bio & 8) && r > 0.40f && r < 0.408f) want = 5;
+      if ((lk_am_bio & 1) && r < 0.028f) want = 1; else if ((lk_am_bio & 2) && r > 0.975f && nff < 16) want = 2; else if ((lk_am_bio & 8) && r > 0.40f && r < 0.404f) want = 5;   /* LK_AMDROP v1 (user 2026-11-18: 'ein bisschen weniger, sporadischer'): half the drops (was 0.408) */
       if (!want || !lk_am_surf(U, V, &px, &py, &pz, &sun)) continue;
       if (want == 5) { int cx = (int)floorf(px / 16.0f), cy = (int)floorf(py / 16.0f), w2;   /* drops land on WALKABLE floor only (user 2026-11-05: 'nicht immer nur am Boden': tops of walls / pillars / boxes are floor faces too) */
         if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) continue;
