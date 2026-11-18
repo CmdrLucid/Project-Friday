@@ -6,6 +6,7 @@
 - **Lithograph** (#23): the text box below the lithograph picture in the thieves' hideout is back (you only heard the letters before).
 - **Modern HUD** (#23): the old HUD bar no longer flashes after climbing a ladder into the next room (thieves' hideout), and it no longer appears above the lithograph.
 - **Sprint:** the picture stays sharp and steady while sprinting (the smooth scrolling now runs on the graphics chip; jitter fixed in the waterfall shrine and the church), and the HUD stays sharp.
+- **First start without pip:** on a system whose Python has no pip ("No module named pip", reported from another Steam Deck) the first start now installs the needed module from the download itself.
 - Everything from v1.9.5 is included (languages, Friday Hints, dungeon map, Bath Scene, night lights, ...). Your settings and save files from v1.x keep working.
 
 ### Downloads
