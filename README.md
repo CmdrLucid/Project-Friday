@@ -28,7 +28,7 @@ You need a supported ROM (US or European version), described under [Compatible R
 
 The game logic is no longer interpreted: the 68000 code of the ROM is translated into C and compiled into a native program on your machine. The picture is drawn by the project's own renderer, and the timing, the video chip's data path, the system start-up, both sound chips, the sound mixer and the Z80 sound driver run on the project's own code; Genesis Plus GX is still the frame around it and the base of the FM chip core, and its renderer is only kept as a test picture. Because the game code is now ordinary C that we can hook into, the project can change things an emulator cannot: draw a wider picture with real map content, fix old bugs, or add comfort features inside the game's own menus.
 
-With every option switched off, the game plays like the original cartridge. All additions are optional and set in a new **Options** tab in the game's Start menu (next to *Use* / *Equip*; also on the file select screen).
+Out of the box most of the comfort and graphics additions are **on** (see the defaults below). Every one of them can be switched off: with all options off, the game plays like the original cartridge. They are set in a new **Options** tab in the game's Start menu (next to *Use* / *Equip*; also on the file select screen).
 
 **Display**
 - **Widescreen** Off / 16:10 / 16:9: real map content in the side margins, not stretched. The project draws the picture with its own renderer, and sprites, scrolling and effects are handled for the wider view.
@@ -37,14 +37,14 @@ With every option switched off, the game plays like the original cartridge. All 
 
 **Graphics**
 - **HUD** Original / Modern: the modern HUD drops the status bar and lays hearts (with the life numbers), the sword charge, gold and the button icons (sword, Quick Items, with the name of the bound button) over the map, so the room fills the whole screen.
-- **Shadows** (Off / On / Soft): a ground shadow under Nigel and airborne objects, which makes jumps easier to judge.
+- **Shadows** (Off / On / Soft, off by default): a ground shadow under Nigel and airborne objects, which makes jumps easier to judge.
 - **Sword Effects** (On by default): while Nigel swings one of the four special swords the arc takes the sword's colour and a few small particles come off it: embers (Magic Sword), frost glitter (Ice Sword), little bolts (Thunder Sword), green light motes (Gaia Sword); also during the swing on the file select screen.
 - **Boot Colors** (off by default): Nigel's boots take the colour of the equipped boots (Fireproof, Iron, Healing, Spike), like his sword and armour already do in the original; on the map and on the file select screen.
 - **Lighting** (On by default, needs GPU Filters): torches, lava, lit windows and the sword light the rooms, figures and furniture cast shadows that follow their real 3D shape; outdoors a sun casts shadows of houses, trees and Nigel. Runs on the graphics chip; without working GPU filters it stays off. Still tuned room by room: please report odd shadows (a screenshot and the room help a lot).
 - **Day / Night** (On by default, with Lighting): the sun moves over the day, shadows get longer in the morning and evening, the light takes the colour of the time of day, windows glow at night.
 - **Particles, Enemy Dissolve, Heat Haze, Water Reflections, Cloud Shadows** (On by default, each with its own switch): fireflies, sparks and drops; defeated enemies burst apart; air shimmers above lava; figures are mirrored on water; cloud shadows drift over the land.
-- **Map Behind Text:** dialogue boxes sit over the map instead of a black band.
-- **No Sprite Limit:** draws every figure of a room, without the cartridge's limit of 20 sprites per line and its flicker (off by default = the original look).
+- **Map Behind Text** (On by default): dialogue boxes sit over the map instead of a black band.
+- **No sprite limit** (always on, no option): every figure of a room is drawn, without the cartridge's limit of 20 sprites per line and its flicker.
 
 **Audio:** separate music and effect volume; speech blips can be switched off.
 
@@ -76,11 +76,11 @@ With every option switched off, the game plays like the original cartridge. All 
 - **Names:** localized or the Japanese original names (Ryle instead of Nigel, ...). **Items:** the four items that are different things in the Japanese original (also needs the Japanese ROM).
 - **Bath Scene** (on by default): restores the scene in Kayla's room at Mercator castle that the Western releases block with a maid on the door (the Japanese release lets you in; the scene itself is in every version's data).
 
-Defaults for a new install: 16:9, Full Height, CRT Pro filter, Native Pace, and most Movement / Comfort options on (HUD: Original). Change anything you like in Options.
+**Defaults for a new install:** 16:9, Full Height, CRT Pro filter, Lighting with Day / Night and all its effects, Sword Effects, Map Behind Text, Sprint, Native Pace, Quick Items, Quick Equip, Buy Quantity, Better Menu, Fix Ride Objects, Live Gaia Effect, Friday Hints and Bath Scene are **on**. **Off** (the original behaviour) until you switch them on: Modern HUD (HUD: Original), Shadows, Boot Colors, Fast Forward, Quick Save and Item Info. Change anything you like in Options.
 
 ## Vision and what comes next
 
-The goal is the **definitive way to play Landstalker on PC and Steam Deck**: faithful to the original by default, with modern comfort for those who want it. Planned or being looked at (no promises, this is a hobby project):
+The goal is the **definitive way to play Landstalker on PC and Steam Deck**: the original game at its core, with modern comfort and graphics switched on out of the box, and the original look and feel always one menu away. Planned or being looked at (no promises, this is a hobby project):
 
 - **More comfort features and fixes**, driven by player feedback. Suggestions are welcome in [Discussions](https://github.com/cmdrlucid/Project-Friday/discussions) / Issues.
 - **German ROM as a base** (the European and US versions work already). It is a different program revision and needs its own recompilation; Japanese and hacks like *Remix* are further away.
