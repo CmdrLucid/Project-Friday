@@ -11,8 +11,8 @@
 - 6. Cloud sandbox setup (no ROM, no SDL by default): lines 73-82
 - 7. Merge note: lines 83-85
 - 8. Roadmap after the compat work (user wishes, 2026-10-10): lines 86-93
-- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-529
-  - 261 entries, newest at the END; the last 12: 513 (2026-11-18) A rule that imitates a game INTERR...; 514 (2026-11-18) Room 0 is a real room (Swamp Shrin...; 515 (2026-11-18) Height map byte 0: $40 = blocked f...; 516 (2026-11-18) A second GL driver on the Deck for...; 517 (2026-11-18) My GPU test runs (lightedges with...; 518 (2026-11-18) The release packages (Windows zip...; 519 (2026-11-18) Before a light rule GUESSES what a...; 520 (2026-11-18) ONE animated tile group can hold s...; 522 (2026-11-19) A pixel that stays BLACK under a g...; 524 (2026-11-19) A dark patch that stays when only...; 526 (2026-11-19) 'No shadow' can be a shadow that E...; 528 (2026-11-19) Per-SLOT side arrays of a list tha...
+- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-531
+  - 262 entries, newest at the END; the last 12: 514 (2026-11-18) Room 0 is a real room (Swamp Shrin...; 515 (2026-11-18) Height map byte 0: $40 = blocked f...; 516 (2026-11-18) A second GL driver on the Deck for...; 517 (2026-11-18) My GPU test runs (lightedges with...; 518 (2026-11-18) The release packages (Windows zip...; 519 (2026-11-18) Before a light rule GUESSES what a...; 520 (2026-11-18) ONE animated tile group can hold s...; 522 (2026-11-19) A pixel that stays BLACK under a g...; 524 (2026-11-19) A dark patch that stays when only...; 526 (2026-11-19) 'No shadow' can be a shadow that E...; 528 (2026-11-19) Per-SLOT side arrays of a list tha...; 530 (2026-11-19) $FF1200 / $FF1202 are NOT screen p...
 
 <!-- /TOC -->
 
@@ -526,3 +526,5 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 - (2026-11-19) 'No shadow' can be a shadow that EXISTS but falls behind the figure (up into the picture, covered by its own sprite): a pixel-diff count says yes, the eye says no. Look at the picture at the user's exact coordinates (warp with the overlay's sub positions, e.g. 25.07) before calling it unreproducible. And a light that sits right next to a figure turns its shadow with every pixel: give the shadow its own source further back instead of moving the light (moving the light into the statue darkened 52 rooms).
 
 - (2026-11-19) Per-SLOT side arrays of a list that is rebuilt per room (lk_dn_ldoor[] beside lk_lt_l[]) must be cleared with the list: only some build paths wrote them, so flags from the previous room hit unrelated lights in the next one. Symptom depends on WHERE the player came from - warp tests from another room cannot see it; the user's recording found it in one replay. Ask for a recording early instead of building a theory on warp shots (the 'statue shadow source' change of the same day fixed nothing and was reverted).
+
+- (2026-11-19) $FF1200 / $FF1202 are NOT screen pixels but the camera in the iso axes (screen dx = d0 - d2, dy = (d0 + d2) / 2, FORMATS). Any screen-space effect that follows the camera must convert (the dissolve particles slid sideways for two weeks). And the widened sprite culling had a bottom / left / right extension but no TOP one: when widening a picture, check all four edges of every visibility test.

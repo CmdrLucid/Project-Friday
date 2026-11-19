@@ -95,7 +95,7 @@ static void lk_hz_apply(PIXEL_OUT_T *row, int w, int line) {   /* after the line
 ''' % VER
     a = "static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {\n"
     rep(a, MODULE + a)
-    a = "    int lk_dz_ln = lk_dz_linebegin(line);   /* LK_DISSOLVE v1 */\n"
+    a = "    int lk_dz_ln = lk_dz_linebegin(line);   /* LK_DISSOLVE v2 */\n"
     rep(a, a + "    int lk_hz_ln = lk_hz_linebegin(line);   /* %s */\n" % VER)
     a = "      lk_mh_hit = nohud ? lk_mh_pix(line, i, &col) : 0;   /* LK_MHUD v3 */\n"
     rep(a, a + "      if (lk_hz_ln) { lk_hz_keep[i < LK_OSW ? i : LK_OSW - 1] = (uint8)(black || src == 4 || lk_mh_hit); if (!black && (src == 2 || src == 3)) lk_hz_mark(line, i, src == 2 ? afi.t : bfi.t); }   /* %s */\n" % VER)

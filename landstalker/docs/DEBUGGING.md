@@ -2000,3 +2000,7 @@ Build dev 48c243a (verify_build: 126 ok). Evidence (all hidden-window GPU presen
 
 ## Statue shadow root cause (2026-11-19, LK_LTLDOORCLR v1)
 * rec_20261119_1016 replayed with its opts / save / QSPLAY / WIDE 39 (hidden window, PRESENT_SHOT 8100 / 8700, FIGSH_ONLY -1 vs -2): y 31 shadow faint. LANDSTALKER_LT_PAIRDBG=8100: Nigel = figure 8 (boulders first), light 5 pair 0. lk_dn_ldoor[5] stale from Gumi. Fix: memset at the light build (lk_lt_free line). LK_LTBLOCKFL (shadow source 1 in front of a statue block) reverted.
+
+## Dissolve particles + top-edge culling (2026-11-19, LK_DISSOLVE v2, LK_SPRCULLTOP v1)
+* Bursts listed by LANDSTALKER_DISSOLVE_DBG=1 (replay headless). Particles isolated as the difference DISSOLVE on / off (GPU present shots); camera removed by registering the off frames.
+* Platform: replay frames 5700..6100 step 8, top 200 lines: platform gone at 5948, back 5956. Generated CheckEntityOnScreen (src/recomp/recomp_003932_004430.c): vertical (x + y) + d4 vs d5 and sprite Y >= $80; both widened by $80 / $40 with WIDE or TALL. Replay .chk with GENRECOMP_CHECKLOG identical.
