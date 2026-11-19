@@ -46,7 +46,7 @@ import os, sys
 root = sys.argv[1]
 VER = "LK_LIGHTS v8"
 import json
-CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4), "box": (8, 5), "slab": (9, 6), "carve": (10, 4), "unpaint": (11, 4), "ground": (12, 5)}   # ground (LK_LTGROUND v1): cells x0 y0 x1 y1 + height: VOID cells of the game's height map that are drawn as solid (church statue pedestal) get this height
+CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4), "box": (8, 5), "slab": (9, 6), "carve": (10, 4), "unpaint": (11, 4), "ground": (12, 5), "void": (13, 4)}   # ground (LK_LTGROUND v1): cells x0 y0 x1 y1 + height: VOID cells of the game's height map that are drawn as solid (church statue pedestal) get this height
 def mesh_cells(path):   # an OBJ (game coordinates) -> {(sx, sy): (top, bottom)} on the 4 unit grid of the light field (sub column centres), max / min over all faces (v9: the bottom for slabs)
     vs, top, bot = [], {}, {}
     for line in open(path):
@@ -229,7 +229,7 @@ static lk_lt_proxy lk_lt_px[255]; static int lk_lt_npx; static uint8 lk_lt_prof[
 
 static int16_t lk_lt_vt[LK_LT_FN][LK_LT_FN], lk_lt_vg[LK_LT_FN][LK_LT_FN], lk_lt_vm[74][74]; static __thread int lk_lt_rayA = 1;   /* 1 = layer A counts (2026-11-12: was left at 1 on the main thread by the first CPU light block; without CPU blocks it stayed 0 and the main thread's rays ignored layer A: the torch light of room 680 wrong) */   /* lk_lt_vg: proxy step 1b, the same without the proxies (pixels not drawn in layer A are ground: they pass the proxies); lk_lt_rayA = the pixel is drawn in layer A */   /* v7 speed: lk_lt_fcell of every sub column; per cell the 3 x 3 max of it (32767 = void / object near: no skip) */
 static int16_t lk_lt_hd[74][74];   /* v7 speed: per cell the highest thing (field / cards) the sun ray can still meet from this cell on (3 x 3 dilated), cards only */
-static int16_t lk_lt_bb[1024][5], lk_lt_sgnd[1024], lk_lt_omax[1024]; static uint8 lk_lt_ocl[1024];   /* lk_lt_sgnd: v7 ground around a SMALL object (its collision box is no picture: light and shadow use the ground + the card) */ static int16_t lk_lt_part[74][74], lk_lt_pb[2048][4]; static uint8 lk_lt_pkeep[74][74], lk_lt_wat[74][74], lk_lt_flat[74][74];   /* lk_lt_flat: cells marked flat by data/light_proxies.json */
+static int16_t lk_lt_bb[1024][5], lk_lt_sgnd[1024], lk_lt_omax[1024]; static uint8 lk_lt_ocl[1040];   /* LK_LTOCL v1 (2026-11-18, GitHub #21): 1040, not 1024: the extrude object writes id 1031 (lk_lt_extrude); with 1024 that write landed in the NEXT variable in memory, which one depends on the compiler: harmless with gcc (Linux build), the figure ground shadow got vertical stripes with clang / zig (Windows build). Readers still test < 1024. */   /* lk_lt_sgnd: v7 ground around a SMALL object (its collision box is no picture: light and shadow use the ground + the card) */ static int16_t lk_lt_part[74][74], lk_lt_pb[2048][4]; static uint8 lk_lt_pkeep[74][74], lk_lt_wat[74][74], lk_lt_flat[74][74];   /* lk_lt_flat: cells marked flat by data/light_proxies.json */
 typedef struct { int16_t room; uint8 op; int16_t a[7]; } lk_lt_corr_t;   /* corrections from data/light_proxies.json (op 1 flat, 2 water, 3 remove, 4 hip; cells inclusive, heights in units) */
 /*LK_LT_CORR*/   /* lk_lt_wat: water cells filled by us (no part of any object) */ static int16_t lk_lt_pb2[2048][4];   /* box of the kept cells per part */   /* v7: equal height parts of the objects + their boxes (mirror boxes of the fine field) */   /* v7: per outdoor object: footprint box (cells) + cell count; class 1 small (one card), 2 building (fine field), 3 other (a card per cell, v6) */
 static int lk_lt_msok(int mi) { return lk_lt_mtrin[mi] > 0 && (lk_lt_msurf[mi] || lk_lt_modelall()); }
@@ -273,6 +273,9 @@ static int lk_lt_side(int cx, int cy, int pcx, int pcy, int z) {   /* v3: which 
   return 2;
 }
 static int lk_lt_doorvoid(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_DOORVOID"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTDOORVOID v1 test aid */
+static int lk_lt_watdoor(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_WATDOOR"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTWATDOOR v1 test aid (0 = old) */
+static int lk_lt_isdoorft(int x, int y) { int t = UW(0xFFD192 + 148 * y + 2 * x) & 0x3F; return (t >= 1 && t <= 4) || t == 6; }   /* the game's floor type of height map cell (x, y): 01..04 / 06 = doors (FORMATS) */
+static int lk_lt_doorpit(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_DOORPIT"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTDOORPIT v1 test aid (0 = old door niche fill) */
 static int lk_lt_dent(int cx, int cy, int cf) {   /* v4: room cell (cx, cy) is part of a narrow recess (<= 3 cells wide across the wall) = a door niche in the wall (room 5, user 2026-11-03: light stripe at the right door); the wall beside it stays a wall */
   int n = 1, d, ax = cf == 3, ay = cf == 2;
   for (d = 1; d <= 3 && lk_lt_cell(cx - d * ax, cy - d * ay) > -32768; d++) n++;
@@ -767,6 +770,7 @@ static int lk_lt_tileok(uint32_t base, int t) {   /* groups that mix flames with
   if (base == 0x0968CA) return t == 917 || t == 927 || t == 928 || t == 934 || t == 935;
   return 1;
 }
+static int lk_lt_watlvl(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_WATLVL"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTWATLVL v1 */
 static int lk_lt_watblk(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_WATBLK"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-07: painted water beside the game's blocked water = same height */
 static int lk_lt_pinewalk(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_PINEWALK"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-07: no catalogue pine on walkable ground of base height */
 static int lk_lt_invmode(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INVIS"); v = e ? atoi(e) : 2; } return v; }   /* 0 off, 1 neighbour heights (first version), 2 void (default) */
@@ -780,6 +784,11 @@ static int lk_lt_cellpaint(int x, int y, int m) { int du, dv, n = 0, pal, pr, U0
   for (dv = -6; dv <= 6; dv += 2) for (du = -14; du <= 14; du += 2) if (abs(du) * 8 + abs(dv) * 16 <= 128 && (lk_o_fetch(lk_o_pb, U0 + du, V0 + dv, &pal, &pr, 0) || lk_o_fetch(lk_o_pa, U0 + du, V0 + dv, &pal, &pr, 0))) n++;
   return n; }
 static uint8 lk_dn_ldoor[LK_LT_ML];   /* LK_DNFLK v1: light k is a Massan door light (own slow flicker) */
+static int lk_dn_pt(int r, int c) { return (r >= 0 && c >= 0 && r < 152 && c < 304 && (lk_o_pa[r][c] & 0x10000)) ? (int)(lk_o_pa[r][c] & 0x7FF) : -1; }
+static int lk_dn_s346(int r, int c) {   /* LK_DNSIGN25 v1 (user 2026-11-18, Gumi 601..603 at night, the door to 605: 'ein schwarzes Eck drin'): the door opening's top tile 346, or tile 25 = the same corner with the SKULL SIGN over the door (only there in all 21 tileset 7 rooms; 373 beside it, not flipped itself).
+   0 = neither, +1 = faces down-left (346 flipped / 373 right of 25), -1 = faces down-right.  Without it that door had no parallelogram: its upper left cell stayed black */
+  int t = lk_dn_pt(r, c); if (t == 346) return (lk_o_pa[r][c] & 0x800) ? 1 : -1;
+  if (t == 25) { if (lk_dn_pt(r, c + 1) == 373) return 1; if (lk_dn_pt(r, c - 1) == 373) return -1; } return 0; }
 static int lk_dn_doormode = 2;   /* LK_DNDOORISO v1: Massan door glow mode (set from LANDSTALKER_DNDOOR in lk_dn_doorcells) */
 static int lk_lt_fillcap(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_FILLCAP"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: inherited painted-void fill capped at the nearby walkable ground - 8 */
 static int lk_lt_doorin(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_DOORIN"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: door niches filled indoors too */
@@ -1336,7 +1345,7 @@ static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the curr
 }
 static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first: it reads everything rebuilt here) */   /* height map + lights of the current room */
   int x, y, k; static uint8 seen[152][304];
-  lk_lt_free(); lk_lt_nl = 0; lk_lt_zmax = 0; memset(lk_lt_l, 0, sizeof lk_lt_l);   /* LK_LTWIDE v2: every light starts small (hw 0) */
+  lk_lt_free(); lk_lt_nl = 0; lk_lt_zmax = 0; memset(lk_lt_l, 0, sizeof lk_lt_l); memset(lk_dn_ldoor, 0, sizeof lk_dn_ldoor);   /* LK_LTLDOORCLR v1 (user 2026-11-19 rec_20261119_1016, Swamp Shrine room 5 statue y 31.03: 'keinen Schatten'): the door-light flags of the previous room (Gumi: light 5 was a door light) stayed on the new room's lights = that statue flame cast no figure shadow (lk_lt_pair cleared); only the window / door light paths set them */   /* LK_LTWIDE v2: every light starts small (hw 0) */
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x); lk_lt_top[y][x] = (int16_t)(w == 0x4000 ? -32768 : 16 * ((w >> 8) & 15)); if (w != 0x4000 && lk_lt_top[y][x] > lk_lt_zmax) lk_lt_zmax = lk_lt_top[y][x]; }
   memcpy(lk_lt_gh, lk_lt_top, sizeof lk_lt_gh); lk_lt_fhmax = -32768; lk_lt_nc = 0; memset(lk_lt_obj, 0, sizeof lk_lt_obj);
   { static uint8 done[74][74]; static int16_t st[16][2]; memset(done, 0, sizeof done);   /* thin columns (lk_lt_thin) */
@@ -1420,7 +1429,11 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         if (lk_lt_top[y][x] != -32768) continue;
         if (!lk_lt_sun) { int e1 = 0, e2 = 0, e3 = 0, e4 = 0, d;   /* v8 indoors: never a back wall void, and only between room cells (a channel / pool INSIDE the room): room cells within 8 on both sides along x or along y, else a front edge wall (painted down into the black) would become a floor */
           if (lk_lt_vw[y][x]) continue;
-          for (d = 1; d <= 8; d++) { if (x - d >= 0 && org[y][x - d] != -32768) e1 = 1; if (x + d < 74 && org[y][x + d] != -32768) e2 = 1; if (y - d >= 0 && org[y - d][x] != -32768) e3 = 1; if (y + d < 74 && org[y + d][x] != -32768) e4 = 1; }
+          if (!lk_lt_watdoor()) for (d = 1; d <= 8; d++) { if (x - d >= 0 && org[y][x - d] != -32768) e1 = 1; if (x + d < 74 && org[y][x + d] != -32768) e2 = 1; if (y - d >= 0 && org[y - d][x] != -32768) e3 = 1; if (y + d < 74 && org[y + d][x] != -32768) e4 = 1; }
+          else { int dd, k4; for (k4 = 0; k4 < 4; k4++) { int sx = k4 == 0 ? -1 : k4 == 1 ? 1 : 0, sy = k4 == 2 ? -1 : k4 == 3 ? 1 : 0, hit = 0;   /* LK_LTWATDOOR v1 (user 2026-11-18, Swamp Shrine room 19: 'harte Schattenkante oben links rechts der Tuer'): the FIRST room cell in each direction counts, and not when it is a DOOR cell (floor type 01..04 / 06): the void wall cells (18,19..20) between the exit door (17,19..20, type 04; its $2200 cells 16,19..20 behind) and the room were an inner 'channel' at 24 = a slot through the drawn wall: the view rays of the lower wall found its floor = a dark box with hard edges.  LANDSTALKER_LT_WATDOOR=0 = old */
+              for (dd = 1; dd <= 8; dd++) { int xx = x + sx * dd, yy = y + sy * dd; if (xx < 0 || yy < 0 || xx >= 74 || yy >= 74) break; if (org[yy][xx] != -32768) { hit = !lk_lt_isdoorft(xx, yy); break; } }
+              if (hit) { if (k4 == 0) e1 = 1; else if (k4 == 1) e2 = 1; else if (k4 == 2) e3 = 1; else e4 = 1; } } }
+          if (lk_lt_dbg == 1 && !pass && !((e1 && e2) || (e3 && e4))) { int f1 = 0, f2 = 0, f3 = 0, f4 = 0; for (d = 1; d <= 8; d++) { if (x - d >= 0 && org[y][x - d] != -32768) f1 = 1; if (x + d < 74 && org[y][x + d] != -32768) f2 = 1; if (y - d >= 0 && org[y - d][x] != -32768) f3 = 1; if (y + d < 74 && org[y + d][x] != -32768) f4 = 1; } if ((f1 && f2) || (f3 && f4)) printf("water door: room %%d cell %%d,%%d stays void (a door cell behind it)\n", lk_o_room, x, y); }
           if (!((e1 && e2) || (e3 && e4))) { if (!pass) { if (!lk_lt_inwat() || inwl < 0) continue; iw = 1; } else wo = 1; } }   /* 2026-11-08 iw: an open edge cell indoors may still be WATER (ship rooms 493..497: the sea around the ship) */   /* v8: outside that only as a continuation of water found already (the water runs on to the room edge in the picture, room 185), at the water's height */
         { int mb = 0;
         for (b2 = y - 1; b2 <= y + 1; b2++) for (a = x - 1; a <= x + 1; a++) if (a >= 0 && b2 >= 0 && a < 74 && b2 < 74 && lk_lt_top[b2][a] != -32768 && lk_lt_top[b2][a] < m && (!wo || lk_lt_wat[b2][a])) { int w3 = UW(0xFFD192 + 148 * b2 + 2 * a); m = lk_lt_top[b2][a]; mb = w3 != 0x4000 && ((w3 >> 8) & 0x40) && (w3 >> 8) != 0x4F; }
@@ -1454,11 +1467,19 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       memset(sn, 0, sizeof sn);
       for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int sp = 0, i, lvl = 9999; if (!lk_lt_wat[y][x] || sn[y][x]) continue;
         sn[y][x] = 1; st2[sp][0] = (uint8)x; st2[sp][1] = (uint8)y; sp++;
+        for (i = 0; i < sp; i++) { int cx = st2[i][0], cy = st2[i][1], a, b2;
+          for (b2 = cy - 1; b2 <= cy + 1; b2++) for (a = cx - 1; a <= cx + 1; a++) { if (a < 0 || b2 < 0 || a >= 74 || b2 >= 74) continue;
+            if (lk_lt_wat[b2][a] && !sn[b2][a] && sp < 5476) { sn[b2][a] = 1; st2[sp][0] = (uint8)a; st2[sp][1] = (uint8)b2; sp++; } } }
         for (i = 0; i < sp; i++) { int cx = st2[i][0], cy = st2[i][1], a, b2, h = lk_lt_top[cy][cx];
-          for (b2 = cy - 1; b2 <= cy + 1; b2++) for (a = cx - 1; a <= cx + 1; a++) { int w3, t; if (a < 0 || b2 < 0 || a >= 74 || b2 >= 74) continue;
-            if (lk_lt_wat[b2][a]) { if (!sn[b2][a] && sp < 5476) { sn[b2][a] = 1; st2[sp][0] = (uint8)a; st2[sp][1] = (uint8)b2; sp++; } continue; }
+          for (b2 = cy - 1; b2 <= cy + 1; b2++) for (a = cx - 1; a <= cx + 1; a++) { int w3, t; if (a < 0 || b2 < 0 || a >= 74 || b2 >= 74 || lk_lt_wat[b2][a]) continue;
             w3 = UW(0xFFD192 + 148 * b2 + 2 * a); t = lk_lt_top[b2][a];
             if (w3 != 0x4000 && ((w3 >> 8) & 0x40) && (w3 >> 8) != 0x4F && t != -32768 && t > h && t <= h + 8 && t < lvl) lvl = t; } }
+        { int hmin = 32767, nlo = 0; for (i = 0; i < sp; i++) { int h = lk_lt_top[st2[i][1]][st2[i][0]]; if (h < hmin) hmin = h; } for (i = 0; i < sp; i++) if (lk_lt_top[st2[i][1]][st2[i][0]] < lvl - 8) nlo++;
+          if (lk_lt_dbg == 5 && lvl != 9999) printf("water: room %%d area of %%d cells (lowest %%d, %%d cells more than 8 below) -> level %%d%%s\n", lk_o_room, sp, hmin, nlo, lvl, nlo && lk_lt_watlvl() ? ": NOT raised" : "");
+          if (nlo && lk_lt_watlvl()) lvl = 9999; }   /* LK_LTWATLVL v1 (user 2026-11-19 rec_20261119_1537, Gumi 603: 'Nigel verliert seinen Schatten' on the strip above the river): the area is that
+             water only if it lies at most 8 below it everywhere (room 488: all 364 cells 8 below the dock water).  One painted cell beside a blocked cliff (filled without the 8 step) met a blocked
+             cell 8 above it, and the whole river (lowest 40) was raised to 96 = an invisible wall over the walkway at 48 (Nigel in its shadow, his own shadow gone); 25 outdoor rooms had such areas
+             (2026-11-19 survey: 183 226 429 432 436 447 470 478 484 502 506 525 559 560 565 566 567 571 601..603 632 641 642 644 726); test aid LANDSTALKER_LT_WATLVL=0 = old */
         if (lvl != 9999) for (i = 0; i < sp; i++) if (lk_lt_top[st2[i][1]][st2[i][0]] < lvl) { lk_lt_top[st2[i][1]][st2[i][0]] = (int16_t)lvl; nu++; } }
       if (lk_lt_dbg == 5 && nu) printf("water: room %%d, %%d painted cells raised to the game's water\n", lk_o_room, nu); }
     { int q; for (q = 0; lk_lt_corr[q].room >= 0; q++) if (lk_lt_corr[q].room == lk_o_room && lk_lt_corr[q].op == 2) { const int16_t *a = lk_lt_corr[q].a;   /* data: water */
@@ -1478,10 +1499,16 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
           if (bt == -32768 && !(!lk_lt_sun && lk_lt_doorin())) continue; if ((bt != -32768 && bt < h + 32) || ft == -32768 || ft > h + 8 || (ft < h - 8 && lk_lt_doorvoid())) continue;   /* LK_LTDOORVOID v1+ (2026-11-15, castle 51..54: the red topped cabinet in a wall alcove, cell 34,23 at 128 above the floor 112, was filled up to the wall like a door = its top lit as the wall): a niche whose floor is RAISED above the floor in front is furniture in an alcove, no door */   /* 2026-11-08 (user: 'der Schatten der ueber die Tueren im Schloss laeuft', room 58): also INDOORS, and there a door may lead into the void behind the wall (the room's exit through the back wall: 58 cells 35..36,16 at 16 in a wall of 96, void behind); test aid LANDSTALKER_LT_DOORIN=0 */
           for (d = 1; ; d++) { int cx = x - d * sx2, cy = y - d * sy2, t = (cx >= 0 && cy >= 0) ? lk_lt_top[cy][cx] : -32768; if (t == h) { if (++n > 3) { ok = 0; break; } continue; } if (t == -32768 && !lk_lt_sun && bt == -32768 && lk_lt_doorvoid()) vw = 1; else if (t == -32768 || t < h + 32) ok = 0; else if (t < lo) lo = t; break; }
           for (d = 1; ok; d++) { int cx = x + d * sx2, cy = y + d * sy2, t = (cx < 74 && cy < 74) ? lk_lt_top[cy][cx] : -32768; if (t == h) { if (++n > 3) { ok = 0; break; } continue; } if (t == -32768 && !lk_lt_sun && bt == -32768 && lk_lt_doorvoid()) vw = 1; else if (t == -32768 || t < h + 32) ok = 0; else if (t < lo) lo = t; break; }
+          if (ok && (UW(0xFFD192 + 148 * y + 2 * x) & 0x3F) == 7 && lk_lt_doorpit()) ok = 0;   /* LK_LTDOORPIT v1 (user 2026-11-18, Waterfall Shrine 182: 'als wuerde die Lichtkarte hier einen Boden rendern, wo keiner ist'; 'kann man nicht einfach eine Wand als Wand erklaeren'):
+             the game's own FLOOR TYPE (cell word low byte & $3F, ProcessFloorType $00603C) 07 = PIT: a pit is never a door.  182: a 3 cell pit ($0007, height 0) between two walkways at 64 along the back wall looked like a door niche;
+             the fill put a floor at 64 over the drawn wall = a lit strip with hard edges.  Offline over all ROM height maps: 49 rooms lose pit cells from the fill (caves / dungeons).  Test aid LANDSTALKER_LT_DOORPIT=0 = old */
           if (ok && vw) { dn[y][x] = -32768; nd++; }   /* LK_LTDOORVOID v1 (user 2026-11-15, room 66: 'harte Kante im Schatten' at the big door): indoors the walls are VOID cells; a door slot of 1..3 floor-high cells in such a wall with void behind (room 66 cells 16..17,12: $2000 blocked, height 0) was a slot through the whole wall height = the wall above the door a dark band with hard edges.  The slot becomes void = wall like its sides (test aid LANDSTALKER_LT_DOORVOID=0) */
           else if (ok && lo < 9999) { if (bt != -32768 && bt < lo) lo = bt; if (lo > dn[y][x]) { dn[y][x] = (int16_t)lo; nd++; } } } }
       memcpy(lk_lt_top, dn, sizeof dn);
       if (lk_lt_dbg == 1 && nd) printf("door niches: room %%d, %%d cells filled\n", lk_o_room, nd); }
+    { int q, nv = 0; for (q = 0; lk_lt_corr[q].room >= 0; q++) if (lk_lt_corr[q].room == lk_o_room && lk_lt_corr[q].op == 13) { const int16_t *a = lk_lt_corr[q].a;   /* LK_LTVOID v1 (2026-11-19, room 19): data op "void": these cells are WALL for the light (an exit corridor cell behind a drawn wall that the view rays found through the wall gap = a dark box); after the door niche fill */
+        for (y = a[1]; y <= a[3]; y++) for (x = a[0]; x <= a[2]; x++) if (x >= 0 && y >= 0 && x < 74 && y < 74 && lk_lt_top[y][x] != -32768) { lk_lt_top[y][x] = -32768; nv++; } }
+      if (lk_lt_dbg == 1 && nv) printf("void data: room %%d, %%d cells wall for the light\n", lk_o_room, nv); }
     if (!lk_lt_sun && lk_lt_aor && lk_lt_rimfill()) { static uint8 tcnt[2048]; static int16_t rf[74][74]; int nr = 0;   /* 2026-11-08 FLOOR RIM indoors (user: 'Innenraeume pruefen', rooms 246 / 250 / 242 / 162: a dark band
          with stepped ends along the front edge of floors): many rooms draw their floor one cell further than the last room cell; the light saw the floor's front face going down there.  A void cell
          right in front (+x / +y) of a walkable cell becomes floor at that height when the picture at its would-be top shows a FLOOR TILE of the room (a tile seen >= 3 times at the centres of the
@@ -1563,7 +1590,9 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       { int U = su / n, V = sv / n, z = 0, f = lk_lt_ray(U, V, &z); float px, py; lk_lt_light *L = &lk_lt_l[lk_lt_nl];
         if (!f) continue;
         lk_lt_pos(U, V, z, &px, &py);
-        L->x = px + 6.0f * lk_lt_fnx(f); L->y = py + 6.0f * lk_lt_fny(f); L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; L->lava = 0; L->base = lk_o_grp[k].base;
+        { static float wo = -1.0f; if (wo < 0.0f) { const char *e = getenv("LANDSTALKER_LT_WALLOFF"); wo = e ? (float)atof(e) : 6.0f; }   /* test aid (2026-11-19, room 19 dark box): distance of a wall flame from its wall (default 6) */
+        L->x = px + wo * lk_lt_fnx(f); L->y = py + wo * lk_lt_fny(f);
+        } L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; L->lava = 0; L->base = lk_o_grp[k].base;
         L->hw = 0.0f; L->tan = 0; L->own = 0.0f;   /* own: LK_GLCARRIER v2 sets it below (was stale from an earlier room's light in this slot) */  /* LK_LTWIDE v2 (user 2026-11-09 'ja' to wide fires): a fire drawn wider than 2 tiles on a wall (fireplaces) lights from its whole width;
            the picture width of the group = its width along the wall (U = x - y: a run along x or along y moves U by the same amount) */
         { float hw = (float)((cmax - cmin + 1) * 8) * 0.5f - 2.0f; if ((f == 2 || f == 3) && hw >= 10.0f) {   /* >= 3 tiles wide = fireplaces (2 tile candelabras stay small) */ L->hw = hw; L->tan = f == 2 ? 2 : 1; L->hv = (float)((rmax - rmin + 1) * 8) * 0.5f - 2.0f; if (L->hv < 0.0f) L->hv = 0.0f; } }   /* LK_LTWIDE v2: + half its drawn height (on a wall the picture rows = z) */
@@ -1604,7 +1633,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       wseen[r0][c0] = 1; st[sp][0] = (int16_t)r0; st[sp][1] = (int16_t)c0; sp++;
       while (sp) { int rr, cc, dr, dc; sp--; rr = st[sp][0]; cc = st[sp][1]; n++; su += cc * 8 + 4; sv += rr * 8 + 4; { int ta = lk_o_pa[rr][cc] & 0x10000 ? (int)(lk_o_pa[rr][cc] & 0x7FF) : -1; if (ta == 327 || ta == 342 || ta == 341 || ta == 326) sh = 1; if ((ta >= 412 && ta <= 415) || (ta >= 427 && ta <= 430) || (ta >= 441 && ta <= 444)) hat = 1;
           if (ta == 346 && rr + 1 < 152 && (lk_o_pa[rr + 1][cc] & 0x10000) && (lk_o_pa[rr + 1][cc] & 0x7FF) == 1) rd = 1;
-          if (ta == 346) h346 = 1; if (ta == 384 || ta == 385) thr = 1; if (ta == 354 || ta == 355 || ta == 356 || ta == 328 || ta == 343 || ta == 323 || ta == 336) shany = 1; }   /* LK_DNDOORISO v1: a real door has the black tile 1 under its 346 (else a narrow window) */   /* LK_DNSHUT v1: a shuttered Massan window */ { int k1 = lk_dn_iswt(lk_o_pa[rr][cc]), k2 = lk_dn_iswt(lk_o_pb[rr][cc]); if (k1 > kd) kd = k1; if (k2 > kd) kd = k2; }
+          if (ta == 346) h346 = 1; if (ta == 373) { int k3; for (k3 = -1; k3 <= 1; k3 += 2) if (lk_dn_pt(rr, cc + k3) == 25 && lk_dn_s346(rr, cc + k3)) { h346 = 1; if (lk_dn_pt(rr + 1, cc + k3) == 1) rd = 1; } }   /* LK_DNSIGN25 v1: the skull sign door (25 is no list tile: seen from its 373) */ if (ta == 384 || ta == 385) thr = 1; if (ta == 354 || ta == 355 || ta == 356 || ta == 328 || ta == 343 || ta == 323 || ta == 336) shany = 1; }   /* LK_DNDOORISO v1: a real door has the black tile 1 under its 346 (else a narrow window) */   /* LK_DNSHUT v1: a shuttered Massan window */ { int k1 = lk_dn_iswt(lk_o_pa[rr][cc]), k2 = lk_dn_iswt(lk_o_pb[rr][cc]); if (k1 > kd) kd = k1; if (k2 > kd) kd = k2; }
         for (dr = -1; dr <= 1; dr++) for (dc = -1; dc <= 1; dc++) { int r2 = rr + dr, c2 = cc + dc; if (r2 >= 0 && r2 < 152 && c2 >= 0 && c2 < 304 && !wseen[r2][c2] && LK_DN_ISW(r2, c2) && sp < 512) { wseen[r2][c2] = 1; st[sp][0] = (int16_t)r2; st[sp][1] = (int16_t)c2; sp++; } } }
       if (n > 16 || lk_lt_nl >= LK_LT_ML) continue;   /* (LK_DNWIN2 v1: 16, an open door is up to 2 x 6 tiles) */
       if (hat && (OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F) == 7) continue;   /* LK_DNHATCH v1: roof hatches glow only */
@@ -1641,6 +1670,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       if (lk_lt_dbg == 1) printf("church door light: room %%d at (%%.0f, %%.0f, %%.0f) face %%d\n", lk_o_room, L->x, L->y, L->z, f); }
     #undef LK_DN_ISW
   }
+  { const char *e = getenv("LANDSTALKER_LT_ONLY"); if (e && *e && lk_lt_nl > 0) { int q = atoi(e); if (q >= 0 && q < lk_lt_nl) { lk_lt_l[0] = lk_lt_l[q]; lk_dn_ldoor[0] = lk_dn_ldoor[q]; lk_lt_nl = 1; } } }   /* test aid (2026-11-19, room 19 box): LANDSTALKER_LT_ONLY=K keeps only light K (as light 0) */
   lk_lt_key = lk_lt_aor && !lk_lt_nl && lk_lt_keyopt() > 0; if (lk_lt_key) lk_lt_keyset();   /* v8 key light: indoors, rooms without flames */
   lk_lt_shsetup();   /* v8 light shafts */
   lk_am_setup();   /* v8 ambient particles */
@@ -1753,7 +1783,7 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
     for (dr = -1; dr <= 1; dr++) for (dc = -1; dc <= 1; dc++) { int r2 = r + dr, c2 = c + dc; if (r2 < 0 || c2 < 0 || r2 >= 152 || c2 >= 304 || lk_dn_dc[r2][c2] || LK_DN_T(r2, c2) != 1 || lk_dn_ndc >= 64) continue;
       lk_dn_dc[r2][c2] = 1; lk_dn_dcl[lk_dn_ndc][0] = (int16_t)c2; lk_dn_dcl[lk_dn_ndc][1] = (int16_t)r2; lk_dn_ndc++; if (sp < 4096) { st[sp][0] = (int16_t)r2; st[sp][1] = (int16_t)c2; sp++; } } }
   memset(lk_dn_dside, 0, sizeof lk_dn_dside);
-  for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) if (lk_dn_dc[r][c]) { int rr2, cc2, sd = 0; for (rr2 = r; rr2 >= 0 && rr2 >= r - 6 && !sd; rr2--) for (cc2 = c - 2; cc2 <= c + 2 && !sd; cc2++) if (cc2 >= 0 && cc2 < 304 && LK_DN_T(rr2, cc2) == 346) sd = (lk_o_pa[rr2][cc2] & 0x800) ? 1 : -1; lk_dn_dside[r][c] = (int8_t)(sd ? sd : 1); }
+  for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) if (lk_dn_dc[r][c]) { int rr2, cc2, sd = 0; for (rr2 = r; rr2 >= 0 && rr2 >= r - 6 && !sd; rr2--) for (cc2 = c - 2; cc2 <= c + 2 && !sd; cc2++) if (cc2 >= 0 && cc2 < 304) sd = lk_dn_s346(rr2, cc2); lk_dn_dside[r][c] = (int8_t)(sd ? sd : 1); }
   memset(al, 0, sizeof al);   /* allowed cells: the door cells + the cell row below them (NOT above: the black there is the outline of the sign over the door, user comparison 2026-11-16) */
   for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) if (lk_dn_dc[r][c]) { int d; al[r][c] = 1; for (d = -1; d <= 1; d++) if (c + d >= 0 && c + d < 304) { if (0 && r > 0 && !lk_dn_dc[r - 1][c + d]) al[r - 1][c + d] = 1; if (r < 151 && !lk_dn_dc[r + 1][c + d]) al[r + 1][c + d] = 1; } }   /* (+ the row below: the mirrored doors of the right walls continue in 395 / 396) */
   { static int on = -1; if (on < 0) { const char *e = getenv("LANDSTALKER_DNDOOR"); on = e ? atoi(e) : 2; } lk_dn_doormode = on; if (on != 1) memset(al, 0, sizeof al); }   /* LK_DNDOORISO v1: 2 (default) = the hand-drawn iso parallelogram below; 1 = the old flooded fill; 0 = no door glow */   /* DOOR FILL OFF by default (user 2026-11-16: the drawn black openings are no clean iso shape; next: one hand-drawn iso light shape per door type, preview first); the doors keep their light in front; test aid LANDSTALKER_DNDOOR=1 = the flooded fill */
@@ -1785,7 +1815,7 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
       int tl = LK_DN_T(r, c), tr2 = LK_DN_T(r, c + 1), fl = (int)(lk_o_pa[r][c] & 0x800), ty = 0, u, dr, dc2, Ux = 8 * c, Vt = 8 * r;   /* (nds counts them: Destel = even window / hatch glow, LK_DNDESTEL v2) */
       if (tl == 384 && tr2 == 385 && !fl) ty = 1; else if (tl == 385 && tr2 == 384 && fl) ty = 2;
       if (!ty) continue;
-      for (dr = -6; dr <= 2 && ty; dr++) for (dc2 = -3; dc2 <= 4 && ty; dc2++) if (r + dr >= 0 && r + dr < 152 && c + dc2 >= 0 && c + dc2 < 304 && LK_DN_T(r + dr, c + dc2) == 346) ty = 0;
+      for (dr = -6; dr <= 2 && ty; dr++) for (dc2 = -3; dc2 <= 4 && ty; dc2++) if (r + dr >= 0 && r + dr < 152 && c + dc2 >= 0 && c + dc2 < 304 && lk_dn_s346(r + dr, c + dc2)) ty = 0;   /* (LK_DNSIGN25 v1: + the skull sign door) */
       if (!ty) continue;
       nds++;
       for (u = ty == 1 ? Ux + 2 : Ux - 1; u <= (ty == 1 ? Ux + 16 : Ux + 13); u++) { int v, t0 = ty == 1 ? Vt - 27 + (u - (Ux + 2)) / 2 : Vt - 27 + ((Ux + 13) - u) / 2;
@@ -1795,7 +1825,7 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
   if (ts == 7 && lk_dn_doormode == 2) for (r = 0; r < 152; r++) for (c = 0; c < 304; c++) {   /* LK_DNDOORISO v1 (user 2026-11-16, preview ~/Project-Friday-Test/lktest/massan/door_preview.png: 'die Form passt'): every Massan door
        opening = ONE iso parallelogram measured on the drawing: vertical jambs 14 px apart, top and bottom parallel to the wall (slope 1 : 2), 25 px high.  Door kind from the opening tile 346 and its
        3 tall 373 column: 373 RIGHT of 346 (wall running up to the right, faces down-right) or LEFT of it (mirrored, faces down-left).  The light pool below falls out along the wall normal. */
-      int ty = LK_DN_T(r, c) != 346 ? 0 : (c + 1 < 304 && LK_DN_T(r, c + 1) == 373) ? 1 : (c > 0 && LK_DN_T(r, c - 1) == 373) ? 2 : 0, u0, u; float t0, sl;
+      int ty = !lk_dn_s346(r, c) ? 0 : (c + 1 < 304 && LK_DN_T(r, c + 1) == 373) ? 1 : (c > 0 && LK_DN_T(r, c - 1) == 373) ? 2 : 0, u0, u; float t0, sl;   /* (LK_DNSIGN25 v1: 346 or the skull sign 25) */
       if (!ty) continue;
       u0 = ty == 1 ? 8 * c : 8 * c - 6; t0 = ty == 1 ? (float)(8 * r) + 2.5f : (float)(8 * r) - 3.5f; sl = ty == 1 ? -0.5f : 0.5f;
       { int nw = r + 1 >= 152 || LK_DN_T(r + 1, c) != 1;   /* (user 2026-11-16: 'auf der Wand ist doch keine Tuere, da ist nur ein ganz schmales Fenster'): 346 + 373 without the black tile 1 below = a NARROW WINDOW
@@ -1863,7 +1893,7 @@ static void lk_dn_doorcells(void) { static int16_t st[4096][2]; static uint8 al[
       for (V = y0; V <= y1; V++) for (U = x0; U <= x1; U++) lk_dn_sb[V][U] = tb[V][U]; }
     for (V = y0; V <= y1; V++) for (U = x0; U <= x1; U++) if (lk_dn_sb[V][U] >= 2 && lk_dn_pi[V][U] < 128) lk_dn_pi[V][U] = (uint8)(64 + lk_dn_sb[V][U] / 2); } }
   #undef LK_DN_PB
-  { const char *e = getenv("LANDSTALKER_DN_PIDUMP"); if (e && *e) { char pth[600]; FILE *f; snprintf(pth, sizeof pth, "%%s_%%d.raw", e, lk_o_room); f = fopen(pth, "wb"); if (f) { fwrite(lk_dn_pi, 1, sizeof lk_dn_pi, f); fclose(f); } } }   /* LK_DNSPILL v1 test aid: the picture map 2432 x 1216 bytes */
+  { const char *e = getenv("LANDSTALKER_DN_PIDUMP"); if (e && *e) { char pth[600]; FILE *f; snprintf(pth, sizeof pth, "%%s_%%d.raw", e, lk_o_room); f = fopen(pth, "wb"); if (f) { fwrite(lk_dn_pi, 1, sizeof lk_dn_pi, f); fclose(f); } snprintf(pth, sizeof pth, "%%s_%%d_planes.raw", e, lk_o_room); f = fopen(pth, "wb"); if (f) { fwrite(lk_o_pa, 1, sizeof lk_o_pa, f); fwrite(lk_o_pb, 1, sizeof lk_o_pb, f); fclose(f); } } }   /* (+ 2026-11-18: lk_o_pa then lk_o_pb, 152 x 304 uint32 each: bit 16 present, low 11 bits tile, 0x800 h-flip) */   /* LK_DNSPILL v1 test aid: the picture map 2432 x 1216 bytes */
   lk_dn_pmok = (ts == 0 || nds) ? 2 : 1;
   #undef LK_DN_T
 }
@@ -1879,15 +1909,17 @@ static void lk_dn_recheck(void) {   /* LK_DNSTREAM v1 (user 2026-11-16, recordin
   if (h != sig) { struct timespec t0, t1; static int dbg = -1; if (dbg < 0) { const char *e = getenv("LANDSTALKER_DNSTREAM_DBG"); dbg = e ? atoi(e) : 0; } sig = h; clock_gettime(CLOCK_MONOTONIC, &t0); lk_dn_doorcells(); clock_gettime(CLOCK_MONOTONIC, &t1);
     if (dbg) printf("dnstream: frame %%ld room %%d cells rebuilt in %%.1f ms\n", f, lk_o_room, (t1.tv_sec - t0.tv_sec) * 1e3 + (t1.tv_nsec - t0.tv_nsec) / 1e6); } } }
 static int lk_dn_iswt(uint32 c) { int t, k; if (!(c & 0x10000)) return 0; t = (int)(c & 0x7FF); lk_dn_recheck(); k = lk_dn_tix[t]; return k >= 0 ? lk_dn_tk[k] : 0; }   /* v3: a plane cell holds a window tile (LK_DNWIN2 v1: 1 window, 2 door) */
+int lk_dn_inopen(int U, int V) { return lk_dn_pmok && lk_dn_wmroom == lk_o_room && U >= 0 && V >= 0 && U < 2432 && V < 1216 && lk_dn_pi[V][U] >= 128 && lk_dn_pt(V >> 3, U >> 3) == 25; }   /* LK_DNSIGN25 v1: inside a door opening shape AND in a cell of tile 25: there the BACKDROP glows too (only there: the open roof hatches have transparent pixels inside their shape too, they keep their look; the skull sign tile 25 of the Gumi door to 605 is transparent in the opening's upper left cell; plane B has nothing there = backdrop black; that door lies in the widescreen margin of the view, so no margin test) */
 int lk_dn_flk256(void) { long f = platform_frame_number(); return (int)(256.0f * (0.97f + 0.03f * sinf((float)f * 0.021f)));   /* LK_DNFLK v1: the openings only breathe slowly (was 0.90 .. 1.0 fast, all in one rhythm); the door lights flicker each on its own */ }   /* LK_DNGLOW v1: a fire inside flickers (doors / Massan windows only) */
 static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col, int U, int V) {
-  long o; int ti, idx = pick & 15, r, g, b, w, k; uint32_t c = (uint32_t)col, gl;
+  long o; int ti, idx = pick & 15, r, g, b, w, k, sk; uint32_t c = (uint32_t)col, gl;
   if (lk_dn_pmok && lk_dn_wmroom == lk_o_room && (pick >> 4) != 0 && U >= 0 && V >= 0 && U < 2432 && V < 1216 && lk_dn_pi[V][U] && lk_dn_pi[V][U] < 128) { int v = lk_dn_pi[V][U], w0 = (int)(lk_dn_wk * lk_lt_fadek * 235.0f) * lk_dn_flk256() / 256;   /* LK_DNGLOW: the halo / light pool also on the other palette lines (the ground) */
     { r = (int)((c >> 16) & 255); g = (int)((c >> 8) & 255); b = (int)(c & 255); if (v >= 64) { int f = (v - 64) * 2 * w0 / 235; r += (r * 200 * f) / (127 * 127) + 50 * f / 127; g += (g * 145 * f) / (127 * 127) + 25 * f / 127; b += (b * 55 * f) / (127 * 127) + 6 * f / 127;   /* (user: 'zu stark': about half) */ }
       else { int v2 = v * 2; r += 200 * v2 / 127 * w0 / 235; g += 116 * v2 / 127 * w0 / 235; b += 34 * v2 / 127 * w0 / 235; } }   /* LK_DNSPILL v1: 64..127 door strip = a gain on the colour; 1..63 halo = the old warm add */   /* LK_DNSPILL v1: the halo / strip brightens the ground's colours (light), no flat orange on top */ if (r > 255) r = 255; if (g > 255) g = 255; if (b > 255) b = 255;
     return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b); }
-  if ((pick >> 4) != 0 || !fi->t || fi->t < lk_o_tiles || fi->t >= lk_o_tiles + sizeof lk_o_tiles) return col;
-  o = (long)(fi->t - lk_o_tiles); ti = (int)(o >> 5);
+  sk = !fi && (c & 0xFFFFFFu) == 0 && lk_dn_inopen(U, V);   /* LK_DNSIGN25 v1: a BACKDROP pixel (no tile) inside an opening shape glows (the skull sign tile 25 is transparent in the opening's upper left cell; the caller passes fi 0 for the backdrop) */
+  if ((pick >> 4) != 0 || (!sk && (!fi || !fi->t || fi->t < lk_o_tiles || fi->t >= lk_o_tiles + sizeof lk_o_tiles))) return col;
+  o = sk ? 0 : (long)(fi->t - lk_o_tiles); ti = (int)(o >> 5);
   lk_dn_recheck();
   if (lk_dn_pmok == 1 || (lk_dn_pmok == 2 && U >= 0 && V >= 0 && U < 2432 && V < 1216 && lk_dn_pi[V][U])) {   /* LK_DNCHDOOR v1: pmok 2 = a tileset 0 room with a church portal: its picture map only where it is set, the windows keep the tile list */   /* LK_DNGLOW v1: Massan (tileset 7) only through the picture map: openings glow as a ramp (dark amber at the edge -> warm light in the middle), a halo warms what is around */
     int v = (U >= 0 && V >= 0 && U < 2432 && V < 1216) ? lk_dn_pi[V][U] : 0, w0 = (int)(lk_dn_wk * lk_lt_fadek * 235.0f) * lk_dn_flk256() / 256, iv, rr, gg, bb;
@@ -2036,9 +2068,12 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
       /* LK_LTPAIRRAD v1 (2026-11-12, user rec_20261112_1808 room 62: 'beim Hin- und Hergehen verschwindet Nigels Schatten ploetzlich'): the pair test used the fixed 120 + 24 although the castle
          standing torches reach 260 (L->rad): at 144 units the figure's shadow switched off while the torch still lit the floor around it.  Now each light's own reach.  LANDSTALKER_LT_PAIRRAD=0 = old. */
       pr = (prr && lk_lt_l[k].rad > 0.0f ? lk_lt_l[k].rad : LK_LT_RAD) + 24.0f;
-      lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < pr * pr && !(lk_lt_l[k].lava == 2 && lk_lt_flk[k] <= 0.004f); if (lk_dn_ldoor[k]) lk_lt_pair[k][j] = 0; }   /* LK_DNFIG v1 (user 2026-11-16: 'beim Schwertschlag harte Kante wenn Nigel dort steht'): a Massan door light is a wide glowing opening, not a point: no hard figure shadow from it */   /* (LK_DAYNIGHT v3: an unlit window light casts no figure shadow) */
+      lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < pr * pr && !(lk_lt_l[k].lava == 2 && lk_lt_flk[k] <= 0.004f); if (lk_dn_ldoor[k]) lk_lt_pair[k][j] = 0; { static int fo = -9; if (fo == -9) { const char *e = getenv("LANDSTALKER_LT_FIGSH_ONLY"); fo = e ? atoi(e) : -1; } if (fo != -1 && k != fo) lk_lt_pair[k][j] = 0; } }   /* test aid (2026-11-19): LANDSTALKER_LT_FIGSH_ONLY=K = only light K casts figure shadows, -2 = none */   /* LK_DNFIG v1 (user 2026-11-16: 'beim Schwertschlag harte Kante wenn Nigel dort steht'): a Massan door light is a wide glowing opening, not a point: no hard figure shadow from it */   /* (LK_DAYNIGHT v3: an unlit window light casts no figure shadow) */
     if (hd < 1.0f) { lk_lt_pn[k][j][0] = 0.7071f; lk_lt_pn[k][j][1] = 0.7071f; } else { lk_lt_pn[k][j][0] = dx / hd; lk_lt_pn[k][j][1] = dy / hd; }   /* v4 */
   }
+  { static long pf = -2; if (pf == -2) { const char *e = getenv("LANDSTALKER_LT_PAIRDBG"); pf = e ? atol(e) : -1; }   /* test aid (2026-11-19, statue shadows): pairs of every light with every figure at frame N */
+    if (pf >= 0 && platform_frame_number() == pf) for (j = 0; j < lk_lt_nf; j++) { printf("pairdbg: frame %%ld fig %%d tag %%d at (%%.0f, %%.0f, %%.0f) screen (%%d, %%d)\n", pf, j, lk_lt_f[j].tag, lk_lt_f[j].fx, lk_lt_f[j].fy, lk_lt_f[j].fz, lk_lt_f[j].ax, lk_lt_f[j].ay);
+      for (k = 0; k < lk_lt_nl; k++) printf("pairdbg:   light %%d pair %%d n (%%.2f, %%.2f) door %%d\n", k, lk_lt_pair[k][j], lk_lt_pn[k][j][0], lk_lt_pn[k][j][1], lk_dn_ldoor[k]); } }
   lk_lt_fmall = 0;
   for (k = 0; k < lk_lt_nl; k++) for (j = 0; j < lk_lt_nf; j++) if (lk_lt_pair[k][j]) {   /* v8 SPEED (user 2026-11-05: 'gerne noch die Fackelraeume optimieren'): the screen box a flame's figure shadow can fall into:
        the card corners and the points 62 units further away from the flame (lk_lt_shadowed fades the shadow out at 60 units behind the figure) */
@@ -2120,7 +2155,8 @@ rep("int lk_sfx_ln = lk_sfx_linebegin(line);   /* LK_SWORDFX v1 */\n",
     "int lk_sfx_ln = lk_sfx_linebegin(line);   /* LK_SWORDFX v1 */\n    int lk_lt_ln = lk_lt_linebegin();   /* %s */\n" % VER)
 rep("      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n",
     "      /* LK_LIGHTS: the map pixel is lit on the GPU (CPU light removed 2026-11-12) */\n" +
-    "      if (lk_lt_ln && lk_dn_win && !black && (src == 2 || src == 3)) col = lk_dn_winpix(src == 2 ? &afi : &bfi, pick, col, ubase + x - lk_sm_sxn, vbase - lk_sm_syn);   /* LK_DAYNIGHT v3 lit windows */\n" +
+    "      { static long pf = -2; static int pl; if (pf == -2) { const char *e = getenv(\"LANDSTALKER_DN_PIXDBG\"); pf = -1; if (e) sscanf(e, \"%ld:%d\", &pf, &pl); } if (pf >= 0 && platform_frame_number() == pf && line == pl) { int U_ = ubase + x - lk_sm_sxn, V_ = vbase - lk_sm_syn; printf(\"dnpix: i %d x %d U %d V %d src %d pick %d col %06X black %d margin %d win %d ln %d pi %d\\n\", i, x, U_, V_, src, pick, col & 0xFFFFFF, black, margin, lk_dn_win, lk_lt_ln, (U_ >= 0 && V_ >= 0 && U_ < 2432 && V_ < 1216) ? lk_dn_pi[V_][U_] : -1); } }   /* test aid (2026-11-18): LANDSTALKER_DN_PIXDBG=FRAME:LINE prints the door light inputs of every pixel of that line */\n" +
+    "      if (lk_lt_ln && lk_dn_win && !black && (src == 2 || src == 3 || (src == 0 && lk_dn_inopen(ubase + x - lk_sm_sxn, vbase - lk_sm_syn)))) col = lk_dn_winpix(src == 2 ? &afi : src == 3 ? &bfi : 0, pick, col, ubase + x - lk_sm_sxn, vbase - lk_sm_syn);   /* LK_DAYNIGHT v3 lit windows */\n" +
     "      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n")
 open(p, "w").write(s)
 print("vdp_render.c patched:", VER)

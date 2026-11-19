@@ -14,37 +14,44 @@ Non-commercial, open source, a hobby project. Not affiliated with Sega or Climax
 Get the latest release from the [Releases page](https://github.com/cmdrlucid/Project-Friday/releases):
 
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage`. Make it executable, start it and pick your ROM. The first start builds the game from your ROM (this takes a few minutes); later starts go straight into the game. On the Deck, add it in Desktop mode via *Steam > Add a Non-Steam Game*.
-- **Windows 10 / 11 (experimental):** `Project-Friday-windows-x64.zip`. Extract the whole zip and start `Project-Friday.exe`.
+- **Windows 10 / 11 (experimental):** `Project-Friday-Setup.exe`. Run it, pick a folder (your user folder by default, no admin rights needed) and start Project-Friday from the Start menu; uninstall in *Settings > Apps*. Windows may warn that the file is unknown (it is not signed): *More info > Run anyway*. The same files also come as `Project-Friday-windows-x64.zip` (extract the whole zip, start `Project-Friday.exe`).
 
 You need a supported ROM (US or European version), described under [Compatible ROMs](#compatible-roms).
+
+**Japanese text and Japanese items (optional):** the language *Japanese* (the original Japanese text) and the option *Items: Japanese* (the four items that are different things in the Japanese original) are read from **your own Japanese ROM**. Put it **in the same folder as your US / European ROM** (any file name); the game finds it at every start. Without it the two options are hidden or stay on *Original*. It is only a source of text and pictures: you still start the game with the US or European ROM.
+
+| Version | SHA-1 |
+|---|---|
+| **Japan** (*Landstalker: Koutei no Zaihou*, raw 2 MB dump) | `cdbc7cd9ceb181cad9e49b641ff717072546f0d9` |
 
 ## How is this different from running the ROM in an emulator?
 
 The game logic is no longer interpreted: the 68000 code of the ROM is translated into C and compiled into a native program on your machine. The picture is drawn by the project's own renderer, and the timing, the video chip's data path, the system start-up, both sound chips, the sound mixer and the Z80 sound driver run on the project's own code; Genesis Plus GX is still the frame around it and the base of the FM chip core, and its renderer is only kept as a test picture. Because the game code is now ordinary C that we can hook into, the project can change things an emulator cannot: draw a wider picture with real map content, fix old bugs, or add comfort features inside the game's own menus.
 
-With every option switched off, the game plays like the original cartridge. All additions are optional and set in a new **Options** tab in the game's Start menu (next to *Use* / *Equip*; also on the file select screen).
+Out of the box most of the comfort and graphics additions are **on** (see the defaults below). Every one of them can be switched off: with all options off, the game plays like the original cartridge. They are set in a new **Options** tab in the game's Start menu (next to *Use* / *Equip*; also on the file select screen).
 
 **Display**
 - **Widescreen** Off / 16:10 / 16:9: real map content in the side margins, not stretched. The project draws the picture with its own renderer, and sprites, scrolling and effects are handled for the wider view.
 - **Full Height:** shows the map in the band at the bottom of the screen that the original leaves empty while you walk.
-- **Filter** (Off, Scanlines, CRT, CRT Pro, CRT Curved), **Scaling** (Fit, 4:3, Integer, Fill), borderless **Fullscreen**.
+- **Filter** (Off, Scanlines, CRT, CRT Pro, CRT Curved) and **De-Dither** (smooths the checkerboard dither patterns of the original art), **Scaling** (Fit, 4:3, Integer, Fill), borderless **Fullscreen**.
 
 **Graphics**
 - **HUD** Original / Modern: the modern HUD drops the status bar and lays hearts (with the life numbers), the sword charge, gold and the button icons (sword, Quick Items, with the name of the bound button) over the map, so the room fills the whole screen.
-- **Shadows** (Off / On / Soft): a ground shadow under Nigel and airborne objects, which makes jumps easier to judge.
+- **Shadows** (Off / On / Soft, off by default): a ground shadow under Nigel and airborne objects, which makes jumps easier to judge.
 - **Sword Effects** (On by default): while Nigel swings one of the four special swords the arc takes the sword's colour and a few small particles come off it: embers (Magic Sword), frost glitter (Ice Sword), little bolts (Thunder Sword), green light motes (Gaia Sword); also during the swing on the file select screen.
 - **Boot Colors** (off by default): Nigel's boots take the colour of the equipped boots (Fireproof, Iron, Healing, Spike), like his sword and armour already do in the original; on the map and on the file select screen.
 - **Lighting** (On by default, needs GPU Filters): torches, lava, lit windows and the sword light the rooms, figures and furniture cast shadows that follow their real 3D shape; outdoors a sun casts shadows of houses, trees and Nigel. Runs on the graphics chip; without working GPU filters it stays off. Still tuned room by room: please report odd shadows (a screenshot and the room help a lot).
 - **Day / Night** (On by default, with Lighting): the sun moves over the day, shadows get longer in the morning and evening, the light takes the colour of the time of day, windows glow at night.
 - **Particles, Enemy Dissolve, Heat Haze, Water Reflections, Cloud Shadows** (On by default, each with its own switch): fireflies, sparks and drops; defeated enemies burst apart; air shimmers above lava; figures are mirrored on water; cloud shadows drift over the land.
-- **Map Behind Text:** dialogue boxes sit over the map instead of a black band.
-- **No Sprite Limit:** draws every figure of a room, without the cartridge's limit of 20 sprites per line and its flicker (off by default = the original look).
+- **Map Behind Text** (On by default): dialogue boxes sit over the map instead of a black band.
+- **No sprite limit** (always on, no option): every figure of a room is drawn, without the cartridge's limit of 20 sprites per line and its flicker.
 
 **Audio:** separate music and effect volume; speech blips can be switched off.
 
 **Movement**
 - **Sprint** (On by default): hold R2 (keyboard Left Shift) and Nigel runs faster on the ground (jumps stay exactly as in the original). Sprint Key: Hold or Toggle.
-- **Smooth Scrolling** (On by default): the sprint is 1.5 x and the room scrolls evenly and stays sharp (the scenery is shifted by whole screen pixels inside the display filter); Off = sprint 2 x.
+  While sprinting the room scrolls evenly and stays sharp (the sprint is 1.5 x).
+- **D-Pad:** Original or Alternate (the four directions walk along the diagonal axes of the isometric view: Up = up-right, Right = down-right, ...).
 - **Native Pace:** busy rooms no longer run in slow motion; the picture waits for the game instead of the game losing frames like on the console.
 - **Fast Forward** 2x / 3x / 4x while a button is held, or as a toggle (Fast Forward Key: Hold / Toggle).
 
@@ -58,22 +65,22 @@ With every option switched off, the game plays like the original cartridge. All 
 - **Fix Ride Objects:** Nigel now rides along on an object that stands on a moving platform. In the original he slides off; this is a bug fix.
 - **Live Gaia Effect:** the Gaia rocks stay in the world while the screen scrolls.
 
-**Difficulty / Help:** damage taken (25 % to 200 %), enemy HP (50 % to 300 %) and *Friday Hints* (off by default; press Select and Friday flies out of Nigel's bag and tells you where to go next). The hints follow your progress and only mention what Nigel has actually been told: if you listened to an optional character, Friday remembers it (per save file) and gets more precise. In English, German, French, Korean and Japanese.
+**Difficulty / Help:** damage taken (25 % to 200 %), enemy HP (50 % to 300 %) and *Friday Hints* (on by default; press Select and Friday flies out of Nigel's bag and tells you where to go next). The hints follow your progress and only mention what Nigel has actually been told: if you listened to an optional character, Friday remembers it (per save file) and gets more precise. In English, German, French, Korean and Japanese.
 
-**Dungeon map** (bind a button to "Map" in Keybindings): a map of the visited rooms of the current dungeon, turned like the game's own view, the whole floor at once with every door on its real wall. The D-pad moves a selection, A sets a flag and the map shows the way there, L1 / R1 switch floors; dungeon names in every language.
+**Dungeon map** (R3 on the controller, M on the keyboard; changeable in Keybindings): a map of the visited rooms of the current dungeon, turned like the game's own view, the whole floor at once with every door on its real wall. The D-pad moves a selection, A sets a flag and the map shows the way there, L1 / R1 switch floors; dungeon names in every language.
 
 **Keybindings:** every action can be remapped, for both controller and keyboard, including the keyboard directions; one row switches the keyboard to W A S D.
 
 **Language / Region** (own options page):
-- **Language:** English, **Deutsch** (all dialogue, with the names of the original German release), **English (JP)** (every line rewritten in the tone of the Japanese original: its jokes, characters' voices and the scenes the Western release toned down), **Francais** and **Korean** (both translated in the Japanese original's tone), and **Japanese**: the original Japanese text, only if you put your own Japanese ROM next to your ROM. The translations are written with Claude (see below) and not all have been read by native speakers yet; corrections are very welcome.
-- **Names:** localized or the Japanese original names (Ryle instead of Nigel, ...). **Items:** the four items that are different things in the Japanese original.
-- **Bath Scene** (off by default): restores the scene in Kayla's room at Mercator castle that the Western releases block with a maid on the door (the Japanese release lets you in; the scene itself is in every version's data).
+- **Language:** English, **Deutsch** (all dialogue, with the names of the original German release), **English (JP)** (every line rewritten in the tone of the Japanese original: its jokes, characters' voices and the scenes the Western release toned down), **Francais** and **Korean** (both translated in the Japanese original's tone), and **Japanese**: the original Japanese text, only with your own Japanese ROM in the same folder as your ROM (see [Download and start](#download-and-start)). The translations are written with Claude (see below) and not all have been read by native speakers yet; corrections are very welcome.
+- **Names:** localized or the Japanese original names (Ryle instead of Nigel, ...). **Items:** the four items that are different things in the Japanese original (also needs the Japanese ROM).
+- **Bath Scene** (on by default): restores the scene in Kayla's room at Mercator castle that the Western releases block with a maid on the door (the Japanese release lets you in; the scene itself is in every version's data).
 
-Defaults for a new install: 16:9, Full Height, CRT Pro filter, Native Pace, and most Movement / Comfort options on (HUD: Original). Change anything you like in Options.
+**Defaults for a new install:** 16:9, Full Height, CRT Pro filter, Lighting with Day / Night and all its effects, Sword Effects, Map Behind Text, Sprint, Native Pace, Quick Items, Quick Equip, Buy Quantity, Better Menu, Fix Ride Objects, Live Gaia Effect, Friday Hints and Bath Scene are **on**. **Off** (the original behaviour) until you switch them on: Modern HUD (HUD: Original), Shadows, Boot Colors, Fast Forward, Quick Save and Item Info. Change anything you like in Options.
 
 ## Vision and what comes next
 
-The goal is the **definitive way to play Landstalker on PC and Steam Deck**: faithful to the original by default, with modern comfort for those who want it. Planned or being looked at (no promises, this is a hobby project):
+The goal is the **definitive way to play Landstalker on PC and Steam Deck**: the original game at its core, with modern comfort and graphics switched on out of the box, and the original look and feel always one menu away. Planned or being looked at (no promises, this is a hobby project):
 
 - **More comfort features and fixes**, driven by player feedback. Suggestions are welcome in [Discussions](https://github.com/cmdrlucid/Project-Friday/discussions) / Issues.
 - **German ROM as a base** (the European and US versions work already). It is a different program revision and needs its own recompilation; Japanese and hacks like *Remix* are further away.
@@ -93,7 +100,7 @@ Two ROMs are supported, both as a raw 2 MB dump (`.md`, `.bin` or `.gen`, 2,097,
 
 The European version is the US game with 50 Hz timing constants; the game still runs at the speed of the US version. European support is new and has had less play testing than the US version.
 
-The launcher checks size and SHA-1 at every start and refuses any other file with a message. Not supported (yet): the German and Japanese versions, hacks such as *Landstalker Remix*, other dumps or patched / translated ROMs, `.smd` (interleaved) dumps and ROMs inside zip files (convert / unpack them first). The German version differs in a lot of code and would need its own recompilation; the Japanese version and *Remix* have shifted data.
+The launcher checks size and SHA-1 at every start and refuses any other file with a message. Not supported (yet) as the ROM you play with: the German and Japanese versions (the Japanese ROM can be added for its text and items, see above), hacks such as *Landstalker Remix*, other dumps or patched / translated ROMs, `.smd` (interleaved) dumps and ROMs inside zip files (convert / unpack them first). The German version differs in a lot of code and would need its own recompilation; the Japanese version and *Remix* have shifted data.
 
 - Project: [`landstalker/`](landstalker/README.md) (build instructions, tools, documentation)
 - Entry point for the documentation: [`landstalker/docs/HANDOFF.md`](landstalker/docs/HANDOFF.md), then `LESSONS.md` and `INDEX.md`

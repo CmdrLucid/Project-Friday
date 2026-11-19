@@ -243,3 +243,12 @@
 - L1934: Session 2026-11-17 later (Deck, Opus 5.5, no agents): GitHub #19 / #20, De-Dither on the GPU
 - L1942: Session 2026-11-17 evening / night: release v1.9.5, trailer 2.0, sharp smooth scrolling on the GPU
 - L1950: Session 2026-11-18: GitHub #21 / #22 / #23 (paul-met), release v1.9.6
+- L1957: Session 2026-11-18 afternoon / evening: room 0 + Tibor, phantom pine on exits, water drops, Quiver art, #21 driver check, release v1.9.7
+- L1968: Session 2026-11-18 late night: room 182 pit strip, Friday Waterfall hint, wall 638 / arcade 486 as real models, watchdog OSD + retry, #21 (Paul) narrowed down
+- L1980: Waterfall shrine water reflections (2026-11-18 late, LK_WATER v4)
+- L1986: Water rim corners 175 + Gumi skull sign door (2026-11-19 night, LK_WATER v5, LK_DNSIGN25 v1)
+- L1990: Parked reports 2026-11-19: statue figure shadows, room 19 box
+- L1994: Room 19 wall box FIXED (2026-11-19, LK_LTWATDOOR v1, LK_LTVOID v1)
+- L1998: Statue figure shadows (2026-11-19, LK_LTBLOCKFL v1)
+- L2001: Statue shadow root cause (2026-11-19, LK_LTLDOORCLR v1)
+- L2004: Dissolve particles + top-edge culling (2026-11-19, LK_DISSOLVE v2, LK_SPRCULLTOP v1)

@@ -114,6 +114,7 @@ Rule (extends 4c / 4e, uses the `heard:` conditions of 4d): a hint may state wha
 |---|---|---|---|---|
 | stage01_prospero_oldman | 0178\|017B\|0182 | Massan villagers (rooms 599, 600 ...) | 0 (hint at 1) | an old sage lives in the Waterfall Shrine and knows more (no name) |
 | stage02_fara_prospero | 01C5 | Prospero, Waterfall Shrine (room 180) | 2 | the Orcs trick the Gumi; Fara is in danger (no boss, no shrine name) |
+| stage03_need_stone_door / stage03_in_waterfall_door | 0157 \| 016C | Massan man at the shrine door (CS_007B) / farmer | 3 | the shrine door is shut (2026-11-19: before that Friday only says where Fara went) |
 | stage03_need_stone_item | 016C | farmer, rooms 425 / 433 / 595 | 3 | the Gumi opened the door with something strange (no stone named) |
 | stage05_to_ryuma_fork | 01A0 | Massan villager, room 592 | 0 | past Gumi the road splits at the sea; left = Ryuma, right = Mercator |
 | stage06_elders_meeting | 024C\|024D | Ryuma house, room 622 | 5 (hint at 6) | people hold a meeting in that house (mayor part only in 024D: not used) |
@@ -168,9 +169,9 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 - when: `stage>=2`
 - evidence: $00.0 = $00 FARA_KIDNAPPED. Next: Gumi, watch the ritual (cutscene sets $02.4 SPIED_ON_GUMI_RITUAL = stage 3).
 - EN L1: Fara is gone! The tribe in the / south is up to something.
-- EN L2: Head south to Gumi and find / where they hold their ritual.
+- EN L2: Head south to Gumi and / look around the village. (2026-11-18: no 'ritual', the game never says that word before the scene)
 - DE L1: Fara ist weg! Der Stamm im / Süden führt was im Schilde.
-- DE L2: Geh nach Gumi im Süden und / such ihren Ritualplatz.
+- DE L2: Geh nach Gumi im Süden und / sieh dich im Dorf um.
 
 ### `stage02_fara_seen` (added 2026-11-14, flag-gated, section 4e)
 - when: `stage>=2, flag:02.2`
@@ -190,7 +191,15 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 
 ### `stage03_need_stone`
 - when: `stage>=3, !item:31`
-- evidence: $02.4 = $14 SPIED_ON_GUMI_RITUAL. The Swamp Shrine door is shut; needs IDOL_STONE (item $31, used at the statue). The stone is found in Gumi village (user 2026-11-18). 2026-11-18 (user): the old text 'That shrine door is shut tight' came before the player had seen the door: now a vague pointer to Gumi.
+- evidence: $02.4 = $14 SPIED_ON_GUMI_RITUAL; the Gumi took Fara into the Swamp Shrine (Massan man CS_007B stage 3: 0156 'They took Fara into the shrine', kid 0164 'chased 'em off to the swamp shrine'). 2026-11-19 (user 2026-11-18: the shrine door came up before Nigel had seen it shut): NO door here any more, only where Fara went; the door texts moved to `stage03_need_stone_door`.
+- EN L1: Poor Fara! Where did the Gumi take her? Let's find out!
+- EN L2: The Gumi took Fara away. / Look for her at the Swamp Shrine.
+- DE L1: Arme Fara! Wohin haben die Gumi sie gebracht? Finden wir's raus!
+- DE L2: Die Gumi haben Fara weggebracht. / Such sie am Sumpf-Schrein.
+
+### `stage03_need_stone_door` (heard-gated, 4f)
+- when: `stage>=3, !item:31, heard:0157|016C`
+- evidence: 0157 = the last box of the Massan man in front of the shrine door (CS_007B stage 3, code/script/en/characters/script_characters.asm:84-86: 'We tried to go in, but.... the door wouldn't open'), 016C = the farmer at the door (that one also has `stage03_need_stone_item`, later in the list = wins). The Idol Stone lies in Gumi (room 605). Texts = the old `stage03_need_stone` (2026-11-18).
 - EN L1: Poor Fara! Maybe there's something in Gumi that opens the shrine door. Let's look around!
 - EN L2: Search Gumi village for / whatever opens the shrine door.
 - DE L1: Arme Fara! Vielleicht gibt's in Gumi was, das die Schreintür öffnet. Sehen wir uns um!
@@ -198,11 +207,19 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 
 ### `stage03_in_waterfall`
 - when: `stage>=3, !item:31, room:174-182`
-- evidence: UNSURE: Idol Stone assumed to be in the Waterfall Shrine.
-- EN L1: Keep climbing. Shrines hide / their best bits deep inside.
-- EN L2: Look for the Idol Stone in the / deepest part of this shrine.
-- DE L1: Klettere weiter. Schreine / verstecken Gutes ganz hinten.
-- DE L2: Such den Idol-Stein im tiefsten / Teil dieses Schreins.
+- evidence: as `stage03_need_stone`: before the door was seen (2026-11-19) only 'Fara is not here, the swamp'; the door variant is `stage03_in_waterfall_door`.
+- EN L1: Hmm, no Fara here. Didn't they take her to the swamp?
+- EN L2: Fara is not here. / Look for her at the Swamp Shrine.
+- DE L1: Hmm, hier ist keine Fara. Haben sie sie nicht zum Sumpf gebracht?
+- DE L2: Fara ist nicht hier. / Such sie am Sumpf-Schrein.
+
+### `stage03_in_waterfall_door` (heard-gated, 4f)
+- when: `stage>=3, !item:31, room:174-182, heard:0157|016C`
+- evidence: 2026-11-18 ROM check (map entity table $01B090 / $01B932, type byte 5 = item + $C0): the IDOL_STONE ($F1) lies on the ground ONLY in room 605 (Gumi), cell 14, 14; no chest holds it. Door known (heard 0157 / 016C) -> points back to Gumi.
+- EN L1: Hmm, nothing for Fara here. Didn't we want to search Gumi?
+- EN L2: What opens the shrine door is not / here. Search Gumi village.
+- DE L1: Hmm, hier gibt's nichts für Fara. Wollten wir nicht Gumi durchsuchen?
+- DE L2: Was die Schreintür öffnet, ist nicht / hier. Durchsuch das Dorf Gumi.
 
 ### `stage03_have_stone`
 - when: `stage>=3, item:31`
@@ -216,9 +233,9 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 - when: `stage>=3, room:0-30`
 - evidence: Swamp Shrine rooms 0-30 (28 boss, 30 before boss). Orc Kings (cutscene $13/$14).
 - EN L1: Fara is at the far end. Watch / your step and keep moving.
-- EN L2: Fight through to the boss room. / Orc Kings hit hard, dodge!
+- EN L2: Fight through to the far end. / Watch your health! (2026-11-18: the Orc Kings are named only in the boss scene, cutscene $13)
 - DE L1: Fara ist ganz hinten. Pass auf / und bleib in Bewegung.
-- DE L2: Kämpf dich zum Bossraum durch. / Die Orkkönige hauen fest zu!
+- DE L2: Kämpf dich bis ganz hinten durch. / Achte auf deine Herzen!
 
 ### `stage04_thanks`
 - when: `stage>=4`
@@ -911,7 +928,7 @@ Format: id, `when`, evidence, then EN / DE (L1, L2; `|` = line break).
 
 ## 6. UNSURE list (to verify on the Deck, see the id in the json)
 
-1. `stage03_need_stone`: where the IDOL_STONE comes from. The Waterfall Shrine (rooms 174-182) is assumed (Massan villagers send you to the sage there); the stone could also be in Gumi.
+1. CLOSED 2026-11-18: the IDOL_STONE lies only in room 605 (Gumi), ground item from the ROM entity table; `stage03_in_waterfall` rewritten.
 2. `stage06_elders`: which Ryuma NPC sets $04.0 (CS_00A6 branches _1/_2 are the elders' request).
 3. `stage10_castle_back`: meaning of $05.4 (0x02C); stage 11 does not exist.
 4. `stage13_teller` / `stage14_spell`: what the fortune-teller spell does and which door follows (Madame Yard's, rooms 680 / 707-710).

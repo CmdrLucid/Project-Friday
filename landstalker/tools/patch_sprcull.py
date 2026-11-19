@@ -9,6 +9,7 @@ LANDSTALKER_TALL (full-height picture, tools/patch_tall.py) also needs the VERTI
 (x + y) is more than $100 away (half of it in screen px) from the camera centre; the picture used to end 80 px below the centre, the full-height one ends 120 px below it,
 so an entity whose centre was past the limit but whose upper body was still in the new bottom band vanished early (user report 2026-10-11: the guard outside the church).
 With TALL on the bottom limit grows by $80 (64 px).
+LK_SPRCULLTOP v1 (2026-11-19): with WIDE or TALL the TOP limit is 64 px higher too (platforms hanging into the picture from above).
 With e = 0 and TALL off the generated code behaves exactly as before. Instruction count / cycle charges are unchanged.
 Only the sprite builder reads the fields written there (Unk0E/Unk10 of the entity, the sprite attribute table $FF0550); game logic does not.
 Known trade-off: more entities may be on screen at once; the sprite tile area ($3A8..$4F4 of VDP RAM) is the game's own budget (16 entities).
@@ -33,6 +34,16 @@ for p in sorted(glob.glob(os.path.join(d, "*.c"))):
     body = body[:k] + "    { extern int lk_tall_kv(void) __attribute__((weak)); M68K_CMP16(g_m68k.d[0], (uint16_t)g_m68k.d[5] + ((lk_tall_kv && lk_tall_kv() > 0) ? 0x80 : 0)); }   /* LANDSTALKER_TALL: entities in the bottom band (tools/patch_sprcull.py) */\n" + body[k + len(v):]
     body = body.replace(a, "    { extern int lk_wide_e; M68K_CMP16(g_m68k.d[2], 0x60 - lk_wide_e); }   /* LANDSTALKER_WIDE: margin entities (tools/patch_sprcull.py) */\n", 1)
     body = body.replace(b, "    { extern int lk_wide_e; M68K_CMP16(g_m68k.d[2], 0x1e0 + lk_wide_e); }   /* LANDSTALKER_WIDE: margin entities */\n", 1)
+    # LK_SPRCULLTOP v1 (user 2026-11-19 rec_20261119_1209, Swamp Shrine room 5 in 16:9: 'die hoelzerne Plattform verschwindet am oberen Bildrand, obwohl sie noch zu sehen sein sollte',
+    # its drop shadow (LK_SHOFF draws platforms above the screen) stayed alone): the TOP of the picture culled an entity as soon as its CENTRE left line 0 (first test: (x + y) below the range,
+    # second test: sprite Y < $80) although its body hangs down into the picture.  With WIDE or TALL on both tests reach 64 px higher (the sprite pieces then lie at Y >= 0, no wrap).
+    T = "((lk_wide_e > 0 || (lk_tall_kv && lk_tall_kv() > 0)) ? 0x80 : 0)"
+    vt = "    { extern int lk_tall_kv(void) __attribute__((weak)); M68K_CMP16(g_m68k.d[0], (uint16_t)g_m68k.d[5] + ((lk_tall_kv && lk_tall_kv() > 0) ? 0x80 : 0)); }"
+    assert body.count(vt) == 1
+    body = body.replace(vt, "    { extern int lk_tall_kv(void) __attribute__((weak)); extern int lk_wide_e; M68K_CMP16((uint16_t)g_m68k.d[0] + %s, (uint16_t)g_m68k.d[5] + ((lk_tall_kv && lk_tall_kv() > 0) ? 0x80 : 0) + %s); }   /* LK_SPRCULLTOP v1: + 64 px at the top */" % (T, T), 1)
+    yt = "    M68K_CMP16(g_m68k.d[0], 0x80);\n"
+    assert body.count(yt) == 1, "sub_004144: sprite Y compare not found once"
+    body = body.replace(yt, "    { extern int lk_tall_kv(void) __attribute__((weak)); extern int lk_wide_e; M68K_CMP16(g_m68k.d[0], 0x80 - %s / 2); }   /* LK_SPRCULLTOP v1: sprite Y >= $40 with WIDE / TALL */\n" % T, 1)
     open(p, "w").write(s[:i] + body + s[j:])
     print("sprcull: patched sub_004144 in %s" % os.path.basename(p)); hit = 1
 assert hit, "sprcull: sub_004144 not found in generated code (is the function seeded?)"

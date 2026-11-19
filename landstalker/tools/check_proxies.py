@@ -6,7 +6,7 @@ Run by the pre-commit hook; exit 1 = a box-only OBJ that is not in LEGACY."""
 import glob, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); PROX = os.path.join(HERE, "..", "data", "proxies")
 LEGACY = {   # box proxies made before the rule was enforced: TO BE REPLACED by real models (HANDOFF NEXT)
-    "arcade_486.obj", "wall_638.obj",   # architecture (user approved 2026-11-09); boxy by nature, review when the remake builds them
+    # empty since 2026-11-18: wall_638 and arcade_486 were replaced by real models
 }
 RECTILINEAR = {   # objects DRAWN as straight boxes whose model is made of axis-aligned parts on purpose (grooves / boards >= 1 unit): name -> why.
     # Only with the user's OK; rounding below 1 unit gave dotted light lines (HANDOFF 0a413).

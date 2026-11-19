@@ -4,7 +4,9 @@ Like the AppImage it contains NOTHING from the game or generated from it: launch
 pristine genrecomp / Genesis Plus GX sources, a C compiler (zig for Windows), the SDL2 MinGW development files + SDL2.dll, the capstone wheel
 and the licence texts. The game is built on the user's PC from the user's own ROM (firstrun.py), the result is tied to that ROM.
 
-  python3 packaging/make_windows_zip.py [--out DIR]
+  python3 packaging/make_windows_zip.py [--out DIR] [--installer]
+
+Also builds Project-Friday-Setup.exe (packaging/installer_win.nsi, same files) when makensis (NSIS) is installed; --installer makes it required.
 
 Needs network on the build machine (everything is downloaded once into ~/.cache/project-friday-build)."""
 import argparse, glob, hashlib, io, json, os, re, shutil, subprocess, sys, tarfile, urllib.request, zipfile
@@ -39,6 +41,7 @@ def get_zig_windows():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=os.path.join(ROOT, "dist"))
+    ap.add_argument("--installer", action="store_true", help="fail when makensis is missing (release builds)")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
 
@@ -159,8 +162,22 @@ def main():
             for f in fs:
                 full = os.path.join(r, f)
                 z.write(full, os.path.join("Project-Friday", os.path.relpath(full, pkg)))
-    shutil.rmtree(pkg)
     print("built", out, "%.0f MB" % (os.path.getsize(out) / 1e6))
+
+    # installer exe (user 2026-11-19: one exe instead of a zip; same files as the zip): NSIS makensis (apt-get install nsis)
+    setup = os.path.join(a.out, "Project-Friday-Setup.exe")
+    if os.path.isfile(setup):
+        os.remove(setup)
+    mk = shutil.which("makensis")
+    if mk:
+        ver = os.environ.get("GITHUB_REF_NAME", "dev")
+        subprocess.check_call([mk, "-V2", "-DSRC=" + pkg, "-DOUTFILE=" + setup, "-DVERSION=" + ver, os.path.join(HERE, "installer_win.nsi")])
+        print("built", setup, "%.0f MB" % (os.path.getsize(setup) / 1e6))
+    elif a.installer:
+        sys.exit("makensis not found (apt-get install nsis): no Project-Friday-Setup.exe")
+    else:
+        print("makensis not found: zip only (no Project-Friday-Setup.exe)")
+    shutil.rmtree(pkg)
 
 
 if __name__ == "__main__":

@@ -2,8 +2,8 @@
 """Option 'Water Reflections' (2026-11-06, user: modern effects list item 3; 'das originale Wasser ist sehr blau, ersetzen wir die Textur ganz oder kriegen wir das
 anders gut hin?' -> keep the original animated water, calm its blue, mirror the figures on it).
 WATER = map pixels whose winning layer tile is in one of the animated water groups (AnimatedTilesetData, tools/animsurvey.py): rivers / sea / ponds / cave water
-$094F2A $09552A $09614A $09700A $09760A $097B4A $09820A $09838A $09912A $09960A, and $099E8A outside the lava rooms 403 / 404.  Waterfalls ($0957EA, the waterfall
-shrine group $0968CA) and $098EAA are left out; a pixel must also be bluish (blue > red), which keeps the ship's fluttering sail ($09912A) out.
+$094F2A $09552A $09614A $09700A $09760A $097B4A $09820A $09838A $09912A $09960A, and $099E8A outside the lava rooms 403 / 404.  Waterfalls ($0957EA) and $098EAA are left out; v4
+(2026-11-18, room 175): the waterfall shrine group $0968CA counts with its pool / splash tiles only (lk_wr_tok: the falling water and the torches are not water); a pixel must also be bluish (blue > red), which keeps the ship's fluttering sail ($09912A) out.
 (1) Calm blue: water pixels move towards their grey value and get a little darker (LANDSTALKER_WATER_TINT 0..1, default 0 = the original colours, user 2026-11-06: 'blau original').
 (2) Reflections: every figure of the visible list ($FF11DE, entity +$0E / +$10 screen foot, +$12 z, +$14 / +$16 x / y) is mirrored at the line where the water
 plane under it would be: by default the floor under the figure (user pick B: the reflection starts at the feet; a jump mirrors at the floor);
@@ -14,11 +14,12 @@ read through a small slow ripple (v2: under half a pixel, mixed between two neig
 (docks / sea rooms: few animated tiles among static ones).  Picture only.  Independent of Lighting.  Not with HD graphics.
 Option: Options > Graphics > Water Reflections (id 52, ~/.landstalker_water, env LANDSTALKER_WATER=0|1 wins), default On.
 Test aid: LANDSTALKER_WATER_DBG=1 (room groups + figures every 60 frames), =2 (water pixels magenta).
+v5 (2026-11-18, room 175): pool rim tiles (half floor edge, half water) count in the waterfall shrine rooms (lk_wr_tcls).
 v3 (2026-11-06): the scan box is +-48 px wide (sword swings), Boot Colors recolour the reflection too (lk_bc_pix).
 Needs patch_own.py, patch_lights.py (lk_lt_spre), patch_bootcol.py (lk_bc_pix), patch_dissolve.py, patch_haze.py before it.  Idempotent.  usage: patch_water.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_WATER v3"
+VER = "LK_WATER v5"
 
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
@@ -35,13 +36,18 @@ void lk_wr_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; 
 static uint8 lk_wr_g[8], lk_wr_ts[2304]; static uint16_t lk_wr_idx, lk_wr_pal;   /* tile state 0 unknown / 1 water / 2 not; colour indexes of the animated water tiles; palette lines seen */
 static int lk_wr_room = -2, lk_wr_any, lk_wr_dbg = -1, lk_wr_tk = -1, lk_wr_ak = -1; static long lk_wr_frame = -1; static int lk_wr_foot = -1;
 static uint32_t lk_wr_buf[224][LK_OSW]; static int16_t lk_wr_dep[224][LK_OSW]; static uint8 lk_wr_line[224];   /* reflection picture: rgb + alpha (bits 24..31), depth = foot line of its figure */
-static int lk_wr_iswater(uint32_t b) { switch (b) { case 0x094F2A: case 0x09552A: case 0x09614A: case 0x09700A: case 0x09760A: case 0x097B4A: case 0x09820A: case 0x09838A: case 0x09912A: case 0x09960A: return 1; } return 0; }
+static int lk_wr_iswater(uint32_t b) { switch (b) { case 0x094F2A: case 0x09552A: case 0x09614A: case 0x09700A: case 0x09760A: case 0x097B4A: case 0x09820A: case 0x09838A: case 0x09912A: case 0x09960A: case 0x0968CA: return 1; } return 0; }
+static int lk_wr_sp;   /* v4: the waterfall shrine pools are drawn with SPARSE tiles too (16 .. 32 pixels in the water colours, the rest transparent, the pool's hexagon pattern): in rooms with group $0968CA a tile with >= 8 pixels ALL in the water colours counts as water (other rooms keep the >= 48 pixel rule of v2) */
+static int lk_wr_tok(uint32_t b, long ob) {   /* v4 (user 2026-11-18: 'das Wasser in 175 reflektiert nicht'): the waterfall shrine group $0968CA mixes the pool glints (913 914 923 924) and the splash at the foot of the fall (919..922 929..932; 918 left out: its rock rim colours 6 7 8 15 made the stone walls count as water) with the falling water (915 916 925 926 933) and the wall torches (917 927 928 934 935): only the first two are water, the others are NOT water (no static colour test either) */
+  int t = (int)(ob >> 5);
+  if (b == 0x0968CA) return t == 913 || t == 914 || t == 923 || t == 924 || (t >= 919 && t <= 922) || (t >= 929 && t <= 932);
+  return 1; }
 static void lk_wr_newroom(void) {
-  int k; lk_wr_room = lk_o_room; lk_wr_any = 0;
+  int k; lk_wr_room = lk_o_room; lk_wr_any = 0; lk_wr_sp = 0;
   for (k = 0; k < 8; k++) { uint32_t b = k < lk_o_ngrp ? lk_o_grp[k].base : 0;
-    lk_wr_g[k] = (uint8)(k < lk_o_ngrp && (lk_wr_iswater(b) || (b == 0x099E8A && lk_o_room != 403 && lk_o_room != 404))); if (lk_wr_g[k]) lk_wr_any = 1; }
+    lk_wr_g[k] = (uint8)(k < lk_o_ngrp && (lk_wr_iswater(b) || (b == 0x099E8A && lk_o_room != 403 && lk_o_room != 404))); if (lk_wr_g[k]) lk_wr_any = 1; if (lk_wr_g[k] && b == 0x0968CA) lk_wr_sp = 1; }
   lk_wr_idx = 0; lk_wr_pal = 0; memset(lk_wr_ts, 0, sizeof lk_wr_ts);
-  for (k = 0; k < lk_o_ngrp; k++) if (lk_wr_g[k]) { int j; for (j = lk_o_grp[k].dest; j < lk_o_grp[k].dest + 2 * lk_o_grp[k].words && j < (int)sizeof lk_o_tiles; j++) { lk_wr_idx |= (uint16_t)(1u << (lk_o_tiles[j] >> 4)); lk_wr_idx |= (uint16_t)(1u << (lk_o_tiles[j] & 15)); } }
+  for (k = 0; k < lk_o_ngrp; k++) if (lk_wr_g[k]) { int j; for (j = lk_o_grp[k].dest; j < lk_o_grp[k].dest + 2 * lk_o_grp[k].words && j < (int)sizeof lk_o_tiles; j++) { if (!lk_wr_tok(lk_o_grp[k].base, j)) continue; lk_wr_idx |= (uint16_t)(1u << (lk_o_tiles[j] >> 4)); lk_wr_idx |= (uint16_t)(1u << (lk_o_tiles[j] & 15)); } }
   lk_wr_idx &= 0xFFFE;
   if (lk_wr_dbg) printf("water: room %%d colour indexes %%04X\n", lk_o_room, lk_wr_idx);
   if (lk_wr_dbg) printf("water: room %%d groups %%d water %%d (%%d %%d %%d %%d %%d %%d %%d %%d)\n", lk_o_room, lk_o_ngrp, lk_wr_any, lk_wr_g[0], lk_wr_g[1], lk_wr_g[2], lk_wr_g[3], lk_wr_g[4], lk_wr_g[5], lk_wr_g[6], lk_wr_g[7]); }
@@ -84,19 +90,26 @@ static int lk_wr_linebegin(int line) {
   if (lk_wr_frame != platform_frame_number()) lk_wr_step();
   return lk_wr_any && line >= 0 && line < 224;
 }
+static int lk_wr_tcls(const uint8 *q, int ns, int n) {   /* tile class from its set pixels ns / those in the water colours n: 1 water, 2 not.  v2: >= 97 %% water colours (>= 48 pixels); v4: sparse pool tiles (lk_wr_sp rooms: >= 8 pixels, all water colours);
+   v5 (user 2026-11-18, room 175: 'ein komplettes Eck in der Spiegelung von Nigel'): the pool RIM tiles are half floor edge, half water (e.g. 742..751 27..39 of 48, 793..801): they failed both rules, so a corner of the reflection was missing at every floor edge.
+   In lk_wr_sp rooms a tile with >= 16 water pixels and a SLANTED water part (its water pixels per row differ by >= 4 between rows: the 2:1 rim diagonal, e.g. rows 0 0 1 5 5 8 8 / 0 0 0 0 1 3 5 7) counts too; straight strips (3 3 3 4 4 3 3 3: the water edge of the static wall tiles 801 / 811 left of the waterfall) do not; lk_wr_pix / the GPU still take only its pixels in the water colours + palette line + bluish (the stone half stays stone) */
+  int y, x, w0 = 8, w1 = 0; if (lk_wr_sp && n >= 16) for (y = 0; y < 8; y++) { int w = 0; for (x = 0; x < 8; x++) { int v = x & 1 ? q[y * 4 + x / 2] & 15 : q[y * 4 + x / 2] >> 4; if (v && (lk_wr_idx >> v & 1)) w++; } if (w < w0) w0 = w; if (w > w1) w1 = w; if (lk_wr_dbg == 3) printf("%%d", w); }
+  if (lk_wr_dbg == 3 && lk_wr_sp && n >= 16) printf(" = rows of the next tile (water pixels per row)\n");
+  return ((ns >= 48 && n * 100 >= ns * 97) || (lk_wr_sp && ns >= 8 && n == ns) || (lk_wr_sp && n >= 16 && w1 - w0 >= 4)) ? 1 : 2; }
 static int lk_wr_tilewater(long o) {   /* a static tile drawn >= 97 %% in the water colours counts as water too (v2): the docks / sea rooms use few animated tiles among many static ones */
   int ti = (int)(o >> 5), j, n = 0; const uint8 *q;
   if (ti < 0 || ti >= 2304) return 0;
   if (lk_wr_ts[ti]) return lk_wr_ts[ti] == 1;
   q = lk_o_tiles + ((long)ti << 5);
   { int ns = 0; for (j = 0; j < 32; j++) { int h = q[j] >> 4, l2 = q[j] & 15; if (h) { ns++; if (lk_wr_idx >> h & 1) n++; } if (l2) { ns++; if (lk_wr_idx >> l2 & 1) n++; } }
-    lk_wr_ts[ti] = (uint8)((ns >= 48 && n * 100 >= ns * 97) ? 1 : 2); if (lk_wr_dbg == 3 && n >= 8) printf("water: tile %%d set %%d water %%d -> %%d\n", ti, ns, n, lk_wr_ts[ti]); }   /* v2: only tiles drawn (almost) entirely in the water colours (user 2026-11-06: the tiled floor of the Mercator docks 641 got reflections; it shares the colours; v1 took any tile with >= 12 water pixels) */
+    lk_wr_ts[ti] = (uint8)lk_wr_tcls(q, ns, n); if (lk_wr_dbg == 3 && n >= 8) printf("water: tile %%d set %%d water %%d -> %%d\n", ti, ns, n, lk_wr_ts[ti]); }   /* v2: only tiles drawn (almost) entirely in the water colours (user 2026-11-06: the tiled floor of the Mercator docks 641 got reflections; it shares the colours; v1 took any tile with >= 12 water pixels) */
   return lk_wr_ts[ti] == 1; }
 static int lk_wr_pix(int line, int i, const uint8 *t, int pick, int col) {   /* a layer pixel: water? then calm colour + reflection */
   long o; int k, r, g, b, l, tk = lk_wr_tk; uint32_t c = (uint32_t)col;
   if (!t || t < lk_o_tiles || t >= lk_o_tiles + sizeof lk_o_tiles) return col;
   o = (long)(t - lk_o_tiles);
   for (k = 0; k < lk_o_ngrp; k++) if (lk_wr_g[k] && o >= lk_o_grp[k].dest && o < lk_o_grp[k].dest + 2 * lk_o_grp[k].words) break;
+  if (k < lk_o_ngrp && !lk_wr_tok(lk_o_grp[k].base, o)) return col;   /* v4: waterfall / torch tiles of a mixed group */
   if (k < lk_o_ngrp) { lk_wr_pal |= (uint16_t)(1u << ((pick >> 4) & 3));   /* the palette line(s) the animated water is drawn with */
     if ((pick & 15) && !(lk_wr_idx >> (pick & 15) & 1)) { lk_wr_idx |= (uint16_t)(1u << (pick & 15)); memset(lk_wr_ts, 0, sizeof lk_wr_ts); } }   /* another animation frame uses one more colour */
   else if (!(lk_wr_pal >> ((pick >> 4) & 3) & 1) || !(lk_wr_idx >> (pick & 15) & 1) || !lk_wr_tilewater(o)) return col;

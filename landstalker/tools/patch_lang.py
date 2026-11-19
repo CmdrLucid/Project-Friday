@@ -338,6 +338,10 @@ static int lk_ji_try(const char *path) {   /* a Japanese Landstalker ROM (2 MB, 
     fseek(f, 0, SEEK_END); sz = ftell(f); fseek(f, 0, SEEK_SET);
     if (sz != 0x200000 || fread(hd, 1, sizeof hd, f) != sizeof hd || hd[0x1F0] != 'J' || hd[0x1F1] != ' ' || memcmp(hd + 0x120, "LAND STALKER", 12)) { fclose(f); return 0; }
     r = malloc((size_t)sz); fseek(f, 0, SEEK_SET); if (!r || fread(r, 1, (size_t)sz, f) != (size_t)sz) { fclose(f); free(r); return 0; } fclose(f);
+    {   /* LK_JPROMSUM v1 (user 2026-11-19): only the known dump (README: SHA-1 cdbc7cd9..., CRC32 60D4CEDB); other revisions / hacks with a 'J' header have shifted data */
+        uint32_t c = 0xFFFFFFFFu; long q; int b;
+        for (q = 0; q < sz; q++) { c ^= r[q]; for (b = 0; b < 8; b++) c = (c >> 1) ^ (0xEDB88320u & (0u - (c & 1u))); }
+        if ((c ^ 0xFFFFFFFFu) != 0x60D4CEDBu) { fprintf(stderr, "japanese rom: %s has a Japanese header but is not the supported dump (CRC32 %08X, want 60D4CEDB): ignored\n", path, (unsigned)(c ^ 0xFFFFFFFFu)); free(r); return 0; } }
     {   uint32_t tab = lk_ji_rd32(0x120000u) + (uint32_t)(bus_peek8(0x120004u + 4u * 0x23u) << 8 | bus_peek8(0x120005u + 4u * 0x23u)) * 4u;
         for (i = 0; i < 4; i++) { uint32_t st; long len = lk_ji_frame(r, sz, ids[i], &st); if (len <= 0 || off + (uint32_t)len > 0x10000u) { lk_ji_n = 0; free(r); return 0; }
             for (k = 0; k < len; k++) lk_ji_mem[(off + (uint32_t)k) ^ 1] = r[st + (uint32_t)k];

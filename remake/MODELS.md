@@ -211,7 +211,7 @@ FINAL = with material, approved by the user.
 - The left Mercator castle court's own pine sprite; the approved style C pine (asset 2) in a TRIMMED variant (even tiers, short regular tips, no jitter: a gardener's tree, user 2026-11-12 'ja, passt'), fitted to it (IoU 0.93), 15 pines placed by a template match
   of the sprite (`feet.json`). Same model in the light (`surface`). Details: `remake/recipes/pine_court/README.md`.
 
-## Pine clusters  (`remake/recipes/pine_cluster/pine_cluster.py`; rooms 183 / 425 / 430 / 433 / 474 / 484 / 514 / 636)
+## Pine clusters  (`remake/recipes/pine_cluster/pine_cluster.py`; rooms 183 / 425 / 430 / 433 / 453 / 474 / 484 / 514 / 636; since 2026-11-19 also solid block DOMES as candidates, room 453)
 - Groups of drawn forest pines that the automatic shapes took as one object: every pine its own WILD style C pine (the courtyard pine's
   recipe, trim 0), fitted to the forest pine sprite (IoU 0.87), feet by template match + the game's collision cells (user 2026-11-16 clay
   preview of the 636 group 'ja'). Same model in the light (`surface`). Details: `remake/recipes/pine_cluster/README.md`.
@@ -223,3 +223,16 @@ FINAL = with material, approved by the user.
 ## Castle bed + bench  (`remake/recipes/castle_bed/castle_bed.py`, `remake/recipes/castle_bench/castle_bench.py`; tileset 15)
 - Bed: legs, frame rail, blanket, pillow, headboard (rooms 63 / 64 x2, 67, 77, 108). Bench: padded seat on four cabriole legs (67, 77; 72's short one open).
   Same model in the light (`surface` + `air`). Measured on room 67 (README).
+
+## Mercator fountain court city wall with round towers  (`remake/recipes/proxy_wall_638.py` -> `landstalker/data/proxies/wall_638.obj`; room 638 only)
+- Reference: room 638, west wall column 17 (blocked height 0), towers = collision column 18 rows 26..29 / 38..41 / 50..53 (height 9), north wall row 17; window `rom_picture.py ROM 638 480 0 900 620`.
+- Light variant v2 (2026-11-18, user chose 'C' on the overlay, 'Raum 638 ok'): towers drawn ROUND (curved brick rows) but the foot sits on the collision edge x 304 with grass drawn in front -> half cylinder r 32 on the wall face (288, cy) CLIPPED at x 304 (round flanks, flat front). Left edge U 608 exact, right edge U 684 (drawing 688), foot on the drawn grass line. Door niches 4 deep: towers y cy-15..cy-1, z 48..120; wooden wall door y 336..352, z 48..90. Tops flat at the measured heights (the picture cuts them).
+- Light check: lightedges 638 --spots 0 edge px old / new (noon and 17 h); noon practically unchanged, at 17 h the west wall now shades the court (the old box proxy did not; cause not traced).
+- Remake: build symmetric real round towers separately ('remake vs light variant'); the full half cylinder would stand in the drawn grass.
+- STATE: light variant done (user OK 2026-11-18).
+
+## Arcade of room 486  (`remake/recipes/proxy_arcade_486.py` -> `landstalker/data/proxies/arcade_486.obj`; room 486 only)
+- Reference: room 486, wall cells x 43..44 (688..720) at 240 with the passages rows 37..39 / 52..54; window `rom_picture.py ROM 486 820 300 700 600`.
+- Light variant v2 (2026-11-18): three piers with stepped corbel brackets and a flat lintel; per run ONE closed solid: elevation = top 240 + the measured underside (PROFILE of v1..v3, user corrections 2026-11-08) through the slice centres, vertical steps between courses, extruded along x; caps ear-clipped (the game's OBJ reader fans n-gons). Overlay on the drawing: outline on the drawn edges.
+- Light check: lightedges 486 --spots 0 edge px old / new at 13 h and 17 h; only thin lines at the course edges change (the old 4 unit stair shadows under the courses are gone).
+- STATE: light variant done (2026-11-18). Remake: real stones / rounded courses later.

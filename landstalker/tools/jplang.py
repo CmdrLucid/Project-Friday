@@ -28,8 +28,15 @@ JP_CHARSET = ' 0123456789あいうえおかきくけこさしすせそたちつ�
 
 
 
-def is_jp(rom):
-    return len(rom) == 0x200000 and rom[0x1F0:0x1F4].strip() == b'J' and b'LANDSTALKER' in rom[0x120:0x150].upper().replace(b' ', b'')
+JP_SHA1 = 'cdbc7cd9ceb181cad9e49b641ff717072546f0d9'   # LK_JPROMSUM v1 (user 2026-11-19): the one supported dump (README 'Download and start'); the runtime checks its CRC32 60D4CEDB
+
+
+def is_jp(rom, name=None):
+    if not (len(rom) == 0x200000 and rom[0x1F0:0x1F4].strip() == b'J' and b'LANDSTALKER' in rom[0x120:0x150].upper().replace(b' ', b'')): return False
+    import hashlib
+    if hashlib.sha1(rom).hexdigest() != JP_SHA1:
+        print('jplang: %s has a Japanese header but is not the supported dump (SHA-1 %s, want %s): ignored' % (name or 'a ROM', hashlib.sha1(rom).hexdigest(), JP_SHA1)); return False
+    return True
 
 
 def find_jp(rompath):
@@ -38,7 +45,7 @@ def find_jp(rompath):
         p = os.path.join(d, f)
         if os.path.isfile(p) and os.path.getsize(p) == 0x200000:
             r = open(p, 'rb').read()
-            if is_jp(r): return f, r
+            if is_jp(r, f): return f, r
     return None, None
 
 

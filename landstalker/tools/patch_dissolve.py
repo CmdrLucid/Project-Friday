@@ -2,13 +2,13 @@
 """Option 'Enemy Dissolve' (2026-11-05 night, user: modern effects list item 6 'Gegner zerfallen beim Besiegen in Partikel'; 'auch den Rest immer optional').
 When an enemy's health (entity +$3E, FORMATS 'Entity struct') drops to 0, its sprite pixels of that frame (own renderer: lk_o_spr + lk_lt_spre entity tag)
 burst into small particles in the enemy's own colours that fly apart, rise a little and fade (the game's own death animation still plays).
-Picture only: no game state is read for anything but the trigger, nothing is written.  Screen-space particles (follow the camera by its pixel position $FF1200 / $FF1202).
+Picture only: no game state is read for anything but the trigger, nothing is written.  Screen-space particles (follow the camera $FF1200 / $FF1202, iso axes -> screen pixels since v2).
 Option: Options > Graphics > Enemy Dissolve (id 50, ~/.landstalker_dissolve, env LANDSTALKER_DISSOLVE=0|1 wins), default On.
 Test aid: LANDSTALKER_DISSOLVE_DBG=1 prints every health change of an enemy slot and every burst.
 Needs patch_own.py, patch_subpix.py, patch_swordfx.py, patch_lights.py (lk_lt_spre) before it.  Idempotent.  usage: patch_dissolve.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_DISSOLVE v1"
+VER = "LK_DISSOLVE v2"
 
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
@@ -51,7 +51,9 @@ static void lk_dz_step(void) {   /* once per map frame (first composed line) */
   for (y = 0; y < 224; y++) if (lk_dz_line[y]) { memset(lk_dz_buf[y], 0, sizeof lk_dz_buf[y]); lk_dz_line[y] = 0; }
   room = SW(0xFF1204); cxn = SW(0xFF1200); cyn = SW(0xFF1202);
   if (room != lk_dz_room) { lk_dz_room = room; lk_dz_np = 0; memset(lk_dz_en, 0, sizeof lk_dz_en); }
-  for (k = 0; k < lk_dz_np; k++) { lk_dz_ps[k].x -= (float)(cxn - lk_dz_cx); lk_dz_ps[k].y -= (float)(cyn - lk_dz_cy); }   /* the camera moved: keep the particles where they were in the room */
+  { float d0 = (float)(int16_t)(cxn - lk_dz_cx), d2 = (float)(int16_t)(cyn - lk_dz_cy), sx = d0 - d2, sy = (d0 + d2) * 0.5f;   /* v2 (user 2026-11-19 rec_20261119_1209: 'die Partikel fliegen manchmal komisch zur Seite weg'): $FF1200 / $FF1202 are the camera in the iso AXES (Player_CentreX / Y - Z, FORMATS: screen x = a - b, y = (a + b) / 2), not screen pixels; v1 moved the particles by the raw deltas = they slid sideways whenever Nigel walked */
+    if (sx > 64.0f || sx < -64.0f || sy > 64.0f || sy < -64.0f) sx = sy = 0.0f;   /* (a vertical room wrap +-$230: not a camera move) */
+    for (k = 0; k < lk_dz_np; k++) { lk_dz_ps[k].x -= sx; lk_dz_ps[k].y -= sy; } }   /* the camera moved: keep the particles where they were in the room */
   lk_dz_cx = cxn; lk_dz_cy = cyn;
   for (k = 1, a = 0xFF5480; k < 64; k++, a += 0x80) {   /* entity slots: $FF ends the list, $7F = unused (FORMATS 'Slot list') */
     int f0 = SB(a), hp, en;
