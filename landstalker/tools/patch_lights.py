@@ -1572,7 +1572,8 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       { int U = su / n, V = sv / n, z = 0, f = lk_lt_ray(U, V, &z); float px, py; lk_lt_light *L = &lk_lt_l[lk_lt_nl];
         if (!f) continue;
         lk_lt_pos(U, V, z, &px, &py);
-        L->x = px + 6.0f * lk_lt_fnx(f); L->y = py + 6.0f * lk_lt_fny(f); L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; L->lava = 0; L->base = lk_o_grp[k].base;
+        { static float wo = -1.0f; if (wo < 0.0f) { const char *e = getenv("LANDSTALKER_LT_WALLOFF"); wo = e ? (float)atof(e) : 6.0f; }   /* test aid (2026-11-19, room 19 dark box): distance of a wall flame from its wall (default 6) */
+        L->x = px + wo * lk_lt_fnx(f); L->y = py + wo * lk_lt_fny(f); } L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; L->lava = 0; L->base = lk_o_grp[k].base;
         L->hw = 0.0f; L->tan = 0; L->own = 0.0f;   /* own: LK_GLCARRIER v2 sets it below (was stale from an earlier room's light in this slot) */  /* LK_LTWIDE v2 (user 2026-11-09 'ja' to wide fires): a fire drawn wider than 2 tiles on a wall (fireplaces) lights from its whole width;
            the picture width of the group = its width along the wall (U = x - y: a run along x or along y moves U by the same amount) */
         { float hw = (float)((cmax - cmin + 1) * 8) * 0.5f - 2.0f; if ((f == 2 || f == 3) && hw >= 10.0f) {   /* >= 3 tiles wide = fireplaces (2 tile candelabras stay small) */ L->hw = hw; L->tan = f == 2 ? 2 : 1; L->hv = (float)((rmax - rmin + 1) * 8) * 0.5f - 2.0f; if (L->hv < 0.0f) L->hv = 0.0f; } }   /* LK_LTWIDE v2: + half its drawn height (on a wall the picture rows = z) */
@@ -2047,7 +2048,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
       /* LK_LTPAIRRAD v1 (2026-11-12, user rec_20261112_1808 room 62: 'beim Hin- und Hergehen verschwindet Nigels Schatten ploetzlich'): the pair test used the fixed 120 + 24 although the castle
          standing torches reach 260 (L->rad): at 144 units the figure's shadow switched off while the torch still lit the floor around it.  Now each light's own reach.  LANDSTALKER_LT_PAIRRAD=0 = old. */
       pr = (prr && lk_lt_l[k].rad > 0.0f ? lk_lt_l[k].rad : LK_LT_RAD) + 24.0f;
-      lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < pr * pr && !(lk_lt_l[k].lava == 2 && lk_lt_flk[k] <= 0.004f); if (lk_dn_ldoor[k]) lk_lt_pair[k][j] = 0; }   /* LK_DNFIG v1 (user 2026-11-16: 'beim Schwertschlag harte Kante wenn Nigel dort steht'): a Massan door light is a wide glowing opening, not a point: no hard figure shadow from it */   /* (LK_DAYNIGHT v3: an unlit window light casts no figure shadow) */
+      lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < pr * pr && !(lk_lt_l[k].lava == 2 && lk_lt_flk[k] <= 0.004f); if (lk_dn_ldoor[k]) lk_lt_pair[k][j] = 0; { static int fo = -9; if (fo == -9) { const char *e = getenv("LANDSTALKER_LT_FIGSH_ONLY"); fo = e ? atoi(e) : -1; } if (fo != -1 && k != fo) lk_lt_pair[k][j] = 0; } }   /* test aid (2026-11-19): LANDSTALKER_LT_FIGSH_ONLY=K = only light K casts figure shadows, -2 = none */   /* LK_DNFIG v1 (user 2026-11-16: 'beim Schwertschlag harte Kante wenn Nigel dort steht'): a Massan door light is a wide glowing opening, not a point: no hard figure shadow from it */   /* (LK_DAYNIGHT v3: an unlit window light casts no figure shadow) */
     if (hd < 1.0f) { lk_lt_pn[k][j][0] = 0.7071f; lk_lt_pn[k][j][1] = 0.7071f; } else { lk_lt_pn[k][j][0] = dx / hd; lk_lt_pn[k][j][1] = dy / hd; }   /* v4 */
   }
   lk_lt_fmall = 0;
