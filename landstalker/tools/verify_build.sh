@@ -56,6 +56,7 @@ chk "Licht: Tuerlicht faellt als Streifen auf den Boden" $G/ext/Genesis-Plus-GX/
 chk "Licht: Kirchenfenster Glasform (Bogen, schraeg)"  $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNCHGLASS v2"
 chk "Licht: Kirchentuer leuchtet (Portal + Treppe)"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNCHDOOR v2"
 chk "Licht: Destel-Tueren leuchten, Laterne davor"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNDESTEL v2"
+chk "Licht: Statuen-Flammen dicht an der Statue"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTBLOCKFL v1"
 chk "Licht: Daten-Op void (Raum 19 Wandkasten)"     $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTVOID v1"
 chk "Licht: Tuerfeld hinter Wand ist kein Wasserkanal (Raum 19)" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTWATDOOR v1"
 chk "Licht: Gumi-Tuer mit Schaedelschild (Kachel 25)" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNSIGN25 v1"

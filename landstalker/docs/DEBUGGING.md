@@ -1994,3 +1994,6 @@ Build dev 48c243a (verify_build: 126 ok). Evidence (all hidden-window GPU presen
 ## Room 19 wall box FIXED (2026-11-19, LK_LTWATDOOR v1, LK_LTVOID v1)
 * Path: LT_ONLY=0..3 (box with every light) -> LT_SURFDUMP z map (wall pixels at z 24) -> LT_DUMPFILE heights: (18,19..20) '24w' = water flag -> the indoor channel rule (void between room cells within 8). Its far side: (17,19..20) type 04 + (16,19..20) $2200 = exit corridor. After LK_LTWATDOOR a pocket (17,20) at 32 kept a smaller box -> data op void.
 * Regression method: LIGHTING_DBG=1 over all 816 rooms (lightedges, one spot; GPU lit path is off with DBG but the light build prints) -> 254 candidate rooms -> lightedges GPU WATDOOR=0 vs 1, pixel diff (> 12) per room, crops of the changed rooms. Note: lightedges --dir scoring scans the whole directory (slow, > 10 min for 254 rooms).
+
+## Statue figure shadows (2026-11-19, LK_LTBLOCKFL v1)
+* User spots room 5 (x 25.07 / y 41.07, 36.03, 31.03, 26.01, z 0020) via gshots_exact.sh. FIGSH_ONLY diff: every statue light casts (15624..24927 px) - the y 31.03 one falls up / behind Nigel. LT_WALLOFF=1 test: shadow visible, but the light moved into the block darkened rooms (sweep 52 of 69). Final: shadow-only source shift (sbx / sby); LANDSTALKER_LT_BLOCKOFF (default 1, >= 6 = off).
