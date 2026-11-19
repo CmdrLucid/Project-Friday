@@ -253,3 +253,4 @@
 - L2001: Statue shadow root cause (2026-11-19, LK_LTLDOORCLR v1)
 - L2004: Dissolve particles + top-edge culling (2026-11-19, LK_DISSOLVE v2, LK_SPRCULLTOP v1)
 - L2008: Water level, dome sweep, release v1.9.8 (2026-11-19 evening, LK_LTWATLVL v1, LK_JPROMSUM v1)
+- L2015: Whole rooms as 3D models: Mercator 632, Ryuma 610 / 611, Massan 592 start (2026-11-20, no runtime change; data + models only)

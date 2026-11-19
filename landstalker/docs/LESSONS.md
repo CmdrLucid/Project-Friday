@@ -11,8 +11,8 @@
 - 6. Cloud sandbox setup (no ROM, no SDL by default): lines 73-82
 - 7. Merge note: lines 83-85
 - 8. Roadmap after the compat work (user wishes, 2026-10-10): lines 86-93
-- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-538
-  - 266 entries, newest at the END; the last 12: 518 (2026-11-18) The release packages (Windows zip...; 519 (2026-11-18) Before a light rule GUESSES what a...; 520 (2026-11-18) ONE animated tile group can hold s...; 522 (2026-11-19) A pixel that stays BLACK under a g...; 524 (2026-11-19) A dark patch that stays when only...; 526 (2026-11-19) 'No shadow' can be a shadow that E...; 528 (2026-11-19) Per-SLOT side arrays of a list tha...; 530 (2026-11-19) $FF1200 / $FF1202 are NOT screen p...; 532 (2026-11-19) A 'whole area takes the level of X...; 534 (2026-11-19) Many rooms share one MAP (452 / 45...; 536 (2026-11-20) tools/lightedges.py compares each...; 537 (2026-11-20) Model checks by edge overlay must...
+- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-541
+  - 267 entries, newest at the END; the last 12: 519 (2026-11-18) Before a light rule GUESSES what a...; 520 (2026-11-18) ONE animated tile group can hold s...; 522 (2026-11-19) A pixel that stays BLACK under a g...; 524 (2026-11-19) A dark patch that stays when only...; 526 (2026-11-19) 'No shadow' can be a shadow that E...; 528 (2026-11-19) Per-SLOT side arrays of a list tha...; 530 (2026-11-19) $FF1200 / $FF1202 are NOT screen p...; 532 (2026-11-19) A 'whole area takes the level of X...; 534 (2026-11-19) Many rooms share one MAP (452 / 45...; 536 (2026-11-20) tools/lightedges.py compares each...; 537 (2026-11-20) Model checks by edge overlay must...; 539 (2026-11-20) In the game projection a part move...
 
 <!-- /TOC -->
 
@@ -535,3 +535,6 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 
 - (2026-11-20) tools/lightedges.py compares each lit picture with its Lighting-Off twin from a SEPARATE run: if the Off batch drifts (animated water / flowers one step off) it reports thousands of scattered 'edges' over water and flowers. Before chasing a light bug compare the lit pictures with the previous run (identical = not a light change) and re-score with --dir using good Off pictures (room 632, 35597 fake edges -> 0).
 - (2026-11-20) Model checks by edge overlay must draw the model's SILHOUETTE too; mine drew only inner normal / depth changes and hid two wrong edges (porch eave, hall corner) until the user marked them. When the user marks something, read the marked pixels exactly (per picture column / on the wall plane) instead of guessing a shape (the 'stepped corbel' guess was wrong: 'genau ein Eck').
+
+- (2026-11-20) In the game projection a part moved OUT of a wall along +y shifts LEFT on screen (U = x - y): a tilted shutter (bottom 7 out) looked 7 px too far left and too wide although its hinge edge was right. Measure tilted / proud parts by the edge that touches the wall and compare in a zoomed side-by-side (game_clay), not by the overall outline. Also: crossing log walls that end flush on the other wall show their end grain as a stack of discs and make the corner look wider; end them behind the other wall's logs (log_house noext).
+

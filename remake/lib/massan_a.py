@@ -108,7 +108,7 @@ def contour(t, rc0=6.0, K=(24, 5), hx0=HX):
         for j in range(1, K[0]): pts.append((ex + (tx - ex) * j / K[0], ey + (ty - ey) * j / K[0]))
     return pts
 
-def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, door="dark", door_top=None, course=0.0, step=0.0, ridge_knot=False):
+def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, door="dark", door_top=None, course=0.0, step=0.0, ridge_knot=False, log_over_door=False):
     """adds the house to a blx.Mesh with materials bark, post, endgrain, dark, hole, thatch, under (+ 'sign' if sign_uv is given:
     function (x, y, z) -> texel uv of the sign image).  hx > HX = more roof overhang (the slope continues down past the picture's eave),
     lip = eave roll radius; door = 'dark' (opening as in the picture), 'open' (dark opening in a frame: jambs, lintel, threshold) or 'planks'
@@ -123,7 +123,8 @@ def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, do
         for i, zc in enumerate(LOG_Z):
             r = RL * (0.92 if rnd.random() > 0.5 else 0.88)
             segs = [(L0 - EXT, L1 + EXT)]
-            if side == DOOR["side"] and zc - r < (door_top or DOOR["top"]) + (1.0 if door_top else 0.0): segs = [(L0 - EXT, DOOR["a0"]), (DOOR["a1"], L1 + EXT)]
+            cut = (zc < (door_top or DOOR["top"])) if log_over_door else (zc - r < (door_top or DOOR["top"]) + (1.0 if door_top else 0.0))
+            if side == DOOR["side"] and cut: segs = [(L0 - EXT, DOOR["a0"]), (DOOR["a1"], L1 + EXT)]   # log_over_door (light variant, user 2026-11-20: 'es gibt keine Luecke zwischen Tuer und oben'): only logs whose CENTRE is below the door top are cut, the log just above the opening runs over it
             for a, b in segs:
                 pa = G(*wall_pos(side, a, -RL, zc)); pb = G(*wall_pos(side, b, -RL, zc))
                 M.cylinder("bark", pa, pb, r, n=nseg, cap="endgrain", density=den)
