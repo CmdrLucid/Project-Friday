@@ -260,6 +260,7 @@ static int lk_lt_retry;               /* a new room whose planes were not built 
 static uint32_t lk_lt_pah;            /* v7: hash of the layer A plane at the last rebuild (outdoors a retry rebuilds only when the picture changed: 12 rebuilds of 40..70 ms each stuttered) */
 static uint32_t lk_lt_pahash(void) { uint32_t h = 2166136261u; int x, y; for (y = 0; y < 152; y++) for (x = 0; x < 304; x++) h = (h ^ (lk_o_pa[y][x] & 0x1FFFF)) * 16777619u; return h; }
 static uint8 lk_lt_pair[LK_LT_ML][16];        /* light k / figure j close enough for a shadow */
+static float lk_lt_psh[LK_LT_ML][16][2];   /* LK_LTBLOCKFL v1: per pair the figure-shadow source shift (statue flames: 1 in front of the block, slid along it behind the figure, within 8) */
 static float lk_lt_pn[LK_LT_ML][16][2];       /* v4: per pair the horizontal direction figure -> light: the shadow card faces the light (a camera-facing card cast thin streaks from lights beside the figure, user 2026-11-03: 'Silhouette kaum erkennbar') */
 static int lk_lt_cell(int cx, int cy) { return (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) ? -32768 : lk_lt_top[cy][cx]; }
 static int lk_lt_fdiv(int a, int b) { return a >= 0 ? a / b : -((-a + b - 1) / b); }
@@ -2057,7 +2058,11 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
         B[6] = B[0] + (ex < 0.0f ? ex : 0.0f); B[8] = B[2] + (ex > 0.0f ? ex : 0.0f); B[7] = B[1] + (ey < 0.0f ? ey : 0.0f); B[9] = B[3] + (ey > 0.0f ? ey : 0.0f); B[10] = ex; B[11] = ey; } } }
 
   for (k = 0; k < lk_lt_nl; k++) for (j = 0; j < lk_lt_nf; j++) {
-    float dx = lk_lt_l[k].x + lk_lt_l[k].sbx - lk_lt_f[j].fx, dy = lk_lt_l[k].y + lk_lt_l[k].sby - lk_lt_f[j].fy, dz = lk_lt_l[k].z - lk_lt_f[j].fz - 20.0f;   /* LK_LTBLOCKFL v1: from the figure-shadow source */
+    float shx = lk_lt_l[k].sbx, shy = lk_lt_l[k].sby, dx, dy, dz;
+    if (shx != 0.0f) { float t2 = lk_lt_f[j].fy - lk_lt_l[k].y; shy = t2 < -8.0f ? -8.0f : t2 > 8.0f ? 8.0f : t2; }   /* LK_LTBLOCKFL v1 (user 2026-11-19 'immer noch keinen Schatten' at y 31.03: the flame 4 aside of Nigel made a faint, smeared shadow): the source slides along the statue face behind the figure (within its width, 8) = the clear shadow of the straight-behind case */
+    else if (shy != 0.0f) { float t2 = lk_lt_f[j].fx - lk_lt_l[k].x; shx = t2 < -8.0f ? -8.0f : t2 > 8.0f ? 8.0f : t2; }
+    lk_lt_psh[k][j][0] = shx; lk_lt_psh[k][j][1] = shy;
+    dx = lk_lt_l[k].x + shx - lk_lt_f[j].fx; dy = lk_lt_l[k].y + shy - lk_lt_f[j].fy; dz = lk_lt_l[k].z - lk_lt_f[j].fz - 20.0f;   /* LK_LTBLOCKFL v1: from the figure-shadow source */
     float hd = sqrtf(dx * dx + dy * dy);
     { static int prr = -1; float pr; if (prr < 0) { const char *e = getenv("LANDSTALKER_LT_PAIRRAD"); prr = e ? atoi(e) != 0 : 1; }
       /* LK_LTPAIRRAD v1 (2026-11-12, user rec_20261112_1808 room 62: 'beim Hin- und Hergehen verschwindet Nigels Schatten ploetzlich'): the pair test used the fixed 120 + 24 although the castle
@@ -2070,7 +2075,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
   for (k = 0; k < lk_lt_nl; k++) for (j = 0; j < lk_lt_nf; j++) if (lk_lt_pair[k][j]) {   /* v8 SPEED (user 2026-11-05: 'gerne noch die Fackelraeume optimieren'): the screen box a flame's figure shadow can fall into:
        the card corners and the points 62 units further away from the flame (lk_lt_shadowed fades the shadow out at 60 units behind the figure) */
     const lk_lt_light *L = &lk_lt_l[k]; const lk_lt_fig *F = &lk_lt_f[j]; float tx = lk_lt_pn[k][j][1], ty = -lk_lt_pn[k][j][0], x0 = 1e9f, x1 = -1e9f, y0 = 1e9f, y1 = -1e9f, *B; int c, e2;
-    for (c = 0; c < 4; c++) { float sc = (c & 1) ? 12.0f : -12.0f, h = (c & 2) ? 58.0f : -8.0f, qx = F->fx + sc * tx, qy = F->fy + sc * ty, qz = F->fz + h, vx = qx - (L->x + L->sbx), vy = qy - (L->y + L->sby), vz = qz - L->z, l = sqrtf(vx * vx + vy * vy + vz * vz), m;
+    for (c = 0; c < 4; c++) { float sc = (c & 1) ? 12.0f : -12.0f, h = (c & 2) ? 58.0f : -8.0f, qx = F->fx + sc * tx, qy = F->fy + sc * ty, qz = F->fz + h, vx = qx - (L->x + lk_lt_psh[k][j][0]), vy = qy - (L->y + lk_lt_psh[k][j][1]), vz = qz - L->z, l = sqrtf(vx * vx + vy * vy + vz * vz), m;
       if (l < 1.0f) l = 1.0f; m = 62.0f / l;
       for (e2 = 0; e2 < 2; e2++) { float px = qx + vx * m * (float)e2 - F->fx, py = qy + vy * m * (float)e2 - F->fy, pz = qz + vz * m * (float)e2 - F->fz, sx = (float)F->ax + px - py, sy = (float)F->ay + (px + py) * 0.5f - pz;
         if (sx < x0) x0 = sx; if (sx > x1) x1 = sx; if (sy < y0) y0 = sy; if (sy > y1) y1 = sy; } }
