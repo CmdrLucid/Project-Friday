@@ -770,6 +770,7 @@ static int lk_lt_tileok(uint32_t base, int t) {   /* groups that mix flames with
   if (base == 0x0968CA) return t == 917 || t == 927 || t == 928 || t == 934 || t == 935;
   return 1;
 }
+static int lk_lt_watlvl(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_WATLVL"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTWATLVL v1 */
 static int lk_lt_watblk(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_WATBLK"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-07: painted water beside the game's blocked water = same height */
 static int lk_lt_pinewalk(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_PINEWALK"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-07: no catalogue pine on walkable ground of base height */
 static int lk_lt_invmode(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INVIS"); v = e ? atoi(e) : 2; } return v; }   /* 0 off, 1 neighbour heights (first version), 2 void (default) */
@@ -1466,11 +1467,19 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       memset(sn, 0, sizeof sn);
       for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int sp = 0, i, lvl = 9999; if (!lk_lt_wat[y][x] || sn[y][x]) continue;
         sn[y][x] = 1; st2[sp][0] = (uint8)x; st2[sp][1] = (uint8)y; sp++;
+        for (i = 0; i < sp; i++) { int cx = st2[i][0], cy = st2[i][1], a, b2;
+          for (b2 = cy - 1; b2 <= cy + 1; b2++) for (a = cx - 1; a <= cx + 1; a++) { if (a < 0 || b2 < 0 || a >= 74 || b2 >= 74) continue;
+            if (lk_lt_wat[b2][a] && !sn[b2][a] && sp < 5476) { sn[b2][a] = 1; st2[sp][0] = (uint8)a; st2[sp][1] = (uint8)b2; sp++; } } }
         for (i = 0; i < sp; i++) { int cx = st2[i][0], cy = st2[i][1], a, b2, h = lk_lt_top[cy][cx];
-          for (b2 = cy - 1; b2 <= cy + 1; b2++) for (a = cx - 1; a <= cx + 1; a++) { int w3, t; if (a < 0 || b2 < 0 || a >= 74 || b2 >= 74) continue;
-            if (lk_lt_wat[b2][a]) { if (!sn[b2][a] && sp < 5476) { sn[b2][a] = 1; st2[sp][0] = (uint8)a; st2[sp][1] = (uint8)b2; sp++; } continue; }
+          for (b2 = cy - 1; b2 <= cy + 1; b2++) for (a = cx - 1; a <= cx + 1; a++) { int w3, t; if (a < 0 || b2 < 0 || a >= 74 || b2 >= 74 || lk_lt_wat[b2][a]) continue;
             w3 = UW(0xFFD192 + 148 * b2 + 2 * a); t = lk_lt_top[b2][a];
             if (w3 != 0x4000 && ((w3 >> 8) & 0x40) && (w3 >> 8) != 0x4F && t != -32768 && t > h && t <= h + 8 && t < lvl) lvl = t; } }
+        { int hmin = 32767, nlo = 0; for (i = 0; i < sp; i++) { int h = lk_lt_top[st2[i][1]][st2[i][0]]; if (h < hmin) hmin = h; } for (i = 0; i < sp; i++) if (lk_lt_top[st2[i][1]][st2[i][0]] < lvl - 8) nlo++;
+          if (lk_lt_dbg == 5 && lvl != 9999) printf("water: room %%d area of %%d cells (lowest %%d, %%d cells more than 8 below) -> level %%d%%s\n", lk_o_room, sp, hmin, nlo, lvl, nlo && lk_lt_watlvl() ? ": NOT raised" : "");
+          if (nlo && lk_lt_watlvl()) lvl = 9999; }   /* LK_LTWATLVL v1 (user 2026-11-19 rec_20261119_1537, Gumi 603: 'Nigel verliert seinen Schatten' on the strip above the river): the area is that
+             water only if it lies at most 8 below it everywhere (room 488: all 364 cells 8 below the dock water).  One painted cell beside a blocked cliff (filled without the 8 step) met a blocked
+             cell 8 above it, and the whole river (lowest 40) was raised to 96 = an invisible wall over the walkway at 48 (Nigel in its shadow, his own shadow gone); 25 outdoor rooms had such areas
+             (2026-11-19 survey: 183 226 429 432 436 447 470 478 484 502 506 525 559 560 565 566 567 571 601..603 632 641 642 644 726); test aid LANDSTALKER_LT_WATLVL=0 = old */
         if (lvl != 9999) for (i = 0; i < sp; i++) if (lk_lt_top[st2[i][1]][st2[i][0]] < lvl) { lk_lt_top[st2[i][1]][st2[i][0]] = (int16_t)lvl; nu++; } }
       if (lk_lt_dbg == 5 && nu) printf("water: room %%d, %%d painted cells raised to the game's water\n", lk_o_room, nu); }
     { int q; for (q = 0; lk_lt_corr[q].room >= 0; q++) if (lk_lt_corr[q].room == lk_o_room && lk_lt_corr[q].op == 2) { const int16_t *a = lk_lt_corr[q].a;   /* data: water */
