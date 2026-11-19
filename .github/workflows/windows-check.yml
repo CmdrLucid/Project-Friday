@@ -27,15 +27,17 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsdl2-dev squashfs-tools python3-pip
+          sudo apt-get install -y libsdl2-dev squashfs-tools python3-pip nsis
       - name: Fetch genrecomp at the pinned revision (landstalker/vendor.lock)
         run: python3 landstalker/tools/make_vendor.py --fetch
       - name: Build the Windows package of this commit (like release.yml)
-        run: python3 landstalker/packaging/make_windows_zip.py
+        run: python3 landstalker/packaging/make_windows_zip.py --installer
       - uses: actions/upload-artifact@v4
         with:
           name: winzip
-          path: landstalker/dist/Project-Friday-windows-x64.zip
+          path: |
+            landstalker/dist/Project-Friday-windows-x64.zip
+            landstalker/dist/Project-Friday-Setup.exe
           retention-days: 1
 
   windows:
@@ -60,6 +62,8 @@ jobs:
           if (-not (Test-Path Project-Friday-windows-x64.zip)) {
           if ($env:TAG) { gh release download $env:TAG --repo $env:GITHUB_REPOSITORY --pattern "Project-Friday-windows-x64.zip" }
           else { gh release download --repo $env:GITHUB_REPOSITORY --pattern "Project-Friday-windows-x64.zip" } }
+          if (-not (Test-Path Project-Friday-Setup.exe)) {   # releases before the installer (2026-11-19) have none: the installer steps are skipped
+          if ($env:TAG) { gh release download $env:TAG --repo $env:GITHUB_REPOSITORY --pattern "Project-Friday-Setup.exe" } else { gh release download --repo $env:GITHUB_REPOSITORY --pattern "Project-Friday-Setup.exe" } }
           Expand-Archive -Path Project-Friday-windows-x64.zip -DestinationPath pkg
           Get-ChildItem pkg/Project-Friday | Select-Object -First 20 | ForEach-Object { $_.Name }
 
@@ -99,3 +103,23 @@ jobs:
         run: |
           pkg/Project-Friday/Project-Friday.exe --selftest-run
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Installer (silent install into a folder, self-test from there, silent uninstall; skipped when the package has no Setup.exe)
+        shell: pwsh
+        env:
+          LANDSTALKER_DATA: ${{ runner.temp }}\pf-data-inst
+        run: |
+          if (-not (Test-Path Project-Friday-Setup.exe)) { Write-Output "no Project-Friday-Setup.exe: skipped"; exit 0 }
+          $dir = "$env:RUNNER_TEMP\pf-inst\Project-Friday"
+          $p = Start-Process -FilePath .\Project-Friday-Setup.exe -ArgumentList "/S", "/D=$dir" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { Write-Output "installer exit $($p.ExitCode)"; exit 1 }
+          foreach ($f in "Project-Friday.exe", "firstrun.py", "python\python.exe", "vendor\zig\zig.exe", "vendor\sdl2\bin\SDL2.dll", "licenses\NOTICE.txt", "Uninstall.exe") {
+            if (-not (Test-Path "$dir\$f")) { Write-Output "missing after install: $f"; exit 1 } }
+          if (-not (Test-Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Project-Friday\Project-Friday.lnk")) { Write-Output "start menu shortcut missing"; exit 1 }
+          & "$dir\Project-Friday.exe" --selftest
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $u = Start-Process -FilePath "$dir\Uninstall.exe" -ArgumentList "/S", "_?=$dir" -Wait -PassThru
+          if ($u.ExitCode -ne 0) { Write-Output "uninstaller exit $($u.ExitCode)"; exit 1 }
+          if (Test-Path "$dir\Project-Friday.exe") { Write-Output "uninstall left the program"; exit 1 }
+          if (-not (Test-Path "$env:LANDSTALKER_DATA")) { Write-Output "note: no data folder was made by the self-test" }
+          Write-Output "installer ok (install, self-test, uninstall)"

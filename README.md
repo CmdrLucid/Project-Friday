@@ -18,6 +18,12 @@ Get the latest release from the [Releases page](https://github.com/cmdrlucid/Pro
 
 You need a supported ROM (US or European version), described under [Compatible ROMs](#compatible-roms).
 
+**Japanese text and Japanese items (optional):** the language *Japanese* (the original Japanese text) and the option *Items: Japanese* (the four items that are different things in the Japanese original) are read from **your own Japanese ROM**. Put it **in the same folder as your US / European ROM** (any file name); the game finds it at every start. Without it the two options are hidden or stay on *Original*. It is only a source of text and pictures: you still start the game with the US or European ROM.
+
+| Version | SHA-1 |
+|---|---|
+| **Japan** (*Landstalker: Koutei no Zaihou*, raw 2 MB dump) | `cdbc7cd9ceb181cad9e49b641ff717072546f0d9` |
+
 ## How is this different from running the ROM in an emulator?
 
 The game logic is no longer interpreted: the 68000 code of the ROM is translated into C and compiled into a native program on your machine. The picture is drawn by the project's own renderer, and the timing, the video chip's data path, the system start-up, both sound chips, the sound mixer and the Z80 sound driver run on the project's own code; Genesis Plus GX is still the frame around it and the base of the FM chip core, and its renderer is only kept as a test picture. Because the game code is now ordinary C that we can hook into, the project can change things an emulator cannot: draw a wider picture with real map content, fix old bugs, or add comfort features inside the game's own menus.
@@ -27,7 +33,7 @@ With every option switched off, the game plays like the original cartridge. All 
 **Display**
 - **Widescreen** Off / 16:10 / 16:9: real map content in the side margins, not stretched. The project draws the picture with its own renderer, and sprites, scrolling and effects are handled for the wider view.
 - **Full Height:** shows the map in the band at the bottom of the screen that the original leaves empty while you walk.
-- **Filter** (Off, Scanlines, CRT, CRT Pro, CRT Curved), **Scaling** (Fit, 4:3, Integer, Fill), borderless **Fullscreen**.
+- **Filter** (Off, Scanlines, CRT, CRT Pro, CRT Curved) and **De-Dither** (smooths the checkerboard dither patterns of the original art), **Scaling** (Fit, 4:3, Integer, Fill), borderless **Fullscreen**.
 
 **Graphics**
 - **HUD** Original / Modern: the modern HUD drops the status bar and lays hearts (with the life numbers), the sword charge, gold and the button icons (sword, Quick Items, with the name of the bound button) over the map, so the room fills the whole screen.
@@ -44,7 +50,8 @@ With every option switched off, the game plays like the original cartridge. All 
 
 **Movement**
 - **Sprint** (On by default): hold R2 (keyboard Left Shift) and Nigel runs faster on the ground (jumps stay exactly as in the original). Sprint Key: Hold or Toggle.
-- **Smooth Scrolling** (On by default): the sprint is 1.5 x and the room scrolls evenly and stays sharp (the scenery is shifted by whole screen pixels inside the display filter); Off = sprint 2 x.
+  While sprinting the room scrolls evenly and stays sharp (the sprint is 1.5 x).
+- **D-Pad:** Original or Alternate (the four directions walk along the diagonal axes of the isometric view: Up = up-right, Right = down-right, ...).
 - **Native Pace:** busy rooms no longer run in slow motion; the picture waits for the game instead of the game losing frames like on the console.
 - **Fast Forward** 2x / 3x / 4x while a button is held, or as a toggle (Fast Forward Key: Hold / Toggle).
 
@@ -58,16 +65,16 @@ With every option switched off, the game plays like the original cartridge. All 
 - **Fix Ride Objects:** Nigel now rides along on an object that stands on a moving platform. In the original he slides off; this is a bug fix.
 - **Live Gaia Effect:** the Gaia rocks stay in the world while the screen scrolls.
 
-**Difficulty / Help:** damage taken (25 % to 200 %), enemy HP (50 % to 300 %) and *Friday Hints* (off by default; press Select and Friday flies out of Nigel's bag and tells you where to go next). The hints follow your progress and only mention what Nigel has actually been told: if you listened to an optional character, Friday remembers it (per save file) and gets more precise. In English, German, French, Korean and Japanese.
+**Difficulty / Help:** damage taken (25 % to 200 %), enemy HP (50 % to 300 %) and *Friday Hints* (on by default; press Select and Friday flies out of Nigel's bag and tells you where to go next). The hints follow your progress and only mention what Nigel has actually been told: if you listened to an optional character, Friday remembers it (per save file) and gets more precise. In English, German, French, Korean and Japanese.
 
-**Dungeon map** (bind a button to "Map" in Keybindings): a map of the visited rooms of the current dungeon, turned like the game's own view, the whole floor at once with every door on its real wall. The D-pad moves a selection, A sets a flag and the map shows the way there, L1 / R1 switch floors; dungeon names in every language.
+**Dungeon map** (R3 on the controller, M on the keyboard; changeable in Keybindings): a map of the visited rooms of the current dungeon, turned like the game's own view, the whole floor at once with every door on its real wall. The D-pad moves a selection, A sets a flag and the map shows the way there, L1 / R1 switch floors; dungeon names in every language.
 
 **Keybindings:** every action can be remapped, for both controller and keyboard, including the keyboard directions; one row switches the keyboard to W A S D.
 
 **Language / Region** (own options page):
-- **Language:** English, **Deutsch** (all dialogue, with the names of the original German release), **English (JP)** (every line rewritten in the tone of the Japanese original: its jokes, characters' voices and the scenes the Western release toned down), **Francais** and **Korean** (both translated in the Japanese original's tone), and **Japanese**: the original Japanese text, only if you put your own Japanese ROM next to your ROM. The translations are written with Claude (see below) and not all have been read by native speakers yet; corrections are very welcome.
-- **Names:** localized or the Japanese original names (Ryle instead of Nigel, ...). **Items:** the four items that are different things in the Japanese original.
-- **Bath Scene** (off by default): restores the scene in Kayla's room at Mercator castle that the Western releases block with a maid on the door (the Japanese release lets you in; the scene itself is in every version's data).
+- **Language:** English, **Deutsch** (all dialogue, with the names of the original German release), **English (JP)** (every line rewritten in the tone of the Japanese original: its jokes, characters' voices and the scenes the Western release toned down), **Francais** and **Korean** (both translated in the Japanese original's tone), and **Japanese**: the original Japanese text, only with your own Japanese ROM in the same folder as your ROM (see [Download and start](#download-and-start)). The translations are written with Claude (see below) and not all have been read by native speakers yet; corrections are very welcome.
+- **Names:** localized or the Japanese original names (Ryle instead of Nigel, ...). **Items:** the four items that are different things in the Japanese original (also needs the Japanese ROM).
+- **Bath Scene** (on by default): restores the scene in Kayla's room at Mercator castle that the Western releases block with a maid on the door (the Japanese release lets you in; the scene itself is in every version's data).
 
 Defaults for a new install: 16:9, Full Height, CRT Pro filter, Native Pace, and most Movement / Comfort options on (HUD: Original). Change anything you like in Options.
 
@@ -93,7 +100,7 @@ Two ROMs are supported, both as a raw 2 MB dump (`.md`, `.bin` or `.gen`, 2,097,
 
 The European version is the US game with 50 Hz timing constants; the game still runs at the speed of the US version. European support is new and has had less play testing than the US version.
 
-The launcher checks size and SHA-1 at every start and refuses any other file with a message. Not supported (yet): the German and Japanese versions, hacks such as *Landstalker Remix*, other dumps or patched / translated ROMs, `.smd` (interleaved) dumps and ROMs inside zip files (convert / unpack them first). The German version differs in a lot of code and would need its own recompilation; the Japanese version and *Remix* have shifted data.
+The launcher checks size and SHA-1 at every start and refuses any other file with a message. Not supported (yet) as the ROM you play with: the German and Japanese versions (the Japanese ROM can be added for its text and items, see above), hacks such as *Landstalker Remix*, other dumps or patched / translated ROMs, `.smd` (interleaved) dumps and ROMs inside zip files (convert / unpack them first). The German version differs in a lot of code and would need its own recompilation; the Japanese version and *Remix* have shifted data.
 
 - Project: [`landstalker/`](landstalker/README.md) (build instructions, tools, documentation)
 - Entry point for the documentation: [`landstalker/docs/HANDOFF.md`](landstalker/docs/HANDOFF.md), then `LESSONS.md` and `INDEX.md`

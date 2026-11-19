@@ -20,7 +20,7 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsdl2-dev squashfs-tools python3-pip
+          sudo apt-get install -y libsdl2-dev squashfs-tools python3-pip nsis
 
       - name: Fetch genrecomp at the pinned revision (landstalker/vendor.lock)
         run: python3 landstalker/tools/make_vendor.py --fetch
@@ -29,7 +29,7 @@ jobs:
         run: python3 landstalker/packaging/make_appimage.py
 
       - name: Build the Windows package (cross-built, no ROM needed)
-        run: python3 landstalker/packaging/make_windows_zip.py
+        run: python3 landstalker/packaging/make_windows_zip.py --installer   # zip + Project-Friday-Setup.exe (NSIS)
 
       - name: Check the Windows package content
         run: |
@@ -58,8 +58,9 @@ jobs:
           cd landstalker/dist
           SHA=$(sha256sum Project-Friday-x86_64.AppImage | cut -d' ' -f1)
           WSHA=$(sha256sum Project-Friday-windows-x64.zip | cut -d' ' -f1)
+          ISHA=$(sha256sum Project-Friday-Setup.exe | cut -d' ' -f1)
           VERSION="${GITHUB_REF_NAME:-test}"
-          sed -e "s/{VERSION}/${VERSION}/" -e "s/{SHA256}/${SHA}/" -e "s/{WSHA256}/${WSHA}/" ../packaging/release_notes.md > ../../release_notes.md
+          sed -e "s/{VERSION}/${VERSION}/" -e "s/{SHA256}/${SHA}/" -e "s/{WSHA256}/${WSHA}/" -e "s/{ISHA256}/${ISHA}/" ../packaging/release_notes.md > ../../release_notes.md
           ls -l
 
       - name: Upload as workflow artifact (manual test runs only; a full artifact storage quota must not fail a release)
@@ -71,6 +72,7 @@ jobs:
           path: |
             landstalker/dist/Project-Friday-x86_64.AppImage
             landstalker/dist/Project-Friday-windows-x64.zip
+            landstalker/dist/Project-Friday-Setup.exe
 
       - name: Create the GitHub release
         if: startsWith(github.ref, 'refs/tags/v')
@@ -81,6 +83,7 @@ jobs:
           case "$GITHUB_REF_NAME" in *-*) PRE="--prerelease";; esac   # v0.4.0-rc1 -> pre-release
           gh release create "$GITHUB_REF_NAME" $PRE \
             landstalker/dist/Project-Friday-x86_64.AppImage \
+            landstalker/dist/Project-Friday-Setup.exe \
             landstalker/dist/Project-Friday-windows-x64.zip \
             --title "Project-Friday ${GITHUB_REF_NAME}" \
             --notes-file release_notes.md \
