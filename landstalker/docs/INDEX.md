@@ -5,13 +5,13 @@
 - 1. Status (update this block every session): lines 25-570
   - newest status entries: 26 2026-11-19 (dev, Opus 5.5, no agents; replay of the user'...; 27 2026-11-19 (dev, Opus 5.5, no agents): STATUE SHADOW ROOT...; 28 2026-11-19 (dev, Opus 5.5, no agents; GPU hidden-window s...; 29 2026-11-19 (dev, Opus 5.5, no agents; GPU hidden-window s...; 30 2026-11-19 (dev, Opus 5.5, no agents): the three parked r...; 31 2026-11-19 night (dev, Opus 5.5, no agents; headless + hi...; 32 2026-11-18 late (dev 6d9d6e1 / ab924b9, Opus 5.5, no agen...; 33 2026-11-18 night 2 (dev, Opus 5.5; user: 'macht keinen Si...
 - 2. Environment and working rules (do not ask the user again): lines 571-590
-- 3. Bug catalog (symptom -> root cause -> fix). All fixes are applie...: lines 591-721
-- 4. Tool cheat sheet (all local, none contain ROM data): lines 722-812
-- 5. Debug playbook (what worked): lines 813-828
-  - Interpreter fallback policy (decided with the user: NOT a permanent crutch): line 822
-- 6. Landstalker facts used so far: lines 829-837
-- Symbol rule (keep the code human readable; needed for modding): lines 838-854
-  - Names for all functions (disassembly <-> ROM address), no assembler needed: line 848
+- 3. Bug catalog (symptom -> root cause -> fix). All fixes are applie...: lines 591-727
+- 4. Tool cheat sheet (all local, none contain ROM data): lines 728-818
+- 5. Debug playbook (what worked): lines 819-834
+  - Interpreter fallback policy (decided with the user: NOT a permanent crutch): line 828
+- 6. Landstalker facts used so far: lines 835-843
+- Symbol rule (keep the code human readable; needed for modding): lines 844-860
+  - Names for all functions (disassembly <-> ROM address), no assembler needed: line 854
 
 <!-- /TOC -->
 
@@ -592,6 +592,12 @@ _Last update (2026-10-10, evening): dev merged into main (code_ranges, seeds for
 
 | Symptom | Root cause | Fix | DBG § |
 |---|---|---|---|
+| Enemy dissolve particles drift sideways while Nigel walks (user rec_20261119_1209) | camera $FF1200 / $FF1202 are iso AXES, the particles were moved by the raw deltas as if they were screen pixels | LK_DISSOLVE v2 (dx = d0 - d2, dy = (d0 + d2) / 2) | 2026-11-19 dissolve |
+| 16:9: room 5 wooden platform vanishes at the top edge, its drop shadow stays alone (user 2026-11-19) | CheckEntityOnScreen culls at the TOP when the entity CENTRE leaves line 0; sprcull widened left / right / bottom only | LK_SPRCULLTOP v1 (patch_sprcull.py: 64 px higher with WIDE / TALL) | 2026-11-19 dissolve |
+| A statue / torch casts no figure shadow in the room after Massan / Gumi / Mercator church (user rec_20261119_1016, room 5 y 31.03) | lk_dn_ldoor[] (door lights cast no hard figure shadow) set per light SLOT, never cleared at a room change | LK_LTLDOORCLR v1 (cleared with the light list) | 2026-11-19 statue root cause |
+| Hard dark box on the lower wall right of the door, Swamp Shrine 19 (user 2026-11-18) | the indoor painted-water rule made the wall cells between the room and an exit corridor a channel at 24: view rays found the corridor floor behind the wall | LK_LTWATDOOR v1 + data op void (LK_LTVOID v1) | 2026-11-19 room 19 |
+| Gumi at night: black corner in the skull sign door to 605 (user 2026-11-18) | the opening's top tile is 25 (346 + sign), not 346: no Massan parallelogram (taken for a Destel door); the corner is transparent (backdrop, widescreen margin) | LK_DNSIGN25 v1 | 2026-11-19 water rim / skull door |
+| Nigel's reflection misses a corner at the pool edge, waterfall shrine 175 (user 2026-11-18) | the slanted rim tiles (half floor, half water) failed both water tile rules | LK_WATER v5 / LK_GPUCOMP v5 (lk_wr_tcls) | 2026-11-19 water rim / skull door |
 | Vertical stripes in the characters' ground shadows (sun and sword light) in the RELEASE packages only (GitHub #21, paul-met, Windows / NVIDIA, 2026-11-18); dev build.sh on the Deck clean | out-of-bounds write: lk_lt_extrude sets `lk_lt_ocl[1031]` in a 1024 table; the byte lands in the next variable, which one depends on the compiler: gcc (build.sh) harmless, zig / clang (firstrun.py = Windows zip AND AppImage) the figure shadow data | LK_LTOCL v1 (`lk_lt_ocl[1040]`); found by a native zig build + gcc / clang object bisection + `-fsanitize=undefined` | 2026-11-18 late night (#21 SOLVED) |
 | Bright strip on the wall behind Nigel at the chest, Waterfall Shrine 182 (user 2026-11-18) | the door niche fill took a 3 cell PIT (floor type 07) between two walkways for a door and filled it to 64 | LK_LTDOORPIT v1 (a pit is never a door) | 2026-11-18 late night |
 | Lighting suddenly off, the night 'jumps' to day, until restart (user recording 2026-11-18) | GPU time watchdog: Claude's parallel GPU tests on the same Deck in desktop mode; the watchdog switched Lighting off silently for the run | LK_LTSLOW v1 (OSD message + retry after 30 s, doubled) | 2026-11-18 late night |

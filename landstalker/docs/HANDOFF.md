@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 833-844
-- 1. Where we are: lines 845-1001
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1002-1275
-- 3. How the user works (important): lines 1276-1291
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1292-1316
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1317-1325
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1326-1373
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1374-1383
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1384-1385
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1386-1388
-- NEXT STEPS, newest first: -236 1003, -235 1004, -234 1005, -233 1006, -232 1007, -231 1008, -230 1009, -229 1010, -228 1011, -227 1012
+- 1. Where we are: lines 845-1002
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1003-1276
+- 3. How the user works (important): lines 1277-1292
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1293-1317
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1318-1326
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1327-1374
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1375-1384
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1385-1386
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1387-1389
+- NEXT STEPS, newest first: -236 1004, -235 1005, -234 1006, -233 1007, -232 1008, -231 1009, -230 1010, -229 1011, -228 1012, -227 1013
 - Newest entries:
   - 0a477 line 190: 2026-11-19 (Deck, Opus 5.5, no agents): user 'Die Schatten passen' (LK_LTLDOORCLR confirmed) + recording re...
   - 0a476 line 192: 2026-11-19 (Deck, Opus 5.5, no agents): user 'immer noch keinen Schatten' + recording rec_20261119_1016. RO...
@@ -843,6 +843,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-19 END (Opus 5.5, no agents, `dev` pushed e68bdfa+, main = v1.9.7, no release):** 7 user reports worked through. USER CONFIRMED by playing: room 19 wall box gone (LK_LTWATDOOR + data op void), statue figure shadows in the Swamp Shrine ('Die Schatten passen', LK_LTLDOORCLR: stale door-light flags per light slot after Gumi). REPLAY / HEADLESS ONLY (not played): water 175 rim corners (LK_WATER v5), Gumi skull door night corner (LK_DNSIGN25, Gumi hatches now Massan style), Friday stage 3 door hint gated by heard 0157 / 016C, dissolve particles in screen pixels (LK_DISSOLVE v2), room 5 platform at the top edge in 16:9 (LK_SPRCULLTOP v1, replay .chk identical). Reverted: LK_LTBLOCKFL (statue shadow source, wrong track). Removed from git: ROM-derived 0_*.obj dumps (still in history; user not yet asked/answered about a history rewrite). User checks open: -231 / -233 (partly) / -236.
 - **2026-11-18 LATE (Opus 5.5, no agents, `dev` pushed, no release):** water reflections in the waterfall shrine (room 175 report) = LK_WATER v4 / LK_GPUCOMP v4, built in ~/ProjectL (what ~/Landstalker.sh starts) and checked ONLY headless with WATER_DBG=2 shots (175 / 174); GPU reflection + other tileset 5 rooms + user test open (-229). New user reports parked without work (0a471 / -230: Friday Gumi door hint, Swamp Shrine torch statue shadows rooms 2 / 5 / 28, room 19 hard edge). Still open from before: release with the #21 fix (-228).
 - **2026-11-18 NIGHT 2 (Opus 5.5, `dev` pushed):** build.sh now uses zig like the downloads (user decision); 2nd memory bug fixed (LK_OSDEXT: ROM load stack overflow, found by gcc ASan); zig and gcc builds replay rec_20261117_1737 exactly; ASan clean over 15120 frames with light. The user's next dev ZIP build uses zig (first build downloads nothing: zig is in ~/.cache/project-friday-build). NOT played.
 - **2026-11-18 NIGHT END (Opus 5.5, no agents, `dev` pushed, main = v1.9.7, NO release yet: user 'kommt mit dem nächsten'):** GitHub #21 SOLVED (LK_LTOCL v1: out-of-bounds write, visible only in the zig / clang release packages Windows + AppImage; found on the Deck with a Windows exe under Proton, a native clang build, object bisection and ubsan). Also: room 182 pit strip (LK_LTDOORPIT), Friday Waterfall hint, wall 638 + arcade 486 as real models (no box proxies left), watchdog OSD + retry (LK_LTSLOW). ALL HEADLESS ONLY. Reply text for Paul drafted (user posts). NEXT -228 / -226.
