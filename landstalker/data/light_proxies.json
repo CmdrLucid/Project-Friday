@@ -24,6 +24,166 @@
     "     carve {\"cells\": [x0,y0,x1,y1], \"bg\": \"sea\" | \"layera\", \"floor\": f} - at room load the shapes in these cells follow the DRAWN picture: every sub column is lowered until its top and its front edge land on drawn object pixels (sea = nothing drawn or a water tile), slabs keep the heights drawn in layer A, then a 3 x 3 median (LANDSTALKER_LT_CARVEMED). Outdoors every building shape / mesh is carved automatically to layer A (LANDSTALKER_LT_CARVEOUT=0 = off)."
   ],
   "rooms": {
+    "611": [
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          24,
+          46,
+          28
+        ],
+        "file": "proxies/house_610_right.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "Ryuma TOWN HOUSE 'right' (rooms 610 / 611 = one map $0A6F20), ground 48: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          21,
+          23,
+          28
+        ],
+        "file": "proxies/house_610_hill.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "Ryuma TOWN HOUSE 'hill' (rooms 610 / 611 = one map $0A6F20), ground 112: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          49,
+          24,
+          53
+        ],
+        "file": "proxies/house_610_left.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Ryuma TOWN HOUSE 'left' (rooms 610 / 611 = one map $0A6F20), ground 32: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          39,
+          47,
+          44
+        ],
+        "file": "proxies/house_610_fr.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma TOWN HOUSE 'fr' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          38,
+          37,
+          41
+        ],
+        "file": "proxies/house_610_pb.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma TOWN HOUSE 'pb' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          44,
+          37,
+          47
+        ],
+        "file": "proxies/house_610_pf.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma TOWN HOUSE 'pf' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      }
+    ],
+    "610": [
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          24,
+          46,
+          28
+        ],
+        "file": "proxies/house_610_right.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "Ryuma TOWN HOUSE 'right' (rooms 610 / 611 = one map $0A6F20), ground 48: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          21,
+          23,
+          28
+        ],
+        "file": "proxies/house_610_hill.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "Ryuma TOWN HOUSE 'hill' (rooms 610 / 611 = one map $0A6F20), ground 112: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          49,
+          24,
+          53
+        ],
+        "file": "proxies/house_610_left.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Ryuma TOWN HOUSE 'left' (rooms 610 / 611 = one map $0A6F20), ground 32: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          39,
+          47,
+          44
+        ],
+        "file": "proxies/house_610_fr.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma TOWN HOUSE 'fr' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          38,
+          37,
+          41
+        ],
+        "file": "proxies/house_610_pb.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma TOWN HOUSE 'pb' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          44,
+          37,
+          47
+        ],
+        "file": "proxies/house_610_pf.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma TOWN HOUSE 'pf' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      }
+    ],
     "28": [
       {
         "op": "mesh",

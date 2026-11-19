@@ -17,11 +17,11 @@ Run: python3 remake/tools/build_asset.py proxy_houses_632
 Output: landstalker/data/proxies/house_632_<n>.obj (GAME coordinates: x east, y south, z up, world units; our own geometry, committed; triangles)."""
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lib")); import proxy
-import bpy, bmesh
+import town_house as th
 
 ONE = (64, 86.5, 25.5)     # eave, flat top, inset of the top (one storey)
 TWO = (112, 134.5, 26)     # two storeys
-WIN, DOOR = "window", "door"
+WIN, DOOR = th.WIN, th.DOOR
 # house -> (wings (x0, y0, x1, y1), heights, openings (wing, wall 'x' = the +x wall x = x1 / 'y' = the +y wall y = y1, slot start along the wall, storey, kind))
 HOUSES = {
     1: ([(480, 384, 576, 464)], ONE, [(0, "x", 400, 0, WIN), (0, "x", 432, 0, DOOR)]),                       # cells 30..35 x 24..28, behind house 4
@@ -43,48 +43,5 @@ HOUSES = {
 # value 319 put the door 1 unit off the door tile; with 320 find_openings gives the standard tiles: windows slots 256 / 288, door slot 960).
 SMALL = {8: [(0, "y", 791, 796, 40, 53)]}   # (wing, wall, a0, a1, z0, z1): measured frame, recess 1.5, no sill
 
-def mk(name, v, f):
-    """game coordinates -> Blender (y north): flipping y mirrors, so the faces are reversed to keep them pointing outward"""
-    me = bpy.data.meshes.new(name); me.from_pydata([(x, -y, z) for x, y, z in v], [], [tuple(reversed(q)) for q in f]); me.update()
-    ob = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(ob); return ob
-
-def box(name, x0, y0, z0, x1, y1, z1):
-    v, f = proxy.part_mesh(x0, y0, x1, y1, z0, z1, z1, "flat", None); return mk(name, v, f)
-
-def boolean(target, tool, op):
-    m = target.modifiers.new("b", "BOOLEAN"); m.object = tool; m.operation = op; m.solver = "EXACT"
-    bpy.context.view_layer.objects.active = target; bpy.ops.object.modifier_apply(modifier="b"); bpy.data.objects.remove(tool)
-
-def wall_box(wing, wall, a0, a1, z0, z1, inside, outside, name):
-    """a box on the wall plane: along the wall a0..a1, z0..z1, from 'inside' units behind the wall face to 'outside' units in front of it"""
-    x0, y0, x1, y1 = wing
-    if wall == "y": return box(name, a0, y1 - inside, z0, a1, y1 + outside, z1)
-    return box(name, x1 - inside, a0, z0, x1 + outside, a1, z1)
-
-def house(n):
-    wings, (ze, zt, i), openings = HOUSES[n]
-    bpy.ops.wm.read_factory_settings(use_empty=True)
-    obs = []
-    for k, (x0, y0, x1, y1) in enumerate(wings):
-        v, f = proxy.part_mesh(x0, y0, x1, y1, 16, ze, zt, "hip:%g" % i, None); obs.append(mk("w%d" % k, v, f))
-    h = obs[0]
-    for o in obs[1:]: boolean(h, o, "UNION")
-    for wk, wall, s0, st, kind in openings:
-        fz = 16 + 48 * st
-        if kind == WIN:
-            boolean(h, wall_box(wings[wk], wall, s0 + 3, s0 + 16, fz + 22, fz + 38, 1.5, 5, "win"), "DIFFERENCE")
-            boolean(h, wall_box(wings[wk], wall, s0, s0 + 16, fz + 16, fz + 21, 1, 1, "sill"), "UNION")
-        else:
-            boolean(h, wall_box(wings[wk], wall, s0 + 4, s0 + 16, 19, 59, 2.5, 5, "door"), "DIFFERENCE")
-    for wk, wall, a0, a1, z0, z1 in SMALL.get(n, []):
-        boolean(h, wall_box(wings[wk], wall, a0, a1, z0, z1, 1.5, 5, "small"), "DIFFERENCE")
-    bm = bmesh.new(); bm.from_mesh(h.data); bmesh.ops.triangulate(bm, faces=bm.faces[:]); bm.verts.index_update()
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "landstalker", "data", "proxies", "house_632_%d.obj" % n)
-    with open(path, "w") as fo:
-        fo.write("# light proxy: Mercator town house %d, room 632 (remake/recipes/proxy_houses_632.py). GAME coordinates x east, y south, z up, world units.\n" % n)
-        fo.write("# our own geometry measured on the original picture; read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh').\n")
-        for vv in bm.verts: fo.write("v %g %g %g\n" % (round(vv.co.x, 3), round(-vv.co.y, 3), round(vv.co.z, 3)))
-        for ff in bm.faces: fo.write("f " + " ".join(str(vv.index + 1) for vv in reversed(ff.verts)) + "\n")
-    print("proxy_houses_632: house %d: %d vertices, %d triangles -> %s" % (n, len(bm.verts), len(bm.faces), path))
-
-for n in HOUSES: house(n)
+for n, (wings, heights, openings) in HOUSES.items():
+    th.house("house_632_%d" % n, "Mercator town house %d, room 632" % n, "proxy_houses_632", wings, heights, openings, 16, SMALL.get(n, ()))
