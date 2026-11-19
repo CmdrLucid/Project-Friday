@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 53-58
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 835-846
-- 1. Where we are: lines 847-1005
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1006-1280
-- 3. How the user works (important): lines 1281-1296
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1297-1321
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1322-1330
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1331-1378
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1379-1388
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1389-1390
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1391-1393
-- NEXT STEPS, newest first: -237 1007, -236 1008, -235 1009, -234 1010, -233 1011, -232 1012, -231 1013, -230 1014, -229 1015, -228 1016
+- 1. Where we are: lines 847-1006
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1007-1281
+- 3. How the user works (important): lines 1282-1297
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1298-1322
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1323-1331
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1332-1379
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1380-1389
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1390-1391
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1392-1394
+- NEXT STEPS, newest first: -237 1008, -236 1009, -235 1010, -234 1011, -233 1012, -232 1013, -231 1014, -230 1015, -229 1016, -228 1017
 - Newest entries:
   - 0a478 line 190: 2026-11-19 later (Deck, Opus 5.5, no agents): user confirmed the Friday stage 3 hint; recording rec_2026111...
   - 0a477 line 192: 2026-11-19 (Deck, Opus 5.5, no agents): user 'Die Schatten passen' (LK_LTLDOORCLR confirmed) + recording re...
@@ -845,6 +845,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-19 SESSION END (Opus 5.5, no agents, `dev` pushed, main = v1.9.7, no release):** user confirmed today: room 19 box, statue shadows (LK_LTLDOORCLR), dissolve particles, room 5 platform, Gumi skull door, Friday stage 3 hint. Replay only (not played): room 453 trapezoid + 4 pine group (0a478). Unconfirmed: water 175 rim corners (LK_WATER v5). NEXT FIRST = -237 dome sweep (user agreed).
 - **2026-11-19 USER CONFIRMED (after the session end):** dissolve particles (LK_DISSOLVE v2), room 5 platform at the top edge + its shadow (LK_SPRCULLTOP v1), statue shadows (LK_LTLDOORCLR), Gumi skull sign door at night (LK_DNSIGN25). The 0_*.obj files left in the git history are fine (user: 'nur grobe Modelle'): NO history rewrite. Still unconfirmed: water 175 rim corners (LK_WATER v5), Friday stage 3 door hint.
 - **2026-11-19 END (Opus 5.5, no agents, `dev` pushed e68bdfa+, main = v1.9.7, no release):** 7 user reports worked through. USER CONFIRMED by playing: room 19 wall box gone (LK_LTWATDOOR + data op void), statue figure shadows in the Swamp Shrine ('Die Schatten passen', LK_LTLDOORCLR: stale door-light flags per light slot after Gumi). REPLAY / HEADLESS ONLY (not played): water 175 rim corners (LK_WATER v5), Gumi skull door night corner (LK_DNSIGN25, Gumi hatches now Massan style), Friday stage 3 door hint gated by heard 0157 / 016C, dissolve particles in screen pixels (LK_DISSOLVE v2), room 5 platform at the top edge in 16:9 (LK_SPRCULLTOP v1, replay .chk identical). Reverted: LK_LTBLOCKFL (statue shadow source, wrong track). Removed from git: ROM-derived 0_*.obj dumps (still in history; user not yet asked/answered about a history rewrite). User checks open: -231 / -233 (partly) / -236.
 - **2026-11-18 LATE (Opus 5.5, no agents, `dev` pushed, no release):** water reflections in the waterfall shrine (room 175 report) = LK_WATER v4 / LK_GPUCOMP v4, built in ~/ProjectL (what ~/Landstalker.sh starts) and checked ONLY headless with WATER_DBG=2 shots (175 / 174); GPU reflection + other tileset 5 rooms + user test open (-229). New user reports parked without work (0a471 / -230: Friday Gumi door hint, Swamp Shrine torch statue shadows rooms 2 / 5 / 28, room 19 hard edge). Still open from before: release with the #21 fix (-228).
@@ -1004,7 +1005,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
--237. **NEXT (2026-11-19): USER CHECK room 453 (no trapezoid at x 16 y 17.0C, the 4 pine group casts 4 shadows). Ask: run the dome sweep over all outdoor rooms (pine groups as one dome elsewhere)?**
+-237. **NEXT FIRST (2026-11-19, user: 'Ja, aber notiere das als Handoff fuer die naechste Sitzung'): DOME SWEEP over all outdoor rooms - pine groups taken as ONE solid block dome (room 453 case). Steps: tools/proxysurvey.py ROM <outdoor rooms> --run DIR (GPU, ~1 h, warn the user first), then remake/recipes/pine_cluster/pine_cluster.py ROM DIR/b*/survey.log ROOMS --png DIR (domes are candidates since 2026-11-19), eye-check every group (feet on the pines), show the user a before / after list (lightedges GPU or replay shots, light ratio pictures) BEFORE --write. Also USER CHECK room 453 (trapezoid gone at x 16 y 17.0C, 4 pine shadows).**
 -236. **DONE 2026-11-19 (user confirmed particles + platform). Was: USER CHECK (a) enemy dissolve particles while walking right after a hit (no sideways drift), (b) room 5 wooden platform at the top edge in 16:9 stays + its drop shadow. -235 statue shadows CONFIRMED by the user.**
 -235. **DONE 2026-11-19 (user confirmed). Was: USER CHECK the room 5 statue at y 31.03 again (coming from Gumi as in the recording) - shadow there now? (0a476). -234 is obsolete (BLOCKFL reverted).**
 -234. **NEXT (2026-11-19): USER CHECK room 5 statue at x 25.07 y 31.03 (Nigel's shadow now down right), rooms 2 / 28 statues, and figure shadows in houses with hearths (622 / 651 / 680 / 88 changed slightly). Room 19 confirmed by the user.**
