@@ -13,3 +13,6 @@ landstalker/docs/symbols_auto.json
 landstalker/tools/displaytest/*.ppm
 landstalker/docs/symbols_seq.json
 .claude/worktrees/
+
+# room box model dumps written by test runs (LK_LTROOM, ROM-derived)
+landstalker/0_*.obj
