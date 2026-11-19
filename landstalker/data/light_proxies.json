@@ -4653,6 +4653,97 @@
           49
         ],
         "why": "tulip garden behind the church (same object as the church): the drawn tulips are no roof"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          23,
+          35,
+          28
+        ],
+        "file": "proxies/house_632_1.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 1 (one storey, behind house 4): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          24,
+          49,
+          28
+        ],
+        "file": "proxies/house_632_2.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 2 (one storey): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          29,
+          34,
+          33
+        ],
+        "file": "proxies/house_632_4.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 4 (two storeys (eave 112)): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          29,
+          52,
+          37
+        ],
+        "file": "proxies/house_632_5.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 5 (L house (two wings, valley roof; pines in the corner stay catalogue)): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          45,
+          44,
+          53,
+          50
+        ],
+        "file": "proxies/house_632_6.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 6 (one storey (cells 44..45 = the collision strip behind it)): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          47,
+          36,
+          57
+        ],
+        "file": "proxies/house_632_7.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 7 (long house, two flat tops): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          45,
+          52,
+          50,
+          57
+        ],
+        "file": "proxies/house_632_8.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 8 (one storey, small window): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
       }
     ],
     "635": [

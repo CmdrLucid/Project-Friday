@@ -27,6 +27,10 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 - Find all copies of a decoration by a PICTURE MATCH against a reference copy, not by top block ids (objects against a wall get other blocks).
 - The warp test aid (LANDSTALKER_WARP) does not reach every room from the test save (chapels, cellars stay black): a black shot is no result.
 
+- Buildings that hide each other: fit ALL of them at once (scene fit, the union rendered with the view ray, `remake/tools/fit_house.py`), not one by one with masks; walls of town houses come out on the cell lines (2026-11-20).
+- Walls built from repeating wall TILES (town houses): classify each 16 unit slot (window / door / plain / sign) and take the tile's geometry from one measured copy; measure only what differs (a small window) (`remake/tools/find_openings.py`, 2026-11-20).
+- Ask the user to MARK what is wrong on the overlay (red lines): 'one corner' vs 'stepped corbel' could not be read from my description (church entrance, 2026-11-20).
+
 ## 3. Fitting the shape
 - **Never outside the drawing**: score = covered - 12 x outside, grow from thin rings; then nothing sticks out (the user sees every pixel that does).
 - A round body that is not round about one axis (twisted robe): rings with their OWN centre and radius, fitted by moving the LEFT and RIGHT edge of each ring
@@ -90,3 +94,5 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
   camera with a TRACK_TO constraint.
 - Montage of PNGs: `ffmpeg -i a.png -i b.png -filter_complex hstack=inputs=2 out.png` (remake/tools/proxy_overlay.read_png does not read Blender's PNGs).
 - Generated models / previews: `~/.landstalker_remake/assets/<name>/` (never in git); our measured numbers + builders: `remake/lib/furniture.py`.
+- Edge overlays must also draw SILHOUETTE edges (model next to background) on the model side; an overlay of only normal / depth changes inside the model hid the porch's right edge and the hall corner (user 2026-11-20).
+- Blender meshes from game coordinates: y is flipped, so reverse the face order or booleans (EXACT solver) treat the cutters inside out (only slits cut); write the OBJ back with the order reversed again.

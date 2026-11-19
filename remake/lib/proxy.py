@@ -43,6 +43,33 @@ def extrude_x(name, x0, x1, prof):
     f = [(i, n + i, n + (i + 1) % n, (i + 1) % n) for i in range(n)] + [tuple(range(n)), tuple(range(2 * n - 1, n - 1, -1))]
     return {"name": name, "verts": v, "faces": f}
 
+def earclip(poly):
+    """triangles (index triples, polygon order) of a simple polygon [(a, b), ...] (ear clipping; same as remake/recipes/proxy_arcade_486.py)"""
+    n = len(poly); idx = list(range(n))
+    area = sum(poly[i][0] * poly[(i + 1) % n][1] - poly[(i + 1) % n][0] * poly[i][1] for i in range(n)); sgn = 1.0 if area > 0 else -1.0
+    cross = lambda a, b, c: ((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) * sgn
+    def inside(p, a, b, c): return cross(a, b, p) >= -1e-9 and cross(b, c, p) >= -1e-9 and cross(c, a, p) >= -1e-9
+    tris = []; guard = 0
+    while len(idx) > 3 and guard < 10000:
+        guard += 1
+        for k in range(len(idx)):
+            i0, i1, i2 = idx[k - 1], idx[k], idx[(k + 1) % len(idx)]
+            a, b, c = poly[i0], poly[i1], poly[i2]
+            if cross(a, b, c) <= 1e-9: continue
+            if any(inside(poly[j], a, b, c) for j in idx if j not in (i0, i1, i2)): continue
+            tris.append((i0, i1, i2)); idx.pop(k); break
+        else: break
+    if len(idx) == 3: tris.append(tuple(idx))
+    return tris
+
+def extrude_x_solid(name, x0, x1, prof):
+    """extrude_x with the two end caps as TRIANGLES (a non-convex profile, e.g. a wall with an arched opening, cannot be a fan)"""
+    ext = extrude_x(name, x0, x1, prof); n = len(prof)
+    P = [(v[1], v[2]) for v in ext["verts"][:n]]; tri = earclip(P)
+    assert len(tri) == n - 2, "ear clipping failed for " + name
+    ext["faces"] = ext["faces"][:n] + [tuple(t) for t in tri] + [tuple(n + i for i in t[::-1]) for t in tri]
+    return ext
+
 def revolve(name, cx, cy, profile, n=12):
     """ONE closed surface of revolution from a profile [(z, radius), ...] bottom to top (steps allowed: two entries at the same z = a flat ring,
     e.g. the drooping tiers of a pine); bottom and top capped, faces outward (no inner caps like lathe(): clean for back face shadow maps)"""
@@ -60,7 +87,7 @@ def prism_mesh(poly, z0, z1, top=None):
     f = [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)] + [tuple(range(n - 1, -1, -1)), tuple(range(n, 2 * n))]
     return v, f
 
-def build(name, parts, title, colours=None, target=(0, 0, 40), ground_z=16, px_per_unit=3, size=(720, 540)):
+def build(name, parts, title, colours=None, target=(0, 0, 40), ground_z=16, px_per_unit=3, size=(720, 540), recipe=None):
     """parts -> Blender objects + landstalker/data/proxies/<name>.obj + preview.png in R_OUT"""
     out = os.environ.get("R_OUT", "/tmp/proxy_" + name); os.makedirs(out, exist_ok=True)
     obj = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "landstalker", "data", "proxies", name + ".obj")
@@ -77,7 +104,7 @@ def build(name, parts, title, colours=None, target=(0, 0, 40), ground_z=16, px_p
         ob.data.materials.append(blx.flat_material("m_" + pname, (colours or {}).get(pname, (200, 200, 205))))
     os.makedirs(os.path.dirname(obj), exist_ok=True)
     with open(obj, "w") as fo:
-        fo.write("# light proxy: %s (remake/recipes/proxy_%s.py). GAME coordinates x east, y south, z up, world units.\n" % (title, name))
+        fo.write("# light proxy: %s (remake/recipes/%s.py). GAME coordinates x east, y south, z up, world units.\n" % (title, recipe or "proxy_" + name))
         fo.write("# our own geometry measured on the original picture; read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh').\n")
         for (x, y, z) in verts: fo.write("v %g %g %g\n" % (x, y, z))
         for q in faces: fo.write("f " + " ".join(str(k + 1) for k in q) + "\n")
