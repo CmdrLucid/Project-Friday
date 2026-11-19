@@ -14,7 +14,7 @@ Non-commercial, open source, a hobby project. Not affiliated with Sega or Climax
 Get the latest release from the [Releases page](https://github.com/cmdrlucid/Project-Friday/releases):
 
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage`. Make it executable, start it and pick your ROM. The first start builds the game from your ROM (this takes a few minutes); later starts go straight into the game. On the Deck, add it in Desktop mode via *Steam > Add a Non-Steam Game*.
-- **Windows 10 / 11 (experimental):** `Project-Friday-windows-x64.zip`. Extract the whole zip and start `Project-Friday.exe`.
+- **Windows 10 / 11 (experimental):** `Project-Friday-Setup.exe`. Run it, pick a folder (your user folder by default, no admin rights needed) and start Project-Friday from the Start menu; uninstall in *Settings > Apps*. Windows may warn that the file is unknown (it is not signed): *More info > Run anyway*. The same files also come as `Project-Friday-windows-x64.zip` (extract the whole zip, start `Project-Friday.exe`).
 
 You need a supported ROM (US or European version), described under [Compatible ROMs](#compatible-roms).
 
