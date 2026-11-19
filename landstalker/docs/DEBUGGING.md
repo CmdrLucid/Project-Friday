@@ -1997,3 +1997,6 @@ Build dev 48c243a (verify_build: 126 ok). Evidence (all hidden-window GPU presen
 
 ## Statue figure shadows (2026-11-19, LK_LTBLOCKFL v1)
 * User spots room 5 (x 25.07 / y 41.07, 36.03, 31.03, 26.01, z 0020) via gshots_exact.sh. FIGSH_ONLY diff: every statue light casts (15624..24927 px) - the y 31.03 one falls up / behind Nigel. LT_WALLOFF=1 test: shadow visible, but the light moved into the block darkened rooms (sweep 52 of 69). Final: shadow-only source shift (sbx / sby); LANDSTALKER_LT_BLOCKOFF (default 1, >= 6 = off).
+
+## Statue shadow root cause (2026-11-19, LK_LTLDOORCLR v1)
+* rec_20261119_1016 replayed with its opts / save / QSPLAY / WIDE 39 (hidden window, PRESENT_SHOT 8100 / 8700, FIGSH_ONLY -1 vs -2): y 31 shadow faint. LANDSTALKER_LT_PAIRDBG=8100: Nigel = figure 8 (boulders first), light 5 pair 0. lk_dn_ldoor[5] stale from Gumi. Fix: memset at the light build (lk_lt_free line). LK_LTBLOCKFL (shadow source 1 in front of a statue block) reverted.

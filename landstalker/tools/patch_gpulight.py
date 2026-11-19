@@ -219,7 +219,7 @@ void lk_gl_bextra(int bx, int by, uint32_t *o) { int i, pal, pr;   /* per pixel:
 const uint16_t *lk_gl_fmk(void) { return &lk_lt_fmk[0][0]; }   /* figure shadow box mask 224 x 448 (lk_lt_infb) */
 /* per light k / figure j: row j = card normal x, y, pair, 0; row 16 + j = the shadow box x0 y0 x1 y1 (96 x 32 RGBA floats) */
 void lk_gl_pairs(float *o) { int k, j; for (j = 0; j < 16; j++) for (k = 0; k < 96; k++) { float *a = o + 4 * (j * 96 + k), *b = o + 4 * ((16 + j) * 96 + k);
-  a[0] = lk_lt_pn[k][j][0]; a[1] = lk_lt_pn[k][j][1]; a[2] = lk_lt_pair[k][j] ? 1.0f : 0.0f; a[3] = rintf(lk_lt_psh[k][j][0]) + 100.0f * rintf(lk_lt_psh[k][j][1]);   /* LK_LTBLOCKFL v1: figure-shadow source shift x + 100 y (axis aligned, |shift| < 50) */ b[0] = (float)lk_lt_pbox[k][j][0]; b[1] = (float)lk_lt_pbox[k][j][1]; b[2] = (float)lk_lt_pbox[k][j][2]; b[3] = (float)lk_lt_pbox[k][j][3]; } }
+  a[0] = lk_lt_pn[k][j][0]; a[1] = lk_lt_pn[k][j][1]; a[2] = lk_lt_pair[k][j] ? 1.0f : 0.0f; a[3] = 0.0f; b[0] = (float)lk_lt_pbox[k][j][0]; b[1] = (float)lk_lt_pbox[k][j][1]; b[2] = (float)lk_lt_pbox[k][j][2]; b[3] = (float)lk_lt_pbox[k][j][3]; } }
 /* class + own-sprite tag per screen pixel (RGBA: class, class, hidden figure tag (LK_LTHIDE v1, lk_lt_spre2), tag): the silhouettes of the figure shadows */
 void lk_gl_clstag(uint32_t *o) { int y, x; for (y = 0; y < 224; y++) for (x = 0; x < 448; x++) { uint32_t c = lk_gl_cls[y * 448 + x] & 255u; int sp = (lk_o_spr[y][x] & 0x200) != 0; o[y * 448 + x] = c | (c << 8) | ((uint32_t)(sp ? lk_lt_spre2[y][x] : 0) << 16) | ((uint32_t)(sp ? lk_lt_spre[y][x] : 0) << 24); } }
 /* dust motes (dmap | dmz << 8) and particle depths (mz | md << 16) as RGBA words, 512 x 512 */
@@ -340,7 +340,6 @@ float shadowed(vec3 p, int li, float fm, float cx, float cy) {   /* lk_lt_shadow
     vec4 P = texture2D(pairs, (vec2(float(li), float(j)) + 0.5) / vec2(96.0, 32.0)); if (P.z < 0.5 || bit(fm, j) < 0.5) continue;
     vec4 pb = texture2D(pairs, (vec2(float(li), float(16 + j)) + 0.5) / vec2(96.0, 32.0)); if (cx < pb.x || cx > pb.z || cy < pb.y || cy > pb.w) continue;
     vec4 F = uFG[j], Fa = uFA[j]; float nx = P.x, ny = P.y;
-    { float sy = floor((P.w + 50.0) / 100.0); L = uLP[li]; L.x += P.w - 100.0 * sy; L.y += sy; }   /* LK_LTBLOCKFL v1: the figure-shadow source of a statue flame (pairs .w = shift x + 100 y) */
     float den = nx * (L.x - p.x) + ny * (L.y - p.y), num = nx * (F.x - p.x) + ny * (F.y - p.y);
     if (abs(den) < 1e-4) continue;
     float t = num / den; if (t < 0.02 || t > 0.98) continue;

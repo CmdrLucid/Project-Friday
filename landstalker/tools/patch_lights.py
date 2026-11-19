@@ -193,7 +193,7 @@ void lk_lt_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; 
 #define LK_LT_ML 96                     /* lights per room (v3: lava fields; was 32) */
 #define LK_LT_RAD 120.0f   /* v2: was 90, the floor under high wall torches stayed dark (room 177) */
 static int lk_lt_gen;   /* generation of the room's light data: bumped by lk_lt_free (the GPU blocks' read-back lk_gs of an older one is stale); the CPU light blocks are gone since 2026-11-12 */
-typedef struct { float x, y, z; float r, g, b; int lava; uint32_t base; float k, rad; float hw; int tan; float hv; float own; float sbx, sby; } lk_lt_light;   /* own: LK_GLCARRIER v1 radius of the flame's own stand column (no shadow from it), 0 = none */   /* LK_LTWIDE v2: hw = half the width of the drawn fire along its wall (0 = a small flame), tan 1 = along x, 2 = along y */   /* k: strength, rad: reach (LK_LT_RAD; castle torches more, user 2026-11-04) */   /* base: the AnimatedTilesetData entry of the flame (kind of torch) */
+typedef struct { float x, y, z; float r, g, b; int lava; uint32_t base; float k, rad; float hw; int tan; float hv; float own; } lk_lt_light;   /* own: LK_GLCARRIER v1 radius of the flame's own stand column (no shadow from it), 0 = none */   /* LK_LTWIDE v2: hw = half the width of the drawn fire along its wall (0 = a small flame), tan 1 = along x, 2 = along y */   /* k: strength, rad: reach (LK_LT_RAD; castle torches more, user 2026-11-04) */   /* base: the AnimatedTilesetData entry of the flame (kind of torch) */
 static lk_lt_light lk_lt_l[LK_LT_ML]; static int lk_lt_nfl, lk_lt_nl, lk_lt_room = -2, lk_lt_zmax; static uint32_t lk_lt_hash; static long lk_lt_frame = -1;
 static int16_t lk_lt_top[74][74];
 static int16_t lk_lt_gh[74][74];   /* v6: the game's heights (lk_lt_top = ours: outdoor objects raised to their drawn height for the view ray); the sun's shadow march uses these + lk_lt_fh */
@@ -260,7 +260,6 @@ static int lk_lt_retry;               /* a new room whose planes were not built 
 static uint32_t lk_lt_pah;            /* v7: hash of the layer A plane at the last rebuild (outdoors a retry rebuilds only when the picture changed: 12 rebuilds of 40..70 ms each stuttered) */
 static uint32_t lk_lt_pahash(void) { uint32_t h = 2166136261u; int x, y; for (y = 0; y < 152; y++) for (x = 0; x < 304; x++) h = (h ^ (lk_o_pa[y][x] & 0x1FFFF)) * 16777619u; return h; }
 static uint8 lk_lt_pair[LK_LT_ML][16];        /* light k / figure j close enough for a shadow */
-static float lk_lt_psh[LK_LT_ML][16][2];   /* LK_LTBLOCKFL v1: per pair the figure-shadow source shift (statue flames: 1 in front of the block, slid along it behind the figure, within 8) */
 static float lk_lt_pn[LK_LT_ML][16][2];       /* v4: per pair the horizontal direction figure -> light: the shadow card faces the light (a camera-facing card cast thin streaks from lights beside the figure, user 2026-11-03: 'Silhouette kaum erkennbar') */
 static int lk_lt_cell(int cx, int cy) { return (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) ? -32768 : lk_lt_top[cy][cx]; }
 static int lk_lt_fdiv(int a, int b) { return a >= 0 ? a / b : -((-a + b - 1) / b); }
@@ -274,7 +273,6 @@ static int lk_lt_side(int cx, int cy, int pcx, int pcy, int z) {   /* v3: which 
   return 2;
 }
 static int lk_lt_doorvoid(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_DOORVOID"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTDOORVOID v1 test aid */
-static int lk_lt_nbf;   /* LK_LTBLOCKFL v1: flames on a raised block in this room (test aid print) */
 static int lk_lt_watdoor(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_WATDOOR"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTWATDOOR v1 test aid (0 = old) */
 static int lk_lt_isdoorft(int x, int y) { int t = UW(0xFFD192 + 148 * y + 2 * x) & 0x3F; return (t >= 1 && t <= 4) || t == 6; }   /* the game's floor type of height map cell (x, y): 01..04 / 06 = doors (FORMATS) */
 static int lk_lt_doorpit(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_DOORPIT"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTDOORPIT v1 test aid (0 = old door niche fill) */
@@ -1346,7 +1344,7 @@ static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the curr
 }
 static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first: it reads everything rebuilt here) */   /* height map + lights of the current room */
   int x, y, k; static uint8 seen[152][304];
-  lk_lt_free(); lk_lt_nl = 0; lk_lt_nbf = 0; lk_lt_zmax = 0; memset(lk_lt_l, 0, sizeof lk_lt_l);   /* LK_LTWIDE v2: every light starts small (hw 0) */
+  lk_lt_free(); lk_lt_nl = 0; lk_lt_zmax = 0; memset(lk_lt_l, 0, sizeof lk_lt_l); memset(lk_dn_ldoor, 0, sizeof lk_dn_ldoor);   /* LK_LTLDOORCLR v1 (user 2026-11-19 rec_20261119_1016, Swamp Shrine room 5 statue y 31.03: 'keinen Schatten'): the door-light flags of the previous room (Gumi: light 5 was a door light) stayed on the new room's lights = that statue flame cast no figure shadow (lk_lt_pair cleared); only the window / door light paths set them */   /* LK_LTWIDE v2: every light starts small (hw 0) */
   for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) { int w = UW(0xFFD192 + 148 * y + 2 * x); lk_lt_top[y][x] = (int16_t)(w == 0x4000 ? -32768 : 16 * ((w >> 8) & 15)); if (w != 0x4000 && lk_lt_top[y][x] > lk_lt_zmax) lk_lt_zmax = lk_lt_top[y][x]; }
   memcpy(lk_lt_gh, lk_lt_top, sizeof lk_lt_gh); lk_lt_fhmax = -32768; lk_lt_nc = 0; memset(lk_lt_obj, 0, sizeof lk_lt_obj);
   { static uint8 done[74][74]; static int16_t st[16][2]; memset(done, 0, sizeof done);   /* thin columns (lk_lt_thin) */
@@ -1584,9 +1582,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         if (!f) continue;
         lk_lt_pos(U, V, z, &px, &py);
         { static float wo = -1.0f; if (wo < 0.0f) { const char *e = getenv("LANDSTALKER_LT_WALLOFF"); wo = e ? (float)atof(e) : 6.0f; }   /* test aid (2026-11-19, room 19 dark box): distance of a wall flame from its wall (default 6) */
-        L->x = px + wo * lk_lt_fnx(f); L->y = py + wo * lk_lt_fny(f); L->sbx = L->sby = 0.0f;
-        { static float bo = -1.0f; if (bo < 0.0f) { const char *e = getenv("LANDSTALKER_LT_BLOCKOFF"); bo = e ? (float)atof(e) : 1.0f; }
-          if ((f == 2 || f == 3) && !lk_lt_sun && bo < wo) { int bx2 = (int)floorf((px - 2.0f * lk_lt_fnx(f)) / 16.0f), by2 = (int)floorf((py - 2.0f * lk_lt_fny(f)) / 16.0f); if (lk_lt_cell(bx2, by2) > -32768) { L->sbx = (bo - wo) * lk_lt_fnx(f); L->sby = (bo - wo) * lk_lt_fny(f); lk_lt_nbf++; } } }   /* LK_LTBLOCKFL v1 (user 2026-11-19, Swamp Shrine room 5 x 25.07 y 31.03: 'hat er keinen Schatten'): a flame held by a STATUE (its face belongs to a raised block, not a void wall) lies 6 in front of it = only 2 behind Nigel standing in front: his shadow turned with every pixel he moved and fell up into the picture, hidden by his own sprite.  The LIGHT stays (moved to 1 in front it lit less: the block hid it, 52 rooms darker); only the FIGURE SHADOW is cast from 1 in front of the block (sbx / sby, GPU pairs .w; LANDSTALKER_LT_BLOCKOFF = that distance, >= 6 = off); wall torches (void behind indoors) and every outdoor flame unchanged */
+        L->x = px + wo * lk_lt_fnx(f); L->y = py + wo * lk_lt_fny(f);
         } L->z = (float)z + (f == 1 ? 8.0f : 2.0f); L->r = cr; L->g = cg; L->b = cb; L->lava = 0; L->base = lk_o_grp[k].base;
         L->hw = 0.0f; L->tan = 0; L->own = 0.0f;   /* own: LK_GLCARRIER v2 sets it below (was stale from an earlier room's light in this slot) */  /* LK_LTWIDE v2 (user 2026-11-09 'ja' to wide fires): a fire drawn wider than 2 tiles on a wall (fireplaces) lights from its whole width;
            the picture width of the group = its width along the wall (U = x - y: a run along x or along y moves U by the same amount) */
@@ -1665,7 +1661,6 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       if (lk_lt_dbg == 1) printf("church door light: room %%d at (%%.0f, %%.0f, %%.0f) face %%d\n", lk_o_room, L->x, L->y, L->z, f); }
     #undef LK_DN_ISW
   }
-  if (lk_lt_dbg == 1 && lk_lt_nbf) printf("block flames: room %%d, %%d flames on a raised block (LK_LTBLOCKFL v1)\n", lk_o_room, lk_lt_nbf);
   { const char *e = getenv("LANDSTALKER_LT_ONLY"); if (e && *e && lk_lt_nl > 0) { int q = atoi(e); if (q >= 0 && q < lk_lt_nl) { lk_lt_l[0] = lk_lt_l[q]; lk_dn_ldoor[0] = lk_dn_ldoor[q]; lk_lt_nl = 1; } } }   /* test aid (2026-11-19, room 19 box): LANDSTALKER_LT_ONLY=K keeps only light K (as light 0) */
   lk_lt_key = lk_lt_aor && !lk_lt_nl && lk_lt_keyopt() > 0; if (lk_lt_key) lk_lt_keyset();   /* v8 key light: indoors, rooms without flames */
   lk_lt_shsetup();   /* v8 light shafts */
@@ -2058,11 +2053,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
         B[6] = B[0] + (ex < 0.0f ? ex : 0.0f); B[8] = B[2] + (ex > 0.0f ? ex : 0.0f); B[7] = B[1] + (ey < 0.0f ? ey : 0.0f); B[9] = B[3] + (ey > 0.0f ? ey : 0.0f); B[10] = ex; B[11] = ey; } } }
 
   for (k = 0; k < lk_lt_nl; k++) for (j = 0; j < lk_lt_nf; j++) {
-    float shx = lk_lt_l[k].sbx, shy = lk_lt_l[k].sby, dx, dy, dz;
-    if (shx != 0.0f) { float t2 = lk_lt_f[j].fy - lk_lt_l[k].y; shy = t2 < -8.0f ? -8.0f : t2 > 8.0f ? 8.0f : t2; }   /* LK_LTBLOCKFL v1 (user 2026-11-19 'immer noch keinen Schatten' at y 31.03: the flame 4 aside of Nigel made a faint, smeared shadow): the source slides along the statue face behind the figure (within its width, 8) = the clear shadow of the straight-behind case */
-    else if (shy != 0.0f) { float t2 = lk_lt_f[j].fx - lk_lt_l[k].x; shx = t2 < -8.0f ? -8.0f : t2 > 8.0f ? 8.0f : t2; }
-    lk_lt_psh[k][j][0] = shx; lk_lt_psh[k][j][1] = shy;
-    dx = lk_lt_l[k].x + shx - lk_lt_f[j].fx; dy = lk_lt_l[k].y + shy - lk_lt_f[j].fy; dz = lk_lt_l[k].z - lk_lt_f[j].fz - 20.0f;   /* LK_LTBLOCKFL v1: from the figure-shadow source */
+    float dx = lk_lt_l[k].x - lk_lt_f[j].fx, dy = lk_lt_l[k].y - lk_lt_f[j].fy, dz = lk_lt_l[k].z - lk_lt_f[j].fz - 20.0f;
     float hd = sqrtf(dx * dx + dy * dy);
     { static int prr = -1; float pr; if (prr < 0) { const char *e = getenv("LANDSTALKER_LT_PAIRRAD"); prr = e ? atoi(e) != 0 : 1; }
       /* LK_LTPAIRRAD v1 (2026-11-12, user rec_20261112_1808 room 62: 'beim Hin- und Hergehen verschwindet Nigels Schatten ploetzlich'): the pair test used the fixed 120 + 24 although the castle
@@ -2071,11 +2062,14 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
       lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < pr * pr && !(lk_lt_l[k].lava == 2 && lk_lt_flk[k] <= 0.004f); if (lk_dn_ldoor[k]) lk_lt_pair[k][j] = 0; { static int fo = -9; if (fo == -9) { const char *e = getenv("LANDSTALKER_LT_FIGSH_ONLY"); fo = e ? atoi(e) : -1; } if (fo != -1 && k != fo) lk_lt_pair[k][j] = 0; } }   /* test aid (2026-11-19): LANDSTALKER_LT_FIGSH_ONLY=K = only light K casts figure shadows, -2 = none */   /* LK_DNFIG v1 (user 2026-11-16: 'beim Schwertschlag harte Kante wenn Nigel dort steht'): a Massan door light is a wide glowing opening, not a point: no hard figure shadow from it */   /* (LK_DAYNIGHT v3: an unlit window light casts no figure shadow) */
     if (hd < 1.0f) { lk_lt_pn[k][j][0] = 0.7071f; lk_lt_pn[k][j][1] = 0.7071f; } else { lk_lt_pn[k][j][0] = dx / hd; lk_lt_pn[k][j][1] = dy / hd; }   /* v4 */
   }
+  { static long pf = -2; if (pf == -2) { const char *e = getenv("LANDSTALKER_LT_PAIRDBG"); pf = e ? atol(e) : -1; }   /* test aid (2026-11-19, statue shadows): pairs of every light with every figure at frame N */
+    if (pf >= 0 && platform_frame_number() == pf) for (j = 0; j < lk_lt_nf; j++) { printf("pairdbg: frame %%ld fig %%d tag %%d at (%%.0f, %%.0f, %%.0f) screen (%%d, %%d)\n", pf, j, lk_lt_f[j].tag, lk_lt_f[j].fx, lk_lt_f[j].fy, lk_lt_f[j].fz, lk_lt_f[j].ax, lk_lt_f[j].ay);
+      for (k = 0; k < lk_lt_nl; k++) printf("pairdbg:   light %%d pair %%d n (%%.2f, %%.2f) door %%d\n", k, lk_lt_pair[k][j], lk_lt_pn[k][j][0], lk_lt_pn[k][j][1], lk_dn_ldoor[k]); } }
   lk_lt_fmall = 0;
   for (k = 0; k < lk_lt_nl; k++) for (j = 0; j < lk_lt_nf; j++) if (lk_lt_pair[k][j]) {   /* v8 SPEED (user 2026-11-05: 'gerne noch die Fackelraeume optimieren'): the screen box a flame's figure shadow can fall into:
        the card corners and the points 62 units further away from the flame (lk_lt_shadowed fades the shadow out at 60 units behind the figure) */
     const lk_lt_light *L = &lk_lt_l[k]; const lk_lt_fig *F = &lk_lt_f[j]; float tx = lk_lt_pn[k][j][1], ty = -lk_lt_pn[k][j][0], x0 = 1e9f, x1 = -1e9f, y0 = 1e9f, y1 = -1e9f, *B; int c, e2;
-    for (c = 0; c < 4; c++) { float sc = (c & 1) ? 12.0f : -12.0f, h = (c & 2) ? 58.0f : -8.0f, qx = F->fx + sc * tx, qy = F->fy + sc * ty, qz = F->fz + h, vx = qx - (L->x + lk_lt_psh[k][j][0]), vy = qy - (L->y + lk_lt_psh[k][j][1]), vz = qz - L->z, l = sqrtf(vx * vx + vy * vy + vz * vz), m;
+    for (c = 0; c < 4; c++) { float sc = (c & 1) ? 12.0f : -12.0f, h = (c & 2) ? 58.0f : -8.0f, qx = F->fx + sc * tx, qy = F->fy + sc * ty, qz = F->fz + h, vx = qx - L->x, vy = qy - L->y, vz = qz - L->z, l = sqrtf(vx * vx + vy * vy + vz * vz), m;
       if (l < 1.0f) l = 1.0f; m = 62.0f / l;
       for (e2 = 0; e2 < 2; e2++) { float px = qx + vx * m * (float)e2 - F->fx, py = qy + vy * m * (float)e2 - F->fy, pz = qz + vz * m * (float)e2 - F->fz, sx = (float)F->ax + px - py, sy = (float)F->ay + (px + py) * 0.5f - pz;
         if (sx < x0) x0 = sx; if (sx > x1) x1 = sx; if (sy < y0) y0 = sy; if (sy > y1) y1 = sy; } }
