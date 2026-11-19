@@ -9,7 +9,7 @@ r 17, one shadow for three pines).  This tool finds every drawn pine of such a g
 How (no ROM data in git: the template is rebuilt from the ROM on every run):
   1. template = the forest pine sprite (palette indices) where >= 6 of 7 free standing pines in rooms 636 / 632 agree (their
      backgrounds differ, the pine does not); 968 pixels, foot pixel = the lathe foot (U = x - y + 1184, V = (x + y) / 2 - z).
-  2. candidate groups = lathes of the survey log (tools/proxysurvey.py --run: LANDSTALKER_LIGHTING_DBG=5 'proxy: room R #n lathe at
+  2. candidate groups = lathes (and, since 2026-11-19, solid block domes) of the survey log (tools/proxysurvey.py --run: LANDSTALKER_LIGHTING_DBG=5 'proxy: room R #n lathe at
      X,Y z Z0..Z1 max r RR') that are wider (r >= 13) or taller (>= 56) than one pine (r 11, 47 high).
   3. around each candidate the room picture (tools/romrender.py, no running game) is searched on the CELL LATTICE (pine feet sit at
      U % 16 == 0, V % 8 == 7): a pine is where >= 50 % of the whole template or >= 60 % of its crown top (rows above the widest tier;
@@ -55,6 +55,8 @@ def lathes(log, room):
     for l in open(log):
         mm = re.search(r"proxy: room %d #(\d+) lathe at (\d+),(\d+) z (-?\d+)\.\.(-?\d+) max r (\d+)" % room, l)
         if mm: out.append(tuple(map(int, mm.groups())))
+        md = re.search(r"proxy: room %d #(\d+) solid block dome at (\d+),(\d+) z (-?\d+)\.\.(-?\d+) r (\d+)" % room, l)   # 2026-11-19 (room 453: a 2 x 2 pine group on a blocked block became ONE dome, r 16): domes are candidates too
+        if md: out.append(tuple(map(int, md.groups())))
     return list(dict.fromkeys(out))
 
 def hips(log, room):

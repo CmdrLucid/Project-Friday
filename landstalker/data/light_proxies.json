@@ -7231,6 +7231,31 @@
         ],
         "why": "Exit corridor cells behind the upper left wall (door type 04, behind them the $2200 door cells): the lower wall's view rays found their floor at 32 through the wall gap = a hard-edged dark box on the wall right of the door (user 2026-11-18); with LK_LTWATDOOR v1"
       }
+    ],
+    "453": [
+      {
+        "op": "remove",
+        "cells": [
+          16,
+          15,
+          20,
+          17
+        ],
+        "why": "Automatic shapes on the raised pine bed (height 2, cells 15..21,15..16) at the foot of the cliff: hip #0 (x 256..336 y 240..272, z 32..78, object 1 part 3: no building there) and the flat lathe #4 (296,272, z 24..25, r 28, 'small object 5' = a rest of that bed): the disc floated over the path and cast a flat trapezoid / oval shadow (user 2026-11-19 rec_20261119_1305, x 16 y 17.0C)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          17,
+          26,
+          18
+        ],
+        "file": "proxies/pine_cl_453_0.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+      }
     ]
   },
   "unpaint_tiles": {
