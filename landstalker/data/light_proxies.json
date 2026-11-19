@@ -4744,6 +4744,19 @@
         "surface": true,
         "floor": 16,
         "why": "Mercator TOWN HOUSE 8 (one storey, small window): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          58,
+          19,
+          61
+        ],
+        "file": "proxies/house_632_9.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 9 = the yellow house in front of the church (its own building, user 2026-11-20; was part of church_632): footprint / eave 64 / top 79.5 (17 in) from the 2026-11-09 fit_foot measurement, right wall on the cell line x 320, windows / door tiles from remake/tools/find_openings.py; remake/recipes/proxy_houses_632.py"
       }
     ],
     "635": [

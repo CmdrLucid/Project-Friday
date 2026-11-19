@@ -35,7 +35,12 @@ HOUSES = {
     7: ([(512, 768, 592, 848), (512, 848, 592, 928)], ONE,                                                    # long house cells 32..36 x 48..57: two flat tops
         [(0, "x", 784, 0, WIN), (0, "x", 816, 0, DOOR), (1, "y", 528, 0, WIN), (1, "y", 560, 0, WIN), (1, "x", 864, 0, DOOR), (1, "x", 896, 0, WIN)]),
     8: ([(720, 832, 816, 928)], ONE, [(0, "y", 736, 0, WIN), (0, "x", 864, 0, WIN), (0, "x", 896, 0, DOOR)]),  # cells 45..50 x 52..57
+    9: ([(240, 928, 320, 992)], (64, 79.5, 17), [(0, "y", 256, 0, WIN), (0, "y", 288, 0, WIN), (0, "x", 960, 0, DOOR)]),   # cells 15..19 x 58..61
 }
+# house 9 = the yellow house in front of the church (was a part of church_632 until 2026-11-20, user: 'eigentlich ein eigenes Haus'): drawn in
+# layer B, so fit_house (layer A) cannot see it: footprint / eave / top terrace from the 2026-11-09 fit_foot measurement (front y 992, left x 240,
+# eave 64, terrace -> top 79.5, 17 in on every side = a steeper roof than the other houses); right wall on the cell line x 320 (the 2026-11-09
+# value 319 put the door 1 unit off the door tile; with 320 find_openings gives the standard tiles: windows slots 256 / 288, door slot 960).
 SMALL = {8: [(0, "y", 791, 796, 40, 53)]}   # (wing, wall, a0, a1, z0, z1): measured frame, recess 1.5, no sill
 
 def mk(name, v, f):
