@@ -208,6 +208,8 @@ void lk_gl_blist5(int bx, int by, uint32_t *a, uint32_t *b2, int *nlo) { int k, 
 void lk_gl_surfput(int bx, int by, const uint32_t *A, const uint32_t *Bp, int sg) { lk_gs_t *g; int i;
   if (bx < 0 || by < 0 || bx >= 76 || by >= 38) return;
   if (!(g = lk_gs[by][bx]) && !(g = lk_gs[by][bx] = (lk_gs_t *)malloc(sizeof *g))) return;
+  { static const char *e = (const char *)1; static long at; if (e == (const char *)1) { e = getenv("LANDSTALKER_LT_SURFDUMP"); at = e && strchr(e, ':') ? atol(strchr(e, ':') + 1) : 0; }   /* test aid (2026-11-19, room 19): "PATH:FRAME" appends every block handed back from FRAME on (int32 bx, by, then 1024 A + 1024 B words) */
+    if (e && platform_frame_number() >= at) { char pth[512]; FILE *f; snprintf(pth, sizeof pth, "%%.*s", (int)(strchr(e, ':') - e), e); f = fopen(pth, "ab"); if (f) { int32_t h[2] = { bx, by }; fwrite(h, 4, 2, f); fwrite(A, 4, 1024, f); fwrite(Bp, 4, 1024, f); fclose(f); } } }
   for (i = 0; i < 1024; i++) { g->a[i] = (A[i] & 0xFFFFFFu) | (sg ? 0x1000000u : 0u); g->z[i] = (int16_t)(Bp[i] & 0xFFFF); }
   g->gen = lk_lt_gen; g->dng = lk_dn_gen; }
 void lk_gl_surfswap(void) { int x, y, i; for (y = 0; y < 38; y++) for (x = 0; x < 76; x++) { lk_gs_t *g = lk_gs[y][x]; if (!g || g->gen != lk_lt_gen) continue;   /* a GPU sun step swap: sun <- sunn */
