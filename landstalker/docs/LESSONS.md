@@ -11,8 +11,8 @@
 - 6. Cloud sandbox setup (no ROM, no SDL by default): lines 73-82
 - 7. Merge note: lines 83-85
 - 8. Roadmap after the compat work (user wishes, 2026-10-10): lines 86-93
-- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-531
-  - 262 entries, newest at the END; the last 12: 514 (2026-11-18) Room 0 is a real room (Swamp Shrin...; 515 (2026-11-18) Height map byte 0: $40 = blocked f...; 516 (2026-11-18) A second GL driver on the Deck for...; 517 (2026-11-18) My GPU test runs (lightedges with...; 518 (2026-11-18) The release packages (Windows zip...; 519 (2026-11-18) Before a light rule GUESSES what a...; 520 (2026-11-18) ONE animated tile group can hold s...; 522 (2026-11-19) A pixel that stays BLACK under a g...; 524 (2026-11-19) A dark patch that stays when only...; 526 (2026-11-19) 'No shadow' can be a shadow that E...; 528 (2026-11-19) Per-SLOT side arrays of a list tha...; 530 (2026-11-19) $FF1200 / $FF1202 are NOT screen p...
+- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-536
+  - 264 entries, newest at the END; the last 12: 516 (2026-11-18) A second GL driver on the Deck for...; 517 (2026-11-18) My GPU test runs (lightedges with...; 518 (2026-11-18) The release packages (Windows zip...; 519 (2026-11-18) Before a light rule GUESSES what a...; 520 (2026-11-18) ONE animated tile group can hold s...; 522 (2026-11-19) A pixel that stays BLACK under a g...; 524 (2026-11-19) A dark patch that stays when only...; 526 (2026-11-19) 'No shadow' can be a shadow that E...; 528 (2026-11-19) Per-SLOT side arrays of a list tha...; 530 (2026-11-19) $FF1200 / $FF1202 are NOT screen p...; 532 (2026-11-19) A 'whole area takes the level of X...; 534 (2026-11-19) Many rooms share one MAP (452 / 45...
 
 <!-- /TOC -->
 
@@ -528,3 +528,8 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 - (2026-11-19) Per-SLOT side arrays of a list that is rebuilt per room (lk_dn_ldoor[] beside lk_lt_l[]) must be cleared with the list: only some build paths wrote them, so flags from the previous room hit unrelated lights in the next one. Symptom depends on WHERE the player came from - warp tests from another room cannot see it; the user's recording found it in one replay. Ask for a recording early instead of building a theory on warp shots (the 'statue shadow source' change of the same day fixed nothing and was reverted).
 
 - (2026-11-19) $FF1200 / $FF1202 are NOT screen pixels but the camera in the iso axes (screen dx = d0 - d2, dy = (d0 + d2) / 2, FORMATS). Any screen-space effect that follows the camera must convert (the dissolve particles slid sideways for two weeks). And the widened sprite culling had a bottom / left / right extension but no TOP one: when widening a picture, check all four edges of every visibility test.
+
+- (2026-11-19) A 'whole area takes the level of X' rule must check the WHOLE area against X, not each cell: one odd cell (a fill beside a blocked cliff without the 8 step) let a 641 cell river rise 56 units = invisible wall. When a rule is fixed, print a per-area diagnostic first, prove the diagnostic build is identical to the old one (survey lines), and keep the fix to the narrowest condition (a broader variant silently changed which rooms are raised).
+
+- (2026-11-19) Many rooms share one MAP (452 / 453 / 520, Gumi 601..603): a data fix keyed by room number misses the twins. Look up the map ($A0A00 room table word 0) of every room a fix goes into and apply it to all rooms of that map (per-map keys planned, HANDOFF -238). Also: unauthenticated GitHub API = 60 requests / hour; do not poll it in a loop.
+

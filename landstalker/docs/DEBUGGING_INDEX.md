@@ -252,3 +252,4 @@
 - L1998: Statue figure shadows (2026-11-19, LK_LTBLOCKFL v1)
 - L2001: Statue shadow root cause (2026-11-19, LK_LTLDOORCLR v1)
 - L2004: Dissolve particles + top-edge culling (2026-11-19, LK_DISSOLVE v2, LK_SPRCULLTOP v1)
+- L2008: Water level, dome sweep, release v1.9.8 (2026-11-19 evening, LK_LTWATLVL v1, LK_JPROMSUM v1)
