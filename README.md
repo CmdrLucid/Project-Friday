@@ -99,7 +99,7 @@ Two ROMs are supported, both as a raw 2 MB dump (`.md`, `.bin` or `.gen`, 2,097,
 
 The European version is the US game with 50 Hz timing constants; the game still runs at the speed of the US version. European support is new and has had less play testing than the US version.
 
-The launcher checks size and SHA-1 at every start and refuses any other file with a message. Not supported: hacks such as *Landstalker Remix*, other dumps or patched / translated ROMs, `.smd` (interleaved) dumps and ROMs inside zip files (convert / unpack them first).
+The launcher checks size and SHA-1 at every start and refuses any other file with a message. Not supported: other dumps or patched / translated ROMs, `.smd` (interleaved) dumps and ROMs inside zip files (convert / unpack them first).
 
 - Project: [`landstalker/`](landstalker/README.md) (build instructions, tools, documentation)
 - Entry point for the documentation: [`landstalker/docs/HANDOFF.md`](landstalker/docs/HANDOFF.md), then `LESSONS.md` and `INDEX.md`
