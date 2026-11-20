@@ -30,7 +30,7 @@ REF = {"pine": (632, 431 - 991 + 1184, (431 + 991) // 2 - 16),   # reference ins
        "small": (475, 832, 718), "bush": (475, 736, 765),
        "bigtree": (488, 1104, 488)}   # the BIG ROUND TREE of room 488 (axis x 576 y 656 on ground 128, remake/recipes/proxy_tree_488.py); user 2026-11-20 leftover list: the same drawing stands in 424 / 451 / 454 / 474 ...
 BOX = {"pine": (-9, 9, 16), "small": (0, 15, 14), "bush": (0, 15, 14), "bigtree": (-14, 14, 20)}   # detection box: columns dx0..dx1 (small / bush: right half, the left one is hidden by the neighbour), top rows
-TREE_OPS = ("pine_cl", "pine_court", "tree_")
+TREE_OPS = ("pine_court", "tree_")   # pine_cl (hand-made 4 pine groups) dropped 2026-11-21, user: 'die Vierergruppen ... auch das eine Tannenmodell'
 
 def planeA(room):
     g, r, pa, pb, getpal = R.rom_planes(ROM, room)
@@ -68,7 +68,9 @@ def catalogue_bushes(room):
     c = BC.cells(ROM, room)
     # one bush per cell drawn with a bush block, foot one step (16) below the cell's top: raised blocked bush blocks (room 488: top = base + 16) and walkable
     # bush fields whose top is the bushes' crowns (room 362, height 3 between pines of height 4) alike
-    return [("bush", 16 * k[0] + 8.0, 16 * k[1] + 8.0, 16 * v[0] - 16) for k, v in sorted(c.items()) if v[2] in ids and v[0] >= 1]
+    # v3 (2026-11-21, room 458 meadow islands): only a bush cell HIGHER than its lowest neighbour is a raised bush block; one at the ground's height stands on it
+    def low(k): return min([c[q][0] for q in ((k[0] + 1, k[1]), (k[0] - 1, k[1]), (k[0], k[1] + 1), (k[0], k[1] - 1)) if q in c] or [c[k][0] - 1])
+    return [("bush", 16 * k[0] + 8.0, 16 * k[1] + 8.0, 16 * v[0] - 16 * (low(k) < v[0])) for k, v in sorted(c.items()) if v[2] in ids and v[0] >= 1]
 
 def survey(room, T, BIG, SMALL, thr=0.65):
     idx = planeA(room); hits = []
@@ -109,9 +111,9 @@ def survey(room, T, BIG, SMALL, thr=0.65):
             for V in range(d[1] + 26, d[1] + 33):
                 sc.append((sum(1 for (dx, dy), v in SMALL.items() if idx[(V + dy) * W + d[0] + dx] == v), V))
             out.append(("small", d[0], max(sc)[1]))
-    hm = PS.heights(ROM, room); rects = tree_rects(room); res = []; drop = 0
+    hm = PS.heights(ROM, room); rects = tree_rects(room); res = []; drop = 0; bushes = bush_cells(room)
     for name, U, V in out:
-        w = foot_tree(hm, U, V) if name == "bigtree" else foot_world(hm, U, V)
+        w = foot_tree(hm, U, V) if name == "bigtree" else foot_world(hm, U, V, bushes, None if name == "bigtree" else trunk_seen(idx, T, BIG, SMALL, name, U, V))
         if not w: continue
         X, Y, z, c = w
         if any(r[0] <= c[0] <= r[2] and r[1] <= c[1] <= r[3] for r in rects): drop += 1; continue
@@ -121,27 +123,80 @@ def survey(room, T, BIG, SMALL, thr=0.65):
         c = (int(X) >> 4, int(Y) >> 4)
         if any(r[0] <= c[0] <= r[2] and r[1] <= c[1] <= r[3] for r in rects): continue
         if any(abs(q[1] - X) < 10 and abs(q[2] - Y) < 10 and (q[0] == "bush" or (abs(q[1] - X) < 6 and abs(q[2] - Y) < 6)) for q in res): continue
+        Ub, Vb = X - Y + 1184, (X + Y) / 2 - z - 14   # the bush crown's centre in the picture
+        if any(q[0] in ("pine", "small") and abs(q[4] - Ub) <= 12 and q[5] - LIFT[q[0]] - 2 <= Vb <= q[5] - 30 for q in res): continue   # its crown would lie in the UPPER part of a found pine = that pine's tiles, nothing of a bush can show there (user 2026-11-21, room 458 islands: 'da ist kein Busch'). A bush whose crown sits at a pine's lower part stays: it stands behind the pine and peeks out (rooms 425 / 446, user: 'kann durchaus mal vorkommen')
         res.append([name, X, Y, int(z), int(X - Y + 1184), int((X + Y) / 2 - z) + 8]); ncat += 1
     if ncat: print("room %d: %d bushes from the catalogue cells (dense fields)" % (room, ncat), flush=True)
     return res, drop
 
-def foot_world(hm, U, V):
+def bush_cells(room):
+    """cells drawn with a catalogue bush block (walkable bush tops: their height is the CROWN, the ground lies one step lower; user 2026-11-21 'auf den Bueschen kann man laufen')"""
+    global _cat
+    if _cat is None: _cat = json.load(open(os.path.join(ROOT, "landstalker", "data", "object_blocks.json")))
+    ids = set(int(b, 16) for b in _cat["tilesets"].get(str(BC.tileset(ROM, room)), {}).get("bush", []))
+    if not ids: return set()
+    c = BC.cells(ROM, room)
+    return set(k for k, v in c.items() if v[2] in ids and v[0] >= 1 and min([c[q][0] for q in ((k[0] + 1, k[1]), (k[0] - 1, k[1]), (k[0], k[1] + 1), (k[0], k[1] - 1)) if q in c] or [v[0]]) < v[0])   # only RAISED bush cells
+
+def trunk_seen(idx, T, BIG, SMALL, name, U, V, thr=0.5):
+    """is the plant's LOWER part (trunk / stem) drawn at its foot row? (user 2026-11-21, room 458: 'die 48er-Tannen stehen hinter der Erhoehung, sonst waere das ganze
+    Sprite zu sehen'): a covered trunk = the plant stands BEHIND what covers it (lower, further back on the same view ray)"""
+    if name == "pine": t = {(dx, r - 47): v for (dx, r), v in BIG.items() if r >= 36}
+    elif name == "small": t = {(dx, r - 29): v for (dx, r), v in SMALL.items() if r >= 22}
+    else: t = T["bushlow"]
+    if not t: return True
+    ok = sum(1 for (dx, dy), v in t.items() if 0 <= V + dy < H and 0 <= U + dx < W and idx[(V + dy) * W + U + dx] == v)
+    return ok >= thr * len(t)
+
+_gfc = {}
+def group_floors(hm, bushes):
+    """{blocked cell: floor} - every 4-connected group of blocked cells of one height gets the LOWEST free floor touching it (bush tops one step lower; only floors
+    not above the group's top). User 2026-11-21 (room 458): forest blocks stand on the ground at their foot, a raised path or a bush strip beside them is not that ground."""
+    key = id(hm)
+    if key in _gfc: return _gfc[key]
+    out, seen = {}, set()
+    for c0, (h0, b0) in hm.items():
+        if not b0 or c0 in seen: continue
+        grp, st = [], [c0]; seen.add(c0)
+        while st:
+            c = st.pop(); grp.append(c)
+            for q in ((c[0] + 1, c[1]), (c[0] - 1, c[1]), (c[0], c[1] + 1), (c[0], c[1] - 1)):
+                if q not in seen and q in hm and hm[q][1] and hm[q][0] == h0: seen.add(q); st.append(q)
+        fl = [hm[q][0] - (q in bushes) for c in grp for q in ((c[0] + 1, c[1]), (c[0] - 1, c[1]), (c[0], c[1] + 1), (c[0], c[1] - 1)) if q in hm and not hm[q][1]]
+        fl = [f for f in fl if f <= h0]
+        if fl:
+            for c in grp: out[c] = 16 * min(fl)
+    _gfc[key] = out
+    return out
+
+def foot_world(hm, U, V, bushes=(), seen=True):
     """pine_cluster.foot_world with the floor of a blocked cell = the NEAREST free floor (ring by ring up to 8 cells away): inside a dense forest every
     cell is blocked (room 425 rows 15..17: the old rule took the cell's own top and put the back pines 2 rows forward); only free floors not above a raised (height >= 1)
     blocked cell's top count (tree-top paths, room 458)"""
+    gf = group_floors(hm, bushes)
     def floor(c):
         h, b = hm.get(c, (None, True))
         if h is None: return None
+        if c in bushes: h -= 1   # LK_LTPLANT v3 feet (2026-11-21): a bush top is not ground (room 458: the bush strip of height 2 gave pines z 32 / 34 / 18)
         if not b: return 16 * h
+        if c in gf: return gf[c]   # v3: the lowest free floor around the whole blocked group (room 458: the forest behind the raised path stands on 16, not on the path's 48)
         for d in range(1, 9):
-            nb = [hm[q][0] for q in ((c[0] + a, c[1] + e) for a in range(-d, d + 1) for e in range(-d, d + 1) if max(abs(a), abs(e)) == d) if q in hm and not hm[q][1] and (hm[q][0] <= h or h < 1)]   # only floors NOT ABOVE the block's top (2026-11-21, room 458: walkable tree-top paths of height 4 / 5 inside the forest gave pines feet at 64 / 80 above a bed of 48 on ground 16)
+            nb = [hm[q][0] - (q in bushes) for q in ((c[0] + a, c[1] + e) for a in range(-d, d + 1) for e in range(-d, d + 1) if max(abs(a), abs(e)) == d) if q in hm and not hm[q][1] and (hm[q][0] <= h or h < 1)]   # only floors NOT ABOVE the block's top (2026-11-21, room 458: walkable tree-top paths of height 4 / 5 inside the forest gave pines feet at 64 / 80 above a bed of 48 on ground 16)
             if nb: return 16 * min(nb)
         return 16 * h
-    D = U - 1184
+    D = U - 1184; first = None; pf = None
     for z in range(255, -16, -1):
         X = V + z + D / 2; Y = V + z - D / 2; c = (int(X // 16), int(Y // 16)); f = floor(c)
-        if f is not None and z <= f: return X, Y, z, c
-    return None
+        if f is None: continue
+        if first is None:
+            if z <= f:
+                first = (X, Y, z, c)
+                if seen and z == f: return first   # the trunk is drawn and the ray meets a floor's TOP: it stands there
+                if seen and pf is not None and pf < z: return X, Y, pf, c   # drawn, but the ray met a wall's SIDE: it stands in front of that wall on the floor it came from (room 458 bush z 18 -> 16)
+            else: pf = f
+        elif z == f and f < first[2]: return X, Y, z, c   # covered trunk / the ray met a wall's side: the next LOWER floor top behind it (user 2026-11-21)
+        elif c in gf and gf[c] < first[2] and z < gf[c]: return X, Y, gf[c], c   # ... or it passed below a raised path into a blocked group: that group's ground (458: pines behind the 2 cell wide path, z 48 -> 16)
+    return first
 
 TREE_TRUNK = {(3, 1), (3, 2), (1, 3), (2, 3)}   # the big round tree's collision: a 4 x 4 block of one height with these 4 cells at the ground's height (rooms 424 451 454 458 474 484 488 501 561 564)
 

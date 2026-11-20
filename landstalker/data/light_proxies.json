@@ -5066,19 +5066,6 @@
           42
         ],
         "why": "automatic hip up to 142 on the WALKABLE terrace of the mound (cells 24..25 x 41..42)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          23,
-          24,
-          25,
-          26
-        ],
-        "file": "proxies/pine_cl_636_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
       }
     ],
     "637": [
@@ -7448,19 +7435,6 @@
     ],
     "183": [
       {
-        "op": "mesh",
-        "cells": [
-          25,
-          28,
-          28,
-          31
-        ],
-        "file": "proxies/pine_cl_183_0.obj",
-        "surface": true,
-        "floor": 32,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      },
-      {
         "op": "remove",
         "cells": [
           23,
@@ -7471,91 +7445,7 @@
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 240..512 y 400..672 z0 32 over the grass terraces of the raft pier (game heights 2 / 3, the cliff cells already 12); the game height map already holds the flat block; it stood up to 51 above the ground over 359 sub columns"
       }
     ],
-    "425": [
-      {
-        "op": "mesh",
-        "cells": [
-          35,
-          45,
-          37,
-          46
-        ],
-        "file": "proxies/pine_cl_425_0.obj",
-        "surface": true,
-        "floor": 0,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          15,
-          52,
-          15,
-          54
-        ],
-        "file": "proxies/pine_cl_425_1.obj",
-        "surface": true,
-        "floor": 0,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "430": [
-      {
-        "op": "mesh",
-        "cells": [
-          24,
-          31,
-          25,
-          32
-        ],
-        "file": "proxies/pine_cl_430_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "433": [
-      {
-        "op": "mesh",
-        "cells": [
-          24,
-          38,
-          25,
-          39
-        ],
-        "file": "proxies/pine_cl_433_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
     "474": [
-      {
-        "op": "mesh",
-        "cells": [
-          26,
-          28,
-          27,
-          29
-        ],
-        "file": "proxies/pine_cl_474_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          29,
-          18,
-          30,
-          18
-        ],
-        "file": "proxies/pine_cl_474_1.obj",
-        "surface": true,
-        "floor": 48,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      },
       {
         "op": "remove",
         "cells": [
@@ -7569,19 +7459,6 @@
     ],
     "484": [
       {
-        "op": "mesh",
-        "cells": [
-          35,
-          57,
-          36,
-          58
-        ],
-        "file": "proxies/pine_cl_484_0.obj",
-        "surface": true,
-        "floor": 0,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      },
-      {
         "op": "remove",
         "cells": [
           21,
@@ -7593,19 +7470,6 @@
       }
     ],
     "514": [
-      {
-        "op": "mesh",
-        "cells": [
-          57,
-          47,
-          58,
-          48
-        ],
-        "file": "proxies/pine_cl_514_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      },
       {
         "op": "remove",
         "cells": [
@@ -7639,34 +7503,6 @@
           17
         ],
         "why": "Automatic shapes on the raised pine bed (height 2, cells 15..21,15..16) at the foot of the cliff: hip #0 (x 256..336 y 240..272, z 32..78, object 1 part 3: no building there) and the flat lathe #4 (296,272, z 24..25, r 28, 'small object 5' = a rest of that bed): the disc floated over the path and cast a flat trapezoid / oval shadow (user 2026-11-19 rec_20261119_1305, x 16 y 17.0C)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          25,
-          17,
-          26,
-          18
-        ],
-        "file": "proxies/pine_cl_453_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "446": [
-      {
-        "op": "mesh",
-        "cells": [
-          28,
-          17,
-          29,
-          18
-        ],
-        "file": "proxies/pine_cl_446_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
       }
     ],
     "452": [
@@ -7679,94 +7515,6 @@
           17
         ],
         "why": "Same map as room 453 (identical height map and automatic shapes): Automatic shapes on the raised pine bed (height 2, cells 15..21,15..16) at the foot of the cliff: hip #0 (x 256..336 y 240..272, z 32..78, object 1 part 3: no building there) and the flat lathe #4 (296,272, z 24..25, r 28, 'small object 5' = a rest of that bed): the disc floated over the path and cast a flat trapezoid / oval shadow (user 2026-11-19 rec_20261119_1305, x 16 y 17.0C); copied (user 2026-11-19: 'In Raum 452 gibt es immer noch diesen rautenfoermigen Kastenschatten')"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          25,
-          17,
-          26,
-          18
-        ],
-        "file": "proxies/pine_cl_452_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "456": [
-      {
-        "op": "mesh",
-        "cells": [
-          28,
-          17,
-          29,
-          18
-        ],
-        "file": "proxies/pine_cl_456_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "458": [
-      {
-        "op": "mesh",
-        "cells": [
-          47,
-          22,
-          48,
-          23
-        ],
-        "file": "proxies/pine_cl_458_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "476": [
-      {
-        "op": "mesh",
-        "cells": [
-          28,
-          17,
-          29,
-          18
-        ],
-        "file": "proxies/pine_cl_476_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "507": [
-      {
-        "op": "mesh",
-        "cells": [
-          28,
-          17,
-          29,
-          18
-        ],
-        "file": "proxies/pine_cl_507_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "519": [
-      {
-        "op": "mesh",
-        "cells": [
-          28,
-          17,
-          29,
-          18
-        ],
-        "file": "proxies/pine_cl_519_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
       }
     ],
     "520": [
@@ -7779,34 +7527,6 @@
           17
         ],
         "why": "Same map as room 453 (identical height map and automatic shapes): Automatic shapes on the raised pine bed (height 2, cells 15..21,15..16) at the foot of the cliff: hip #0 (x 256..336 y 240..272, z 32..78, object 1 part 3: no building there) and the flat lathe #4 (296,272, z 24..25, r 28, 'small object 5' = a rest of that bed): the disc floated over the path and cast a flat trapezoid / oval shadow (user 2026-11-19 rec_20261119_1305, x 16 y 17.0C); copied (user 2026-11-19: 'In Raum 452 gibt es immer noch diesen rautenfoermigen Kastenschatten')"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          25,
-          17,
-          26,
-          18
-        ],
-        "file": "proxies/pine_cl_520_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "521": [
-      {
-        "op": "mesh",
-        "cells": [
-          28,
-          17,
-          29,
-          18
-        ],
-        "file": "proxies/pine_cl_521_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
       }
     ],
     "601": [
