@@ -83,3 +83,18 @@ for key, h, title in (("e", E_, "east pair, back house E"), ("f", F_, "east pair
     MM = blx.Mesh("house_592_" + key, mats); MM.density = 1.0
     L.build(MM, h)
     export(MM.finish(), "house_592_" + key, "Massan log house %s, room 592" % title)
+
+# TALL HOUSE G (cells 23..27 x 14..17, ground 32, collision top 144 -> eave 146 = 114 above the ground, top 141 above it; footprint from the drawn roof
+# corners, N part under the map's void rows). Measured 2026-11-20 on the rectified walls: E door = the same tile (dark 254..269, top 35), the two door
+# posts run the full height (250.5 / 273.5); above it a SIGN board (grey frame y 253..268, z 44..60.5 above the ground) and an upper WINDOW (dark top at
+# z 97.5 + 2.5 like the door, sill = the cloth's top z 89.5) with a blue CLOTH hanging out over the sill down the wall (drawn y 249..269, lower edge
+# 72 at the sides / 67.5 in the middle; out 0.8 / 1.6, positions corrected for the projection shift). S: two round windows = A's tile (hole centroid offset as A) at x 400.5, z 59 / 91; posts 378.5 / 426.5.
+G_ = dict(planes=(371, 445, 227, 285), z0=32, ze=114, zt=141, corners="mitre", doors=[("E", 254, 270, 35)],
+          openings=[("E", 254, 270, 89.5, 100)], boards=[("E", 253, 269, 44, 60.5)],   # SMALL window (user 2026-11-20): only the dark strip above the cloth
+          cloths=[("E", 250.2, 270.2, 90, 72.8, 68.3, 0.8, 1.6)],   # the cloth hangs OUT over the sill and down the outside of the wall (in front of the logs)
+          windows=[("S", 400.5, 59), ("S", 400.5, 91)],
+          posts={"E": [250.5, 273.5], "S": [378.5, 426.5]},
+          ridge="sticks_ends", sticks_shift=(3.5, -4.25), stick_r=2.6)
+MM = blx.Mesh("house_592_g", mats); MM.density = 1.0
+L.build(MM, G_)
+export(MM.finish(), "house_592_g", "Massan log house G (the tall house), room 592")

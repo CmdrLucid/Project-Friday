@@ -97,6 +97,31 @@ def build(M, h, nseg=8, lip=3.5):
         for zz, o in ((zl, out), (zh, 0.6)):
             for aa, oo in ((a0, o), (a1, o), (a1, o + th_), (a0, o + th_)): c.append(wall_pos(s, aa, oo, zz))
         quad_box([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7]])
+    for s, a0, a1, zt_, zs, zm, o0, o1 in h.get("cloths", []):   # hanging CLOTH (tall house, blue drape in the upper E window): a thin sheet from a
+        # rod at zt_ (out o0) down to a sagging lower edge (zs at the ends, zm in the middle, out o1), 0.6 thick; faces oriented away from the sheet's middle
+        NU, NV, TH = 8, 4, 0.6
+        def cp(i, j, d):
+            u = i / NU; v = j / NV; zb_ = zs + (zm - zs) * (1 - (2 * u - 1) ** 2)   # heights above the house ground z0
+            return wall_pos(s, a0 + (a1 - a0) * u, o0 + (o1 - o0) * v + d, z0 + zt_ + (zb_ - zt_) * v)
+        nrm = {"S": (0, 1, 0), "N": (0, -1, 0), "E": (1, 0, 0), "W": (-1, 0, 0)}[s]
+        def oface(poly, outward):
+            P = [G(*q) for q in poly]; ow = G(*outward)
+            n0 = [P[1][j] - P[0][j] for j in range(3)]; n1 = [P[2][j] - P[0][j] for j in range(3)]
+            n = (n0[1] * n1[2] - n0[2] * n1[1], n0[2] * n1[0] - n0[0] * n1[2], n0[0] * n1[1] - n0[1] * n1[0])
+            if sum(n[j] * ow[j] for j in range(3)) < 0: P = P[::-1]
+            M.face("cloth" if "cloth" in M.idx else "plank", P, [(0, 0)] * len(P))
+        for i in range(NU):
+            for j in range(NV):
+                oface([cp(i, j, 0), cp(i + 1, j, 0), cp(i + 1, j + 1, 0), cp(i, j + 1, 0)], nrm)
+                oface([cp(i, j, -TH), cp(i + 1, j, -TH), cp(i + 1, j + 1, -TH), cp(i, j + 1, -TH)], tuple(-c for c in nrm))
+        for i in range(NU):   # lower edge and top edge strips
+            oface([cp(i, NV, 0), cp(i + 1, NV, 0), cp(i + 1, NV, -TH), cp(i, NV, -TH)], (0, 0, -1))
+            oface([cp(i, 0, 0), cp(i + 1, 0, 0), cp(i + 1, 0, -TH), cp(i, 0, -TH)], (0, 0, 1))
+        for i in (0, NU):     # side edges
+            for j in range(NV):
+                sd = -1 if i == 0 else 1
+                ax = {"S": (sd, 0, 0), "N": (sd, 0, 0), "E": (0, sd, 0), "W": (0, sd, 0)}[s]
+                oface([cp(i, j, 0), cp(i, j + 1, 0), cp(i, j + 1, -TH), cp(i, j, -TH)], ax)
     for s, a0, a1, za, zb in h.get("boards", []):   # boarded window: a plank panel 1 unit proud of the log fronts
         p0 = wall_pos(s, a0, 0.0, z0 + za); p1 = wall_pos(s, a1, 1.0, z0 + zb)
         M.box("plank", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), z0 + za, z0 + zb)
