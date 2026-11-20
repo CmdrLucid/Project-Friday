@@ -1,0 +1,10 @@
+{
+ "r": 11,
+ "sz": 0.9,
+ "top": 27,
+ "lump": 4.4,
+ "lo": 7.0,
+ "stem": 2.0,
+ "offset": 1,
+ "_about": "BUSH light model (user 2026-11-20 OK; ONE drawing in all outdoor tilesets, the user: differences are only bushes standing behind each other): bush.py fitted to both free sides of the drawn bush (room 475 right side, room 601 left side), IoU 0.909 (0.900 with the light segment counts); offset = stem axis minus the drawn foot"
+}

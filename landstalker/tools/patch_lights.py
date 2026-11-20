@@ -1239,7 +1239,7 @@ static void lk_lt_rmquad(const float *a, const float *b, const float *c, const f
    field) and the shadow maps; their sub columns are hand-model owned (kind 1, ground = the base) so the marches leave them to the shadow map.  GPU only, the CPU keeps
    the field.  DEFAULT ON since 2026-11-09 (user: "ja"); LANDSTALKER_LT_OBJMODEL=0 = off. */
 unsigned lk_lt_mgen;   /* generation of the generated meshes (room model / objects), for the GPU vertex buffers */
-#define LK_LT_OMMAX 240000   /* 4 dense forest rooms (425 / 561 / 566 / 567) needed more than 120000 */
+#define LK_LT_OMMAX 400000   /* 4 dense forest rooms (425 / 561 / 566 / 567) needed more than 120000; LK_LTPLANT v1: ~500 triangles per plant model, room 561 = 727 plants = 361000 */
 static float lk_lt_omt[LK_LT_OMMAX * 18]; static int lk_lt_omn, lk_lt_omover;
 static int lk_lt_objopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_OBJMODEL"); v = e ? atoi(e) : 1; } return v; }
 static void lk_lt_omtri(const float *a, const float *na, const float *b, const float *nb, const float *c, const float *nc) {
@@ -1265,10 +1265,28 @@ static void lk_lt_omlathe(float cx, float cy, const float *rr, const float *zz, 
   for (k = 0; k < SEG; k++) { float a0 = 6.2831853f * k / SEG, a1 = 6.2831853f * (k + 1) / SEG, up[3] = { 0.0f, 0.0f, 1.0f }, dn[3] = { 0.0f, 0.0f, -1.0f };   /* caps */
     if (rr[0] > 1e-3f) { float m[3] = { cx, cy, zz[0] }, p0[3] = { cx + rr[0] * cosf(a0), cy + rr[0] * sinf(a0), zz[0] }, p1[3] = { cx + rr[0] * cosf(a1), cy + rr[0] * sinf(a1), zz[0] }; lk_lt_omtri(m, dn, p1, dn, p0, dn); }
     if (rr[n - 1] > 1e-3f) { float m[3] = { cx, cy, zz[n - 1] }, p0[3] = { cx + rr[n - 1] * cosf(a0), cy + rr[n - 1] * sinf(a0), zz[n - 1] }, p1[3] = { cx + rr[n - 1] * cosf(a1), cy + rr[n - 1] * sinf(a1), zz[n - 1] }; lk_lt_omtri(m, up, p0, up, p1, up); } } }
+/* LK_LTPLANT v1 (2026-11-20, user: 'generell sollten alle Kiefern und Buesche ihr 3D-Modell haben'): the room's drawn pines / small pines / bushes as INSTANCES of
+   our fitted models (data/plants.json, remake/recipes/plants: feet measured on the ROM picture + the height map). A catalogue cell or a lathe tree with a plant
+   foot in reach is drawn by the plant model instead of its lathe; the plant owns its footprint's sub columns (ground = its foot). LANDSTALKER_LT_PLANTS=0 = the old
+   lathes (test aid). */
+static int lk_lt_plantopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_PLANTS"); v = e ? atoi(e) : 1; } return v; }
+static int lk_lt_pl0, lk_lt_pl1;   /* the current room's rows of lk_lt_plant */
+static int lk_lt_plnear(float X, float Y, float r) { int q; if (!lk_lt_plantopt()) return 0;
+  for (q = lk_lt_pl0; q < lk_lt_pl1; q++) { float dx = lk_lt_plant[q][2] * 0.25f - X, dy = lk_lt_plant[q][3] * 0.25f - Y; if (dx * dx + dy * dy < r * r) return 1; } return 0; }
 static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines / lathe trees as meshes + their sub columns owned (before the room box model) */
-  int cx, cy, k, sx, sy, nobj = 0; float rr[200], zz[200]; int n;
-  lk_lt_omn = 0; lk_lt_omover = 0;
-  if (!lk_lt_sun || !lk_lt_objopt() || !lk_lt_modelopt()) return;   /* outdoors only: the catalogue (lk_lt_tk) and lathes are built by the outdoor rules and are NOT cleared indoors
+  int cx, cy, k, sx, sy, nobj = 0, npl = 0; float rr[200], zz[200]; int n;
+  lk_lt_omn = 0; lk_lt_omover = 0; lk_lt_pl0 = lk_lt_pl1 = 0;
+  if (!lk_lt_sun || !lk_lt_objopt() || !lk_lt_modelopt()) return;
+  for (k = 0; lk_lt_plant[k][0] >= 0; k++) { if (lk_lt_plant[k][0] == lk_o_room && !lk_lt_pl1) lk_lt_pl0 = k; if (lk_lt_plant[k][0] == lk_o_room) lk_lt_pl1 = k + 1; }
+  if (lk_lt_plantopt()) for (k = lk_lt_pl0; k < lk_lt_pl1; k++) {   /* LK_LTPLANT v1: the plant instances first */
+    int m = lk_lt_plant[k][1], t; const float *T = lk_lt_pmt[m]; float X = lk_lt_plant[k][2] * 0.25f, Y = lk_lt_plant[k][3] * 0.25f, Z = (float)lk_lt_plant[k][4], R = lk_lt_pmr[m];
+    for (t = 0; t < lk_lt_pmn[m]; t++) { const float *a = T + 18 * t; float A[3] = { a[0] + X, a[1] + Y, a[2] + Z }, B[3] = { a[6] + X, a[7] + Y, a[8] + Z }, C[3] = { a[12] + X, a[13] + Y, a[14] + Z };
+      lk_lt_omtri(A, a + 3, B, a + 9, C, a + 15); }
+    for (sy = (int)((Y - R) / 4.0f); sy <= (int)((Y + R) / 4.0f); sy++) for (sx = (int)((X - R) / 4.0f); sx <= (int)((X + R) / 4.0f); sx++) {
+      float dx = 4.0f * sx + 2.0f - X, dy = 4.0f * sy + 2.0f - Y;
+      if (sx < 0 || sy < 0 || sx >= LK_LT_FN || sy >= LK_LT_FN || dx * dx + dy * dy > R * R || lk_lt_mown[sy][sx]) continue;
+      lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)Z; }
+    npl++; nobj++; }   /* outdoors only: the catalogue (lk_lt_tk) and lathes are built by the outdoor rules and are NOT cleared indoors
      (indoor rooms got the previous outdoor room's 144 trees as phantom models, 2026-11-09 sweep) */
   for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) { int kind = lk_lt_tk[cy][cx]; float top, r, zb, zc, q, X = 16.0f * cx + 8.0f, Y = 16.0f * cy + 8.0f;
     if (kind != 1 && kind != 2) continue;
@@ -1283,17 +1301,17 @@ static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines /
         if (!lk_lt_pinet()) { R0 = r * (1.0f - f0); rr[n] = R0; zz[n++] = z0; continue; }
         rr[n] = R0; zz[n++] = z0; rr[n] = R0 * 0.45f; zz[n++] = z1 - 0.01f; }
       rr[n] = 0.0f; zz[n++] = top; }
-    lk_lt_omlathe(X, Y, rr, zz, n); nobj++;
+    if (!lk_lt_plnear(X, Y, 40.0f)) { lk_lt_omlathe(X, Y, rr, zz, n); nobj++; if (lk_lt_pl1 > lk_lt_pl0 && getenv("LANDSTALKER_LT_PLANTDBG")) printf("plants: room %%d kept lathe kind %%d cell %%d,%%d top %%.0f base %%.0f r %%.0f\n", lk_o_room, kind, cx, cy, top, zb, r); }   /* LK_LTPLANT v1: a plant within 40 (2.5 cells) = the drawn plants own this place: the catalogue also marks the cells BEHIND a pine row whose top block is a crown in front (room 425 rows 15 / 16: no pine of their own) */
     for (sy = 4 * cy; sy < 4 * cy + 4; sy++) for (sx = 4 * cx; sx < 4 * cx + 4; sx++) if (!lk_lt_mown[sy][sx]) { lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)zb; } }
   for (k = 0; k < lk_lt_npx; k++) { const lk_lt_proxy *P = &lk_lt_px[k]; int i, hgt = P->ridge - P->z0;   /* lathe trees */
     if (P->type != 3 || hgt < 2 || hgt > 96) continue;
     n = 0; rr[n] = 0.0f; zz[n++] = (float)P->z0;
     for (i = 0; i < hgt && n < 198; i++) { rr[n] = (float)lk_lt_prof[k][i]; zz[n++] = (float)(P->z0 + i) + 0.5f; }
     rr[n] = 0.0f; zz[n++] = (float)P->ridge;
-    lk_lt_omlathe((float)P->x0, (float)P->y0, rr, zz, n); nobj++;
+    if (!lk_lt_plnear((float)P->x0, (float)P->y0, 24.0f)) { lk_lt_omlathe((float)P->x0, (float)P->y0, rr, zz, n); nobj++; if (lk_lt_pl1 > lk_lt_pl0 && getenv("LANDSTALKER_LT_PLANTDBG")) printf("plants: room %%d kept lathe tree at %%d,%%d z %%d..%%d\n", lk_o_room, P->x0, P->y0, P->z0, P->ridge); }   /* LK_LTPLANT v1 */
     for (sy = 0; sy < LK_LT_FN; sy++) for (sx = 0; sx < LK_LT_FN; sx++) if (lk_lt_fp[sy][sx] == k + 1 && !lk_lt_mown[sy][sx]) { lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = P->z0; } }
   if (lk_lt_omover) { printf("object models: room %%d needs more than %%d triangles, off here\n", lk_o_room, LK_LT_OMMAX); lk_lt_omn = 0; }
-  if (lk_lt_omn) { lk_lt_nmodel++; printf("object models: room %%d, %%d objects, %%d triangles\n", lk_o_room, nobj, lk_lt_omn); } }
+  if (lk_lt_omn) { lk_lt_nmodel++; printf("object models: room %%d, %%d objects (%%d plant models, LK_LTPLANT v1), %%d triangles\n", lk_o_room, nobj, npl, lk_lt_omn); } }
 static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the current indoor room (after the thin column pruning) */
   static int16_t H[LK_LT_FN + 2][LK_LT_FN + 2]; static uint8 vis[LK_LT_FN][LK_LT_FN]; int sx, sy, x0, nown = 0; const int VZ = -40;
   struct timespec t0; lk_lt_rmn = 0; lk_lt_rmover = 0; lk_lt_mgen++;   /* LK_GLOBJ v1: the generated meshes change: the GPU uploads them again */
@@ -2133,7 +2151,26 @@ static float lk_lt_amb = -1.0f;   /* indoor base light (unlit share of the origi
 static int lk_lt_bm, lk_lt_bz;   /* v8: beam glow + surface height of the current pixel (set by the key light branch) */
 
 ''' % VER
-MODULE = MODULE.replace("/*LK_LT_CORR*/", corr_table() + cat_table())
+def plant_table():   # LK_LTPLANT v1 (2026-11-20, user: 'alle Kiefern und Buesche ihr 3D-Modell'): data/plants.json (remake/recipes/plants/plants.py) -> one triangle list per
+    import math
+    # model + the instances {room, model, x * 4, y * 4, z} sorted by room; the runtime (lk_lt_objbuild) draws every instance with its model instead of the lathe shapes
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "plants.json")
+    if not os.path.isfile(path):
+        print("patch_lights: no data/plants.json (plant models off)")
+        return "static const float *const lk_lt_pmt[] = { 0 }; static const int lk_lt_pmn[] = { 0 }; static const float lk_lt_pmr[] = { 0.0f };\nstatic const int16_t lk_lt_plant[][5] = { {-1, 0, 0, 0, 0} };\n"
+    d = json.load(open(path)); names = sorted(d["models"]); out = []; rad = []; ntri = []
+    for i, n in enumerate(names):
+        t = mesh_tris(os.path.join(os.path.dirname(path), d["models"][n])); ntri.append(len(t) // 18)
+        rad.append(max(math.hypot(t[k], t[k + 1]) for k in range(0, len(t), 6)))
+        out.append("static const float lk_lt_pmt%d[] = { %s };\n" % (i, ", ".join("%.3ff" % v for v in t)))
+    rows = []
+    for room in sorted(d["rooms"], key=int):
+        for m, x, y, z in d["rooms"][room]: rows.append("{%d, %d, %d, %d, %d}" % (int(room), names.index(m), int(round(4 * x)), int(round(4 * y)), int(z)))
+    print("patch_lights: plant models %s (%s triangles), %d instances in %d rooms" % (names, ntri, len(rows), len(d["rooms"])))
+    return ("".join(out) + "static const float *const lk_lt_pmt[] = { %s };\n" % ", ".join("lk_lt_pmt%d" % i for i in range(len(names))) +
+            "static const int lk_lt_pmn[] = { %s };\n" % ", ".join(str(v) for v in ntri) + "static const float lk_lt_pmr[] = { %s };   /* footprint radius per model */\n" % ", ".join("%.2ff" % v for v in rad) +
+            "static const int16_t lk_lt_plant[][5] = { %s };\n" % ", ".join(rows + ["{-1, 0, 0, 0, 0}"]))
+MODULE = MODULE.replace("/*LK_LT_CORR*/", corr_table() + cat_table() + plant_table())
 
 a = "static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {\n"
 rep(a, MODULE + a)

@@ -124,6 +124,7 @@ chk "Licht: Traeger-Tabelle der Feuerstaender"     $G/ext/Genesis-Plus-GX/core/v
 chk "Licht: Boden fuer leere Felder (Kirchensockel)" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTGROUND v1"
 chk "Licht: Feuerbreite je Flamme"                  $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTWIDE v2"
 chk "Baeume / Buesche als 3D-Flaechen"            $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTOBJ v1"
+chk "Kiefern / Buesche als echte Modelle"          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTPLANT v1"
 chk "GPU-Baeume / Buesche"                      $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_GLOBJ v1"
 chk "Tag / Nacht (Option)"                          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DAYNIGHT v1"
 chk "Tag / Nacht v5 (fliessende Schatten)"          $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DAYNIGHT v5"

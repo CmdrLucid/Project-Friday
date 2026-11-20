@@ -1,0 +1,15 @@
+{
+ "H": 52,
+ "R": 12,
+ "zb": 11,
+ "th": 10.0,
+ "tiers": 6,
+ "taper": 0.65,
+ "notch": 0.86,
+ "droop": 1.6,
+ "tr": 2.6,
+ "trim": 0,
+ "tips": 11,
+ "offset": -3,
+ "_about": "BIG pine light model: the WILD style C pine (pine_court/pine.py) fitted to the forest / town pine sprite (pine_cluster params_light.json, IoU 0.87), tips 14 -> 11 for the triangle budget of dense forests (IoU -0.004); offset = trunk axis minus the drawn foot (world units, x and y)"
+}
