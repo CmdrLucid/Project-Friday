@@ -97,7 +97,7 @@ chk "Alternatives Steuerkreuz: Option + Wrapper"  $G/src/func_table.c "LK_ALTPAD
 chk "Alternatives Steuerkreuz: Options-Schalter"  $G/src/platform_sdl.c "LK_ALTPAD v1"
 chk "Schnellspeichern in Aufnahmen"                 $G/src/input.c "LK_QSREC v1"
 chk "Modernes HUD (Option)"                         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_MHUD v3"
-chk "Sprint (R2)"                                   $G/src/func_table.c "LK_SPRINT v3"
+chk "Sprint (R2)"                                   $G/src/func_table.c "LK_SPRINT v4"
 chk "Sprint-Animation"                               $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SPRINTANIM v1"
 chk "Schwert-Effekte (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_SWORDFX v1"
 chk "Stiefelfarben (Option)"                         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_BOOTCOL v2"
