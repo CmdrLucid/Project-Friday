@@ -52,14 +52,33 @@ export(MB.finish(), "house_592_b", "Massan log house B (the south house), room 5
 # the front roof lies over it). Measured on the rectified wall pictures (2026-11-20): doors = the same tiles as B (dark 319..333 / 367..381 -> 318..334 /
 # 366..382, top 35), posts beside them +-3.5 from the door edge; the E pattern repeats with a period of 48 (door cells y 20 / 23 in the height map).
 # Roofs: one crossing of sticks at EACH END of the short ridge (x 400 / 416); back roof: square vent hood, cap top centre drawn at U 1251.5 V 269.5.
-C = dict(planes=(371, 445, 291, 349), z0=32, doors=[("E", 318, 334, 35)],
+C = dict(planes=(371, 445, 291, 349), z0=32, corners="mitre", doors=[("E", 318, 334, 35)],
          posts={"E": [314.5, 337.5]},
          ridge="sticks_ends", sticks_shift=(3.5, -4.25), stick_r=2.6, vents=[(405.5, 338)])
-D = dict(planes=(371, 445, 355, 413), z0=32, doors=[("E", 366, 382, 35)],
+D = dict(planes=(371, 445, 355, 413), z0=32, corners="mitre", doors=[("E", 366, 382, 35)],
          shutters=[("S", 397, 408, 22, 38, 6)],   # drawn plank: hinge edge x 397..407 at z 71, lower edge x 391..402 at z ~52 (6 left = propped out 6)
          posts={"E": [362.5, 385.5, 401.5], "S": [378.5, 385.5, 426.5, 433.5]},   # S posts in pairs 7 apart (dark edge of each drawn post + 4.5, as B)
          ridge="sticks_ends", sticks_shift=(3.5, -4.25), stick_r=2.6)   # drawn bindings at screen (+3.5, +6) from the ridge ends x 400 / 416 at the top: kept on the ridge -> x +3.5, z -4.25
+# corners="mitre" (user 2026-11-20 mark on the SE corner of D: 'eher eine normale Ecke im Sprite'): the drawing shows the logs of both walls meeting in a
+# chevron at every corner (also at the joint), no stack of end discs; the protruding ends also made a serrated silhouette = frayed light edges.
 for key, h, title in (("c", C, "west pair, back house C"), ("d", D, "west pair, front house D")):
+    MM = blx.Mesh("house_592_" + key, mats); MM.density = 1.0
+    L.build(MM, h)
+    export(MM.finish(), "house_592_" + key, "Massan log house %s, room 592" % title)
+
+# EAST PAIR (cells 32..36 x 16..24, ground 32): back house E 5 x 4 (y 16..19), front house F 5 x 5 (y 20..24), wall to wall like C / D (joint at the cell
+# line y 320, same E wall tiles as C shifted by -32). Doors E dark 287..301 / 351..365 -> 286..302 / 350..366 (door cells y 18 / 22). Posts: dark edge of
+# each drawn post + 4.5 (E: 273.5 [no post at 282.5], 305.5 / 346.5, 369.5, 385.5; F S in two pairs around the window). F S: plain open WINDOW (no
+# shutter) between the posts 538.5 / 561.5, dark x 540..556, z 57..66 (25..34.5 above the ground). Roofs: E sticks at both ridge ends (bindings at the
+# same screen offset as C / D), F square roof: one crossing in the middle (as A), vent hood cap top centre drawn at U 1401 V 366.
+E_ = dict(planes=(515, 589, 259, 317), z0=32, corners="mitre", doors=[("E", 286, 302, 35)],
+          posts={"E": [273.5, 305.5]},
+          ridge="sticks_ends", sticks_shift=(3.5, -4.25), stick_r=2.6)
+F_ = dict(planes=(515, 589, 323, 397), z0=32, corners="mitre", doors=[("E", 350, 366, 35)],
+          openings=[("S", 540, 557, 25, 34.5)],
+          posts={"E": [346.5, 369.5, 385.5], "S": [522.5, 538.5, 561.5, 577.5]},
+          ridge="sticks", stick_r=2.6, vents=[(576, 359)])
+for key, h, title in (("e", E_, "east pair, back house E"), ("f", F_, "east pair, front house F")):
     MM = blx.Mesh("house_592_" + key, mats); MM.density = 1.0
     L.build(MM, h)
     export(MM.finish(), "house_592_" + key, "Massan log house %s, room 592" % title)

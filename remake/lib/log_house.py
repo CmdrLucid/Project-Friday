@@ -21,6 +21,27 @@ def build(M, h, nseg=8, lip=3.5):
         if side == "N": return (along, Y0 - out, z)
         if side == "E": return (X1 + out, along, z)
         return (X0 - out, along, z)
+    def mlog(side, a, b, zc, r, ma, mb):
+        # a log along the wall from a to b whose end(s) are cut on the corner DIAGONAL (plane through the outer and the inner corner line): a point
+        # q units outward of the log axis ends (RL - q) inside the corner, so both walls' logs meet seamlessly (mitre), outer side flush with the corner
+        pts = []
+        for i in range(nseg):
+            t = 2 * math.pi * i / nseg; q = r * math.cos(t); zz = zc + r * math.sin(t)
+            pa = a + (RL - q) if ma else a; pb = b - (RL - q) if mb else b
+            pts.append((G(*wall_pos(side, pa, q - RL, zz)), G(*wall_pos(side, pb, q - RL, zz)), q, zz))
+        def put(mat, poly, outward):
+            n0 = [poly[1][j] - poly[0][j] for j in range(3)]; n1 = [poly[2][j] - poly[0][j] for j in range(3)]
+            n = (n0[1] * n1[2] - n0[2] * n1[1], n0[2] * n1[0] - n0[0] * n1[2], n0[0] * n1[1] - n0[1] * n1[0])
+            if sum(n[j] * outward[j] for j in range(3)) < 0: poly = poly[::-1]
+            M.face(mat, poly, [(0, 0)] * len(poly))
+        cA = G(*wall_pos(side, a, -RL, zc)); cB = G(*wall_pos(side, b, -RL, zc)); ax = [cB[j] - cA[j] for j in range(3)]
+        for i in range(nseg):
+            j = (i + 1) % nseg; P = [pts[i][0], pts[j][0], pts[j][1], pts[i][1]]
+            mid = [sum(p[k] for p in P) / 4 for k in range(3)]
+            # outward = away from the axis line
+            L2 = sum(x * x for x in ax); tt = sum((mid[k] - cA[k]) * ax[k] for k in range(3)) / L2
+            put("bark", P, [mid[k] - (cA[k] + tt * ax[k]) for k in range(3)])
+        put("endgrain", [p[0] for p in pts], [-x for x in ax]); put("endgrain", [p[1] for p in pts], ax)
     LOG_Z = [z0 - 1.5 + 8 * k for k in range(int((ZE - z0 + 1.5) // 8) + 1)]
     M.box("dark", X0 + RL, X1 - RL, -(Y1 - RL), -(Y0 + RL), z0, ZE - 1)
     doors = h.get("doors", [])
@@ -29,7 +50,8 @@ def build(M, h, nseg=8, lip=3.5):
         for zc in LOG_Z:
             r = RL * (0.92 if rnd.random() > 0.5 else 0.88)
             cuts = sorted([(a0, a1) for s, a0, a1, top in doors if s == side and zc < z0 + top] +
-                          [(a0, a1) for s, a0, a1, zb, zt_, out in h.get("shutters", []) if s == side and z0 + zb < zc < z0 + zt_])
+                          [(a0, a1) for s, a0, a1, zb, zt_, out in h.get("shutters", []) if s == side and z0 + zb < zc < z0 + zt_] +
+                          [(a0, a1) for s, a0, a1, zb, zt_ in h.get("openings", []) if s == side and z0 + zb < zc < z0 + zt_])
             ne = h.get("noext", ())   # (side, 0 / 1): the logs of this side do NOT stick out past the corner at its start / end (as drawn)
             ex = h.get("ext", {})      # (side, 0 / 1) -> how far the logs stick out past that corner (default EXT 4)
             # noext: the logs end 2 RL INSIDE the crossing wall (behind its logs), so their end grain does not show as a stack of discs at the corner
@@ -37,8 +59,14 @@ def build(M, h, nseg=8, lip=3.5):
             segs, a = [], L0 - e0
             for a0, a1 in cuts: segs.append((a, a0)); a = a1
             segs.append((a, L1 + e1))
-            for a, b in segs:
-                if b - a > 0.5: M.cylinder("bark", G(*wall_pos(side, a, -RL, zc)), G(*wall_pos(side, b, -RL, zc)), r, n=nseg, cap="endgrain", density=1.0)
+            mit = h.get("corners") == "mitre"   # FLUSH corners (user 2026-11-20, as drawn: the logs of both walls meet in a chevron, no end discs)
+            m0 = mit and (side, 0) not in ne and (side, 0) not in ex; m1 = mit and (side, 1) not in ne and (side, 1) not in ex
+            if m0: segs[0] = (L0, segs[0][1])
+            if m1: segs[-1] = (segs[-1][0], L1)
+            for k, (a, b) in enumerate(segs):
+                if b - a <= 0.5: continue
+                if (k == 0 and m0) or (k == len(segs) - 1 and m1): mlog(side, a, b, zc, r, k == 0 and m0, k == len(segs) - 1 and m1)
+                else: M.cylinder("bark", G(*wall_pos(side, a, -RL, zc)), G(*wall_pos(side, b, -RL, zc)), r, n=nseg, cap="endgrain", density=1.0)
         for a in h.get("posts", {}).get(side, []):
             top = ZE - 3 + rnd.random() * 1.2
             M.cylinder("post", G(*wall_pos(side, a, POST_R - 0.6, z0 - 1)), G(*wall_pos(side, a, POST_R - 0.6, top)), POST_R, n=nseg, cap="endgrain", density=1.0)
@@ -57,6 +85,8 @@ def build(M, h, nseg=8, lip=3.5):
         P = [G(*q) for q in c]
         for f in ((0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)):
             M.face("plank", [P[i] for i in f][::-1], [(0, 0)] * 4)
+    for s, a0, a1, zb, zt_ in h.get("openings", []):   # plain open window (no shutter, east pair front house S): dark back face only
+        M.face("dark", [G(*wall_pos(s, a0, -1.5, z0 + zb)), G(*wall_pos(s, a1, -1.5, z0 + zb)), G(*wall_pos(s, a1, -1.5, z0 + zt_)), G(*wall_pos(s, a0, -1.5, z0 + zt_))][::-1 if s in "SE" else 1], [(0, 0)] * 4)
     for s, a0, a1, zb, zt_, out in h.get("shutters", []):   # window with a SHUTTER hinged at the top and propped out at the bottom (user 2026-11-20)
         M.face("dark", [G(*wall_pos(s, a0, -1.5, z0 + zb)), G(*wall_pos(s, a1, -1.5, z0 + zb)), G(*wall_pos(s, a1, -1.5, z0 + zt_)), G(*wall_pos(s, a0, -1.5, z0 + zt_))][::-1 if s in "SE" else 1], [(0, 0)] * 4)
         th_ = 1.2; zh = z0 + zt_ + 1.0; zl = z0 + zb + 1.0          # hinge line just above the opening, the free edge out by 'out'
