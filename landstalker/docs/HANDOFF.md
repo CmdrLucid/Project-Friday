@@ -5,15 +5,15 @@
 - 0. One-paragraph summary: lines 54-59
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 862-873
 - 1. Where we are: lines 874-1037
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1038-1324
-- 3. How the user works (important): lines 1325-1340
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1341-1365
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1366-1374
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1375-1422
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1423-1432
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1433-1434
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1435-1437
-- NEXT STEPS, newest first: -249 1039, -248 1040, -247 1041, -246 1042, -245 1043, -244 1044, -243 1045, -242 1046, -241 1047, -240 1048
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1038-1325
+- 3. How the user works (important): lines 1326-1341
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1342-1366
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1367-1375
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1376-1423
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1424-1433
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1434-1435
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1436-1438
+- NEXT STEPS, newest first: -250 1039, -249 1040, -248 1041, -247 1042, -246 1043, -245 1044, -244 1045, -243 1046, -242 1047, -241 1048
 - Newest entries:
   - 0a491 line 191: 2026-11-20 night (Deck, Opus 5.5, no agents; dev): user: Destel details 'ja, sollten dazu', then the Verla...
   - 0a490 line 193: 2026-11-20 evening (Deck, Opus 5.5, no agents; dev): (1) LK_LTPLANT v1 follow-ups: a plant owns only its gr...
@@ -1036,6 +1036,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-250. **NEXT (2026-11-20 night, user 'mach schon mal weiter'): NEW PLACEHOLDER LIST after plants + houses (proxysurvey --run of all outdoor rooms -> ~/Project-Friday-Test/lktest/Platzhalter_Aussenkarten.md, script lktest/placeholders.py: guessed hips / lathes / domes per MAP minus mesh / remove / flat op rectangles and lathes within 24 of a plant): 71 maps, 186 hips + 171 lathes + 4 domes (was 87 maps, 310 + 258 + 13; counts summed over the rooms of a map). Top: Mercator DOCKS 641 / 642 / 644 (7 hips + 8 lathes per room: two stone blocks on sea bases with gates + windows (the collision holds only parts: measure by hand like wall 638), the hut on the pier, the crate stack with thatch, bollards), then Tibor's map (3 per room, Tibor already confirmed), 560 (3 hips + 10 lathes), the Gumi forest paths 427.. (9 hips). Ask the user: docks first (big, several new asset types) or the many small leftovers.**
 -249. **Destel corner: user 2026-11-20 'Pfosten zu dick ... steht immer noch etwas weit vor' (the row at the wall foot = STONES, not needed for the light) -> corner post r 4.5, centre 4.5 inside both planes = flush (was r 5.5, 1.5 proud); comparison sheet lktest/destel726/sheet/ecke_vergleich.png; then 'Ecke geht nicht ganz runter' -> post down to the lowest log's underside (z0 - 5.5). USER CONFIRMED the corner ('ja', 2026-11-20). Still to play: Destel + Verla church in the game. USER CHECK in play: Verla church at night / day (same model as Mercator), Destel details.**
 -248. **USER 2026-11-20: Destel houses OK except the CORNERS ('die Ecken nicht') -> rebuilt: every corner is a thick round post (r 5.5 on the logs' corner axis, log_house corners='post'), the logs end inside it; lightedges 726 day + night --spots 0 px. USER CHECK (2026-11-20 evening): Destel 726 houses: clay + drawing sheet (~/Project-Friday-Test/lktest/destel726/sheet/clay.png, overlay.png) OK? Then in play at night: the bright roof strip is gone? Missing details on request: roof hatches (A / E), arched window tops, the cliff facade house. Then -246 (a) / Verla church.**
 -247. **USER CHECK (2026-11-20 afternoon): play outdoors with Lighting On (day + night): Gumi (pines left of P's door = the old horizontal edge), room 475 (path to the shrine: small pine front right, bush rows), a dense forest (425 / 563 / 566), the dark forest 362 (bush field lower left): pine / bush shadows look like trees (not cones / balls), no hard edges, no stutter on room entry. Open: room 567 small vertical edge above a pine tip (cliff); then -246 (b) Destel log houses.**
