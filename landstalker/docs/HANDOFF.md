@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 54-59
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 866-877
-- 1. Where we are: lines 878-1042
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1043-1332
-- 3. How the user works (important): lines 1333-1348
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1349-1373
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1374-1382
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1383-1430
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1431-1440
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1441-1442
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1443-1445
-- NEXT STEPS, newest first: -252 1044, -251 1045, -250 1046, -249 1047, -248 1048, -247 1049, -246 1050, -245 1051, -244 1052, -243 1053
+- 1. Where we are: lines 878-1043
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1044-1333
+- 3. How the user works (important): lines 1334-1349
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1350-1374
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1375-1383
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1384-1431
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1432-1441
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1442-1443
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1444-1446
+- NEXT STEPS, newest first: -252 1045, -251 1046, -250 1047, -249 1048, -248 1049, -247 1050, -246 1051, -245 1052, -244 1053, -243 1054
 - Newest entries:
   - 0a493 line 191: 2026-11-21 night (Deck, Opus 5.5, no agents; dev; INTERIM, NOT SOLVED): room 458 hard vertical shadow edge...
   - 0a492 line 193: 2026-11-20 late (Deck, Opus 5.5, no agents; dev): user chose (b) the many small leftovers. Leftover sheet (...
@@ -876,6 +876,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-21 SESSION END (Opus 5.5, no agents, `dev` pushed a907c09+, main = v1.9.8, no release):** room 458 hard vertical shadow edge (user recording rec_20261120_1940) SOLVED headless (GPU replay shot, ratio picture): wrong plant feet. plants.py v3 foot rule (bush tops are crowns, a blocked group stands on the lowest free floor at its border, covered trunks / side hits continue the view ray to the next lower floor) - rewritten for 18 rooms only (458 + the 17 rooms of the removed hand-made 4 pine groups pine_cl_*); all other rooms still old feet. New eye-check tool tools/heightview.py (user: 'das brauchen wir'). LK_LTPLANT v2 (figure sun through plant models) + v3 (room model forest ground / ground tops) in the build, not yet checked with lightedges. Pine model refit (IoU 0.914) WAITS for the user's OK. User has NOT played this build. Details HANDOFF 0a493.
 - **2026-11-20 SESSION END (Opus 5.5, no agents, `dev` pushed, main = v1.9.8, no release):** all drawn pines / small pines / bushes / big round trees are 3D light models (LK_LTPLANT v1, data/plants.json, 14268 plants in 133 rooms; user OK on the small pine + bush models), automatic hips over plant groups dropped; Destel 726 houses + cliff front (user OK on clay: corners = flush round posts down to the lowest log, flat Massan roof vents, arched window frames); Verla church = the confirmed Mercator model moved; new placeholder list (68 maps). VERIFIED HEADLESS ONLY (GPU shots, lightedges 0 in all checked rooms, frame times); the user has NOT played any of it yet.
 - **2026-11-20 AFTERNOON (Opus 5.5, no agents, `dev` pushed, main = v1.9.8):** every drawn pine / small pine / bush of 133 outdoor rooms is now a real 3D light model (LK_LTPLANT v1, data/plants.json from remake/recipes/plants; user OK on the small pine + bush models). HEADLESS ONLY (GPU shots, lightedges, frame times); the user has not played it yet (-247).
 - **2026-11-20 NIGHT SESSION END (Opus 5.5, no agents, `dev` 0fe045c+ pushed, main = v1.9.8, no release):** LIGHT SHAPES of the log / town houses: Massan 592 (7 houses A..G, flush corners, back eaves 3 in), Gumi 601-603 (5 houses = Massan tiles), Verla 711 / 712 (4 town houses), all in data/light_proxies.json; runtime fixes LK_LTWINNEAR v1 (stretched figure shadow from window lights), LK_DNSTRIPLIT v1 (sword-light hole of door-strip shape), LK_DNSTRIPSOFT v1 (softer door light edge), LK_SWSHSELF v1 (no self shadow in the sword light). USER CONFIRMED by eye on clay / drawing sheets: Massan A..G (incl. the corner and window marks), Gumi was shown (no objection); the user PLAYED Massan at night once (rec_20261120_0918 -> the fixes above). VERIFIED HEADLESS only (GPU shots / replays / swing.sh): every fix, lightedges 592 / 603 0 px, 711 41 px before = after. NOT yet played: all fixes after rec_20261120_0918, Gumi / Verla in play. NEXT (user to choose, HANDOFF -246): (a) light shapes for the pines on WALKABLE cells (Gumi P's door cells 24,36..41: no light shape at all = the remaining horizontal edge in the sword light), then the same check in all towns; (b) Destel 726 as its own log house variant (pointed roofs, thick corner posts, stub door jambs, low shutters, arched windows; fixes the bright roof strip at night); (c) Verla church (one-off).
