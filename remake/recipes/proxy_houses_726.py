@@ -32,7 +32,7 @@ def export(ob, name, title):
     print("proxy_houses_726: %s: %d vertices, %d triangles -> %s" % (name, len(bm.verts), len(bm.faces), path))
 
 mats = [blx.flat_material(n, (150, 150, 150)) for n in ("bark", "post", "endgrain", "dark", "hole", "thatch", "under", "plank")]
-COMMON = dict(back_in=3.0, arch_frames=True, corners="post", corner_r=5.5, corner_in=4.0, ridge="none", jambs=3.75, ze=50)   # corners: user 2026-11-20 'die Ecken nicht' -> the corner is a thick round post (drawn ~10 wide; centre on the logs' corner axis 4 inside, r 5.5 so the log ends vanish in it and it stands 1.5 proud of the walls)
+COMMON = dict(back_in=3.0, arch_frames=True, corners="post", corner_r=4.5, corner_in=4.5, ridge="none", jambs=3.75, ze=50)   # corners: user 2026-11-20 'die Ecken nicht' -> the corner is a thick round post (drawn ~10 wide; user 2026-11-20 'Pfosten zu dick ... steht etwas weit vor' -> r 4.5, centre 4.5 inside: flush with the walls, the log ends still vanish in it; the drawn row at the wall foot is stones, not needed for the light)
 WIN = (15, 42)   # arched windows: bottom / arch top above the ground
 def wins(side, *spans): return [(side, a0, a1, WIN[0], WIN[1]) for a0, a1 in spans]
 HOUSES = {
