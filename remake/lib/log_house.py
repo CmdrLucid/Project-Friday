@@ -70,6 +70,13 @@ def build(M, h, nseg=8, lip=3.5):
                 if b - a <= 0.5: continue
                 if (k == 0 and m0) or (k == len(segs) - 1 and m1): mlog(side, a, b, zc, r, k == 0 and m0, k == len(segs) - 1 and m1)
                 else: M.cylinder("bark", G(*wall_pos(side, a, -RL, zc)), G(*wall_pos(side, b, -RL, zc)), r, n=nseg, cap="endgrain", density=1.0)
+        for a, pr in h.get("thick_posts", {}).get(side, []):   # Destel (2026-11-20): a THICK round post (radius pr) standing in front of the wall near a corner
+            M.cylinder("post", G(*wall_pos(side, a, pr - 0.6, z0 - 1)), G(*wall_pos(side, a, pr - 0.6, ZE - 2)), pr, n=max(nseg, 10), cap="endgrain", density=1.0)
+        for s_, a0, a1, top in [d for d in h.get("doors", []) if d[0] == side and h.get("jambs")]:   # Destel door frame: a column of short log STUBS beside the opening
+            for aj in (a0 - h["jambs"], a1 + h["jambs"]):
+                for zc in LOG_Z:
+                    if z0 < zc + 4 < z0 + top + 6:
+                        M.cylinder("post", G(*wall_pos(side, aj, -2.0, zc + 4)), G(*wall_pos(side, aj, 2.4, zc + 4)), 3.0, n=nseg, cap="endgrain", density=1.0)
         for a in h.get("posts", {}).get(side, []):
             top = ZE - 3 + rnd.random() * 1.2
             M.cylinder("post", G(*wall_pos(side, a, POST_R - 0.6, z0 - 1)), G(*wall_pos(side, a, POST_R - 0.6, top)), POST_R, n=nseg, cap="endgrain", density=1.0)
