@@ -576,10 +576,11 @@ vec4 roundFig(vec2 fc, float cl, vec4 L4) {   /* GL5f: a figure as a round body 
   return vec4(min(L4.rgb * 255.0 * r, vec3(255.0)) / 255.0, 1.0); }
 uniform sampler2D fine; uniform float uFn;
 vec4 FNb(float sx, float sy, float hf) { return texture2D(fine, (vec2(sx, sy + 296.0 * hf) + 0.5) / vec2(296.0, 1480.0)); }
-float swocc(vec3 q, float tt, inout float res) {   /* LK_SWSHFINE v1: 1 = q is inside the scenery; else the clearance shrinks res (soft edge, LK_LT_IPEN rule) */
+float swocc(vec3 q, float tt, inout float res, float ownR) {   /* LK_SWSHFINE v1: 1 = q is inside the scenery; else the clearance shrinks res (soft edge, LK_LT_IPEN rule) */
   float top = topT(floor(q.x / 16.0), floor(q.y / 16.0)), sx = floor(q.x / 4.0), sy = floor(q.y / 4.0);
   if (uFn > 0.5 && sx >= 0.0 && sy >= 0.0 && sx < 296.0 && sy < 296.0) {   /* (user 2026-11-11: 'nachts neben einem grossen Baum mit dem Schwert schlagen: der Schatten sieht aus wie eine Box') */
     vec4 f0 = FNb(sx, sy, 0.0), f4 = FNb(sx, sy, 4.0), f2 = FNb(sx, sy, 2.0); float fo = S16(B(f0.b), B(f0.a)), fh = S16(B(f0.r), B(f0.g)), k = B(f4.r);
+    if (ownR > 0.5 && ownR < 2046.5 && fo == ownR) return 0.0;   /* LK_SWSHSELF v1 (user 2026-11-20, Gumi pines at night: 'die Tannen werfen beim Schwertschlag eine harte Schattenkante'): an object never shadows itself in the sword light (as the room lights): the ray from a pine crown to the sword ran through the pine's own columns */
     float sb = S16(B(f2.r), B(f2.g)), st = S16(B(f2.b), B(f2.a));
     if (st > sb && q.z > sb && q.z < st) return 1.0;   /* v9 slab (floating part) */
     if (st > sb) { float c = q.z <= sb ? sb - q.z : q.z - st, r = 4.0 * c / tt; if (r < res) res = r; }
@@ -597,9 +598,10 @@ float swlight(vec3 p, vec3 n) {   /* GL5e: the sword glow (lk_lt_term without sh
   if (d >= rad || d < 0.001) return d < 0.001 ? uSwC.w : 0.0;
   float ndl = max(dot(n, v) / d, 0.0), q = 1.0 - d / rad, t = uSwC.w * q * q * (0.25 + 0.75 * ndl);
   if (t <= 0.0) return 0.0;
-  vec3 s = p + n * 3.0, w = uSwP.xyz - s; float e = length(w), res = 1.0;
+  vec3 s = p + n * 3.0, w = uSwP.xyz - s; float e = length(w), res = 1.0, ownR = 0.0;
+  if (uFn > 0.5) { float rx = floor(p.x / 4.0), ry = floor(p.y / 4.0); if (rx >= 0.0 && ry >= 0.0 && rx < 296.0 && ry < 296.0) { vec4 r0 = FNb(rx, ry, 0.0); ownR = S16(B(r0.b), B(r0.a)); } }   /* LK_SWSHSELF v1: the receiver's object */
   for (int st = 0; st < 200; st++) { float tt = 2.0 + 2.0 * float(st); if (tt >= e - 3.0) break;
-    if (swocc(s + w * tt / e, tt, res) > 0.5) return 0.0; }
+    if (swocc(s + w * tt / e, tt, res, ownR) > 0.5) return 0.0; }
   return t * max(res, 0.0); }
 void main() {
   vec2 fc = floor(gl_FragCoord.xy);

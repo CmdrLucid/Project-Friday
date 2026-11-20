@@ -5,13 +5,13 @@
 - 1. Status (update this block every session): lines 25-582
   - newest status entries: 26 2026-11-20 night (dev, Opus 5.5, no agents): LK_DNSTRIPLI...; 27 2026-11-20 evening (dev, Opus 5.5, no agents; interim): u...; 28 2026-11-20 later (dev, Opus 5.5, no agents): MASSAN 592 L...; 29 2026-11-20 end (dev, Opus 5.5, no agents): USER CONFIRMED...; 30 2026-11-20 (dev, Opus 5.5): LK_OWNLIE v1 = no standing Ni...; 31 2026-11-20 (dev, Opus 5.5): LK_SPRINT v5 = door walks wit...; 32 2026-11-20 (dev, Opus 5.5, no agents): LK_SPRINT v4 = no...; 33 2026-11-20 end (dev, Opus 5.5, no agents): USER CONFIRMED...
 - 2. Environment and working rules (do not ask the user again): lines 583-602
-- 3. Bug catalog (symptom -> root cause -> fix). All fixes are applie...: lines 603-748
-- 4. Tool cheat sheet (all local, none contain ROM data): lines 749-839
-- 5. Debug playbook (what worked): lines 840-855
-  - Interpreter fallback policy (decided with the user: NOT a permanent crutch): line 849
-- 6. Landstalker facts used so far: lines 856-864
-- Symbol rule (keep the code human readable; needed for modding): lines 865-881
-  - Names for all functions (disassembly <-> ROM address), no assembler needed: line 875
+- 3. Bug catalog (symptom -> root cause -> fix). All fixes are applie...: lines 603-750
+- 4. Tool cheat sheet (all local, none contain ROM data): lines 751-841
+- 5. Debug playbook (what worked): lines 842-857
+  - Interpreter fallback policy (decided with the user: NOT a permanent crutch): line 851
+- 6. Landstalker facts used so far: lines 858-866
+- Symbol rule (keep the code human readable; needed for modding): lines 867-883
+  - Names for all functions (disassembly <-> ROM address), no assembler needed: line 877
 
 <!-- /TOC -->
 
@@ -612,6 +612,8 @@ _Last update (2026-10-10, evening): dev merged into main (code_ranges, seeds for
 | Diamond box shadow on the forest path in 452 after the 453 fix | 452 / 520 have the same map as 453, the remove op was only in 453 | op copied; per-MAP corrections planned (-238) | 2026-11-19 water level |
 | Enemy dissolve particles drift sideways while Nigel walks (user rec_20261119_1209) | camera $FF1200 / $FF1202 are iso AXES, the particles were moved by the raw deltas as if they were screen pixels | LK_DISSOLVE v2 (dx = d0 - d2, dy = (d0 + d2) / 2) | 2026-11-19 dissolve |
 | 16:9: room 5 wooden platform vanishes at the top edge, its drop shadow stays alone (user 2026-11-19) | CheckEntityOnScreen culls at the TOP when the entity CENTRE leaves line 0; sprcull widened left / right / bottom only | LK_SPRCULLTOP v1 (patch_sprcull.py: 64 px higher with WIDE / TALL) | 2026-11-19 dissolve |
+| Night, sword swing beside pines (Gumi): a hard dark cut across the front pine crowns | the sword shadow march hit the pine's OWN columns (no self-shadow rule in swocc) | LK_SWSHSELF v1 (patch_gpulight.py: skip columns owned by the receiver's object) | 2026-11-20 night |
+| Night door light pool: hard edge where the drawing's darker painted band starts | strip gain proportional to the ground colour + hard clip at 255 | LK_DNSTRIPSOFT v1: less proportional, fixed warm part, soft knee | 2026-11-20 night |
 | Night, sword swing in front of a door (Gumi / Destel / Mercator church): a hard strip-shaped 'shadow' (the sword light misses the ground in front of the door) | the door strip (LK_DNSPILL, lk_dn_pi 64..127) was a 'mix after the light' (emissive) in the CPU composition; the sword / bounce pass skips emissive pixels | LK_DNSTRIPLIT v1 (patch_lights.py lk_dn_isstrip + patch_gpulight.py fx prelit): strip = gain before the light | 2026-11-20 night |
 | Massan 592 at night: Nigel's shadow runs along a house wall past its corner, only while JUMPING beside an open window (user rec_20261120_0918, house F S window) | the window light (lava 2) sits 14 out of the opening at chest height; a figure right beside it / with its middle above it got a ground-projected shadow stretched along the wall | LK_LTWINNEAR v1: no figure shadow from a window / door light within 28 units or when the figure's middle is above it | 2026-11-20 Massan night |
 | Massan 592 at night: dark strip on the ground beside the roofs' upper left edges (user) | the new log house models' BACK eaves (W / N) were 3 px further out than drawn (all houses; front edges matched); the overhang lay over the ground pixels | back_in 3 in lib/log_house.py / massan_a (light variant) | 2026-11-20 Massan night |
