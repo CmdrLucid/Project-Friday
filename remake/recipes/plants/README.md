@@ -22,6 +22,8 @@ asymmetric bush. Check overlap / sides (plane A alone, both free sides) before d
    user 2026-11-20 room 362), >= 65 % equal.
 3. pine or small: rows tip+16..31 equal the big pine's rows 16..31 -> pine, its rows 32..47 -> small; covered -> the nearest decided pine.
 4. foot: the view ray through the foot pixel meets the floor of the height map (`pine_cluster.foot_world`).
+   Big round tree (`foot_tree`, 2026-11-21): it stands on its OWN 4 x 4 collision block (4 cells at the ground's height = `TREE_TRUNK`); the foot is that block's centre on the ground
+   (the plain ray stopped at the block's side, room 458 z 47 instead of 16: the block stayed a box beside the model). Check: room 488 -> 576,656 z 128 = the measured axis. Room 451's second big tree has another block pattern: kept as before (open).
 5. bush cells of the object catalogue (`data/object_blocks.json`) add one bush per cell (dense fields, crowns covering each other), foot one step below the cell top.
 6. plants inside a hand tree model's rectangle (`pine_cl`, `pine_court`, `tree_` mesh ops) are left to that model.
 `--write`: `landstalker/data/plants.json` ({room: [[model, x, y, z], ...]}) + `landstalker/data/proxies/plant_{pine,small,bush}.obj` (origin = drawn foot).

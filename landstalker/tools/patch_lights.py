@@ -211,6 +211,7 @@ static int16_t lk_lt_fh[LK_LT_FN][LK_LT_FN], lk_lt_fo[LK_LT_FN][LK_LT_FN]; stati
    Blender mesh (op mesh with an OBJ file) stamps is marked as MODEL OWNED (lk_lt_mown) and keeps the ground below the model (lk_lt_mg, the height before the first mesh stamped it).
    GPU only (GPU-first rule): the GPU view ray takes the model's real surface from a model buffer and sees the ground below the model in owned sub columns; the CPU and every
    shadow march keep the fine field.  Test aid LANDSTALKER_LT_MODEL=0 = off (the old fine field view ray). */
+static uint8 lk_lt_mpg[LK_LT_FN][LK_LT_FN];   /* LK_LTPLANT v3: a plant owns this sub column = the room model still lays its ground top (a plant mesh has no ground) */
 static uint8 lk_lt_mown[LK_LT_FN][LK_LT_FN]; static int16_t lk_lt_mg[LK_LT_FN][LK_LT_FN], lk_lt_mb[LK_LT_FN][LK_LT_FN];   /* + lk_lt_mb: the model's bottom (above mg + 4 = it floats: air below for the GPU's AO / key light) */ static int lk_lt_nmodel;
 static int lk_lt_modelopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_MODEL"); v = e ? atoi(e) : 1; } return v; }
 static int lk_lt_modelall(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_MODELALL"); v = e ? atoi(e) : 0; } return v; }   /* test aid: every Blender mesh as a real surface, also the unverified ones */
@@ -1119,6 +1120,9 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
         if (lk_lt_fo[j][i] && (float)lk_lt_fh[j][i] >= h) continue;
         lk_lt_fh[j][i] = (int16_t)h; lk_lt_fo[j][i] = P->obj; lk_lt_fp[j][i] = (uint8)(k + 1); } }
     lk_lt_fhmax = -32768;
+    if (lk_lt_dbg == 5) for (k = 0; k < lk_lt_npx; k++) if (lk_lt_px[k].type == 1) { const lk_lt_proxy *P = &lk_lt_px[k]; int n = 0, mx = 0, i, j;   /* survey aid (2026-11-21): how much of an automatic hip really stands above the game's ground */
+      for (j = 0; j < LK_LT_FN; j++) for (i = 0; i < LK_LT_FN; i++) if (lk_lt_fo[j][i] && lk_lt_fp[j][i] == k + 1) { int g = lk_lt_gh[j >> 2][i >> 2], e = lk_lt_fh[j][i] - (g == -32768 ? 0 : g); if (e > 2) { n++; if (e > mx) mx = e; } }
+      printf("hipeff: room %%d hip x %%d..%%d y %%d..%%d z0 %%d stamps %%d sub columns above the ground (max +%%d)\n", lk_o_room, P->x0, P->x1, P->y0, P->y1, P->z0, n, mx); }
     for (j = 0; j < LK_LT_FN; j++) for (i = 0; i < LK_LT_FN; i++) if (lk_lt_fo[j][i] && lk_lt_fh[j][i] > lk_lt_fhmax) lk_lt_fhmax = lk_lt_fh[j][i];
   }
   return n;
@@ -1284,21 +1288,66 @@ static int lk_lt_plantopt(void) { static int v = -1; if (v < 0) { const char *e 
 static int lk_lt_pl0, lk_lt_pl1;   /* the current room's rows of lk_lt_plant */
 static int lk_lt_plnear(float X, float Y, float Z, float r) { int q; if (!lk_lt_plantopt()) return 0;   /* + the same level (within 24): a plant at the foot of a cliff does not own the place on top of it */
   for (q = lk_lt_pl0; q < lk_lt_pl1; q++) { float dx = lk_lt_plant[q][2] * 0.25f - X, dy = lk_lt_plant[q][3] * 0.25f - Y; if (dx * dx + dy * dy < r * r && fabsf((float)lk_lt_plant[q][4] - Z) <= 24.0f) return 1; } return 0; }
+/* LK_LTPLANT v2 (2026-11-21, user recording rec_20261120_1940 room 458: 'wenn Nigels Schatten klar nach Suedosten faellt, ist er nicht mal im Schatten, wenn er
+   sich vor die Baeume stellt'): the plant models are only GPU meshes (their shadow maps shade the scenery), but a figure's sun share (lk_lt_f.sun) comes from
+   the CPU march lk_lt_sunvis, which knew the old catalogue lathes only (dropped next to plants since LK_LTPLANT v1) = figures never stood in a pine's shadow.
+   Here the same march through the room's plants as solids of revolution (lk_lt_pprof: the model's radius per eighth of its height, from its mesh) with the
+   march's soft edge (LK_LT_PEN); feet in a 74 x 74 cell list. */
+#define LK_LT_PGMAX 2048
+static int16_t lk_lt_pgh[74][74], lk_lt_pgn[LK_LT_PGMAX]; static int lk_lt_pgbig[8], lk_lt_npgbig; static float lk_lt_pgtop;
+static void lk_lt_pgrid(void) { int k; memset(lk_lt_pgh, 0xFF, sizeof lk_lt_pgh); lk_lt_npgbig = 0; lk_lt_pgtop = -32768.0f;
+  if (!lk_lt_plantopt()) return;
+  for (k = lk_lt_pl0; k < lk_lt_pl1 && k - lk_lt_pl0 < LK_LT_PGMAX; k++) { int m = lk_lt_plant[k][1], cx = lk_lt_plant[k][2] >> 6, cy = lk_lt_plant[k][3] >> 6; float top = (float)lk_lt_plant[k][4] + lk_lt_pph[m];
+    if (top > lk_lt_pgtop) lk_lt_pgtop = top;
+    if (lk_lt_pmr[m] > 24.0f) { if (lk_lt_npgbig < 8) lk_lt_pgbig[lk_lt_npgbig++] = k; continue; }   /* the big tree: checked on its own (wider than a cell) */
+    if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) continue;
+    lk_lt_pgn[k - lk_lt_pl0] = lk_lt_pgh[cy][cx]; lk_lt_pgh[cy][cx] = (int16_t)(k - lk_lt_pl0); } }
+static float lk_lt_pcl(int k, float x, float y, float z) {   /* clearance of point x y z from plant k (<= 0: inside), 9999 = beside its height */
+  int m = lk_lt_plant[k][1]; float zr = z - (float)lk_lt_plant[k][4], H = lk_lt_pph[m], dx = x - lk_lt_plant[k][2] * 0.25f, dy = y - lk_lt_plant[k][3] * 0.25f, f; int b;
+  if (zr < 0.0f || zr >= H) return 9999.0f;
+  f = zr / H * 8.0f; b = (int)f; if (b > 7) b = 7;
+  return sqrtf(dx * dx + dy * dy) - lk_lt_pprof[m][b]; }
+static float lk_lt_plantvis(float px, float py, float pz) {   /* share of the sun that the plants let through to a point (1 = none in the way) */
+  const float *sd = lk_lt_sdp ? lk_lt_sdp : lk_lt_sd; float hl = sqrtf(sd[0] * sd[0] + sd[1] * sd[1]), res = 1.0f, t;
+  if (!lk_lt_plantopt() || lk_lt_pl1 <= lk_lt_pl0 || sd[2] <= 0.0f) return 1.0f;
+  if (hl < 1e-3f) hl = 1e-3f;
+  for (t = 2.0f; t < 400.0f; t += 2.0f) {
+    float x = px + sd[0] * t, y = py + sd[1] * t, z = pz + sd[2] * t, c; int cx = (int)(x * 0.0625f), cy = (int)(y * 0.0625f), a, b, j;
+    if (z > lk_lt_pgtop || x < 0.0f || y < 0.0f || cx >= 74 || cy >= 74) break;
+    for (b = cy - 1; b <= cy + 1; b++) for (a = cx - 1; a <= cx + 1; a++) { int q; if (a < 0 || b < 0 || a >= 74 || b >= 74) continue;
+      for (q = lk_lt_pgh[b][a]; q >= 0; q = lk_lt_pgn[q]) { c = lk_lt_pcl(lk_lt_pl0 + q, x, y, z); if (c <= 0.0f) return 0.0f; if (c < 9999.0f) { float r = LK_LT_PEN * c / (t * hl); if (r < res) res = r; } } }
+    for (j = 0; j < lk_lt_npgbig; j++) { c = lk_lt_pcl(lk_lt_pgbig[j], x, y, z); if (c <= 0.0f) return 0.0f; if (c < 9999.0f) { float r = LK_LT_PEN * c / (t * hl); if (r < res) res = r; } } }
+  return res; }
 static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines / lathe trees as meshes + their sub columns owned (before the room box model) */
-  int cx, cy, k, sx, sy, nobj = 0, npl = 0; float rr[200], zz[200]; int n;
+  int cx, cy, k, sx, sy, nobj = 0, npl = 0, nlow = 0; float rr[200], zz[200]; int n;
   lk_lt_omn = 0; lk_lt_omover = 0; lk_lt_pl0 = lk_lt_pl1 = 0;
+  memset(lk_lt_mpg, 0, sizeof lk_lt_mpg);
   if (!lk_lt_sun || !lk_lt_objopt() || !lk_lt_modelopt()) return;
   for (k = 0; lk_lt_plant[k][0] >= 0; k++) { if (lk_lt_plant[k][0] == lk_o_room && !lk_lt_pl1) lk_lt_pl0 = k; if (lk_lt_plant[k][0] == lk_o_room) lk_lt_pl1 = k + 1; }
   if (lk_lt_plantopt()) for (k = lk_lt_pl0; k < lk_lt_pl1; k++) {   /* LK_LTPLANT v1: the plant instances first */
     int m = lk_lt_plant[k][1], t; const float *T = lk_lt_pmt[m]; float X = lk_lt_plant[k][2] * 0.25f, Y = lk_lt_plant[k][3] * 0.25f, Z = (float)lk_lt_plant[k][4], R = lk_lt_pmr[m];
+    { static int sk[4] = { -1 }; if (sk[0] == -1) { const char *e = getenv("LANDSTALKER_LT_PLANTSKIP"); if (!e || sscanf(e, "%%d,%%d,%%d,%%d", &sk[0], &sk[1], &sk[2], &sk[3]) != 4) sk[0] = -2; }   /* test aid: plants with their foot in cells x0,y0,x1,y1 left out */
+      if (sk[0] >= 0 && X >= 16.0f * sk[0] && X < 16.0f * (sk[2] + 1) && Y >= 16.0f * sk[1] && Y < 16.0f * (sk[3] + 1)) continue; }
     for (t = 0; t < lk_lt_pmn[m]; t++) { const float *a = T + 18 * t; float A[3] = { a[0] + X, a[1] + Y, a[2] + Z }, B[3] = { a[6] + X, a[7] + Y, a[8] + Z }, C[3] = { a[12] + X, a[13] + Y, a[14] + Z };
       lk_lt_omtri(A, a + 3, B, a + 9, C, a + 15); }
     for (sy = (int)((Y - R) / 4.0f); sy <= (int)((Y + R) / 4.0f); sy++) for (sx = (int)((X - R) / 4.0f); sx <= (int)((X + R) / 4.0f); sx++) {
       float dx = 4.0f * sx + 2.0f - X, dy = 4.0f * sy + 2.0f - Y;
       if (sx < 0 || sy < 0 || sx >= LK_LT_FN || sy >= LK_LT_FN || dx * dx + dy * dy > R * R || lk_lt_mown[sy][sx]) continue;
-      { int gh = lk_lt_gh[sy >> 2][sx >> 2], tk = lk_lt_tk[sy >> 2][sx >> 2]; if (gh > Z + 8.0f && tk != 1 && tk != 2) continue; }   /* v1: only the plant's ground and its own catalogue blocks, never a wall / house / cliff beside it (room 567: a pine at a cliff hollowed the cliff's columns = a straight light edge) */
-      lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)Z; }
-    npl++; nobj++; }   /* outdoors only: the catalogue (lk_lt_tk) and lathes are built by the outdoor rules and are NOT cleared indoors
+      { int gh = lk_lt_gh[sy >> 2][sx >> 2], tk = lk_lt_tk[sy >> 2][sx >> 2]; if (gh > Z + 8.0f && tk != 1 && tk != 2 && !(m == LK_LT_PBIG && fabsf(dx) < 32.0f && fabsf(dy) < 32.0f)) continue; }   /* v1: only the plant's ground and its own catalogue blocks, never a wall / house / cliff beside it (room 567: a pine at a cliff hollowed the cliff's columns = a straight light edge); v2: the big round tree also owns its own 4 x 4 collision block (foot = the block's centre, plants.py foot_tree; room 458: the block stood as a 48 high box beside the model, 'Nigels Schatten bricht um wie an einer Wand') */
+      lk_lt_mown[sy][sx] = 1; lk_lt_mpg[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)Z; }
+    npl++; nobj++; }
+  if (lk_lt_plantopt() && lk_lt_pl1 > lk_lt_pl0) for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) {   /* LK_LTPLANT v2 (2026-11-21, user recording rec_20261120_1940 room 458: a hard
+       vertical shadow edge on the path in front of the lower forest): a plant owns only a circle around its foot; a catalogue pine / bush cell (the game's collision
+       block of the drawn plants, 48 high on ground 16) with no foot close enough (458 row 36 behind the front row) stayed a box whose top lies over the path in
+       the picture and caught the pines' shadow. Every catalogue cell above its plants now gets the ground of the nearest plant within 32 (cell centre). */
+    int tk = lk_lt_tk[cy][cx], gh = lk_lt_gh[cy][cx] != -32768 ? lk_lt_gh[cy][cx] : lk_lt_top[cy][cx], q, bz = 0; float bd = 32.0f * 32.0f + 1.0f;   /* a blocked forest cell has no ground (-32768): its drawn top counts */
+    if ((tk != 1 && tk != 2) || gh == -32768) continue;
+    for (q = lk_lt_pl0; q < lk_lt_pl1; q++) { float dx = lk_lt_plant[q][2] * 0.25f - (16.0f * cx + 8.0f), dy = lk_lt_plant[q][3] * 0.25f - (16.0f * cy + 8.0f), d = dx * dx + dy * dy;
+      if (d < bd && lk_lt_plant[q][4] + 8 < gh) { bd = d; bz = lk_lt_plant[q][4]; } }
+    if (bd > 32.0f * 32.0f) continue;
+    for (sy = 4 * cy; sy < 4 * cy + 4; sy++) for (sx = 4 * cx; sx < 4 * cx + 4; sx++) if (!lk_lt_mown[sy][sx]) { lk_lt_mown[sy][sx] = 1; lk_lt_mpg[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)bz; nlow++; } }
+  if (nlow) printf("plants: room %%d, %%d sub columns of catalogue cells set to their plants' ground (LK_LTPLANT v2)\n", lk_o_room, nlow);
+  lk_lt_pgrid();   /* LK_LTPLANT v2: the plants for the figures' sun test (lk_lt_plantvis) */   /* outdoors only: the catalogue (lk_lt_tk) and lathes are built by the outdoor rules and are NOT cleared indoors
      (indoor rooms got the previous outdoor room's 144 trees as phantom models, 2026-11-09 sweep) */
   for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) { int kind = lk_lt_tk[cy][cx]; float top, r, zb, zc, q, X = 16.0f * cx + 8.0f, Y = 16.0f * cy + 8.0f;
     if (kind != 1 && kind != 2) continue;
@@ -1331,6 +1380,7 @@ static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the curr
   if (!lk_lt_modelopt() || !lk_lt_roomopt(lk_o_room) || lk_lt_nslab || (lk_lt_sun && !lk_lt_modelout())) return;   /* outdoors too (user 2026-11-08: 'genauso fuer Aussenraeume ... diesen einen Weg') */
   clock_gettime(CLOCK_MONOTONIC, &t0);
   #define LK_RMH(x, y) H[(y) + 1][(x) + 1]
+  #define LK_RMT(x, y) (lk_lt_mown[y][x] && !lk_lt_mpg[y][x])   /* no top here: a hand model brings its own (LK_LTPLANT v3: not a plant) */
   for (sy = -1; sy <= LK_LT_FN; sy++) for (sx = -1; sx <= LK_LT_FN; sx++) { int h = -32768;
     if (sx >= 0 && sy >= 0 && sx < LK_LT_FN && sy < LK_LT_FN) {
       if (lk_lt_mown[sy][sx]) h = lk_lt_mg[sy][sx];   /* a hand-made model: its ground (the model itself has its own mesh) */
@@ -1341,9 +1391,9 @@ static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the curr
     LK_RMH(sx, sy) = (int16_t)h; }
   memset(vis, 0, sizeof vis);
   for (sy = 0; sy < LK_LT_FN; sy++) for (sx = 0; sx < LK_LT_FN; sx++) { int h = LK_RMH(sx, sy), x1 = sx, y1 = sy, ok = 1, i;   /* tops: greedy rectangles of equal height (x first, then y) */
-    if (h == -32768 || lk_lt_mown[sy][sx] || vis[sy][sx]) continue;
-    while (x1 + 1 < LK_LT_FN && LK_RMH(x1 + 1, sy) == h && !lk_lt_mown[sy][x1 + 1] && !vis[sy][x1 + 1]) x1++;
-    while (ok && y1 + 1 < LK_LT_FN) { for (i = sx; i <= x1; i++) if (LK_RMH(i, y1 + 1) != h || lk_lt_mown[y1 + 1][i] || vis[y1 + 1][i]) { ok = 0; break; } if (ok) y1++; }
+    if (h == -32768 || LK_RMT(sx, sy) || vis[sy][sx]) continue;   /* LK_LTPLANT v3 (2026-11-21, room 458): a plant column keeps its ground top (else the GPU marched the old 48 high forest block there: a hard vertical shadow edge on the path) */
+    while (x1 + 1 < LK_LT_FN && LK_RMH(x1 + 1, sy) == h && !LK_RMT(x1 + 1, sy) && !vis[sy][x1 + 1]) x1++;
+    while (ok && y1 + 1 < LK_LT_FN) { for (i = sx; i <= x1; i++) if (LK_RMH(i, y1 + 1) != h || LK_RMT(i, y1 + 1) || vis[y1 + 1][i]) { ok = 0; break; } if (ok) y1++; }
     { int a2, b2; for (b2 = sy; b2 <= y1; b2++) for (a2 = sx; a2 <= x1; a2++) vis[b2][a2] = 1; }
     { float z = (float)h, X0 = 4.0f * sx, X1 = 4.0f * (x1 + 1), Y0 = 4.0f * sy, Y1 = 4.0f * (y1 + 1), a[3] = { X0, Y0, z }, b[3] = { X1, Y0, z }, c[3] = { X1, Y1, z }, d[3] = { X0, Y1, z }; lk_lt_rmquad(a, b, c, d, 0.0f, 0.0f, 1.0f); } }
   for (x0 = -1; x0 < LK_LT_FN; x0++) for (sy = 0; sy < LK_LT_FN; ) {   /* walls on the boundary x = 4 (x0 + 1) between sub columns x0 and x0 + 1, runs along y */
@@ -2076,7 +2126,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     if (ax == -128 && ay == -128) continue;
     lk_lt_f[lk_lt_nf].fx = (float)SW(b + 0x14); lk_lt_f[lk_lt_nf].fy = (float)SW(b + 0x16); lk_lt_f[lk_lt_nf].fz = (float)(int16_t)SW(b + 0x12);
     lk_lt_f[lk_lt_nf].ax = ax; lk_lt_f[lk_lt_nf].ay = ay; lk_lt_f[lk_lt_nf].tag = (o >> 7) + 1;
-    lk_lt_f[lk_lt_nf].sun = lk_lt_sun ? lk_lt_sd[2] * lk_lt_sunvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f, 0) : lk_lt_key ? lk_lt_keyvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f) : 0.0f;
+    lk_lt_f[lk_lt_nf].sun = lk_lt_sun ? lk_lt_sd[2] * fminf(lk_lt_sunvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f, 0), lk_lt_plantvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f)) : lk_lt_key ? lk_lt_keyvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f) : 0.0f;
     lk_lt_nf++;
   }
   lk_lt_nfb = 0;
@@ -2169,11 +2219,16 @@ def plant_table():   # LK_LTPLANT v1 (2026-11-20, user: 'alle Kiefern und Buesch
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "plants.json")
     if not os.path.isfile(path):
         print("patch_lights: no data/plants.json (plant models off)")
-        return "static const float *const lk_lt_pmt[] = { 0 }; static const int lk_lt_pmn[] = { 0 }; static const float lk_lt_pmr[] = { 0.0f };\nstatic const int16_t lk_lt_plant[][5] = { {-1, 0, 0, 0, 0} };\n"
-    d = json.load(open(path)); names = sorted(d["models"]); out = []; rad = []; ntri = []
+        return "static const float *const lk_lt_pmt[] = { 0 }; static const int lk_lt_pmn[] = { 0 }; static const float lk_lt_pmr[] = { 0.0f };\nstatic const int16_t lk_lt_plant[][5] = { {-1, 0, 0, 0, 0} };\n#define LK_LT_PBIG -1\nstatic const float lk_lt_pph[] = { 1.0f }; static const float lk_lt_pprof[][8] = { { 0 } };\n"
+    d = json.load(open(path)); names = sorted(d["models"]); out = []; rad = []; ntri = []; hh = []; prof = []
     for i, n in enumerate(names):
         t = mesh_tris(os.path.join(os.path.dirname(path), d["models"][n])); ntri.append(len(t) // 18)
         rad.append(max(math.hypot(t[k], t[k + 1]) for k in range(0, len(t), 6)))
+        zs = [t[k + 2] for k in range(0, len(t), 6)]; H = max(zs); hh.append(H); pr = []   # LK_LTPLANT v2: radius per eighth of the height (3rd quartile of the vertex radii there: the spiky tier tips count less)
+        for b in range(8):
+            rr = sorted(math.hypot(t[k], t[k + 1]) for k in range(0, len(t), 6) if H * b / 8 - 0.5 <= t[k + 2] <= H * (b + 1) / 8 + 0.5)
+            pr.append(rr[(3 * len(rr)) // 4] if rr else 0.0)
+        prof.append(pr)
         out.append("static const float lk_lt_pmt%d[] = { %s };\n" % (i, ", ".join("%.3ff" % v for v in t)))
     rows = []
     for room in sorted(d["rooms"], key=int):
@@ -2181,7 +2236,10 @@ def plant_table():   # LK_LTPLANT v1 (2026-11-20, user: 'alle Kiefern und Buesch
     print("patch_lights: plant models %s (%s triangles), %d instances in %d rooms" % (names, ntri, len(rows), len(d["rooms"])))
     return ("".join(out) + "static const float *const lk_lt_pmt[] = { %s };\n" % ", ".join("lk_lt_pmt%d" % i for i in range(len(names))) +
             "static const int lk_lt_pmn[] = { %s };\n" % ", ".join(str(v) for v in ntri) + "static const float lk_lt_pmr[] = { %s };   /* footprint radius per model */\n" % ", ".join("%.2ff" % v for v in rad) +
-            "static const int16_t lk_lt_plant[][5] = { %s };\n" % ", ".join(rows + ["{-1, 0, 0, 0, 0}"]))
+            "static const int16_t lk_lt_plant[][5] = { %s };\n" % ", ".join(rows + ["{-1, 0, 0, 0, 0}"]) +
+            "#define LK_LT_PBIG %d   /* the big round tree's model (owns its 4 x 4 collision block) */\n" % (names.index("bigtree") if "bigtree" in names else -1) +
+            "static const float lk_lt_pph[] = { %s };   /* model height */\n" % ", ".join("%.2ff" % v for v in hh) +
+            "static const float lk_lt_pprof[][8] = { %s };   /* radius per eighth of the height (LK_LTPLANT v2, lk_lt_plantvis) */\n" % ", ".join("{ %s }" % ", ".join("%.2ff" % v for v in p) for p in prof))
 MODULE = MODULE.replace("/*LK_LT_CORR*/", corr_table() + cat_table() + plant_table())
 
 a = "static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {\n"

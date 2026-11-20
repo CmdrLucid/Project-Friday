@@ -7459,6 +7459,16 @@
         "surface": true,
         "floor": 32,
         "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          23,
+          33,
+          23,
+          33
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 240..512 y 400..672 z0 32 over the grass terraces of the raft pier (game heights 2 / 3, the cliff cells already 12); the game height map already holds the flat block; it stood up to 51 above the ground over 359 sub columns"
       }
     ],
     "425": [
@@ -7545,6 +7555,16 @@
         "surface": true,
         "floor": 48,
         "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          34,
+          18,
+          34,
+          18
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 400..688 y 240..336 z0 48 over the terrace along the cliff edge (game height 3); the game height map already holds the flat block; it stood up to 43 above the ground over 96 sub columns"
       }
     ],
     "484": [
@@ -7560,6 +7580,16 @@
         "surface": true,
         "floor": 0,
         "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          21,
+          61,
+          21,
+          61
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 304..384 y 960..992 z0 32 over the dirt terrace step (game height 2); the game height map already holds the flat block; it stood up to 17 above the ground over 96 sub columns"
       }
     ],
     "514": [
@@ -7575,6 +7605,16 @@
         "surface": true,
         "floor": 16,
         "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          27,
+          29,
+          27,
+          29
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 400..464 y 448..480 z0 208 over the dirt terrace (game height 13); the game height map already holds the flat block; it stood up to 11 above the ground over 96 sub columns"
       }
     ],
     "19": [
@@ -8208,6 +8248,352 @@
         "surface": true,
         "floor": 144,
         "why": "Destel house FRONT in the cliff F (south log wall flush in the cliff face y 400, ground 144, door + sign + stub columns): remake/recipes/proxy_houses_726.py, measured on the rectified wall; 2026-11-20, HANDOFF -248"
+      }
+    ],
+    "226": [
+      {
+        "op": "remove",
+        "cells": [
+          14,
+          23,
+          14,
+          23
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 192..272 y 256..480 z0 160 over the grass plateau on the cliff (game height 10) and the terrace below it; the game height map already holds the flat block; it stood up to 51 above the ground over 1104 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          32,
+          26,
+          32,
+          26
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 480..560 y 336..496 z0 32 over the grass plateau on the cliff (game height 10) and the terrace below it; the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "432": [
+      {
+        "op": "remove",
+        "cells": [
+          15,
+          18,
+          15,
+          18
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 192..304 y 224..368 z0 16 over the raised swamp grass beside the boardwalk (game height 0 / 1); the game height map already holds the flat block; it stood up to 44 above the ground over 392 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          32,
+          21,
+          32,
+          21
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 320..704 y 224..448 z0 16 over the raised swamp grass beside the boardwalk (game height 0 / 1); the game height map already holds the flat block; it stood up to 80 above the ground over 1008 sub columns"
+      }
+    ],
+    "436": [
+      {
+        "op": "remove",
+        "cells": [
+          15,
+          18,
+          15,
+          18
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 192..304 y 224..368 z0 16 over the raised swamp grass beside the boardwalk (game height 0 / 1); the game height map already holds the flat block; it stood up to 44 above the ground over 392 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          32,
+          21,
+          32,
+          21
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 320..704 y 224..448 z0 16 over the raised swamp grass beside the boardwalk (game height 0 / 1); the game height map already holds the flat block; it stood up to 80 above the ground over 1008 sub columns"
+      }
+    ],
+    "443": [
+      {
+        "op": "remove",
+        "cells": [
+          18,
+          20,
+          18,
+          20
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 272..320 y 272..384 z0 80 over the grass pillar (game height 5) and the swamp terraces; the game height map already holds the flat block; it stood up to 28 above the ground over 32 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          18,
+          39,
+          18,
+          39
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 272..320 y 608..656 z0 80 over the grass pillar (game height 5) and the swamp terraces; the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          24,
+          45,
+          24,
+          45
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 272..496 y 608..848 z0 16 over the grass pillar (game height 5) and the swamp terraces; the game height map already holds the flat block; it stood up to 18 above the ground over 32 sub columns"
+      }
+    ],
+    "492": [
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          37,
+          30,
+          37
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 416..560 y 560..640 z0 160 over the dirt terraces (game heights 10 / 11); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          26,
+          38,
+          26
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 560..656 y 368..480 z0 160 over the dirt terraces (game heights 10 / 11); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          42,
+          46,
+          42,
+          46
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 624..720 y 704..768 z0 176 over the dirt terraces (game heights 10 / 11); the game height map already holds the flat block; it stood up to 28 above the ground over 384 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          54,
+          28,
+          54,
+          28
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 848..880 y 368..544 z0 176 over the dirt terraces (game heights 10 / 11); the game height map already holds the flat block; it stood up to 25 above the ground over 352 sub columns"
+      }
+    ],
+    "500": [
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          24,
+          38,
+          24
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 592..624 y 320..448 z0 64 over the grass terraces (game heights 3 / 4 / 11; the pines around them have their plant models); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          40,
+          44,
+          40,
+          44
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 608..672 y 688..736 z0 176 over the grass terraces (game heights 3 / 4 / 11; the pines around them have their plant models); the game height map already holds the flat block; it stood up to 49 above the ground over 192 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          40,
+          22,
+          40,
+          22
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 624..656 y 320..384 z0 48 over the grass terraces (game heights 3 / 4 / 11; the pines around them have their plant models); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "515": [
+      {
+        "op": "remove",
+        "cells": [
+          29,
+          23,
+          29,
+          23
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 384..560 y 288..464 z0 64 over the dirt terraces (game heights 3 / 4); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          31,
+          27,
+          31,
+          27
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 464..528 y 368..512 z0 48 over the dirt terraces (game heights 3 / 4); the game height map already holds the flat block; it stood up to 82 above the ground over 144 sub columns"
+      }
+    ],
+    "560": [
+      {
+        "op": "remove",
+        "cells": [
+          54,
+          48,
+          54,
+          48
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 832..912 y 752..784 z0 48 over the grass block over the cave (game height 3); the game height map already holds the flat block; it stood up to 42 above the ground over 160 sub columns"
+      }
+    ],
+    "561": [
+      {
+        "op": "remove",
+        "cells": [
+          22,
+          22,
+          22,
+          22
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 304..400 y 336..384 z0 48 over the grass block over the cave (game height 3); the game height map already holds the flat block; it stood up to 87 above the ground over 288 sub columns"
+      }
+    ],
+    "564": [
+      {
+        "op": "remove",
+        "cells": [
+          43,
+          29,
+          43,
+          29
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 656..720 y 448..480 z0 64 over the grass block over the cave (game height 4); the game height map already holds the flat block; it stood up to 27 above the ground over 128 sub columns"
+      }
+    ],
+    "570": [
+      {
+        "op": "remove",
+        "cells": [
+          31,
+          24,
+          31,
+          24
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 384..624 y 304..480 z0 32 over the grass terraces in the forest (game heights 2 / 3 / 6); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          31,
+          30,
+          31
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 400..560 y 384..608 z0 48 over the grass terraces in the forest (game heights 2 / 3 / 6); the game height map already holds the flat block; it stood up to 47 above the ground over 752 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          35,
+          34,
+          35,
+          34
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 544..576 y 528..560 z0 96 over the grass terraces in the forest (game heights 2 / 3 / 6); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "362": [
+      {
+        "op": "remove",
+        "cells": [
+          29,
+          23,
+          29,
+          23
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 352..592 y 256..480 z0 32 over the walkable forest clearing; the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "461": [
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          39,
+          30,
+          39
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 448..528 y 576..672 z0 80 over the grass terrace (game height 5); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "463": [
+      {
+        "op": "remove",
+        "cells": [
+          42,
+          35,
+          42,
+          35
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 656..704 y 528..592 z0 80 over the grass block (game height 5); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "545": [
+      {
+        "op": "remove",
+        "cells": [
+          50,
+          29,
+          50,
+          29
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 768..832 y 432..496 z0 48 over the grass block of the post (game height 3); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "556": [
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          17,
+          30,
+          17
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 384..592 y 240..320 z0 32 over the terraces (game heights 1..3); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "572": [
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          17,
+          30,
+          17
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 384..592 y 240..320 z0 32 over the terraces (game heights 1..3); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "567": [
+      {
+        "op": "remove",
+        "cells": [
+          29,
+          48,
+          29,
+          48
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 368..560 y 736..816 z0 128 over the terraces (game heights 8 / 10); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
       }
     ]
   },

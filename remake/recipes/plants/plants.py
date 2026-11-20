@@ -111,7 +111,7 @@ def survey(room, T, BIG, SMALL, thr=0.65):
             out.append(("small", d[0], max(sc)[1]))
     hm = PS.heights(ROM, room); rects = tree_rects(room); res = []; drop = 0
     for name, U, V in out:
-        w = foot_world(hm, U, V)
+        w = foot_tree(hm, U, V) if name == "bigtree" else foot_world(hm, U, V)
         if not w: continue
         X, Y, z, c = w
         if any(r[0] <= c[0] <= r[2] and r[1] <= c[1] <= r[3] for r in rects): drop += 1; continue
@@ -127,13 +127,14 @@ def survey(room, T, BIG, SMALL, thr=0.65):
 
 def foot_world(hm, U, V):
     """pine_cluster.foot_world with the floor of a blocked cell = the NEAREST free floor (ring by ring up to 8 cells away): inside a dense forest every
-    cell is blocked (room 425 rows 15..17: the old rule took the cell's own top and put the back pines 2 rows forward)"""
+    cell is blocked (room 425 rows 15..17: the old rule took the cell's own top and put the back pines 2 rows forward); only free floors not above a raised (height >= 1)
+    blocked cell's top count (tree-top paths, room 458)"""
     def floor(c):
         h, b = hm.get(c, (None, True))
         if h is None: return None
         if not b: return 16 * h
         for d in range(1, 9):
-            nb = [hm[q][0] for q in ((c[0] + a, c[1] + e) for a in range(-d, d + 1) for e in range(-d, d + 1) if max(abs(a), abs(e)) == d) if q in hm and not hm[q][1]]
+            nb = [hm[q][0] for q in ((c[0] + a, c[1] + e) for a in range(-d, d + 1) for e in range(-d, d + 1) if max(abs(a), abs(e)) == d) if q in hm and not hm[q][1] and (hm[q][0] <= h or h < 1)]   # only floors NOT ABOVE the block's top (2026-11-21, room 458: walkable tree-top paths of height 4 / 5 inside the forest gave pines feet at 64 / 80 above a bed of 48 on ground 16)
             if nb: return 16 * min(nb)
         return 16 * h
     D = U - 1184
@@ -141,6 +142,27 @@ def foot_world(hm, U, V):
         X = V + z + D / 2; Y = V + z - D / 2; c = (int(X // 16), int(Y // 16)); f = floor(c)
         if f is not None and z <= f: return X, Y, z, c
     return None
+
+TREE_TRUNK = {(3, 1), (3, 2), (1, 3), (2, 3)}   # the big round tree's collision: a 4 x 4 block of one height with these 4 cells at the ground's height (rooms 424 451 454 458 474 484 488 501 561 564)
+
+def foot_tree(hm, U, V):
+    """bigtree foot (2026-11-21, user recording rec_20261120_1940 room 458: 'Nigels Schatten bricht beim grossen Baum um wie an einer Wand'): the big round
+    tree stands on its OWN collision block (4 x 4 cells, TREE_TRUNK cells low). foot_world stopped at that block's side (458: 495,335 z 47 = half a block too
+    far back and up: the block stayed as a box beside the model). Here: the block with that pattern next to the ray's hit cell; foot = its centre on the
+    ground (= the trunk cells' height). Check: room 488 gives 576,656 z 128 = proxy_tree_488.py's measured axis. No such block -> foot_world."""
+    w = foot_world(hm, U, V)
+    if not w: return None
+    cx, cy = w[3]; best = None
+    for y0 in range(cy - 6, cy + 3):
+        for x0 in range(cx - 6, cx + 3):
+            cells = [(x0 + i, y0 + j) for i in range(4) for j in range(4)]
+            if any(c not in hm for c in cells): continue
+            top = {hm[(x0 + i, y0 + j)][0] for i in range(4) for j in range(4) if (i, j) not in TREE_TRUNK}
+            low = {hm[(x0 + i, y0 + j)][0] for (i, j) in TREE_TRUNK}
+            if len(top) == 1 and len(low) == 1 and min(top) > min(low):
+                X, Y, z = 16.0 * x0 + 32, 16.0 * y0 + 32, 16 * min(low); d = abs(X - Y + 1184 - U) + abs((X + Y) / 2 - z - V)
+                if best is None or d < best[0]: best = (d, X, Y, z, (x0 + 2, y0 + 2))
+    return best[1:] if best and best[0] <= 24 else w
 
 def write_models():
     src = os.path.join(ROOT, "landstalker", "data", "proxies", "tree_488.obj")   # the measured big tree (proxy_tree_488.py), moved to the origin (= its foot)
