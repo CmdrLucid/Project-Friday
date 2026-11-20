@@ -108,7 +108,7 @@ def contour(t, rc0=6.0, K=(24, 5), hx0=HX):
         for j in range(1, K[0]): pts.append((ex + (tx - ex) * j / K[0], ey + (ty - ey) * j / K[0]))
     return pts
 
-def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, door="dark", door_top=None, course=0.0, step=0.0, ridge_knot=False, log_over_door=False, mitre=False):
+def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, door="dark", door_top=None, course=0.0, step=0.0, ridge_knot=False, log_over_door=False, mitre=False, back_in=0.0):
     """adds the house to a blx.Mesh with materials bark, post, endgrain, dark, hole, thatch, under (+ 'sign' if sign_uv is given:
     function (x, y, z) -> texel uv of the sign image).  hx > HX = more roof overhang (the slope continues down past the picture's eave),
     lip = eave roll radius; door = 'dark' (opening as in the picture), 'open' (dark opening in a frame: jambs, lintel, threshold) or 'planks'
@@ -195,6 +195,9 @@ def build(M, nseg=10, den=2.0, sign_uv=None, roof_jitter=1.4, hx=HX, lip=3.5, do
     else:
         for k in range(1, 17):
             t = LIP + (hx - 0.8 - LIP) * k / 16; rings.append((contour(t, hx0=hx), rzz(t)))
+    if back_in:   # light variant (2026-11-20, measured on all 7 Massan houses): the drawn roof's BACK eaves (W / N) are back_in nearer the walls than the front ones
+        f = (hx - back_in / 2) / hx    # affine map: the front edges stay, the back edges move in by back_in (centre + back_in / 2, half size - back_in / 2)
+        rings = [([(CX + back_in / 2 + (x - CX) * f, CY + back_in / 2 + (y - CY) * f) for x, y in pts], z) for pts, z in rings]
     tex = lambda x, y: ((x - (CX - hx)) * den, ((CY + hx) - y) * den)
     for (A, za), (B, zb) in zip(rings, rings[1:]):
         n = len(A)

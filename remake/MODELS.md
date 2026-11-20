@@ -258,3 +258,8 @@ FINAL = with material, approved by the user.
 - CORNERS (user 2026-11-20, all houses incl. A / B): FLUSH mitred corners ('corners': 'mitre', massan_a.build(mitre=True) in the light recipe only): the drawing shows the logs of both walls meeting in a chevron, no stack of end discs (B's SW corner keeps the user's marks).
 - STATE: A..G user OK on the clay / drawing comparisons 2026-11-20; in data/light_proxies.json (room 592 = the only room on this map) since 2026-11-20, GPU lightedges before / after: see DEBUGGING.
 
+## Gumi log houses  (`remake/recipes/proxy_houses_603.py` -> `landstalker/data/proxies/house_603_{p,q,t,s,w}.obj`; rooms 601 / 602 / 603, one map, ground 96)
+- Same tiles as Massan (pixel comparisons 2026-11-20): T (39..43 x 30..33) = G + (256, 256, 64) without the cloth (small upper window open); S (41..45 x 42..48) = B + (112, 208, 96); W (25..29 x 48..52, skull sign) = A + (112, 336, 96) + one more E post (A coords 490.5); P (25..29 x 30..34): S door 414..430, G's cloth tile 48 lower over a small window under the eave; Q (31..35 x 30..34): S door 510..526, D's shutter tile at 541..552, vent 533.5 / 543. Corners mitred, back_in 3 (back eaves checked 0 px).
+- Massan A re-measured the same day (door 462..478, posts S 298.5 / 305.5 / 346.5 / 353.5, E 442.5 / 449.5 / 458.5 / 481.5 / 497.5; the kit numbers were 1.5..4 off), light variant only.
+- STATE: in data/light_proxies.json (601-603); user check open (HANDOFF -244).
+

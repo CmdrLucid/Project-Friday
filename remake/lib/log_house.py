@@ -144,6 +144,10 @@ def build(M, h, nseg=8, lip=3.5):
         phi = math.radians(-90 + 180 * k / 6); rings.append((contour(lip * (1 - math.cos(phi))), ze - lip + lip * math.sin(phi)))
     for k in range(1, 13):
         t = lip + (hs - 0.8 - lip) * k / 12; rings.append((contour(t), rz(t)))
+    bi = h.get("back_in", 0.0)   # the drawn roof's BACK eaves (W / N) sit bi nearer the walls than the front ones (all 7 Massan houses: 3, 2026-11-20)
+    if bi:
+        fx, fy = (hx - bi / 2) / hx, (hy - bi / 2) / hy
+        rings = [([(CX + bi / 2 + (x - CX) * fx, CY + bi / 2 + (y - CY) * fy) for x, y in pts], z) for pts, z in rings]
     for (Ar, za), (Br, zb) in zip(rings, rings[1:]):
         n = len(Ar)
         for i in range(n):

@@ -2021,6 +2021,13 @@ Build dev 48c243a (verify_build: 126 ok). Evidence (all hidden-window GPU presen
 - Massan 592 later (2026-11-20): all seven houses (C..G added: pairs + tall house) built from rectified wall pictures (local helpers in ~/Project-Friday-Test/lktest/m592/paar_w: wand.py = wall plane resample, prof.py = dark / brightness per unit along a wall; post centre = dark edge of the drawn post + 4.5, door = dark span +-1, as calibrated on B). Corners mitred (user), in data/light_proxies.json. lightedges 592 --spots: 0 px with the old binary (copy build/lk_before, LIGHTEDGES_BIN) and 0 px new; per spot up to 69k pixels change (houses only).
 
 
+## Massan night check + Gumi log houses (2026-11-20 evening, LK_LTWINNEAR v1, back_in, proxy_houses_603)
+- rec_20261120_0918 (room 592 frames 3720..15240) replayed in sync with tools/lightshots.sh, night via EXTRA LANDSTALKER_DAYTIME=23, model off via LANDSTALKER_LT_MODEL=0 (11.5 M pixels differ over 97 shots = the models are active).
+- Roof strip: model back eaves 3 px outside the drawn outline on all 7 houses (W / N; front S / E exact): back_in 3 -> 0 px; night strip gone (lktest/m592/roofedge2.png).
+- Door light: LANDSTALKER_DNDOOR_K=0 keeps the pool, LANDSTALKER_DNSPILL_LEN=4 removes it -> the hard edge is the LK_DNSPILL strip over the drawing's own darker band along the fence (gain proportional to the ground colour). Pre-existing, decision open.
+- Jump shadow: LANDSTALKER_LT_PAIRDBG=15028 -> Nigel (557, 413, 40) paired with window light 10 at (555, 413, 57) (house F's S window, lava 2); LANDSTALKER_LT_FIGSH_ONLY=10 reproduces the strip in front of the E door, -2 removes it. LK_LTWINNEAR v1: no figure shadow from lava-2 lights within 28 units or with the figure's middle above the light (LANDSTALKER_LT_WINNEAR=0 = old).
+- Gumi 601 / 602 / 603 (one map, tileset 7): pixel comparisons with the Massan houses (lktest/gumi): T = G (E wall 89 %), S = B (S wall 99.7 %), W = A; P / Q measured; back eaves 0 px.
+
 ## Sprint in cutscenes, castle walk-in, bath scene maid + double Nigel (2026-11-20, LK_SPRINT v4 / v5, LK_BATH2, LK_OWNLIE v1)
 - Recordings: rec_20261119_2244 (sprint behind the maid after the Duke intro), rec_20261120_0537 (castle entered twice, bath scene played, double Nigel in room 97). Replays in sync from `build/` with the recording's opts + save; for the old sprint rule a temporary `build/lk_test` with the v4 door line.
 - v4: cutscene walks set g_PlaybackLock + g_PlayerStatusFlags bit 7 like the door walk-out -> door walk = only a playback started through j_PlaybackInput $010318 (wrapper marks, PlaybackInput $010842 wrapper consumes; func_table_tail order). Hold test 4500..7100: rooms 60 / 86 / 94 / 97 cutscene frames 0 fast of 947; door walks still fast.

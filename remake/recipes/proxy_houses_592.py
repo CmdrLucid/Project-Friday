@@ -27,15 +27,18 @@ def export(ob, name, title):
 
 mats = [blx.flat_material(n, (150, 150, 150)) for n in ("bark", "post", "endgrain", "dark", "hole", "thatch", "under", "plank")]
 M = blx.Mesh("house_592_a", mats); M.density = 1.0
-H.POSTS = dict(H.POSTS, E=[445, 452, 462.5, 485.5, 492, 499])     # door posts beside the opening (as kit_c.house_a, from the picture)
-H.build(M, nseg=8, den=1.0, roof_jitter=0.0, hx=H.HX, lip=3.5, door="open", ridge_knot=False, log_over_door=True, mitre=True)   # no gap above the door (user)
+# A re-measured 2026-11-20 with the rule calibrated on B (post centre = dark edge of the drawn post + 4.5, door = dark span +- 1): the kit_c numbers sat
+# 1.5..4 units too far along (door was 466..482, posts S 300 / 307 / 349 / 356, E 445 / 452 / 464 / 484 / 492 / 499); the remake (massan_a defaults) is unchanged
+H.POSTS = dict(H.POSTS, S=[298.5, 305.5, 346.5, 353.5], N=[298.5, 305.5, 346.5, 353.5], E=[442.5, 449.5, 458.5, 481.5, 497.5], W=[442.5, 449.5, 489.5, 496.5])
+H.DOOR = dict(H.DOOR, a0=462.0, a1=478.0)   # drawn dark 463..477
+H.build(M, nseg=8, den=1.0, roof_jitter=0.0, hx=H.HX, lip=3.5, door="open", ridge_knot=False, log_over_door=True, mitre=True, back_in=3.0)   # no gap above the door (user)
 export(M.finish(), "house_592_a", "Massan log house A (the lone house west of the statue), room 592")
 
 import log_house as L
 # HOUSE B (the south house, cells 34..38 x 29..35, 5 x 7): log planes = cell lines inset 3 (as A), ground 0, eave 50, top 77 like A (collision h 3);
 # door S x 593..609 up to 35 (dark block on the S wall plane map), round window E at y 530 z 28, boarded window S left, ridge log bundle along y,
 # two roof vents on the E slope (placed by eye, checked on the overlay)
-B = dict(planes=(547, 621, 467, 573), z0=0, corners="mitre",   # flush corners (user 2026-11-20); the SW corner keeps its marks (noext W / ext S)
+B = dict(planes=(547, 621, 467, 573), z0=0, back_in=3.0, corners="mitre",   # flush corners (user 2026-11-20); the SW corner keeps its marks (noext W / ext S)
          doors=[("S", 590, 606, 35)],   # door: drawn dark opening U 1201..1216 (was 593..609)
          windows=[("E", 530, 28)], shutters=[("S", 557, 569, 24, 38, 3)],   # window x 556..567 z 24..38 behind a top-hinged shutter propped out 3 (drawn hinge edge U 1166..1177, its lower edge only ~3 px further left; user: was too far left with 553 / out 7)
         
@@ -53,14 +56,15 @@ export(MB.finish(), "house_592_b", "Massan log house B (the south house), room 5
 # the front roof lies over it). Measured on the rectified wall pictures (2026-11-20): doors = the same tiles as B (dark 319..333 / 367..381 -> 318..334 /
 # 366..382, top 35), posts beside them +-3.5 from the door edge; the E pattern repeats with a period of 48 (door cells y 20 / 23 in the height map).
 # Roofs: one crossing of sticks at EACH END of the short ridge (x 400 / 416); back roof: square vent hood, cap top centre drawn at U 1251.5 V 269.5.
-C = dict(planes=(371, 445, 291, 349), z0=32, corners="mitre", doors=[("E", 318, 334, 35)],
+C = dict(planes=(371, 445, 291, 349), z0=32, back_in=3.0, corners="mitre", doors=[("E", 318, 334, 35)],
          posts={"E": [314.5, 337.5]},
          ridge="sticks_ends", sticks_shift=(3.5, -4.25), stick_r=2.6, vents=[(405.5, 338)])
-D = dict(planes=(371, 445, 355, 413), z0=32, corners="mitre", doors=[("E", 366, 382, 35)],
+D = dict(planes=(371, 445, 355, 413), z0=32, back_in=3.0, corners="mitre", doors=[("E", 366, 382, 35)],
          shutters=[("S", 397, 408, 22, 38, 6)],   # drawn plank: hinge edge x 397..407 at z 71, lower edge x 391..402 at z ~52 (6 left = propped out 6)
          posts={"E": [362.5, 385.5, 401.5], "S": [378.5, 385.5, 426.5, 433.5]},   # S posts in pairs 7 apart (dark edge of each drawn post + 4.5, as B)
          ridge="sticks_ends", sticks_shift=(3.5, -4.25), stick_r=2.6)   # drawn bindings at screen (+3.5, +6) from the ridge ends x 400 / 416 at the top: kept on the ridge -> x +3.5, z -4.25
-# corners="mitre" (user 2026-11-20 mark on the SE corner of D: 'eher eine normale Ecke im Sprite'): the drawing shows the logs of both walls meeting in a
+# back_in=3 (2026-11-20, user: dark strip beside the roofs at night): the drawn W / N eave outline is 3 px inside the model's on ALL houses (front S / E
+# edges match); the overhang lay over the ground and darkened it. corners="mitre" (user 2026-11-20 mark on the SE corner of D: 'eher eine normale Ecke im Sprite'): the drawing shows the logs of both walls meeting in a
 # chevron at every corner (also at the joint), no stack of end discs; the protruding ends also made a serrated silhouette = frayed light edges.
 for key, h, title in (("c", C, "west pair, back house C"), ("d", D, "west pair, front house D")):
     MM = blx.Mesh("house_592_" + key, mats); MM.density = 1.0
@@ -72,10 +76,10 @@ for key, h, title in (("c", C, "west pair, back house C"), ("d", D, "west pair, 
 # each drawn post + 4.5 (E: 273.5 [no post at 282.5], 305.5 / 346.5, 369.5, 385.5; F S in two pairs around the window). F S: plain open WINDOW (no
 # shutter) between the posts 538.5 / 561.5, dark x 540..556, z 57..66 (25..34.5 above the ground). Roofs: E sticks at both ridge ends (bindings at the
 # same screen offset as C / D), F square roof: one crossing in the middle (as A), vent hood cap top centre drawn at U 1401 V 366.
-E_ = dict(planes=(515, 589, 259, 317), z0=32, corners="mitre", doors=[("E", 286, 302, 35)],
+E_ = dict(planes=(515, 589, 259, 317), z0=32, back_in=3.0, corners="mitre", doors=[("E", 286, 302, 35)],
           posts={"E": [273.5, 305.5]},
           ridge="sticks_ends", sticks_shift=(3.5, -4.25), stick_r=2.6)
-F_ = dict(planes=(515, 589, 323, 397), z0=32, corners="mitre", doors=[("E", 350, 366, 35)],
+F_ = dict(planes=(515, 589, 323, 397), z0=32, back_in=3.0, corners="mitre", doors=[("E", 350, 366, 35)],
           openings=[("S", 540, 557, 25, 34.5)],
           posts={"E": [346.5, 369.5, 385.5], "S": [522.5, 538.5, 561.5, 577.5]},
           ridge="sticks", stick_r=2.6, vents=[(576, 359)])
@@ -89,7 +93,7 @@ for key, h, title in (("e", E_, "east pair, back house E"), ("f", F_, "east pair
 # posts run the full height (250.5 / 273.5); above it a SIGN board (grey frame y 253..268, z 44..60.5 above the ground) and an upper WINDOW (dark top at
 # z 97.5 + 2.5 like the door, sill = the cloth's top z 89.5) with a blue CLOTH hanging out over the sill down the wall (drawn y 249..269, lower edge
 # 72 at the sides / 67.5 in the middle; out 0.8 / 1.6, positions corrected for the projection shift). S: two round windows = A's tile (hole centroid offset as A) at x 400.5, z 59 / 91; posts 378.5 / 426.5.
-G_ = dict(planes=(371, 445, 227, 285), z0=32, ze=114, zt=141, corners="mitre", doors=[("E", 254, 270, 35)],
+G_ = dict(planes=(371, 445, 227, 285), z0=32, back_in=3.0, ze=114, zt=141, corners="mitre", doors=[("E", 254, 270, 35)],
           openings=[("E", 254, 270, 89.5, 100)], boards=[("E", 253, 269, 44, 60.5)],   # SMALL window (user 2026-11-20): only the dark strip above the cloth
           cloths=[("E", 250.2, 270.2, 90, 72.8, 68.3, 0.8, 1.6)],   # the cloth hangs OUT over the sill and down the outside of the wall (in front of the logs)
           windows=[("S", 400.5, 59), ("S", 400.5, 91)],

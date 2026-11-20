@@ -7768,6 +7768,207 @@
         "floor": 16,
         "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
       }
+    ],
+    "601": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          30,
+          29,
+          34
+        ],
+        "file": "proxies/house_603_p.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house P (blue cloth) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          30,
+          35,
+          34
+        ],
+        "file": "proxies/house_603_q.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house Q (shutter, vent) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          30,
+          43,
+          33
+        ],
+        "file": "proxies/house_603_t.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE tall house T (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          42,
+          45,
+          48
+        ],
+        "file": "proxies/house_603_s.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE south house S (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          48,
+          29,
+          52
+        ],
+        "file": "proxies/house_603_w.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house W (skull sign) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      }
+    ],
+    "602": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          30,
+          29,
+          34
+        ],
+        "file": "proxies/house_603_p.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house P (blue cloth) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          30,
+          35,
+          34
+        ],
+        "file": "proxies/house_603_q.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house Q (shutter, vent) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          30,
+          43,
+          33
+        ],
+        "file": "proxies/house_603_t.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE tall house T (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          42,
+          45,
+          48
+        ],
+        "file": "proxies/house_603_s.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE south house S (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          48,
+          29,
+          52
+        ],
+        "file": "proxies/house_603_w.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house W (skull sign) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      }
+    ],
+    "603": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          30,
+          29,
+          34
+        ],
+        "file": "proxies/house_603_p.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house P (blue cloth) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          30,
+          35,
+          34
+        ],
+        "file": "proxies/house_603_q.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house Q (shutter, vent) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          30,
+          43,
+          33
+        ],
+        "file": "proxies/house_603_t.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE tall house T (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          42,
+          45,
+          48
+        ],
+        "file": "proxies/house_603_s.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE south house S (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          48,
+          29,
+          52
+        ],
+        "file": "proxies/house_603_w.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house W (skull sign) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      }
     ]
   },
   "unpaint_tiles": {
