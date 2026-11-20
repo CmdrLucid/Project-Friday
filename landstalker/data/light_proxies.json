@@ -24,6 +24,99 @@
     "     carve {\"cells\": [x0,y0,x1,y1], \"bg\": \"sea\" | \"layera\", \"floor\": f} - at room load the shapes in these cells follow the DRAWN picture: every sub column is lowered until its top and its front edge land on drawn object pixels (sea = nothing drawn or a water tile), slabs keep the heights drawn in layer A, then a 3 x 3 median (LANDSTALKER_LT_CARVEMED). Outdoors every building shape / mesh is carved automatically to layer A (LANDSTALKER_LT_CARVEOUT=0 = off)."
   ],
   "rooms": {
+    "592": [
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          27,
+          22,
+          31
+        ],
+        "file": "proxies/house_592_a.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "Massan LOG HOUSE house A (the lone house west of the statue), ground 0: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          29,
+          38,
+          35
+        ],
+        "file": "proxies/house_592_b.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "Massan LOG HOUSE house B (the south house), ground 0: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          18,
+          27,
+          21
+        ],
+        "file": "proxies/house_592_c.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Massan LOG HOUSE west pair, back house C, ground 32: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          22,
+          27,
+          25
+        ],
+        "file": "proxies/house_592_d.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Massan LOG HOUSE west pair, front house D, ground 32: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          16,
+          36,
+          19
+        ],
+        "file": "proxies/house_592_e.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Massan LOG HOUSE east pair, back house E, ground 32: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          20,
+          36,
+          24
+        ],
+        "file": "proxies/house_592_f.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Massan LOG HOUSE east pair, front house F, ground 32: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          14,
+          27,
+          17
+        ],
+        "file": "proxies/house_592_g.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Massan LOG HOUSE tall house G, ground 32: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      }
+    ],
     "611": [
       {
         "op": "mesh",

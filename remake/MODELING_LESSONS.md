@@ -30,6 +30,11 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 - Buildings that hide each other: fit ALL of them at once (scene fit, the union rendered with the view ray, `remake/tools/fit_house.py`), not one by one with masks; walls of town houses come out on the cell lines (2026-11-20).
 - Walls built from repeating wall TILES (town houses): classify each 16 unit slot (window / door / plain / sign) and take the tile's geometry from one measured copy; measure only what differs (a small window) (`remake/tools/find_openings.py`, 2026-11-20).
 - Ask the user to MARK what is wrong on the overlay (red lines): 'one corner' vs 'stepped corbel' could not be read from my description (church entrance, 2026-11-20).
+- Log house corners: look at the drawn corner before adding protruding log ends: Massan's corners are a flush chevron (both walls' logs meet on the
+  diagonal); end discs made a serrated silhouette = frayed light edges (user 2026-11-20). A hanging cloth: the window behind it is SMALL (only the dark strip
+  above the cloth), the cloth hangs OUT over the sill; a big opening behind it read as a bulge (user 2026-11-20).
+- Repeated wall TILES across houses (doors, round windows) can be calibrated once: measure the drawn dark / hole centroid on the new house and apply the
+  offset found on an already confirmed copy (Massan round window: centroid -0.55 / -0.65 from the model centre).
 
 ## 3. Fitting the shape
 - **Never outside the drawing**: score = covered - 12 x outside, grow from thin rings; then nothing sticks out (the user sees every pixel that does).
