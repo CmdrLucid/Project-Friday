@@ -93,13 +93,19 @@ def build(M, h, nseg=8, lip=3.5):
             M.face("thatch", [G(Ar[i][0], Ar[i][1], za), G(Ar[j][0], Ar[j][1], za), G(Br[j][0], Br[j][1], zb), G(Br[i][0], Br[i][1], zb)], [(0, 0)] * 4)
     under, zu = rings[0]; M.face("under", [G(x, y, zu) for x, y in under], [(0, 0)] * len(under))
     top, ztop = rings[-1]; M.face("thatch", [G(x, y, ztop) for x, y in top], [(0, 0)] * len(top))
-    if h.get("ridge", "sticks") == "sticks":     # two crossed pairs of short sticks at the top (house A)
-        for ax in (0, 1):
-            for sgn in (-1, 1):
-                dw, dz = 6.5, 5.5
-                if ax == 0: p0, p1 = (CX - dw * sgn, CY + 1.4 * sgn, ZT - 3), (CX + dw * sgn, CY + 1.4 * sgn, ZT - 3 + 2 * dz)
-                else: p0, p1 = (CX + 1.4 * sgn, CY - dw * sgn, ZT - 3), (CX + 1.4 * sgn, CY + dw * sgn, ZT - 3 + 2 * dz)
-                M.cylinder("post", G(*p0), G(*p1), 1.6, n=6, cap="endgrain", density=1.0)
+    if h.get("ridge", "sticks") in ("sticks", "sticks_ends"):   # two crossed pairs of short sticks at the top (house A); 'sticks_ends': one such
+        # crossing at EACH END of the short ridge (the joined pairs, drawn groups centred on the ridge ends, 2026-11-20)
+        L = abs(hx - hy)
+        cs = [(CX, CY)] if h.get("ridge", "sticks") == "sticks" else ([(CX - L, CY), (CX + L, CY)] if hx > hy else [(CX, CY - L), (CX, CY + L)])
+        sdx, sdz = h.get("sticks_shift", (0.0, 0.0))   # move the crossings (x, z): the pairs' drawn bindings sit 3.5 right / 6 lower than A's
+        for qx, qy in cs:
+            qx += sdx; zs = ZT - 3 + sdz
+            for ax in (0, 1):
+                for sgn in (-1, 1):
+                    dw, dz = 6.5, 5.5
+                    if ax == 0: p0, p1 = (qx - dw * sgn, qy + 1.4 * sgn, zs), (qx + dw * sgn, qy + 1.4 * sgn, zs + 2 * dz)
+                    else: p0, p1 = (qx + 1.4 * sgn, qy - dw * sgn, zs), (qx + 1.4 * sgn, qy + dw * sgn, zs + 2 * dz)
+                    M.cylinder("post", G(*p0), G(*p1), h.get("stick_r", 1.6), n=6, cap="endgrain", density=1.0)
     else:                                        # ridge log bundle along the long axis (house B): three logs on the ridge
         L = abs(hx - hy) + 6
         for dz, off in ((ztop + 1.5, -2.2), (ztop + 1.5, 2.2), (ztop + 4.5, 0.0)):

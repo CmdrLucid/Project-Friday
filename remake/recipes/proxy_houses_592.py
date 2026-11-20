@@ -46,3 +46,20 @@ B = dict(planes=(547, 621, 467, 573), z0=0, doors=[("S", 590, 606, 35)],   # doo
 MB = blx.Mesh("house_592_b", mats); MB.density = 1.0
 L.build(MB, B)
 export(MB.finish(), "house_592_b", "Massan log house B (the south house), room 592")
+
+# WEST PAIR (cells 23..27 x 18..25, ground 32 = z0, collision h 5): TWO houses of 5 x 4 cells wall to wall (back C y 18..21, front D y 22..25), each with
+# its own walls (the drawing shows two columns of log ends at the joint on the E side, y ~340 / ~355) and its own roof (back roof edge y 287..353,
+# the front roof lies over it). Measured on the rectified wall pictures (2026-11-20): doors = the same tiles as B (dark 319..333 / 367..381 -> 318..334 /
+# 366..382, top 35), posts beside them +-3.5 from the door edge; the E pattern repeats with a period of 48 (door cells y 20 / 23 in the height map).
+# Roofs: one crossing of sticks at EACH END of the short ridge (x 400 / 416); back roof: square vent hood, cap top centre drawn at U 1251.5 V 269.5.
+C = dict(planes=(371, 445, 291, 349), z0=32, doors=[("E", 318, 334, 35)],
+         posts={"E": [314.5, 337.5]},
+         ridge="sticks_ends", sticks_shift=(3.5, -4.25), stick_r=2.6, vents=[(405.5, 338)])
+D = dict(planes=(371, 445, 355, 413), z0=32, doors=[("E", 366, 382, 35)],
+         shutters=[("S", 397, 408, 22, 38, 6)],   # drawn plank: hinge edge x 397..407 at z 71, lower edge x 391..402 at z ~52 (6 left = propped out 6)
+         posts={"E": [362.5, 385.5, 401.5], "S": [378.5, 385.5, 426.5, 433.5]},   # S posts in pairs 7 apart (dark edge of each drawn post + 4.5, as B)
+         ridge="sticks_ends", sticks_shift=(3.5, -4.25), stick_r=2.6)   # drawn bindings at screen (+3.5, +6) from the ridge ends x 400 / 416 at the top: kept on the ridge -> x +3.5, z -4.25
+for key, h, title in (("c", C, "west pair, back house C"), ("d", D, "west pair, front house D")):
+    MM = blx.Mesh("house_592_" + key, mats); MM.density = 1.0
+    L.build(MM, h)
+    export(MM.finish(), "house_592_" + key, "Massan log house %s, room 592" % title)
