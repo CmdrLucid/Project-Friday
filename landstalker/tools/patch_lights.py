@@ -804,6 +804,7 @@ static int lk_lt_inwat(void) { static int v = -1; if (v < 0) { const char *e = g
 static int lk_lt_invin(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INVIN"); v = e ? atoi(e) : 0; } return v; }   /* 2026-11-08: invisible barriers indoors too */
 static int lk_lt_vwnear(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_VWNEAR"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: back walls need the room in front of them */
 static int lk_lt_rimfill(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_RIMFILL"); v = e ? atoi(e) : 0; } return v; }   /* 2026-11-08: drawn floor rim indoors */
+static int lk_lt_plantopt(void);   /* LK_LTPLANT v1 (defined with lk_lt_objbuild) */
 static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 2026-11-03: 'sollten wir nicht eher fixen dass die Haeuser im Raumplan korrekt sind?'):
      the game's height map holds only the low collision boxes of houses / trees; their drawn walls, roofs and crowns are layer A (foreground) pixels
      above the box.  Small raised boxes (<= 128 cells of one height with a lower neighbour; large areas = terrain stay) are raised in OUR copy (lk_lt_top) cell by cell
@@ -1052,6 +1053,16 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
         lk_lt_npx = kept;
         P = &lk_lt_px[lk_lt_npx++]; P->type = 5; P->part = 0; P->obj = 1031; lk_lt_ocl[1031] = 2; P->x0 = P->y0 = 0; P->x1 = P->y1 = 73; P->z0 = P->eave = P->ridge = 0; }
       if (lk_lt_dbg == 5) printf("catalogue: room %%d tileset %%d: %%d bush cells, %%d pine cells, %%d flat cells, %%d groups\n", lk_o_room, ts, nb, np, nf, n); }
+    if (lk_lt_plantopt()) { int q0 = -1, q1 = -1, k, m, kept = 0;   /* LK_LTPLANT v1: automatic hips mostly over DRAWN PLANTS go too (user 2026-11-20 'b': the leftover list showed hips over bush rows / pine groups whose
+         plants already have their models; the catalogue rule above only counts its own block cells) */
+      for (k = 0; lk_lt_plant[k][0] >= 0; k++) if (lk_lt_plant[k][0] == lk_o_room) { if (q0 < 0) q0 = k; q1 = k + 1; }
+      if (q0 >= 0) { for (m = 0; m < lk_lt_npx; m++) { const lk_lt_proxy *Q = &lk_lt_px[m]; int tot = 0, hit = 0, cx, cy;
+          if (Q->type == 1 && Q->part) for (cy = Q->y0 >> 4; cy < (Q->y1 + 15) >> 4 && cy < 74; cy++) for (cx = Q->x0 >> 4; cx < (Q->x1 + 15) >> 4 && cx < 74; cx++) if (cx >= 0 && cy >= 0 && lk_lt_part[cy][cx] == Q->part) {
+            float X = 16.0f * cx + 8.0f, Y = 16.0f * cy + 8.0f; tot++;
+            for (k = q0; k < q1; k++) { float dx = lk_lt_plant[k][2] * 0.25f - X, dy = lk_lt_plant[k][3] * 0.25f - Y, rr = lk_lt_pmr[lk_lt_plant[k][1]] * 0.9f; if (rr < 14.0f) rr = 14.0f; if (dx * dx + dy * dy < rr * rr) { hit++; break; } } }   /* within the plant's footprint (the big tree: ~40) */
+          if (tot && 2 * hit >= tot) { if (lk_lt_dbg == 5) printf("plants: room %%d drops hip #%%d (%%d of %%d cells hold drawn plants)\n", lk_o_room, m, hit, tot); continue; }
+          if (kept != m) { lk_lt_px[kept] = lk_lt_px[m]; memcpy(lk_lt_prof[kept], lk_lt_prof[m], 96); } kept++; }
+        lk_lt_npx = kept; } }
     { int q; memset(lk_lt_flat, 0, sizeof lk_lt_flat);   /* CORRECTIONS (data/light_proxies.json, LIGHT_PROXY_PLAN step 2) */
       for (q = 0; lk_lt_corr[q].room >= 0; q++) { const int16_t *a = lk_lt_corr[q].a; int op = lk_lt_corr[q].op;
         if (lk_lt_corr[q].room != lk_o_room) continue;

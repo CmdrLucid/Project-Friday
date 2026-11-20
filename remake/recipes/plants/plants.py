@@ -25,10 +25,11 @@ import romrender as R, proxysurvey as PS, pine_cluster as PC, blockcat as BC, pi
 W, H = 2400, 1300
 E = types.SimpleNamespace(t={})
 ROM = None
-LIFT = {"pine": 47, "small": 29, "bush": 33}          # tip row above the foot row
+LIFT = {"pine": 47, "small": 29, "bush": 33, "bigtree": 80}          # tip row above the foot row
 REF = {"pine": (632, 431 - 991 + 1184, (431 + 991) // 2 - 16),   # reference instances (room, foot U, foot V): pine_cluster INST[3] (Mercator), room 475 front pine / bush
-       "small": (475, 832, 718), "bush": (475, 736, 765)}
-BOX = {"pine": (-9, 9, 16), "small": (0, 15, 14), "bush": (0, 15, 14)}   # detection box: columns dx0..dx1 (small / bush: right half, the left one is hidden by the neighbour), top rows
+       "small": (475, 832, 718), "bush": (475, 736, 765),
+       "bigtree": (488, 1104, 488)}   # the BIG ROUND TREE of room 488 (axis x 576 y 656 on ground 128, remake/recipes/proxy_tree_488.py); user 2026-11-20 leftover list: the same drawing stands in 424 / 451 / 454 / 474 ...
+BOX = {"pine": (-9, 9, 16), "small": (0, 15, 14), "bush": (0, 15, 14), "bigtree": (-14, 14, 20)}   # detection box: columns dx0..dx1 (small / bush: right half, the left one is hidden by the neighbour), top rows
 TREE_OPS = ("pine_cl", "pine_court", "tree_")
 
 def planeA(room):
@@ -81,9 +82,9 @@ def survey(room, T, BIG, SMALL, thr=0.65):
                         miss += 1
                         if miss > lim: break
                 else: hits.append(("bush" if name == "bushlow" else name, U, V))
-    out = sorted(set(h for h in hits if h[0] == "bush")); tips = []
+    out = sorted(set(h for h in hits if h[0] in ("bush", "bigtree"))); tips = []
     for name, U, V in hits:
-        if name == "bush": continue
+        if name in ("bush", "bigtree"): continue
         tv = V - LIFT[name]
         if not any(k[0] == U and abs(k[1] - tv) <= 2 for k in tips): tips.append((U, tv))
     dec = []
@@ -142,6 +143,12 @@ def foot_world(hm, U, V):
     return None
 
 def write_models():
+    src = os.path.join(ROOT, "landstalker", "data", "proxies", "tree_488.obj")   # the measured big tree (proxy_tree_488.py), moved to the origin (= its foot)
+    with open(os.path.join(ROOT, "landstalker", "data", "proxies", "plant_bigtree.obj"), "w") as fo:
+        fo.write("# bigtree light model = landstalker/data/proxies/tree_488.obj (remake/recipes/proxy_tree_488.py) moved by (-576, -656, -128): origin = its foot on the ground (remake/recipes/plants/plants.py)\n")
+        for l in open(src):
+            if l.startswith("v "): x, y, z = map(float, l.split()[1:4]); fo.write("v %g %g %g\n" % (round(x - 576, 3), round(y - 656, 3), round(z - 128, 3)))
+            elif l.startswith("f "): fo.write(l)
     for name, P in (("pine", "params_pine.json"), ("small", "params_small.json"), ("bush", "params_bush.json")):
         P = json.load(open(os.path.join(HERE, P))); o = P["offset"]
         parts = pine.pine_parts(o, o, 0, P, seed=11) if name != "bush" else bush.bush_parts(o, o, 0, P, seed=11)
@@ -171,15 +178,15 @@ def main():
     data.setdefault("rooms", {}); tot = {}
     for room, res, drop in results:
         if res is None: print("room %d: error %s" % (room, drop)); continue
-        cnt = {k: sum(1 for r in res if r[0] == k) for k in ("pine", "small", "bush")}
+        cnt = {k: sum(1 for r in res if r[0] == k) for k in ("pine", "small", "bush", "bigtree")}
         for k, v in cnt.items(): tot[k] = tot.get(k, 0) + v
-        print("room %d: %d pines, %d small, %d bushes%s" % (room, cnt["pine"], cnt["small"], cnt["bush"], (", %d left to hand tree models" % drop) if drop else ""), flush=True)
+        print("room %d: %d pines, %d small, %d bushes, %d big trees%s" % (room, cnt["pine"], cnt["small"], cnt["bush"], cnt["bigtree"], (", %d left to hand tree models" % drop) if drop else ""), flush=True)
         if res: data["rooms"][str(room)] = [r[:4] for r in sorted(res, key=lambda r: (r[2], r[1]))]
         else: data["rooms"].pop(str(room), None)
         if png:
             os.makedirs(png, exist_ok=True); g, rr, pa, pb, getpal = R.rom_planes(ROM, room)
             rgb = bytearray(R.compose(pa, pb, getpal, 0, 0, W, H, (0, 0, 0), g['tiles']))
-            col = {"pine": (255, 0, 0), "small": (0, 160, 255), "bush": (255, 255, 0)}
+            col = {"pine": (255, 0, 0), "small": (0, 160, 255), "bush": (255, 255, 0), "bigtree": (255, 0, 255)}
             for name, X, Y, z, U, V in res:
                 for k in range(LIFT[name] + 1):
                     o = ((V - k) * W + U) * 3; rgb[o:o + 3] = bytes(col[name])
@@ -190,7 +197,7 @@ def main():
     if "--write" in sys.argv:
         data["_about"] = ("every drawn pine / bush of the outdoor rooms as a light model instance [model, x, y, z] (world units, foot on the ground); written by "
                           "remake/recipes/plants/plants.py (template match on the ROM picture + the game's height map; README there). Models: data/proxies/plant_*.obj")
-        data["models"] = {"pine": "proxies/plant_pine.obj", "small": "proxies/plant_small.obj", "bush": "proxies/plant_bush.obj"}
+        data["models"] = {"pine": "proxies/plant_pine.obj", "small": "proxies/plant_small.obj", "bush": "proxies/plant_bush.obj", "bigtree": "proxies/plant_bigtree.obj"}
         with open(path, "w") as f:
             f.write("{\n \"_about\": %s,\n \"models\": %s,\n \"rooms\": {\n" % (json.dumps(data["_about"]), json.dumps(data["models"])))
             ks = sorted(data["rooms"], key=int)
