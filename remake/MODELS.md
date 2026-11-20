@@ -263,3 +263,7 @@ FINAL = with material, approved by the user.
 - Massan A re-measured the same day (door 462..478, posts S 298.5 / 305.5 / 346.5 / 353.5, E 442.5 / 449.5 / 458.5 / 481.5 / 497.5; the kit numbers were 1.5..4 off), light variant only.
 - STATE: in data/light_proxies.json (601-603); user check open (HANDOFF -244).
 
+## Verla town houses  (`remake/recipes/proxy_houses_711.py` -> `landstalker/data/proxies/house_711_{b,c,d,e}.obj`; rooms 711 / 712, one map $0A669E)
+- Same type as Mercator / Ryuma (remake/lib/town_house.py). Collision height of a town house cell = its eave (Ryuma checked), ground 48 below. B (42..47 x 26..32) and D (43..47 x 41..45) fitted in layer A (fit_house: cell lines, eave + 24 top, inset 24.5 = Ryuma); C (22..28 x 33..37) and E (22..28 x 41..45, ground 48) drawn in layer B: cell lines + type heights. Openings by find_openings (E's small flat plaque and the shop sign are no openings). Church = one-off, later.
+- STATE: in data/light_proxies.json (711 / 712); user check open (HANDOFF -245).
+

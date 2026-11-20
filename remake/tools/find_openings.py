@@ -58,8 +58,9 @@ def main():
                         if len(cols):
                             a_lo, a_hi = s0 + cols.min(), s0 + cols.max() + 1
                             sub = K[:, cols.min():cols.max() + 1]; rows = np.where(sub.sum(1) >= 2)[0]
-                            box = (float(a_lo), float(a_hi), float(fz + rows.min()), float(fz + rows.max() + 1))
-                            if kind == 'window' and box[3] - fz < 36: kind = 'sign'   # a framed board low on the wall (shop sign), drawn flat: no opening
+                            if not len(rows): rows = np.where(sub.sum(1) >= 1)[0]   # (Verla E, 2026-11-20: a thin frame left no row with 2 black pixels)
+                            box = (float(a_lo), float(a_hi), float(fz + rows.min()), float(fz + rows.max() + 1)) if len(rows) else None
+                            if kind == "window" and box and box[3] - fz < 36: kind = "sign"   # a framed board low on the wall (shop sign), drawn flat: no opening
                     out.append((w['name'], wall, s0, st, kind, box) + feats)
                     if kind in ('window', 'door') or '--dump' in sys.argv:
                         print('%-5s +%s wall slot %5.0f..%5.0f storey %d: %-6s frame %s (visible %.2f glass %.2f black %.2f / door band black %.2f)' % ((w['name'], wall, s0, s0 + 16, st, kind, box and '%g..%g z %g..%g' % box) + feats))

@@ -7969,6 +7969,114 @@
         "floor": 96,
         "why": "Gumi LOG HOUSE house W (skull sign) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
       }
+    ],
+    "711": [
+      {
+        "op": "mesh",
+        "cells": [
+          42,
+          26,
+          47,
+          32
+        ],
+        "file": "proxies/house_711_b.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Verla TOWN HOUSE 'b' (rooms 711 / 712 = one map $0A669E), ground 80: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          33,
+          28,
+          37
+        ],
+        "file": "proxies/house_711_c.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Verla TOWN HOUSE 'c' (rooms 711 / 712 = one map $0A669E), ground 80: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          41,
+          47,
+          45
+        ],
+        "file": "proxies/house_711_d.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Verla TOWN HOUSE 'd' (rooms 711 / 712 = one map $0A669E), ground 80: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          41,
+          28,
+          45
+        ],
+        "file": "proxies/house_711_e.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "Verla TOWN HOUSE 'e' (rooms 711 / 712 = one map $0A669E), ground 48: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      }
+    ],
+    "712": [
+      {
+        "op": "mesh",
+        "cells": [
+          42,
+          26,
+          47,
+          32
+        ],
+        "file": "proxies/house_711_b.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Verla TOWN HOUSE 'b' (rooms 711 / 712 = one map $0A669E), ground 80: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          33,
+          28,
+          37
+        ],
+        "file": "proxies/house_711_c.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Verla TOWN HOUSE 'c' (rooms 711 / 712 = one map $0A669E), ground 80: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          41,
+          47,
+          45
+        ],
+        "file": "proxies/house_711_d.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Verla TOWN HOUSE 'd' (rooms 711 / 712 = one map $0A669E), ground 80: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          41,
+          28,
+          45
+        ],
+        "file": "proxies/house_711_e.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "Verla TOWN HOUSE 'e' (rooms 711 / 712 = one map $0A669E), ground 48: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      }
     ]
   },
   "unpaint_tiles": {

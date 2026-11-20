@@ -274,12 +274,13 @@ void lk_gl_unpaint(void) { int q, ts = -1;
            "      if (lk_gl_real) lk_gl_k = lk_gl_classify(x, line, src, src == 1 ? sp : 0, black || lk_o_ovw, ubase + x - lk_sm_sxn, vbase - lk_sm_syn);   /* LK_OVWUNLIT v1: arrows above the text box unlit */   /* GL4: the GPU lights it (the only light since 2026-11-12) */\n") + s[i1:]
     rep("memcpy(lk_lt_sd, lk_lt_sdn, sizeof lk_lt_sd);", "memcpy(lk_lt_sd, lk_lt_sdn, sizeof lk_lt_sd); lk_gl_sunver++;")
     # GL4: emissive mixes after the light point -> 'mix after the light' (applied to black and white) when the GPU lights the pixel
-    def fx(cond, call):
+    def fx(cond, call, prelit=None):
         X = call.replace("@", "col")
         P0 = call.replace("@", "(int)(0xFF000000u | lk_gl_p0)"); P1 = call.replace("@", "(int)(0xFF000000u | lk_gl_p1)")
         T = call.replace("@", "col")
-        rep("      if (%s) col = %s;" % (cond, X), "      if (%s) { if (lk_gl_k) { if (%s != col) { lk_gl_p0 = (uint32_t)%s & 0xFFFFFFu; lk_gl_p1 = (uint32_t)%s & 0xFFFFFFu; } } else col = %s; }   /* %s */" % (cond, T, P0, P1, X, VER))
-    fx("lk_lt_ln && lk_dn_win && !black && (src == 2 || src == 3 || (src == 0 && lk_dn_inopen(ubase + x - lk_sm_sxn, vbase - lk_sm_syn)))", "lk_dn_winpix(src == 2 ? &afi : src == 3 ? &bfi : 0, pick, @, ubase + x - lk_sm_sxn, vbase - lk_sm_syn)")   # LK_DNWIN2 v1: + picture position (door cells)
+        k = "lk_gl_k && !(%s)" % prelit if prelit else "lk_gl_k"   # prelit: pixels that are a gain BEFORE the light (LK_DNSTRIPLIT v1: door strips), never a mix after it
+        rep("      if (%s) col = %s;" % (cond, X), "      if (%s) { if (%s) { if (%s != col) { lk_gl_p0 = (uint32_t)%s & 0xFFFFFFu; lk_gl_p1 = (uint32_t)%s & 0xFFFFFFu; } } else col = %s; }   /* %s */" % (cond, k, T, P0, P1, X, VER))
+    fx("lk_lt_ln && lk_dn_win && !black && (src == 2 || src == 3 || (src == 0 && lk_dn_inopen(ubase + x - lk_sm_sxn, vbase - lk_sm_syn)))", "lk_dn_winpix(src == 2 ? &afi : src == 3 ? &bfi : 0, pick, @, ubase + x - lk_sm_sxn, vbase - lk_sm_syn)", "lk_dn_isstrip(ubase + x - lk_sm_sxn, vbase - lk_sm_syn)")   # LK_DNWIN2 v1: + picture position (door cells); LK_DNSTRIPLIT v1: door strips lit like the ground
     fx("lk_sfx_ln && !black && src != 4", "lk_sfx_pix(line, i, src == 1 ? sp : 0, @)")
     fx("lk_dz_ln && !black && src != 4", "lk_dz_pix(line, i, @)")
     a = "      lk_mh_hit = nohud ? lk_mh_pix(line, i, &col) : 0;"
