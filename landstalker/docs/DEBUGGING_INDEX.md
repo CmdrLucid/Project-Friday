@@ -256,3 +256,4 @@
 - L2015: Whole rooms as 3D models: Mercator 632, Ryuma 610 / 611, Massan 592 start (2026-11-20, no runtime change; data + models only)
 - L2024: Massan night check + Gumi log houses (2026-11-20 evening, LK_LTWINNEAR v1, back_in, proxy_houses_603)
 - L2032: Sprint in cutscenes, castle walk-in, bath scene maid + double Nigel (2026-11-20, LK_SPRINT v4 / v5, LK_BATH2, LK_OWNLIE v1)
+- L2039: All plants as 3D light models, Destel houses, Verla church, leftover list (2026-11-20 afternoon .. late, LK_LTPLANT v1, dev ad92608 .. d2f74d2)
