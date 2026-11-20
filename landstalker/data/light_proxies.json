@@ -8022,6 +8022,19 @@
         "surface": true,
         "floor": 48,
         "why": "Verla TOWN HOUSE 'e' (rooms 711 / 712 = one map $0A669E), ground 48: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          21,
+          31,
+          29
+        ],
+        "file": "proxies/church_711.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "Verla CHURCH (rooms 711 / 712 = one map) = the Mercator church drawing moved by 7 / -28 cells and 6 steps up: the confirmed Mercator model church_632 moved (+112, -448, +96), remake/recipes/proxy_church_711.py (user 2026-11-20: 'sollte aehnlich sein wie die in Mercator / Ryuma'); ground 112"
       }
     ],
     "712": [
@@ -8076,6 +8089,19 @@
         "surface": true,
         "floor": 48,
         "why": "Verla TOWN HOUSE 'e' (rooms 711 / 712 = one map $0A669E), ground 48: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          21,
+          31,
+          29
+        ],
+        "file": "proxies/church_711.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "Verla CHURCH (rooms 711 / 712 = one map) = the Mercator church drawing moved by 7 / -28 cells and 6 steps up: the confirmed Mercator model church_632 moved (+112, -448, +96), remake/recipes/proxy_church_711.py (user 2026-11-20: 'sollte aehnlich sein wie die in Mercator / Ryuma'); ground 112"
       }
     ],
     "726": [
@@ -8169,6 +8195,19 @@
         "surface": true,
         "floor": 16,
         "why": "Destel LOG HOUSE long house E (lower river), ground 16: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          24,
+          49,
+          25
+        ],
+        "file": "proxies/house_726_f.obj",
+        "surface": true,
+        "floor": 144,
+        "why": "Destel house FRONT in the cliff F (south log wall flush in the cliff face y 400, ground 144, door + sign + stub columns): remake/recipes/proxy_houses_726.py, measured on the rectified wall; 2026-11-20, HANDOFF -248"
       }
     ]
   },

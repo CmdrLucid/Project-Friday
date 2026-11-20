@@ -91,6 +91,14 @@ def build(M, h, nseg=8, lip=3.5):
         M.cylinder("post", G(*wall_pos(s, a0 - 3, 1.2, z0 + top + 2.0)), G(*wall_pos(s, a1 + 3, 1.2, z0 + top + 2.0)), 2.7, n=nseg, cap="endgrain", density=1.0)
         p0 = wall_pos(s, a0 - 1, 3.0, z0); p1 = wall_pos(s, a1 + 1, -2 * RL, z0 + 1.2)
         M.box("post", min(p0[0], p1[0]), max(p0[0], p1[0]), -max(p0[1], p1[1]), -min(p0[1], p1[1]), z0, z0 + 1.2)
+    if h.get("arch_frames"):                     # Destel ARCHED windows (user 2026-11-20 'ja, sollten dazu'): every opening gets a wooden frame: a round arch
+        # over its top (semicircle, radius = half the width + 1), two side sticks down to a sill, 1.6 thick, standing 1.4 in front of the logs
+        for s, a0, a1, zb_, zt_ in h.get("openings", []):
+            R = (a1 - a0) / 2 + 1.0; am = (a0 + a1) / 2; zs = z0 + zt_ - R
+            arc = [wall_pos(s, am + R * math.cos(math.pi * k / 8), 1.4, zs + R * math.sin(math.pi * k / 8)) for k in range(9)]
+            for p, q in zip(arc, arc[1:]): M.cylinder("post", G(*p), G(*q), 1.6, n=6, cap="endgrain", density=1.0)
+            for aa in (am - R, am + R): M.cylinder("post", G(*wall_pos(s, aa, 1.4, z0 + zb_ - 1.5)), G(*wall_pos(s, aa, 1.4, zs)), 1.6, n=6, cap="endgrain", density=1.0)
+            M.cylinder("post", G(*wall_pos(s, am - R - 1.5, 1.6, z0 + zb_ - 1.5)), G(*wall_pos(s, am + R + 1.5, 1.6, z0 + zb_ - 1.5)), 1.8, n=6, cap="endgrain", density=1.0)
     for s, a, z in h.get("windows", []):        # round window: ring + dark hole (massan_a WINDOW R 7.5, r 2, hole 6)
         c0 = G(*wall_pos(s, a, 0.8, z0 + z)); e1 = G(*wall_pos(s, a + 1, 0.8, z0 + z)); e2 = G(*wall_pos(s, a, 0.8, z0 + z + 1))
         M.torus("post", c0, tuple(e1[i] - c0[i] for i in range(3)), tuple(e2[i] - c0[i] for i in range(3)), 7.5, 2.0, n=24, m=8)
@@ -186,6 +194,15 @@ def build(M, h, nseg=8, lip=3.5):
         for dz, off in ((ztop + 1.5, -2.2), (ztop + 1.5, 2.2), (ztop + 4.5, 0.0)):
             if hy >= hx: M.cylinder("post", G(CX + off, CY - L, dz), G(CX + off, CY + L, dz), 2.2, n=nseg, cap="endgrain", density=1.0)
             else: M.cylinder("post", G(CX - L, CY + off, dz), G(CX + L, CY + off, dz), 2.2, n=nseg, cap="endgrain", density=1.0)
+    for side, a, d in h.get("hatches", []):      # Destel roof HATCH (user 2026-11-20 'ja, sollten dazu'): an eyebrow hood on the slope of `side`, d in from the
+        # eave line, along-wall position a: a horizontal half-buried log cap pointing out of the slope + a dark opening at its front
+        zb = rz(d) + 0.8; ux, uy = (1.0, 0.0) if side == "E" else (0.0, 1.0)
+        cx_, cy_ = (X1 + 4 - d, a) if side == "E" else (a, Y1 + 4 - d)
+        # flat and wide as drawn (~14 wide, ~4.5 high): a log cap r 7.5 with its axis 3 below the roof surface
+        M.cylinder("thatch", G(cx_ - 6.0 * ux, cy_ - 6.0 * uy, zb - 3.0), G(cx_ + 4.0 * ux, cy_ + 4.0 * uy, zb - 3.0), 7.5, n=16, cap="thatch", density=1.0)
+        fx, fy = cx_ + 4.1 * ux, cy_ + 4.1 * uy; hw = 5.5   # the dark opening: a low half ellipse under the cap's front edge
+        pts = [(fx - uy * hw * math.cos(math.pi * i / 10), fy + ux * hw * math.cos(math.pi * i / 10), zb - 0.5 - 3.0 * math.sin(math.pi * i / 10)) for i in range(11)]
+        M.face("hole", [G(*q) for q in (pts if side == "E" else pts[::-1])], [(0, 0)] * len(pts))
     for vx, vy in h.get("vents", []):           # roof vent HOOD (user 2026-11-20: 'eckig, nicht rund'): a flat SQUARE thatch cap 12 x 12 on four short legs
         t = min(vx - (CX - hx), (CX + hx) - vx, vy - (CY - hy), (CY + hy) - vy); zb = rz(t); sv = 6.0
         for dx in (-sv + 1.5, sv - 1.5):

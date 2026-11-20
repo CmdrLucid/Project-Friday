@@ -272,3 +272,6 @@ FINAL = with material, approved by the user.
 
 ## Destel log houses  (`remake/recipes/proxy_houses_726.py` -> `landstalker/data/proxies/house_726_{a,b,c1,c2,d1,d2,e}.obj`; room 726, 2026-11-20)
 - The log house builder (`lib/log_house.py`) with Destel's details: plain hip / pointed thatch (ridge 'none'), thick SE corner post, door jamb stubs, arched windows (rectangular openings for now), tilted shutter (B), two framed signs (D2). Footprints = collision blocks inset 3; eave 50, top 77 / 84 (fit_house FIT_PALETTE=destel, 93.5 %). Waiting for the user's OK (HANDOFF -248).
+
+## Verla church  (`remake/recipes/proxy_church_711.py` -> `landstalker/data/proxies/church_711.obj`; rooms 711 / 712, 2026-11-20)
+- The SAME drawing as the Mercator church (plane A identical, 7 / -28 cells, 6 steps up; no yellow house in front): the confirmed `church_632.obj` moved by (+112, -448, +96).
