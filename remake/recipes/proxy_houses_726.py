@@ -1,6 +1,6 @@
 """LIGHT SHAPES (= near-final geometry, the AS-DRAWN variant): the LOG HOUSES of DESTEL, room 726 (HANDOFF -245 / -246 'Destel 726 log houses as their
 own variant', 2026-11-20). Same log house idea as Massan / Gumi (remake/lib/log_house.py) with Destel's own details: plain pointed / hip thatch roofs
-(no sticks: ridge 'none'), a THICK round post at the south-east corner, door frames of stacked log stubs (jambs), arched windows, a tilted shutter,
+(no sticks: ridge 'none'), a THICK round post at every corner (the logs end in it), door frames of stacked log stubs (jambs), arched windows, a tilted shutter,
 two framed signs.
 Measured 2026-11-20:
   footprints = the game's collision blocks (3 steps above the ground) inset 3 (the Massan / Gumi rule: walls 3 inside the cell lines);
@@ -32,23 +32,20 @@ def export(ob, name, title):
     print("proxy_houses_726: %s: %d vertices, %d triangles -> %s" % (name, len(bm.verts), len(bm.faces), path))
 
 mats = [blx.flat_material(n, (150, 150, 150)) for n in ("bark", "post", "endgrain", "dark", "hole", "thatch", "under", "plank")]
-COMMON = dict(back_in=3.0, corners="mitre", ridge="none", jambs=3.75, ze=50)
+COMMON = dict(back_in=3.0, corners="post", corner_r=5.5, corner_in=4.0, ridge="none", jambs=3.75, ze=50)   # corners: user 2026-11-20 'die Ecken nicht' -> the corner is a thick round post (drawn ~10 wide; centre on the logs' corner axis 4 inside, r 5.5 so the log ends vanish in it and it stands 1.5 proud of the walls)
 WIN = (15, 42)   # arched windows: bottom / arch top above the ground
 def wins(side, *spans): return [(side, a0, a1, WIN[0], WIN[1]) for a0, a1 in spans]
 HOUSES = {
     "a":  dict(COMMON, planes=(355, 429, 499, 653), z0=144, zt=84, doors=[("S", 383, 399, 35), ("E", 525, 542, 35)],
-               openings=wins("E", (558, 571.5), (574, 589), (605, 619), (621, 636.5)), posts={"E": [496, 592]}, thick_posts={"S": [(427, 5)]}),
-    "b":  dict(COMMON, planes=(483, 557, 579, 653), z0=112, zt=77, doors=[("E", 605, 622, 35)], shutters=[("S", 503, 520, 18, 40, 5)],
-               thick_posts={"S": [(555, 5)]}),
-    "c1": dict(COMMON, planes=(691, 765, 707, 781), z0=80, zt=77, doors=[("E", 733, 750, 35)], thick_posts={"S": [(763, 5)]}),
-    "c2": dict(COMMON, planes=(691, 765, 787, 845), z0=80, zt=77, doors=[("E", 797, 813, 35)], openings=wins("S", (702, 713.5), (733.5, 746)),
-               thick_posts={"S": [(763, 5)]}),
-    "d1": dict(COMMON, planes=(387, 461, 851, 925), z0=80, zt=79, openings=wins("S", (398, 409.5), (429.5, 441)), thick_posts={"S": [(459, 5)]}),
+               openings=wins("E", (558, 571.5), (574, 589), (605, 619), (621, 636.5)), posts={"E": [496, 592]}),
+    "b":  dict(COMMON, planes=(483, 557, 579, 653), z0=112, zt=77, doors=[("E", 605, 622, 35)], shutters=[("S", 503, 520, 18, 40, 5)]),
+    "c1": dict(COMMON, planes=(691, 765, 707, 781), z0=80, zt=77, doors=[("E", 733, 750, 35)]),
+    "c2": dict(COMMON, planes=(691, 765, 787, 845), z0=80, zt=77, doors=[("E", 797, 813, 35)], openings=wins("S", (702, 713.5), (733.5, 746))),
+    "d1": dict(COMMON, planes=(387, 461, 851, 925), z0=80, zt=79, openings=wins("S", (398, 409.5), (429.5, 441))),
     "d2": dict(COMMON, planes=(467, 541, 851, 925), z0=80, zt=79, doors=[("E", 877, 894, 35)], openings=wins("S", (494.5, 506)),
-               boards=[("E", 853.5, 867, 16, 32), ("E", 901, 916, 16, 32)], thick_posts={"S": [(539, 5)]}),
+               boards=[("E", 853.5, 867, 16, 32), ("E", 901, 916, 16, 32)]),
     "e":  dict(COMMON, planes=(867, 941, 547, 685), z0=16, zt=84, doors=[("S", 893, 910, 35)],
-               openings=wins("E", (558, 569.5), (589.5, 601), (605.5, 617), (637, 648), (653, 664.5)), posts={"E": [575.5, 624.5]},
-               thick_posts={"S": [(939, 5)]}),
+               openings=wins("E", (558, 569.5), (589.5, 601), (605.5, 617), (637, 648), (653, 664.5)), posts={"E": [575.5, 624.5]}),
 }
 TITLES = {"a": "long house A (upper terrace)", "b": "shutter house B", "c1": "joined pair C, north house", "c2": "joined pair C, south house",
           "d1": "joined pair D, west house", "d2": "joined pair D, east house (signs)", "e": "long house E (lower river)"}

@@ -59,6 +59,7 @@ def build(M, h, nseg=8, lip=3.5):
             ex = h.get("ext", {})      # (side, 0 / 1) -> how far the logs stick out past that corner (default EXT 4)
             # noext: the logs end 2 RL INSIDE the crossing wall (behind its logs), so their end grain does not show as a stack of discs at the corner
             e0 = -2 * RL if (side, 0) in ne else ex.get((side, 0), EXT); e1 = -2 * RL if (side, 1) in ne else ex.get((side, 1), EXT)
+            if h.get("corners") == "post": e0 = e1 = -RL   # Destel (user 2026-11-20 'die Ecken nicht'): the corner IS a thick round post, the logs of both walls end inside it
             segs, a = [], L0 - e0
             for a0, a1 in cuts: segs.append((a, a0)); a = a1
             segs.append((a, L1 + e1))
@@ -80,6 +81,10 @@ def build(M, h, nseg=8, lip=3.5):
         for a in h.get("posts", {}).get(side, []):
             top = ZE - 3 + rnd.random() * 1.2
             M.cylinder("post", G(*wall_pos(side, a, POST_R - 0.6, z0 - 1)), G(*wall_pos(side, a, POST_R - 0.6, top)), POST_R, n=nseg, cap="endgrain", density=1.0)
+    if h.get("corners") == "post":              # Destel corner posts: radius corner_r, centre corner_in inside both wall planes, from the ground to the eave
+        cr, ci = h.get("corner_r", 5.0), h.get("corner_in", 1.5)
+        for cx_, cy_ in ((X0 + ci, Y0 + ci), (X1 - ci, Y0 + ci), (X0 + ci, Y1 - ci), (X1 - ci, Y1 - ci)):
+            M.cylinder("post", G(cx_, cy_, z0 - 1), G(cx_, cy_, ZE - 1), cr, n=max(nseg, 12), cap="endgrain", density=1.0)
     for s, a0, a1, top in doors:                # open dark doorway set back to the core, lintel log, threshold (massan_a door 'open')
         M.face("dark", [G(*wall_pos(s, a0, -1.2, z0)), G(*wall_pos(s, a1, -1.2, z0)), G(*wall_pos(s, a1, -1.2, z0 + top)), G(*wall_pos(s, a0, -1.2, z0 + top))][::-1 if s in "SE" else 1],
                [(0, 0), (1, 0), (1, 1), (0, 1)])
