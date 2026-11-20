@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 54-59
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 856-867
-- 1. Where we are: lines 868-1029
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1030-1312
-- 3. How the user works (important): lines 1313-1328
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1329-1353
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1354-1362
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1363-1410
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1411-1420
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1421-1422
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1423-1425
-- NEXT STEPS, newest first: -245 1031, -244 1032, -243 1033, -242 1034, -241 1035, -240 1036, -239 1037, -238 1038, -237 1039, -236 1040
+- 1. Where we are: lines 868-1030
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1031-1314
+- 3. How the user works (important): lines 1315-1330
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1331-1355
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1356-1364
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1365-1412
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1413-1422
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1423-1424
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1425-1427
+- NEXT STEPS, newest first: -246 1032, -245 1033, -244 1034, -243 1035, -242 1036, -241 1037, -240 1038, -239 1039, -238 1040, -237 1041
 - Newest entries:
   - 0a488 line 191: 2026-11-20 night (Deck, Opus 5.5, no agents; dev): (1) LK_DNSTRIPSOFT v1 (user 'ja' to softening the door l...
   - 0a487 line 193: 2026-11-20 night (Deck, Opus 5.5, no agents; dev): user reports (1) 'nachts vor einer Tuer mit dem Schwert...
@@ -866,6 +866,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-20 NIGHT SESSION END (Opus 5.5, no agents, `dev` 0fe045c+ pushed, main = v1.9.8, no release):** LIGHT SHAPES of the log / town houses: Massan 592 (7 houses A..G, flush corners, back eaves 3 in), Gumi 601-603 (5 houses = Massan tiles), Verla 711 / 712 (4 town houses), all in data/light_proxies.json; runtime fixes LK_LTWINNEAR v1 (stretched figure shadow from window lights), LK_DNSTRIPLIT v1 (sword-light hole of door-strip shape), LK_DNSTRIPSOFT v1 (softer door light edge), LK_SWSHSELF v1 (no self shadow in the sword light). USER CONFIRMED by eye on clay / drawing sheets: Massan A..G (incl. the corner and window marks), Gumi was shown (no objection); the user PLAYED Massan at night once (rec_20261120_0918 -> the fixes above). VERIFIED HEADLESS only (GPU shots / replays / swing.sh): every fix, lightedges 592 / 603 0 px, 711 41 px before = after. NOT yet played: all fixes after rec_20261120_0918, Gumi / Verla in play. NEXT (user to choose, HANDOFF -246): (a) light shapes for the pines on WALKABLE cells (Gumi P's door cells 24,36..41: no light shape at all = the remaining horizontal edge in the sword light), then the same check in all towns; (b) Destel 726 as its own log house variant (pointed roofs, thick corner posts, stub door jambs, low shutters, arched windows; fixes the bright roof strip at night); (c) Verla church (one-off).
 - **2026-11-20 SESSION END (Opus 5.5, no agents, `dev` pushed, main = v1.9.8, no release):** user CONFIRMED in play: Mercator 632 + Ryuma 610 / 611 light shapes; LK_SPRINT v4 (no sprint in cutscene walks) + v5 (exact door-walk distance, castle Duke cutscene); LK_BATH2 (maid gone after the announcement); LK_OWNLIE v1 (single lying Nigel after the bath). Massan 592 houses A / B built as OBJs, NOT yet in data/light_proxies.json. NEXT: -240 (Massan 592 remaining houses, then mesh ops + GPU lightedges, warn the user first).
 - **2026-11-19 EVENING SESSION END (Opus 5.5, no agents, `dev` pushed, main = v1.9.8 5994f54, RELEASED):** done today evening: dome sweep (user OK on shots), LK_LTWATLVL (Gumi 603 shadow), 452 / 520 box shadow, Japanese ROM checksum, Language row, Windows installer, README. Release tests headless / CI only; the user has played none of the evening fixes yet. NEXT FIRST = -238 room light models per map (user decision: build them as the remake skeleton right away, no double work).
 - **2026-11-19 SESSION END (Opus 5.5, no agents, `dev` pushed, main = v1.9.7, no release):** user confirmed today: room 19 box, statue shadows (LK_LTLDOORCLR), dissolve particles, room 5 platform, Gumi skull door, Friday stage 3 hint. Replay only (not played): room 453 trapezoid + 4 pine group (0a478). Unconfirmed: water 175 rim corners (LK_WATER v5). NEXT FIRST = -237 dome sweep (user agreed).
@@ -1028,6 +1029,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-246. **NEXT (2026-11-20 night, user said 'Projekte im Handoff, Sitzung beenden'): ask the user (a) pines on walkable cells first (proposal) or (b) Destel; plus the USER CHECKS of -245 / -244 in play (sword at doors at night, Massan night roofs + window jumps, Gumi / Verla houses, softer door lights). Tools ready: lktest/schwert/swing.sh (warp + night + sword swing GPU shots), lktest/m592/kante.py (eave outline check), pine_cluster.py (lathes only: needs the walkable-pine extension).**
 -245. **USER CHECK (2026-11-20 night): + softer door light edge (LK_DNSTRIPSOFT v1), no pine self shadow in the sword light (LK_SWSHSELF v1); OPEN: light shapes for the pines on walkable cells (Gumi P's door, cells 24,36..41) = the remaining horizontal edge. sword swing at night in front of a door (Gumi / Mercator church): no more strip-shaped hole (LK_DNSTRIPLIT v1); Verla 711 houses (light shapes). NEXT: Destel 726 log houses as their own variant (pointed roofs, thick corner posts, stub door jambs, low shutters, arched windows; log_house thick_posts / jambs prepared) - fixes the night roof strip there; then the Verla church.**
 -244. **USER CHECK (2026-11-20 evening): (a) Massan at night: no dark strip beside the roofs, Nigel's shadow no longer runs past the house when jumping at a window (LK_LTWINNEAR v1); (b) Gumi 601-603 log houses (clay / drawing sheet ~/Project-Friday-Test/lktest/gumi/gc2.png; in play); (c) DECISION: the hard door light edge (LK_DNSPILL strip over the painted fence shadow band) - soften? Then Destel (726): user 2026-11-20: Gumi and Destel houses are essentially the Massan houses -> reuse lib/log_house.py + the Massan tiles (compare pixel by pixel as for Gumi).**
 -243. **USER CHECK (2026-11-20 later): play Massan (room 592, launcher ~/Landstalker.sh = this build, Lighting On): the log houses (lone house, south house, the two joined pairs, the tall house): no hard light edges, corners without jagged shade, the thin shade line under the thatch OK? Then (per -240) Gumi / Destel house types.**

@@ -254,4 +254,5 @@
 - L2004: Dissolve particles + top-edge culling (2026-11-19, LK_DISSOLVE v2, LK_SPRCULLTOP v1)
 - L2008: Water level, dome sweep, release v1.9.8 (2026-11-19 evening, LK_LTWATLVL v1, LK_JPROMSUM v1)
 - L2015: Whole rooms as 3D models: Mercator 632, Ryuma 610 / 611, Massan 592 start (2026-11-20, no runtime change; data + models only)
-- L2023: Sprint in cutscenes, castle walk-in, bath scene maid + double Nigel (2026-11-20, LK_SPRINT v4 / v5, LK_BATH2, LK_OWNLIE v1)
+- L2024: Massan night check + Gumi log houses (2026-11-20 evening, LK_LTWINNEAR v1, back_in, proxy_houses_603)
+- L2032: Sprint in cutscenes, castle walk-in, bath scene maid + double Nigel (2026-11-20, LK_SPRINT v4 / v5, LK_BATH2, LK_OWNLIE v1)

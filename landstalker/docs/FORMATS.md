@@ -84,6 +84,12 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
 - `DecompressLZ77Gfx` with a Duff's-device copy table at `$004AD8` (16 x 2). V
 - Tile/sprite art format, palettes per room, sprite frame tables (how entity id + animation maps to tiles), room tilesets: ? (needed for tile/sprite replacement, see RENDERER_IDEAS.md).
 
+## Town / log houses in the height map (added 2026-11-20, V = checked on Ryuma 610 / 611, Verla 711, Massan 592, Gumi 603 against fitted models)
+- V: a TOWN HOUSE (Mercator / Ryuma / Verla type) cell height = its EAVE; the ground lies 48 below (Ryuma right 96 / hill 160 / fr 64 / left 80 = the fitted eaves).
+- V: a Massan-type LOG HOUSE (Massan, Gumi) cell height = ground + 48 (eave 50 above the ground, thatch top 77); the tall house = ground + 112 (eave 114). Door cells on the door side are notches at ground height (not blocked); the pairs join wall to wall (two rectangles, e.g. Massan 592 x 23..27 y 18..21 / 22..25).
+- V: Gumi 601 / 602 / 603 share one map ($0B8A18), Verla 711 / 712 ($0A669E); Massan 592 and Destel 726 are alone on their maps.
+- I: pines drawn on WALKABLE cells (Gumi 603 cells 24,36..41) get no catalogue light shape ('tip of a pine in front').
+
 ## 8. Open questions (collect, then answer, then move up)
 1. Room data in ROM: map/height/tileset locations and compression.
 2. Sprite upload: fixed VRAM slots per room or dynamic? ANSWERED 2026-10-17: dynamic per game pass, see 'Sprite upload' below.
