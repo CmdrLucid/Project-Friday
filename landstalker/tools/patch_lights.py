@@ -1271,8 +1271,8 @@ static void lk_lt_omlathe(float cx, float cy, const float *rr, const float *zz, 
    lathes (test aid). */
 static int lk_lt_plantopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_PLANTS"); v = e ? atoi(e) : 1; } return v; }
 static int lk_lt_pl0, lk_lt_pl1;   /* the current room's rows of lk_lt_plant */
-static int lk_lt_plnear(float X, float Y, float r) { int q; if (!lk_lt_plantopt()) return 0;
-  for (q = lk_lt_pl0; q < lk_lt_pl1; q++) { float dx = lk_lt_plant[q][2] * 0.25f - X, dy = lk_lt_plant[q][3] * 0.25f - Y; if (dx * dx + dy * dy < r * r) return 1; } return 0; }
+static int lk_lt_plnear(float X, float Y, float Z, float r) { int q; if (!lk_lt_plantopt()) return 0;   /* + the same level (within 24): a plant at the foot of a cliff does not own the place on top of it */
+  for (q = lk_lt_pl0; q < lk_lt_pl1; q++) { float dx = lk_lt_plant[q][2] * 0.25f - X, dy = lk_lt_plant[q][3] * 0.25f - Y; if (dx * dx + dy * dy < r * r && fabsf((float)lk_lt_plant[q][4] - Z) <= 24.0f) return 1; } return 0; }
 static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines / lathe trees as meshes + their sub columns owned (before the room box model) */
   int cx, cy, k, sx, sy, nobj = 0, npl = 0; float rr[200], zz[200]; int n;
   lk_lt_omn = 0; lk_lt_omover = 0; lk_lt_pl0 = lk_lt_pl1 = 0;
@@ -1285,6 +1285,7 @@ static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines /
     for (sy = (int)((Y - R) / 4.0f); sy <= (int)((Y + R) / 4.0f); sy++) for (sx = (int)((X - R) / 4.0f); sx <= (int)((X + R) / 4.0f); sx++) {
       float dx = 4.0f * sx + 2.0f - X, dy = 4.0f * sy + 2.0f - Y;
       if (sx < 0 || sy < 0 || sx >= LK_LT_FN || sy >= LK_LT_FN || dx * dx + dy * dy > R * R || lk_lt_mown[sy][sx]) continue;
+      { int gh = lk_lt_gh[sy >> 2][sx >> 2], tk = lk_lt_tk[sy >> 2][sx >> 2]; if (gh > Z + 8.0f && tk != 1 && tk != 2) continue; }   /* v1: only the plant's ground and its own catalogue blocks, never a wall / house / cliff beside it (room 567: a pine at a cliff hollowed the cliff's columns = a straight light edge) */
       lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)Z; }
     npl++; nobj++; }   /* outdoors only: the catalogue (lk_lt_tk) and lathes are built by the outdoor rules and are NOT cleared indoors
      (indoor rooms got the previous outdoor room's 144 trees as phantom models, 2026-11-09 sweep) */
@@ -1301,14 +1302,14 @@ static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines /
         if (!lk_lt_pinet()) { R0 = r * (1.0f - f0); rr[n] = R0; zz[n++] = z0; continue; }
         rr[n] = R0; zz[n++] = z0; rr[n] = R0 * 0.45f; zz[n++] = z1 - 0.01f; }
       rr[n] = 0.0f; zz[n++] = top; }
-    if (!lk_lt_plnear(X, Y, 40.0f)) { lk_lt_omlathe(X, Y, rr, zz, n); nobj++; if (lk_lt_pl1 > lk_lt_pl0 && getenv("LANDSTALKER_LT_PLANTDBG")) printf("plants: room %%d kept lathe kind %%d cell %%d,%%d top %%.0f base %%.0f r %%.0f\n", lk_o_room, kind, cx, cy, top, zb, r); }   /* LK_LTPLANT v1: a plant within 40 (2.5 cells) = the drawn plants own this place: the catalogue also marks the cells BEHIND a pine row whose top block is a crown in front (room 425 rows 15 / 16: no pine of their own) */
+    if (!lk_lt_plnear(X, Y, zb, 40.0f)) { lk_lt_omlathe(X, Y, rr, zz, n); nobj++; if (lk_lt_pl1 > lk_lt_pl0 && getenv("LANDSTALKER_LT_PLANTDBG")) printf("plants: room %%d kept lathe kind %%d cell %%d,%%d top %%.0f base %%.0f r %%.0f\n", lk_o_room, kind, cx, cy, top, zb, r); }   /* LK_LTPLANT v1: a plant within 40 (2.5 cells) = the drawn plants own this place: the catalogue also marks the cells BEHIND a pine row whose top block is a crown in front (room 425 rows 15 / 16: no pine of their own) */
     for (sy = 4 * cy; sy < 4 * cy + 4; sy++) for (sx = 4 * cx; sx < 4 * cx + 4; sx++) if (!lk_lt_mown[sy][sx]) { lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)zb; } }
   for (k = 0; k < lk_lt_npx; k++) { const lk_lt_proxy *P = &lk_lt_px[k]; int i, hgt = P->ridge - P->z0;   /* lathe trees */
     if (P->type != 3 || hgt < 2 || hgt > 96) continue;
     n = 0; rr[n] = 0.0f; zz[n++] = (float)P->z0;
     for (i = 0; i < hgt && n < 198; i++) { rr[n] = (float)lk_lt_prof[k][i]; zz[n++] = (float)(P->z0 + i) + 0.5f; }
     rr[n] = 0.0f; zz[n++] = (float)P->ridge;
-    if (!lk_lt_plnear((float)P->x0, (float)P->y0, 24.0f)) { lk_lt_omlathe((float)P->x0, (float)P->y0, rr, zz, n); nobj++; if (lk_lt_pl1 > lk_lt_pl0 && getenv("LANDSTALKER_LT_PLANTDBG")) printf("plants: room %%d kept lathe tree at %%d,%%d z %%d..%%d\n", lk_o_room, P->x0, P->y0, P->z0, P->ridge); }   /* LK_LTPLANT v1 */
+    if (!lk_lt_plnear((float)P->x0, (float)P->y0, (float)P->z0, 24.0f)) { lk_lt_omlathe((float)P->x0, (float)P->y0, rr, zz, n); nobj++; if (lk_lt_pl1 > lk_lt_pl0 && getenv("LANDSTALKER_LT_PLANTDBG")) printf("plants: room %%d kept lathe tree at %%d,%%d z %%d..%%d\n", lk_o_room, P->x0, P->y0, P->z0, P->ridge); }   /* LK_LTPLANT v1 */
     for (sy = 0; sy < LK_LT_FN; sy++) for (sx = 0; sx < LK_LT_FN; sx++) if (lk_lt_fp[sy][sx] == k + 1 && !lk_lt_mown[sy][sx]) { lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = P->z0; } }
   if (lk_lt_omover) { printf("object models: room %%d needs more than %%d triangles, off here\n", lk_o_room, LK_LT_OMMAX); lk_lt_omn = 0; }
   if (lk_lt_omn) { lk_lt_nmodel++; printf("object models: room %%d, %%d objects (%%d plant models, LK_LTPLANT v1), %%d triangles\n", lk_o_room, nobj, npl, lk_lt_omn); } }

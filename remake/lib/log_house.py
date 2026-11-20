@@ -175,6 +175,7 @@ def build(M, h, nseg=8, lip=3.5):
                     if ax == 0: p0, p1 = (qx - dw * sgn, qy + 1.4 * sgn, zs), (qx + dw * sgn, qy + 1.4 * sgn, zs + 2 * dz)
                     else: p0, p1 = (qx + 1.4 * sgn, qy - dw * sgn, zs), (qx + 1.4 * sgn, qy + dw * sgn, zs + 2 * dz)
                     M.cylinder("post", G(*p0), G(*p1), h.get("stick_r", 1.6), n=6, cap="endgrain", density=1.0)
+    elif h.get("ridge") == "none": pass           # Destel (2026-11-20): plain thatch tops, no sticks / bundle
     else:                                        # ridge log bundle along the long axis (house B): three logs on the ridge
         L = abs(hx - hy) + 6
         for dz, off in ((ztop + 1.5, -2.2), (ztop + 1.5, 2.2), (ztop + 4.5, 0.0)):

@@ -8077,6 +8077,99 @@
         "floor": 48,
         "why": "Verla TOWN HOUSE 'e' (rooms 711 / 712 = one map $0A669E), ground 48: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
       }
+    ],
+    "726": [
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          31,
+          26,
+          40
+        ],
+        "file": "proxies/house_726_a.obj",
+        "surface": true,
+        "floor": 144,
+        "why": "Destel LOG HOUSE long house A (upper terrace), ground 144: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          36,
+          34,
+          40
+        ],
+        "file": "proxies/house_726_b.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "Destel LOG HOUSE shutter house B, ground 112: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          44,
+          47,
+          48
+        ],
+        "file": "proxies/house_726_c1.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Destel LOG HOUSE joined pair C, north house, ground 80: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          49,
+          47,
+          52
+        ],
+        "file": "proxies/house_726_c2.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Destel LOG HOUSE joined pair C, south house, ground 80: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          53,
+          28,
+          57
+        ],
+        "file": "proxies/house_726_d1.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Destel LOG HOUSE joined pair D, west house, ground 80: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          29,
+          53,
+          33,
+          57
+        ],
+        "file": "proxies/house_726_d2.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Destel LOG HOUSE joined pair D, east house (signs), ground 80: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          54,
+          34,
+          58,
+          42
+        ],
+        "file": "proxies/house_726_e.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Destel LOG HOUSE long house E (lower river), ground 16: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      }
     ]
   },
   "unpaint_tiles": {

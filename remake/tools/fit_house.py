@@ -23,6 +23,8 @@ def opt(name, default):
 ROOF = {(144, 0, 0), (252, 108, 0), (180, 36, 0), (216, 72, 0)}
 TOP = {(144, 144, 144), (216, 216, 216)}
 DONT = {(0, 0, 0), (72, 72, 36)}
+if os.environ.get("FIT_PALETTE") == "destel":   # Destel log houses (room 726, 2026-11-20): orange thatch (its light highlights are thatch too), no flat top
+    ROOF = {(216, 108, 36), (144, 72, 0), (252, 180, 0), (216, 216, 216)}; TOP = set()
 E, W, R, T, D = 0, 1, 2, 3, 4
 
 def faces(x0, y0, x1, y1, z0, ze, zt, i):

@@ -269,3 +269,6 @@ FINAL = with material, approved by the user.
 
 ## Plants: pine, small pine, bush  (`remake/recipes/plants/` -> `landstalker/data/proxies/plant_{pine,small,bush}.obj` + `landstalker/data/plants.json`; 133 outdoor rooms, 2026-11-20)
 - pine = the wild style C pine fitted to the forest / town pine (IoU 0.87); small = the same recipe on the small pine (the big pine's tiles without the middle 16 rows; IoU 0.867); bush = round crown + 5 lumps on a Y stem (`bush.py`, IoU 0.90, ONE bush drawing in every tileset). User OK on clay preview + drawing sheet. Placed by `plants.py` (plane A template match + height map, README there), drawn by LK_LTPLANT v1 as instances. Light variant = as drawn; the remake can use richer versions of the same recipes.
+
+## Destel log houses  (`remake/recipes/proxy_houses_726.py` -> `landstalker/data/proxies/house_726_{a,b,c1,c2,d1,d2,e}.obj`; room 726, 2026-11-20)
+- The log house builder (`lib/log_house.py`) with Destel's details: plain hip / pointed thatch (ridge 'none'), thick SE corner post, door jamb stubs, arched windows (rectangular openings for now), tilted shutter (B), two framed signs (D2). Footprints = collision blocks inset 3; eave 50, top 77 / 84 (fit_house FIT_PALETTE=destel, 93.5 %). Waiting for the user's OK (HANDOFF -248).
