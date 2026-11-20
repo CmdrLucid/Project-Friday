@@ -84,7 +84,7 @@ def build(M, h, nseg=8, lip=3.5):
     if h.get("corners") == "post":              # Destel corner posts: radius corner_r, centre corner_in inside both wall planes, from the ground to the eave
         cr, ci = h.get("corner_r", 5.0), h.get("corner_in", 1.5)
         for cx_, cy_ in ((X0 + ci, Y0 + ci), (X1 - ci, Y0 + ci), (X0 + ci, Y1 - ci), (X1 - ci, Y1 - ci)):
-            M.cylinder("post", G(cx_, cy_, z0 - 1), G(cx_, cy_, ZE - 1), cr, n=max(nseg, 12), cap="endgrain", density=1.0)
+            M.cylinder("post", G(cx_, cy_, z0 - 1.5 - RL), G(cx_, cy_, ZE - 1), cr, n=max(nseg, 12), cap="endgrain", density=1.0)   # down to the lowest log's underside (user 2026-11-20 'Ecke geht nicht ganz runter')
     for s, a0, a1, top in doors:                # open dark doorway set back to the core, lintel log, threshold (massan_a door 'open')
         M.face("dark", [G(*wall_pos(s, a0, -1.2, z0)), G(*wall_pos(s, a1, -1.2, z0)), G(*wall_pos(s, a1, -1.2, z0 + top)), G(*wall_pos(s, a0, -1.2, z0 + top))][::-1 if s in "SE" else 1],
                [(0, 0), (1, 0), (1, 1), (0, 1)])
