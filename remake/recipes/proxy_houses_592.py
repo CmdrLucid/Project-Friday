@@ -28,14 +28,15 @@ def export(ob, name, title):
 mats = [blx.flat_material(n, (150, 150, 150)) for n in ("bark", "post", "endgrain", "dark", "hole", "thatch", "under", "plank")]
 M = blx.Mesh("house_592_a", mats); M.density = 1.0
 H.POSTS = dict(H.POSTS, E=[445, 452, 462.5, 485.5, 492, 499])     # door posts beside the opening (as kit_c.house_a, from the picture)
-H.build(M, nseg=8, den=1.0, roof_jitter=0.0, hx=H.HX, lip=3.5, door="open", ridge_knot=False, log_over_door=True)   # no gap above the door (user)
+H.build(M, nseg=8, den=1.0, roof_jitter=0.0, hx=H.HX, lip=3.5, door="open", ridge_knot=False, log_over_door=True, mitre=True)   # no gap above the door (user)
 export(M.finish(), "house_592_a", "Massan log house A (the lone house west of the statue), room 592")
 
 import log_house as L
 # HOUSE B (the south house, cells 34..38 x 29..35, 5 x 7): log planes = cell lines inset 3 (as A), ground 0, eave 50, top 77 like A (collision h 3);
 # door S x 593..609 up to 35 (dark block on the S wall plane map), round window E at y 530 z 28, boarded window S left, ridge log bundle along y,
 # two roof vents on the E slope (placed by eye, checked on the overlay)
-B = dict(planes=(547, 621, 467, 573), z0=0, doors=[("S", 590, 606, 35)],   # door: drawn dark opening U 1201..1216 (was 593..609)
+B = dict(planes=(547, 621, 467, 573), z0=0, corners="mitre",   # flush corners (user 2026-11-20); the SW corner keeps its marks (noext W / ext S)
+         doors=[("S", 590, 606, 35)],   # door: drawn dark opening U 1201..1216 (was 593..609)
          windows=[("E", 530, 28)], shutters=[("S", 557, 569, 24, 38, 3)],   # window x 556..567 z 24..38 behind a top-hinged shutter propped out 3 (drawn hinge edge U 1166..1177, its lower edge only ~3 px further left; user: was too far left with 553 / out 7)
         
          posts={"S": [586.5, 609.5],   # S: only the two posts beside the door are drawn (U 1196 / 1219); they hid the shutter (user)

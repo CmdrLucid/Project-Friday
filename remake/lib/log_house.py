@@ -11,6 +11,29 @@ import massan_a as A
 
 RL, EXT, POST_R = A.RL, A.EXT, A.POST_R
 
+def mitre_log(M, G, wall_pos, side, a, b, zc, r, ma, mb, nseg):
+    """also used by massan_a.build(mitre=True) (house A light variant)"""
+    # a log along the wall from a to b whose end(s) are cut on the corner DIAGONAL (plane through the outer and the inner corner line): a point
+    # q units outward of the log axis ends (RL - q) inside the corner, so both walls' logs meet seamlessly (mitre), outer side flush with the corner
+    pts = []
+    for i in range(nseg):
+        t = 2 * math.pi * i / nseg; q = r * math.cos(t); zz = zc + r * math.sin(t)
+        pa = a + (RL - q) if ma else a; pb = b - (RL - q) if mb else b
+        pts.append((G(*wall_pos(side, pa, q - RL, zz)), G(*wall_pos(side, pb, q - RL, zz)), q, zz))
+    def put(mat, poly, outward):
+        n0 = [poly[1][j] - poly[0][j] for j in range(3)]; n1 = [poly[2][j] - poly[0][j] for j in range(3)]
+        n = (n0[1] * n1[2] - n0[2] * n1[1], n0[2] * n1[0] - n0[0] * n1[2], n0[0] * n1[1] - n0[1] * n1[0])
+        if sum(n[j] * outward[j] for j in range(3)) < 0: poly = poly[::-1]
+        M.face(mat, poly, [(0, 0)] * len(poly))
+    cA = G(*wall_pos(side, a, -RL, zc)); cB = G(*wall_pos(side, b, -RL, zc)); ax = [cB[j] - cA[j] for j in range(3)]
+    for i in range(nseg):
+        j = (i + 1) % nseg; P = [pts[i][0], pts[j][0], pts[j][1], pts[i][1]]
+        mid = [sum(p[k] for p in P) / 4 for k in range(3)]
+        # outward = away from the axis line
+        L2 = sum(x * x for x in ax); tt = sum((mid[k] - cA[k]) * ax[k] for k in range(3)) / L2
+        put("bark", P, [mid[k] - (cA[k] + tt * ax[k]) for k in range(3)])
+    put("endgrain", [p[0] for p in pts], [-x for x in ax]); put("endgrain", [p[1] for p in pts], ax)
+
 def build(M, h, nseg=8, lip=3.5):
     X0, X1, Y0, Y1 = h["planes"]; z0 = h.get("z0", 0.0); ZE = z0 + h.get("ze", 50.0); ZT = z0 + h.get("zt", 77.0)
     CX, CY = (X0 + X1) / 2, (Y0 + Y1) / 2
@@ -21,27 +44,7 @@ def build(M, h, nseg=8, lip=3.5):
         if side == "N": return (along, Y0 - out, z)
         if side == "E": return (X1 + out, along, z)
         return (X0 - out, along, z)
-    def mlog(side, a, b, zc, r, ma, mb):
-        # a log along the wall from a to b whose end(s) are cut on the corner DIAGONAL (plane through the outer and the inner corner line): a point
-        # q units outward of the log axis ends (RL - q) inside the corner, so both walls' logs meet seamlessly (mitre), outer side flush with the corner
-        pts = []
-        for i in range(nseg):
-            t = 2 * math.pi * i / nseg; q = r * math.cos(t); zz = zc + r * math.sin(t)
-            pa = a + (RL - q) if ma else a; pb = b - (RL - q) if mb else b
-            pts.append((G(*wall_pos(side, pa, q - RL, zz)), G(*wall_pos(side, pb, q - RL, zz)), q, zz))
-        def put(mat, poly, outward):
-            n0 = [poly[1][j] - poly[0][j] for j in range(3)]; n1 = [poly[2][j] - poly[0][j] for j in range(3)]
-            n = (n0[1] * n1[2] - n0[2] * n1[1], n0[2] * n1[0] - n0[0] * n1[2], n0[0] * n1[1] - n0[1] * n1[0])
-            if sum(n[j] * outward[j] for j in range(3)) < 0: poly = poly[::-1]
-            M.face(mat, poly, [(0, 0)] * len(poly))
-        cA = G(*wall_pos(side, a, -RL, zc)); cB = G(*wall_pos(side, b, -RL, zc)); ax = [cB[j] - cA[j] for j in range(3)]
-        for i in range(nseg):
-            j = (i + 1) % nseg; P = [pts[i][0], pts[j][0], pts[j][1], pts[i][1]]
-            mid = [sum(p[k] for p in P) / 4 for k in range(3)]
-            # outward = away from the axis line
-            L2 = sum(x * x for x in ax); tt = sum((mid[k] - cA[k]) * ax[k] for k in range(3)) / L2
-            put("bark", P, [mid[k] - (cA[k] + tt * ax[k]) for k in range(3)])
-        put("endgrain", [p[0] for p in pts], [-x for x in ax]); put("endgrain", [p[1] for p in pts], ax)
+    mlog = lambda side, a, b, zc, r, ma, mb: mitre_log(M, G, wall_pos, side, a, b, zc, r, ma, mb, nseg)
     LOG_Z = [z0 - 1.5 + 8 * k for k in range(int((ZE - z0 + 1.5) // 8) + 1)]
     M.box("dark", X0 + RL, X1 - RL, -(Y1 - RL), -(Y0 + RL), z0, ZE - 1)
     doors = h.get("doors", [])
