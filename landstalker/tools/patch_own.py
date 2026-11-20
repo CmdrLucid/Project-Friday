@@ -312,6 +312,17 @@ static int lk_o_near(const lk_o_ent_t *e) {                           /* the spr
   }
   return 0;
 }
+static int lk_o_satn_all;   /* LK_OWNLIE v1: forward (tentative definition, the real one follows below) */
+static int lk_o_nigelalt(const lk_o_ent_t *e) {   /* LK_OWNLIE v1 (2026-11-20, rec_20261120_0537 room 97 after the bath): the sprite table draws Nigel's OWN VRAM tiles in a shape no pose of his entity explains (lying on the floor: a cutscene graphic loaded into his tile slot) -> 1 = do not draw the entity's pose, the extras pass draws the real table entries (was: a standing Nigel above the lying one) */
+  int pc, j, tot = 0, base = e->ts & 0x7FF, owns = 0;
+  for (pc = 0; pc < e->np; pc++) tot += e->pws[pc] * e->phs[pc];
+  for (j = 0; j < lk_o_satn_all; j++) {
+    if (lk_o_satt[j] >= base && lk_o_satt[j] < base + tot) owns = 1;
+    for (pc = 0; pc < e->np; pc++) { uint32 k = lk_o_pkey(e, pc, 0); int dx = (int)((k >> 20) & 0x1FF) - (int)((lk_o_satk[j] >> 20) & 0x1FF), dy = (int)((k >> 8) & 0x3FF) - (int)((lk_o_satk[j] >> 8) & 0x3FF);
+      if ((k & 15) == (lk_o_satk[j] & 15) && dx >= -6 && dx <= 6 && dy >= -6 && dy <= 6) return 0; }   /* a piece of the pose is in the table (normal play, one pass of lag) */
+  }
+  return owns;
+}
 static int lk_o_loose4e(const lk_o_ent_t *e) {                        /* the same at the position of the previous pass (+4E / +50): the game draws objects there */
   lk_o_ent_t t = *e; int b = 0xFF5400 + e->off;
   t.ax = SW(b + 0x4E); t.ay = SW(b + 0x50);
@@ -424,6 +435,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
       if (found) e = &pose;
     }
     if (!e || !e->vis) continue;
+    if (draw && lk_o_hide0 && offs[k] == 0 && e->np && lk_o_nigelalt(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) printf("ownlie: frame %ld Nigel drawn from the sprite table only\n", platform_frame_number()); continue; }   /* LK_OWNLIE v1: Nigel in a cutscene shape (lying) = only the real sprite table */
     if (draw && lk_o_hide0 && offs[k] != 0 && e->np && lk_o_satn > 0 && !lk_o_loose(e) && !lk_o_loose4e(e) && lk_o_near(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) { int q; printf("ownhide: frame %ld off %02X type %02X at (%d,%d) 4e (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), e->ax, e->ay, SW(0xFF5400 + offs[k] + 0x4E), SW(0xFF5400 + offs[k] + 0x50)); for (q = 0; q < e->np; q++) { uint32 kk = lk_o_pkey(e, q, 0); printf("   piece %d: x %d y %d size %X\n", q, (int)((kk >> 20) & 0x1FF), (int)((kk >> 8) & 0x3FF), (int)(kk & 15)); } } continue; }   /* the real sprite table holds none of this entity's pieces: the game draws something else in its place (a burning enemy of the Fire sword is replaced by flame sprites that are written into the table, they come as EXTRA entries) */
     if (draw && lk_o_exon) lk_o_extras_upto(sord[k]);
     lk_o_nspr++;

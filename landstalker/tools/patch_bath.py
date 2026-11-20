@@ -15,7 +15,7 @@ Japanese record in C (same effect as the table entry: HideSpriteAtD0 $01A30A wit
 Needs patch_options.py (platform_sdl.c option switch) and patch_friday.py (install hook anchor).  Idempotent.  usage: patch_bath.py path/to/genrecomp"""
 import os, sys
 root = sys.argv[1]
-VER = "LK_BATH v1"
+VER = "LK_BATH v1"   # + LK_BATH2 (2026-11-20, user: 'die Magd kann einfach gar nicht vorkommen'): the maid leaves right after her banquet announcement ($12.2), not only after the kitchen talk ($12.3); the marker stays v1 (other patches anchor on it)
 
 def rep(s, old, new, what):
     assert s.count(old) == 1, what + " layout changed: " + old[:90]
@@ -46,7 +46,7 @@ static void lk_bath_h_chk(void) {   /* CheckOneTimeEventFlags $01A3D8: the game'
     lk_bath_o_chk();
     if (!lk_bath_get() || bus_read16(0xFF1204u) != 0x005Eu) return;   /* g_RmNum1 = room 94, castle 2F hallway */
     f = bus_read8(0xFF1012u);   /* story flag byte $12 (g_Flags $FF1000) */
-    if (!(f & 0x08) || (f & 0x40)) return;   /* `00 5E 92 60 12 06`: $12 bit 3 set (banquet announced) and $12 bit 6 clear (bath scene chain not done) */
+    if (!(f & 0x0C) || (f & 0x50)) return;   /* LK_BATH2: Japan `00 5E 92 60 12 06`: $12.3 set (TALKED_WITH_KITCHEN_WOMAN) and $12.6 clear; v2 (user 2026-11-20): already from $12.2 (the maid's announcement in room 97, rec_20261120_0537: $12 03 -> 06) until the banquet ($12.4) or the scene chain ($12.6) */
     { uint32_t a0 = g_m68k.a[0], a1 = g_m68k.a[1];   /* like CheckOneTimeEventFlags_loc5 $01A426: movem.l a0-a1 around HideSpriteAtD0 */
       g_m68k.d[0] &= 0xFFFFFF00u;   /* d0.b = entity 0 = the maid on the door cell (15,28) */
       g_m68k.a[5] = 0xFF5480u;   /* EntitySlot_1 (Sprite1_X) */
