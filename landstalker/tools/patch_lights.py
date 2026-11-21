@@ -162,7 +162,7 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
                 rows.append("{%d, %d, {%s}}" % (int(room), op, ", ".join(str(v) for v in a + [0] * (7 - n))))
     rows += uprows
     print("patch_lights: %d light proxy corrections from %s (%d unpaint, %d unpaint tiles)" % (len(rows), path, len(uprows), len(uptile)))
-    mesh = "".join("static const int16_t lk_lt_mesh%d[][4] = { %s, {-1, -1, -1, -1} };\n" % (i, m) for i, m in enumerate(MESHES))
+    mesh = "".join("static const int16_t lk_lt_mesh%d[][4] = { %s{-1, -1, -1, -1} };\n" % (i, m + ", " if m else "") for i, m in enumerate(MESHES))   # 2026-11-21: a thin model (dead twig) can cover no sub column centre at all -> only the end mark
     mesh += "static const int16_t (*const lk_lt_meshes[])[4] = { " + ", ".join(["lk_lt_mesh%d" % i for i in range(len(MESHES))] + ["0"]) + " };\n"
     print("patch_lights: %d light proxy meshes (%s cells)" % (len(MESHES), ", ".join(str(m.count("{")) for m in MESHES)))
     mesh += "".join("static const float lk_lt_mtri%d[] = { %s };\n" % (i, ", ".join("%.3ff" % v for v in MTRI[i])) for i in sorted(MTRI))

@@ -3429,6 +3429,54 @@
         "surface": true,
         "air": true,
         "why": "three piers (solid) with stepped corbel brackets (slabs with soft sides: the light passes under them), measured on the drawn layer A wall (remake/recipes/proxy_arcade_486.py); the arch-gap fill skips these cells; v2 2026-11-18: one solid per pier (sloped course undersides, ear-clipped caps) instead of 4 unit slabs"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          35,
+          49,
+          35
+        ],
+        "file": "proxies/stone_cube_486_0.obj",
+        "surface": true,
+        "why": "small stone block (collision = an isolated walkable 1 step cell): our model remake/recipes/stone_cube_486 (block 16 x 16 x 16 with rounded edges, IoU 0.928 on the drawing; was an automatic lathe 37 high), placed by place_486.py; 2026-11-21 built while the user was away, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          35,
+          57,
+          35
+        ],
+        "file": "proxies/stone_cube_486_1.obj",
+        "surface": true,
+        "why": "small stone block (collision = an isolated walkable 1 step cell): our model remake/recipes/stone_cube_486 (block 16 x 16 x 16 with rounded edges, IoU 0.928 on the drawing; was an automatic lathe 37 high), placed by place_486.py; 2026-11-21 built while the user was away, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          55,
+          49,
+          55
+        ],
+        "file": "proxies/stone_cube_486_2.obj",
+        "surface": true,
+        "why": "small stone block (collision = an isolated walkable 1 step cell): our model remake/recipes/stone_cube_486 (block 16 x 16 x 16 with rounded edges, IoU 0.928 on the drawing; was an automatic lathe 37 high), placed by place_486.py; 2026-11-21 built while the user was away, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          55,
+          57,
+          55
+        ],
+        "file": "proxies/stone_cube_486_3.obj",
+        "surface": true,
+        "why": "small stone block (collision = an isolated walkable 1 step cell): our model remake/recipes/stone_cube_486 (block 16 x 16 x 16 with rounded edges, IoU 0.928 on the drawing; was an automatic lathe 37 high), placed by place_486.py; 2026-11-21 built while the user was away, to be checked"
       }
     ],
     "488": [
@@ -8012,6 +8060,210 @@
           21
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 320..704 y 224..448 z0 16 over the raised swamp grass beside the boardwalk (game height 0 / 1); the game height map already holds the flat block; it stood up to 80 above the ground over 1008 sub columns"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          14,
+          14,
+          14
+        ],
+        "file": "proxies/twig_432_0.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          13,
+          15,
+          13
+        ],
+        "file": "proxies/twig_432_1.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          13,
+          15,
+          13
+        ],
+        "file": "proxies/twig_432_2.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          27,
+          18,
+          27
+        ],
+        "file": "proxies/twig_432_3.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          14,
+          30,
+          14
+        ],
+        "file": "proxies/twig_432_4.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          13,
+          31,
+          13
+        ],
+        "file": "proxies/twig_432_5.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          27,
+          17,
+          27
+        ],
+        "file": "proxies/twig_432_6.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          14,
+          30,
+          14
+        ],
+        "file": "proxies/twig_432_7.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          27,
+          28,
+          27
+        ],
+        "file": "proxies/twig_432_8.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          15,
+          41,
+          15
+        ],
+        "file": "proxies/twig_432_9.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          14,
+          40,
+          14
+        ],
+        "file": "proxies/twig_432_10.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          14,
+          41,
+          14
+        ],
+        "file": "proxies/twig_432_11.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          27,
+          28,
+          27
+        ],
+        "file": "proxies/twig_432_12.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          15,
+          41,
+          15
+        ],
+        "file": "proxies/twig_432_13.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          27,
+          28,
+          27
+        ],
+        "file": "proxies/twig_432_14.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          14,
+          41,
+          14
+        ],
+        "file": "proxies/twig_432_15.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          27,
+          41,
+          27
+        ],
+        "file": "proxies/twig_432_16.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
       }
     ],
     "436": [
@@ -8034,6 +8286,210 @@
           21
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 320..704 y 224..448 z0 16 over the raised swamp grass beside the boardwalk (game height 0 / 1); the game height map already holds the flat block; it stood up to 80 above the ground over 1008 sub columns"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          14,
+          14,
+          14
+        ],
+        "file": "proxies/twig_436_0.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          13,
+          15,
+          13
+        ],
+        "file": "proxies/twig_436_1.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          13,
+          15,
+          13
+        ],
+        "file": "proxies/twig_436_2.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          27,
+          18,
+          27
+        ],
+        "file": "proxies/twig_436_3.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          14,
+          30,
+          14
+        ],
+        "file": "proxies/twig_436_4.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          13,
+          31,
+          13
+        ],
+        "file": "proxies/twig_436_5.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          27,
+          17,
+          27
+        ],
+        "file": "proxies/twig_436_6.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          14,
+          30,
+          14
+        ],
+        "file": "proxies/twig_436_7.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          27,
+          28,
+          27
+        ],
+        "file": "proxies/twig_436_8.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          15,
+          41,
+          15
+        ],
+        "file": "proxies/twig_436_9.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          14,
+          40,
+          14
+        ],
+        "file": "proxies/twig_436_10.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          14,
+          41,
+          14
+        ],
+        "file": "proxies/twig_436_11.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          27,
+          28,
+          27
+        ],
+        "file": "proxies/twig_436_12.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          15,
+          41,
+          15
+        ],
+        "file": "proxies/twig_436_13.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          27,
+          28,
+          27
+        ],
+        "file": "proxies/twig_436_14.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          14,
+          41,
+          14
+        ],
+        "file": "proxies/twig_436_15.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          27,
+          41,
+          27
+        ],
+        "file": "proxies/twig_436_16.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
       }
     ],
     "443": [
@@ -8066,6 +8522,66 @@
           45
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 272..496 y 608..848 z0 16 over the grass pillar (game height 5) and the swamp terraces; the game height map already holds the flat block; it stood up to 18 above the ground over 32 sub columns"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          30,
+          19,
+          30
+        ],
+        "file": "proxies/twig_443_0.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          30,
+          19,
+          30
+        ],
+        "file": "proxies/twig_443_1.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          31,
+          19,
+          31
+        ],
+        "file": "proxies/twig_443_2.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          24,
+          30,
+          24
+        ],
+        "file": "proxies/twig_443_3.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          23,
+          30,
+          23
+        ],
+        "file": "proxies/twig_443_4.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
       }
     ],
     "492": [
@@ -8388,6 +8904,312 @@
         "file": "proxies/stone_face_433_5.obj",
         "surface": true,
         "why": "stone face of the swamp (collision = one 2 step block $43): our model remake/recipes/stone_face (smooth head, face + mouth to +x, IoU 0.911 on the drawing), placed by place_433.py; user 2026-11-21 'passt als Lichtform'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          38,
+          15,
+          38,
+          15
+        ],
+        "file": "proxies/twig_433_0.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          21,
+          49,
+          21
+        ],
+        "file": "proxies/twig_433_1.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          37,
+          12,
+          37,
+          12
+        ],
+        "file": "proxies/twig_433_2.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          16,
+          36,
+          16
+        ],
+        "file": "proxies/twig_433_3.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          16,
+          39,
+          16
+        ],
+        "file": "proxies/twig_433_4.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          14,
+          40,
+          14
+        ],
+        "file": "proxies/twig_433_5.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          37,
+          16,
+          37,
+          16
+        ],
+        "file": "proxies/twig_433_6.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          13,
+          40,
+          13
+        ],
+        "file": "proxies/twig_433_7.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          16,
+          40,
+          16
+        ],
+        "file": "proxies/twig_433_8.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          15,
+          39,
+          15
+        ],
+        "file": "proxies/twig_433_9.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          38,
+          36,
+          38
+        ],
+        "file": "proxies/twig_433_10.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          38,
+          38,
+          38,
+          38
+        ],
+        "file": "proxies/twig_433_11.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          37,
+          38,
+          37,
+          38
+        ],
+        "file": "proxies/twig_433_12.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          38,
+          38,
+          38,
+          38
+        ],
+        "file": "proxies/twig_433_13.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      }
+    ],
+    "431": [
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          16,
+          17,
+          16
+        ],
+        "file": "proxies/twig_431_0.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          17,
+          17,
+          17
+        ],
+        "file": "proxies/twig_431_1.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          16,
+          17,
+          16
+        ],
+        "file": "proxies/twig_431_2.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          20,
+          15,
+          20
+        ],
+        "file": "proxies/twig_431_3.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          20,
+          16,
+          20
+        ],
+        "file": "proxies/twig_431_4.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          29,
+          15,
+          29
+        ],
+        "file": "proxies/twig_431_5.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          29,
+          14,
+          29
+        ],
+        "file": "proxies/twig_431_6.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          29,
+          15,
+          29
+        ],
+        "file": "proxies/twig_431_7.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      }
+    ],
+    "444": [
+      {
+        "op": "mesh",
+        "cells": [
+          37,
+          40,
+          37,
+          40
+        ],
+        "file": "proxies/twig_444_0.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      }
+    ],
+    "739": [
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          15,
+          24,
+          15
+        ],
+        "file": "proxies/pillar_739_0.obj",
+        "surface": true,
+        "why": "stone pillar (collision = one 3 step block $43): our parts model remake/recipes/pillar_739 (square plinth / abacus, round shaft, rings, echinus; IoU 0.857 on the drawing), placed by place_739.py; 2026-11-21 built while the user was away, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          15,
+          19,
+          15
+        ],
+        "file": "proxies/pillar_739_1.obj",
+        "surface": true,
+        "why": "stone pillar (collision = one 3 step block $43): our parts model remake/recipes/pillar_739 (square plinth / abacus, round shaft, rings, echinus; IoU 0.857 on the drawing), placed by place_739.py; 2026-11-21 built while the user was away, to be checked"
       }
     ]
   },
