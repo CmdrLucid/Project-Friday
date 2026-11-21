@@ -113,7 +113,9 @@ def survey(room, T, BIG, SMALL, thr=0.65):
                     q = idx[(tv + r) * W + U + dx]; n += 1; sb += q == v; ss += BIG.get((dx, r + 16)) == q
             sb /= max(n, 1); ss /= max(n, 1)
             kind = "pine" if sb >= 0.45 and sb > ss + 0.15 else "small" if ss >= 0.45 and ss > sb + 0.15 else None
-            if best is None or max(sb, ss) > best[3]: best = [U, tv, kind, max(sb, ss), li]
+            if best is None or max(sb, ss) > best[3]: best = [U, tv, kind, max(sb, ss), li, sb, ss]
+        if best[2] is None and max(best[5], best[6]) >= 0.3 and abs(best[5] - best[6]) >= 0.15:   # partly covered (user 2026-11-21, room 484 foot U 1232: a small pine
+            best[2] = "pine" if best[5] > best[6] else "small"                                       # half hidden at a cliff edge, small 0.33 / big 0.10 -> was the default big pine)
         dec.append(best)
     for d in dec:
         if d[2] is None:
@@ -126,9 +128,10 @@ def survey(room, T, BIG, SMALL, thr=0.65):
                 sc.append((sum(1 for (dx, dy), v in SMALL.items() if idxs[d[4]][(V + dy) * W + d[0] + dx] == v), V))
             out.append(("small", d[0], max(sc)[1], d[4]))
     hm = heights_full(room); rects = tree_rects(room); res = []; drop = 0; bushes = bush_cells(room)
-    _gfc.clear(); _ftype.clear(); _ftype[id(hm)] = floor_types(room)   # caches are keyed by id(hm): clear per room (a pool worker surveys several rooms and Python reuses ids)
+    _gfc.clear(); _vc.clear(); _ftype.clear(); _ftype[id(hm)] = floor_types(room)   # caches are keyed by id(hm): clear per room (a pool worker surveys several rooms and Python reuses ids)
     for name, U, V, li in out:
         w = foot_tree(hm, U, V) if name == "bigtree" else foot_world(hm, U, V, bushes, trunk_seen(idxs[li], T, BIG, SMALL, name, U, V))
+        if not w and name != "bigtree": w = foot_world(hm, U, V, bushes, trunk_seen(idxs[li], T, BIG, SMALL, name, U, V), skipvoid=False)   # drawn over the void at the room's edge: no floor behind it -> as before (the void's nearest floor)
         if not w: continue
         X, Y, z, c = w
         if any(r[0] <= c[0] <= r[2] and r[1] <= c[1] <= r[3] for r in rects): drop += 1; continue
@@ -179,6 +182,21 @@ def floor_types(room):
     a = PS.romroom.arrays(PS.romroom.decode(ROM, room))['HM']
     return {(x + 12, y + 12): v & 255 for (x, y), v in a.items() if v}
 
+_vc = {}
+def void_cells(hm):
+    """the blocked-0 cells connected (4 neighbours, through blocked-0 cells) to the edge of the height map's rectangle = the void around the room"""
+    key = id(hm)
+    if key in _vc: return _vc[key]
+    xs = [c[0] for c in hm]; ys = [c[1] for c in hm]; x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+    isv = lambda c: c in hm and hm[c][1] and hm[c][0] == 0
+    st = [c for c in hm if isv(c) and (c[0] in (x0, x1) or c[1] in (y0, y1))]; out = set(st)
+    while st:
+        c = st.pop()
+        for q in ((c[0] + 1, c[1]), (c[0] - 1, c[1]), (c[0], c[1] + 1), (c[0], c[1] - 1)):
+            if q not in out and isv(q): out.add(q); st.append(q)
+    _vc[key] = out
+    return out
+
 def group_floors(hm, bushes):
     """{blocked cell: floor} - every 4-connected group of blocked cells of one height gets the LOWEST free floor touching it (bush tops one step lower; only floors
     not above the group's top). User 2026-11-21 (room 458): forest blocks stand on the ground at their foot, a raised path or a bush strip beside them is not that ground."""
@@ -208,16 +226,17 @@ def group_floors(hm, bushes):
     _gfc[key] = out
     return out
 
-def foot_world(hm, U, V, bushes=(), seen=True):
+def foot_world(hm, U, V, bushes=(), seen=True, skipvoid=True):
     """pine_cluster.foot_world with the floor of a blocked cell = the NEAREST free floor (ring by ring up to 8 cells away): inside a dense forest every
     cell is blocked (room 425 rows 15..17: the old rule took the cell's own top and put the back pines 2 rows forward); only free floors not above a raised (height >= 1)
     blocked cell's top count (tree-top paths, room 458)"""
-    gf = group_floors(hm, bushes)
+    gf = group_floors(hm, bushes); void = void_cells(hm) if skipvoid else ()
     def floor(c):
         h, b = hm.get(c, (None, True))
         if h is None: return None
         if c in bushes: h -= 1   # LK_LTPLANT v3 feet (2026-11-21): a bush top is not ground (room 458: the bush strip of height 2 gave pines z 32 / 34 / 18)
         if not b: return 16 * h
+        if c in void: return None   # 2026-11-21: the blocked-0 void around the room is nothing, not a floor (484: the ring search gave the void 144 -> a small pine landed in it); a tree's own blocked-0 cell inside a ground-0 room stays (711 / 601 / 475)
         if c in gf: return gf[c]   # v3: the lowest free floor around the whole blocked group (room 458: the forest behind the raised path stands on 16, not on the path's 48)
         for d in range(1, 9):
             nb = [hm[q][0] - (q in bushes) for q in ((c[0] + a, c[1] + e) for a in range(-d, d + 1) for e in range(-d, d + 1) if max(abs(a), abs(e)) == d) if q in hm and not hm[q][1] and (hm[q][0] <= h or h < 1)]   # only floors NOT ABOVE the block's top (2026-11-21, room 458: walkable tree-top paths of height 4 / 5 inside the forest gave pines feet at 64 / 80 above a bed of 48 on ground 16)
@@ -267,7 +286,7 @@ def write_models():
             elif l.startswith("f "): fo.write(l)
     for name, P in (("pine", "params_pine.json"), ("small", "params_small.json"), ("bush", "params_bush.json")):
         P = json.load(open(os.path.join(HERE, P))); o = P["offset"]
-        parts = pine.pine_parts(o, o, 0, P, seed=11) if name != "bush" else bush.bush_parts(o, o, 0, P, seed=11)
+        parts = pine.pine_parts(o, o, 0, P, seed=P.get("seed", 11)) if name != "bush" else bush.bush_parts(o, o, 0, P, seed=P.get("seed", 11))
         pine.write_obj(os.path.join(ROOT, "landstalker", "data", "proxies", "plant_%s.obj" % name), parts,
                        "%s light model (remake/recipes/plants/plants.py), origin = the drawn foot on the ground" % name)
 

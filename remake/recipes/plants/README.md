@@ -42,5 +42,7 @@ instance of the room into the object model buffer and skips the old lathe of a c
 ## Fit tools (local, need the ROM)
 `fit_small.py` / `fit_bush.py`: grid search of the recipe parameters against the drawn silhouette (plane A, free side mirrored).
 
-Open (2026-11-21): a small pine partly hidden behind a cliff edge (room 484, foot U 1232) is taken as a big pine with its tip 16 rows too high (the
-drawn tip is at V 232: tip rows match, rows 16..31 = the small pine); a wider tip search would shift correct pines in dense forests (a tip every 16 rows).
+Small pine half hidden (2026-11-21, user, room 484 foot U 1232): the tip was right, the pine / small test was undecided (small 0.33, big 0.10 < 0.45) and
+fell back to the big pine; an undecided plant now takes the clearly better class (>= 0.3, margin >= 0.15). The blocked-0 VOID connected to the height map's
+edge is no floor for the view ray (it got 144 from the nearest-floor search; the small pine landed in it), unless the ray finds no floor at all behind it
+(plants drawn over the void at the room's edge keep the old rule). Pine model refit 2026-11-21 (params_pine.json incl. its seed, user OK).
