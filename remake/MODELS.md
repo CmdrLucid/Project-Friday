@@ -290,3 +290,6 @@ FINAL = with material, approved by the user.
 
 ## Small stone block  (`remake/recipes/stone_cube_486/` -> `landstalker/data/proxies/stone_cube_486_{0..3}.obj` via `place_486.py`; room 486, 2026-11-21)
 - Four pixel-equal copies on isolated walkable 1 step cells (49,35) (57,35) (49,55) (57,55), ground 0 (the automatic lathe was 37 high): block 16.3 x 16.3, 16.3 high, rounded vertical edges, rounded top edge. Fit IoU 0.928 (the moss in front of its foot left out). Built while the user was away.
+
+## Mooring post  (`remake/recipes/bollard_641/` -> `landstalker/data/proxies/bollard_{641,642,644}_{0,1,2}.obj` via `place.py`; Mercator docks, 2026-11-21)
+- Three pixel-equal copies per room (641 / 642 / 644 = one map) on walkable 2 step cells (25,37) (35,30) (57,26), ground 16: a stone mushroom (flared foot r 6.3, waist r 5.3, cap underside to the rim r 7.7 at z 11.2, elliptic dome to 18). Built as a PROFILE with a few clear measures (`params.json` 'profile', turned by `lathe.py`): IoU 0.923, 0 px out. Two free ring fits before were rejected in self-review (a cone tip; a lampshade top, neck too thick). Open: the drawn foot has small flared corners the round profile does not reach. Built while the user collects feedback.

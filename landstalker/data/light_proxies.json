@@ -9211,6 +9211,120 @@
         "surface": true,
         "why": "stone pillar (collision = one 3 step block $43): our parts model remake/recipes/pillar_739 (square plinth / abacus, round shaft, rings, echinus; IoU 0.857 on the drawing), placed by place_739.py; 2026-11-21 built while the user was away, to be checked"
       }
+    ],
+    "641": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          37,
+          25,
+          37
+        ],
+        "file": "proxies/bollard_641_0.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          30,
+          35,
+          30
+        ],
+        "file": "proxies/bollard_641_1.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/bollard_641_2.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      }
+    ],
+    "642": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          37,
+          25,
+          37
+        ],
+        "file": "proxies/bollard_642_0.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          30,
+          35,
+          30
+        ],
+        "file": "proxies/bollard_642_1.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/bollard_642_2.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      }
+    ],
+    "644": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          37,
+          25,
+          37
+        ],
+        "file": "proxies/bollard_644_0.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          30,
+          35,
+          30
+        ],
+        "file": "proxies/bollard_644_1.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/bollard_644_2.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      }
     ]
   },
   "unpaint_tiles": {
