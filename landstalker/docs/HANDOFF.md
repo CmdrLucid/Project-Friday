@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 54-59
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 870-881
-- 1. Where we are: lines 882-1049
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1050-1341
-- 3. How the user works (important): lines 1342-1357
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1358-1382
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1383-1391
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1392-1439
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1440-1449
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1450-1451
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1452-1454
-- NEXT STEPS, newest first: -254 1051, -253 1052, -252 1053, -251 1054, -250 1055, -249 1056, -248 1057, -247 1058, -246 1059, -245 1060
+- 1. Where we are: lines 882-1050
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1051-1343
+- 3. How the user works (important): lines 1344-1359
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1360-1384
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1385-1393
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1394-1441
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1442-1451
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1452-1453
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1454-1456
+- NEXT STEPS, newest first: -255 1052, -254 1053, -253 1054, -252 1055, -251 1056, -250 1057, -249 1058, -248 1059, -247 1060, -246 1061
 - Newest entries:
   - 0a495 line 191: 2026-11-21 late morning (Deck, Opus 5.5, no agents; dev): leftover group (4) light shapes. (1) STONE FACES...
   - 0a494 line 193: 2026-11-21 morning (Deck, Opus 5.5, no agents; dev): -252 (a) done without waiting for the pine refit (feet...
@@ -880,6 +880,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-21 SESSION END (Opus 5.5, no agents, `dev` 2d76338+ pushed, main = v1.9.8, no release):** USER CONFIRMED BY PLAYING: the pine shadows ('deutlich, deutlich besser') = plants.py v3 feet in all outdoor rooms + plane B plants + pine refit + small pine fix (0a494). HEADLESS ONLY (GPU lightedges 0, not played / partly not looked at by the user): stone faces 433 (user OK on the sheet), 62 swamp twigs, pillars 739, stone blocks 486, 9 dock mooring posts, dock log hut (0a495). Rejected and removed: statues 592 / 31 from primitives. Next -255.
 - **2026-11-21 LATE MORNING (Opus 5.5, no agents, `dev`):** stone faces 433 (user OK) + while the user was away: 62 swamp twigs built from the drawing, pillars 739, stone blocks 486 (all to be checked by the user), patch_lights empty mesh table fix. GPU lightedges 0. HEADLESS ONLY. 0a495 / -254.
 - **2026-11-21 MORNING (Opus 5.5, no agents, `dev`, main = v1.9.8):** plants.py v3 feet for ALL outdoor rooms + barrier / void / 0000 floor / pond fixes + plane B plants (10252 -> 14732 pines; user marked the missing ones), LK_LT_OMMAX 640000. GPU lightedges 0 in 12 plant rooms, frame times unchanged. HEADLESS ONLY. 0a494 / -253.
 - **2026-11-21 SESSION END (Opus 5.5, no agents, `dev` pushed a907c09+, main = v1.9.8, no release):** room 458 hard vertical shadow edge (user recording rec_20261120_1940) SOLVED headless (GPU replay shot, ratio picture): wrong plant feet. plants.py v3 foot rule (bush tops are crowns, a blocked group stands on the lowest free floor at its border, covered trunks / side hits continue the view ray to the next lower floor) - rewritten for 18 rooms only (458 + the 17 rooms of the removed hand-made 4 pine groups pine_cl_*); all other rooms still old feet. New eye-check tool tools/heightview.py (user: 'das brauchen wir'). LK_LTPLANT v2 (figure sun through plant models) + v3 (room model forest ground / ground tops) in the build, not yet checked with lightedges. Pine model refit (IoU 0.914) WAITS for the user's OK. User has NOT played this build. Details HANDOFF 0a493.
@@ -1048,6 +1049,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-255. **NEXT FIRST (2026-11-21 session end, user: 'machen wir in neuer Sitzung'): continue the Mercator DOCKS: the crate shed (read with BOTH planes: a solid crate wall under a gable thatch roof with crossed sticks on the ridge, crates around as real crate models with frame / planks >= 1 unit relief), then the two stone buildings (windows, gate). Collect the user's feedback on the shapes built today (sheets ~/Project-Friday-Test/Mockups: sumpfzweige_alle.png, saeulen_739.png, steingesicht_433.png; blocks 486, mooring posts, hut only in the game). Later: statues 592 / 31 as a SCULPT with the user (31 = the Duke in Nigel's idle pose, sword at the hip, parted hair), indoor crypt 764..772 objects, Tibor's map. Small: pine sun / shade line (563 spot 5), two shapes beside the left pillar in 739.**
 -254. **NEXT FIRST (2026-11-21): user checks the shapes built while he was away (0a495: 62 swamp twigs, 2 pillars 739, 4 stone blocks 486; sheets in ~/Project-Friday-Test/Mockups) and plays the forests (-253). Group (2) terrace check DONE (0 edges). Statues 592 / 31: a SCULPT with the user (the 31 statue = the Duke in Nigel's idle pose), primitives were rejected. Small: pine sun / shade line (563 spot 5).**
 -253. **(user played the forests 2026-11-21 afternoon: pine shadows 'deutlich, deutlich besser') NEXT FIRST (2026-11-21 morning): user plays the forests with the new plant feet + plane B plants (any forest room, e.g. 458 / 427 / 566 / 562; look for shadows beside / under the trees, frame drops in dense forests); open: pine refit OK (clay_pine2.png / fit2.png), the small pine of 484 (detector tip 16 rows high), LK_LTPLANT v2 / v3 decision (lightedges 0 in 12 rooms now). 0a494.**
 -252. **NEXT FIRST: (a) user OK on the pine refit (0a493 UPDATE), then all rooms through plants.py v3 + heightview checks of forest rooms + lightedges; (b) DONE: room 458 hard vertical shadow edge on the path (rec_20261120_1940 frame 9480) - see 0a493: lies on plain ground 16, comes with the plant models, cause still open; then decide about LK_LTPLANT v2 (c) / v3 (d) (room model forest ground) after lightedges on the 16 plant rooms.**

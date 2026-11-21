@@ -2054,3 +2054,13 @@ Build dev 48c243a (verify_build: 126 ok). Evidence (all hidden-window GPU presen
 - Result: 458 all 335 plants on 16, rebuilt: edge gone (lktest/r458b/ratio_v3_v4.png). 20 pine_cl_* hand groups removed (user), plants.py places single pines (all tips found). Stats over all outdoor rooms: a pine catalogue cell is 2 steps (876), 1 (482) or 0 (809) above the free floor in front -> no fixed '+32' rule.
 - Pine model refit (lktest/feet/pine/fit2.py): random search over pine.py parameters + tier seed against the drawn pine of room 632 (REF): IoU 0.855 -> 0.914, overhang 133 -> 40 px (H 50.67, R 11, zb 12.06, th 11.69, taper 0.62, notch 0.93, droop 0.83, tr 2.94, offset -2.58, tiers 6, tips 11, seed 379); not applied (user OK pending; write_models needs P.get('seed')).
 
+## Plant feet everywhere, plane B plants, leftover light shapes, docks (2026-11-21 day, dev 0861d6c .. 2d76338)
+- plants.py v3 feet for all 133 outdoor rooms; fixes found with tools/heightview.py --tips: barriers / edge-connected void no group floor (469: bushes at z 0 in the void row), `0000` = floor 0 (561: ray fell through the ground; 293 pines wrongly on 16 in an intermediate run), group floor = lowest non-stray border floor with plain floor type first (566: two pond corner cells pulled the forest to 0; 'most common' put 509 / 506 pines on raised paths), cache keyed by id(hm) cleared per room. Room 458 unchanged in every run.
+- Plane B scan: the back rows of forests are plane B (user marked 427 / 566): 10252 -> 14732 pines; NO_PLANE_B 34 / 35 (tower backdrop). LK_LT_OMMAX 400000 -> 640000 (562: 520276 triangles). FRAMESTAT: 562 present 1.7 ms like 632, room entry 50 ms once.
+- Small pine 484 (user): tip right, class undecided (small 0.33 / big 0.10) -> clearly better class now; edge-connected void no floor for the ray unless nothing behind (else 90 plants at room edges were lost: 475 253 -> 160).
+- New light shapes (GPU lightedges 0 each): stone faces 433 (user OK), 62 swamp twigs from the drawing (auto_twigs.py), pillars 739, stone blocks 486, 9 dock mooring posts, dock log hut. patch_lights: an empty mesh cell table wrote '{ , {-1..} }' (zig error after ~20 min compile) -> fixed.
+- Rejected by the user: Massan statue + Duke statue (31) from primitives (snowman / jointed doll); removed before commit. Hut first read from plane A alone as a pavilion (user: objects span both planes).
+- Group (2) terrace check: 12 rooms, 141 GPU pictures, 0 terrace edges; one 45 px sun / shade line in a pine (563 spot 5).
+- A build killed mid-way left half-patched generated sources (verify_build 97 ok / 90 missing) although build/landstalker still ran: always rebuild after killing build.sh.
+- USER CONFIRMED BY PLAYING (afternoon): pine shadows 'deutlich, deutlich besser'.
+
