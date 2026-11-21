@@ -32,6 +32,14 @@ REF = {"pine": (632, 431 - 991 + 1184, (431 + 991) // 2 - 16),   # reference ins
 BOX = {"pine": (-9, 9, 16), "small": (0, 15, 14), "bush": (0, 15, 14), "bigtree": (-14, 14, 20)}   # detection box: columns dx0..dx1 (small / bush: right half, the left one is hidden by the neighbour), top rows
 TREE_OPS = ("pine_court", "tree_")   # pine_cl (hand-made 4 pine groups) dropped 2026-11-21, user: 'die Vierergruppen ... auch das eine Tannenmodell'
 
+NO_PLANE_B = {34, 35}   # Mercator castle tower: plane B paints the forest far BELOW the tower (backdrop, not the room's ground)
+
+def planeB(room):
+    """plane B alone (the ground + the back rows of a forest), palette index & 15"""
+    g, r, pa, pb, getpal = R.rom_planes(ROM, room)
+    R.compose(E, pb, getpal, 0, 0, W, H, (0, 0, 0), g['tiles'])
+    return [v & 15 if v else 0 for v in R.compose.idx]
+
 def planeA(room):
     g, r, pa, pb, getpal = R.rom_planes(ROM, room)
     R.compose(pa, E, getpal, 0, 0, W, H, (0, 0, 0), g['tiles'])
@@ -73,25 +81,31 @@ def catalogue_bushes(room):
     return [("bush", 16 * k[0] + 8.0, 16 * k[1] + 8.0, 16 * v[0] - 16 * (low(k) < v[0])) for k, v in sorted(c.items()) if v[2] in ids and v[0] >= 1]
 
 def survey(room, T, BIG, SMALL, thr=0.65):
-    idx = planeA(room); hits = []
-    for name, t in T.items():
-        ref = REF["bush" if name == "bushlow" else name]; ph, phu = ref[2] % 8, ref[1] % 16; lim = len(t) * (1 - thr)
-        for V in range(80 + ph, H - 8, 8):
-            for U in range(48 + phu, W - 48, 16):
-                miss = 0
-                for (dx, dy), v in t.items():
-                    if idx[(V + dy) * W + U + dx] != v:
-                        miss += 1
-                        if miss > lim: break
-                else: hits.append(("bush" if name == "bushlow" else name, U, V))
-    out = sorted(set(h for h in hits if h[0] in ("bush", "bigtree"))); tips = []
-    for name, U, V in hits:
+    # 2026-11-21 (user, rooms 427 / 566: 'ganz viele nicht erkannt'): the back rows of a forest are drawn in plane B (with the ground), not only in
+    # plane A: scan both planes; a plant found in both keeps plane A
+    idxs = [planeA(room)] + ([] if room in NO_PLANE_B else [planeB(room)]); hits = []
+    for li, idx in enumerate(idxs):
+        for name, t in T.items():
+            ref = REF["bush" if name == "bushlow" else name]; ph, phu = ref[2] % 8, ref[1] % 16; lim = len(t) * (1 - thr)
+            for V in range(80 + ph, H - 8, 8):
+                for U in range(48 + phu, W - 48, 16):
+                    miss = 0
+                    for (dx, dy), v in t.items():
+                        if idx[(V + dy) * W + U + dx] != v:
+                            miss += 1
+                            if miss > lim: break
+                    else: hits.append(("bush" if name == "bushlow" else name, U, V, li))
+    out = []
+    for h in sorted(set(h for h in hits if h[0] in ("bush", "bigtree")), key=lambda h: h[3]):
+        if not any(o[:3] == h[:3] for o in out): out.append(h)
+    tips = []
+    for name, U, V, li in sorted(hits, key=lambda h: h[3]):
         if name in ("bush", "bigtree"): continue
         tv = V - LIFT[name]
-        if not any(k[0] == U and abs(k[1] - tv) <= 2 for k in tips): tips.append((U, tv))
+        if not any(k[0] == U and abs(k[1] - tv) <= 2 for k in tips): tips.append((U, tv, li))
     dec = []
-    for U, tv0 in tips:
-        best = None
+    for U, tv0, li in tips:
+        best = None; idx = idxs[li]
         for tv in range(tv0 - 3, tv0 + 4):
             sb = ss = n = 0
             for (dx, r), v in BIG.items():
@@ -99,21 +113,22 @@ def survey(room, T, BIG, SMALL, thr=0.65):
                     q = idx[(tv + r) * W + U + dx]; n += 1; sb += q == v; ss += BIG.get((dx, r + 16)) == q
             sb /= max(n, 1); ss /= max(n, 1)
             kind = "pine" if sb >= 0.45 and sb > ss + 0.15 else "small" if ss >= 0.45 and ss > sb + 0.15 else None
-            if best is None or max(sb, ss) > best[3]: best = [U, tv, kind, max(sb, ss)]
+            if best is None or max(sb, ss) > best[3]: best = [U, tv, kind, max(sb, ss), li]
         dec.append(best)
     for d in dec:
         if d[2] is None:
             near = sorted((abs(e[0] - d[0]) + abs(e[1] - d[1]), e[2]) for e in dec if e[2])
             d[2] = near[0][1] if near and near[0][0] <= 48 else "pine"
-        if d[2] == "pine": out.append(("pine", d[0], d[1] + 47))
+        if d[2] == "pine": out.append(("pine", d[0], d[1] + 47, d[4]))
         else:   # the small pine's own foot row: best match of its template around tip + 29
             sc = []
             for V in range(d[1] + 26, d[1] + 33):
-                sc.append((sum(1 for (dx, dy), v in SMALL.items() if idx[(V + dy) * W + d[0] + dx] == v), V))
-            out.append(("small", d[0], max(sc)[1]))
-    hm = PS.heights(ROM, room); rects = tree_rects(room); res = []; drop = 0; bushes = bush_cells(room)
-    for name, U, V in out:
-        w = foot_tree(hm, U, V) if name == "bigtree" else foot_world(hm, U, V, bushes, None if name == "bigtree" else trunk_seen(idx, T, BIG, SMALL, name, U, V))
+                sc.append((sum(1 for (dx, dy), v in SMALL.items() if idxs[d[4]][(V + dy) * W + d[0] + dx] == v), V))
+            out.append(("small", d[0], max(sc)[1], d[4]))
+    hm = heights_full(room); rects = tree_rects(room); res = []; drop = 0; bushes = bush_cells(room)
+    _gfc.clear(); _ftype.clear(); _ftype[id(hm)] = floor_types(room)   # caches are keyed by id(hm): clear per room (a pool worker surveys several rooms and Python reuses ids)
+    for name, U, V, li in out:
+        w = foot_tree(hm, U, V) if name == "bigtree" else foot_world(hm, U, V, bushes, trunk_seen(idxs[li], T, BIG, SMALL, name, U, V))
         if not w: continue
         X, Y, z, c = w
         if any(r[0] <= c[0] <= r[2] and r[1] <= c[1] <= r[3] for r in rects): drop += 1; continue
@@ -148,7 +163,22 @@ def trunk_seen(idx, T, BIG, SMALL, name, U, V, thr=0.5):
     ok = sum(1 for (dx, dy), v in t.items() if 0 <= V + dy < H and 0 <= U + dx < W and idx[(V + dy) * W + U + dx] == v)
     return ok >= thr * len(t)
 
-_gfc = {}
+_gfc, _ftype = {}, {}
+def heights_full(room):
+    """PS.heights + the 0000 words inside the room's rectangle as plain floor of height 0 (LESSONS 86: 0000 is FLOOR, not void; PS.heights drops them).
+    2026-11-21 room 561: its whole ground is 0000 (forest blocks $42 / $43): without them the view ray fell through the ground (pines on 16 / the forest group's other floors)"""
+    hm = PS.heights(ROM, room)
+    if not hm: return hm
+    xs = [c[0] for c in hm]; ys = [c[1] for c in hm]
+    for x in range(min(xs), max(xs) + 1):
+        for y in range(min(ys), max(ys) + 1): hm.setdefault((x, y), (0, False))
+    return hm
+
+def floor_types(room):
+    """{cell: floor type} = the height map word's LOW byte (LESSONS 86: 0 = plain floor; water / triggers have their own type, e.g. room 566's pond = $19)"""
+    a = PS.romroom.arrays(PS.romroom.decode(ROM, room))['HM']
+    return {(x + 12, y + 12): v & 255 for (x, y), v in a.items() if v}
+
 def group_floors(hm, bushes):
     """{blocked cell: floor} - every 4-connected group of blocked cells of one height gets the LOWEST free floor touching it (bush tops one step lower; only floors
     not above the group's top). User 2026-11-21 (room 458): forest blocks stand on the ground at their foot, a raised path or a bush strip beside them is not that ground."""
@@ -156,7 +186,7 @@ def group_floors(hm, bushes):
     if key in _gfc: return _gfc[key]
     out, seen = {}, set()
     for c0, (h0, b0) in hm.items():
-        if not b0 or c0 in seen: continue
+        if not b0 or c0 in seen or h0 in (0, 15): continue   # 2026-11-21: never a $4Fxx barrier (blocked + 15, LESSONS 2) nor the blocked-0 void ($40xx) around the room: the barrier ring / the void is ONE group touching every floor of the room (469: bushes on the barrier cliff -> z 0 in the void row); forest blocks are raised (561 $42 / $43, 458 $43)
         grp, st = [], [c0]; seen.add(c0)
         while st:
             c = st.pop(); grp.append(c)
@@ -164,8 +194,17 @@ def group_floors(hm, bushes):
                 if q not in seen and q in hm and hm[q][1] and hm[q][0] == h0: seen.add(q); st.append(q)
         fl = [hm[q][0] - (q in bushes) for c in grp for q in ((c[0] + 1, c[1]), (c[0] - 1, c[1]), (c[0], c[1] + 1), (c[0], c[1] - 1)) if q in hm and not hm[q][1]]
         fl = [f for f in fl if f <= h0]
-        if fl:
-            for c in grp: out[c] = 16 * min(fl)
+        ft = _ftype.get(key, {})
+        fp = [hm[q][0] - (q in bushes) for c in grp for q in ((c[0] + 1, c[1]), (c[0] - 1, c[1]), (c[0], c[1] + 1), (c[0], c[1] - 1)) if q in hm and not hm[q][1] and not ft.get(q, 0)]
+        fp = [f for f in fp if f <= h0]
+        if fp: fl = fp   # 2026-11-21: only PLAIN floors (type 0) are a forest's ground when there are any: room 566's pond (type $19, height 0) beside the forest is not where its pines stand (path 16)
+        if fl:   # the LOWEST floor that is more than a stray touch (>= 3 border edges and >= 10 % of the border): 2026-11-21 room 566 = one forest group over
+                 # the whole room touching 2 pond corner cells (0) -> all its pines sank to 0 instead of the paths' 16; the plain lowest floor stays the rule (458:
+                 # raised path 48 / bush strip on one side, ground 16 = the forest's ground, user); the most common floor put 509 / 506 pines on raised paths
+            from collections import Counter
+            cnt = Counter(fl); need = max(3, 0.1 * len(fl))
+            m = min([f for f, n in cnt.items() if n >= need] or [max(cnt.items(), key=lambda t: (t[1], -t[0]))[0]])
+            for c in grp: out[c] = 16 * m
     _gfc[key] = out
     return out
 

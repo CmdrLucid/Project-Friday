@@ -17,11 +17,17 @@ asymmetric bush. Check overlap / sides (plane A alone, both free sides) before d
 
 ## plants.py
 `python3 remake/recipes/plants/plants.py ROM [ROOMS] [-j 6] [--write] [--png DIR]`
-1. plane A of the room only (romrender with an empty layer B: the plants are layer A tiles, the ground goes away), palette index & 15.
+1. plane A and plane B of the room, each alone (romrender with the other layer empty), palette index & 15. Since 2026-11-21 plane B too: the BACK rows of a
+   forest are drawn in plane B with the ground (user: 'ganz viele nicht erkannt', rooms 427 / 566; 10252 -> 14732 pines); a plant found in both keeps plane A.
+   `NO_PLANE_B` = rooms whose plane B is a backdrop (34 / 35 Mercator castle tower: the forest far below).
 2. lattice scan with the TOP rows of each template (tips stay visible in dense forests) + the bush's lower crown / stem (bushes behind a pine row,
    user 2026-11-20 room 362), >= 65 % equal.
 3. pine or small: rows tip+16..31 equal the big pine's rows 16..31 -> pine, its rows 32..47 -> small; covered -> the nearest decided pine.
-4. foot: the view ray through the foot pixel meets the floor of the height map (`pine_cluster.foot_world`).
+4. foot: the view ray through the foot pixel meets the floor of the height map (`foot_world`, v3 2026-11-21: bush tops are crowns, a covered trunk continues to the
+   next lower floor, a blocked group stands on its group floor). Height map = `heights_full`: the 0000 words inside the room count as floor 0 (LESSONS 86;
+   room 561's whole ground). Group floor (`group_floors`): per 4-connected group of blocked cells of one height the LOWEST border floor that is more than a
+   stray touch (>= 3 border edges and >= 10 % of the border), plain floors (floor type 0) first (566: pond type $19); never for $4Fxx barriers (height 15)
+   or the blocked-0 void around the room (469: the barrier ring touches every floor of the room). Checked with tools/heightview.py --tips.
    Big round tree (`foot_tree`, 2026-11-21): it stands on its OWN 4 x 4 collision block (4 cells at the ground's height = `TREE_TRUNK`); the foot is that block's centre on the ground
    (the plain ray stopped at the block's side, room 458 z 47 instead of 16: the block stayed a box beside the model). Check: room 488 -> 576,656 z 128 = the measured axis. Room 451's second big tree has another block pattern: kept as before (open).
 5. bush cells of the object catalogue (`data/object_blocks.json`) add one bush per cell (dense fields, crowns covering each other), foot one step below the cell top.
@@ -35,3 +41,6 @@ instance of the room into the object model buffer and skips the old lathe of a c
 
 ## Fit tools (local, need the ROM)
 `fit_small.py` / `fit_bush.py`: grid search of the recipe parameters against the drawn silhouette (plane A, free side mirrored).
+
+Open (2026-11-21): a small pine partly hidden behind a cliff edge (room 484, foot U 1232) is taken as a big pine with its tip 16 rows too high (the
+drawn tip is at V 232: tip rows match, rows 16..31 = the small pine); a wider tip search would shift correct pines in dense forests (a tip every 16 rows).

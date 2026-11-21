@@ -1254,7 +1254,7 @@ static void lk_lt_rmquad(const float *a, const float *b, const float *c, const f
    field) and the shadow maps; their sub columns are hand-model owned (kind 1, ground = the base) so the marches leave them to the shadow map.  GPU only, the CPU keeps
    the field.  DEFAULT ON since 2026-11-09 (user: "ja"); LANDSTALKER_LT_OBJMODEL=0 = off. */
 unsigned lk_lt_mgen;   /* generation of the generated meshes (room model / objects), for the GPU vertex buffers */
-#define LK_LT_OMMAX 400000   /* 4 dense forest rooms (425 / 561 / 566 / 567) needed more than 120000; LK_LTPLANT v1: ~500 triangles per plant model, room 561 = 727 plants = 361000 */
+#define LK_LT_OMMAX 640000   /* 4 dense forest rooms (425 / 561 / 566 / 567) needed more than 120000; LK_LTPLANT v1: ~500 triangles per plant model, room 561 = 727 plants = 361000; 2026-11-21 plants.py scans plane B too (the back rows of a forest): room 562 = 919 plants ~ 455000 */
 static float lk_lt_omt[LK_LT_OMMAX * 18]; static int lk_lt_omn, lk_lt_omover;
 static int lk_lt_objopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_OBJMODEL"); v = e ? atoi(e) : 1; } return v; }
 static void lk_lt_omtri(const float *a, const float *na, const float *b, const float *nb, const float *c, const float *nc) {
