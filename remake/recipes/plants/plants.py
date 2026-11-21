@@ -32,6 +32,7 @@ REF = {"pine": (632, 431 - 991 + 1184, (431 + 991) // 2 - 16),   # reference ins
 BOX = {"pine": (-9, 9, 16), "small": (0, 15, 14), "bush": (0, 15, 14), "bigtree": (-14, 14, 20)}   # detection box: columns dx0..dx1 (small / bush: right half, the left one is hidden by the neighbour), top rows
 TREE_OPS = ("pine_court", "tree_")   # pine_cl (hand-made 4 pine groups) dropped 2026-11-21, user: 'die Vierergruppen ... auch das eine Tannenmodell'
 
+NOT_PLANTS = {r: {("bush", 536, 392), ("bush", 536, 408), ("bush", 712, 424), ("bush", 536, 440), ("bush", 392, 488)} for r in (641, 642, 644)}   # false template hits on the docks' PAVED PATH (blue-green stone floor, not water; user 2026-11-21: 'da ist kein Busch', 'das ist ein normaler Weg'), dropped
 NO_PLANE_B = {34, 35}   # Mercator castle tower: plane B paints the forest far BELOW the tower (backdrop, not the room's ground)
 
 def planeB(room):
@@ -316,6 +317,7 @@ def main():
         cnt = {k: sum(1 for r in res if r[0] == k) for k in ("pine", "small", "bush", "bigtree")}
         for k, v in cnt.items(): tot[k] = tot.get(k, 0) + v
         print("room %d: %d pines, %d small, %d bushes, %d big trees%s" % (room, cnt["pine"], cnt["small"], cnt["bush"], cnt["bigtree"], (", %d left to hand tree models" % drop) if drop else ""), flush=True)
+        res = [r for r in res if (r[0], int(r[1]), int(r[2])) not in NOT_PLANTS.get(room, ())]   # NOT_PLANTS: hand-checked false hits
         if res: data["rooms"][str(room)] = [r[:4] for r in sorted(res, key=lambda r: (r[2], r[1]))]
         else: data["rooms"].pop(str(room), None)
         if png:

@@ -9660,12 +9660,24 @@
         "cells": [
           22,
           19,
-          45,
+          29,
           28
         ],
-        "file": "proxies/stone_buildings_641.obj",
+        "file": "proxies/stone_buildings_left_641.obj",
         "surface": true,
-        "why": "the two stone buildings of the docks (towers 96, wings 48, step blocks 32 = the collision; flat tops instead of the automatic hip roofs; cornice stones on the tower tops; the wooden door of the left tower as a framed recess; the blue-green wall foot = wet stones, no openings): remake/recipes/stone_buildings_641, IoU 0.84 on plane A (rest: wall foot below ground / pines); 2026-11-21, to be checked"
+        "why": "LEFT stone building of the docks: the two stone buildings of the docks (towers 96, wings 48, step blocks 32 = the collision; flat tops instead of the automatic hip roofs; cornice stones on the tower tops; the wooden door of the left tower as a framed recess; the blue-green wall foot = wet stones, no openings): remake/recipes/stone_buildings_641, IoU 0.84 on plane A (rest: wall foot below ground / pines); 2026-11-21, to be checked; split from one model 2026-11-21 late: one rectangle per house, the pine row between them (cells 30..32) is outside both now (a surface mesh op hides plants in its cells)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          19,
+          39,
+          25
+        ],
+        "file": "proxies/stone_buildings_right_641.obj",
+        "surface": true,
+        "why": "RIGHT stone building of the docks (see the left one); three blocks at 43..45 x 19 removed = pine collision beside the crate shed, not stone"
       }
     ],
     "642": [
@@ -9746,12 +9758,24 @@
         "cells": [
           22,
           19,
-          45,
+          29,
           28
         ],
-        "file": "proxies/stone_buildings_642.obj",
+        "file": "proxies/stone_buildings_left_642.obj",
         "surface": true,
-        "why": "the two stone buildings of the docks (towers 96, wings 48, step blocks 32 = the collision; flat tops instead of the automatic hip roofs; cornice stones on the tower tops; the wooden door of the left tower as a framed recess; the blue-green wall foot = wet stones, no openings): remake/recipes/stone_buildings_641, IoU 0.84 on plane A (rest: wall foot below ground / pines); 2026-11-21, to be checked"
+        "why": "LEFT stone building of the docks: the two stone buildings of the docks (towers 96, wings 48, step blocks 32 = the collision; flat tops instead of the automatic hip roofs; cornice stones on the tower tops; the wooden door of the left tower as a framed recess; the blue-green wall foot = wet stones, no openings): remake/recipes/stone_buildings_641, IoU 0.84 on plane A (rest: wall foot below ground / pines); 2026-11-21, to be checked; split from one model 2026-11-21 late: one rectangle per house, the pine row between them (cells 30..32) is outside both now (a surface mesh op hides plants in its cells)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          19,
+          39,
+          25
+        ],
+        "file": "proxies/stone_buildings_right_642.obj",
+        "surface": true,
+        "why": "RIGHT stone building of the docks (see the left one); three blocks at 43..45 x 19 removed = pine collision beside the crate shed, not stone"
       }
     ],
     "644": [
@@ -9832,12 +9856,24 @@
         "cells": [
           22,
           19,
-          45,
+          29,
           28
         ],
-        "file": "proxies/stone_buildings_644.obj",
+        "file": "proxies/stone_buildings_left_644.obj",
         "surface": true,
-        "why": "the two stone buildings of the docks (towers 96, wings 48, step blocks 32 = the collision; flat tops instead of the automatic hip roofs; cornice stones on the tower tops; the wooden door of the left tower as a framed recess; the blue-green wall foot = wet stones, no openings): remake/recipes/stone_buildings_641, IoU 0.84 on plane A (rest: wall foot below ground / pines); 2026-11-21, to be checked"
+        "why": "LEFT stone building of the docks: the two stone buildings of the docks (towers 96, wings 48, step blocks 32 = the collision; flat tops instead of the automatic hip roofs; cornice stones on the tower tops; the wooden door of the left tower as a framed recess; the blue-green wall foot = wet stones, no openings): remake/recipes/stone_buildings_641, IoU 0.84 on plane A (rest: wall foot below ground / pines); 2026-11-21, to be checked; split from one model 2026-11-21 late: one rectangle per house, the pine row between them (cells 30..32) is outside both now (a surface mesh op hides plants in its cells)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          19,
+          39,
+          25
+        ],
+        "file": "proxies/stone_buildings_right_644.obj",
+        "surface": true,
+        "why": "RIGHT stone building of the docks (see the left one); three blocks at 43..45 x 19 removed = pine collision beside the crate shed, not stone"
       }
     ],
     "524": [
