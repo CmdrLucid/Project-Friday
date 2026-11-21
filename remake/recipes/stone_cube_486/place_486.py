@@ -17,7 +17,7 @@ for k, (cx, cy) in enumerate(CELLS):
         for l in src:
             if l.startswith("v "): x, y, z = map(float, l.split()[1:4]); f.write("v %.3f %.3f %.3f\n" % (x + dx, y + dy, z + GROUND))
             elif l.startswith("f "): f.write(l + "\n")
-    ops.append(collections.OrderedDict([("op", "mesh"), ("cells", [cx, cy, cx, cy]), ("file", "proxies/" + fn), ("surface", True),
+    ops.append(collections.OrderedDict([("op", "mesh"), ("cells", [cx, cy, cx + 1, cy + 1]), ("file", "proxies/" + fn), ("surface", True),   # + the cell in front: the old automatic lathe (37 high) had its centre there (drawn objects sit one cell forward)
         ("why", "small stone block (collision = an isolated walkable 1 step cell): our model remake/recipes/stone_cube_486 (block 16 x 16 x 16 with rounded edges, IoU 0.928 on the drawing; was an automatic lathe 37 high), placed by place_486.py; 2026-11-21 built while the user was away, to be checked")]))
     print("room 486: stone block %d at cell (%d,%d) -> %s" % (k, cx, cy, fn))
 if "--write" in sys.argv:

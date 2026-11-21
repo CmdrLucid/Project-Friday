@@ -36,6 +36,8 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 - Repeated wall TILES across houses (doors, round windows) can be calibrated once: measure the drawn dark / hole centroid on the new house and apply the
   offset found on an already confirmed copy (Massan round window: centroid -0.55 / -0.65 from the model centre).
 
+- **Look at the object with BOTH planes composed (and plane B alone) before reading it** (2026-11-21, user on the dock crate shed: 'nicht alles auf der Ebene, die du dir ansiehst'): objects are split over plane A and plane B. Plane A alone showed the dock hut as an open PAVILION on three posts; composed it is a closed LOG HUT on stilts with two big dark openings (the interior and the back walls are plane B), and the crate shed is a solid crate wall under its roof. Same as the forest back rows (plants).
+
 ## 3. Fitting the shape
 - **Never outside the drawing**: score = covered - 12 x outside, grow from thin rings; then nothing sticks out (the user sees every pixel that does).
 - A round body that is not round about one axis (twisted robe): rings with their OWN centre and radius, fitted by moving the LEFT and RIGHT edge of each ring
@@ -95,6 +97,8 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
   are lit as the slab's side face = bright strips. Keep the bottom outer edges of furniture tops SHARP and the visible front faces on the drawn / cell
   boundary (as the old boxes); round only edges whose rounding stays inside the drawn object. A 0-missed projection check does not catch this
   (it counts pixel centres): look at the in-game zoom.
+
+- **After placing a model, check for OLD automatic shapes beside it** (2026-11-21): a mesh op only drops automatic shapes whose CENTRE lies in its cells; the catalogue lathe of a drawn object often sits one cell FORWARD (486 stone blocks: the 37 high lathe stayed next to the new block) or off the twig's foot cell. Count with lktest/placeholders.py or list the survey shapes within 2 cells of the new op; cover them with the op's cells or a 'remove' op.
 
 ## 5. Tools and paths
 - Blender (Flatpak) needs `--filesystem=home` for scripts / files outside the sandbox; an ortho camera at distance > 100 needs `clip_end` raised; point the

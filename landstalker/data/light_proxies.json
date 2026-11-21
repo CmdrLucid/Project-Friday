@@ -3435,8 +3435,8 @@
         "cells": [
           49,
           35,
-          49,
-          35
+          50,
+          36
         ],
         "file": "proxies/stone_cube_486_0.obj",
         "surface": true,
@@ -3447,8 +3447,8 @@
         "cells": [
           57,
           35,
-          57,
-          35
+          58,
+          36
         ],
         "file": "proxies/stone_cube_486_1.obj",
         "surface": true,
@@ -3459,8 +3459,8 @@
         "cells": [
           49,
           55,
-          49,
-          55
+          50,
+          56
         ],
         "file": "proxies/stone_cube_486_2.obj",
         "surface": true,
@@ -3471,8 +3471,8 @@
         "cells": [
           57,
           55,
-          57,
-          55
+          58,
+          56
         ],
         "file": "proxies/stone_cube_486_3.obj",
         "surface": true,
@@ -8264,6 +8264,26 @@
         "file": "proxies/twig_432_16.obj",
         "surface": true,
         "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          16,
+          15,
+          16,
+          15
+        ],
+        "why": "old automatic twig lathe (24 wide) beside the dead twig models of remake/recipes/dead_twig/auto_twigs.py (its centre lies off the twig's foot cell; found 2026-11-21 by the placeholder count)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          27,
+          26,
+          27,
+          26
+        ],
+        "why": "old automatic twig lathe (24 wide) beside the dead twig models of remake/recipes/dead_twig/auto_twigs.py (its centre lies off the twig's foot cell; found 2026-11-21 by the placeholder count)"
       }
     ],
     "436": [
@@ -8490,6 +8510,26 @@
         "file": "proxies/twig_436_16.obj",
         "surface": true,
         "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          16,
+          15,
+          16,
+          15
+        ],
+        "why": "old automatic twig lathe (24 wide) beside the dead twig models of remake/recipes/dead_twig/auto_twigs.py (its centre lies off the twig's foot cell; found 2026-11-21 by the placeholder count)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          27,
+          26,
+          27,
+          26
+        ],
+        "why": "old automatic twig lathe (24 wide) beside the dead twig models of remake/recipes/dead_twig/auto_twigs.py (its centre lies off the twig's foot cell; found 2026-11-21 by the placeholder count)"
       }
     ],
     "443": [
@@ -8582,6 +8622,16 @@
         "file": "proxies/twig_443_4.obj",
         "surface": true,
         "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          31,
+          24,
+          31,
+          24
+        ],
+        "why": "old automatic twig lathe (24 wide) beside the dead twig models of remake/recipes/dead_twig/auto_twigs.py (its centre lies off the twig's foot cell; found 2026-11-21 by the placeholder count)"
       }
     ],
     "492": [
@@ -9072,6 +9122,16 @@
         "file": "proxies/twig_433_13.obj",
         "surface": true,
         "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          39,
+          39,
+          39,
+          39
+        ],
+        "why": "old automatic twig lathe (24 wide) beside the dead twig models of remake/recipes/dead_twig/auto_twigs.py (its centre lies off the twig's foot cell; found 2026-11-21 by the placeholder count)"
       }
     ],
     "431": [
@@ -9248,6 +9308,18 @@
         "file": "proxies/bollard_641_2.obj",
         "surface": true,
         "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          32,
+          51,
+          38
+        ],
+        "file": "proxies/pavilion_641.obj",
+        "surface": true,
+        "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked"
       }
     ],
     "642": [
@@ -9286,6 +9358,18 @@
         "file": "proxies/bollard_642_2.obj",
         "surface": true,
         "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          32,
+          51,
+          38
+        ],
+        "file": "proxies/pavilion_642.obj",
+        "surface": true,
+        "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked"
       }
     ],
     "644": [
@@ -9324,6 +9408,18 @@
         "file": "proxies/bollard_644_2.obj",
         "surface": true,
         "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          32,
+          51,
+          38
+        ],
+        "file": "proxies/pavilion_644.obj",
+        "surface": true,
+        "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked"
       }
     ]
   },
