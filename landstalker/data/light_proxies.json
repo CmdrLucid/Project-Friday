@@ -9634,10 +9634,10 @@
       {
         "op": "mesh",
         "cells": [
-          46,
+          49,
           19,
-          60,
-          22
+          59,
+          21
         ],
         "file": "proxies/crate_shed_641.obj",
         "surface": true,
@@ -9720,10 +9720,10 @@
       {
         "op": "mesh",
         "cells": [
-          46,
+          49,
           19,
-          60,
-          22
+          59,
+          21
         ],
         "file": "proxies/crate_shed_642.obj",
         "surface": true,
@@ -9806,10 +9806,10 @@
       {
         "op": "mesh",
         "cells": [
-          46,
+          49,
           19,
-          60,
-          22
+          59,
+          21
         ],
         "file": "proxies/crate_shed_644.obj",
         "surface": true,
