@@ -9641,7 +9641,7 @@
         ],
         "file": "proxies/crate_shed_641.obj",
         "surface": true,
-        "why": "crate shed of the docks (read with BOTH planes, user hint): our model remake/recipes/crate_shed_641 (crates 16 x 16 x 16 with raised frames, stacked per collision cell: a stepped crate wall 3 / 2 high, the left stack, three front crates, the crate stair; hipped thatch roof x 792..917 y 296..344 eave 72 ridge 91 measured from the drawn edge lines, crossed sticks on the ridge); the rectangle also drops the old automatic hips / lathes there; 2026-11-21, to be checked"
+        "why": "crate shed of the docks: our model remake/recipes/crate_shed_641 (FOUR crate rows = the collision height 5; front row x 53 two, x 55 one; alcove x 50 / 51; hipped thatch roof resting on the 4th row, end edges iso-parallel, crates under the roof ends cut to the roof, Massan style X logs; user OK on draft pictures 2026-11-21 late, see remake/MODELS.md)"
       },
       {
         "op": "mesh",
@@ -9727,7 +9727,7 @@
         ],
         "file": "proxies/crate_shed_642.obj",
         "surface": true,
-        "why": "crate shed of the docks (read with BOTH planes, user hint): our model remake/recipes/crate_shed_641 (crates 16 x 16 x 16 with raised frames, stacked per collision cell: a stepped crate wall 3 / 2 high, the left stack, three front crates, the crate stair; hipped thatch roof x 792..917 y 296..344 eave 72 ridge 91 measured from the drawn edge lines, crossed sticks on the ridge); the rectangle also drops the old automatic hips / lathes there; 2026-11-21, to be checked"
+        "why": "crate shed of the docks: our model remake/recipes/crate_shed_641 (FOUR crate rows = the collision height 5; front row x 53 two, x 55 one; alcove x 50 / 51; hipped thatch roof resting on the 4th row, end edges iso-parallel, crates under the roof ends cut to the roof, Massan style X logs; user OK on draft pictures 2026-11-21 late, see remake/MODELS.md)"
       },
       {
         "op": "mesh",
@@ -9813,7 +9813,7 @@
         ],
         "file": "proxies/crate_shed_644.obj",
         "surface": true,
-        "why": "crate shed of the docks (read with BOTH planes, user hint): our model remake/recipes/crate_shed_641 (crates 16 x 16 x 16 with raised frames, stacked per collision cell: a stepped crate wall 3 / 2 high, the left stack, three front crates, the crate stair; hipped thatch roof x 792..917 y 296..344 eave 72 ridge 91 measured from the drawn edge lines, crossed sticks on the ridge); the rectangle also drops the old automatic hips / lathes there; 2026-11-21, to be checked"
+        "why": "crate shed of the docks: our model remake/recipes/crate_shed_641 (FOUR crate rows = the collision height 5; front row x 53 two, x 55 one; alcove x 50 / 51; hipped thatch roof resting on the 4th row, end edges iso-parallel, crates under the roof ends cut to the roof, Massan style X logs; user OK on draft pictures 2026-11-21 late, see remake/MODELS.md)"
       },
       {
         "op": "mesh",
