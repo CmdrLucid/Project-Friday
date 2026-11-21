@@ -275,3 +275,8 @@ FINAL = with material, approved by the user.
 
 ## Verla church  (`remake/recipes/proxy_church_711.py` -> `landstalker/data/proxies/church_711.obj`; rooms 711 / 712, 2026-11-20)
 - The SAME drawing as the Mercator church (plane A identical, 7 / -28 cells, 6 steps up; no yellow house in front): the confirmed `church_632.obj` moved by (+112, -448, +96).
+
+## Stone face  (`remake/recipes/stone_face/` -> `landstalker/data/proxies/stone_face_433_{0..5}.obj` via `place_433.py`; room 433, 2026-11-21)
+- Six pixel-equal copies on single blocked cells `$43` (top 48, ground 16): (19,22) (28,22) (33,22) (19,30) (28,30) (33,30); reference (19,22), base centre x 312 y 360 (U 1136 V 320). Drawn ~38 high (collision 32).
+- Smooth head: foot radius 7.5 -> widest 8.2 (smoothstep), elliptic dome from 63 % of the height, deeper towards the face (sx 1.21), face to +x turned 15 deg towards +y, flattened face side, mouth recess (47..71 % of the height), brow ledge. Fit on the silhouette (holes filled, covered - 12 x outside): IoU 0.911, 1 px out.
+- User 2026-11-21 'passt als Lichtform' (asked whether the facets of the lower part give edges: no, the light smooths normals within 35 deg; GPU shots of 433 smooth, lightedges 0 at 10 spots). Remake: materials / the carved face details later.

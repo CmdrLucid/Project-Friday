@@ -8315,6 +8315,80 @@
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 368..560 y 736..816 z0 128 over the terraces (game heights 8 / 10); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
       }
+    ],
+    "433": [
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          22,
+          19,
+          22
+        ],
+        "file": "proxies/stone_face_433_0.obj",
+        "surface": true,
+        "why": "stone face of the swamp (collision = one 2 step block $43): our model remake/recipes/stone_face (smooth head, face + mouth to +x, IoU 0.911 on the drawing), placed by place_433.py; user 2026-11-21 'passt als Lichtform'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          22,
+          28,
+          22
+        ],
+        "file": "proxies/stone_face_433_1.obj",
+        "surface": true,
+        "why": "stone face of the swamp (collision = one 2 step block $43): our model remake/recipes/stone_face (smooth head, face + mouth to +x, IoU 0.911 on the drawing), placed by place_433.py; user 2026-11-21 'passt als Lichtform'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          22,
+          33,
+          22
+        ],
+        "file": "proxies/stone_face_433_2.obj",
+        "surface": true,
+        "why": "stone face of the swamp (collision = one 2 step block $43): our model remake/recipes/stone_face (smooth head, face + mouth to +x, IoU 0.911 on the drawing), placed by place_433.py; user 2026-11-21 'passt als Lichtform'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          30,
+          19,
+          30
+        ],
+        "file": "proxies/stone_face_433_3.obj",
+        "surface": true,
+        "why": "stone face of the swamp (collision = one 2 step block $43): our model remake/recipes/stone_face (smooth head, face + mouth to +x, IoU 0.911 on the drawing), placed by place_433.py; user 2026-11-21 'passt als Lichtform'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          30,
+          28,
+          30
+        ],
+        "file": "proxies/stone_face_433_4.obj",
+        "surface": true,
+        "why": "stone face of the swamp (collision = one 2 step block $43): our model remake/recipes/stone_face (smooth head, face + mouth to +x, IoU 0.911 on the drawing), placed by place_433.py; user 2026-11-21 'passt als Lichtform'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          30,
+          33,
+          30
+        ],
+        "file": "proxies/stone_face_433_5.obj",
+        "surface": true,
+        "why": "stone face of the swamp (collision = one 2 step block $43): our model remake/recipes/stone_face (smooth head, face + mouth to +x, IoU 0.911 on the drawing), placed by place_433.py; user 2026-11-21 'passt als Lichtform'"
+      }
     ]
   },
   "unpaint_tiles": {
