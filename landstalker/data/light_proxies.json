@@ -3477,6 +3477,16 @@
         "file": "proxies/stone_cube_486_3.obj",
         "surface": true,
         "why": "small stone block (collision = an isolated walkable 1 step cell): our model remake/recipes/stone_cube_486 (block 16 x 16 x 16 with rounded edges, IoU 0.928 on the drawing; was an automatic lathe 37 high), placed by place_486.py; 2026-11-21 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          51,
+          43,
+          56,
+          47
+        ],
+        "why": "automatic hips #0 / #1 over the stepped green stone dais (flat steps, the height map holds them) (2026-11-21, leftover sweep)"
       }
     ],
     "488": [
@@ -5058,6 +5068,52 @@
         "surface": true,
         "floor": 16,
         "why": "Mercator TOWN HOUSE 9 = the yellow house in front of the church (its own building, user 2026-11-20; was part of church_632): footprint / eave 64 / top 79.5 (17 in) from the 2026-11-09 fit_foot measurement, right wall on the cell line x 320, windows / door tiles from remake/tools/find_openings.py; remake/recipes/proxy_houses_632.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          29,
+          35,
+          29
+        ],
+        "file": "proxies/stone_block_632.obj",
+        "surface": true,
+        "why": "granite block on a lawn patch in front of a Mercator house (walkable 1 step cell): the stone block model remake/recipes/stone_cube_486 with params_632.json (sharper edges, IoU 0.917); replaces the automatic lathe #19; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          18,
+          18,
+          24
+        ],
+        "file": "proxies/well_632.obj",
+        "surface": true,
+        "why": "the WELL of Mercator (a stone rim walkable at 32 around a water hole = the collision): our model remake/recipes/well_632 = the wooden hoist (post, crossbar, brace, rope with two weights) + the staved tub on the rim; the rectangle drops the automatic hip #1 over the rim and lathe #18 (taken for a lantern on a wall at first); 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          14,
+          41,
+          20
+        ],
+        "file": "proxies/drawbridge_chains_632.obj",
+        "surface": true,
+        "why": "the two chains of the castle drawbridge (plane A; the deck itself is walkable floor): remake/recipes/drawbridge_632 (links every 2.6, turned in turn; ends measured: deck edge x 656 / 592 at y 320 z 25 -> wall face y 224 z 69); the rectangle drops the automatic lathes #16 / #17; 2026-11-21, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          44,
+          20,
+          47,
+          22
+        ],
+        "why": "automatic hip #0 over the raised flower bed by the moat (collision blocked 32, flat top with tulips), not a building (2026-11-21)"
       }
     ],
     "635": [
@@ -5152,6 +5208,16 @@
           21
         ],
         "why": "pine group at the north wall: the automatic hip went up to 222 (wall behind counted); the mesh above has the pines (tops 96)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          57,
+          18,
+          61,
+          21
+        ],
+        "why": "automatic hip #0 and lathes #10..#13 over the flat checkerboard floor (height 0) inside the ruin's ring of stacked stone blocks (48) and carved pillars (80): mis-anchored, the height map already holds the blocks (2026-11-21)"
       }
     ],
     "664": [
@@ -7491,6 +7557,26 @@
           33
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 240..512 y 400..672 z0 32 over the grass terraces of the raft pier (game heights 2 / 3, the cliff cells already 12); the game height map already holds the flat block; it stood up to 51 above the ground over 359 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          31,
+          30,
+          31
+        ],
+        "why": "automatic lathe #5 at the brook with a flower bed (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          29,
+          41,
+          29,
+          41
+        ],
+        "why": "automatic lathe #7 at the brook with a flower bed (2026-11-21, leftover sweep)"
       }
     ],
     "474": [
@@ -7843,6 +7929,16 @@
         "surface": true,
         "floor": 112,
         "why": "Verla CHURCH (rooms 711 / 712 = one map) = the Mercator church drawing moved by 7 / -28 cells and 6 steps up: the confirmed Mercator model church_632 moved (+112, -448, +96), remake/recipes/proxy_church_711.py (user 2026-11-20: 'sollte aehnlich sein wie die in Mercator / Ryuma'); ground 112"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          34,
+          41,
+          34,
+          41
+        ],
+        "why": "automatic lathe #2 on a grass terrace (Verla) (2026-11-21, leftover sweep)"
       }
     ],
     "712": [
@@ -7910,6 +8006,16 @@
         "surface": true,
         "floor": 112,
         "why": "Verla CHURCH (rooms 711 / 712 = one map) = the Mercator church drawing moved by 7 / -28 cells and 6 steps up: the confirmed Mercator model church_632 moved (+112, -448, +96), remake/recipes/proxy_church_711.py (user 2026-11-20: 'sollte aehnlich sein wie die in Mercator / Ryuma'); ground 112"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          34,
+          41,
+          34,
+          41
+        ],
+        "why": "automatic lathe #2 on a grass terrace (Verla) (2026-11-21, leftover sweep)"
       }
     ],
     "726": [
@@ -8740,6 +8846,46 @@
           48
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 832..912 y 752..784 z0 48 over the grass block over the cave (game height 3); the game height map already holds the flat block; it stood up to 42 above the ground over 160 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          44,
+          30,
+          47,
+          31
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2): automatic hip #0 (z0 80, ridge 110) over a grass-topped cliff terrace; the game height map already holds the flat block"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          52,
+          47,
+          56,
+          48
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2): automatic hip #1 over a grass-topped cliff terrace with a cave mouth below; the game height map already holds the flat block"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          39,
+          50,
+          41,
+          51
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2): automatic hip #2 over a grass-topped cliff terrace; the game height map already holds the flat block"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          57,
+          44,
+          57,
+          44
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2): automatic lathe #13 (8 high) at a rock edge; the game height map already holds the flat block"
       }
     ],
     "561": [
@@ -9320,6 +9466,42 @@
         "file": "proxies/pavilion_641.obj",
         "surface": true,
         "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          46,
+          19,
+          60,
+          22
+        ],
+        "file": "proxies/crate_shed_641.obj",
+        "surface": true,
+        "why": "crate shed of the docks (read with BOTH planes, user hint): our model remake/recipes/crate_shed_641 (crates 16 x 16 x 16 with raised frames, stacked per collision cell: a stepped crate wall 3 / 2 high, the left stack, three front crates, the crate stair; hipped thatch roof x 792..917 y 296..344 eave 72 ridge 91 measured from the drawn edge lines, crossed sticks on the ridge); the rectangle also drops the old automatic hips / lathes there; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/crate_641.obj",
+        "surface": true,
+        "why": "single crate of the docks (walkable 2 step cell): remake/recipes/crate_shed_641 crate model; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          19,
+          45,
+          28
+        ],
+        "file": "proxies/stone_buildings_641.obj",
+        "surface": true,
+        "why": "the two stone buildings of the docks (towers 96, wings 48, step blocks 32 = the collision; flat tops instead of the automatic hip roofs; cornice stones on the tower tops; the wooden door of the left tower as a framed recess; the blue-green wall foot = wet stones, no openings): remake/recipes/stone_buildings_641, IoU 0.84 on plane A (rest: wall foot below ground / pines); 2026-11-21, to be checked"
       }
     ],
     "642": [
@@ -9370,6 +9552,42 @@
         "file": "proxies/pavilion_642.obj",
         "surface": true,
         "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          46,
+          19,
+          60,
+          22
+        ],
+        "file": "proxies/crate_shed_642.obj",
+        "surface": true,
+        "why": "crate shed of the docks (read with BOTH planes, user hint): our model remake/recipes/crate_shed_641 (crates 16 x 16 x 16 with raised frames, stacked per collision cell: a stepped crate wall 3 / 2 high, the left stack, three front crates, the crate stair; hipped thatch roof x 792..917 y 296..344 eave 72 ridge 91 measured from the drawn edge lines, crossed sticks on the ridge); the rectangle also drops the old automatic hips / lathes there; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/crate_642.obj",
+        "surface": true,
+        "why": "single crate of the docks (walkable 2 step cell): remake/recipes/crate_shed_641 crate model; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          19,
+          45,
+          28
+        ],
+        "file": "proxies/stone_buildings_642.obj",
+        "surface": true,
+        "why": "the two stone buildings of the docks (towers 96, wings 48, step blocks 32 = the collision; flat tops instead of the automatic hip roofs; cornice stones on the tower tops; the wooden door of the left tower as a framed recess; the blue-green wall foot = wet stones, no openings): remake/recipes/stone_buildings_641, IoU 0.84 on plane A (rest: wall foot below ground / pines); 2026-11-21, to be checked"
       }
     ],
     "644": [
@@ -9420,6 +9638,158 @@
         "file": "proxies/pavilion_644.obj",
         "surface": true,
         "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          46,
+          19,
+          60,
+          22
+        ],
+        "file": "proxies/crate_shed_644.obj",
+        "surface": true,
+        "why": "crate shed of the docks (read with BOTH planes, user hint): our model remake/recipes/crate_shed_641 (crates 16 x 16 x 16 with raised frames, stacked per collision cell: a stepped crate wall 3 / 2 high, the left stack, three front crates, the crate stair; hipped thatch roof x 792..917 y 296..344 eave 72 ridge 91 measured from the drawn edge lines, crossed sticks on the ridge); the rectangle also drops the old automatic hips / lathes there; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/crate_644.obj",
+        "surface": true,
+        "why": "single crate of the docks (walkable 2 step cell): remake/recipes/crate_shed_641 crate model; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          19,
+          45,
+          28
+        ],
+        "file": "proxies/stone_buildings_644.obj",
+        "surface": true,
+        "why": "the two stone buildings of the docks (towers 96, wings 48, step blocks 32 = the collision; flat tops instead of the automatic hip roofs; cornice stones on the tower tops; the wooden door of the left tower as a framed recess; the blue-green wall foot = wet stones, no openings): remake/recipes/stone_buildings_641, IoU 0.84 on plane A (rest: wall foot below ground / pines); 2026-11-21, to be checked"
+      }
+    ],
+    "524": [
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          53,
+          29,
+          54
+        ],
+        "file": "proxies/pillar_524_0.obj",
+        "surface": true,
+        "why": "fluted column with a square capital (walkable 5 step cell on the floor 32): the pillar recipe remake/recipes/pillar_739 with params_524.json; the rectangle covers the old automatic lathe one cell forward; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          37,
+          53,
+          38,
+          54
+        ],
+        "file": "proxies/pillar_524_1.obj",
+        "surface": true,
+        "why": "fluted column with a square capital (walkable 5 step cell on the floor 32): the pillar recipe remake/recipes/pillar_739 with params_524.json; the rectangle covers the old automatic lathe one cell forward; 2026-11-21, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          28,
+          47,
+          39,
+          50
+        ],
+        "why": "automatic hip #0 over the flat platform in front of the gate (walkable 80), not a building (2026-11-21)"
+      }
+    ],
+    "525": [
+      {
+        "op": "remove",
+        "cells": [
+          35,
+          22,
+          52,
+          25
+        ],
+        "why": "automatic hip #0 over the flat stone walkway with a railing (2026-11-21)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          24,
+          40,
+          25
+        ],
+        "file": "proxies/pillar_525_0.obj",
+        "surface": true,
+        "why": "the fluted column of 524 (pixel-equal drawing, axis = cell (40,25) centre on the floor 32): pillar recipe with params_524.json; replaces lathe #5; 2026-11-21, to be checked"
+      }
+    ],
+    "502": [
+      {
+        "op": "remove",
+        "cells": [
+          23,
+          23,
+          30,
+          34
+        ],
+        "why": "automatic hip #0 over a rock cliff / terrace (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          23,
+          43,
+          25
+        ],
+        "why": "automatic hip #2 over a rock cliff / terrace (2026-11-21, leftover sweep)"
+      }
+    ],
+    "459": [
+      {
+        "op": "remove",
+        "cells": [
+          39,
+          23,
+          39,
+          23
+        ],
+        "why": "automatic lathe #3 on a rock column (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          45,
+          23,
+          45,
+          23
+        ],
+        "why": "automatic lathe #4 on a rock column (2026-11-21, leftover sweep)"
+      }
+    ],
+    "639": [
+      {
+        "op": "remove",
+        "cells": [
+          14,
+          20,
+          16,
+          24
+        ],
+        "why": "automatic hip #1 over a flat stone area (2026-11-21, leftover sweep)"
       }
     ]
   },

@@ -1,0 +1,17 @@
+{
+ "plinth_side": 14.19,
+ "plinth_h": 1.25,
+ "base_ring_r": 7.79,
+ "base_ring_h": 2.5,
+ "shaft_r0": 7.83,
+ "shaft_r1": 7.6,
+ "neck_z": 36.71,
+ "neck_r": 9.35,
+ "neck_h": 2.19,
+ "echinus_r": 10.39,
+ "echinus_h": 3.29,
+ "abacus_side": 15.89,
+ "abacus_h": 5.71,
+ "ox": -1.0,
+ "oy": 0.17
+}
