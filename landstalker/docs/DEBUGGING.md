@@ -2064,3 +2064,6 @@ Build dev 48c243a (verify_build: 126 ok). Evidence (all hidden-window GPU presen
 - A build killed mid-way left half-patched generated sources (verify_build 97 ok / 90 missing) although build/landstalker still ran: always rebuild after killing build.sh.
 - USER CONFIRMED BY PLAYING (afternoon): pine shadows 'deutlich, deutlich besser'.
 
+## Leftover light shapes sweep (2026-11-21 evening, dev 1cc6a98 ..)
+- Docks crate shed / stone buildings, Mercator 632 well / drawbridge chains / granite block, columns 524 / 525, houses 441 (Destel B) / 442 (Ryuma type), canopies 454, Ryuma lighthouse; ~45 wrong automatic shapes removed. Real outdoor leftover count (survey3 minus ops minus plant-dropped shapes): ~108 -> ~50 (Tibor 33). check_proxies blocked box-only crates / buildings -> chamfers. GPU lightedges 0 in all touched rooms except pre-existing lines (pine 563 / 451, Ryuma church corner 610 / 611 spot 5).
+

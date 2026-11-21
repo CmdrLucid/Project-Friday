@@ -259,3 +259,4 @@
 - L2039: All plants as 3D light models, Destel houses, Verla church, leftover list (2026-11-20 afternoon .. late, LK_LTPLANT v1, dev ad92608 .. d2f74d2)
 - L2048: Room 458 hard vertical shadow edge = wrong plant feet (2026-11-21, plants.py v3 feet, tools/heightview.py, dev 7558151 .. a907c09)
 - L2057: Plant feet everywhere, plane B plants, leftover light shapes, docks (2026-11-21 day, dev 0861d6c .. 2d76338)
+- L2067: Leftover light shapes sweep (2026-11-21 evening, dev 1cc6a98 ..)

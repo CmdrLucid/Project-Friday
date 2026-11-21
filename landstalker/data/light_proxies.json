@@ -195,6 +195,18 @@
         "surface": true,
         "floor": 16,
         "why": "Ryuma TOWN HOUSE 'pf' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          56,
+          17,
+          58
+        ],
+        "file": "proxies/lighthouse_611.obj",
+        "surface": true,
+        "why": "the Ryuma LIGHTHOUSE (collision x 15..17 y 56..58 blocked 192 = up to the eave): remake/recipes/lighthouse_611 (stone body to 150, parapet 159, four corner posts with arch brackets, tile pyramid roof 192 -> 214, beacon with flame, east door niche); replaces the automatic hip #8; 2026-11-21, to be checked"
       }
     ],
     "610": [
@@ -275,6 +287,18 @@
         "surface": true,
         "floor": 16,
         "why": "Ryuma TOWN HOUSE 'pf' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          56,
+          17,
+          58
+        ],
+        "file": "proxies/lighthouse_610.obj",
+        "surface": true,
+        "why": "the Ryuma LIGHTHOUSE (collision x 15..17 y 56..58 blocked 192 = up to the eave): remake/recipes/lighthouse_611 (stone body to 150, parapet 159, four corner posts with arch brackets, tile pyramid roof 192 -> 214, beacon with flame, east door niche); replaces the automatic hip #8; 2026-11-21, to be checked"
       }
     ],
     "28": [
@@ -397,6 +421,46 @@
         "surface": true,
         "floor": 0,
         "why": "courtyard pine (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group e)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          41,
+          30,
+          41,
+          30
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          39,
+          38,
+          39
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          43,
+          45,
+          43,
+          45
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          46,
+          57,
+          46,
+          57
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
       }
     ],
     "33": [
@@ -464,6 +528,36 @@
         "surface": true,
         "floor": 0,
         "why": "courtyard pine (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group e)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          39,
+          38,
+          39
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          43,
+          45,
+          43,
+          45
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          46,
+          57,
+          46,
+          57
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
       }
     ],
     "51": [
@@ -7589,6 +7683,16 @@
           18
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 400..688 y 240..336 z0 48 over the terrace along the cliff edge (game height 3); the game height map already holds the flat block; it stood up to 43 above the ground over 96 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          16,
+          18,
+          19,
+          21
+        ],
+        "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
       }
     ],
     "484": [
@@ -7613,6 +7717,16 @@
           29
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 400..464 y 448..480 z0 208 over the dirt terrace (game height 13); the game height map already holds the flat block; it stood up to 11 above the ground over 96 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          58,
+          42,
+          58,
+          42
+        ],
+        "why": "automatic lathe #12 on terrace steps (2026-11-21, leftover sweep)"
       }
     ],
     "19": [
@@ -8738,6 +8852,16 @@
           24
         ],
         "why": "old automatic twig lathe (24 wide) beside the dead twig models of remake/recipes/dead_twig/auto_twigs.py (its centre lies off the twig's foot cell; found 2026-11-21 by the placeholder count)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          21,
+          20,
+          21,
+          20
+        ],
+        "why": "automatic lathe #5 at a cliff foot (2026-11-21, leftover sweep)"
       }
     ],
     "492": [
@@ -8812,6 +8936,16 @@
           22
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 624..656 y 320..384 z0 48 over the grass terraces (game heights 3 / 4 / 11; the pines around them have their plant models); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          33,
+          20,
+          33,
+          20
+        ],
+        "why": "automatic lathe #6 on a grass terrace (2026-11-21, leftover sweep)"
       }
     ],
     "515": [
@@ -8834,6 +8968,16 @@
           27
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 464..528 y 368..512 z0 48 over the dirt terraces (game heights 3 / 4); the game height map already holds the flat block; it stood up to 82 above the ground over 144 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          35,
+          25,
+          35,
+          25
+        ],
+        "why": "automatic lathe #4 at a dirt path edge (2026-11-21, leftover sweep)"
       }
     ],
     "560": [
@@ -8898,6 +9042,16 @@
           22
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 304..400 y 336..384 z0 48 over the grass block over the cave (game height 3); the game height map already holds the flat block; it stood up to 87 above the ground over 288 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          37,
+          47,
+          40,
+          50
+        ],
+        "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
       }
     ],
     "564": [
@@ -8910,6 +9064,16 @@
           29
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 656..720 y 448..480 z0 64 over the grass block over the cave (game height 4); the game height map already holds the flat block; it stood up to 27 above the ground over 128 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          54,
+          20,
+          57,
+          23
+        ],
+        "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
       }
     ],
     "570": [
@@ -9790,6 +9954,162 @@
           24
         ],
         "why": "automatic hip #1 over a flat stone area (2026-11-21, leftover sweep)"
+      }
+    ],
+    "451": [
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          17,
+          43,
+          22
+        ],
+        "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
+      }
+    ],
+    "424": [
+      {
+        "op": "remove",
+        "cells": [
+          24,
+          35,
+          27,
+          38
+        ],
+        "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
+      }
+    ],
+    "571": [
+      {
+        "op": "remove",
+        "cells": [
+          32,
+          20,
+          32,
+          20
+        ],
+        "why": "automatic lathe #6 on a cliff edge (2026-11-21, leftover sweep)"
+      }
+    ],
+    "565": [
+      {
+        "op": "remove",
+        "cells": [
+          37,
+          35,
+          37,
+          35
+        ],
+        "why": "automatic lathe #4 on a grass terrace (2026-11-21, leftover sweep)"
+      }
+    ],
+    "489": [
+      {
+        "op": "remove",
+        "cells": [
+          16,
+          17,
+          17,
+          32
+        ],
+        "why": "automatic hip #0 over a rock cliff (2026-11-21, leftover sweep)"
+      }
+    ],
+    "441": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          16,
+          18,
+          20
+        ],
+        "file": "proxies/house_441.obj",
+        "surface": true,
+        "why": "log house of room 441 = the Destel house B drawing (81 % pixel-equal; same 74 x 74 walls, E door at the walkable cell (18,18), S shutter), our model house_726_b moved by (-256, -320, -80) onto the collision block x 14..18 y 16..20, ground 32; the three blue cloths 441 adds are not modelled yet (they stand out 1..2); 2026-11-21, to be checked"
+      }
+    ],
+    "454": [
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          26,
+          19,
+          30
+        ],
+        "file": "proxies/awning_454_0.obj",
+        "surface": true,
+        "why": "red cloth canopy (side 40, sagging 3, fringe) on four poles over a watchtower top (blocked 112) with a banner on an A-frame: remake/recipes/awning_454; replaces the automatic hip; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          38,
+          19,
+          42
+        ],
+        "file": "proxies/awning_454_1.obj",
+        "surface": true,
+        "why": "red cloth canopy (side 40, sagging 3, fringe) on four poles over a watchtower top (blocked 112) with a banner on an A-frame: remake/recipes/awning_454; replaces the automatic hip; 2026-11-21, to be checked"
+      }
+    ],
+    "475": [
+      {
+        "op": "remove",
+        "cells": [
+          23,
+          14,
+          30,
+          16
+        ],
+        "why": "automatic hip #0 over the flat block of the Mir tower's base wall (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          16,
+          16,
+          28,
+          26
+        ],
+        "why": "automatic hip #2 over the Mir tower's base wall (a flat-topped block; the tower rises beyond the room edge) (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          22,
+          27,
+          22,
+          27
+        ],
+        "why": "automatic lathe #14 on the blue step block before the gate (2026-11-21, leftover sweep)"
+      }
+    ],
+    "442": [
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          17,
+          21,
+          21
+        ],
+        "file": "proxies/house_442.obj",
+        "surface": true,
+        "why": "town house of room 442 (Ryuma type, square 80 x 80, ground 48, eave 96 / top 120, door +y slot 288, two windows +x): remake/recipes/proxy_houses_442.py (town_house builder); replaces the automatic hip #0; 2026-11-21, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          15,
+          17,
+          27,
+          27
+        ],
+        "why": "automatic hips #1 / #2 over the stone flower planter and the low block beside the house (room 442 planter; 2026-11-21)"
       }
     ]
   },

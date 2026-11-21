@@ -313,3 +313,15 @@ FINAL = with material, approved by the user.
 
 ## Fluted column of 524 / 525  (`remake/recipes/pillar_739/pillar.py` + `params_524.json` -> `pillar_524_{0,1}.obj`, `pillar_525_0.obj`; 2026-11-21)
 - Square capital (abacus 15.9) with volutes (not modelled), round fluted shaft r 7.8 -> 7.6, on walkable 5 step cells (80) on the floor 32: 524 cells (29,54) / (38,54), 525 cell (40,25) (pixel-equal drawing). The fit mask held wall bits, the column itself is covered except a 1 px rim.
+
+## House of room 441  (`landstalker/data/proxies/house_441.obj`; 2026-11-21)
+- The drawing is the Destel house B (pixel search: 81 % equal at picture offset (-64, +208); the rest = three blue cloths and neighbours): `house_726_b.obj` (remake/recipes/proxy_houses_726.py) moved by (-256, -320, -80) onto the collision block x 14..18 y 16..20 (blocked 80, ground 32; E door = the walkable cell (18,18)). Open: the three blue cloths (S wall two, E wall one) for a 441 variant of the recipe (log_house cloths).
+
+## Watchtower canopies of room 454  (`remake/recipes/awning_454/awning.py` -> `awning_454_{0,1}.obj`; 2026-11-21)
+- Two copies (y 192 apart, 96 % equal): a red cloth (side 40, edge z 123, sagging 3 in the middle, 1 thick) with a fringe band (4) on four poles from the tower top (collision blocked 112), an A-frame over it (apex z 170) with a banner plate (9 wide, z 145..164) facing the viewer. Centres (288.25, 467.75) / (288.25, 659.75). The tower is the collision.
+
+## Ryuma lighthouse  (`remake/recipes/lighthouse_611/lighthouse.py` -> `lighthouse_{610,611}.obj`; 2026-11-21)
+- Collision x 15..17 y 56..58 blocked 192 (= the roof eave), door niche east at the walkable cell (17,57), ground 32. Model: stone body (chamfered) to 150, parapet ring (3 thick) to 159, four corner posts (4 x 4) with arch brackets, beam ring, tile pyramid roof (overhang 1) from 192 to the apex 214 (both read on the drawing), beacon box 10 x 10 x 20 with a flame cone. Open: the arches as real arches, roof tiles relief.
+
+## Town house of room 442  (`remake/recipes/proxy_houses_442.py` -> `house_442.obj`; 2026-11-21)
+- Ryuma town house type (the Ryuma 'fr' front walls 90 % equal, but 442's house is square 80 x 80 and the door sits in the second slot): town_house builder, walls 272..352 x 272..352 on the ground 48 (collision blocked 96, door = walkable cell (18,21)), eave 96, flat top 120, inset 24.5, door +y slot 288, windows +x slots 288 / 320. The hips over the planter / the low block beside it removed.

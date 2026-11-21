@@ -1,0 +1,25 @@
+{
+ "rect": [
+  240,
+  896,
+  288,
+  944
+ ],
+ "ground": 32,
+ "floor": 150,
+ "parapet": 159,
+ "eave": 192,
+ "apex": 214,
+ "wall": 3,
+ "post": 4,
+ "overhang": 1,
+ "beacon": 10,
+ "beacon_h": 20,
+ "flame_h": 7,
+ "door": [
+  912,
+  928,
+  58,
+  2
+ ]
+}
