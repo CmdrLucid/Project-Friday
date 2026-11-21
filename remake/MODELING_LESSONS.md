@@ -80,6 +80,8 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 - Read the figure's small parts on the 1 px grid before modelling them and ask when unclear (hair: first long locks, then a bob, user: the hair goes
   BEHIND the statue) (2026-11-10).
 
+- **FIGURES (statues) are not 'a few primitives fitted to the silhouette'** (2026-11-21, user on the Massan statue and the knight / Duke statue of room 31: 'das schaut nicht mal ansatzweise nach einer Baerensilhouette aus', 'der Herzog mit Schwert an der Huefte ... wie ein groesseres, schlankeres Nigel-Modell, Idle-Pose ... Scheitel'). A ring stack gave a lumpy column, ellipsoids / capsules gave a snowman and a jointed doll; the IoU (0.78 / 0.82) said nothing about whether it LOOKS like the figure, and an unbounded fit collapsed into discs and sticks. Before showing a figure: (1) identify WHAT it is (the Duke = Nigel's idle pose, not a striding knight; ask the user if unsure), (2) look at the clay preview next to the drawing at the same size and judge it honestly by eye, (3) a figure needs a sculpt approach like the church angel (own head, hair, limbs in the pose of a known character), not primitives. IoU is a check for the outline only.
+
 ## 4. Light side effects (every model is also a light shape)
 - A shape under or next to a FLAME moves the flame light (its position comes from the view ray of the flame's picture centre): check the light list
   (LANDSTALKER_LIGHTING_DBG=1) before / after. Stands carry their flame (`carrier` data: light on the axis above the bowl, no self shadow).
