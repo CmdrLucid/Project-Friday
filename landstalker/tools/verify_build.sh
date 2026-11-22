@@ -147,6 +147,7 @@ chk "Gegner zerfallen (Option)"                     $G/ext/Genesis-Plus-GX/core/
 chk "Hitzeflimmern (Option)"                       $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_HAZE v1"
 chk "Wasserspiegelung (Option)"                    $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_WATER v5"
 chk "Krypta-Feuerschalen werfen Licht"              $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_CRYPTFIRE v1"
+chk "Schatten von Figuren am oberen Bildrand ganz"   $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTTOPSIL v1"
 chk "Wolkenschatten (Option)"                      $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_CLOUDS v1"
 chk "GPU-Filter v2 (Sprint-Glaettung)"            $G/src/platform_sdl.c "LK_GPU v2"
 chk "GPU-Licht v5 (Grafikkarte, Waechter)"  $G/src/platform_sdl.c "LK_GPULT v5"

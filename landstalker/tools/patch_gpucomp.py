@@ -431,13 +431,13 @@ static void lk_gc_real2(lkGLuint tcls, lkGLuint tpost) {   /* 4d, inside the rea
     a = "  lk_glActiveTexture(0x84C0); lk_glBindTexture(0x0DE1, lk_gpu_tex); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, sw, 224, 0x80E1, 0x1401, fb);\n  if (lk_glt_pass(1))"
     assert s.count(a) == 1, "platform_sdl.c: picture upload anchor not found"
     s = s.replace(a, a.replace("\n  if (lk_glt_pass(1))", "\n  lk_gc_real1();   /* %s: real path, the GPU lines */\n  if (lk_glt_pass(1))" % VER))
-    a = "  lk_gl_clstag(lk_glt_ct); lk_glActiveTexture(0x84C1); lk_glBindTexture(0x0DE1, lk_glt_t[1]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 224, 0x1908, 0x1401, lk_glt_ct);\n"
+    a = "  lk_gl_clstag(lk_glt_ct); lk_glActiveTexture(0x84C1); lk_glBindTexture(0x0DE1, lk_glt_t[1]); lk_glTexSubImage2D(0x0DE1, 0, 0, 0, 448, 288, 0x1908, 0x1401, lk_glt_ct);\n"   # 288 rows since LK_LTTOPSIL v1
     assert s.count(a) == 1, "platform_sdl.c: class tag upload anchor not found"
     s = s.replace(a, a + "  if (real) lk_gc_real2(lk_glt_t[1], lk_glt_t[10]);   /* %s: the GPU lines' class tags + mixes */\n" % VER)
     a = "static int lk_glt_pass(int real) {"
     assert s.count(a) == 1
     s = s.replace(a, "static void lk_gc_real2(lkGLuint tcls, lkGLuint tpost);   /* %s */\n" % VER + a)
-    a = "lk_glt_t[1] = lk_glt_tex(448, 224, 0x1908, 0x1908);"   # RGBA since LK_LTHIDE v1 (patch_gpulight.py): the GPU composition renders into it
+    a = "lk_glt_t[1] = lk_glt_tex(448, 288, 0x1908, 0x1908);"   # 288 rows since LK_LTTOPSIL v1 (the compositor still writes rows 0..223 only)   # RGBA since LK_LTHIDE v1 (patch_gpulight.py): the GPU composition renders into it
     assert s.count(a) == 1, "platform_sdl.c: class texture anchor not found"
     open(p, "w").write(s)
     print("platform_sdl.c patched:", VER)
