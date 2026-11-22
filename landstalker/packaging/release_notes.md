@@ -10,7 +10,7 @@
 - **Lighting:** the riddle braziers in the crypt now light the room; shadows of figures at the top edge of the screen are no longer cut off.
 - Your settings and save files from v1.x keep working.
 
-### Mod Workshop - short guide
+### Mod Workshop - short guide (full guide: [MOD_WORKSHOP.md](https://github.com/cmdrlucid/Project-Friday/blob/main/MOD_WORKSHOP.md))
 1. **Start the game once.** It creates its Mods folder: **Steam Deck / Linux:** `Project-Friday Mods` next to the AppImage file. **Windows:** `Mods` in the Project-Friday folder (installer: in the folder you picked, by default `%LOCALAPPDATA%\Programs\Project-Friday\Mods`; zip: inside the extracted folder).
 2. **Open `Mod Workshop.html`** in that folder (double click; Chrome, Edge or Firefox; works offline).
 3. **Pick your language**, find the text (search, or a filter: dialogue, names / menus, map areas, items, options, Friday hints) and **type the new text in the right column**. Keep the codes in braces such as `{SoftNewLine}` as in the English text; a text marked red would be refused by the game.

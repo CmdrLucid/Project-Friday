@@ -3,6 +3,9 @@
 User wish (2026-11-22, GitHub #18): natives correct texts without editing our JSON, on a **mod layer** that later takes more layers
 (character names, light shapes, ...). Rule from the user: **no local server on the player's computer** - the editor is a page opened from the disk.
 
+Player guide (English, linked from the README and the release notes): `MOD_WORKSHOP.md` in the repository root. Keep it in step with this file.
+Removing a mod file: langbuild writes `<out>/<code>.modded` when it builds a language WITH a mod; `modlayer.py sync` rebuilds a language whose `.modded` marker has no mod file any more (else the modded texts stayed after the player deleted the file).
+
 ## Where mods live (v3 2026-11-22 night; user rule: NOTHING outside the Project-Friday folder, never place or fetch files elsewhere on a player's computer)
 - Windows ZIP: `<unzipped folder>\Mods\` - Windows installer: `<install folder>\Mods\` (`%LOCALAPPDATA%\Programs\Project-Friday`; the
   uninstaller's `RMDir "$INSTDIR"` leaves a non-empty folder, so the mods stay) - AppImage: `Project-Friday Mods` NEXT TO the AppImage file

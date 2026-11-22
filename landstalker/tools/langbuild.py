@@ -432,6 +432,9 @@ def main():
                 nmod, bad = modlayer.apply(lj0, mod, en, mod_check(en)); modlayer.save_report(code, bad)
                 print("langbuild: %s: %d texts from the mod %s, %d refused" % (code, nmod, modlayer.lang_mod_path(code), len(bad)))
                 for b_, k_, w_ in bad: print("  mod text refused (the translation stays):", b_, k_, "-", w_)
+            mk = os.path.join(outdir, code + ".modded")   # MOD LAYER: marks a language built WITH a mod file, so that removing the mod rebuilds it (tools/modlayer.py sync)
+            if mod: open(mk, "w").write(modlayer.lang_mod_path(code) + "\n")
+            elif os.path.isfile(mk): os.remove(mk)
             meta = build_one(rom, en, json.loads(json.dumps(lj0)), os.path.join(outdir, code + ".bin"))
             lj = lj0
             for blk in ("strings", "names"):   # LK_LGNAMES v1: entries not translated yet = the original English with the Japanese names
