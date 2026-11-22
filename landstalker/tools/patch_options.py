@@ -501,6 +501,7 @@ static void lk_win_move(int row) { lk_win_sel = row - lk_win_scroll + 1; }
 static void lk_win_value(int pg, int row) { int k = row - lk_win_scroll + 1; lk_win_rowtext(pg, k); memcpy(lk_win_row[k], lk_win_stage[k], sizeof lk_win_row[0]); }
 static void lk_fs_modal(void) {   /* options window in the file select */
     int pg = 0, row = 0, rootrow = 0, prev = bus_read8(0xFF0F8Eu), cur, e, blink = 0, cap_was = 0, arrow0 = 0;
+    extern int lk_lang_gen(void); int gen0 = lk_lang_gen();   /* LK_FSLANGREDRAW v1 */
     M68kContext sv = g_m68k;
     { int t, r, c; for (t = 0; t < 16; t++) for (r = 0; r < 8; r++) {   /* MenuCursor2BPP $00DF76: 16 tiles of 2bpp (8 rows of 2 bytes), column-major 4 x 4 */
         uint16_t w = bus_read16(0x00DF76u + (uint32_t)t * 16u + (uint32_t)r * 2u);
@@ -537,6 +538,12 @@ static void lk_fs_modal(void) {   /* options window in the file select */
         if ((e & 4) && pg) { lk_opt_change(lk_win_id(pg, row), -1); blink = 0; lk_win_value(pg, row); lk_snd(0x00FA54u); }   /* LEFT: previous value */
     }
     lk_win_on = 0; lk_win_arr = 0;
+    if (lk_lang_gen() != gen0) {   /* LK_FSLANGREDRAW v1 (user 2026-11-22: after a language change in the file select options the slots kept the place names of the language before,
+        e.g. Ukrainian 'Меркатор' under German): the slot windows are drawn once by InitGameSelectScreen, only the bar was redrawn here.  Now the game's own InitGameStartScreen $00F6DC
+        (clear the slot text tiles, DrawSaveSlotWindow 3..0, UploadGameSelectPlaneA) and then LoadSavedGame $0015C2 again for the chosen slot (g_SaveSlot), because
+        DrawSaveSlotContents loads every slot's save into RAM and ends with slot 0 */
+        lk_call(0x00F6DCu); lk_call(0x0015C2u);
+    }
     lk_fs_bar_text();
     g_m68k = sv;
 }

@@ -138,6 +138,7 @@ chk "Licht standardmaessig an"                      $G/ext/Genesis-Plus-GX/core/
 chk "Sprache: Namen-Option (japanische Originalnamen)" $G/src/func_table.c "LK_LGNAMES v1"
 chk "Sprache: Wortumbruch zur Laufzeit"          $G/src/func_table.c "LK_LGWRAP v1"
 chk "Sprache: breite Namen in der Dateiauswahl (ru/uk/ko)" $G/src/func_table.c "LK_LGWNAME v2"
+chk "Sprache: Dateiauswahl zeichnet Spielstaende nach Sprachwechsel neu" $G/src/func_table.c "LK_FSLANGREDRAW v1"
 chk "Japanisch: Kana-Itemnamen im Dialog"     $G/src/func_table.c "LK_JPITEMS v3"
 chk "Japanisch: Kana-Itemnamen im Menue"      $G/src/func_table.c "LK_JPMENU v1"
 chk "Sprachen: eigene Schriftbank (Koreanisch)" $G/src/func_table.c "LK_LGKO v1"
