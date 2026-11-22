@@ -358,6 +358,45 @@ static void lk_o_extras_upto(int upto) {                            /* effects t
     lk_o_vpiece(w2 & 0x7FF, (int)((k2 >> 20) & 0x1FF) - 128, (int)((k2 >> 8) & 0x3FF) - 128, (int)((k2 >> 2) & 3) + 1, (int)(k2 & 3) + 1, (w2 >> 13) & 3, (w2 >> 15) & 1, (w2 >> 11) & 1, (w2 >> 12) & 1);
   }
 }
+/* LK_OFFMAP v1 (user 2026-11-22, widescreen: 'ausserhalb der eigentlichen Karte im Raum noch Assets ... das komische Kartenstueck links', room 667 above the crypt cellar):
+   the game keeps map pieces it copies in on an event (TileSwaps $00512C, 16 bytes per entry: source x y, destination x y, size w-1 h-1, height map source / destination / size,
+   room word +C, entry index +E, copy type +F; MapTileSwap $004E94 / DoMapTileSwap $004EF4) in the room's own map, outside the room.  At 320 px they lie off screen, in widescreen they
+   show.  On a room change: the drawn tiles connected (8 ways) to the tiles of the height map cells = the room; a SOURCE cell of the room's swap entries whose tiles are not part of it
+   (an island) is not drawn (both layers, every frame; the game's copy to the destination stays, it is other cells).  Only with widescreen; test aid LANDSTALKER_OFFMAP=0. */
+static int lk_om_room = -2, lk_om_n; static uint16_t lk_om_tile[4096]; static uint8 lk_om_grid[152][304];   /* v1: the whole ISLAND a stored piece lies in (the stored area is larger than one entry) */
+static int lk_om_on(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_OFFMAP"); v = e ? atoi(e) != 0 : 1; } return v && lk_wide_e > 0; }
+static void lk_om_src(int t, int lay, int sx, int sy, int w, int h, int i, int j, int *x, int *y) {   /* DoMapTileSwap: type 0 a rectangle, 1 rows shifted by one cell per row (FG starts one cell right), 2 columns going down (BG starts one row lower) */
+  if (t == 0) { *x = sx + i; *y = sy + j; } else if (t == 1) { *x = sx + i + j + (lay ? 1 : 0); *y = sy + j; } else { *x = sx + j; *y = sy + i + j + (lay ? 0 : 1); } (void)w; (void)h; }
+static void lk_om_plan(void) {
+  int q, x, y, sp = 0; static uint16_t st[152 * 304]; static uint8 hsrc[74][74]; lk_om_n = 0; memset(lk_om_grid, 0, sizeof lk_om_grid); memset(hsrc, 0, sizeof hsrc);
+  for (q = 0; q < 300; q++) { uint32_t a = 0x512C + 16 * (uint32_t)q; int room = (int16_t)(((uint16_t)OB(a + 12) << 8) | OB(a + 13)), i, j;   /* the height map keeps its stored pieces outside the room too (HMTileSwap): no seeds */
+    if (room < 0) break; if (room != lk_o_room || (OB(a + 6) == OB(a + 8) && OB(a + 7) == OB(a + 9))) continue;
+    for (j = 0; j <= OB(a + 11); j++) for (i = 0; i <= OB(a + 10); i++) { int hx = OB(a + 6) + i, hy = OB(a + 7) + j; if (hx < 74 && hy < 74) hsrc[hy][hx] = 1; } }
+  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (UW(0xFFD192 + 148 * y + 2 * x) && UW(0xFFD192 + 148 * y + 2 * x) != 0x4000 && !hsrc[y][x]) { int lay, k;   /* seeds: the tiles of every height map cell (both layers); $4000 = the empty cells around the room */
+    for (lay = 0; lay < 2; lay++) for (k = 0; k < 4; k++) { int cc = 2 * (x - y) + (lay ? 146 : 148) + (k & 1), rr = x + y + (k >> 1);
+      if (cc >= 0 && cc < 304 && rr >= 0 && rr < 152 && ((lk_o_pa[rr][cc] | lk_o_pb[rr][cc]) >> 16 & 1) && !lk_om_grid[rr][cc]) { lk_om_grid[rr][cc] = 1; st[sp++] = (uint16_t)(rr * 304 + cc); } } }
+  while (sp > 0) { int o = st[--sp], r = o / 304, c = o - r * 304, dr, dc;   /* flood over the drawn tiles */
+    for (dr = -1; dr <= 1; dr++) for (dc = -1; dc <= 1; dc++) { int r2 = r + dr, c2 = c + dc; if (r2 < 0 || c2 < 0 || r2 >= 152 || c2 >= 304 || lk_om_grid[r2][c2]) continue;
+      if ((lk_o_pa[r2][c2] | lk_o_pb[r2][c2]) >> 16 & 1) { lk_om_grid[r2][c2] = 1; if (sp < 152 * 304) st[sp++] = (uint16_t)(r2 * 304 + c2); } } }
+  for (q = 0; q < 300; q++) { uint32_t a = 0x512C + 16 * (uint32_t)q; int room = (int16_t)(((uint16_t)OB(a + 12) << 8) | OB(a + 13)), sx, sy, dx, dy, w, h, t, i, j, lay;
+    if (room < 0) break; if (room != lk_o_room) continue;
+    sx = OB(a); sy = OB(a + 1); dx = OB(a + 2); dy = OB(a + 3); w = OB(a + 4) + 1; h = OB(a + 5) + 1; t = OB(a + 15);
+    if (sx < dx + w + 1 && dx < sx + w + h + 1 && sy < dy + h + w + 1 && dy < sy + h + w + 1) continue;   /* source and destination overlap: not a stored piece */
+    for (lay = 0; lay < 2; lay++) for (j = 0; j < h; j++) for (i = 0; i < w; i++) { int cx, cy, k, conn = 0; lk_om_src(t, lay, sx, sy, w, h, i, j, &cx, &cy);
+      if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) continue;
+      for (k = 0; k < 4; k++) { int cc = 2 * (cx - cy) + (lay ? 146 : 148) + (k & 1), rr = cx + cy + (k >> 1); if (cc >= 0 && cc < 304 && rr >= 0 && rr < 152 && lk_om_grid[rr][cc]) conn = 1; }
+      if (!conn) for (k = 0; k < 4; k++) { int cc = 2 * (cx - cy) + (lay ? 146 : 148) + (k & 1), rr = cx + cy + (k >> 1);   /* flood the island from this cell's tiles (grid 2 = hidden) */
+        if (cc < 0 || cc >= 304 || rr < 0 || rr >= 152 || lk_om_grid[rr][cc] || !((lk_o_pa[rr][cc] | lk_o_pb[rr][cc]) >> 16 & 1)) continue;
+        lk_om_grid[rr][cc] = 2; sp = 0; st[sp++] = (uint16_t)(rr * 304 + cc);
+        while (sp > 0) { int o = st[--sp], r = o / 304, c = o - r * 304, dr, dc; if (lk_om_n < 4096) lk_om_tile[lk_om_n++] = (uint16_t)o;
+          for (dr = -1; dr <= 1; dr++) for (dc = -1; dc <= 1; dc++) { int r2 = r + dr, c2 = c + dc; if (r2 < 0 || c2 < 0 || r2 >= 152 || c2 >= 304 || lk_om_grid[r2][c2]) continue;
+            if ((lk_o_pa[r2][c2] | lk_o_pb[r2][c2]) >> 16 & 1) { lk_om_grid[r2][c2] = 2; if (sp < 152 * 304) st[sp++] = (uint16_t)(r2 * 304 + c2); } } } } } }
+  if (getenv("LANDSTALKER_OFFMAP_LOG")) printf("offmap: room %d, %d tiles of stored map pieces not drawn\n", lk_o_room, lk_om_n); }
+static void lk_om_apply(void) { int n, k;
+  if (!lk_om_on()) return;
+  { static uint32_t hh = 0; uint32_t h = 2166136261u; int x, y; for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) h = (h ^ (uint32_t)UW(0xFFD192 + 148 * y + 2 * x)) * 16777619u;   /* again when the room or its height map changes (the map arrays are filled after the room number; a swap changes the height map) */
+    if (lk_om_room != lk_o_room || h != hh) { lk_om_room = lk_o_room; hh = h; lk_om_plan(); } }
+  for (n = 0; n < lk_om_n; n++) { int o = lk_om_tile[n], rr = o / 304, cc = o - rr * 304; lk_o_pa[rr][cc] = 0; lk_o_pb[rr][cc] = 0; } (void)k; }
 static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *alt) {   /* figures of one pass state: drawn into lk_o_spr and / or as SAT keys (x, y, size) for the choice of the pass; with `alt` every entity of EITHER pass' visible list takes the version (this pass / the other one, or absent) that matches the real sprite table: the game's visibility test flips entities in and out of the list from pass to pass */
   int offs[48], inA[48], inB[48], inF[48], sord[48], n, k, nb = 0, boffs[24], nk = 0, i;
   if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr); if (lk_o_hdwant()) memset(lk_o_sprrep, 0, sizeof lk_o_sprrep); lk_o_nspr = 0; lk_o_dn = 0; }
@@ -479,6 +518,7 @@ static void lk_o_build(void) {                                       /* everythi
       }
     }
   }
+  lk_om_apply();   /* LK_OFFMAP v1 */
   lk_o_exon = 0; lk_o_sprites(chosen, 1, 0, lk_o_simple ? 0 : chosen == lk_o_cc ? lk_o_cp : lk_o_cc); lk_o_sp = lk_o_r;   /* pass 1: which table entries do the figures account for */
   memcpy(lk_o_dk2, lk_o_dk, sizeof lk_o_dk); lk_o_dn2 = lk_o_dn;
   lk_o_exon = 1; lk_o_exnext = 0; lk_o_sprites(chosen, 1, 0, lk_o_simple ? 0 : chosen == lk_o_cc ? lk_o_cp : lk_o_cc); lk_o_sp = lk_o_r;   /* pass 2: the same figures with the other table entries drawn between them */
