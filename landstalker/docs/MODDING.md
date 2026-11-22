@@ -29,6 +29,11 @@ User wish (2026-11-22, GitHub #18): natives correct texts without editing our JS
 - The page holds the original English decoded from the user's OWN ROM (reference column): local only, never in git / packages.
 
 ## The page (tools/modpage.html)
+Every language lists EVERY moddable entry (2026-11-22, user: English (JP) showed empty filters, it translates only dialogue): names / ui_text =
+the keys any language translates, map_areas = langbuild.MAP_AREAS (English column from there), strings = all ROM strings; an entry the language
+does not translate shows 'original English' / 'not translated' and takes a mod text like any other (checked: en_tone mod with menu / item /
+map area / option -> 3 names + 1 ui text more). Filters without entries for the language are hidden (Items in dialogue: only ru / uk / ko;
+Friday hints: not for English / English (JP)).
 Left: navigation of the mod layers (Language; Character names shown as "(later)"; user 2026-11-22: nothing else is mentioned yet). Item names warn when longer than the ru / uk item menu allows (2 rows of 9 letters, else empty there). Right: language, filter (all / my changes /
 not translated / per block), search, table Id | Original (English) | Current text | New text. Codes are checked while typing
 (same rule as langbuild `mod_check`), the build's refused list is shown in red. Unsaved edits stay in the browser (localStorage).

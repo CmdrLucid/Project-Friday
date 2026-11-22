@@ -30,21 +30,30 @@ def build(rom, src, mods):
     import stringdump as sd
     en_all = sd.decode_all(open(rom, "rb").read())
     import fridaylang
+    import langbuild
     en, langs, used, fen = {}, [], set(), {}
-    for f in sorted(os.listdir(src)):
-        if not f.endswith(".json") or f in SKIP: continue
-        code = f[:-5]
-        lang = json.load(open(os.path.join(src, f), encoding="utf-8"))
+    files = [f for f in sorted(os.listdir(src)) if f.endswith(".json") and f not in SKIP]
+    alls = {f[:-5]: json.load(open(os.path.join(src, f), encoding="utf-8")) for f in files}
+    # every language lists every moddable entry (user 2026-11-22: English (JP) translates only dialogue, its filters for menus / map areas /
+    # options were empty): names / ui_text = the keys any language translates, map_areas = langbuild.MAP_AREAS; an entry the language does not
+    # translate shows the original English (current text empty), a mod text is taken by langbuild like any other
+    ref = {"names": sorted({k for l in alls.values() for k in (l.get("names") or {})}),
+           "ui_text": list(dict.fromkeys(k for l in alls.values() for k in (l.get("ui_text") or {}))),
+           "map_areas": [k for k, _ in langbuild.MAP_AREAS]}
+    for code, lang in alls.items():
         rows = []
         for blk in BLOCK_ORDER:
             cur = lang.get(blk) or {}
             if blk in ("names", "item_dialog", "strings"):
                 keys = list(cur.keys())
                 if blk == "strings": keys = sorted(set(keys) | {k for k in en_all if re.fullmatch(r"[0-9A-F]{4}", k)})
+                if blk == "names": keys = keys + [k for k in ref["names"] if k not in cur and k not in (lang.get("item_dialog") or {}) and k in en_all]
                 for k in keys:
                     e = cur.get(k); rows.append([blk, k, e["t"] if e else ""]); used.add(k)
             else:
                 for k, t in cur.items(): rows.append([blk, k, t])
+                for k in ref[blk]:
+                    if k not in cur: rows.append([blk, k, ""])
         if code in ("de",) + tuple(fridaylang.NAME):   # MOD LAYER v1: the Friday hints (gentle level, the one the game shows); English reference = our own English hint
             for h in fridaylang.hints():
                 t = h.get(code); rows.append(["friday", h.get("id", ""), t[0] if isinstance(t, list) and t else ""]); fen[h.get("id", "")] = (h.get("en") or [""])[0]
@@ -54,7 +63,7 @@ def build(rom, src, mods):
         langs.append({"code": code, "name": lang.get("meta", {}).get("name", code), "rows": rows, "mod": modlayer.load_lang_mod(code), "refused": rep})
     for k in used:
         if k in en_all: en[k] = en_all[k]
-    return {"generated": time.strftime("%Y-%m-%d %H:%M"), "mods": os.path.abspath(mods), "modsName": os.path.basename(os.path.abspath(mods)), "en": en, "fen": fen, "languages": langs,
+    return {"generated": time.strftime("%Y-%m-%d %H:%M"), "mods": os.path.abspath(mods), "modsName": os.path.basename(os.path.abspath(mods)), "en": en, "fen": fen, "men": dict(langbuild.MAP_AREAS), "languages": langs,
             "layout": ["NewLine", "SoftNewLine", "Pause1s", "Pause1sOrInput", "Pause1_5sOrInput", "Pause2sOrInput", "BreakSpace", "BreakPoint", "Hyphen"]}
 
 

@@ -90,13 +90,18 @@ function init() {
   const last = store.get("pf_lang"); if (last && D.languages.some(l => l.code === last)) $("lang").value = last;
   pick();
 }
-function enOf(r) { return r[0] === "friday" ? ((D.fen || {})[r[1]] || "") : r[0] === "ui_text" ? r[1] : r[0] === "map_areas" ? r[1].replace(/_/g, " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : (D.en[r[1]] || ""); }
+function enOf(r) { return r[0] === "friday" ? ((D.fen || {})[r[1]] || "") : r[0] === "ui_text" ? r[1] : r[0] === "map_areas" ? ((D.men || {})[r[1]] || r[1]) : (D.en[r[1]] || ""); }
 function modOf(r) { return ((mod[r[0]] || {})[r[1]]); }
 function pick() {
   if (Object.keys(dirty).length && !confirm("Unsaved changes of this language stay in this browser. Switch anyway?")) { $("lang").value = L.code; return; }
   L = D.languages.find(l => l.code === $("lang").value); store.set("pf_lang", L.code);
   mod = JSON.parse(JSON.stringify(L.mod || {})); refused = {};
   (L.refused || []).forEach(x => refused[x.block + "|" + x.key] = "The game refused this text: " + x.why);
+  for (const op of $("filter").options) {   // a block the language has no entries for (Items in dialogue: only ru / uk / ko) is hidden
+    if (op.value.startsWith("b:")) op.hidden = !L.rows.some(r => r[0] === op.value.slice(2));
+    if (op.value === "untr") op.textContent = L.code.startsWith("en") ? "Still the original English" : "Not translated yet";
+  }
+  if ($("filter").selectedOptions[0].hidden) $("filter").value = "all";
   dirty = store.get("pf_draft_" + L.code) || {};
   status(Object.keys(dirty).length ? Object.keys(dirty).length + " unsaved change(s) from your last visit - press Save to keep them." : "", Object.keys(dirty).length ? "bad" : "");
   $("save").disabled = !Object.keys(dirty).length; filter();
@@ -131,7 +136,7 @@ function draw() {
   $("rows").innerHTML = view.slice(page * PER, page * PER + PER).map(r => {
     const k = key(r), v = dirty[k] != null ? dirty[k] : (modOf(r) || ""), p = check(r, v) || (dirty[k] == null ? refused[k] : "");
     return `<tr class="${p ? "bad" : (modOf(r) != null ? "mod" : "")}"><td class="id">${esc(r[1])}<br><small>${r[0]}</small></td><td class="en">${tags(enOf(r))}</td>
-      <td>${tags(r[2]) || "<i style='color:#666'>not translated</i>"}</td><td><textarea data-k="${esc(k)}" class="${dirty[k] != null ? "dirty" : ""}" placeholder="unchanged">${esc(v)}</textarea><div class="why">${esc(p || "")}</div></td></tr>`;
+      <td>${tags(r[2]) || "<i style='color:#666'>" + (L.code.startsWith("en") ? "original English" : "not translated") + "</i>"}</td><td><textarea data-k="${esc(k)}" class="${dirty[k] != null ? "dirty" : ""}" placeholder="unchanged">${esc(v)}</textarea><div class="why">${esc(p || "")}</div></td></tr>`;
   }).join("");
 }
 function go(d) { page += d; draw(); window.scrollTo(0, 0); }
