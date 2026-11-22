@@ -24,8 +24,8 @@ User wish (2026-11-22, GitHub #18): natives correct texts without editing our JS
   refused texts go to `mods/lang/<code>.report.json`.
 - `firstrun.py` (release packages): at every start `tools/modlayer.py sync ROM lang out/lang` = rebuild every language whose mod file is
   newer than its built file + `tools/modpage.py` (rewrites the page only when an input changed: stamp in line 2).
-  On the Deck (dev): `build.sh` runs `modpage.py` after langbuild; the dev launcher `~/Landstalker.sh` does NOT sync at start (run
-  `python3 tools/modlayer.py sync ROM lang build/lang`, or build.sh).
+  On the Deck (dev): `build.sh` runs `modpage.py` after langbuild; the dev launcher `~/Landstalker.sh` runs
+  `python3 tools/modlayer.py sync ROM lang build/lang` before every start (since 2026-11-22, user OK; backup `~/Landstalker.sh.bak3`).
 - The page holds the original English decoded from the user's OWN ROM (reference column): local only, never in git / packages.
 
 ## The page (tools/modpage.html)
