@@ -1,18 +1,16 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
-### Windows installer, lighting fixes and the Japanese ROM check
-**New since v1.9.7:**
-- **Windows: one installer file.** `Project-Friday-Setup.exe` replaces unpacking a zip: pick any folder (by default your user folder, no admin rights needed; Program Files works too, Windows then asks once for admin rights), Start menu entry, optional desktop shortcut, uninstall in Settings > Apps. The built game and your settings stay in %LOCALAPPDATA%\Project-Friday; save files next to your ROM are never touched. The zip is still offered for now.
-- **Striped character shadows fixed** (GitHub #21, thanks paul-met): a memory error in the lighting turned into vertical stripes in the shadows of characters (by sun and by sword light) in the release packages (Windows and AppImage); builds made with gcc happened to hide it.
-- **Weak or busy GPU:** when the GPU is too slow for the lighting, a message now says so (LIGHTING OFF: GPU TOO SLOW) and the lighting tries again after 30 seconds (before, it switched off silently until the next start).
-- **Gumi and river areas:** Nigel no longer turns dark and loses his shadow on the walkway above the river in Gumi; the lighting had raised the painted river far above its real height (an invisible wall). The same mistake is fixed in about 25 outdoor rooms.
-- **Shadows:** groups of pines cast the shadows of single pines in nine more forest rooms; the diamond-shaped box shadow on the forest path below the cliff is gone (three rooms with the same map); Swamp Shrine torch statues give figure shadows again (also after coming from Gumi); no dark box on the wall in the Swamp Shrine; no bright strip on the wall in the Waterfall Shrine; round towers and the evening shade in the Mercator fountain court.
-- **Water:** reflections in the Waterfall Shrine pools, cleaner pool rim corners.
-- **Effects:** defeated enemies burst apart with the camera instead of drifting sideways while you walk; the wooden platform in the Swamp Shrine stays visible at the top edge in 16:9.
-- **Friday Hints:** the Waterfall Shrine no longer sends you deeper for the Idol Stone (it lies in Gumi); the shrine door is mentioned only after you have heard that it is shut.
-- **Japanese text and items:** only the known Japanese ROM dump is used (SHA-1 in the README); another file with a Japanese header is ignored with a message instead of giving broken text. As before, just put it next to your ROM, no rebuild.
-- **Options:** the *Language / Region* row is translated in every language and keeps the English word, e.g. *ことば (Language)*, so you always find it again after switching to a language you cannot read.
-- Gumi skull sign door at night, plus everything from v1.9.7 (Swamp Shrine entrance light, Tibor, map exits, water drops). Your settings and save files from v1.x keep working.
+### Four new languages, inn mornings and more real 3D light shapes
+**New since v1.9.8:**
+- **New languages: Español, Italiano, Russian (Russkiy) and Ukrainian (Ukrainska).** As with German and French, the tone is translated from the Japanese original. These languages are new, so feedback is very welcome.
+- **Inn mornings:** after a night at the inn, it is now morning (Day / Night clock at 7:00).
+- **Window size remembered:** size, position and maximised state are restored at the next start.
+- **Einstein Whistle cutscene:** no narrow picture and no old HUD bar while the whistle song plays at the sunstone.
+- **Friday Hints follow Options > Names:** with Japanese names she says Ryle, Donmel and so on, and calls herself 'Friday' instead of 'Flora' in German.
+- **Lighting: many more real 3D light shapes** (every pine and bush outdoors, the houses of the towns, the Mercator docks, the Lake Shrine columns and more), so the shadows match the painted scenery better. Several shadow and sword-light glitches next to trees, doors and windows are fixed.
+- **Sprint:** no sprinting during cutscene walks; door walks keep their original distance (fixes the castle walk-in).
+- **Bath scene option:** the maid leaves right after the banquet announcement, and Nigel no longer appears twice (standing and lying in bed at the same time).
+- Your settings and save files from v1.x keep working.
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM). The first start of a new version builds the game once (a few minutes).
