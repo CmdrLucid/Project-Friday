@@ -22,7 +22,7 @@ No game data in a mod file: only the modder's own text.
 import hashlib, json, os, subprocess, sys
 
 LANG_BLOCKS = ("strings", "names", "item_dialog")     # entries {"h": hash of the English source, "t": text}
-LANG_PLAIN = ("map_areas", "ui_text", "friday")       # plain strings (our own keys, no English source); friday = Friday hints {hint id: gentle text} (lang/friday_hints.json)
+LANG_PLAIN = ("map_areas", "ui_text", "friday", "charnames")   # plain strings (our own keys, no English source); friday = Friday hints {hint id: gentle text} (lang/friday_hints.json); charnames = MOD LAYER 2 character names {names.json key: name} (Names = Localized only)
 
 
 def data_dir():
@@ -118,7 +118,10 @@ def apply(lang, mod, en=None, check=None):
             ent["t"] = t; n += 1
     for blk in LANG_PLAIN:
         for k, t in (mod.get(blk) or {}).items():
-            if isinstance(t, str): lang.setdefault(blk, {})[k] = t; n += 1
+            if not isinstance(t, str): continue
+            why = check(blk, k, t) if check and blk == "charnames" else None   # MOD LAYER 2: names checked (key known, no codes, length)
+            if why: bad.append((blk, k, why)); continue
+            lang.setdefault(blk, {})[k] = t; n += 1
     return n, bad
 
 

@@ -268,6 +268,10 @@ def ko_codes(lang, extra=()):
 def build_one(rom, en, lang_path, out_path, variant="local"):
     lang = json.load(open(lang_path, encoding="utf-8")) if isinstance(lang_path, str) else lang_path
     nm_tab = load_names(); base = lang.get("meta", {}).get("names", lang.get("meta", {}).get("code", "en")[:2])
+    if lang.get("charnames") and variant != "jp":   # MOD LAYER 2 (user 2026-11-22: per language, Names = Localized only): the modder's character names replace this language's {=name}
+        nm_tab = {k: dict(v) for k, v in nm_tab.items()}
+        for k, t in lang["charnames"].items():
+            if k in nm_tab and isinstance(t, str) and t: nm_tab[k][base] = t
     global EXTRA, UI_BYTES; fr = base in ACCENTS; EXTRA, UI_BYTES = ACCENTS[base][:2] if fr else (EXTRA_DE, UI_BYTES_DE)   # LK_LGFR v1 / LK_LGES v1 (es / it)
     lang = json.loads(json.dumps(lang))   # a copy: the placeholders are resolved per variant
     import fridaylang   # release 2.0: Friday hints of this language as extra strings $E000 + entry
@@ -387,6 +391,7 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
         out = out[:16] + struct.pack(">I", len(out)) + out[20:] + tr
     if uiw: out = out + uiw + __import__("uiwide").footer(len(out))   # LK_UIWIDE v1: glyph table + footer at the end
     open(out_path, "wb").write(out)
+    global LAST_DROPPED; LAST_DROPPED = len(dropped)   # MOD LAYER 2: the trial builds of modded character names compare this
     print("langbuild: %d strings, %d names, %d ui values, %d glyphs, %d ui texts -> %s (%d bytes); dropped %d" % (len(strs), len(names), len(ui), len(glyphs), len(texts), out_path, len(out), len(dropped)))
     for k, w in dropped: print("  dropped", k, "-", w)
     if "--preview" in sys.argv:
@@ -395,6 +400,10 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
 
 
 ONLY = None   # --only CODE
+LAST_DROPPED = 0   # MOD LAYER 2 (names_trial)
+
+
+NAME_MAX = 12   # MOD LAYER 2: longest character name a modder may give (the page checks the same); the runtime word wrap LK_LGWRAP v1 breaks a line that gets too long
 
 
 def mod_check(en):
@@ -406,6 +415,12 @@ def mod_check(en):
         for m in re.findall(r"\{([^}]*)\}", t):
             if not (m.startswith("=") or m in CTL or m in NAMECTL): return "unknown code {%s}" % m
         if t.count("{") != t.count("}"): return "a brace { or } is missing"
+        if blk == "charnames":   # MOD LAYER 2: a plain name (the font check is a trial build, langbuild main)
+            if key not in load_names(): return "no such character"
+            if "{" in t or "}" in t or "|" in t: return "a name takes no codes"
+            if not t.strip() or t != t.strip(): return "empty, or spaces at the start / end"
+            if len(t) > NAME_MAX: return "longer than %d letters" % NAME_MAX
+            return None
         if blk == "friday" and any(not m.startswith("=") for m in re.findall(r"\{([^}]*)\}", t)): return "Friday hints take no codes except {=name} (lines: the | sign)"
         if blk == "strings":
             src = en.get(key)
@@ -413,6 +428,25 @@ def mod_check(en):
             if codes(src) != codes(t): return "codes differ from the English text: %s vs %s" % (codes(src), codes(t))
         return None
     return check
+
+
+def names_trial(rom, en, lang, tmp):
+    """MOD LAYER 2: a modded character name whose letters this language's font lacks would drop every text it appears in (back to English):
+    build without / with the names (stdout muted, ~1 s each) and refuse the names that add dropped texts.  Returns [(block, key, reason)]."""
+    import contextlib, io
+    def drops(cn):
+        t = json.loads(json.dumps(lang)); t["charnames"] = cn
+        with contextlib.redirect_stdout(io.StringIO()): build_one(rom, en, t, tmp)
+        return LAST_DROPPED
+    cn, bad = lang["charnames"], []
+    try:
+        d0 = drops({})
+        if drops(cn) > d0:
+            for k, t in list(cn.items()):
+                if drops({k: t}) > d0: del cn[k]; bad.append(("charnames", k, "has letters the game cannot show in this language"))
+    finally:
+        if os.path.isfile(tmp): os.remove(tmp)
+    return bad
 
 
 def main():
@@ -429,7 +463,9 @@ def main():
                 idx.append("%s\t%s" % (code, json.load(open(os.path.join(sys.argv[2], f), encoding="utf-8")).get("meta", {}).get("name", code))); continue
             lj0 = json.load(open(os.path.join(sys.argv[2], f), encoding="utf-8")); mod = modlayer.load_lang_mod(code)   # MOD LAYER v1: the user's own corrections (mods/lang/<code>.json)
             if mod or os.path.isfile(modlayer.lang_mod_path(code)):
-                nmod, bad = modlayer.apply(lj0, mod, en, mod_check(en)); modlayer.save_report(code, bad)
+                nmod, bad = modlayer.apply(lj0, mod, en, mod_check(en))
+                if lj0.get("charnames"): nb = names_trial(rom, en, lj0, os.path.join(outdir, code + ".trial.bin")); bad += nb; nmod -= len(nb)
+                modlayer.save_report(code, bad)
                 print("langbuild: %s: %d texts from the mod %s, %d refused" % (code, nmod, modlayer.lang_mod_path(code), len(bad)))
                 for b_, k_, w_ in bad: print("  mod text refused (the translation stays):", b_, k_, "-", w_)
             mk = os.path.join(outdir, code + ".modded")   # MOD LAYER: marks a language built WITH a mod file, so that removing the mod rebuilds it (tools/modlayer.py sync)

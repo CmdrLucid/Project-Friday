@@ -1,5 +1,8 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
+### New since v1.9.11
+- **Mod Workshop: rename characters** for your language (left: *Character names*). The new name is used in every text where the character appears (Options > Names = Localized).
+
 ### Fixed since v1.9.11
 - **Mods survive updates:** after an update the game was built without the mods already in your Mods folder (your corrected texts were replaced by the plain ones until you saved the mod again). Now the build always uses your Mods folder.
 

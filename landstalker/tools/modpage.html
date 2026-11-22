@@ -46,7 +46,7 @@ textarea.dirty { border-color:var(--acc); }
 <nav>
   <h1>Project-Friday<br>Mod Workshop</h1>
   <div class="sec">Mod layers</div>
-  <a href="#" class="on">Language</a><a href="#" class="off">Character names</a>
+  <a href="#" class="on" id="navlang">Language</a><a href="#" id="navnames">Character names</a>
   <div class="foot" id="foot"></div>
 </nav>
 <main>
@@ -61,13 +61,17 @@ textarea.dirty { border-color:var(--acc); }
     <button class="main" id="save" disabled>Save</button>
     <button id="imp">Import</button><input type="file" id="impf" accept=".json" hidden>
   </div>
-  <p class="help">Write the new text in the right column; leave it empty to keep the current one. Keep the codes in braces as in the English text:
+  <p class="help" id="helpnames" hidden>Give a character a new name for this language: it replaces the name in every text where the character appears
+    (dialogue, Friday's hints, menus). It is used while <b>Options &gt; Names = Localized</b>; with Names = Japanese the game keeps the Japanese original names.
+    Leave the field empty to keep the current name. At most 12 letters, no codes; a name with letters the game cannot show in this language is refused by the game (marked red here after the next start).
+    <b>Save</b> works as for the texts (same file <code>lang/&lt;language&gt;.json</code>).</p>
+  <p class="help" id="helplang">Write the new text in the right column; leave it empty to keep the current one. Keep the codes in braces as in the English text:
     <code>{SoftNewLine}</code> line break, <code>{ContinuePrompt}</code> wait for a button, <code>{Speaker}</code> the speaker's name;
     <code>{=name}</code> is a character name from the name list (it follows Options &gt; Names). Line breaks and pauses may move. Item names: at most 2 lines of 9 letters in the item menu. Friday hints: the | sign starts a new line, her name is put in front by the game.
     <b>Save</b> writes your changes into the folder <code>lang</code> next to this page (Chrome / Edge: choose this page's folder once). Other browsers (Firefox) download the file: move it into that <code>lang</code> folder yourself. The game uses it from its next start. To share your corrections, send that file (for example in a GitHub issue).</p>
   <div id="status"></div>
   <div class="pager" id="pg1"></div>
-  <table><thead><tr><th style="width:110px">Id</th><th>Original (English, from your ROM)</th><th>Current text</th><th>New text</th></tr></thead><tbody id="rows"></tbody></table>
+  <table><thead><tr><th style="width:110px">Id</th><th id="h1">Original (English, from your ROM)</th><th id="h2">Current text</th><th id="h3">New text</th></tr></thead><tbody id="rows"></tbody></table>
   <div class="pager" id="pg2"></div>
 </main>
 </div>
@@ -76,8 +80,8 @@ const D = window.PF_DATA, PER = 60;
 const $ = id => document.getElementById(id);
 const esc = s => (s || "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const tags = s => esc(s).replace(/\{[^}]*\}/g, m => '<span class="tag">' + m + "</span>");
-const BLOCKS = ["strings", "names", "item_dialog", "map_areas", "ui_text", "friday"];
-let L = null, mod = {}, view = [], page = 0, dirty = {}, refused = {}, dirH = null;
+const BLOCKS = ["strings", "names", "item_dialog", "map_areas", "ui_text", "friday", "charnames"];
+let layer = "lang", L = null, mod = {}, view = [], page = 0, dirty = {}, refused = {}, dirH = null;
 const key = r => r[0] + "|" + r[1];
 const store = { get(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 
@@ -90,7 +94,8 @@ function init() {
   const last = store.get("pf_lang"); if (last && D.languages.some(l => l.code === last)) $("lang").value = last;
   pick();
 }
-function enOf(r) { return r[0] === "friday" ? ((D.fen || {})[r[1]] || "") : r[0] === "ui_text" ? r[1] : r[0] === "map_areas" ? ((D.men || {})[r[1]] || r[1]) : (D.en[r[1]] || ""); }
+function enOf(r) { if (r[0] === "charnames") { const c = (D.cen || {})[r[1]] || ["", ""]; return c[0] + (c[1] && c[1] !== c[0] ? "  (Japanese: " + c[1] + ")" : ""); }
+  return r[0] === "friday" ? ((D.fen || {})[r[1]] || "") : r[0] === "ui_text" ? r[1] : r[0] === "map_areas" ? ((D.men || {})[r[1]] || r[1]) : (D.en[r[1]] || ""); }
 function modOf(r) { return ((mod[r[0]] || {})[r[1]]); }
 function pick() {
   if (Object.keys(dirty).length && !confirm("Unsaved changes of this language stay in this browser. Switch anyway?")) { $("lang").value = L.code; return; }
@@ -109,6 +114,8 @@ function pick() {
 function filter() {
   const f = $("filter").value, q = $("q").value.trim().toLowerCase();
   view = L.rows.filter(r => { const k = key(r), m = modOf(r);
+    if ((r[0] === "charnames") !== (layer === "names")) return false;   // MOD LAYER 2: the names have their own navigation entry
+    if (layer === "names") return !q || r[1].includes(q) || enOf(r).toLowerCase().includes(q) || (r[2] || "").toLowerCase().includes(q) || (m || "").toLowerCase().includes(q);
     if (f === "mod" && m == null && dirty[k] == null) return false;
     if (f === "untr" && r[2]) return false;
     if (f.startsWith("b:") && r[0] !== f.slice(2)) return false;
@@ -118,6 +125,12 @@ function filter() {
 const codes = t => (t.match(/\{([^}]*)\}/g) || []).map(m => m.slice(1, -1)).filter(m => !D.layout.includes(m) && !m.startsWith("=")).sort().join(",");
 function check(r, t) {
   if (!t) return "";
+  if (r[0] === "charnames") {   // MOD LAYER 2: same rule as tools/langbuild.py mod_check
+    if (/[{}|]/.test(t)) return "A name takes no codes or | signs.";
+    if (t !== t.trim() || !t.trim()) return "No spaces at the start or end.";
+    if ([...t].length > (D.nameMax || 12)) return "At most " + (D.nameMax || 12) + " letters.";
+    return "";
+  }
   if ((t.match(/\{/g) || []).length !== (t.match(/\}/g) || []).length) return "A brace { or } is missing.";
   if (r[0] === "strings" && codes(t) !== codes(D.en[r[1]] || "")) return "The codes must stay as in the English text: " + (codes(D.en[r[1]] || "") || "none") + " (now: " + (codes(t) || "none") + ").";
   if (r[0] === "friday" && (t.match(/\{([^}]*)\}/g) || []).some(m => !m.startsWith("{="))) return "Friday hints take no codes except {=name}; the | sign starts a new line.";
@@ -175,6 +188,14 @@ $("save").onclick = async () => {
   }
   L.mod = JSON.parse(JSON.stringify(mod)); dirty = {}; store.set("pf_draft_" + L.code, {}); $("save").disabled = true; draw();
 };
+function setLayer(l) {   // MOD LAYER 2: Language | Character names (same mod file per language)
+  layer = l; $("navlang").className = l === "lang" ? "on" : ""; $("navnames").className = l === "names" ? "on" : "";
+  $("helplang").hidden = l !== "lang"; $("helpnames").hidden = l !== "names"; $("filter").hidden = l !== "lang";
+  $("h1").textContent = l === "names" ? "Name in English (and Japanese)" : "Original (English, from your ROM)";
+  $("h2").textContent = l === "names" ? "Current name" : "Current text"; $("h3").textContent = l === "names" ? "New name" : "New text";
+  $("q").placeholder = l === "names" ? "Search a name ..." : "Search id or text ..."; filter();
+}
+$("navlang").onclick = e => { e.preventDefault(); setLayer("lang"); }; $("navnames").onclick = e => { e.preventDefault(); setLayer("names"); };
 $("lang").onchange = pick; $("filter").onchange = filter; $("q").oninput = filter;
 $("imp").onclick = () => $("impf").click();
 $("impf").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; let m; try { m = JSON.parse(await f.text()); } catch (x) { return status("Not a mod file.", "bad"); }

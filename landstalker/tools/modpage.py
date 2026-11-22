@@ -15,7 +15,7 @@ sys.path.insert(0, HERE)
 import modlayer   # noqa: E402
 
 SKIP = ("friday_hints.json", "names.json", "en_items.json", "ja_map.json")
-BLOCK_ORDER = ("names", "map_areas", "item_dialog", "strings", "ui_text")   # + "friday" (Friday hints)
+BLOCK_ORDER = ("names", "map_areas", "item_dialog", "strings", "ui_text")   # + "friday" (Friday hints) + "charnames" (MOD LAYER 2, own navigation entry)
 
 
 def inputs(src, mods, rom):
@@ -57,13 +57,16 @@ def build(rom, src, mods):
         if code in ("de",) + tuple(fridaylang.NAME):   # MOD LAYER v1: the Friday hints (gentle level, the one the game shows); English reference = our own English hint
             for h in fridaylang.hints():
                 t = h.get(code); rows.append(["friday", h.get("id", ""), t[0] if isinstance(t, list) and t else ""]); fen[h.get("id", "")] = (h.get("en") or [""])[0]
+        if not code.startswith("ja"):   # MOD LAYER 2 (user 2026-11-22): character names per language, Names = Localized only; current = this language's name (lang/names.json, falls back to English)
+            nb = lang.get("meta", {}).get("names", code[:2])
+            for k, e in langbuild.load_names().items(): rows.append(["charnames", k, e.get(nb, e["en"])])
         rp = os.path.join(mods, "lang", code + ".report.json")
         try: rep = json.load(open(rp, encoding="utf-8")).get("refused", []) if os.path.isfile(rp) else []
         except (OSError, ValueError): rep = []
         langs.append({"code": code, "name": lang.get("meta", {}).get("name", code), "rows": rows, "mod": modlayer.load_lang_mod(code), "refused": rep})
     for k in used:
         if k in en_all: en[k] = en_all[k]
-    return {"generated": time.strftime("%Y-%m-%d %H:%M"), "mods": os.path.abspath(mods), "modsName": os.path.basename(os.path.abspath(mods)), "en": en, "fen": fen, "men": dict(langbuild.MAP_AREAS), "languages": langs,
+    return {"generated": time.strftime("%Y-%m-%d %H:%M"), "mods": os.path.abspath(mods), "modsName": os.path.basename(os.path.abspath(mods)), "en": en, "fen": fen, "men": dict(langbuild.MAP_AREAS), "cen": {k: [e["en"], e["jp"]] for k, e in langbuild.load_names().items()}, "nameMax": langbuild.NAME_MAX, "languages": langs,
             "layout": ["NewLine", "SoftNewLine", "Pause1s", "Pause1sOrInput", "Pause1_5sOrInput", "Pause2sOrInput", "BreakSpace", "BreakPoint", "Hyphen"]}
 
 

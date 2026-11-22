@@ -37,7 +37,7 @@ the keys any language translates, map_areas = langbuild.MAP_AREAS (English colum
 does not translate shows 'original English' / 'not translated' and takes a mod text like any other (checked: en_tone mod with menu / item /
 map area / option -> 3 names + 1 ui text more). Filters without entries for the language are hidden (Items in dialogue: only ru / uk / ko;
 Friday hints: not for English / English (JP)).
-Left: navigation of the mod layers (Language; Character names shown as "(later)"; user 2026-11-22: nothing else is mentioned yet). Item names warn when longer than the ru / uk item menu allows (2 rows of 9 letters, else empty there). Right: language, filter (all / my changes /
+Left: navigation of the mod layers (Language; Character names = layer 2 since 2026-11-22 evening; user 2026-11-22: nothing else is mentioned yet). Item names warn when longer than the ru / uk item menu allows (2 rows of 9 letters, else empty there). Right: language, filter (all / my changes /
 not translated / per block), search, table Id | Original (English) | Current text | New text. Codes are checked while typing
 (same rule as langbuild `mod_check`), the build's refused list is shown in red. Unsaved edits stay in the browser (localStorage).
 Save: Chrome / Edge write `lang/<code>.json` into the page's folder (File System Access API, the folder chosen once per visit; a warning when
@@ -46,8 +46,15 @@ Sharing back: the modder sends the file (GitHub issue), we merge it into `lang/<
 
 Friday hints: block `friday` {hint id: gentle text} (the level the game shows); fr / es / it / ru / uk / ko come from the language file anyway, de (compiled into the program) takes a file hint when the mod has one (patch_friday.py); English is not moddable (the original).
 
+## Layer 2: character names (2026-11-22, user: per language, Names = Localized only)
+- Block `charnames` {lang/names.json key: name} in the SAME mod file `mods/lang/<code>.json` (one file per language, so sync / `.modded` / the reverse path work unchanged; own navigation entry on the page, not an own folder).
+- `tools/langbuild.py` build_one: for the local variant the modded names replace `names.json[key][base]` before the `{=name}` placeholders are resolved (dialogue, ui_text, Friday hints incl. her name prefix); the `.jpn.bin` variant (Names = Japanese) is untouched.
+- Checks: `mod_check` (key known, no `{ } |`, no outer spaces, at most `NAME_MAX` = 12 letters; the page checks the same) + `names_trial`: builds the language without / with the names (stdout muted, ~1 s each) and refuses every name that adds dropped texts (letters the language's font lacks, e.g. 'ä' in Russian) -> the report shows 'has letters the game cannot show in this language'.
+- Longer names: the line breaks were made for ~6 letters (langwrap NAMEW); the runtime word wrap LK_LGWRAP v1 breaks a line that gets too long, so a long name may only add a line.
+- Tested headless 2026-11-22: de nigel = Siegfried -> de.bin +1056 bytes (4 letters x 2 bytes x 132 uses), de.jpn.bin identical; ru 'Fräulein' / '{x}' / unknown key refused; mod deleted -> `modlayer sync` rebuilt de byte-identical to the plain build; page (Chrome headless, lone copy) shows 23 names, refused ones red.
+
 ## Later layers (ideas)
-Character names (`lang/names.json`) next; later layers only after the user asks (not listed on the page) - each its own block of the navigation and its own folder.
+Only after the user asks (not listed on the page).
 
 ## Test without a folder permission (lesson 2026-11-22 night)
 v1 was tested with `flatpak run --filesystem=DIR com.google.Chrome ...` on the mods folder itself: that permission hid the missing sibling file.
