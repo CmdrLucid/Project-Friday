@@ -16,7 +16,7 @@ def rep(s, old, new, what):
     assert s.count(old) == 1, what + " layout changed: " + old[:90]
     return s.replace(old, new, 1)
 
-codes = ("de", "fr", "ko", "ja")
+codes = ("de", "fr", "es", "it", "ko", "ja")   # es / it: LK_LGES v1
 lay = {c: tf.layout(c) for c in codes}   # rows, left x, first line, brightness of '#' / '+' / '-'
 cmap = {".": "0", "#": "1", "+": "2", "-": "3"}
 arrays = "".join("static const char lk_ts_%s[%d][%d] = { %s };\n" % (c, len(L[0]), len(L[0][0]) + 1, ", ".join('"%s"' % "".join(cmap[ch] for ch in row) for row in L[0])) for c, L in lay.items())

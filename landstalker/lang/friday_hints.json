@@ -26,6 +26,10 @@
    "ja": [
     "ライル! おきなさいよっ! たからは ねてても みつからないわよ! まず まわりの人に きいてみましょ!",
     "マサンの 人たちに みんな はなしかけてね だれかが 橋の ことを いってるわよ"
+   ],
+   "es": [
+    "¡Nigel! ¡DESPIERTA! ¡El tesoro|no se encuentra solo! Pregunta|por ahí.",
+    "Habla con todos en Massan.|Alguien habla de un puente."
    ]
   },
   {
@@ -53,6 +57,10 @@
    "ja": [
     "ぼうけんの じかんよ ライル! この どうくつ どこへ つづくのかな!",
     "てきを たおしながら どうくつを すすんで さきへの みちを さがしましょ!"
+   ],
+   "es": [
+    "¡Hora de aventuras, Nigel! ¡A|ver adónde lleva esta cueva!",
+    "Abre camino por la cueva|y busca por dónde seguir."
    ]
   },
   {
@@ -79,6 +87,10 @@
    "ja": [
     "グミ族が 橋を こわしたですって!? ひどいわねっ! ライル まわりの人に きいてみましょ!",
     "マサンの 家を ぜんぶ まわってみてね だれかが もっと しってるかも"
+   ],
+   "es": [
+    "¿Los de Gumi rompieron el|puente? ¡Qué groseros!|¡Preguntemos, Nigel!",
+    "Mira en cada casa de Massan.|Quizá alguien sepa más."
    ]
   },
   {
@@ -106,6 +118,10 @@
    "ja": [
     "滝つぼ老人なら もっと しってるかもっ!",
     "滝のほこらにいる 滝つぼ老人に あって はなしを きいてみてね"
+   ],
+   "es": [
+    "¡El Santuario de la Cascada!|Su viejo sabio sabrá algo.",
+    "Visita al viejo sabio del|Santuario de la Cascada."
    ]
   },
   {
@@ -132,6 +148,10 @@
    "ja": [
     "グミ族って ほんとに こまったやつらね! ライル グミの村へ いってみましょ!",
     "南の グミの村へ いって 村の ようすを みてきてね"
+   ],
+   "es": [
+    "¡Esos de Gumi son un problema!|¡Vamos a Gumi, Nigel!",
+    "Ve al sur, a Gumi, y|mira por el pueblo."
    ]
   },
   {
@@ -159,6 +179,10 @@
    "ja": [
     "グミ族が ファラを さらったわ! ライル グミの村へ おいかけるのよっ!",
     "グミ族が ファラを さらったの! 橋を わたって グミの村へ いきましょ!"
+   ],
+   "es": [
+    "¡Los matones de Gumi se|llevaron a Fara! ¡Tras ellos,|Nigel, a Gumi!",
+    "Unos matones secuestraron a|Fara. ¡Cruza el puente hacia|Gumi!"
    ]
   },
   {
@@ -186,6 +210,10 @@
    "ja": [
     "グミ族は オークに だまされてるのね! ファラが あぶないわっ!",
     "オークが グミ族を だましてて ファラが あぶないの! グミの村へ いそぎましょ!"
+   ],
+   "es": [
+    "¿Los orcos engañan a Gumi?!|¡Pobre Fara, está en peligro!",
+    "Los orcos engañan a Gumi y|Fara corre peligro. ¡Rumbo a|Gumi!"
    ]
   },
   {
@@ -213,6 +241,10 @@
    "ja": [
     "ぶるる・・・ ぶきみな村ね まわりを みてみましょ でも こっそりとね!",
     "村のまわりの みちを たんけんしてみてね ここ なにか あやしいわよ"
+   ],
+   "es": [
+    "Brrr... este sitio da miedo.|¡Mira todo, pero en silencio!",
+    "Explora los caminos del|pueblo. Aquí pasa algo raro."
    ]
   },
   {
@@ -240,6 +272,10 @@
    "ja": [
     "かわいそうな ファラ! グミ族は ファラを どこへ つれていったのかしら? さがしましょ!",
     "グミ族が ファラを つれていったの 沼地の神殿を さがしてみてね"
+   ],
+   "es": [
+    "¡Pobre Fara! ¿Adónde se la|llevaron? ¡Averigüémoslo!",
+    "Los de Gumi se llevaron a|Fara. Búscala en el Santuario|del Pantano."
    ]
   },
   {
@@ -268,6 +304,10 @@
    "ja": [
     "かわいそうな ファラ! グミの村の どこかに ほこらの トビラを あけるものが あるかも! さがしてみましょ!",
     "グミの村で ほこらの トビラを あけるものを さがしてね"
+   ],
+   "es": [
+    "¡Pobre Fara! Quizá en Gumi hay|algo que abre la puerta del|santuario. ¡Busquemos!",
+    "Registra el pueblo de Gumi:|algo abre la puerta del|santuario."
    ]
   },
   {
@@ -296,6 +336,10 @@
    "ja": [
     "ヘンなものを つかって トビラを あけたのね! それを さがしましょ ライル!",
     "グミ族は なにか ヘンなものを つかって トビラを あけたのよ それを さがして!"
+   ],
+   "es": [
+    "¡Algo raro abre esa puerta!|¡Encontrémoslo!",
+    "Los de Gumi abrieron esa|puerta con algo raro.|¡Encuéntralo!"
    ]
   },
   {
@@ -324,6 +368,10 @@
    "ja": [
     "うーん ファラは ここには いないわ 沼のほうへ つれていかれたんじゃない?",
     "ファラは ここには いないわ 沼地の神殿を さがしてみてね"
+   ],
+   "es": [
+    "Mmm, aquí no hay Fara. ¿No se|la llevaron al pantano?",
+    "Fara no está aquí. Búscala en|el Santuario del Pantano."
    ]
   },
   {
@@ -353,6 +401,10 @@
    "ja": [
     "うーん ここには ファラを たすける ものは なさそうね グミの村を さがすんじゃ なかった?",
     "ほこらの トビラを あけるものは ここには ないわ グミの村を さがしてね"
+   ],
+   "es": [
+    "Mmm, aquí no hay nada para|Fara. ¿No íbamos a buscar en|Gumi?",
+    "Lo que abre la puerta del|santuario no está aquí. Busca|en Gumi."
    ]
   },
   {
@@ -381,6 +433,10 @@
    "ja": [
     "わあ きれいな いし! あの ほこらの トビラも きっと このいしが すきよ!",
     "沼地の神殿の いりぐちにある ぞうに じゃしんのいしを つかってみてね"
+   ],
+   "es": [
+    "¡Ooh, qué piedra tan bonita!|Seguro que a la puerta del|santuario le encanta.",
+    "Usa el Ídolo Pétreo en la|estatua de la entrada del|Santuario del Pantano."
    ]
   },
   {
@@ -408,6 +464,10 @@
    "ja": [
     "トビラが あいたわ! ファラは きっと なかよ いそいで ライル!",
     "中に はいって いちばん おくまで たたかいながら すすんでね"
+   ],
+   "es": [
+    "¡La puerta está abierta! Fara|debe estar dentro. ¡Rápido,|Nigel!",
+    "Entra y abre camino a golpes|hasta el mismísimo final."
    ]
   },
   {
@@ -435,6 +495,10 @@
    "ja": [
     "ファラは きっと おくよ! いそいで ライル あの子が あたしたちを まってるわっ!",
     "いちばん おくまで たたかって すすんでね たいりょくに きをつけて!"
+   ],
+   "es": [
+    "¡Fara debe estar al fondo!|¡Rápido, Nigel, nos necesita!",
+    "Abre camino hasta el fondo.|¡Cuida tu salud!"
    ]
   },
   {
@@ -461,6 +525,10 @@
    "ja": [
     "ファラを たすけたわ! おれいが もらえるはずよ・・・じゃなくて ありがとうって いわれるのよね!",
     "マサンの 村長の 家へ いって ほうしゅうを もらいましょ"
+   ],
+   "es": [
+    "¡Salvamos a Fara! Su familia|nos debe una recompensa...|¡digo, las gracias!",
+    "Ve a casa del alcalde en|Massan y recoge tu recompensa."
    ]
   },
   {
@@ -487,6 +555,10 @@
    "ja": [
     "マサンは おわりね! 西へ ライル たからは まってくれないわよっ!",
     "グミの村を とおって 西へ のびる みちを すすんでね"
+   ],
+   "es": [
+    "¡Massan ya está! ¡Al oeste,|Nigel, el tesoro no espera!",
+    "Pasa por Gumi y sigue el|camino hacia el oeste."
    ]
   },
   {
@@ -514,6 +586,10 @@
    "ja": [
     "リュマへ ライル! グミの村を すぎて 海のところで ひだりよ!",
     "グミの むこうで みちが 海のところで わかれてるわ ひだりへ いくと リュマよ"
+   ],
+   "es": [
+    "¡A Ryuma, Nigel! Pasado|Gumi, a la izquierda, al mar.",
+    "Pasado Gumi el camino se|divide en el mar. A la|izquierda, Ryuma."
    ]
   },
   {
@@ -541,6 +617,10 @@
    "ja": [
     "みんな とっても おびえてるわね! まずは 町を みてまわりましょ!",
     "町の すみずみまで みて みんなに はなしかけてみてね"
+   ],
+   "es": [
+    "¡Todos parecen muy asustados!|Demos una vuelta por el|pueblo.",
+    "Mira cada rincón del pueblo|y habla con todos."
    ]
   },
   {
@@ -567,6 +647,10 @@
    "ja": [
     "町長が とうぞくに!? この町は たすけが ひつようね! 人に きいてみましょ!",
     "たすけを たのまれるまで リュマの人たちに はなしかけてね"
+   ],
+   "es": [
+    "¿Los ladrones tienen al|alcalde? ¡Este pueblo necesita|ayuda! ¡Pregunta!",
+    "Habla con la gente de Ryuma|hasta que alguien te pida|ayuda."
    ]
   },
   {
@@ -594,6 +678,10 @@
    "ja": [
     "かいぎしてる あの家! もういちど いってみましょ!",
     "リュマで かいぎを している人たちに もういちど はなしかけてみてね"
+   ],
+   "es": [
+    "¡La casa de la reunión!|¡Volvamos allí!",
+    "Habla otra vez con la gente|que se reúne en Ryuma."
    ]
   },
   {
@@ -620,6 +708,10 @@
    "ja": [
     "岬に どうくつが! ライル いかだで わたりましょ!",
     "とうぞくは 岬の どうくつに かくれてるわ いかだで わたってね"
+   ],
+   "es": [
+    "¡Una cueva en el cabo!|¡En balsa hasta allí, Nigel!",
+    "Los ladrones se esconden en la|cueva del cabo. Cruza en|balsa."
    ]
   },
   {
@@ -647,6 +739,10 @@
    "ja": [
     "とうぞくの アジトよ! ライル きをつけて あちこちに いるわよっ!",
     "どうくつの おくへ たたかいながら すすんで とうぞくを やっつけてね"
+   ],
+   "es": [
+    "¡Una guarida de ladrones!|¡Cuidado, Nigel, están por|todas partes!",
+    "Avanza por la cueva y|ocúpate de los ladrones."
    ]
   },
   {
@@ -673,6 +769,10 @@
    "ja": [
     "ここは もう おわりね ライル リュマへ もどりましょ!",
     "リュマへ もどって 町の人に はなしかけてね きっと しらせが あるわ"
+   ],
+   "es": [
+    "Aquí ya acabamos, Nigel.|¡Volvamos a Ryuma!",
+    "Vuelve a Ryuma. Habla con la|gente, alguien tiene noticias."
    ]
   },
   {
@@ -699,6 +799,10 @@
    "ja": [
     "つうこうしょうよ! あの 大きな おかねもちの町に はいれるわ! おかいものよ ライル!",
     "メルカトルへ いくの グミの 西の わかれみちで ほかの みちへ すすんでね"
+   ],
+   "es": [
+    "¡Un pase! Ahora la ciudad|grande y rica nos deja entrar.|¡De compras, Nigel!",
+    "Ve a Mercator: vuelve a la|bifurcación al oeste de Gumi,|toma el otro camino."
    ]
   },
   {
@@ -726,6 +830,10 @@
    "ja": [
     "わあ すごい町! まわりの人に きいてみましょ きっと だれかが しってるわ!",
     "町の人に はなしかけてね だれかが いくさきを おしえてくれるわよ"
+   ],
+   "es": [
+    "¡Guau, qué ciudad!|Preguntemos, alguien sabrá|cosas.",
+    "Habla con la gente.|Alguien te dará una pista."
    ]
   },
   {
@@ -752,6 +860,10 @@
    "ja": [
     "この町 なにか かくしてるわね! ライル ちょっと さがしてみましょ!",
     "町の すみずみまで しらべてね おもても うらもよ"
+   ],
+   "es": [
+    "Esta ciudad esconde algo. ¡A|fisgonear, Nigel!",
+    "Mira cada rincón de la ciudad,|por delante y por detrás."
    ]
   },
   {
@@ -778,6 +890,10 @@
    "ja": [
     "ドンメルが ピンクパレスへ こっそり!? ちょっと のぞいてみましょ!",
     "ピンクパレスで 人に きいてみてね だれかが しってるわ"
+   ],
+   "es": [
+    "¿Arthur se coló en casa de|Madame Yard? ¡Vamos a ver!",
+    "Pregunta en casa de Madame|Yard. Allí alguien sabe más."
    ]
   },
   {
@@ -804,6 +920,10 @@
    "ja": [
     "うらないしが たすけてくれるの? わあ あいにいきましょ!",
     "うらないしの 家を さがして 魔法を かけてもらってね それから ピンクパレスへ いってみましょ"
+   ],
+   "es": [
+    "¿Una adivina podría ayudarnos?|¡Ooh, vamos a verla!",
+    "Encuentra su casa y que te lo|eche a las cartas. Luego, a|Madame Yard."
    ]
   },
   {
@@ -830,6 +950,10 @@
    "ja": [
     "ピンクパレスに はいれるのね! いきましょ ライル!",
     "ピンクパレスの トビラから 中に はいって だれが いるか みてみましょ"
+   ],
+   "es": [
+    "¡Ahora Madame Yard nos|deja entrar! ¡Vamos, Nigel!",
+    "Cruza la puerta de Madame Yard|y mira quién está dentro."
    ]
   },
   {
@@ -856,6 +980,10 @@
    "ja": [
     "お城に はいれるように なったわ! ライル いきましょ!",
     "メルカトル城まで あるいていって 中で 公爵に あいましょ"
+   ],
+   "es": [
+    "¡Ahora el castillo nos deja|entrar! ¡Vamos, Nigel!",
+    "Ve al Castillo de Mercator y|entra para conocer al Duque."
    ]
   },
   {
@@ -883,6 +1011,10 @@
    "ja": [
     "どこかに 公爵が いるはずよ! おおきな へやに おおきな いす おおきな いばりんぼ!",
     "公爵は おうざの へやに いるわ ちかづいて はなしかけてね"
+   ],
+   "es": [
+    "Por aquí anda el Duque. ¡Sala|grande, silla grande, ego|grande!",
+    "El Duque está en la sala del|trono. Acércate y habla con|él."
    ]
   },
   {
@@ -909,6 +1041,10 @@
    "ja": [
     "もうっ いっちゃった! めしつかいが たすけてくれるかも きいてみましょ!",
     "へやへ あんないすると いってくれる めしつかいに ついていってね"
+   ],
+   "es": [
+    "¡Hmpf, se fue sin más! A ver|si los criados nos ayudan.",
+    "Sigue al criado que se ofrece|a enseñarte una habitación."
    ]
   },
   {
@@ -935,6 +1071,10 @@
    "ja": [
     "ほんものの お城よ ライル! まわりを みて みんなと おしゃべりしましょ!",
     "しつじや だいどころの人たちに はなしかけてね ばんさんかいの しらせが あるまでよ"
+   ],
+   "es": [
+    "¡Un castillo de verdad, Nigel!|Miremos todo y charlemos con|todos.",
+    "Habla con el mayordomo y la|cocina hasta que anuncien la|cena."
    ]
   },
   {
@@ -961,6 +1101,10 @@
    "ja": [
     "ばんさんかいの じゅんびが できたわ! いきましょ おなか ぺこぺこ!",
     "城の中の ばんさんかいの かいじょうへ いきましょ"
+   ],
+   "es": [
+    "¡El banquete está listo!|¡Vamos, me muero de hambre!",
+    "Ve a la sala del banquete|del castillo."
    ]
   },
   {
@@ -988,6 +1132,10 @@
    "ja": [
     "ばんさんかいは 上のかいよ! いきましょ おなか ぺこぺこ!",
     "ばんさんかいの かいじょうは 城の 上のかいに あるわ"
+   ],
+   "es": [
+    "¡El banquete es arriba!|¡Vamos, me muero de hambre!",
+    "La sala del banquete está|arriba, en el castillo."
    ]
   },
   {
@@ -1014,6 +1162,10 @@
    "ja": [
     "おなか いっぱい・・・ あしたの ために ねましょ ライル",
     "城の じぶんの へやへ いって ねましょ"
+   ],
+   "es": [
+    "Estoy llena... Durmamos un|poco antes de mañana, Nigel.",
+    "Ve a tu dormitorio del|castillo y a dormir."
    ]
   },
   {
@@ -1040,6 +1192,10 @@
    "ja": [
     "ミルの塔は 町の すぐそとね・・・ まずは きいてみましょ!",
     "ミルの塔は メルカトルの すぐそとよ 城の人に きいてみてね"
+   ],
+   "es": [
+    "La Torre de Mir está justo|fuera... ¡Preguntemos primero!",
+    "La Torre de Mir está fuera de|Mercator. Pregunta a la gente|del castillo."
    ]
   },
   {
@@ -1068,6 +1224,10 @@
    "ja": [
     "ミルの塔に けっかいが! どうやって こわすのかな?",
     "塔の トビラは けっかいで ふさがれてるわ とおりぬける ほうほうを さがしてね"
+   ],
+   "es": [
+    "¡Una barrera bloquea la Torre|de Mir! ¿Cómo la rompemos?",
+    "Una barrera bloquea la puerta|de la Torre de Mir. Busca cómo|pasar."
    ]
   },
   {
@@ -1096,6 +1256,10 @@
    "ja": [
     "ドンメルが けっかいの ことを しってるわ! きいてみましょ!",
     "ミルの塔は けっかいで とじてるわ ドンメルしょうぐんに きいてみてね"
+   ],
+   "es": [
+    "¡Arthur sabe de la barrera!|¡Preguntémosle!",
+    "Una barrera sella la Torre de|Mir. Pregunta al General|Arthur."
    ]
   },
   {
@@ -1124,6 +1288,10 @@
    "ja": [
     "ゼッドと バーボが 地下ぼちに いるって! おいかけましょ!",
     "ゼッドと バーボが 地下ぼちに はいっていったわ さがしてみてね"
+   ],
+   "es": [
+    "¡Zak y Dexter están en la|cripta! ¡Tras ellos!",
+    "Zak y Dexter bajaron a la|cripta. ¡Encuéntrala!"
    ]
   },
   {
@@ -1152,6 +1320,10 @@
    "ja": [
     "ゼッドと バーボに さきを こされたわ! いそいで ライル!",
     "ミルの塔は けっかいで まもられてるわ 地下ぼちに アミュレットが あるのよ"
+   ],
+   "es": [
+    "¡Dexter y Zak llegaron antes|a la cripta! ¡Rápido, Nigel!",
+    "Una barrera guarda la Torre de|Mir. Un brazalete espera en la|cripta."
    ]
   },
   {
@@ -1180,6 +1352,10 @@
    "ja": [
     "アミュレットで ミルの けっかいが こわせるわ! 地下ぼちに あるのよ!",
     "アミュレットは 教会の となりの 地下ぼちに あるわ わなに ちゅうい!"
+   ],
+   "es": [
+    "¡Un brazalete rompe la barrera|de Mir! Está en la cripta.",
+    "Coge el brazalete en la cripta|junto a la iglesia. ¡Hay|trampas!"
    ]
   },
   {
@@ -1208,6 +1384,10 @@
    "ja": [
     "きをつけて ライル! よく かんがえてから すすんでね なぞなぞは かみつくわよ!",
     "なぞときの へやを とおって おくに なにが あるか みてみましょ"
+   ],
+   "es": [
+    "¡Cuidado, Nigel! Piensa antes|de pisar. ¡Estos acertijos|muerden!",
+    "Resuelve las salas de|acertijos y mira qué hay más|adentro."
    ]
   },
   {
@@ -1237,6 +1417,10 @@
    "ja": [
     "ここの モンスターは かしこいわ! ちからだけじゃ だめよ あたまを つかって!",
     "けんだけでは アミュレットは てに はいらないわ よく かんがえてね"
+   ],
+   "es": [
+    "¡Monstruos listos aquí! ¡Usa|la cabeza, no solo el acero!",
+    "La espada sola no te dará el|brazalete. Piénsalo bien."
    ]
   },
   {
@@ -1264,6 +1448,10 @@
    "ja": [
     "いいわよ ライル その ちょうし! どんどん すすみましょ!",
     "そのまま 地下ぼちを すすんでね"
+   ],
+   "es": [
+    "¡Buen trabajo con los|acertijos! ¡Sigue, Nigel,|vamos bien!",
+    "Sigue por la cripta."
    ]
   },
   {
@@ -1291,6 +1479,10 @@
    "ja": [
     "わあ ぴかぴかの アミュレット! きっと なにかに やくに たつわよ!",
     "ミルの塔は メルカトルの すぐそとよ そこで アミュレットを つかってみてね"
+   ],
+   "es": [
+    "¡Ooh, un brazalete brillante!|Seguro que sirve para algo...",
+    "La Torre de Mir está fuera de|Mercator. Prueba allí el|brazalete."
    ]
   },
   {
@@ -1319,6 +1511,10 @@
    "ja": [
     "アミュレットが てに はいったわ! ミルの けっかいを こわしましょ!",
     "アミュレットで ミルの塔の いりぐちの けっかいが こわせるわ"
+   ],
+   "es": [
+    "¡Tenemos el brazalete! ¡Ahora|a romper la barrera de Mir!",
+    "El brazalete rompe la barrera|de la entrada de la Torre de|Mir."
    ]
   },
   {
@@ -1345,6 +1541,10 @@
    "ja": [
     "ミルの塔を みにいきましょ ライル! アミュレットが きくかも!",
     "ミルの塔は メルカトルの すぐそとよ トビラの まえまで いってね"
+   ],
+   "es": [
+    "¡Vamos a ver la Torre de Mir,|Nigel! ¿Y si el brazalete|ayuda?",
+    "La Torre de Mir está fuera de|Mercator. Camina hasta la|puerta."
    ]
   },
   {
@@ -1372,6 +1572,10 @@
    "ja": [
     "ドンメルが いってたわ アミュレットで けっかいが こわれるって! いきましょ!",
     "ミルの塔の トビラまで いって アミュレットで けっかいを こわしてね"
+   ],
+   "es": [
+    "Arthur dijo que el brazalete|rompe la barrera. ¡Ve!",
+    "Ve a la puerta de la Torre de|Mir. El brazalete rompe la|barrera."
    ]
   },
   {
@@ -1399,6 +1603,10 @@
    "ja": [
     "わなだらけよ! あしもとに ちゅうい あたしは はこばないわよっ!",
     "塔の いちばん 上まで のぼって ミルに あいましょ"
+   ],
+   "es": [
+    "¡Trampas por todas partes!|¡Mira dónde pisas, no pienso|cargarte!",
+    "Sube hasta lo alto de la torre|y enfréntate a Mir."
    ]
   },
   {
@@ -1426,6 +1634,10 @@
    "ja": [
     "むらさきジュエルを てにいれたわ! この ぶきみな塔から でましょ!",
     "メルカトルへ もどって 城の 公爵に しらせましょ"
+   ],
+   "es": [
+    "¡Tenemos la Joya Púrpura!|¡Salgamos de esta torre|espeluznante!",
+    "Vuelve a Mercator e informa al|Duque en el castillo."
    ]
   },
   {
@@ -1452,6 +1664,10 @@
    "ja": [
     "ミルって ぜんぜん わるものじゃ なかったのね! とにかく 公爵に はなしましょ・・・",
     "公爵は 城の 上のかいで まってるわ ジュエルも もっていってね"
+   ],
+   "es": [
+    "¡Mir no era el malo para nada!|Se lo diremos al Duque,|supongo...",
+    "El Duque espera arriba en el|castillo. Lleva las joyas|contigo."
    ]
   },
   {
@@ -1479,6 +1695,10 @@
    "ja": [
     "とじこめられた!? あの 公爵め! でる ほうほうを さがしてよ ライル!",
     "ろうや つうろを しらべて ここに いる人に きいてみてね"
+   ],
+   "es": [
+    "¿Encerrados? ¡Ese Duque|podrido! ¡Encuentra una|salida, Nigel, ya!",
+    "Busca por celdas y pasillos|una salida. Pregunta a quien|esté aquí."
    ]
   },
   {
@@ -1507,6 +1727,10 @@
    "ja": [
     "ロリアひめが ここに とじこめられてるわ! さがしにいきましょ ライル!",
     "公爵は ロリアひめを ここに とじこめてるわ さがしだしましょ!"
+   ],
+   "es": [
+    "¡Lara está encerrada aquí!|¡Encontrémosla, Nigel!",
+    "El Duque tiene aquí abajo a la|Princesa Lara. ¡Ve a buscarla!"
    ]
   },
   {
@@ -1534,6 +1758,10 @@
    "ja": [
     "ひめも ここに いたのね! 上へ でる みちを さがしましょ!",
     "ろうの つうろを たどって 上へ でましょ"
+   ],
+   "es": [
+    "¡La princesa también está|aquí! ¡Ahora busquemos la|salida hacia arriba!",
+    "Sigue los pasillos del|calabozo hacia arriba y hacia|fuera."
    ]
   },
   {
@@ -1560,6 +1788,10 @@
    "ja": [
     "ゼッドが ひめを つれて にげたわ! ここから でましょ!",
     "ろうから でて 城の中を みてまわってね だれかが しってるはずよ"
+   ],
+   "es": [
+    "¡Zak se escapó con la|princesa! ¡Salgamos de aquí!",
+    "Sal del calabozo y mira por el|castillo. Alguien debe saber|más."
    ]
   },
   {
@@ -1587,6 +1819,10 @@
    "ja": [
     "公爵が あたしたちの たからを もって にげたわ! よるは 船が でないのよ・・・",
     "ドンメルが いってたわ 城の 東がわの かべに かくしスイッチが あるって それから たいようせきを さがしてね"
+   ],
+   "es": [
+    "¡El Duque huyó con NUESTRO|botín! Ningún barco zarpa de|noche...",
+    "Arthur dijo: muro este del|castillo, interruptor oculto y|la Piedra Solar."
    ]
   },
   {
@@ -1615,6 +1851,10 @@
    "ja": [
     "ふえね! きっと あの 森で やくに たつわ!",
     "まよいの森を たんけんして こまったら ふえを ふいてみてね"
+   ],
+   "es": [
+    "¡Un silbato! Seguro que sirve|en ese bosque.",
+    "Explora el Laberinto Verde. Si|te atascas, prueba el silbato."
    ]
   },
   {
@@ -1644,6 +1884,10 @@
    "ja": [
     "たいようせき? バランスと ジャンプが だいじよ ライル!",
     "たいようせきの ところへは バランスかんかくと ジャンプが ひつようよ"
+   ],
+   "es": [
+    "¿Piedra Solar? ¡Equilibrio y|buenos saltos, Nigel!",
+    "Llegar a la Piedra Solar exige|equilibrio y buenos saltos."
    ]
   },
   {
@@ -1673,6 +1917,10 @@
    "ja": [
     "灯台が くらいのは どろぼうの せいよ ライル!",
     "たいようせきは 城の 北の まよいの森に あるわ"
+   ],
+   "es": [
+    "¿Faro apagado? ¡Culpa del|ladrón, Nigel!",
+    "La Piedra Solar está en el|Laberinto Verde, al norte del|castillo."
    ]
   },
   {
@@ -1702,6 +1950,10 @@
    "ja": [
     "ゴルじいが 北東だって! ノームが みちを かえちゃったのね・・・",
     "たいようせきは まよいの森の 北東に あるわ"
+   ],
+   "es": [
+    "¡Gol dijo: al noreste! Los|gnomos movieron los caminos...",
+    "La Piedra Solar está en la|parte noreste del Laberinto|Verde."
    ]
   },
   {
@@ -1729,6 +1981,10 @@
    "ja": [
     "たいようせき! わあ あったかーい! 灯台に ひつようよ ライル!",
     "リュマの 灯台の ばんにんに もっていってね"
+   ],
+   "es": [
+    "¡La Piedra Solar! ¡Ooh, qué|calentita! ¡El faro la|necesita, Nigel!",
+    "Llévasela al farero de Ryuma."
    ]
   },
   {
@@ -1755,6 +2011,10 @@
    "ja": [
     "灯台が また ひかったわ! これで 船が さきへ つれてってくれるわ!",
     "メルカトルの 港へ いきましょ 船が また でるかも ふなのりに きいてみてね"
+   ],
+   "es": [
+    "¡El faro brilla otra vez!|¡Ahora el barco nos lleva más|lejos!",
+    "Ve al puerto de Mercator.|Quizá un barco zarpe de nuevo.|Pregunta a los marineros."
    ]
   },
   {
@@ -1782,6 +2042,10 @@
    "ja": [
     "みんな どこ? 町が からっぽよ!",
     "人に きいてみてね みんなが どこへ いったか しってる人が いるはずよ"
+   ],
+   "es": [
+    "¿Dónde está todo el mundo? ¡El|pueblo entero está vacío!",
+    "Pregunta por ahí. Alguien|sabrá adónde se fue todo el|mundo."
    ]
   },
   {
@@ -1809,6 +2073,10 @@
    "ja": [
     "兵士が みんなを やまへ つれてったの!?",
     "兵士が 町の人たちを むりやり やまのほうへ つれていったのよ"
+   ],
+   "es": [
+    "¿Unos soldados se llevaron a|todos a las montañas?!",
+    "Unos soldados arrastraron a la|gente del pueblo a las|montañas."
    ]
   },
   {
@@ -1836,6 +2104,10 @@
    "ja": [
     "この こうざん 兵士だらけね! しっかりして ライル!",
     "あなを たたかいながら すすんで いなくなった 人たちを さがしてね"
+   ],
+   "es": [
+    "¡Guardias por todas partes en|esta mina! ¡Atento, Nigel!",
+    "Abre camino por los túneles y|busca a los desaparecidos."
    ]
   },
   {
@@ -1864,6 +2136,10 @@
    "ja": [
     "あなが 3つ! ほかの 2つにも とらわれた人が いるのね!",
     "こうざんは 3つの あなに わかれてるわ ほかの 2つも さがしてね"
+   ],
+   "es": [
+    "¡Tres túneles! Hay más|cautivos en los otros dos.",
+    "La mina se divide en tres|túneles. Busca en los otros|dos."
    ]
   },
   {
@@ -1892,6 +2168,10 @@
    "ja": [
     "やっつけたわ! でも この こうざん まだ ひみつが ありそうよ",
     "そのまま あなを たんけんして みつけた人を たすけてね"
+   ],
+   "es": [
+    "¡Dex cayó! Pero esta mina|tiene más secretos.",
+    "Sigue explorando los túneles.|Libera a quien encuentres."
    ]
   },
   {
@@ -1918,6 +2198,10 @@
    "ja": [
     "ボスは たおしたわ! この こうざんが どこへ つづくか みましょ!",
     "こうざんの いちばん おくで さきへの みちを さがしてね"
+   ],
+   "es": [
+    "¡Marley es historia! A ver|adónde lleva la mina.",
+    "Busca la salida al fondo|de la mina."
    ]
   },
   {
@@ -1945,6 +2229,10 @@
    "ja": [
     "こうざんの 西に 村が あるのね! 公爵も そこへ いったのよ!",
     "公爵は 兵士を つれて こうざんの 西の 村へ いったのよ"
+   ],
+   "es": [
+    "¡Un pueblo al oeste de la|mina! El Duque fue allí.",
+    "El Duque llevó a sus soldados|a un pueblo al oeste de la|mina."
    ]
   },
   {
@@ -1972,6 +2260,10 @@
    "ja": [
     "デステルへは こうざんの あなからだけよ!",
     "デステルへ いく みちは こうざんの トンネルだけ なのよ"
+   ],
+   "es": [
+    "¿Destel? ¡Solo por el túnel|de la mina!",
+    "El único camino a Destel es el|túnel de la mina."
    ]
   },
   {
@@ -1999,6 +2291,10 @@
    "ja": [
     "デステルへ! 公爵と 兵士が いったのよ!",
     "公爵と 兵士は デステルへ いったわ おいかけましょ!"
+   ],
+   "es": [
+    "¡A Destel! El Duque y sus|soldados fueron allí.",
+    "El Duque y sus soldados fueron|a Destel. ¡Síguelos!"
    ]
   },
   {
@@ -2026,6 +2322,10 @@
    "ja": [
     "ふきげんな ドワーフたちね! 公爵が きたか きいてみましょ!",
     "デステルの みんなに はなしかけてね だれかが 公爵の いくさきを みてるわ"
+   ],
+   "es": [
+    "¡Enanos gruñones! Preguntemos|si el Duque pasó por aquí.",
+    "Habla con todos en Destel.|Alguien vio adónde fue el|Duque."
    ]
   },
   {
@@ -2053,6 +2353,10 @@
    "ja": [
     "いかだで にげるつもりね! ほかの みちを さがしましょ ライル!",
     "デステルへ もどって 湖へ おりる べつの みちを しってる人を さがしてね"
+   ],
+   "es": [
+    "¡Se escapa en balsa!|Encontraremos otro camino,|Nigel.",
+    "De vuelta en Destel, alguien|sabrá otro camino hasta el|lago."
    ]
   },
   {
@@ -2081,6 +2385,10 @@
    "ja": [
     "あの いどは ふるい どうくつに つづいてるのね! モンスターよ きゃー!",
     "デステルの いどは むかしの モンスターの どうくつに つづいてるわ"
+   ],
+   "es": [
+    "¡Ese pozo lleva a una cueva|vieja! ¡Monstruos, iuuu!",
+    "El pozo de Destel lleva a una|antigua cueva de monstruos."
    ]
   },
   {
@@ -2108,6 +2416,10 @@
    "ja": [
     "うえー じめじめして くらい! すすんでね きっと でぐちが あるわ!",
     "たたかって すすんで むこうがわの 湖へ でましょ"
+   ],
+   "es": [
+    "¡Puaj, qué húmedo y oscuro!|Sigue, tiene que haber salida.",
+    "Abre camino a golpes hasta el|lago del otro lado."
    ]
   },
   {
@@ -2134,6 +2446,10 @@
    "ja": [
     "公爵が あの 神殿に はいったわ! にがしちゃ だめよ!",
     "神殿に はいって おいかけてね あわてずに ゆっくりね"
+   ],
+   "es": [
+    "¡El Duque entró en ese|santuario! ¡Que no escape!",
+    "Entra en el santuario tras él.|Con calma."
    ]
   },
   {
@@ -2161,6 +2477,10 @@
    "ja": [
     "かいだんと かぎが いっぱい! ライル がまんがまん セーブも こまめにねっ!",
     "スイッチや かぎを さがして 上への みちを あけてね ゆっくりとね"
+   ],
+   "es": [
+    "¡Cuántos pisos y llaves!|Paciencia, Nigel. ¡Y guarda a|menudo!",
+    "Busca interruptores y llaves|para abrir el camino hacia|arriba. Paciencia."
    ]
   },
   {
@@ -2187,6 +2507,10 @@
    "ja": [
     "ありがとう ミル! つぎは 城の 北もんを とおるのよ!",
     "ミルが いってたわ 城の 北もん それから 北西の やま"
+   ],
+   "es": [
+    "¡Gracias, Mir! ¡Ahora por la|puerta norte del castillo!",
+    "Mir dijo: puerta norte del|castillo, luego las montañas|al noroeste."
    ]
   },
   {
@@ -2213,6 +2537,10 @@
    "ja": [
     "ゴラのめが なにか したわ! 公爵を つかまえにいくわよ!",
     "ゴラのめを つかった ばしょの まわりを みてね 公爵は ちかくよ"
+   ],
+   "es": [
+    "¡El Ojo hizo algo! ¡Ahora a|atrapar a ese Duque!",
+    "Mira alrededor de donde usaste|el Ojo. El Duque no anda|lejos."
    ]
   },
   {
@@ -2239,6 +2567,10 @@
    "ja": [
     "なにかが ひらいたわ! どこへ つづくか みにいきましょ!",
     "ゴラのめで ひらいた ものを さがしてね"
+   ],
+   "es": [
+    "¡Algo se abrió! ¡A ver adónde|lleva!",
+    "Busca lo que abrió el Ojo."
    ]
   },
   {
@@ -2266,6 +2598,10 @@
    "ja": [
     "ぶきみな どうくつ! ライル あしもとに ちゅうい わなの においがするわ!",
     "どうくつを すすんで さきへの みちを さがしてね"
+   ],
+   "es": [
+    "¡Cueva espeluznante! ¡Cuidado,|Nigel, huelo trampas!",
+    "Avanza por la cueva.|Busca por dónde seguir."
    ]
   },
   {
@@ -2293,6 +2629,10 @@
    "ja": [
     "こんな ところに 町が! やすんで じゅんびしましょ もうすぐ おわりよ!",
     "それから みちが どこへ つづくか みてみましょ 公爵は ちかくよ"
+   ],
+   "es": [
+    "¿Un pueblo aquí, en el fin del|mundo? ¡Descansemos y hagamos|provisiones, el final se|acerca!",
+    "Luego mira adónde lleva el|camino. El Duque no puede|estar lejos."
    ]
   },
   {
@@ -2321,6 +2661,10 @@
    "ja": [
     "めいろの 3びきの モンスターを たおせば きゅうでんよ!",
     "めいろの 3びきの モンスターを たおして きゅうでんへ いきましょ"
+   ],
+   "es": [
+    "¡Vence a tres monstruos del|laberinto y llegarás al|palacio!",
+    "Vence a los tres monstruos del|laberinto y llegarás al|palacio."
    ]
   },
   {
@@ -2348,6 +2692,10 @@
    "ja": [
     "なんて めいろ! ミルの 魔法は せいなる きを きれるわ・・・",
     "みずを わたれる ものを さがしてね ちずを ちゃんと みてね"
+   ],
+   "es": [
+    "¡Qué laberinto tan loco! El|hechizo de Mir corta árboles|sagrados...",
+    "Busca algo que te ayude a|cruzar el agua. Vigila el|mapa."
    ]
   },
   {
@@ -2376,6 +2724,10 @@
    "ja": [
     "この めいろに モンスターが! 3びき ぜんぶ たおしてね ライル!",
     "3びきの モンスターを ぜんぶ たおせば きゅうでんへ いけるわ"
+   ],
+   "es": [
+    "¡Monstruos en este laberinto!|¡Véncelos a los tres, Nigel!",
+    "Vence aquí a los tres|monstruos y llegarás al|palacio."
    ]
   },
   {
@@ -2405,6 +2757,10 @@
    "ja": [
     "かわに いかだね! まず ドワーフの むすこを さがしましょ!",
     "ドワーフの おじいさんの むすこを さがして まるたを もらって いかだを つくってね"
+   ],
+   "es": [
+    "¡Una balsa para el río!|Primero busca al hijo del|enano.",
+    "Busca al hijo del viejo enano|y trae troncos para hacer una|balsa."
    ]
   },
   {
@@ -2434,6 +2790,10 @@
    "ja": [
     "上へ いくわよ! あの きで いかだが つくれるわ!",
     "上へ のぼって きを きって いかだを つくってね"
+   ],
+   "es": [
+    "¡Arriba! ¡Ese árbol hará|una balsa estupenda!",
+    "Sube y corta el árbol|para hacer una balsa."
    ]
   },
   {
@@ -2462,6 +2822,10 @@
    "ja": [
     "2つめの いかだが できたわ! なんだか あったかく なってきた!",
     "めいろを すすんで ちずで まだの へやを たしかめてね"
+   ],
+   "es": [
+    "¡La segunda balsa está lista!|¡Vamos, parece que ya queda|poco!",
+    "Sigue por el laberinto. Mira|el mapa por salas que no hayas|probado."
    ]
   },
   {
@@ -2490,6 +2854,10 @@
    "ja": [
     "いばりんぼね! 公爵は この さきに いるわ つかまえて!",
     "すすみながら たいりょくに ちゅうい してね"
+   ],
+   "es": [
+    "¡Qué presumido! El Duque está|por delante. ¡Atrápalo!",
+    "Sigue adelante y cuida tu|salud."
    ]
   },
   {
@@ -2517,6 +2885,10 @@
    "ja": [
     "すごいところ! たからは きっと ここの どこかよ!",
     "まわりを しらべてね とびらや スイッチが おくへの みちを かくしてるかも"
+   ],
+   "es": [
+    "¡Qué lugar! ¡El tesoro debe|estar por aquí!",
+    "Mira alrededor. Puertas e|interruptores quizá escondan|el camino."
    ]
   },
   {
@@ -2544,6 +2916,10 @@
    "ja": [
     "ここよ ライル! かいふくして たからを とりにいきましょ!",
     "アリーナの ばんにんを たおしてね ライルなら できるわ!"
+   ],
+   "es": [
+    "¡Aquí es, Nigel! ¡Cúrate y|vamos a por ese tesoro!",
+    "Vence al guardián en la arena.|¡Puedes hacerlo, Nigel!"
    ]
   }
  ]
