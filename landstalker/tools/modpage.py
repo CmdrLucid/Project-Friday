@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""modpage.py ROM LANG_SRC [MODS_DIR]: writes the MOD WORKSHOP page into the user's mods folder (MOD LAYER v1, 2026-11-22; user: 'die HTML-Seite im
+"""modpage.py ROM LANG_SRC [MODS_DIR]: writes the MOD WORKSHOP page into the user's mods folder (MOD LAYER, 2026-11-22; user: 'die HTML-Seite im
 Mod-Folder zum Aufrufen', and NO local server on the player's computer).
 
-    <mods>/Mod Workshop.html      the editor (tools/modpage.html, opened with a double click, works from the disk)
-    <mods>/workshop/data.js       the texts for it: per language id, current translation, the user's mod texts and the last build's refused list,
-                                  plus the original English decoded from the user's OWN ROM (stays on this computer, never shipped)
-The page keeps unsaved edits in the browser, saves mods/lang/<code>.json straight into the mods folder where the browser allows it (Chrome / Edge:
-folder permission once) or offers it as a download to put into <mods>/lang/.  The game rebuilds a language at its next start when the mod is
-newer (firstrun.py; build.sh on the Deck).  Rewritten only when an input changed (stamp in data.js).  Run by firstrun.py at every start and by build.sh."""
+    <mods>/Mod Workshop.html      the editor (tools/modpage.html, opened with a double click, works from the disk) WITH its data inside (v2
+                                  2026-11-22 night: a separate workshop/data.js was invisible to the Deck's sandboxed Flatpak browsers, they
+                                  may read only the opened file): per language id, current translation, the user's mod texts and the last
+                                  build's refused list, plus the original English decoded from the user's OWN ROM (stays on this computer, never shipped)
+The page keeps unsaved edits in the browser and saves 'Project-Friday-mod-<code>.json' as a download; the next start moves it into
+<mods>/lang/ and rebuilds that language (tools/modlayer.py sync).  Rewritten only when an input changed (stamp in line 2 of the page)."""
 import json, os, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -62,19 +62,22 @@ def main():
     if len(sys.argv) < 3: sys.exit(__doc__)
     rom, src = sys.argv[1], sys.argv[2]
     mods = sys.argv[3] if len(sys.argv) > 3 else modlayer.mods_dir()
-    os.makedirs(os.path.join(mods, "workshop"), exist_ok=True); os.makedirs(os.path.join(mods, "lang"), exist_ok=True)
-    stamp = inputs(src, mods, rom)
-    dj, page = os.path.join(mods, "workshop", "data.js"), os.path.join(mods, "Mod Workshop.html")
+    os.makedirs(os.path.join(mods, "lang"), exist_ok=True)
+    stamp = "<!-- PF_STAMP " + inputs(src, mods, rom) + " -->"
+    page = os.path.join(mods, modlayer.PAGE_NAME)
     try:
-        if os.path.isfile(page) and open(dj, encoding="utf-8").readline().strip() == "// " + stamp: return 0
+        with open(page, encoding="utf-8") as f:
+            if f.readline() and f.readline().strip() == stamp: return 0
     except OSError: pass
     data = build(rom, src, mods)
-    tmp = dj + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        f.write("// " + stamp + "\nwindow.PF_DATA = "); json.dump(data, f, ensure_ascii=False, separators=(",", ":")); f.write(";\n")
-    os.replace(tmp, dj)
-    open(page, "w", encoding="utf-8").write(open(os.path.join(HERE, "modpage.html"), encoding="utf-8").read())
-    print("modpage: %s (%d languages, %d KB data)" % (page, len(data["languages"]), os.path.getsize(dj) // 1024))
+    html = open(os.path.join(HERE, "modpage.html"), encoding="utf-8").read()
+    js = "<script>window.PF_DATA = " + json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/") + ";</script>"
+    assert "<!--PF_DATA-->" in html and html.startswith("<!doctype html>\n")
+    html = html.replace("<!doctype html>\n", "<!doctype html>\n" + stamp + "\n", 1).replace("<!--PF_DATA-->", js, 1)
+    tmp = page + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f: f.write(html)
+    os.replace(tmp, page)
+    print("modpage: %s (%d languages, %d KB)" % (page, len(data["languages"]), os.path.getsize(page) // 1024))
     return 0
 
 
