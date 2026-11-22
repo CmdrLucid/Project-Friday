@@ -243,6 +243,8 @@ python3 tools/patch_gpu.py .deps/genrecomp
 python3 tools/patch_gpulight.py .deps/genrecomp
 # test aid: LANDSTALKER_WINSIZE=WxH window size at start (trailer footage in full HD with LANDSTALKER_HIDDEN=1), see tools/patch_winsize.py
 python3 tools/patch_winsize.py .deps/genrecomp
+# the window remembers its size / position (~/.landstalker_window, GitHub #25), see tools/patch_winmem.py
+python3 tools/patch_winmem.py .deps/genrecomp
 # Picture composition on the GPU, STEP 4 stage 4a = compare harness only, nothing changes for the player: LANDSTALKER_GPUCOMP=2 composes the map lines on the GPU and compares with lk_own_row (tools/patch_gpucomp.py; needs patch_own / patch_gpu / patch_gpulight)
 python3 tools/patch_gpucomp.py .deps/genrecomp
 # De-Dither on the GPU: the smoothing as a shader pass after the GPU composition, the GPU lines stay on (LK_DDGPU v1, tools/patch_ddgpu.py; CPU de-dither = fallback)
@@ -261,6 +263,8 @@ python3 tools/patch_introde.py .deps/genrecomp
 python3 tools/patch_langpage.py .deps/genrecomp
 # Alternate D-pad layout: Up / Down / Left / Right = the diagonal axes (Options > Movement > D-Pad, default Original = bit exact; GitHub #22; tools/patch_altpad.py, needs patch_bath / patch_langpage)
 python3 tools/patch_altpad.py .deps/genrecomp
+# a night at the inn ends in the morning: Day / Night clock -> 07:00 at the fade-in after HandleInnStay (GitHub #24; tools/patch_innmorning.py, needs patch_lights / patch_altpad)
+python3 tools/patch_innmorning.py .deps/genrecomp
 # Options menu in Korean / Japanese (escaped UI text + Galmuri 7 glyph table from tools/uiwide.py; tools/patch_uiwide.py, needs patch_lang / patch_options / patch_iteminfo)
 python3 tools/patch_uiwide.py .deps/genrecomp
 # Title screen subtitle in the language (own lettering tools/titlefont.py; tools/patch_titlesub.py, needs patch_overlay / patch_lang)

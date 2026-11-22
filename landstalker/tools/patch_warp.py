@@ -20,16 +20,16 @@ extern int lk_wide_refill;
 static gen_func_t lk_w_orig;
 static int lk_w_n, lk_w_next, lk_w_room[16], lk_w_x[16], lk_w_y[16], lk_w_z[16]; static long lk_w_at[16];
 static long lk_refill_at = -1;   /* LANDSTALKER_REFILL_AT=frame: reload the margin / full-height strips once (test: do holes at rest vanish?) */
-/* LANDSTALKER_POKE="frame:addr:orbits[,...]" (hex addr / bits): ORs the byte at that RAM address once when the game loop first runs at or after that frame (test aid, e.g. the lantern flag of room 389: 1000:FF103E:10) */
+/* LANDSTALKER_POKE="frame:addr:orbits[:andmask][,...]" (hex addr / bits): ANDs the byte with andmask (default FF), then ORs orbits, at that RAM address once when the game loop first runs at or after that frame (test aid, e.g. the lantern flag of room 389: 1000:FF103E:10) */
 static void lk_poke_step(void) {
-    static const char *spec; static int init; static long done_upto = -1;
+    static const char *spec; static int init; static unsigned done_mask; int ti = 0;
     if (!init) { init = 1; spec = getenv("LANDSTALKER_POKE"); }
     if (spec && *spec) {
-        char buf[256], *tok, *sv; long f; unsigned a, v;
+        char buf[256], *tok, *sv; long f; unsigned a, v, am;
         snprintf(buf, sizeof buf, "%s", spec);
-        for (tok = strtok_r(buf, ",", &sv); tok; tok = strtok_r(NULL, ",", &sv))
-            if (sscanf(tok, "%ld:%x:%x", &f, &a, &v) == 3 && platform_frame_number() >= f && f > done_upto) {
-                bus_write8(a, (uint8_t)(bus_read8(a) | v)); done_upto = f; printf("poke: frame %ld byte %06X |= %02X\n", platform_frame_number(), a, v);
+        for (tok = strtok_r(buf, ",", &sv); tok; tok = strtok_r(NULL, ",", &sv), ti++)
+            if ((am = 0xFF, sscanf(tok, "%ld:%x:%x:%x", &f, &a, &v, &am) >= 3) && platform_frame_number() >= f && ti < 32 && !(done_mask >> ti & 1u)) {
+                bus_write8(a, (uint8_t)((bus_read8(a) & am) | v)); done_mask |= 1u << ti; printf("poke: frame %ld byte %06X = (old & %02X) | %02X\n", platform_frame_number(), a, am, v);
             }
     }
 }
