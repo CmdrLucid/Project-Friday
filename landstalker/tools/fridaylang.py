@@ -10,7 +10,7 @@ import json, os, re
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.environ.get("LANDSTALKER_FRIDAY_JSON") or os.path.join(HERE, "..", "lang", "friday_hints.json")
 FRIDAY_BASE = 0xE000
-NAME = {"fr": "Friday:", "es": "Friday:", "it": "Friday:", "ko": "프라이데이:", "ja": "フライデー:"}   # es / it (LK_LGES v1): the fan translations keep 'Friday'   # her name in that language's text (fr = the French release keeps 'Friday'; ko / ja = names.json / the Japanese game)
+NAME = {"fr": "Friday:", "es": "Friday:", "it": "Friday:", "ru": "Фрайди:", "uk": "Фрайді:", "ko": "프라이데이:", "ja": "フライデー:"}   # es / it (LK_LGES v1): the fan translations keep 'Friday'   # her name in that language's text (fr = the French release keeps 'Friday'; ko / ja = names.json / the Japanese game)
 
 
 def hints():

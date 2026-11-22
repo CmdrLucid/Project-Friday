@@ -218,14 +218,33 @@ KO_HI = [c for c in range(0x101, 0x889) if (c & 0xFF) not in (0x00, 0x40, 0x47, 
 
 
 def ko_glyph_rows(ch):
+    if 0x400 <= ord(ch) < 0x500: return cyr_glyph_rows(ch)   # LK_LGCYR v1
     d = getattr(ko_glyph_rows, "d", None)
     if d is None: d = ko_glyph_rows.d = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lang", "ko_glyphs.dat"), "rb").read()
     i = ord(ch) - 0xAC00; return [struct.unpack(">H", d[6 + 22 * i + 2 * k:8 + 22 * i + 2 * k])[0] for k in range(11)] + [0] * 4
 
 
+# LK_LGCYR v1 (user 2026-11-22: Russian / Ukrainian): Cyrillic = the 'wide' path of Korean (version 4 file, 16-bit glyph codes, uiwide UI text, KOMN menu trailer);
+# text glyphs from lang/cyr_glyphs.dat (Galmuri 11, OFL), 8x8 menu glyphs from lang/cyr_glyphs7.dat (Public Pixel, CC0); tools/cyrfont.py.
+WIDE_LANGS = ("ko", "ru", "uk")
+def is_wide(c): return 0xAC00 <= ord(c) <= 0xD7A3 or 0x400 <= ord(c) < 0x500
+def cyr_glyph_rows(ch):
+    d = getattr(cyr_glyph_rows, "d", None)
+    if d is None: d = cyr_glyph_rows.d = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lang", "cyr_glyphs.dat"), "rb").read()
+    i = ord(ch) - 0x400; return list(struct.unpack(">15H", d[8 + 30 * i:38 + 30 * i]))
+def menu8(rom, ch):
+    """8x8 menu tile rows (row 0 free) of a character for the KOMN menu trailer: Hangul (Galmuri 7), Cyrillic (Public Pixel), else the ROM's menu font"""
+    import uiwide
+    g = uiwide.glyph8(ch)
+    if g is not None: return g
+    if ch in sd.MAIN: return bytes(rom[MENUFONT + 8 * sd.MAIN.index(ch):MENUFONT + 8 * sd.MAIN.index(ch) + 8])
+    return None
+
+
 def ko_codes(lang, extra=()):
     import re
-    hang = lambda t: [c for c in re.sub(r"\{[^}]*\}", "", t) if 0xAC00 <= ord(c) <= 0xD7A3]
+    cyr = lang.get("meta", {}).get("code", "")[:2] in ("ru", "uk")   # LK_LGCYR v1: codes $80..$86 are our UI text's accent bytes (patch_options.py lk_chr): not for Cyrillic letters (gap in the help line)
+    hang = lambda t: [c for c in re.sub(r"\{[^}]*\}", "", t) if is_wide(c)]   # LK_LGCYR v1: Hangul or Cyrillic
     first, rest = [], []
     for blk in ("names", "item_dialog"):
         for e in lang.get(blk, {}).values():
@@ -240,7 +259,7 @@ def ko_codes(lang, extra=()):
     for t in extra:   # release 2.0: the Friday hints of this language (tools/fridaylang.py)
         for c in hang(t): freq[c] = freq.get(c, 0) + 1
     rest = sorted((c for c in freq if c not in first), key=lambda c: -freq[c])
-    lo, hi, code = list(KO_LO), list(KO_HI), {}
+    lo, hi, code = [c for c in KO_LO if not (cyr and 0x80 <= c <= 0x86)], list(KO_HI), {}
     for c in first + rest: code[c] = (lo or hi).pop(0)
     return code
 
@@ -252,7 +271,7 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
     lang = json.loads(json.dumps(lang))   # a copy: the placeholders are resolved per variant
     import fridaylang   # release 2.0: Friday hints of this language as extra strings $E000 + entry
     fcode = lang.get("meta", {}).get("code", ""); fh = fridaylang.entries(fcode) if fcode in fridaylang.NAME else []
-    ko = base == "ko"
+    ko = base in WIDE_LANGS   # LK_LGKO v1 / LK_LGCYR v1 (ru / uk)
     if ko:   # LK_LGKO v1: resolve the placeholders first, then give every Hangul syllable a code
         for blk in ("strings", "names", "item_dialog"):
             for ent in lang.get(blk, {}).values():
@@ -331,14 +350,29 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
         mg, mi, items = [bytes(8)], {}, []
         for i in range(64):
             ent = lang.get("item_dialog", {}).get("item:%02d" % i); t = ent["t"] if ent and not check("item:%02d" % i, ent) else ""
-            if any(not (0xAC00 <= ord(c) <= 0xD7A3 or c == " ") for c in t) or len(t) > 9: t = ""   # only pure Hangul names fit the 9 menu tiles
-            if len(mg) + len(set(c for c in t if c != " " and c not in mi)) > 256: t = ""   # 256 virtual tiles (patch_lang.py LK_LGKOMENU v1)
+            if base == "ko":
+                if any(not (0xAC00 <= ord(c) <= 0xD7A3 or c == " ") for c in t) or len(t) > 9: t = ""   # only pure Hangul names fit the 9 menu tiles
+                rows = [t]
+            else:   # LK_LGCYR v1: two rows of 9 tiles like the English menu; the name's {BreakSpace} / {BreakPoint} / {Hyphen} splits it (else the last space that fits)
+                import re as _re
+                mt = _re.split(r"\{(BreakSpace|BreakPoint|Hyphen)\}", t)
+                if len(mt) >= 3: rows = [mt[0] + ("-" if mt[1] == "Hyphen" else ""), "".join(mt[2:])]
+                elif len(t) > 9 and " " in t[:10]: cut = t[:10].rindex(" "); rows = [t[:cut], t[cut + 1:]]
+                else: rows = [t]
+                rows = [_re.sub(r"\{[^}]*\}", "", r).strip() for r in rows]
+                if any(len(r) > 9 for r in rows) or any(menu8(rom, c) is None for r in rows for c in r if c != " "): rows = [""]
+            if len(mg) + len(set(c for r in rows for c in r if c != " " and c not in mi)) > 256: rows = [""]   # 256 virtual tiles (patch_lang.py LK_LGKOMENU v1)
             ix = []
-            for c in t:
-                if c == " ": ix.append(0); continue
-                if c not in mi:
-                    k = ord(c) - 0xAC00; mi[c] = len(mg); mg.append(bytes([0]) + d7[6 + 7 * k:13 + 7 * k])   # rows 1..7 of the tile (row 0 free like the menu letters)
-                ix.append(mi[c])
+            for ri, r in enumerate(rows):
+                if ri: ix.append(0xFFFF)   # LK_LGCYR v1: next tile row
+                for c in r:
+                    if c == " ": ix.append(0); continue
+                    if c not in mi:
+                        mi[c] = len(mg)
+                        if 0xAC00 <= ord(c) <= 0xD7A3: k = ord(c) - 0xAC00; mg.append(bytes([0]) + d7[6 + 7 * k:13 + 7 * k])   # rows 1..7 of the tile (row 0 free like the menu letters)
+                        else: mg.append(menu8(rom, c))
+                    ix.append(mi[c])
+            if not any(v not in (0, 0xFFFF) for v in ix): ix = []
             items.append(ix)
         tr = b"KOMN" + struct.pack(">H", len(mg)) + b"".join(mg) + bytes([64]) + b"".join(bytes([len(ix)]) + b"".join(struct.pack(">H", v) for v in ix) for ix in items)
         out = out[:16] + struct.pack(">I", len(out)) + out[20:] + tr

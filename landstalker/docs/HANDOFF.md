@@ -5,15 +5,15 @@
 - 0. One-paragraph summary: lines 54-59
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 878-889
 - 1. Where we are: lines 890-1060
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1061-1357
-- 3. How the user works (important): lines 1358-1373
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1374-1398
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1399-1407
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1408-1455
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1456-1465
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1466-1467
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1468-1470
-- NEXT STEPS, newest first: -259 1062, -258 1063, -257 1064, -256 1065, -255 1066, -254 1067, -253 1068, -252 1069, -251 1070, -250 1071
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1061-1358
+- 3. How the user works (important): lines 1359-1374
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1375-1399
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1400-1408
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1409-1456
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1457-1466
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1467-1468
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1469-1471
+- NEXT STEPS, newest first: -260 1062, -259 1063, -258 1064, -257 1065, -256 1066, -255 1067, -254 1068, -253 1069, -252 1070, -251 1071
 - Newest entries:
   - 0a499 line 191: 2026-11-22 later (Deck, Opus 5.5 lead + 24 Sonnet agents; dev): SPANISH + ITALIAN LANGUAGES (user: fan patc...
   - 0a498 line 193: 2026-11-22 (Deck, Opus 5.5, no agents; dev): GITHUB #23 update / #24 / #25 (paul-met; user: 'Schau dir das...
@@ -1059,6 +1059,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-260. **NEXT (2026-11-22 late): user tries Russkiy too; Ukrainian after the user's OK of the proposed names (TRANSLATION 12: Найджел, Фрайді, Кейла, Воллі, Дзиґа ...): copy the ru pipeline (work_uk / src_uk, chk.py uk is ready, names.json 'uk', meta name 'Ukrainska'); Russian block 04 tone check against the JP; optional: Cyrillic letters for the title subtitle (titlefont.py) and Cyrillic Japanese-variant names (names.json jp in Cyrillic for Names: Japanese).**
 -259. **NEXT (2026-11-22 later): user tries Espanol / Italiano (Options > Language; title, dialogue, menus, Friday hints) and says what reads wrong; then RUSSIAN: a Cyrillic glyph preview sheet for the user's OK first (0a499), then the translation like es / it; then Ukrainian.**
 -258. **NEXT FIRST (2026-11-22): user checks #25 in desktop mode (resize the window, quit, start again: same size / place; maximised; F11 on / off) and #24 by staying at an inn with Day / Night on (the clock should read 07:00 after the rest: L5 + R5 OSD or the light outside). #23 whistle fixed headless (0a498); Paul can confirm with the next release. Then -257.**
 -257. **NEXT FIRST (2026-11-21 late): user plays the docks (641) at night (sword) / day with the new crate shed (0a497: 4 crate rows, roof on them, op rect fixed); then -256's rest. Check other 'surface' mesh ops whose rectangle is larger than the model (plants inside are ignored by the light). The hard vertical sword-light line down the pine is FIXED (LK_GLOBJB v1 + LK_LTPLANTCELL v1, 0a497): user check by playing.**

@@ -34,6 +34,10 @@
    "it": [
     "Nigel! SVEGLIATI! Il tesoro|non si trova da solo! Chiedi|in giro.",
     "Parla con tutti a Massan.|Qualcuno parla di un ponte."
+   ],
+   "ru": [
+    "Найджел! ПРОСНИСЬ! Клад сам|себя не найдёт! Спроси у|людей.",
+    "Поговори со всеми в|Массане. Кто-то говорит про|мост."
    ]
   },
   {
@@ -69,6 +73,10 @@
    "it": [
     "Che avventura, Nigel! Vediamo|dove porta questa grotta!",
     "Combatti nella grotta e cerca|come proseguire."
+   ],
+   "ru": [
+    "Время приключений, Найджел!|Куда ведёт эта пещера?",
+    "Пробивайся через пещеру и|ищи путь дальше."
    ]
   },
   {
@@ -103,6 +111,10 @@
    "it": [
     "I Gumi hanno rotto il ponte?!|Che sfacciati! Chiediamo|in giro, Nigel!",
     "Guarda in ogni casa di Massan.|Forse qualcuno sa di più."
+   ],
+   "ru": [
+    "Гуми сломали мост?! Как|грубо! Давай спросим,|Найджел!",
+    "Загляни в каждый дом|Массана. Кто-то знает|больше."
    ]
   },
   {
@@ -138,6 +150,10 @@
    "it": [
     "Il Tempio della Cascata! Il|suo vecchio saggio sa tutto!",
     "Va' dal vecchio saggio del|Tempio della Cascata. Chiedi!"
+   ],
+   "ru": [
+    "Святилище Водопада! Старый|мудрец там знает больше.",
+    "Найди старого мудреца в|Святилище Водопада, спроси."
    ]
   },
   {
@@ -172,6 +188,10 @@
    "it": [
     "Quei Gumi cercano guai!|Andiamo a Gumi, Nigel!",
     "Vai a sud, a Gumi, e guarda|in giro per il villaggio."
+   ],
+   "ru": [
+    "Эти Гуми - одни|неприятности! Идём в Гуми,|Найджел!",
+    "Иди на юг в Гуми и осмотри|деревню."
    ]
   },
   {
@@ -207,6 +227,10 @@
    "it": [
     "I bulli di Gumi hanno preso|Fara! Dietro a loro, a Gumi!",
     "I bulli di Gumi hanno rapito|Fara. Passa il ponte per Gumi!"
+   ],
+   "ru": [
+    "Бандиты из Гуми украли|Фэру! За ними, Найджел, в|Гуми!",
+    "Бандиты Гуми похитили Фэру.|Перейди мост в Гуми!"
    ]
   },
   {
@@ -242,6 +266,10 @@
    "it": [
     "Gli Orchi ingannano i Gumi?!|Fara è in pericolo!",
     "Gli Orchi ingannano i Gumi e|Fara è in pericolo. A Gumi!"
+   ],
+   "ru": [
+    "Орки обманули Гуми?! Бедная|Фэра в опасности!",
+    "Орки обманули Гуми, Фэра в|опасности. Вперёд, в Гуми!"
    ]
   },
   {
@@ -277,6 +305,10 @@
    "it": [
     "Brrr... qui fa paura. Guarda|dappertutto, ma di nascosto!",
     "Esplora i sentieri intorno al|villaggio. Qui succede|qualcosa."
+   ],
+   "ru": [
+    "Бр-р... жутковато тут.|Смотри, но тихо!",
+    "Исследуй тропы вокруг|деревни. Тут что-то|творится."
    ]
   },
   {
@@ -312,6 +344,10 @@
    "it": [
     "Povera Fara! Dove l'hanno|portata i Gumi? Cerchiamola!",
     "I Gumi hanno portato via Fara.|Cercala al Tempio della|Palude."
+   ],
+   "ru": [
+    "Бедная Фэра! Куда её увели|Гуми? Узнаем!",
+    "Гуми увели Фэру. Ищи её у|Болотного Святилища."
    ]
   },
   {
@@ -348,6 +384,10 @@
    "it": [
     "Povera Fara! A Gumi forse c'è|qualcosa che apre la porta del|tempio. Cerchiamo!",
     "Cerca nel villaggio di Gumi|ciò che apre la porta."
+   ],
+   "ru": [
+    "Бедная Фэра! Вдруг в Гуми|есть то, что открывает|дверь? Ищем!",
+    "Поищи в деревне Гуми то,|что откроет дверь|святилища."
    ]
   },
   {
@@ -384,6 +424,10 @@
    "it": [
     "Una cosa strana apre quella|porta! Troviamola!",
     "I Gumi hanno aperto la porta|con una cosa strana. Trovala!"
+   ],
+   "ru": [
+    "Какая-то странная штука|открывает ту дверь! Найдём!",
+    "Гуми открыли дверь чем-то|странным. Найди это!"
    ]
   },
   {
@@ -420,6 +464,10 @@
    "it": [
     "Mmh, qui niente Fara. Non era|stata portata alla palude?",
     "Fara non è qui. Cercala al|Tempio della Palude."
+   ],
+   "ru": [
+    "Хм, Фэры тут нет. Разве её|не увели на болото?",
+    "Фэры здесь нет. Ищи её у|Болотного Святилища."
    ]
   },
   {
@@ -457,6 +505,10 @@
    "it": [
     "Mmh, qui niente per Fara. Non|dovevamo cercare a Gumi?",
     "Ciò che apre la porta non è|qui. Cerca nel villaggio di|Gumi."
+   ],
+   "ru": [
+    "Хм, тут ничего для Фэры. Мы|же хотели обыскать Гуми?",
+    "Ключа от двери тут нет.|Обыщи деревню Гуми."
    ]
   },
   {
@@ -493,6 +545,10 @@
    "it": [
     "Oh, che bella pietra! La porta|del tempio la adorerà.",
     "Usa la Pietra Idolo sulla|statua all'ingresso del Tempio|della Palude."
+   ],
+   "ru": [
+    "Ух ты, какой красивый|камень! Дверь святилища его|полюбит.",
+    "Используй Камень-Идол на|статуе у входа в святилище."
    ]
   },
   {
@@ -528,6 +584,10 @@
    "it": [
     "La porta è aperta! Fara sarà|là dentro. Presto, Nigel!",
     "Entra e combatti fino in|fondo."
+   ],
+   "ru": [
+    "Дверь открыта! Фэра|наверняка внутри. Скорее,|Найджел!",
+    "Заходи и пробивайся до|самого конца."
    ]
   },
   {
@@ -563,6 +623,10 @@
    "it": [
     "Fara sarà in fondo! Presto,|Nigel, ha bisogno di noi!",
     "Combatti fino in fondo.|Occhio alla salute!"
+   ],
+   "ru": [
+    "Фэра в самом конце! Скорее,|Найджел, мы нужны ей!",
+    "Пробейся в дальний конец.|Следи за здоровьем!"
    ]
   },
   {
@@ -597,6 +661,10 @@
    "it": [
     "Abbiamo salvato Fara! La sua|famiglia ci deve un premio...|Ehm, un grazie!",
     "Va' dal sindaco di Massan e|chiedi la tua ricompensa."
+   ],
+   "ru": [
+    "Мы спасли Фэру! Её семья|должна нам награду... то|есть спасибо!",
+    "Иди в дом старосты в|Массане и забери награду."
    ]
   },
   {
@@ -631,6 +699,10 @@
    "it": [
     "Massan è finita! A ovest,|Nigel, il tesoro non aspetta!",
     "Attraversa Gumi e segui la|strada verso ovest."
+   ],
+   "ru": [
+    "С Массаном покончено! На|запад, Найджел, клад не|ждёт!",
+    "Иди через Гуми и следуй по|дороге на запад."
    ]
   },
   {
@@ -666,6 +738,10 @@
    "it": [
     "Rotta su Ryuma, Nigel! Dopo|Gumi, a sinistra, verso il|mare.",
     "Dopo Gumi la strada si divide|al mare. A sinistra, Ryuma."
+   ],
+   "ru": [
+    "В Риуму, Найджел! Мимо|Гуми, у моря налево.",
+    "За Гуми дорога делится у|моря. Налево - в Риуму."
    ]
   },
   {
@@ -701,6 +777,10 @@
    "it": [
     "Sembrano tutti spaventati!|Facciamo un giro per la città.",
     "Guarda in ogni angolo della|città e parla con tutti."
+   ],
+   "ru": [
+    "Все тут такие напуганные!|Осмотрим город.",
+    "Загляни в каждый уголок|города и поговори со всеми."
    ]
   },
   {
@@ -735,6 +815,10 @@
    "it": [
     "I ladri hanno preso il|sindaco?! La città ha bisogno|di aiuto.",
     "Parla con la gente di Ryuma|finché qualcuno chiede aiuto."
+   ],
+   "ru": [
+    "Воры схватили старосту?!|Городу нужна помощь.|Спроси!",
+    "Говори с жителями Риумы,|пока кто-то не попросит|помощи."
    ]
   },
   {
@@ -770,6 +854,10 @@
    "it": [
     "La casa della riunione!|Torniamoci, Nigel!",
     "Riparla con le persone che|fanno la riunione a Ryuma."
+   ],
+   "ru": [
+    "Тот дом, где собрание!|Вернёмся туда.",
+    "Снова поговори с людьми,|что собрались в Риуме."
    ]
   },
   {
@@ -804,6 +892,10 @@
    "it": [
     "Una grotta sul promontorio!|Con la zattera, Nigel!",
     "I ladri si nascondono nella|grotta del promontorio.|Attraversa con la zattera."
+   ],
+   "ru": [
+    "Пещера на мысе! Плыви на|плоту, Найджел!",
+    "Воры прячутся в пещере на|мысе. Переплыви на плоту."
    ]
   },
   {
@@ -839,6 +931,10 @@
    "it": [
     "Un covo di ladri! Attento,|Nigel, sono dappertutto!",
     "Avanza nella grotta e pensa|ai ladri."
+   ],
+   "ru": [
+    "Логово воров! Осторожно,|Найджел, они повсюду!",
+    "Пробивайся вглубь пещеры и|разберись с ворами."
    ]
   },
   {
@@ -873,6 +969,10 @@
    "it": [
     "Qui abbiamo finito, Nigel.|Torniamo a Ryuma!",
     "Torna a Ryuma. Parla con la|gente, qualcuno ha novità."
+   ],
+   "ru": [
+    "Тут мы закончили, Найджел.|Вернёмся в Риуму!",
+    "Назад в Риуму. Поговори с|горожанами, у них новости."
    ]
   },
   {
@@ -907,6 +1007,10 @@
    "it": [
     "Un lasciapassare! La grande|città ricca ci fa entrare.|Shopping, Nigel!",
     "Vai a Mercator: torna al bivio|a ovest di Gumi e prendi|l'altra strada."
+   ],
+   "ru": [
+    "Пропуск! Теперь богатый|город нас пустит. За|покупками!",
+    "Иди в Меркатор: у развилки|к западу от Гуми другой|путь."
    ]
   },
   {
@@ -942,6 +1046,10 @@
    "it": [
     "Wow, che città! Chiediamo in|giro, qualcuno saprà qualcosa.",
     "Parla con gli abitanti.|Qualcuno ti indicherà la via."
+   ],
+   "ru": [
+    "Ого, какой город! Спросим|кого-нибудь, кто-то знает.",
+    "Поговори с горожанами. Кто-|то подскажет, куда идти."
    ]
   },
   {
@@ -976,6 +1084,10 @@
    "it": [
     "Questa città nasconde|qualcosa. Ficchiamo il naso,|Nigel!",
     "Controlla ogni angolo della|città, davanti e dietro."
+   ],
+   "ru": [
+    "Этот город что-то скрывает.|Пошарим тут, Найджел!",
+    "Осмотри каждый уголок|города, и спереди, и сзади."
    ]
   },
   {
@@ -1010,6 +1122,10 @@
    "it": [
     "Arthur si è infilato da Madame|Yard? Andiamo a vedere!",
     "Interroga la gente da Madame|Yard. Là qualcuno sa di più."
+   ],
+   "ru": [
+    "Артур сбежал к мадам Ярд?|Пойдём посмотрим!",
+    "Поспрашивай в доме мадам|Ярд. Там знают больше."
    ]
   },
   {
@@ -1044,6 +1160,10 @@
    "it": [
     "Un'indovina potrebbe aiutarci?|Oh, andiamo da lei!",
     "Trova la sua casa e fatti fare|un incantesimo. Poi vai da|Madame Yard."
+   ],
+   "ru": [
+    "Гадалка нам поможет? Ух ты,|пойдём к ней!",
+    "Найди её дом, пусть|погадает. Потом иди к мадам|Ярд."
    ]
   },
   {
@@ -1078,6 +1198,10 @@
    "it": [
     "Da Madame Yard si può entrare!|Andiamo, Nigel!",
     "Passa la porta di Madame Yard|e guarda chi c'è."
+   ],
+   "ru": [
+    "Мадам Ярд нас пускает!|Идём, Найджел!",
+    "Войди в дверь у мадам Ярд и|посмотри, кто внутри."
    ]
   },
   {
@@ -1112,6 +1236,10 @@
    "it": [
     "Il castello ci fa entrare!|Forza, Nigel!",
     "Vai al castello di Mercator|ed entra per incontrare|il Duca."
+   ],
+   "ru": [
+    "Замок нас пускает! Ну же,|Найджел!",
+    "Иди к Замку Меркатора и|войди, чтобы встретить|герцога."
    ]
   },
   {
@@ -1147,6 +1275,10 @@
    "it": [
     "Il Duca è qui da qualche|parte. Gran sala, gran trono,|gran ego!",
     "Il Duca è nella sala del|trono. Vai a parlargli."
+   ],
+   "ru": [
+    "Где-то тут сидит герцог.|Большой зал, трон,|самомнение!",
+    "Герцог в тронном зале.|Подойди и поговори с ним."
    ]
   },
   {
@@ -1181,6 +1313,10 @@
    "it": [
     "Uffa, se n'è andato così!|Vediamo se i servitori|aiutano.",
     "Segui il servitore che si|offre di mostrarti una stanza."
+   ],
+   "ru": [
+    "Хмпф, он просто ушёл!|Может, слуги помогут?",
+    "Иди за слугой, что хочет|показать тебе комнату."
    ]
   },
   {
@@ -1215,6 +1351,10 @@
    "it": [
     "Un vero castello, Nigel!|Guardiamo ovunque e|chiacchieriamo.",
     "Parla al maggiordomo e in|cucina finché annunciano la|cena."
+   ],
+   "ru": [
+    "Настоящий замок, Найджел!|Осмотримся и поболтаем.",
+    "Говори с дворецким и|поварами, пока не объявят|ужин."
    ]
   },
   {
@@ -1249,6 +1389,10 @@
    "it": [
     "Il banchetto è pronto!|Vieni, muoio di fame!",
     "Vai alla sala del banchetto|del castello."
+   ],
+   "ru": [
+    "Банкет готов! Идём, я|умираю с голоду!",
+    "Иди в банкетный зал в|замке."
    ]
   },
   {
@@ -1284,6 +1428,10 @@
    "it": [
     "Il banchetto è al piano di|sopra! Vieni, muoio di fame!",
     "La sala del banchetto è al|piano di sopra del castello."
+   ],
+   "ru": [
+    "Банкет наверху! Идём, я|умираю с голоду!",
+    "Банкетный зал находится на|этаже выше."
    ]
   },
   {
@@ -1318,6 +1466,10 @@
    "it": [
     "Sono piena... Andiamo a|dormire prima di domani,|Nigel.",
     "Va' nella tua stanza al|castello e mettiti a letto."
+   ],
+   "ru": [
+    "Я так наелась... Давай|поспим до завтра, Найджел.",
+    "Иди в свою спальню в замке|и ложись спать."
    ]
   },
   {
@@ -1352,6 +1504,10 @@
    "it": [
     "La Torre di Mir è appena fuori|città... Informiamoci prima!",
     "La Torre di Mir è vicino a|Mercator. Interroga la gente|del castello."
+   ],
+   "ru": [
+    "Башня Мира сразу за|городом... Сперва|расспросим людей!",
+    "Башня Мира сразу за|Меркатором. Спроси людей в|замке о ней."
    ]
   },
   {
@@ -1388,6 +1544,10 @@
    "it": [
     "Una barriera blocca la Torre|di Mir! Come la rompiamo?",
     "Una barriera blocca la porta|della Torre di Mir. Trova|un modo."
+   ],
+   "ru": [
+    "Барьер перед Башней Мира!|Как его сломать?",
+    "Барьер закрывает дверь|Башни Мира. Найди способ|пройти."
    ]
   },
   {
@@ -1424,6 +1584,10 @@
    "it": [
     "Arthur sa qualcosa sulla|barriera! Chiediamoglielo!",
     "Una barriera sigilla la Torre|di Mir. Interroga il Generale|Arthur."
+   ],
+   "ru": [
+    "Артур знает про барьер!|Спросим его!",
+    "Барьер запечатал Башню|Мира. Спроси генерала|Артура."
    ]
   },
   {
@@ -1460,6 +1624,10 @@
    "it": [
     "Zak e Dexter sono nella|cripta! Dietro a loro!",
     "Zak e Dexter sono scesi nella|cripta. Trovala!"
+   ],
+   "ru": [
+    "Зак и Декстер в склепе! За|ними!",
+    "Зак и Декстер спустились в|склеп. Найди его!"
    ]
   },
   {
@@ -1496,6 +1664,10 @@
    "it": [
     "Dexter e Zak sono arrivati|alla cripta prima di noi!|Presto, Nigel!",
     "Una barriera protegge la Torre|di Mir. Un bracciale ti|aspetta nella cripta."
+   ],
+   "ru": [
+    "Декстер и Зак пришли в|склеп раньше! Скорее,|Найджел!",
+    "Барьер защищает Башню Мира.|Браслет ждёт в склепе."
    ]
   },
   {
@@ -1532,6 +1704,10 @@
    "it": [
     "Un bracciale rompe la barriera|di Mir! È nella cripta.",
     "Prendi il bracciale nella|cripta vicino alla chiesa.|Trappole!"
+   ],
+   "ru": [
+    "Браслет ломает барьер Мира!|Он в склепе.",
+    "Возьми браслет в склепе у|церкви. Там ловушки!"
    ]
   },
   {
@@ -1568,6 +1744,10 @@
    "it": [
     "Attento, Nigel! Pensa prima di|muoverti. Questi enigmi|mordono!",
     "Risolvi le sale degli enigmi e|guarda cosa ti aspetta."
+   ],
+   "ru": [
+    "Осторожно, Найджел! Думай,|куда ступаешь. Загадки|кусаются!",
+    "Реши загадки в комнатах и|узнай, что ждёт дальше."
    ]
   },
   {
@@ -1605,6 +1785,10 @@
    "it": [
     "Mostri furbi qui! Usa la|testa, non solo la spada!",
     "La sola spada non ti darà il|bracciale. Rifletti bene."
+   ],
+   "ru": [
+    "Тут умные монстры! Думай|головой, не только мечом!",
+    "Одним мечом браслет не|добыть. Подумай хорошенько."
    ]
   },
   {
@@ -1640,6 +1824,10 @@
    "it": [
     "Bravo con gli enigmi! Avanti,|Nigel, si procede!",
     "Continua nella cripta."
+   ],
+   "ru": [
+    "Отлично решаешь загадки!|Дальше, Найджел, мы близко!",
+    "Иди дальше по склепу."
    ]
   },
   {
@@ -1675,6 +1863,10 @@
    "it": [
     "Ooh, un bracciale luccicante!|Servirà a qualcosa...",
     "La Torre di Mir è vicino a|Mercator. Prova là il|bracciale."
+   ],
+   "ru": [
+    "Ух ты, блестящий браслет!|Он точно на что-то|годится...",
+    "Башня Мира сразу за|Меркатором. Попробуй|браслет там."
    ]
   },
   {
@@ -1711,6 +1903,10 @@
    "it": [
     "Abbiamo il bracciale! Rompiamo|la barriera di Mir!",
     "Il bracciale rompe la barriera|all'ingresso della Torre di|Mir."
+   ],
+   "ru": [
+    "У нас браслет! Ломаем|барьер Мира!",
+    "Браслет ломает барьер у|входа в Башню Мира."
    ]
   },
   {
@@ -1745,6 +1941,10 @@
    "it": [
     "Andiamo alla Torre di Mir,|Nigel! Il bracciale aiuterà?",
     "La Torre di Mir è vicino a|Mercator. Vai fino alla porta."
+   ],
+   "ru": [
+    "Пойдём к Башне Мира,|Найджел! Вдруг браслет|поможет?",
+    "Башня Мира сразу за|Меркатором. Подойди к|двери."
    ]
   },
   {
@@ -1780,6 +1980,10 @@
    "it": [
     "Arthur dice che il bracciale|rompe la barriera. Vai!",
     "Va' alla porta della Torre di|Mir. Il bracciale rompe|la barriera."
+   ],
+   "ru": [
+    "Артур сказал, браслет|ломает барьер. Вперёд!",
+    "Иди к двери Башни Мира.|Браслет ломает барьер."
    ]
   },
   {
@@ -1815,6 +2019,10 @@
    "it": [
     "Trappole ovunque! Attento,|io non ti porto in braccio!",
     "Sali fino in cima alla torre|e affronta Mir."
+   ],
+   "ru": [
+    "Повсюду ловушки! Смотри под|ноги, на руках не понесу!",
+    "Поднимись на вершину башни|и встреться с Миром."
    ]
   },
   {
@@ -1850,6 +2058,10 @@
    "it": [
     "Abbiamo il Gioiello Viola! Via|da questa torre inquietante!",
     "Torna a Mercator e riferisci|al Duca, al castello."
+   ],
+   "ru": [
+    "Пурпурный камень у нас!|Уйдём из этой жуткой башни!",
+    "Вернись в Меркатор и доложи|герцогу в замке."
    ]
   },
   {
@@ -1884,6 +2096,10 @@
    "it": [
     "Mir non era affatto il|cattivo! Diciamolo al Duca,|immagino...",
     "Il Duca aspetta al piano di|sopra del castello. Porta|i gioielli."
+   ],
+   "ru": [
+    "Мир совсем не злодей! Ну,|расскажем герцогу...",
+    "Герцог ждёт наверху в|замке. Возьми камни с|собой."
    ]
   },
   {
@@ -1919,6 +2135,10 @@
    "it": [
     "Rinchiusi?! Che Duca cattivo!|Trova subito un'uscita, Nigel!",
     "Cerca nelle celle e nei|corridoi un'uscita. Fai|domande."
+   ],
+   "ru": [
+    "Заперли?! Ах, гадкий|герцог! Ищи выход, Найджел,|живо!",
+    "Обыщи камеры и коридоры в|поисках выхода. Спроси|местных."
    ]
   },
   {
@@ -1955,6 +2175,10 @@
    "it": [
     "Lara è rinchiusa qui!|Troviamola, Nigel!",
     "Il Duca tiene qui la|principessa Lara. Forza,|trovala!"
+   ],
+   "ru": [
+    "Лара заперта тут! Найдём|её, Найджел!",
+    "Герцог держит принцессу|Лару внизу. Вперёд, найди|её!"
    ]
   },
   {
@@ -1990,6 +2214,10 @@
    "it": [
     "Anche la principessa è qui!|Ora cerchiamo l'uscita in|alto!",
     "Segui i corridoi della|prigione verso l'alto e fuori."
+   ],
+   "ru": [
+    "Принцесса тоже тут! Найдём|путь наверх и наружу!",
+    "Иди по коридорам подземелья|вверх и наружу."
    ]
   },
   {
@@ -2024,6 +2252,10 @@
    "it": [
     "Zak è partito con la|principessa! Usciamo di qui!",
     "Esci dalla prigione e guarda|nel castello. Qualcuno sa di|più."
+   ],
+   "ru": [
+    "Зак убежал с принцессой!|Выбираемся отсюда!",
+    "Выйди из подземелья и|осмотри замок. Кто-то знает|больше."
    ]
   },
   {
@@ -2059,6 +2291,10 @@
    "it": [
     "Il Duca è scappato col NOSTRO|bottino! Nessuna nave|va al buio...",
     "Arthur ha detto: muro est del|castello, interruttore|nascosto, poi la Pietra|Solare."
+   ],
+   "ru": [
+    "Герцог сбежал с НАШЕЙ|добычей! Корабли ночью не|ходят...",
+    "Артур: восточная стена|замка, тайный рычаг, потом|Солнечный Камень."
    ]
   },
   {
@@ -2095,6 +2331,10 @@
    "it": [
     "Un fischietto! Servirà di|certo in questa foresta.",
     "Esplora il Labirinto Verde.|Se sei bloccato, prova|il fischietto."
+   ],
+   "ru": [
+    "Свисток! Наверняка|пригодится в том лесу.",
+    "Исследуй Зелёный Лабиринт.|Застрял - попробуй свисток."
    ]
   },
   {
@@ -2132,6 +2372,10 @@
    "it": [
     "La Pietra Solare? Equilibrio e|bei salti, Nigel!",
     "Per raggiungere la Pietra|Solare servono equilibrio|e bei salti."
+   ],
+   "ru": [
+    "Солнечный Камень? Тут нужны|баланс и прыжки, Найджел!",
+    "Чтобы достать Солнечный|Камень, нужны баланс и|умелые прыжки."
    ]
   },
   {
@@ -2169,6 +2413,10 @@
    "it": [
     "Faro spento? È colpa del|ladro, Nigel!",
     "La Pietra Solare è nel|Labirinto Verde, a nord del|castello."
+   ],
+   "ru": [
+    "Тёмный маяк? Это вор|виноват, Найджел!",
+    "Солнечный Камень в Зелёном|Лабиринте, севернее замка."
    ]
   },
   {
@@ -2206,6 +2454,10 @@
    "it": [
     "Gol ha detto: nord-est! Gli|gnomi hanno cambiato i|sentieri...",
     "La Pietra Solare si trova nel|nord-est del Labirinto Verde."
+   ],
+   "ru": [
+    "Гол сказал: на северо-|восток! Гномы сдвинули|тропы...",
+    "Солнечный Камень лежит в|северо-восточной части|лабиринта."
    ]
   },
   {
@@ -2241,6 +2493,10 @@
    "it": [
     "La Pietra Solare! Ooh, è così|calda! Serve al faro, Nigel!",
     "Portala al guardiano del faro|a Ryuma."
+   ],
+   "ru": [
+    "Солнечный Камень! Ух, какой|он тёплый! Он нужен маяку!",
+    "Отнеси его леснику у маяка|в Риуме."
    ]
   },
   {
@@ -2275,6 +2531,10 @@
    "it": [
     "Il faro brilla di nuovo! La|nave può portarci più lontano!",
     "Va' al porto di Mercator.|Forse parte una nave.|Chiedi ai marinai."
+   ],
+   "ru": [
+    "Маяк снова светит! Теперь|корабль увезёт нас дальше!",
+    "Иди в порт Меркатора.|Может, корабль снова ходит.|Спроси."
    ]
   },
   {
@@ -2310,6 +2570,10 @@
    "it": [
     "Dove sono tutti? La città|intera è vuota!",
     "Fai domande. Qualcuno sa dove|sono andati tutti."
+   ],
+   "ru": [
+    "А где все? Весь город пуст!",
+    "Поспрашивай. Кто-то знает,|куда все ушли."
    ]
   },
   {
@@ -2345,6 +2609,10 @@
    "it": [
     "I soldati hanno portato tutti|sulle montagne?!",
     "I soldati hanno trascinato gli|abitanti sulle montagne."
+   ],
+   "ru": [
+    "Солдаты увели всех в горы?!",
+    "Солдаты увели горожан в|горы."
    ]
   },
   {
@@ -2380,6 +2648,10 @@
    "it": [
     "Guardie dappertutto in questa|miniera! Occhio, Nigel!",
     "Attraversa le gallerie e cerca|i dispersi."
+   ],
+   "ru": [
+    "В шахте полно стражи! Будь|начеку, Найджел!",
+    "Пробивайся по туннелям и|ищи пропавших людей."
    ]
   },
   {
@@ -2416,6 +2688,10 @@
    "it": [
     "Tre tunnel! Altri prigionieri|negli altri due.",
     "La miniera si divide in tre|tunnel. Esplora gli altri due."
+   ],
+   "ru": [
+    "Три туннеля! В двух других|ещё пленники.",
+    "Шахта делится на три|туннеля. Обыщи два других."
    ]
   },
   {
@@ -2452,6 +2728,10 @@
    "it": [
     "Dex è a terra! Ma questa|miniera ha ancora segreti.",
     "Continua a esplorare le|gallerie. Libera chi trovi."
+   ],
+   "ru": [
+    "Декс повержен! Но у шахты|ещё есть секреты.",
+    "Исследуй туннели дальше.|Освободи найденных людей."
    ]
   },
   {
@@ -2486,6 +2766,10 @@
    "it": [
     "Marley è il passato! Vediamo|dove porta la miniera.",
     "Cerca come proseguire in fondo|alla miniera."
+   ],
+   "ru": [
+    "Марли побеждён! Куда ведёт|шахта?",
+    "Ищи дорогу дальше в самом|конце шахты."
    ]
   },
   {
@@ -2521,6 +2805,10 @@
    "it": [
     "Un villaggio a ovest della|miniera! Il Duca è andato là.",
     "Il Duca ha portato i soldati|in un villaggio a ovest|della miniera."
+   ],
+   "ru": [
+    "Деревня к западу от шахты!|Герцог пошёл туда.",
+    "Герцог повёл солдат в|деревню к западу от шахты."
    ]
   },
   {
@@ -2556,6 +2844,10 @@
    "it": [
     "Destel? Solo attraverso il|tunnel della miniera!",
     "L'unica via per Destel è il|tunnel della miniera."
+   ],
+   "ru": [
+    "Дестел? Только через|туннель шахты!",
+    "В Дестел ведёт только|туннель в шахте."
    ]
   },
   {
@@ -2591,6 +2883,10 @@
    "it": [
     "Rotta su Destel! Il Duca e i|suoi soldati sono andati là.",
     "Il Duca e i suoi soldati sono|partiti per Destel. Seguili!"
+   ],
+   "ru": [
+    "В Дестел! Герцог и его|солдаты пошли туда.",
+    "Герцог с солдатами пошёл в|Дестел. Иди за ними!"
    ]
   },
   {
@@ -2626,6 +2922,10 @@
    "it": [
     "Nani brontoloni! Chiediamo se|il Duca è passato di qui.",
     "Parla con tutti a Destel.|Qualcuno ha visto dove è|andato il Duca."
+   ],
+   "ru": [
+    "Ворчливые гномы! Спросим,|не проходил ли тут герцог.",
+    "Поговори со всеми в|Дестеле. Кто-то видел, куда|ушёл герцог."
    ]
   },
   {
@@ -2661,6 +2961,10 @@
    "it": [
     "Scappa su una zattera!|Troveremo un'altra strada,|Nigel!",
     "Tornato a Destel, qualcuno|conosce un'altra via|per il lago."
+   ],
+   "ru": [
+    "Он уплывает на плоту!|Найдём другой путь,|Найджел!",
+    "В Дестеле кто-то знает|другой путь вниз к озеру."
    ]
   },
   {
@@ -2697,6 +3001,10 @@
    "it": [
     "Questo pozzo porta a una|vecchia grotta! Mostri, bleah!",
     "Il pozzo di Destel porta a una|grotta antica piena di mostri."
+   ],
+   "ru": [
+    "Колодец ведёт в старую|пещеру! Монстры, и-и-и!",
+    "Колодец в Дестеле ведёт в|древнюю пещеру монстров."
    ]
   },
   {
@@ -2732,6 +3040,10 @@
    "it": [
     "Bleah, è tutto bagnato e buio!|Avanti, un'uscita ci sarà!",
     "Combatti per attraversare e|uscire fino al lago dall'altra|parte."
+   ],
+   "ru": [
+    "Фу, мокро и темно! Иди|дальше, выход должен быть.",
+    "Пробейся и выйди к озеру на|другой стороне."
    ]
   },
   {
@@ -2766,6 +3078,10 @@
    "it": [
     "Il Duca è entrato in quel|tempio! Non lasciarlo|scappare!",
     "Entra nel tempio dietro di|lui. Prenditela con calma."
+   ],
+   "ru": [
+    "Герцог зашёл в то|святилище! Не дай ему уйти!",
+    "Иди за ним в святилище. Не|спеши."
    ]
   },
   {
@@ -2801,6 +3117,10 @@
    "it": [
     "Quanti piani e quante chiavi!|Pazienza, Nigel. Salva spesso!",
     "Cerca interruttori e chiavi|per salire. Sii paziente."
+   ],
+   "ru": [
+    "Сколько этажей и ключей!|Терпение, Найджел. И|сохраняйся!",
+    "Ищи рычаги и ключи, чтобы|открыть путь вверх.|Терпение."
    ]
   },
   {
@@ -2835,6 +3155,10 @@
    "it": [
     "Grazie, Mir! Ora dalla porta|nord del castello!",
     "Mir ha detto: porta nord del|castello, poi le montagne|a nord-ovest."
+   ],
+   "ru": [
+    "Спасибо, Мир! Теперь через|северные ворота замка!",
+    "Мир сказал: северные ворота|замка, потом горы на|северо-запад."
    ]
   },
   {
@@ -2869,6 +3193,10 @@
    "it": [
     "L'Occhio ha fatto qualcosa!|Prendiamo quel Duca!",
     "Guarda intorno a dove hai|usato l'Occhio. Il Duca è|vicino."
+   ],
+   "ru": [
+    "Глаз что-то сделал! Теперь|поймаем герцога!",
+    "Осмотрись там, где ты|использовал Глаз. Герцог|близко."
    ]
   },
   {
@@ -2903,6 +3231,10 @@
    "it": [
     "Qualcosa si è aperto! Vediamo|dove porta!",
     "Cerca ciò che l'Occhio ha|aperto."
+   ],
+   "ru": [
+    "Что-то открылось! Куда это|ведёт?",
+    "Найди то, что открыл Глаз."
    ]
   },
   {
@@ -2938,6 +3270,10 @@
    "it": [
     "Grotta inquietante! Attento,|Nigel, sento trappole!",
     "Avanza nella grotta. Cerca|come proseguire."
+   ],
+   "ru": [
+    "Жуткая пещера! Смотри под|ноги, Найджел, тут ловушки!",
+    "Пройди через пещеру. Ищи|путь дальше."
    ]
   },
   {
@@ -2973,6 +3309,10 @@
    "it": [
     "Una città in capo al mondo?|Riposiamo e facciamo scorta,|la fine si avvicina!",
     "Poi guarda dove porta la|strada. Il Duca non può essere|lontano."
+   ],
+   "ru": [
+    "Город в такой глуши?|Отдохнём и запасёмся, конец|близок!",
+    "Потом смотри, куда ведёт|дорога. Герцог недалеко."
    ]
   },
   {
@@ -3009,6 +3349,10 @@
    "it": [
     "Sconfiggi tre mostri nel|labirinto per raggiungere|il palazzo!",
     "Sconfiggi i tre mostri del|labirinto per raggiungere|il palazzo."
+   ],
+   "ru": [
+    "Победи трёх монстров в|лабиринте, и во дворец!",
+    "Победи трёх монстров|лабиринта и иди во дворец."
    ]
   },
   {
@@ -3044,6 +3388,10 @@
    "it": [
     "Che labirinto pazzesco!|L'incanto di Mir taglia gli|alberi sacri...",
     "Cerca qualcosa per|attraversare l'acqua. Guarda|la mappa."
+   ],
+   "ru": [
+    "Какой безумный лабиринт!|Заклятие Мира рубит|священные деревья...",
+    "Ищи то, что поможет|пересечь воду. Следи за|картой."
    ]
   },
   {
@@ -3080,6 +3428,10 @@
    "it": [
     "Mostri in questo labirinto!|Sconfiggili tutti e tre,|Nigel!",
     "Sconfiggi qui i tre mostri per|raggiungere il palazzo."
+   ],
+   "ru": [
+    "Тут монстры! Победи всех|троих, Найджел!",
+    "Победи всех трёх монстров,|чтобы попасть во дворец."
    ]
   },
   {
@@ -3117,6 +3469,10 @@
    "it": [
     "Una zattera per il fiume!|Prima trova il figlio del|nano.",
     "Trova il figlio del vecchio|nano e porta dei tronchi per|una zattera."
+   ],
+   "ru": [
+    "Плот для реки! Сначала|найди сына гнома.",
+    "Найди сына старого гнома и|добудь брёвна для плота."
    ]
   },
   {
@@ -3154,6 +3510,10 @@
    "it": [
     "In alto! Quest'albero sarà una|bella zattera!",
     "Sali e taglia l'albero per|costruire una zattera."
+   ],
+   "ru": [
+    "Наверх! Из того дерева|выйдет отличный плот!",
+    "Поднимись наверх и срубли|дерево на плот."
    ]
   },
   {
@@ -3190,6 +3550,10 @@
    "it": [
     "La seconda zattera è pronta!|Forza, siamo più vicini!",
     "Segui il labirinto. Guarda la|mappa per le sale non provate."
+   ],
+   "ru": [
+    "Второй плот готов! Идём,|мы, кажется, греемся!",
+    "Иди по лабиринту дальше.|Смотри карту, где ещё не|был."
    ]
   },
   {
@@ -3226,6 +3590,10 @@
    "it": [
     "Che sbruffone! Il Duca è da|qualche parte avanti.|Prendilo!",
     "Continua e tieni d'occhio|la salute."
+   ],
+   "ru": [
+    "Вот хвастун! Герцог где-то|впереди. Поймай его!",
+    "Иди дальше и следи за|здоровьем."
    ]
   },
   {
@@ -3261,6 +3629,10 @@
    "it": [
     "Che posto! Il tesoro deve|essere qui da qualche parte!",
     "Guardati intorno. Porte e|interruttori nascondono forse|la via."
+   ],
+   "ru": [
+    "Вот это место! Клад где-то|тут, точно!",
+    "Осмотрись. Двери и рычаги|могут скрывать путь вглубь."
    ]
   },
   {
@@ -3296,6 +3668,10 @@
    "it": [
     "Ci siamo, Nigel! Curati, poi|andiamo a prendere quel|tesoro!",
     "Sconfiggi il guardiano|nell'arena. Ce la puoi fare,|Nigel!"
+   ],
+   "ru": [
+    "Вот оно, Найджел!|Подлечись, и хватаем клад!",
+    "Победи стража на арене. Ты|справишься, Найджел!"
    ]
   }
  ]
