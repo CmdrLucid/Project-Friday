@@ -604,6 +604,25 @@ def main():
             subprocess.run([sys.executable, jt, rom, os.path.join(work, "out", "lang")], cwd=work, timeout=120, capture_output=True)
         except Exception:
             pass
+    # MOD LAYER v1 (user 2026-11-22): a language mod (mods/lang/<code>.json in the data folder, tools/modlayer.py) newer than its built language
+    # file -> that language is rebuilt (~3 s) before the game starts
+    ldir, lb = os.path.join(work, "out", "lang"), os.path.join(work, "tools", "langbuild.py")
+    mdir = os.path.join(os.environ.get("LANDSTALKER_MODS") or os.path.join(DATA, "mods"), "lang")
+    if os.path.isdir(mdir) and os.path.isfile(lb):
+        for f in sorted(os.listdir(mdir)):
+            code = f[:-5] if f.endswith(".json") else ""
+            out = os.path.join(ldir, code + ".bin")
+            if code and os.path.isfile(os.path.join(work, "lang", f)) and (not os.path.isfile(out) or os.path.getmtime(os.path.join(mdir, f)) > os.path.getmtime(out)):
+                try:
+                    subprocess.run([sys.executable, lb, rom, os.path.join(work, "lang"), ldir, "--only", code], cwd=work, timeout=300, capture_output=True)
+                except Exception:
+                    pass
+    mp = os.path.join(work, "tools", "modpage.py")   # the mod workshop page 'Mod Workshop.html' in the mods folder (no server: opened from the disk; rewritten only when its inputs changed)
+    if os.path.isfile(mp):
+        try:
+            subprocess.run([sys.executable, mp, rom, os.path.join(work, "lang"), os.path.dirname(mdir)], cwd=work, timeout=120, capture_output=True)
+        except Exception:
+            pass
     env = dict(os.environ)
     env.setdefault("HOME", os.path.expanduser("~"))     # the game keeps its settings in ~/.landstalker_* (Windows: the user profile)
     if WIN:

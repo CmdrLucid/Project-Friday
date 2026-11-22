@@ -73,7 +73,7 @@ def main():
             copy(os.path.join(ROOT, "lang", f), os.path.join(pkg, "lang", f))
     for f in sorted(os.listdir(os.path.join(ROOT, "tools"))):
         p = os.path.join(ROOT, "tools", f)
-        if os.path.isfile(p) and f.endswith((".py", ".c", ".h", ".json", ".sh")):
+        if os.path.isfile(p) and f.endswith((".py", ".c", ".h", ".json", ".sh", ".html")):
             copy(p, os.path.join(pkg, "tools", f))
     shutil.copytree(os.path.join(ROOT, "vendor", "genrecomp"), os.path.join(pkg, "vendor", "genrecomp"))
     shutil.copytree(zig_win, os.path.join(pkg, "vendor", "zig"))

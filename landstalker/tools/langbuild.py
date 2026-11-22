@@ -11,6 +11,7 @@ Binary format (all numbers big endian):  'LKLG' u16 version(2) u16 n_str u16 n_n
 import hashlib, json, struct, sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import stringdump as sd
+import modlayer   # MOD LAYER v1
 
 HANDLER = [0x15, 0xE, 0x01, 0xB, 0xC, 0x05, 0x07, 0x06, 0x04, 0x03, 0x02, 0x18, 0x0F, 0x0D, 0x08, 0x09, 0x0A, 0x17, 0x19]   # ControlChars table: code $56 + k -> handler index
 CTL = {v: k for k, v in sd.CONTROL.items()}
@@ -387,7 +388,29 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
     return lang.get("meta", {})
 
 
+ONLY = None   # --only CODE
+
+
+def mod_check(en):
+    """MOD LAYER v1: the rule of build_one's check for a modder's text (tools/modpage.html checks the same while typing): the control codes
+    except the layout ones (line breaks, pauses) stay as in the English source, {=name} placeholders allowed, no unknown {code}"""
+    import re
+    def codes(t): return sorted(m for m in re.findall(r"\{([^}]*)\}", t) if m not in LAYOUT and not m.startswith("="))
+    def check(blk, key, t):
+        for m in re.findall(r"\{([^}]*)\}", t):
+            if not (m.startswith("=") or m in CTL or m in NAMECTL): return "unknown code {%s}" % m
+        if t.count("{") != t.count("}"): return "a brace { or } is missing"
+        if blk == "strings":
+            src = en.get(key)
+            if src is None: return "no such entry in the ROM"
+            if codes(src) != codes(t): return "codes differ from the English text: %s vs %s" % (codes(src), codes(t))
+        return None
+    return check
+
+
 def main():
+    global ONLY
+    if "--only" in sys.argv: i = sys.argv.index("--only"); ONLY = sys.argv[i + 1]; del sys.argv[i:i + 2]
     rom = open(sys.argv[1], "rb").read()
     en = sd.decode_all(rom)
     if os.path.isdir(sys.argv[2]):                  # directory mode: every lang/*.json -> <out>/<code>.bin + <out>/index.txt ("code<TAB>name", English is built in)
@@ -395,12 +418,21 @@ def main():
         for f in sorted(os.listdir(sys.argv[2])):
             if not f.endswith(".json") or f in ("friday_hints.json", "names.json", "en_items.json", "ja_map.json"): continue   # ja_map.json: tools/jplang.py   # en_items.json = the Japanese items for the original English (en.items.bin, below)   # friday_hints.json = the Friday Hints texts (tools/patch_friday.py), names.json = the Names option table: not languages
             code = f[:-5]
-            meta = build_one(rom, en, os.path.join(sys.argv[2], f), os.path.join(outdir, code + ".bin"))
-            lj = json.load(open(os.path.join(sys.argv[2], f), encoding="utf-8"))
+            if ONLY and code != ONLY:   # --only CODE (tools/modshop.py, firstrun.py): one language rebuilt, the others only listed in index.txt
+                idx.append("%s\t%s" % (code, json.load(open(os.path.join(sys.argv[2], f), encoding="utf-8")).get("meta", {}).get("name", code))); continue
+            lj0 = json.load(open(os.path.join(sys.argv[2], f), encoding="utf-8")); mod = modlayer.load_lang_mod(code)   # MOD LAYER v1: the user's own corrections (mods/lang/<code>.json)
+            if mod or os.path.isfile(modlayer.lang_mod_path(code)):
+                nmod, bad = modlayer.apply(lj0, mod, en, mod_check(en)); modlayer.save_report(code, bad)
+                print("langbuild: %s: %d texts from the mod %s, %d refused" % (code, nmod, modlayer.lang_mod_path(code), len(bad)))
+                for b_, k_, w_ in bad: print("  mod text refused (the translation stays):", b_, k_, "-", w_)
+            meta = build_one(rom, en, json.loads(json.dumps(lj0)), os.path.join(outdir, code + ".bin"))
+            lj = lj0
             for blk in ("strings", "names"):   # LK_LGNAMES v1: entries not translated yet = the original English with the Japanese names
                 for k, ent in ((jl or {}).get(blk) or {}).items(): lj.setdefault(blk, {}).setdefault(k, ent)
             build_one(rom, en, lj, os.path.join(outdir, code + ".jpn.bin"), "jp")   # the same language with the Japanese character names
             idx.append("%s\t%s" % (code, meta.get("name", code)))
+        if ONLY:   # (the English variants are not touched by a language mod)
+            open(os.path.join(outdir, "index.txt"), "w", encoding="utf-8").write("\n".join(idx) + ("\n" if idx else "")); return
         ei = os.path.join(sys.argv[2], "en_items.json")   # LK_JPITEMS v1: Options > Items = Japanese with the original English
         ej = json.load(open(ei, encoding="utf-8")) if os.path.exists(ei) else None
         if ej: build_one(rom, en, ej, os.path.join(outdir, "en.items.bin"))

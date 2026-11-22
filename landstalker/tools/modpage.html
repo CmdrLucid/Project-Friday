@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project-Friday Mod Workshop</title>
+<!-- MOD LAYER v1 (tools/modpage.py writes this page + workshop/data.js into the user's mods folder; no server: opened from the disk) -->
+<style>
+:root { --bg:#14161c; --panel:#1d2029; --line:#2c303c; --text:#e6e8ee; --dim:#9aa0ae; --acc:#e0b24a; --ok:#5cc28a; --bad:#e06a5a; --mod:#243328; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.app { display:grid; grid-template-columns:220px 1fr; min-height:100vh; }
+nav { background:var(--panel); border-right:1px solid var(--line); padding:16px 0; }
+nav h1 { font-size:15px; margin:0 16px 14px; color:var(--acc); }
+nav .sec { font-size:11px; text-transform:uppercase; color:var(--dim); margin:14px 16px 6px; letter-spacing:.08em; }
+nav a { display:block; padding:8px 16px; color:var(--text); text-decoration:none; border-left:3px solid transparent; }
+nav a.on { background:#262a35; border-left-color:var(--acc); }
+nav a.off { color:#5d6270; pointer-events:none; } nav a.off::after { content:" (later)"; font-size:11px; }
+nav .foot { font-size:11px; color:var(--dim); padding:16px; word-break:break-all; }
+main { padding:16px 20px 60px; min-width:0; }
+.bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; }
+select, input[type=search], button { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:6px 10px; font:inherit; }
+button { cursor:pointer; } button.main { background:var(--acc); color:#1a1a1a; border-color:var(--acc); font-weight:600; }
+button:disabled { opacity:.5; cursor:default; }
+input[type=search] { min-width:200px; flex:1; }
+.help { color:var(--dim); font-size:12px; margin:0 0 10px; } .help code { color:var(--acc); }
+table { width:100%; border-collapse:collapse; table-layout:fixed; }
+th { text-align:left; font-weight:600; color:var(--dim); font-size:12px; padding:6px 8px; border-bottom:1px solid var(--line); background:var(--bg); }
+td { vertical-align:top; padding:6px 8px; border-bottom:1px solid var(--line); white-space:pre-wrap; word-break:break-word; }
+td.id { width:110px; color:var(--dim); font-family:ui-monospace, monospace; font-size:12px; }
+td.en { color:#b9bfcc; }
+tr.mod td { background:var(--mod); } tr.bad td { background:#3a2524; }
+textarea { width:100%; min-height:38px; resize:vertical; background:#12141a; color:var(--text); border:1px solid var(--line); border-radius:5px; padding:5px 7px; font:inherit; }
+textarea.dirty { border-color:var(--acc); }
+.tag { color:var(--acc); }
+.pager { display:flex; gap:6px; align-items:center; margin:10px 0; color:var(--dim); }
+#status { margin:8px 0; min-height:20px; white-space:pre-wrap; } #status.ok { color:var(--ok); } #status.bad { color:var(--bad); }
+.why { color:var(--bad); font-size:12px; }
+#nodata { padding:40px; color:var(--bad); }
+@media (max-width:760px) { .app { grid-template-columns:1fr; } nav { border-right:0; border-bottom:1px solid var(--line); } td.en { display:none; } }
+</style>
+<script src="workshop/data.js"></script>
+</head>
+<body>
+<div class="app">
+<nav>
+  <h1>Project-Friday<br>Mod Workshop</h1>
+  <div class="sec">Mod layers</div>
+  <a href="#" class="on">Language</a><a href="#" class="off">Character names</a><a href="#" class="off">Light shapes</a>
+  <div class="foot" id="foot"></div>
+</nav>
+<main>
+  <div class="bar">
+    <select id="lang"></select>
+    <select id="filter">
+      <option value="all">All texts</option><option value="mod">My changes</option><option value="untr">Not translated yet</option>
+      <option value="b:names">Names / menus</option><option value="b:map_areas">Map areas</option><option value="b:item_dialog">Items in dialogue</option>
+      <option value="b:strings">Dialogue</option><option value="b:ui_text">Options menu</option>
+    </select>
+    <input type="search" id="q" placeholder="Search id or text ...">
+    <button class="main" id="save" disabled>Save</button>
+    <button id="imp">Import</button><input type="file" id="impf" accept=".json" hidden>
+  </div>
+  <p class="help">Write the new text in the right column; leave it empty to keep the current one. Keep the codes in braces as in the English text:
+    <code>{SoftNewLine}</code> line break, <code>{ContinuePrompt}</code> wait for a button, <code>{Speaker}</code> the speaker's name;
+    <code>{=name}</code> is a character name from the name list (it follows Options &gt; Names). Line breaks and pauses may move.
+    <b>Save</b> writes your changes file; the game uses it from its next start. To share your corrections, send that file (for example in a GitHub issue).</p>
+  <div id="status"></div>
+  <div class="pager" id="pg1"></div>
+  <table><thead><tr><th style="width:110px">Id</th><th>Original (English, from your ROM)</th><th>Current text</th><th>New text</th></tr></thead><tbody id="rows"></tbody></table>
+  <div class="pager" id="pg2"></div>
+</main>
+</div>
+<script>
+const D = window.PF_DATA, PER = 60;
+const $ = id => document.getElementById(id);
+const esc = s => (s || "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const tags = s => esc(s).replace(/\{[^}]*\}/g, m => '<span class="tag">' + m + "</span>");
+const BLOCKS = ["strings", "names", "item_dialog", "map_areas", "ui_text"];
+let L = null, mod = {}, view = [], page = 0, dirty = {}, refused = {}, dirH = null;
+const key = r => r[0] + "|" + r[1];
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+
+if (!D) { document.querySelector("main").innerHTML = '<div id="nodata">workshop/data.js is missing next to this page. Start the game once: it writes the page and its data into the mods folder.</div>'; }
+else init();
+
+function init() {
+  $("foot").innerHTML = "Mods folder:<br>" + esc(D.mods) + "<br><br>Texts of " + esc(D.generated);
+  $("lang").innerHTML = D.languages.map(l => `<option value="${l.code}">${esc(l.name)} (${l.code})${Object.keys(l.mod || {}).length > 1 ? " *" : ""}</option>`).join("");
+  const last = store.get("pf_lang"); if (last && D.languages.some(l => l.code === last)) $("lang").value = last;
+  pick();
+}
+function enOf(r) { return r[0] === "ui_text" ? r[1] : r[0] === "map_areas" ? r[1].replace(/_/g, " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : (D.en[r[1]] || ""); }
+function modOf(r) { return ((mod[r[0]] || {})[r[1]]); }
+function pick() {
+  if (Object.keys(dirty).length && !confirm("Unsaved changes of this language stay in this browser. Switch anyway?")) { $("lang").value = L.code; return; }
+  L = D.languages.find(l => l.code === $("lang").value); store.set("pf_lang", L.code);
+  mod = JSON.parse(JSON.stringify(L.mod || {})); refused = {};
+  (L.refused || []).forEach(x => refused[x.block + "|" + x.key] = "The game refused this text: " + x.why);
+  dirty = store.get("pf_draft_" + L.code) || {};
+  status(Object.keys(dirty).length ? Object.keys(dirty).length + " unsaved change(s) from your last visit - press Save to keep them." : "", Object.keys(dirty).length ? "bad" : "");
+  $("save").disabled = !Object.keys(dirty).length; filter();
+}
+function filter() {
+  const f = $("filter").value, q = $("q").value.trim().toLowerCase();
+  view = L.rows.filter(r => { const k = key(r), m = modOf(r);
+    if (f === "mod" && m == null && dirty[k] == null) return false;
+    if (f === "untr" && r[2]) return false;
+    if (f.startsWith("b:") && r[0] !== f.slice(2)) return false;
+    return !q || r[1].toLowerCase().includes(q) || enOf(r).toLowerCase().includes(q) || (r[2] || "").toLowerCase().includes(q) || (m || "").toLowerCase().includes(q); });
+  page = 0; draw();
+}
+const codes = t => (t.match(/\{([^}]*)\}/g) || []).map(m => m.slice(1, -1)).filter(m => !D.layout.includes(m) && !m.startsWith("=")).sort().join(",");
+function check(r, t) {
+  if (!t) return "";
+  if ((t.match(/\{/g) || []).length !== (t.match(/\}/g) || []).length) return "A brace { or } is missing.";
+  if (r[0] === "strings" && codes(t) !== codes(D.en[r[1]] || "")) return "The codes must stay as in the English text: " + (codes(D.en[r[1]] || "") || "none") + " (now: " + (codes(t) || "none") + ").";
+  return "";
+}
+function draw() {
+  const n = Math.max(1, Math.ceil(view.length / PER)); if (page >= n) page = n - 1;
+  const pg = `<button ${page ? "" : "disabled"} onclick="go(-1)">&lsaquo; Back</button> page ${page + 1} / ${n} (${view.length} texts) <button ${page < n - 1 ? "" : "disabled"} onclick="go(1)">Next &rsaquo;</button>`;
+  $("pg1").innerHTML = $("pg2").innerHTML = pg;
+  $("rows").innerHTML = view.slice(page * PER, page * PER + PER).map(r => {
+    const k = key(r), v = dirty[k] != null ? dirty[k] : (modOf(r) || ""), p = check(r, v) || (dirty[k] == null ? refused[k] : "");
+    return `<tr class="${p ? "bad" : (modOf(r) != null ? "mod" : "")}"><td class="id">${esc(r[1])}<br><small>${r[0]}</small></td><td class="en">${tags(enOf(r))}</td>
+      <td>${tags(r[2]) || "<i style='color:#666'>not translated</i>"}</td><td><textarea data-k="${esc(k)}" class="${dirty[k] != null ? "dirty" : ""}" placeholder="unchanged">${esc(v)}</textarea><div class="why">${esc(p || "")}</div></td></tr>`;
+  }).join("");
+}
+function go(d) { page += d; draw(); window.scrollTo(0, 0); }
+$("rows").addEventListener("input", e => {
+  const t = e.target; if (!t.dataset.k) return; const r = L.rows.find(x => key(x) === t.dataset.k);
+  if (t.value === (modOf(r) || "")) delete dirty[t.dataset.k]; else dirty[t.dataset.k] = t.value;
+  t.classList.toggle("dirty", dirty[t.dataset.k] != null);
+  const p = check(r, t.value); t.nextElementSibling.textContent = p; t.closest("tr").className = p ? "bad" : (modOf(r) != null ? "mod" : "");
+  store.set("pf_draft_" + L.code, dirty); $("save").disabled = !Object.keys(dirty).length;
+});
+function status(s, cls) { $("status").textContent = s; $("status").className = cls || ""; }
+
+async function folder() {   // Chrome / Edge: write straight into the mods folder (asked once per visit)
+  if (!window.showDirectoryPicker) return null;
+  if (dirH && (await dirH.queryPermission({ mode: "readwrite" })) === "granted") return dirH;
+  status("Choose the mods folder (" + D.mods + ") so the page can save there.");
+  try { dirH = await window.showDirectoryPicker({ id: "pfmods", mode: "readwrite" }); } catch (e) { return null; }
+  return dirH;
+}
+function modText() { return JSON.stringify(Object.assign({ meta: { code: L.code, format: 1 } }, mod), null, 1) + "\n"; }
+$("save").onclick = async () => {
+  const bad = Object.entries(dirty).filter(([k, t]) => check(L.rows.find(x => key(x) === k), t));
+  if (bad.length) return status(bad.length + " text(s) are marked red - fix them first (the game would refuse them).", "bad");
+  for (const [k, t] of Object.entries(dirty)) { const [b, ...rest] = k.split("|"), id = rest.join("|"); mod[b] = mod[b] || {}; if (t === "") delete mod[b][id]; else mod[b][id] = t; }
+  BLOCKS.forEach(b => { if (mod[b] && !Object.keys(mod[b]).length) delete mod[b]; });
+  const n = BLOCKS.reduce((a, b) => a + Object.keys(mod[b] || {}).length, 0), txt = modText();
+  const d = await folder();
+  if (d && d.name && d.name !== "mods" && !confirm('The chosen folder is "' + d.name + '", not "mods". Save there anyway?')) { dirH = null; return status("Not saved.", "bad"); }
+  if (d) {
+    try { const ld = await d.getDirectoryHandle("lang", { create: true }), fh = await ld.getFileHandle(L.code + ".json", { create: true }), w = await fh.createWritable(); await w.write(txt); await w.close(); }
+    catch (e) { return status("Saving failed: " + e, "bad"); }
+    status("Saved " + n + " changed text(s) to mods/lang/" + L.code + ".json. Start the game again to see them.", "ok");
+  } else {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type: "application/json" })); a.download = L.code + ".json"; a.click();
+    status("Your browser saved " + L.code + ".json as a download (" + n + " changed text(s)).\nMove it into  " + D.mods + "/lang/  (replace the old file), then start the game again.", "ok");
+  }
+  L.mod = JSON.parse(JSON.stringify(mod)); dirty = {}; store.set("pf_draft_" + L.code, {}); $("save").disabled = true; draw();
+};
+$("lang").onchange = pick; $("filter").onchange = filter; $("q").oninput = filter;
+$("imp").onclick = () => $("impf").click();
+$("impf").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; let m; try { m = JSON.parse(await f.text()); } catch (x) { return status("Not a mod file.", "bad"); }
+  let n = 0; BLOCKS.forEach(b => Object.entries(m[b] || {}).forEach(([k, t]) => { if (typeof t === "string") { dirty[b + "|" + k] = t; n++; } }));
+  store.set("pf_draft_" + L.code, dirty); $("save").disabled = !n; filter(); status(n + " text(s) imported - check them and press Save.", "ok"); };
+window.addEventListener("beforeunload", () => store.set("pf_draft_" + L.code, dirty));
+</script>
+</body>
+</html>
