@@ -85,8 +85,10 @@ static void lk_gl_line(int line, int u0, int v, int w) {   /* GL4, once per capt
   if (lk_gl_postfr != f) { lk_gl_postfr = f; lk_gl_postprev = lk_gl_postany; lk_gl_postany = 0; for (j = 0; j < lk_gl_pn; j++) { lk_gl_post[0][lk_gl_pl[j]] = 0; lk_gl_post[1][lk_gl_pl[j]] = 0xFFFFFFu; } lk_gl_pn = 0; }
   lk_gl_row[line] = ((uint32_t)(uint16_t)(int16_t)u0) | ((uint32_t)(uint16_t)(int16_t)v << 16); lk_gl_rowfr[line] = f; lk_gl_capfr = f; lk_gl_realcap = f; lk_gl_w = w; }
 static void lk_gl_postset(int o, uint32_t p0, uint32_t p1) { if (lk_gl_pn < 224 * 448) lk_gl_pl[lk_gl_pn++] = o; lk_gl_post[0][o] = p0; lk_gl_post[1][o] = p1; lk_gl_postany = 1; }
-static int lk_gl_classify(int x, int line, int src, int sp2, int black, int U, int V) {   /* GL4: what lk_lt_pix would do with this pixel (+ its side effects) */
+extern int lk_sf_n; extern int lk_sf_at(int U, int V, int ci); uint8_t lk_sf_px[224 * 448];   /* LK_STATFIG v1: statue tag of the plane A pixel under every composed pixel (also under a sprite) */
+static int lk_gl_classify(int x, int line, int src, int sp2, int black, int U, int V, int sft) {   /* GL4: what lk_lt_pix would do with this pixel (+ its side effects); sft = LK_STATFIG v1 statue tag */
   int j; if (black) return 0;
+  if (sft && (src == 2 || src == 3)) for (j = 0; j < lk_lt_nf && j < 16; j++) if (lk_lt_f[j].tag == sft) return 16 + j;   /* LK_STATFIG v1: a statue drawn in the picture is lit as its figure */
   if (src >= 1 && src <= 3) {
     if (U < lk_lt_umin) lk_lt_umin = U; if (U > lk_lt_umax) lk_lt_umax = U; if (V < lk_lt_vmin) lk_lt_vmin = V; if (V > lk_lt_vmax) lk_lt_vmax = V;   /* the drawn area (GL5 ring) */
     if (sp2 & 0x200) { int sl = line - lk_sm_syn, si = x + lk_wide_e - lk_sm_sxn, tg;   /* LK_FIGOWN v1 (2026-11-14, room 81 boulder): a sprite pixel belongs to its OWNER figure (wide sprites: the edges were lit as the wall behind = bright streaks) */
@@ -221,7 +223,7 @@ const uint16_t *lk_gl_fmk(void) { return &lk_lt_fmk[0][0]; }   /* figure shadow 
 void lk_gl_pairs(float *o) { int k, j; for (j = 0; j < 16; j++) for (k = 0; k < 96; k++) { float *a = o + 4 * (j * 96 + k), *b = o + 4 * ((16 + j) * 96 + k);
   a[0] = lk_lt_pn[k][j][0]; a[1] = lk_lt_pn[k][j][1]; a[2] = lk_lt_pair[k][j] ? 1.0f : 0.0f; a[3] = 0.0f; b[0] = (float)lk_lt_pbox[k][j][0]; b[1] = (float)lk_lt_pbox[k][j][1]; b[2] = (float)lk_lt_pbox[k][j][2]; b[3] = (float)lk_lt_pbox[k][j][3]; } }
 /* class + own-sprite tag per screen pixel (RGBA: class, class, hidden figure tag (LK_LTHIDE v1, lk_lt_spre2), tag): the silhouettes of the figure shadows */
-void lk_gl_clstag(uint32_t *o) { int y, x; for (y = 0; y < 224; y++) for (x = 0; x < 448; x++) { uint32_t c = lk_gl_cls[y * 448 + x] & 255u; int sp = (lk_o_spr[y][x] & 0x200) != 0; o[y * 448 + x] = c | (c << 8) | ((uint32_t)(sp ? lk_lt_spre2[y][x] : 0) << 16) | ((uint32_t)(sp ? lk_lt_spre[y][x] : 0) << 24); }
+void lk_gl_clstag(uint32_t *o) { int y, x; for (y = 0; y < 224; y++) for (x = 0; x < 448; x++) { uint32_t c = lk_gl_cls[y * 448 + x] & 255u; int sp = (lk_o_spr[y][x] & 0x200) != 0, sf = lk_sf_px[y * 448 + x]; o[y * 448 + x] = c | (c << 8) | ((uint32_t)(sp ? (lk_lt_spre2[y][x] ? lk_lt_spre2[y][x] : sf) : 0) << 16) | ((uint32_t)(sp ? lk_lt_spre[y][x] : sf) << 24); }   /* LK_STATFIG v1: a statue pixel carries its figure tag (hidden under a sprite: the second tag) */
   { static int ts = -1; if (ts < 0) { const char *e = getenv("LANDSTALKER_LT_TOPSIL"); ts = !(e && atoi(e) == 0); }   /* test aid: =0 the old cut shadow */
   for (y = 0; y < LK_LT_TOPN; y++) for (x = 0; x < 448; x++) o[(224 + y) * 448 + x] = ts ? (uint32_t)(x < LK_OSW ? lk_lt_sprt[y][x] : 0) << 24 : 0u; } }   /* LK_LTTOPSIL v1: the rows above the screen (class 0, only the figure tag) */
 /* dust motes (dmap | dmz << 8) and particle depths (mz | md << 16) as RGBA words, 512 x 512 */
@@ -273,7 +275,8 @@ void lk_gl_unpaint(void) { int q, ts = -1;
     a = "      /* LK_LIGHTS: the map pixel is lit on the GPU"
     i0 = s.index(a); i1 = s.index("\n", i0) + 1
     s = s[:i0] + ("      int lk_gl_k = 0; uint32_t lk_gl_p0 = 0, lk_gl_p1 = 0xFFFFFFu; lk_gl_pf = 0;   /* %s */\n" % VER +
-           "      if (lk_gl_real) lk_gl_k = lk_gl_classify(x, line, src, src == 1 ? sp : 0, black || lk_o_ovw, ubase + x - lk_sm_sxn, vbase - lk_sm_syn);   /* LK_OVWUNLIT v1: arrows above the text box unlit */   /* GL4: the GPU lights it (the only light since 2026-11-12) */\n") + s[i1:]
+           "      int lk_sf_t = (lk_gl_real && lk_sf_n && !black && !lk_o_ovw) ? lk_sf_at(ubase + x - lk_sm_sxn, vbase - lk_sm_syn, ai) : 0;   /* LK_STATFIG v1 */\n"
+           "      if (lk_gl_real) lk_gl_k = lk_gl_classify(x, line, src, src == 1 ? sp : 0, black || lk_o_ovw, ubase + x - lk_sm_sxn, vbase - lk_sm_syn, lk_sf_t);   /* LK_OVWUNLIT v1: arrows above the text box unlit */   /* GL4: the GPU lights it (the only light since 2026-11-12) */\n") + s[i1:]
     rep("memcpy(lk_lt_sd, lk_lt_sdn, sizeof lk_lt_sd);", "memcpy(lk_lt_sd, lk_lt_sdn, sizeof lk_lt_sd); lk_gl_sunver++;")
     # GL4: emissive mixes after the light point -> 'mix after the light' (applied to black and white) when the GPU lights the pixel
     def fx(cond, call, prelit=None):
@@ -287,7 +290,7 @@ void lk_gl_unpaint(void) { int q, ts = -1;
     fx("lk_dz_ln && !black && src != 4", "lk_dz_pix(line, i, @)")
     a = "      lk_mh_hit = nohud ? lk_mh_pix(line, i, &col) : 0;"
     rep(a, "      if (lk_gl_k && nohud) { int cc = col; lk_mh_hit = lk_mh_pix(line, i, &cc); if (cc != col) { int q0 = (int)(0xFF000000u | lk_gl_p0), q1 = (int)(0xFF000000u | lk_gl_p1); lk_mh_pix(line, i, &q0); lk_mh_pix(line, i, &q1); lk_gl_p0 = (uint32_t)q0 & 0xFFFFFFu; lk_gl_p1 = (uint32_t)q1 & 0xFFFFFFu; } }   /* %s: the Modern HUD (soft edges) mixes after the light */\n      else " % VER + a.lstrip() +
-           "\n      if (lk_gl_real) { lk_gl_cls[line * 448 + i] = (uint8_t)lk_gl_k; if (lk_gl_k && (lk_gl_p0 != 0 || lk_gl_p1 != 0xFFFFFFu)) lk_gl_postset(line * 448 + i, lk_gl_p0, lk_gl_p1); }   /* %s */" % VER)
+           "\n      if (lk_gl_real) { lk_gl_cls[line * 448 + i] = (uint8_t)lk_gl_k; lk_sf_px[line * 448 + i] = (uint8_t)lk_sf_t; if (lk_gl_k && (lk_gl_p0 != 0 || lk_gl_p1 != 0xFFFFFFu)) lk_gl_postset(line * 448 + i, lk_gl_p0, lk_gl_p1); }   /* %s */" % VER)
     open(p, "w").write(s)
     print("vdp_render.c patched:", VER)
 else:

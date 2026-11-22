@@ -126,6 +126,7 @@ def cat_table():   # data/object_blocks.json (OBJECT CATALOGUE, LIGHT_PROXY_PLAN
     return ("static const int16_t lk_lt_catc[][3] = { {0, 0, 0}%s };\n" % "".join(", " + c for c in cls) +
             "static const int16_t lk_lt_cat[][3] = { %s };\n" % ", ".join(rows + ["{-1, 0, 0}"]))
 MESHES = []
+STATFIG = []   # LK_STATFIG v1
 def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN step 2) -> C rows {room, op, a[7]}
     path = os.environ.get("LANDSTALKER_LIGHTPROXY_JSON") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "light_proxies.json")
     if not os.path.isfile(path): sys.exit("patch_lights: %s is missing (the light data must be next to tools/, v1.9.0 shipped a game built without it)" % path)
@@ -136,6 +137,14 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
             for f, t in lst: uptile.append("{%d, 0x%X, 0x%X}" % (int(ts), int(f, 16), int(t, 16)))
         for room, lst in sorted(json.load(open(path))["rooms"].items(), key=lambda kv: int(kv[0])):
             for e in lst:
+                if e["op"] == "figure":   # LK_STATFIG v1 (user 2026-11-22: 'die 2 Statuen ... wie den Figuren nur den Schatten'): a statue DRAWN in the room picture is lit and casts
+                    # its shadow like a figure (Round Figures + figure shadows): "foot" [x, y, z] world, "box" [U0, V0, U1, V1] picture pixels (U = x - y + 1184, V = (x + y) / 2 - z),
+                    # "colours" = the plane A colour indices that belong to it (the pedestal / floor tiles in the box share plane A); its automatic shape goes with a "remove" op
+                    f3 = [int(v) for v in e["foot"]]; bx = e["box"] if isinstance(e["box"][0], list) else [e["box"]]; cm = sum(1 << int(c) for c in e["colours"])   # "box" may be up to 4 boxes (body / feet: stray pedestal / floor pixels of the same colours stay out);
+                    # a box [U0, V0, U1, V1, [colours]] has its own colours (a highlight in a pedestal colour)
+                    assert len(f3) == 3 and 1 <= len(bx) <= 4 and all(len(b) in (4, 5) for b in bx) and 0 < cm < 65536
+                    b4 = [v for b in bx for v in [int(x) for x in b[:4]] + [sum(1 << int(c) for c in b[4]) if len(b) == 5 else cm]] + [1, 1, 0, 0, 0] * (4 - len(bx))
+                    STATFIG.append("{%d, %s, %s}" % (int(room), ", ".join(map(str, f3)), ", ".join(map(str, b4)))); continue
                 if e["op"] == "prism":   # v9: compiled like a mesh (op 5): "poly" [[x, y], ...] world units, "top" (or "cell" = keep the cell's own height: a cookie cutter), "bottom" (= a slab, air below), "floor"
                     top = -999 if e.get("top", "cell") == "cell" else int(e["top"]); bot = e.get("bottom"); c = prism_cells(e["poly"], top, -32768 if bot is None else int(bot)); mi = len(MESHES)
                     assert c, ("light_proxies.json: room %s prism covers nothing" % room)
@@ -172,6 +181,13 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
     print("patch_lights: model triangles for the GPU: %s" % ", ".join("%d%s" % (len(MTRI[i]) // 18, "" if MSURF.get(i) else "(test)") for i in sorted(MTRI)))
     mesh += "static const int16_t lk_lt_carrier[][9] = { " + ", ".join(CARRIER + ["{-1, 0, 0, 0, 0, 0, 0, 0, 0}"]) + " };   /* LK_GLCARRIER v1: {room, cells x0 y0 x1 y1, radius, axis x y, flame z}: a flame standing in these cells sits on the stand's axis and is not shadowed by its own stand within radius (data/light_proxies.json \"carrier\") */\n"
     mesh += "static const int16_t lk_lt_uptile[][3] = { " + ", ".join(uptile + ["{-1, 0, 0}"]) + " };   /* LK_LTUNPAINT v1: tileset, painted shadow tile -> the same tile without the shadow (data/light_proxies.json unpaint_tiles) */\n"
+    print("patch_lights: %d statues lit as figures (LK_STATFIG v1)" % len(STATFIG))
+    mesh += ("static const int32_t lk_sf_tab[][24] = { " + ", ".join(STATFIG + ["{-1}"]) + " };   /* LK_STATFIG v1: {room, foot x y z, 4 x picture box U0 V0 U1 V1 + its plane A colour mask (an unused one empty)} */\n"
+             "int lk_sf_n, lk_sf_q[4];   /* this frame's statue figures (lk_lt_f tags 240 + n) and their table rows */\n"
+             "int lk_sf_on(void) { static int o = -1; if (o < 0) { const char *e = getenv(\"LANDSTALKER_STATFIG\"); o = e ? atoi(e) != 0 : 1; } return o; }   /* test aid LANDSTALKER_STATFIG=0: statues without figure light */\n"
+             "int lk_sf_at(int U, int V, int ci) { int n; if (!ci) return 0; for (n = 0; n < lk_sf_n; n++) { const int32_t *t = lk_sf_tab[lk_sf_q[n]]; int b; for (b = 4; b < 24; b += 5) if (((t[b + 4] >> ci) & 1) && U >= t[b] && U <= t[b + 2] && V >= t[b + 1] && V <= t[b + 3]) return 240 + n; } return 0; }   /* tag of the statue whose plane A pixel (colour index ci) lies at picture (U, V), 0 none */\n"
+             "void lk_sf_uni(float *f) { int n, b; for (n = 0; n < 2; n++) { const int32_t *t = n < lk_sf_n ? lk_sf_tab[lk_sf_q[n]] : 0; for (b = 0; b < 4; b++) { f[16 * n + 4 * b] = t ? (float)t[4 + 5 * b] : 1.0f; f[16 * n + 4 * b + 1] = t ? (float)t[5 + 5 * b] : 1.0f; f[16 * n + 4 * b + 2] = t ? (float)t[6 + 5 * b] : 0.0f; f[16 * n + 4 * b + 3] = t ? (float)t[7 + 5 * b] : 0.0f;   /* (empty box: U0 > U1) */\n"
+             "  f[32 + 4 * n + b] = t ? (float)t[8 + 5 * b] : 0.0f; } f[40 + n] = t ? (float)(240 + n) : 0.0f; } f[42] = f[43] = 0.0f; }   /* GPU picture engine: uSf[0..7] = 4 boxes per statue, uSf[8 + n] = their colour masks, uSf[10] = the 2 tags (patch_gpucomp.py) */\n")
     return "static const lk_lt_corr_t lk_lt_corr[] = { " + ", ".join(rows + ["{-1, 0, {0}}"]) + " };\n" + mesh
 p = os.path.join(root, "ext/Genesis-Plus-GX/core/vdp_render.c")
 s = open(p).read()
@@ -2143,6 +2159,14 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     lk_lt_f[lk_lt_nf].sun = lk_lt_sun ? lk_lt_sd[2] * fminf(lk_lt_sunvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f, 0), lk_lt_plantvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f)) : lk_lt_key ? lk_lt_keyvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f) : 0.0f;
     lk_lt_nf++;
   }
+  { int q, nj = -1; lk_sf_n = 0;   /* LK_STATFIG v1: statues drawn in the room picture join the figures (their world foot; the screen anchor through Nigel's own picture -> sprite offset) */
+    for (j = 0; j < lk_lt_nf; j++) if (lk_lt_f[j].tag == 1) { nj = j; break; }
+    if (nj >= 0 && lk_sf_on()) for (q = 0; lk_sf_tab[q][0] >= 0 && lk_lt_nf < 16 && lk_sf_n < 2; q++) if (lk_sf_tab[q][0] == lk_o_room) {
+      const lk_lt_fig *N = &lk_lt_f[nj]; lk_lt_fig *F = &lk_lt_f[lk_lt_nf]; float du = (float)N->ax - (N->fx - N->fy), dv = (float)N->ay - ((N->fx + N->fy) * 0.5f - N->fz);
+      F->fx = (float)lk_sf_tab[q][1]; F->fy = (float)lk_sf_tab[q][2]; F->fz = (float)lk_sf_tab[q][3];
+      F->ax = (int)lroundf(F->fx - F->fy + du); F->ay = (int)lroundf((F->fx + F->fy) * 0.5f - F->fz + dv); F->tag = 240 + lk_sf_n;
+      F->sun = lk_lt_sun ? lk_lt_sd[2] * fminf(lk_lt_sunvis(F->fx, F->fy, F->fz + 20.0f, 0), lk_lt_plantvis(F->fx, F->fy, F->fz + 20.0f)) : lk_lt_key ? lk_lt_keyvis(F->fx, F->fy, F->fz + 20.0f) : 0.0f;
+      lk_sf_q[lk_sf_n++] = q; lk_lt_nf++; } }
   lk_lt_nfb = 0;
   if (lk_lt_key && lk_lt_sd[2] > 0.05f) { float du = lk_lt_sd[0] - lk_lt_sd[1], dv = (lk_lt_sd[0] + lk_lt_sd[1]) * 0.5f - lk_lt_sd[2], tm = 120.0f / lk_lt_sd[2], ex = -tm * du, ey = -tm * dv;   /* v8: a shadow point lies at most 64 below the foot (t <= (56 + 64) / sd_z) */
     for (j = 0; j < lk_lt_nf; j++) { float *B = lk_lt_fb[lk_lt_nfb]; lk_lt_fbj[lk_lt_nfb++] = j;
