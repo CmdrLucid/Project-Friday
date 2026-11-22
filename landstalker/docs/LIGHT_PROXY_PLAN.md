@@ -284,3 +284,7 @@ stand-ins); (d) recurring objects from the catalogue as models; (e) roll out, th
 - Op `"ground"`: `"cells": [x0, y0, x1, y1, height]` (LK_LTGROUND v1, op 12): height map cells that are VOID (0x4000) but drawn as solid get `height` (only void cells change; ops apply in file order, so a smaller area first). Test aid LANDSTALKER_LT_GROUND=0. Used by the church angel's pedestal (23 x 27..28 = 32) and niche floor (23 x 26..29 = 16) in 613 614 699 700 721.
 - Since 2026-11-10 the decoration shapes are near-final remake geometry (remake/MODELS.md); the light proxies are those meshes.
 
+## 2026-11-20: PLANTS as model instances (LK_LTPLANT v1, data/plants.json)
+- `data/plants.json` = {"models": {name: "proxies/plant_NAME.obj"}, "rooms": {room: [[model, x, y, z], ...]}} (world units, foot on the ground; written by remake/recipes/plants/plants.py from the ROM picture + height map, README there). Models: pine, small, bush, bigtree (origin = drawn foot).
+- patch_lights.py plant_table(): one triangle list per model (lk_lt_pmt / lk_lt_pmn / footprint radius lk_lt_pmr) + lk_lt_plant {room, model, 4x, 4y, z}. Runtime rules: see DEBUGGING 'All plants as 3D light models'.
+

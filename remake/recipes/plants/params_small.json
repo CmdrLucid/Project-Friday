@@ -1,0 +1,15 @@
+{
+ "H": 33,
+ "R": 10,
+ "zb": 10,
+ "th": 10.0,
+ "tiers": 4,
+ "taper": 0.8,
+ "notch": 0.86,
+ "droop": 1.6,
+ "tr": 2.6,
+ "trim": 0,
+ "tips": 11,
+ "offset": -1,
+ "_about": "SMALL pine light model (user 2026-11-20 'kleinere Versionen der Tanne', OK on the clay preview): the same recipe fitted to the small pine of room 475 (the big pine's tiles without its middle 16 rows: 32 px instead of 47), silhouette IoU 0.871 (tips 14) / 0.867 (tips 11)"
+}

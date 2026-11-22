@@ -10,7 +10,7 @@ import json, os, re
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.environ.get("LANDSTALKER_FRIDAY_JSON") or os.path.join(HERE, "..", "lang", "friday_hints.json")
 FRIDAY_BASE = 0xE000
-NAME = {"fr": "Friday:", "ko": "프라이데이:", "ja": "フライデー:"}   # her name in that language's text (fr = the French release keeps 'Friday'; ko / ja = names.json / the Japanese game)
+NAME = {"fr": "Friday:", "es": "Friday:", "it": "Friday:", "ru": "Фрайди:", "uk": "Фрайді:", "ko": "프라이데이:", "ja": "フライデー:"}   # es / it (LK_LGES v1): the fan translations keep 'Friday'   # her name in that language's text (fr = the French release keeps 'Friday'; ko / ja = names.json / the Japanese game)
 
 
 def hints():
@@ -28,10 +28,10 @@ def paginate(lines):
     return out + "{ContinuePrompt}"
 
 
-def latin_text(W, code, text):
-    """fr / ko: word wrap with the real glyph widths (tools/langwrap.py) -> string with control codes"""
+def latin_text(W, code, text, prefix=None):
+    """fr / ko: word wrap with the real glyph widths (tools/langwrap.py) -> string with control codes; prefix = her name for this name variant (LK_FHNAMES v1), default NAME[code]"""
     import langwrap
-    s, _ = langwrap.wrap(W, NAME[code] + " " + text)
+    s, _ = langwrap.wrap(W, (prefix or NAME[code]) + " " + text)
     return paginate([l for l in s.split("{SoftNewLine}")])
 
 

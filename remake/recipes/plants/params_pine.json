@@ -1,0 +1,16 @@
+{
+ "H": 50.67,
+ "R": 11,
+ "zb": 12.06,
+ "th": 11.69,
+ "tiers": 6,
+ "taper": 0.62,
+ "notch": 0.93,
+ "droop": 0.83,
+ "tr": 2.94,
+ "trim": 0,
+ "tips": 11,
+ "offset": -2.58,
+ "_about": "BIG pine light model: the WILD style C pine (pine_court/pine.py) fitted to the forest / town pine sprite; refit 2026-11-21 (lktest/feet/pine/fit2.py, random search incl. the seed): IoU 0.855 -> 0.914, overhang 133 -> 40 px, user OK on clay_pine2.png / fit2.png; tips 11 for the triangle budget of dense forests; offset = trunk axis minus the drawn foot (world units, x and y); seed = pine_parts seed (the tier jitter is part of the fit)",
+ "seed": 379
+}

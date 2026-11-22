@@ -69,7 +69,7 @@ def main():
             if f.endswith((".json", ".obj")):
                 rel = os.path.relpath(os.path.join(dp, f), ROOT); copy(os.path.join(ROOT, rel), os.path.join(pkg, rel))
     for f in sorted(os.listdir(os.path.join(ROOT, "lang"))):   # translations (our own text, tools/langbuild.py builds them on the player's machine)
-        if f.endswith(".json") or f in ("ko_glyphs.dat", "ko_glyphs7.dat", "ja_glyphs7.dat", "OFL-Galmuri.txt", "OFL-NotoSansCJK.txt"):   # LK_LGKO v1: the Hangul font (Galmuri 11, OFL) for the Korean language
+        if f.endswith(".json") or f in ("ko_glyphs.dat", "ko_glyphs7.dat", "ja_glyphs7.dat", "OFL-Galmuri.txt", "OFL-NotoSansCJK.txt", "cyr_glyphs.dat", "cyr_glyphs7.dat", "CC0-PublicPixel.txt"):   # + LK_LGCYR v1 (Russian / Ukrainian: Galmuri 11 OFL + Public Pixel CC0)   # LK_LGKO v1: the Hangul font (Galmuri 11, OFL) for the Korean language
             copy(os.path.join(ROOT, "lang", f), os.path.join(pkg, "lang", f))
     for f in sorted(os.listdir(os.path.join(ROOT, "tools"))):
         p = os.path.join(ROOT, "tools", f)
@@ -125,6 +125,7 @@ def main():
     copy(os.path.join(ROOT, "..", "README.md"), os.path.join(lic, "Project-Friday-README.md"))
     copy(os.path.join(ROOT, "..", "LICENSE"), os.path.join(lic, "Project-Friday-LICENSE-MIT.txt"))
     copy(os.path.join(ROOT, "lang", "OFL-Galmuri.txt"), os.path.join(lic, "Galmuri-font-LICENSE-OFL.txt"))   # the Hangul font of the Korean language (release 2.0 check)
+    copy(os.path.join(ROOT, "lang", "CC0-PublicPixel.txt"), os.path.join(lic, "PublicPixel-font-LICENSE-CC0.txt"))   # LK_LGCYR v1: the 8x8 Cyrillic menu letters of Russian / Ukrainian
     copy(os.path.join(ROOT, "lang", "OFL-NotoSansCJK.txt"), os.path.join(lic, "NotoSansCJK-LICENSE-OFL.txt"))   # glyphs of the Korean / Japanese title subtitle (tools/titlefont.py)
     notice = (
         "Project-Friday release package (Windows, 64 bit)\n\n"

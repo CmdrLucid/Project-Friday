@@ -8,6 +8,7 @@
     "     water [x0,y0,x1,y1,h]   - these cells are a water floor at height h (river / pond the automatic rule missed)",
     "     remove [x0,y0,x1,y1]    - drop the automatic shapes whose centre lies in these cells",
     "     void [x0,y0,x1,y1]      - these cells are WALL for the light (an exit cell behind a drawn wall that the view rays found through a gap; LK_LTVOID v1)",
+    "     plantcells [x0,y0,x1,y1] - forest collision cells the tile catalogue missed (drawn mixed with a building): treated like catalogue plant cells = the ground of their plants for the light (LK_LTPLANTCELL v1)",
     "     hip [x0,y0,x1,y1,z0,eave,ridge] - an own building shape: walls from z0 to eave, hip roof up to ridge",
     "     mesh [x0,y0,x1,y1] + \"file\" - a Blender shape (data/proxies/<file>.obj, game coordinates; recipe in remake/recipes/proxy_*.py) replaces the automatic shapes in these cells",
     "     bushes [x0,y0,x1,y1] (+ \"h\", \"r\", \"base\") - a BUSH block (the one step \"forest\" blocks are bush sprites): one round bush per RAISED cell (game height >= base + 8), the raised block itself casts nothing; bush top = the cell's game height (or base + h), radius r (default 6, max 8), base = most common height around the rectangle (or \"base\")",
@@ -24,6 +25,283 @@
     "     carve {\"cells\": [x0,y0,x1,y1], \"bg\": \"sea\" | \"layera\", \"floor\": f} - at room load the shapes in these cells follow the DRAWN picture: every sub column is lowered until its top and its front edge land on drawn object pixels (sea = nothing drawn or a water tile), slabs keep the heights drawn in layer A, then a 3 x 3 median (LANDSTALKER_LT_CARVEMED). Outdoors every building shape / mesh is carved automatically to layer A (LANDSTALKER_LT_CARVEOUT=0 = off)."
   ],
   "rooms": {
+    "592": [
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          27,
+          22,
+          31
+        ],
+        "file": "proxies/house_592_a.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "Massan LOG HOUSE house A (the lone house west of the statue), ground 0: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          29,
+          38,
+          35
+        ],
+        "file": "proxies/house_592_b.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "Massan LOG HOUSE house B (the south house), ground 0: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          18,
+          27,
+          21
+        ],
+        "file": "proxies/house_592_c.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Massan LOG HOUSE west pair, back house C, ground 32: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          22,
+          27,
+          25
+        ],
+        "file": "proxies/house_592_d.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Massan LOG HOUSE west pair, front house D, ground 32: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          16,
+          36,
+          19
+        ],
+        "file": "proxies/house_592_e.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Massan LOG HOUSE east pair, back house E, ground 32: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          20,
+          36,
+          24
+        ],
+        "file": "proxies/house_592_f.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Massan LOG HOUSE east pair, front house F, ground 32: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          14,
+          27,
+          17
+        ],
+        "file": "proxies/house_592_g.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Massan LOG HOUSE tall house G, ground 32: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      }
+    ],
+    "611": [
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          24,
+          46,
+          28
+        ],
+        "file": "proxies/house_610_right.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "Ryuma TOWN HOUSE 'right' (rooms 610 / 611 = one map $0A6F20), ground 48: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          21,
+          23,
+          28
+        ],
+        "file": "proxies/house_610_hill.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "Ryuma TOWN HOUSE 'hill' (rooms 610 / 611 = one map $0A6F20), ground 112: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          49,
+          24,
+          53
+        ],
+        "file": "proxies/house_610_left.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Ryuma TOWN HOUSE 'left' (rooms 610 / 611 = one map $0A6F20), ground 32: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          39,
+          47,
+          44
+        ],
+        "file": "proxies/house_610_fr.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma TOWN HOUSE 'fr' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          38,
+          37,
+          41
+        ],
+        "file": "proxies/house_610_pb.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma TOWN HOUSE 'pb' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          44,
+          37,
+          47
+        ],
+        "file": "proxies/house_610_pf.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma TOWN HOUSE 'pf' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          56,
+          17,
+          58
+        ],
+        "file": "proxies/lighthouse_611.obj",
+        "surface": true,
+        "why": "the Ryuma LIGHTHOUSE (collision x 15..17 y 56..58 blocked 192 = up to the eave): remake/recipes/lighthouse_611 (stone body to 150, parapet 159, four corner posts with arch brackets, tile pyramid roof 192 -> 214, beacon with flame, east door niche); replaces the automatic hip #8; 2026-11-21, to be checked"
+      }
+    ],
+    "610": [
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          24,
+          46,
+          28
+        ],
+        "file": "proxies/house_610_right.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "Ryuma TOWN HOUSE 'right' (rooms 610 / 611 = one map $0A6F20), ground 48: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          21,
+          23,
+          28
+        ],
+        "file": "proxies/house_610_hill.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "Ryuma TOWN HOUSE 'hill' (rooms 610 / 611 = one map $0A6F20), ground 112: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          49,
+          24,
+          53
+        ],
+        "file": "proxies/house_610_left.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "Ryuma TOWN HOUSE 'left' (rooms 610 / 611 = one map $0A6F20), ground 32: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          39,
+          47,
+          44
+        ],
+        "file": "proxies/house_610_fr.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma TOWN HOUSE 'fr' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          38,
+          37,
+          41
+        ],
+        "file": "proxies/house_610_pb.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma TOWN HOUSE 'pb' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          44,
+          37,
+          47
+        ],
+        "file": "proxies/house_610_pf.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma TOWN HOUSE 'pf' (rooms 610 / 611 = one map $0A6F20), ground 16: remake/recipes/proxy_houses_610.py (fit_house + find_openings 2026-11-20, Mercator house type), HANDOFF -238"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          56,
+          17,
+          58
+        ],
+        "file": "proxies/lighthouse_610.obj",
+        "surface": true,
+        "why": "the Ryuma LIGHTHOUSE (collision x 15..17 y 56..58 blocked 192 = up to the eave): remake/recipes/lighthouse_611 (stone body to 150, parapet 159, four corner posts with arch brackets, tile pyramid roof 192 -> 214, beacon with flame, east door niche); replaces the automatic hip #8; 2026-11-21, to be checked"
+      }
+    ],
     "28": [
       {
         "op": "mesh",
@@ -144,6 +422,46 @@
         "surface": true,
         "floor": 0,
         "why": "courtyard pine (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group e)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          41,
+          30,
+          41,
+          30
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          39,
+          38,
+          39
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          43,
+          45,
+          43,
+          45
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          46,
+          57,
+          46,
+          57
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
       }
     ],
     "33": [
@@ -211,6 +529,36 @@
         "surface": true,
         "floor": 0,
         "why": "courtyard pine (own sprite of tileset 14, not in the object catalogue: the automatic objects made them flat / a hip box = no or a boxy shadow; user 2026-11-12 'nicht alle Baeume werfen Schatten', 'andere Tannen-Sprites'): the style C pine of remake/recipes/pine_court/pine.py at the feet found by a template match (feet.json group e)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          39,
+          38,
+          39
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          43,
+          45,
+          43,
+          45
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          46,
+          57,
+          46,
+          57
+        ],
+        "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
       }
     ],
     "51": [
@@ -3176,6 +3524,64 @@
         "surface": true,
         "air": true,
         "why": "three piers (solid) with stepped corbel brackets (slabs with soft sides: the light passes under them), measured on the drawn layer A wall (remake/recipes/proxy_arcade_486.py); the arch-gap fill skips these cells; v2 2026-11-18: one solid per pier (sloped course undersides, ear-clipped caps) instead of 4 unit slabs"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          35,
+          50,
+          36
+        ],
+        "file": "proxies/stone_cube_486_0.obj",
+        "surface": true,
+        "why": "small stone block (collision = an isolated walkable 1 step cell): our model remake/recipes/stone_cube_486 (block 16 x 16 x 16 with rounded edges, IoU 0.928 on the drawing; was an automatic lathe 37 high), placed by place_486.py; 2026-11-21 built while the user was away, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          35,
+          58,
+          36
+        ],
+        "file": "proxies/stone_cube_486_1.obj",
+        "surface": true,
+        "why": "small stone block (collision = an isolated walkable 1 step cell): our model remake/recipes/stone_cube_486 (block 16 x 16 x 16 with rounded edges, IoU 0.928 on the drawing; was an automatic lathe 37 high), placed by place_486.py; 2026-11-21 built while the user was away, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          55,
+          50,
+          56
+        ],
+        "file": "proxies/stone_cube_486_2.obj",
+        "surface": true,
+        "why": "small stone block (collision = an isolated walkable 1 step cell): our model remake/recipes/stone_cube_486 (block 16 x 16 x 16 with rounded edges, IoU 0.928 on the drawing; was an automatic lathe 37 high), placed by place_486.py; 2026-11-21 built while the user was away, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          55,
+          58,
+          56
+        ],
+        "file": "proxies/stone_cube_486_3.obj",
+        "surface": true,
+        "why": "small stone block (collision = an isolated walkable 1 step cell): our model remake/recipes/stone_cube_486 (block 16 x 16 x 16 with rounded edges, IoU 0.928 on the drawing; was an automatic lathe 37 high), placed by place_486.py; 2026-11-21 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          51,
+          43,
+          56,
+          47
+        ],
+        "why": "automatic hips #0 / #1 over the stepped green stone dais (flat steps, the height map holds them) (2026-11-21, leftover sweep)"
       }
     ],
     "488": [
@@ -4653,6 +5059,156 @@
           49
         ],
         "why": "tulip garden behind the church (same object as the church): the drawn tulips are no roof"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          23,
+          35,
+          28
+        ],
+        "file": "proxies/house_632_1.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 1 (one storey, behind house 4): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          24,
+          49,
+          28
+        ],
+        "file": "proxies/house_632_2.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 2 (one storey): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          29,
+          34,
+          33
+        ],
+        "file": "proxies/house_632_4.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 4 (two storeys (eave 112)): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          29,
+          52,
+          37
+        ],
+        "file": "proxies/house_632_5.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 5 (L house (two wings, valley roof; pines in the corner stay catalogue)): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          45,
+          44,
+          53,
+          50
+        ],
+        "file": "proxies/house_632_6.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 6 (one storey (cells 44..45 = the collision strip behind it)): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          47,
+          36,
+          57
+        ],
+        "file": "proxies/house_632_7.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 7 (long house, two flat tops): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          45,
+          52,
+          50,
+          57
+        ],
+        "file": "proxies/house_632_8.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 8 (one storey, small window): measured 2026-11-20 with remake/tools/fit_house.py (walls on the cell lines, eave 64 / top 86.5, 41 deg) + windows / doors from remake/tools/find_openings.py (recessed 1.5 / 2.5, sills); remake/recipes/proxy_houses_632.py, HANDOFF NEXT -238 (whole rooms as 3D models, first recurring object type)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          58,
+          19,
+          61
+        ],
+        "file": "proxies/house_632_9.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 9 = the yellow house in front of the church (its own building, user 2026-11-20; was part of church_632): footprint / eave 64 / top 79.5 (17 in) from the 2026-11-09 fit_foot measurement, right wall on the cell line x 320, windows / door tiles from remake/tools/find_openings.py; remake/recipes/proxy_houses_632.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          29,
+          35,
+          29
+        ],
+        "file": "proxies/stone_block_632.obj",
+        "surface": true,
+        "why": "granite block on a lawn patch in front of a Mercator house (walkable 1 step cell): the stone block model remake/recipes/stone_cube_486 with params_632.json (sharper edges, IoU 0.917); replaces the automatic lathe #19; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          18,
+          18,
+          24
+        ],
+        "file": "proxies/well_632.obj",
+        "surface": true,
+        "why": "the WELL of Mercator (a stone rim walkable at 32 around a water hole = the collision): our model remake/recipes/well_632 = the wooden hoist (post, crossbar, brace, rope with two weights) + the staved tub on the rim; the rectangle drops the automatic hip #1 over the rim and lathe #18 (taken for a lantern on a wall at first); 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          14,
+          41,
+          20
+        ],
+        "file": "proxies/drawbridge_chains_632.obj",
+        "surface": true,
+        "why": "the two chains of the castle drawbridge (plane A; the deck itself is walkable floor): remake/recipes/drawbridge_632 (links every 2.6, turned in turn; ends measured: deck edge x 656 / 592 at y 320 z 25 -> wall face y 224 z 69); the rectangle drops the automatic lathes #16 / #17; 2026-11-21, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          44,
+          20,
+          47,
+          22
+        ],
+        "why": "automatic hip #0 over the raised flower bed by the moat (collision blocked 32, flat top with tulips), not a building (2026-11-21)"
       }
     ],
     "635": [
@@ -4709,19 +5265,6 @@
           42
         ],
         "why": "automatic hip up to 142 on the WALKABLE terrace of the mound (cells 24..25 x 41..42)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          23,
-          24,
-          25,
-          26
-        ],
-        "file": "proxies/pine_cl_636_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
       }
     ],
     "637": [
@@ -4760,6 +5303,16 @@
           21
         ],
         "why": "pine group at the north wall: the automatic hip went up to 222 (wall behind counted); the mesh above has the pines (tops 96)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          57,
+          18,
+          61,
+          21
+        ],
+        "why": "automatic hip #0 and lathes #10..#13 over the flat checkerboard floor (height 0) inside the ruin's ring of stacked stone blocks (48) and carved pillars (80): mis-anchored, the height map already holds the blocks (2026-11-21)"
       }
     ],
     "664": [
@@ -7091,133 +7644,90 @@
     ],
     "183": [
       {
-        "op": "mesh",
+        "op": "remove",
         "cells": [
-          25,
-          28,
-          28,
-          31
+          23,
+          33,
+          23,
+          33
         ],
-        "file": "proxies/pine_cl_183_0.obj",
-        "surface": true,
-        "floor": 32,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "425": [
-      {
-        "op": "mesh",
-        "cells": [
-          35,
-          45,
-          37,
-          46
-        ],
-        "file": "proxies/pine_cl_425_0.obj",
-        "surface": true,
-        "floor": 0,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 240..512 y 400..672 z0 32 over the grass terraces of the raft pier (game heights 2 / 3, the cliff cells already 12); the game height map already holds the flat block; it stood up to 51 above the ground over 359 sub columns"
       },
       {
-        "op": "mesh",
+        "op": "remove",
         "cells": [
-          15,
-          52,
-          15,
-          54
-        ],
-        "file": "proxies/pine_cl_425_1.obj",
-        "surface": true,
-        "floor": 0,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "430": [
-      {
-        "op": "mesh",
-        "cells": [
-          24,
+          30,
           31,
-          25,
-          32
+          30,
+          31
         ],
-        "file": "proxies/pine_cl_430_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "433": [
+        "why": "automatic lathe #5 at the brook with a flower bed (2026-11-21, leftover sweep)"
+      },
       {
-        "op": "mesh",
+        "op": "remove",
         "cells": [
-          24,
-          38,
-          25,
-          39
+          29,
+          41,
+          29,
+          41
         ],
-        "file": "proxies/pine_cl_433_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+        "why": "automatic lathe #7 at the brook with a flower bed (2026-11-21, leftover sweep)"
       }
     ],
     "474": [
       {
-        "op": "mesh",
+        "op": "remove",
         "cells": [
-          26,
-          28,
-          27,
-          29
-        ],
-        "file": "proxies/pine_cl_474_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          29,
+          34,
           18,
-          30,
+          34,
           18
         ],
-        "file": "proxies/pine_cl_474_1.obj",
-        "surface": true,
-        "floor": 48,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 400..688 y 240..336 z0 48 over the terrace along the cliff edge (game height 3); the game height map already holds the flat block; it stood up to 43 above the ground over 96 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          16,
+          18,
+          19,
+          21
+        ],
+        "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
       }
     ],
     "484": [
       {
-        "op": "mesh",
+        "op": "remove",
         "cells": [
-          35,
-          57,
-          36,
-          58
+          21,
+          61,
+          21,
+          61
         ],
-        "file": "proxies/pine_cl_484_0.obj",
-        "surface": true,
-        "floor": 0,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 304..384 y 960..992 z0 32 over the dirt terrace step (game height 2); the game height map already holds the flat block; it stood up to 17 above the ground over 96 sub columns"
       }
     ],
     "514": [
       {
-        "op": "mesh",
+        "op": "remove",
         "cells": [
-          57,
-          47,
-          58,
-          48
+          27,
+          29,
+          27,
+          29
         ],
-        "file": "proxies/pine_cl_514_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 2 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 400..464 y 448..480 z0 208 over the dirt terrace (game height 13); the game height map already holds the flat block; it stood up to 11 above the ground over 96 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          58,
+          42,
+          58,
+          42
+        ],
+        "why": "automatic lathe #12 on terrace steps (2026-11-21, leftover sweep)"
       }
     ],
     "19": [
@@ -7242,34 +7752,6 @@
           17
         ],
         "why": "Automatic shapes on the raised pine bed (height 2, cells 15..21,15..16) at the foot of the cliff: hip #0 (x 256..336 y 240..272, z 32..78, object 1 part 3: no building there) and the flat lathe #4 (296,272, z 24..25, r 28, 'small object 5' = a rest of that bed): the disc floated over the path and cast a flat trapezoid / oval shadow (user 2026-11-19 rec_20261119_1305, x 16 y 17.0C)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          25,
-          17,
-          26,
-          18
-        ],
-        "file": "proxies/pine_cl_453_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "446": [
-      {
-        "op": "mesh",
-        "cells": [
-          28,
-          17,
-          29,
-          18
-        ],
-        "file": "proxies/pine_cl_446_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
       }
     ],
     "452": [
@@ -7282,94 +7764,6 @@
           17
         ],
         "why": "Same map as room 453 (identical height map and automatic shapes): Automatic shapes on the raised pine bed (height 2, cells 15..21,15..16) at the foot of the cliff: hip #0 (x 256..336 y 240..272, z 32..78, object 1 part 3: no building there) and the flat lathe #4 (296,272, z 24..25, r 28, 'small object 5' = a rest of that bed): the disc floated over the path and cast a flat trapezoid / oval shadow (user 2026-11-19 rec_20261119_1305, x 16 y 17.0C); copied (user 2026-11-19: 'In Raum 452 gibt es immer noch diesen rautenfoermigen Kastenschatten')"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          25,
-          17,
-          26,
-          18
-        ],
-        "file": "proxies/pine_cl_452_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "456": [
-      {
-        "op": "mesh",
-        "cells": [
-          28,
-          17,
-          29,
-          18
-        ],
-        "file": "proxies/pine_cl_456_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "458": [
-      {
-        "op": "mesh",
-        "cells": [
-          47,
-          22,
-          48,
-          23
-        ],
-        "file": "proxies/pine_cl_458_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "476": [
-      {
-        "op": "mesh",
-        "cells": [
-          28,
-          17,
-          29,
-          18
-        ],
-        "file": "proxies/pine_cl_476_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "507": [
-      {
-        "op": "mesh",
-        "cells": [
-          28,
-          17,
-          29,
-          18
-        ],
-        "file": "proxies/pine_cl_507_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
-      }
-    ],
-    "519": [
-      {
-        "op": "mesh",
-        "cells": [
-          28,
-          17,
-          29,
-          18
-        ],
-        "file": "proxies/pine_cl_519_0.obj",
-        "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
       }
     ],
     "520": [
@@ -7382,34 +7776,2407 @@
           17
         ],
         "why": "Same map as room 453 (identical height map and automatic shapes): Automatic shapes on the raised pine bed (height 2, cells 15..21,15..16) at the foot of the cliff: hip #0 (x 256..336 y 240..272, z 32..78, object 1 part 3: no building there) and the flat lathe #4 (296,272, z 24..25, r 28, 'small object 5' = a rest of that bed): the disc floated over the path and cast a flat trapezoid / oval shadow (user 2026-11-19 rec_20261119_1305, x 16 y 17.0C); copied (user 2026-11-19: 'In Raum 452 gibt es immer noch diesen rautenfoermigen Kastenschatten')"
+      }
+    ],
+    "601": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          30,
+          29,
+          34
+        ],
+        "file": "proxies/house_603_p.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house P (blue cloth) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          30,
+          35,
+          34
+        ],
+        "file": "proxies/house_603_q.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house Q (shutter, vent) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          30,
+          43,
+          33
+        ],
+        "file": "proxies/house_603_t.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE tall house T (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          42,
+          45,
+          48
+        ],
+        "file": "proxies/house_603_s.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE south house S (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
       },
       {
         "op": "mesh",
         "cells": [
           25,
-          17,
-          26,
-          18
+          48,
+          29,
+          52
         ],
-        "file": "proxies/pine_cl_520_0.obj",
+        "file": "proxies/house_603_w.obj",
         "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house W (skull sign) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
       }
     ],
-    "521": [
+    "602": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          30,
+          29,
+          34
+        ],
+        "file": "proxies/house_603_p.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house P (blue cloth) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          30,
+          35,
+          34
+        ],
+        "file": "proxies/house_603_q.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house Q (shutter, vent) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          30,
+          43,
+          33
+        ],
+        "file": "proxies/house_603_t.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE tall house T (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          42,
+          45,
+          48
+        ],
+        "file": "proxies/house_603_s.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE south house S (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          48,
+          29,
+          52
+        ],
+        "file": "proxies/house_603_w.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house W (skull sign) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      }
+    ],
+    "603": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          30,
+          29,
+          34
+        ],
+        "file": "proxies/house_603_p.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house P (blue cloth) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          30,
+          35,
+          34
+        ],
+        "file": "proxies/house_603_q.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house Q (shutter, vent) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          30,
+          43,
+          33
+        ],
+        "file": "proxies/house_603_t.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE tall house T (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          42,
+          45,
+          48
+        ],
+        "file": "proxies/house_603_s.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE south house S (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          48,
+          29,
+          52
+        ],
+        "file": "proxies/house_603_w.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "Gumi LOG HOUSE house W (skull sign) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      }
+    ],
+    "711": [
+      {
+        "op": "mesh",
+        "cells": [
+          42,
+          26,
+          47,
+          32
+        ],
+        "file": "proxies/house_711_b.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Verla TOWN HOUSE 'b' (rooms 711 / 712 = one map $0A669E), ground 80: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          33,
+          28,
+          37
+        ],
+        "file": "proxies/house_711_c.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Verla TOWN HOUSE 'c' (rooms 711 / 712 = one map $0A669E), ground 80: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          41,
+          47,
+          45
+        ],
+        "file": "proxies/house_711_d.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Verla TOWN HOUSE 'd' (rooms 711 / 712 = one map $0A669E), ground 80: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          41,
+          28,
+          45
+        ],
+        "file": "proxies/house_711_e.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "Verla TOWN HOUSE 'e' (rooms 711 / 712 = one map $0A669E), ground 48: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          21,
+          31,
+          29
+        ],
+        "file": "proxies/church_711.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "Verla CHURCH (rooms 711 / 712 = one map) = the Mercator church drawing moved by 7 / -28 cells and 6 steps up: the confirmed Mercator model church_632 moved (+112, -448, +96), remake/recipes/proxy_church_711.py (user 2026-11-20: 'sollte aehnlich sein wie die in Mercator / Ryuma'); ground 112"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          34,
+          41,
+          34,
+          41
+        ],
+        "why": "automatic lathe #2 on a grass terrace (Verla) (2026-11-21, leftover sweep)"
+      }
+    ],
+    "712": [
+      {
+        "op": "mesh",
+        "cells": [
+          42,
+          26,
+          47,
+          32
+        ],
+        "file": "proxies/house_711_b.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Verla TOWN HOUSE 'b' (rooms 711 / 712 = one map $0A669E), ground 80: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          33,
+          28,
+          37
+        ],
+        "file": "proxies/house_711_c.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Verla TOWN HOUSE 'c' (rooms 711 / 712 = one map $0A669E), ground 80: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          41,
+          47,
+          45
+        ],
+        "file": "proxies/house_711_d.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Verla TOWN HOUSE 'd' (rooms 711 / 712 = one map $0A669E), ground 80: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          41,
+          28,
+          45
+        ],
+        "file": "proxies/house_711_e.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "Verla TOWN HOUSE 'e' (rooms 711 / 712 = one map $0A669E), ground 48: remake/recipes/proxy_houses_711.py (fit_house + find_openings 2026-11-20, Mercator / Ryuma house type), HANDOFF -244"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          21,
+          31,
+          29
+        ],
+        "file": "proxies/church_711.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "Verla CHURCH (rooms 711 / 712 = one map) = the Mercator church drawing moved by 7 / -28 cells and 6 steps up: the confirmed Mercator model church_632 moved (+112, -448, +96), remake/recipes/proxy_church_711.py (user 2026-11-20: 'sollte aehnlich sein wie die in Mercator / Ryuma'); ground 112"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          34,
+          41,
+          34,
+          41
+        ],
+        "why": "automatic lathe #2 on a grass terrace (Verla) (2026-11-21, leftover sweep)"
+      }
+    ],
+    "726": [
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          31,
+          26,
+          40
+        ],
+        "file": "proxies/house_726_a.obj",
+        "surface": true,
+        "floor": 144,
+        "why": "Destel LOG HOUSE long house A (upper terrace), ground 144: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          36,
+          34,
+          40
+        ],
+        "file": "proxies/house_726_b.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "Destel LOG HOUSE shutter house B, ground 112: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          44,
+          47,
+          48
+        ],
+        "file": "proxies/house_726_c1.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Destel LOG HOUSE joined pair C, north house, ground 80: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          49,
+          47,
+          52
+        ],
+        "file": "proxies/house_726_c2.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Destel LOG HOUSE joined pair C, south house, ground 80: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          53,
+          28,
+          57
+        ],
+        "file": "proxies/house_726_d1.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Destel LOG HOUSE joined pair D, west house, ground 80: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          29,
+          53,
+          33,
+          57
+        ],
+        "file": "proxies/house_726_d2.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "Destel LOG HOUSE joined pair D, east house (signs), ground 80: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          54,
+          34,
+          58,
+          42
+        ],
+        "file": "proxies/house_726_e.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Destel LOG HOUSE long house E (lower river), ground 16: remake/recipes/proxy_houses_726.py (Destel variant: plain thatch, thick SE corner post, door jambs, arched windows; walls / roofs fit on layer A 93.5 %; 2026-11-20), HANDOFF -246"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          24,
+          49,
+          25
+        ],
+        "file": "proxies/house_726_f.obj",
+        "surface": true,
+        "floor": 144,
+        "why": "Destel house FRONT in the cliff F (south log wall flush in the cliff face y 400, ground 144, door + sign + stub columns): remake/recipes/proxy_houses_726.py, measured on the rectified wall; 2026-11-20, HANDOFF -248"
+      }
+    ],
+    "226": [
+      {
+        "op": "remove",
+        "cells": [
+          14,
+          23,
+          14,
+          23
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 192..272 y 256..480 z0 160 over the grass plateau on the cliff (game height 10) and the terrace below it; the game height map already holds the flat block; it stood up to 51 above the ground over 1104 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          32,
+          26,
+          32,
+          26
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 480..560 y 336..496 z0 32 over the grass plateau on the cliff (game height 10) and the terrace below it; the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "432": [
+      {
+        "op": "remove",
+        "cells": [
+          15,
+          18,
+          15,
+          18
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 192..304 y 224..368 z0 16 over the raised swamp grass beside the boardwalk (game height 0 / 1); the game height map already holds the flat block; it stood up to 44 above the ground over 392 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          32,
+          21,
+          32,
+          21
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 320..704 y 224..448 z0 16 over the raised swamp grass beside the boardwalk (game height 0 / 1); the game height map already holds the flat block; it stood up to 80 above the ground over 1008 sub columns"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          14,
+          14,
+          14
+        ],
+        "file": "proxies/twig_432_0.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          13,
+          15,
+          13
+        ],
+        "file": "proxies/twig_432_1.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          13,
+          15,
+          13
+        ],
+        "file": "proxies/twig_432_2.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          27,
+          18,
+          27
+        ],
+        "file": "proxies/twig_432_3.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          14,
+          30,
+          14
+        ],
+        "file": "proxies/twig_432_4.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          13,
+          31,
+          13
+        ],
+        "file": "proxies/twig_432_5.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          27,
+          17,
+          27
+        ],
+        "file": "proxies/twig_432_6.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          14,
+          30,
+          14
+        ],
+        "file": "proxies/twig_432_7.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
       {
         "op": "mesh",
         "cells": [
           28,
-          17,
-          29,
+          27,
+          28,
+          27
+        ],
+        "file": "proxies/twig_432_8.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          15,
+          41,
+          15
+        ],
+        "file": "proxies/twig_432_9.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          14,
+          40,
+          14
+        ],
+        "file": "proxies/twig_432_10.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          14,
+          41,
+          14
+        ],
+        "file": "proxies/twig_432_11.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          27,
+          28,
+          27
+        ],
+        "file": "proxies/twig_432_12.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          15,
+          41,
+          15
+        ],
+        "file": "proxies/twig_432_13.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          27,
+          28,
+          27
+        ],
+        "file": "proxies/twig_432_14.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          14,
+          41,
+          14
+        ],
+        "file": "proxies/twig_432_15.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          27,
+          41,
+          27
+        ],
+        "file": "proxies/twig_432_16.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          16,
+          15,
+          16,
+          15
+        ],
+        "why": "old automatic twig lathe (24 wide) beside the dead twig models of remake/recipes/dead_twig/auto_twigs.py (its centre lies off the twig's foot cell; found 2026-11-21 by the placeholder count)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          27,
+          26,
+          27,
+          26
+        ],
+        "why": "old automatic twig lathe (24 wide) beside the dead twig models of remake/recipes/dead_twig/auto_twigs.py (its centre lies off the twig's foot cell; found 2026-11-21 by the placeholder count)"
+      }
+    ],
+    "436": [
+      {
+        "op": "remove",
+        "cells": [
+          15,
+          18,
+          15,
           18
         ],
-        "file": "proxies/pine_cl_521_0.obj",
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 192..304 y 224..368 z0 16 over the raised swamp grass beside the boardwalk (game height 0 / 1); the game height map already holds the flat block; it stood up to 44 above the ground over 392 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          32,
+          21,
+          32,
+          21
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 320..704 y 224..448 z0 16 over the raised swamp grass beside the boardwalk (game height 0 / 1); the game height map already holds the flat block; it stood up to 80 above the ground over 1008 sub columns"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          14,
+          14,
+          14
+        ],
+        "file": "proxies/twig_436_0.obj",
         "surface": true,
-        "floor": 16,
-        "why": "pine cluster: 4 drawn pines detected as one lathe object (one shadow); each pine its own style C pine model, feet by template match (remake/recipes/pine_cluster, user 2026-11-15 'generell bei solchen Gruppen einzelne Tannen')"
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          13,
+          15,
+          13
+        ],
+        "file": "proxies/twig_436_1.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          13,
+          15,
+          13
+        ],
+        "file": "proxies/twig_436_2.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          27,
+          18,
+          27
+        ],
+        "file": "proxies/twig_436_3.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          14,
+          30,
+          14
+        ],
+        "file": "proxies/twig_436_4.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          13,
+          31,
+          13
+        ],
+        "file": "proxies/twig_436_5.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          27,
+          17,
+          27
+        ],
+        "file": "proxies/twig_436_6.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          14,
+          30,
+          14
+        ],
+        "file": "proxies/twig_436_7.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          27,
+          28,
+          27
+        ],
+        "file": "proxies/twig_436_8.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          15,
+          41,
+          15
+        ],
+        "file": "proxies/twig_436_9.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          14,
+          40,
+          14
+        ],
+        "file": "proxies/twig_436_10.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          14,
+          41,
+          14
+        ],
+        "file": "proxies/twig_436_11.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          27,
+          28,
+          27
+        ],
+        "file": "proxies/twig_436_12.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          15,
+          41,
+          15
+        ],
+        "file": "proxies/twig_436_13.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          27,
+          28,
+          27
+        ],
+        "file": "proxies/twig_436_14.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          14,
+          41,
+          14
+        ],
+        "file": "proxies/twig_436_15.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          27,
+          41,
+          27
+        ],
+        "file": "proxies/twig_436_16.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          16,
+          15,
+          16,
+          15
+        ],
+        "why": "old automatic twig lathe (24 wide) beside the dead twig models of remake/recipes/dead_twig/auto_twigs.py (its centre lies off the twig's foot cell; found 2026-11-21 by the placeholder count)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          27,
+          26,
+          27,
+          26
+        ],
+        "why": "old automatic twig lathe (24 wide) beside the dead twig models of remake/recipes/dead_twig/auto_twigs.py (its centre lies off the twig's foot cell; found 2026-11-21 by the placeholder count)"
+      }
+    ],
+    "443": [
+      {
+        "op": "remove",
+        "cells": [
+          18,
+          20,
+          18,
+          20
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 272..320 y 272..384 z0 80 over the grass pillar (game height 5) and the swamp terraces; the game height map already holds the flat block; it stood up to 28 above the ground over 32 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          18,
+          39,
+          18,
+          39
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 272..320 y 608..656 z0 80 over the grass pillar (game height 5) and the swamp terraces; the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          24,
+          45,
+          24,
+          45
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 272..496 y 608..848 z0 16 over the grass pillar (game height 5) and the swamp terraces; the game height map already holds the flat block; it stood up to 18 above the ground over 32 sub columns"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          30,
+          19,
+          30
+        ],
+        "file": "proxies/twig_443_0.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          30,
+          19,
+          30
+        ],
+        "file": "proxies/twig_443_1.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          31,
+          19,
+          31
+        ],
+        "file": "proxies/twig_443_2.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          24,
+          30,
+          24
+        ],
+        "file": "proxies/twig_443_3.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          23,
+          30,
+          23
+        ],
+        "file": "proxies/twig_443_4.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          31,
+          24,
+          31,
+          24
+        ],
+        "why": "old automatic twig lathe (24 wide) beside the dead twig models of remake/recipes/dead_twig/auto_twigs.py (its centre lies off the twig's foot cell; found 2026-11-21 by the placeholder count)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          21,
+          20,
+          21,
+          20
+        ],
+        "why": "automatic lathe #5 at a cliff foot (2026-11-21, leftover sweep)"
+      }
+    ],
+    "492": [
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          37,
+          30,
+          37
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 416..560 y 560..640 z0 160 over the dirt terraces (game heights 10 / 11); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          26,
+          38,
+          26
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 560..656 y 368..480 z0 160 over the dirt terraces (game heights 10 / 11); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          42,
+          46,
+          42,
+          46
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 624..720 y 704..768 z0 176 over the dirt terraces (game heights 10 / 11); the game height map already holds the flat block; it stood up to 28 above the ground over 384 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          54,
+          28,
+          54,
+          28
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 848..880 y 368..544 z0 176 over the dirt terraces (game heights 10 / 11); the game height map already holds the flat block; it stood up to 25 above the ground over 352 sub columns"
+      }
+    ],
+    "500": [
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          24,
+          38,
+          24
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 592..624 y 320..448 z0 64 over the grass terraces (game heights 3 / 4 / 11; the pines around them have their plant models); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          40,
+          44,
+          40,
+          44
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 608..672 y 688..736 z0 176 over the grass terraces (game heights 3 / 4 / 11; the pines around them have their plant models); the game height map already holds the flat block; it stood up to 49 above the ground over 192 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          40,
+          22,
+          40,
+          22
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 624..656 y 320..384 z0 48 over the grass terraces (game heights 3 / 4 / 11; the pines around them have their plant models); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          33,
+          20,
+          33,
+          20
+        ],
+        "why": "automatic lathe #6 on a grass terrace (2026-11-21, leftover sweep)"
+      }
+    ],
+    "515": [
+      {
+        "op": "remove",
+        "cells": [
+          29,
+          23,
+          29,
+          23
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 384..560 y 288..464 z0 64 over the dirt terraces (game heights 3 / 4); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          31,
+          27,
+          31,
+          27
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 464..528 y 368..512 z0 48 over the dirt terraces (game heights 3 / 4); the game height map already holds the flat block; it stood up to 82 above the ground over 144 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          35,
+          25,
+          35,
+          25
+        ],
+        "why": "automatic lathe #4 at a dirt path edge (2026-11-21, leftover sweep)"
+      }
+    ],
+    "560": [
+      {
+        "op": "remove",
+        "cells": [
+          54,
+          48,
+          54,
+          48
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 832..912 y 752..784 z0 48 over the grass block over the cave (game height 3); the game height map already holds the flat block; it stood up to 42 above the ground over 160 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          44,
+          30,
+          47,
+          31
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2): automatic hip #0 (z0 80, ridge 110) over a grass-topped cliff terrace; the game height map already holds the flat block"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          52,
+          47,
+          56,
+          48
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2): automatic hip #1 over a grass-topped cliff terrace with a cave mouth below; the game height map already holds the flat block"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          39,
+          50,
+          41,
+          51
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2): automatic hip #2 over a grass-topped cliff terrace; the game height map already holds the flat block"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          57,
+          44,
+          57,
+          44
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2): automatic lathe #13 (8 high) at a rock edge; the game height map already holds the flat block"
+      }
+    ],
+    "561": [
+      {
+        "op": "remove",
+        "cells": [
+          22,
+          22,
+          22,
+          22
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 304..400 y 336..384 z0 48 over the grass block over the cave (game height 3); the game height map already holds the flat block; it stood up to 87 above the ground over 288 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          37,
+          47,
+          40,
+          50
+        ],
+        "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
+      }
+    ],
+    "564": [
+      {
+        "op": "remove",
+        "cells": [
+          43,
+          29,
+          43,
+          29
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 656..720 y 448..480 z0 64 over the grass block over the cave (game height 4); the game height map already holds the flat block; it stood up to 27 above the ground over 128 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          54,
+          20,
+          57,
+          23
+        ],
+        "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
+      }
+    ],
+    "570": [
+      {
+        "op": "remove",
+        "cells": [
+          31,
+          24,
+          31,
+          24
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 384..624 y 304..480 z0 32 over the grass terraces in the forest (game heights 2 / 3 / 6); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          31,
+          30,
+          31
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 400..560 y 384..608 z0 48 over the grass terraces in the forest (game heights 2 / 3 / 6); the game height map already holds the flat block; it stood up to 47 above the ground over 752 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          35,
+          34,
+          35,
+          34
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 544..576 y 528..560 z0 96 over the grass terraces in the forest (game heights 2 / 3 / 6); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "362": [
+      {
+        "op": "remove",
+        "cells": [
+          29,
+          23,
+          29,
+          23
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 352..592 y 256..480 z0 32 over the walkable forest clearing; the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "461": [
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          39,
+          30,
+          39
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 448..528 y 576..672 z0 80 over the grass terrace (game height 5); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "463": [
+      {
+        "op": "remove",
+        "cells": [
+          42,
+          35,
+          42,
+          35
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 656..704 y 528..592 z0 80 over the grass block (game height 5); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "545": [
+      {
+        "op": "remove",
+        "cells": [
+          50,
+          29,
+          50,
+          29
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 768..832 y 432..496 z0 48 over the grass block of the post (game height 3); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "556": [
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          17,
+          30,
+          17
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 384..592 y 240..320 z0 32 over the terraces (game heights 1..3); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "572": [
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          17,
+          30,
+          17
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 384..592 y 240..320 z0 32 over the terraces (game heights 1..3); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "567": [
+      {
+        "op": "remove",
+        "cells": [
+          29,
+          48,
+          29,
+          48
+        ],
+        "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 368..560 y 736..816 z0 128 over the terraces (game heights 8 / 10); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      }
+    ],
+    "433": [
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          22,
+          19,
+          22
+        ],
+        "file": "proxies/stone_face_433_0.obj",
+        "surface": true,
+        "why": "stone face of the swamp (collision = one 2 step block $43): our model remake/recipes/stone_face (smooth head, face + mouth to +x, IoU 0.911 on the drawing), placed by place_433.py; user 2026-11-21 'passt als Lichtform'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          22,
+          28,
+          22
+        ],
+        "file": "proxies/stone_face_433_1.obj",
+        "surface": true,
+        "why": "stone face of the swamp (collision = one 2 step block $43): our model remake/recipes/stone_face (smooth head, face + mouth to +x, IoU 0.911 on the drawing), placed by place_433.py; user 2026-11-21 'passt als Lichtform'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          22,
+          33,
+          22
+        ],
+        "file": "proxies/stone_face_433_2.obj",
+        "surface": true,
+        "why": "stone face of the swamp (collision = one 2 step block $43): our model remake/recipes/stone_face (smooth head, face + mouth to +x, IoU 0.911 on the drawing), placed by place_433.py; user 2026-11-21 'passt als Lichtform'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          30,
+          19,
+          30
+        ],
+        "file": "proxies/stone_face_433_3.obj",
+        "surface": true,
+        "why": "stone face of the swamp (collision = one 2 step block $43): our model remake/recipes/stone_face (smooth head, face + mouth to +x, IoU 0.911 on the drawing), placed by place_433.py; user 2026-11-21 'passt als Lichtform'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          30,
+          28,
+          30
+        ],
+        "file": "proxies/stone_face_433_4.obj",
+        "surface": true,
+        "why": "stone face of the swamp (collision = one 2 step block $43): our model remake/recipes/stone_face (smooth head, face + mouth to +x, IoU 0.911 on the drawing), placed by place_433.py; user 2026-11-21 'passt als Lichtform'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          30,
+          33,
+          30
+        ],
+        "file": "proxies/stone_face_433_5.obj",
+        "surface": true,
+        "why": "stone face of the swamp (collision = one 2 step block $43): our model remake/recipes/stone_face (smooth head, face + mouth to +x, IoU 0.911 on the drawing), placed by place_433.py; user 2026-11-21 'passt als Lichtform'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          38,
+          15,
+          38,
+          15
+        ],
+        "file": "proxies/twig_433_0.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          21,
+          49,
+          21
+        ],
+        "file": "proxies/twig_433_1.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          37,
+          12,
+          37,
+          12
+        ],
+        "file": "proxies/twig_433_2.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          16,
+          36,
+          16
+        ],
+        "file": "proxies/twig_433_3.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          16,
+          39,
+          16
+        ],
+        "file": "proxies/twig_433_4.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          14,
+          40,
+          14
+        ],
+        "file": "proxies/twig_433_5.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          37,
+          16,
+          37,
+          16
+        ],
+        "file": "proxies/twig_433_6.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          13,
+          40,
+          13
+        ],
+        "file": "proxies/twig_433_7.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          16,
+          40,
+          16
+        ],
+        "file": "proxies/twig_433_8.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          15,
+          39,
+          15
+        ],
+        "file": "proxies/twig_433_9.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          38,
+          36,
+          38
+        ],
+        "file": "proxies/twig_433_10.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          38,
+          38,
+          38,
+          38
+        ],
+        "file": "proxies/twig_433_11.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          37,
+          38,
+          37,
+          38
+        ],
+        "file": "proxies/twig_433_12.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          38,
+          38,
+          38,
+          38
+        ],
+        "file": "proxies/twig_433_13.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          39,
+          39,
+          39,
+          39
+        ],
+        "why": "old automatic twig lathe (24 wide) beside the dead twig models of remake/recipes/dead_twig/auto_twigs.py (its centre lies off the twig's foot cell; found 2026-11-21 by the placeholder count)"
+      }
+    ],
+    "431": [
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          16,
+          17,
+          16
+        ],
+        "file": "proxies/twig_431_0.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          17,
+          17,
+          17
+        ],
+        "file": "proxies/twig_431_1.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          16,
+          17,
+          16
+        ],
+        "file": "proxies/twig_431_2.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          20,
+          15,
+          20
+        ],
+        "file": "proxies/twig_431_3.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          20,
+          16,
+          20
+        ],
+        "file": "proxies/twig_431_4.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          29,
+          15,
+          29
+        ],
+        "file": "proxies/twig_431_5.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          29,
+          14,
+          29
+        ],
+        "file": "proxies/twig_431_6.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          29,
+          15,
+          29
+        ],
+        "file": "proxies/twig_431_7.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      }
+    ],
+    "444": [
+      {
+        "op": "mesh",
+        "cells": [
+          37,
+          40,
+          37,
+          40
+        ],
+        "file": "proxies/twig_444_0.obj",
+        "surface": true,
+        "why": "dead swamp twig: its own skeleton read from the drawing -> round tubes in the picture plane (remake/recipes/dead_twig/auto_twigs.py), user 2026-11-21 'automatisch'"
+      }
+    ],
+    "739": [
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          15,
+          24,
+          15
+        ],
+        "file": "proxies/pillar_739_0.obj",
+        "surface": true,
+        "why": "stone pillar (collision = one 3 step block $43): our parts model remake/recipes/pillar_739 (square plinth / abacus, round shaft, rings, echinus; IoU 0.857 on the drawing), placed by place_739.py; 2026-11-21 built while the user was away, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          15,
+          19,
+          15
+        ],
+        "file": "proxies/pillar_739_1.obj",
+        "surface": true,
+        "why": "stone pillar (collision = one 3 step block $43): our parts model remake/recipes/pillar_739 (square plinth / abacus, round shaft, rings, echinus; IoU 0.857 on the drawing), placed by place_739.py; 2026-11-21 built while the user was away, to be checked"
+      }
+    ],
+    "641": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          37,
+          25,
+          37
+        ],
+        "file": "proxies/bollard_641_0.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          30,
+          35,
+          30
+        ],
+        "file": "proxies/bollard_641_1.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/bollard_641_2.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          32,
+          51,
+          38
+        ],
+        "file": "proxies/pavilion_641.obj",
+        "surface": true,
+        "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          19,
+          59,
+          21
+        ],
+        "file": "proxies/crate_shed_641.obj",
+        "surface": true,
+        "why": "crate shed of the docks: our model remake/recipes/crate_shed_641 (FOUR crate rows = the collision height 5; front row x 53 two, x 55 one; alcove x 50 / 51; hipped thatch roof resting on the 4th row, end edges iso-parallel, crates under the roof ends cut to the roof, Massan style X logs; user OK on draft pictures 2026-11-21 late, see remake/MODELS.md)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/crate_641.obj",
+        "surface": true,
+        "why": "single crate of the docks (walkable 2 step cell): remake/recipes/crate_shed_641 crate model; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          19,
+          29,
+          28
+        ],
+        "file": "proxies/stone_buildings_left_641.obj",
+        "surface": true,
+        "why": "LEFT stone building of the docks: the two stone buildings of the docks (towers 96, wings 48, step blocks 32 = the collision; flat tops instead of the automatic hip roofs; cornice stones on the tower tops; the wooden door of the left tower as a framed recess; the blue-green wall foot = wet stones, no openings): remake/recipes/stone_buildings_641, IoU 0.84 on plane A (rest: wall foot below ground / pines); 2026-11-21, to be checked; split from one model 2026-11-21 late: one rectangle per house, the pine row between them (cells 30..32) is outside both now (a surface mesh op hides plants in its cells)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          19,
+          39,
+          25
+        ],
+        "file": "proxies/stone_buildings_right_641.obj",
+        "surface": true,
+        "why": "RIGHT stone building of the docks (see the left one); three blocks at 43..45 x 19 removed = pine collision beside the crate shed, not stone"
+      },
+      {
+        "op": "plantcells",
+        "cells": [
+          44,
+          19,
+          48,
+          20
+        ],
+        "why": "the pine group left of the crate shed: collision cells 3 high drawn mixed with the shed (no catalogue pine tiles) -> treated as plant cells (their pines' ground), so the 64 high boxes no longer enclose the pine crowns (hard vertical sword-light line down the pine, user 2026-11-21 late)"
+      }
+    ],
+    "642": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          37,
+          25,
+          37
+        ],
+        "file": "proxies/bollard_642_0.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          30,
+          35,
+          30
+        ],
+        "file": "proxies/bollard_642_1.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/bollard_642_2.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          32,
+          51,
+          38
+        ],
+        "file": "proxies/pavilion_642.obj",
+        "surface": true,
+        "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          19,
+          59,
+          21
+        ],
+        "file": "proxies/crate_shed_642.obj",
+        "surface": true,
+        "why": "crate shed of the docks: our model remake/recipes/crate_shed_641 (FOUR crate rows = the collision height 5; front row x 53 two, x 55 one; alcove x 50 / 51; hipped thatch roof resting on the 4th row, end edges iso-parallel, crates under the roof ends cut to the roof, Massan style X logs; user OK on draft pictures 2026-11-21 late, see remake/MODELS.md)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/crate_642.obj",
+        "surface": true,
+        "why": "single crate of the docks (walkable 2 step cell): remake/recipes/crate_shed_641 crate model; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          19,
+          29,
+          28
+        ],
+        "file": "proxies/stone_buildings_left_642.obj",
+        "surface": true,
+        "why": "LEFT stone building of the docks: the two stone buildings of the docks (towers 96, wings 48, step blocks 32 = the collision; flat tops instead of the automatic hip roofs; cornice stones on the tower tops; the wooden door of the left tower as a framed recess; the blue-green wall foot = wet stones, no openings): remake/recipes/stone_buildings_641, IoU 0.84 on plane A (rest: wall foot below ground / pines); 2026-11-21, to be checked; split from one model 2026-11-21 late: one rectangle per house, the pine row between them (cells 30..32) is outside both now (a surface mesh op hides plants in its cells)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          19,
+          39,
+          25
+        ],
+        "file": "proxies/stone_buildings_right_642.obj",
+        "surface": true,
+        "why": "RIGHT stone building of the docks (see the left one); three blocks at 43..45 x 19 removed = pine collision beside the crate shed, not stone"
+      },
+      {
+        "op": "plantcells",
+        "cells": [
+          44,
+          19,
+          48,
+          20
+        ],
+        "why": "the pine group left of the crate shed: collision cells 3 high drawn mixed with the shed (no catalogue pine tiles) -> treated as plant cells (their pines' ground), so the 64 high boxes no longer enclose the pine crowns (hard vertical sword-light line down the pine, user 2026-11-21 late)"
+      }
+    ],
+    "644": [
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          37,
+          25,
+          37
+        ],
+        "file": "proxies/bollard_644_0.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          30,
+          35,
+          30
+        ],
+        "file": "proxies/bollard_644_1.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/bollard_644_2.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          32,
+          51,
+          38
+        ],
+        "file": "proxies/pavilion_644.obj",
+        "surface": true,
+        "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          19,
+          59,
+          21
+        ],
+        "file": "proxies/crate_shed_644.obj",
+        "surface": true,
+        "why": "crate shed of the docks: our model remake/recipes/crate_shed_641 (FOUR crate rows = the collision height 5; front row x 53 two, x 55 one; alcove x 50 / 51; hipped thatch roof resting on the 4th row, end edges iso-parallel, crates under the roof ends cut to the roof, Massan style X logs; user OK on draft pictures 2026-11-21 late, see remake/MODELS.md)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/crate_644.obj",
+        "surface": true,
+        "why": "single crate of the docks (walkable 2 step cell): remake/recipes/crate_shed_641 crate model; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          19,
+          29,
+          28
+        ],
+        "file": "proxies/stone_buildings_left_644.obj",
+        "surface": true,
+        "why": "LEFT stone building of the docks: the two stone buildings of the docks (towers 96, wings 48, step blocks 32 = the collision; flat tops instead of the automatic hip roofs; cornice stones on the tower tops; the wooden door of the left tower as a framed recess; the blue-green wall foot = wet stones, no openings): remake/recipes/stone_buildings_641, IoU 0.84 on plane A (rest: wall foot below ground / pines); 2026-11-21, to be checked; split from one model 2026-11-21 late: one rectangle per house, the pine row between them (cells 30..32) is outside both now (a surface mesh op hides plants in its cells)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          19,
+          39,
+          25
+        ],
+        "file": "proxies/stone_buildings_right_644.obj",
+        "surface": true,
+        "why": "RIGHT stone building of the docks (see the left one); three blocks at 43..45 x 19 removed = pine collision beside the crate shed, not stone"
+      },
+      {
+        "op": "plantcells",
+        "cells": [
+          44,
+          19,
+          48,
+          20
+        ],
+        "why": "the pine group left of the crate shed: collision cells 3 high drawn mixed with the shed (no catalogue pine tiles) -> treated as plant cells (their pines' ground), so the 64 high boxes no longer enclose the pine crowns (hard vertical sword-light line down the pine, user 2026-11-21 late)"
+      }
+    ],
+    "524": [
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          53,
+          29,
+          54
+        ],
+        "file": "proxies/pillar_524_0.obj",
+        "surface": true,
+        "why": "fluted column with a square capital (walkable 5 step cell on the floor 32): the pillar recipe remake/recipes/pillar_739 with params_524.json; the rectangle covers the old automatic lathe one cell forward; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          37,
+          53,
+          38,
+          54
+        ],
+        "file": "proxies/pillar_524_1.obj",
+        "surface": true,
+        "why": "fluted column with a square capital (walkable 5 step cell on the floor 32): the pillar recipe remake/recipes/pillar_739 with params_524.json; the rectangle covers the old automatic lathe one cell forward; 2026-11-21, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          28,
+          47,
+          39,
+          50
+        ],
+        "why": "automatic hip #0 over the flat platform in front of the gate (walkable 80), not a building (2026-11-21)"
+      }
+    ],
+    "525": [
+      {
+        "op": "remove",
+        "cells": [
+          35,
+          22,
+          52,
+          25
+        ],
+        "why": "automatic hip #0 over the flat stone walkway with a railing (2026-11-21)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          24,
+          40,
+          25
+        ],
+        "file": "proxies/pillar_525_0.obj",
+        "surface": true,
+        "why": "the fluted column of 524 (pixel-equal drawing, axis = cell (40,25) centre on the floor 32): pillar recipe with params_524.json; replaces lathe #5; 2026-11-21, to be checked"
+      }
+    ],
+    "502": [
+      {
+        "op": "remove",
+        "cells": [
+          23,
+          23,
+          30,
+          34
+        ],
+        "why": "automatic hip #0 over a rock cliff / terrace (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          23,
+          43,
+          25
+        ],
+        "why": "automatic hip #2 over a rock cliff / terrace (2026-11-21, leftover sweep)"
+      }
+    ],
+    "459": [
+      {
+        "op": "remove",
+        "cells": [
+          39,
+          23,
+          39,
+          23
+        ],
+        "why": "automatic lathe #3 on a rock column (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          45,
+          23,
+          45,
+          23
+        ],
+        "why": "automatic lathe #4 on a rock column (2026-11-21, leftover sweep)"
+      }
+    ],
+    "639": [
+      {
+        "op": "remove",
+        "cells": [
+          14,
+          20,
+          16,
+          24
+        ],
+        "why": "automatic hip #1 over a flat stone area (2026-11-21, leftover sweep)"
+      }
+    ],
+    "451": [
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          17,
+          43,
+          22
+        ],
+        "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
+      }
+    ],
+    "424": [
+      {
+        "op": "remove",
+        "cells": [
+          24,
+          35,
+          27,
+          38
+        ],
+        "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
+      }
+    ],
+    "571": [
+      {
+        "op": "remove",
+        "cells": [
+          32,
+          20,
+          32,
+          20
+        ],
+        "why": "automatic lathe #6 on a cliff edge (2026-11-21, leftover sweep)"
+      }
+    ],
+    "565": [
+      {
+        "op": "remove",
+        "cells": [
+          37,
+          35,
+          37,
+          35
+        ],
+        "why": "automatic lathe #4 on a grass terrace (2026-11-21, leftover sweep)"
+      }
+    ],
+    "489": [
+      {
+        "op": "remove",
+        "cells": [
+          16,
+          17,
+          17,
+          32
+        ],
+        "why": "automatic hip #0 over a rock cliff (2026-11-21, leftover sweep)"
+      }
+    ],
+    "441": [
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          16,
+          18,
+          20
+        ],
+        "file": "proxies/house_441.obj",
+        "surface": true,
+        "why": "log house of room 441 = the Destel house B drawing (81 % pixel-equal; same 74 x 74 walls, E door at the walkable cell (18,18), S shutter), our model house_726_b moved by (-256, -320, -80) onto the collision block x 14..18 y 16..20, ground 32; the three blue cloths 441 adds are not modelled yet (they stand out 1..2); 2026-11-21, to be checked"
+      }
+    ],
+    "454": [
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          26,
+          19,
+          30
+        ],
+        "file": "proxies/awning_454_0.obj",
+        "surface": true,
+        "why": "red cloth canopy (side 40, sagging 3, fringe) on four poles over a watchtower top (blocked 112) with a banner on an A-frame: remake/recipes/awning_454; replaces the automatic hip; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          38,
+          19,
+          42
+        ],
+        "file": "proxies/awning_454_1.obj",
+        "surface": true,
+        "why": "red cloth canopy (side 40, sagging 3, fringe) on four poles over a watchtower top (blocked 112) with a banner on an A-frame: remake/recipes/awning_454; replaces the automatic hip; 2026-11-21, to be checked"
+      }
+    ],
+    "475": [
+      {
+        "op": "remove",
+        "cells": [
+          23,
+          14,
+          30,
+          16
+        ],
+        "why": "automatic hip #0 over the flat block of the Mir tower's base wall (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          16,
+          16,
+          28,
+          26
+        ],
+        "why": "automatic hip #2 over the Mir tower's base wall (a flat-topped block; the tower rises beyond the room edge) (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          22,
+          27,
+          22,
+          27
+        ],
+        "why": "automatic lathe #14 on the blue step block before the gate (2026-11-21, leftover sweep)"
+      }
+    ],
+    "442": [
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          17,
+          21,
+          21
+        ],
+        "file": "proxies/house_442.obj",
+        "surface": true,
+        "why": "town house of room 442 (Ryuma type, square 80 x 80, ground 48, eave 96 / top 120, door +y slot 288, two windows +x): remake/recipes/proxy_houses_442.py (town_house builder); replaces the automatic hip #0; 2026-11-21, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          15,
+          17,
+          27,
+          27
+        ],
+        "why": "automatic hips #1 / #2 over the stone flower planter and the low block beside the house (room 442 planter; 2026-11-21)"
       }
     ]
   },

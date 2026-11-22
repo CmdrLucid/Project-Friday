@@ -86,9 +86,33 @@ FR_SET = {"é": ("e", "acute"), "è": ("e", "grave"), "ê": ("e", "circ"), "ë":
           "É": ("E", "acute"), "È": ("E", "grave"), "Ê": ("E", "circ"), "À": ("A", "grave"), "Ô": ("O", "circ"), "Ç": ("C", "ced")}
 
 
-def make_glyphs_fr(rom):
-    g = {}
-    for ch, (base, mk) in FR_SET.items():
+# LK_LGES v1 (user 2026-11-22: Spanish / Italian like French, names from the fan translations): per-language accent sets on the same free codes as French.
+# The first seven codes ($6C..$6E, $71..$74) are also our own UI text bytes $80..$86 (patch_options.py lk_chr), so each language puts its seven most used letters there.
+EXTRA_ES = {"á": 0x6C, "é": 0x6D, "í": 0x6E, "ó": 0x71, "ú": 0x72, "ñ": 0x73, "¿": 0x74, "¡": 0x75, "ü": 0x76,
+            "Á": 0x56, "É": 0x57, "Í": 0x58, "Ó": 0x59, "Ú": 0x5A, "Ñ": 0x5B, "Ü": 0x5C}
+UI_BYTES_ES = {"á": 0x80, "é": 0x81, "í": 0x82, "ó": 0x83, "ú": 0x84, "ñ": 0x85, "¿": 0x86}
+ES_SET = {"á": ("a", "acute"), "é": ("e", "acute"), "í": ("i", "acute"), "ó": ("o", "acute"), "ú": ("u", "acute"), "ñ": ("n", "tilde"), "ü": ("u", "diaer"),
+          "¿": ("?", "inv"), "¡": ("!", "inv"), "Á": ("A", "acute"), "É": ("E", "acute"), "Í": ("I", "acute"), "Ó": ("O", "acute"), "Ú": ("U", "acute"),
+          "Ñ": ("N", "tilde"), "Ü": ("U", "diaer")}
+EXTRA_IT = {"à": 0x6C, "è": 0x6D, "é": 0x6E, "ì": 0x71, "ò": 0x72, "ù": 0x73, "È": 0x74, "í": 0x75, "ó": 0x76,
+            "À": 0x56, "É": 0x57, "Ì": 0x58, "Ò": 0x59, "Ù": 0x5A, "ú": 0x5B, "î": 0x5C}
+UI_BYTES_IT = {"à": 0x80, "è": 0x81, "é": 0x82, "ì": 0x83, "ò": 0x84, "ù": 0x85, "È": 0x86}
+IT_SET = {"à": ("a", "grave"), "è": ("e", "grave"), "é": ("e", "acute"), "ì": ("i", "grave"), "ò": ("o", "grave"), "ù": ("u", "grave"), "í": ("i", "acute"),
+          "ó": ("o", "acute"), "ú": ("u", "acute"), "î": ("i", "circ"), "È": ("E", "grave"), "À": ("A", "grave"), "É": ("E", "acute"), "Ì": ("I", "grave"),
+          "Ò": ("O", "grave"), "Ù": ("U", "grave")}
+FR_MARK["tilde"] = [0x6800, 0xB000]; FR_MENU["tilde"] = [0x34, 0x58]
+FR_MARK_I.update({"acute": [0x2000, 0x4000], "grave": [0x8000, 0x4000]})
+FR_MARK_CAP["tilde"] = 0x7800
+ACCENTS = {"fr": (EXTRA_FR, UI_BYTES_FR, FR_SET), "es": (EXTRA_ES, UI_BYTES_ES, ES_SET), "it": (EXTRA_IT, UI_BYTES_IT, IT_SET)}
+
+
+def make_glyphs_fr(rom, cset=None, extra=None):
+    g = {}; cset = cset or FR_SET; extra = extra or EXTRA_FR
+    for ch, (base, mk) in cset.items():
+        if mk == "inv":                                  # inverted ? / ! (Spanish): the glyph upside down, shifted 2 rows down (into the descender)
+            r = glyph_rows(rom, sd.MAIN.index(base)); top = r[:11]; r = [0, 0] + top[::-1] + [0, 0]
+            m = list(rom[MENUFONT + 8 * sd.MAIN.index(base):MENUFONT + 8 * sd.MAIN.index(base) + 8])[::-1]
+            g[extra[ch]] = pack(r[:15]) + bytes(m); continue
         r = glyph_rows(rom, sd.MAIN.index(base)); mi = sd.MAIN.index(base); m = list(rom[MENUFONT + 8 * mi:MENUFONT + 8 * mi + 8])
         if mk == "ced":                                  # cedilla under c / C (main rows 11..12; menu: the letter one row up, the hook in row 7)
             r[11] |= 0x2000; r[12] |= 0x6000; m = m[1:] + [0x10]
@@ -96,12 +120,12 @@ def make_glyphs_fr(rom):
             d = next((i for i in range(1, 10) if r[i] == r[i - 1]), 5)          # drop a row that repeats the one above (keeps E's middle bar)
             r = [FR_MARK_CAP.get(mk, 0x4800)] + r[:d] + r[d + 1:11] + [0] * 4
             dm = next((i for i in range(2, 7) if m[i] == m[i - 1]), 3)
-            m = [{"acute": 0x18, "grave": 0x30, "circ": 0x38}.get(mk, 0x44), 0x00] + (m[1:dm] + m[dm + 1:8])[-6:]
+            m = [{"acute": 0x18, "grave": 0x30, "circ": 0x38, "tilde": 0x3C}.get(mk, 0x44), 0x00] + (m[1:dm] + m[dm + 1:8])[-6:]
         else:
-            if base == "i": r[1] = r[2] = 0; m[0] = m[1] = 0; marks = FR_MARK_I[mk]; mm = {"circ": [0x40, 0xA0], "diaer": [0x00, 0xA0]}[mk]
+            if base == "i": r[1] = r[2] = 0; m[0] = m[1] = 0; marks = FR_MARK_I[mk]; mm = {"circ": [0x40, 0xA0], "diaer": [0x00, 0xA0], "acute": [0x20, 0x40], "grave": [0x80, 0x40]}[mk]
             else: marks = FR_MARK[mk]; mm = FR_MENU[mk]
             r[1] |= marks[0]; r[2] |= marks[1]; m[0] |= mm[0]; m[1] |= mm[1]
-        g[EXTRA_FR[ch]] = pack(r) + bytes(m)
+        g[extra[ch]] = pack(r) + bytes(m)
     return g
 
 
@@ -194,14 +218,33 @@ KO_HI = [c for c in range(0x101, 0x889) if (c & 0xFF) not in (0x00, 0x40, 0x47, 
 
 
 def ko_glyph_rows(ch):
+    if 0x400 <= ord(ch) < 0x500: return cyr_glyph_rows(ch)   # LK_LGCYR v1
     d = getattr(ko_glyph_rows, "d", None)
     if d is None: d = ko_glyph_rows.d = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lang", "ko_glyphs.dat"), "rb").read()
     i = ord(ch) - 0xAC00; return [struct.unpack(">H", d[6 + 22 * i + 2 * k:8 + 22 * i + 2 * k])[0] for k in range(11)] + [0] * 4
 
 
+# LK_LGCYR v1 (user 2026-11-22: Russian / Ukrainian): Cyrillic = the 'wide' path of Korean (version 4 file, 16-bit glyph codes, uiwide UI text, KOMN menu trailer);
+# text glyphs from lang/cyr_glyphs.dat (Galmuri 11, OFL), 8x8 menu glyphs from lang/cyr_glyphs7.dat (Public Pixel, CC0); tools/cyrfont.py.
+WIDE_LANGS = ("ko", "ru", "uk")
+def is_wide(c): return 0xAC00 <= ord(c) <= 0xD7A3 or 0x400 <= ord(c) < 0x500
+def cyr_glyph_rows(ch):
+    d = getattr(cyr_glyph_rows, "d", None)
+    if d is None: d = cyr_glyph_rows.d = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lang", "cyr_glyphs.dat"), "rb").read()
+    i = ord(ch) - 0x400; return list(struct.unpack(">15H", d[8 + 30 * i:38 + 30 * i]))
+def menu8(rom, ch):
+    """8x8 menu tile rows (row 0 free) of a character for the KOMN menu trailer: Hangul (Galmuri 7), Cyrillic (Public Pixel), else the ROM's menu font"""
+    import uiwide
+    g = uiwide.glyph8(ch)
+    if g is not None: return g
+    if ch in sd.MAIN: return bytes(rom[MENUFONT + 8 * sd.MAIN.index(ch):MENUFONT + 8 * sd.MAIN.index(ch) + 8])
+    return None
+
+
 def ko_codes(lang, extra=()):
     import re
-    hang = lambda t: [c for c in re.sub(r"\{[^}]*\}", "", t) if 0xAC00 <= ord(c) <= 0xD7A3]
+    cyr = lang.get("meta", {}).get("code", "")[:2] in ("ru", "uk")   # LK_LGCYR v1: codes $80..$86 are our UI text's accent bytes (patch_options.py lk_chr): not for Cyrillic letters (gap in the help line)
+    hang = lambda t: [c for c in re.sub(r"\{[^}]*\}", "", t) if is_wide(c)]   # LK_LGCYR v1: Hangul or Cyrillic
     first, rest = [], []
     for blk in ("names", "item_dialog"):
         for e in lang.get(blk, {}).values():
@@ -216,7 +259,7 @@ def ko_codes(lang, extra=()):
     for t in extra:   # release 2.0: the Friday hints of this language (tools/fridaylang.py)
         for c in hang(t): freq[c] = freq.get(c, 0) + 1
     rest = sorted((c for c in freq if c not in first), key=lambda c: -freq[c])
-    lo, hi, code = list(KO_LO), list(KO_HI), {}
+    lo, hi, code = [c for c in KO_LO if not (cyr and 0x80 <= c <= 0x86)], list(KO_HI), {}
     for c in first + rest: code[c] = (lo or hi).pop(0)
     return code
 
@@ -224,11 +267,13 @@ def ko_codes(lang, extra=()):
 def build_one(rom, en, lang_path, out_path, variant="local"):
     lang = json.load(open(lang_path, encoding="utf-8")) if isinstance(lang_path, str) else lang_path
     nm_tab = load_names(); base = lang.get("meta", {}).get("names", lang.get("meta", {}).get("code", "en")[:2])
-    global EXTRA, UI_BYTES; fr = base == "fr"; EXTRA, UI_BYTES = (EXTRA_FR, UI_BYTES_FR) if fr else (EXTRA_DE, UI_BYTES_DE)   # LK_LGFR v1
+    global EXTRA, UI_BYTES; fr = base in ACCENTS; EXTRA, UI_BYTES = ACCENTS[base][:2] if fr else (EXTRA_DE, UI_BYTES_DE)   # LK_LGFR v1 / LK_LGES v1 (es / it)
     lang = json.loads(json.dumps(lang))   # a copy: the placeholders are resolved per variant
     import fridaylang   # release 2.0: Friday hints of this language as extra strings $E000 + entry
     fcode = lang.get("meta", {}).get("code", ""); fh = fridaylang.entries(fcode) if fcode in fridaylang.NAME else []
-    ko = base == "ko"
+    fh = [(sid, resolve(t, nm_tab, base, variant) if "{=" in t else t) for sid, t in fh]   # LK_FHNAMES v1 (user 2026-11-22: Arthur kept his localized name with Names = Japanese): the hints' {=name} per variant
+    fpre = None if fcode in ("ko", "ja") else resolve("{=friday}:", nm_tab, base, variant)   # her own name in front ('Friday:' / 'Фрайди:'; the Japanese variant 'Friday:')
+    ko = base in WIDE_LANGS   # LK_LGKO v1 / LK_LGCYR v1 (ru / uk)
     if ko:   # LK_LGKO v1: resolve the placeholders first, then give every Hangul syllable a code
         for blk in ("strings", "names", "item_dialog"):
             for ent in lang.get(blk, {}).values():
@@ -262,7 +307,7 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
     if fh:   # release 2.0: Friday hints (gentle level), wrapped with the real glyph widths
         import langwrap; W = langwrap.widths(rom); nfh = 0
         for sid, t in fh:
-            try: toks = tokens(fridaylang.latin_text(W, fcode, t))
+            try: toks = tokens(fridaylang.latin_text(W, fcode, t, fpre))
             except ValueError as e: dropped.append(("friday:%04X" % sid, str(e))); continue
             words = [v if k == "g" else ~HANDLER[v] & 0xFFFF for k, v in toks if k in ("g", "c")]
             strs.append((sid, len(blob), len(words))); blob += b"".join(struct.pack(">H", w) for w in words) + b"\xff\xff"; nfh += 1
@@ -295,7 +340,7 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
         except (ValueError, UnicodeEncodeError): dropped.append(("ui_text:" + k, "unsupported character")); continue
         if any(c > 0x86 or (c > 0x7E and c < 0x80) for c in vb) or len(kb) > 255 or len(vb) > 255: dropped.append(("ui_text:" + k, "unsupported character")); continue
         texts.append(bytes([len(kb), len(vb)]) + kb + vb)
-    glyphs = {} if ko else (make_glyphs_fr(rom) if fr else make_glyphs(rom))
+    glyphs = {} if ko else (make_glyphs_fr(rom, ACCENTS[base][2], ACCENTS[base][0]) if fr else make_glyphs(rom))
     ver = 2
     if ko: glyphs = {c: pack(ko_glyph_rows(ch)) + bytes(8) for ch, c in EXTRA.items()}; ver = 4   # LK_LGKO v1: 16-bit glyph codes + 16-bit name codes (language file version 4)
     out = b"LKLG" + struct.pack(">HHHHHH", ver, len(strs), len(names), len(ui), len(glyphs), len(texts))
@@ -307,14 +352,29 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
         mg, mi, items = [bytes(8)], {}, []
         for i in range(64):
             ent = lang.get("item_dialog", {}).get("item:%02d" % i); t = ent["t"] if ent and not check("item:%02d" % i, ent) else ""
-            if any(not (0xAC00 <= ord(c) <= 0xD7A3 or c == " ") for c in t) or len(t) > 9: t = ""   # only pure Hangul names fit the 9 menu tiles
-            if len(mg) + len(set(c for c in t if c != " " and c not in mi)) > 256: t = ""   # 256 virtual tiles (patch_lang.py LK_LGKOMENU v1)
+            if base == "ko":
+                if any(not (0xAC00 <= ord(c) <= 0xD7A3 or c == " ") for c in t) or len(t) > 9: t = ""   # only pure Hangul names fit the 9 menu tiles
+                rows = [t]
+            else:   # LK_LGCYR v1: two rows of 9 tiles like the English menu; the name's {BreakSpace} / {BreakPoint} / {Hyphen} splits it (else the last space that fits)
+                import re as _re
+                mt = _re.split(r"\{(BreakSpace|BreakPoint|Hyphen)\}", t)
+                if len(mt) >= 3: rows = [mt[0] + ("-" if mt[1] == "Hyphen" else ""), "".join(mt[2:])]
+                elif len(t) > 9 and " " in t[:10]: cut = t[:10].rindex(" "); rows = [t[:cut], t[cut + 1:]]
+                else: rows = [t]
+                rows = [_re.sub(r"\{[^}]*\}", "", r).strip() for r in rows]
+                if any(len(r) > 9 for r in rows) or any(menu8(rom, c) is None for r in rows for c in r if c != " "): rows = [""]
+            if len(mg) + len(set(c for r in rows for c in r if c != " " and c not in mi)) > 256: rows = [""]   # 256 virtual tiles (patch_lang.py LK_LGKOMENU v1)
             ix = []
-            for c in t:
-                if c == " ": ix.append(0); continue
-                if c not in mi:
-                    k = ord(c) - 0xAC00; mi[c] = len(mg); mg.append(bytes([0]) + d7[6 + 7 * k:13 + 7 * k])   # rows 1..7 of the tile (row 0 free like the menu letters)
-                ix.append(mi[c])
+            for ri, r in enumerate(rows):
+                if ri: ix.append(0xFFFF)   # LK_LGCYR v1: next tile row
+                for c in r:
+                    if c == " ": ix.append(0); continue
+                    if c not in mi:
+                        mi[c] = len(mg)
+                        if 0xAC00 <= ord(c) <= 0xD7A3: k = ord(c) - 0xAC00; mg.append(bytes([0]) + d7[6 + 7 * k:13 + 7 * k])   # rows 1..7 of the tile (row 0 free like the menu letters)
+                        else: mg.append(menu8(rom, c))
+                    ix.append(mi[c])
+            if not any(v not in (0, 0xFFFF) for v in ix): ix = []
             items.append(ix)
         tr = b"KOMN" + struct.pack(">H", len(mg)) + b"".join(mg) + bytes([64]) + b"".join(bytes([len(ix)]) + b"".join(struct.pack(">H", v) for v in ix) for ix in items)
         out = out[:16] + struct.pack(">I", len(out)) + out[20:] + tr

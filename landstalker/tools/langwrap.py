@@ -26,6 +26,13 @@ def widths(rom):
     for ch, base in (("ä", "a"), ("ö", "o"), ("ü", "u"), ("Ä", "A"), ("Ö", "O"), ("Ü", "U")): W[ch] = W[base]
     W["ß"] = 9
     for ch, (base, mk) in lb.FR_SET.items(): W[ch] = W[base]
+    for _ex, _ui, _cs in lb.ACCENTS.values():   # LK_LGES v1: Spanish / Italian accents = the width of the base letter
+        for ch, (base, mk) in _cs.items(): W.setdefault(ch, W[base])
+    for cp in range(0x400, 0x500):   # LK_LGCYR v1: Cyrillic widths from lang/cyr_glyphs.dat (rightmost pixel column + 3, like the printer)
+        try: r = lb.cyr_glyph_rows(chr(cp))
+        except OSError: break
+        last = max((k for v in r for k in range(12) if v & (0x8000 >> k)), default=-1)
+        if last >= 0: W[chr(cp)] = last + 3
     try:   # LK_LGKO v1: Hangul widths from lang/ko_glyphs.dat (rightmost pixel column + 3, like the printer)
         for cp in range(0xAC00, 0xD7A4):
             rows = lb.ko_glyph_rows(chr(cp)); last = max([k for r in rows for k in range(12) if r & (0x8000 >> k)] or [8]); W[chr(cp)] = last + 3

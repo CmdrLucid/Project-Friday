@@ -20,6 +20,10 @@ def glyph8(ch):
     if 0xAC00 <= cp <= 0xD7A3:
         d = open(os.path.join(LANG, "ko_glyphs7.dat"), "rb").read(); k = cp - 0xAC00
         return bytes([0]) + d[6 + 7 * k:13 + 7 * k]
+    if 0x400 <= cp < 0x500:   # LK_LGCYR v1: Cyrillic from the Public Pixel font (CC0, lang/cyr_glyphs7.dat, tools/cyrfont.py; row 0 already free)
+        d = open(os.path.join(LANG, "cyr_glyphs7.dat"), "rb").read(); k = cp - 0x400
+        r = d[8 + 8 * k:16 + 8 * k]
+        return bytes(r) if any(r) else None
     if 0x3040 <= cp <= 0x30FF:
         d = open(os.path.join(LANG, "ja_glyphs7.dat"), "rb").read(); k = cp - 0x3040
         r = d[8 + 7 * k:15 + 7 * k]

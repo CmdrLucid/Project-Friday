@@ -8,15 +8,15 @@
     "stage>=0"
    ],
    "en": [
-    "Nigel! WAKE UP! The treasure won't find itself! Ask around.",
+    "{=nigel}! WAKE UP! The treasure won't find itself! Ask around.",
     "Talk to everyone in Massan.|Someone mentions a bridge."
    ],
    "de": [
-    "Niels! AUFWACHEN! Der Schatz findet sich nicht allein! Frag rum.",
+    "{=nigel}! AUFWACHEN! Der Schatz findet sich nicht allein! Frag rum.",
     "Sprich mit allen in Massan.|Einer erzählt was von der Brücke."
    ],
    "fr": [
-    "Ryle! RÉVEILLE-TOI! Le trésor va pas se trouver tout seul! Pose des questions.",
+    "{=nigel}! RÉVEILLE-TOI! Le trésor va pas se trouver tout seul! Pose des questions.",
     "Parle à tout le monde à Massan.|Quelqu'un parle d'un pont."
    ],
    "ko": [
@@ -26,6 +26,22 @@
    "ja": [
     "ライル! おきなさいよっ! たからは ねてても みつからないわよ! まず まわりの人に きいてみましょ!",
     "マサンの 人たちに みんな はなしかけてね だれかが 橋の ことを いってるわよ"
+   ],
+   "es": [
+    "¡{=nigel}! ¡DESPIERTA! ¡El tesoro|no se encuentra solo! Pregunta|por ahí.",
+    "Habla con todos en Massan.|Alguien habla de un puente."
+   ],
+   "it": [
+    "{=nigel}! SVEGLIATI! Il tesoro|non si trova da solo! Chiedi|in giro.",
+    "Parla con tutti a Massan.|Qualcuno parla di un ponte."
+   ],
+   "ru": [
+    "{=nigel}! ПРОСНИСЬ! Клад сам|себя не найдёт! Спроси у|людей.",
+    "Поговори со всеми в|Массане. Кто-то говорит про|мост."
+   ],
+   "uk": [
+    "{=nigel}! ПРОКИДАЙСЯ! Скарб|сам себе не знайде!|Розпитай.",
+    "Поговори з усіма в Массані.|Хтось згадає про міст."
    ]
   },
   {
@@ -35,15 +51,15 @@
     "room:144-172"
    ],
    "en": [
-    "Adventure time, Nigel! Let's see where this cave leads!",
+    "Adventure time, {=nigel}! Let's see where this cave leads!",
     "Fight your way through the cave|and look for the way onward."
    ],
    "de": [
-    "Abenteuerzeit, Niels! Mal sehen, wohin die Höhle führt!",
+    "Abenteuerzeit, {=nigel}! Mal sehen, wohin die Höhle führt!",
     "Kämpf dich durch die Höhle und|such den Weg nach draußen."
    ],
    "fr": [
-    "C'est l'aventure, Ryle! Voyons où mène cette grotte!",
+    "C'est l'aventure, {=nigel}! Voyons où mène cette grotte!",
     "Bats-toi dans la grotte et|cherche la suite du chemin."
    ],
    "ko": [
@@ -53,6 +69,22 @@
    "ja": [
     "ぼうけんの じかんよ ライル! この どうくつ どこへ つづくのかな!",
     "てきを たおしながら どうくつを すすんで さきへの みちを さがしましょ!"
+   ],
+   "es": [
+    "¡Hora de aventuras, {=nigel}! ¡A|ver adónde lleva esta cueva!",
+    "Abre camino por la cueva|y busca por dónde seguir."
+   ],
+   "it": [
+    "Che avventura, {=nigel}! Vediamo|dove porta questa grotta!",
+    "Combatti nella grotta e cerca|come proseguire."
+   ],
+   "ru": [
+    "Время приключений, {=nigel}!|Куда ведёт эта пещера?",
+    "Пробивайся через пещеру и|ищи путь дальше."
+   ],
+   "uk": [
+    "Час пригод, {=nigel}! Куди|веде ця печера?",
+    "Пробивайся печерою і шукай|шлях далі."
    ]
   },
   {
@@ -61,7 +93,7 @@
     "stage>=1"
    ],
    "en": [
-    "Gumi folk smashed the bridge?! How rude! Let's ask around, Nigel!",
+    "Gumi folk smashed the bridge?! How rude! Let's ask around, {=nigel}!",
     "Check every house in Massan.|Someone may know more."
    ],
    "de": [
@@ -69,7 +101,7 @@
     "Sieh in jedes Haus in Massan.|Vielleicht weiß wer mehr."
    ],
    "fr": [
-    "Les Gumi ont cassé le pont?! Quel culot! Demandons autour de nous, Ryle!",
+    "Les Gumi ont cassé le pont?! Quel culot! Demandons autour de nous, {=nigel}!",
     "Fouille chaque maison de Massan.|Quelqu'un en sait peut-être plus."
    ],
    "ko": [
@@ -79,6 +111,22 @@
    "ja": [
     "グミ族が 橋を こわしたですって!? ひどいわねっ! ライル まわりの人に きいてみましょ!",
     "マサンの 家を ぜんぶ まわってみてね だれかが もっと しってるかも"
+   ],
+   "es": [
+    "¿Los de Gumi rompieron el|puente? ¡Qué groseros!|¡Preguntemos, {=nigel}!",
+    "Mira en cada casa de Massan.|Quizá alguien sepa más."
+   ],
+   "it": [
+    "I Gumi hanno rotto il ponte?!|Che sfacciati! Chiediamo|in giro, {=nigel}!",
+    "Guarda in ogni casa di Massan.|Forse qualcuno sa di più."
+   ],
+   "ru": [
+    "Гуми сломали мост?! Как|грубо! Давай спросим,|{=nigel}!",
+    "Загляни в каждый дом|Массана. Кто-то знает|больше."
+   ],
+   "uk": [
+    "Гумі зламали міст?!|Нечемні! Розпитаймо,|{=nigel}!",
+    "Зазирни в кожну хату|Массана. Хтось знає більше."
    ]
   },
   {
@@ -106,6 +154,22 @@
    "ja": [
     "滝つぼ老人なら もっと しってるかもっ!",
     "滝のほこらにいる 滝つぼ老人に あって はなしを きいてみてね"
+   ],
+   "es": [
+    "¡El Santuario de la Cascada!|Su viejo sabio sabrá algo.",
+    "Visita al viejo sabio del|Santuario de la Cascada."
+   ],
+   "it": [
+    "Il Tempio della Cascata! Il|suo vecchio saggio sa tutto!",
+    "Va' dal vecchio saggio del|Tempio della Cascata. Chiedi!"
+   ],
+   "ru": [
+    "Святилище Водопада! Старый|мудрец там знает больше.",
+    "Найди старого мудреца в|Святилище Водопада, спроси."
+   ],
+   "uk": [
+    "Святилище Водоспаду! Старий|мудрець там знає більше.",
+    "Знайди старого мудреця в|Святилищі Водоспаду."
    ]
   },
   {
@@ -114,15 +178,15 @@
     "stage>=2"
    ],
    "en": [
-    "Those Gumi folk are trouble! Let's head over to Gumi, Nigel!",
+    "Those Gumi folk are trouble! Let's head over to Gumi, {=nigel}!",
     "Head south to Gumi and|look around the village."
    ],
    "de": [
-    "Die Gumi-Leute machen Ärger! Auf nach Gumi, Niels!",
+    "Die Gumi-Leute machen Ärger! Auf nach Gumi, {=nigel}!",
     "Geh nach Gumi im Süden und|sieh dich im Dorf um."
    ],
    "fr": [
-    "Ces Gumi nous cherchent des ennuis! Allons à Gumi, Ryle!",
+    "Ces Gumi nous cherchent des ennuis! Allons à Gumi, {=nigel}!",
     "Va au sud, à Gumi, et|regarde autour du village."
    ],
    "ko": [
@@ -132,6 +196,22 @@
    "ja": [
     "グミ族って ほんとに こまったやつらね! ライル グミの村へ いってみましょ!",
     "南の グミの村へ いって 村の ようすを みてきてね"
+   ],
+   "es": [
+    "¡Esos de Gumi son un problema!|¡Vamos a Gumi, {=nigel}!",
+    "Ve al sur, a Gumi, y|mira por el pueblo."
+   ],
+   "it": [
+    "Quei Gumi cercano guai!|Andiamo a Gumi, {=nigel}!",
+    "Vai a sud, a Gumi, e guarda|in giro per il villaggio."
+   ],
+   "ru": [
+    "Эти Гуми - одни|неприятности! Идём в Гуми,|{=nigel}!",
+    "Иди на юг в Гуми и осмотри|деревню."
+   ],
+   "uk": [
+    "Ці Гумі - самі клопоти!|Ходімо до Гумі, {=nigel}!",
+    "Іди на південь до Гумі й|огляни село."
    ]
   },
   {
@@ -141,15 +221,15 @@
     "flag:02.2"
    ],
    "en": [
-    "Gumi thugs took Fara!|After them, Nigel - to Gumi!",
+    "Gumi thugs took Fara!|After them, {=nigel} - to Gumi!",
     "Gumi thugs kidnapped Fara.|Cross the bridge to Gumi!"
    ],
    "de": [
-    "Die Gumi haben Fara|entführt! Hinterher, Niels!",
+    "Die Gumi haben Fara|entführt! Hinterher, {=nigel}!",
     "Gumi-Schläger haben Fara|entführt. Über die Brücke!"
    ],
    "fr": [
-    "Les brutes de Gumi ont pris Fara! Après eux, Ryle, à Gumi!",
+    "Les brutes de Gumi ont pris Fara! Après eux, {=nigel}, à Gumi!",
     "Des brutes de Gumi ont enlevé Fara.|Traverse le pont vers Gumi!"
    ],
    "ko": [
@@ -159,6 +239,22 @@
    "ja": [
     "グミ族が ファラを さらったわ! ライル グミの村へ おいかけるのよっ!",
     "グミ族が ファラを さらったの! 橋を わたって グミの村へ いきましょ!"
+   ],
+   "es": [
+    "¡Los matones de Gumi se|llevaron a Fara! ¡Tras ellos,|{=nigel}, a Gumi!",
+    "Unos matones secuestraron a|Fara. ¡Cruza el puente hacia|Gumi!"
+   ],
+   "it": [
+    "I bulli di Gumi hanno preso|Fara! Dietro a loro, a Gumi!",
+    "I bulli di Gumi hanno rapito|Fara. Passa il ponte per Gumi!"
+   ],
+   "ru": [
+    "Бандиты из Гуми украли|Фэру! За ними, {=nigel}, в|Гуми!",
+    "Бандиты Гуми похитили Фэру.|Перейди мост в Гуми!"
+   ],
+   "uk": [
+    "Бандити з Гумі вкрали Феру!|За ними, {=nigel}, до Гумі!",
+    "Бандити Гумі викрали Феру.|Перейди міст до Гумі!"
    ]
   },
   {
@@ -186,6 +282,22 @@
    "ja": [
     "グミ族は オークに だまされてるのね! ファラが あぶないわっ!",
     "オークが グミ族を だましてて ファラが あぶないの! グミの村へ いそぎましょ!"
+   ],
+   "es": [
+    "¿Los orcos engañan a Gumi?!|¡Pobre Fara, está en peligro!",
+    "Los orcos engañan a Gumi y|Fara corre peligro. ¡Rumbo a|Gumi!"
+   ],
+   "it": [
+    "Gli Orchi ingannano i Gumi?!|Fara è in pericolo!",
+    "Gli Orchi ingannano i Gumi e|Fara è in pericolo. A Gumi!"
+   ],
+   "ru": [
+    "Орки обманули Гуми?! Бедная|Фэра в опасности!",
+    "Орки обманули Гуми, Фэра в|опасности. Вперёд, в Гуми!"
+   ],
+   "uk": [
+    "Орки ошукали Гумі?! Бідна|Фера в небезпеці!",
+    "Орки ошукали Гумі, Фера в|небезпеці. Вперед, до Гумі!"
    ]
   },
   {
@@ -213,6 +325,22 @@
    "ja": [
     "ぶるる・・・ ぶきみな村ね まわりを みてみましょ でも こっそりとね!",
     "村のまわりの みちを たんけんしてみてね ここ なにか あやしいわよ"
+   ],
+   "es": [
+    "Brrr... este sitio da miedo.|¡Mira todo, pero en silencio!",
+    "Explora los caminos del|pueblo. Aquí pasa algo raro."
+   ],
+   "it": [
+    "Brrr... qui fa paura. Guarda|dappertutto, ma di nascosto!",
+    "Esplora i sentieri intorno al|villaggio. Qui succede|qualcosa."
+   ],
+   "ru": [
+    "Бр-р... жутковато тут.|Смотри, но тихо!",
+    "Исследуй тропы вокруг|деревни. Тут что-то|творится."
+   ],
+   "uk": [
+    "Бр-р... моторошно тут.|Дивись, але тихенько!",
+    "Дослідж стежки навколо|села. Тут щось діється."
    ]
   },
   {
@@ -240,6 +368,22 @@
    "ja": [
     "かわいそうな ファラ! グミ族は ファラを どこへ つれていったのかしら? さがしましょ!",
     "グミ族が ファラを つれていったの 沼地の神殿を さがしてみてね"
+   ],
+   "es": [
+    "¡Pobre Fara! ¿Adónde se la|llevaron? ¡Averigüémoslo!",
+    "Los de Gumi se llevaron a|Fara. Búscala en el Santuario|del Pantano."
+   ],
+   "it": [
+    "Povera Fara! Dove l'hanno|portata i Gumi? Cerchiamola!",
+    "I Gumi hanno portato via Fara.|Cercala al Tempio della|Palude."
+   ],
+   "ru": [
+    "Бедная Фэра! Куда её увели|Гуми? Узнаем!",
+    "Гуми увели Фэру. Ищи её у|Болотного Святилища."
+   ],
+   "uk": [
+    "Бідна Фера! Куди її забрали|Гумі? Дізнаємось!",
+    "Гумі забрали Феру. Шукай її|біля Болотяного Святилища."
    ]
   },
   {
@@ -268,6 +412,22 @@
    "ja": [
     "かわいそうな ファラ! グミの村の どこかに ほこらの トビラを あけるものが あるかも! さがしてみましょ!",
     "グミの村で ほこらの トビラを あけるものを さがしてね"
+   ],
+   "es": [
+    "¡Pobre Fara! Quizá en Gumi hay|algo que abre la puerta del|santuario. ¡Busquemos!",
+    "Registra el pueblo de Gumi:|algo abre la puerta del|santuario."
+   ],
+   "it": [
+    "Povera Fara! A Gumi forse c'è|qualcosa che apre la porta del|tempio. Cerchiamo!",
+    "Cerca nel villaggio di Gumi|ciò che apre la porta."
+   ],
+   "ru": [
+    "Бедная Фэра! Вдруг в Гуми|есть то, что открывает|дверь? Ищем!",
+    "Поищи в деревне Гуми то,|что откроет дверь|святилища."
+   ],
+   "uk": [
+    "Бідна Фера! Може, в Гумі є|те, що відчинить двері?|Шукаймо!",
+    "Пошукай у селі Гумі те, що|відчинить двері святилища."
    ]
   },
   {
@@ -296,6 +456,22 @@
    "ja": [
     "ヘンなものを つかって トビラを あけたのね! それを さがしましょ ライル!",
     "グミ族は なにか ヘンなものを つかって トビラを あけたのよ それを さがして!"
+   ],
+   "es": [
+    "¡Algo raro abre esa puerta!|¡Encontrémoslo!",
+    "Los de Gumi abrieron esa|puerta con algo raro.|¡Encuéntralo!"
+   ],
+   "it": [
+    "Una cosa strana apre quella|porta! Troviamola!",
+    "I Gumi hanno aperto la porta|con una cosa strana. Trovala!"
+   ],
+   "ru": [
+    "Какая-то странная штука|открывает ту дверь! Найдём!",
+    "Гуми открыли дверь чем-то|странным. Найди это!"
+   ],
+   "uk": [
+    "Якась дивна штука відчиняє|ті двері! Знайдімо її!",
+    "Гумі відчинили двері чимось|дивним. Знайди це!"
    ]
   },
   {
@@ -324,6 +500,22 @@
    "ja": [
     "うーん ファラは ここには いないわ 沼のほうへ つれていかれたんじゃない?",
     "ファラは ここには いないわ 沼地の神殿を さがしてみてね"
+   ],
+   "es": [
+    "Mmm, aquí no hay Fara. ¿No se|la llevaron al pantano?",
+    "Fara no está aquí. Búscala en|el Santuario del Pantano."
+   ],
+   "it": [
+    "Mmh, qui niente Fara. Non era|stata portata alla palude?",
+    "Fara non è qui. Cercala al|Tempio della Palude."
+   ],
+   "ru": [
+    "Хм, Фэры тут нет. Разве её|не увели на болото?",
+    "Фэры здесь нет. Ищи её у|Болотного Святилища."
+   ],
+   "uk": [
+    "Хм, Фери тут нема. Хіба її|не забрали на болото?",
+    "Фери тут нема. Шукай її|біля Болотяного Святилища."
    ]
   },
   {
@@ -353,6 +545,22 @@
    "ja": [
     "うーん ここには ファラを たすける ものは なさそうね グミの村を さがすんじゃ なかった?",
     "ほこらの トビラを あけるものは ここには ないわ グミの村を さがしてね"
+   ],
+   "es": [
+    "Mmm, aquí no hay nada para|Fara. ¿No íbamos a buscar en|Gumi?",
+    "Lo que abre la puerta del|santuario no está aquí. Busca|en Gumi."
+   ],
+   "it": [
+    "Mmh, qui niente per Fara. Non|dovevamo cercare a Gumi?",
+    "Ciò che apre la porta non è|qui. Cerca nel villaggio di|Gumi."
+   ],
+   "ru": [
+    "Хм, тут ничего для Фэры. Мы|же хотели обыскать Гуми?",
+    "Ключа от двери тут нет.|Обыщи деревню Гуми."
+   ],
+   "uk": [
+    "Хм, тут нічого для Фери. Ми|ж хотіли обшукати Гумі?",
+    "Того, що відчиняє двері,|тут нема. Обшукай село|Гумі."
    ]
   },
   {
@@ -381,6 +589,22 @@
    "ja": [
     "わあ きれいな いし! あの ほこらの トビラも きっと このいしが すきよ!",
     "沼地の神殿の いりぐちにある ぞうに じゃしんのいしを つかってみてね"
+   ],
+   "es": [
+    "¡Ooh, qué piedra tan bonita!|Seguro que a la puerta del|santuario le encanta.",
+    "Usa el Ídolo Pétreo en la|estatua de la entrada del|Santuario del Pantano."
+   ],
+   "it": [
+    "Oh, che bella pietra! La porta|del tempio la adorerà.",
+    "Usa la Pietra Idolo sulla|statua all'ingresso del Tempio|della Palude."
+   ],
+   "ru": [
+    "Ух ты, какой красивый|камень! Дверь святилища его|полюбит.",
+    "Используй Камень-Идол на|статуе у входа в святилище."
+   ],
+   "uk": [
+    "Ого, який гарний камінь!|Двері святилища його|вподобають.",
+    "Використай Камінь-Ідол на|статуї біля входу."
    ]
   },
   {
@@ -390,15 +614,15 @@
     "flag:00.6"
    ],
    "en": [
-    "The door is open! Fara must be inside. Hurry, Nigel!",
+    "The door is open! Fara must be inside. Hurry, {=nigel}!",
     "Go in and fight your way|to the very end."
    ],
    "de": [
-    "Die Tür ist offen! Fara ist bestimmt drin. Beeil dich, Niels!",
+    "Die Tür ist offen! Fara ist bestimmt drin. Beeil dich, {=nigel}!",
     "Geh rein und kämpf dich|bis ganz nach hinten."
    ],
    "fr": [
-    "La porte est ouverte! Fara doit être dedans. Vite, Ryle!",
+    "La porte est ouverte! Fara doit être dedans. Vite, {=nigel}!",
     "Entre et bats-toi jusqu'au|tout bout."
    ],
    "ko": [
@@ -408,6 +632,22 @@
    "ja": [
     "トビラが あいたわ! ファラは きっと なかよ いそいで ライル!",
     "中に はいって いちばん おくまで たたかいながら すすんでね"
+   ],
+   "es": [
+    "¡La puerta está abierta! Fara|debe estar dentro. ¡Rápido,|{=nigel}!",
+    "Entra y abre camino a golpes|hasta el mismísimo final."
+   ],
+   "it": [
+    "La porta è aperta! Fara sarà|là dentro. Presto, {=nigel}!",
+    "Entra e combatti fino in|fondo."
+   ],
+   "ru": [
+    "Дверь открыта! Фэра|наверняка внутри. Скорее,|{=nigel}!",
+    "Заходи и пробивайся до|самого конца."
+   ],
+   "uk": [
+    "Двері відчинені! Фера точно|всередині. Мерщій, {=nigel}!",
+    "Заходь і пробивайся до|самого кінця."
    ]
   },
   {
@@ -417,7 +657,7 @@
     "room:0-30"
    ],
    "en": [
-    "Fara must be at the far end! Hurry, Nigel, she needs us!",
+    "Fara must be at the far end! Hurry, {=nigel}, she needs us!",
     "Fight through to the far end.|Watch your health!"
    ],
    "de": [
@@ -425,7 +665,7 @@
     "Kämpf dich bis ganz hinten durch.|Achte auf deine Herzen!"
    ],
    "fr": [
-    "Fara doit être tout au fond! Vite, Ryle, elle a besoin de nous!",
+    "Fara doit être tout au fond! Vite, {=nigel}, elle a besoin de nous!",
     "Bats-toi jusqu'au fond.|Surveille ta santé!"
    ],
    "ko": [
@@ -435,6 +675,22 @@
    "ja": [
     "ファラは きっと おくよ! いそいで ライル あの子が あたしたちを まってるわっ!",
     "いちばん おくまで たたかって すすんでね たいりょくに きをつけて!"
+   ],
+   "es": [
+    "¡Fara debe estar al fondo!|¡Rápido, {=nigel}, nos necesita!",
+    "Abre camino hasta el fondo.|¡Cuida tu salud!"
+   ],
+   "it": [
+    "Fara sarà in fondo! Presto,|{=nigel}, ha bisogno di noi!",
+    "Combatti fino in fondo.|Occhio alla salute!"
+   ],
+   "ru": [
+    "Фэра в самом конце! Скорее,|{=nigel}, мы нужны ей!",
+    "Пробейся в дальний конец.|Следи за здоровьем!"
+   ],
+   "uk": [
+    "Фера в самому кінці!|Мерщій, {=nigel}, ми їй|потрібні!",
+    "Пробийся до дальнього|кінця. Стеж за здоров'ям!"
    ]
   },
   {
@@ -461,6 +717,22 @@
    "ja": [
     "ファラを たすけたわ! おれいが もらえるはずよ・・・じゃなくて ありがとうって いわれるのよね!",
     "マサンの 村長の 家へ いって ほうしゅうを もらいましょ"
+   ],
+   "es": [
+    "¡Salvamos a Fara! Su familia|nos debe una recompensa...|¡digo, las gracias!",
+    "Ve a casa del alcalde en|Massan y recoge tu recompensa."
+   ],
+   "it": [
+    "Abbiamo salvato Fara! La sua|famiglia ci deve un premio...|Ehm, un grazie!",
+    "Va' dal sindaco di Massan e|chiedi la tua ricompensa."
+   ],
+   "ru": [
+    "Мы спасли Фэру! Её семья|должна нам награду... то|есть спасибо!",
+    "Иди в дом старосты в|Массане и забери награду."
+   ],
+   "uk": [
+    "Ми врятували Феру! Її|родина винна нам|нагороду... тобто дяку!",
+    "Іди до хати старости в|Массані по нагороду."
    ]
   },
   {
@@ -469,7 +741,7 @@
     "stage>=5"
    ],
    "en": [
-    "Massan is done! West, Nigel, the treasure won't wait!",
+    "Massan is done! West, {=nigel}, the treasure won't wait!",
     "Go through Gumi and follow|the road west."
    ],
    "de": [
@@ -477,7 +749,7 @@
     "Geh durch Gumi und folg|dem Weg nach Westen."
    ],
    "fr": [
-    "Massan, c'est fini! À l'ouest, Ryle, le trésor n'attend pas!",
+    "Massan, c'est fini! À l'ouest, {=nigel}, le trésor n'attend pas!",
     "Traverse Gumi et suis la route|vers l'ouest."
    ],
    "ko": [
@@ -487,6 +759,22 @@
    "ja": [
     "マサンは おわりね! 西へ ライル たからは まってくれないわよっ!",
     "グミの村を とおって 西へ のびる みちを すすんでね"
+   ],
+   "es": [
+    "¡Massan ya está! ¡Al oeste,|{=nigel}, el tesoro no espera!",
+    "Pasa por Gumi y sigue el|camino hacia el oeste."
+   ],
+   "it": [
+    "Massan è finita! A ovest,|{=nigel}, il tesoro non aspetta!",
+    "Attraversa Gumi e segui la|strada verso ovest."
+   ],
+   "ru": [
+    "С Массаном покончено! На|запад, {=nigel}, клад не|ждёт!",
+    "Иди через Гуми и следуй по|дороге на запад."
+   ],
+   "uk": [
+    "З Массаном покінчено! На|захід, {=nigel}, скарб не|жде!",
+    "Іди через Гумі й дорогою на|захід."
    ]
   },
   {
@@ -496,15 +784,15 @@
     "heard:01A0"
    ],
    "en": [
-    "To Ryuma, Nigel! Past|Gumi, left at the sea.",
+    "To Ryuma, {=nigel}! Past|Gumi, left at the sea.",
     "Past Gumi the road splits at|the sea. Left goes to Ryuma."
    ],
    "de": [
-    "Auf nach Ryuma! Hinter|Gumi am Meer links, Niels!",
+    "Auf nach Ryuma! Hinter|Gumi am Meer links, {=nigel}!",
     "Hinter Gumi teilt sich der Weg|am Meer: links nach Ryuma."
    ],
    "fr": [
-    "Cap sur Ryuma, Ryle! Après|Gumi, à gauche, vers la mer.",
+    "Cap sur Ryuma, {=nigel}! Après|Gumi, à gauche, vers la mer.",
     "Après Gumi, la route se sépare|à la mer. À gauche, Ryuma."
    ],
    "ko": [
@@ -514,6 +802,22 @@
    "ja": [
     "リュマへ ライル! グミの村を すぎて 海のところで ひだりよ!",
     "グミの むこうで みちが 海のところで わかれてるわ ひだりへ いくと リュマよ"
+   ],
+   "es": [
+    "¡A Ryuma, {=nigel}! Pasado|Gumi, a la izquierda, al mar.",
+    "Pasado Gumi el camino se|divide en el mar. A la|izquierda, Ryuma."
+   ],
+   "it": [
+    "Rotta su Ryuma, {=nigel}! Dopo|Gumi, a sinistra, verso il|mare.",
+    "Dopo Gumi la strada si divide|al mare. A sinistra, Ryuma."
+   ],
+   "ru": [
+    "В Риуму, {=nigel}! Мимо|Гуми, у моря налево.",
+    "За Гуми дорога делится у|моря. Налево - в Риуму."
+   ],
+   "uk": [
+    "До Ріуми, {=nigel}! Повз|Гумі, біля моря ліворуч.",
+    "За Гумі дорога ділиться|біля моря. Ліворуч - до|Ріуми."
    ]
   },
   {
@@ -541,6 +845,22 @@
    "ja": [
     "みんな とっても おびえてるわね! まずは 町を みてまわりましょ!",
     "町の すみずみまで みて みんなに はなしかけてみてね"
+   ],
+   "es": [
+    "¡Todos parecen muy asustados!|Demos una vuelta por el|pueblo.",
+    "Mira cada rincón del pueblo|y habla con todos."
+   ],
+   "it": [
+    "Sembrano tutti spaventati!|Facciamo un giro per la città.",
+    "Guarda in ogni angolo della|città e parla con tutti."
+   ],
+   "ru": [
+    "Все тут такие напуганные!|Осмотрим город.",
+    "Загляни в каждый уголок|города и поговори со всеми."
+   ],
+   "uk": [
+    "Усі тут такі перелякані!|Огляньмо місто.",
+    "Зазирни в кожен куток міста|і поговори з усіма."
    ]
   },
   {
@@ -567,6 +887,22 @@
    "ja": [
     "町長が とうぞくに!? この町は たすけが ひつようね! 人に きいてみましょ!",
     "たすけを たのまれるまで リュマの人たちに はなしかけてね"
+   ],
+   "es": [
+    "¿Los ladrones tienen al|alcalde? ¡Este pueblo necesita|ayuda! ¡Pregunta!",
+    "Habla con la gente de Ryuma|hasta que alguien te pida|ayuda."
+   ],
+   "it": [
+    "I ladri hanno preso il|sindaco?! La città ha bisogno|di aiuto.",
+    "Parla con la gente di Ryuma|finché qualcuno chiede aiuto."
+   ],
+   "ru": [
+    "Воры схватили старосту?!|Городу нужна помощь.|Спроси!",
+    "Говори с жителями Риумы,|пока кто-то не попросит|помощи."
+   ],
+   "uk": [
+    "Злодії схопили старосту?!|Місту треба допомогти.|Розпитай!",
+    "Говори з жителями Ріуми,|доки хтось не попросить."
    ]
   },
   {
@@ -594,6 +930,22 @@
    "ja": [
     "かいぎしてる あの家! もういちど いってみましょ!",
     "リュマで かいぎを している人たちに もういちど はなしかけてみてね"
+   ],
+   "es": [
+    "¡La casa de la reunión!|¡Volvamos allí!",
+    "Habla otra vez con la gente|que se reúne en Ryuma."
+   ],
+   "it": [
+    "La casa della riunione!|Torniamoci, {=nigel}!",
+    "Riparla con le persone che|fanno la riunione a Ryuma."
+   ],
+   "ru": [
+    "Тот дом, где собрание!|Вернёмся туда.",
+    "Снова поговори с людьми,|что собрались в Риуме."
+   ],
+   "uk": [
+    "Та хата, де збори!|Повернімося туди.",
+    "Знову поговори з людьми, що|зібралися в Ріумі."
    ]
   },
   {
@@ -602,15 +954,15 @@
     "stage>=7"
    ],
    "en": [
-    "A cave on the cape!|Raft over there, Nigel!",
+    "A cave on the cape!|Raft over there, {=nigel}!",
     "The thieves hide in the cave|on the cape. Cross by raft."
    ],
    "de": [
-    "Die Höhle am Kap! Mit|dem Floß rüber, Niels!",
+    "Die Höhle am Kap! Mit|dem Floß rüber, {=nigel}!",
     "Die Diebe hausen in der Höhle|am Kap. Mit dem Floß rüber!"
    ],
    "fr": [
-    "Une grotte sur le cap!|En radeau, Ryle!",
+    "Une grotte sur le cap!|En radeau, {=nigel}!",
     "Les voleurs se cachent dans la grotte|du cap. Traverse en radeau."
    ],
    "ko": [
@@ -620,6 +972,22 @@
    "ja": [
     "岬に どうくつが! ライル いかだで わたりましょ!",
     "とうぞくは 岬の どうくつに かくれてるわ いかだで わたってね"
+   ],
+   "es": [
+    "¡Una cueva en el cabo!|¡En balsa hasta allí, {=nigel}!",
+    "Los ladrones se esconden en la|cueva del cabo. Cruza en|balsa."
+   ],
+   "it": [
+    "Una grotta sul promontorio!|Con la zattera, {=nigel}!",
+    "I ladri si nascondono nella|grotta del promontorio.|Attraversa con la zattera."
+   ],
+   "ru": [
+    "Пещера на мысе! Плыви на|плоту, {=nigel}!",
+    "Воры прячутся в пещере на|мысе. Переплыви на плоту."
+   ],
+   "uk": [
+    "Печера на мисі! На пліт,|{=nigel}!",
+    "Злодії ховаються в печері|на мисі. Пливи плотом."
    ]
   },
   {
@@ -629,15 +997,15 @@
     "room:184-226"
    ],
    "en": [
-    "A thieves' den! Careful, Nigel, they're everywhere!",
+    "A thieves' den! Careful, {=nigel}, they're everywhere!",
     "Fight deeper into the cave and|deal with the thieves."
    ],
    "de": [
-    "Ein Diebesnest! Vorsicht, Niels, die sind überall!",
+    "Ein Diebesnest! Vorsicht, {=nigel}, die sind überall!",
     "Kämpf dich tiefer in die Höhle und|räum bei den Dieben auf."
    ],
    "fr": [
-    "Un repaire de voleurs! Prudence, Ryle, ils sont partout!",
+    "Un repaire de voleurs! Prudence, {=nigel}, ils sont partout!",
     "Avance dans la grotte et|occupe-toi des voleurs."
    ],
    "ko": [
@@ -647,6 +1015,22 @@
    "ja": [
     "とうぞくの アジトよ! ライル きをつけて あちこちに いるわよっ!",
     "どうくつの おくへ たたかいながら すすんで とうぞくを やっつけてね"
+   ],
+   "es": [
+    "¡Una guarida de ladrones!|¡Cuidado, {=nigel}, están por|todas partes!",
+    "Avanza por la cueva y|ocúpate de los ladrones."
+   ],
+   "it": [
+    "Un covo di ladri! Attento,|{=nigel}, sono dappertutto!",
+    "Avanza nella grotta e pensa|ai ladri."
+   ],
+   "ru": [
+    "Логово воров! Осторожно,|{=nigel}, они повсюду!",
+    "Пробивайся вглубь пещеры и|разберись с ворами."
+   ],
+   "uk": [
+    "Лігво злодіїв! Обережно,|{=nigel}, вони всюди!",
+    "Пробивайся вглиб печери і|розберись зі злодіями."
    ]
   },
   {
@@ -655,15 +1039,15 @@
     "stage>=8"
    ],
    "en": [
-    "We're done here, Nigel. Let's head back to Ryuma!",
+    "We're done here, {=nigel}. Let's head back to Ryuma!",
     "Back to Ryuma. Talk around town,|someone has news for you."
    ],
    "de": [
-    "Hier sind wir fertig, Niels. Zurück nach Ryuma!",
+    "Hier sind wir fertig, {=nigel}. Zurück nach Ryuma!",
     "Zurück nach Ryuma. Sprich mit den Leuten,|einer hat Neuigkeiten."
    ],
    "fr": [
-    "On a fini ici, Ryle. Retournons à Ryuma!",
+    "On a fini ici, {=nigel}. Retournons à Ryuma!",
     "Retour à Ryuma. Parle aux gens,|quelqu'un a des nouvelles."
    ],
    "ko": [
@@ -673,6 +1057,22 @@
    "ja": [
     "ここは もう おわりね ライル リュマへ もどりましょ!",
     "リュマへ もどって 町の人に はなしかけてね きっと しらせが あるわ"
+   ],
+   "es": [
+    "Aquí ya acabamos, {=nigel}.|¡Volvamos a Ryuma!",
+    "Vuelve a Ryuma. Habla con la|gente, alguien tiene noticias."
+   ],
+   "it": [
+    "Qui abbiamo finito, {=nigel}.|Torniamo a Ryuma!",
+    "Torna a Ryuma. Parla con la|gente, qualcuno ha novità."
+   ],
+   "ru": [
+    "Тут мы закончили, {=nigel}.|Вернёмся в Риуму!",
+    "Назад в Риуму. Поговори с|горожанами, у них новости."
+   ],
+   "uk": [
+    "Тут ми закінчили, {=nigel}.|Повернімось до Ріуми!",
+    "Назад до Ріуми. Поговори з|містянами, є новини."
    ]
   },
   {
@@ -681,15 +1081,15 @@
     "stage>=9"
    ],
    "en": [
-    "A pass! Now that big, rich town lets us in. Shopping, Nigel!",
+    "A pass! Now that big, rich town lets us in. Shopping, {=nigel}!",
     "Go to Mercator: back at the fork|west of Gumi, take the other path."
    ],
    "de": [
-    "Ein Passierschein! Ab in die große, reiche Stadt. Einkaufen, Niels!",
+    "Ein Passierschein! Ab in die große, reiche Stadt. Einkaufen, {=nigel}!",
     "Geh nach Merkator: zurück zur|Gabelung, anderer Weg."
    ],
    "fr": [
-    "Un laissez-passer! La grande ville riche nous laisse entrer. Shopping, Ryle!",
+    "Un laissez-passer! La grande ville riche nous laisse entrer. Shopping, {=nigel}!",
     "Va à Mercator: reviens à la fourche|à l'ouest de Gumi, prends l'autre chemin."
    ],
    "ko": [
@@ -699,6 +1099,22 @@
    "ja": [
     "つうこうしょうよ! あの 大きな おかねもちの町に はいれるわ! おかいものよ ライル!",
     "メルカトルへ いくの グミの 西の わかれみちで ほかの みちへ すすんでね"
+   ],
+   "es": [
+    "¡Un pase! Ahora la ciudad|grande y rica nos deja entrar.|¡De compras, {=nigel}!",
+    "Ve a Mercator: vuelve a la|bifurcación al oeste de Gumi,|toma el otro camino."
+   ],
+   "it": [
+    "Un lasciapassare! La grande|città ricca ci fa entrare.|Shopping, {=nigel}!",
+    "Vai a Mercator: torna al bivio|a ovest di Gumi e prendi|l'altra strada."
+   ],
+   "ru": [
+    "Пропуск! Теперь богатый|город нас пустит. За|покупками!",
+    "Иди в Меркатор: у развилки|к западу от Гуми другой|путь."
+   ],
+   "uk": [
+    "Перепустка! Тепер багате|місто нас пустить. По|покупки!",
+    "Іди до Меркатора: біля|розвилки на захід від Гумі|інший шлях."
    ]
   },
   {
@@ -712,7 +1128,7 @@
     "Talk to the townsfolk.|Someone will point you somewhere."
    ],
    "de": [
-    "Wow, was für eine Stadt! Fragen wir uns mal durch, Niels.",
+    "Wow, was für eine Stadt! Fragen wir uns mal durch, {=nigel}.",
     "Sprich mit den Leuten.|Irgendwer weist dir den Weg."
    ],
    "fr": [
@@ -726,6 +1142,22 @@
    "ja": [
     "わあ すごい町! まわりの人に きいてみましょ きっと だれかが しってるわ!",
     "町の人に はなしかけてね だれかが いくさきを おしえてくれるわよ"
+   ],
+   "es": [
+    "¡Guau, qué ciudad!|Preguntemos, alguien sabrá|cosas.",
+    "Habla con la gente.|Alguien te dará una pista."
+   ],
+   "it": [
+    "Wow, che città! Chiediamo in|giro, qualcuno saprà qualcosa.",
+    "Parla con gli abitanti.|Qualcuno ti indicherà la via."
+   ],
+   "ru": [
+    "Ого, какой город! Спросим|кого-нибудь, кто-то знает.",
+    "Поговори с горожанами. Кто-|то подскажет, куда идти."
+   ],
+   "uk": [
+    "Ого, яке місто! Розпитаймо|когось, хтось та знає.",
+    "Поговори з містянами. Хтось|підкаже, куди йти."
    ]
   },
   {
@@ -734,15 +1166,15 @@
     "stage>=10"
    ],
    "en": [
-    "This town hides something. Let's poke around, Nigel!",
+    "This town hides something. Let's poke around, {=nigel}!",
     "Check every corner of the town,|front and back."
    ],
    "de": [
-    "Diese Stadt verbirgt was. Stöbern wir mal herum, Niels!",
+    "Diese Stadt verbirgt was. Stöbern wir mal herum, {=nigel}!",
     "Sieh dir jede Ecke der Stadt an,|vorne wie hinten."
    ],
    "fr": [
-    "Cette ville cache quelque chose. Fouinons un peu, Ryle!",
+    "Cette ville cache quelque chose. Fouinons un peu, {=nigel}!",
     "Inspecte chaque coin de la ville,|devant comme derrière."
    ],
    "ko": [
@@ -752,6 +1184,22 @@
    "ja": [
     "この町 なにか かくしてるわね! ライル ちょっと さがしてみましょ!",
     "町の すみずみまで しらべてね おもても うらもよ"
+   ],
+   "es": [
+    "Esta ciudad esconde algo. ¡A|fisgonear, {=nigel}!",
+    "Mira cada rincón de la ciudad,|por delante y por detrás."
+   ],
+   "it": [
+    "Questa città nasconde|qualcosa. Ficchiamo il naso,|{=nigel}!",
+    "Controlla ogni angolo della|città, davanti e dietro."
+   ],
+   "ru": [
+    "Этот город что-то скрывает.|Пошарим тут, {=nigel}!",
+    "Осмотри каждый уголок|города, и спереди, и сзади."
+   ],
+   "uk": [
+    "Це місто щось приховує.|Пошукаймо тут, {=nigel}!",
+    "Огляни кожен куточок міста,|і спереду, і ззаду."
    ]
   },
   {
@@ -760,15 +1208,15 @@
     "stage>=12"
    ],
    "en": [
-    "Arthur sneaked off to Madame Yard's? Let's take a look!",
+    "{=arthur} sneaked off to Madame Yard's? Let's take a look!",
     "Ask around at Madame Yard's.|Someone there knows more."
    ],
    "de": [
-    "Arthur schleicht zu Madame Yard? Schauen wir mal nach!",
+    "{=arthur} schleicht zu Madame Yard? Schauen wir mal nach!",
     "Frag bei Madame Yard herum.|Dort weiß wer mehr."
    ],
    "fr": [
-    "Arthur s'est faufilé chez Madame Yard? Allons voir!",
+    "{=arthur} s'est faufilé chez Madame Yard? Allons voir!",
     "Interroge les gens chez Madame Yard.|Quelqu'un là-bas en sait plus."
    ],
    "ko": [
@@ -778,6 +1226,22 @@
    "ja": [
     "ドンメルが ピンクパレスへ こっそり!? ちょっと のぞいてみましょ!",
     "ピンクパレスで 人に きいてみてね だれかが しってるわ"
+   ],
+   "es": [
+    "¿{=arthur} se coló en casa de|Madame Yard? ¡Vamos a ver!",
+    "Pregunta en casa de Madame|Yard. Allí alguien sabe más."
+   ],
+   "it": [
+    "{=arthur} si è infilato da Madame|Yard? Andiamo a vedere!",
+    "Interroga la gente da Madame|Yard. Là qualcuno sa di più."
+   ],
+   "ru": [
+    "{=arthur} сбежал к мадам Ярд?|Пойдём посмотрим!",
+    "Поспрашивай в доме мадам|Ярд. Там знают больше."
+   ],
+   "uk": [
+    "{=arthur} втік до мадам Ярд?|Ходімо подивимось!",
+    "Розпитай у домі мадам Ярд.|Там знають більше."
    ]
   },
   {
@@ -790,7 +1254,7 @@
     "Find her house and let her cast|it. Then try Madame Yard's."
    ],
    "de": [
-    "Eine Wahrsagerin soll helfen? Oh, da gehen wir hin, Niels!",
+    "Eine Wahrsagerin soll helfen? Oh, da gehen wir hin, {=nigel}!",
     "Such ihr Haus, lass sie zaubern.|Dann zu Madame Yard's."
    ],
    "fr": [
@@ -804,6 +1268,22 @@
    "ja": [
     "うらないしが たすけてくれるの? わあ あいにいきましょ!",
     "うらないしの 家を さがして 魔法を かけてもらってね それから ピンクパレスへ いってみましょ"
+   ],
+   "es": [
+    "¿Una adivina podría ayudarnos?|¡Ooh, vamos a verla!",
+    "Encuentra su casa y que te lo|eche a las cartas. Luego, a|Madame Yard."
+   ],
+   "it": [
+    "Un'indovina potrebbe aiutarci?|Oh, andiamo da lei!",
+    "Trova la sua casa e fatti fare|un incantesimo. Poi vai da|Madame Yard."
+   ],
+   "ru": [
+    "Гадалка нам поможет? Ух ты,|пойдём к ней!",
+    "Найди её дом, пусть|погадает. Потом иди к мадам|Ярд."
+   ],
+   "uk": [
+    "Ворожка нам допоможе? Ого,|ходімо до неї!",
+    "Знайди її хату, нехай|поворожить. Потім іди до|мадам Ярд."
    ]
   },
   {
@@ -812,15 +1292,15 @@
     "stage>=14"
    ],
    "en": [
-    "Madame Yard's lets us|in now! Let's go, Nigel!",
+    "Madame Yard's lets us|in now! Let's go, {=nigel}!",
     "Go through the door at Madame|Yard's and see who is inside."
    ],
    "de": [
-    "Bei Madame Yard kommen|wir jetzt rein, Niels!",
+    "Bei Madame Yard kommen|wir jetzt rein, {=nigel}!",
     "Geh bei Madame Yard's durch die|Tür und sieh, wer drin ist."
    ],
    "fr": [
-    "Chez Madame Yard, on peut|entrer! Allons-y, Ryle!",
+    "Chez Madame Yard, on peut|entrer! Allons-y, {=nigel}!",
     "Passe la porte chez Madame Yard|et regarde qui est là."
    ],
    "ko": [
@@ -830,6 +1310,22 @@
    "ja": [
     "ピンクパレスに はいれるのね! いきましょ ライル!",
     "ピンクパレスの トビラから 中に はいって だれが いるか みてみましょ"
+   ],
+   "es": [
+    "¡Ahora Madame Yard nos|deja entrar! ¡Vamos, {=nigel}!",
+    "Cruza la puerta de Madame Yard|y mira quién está dentro."
+   ],
+   "it": [
+    "Da Madame Yard si può entrare!|Andiamo, {=nigel}!",
+    "Passa la porta di Madame Yard|e guarda chi c'è."
+   ],
+   "ru": [
+    "Мадам Ярд нас пускает!|Идём, {=nigel}!",
+    "Войди в дверь у мадам Ярд и|посмотри, кто внутри."
+   ],
+   "uk": [
+    "Мадам Ярд нас пускає!|Ходімо, {=nigel}!",
+    "Зайди в двері біля мадам|Ярд і глянь, хто всередині."
    ]
   },
   {
@@ -838,15 +1334,15 @@
     "stage>=15"
    ],
    "en": [
-    "The castle lets us in now! Come on, Nigel!",
+    "The castle lets us in now! Come on, {=nigel}!",
     "Walk to Mercator Castle and go|in to meet the duke."
    ],
    "de": [
-    "Das Schloss lässt uns jetzt rein! Los, Niels!",
+    "Das Schloss lässt uns jetzt rein! Los, {=nigel}!",
     "Geh zum Schloss von Merkator und|triff den Herzog."
    ],
    "fr": [
-    "Le château nous laisse entrer! Allez, Ryle!",
+    "Le château nous laisse entrer! Allez, {=nigel}!",
     "Va au château de Mercator et entre|pour rencontrer le Duc."
    ],
    "ko": [
@@ -856,6 +1352,22 @@
    "ja": [
     "お城に はいれるように なったわ! ライル いきましょ!",
     "メルカトル城まで あるいていって 中で 公爵に あいましょ"
+   ],
+   "es": [
+    "¡Ahora el castillo nos deja|entrar! ¡Vamos, {=nigel}!",
+    "Ve al Castillo de Mercator y|entra para conocer al Duque."
+   ],
+   "it": [
+    "Il castello ci fa entrare!|Forza, {=nigel}!",
+    "Vai al castello di Mercator|ed entra per incontrare|il Duca."
+   ],
+   "ru": [
+    "Замок нас пускает! Ну же,|{=nigel}!",
+    "Иди к Замку Меркатора и|войди, чтобы встретить|герцога."
+   ],
+   "uk": [
+    "Замок нас пускає! Ну ж бо,|{=nigel}!",
+    "Іди до Замку Меркатора й|зайди зустріти герцога."
    ]
   },
   {
@@ -883,6 +1395,22 @@
    "ja": [
     "どこかに 公爵が いるはずよ! おおきな へやに おおきな いす おおきな いばりんぼ!",
     "公爵は おうざの へやに いるわ ちかづいて はなしかけてね"
+   ],
+   "es": [
+    "Por aquí anda el Duque. ¡Sala|grande, silla grande, ego|grande!",
+    "El Duque está en la sala del|trono. Acércate y habla con|él."
+   ],
+   "it": [
+    "Il Duca è qui da qualche|parte. Gran sala, gran trono,|gran ego!",
+    "Il Duca è nella sala del|trono. Vai a parlargli."
+   ],
+   "ru": [
+    "Где-то тут сидит герцог.|Большой зал, трон,|самомнение!",
+    "Герцог в тронном зале.|Подойди и поговори с ним."
+   ],
+   "uk": [
+    "Десь тут сидить герцог.|Велика зала, трон і пиха!",
+    "Герцог у тронній залі.|Підійди й поговори з ним."
    ]
   },
   {
@@ -909,6 +1437,22 @@
    "ja": [
     "もうっ いっちゃった! めしつかいが たすけてくれるかも きいてみましょ!",
     "へやへ あんないすると いってくれる めしつかいに ついていってね"
+   ],
+   "es": [
+    "¡Hmpf, se fue sin más! A ver|si los criados nos ayudan.",
+    "Sigue al criado que se ofrece|a enseñarte una habitación."
+   ],
+   "it": [
+    "Uffa, se n'è andato così!|Vediamo se i servitori|aiutano.",
+    "Segui il servitore che si|offre di mostrarti una stanza."
+   ],
+   "ru": [
+    "Хмпф, он просто ушёл!|Может, слуги помогут?",
+    "Иди за слугой, что хочет|показать тебе комнату."
+   ],
+   "uk": [
+    "Хмпф, він просто пішов!|Може, слуги допоможуть?",
+    "Іди за слугою, що хоче|показати тобі кімнату."
    ]
   },
   {
@@ -917,15 +1461,15 @@
     "stage>=17"
    ],
    "en": [
-    "A real castle, Nigel! Let's look around and chat with everyone.",
+    "A real castle, {=nigel}! Let's look around and chat with everyone.",
     "Talk to the butler and the kitchen|crew until dinner is announced."
    ],
    "de": [
-    "Ein echtes Schloss, Niels! Schau dich um und red mit allen.",
+    "Ein echtes Schloss, {=nigel}! Schau dich um und red mit allen.",
     "Sprich mit Butler und Küche, bis|das Essen angesagt wird."
    ],
    "fr": [
-    "Un vrai château, Ryle! Regardons partout et discutons avec tout le monde.",
+    "Un vrai château, {=nigel}! Regardons partout et discutons avec tout le monde.",
     "Parle au majordome et à la cuisine|jusqu'à l'annonce du dîner."
    ],
    "ko": [
@@ -935,6 +1479,22 @@
    "ja": [
     "ほんものの お城よ ライル! まわりを みて みんなと おしゃべりしましょ!",
     "しつじや だいどころの人たちに はなしかけてね ばんさんかいの しらせが あるまでよ"
+   ],
+   "es": [
+    "¡Un castillo de verdad, {=nigel}!|Miremos todo y charlemos con|todos.",
+    "Habla con el mayordomo y la|cocina hasta que anuncien la|cena."
+   ],
+   "it": [
+    "Un vero castello, {=nigel}!|Guardiamo ovunque e|chiacchieriamo.",
+    "Parla al maggiordomo e in|cucina finché annunciano la|cena."
+   ],
+   "ru": [
+    "Настоящий замок, {=nigel}!|Осмотримся и поболтаем.",
+    "Говори с дворецким и|поварами, пока не объявят|ужин."
+   ],
+   "uk": [
+    "Справжній замок, {=nigel}!|Роздивімось і побалакаймо.",
+    "Говори з дворецьким і|кухарями, доки не оголосять|вечерю."
    ]
   },
   {
@@ -961,6 +1521,22 @@
    "ja": [
     "ばんさんかいの じゅんびが できたわ! いきましょ おなか ぺこぺこ!",
     "城の中の ばんさんかいの かいじょうへ いきましょ"
+   ],
+   "es": [
+    "¡El banquete está listo!|¡Vamos, me muero de hambre!",
+    "Ve a la sala del banquete|del castillo."
+   ],
+   "it": [
+    "Il banchetto è pronto!|Vieni, muoio di fame!",
+    "Vai alla sala del banchetto|del castello."
+   ],
+   "ru": [
+    "Банкет готов! Идём, я|умираю с голоду!",
+    "Иди в банкетный зал в|замке."
+   ],
+   "uk": [
+    "Бенкет готовий! Ходімо, я|помираю з голоду!",
+    "Іди до бенкетної зали в|замку."
    ]
   },
   {
@@ -988,6 +1564,22 @@
    "ja": [
     "ばんさんかいは 上のかいよ! いきましょ おなか ぺこぺこ!",
     "ばんさんかいの かいじょうは 城の 上のかいに あるわ"
+   ],
+   "es": [
+    "¡El banquete es arriba!|¡Vamos, me muero de hambre!",
+    "La sala del banquete está|arriba, en el castillo."
+   ],
+   "it": [
+    "Il banchetto è al piano di|sopra! Vieni, muoio di fame!",
+    "La sala del banchetto è al|piano di sopra del castello."
+   ],
+   "ru": [
+    "Банкет наверху! Идём, я|умираю с голоду!",
+    "Банкетный зал находится на|этаже выше."
+   ],
+   "uk": [
+    "Бенкет нагорі! Ходімо, я|помираю з голоду!",
+    "Бенкетна зала на поверсі|вище в замку."
    ]
   },
   {
@@ -996,15 +1588,15 @@
     "stage>=19"
    ],
    "en": [
-    "I'm so full... Let's get some sleep before tomorrow, Nigel.",
+    "I'm so full... Let's get some sleep before tomorrow, {=nigel}.",
     "Go to your bedroom in the castle|and go to sleep."
    ],
    "de": [
-    "Ich bin so satt... Lass uns schlafen gehen, Niels.",
+    "Ich bin so satt... Lass uns schlafen gehen, {=nigel}.",
     "Geh in dein Schlafzimmer im|Schloss und leg dich hin."
    ],
    "fr": [
-    "Je suis pleine... Allons dormir avant demain, Ryle.",
+    "Je suis pleine... Allons dormir avant demain, {=nigel}.",
     "Va dans ta chambre au château|et couche-toi."
    ],
    "ko": [
@@ -1014,6 +1606,22 @@
    "ja": [
     "おなか いっぱい・・・ あしたの ために ねましょ ライル",
     "城の じぶんの へやへ いって ねましょ"
+   ],
+   "es": [
+    "Estoy llena... Durmamos un|poco antes de mañana, {=nigel}.",
+    "Ve a tu dormitorio del|castillo y a dormir."
+   ],
+   "it": [
+    "Sono piena... Andiamo a|dormire prima di domani,|{=nigel}.",
+    "Va' nella tua stanza al|castello e mettiti a letto."
+   ],
+   "ru": [
+    "Я так наелась... Давай|поспим до завтра, {=nigel}.",
+    "Иди в свою спальню в замке|и ложись спать."
+   ],
+   "uk": [
+    "Я така ситна... Поспімо до|завтра, {=nigel}.",
+    "Іди до своєї спальні в|замку і лягай спати."
    ]
   },
   {
@@ -1040,6 +1648,22 @@
    "ja": [
     "ミルの塔は 町の すぐそとね・・・ まずは きいてみましょ!",
     "ミルの塔は メルカトルの すぐそとよ 城の人に きいてみてね"
+   ],
+   "es": [
+    "La Torre de Mir está justo|fuera... ¡Preguntemos primero!",
+    "La Torre de Mir está fuera de|Mercator. Pregunta a la gente|del castillo."
+   ],
+   "it": [
+    "La Torre di Mir è appena fuori|città... Informiamoci prima!",
+    "La Torre di Mir è vicino a|Mercator. Interroga la gente|del castello."
+   ],
+   "ru": [
+    "Башня Мира сразу за|городом... Сперва|расспросим людей!",
+    "Башня Мира сразу за|Меркатором. Спроси людей в|замке о ней."
+   ],
+   "uk": [
+    "Вежа Міра одразу за|містом... Спершу розпитаймо|людей!",
+    "Вежа Міра одразу за|Меркатором. Спитай про неї|людей у замку."
    ]
   },
   {
@@ -1068,6 +1692,22 @@
    "ja": [
     "ミルの塔に けっかいが! どうやって こわすのかな?",
     "塔の トビラは けっかいで ふさがれてるわ とおりぬける ほうほうを さがしてね"
+   ],
+   "es": [
+    "¡Una barrera bloquea la Torre|de Mir! ¿Cómo la rompemos?",
+    "Una barrera bloquea la puerta|de la Torre de Mir. Busca cómo|pasar."
+   ],
+   "it": [
+    "Una barriera blocca la Torre|di Mir! Come la rompiamo?",
+    "Una barriera blocca la porta|della Torre di Mir. Trova|un modo."
+   ],
+   "ru": [
+    "Барьер перед Башней Мира!|Как его сломать?",
+    "Барьер закрывает дверь|Башни Мира. Найди способ|пройти."
+   ],
+   "uk": [
+    "Бар'єр перед Вежею Міра! Як|його зламати?",
+    "Бар'єр закриває двері Вежі|Міра. Знайди спосіб пройти."
    ]
   },
   {
@@ -1078,16 +1718,16 @@
     "heard:042E"
    ],
    "en": [
-    "Arthur knows about the|barrier! Let's ask him.",
-    "A barrier seals Mir's tower.|Ask General Arthur about it."
+    "{=arthur} knows about the|barrier! Let's ask him.",
+    "A barrier seals Mir's tower.|Ask General {=arthur} about it."
    ],
    "de": [
-    "Arthur weiß was über|die Barriere! Frag ihn!",
-    "Mirs Turm hat eine Barriere.|Frag General Arthur danach."
+    "{=arthur} weiß was über|die Barriere! Frag ihn!",
+    "Mirs Turm hat eine Barriere.|Frag General {=arthur} danach."
    ],
    "fr": [
-    "Arthur sait quelque chose|sur la barrière! Demandons-lui!",
-    "Une barrière scelle la Tour de Mir.|Interroge le Général Arthur."
+    "{=arthur} sait quelque chose|sur la barrière! Demandons-lui!",
+    "Une barrière scelle la Tour de Mir.|Interroge le Général {=arthur}."
    ],
    "ko": [
     "돈멜이 결계를 안대!|물어보러 가자!",
@@ -1096,6 +1736,22 @@
    "ja": [
     "ドンメルが けっかいの ことを しってるわ! きいてみましょ!",
     "ミルの塔は けっかいで とじてるわ ドンメルしょうぐんに きいてみてね"
+   ],
+   "es": [
+    "¡{=arthur} sabe de la barrera!|¡Preguntémosle!",
+    "Una barrera sella la Torre de|Mir. Pregunta al General|{=arthur}."
+   ],
+   "it": [
+    "{=arthur} sa qualcosa sulla|barriera! Chiediamoglielo!",
+    "Una barriera sigilla la Torre|di Mir. Interroga il Generale|{=arthur}."
+   ],
+   "ru": [
+    "{=arthur} знает про барьер!|Спросим его!",
+    "Барьер запечатал Башню|Мира. Спроси: генерал|{=arthur}."
+   ],
+   "uk": [
+    "{=arthur} знає про бар'єр!|Спитаймо його!",
+    "Бар'єр запечатав Вежу Міра.|Спитай: генерал {=arthur}."
    ]
   },
   {
@@ -1106,16 +1762,16 @@
     "heard:03B1"
    ],
    "en": [
-    "Zak and Dexter are in|the crypt! After them!",
-    "Zak and Dexter went down|into the crypt. Find it!"
+    "{=zak} and {=dexter} are in|the crypt! After them!",
+    "{=zak} and {=dexter} went down|into the crypt. Find it!"
    ],
    "de": [
-    "Zack und Dexter sind|in der Gruft! Hinterher!",
-    "Zack und Dexter sind in die|Gruft gestiegen. Finde sie!"
+    "{=zak} und {=dexter} sind|in der Gruft! Hinterher!",
+    "{=zak} und {=dexter} sind in die|Gruft gestiegen. Finde sie!"
    ],
    "fr": [
-    "Zak et Dexter sont dans|la crypte! Après eux!",
-    "Zak et Dexter sont descendus|dans la crypte. Trouve-la!"
+    "{=zak} et {=dexter} sont dans|la crypte! Après eux!",
+    "{=zak} et {=dexter} sont descendus|dans la crypte. Trouve-la!"
    ],
    "ko": [
     "제드랑 발보가 지하 묘지에|있대! 쫓아가자!",
@@ -1124,6 +1780,22 @@
    "ja": [
     "ゼッドと バーボが 地下ぼちに いるって! おいかけましょ!",
     "ゼッドと バーボが 地下ぼちに はいっていったわ さがしてみてね"
+   ],
+   "es": [
+    "¡{=zak} y {=dexter} están en la|cripta! ¡Tras ellos!",
+    "{=zak} y {=dexter} bajaron a la|cripta. ¡Encuéntrala!"
+   ],
+   "it": [
+    "{=zak} e {=dexter} sono nella|cripta! Dietro a loro!",
+    "{=zak} e {=dexter} sono scesi nella|cripta. Trovala!"
+   ],
+   "ru": [
+    "{=zak} и {=dexter} в склепе! За|ними!",
+    "{=zak} и {=dexter} спустились в|склеп. Найди его!"
+   ],
+   "uk": [
+    "{=zak} і {=dexter} у склепі! За|ними!",
+    "{=zak} і {=dexter} спустилися в|склеп. Знайди його!"
    ]
   },
   {
@@ -1134,15 +1806,15 @@
     "flag:1A.1"
    ],
    "en": [
-    "Dexter and Zak beat us|to the crypt! Hurry, Nigel!",
+    "{=dexter} and {=zak} beat us|to the crypt! Hurry, {=nigel}!",
     "A barrier guards Mir's tower.|An armlet waits in the crypt."
    ],
    "de": [
-    "Dexter und Zack sind|längst in der Gruft! Los!",
+    "{=dexter} und {=zak} sind|längst in der Gruft! Los!",
     "Vor Mirs Turm ist eine Sperre.|Ein Armreif ist in der Gruft."
    ],
    "fr": [
-    "Dexter et Zak nous ont devancés|à la crypte! Vite, Ryle!",
+    "{=dexter} et {=zak} nous ont devancés|à la crypte! Vite, {=nigel}!",
     "Une barrière garde la Tour de Mir.|Un bracelet attend dans la crypte."
    ],
    "ko": [
@@ -1152,6 +1824,22 @@
    "ja": [
     "ゼッドと バーボに さきを こされたわ! いそいで ライル!",
     "ミルの塔は けっかいで まもられてるわ 地下ぼちに アミュレットが あるのよ"
+   ],
+   "es": [
+    "¡{=dexter} y {=zak} llegaron antes|a la cripta! ¡Rápido, {=nigel}!",
+    "Una barrera guarda la Torre de|Mir. Un brazalete espera en la|cripta."
+   ],
+   "it": [
+    "{=dexter} e {=zak} sono arrivati|alla cripta prima di noi!|Presto, {=nigel}!",
+    "Una barriera protegge la Torre|di Mir. Un bracciale ti|aspetta nella cripta."
+   ],
+   "ru": [
+    "{=dexter} и {=zak} пришли в|склеп раньше! Скорее,|{=nigel}!",
+    "Барьер защищает Башню Мира.|Браслет ждёт в склепе."
+   ],
+   "uk": [
+    "{=dexter} і {=zak} випередили|нас у склепі! Мерщій,|{=nigel}!",
+    "Бар'єр охороняє Вежу Міра.|Браслет чекає у склепі."
    ]
   },
   {
@@ -1180,6 +1868,22 @@
    "ja": [
     "アミュレットで ミルの けっかいが こわせるわ! 地下ぼちに あるのよ!",
     "アミュレットは 教会の となりの 地下ぼちに あるわ わなに ちゅうい!"
+   ],
+   "es": [
+    "¡Un brazalete rompe la barrera|de Mir! Está en la cripta.",
+    "Coge el brazalete en la cripta|junto a la iglesia. ¡Hay|trampas!"
+   ],
+   "it": [
+    "Un bracciale rompe la barriera|di Mir! È nella cripta.",
+    "Prendi il bracciale nella|cripta vicino alla chiesa.|Trappole!"
+   ],
+   "ru": [
+    "Браслет ломает барьер Мира!|Он в склепе.",
+    "Возьми браслет в склепе у|церкви. Там ловушки!"
+   ],
+   "uk": [
+    "Браслет ламає бар'єр Міра!|Він у склепі.",
+    "Візьми браслет у склепі|біля церкви. Там пастки!"
    ]
   },
   {
@@ -1190,15 +1894,15 @@
     "room:646-659"
    ],
    "en": [
-    "Careful, Nigel! Think before you step. These riddles bite!",
+    "Careful, {=nigel}! Think before you step. These riddles bite!",
     "Solve the riddle rooms and see|what waits further in."
    ],
    "de": [
-    "Vorsicht, Niels! Erst denken, dann gehen. Die Rätsel beißen!",
+    "Vorsicht, {=nigel}! Erst denken, dann gehen. Die Rätsel beißen!",
     "Löse die Rätselräume und schau,|was weiter drin wartet."
    ],
    "fr": [
-    "Prudence, Ryle! Réfléchis avant de bouger. Ces énigmes mordent!",
+    "Prudence, {=nigel}! Réfléchis avant de bouger. Ces énigmes mordent!",
     "Résous les salles d'énigmes et vois|ce qui t'attend plus loin."
    ],
    "ko": [
@@ -1208,6 +1912,22 @@
    "ja": [
     "きをつけて ライル! よく かんがえてから すすんでね なぞなぞは かみつくわよ!",
     "なぞときの へやを とおって おくに なにが あるか みてみましょ"
+   ],
+   "es": [
+    "¡Cuidado, {=nigel}! Piensa antes|de pisar. ¡Estos acertijos|muerden!",
+    "Resuelve las salas de|acertijos y mira qué hay más|adentro."
+   ],
+   "it": [
+    "Attento, {=nigel}! Pensa prima di|muoverti. Questi enigmi|mordono!",
+    "Risolvi le sale degli enigmi e|guarda cosa ti aspetta."
+   ],
+   "ru": [
+    "Осторожно, {=nigel}! Думай,|куда ступаешь. Загадки|кусаются!",
+    "Реши загадки в комнатах и|узнай, что ждёт дальше."
+   ],
+   "uk": [
+    "Обережно, {=nigel}! Думай,|куди ступаєш. Загадки|кусаються!",
+    "Розв'яжи загадки в залах і|дізнайся, що далі."
    ]
   },
   {
@@ -1237,6 +1957,22 @@
    "ja": [
     "ここの モンスターは かしこいわ! ちからだけじゃ だめよ あたまを つかって!",
     "けんだけでは アミュレットは てに はいらないわ よく かんがえてね"
+   ],
+   "es": [
+    "¡Monstruos listos aquí! ¡Usa|la cabeza, no solo el acero!",
+    "La espada sola no te dará el|brazalete. Piénsalo bien."
+   ],
+   "it": [
+    "Mostri furbi qui! Usa la|testa, non solo la spada!",
+    "La sola spada non ti darà il|bracciale. Rifletti bene."
+   ],
+   "ru": [
+    "Тут умные монстры! Думай|головой, не только мечом!",
+    "Одним мечом браслет не|добыть. Подумай хорошенько."
+   ],
+   "uk": [
+    "Тут розумні монстри! Думай|головою, не лише мечем!",
+    "Самим мечем браслет не|здобути. Добре подумай."
    ]
   },
   {
@@ -1246,15 +1982,15 @@
     "!item:1F"
    ],
    "en": [
-    "Nice riddling! Keep going, Nigel, we're getting somewhere!",
+    "Nice riddling! Keep going, {=nigel}, we're getting somewhere!",
     "Keep going in the crypt."
    ],
    "de": [
-    "Schön gerätselt! Weiter so, Niels, wir kommen voran!",
+    "Schön gerätselt! Weiter so, {=nigel}, wir kommen voran!",
     "Geh in der Gruft weiter."
    ],
    "fr": [
-    "Bien joué pour les énigmes! Continue, Ryle, on avance!",
+    "Bien joué pour les énigmes! Continue, {=nigel}, on avance!",
     "Continue dans la crypte."
    ],
    "ko": [
@@ -1264,6 +2000,22 @@
    "ja": [
     "いいわよ ライル その ちょうし! どんどん すすみましょ!",
     "そのまま 地下ぼちを すすんでね"
+   ],
+   "es": [
+    "¡Buen trabajo con los|acertijos! ¡Sigue, {=nigel},|vamos bien!",
+    "Sigue por la cripta."
+   ],
+   "it": [
+    "Bravo con gli enigmi! Avanti,|{=nigel}, si procede!",
+    "Continua nella cripta."
+   ],
+   "ru": [
+    "Отлично решаешь загадки!|Дальше, {=nigel}, мы близко!",
+    "Иди дальше по склепу."
+   ],
+   "uk": [
+    "Чудово розгадуєш! Далі,|{=nigel}, ми вже близько!",
+    "Іди далі склепом."
    ]
   },
   {
@@ -1291,6 +2043,22 @@
    "ja": [
     "わあ ぴかぴかの アミュレット! きっと なにかに やくに たつわよ!",
     "ミルの塔は メルカトルの すぐそとよ そこで アミュレットを つかってみてね"
+   ],
+   "es": [
+    "¡Ooh, un brazalete brillante!|Seguro que sirve para algo...",
+    "La Torre de Mir está fuera de|Mercator. Prueba allí el|brazalete."
+   ],
+   "it": [
+    "Ooh, un bracciale luccicante!|Servirà a qualcosa...",
+    "La Torre di Mir è vicino a|Mercator. Prova là il|bracciale."
+   ],
+   "ru": [
+    "Ух ты, блестящий браслет!|Он точно на что-то|годится...",
+    "Башня Мира сразу за|Меркатором. Попробуй|браслет там."
+   ],
+   "uk": [
+    "Ого, блискучий браслет! Він|точно на щось годиться...",
+    "Вежа Міра одразу за|Меркатором. Спробуй браслет|там."
    ]
   },
   {
@@ -1319,6 +2087,22 @@
    "ja": [
     "アミュレットが てに はいったわ! ミルの けっかいを こわしましょ!",
     "アミュレットで ミルの塔の いりぐちの けっかいが こわせるわ"
+   ],
+   "es": [
+    "¡Tenemos el brazalete! ¡Ahora|a romper la barrera de Mir!",
+    "El brazalete rompe la barrera|de la entrada de la Torre de|Mir."
+   ],
+   "it": [
+    "Abbiamo il bracciale! Rompiamo|la barriera di Mir!",
+    "Il bracciale rompe la barriera|all'ingresso della Torre di|Mir."
+   ],
+   "ru": [
+    "У нас браслет! Ломаем|барьер Мира!",
+    "Браслет ломает барьер у|входа в Башню Мира."
+   ],
+   "uk": [
+    "У нас браслет! Ламаймо|бар'єр Міра!",
+    "Браслет ламає бар'єр біля|входу до Вежі Міра."
    ]
   },
   {
@@ -1327,15 +2111,15 @@
     "stage>=22"
    ],
    "en": [
-    "Let's go see Mir's tower, Nigel! Maybe the armlet helps?",
+    "Let's go see Mir's tower, {=nigel}! Maybe the armlet helps?",
     "Mir's tower is just outside Mercator.|Walk up to the door."
    ],
    "de": [
-    "Auf zu Mirs Turm, Niels! Vielleicht hilft der Armreif?",
+    "Auf zu Mirs Turm, {=nigel}! Vielleicht hilft der Armreif?",
     "Mirs Turm steht vor Merkator.|Geh bis zur Tür."
    ],
    "fr": [
-    "Allons voir la Tour de Mir, Ryle! Le bracelet va peut-être aider?",
+    "Allons voir la Tour de Mir, {=nigel}! Le bracelet va peut-être aider?",
     "La Tour de Mir est près de Mercator.|Avance jusqu'à la porte."
    ],
    "ko": [
@@ -1345,6 +2129,22 @@
    "ja": [
     "ミルの塔を みにいきましょ ライル! アミュレットが きくかも!",
     "ミルの塔は メルカトルの すぐそとよ トビラの まえまで いってね"
+   ],
+   "es": [
+    "¡Vamos a ver la Torre de Mir,|{=nigel}! ¿Y si el brazalete|ayuda?",
+    "La Torre de Mir está fuera de|Mercator. Camina hasta la|puerta."
+   ],
+   "it": [
+    "Andiamo alla Torre di Mir,|{=nigel}! Il bracciale aiuterà?",
+    "La Torre di Mir è vicino a|Mercator. Vai fino alla porta."
+   ],
+   "ru": [
+    "Пойдём к Башне Мира,|{=nigel}! Вдруг браслет|поможет?",
+    "Башня Мира сразу за|Меркатором. Подойди к|двери."
+   ],
+   "uk": [
+    "Ходімо до Вежі Міра,|{=nigel}! Може, браслет|допоможе?",
+    "Вежа Міра одразу за|Меркатором. Підійди до|дверей."
    ]
   },
   {
@@ -1354,15 +2154,15 @@
     "flag:19.7"
    ],
    "en": [
-    "Arthur said the armlet|breaks the barrier. Go!",
+    "{=arthur} said the armlet|breaks the barrier. Go!",
     "Walk to Mir's tower door. The|armlet breaks the barrier."
    ],
    "de": [
-    "Laut Arthur bricht der|Armreif die Sperre. Los!",
+    "Laut {=arthur} bricht der|Armreif die Sperre. Los!",
     "Geh zur Tür von Mirs Turm. Der|Armreif bricht die Sperre."
    ],
    "fr": [
-    "Arthur dit que le bracelet|brise la barrière. Vas-y!",
+    "{=arthur} dit que le bracelet|brise la barrière. Vas-y!",
     "Va à la porte de la Tour de Mir.|Le bracelet brise la barrière."
    ],
    "ko": [
@@ -1372,6 +2172,22 @@
    "ja": [
     "ドンメルが いってたわ アミュレットで けっかいが こわれるって! いきましょ!",
     "ミルの塔の トビラまで いって アミュレットで けっかいを こわしてね"
+   ],
+   "es": [
+    "{=arthur} dijo que el brazalete|rompe la barrera. ¡Ve!",
+    "Ve a la puerta de la Torre de|Mir. El brazalete rompe la|barrera."
+   ],
+   "it": [
+    "{=arthur} dice che il bracciale|rompe la barriera. Vai!",
+    "Va' alla porta della Torre di|Mir. Il bracciale rompe|la barriera."
+   ],
+   "ru": [
+    "{=arthur} сказал, браслет|ломает барьер. Вперёд!",
+    "Иди к двери Башни Мира.|Браслет ломает барьер."
+   ],
+   "uk": [
+    "{=arthur} казав, браслет ламає|бар'єр. Уперед!",
+    "Іди до дверей Вежі Міра.|Браслет ламає бар'єр."
    ]
   },
   {
@@ -1399,6 +2215,22 @@
    "ja": [
     "わなだらけよ! あしもとに ちゅうい あたしは はこばないわよっ!",
     "塔の いちばん 上まで のぼって ミルに あいましょ"
+   ],
+   "es": [
+    "¡Trampas por todas partes!|¡Mira dónde pisas, no pienso|cargarte!",
+    "Sube hasta lo alto de la torre|y enfréntate a Mir."
+   ],
+   "it": [
+    "Trappole ovunque! Attento,|io non ti porto in braccio!",
+    "Sali fino in cima alla torre|e affronta Mir."
+   ],
+   "ru": [
+    "Повсюду ловушки! Смотри под|ноги, на руках не понесу!",
+    "Поднимись на вершину башни|и встреться с Миром."
+   ],
+   "uk": [
+    "Скрізь пастки! Дивись під|ноги, на руках не понесу!",
+    "Піднімись на вершину вежі й|зустрінься з Міром."
    ]
   },
   {
@@ -1426,6 +2258,22 @@
    "ja": [
     "むらさきジュエルを てにいれたわ! この ぶきみな塔から でましょ!",
     "メルカトルへ もどって 城の 公爵に しらせましょ"
+   ],
+   "es": [
+    "¡Tenemos la Joya Púrpura!|¡Salgamos de esta torre|espeluznante!",
+    "Vuelve a Mercator e informa al|Duque en el castillo."
+   ],
+   "it": [
+    "Abbiamo il Gioiello Viola! Via|da questa torre inquietante!",
+    "Torna a Mercator e riferisci|al Duca, al castello."
+   ],
+   "ru": [
+    "Пурпурный камень у нас!|Уйдём из этой жуткой башни!",
+    "Вернись в Меркатор и доложи|герцогу в замке."
+   ],
+   "uk": [
+    "Пурпурний камінь наш! Геть|із цієї моторошної вежі!",
+    "Повернись до Меркатора й|доповідай герцогові в|замку."
    ]
   },
   {
@@ -1452,6 +2300,22 @@
    "ja": [
     "ミルって ぜんぜん わるものじゃ なかったのね! とにかく 公爵に はなしましょ・・・",
     "公爵は 城の 上のかいで まってるわ ジュエルも もっていってね"
+   ],
+   "es": [
+    "¡Mir no era el malo para nada!|Se lo diremos al Duque,|supongo...",
+    "El Duque espera arriba en el|castillo. Lleva las joyas|contigo."
+   ],
+   "it": [
+    "Mir non era affatto il|cattivo! Diciamolo al Duca,|immagino...",
+    "Il Duca aspetta al piano di|sopra del castello. Porta|i gioielli."
+   ],
+   "ru": [
+    "Мир совсем не злодей! Ну,|расскажем герцогу...",
+    "Герцог ждёт наверху в|замке. Возьми камни с|собой."
+   ],
+   "uk": [
+    "Мір зовсім не лиходій! Ну,|розкажемо герцогові...",
+    "Герцог чекає нагорі в|замку. Візьми камені з|собою."
    ]
   },
   {
@@ -1461,15 +2325,15 @@
     "flag:13.0"
    ],
    "en": [
-    "Locked up?! That rotten duke! Find a way out, Nigel, now!",
+    "Locked up?! That rotten duke! Find a way out, {=nigel}, now!",
     "Search cells and corridors for|a way out. Ask whoever is here."
    ],
    "de": [
-    "Eingesperrt?! Dieser fiese Herzog! Such einen Weg raus, Niels!",
+    "Eingesperrt?! Dieser fiese Herzog! Such einen Weg raus, {=nigel}!",
     "Durchsuch Zellen und Gänge nach|einem Ausweg. Frag, wer hier ist."
    ],
    "fr": [
-    "Enfermés?! Ce sale Duc! Trouve vite une sortie, Ryle!",
+    "Enfermés?! Ce sale Duc! Trouve vite une sortie, {=nigel}!",
     "Fouille cellules et couloirs pour|trouver une sortie. Questionne."
    ],
    "ko": [
@@ -1479,6 +2343,22 @@
    "ja": [
     "とじこめられた!? あの 公爵め! でる ほうほうを さがしてよ ライル!",
     "ろうや つうろを しらべて ここに いる人に きいてみてね"
+   ],
+   "es": [
+    "¿Encerrados? ¡Ese Duque|podrido! ¡Encuentra una|salida, {=nigel}, ya!",
+    "Busca por celdas y pasillos|una salida. Pregunta a quien|esté aquí."
+   ],
+   "it": [
+    "Rinchiusi?! Che Duca cattivo!|Trova subito un'uscita, {=nigel}!",
+    "Cerca nelle celle e nei|corridoi un'uscita. Fai|domande."
+   ],
+   "ru": [
+    "Заперли?! Ах, гадкий|герцог! Ищи выход, {=nigel},|живо!",
+    "Обыщи камеры и коридоры в|поисках выхода. Спроси|местных."
+   ],
+   "uk": [
+    "Замкнули?! Ах, мерзенний|герцог! Шукай вихід,|{=nigel}!",
+    "Обшукай камери й коридори.|Розпитай тих, хто тут."
    ]
   },
   {
@@ -1489,16 +2369,16 @@
     "flag:1A.0"
    ],
    "en": [
-    "Lara's locked up here!|Let's find her, Nigel!",
-    "The duke holds Princess Lara|down here. Go on, find her!"
+    "{=lara:gen} locked up here!|Let's find her, {=nigel}!",
+    "The duke holds Princess {=lara}|down here. Go on, find her!"
    ],
    "de": [
-    "Lara sitzt hier auch!|Suchen wir sie, Niels!",
-    "Der Herzog hält Prinzessin|Lara hier fest. Finde sie!"
+    "{=lara} sitzt hier auch!|Suchen wir sie, {=nigel}!",
+    "Der Herzog hält Prinzessin|{=lara} hier fest. Finde sie!"
    ],
    "fr": [
-    "Lara est enfermée ici!|Trouvons-la, Ryle!",
-    "Le Duc retient la princesse Lara|ici. Allez, trouve-la!"
+    "{=lara} est enfermée ici!|Trouvons-la, {=nigel}!",
+    "Le Duc retient la princesse {=lara}|ici. Allez, trouve-la!"
    ],
    "ko": [
     "로리아가 여기 갇혀 있어!|찾으러 가자, 라일!",
@@ -1507,6 +2387,22 @@
    "ja": [
     "ロリアひめが ここに とじこめられてるわ! さがしにいきましょ ライル!",
     "公爵は ロリアひめを ここに とじこめてるわ さがしだしましょ!"
+   ],
+   "es": [
+    "¡{=lara} está encerrada aquí!|¡Encontrémosla, {=nigel}!",
+    "El Duque tiene aquí abajo a la|Princesa {=lara}. ¡Ve a buscarla!"
+   ],
+   "it": [
+    "{=lara} è rinchiusa qui!|Troviamola, {=nigel}!",
+    "Il Duca tiene qui la|principessa {=lara}. Forza,|trovala!"
+   ],
+   "ru": [
+    "{=lara} заперта тут! Найдём|её, {=nigel}!",
+    "Герцог держит принцессу|Лару внизу. Вперёд, найди|её!"
+   ],
+   "uk": [
+    "Лару замкнули тут! Знайдімо|її, {=nigel}!",
+    "Герцог тримає принцесу Лару|внизу. Вперед, знайди її!"
    ]
   },
   {
@@ -1534,6 +2430,22 @@
    "ja": [
     "ひめも ここに いたのね! 上へ でる みちを さがしましょ!",
     "ろうの つうろを たどって 上へ でましょ"
+   ],
+   "es": [
+    "¡La princesa también está|aquí! ¡Ahora busquemos la|salida hacia arriba!",
+    "Sigue los pasillos del|calabozo hacia arriba y hacia|fuera."
+   ],
+   "it": [
+    "Anche la principessa è qui!|Ora cerchiamo l'uscita in|alto!",
+    "Segui i corridoi della|prigione verso l'alto e fuori."
+   ],
+   "ru": [
+    "Принцесса тоже тут! Найдём|путь наверх и наружу!",
+    "Иди по коридорам подземелья|вверх и наружу."
+   ],
+   "uk": [
+    "Принцеса теж тут! Шукаймо|шлях нагору й назовні!",
+    "Йди коридорами підземелля|вгору й назовні."
    ]
   },
   {
@@ -1542,15 +2454,15 @@
     "stage>=24"
    ],
    "en": [
-    "Zak ran off with the princess! Let's get out of here!",
+    "{=zak} ran off with the princess! Let's get out of here!",
     "Leave the dungeon and look around|the castle. Someone must know more."
    ],
    "de": [
-    "Zack ist mit der Prinzessin weg! Nichts wie raus hier!",
+    "{=zak} ist mit der Prinzessin weg! Nichts wie raus hier!",
     "Verlass den Kerker und sieh dich|im Schloss um. Jemand weiß mehr."
    ],
    "fr": [
-    "Zak est parti avec la princesse! Sortons d'ici!",
+    "{=zak} est parti avec la princesse! Sortons d'ici!",
     "Quitte le cachot et regarde dans le|château. Quelqu'un en sait plus."
    ],
    "ko": [
@@ -1560,6 +2472,22 @@
    "ja": [
     "ゼッドが ひめを つれて にげたわ! ここから でましょ!",
     "ろうから でて 城の中を みてまわってね だれかが しってるはずよ"
+   ],
+   "es": [
+    "¡{=zak} se escapó con la|princesa! ¡Salgamos de aquí!",
+    "Sal del calabozo y mira por el|castillo. Alguien debe saber|más."
+   ],
+   "it": [
+    "{=zak} è partito con la|principessa! Usciamo di qui!",
+    "Esci dalla prigione e guarda|nel castello. Qualcuno sa di|più."
+   ],
+   "ru": [
+    "{=zak} убежал с принцессой!|Выбираемся отсюда!",
+    "Выйди из подземелья и|осмотри замок. Кто-то знает|больше."
+   ],
+   "uk": [
+    "{=zak} утік із принцесою! Геть|звідси!",
+    "Вийди з підземелля й огляни|замок. Хтось знає більше."
    ]
   },
   {
@@ -1570,15 +2498,15 @@
    ],
    "en": [
     "The duke ran off with OUR loot! No ship sails while it's dark...",
-    "Arthur said: east wall of the castle,|hidden switch, then find the Sun Stone."
+    "{=arthur} said: east wall of the castle,|hidden switch, then find the Sun Stone."
    ],
    "de": [
     "Der Herzog ist mit UNSERER Beute weg! Ohne Licht fährt kein Schiff...",
-    "Arthur sagte: Ostmauer des Schlosses,|Geheimschalter, dann den Sonnenstein."
+    "{=arthur} sagte: Ostmauer des Schlosses,|Geheimschalter, dann den Sonnenstein."
    ],
    "fr": [
     "Le Duc s'est enfui avec NOTRE butin! Aucun bateau ne navigue dans le noir...",
-    "Arthur a dit: mur est du château,|interrupteur caché, puis la Pierre Solaire."
+    "{=arthur} a dit: mur est du château,|interrupteur caché, puis la Pierre Solaire."
    ],
    "ko": [
     "공작이 우리 보물을 갖고 도망쳤어! 어두워서 배도 못 떠!",
@@ -1587,6 +2515,22 @@
    "ja": [
     "公爵が あたしたちの たからを もって にげたわ! よるは 船が でないのよ・・・",
     "ドンメルが いってたわ 城の 東がわの かべに かくしスイッチが あるって それから たいようせきを さがしてね"
+   ],
+   "es": [
+    "¡El Duque huyó con NUESTRO|botín! Ningún barco zarpa de|noche...",
+    "{=arthur} dijo: muro este del|castillo, interruptor oculto y|la Piedra Solar."
+   ],
+   "it": [
+    "Il Duca è scappato col NOSTRO|bottino! Nessuna nave|va al buio...",
+    "{=arthur} ha detto: muro est del|castello, interruttore|nascosto, poi la Pietra|Solare."
+   ],
+   "ru": [
+    "Герцог сбежал с НАШЕЙ|добычей! Корабли ночью не|ходят...",
+    "{=arthur}: восточная стена|замка, тайный рычаг, потом|Солнечный Камень."
+   ],
+   "uk": [
+    "Герцог утік із НАШОЮ|здобиччю! Вночі кораблі не|ходять...",
+    "{=arthur}: східна стіна замку,|таємний важіль, потім|Сонячний Камінь."
    ]
   },
   {
@@ -1615,6 +2559,22 @@
    "ja": [
     "ふえね! きっと あの 森で やくに たつわ!",
     "まよいの森を たんけんして こまったら ふえを ふいてみてね"
+   ],
+   "es": [
+    "¡Un silbato! Seguro que sirve|en ese bosque.",
+    "Explora el Laberinto Verde. Si|te atascas, prueba el silbato."
+   ],
+   "it": [
+    "Un fischietto! Servirà di|certo in questa foresta.",
+    "Esplora il Labirinto Verde.|Se sei bloccato, prova|il fischietto."
+   ],
+   "ru": [
+    "Свисток! Наверняка|пригодится в том лесу.",
+    "Исследуй Зелёный Лабиринт.|Застрял - попробуй свисток."
+   ],
+   "uk": [
+    "Свисток! Він точно|знадобиться в тому лісі.",
+    "Дослідж Зелений Лабіринт.|Застряг - спробуй свисток."
    ]
   },
   {
@@ -1626,7 +2586,7 @@
     "heard:0264"
    ],
    "en": [
-    "Sun Stone? Balance and|good jumps, Nigel!",
+    "Sun Stone? Balance and|good jumps, {=nigel}!",
     "Reaching the Sun Stone takes|balance and good jumping."
    ],
    "de": [
@@ -1634,7 +2594,7 @@
     "Zum Sonnenstein brauchst du|Gleichgewicht und Sprungkraft."
    ],
    "fr": [
-    "La Pierre Solaire? De l'équilibre|et de bons sauts, Ryle!",
+    "La Pierre Solaire? De l'équilibre|et de bons sauts, {=nigel}!",
     "Pour atteindre la Pierre Solaire,|il faut équilibre et bons sauts."
    ],
    "ko": [
@@ -1644,6 +2604,22 @@
    "ja": [
     "たいようせき? バランスと ジャンプが だいじよ ライル!",
     "たいようせきの ところへは バランスかんかくと ジャンプが ひつようよ"
+   ],
+   "es": [
+    "¿Piedra Solar? ¡Equilibrio y|buenos saltos, {=nigel}!",
+    "Llegar a la Piedra Solar exige|equilibrio y buenos saltos."
+   ],
+   "it": [
+    "La Pietra Solare? Equilibrio e|bei salti, {=nigel}!",
+    "Per raggiungere la Pietra|Solare servono equilibrio|e bei salti."
+   ],
+   "ru": [
+    "Солнечный Камень? Тут нужны|баланс и прыжки, {=nigel}!",
+    "Чтобы достать Солнечный|Камень, нужны баланс и|умелые прыжки."
+   ],
+   "uk": [
+    "Сонячний Камінь? Тут треба|рівновага й стрибки,|{=nigel}!",
+    "Щоб дістати Сонячний|Камінь, треба рівновага й|стрибки."
    ]
   },
   {
@@ -1655,15 +2631,15 @@
     "flag:20.6"
    ],
    "en": [
-    "Dark lighthouse? Blame|the thief, Nigel!",
+    "Dark lighthouse? Blame|the thief, {=nigel}!",
     "The Sun Stone is in Greenmaze,|north of the castle."
    ],
    "de": [
-    "Leuchtturm dunkel? Der|Dieb war's, Niels!",
+    "Leuchtturm dunkel? Der|Dieb war's, {=nigel}!",
     "Sonnenstein: Grünes Labyrinth,|nördlich vom Schloss."
    ],
    "fr": [
-    "Phare éteint? C'est la faute|du voleur, Ryle!",
+    "Phare éteint? C'est la faute|du voleur, {=nigel}!",
     "La Pierre Solaire est dans le Labyrinthe|Vert, au nord du château."
    ],
    "ko": [
@@ -1673,6 +2649,22 @@
    "ja": [
     "灯台が くらいのは どろぼうの せいよ ライル!",
     "たいようせきは 城の 北の まよいの森に あるわ"
+   ],
+   "es": [
+    "¿Faro apagado? ¡Culpa del|ladrón, {=nigel}!",
+    "La Piedra Solar está en el|Laberinto Verde, al norte del|castillo."
+   ],
+   "it": [
+    "Faro spento? È colpa del|ladro, {=nigel}!",
+    "La Pietra Solare è nel|Labirinto Verde, a nord del|castello."
+   ],
+   "ru": [
+    "Тёмный маяк? Это вор|виноват, {=nigel}!",
+    "Солнечный Камень в Зелёном|Лабиринте, севернее замка."
+   ],
+   "uk": [
+    "Темний маяк? То злодій|винен, {=nigel}!",
+    "Сонячний Камінь у Зеленому|Лабіринті, на північ від|замку."
    ]
   },
   {
@@ -1702,6 +2694,22 @@
    "ja": [
     "ゴルじいが 北東だって! ノームが みちを かえちゃったのね・・・",
     "たいようせきは まよいの森の 北東に あるわ"
+   ],
+   "es": [
+    "¡Gol dijo: al noreste! Los|gnomos movieron los caminos...",
+    "La Piedra Solar está en la|parte noreste del Laberinto|Verde."
+   ],
+   "it": [
+    "Gol ha detto: nord-est! Gli|gnomi hanno cambiato i|sentieri...",
+    "La Pietra Solare si trova nel|nord-est del Labirinto Verde."
+   ],
+   "ru": [
+    "Гол сказал: на северо-|восток! Гномы сдвинули|тропы...",
+    "Солнечный Камень лежит в|северо-восточной части|лабиринта."
+   ],
+   "uk": [
+    "Гол сказав: на північний|схід! Гноми зсунули|стежки...",
+    "Сонячний Камінь лежить на|північному сході лабіринту."
    ]
   },
   {
@@ -1711,15 +2719,15 @@
     "item:1E"
    ],
    "en": [
-    "The Sun Stone! Ooh, it's so warm! The lighthouse needs it, Nigel!",
+    "The Sun Stone! Ooh, it's so warm! The lighthouse needs it, {=nigel}!",
     "Bring it to the lighthouse keeper|in Ryuma."
    ],
    "de": [
-    "Der Sonnenstein! Oh, so warm! Der Leuchtturm braucht ihn, Niels!",
+    "Der Sonnenstein! Oh, so warm! Der Leuchtturm braucht ihn, {=nigel}!",
     "Bring ihn zum Leuchtturmwärter|in Ryuma."
    ],
    "fr": [
-    "La Pierre Solaire! Ooh, elle est si chaude! Le phare en a besoin, Ryle!",
+    "La Pierre Solaire! Ooh, elle est si chaude! Le phare en a besoin, {=nigel}!",
     "Apporte-la au gardien du phare|à Ryuma."
    ],
    "ko": [
@@ -1729,6 +2737,22 @@
    "ja": [
     "たいようせき! わあ あったかーい! 灯台に ひつようよ ライル!",
     "リュマの 灯台の ばんにんに もっていってね"
+   ],
+   "es": [
+    "¡La Piedra Solar! ¡Ooh, qué|calentita! ¡El faro la|necesita, {=nigel}!",
+    "Llévasela al farero de Ryuma."
+   ],
+   "it": [
+    "La Pietra Solare! Ooh, è così|calda! Serve al faro, {=nigel}!",
+    "Portala al guardiano del faro|a Ryuma."
+   ],
+   "ru": [
+    "Солнечный Камень! Ух, какой|он тёплый! Он нужен маяку!",
+    "Отнеси его леснику у маяка|в Риуме."
+   ],
+   "uk": [
+    "Сонячний Камінь! Ой, який|теплий! Він потрібен маяку!",
+    "Віднеси його лісникові біля|маяка в Ріумі."
    ]
   },
   {
@@ -1755,6 +2779,22 @@
    "ja": [
     "灯台が また ひかったわ! これで 船が さきへ つれてってくれるわ!",
     "メルカトルの 港へ いきましょ 船が また でるかも ふなのりに きいてみてね"
+   ],
+   "es": [
+    "¡El faro brilla otra vez!|¡Ahora el barco nos lleva más|lejos!",
+    "Ve al puerto de Mercator.|Quizá un barco zarpe de nuevo.|Pregunta a los marineros."
+   ],
+   "it": [
+    "Il faro brilla di nuovo! La|nave può portarci più lontano!",
+    "Va' al porto di Mercator.|Forse parte una nave.|Chiedi ai marinai."
+   ],
+   "ru": [
+    "Маяк снова светит! Теперь|корабль увезёт нас дальше!",
+    "Иди в порт Меркатора.|Может, корабль снова ходит.|Спроси."
+   ],
+   "uk": [
+    "Маяк знову світить! Тепер|корабель повезе нас далі!",
+    "Іди до порту Меркатора.|Може, корабель знову|ходить. Спитай."
    ]
   },
   {
@@ -1782,6 +2822,22 @@
    "ja": [
     "みんな どこ? 町が からっぽよ!",
     "人に きいてみてね みんなが どこへ いったか しってる人が いるはずよ"
+   ],
+   "es": [
+    "¿Dónde está todo el mundo? ¡El|pueblo entero está vacío!",
+    "Pregunta por ahí. Alguien|sabrá adónde se fue todo el|mundo."
+   ],
+   "it": [
+    "Dove sono tutti? La città|intera è vuota!",
+    "Fai domande. Qualcuno sa dove|sono andati tutti."
+   ],
+   "ru": [
+    "А где все? Весь город пуст!",
+    "Поспрашивай. Кто-то знает,|куда все ушли."
+   ],
+   "uk": [
+    "А де всі? Усе місто|порожнє! Розпитай. Хтось|знає, куди",
+    "всі пішли."
    ]
   },
   {
@@ -1809,6 +2865,22 @@
    "ja": [
     "兵士が みんなを やまへ つれてったの!?",
     "兵士が 町の人たちを むりやり やまのほうへ つれていったのよ"
+   ],
+   "es": [
+    "¿Unos soldados se llevaron a|todos a las montañas?!",
+    "Unos soldados arrastraron a la|gente del pueblo a las|montañas."
+   ],
+   "it": [
+    "I soldati hanno portato tutti|sulle montagne?!",
+    "I soldati hanno trascinato gli|abitanti sulle montagne."
+   ],
+   "ru": [
+    "Солдаты увели всех в горы?!",
+    "Солдаты увели горожан в|горы."
+   ],
+   "uk": [
+    "Солдати повели всіх у|гори?! Солдати повели|містян у",
+    "гори."
    ]
   },
   {
@@ -1818,15 +2890,15 @@
     "room:227-269"
    ],
    "en": [
-    "Guards everywhere in this mine! Stay sharp, Nigel!",
+    "Guards everywhere in this mine! Stay sharp, {=nigel}!",
     "Fight through the tunnels and look|for the missing people."
    ],
    "de": [
-    "Überall Wachen in dieser Mine! Bleib wachsam, Niels!",
+    "Überall Wachen in dieser Mine! Bleib wachsam, {=nigel}!",
     "Kämpf dich durch die Gänge und such|die Verschwundenen."
    ],
    "fr": [
-    "Des gardes partout dans cette mine! Reste attentif, Ryle!",
+    "Des gardes partout dans cette mine! Reste attentif, {=nigel}!",
     "Traverse les galeries et cherche|les disparus."
    ],
    "ko": [
@@ -1836,6 +2908,22 @@
    "ja": [
     "この こうざん 兵士だらけね! しっかりして ライル!",
     "あなを たたかいながら すすんで いなくなった 人たちを さがしてね"
+   ],
+   "es": [
+    "¡Guardias por todas partes en|esta mina! ¡Atento, {=nigel}!",
+    "Abre camino por los túneles y|busca a los desaparecidos."
+   ],
+   "it": [
+    "Guardie dappertutto in questa|miniera! Occhio, {=nigel}!",
+    "Attraversa le gallerie e cerca|i dispersi."
+   ],
+   "ru": [
+    "В шахте полно стражи! Будь|начеку, {=nigel}!",
+    "Пробивайся по туннелям и|ищи пропавших людей."
+   ],
+   "uk": [
+    "У шахті повно варти! Будь|насторожі, {=nigel}!",
+    "Пробивайся тунелями й шукай|зниклих людей."
    ]
   },
   {
@@ -1864,6 +2952,22 @@
    "ja": [
     "あなが 3つ! ほかの 2つにも とらわれた人が いるのね!",
     "こうざんは 3つの あなに わかれてるわ ほかの 2つも さがしてね"
+   ],
+   "es": [
+    "¡Tres túneles! Hay más|cautivos en los otros dos.",
+    "La mina se divide en tres|túneles. Busca en los otros|dos."
+   ],
+   "it": [
+    "Tre tunnel! Altri prigionieri|negli altri due.",
+    "La miniera si divide in tre|tunnel. Esplora gli altri due."
+   ],
+   "ru": [
+    "Три туннеля! В двух других|ещё пленники.",
+    "Шахта делится на три|туннеля. Обыщи два других."
+   ],
+   "uk": [
+    "Три тунелі! В інших двох ще|бранці.",
+    "Шахта ділиться на три|тунелі. Обшукай два інші."
    ]
   },
   {
@@ -1892,6 +2996,22 @@
    "ja": [
     "やっつけたわ! でも この こうざん まだ ひみつが ありそうよ",
     "そのまま あなを たんけんして みつけた人を たすけてね"
+   ],
+   "es": [
+    "¡Dex cayó! Pero esta mina|tiene más secretos.",
+    "Sigue explorando los túneles.|Libera a quien encuentres."
+   ],
+   "it": [
+    "Dex è a terra! Ma questa|miniera ha ancora segreti.",
+    "Continua a esplorare le|gallerie. Libera chi trovi."
+   ],
+   "ru": [
+    "Декс повержен! Но у шахты|ещё есть секреты.",
+    "Исследуй туннели дальше.|Освободи найденных людей."
+   ],
+   "uk": [
+    "Декс повалений! Але в шахти|ще є таємниці.",
+    "Дослідж тунелі далі.|Звільни знайдених людей."
    ]
   },
   {
@@ -1918,6 +3038,22 @@
    "ja": [
     "ボスは たおしたわ! この こうざんが どこへ つづくか みましょ!",
     "こうざんの いちばん おくで さきへの みちを さがしてね"
+   ],
+   "es": [
+    "¡Marley es historia! A ver|adónde lleva la mina.",
+    "Busca la salida al fondo|de la mina."
+   ],
+   "it": [
+    "Marley è il passato! Vediamo|dove porta la miniera.",
+    "Cerca come proseguire in fondo|alla miniera."
+   ],
+   "ru": [
+    "Марли побеждён! Куда ведёт|шахта?",
+    "Ищи дорогу дальше в самом|конце шахты."
+   ],
+   "uk": [
+    "Марлі переможений! Куди|веде шахта?",
+    "Шукай дорогу далі в самому|кінці шахти."
    ]
   },
   {
@@ -1945,6 +3081,22 @@
    "ja": [
     "こうざんの 西に 村が あるのね! 公爵も そこへ いったのよ!",
     "公爵は 兵士を つれて こうざんの 西の 村へ いったのよ"
+   ],
+   "es": [
+    "¡Un pueblo al oeste de la|mina! El Duque fue allí.",
+    "El Duque llevó a sus soldados|a un pueblo al oeste de la|mina."
+   ],
+   "it": [
+    "Un villaggio a ovest della|miniera! Il Duca è andato là.",
+    "Il Duca ha portato i soldati|in un villaggio a ovest|della miniera."
+   ],
+   "ru": [
+    "Деревня к западу от шахты!|Герцог пошёл туда.",
+    "Герцог повёл солдат в|деревню к западу от шахты."
+   ],
+   "uk": [
+    "Село на захід від шахти!|Герцог пішов туди.",
+    "Герцог повів солдатів у|село на захід від шахти."
    ]
   },
   {
@@ -1972,6 +3124,22 @@
    "ja": [
     "デステルへは こうざんの あなからだけよ!",
     "デステルへ いく みちは こうざんの トンネルだけ なのよ"
+   ],
+   "es": [
+    "¿Destel? ¡Solo por el túnel|de la mina!",
+    "El único camino a Destel es el|túnel de la mina."
+   ],
+   "it": [
+    "Destel? Solo attraverso il|tunnel della miniera!",
+    "L'unica via per Destel è il|tunnel della miniera."
+   ],
+   "ru": [
+    "Дестел? Только через|туннель шахты!",
+    "В Дестел ведёт только|туннель в шахте."
+   ],
+   "uk": [
+    "Дестел? Лише крізь тунель|шахти!",
+    "До Дестела веде лише тунель|у шахті."
    ]
   },
   {
@@ -1985,7 +3153,7 @@
     "The duke and his soldiers|went to Destel. Follow them!"
    ],
    "de": [
-    "Ab nach Destel, Niels!|Der Herzog zog dorthin.",
+    "Ab nach Destel, {=nigel}!|Der Herzog zog dorthin.",
     "Der Herzog und seine Soldaten|zogen nach Destel. Hinterher!"
    ],
    "fr": [
@@ -1999,6 +3167,22 @@
    "ja": [
     "デステルへ! 公爵と 兵士が いったのよ!",
     "公爵と 兵士は デステルへ いったわ おいかけましょ!"
+   ],
+   "es": [
+    "¡A Destel! El Duque y sus|soldados fueron allí.",
+    "El Duque y sus soldados fueron|a Destel. ¡Síguelos!"
+   ],
+   "it": [
+    "Rotta su Destel! Il Duca e i|suoi soldati sono andati là.",
+    "Il Duca e i suoi soldati sono|partiti per Destel. Seguili!"
+   ],
+   "ru": [
+    "В Дестел! Герцог и его|солдаты пошли туда.",
+    "Герцог с солдатами пошёл в|Дестел. Иди за ними!"
+   ],
+   "uk": [
+    "До Дестела! Герцог і його|солдати пішли туди.",
+    "Герцог із солдатами пішов|до Дестела. Іди за ними!"
    ]
   },
   {
@@ -2026,6 +3210,22 @@
    "ja": [
     "ふきげんな ドワーフたちね! 公爵が きたか きいてみましょ!",
     "デステルの みんなに はなしかけてね だれかが 公爵の いくさきを みてるわ"
+   ],
+   "es": [
+    "¡Enanos gruñones! Preguntemos|si el Duque pasó por aquí.",
+    "Habla con todos en Destel.|Alguien vio adónde fue el|Duque."
+   ],
+   "it": [
+    "Nani brontoloni! Chiediamo se|il Duca è passato di qui.",
+    "Parla con tutti a Destel.|Qualcuno ha visto dove è|andato il Duca."
+   ],
+   "ru": [
+    "Ворчливые гномы! Спросим,|не проходил ли тут герцог.",
+    "Поговори со всеми в|Дестеле. Кто-то видел, куда|ушёл герцог."
+   ],
+   "uk": [
+    "Буркотливі гноми! Спитаймо,|чи герцог проходив тут.",
+    "Поговори з усіма в Дестелі.|Хтось бачив, куди пішов|герцог."
    ]
   },
   {
@@ -2035,7 +3235,7 @@
     "flag:28.7"
    ],
    "en": [
-    "He's getting away on a raft! We'll find another way, Nigel!",
+    "He's getting away on a raft! We'll find another way, {=nigel}!",
     "Back in Destel, someone must know|another way down to the lake."
    ],
    "de": [
@@ -2043,7 +3243,7 @@
     "In Destel weiß jemand einen anderen|Weg hinunter zum See."
    ],
    "fr": [
-    "Il s'enfuit sur un radeau! On trouvera un autre chemin, Ryle!",
+    "Il s'enfuit sur un radeau! On trouvera un autre chemin, {=nigel}!",
     "De retour à Destel, quelqu'un connaît|un autre chemin vers le lac."
    ],
    "ko": [
@@ -2053,6 +3253,22 @@
    "ja": [
     "いかだで にげるつもりね! ほかの みちを さがしましょ ライル!",
     "デステルへ もどって 湖へ おりる べつの みちを しってる人を さがしてね"
+   ],
+   "es": [
+    "¡Se escapa en balsa!|Encontraremos otro camino,|{=nigel}.",
+    "De vuelta en Destel, alguien|sabrá otro camino hasta el|lago."
+   ],
+   "it": [
+    "Scappa su una zattera!|Troveremo un'altra strada,|{=nigel}!",
+    "Tornato a Destel, qualcuno|conosce un'altra via|per il lago."
+   ],
+   "ru": [
+    "Он уплывает на плоту!|Найдём другой путь,|{=nigel}!",
+    "В Дестеле кто-то знает|другой путь вниз к озеру."
+   ],
+   "uk": [
+    "Він пливе геть на плоту!|Знайдемо інший шлях,|{=nigel}!",
+    "У Дестелі хтось знає інший|шлях униз до озера."
    ]
   },
   {
@@ -2081,6 +3297,22 @@
    "ja": [
     "あの いどは ふるい どうくつに つづいてるのね! モンスターよ きゃー!",
     "デステルの いどは むかしの モンスターの どうくつに つづいてるわ"
+   ],
+   "es": [
+    "¡Ese pozo lleva a una cueva|vieja! ¡Monstruos, iuuu!",
+    "El pozo de Destel lleva a una|antigua cueva de monstruos."
+   ],
+   "it": [
+    "Questo pozzo porta a una|vecchia grotta! Mostri, bleah!",
+    "Il pozzo di Destel porta a una|grotta antica piena di mostri."
+   ],
+   "ru": [
+    "Колодец ведёт в старую|пещеру! Монстры, и-и-и!",
+    "Колодец в Дестеле ведёт в|древнюю пещеру монстров."
+   ],
+   "uk": [
+    "Той колодязь веде до старої|печери! Монстри, і-і-і!",
+    "Колодязь у Дестелі веде в|прадавню печеру монстрів."
    ]
   },
   {
@@ -2108,6 +3340,22 @@
    "ja": [
     "うえー じめじめして くらい! すすんでね きっと でぐちが あるわ!",
     "たたかって すすんで むこうがわの 湖へ でましょ"
+   ],
+   "es": [
+    "¡Puaj, qué húmedo y oscuro!|Sigue, tiene que haber salida.",
+    "Abre camino a golpes hasta el|lago del otro lado."
+   ],
+   "it": [
+    "Bleah, è tutto bagnato e buio!|Avanti, un'uscita ci sarà!",
+    "Combatti per attraversare e|uscire fino al lago dall'altra|parte."
+   ],
+   "ru": [
+    "Фу, мокро и темно! Иди|дальше, выход должен быть.",
+    "Пробейся и выйди к озеру на|другой стороне."
+   ],
+   "uk": [
+    "Фу, мокро й темно! Іди|далі, вихід має бути.",
+    "Пробийся й вийди до озера з|іншого боку."
    ]
   },
   {
@@ -2134,6 +3382,22 @@
    "ja": [
     "公爵が あの 神殿に はいったわ! にがしちゃ だめよ!",
     "神殿に はいって おいかけてね あわてずに ゆっくりね"
+   ],
+   "es": [
+    "¡El Duque entró en ese|santuario! ¡Que no escape!",
+    "Entra en el santuario tras él.|Con calma."
+   ],
+   "it": [
+    "Il Duca è entrato in quel|tempio! Non lasciarlo|scappare!",
+    "Entra nel tempio dietro di|lui. Prenditela con calma."
+   ],
+   "ru": [
+    "Герцог зашёл в то|святилище! Не дай ему уйти!",
+    "Иди за ним в святилище. Не|спеши."
+   ],
+   "uk": [
+    "Герцог зайшов у те|святилище! Не дай йому|втекти!",
+    "Іди за ним у святилище. Не|поспішай."
    ]
   },
   {
@@ -2143,15 +3407,15 @@
     "room:291-354"
    ],
    "en": [
-    "So many floors and keys! Patience, Nigel. And save often!",
+    "So many floors and keys! Patience, {=nigel}. And save often!",
     "Look for switches and keys to open|the way upward. Be patient."
    ],
    "de": [
-    "So viele Stockwerke und Schlüssel! Geduld, Niels. Und oft speichern!",
+    "So viele Stockwerke und Schlüssel! Geduld, {=nigel}. Und oft speichern!",
     "Such Schalter und Schlüssel für|den Weg nach oben. Hab Geduld."
    ],
    "fr": [
-    "Tant d'étages et de clés! Patience, Ryle. Et sauvegarde souvent!",
+    "Tant d'étages et de clés! Patience, {=nigel}. Et sauvegarde souvent!",
     "Cherche des interrupteurs et des clés|pour monter. Sois patient."
    ],
    "ko": [
@@ -2161,6 +3425,22 @@
    "ja": [
     "かいだんと かぎが いっぱい! ライル がまんがまん セーブも こまめにねっ!",
     "スイッチや かぎを さがして 上への みちを あけてね ゆっくりとね"
+   ],
+   "es": [
+    "¡Cuántos pisos y llaves!|Paciencia, {=nigel}. ¡Y guarda a|menudo!",
+    "Busca interruptores y llaves|para abrir el camino hacia|arriba. Paciencia."
+   ],
+   "it": [
+    "Quanti piani e quante chiavi!|Pazienza, {=nigel}. Salva spesso!",
+    "Cerca interruttori e chiavi|per salire. Sii paziente."
+   ],
+   "ru": [
+    "Сколько этажей и ключей!|Терпение, {=nigel}. И|сохраняйся!",
+    "Ищи рычаги и ключи, чтобы|открыть путь вверх.|Терпение."
+   ],
+   "uk": [
+    "Стільки поверхів і ключів!|Терпіння, {=nigel}.|Зберігайся!",
+    "Шукай важелі й ключі, щоб|відкрити шлях угору.|Терпіння."
    ]
   },
   {
@@ -2187,6 +3467,22 @@
    "ja": [
     "ありがとう ミル! つぎは 城の 北もんを とおるのよ!",
     "ミルが いってたわ 城の 北もん それから 北西の やま"
+   ],
+   "es": [
+    "¡Gracias, Mir! ¡Ahora por la|puerta norte del castillo!",
+    "Mir dijo: puerta norte del|castillo, luego las montañas|al noroeste."
+   ],
+   "it": [
+    "Grazie, Mir! Ora dalla porta|nord del castello!",
+    "Mir ha detto: porta nord del|castello, poi le montagne|a nord-ovest."
+   ],
+   "ru": [
+    "Спасибо, Мир! Теперь через|северные ворота замка!",
+    "Мир сказал: северные ворота|замка, потом горы на|северо-запад."
+   ],
+   "uk": [
+    "Дякую, Мір! Тепер крізь|північну браму замку!",
+    "Мір сказав: північна брама|замку, потім гори на|північний захід."
    ]
   },
   {
@@ -2213,6 +3509,22 @@
    "ja": [
     "ゴラのめが なにか したわ! 公爵を つかまえにいくわよ!",
     "ゴラのめを つかった ばしょの まわりを みてね 公爵は ちかくよ"
+   ],
+   "es": [
+    "¡El Ojo hizo algo! ¡Ahora a|atrapar a ese Duque!",
+    "Mira alrededor de donde usaste|el Ojo. El Duque no anda|lejos."
+   ],
+   "it": [
+    "L'Occhio ha fatto qualcosa!|Prendiamo quel Duca!",
+    "Guarda intorno a dove hai|usato l'Occhio. Il Duca è|vicino."
+   ],
+   "ru": [
+    "Глаз что-то сделал! Теперь|поймаем герцога!",
+    "Осмотрись там, где ты|использовал Глаз. Герцог|близко."
+   ],
+   "uk": [
+    "Око щось зробило! Тепер|піймаймо герцога!",
+    "Роззирнись там, де ти вжив|Око. Герцог недалеко."
    ]
   },
   {
@@ -2239,6 +3551,22 @@
    "ja": [
     "なにかが ひらいたわ! どこへ つづくか みにいきましょ!",
     "ゴラのめで ひらいた ものを さがしてね"
+   ],
+   "es": [
+    "¡Algo se abrió! ¡A ver adónde|lleva!",
+    "Busca lo que abrió el Ojo."
+   ],
+   "it": [
+    "Qualcosa si è aperto! Vediamo|dove porta!",
+    "Cerca ciò che l'Occhio ha|aperto."
+   ],
+   "ru": [
+    "Что-то открылось! Куда это|ведёт?",
+    "Найди то, что открыл Глаз."
+   ],
+   "uk": [
+    "Щось відкрилось! Куди це|веде?",
+    "Знайди те, що відкрило Око."
    ]
   },
   {
@@ -2248,15 +3576,15 @@
     "room:144-172"
    ],
    "en": [
-    "Creepy cave! Watch your step, Nigel, I smell traps!",
+    "Creepy cave! Watch your step, {=nigel}, I smell traps!",
     "Work your way through the cave.|Look for a way on."
    ],
    "de": [
-    "Gruselige Höhle! Pass auf, Niels, hier lauern Fallen!",
+    "Gruselige Höhle! Pass auf, {=nigel}, hier lauern Fallen!",
     "Arbeite dich durch die Höhle.|Such den Weg weiter."
    ],
    "fr": [
-    "Grotte flippante! Attention, Ryle, je sens des pièges!",
+    "Grotte flippante! Attention, {=nigel}, je sens des pièges!",
     "Avance dans la grotte.|Cherche la suite du chemin."
    ],
    "ko": [
@@ -2266,6 +3594,22 @@
    "ja": [
     "ぶきみな どうくつ! ライル あしもとに ちゅうい わなの においがするわ!",
     "どうくつを すすんで さきへの みちを さがしてね"
+   ],
+   "es": [
+    "¡Cueva espeluznante! ¡Cuidado,|{=nigel}, huelo trampas!",
+    "Avanza por la cueva.|Busca por dónde seguir."
+   ],
+   "it": [
+    "Grotta inquietante! Attento,|{=nigel}, sento trappole!",
+    "Avanza nella grotta. Cerca|come proseguire."
+   ],
+   "ru": [
+    "Жуткая пещера! Смотри под|ноги, {=nigel}, тут ловушки!",
+    "Пройди через пещеру. Ищи|путь дальше."
+   ],
+   "uk": [
+    "Моторошна печера! Дивись|під ноги, {=nigel}, тут|пастки!",
+    "Пройди печерою. Шукай шлях|далі."
    ]
   },
   {
@@ -2293,6 +3637,22 @@
    "ja": [
     "こんな ところに 町が! やすんで じゅんびしましょ もうすぐ おわりよ!",
     "それから みちが どこへ つづくか みてみましょ 公爵は ちかくよ"
+   ],
+   "es": [
+    "¿Un pueblo aquí, en el fin del|mundo? ¡Descansemos y hagamos|provisiones, el final se|acerca!",
+    "Luego mira adónde lleva el|camino. El Duque no puede|estar lejos."
+   ],
+   "it": [
+    "Una città in capo al mondo?|Riposiamo e facciamo scorta,|la fine si avvicina!",
+    "Poi guarda dove porta la|strada. Il Duca non può essere|lontano."
+   ],
+   "ru": [
+    "Город в такой глуши?|Отдохнём и запасёмся, конец|близок!",
+    "Потом смотри, куда ведёт|дорога. Герцог недалеко."
+   ],
+   "uk": [
+    "Місто в такій глушині?|Перепочиньмо й запасімось!",
+    "Потім дивись, куди веде|дорога. Герцог недалеко."
    ]
   },
   {
@@ -2321,6 +3681,22 @@
    "ja": [
     "めいろの 3びきの モンスターを たおせば きゅうでんよ!",
     "めいろの 3びきの モンスターを たおして きゅうでんへ いきましょ"
+   ],
+   "es": [
+    "¡Vence a tres monstruos del|laberinto y llegarás al|palacio!",
+    "Vence a los tres monstruos del|laberinto y llegarás al|palacio."
+   ],
+   "it": [
+    "Sconfiggi tre mostri nel|labirinto per raggiungere|il palazzo!",
+    "Sconfiggi i tre mostri del|labirinto per raggiungere|il palazzo."
+   ],
+   "ru": [
+    "Победи трёх монстров в|лабиринте, и во дворец!",
+    "Победи трёх монстров|лабиринта и иди во дворец."
+   ],
+   "uk": [
+    "Переможи трьох монстрів у|лабіринті, і до палацу!",
+    "Переможи трьох монстрів|лабіринту й іди до палацу."
    ]
   },
   {
@@ -2348,6 +3724,22 @@
    "ja": [
     "なんて めいろ! ミルの 魔法は せいなる きを きれるわ・・・",
     "みずを わたれる ものを さがしてね ちずを ちゃんと みてね"
+   ],
+   "es": [
+    "¡Qué laberinto tan loco! El|hechizo de Mir corta árboles|sagrados...",
+    "Busca algo que te ayude a|cruzar el agua. Vigila el|mapa."
+   ],
+   "it": [
+    "Che labirinto pazzesco!|L'incanto di Mir taglia gli|alberi sacri...",
+    "Cerca qualcosa per|attraversare l'acqua. Guarda|la mappa."
+   ],
+   "ru": [
+    "Какой безумный лабиринт!|Заклятие Мира рубит|священные деревья...",
+    "Ищи то, что поможет|пересечь воду. Следи за|картой."
+   ],
+   "uk": [
+    "Який шалений лабіринт!|Закляття Міра рубає|дерева...",
+    "Шукай те, що допоможе|перетнути воду. Стеж за|мапою."
    ]
   },
   {
@@ -2358,7 +3750,7 @@
     "heard:052B"
    ],
    "en": [
-    "Monsters in this maze!|Beat all three, Nigel!",
+    "Monsters in this maze!|Beat all three, {=nigel}!",
     "Beat all three monsters here|to reach the palace."
    ],
    "de": [
@@ -2366,7 +3758,7 @@
     "Besieg alle drei Monster hier,|dann geht das Palasttor auf."
    ],
    "fr": [
-    "Des monstres dans ce labyrinthe!|Bats-les tous les trois, Ryle!",
+    "Des monstres dans ce labyrinthe!|Bats-les tous les trois, {=nigel}!",
     "Bats les trois monstres ici pour|atteindre le palais."
    ],
    "ko": [
@@ -2376,6 +3768,22 @@
    "ja": [
     "この めいろに モンスターが! 3びき ぜんぶ たおしてね ライル!",
     "3びきの モンスターを ぜんぶ たおせば きゅうでんへ いけるわ"
+   ],
+   "es": [
+    "¡Monstruos en este laberinto!|¡Véncelos a los tres, {=nigel}!",
+    "Vence aquí a los tres|monstruos y llegarás al|palacio."
+   ],
+   "it": [
+    "Mostri in questo labirinto!|Sconfiggili tutti e tre,|{=nigel}!",
+    "Sconfiggi qui i tre mostri per|raggiungere il palazzo."
+   ],
+   "ru": [
+    "Тут монстры! Победи всех|троих, {=nigel}!",
+    "Победи всех трёх монстров,|чтобы попасть во дворец."
+   ],
+   "uk": [
+    "Тут монстри! Переможи всіх|трьох, {=nigel}!",
+    "Переможи всіх трьох|монстрів, щоб потрапити до|палацу."
    ]
   },
   {
@@ -2405,6 +3813,22 @@
    "ja": [
     "かわに いかだね! まず ドワーフの むすこを さがしましょ!",
     "ドワーフの おじいさんの むすこを さがして まるたを もらって いかだを つくってね"
+   ],
+   "es": [
+    "¡Una balsa para el río!|Primero busca al hijo del|enano.",
+    "Busca al hijo del viejo enano|y trae troncos para hacer una|balsa."
+   ],
+   "it": [
+    "Una zattera per il fiume!|Prima trova il figlio del|nano.",
+    "Trova il figlio del vecchio|nano e porta dei tronchi per|una zattera."
+   ],
+   "ru": [
+    "Плот для реки! Сначала|найди сына гнома.",
+    "Найди сына старого гнома и|добудь брёвна для плота."
+   ],
+   "uk": [
+    "Пліт для річки! Спершу|знайди сина гнома.",
+    "Знайди сина старого гнома й|добудь колоди на пліт."
    ]
   },
   {
@@ -2434,6 +3858,22 @@
    "ja": [
     "上へ いくわよ! あの きで いかだが つくれるわ!",
     "上へ のぼって きを きって いかだを つくってね"
+   ],
+   "es": [
+    "¡Arriba! ¡Ese árbol hará|una balsa estupenda!",
+    "Sube y corta el árbol|para hacer una balsa."
+   ],
+   "it": [
+    "In alto! Quest'albero sarà una|bella zattera!",
+    "Sali e taglia l'albero per|costruire una zattera."
+   ],
+   "ru": [
+    "Наверх! Из того дерева|выйдет отличный плот!",
+    "Поднимись наверх и срубли|дерево на плот."
+   ],
+   "uk": [
+    "Нагору! З того дерева вийде|чудовий пліт!",
+    "Підніміся нагору й зрубай|дерево на пліт."
    ]
   },
   {
@@ -2462,6 +3902,22 @@
    "ja": [
     "2つめの いかだが できたわ! なんだか あったかく なってきた!",
     "めいろを すすんで ちずで まだの へやを たしかめてね"
+   ],
+   "es": [
+    "¡La segunda balsa está lista!|¡Vamos, parece que ya queda|poco!",
+    "Sigue por el laberinto. Mira|el mapa por salas que no hayas|probado."
+   ],
+   "it": [
+    "La seconda zattera è pronta!|Forza, siamo più vicini!",
+    "Segui il labirinto. Guarda la|mappa per le sale non provate."
+   ],
+   "ru": [
+    "Второй плот готов! Идём,|мы, кажется, греемся!",
+    "Иди по лабиринту дальше.|Смотри карту, где ещё не|был."
+   ],
+   "uk": [
+    "Другий пліт готовий!|Ходімо, ми, здається,|гріємось!",
+    "Іди лабіринтом далі. Дивись|мапу, де ще не був."
    ]
   },
   {
@@ -2490,6 +3946,22 @@
    "ja": [
     "いばりんぼね! 公爵は この さきに いるわ つかまえて!",
     "すすみながら たいりょくに ちゅうい してね"
+   ],
+   "es": [
+    "¡Qué presumido! El Duque está|por delante. ¡Atrápalo!",
+    "Sigue adelante y cuida tu|salud."
+   ],
+   "it": [
+    "Che sbruffone! Il Duca è da|qualche parte avanti.|Prendilo!",
+    "Continua e tieni d'occhio|la salute."
+   ],
+   "ru": [
+    "Вот хвастун! Герцог где-то|впереди. Поймай его!",
+    "Иди дальше и следи за|здоровьем."
+   ],
+   "uk": [
+    "Ну й хвалько! Герцог десь|попереду. Піймай його!",
+    "Іди далі й стеж за|здоров'ям."
    ]
   },
   {
@@ -2517,6 +3989,22 @@
    "ja": [
     "すごいところ! たからは きっと ここの どこかよ!",
     "まわりを しらべてね とびらや スイッチが おくへの みちを かくしてるかも"
+   ],
+   "es": [
+    "¡Qué lugar! ¡El tesoro debe|estar por aquí!",
+    "Mira alrededor. Puertas e|interruptores quizá escondan|el camino."
+   ],
+   "it": [
+    "Che posto! Il tesoro deve|essere qui da qualche parte!",
+    "Guardati intorno. Porte e|interruttori nascondono forse|la via."
+   ],
+   "ru": [
+    "Вот это место! Клад где-то|тут, точно!",
+    "Осмотрись. Двери и рычаги|могут скрывать путь вглубь."
+   ],
+   "uk": [
+    "Оце місце! Скарб десь тут,|точно!",
+    "Роззирнись. Двері й важелі|можуть ховати шлях углиб."
    ]
   },
   {
@@ -2526,16 +4014,16 @@
     "room:111-114"
    ],
    "en": [
-    "This is it, Nigel! Heal up, then let's grab that treasure!",
-    "Beat the guardian in the arena.|You can do it, Nigel!"
+    "This is it, {=nigel}! Heal up, then let's grab that treasure!",
+    "Beat the guardian in the arena.|You can do it, {=nigel}!"
    ],
    "de": [
-    "Jetzt gilt's, Niels! Heil dich, dann holen wir uns den Schatz!",
-    "Besiege den Wächter in der Arena.|Du schaffst das, Niels!"
+    "Jetzt gilt's, {=nigel}! Heil dich, dann holen wir uns den Schatz!",
+    "Besiege den Wächter in der Arena.|Du schaffst das, {=nigel}!"
    ],
    "fr": [
-    "On y est, Ryle! Soigne-toi, puis allons prendre ce trésor!",
-    "Bats le gardien dans l'arène.|Tu peux le faire, Ryle!"
+    "On y est, {=nigel}! Soigne-toi, puis allons prendre ce trésor!",
+    "Bats le gardien dans l'arène.|Tu peux le faire, {=nigel}!"
    ],
    "ko": [
     "드디어야, 라일! 회복하고 보물을 차지하자!",
@@ -2544,6 +4032,22 @@
    "ja": [
     "ここよ ライル! かいふくして たからを とりにいきましょ!",
     "アリーナの ばんにんを たおしてね ライルなら できるわ!"
+   ],
+   "es": [
+    "¡Aquí es, {=nigel}! ¡Cúrate y|vamos a por ese tesoro!",
+    "Vence al guardián en la arena.|¡Puedes hacerlo, {=nigel}!"
+   ],
+   "it": [
+    "Ci siamo, {=nigel}! Curati, poi|andiamo a prendere quel|tesoro!",
+    "Sconfiggi il guardiano|nell'arena. Ce la puoi fare,|{=nigel}!"
+   ],
+   "ru": [
+    "Вот оно, {=nigel}!|Подлечись, и хватаем клад!",
+    "Победи стража на арене. Ты|справишься, {=nigel}!"
+   ],
+   "uk": [
+    "Ось воно, {=nigel}!|Підлікуйся, і хапаємо|скарб!",
+    "Переможи вартового на|арені. Ти впораєшся,|{=nigel}!"
    ]
   }
  ]

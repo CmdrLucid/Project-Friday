@@ -27,6 +27,17 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 - Find all copies of a decoration by a PICTURE MATCH against a reference copy, not by top block ids (objects against a wall get other blocks).
 - The warp test aid (LANDSTALKER_WARP) does not reach every room from the test save (chapels, cellars stay black): a black shot is no result.
 
+- Buildings that hide each other: fit ALL of them at once (scene fit, the union rendered with the view ray, `remake/tools/fit_house.py`), not one by one with masks; walls of town houses come out on the cell lines (2026-11-20).
+- Walls built from repeating wall TILES (town houses): classify each 16 unit slot (window / door / plain / sign) and take the tile's geometry from one measured copy; measure only what differs (a small window) (`remake/tools/find_openings.py`, 2026-11-20).
+- Ask the user to MARK what is wrong on the overlay (red lines): 'one corner' vs 'stepped corbel' could not be read from my description (church entrance, 2026-11-20).
+- Log house corners: look at the drawn corner before adding protruding log ends: Massan's corners are a flush chevron (both walls' logs meet on the
+  diagonal); end discs made a serrated silhouette = frayed light edges (user 2026-11-20). A hanging cloth: the window behind it is SMALL (only the dark strip
+  above the cloth), the cloth hangs OUT over the sill; a big opening behind it read as a bulge (user 2026-11-20).
+- Repeated wall TILES across houses (doors, round windows) can be calibrated once: measure the drawn dark / hole centroid on the new house and apply the
+  offset found on an already confirmed copy (Massan round window: centroid -0.55 / -0.65 from the model centre).
+
+- **Look at the object with BOTH planes composed (and plane B alone) before reading it** (2026-11-21, user on the dock crate shed: 'nicht alles auf der Ebene, die du dir ansiehst'): objects are split over plane A and plane B. Plane A alone showed the dock hut as an open PAVILION on three posts; composed it is a closed LOG HUT on stilts with two big dark openings (the interior and the back walls are plane B), and the crate shed is a solid crate wall under its roof. Same as the forest back rows (plants).
+
 ## 3. Fitting the shape
 - **Never outside the drawing**: score = covered - 12 x outside, grow from thin rings; then nothing sticks out (the user sees every pixel that does).
 - A round body that is not round about one axis (twisted robe): rings with their OWN centre and radius, fitted by moving the LEFT and RIGHT edge of each ring
@@ -71,6 +82,8 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 - Read the figure's small parts on the 1 px grid before modelling them and ask when unclear (hair: first long locks, then a bob, user: the hair goes
   BEHIND the statue) (2026-11-10).
 
+- **FIGURES (statues) are not 'a few primitives fitted to the silhouette'** (2026-11-21, user on the Massan statue and the knight / Duke statue of room 31: 'das schaut nicht mal ansatzweise nach einer Baerensilhouette aus', 'der Herzog mit Schwert an der Huefte ... wie ein groesseres, schlankeres Nigel-Modell, Idle-Pose ... Scheitel'). A ring stack gave a lumpy column, ellipsoids / capsules gave a snowman and a jointed doll; the IoU (0.78 / 0.82) said nothing about whether it LOOKS like the figure, and an unbounded fit collapsed into discs and sticks. Before showing a figure: (1) identify WHAT it is (the Duke = Nigel's idle pose, not a striding knight; ask the user if unsure), (2) look at the clay preview next to the drawing at the same size and judge it honestly by eye, (3) a figure needs a sculpt approach like the church angel (own head, hair, limbs in the pose of a known character), not primitives. IoU is a check for the outline only.
+
 ## 4. Light side effects (every model is also a light shape)
 - A shape under or next to a FLAME moves the flame light (its position comes from the view ray of the flame's picture centre): check the light list
   (LANDSTALKER_LIGHTING_DBG=1) before / after. Stands carry their flame (`carrier` data: light on the axis above the bowl, no self shadow).
@@ -85,8 +98,12 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
   boundary (as the old boxes); round only edges whose rounding stays inside the drawn object. A 0-missed projection check does not catch this
   (it counts pixel centres): look at the in-game zoom.
 
+- **After placing a model, check for OLD automatic shapes beside it** (2026-11-21): a mesh op only drops automatic shapes whose CENTRE lies in its cells; the catalogue lathe of a drawn object often sits one cell FORWARD (486 stone blocks: the 37 high lathe stayed next to the new block) or off the twig's foot cell. Count with lktest/placeholders.py or list the survey shapes within 2 cells of the new op; cover them with the op's cells or a 'remove' op.
+
 ## 5. Tools and paths
 - Blender (Flatpak) needs `--filesystem=home` for scripts / files outside the sandbox; an ortho camera at distance > 100 needs `clip_end` raised; point the
   camera with a TRACK_TO constraint.
 - Montage of PNGs: `ffmpeg -i a.png -i b.png -filter_complex hstack=inputs=2 out.png` (remake/tools/proxy_overlay.read_png does not read Blender's PNGs).
 - Generated models / previews: `~/.landstalker_remake/assets/<name>/` (never in git); our measured numbers + builders: `remake/lib/furniture.py`.
+- Edge overlays must also draw SILHOUETTE edges (model next to background) on the model side; an overlay of only normal / depth changes inside the model hid the porch's right edge and the hall corner (user 2026-11-20).
+- Blender meshes from game coordinates: y is flipped, so reverse the face order or booleans (EXACT solver) treat the cutters inside out (only slits cut); write the OBJ back with the order reversed again.

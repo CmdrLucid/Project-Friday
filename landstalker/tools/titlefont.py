@@ -10,7 +10,8 @@ of lang/ko.json ('노르 왕의 보물', Noto Sans CJK KR Bold 17 px, KO17), ja 
 lines 113..132 from x 155) drawn with Noto Serif CJK JP Medium 21 px (SIL OFL), stored below as JA21."""
 import sys
 
-TEXT = {"de": "DIE SCHÄTZE VON KÖNIG NOLO", "fr": "LE TRÉSOR DU ROI NOLE", "ko": "노르 왕의 보물", "ja": "皇帝の財宝"}
+TEXT = {"de": "DIE SCHÄTZE VON KÖNIG NOLO", "fr": "LE TRÉSOR DU ROI NOLE", "es": "LOS TESOROS DEL REY NOLE", "it": "I TESORI DI RE NOLE",   # es / it: our own titles (LK_LGES v1)
+        "ko": "노르 왕의 보물", "ja": "皇帝の財宝"}
 H, TOP = 20, 3   # map height, rows above the letter body (accents, umlaut dots)
 
 def _g(top0, top1, up, mid6, mid7, low, bot15, bot16, up2=None, low2=None):
@@ -25,6 +26,7 @@ L = {
     "G": _g(".####.", "######", "##..##", "##.###", "##.###", "##..##", "######", ".####.", up2="##...."),
     "H": _g("##..##", "##..##", "##..##", "######", "######", "##..##", "##..##", "##..##"),
     "I": ["##"] * 17,
+    "Y": ["##..##"] * 6 + [".####."] * 2 + ["..##.."] * 9,   # LK_LGES v1 (Spanish title)
     "K": ["##..##"] * 4 + ["##.###", "##.##.", "#####.", "######"] + ["##..##"] * 9,
     "L": ["##...."] * 15 + ["######", "######"],
     "N": ["##..##"] * 3 + ["###.##", "###.##", "######", "######", "######", "##.###", "##.###"] + ["##..##"] * 7,
@@ -111,7 +113,7 @@ def preview(out, title):
     from PIL import Image
     base = Image.open(title).convert("RGB"); W, Ht = base.size
     sheet = Image.new("RGB", (W * 2, Ht * 2))
-    for i, code in enumerate(("de", "fr", "ko", "ja")):
+    for i, code in enumerate(("de", "fr", "es", "it", "ko", "ja")):
         im = base.copy(); px = im.load()
         for y in range(102, 124):
             for x in range(166, 332): px[x, y] = (0, 0, 0)   # the English subtitle away (preview only)

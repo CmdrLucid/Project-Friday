@@ -46,7 +46,7 @@ import os, sys
 root = sys.argv[1]
 VER = "LK_LIGHTS v8"
 import json
-CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4), "box": (8, 5), "slab": (9, 6), "carve": (10, 4), "unpaint": (11, 4), "ground": (12, 5), "void": (13, 4)}   # ground (LK_LTGROUND v1): cells x0 y0 x1 y1 + height: VOID cells of the game's height map that are drawn as solid (church statue pedestal) get this height
+CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4), "box": (8, 5), "slab": (9, 6), "carve": (10, 4), "unpaint": (11, 4), "ground": (12, 5), "void": (13, 4), "plantcells": (14, 4)}   # plantcells (LK_LTPLANTCELL v1): forest collision cells the tile catalogue did not recognise (drawn mixed with a building) get their plants' ground like catalogue cells (LK_LTPLANT v2)   # ground (LK_LTGROUND v1): cells x0 y0 x1 y1 + height: VOID cells of the game's height map that are drawn as solid (church statue pedestal) get this height
 def mesh_cells(path):   # an OBJ (game coordinates) -> {(sx, sy): (top, bottom)} on the 4 unit grid of the light field (sub column centres), max / min over all faces (v9: the bottom for slabs)
     vs, top, bot = [], {}, {}
     for line in open(path):
@@ -162,7 +162,7 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
                 rows.append("{%d, %d, {%s}}" % (int(room), op, ", ".join(str(v) for v in a + [0] * (7 - n))))
     rows += uprows
     print("patch_lights: %d light proxy corrections from %s (%d unpaint, %d unpaint tiles)" % (len(rows), path, len(uprows), len(uptile)))
-    mesh = "".join("static const int16_t lk_lt_mesh%d[][4] = { %s, {-1, -1, -1, -1} };\n" % (i, m) for i, m in enumerate(MESHES))
+    mesh = "".join("static const int16_t lk_lt_mesh%d[][4] = { %s{-1, -1, -1, -1} };\n" % (i, m + ", " if m else "") for i, m in enumerate(MESHES))   # 2026-11-21: a thin model (dead twig) can cover no sub column centre at all -> only the end mark
     mesh += "static const int16_t (*const lk_lt_meshes[])[4] = { " + ", ".join(["lk_lt_mesh%d" % i for i in range(len(MESHES))] + ["0"]) + " };\n"
     print("patch_lights: %d light proxy meshes (%s cells)" % (len(MESHES), ", ".join(str(m.count("{")) for m in MESHES)))
     mesh += "".join("static const float lk_lt_mtri%d[] = { %s };\n" % (i, ", ".join("%.3ff" % v for v in MTRI[i])) for i in sorted(MTRI))
@@ -211,6 +211,7 @@ static int16_t lk_lt_fh[LK_LT_FN][LK_LT_FN], lk_lt_fo[LK_LT_FN][LK_LT_FN]; stati
    Blender mesh (op mesh with an OBJ file) stamps is marked as MODEL OWNED (lk_lt_mown) and keeps the ground below the model (lk_lt_mg, the height before the first mesh stamped it).
    GPU only (GPU-first rule): the GPU view ray takes the model's real surface from a model buffer and sees the ground below the model in owned sub columns; the CPU and every
    shadow march keep the fine field.  Test aid LANDSTALKER_LT_MODEL=0 = off (the old fine field view ray). */
+static uint8 lk_lt_mpg[LK_LT_FN][LK_LT_FN];   /* LK_LTPLANT v3: a plant owns this sub column = the room model still lays its ground top (a plant mesh has no ground) */
 static uint8 lk_lt_mown[LK_LT_FN][LK_LT_FN]; static int16_t lk_lt_mg[LK_LT_FN][LK_LT_FN], lk_lt_mb[LK_LT_FN][LK_LT_FN];   /* + lk_lt_mb: the model's bottom (above mg + 4 = it floats: air below for the GPU's AO / key light) */ static int lk_lt_nmodel;
 static int lk_lt_modelopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_MODEL"); v = e ? atoi(e) : 1; } return v; }
 static int lk_lt_modelall(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_MODELALL"); v = e ? atoi(e) : 0; } return v; }   /* test aid: every Blender mesh as a real surface, also the unverified ones */
@@ -783,6 +784,7 @@ static int lk_lt_edgefill(void) { static int v = -1; if (v < 0) { const char *e 
 static int lk_lt_cellpaint(int x, int y, int m) { int du, dv, n = 0, pal, pr, U0 = 16 * (x - y) + 1184, V0 = 8 * (x + y) + 8 - m;   /* painted samples of a cell's top diamond (69 samples, step 2) */
   for (dv = -6; dv <= 6; dv += 2) for (du = -14; du <= 14; du += 2) if (abs(du) * 8 + abs(dv) * 16 <= 128 && (lk_o_fetch(lk_o_pb, U0 + du, V0 + dv, &pal, &pr, 0) || lk_o_fetch(lk_o_pa, U0 + du, V0 + dv, &pal, &pr, 0))) n++;
   return n; }
+static int lk_lt_winnear(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_WINNEAR"); v = e ? atoi(e) != 0 : 1; } return v; }   /* LK_LTWINNEAR v1 (user 2026-11-20 rec_20261120_0918, Massan 592 night, jumping at house F's open S window: 'Nigels Schatten irgendwie am Haus vorbei'): a window / door light (lava 2) sits only 14 units out of its opening; a figure within 28 units of it is beside the opening, the point light then threw his shadow along the wall past the house corner. Such openings glow wide (as LK_DNFIG for doors): no figure shadow from them that close. The user saw it only while JUMPING: the light sits ~25 above the ground (chest height); with the figure's middle (fz + 20) ABOVE the light a real shadow would go upwards, our ground projection stretched it far along the wall instead -> also no figure shadow from a window / door light when dz < 0. LANDSTALKER_LT_WINNEAR=0 = old. */
 static uint8 lk_dn_ldoor[LK_LT_ML];   /* LK_DNFLK v1: light k is a Massan door light (own slow flicker) */
 static int lk_dn_pt(int r, int c) { return (r >= 0 && c >= 0 && r < 152 && c < 304 && (lk_o_pa[r][c] & 0x10000)) ? (int)(lk_o_pa[r][c] & 0x7FF) : -1; }
 static int lk_dn_s346(int r, int c) {   /* LK_DNSIGN25 v1 (user 2026-11-18, Gumi 601..603 at night, the door to 605: 'ein schwarzes Eck drin'): the door opening's top tile 346, or tile 25 = the same corner with the SKULL SIGN over the door (only there in all 21 tileset 7 rooms; 373 beside it, not flipped itself).
@@ -803,6 +805,7 @@ static int lk_lt_inwat(void) { static int v = -1; if (v < 0) { const char *e = g
 static int lk_lt_invin(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INVIN"); v = e ? atoi(e) : 0; } return v; }   /* 2026-11-08: invisible barriers indoors too */
 static int lk_lt_vwnear(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_VWNEAR"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: back walls need the room in front of them */
 static int lk_lt_rimfill(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_RIMFILL"); v = e ? atoi(e) : 0; } return v; }   /* 2026-11-08: drawn floor rim indoors */
+static int lk_lt_plantopt(void);   /* LK_LTPLANT v1 (defined with lk_lt_objbuild) */
 static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 2026-11-03: 'sollten wir nicht eher fixen dass die Haeuser im Raumplan korrekt sind?'):
      the game's height map holds only the low collision boxes of houses / trees; their drawn walls, roofs and crowns are layer A (foreground) pixels
      above the box.  Small raised boxes (<= 128 cells of one height with a lower neighbour; large areas = terrain stay) are raised in OUR copy (lk_lt_top) cell by cell
@@ -1051,6 +1054,16 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
         lk_lt_npx = kept;
         P = &lk_lt_px[lk_lt_npx++]; P->type = 5; P->part = 0; P->obj = 1031; lk_lt_ocl[1031] = 2; P->x0 = P->y0 = 0; P->x1 = P->y1 = 73; P->z0 = P->eave = P->ridge = 0; }
       if (lk_lt_dbg == 5) printf("catalogue: room %%d tileset %%d: %%d bush cells, %%d pine cells, %%d flat cells, %%d groups\n", lk_o_room, ts, nb, np, nf, n); }
+    if (lk_lt_plantopt()) { int q0 = -1, q1 = -1, k, m, kept = 0;   /* LK_LTPLANT v1: automatic hips mostly over DRAWN PLANTS go too (user 2026-11-20 'b': the leftover list showed hips over bush rows / pine groups whose
+         plants already have their models; the catalogue rule above only counts its own block cells) */
+      for (k = 0; lk_lt_plant[k][0] >= 0; k++) if (lk_lt_plant[k][0] == lk_o_room) { if (q0 < 0) q0 = k; q1 = k + 1; }
+      if (q0 >= 0) { for (m = 0; m < lk_lt_npx; m++) { const lk_lt_proxy *Q = &lk_lt_px[m]; int tot = 0, hit = 0, cx, cy;
+          if (Q->type == 1 && Q->part) for (cy = Q->y0 >> 4; cy < (Q->y1 + 15) >> 4 && cy < 74; cy++) for (cx = Q->x0 >> 4; cx < (Q->x1 + 15) >> 4 && cx < 74; cx++) if (cx >= 0 && cy >= 0 && lk_lt_part[cy][cx] == Q->part) {
+            float X = 16.0f * cx + 8.0f, Y = 16.0f * cy + 8.0f; tot++;
+            for (k = q0; k < q1; k++) { float dx = lk_lt_plant[k][2] * 0.25f - X, dy = lk_lt_plant[k][3] * 0.25f - Y, rr = lk_lt_pmr[lk_lt_plant[k][1]] * 0.9f; if (rr < 14.0f) rr = 14.0f; if (dx * dx + dy * dy < rr * rr) { hit++; break; } } }   /* within the plant's footprint (the big tree: ~40) */
+          if (tot && 2 * hit >= tot) { if (lk_lt_dbg == 5) printf("plants: room %%d drops hip #%%d (%%d of %%d cells hold drawn plants)\n", lk_o_room, m, hit, tot); continue; }
+          if (kept != m) { lk_lt_px[kept] = lk_lt_px[m]; memcpy(lk_lt_prof[kept], lk_lt_prof[m], 96); } kept++; }
+        lk_lt_npx = kept; } }
     { int q; memset(lk_lt_flat, 0, sizeof lk_lt_flat);   /* CORRECTIONS (data/light_proxies.json, LIGHT_PROXY_PLAN step 2) */
       for (q = 0; lk_lt_corr[q].room >= 0; q++) { const int16_t *a = lk_lt_corr[q].a; int op = lk_lt_corr[q].op;
         if (lk_lt_corr[q].room != lk_o_room) continue;
@@ -1107,6 +1120,9 @@ static int lk_lt_extrude(void) {   /* v5: OWN LIGHT HEIGHT MAP outdoors (user 20
         if (lk_lt_fo[j][i] && (float)lk_lt_fh[j][i] >= h) continue;
         lk_lt_fh[j][i] = (int16_t)h; lk_lt_fo[j][i] = P->obj; lk_lt_fp[j][i] = (uint8)(k + 1); } }
     lk_lt_fhmax = -32768;
+    if (lk_lt_dbg == 5) for (k = 0; k < lk_lt_npx; k++) if (lk_lt_px[k].type == 1) { const lk_lt_proxy *P = &lk_lt_px[k]; int n = 0, mx = 0, i, j;   /* survey aid (2026-11-21): how much of an automatic hip really stands above the game's ground */
+      for (j = 0; j < LK_LT_FN; j++) for (i = 0; i < LK_LT_FN; i++) if (lk_lt_fo[j][i] && lk_lt_fp[j][i] == k + 1) { int g = lk_lt_gh[j >> 2][i >> 2], e = lk_lt_fh[j][i] - (g == -32768 ? 0 : g); if (e > 2) { n++; if (e > mx) mx = e; } }
+      printf("hipeff: room %%d hip x %%d..%%d y %%d..%%d z0 %%d stamps %%d sub columns above the ground (max +%%d)\n", lk_o_room, P->x0, P->x1, P->y0, P->y1, P->z0, n, mx); }
     for (j = 0; j < LK_LT_FN; j++) for (i = 0; i < LK_LT_FN; i++) if (lk_lt_fo[j][i] && lk_lt_fh[j][i] > lk_lt_fhmax) lk_lt_fhmax = lk_lt_fh[j][i];
   }
   return n;
@@ -1238,7 +1254,7 @@ static void lk_lt_rmquad(const float *a, const float *b, const float *c, const f
    field) and the shadow maps; their sub columns are hand-model owned (kind 1, ground = the base) so the marches leave them to the shadow map.  GPU only, the CPU keeps
    the field.  DEFAULT ON since 2026-11-09 (user: "ja"); LANDSTALKER_LT_OBJMODEL=0 = off. */
 unsigned lk_lt_mgen;   /* generation of the generated meshes (room model / objects), for the GPU vertex buffers */
-#define LK_LT_OMMAX 240000   /* 4 dense forest rooms (425 / 561 / 566 / 567) needed more than 120000 */
+#define LK_LT_OMMAX 640000   /* 4 dense forest rooms (425 / 561 / 566 / 567) needed more than 120000; LK_LTPLANT v1: ~500 triangles per plant model, room 561 = 727 plants = 361000; 2026-11-21 plants.py scans plane B too (the back rows of a forest): room 562 = 919 plants ~ 455000 */
 static float lk_lt_omt[LK_LT_OMMAX * 18]; static int lk_lt_omn, lk_lt_omover;
 static int lk_lt_objopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_OBJMODEL"); v = e ? atoi(e) : 1; } return v; }
 static void lk_lt_omtri(const float *a, const float *na, const float *b, const float *nb, const float *c, const float *nc) {
@@ -1264,10 +1280,78 @@ static void lk_lt_omlathe(float cx, float cy, const float *rr, const float *zz, 
   for (k = 0; k < SEG; k++) { float a0 = 6.2831853f * k / SEG, a1 = 6.2831853f * (k + 1) / SEG, up[3] = { 0.0f, 0.0f, 1.0f }, dn[3] = { 0.0f, 0.0f, -1.0f };   /* caps */
     if (rr[0] > 1e-3f) { float m[3] = { cx, cy, zz[0] }, p0[3] = { cx + rr[0] * cosf(a0), cy + rr[0] * sinf(a0), zz[0] }, p1[3] = { cx + rr[0] * cosf(a1), cy + rr[0] * sinf(a1), zz[0] }; lk_lt_omtri(m, dn, p1, dn, p0, dn); }
     if (rr[n - 1] > 1e-3f) { float m[3] = { cx, cy, zz[n - 1] }, p0[3] = { cx + rr[n - 1] * cosf(a0), cy + rr[n - 1] * sinf(a0), zz[n - 1] }, p1[3] = { cx + rr[n - 1] * cosf(a1), cy + rr[n - 1] * sinf(a1), zz[n - 1] }; lk_lt_omtri(m, up, p0, up, p1, up); } } }
+/* LK_LTPLANT v1 (2026-11-20, user: 'generell sollten alle Kiefern und Buesche ihr 3D-Modell haben'): the room's drawn pines / small pines / bushes as INSTANCES of
+   our fitted models (data/plants.json, remake/recipes/plants: feet measured on the ROM picture + the height map). A catalogue cell or a lathe tree with a plant
+   foot in reach is drawn by the plant model instead of its lathe; the plant owns its footprint's sub columns (ground = its foot). LANDSTALKER_LT_PLANTS=0 = the old
+   lathes (test aid). */
+static int lk_lt_plantopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_PLANTS"); v = e ? atoi(e) : 1; } return v; }
+static int lk_lt_pl0, lk_lt_pl1;   /* the current room's rows of lk_lt_plant */
+static int lk_lt_plnear(float X, float Y, float Z, float r) { int q; if (!lk_lt_plantopt()) return 0;   /* + the same level (within 24): a plant at the foot of a cliff does not own the place on top of it */
+  for (q = lk_lt_pl0; q < lk_lt_pl1; q++) { float dx = lk_lt_plant[q][2] * 0.25f - X, dy = lk_lt_plant[q][3] * 0.25f - Y; if (dx * dx + dy * dy < r * r && fabsf((float)lk_lt_plant[q][4] - Z) <= 24.0f) return 1; } return 0; }
+/* LK_LTPLANT v2 (2026-11-21, user recording rec_20261120_1940 room 458: 'wenn Nigels Schatten klar nach Suedosten faellt, ist er nicht mal im Schatten, wenn er
+   sich vor die Baeume stellt'): the plant models are only GPU meshes (their shadow maps shade the scenery), but a figure's sun share (lk_lt_f.sun) comes from
+   the CPU march lk_lt_sunvis, which knew the old catalogue lathes only (dropped next to plants since LK_LTPLANT v1) = figures never stood in a pine's shadow.
+   Here the same march through the room's plants as solids of revolution (lk_lt_pprof: the model's radius per eighth of its height, from its mesh) with the
+   march's soft edge (LK_LT_PEN); feet in a 74 x 74 cell list. */
+#define LK_LT_PGMAX 2048
+static int16_t lk_lt_pgh[74][74], lk_lt_pgn[LK_LT_PGMAX]; static int lk_lt_pgbig[8], lk_lt_npgbig; static float lk_lt_pgtop;
+static void lk_lt_pgrid(void) { int k; memset(lk_lt_pgh, 0xFF, sizeof lk_lt_pgh); lk_lt_npgbig = 0; lk_lt_pgtop = -32768.0f;
+  if (!lk_lt_plantopt()) return;
+  for (k = lk_lt_pl0; k < lk_lt_pl1 && k - lk_lt_pl0 < LK_LT_PGMAX; k++) { int m = lk_lt_plant[k][1], cx = lk_lt_plant[k][2] >> 6, cy = lk_lt_plant[k][3] >> 6; float top = (float)lk_lt_plant[k][4] + lk_lt_pph[m];
+    if (top > lk_lt_pgtop) lk_lt_pgtop = top;
+    if (lk_lt_pmr[m] > 24.0f) { if (lk_lt_npgbig < 8) lk_lt_pgbig[lk_lt_npgbig++] = k; continue; }   /* the big tree: checked on its own (wider than a cell) */
+    if (cx < 0 || cy < 0 || cx >= 74 || cy >= 74) continue;
+    lk_lt_pgn[k - lk_lt_pl0] = lk_lt_pgh[cy][cx]; lk_lt_pgh[cy][cx] = (int16_t)(k - lk_lt_pl0); } }
+static float lk_lt_pcl(int k, float x, float y, float z) {   /* clearance of point x y z from plant k (<= 0: inside), 9999 = beside its height */
+  int m = lk_lt_plant[k][1]; float zr = z - (float)lk_lt_plant[k][4], H = lk_lt_pph[m], dx = x - lk_lt_plant[k][2] * 0.25f, dy = y - lk_lt_plant[k][3] * 0.25f, f; int b;
+  if (zr < 0.0f || zr >= H) return 9999.0f;
+  f = zr / H * 8.0f; b = (int)f; if (b > 7) b = 7;
+  return sqrtf(dx * dx + dy * dy) - lk_lt_pprof[m][b]; }
+static float lk_lt_plantvis(float px, float py, float pz) {   /* share of the sun that the plants let through to a point (1 = none in the way) */
+  const float *sd = lk_lt_sdp ? lk_lt_sdp : lk_lt_sd; float hl = sqrtf(sd[0] * sd[0] + sd[1] * sd[1]), res = 1.0f, t;
+  if (!lk_lt_plantopt() || lk_lt_pl1 <= lk_lt_pl0 || sd[2] <= 0.0f) return 1.0f;
+  if (hl < 1e-3f) hl = 1e-3f;
+  for (t = 2.0f; t < 400.0f; t += 2.0f) {
+    float x = px + sd[0] * t, y = py + sd[1] * t, z = pz + sd[2] * t, c; int cx = (int)(x * 0.0625f), cy = (int)(y * 0.0625f), a, b, j;
+    if (z > lk_lt_pgtop || x < 0.0f || y < 0.0f || cx >= 74 || cy >= 74) break;
+    for (b = cy - 1; b <= cy + 1; b++) for (a = cx - 1; a <= cx + 1; a++) { int q; if (a < 0 || b < 0 || a >= 74 || b >= 74) continue;
+      for (q = lk_lt_pgh[b][a]; q >= 0; q = lk_lt_pgn[q]) { c = lk_lt_pcl(lk_lt_pl0 + q, x, y, z); if (c <= 0.0f) return 0.0f; if (c < 9999.0f) { float r = LK_LT_PEN * c / (t * hl); if (r < res) res = r; } } }
+    for (j = 0; j < lk_lt_npgbig; j++) { c = lk_lt_pcl(lk_lt_pgbig[j], x, y, z); if (c <= 0.0f) return 0.0f; if (c < 9999.0f) { float r = LK_LT_PEN * c / (t * hl); if (r < res) res = r; } } }
+  return res; }
+static int lk_lt_plcell(int cx, int cy) { int q; for (q = 0; lk_lt_corr[q].room >= 0; q++) if (lk_lt_corr[q].room == lk_o_room && lk_lt_corr[q].op == 14) { const int16_t *a = lk_lt_corr[q].a;   /* LK_LTPLANTCELL v1 (user 2026-11-21, docks 641:
+    a hard vertical sword-light line down the pine beside the crate shed): the pine group's collision cells 46..48 x 19..20 are drawn mixed with the shed (no catalogue
+    pine tiles), stayed 64 high boxes that ENCLOSE the pine crown, and the light hit the box wall instead of the pine; data op "plantcells" = treat as catalogue plant cells */
+    if (cx >= a[0] && cx <= a[2] && cy >= a[1] && cy <= a[3]) return 1; } return 0; }
 static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines / lathe trees as meshes + their sub columns owned (before the room box model) */
-  int cx, cy, k, sx, sy, nobj = 0; float rr[200], zz[200]; int n;
-  lk_lt_omn = 0; lk_lt_omover = 0;
-  if (!lk_lt_sun || !lk_lt_objopt() || !lk_lt_modelopt()) return;   /* outdoors only: the catalogue (lk_lt_tk) and lathes are built by the outdoor rules and are NOT cleared indoors
+  int cx, cy, k, sx, sy, nobj = 0, npl = 0, nlow = 0; float rr[200], zz[200]; int n;
+  lk_lt_omn = 0; lk_lt_omover = 0; lk_lt_pl0 = lk_lt_pl1 = 0;
+  memset(lk_lt_mpg, 0, sizeof lk_lt_mpg);
+  if (!lk_lt_sun || !lk_lt_objopt() || !lk_lt_modelopt()) return;
+  for (k = 0; lk_lt_plant[k][0] >= 0; k++) { if (lk_lt_plant[k][0] == lk_o_room && !lk_lt_pl1) lk_lt_pl0 = k; if (lk_lt_plant[k][0] == lk_o_room) lk_lt_pl1 = k + 1; }
+  if (lk_lt_plantopt()) for (k = lk_lt_pl0; k < lk_lt_pl1; k++) {   /* LK_LTPLANT v1: the plant instances first */
+    int m = lk_lt_plant[k][1], t; const float *T = lk_lt_pmt[m]; float X = lk_lt_plant[k][2] * 0.25f, Y = lk_lt_plant[k][3] * 0.25f, Z = (float)lk_lt_plant[k][4], R = lk_lt_pmr[m];
+    { static int sk[4] = { -1 }; if (sk[0] == -1) { const char *e = getenv("LANDSTALKER_LT_PLANTSKIP"); if (!e || sscanf(e, "%%d,%%d,%%d,%%d", &sk[0], &sk[1], &sk[2], &sk[3]) != 4) sk[0] = -2; }   /* test aid: plants with their foot in cells x0,y0,x1,y1 left out */
+      if (sk[0] >= 0 && X >= 16.0f * sk[0] && X < 16.0f * (sk[2] + 1) && Y >= 16.0f * sk[1] && Y < 16.0f * (sk[3] + 1)) continue; }
+    for (t = 0; t < lk_lt_pmn[m]; t++) { const float *a = T + 18 * t; float A[3] = { a[0] + X, a[1] + Y, a[2] + Z }, B[3] = { a[6] + X, a[7] + Y, a[8] + Z }, C[3] = { a[12] + X, a[13] + Y, a[14] + Z };
+      lk_lt_omtri(A, a + 3, B, a + 9, C, a + 15); }
+    for (sy = (int)((Y - R) / 4.0f); sy <= (int)((Y + R) / 4.0f); sy++) for (sx = (int)((X - R) / 4.0f); sx <= (int)((X + R) / 4.0f); sx++) {
+      float dx = 4.0f * sx + 2.0f - X, dy = 4.0f * sy + 2.0f - Y;
+      if (sx < 0 || sy < 0 || sx >= LK_LT_FN || sy >= LK_LT_FN || dx * dx + dy * dy > R * R || lk_lt_mown[sy][sx]) continue;
+      { int gh = lk_lt_gh[sy >> 2][sx >> 2], tk = lk_lt_tk[sy >> 2][sx >> 2]; if (gh > Z + 8.0f && tk != 1 && tk != 2 && !lk_lt_plcell(sx >> 2, sy >> 2) && !(m == LK_LT_PBIG && fabsf(dx) < 32.0f && fabsf(dy) < 32.0f)) continue; }   /* v1: only the plant's ground and its own catalogue blocks, never a wall / house / cliff beside it (room 567: a pine at a cliff hollowed the cliff's columns = a straight light edge); v2: the big round tree also owns its own 4 x 4 collision block (foot = the block's centre, plants.py foot_tree; room 458: the block stood as a 48 high box beside the model, 'Nigels Schatten bricht um wie an einer Wand') */
+      lk_lt_mown[sy][sx] = 1; lk_lt_mpg[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)Z; }
+    npl++; nobj++; }
+  if (lk_lt_plantopt() && lk_lt_pl1 > lk_lt_pl0) for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) {   /* LK_LTPLANT v2 (2026-11-21, user recording rec_20261120_1940 room 458: a hard
+       vertical shadow edge on the path in front of the lower forest): a plant owns only a circle around its foot; a catalogue pine / bush cell (the game's collision
+       block of the drawn plants, 48 high on ground 16) with no foot close enough (458 row 36 behind the front row) stayed a box whose top lies over the path in
+       the picture and caught the pines' shadow. Every catalogue cell above its plants now gets the ground of the nearest plant within 32 (cell centre). */
+    int tk = lk_lt_tk[cy][cx], gh = lk_lt_gh[cy][cx] != -32768 ? lk_lt_gh[cy][cx] : lk_lt_top[cy][cx], q, bz = 0; float bd = 32.0f * 32.0f + 1.0f;   /* a blocked forest cell has no ground (-32768): its drawn top counts */
+    if (((tk != 1 && tk != 2) && !lk_lt_plcell(cx, cy)) || gh == -32768) continue;   /* LK_LTPLANTCELL v1: + cells of a data op "plantcells" */
+    for (q = lk_lt_pl0; q < lk_lt_pl1; q++) { float dx = lk_lt_plant[q][2] * 0.25f - (16.0f * cx + 8.0f), dy = lk_lt_plant[q][3] * 0.25f - (16.0f * cy + 8.0f), d = dx * dx + dy * dy;
+      if (d < bd && lk_lt_plant[q][4] + 8 < gh) { bd = d; bz = lk_lt_plant[q][4]; } }
+    if (bd > 32.0f * 32.0f) continue;
+    for (sy = 4 * cy; sy < 4 * cy + 4; sy++) for (sx = 4 * cx; sx < 4 * cx + 4; sx++) if (!lk_lt_mown[sy][sx]) { lk_lt_mown[sy][sx] = 1; lk_lt_mpg[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)bz; nlow++; } }
+  if (nlow) printf("plants: room %%d, %%d sub columns of catalogue cells set to their plants' ground (LK_LTPLANT v2)\n", lk_o_room, nlow);
+  lk_lt_pgrid();   /* LK_LTPLANT v2: the plants for the figures' sun test (lk_lt_plantvis) */   /* outdoors only: the catalogue (lk_lt_tk) and lathes are built by the outdoor rules and are NOT cleared indoors
      (indoor rooms got the previous outdoor room's 144 trees as phantom models, 2026-11-09 sweep) */
   for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) { int kind = lk_lt_tk[cy][cx]; float top, r, zb, zc, q, X = 16.0f * cx + 8.0f, Y = 16.0f * cy + 8.0f;
     if (kind != 1 && kind != 2) continue;
@@ -1282,17 +1366,17 @@ static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines /
         if (!lk_lt_pinet()) { R0 = r * (1.0f - f0); rr[n] = R0; zz[n++] = z0; continue; }
         rr[n] = R0; zz[n++] = z0; rr[n] = R0 * 0.45f; zz[n++] = z1 - 0.01f; }
       rr[n] = 0.0f; zz[n++] = top; }
-    lk_lt_omlathe(X, Y, rr, zz, n); nobj++;
+    if (!lk_lt_plnear(X, Y, zb, 40.0f)) { lk_lt_omlathe(X, Y, rr, zz, n); nobj++; if (lk_lt_pl1 > lk_lt_pl0 && getenv("LANDSTALKER_LT_PLANTDBG")) printf("plants: room %%d kept lathe kind %%d cell %%d,%%d top %%.0f base %%.0f r %%.0f\n", lk_o_room, kind, cx, cy, top, zb, r); }   /* LK_LTPLANT v1: a plant within 40 (2.5 cells) = the drawn plants own this place: the catalogue also marks the cells BEHIND a pine row whose top block is a crown in front (room 425 rows 15 / 16: no pine of their own) */
     for (sy = 4 * cy; sy < 4 * cy + 4; sy++) for (sx = 4 * cx; sx < 4 * cx + 4; sx++) if (!lk_lt_mown[sy][sx]) { lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)zb; } }
   for (k = 0; k < lk_lt_npx; k++) { const lk_lt_proxy *P = &lk_lt_px[k]; int i, hgt = P->ridge - P->z0;   /* lathe trees */
     if (P->type != 3 || hgt < 2 || hgt > 96) continue;
     n = 0; rr[n] = 0.0f; zz[n++] = (float)P->z0;
     for (i = 0; i < hgt && n < 198; i++) { rr[n] = (float)lk_lt_prof[k][i]; zz[n++] = (float)(P->z0 + i) + 0.5f; }
     rr[n] = 0.0f; zz[n++] = (float)P->ridge;
-    lk_lt_omlathe((float)P->x0, (float)P->y0, rr, zz, n); nobj++;
+    if (!lk_lt_plnear((float)P->x0, (float)P->y0, (float)P->z0, 24.0f)) { lk_lt_omlathe((float)P->x0, (float)P->y0, rr, zz, n); nobj++; if (lk_lt_pl1 > lk_lt_pl0 && getenv("LANDSTALKER_LT_PLANTDBG")) printf("plants: room %%d kept lathe tree at %%d,%%d z %%d..%%d\n", lk_o_room, P->x0, P->y0, P->z0, P->ridge); }   /* LK_LTPLANT v1 */
     for (sy = 0; sy < LK_LT_FN; sy++) for (sx = 0; sx < LK_LT_FN; sx++) if (lk_lt_fp[sy][sx] == k + 1 && !lk_lt_mown[sy][sx]) { lk_lt_mown[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = P->z0; } }
   if (lk_lt_omover) { printf("object models: room %%d needs more than %%d triangles, off here\n", lk_o_room, LK_LT_OMMAX); lk_lt_omn = 0; }
-  if (lk_lt_omn) { lk_lt_nmodel++; printf("object models: room %%d, %%d objects, %%d triangles\n", lk_o_room, nobj, lk_lt_omn); } }
+  if (lk_lt_omn) { lk_lt_nmodel++; printf("object models: room %%d, %%d objects (%%d plant models, LK_LTPLANT v1), %%d triangles\n", lk_o_room, nobj, npl, lk_lt_omn); } }
 static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the current indoor room (after the thin column pruning) */
   static int16_t H[LK_LT_FN + 2][LK_LT_FN + 2]; static uint8 vis[LK_LT_FN][LK_LT_FN]; int sx, sy, x0, nown = 0; const int VZ = -40;
   struct timespec t0; lk_lt_rmn = 0; lk_lt_rmover = 0; lk_lt_mgen++;   /* LK_GLOBJ v1: the generated meshes change: the GPU uploads them again */
@@ -1300,6 +1384,7 @@ static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the curr
   if (!lk_lt_modelopt() || !lk_lt_roomopt(lk_o_room) || lk_lt_nslab || (lk_lt_sun && !lk_lt_modelout())) return;   /* outdoors too (user 2026-11-08: 'genauso fuer Aussenraeume ... diesen einen Weg') */
   clock_gettime(CLOCK_MONOTONIC, &t0);
   #define LK_RMH(x, y) H[(y) + 1][(x) + 1]
+  #define LK_RMT(x, y) (lk_lt_mown[y][x] && !lk_lt_mpg[y][x])   /* no top here: a hand model brings its own (LK_LTPLANT v3: not a plant) */
   for (sy = -1; sy <= LK_LT_FN; sy++) for (sx = -1; sx <= LK_LT_FN; sx++) { int h = -32768;
     if (sx >= 0 && sy >= 0 && sx < LK_LT_FN && sy < LK_LT_FN) {
       if (lk_lt_mown[sy][sx]) h = lk_lt_mg[sy][sx];   /* a hand-made model: its ground (the model itself has its own mesh) */
@@ -1310,9 +1395,9 @@ static void lk_lt_roombuild(void) {   /* LK_LTROOM v1: the box model of the curr
     LK_RMH(sx, sy) = (int16_t)h; }
   memset(vis, 0, sizeof vis);
   for (sy = 0; sy < LK_LT_FN; sy++) for (sx = 0; sx < LK_LT_FN; sx++) { int h = LK_RMH(sx, sy), x1 = sx, y1 = sy, ok = 1, i;   /* tops: greedy rectangles of equal height (x first, then y) */
-    if (h == -32768 || lk_lt_mown[sy][sx] || vis[sy][sx]) continue;
-    while (x1 + 1 < LK_LT_FN && LK_RMH(x1 + 1, sy) == h && !lk_lt_mown[sy][x1 + 1] && !vis[sy][x1 + 1]) x1++;
-    while (ok && y1 + 1 < LK_LT_FN) { for (i = sx; i <= x1; i++) if (LK_RMH(i, y1 + 1) != h || lk_lt_mown[y1 + 1][i] || vis[y1 + 1][i]) { ok = 0; break; } if (ok) y1++; }
+    if (h == -32768 || LK_RMT(sx, sy) || vis[sy][sx]) continue;   /* LK_LTPLANT v3 (2026-11-21, room 458): a plant column keeps its ground top (else the GPU marched the old 48 high forest block there: a hard vertical shadow edge on the path) */
+    while (x1 + 1 < LK_LT_FN && LK_RMH(x1 + 1, sy) == h && !LK_RMT(x1 + 1, sy) && !vis[sy][x1 + 1]) x1++;
+    while (ok && y1 + 1 < LK_LT_FN) { for (i = sx; i <= x1; i++) if (LK_RMH(i, y1 + 1) != h || LK_RMT(i, y1 + 1) || vis[y1 + 1][i]) { ok = 0; break; } if (ok) y1++; }
     { int a2, b2; for (b2 = sy; b2 <= y1; b2++) for (a2 = sx; a2 <= x1; a2++) vis[b2][a2] = 1; }
     { float z = (float)h, X0 = 4.0f * sx, X1 = 4.0f * (x1 + 1), Y0 = 4.0f * sy, Y1 = 4.0f * (y1 + 1), a[3] = { X0, Y0, z }, b[3] = { X1, Y0, z }, c[3] = { X1, Y1, z }, d[3] = { X0, Y1, z }; lk_lt_rmquad(a, b, c, d, 0.0f, 0.0f, 1.0f); } }
   for (x0 = -1; x0 < LK_LT_FN; x0++) for (sy = 0; sy < LK_LT_FN; ) {   /* walls on the boundary x = 4 (x0 + 1) between sub columns x0 and x0 + 1, runs along y */
@@ -1909,12 +1994,14 @@ static void lk_dn_recheck(void) {   /* LK_DNSTREAM v1 (user 2026-11-16, recordin
   if (h != sig) { struct timespec t0, t1; static int dbg = -1; if (dbg < 0) { const char *e = getenv("LANDSTALKER_DNSTREAM_DBG"); dbg = e ? atoi(e) : 0; } sig = h; clock_gettime(CLOCK_MONOTONIC, &t0); lk_dn_doorcells(); clock_gettime(CLOCK_MONOTONIC, &t1);
     if (dbg) printf("dnstream: frame %%ld room %%d cells rebuilt in %%.1f ms\n", f, lk_o_room, (t1.tv_sec - t0.tv_sec) * 1e3 + (t1.tv_nsec - t0.tv_nsec) / 1e6); } } }
 static int lk_dn_iswt(uint32 c) { int t, k; if (!(c & 0x10000)) return 0; t = (int)(c & 0x7FF); lk_dn_recheck(); k = lk_dn_tix[t]; return k >= 0 ? lk_dn_tk[k] : 0; }   /* v3: a plane cell holds a window tile (LK_DNWIN2 v1: 1 window, 2 door) */
+static int lk_dn_knee(int v) { return v <= 200 ? v : 200 + (v - 200) * 55 / (v - 200 + 55); }   /* LK_DNSTRIPSOFT v1: soft highlight knee (<= 255) */
+int lk_dn_isstrip(int U, int V) { return lk_dn_pmok && lk_dn_wmroom == lk_o_room && U >= 0 && V >= 0 && U < 2432 && V < 1216 && lk_dn_pi[V][U] >= 64 && lk_dn_pi[V][U] < 128; }   /* LK_DNSTRIPLIT v1 (user 2026-11-20: 'vor einer Tuer mit dem Schwert schlagen, die Tuer wirft einen ganz komischen Schatten', Gumi / Destel / Mercator church): a DOOR STRIP pixel (64..127) is a gain on the ground colour BEFORE the light (as the GPU composition does); the CPU composition put it into the 'mix after the light' (emissive) = the sword / bounce pass skipped it = a hole of strip shape in the sword light */
 int lk_dn_inopen(int U, int V) { return lk_dn_pmok && lk_dn_wmroom == lk_o_room && U >= 0 && V >= 0 && U < 2432 && V < 1216 && lk_dn_pi[V][U] >= 128 && lk_dn_pt(V >> 3, U >> 3) == 25; }   /* LK_DNSIGN25 v1: inside a door opening shape AND in a cell of tile 25: there the BACKDROP glows too (only there: the open roof hatches have transparent pixels inside their shape too, they keep their look; the skull sign tile 25 of the Gumi door to 605 is transparent in the opening's upper left cell; plane B has nothing there = backdrop black; that door lies in the widescreen margin of the view, so no margin test) */
 int lk_dn_flk256(void) { long f = platform_frame_number(); return (int)(256.0f * (0.97f + 0.03f * sinf((float)f * 0.021f)));   /* LK_DNFLK v1: the openings only breathe slowly (was 0.90 .. 1.0 fast, all in one rhythm); the door lights flicker each on its own */ }   /* LK_DNGLOW v1: a fire inside flickers (doors / Massan windows only) */
 static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col, int U, int V) {
   long o; int ti, idx = pick & 15, r, g, b, w, k, sk; uint32_t c = (uint32_t)col, gl;
   if (lk_dn_pmok && lk_dn_wmroom == lk_o_room && (pick >> 4) != 0 && U >= 0 && V >= 0 && U < 2432 && V < 1216 && lk_dn_pi[V][U] && lk_dn_pi[V][U] < 128) { int v = lk_dn_pi[V][U], w0 = (int)(lk_dn_wk * lk_lt_fadek * 235.0f) * lk_dn_flk256() / 256;   /* LK_DNGLOW: the halo / light pool also on the other palette lines (the ground) */
-    { r = (int)((c >> 16) & 255); g = (int)((c >> 8) & 255); b = (int)(c & 255); if (v >= 64) { int f = (v - 64) * 2 * w0 / 235; r += (r * 200 * f) / (127 * 127) + 50 * f / 127; g += (g * 145 * f) / (127 * 127) + 25 * f / 127; b += (b * 55 * f) / (127 * 127) + 6 * f / 127;   /* (user: 'zu stark': about half) */ }
+    { r = (int)((c >> 16) & 255); g = (int)((c >> 8) & 255); b = (int)(c & 255); if (v >= 64) { int f = (v - 64) * 2 * w0 / 235; r += (r * 150 * f) / (127 * 127) + 100 * f / 127; g += (g * 110 * f) / (127 * 127) + 50 * f / 127; b += (b * 45 * f) / (127 * 127) + 12 * f / 127; r = lk_dn_knee(r); g = lk_dn_knee(g); b = lk_dn_knee(b);   /* (user: 'zu stark': about half) */   /* LK_DNSTRIPSOFT v1 (user 2026-11-20 'ja' to softening the hard door light edge): less proportional gain + a fixed warm part (the drawing's darker painted band along fences got much less than the path = a hard edge), and a soft knee above 200 instead of the hard clip (the path flattened to saturated orange) */ }
       else { int v2 = v * 2; r += 200 * v2 / 127 * w0 / 235; g += 116 * v2 / 127 * w0 / 235; b += 34 * v2 / 127 * w0 / 235; } }   /* LK_DNSPILL v1: 64..127 door strip = a gain on the colour; 1..63 halo = the old warm add */   /* LK_DNSPILL v1: the halo / strip brightens the ground's colours (light), no flat orange on top */ if (r > 255) r = 255; if (g > 255) g = 255; if (b > 255) b = 255;
     return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b); }
   sk = !fi && (c & 0xFFFFFFu) == 0 && lk_dn_inopen(U, V);   /* LK_DNSIGN25 v1: a BACKDROP pixel (no tile) inside an opening shape glows (the skull sign tile 25 is transparent in the opening's upper left cell; the caller passes fi 0 for the backdrop) */
@@ -1926,7 +2013,7 @@ static int lk_dn_winpix(const lk_o_fi_t *fi, int pick, int col, int U, int V) {
     if (!v) return col;
     if (v >= 128) { iv = v - 128; rr = (70 * (127 - iv) + 240 * iv) / 127; gg = (26 * (127 - iv) + 150 * iv) / 127; bb = (8 * (127 - iv) + 62 * iv) / 127;
       r = rr * w0 / 235; g = gg * w0 / 235; b = bb * w0 / 235; { int o0 = (int)((c >> 16) & 255), o1 = (int)((c >> 8) & 255), o2 = (int)(c & 255); r = (r * 154 + o0 * 102) / 256; g = (g * 154 + o1 * 102) / 256; b = (b * 154 + o2 * 102) / 256; } }   /* LK_DNFLK v1 (user: 'leicht transparent', '70 %%', then '60 %% Deckkraft'): 60 %% over the drawing */
-    else { { r = (int)((c >> 16) & 255); g = (int)((c >> 8) & 255); b = (int)(c & 255); if (v >= 64) { int f = (v - 64) * 2 * w0 / 235; r += (r * 200 * f) / (127 * 127) + 50 * f / 127; g += (g * 145 * f) / (127 * 127) + 25 * f / 127; b += (b * 55 * f) / (127 * 127) + 6 * f / 127;   /* (user: 'zu stark': about half) */ }
+    else { { r = (int)((c >> 16) & 255); g = (int)((c >> 8) & 255); b = (int)(c & 255); if (v >= 64) { int f = (v - 64) * 2 * w0 / 235; r += (r * 150 * f) / (127 * 127) + 100 * f / 127; g += (g * 110 * f) / (127 * 127) + 50 * f / 127; b += (b * 45 * f) / (127 * 127) + 12 * f / 127; r = lk_dn_knee(r); g = lk_dn_knee(g); b = lk_dn_knee(b);   /* (user: 'zu stark': about half) */   /* LK_DNSTRIPSOFT v1 (user 2026-11-20 'ja' to softening the hard door light edge): less proportional gain + a fixed warm part (the drawing's darker painted band along fences got much less than the path = a hard edge), and a soft knee above 200 instead of the hard clip (the path flattened to saturated orange) */ }
       else { int v2 = v * 2; r += 200 * v2 / 127 * w0 / 235; g += 116 * v2 / 127 * w0 / 235; b += 34 * v2 / 127 * w0 / 235; } }   /* LK_DNSPILL v1: 64..127 door strip = a gain on the colour; 1..63 halo = the old warm add */   /* LK_DNSPILL v1: the halo / strip brightens the ground's colours (light), no flat orange on top */ if (r > 255) r = 255; if (g > 255) g = 255; if (b > 255) b = 255; }
     return (int)((c & 0xFF000000u) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b); }
   if (ti < 0 || ti >= 2048 || (k = lk_dn_tix[ti]) < 0) return col;
@@ -1943,7 +2030,9 @@ void lk_dn_fasttoggle(void) { extern void lk_osd_say(const char *t); char m[40];
   snprintf(m, sizeof m, "TIMELAPSE %%s %%02d:%%02d", lk_dn_fast ? "ON" : "OFF", (int)lk_dn_t, (int)(fmod(lk_dn_t, 1.0) * 60.0)); lk_osd_say(m); }
 static void lk_dn_save(void) { const char *h = getenv("HOME"); char pth[512]; FILE *f; snprintf(pth, sizeof pth, "%%s/.landstalker_daytime", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%.3f\n", lk_dn_t); fclose(f); } }
 static void lk_dn_cancel(void) {   /* a new room: no step in progress, the target direction is built at once */
-  lk_dn_upd = 0; lk_dn_mix = 0; if (lk_lt_azt >= 0.0f) { lk_lt_azd = lk_lt_azt; lk_lt_eld = lk_lt_elt; } }
+  lk_dn_upd = 0; lk_dn_mix = 0;
+  if (lk_dn_get() && lk_dn_t >= 0.0) { float az, el; lk_dn_eval(lk_dn_t, &az, &el); lk_lt_azt = az; lk_lt_elt = el; lk_dn_st0 = -1.0; }   /* LK_DNROOMSUN v1 (user 2026-11-22, inn = morning #24: the sun swept back from the night when leaving the house): the target comes from the CURRENT clock, not the last outdoor frame (indoors the target is not updated) */
+  if (lk_lt_azt >= 0.0f) { lk_lt_azd = lk_lt_azt; lk_lt_eld = lk_lt_elt; } }
 static void lk_dn_frame(long fr, int idle) {   /* once per lit frame in lk_lt_step, before the prefetch: time, target sun, sun steps */
   extern void lk_osd_say(const char *t); char m[48]; static long lastsay;
   if (lk_dn_dbg < 0) { const char *e = getenv("LANDSTALKER_DN_DBG"), *l = getenv("LANDSTALKER_DAYLEN"); lk_dn_dbg = e ? atoi(e) : 0; if (l && atof(l) > 0.05) lk_dn_len = atof(l); }
@@ -2043,7 +2132,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     if (ax == -128 && ay == -128) continue;
     lk_lt_f[lk_lt_nf].fx = (float)SW(b + 0x14); lk_lt_f[lk_lt_nf].fy = (float)SW(b + 0x16); lk_lt_f[lk_lt_nf].fz = (float)(int16_t)SW(b + 0x12);
     lk_lt_f[lk_lt_nf].ax = ax; lk_lt_f[lk_lt_nf].ay = ay; lk_lt_f[lk_lt_nf].tag = (o >> 7) + 1;
-    lk_lt_f[lk_lt_nf].sun = lk_lt_sun ? lk_lt_sd[2] * lk_lt_sunvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f, 0) : lk_lt_key ? lk_lt_keyvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f) : 0.0f;
+    lk_lt_f[lk_lt_nf].sun = lk_lt_sun ? lk_lt_sd[2] * fminf(lk_lt_sunvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f, 0), lk_lt_plantvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f)) : lk_lt_key ? lk_lt_keyvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f) : 0.0f;
     lk_lt_nf++;
   }
   lk_lt_nfb = 0;
@@ -2068,7 +2157,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
       /* LK_LTPAIRRAD v1 (2026-11-12, user rec_20261112_1808 room 62: 'beim Hin- und Hergehen verschwindet Nigels Schatten ploetzlich'): the pair test used the fixed 120 + 24 although the castle
          standing torches reach 260 (L->rad): at 144 units the figure's shadow switched off while the torch still lit the floor around it.  Now each light's own reach.  LANDSTALKER_LT_PAIRRAD=0 = old. */
       pr = (prr && lk_lt_l[k].rad > 0.0f ? lk_lt_l[k].rad : LK_LT_RAD) + 24.0f;
-      lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < pr * pr && !(lk_lt_l[k].lava == 2 && lk_lt_flk[k] <= 0.004f); if (lk_dn_ldoor[k]) lk_lt_pair[k][j] = 0; { static int fo = -9; if (fo == -9) { const char *e = getenv("LANDSTALKER_LT_FIGSH_ONLY"); fo = e ? atoi(e) : -1; } if (fo != -1 && k != fo) lk_lt_pair[k][j] = 0; } }   /* test aid (2026-11-19): LANDSTALKER_LT_FIGSH_ONLY=K = only light K casts figure shadows, -2 = none */   /* LK_DNFIG v1 (user 2026-11-16: 'beim Schwertschlag harte Kante wenn Nigel dort steht'): a Massan door light is a wide glowing opening, not a point: no hard figure shadow from it */   /* (LK_DAYNIGHT v3: an unlit window light casts no figure shadow) */
+      lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < pr * pr && !(lk_lt_l[k].lava == 2 && lk_lt_flk[k] <= 0.004f); if (lk_dn_ldoor[k]) lk_lt_pair[k][j] = 0; if (lk_lt_l[k].lava == 2 && (hd < 28.0f || dz < 0.0f) && lk_lt_winnear()) lk_lt_pair[k][j] = 0; { static int fo = -9; if (fo == -9) { const char *e = getenv("LANDSTALKER_LT_FIGSH_ONLY"); fo = e ? atoi(e) : -1; } if (fo != -1 && k != fo) lk_lt_pair[k][j] = 0; } }   /* test aid (2026-11-19): LANDSTALKER_LT_FIGSH_ONLY=K = only light K casts figure shadows, -2 = none */   /* LK_DNFIG v1 (user 2026-11-16: 'beim Schwertschlag harte Kante wenn Nigel dort steht'): a Massan door light is a wide glowing opening, not a point: no hard figure shadow from it */   /* (LK_DAYNIGHT v3: an unlit window light casts no figure shadow) */
     if (hd < 1.0f) { lk_lt_pn[k][j][0] = 0.7071f; lk_lt_pn[k][j][1] = 0.7071f; } else { lk_lt_pn[k][j][0] = dx / hd; lk_lt_pn[k][j][1] = dy / hd; }   /* v4 */
   }
   { static long pf = -2; if (pf == -2) { const char *e = getenv("LANDSTALKER_LT_PAIRDBG"); pf = e ? atol(e) : -1; }   /* test aid (2026-11-19, statue shadows): pairs of every light with every figure at frame N */
@@ -2130,7 +2219,34 @@ static float lk_lt_amb = -1.0f;   /* indoor base light (unlit share of the origi
 static int lk_lt_bm, lk_lt_bz;   /* v8: beam glow + surface height of the current pixel (set by the key light branch) */
 
 ''' % VER
-MODULE = MODULE.replace("/*LK_LT_CORR*/", corr_table() + cat_table())
+def plant_table():   # LK_LTPLANT v1 (2026-11-20, user: 'alle Kiefern und Buesche ihr 3D-Modell'): data/plants.json (remake/recipes/plants/plants.py) -> one triangle list per
+    import math
+    # model + the instances {room, model, x * 4, y * 4, z} sorted by room; the runtime (lk_lt_objbuild) draws every instance with its model instead of the lathe shapes
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "plants.json")
+    if not os.path.isfile(path):
+        print("patch_lights: no data/plants.json (plant models off)")
+        return "static const float *const lk_lt_pmt[] = { 0 }; static const int lk_lt_pmn[] = { 0 }; static const float lk_lt_pmr[] = { 0.0f };\nstatic const int16_t lk_lt_plant[][5] = { {-1, 0, 0, 0, 0} };\n#define LK_LT_PBIG -1\nstatic const float lk_lt_pph[] = { 1.0f }; static const float lk_lt_pprof[][8] = { { 0 } };\n"
+    d = json.load(open(path)); names = sorted(d["models"]); out = []; rad = []; ntri = []; hh = []; prof = []
+    for i, n in enumerate(names):
+        t = mesh_tris(os.path.join(os.path.dirname(path), d["models"][n])); ntri.append(len(t) // 18)
+        rad.append(max(math.hypot(t[k], t[k + 1]) for k in range(0, len(t), 6)))
+        zs = [t[k + 2] for k in range(0, len(t), 6)]; H = max(zs); hh.append(H); pr = []   # LK_LTPLANT v2: radius per eighth of the height (3rd quartile of the vertex radii there: the spiky tier tips count less)
+        for b in range(8):
+            rr = sorted(math.hypot(t[k], t[k + 1]) for k in range(0, len(t), 6) if H * b / 8 - 0.5 <= t[k + 2] <= H * (b + 1) / 8 + 0.5)
+            pr.append(rr[(3 * len(rr)) // 4] if rr else 0.0)
+        prof.append(pr)
+        out.append("static const float lk_lt_pmt%d[] = { %s };\n" % (i, ", ".join("%.3ff" % v for v in t)))
+    rows = []
+    for room in sorted(d["rooms"], key=int):
+        for m, x, y, z in d["rooms"][room]: rows.append("{%d, %d, %d, %d, %d}" % (int(room), names.index(m), int(round(4 * x)), int(round(4 * y)), int(z)))
+    print("patch_lights: plant models %s (%s triangles), %d instances in %d rooms" % (names, ntri, len(rows), len(d["rooms"])))
+    return ("".join(out) + "static const float *const lk_lt_pmt[] = { %s };\n" % ", ".join("lk_lt_pmt%d" % i for i in range(len(names))) +
+            "static const int lk_lt_pmn[] = { %s };\n" % ", ".join(str(v) for v in ntri) + "static const float lk_lt_pmr[] = { %s };   /* footprint radius per model */\n" % ", ".join("%.2ff" % v for v in rad) +
+            "static const int16_t lk_lt_plant[][5] = { %s };\n" % ", ".join(rows + ["{-1, 0, 0, 0, 0}"]) +
+            "#define LK_LT_PBIG %d   /* the big round tree's model (owns its 4 x 4 collision block) */\n" % (names.index("bigtree") if "bigtree" in names else -1) +
+            "static const float lk_lt_pph[] = { %s };   /* model height */\n" % ", ".join("%.2ff" % v for v in hh) +
+            "static const float lk_lt_pprof[][8] = { %s };   /* radius per eighth of the height (LK_LTPLANT v2, lk_lt_plantvis) */\n" % ", ".join("{ %s }" % ", ".join("%.2ff" % v for v in p) for p in prof))
+MODULE = MODULE.replace("/*LK_LT_CORR*/", corr_table() + cat_table() + plant_table())
 
 a = "static void lk_own_row(PIXEL_OUT_T *row, int w, int line) {\n"
 rep(a, MODULE + a)

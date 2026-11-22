@@ -83,7 +83,6 @@ Out of the box most of the comfort and graphics additions are **on** (see the de
 The goal is the **definitive way to play Landstalker on PC and Steam Deck**: the original game at its core, with modern comfort and graphics switched on out of the box, and the original look and feel always one menu away. Planned or being looked at (no promises, this is a hobby project):
 
 - **More comfort features and fixes**, driven by player feedback. Suggestions are welcome in [Discussions](https://github.com/cmdrlucid/Project-Friday/discussions) / Issues.
-- **German ROM as a base** (the European and US versions work already). It is a different program revision and needs its own recompilation; Japanese and hacks like *Remix* are further away.
 - **Seamless room transitions** (prototype exists, paused) and **HD texture packs** for the 2D picture (tools exist, paused until there are textures).
 - **A 3D remake** ([`remake/`](remake/README.md), early stage): the recompiled game stays the logic core, and a new front end draws the world as hand-made 3D models in a "toy diorama" style, with the sprites kept. Assets are made and approved one at a time.
 - **Modding groundwork:** thousands of functions, variables and tables are named and documented ([`landstalker/docs/`](landstalker/docs/INDEX.md)). The long-term idea is a mod layer for text, items and scripts.
@@ -100,7 +99,7 @@ Two ROMs are supported, both as a raw 2 MB dump (`.md`, `.bin` or `.gen`, 2,097,
 
 The European version is the US game with 50 Hz timing constants; the game still runs at the speed of the US version. European support is new and has had less play testing than the US version.
 
-The launcher checks size and SHA-1 at every start and refuses any other file with a message. Not supported (yet) as the ROM you play with: the German and Japanese versions (the Japanese ROM can be added for its text and items, see above), hacks such as *Landstalker Remix*, other dumps or patched / translated ROMs, `.smd` (interleaved) dumps and ROMs inside zip files (convert / unpack them first). The German version differs in a lot of code and would need its own recompilation; the Japanese version and *Remix* have shifted data.
+The launcher checks size and SHA-1 at every start and refuses any other file with a message. Not supported: other dumps or patched / translated ROMs, `.smd` (interleaved) dumps and ROMs inside zip files (convert / unpack them first).
 
 - Project: [`landstalker/`](landstalker/README.md) (build instructions, tools, documentation)
 - Entry point for the documentation: [`landstalker/docs/HANDOFF.md`](landstalker/docs/HANDOFF.md), then `LESSONS.md` and `INDEX.md`
