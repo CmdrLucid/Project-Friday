@@ -1,16 +1,22 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
-### Four new languages, inn mornings and more real 3D light shapes
-**New since v1.9.8:**
-- **New languages: Español, Italiano, Russian (Russkiy) and Ukrainian (Ukrainska).** As with German and French, the tone is translated from the Japanese original. These languages are new, so feedback is very welcome.
-- **Inn mornings:** after a night at the inn, it is now morning (Day / Night clock at 7:00).
-- **Window size remembered:** size, position and maximised state are restored at the next start.
-- **Einstein Whistle cutscene:** no narrow picture and no old HUD bar while the whistle song plays at the sunstone.
-- **Friday Hints follow Options > Names:** with Japanese names she says Ryle, Donmel and so on, and calls herself 'Friday' instead of 'Flora' in German.
-- **Lighting: many more real 3D light shapes** (every pine and bush outdoors, the houses of the towns, the Mercator docks, the Lake Shrine columns and more), so the shadows match the painted scenery better. Several shadow and sword-light glitches next to trees, doors and windows are fixed.
-- **Sprint:** no sprinting during cutscene walks; door walks keep their original distance (fixes the castle walk-in).
-- **Bath scene option:** the maid leaves right after the banquet announcement, and Nigel no longer appears twice (standing and lying in bed at the same time).
+### Language hotfix and the new Mod Workshop: correct texts yourself
+**New since v1.9.9:**
+- **Russian / Ukrainian file select fixed** (GitHub #18): place names, *New game* and the Yes / No / Copy? / Delete? bar are shown whole. The save slots now follow a language change at once (they kept the old language before).
+- **File select in Japanese** (taken from the Japanese original) **and Korean**.
+- **Title subtitle in Cyrillic** for Russian and Ukrainian.
+- **Russian dialogue revised** (104 lines checked against the Japanese original).
+- **Mod Workshop: correct the texts of your language yourself** (see the short guide below). Native speakers: this is the easiest way to send us corrections.
+- **Lighting:** the riddle braziers in the crypt now light the room; shadows of figures at the top edge of the screen are no longer cut off.
 - Your settings and save files from v1.x keep working.
+
+### Mod Workshop - short guide
+1. **Start the game once.** It creates its Mods folder: **Steam Deck / Linux:** `Project-Friday Mods` next to the AppImage file. **Windows:** `Mods` in the Project-Friday folder (installer: in the folder you picked, by default `%LOCALAPPDATA%\Programs\Project-Friday\Mods`; zip: inside the extracted folder).
+2. **Open `Mod Workshop.html`** in that folder (double click; Chrome, Edge or Firefox; works offline).
+3. **Pick your language**, find the text (search, or a filter: dialogue, names / menus, map areas, items, options, Friday hints) and **type the new text in the right column**. Keep the codes in braces such as `{SoftNewLine}` as in the English text; a text marked red would be refused by the game.
+4. **Save.** Chrome / Edge ask once for a folder: choose the Mods folder. Firefox saves `<language>.json` to your Downloads: move it into the `lang` folder inside the Mods folder.
+5. **Start the game again:** your texts are in. Updates never change the Mods folder.
+6. **Please send us the file** (`lang/<language>.json` in the Mods folder) in a [GitHub issue](https://github.com/cmdrlucid/Project-Friday/issues), so every player gets your correction.
 
 ### Downloads
 - **Steam Deck / Linux:** `Project-Friday-x86_64.AppImage` (make it executable, start it, pick your ROM). The first start of a new version builds the game once (a few minutes).
