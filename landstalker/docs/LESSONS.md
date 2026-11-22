@@ -11,8 +11,8 @@
 - 6. Cloud sandbox setup (no ROM, no SDL by default): lines 73-82
 - 7. Merge note: lines 83-85
 - 8. Roadmap after the compat work (user wishes, 2026-10-10): lines 86-93
-- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-578
-  - 304 entries, newest at the END; the last 12: 566 (2026-11-21) Before modelling a leftover object...; 567 (2026-11-21) Most leftover 'placeholders' were...; 568 (2026-11-21) A model can pass a silhouette / Io...; 569 (2026-11-21) A 'surface' mesh op makes the GPU...; 570 (2026-11-22) For a light artefact that resists...; 571 (2026-11-22) The runtime language list (patch_l...; 572 (2026-11-22) In translation sources '~' is lang...; 573 (2026-11-22) Wide-path glyph codes $80..$86 are...; 574 (2026-11-22) --ram-dump files are byte-swapped...; 575 (2026-11-22) Indoors the day / night target is...; 576 (2026-11-22) Texts with fixed names (Friday hin...; 577 (2026-11-22) The translation apply script (scra...
+- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-580
+  - 306 entries, newest at the END; the last 12: 568 (2026-11-21) A model can pass a silhouette / Io...; 569 (2026-11-21) A 'surface' mesh op makes the GPU...; 570 (2026-11-22) For a light artefact that resists...; 571 (2026-11-22) The runtime language list (patch_l...; 572 (2026-11-22) In translation sources '~' is lang...; 573 (2026-11-22) Wide-path glyph codes $80..$86 are...; 574 (2026-11-22) --ram-dump files are byte-swapped...; 575 (2026-11-22) Indoors the day / night target is...; 576 (2026-11-22) Texts with fixed names (Friday hin...; 577 (2026-11-22) The translation apply script (scra...; 578 (2026-11-22) An animated tile group is not one...; 579 (2026-11-22) GPU replay comparisons: same LANDS...
 
 <!-- /TOC -->
 
@@ -575,3 +575,5 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 - (2026-11-22) Indoors the day / night target is not updated: anything that uses lk_lt_azt at a room change must recompute it from the clock (LK_DNROOMSUN), else the sun sweeps from the last outdoor value.
 - (2026-11-22) Texts with fixed names (Friday hints) ignore Options > Names: every player-visible text with a cast name needs {=name} placeholders, also hand-written extras.
 - (2026-11-22) The translation apply script (scratch lang_es/apply.sh) rewrites the language's Friday hints from src_LL/friday_hints.json: after editing lang/friday_hints.json directly (placeholders), copy the result back into the src files, else the next apply silently undoes it (happened once for ru, caught in git status before the commit).
+- (2026-11-22) An animated tile group is not one thing: tileset 6 group $09700A is water in the castle / crypt halls AND the riddle braziers' flames (932..935) in rooms 648..659. Survey which tiles of a group occur in which rooms before classifying it (water / flame), like $0968CA. A light made from picture tiles must also be rebuilt when a TILE SWAP removes them (the height map hash does not change).
+- (2026-11-22) GPU replay comparisons: same LANDSTALKER_DAYTIME in both runs (indoor light follows the clock too), not within ~100 frames after a room entry (light builds up), and check on / off at the same frame before judging 'no light' (late frames of long hidden-window runs can be unlit).

@@ -40,6 +40,7 @@ static int lk_wr_iswater(uint32_t b) { switch (b) { case 0x094F2A: case 0x09552A
 static int lk_wr_sp;   /* v4: the waterfall shrine pools are drawn with SPARSE tiles too (16 .. 32 pixels in the water colours, the rest transparent, the pool's hexagon pattern): in rooms with group $0968CA a tile with >= 8 pixels ALL in the water colours counts as water (other rooms keep the >= 48 pixel rule of v2) */
 static int lk_wr_tok(uint32_t b, long ob) {   /* v4 (user 2026-11-18: 'das Wasser in 175 reflektiert nicht'): the waterfall shrine group $0968CA mixes the pool glints (913 914 923 924) and the splash at the foot of the fall (919..922 929..932; 918 left out: its rock rim colours 6 7 8 15 made the stone walls count as water) with the falling water (915 916 925 926 933) and the wall torches (917 927 928 934 935): only the first two are water, the others are NOT water (no static colour test either) */
   int t = (int)(ob >> 5);
+  if (b == 0x09700A) return t < 932;   /* LK_CRYPTFIRE v1: tiles 932..935 of the castle / crypt water group are the crypt riddle braziers' flames (rooms 648..659) */
   if (b == 0x0968CA) return t == 913 || t == 914 || t == 923 || t == 924 || (t >= 919 && t <= 922) || (t >= 929 && t <= 932);
   return 1; }
 static void lk_wr_newroom(void) {
