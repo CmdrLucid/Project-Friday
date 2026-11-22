@@ -46,7 +46,7 @@ import os, sys
 root = sys.argv[1]
 VER = "LK_LIGHTS v8"
 import json
-CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4), "box": (8, 5), "slab": (9, 6), "carve": (10, 4), "unpaint": (11, 4), "ground": (12, 5), "void": (13, 4)}   # ground (LK_LTGROUND v1): cells x0 y0 x1 y1 + height: VOID cells of the game's height map that are drawn as solid (church statue pedestal) get this height
+CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4), "box": (8, 5), "slab": (9, 6), "carve": (10, 4), "unpaint": (11, 4), "ground": (12, 5), "void": (13, 4), "plantcells": (14, 4)}   # plantcells (LK_LTPLANTCELL v1): forest collision cells the tile catalogue did not recognise (drawn mixed with a building) get their plants' ground like catalogue cells (LK_LTPLANT v2)   # ground (LK_LTGROUND v1): cells x0 y0 x1 y1 + height: VOID cells of the game's height map that are drawn as solid (church statue pedestal) get this height
 def mesh_cells(path):   # an OBJ (game coordinates) -> {(sx, sy): (top, bottom)} on the 4 unit grid of the light field (sub column centres), max / min over all faces (v9: the bottom for slabs)
     vs, top, bot = [], {}, {}
     for line in open(path):
@@ -1318,6 +1318,10 @@ static float lk_lt_plantvis(float px, float py, float pz) {   /* share of the su
       for (q = lk_lt_pgh[b][a]; q >= 0; q = lk_lt_pgn[q]) { c = lk_lt_pcl(lk_lt_pl0 + q, x, y, z); if (c <= 0.0f) return 0.0f; if (c < 9999.0f) { float r = LK_LT_PEN * c / (t * hl); if (r < res) res = r; } } }
     for (j = 0; j < lk_lt_npgbig; j++) { c = lk_lt_pcl(lk_lt_pgbig[j], x, y, z); if (c <= 0.0f) return 0.0f; if (c < 9999.0f) { float r = LK_LT_PEN * c / (t * hl); if (r < res) res = r; } } }
   return res; }
+static int lk_lt_plcell(int cx, int cy) { int q; for (q = 0; lk_lt_corr[q].room >= 0; q++) if (lk_lt_corr[q].room == lk_o_room && lk_lt_corr[q].op == 14) { const int16_t *a = lk_lt_corr[q].a;   /* LK_LTPLANTCELL v1 (user 2026-11-21, docks 641:
+    a hard vertical sword-light line down the pine beside the crate shed): the pine group's collision cells 46..48 x 19..20 are drawn mixed with the shed (no catalogue
+    pine tiles), stayed 64 high boxes that ENCLOSE the pine crown, and the light hit the box wall instead of the pine; data op "plantcells" = treat as catalogue plant cells */
+    if (cx >= a[0] && cx <= a[2] && cy >= a[1] && cy <= a[3]) return 1; } return 0; }
 static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines / lathe trees as meshes + their sub columns owned (before the room box model) */
   int cx, cy, k, sx, sy, nobj = 0, npl = 0, nlow = 0; float rr[200], zz[200]; int n;
   lk_lt_omn = 0; lk_lt_omover = 0; lk_lt_pl0 = lk_lt_pl1 = 0;
@@ -1333,7 +1337,7 @@ static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines /
     for (sy = (int)((Y - R) / 4.0f); sy <= (int)((Y + R) / 4.0f); sy++) for (sx = (int)((X - R) / 4.0f); sx <= (int)((X + R) / 4.0f); sx++) {
       float dx = 4.0f * sx + 2.0f - X, dy = 4.0f * sy + 2.0f - Y;
       if (sx < 0 || sy < 0 || sx >= LK_LT_FN || sy >= LK_LT_FN || dx * dx + dy * dy > R * R || lk_lt_mown[sy][sx]) continue;
-      { int gh = lk_lt_gh[sy >> 2][sx >> 2], tk = lk_lt_tk[sy >> 2][sx >> 2]; if (gh > Z + 8.0f && tk != 1 && tk != 2 && !(m == LK_LT_PBIG && fabsf(dx) < 32.0f && fabsf(dy) < 32.0f)) continue; }   /* v1: only the plant's ground and its own catalogue blocks, never a wall / house / cliff beside it (room 567: a pine at a cliff hollowed the cliff's columns = a straight light edge); v2: the big round tree also owns its own 4 x 4 collision block (foot = the block's centre, plants.py foot_tree; room 458: the block stood as a 48 high box beside the model, 'Nigels Schatten bricht um wie an einer Wand') */
+      { int gh = lk_lt_gh[sy >> 2][sx >> 2], tk = lk_lt_tk[sy >> 2][sx >> 2]; if (gh > Z + 8.0f && tk != 1 && tk != 2 && !lk_lt_plcell(sx >> 2, sy >> 2) && !(m == LK_LT_PBIG && fabsf(dx) < 32.0f && fabsf(dy) < 32.0f)) continue; }   /* v1: only the plant's ground and its own catalogue blocks, never a wall / house / cliff beside it (room 567: a pine at a cliff hollowed the cliff's columns = a straight light edge); v2: the big round tree also owns its own 4 x 4 collision block (foot = the block's centre, plants.py foot_tree; room 458: the block stood as a 48 high box beside the model, 'Nigels Schatten bricht um wie an einer Wand') */
       lk_lt_mown[sy][sx] = 1; lk_lt_mpg[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)Z; }
     npl++; nobj++; }
   if (lk_lt_plantopt() && lk_lt_pl1 > lk_lt_pl0) for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) {   /* LK_LTPLANT v2 (2026-11-21, user recording rec_20261120_1940 room 458: a hard
@@ -1341,7 +1345,7 @@ static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines /
        block of the drawn plants, 48 high on ground 16) with no foot close enough (458 row 36 behind the front row) stayed a box whose top lies over the path in
        the picture and caught the pines' shadow. Every catalogue cell above its plants now gets the ground of the nearest plant within 32 (cell centre). */
     int tk = lk_lt_tk[cy][cx], gh = lk_lt_gh[cy][cx] != -32768 ? lk_lt_gh[cy][cx] : lk_lt_top[cy][cx], q, bz = 0; float bd = 32.0f * 32.0f + 1.0f;   /* a blocked forest cell has no ground (-32768): its drawn top counts */
-    if ((tk != 1 && tk != 2) || gh == -32768) continue;
+    if (((tk != 1 && tk != 2) && !lk_lt_plcell(cx, cy)) || gh == -32768) continue;   /* LK_LTPLANTCELL v1: + cells of a data op "plantcells" */
     for (q = lk_lt_pl0; q < lk_lt_pl1; q++) { float dx = lk_lt_plant[q][2] * 0.25f - (16.0f * cx + 8.0f), dy = lk_lt_plant[q][3] * 0.25f - (16.0f * cy + 8.0f), d = dx * dx + dy * dy;
       if (d < bd && lk_lt_plant[q][4] + 8 < gh) { bd = d; bz = lk_lt_plant[q][4]; } }
     if (bd > 32.0f * 32.0f) continue;
