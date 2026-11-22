@@ -114,6 +114,14 @@ static void lk_lg_h_psd(void) {   /* LK_LGWNAME v1 (user 2026-11-22, GitHub #18 
     g_m68k.a[2] = a2; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | 0xFFFFu;
     func_table_rts();
 }
+static void (*lk_lg_o_jls)(void);
+static void lk_lg_h_jls(void) {   /* LK_LGWNAME v2 (2026-11-22, file select prompt bar 'К у' / 'Д' / 'Н', Japanese 'ど れ に う' / '07'): j_j_LoadUncompressedString $00F618 = jsr j_LoadUncompressedString
+     (a2 / d7 of the menu string d1) and then FALLS THROUGH into PrintStringDirect $00F61E (no call: the entry hook above did not see it; GameSelectDrawBarText $00F958 and the Yes / No /
+     Copy? / To? texts).  Here: the string, then PrintStringDirect through its hook (16-bit codes in wide languages; else the original loop, whose rts returns to our caller) */
+    if (!lk_lg_wide) { lk_lg_o_jls(); return; }
+    func_table_jsr(0x022EC4u, 0x00F61Eu);   /* j_LoadUncompressedString, returning where the original falls through */
+    lk_lg_h_psd();
+}
 static void lk_lg_put8(uint32_t off, uint8_t v) { lk_lang_mem[off ^ 1] = v; }
 static void lk_lg_put16(uint32_t off, uint16_t v) { *(uint16_t *)(lk_lang_mem + off) = v; }
 static uint16_t lk_lg_be16(const uint8_t *p) { return (uint16_t)(p[0] << 8 | p[1]); }
@@ -443,7 +451,7 @@ static void lk_lang_install(void) {
     lk_lang_map();
     lk_lg_o_ics = func_table_lookup(0x022FCC); lk_lg_o_dc = func_table_lookup(0x0246B2); lk_lg_o_gnc = func_table_lookup(0x023044); lk_lg_o_skip = func_table_lookup(0x0294B6); lk_lg_o_dma = func_table_lookup(0x000DD6); lk_lg_o_pc = func_table_lookup(0x0231E2);
     if (lk_lg_o_ics && lk_lg_o_dc && lk_lg_o_gnc && lk_lg_o_skip && lk_lg_o_dma) {
-        func_table_register(0x022FCC, lk_lg_h_ics); func_table_register(0x0246B2, lk_lg_h_dc); func_table_register(0x023044, lk_lg_h_gnc); func_table_register(0x0294B6, lk_lg_h_skip); func_table_register(0x000DD6, lk_lg_h_dma); if (lk_lg_o_pc) func_table_register(0x0231E2, lk_lg_h_pc); lk_lg_o_cpy = func_table_lookup(0x02335C); if (lk_lg_o_cpy) func_table_register(0x02335C, lk_lg_h_cpy); lk_lg_o_psd = func_table_lookup(0x00F61E); if (lk_lg_o_psd) func_table_register(0x00F61E, lk_lg_h_psd); else fprintf(stderr, "lang: PrintStringDirect $00F61E not found (LK_LGWNAME v1)\n"); lk_vt_o_wn = func_table_lookup(0x00D5E4); if (lk_vt_o_wn) func_table_register(0x00D5E4, lk_vt_h_wn); lk_lg_hooked = 1;
+        func_table_register(0x022FCC, lk_lg_h_ics); func_table_register(0x0246B2, lk_lg_h_dc); func_table_register(0x023044, lk_lg_h_gnc); func_table_register(0x0294B6, lk_lg_h_skip); func_table_register(0x000DD6, lk_lg_h_dma); if (lk_lg_o_pc) func_table_register(0x0231E2, lk_lg_h_pc); lk_lg_o_cpy = func_table_lookup(0x02335C); if (lk_lg_o_cpy) func_table_register(0x02335C, lk_lg_h_cpy); lk_lg_o_psd = func_table_lookup(0x00F61E); if (lk_lg_o_psd) func_table_register(0x00F61E, lk_lg_h_psd); else fprintf(stderr, "lang: PrintStringDirect $00F61E not found (LK_LGWNAME v1)\n"); lk_lg_o_jls = func_table_lookup(0x00F618); if (lk_lg_o_jls && lk_lg_o_psd) func_table_register(0x00F618, lk_lg_h_jls); else fprintf(stderr, "lang: j_j_LoadUncompressedString $00F618 not found (LK_LGWNAME v2)\n"); lk_vt_o_wn = func_table_lookup(0x00D5E4); if (lk_vt_o_wn) func_table_register(0x00D5E4, lk_vt_h_wn); lk_lg_hooked = 1;
     } else { fprintf(stderr, "lang: InitCompString / DecodeChar / GetNextChar / SkipToStringIndex not all found (%p %p %p %p)\n", (void *)lk_lg_o_ics, (void *)lk_lg_o_dc, (void *)lk_lg_o_gnc, (void *)lk_lg_o_skip); lk_lg_nlang = 1; return; }
     if (!want) {                                                            /* LANDSTALKER_LANG=<code> overrides the saved ~/.landstalker_lang */
         char code[16] = "";
