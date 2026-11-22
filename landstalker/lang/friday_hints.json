@@ -30,6 +30,10 @@
    "es": [
     "¡Nigel! ¡DESPIERTA! ¡El tesoro|no se encuentra solo! Pregunta|por ahí.",
     "Habla con todos en Massan.|Alguien habla de un puente."
+   ],
+   "it": [
+    "Nigel! SVEGLIATI! Il tesoro|non si trova da solo! Chiedi|in giro.",
+    "Parla con tutti a Massan.|Qualcuno parla di un ponte."
    ]
   },
   {
@@ -61,6 +65,10 @@
    "es": [
     "¡Hora de aventuras, Nigel! ¡A|ver adónde lleva esta cueva!",
     "Abre camino por la cueva|y busca por dónde seguir."
+   ],
+   "it": [
+    "Che avventura, Nigel! Vediamo|dove porta questa grotta!",
+    "Combatti nella grotta e cerca|come proseguire."
    ]
   },
   {
@@ -91,6 +99,10 @@
    "es": [
     "¿Los de Gumi rompieron el|puente? ¡Qué groseros!|¡Preguntemos, Nigel!",
     "Mira en cada casa de Massan.|Quizá alguien sepa más."
+   ],
+   "it": [
+    "I Gumi hanno rotto il ponte?!|Che sfacciati! Chiediamo|in giro, Nigel!",
+    "Guarda in ogni casa di Massan.|Forse qualcuno sa di più."
    ]
   },
   {
@@ -122,6 +134,10 @@
    "es": [
     "¡El Santuario de la Cascada!|Su viejo sabio sabrá algo.",
     "Visita al viejo sabio del|Santuario de la Cascada."
+   ],
+   "it": [
+    "Il Tempio della Cascata! Il|suo vecchio saggio sa tutto!",
+    "Va' dal vecchio saggio del|Tempio della Cascata. Chiedi!"
    ]
   },
   {
@@ -152,6 +168,10 @@
    "es": [
     "¡Esos de Gumi son un problema!|¡Vamos a Gumi, Nigel!",
     "Ve al sur, a Gumi, y|mira por el pueblo."
+   ],
+   "it": [
+    "Quei Gumi cercano guai!|Andiamo a Gumi, Nigel!",
+    "Vai a sud, a Gumi, e guarda|in giro per il villaggio."
    ]
   },
   {
@@ -183,6 +203,10 @@
    "es": [
     "¡Los matones de Gumi se|llevaron a Fara! ¡Tras ellos,|Nigel, a Gumi!",
     "Unos matones secuestraron a|Fara. ¡Cruza el puente hacia|Gumi!"
+   ],
+   "it": [
+    "I bulli di Gumi hanno preso|Fara! Dietro a loro, a Gumi!",
+    "I bulli di Gumi hanno rapito|Fara. Passa il ponte per Gumi!"
    ]
   },
   {
@@ -214,6 +238,10 @@
    "es": [
     "¿Los orcos engañan a Gumi?!|¡Pobre Fara, está en peligro!",
     "Los orcos engañan a Gumi y|Fara corre peligro. ¡Rumbo a|Gumi!"
+   ],
+   "it": [
+    "Gli Orchi ingannano i Gumi?!|Fara è in pericolo!",
+    "Gli Orchi ingannano i Gumi e|Fara è in pericolo. A Gumi!"
    ]
   },
   {
@@ -245,6 +273,10 @@
    "es": [
     "Brrr... este sitio da miedo.|¡Mira todo, pero en silencio!",
     "Explora los caminos del|pueblo. Aquí pasa algo raro."
+   ],
+   "it": [
+    "Brrr... qui fa paura. Guarda|dappertutto, ma di nascosto!",
+    "Esplora i sentieri intorno al|villaggio. Qui succede|qualcosa."
    ]
   },
   {
@@ -276,6 +308,10 @@
    "es": [
     "¡Pobre Fara! ¿Adónde se la|llevaron? ¡Averigüémoslo!",
     "Los de Gumi se llevaron a|Fara. Búscala en el Santuario|del Pantano."
+   ],
+   "it": [
+    "Povera Fara! Dove l'hanno|portata i Gumi? Cerchiamola!",
+    "I Gumi hanno portato via Fara.|Cercala al Tempio della|Palude."
    ]
   },
   {
@@ -308,6 +344,10 @@
    "es": [
     "¡Pobre Fara! Quizá en Gumi hay|algo que abre la puerta del|santuario. ¡Busquemos!",
     "Registra el pueblo de Gumi:|algo abre la puerta del|santuario."
+   ],
+   "it": [
+    "Povera Fara! A Gumi forse c'è|qualcosa che apre la porta del|tempio. Cerchiamo!",
+    "Cerca nel villaggio di Gumi|ciò che apre la porta."
    ]
   },
   {
@@ -340,6 +380,10 @@
    "es": [
     "¡Algo raro abre esa puerta!|¡Encontrémoslo!",
     "Los de Gumi abrieron esa|puerta con algo raro.|¡Encuéntralo!"
+   ],
+   "it": [
+    "Una cosa strana apre quella|porta! Troviamola!",
+    "I Gumi hanno aperto la porta|con una cosa strana. Trovala!"
    ]
   },
   {
@@ -372,6 +416,10 @@
    "es": [
     "Mmm, aquí no hay Fara. ¿No se|la llevaron al pantano?",
     "Fara no está aquí. Búscala en|el Santuario del Pantano."
+   ],
+   "it": [
+    "Mmh, qui niente Fara. Non era|stata portata alla palude?",
+    "Fara non è qui. Cercala al|Tempio della Palude."
    ]
   },
   {
@@ -405,6 +453,10 @@
    "es": [
     "Mmm, aquí no hay nada para|Fara. ¿No íbamos a buscar en|Gumi?",
     "Lo que abre la puerta del|santuario no está aquí. Busca|en Gumi."
+   ],
+   "it": [
+    "Mmh, qui niente per Fara. Non|dovevamo cercare a Gumi?",
+    "Ciò che apre la porta non è|qui. Cerca nel villaggio di|Gumi."
    ]
   },
   {
@@ -437,6 +489,10 @@
    "es": [
     "¡Ooh, qué piedra tan bonita!|Seguro que a la puerta del|santuario le encanta.",
     "Usa el Ídolo Pétreo en la|estatua de la entrada del|Santuario del Pantano."
+   ],
+   "it": [
+    "Oh, che bella pietra! La porta|del tempio la adorerà.",
+    "Usa la Pietra Idolo sulla|statua all'ingresso del Tempio|della Palude."
    ]
   },
   {
@@ -468,6 +524,10 @@
    "es": [
     "¡La puerta está abierta! Fara|debe estar dentro. ¡Rápido,|Nigel!",
     "Entra y abre camino a golpes|hasta el mismísimo final."
+   ],
+   "it": [
+    "La porta è aperta! Fara sarà|là dentro. Presto, Nigel!",
+    "Entra e combatti fino in|fondo."
    ]
   },
   {
@@ -499,6 +559,10 @@
    "es": [
     "¡Fara debe estar al fondo!|¡Rápido, Nigel, nos necesita!",
     "Abre camino hasta el fondo.|¡Cuida tu salud!"
+   ],
+   "it": [
+    "Fara sarà in fondo! Presto,|Nigel, ha bisogno di noi!",
+    "Combatti fino in fondo.|Occhio alla salute!"
    ]
   },
   {
@@ -529,6 +593,10 @@
    "es": [
     "¡Salvamos a Fara! Su familia|nos debe una recompensa...|¡digo, las gracias!",
     "Ve a casa del alcalde en|Massan y recoge tu recompensa."
+   ],
+   "it": [
+    "Abbiamo salvato Fara! La sua|famiglia ci deve un premio...|Ehm, un grazie!",
+    "Va' dal sindaco di Massan e|chiedi la tua ricompensa."
    ]
   },
   {
@@ -559,6 +627,10 @@
    "es": [
     "¡Massan ya está! ¡Al oeste,|Nigel, el tesoro no espera!",
     "Pasa por Gumi y sigue el|camino hacia el oeste."
+   ],
+   "it": [
+    "Massan è finita! A ovest,|Nigel, il tesoro non aspetta!",
+    "Attraversa Gumi e segui la|strada verso ovest."
    ]
   },
   {
@@ -590,6 +662,10 @@
    "es": [
     "¡A Ryuma, Nigel! Pasado|Gumi, a la izquierda, al mar.",
     "Pasado Gumi el camino se|divide en el mar. A la|izquierda, Ryuma."
+   ],
+   "it": [
+    "Rotta su Ryuma, Nigel! Dopo|Gumi, a sinistra, verso il|mare.",
+    "Dopo Gumi la strada si divide|al mare. A sinistra, Ryuma."
    ]
   },
   {
@@ -621,6 +697,10 @@
    "es": [
     "¡Todos parecen muy asustados!|Demos una vuelta por el|pueblo.",
     "Mira cada rincón del pueblo|y habla con todos."
+   ],
+   "it": [
+    "Sembrano tutti spaventati!|Facciamo un giro per la città.",
+    "Guarda in ogni angolo della|città e parla con tutti."
    ]
   },
   {
@@ -651,6 +731,10 @@
    "es": [
     "¿Los ladrones tienen al|alcalde? ¡Este pueblo necesita|ayuda! ¡Pregunta!",
     "Habla con la gente de Ryuma|hasta que alguien te pida|ayuda."
+   ],
+   "it": [
+    "I ladri hanno preso il|sindaco?! La città ha bisogno|di aiuto.",
+    "Parla con la gente di Ryuma|finché qualcuno chiede aiuto."
    ]
   },
   {
@@ -682,6 +766,10 @@
    "es": [
     "¡La casa de la reunión!|¡Volvamos allí!",
     "Habla otra vez con la gente|que se reúne en Ryuma."
+   ],
+   "it": [
+    "La casa della riunione!|Torniamoci, Nigel!",
+    "Riparla con le persone che|fanno la riunione a Ryuma."
    ]
   },
   {
@@ -712,6 +800,10 @@
    "es": [
     "¡Una cueva en el cabo!|¡En balsa hasta allí, Nigel!",
     "Los ladrones se esconden en la|cueva del cabo. Cruza en|balsa."
+   ],
+   "it": [
+    "Una grotta sul promontorio!|Con la zattera, Nigel!",
+    "I ladri si nascondono nella|grotta del promontorio.|Attraversa con la zattera."
    ]
   },
   {
@@ -743,6 +835,10 @@
    "es": [
     "¡Una guarida de ladrones!|¡Cuidado, Nigel, están por|todas partes!",
     "Avanza por la cueva y|ocúpate de los ladrones."
+   ],
+   "it": [
+    "Un covo di ladri! Attento,|Nigel, sono dappertutto!",
+    "Avanza nella grotta e pensa|ai ladri."
    ]
   },
   {
@@ -773,6 +869,10 @@
    "es": [
     "Aquí ya acabamos, Nigel.|¡Volvamos a Ryuma!",
     "Vuelve a Ryuma. Habla con la|gente, alguien tiene noticias."
+   ],
+   "it": [
+    "Qui abbiamo finito, Nigel.|Torniamo a Ryuma!",
+    "Torna a Ryuma. Parla con la|gente, qualcuno ha novità."
    ]
   },
   {
@@ -803,6 +903,10 @@
    "es": [
     "¡Un pase! Ahora la ciudad|grande y rica nos deja entrar.|¡De compras, Nigel!",
     "Ve a Mercator: vuelve a la|bifurcación al oeste de Gumi,|toma el otro camino."
+   ],
+   "it": [
+    "Un lasciapassare! La grande|città ricca ci fa entrare.|Shopping, Nigel!",
+    "Vai a Mercator: torna al bivio|a ovest di Gumi e prendi|l'altra strada."
    ]
   },
   {
@@ -834,6 +938,10 @@
    "es": [
     "¡Guau, qué ciudad!|Preguntemos, alguien sabrá|cosas.",
     "Habla con la gente.|Alguien te dará una pista."
+   ],
+   "it": [
+    "Wow, che città! Chiediamo in|giro, qualcuno saprà qualcosa.",
+    "Parla con gli abitanti.|Qualcuno ti indicherà la via."
    ]
   },
   {
@@ -864,6 +972,10 @@
    "es": [
     "Esta ciudad esconde algo. ¡A|fisgonear, Nigel!",
     "Mira cada rincón de la ciudad,|por delante y por detrás."
+   ],
+   "it": [
+    "Questa città nasconde|qualcosa. Ficchiamo il naso,|Nigel!",
+    "Controlla ogni angolo della|città, davanti e dietro."
    ]
   },
   {
@@ -894,6 +1006,10 @@
    "es": [
     "¿Arthur se coló en casa de|Madame Yard? ¡Vamos a ver!",
     "Pregunta en casa de Madame|Yard. Allí alguien sabe más."
+   ],
+   "it": [
+    "Arthur si è infilato da Madame|Yard? Andiamo a vedere!",
+    "Interroga la gente da Madame|Yard. Là qualcuno sa di più."
    ]
   },
   {
@@ -924,6 +1040,10 @@
    "es": [
     "¿Una adivina podría ayudarnos?|¡Ooh, vamos a verla!",
     "Encuentra su casa y que te lo|eche a las cartas. Luego, a|Madame Yard."
+   ],
+   "it": [
+    "Un'indovina potrebbe aiutarci?|Oh, andiamo da lei!",
+    "Trova la sua casa e fatti fare|un incantesimo. Poi vai da|Madame Yard."
    ]
   },
   {
@@ -954,6 +1074,10 @@
    "es": [
     "¡Ahora Madame Yard nos|deja entrar! ¡Vamos, Nigel!",
     "Cruza la puerta de Madame Yard|y mira quién está dentro."
+   ],
+   "it": [
+    "Da Madame Yard si può entrare!|Andiamo, Nigel!",
+    "Passa la porta di Madame Yard|e guarda chi c'è."
    ]
   },
   {
@@ -984,6 +1108,10 @@
    "es": [
     "¡Ahora el castillo nos deja|entrar! ¡Vamos, Nigel!",
     "Ve al Castillo de Mercator y|entra para conocer al Duque."
+   ],
+   "it": [
+    "Il castello ci fa entrare!|Forza, Nigel!",
+    "Vai al castello di Mercator|ed entra per incontrare|il Duca."
    ]
   },
   {
@@ -1015,6 +1143,10 @@
    "es": [
     "Por aquí anda el Duque. ¡Sala|grande, silla grande, ego|grande!",
     "El Duque está en la sala del|trono. Acércate y habla con|él."
+   ],
+   "it": [
+    "Il Duca è qui da qualche|parte. Gran sala, gran trono,|gran ego!",
+    "Il Duca è nella sala del|trono. Vai a parlargli."
    ]
   },
   {
@@ -1045,6 +1177,10 @@
    "es": [
     "¡Hmpf, se fue sin más! A ver|si los criados nos ayudan.",
     "Sigue al criado que se ofrece|a enseñarte una habitación."
+   ],
+   "it": [
+    "Uffa, se n'è andato così!|Vediamo se i servitori|aiutano.",
+    "Segui il servitore che si|offre di mostrarti una stanza."
    ]
   },
   {
@@ -1075,6 +1211,10 @@
    "es": [
     "¡Un castillo de verdad, Nigel!|Miremos todo y charlemos con|todos.",
     "Habla con el mayordomo y la|cocina hasta que anuncien la|cena."
+   ],
+   "it": [
+    "Un vero castello, Nigel!|Guardiamo ovunque e|chiacchieriamo.",
+    "Parla al maggiordomo e in|cucina finché annunciano la|cena."
    ]
   },
   {
@@ -1105,6 +1245,10 @@
    "es": [
     "¡El banquete está listo!|¡Vamos, me muero de hambre!",
     "Ve a la sala del banquete|del castillo."
+   ],
+   "it": [
+    "Il banchetto è pronto!|Vieni, muoio di fame!",
+    "Vai alla sala del banchetto|del castello."
    ]
   },
   {
@@ -1136,6 +1280,10 @@
    "es": [
     "¡El banquete es arriba!|¡Vamos, me muero de hambre!",
     "La sala del banquete está|arriba, en el castillo."
+   ],
+   "it": [
+    "Il banchetto è al piano di|sopra! Vieni, muoio di fame!",
+    "La sala del banchetto è al|piano di sopra del castello."
    ]
   },
   {
@@ -1166,6 +1314,10 @@
    "es": [
     "Estoy llena... Durmamos un|poco antes de mañana, Nigel.",
     "Ve a tu dormitorio del|castillo y a dormir."
+   ],
+   "it": [
+    "Sono piena... Andiamo a|dormire prima di domani,|Nigel.",
+    "Va' nella tua stanza al|castello e mettiti a letto."
    ]
   },
   {
@@ -1196,6 +1348,10 @@
    "es": [
     "La Torre de Mir está justo|fuera... ¡Preguntemos primero!",
     "La Torre de Mir está fuera de|Mercator. Pregunta a la gente|del castillo."
+   ],
+   "it": [
+    "La Torre di Mir è appena fuori|città... Informiamoci prima!",
+    "La Torre di Mir è vicino a|Mercator. Interroga la gente|del castello."
    ]
   },
   {
@@ -1228,6 +1384,10 @@
    "es": [
     "¡Una barrera bloquea la Torre|de Mir! ¿Cómo la rompemos?",
     "Una barrera bloquea la puerta|de la Torre de Mir. Busca cómo|pasar."
+   ],
+   "it": [
+    "Una barriera blocca la Torre|di Mir! Come la rompiamo?",
+    "Una barriera blocca la porta|della Torre di Mir. Trova|un modo."
    ]
   },
   {
@@ -1260,6 +1420,10 @@
    "es": [
     "¡Arthur sabe de la barrera!|¡Preguntémosle!",
     "Una barrera sella la Torre de|Mir. Pregunta al General|Arthur."
+   ],
+   "it": [
+    "Arthur sa qualcosa sulla|barriera! Chiediamoglielo!",
+    "Una barriera sigilla la Torre|di Mir. Interroga il Generale|Arthur."
    ]
   },
   {
@@ -1292,6 +1456,10 @@
    "es": [
     "¡Zak y Dexter están en la|cripta! ¡Tras ellos!",
     "Zak y Dexter bajaron a la|cripta. ¡Encuéntrala!"
+   ],
+   "it": [
+    "Zak e Dexter sono nella|cripta! Dietro a loro!",
+    "Zak e Dexter sono scesi nella|cripta. Trovala!"
    ]
   },
   {
@@ -1324,6 +1492,10 @@
    "es": [
     "¡Dexter y Zak llegaron antes|a la cripta! ¡Rápido, Nigel!",
     "Una barrera guarda la Torre de|Mir. Un brazalete espera en la|cripta."
+   ],
+   "it": [
+    "Dexter e Zak sono arrivati|alla cripta prima di noi!|Presto, Nigel!",
+    "Una barriera protegge la Torre|di Mir. Un bracciale ti|aspetta nella cripta."
    ]
   },
   {
@@ -1356,6 +1528,10 @@
    "es": [
     "¡Un brazalete rompe la barrera|de Mir! Está en la cripta.",
     "Coge el brazalete en la cripta|junto a la iglesia. ¡Hay|trampas!"
+   ],
+   "it": [
+    "Un bracciale rompe la barriera|di Mir! È nella cripta.",
+    "Prendi il bracciale nella|cripta vicino alla chiesa.|Trappole!"
    ]
   },
   {
@@ -1388,6 +1564,10 @@
    "es": [
     "¡Cuidado, Nigel! Piensa antes|de pisar. ¡Estos acertijos|muerden!",
     "Resuelve las salas de|acertijos y mira qué hay más|adentro."
+   ],
+   "it": [
+    "Attento, Nigel! Pensa prima di|muoverti. Questi enigmi|mordono!",
+    "Risolvi le sale degli enigmi e|guarda cosa ti aspetta."
    ]
   },
   {
@@ -1421,6 +1601,10 @@
    "es": [
     "¡Monstruos listos aquí! ¡Usa|la cabeza, no solo el acero!",
     "La espada sola no te dará el|brazalete. Piénsalo bien."
+   ],
+   "it": [
+    "Mostri furbi qui! Usa la|testa, non solo la spada!",
+    "La sola spada non ti darà il|bracciale. Rifletti bene."
    ]
   },
   {
@@ -1452,6 +1636,10 @@
    "es": [
     "¡Buen trabajo con los|acertijos! ¡Sigue, Nigel,|vamos bien!",
     "Sigue por la cripta."
+   ],
+   "it": [
+    "Bravo con gli enigmi! Avanti,|Nigel, si procede!",
+    "Continua nella cripta."
    ]
   },
   {
@@ -1483,6 +1671,10 @@
    "es": [
     "¡Ooh, un brazalete brillante!|Seguro que sirve para algo...",
     "La Torre de Mir está fuera de|Mercator. Prueba allí el|brazalete."
+   ],
+   "it": [
+    "Ooh, un bracciale luccicante!|Servirà a qualcosa...",
+    "La Torre di Mir è vicino a|Mercator. Prova là il|bracciale."
    ]
   },
   {
@@ -1515,6 +1707,10 @@
    "es": [
     "¡Tenemos el brazalete! ¡Ahora|a romper la barrera de Mir!",
     "El brazalete rompe la barrera|de la entrada de la Torre de|Mir."
+   ],
+   "it": [
+    "Abbiamo il bracciale! Rompiamo|la barriera di Mir!",
+    "Il bracciale rompe la barriera|all'ingresso della Torre di|Mir."
    ]
   },
   {
@@ -1545,6 +1741,10 @@
    "es": [
     "¡Vamos a ver la Torre de Mir,|Nigel! ¿Y si el brazalete|ayuda?",
     "La Torre de Mir está fuera de|Mercator. Camina hasta la|puerta."
+   ],
+   "it": [
+    "Andiamo alla Torre di Mir,|Nigel! Il bracciale aiuterà?",
+    "La Torre di Mir è vicino a|Mercator. Vai fino alla porta."
    ]
   },
   {
@@ -1576,6 +1776,10 @@
    "es": [
     "Arthur dijo que el brazalete|rompe la barrera. ¡Ve!",
     "Ve a la puerta de la Torre de|Mir. El brazalete rompe la|barrera."
+   ],
+   "it": [
+    "Arthur dice che il bracciale|rompe la barriera. Vai!",
+    "Va' alla porta della Torre di|Mir. Il bracciale rompe|la barriera."
    ]
   },
   {
@@ -1607,6 +1811,10 @@
    "es": [
     "¡Trampas por todas partes!|¡Mira dónde pisas, no pienso|cargarte!",
     "Sube hasta lo alto de la torre|y enfréntate a Mir."
+   ],
+   "it": [
+    "Trappole ovunque! Attento,|io non ti porto in braccio!",
+    "Sali fino in cima alla torre|e affronta Mir."
    ]
   },
   {
@@ -1638,6 +1846,10 @@
    "es": [
     "¡Tenemos la Joya Púrpura!|¡Salgamos de esta torre|espeluznante!",
     "Vuelve a Mercator e informa al|Duque en el castillo."
+   ],
+   "it": [
+    "Abbiamo il Gioiello Viola! Via|da questa torre inquietante!",
+    "Torna a Mercator e riferisci|al Duca, al castello."
    ]
   },
   {
@@ -1668,6 +1880,10 @@
    "es": [
     "¡Mir no era el malo para nada!|Se lo diremos al Duque,|supongo...",
     "El Duque espera arriba en el|castillo. Lleva las joyas|contigo."
+   ],
+   "it": [
+    "Mir non era affatto il|cattivo! Diciamolo al Duca,|immagino...",
+    "Il Duca aspetta al piano di|sopra del castello. Porta|i gioielli."
    ]
   },
   {
@@ -1699,6 +1915,10 @@
    "es": [
     "¿Encerrados? ¡Ese Duque|podrido! ¡Encuentra una|salida, Nigel, ya!",
     "Busca por celdas y pasillos|una salida. Pregunta a quien|esté aquí."
+   ],
+   "it": [
+    "Rinchiusi?! Che Duca cattivo!|Trova subito un'uscita, Nigel!",
+    "Cerca nelle celle e nei|corridoi un'uscita. Fai|domande."
    ]
   },
   {
@@ -1731,6 +1951,10 @@
    "es": [
     "¡Lara está encerrada aquí!|¡Encontrémosla, Nigel!",
     "El Duque tiene aquí abajo a la|Princesa Lara. ¡Ve a buscarla!"
+   ],
+   "it": [
+    "Lara è rinchiusa qui!|Troviamola, Nigel!",
+    "Il Duca tiene qui la|principessa Lara. Forza,|trovala!"
    ]
   },
   {
@@ -1762,6 +1986,10 @@
    "es": [
     "¡La princesa también está|aquí! ¡Ahora busquemos la|salida hacia arriba!",
     "Sigue los pasillos del|calabozo hacia arriba y hacia|fuera."
+   ],
+   "it": [
+    "Anche la principessa è qui!|Ora cerchiamo l'uscita in|alto!",
+    "Segui i corridoi della|prigione verso l'alto e fuori."
    ]
   },
   {
@@ -1792,6 +2020,10 @@
    "es": [
     "¡Zak se escapó con la|princesa! ¡Salgamos de aquí!",
     "Sal del calabozo y mira por el|castillo. Alguien debe saber|más."
+   ],
+   "it": [
+    "Zak è partito con la|principessa! Usciamo di qui!",
+    "Esci dalla prigione e guarda|nel castello. Qualcuno sa di|più."
    ]
   },
   {
@@ -1823,6 +2055,10 @@
    "es": [
     "¡El Duque huyó con NUESTRO|botín! Ningún barco zarpa de|noche...",
     "Arthur dijo: muro este del|castillo, interruptor oculto y|la Piedra Solar."
+   ],
+   "it": [
+    "Il Duca è scappato col NOSTRO|bottino! Nessuna nave|va al buio...",
+    "Arthur ha detto: muro est del|castello, interruttore|nascosto, poi la Pietra|Solare."
    ]
   },
   {
@@ -1855,6 +2091,10 @@
    "es": [
     "¡Un silbato! Seguro que sirve|en ese bosque.",
     "Explora el Laberinto Verde. Si|te atascas, prueba el silbato."
+   ],
+   "it": [
+    "Un fischietto! Servirà di|certo in questa foresta.",
+    "Esplora il Labirinto Verde.|Se sei bloccato, prova|il fischietto."
    ]
   },
   {
@@ -1888,6 +2128,10 @@
    "es": [
     "¿Piedra Solar? ¡Equilibrio y|buenos saltos, Nigel!",
     "Llegar a la Piedra Solar exige|equilibrio y buenos saltos."
+   ],
+   "it": [
+    "La Pietra Solare? Equilibrio e|bei salti, Nigel!",
+    "Per raggiungere la Pietra|Solare servono equilibrio|e bei salti."
    ]
   },
   {
@@ -1921,6 +2165,10 @@
    "es": [
     "¿Faro apagado? ¡Culpa del|ladrón, Nigel!",
     "La Piedra Solar está en el|Laberinto Verde, al norte del|castillo."
+   ],
+   "it": [
+    "Faro spento? È colpa del|ladro, Nigel!",
+    "La Pietra Solare è nel|Labirinto Verde, a nord del|castello."
    ]
   },
   {
@@ -1954,6 +2202,10 @@
    "es": [
     "¡Gol dijo: al noreste! Los|gnomos movieron los caminos...",
     "La Piedra Solar está en la|parte noreste del Laberinto|Verde."
+   ],
+   "it": [
+    "Gol ha detto: nord-est! Gli|gnomi hanno cambiato i|sentieri...",
+    "La Pietra Solare si trova nel|nord-est del Labirinto Verde."
    ]
   },
   {
@@ -1985,6 +2237,10 @@
    "es": [
     "¡La Piedra Solar! ¡Ooh, qué|calentita! ¡El faro la|necesita, Nigel!",
     "Llévasela al farero de Ryuma."
+   ],
+   "it": [
+    "La Pietra Solare! Ooh, è così|calda! Serve al faro, Nigel!",
+    "Portala al guardiano del faro|a Ryuma."
    ]
   },
   {
@@ -2015,6 +2271,10 @@
    "es": [
     "¡El faro brilla otra vez!|¡Ahora el barco nos lleva más|lejos!",
     "Ve al puerto de Mercator.|Quizá un barco zarpe de nuevo.|Pregunta a los marineros."
+   ],
+   "it": [
+    "Il faro brilla di nuovo! La|nave può portarci più lontano!",
+    "Va' al porto di Mercator.|Forse parte una nave.|Chiedi ai marinai."
    ]
   },
   {
@@ -2046,6 +2306,10 @@
    "es": [
     "¿Dónde está todo el mundo? ¡El|pueblo entero está vacío!",
     "Pregunta por ahí. Alguien|sabrá adónde se fue todo el|mundo."
+   ],
+   "it": [
+    "Dove sono tutti? La città|intera è vuota!",
+    "Fai domande. Qualcuno sa dove|sono andati tutti."
    ]
   },
   {
@@ -2077,6 +2341,10 @@
    "es": [
     "¿Unos soldados se llevaron a|todos a las montañas?!",
     "Unos soldados arrastraron a la|gente del pueblo a las|montañas."
+   ],
+   "it": [
+    "I soldati hanno portato tutti|sulle montagne?!",
+    "I soldati hanno trascinato gli|abitanti sulle montagne."
    ]
   },
   {
@@ -2108,6 +2376,10 @@
    "es": [
     "¡Guardias por todas partes en|esta mina! ¡Atento, Nigel!",
     "Abre camino por los túneles y|busca a los desaparecidos."
+   ],
+   "it": [
+    "Guardie dappertutto in questa|miniera! Occhio, Nigel!",
+    "Attraversa le gallerie e cerca|i dispersi."
    ]
   },
   {
@@ -2140,6 +2412,10 @@
    "es": [
     "¡Tres túneles! Hay más|cautivos en los otros dos.",
     "La mina se divide en tres|túneles. Busca en los otros|dos."
+   ],
+   "it": [
+    "Tre tunnel! Altri prigionieri|negli altri due.",
+    "La miniera si divide in tre|tunnel. Esplora gli altri due."
    ]
   },
   {
@@ -2172,6 +2448,10 @@
    "es": [
     "¡Dex cayó! Pero esta mina|tiene más secretos.",
     "Sigue explorando los túneles.|Libera a quien encuentres."
+   ],
+   "it": [
+    "Dex è a terra! Ma questa|miniera ha ancora segreti.",
+    "Continua a esplorare le|gallerie. Libera chi trovi."
    ]
   },
   {
@@ -2202,6 +2482,10 @@
    "es": [
     "¡Marley es historia! A ver|adónde lleva la mina.",
     "Busca la salida al fondo|de la mina."
+   ],
+   "it": [
+    "Marley è il passato! Vediamo|dove porta la miniera.",
+    "Cerca come proseguire in fondo|alla miniera."
    ]
   },
   {
@@ -2233,6 +2517,10 @@
    "es": [
     "¡Un pueblo al oeste de la|mina! El Duque fue allí.",
     "El Duque llevó a sus soldados|a un pueblo al oeste de la|mina."
+   ],
+   "it": [
+    "Un villaggio a ovest della|miniera! Il Duca è andato là.",
+    "Il Duca ha portato i soldati|in un villaggio a ovest|della miniera."
    ]
   },
   {
@@ -2264,6 +2552,10 @@
    "es": [
     "¿Destel? ¡Solo por el túnel|de la mina!",
     "El único camino a Destel es el|túnel de la mina."
+   ],
+   "it": [
+    "Destel? Solo attraverso il|tunnel della miniera!",
+    "L'unica via per Destel è il|tunnel della miniera."
    ]
   },
   {
@@ -2295,6 +2587,10 @@
    "es": [
     "¡A Destel! El Duque y sus|soldados fueron allí.",
     "El Duque y sus soldados fueron|a Destel. ¡Síguelos!"
+   ],
+   "it": [
+    "Rotta su Destel! Il Duca e i|suoi soldati sono andati là.",
+    "Il Duca e i suoi soldati sono|partiti per Destel. Seguili!"
    ]
   },
   {
@@ -2326,6 +2622,10 @@
    "es": [
     "¡Enanos gruñones! Preguntemos|si el Duque pasó por aquí.",
     "Habla con todos en Destel.|Alguien vio adónde fue el|Duque."
+   ],
+   "it": [
+    "Nani brontoloni! Chiediamo se|il Duca è passato di qui.",
+    "Parla con tutti a Destel.|Qualcuno ha visto dove è|andato il Duca."
    ]
   },
   {
@@ -2357,6 +2657,10 @@
    "es": [
     "¡Se escapa en balsa!|Encontraremos otro camino,|Nigel.",
     "De vuelta en Destel, alguien|sabrá otro camino hasta el|lago."
+   ],
+   "it": [
+    "Scappa su una zattera!|Troveremo un'altra strada,|Nigel!",
+    "Tornato a Destel, qualcuno|conosce un'altra via|per il lago."
    ]
   },
   {
@@ -2389,6 +2693,10 @@
    "es": [
     "¡Ese pozo lleva a una cueva|vieja! ¡Monstruos, iuuu!",
     "El pozo de Destel lleva a una|antigua cueva de monstruos."
+   ],
+   "it": [
+    "Questo pozzo porta a una|vecchia grotta! Mostri, bleah!",
+    "Il pozzo di Destel porta a una|grotta antica piena di mostri."
    ]
   },
   {
@@ -2420,6 +2728,10 @@
    "es": [
     "¡Puaj, qué húmedo y oscuro!|Sigue, tiene que haber salida.",
     "Abre camino a golpes hasta el|lago del otro lado."
+   ],
+   "it": [
+    "Bleah, è tutto bagnato e buio!|Avanti, un'uscita ci sarà!",
+    "Combatti per attraversare e|uscire fino al lago dall'altra|parte."
    ]
   },
   {
@@ -2450,6 +2762,10 @@
    "es": [
     "¡El Duque entró en ese|santuario! ¡Que no escape!",
     "Entra en el santuario tras él.|Con calma."
+   ],
+   "it": [
+    "Il Duca è entrato in quel|tempio! Non lasciarlo|scappare!",
+    "Entra nel tempio dietro di|lui. Prenditela con calma."
    ]
   },
   {
@@ -2481,6 +2797,10 @@
    "es": [
     "¡Cuántos pisos y llaves!|Paciencia, Nigel. ¡Y guarda a|menudo!",
     "Busca interruptores y llaves|para abrir el camino hacia|arriba. Paciencia."
+   ],
+   "it": [
+    "Quanti piani e quante chiavi!|Pazienza, Nigel. Salva spesso!",
+    "Cerca interruttori e chiavi|per salire. Sii paziente."
    ]
   },
   {
@@ -2511,6 +2831,10 @@
    "es": [
     "¡Gracias, Mir! ¡Ahora por la|puerta norte del castillo!",
     "Mir dijo: puerta norte del|castillo, luego las montañas|al noroeste."
+   ],
+   "it": [
+    "Grazie, Mir! Ora dalla porta|nord del castello!",
+    "Mir ha detto: porta nord del|castello, poi le montagne|a nord-ovest."
    ]
   },
   {
@@ -2541,6 +2865,10 @@
    "es": [
     "¡El Ojo hizo algo! ¡Ahora a|atrapar a ese Duque!",
     "Mira alrededor de donde usaste|el Ojo. El Duque no anda|lejos."
+   ],
+   "it": [
+    "L'Occhio ha fatto qualcosa!|Prendiamo quel Duca!",
+    "Guarda intorno a dove hai|usato l'Occhio. Il Duca è|vicino."
    ]
   },
   {
@@ -2571,6 +2899,10 @@
    "es": [
     "¡Algo se abrió! ¡A ver adónde|lleva!",
     "Busca lo que abrió el Ojo."
+   ],
+   "it": [
+    "Qualcosa si è aperto! Vediamo|dove porta!",
+    "Cerca ciò che l'Occhio ha|aperto."
    ]
   },
   {
@@ -2602,6 +2934,10 @@
    "es": [
     "¡Cueva espeluznante! ¡Cuidado,|Nigel, huelo trampas!",
     "Avanza por la cueva.|Busca por dónde seguir."
+   ],
+   "it": [
+    "Grotta inquietante! Attento,|Nigel, sento trappole!",
+    "Avanza nella grotta. Cerca|come proseguire."
    ]
   },
   {
@@ -2633,6 +2969,10 @@
    "es": [
     "¿Un pueblo aquí, en el fin del|mundo? ¡Descansemos y hagamos|provisiones, el final se|acerca!",
     "Luego mira adónde lleva el|camino. El Duque no puede|estar lejos."
+   ],
+   "it": [
+    "Una città in capo al mondo?|Riposiamo e facciamo scorta,|la fine si avvicina!",
+    "Poi guarda dove porta la|strada. Il Duca non può essere|lontano."
    ]
   },
   {
@@ -2665,6 +3005,10 @@
    "es": [
     "¡Vence a tres monstruos del|laberinto y llegarás al|palacio!",
     "Vence a los tres monstruos del|laberinto y llegarás al|palacio."
+   ],
+   "it": [
+    "Sconfiggi tre mostri nel|labirinto per raggiungere|il palazzo!",
+    "Sconfiggi i tre mostri del|labirinto per raggiungere|il palazzo."
    ]
   },
   {
@@ -2696,6 +3040,10 @@
    "es": [
     "¡Qué laberinto tan loco! El|hechizo de Mir corta árboles|sagrados...",
     "Busca algo que te ayude a|cruzar el agua. Vigila el|mapa."
+   ],
+   "it": [
+    "Che labirinto pazzesco!|L'incanto di Mir taglia gli|alberi sacri...",
+    "Cerca qualcosa per|attraversare l'acqua. Guarda|la mappa."
    ]
   },
   {
@@ -2728,6 +3076,10 @@
    "es": [
     "¡Monstruos en este laberinto!|¡Véncelos a los tres, Nigel!",
     "Vence aquí a los tres|monstruos y llegarás al|palacio."
+   ],
+   "it": [
+    "Mostri in questo labirinto!|Sconfiggili tutti e tre,|Nigel!",
+    "Sconfiggi qui i tre mostri per|raggiungere il palazzo."
    ]
   },
   {
@@ -2761,6 +3113,10 @@
    "es": [
     "¡Una balsa para el río!|Primero busca al hijo del|enano.",
     "Busca al hijo del viejo enano|y trae troncos para hacer una|balsa."
+   ],
+   "it": [
+    "Una zattera per il fiume!|Prima trova il figlio del|nano.",
+    "Trova il figlio del vecchio|nano e porta dei tronchi per|una zattera."
    ]
   },
   {
@@ -2794,6 +3150,10 @@
    "es": [
     "¡Arriba! ¡Ese árbol hará|una balsa estupenda!",
     "Sube y corta el árbol|para hacer una balsa."
+   ],
+   "it": [
+    "In alto! Quest'albero sarà una|bella zattera!",
+    "Sali e taglia l'albero per|costruire una zattera."
    ]
   },
   {
@@ -2826,6 +3186,10 @@
    "es": [
     "¡La segunda balsa está lista!|¡Vamos, parece que ya queda|poco!",
     "Sigue por el laberinto. Mira|el mapa por salas que no hayas|probado."
+   ],
+   "it": [
+    "La seconda zattera è pronta!|Forza, siamo più vicini!",
+    "Segui il labirinto. Guarda la|mappa per le sale non provate."
    ]
   },
   {
@@ -2858,6 +3222,10 @@
    "es": [
     "¡Qué presumido! El Duque está|por delante. ¡Atrápalo!",
     "Sigue adelante y cuida tu|salud."
+   ],
+   "it": [
+    "Che sbruffone! Il Duca è da|qualche parte avanti.|Prendilo!",
+    "Continua e tieni d'occhio|la salute."
    ]
   },
   {
@@ -2889,6 +3257,10 @@
    "es": [
     "¡Qué lugar! ¡El tesoro debe|estar por aquí!",
     "Mira alrededor. Puertas e|interruptores quizá escondan|el camino."
+   ],
+   "it": [
+    "Che posto! Il tesoro deve|essere qui da qualche parte!",
+    "Guardati intorno. Porte e|interruttori nascondono forse|la via."
    ]
   },
   {
@@ -2920,6 +3292,10 @@
    "es": [
     "¡Aquí es, Nigel! ¡Cúrate y|vamos a por ese tesoro!",
     "Vence al guardián en la arena.|¡Puedes hacerlo, Nigel!"
+   ],
+   "it": [
+    "Ci siamo, Nigel! Curati, poi|andiamo a prendere quel|tesoro!",
+    "Sconfiggi il guardiano|nell'arena. Ce la puoi fare,|Nigel!"
    ]
   }
  ]
