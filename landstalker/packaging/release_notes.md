@@ -1,5 +1,8 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
+### Fixed since v1.9.11
+- **Mods survive updates:** after an update the game was built without the mods already in your Mods folder (your corrected texts were replaced by the plain ones until you saved the mod again). Now the build always uses your Mods folder.
+
 ### Language hotfix and the new Mod Workshop: correct texts yourself
 **New since v1.9.9:**
 - **Russian / Ukrainian file select fixed** (GitHub #18): place names, *New game* and the Yes / No / Copy? / Delete? bar are shown whole. The save slots now follow a language change at once (they kept the old language before).
