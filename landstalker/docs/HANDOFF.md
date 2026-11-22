@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 55-60
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 903-914
-- 1. Where we are: lines 915-1087
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1088-1395
-- 3. How the user works (important): lines 1396-1411
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1412-1436
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1437-1445
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1446-1493
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1494-1503
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1504-1505
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1506-1508
-- NEXT STEPS, newest first: -270 1089, -269 1090, -268 1091, -267 1092, -266 1093, -265 1094, -264 1095, -263 1096, -262 1097, -261 1098
+- 1. Where we are: lines 915-1088
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1089-1396
+- 3. How the user works (important): lines 1397-1412
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1413-1437
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1438-1446
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1447-1494
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1495-1504
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1505-1506
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1507-1509
+- NEXT STEPS, newest first: -270 1090, -269 1091, -268 1092, -267 1093, -266 1094, -265 1095, -264 1096, -263 1097, -262 1098, -261 1099
 - Newest entries:
   - 0a511 line 192: 2026-11-22 evening, latest (Deck, Opus 5.5): RELEASE v1.9.11 (replaces the withdrawn v1.9.10; main merge +...
   - 0a510 line 194: 2026-11-22 evening, later (Deck, Opus 5.5): v1.9.10 WITHDRAWN at the user's wish (release 454562735 + tag d...
@@ -913,6 +913,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-22 late (end of session):** Mod Workshop v3 (mods only in the Project-Friday folder, one-file page, player guide MOD_WORKSHOP.md), file select follows language changes (LK_FSLANGREDRAW v2), mod removal restores texts, firstrun sets the mods folder before the build. RELEASED v1.9.11 (v1.9.10 withdrawn). Headless / packaging verified (local + downloaded CI AppImage); USER confirmed by playing: Mercator top-edge shadows (-265) and 'sonst passt's' for the dev build before LK_FSLANGREDRAW; NOT yet played: LK_FSLANGREDRAW v2 and the Mod Workshop round trip on the Deck. Next release must carry the firstrun fix (0a511).
 - **2026-11-22 SESSION END 3 (Opus 5.5, no agents, `dev` bfa5c60+, main = v1.9.9, no release):** Cyrillic title subtitle (LK_TSCYR) + ko / ja subtitles back; crypt braziers light (LK_CRYPTFIRE, USER CONFIRMED by playing: flame out = light out); figure shadows not cut at the top edge (LK_LTTOPSIL, GPU replay of the user's rec_20261122_1257); GitHub #18 Russian file select (LK_LGWNAME v1 + v2: place names, New Game, prompt bar; ru / uk / ja / ko headless); file select / menu texts in Japanese from the JP ROM (LK_JPMENUNAMES) and Korean (ko.json); MOD LAYER v1 = language modding incl. Friday hints (docs/MODDING.md, 'Mod Workshop.html' in the mods folder, no server). HEADLESS ONLY except the crypt braziers: user to check the title / file select / prompts in ru uk ja ko, the top-edge shadows, the mod workshop page. Next: -267 / -265.
 - **2026-11-22 SESSION END 2 (Opus 5.5 lead + ~48 Sonnet translation agents, `dev` + main e2ef827, tag v1.9.9 RELEASED):** GitHub #23 (Einstein whistle song: map frames, LK_POSTUSEMAP), #24 (inn = 07:00, LK_INNMORNING; sun from the clock at a room change, LK_DNROOMSUN), #25 (window size remembered, LK_WINMEM); four new languages es / it / ru / uk (TRANSLATION 10..13; names from the fan patches es / it / ru, uk names ours = native feedback needed); Cyrillic via LK_LGCYR (Galmuri 11 + Public Pixel CC0, two-row menu item names); runtime language list 8 -> 16; Friday hints follow Options > Names (LK_FHNAMES). USER CONFIRMED BY PLAYING: #24 inn morning incl. the sun ('passt jetzt auch'); Cyrillic З / б look like 3 / 6 = correct letters (explained). HEADLESS / GPU ONLY: #23 (1131 shots), #25 (code only, needs a desktop check by the user), the four languages (Massan priest line, Start menu, help line, titles es / it), hint names (Python + German 'Friday:'). Release checks: local AppImage first run in env -i 8.3 min, 19 lang files identical to dev, package binary in Russian; windows-check 44994762035 success; release run 44996039436.
 - **2026-11-22 SESSION END (Opus 5.5, no agents, `dev` 81c8141+ pushed, main = v1.9.8, no release):** docks crate shed rebuilt from draft pictures (user OK on the pictures: 4 crate rows, roof on them); light-data fixes (crate shed / stone building op rectangles hid pines, 5 false bushes); LK_GLOBJB v1 + LK_LTPLANTCELL v1 (hard vertical sword-light line down the docks pine). ALL HEADLESS (GPU shots, lightedges 0 in 6 rooms); NOT played. 0a497 / -257.
