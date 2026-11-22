@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 54-59
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 878-889
-- 1. Where we are: lines 890-1060
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1061-1358
-- 3. How the user works (important): lines 1359-1374
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1375-1399
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1400-1408
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1409-1456
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1457-1466
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1467-1468
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1469-1471
-- NEXT STEPS, newest first: -260 1062, -259 1063, -258 1064, -257 1065, -256 1066, -255 1067, -254 1068, -253 1069, -252 1070, -251 1071
+- 1. Where we are: lines 890-1061
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1062-1360
+- 3. How the user works (important): lines 1361-1376
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1377-1401
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1402-1410
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1411-1458
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1459-1468
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1469-1470
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1471-1473
+- NEXT STEPS, newest first: -261 1063, -260 1064, -259 1065, -258 1066, -257 1067, -256 1068, -255 1069, -254 1070, -253 1071, -252 1072
 - Newest entries:
   - 0a499 line 191: 2026-11-22 later (Deck, Opus 5.5 lead + 24 Sonnet agents; dev): SPANISH + ITALIAN LANGUAGES (user: fan patc...
   - 0a498 line 193: 2026-11-22 (Deck, Opus 5.5, no agents; dev): GITHUB #23 update / #24 / #25 (paul-met; user: 'Schau dir das...
@@ -888,6 +888,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-22 SESSION END 2 (Opus 5.5 lead + ~48 Sonnet translation agents, `dev` + main e2ef827, tag v1.9.9 RELEASED):** GitHub #23 (Einstein whistle song: map frames, LK_POSTUSEMAP), #24 (inn = 07:00, LK_INNMORNING; sun from the clock at a room change, LK_DNROOMSUN), #25 (window size remembered, LK_WINMEM); four new languages es / it / ru / uk (TRANSLATION 10..13; names from the fan patches es / it / ru, uk names ours = native feedback needed); Cyrillic via LK_LGCYR (Galmuri 11 + Public Pixel CC0, two-row menu item names); runtime language list 8 -> 16; Friday hints follow Options > Names (LK_FHNAMES). USER CONFIRMED BY PLAYING: #24 inn morning incl. the sun ('passt jetzt auch'); Cyrillic З / б look like 3 / 6 = correct letters (explained). HEADLESS / GPU ONLY: #23 (1131 shots), #25 (code only, needs a desktop check by the user), the four languages (Massan priest line, Start menu, help line, titles es / it), hint names (Python + German 'Friday:'). Release checks: local AppImage first run in env -i 8.3 min, 19 lang files identical to dev, package binary in Russian; windows-check 44994762035 success; release run 44996039436.
 - **2026-11-22 SESSION END (Opus 5.5, no agents, `dev` 81c8141+ pushed, main = v1.9.8, no release):** docks crate shed rebuilt from draft pictures (user OK on the pictures: 4 crate rows, roof on them); light-data fixes (crate shed / stone building op rectangles hid pines, 5 false bushes); LK_GLOBJB v1 + LK_LTPLANTCELL v1 (hard vertical sword-light line down the docks pine). ALL HEADLESS (GPU shots, lightedges 0 in 6 rooms); NOT played. 0a497 / -257.
 - **2026-11-21 EVENING (Opus 5.5, no agents, `dev`, user away):** docks finished (crate shed, stone buildings), Mercator 632 well / drawbridge chains / granite block, columns 524 / 525, ~20 wrong automatic shapes removed (terraces, mis-anchored); real outdoor leftover count ~108 -> ~85. HEADLESS ONLY (GPU lightedges 0). 0a496 / -256.
 - **2026-11-21 SESSION END (Opus 5.5, no agents, `dev` 2d76338+ pushed, main = v1.9.8, no release):** USER CONFIRMED BY PLAYING: the pine shadows ('deutlich, deutlich besser') = plants.py v3 feet in all outdoor rooms + plane B plants + pine refit + small pine fix (0a494). HEADLESS ONLY (GPU lightedges 0, not played / partly not looked at by the user): stone faces 433 (user OK on the sheet), 62 swamp twigs, pillars 739, stone blocks 486, 9 dock mooring posts, dock log hut (0a495). Rejected and removed: statues 592 / 31 from primitives. Next -255.
@@ -1059,6 +1060,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-261. **NEXT (2026-11-22, after v1.9.9): collect feedback on v1.9.9 (four new languages from natives, #25 window size in desktop mode / Windows); Russian block 04 tone check vs the JP; optional Cyrillic title subtitle and Cyrillic Japanese-name variants; then back to the light shapes (-257 / -256 list).**
 -260. **NEXT (2026-11-22 night): Ukrainian DONE too (names ours, native feedback needed). User tries es / it / ru / uk; collect native feedback; (old text:) Ukrainian after the user's OK of the proposed names (TRANSLATION 12: Найджел, Фрайді, Кейла, Воллі, Дзиґа ...): copy the ru pipeline (work_uk / src_uk, chk.py uk is ready, names.json 'uk', meta name 'Ukrainska'); Russian block 04 tone check against the JP; optional: Cyrillic letters for the title subtitle (titlefont.py) and Cyrillic Japanese-variant names (names.json jp in Cyrillic for Names: Japanese).**
 -259. **NEXT (2026-11-22 later): user tries Espanol / Italiano (Options > Language; title, dialogue, menus, Friday hints) and says what reads wrong; then RUSSIAN: a Cyrillic glyph preview sheet for the user's OK first (0a499), then the translation like es / it; then Ukrainian.**
 -258. **NEXT FIRST (2026-11-22): user checks #25 in desktop mode (resize the window, quit, start again: same size / place; maximised; F11 on / off) and #24 by staying at an inn with Day / Night on (the clock should read 07:00 after the rest: L5 + R5 OSD or the light outside). #23 whistle fixed headless (0a498); Paul can confirm with the next release. Then -257.**
