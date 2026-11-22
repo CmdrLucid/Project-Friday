@@ -3,7 +3,7 @@
 Project-Friday is translated with the help of AI, and native speakers can do it better. The **Mod Workshop** lets you change any text of the game in your language without editing program files. Your changes stay on your computer, updates never overwrite them, and you can send them to us so every player gets them.
 
 ## 1. Find the Mods folder
-Start the game once (version 1.9.10 or newer). It creates its Mods folder:
+Start the game once (version 1.9.11 or newer). It creates its Mods folder:
 
 | You play with | Mods folder |
 |---|---|
