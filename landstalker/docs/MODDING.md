@@ -20,7 +20,7 @@ User wish (2026-11-22, GitHub #18): natives correct texts without editing our JS
 - `data.js` holds the original English decoded from the user's OWN ROM (reference column): local only, never in git / packages.
 
 ## The page (tools/modpage.html)
-Left: navigation of the mod layers (Language; later layers shown as '(later)'). Right: language, filter (all / my changes /
+Left: navigation of the mod layers (Language; later layers shown as "(later)"). Item names warn when longer than the ru / uk item menu allows (2 rows of 9 letters, else empty there). Right: language, filter (all / my changes /
 not translated / per block), search, table Id | Original (English) | Current text | New text. Codes are checked while typing
 (same rule as langbuild `mod_check`), the build's refused list is shown in red. Unsaved edits stay in the browser (localStorage).
 Save: Chrome / Edge write `mods/lang/<code>.json` into the chosen mods folder (File System Access API); other browsers (Firefox)
