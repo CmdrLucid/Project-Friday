@@ -257,7 +257,7 @@ static int lk_lt_msok(int mi) { return lk_lt_mtrin[mi] > 0 && (lk_lt_msurf[mi] |
 static int16_t lk_lt_obj[74][74];
 static float lk_lt_flk[LK_LT_ML];
 static lk_lt_light lk_lt_sw; static float lk_lt_swk; static int lk_lt_swon;   /* v3: glow of Nigel's sword (EquippedSword $FF114E 1..4), a light that moves: no cache, no shadow */
-typedef struct { float fx, fy, fz; int ax, ay; float sun; int tag; } lk_lt_fig;   /* tag (v7): entity offset / 0x80 + 1 = lk_lt_spre of its own sprite pixels */
+typedef struct { float fx, fy, fz; int ax, ay; float sun; int tag; int type; } lk_lt_fig;   /* type: entity type +3B (LK_LTBOOKFL v1), -1 statue */   /* tag (v7): entity offset / 0x80 + 1 = lk_lt_spre of its own sprite pixels */
 static lk_lt_fig lk_lt_f[16]; static int lk_lt_nf, lk_lt_on;
 int lk_lt_nigfig(void) { int j; for (j = 0; j < lk_lt_nf && j < 16; j++) if (lk_lt_f[j].tag == 1) return j; return -1; }   /* LK_SSGPU v2: the figure index of Nigel (tag 1 = entity offset 0) or -1, for the GPU sprint blend */
 static float lk_lt_fb[512][12]; static int lk_lt_nfb, lk_lt_fbj[512], lk_lt_fmall, lk_lt_fmask, lk_lt_pbox[LK_LT_ML][16][4], lk_lt_curx, lk_lt_cury;   /* pbox: v8 SPEED, screen box of each flame / figure shadow (lk_lt_shadowed skips pixels outside) */ static void lk_lt_fmkbuild(void);   /* v8 SPEED: per figure the screen region its shadow can fall into (key light): its card box x0 y0 x1 y1 swept along (ex, ey); figsun only there, only those figures */
@@ -2170,7 +2170,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     b = 0xFF5400 + o; ax = SW(b + 0x0E) - 128; ay = SW(b + 0x10) - 128;
     if (ax == -128 && ay == -128) continue;
     lk_lt_f[lk_lt_nf].fx = (float)SW(b + 0x14); lk_lt_f[lk_lt_nf].fy = (float)SW(b + 0x16); lk_lt_f[lk_lt_nf].fz = (float)(int16_t)SW(b + 0x12);
-    lk_lt_f[lk_lt_nf].ax = ax; lk_lt_f[lk_lt_nf].ay = ay; lk_lt_f[lk_lt_nf].tag = (o >> 7) + 1;
+    lk_lt_f[lk_lt_nf].ax = ax; lk_lt_f[lk_lt_nf].ay = ay; lk_lt_f[lk_lt_nf].tag = (o >> 7) + 1; lk_lt_f[lk_lt_nf].type = SB(b + 0x3B) & 0xFF;
     lk_lt_f[lk_lt_nf].sun = lk_lt_sun ? lk_lt_sd[2] * fminf(lk_lt_sunvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f, 0), lk_lt_plantvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f)) : lk_lt_key ? lk_lt_keyvis(lk_lt_f[lk_lt_nf].fx, lk_lt_f[lk_lt_nf].fy, lk_lt_f[lk_lt_nf].fz + 20.0f) : 0.0f;
     lk_lt_nf++;
   }
@@ -2179,7 +2179,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     if (nj >= 0 && lk_sf_on()) for (q = 0; lk_sf_tab[q][0] >= 0 && lk_lt_nf < 16 && lk_sf_n < 2; q++) if (lk_sf_tab[q][0] == lk_o_room) {
       const lk_lt_fig *N = &lk_lt_f[nj]; lk_lt_fig *F = &lk_lt_f[lk_lt_nf]; float du = (float)N->ax - (N->fx - N->fy), dv = (float)N->ay - ((N->fx + N->fy) * 0.5f - N->fz);
       F->fx = (float)lk_sf_tab[q][1]; F->fy = (float)lk_sf_tab[q][2]; F->fz = (float)lk_sf_tab[q][3];
-      F->ax = (int)lroundf(F->fx - F->fy + du); F->ay = (int)lroundf((F->fx + F->fy) * 0.5f - F->fz + dv); F->tag = 240 + lk_sf_n;
+      F->ax = (int)lroundf(F->fx - F->fy + du); F->ay = (int)lroundf((F->fx + F->fy) * 0.5f - F->fz + dv); F->tag = 240 + lk_sf_n; F->type = -1;
       F->sun = lk_lt_sun ? lk_lt_sd[2] * fminf(lk_lt_sunvis(F->fx, F->fy, F->fz + 20.0f, 0), lk_lt_plantvis(F->fx, F->fy, F->fz + 20.0f)) : lk_lt_key ? lk_lt_keyvis(F->fx, F->fy, F->fz + 20.0f) : 0.0f;
       lk_sf_q[lk_sf_n++] = q; lk_lt_nf++; } }
   lk_lt_nfb = 0;
@@ -2204,7 +2204,10 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
       /* LK_LTPAIRRAD v1 (2026-11-12, user rec_20261112_1808 room 62: 'beim Hin- und Hergehen verschwindet Nigels Schatten ploetzlich'): the pair test used the fixed 120 + 24 although the castle
          standing torches reach 260 (L->rad): at 144 units the figure's shadow switched off while the torch still lit the floor around it.  Now each light's own reach.  LANDSTALKER_LT_PAIRRAD=0 = old. */
       pr = (prr && lk_lt_l[k].rad > 0.0f ? lk_lt_l[k].rad : LK_LT_RAD) + 24.0f;
-      lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < pr * pr && !(lk_lt_l[k].lava == 2 && lk_lt_flk[k] <= 0.004f); if (lk_dn_ldoor[k]) lk_lt_pair[k][j] = 0; if (lk_lt_l[k].lava == 2 && (hd < 28.0f || dz < 0.0f) && lk_lt_winnear()) lk_lt_pair[k][j] = 0; { static int fo = -9; if (fo == -9) { const char *e = getenv("LANDSTALKER_LT_FIGSH_ONLY"); fo = e ? atoi(e) : -1; } if (fo != -1 && k != fo) lk_lt_pair[k][j] = 0; } }   /* test aid (2026-11-19): LANDSTALKER_LT_FIGSH_ONLY=K = only light K casts figure shadows, -2 = none */   /* LK_DNFIG v1 (user 2026-11-16: 'beim Schwertschlag harte Kante wenn Nigel dort steht'): a Massan door light is a wide glowing opening, not a point: no hard figure shadow from it */   /* (LK_DAYNIGHT v3: an unlit window light casts no figure shadow) */
+      lk_lt_pair[k][j] = dx * dx + dy * dy + dz * dz < pr * pr && !(lk_lt_l[k].lava == 2 && lk_lt_flk[k] <= 0.004f); if (lk_dn_ldoor[k]) lk_lt_pair[k][j] = 0; { static int bf = -1; int ty = lk_lt_f[j].type; if (bf < 0) { const char *e = getenv("LANDSTALKER_LT_BOOKFL"); bf = e ? atoi(e) != 0 : 1; }   /* LK_LTBOOKFL v1 (user 2026-11-22 rec_20261122_2223 church 699: 'ganz komische, duenne Schattenstriche weg von den Buechern'): the four books of the
+      church bench (entity types 209 / 225 / 226 / 227, flat props on the bench at 16, the wall candles right behind and beside them) cast no FLAME figure shadow: their card shadow from a light that close
+      became thin streaks; they keep the round shading (user: books stay figures for 2.0).  Test aid LANDSTALKER_LT_BOOKFL=0 = old */
+      if (bf && (ty == 209 || ty == 225 || ty == 226 || ty == 227) && lk_lt_l[k].lava != 2) lk_lt_pair[k][j] = 0; } if (lk_lt_l[k].lava == 2 && (hd < 28.0f || dz < 0.0f) && lk_lt_winnear()) lk_lt_pair[k][j] = 0; { static int fo = -9; if (fo == -9) { const char *e = getenv("LANDSTALKER_LT_FIGSH_ONLY"); fo = e ? atoi(e) : -1; } if (fo != -1 && k != fo) lk_lt_pair[k][j] = 0; } }   /* test aid (2026-11-19): LANDSTALKER_LT_FIGSH_ONLY=K = only light K casts figure shadows, -2 = none */   /* LK_DNFIG v1 (user 2026-11-16: 'beim Schwertschlag harte Kante wenn Nigel dort steht'): a Massan door light is a wide glowing opening, not a point: no hard figure shadow from it */   /* (LK_DAYNIGHT v3: an unlit window light casts no figure shadow) */
     if (hd < 1.0f) { lk_lt_pn[k][j][0] = 0.7071f; lk_lt_pn[k][j][1] = 0.7071f; } else { lk_lt_pn[k][j][0] = dx / hd; lk_lt_pn[k][j][1] = dy / hd; }   /* v4 */
   }
   { static long pf = -2; if (pf == -2) { const char *e = getenv("LANDSTALKER_LT_PAIRDBG"); pf = e ? atol(e) : -1; }   /* test aid (2026-11-19, statue shadows): pairs of every light with every figure at frame N */
