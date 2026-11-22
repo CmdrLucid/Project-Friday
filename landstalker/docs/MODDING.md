@@ -27,5 +27,7 @@ Save: Chrome / Edge write `mods/lang/<code>.json` into the chosen mods folder (F
 download the file with a note where to put it. Import: a mod file somebody sent (texts become unsaved edits to check).
 Sharing back: the modder sends the file (GitHub issue), we merge it into `lang/<code>.json`.
 
+Friday hints: block `friday` {hint id: gentle text} (the level the game shows); fr / es / it / ru / uk / ko come from the language file anyway, de (compiled into the program) takes a file hint when the mod has one (patch_friday.py); English is not moddable (the original).
+
 ## Later layers (ideas)
 Character names (`lang/names.json`), Friday hints, light shapes / remake assets - each its own block of the navigation and its own folder in `mods/`.
