@@ -438,8 +438,7 @@ def main():
                 for k, ent in ((jl or {}).get(blk) or {}).items(): lj.setdefault(blk, {}).setdefault(k, ent)
             build_one(rom, en, lj, os.path.join(outdir, code + ".jpn.bin"), "jp")   # the same language with the Japanese character names
             idx.append("%s\t%s" % (code, meta.get("name", code)))
-        if ONLY:   # (the English variants are not touched by a language mod)
-            open(os.path.join(outdir, "index.txt"), "w", encoding="utf-8").write("\n".join(idx) + ("\n" if idx else "")); return
+        if ONLY: return   # (the English variants and index.txt stay: tools/jplang.py adds 'ja' to index.txt, rewriting it here dropped Japanese)
         ei = os.path.join(sys.argv[2], "en_items.json")   # LK_JPITEMS v1: Options > Items = Japanese with the original English
         ej = json.load(open(ei, encoding="utf-8")) if os.path.exists(ei) else None
         if ej: build_one(rom, en, ej, os.path.join(outdir, "en.items.bin"))
