@@ -11,8 +11,8 @@
 - 6. Cloud sandbox setup (no ROM, no SDL by default): lines 73-82
 - 7. Merge note: lines 83-85
 - 8. Roadmap after the compat work (user wishes, 2026-10-10): lines 86-93
-- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-577
-  - 303 entries, newest at the END; the last 12: 565 (2026-11-21) An IoU on the silhouette says noth...; 566 (2026-11-21) Before modelling a leftover object...; 567 (2026-11-21) Most leftover 'placeholders' were...; 568 (2026-11-21) A model can pass a silhouette / Io...; 569 (2026-11-21) A 'surface' mesh op makes the GPU...; 570 (2026-11-22) For a light artefact that resists...; 571 (2026-11-22) The runtime language list (patch_l...; 572 (2026-11-22) In translation sources '~' is lang...; 573 (2026-11-22) Wide-path glyph codes $80..$86 are...; 574 (2026-11-22) --ram-dump files are byte-swapped...; 575 (2026-11-22) Indoors the day / night target is...; 576 (2026-11-22) Texts with fixed names (Friday hin...
+- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-578
+  - 304 entries, newest at the END; the last 12: 566 (2026-11-21) Before modelling a leftover object...; 567 (2026-11-21) Most leftover 'placeholders' were...; 568 (2026-11-21) A model can pass a silhouette / Io...; 569 (2026-11-21) A 'surface' mesh op makes the GPU...; 570 (2026-11-22) For a light artefact that resists...; 571 (2026-11-22) The runtime language list (patch_l...; 572 (2026-11-22) In translation sources '~' is lang...; 573 (2026-11-22) Wide-path glyph codes $80..$86 are...; 574 (2026-11-22) --ram-dump files are byte-swapped...; 575 (2026-11-22) Indoors the day / night target is...; 576 (2026-11-22) Texts with fixed names (Friday hin...; 577 (2026-11-22) The translation apply script (scra...
 
 <!-- /TOC -->
 
@@ -574,3 +574,4 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 - (2026-11-22) --ram-dump files are byte-swapped in 16-bit pairs: read address A at offset (A - $FF0000) ^ 1 (wrong reads sent a debug of the whistle test the wrong way twice). LANDSTALKER_WARP's first number is Player_X ($FF5400), second Player_Y; an explicit Z in the warp left the room black, POKE $FF5412 / 13 after the warp instead.
 - (2026-11-22) Indoors the day / night target is not updated: anything that uses lk_lt_azt at a room change must recompute it from the clock (LK_DNROOMSUN), else the sun sweeps from the last outdoor value.
 - (2026-11-22) Texts with fixed names (Friday hints) ignore Options > Names: every player-visible text with a cast name needs {=name} placeholders, also hand-written extras.
+- (2026-11-22) The translation apply script (scratch lang_es/apply.sh) rewrites the language's Friday hints from src_LL/friday_hints.json: after editing lang/friday_hints.json directly (placeholders), copy the result back into the src files, else the next apply silently undoes it (happened once for ru, caught in git status before the commit).
