@@ -15,7 +15,7 @@ sys.path.insert(0, HERE)
 import modlayer   # noqa: E402
 
 SKIP = ("friday_hints.json", "names.json", "en_items.json", "ja_map.json")
-BLOCK_ORDER = ("names", "map_areas", "item_dialog", "strings", "ui_text")
+BLOCK_ORDER = ("names", "map_areas", "item_dialog", "strings", "ui_text")   # + "friday" (Friday hints)
 
 
 def inputs(src, mods, rom):
@@ -29,7 +29,8 @@ def build(rom, src, mods):
     import re
     import stringdump as sd
     en_all = sd.decode_all(open(rom, "rb").read())
-    en, langs, used = {}, [], set()
+    import fridaylang
+    en, langs, used, fen = {}, [], set(), {}
     for f in sorted(os.listdir(src)):
         if not f.endswith(".json") or f in SKIP: continue
         code = f[:-5]
@@ -44,13 +45,16 @@ def build(rom, src, mods):
                     e = cur.get(k); rows.append([blk, k, e["t"] if e else ""]); used.add(k)
             else:
                 for k, t in cur.items(): rows.append([blk, k, t])
+        if code in ("de",) + tuple(fridaylang.NAME):   # MOD LAYER v1: the Friday hints (gentle level, the one the game shows); English reference = our own English hint
+            for h in fridaylang.hints():
+                t = h.get(code); rows.append(["friday", h.get("id", ""), t[0] if isinstance(t, list) and t else ""]); fen[h.get("id", "")] = (h.get("en") or [""])[0]
         rp = os.path.join(mods, "lang", code + ".report.json")
         try: rep = json.load(open(rp, encoding="utf-8")).get("refused", []) if os.path.isfile(rp) else []
         except (OSError, ValueError): rep = []
         langs.append({"code": code, "name": lang.get("meta", {}).get("name", code), "rows": rows, "mod": modlayer.load_lang_mod(code), "refused": rep})
     for k in used:
         if k in en_all: en[k] = en_all[k]
-    return {"generated": time.strftime("%Y-%m-%d %H:%M"), "mods": os.path.abspath(mods), "en": en, "languages": langs,
+    return {"generated": time.strftime("%Y-%m-%d %H:%M"), "mods": os.path.abspath(mods), "en": en, "fen": fen, "languages": langs,
             "layout": ["NewLine", "SoftNewLine", "Pause1s", "Pause1sOrInput", "Pause1_5sOrInput", "Pause2sOrInput", "BreakSpace", "BreakPoint", "Hyphen"]}
 
 

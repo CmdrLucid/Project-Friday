@@ -55,7 +55,7 @@ textarea.dirty { border-color:var(--acc); }
     <select id="filter">
       <option value="all">All texts</option><option value="mod">My changes</option><option value="untr">Not translated yet</option>
       <option value="b:names">Names / menus</option><option value="b:map_areas">Map areas</option><option value="b:item_dialog">Items in dialogue</option>
-      <option value="b:strings">Dialogue</option><option value="b:ui_text">Options menu</option>
+      <option value="b:strings">Dialogue</option><option value="b:ui_text">Options menu</option><option value="b:friday">Friday hints</option>
     </select>
     <input type="search" id="q" placeholder="Search id or text ...">
     <button class="main" id="save" disabled>Save</button>
@@ -63,7 +63,7 @@ textarea.dirty { border-color:var(--acc); }
   </div>
   <p class="help">Write the new text in the right column; leave it empty to keep the current one. Keep the codes in braces as in the English text:
     <code>{SoftNewLine}</code> line break, <code>{ContinuePrompt}</code> wait for a button, <code>{Speaker}</code> the speaker's name;
-    <code>{=name}</code> is a character name from the name list (it follows Options &gt; Names). Line breaks and pauses may move. Item names: at most 2 lines of 9 letters in the item menu.
+    <code>{=name}</code> is a character name from the name list (it follows Options &gt; Names). Line breaks and pauses may move. Item names: at most 2 lines of 9 letters in the item menu. Friday hints: the | sign starts a new line, her name is put in front by the game.
     <b>Save</b> writes your changes file; the game uses it from its next start. To share your corrections, send that file (for example in a GitHub issue).</p>
   <div id="status"></div>
   <div class="pager" id="pg1"></div>
@@ -76,7 +76,7 @@ const D = window.PF_DATA, PER = 60;
 const $ = id => document.getElementById(id);
 const esc = s => (s || "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const tags = s => esc(s).replace(/\{[^}]*\}/g, m => '<span class="tag">' + m + "</span>");
-const BLOCKS = ["strings", "names", "item_dialog", "map_areas", "ui_text"];
+const BLOCKS = ["strings", "names", "item_dialog", "map_areas", "ui_text", "friday"];
 let L = null, mod = {}, view = [], page = 0, dirty = {}, refused = {}, dirH = null;
 const key = r => r[0] + "|" + r[1];
 const store = { get(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
@@ -90,7 +90,7 @@ function init() {
   const last = store.get("pf_lang"); if (last && D.languages.some(l => l.code === last)) $("lang").value = last;
   pick();
 }
-function enOf(r) { return r[0] === "ui_text" ? r[1] : r[0] === "map_areas" ? r[1].replace(/_/g, " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : (D.en[r[1]] || ""); }
+function enOf(r) { return r[0] === "friday" ? ((D.fen || {})[r[1]] || "") : r[0] === "ui_text" ? r[1] : r[0] === "map_areas" ? r[1].replace(/_/g, " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : (D.en[r[1]] || ""); }
 function modOf(r) { return ((mod[r[0]] || {})[r[1]]); }
 function pick() {
   if (Object.keys(dirty).length && !confirm("Unsaved changes of this language stay in this browser. Switch anyway?")) { $("lang").value = L.code; return; }
@@ -115,6 +115,7 @@ function check(r, t) {
   if (!t) return "";
   if ((t.match(/\{/g) || []).length !== (t.match(/\}/g) || []).length) return "A brace { or } is missing.";
   if (r[0] === "strings" && codes(t) !== codes(D.en[r[1]] || "")) return "The codes must stay as in the English text: " + (codes(D.en[r[1]] || "") || "none") + " (now: " + (codes(t) || "none") + ").";
+  if (r[0] === "friday" && (t.match(/\{([^}]*)\}/g) || []).some(m => !m.startsWith("{="))) return "Friday hints take no codes except {=name}; the | sign starts a new line.";
   if (r[0] === "item_dialog" && ["ru", "uk"].includes(L.code)) {   // the Start menu shows item names in 2 rows of 9 letters (tools/langbuild.py KOMN): longer = empty in the menu
     const parts = t.split(/\{(?:BreakSpace|BreakPoint|Hyphen)\}/), plain = x => x.replace(/\{[^}]*\}/g, "").trim();
     let rows = parts.length >= 2 ? [plain(parts[0]), plain(parts.slice(1).join(""))] : [plain(t)];

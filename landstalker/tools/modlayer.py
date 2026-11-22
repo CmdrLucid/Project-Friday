@@ -14,7 +14,7 @@ rebuilds a language at start when its mod file is newer than the built language 
 import hashlib, json, os
 
 LANG_BLOCKS = ("strings", "names", "item_dialog")     # entries {"h": hash of the English source, "t": text}
-LANG_PLAIN = ("map_areas", "ui_text")                 # plain strings (our own keys, no English source)
+LANG_PLAIN = ("map_areas", "ui_text", "friday")       # plain strings (our own keys, no English source); friday = Friday hints {hint id: gentle text} (lang/friday_hints.json)
 
 
 def data_dir():

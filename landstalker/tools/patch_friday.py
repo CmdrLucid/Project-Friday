@@ -208,7 +208,7 @@ static void lk_fh_ask(void) {
     de = lk_lg_sel > 0 && !strcmp(lk_lg_codes[lk_lg_sel], "de");
     { extern int lk_names_get(void); int ti = (lk_names_get() ? 4 : 0) + de * 2 + lv;   /* LK_FHNAMES v1: Options > Names = Japanese -> the Japanese-name texts */
       str.id = 0x16; str.n = lk_fh_e[pick].t[ti].n; str.w = lk_fh_w + 2 * lk_fh_e[pick].t[ti].off; }
-    if (!de && lk_lg_on && lk_lg_str && lv == 0) { LkLgStr key, *r; key.id = (uint16_t)(0xE000 + pick);   /* LK_FRIDAY_LANG v1 (release 2.0): the hint in the loaded language (tools/fridaylang.py: fr / ko / ja file strings $E000 + entry) */
+    if (lk_lg_on && lk_lg_str && lv == 0) {   /* MOD LAYER v1: also de (its hints are compiled in; the file holds only a mod's changed ones) */ LkLgStr key, *r; key.id = (uint16_t)(0xE000 + pick);   /* LK_FRIDAY_LANG v1 (release 2.0): the hint in the loaded language (tools/fridaylang.py: fr / ko / ja file strings $E000 + entry) */
       r = bsearch(&key, lk_lg_str, (size_t)lk_lg_nstr, sizeof *lk_lg_str, lk_lg_cmp); if (r) { str.n = r->n; str.w = r->w; } }
     if (getenv("LANDSTALKER_FRIDAY_LOG")) fprintf(stderr, "friday: frame %ld stage %d/%d/%d room %d -> %s level %d\n", (long)platform_frame_number(), lk_fh_stage[1], lk_fh_stage[2], lk_fh_stage[3], (int)bus_read16(0xFF1204u), lk_fh_id[pick], lv + 1);
     g_m68k = sv;

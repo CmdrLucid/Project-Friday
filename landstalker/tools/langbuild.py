@@ -272,6 +272,12 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
     lang = json.loads(json.dumps(lang))   # a copy: the placeholders are resolved per variant
     import fridaylang   # release 2.0: Friday hints of this language as extra strings $E000 + entry
     fcode = lang.get("meta", {}).get("code", ""); fh = fridaylang.entries(fcode) if fcode in fridaylang.NAME else []
+    modf = lang.get("friday") or {}   # MOD LAYER v1: Friday hints from the user's mod ({hint id: text}); for de (compiled into the program) only the modded ones go into the file
+    if modf:
+        fd = dict(fh)
+        for i, h in enumerate(fridaylang.hints()):
+            if h.get("id") in modf: fd[fridaylang.FRIDAY_BASE + i] = modf[h["id"]]
+        fh = sorted(fd.items())
     fh = [(sid, resolve(t, nm_tab, base, variant) if "{=" in t else t) for sid, t in fh]   # LK_FHNAMES v1 (user 2026-11-22: Arthur kept his localized name with Names = Japanese): the hints' {=name} per variant
     fpre = None if fcode in ("ko", "ja") else resolve("{=friday}:", nm_tab, base, variant)   # her own name in front ('Friday:' / 'Фрайди:'; the Japanese variant 'Friday:')
     ko = base in WIDE_LANGS   # LK_LGKO v1 / LK_LGCYR v1 (ru / uk)
@@ -400,6 +406,7 @@ def mod_check(en):
         for m in re.findall(r"\{([^}]*)\}", t):
             if not (m.startswith("=") or m in CTL or m in NAMECTL): return "unknown code {%s}" % m
         if t.count("{") != t.count("}"): return "a brace { or } is missing"
+        if blk == "friday" and any(not m.startswith("=") for m in re.findall(r"\{([^}]*)\}", t)): return "Friday hints take no codes except {=name} (lines: the | sign)"
         if blk == "strings":
             src = en.get(key)
             if src is None: return "no such entry in the ROM"
