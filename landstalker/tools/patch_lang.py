@@ -84,7 +84,7 @@ static uint8_t *lk_lg_data;                                   /* the loaded lang
 static int lk_lg_on, lk_lg_hooked, lk_lg_wide;   /* LK_LGKO v1: lk_lg_wide = language file version 4: name entries hold 16-bit codes (Korean) */ uint8_t lk_vt_gl[384][8]; int lk_vt_on; static int lk_vt_ok, lk_vt_ko; static uint16_t lk_vt_kn[64][20]; static uint8_t lk_vt_kl[64];   /* LK_LGKOMENU v1: virtual tiles (never graphics in the menu VRAM layout: plane A / B name tables): Korean syllable k = tile $600 + k (k < $80) or $700 + k - $80 (k < $100), Japanese menu font $780 + code = index $100 + code */   /* LK_JPMENU v1 (below) */
 static uint8_t lk_lg_mg[128], lk_lg_mgl[128][8];   /* menu font glyphs (8x8, 1bpp) of the extra characters, by character code */
 static uint16_t lk_lg_ui[8][2]; static int lk_lg_nui;                  /* language file block 'ui': key, value (docs/TEXT_LAYER.md) */
-static char lk_lg_codes[8][16], lk_lg_names[8][32]; static int lk_lg_nlang = 1, lk_lg_sel;   /* [0] = English (the original), then the languages of lang/index.txt */
+static char lk_lg_codes[16][16], lk_lg_names[16][32];   /* LK_LGCYR v1: 16 (was 8: English + 9 languages with ru / uk / ja) */ static int lk_lg_nlang = 1, lk_lg_sel;   /* [0] = English (the original), then the languages of lang/index.txt */
 static char lk_lg_dir[512], lk_lg_binfile[512];
 static void (*lk_lg_o_dma)(void), (*lk_lg_o_ics)(void), (*lk_lg_o_dc)(void), (*lk_lg_o_gnc)(void), (*lk_lg_o_skip)(void);
 static void (*lk_lg_o_pc)(void); static int lk_lg_inpc;   /* LK_JPITEMS v3 (user 2026-11-13: 'in der japanischen Fassung haben die Items sehr wohl Kana-Namen'): inside HandleItemName $0231E2 (the {Item}
@@ -421,13 +421,13 @@ static void lk_lang_install(void) {
     lk_lg_exedir();
     snprintf(path, sizeof path, "%s/index.txt", lk_lg_dir);
     if ((f = fopen(path, "r"))) {      /* "code<TAB>name" per line, written by tools/langbuild.py */
-        while (lk_lg_nlang < 8 && fgets(line, sizeof line, f)) { char *t = strchr(line, '\t'), *nl; if (!t) continue; *t++ = 0; if ((nl = strpbrk(t, "\r\n"))) *nl = 0;
+        while (lk_lg_nlang < 16 && fgets(line, sizeof line, f)) { char *t = strchr(line, '\t'), *nl; if (!t) continue; *t++ = 0; if ((nl = strpbrk(t, "\r\n"))) *nl = 0;
             if (!strcmp(line, "ja") && !lk_ji_avail()) continue;   /* LK_JPLANG v1: Japanese only while a Japanese ROM lies next to the ROM (user 2026-11-14) */
             snprintf(lk_lg_codes[lk_lg_nlang], sizeof lk_lg_codes[0], "%s", line); snprintf(lk_lg_names[lk_lg_nlang], sizeof lk_lg_names[0], "%s", t); lk_lg_nlang++; }
         fclose(f);
     }
     e = getenv("LANDSTALKER_LANGBIN");                                     /* test aid: an explicit file becomes an extra language called 'Test' */
-    if (e && *e && lk_lg_nlang < 8) { snprintf(lk_lg_binfile, sizeof lk_lg_binfile, "%s", e); snprintf(lk_lg_codes[lk_lg_nlang], sizeof lk_lg_codes[0], "#"); snprintf(lk_lg_names[lk_lg_nlang], sizeof lk_lg_names[0], "Test"); want = lk_lg_nlang++; }
+    if (e && *e && lk_lg_nlang < 16) { snprintf(lk_lg_binfile, sizeof lk_lg_binfile, "%s", e); snprintf(lk_lg_codes[lk_lg_nlang], sizeof lk_lg_codes[0], "#"); snprintf(lk_lg_names[lk_lg_nlang], sizeof lk_lg_names[0], "Test"); want = lk_lg_nlang++; }
     lk_lang_map();
     lk_lg_o_ics = func_table_lookup(0x022FCC); lk_lg_o_dc = func_table_lookup(0x0246B2); lk_lg_o_gnc = func_table_lookup(0x023044); lk_lg_o_skip = func_table_lookup(0x0294B6); lk_lg_o_dma = func_table_lookup(0x000DD6); lk_lg_o_pc = func_table_lookup(0x0231E2);
     if (lk_lg_o_ics && lk_lg_o_dc && lk_lg_o_gnc && lk_lg_o_skip && lk_lg_o_dma) {

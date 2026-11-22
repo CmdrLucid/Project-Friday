@@ -6,105 +6,120 @@
   "jp": "Ryle",
   "fr": "Ryle",
   "ko": "라일",
-  "ru": "Найджел"
+  "ru": "Найджел",
+  "uk": "Найджел"
  },
  "friday": {
   "en": "Friday",
   "de": "Flora",
   "jp": "Friday",
   "ko": "프라이데이",
-  "ru": "Фрайди"
+  "ru": "Фрайди",
+  "uk": "Фрайді"
  },
  "kayla": {
   "en": "Kayla",
   "de": "Kayla",
   "jp": "Kara",
   "ko": "카라",
-  "ru": "Кэйла"
+  "ru": "Кэйла",
+  "uk": "Кейла"
  },
  "wally": {
   "en": "Wally",
   "de": "Wally",
   "jp": "Goose",
   "ko": "구스",
-  "ru": "Уолли"
+  "ru": "Уолли",
+  "uk": "Воллі"
  },
  "ink": {
   "en": "Ink",
   "de": "Ink",
   "jp": "Zwam",
   "ko": "즈왐",
-  "ru": "Инк"
+  "ru": "Инк",
+  "uk": "Інк"
  },
  "zak": {
   "en": "Zak",
   "de": "Zack",
   "jp": "Zed",
   "ko": "제드",
-  "ru": "Зак"
+  "ru": "Зак",
+  "uk": "Зак"
  },
  "dexter": {
   "en": "Dexter",
   "de": "Dexter",
   "jp": "Barbo",
   "ko": "발보",
-  "ru": "Декстер"
+  "ru": "Декстер",
+  "uk": "Декстер"
  },
  "lara": {
   "en": "Lara",
   "de": "Lara",
   "jp": "Loria",
   "ko": "로리아",
-  "ru": "Лара"
+  "ru": "Лара",
+  "uk": "Лара"
  },
  "helga": {
   "en": "Helga",
   "de": "Helga",
   "jp": "Misery",
   "ko": "미저리",
-  "ru": "Хельга"
+  "ru": "Хельга",
+  "uk": "Гельга"
  },
  "pixie": {
   "en": "Pixie",
   "de": "Pixie",
   "jp": "Monday",
   "ko": "먼데이",
-  "ru": "Пикси"
+  "ru": "Пикси",
+  "uk": "Піксі"
  },
  "trixie": {
   "en": "Trixie",
   "de": "Trixie",
   "jp": "Wednesday",
   "ko": "웬즈데이",
-  "ru": "Трикси"
+  "ru": "Трикси",
+  "uk": "Тріксі"
  },
  "prospero": {
   "en": "Prospero",
   "de": "Prospero",
   "jp": "Asral",
   "ko": "아스랄",
-  "ru": "Просперо"
+  "ru": "Просперо",
+  "uk": "Просперо"
  },
  "ludwig": {
   "en": "Ludwig",
   "de": "Ludwig",
   "jp": "Cheros",
   "ko": "케로스",
-  "ru": "Людвиг"
+  "ru": "Людвиг",
+  "uk": "Людвіг"
  },
  "arthur": {
   "en": "Arthur",
   "de": "Arthur",
   "jp": "Donmel",
   "ko": "돈멜",
-  "ru": "Артур"
+  "ru": "Артур",
+  "uk": "Артур"
  },
  "julie": {
   "en": "Julie",
   "de": "Julie",
   "jp": "Marie",
   "ko": "마리",
-  "ru": "Джулия"
+  "ru": "Джулия",
+  "uk": "Джулія"
  },
  "june": {
   "en": "June",
@@ -112,42 +127,48 @@
   "jp": "June",
   "auto": false,
   "ko": "준",
-  "ru": "Джуна"
+  "ru": "Джуна",
+  "uk": "Джуна"
  },
  "hahna": {
   "en": "Hahna",
   "de": "Hahna",
   "jp": "Kunta",
   "ko": "쿤타",
-  "ru": "Ханна"
+  "ru": "Ханна",
+  "uk": "Ханна"
  },
  "pockets": {
   "en": "Pockets",
   "de": "Geier",
   "jp": "Morio",
   "ko": "모리오",
-  "ru": "Покетс"
+  "ru": "Покетс",
+  "uk": "Покетс"
  },
  "kado": {
   "en": "Kado",
   "de": "Kado",
   "jp": "Assara",
   "ko": "앗사라",
-  "ru": "Кадо"
+  "ru": "Кадо",
+  "uk": "Кадо"
  },
  "fahl": {
   "en": "Fahl",
   "de": "Fahl",
   "jp": "Holy",
   "ko": "홀리",
-  "ru": "Фэл"
+  "ru": "Фэл",
+  "uk": "Фел"
  },
  "tibor": {
   "en": "Tibor",
   "de": "Tibor",
   "jp": "Treant",
   "ko": "트렌트",
-  "ru": "Тибор"
+  "ru": "Тибор",
+  "uk": "Тібор"
  },
  "spinner": {
   "en": "Spinner",
@@ -155,7 +176,8 @@
   "jp": "Borbom",
   "auto": false,
   "ko": "볼봄",
-  "ru": "Волчок"
+  "ru": "Волчок",
+  "uk": "Дзиґа"
  },
  "einstein": {
   "en": "Einstein",
@@ -163,6 +185,7 @@
   "jp": "Moz",
   "auto": false,
   "ko": "모즈",
-  "ru": "Эйнштейн"
+  "ru": "Эйнштейн",
+  "uk": "Ейнштейн"
  }
 }
