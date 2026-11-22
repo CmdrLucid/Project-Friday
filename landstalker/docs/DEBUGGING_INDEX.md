@@ -262,3 +262,4 @@
 - L2067: Leftover light shapes sweep (2026-11-21 evening, dev 1cc6a98 ..)
 - L2070: Docks crate shed redo + hard pine lines in the sword light (2026-11-21 late .. 2026-11-22, dev 397744f .. 81c8141)
 - L2078: GitHub #23 / #24 / #25, four new languages, Cyrillic, release v1.9.9 (2026-11-22, LK_POSTUSEMAP, LK_INNMORNING, LK_DNROOMSUN, LK_WINMEM, LK_LGES, LK_LGCYR, LK_FHNAMES)
+- L2085: Session 2026-11-22 evening / night: subtitles, crypt fire, top-edge shadows, wide names, mod layer (dev 20bde64 .. bfa5c60)

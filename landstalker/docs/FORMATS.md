@@ -367,3 +367,9 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
 | Gumi skull sign door (601..603, to 605) | opening top tile 25 (= 346 with the skull sign, not flipped) at the 346 position, 373h right of it, tile 1 below, threshold 385h 384h; 25 transparent in the opening corner | I 2026-11-19 |
 | Tile 354 in Destel | plain wall (in Massan: shutter bottom) | I 2026-11-16 |
 
+## Session 2026-11-22 night (Opus 5.5; V = read in code / ROM and tested headless)
+* V: tileset 6 animated group $09700A (AnimatedTilesetData entry 8, VRAM tiles 912..935): 912..931 = castle / crypt water (rooms 38 / 39 / 647), 932..935 = crypt riddle brazier flames (rooms 648..659; a lit brazier = blocks with 933 / 932 934 / 935).
+* V: TileSwaps $00512C entries are 16 bytes: src x, src y, dst x, dst y, w, h, 2 more bytes, then room (word, +12) and swap id (word, +14); room 656 ids 2 / 2050 put the braziers out (1 block wide), 4098 / 6146 light them.
+* V: JP ROM MenuStringTable = JP 0x2A648 (US MenuStringTable $029A0A), 29 strings, menu:12..19 = '<town>の教会' / '城地下' (the US names only the town).
+* V: GPU class / tag texture lk_glt_t[1] = 448 x 288 RGBA since LK_LTTOPSIL v1: rows 0..223 screen (r = class, g = class, b = hidden figure tag, a = figure tag), rows 224..287 = screen rows -64..-1 (a = figure tag only).
+* V: mod file mods/lang/<code>.json (MOD LAYER v1, docs/MODDING.md): {"meta": {"code", "format": 1}, "strings" | "names" | "item_dialog" | "map_areas" | "ui_text" | "friday": {key: text}}; mods/lang/<code>.report.json = {"refused": [{block, key, why}]}.

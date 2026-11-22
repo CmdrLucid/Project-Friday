@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 54-59
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 890-901
-- 1. Where we are: lines 902-1073
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1074-1378
-- 3. How the user works (important): lines 1379-1394
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1395-1419
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1420-1428
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1429-1476
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1477-1486
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1487-1488
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1489-1491
-- NEXT STEPS, newest first: -267 1075, -266 1076, -265 1077, -264 1078, -263 1079, -262 1080, -261 1081, -260 1082, -259 1083, -258 1084
+- 1. Where we are: lines 902-1074
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1075-1379
+- 3. How the user works (important): lines 1380-1395
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1396-1420
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1421-1429
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1430-1477
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1478-1487
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1488-1489
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1490-1492
+- NEXT STEPS, newest first: -267 1076, -266 1077, -265 1078, -264 1079, -263 1080, -262 1081, -261 1082, -260 1083, -259 1084, -258 1085
 - Newest entries:
   - 0a505 line 191: 2026-11-22 night, later (Deck, Opus 5.5, no agents; dev): MOD LAYER v1 language modding built (docs/MODDING...
   - 0a504 line 193: 2026-11-22 night (Deck, Opus 5.5, no agents; dev): GitHub #18 Paul: Russian file select broken -> LK_LGWNAM...
@@ -900,6 +900,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-22 SESSION END 3 (Opus 5.5, no agents, `dev` bfa5c60+, main = v1.9.9, no release):** Cyrillic title subtitle (LK_TSCYR) + ko / ja subtitles back; crypt braziers light (LK_CRYPTFIRE, USER CONFIRMED by playing: flame out = light out); figure shadows not cut at the top edge (LK_LTTOPSIL, GPU replay of the user's rec_20261122_1257); GitHub #18 Russian file select (LK_LGWNAME v1 + v2: place names, New Game, prompt bar; ru / uk / ja / ko headless); file select / menu texts in Japanese from the JP ROM (LK_JPMENUNAMES) and Korean (ko.json); MOD LAYER v1 = language modding incl. Friday hints (docs/MODDING.md, 'Mod Workshop.html' in the mods folder, no server). HEADLESS ONLY except the crypt braziers: user to check the title / file select / prompts in ru uk ja ko, the top-edge shadows, the mod workshop page. Next: -267 / -265.
 - **2026-11-22 SESSION END 2 (Opus 5.5 lead + ~48 Sonnet translation agents, `dev` + main e2ef827, tag v1.9.9 RELEASED):** GitHub #23 (Einstein whistle song: map frames, LK_POSTUSEMAP), #24 (inn = 07:00, LK_INNMORNING; sun from the clock at a room change, LK_DNROOMSUN), #25 (window size remembered, LK_WINMEM); four new languages es / it / ru / uk (TRANSLATION 10..13; names from the fan patches es / it / ru, uk names ours = native feedback needed); Cyrillic via LK_LGCYR (Galmuri 11 + Public Pixel CC0, two-row menu item names); runtime language list 8 -> 16; Friday hints follow Options > Names (LK_FHNAMES). USER CONFIRMED BY PLAYING: #24 inn morning incl. the sun ('passt jetzt auch'); Cyrillic З / б look like 3 / 6 = correct letters (explained). HEADLESS / GPU ONLY: #23 (1131 shots), #25 (code only, needs a desktop check by the user), the four languages (Massan priest line, Start menu, help line, titles es / it), hint names (Python + German 'Friday:'). Release checks: local AppImage first run in env -i 8.3 min, 19 lang files identical to dev, package binary in Russian; windows-check 44994762035 success; release run 44996039436.
 - **2026-11-22 SESSION END (Opus 5.5, no agents, `dev` 81c8141+ pushed, main = v1.9.8, no release):** docks crate shed rebuilt from draft pictures (user OK on the pictures: 4 crate rows, roof on them); light-data fixes (crate shed / stone building op rectangles hid pines, 5 false bushes); LK_GLOBJB v1 + LK_LTPLANTCELL v1 (hard vertical sword-light line down the docks pine). ALL HEADLESS (GPU shots, lightedges 0 in 6 rooms); NOT played. 0a497 / -257.
 - **2026-11-21 EVENING (Opus 5.5, no agents, `dev`, user away):** docks finished (crate shed, stone buildings), Mercator 632 well / drawbridge chains / granite block, columns 524 / 525, ~20 wrong automatic shapes removed (terraces, mis-anchored); real outdoor leftover count ~108 -> ~85. HEADLESS ONLY (GPU lightedges 0). 0a496 / -256.
