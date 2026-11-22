@@ -75,6 +75,15 @@ def jp_names(rom):
     p += 1 + rom[p]
     for i in range(64):
         n = rom[p]; res['item:%02d' % i] = list(rom[p + 1:p + 1 + n]); p += 1 + n
+    # LK_JPMENUNAMES v1 (user 2026-11-22: 'wie ist es im japanischen Original?'): the menu strings (file select: New Game / Start / Copy / Delete / Yes / No / the save
+    # place 'マサンの教会' ...) from the Japanese MenuStringTable $2A648 (LoadUncompressedString $2A232: lea $2A648(pc) for index >= $40; US $29A0A); 00 / 01 (the
+    # one-letter ATK / DEF labels of the US menu) stay English.  Printed by PrintStringDirect with 16-bit codes (patch_lang.py LK_LGWNAME v1)
+    if rom[0x2A244:0x2A248] == bytes.fromhex('45fa0402'):
+        p = 0x2A648
+        for i in range(29):
+            n = rom[p]
+            if i >= 2: res['menu:%02d' % i] = list(rom[p + 1:p + 1 + n])
+            p += 1 + n
     return res
 
 

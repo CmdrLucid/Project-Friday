@@ -757,17 +757,21 @@ static int lk_lt_isout(int room) {   /* v5: outdoor room = tileset 0 / 7 / 12 / 
   return ts == 0 || ts == 7 || ts == 12 || ts == 13 || ts == 14 || ts == 17;
 }
 static void lk_lt_free(void) { lk_lt_gen++; }   /* a new room / shaft set: the GPU blocks of the old one are stale (2026-11-12: no CPU blocks, workers or prefetch any more) */
+static int lk_lt_figdir(const float *sd, float px, float py, float pz);   /* (test aid pairdbg) */
+static int16_t lk_lt_cfr[LK_LT_ML], lk_lt_cfc[LK_LT_ML];   /* LK_CRYPTFIRE v1: plane cell (row, col) of one flame tile per flame light */
 static int lk_lt_isflame(uint32_t base, float *r, float *g, float *bl) {   /* AnimatedTilesetData entries that are light sources (tools/animsurvey.py, user 2026-11-02) */
   switch (base) {
     case 0x095BAA: case 0x096E8A: case 0x097CCA: case 0x098AAA: case 0x098CAA: case 0x09906A: *r = 1.0f; *g = 0.72f; *bl = 0.42f; return 1;   /* fireplace, torches, candles, candelabra */
     case 0x09608A: *r = 1.0f; *g = 0.84f; *bl = 0.55f; return 1;    /* lamp */
     case 0x099C0A: *r = 0.55f; *g = 1.0f; *bl = 0.45f; return 1;    /* cauldron */
     case 0x099E8A: *r = 0.95f; *g = 0.42f; *bl = 0.12f; return 2;   /* lava (entry 21, only rooms 403 / 404 are lava, the others water): a field, one weak light per 64 x 64 px of it (v3) */
+    case 0x09700A: *r = 1.0f; *g = 0.72f; *bl = 0.42f; return 1;    /* LK_CRYPTFIRE v1 (user 2026-11-22, rec_20261121_2219 room 656: 'die Fackeln in der Krypta werfen kein Licht'): tileset 6 water group, only its brazier flame tiles 932..935 (crypt riddle rooms 648..659; lk_lt_tileok) */
     case 0x0968CA: *r = 1.0f; *g = 0.72f; *bl = 0.42f; return 1;    /* waterfall shrine: water AND wall torches in one group (only the torch tiles, lk_lt_tileok; user report room 177, 2026-11-03) */
   }
   return 0;
 }
 static int lk_lt_tileok(uint32_t base, int t) {   /* groups that mix flames with other tiles: only the flame tiles light */
+  if (base == 0x09700A) return t >= 932 && t <= 935;   /* LK_CRYPTFIRE v1: the crypt braziers (the rest of the group is water in 38 / 39 / 647) */
   if (base == 0x0968CA) return t == 917 || t == 927 || t == 928 || t == 934 || t == 935;
   return 1;
 }
@@ -799,7 +803,7 @@ static int lk_lt_wtile(int U, int V) {   /* 2026-11-08: the picture cell at (U, 
   for (pl = 0; pl < 2; pl++) { uint32 w = pl ? lk_o_pb[rr][cc] : lk_o_pa[rr][cc]; int t; if (!(w & 0x10000)) continue; t = (int)(w & 0x7FF);
     for (k = 0; k < lk_o_ngrp; k++) { uint32_t b = lk_o_grp[k].base; int t0 = lk_o_grp[k].dest / 32, tn = lk_o_grp[k].words * 2 / 32;
       if (!(b == 0x094F2A || b == 0x09552A || b == 0x09614A || b == 0x09700A || b == 0x09760A || b == 0x097B4A || b == 0x09820A || b == 0x09838A || b == 0x09912A || b == 0x09960A || (b == 0x099E8A && lk_o_room != 403 && lk_o_room != 404))) continue;
-      if (t >= t0 && t < t0 + tn) return 1; } }
+      if (t >= t0 && t < t0 + tn && !(b == 0x09700A && t >= 932)) return 1; } }   /* LK_CRYPTFIRE v1: the brazier flames are no water */
   return 0; }
 static int lk_lt_inwat(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INWATER"); v = e ? atoi(e) : 1; } return v; }   /* 2026-11-08: painted water indoors */
 static int lk_lt_invin(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_INVIN"); v = e ? atoi(e) : 0; } return v; }   /* 2026-11-08: invisible barriers indoors too */
@@ -1672,6 +1676,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
         for (dr = -1; dr <= 1; dr++) for (dc = -1; dc <= 1; dc++) { int r2 = rr + dr, c2 = cc + dc; if (r2 >= 0 && r2 < 152 && c2 >= 0 && c2 < 304 && !seen[r2][c2] && LK_LT_IS(r2, c2) && sp < 4096) { seen[r2][c2] = 1; st[sp][0] = (int16_t)r2; st[sp][1] = (int16_t)c2; sp++; } } }
       #undef LK_LT_IS
       if (n > 40 || lk_lt_nl >= LK_LT_ML) continue;
+      if (lk_o_grp[k].base == 0x09700A && n < 3) continue;   /* LK_CRYPTFIRE v1: a lit brazier = 4 flame tiles (933 + 932 / 934 + 935); the riddle's tile swap (TileSwaps $00512C, 1 block wide) leaves the lone 935 of the next block */
       { int U = su / n, V = sv / n, z = 0, f = lk_lt_ray(U, V, &z); float px, py; lk_lt_light *L = &lk_lt_l[lk_lt_nl];
         if (!f) continue;
         lk_lt_pos(U, V, z, &px, &py);
@@ -1690,6 +1695,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
                flame beside a wall passes the stand and lands on the floor BEHIND it (cell match fails, light at (479, 309, 33) instead of the bowl).  Fallback: a stand whose axis
                lies on the same view ray (1, 1, 1): same picture column (dx = dy) and row (dx + dy = 2 dz) within a few units */
             if (c[0] == lk_o_room && fabsf(dx - dy) < 16.0f && fabsf(dx + dy - 2.0f * dz) < 24.0f && fabsf(dz) < 128.0f) { L->x = (float)c[6]; L->y = (float)c[7]; L->z = (float)c[8]; L->own = (float)c[5]; break; } } }
+        lk_lt_cfr[lk_lt_nl] = (int16_t)r0; lk_lt_cfc[lk_lt_nl] = (int16_t)c0;   /* LK_CRYPTFIRE v1: a flame tile of this light (lk_lt_step re-checks the crypt braziers) */
         L->k = 1.0f; L->rad = LK_LT_RAD; if (L->base == 0x098AAA) { L->k = 1.15f; L->rad = 260.0f; }   /* the standing torches of the castle (user 2026-11-04: 'im Schloss zu dunkel, koennte nur diese Art der Fackel mehr Licht abgeben?'; 2026-11-05: base light 0.85, then this torch a bit weaker: k 1.5 -> 1.15) */
         lk_lt_nl++; }
     }
@@ -2101,6 +2107,8 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
   { static int lastopt = -1; if (lk_lt_get() != lastopt) { lastopt = lk_lt_get(); lk_lt_room = -2; } }   /* v6: the option changes what is built (flames, sun) */
   if (lk_o_room != lk_lt_room || h != lk_lt_hash) { lk_lt_room = lk_o_room; lk_lt_hash = h; lk_lt_retry = 12; lk_lt_newroom(); }
   else if (lk_lt_nfl == 0 && lk_lt_retry > 0 && (fr & 7) == 0) { lk_lt_retry--; if ((!lk_lt_sun && !lk_lt_aor) || lk_lt_pahash() != lk_lt_pah) lk_lt_newroom(); }   /* v8: room light rooms like the sun: only when the picture changed */
+  else if ((fr & 7) == 0) { int q; for (q = 0; q < lk_lt_nfl; q++) if (lk_lt_l[q].base == 0x09700A && !lk_lt_l[q].lava) { int rr = lk_lt_cfr[q], cc = lk_lt_cfc[q], ta = (lk_o_pa[rr][cc] & 0x10000) ? (int)(lk_o_pa[rr][cc] & 0x7FF) : -1, tb = (lk_o_pb[rr][cc] & 0x10000) ? (int)(lk_o_pb[rr][cc] & 0x7FF) : -1;
+      if (!(ta >= 932 && ta <= 935) && !(tb >= 932 && tb <= 935)) { if (lk_lt_dbg == 1) printf("crypt fire: room %%d light %%d went out (frame %%ld)\n", lk_o_room, q, fr); lk_lt_newroom(); break; } } }   /* LK_CRYPTFIRE v1: a solved riddle puts the brazier out (the game swaps the picture tiles, not the height map): rebuild the lights */
   lk_lt_fadek = lk_lt_fadecalc(); { static int fd = -1; if (fd < 0) { const char *e = getenv("LANDSTALKER_DN_DBG"); fd = e ? atoi(e) : 0; } if (fd == 2 && lk_lt_fadek < 0.995f) printf("fade: frame %%ld room %%d k %%.2f\n", fr, lk_o_room, lk_lt_fadek); }   /* v4 */
   { static int fd3 = -1; if (fd3 < 0) { const char *e = getenv("LANDSTALKER_DN_DBG"); fd3 = e ? atoi(e) : 0; } if (fd3 == 3) { int q, nw = 0, nwl = 0; for (q = 0; q < lk_lt_nl; q++) if (lk_lt_l[q].lava == 2) { nw++; if (lk_lt_flk[q] > 0.004f) nwl++; } printf("dnlights: frame %%ld nl %%d windows %%d lit %%d dn_on %%d wk %%.2f fade %%.2f flk0 %%.2f nf %%d nfb %%d fmall %%d\n", fr, lk_lt_nl, nw, nwl, lk_dn_on, lk_dn_wk, lk_lt_fadek, lk_lt_nl ? lk_lt_flk[lk_lt_nfl] : 0.0f, lk_lt_nf, lk_lt_nfb, lk_lt_fmall); } }   /* test aid */
   lk_dn_frame(fr, idle);   /* LK_DAYNIGHT v1: the time of day, the sun test aid (L5 + right stick) and smooth sun steps (was: drop every block when the sun moved) */
@@ -2161,7 +2169,8 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     if (hd < 1.0f) { lk_lt_pn[k][j][0] = 0.7071f; lk_lt_pn[k][j][1] = 0.7071f; } else { lk_lt_pn[k][j][0] = dx / hd; lk_lt_pn[k][j][1] = dy / hd; }   /* v4 */
   }
   { static long pf = -2; if (pf == -2) { const char *e = getenv("LANDSTALKER_LT_PAIRDBG"); pf = e ? atol(e) : -1; }   /* test aid (2026-11-19, statue shadows): pairs of every light with every figure at frame N */
-    if (pf >= 0 && platform_frame_number() == pf) for (j = 0; j < lk_lt_nf; j++) { printf("pairdbg: frame %%ld fig %%d tag %%d at (%%.0f, %%.0f, %%.0f) screen (%%d, %%d)\n", pf, j, lk_lt_f[j].tag, lk_lt_f[j].fx, lk_lt_f[j].fy, lk_lt_f[j].fz, lk_lt_f[j].ax, lk_lt_f[j].ay);
+    if (pf >= 0 && platform_frame_number() == pf) for (j = 0; j < lk_lt_nf; j++) { { int yy, xx, npx = 0, ymin = 999, ymax = -1; for (yy = 0; yy < 224; yy++) for (xx = 0; xx < LK_OSW; xx++) if ((lk_o_spr[yy][xx] & 0x200) && (lk_lt_spre[yy][xx] == lk_lt_f[j].tag || lk_lt_spre2[yy][xx] == lk_lt_f[j].tag)) { npx++; if (yy < ymin) ymin = yy; if (yy > ymax) ymax = yy; }   /* test aid: the figure's silhouette pixels (own sprite tag) and its sun share */
+      printf("pairdbg: frame %%ld fig %%d tag %%d at (%%.0f, %%.0f, %%.0f) screen (%%d, %%d) sun %%.2f silhouette %%d px rows %%d..%%d\n", pf, j, lk_lt_f[j].tag, lk_lt_f[j].fx, lk_lt_f[j].fy, lk_lt_f[j].fz, lk_lt_f[j].ax, lk_lt_f[j].ay, lk_lt_f[j].sun, npx, ymin, ymax);  { const float *sdd = lk_lt_sun && lk_dn_on && lk_lt_sdf[2] > 0.0f ? lk_lt_sdf : lk_lt_sd; int hq, nh = 0; for (hq = 6; hq <= 46; hq += 8) { float tq = (float)hq / (sdd[2] > 0.05f ? sdd[2] : 0.05f); nh += lk_lt_figdir(sdd, lk_lt_f[j].fx - sdd[0] * tq, lk_lt_f[j].fy - sdd[1] * tq, lk_lt_f[j].fz); } printf("pairdbg:   fig %%d cpu figdir hits %%d of 6 ground points on its shadow line\n", j, nh); } }
       for (k = 0; k < lk_lt_nl; k++) printf("pairdbg:   light %%d pair %%d n (%%.2f, %%.2f) door %%d\n", k, lk_lt_pair[k][j], lk_lt_pn[k][j][0], lk_lt_pn[k][j][1], lk_dn_ldoor[k]); } }
   lk_lt_fmall = 0;
   for (k = 0; k < lk_lt_nl; k++) for (j = 0; j < lk_lt_nf; j++) if (lk_lt_pair[k][j]) {   /* v8 SPEED (user 2026-11-05: 'gerne noch die Fackelraeume optimieren'): the screen box a flame's figure shadow can fall into:
@@ -2209,7 +2218,8 @@ static int lk_lt_figdir(const float *sd, float px, float py, float pz) {   /* v5
     dx = 1.4142f * (tx * (qx - F->fx) + ty * (qy - F->fy)); hh = qz - F->fz;
     if (dx < -16.0f || dx > 16.0f || hh < -6.0f || hh > 56.0f) continue;
     mx = F->ax + (int)lrintf(dx) + lk_wide_e; my = F->ay - (int)lrintf(hh);
-    if (mx >= 0 && mx < LK_OSW && my >= 0 && my < 224 && (lk_o_spr[my][mx] & 0x200) && (lk_lt_spre[my][mx] == F->tag || lk_lt_spre2[my][mx] == F->tag)) return 1;   /* LK_LTHIDE v1 */   /* v7: own pixels only */
+    if (mx >= 0 && mx < LK_OSW && my >= 0 && my < 224 && (lk_o_spr[my][mx] & 0x200) && (lk_lt_spre[my][mx] == F->tag || lk_lt_spre2[my][mx] == F->tag)) return 1;
+    if (mx >= 0 && mx < LK_OSW && my < 0 && my >= -LK_LT_TOPN && lk_lt_sprt[my + LK_LT_TOPN][mx] == F->tag) return 1;   /* LK_LTTOPSIL v1: the part above the screen */   /* LK_LTHIDE v1 */   /* v7: own pixels only */
   }
   return 0;
 }
@@ -2261,12 +2271,19 @@ rep("    lk_ss_cur = 0;\n    if (draw && lk_o_exon)", "    lk_ss_cur = 0; lk_lt_
 # front figure, so the hidden figure's shadow got a hole in the shape of the front figure.  lk_lt_spre2 keeps the tag of the first figure HIDDEN under a sprite
 # pixel (sprite layer: first drawn wins); the shadow tests accept either tag.  Light only (Lighting Off untouched); LANDSTALKER_LT_HIDE=0 = old (no second layer).
 rep("static uint8 lk_lt_spre[224][LK_OSW]; static int lk_lt_ecur; /*LK_LT_ENT*/\n",
-    "static uint8 lk_lt_spre[224][LK_OSW]; static int lk_lt_ecur; /*LK_LT_ENT*/\nstatic uint8 lk_lt_spre2[224][LK_OSW]; static int lk_lt_hide = -1;   /* LK_LTHIDE v1: tag of a figure hidden under the sprite pixel, 0 none */\n")
+    "static uint8 lk_lt_spre[224][LK_OSW]; static int lk_lt_ecur; /*LK_LT_ENT*/\nstatic uint8 lk_lt_spre2[224][LK_OSW]; static int lk_lt_hide = -1;   /* LK_LTHIDE v1: tag of a figure hidden under the sprite pixel, 0 none */\n"
+    "#define LK_LT_TOPN 64\nstatic uint8 lk_lt_sprt[LK_LT_TOPN][LK_OSW];   /* LK_LTTOPSIL v1: figure tag of the sprite pixels ABOVE the screen (rows -64..-1, not drawn): a figure cut by the top edge keeps its whole shadow */\n")
 a = "Y >= 224 || (lk_o_spr[Y][X] & 0x200)) continue;"
 assert s.count(a) == 3, s.count(a)
 s = s.replace(a, "Y >= 224) continue; if (lk_o_spr[Y][X] & 0x200) { if (lk_lt_hide && lk_lt_ecur && lk_lt_spre[Y][X] != (uint8)lk_lt_ecur && !lk_lt_spre2[Y][X]) lk_lt_spre2[Y][X] = (uint8)lk_lt_ecur; continue; }   /* LK_LTHIDE v1 */")
+# LK_LTTOPSIL v1 (user 2026-11-22, rec_20261122_1257 Mercator: 'der Figurenschatten wird abgeschnitten, weil oben die Figur nicht mehr ganz im Bild ist'): the shadow of a
+# figure is cut from its own sprite pixels on the screen; the rows above the screen were dropped, so a figure at the top edge lost the far end of its shadow (head / body =
+# the part that falls furthest, best seen with the afternoon sun towards the lower right).  Pixels of rows -64..-1 now keep their figure tag in lk_lt_sprt (not drawn).
+a = "|| Y < 0 || Y >= 224) continue; if (lk_o_spr[Y][X] & 0x200) {"
+assert s.count(a) == 3, s.count(a)
+s = s.replace(a, "|| Y < -LK_LT_TOPN || Y >= 224) continue; if (Y < 0) { if (lk_lt_ecur && !lk_lt_sprt[Y + LK_LT_TOPN][X]) lk_lt_sprt[Y + LK_LT_TOPN][X] = (uint8)lk_lt_ecur; continue; }   /* LK_LTTOPSIL v1 */ if (lk_o_spr[Y][X] & 0x200) {")
 rep("  if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr);",
-    "  if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr); if (lk_lt_hide < 0) { const char *e = getenv(\"LANDSTALKER_LT_HIDE\"); lk_lt_hide = e ? atoi(e) != 0 : 1; } if (lk_lt_hide) memset(lk_lt_spre2, 0, sizeof lk_lt_spre2);   /* LK_LTHIDE v1 */")
+    "  if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr); if (lk_lt_hide < 0) { const char *e = getenv(\"LANDSTALKER_LT_HIDE\"); lk_lt_hide = e ? atoi(e) != 0 : 1; } if (lk_lt_hide) memset(lk_lt_spre2, 0, sizeof lk_lt_spre2); memset(lk_lt_sprt, 0, sizeof lk_lt_sprt);   /* LK_LTHIDE v1, LK_LTTOPSIL v1 */")
 rep("int lk_sfx_ln = lk_sfx_linebegin(line);   /* LK_SWORDFX v1 */\n",
     "int lk_sfx_ln = lk_sfx_linebegin(line);   /* LK_SWORDFX v1 */\n    int lk_lt_ln = lk_lt_linebegin();   /* %s */\n" % VER)
 rep("      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n",

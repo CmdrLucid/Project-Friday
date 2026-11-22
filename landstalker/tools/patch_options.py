@@ -229,7 +229,15 @@ static int lk_opt_rowid(int r) { return lk_opt_pg ? lk_pg_id(lk_opt_pg, r) : (r 
 static int lk_opt_rowy(int r) { return lk_pg_cnt[lk_opt_pg] <= 3 ? 2 + 3 * r : 2 + 2 * r; }   /* the short pages (Audio, Difficulty / Help) spread out */
 static const char *lk_opt_rowname(int r) { int id = lk_opt_rowid(r); return id >= 100 ? (id == 114 ? "Reset Defaults" : lk_bind_name(id - 100)) : id >= 0 ? lk_id_name[id] : id >= -LK_NPG ? lk_pg_name[-id] : "Quit Game"; }
 static int lk_opt_cnt(int id) { static const int c[62] = { 3, 2, 5, 2, 4, 4, 11, 11, 2, 3, 2, 4, 6, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2, 2 }; if (id == 37) return lk_lang_count() > 1 ? lk_lang_count() : 1; return (id >= 0 && id < 42) ? c[id] : 2; }   /* one entry per option id (lk_id_name): 23 Depth Blur, 24 Bloom, 25 Vignette, 26 Color Grade = 4 values; LEFT = count-1 steps, so a short table made LEFT run a garbage number of steps (hang) */
+static int *lk_fs_genp;   /* LK_FSLANGREDRAW v2: set while the file select options window is open (lk_fs_modal) */
+static void lk_fs_relang(int *gen0);
+static void lk_opt_change_body(int id, int dir);
 static void lk_opt_change(int id, int dir) {
+    int n, k, steps;
+    if (lk_fs_genp && id < 100) { lk_opt_change_body(id, dir); lk_fs_relang(lk_fs_genp); return; }   /* the file select's bar + slots follow at once, before the window page is drawn again */
+    lk_opt_change_body(id, dir);
+}
+static void lk_opt_change_body(int id, int dir) {
     int n, k, steps;
     if (id >= 100) { if (dir > 0) { if (id == 114) lk_bind_reset(); else { lk_opt_capid = id; lk_bind_capture(id - 100); } } return; }   /* binding rows: A / RIGHT = wait for the next button / key press */
     n = lk_opt_cnt(id); steps = dir > 0 ? 1 : n - 1; for (k = 0; k < steps; k++) platform_option_step(id); }
@@ -499,9 +507,21 @@ static void lk_win_page(int pg, int sel) {   /* pg 0 = root, 1 Video, 2 Audio, 3
    that made the window sluggish); a value change redraws only its own row */
 static void lk_win_move(int row) { lk_win_sel = row - lk_win_scroll + 1; }
 static void lk_win_value(int pg, int row) { int k = row - lk_win_scroll + 1; lk_win_rowtext(pg, k); memcpy(lk_win_row[k], lk_win_stage[k], sizeof lk_win_row[0]); }
+static void lk_fs_relang(int *gen0) {   /* LK_FSLANGREDRAW v2 (user 2026-11-22: the bar stayed in the old language while the options window was open): right after a language / Names / Items
+    change, BEFORE the window page is drawn again (so bar, slots and window switch together): InitGameStartScreen $00F6DC redraws the slot windows (DrawSaveSlotWindow 3..0), LoadSavedGame
+    $0015C2 reloads the chosen slot (g_SaveSlot; DrawSaveSlotContents loaded every slot and ends with slot 0), then the bar text.  Uses the text buffer $FF3900: the window copies its rows
+    out of it (lk_win_row) only while drawing a page, after this */
+    extern int lk_lang_gen(void); M68kContext s2;
+    if (lk_lang_gen() == *gen0) return;
+    *gen0 = lk_lang_gen(); s2 = g_m68k;
+    lk_call(0x00F6DCu); lk_call(0x0015C2u); g_m68k = s2;
+    lk_fs_bar_text();
+}
 static void lk_fs_modal(void) {   /* options window in the file select */
     int pg = 0, row = 0, rootrow = 0, prev = bus_read8(0xFF0F8Eu), cur, e, blink = 0, cap_was = 0, arrow0 = 0;
+    extern int lk_lang_gen(void); int gen0 = lk_lang_gen();   /* LK_FSLANGREDRAW v1 */
     M68kContext sv = g_m68k;
+    lk_fs_genp = &gen0;   /* LK_FSLANGREDRAW v2 */
     { int t, r, c; for (t = 0; t < 16; t++) for (r = 0; r < 8; r++) {   /* MenuCursor2BPP $00DF76: 16 tiles of 2bpp (8 rows of 2 bytes), column-major 4 x 4 */
         uint16_t w = bus_read16(0x00DF76u + (uint32_t)t * 16u + (uint32_t)r * 2u);
         for (c = 0; c < 8; c++) lk_win_cur[(t % 4) * 8 + r][(t / 4) * 8 + c] = (uint8_t)((w >> (14 - 2 * c)) & 3); } }
@@ -510,6 +530,7 @@ static void lk_fs_modal(void) {   /* options window in the file select */
         for (c = 0; c < 8; c++) lk_win_arrow[(t % 2) * 8 + r][(t / 2) * 8 + c] = (uint8_t)((w >> (14 - 2 * c)) & 3); } }
     lk_win_scroll = 0; lk_opt_quitarm = 0; lk_win_page(0, 0); lk_win_on = 1; lk_win_blink = 0;
     for (;;) {
+        lk_fs_relang(&gen0);   /* LK_FSLANGREDRAW v2: any change not caught at its call site */
         bus_write16(0xFF0550u, 0x0134); bus_write8(0xFF0552u, 5); bus_write16(0xFF0554u, 0xA0AA); bus_write16(0xFF0556u, 1);   /* the bar arrow is parked (hidden) while the window is open */
         lk_win_blink = (blink++ & 0x10) ? 1 : 0;
         lk_win_arr = (((blink - arrow0) & 0x3F) < 0x20) ? ((lk_win_scroll > 0 ? 1 : 0) | (lk_win_scroll + lk_win_vis(pg) < lk_win_cnt[pg] ? 2 : 0)) : 0;
@@ -536,7 +557,8 @@ static void lk_fs_modal(void) {   /* options window in the file select */
         if ((e & 4) && pg == 0 && LK_ROWVID(row) >= 0) { lk_opt_change(LK_ROWVID(row), -1); blink = 0; lk_win_page(0, row); lk_snd(0x00FA54u); }   /* LEFT on Language: previous language */
         if ((e & 4) && pg) { lk_opt_change(lk_win_id(pg, row), -1); blink = 0; lk_win_value(pg, row); lk_snd(0x00FA54u); }   /* LEFT: previous value */
     }
-    lk_win_on = 0; lk_win_arr = 0;
+    lk_win_on = 0; lk_win_arr = 0; lk_fs_genp = NULL;
+    if (lk_lang_gen() != gen0) { M68kContext s2 = g_m68k; lk_call(0x00F6DCu); lk_call(0x0015C2u); g_m68k = s2; }   /* LK_FSLANGREDRAW v1: a change in the last loop pass (B right after it) */
     lk_fs_bar_text();
     g_m68k = sv;
 }

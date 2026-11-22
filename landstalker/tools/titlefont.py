@@ -11,6 +11,7 @@ lines 113..132 from x 155) drawn with Noto Serif CJK JP Medium 21 px (SIL OFL), 
 import sys
 
 TEXT = {"de": "DIE SCHÄTZE VON KÖNIG NOLO", "fr": "LE TRÉSOR DU ROI NOLE", "es": "LOS TESOROS DEL REY NOLE", "it": "I TESORI DI RE NOLE",   # es / it: our own titles (LK_LGES v1)
+        "ru": "СОКРОВИЩА КОРОЛЯ НОУЛА", "uk": "СКАРБИ КОРОЛЯ НОУЛА",   # LK_TSCYR v1: King Nole = Ноул as in lang/ru.json / uk.json
         "ko": "노르 왕의 보물", "ja": "皇帝の財宝"}
 H, TOP = 20, 3   # map height, rows above the letter body (accents, umlaut dots)
 
@@ -38,6 +39,16 @@ L = {
     "V": ["##..##"] * 11 + ["##..##", "##..##", ".####.", ".####.", "..##..", "..##.."],
     "Z": ["######", "######", "....##", "....##", "...##.", "...##.", "..##..", "..##..", ".##...", ".##..."] + ["##...."] * 5 + ["######", "######"],
 }
+# Cyrillic capitals (LK_TSCYR v1, 2026-11-22): same 6 px family; letters that look Latin reuse the Latin masks, the rest drawn here
+L["P"] = _g("#####.", "######", "##..##", "######", "#####.", "##....", "##....", "##....")
+L["B"] = _g("#####.", "######", "##..##", "#####.", "#####.", "##..##", "######", "#####.")
+CYR = {"А": "A", "В": "B", "С": "C", "Е": "E", "К": "K", "Н": "H", "О": "O", "Р": "P", "Т": "T"}
+L["Б"] = _g("######", "######", "##....", "#####.", "######", "##..##", "######", "#####.")
+L["И"] = ["##..##"] * 7 + ["##.###", "##.###", "######", "######", "######", "###.##", "###.##"] + ["##..##"] * 3   # the N upside down
+L["Л"] = ["..####", ".#####"] + [".##.##"] * 9 + ["##..##"] * 6
+L["У"] = ["##..##"] * 7 + [".#####", ".#####", "...##.", "...##.", "..##..", "..##..", ".##...", ".##...", "##....", "##...."]
+L["Я"] = _g(".#####", "######", "##..##", "######", ".#####", "##..##", "##..##", "##..##")   # the R mirrored
+L["Щ"] = ["##..##..##."] * 15 + ["###########", "###########", ".........##", ".........##"]   # 2 rows below the line (the tail)
 ACC = {"Ä": ("A", ["##..##", "##..##", "......"]), "Ö": ("O", ["##..##", "##..##", "......"]), "É": ("E", ["...##.", "..##..", "......"])}
 
 # Noto Serif CJK JP Medium at 21 px, no smoothing (SIL OFL 1.1; user 2026-11-14: "look at the original for how the Japanese was"): the Japanese
@@ -63,21 +74,22 @@ KO17 = {
 # shade per row 0..16 (measured on the title's letters): first pixel of a stroke / the other pixels; '#' light, '+' middle, '-' dark
 BAND = ["##", "##", "#+", "#+", "++", "+-", "+-", "--", "--", "--", "+-", "+-", "++", "#+", "#+", "##", "##"]
 def _shade(rows):
-    """mask rows (17 high) -> shaded rows"""
+    """mask rows (17 high, 19 with a tail below the line) -> shaded rows"""
     out = []
     for y, r in enumerate(rows):
-        out.append("".join("." if c != "#" else BAND[y][0 if x == 0 or r[x - 1] != "#" else 1] for x, c in enumerate(r)))
+        out.append("".join("." if c != "#" else BAND[min(y, 16)][0 if x == 0 or r[x - 1] != "#" else 1] for x, c in enumerate(r)))
     return out
 
 def render(code):
     """the subtitle of language code -> H rows of '.', '#', '+', '-'"""
-    cols = [[] for _ in range(H)]
+    text = TEXT[code]
+    hh = H + max([len(L[ch]) - 17 for ch in text if ch in L] + [0])   # 2 more rows when a letter has a tail (Щ)
+    cols = [[] for _ in range(hh)]
     def put(mask, extra=None):
         w = len(mask[0]); sh = _shade(mask)
-        for y in range(H):
+        for y in range(hh):
             if y < TOP: cols[y].append(extra[y] if extra else "." * w)
-            else: cols[y].append(sh[y - TOP])
-    text = TEXT[code]
+            else: cols[y].append(sh[y - TOP] if y - TOP < len(sh) else "." * w)
     for i, ch in enumerate(text):
         if i and text[i - 1] != " " and ch != " ": [c.append(".") for c in cols]   # 1 px between letters
         if ch == " ": [c.append("......" if any(t in KO17 for t in text) else "...") for c in cols]; continue   # word gap 3 px (as the title), 6 px between Korean words
@@ -86,7 +98,7 @@ def render(code):
             put(KO17[ch]); continue
         if ch in ACC:
             b, top = ACC[ch]; m = L[b]; put(m, [t.replace("#", "#") for t in top]); continue
-        put(L[ch])
+        put(L[CYR.get(ch, ch)])
     return ["".join(c) for c in cols]
 
 JA_CELL = 23   # the Japanese release: 23 px per character
@@ -112,8 +124,9 @@ COLOURS = {"#": (204, 204, 204), "+": (170, 170, 170), "-": (136, 136, 136)}
 def preview(out, title):
     from PIL import Image
     base = Image.open(title).convert("RGB"); W, Ht = base.size
-    sheet = Image.new("RGB", (W * 2, Ht * 2))
-    for i, code in enumerate(("de", "fr", "es", "it", "ko", "ja")):
+    codes = [c for c in TEXT if c in sys.argv[4:]] or list(TEXT)
+    sheet = Image.new("RGB", (W * 2, Ht * ((len(codes) + 1) // 2)))
+    for i, code in enumerate(codes):
         im = base.copy(); px = im.load()
         for y in range(102, 124):
             for x in range(166, 332): px[x, y] = (0, 0, 0)   # the English subtitle away (preview only)
@@ -122,9 +135,10 @@ def preview(out, title):
             for x, c in enumerate(r):
                 if c in "#+-": v = nums["#+-".index(c)]; px[x0 + x, y0 + y] = (v, v, v)
         sheet.paste(im, ((i % 2) * W, (i // 2) * Ht))
-    sheet.resize((W * 4, Ht * 4), Image.NEAREST).save(out)
+    sheet.resize((sheet.width * 2, sheet.height * 2), Image.NEAREST).save(out)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--preview": preview(sys.argv[2], sys.argv[3])
     else:
-        for c in TEXT: print(c); print("\n".join(render(c)))
+        for c in TEXT:
+            if c != "ja": print(c); print("\n".join(render(c)))

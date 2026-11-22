@@ -4,7 +4,7 @@ While the final title screen runs (lk_brand_on, WaitForStartGame $039988, tools/
 English 'THE TREASURES OF KING NOLE' is covered in the finished picture and our own lettering (tools/titlefont.py: hand-drawn capitals in
 the title's style; Hangul / kanji from Noto Sans CJK KR / JP Bold 17 px, SIL OFL, lang/OFL-NotoSansCJK.txt) is drawn right-aligned where the English line ends; Japanese like the Japanese release (thin serif, near white, lines 113..132 from x 155).  The three greys follow the
 picture: they are scaled from the brightness of a pixel of the English letters in the previous frame (fades stay right).  Picture only
-(nothing in RAM / VRAM changes); English and English (JP) keep the original title.  Test aid: LANDSTALKER_TITLESUB=0 = off.
+(nothing in RAM / VRAM changes); ru / uk since LK_TSCYR v1; English and English (JP) keep the original title.  Test aid: LANDSTALKER_TITLESUB=0 = off.
 Needs patch_overlay.py (LK_BRAND v1) and patch_lang.py.  Idempotent.  usage: patch_titlesub.py path/to/genrecomp"""
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -16,11 +16,12 @@ def rep(s, old, new, what):
     assert s.count(old) == 1, what + " layout changed: " + old[:90]
     return s.replace(old, new, 1)
 
-codes = ("de", "fr", "es", "it", "ko", "ja")   # es / it: LK_LGES v1
+codes = ("de", "fr", "es", "it", "ru", "uk", "ko", "ja")   # es / it: LK_LGES v1; ru / uk: LK_TSCYR v1 (Cyrillic capitals, Щ with 2 rows below the line)
 lay = {c: tf.layout(c) for c in codes}   # rows, left x, first line, brightness of '#' / '+' / '-'
 cmap = {".": "0", "#": "1", "+": "2", "-": "3"}
 arrays = "".join("static const char lk_ts_%s[%d][%d] = { %s };\n" % (c, len(L[0]), len(L[0][0]) + 1, ", ".join('"%s"' % "".join(cmap[ch] for ch in row) for row in L[0])) for c, L in lay.items())
 table = "".join("static const char *lk_ts_row_%s(int y) { return lk_ts_%s[y]; }\n" % (c, c) for c in codes)
+table += "#define LK_TS_N %d   /* LK_TSCYR v1 */\n" % len(codes)
 table += "static const struct { const char *code; const char *(*row)(int); int w, h, x, top, n1, n2, n3; } lk_ts_tab[%d] = { %s };\n" % (
     len(codes), ", ".join('{ "%s", lk_ts_row_%s, %d, %d, %d, %d, %d, %d, %d }' % ((c, c, len(L[0][0]), len(L[0]), L[1], L[2]) + tuple(L[3])) for c, L in lay.items()))
 
@@ -43,8 +44,8 @@ static void lk_ts_row(PIXEL_OUT_T *row, int width) {
   if (off < 0) { const char *e = getenv("LANDSTALKER_TITLESUB"); off = e && *e && atoi(e) == 0; }
   if (off || line < LK_TS_Y0 || line > 140 || Wp < 320 || width < Wp + 2 * ox) return;
   code = lk_lang_code_cur(); if (!code || !*code) return;
-  for (i = 0; i < 4; i++) if (!strcmp(code, lk_ts_tab[i].code)) break;
-  if (i == 4) return;
+  for (i = 0; i < LK_TS_N; i++) if (!strcmp(code, lk_ts_tab[i].code)) break;   /* LK_TSCYR v1: was i < 4, which hid ko / ja once es / it came in */
+  if (i == LK_TS_N) return;
   r = row + ox; g0 = (Wp - 320) / 2;
   if (line == 105) lk_ts_ref = r[g0 + 131] & 0xFFFFFFu;   /* top-left pixel of the English 'T' (light grey), read before it is covered */
   if (line <= LK_TS_Y1) for (x = LK_TS_X0; x <= LK_TS_X1; x++) r[g0 + x] = (r[g0 + x] & 0xFF000000u) | 0;   /* the English line away (black background) */

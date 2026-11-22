@@ -11,3 +11,5 @@ appimagetool
 vendor/
 build_zig/
 dist/
+# MOD LAYER: the user's own mods + the generated workshop page (contains English decoded from the ROM)
+Mods/

@@ -3208,7 +3208,7 @@
   },
   "0351": {
    "h": "78eed745",
-   "t": "{Speaker}Хе-хе, хорошая{SoftNewLine}тренировка, а? Не{SoftNewLine}расслабляйся... хе-хе...{WaitInput}"
+   "t": "{Speaker}Хе-хе, неплохая{SoftNewLine}тренировка, а? Не{SoftNewLine}расслабляйся! Хе-хе...{WaitInput}"
   },
   "0352": {
    "h": "31116aee",
@@ -3220,27 +3220,27 @@
   },
   "0354": {
    "h": "7455368e",
-   "t": "{Speaker}Бам-па-да-да,{SoftNewLine}ди-да, РАСТИ! Скоро соберём{SoftNewLine}ба-ди-да-до.....{WaitInput}"
+   "t": "{Speaker}Ухо-хо-хо, ди-да,{SoftNewLine}РАСТИ! Скоро соберём{SoftNewLine}ба-ди-да-до.....{WaitInput}"
   },
   "0355": {
    "h": "9be8df48",
-   "t": "{Speaker}Мама любит петь!{WaitInput}"
+   "t": "{Speaker}Мама так любит{SoftNewLine}петь, что у меня голова{SoftNewLine}трещит!{WaitInput}"
   },
   "0356": {
    "h": "0308783a",
-   "t": "{Speaker}Тяните якорь,{SoftNewLine}йо-хо, волны бьют, йо-хо!{SoftNewLine}Хей-хей! Научу маму{ContinuePrompt}"
+   "t": "{Speaker}Хей-хей! Тяните{SoftNewLine}якорь, йо-хо, волны бьют,{SoftNewLine}йо-хо! Хей-хей! Научу маму{ContinuePrompt}"
   },
   "0357": {
    "h": "4668f39f",
-   "t": "{Speaker}новой песне!{WaitInput}"
+   "t": "{Speaker}новой песне, вот!{WaitInput}"
   },
   "0358": {
    "h": "23915645",
-   "t": "{Speaker}Не знаю, кто его{SoftNewLine}научил, но сынок поёт{SoftNewLine}какие-то странные песни...{WaitInput}"
+   "t": "{Speaker}Мой сынок поёт{SoftNewLine}странные песни... Где он их{SoftNewLine}набрался? Уши вянут!{WaitInput}"
   },
   "0359": {
    "h": "5fe5c1a6",
-   "t": "{Speaker}Бам-па-да-да,{SoftNewLine}ди-да, РАСТИ! Скоро соберём{SoftNewLine}ба-ди-да-до......Мне нравится!{WaitInput}"
+   "t": "{Speaker}Ухо-хо-хо, РАСТИ!{SoftNewLine}Скоро соберём{SoftNewLine}ба-ди-да-до......Втягиваюсь!{WaitInput}"
   },
   "035A": {
    "h": "da363b92",
@@ -3248,7 +3248,7 @@
   },
   "035B": {
    "h": "a3cecc1e",
-   "t": "{Speaker}Говорят,{SoftNewLine}подземные монстры гораздо{SoftNewLine}хитрее нас!{WaitInput}"
+   "t": "{Speaker}Говорят,{SoftNewLine}подземные монстры гораздо{SoftNewLine}хитрее нас! Кха-ха-ха!{WaitInput}"
   },
   "035C": {
    "h": "7d1ba2f6",
@@ -3256,15 +3256,15 @@
   },
   "035D": {
    "h": "46d4c6c3",
-   "t": "{Speaker}В молодости я{SoftNewLine}работал в замке.{ContinuePrompt}"
+   "t": "{Speaker}Знаешь, я ведь в{SoftNewLine}молодости служила горничной{SoftNewLine}в замке.{ContinuePrompt}"
   },
   "035E": {
    "h": "8024c6a9",
-   "t": "{Speaker}Нас почти никогда{SoftNewLine}не зовут в замок. Но я храню{SoftNewLine}воспоминание{ContinuePrompt}"
+   "t": "{Speaker}Простых людей в{SoftNewLine}замок почти не зовут. Но я{SoftNewLine}храню воспоминание, ах,{ContinuePrompt}"
   },
   "035F": {
    "h": "354ad480",
-   "t": "{Speaker}о его красоте...{WaitInput}"
+   "t": "{Speaker}о его{SoftNewLine}великолепии... Как я завидую{SoftNewLine}герцогу!{WaitInput}"
   },
   "0360": {
    "h": "71468baa",
@@ -3276,7 +3276,7 @@
   },
   "0362": {
    "h": "06b1c784",
-   "t": "{Speaker}выбросил{SoftNewLine}\"{Item}\". Это ученик{SoftNewLine}с маяка. Мы его допросили...{ContinuePrompt}"
+   "t": "{Speaker}выбросил в море{SoftNewLine}\"{Item}\". Это ученик{SoftNewLine}с маяка. Муж его расспросил{ContinuePrompt}"
   },
   "0363": {
    "h": "df2c3ae2",
@@ -3300,7 +3300,7 @@
   },
   "0368": {
    "h": "37b1d276",
-   "t": "{Speaker}Помнишь ученика{SoftNewLine}смотрителя маяка? Теперь он{SoftNewLine}служит генералу - {=arthur}!{WaitInput}"
+   "t": "{Speaker}Помнишь ученика с{SoftNewLine}маяка? Он одумался и служит{SoftNewLine}теперь генералу - {=arthur}!{WaitInput}"
   },
   "0369": {
    "h": "6c9ebf52",
@@ -3320,7 +3320,7 @@
   },
   "036D": {
    "h": "660ae904",
-   "t": "{Speaker}Папа с остальными{SoftNewLine}наверху допрашивают{SoftNewLine}ученика. Того самого,{ContinuePrompt}"
+   "t": "{Speaker}Батя с мужиками{SoftNewLine}наверху допрашивают{SoftNewLine}ученика. Того самого,{ContinuePrompt}"
   },
   "036E": {
    "h": "79ab1848",
@@ -3328,7 +3328,7 @@
   },
   "036F": {
    "h": "777726f4",
-   "t": "{Speaker}Да, они всё ещё{SoftNewLine}наверху. По-моему, ему уже{SoftNewLine}хватит.....{WaitInput}"
+   "t": "{Speaker}Ага, всё ещё там.{SoftNewLine}Привязались к нему!{SoftNewLine}По-моему, ему уже хватит.....{WaitInput}"
   },
   "0370": {
    "h": "8771a59a",
@@ -3336,43 +3336,43 @@
   },
   "0371": {
    "h": "f1c51921",
-   "t": "{Speaker}Папа с друзьями{SoftNewLine}наверху обсуждают новое{SoftNewLine}казино.{WaitInput}"
+   "t": "{Speaker}Батя с друзьями{SoftNewLine}наверху горячо обсуждают{SoftNewLine}новое казино!{WaitInput}"
   },
   "0372": {
    "h": "8de04858",
-   "t": "{Speaker}Меркатор - город{SoftNewLine}с традициями. Тут надо{SoftNewLine}вести себя прилично.{WaitInput}"
+   "t": "{Speaker}Меркатор - город{SoftNewLine}с традициями. Юноша, веди{SoftNewLine}себя тут прилично.{WaitInput}"
   },
   "0373": {
    "h": "cc884f69",
-   "t": "{Speaker}Скорее бы{SoftNewLine}победили злого колдуна... и{SoftNewLine}снизили налоги.....{WaitInput}"
+   "t": "{Speaker}Боже, пусть злого{SoftNewLine}колдуна накажут... и налоги в{SoftNewLine}городе снизят.....{WaitInput}"
   },
   "0374": {
    "h": "82a1c75a",
-   "t": "{Speaker}Герцог Меркатор{SoftNewLine}добрый, приветливый человек.{SoftNewLine}На днях он пришёл в город и{ContinuePrompt}"
+   "t": "{Speaker}Благодать-то{SoftNewLine}какая! На днях герцог{SoftNewLine}Меркатор пришёл в город и{ContinuePrompt}"
   },
   "0375": {
    "h": "69574dad",
-   "t": "{Speaker}поговорил с{SoftNewLine}каждым из нас лично. Я был{SoftNewLine}глубоко тронут.{WaitInput}"
+   "t": "{Speaker}поговорил с{SoftNewLine}каждым из нас, стариков.{SoftNewLine}Теперь и помирать не жалко!{WaitInput}"
   },
   "0376": {
    "h": "85bc5aeb",
-   "t": "{Speaker}Герцог Меркатор -{SoftNewLine}ЧУдесный человек! Такой{SoftNewLine}мягкий, добрый и утончённый.{WaitInput}"
+   "t": "{Speaker}Герцог Меркатор -{SoftNewLine}ЧУдо! Такой добрый, мягкий и{SoftNewLine}утончённый!{WaitInput}"
   },
   "0377": {
    "h": "9a653817",
-   "t": "{Speaker}Герцог Меркатор -{SoftNewLine}ЧУдесный человек! Такой{SoftNewLine}мягкий, добрый и утончённый.{ContinuePrompt}"
+   "t": "{Speaker}Герцог Меркатор -{SoftNewLine}ЧУдо! Такой добрый, мягкий и{SoftNewLine}утончённый!{ContinuePrompt}"
   },
   "0378": {
    "h": "6ae56fc3",
-   "t": "{Speaker}Здравствуйте,{SoftNewLine}молодой человек! Как вы{SoftNewLine}прекрасно выглядите.....{WaitInput}"
+   "t": "{Speaker}Ой! Вы тоже{SoftNewLine}прекрасно выглядите, сударь!{SoftNewLine}Совсем молодо!{WaitInput}"
   },
   "0379": {
    "h": "bebc6183",
-   "t": "{Speaker}Ну как? Ты видел{SoftNewLine}герцога Меркатора, да?{SoftNewLine}Завидую!{WaitInput}"
+   "t": "{Speaker}Ну как? Ты видел{SoftNewLine}герцога Меркатора, да?{SoftNewLine}Правда, прелесть? Завидую!{WaitInput}"
   },
   "037A": {
    "h": "b8c5ac04",
-   "t": "{Speaker}Ну как? Ты видел{SoftNewLine}Мира? Он правда такой{SoftNewLine}сильный, как говорят?{WaitInput}"
+   "t": "{Speaker}Ну как? Ты видел{SoftNewLine}Мира? Он правда такой{SoftNewLine}сильный? Какое у него лицо?{WaitInput}"
   },
   "037B": {
    "h": "f13a56f6",
@@ -3392,19 +3392,19 @@
   },
   "037F": {
    "h": "2a90b128",
-   "t": "{Speaker}занят? Что? Всё{SoftNewLine}ещё ищет сокровища?{SoftNewLine}Хм-м.....!{WaitInput}"
+   "t": "{Speaker}занят? Что? Всё{SoftNewLine}ещё ищет сокровища? Вот это{SoftNewLine}одержимость!{WaitInput}"
   },
   "0380": {
    "h": "6439064b",
-   "t": "{Speaker}Эта гадалка у нас{SoftNewLine}знаменита. Она умеет творить{SoftNewLine}потрясающие заклинания!{WaitInput}"
+   "t": "{Speaker}Эта гадалка{SoftNewLine}знаменита. Она ещё и{SoftNewLine}колдует - в этом вся соль!{WaitInput}"
   },
   "0381": {
    "h": "df93ef48",
-   "t": "{Speaker}Хе-хе... знаю,{SoftNewLine}знаю. Ты просил её наложить{SoftNewLine}на тебя заклинание, да?{ContinuePrompt}"
+   "t": "{Speaker}Хе-хе... Знаю,{SoftNewLine}знаю. Ты просил старушку{SoftNewLine}тебя заколдовать, а?{ContinuePrompt}"
   },
   "0382": {
    "h": "a96129b9",
-   "t": "{Speaker}Ну так иди!{SoftNewLine}Заведение мадам Ярд как раз{SoftNewLine}напротив.{WaitInput}"
+   "t": "{Speaker}Так иди скорее!{SoftNewLine}Заведение мадам Ярд как раз{SoftNewLine}напротив!{WaitInput}"
   },
   "0383": {
    "h": "414a58a7",
@@ -3416,7 +3416,7 @@
   },
   "0385": {
    "h": "4ae7e021",
-   "t": "{Speaker}Я бы купил этот{SoftNewLine}участок, но... эта собака{SoftNewLine}вообще продаёт или нет?{WaitInput}"
+   "t": "{Speaker}Эх, хочу купить{SoftNewLine}этот участок, но продаст ли{SoftNewLine}его эта собака? Хм-м...{WaitInput}"
   },
   "0386": {
    "h": "24d34afd",
@@ -3432,7 +3432,7 @@
   },
   "0389": {
    "h": "f835e301",
-   "t": "{Speaker}Вот мой шанс... У{SoftNewLine}меня лучший участок во всём{SoftNewLine}Меркаторе!{WaitInput}"
+   "t": "{Speaker}Вот мой шанс... Эх,{SoftNewLine}у меня теперь лучший{SoftNewLine}участок во всём Меркаторе!{WaitInput}"
   },
   "038A": {
    "h": "3d10d680",
@@ -3448,19 +3448,19 @@
   },
   "038D": {
    "h": "111a957e",
-   "t": "{Speaker}Ах, боже мой!{SoftNewLine}Корабль не может отплыть{SoftNewLine}из-за неполадок с маяком!{WaitInput}"
+   "t": "{Speaker}Ой, беда! В порту{SoftNewLine}переполох! Маяк сломался,{SoftNewLine}корабль не может отплыть!{WaitInput}"
   },
   "038E": {
    "h": "afd2a4d1",
-   "t": "{Speaker}Ах, боже мой!{SoftNewLine}Корабль не может отплыть{SoftNewLine}из-за неполадок с маяком!{ContinuePrompt}"
+   "t": "{Speaker}Ой, беда! В порту{SoftNewLine}переполох! Маяк сломался,{SoftNewLine}корабль не может отплыть!{ContinuePrompt}"
   },
   "038F": {
    "h": "bad36f58",
-   "t": "{Speaker}Ах, боже мой,{SoftNewLine}это..... о! Ты починил?{SoftNewLine}Здорово!{WaitInput}"
+   "t": "{Speaker}Ой, беда, это.....{SoftNewLine}о! Ты починил? Ну ты даёшь!{WaitInput}"
   },
   "0390": {
    "h": "9ce04147",
-   "t": "{Speaker}Слышал про новое{SoftNewLine}казино? Там так весело!{WaitInput}"
+   "t": "{Speaker}Слышал про новое{SoftNewLine}казино? Там так весело - обо{SoftNewLine}всём плохом забудешь!{WaitInput}"
   },
   "0391": {
    "h": "c415911e",
@@ -3472,11 +3472,11 @@
   },
   "0393": {
    "h": "f693b56f",
-   "t": "{Speaker}Ты правда идёшь в{SoftNewLine}Башню Мира? Жить надоело,{SoftNewLine}что ли?!!{WaitInput}"
+   "t": "{Speaker}Ты правда идёшь в{SoftNewLine}Башню Мира? Ну ты даёшь!{SoftNewLine}Жить надоело, что ли?!!{WaitInput}"
   },
   "0394": {
    "h": "63790519",
-   "t": "{Speaker}С возвращением! А{SoftNewLine}мы думали, ты погиб!{WaitInput}"
+   "t": "{Speaker}С возвращением,{SoftNewLine}герой! А мы думали, ты{SoftNewLine}погиб!{WaitInput}"
   },
   "0395": {
    "h": "87e06537",
@@ -3488,11 +3488,11 @@
   },
   "0397": {
    "h": "609475ed",
-   "t": "{Speaker}Я не хотел{SoftNewLine}занимать лучшее место в{SoftNewLine}городе!.....{WaitInput}"
+   "t": "{Speaker}Я не хотел{SoftNewLine}занимать лучшее место в{SoftNewLine}городе! Бурчу.....{WaitInput}"
   },
   "0398": {
    "h": "c3e40237",
-   "t": "{Speaker}Сразу видно - ты{SoftNewLine}покоритель сердец...{WaitInput}"
+   "t": "{Speaker}Братик, ты ведь{SoftNewLine}сердцеед, да?{WaitInput}"
   },
   "0399": {
    "h": "6f82414e",
@@ -3504,19 +3504,19 @@
   },
   "039B": {
    "h": "57d24602",
-   "t": "{Speaker}Мы с мамой едем{SoftNewLine}на материк открывать филиал.{SoftNewLine}Заходи в гости!{ContinuePrompt}"
+   "t": "{Speaker}Братик! Мы с{SoftNewLine}мамой едем на материк{SoftNewLine}открывать магазин! Заходи!{ContinuePrompt}"
   },
   "039C": {
    "h": "add9edf9",
-   "t": "{Speaker}Что? А, чем мы{SoftNewLine}занимаемся, увидишь, когда{SoftNewLine}придёшь!{WaitInput}"
+   "t": "{Speaker}Что? Чем мы{SoftNewLine}занимаемся? Придёшь -{SoftNewLine}узнаешь! Уфу-фу!{WaitInput}"
   },
   "039D": {
    "h": "2b2b36ab",
-   "t": "{Speaker}Пожалуйста,{SoftNewLine}почините маяк для нас с{SoftNewLine}мамой!{WaitInput}"
+   "t": "{Speaker}Братик! Почини{SoftNewLine}маяк ради нас с мамой! Ну{SoftNewLine}пожалуйста?{WaitInput}"
   },
   "039E": {
    "h": "8009512f",
-   "t": "{Speaker}Я ни разу не был{SoftNewLine}на материке. Я родился и{SoftNewLine}вырос на этом острове.{WaitInput}"
+   "t": "{Speaker}Я родилась на{SoftNewLine}этом острове, на материке{SoftNewLine}не была. Папа? Секрет!{WaitInput}"
   },
   "039F": {
    "h": "ede26966",
@@ -3528,31 +3528,31 @@
   },
   "03A1": {
    "h": "26fcb340",
-   "t": "{Speaker}Хочу ещё раз{SoftNewLine}насладиться жизнью! Попрошу{SoftNewLine}её меня заколдовать!{WaitInput}"
+   "t": "{Speaker}Хочу ещё разок{SoftNewLine}насладиться жизнью, ей-ей!{SoftNewLine}Пусть она меня заколдует!{WaitInput}"
   },
   "03A2": {
    "h": "b87b0df8",
-   "t": "{Speaker}Я молод! Я снова{SoftNewLine}молод! Ура!{WaitInput}"
+   "t": "{Speaker}Ага, это я, я!{SoftNewLine}Видишь, я снова молод! Ура!{SoftNewLine}Ну, теперь пошалим!{WaitInput}"
   },
   "03A3": {
    "h": "f8c69f95",
-   "t": "{Speaker}О, {=fahl}, мой{SoftNewLine}милый, когда же ты заметишь{SoftNewLine}меня? Я думаю о тебе{SoftNewLine}всегда.{WaitInput}"
+   "t": "{Speaker}О, милый {=fahl},{SoftNewLine}когда же ты встретишься со{SoftNewLine}мной? Я буду ждать вечно!{WaitInput}"
   },
   "03A4": {
    "h": "621e7e74",
-   "t": "{Speaker}Видишь? Что эта{SoftNewLine}девчонка делает в его{SoftNewLine}комнате! Не могу терпеть!{WaitInput}"
+   "t": "{Speaker}Кии-и! Что эта{SoftNewLine}девчонка делает в его{SoftNewLine}комнате! Кии-и!{WaitInput}"
   },
   "03A5": {
    "h": "f2a1823e",
-   "t": "{Speaker}Слышишь? {=fahl}{SoftNewLine}болтает с этой девчонкой{SoftNewLine}всю ночь напролёт...!{ContinuePrompt}"
+   "t": "{Speaker}Слышишь? {=fahl}{SoftNewLine}болтает с этой девчонкой{SoftNewLine}всю ночь напролёт! Завидую!{ContinuePrompt}"
   },
   "03A6": {
    "h": "d8b89f71",
-   "t": "{Speaker}Я начинаю{SoftNewLine}ревновать...!{WaitInput}"
+   "t": "{Speaker}Ревную! Ревную!...!{WaitInput}"
   },
   "03A7": {
    "h": "6f2efbf5",
-   "t": "{Speaker}Наверное, пора{SoftNewLine}забыть о нём...{WaitInput}"
+   "t": "{Speaker}Пожалуй, пора{SoftNewLine}забыть о нём... Мне слишком{SoftNewLine}больно.{WaitInput}"
   },
   "03A8": {
    "h": "50d1cd3a",
@@ -3560,7 +3560,7 @@
   },
   "03A9": {
    "h": "3db1ca5a",
-   "t": "{Speaker}он такой старый!{SoftNewLine}Почему все девушки по нему{SoftNewLine}сохнут?{WaitInput}"
+   "t": "{Speaker}он же старикашка!{SoftNewLine}Чем он их всех берёт?{WaitInput}"
   },
   "03AA": {
    "h": "14e462c5",
@@ -3572,15 +3572,15 @@
   },
   "03AC": {
    "h": "b5b66c6f",
-   "t": "{Speaker}Если честно, я{SoftNewLine}солдат из замка. Мой долг -{SoftNewLine}стоять здесь на страже{ContinuePrompt}"
+   "t": "{Speaker}Хе-хе, я на деле{SoftNewLine}солдат из замка. Мой долг -{SoftNewLine}стоять тут на страже{ContinuePrompt}"
   },
   "03AD": {
    "h": "9abba5e2",
-   "t": "{Speaker}переодетым. Я{SoftNewLine}горжусь этой работой!{WaitInput}"
+   "t": "{Speaker}переодетым.{SoftNewLine}Хе-хе, круто, а? Я горжусь{SoftNewLine}этой работой!{WaitInput}"
   },
   "03AE": {
    "h": "38119afd",
-   "t": "{Speaker}Вы тоже идёте в{SoftNewLine}башню? Ну и смелые вы!{WaitInput}"
+   "t": "{Speaker}Вы тоже в башню?{SoftNewLine}Откуда столько смелости...{SoftNewLine}Вот бы мне капельку!{WaitInput}"
   },
   "03AF": {
    "h": "b76d5cf9",
@@ -3592,15 +3592,15 @@
   },
   "03B1": {
    "h": "f05faded",
-   "t": "{Speaker}{=zak} и {=dexter}?{SoftNewLine}Они спустились в склеп{SoftNewLine}некоторое время назад.{WaitInput}"
+   "t": "{Speaker}{=zak} и {=dexter}?{SoftNewLine}Они спустились в склеп.{SoftNewLine}Надеюсь, всё обойдётся...{WaitInput}"
   },
   "03B2": {
    "h": "9cc09c17",
-   "t": "{Speaker}Привет! Ты тоже{SoftNewLine}охотник за сокровищами, да?{SoftNewLine}Нынче их тут{ContinuePrompt}"
+   "t": "{Speaker}Ой! Ты тоже{SoftNewLine}охотник за сокровищами, да?{SoftNewLine}В последнее время их тут{ContinuePrompt}"
   },
   "03B3": {
    "h": "01710584",
-   "t": "{Speaker}что-то много.....{WaitInput}"
+   "t": "{Speaker}много, только все{SoftNewLine}уходят несолоно хлебавши.....{WaitInput}"
   },
   "03B4": {
    "h": "e4ef4a4a",
@@ -3608,7 +3608,7 @@
   },
   "03B5": {
    "h": "abaabfa7",
-   "t": "{Speaker}Это замок{SoftNewLine}Меркатора. Я не могу{SoftNewLine}пустить тебя внутрь.{WaitInput}"
+   "t": "{Speaker}Это замок{SoftNewLine}Меркатора. Пускаю только{SoftNewLine}гостей герцога.{WaitInput}"
   },
   "03B6": {
    "h": "cf39b18f",
@@ -3624,7 +3624,7 @@
   },
   "03B9": {
    "h": "1ef31f63",
-   "t": "{Speaker}Стоять вот так -{SoftNewLine}моя мечта!{WaitInput}"
+   "t": "{Speaker}Стоять тут вот{SoftNewLine}так - моя мечта! Эхем!{WaitInput}"
   },
   "03BA": {
    "h": "c8d7626a",
@@ -3636,15 +3636,15 @@
   },
   "03BC": {
    "h": "f51231bd",
-   "t": "{Speaker}Тут не место{SoftNewLine}чумазым мальчишкам вроде{SoftNewLine}тебя! Пошёл вон!{WaitInput}"
+   "t": "{Speaker}Здесь не место{SoftNewLine}чумазым сопляком вроде{SoftNewLine}тебя! Живо вон!{WaitInput}"
   },
   "03BD": {
    "h": "e20e249a",
-   "t": "{Speaker}Ты {=nigel}?{SoftNewLine}Хм-м...... Моложе, чем я{SoftNewLine}думал...{WaitInput}"
+   "t": "{Speaker}...Так это ты{SoftNewLine}{=nigel}? Хм, моложе, чем я{SoftNewLine}думал... а уже наглый сопляк.{WaitInput}"
   },
   "03BE": {
    "h": "70117a50",
-   "t": "{Speaker}Идёшь побеждать{SoftNewLine}Мира, да? Надеюсь, у мамы{SoftNewLine}найдётся что-нибудь чёрное!{ContinuePrompt}"
+   "t": "{Speaker}Хе-хе... Идёшь{SoftNewLine}бить Мира? Надеюсь, у мамы{SoftNewLine}есть что-нибудь чёрное!{ContinuePrompt}"
   },
   "03BF": {
    "h": "0616bc54",
@@ -3652,7 +3652,7 @@
   },
   "03C0": {
    "h": "bc819917",
-   "t": "{Speaker}{=nigel}! Ты жив!!{SoftNewLine}Герцог Меркатор оценит{SoftNewLine}твою смелость!{WaitInput}"
+   "t": "{Speaker}Господин {=nigel}!{SoftNewLine}Вы живы!! Герцог оценит вашу{SoftNewLine}смелость! Сдаюсь!{WaitInput}"
   },
   "03C1": {
    "h": "889b4c66",
@@ -3660,7 +3660,7 @@
   },
   "03C2": {
    "h": "47eeea69",
-   "t": "{Speaker}Мы - первые{SoftNewLine}детишки-привратники этого{SoftNewLine}замка.{WaitInput}"
+   "t": "{Speaker}Мы - первые{SoftNewLine}детишки-привратники этого{SoftNewLine}замка! Хей-хей!{WaitInput}"
   },
   "03C3": {
    "h": "b2f576a8",
@@ -3672,35 +3672,35 @@
   },
   "03C5": {
    "h": "dccb3632",
-   "t": "{Speaker}Я тут разбогател,{SoftNewLine}так что возвращаюсь на{SoftNewLine}материк.{WaitInput}"
+   "t": "{Speaker}Я тут накопила{SoftNewLine}денег и вернусь на материк.{SoftNewLine}Ради ребёнка тоже...{WaitInput}"
   },
   "03C6": {
    "h": "b1f2ac07",
-   "t": "{Speaker}Как не вовремя! Я{SoftNewLine}готов, а корабль не может{SoftNewLine}отплыть!...{WaitInput}"
+   "t": "{Speaker}Как не вовремя! Я{SoftNewLine}собралась, а корабль не{SoftNewLine}отплывает!... Не везёт же.{WaitInput}"
   },
   "03C7": {
    "h": "893b76c9",
-   "t": "{Speaker}Думаю,{SoftNewLine}накопленного здесь хватит на{SoftNewLine}своё дело.{WaitInput}"
+   "t": "{Speaker}Думаю,{SoftNewLine}накопленного хватит на своё{SoftNewLine}дело, хоть на кабачок.{WaitInput}"
   },
   "03C8": {
    "h": "27054d82",
-   "t": "{Speaker}Люблю море...{SoftNewLine}Свежий солёный бриз делает{SoftNewLine}меня счастливым...{WaitInput}"
+   "t": "{Speaker}Ох, море...{SoftNewLine}Солёный ветер в лицо - и{SoftNewLine}счастье, обо всём забудешь...{WaitInput}"
   },
   "03C9": {
    "h": "b90c4888",
-   "t": "{Speaker}Герцог Меркатор{SoftNewLine}уплыл с невиданными мной{SoftNewLine}солдатами в доспехах!{ContinuePrompt}"
+   "t": "{Speaker}Герцог Меркатор{SoftNewLine}отплыл с невиданными{SoftNewLine}латниками, ох-ох!{ContinuePrompt}"
   },
   "03CA": {
    "h": "f7fea0f7",
-   "t": "{Speaker}А как они уплыли,{SoftNewLine}маяк вдруг погас...{WaitInput}"
+   "t": "{Speaker}А вскоре после{SoftNewLine}этого маяк вдруг и погас...{WaitInput}"
   },
   "03CB": {
    "h": "708d715e",
-   "t": "{Speaker}Мы все так{SoftNewLine}обрадовались, когда маяк{SoftNewLine}снова зажегся.{ContinuePrompt}"
+   "t": "{Speaker}Мы уж не знали,{SoftNewLine}что и думать, а маяк снова{SoftNewLine}горит - гора с плеч! А?{ContinuePrompt}"
   },
   "03CC": {
    "h": "52ada28b",
-   "t": "{Speaker}О! Ты нашёл{SoftNewLine}предмет \"{Item}\"?{SoftNewLine}Правда?{WaitInput}"
+   "t": "{Speaker}О! Ты нашёл{SoftNewLine}предмет \"{Item}\"?{SoftNewLine}Ого-о!!{WaitInput}"
   },
   "03CD": {
    "h": "1ed55a4d",
@@ -3708,15 +3708,15 @@
   },
   "03CE": {
    "h": "909e0dae",
-   "t": "{Speaker}Видел принцессу,{SoftNewLine}что живёт в замке? Такая{SoftNewLine}милашка!{WaitInput}"
+   "t": "{Speaker}Видел принцессу,{SoftNewLine}что живёт в замке? Такая{SoftNewLine}милашка! Хочу так же!{WaitInput}"
   },
   "03CF": {
    "h": "66a1ba69",
-   "t": "{Speaker}Я закончил{SoftNewLine}разгрузку! Сегодня вечером{SoftNewLine}гуляем у Гринпи!{WaitInput}"
+   "t": "{Speaker}Фух! Разгрузился!{SoftNewLine}Сегодня с ребятами гуляем у{SoftNewLine}Гринпи на всю катушку!{WaitInput}"
   },
   "03D0": {
    "h": "6e6745f1",
-   "t": "{Speaker}Пока маяк сломан,{SoftNewLine}корабль не может отплыть!{WaitInput}"
+   "t": "{Speaker}Пока маяк сломан,{SoftNewLine}корабль не отплывёт! Кто же{SoftNewLine}это сделал...?{WaitInput}"
   },
   "03D1": {
    "h": "f4188875",
@@ -3728,11 +3728,11 @@
   },
   "03D3": {
    "h": "e5643f29",
-   "t": "{Speaker}Маяк не работает!{SoftNewLine}Как мне вести корабль!{WaitInput}"
+   "t": "{Speaker}Вот так дела!{SoftNewLine}Маяк не работает! Как мне{SoftNewLine}вести корабль!{WaitInput}"
   },
   "03D4": {
    "h": "592e1a76",
-   "t": "{Speaker}Корабль до Верлы{SoftNewLine}скоро отходит от порта!{WaitInput}"
+   "t": "{Speaker}Рейс на Верлу!{SoftNewLine}Рейс на Верлу! Скоро{SoftNewLine}отправляемся!{WaitInput}"
   },
   "03D5": {
    "h": "60235dcc",
@@ -3748,7 +3748,7 @@
   },
   "03D8": {
    "h": "ceb751b4",
-   "t": "{Speaker}Сейчас не до{SoftNewLine}песен! Положение{SoftNewLine}критическое!{WaitInput}"
+   "t": "{Speaker}Не время{SoftNewLine}дурачиться! Для нас,{SoftNewLine}моряков, дело серьёзное!{WaitInput}"
   },
   "03D9": {
    "h": "498f0779",
@@ -3756,15 +3756,15 @@
   },
   "03DA": {
    "h": "8cdf9a22",
-   "t": "{Speaker}Простите! Этот{SoftNewLine}склад только для торговцев.{WaitInput}"
+   "t": "{Speaker}Прости, малец!{SoftNewLine}Этот склад только для{SoftNewLine}торговцев.{WaitInput}"
   },
   "03DB": {
    "h": "b8796cdd",
-   "t": "{Speaker}Заходи и осмотри{SoftNewLine}склад! Наверняка найдёшь{SoftNewLine}что-нибудь по вкусу!{WaitInput}"
+   "t": "{Speaker}Товар свежайший,{SoftNewLine}всего вдоволь! Заходи,{SoftNewLine}что-нибудь да приглянется!{WaitInput}"
   },
   "03DC": {
    "h": "a5f582bb",
-   "t": "{Speaker}До встречи в{SoftNewLine}следующем месяце! Хорошего{SoftNewLine}дня!{WaitInput}"
+   "t": "{Speaker}Увидимся в{SoftNewLine}следующем месяце! Бывай,{SoftNewLine}парень!{WaitInput}"
   },
   "03DD": {
    "h": "790c5a5d",
@@ -3800,7 +3800,7 @@
   },
   "03E5": {
    "h": "9fbe1797",
-   "t": "{Speaker}Хозяина тут зовут{SoftNewLine}Гринпи.{WaitInput}"
+   "t": "{Speaker}Хозяина тут зовут{SoftNewLine}Гринпи. Ничего особенного,{SoftNewLine}просто имя!{WaitInput}"
   },
   "03E6": {
    "h": "1f54edd2",
@@ -3812,7 +3812,7 @@
   },
   "03E8": {
    "h": "04acb3ba",
-   "t": "{Speaker}Эй, дружище!{SoftNewLine}Слыхал? Маяк починили! Я{SoftNewLine}снова капитан! Ха-ха!!{WaitInput}"
+   "t": "{Speaker}Га-ха-ха-ха!{SoftNewLine}Слыхал? Маяк починили! Я{SoftNewLine}снова капитан! Хей-хей!{WaitInput}"
   },
   "03E9": {
    "h": "6efd58df",
@@ -3824,15 +3824,15 @@
   },
   "03EB": {
    "h": "5363b3b5",
-   "t": "{Speaker}Принести браслет{SoftNewLine}- значит доказать, что ты{SoftNewLine}достоин войти в башню!{WaitInput}"
+   "t": "{Speaker}Добыть браслет -{SoftNewLine}значит доказать, что достоин{SoftNewLine}войти в башню, юноша!{WaitInput}"
   },
   "03EC": {
    "h": "d6e81087",
-   "t": "{Speaker}Это браслет? Ты{SoftNewLine}правда справился? Ого...!! Раз{SoftNewLine}у тебя хватило{ContinuePrompt}"
+   "t": "{Speaker}Браслет? Ты{SoftNewLine}добыл?! Я сразу понял, ты не{SoftNewLine}простой! Раз хватило{ContinuePrompt}"
   },
   "03ED": {
    "h": "7c66af10",
-   "t": "{Speaker}сил и ума добыть{SoftNewLine}браслет, Мир тебе нипочём...{WaitInput}"
+   "t": "{Speaker}сил и ума добыть{SoftNewLine}его, Мир тебе нипочём...{SoftNewLine}Надеюсь на тебя, юноша!{WaitInput}"
   },
   "03EE": {
    "h": "f2c48ade",
@@ -3844,35 +3844,35 @@
   },
   "03F0": {
    "h": "109cdcac",
-   "t": "{Speaker}Добро пожаловать{SoftNewLine}в замок Меркатора!{WaitInput}"
+   "t": "{Speaker}Добро пожаловать{SoftNewLine}в замок Меркатора! Герцог{SoftNewLine}вас заждался!{WaitInput}"
   },
   "03F1": {
    "h": "3bb0421f",
-   "t": "{Speaker}{=nigel}! Я так{SoftNewLine}тебя уважаю! Ты мой идеал!!{ContinuePrompt}"
+   "t": "{Speaker}Н-{=nigel}! Я так{SoftNewLine}вас уважаю! Вы мой идеал!!{ContinuePrompt}"
   },
   "03F2": {
    "h": "dcb798ad",
-   "t": "{Speaker}Пожалуйста,{SoftNewLine}вернись целым и невредимым!{SoftNewLine}Удачи...!{WaitInput}"
+   "t": "{Speaker}Вернитесь целым и{SoftNewLine}невредимым! Я буду ждать!{SoftNewLine}Удачи...!{WaitInput}"
   },
   "03F3": {
    "h": "3a5264cf",
-   "t": "{Speaker}Пожалуйста,{SoftNewLine}вернись целым и невредимым!{SoftNewLine}Я буду молиться за тебя!{WaitInput}"
+   "t": "{Speaker}Вернитесь целым и{SoftNewLine}невредимым! Я буду молиться{SoftNewLine}за вас!{WaitInput}"
   },
   "03F4": {
    "h": "c4a3ab90",
-   "t": "{Speaker}{=nigel}! С{SoftNewLine}возвращением! Слава богине,{SoftNewLine}она услышала мою молитву!{WaitInput}"
+   "t": "{Speaker}{=nigel}! Вы{SoftNewLine}вернулись! Слава богине, она{SoftNewLine}услышала мою молитву!{WaitInput}"
   },
   "03F5": {
    "h": "88993f9c",
-   "t": "{Speaker}{=nigel}! Я уж{SoftNewLine}думал, ты... Герцог и{SoftNewLine}какие-то странные{ContinuePrompt}"
+   "t": "{Speaker}Н-{=nigel}! Вы{SoftNewLine}живы! Я ничего не понимаю!{SoftNewLine}Герцог и какие-то странные{ContinuePrompt}"
   },
   "03F6": {
    "h": "63502714",
-   "t": "{Speaker}солдаты в{SoftNewLine}доспехах вдруг...{WaitInput}"
+   "t": "{Speaker}солдаты в{SoftNewLine}доспехах, как чудища,{SoftNewLine}вдруг...{WaitInput}"
   },
   "03F7": {
    "h": "215e80fd",
-   "t": "{Speaker}Ужасно...!{WaitInput}"
+   "t": "{Speaker}У-у... Как страшно!{WaitInput}"
   },
   "03F8": {
    "h": "4b00e3a1",
@@ -3884,7 +3884,7 @@
   },
   "03FA": {
    "h": "aca59e79",
-   "t": "{Speaker}Береги себя!{ContinuePrompt}"
+   "t": "{Speaker}Берегите себя!{ContinuePrompt}"
   },
   "03FB": {
    "h": "5f92c394",
@@ -3904,15 +3904,15 @@
   },
   "03FF": {
    "h": "a138cc63",
-   "t": "{Speaker}Теперь налоги{SoftNewLine}снизят, и мне прибавят{SoftNewLine}жалованье... надеюсь.{WaitInput}"
+   "t": "{Speaker}Теперь налоги{SoftNewLine}снизят и, глядишь, прибавят{SoftNewLine}жалованье... Ги-хе-хе-хе!{WaitInput}"
   },
   "0400": {
    "h": "cfee7cb1",
-   "t": "{Speaker}Странно! За{SoftNewLine}герцогом шли огромные{SoftNewLine}монстры, как солдаты!{ContinuePrompt}"
+   "t": "{Speaker}Чудно! За{SoftNewLine}герцогом шли огромные{SoftNewLine}монстры, похожие на солдат!{ContinuePrompt}"
   },
   "0401": {
    "h": "953e9c82",
-   "t": "{Speaker}Как странно!.....{WaitInput}"
+   "t": "{Speaker}Как чудно!.....{WaitInput}"
   },
   "0402": {
    "h": "74f970d2",
@@ -3932,27 +3932,27 @@
   },
   "0406": {
    "h": "ccc37ed2",
-   "t": "{Speaker}Ла-ла-ла... ла-ла...{SoftNewLine}Почему я такой счастливый?{SoftNewLine}Ну, когда я подметал сад,{ContinuePrompt}"
+   "t": "{Speaker}Ла-ла-ла... ла-ла...{SoftNewLine}Почему я такая счастливая?{SoftNewLine}Ну, когда я подметала сад,{ContinuePrompt}"
   },
   "0407": {
    "h": "c4b830bb",
-   "t": "{Speaker}увидел на земле{SoftNewLine}красивую заколку, очень{SoftNewLine}дорогую! Мне повезло!{WaitInput}"
+   "t": "{Speaker}упала красивая{SoftNewLine}заколка, очень дорогая! Мне{SoftNewLine}повезло! Тс-с, это секрет!{WaitInput}"
   },
   "0408": {
    "h": "14b6a2e4",
-   "t": "{Speaker}Эта дверь не для{SoftNewLine}героя! Не могли бы вы войти{SoftNewLine}через парадную?{WaitInput}"
+   "t": "{Speaker}Эта дверь не для{SoftNewLine}героя! Прошу вас, входите{SoftNewLine}через парадную!{WaitInput}"
   },
   "0409": {
    "h": "8acbf68e",
-   "t": "{Speaker}В замок внезапно{SoftNewLine}ворвались странные солдаты{SoftNewLine}в доспехах! Генерал {=arthur}{ContinuePrompt}"
+   "t": "{Speaker}Беда! В замок{SoftNewLine}ворвались странные солдаты{SoftNewLine}в доспехах! Генерал {=arthur}{ContinuePrompt}"
   },
   "040A": {
    "h": "93432943",
-   "t": "{Speaker}сражается с ними{SoftNewLine}один! Пожалуйста, спасите{SoftNewLine}его! СКОРЕЕ!!{WaitInput}"
+   "t": "{Speaker}сражается с ними{SoftNewLine}один! Скорее, спасите его!{SoftNewLine}СКОРЕЕ!!{WaitInput}"
   },
   "040B": {
    "h": "3bf55bff",
-   "t": "{Speaker}Куда ушёл герцог?{SoftNewLine}Что он задумал?{WaitInput}"
+   "t": "{Speaker}Ах, куда же ушёл{SoftNewLine}герцог? Что он задумал...?{WaitInput}"
   },
   "040C": {
    "h": "a271705b",
