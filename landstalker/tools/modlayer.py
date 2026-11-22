@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 """modlayer.py: the MOD LAYER (2026-11-22, user: natives should correct texts without editing our JSON; 'auf einer Modding-Ebene').
 
-Mods live in a VISIBLE folder of the user (v2 2026-11-22 night: the hidden data folder was not user friendly) and are never touched by an
-update or a rebuild:
-    Linux / Deck:  ~/Documents/Project-Friday Mods/          (the XDG documents folder, xdg-user-dir DOCUMENTS)
-    Windows:       Documents\\Project-Friday Mods\\              (the known folder, also when it is moved to OneDrive)
-    override:      LANDSTALKER_MODS=<folder>
-    inside:        Mod Workshop.html (the editor, ONE file with its data: sandboxed browsers such as the Deck's Flatpak Chrome / Firefox
-                   may read only the file that was opened) and lang/
+Where mods live (v3 2026-11-22 night, user: NOTHING outside the Project-Friday folder, nothing placed or fetched elsewhere unasked):
+    Windows ZIP:        <unzipped folder>\\Mods\\
+    Windows installer:  <install folder>\\Mods\\  (%LOCALAPPDATA%\\Programs\\Project-Friday; the uninstaller leaves it: RMDir of a non-empty folder)
+    AppImage:           'Project-Friday Mods' next to the AppImage file (the folder the player put it in)
+    Deck dev build:     landstalker/Mods/ in the repository (git-ignored)
+    firstrun.py sets LANDSTALKER_MODS for the packages (mods_for_app()); without it: <this tools folder>/../Mods.
+    inside:             Mod Workshop.html (the editor, ONE file with its data: sandboxed browsers such as the Deck's Flatpak Chrome /
+                        Firefox may read only the file that was opened) and lang/
 Layer 1 = language: lang/<code>.json holds ONLY the changed texts, in the blocks of lang/<code>.json, as plain strings:
     {"meta": {"code": "ru", "format": 1}, "strings": {"02E4": "..."}, "names": {"menu:02": "..."},
      "item_dialog": {"item:00": "..."}, "map_areas": {"SWAMP_SHRINE": "..."}, "ui_text": {"Widescreen": "..."}}
-The page saves a download 'Project-Friday-mod-<code>.json'; pickup() moves such files from the Downloads folder into lang/ at the next
-start (no folder to find for the player).  tools/langbuild.py mixes the mods in when it builds a language (apply(); a refused text keeps
-the current translation, lang/<code>.report.json); sync() = migrate + pickup + rebuild the changed languages + rewrite the page
-(firstrun.py at every start; CLI below).  No game data in a mod file: only the modder's own text.
+The page saves straight into that folder where the browser allows it (Chrome / Edge: folder chosen once) or offers a download that the
+player moves into lang/ himself (Firefox).  tools/langbuild.py mixes the mods in when it builds a language (apply(); a refused text keeps
+the current translation, lang/<code>.report.json); sync() = rebuild the changed languages + rewrite the page (firstrun.py at every start).
+No game data in a mod file: only the modder's own text.
 
-    python3 tools/modlayer.py sync ROM LANG_SRC OUT_LANG     pickup + rebuild changed languages + page (what a start does)
-    python3 tools/modlayer.py pickup                         only move downloaded mod files into lang/
+    python3 tools/modlayer.py sync ROM LANG_SRC OUT_LANG     rebuild languages whose mod changed + rewrite the page (what a start does)
     python3 tools/modlayer.py where                          print the mods folder"""
-import glob, hashlib, json, os, shutil, subprocess, sys
+import hashlib, json, os, subprocess, sys
 
 LANG_BLOCKS = ("strings", "names", "item_dialog")     # entries {"h": hash of the English source, "t": text}
 LANG_PLAIN = ("map_areas", "ui_text", "friday")       # plain strings (our own keys, no English source); friday = Friday hints {hint id: gentle text} (lang/friday_hints.json)
@@ -33,82 +33,26 @@ def data_dir():
     return os.path.join(os.environ.get("XDG_DATA_HOME") or os.path.join(os.path.expanduser("~"), ".local", "share"), "project-friday")
 
 
-def user_dir(kind):
-    """the user's visible Documents ('DOCUMENTS') or Downloads ('DOWNLOAD') folder"""
-    home = os.path.expanduser("~")
-    if os.name == "nt":
-        try:   # SHGetKnownFolderPath: FOLDERID_Documents / FOLDERID_Downloads (a moved / OneDrive folder too)
-            import ctypes, uuid
-            from ctypes import wintypes
-            g = uuid.UUID({"DOCUMENTS": "{FDD39AD0-238F-46AF-ADB4-6C85480369C7}", "DOWNLOAD": "{374DE290-123F-4565-9164-39C4925E467B}"}[kind])
-            class GUID(ctypes.Structure): _fields_ = [("b", ctypes.c_byte * 16)]
-            gid = GUID(); ctypes.memmove(ctypes.byref(gid), g.bytes_le, 16); out = ctypes.c_wchar_p()
-            if ctypes.windll.shell32.SHGetKnownFolderPath(ctypes.byref(gid), 0, None, ctypes.byref(out)) == 0:
-                p = out.value; ctypes.windll.ole32.CoTaskMemFree(out)
-                if p: return p
-        except Exception:
-            pass
-        return os.path.join(os.environ.get("USERPROFILE") or home, {"DOCUMENTS": "Documents", "DOWNLOAD": "Downloads"}[kind])
-    try:
-        p = subprocess.run(["xdg-user-dir", kind], capture_output=True, text=True, timeout=5).stdout.strip()
-        if p and os.path.abspath(p) != os.path.abspath(home): return p
-    except Exception:
-        pass
-    return os.path.join(home, {"DOCUMENTS": "Documents", "DOWNLOAD": "Downloads"}[kind])
-
-
-MODS_NAME = "Project-Friday Mods"
+MODS_NAME = "Mods"                    # inside the Project-Friday folder (ZIP / installer / dev repository)
+APPIMAGE_MODS = "Project-Friday Mods"  # next to the AppImage file
 PAGE_NAME = "Mod Workshop.html"
-DL_PREFIX = "Project-Friday-mod-"
+
+
+def mods_for_app(app_dir):
+    """the mods folder of a package whose files lie in app_dir (firstrun.py HERE): next to the AppImage file for an AppImage (its own
+    folder is a read-only mount), else <app_dir>/Mods"""
+    if os.environ.get("APPIMAGE"): return os.path.join(os.path.dirname(os.path.abspath(os.environ["APPIMAGE"])), APPIMAGE_MODS)
+    return os.path.join(app_dir, MODS_NAME)
 
 
 def mods_dir():
-    return os.environ.get("LANDSTALKER_MODS") or os.path.join(user_dir("DOCUMENTS"), MODS_NAME)
-
-
-def migrate():
-    """v1 kept the mods in the hidden data folder (<data>/mods): move the user's mod files to the visible folder once and remove the
-    old generated page (Mod Workshop.html + workshop/data.js) and empty folders"""
-    old = os.path.join(data_dir(), "mods")
-    if os.environ.get("LANDSTALKER_MODS") or not os.path.isdir(old) or os.path.abspath(old) == os.path.abspath(mods_dir()): return
-    new = os.path.join(mods_dir(), "lang"); os.makedirs(new, exist_ok=True)
-    for f in sorted(glob.glob(os.path.join(old, "lang", "*.json"))):
-        if f.endswith(".report.json"): os.remove(f); continue
-        dst = os.path.join(new, os.path.basename(f))
-        if not os.path.exists(dst): shutil.move(f, dst); print("modlayer: moved %s -> %s" % (f, dst))
-    for f in (os.path.join(old, "Mod Workshop.html"), os.path.join(old, "workshop", "data.js")):
-        if os.path.isfile(f): os.remove(f)
-    for d in (os.path.join(old, "workshop"), os.path.join(old, "lang"), old):
-        try: os.rmdir(d)
-        except OSError: pass
-
-
-def pickup():
-    """move the page's downloads (Downloads/Project-Friday-mod-<code>.json, also 'Project-Friday-mod-ru (1).json' and the like) into
-    lang/<code>.json; the newest per language wins, older copies are removed.  Only files that are mod files (meta.code + format) are
-    touched.  Returns the language codes that changed."""
-    dl = user_dir("DOWNLOAD"); best = {}
-    for f in glob.glob(os.path.join(dl, DL_PREFIX + "*.json")):
-        try:
-            m = json.load(open(f, encoding="utf-8")); code = m["meta"]["code"]
-            if not (isinstance(m, dict) and m["meta"].get("format") == 1 and isinstance(code, str) and code.isalnum() and len(code) <= 8): continue
-        except (OSError, ValueError, KeyError, TypeError, AttributeError):
-            continue
-        best.setdefault(code, []).append((os.path.getmtime(f), f))
-    done = []
-    for code, fs in sorted(best.items()):
-        fs.sort(); dst = lang_mod_path(code); os.makedirs(os.path.dirname(dst), exist_ok=True)
-        shutil.move(fs[-1][1], dst); os.utime(dst)   # mtime = now: newer than the built language file -> rebuilt
-        for _, f in fs[:-1]: os.remove(f)
-        print("modlayer: %s -> %s" % (fs[-1][1], dst)); done.append(code)
-    return done
+    return os.environ.get("LANDSTALKER_MODS") or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), MODS_NAME)
 
 
 def sync(rom, src, outdir):
-    """what a start does: migrate, pickup, rebuild every language whose mod file is newer than its built file (langbuild --only, ~3 s
-    each), then rewrite the workshop page (tools/modpage.py, only when an input changed)"""
+    """what a start does: rebuild every language whose mod file is newer than its built file (langbuild --only, ~3 s each), then
+    rewrite the workshop page (tools/modpage.py, only when an input changed)"""
     here = os.path.dirname(os.path.abspath(__file__))
-    migrate(); pickup()
     ml = os.path.join(mods_dir(), "lang")
     if os.path.isdir(ml):
         for f in sorted(os.listdir(ml)):
@@ -185,7 +129,6 @@ def save_report(code, refused):
 def main():
     a = sys.argv[1:]
     if a[:1] == ["where"]: print(mods_dir()); return 0
-    if a[:1] == ["pickup"]: migrate(); pickup(); return 0
     if a[:1] == ["sync"] and len(a) == 4: sync(*a[1:]); return 0
     sys.exit(__doc__)
 

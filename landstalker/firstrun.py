@@ -604,13 +604,15 @@ def main():
             subprocess.run([sys.executable, jt, rom, os.path.join(work, "out", "lang")], cwd=work, timeout=120, capture_output=True)
         except Exception:
             pass
-    # MOD LAYER (user 2026-11-22): tools/modlayer.py sync = move the workshop page's downloads (Downloads/Project-Friday-mod-<code>.json) into
-    # Documents/Project-Friday Mods/lang/, rebuild every language whose mod is newer than its built file (~3 s), rewrite 'Mod Workshop.html'
+    # MOD LAYER (user 2026-11-22): mods stay in the Project-Friday folder (ZIP / install folder: Mods\, AppImage: 'Project-Friday Mods' next to
+    # the AppImage file; tools/modlayer.py mods_for_app); modlayer.py sync rebuilds every language whose mod is newer than its built file
+    # (~3 s) and rewrites 'Mod Workshop.html' there
     ml = os.path.join(work, "tools", "modlayer.py")
     if os.path.isfile(ml):
         try:
-            env0 = dict(os.environ); env0.setdefault("LANDSTALKER_DATA", DATA)   # the old v1 mods folder (<data>/mods) is moved once
-            subprocess.run([sys.executable, ml, "sync", rom, os.path.join(work, "lang"), os.path.join(work, "out", "lang")], cwd=work, timeout=600, capture_output=True, env=env0)
+            sys.path.insert(0, os.path.dirname(ml)); import modlayer
+            os.environ.setdefault("LANDSTALKER_MODS", modlayer.mods_for_app(HERE))   # also seen by the game (env below)
+            subprocess.run([sys.executable, ml, "sync", rom, os.path.join(work, "lang"), os.path.join(work, "out", "lang")], cwd=work, timeout=600, capture_output=True)
         except Exception:
             pass
     env = dict(os.environ)

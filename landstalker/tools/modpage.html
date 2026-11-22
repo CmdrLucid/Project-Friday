@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Project-Friday Mod Workshop</title>
-<!-- MOD LAYER v2 (tools/modpage.py writes this page WITH its data into the user's mods folder, ~/Documents/Project-Friday Mods; no server: opened from the disk) -->
+<!-- MOD LAYER v3 (tools/modpage.py writes this page WITH its data into the mods folder inside the Project-Friday folder, tools/modlayer.py; no server: opened from the disk) -->
 <style>
 :root { --bg:#14161c; --panel:#1d2029; --line:#2c303c; --text:#e6e8ee; --dim:#9aa0ae; --acc:#e0b24a; --ok:#5cc28a; --bad:#e06a5a; --mod:#243328; }
 * { box-sizing:border-box; }
@@ -64,7 +64,7 @@ textarea.dirty { border-color:var(--acc); }
   <p class="help">Write the new text in the right column; leave it empty to keep the current one. Keep the codes in braces as in the English text:
     <code>{SoftNewLine}</code> line break, <code>{ContinuePrompt}</code> wait for a button, <code>{Speaker}</code> the speaker's name;
     <code>{=name}</code> is a character name from the name list (it follows Options &gt; Names). Line breaks and pauses may move. Item names: at most 2 lines of 9 letters in the item menu. Friday hints: the | sign starts a new line, her name is put in front by the game.
-    <b>Save</b>: your browser puts the file <code>Project-Friday-mod-&lt;language&gt;.json</code> into your Downloads folder. Start the game again: it takes the file from there by itself and shows your texts. To share your corrections, send that file (for example in a GitHub issue).</p>
+    <b>Save</b> writes your changes into the folder <code>lang</code> next to this page (Chrome / Edge: choose this page's folder once). Other browsers (Firefox) download the file: move it into that <code>lang</code> folder yourself. The game uses it from its next start. To share your corrections, send that file (for example in a GitHub issue).</p>
   <div id="status"></div>
   <div class="pager" id="pg1"></div>
   <table><thead><tr><th style="width:110px">Id</th><th>Original (English, from your ROM)</th><th>Current text</th><th>New text</th></tr></thead><tbody id="rows"></tbody></table>
@@ -77,11 +77,11 @@ const $ = id => document.getElementById(id);
 const esc = s => (s || "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const tags = s => esc(s).replace(/\{[^}]*\}/g, m => '<span class="tag">' + m + "</span>");
 const BLOCKS = ["strings", "names", "item_dialog", "map_areas", "ui_text", "friday"];
-let L = null, mod = {}, view = [], page = 0, dirty = {}, refused = {};
+let L = null, mod = {}, view = [], page = 0, dirty = {}, refused = {}, dirH = null;
 const key = r => r[0] + "|" + r[1];
 const store = { get(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 
-if (!D) { document.querySelector("main").innerHTML = '<div id="nodata">The texts are missing in this page. Start the game once: it writes this page with all texts into the folder Documents / Project-Friday Mods.</div>'; }
+if (!D) { document.querySelector("main").innerHTML = '<div id="nodata">The texts are missing in this page. Start the game once: it writes this page with all texts into its Mods folder.</div>'; }
 else init();
 
 function init() {
@@ -144,6 +144,13 @@ $("rows").addEventListener("input", e => {
 });
 function status(s, cls) { $("status").textContent = s; $("status").className = cls || ""; }
 
+async function folder() {   // Chrome / Edge: write straight into the mods folder (chosen once per visit; Firefox has no folder access -> download)
+  if (!window.showDirectoryPicker) return null;
+  if (dirH && (await dirH.queryPermission({ mode: "readwrite" })) === "granted") return dirH;
+  status("Choose the folder of this page (" + D.mods + ") so the page can save there.");
+  try { dirH = await window.showDirectoryPicker({ id: "pfmods", mode: "readwrite" }); } catch (e) { return null; }
+  return dirH;
+}
 function modText() { return JSON.stringify(Object.assign({ meta: { code: L.code, format: 1 } }, mod), null, 1) + "\n"; }
 $("save").onclick = async () => {
   const bad = Object.entries(dirty).filter(([k, t]) => check(L.rows.find(x => key(x) === k), t));
@@ -151,8 +158,16 @@ $("save").onclick = async () => {
   for (const [k, t] of Object.entries(dirty)) { const [b, ...rest] = k.split("|"), id = rest.join("|"); mod[b] = mod[b] || {}; if (t === "") delete mod[b][id]; else mod[b][id] = t; }
   BLOCKS.forEach(b => { if (mod[b] && !Object.keys(mod[b]).length) delete mod[b]; });
   const n = BLOCKS.reduce((a, b) => a + Object.keys(mod[b] || {}).length, 0), txt = modText();
-  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type: "application/json" })); a.download = "Project-Friday-mod-" + L.code + ".json"; document.body.appendChild(a); a.click(); a.remove();
-  status("Saved: " + n + " changed text(s) in Project-Friday-mod-" + L.code + ".json (your Downloads folder).\nStart the game again: it takes the file from there by itself.", "ok");
+  const d = await folder();
+  if (d && d.name !== D.modsName && !confirm('The chosen folder is "' + d.name + '", not "' + D.modsName + '" (the folder of this page). Save there anyway?')) { dirH = null; return status("Not saved.", "bad"); }
+  if (d) {
+    try { const ld = await d.getDirectoryHandle("lang", { create: true }), fh = await ld.getFileHandle(L.code + ".json", { create: true }), w = await fh.createWritable(); await w.write(txt); await w.close(); }
+    catch (e) { return status("Saving failed: " + e, "bad"); }
+    status("Saved " + n + " changed text(s) to " + d.name + "/lang/" + L.code + ".json. Start the game again to see them.", "ok");
+  } else {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type: "application/json" })); a.download = L.code + ".json"; document.body.appendChild(a); a.click(); a.remove();
+    status("Your browser saved " + L.code + ".json as a download (" + n + " changed text(s)).\nMove it into  " + D.mods + "/lang/  (replace the old file there), then start the game again.", "ok");
+  }
   L.mod = JSON.parse(JSON.stringify(mod)); dirty = {}; store.set("pf_draft_" + L.code, {}); $("save").disabled = true; draw();
 };
 $("lang").onchange = pick; $("filter").onchange = filter; $("q").oninput = filter;

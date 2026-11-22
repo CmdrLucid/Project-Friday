@@ -6,8 +6,8 @@ Mod-Folder zum Aufrufen', and NO local server on the player's computer).
                                   2026-11-22 night: a separate workshop/data.js was invisible to the Deck's sandboxed Flatpak browsers, they
                                   may read only the opened file): per language id, current translation, the user's mod texts and the last
                                   build's refused list, plus the original English decoded from the user's OWN ROM (stays on this computer, never shipped)
-The page keeps unsaved edits in the browser and saves 'Project-Friday-mod-<code>.json' as a download; the next start moves it into
-<mods>/lang/ and rebuilds that language (tools/modlayer.py sync).  Rewritten only when an input changed (stamp in line 2 of the page)."""
+The page keeps unsaved edits in the browser and saves <mods>/lang/<code>.json (Chrome / Edge: folder chosen once) or as a download the player
+moves there (Firefox); the next start rebuilds that language (tools/modlayer.py sync).  Rewritten only when an input changed (stamp in line 2 of the page)."""
 import json, os, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -54,7 +54,7 @@ def build(rom, src, mods):
         langs.append({"code": code, "name": lang.get("meta", {}).get("name", code), "rows": rows, "mod": modlayer.load_lang_mod(code), "refused": rep})
     for k in used:
         if k in en_all: en[k] = en_all[k]
-    return {"generated": time.strftime("%Y-%m-%d %H:%M"), "mods": os.path.abspath(mods), "en": en, "fen": fen, "languages": langs,
+    return {"generated": time.strftime("%Y-%m-%d %H:%M"), "mods": os.path.abspath(mods), "modsName": os.path.basename(os.path.abspath(mods)), "en": en, "fen": fen, "languages": langs,
             "layout": ["NewLine", "SoftNewLine", "Pause1s", "Pause1sOrInput", "Pause1_5sOrInput", "Pause2sOrInput", "BreakSpace", "BreakPoint", "Hyphen"]}
 
 
