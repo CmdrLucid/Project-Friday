@@ -50,17 +50,22 @@ def mods_dir():
 
 
 def sync(rom, src, outdir):
-    """what a start does: rebuild every language whose mod file is newer than its built file (langbuild --only, ~3 s each), then
-    rewrite the workshop page (tools/modpage.py, only when an input changed)"""
+    """what a start does: rebuild every language whose mod file is newer than its built file, or whose mod file was removed since it was
+    built with one (<code>.modded from langbuild) (langbuild --only, ~3 s each), then rewrite the workshop page (tools/modpage.py, only when an input changed)"""
     here = os.path.dirname(os.path.abspath(__file__))
     ml = os.path.join(mods_dir(), "lang")
+    todo = []
     if os.path.isdir(ml):
         for f in sorted(os.listdir(ml)):
             code = f[:-5] if f.endswith(".json") and not f.endswith(".report.json") else ""
             out = os.path.join(outdir, code + ".bin")
-            if code and os.path.isfile(os.path.join(src, f)) and (not os.path.isfile(out) or os.path.getmtime(os.path.join(ml, f)) > os.path.getmtime(out)):
-                r = subprocess.run([sys.executable, os.path.join(here, "langbuild.py"), rom, src, outdir, "--only", code], capture_output=True, text=True, timeout=300)
-                print("modlayer: rebuilt %s (exit %d)" % (code, r.returncode)); sys.stdout.write(r.stdout[-2000:])
+            if code and os.path.isfile(os.path.join(src, f)) and (not os.path.isfile(out) or os.path.getmtime(os.path.join(ml, f)) > os.path.getmtime(out)): todo.append(code)
+    if os.path.isdir(outdir):   # a language built with a mod whose file is gone now (the player deleted it): back to the plain translation (langbuild <code>.modded)
+        for f in sorted(os.listdir(outdir)):
+            if f.endswith(".modded") and not os.path.isfile(os.path.join(ml, f[:-7] + ".json")) and f[:-7] not in todo: todo.append(f[:-7])
+    for code in todo:
+        r = subprocess.run([sys.executable, os.path.join(here, "langbuild.py"), rom, src, outdir, "--only", code], capture_output=True, text=True, timeout=300)
+        print("modlayer: rebuilt %s (exit %d)" % (code, r.returncode)); sys.stdout.write(r.stdout[-2000:])
     r = subprocess.run([sys.executable, os.path.join(here, "modpage.py"), rom, src, mods_dir()], capture_output=True, text=True, timeout=120)
     sys.stdout.write(r.stdout[-2000:] + r.stderr[-2000:])
 
