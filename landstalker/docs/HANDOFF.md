@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 54-59
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 874-885
-- 1. Where we are: lines 886-1055
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1056-1350
-- 3. How the user works (important): lines 1351-1366
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1367-1391
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1392-1400
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1401-1448
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1449-1458
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1459-1460
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1461-1463
-- NEXT STEPS, newest first: -257 1057, -256 1058, -255 1059, -254 1060, -253 1061, -252 1062, -251 1063, -250 1064, -249 1065, -248 1066
+- 1. Where we are: lines 886-1056
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1057-1351
+- 3. How the user works (important): lines 1352-1367
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1368-1392
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1393-1401
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1402-1449
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1450-1459
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1460-1461
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1462-1464
+- NEXT STEPS, newest first: -257 1058, -256 1059, -255 1060, -254 1061, -253 1062, -252 1063, -251 1064, -250 1065, -249 1066, -248 1067
 - Newest entries:
   - 0a497 line 191: 2026-11-21 late (Deck, Opus 5.5, no agents; dev): user night check of the docks crate shed ('links passt de...
   - 0a496 line 193: 2026-11-21 evening (Deck, Opus 5.5, no agents; dev; user away, 'arbeite selbststaendig Lichtformen ab'; ALL...
@@ -884,6 +884,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-22 SESSION END (Opus 5.5, no agents, `dev` 81c8141+ pushed, main = v1.9.8, no release):** docks crate shed rebuilt from draft pictures (user OK on the pictures: 4 crate rows, roof on them); light-data fixes (crate shed / stone building op rectangles hid pines, 5 false bushes); LK_GLOBJB v1 + LK_LTPLANTCELL v1 (hard vertical sword-light line down the docks pine). ALL HEADLESS (GPU shots, lightedges 0 in 6 rooms); NOT played. 0a497 / -257.
 - **2026-11-21 EVENING (Opus 5.5, no agents, `dev`, user away):** docks finished (crate shed, stone buildings), Mercator 632 well / drawbridge chains / granite block, columns 524 / 525, ~20 wrong automatic shapes removed (terraces, mis-anchored); real outdoor leftover count ~108 -> ~85. HEADLESS ONLY (GPU lightedges 0). 0a496 / -256.
 - **2026-11-21 SESSION END (Opus 5.5, no agents, `dev` 2d76338+ pushed, main = v1.9.8, no release):** USER CONFIRMED BY PLAYING: the pine shadows ('deutlich, deutlich besser') = plants.py v3 feet in all outdoor rooms + plane B plants + pine refit + small pine fix (0a494). HEADLESS ONLY (GPU lightedges 0, not played / partly not looked at by the user): stone faces 433 (user OK on the sheet), 62 swamp twigs, pillars 739, stone blocks 486, 9 dock mooring posts, dock log hut (0a495). Rejected and removed: statues 592 / 31 from primitives. Next -255.
 - **2026-11-21 LATE MORNING (Opus 5.5, no agents, `dev`):** stone faces 433 (user OK) + while the user was away: 62 swamp twigs built from the drawing, pillars 739, stone blocks 486 (all to be checked by the user), patch_lights empty mesh table fix. GPU lightedges 0. HEADLESS ONLY. 0a495 / -254.

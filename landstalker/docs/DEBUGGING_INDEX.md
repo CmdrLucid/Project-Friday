@@ -260,3 +260,4 @@
 - L2048: Room 458 hard vertical shadow edge = wrong plant feet (2026-11-21, plants.py v3 feet, tools/heightview.py, dev 7558151 .. a907c09)
 - L2057: Plant feet everywhere, plane B plants, leftover light shapes, docks (2026-11-21 day, dev 0861d6c .. 2d76338)
 - L2067: Leftover light shapes sweep (2026-11-21 evening, dev 1cc6a98 ..)
+- L2070: Docks crate shed redo + hard pine lines in the sword light (2026-11-21 late .. 2026-11-22, dev 397744f .. 81c8141)
