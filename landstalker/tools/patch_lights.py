@@ -757,6 +757,7 @@ static int lk_lt_isout(int room) {   /* v5: outdoor room = tileset 0 / 7 / 12 / 
   return ts == 0 || ts == 7 || ts == 12 || ts == 13 || ts == 14 || ts == 17;
 }
 static void lk_lt_free(void) { lk_lt_gen++; }   /* a new room / shaft set: the GPU blocks of the old one are stale (2026-11-12: no CPU blocks, workers or prefetch any more) */
+static int lk_lt_figdir(const float *sd, float px, float py, float pz);   /* (test aid pairdbg) */
 static int16_t lk_lt_cfr[LK_LT_ML], lk_lt_cfc[LK_LT_ML];   /* LK_CRYPTFIRE v1: plane cell (row, col) of one flame tile per flame light */
 static int lk_lt_isflame(uint32_t base, float *r, float *g, float *bl) {   /* AnimatedTilesetData entries that are light sources (tools/animsurvey.py, user 2026-11-02) */
   switch (base) {
@@ -2168,7 +2169,8 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
     if (hd < 1.0f) { lk_lt_pn[k][j][0] = 0.7071f; lk_lt_pn[k][j][1] = 0.7071f; } else { lk_lt_pn[k][j][0] = dx / hd; lk_lt_pn[k][j][1] = dy / hd; }   /* v4 */
   }
   { static long pf = -2; if (pf == -2) { const char *e = getenv("LANDSTALKER_LT_PAIRDBG"); pf = e ? atol(e) : -1; }   /* test aid (2026-11-19, statue shadows): pairs of every light with every figure at frame N */
-    if (pf >= 0 && platform_frame_number() == pf) for (j = 0; j < lk_lt_nf; j++) { printf("pairdbg: frame %%ld fig %%d tag %%d at (%%.0f, %%.0f, %%.0f) screen (%%d, %%d)\n", pf, j, lk_lt_f[j].tag, lk_lt_f[j].fx, lk_lt_f[j].fy, lk_lt_f[j].fz, lk_lt_f[j].ax, lk_lt_f[j].ay);
+    if (pf >= 0 && platform_frame_number() == pf) for (j = 0; j < lk_lt_nf; j++) { { int yy, xx, npx = 0, ymin = 999, ymax = -1; for (yy = 0; yy < 224; yy++) for (xx = 0; xx < LK_OSW; xx++) if ((lk_o_spr[yy][xx] & 0x200) && (lk_lt_spre[yy][xx] == lk_lt_f[j].tag || lk_lt_spre2[yy][xx] == lk_lt_f[j].tag)) { npx++; if (yy < ymin) ymin = yy; if (yy > ymax) ymax = yy; }   /* test aid: the figure's silhouette pixels (own sprite tag) and its sun share */
+      printf("pairdbg: frame %%ld fig %%d tag %%d at (%%.0f, %%.0f, %%.0f) screen (%%d, %%d) sun %%.2f silhouette %%d px rows %%d..%%d\n", pf, j, lk_lt_f[j].tag, lk_lt_f[j].fx, lk_lt_f[j].fy, lk_lt_f[j].fz, lk_lt_f[j].ax, lk_lt_f[j].ay, lk_lt_f[j].sun, npx, ymin, ymax);  { const float *sdd = lk_lt_sun && lk_dn_on && lk_lt_sdf[2] > 0.0f ? lk_lt_sdf : lk_lt_sd; int hq, nh = 0; for (hq = 6; hq <= 46; hq += 8) { float tq = (float)hq / (sdd[2] > 0.05f ? sdd[2] : 0.05f); nh += lk_lt_figdir(sdd, lk_lt_f[j].fx - sdd[0] * tq, lk_lt_f[j].fy - sdd[1] * tq, lk_lt_f[j].fz); } printf("pairdbg:   fig %%d cpu figdir hits %%d of 6 ground points on its shadow line\n", j, nh); } }
       for (k = 0; k < lk_lt_nl; k++) printf("pairdbg:   light %%d pair %%d n (%%.2f, %%.2f) door %%d\n", k, lk_lt_pair[k][j], lk_lt_pn[k][j][0], lk_lt_pn[k][j][1], lk_dn_ldoor[k]); } }
   lk_lt_fmall = 0;
   for (k = 0; k < lk_lt_nl; k++) for (j = 0; j < lk_lt_nf; j++) if (lk_lt_pair[k][j]) {   /* v8 SPEED (user 2026-11-05: 'gerne noch die Fackelraeume optimieren'): the screen box a flame's figure shadow can fall into:
