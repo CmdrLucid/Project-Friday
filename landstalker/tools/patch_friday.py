@@ -40,11 +40,13 @@ def wrap(text):
             else: cur = (cur + " " + w) if cur else w
         lines.append(cur)
     return lines
-def words(text, lang=None):
+NAMES = lb.load_names()
+def words(text, lang=None, variant="local"):
     """our hint text -> word list (glyph codes, ~handler words).  Her name leads the first line ('Flora: ...', like the early version of the game wrote speakers);
     the box shows 3 lines and scrolls like a normal dialogue; after every 3 lines the game waits for a button (ContinuePrompt, the arrow); the text ends with
     ContinuePrompt like the chest messages"""
-    lines = wrap((NAME[lang] + " " + text) if lang else text)
+    if lang: text = lb.resolve("{=friday}: " + text, NAMES, lang, variant) if variant == "jp" else NAME[lang] + " " + lb.resolve(text, NAMES, lang, variant)   # LK_FHNAMES v1: {=name} per name variant
+    lines = wrap(text)
     out = []
     for i, line in enumerate(lines):
         if i:
@@ -79,9 +81,10 @@ for h in hints:
     c0 = len(conds)
     for c in h.get("when", []): conds.append(cond(c))
     offs = []
-    for lang in ("en", "de"):
-        for lv in (0, 1):
-            w = words(h[lang][lv], lang); offs.append((len(data), len(w))); data.extend(w)
+    for variant in ("local", "jp"):   # LK_FHNAMES v1: t[0..3] localized names, t[4..7] Options > Names = Japanese
+        for lang in ("en", "de"):
+            for lv in (0, 1):
+                w = words(h[lang][lv], lang, variant); offs.append((len(data), len(w))); data.extend(w)
     ents.append((c0, len(conds) - c0, offs)); ids.append(h["id"])
 c_words = ",".join("0x%02X,0x%02X" % (w >> 8, w & 0xFF) for w in data)
 c_conds = ",".join("{%d,%d,%d}" % c for c in conds) or "{0,0,0}"
@@ -90,7 +93,7 @@ c_ids = ",".join('"%s"' % re.sub(r"[^A-Za-z0-9_]", "", i) for i in ids)
 
 TABLES = {"lk_fh_w": "static const uint8_t lk_fh_w[] = { %s };" % c_words,
           "lk_fh_c": "static const struct { uint8_t k; uint16_t a, b; } lk_fh_c[] = { %s };" % c_conds,
-          "lk_fh_e": "static const struct { uint16_t c0, nc; struct { uint16_t off, n; } t[4]; } lk_fh_e[] = { %s };   /* t: en L1, en L2, de L1, de L2 */" % c_ents,
+          "lk_fh_e": "static const struct { uint16_t c0, nc; struct { uint16_t off, n; } t[8]; } lk_fh_e[] = { %s };   /* t: en L1, en L2, de L1, de L2, then the same with the Japanese names (LK_FHNAMES v1) */" % c_ents,
           "lk_fh_id": "static const char *lk_fh_id[] = { %s };" % c_ids,
           "lk_fh_h": "static const uint16_t lk_fh_h[] = { %s };   /* v3: string ids of the heard: conditions (a = first, b = count, any of them) */" % (",".join("0x%04X" % v for v in heard) or "0")}
 
@@ -203,7 +206,8 @@ static void lk_fh_ask(void) {
     for (e = 0; e < n; e++) { int ok = 1; for (i = 0; i < lk_fh_e[e].nc && ok; i++) ok = lk_fh_test(lk_fh_e[e].c0 + i); if (ok) pick = e; }
     lv = 0;   /* only the gentle level (user 2026-10-31: 'nur die vagen Hinweise, nicht mehr 2-stufig'; the clear level stays in lang/friday_hints.json) */
     de = lk_lg_sel > 0 && !strcmp(lk_lg_codes[lk_lg_sel], "de");
-    str.id = 0x16; str.n = lk_fh_e[pick].t[de * 2 + lv].n; str.w = lk_fh_w + 2 * lk_fh_e[pick].t[de * 2 + lv].off;
+    { extern int lk_names_get(void); int ti = (lk_names_get() ? 4 : 0) + de * 2 + lv;   /* LK_FHNAMES v1: Options > Names = Japanese -> the Japanese-name texts */
+      str.id = 0x16; str.n = lk_fh_e[pick].t[ti].n; str.w = lk_fh_w + 2 * lk_fh_e[pick].t[ti].off; }
     if (!de && lk_lg_on && lk_lg_str && lv == 0) { LkLgStr key, *r; key.id = (uint16_t)(0xE000 + pick);   /* LK_FRIDAY_LANG v1 (release 2.0): the hint in the loaded language (tools/fridaylang.py: fr / ko / ja file strings $E000 + entry) */
       r = bsearch(&key, lk_lg_str, (size_t)lk_lg_nstr, sizeof *lk_lg_str, lk_lg_cmp); if (r) { str.n = r->n; str.w = r->w; } }
     if (getenv("LANDSTALKER_FRIDAY_LOG")) fprintf(stderr, "friday: frame %ld stage %d/%d/%d room %d -> %s level %d\n", (long)platform_frame_number(), lk_fh_stage[1], lk_fh_stage[2], lk_fh_stage[3], (int)bus_read16(0xFF1204u), lk_fh_id[pick], lv + 1);

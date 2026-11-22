@@ -28,10 +28,10 @@ def paginate(lines):
     return out + "{ContinuePrompt}"
 
 
-def latin_text(W, code, text):
-    """fr / ko: word wrap with the real glyph widths (tools/langwrap.py) -> string with control codes"""
+def latin_text(W, code, text, prefix=None):
+    """fr / ko: word wrap with the real glyph widths (tools/langwrap.py) -> string with control codes; prefix = her name for this name variant (LK_FHNAMES v1), default NAME[code]"""
     import langwrap
-    s, _ = langwrap.wrap(W, NAME[code] + " " + text)
+    s, _ = langwrap.wrap(W, (prefix or NAME[code]) + " " + text)
     return paginate([l for l in s.split("{SoftNewLine}")])
 
 

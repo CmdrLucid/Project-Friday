@@ -271,6 +271,8 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
     lang = json.loads(json.dumps(lang))   # a copy: the placeholders are resolved per variant
     import fridaylang   # release 2.0: Friday hints of this language as extra strings $E000 + entry
     fcode = lang.get("meta", {}).get("code", ""); fh = fridaylang.entries(fcode) if fcode in fridaylang.NAME else []
+    fh = [(sid, resolve(t, nm_tab, base, variant) if "{=" in t else t) for sid, t in fh]   # LK_FHNAMES v1 (user 2026-11-22: Arthur kept his localized name with Names = Japanese): the hints' {=name} per variant
+    fpre = None if fcode in ("ko", "ja") else resolve("{=friday}:", nm_tab, base, variant)   # her own name in front ('Friday:' / 'Фрайди:'; the Japanese variant 'Friday:')
     ko = base in WIDE_LANGS   # LK_LGKO v1 / LK_LGCYR v1 (ru / uk)
     if ko:   # LK_LGKO v1: resolve the placeholders first, then give every Hangul syllable a code
         for blk in ("strings", "names", "item_dialog"):
@@ -305,7 +307,7 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
     if fh:   # release 2.0: Friday hints (gentle level), wrapped with the real glyph widths
         import langwrap; W = langwrap.widths(rom); nfh = 0
         for sid, t in fh:
-            try: toks = tokens(fridaylang.latin_text(W, fcode, t))
+            try: toks = tokens(fridaylang.latin_text(W, fcode, t, fpre))
             except ValueError as e: dropped.append(("friday:%04X" % sid, str(e))); continue
             words = [v if k == "g" else ~HANDLER[v] & 0xFFFF for k, v in toks if k in ("g", "c")]
             strs.append((sid, len(blob), len(words))); blob += b"".join(struct.pack(">H", w) for w in words) + b"\xff\xff"; nfh += 1

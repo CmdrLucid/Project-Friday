@@ -100,6 +100,8 @@ chk "Alternatives Steuerkreuz: Options-Schalter"  $G/src/platform_sdl.c "LK_ALTP
 chk "Item-Nachwirkung auf der Karte (Pfeife, #23)" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_POSTUSEMAP v1"
 chk "Fenstergroesse merken (#25)" $G/src/platform_sdl.c "LK_WINMEM v1"
 chk "Gasthaus: Morgen nach der Nacht (#24)" $G/src/func_table.c "LK_INNMORNING v1"
+chk "Tag/Nacht: Sonne beim Raumwechsel aus der Uhrzeit (#24)" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_DNROOMSUN v1"
+chk "Friday-Hinweise mit japanischen Namen" $G/src/func_table.c "LK_FHNAMES v1"
 chk "Schnellspeichern in Aufnahmen"                 $G/src/input.c "LK_QSREC v1"
 chk "Modernes HUD (Option)"                         $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_MHUD v3"
 chk "Sprint (R2)"                                   $G/src/func_table.c "LK_SPRINT v5"

@@ -2030,7 +2030,9 @@ void lk_dn_fasttoggle(void) { extern void lk_osd_say(const char *t); char m[40];
   snprintf(m, sizeof m, "TIMELAPSE %%s %%02d:%%02d", lk_dn_fast ? "ON" : "OFF", (int)lk_dn_t, (int)(fmod(lk_dn_t, 1.0) * 60.0)); lk_osd_say(m); }
 static void lk_dn_save(void) { const char *h = getenv("HOME"); char pth[512]; FILE *f; snprintf(pth, sizeof pth, "%%s/.landstalker_daytime", h ? h : "."); f = fopen(pth, "w"); if (f) { fprintf(f, "%%.3f\n", lk_dn_t); fclose(f); } }
 static void lk_dn_cancel(void) {   /* a new room: no step in progress, the target direction is built at once */
-  lk_dn_upd = 0; lk_dn_mix = 0; if (lk_lt_azt >= 0.0f) { lk_lt_azd = lk_lt_azt; lk_lt_eld = lk_lt_elt; } }
+  lk_dn_upd = 0; lk_dn_mix = 0;
+  if (lk_dn_get() && lk_dn_t >= 0.0) { float az, el; lk_dn_eval(lk_dn_t, &az, &el); lk_lt_azt = az; lk_lt_elt = el; lk_dn_st0 = -1.0; }   /* LK_DNROOMSUN v1 (user 2026-11-22, inn = morning #24: the sun swept back from the night when leaving the house): the target comes from the CURRENT clock, not the last outdoor frame (indoors the target is not updated) */
+  if (lk_lt_azt >= 0.0f) { lk_lt_azd = lk_lt_azt; lk_lt_eld = lk_lt_elt; } }
 static void lk_dn_frame(long fr, int idle) {   /* once per lit frame in lk_lt_step, before the prefetch: time, target sun, sun steps */
   extern void lk_osd_say(const char *t); char m[48]; static long lastsay;
   if (lk_dn_dbg < 0) { const char *e = getenv("LANDSTALKER_DN_DBG"), *l = getenv("LANDSTALKER_DAYLEN"); lk_dn_dbg = e ? atoi(e) : 0; if (l && atof(l) > 0.05) lk_dn_len = atof(l); }
