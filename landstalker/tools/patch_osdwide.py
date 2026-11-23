@@ -52,7 +52,9 @@ static void lk_hf_draw(const char *t, int x, int y, int px) {   /* in the curren
             "    lk_hf_draw(t, x + px, y + px, px);\n", "lk_text_box loop")
     # on-screen message (bottom left)
     s = rep(s, "    int n = (int)strlen(lk_osd_text), bw = (n * 6 + 1) * px, bh = 9 * px, m = 2 * px;",
-            "    int n = lk_hf_w(lk_osd_text), bw = (n + 1) * px, bh = 9 * px, m = 2 * px;   /* " + VER + " */", "osd width")
+            "    int n = lk_hf_w(lk_osd_text), bw, bh, m;   /* " + VER + " */\n"
+            "    while (px > 1 && (n + 1) * px + 4 * px > ow) px--;   /* " + VER + ": a long message (German / Cyrillic) ran past the right edge: smaller pixels until it fits */\n"
+            "    bw = (n + 1) * px; bh = 9 * px; m = 2 * px;", "osd width")
     s = rep(s, "    for (int i = 0; i < n; i++) {\n        const uint8_t *g = lk_glyph(lk_osd_text[i]);\n        for (int r = 0; r < 7; r++) for (int c = 0; c < 5; c++)\n            if (g[r] & (0x10 >> c)) { SDL_Rect d = { m + px + (i * 6 + c) * px, oy + px + r * px, px, px }; SDL_RenderFillRect(s_renderer, &d); }\n    }\n",
             "    lk_hf_draw(lk_osd_text, m + px, oy + px, px);\n", "osd loop")
     # test aid LANDSTALKER_OSDSAY="frame:KEY;frame:KEY" = lk_osd_say(KEY) at that frame (the per-language picture sweep; window shots LANDSTALKER_WINSHOT)
