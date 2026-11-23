@@ -271,6 +271,8 @@ python3 tools/patch_uiwide.py .deps/genrecomp
 python3 tools/patch_titlesub.py .deps/genrecomp
 # Hint font (on-screen messages, quick-equip overlay, room map hint) in Cyrillic / Hangul / kana: the language's own glyphs instead of the English text (tools/patch_osdwide.py, GitHub #18; needs patch_uiwide and the drawers' patches)
 python3 tools/patch_osdwide.py .deps/genrecomp
+# Help line of the selected row in the file select options window, shown in the bar under it (tools/patch_fshelp.py; needs patch_options / patch_uiwide)
+python3 tools/patch_fshelp.py .deps/genrecomp
 # VDP data path step 3.0: path counters in vdp_ctrl.c (LANDSTALKER_VDPCOUNT=file; inert without it; tools/patch_vdpcount.py, docs/SOUND_PLAN.md section 12)
 python3 tools/patch_vdpcount.py .deps/genrecomp
 # VDP data path of our own (data / control port, registers, DMA; default ours, LANDSTALKER_VDP=gpgx = GPGX's decode, =check = both compared; tools/patch_vdpport.py + tools/lkvdp.c, docs/SOUND_PLAN.md section 12)
