@@ -104,6 +104,16 @@ for _f in sorted(_glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file_
 import subprocess as _sp   # 2026-11-12: the Contents blocks of HANDOFF / INDEX / LESSONS must be current (tools/make_toc.py; the pre-commit hook refreshes them)
 _r = _sp.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "make_toc.py"), "--check"], capture_output=True, text=True)
 if _r.returncode: errors.append("Contents block stale: " + _r.stdout.strip().replace("\n", "; "))
+# 2026-11-23 (GitHub #18: 'modern' was missing in every language): every language has every UI text the code translates (tools/ui_keys.json,
+# written by tools/uikeys.py --write from the patched code; verify_build.sh warns when the list is stale)
+_L = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lang")
+_K = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui_keys.json")
+if os.path.isfile(_K):
+    _keys = set(json.load(open(_K, encoding="utf-8")))
+    for _f in sorted(os.listdir(_L)):
+        if not _f.endswith(".json") or _f in ("names.json", "friday_hints.json", "en_items.json", "en_tone.json"): continue
+        _miss = sorted(_keys - set((json.load(open(os.path.join(_L, _f), encoding="utf-8")).get("ui_text") or {})))
+        if _miss: errors.append(f"lang/{_f}: {len(_miss)} UI texts not translated (python3 tools/uikeys.py lists them): {_miss[:5]}")
 print(f"symbols.json: {len(addr_of)} entries; named-but-missing: {len(named_missing)}; errors: {len(errors)}")
 for e in errors: print("ERROR:", e)
 if errors:
