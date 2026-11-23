@@ -166,6 +166,7 @@ chk "Titel-Untertitel in der Sprache"     $G/ext/Genesis-Plus-GX/core/vdp_render
 chk "Titel-Untertitel auch beim Ein-/Ausblenden (#18)" $G/src/func_table.c "LK_TSWHOLE"
 chk "Meldungen in Kyrillisch / Koreanisch (#18)" $G/src/platform_sdl.c "LK_OSDWIDE v1"
 chk "Hilfezeile im Startbildschirm-Optionsmenue" $G/src/func_table.c "LK_FSHELP v1"
+chk "Item Info / Hilfe mittig ohne Woerter in der Leiste" $G/src/func_table.c "LK_IICENTER v1"
 python3 tools/uikeys.py > /dev/null 2>&1 || echo "  [WARNUNG] Eigene Menuetexte: Liste tools/ui_keys.json veraltet oder Uebersetzungen fehlen (python3 tools/uikeys.py zeigt was)"
 chk "Titel-Untertitel kyrillisch + ko/ja" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_TSCYR v1"
 chk "Licht: verdeckte Figuren werfen ganze Schatten" $G/ext/Genesis-Plus-GX/core/vdp_render.c "LK_LTHIDE v1"

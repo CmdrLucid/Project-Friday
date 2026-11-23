@@ -3,6 +3,7 @@
 ### Language fixes (GitHub #18)
 **New since v1.9.12:**
 - **Languages (GitHub #18):** the Options help line of the D-Pad setting showed the Widescreen text; the on-screen messages, quick-equip names, 'Preparing lighting' and the room map hint now appear in Russian / Ukrainian / Korean / Japanese (and long texts fit the window in German too); the title subtitle stays in your language during the fades and after START; 'Modern' and the language names are translated; fixes found by a sweep over every language (Ukrainian On / Off, French / Spanish / Italian Oui / Sí / Sì, Italian accents, Korean CHROME / SHELL, ...).
+- **Start menu:** item descriptions (Item Info) and option help lines now fill the bar alone and centred, like the start screen options, instead of sitting under the menu words with a divider.
 - **Start screen options:** the bar under the options window now shows the help line of the selected setting, like the in-game menu; the key messages (Fullscreen, Scale, Filter, ...) and the quick-equip letters are in your language too.
 - Your settings, save files and mods keep working.
 

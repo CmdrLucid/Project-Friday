@@ -5,15 +5,15 @@
 - 0. One-paragraph summary: lines 55-60
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 923-934
 - 1. Where we are: lines 935-1109
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1110-1424
-- 3. How the user works (important): lines 1425-1440
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1441-1465
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1466-1474
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1475-1522
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1523-1532
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1533-1534
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1535-1537
-- NEXT STEPS, newest first: -277 1111, -276 1112, -275 1113, -274 1114, -273 1115, -272 1116, -271 1117, -270 1118, -269 1119, -268 1120
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1110-1425
+- 3. How the user works (important): lines 1426-1441
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1442-1466
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1467-1475
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1476-1523
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1524-1533
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1534-1535
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1536-1538
+- NEXT STEPS, newest first: -278 1111, -277 1112, -276 1113, -275 1114, -274 1115, -273 1116, -272 1117, -271 1118, -270 1119, -269 1120
 - Newest entries:
   - 0a521 line 192: 2026-11-23 evening (Deck, Opus 5.5 lead + 3 Sonnet agents: 2 language sweeps, docs; dev 7ffba22 + 4820a10):...
   - 0a520 line 194: 2026-11-23 morning (Deck, Opus 5.5): RELEASE v1.9.12 (user: 'wenn die Figurennamen in der HTML sichtbar sin...
@@ -1108,6 +1108,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
+-278. **NEXT (2026-11-23 night, later): user plays the new Start menu bar (LK_IICENTER v1): Item Info On, Use list / Equip grid: description alone and centred, no line through the letters, the arrow back on the word after B; Options pages: help alone, root page words + arrow. Then -277.**
 -277. **NEXT (2026-11-23 night): user checks in Russian: the Fullscreen key message (now 'ВЕСЬ ЭКРАН: ДА/НЕТ'), quick equip (overlay + message; user had reported 'English' before the last fix: if still English, ask WHERE: overlay cells, message bottom left, or options row), the start screen options window: help line in the bar under it (LK_FSHELP v1). D-Pad help verified by screenshots (de / ru). Then -276 (Paul, release).**
 -276. **NEXT (2026-11-23 evening): the user plays the GitHub #18 fixes on the Deck (nothing of this was played): Russian title fade (subtitle stays Russian during fade-in and after START), quick equip + system messages in Russian / Ukrainian / Korean / Japanese (on-screen message, overlay names, map hint), options page D-Pad help line (must not show the Widescreen text). Then the user answers Paul (#18) (he writes himself; Claude never posts). Then the release decision (a v1.9.13 with these fixes; release notes draft is in packaging/release_notes.md; before releasing run `python3 tools/uikeys.py` + both langsweep tools, HANDOFF 0a521).**
 -275. **NEXT (2026-11-23, after v1.9.12): the user answers Paul (#18) (draft in the session: both bugs fixed in v1.9.12; ask for 2-3 examples if lines still seem missing); collect feedback. Open on the Deck: user looks at the widescreen fixes (667, 704, 631) and the church books in play. Then the 2.0 plan (HANDOFF -203 list: full playthrough by the user, short language checks, trailer, Windows label, release notes 2.0).**
