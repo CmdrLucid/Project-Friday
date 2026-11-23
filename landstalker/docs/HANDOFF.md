@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 55-60
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 921-932
-- 1. Where we are: lines 933-1106
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1107-1419
-- 3. How the user works (important): lines 1420-1435
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1436-1460
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1461-1469
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1470-1517
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1518-1527
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1528-1529
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1530-1532
-- NEXT STEPS, newest first: -275 1108, -274 1109, -273 1110, -272 1111, -271 1112, -270 1113, -269 1114, -268 1115, -267 1116, -266 1117
+- 1. Where we are: lines 933-1107
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1108-1420
+- 3. How the user works (important): lines 1421-1436
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1437-1461
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1462-1470
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1471-1518
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1519-1528
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1529-1530
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1531-1533
+- NEXT STEPS, newest first: -275 1109, -274 1110, -273 1111, -272 1112, -271 1113, -270 1114, -269 1115, -268 1116, -267 1117, -266 1118
 - Newest entries:
   - 0a520 line 192: 2026-11-23 morning (Deck, Opus 5.5): RELEASE v1.9.12 (user: 'wenn die Figurennamen in der HTML sichtbar sin...
   - 0a519 line 194: 2026-11-23 (Deck, Opus 5.5 lead + 2 Sonnet E2E tester agents; dev): user: 'das muss jetzt wirklich stimmen'...
@@ -931,6 +931,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-23 SESSION END (Opus 5.5 lead + 6 Sonnet tester agents, `dev` 0291421+, main = v1.9.12 RELEASED):** USER CONFIRMED by playing: docks pavilion water (LK_LTFILLMESH), statues as figures 592 / 31 (LK_STATFIG), character names in the Mod Workshop. HEADLESS / GPU-shots only, user look open: church book streaks (LK_LTBOOKFL), widescreen stored map pieces (LK_OFFMAP: 667 / 631 / 77 rooms sheet) and parked figures (LK_OFFFIG: 704). Mod Workshop: GitHub #18 stages bug + search, then hardened after tester agents (14 bugs; MODDING 'Robustness'), end-to-end in the game + release AppImage path all PASS; v1.9.12 downloaded CI AppImage verified incl. a mod text in the game's text box. Decided: church books stay figures for 2.0; light shapes frozen for 2.0 (after-2.0 list: 442 town house, castle court stacks, 454 awning, Tibor's map, crypt objects, ~85 automatic leftovers, the 24-room fill_ground survey); moving 3D models for carriable objects = idea after 2.0. Well-corner report at the drawbridge not reproduced (user: maybe gone).
 - **2026-11-22 late (end of session):** Mod Workshop v3 (mods only in the Project-Friday folder, one-file page, player guide MOD_WORKSHOP.md), file select follows language changes (LK_FSLANGREDRAW v2), mod removal restores texts, firstrun sets the mods folder before the build. RELEASED v1.9.11 (v1.9.10 withdrawn). Headless / packaging verified (local + downloaded CI AppImage); USER confirmed by playing: Mercator top-edge shadows (-265) and 'sonst passt's' for the dev build before LK_FSLANGREDRAW; NOT yet played: LK_FSLANGREDRAW v2 and the Mod Workshop round trip on the Deck. Next release must carry the firstrun fix (0a511).
 - **2026-11-22 SESSION END 3 (Opus 5.5, no agents, `dev` bfa5c60+, main = v1.9.9, no release):** Cyrillic title subtitle (LK_TSCYR) + ko / ja subtitles back; crypt braziers light (LK_CRYPTFIRE, USER CONFIRMED by playing: flame out = light out); figure shadows not cut at the top edge (LK_LTTOPSIL, GPU replay of the user's rec_20261122_1257); GitHub #18 Russian file select (LK_LGWNAME v1 + v2: place names, New Game, prompt bar; ru / uk / ja / ko headless); file select / menu texts in Japanese from the JP ROM (LK_JPMENUNAMES) and Korean (ko.json); MOD LAYER v1 = language modding incl. Friday hints (docs/MODDING.md, 'Mod Workshop.html' in the mods folder, no server). HEADLESS ONLY except the crypt braziers: user to check the title / file select / prompts in ru uk ja ko, the top-edge shadows, the mod workshop page. Next: -267 / -265.
 - **2026-11-22 SESSION END 2 (Opus 5.5 lead + ~48 Sonnet translation agents, `dev` + main e2ef827, tag v1.9.9 RELEASED):** GitHub #23 (Einstein whistle song: map frames, LK_POSTUSEMAP), #24 (inn = 07:00, LK_INNMORNING; sun from the clock at a room change, LK_DNROOMSUN), #25 (window size remembered, LK_WINMEM); four new languages es / it / ru / uk (TRANSLATION 10..13; names from the fan patches es / it / ru, uk names ours = native feedback needed); Cyrillic via LK_LGCYR (Galmuri 11 + Public Pixel CC0, two-row menu item names); runtime language list 8 -> 16; Friday hints follow Options > Names (LK_FHNAMES). USER CONFIRMED BY PLAYING: #24 inn morning incl. the sun ('passt jetzt auch'); Cyrillic З / б look like 3 / 6 = correct letters (explained). HEADLESS / GPU ONLY: #23 (1131 shots), #25 (code only, needs a desktop check by the user), the four languages (Massan priest line, Start menu, help line, titles es / it), hint names (Python + German 'Friday:'). Release checks: local AppImage first run in env -i 8.3 min, 19 lang files identical to dev, package binary in Russian; windows-check 44994762035 success; release run 44996039436.

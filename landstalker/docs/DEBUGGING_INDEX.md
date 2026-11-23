@@ -264,3 +264,4 @@
 - L2078: GitHub #23 / #24 / #25, four new languages, Cyrillic, release v1.9.9 (2026-11-22, LK_POSTUSEMAP, LK_INNMORNING, LK_DNROOMSUN, LK_WINMEM, LK_LGES, LK_LGCYR, LK_FHNAMES)
 - L2085: Session 2026-11-22 evening / night: subtitles, crypt fire, top-edge shadows, wide names, mod layer (dev 20bde64 .. bfa5c60)
 - L2093: Session 2026-11-22 late: mod layer v2 / v3, workshop filters, file select language redraw, releases v1.9.10 (withdrawn) + v1.9.11 (dev 7df7b74 .. f7aec33)
+- L2100: Session 2026-11-23: statues, docks water, books, widescreen off-map, Mod Workshop hardening, release v1.9.12 (dev 9b4.. 0291421)
