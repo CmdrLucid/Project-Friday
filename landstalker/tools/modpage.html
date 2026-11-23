@@ -46,7 +46,7 @@ textarea.dirty { border-color:var(--acc); }
 <nav>
   <h1>Project-Friday<br>Mod Workshop</h1>
   <div class="sec">Mod layers</div>
-  <a href="#" class="on">Language</a><a href="#" class="off">Character names</a>
+  <a href="#" class="on" id="navlang">Language</a><a href="#" id="navnames">Character names</a>
   <div class="foot" id="foot"></div>
 </nav>
 <main>
@@ -61,13 +61,17 @@ textarea.dirty { border-color:var(--acc); }
     <button class="main" id="save" disabled>Save</button>
     <button id="imp">Import</button><input type="file" id="impf" accept=".json" hidden>
   </div>
-  <p class="help">Write the new text in the right column; leave it empty to keep the current one. Keep the codes in braces as in the English text:
+  <p class="help" id="helpnames" hidden>Give a character a new name for this language: it replaces the name in every text where the character appears
+    (dialogue, Friday's hints, menus). It is used while <b>Options &gt; Names = Localized</b>; with Names = Japanese the game keeps the Japanese original names.
+    Leave the field empty to keep the current name. At most 12 letters, no codes; a name with letters the game cannot show in this language is refused by the game (marked red here after the next start).
+    <b>Save</b> works as for the texts (same file <code>lang/&lt;language&gt;.json</code>).</p>
+  <p class="help" id="helplang">Write the new text in the right column; leave it empty to keep the current one. Keep the codes in braces as in the English text:
     <code>{SoftNewLine}</code> line break, <code>{ContinuePrompt}</code> wait for a button, <code>{Speaker}</code> the speaker's name;
     <code>{=name}</code> is a character name from the name list (it follows Options &gt; Names). Line breaks and pauses may move. Item names: at most 2 lines of 9 letters in the item menu. Friday hints: the | sign starts a new line, her name is put in front by the game.
     <b>Save</b> writes your changes into the folder <code>lang</code> next to this page (Chrome / Edge: choose this page's folder once). Other browsers (Firefox) download the file: move it into that <code>lang</code> folder yourself. The game uses it from its next start. To share your corrections, send that file (for example in a GitHub issue).</p>
   <div id="status"></div>
   <div class="pager" id="pg1"></div>
-  <table><thead><tr><th style="width:110px">Id</th><th>Original (English, from your ROM)</th><th>Current text</th><th>New text</th></tr></thead><tbody id="rows"></tbody></table>
+  <table><thead><tr><th style="width:110px">Id</th><th id="h1">Original (English, from your ROM)</th><th id="h2">Current text</th><th id="h3">New text</th></tr></thead><tbody id="rows"></tbody></table>
   <div class="pager" id="pg2"></div>
 </main>
 </div>
@@ -76,8 +80,8 @@ const D = window.PF_DATA, PER = 60;
 const $ = id => document.getElementById(id);
 const esc = s => (s || "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const tags = s => esc(s).replace(/\{[^}]*\}/g, m => '<span class="tag">' + m + "</span>");
-const BLOCKS = ["strings", "names", "item_dialog", "map_areas", "ui_text", "friday"];
-let L = null, mod = {}, view = [], page = 0, dirty = {}, refused = {}, dirH = null;
+const BLOCKS = ["strings", "names", "item_dialog", "map_areas", "ui_text", "friday", "charnames"];
+let layer = "lang", L = null, mod = {}, view = [], page = 0, dirty = {}, refused = {}, dirH = null;
 const key = r => r[0] + "|" + r[1];
 const store = { get(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 
@@ -86,38 +90,68 @@ else init();
 
 function init() {
   $("foot").innerHTML = "Your mods:<br>" + esc(D.mods) + "<br><br>Texts of " + esc(D.generated);
+  if ((D.ignored || []).length) $("foot").innerHTML += '<br><br><span style="color:var(--bad)">Not used by the game (the name must be &lt;language&gt;.json, e.g. ru.json; a second browser download is often called ru(1).json): ' + D.ignored.map(esc).join(", ") + "</span>";
   $("lang").innerHTML = D.languages.map(l => `<option value="${l.code}">${esc(l.name)} (${l.code})${Object.keys(l.mod || {}).length > 1 ? " *" : ""}</option>`).join("");
   const last = store.get("pf_lang"); if (last && D.languages.some(l => l.code === last)) $("lang").value = last;
   pick();
 }
-function enOf(r) { return r[0] === "friday" ? ((D.fen || {})[r[1]] || "") : r[0] === "ui_text" ? r[1] : r[0] === "map_areas" ? ((D.men || {})[r[1]] || r[1]) : (D.en[r[1]] || ""); }
+function enOf(r) { if (r[0] === "charnames") { const c = (D.cen || {})[r[1]] || ["", ""]; return c[0] + (c[1] && c[1] !== c[0] ? "  (Japanese: " + c[1] + ")" : ""); }
+  return r[0] === "friday" ? ((D.fen || {})[r[1]] || "") : r[0] === "ui_text" ? r[1] : r[0] === "map_areas" ? ((D.men || {})[r[1]] || r[1]) : (D.en[r[1]] || ""); }
 function modOf(r) { return ((mod[r[0]] || {})[r[1]]); }
 function pick() {
   if (Object.keys(dirty).length && !confirm("Unsaved changes of this language stay in this browser. Switch anyway?")) { $("lang").value = L.code; return; }
   L = D.languages.find(l => l.code === $("lang").value); store.set("pf_lang", L.code);
+  if (L.fileCanon === undefined) { L.fileCanon = canon(L.mod); L.fileJson = JSON.stringify(L.mod || {}); }   /* the mod file as the game wrote it into this page (L.mod changes with the saves) */
+  { const sv = store.get("pf_saved_" + L.code), now = L.fileCanon;   /* GitHub #18 (saving in stages lost texts): the page holds the mod file as it was when the game last wrote the page.
+      The browser keeps its last save + the file content it was based on: file = that save -> fine; file = the old base (the page was not rewritten yet, or Firefox's download was not moved
+      into the folder yet) -> continue with the save; file changed otherwise (deleted, replaced by a copy, edited) -> the file wins.  By CONTENT, not by date (a copied file keeps an old date). */
+    if (sv && sv.mod && sv.base != null && !sv.dl && (D.genMs || 0) > sv.t) { if (now !== canon(sv.mod)) store.set("pf_saved_" + L.code, null); }   /* a FOLDER save wrote the file: a page written after it shows the file as it is (deleted / changed = the file wins) */
+    else if (sv && sv.mod && sv.base != null) { if (now !== canon(sv.mod) && now === sv.base) {
+        /* the first save of a language by DOWNLOAD (no file before): 'not moved yet' and 'deleted on purpose' look the same -> ask once per visit */
+        if (sv.dl && now === canon({}) && !L.askedSv && !(L.askedSv = true, confirm("This browser still has your last saved changes for " + L.name + ", but there is no " + L.code + ".json in the Mods folder (the download was not moved there yet, or you deleted it).\n\nOK = keep working with them.  Cancel = forget them."))) store.set("pf_saved_" + L.code, null);
+        else L.mod = sv.mod; }
+      else if (now !== canon(sv.mod)) { L.mod = JSON.parse(L.fileJson || "{}"); store.set("pf_saved_" + L.code, null); } } }
+  { const ids = new Set(L.rows.map(key)); for (const k of Object.keys(dirty = store.get("pf_draft_" + L.code) || {})) if (!ids.has(k)) delete dirty[k]; }   /* a stale draft id (other version / language) blocked Save */
   mod = JSON.parse(JSON.stringify(L.mod || {})); refused = {};
   (L.refused || []).forEach(x => refused[x.block + "|" + x.key] = "The game refused this text: " + x.why);
+  const fileErr = (L.refused || []).find(x => x.block === "file");
   for (const op of $("filter").options) {   // a block the language has no entries for (Items in dialogue: only ru / uk / ko) is hidden
     if (op.value.startsWith("b:")) op.hidden = !L.rows.some(r => r[0] === op.value.slice(2));
     if (op.value === "untr") op.textContent = L.code.startsWith("en") ? "Still the original English" : "Not translated yet";
   }
   if ($("filter").selectedOptions[0].hidden) $("filter").value = "all";
-  dirty = store.get("pf_draft_" + L.code) || {};
-  status(Object.keys(dirty).length ? Object.keys(dirty).length + " unsaved change(s) from your last visit - press Save to keep them." : "", Object.keys(dirty).length ? "bad" : "");
+  status(fileErr ? "Your file lang/" + L.code + ".json could not be read by the game, so none of its texts are used: " + fileErr.why + ". Save again from this page (or fix the file)." :
+    Object.keys(dirty).length ? Object.keys(dirty).length + " unsaved change(s) from your last visit - press Save to keep them." : "", fileErr || Object.keys(dirty).length ? "bad" : "");
   $("save").disabled = !Object.keys(dirty).length; filter();
 }
+var plainNames = {};   /* var: init() runs filter() before this line is reached (a 'let' threw on load, test 2026-11-23) */
+function plainText(t) {   /* for the search: the text as the game shows it (character names in, line breaks / pauses = spaces, other codes out); names: plainNames, set once per filter() */
+  const nm = plainNames;
+  return (t || "").replace(/\{=([a-z0-9_]+)(?::[a-z]+)?\}/g, (m, k) => nm[k] || k).replace(/\{[^}]*\}/g, m => D.layout.includes(m.slice(1, -1)) ? " " : "").replace(/\|/g, " ").replace(/\s+/g, " ").toLowerCase(); }
 function filter() {
-  const f = $("filter").value, q = $("q").value.trim().toLowerCase();
+  const f = $("filter").value, q = $("q").value.trim().toLowerCase().replace(/\s+/g, " ");
+  plainNames = {}; L.rows.forEach(r => { if (r[0] === "charnames") plainNames[r[1]] = ((mod.charnames || {})[r[1]]) || r[2] || ((D.cen || {})[r[1]] || [""])[0]; });
   view = L.rows.filter(r => { const k = key(r), m = modOf(r);
+    if ((r[0] === "charnames") !== (layer === "names")) return false;   // MOD LAYER 2: the names have their own navigation entry
+    if (layer === "names") return !q || r[1].includes(q) || enOf(r).toLowerCase().includes(q) || (r[2] || "").toLowerCase().includes(q) || (m || "").toLowerCase().includes(q);
     if (f === "mod" && m == null && dirty[k] == null) return false;
     if (f === "untr" && r[2]) return false;
     if (f.startsWith("b:") && r[0] !== f.slice(2)) return false;
-    return !q || r[1].toLowerCase().includes(q) || enOf(r).toLowerCase().includes(q) || (r[2] || "").toLowerCase().includes(q) || (m || "").toLowerCase().includes(q); });
+    return !q || r[1].toLowerCase().includes(q) || enOf(r).toLowerCase().includes(q) || (r[2] || "").toLowerCase().includes(q) || (m || "").toLowerCase().includes(q)
+      || plainText(enOf(r)).includes(q) || plainText(r[2]).includes(q) || plainText(m).includes(q) || (dirty[k] != null && plainText(dirty[k]).includes(q)); });
   page = 0; draw();
 }
 const codes = t => (t.match(/\{([^}]*)\}/g) || []).map(m => m.slice(1, -1)).filter(m => !D.layout.includes(m) && !m.startsWith("=")).sort().join(",");
 function check(r, t) {
   if (!t) return "";
+  if (/[\r\n]/.test(t)) return r[0] === "friday" ? "Enter is no line break here: use the | sign." : r[0] === "charnames" ? "A name is one line (no Enter)." : "Enter is no line break in the game: use {SoftNewLine} (or {NewLine}).";
+  if (r[0] !== "charnames" && r[0] !== "friday") { const bad = (t.match(/\{([^}]*)\}/g) || []).map(m => m.slice(1, -1)).filter(m => !m.startsWith("=") && !(D.codes || []).includes(m)); if (bad.length) return "Unknown code {" + bad[0] + "}: the game would refuse this text."; }
+  if (r[0] === "charnames") {   // MOD LAYER 2: same rule as tools/langbuild.py mod_check
+    if (/[{}|]/.test(t)) return "A name takes no codes or | signs.";
+    if (t !== t.trim() || !t.trim()) return "No spaces at the start or end.";
+    if ([...t].length > (D.nameMax || 12)) return "At most " + (D.nameMax || 12) + " letters.";
+    return "";
+  }
   if ((t.match(/\{/g) || []).length !== (t.match(/\}/g) || []).length) return "A brace { or } is missing.";
   if (r[0] === "strings" && codes(t) !== codes(D.en[r[1]] || "")) return "The codes must stay as in the English text: " + (codes(D.en[r[1]] || "") || "none") + " (now: " + (codes(t) || "none") + ").";
   if (r[0] === "friday" && (t.match(/\{([^}]*)\}/g) || []).some(m => !m.startsWith("{="))) return "Friday hints take no codes except {=name}; the | sign starts a new line.";
@@ -129,14 +163,19 @@ function check(r, t) {
   }
   return "";
 }
+function fontWarn(r, t) {   /* a HINT while typing (orange, Save stays possible): letters the game's font for this language does not have; the game then keeps the old text (build check) */
+  if (!t || !L.chars || r[0] === "ui_text") return "";
+  if (!L.charSet) L.charSet = new Set([...L.chars]);
+  for (const c of t.replace(/\{[^}]*\}/g, "").replace(/[|\r\n]/g, "")) if (!L.charSet.has(c) && !(L.hangul && c >= "\uAC00" && c <= "\uD7A3")) return 'The game font has no "' + c + '" for this language: the game would keep the old text.';
+  return ""; }
 function draw() {
   const n = Math.max(1, Math.ceil(view.length / PER)); if (page >= n) page = n - 1;
   const pg = `<button ${page ? "" : "disabled"} onclick="go(-1)">&lsaquo; Back</button> page ${page + 1} / ${n} (${view.length} texts) <button ${page < n - 1 ? "" : "disabled"} onclick="go(1)">Next &rsaquo;</button>`;
   $("pg1").innerHTML = $("pg2").innerHTML = pg;
   $("rows").innerHTML = view.slice(page * PER, page * PER + PER).map(r => {
-    const k = key(r), v = dirty[k] != null ? dirty[k] : (modOf(r) || ""), p = check(r, v) || (dirty[k] == null ? refused[k] : "");
+    const k = key(r), v = dirty[k] != null ? dirty[k] : (modOf(r) || ""), p = check(r, v) || (dirty[k] == null ? refused[k] : ""), fw = p ? "" : fontWarn(r, v);
     return `<tr class="${p ? "bad" : (modOf(r) != null ? "mod" : "")}"><td class="id">${esc(r[1])}<br><small>${r[0]}</small></td><td class="en">${tags(enOf(r))}</td>
-      <td>${tags(r[2]) || "<i style='color:#666'>" + (L.code.startsWith("en") ? "original English" : "not translated") + "</i>"}</td><td><textarea data-k="${esc(k)}" class="${dirty[k] != null ? "dirty" : ""}" placeholder="unchanged">${esc(v)}</textarea><div class="why">${esc(p || "")}</div></td></tr>`;
+      <td>${tags(r[2]) || "<i style='color:#666'>" + (L.code.startsWith("en") ? "original English" : "not translated") + "</i>"}</td><td><textarea data-k="${esc(k)}" class="${dirty[k] != null ? "dirty" : ""}" placeholder="unchanged">${esc(v)}</textarea><div class="why"${fw ? ' style="color:#e0a040"' : ""}>${esc(p || fw)}</div></td></tr>`;
   }).join("");
 }
 function go(d) { page += d; draw(); window.scrollTo(0, 0); }
@@ -144,7 +183,7 @@ $("rows").addEventListener("input", e => {
   const t = e.target; if (!t.dataset.k) return; const r = L.rows.find(x => key(x) === t.dataset.k);
   if (t.value === (modOf(r) || "")) delete dirty[t.dataset.k]; else dirty[t.dataset.k] = t.value;
   t.classList.toggle("dirty", dirty[t.dataset.k] != null);
-  const p = check(r, t.value); t.nextElementSibling.textContent = p; t.closest("tr").className = p ? "bad" : (modOf(r) != null ? "mod" : "");
+  const p = check(r, t.value), fw = p ? "" : fontWarn(r, t.value); t.nextElementSibling.textContent = p || fw; t.nextElementSibling.style.color = fw ? "#e0a040" : ""; t.closest("tr").className = p ? "bad" : (modOf(r) != null ? "mod" : "");
   store.set("pf_draft_" + L.code, dirty); $("save").disabled = !Object.keys(dirty).length;
 });
 function status(s, cls) { $("status").textContent = s; $("status").className = cls || ""; }
@@ -156,13 +195,16 @@ async function folder() {   // Chrome / Edge: write straight into the mods folde
   try { dirH = await window.showDirectoryPicker({ id: "pfmods", mode: "readwrite" }); } catch (e) { return null; }
   return dirH;
 }
-function modText() { return JSON.stringify(Object.assign({ meta: { code: L.code, format: 1 } }, mod), null, 1) + "\n"; }
+function canon(m) { const o = {}; BLOCKS.forEach(b => { const e = Object.keys((m || {})[b] || {}).sort(); if (e.length) o[b] = e.map(k => [k, m[b][k]]); }); return JSON.stringify(o); }   /* a mod's texts only (no meta), stable order */
+function modText(m) { m = m || mod; return JSON.stringify(Object.assign({ meta: { code: L.code, format: 1 } }, m), null, 1) + "\n"; }
 $("save").onclick = async () => {
+  for (const k of Object.keys(dirty)) if (!L.rows.some(x => key(x) === k)) delete dirty[k];   /* (an id this language has no row for) */
   const bad = Object.entries(dirty).filter(([k, t]) => check(L.rows.find(x => key(x) === k), t));
   if (bad.length) return status(bad.length + " text(s) are marked red - fix them first (the game would refuse them).", "bad");
-  for (const [k, t] of Object.entries(dirty)) { const [b, ...rest] = k.split("|"), id = rest.join("|"); mod[b] = mod[b] || {}; if (t === "") delete mod[b][id]; else mod[b][id] = t; }
-  BLOCKS.forEach(b => { if (mod[b] && !Object.keys(mod[b]).length) delete mod[b]; });
-  const n = BLOCKS.reduce((a, b) => a + Object.keys(mod[b] || {}).length, 0), txt = modText();
+  const nm = JSON.parse(JSON.stringify(mod));   /* merged into a copy: taken over only after a successful write */
+  for (const [k, t] of Object.entries(dirty)) { const [b, ...rest] = k.split("|"), id = rest.join("|"); nm[b] = nm[b] || {}; if (t === "") delete nm[b][id]; else nm[b][id] = t; }
+  BLOCKS.forEach(b => { if (nm[b] && !Object.keys(nm[b]).length) delete nm[b]; });
+  const n = BLOCKS.reduce((a, b) => a + Object.keys(nm[b] || {}).length, 0), txt = modText(nm);
   const d = await folder();
   if (d && d.name !== D.modsName && !confirm('The chosen folder is "' + d.name + '", not "' + D.modsName + '" (the folder of this page). Save there anyway?')) { dirH = null; return status("Not saved.", "bad"); }
   if (d) {
@@ -173,13 +215,25 @@ $("save").onclick = async () => {
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type: "application/json" })); a.download = L.code + ".json"; document.body.appendChild(a); a.click(); a.remove();
     status("Your browser saved " + L.code + ".json as a download (" + n + " changed text(s)).\nMove it into  " + D.mods + "/lang/  (replace the old file there), then start the game again.", "ok");
   }
-  L.mod = JSON.parse(JSON.stringify(mod)); dirty = {}; store.set("pf_draft_" + L.code, {}); $("save").disabled = true; draw();
+  mod = nm; L.mod = JSON.parse(JSON.stringify(nm));
+  store.set("pf_saved_" + L.code, { t: Date.now(), mod: L.mod, base: L.fileCanon, dl: !d }); dirty = {}; store.set("pf_draft_" + L.code, {}); $("save").disabled = true; draw();
 };
+function setLayer(l) {   // MOD LAYER 2: Language | Character names (same mod file per language)
+  layer = l; $("navlang").className = l === "lang" ? "on" : ""; $("navnames").className = l === "names" ? "on" : "";
+  $("helplang").hidden = l !== "lang"; $("helpnames").hidden = l !== "names"; $("filter").hidden = l !== "lang";
+  $("h1").textContent = l === "names" ? "Name in English (and Japanese)" : "Original (English, from your ROM)";
+  $("h2").textContent = l === "names" ? "Current name" : "Current text"; $("h3").textContent = l === "names" ? "New name" : "New text";
+  $("q").placeholder = l === "names" ? "Search a name ..." : "Search id or text ..."; filter();
+}
+$("navlang").onclick = e => { e.preventDefault(); setLayer("lang"); }; $("navnames").onclick = e => { e.preventDefault(); setLayer("names"); };
 $("lang").onchange = pick; $("filter").onchange = filter; $("q").oninput = filter;
 $("imp").onclick = () => $("impf").click();
 $("impf").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; let m; try { m = JSON.parse(await f.text()); } catch (x) { return status("Not a mod file.", "bad"); }
-  let n = 0; BLOCKS.forEach(b => Object.entries(m[b] || {}).forEach(([k, t]) => { if (typeof t === "string") { dirty[b + "|" + k] = t; n++; } }));
-  store.set("pf_draft_" + L.code, dirty); $("save").disabled = !n; filter(); status(n + " text(s) imported - check them and press Save.", "ok"); };
+  if (!m || typeof m !== "object" || Array.isArray(m)) return status("Not a mod file.", "bad");
+  const fc = m.meta && m.meta.code; if (fc && fc !== L.code && !confirm('This file is for "' + fc + '", the page shows "' + L.code + '". Import it into ' + L.name + ' anyway?')) return status("Not imported.", "bad");
+  const ids = new Set(L.rows.map(key)); let n = 0, skip = 0;
+  BLOCKS.forEach(b => { const blk = m[b]; if (!blk || typeof blk !== "object") return; Object.entries(blk).forEach(([k, t]) => { if (typeof t !== "string") return; if (!ids.has(b + "|" + k)) { skip++; return; } dirty[b + "|" + k] = t; n++; }); });
+  store.set("pf_draft_" + L.code, dirty); $("save").disabled = !Object.keys(dirty).length; filter(); status(n + " text(s) imported - check them and press Save." + (skip ? " " + skip + " text(s) skipped: no such entry in this language." : ""), n ? "ok" : "bad"); };
 window.addEventListener("beforeunload", () => store.set("pf_draft_" + L.code, dirty));
 </script>
 </body>

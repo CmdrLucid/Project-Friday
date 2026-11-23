@@ -22,7 +22,7 @@ No game data in a mod file: only the modder's own text.
 import hashlib, json, os, subprocess, sys
 
 LANG_BLOCKS = ("strings", "names", "item_dialog")     # entries {"h": hash of the English source, "t": text}
-LANG_PLAIN = ("map_areas", "ui_text", "friday")       # plain strings (our own keys, no English source); friday = Friday hints {hint id: gentle text} (lang/friday_hints.json)
+LANG_PLAIN = ("map_areas", "ui_text", "friday", "charnames")   # plain strings (our own keys, no English source); friday = Friday hints {hint id: gentle text} (lang/friday_hints.json); charnames = MOD LAYER 2 character names {names.json key: name} (Names = Localized only)
 
 
 def data_dir():
@@ -59,7 +59,13 @@ def sync(rom, src, outdir):
         for f in sorted(os.listdir(ml)):
             code = f[:-5] if f.endswith(".json") and not f.endswith(".report.json") else ""
             out = os.path.join(outdir, code + ".bin")
-            if code and os.path.isfile(os.path.join(src, f)) and (not os.path.isfile(out) or os.path.getmtime(os.path.join(ml, f)) > os.path.getmtime(out)): todo.append(code)
+            if not code or not os.path.isfile(os.path.join(src, f)):
+                if not f.endswith(".report.json") and not f.endswith(".tmp"): print("modlayer: %s in %s is not a mod file of a language (ignored; the file must be named <language>.json, e.g. ru.json)" % (f, ml))
+                continue
+            mk = os.path.join(outdir, code + ".modded")
+            try: built = open(mk, encoding="utf-8").read().split("\n")[1].strip()
+            except (OSError, IndexError): built = None
+            if not os.path.isfile(out) or built != mod_hash(code): todo.append(code)   # content, not date
     if os.path.isdir(outdir):   # a language built with a mod whose file is gone now (the player deleted it): back to the plain translation (langbuild <code>.modded)
         for f in sorted(os.listdir(outdir)):
             if f.endswith(".modded") and not os.path.isfile(os.path.join(ml, f[:-7] + ".json")) and f[:-7] not in todo: todo.append(f[:-7])
@@ -70,8 +76,18 @@ def sync(rom, src, outdir):
     sys.stdout.write(r.stdout[-2000:] + r.stderr[-2000:])
 
 
+def mod_hash(code):
+    """sha1 of the mod file's bytes ('' none): sync rebuilds when it differs from the one the language was built with (a copied / unzipped file keeps an OLD date; test 2026-11-23)"""
+    p = lang_mod_path(code)
+    try: return hashlib.sha1(open(p, "rb").read()).hexdigest()
+    except OSError: return ""
+
+
 def lang_mod_path(code):
     return os.path.join(mods_dir(), "lang", code + ".json")
+
+
+READ_ERR = {}   # code -> why the mod file could not be read
 
 
 def load_lang_mod(code):
@@ -79,10 +95,11 @@ def load_lang_mod(code):
     p = lang_mod_path(code)
     if not os.path.isfile(p): return {}
     try:
-        m = json.load(open(p, encoding="utf-8"))
+        m = json.load(open(p, encoding="utf-8-sig"))   # utf-8-sig: Windows Notepad writes a BOM (test 2026-11-23: such files were ignored)
         return m if isinstance(m, dict) else {}
     except (OSError, ValueError) as e:
         print("modlayer: %s not read (%s)" % (p, e))
+        READ_ERR[code] = str(e)[:200]   # shown on the page (report block 'file'), test 2026-11-23
         return {}
 
 
@@ -107,18 +124,23 @@ def apply(lang, mod, en=None, check=None):
     current translation instead of falling back to English).  Returns (texts replaced, [(block, key, reason)] refused)."""
     n, bad = 0, []
     for blk in LANG_BLOCKS:
+        if not isinstance(mod.get(blk) or {}, dict): bad.append((blk, "", "not a block of texts (must be {id: text})")); continue   # a list / string block crashed the whole build (test 2026-11-23)
         for k, t in (mod.get(blk) or {}).items():
             if not isinstance(t, str): continue
             why = check(blk, k, t) if check else None
             if why: bad.append((blk, k, why)); continue
             ent = lang.setdefault(blk, {}).get(k)
             if ent is None:
-                if en is None or en.get(k) is None: continue
+                if en is None or en.get(k) is None: bad.append((blk, k, "no such entry")); continue
                 ent = lang[blk][k] = {"h": hashlib.sha1(en[k].encode("utf-8")).hexdigest()[:8]}
             ent["t"] = t; n += 1
     for blk in LANG_PLAIN:
+        if not isinstance(mod.get(blk) or {}, dict): bad.append((blk, "", "not a block of texts (must be {id: text})")); continue
         for k, t in (mod.get(blk) or {}).items():
-            if isinstance(t, str): lang.setdefault(blk, {})[k] = t; n += 1
+            if not isinstance(t, str): continue
+            why = check(blk, k, t) if check else None   # MOD LAYER 2: names checked (key known, no codes, length); 2026-11-23: every plain block (codes, length, line breaks, known key)
+            if why: bad.append((blk, k, why)); continue
+            lang.setdefault(blk, {})[k] = t; n += 1
     return n, bad
 
 

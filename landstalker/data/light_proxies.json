@@ -116,6 +116,43 @@
         "surface": true,
         "floor": 32,
         "why": "Massan LOG HOUSE tall house G, ground 32: remake/recipes/proxy_houses_592.py (lib/log_house.py, as drawn, flush corners; user OK on the clay / drawing comparisons 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          27,
+          37,
+          27,
+          37
+        ],
+        "why": "automatic lathe #0 over the Massan statue: the statue is a figure now (LK_STATFIG v1)"
+      },
+      {
+        "op": "figure",
+        "foot": [
+          440,
+          600,
+          0
+        ],
+        "box": [
+          1000,
+          460,
+          1050,
+          530
+        ],
+        "colours": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          13,
+          14,
+          15
+        ],
+        "why": "Massan bear statue: LK_STATFIG v1 (user 2026-11-22: 'den 2 Statuen ... wie den Figuren nur den Schatten, so wie runde Figuren das bei NPCs tut'): the statue DRAWN in the picture is lit as a round figure and casts a figure shadow from its own pixels; mask = plane A colours in the box (checked on the picture)"
       }
     ],
     "611": [
@@ -355,6 +392,61 @@
         "file": "proxies/castle_31.obj",
         "surface": true,
         "why": "Mercator castle facade (height map has the castle only as blocked height 0 cells: no facade, a hip up to 204 on the stairs); centre tower, stairs, two pine planters; remake/recipes/proxy_castle_31.py, user 2026-11-04 'weiter mit den naechsten Formen'; RE-MEASURED 2026-11-09 (roof roll, tower crest, planter pines by their tips), surface on (user: 'ja passt')"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          40,
+          40,
+          40,
+          40
+        ],
+        "why": "automatic lathe #7 over the Duke's statue: the statue is a figure now (LK_STATFIG v1)"
+      },
+      {
+        "op": "figure",
+        "foot": [
+          664,
+          664,
+          16
+        ],
+        "box": [
+          [
+            1175,
+            600,
+            1191,
+            642
+          ],
+          [
+            1175,
+            643,
+            1190,
+            647
+          ],
+          [
+            1182,
+            648,
+            1191,
+            652
+          ],
+          [
+            1183,
+            640,
+            1183,
+            640,
+            [
+              14
+            ]
+          ]
+        ],
+        "colours": [
+          5,
+          10,
+          11,
+          12,
+          15
+        ],
+        "why": "statue of the Duke on its pedestal (top 16): LK_STATFIG v1 (user 2026-11-22: 'den 2 Statuen ... wie den Figuren nur den Schatten, so wie runde Figuren das bei NPCs tut'): the statue DRAWN in the picture is lit as a round figure and casts a figure shadow from its own pixels; mask = plane A colours in the box (checked on the picture); the pedestal's greys 1 / 13 / 14 stay out; boxes (body V 600..642, hips V 643..647 U <= 1190, feet V 648..652 U 1182..1191, + the light grey highlight between the legs U 1183 V 640 in a box of its own with colour 14): 9 single pedestal / floor pixels stay out, the highlight is in (user 2026-11-22)"
       }
     ],
     "32": [
@@ -9630,7 +9722,8 @@
         ],
         "file": "proxies/pavilion_641.obj",
         "surface": true,
-        "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked"
+        "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked",
+        "fill_ground": true
       },
       {
         "op": "mesh",
@@ -9738,7 +9831,8 @@
         ],
         "file": "proxies/pavilion_642.obj",
         "surface": true,
-        "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked"
+        "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked",
+        "fill_ground": true
       },
       {
         "op": "mesh",
@@ -9846,7 +9940,8 @@
         ],
         "file": "proxies/pavilion_644.obj",
         "surface": true,
-        "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked"
+        "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked",
+        "fill_ground": true
       },
       {
         "op": "mesh",

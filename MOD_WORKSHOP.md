@@ -16,7 +16,7 @@ Inside are the page `Mod Workshop.html` and the folder `lang` (your changed text
 ## 2. Change texts
 1. **Open `Mod Workshop.html`** with a double click. It opens in your browser (Chrome, Edge or Firefox) and works offline; nothing is sent anywhere.
 2. **Pick your language** at the top.
-3. **Find the text:** search by word, or use the filter: dialogue, names / menus, map areas, items, options menu, Friday hints, texts not translated yet, your changes.
+3. **Find the text:** search by word (you can type a sentence as the game shows it; character names and line breaks are handled), or use the filter: dialogue, names / menus, map areas, items, options menu, Friday hints, texts not translated yet, your changes.
 4. **Type the new text in the right column.** The columns show the original English (from your own ROM) and the current text. Leave a field empty to keep the current text.
    - Keep the codes in braces as in the English text: `{SoftNewLine}` line break, `{ContinuePrompt}` wait for a button, `{Speaker}` the speaker's name, `{=name}` a character name (follows *Options > Names*). Line breaks and pauses may move.
    - A text marked **red** would be refused by the game; the reason is shown below it.
@@ -25,6 +25,8 @@ Inside are the page `Mod Workshop.html` and the folder `lang` (your changed text
    - **Chrome / Edge:** the first time, the browser asks for a folder: choose the **Mods folder**. The page then saves straight into it.
    - **Firefox:** the file `<language>.json` (for example `ru.json`) goes to your Downloads. Move it into the `lang` folder inside the Mods folder (replace the old file).
 6. **Start the game again.** Your texts are in.
+
+**Character names:** click *Character names* on the left to rename a character for your language (for example Nigel or Friday). The new name replaces the name in every text where the character appears. It is used while *Options > Names* is *Localized*; with *Japanese* the game keeps the Japanese original names. At most 12 letters, no codes; a name with letters your language's font does not have is refused (shown red on the page after the next start). Names are saved in the same file as your texts.
 
 To undo a change, empty its field and save again. To undo all changes of a language, delete its file in `lang`.
 

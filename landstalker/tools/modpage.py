@@ -15,7 +15,7 @@ sys.path.insert(0, HERE)
 import modlayer   # noqa: E402
 
 SKIP = ("friday_hints.json", "names.json", "en_items.json", "ja_map.json")
-BLOCK_ORDER = ("names", "map_areas", "item_dialog", "strings", "ui_text")   # + "friday" (Friday hints)
+BLOCK_ORDER = ("names", "map_areas", "item_dialog", "strings", "ui_text")   # + "friday" (Friday hints) + "charnames" (MOD LAYER 2, own navigation entry)
 
 
 def inputs(src, mods, rom):
@@ -23,6 +23,20 @@ def inputs(src, mods, rom):
     ml = os.path.join(mods, "lang")
     if os.path.isdir(ml): fs += [os.path.join(ml, f) for f in sorted(os.listdir(ml))]
     return "|".join("%s:%d" % (os.path.basename(f), int(os.path.getmtime(f))) for f in fs if os.path.isfile(f))
+
+
+def font_chars(lang, code):
+    """the letters the game's text font has for this language (a hint on the page while typing; the build decides: langbuild text_trial)"""
+    import langbuild as lb, stringdump as sd
+    base = lang.get("meta", {}).get("names", code[:2]); ch = set(sd.MAIN) | {" ", "~"}
+    if base in lb.ACCENTS: ch |= set(lb.ACCENTS[base][0])
+    elif base not in lb.WIDE_LANGS: ch |= set(lb.EXTRA_DE)   # (de / English; not ru / uk / ko: 'ä' is refused there)
+    if base in lb.WIDE_LANGS:
+        for cp in range(0x400, 0x500):
+            try:
+                if any(lb.cyr_glyph_rows(chr(cp))): ch.add(chr(cp))
+            except Exception: pass
+    return "".join(sorted(ch))   # (Korean: + all Hangul syllables, 'hangul' in the page data)
 
 
 def build(rom, src, mods):
@@ -57,13 +71,17 @@ def build(rom, src, mods):
         if code in ("de",) + tuple(fridaylang.NAME):   # MOD LAYER v1: the Friday hints (gentle level, the one the game shows); English reference = our own English hint
             for h in fridaylang.hints():
                 t = h.get(code); rows.append(["friday", h.get("id", ""), t[0] if isinstance(t, list) and t else ""]); fen[h.get("id", "")] = (h.get("en") or [""])[0]
+        if not code.startswith("ja"):   # MOD LAYER 2 (user 2026-11-22): character names per language, Names = Localized only; current = this language's name (lang/names.json, falls back to English)
+            nb = lang.get("meta", {}).get("names", code[:2])
+            for k, e in langbuild.load_names().items(): rows.append(["charnames", k, e.get(nb, e["en"])])
         rp = os.path.join(mods, "lang", code + ".report.json")
         try: rep = json.load(open(rp, encoding="utf-8")).get("refused", []) if os.path.isfile(rp) else []
         except (OSError, ValueError): rep = []
-        langs.append({"code": code, "name": lang.get("meta", {}).get("name", code), "rows": rows, "mod": modlayer.load_lang_mod(code), "refused": rep})
+        mp = modlayer.lang_mod_path(code); mms = int(os.path.getmtime(mp) * 1000) if os.path.isfile(mp) else 0   # GitHub #18: the page compares the browser's last save with the mod file's age
+        langs.append({"code": code, "name": lang.get("meta", {}).get("name", code), "rows": rows, "mod": modlayer.load_lang_mod(code), "modMs": mms, "refused": rep, "chars": font_chars(lang, code), "hangul": lang.get("meta", {}).get("names", code[:2]) == "ko"})
     for k in used:
         if k in en_all: en[k] = en_all[k]
-    return {"generated": time.strftime("%Y-%m-%d %H:%M"), "mods": os.path.abspath(mods), "modsName": os.path.basename(os.path.abspath(mods)), "en": en, "fen": fen, "men": dict(langbuild.MAP_AREAS), "languages": langs,
+    return {"generated": time.strftime("%Y-%m-%d %H:%M"), "genMs": int(time.time() * 1000), "mods": os.path.abspath(mods), "modsName": os.path.basename(os.path.abspath(mods)), "en": en, "fen": fen, "men": dict(langbuild.MAP_AREAS), "cen": {k: [e["en"], e["jp"]] for k, e in langbuild.load_names().items()}, "codes": sorted(set(langbuild.CTL) | set(langbuild.NAMECTL)), "nameMax": langbuild.NAME_MAX, "ignored": sorted(f for f in (os.listdir(os.path.join(mods, "lang")) if os.path.isdir(os.path.join(mods, "lang")) else []) if not f.endswith(".report.json") and not f.endswith(".tmp") and not (f.endswith(".json") and f[:-5] in alls)), "languages": langs,
             "layout": ["NewLine", "SoftNewLine", "Pause1s", "Pause1sOrInput", "Pause1_5sOrInput", "Pause2sOrInput", "BreakSpace", "BreakPoint", "Hyphen"]}
 
 

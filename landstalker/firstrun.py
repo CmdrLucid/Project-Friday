@@ -530,6 +530,14 @@ def smoke_run():
 
 
 def main():
+    # MOD LAYER: the mods folder (next to the AppImage / <app>\Mods) must be known BEFORE the build: the build's langbuild mixes the mods in,
+    # and the start only rebuilds languages whose mod is NEWER than the built file, so a build that looked into <work>/Mods ignored the player's
+    # old mods after every update (found 2026-11-22 testing the v1.9.11 CI AppImage)
+    try:
+        sys.path.insert(0, os.path.join(HERE, "tools")); import modlayer
+        os.environ.setdefault("LANDSTALKER_MODS", modlayer.mods_for_app(HERE))
+    except Exception:
+        pass
     argv = sys.argv[1:]
     game_args = []
     if "--" in argv:
