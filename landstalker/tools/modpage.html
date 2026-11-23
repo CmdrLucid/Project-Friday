@@ -90,6 +90,7 @@ else init();
 
 function init() {
   $("foot").innerHTML = "Your mods:<br>" + esc(D.mods) + "<br><br>Texts of " + esc(D.generated);
+  if ((D.ignored || []).length) $("foot").innerHTML += '<br><br><span style="color:var(--bad)">Not used by the game (the name must be &lt;language&gt;.json, e.g. ru.json; a second browser download is often called ru(1).json): ' + D.ignored.map(esc).join(", ") + "</span>";
   $("lang").innerHTML = D.languages.map(l => `<option value="${l.code}">${esc(l.name)} (${l.code})${Object.keys(l.mod || {}).length > 1 ? " *" : ""}</option>`).join("");
   const last = store.get("pf_lang"); if (last && D.languages.some(l => l.code === last)) $("lang").value = last;
   pick();
@@ -100,28 +101,36 @@ function modOf(r) { return ((mod[r[0]] || {})[r[1]]); }
 function pick() {
   if (Object.keys(dirty).length && !confirm("Unsaved changes of this language stay in this browser. Switch anyway?")) { $("lang").value = L.code; return; }
   L = D.languages.find(l => l.code === $("lang").value); store.set("pf_lang", L.code);
-  { const sv = store.get("pf_saved_" + L.code);   /* GitHub #18 (saving in stages lost texts): the page holds the mod file as it was when the game last wrote the page; the browser's last save is
-      newer when it was made after the file was written (page not rewritten yet, or Firefox's download not moved into the folder yet): take that save */
-    if (sv && sv.t && sv.mod && sv.t > (L.modMs || 0) + 2000) {
-      const n = BLOCKS.reduce((a, b) => a + Object.keys(sv.mod[b] || {}).length, 0);
-      if (L.modMs || confirm("This browser still has your last saved changes for " + L.name + " (" + n + " text(s)), but the Mods folder has no file for this language (deleted, or the download was not moved there yet).\n\nOK = keep working with them.  Cancel = forget them and start without changes.")) L.mod = sv.mod;
-      else store.set("pf_saved_" + L.code, null); } }
+  if (L.fileCanon === undefined) { L.fileCanon = canon(L.mod); L.fileJson = JSON.stringify(L.mod || {}); }   /* the mod file as the game wrote it into this page (L.mod changes with the saves) */
+  { const sv = store.get("pf_saved_" + L.code), now = L.fileCanon;   /* GitHub #18 (saving in stages lost texts): the page holds the mod file as it was when the game last wrote the page.
+      The browser keeps its last save + the file content it was based on: file = that save -> fine; file = the old base (the page was not rewritten yet, or Firefox's download was not moved
+      into the folder yet) -> continue with the save; file changed otherwise (deleted, replaced by a copy, edited) -> the file wins.  By CONTENT, not by date (a copied file keeps an old date). */
+    if (sv && sv.mod && sv.base != null && !sv.dl && (D.genMs || 0) > sv.t) { if (now !== canon(sv.mod)) store.set("pf_saved_" + L.code, null); }   /* a FOLDER save wrote the file: a page written after it shows the file as it is (deleted / changed = the file wins) */
+    else if (sv && sv.mod && sv.base != null) { if (now !== canon(sv.mod) && now === sv.base) {
+        /* the first save of a language by DOWNLOAD (no file before): 'not moved yet' and 'deleted on purpose' look the same -> ask once per visit */
+        if (sv.dl && now === canon({}) && !L.askedSv && !(L.askedSv = true, confirm("This browser still has your last saved changes for " + L.name + ", but there is no " + L.code + ".json in the Mods folder (the download was not moved there yet, or you deleted it).\n\nOK = keep working with them.  Cancel = forget them."))) store.set("pf_saved_" + L.code, null);
+        else L.mod = sv.mod; }
+      else if (now !== canon(sv.mod)) { L.mod = JSON.parse(L.fileJson || "{}"); store.set("pf_saved_" + L.code, null); } } }
+  { const ids = new Set(L.rows.map(key)); for (const k of Object.keys(dirty = store.get("pf_draft_" + L.code) || {})) if (!ids.has(k)) delete dirty[k]; }   /* a stale draft id (other version / language) blocked Save */
   mod = JSON.parse(JSON.stringify(L.mod || {})); refused = {};
   (L.refused || []).forEach(x => refused[x.block + "|" + x.key] = "The game refused this text: " + x.why);
+  const fileErr = (L.refused || []).find(x => x.block === "file");
   for (const op of $("filter").options) {   // a block the language has no entries for (Items in dialogue: only ru / uk / ko) is hidden
     if (op.value.startsWith("b:")) op.hidden = !L.rows.some(r => r[0] === op.value.slice(2));
     if (op.value === "untr") op.textContent = L.code.startsWith("en") ? "Still the original English" : "Not translated yet";
   }
   if ($("filter").selectedOptions[0].hidden) $("filter").value = "all";
-  dirty = store.get("pf_draft_" + L.code) || {};
-  status(Object.keys(dirty).length ? Object.keys(dirty).length + " unsaved change(s) from your last visit - press Save to keep them." : "", Object.keys(dirty).length ? "bad" : "");
+  status(fileErr ? "Your file lang/" + L.code + ".json could not be read by the game, so none of its texts are used: " + fileErr.why + ". Save again from this page (or fix the file)." :
+    Object.keys(dirty).length ? Object.keys(dirty).length + " unsaved change(s) from your last visit - press Save to keep them." : "", fileErr || Object.keys(dirty).length ? "bad" : "");
   $("save").disabled = !Object.keys(dirty).length; filter();
 }
-function plainText(t) {   /* for the search: the text as the game shows it (character names in, line breaks / pauses = spaces, other codes out) */
-  const nm = {}; L.rows.forEach(r => { if (r[0] === "charnames") nm[r[1]] = ((mod.charnames || {})[r[1]]) || r[2] || ((D.cen || {})[r[1]] || [""])[0]; });
+var plainNames = {};   /* var: init() runs filter() before this line is reached (a 'let' threw on load, test 2026-11-23) */
+function plainText(t) {   /* for the search: the text as the game shows it (character names in, line breaks / pauses = spaces, other codes out); names: plainNames, set once per filter() */
+  const nm = plainNames;
   return (t || "").replace(/\{=([a-z0-9_]+)(?::[a-z]+)?\}/g, (m, k) => nm[k] || k).replace(/\{[^}]*\}/g, m => D.layout.includes(m.slice(1, -1)) ? " " : "").replace(/\|/g, " ").replace(/\s+/g, " ").toLowerCase(); }
 function filter() {
   const f = $("filter").value, q = $("q").value.trim().toLowerCase().replace(/\s+/g, " ");
+  plainNames = {}; L.rows.forEach(r => { if (r[0] === "charnames") plainNames[r[1]] = ((mod.charnames || {})[r[1]]) || r[2] || ((D.cen || {})[r[1]] || [""])[0]; });
   view = L.rows.filter(r => { const k = key(r), m = modOf(r);
     if ((r[0] === "charnames") !== (layer === "names")) return false;   // MOD LAYER 2: the names have their own navigation entry
     if (layer === "names") return !q || r[1].includes(q) || enOf(r).toLowerCase().includes(q) || (r[2] || "").toLowerCase().includes(q) || (m || "").toLowerCase().includes(q);
@@ -135,6 +144,8 @@ function filter() {
 const codes = t => (t.match(/\{([^}]*)\}/g) || []).map(m => m.slice(1, -1)).filter(m => !D.layout.includes(m) && !m.startsWith("=")).sort().join(",");
 function check(r, t) {
   if (!t) return "";
+  if (/[\r\n]/.test(t)) return r[0] === "friday" ? "Enter is no line break here: use the | sign." : r[0] === "charnames" ? "A name is one line (no Enter)." : "Enter is no line break in the game: use {SoftNewLine} (or {NewLine}).";
+  if (r[0] !== "charnames" && r[0] !== "friday") { const bad = (t.match(/\{([^}]*)\}/g) || []).map(m => m.slice(1, -1)).filter(m => !m.startsWith("=") && !(D.codes || []).includes(m)); if (bad.length) return "Unknown code {" + bad[0] + "}: the game would refuse this text."; }
   if (r[0] === "charnames") {   // MOD LAYER 2: same rule as tools/langbuild.py mod_check
     if (/[{}|]/.test(t)) return "A name takes no codes or | signs.";
     if (t !== t.trim() || !t.trim()) return "No spaces at the start or end.";
@@ -179,13 +190,16 @@ async function folder() {   // Chrome / Edge: write straight into the mods folde
   try { dirH = await window.showDirectoryPicker({ id: "pfmods", mode: "readwrite" }); } catch (e) { return null; }
   return dirH;
 }
-function modText() { return JSON.stringify(Object.assign({ meta: { code: L.code, format: 1 } }, mod), null, 1) + "\n"; }
+function canon(m) { const o = {}; BLOCKS.forEach(b => { const e = Object.keys((m || {})[b] || {}).sort(); if (e.length) o[b] = e.map(k => [k, m[b][k]]); }); return JSON.stringify(o); }   /* a mod's texts only (no meta), stable order */
+function modText(m) { m = m || mod; return JSON.stringify(Object.assign({ meta: { code: L.code, format: 1 } }, m), null, 1) + "\n"; }
 $("save").onclick = async () => {
+  for (const k of Object.keys(dirty)) if (!L.rows.some(x => key(x) === k)) delete dirty[k];   /* (an id this language has no row for) */
   const bad = Object.entries(dirty).filter(([k, t]) => check(L.rows.find(x => key(x) === k), t));
   if (bad.length) return status(bad.length + " text(s) are marked red - fix them first (the game would refuse them).", "bad");
-  for (const [k, t] of Object.entries(dirty)) { const [b, ...rest] = k.split("|"), id = rest.join("|"); mod[b] = mod[b] || {}; if (t === "") delete mod[b][id]; else mod[b][id] = t; }
-  BLOCKS.forEach(b => { if (mod[b] && !Object.keys(mod[b]).length) delete mod[b]; });
-  const n = BLOCKS.reduce((a, b) => a + Object.keys(mod[b] || {}).length, 0), txt = modText();
+  const nm = JSON.parse(JSON.stringify(mod));   /* merged into a copy: taken over only after a successful write */
+  for (const [k, t] of Object.entries(dirty)) { const [b, ...rest] = k.split("|"), id = rest.join("|"); nm[b] = nm[b] || {}; if (t === "") delete nm[b][id]; else nm[b][id] = t; }
+  BLOCKS.forEach(b => { if (nm[b] && !Object.keys(nm[b]).length) delete nm[b]; });
+  const n = BLOCKS.reduce((a, b) => a + Object.keys(nm[b] || {}).length, 0), txt = modText(nm);
   const d = await folder();
   if (d && d.name !== D.modsName && !confirm('The chosen folder is "' + d.name + '", not "' + D.modsName + '" (the folder of this page). Save there anyway?')) { dirH = null; return status("Not saved.", "bad"); }
   if (d) {
@@ -196,7 +210,8 @@ $("save").onclick = async () => {
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type: "application/json" })); a.download = L.code + ".json"; document.body.appendChild(a); a.click(); a.remove();
     status("Your browser saved " + L.code + ".json as a download (" + n + " changed text(s)).\nMove it into  " + D.mods + "/lang/  (replace the old file there), then start the game again.", "ok");
   }
-  L.mod = JSON.parse(JSON.stringify(mod)); store.set("pf_saved_" + L.code, { t: Date.now(), mod: L.mod }); dirty = {}; store.set("pf_draft_" + L.code, {}); $("save").disabled = true; draw();
+  mod = nm; L.mod = JSON.parse(JSON.stringify(nm));
+  store.set("pf_saved_" + L.code, { t: Date.now(), mod: L.mod, base: L.fileCanon, dl: !d }); dirty = {}; store.set("pf_draft_" + L.code, {}); $("save").disabled = true; draw();
 };
 function setLayer(l) {   // MOD LAYER 2: Language | Character names (same mod file per language)
   layer = l; $("navlang").className = l === "lang" ? "on" : ""; $("navnames").className = l === "names" ? "on" : "";
@@ -209,8 +224,11 @@ $("navlang").onclick = e => { e.preventDefault(); setLayer("lang"); }; $("navnam
 $("lang").onchange = pick; $("filter").onchange = filter; $("q").oninput = filter;
 $("imp").onclick = () => $("impf").click();
 $("impf").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; let m; try { m = JSON.parse(await f.text()); } catch (x) { return status("Not a mod file.", "bad"); }
-  let n = 0; BLOCKS.forEach(b => Object.entries(m[b] || {}).forEach(([k, t]) => { if (typeof t === "string") { dirty[b + "|" + k] = t; n++; } }));
-  store.set("pf_draft_" + L.code, dirty); $("save").disabled = !n; filter(); status(n + " text(s) imported - check them and press Save.", "ok"); };
+  if (!m || typeof m !== "object" || Array.isArray(m)) return status("Not a mod file.", "bad");
+  const fc = m.meta && m.meta.code; if (fc && fc !== L.code && !confirm('This file is for "' + fc + '", the page shows "' + L.code + '". Import it into ' + L.name + ' anyway?')) return status("Not imported.", "bad");
+  const ids = new Set(L.rows.map(key)); let n = 0, skip = 0;
+  BLOCKS.forEach(b => { const blk = m[b]; if (!blk || typeof blk !== "object") return; Object.entries(blk).forEach(([k, t]) => { if (typeof t !== "string") return; if (!ids.has(b + "|" + k)) { skip++; return; } dirty[b + "|" + k] = t; n++; }); });
+  store.set("pf_draft_" + L.code, dirty); $("save").disabled = !Object.keys(dirty).length; filter(); status(n + " text(s) imported - check them and press Save." + (skip ? " " + skip + " text(s) skipped: no such entry in this language." : ""), n ? "ok" : "bad"); };
 window.addEventListener("beforeunload", () => store.set("pf_draft_" + L.code, dirty));
 </script>
 </body>

@@ -391,7 +391,7 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
         out = out[:16] + struct.pack(">I", len(out)) + out[20:] + tr
     if uiw: out = out + uiw + __import__("uiwide").footer(len(out))   # LK_UIWIDE v1: glyph table + footer at the end
     open(out_path, "wb").write(out)
-    global LAST_DROPPED; LAST_DROPPED = len(dropped)   # MOD LAYER 2: the trial builds of modded character names compare this
+    global LAST_DROPPED, LAST_DROPKEYS; LAST_DROPPED = len(dropped); LAST_DROPKEYS = [k for k, _w in dropped]   # MOD LAYER 2: the trial builds of modded character names compare this
     print("langbuild: %d strings, %d names, %d ui values, %d glyphs, %d ui texts -> %s (%d bytes); dropped %d" % (len(strs), len(names), len(ui), len(glyphs), len(texts), out_path, len(out), len(dropped)))
     for k, w in dropped: print("  dropped", k, "-", w)
     if "--preview" in sys.argv:
@@ -401,6 +401,7 @@ def build_one(rom, en, lang_path, out_path, variant="local"):
 
 ONLY = None   # --only CODE
 LAST_DROPPED = 0   # MOD LAYER 2 (names_trial)
+LAST_DROPKEYS = []   # mod text trial (2026-11-23)
 
 
 NAME_MAX = 12   # MOD LAYER 2: longest character name a modder may give (the page checks the same); the runtime word wrap LK_LGWRAP v1 breaks a line that gets too long
@@ -412,6 +413,12 @@ def mod_check(en):
     import re
     def codes(t): return sorted(m for m in re.findall(r"\{([^}]*)\}", t) if m not in LAYOUT and not m.startswith("="))
     def check(blk, key, t):
+        if len(t) > 2000: return "longer than 2000 characters"   # (a 3 MB text crashed the whole build, test 2026-11-23)
+        if blk == "map_areas" and key not in dict(MAP_AREAS): return "no such map area"
+        if blk == "friday":
+            import fridaylang
+            if key not in {h.get("id") for h in fridaylang.hints()}: return "no such Friday hint"
+        if "\n" in t or "\r" in t: return "Enter is no line break in the game (use {SoftNewLine}, Friday hints: the | sign)"   # the page checks the same (Mod Workshop test 2026-11-23)
         for m in re.findall(r"\{([^}]*)\}", t):
             if not (m.startswith("=") or m in CTL or m in NAMECTL): return "unknown code {%s}" % m
         if t.count("{") != t.count("}"): return "a brace { or } is missing"
@@ -428,6 +435,32 @@ def mod_check(en):
             if codes(src) != codes(t): return "codes differ from the English text: %s vs %s" % (codes(src), codes(t))
         return None
     return check
+
+
+def text_trial(rom, en, lang, orig, tmp):
+    """MOD LAYER: a modded text with letters this language's font lacks (or too long for the file) is DROPPED by build_one = shown in English.  Build the
+    language without / with the mod (stdout muted, ~1 s each); every entry dropped only with the mod goes back to its translation and is refused.  Returns [(block, key, reason)]."""
+    import contextlib, io, fridaylang
+    def keys(l):
+        with contextlib.redirect_stdout(io.StringIO()): build_one(rom, en, json.loads(json.dumps(l)), tmp)
+        return set(LAST_DROPKEYS)
+    try: d0 = keys(orig); d1 = keys(lang)
+    finally:
+        if os.path.isfile(tmp): os.remove(tmp)
+    hids = [h.get("id") for h in fridaylang.hints()]; bad = []
+    for dk in sorted(d1 - d0):
+        if dk.startswith("ui_text:"): blk, k = "ui_text", dk[8:]
+        elif dk.startswith("map_areas:"): blk, k = "map_areas", dk[10:]
+        elif dk.startswith("friday:"):
+            i = int(dk[7:], 16) - fridaylang.FRIDAY_BASE; blk, k = "friday", hids[i] if 0 <= i < len(hids) else None
+        elif ":" in dk: blk, k = ("names" if dk in (lang.get("names") or {}) else "item_dialog"), dk
+        else: blk, k = "strings", dk
+        if k is None or k not in (lang.get(blk) or {}): continue
+        o = (orig.get(blk) or {}).get(k)
+        if o is None: lang[blk].pop(k, None)
+        else: lang[blk][k] = json.loads(json.dumps(o))
+        bad.append((blk, k, "has letters the game cannot show in this language"))
+    return bad
 
 
 def names_trial(rom, en, lang, tmp):
@@ -463,14 +496,19 @@ def main():
                 idx.append("%s\t%s" % (code, json.load(open(os.path.join(sys.argv[2], f), encoding="utf-8")).get("meta", {}).get("name", code))); continue
             lj0 = json.load(open(os.path.join(sys.argv[2], f), encoding="utf-8")); mod = modlayer.load_lang_mod(code)   # MOD LAYER v1: the user's own corrections (mods/lang/<code>.json)
             if mod or os.path.isfile(modlayer.lang_mod_path(code)):
-                nmod, bad = modlayer.apply(lj0, mod, en, mod_check(en))
+                orig = json.loads(json.dumps(lj0)); nmod, bad = modlayer.apply(lj0, mod, en, mod_check(en))
+                if code in modlayer.READ_ERR: bad.append(("file", "", "the file could not be read (broken JSON?): " + modlayer.READ_ERR[code]))
                 if lj0.get("charnames"): nb = names_trial(rom, en, lj0, os.path.join(outdir, code + ".trial.bin")); bad += nb; nmod -= len(nb)
+                if any(b_ != "charnames" and isinstance(mod.get(b_), dict) and mod.get(b_) for b_ in modlayer.LANG_BLOCKS + modlayer.LANG_PLAIN):
+                    orig["charnames"] = lj0.get("charnames") or {}; nb = text_trial(rom, en, lj0, orig, os.path.join(outdir, code + ".trial.bin")); bad += nb; nmod -= len(nb)
                 modlayer.save_report(code, bad)
                 print("langbuild: %s: %d texts from the mod %s, %d refused" % (code, nmod, modlayer.lang_mod_path(code), len(bad)))
                 for b_, k_, w_ in bad: print("  mod text refused (the translation stays):", b_, k_, "-", w_)
-            mk = os.path.join(outdir, code + ".modded")   # MOD LAYER: marks a language built WITH a mod file, so that removing the mod rebuilds it (tools/modlayer.py sync)
-            if mod: open(mk, "w").write(modlayer.lang_mod_path(code) + "\n")
-            elif os.path.isfile(mk): os.remove(mk)
+            mk = os.path.join(outdir, code + ".modded")   # MOD LAYER: marks a language built WITH a mod file (+ the file's sha1: sync rebuilds when the content changes), so that removing the mod rebuilds it (tools/modlayer.py sync)
+            if os.path.isfile(modlayer.lang_mod_path(code)): open(mk, "w").write(modlayer.lang_mod_path(code) + "\n" + modlayer.mod_hash(code) + "\n")
+            else:
+                if os.path.isfile(mk): os.remove(mk)
+                modlayer.save_report(code, [])   # (a report of a deleted mod stayed red on the page)
             meta = build_one(rom, en, json.loads(json.dumps(lj0)), os.path.join(outdir, code + ".bin"))
             lj = lj0
             for blk in ("strings", "names"):   # LK_LGNAMES v1: entries not translated yet = the original English with the Japanese names
