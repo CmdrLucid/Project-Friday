@@ -17,6 +17,7 @@ ROOT = os.path.join(HERE, "..")
 KEYS = os.path.join(HERE, "ui_keys.json")   # in tools/: every .json in lang/ is built as a language (langbuild)
 LIT = r'"((?:[^"\\]|\\.)*)"'
 # Keys that are not text a player reads in our font (format-only strings, internal tags) or texts translated elsewhere
+RAW_OK = {"MODEL VIEW: %s"}   # debug key (F-key model view), English on purpose
 IGNORE = {"", "%s", "%d", "%s: %s", "SABR"}   # SABR = the one-letter labels of the quick-equip overlay (index lt[k]), plain on purpose
 
 
@@ -100,7 +101,7 @@ def collect(src):
             shown = {int(x) for mm in re.finditer(r"static const int lk_ids_(?!key)\w+\[[\w ]+\]\s*=\s*\{([^}]*)\}", s) for x in re.findall(r"\d+", mm.group(1))}
             for i, lit in enumerate(re.findall(LIT, body_of(s, m.end() - 1))):
                 if i in shown: add(lit, "option %d" % i)
-        for arr in (r"(?:const )?lk_pg_name\[[\w +]+\]", r"lk_bind_nm\[\w+\]", r"nm\[4\]\[4\]", r"kind\[4\]", r"dnm\[4\]", r"dn\[4\]"):   # the quick-equip tables are [4] / [4][4] (input.c / the tree list have other 'nm' arrays)
+        for arr in (r"(?:const )?lk_pg_name\[[\w +]+\]", r"lk_bind_nm\[\w+\]", r"nm\[4\]\[4\]", r"lk_dd_names\[\d+\]", r"lk_scale_names\[\w+\]", r"lk_fx_names\[\w+\]", r"kind\[4\]", r"dnm\[4\]", r"dn\[4\]"):   # the quick-equip tables are [4] / [4][4] (input.c / the tree list have other 'nm' arrays)
             for m in re.finditer(r"static const char \*(?:const )?%s\s*=\s*\{" % arr, s):
                 for lit in re.findall(LIT, body_of(s, m.end() - 1)): add(lit, arr)
         m = re.search(r"lk_ii_tab\[\]\s*=\s*\{", s)
@@ -109,7 +110,11 @@ def collect(src):
     for fn in ("lk_opt_val0", "lk_opt_help"):   # value words / help lines: every literal of the function (also its local word arrays)
         if fn in funcs:
             for lit in re.findall(LIT, funcs[fn][1]): add(lit, fn)
-    return keys, where, trans
+    raw = []   # English written straight into the on-screen message (never translated; user 2026-11-23: 'Fullscreen yes / no is still English')
+    for t in texts:
+        for m in re.finditer(r"snprintf\(lk_osd_text,[^,]*,\s*" + LIT, t):
+            if re.search(r"[A-Za-z]{2}", m.group(1)) and m.group(1) not in RAW_OK: raw.append(m.group(1))
+    return keys, where, trans, raw
 
 
 def split_args(a):
@@ -143,12 +148,13 @@ def lang_ui():
 def main():
     a = sys.argv[1:]
     src = a[a.index("--src") + 1] if "--src" in a else os.path.join(ROOT, ".deps", "genrecomp")
-    keys, where, trans = collect(src)
+    keys, where, trans, raw = collect(src)
     if "-v" in a: print("translating functions:", ", ".join(sorted(trans)))
     if "--write" in a:
         json.dump(sorted(keys), open(KEYS, "w", encoding="utf-8"), indent=0, ensure_ascii=False); open(KEYS, "a").write("\n")
         print("uikeys: %d keys -> %s" % (len(keys), KEYS)); return 0
     bad = 0
+    for r in raw: print("uikeys: on-screen message written in English without translation: %r (use lk_lang_trw)" % r); bad = 1
     old = set(json.load(open(KEYS, encoding="utf-8"))) if os.path.isfile(KEYS) else set()
     if old != keys:
         print("uikeys: tools/ui_keys.json is stale: %d new in the code, %d gone (run with --write)" % (len(keys - old), len(old - keys)))

@@ -81,6 +81,31 @@ static void lk_hf_draw(const char *t, int x, int y, int px) {   /* in the curren
             "        cx += a; }\n", "lk_rm_text")
     s = rep(s, 'const char *lg = lk_lang_tr("SAME NUMBER: CONNECTED DOORS"); lk_rm_text(px0 + pw / 2 - (int)strlen(lg) * 3 * (sc - 1),',
             'const char *lg = lk_lang_trw("SAME NUMBER: CONNECTED DOORS"); lk_rm_text(px0 + pw / 2 - lk_hf_w(lg) / 2 * (sc - 1),', "room map hint")
+    # (user test 2026-11-23 evening: 'Fullscreen yes / no with the key is still English', 'quick equip is English')
+    # the key-toggle messages wrote English literals straight into lk_osd_text (tools/uikeys.py now flags such writes)
+    for a, b in (('"DE-DITHER: %s", lk_dd_names[lk_dd_mode]);', 'lk_lang_trw("DE-DITHER: %s"), lk_lang_trw(lk_dd_names[lk_dd_mode]));'),
+                 ('"SCALE: %s", lk_scale_names[lk_scale_mode]);', 'lk_lang_trw("SCALE: %s"), lk_lang_trw(lk_scale_names[lk_scale_mode]));'),
+                 ('"WIDE: %d PX", 320 + 2 * lk_wide_e);', 'lk_lang_trw("WIDE: %d PX"), 320 + 2 * lk_wide_e);'),
+                 ('"FILTER: %s", lk_fx_names[lk_fx_mode]);', 'lk_lang_trw("FILTER: %s"), lk_lang_trw(lk_fx_names[lk_fx_mode]));'),
+                 ('"FULL HEIGHT: %s", lk_tall ? "ON" : "OFF");', 'lk_lang_trw("FULL HEIGHT: %s"), lk_lang_trw(lk_tall ? "ON" : "OFF"));'),
+                 ('"FULLSCREEN: %s", lk_fsc_on ? "ON" : "OFF");', 'lk_lang_trw("FULLSCREEN: %s"), lk_lang_trw(lk_fsc_on ? "ON" : "OFF"));'),
+                 ('"COORDINATES: %s", lk_coords_on ? "ON" : "OFF");', 'lk_lang_trw("COORDINATES: %s"), lk_lang_trw(lk_coords_on ? "ON" : "OFF"));'),
+                 ('"LIGHTING OFF: GPU TOO SLOW");', '"%s", lk_lang_trw("LIGHTING OFF: GPU TOO SLOW"));'),
+                 ('"LIGHTING ON AGAIN");', '"%s", lk_lang_trw("LIGHTING ON AGAIN"));')):
+        s = rep(s, "snprintf(lk_osd_text, sizeof(lk_osd_text), " + a, "snprintf(lk_osd_text, sizeof(lk_osd_text), " + b, "osd " + a[:20])
+    s = rep(s, 'lk_lang_tr("NOT NOW")', 'lk_lang_trw("NOT NOW")', "osd not now")
+    # quick-equip overlay: the category letters of empty cells (S A B R) came from lk_lang_tr("SABR") = English for an escaped translation
+    s = rep(s, 'const char *lt = lk_lang_tr("SABR");', 'const char *lt = lk_lang_trw("SABR"); char ltb[8];   /* ' + VER + ' */', "eq letters")
+    s = rep(s, "lk_eq_text(cell.x + (cw - 6 * ts) / 2, cell.y + 4 * ip, (char[]){ lt[k], 0 }, ip, 255, 255, 255);",
+            "lk_eq_text(cell.x + (cw - lk_hf_w(lk_hf_nth(lt, k, ltb)) * ts) / 2, cell.y + 4 * ip, ltb, ip, 255, 255, 255);", "eq letter draw")
+    s = rep(s, "static int lk_hf_w(const char *t) {",
+            "static const char *lk_hf_nth(const char *t, int k, char *b) {   /* character k of t (ASCII or escape) into b (>= 3 bytes) */\n"
+            "    const char *s; while (k-- > 0 && *t) lk_lang_cp(&t); s = t; if (*t) lk_lang_cp(&t); memcpy(b, s, (size_t)(t - s)); b[t - s] = 0; return b; }\n"
+            "static int lk_hf_eqshow(void) {   /* test aid LANDSTALKER_EQSHOW=from-to: the quick-equip overlay shows in these frames as if the key was held */\n"
+            "    static int init, a = -1, b = -1; long f; if (!init) { const char *e = getenv(\"LANDSTALKER_EQSHOW\"); init = 1; if (e) sscanf(e, \"%d-%d\", &a, &b); }\n"
+            "    f = platform_frame_number(); return a >= 0 && f >= a && f <= b; }\n"
+            "static int lk_hf_w(const char *t) {", "nth helper")
+    s = rep(s, "    if (lk_eq_is_held() && lk_eq_active()) lk_eq_overlay(ow, oh);", "    if ((lk_eq_is_held() || lk_hf_eqshow()) && lk_eq_active()) lk_eq_overlay(ow, oh);   /* " + VER + ": + test aid */", "eq show test aid")
     open(p, "w").write(s)
     print("platform_sdl.c patched: " + VER)
 
