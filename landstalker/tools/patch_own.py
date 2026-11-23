@@ -372,9 +372,10 @@ static void lk_om_plan(void) {
   for (q = 0; q < 300; q++) { uint32_t a = 0x512C + 16 * (uint32_t)q; int room = (int16_t)(((uint16_t)OB(a + 12) << 8) | OB(a + 13)), i, j;   /* the height map keeps its stored pieces outside the room too (HMTileSwap): no seeds */
     if (room < 0) break; if (room != lk_o_room || (OB(a + 6) == OB(a + 8) && OB(a + 7) == OB(a + 9))) continue;
     for (j = 0; j <= OB(a + 11); j++) for (i = 0; i <= OB(a + 10); i++) { int hx = OB(a + 6) + i, hy = OB(a + 7) + j; if (hx < 74 && hy < 74) hsrc[hy][hx] = 1; } }
-  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (UW(0xFFD192 + 148 * y + 2 * x) && UW(0xFFD192 + 148 * y + 2 * x) != 0x4000 && !hsrc[y][x]) { int lay, k;   /* seeds: the tiles of every height map cell (both layers); $4000 = the empty cells around the room */
+  for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (UW(0xFFD192 + 148 * y + 2 * x) != 0x4000 && !hsrc[y][x]) { int lay, k;   /* seeds: the tiles of every height map cell (both layers); $4000 = the empty cells around the room, 0 = floor at height 0 */
     for (lay = 0; lay < 2; lay++) for (k = 0; k < 4; k++) { int cc = 2 * (x - y) + (lay ? 146 : 148) + (k & 1), rr = x + y + (k >> 1);
       if (cc >= 0 && cc < 304 && rr >= 0 && rr < 152 && ((lk_o_pa[rr][cc] | lk_o_pb[rr][cc]) >> 16 & 1) && !lk_om_grid[rr][cc]) { lk_om_grid[rr][cc] = 1; st[sp++] = (uint16_t)(rr * 304 + cc); } } }
+  if (sp < 8) { if (getenv("LANDSTALKER_OFFMAP_LOG")) printf("offmap: room %d, height map not loaded yet: nothing hidden\n", lk_o_room); return; }   /* (a room load in progress: everything would be an island) */
   while (sp > 0) { int o = st[--sp], r = o / 304, c = o - r * 304, dr, dc;   /* flood over the drawn tiles */
     for (dr = -1; dr <= 1; dr++) for (dc = -1; dc <= 1; dc++) { int r2 = r + dr, c2 = c + dc; if (r2 < 0 || c2 < 0 || r2 >= 152 || c2 >= 304 || lk_om_grid[r2][c2]) continue;
       if ((lk_o_pa[r2][c2] | lk_o_pb[r2][c2]) >> 16 & 1) { lk_om_grid[r2][c2] = 1; if (sp < 152 * 304) st[sp++] = (uint16_t)(r2 * 304 + c2); } } }
@@ -397,6 +398,17 @@ static void lk_om_apply(void) { int n, k;
   { static uint32_t hh = 0; uint32_t h = 2166136261u; int x, y; for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) h = (h ^ (uint32_t)UW(0xFFD192 + 148 * y + 2 * x)) * 16777619u;   /* again when the room or its height map changes (the map arrays are filled after the room number; a swap changes the height map) */
     if (lk_om_room != lk_o_room || h != hh) { lk_om_room = lk_o_room; hh = h; lk_om_plan(); } }
   for (n = 0; n < lk_om_n; n++) { int o = lk_om_tile[n], rr = o / 304, cc = o - rr * 304; lk_o_pa[rr][cc] = 0; lk_o_pb[rr][cc] = 0; } (void)k; }
+/* LK_OFFFIG v1 (user 2026-11-23, widescreen part b: 'manchmal stehen Figuren da ausserhalb'): a figure (not Nigel) whose feet are more than LANDSTALKER_OFFFIG_M (default 2) cells away
+   from every cell of the room's height map (RAM g_HeightMap, not 0 / $4000) is parked outside the room by the game: at 320 px off screen, in widescreen it showed.  Not drawn (only with
+   widescreen); a figure walking in from the edge stays (within the margin).  Test aid LANDSTALKER_OFFFIG=0, LANDSTALKER_OFFFIG_LOG=1 (one line per room / entity / cell). */
+static int lk_of_out(int off) { static int on = -1, m = 2; int x, y, cx, cy, a, b;
+  if (on < 0) { const char *e = getenv("LANDSTALKER_OFFFIG"), *e2 = getenv("LANDSTALKER_OFFFIG_M"); on = e ? atoi(e) != 0 : 1; if (e2) m = atoi(e2); }
+  if (!on || lk_wide_e <= 0 || off == 0) return 0;
+  x = SW(0xFF5400 + off + 0x14); y = SW(0xFF5400 + off + 0x16); cx = x >> 4; cy = y >> 4;
+  for (b = cy - m; b <= cy + m; b++) for (a = cx - m; a <= cx + m; a++) { int w; if (a < 0 || b < 0 || a >= 74 || b >= 74) continue; w = UW(0xFFD192 + 148 * b + 2 * a); if (w != 0x4000) return 0; }   /* $4000 = empty, 0 = floor at height 0 */
+  if (getenv("LANDSTALKER_OFFFIG_LOG")) { static int lr = -1, lo = -1, lx = -1, ly = -1; if (lr != lk_o_room || lo != off || lx != cx || ly != cy) { lr = lk_o_room; lo = off; lx = cx; ly = cy;
+    printf("offfig: frame %ld room %d entity %02X type %d at cell %d,%d (x %d y %d) not drawn\n", platform_frame_number(), lk_o_room, off, SB(0xFF5400 + off + 0x3B) & 255, cx, cy, x, y); } }
+  return 1; }
 static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *alt) {   /* figures of one pass state: drawn into lk_o_spr and / or as SAT keys (x, y, size) for the choice of the pass; with `alt` every entity of EITHER pass' visible list takes the version (this pass / the other one, or absent) that matches the real sprite table: the game's visibility test flips entities in and out of the list from pass to pass */
   int offs[48], inA[48], inB[48], inF[48], sord[48], n, k, nb = 0, boffs[24], nk = 0, i;
   if (draw) { memset(lk_o_spr, 0, sizeof lk_o_spr); if (lk_o_hdwant()) memset(lk_o_sprrep, 0, sizeof lk_o_sprrep); lk_o_nspr = 0; lk_o_dn = 0; }
@@ -474,6 +486,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
       if (found) e = &pose;
     }
     if (!e || !e->vis) continue;
+    if (draw && e->np && lk_of_out(offs[k])) continue;   /* LK_OFFFIG v1 */
     if (draw && lk_o_hide0 && offs[k] == 0 && e->np && lk_o_nigelalt(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) printf("ownlie: frame %ld Nigel drawn from the sprite table only\n", platform_frame_number()); continue; }   /* LK_OWNLIE v1: Nigel in a cutscene shape (lying) = only the real sprite table */
     if (draw && lk_o_hide0 && offs[k] != 0 && e->np && lk_o_satn > 0 && !lk_o_loose(e) && !lk_o_loose4e(e) && lk_o_near(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) { int q; printf("ownhide: frame %ld off %02X type %02X at (%d,%d) 4e (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), e->ax, e->ay, SW(0xFF5400 + offs[k] + 0x4E), SW(0xFF5400 + offs[k] + 0x50)); for (q = 0; q < e->np; q++) { uint32 kk = lk_o_pkey(e, q, 0); printf("   piece %d: x %d y %d size %X\n", q, (int)((kk >> 20) & 0x1FF), (int)((kk >> 8) & 0x3FF), (int)(kk & 15)); } } continue; }   /* the real sprite table holds none of this entity's pieces: the game draws something else in its place (a burning enemy of the Fire sword is replaced by flame sprites that are written into the table, they come as EXTRA entries) */
     if (draw && lk_o_exon) lk_o_extras_upto(sord[k]);
