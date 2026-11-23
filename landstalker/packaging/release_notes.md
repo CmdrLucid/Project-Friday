@@ -1,14 +1,13 @@
 **Project-Friday {VERSION} - Landstalker (Mega Drive) recompiled for Steam Deck / Linux and Windows.**
 
-### Mod Workshop fixes, character names, light and widescreen polish
-**New since v1.9.11:**
-- **Mod Workshop: rename characters** for your language (left: *Character names*). The new name is used in every text where the character appears (Options > Names = Localized).
-- **Mod Workshop: saving in several steps no longer loses texts** (GitHub #18): the page remembers your last save, also when you reopen it before starting the game or before moving a Firefox download into the folder. The search finds a sentence as the game shows it (with character names and line breaks).
-- **Mod Workshop is more robust:** a broken or wrongly named mod file (e.g. `ru(1).json`, a second browser download) is shown in red on the page; letters your language's font does not have get an orange hint while you type, and such texts keep the translation instead of turning English; one bad file can no longer stop the game from building its languages.
-- **Mods survive updates:** an update no longer builds the game without the mods already in your Mods folder.
-- **Widescreen:** map pieces the game keeps outside a room (for example next to the house above the Mercator crypt) and figures parked outside the room are no longer drawn.
-- **Lighting:** the Massan statue and the Duke's statue are lit like figures and cast a figure shadow; no more dark stripes in the water at the Mercator docks pavilion; no more thin shadow streaks from the books in the churches.
-- Your settings, save files and mods from v1.x keep working.
+### Language fixes and clearer menus
+**New since v1.9.12:**
+- **Languages (GitHub #18):** on-screen messages (quick save, fast forward, the key messages for Fullscreen / Scale / Filter / Widescreen ...), the quick-equip overlay and 'Preparing lighting' now appear in Russian, Ukrainian, Korean and Japanese too (before: English), and long messages fit the window (also in German). The translated title stays during the fade-in and after START. 'Modern', 'HUD', the language names (Русский, Українська, ...) and a few more menu words are translated in every language; small fixes found by a check of every menu line in every language (Ukrainian On / Off, French / Spanish / Italian Oui / Sí / Sì, Italian accents, Korean item names, ...).
+- **D-Pad help line fixed:** Options > Movement > D-Pad sometimes showed the Widescreen help.
+- **Clearer Start menu:** item descriptions (Item Info) and option help lines fill the bar alone and centred, without the menu words and the divider line; the words come back when the cursor is on the bar.
+- **Start screen options:** the bar under the options window shows the help line of the selected setting, like the in-game menu.
+- **Mod Workshop:** every menu text the game uses is offered (before, texts no language had translated yet were missing, e.g. 'Modern').
+- Your settings, save files and mods keep working.
 
 ### Mod Workshop - short guide (full guide: [MOD_WORKSHOP.md](https://github.com/cmdrlucid/Project-Friday/blob/main/MOD_WORKSHOP.md))
 1. **Start the game once.** It creates its Mods folder: **Steam Deck / Linux:** `Project-Friday Mods` next to the AppImage file. **Windows:** `Mods` in the Project-Friday folder (installer: in the folder you picked, by default `%LOCALAPPDATA%\Programs\Project-Friday\Mods`; zip: inside the extracted folder).

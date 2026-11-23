@@ -78,7 +78,8 @@ static const char *lk_ii_text(int id) { unsigned i; if (id >= 0x100) { const cha
 #define LK_II_BUF (LK_II_WORDS * 2u)
 #define LK_II_BUDGET 12
 #include <time.h>
-static uint8_t *lk_ii_cache[0x41 + 64];   /* items 0..0x3F, the plain bar 0x40, option help lines 0x41 + option id (2026-11-08) */
+_Static_assert(sizeof lk_id_name / sizeof lk_id_name[0] <= 128, "LK_IIOPT128: more than 128 options - make lk_ii_cache / lk_ii_slot bigger (an option help line would share a slot with another, GitHub #18)");
+static uint8_t *lk_ii_cache[0x41 + 128];   /* items 0..0x3F, the plain bar 0x40, option help lines 0x41 + option id (2026-11-08); LK_IIOPT128 (2026-11-23, GitHub #18): 128 option slots, with 64 the D-Pad help (option 64) shared slot 0x41 with option 0 */
 static struct { int on, id, step, pos, x; uint8_t y0; } lk_ii_job;
 static uint8_t lk_ii_y0s;   /* text y of the first line, remembered with the plain bar */
 /* The list of the Use screen lives in the game's g_Buffer ($FF2C00 + $84, row stride $48, 4 tile rows per item row) and runs on into the text tile buffer $FF3900 from about the 11th item row on
@@ -88,7 +89,7 @@ static uint8_t lk_ii_work[LK_II_BUF], lk_ii_save[LK_II_BUF];
 static int lk_ii_dirty, lk_ii_inslice;   /* inslice: the game's own text functions called by a slice wait for VBlanks, the buffer must stay ours then */
 static void lk_ii_grab(void) { uint32_t i; if (lk_ii_dirty) return; for (i = 0; i < LK_II_BUF; i++) lk_ii_save[i] = bus_read8(0xFF3900u + i); lk_ii_dirty = 1; }
 static void lk_ii_release(void) { uint32_t i; if (!lk_ii_dirty) return; for (i = 0; i < LK_II_BUF; i++) bus_write8(0xFF3900u + i, lk_ii_save[i]); lk_ii_dirty = 0; }
-static int lk_ii_slot(int id) { return id < 0 ? 0x40 : id >= 0x100 ? 0x41 + ((id - 0x100) & 63) : (id & 0x3F); }
+static int lk_ii_slot(int id) { return id < 0 ? 0x40 : id >= 0x100 ? 0x41 + ((id - 0x100) & 127) : (id & 0x3F); }
 static void lk_ii_dma(void) {   /* queue the text box tiles for the next VBlank */
     M68kContext sv = g_m68k;
     g_m68k.d[0] = (g_m68k.d[0] & 0xFFFF0000u) | LK_II_WORDS; g_m68k.a[0] = 0xFF3900u; g_m68k.a[1] = 0x00A500u; lk_call(0x0002C6u); lk_call(0x0002A2u);   /* QueueDMAOp, EnableDMAQueueProcessing */
@@ -153,7 +154,7 @@ static void lk_ii_job_run0(void) {   /* one slice of the current job */
     g_m68k = sv;
 }
 static void lk_ii_draw(int id) {   /* id < 0: the plain bar; called by the cursor hooks at every update */
-    { static int seen; int g = lk_lang_gen(), i; if (g != seen) { seen = g; lk_ii_job.on = 0; lk_ii_cur = -2; for (i = 0; i < 0x41 + 64; i++) { free(lk_ii_cache[i]); lk_ii_cache[i] = NULL; } } }   /* language changed: rebuild every bar */
+    { static int seen; int g = lk_lang_gen(), i; if (g != seen) { seen = g; lk_ii_job.on = 0; lk_ii_cur = -2; for (i = 0; i < 0x41 + 128; i++) { free(lk_ii_cache[i]); lk_ii_cache[i] = NULL; } } }   /* language changed: rebuild every bar */
     const char *t = id >= 0 ? lk_ii_text(id) : NULL;
     int want = t ? id : -1;
     if (lk_ii_job.on && lk_ii_job.id == want) { lk_ii_job_run(); return; }   /* continue */

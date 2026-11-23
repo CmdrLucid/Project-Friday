@@ -33,10 +33,10 @@ def glyph8(ch):
 
 def build(ui_text, code_of, adv_of):
     """ui_text {English: translation} -> ([(key bytes, value bytes)], trailer bytes incl. footer); code_of(ch) / adv_of(ch) = text font code /
-    advance of a non-ASCII character (None = not in the font: the entry stays English).  Entries with printf fields (%) stay English."""
+    advance of a non-ASCII character (None = not in the font: the entry stays English).  Entries with printf fields (%) are kept (LK_OSDWIDE v1)."""
     gl, gi, texts, skipped = [], {}, [], []
     for k, v in ui_text.items():
-        if "%" in v or "%" in k: skipped.append(k); continue
+        # (until 2026-11-23 entries with printf fields (%) stayed English; LK_OSDWIDE v1: an escape is never a '%' byte, the OSD callers format them with lk_lang_trw)
         out = bytearray(); ok = True
         for ch in v:
             if ord(ch) < 0x80: out.append(ord(ch)); continue

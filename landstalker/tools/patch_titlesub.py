@@ -33,6 +33,7 @@ else:
     a = "      lk_brand_row(lk_row0, lk_w0);   /* LK_BRAND v1 */\n"
     s = rep(s, a, "      lk_ts_row(lk_row0, lk_w0);   /* " + VER + " */\n" + a, "brand call")
     module = "/* ---- " + VER + ": the title subtitle in the language (tools/patch_titlesub.py, lettering tools/titlefont.py) ---- */\n" + arrays + table + r'''extern const char *lk_lang_code_cur(void);   /* tools/patch_titlesub.py (func_table.c): the loaded language ('' = English) */
+int lk_ts_on;   /* LK_TSWHOLE: set by func_table.c while DisplayTitleScreen $039848 runs */
 static uint32_t lk_ts_ref = 0xCCCCCCu;   /* the English letters' light grey of the previous frame (follows fades) */
 #define LK_TS_X0 127   /* the covered box in game pixels: the English subtitle is x 131..287, lines 105..121 */
 #define LK_TS_X1 292
@@ -40,7 +41,7 @@ static uint32_t lk_ts_ref = 0xCCCCCCu;   /* the English letters' light grey of t
 #define LK_TS_Y1 123
 static void lk_ts_row(PIXEL_OUT_T *row, int width) {
   static int off = -1; int line = lk_br_line, Wp = bitmap.viewport.w, ox = bitmap.viewport.x, g0, i, x, y; const char *code; PIXEL_OUT_T *r;
-  if (!lk_brand_on) return;
+  if (!lk_ts_on) return;   /* LK_TSWHOLE (2026-11-23, GitHub #18): the whole DisplayTitleScreen (sword slash, wait, fade to black), was only WaitForStartGame */
   if (off < 0) { const char *e = getenv("LANDSTALKER_TITLESUB"); off = e && *e && atoi(e) == 0; }
   if (off || line < LK_TS_Y0 || line > 140 || Wp < 320 || width < Wp + 2 * ox) return;
   code = lk_lang_code_cur(); if (!code || !*code) return;
@@ -72,5 +73,14 @@ if VER in s:
 else:
     a = "static void lk_lang_install(void) {"
     s = rep(s, a, "const char *lk_lang_code_cur(void) { return lk_lg_on ? lk_lg_codes[lk_lg_sel] : \"\"; }   /* " + VER + ": the loaded language for the picture side */\n" + a, "lang install")
+    # LK_TSWHOLE: the subtitle for the whole title screen. The English line shows from the end of the sword slash (TitleScreenSwordSlash) and
+    # stays during FadeToBlack after START; WaitForStartGame (lk_brand_on) covered only the middle. Hooked: DisplayTitleScreen $039848
+    # (TitleScreen $039762 tail-calls it through the table). Our letters follow the English letters' brightness, so they appear with them.
+    a = "static void lk_brand_install(void) {"
+    s = rep(s, a, """extern int lk_ts_on; static gen_func_t lk_ts_o_disp;   /* LK_TSWHOLE */
+static void lk_ts_h_disp(void) { lk_ts_on = 1; lk_ts_o_disp(); lk_ts_on = 0; }
+""" + a, "brand install")
+    a = "    lk_o_title = func_table_lookup(0x039988);"
+    s = rep(s, a, "    lk_ts_o_disp = func_table_lookup(0x039848); if (lk_ts_o_disp) func_table_register(0x039848, lk_ts_h_disp); else fprintf(stderr, \"titlesub: DisplayTitleScreen not found\\n\");   /* LK_TSWHOLE */\n" + a, "brand install body")
     open(p, "w").write(s)
     print("func_table.c patched: " + VER)

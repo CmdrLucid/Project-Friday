@@ -18,8 +18,15 @@ SKIP = ("friday_hints.json", "names.json", "en_items.json", "ja_map.json")
 BLOCK_ORDER = ("names", "map_areas", "item_dialog", "strings", "ui_text")   # + "friday" (Friday hints) + "charnames" (MOD LAYER 2, own navigation entry)
 
 
+
+def ui_keys():
+    """tools/ui_keys.json (tools/uikeys.py): every UI text the game translates; [] when the file is missing (an old install)"""
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui_keys.json")
+    try: return json.load(open(p, encoding="utf-8"))
+    except (OSError, ValueError): return []
+
 def inputs(src, mods, rom):
-    fs = [rom, os.path.join(HERE, "modpage.html")] + [os.path.join(src, f) for f in sorted(os.listdir(src)) if f.endswith(".json")]
+    fs = [rom, os.path.join(HERE, "modpage.html"), os.path.join(HERE, "ui_keys.json")] + [os.path.join(src, f) for f in sorted(os.listdir(src)) if f.endswith(".json")]
     ml = os.path.join(mods, "lang")
     if os.path.isdir(ml): fs += [os.path.join(ml, f) for f in sorted(os.listdir(ml))]
     return "|".join("%s:%d" % (os.path.basename(f), int(os.path.getmtime(f))) for f in fs if os.path.isfile(f))
@@ -52,7 +59,7 @@ def build(rom, src, mods):
     # options were empty): names / ui_text = the keys any language translates, map_areas = langbuild.MAP_AREAS; an entry the language does not
     # translate shows the original English (current text empty), a mod text is taken by langbuild like any other
     ref = {"names": sorted({k for l in alls.values() for k in (l.get("names") or {})}),
-           "ui_text": list(dict.fromkeys(k for l in alls.values() for k in (l.get("ui_text") or {}))),
+           "ui_text": list(dict.fromkeys(ui_keys() + [k for l in alls.values() for k in (l.get("ui_text") or {})])),   # 2026-11-23 (GitHub #18): + every key the code translates (tools/ui_keys.json), not only keys some language already has
            "map_areas": [k for k, _ in langbuild.MAP_AREAS]}
     for code, lang in alls.items():
         rows = []
