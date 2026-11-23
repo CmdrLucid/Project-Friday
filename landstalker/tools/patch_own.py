@@ -486,7 +486,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
       if (found) e = &pose;
     }
     if (!e || !e->vis) continue;
-    if (draw && e->np && lk_of_out(offs[k])) continue;   /* LK_OFFFIG v1 */
+    if (draw && e->np && lk_of_out(offs[k])) { int q3; for (q3 = 0; q3 < e->np && lk_o_dn < 96; q3++) lk_o_dk[lk_o_dn++] = lk_o_pkey(e, q3, 0); continue; }   /* LK_OFFFIG v1: not drawn, but its sprite table entries count as covered (else pass 2 drew them as 'extras') */
     if (draw && lk_o_hide0 && offs[k] == 0 && e->np && lk_o_nigelalt(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) printf("ownlie: frame %ld Nigel drawn from the sprite table only\n", platform_frame_number()); continue; }   /* LK_OWNLIE v1: Nigel in a cutscene shape (lying) = only the real sprite table */
     if (draw && lk_o_hide0 && offs[k] != 0 && e->np && lk_o_satn > 0 && !lk_o_loose(e) && !lk_o_loose4e(e) && lk_o_near(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) { int q; printf("ownhide: frame %ld off %02X type %02X at (%d,%d) 4e (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), e->ax, e->ay, SW(0xFF5400 + offs[k] + 0x4E), SW(0xFF5400 + offs[k] + 0x50)); for (q = 0; q < e->np; q++) { uint32 kk = lk_o_pkey(e, q, 0); printf("   piece %d: x %d y %d size %X\n", q, (int)((kk >> 20) & 0x1FF), (int)((kk >> 8) & 0x3FF), (int)(kk & 15)); } } continue; }   /* the real sprite table holds none of this entity's pieces: the game draws something else in its place (a burning enemy of the Fire sword is replaced by flame sprites that are written into the table, they come as EXTRA entries) */
     if (draw && lk_o_exon) lk_o_extras_upto(sord[k]);
