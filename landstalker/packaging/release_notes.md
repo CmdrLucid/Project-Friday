@@ -8,6 +8,7 @@
 - **Mods survive updates:** an update no longer builds the game without the mods already in your Mods folder.
 - **Widescreen:** map pieces the game keeps outside a room (for example next to the house above the Mercator crypt) and figures parked outside the room are no longer drawn.
 - **Lighting:** the Massan statue and the Duke's statue are lit like figures and cast a figure shadow; no more dark stripes in the water at the Mercator docks pavilion; no more thin shadow streaks from the books in the churches.
+- **Languages (GitHub #18):** the Options help line of the D-Pad setting showed the Widescreen text; the on-screen messages, quick-equip names, 'Preparing lighting' and the room map hint now appear in Russian / Ukrainian / Korean / Japanese (and long texts fit the window in German too); the title subtitle stays in your language during the fades and after START; 'Modern' and the language names are translated; fixes found by a sweep over every language (Ukrainian On / Off, French / Spanish / Italian Oui / Si, Italian accents, Korean CHROME / SHELL, ...).
 - Your settings, save files and mods from v1.x keep working.
 
 ### Mod Workshop - short guide (full guide: [MOD_WORKSHOP.md](https://github.com/cmdrlucid/Project-Friday/blob/main/MOD_WORKSHOP.md))
