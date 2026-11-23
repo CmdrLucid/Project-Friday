@@ -26,7 +26,7 @@ def ui_keys():
     except (OSError, ValueError): return []
 
 def inputs(src, mods, rom):
-    fs = [rom, os.path.join(HERE, "modpage.html")] + [os.path.join(src, f) for f in sorted(os.listdir(src)) if f.endswith(".json")]
+    fs = [rom, os.path.join(HERE, "modpage.html"), os.path.join(HERE, "ui_keys.json")] + [os.path.join(src, f) for f in sorted(os.listdir(src)) if f.endswith(".json")]
     ml = os.path.join(mods, "lang")
     if os.path.isdir(ml): fs += [os.path.join(ml, f) for f in sorted(os.listdir(ml))]
     return "|".join("%s:%d" % (os.path.basename(f), int(os.path.getmtime(f))) for f in fs if os.path.isfile(f))
