@@ -25,6 +25,20 @@ def inputs(src, mods, rom):
     return "|".join("%s:%d" % (os.path.basename(f), int(os.path.getmtime(f))) for f in fs if os.path.isfile(f))
 
 
+def font_chars(lang, code):
+    """the letters the game's text font has for this language (a hint on the page while typing; the build decides: langbuild text_trial)"""
+    import langbuild as lb, stringdump as sd
+    base = lang.get("meta", {}).get("names", code[:2]); ch = set(sd.MAIN) | {" ", "~"}
+    if base in lb.ACCENTS: ch |= set(lb.ACCENTS[base][0])
+    elif base not in lb.WIDE_LANGS: ch |= set(lb.EXTRA_DE)   # (de / English; not ru / uk / ko: 'ä' is refused there)
+    if base in lb.WIDE_LANGS:
+        for cp in range(0x400, 0x500):
+            try:
+                if any(lb.cyr_glyph_rows(chr(cp))): ch.add(chr(cp))
+            except Exception: pass
+    return "".join(sorted(ch))   # (Korean: + all Hangul syllables, 'hangul' in the page data)
+
+
 def build(rom, src, mods):
     import re
     import stringdump as sd
@@ -64,7 +78,7 @@ def build(rom, src, mods):
         try: rep = json.load(open(rp, encoding="utf-8")).get("refused", []) if os.path.isfile(rp) else []
         except (OSError, ValueError): rep = []
         mp = modlayer.lang_mod_path(code); mms = int(os.path.getmtime(mp) * 1000) if os.path.isfile(mp) else 0   # GitHub #18: the page compares the browser's last save with the mod file's age
-        langs.append({"code": code, "name": lang.get("meta", {}).get("name", code), "rows": rows, "mod": modlayer.load_lang_mod(code), "modMs": mms, "refused": rep})
+        langs.append({"code": code, "name": lang.get("meta", {}).get("name", code), "rows": rows, "mod": modlayer.load_lang_mod(code), "modMs": mms, "refused": rep, "chars": font_chars(lang, code), "hangul": lang.get("meta", {}).get("names", code[:2]) == "ko"})
     for k in used:
         if k in en_all: en[k] = en_all[k]
     return {"generated": time.strftime("%Y-%m-%d %H:%M"), "genMs": int(time.time() * 1000), "mods": os.path.abspath(mods), "modsName": os.path.basename(os.path.abspath(mods)), "en": en, "fen": fen, "men": dict(langbuild.MAP_AREAS), "cen": {k: [e["en"], e["jp"]] for k, e in langbuild.load_names().items()}, "codes": sorted(set(langbuild.CTL) | set(langbuild.NAMECTL)), "nameMax": langbuild.NAME_MAX, "ignored": sorted(f for f in (os.listdir(os.path.join(mods, "lang")) if os.path.isdir(os.path.join(mods, "lang")) else []) if not f.endswith(".report.json") and not f.endswith(".tmp") and not (f.endswith(".json") and f[:-5] in alls)), "languages": langs,

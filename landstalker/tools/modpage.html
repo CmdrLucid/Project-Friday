@@ -163,14 +163,19 @@ function check(r, t) {
   }
   return "";
 }
+function fontWarn(r, t) {   /* a HINT while typing (orange, Save stays possible): letters the game's font for this language does not have; the game then keeps the old text (build check) */
+  if (!t || !L.chars || r[0] === "ui_text") return "";
+  if (!L.charSet) L.charSet = new Set([...L.chars]);
+  for (const c of t.replace(/\{[^}]*\}/g, "").replace(/[|\r\n]/g, "")) if (!L.charSet.has(c) && !(L.hangul && c >= "\uAC00" && c <= "\uD7A3")) return 'The game font has no "' + c + '" for this language: the game would keep the old text.';
+  return ""; }
 function draw() {
   const n = Math.max(1, Math.ceil(view.length / PER)); if (page >= n) page = n - 1;
   const pg = `<button ${page ? "" : "disabled"} onclick="go(-1)">&lsaquo; Back</button> page ${page + 1} / ${n} (${view.length} texts) <button ${page < n - 1 ? "" : "disabled"} onclick="go(1)">Next &rsaquo;</button>`;
   $("pg1").innerHTML = $("pg2").innerHTML = pg;
   $("rows").innerHTML = view.slice(page * PER, page * PER + PER).map(r => {
-    const k = key(r), v = dirty[k] != null ? dirty[k] : (modOf(r) || ""), p = check(r, v) || (dirty[k] == null ? refused[k] : "");
+    const k = key(r), v = dirty[k] != null ? dirty[k] : (modOf(r) || ""), p = check(r, v) || (dirty[k] == null ? refused[k] : ""), fw = p ? "" : fontWarn(r, v);
     return `<tr class="${p ? "bad" : (modOf(r) != null ? "mod" : "")}"><td class="id">${esc(r[1])}<br><small>${r[0]}</small></td><td class="en">${tags(enOf(r))}</td>
-      <td>${tags(r[2]) || "<i style='color:#666'>" + (L.code.startsWith("en") ? "original English" : "not translated") + "</i>"}</td><td><textarea data-k="${esc(k)}" class="${dirty[k] != null ? "dirty" : ""}" placeholder="unchanged">${esc(v)}</textarea><div class="why">${esc(p || "")}</div></td></tr>`;
+      <td>${tags(r[2]) || "<i style='color:#666'>" + (L.code.startsWith("en") ? "original English" : "not translated") + "</i>"}</td><td><textarea data-k="${esc(k)}" class="${dirty[k] != null ? "dirty" : ""}" placeholder="unchanged">${esc(v)}</textarea><div class="why"${fw ? ' style="color:#e0a040"' : ""}>${esc(p || fw)}</div></td></tr>`;
   }).join("");
 }
 function go(d) { page += d; draw(); window.scrollTo(0, 0); }
@@ -178,7 +183,7 @@ $("rows").addEventListener("input", e => {
   const t = e.target; if (!t.dataset.k) return; const r = L.rows.find(x => key(x) === t.dataset.k);
   if (t.value === (modOf(r) || "")) delete dirty[t.dataset.k]; else dirty[t.dataset.k] = t.value;
   t.classList.toggle("dirty", dirty[t.dataset.k] != null);
-  const p = check(r, t.value); t.nextElementSibling.textContent = p; t.closest("tr").className = p ? "bad" : (modOf(r) != null ? "mod" : "");
+  const p = check(r, t.value), fw = p ? "" : fontWarn(r, t.value); t.nextElementSibling.textContent = p || fw; t.nextElementSibling.style.color = fw ? "#e0a040" : ""; t.closest("tr").className = p ? "bad" : (modOf(r) != null ? "mod" : "");
   store.set("pf_draft_" + L.code, dirty); $("save").disabled = !Object.keys(dirty).length;
 });
 function status(s, cls) { $("status").textContent = s; $("status").className = cls || ""; }
