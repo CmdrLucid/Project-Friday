@@ -16,7 +16,7 @@ Inside are the page `Mod Workshop.html` and the folder `lang` (your changed text
 ## 2. Change texts
 1. **Open `Mod Workshop.html`** with a double click. It opens in your browser (Chrome, Edge or Firefox) and works offline; nothing is sent anywhere.
 2. **Pick your language** at the top.
-3. **Find the text:** search by word, or use the filter: dialogue, names / menus, map areas, items, options menu, Friday hints, texts not translated yet, your changes.
+3. **Find the text:** search by word (you can type a sentence as the game shows it; character names and line breaks are handled), or use the filter: dialogue, names / menus, map areas, items, options menu, Friday hints, texts not translated yet, your changes.
 4. **Type the new text in the right column.** The columns show the original English (from your own ROM) and the current text. Leave a field empty to keep the current text.
    - Keep the codes in braces as in the English text: `{SoftNewLine}` line break, `{ContinuePrompt}` wait for a button, `{Speaker}` the speaker's name, `{=name}` a character name (follows *Options > Names*). Line breaks and pauses may move.
    - A text marked **red** would be refused by the game; the reason is shown below it.

@@ -44,6 +44,8 @@ Save: Chrome / Edge write `lang/<code>.json` into the page's folder (File System
 its name is not the mods folder's); Firefox downloads `<code>.json` and the page says where to move it (user: no automatic pickup). Import: a mod file somebody sent (texts become unsaved edits to check).
 Sharing back: the modder sends the file (GitHub issue), we merge it into `lang/<code>.json`.
 
+Saving in stages (GitHub #18, 2026-11-23): the page holds the mod file as it was when the game last wrote the page (start), so a second save after reopening the page (no game start in between, or a Firefox download not moved into `lang/` yet) wrote the OLD file + the new texts = earlier texts lost. Now every save is also kept in the browser (localStorage `pf_saved_<code>`, with its time); the page data carries the mod file's age (`modMs`); a browser save newer than the file wins. No file at all but a browser save: the page asks (OK = keep, Cancel = forget; deleting the file on purpose must not bring the texts back). Search: also matches the text as the game shows it (character names instead of `{=name}`, line breaks / pauses as spaces), so a sentence copied from the game is found.
+
 Friday hints: block `friday` {hint id: gentle text} (the level the game shows); fr / es / it / ru / uk / ko come from the language file anyway, de (compiled into the program) takes a file hint when the mod has one (patch_friday.py); English is not moddable (the original).
 
 ## Layer 2: character names (2026-11-22, user: per language, Names = Localized only)

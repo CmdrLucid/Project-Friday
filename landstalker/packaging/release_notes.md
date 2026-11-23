@@ -4,6 +4,7 @@
 - **Mod Workshop: rename characters** for your language (left: *Character names*). The new name is used in every text where the character appears (Options > Names = Localized).
 
 ### Fixed since v1.9.11
+- **Mod Workshop: saving in several steps no longer loses texts** (GitHub #18): the page now remembers your last save, also when you reopen it before starting the game or before moving a Firefox download into the folder. The search also finds a sentence as the game shows it (with character names and line breaks).
 - **Mods survive updates:** after an update the game was built without the mods already in your Mods folder (your corrected texts were replaced by the plain ones until you saved the mod again). Now the build always uses your Mods folder.
 
 ### Language hotfix and the new Mod Workshop: correct texts yourself

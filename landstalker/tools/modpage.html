@@ -100,6 +100,12 @@ function modOf(r) { return ((mod[r[0]] || {})[r[1]]); }
 function pick() {
   if (Object.keys(dirty).length && !confirm("Unsaved changes of this language stay in this browser. Switch anyway?")) { $("lang").value = L.code; return; }
   L = D.languages.find(l => l.code === $("lang").value); store.set("pf_lang", L.code);
+  { const sv = store.get("pf_saved_" + L.code);   /* GitHub #18 (saving in stages lost texts): the page holds the mod file as it was when the game last wrote the page; the browser's last save is
+      newer when it was made after the file was written (page not rewritten yet, or Firefox's download not moved into the folder yet): take that save */
+    if (sv && sv.t && sv.mod && sv.t > (L.modMs || 0) + 2000) {
+      const n = BLOCKS.reduce((a, b) => a + Object.keys(sv.mod[b] || {}).length, 0);
+      if (L.modMs || confirm("This browser still has your last saved changes for " + L.name + " (" + n + " text(s)), but the Mods folder has no file for this language (deleted, or the download was not moved there yet).\n\nOK = keep working with them.  Cancel = forget them and start without changes.")) L.mod = sv.mod;
+      else store.set("pf_saved_" + L.code, null); } }
   mod = JSON.parse(JSON.stringify(L.mod || {})); refused = {};
   (L.refused || []).forEach(x => refused[x.block + "|" + x.key] = "The game refused this text: " + x.why);
   for (const op of $("filter").options) {   // a block the language has no entries for (Items in dialogue: only ru / uk / ko) is hidden
@@ -111,15 +117,19 @@ function pick() {
   status(Object.keys(dirty).length ? Object.keys(dirty).length + " unsaved change(s) from your last visit - press Save to keep them." : "", Object.keys(dirty).length ? "bad" : "");
   $("save").disabled = !Object.keys(dirty).length; filter();
 }
+function plainText(t) {   /* for the search: the text as the game shows it (character names in, line breaks / pauses = spaces, other codes out) */
+  const nm = {}; L.rows.forEach(r => { if (r[0] === "charnames") nm[r[1]] = ((mod.charnames || {})[r[1]]) || r[2] || ((D.cen || {})[r[1]] || [""])[0]; });
+  return (t || "").replace(/\{=([a-z0-9_]+)(?::[a-z]+)?\}/g, (m, k) => nm[k] || k).replace(/\{[^}]*\}/g, m => D.layout.includes(m.slice(1, -1)) ? " " : "").replace(/\|/g, " ").replace(/\s+/g, " ").toLowerCase(); }
 function filter() {
-  const f = $("filter").value, q = $("q").value.trim().toLowerCase();
+  const f = $("filter").value, q = $("q").value.trim().toLowerCase().replace(/\s+/g, " ");
   view = L.rows.filter(r => { const k = key(r), m = modOf(r);
     if ((r[0] === "charnames") !== (layer === "names")) return false;   // MOD LAYER 2: the names have their own navigation entry
     if (layer === "names") return !q || r[1].includes(q) || enOf(r).toLowerCase().includes(q) || (r[2] || "").toLowerCase().includes(q) || (m || "").toLowerCase().includes(q);
     if (f === "mod" && m == null && dirty[k] == null) return false;
     if (f === "untr" && r[2]) return false;
     if (f.startsWith("b:") && r[0] !== f.slice(2)) return false;
-    return !q || r[1].toLowerCase().includes(q) || enOf(r).toLowerCase().includes(q) || (r[2] || "").toLowerCase().includes(q) || (m || "").toLowerCase().includes(q); });
+    return !q || r[1].toLowerCase().includes(q) || enOf(r).toLowerCase().includes(q) || (r[2] || "").toLowerCase().includes(q) || (m || "").toLowerCase().includes(q)
+      || plainText(enOf(r)).includes(q) || plainText(r[2]).includes(q) || plainText(m).includes(q) || (dirty[k] != null && plainText(dirty[k]).includes(q)); });
   page = 0; draw();
 }
 const codes = t => (t.match(/\{([^}]*)\}/g) || []).map(m => m.slice(1, -1)).filter(m => !D.layout.includes(m) && !m.startsWith("=")).sort().join(",");
@@ -186,7 +196,7 @@ $("save").onclick = async () => {
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type: "application/json" })); a.download = L.code + ".json"; document.body.appendChild(a); a.click(); a.remove();
     status("Your browser saved " + L.code + ".json as a download (" + n + " changed text(s)).\nMove it into  " + D.mods + "/lang/  (replace the old file there), then start the game again.", "ok");
   }
-  L.mod = JSON.parse(JSON.stringify(mod)); dirty = {}; store.set("pf_draft_" + L.code, {}); $("save").disabled = true; draw();
+  L.mod = JSON.parse(JSON.stringify(mod)); store.set("pf_saved_" + L.code, { t: Date.now(), mod: L.mod }); dirty = {}; store.set("pf_draft_" + L.code, {}); $("save").disabled = true; draw();
 };
 function setLayer(l) {   // MOD LAYER 2: Language | Character names (same mod file per language)
   layer = l; $("navlang").className = l === "lang" ? "on" : ""; $("navnames").className = l === "names" ? "on" : "";

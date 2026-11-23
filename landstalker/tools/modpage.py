@@ -63,10 +63,11 @@ def build(rom, src, mods):
         rp = os.path.join(mods, "lang", code + ".report.json")
         try: rep = json.load(open(rp, encoding="utf-8")).get("refused", []) if os.path.isfile(rp) else []
         except (OSError, ValueError): rep = []
-        langs.append({"code": code, "name": lang.get("meta", {}).get("name", code), "rows": rows, "mod": modlayer.load_lang_mod(code), "refused": rep})
+        mp = modlayer.lang_mod_path(code); mms = int(os.path.getmtime(mp) * 1000) if os.path.isfile(mp) else 0   # GitHub #18: the page compares the browser's last save with the mod file's age
+        langs.append({"code": code, "name": lang.get("meta", {}).get("name", code), "rows": rows, "mod": modlayer.load_lang_mod(code), "modMs": mms, "refused": rep})
     for k in used:
         if k in en_all: en[k] = en_all[k]
-    return {"generated": time.strftime("%Y-%m-%d %H:%M"), "mods": os.path.abspath(mods), "modsName": os.path.basename(os.path.abspath(mods)), "en": en, "fen": fen, "men": dict(langbuild.MAP_AREAS), "cen": {k: [e["en"], e["jp"]] for k, e in langbuild.load_names().items()}, "nameMax": langbuild.NAME_MAX, "languages": langs,
+    return {"generated": time.strftime("%Y-%m-%d %H:%M"), "genMs": int(time.time() * 1000), "mods": os.path.abspath(mods), "modsName": os.path.basename(os.path.abspath(mods)), "en": en, "fen": fen, "men": dict(langbuild.MAP_AREAS), "cen": {k: [e["en"], e["jp"]] for k, e in langbuild.load_names().items()}, "nameMax": langbuild.NAME_MAX, "languages": langs,
             "layout": ["NewLine", "SoftNewLine", "Pause1s", "Pause1sOrInput", "Pause1_5sOrInput", "Pause2sOrInput", "BreakSpace", "BreakPoint", "Hyphen"]}
 
 
