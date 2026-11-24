@@ -28,6 +28,30 @@ def lathe(cx, cy, prof, n=20):
     for j in range(len(prof) - 1):
         for i in range(n): a = o + j * n + i; b = o + j * n + (i + 1) % n; F.append((a, b, b + n, a + n))
     F.append(tuple(o + i for i in reversed(range(n)))); last = o + (len(prof) - 1) * n; F.append(tuple(last + i for i in range(n)))
+def tiled_pyramid(cx, cy, half, z0, z1, step=4.0, lip=0.8):
+    """pyramid roof as TILE COURSES (drawn: one course every 8 px on the slope = 4 units of height): stacked square frustum layers, each
+    starting lip units outside the pyramid surface (the tile's lower edge) and closing on it at its top; four ridge caps on the hips"""
+    n = max(1, int(round((z1 - z0) / step))); hs = lambda z: half * (z1 - z) / (z1 - z0)
+    for k in range(n):
+        za, zb = z0 + (z1 - z0) * k / n, z0 + (z1 - z0) * (k + 1) / n
+        a, b = hs(za) + (lip if k else 0.0), max(0.3, hs(zb))
+        o = len(V); V.extend([(cx - a, cy - a, za), (cx + a, cy - a, za), (cx + a, cy + a, za), (cx - a, cy + a, za),
+                              (cx - b, cy - b, zb), (cx + b, cy - b, zb), (cx + b, cy + b, zb), (cx - b, cy + b, zb)])
+        F.extend([(o, o + 1, o + 5, o + 4), (o + 1, o + 2, o + 6, o + 5), (o + 2, o + 3, o + 7, o + 6), (o + 3, o, o + 4, o + 7), (o + 3, o + 2, o + 1, o), (o + 4, o + 5, o + 6, o + 7)])
+    for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1)):                          # ridge caps along the four hips
+        p0 = (cx + sx * half, cy + sy * half, z0); p1 = (cx, cy, z1); m = 8; o = len(V)
+        d = [p1[i] - p0[i] for i in range(3)]; L = math.sqrt(sum(v * v for v in d)); d = [v / L for v in d]
+        u = (sx / math.sqrt(2), -sy / math.sqrt(2), 0.0); w = (d[1] * u[2] - d[2] * u[1], d[2] * u[0] - d[0] * u[2], d[0] * u[1] - d[1] * u[0])
+        for p in (p0, p1):
+            for i in range(m):
+                t = 2 * math.pi * i / m; V.append(tuple(p[j] + 1.1 * (math.cos(t) * u[j] + math.sin(t) * w[j]) for j in range(3)))
+        for i in range(m): F.append((o + i, o + (i + 1) % m, o + m + (i + 1) % m, o + m + i))
+        F.append(tuple(o + i for i in reversed(range(m)))); F.append(tuple(o + m + i for i in range(m)))
+def post(sx, sy, z0, z1):
+    """square stone post with a base and a capital (instead of a plain chamfered box)"""
+    cbox(sx - 1.0, sy - 1.0, z0, sx + PS + 1.0, sy + PS + 1.0, z0 + 5.0, 1.0)  # base
+    cbox(sx, sy, z0 + 5.0, sx + PS, sy + PS, z1 - 5.0, 1.5)                    # shaft
+    cbox(sx - 1.0, sy - 1.0, z1 - 5.0, sx + PS + 1.0, sy + PS + 1.0, z1, 1.0)  # capital
 def bracket(px, py, dx, dy, w=14.0, h=22.0, t=PS - 3.0):
     """concave quarter-arch bracket under the plate: starts at the post face (px, py), runs w along (dx, dy), h high, t thick (centred on the post)"""
     k = 10; prof = [(0.0, ZE0 - h)] + [(w * (1 - math.cos(math.pi / 2 * i / k)), ZE0 - h + h * math.sin(math.pi / 2 * i / k)) for i in range(1, k + 1)] + [(0.0, ZE0)]
@@ -49,13 +73,12 @@ def bracket(px, py, dx, dy, w=14.0, h=22.0, t=PS - 3.0):
 cbox(X0, Y0, -160.0, X1, Y1, ZF, 1.0)                                                  # tower body up to the floor
 for a, b, c, d in ((X0, Y0, X1, Y0 + 10), (X0, Y1 - 10, X1, Y1), (X0, Y0, X0 + 10, Y1), (X1 - 10, Y0, X1, Y1)): cbox(a, b, ZF, c, d, ZF + 8, 0.8)   # curb
 for sx, sy in ((X0, Y0), (X1 - PS, Y0), (X0, Y1 - PS), (X1 - PS, Y1 - PS)):
-    cbox(sx, sy, ZF, sx + PS, sy + PS, ZE0, 1.5)                                       # corner posts
+    post(sx, sy, ZF, ZE0)                                                              # corner posts (base, shaft, capital)
     ix = 1 if sx == X0 else -1; iy = 1 if sy == Y0 else -1                             # towards the room inside
     bracket(sx + (PS if ix > 0 else 0), sy + PS / 2, ix, 0)                            # along x from the post's inner x face
     bracket(sx + PS / 2, sy + (PS if iy > 0 else 0), 0, iy)                            # along y
 cbox(X0, Y0, ZE0, X1, Y1, ZE1, 1.5)                                                    # roof plate
-o = len(V); V.extend([(X0, Y0, ZE1), (X1, Y0, ZE1), (X1, Y1, ZE1), (X0, Y1, ZE1), (CX, CY, ZA)])
-F.extend([(o, o + 1, o + 4), (o + 1, o + 2, o + 4), (o + 2, o + 3, o + 4), (o + 3, o, o + 4), (o + 3, o + 2, o + 1, o)])
+tiled_pyramid(CX, CY, (X1 - X0) / 2, ZE1, ZA)                                        # tile courses + ridge caps (2026-11-24 review: no plain pyramid)
 for u in (-30.5, 27.0):                                                                # glass cylinders (x - y = u on the line x + y = 816)
     gx, gy = CX + u / 2, CY - u / 2
     lathe(gx, gy, [(22.0, 0.5), (23.0, 5.0), (26.0, 7.6), (30.0, 8.0), (ZE0 - 6, 8.0), (ZE0, 6.0)])
