@@ -347,3 +347,10 @@ FINAL = with material, approved by the user.
 
 ## Room 362 hole (labyrinth entrance)  (NO model, user decision 2026-11-24)
 - The 2 x 2 cells at height 0 in the 32 clearing (x 26..27 y 19..20) are a HOLE drawn like a rock bump; user: 'das ist ein Loch, lass mal aus' -> no light shape (do not list it as a leftover again).
+
+## Log hut of room 489  (`remake/recipes/proxy_house_489.py` -> `landstalker/data/proxies/house_489.obj`; room 489, 2026-11-24)
+- The room 468 hut MIRRORED x <-> y (door / shutter on the E wall, round window S); collision x 18..22 y 22..26, 64 on ground 16, door cell (22,25). Silhouette 96 % on the drawing; GPU: soft roof, lightedges 0.
+
+## Mercator docks: room 643  (2026-11-24)
+- 643 = the docks while the Sunstone is not yet in the Ryuma lighthouse (user) = the same map as 641 / 642 / 644 but it had NO models and no plants: all 641 ops (crates, crate shed, stone buildings, hut on stilts, mooring posts, plantcells, removes) copied, they use the 641 OBJ files (identical to 642 / 644's); the 30 plants of 641 copied in data/plants.json (the template match would miss them in the dark palette). GPU: the crate shed is shaded like in 641, lightedges 0.
+

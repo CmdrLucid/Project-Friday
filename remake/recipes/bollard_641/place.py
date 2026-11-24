@@ -4,7 +4,7 @@
 'profile': flared foot, waist, cap underside with rim, elliptic dome; fitted on the drawing: IoU 0.923, 0 px outside) is turned by lathe.py."""
 import collections, json, os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.join(HERE, "..", "..", "..")
-CELLS = [(25, 37), (35, 30), (57, 26)]; ROOMS = (641, 642, 644); GROUND = 16
+CELLS = [(25, 37), (35, 30), (57, 26)]; ROOMS = (641, 642, 644); GROUND = 16   # room 643 (docks before the Sunstone is in the lighthouse, same map) uses the 641 files: its ops were copied from 641 on 2026-11-24 (all docks models)
 P = json.load(open(os.path.join(HERE, "params.json")))
 jp = os.path.join(ROOT, "landstalker", "data", "light_proxies.json"); data = json.load(open(jp), object_pairs_hook=collections.OrderedDict)
 for room in ROOMS:

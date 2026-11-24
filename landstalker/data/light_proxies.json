@@ -7812,6 +7812,16 @@
           21
         ],
         "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          44,
+          20,
+          44,
+          20
+        ],
+        "why": "automatic hip H3 x688..736 y304..336 z64..94 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "484": [
@@ -7824,6 +7834,26 @@
           61
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 304..384 y 960..992 z0 32 over the dirt terrace step (game height 2); the game height map already holds the flat block; it stood up to 17 above the ground over 96 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          53,
+          56,
+          53,
+          56
+        ],
+        "why": "automatic hip H7 x816..880 y864..928 z48..74 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          22,
+          24,
+          22,
+          24
+        ],
+        "why": "automatic hip H0 x336..384 y352..432 z144..169 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "514": [
@@ -7846,6 +7876,16 @@
           42
         ],
         "why": "automatic lathe #12 on terrace steps (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          31,
+          27,
+          31,
+          27
+        ],
+        "why": "automatic hip H1 x480..512 y416..464 z160..219 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "19": [
@@ -9171,6 +9211,16 @@
           50
         ],
         "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          36,
+          26,
+          36,
+          26
+        ],
+        "why": "automatic hip H1 x560..592 y384..448 z48..75 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "564": [
@@ -9225,6 +9275,16 @@
           34
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 544..576 y 528..560 z0 96 over the grass terraces in the forest (game heights 2 / 3 / 6); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          36,
+          36,
+          36,
+          36
+        ],
+        "why": "automatic hip H4 x560..608 y544..608 z64..136 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "362": [
@@ -9273,6 +9333,16 @@
           29
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 768..832 y 432..496 z0 48 over the grass block of the post (game height 3); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          60,
+          29,
+          60,
+          29
+        ],
+        "why": "automatic hip H6 x928..992 y448..496 z16..69 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "556": [
@@ -9309,6 +9379,16 @@
           48
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 368..560 y 736..816 z0 128 over the terraces (game heights 8 / 10); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          34,
+          57,
+          34,
+          57
+        ],
+        "why": "automatic hip H4 x528..560 y896..944 z128..145 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "433": [
@@ -9808,6 +9888,26 @@
           20
         ],
         "why": "the pine group left of the crate shed: collision cells 3 high drawn mixed with the shed (no catalogue pine tiles) -> treated as plant cells (their pines' ground), so the 64 high boxes no longer enclose the pine crowns (hard vertical sword-light line down the pine, user 2026-11-21 late)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          46,
+          20,
+          46,
+          20
+        ],
+        "why": "automatic hip H5 x688..784 y304..336 z48..78 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          24,
+          30,
+          24
+        ],
+        "why": "automatic hip H2 x416..560 y304..464 z48..183 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "642": [
@@ -9917,6 +10017,26 @@
           20
         ],
         "why": "the pine group left of the crate shed: collision cells 3 high drawn mixed with the shed (no catalogue pine tiles) -> treated as plant cells (their pines' ground), so the 64 high boxes no longer enclose the pine crowns (hard vertical sword-light line down the pine, user 2026-11-21 late)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          46,
+          20,
+          46,
+          20
+        ],
+        "why": "automatic hip H5 x688..784 y304..336 z48..78 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          24,
+          30,
+          24
+        ],
+        "why": "automatic hip H2 x416..560 y304..464 z48..183 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "644": [
@@ -10026,6 +10146,26 @@
           20
         ],
         "why": "the pine group left of the crate shed: collision cells 3 high drawn mixed with the shed (no catalogue pine tiles) -> treated as plant cells (their pines' ground), so the 64 high boxes no longer enclose the pine crowns (hard vertical sword-light line down the pine, user 2026-11-21 late)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          46,
+          20,
+          46,
+          20
+        ],
+        "why": "automatic hip H5 x688..784 y304..336 z48..78 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          24,
+          30,
+          24
+        ],
+        "why": "automatic hip H2 x416..560 y304..464 z48..183 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "524": [
@@ -10130,6 +10270,16 @@
           23
         ],
         "why": "automatic lathe #4 on a rock column (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          32,
+          30,
+          32,
+          30
+        ],
+        "why": "automatic hip H1 x480..544 y448..528 z32..77 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "639": [
@@ -10178,6 +10328,16 @@
           20
         ],
         "why": "automatic lathe #6 on a cliff edge (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          31,
+          30,
+          31,
+          30
+        ],
+        "why": "automatic hip H2 x480..512 y448..528 z80..112 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "565": [
@@ -10190,6 +10350,16 @@
           35
         ],
         "why": "automatic lathe #4 on a grass terrace (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          54,
+          49,
+          54
+        ],
+        "why": "automatic hip H2 x640..944 y800..944 z32..84 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "489": [
@@ -10202,6 +10372,19 @@
           32
         ],
         "why": "automatic hip #0 over a rock cliff (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          22,
+          22,
+          26
+        ],
+        "file": "proxies/house_489.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "LOG HUT of room 489 (collision x 18..22 y 22..26 height 64 on ground 16, door cell (22,25)) = the room 468 hut mirrored x <-> y (door / shutter E, round window S); remake/recipes/proxy_house_489.py; silhouette 96 % on the drawing; replaces the automatic hip #1; 2026-11-24 built while the user was away, to be checked"
       }
     ],
     "441": [
@@ -10242,6 +10425,16 @@
         "file": "proxies/awning_454_1.obj",
         "surface": true,
         "why": "red cloth canopy (side 40, sagging 3, fringe) on four poles over a watchtower top (blocked 112) with a banner on an A-frame: remake/recipes/awning_454; replaces the automatic hip; 2026-11-21, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          45,
+          30,
+          45
+        ],
+        "why": "automatic hip H5 x352..624 y624..816 z16..94 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ],
     "475": [
@@ -10517,6 +10710,359 @@
         "surface": true,
         "floor": 0,
         "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      }
+    ],
+    "427": [
+      {
+        "op": "remove",
+        "cells": [
+          14,
+          32,
+          14,
+          32
+        ],
+        "why": "automatic hip H2 x208..256 y416..624 z32..54 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "434": [
+      {
+        "op": "remove",
+        "cells": [
+          14,
+          32,
+          14,
+          32
+        ],
+        "why": "automatic hip H2 x208..256 y416..624 z32..54 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "435": [
+      {
+        "op": "remove",
+        "cells": [
+          14,
+          32,
+          14,
+          32
+        ],
+        "why": "automatic hip H2 x208..256 y416..624 z32..54 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "438": [
+      {
+        "op": "remove",
+        "cells": [
+          14,
+          32,
+          14,
+          32
+        ],
+        "why": "automatic hip H2 x208..256 y416..624 z32..54 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "439": [
+      {
+        "op": "remove",
+        "cells": [
+          14,
+          32,
+          14,
+          32
+        ],
+        "why": "automatic hip H2 x208..256 y416..624 z32..54 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "530": [
+      {
+        "op": "remove",
+        "cells": [
+          14,
+          32,
+          14,
+          32
+        ],
+        "why": "automatic hip H2 x208..256 y416..624 z32..54 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "531": [
+      {
+        "op": "remove",
+        "cells": [
+          14,
+          32,
+          14,
+          32
+        ],
+        "why": "automatic hip H2 x208..256 y416..624 z32..54 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "541": [
+      {
+        "op": "remove",
+        "cells": [
+          14,
+          32,
+          14,
+          32
+        ],
+        "why": "automatic hip H2 x208..256 y416..624 z32..54 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "542": [
+      {
+        "op": "remove",
+        "cells": [
+          14,
+          32,
+          14,
+          32
+        ],
+        "why": "automatic hip H2 x208..256 y416..624 z32..54 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "447": [
+      {
+        "op": "remove",
+        "cells": [
+          42,
+          37,
+          42,
+          37
+        ],
+        "why": "automatic hip H4 x656..688 y496..688 z32..78 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "448": [
+      {
+        "op": "remove",
+        "cells": [
+          32,
+          24,
+          32,
+          24
+        ],
+        "why": "automatic hip H1 x496..528 y336..432 z32..78 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "450": [
+      {
+        "op": "remove",
+        "cells": [
+          32,
+          24,
+          32,
+          24
+        ],
+        "why": "automatic hip H1 x496..528 y336..432 z32..78 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "483": [
+      {
+        "op": "remove",
+        "cells": [
+          25,
+          56,
+          25,
+          56
+        ],
+        "why": "automatic hip H5 x384..416 y848..944 z32..95 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "508": [
+      {
+        "op": "remove",
+        "cells": [
+          25,
+          56,
+          25,
+          56
+        ],
+        "why": "automatic hip H5 x384..416 y848..944 z32..95 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "563": [
+      {
+        "op": "remove",
+        "cells": [
+          18,
+          44,
+          18,
+          44
+        ],
+        "why": "automatic hip H1 x256..336 y640..784 z48..83 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          53,
+          54,
+          53,
+          54
+        ],
+        "why": "automatic hip H3 x800..896 y848..896 z32..70 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "643": [
+      {
+        "op": "remove",
+        "cells": [
+          46,
+          20,
+          46,
+          20
+        ],
+        "why": "automatic hip H5 x688..784 y304..336 z48..78 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          24,
+          30,
+          24
+        ],
+        "why": "automatic hip H2 x416..560 y304..464 z48..183 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          37,
+          25,
+          37
+        ],
+        "file": "proxies/bollard_641_0.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked | room 643 (docks while the Sunstone is not yet in the Ryuma lighthouse, user 2026-11-24) = the same map: same op / model file, copied 2026-11-24"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          30,
+          35,
+          30
+        ],
+        "file": "proxies/bollard_641_1.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked | room 643 (docks while the Sunstone is not yet in the Ryuma lighthouse, user 2026-11-24) = the same map: same op / model file, copied 2026-11-24"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/bollard_641_2.obj",
+        "surface": true,
+        "why": "stone mooring post of the docks (collision = a walkable 2 step cell): our lathe remake/recipes/bollard_641 (flared foot, waist, mushroom cap; IoU 0.923, 0 px out), placed by place.py; 2026-11-21 built while the user collects feedback, to be checked | room 643 (docks while the Sunstone is not yet in the Ryuma lighthouse, user 2026-11-24) = the same map: same op / model file, copied 2026-11-24"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          32,
+          51,
+          38
+        ],
+        "file": "proxies/pavilion_641.obj",
+        "surface": true,
+        "why": "LOG HUT on stilts over the water of the docks (collision only 3 single high cells; read with BOTH planes: two open sides, the dark interior + back walls in plane B): our model remake/recipes/pavilion_641 (four log-crib corners, closed back walls, sill, floor deck at 17.5, round stilts, convex thatch pyramid with fascia + knob; IoU 0.947); 2026-11-21, to be checked | room 643 (docks while the Sunstone is not yet in the Ryuma lighthouse, user 2026-11-24) = the same map: same op / model file, copied 2026-11-24",
+        "fill_ground": true
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          19,
+          59,
+          21
+        ],
+        "file": "proxies/crate_shed_641.obj",
+        "surface": true,
+        "why": "crate shed of the docks: our model remake/recipes/crate_shed_641 (FOUR crate rows = the collision height 5; front row x 53 two, x 55 one; alcove x 50 / 51; hipped thatch roof resting on the 4th row, end edges iso-parallel, crates under the roof ends cut to the roof, Massan style X logs; user OK on draft pictures 2026-11-21 late, see remake/MODELS.md) | room 643 (docks while the Sunstone is not yet in the Ryuma lighthouse, user 2026-11-24) = the same map: same op / model file, copied 2026-11-24"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          26,
+          57,
+          26
+        ],
+        "file": "proxies/crate_641.obj",
+        "surface": true,
+        "why": "single crate of the docks (walkable 2 step cell): remake/recipes/crate_shed_641 crate model; 2026-11-21, to be checked | room 643 (docks while the Sunstone is not yet in the Ryuma lighthouse, user 2026-11-24) = the same map: same op / model file, copied 2026-11-24"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          19,
+          29,
+          28
+        ],
+        "file": "proxies/stone_buildings_left_641.obj",
+        "surface": true,
+        "why": "LEFT stone building of the docks: the two stone buildings of the docks (towers 96, wings 48, step blocks 32 = the collision; flat tops instead of the automatic hip roofs; cornice stones on the tower tops; the wooden door of the left tower as a framed recess; the blue-green wall foot = wet stones, no openings): remake/recipes/stone_buildings_641, IoU 0.84 on plane A (rest: wall foot below ground / pines); 2026-11-21, to be checked; split from one model 2026-11-21 late: one rectangle per house, the pine row between them (cells 30..32) is outside both now (a surface mesh op hides plants in its cells) | room 643 (docks while the Sunstone is not yet in the Ryuma lighthouse, user 2026-11-24) = the same map: same op / model file, copied 2026-11-24"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          19,
+          39,
+          25
+        ],
+        "file": "proxies/stone_buildings_right_641.obj",
+        "surface": true,
+        "why": "RIGHT stone building of the docks (see the left one); three blocks at 43..45 x 19 removed = pine collision beside the crate shed, not stone | room 643 (docks while the Sunstone is not yet in the Ryuma lighthouse, user 2026-11-24) = the same map: same op / model file, copied 2026-11-24"
+      },
+      {
+        "op": "plantcells",
+        "cells": [
+          44,
+          19,
+          48,
+          20
+        ],
+        "why": "the pine group left of the crate shed: collision cells 3 high drawn mixed with the shed (no catalogue pine tiles) -> treated as plant cells (their pines' ground), so the 64 high boxes no longer enclose the pine crowns (hard vertical sword-light line down the pine, user 2026-11-21 late) | room 643 (docks while the Sunstone is not yet in the Ryuma lighthouse, user 2026-11-24) = the same map: same op / model file, copied 2026-11-24"
+      }
+    ],
+    "458": [
+      {
+        "op": "remove",
+        "cells": [
+          21,
+          18,
+          21,
+          18
+        ],
+        "why": "automatic hip H0 x320..368 y272..320 z80..127 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          20,
+          26,
+          20,
+          26
+        ],
+        "why": "automatic hip H2 x304..352 y400..432 z64..92 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      }
+    ],
+    "566": [
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          54,
+          49,
+          54
+        ],
+        "why": "automatic hip H2 x768..816 y848..880 z80..123 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
     ]
   },

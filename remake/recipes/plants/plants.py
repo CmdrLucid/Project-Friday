@@ -32,7 +32,7 @@ REF = {"pine": (632, 431 - 991 + 1184, (431 + 991) // 2 - 16),   # reference ins
 BOX = {"pine": (-9, 9, 16), "small": (0, 15, 14), "bush": (0, 15, 14), "bigtree": (-14, 14, 20)}   # detection box: columns dx0..dx1 (small / bush: right half, the left one is hidden by the neighbour), top rows
 TREE_OPS = ("pine_court", "tree_")   # pine_cl (hand-made 4 pine groups) dropped 2026-11-21, user: 'die Vierergruppen ... auch das eine Tannenmodell'
 
-NOT_PLANTS = {r: {("bush", 536, 392), ("bush", 536, 408), ("bush", 712, 424), ("bush", 536, 440), ("bush", 392, 488)} for r in (641, 642, 644)}   # false template hits on the docks' PAVED PATH (blue-green stone floor, not water; user 2026-11-21: 'da ist kein Busch', 'das ist ein normaler Weg'), dropped
+NOT_PLANTS = {r: {("bush", 536, 392), ("bush", 536, 408), ("bush", 712, 424), ("bush", 536, 440), ("bush", 392, 488)} for r in (641, 642, 643, 644)}   # false template hits on the docks' PAVED PATH (blue-green stone floor, not water; user 2026-11-21: 'da ist kein Busch', 'das ist ein normaler Weg'), dropped
 NO_PLANE_B = {34, 35}   # Mercator castle tower: plane B paints the forest far BELOW the tower (backdrop, not the room's ground)
 
 def planeB(room):
