@@ -11107,6 +11107,21 @@
         "floor": 16,
         "why": "Ryuma lighthouse lantern room, room 628 BROKEN = the CUT-AWAY drawing of the 627 map (picture U - 512, V + 32 against 627): no outer roof / front post, three posts cut at 102, a small floating pyramid roof (106 wide, 127 -> 182) with a hanging arch housing (62..127), the broken dome lamp with a crown of glass petals; floor 16, curb, tower body; remake/recipes/lantern_627/lantern_628.py; replaces the automatic hips; 2026-11-24 built while the user was away, to be checked"
       }
+    ],
+    "629": [
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          20,
+          30,
+          30
+        ],
+        "file": "proxies/lantern_627.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma lighthouse LANTERN ROOM close-up (627 / 628 = one map, 628 only a darker palette): floor 16 inside a 16 rim, four square corner posts 15 wide with concave arch brackets, eave band 158..167 + tile pyramid to 253 (its apex projects onto the drawn back roof corner), two hanging glass cylinders r 8 + lamp base, curb, tower body below the floor; remake/recipes/lantern_627/lantern.py; replaces the automatic hips #0 (a solid block over the whole room up to 215) and #1; the lamp mechanism collision (208) gets floor 16; 2026-11-24 built while the user was away, to be checked | room 629 REPAIRED shows the same closed drawing (GPU shot 2026-11-24), same op"
+      }
     ]
   },
   "unpaint_tiles": {
