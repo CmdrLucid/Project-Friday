@@ -267,3 +267,4 @@
 - L2100: Session 2026-11-23: statues, docks water, books, widescreen off-map, Mod Workshop hardening, release v1.9.12 (dev 9b4.. 0291421)
 - L2108: Session 2026-11-23 evening: GitHub #18 (paul-met) four points, OSD in wide scripts, language sweeps (dev 7ffba22, 4820a10)
 - L2116: Session 2026-11-23 night / 2026-11-24: key messages, start screen help bar, centred Start menu bar, release v1.9.13 (dev 399ab82, cd7d1ad, 74c0f4f; main 92437bd)
+- L2123: Session 2026-11-24 day: light shapes while the user was at work, then together (dev fad15f8 .. b98b3cd)

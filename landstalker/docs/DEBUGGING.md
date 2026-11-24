@@ -2119,3 +2119,18 @@ Build dev 48c243a (verify_build: 126 ok). Evidence (all hidden-window GPU presen
 - Start menu bar (LK_IICENTER v1, patch_iicenter.py, runs after patch_iteminfo / patch_uiwide): description / help alone, centred (lk_ii_cx = (288 - lk_fs_width) / 2), printed into text line 2 and moved up one tile row (lk_ii_up8; printing at y0+8 lost a pixel row), cached cleared box lk_ii_blank (descriptions 15-17 -> 9-10 frames after the key), lk_ii_leave keeps a running word-bar job, bar arrow $FF07CE parked under a description (lk_ii_ax restored in lk_h_upd / on an empty slot). Verified with shots: Use list, Equip grid, options root / pages, B back to the bar, de / ru.
 - Build stalled ~1 h at patch_lights with ~3 % CPU (Deck asleep), then ran at a full core.
 - Release v1.9.13: Actions run 45280882569 green, AppImage 109935096 bytes sha 160727ec474974bec9ccdd97f6788967dbb37cb4fe05288743524aced1031bf0 (= notes); downloaded AppImage first run (env -i, scratch HOME / TMPDIR / LANDSTALKER_DATA): 8.3 min, 746 light proxy corrections, new patches present, Mods folder next to the AppImage, HOME empty; built game: ru subtitle frames 820 / 960, OSD 'БЫСТР. СОХР.'.
+
+## Session 2026-11-24 day: light shapes while the user was at work, then together (dev fad15f8 .. b98b3cd)
+- New light models (all GPU-headless checked with tools/lightedges.py, before / after binaries; NOT played): Ryuma church 610 / 611 (= Mercator drawing,
+  plane A template U +288 V -160, 72 collision cells equal; spot 5 53 / 54 -> 0 px), room 426 cave pillars (place_739.py) + rustic log fence (fence_426),
+  room 468 log hut (= Massan B tiles, 5 x 5) and 489 (468 mirrored x <-> y), warp tree of map $11759C (11 rooms, checked each shows the drawing),
+  Mercator town house 3 (roof terrace), lighthouse lantern rooms 627 / 629 (closed drawing) and 628 (cut-away drawing, picture U - 512 V + 32 against 627),
+  Greenmaze shrine pillars 564, Mir's tower 475 (drawn body much wider than its 80 high collision block, scale relief, lanterns in wall niches, griffin
+  head sculpt fitted on the drawn outline, IoU 0.73), dark docks 643 got all docks models + plants.
+- Cleanup sweeps of the AUTOMATIC shapes: picture sheets of every leftover hip / lathe / dome (lktest/lf3, lf6): 132 removed (plant duplicates - checked
+  in the PICTURE column, not by world distance -, hips over pine rows / forest squares, terraces, cliffs, water, tiny shapes outside the warp island).
+  Full survey of all outdoor rooms (proxysurvey --run, ~/Project-Friday-Test/lktest/lf6): only 226 sapling, 33 flower bed, 35 castle tower summit left.
+- Tool facts: the runtime LK_LTPLANT drop prints 'plants: room R drops hip #n' (count it when listing leftovers); lightedges runs over several rooms can
+  get stuck in a scene of the previous room (628 Sun Stone dialogue swallowed 632 spots); warps into the castle tower 34 / 35 are unusable (story rooms).
+- patch_lights corrections 746 -> 915 over the session; verify_build 202 ok every build; check_proxies 0 boxes.
+
