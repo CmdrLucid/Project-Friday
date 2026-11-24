@@ -7835,6 +7835,16 @@
           20
         ],
         "why": "automatic hip H3 x688..736 y304..336 z64..94 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          20,
+          16,
+          20,
+          16
+        ],
+        "why": "automatic lathe L7 332,268 z40..60 r17 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "484": [
@@ -7867,6 +7877,16 @@
           24
         ],
         "why": "automatic hip H0 x336..384 y352..432 z144..169 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          53,
+          51,
+          53,
+          51
+        ],
+        "why": "automatic lathe L14 863,831 z0..21 r15 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "514": [
@@ -7899,6 +7919,26 @@
           27
         ],
         "why": "automatic hip H1 x480..512 y416..464 z160..219 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          30,
+          30,
+          30
+        ],
+        "why": "automatic lathe L10 491,483 z144..208 r17 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          31,
+          30,
+          31,
+          30
+        ],
+        "why": "automatic lathe L11 507,483 z144..184 r12 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "19": [
@@ -9118,6 +9158,26 @@
           20
         ],
         "why": "automatic lathe #6 on a grass terrace (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          40,
+          20,
+          40,
+          20
+        ],
+        "why": "automatic lathe L7 651,323 z8..16 r5 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          36,
+          29,
+          36,
+          29
+        ],
+        "why": "automatic lathe L8 591,479 z96..143 r11 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "515": [
@@ -9202,6 +9262,86 @@
           44
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2): automatic lathe #13 (8 high) at a rock edge; the game height map already holds the flat block"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          35,
+          25,
+          35,
+          25
+        ],
+        "why": "automatic lathe L3 564,404 z32..68 r14 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          53,
+          27,
+          53,
+          27
+        ],
+        "why": "automatic lathe L6 863,439 z32..60 r17 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          39,
+          30,
+          39,
+          30
+        ],
+        "why": "automatic lathe L8 624,480 z32..57 r2 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          46,
+          36,
+          46,
+          36
+        ],
+        "why": "automatic lathe L9 736,576 z32..48 r7 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          20,
+          46,
+          20,
+          46
+        ],
+        "why": "automatic lathe L14 335,751 z32..62 r11 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          23,
+          19,
+          23,
+          19
+        ],
+        "why": "automatic lathe L15 380,308 z48..65 r17 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          23,
+          21,
+          23,
+          21
+        ],
+        "why": "automatic lathe L16 368,336 z32..48 r13 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          25,
+          21,
+          25,
+          21
+        ],
+        "why": "automatic lathe L17 400,336 z32..60 r2 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "561": [
@@ -9234,6 +9374,16 @@
           26
         ],
         "why": "automatic hip H1 x560..592 y384..448 z48..75 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          23,
+          53,
+          23,
+          53
+        ],
+        "why": "automatic lathe L5 372,852 z32..53 r17 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "564": [
@@ -9256,6 +9406,40 @@
           23
         ],
         "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          47,
+          21,
+          47,
+          21
+        ],
+        "file": "proxies/pillar_564_0.obj",
+        "surface": true,
+        "why": "stone pillar (collision = one 3 step block $43): our parts model remake/recipes/pillar_739 (square plinth / abacus, round shaft, rings, echinus; IoU 0.857 on the drawing), placed by place_739.py; room 564 (Greenmaze, Sunstone shrine): the 739 pillar drawing beside the passage (47,22), cells blocked 64 on ground 16, template axis at the cell centres (IoU 0.81 / 0.63, the second one partly hidden); 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          47,
+          23,
+          47,
+          23
+        ],
+        "file": "proxies/pillar_564_1.obj",
+        "surface": true,
+        "why": "stone pillar (collision = one 3 step block $43): our parts model remake/recipes/pillar_739 (square plinth / abacus, round shaft, rings, echinus; IoU 0.857 on the drawing), placed by place_739.py; room 564 (Greenmaze, Sunstone shrine): the 739 pillar drawing beside the passage (47,22), cells blocked 64 on ground 16, template axis at the cell centres (IoU 0.81 / 0.63, the second one partly hidden); 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          46,
+          20,
+          46,
+          20
+        ],
+        "why": "automatic lathe #5 at 751,335 z48..103 over the right stone pillar of the Sunstone shrine (now the pillar model of place_739.py, which does not cover its centre cell 46,20); 2026-11-24 leftover sweep 3"
       }
     ],
     "570": [
@@ -9298,6 +9482,16 @@
           36
         ],
         "why": "automatic hip H4 x560..608 y544..608 z64..136 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          35,
+          27,
+          35,
+          27
+        ],
+        "why": "automatic lathe L8 571,435 z48..96 r17 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "362": [
@@ -9322,6 +9516,16 @@
           39
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 448..528 y 576..672 z0 80 over the grass terrace (game height 5); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          39,
+          35,
+          39,
+          35
+        ],
+        "why": "automatic lathe L8 628,564 z48..61 r17 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "463": [
@@ -9334,6 +9538,16 @@
           35
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 656..704 y 528..592 z0 80 over the grass block (game height 5); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          39,
+          24,
+          39,
+          24
+        ],
+        "why": "automatic lathe L8 626,394 z16..31 r15 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "545": [
@@ -9921,6 +10135,36 @@
           24
         ],
         "why": "automatic hip H2 x416..560 y304..464 z48..183 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          60,
+          20,
+          60,
+          20
+        ],
+        "why": "automatic lathe L11 967,327 z16..31 r10 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          51,
+          22,
+          51,
+          22
+        ],
+        "why": "automatic lathe L13 817,353 z16..53 r2 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          27,
+          30,
+          27
+        ],
+        "why": "automatic lathe L15 487,439 z16..31 r9 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "642": [
@@ -10050,6 +10294,36 @@
           24
         ],
         "why": "automatic hip H2 x416..560 y304..464 z48..183 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          60,
+          20,
+          60,
+          20
+        ],
+        "why": "automatic lathe L11 967,327 z16..31 r10 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          51,
+          22,
+          51,
+          22
+        ],
+        "why": "automatic lathe L13 817,353 z16..53 r2 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          27,
+          30,
+          27
+        ],
+        "why": "automatic lathe L15 487,439 z16..31 r9 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "644": [
@@ -10179,6 +10453,36 @@
           24
         ],
         "why": "automatic hip H2 x416..560 y304..464 z48..183 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          60,
+          20,
+          60,
+          20
+        ],
+        "why": "automatic lathe L11 967,327 z16..31 r10 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          51,
+          22,
+          51,
+          22
+        ],
+        "why": "automatic lathe L13 817,353 z16..53 r2 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          27,
+          30,
+          27
+        ],
+        "why": "automatic lathe L15 487,439 z16..31 r9 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "524": [
@@ -10329,6 +10633,16 @@
           38
         ],
         "why": "automatic hip over a big round tree crown that already has its plant model (bigtree) (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          12,
+          29,
+          12,
+          29
+        ],
+        "why": "automatic lathe L5 201,465 z8..22 r14 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "571": [
@@ -10351,6 +10665,26 @@
           30
         ],
         "why": "automatic hip H2 x480..512 y448..528 z80..112 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          22,
+          30,
+          22
+        ],
+        "why": "automatic lathe L7 480,352 z48..115 r10 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          34,
+          29,
+          34,
+          29
+        ],
+        "why": "automatic lathe L9 544,472 z48..101 r2 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "565": [
@@ -10448,6 +10782,16 @@
           45
         ],
         "why": "automatic hip H5 x352..624 y624..816 z16..94 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          20,
+          48,
+          20,
+          48
+        ],
+        "why": "automatic lathe L13 326,774 z0..22 r10 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "475": [
@@ -10510,6 +10854,19 @@
       {
         "op": "mesh",
         "cells": [
+          26,
+          33,
+          29,
+          38
+        ],
+        "file": "proxies/fence_426.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "rustic LOG FENCE by the waterfall (collision: 8 blocked cells height 48 on ground 0, L shape x 27..28 y 34..38): our model remake/recipes/fence_426 (6 round tapered posts with worn tops, 14 rail logs lifted from the drawing onto the planes of the three fence runs, ends hidden behind a post continued to it); floor 0 = the walk way / basin around it; 2026-11-24 built while the user was away, clay preview ~/Project-Friday-Test/Mockups/gelaender_426_clay.png, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           46,
           43,
           46,
@@ -10530,19 +10887,6 @@
         "file": "proxies/pillar_426_1.obj",
         "surface": true,
         "why": "stone pillar (collision = one 3 step block $43): our parts model remake/recipes/pillar_739 (square plinth / abacus, round shaft, rings, echinus; IoU 0.857 on the drawing), placed by place_739.py; room 426 cave mouth: the 739 pillar drawing (same outline, mossy palette), cells blocked 48 on ground 0; 2026-11-24 built while the user was away, to be checked"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          26,
-          33,
-          29,
-          38
-        ],
-        "file": "proxies/fence_426.obj",
-        "surface": true,
-        "floor": 0,
-        "why": "rustic LOG FENCE by the waterfall (collision: 8 blocked cells height 48 on ground 0, L shape x 27..28 y 34..38): our model remake/recipes/fence_426 (6 round tapered posts with worn tops, 14 rail logs lifted from the drawing onto the planes of the three fence runs, ends hidden behind a post continued to it); floor 0 = the walk way / basin around it; 2026-11-24 built while the user was away, clay preview ~/Project-Friday-Test/Mockups/gelaender_426_clay.png, to be checked"
       }
     ],
     "468": [
@@ -10843,6 +11187,16 @@
           37
         ],
         "why": "automatic hip H4 x656..688 y496..688 z32..78 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          31,
+          24,
+          31,
+          24
+        ],
+        "why": "automatic lathe L7 507,395 z16..43 r17 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "448": [
@@ -10855,6 +11209,26 @@
           24
         ],
         "why": "automatic hip H1 x496..528 y336..432 z32..78 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          31,
+          38,
+          31,
+          38
+        ],
+        "why": "automatic lathe L3 502,614 z16..38 r10 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          39,
+          30,
+          39
+        ],
+        "why": "automatic lathe L4 482,634 z16..31 r15 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "450": [
@@ -10867,6 +11241,26 @@
           24
         ],
         "why": "automatic hip H1 x496..528 y336..432 z32..78 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          31,
+          38,
+          31,
+          38
+        ],
+        "why": "automatic lathe L3 502,614 z16..38 r10 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          39,
+          30,
+          39
+        ],
+        "why": "automatic lathe L4 482,634 z16..31 r15 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "483": [
@@ -10879,6 +11273,16 @@
           56
         ],
         "why": "automatic hip H5 x384..416 y848..944 z32..95 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          34,
+          44,
+          34,
+          44
+        ],
+        "why": "automatic lathe L8 555,715 z16..43 r17 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "508": [
@@ -10891,6 +11295,16 @@
           56
         ],
         "why": "automatic hip H5 x384..416 y848..944 z32..95 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          34,
+          44,
+          34,
+          44
+        ],
+        "why": "automatic lathe L8 555,715 z16..43 r17 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "563": [
@@ -10913,6 +11327,16 @@
           54
         ],
         "why": "automatic hip H3 x800..896 y848..896 z32..70 over a drawn PLANT group / row (pines, bushes, big round tree) that already has plant models; the LK_LTPLANT drop rule (>= half of its cells hold plants) missed it; 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          34,
+          44,
+          34,
+          44
+        ],
+        "why": "automatic lathe L7 555,707 z16..24 r7 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "643": [
@@ -11042,6 +11466,36 @@
           20
         ],
         "why": "the pine group left of the crate shed: collision cells 3 high drawn mixed with the shed (no catalogue pine tiles) -> treated as plant cells (their pines' ground), so the 64 high boxes no longer enclose the pine crowns (hard vertical sword-light line down the pine, user 2026-11-21 late) | room 643 (docks while the Sunstone is not yet in the Ryuma lighthouse, user 2026-11-24) = the same map: same op / model file, copied 2026-11-24"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          60,
+          20,
+          60,
+          20
+        ],
+        "why": "automatic lathe L11 967,327 z16..31 r10 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          51,
+          22,
+          51,
+          22
+        ],
+        "why": "automatic lathe L13 817,353 z16..53 r2 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          27,
+          30,
+          27
+        ],
+        "why": "automatic lathe L15 487,439 z16..31 r9 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "458": [
@@ -11064,6 +11518,26 @@
           26
         ],
         "why": "automatic hip H2 x304..352 y400..432 z64..92 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          19,
+          38,
+          19
+        ],
+        "why": "automatic lathe L4 619,315 z16..43 r17 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          40,
+          35,
+          40,
+          35
+        ],
+        "why": "automatic lathe L7 651,571 z16..43 r17 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
       }
     ],
     "566": [

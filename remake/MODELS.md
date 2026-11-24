@@ -291,6 +291,7 @@ FINAL = with material, approved by the user.
 
 ## Stone pillar  (`remake/recipes/pillar_739/` -> `landstalker/data/proxies/pillar_{739,426}_{0,1}.obj` via `place_739.py`; rooms 739 (2026-11-21) and 426 (2026-11-24))
 - Two pixel-equal copies on blocked `$43` cells (24,15) / (19,15), ground 0: square plinth (12.2), round base ring, round shaft (r 5.2 -> 4.35, slight entasis), neck ring, echinus, square abacus (12.5), top ~50. Fit IoU 0.857 (the black inner pixels and the moss in front of the plinth are the rest). Open for the remake: the drawn abacus top has a recessed inner diamond. Built while the user was away, sheet Mockups/saeulen_739.png.
+- Room 564 (Greenmaze, Sunstone shrine passage, 2026-11-24): the same pillar on cells (47,21) / (47,23), blocked 64 on ground 16 (template axis at the cell centres, IoU 0.81 / 0.63); replaces an automatic lathe up to 103.
 - Room 426 (cave mouth below the waterfall): the same pillar outline in a mossy palette on cells (46,43) / (46,48), blocked 48 on ground 0, axis at the cell centre like 739 (overlay fits; silhouette IoU 0.76 / 0.65 only because of grass in layer A and a bush in front of the second foot).
 
 ## Rustic log fence  (`remake/recipes/fence_426/fence_426.py` -> `landstalker/data/proxies/fence_426.obj`; room 426 by the waterfall, 2026-11-24)

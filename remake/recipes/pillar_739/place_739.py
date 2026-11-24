@@ -4,12 +4,14 @@
   739: cells (24,15) and (19,15), blocked $43 on ground 0 (2026-11-21).
   426: the two pillars beside the cave mouth below the waterfall, cells (46,43) and (46,48), blocked height 48 on ground 0 (2026-11-24): the same
        outline as 739 in another palette (moss / grass in front: silhouette IoU 0.76 / 0.65 = the grass of layer A and a bush in front of the second
-       one's foot), template axis at the cell centre in both rooms (U 1232 V 720 / U 1152 V 760 = cell centre, ground 0)."""
+       one's foot), template axis at the cell centre in both rooms (U 1232 V 720 / U 1152 V 760 = cell centre, ground 0).
+  564: the two pillars at the Sunstone shrine passage of Greenmaze, cells (47,21) / (47,23), blocked 64 on ground 16 (2026-11-24)."""
 import collections, json, os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.join(HERE, "..", "..", "..")
 ROOMS = collections.OrderedDict([
     ("739", ([(24, 15), (19, 15)], 0, "2026-11-21 built while the user was away, to be checked")),
     ("426", ([(46, 43), (46, 48)], 0, "room 426 cave mouth: the 739 pillar drawing (same outline, mossy palette), cells blocked 48 on ground 0; 2026-11-24 built while the user was away, to be checked")),
+    ("564", ([(47, 21), (47, 23)], 16, "room 564 (Greenmaze, Sunstone shrine): the 739 pillar drawing beside the passage (47,22), cells blocked 64 on ground 16, template axis at the cell centres (IoU 0.81 / 0.63, the second one partly hidden); 2026-11-24 built while the user was away, to be checked")),
 ])
 P = json.load(open(os.path.join(HERE, "params.json")))
 tmp = os.path.join(ROOT, "landstalker", "data", "proxies", ".pillar_tmp.obj")
