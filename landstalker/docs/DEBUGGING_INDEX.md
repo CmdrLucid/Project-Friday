@@ -266,3 +266,4 @@
 - L2093: Session 2026-11-22 late: mod layer v2 / v3, workshop filters, file select language redraw, releases v1.9.10 (withdrawn) + v1.9.11 (dev 7df7b74 .. f7aec33)
 - L2100: Session 2026-11-23: statues, docks water, books, widescreen off-map, Mod Workshop hardening, release v1.9.12 (dev 9b4.. 0291421)
 - L2108: Session 2026-11-23 evening: GitHub #18 (paul-met) four points, OSD in wide scripts, language sweeps (dev 7ffba22, 4820a10)
+- L2116: Session 2026-11-23 night / 2026-11-24: key messages, start screen help bar, centred Start menu bar, release v1.9.13 (dev 399ab82, cd7d1ad, 74c0f4f; main 92437bd)

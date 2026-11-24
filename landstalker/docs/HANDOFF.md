@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 55-60
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 924-935
-- 1. Where we are: lines 936-1110
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1111-1426
-- 3. How the user works (important): lines 1427-1442
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1443-1467
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1468-1476
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1477-1524
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1525-1534
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1535-1536
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1537-1539
-- NEXT STEPS, newest first: -278 1112, -277 1113, -276 1114, -275 1115, -274 1116, -273 1117, -272 1118, -271 1119, -270 1120, -269 1121
+- 1. Where we are: lines 936-1111
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1112-1427
+- 3. How the user works (important): lines 1428-1443
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1444-1468
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1469-1477
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1478-1525
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1526-1535
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1536-1537
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1538-1540
+- NEXT STEPS, newest first: -278 1113, -277 1114, -276 1115, -275 1116, -274 1117, -273 1118, -272 1119, -271 1120, -270 1121, -269 1122
 - Newest entries:
   - 0a522 line 192: 2026-11-23 night (Deck, Opus 5.5): RELEASE v1.9.13 (user: 'passt alles, Tempo super schnell; Release bitte'...
   - 0a521 line 193: 2026-11-23 evening (Deck, Opus 5.5 lead + 3 Sonnet agents: 2 language sweeps, docs; dev 7ffba22 + 4820a10):...
@@ -934,6 +934,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-24 SESSION END (Opus 5.5 lead + 5 Sonnet agents: 2 language sweeps, 1 docs; `dev` after v1.9.13, main = v1.9.13 RELEASED):** GitHub #18 round + two user wishes. USER CONFIRMED by playing: Russian title subtitle stays during fades, D-Pad help (screens shown), the new Start menu bar (LK_IICENTER v1: description / help alone and centred; 'passt alles, Tempo super schnell'). HEADLESS / screenshots only, user look open: Fullscreen key message + quick equip in Russian (LK_OSDWIDE v1 incl. key messages), start screen options help bar (LK_FSHELP v1). New checks: tools/uikeys.py (check_docs fails on a missing UI translation; flags English written straight into lk_osd_text), tools/langsweep_options.py + tools/langsweep_screens.py (per-language contact sheets, run before every release). Release v1.9.13: downloaded CI AppImage first run OK (HANDOFF 0a522).
 - **2026-11-23 SESSION END (Opus 5.5 lead + 6 Sonnet tester agents, `dev` 0291421+, main = v1.9.12 RELEASED):** USER CONFIRMED by playing: docks pavilion water (LK_LTFILLMESH), statues as figures 592 / 31 (LK_STATFIG), character names in the Mod Workshop. HEADLESS / GPU-shots only, user look open: church book streaks (LK_LTBOOKFL), widescreen stored map pieces (LK_OFFMAP: 667 / 631 / 77 rooms sheet) and parked figures (LK_OFFFIG: 704). Mod Workshop: GitHub #18 stages bug + search, then hardened after tester agents (14 bugs; MODDING 'Robustness'), end-to-end in the game + release AppImage path all PASS; v1.9.12 downloaded CI AppImage verified incl. a mod text in the game's text box. Decided: church books stay figures for 2.0; light shapes frozen for 2.0 (after-2.0 list: 442 town house, castle court stacks, 454 awning, Tibor's map, crypt objects, ~85 automatic leftovers, the 24-room fill_ground survey); moving 3D models for carriable objects = idea after 2.0. Well-corner report at the drawbridge not reproduced (user: maybe gone).
 - **2026-11-22 late (end of session):** Mod Workshop v3 (mods only in the Project-Friday folder, one-file page, player guide MOD_WORKSHOP.md), file select follows language changes (LK_FSLANGREDRAW v2), mod removal restores texts, firstrun sets the mods folder before the build. RELEASED v1.9.11 (v1.9.10 withdrawn). Headless / packaging verified (local + downloaded CI AppImage); USER confirmed by playing: Mercator top-edge shadows (-265) and 'sonst passt's' for the dev build before LK_FSLANGREDRAW; NOT yet played: LK_FSLANGREDRAW v2 and the Mod Workshop round trip on the Deck. Next release must carry the firstrun fix (0a511).
 - **2026-11-22 SESSION END 3 (Opus 5.5, no agents, `dev` bfa5c60+, main = v1.9.9, no release):** Cyrillic title subtitle (LK_TSCYR) + ko / ja subtitles back; crypt braziers light (LK_CRYPTFIRE, USER CONFIRMED by playing: flame out = light out); figure shadows not cut at the top edge (LK_LTTOPSIL, GPU replay of the user's rec_20261122_1257); GitHub #18 Russian file select (LK_LGWNAME v1 + v2: place names, New Game, prompt bar; ru / uk / ja / ko headless); file select / menu texts in Japanese from the JP ROM (LK_JPMENUNAMES) and Korean (ko.json); MOD LAYER v1 = language modding incl. Friday hints (docs/MODDING.md, 'Mod Workshop.html' in the mods folder, no server). HEADLESS ONLY except the crypt braziers: user to check the title / file select / prompts in ru uk ja ko, the top-edge shadows, the mod workshop page. Next: -267 / -265.
