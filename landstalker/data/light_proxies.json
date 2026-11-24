@@ -10338,6 +10338,186 @@
         "floor": 0,
         "why": "rustic LOG FENCE by the waterfall (collision: 8 blocked cells height 48 on ground 0, L shape x 27..28 y 34..38): our model remake/recipes/fence_426 (6 round tapered posts with worn tops, 14 rail logs lifted from the drawing onto the planes of the three fence runs, ends hidden behind a post continued to it); floor 0 = the walk way / basin around it; 2026-11-24 built while the user was away, clay preview ~/Project-Friday-Test/Mockups/gelaender_426_clay.png, to be checked"
       }
+    ],
+    "468": [
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          27,
+          39,
+          31
+        ],
+        "file": "proxies/house_468.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "LOG HUT of room 468 (collision x 35..39 y 27..31 height 64 on ground 16) = Massan house B's wall tiles (green palette) on a 5 x 5 square: B's S five rows moved (+16, -64, +16), square thatch with one stick crossing; remake/recipes/proxy_house_468.py (lib/log_house.py); silhouette 96 % on the drawing; 2026-11-24 built while the user was away, to be checked"
+      }
+    ],
+    "510": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          22,
+          38,
+          36
+        ],
+        "file": "proxies/warp_tree_510.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      }
+    ],
+    "511": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          22,
+          38,
+          36
+        ],
+        "file": "proxies/warp_tree_510.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      }
+    ],
+    "512": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          22,
+          38,
+          36
+        ],
+        "file": "proxies/warp_tree_510.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      }
+    ],
+    "513": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          22,
+          38,
+          36
+        ],
+        "file": "proxies/warp_tree_510.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      }
+    ],
+    "533": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          22,
+          38,
+          36
+        ],
+        "file": "proxies/warp_tree_510.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      }
+    ],
+    "534": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          22,
+          38,
+          36
+        ],
+        "file": "proxies/warp_tree_510.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      }
+    ],
+    "535": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          22,
+          38,
+          36
+        ],
+        "file": "proxies/warp_tree_510.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      }
+    ],
+    "536": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          22,
+          38,
+          36
+        ],
+        "file": "proxies/warp_tree_510.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      }
+    ],
+    "537": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          22,
+          38,
+          36
+        ],
+        "file": "proxies/warp_tree_510.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      }
+    ],
+    "538": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          22,
+          38,
+          36
+        ],
+        "file": "proxies/warp_tree_510.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      }
+    ],
+    "539": [
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          22,
+          38,
+          36
+        ],
+        "file": "proxies/warp_tree_510.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      }
     ]
   },
   "unpaint_tiles": {

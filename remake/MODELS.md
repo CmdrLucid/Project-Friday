@@ -336,3 +336,12 @@ FINAL = with material, approved by the user.
 
 ## Town house of room 442  (`remake/recipes/proxy_houses_442.py` -> `house_442.obj`; 2026-11-21)
 - Ryuma town house type (the Ryuma 'fr' front walls 90 % equal, but 442's house is square 80 x 80 and the door sits in the second slot): town_house builder, walls 272..352 x 272..352 on the ground 48 (collision blocked 96, door = walkable cell (18,21)), eave 96, flat top 120, inset 24.5, door +y slot 288, windows +x slots 288 / 320. The hips over the planter / the low block beside it removed.
+
+## Log hut of room 468  (`remake/recipes/proxy_house_468.py` -> `landstalker/data/proxies/house_468.obj`; room 468, 2026-11-24)
+- NOT its own type (0a496 said so): Massan house B's wall tiles in a greener palette on a 5 x 5 square (collision x 35..39 y 27..31, 64 on ground 16 = B's S five rows moved (+16, -64, +16), picture U +80 V -40). B's door / shutter / S posts / E round window moved; N / W posts at B's distance from the N corner; square thatch with one stick crossing (as Gumi Q). lib/log_house.py. Silhouette 96 % on the drawing; clay ~/Project-Friday-Test/Mockups/huette_468_clay.png. Built while the user was away.
+
+## Big apple tree of the tree-warp map  (`remake/recipes/warp_tree_510/warp_tree.py ROM` -> `landstalker/data/proxies/warp_tree_510.obj`; rooms 510..513, 533..539 = map $11759C, 2026-11-24)
+- Trunk collision blocked 160 (x 29..32 y 27..28 + x 29..30 y 29..30), island walkable 0. Trunk: drawn constant 60 px wide -> r 21, axis x 493.75 y 462.25, root flare + 6 flat buttress roots (~26 long, drawn roots reach ~30 beyond the trunk).
+- Crown: drawn U 984..1455 x V 296..446 around the trunk axis -> envelope = ellipsoid (half axes 166 along the screen, 63.6 deep, 60 high, centre z 107; a ROUND crown of that width would be >= 234 px high in the picture, the drawing is an iso cheat, light variant = as drawn) scaled per screen direction to the drawn, smoothed (+-12 deg) crown outline; filled with a core (0.8 of the envelope) + 47 leaf clumps (spheres r 30..40 reaching the envelope). v1 = one smooth ellipsoid looked like a mushroom cap with a dent at the pole (pole not corrected) -> rejected in self-review.
+- GPU (510 spot 2): island mean brightness unchanged (59.2 / 59.2), the trunk now round-shaded with a soft shadow; lightedges 0. Clay ~/Project-Friday-Test/Mockups/warpbaum_510_clay.png. Built while the user was away.
+
