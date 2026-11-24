@@ -10964,6 +10964,18 @@
           27
         ],
         "why": "automatic lathe #14 on the blue step block before the gate (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          13,
+          27,
+          25
+        ],
+        "file": "proxies/mir_tower_475.obj",
+        "surface": true,
+        "why": "base of MIR'S TOWER (the collision is only an 80 high block x 16..27 y 16..25; the drawn blue walls are wider, x 97..442.5 y 221.5..413.5, and run beyond the picture top): tall body to 440, arched doorway one cell deep with threshold, carved panel, step slab, two wall lanterns; remake/recipes/mir_tower_475/tower.py; cells clipped to the map (x >= 12), the model reaches further as drawn; 2026-11-24 built while the user was away, to be checked"
       }
     ],
     "442": [
