@@ -345,3 +345,5 @@ FINAL = with material, approved by the user.
 - Crown: drawn U 984..1455 x V 296..446 around the trunk axis -> envelope = ellipsoid (half axes 166 along the screen, 63.6 deep, 60 high, centre z 107; a ROUND crown of that width would be >= 234 px high in the picture, the drawing is an iso cheat, light variant = as drawn) scaled per screen direction to the drawn, smoothed (+-12 deg) crown outline; filled with a core (0.8 of the envelope) + 47 leaf clumps (spheres r 30..40 reaching the envelope). v1 = one smooth ellipsoid looked like a mushroom cap with a dent at the pole (pole not corrected) -> rejected in self-review.
 - GPU (510 spot 2): island mean brightness unchanged (59.2 / 59.2), the trunk now round-shaded with a soft shadow; lightedges 0. Clay ~/Project-Friday-Test/Mockups/warpbaum_510_clay.png. Built while the user was away.
 
+## Room 362 hole (labyrinth entrance)  (NO model, user decision 2026-11-24)
+- The 2 x 2 cells at height 0 in the 32 clearing (x 26..27 y 19..20) are a HOLE drawn like a rock bump; user: 'das ist ein Loch, lass mal aus' -> no light shape (do not list it as a leftover again).
