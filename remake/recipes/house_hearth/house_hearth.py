@@ -16,7 +16,7 @@ FLASK = [(0.0, 1.5), (0.15, 2.8), (0.35, 3.0), (0.55, 2.2), (0.65, 0.9), (1.0, 0
 
 def parts(x0, y0, z0):
     X = lambda v: x0 + v; Y = lambda v: y0 + v
-    out = cabinet.hearth(X(0.0), X(16.0), Y(0.0), Y(48.0), z0, z0 + 32.0, '+x', open_u=(0.37, 0.77), open_h=0.6, depth=10.0)   # brick hearth, fire opening east
+    out = cabinet.hearth(X(0.0), X(16.0), Y(0.0), Y(48.0), z0, z0 + 32.0, '+x', open_u=(0.3, 0.79), open_h=0.75, depth=1.0)   # brick hearth, fire opening east: as wide / high as the DRAWN fire, only 1 deep (2026-11-24: the game puts the flame in front of the hearth face; the drawn fire 10 deep in the opening stayed dark = 96 hard edge px in 691, LANDSTALKER_LT_MODEL=0 = bright)
     out += [
             lathe(X(10.0), Y(26.0), z0 + 32.0, 11.0, KETTLE),                                # kettle on the hearth
             rbox(X(2.0), X(10.0), Y(0.0), Y(7.0), z0 + 32.0, z0 + 39.0, 0.4, n=1),          # small crate at the back

@@ -4729,6 +4729,20 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.93) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          20,
+          16,
+          22
+        ],
+        "file": "proxies/merc_case_616.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_case' as a real model (remake/recipes/case/case.py spec merc_case_616, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 616 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "617": [
@@ -4745,6 +4759,20 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.93) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          20,
+          16,
+          22
+        ],
+        "file": "proxies/merc_case_617.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_case' as a real model (remake/recipes/case/case.py spec merc_case_616, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 616 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "618": [
@@ -4761,6 +4789,34 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          18,
+          16,
+          19
+        ],
+        "file": "proxies/merc_chest_618.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_chest' as a real model (remake/recipes/case/case.py spec merc_chest_618, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 618 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          18,
+          21,
+          19
+        ],
+        "file": "proxies/merc_box_618.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_box' as a real model (remake/recipes/case/case.py spec merc_box_618, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 618 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "619": [
@@ -4777,6 +4833,34 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          16,
+          18,
+          16,
+          19
+        ],
+        "file": "proxies/merc_chest_619.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_chest' as a real model (remake/recipes/case/case.py spec merc_chest_618, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 618 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          18,
+          21,
+          19
+        ],
+        "file": "proxies/merc_box_619.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_box' as a real model (remake/recipes/case/case.py spec merc_box_618, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 618 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "620": [
@@ -4928,6 +5012,20 @@
         ],
         "floor": 0,
         "why": "44 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          19,
+          27,
+          19
+        ],
+        "file": "proxies/merc_glass_622.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_glass' as a real model (remake/recipes/case/case.py spec merc_glass_622, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 622 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "623": [
@@ -5634,6 +5732,34 @@
       {
         "op": "mesh",
         "cells": [
+          15,
+          17,
+          16,
+          17
+        ],
+        "file": "proxies/merc_night_673.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_night' as a real model (remake/recipes/case/case.py spec merc_night_673, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 673 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          17,
+          23,
+          17
+        ],
+        "file": "proxies/merc_case_673.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_case' as a real model (remake/recipes/case/case.py spec merc_case_673, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 673 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           13,
           17,
           14,
@@ -5658,9 +5784,51 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          22,
+          14,
+          23
+        ],
+        "file": "proxies/table_673.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "674": [
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          17,
+          16,
+          17
+        ],
+        "file": "proxies/merc_night_674.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_night' as a real model (remake/recipes/case/case.py spec merc_night_673, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 673 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          17,
+          23,
+          17
+        ],
+        "file": "proxies/merc_case_674.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_case' as a real model (remake/recipes/case/case.py spec merc_case_673, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 673 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
       {
         "op": "mesh",
         "cells": [
@@ -5688,6 +5856,20 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          22,
+          14,
+          23
+        ],
+        "file": "proxies/table_674.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
       }
     ],
     "675": [
@@ -5718,6 +5900,48 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.99) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          13,
+          23,
+          15
+        ],
+        "file": "proxies/merc_glass_675.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_glass' as a real model (remake/recipes/case/case.py spec merc_glass_675, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 675 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          15,
+          17,
+          16
+        ],
+        "file": "proxies/merc_box_675.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_box' as a real model (remake/recipes/case/case.py spec merc_box_675, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 675 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          21,
+          17,
+          23
+        ],
+        "file": "proxies/merc_chest_675.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_chest' as a real model (remake/recipes/case/case.py spec merc_chest_675, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 675 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "677": [
@@ -5759,6 +5983,34 @@
         ],
         "floor": 0,
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          17,
+          17,
+          20
+        ],
+        "file": "proxies/merc_chest_677.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_chest' as a real model (remake/recipes/case/case.py spec merc_chest_677, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 677 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          17,
+          23,
+          17
+        ],
+        "file": "proxies/merc_books_677.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_books' as a real model (remake/recipes/case/case.py spec merc_books_677, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 677 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "678": [
@@ -5835,6 +6087,34 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.82) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          20,
+          25,
+          20
+        ],
+        "file": "proxies/merc_case_683.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_case' as a real model (remake/recipes/case/case.py spec merc_case_683, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 683 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          22,
+          18,
+          26
+        ],
+        "file": "proxies/merc_books_683.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_books' as a real model (remake/recipes/case/case.py spec merc_books_683, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 683 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "684": [
@@ -5851,6 +6131,34 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.82) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          20,
+          25,
+          20
+        ],
+        "file": "proxies/merc_case_684.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_case' as a real model (remake/recipes/case/case.py spec merc_case_683, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 683 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          22,
+          18,
+          26
+        ],
+        "file": "proxies/merc_books_684.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_books' as a real model (remake/recipes/case/case.py spec merc_books_683, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 683 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "687": [
@@ -5892,6 +6200,34 @@
         ],
         "floor": 0,
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          19,
+          13,
+          20
+        ],
+        "file": "proxies/merc_books_687.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_books' as a real model (remake/recipes/case/case.py spec merc_books_687, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 687 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          13,
+          13,
+          17
+        ],
+        "file": "proxies/merc_hearth_687.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_hearth' as a real model (remake/recipes/case/case.py spec merc_hearth_687, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 687 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "688": [
@@ -5933,6 +6269,34 @@
         ],
         "floor": 0,
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          19,
+          13,
+          20
+        ],
+        "file": "proxies/merc_books_688.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_books' as a real model (remake/recipes/case/case.py spec merc_books_687, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 687 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          13,
+          13,
+          17
+        ],
+        "file": "proxies/merc_hearth_688.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_hearth' as a real model (remake/recipes/case/case.py spec merc_hearth_687, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 687 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "689": [
@@ -5949,6 +6313,34 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          13,
+          19,
+          13
+        ],
+        "file": "proxies/merc_shelf_689.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_shelf' as a real model (remake/recipes/case/case.py spec merc_shelf_689, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 689 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          17,
+          13,
+          19
+        ],
+        "file": "proxies/merc_chest_689.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_chest' as a real model (remake/recipes/case/case.py spec merc_chest_689, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 689 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "690": [
@@ -5965,6 +6357,34 @@
         "air": true,
         "floor": 0,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (1.00) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          17,
+          13,
+          19,
+          13
+        ],
+        "file": "proxies/merc_shelf_690.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_shelf' as a real model (remake/recipes/case/case.py spec merc_shelf_689, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 689 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          17,
+          13,
+          19
+        ],
+        "file": "proxies/merc_chest_690.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_chest' as a real model (remake/recipes/case/case.py spec merc_chest_689, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 689 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "691": [
@@ -6360,6 +6780,20 @@
       {
         "op": "mesh",
         "cells": [
+          14,
+          22,
+          16,
+          23
+        ],
+        "file": "proxies/bed_698.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.99) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           17,
           17,
           19,
@@ -6381,6 +6815,20 @@
         ],
         "floor": 0,
         "why": "34 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          15,
+          14,
+          17
+        ],
+        "file": "proxies/merc_hearth_698.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_hearth' as a real model (remake/recipes/case/case.py spec merc_hearth_698, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 698 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "699": [
@@ -6759,6 +7207,20 @@
         "air": true,
         "floor": 32,
         "why": "bed (collision = a 1 step box): our parts model of remake/recipes/bed/bed.py in its LIGHT variant (top tilted up 3 towards the back as drawn; board on legs = 'air'), found by a picture match (0.99) in remake/tools/furniture_ops.py; user 2026-11-11 'gehen wir die an'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          25,
+          32,
+          25
+        ],
+        "file": "proxies/merc_night_704.obj",
+        "surface": true,
+        "air": true,
+        "floor": 32,
+        "why": "case furniture 'merc_night' as a real model (remake/recipes/case/case.py spec merc_night_704, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 704 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "705": [
@@ -7120,6 +7582,20 @@
         ],
         "floor": 0,
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          12,
+          13,
+          18
+        ],
+        "file": "proxies/merc_chest_717.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_chest' as a real model (remake/recipes/case/case.py spec merc_chest_717, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 717 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "718": [
@@ -7161,6 +7637,20 @@
         ],
         "floor": 0,
         "why": "24 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
+          12,
+          13,
+          18
+        ],
+        "file": "proxies/merc_chest_718.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_chest' as a real model (remake/recipes/case/case.py spec merc_chest_717, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 717 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "719": [
@@ -7366,6 +7856,34 @@
         ],
         "floor": 0,
         "why": "62 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          16,
+          22,
+          18
+        ],
+        "file": "proxies/merc_books_722.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_books' as a real model (remake/recipes/case/case.py spec merc_books_722, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 722 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          16,
+          20,
+          21
+        ],
+        "file": "proxies/merc_corner_722.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_corner' as a real model (remake/recipes/case/case.py spec merc_corner_722, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 722 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "723": [
@@ -7407,6 +7925,34 @@
         ],
         "floor": 0,
         "why": "62 painted shadow tiles under the mercator table / bench / side table (furniture_ops.py UNPAINT_TILES; user 2026-11-09 'so dass der Tisch nur unseren Schatten wirft')"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          16,
+          22,
+          18
+        ],
+        "file": "proxies/merc_books_723.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_books' as a real model (remake/recipes/case/case.py spec merc_books_722, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 722 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          18,
+          16,
+          20,
+          21
+        ],
+        "file": "proxies/merc_corner_723.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_corner' as a real model (remake/recipes/case/case.py spec merc_corner_722, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 722 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "724": [
@@ -12133,6 +12679,70 @@
           57
         ],
         "why": "automatic lathe L4 (at 435,923): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      }
+    ],
+    "685": [
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          24,
+          24,
+          24
+        ],
+        "file": "proxies/merc_crystal_685.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_crystal' as a real model (remake/recipes/case/case.py spec merc_crystal_685, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 685 by projection overlay (indoor furniture survey 2026-11-24)"
+      }
+    ],
+    "686": [
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          24,
+          24,
+          24
+        ],
+        "file": "proxies/merc_crystal_686.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_crystal' as a real model (remake/recipes/case/case.py spec merc_crystal_685, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 685 by projection overlay (indoor furniture survey 2026-11-24)"
+      }
+    ],
+    "668": [
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          27,
+          36,
+          28
+        ],
+        "file": "proxies/merc_cloth_668.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_cloth' as a real model (remake/recipes/case/case.py spec merc_cloth_668, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 668 by projection overlay (indoor furniture survey 2026-11-24)"
+      }
+    ],
+    "669": [
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          27,
+          36,
+          28
+        ],
+        "file": "proxies/merc_cloth_669.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_cloth' as a real model (remake/recipes/case/case.py spec merc_cloth_668, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 668 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ]
   },

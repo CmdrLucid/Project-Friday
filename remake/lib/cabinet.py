@@ -4,7 +4,7 @@ GPU shadow maps get edge twins. Reliefs are >= 1 unit (drawer gaps, recessed pan
 0a413). GAME coordinates x east, y south, z up, units.
 
 cabinet(x0, x1, y0, y1, z0, z1, face, rows, ...) builds a case standing in the box x0..x1 / y0..y1 with its FRONT on side `face` ('+x', '+y', '-x', '-y')
-and `rows` from the bottom up: ('plinth', h) | ('drawers', h, n) | ('doors', h, n) | ('glass', h, n) | ('shelf', h[, n[, contents]]) (open compartment(s): n compartments with
+and `rows` from the bottom up: ('plinth', h) | ('drawers', h, n) | ('doors', h, n) | ('glass', h, n) | ('glassflat', h, n) (light variant: flush front) | ('shelf', h[, n[, contents]]) (open compartment(s): n compartments with
 dividers; contents 'books' (default) / 'bottles' / 'plates' (upright plate stacks) / None) | ('open', h[, n]) (empty compartments). The heights are scaled to fill z0 .. z1 - top."""
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -38,6 +38,8 @@ def cabinet(x0, x1, y0, y1, z0, z1, face, rows, top=1.5, over=0.8, side=1.2, bac
             g = 0.9; w = (W - 2 * side - (n + 1) * g) / n
             for i in range(n):
                 u = side + g + i * (w + g); B(u, u + w, 0.0, 1.0, za + g * 0.5, zb - g * 0.5, 0.3)        # drawer front, 1 proud of the carcass
+        elif kind == "glassflat":   # LIGHT variant of a glass row (2026-11-24, Mercator survey): one flush front, no recessed glass / frame relief; frames that
+            B(side, W - side, 0.0, D - back, za, zb)   # do not sit exactly on the drawn ones gave vertical light stripes on the glass (687); the drawing shows the frames
         elif kind in ("doors", "glass"):
             B(side, W - side, 1.0 if kind == "doors" else 2.5, D - back, za, zb)                          # carcass (glass: 1.5 further back = the dark glass)
             fw = 1.6; w = (W - 2 * side) / n

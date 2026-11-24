@@ -60,6 +60,10 @@ def boxes_obj(parts, title):
     s += "".join("v %g %g %g\n" % p for p in v) + "".join("f " + " ".join(str(k + 1) for k in q) + "\n" for q in f)
     return s
 
+# pieces the block test rejects although the drawing shows a complete table of the type (indoor survey 2026-11-24): 673 / 674 cells 13..14 x 22..23 =
+# the 2 x 2 Mercator table on four legs (the back corner cell draws $0D7 instead of $030: a different wall tile behind it), picture checked by proj overlay
+FORCE_TABLES = {(673, (13, 22, 14, 23)), (674, (13, 22, 14, 23))}
+
 def tables(rom, room):
     """complete pieces of every TYPE of the room's tileset: a 4-connected group of walkable cells drawn by the type's blocks that fills its bounding
     box, has one equal height h > 0, passes the type's arrangement check and stands one step above the floor ring around it (fragments are skipped)"""
@@ -83,6 +87,7 @@ def tables(rom, room):
             ring = [hgt(x, y) for x in range(x0 - 1, x1 + 2) for y in (y0 - 1, y1 + 1)] + [hgt(x, y) for y in range(y0, y1 + 1) for x in (x0 - 1, x1 + 1)]
             floor = collections.Counter(ring).most_common(1)[0][0]
             ok = (len(comp) == (x1 - x0 + 1) * (y1 - y0 + 1) and h > 0 and floor == h - 1 and T["ok"](lambda x, y: c.get((x, y), (0, 0, 0))[2], x0, y0, x1, y1))
+            if (room, (x0, y0, x1, y1)) in FORCE_TABLES and h > 0 and floor == h - 1: ok = True   # checked on the drawing (FORCE_TABLES)
             blk = lambda x, y: c.get((x, y), (0, 0, 0))[2]
             arm = None   # the L bench (623 / 624 / 701 / 702): a bench whose back end turns west, corner $144 + arm end $36D at the same height
             if ok and blk(x0, y0) == 0x0A3 and blk(x0, y0 - 1) == 0x144 and blk(x0 - 1, y0 - 1) == 0x36D and hgt(x0, y0 - 1) == h == hgt(x0 - 1, y0 - 1):
@@ -253,10 +258,10 @@ def beds(rom, room, ratio=False):
         if ("bedref", o) not in _pics: r0, x0, y0, f0 = BED_REF[o]; _pics[("bedref", o)] = _bed_sample(r0, 16 * x0, 16 * y0, 16 * f0, o == "y")
     c = blockcat.cells(rom, room); out = []
     for (x, y), v in sorted(c.items()):
-        if v[1] or v[0] < 1: continue
+        if v[0] < 1: continue   # walkable OR blocked (698: the same bed on six blocked cells, picture match 0.99; indoor survey 2026-11-24)
         for orient, (nx, ny) in (("x", (3, 2)), ("y", (2, 3))):
             box = [(x + i, y + j) for i in range(nx) for j in range(ny)]
-            if not all(k in c and not c[k][1] and c[k][0] == v[0] for k in box): continue
+            if not all(k in c and c[k][1] == v[1] and c[k][0] == v[0] for k in box): continue
             s = _bed_sample(room, 16 * x, 16 * y, 16 * (v[0] - 1), orient == "y")
             ref = _pics[("bedref", orient)]; q = sum(1 for a, b in zip(s, ref) if a == b) / float(len(ref))
             if q >= 0.6 or ratio: out.append(dict(cell=(x, y), orient=orient, floor=v[0] - 1, q=q))
@@ -434,7 +439,7 @@ def main():
             else: parts = furniture.l_bench("lbench0", 16 * (t["arm"] + 1), 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["arm"], 16 * t["floor"], 16 * t["h"], **sh)
             fn = "table_%d.obj" % r if k == 0 else "table_%d_%d.obj" % (r, k)
             title = "%s, room %d" % (t["type"]["name"] if t["arm"] is None else "L bench", r)
-            if t["arm"] is None and blockcat.cells(rom, r)[(x0, y0)][2] in (0x030, 0x0A3, 0x18A):   # Mercator table / bench / side table: near-final (remake/MODELS.md)
+            if t["arm"] is None and (blockcat.cells(rom, r)[(x0, y0)][2] in (0x030, 0x0A3, 0x18A) or (r, (x0, y0, x1, y1)) in FORCE_TABLES):   # Mercator table / bench / side table: near-final (remake/MODELS.md)
                 txt = lathe_obj(furniture.mercator_table_mesh(16 * x0, 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["floor"], 16 * t["h"], sh["thick"]), title)
             elif t["arm"] is None and t["type"]["ts"] == 1:   # the castle table: near-final
                 txt = lathe_obj(furniture.castle_table_mesh(16 * x0, 16 * y0, 16 * x1 + 16, 16 * y1 + 16, 16 * t["floor"], 16 * t["h"], sh["thick"]), title)
@@ -454,7 +459,7 @@ def main():
     if write:
         data["unpaint_tiles"] = collections.OrderedDict([("_about", "LK_GLUNPAINT v1: per tileset [painted shadow tile, the same tile without the shadow] (hex tile numbers), used by op 'unpaint'; written by remake/tools/furniture_ops.py UNPAINT_TILES")]
             + [(str(ts), [["%03X" % f, "%03X" % t] for f, t in sorted(m.items())]) for ts, m in sorted(UNPAINT_TILES.items())])
-        data["rooms"] = collections.OrderedDict(sorted(data["rooms"].items(), key=lambda t: int(t[0])))
+        # (no re-sorting of the rooms: the file keeps its order, new rooms go to the end; a sort here once rewrote 11 000 lines of the diff, 2026-11-24)
         open(jp, "w").write(json.dumps(data, indent=2, ensure_ascii=False) + "\n"); print("written: %d rooms" % n)
 
 if __name__ == "__main__":

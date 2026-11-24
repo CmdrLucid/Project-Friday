@@ -2134,3 +2134,12 @@ Build dev 48c243a (verify_build: 126 ok). Evidence (all hidden-window GPU presen
   get stuck in a scene of the previous room (628 Sun Stone dialogue swallowed 632 spots); warps into the castle tower 34 / 35 are unusable (story rooms).
 - patch_lights corrections 746 -> 915 over the session; verify_build 202 ok every build; check_proxies 0 boxes.
 
+## Session 2026-11-24 evening: indoor light shapes, Mercator house furniture (dev, after b98b3cd)
+- Survey: remake/tools/deco_survey.py ROM OUT --todo --max 8 (indoor groups not covered by any mesh op); ~/Project-Friday-Test/lktest/innen (sheets, list.py per tileset, cut windows w/).
+- Measuring: proj.py (exact game projection, z buffer depth x + y + z) for a first look; sil.py (model silhouette over the drawn plane A outline, 6-8 x) for the real check;
+  top corners: leftmost = (x0, y1, z), rightmost = (x1, y0, z), lowest = (x1, y1, z) with U = x - y + 1184, V = (x + y) / 2 - z.
+- Jars: fitlathe.py on the plane A outline of the fully visible 683 jar (IoU 0.85 window-clipped, outline tight), the others by template match of that drawing (shifts in whole tiles).
+- Light: lightedges --spots before (copy of the old binary, LIGHTEDGES_BIN) / after; it missed the 722 cloth wedge (runs < 40 px) that the user saw: ratio.py + zoomed crops.
+  LANDSTALKER_LT_MODEL=0 showed the fire bright again = the hearth model was the cause (flame light in front of the face hit by the drawn fire's view ray; fire pixels 8 deep / under a low lintel unlit).
+- Data: light_proxies.json order kept (furniture_ops.py no longer re-sorts); semantic check: every old op present, 43 + new ops.
+
