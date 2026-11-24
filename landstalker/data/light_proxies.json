@@ -5327,6 +5327,19 @@
           22
         ],
         "why": "automatic hip #0 over the raised flower bed by the moat (collision blocked 32, flat top with tulips), not a building (2026-11-21)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          29,
+          20,
+          41
+        ],
+        "file": "proxies/house_632_3.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Mercator TOWN HOUSE 3 (the one-off in the upper left, cells 15..20 x 29..41): two two-storey wings (eave 112, top 134.5, 26 in), a one-storey annex with a ROOF TERRACE (floor 64, parapet U 12 thick up to 80), an upper doorway onto it (one cell deep, walkable cell 18,36), a small wing with a pointed hip (64 -> 84); openings = the standard tiles (find_openings); remake/recipes/proxy_house_632_3.py; replaces the automatic hip #4; 2026-11-24 built while the user was away, to be checked"
       }
     ],
     "635": [
@@ -11064,7 +11077,23 @@
         ],
         "why": "automatic hip H2 x768..816 y848..880 z80..123 on a TERRACE / cliff top, not a building (the game height map already holds the block); 2026-11-24 leftover sweep, picture check ~/Project-Friday-Test/lktest/lf3/hipsheet.png"
       }
-    ]
+    ],
+    "627": [
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          20,
+          30,
+          30
+        ],
+        "file": "proxies/lantern_627.obj",
+        "surface": true,
+        "floor": 16,
+        "why": "Ryuma lighthouse LANTERN ROOM close-up (627 / 628 = one map, 628 only a darker palette): floor 16 inside a 16 rim, four square corner posts 15 wide with concave arch brackets, eave band 158..167 + tile pyramid to 253 (its apex projects onto the drawn back roof corner), two hanging glass cylinders r 8 + lamp base, curb, tower body below the floor; remake/recipes/lantern_627/lantern.py; replaces the automatic hips #0 (a solid block over the whole room up to 215) and #1; the lamp mechanism collision (208) gets floor 16; 2026-11-24 built while the user was away, to be checked"
+      }
+    ],
+    "628": []
   },
   "unpaint_tiles": {
     "_about": "LK_GLUNPAINT v1: per tileset [painted shadow tile, the same tile without the shadow] (hex tile numbers), used by op 'unpaint'; written by remake/tools/furniture_ops.py UNPAINT_TILES",
