@@ -5732,34 +5732,6 @@
       {
         "op": "mesh",
         "cells": [
-          15,
-          17,
-          16,
-          17
-        ],
-        "file": "proxies/merc_night_673.obj",
-        "surface": true,
-        "air": true,
-        "floor": 0,
-        "why": "case furniture 'merc_night' as a real model (remake/recipes/case/case.py spec merc_night_673, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 673 by projection overlay (indoor furniture survey 2026-11-24)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          20,
-          17,
-          23,
-          17
-        ],
-        "file": "proxies/merc_case_673.obj",
-        "surface": true,
-        "air": true,
-        "floor": 0,
-        "why": "case furniture 'merc_case' as a real model (remake/recipes/case/case.py spec merc_case_673, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 673 by projection overlay (indoor furniture survey 2026-11-24)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
           13,
           17,
           14,
@@ -5798,9 +5770,7 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
-      }
-    ],
-    "674": [
+      },
       {
         "op": "mesh",
         "cells": [
@@ -5809,7 +5779,7 @@
           16,
           17
         ],
-        "file": "proxies/merc_night_674.obj",
+        "file": "proxies/merc_night_673.obj",
         "surface": true,
         "air": true,
         "floor": 0,
@@ -5823,12 +5793,14 @@
           23,
           17
         ],
-        "file": "proxies/merc_case_674.obj",
+        "file": "proxies/merc_case_673.obj",
         "surface": true,
         "air": true,
         "floor": 0,
         "why": "case furniture 'merc_case' as a real model (remake/recipes/case/case.py spec merc_case_673, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 673 by projection overlay (indoor furniture survey 2026-11-24)"
-      },
+      }
+    ],
+    "674": [
       {
         "op": "mesh",
         "cells": [
@@ -5870,6 +5842,34 @@
         "air": true,
         "floor": 0,
         "why": "mercator table / bench / side table on legs (collision = a solid box): the measured shape of remake/lib/furniture.py, placed by remake/tools/furniture_ops.py; user 2026-11-09 'beides ja' / '1 und 2'"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          17,
+          16,
+          17
+        ],
+        "file": "proxies/merc_night_674.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_night' as a real model (remake/recipes/case/case.py spec merc_night_673, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 673 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          17,
+          23,
+          17
+        ],
+        "file": "proxies/merc_case_674.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'merc_case' as a real model (remake/recipes/case/case.py spec merc_case_673, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 673 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "675": [
@@ -6205,6 +6205,28 @@
         "op": "mesh",
         "cells": [
           13,
+          13,
+          13,
+          17
+        ],
+        "file": "proxies/merc_hearth_687.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "carrier": {
+          "r": 4,
+          "axis": [
+            230,
+            269
+          ],
+          "z": 12
+        },
+        "why": "case furniture 'merc_hearth' as a real model (remake/recipes/case/case.py spec merc_hearth_687, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 687 by projection overlay (indoor furniture survey 2026-11-24); carrier = the fire's flame light fixed 6 in front of the opening (the game's wall flame offset), below the hearth top (it streaked the top from just above = hard item shadows, user marks 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
           19,
           13,
           20
@@ -6214,20 +6236,6 @@
         "air": true,
         "floor": 0,
         "why": "case furniture 'merc_books' as a real model (remake/recipes/case/case.py spec merc_books_687, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 687 by projection overlay (indoor furniture survey 2026-11-24)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          13,
-          13,
-          13,
-          17
-        ],
-        "file": "proxies/merc_hearth_687.obj",
-        "surface": true,
-        "air": true,
-        "floor": 0,
-        "why": "case furniture 'merc_hearth' as a real model (remake/recipes/case/case.py spec merc_hearth_687, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 687 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "688": [
@@ -6274,6 +6282,28 @@
         "op": "mesh",
         "cells": [
           13,
+          13,
+          13,
+          17
+        ],
+        "file": "proxies/merc_hearth_688.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "carrier": {
+          "r": 4,
+          "axis": [
+            230,
+            269
+          ],
+          "z": 12
+        },
+        "why": "case furniture 'merc_hearth' as a real model (remake/recipes/case/case.py spec merc_hearth_687, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 687 by projection overlay (indoor furniture survey 2026-11-24); carrier = the fire's flame light fixed 6 in front of the opening (the game's wall flame offset), below the hearth top (it streaked the top from just above = hard item shadows, user marks 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          13,
           19,
           13,
           20
@@ -6283,20 +6313,6 @@
         "air": true,
         "floor": 0,
         "why": "case furniture 'merc_books' as a real model (remake/recipes/case/case.py spec merc_books_687, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 687 by projection overlay (indoor furniture survey 2026-11-24)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          13,
-          13,
-          13,
-          17
-        ],
-        "file": "proxies/merc_hearth_688.obj",
-        "surface": true,
-        "air": true,
-        "floor": 0,
-        "why": "case furniture 'merc_hearth' as a real model (remake/recipes/case/case.py spec merc_hearth_687, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 687 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "689": [
@@ -6453,7 +6469,15 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "house hearth (tileset 2, blocks $166 $185 $17A $188, collision = a 32 high box) with kettle + crate on top, and the wall shelf above it (z 60..64, not in the collision: had no shadow) with plates + bottle: remake/recipes/house_hearth/house_hearth.py, measured on rom_picture 691 by overlay"
+        "why": "house hearth (tileset 2, blocks $166 $185 $17A $188, collision = a 32 high box) with kettle + crate on top, and the wall shelf above it (z 60..64, not in the collision: had no shadow) with plates + bottle: remake/recipes/house_hearth/house_hearth.py, measured on rom_picture 691 by overlay; carrier = the fire's flame light fixed 6 in front of the opening (the game's wall flame offset), below the hearth top (2026-11-24)",
+        "carrier": {
+          "r": 4,
+          "axis": [
+            230,
+            218
+          ],
+          "z": 12
+        }
       }
     ],
     "692": [
@@ -6522,7 +6546,15 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "house hearth (tileset 2, blocks $166 $185 $17A $188, collision = a 32 high box) with kettle + crate on top, and the wall shelf above it (z 60..64, not in the collision: had no shadow) with plates + bottle: remake/recipes/house_hearth/house_hearth.py, measured on rom_picture 691 by overlay"
+        "why": "house hearth (tileset 2, blocks $166 $185 $17A $188, collision = a 32 high box) with kettle + crate on top, and the wall shelf above it (z 60..64, not in the collision: had no shadow) with plates + bottle: remake/recipes/house_hearth/house_hearth.py, measured on rom_picture 691 by overlay; carrier = the fire's flame light fixed 6 in front of the opening (the game's wall flame offset), below the hearth top (2026-11-24)",
+        "carrier": {
+          "r": 4,
+          "axis": [
+            230,
+            218
+          ],
+          "z": 12
+        }
       }
     ],
     "693": [
@@ -6828,7 +6860,15 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "case furniture 'merc_hearth' as a real model (remake/recipes/case/case.py spec merc_hearth_698, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 698 by projection overlay (indoor furniture survey 2026-11-24)"
+        "carrier": {
+          "r": 4,
+          "axis": [
+            246,
+            267
+          ],
+          "z": 12
+        },
+        "why": "case furniture 'merc_hearth' as a real model (remake/recipes/case/case.py spec merc_hearth_698, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 698 by projection overlay (indoor furniture survey 2026-11-24); carrier = the fire's flame light fixed 6 in front of the opening (the game's wall flame offset), below the hearth top (it streaked the top from just above = hard item shadows, user marks 2026-11-24)"
       }
     ],
     "699": [
@@ -7411,7 +7451,15 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "house hearth (tileset 2, blocks $166 $185 $17A $188, collision = a 32 high box) with kettle + crate on top, and the wall shelf above it (z 60..64, not in the collision: had no shadow) with plates + bottle: remake/recipes/house_hearth/house_hearth.py, measured on rom_picture 691 by overlay"
+        "why": "house hearth (tileset 2, blocks $166 $185 $17A $188, collision = a 32 high box) with kettle + crate on top, and the wall shelf above it (z 60..64, not in the collision: had no shadow) with plates + bottle: remake/recipes/house_hearth/house_hearth.py, measured on rom_picture 691 by overlay; carrier = the fire's flame light fixed 6 in front of the opening (the game's wall flame offset), below the hearth top (2026-11-24)",
+        "carrier": {
+          "r": 4,
+          "axis": [
+            230,
+            218
+          ],
+          "z": 12
+        }
       }
     ],
     "714": [
@@ -7480,7 +7528,15 @@
         "surface": true,
         "air": true,
         "floor": 0,
-        "why": "house hearth (tileset 2, blocks $166 $185 $17A $188, collision = a 32 high box) with kettle + crate on top, and the wall shelf above it (z 60..64, not in the collision: had no shadow) with plates + bottle: remake/recipes/house_hearth/house_hearth.py, measured on rom_picture 691 by overlay"
+        "why": "house hearth (tileset 2, blocks $166 $185 $17A $188, collision = a 32 high box) with kettle + crate on top, and the wall shelf above it (z 60..64, not in the collision: had no shadow) with plates + bottle: remake/recipes/house_hearth/house_hearth.py, measured on rom_picture 691 by overlay; carrier = the fire's flame light fixed 6 in front of the opening (the game's wall flame offset), below the hearth top (2026-11-24)",
+        "carrier": {
+          "r": 4,
+          "axis": [
+            230,
+            218
+          ],
+          "z": 12
+        }
       }
     ],
     "715": [
@@ -7860,6 +7916,28 @@
       {
         "op": "mesh",
         "cells": [
+          18,
+          16,
+          20,
+          21
+        ],
+        "file": "proxies/merc_corner_722.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "carrier": {
+          "r": 4,
+          "axis": [
+            308,
+            274
+          ],
+          "z": 12
+        },
+        "why": "case furniture 'merc_corner' as a real model (remake/recipes/case/case.py spec merc_corner_722, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 722 by projection overlay (indoor furniture survey 2026-11-24); carrier = the fire's flame light fixed 6 in front of the opening (the game's wall flame offset), below the hearth top (it streaked the top from just above = hard item shadows, user marks 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           22,
           16,
           22,
@@ -7870,20 +7948,6 @@
         "air": true,
         "floor": 0,
         "why": "case furniture 'merc_books' as a real model (remake/recipes/case/case.py spec merc_books_722, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 722 by projection overlay (indoor furniture survey 2026-11-24)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          18,
-          16,
-          20,
-          21
-        ],
-        "file": "proxies/merc_corner_722.obj",
-        "surface": true,
-        "air": true,
-        "floor": 0,
-        "why": "case furniture 'merc_corner' as a real model (remake/recipes/case/case.py spec merc_corner_722, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 722 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "723": [
@@ -7929,6 +7993,28 @@
       {
         "op": "mesh",
         "cells": [
+          18,
+          16,
+          20,
+          21
+        ],
+        "file": "proxies/merc_corner_723.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "carrier": {
+          "r": 4,
+          "axis": [
+            308,
+            274
+          ],
+          "z": 12
+        },
+        "why": "case furniture 'merc_corner' as a real model (remake/recipes/case/case.py spec merc_corner_722, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 722 by projection overlay (indoor furniture survey 2026-11-24); carrier = the fire's flame light fixed 6 in front of the opening (the game's wall flame offset), below the hearth top (it streaked the top from just above = hard item shadows, user marks 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           22,
           16,
           22,
@@ -7939,20 +8025,6 @@
         "air": true,
         "floor": 0,
         "why": "case furniture 'merc_books' as a real model (remake/recipes/case/case.py spec merc_books_722, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 722 by projection overlay (indoor furniture survey 2026-11-24)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          18,
-          16,
-          20,
-          21
-        ],
-        "file": "proxies/merc_corner_723.obj",
-        "surface": true,
-        "air": true,
-        "floor": 0,
-        "why": "case furniture 'merc_corner' as a real model (remake/recipes/case/case.py spec merc_corner_722, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 722 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "724": [

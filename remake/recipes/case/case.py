@@ -25,6 +25,29 @@ def SHELF_X(xw, d, y0, y1, z):   # wall shelf on the WEST wall (board xw .. xw +
     return [("rbox", (xw, xw + d, y0, y1, z - 3.0, z, 0.6))] + [("rbox", (xw, xw + d * 0.6, yb - 0.75, yb + 0.75, z - 10.0, z - 2.8, 0.3)) for yb in (y0 + 5.0, y1 - 5.0)]
 def SHELF_Y(yw, d, x0, x1, z):   # on the NORTH wall
     return [("rbox", (x0, x1, yw, yw + d, z - 3.0, z, 0.6))] + [("rbox", (xb - 0.75, xb + 0.75, yw, yw + d * 0.6, z - 10.0, z - 2.8, 0.3)) for xb in (x0 + 5.0, x1 - 5.0)]
+def obox(o, a, b, c):
+    """a closed box from corner o spanned by the vectors a, b, c (any directions) -> (vertices, outward faces)"""
+    P = lambda i, j, k: tuple(o[q] + i * a[q] + j * b[q] + k * c[q] for q in range(3))
+    v = [P(i, j, k) for i in (0, 1) for j in (0, 1) for k in (0, 1)]   # index = 4 i + 2 j + k
+    f = [(0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6), (0, 2, 6, 4), (1, 5, 7, 3)]
+    cr = (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
+    if cr[0] * c[0] + cr[1] * c[1] + cr[2] * c[2] < 0: f = [tuple(reversed(q)) for q in f]
+    return (v, f)
+
+def easel_frame(xb, yb, z0, L=7.5, H=9.2, tilt=53.5, t=1.0):   # sizes incl. the 1 px black outline
+    """the small PICTURE FRAME on an easel back of the Mercator furniture (one tile drawing in 616 675 677 683 687 689 698 717, user 2026-11-24
+    'ein Viereck mit einem Staender hinten raus'): a square plate L along y, H up its slope, leaning back by `tilt` degrees from upright, the picture
+    facing +x and up; its lower front edge at x = xb, y = yb - L .. yb, on z0 (read on the drawn corners of 687); a strut from its back down to z0."""
+    import math
+    th = math.radians(tilt); up = (-math.sin(th) * H, 0.0, math.cos(th) * H); nb = (-math.cos(th) * t, 0.0, -math.sin(th) * t)
+    plate = obox((xb, yb - L, z0 + 0.3), (0.0, L, 0.0), up, nb)
+    # the strut as DRAWN = the two brown pixels at the frame's lower left (user 2026-11-24): a short steep leg from the back of the plate at
+    # 0.46 of its slope, left edge, straight down onto the top it stands on (687: attach (210.4, 279.3, 34.0), foot (209.65, 280.55, 32))
+    k = 0.46; ax, az, ay = xb + up[0] * k + nb[0], z0 + 0.3 + up[2] * k + nb[2], yb + 0.4
+    fx, fy = ax - 0.75, ay + 1.25
+    strut = obox((fx - 0.45, fy - 0.45, z0), (ax - fx, ay - fy, az - z0 + 0.3), (0.0, 0.9, 0.0), (0.9, 0.0, 0.0))
+    return [plate, strut]
+OVAL = lambda x, y, z: [("raw", easel_frame(x, y, z))]   # (name kept from the first reading: the frame is SQUARE on an easel back)
 FRAME_X = lambda x, y0, y1, z, h=9.0: [("box", (x - 0.75, x + 0.75, y0, y1, z, z + h))]   # frame standing upright, facing east
 FRAME_Y = lambda x0, x1, y, z, h=9.0: [("box", (x0, x1, y - 0.75, y + 0.75, z, z + h))]   # facing south
 SPECS = {
@@ -58,7 +81,7 @@ SPECS = {
     "merc_case_616": dict(rooms=[616, 617], cells=[16, 20, 16, 22], floor=0,
                           parts=[("cab", (256, 272, 352, 368, 0, 48), "+x", [("plinth", 2), ("drawers", 12, 1), ("shelf", 17), ("shelf", 15)]),
                                  ("cab", (256, 272, 320, 352, 0, 48), "+x", [("plinth", 2), ("glassflat", 21, 2), ("glassflat", 23, 2)])] + VASE(260.0, 360.0, 48.0)
-                                + FLASK(260.4, 344.4, 48.0) + FRAME_X(263.0, 331.0, 342.0, 48.0, 7.0)),
+                                + FLASK(260.4, 344.4, 48.0) + OVAL(266.4, 338.9, 48.0)),
     # 618 / 619 (cells x 16, y 18..19, collision 48 = with the things on top): a CHEST OF DRAWERS (top 32, two columns of three drawers) open to the east,
     # flask + vase of flowers on its cloth (corner points of the drawn top: x 258.25 .. 271.25, z 32)
     "merc_chest_618": dict(rooms=[618, 619], cells=[16, 18, 16, 19], floor=0,
@@ -89,13 +112,13 @@ SPECS = {
     "merc_chest_675": dict(rooms=[675], cells=[17, 21, 17, 23], floor=0,
                            parts=[("cab", (272, 288, 368, 384, 0, 36), "+x", [("plinth", 2), ("drawers", 8, 1), ("drawers", 8, 1), ("drawers", 8, 1), ("drawers", 8, 1)]),
                                   ("cab", (272, 286, 336, 368, 0, 33), "+x", [("plinth", 2), ("drawers", 8, 2), ("shelf", 21)])]
-                                 + FLASK(278.0, 376.0, 36.0) + FRAME_X(276.0, 340.0, 350.0, 33.0, 8.0) + VASE(278.0, 358.0, 33.0)
+                                 + FLASK(278.0, 376.0, 36.0) + OVAL(279.4, 359.9, 33.0) + VASE(278.0, 358.0, 33.0)
                                  + SHELF_X(272.0, 13.0, 336.0, 384.0, 61.0) + PLATES(278.5, 350.0, 61.0) + PLATES(278.5, 364.0, 61.0, 8.0) + BOTTLE(278.0, 378.0, 61.0)),
     # 677 (cells 17 x 17..20, 64): the same corner on four cells: CHEST OF DRAWERS (y 320..336), BOOKCASE (y 290..320), a clay jar (y ~280), WALL SHELF (top 61) with plates, a box and two bottles
     "merc_chest_677": dict(rooms=[677], cells=[17, 17, 17, 20], floor=0,
                            parts=[("cab", (272, 288, 320, 336, 0, 36), "+x", [("plinth", 2), ("drawers", 8, 1), ("drawers", 8, 1), ("drawers", 8, 1), ("drawers", 8, 1)]),
                                   ("cab", (272, 286, 290, 320, 0, 33), "+x", [("plinth", 2), ("drawers", 8, 2), ("shelf", 21)])]
-                                 + FLASK(278.0, 328.0, 36.0) + FRAME_X(276.0, 296.0, 306.0, 33.0, 8.0) + VASE(278.0, 313.0, 33.0) + JARFIT(285.0, 285.0)
+                                 + FLASK(278.0, 328.0, 36.0) + OVAL(279.4, 311.9, 33.0) + VASE(278.0, 313.0, 33.0) + JARFIT(285.0, 285.0)
                                  + SHELF_X(272.0, 13.0, 272.0, 336.0, 61.0) + PLATES(278.5, 300.0, 61.0) + PLATES(278.5, 286.0, 61.0, 8.0) + BOTTLE(278.0, 332.0, 61.0)
                                  + BOTTLE(278.0, 275.0, 61.0) + [("box", (274.0, 282.0, 315.0, 323.0, 61.0, 67.0))]),
     # 677 (cell 23 x 17, 48): a narrow tall BOOKCASE open to the south (drawer + three book shelves)
@@ -108,43 +131,43 @@ SPECS = {
                                  ("cab", (368, 400, 322, 336, 0, 45), "+y", [("plinth", 2), ("drawers", 8, 2), ("shelf", 17), ("shelf", 16)]),
                                  ("box", (346.0, 354.0, 323.0, 331.0, 48.0, 54.0)), ("box", (386.5, 391.0, 322.5, 327.0, 45.0, 47.5))]
                                 + [("lathe", (360.0, 324.3, 48.0, 13.0, [(0.0, 1.6), (0.55, 1.7), (0.7, 0.8), (1.0, 0.7)], 12))] + PLATES(383.8, 327.8, 45.0, 10.0) + JARFIT(413.0, 333.0)),
-    # 683 / 684 (cells 18 x 22..26, 32): a NIGHTSTAND (y 352..368, 29) and a long low BOOKCASE (y 368..410; the cello leaning in y 410..432 is not modelled yet) with a box, a vase and a frame, open to the east
+    # 683 / 684 (cells 18 x 22..26, 32): a NIGHTSTAND (y 352..368, top 17 = lower than the bookcase, drawn front corner) and a long low BOOKCASE (y 368..416.5, top 34; user marks 2026-11-24; the cello leaning beside it is not modelled yet) with a box, a vase and a frame, open to the east
     "merc_books_683": dict(rooms=[683, 684], cells=[18, 22, 18, 26], floor=0,
-                           parts=[("cab", (290, 304, 352, 368, 0, 29), "+x", [("plinth", 2), ("drawers", 13, 1), ("drawers", 13, 1)]),
-                                  ("cab", (290, 304, 368, 410, 0, 30), "+x", [("plinth", 2), ("drawers", 8, 3), ("shelf", 18, 2)]),
-                                  ("box", (294.0, 302.0, 400.0, 407.0, 30.0, 36.0))] + VASE(297.0, 396.0, 30.0) + FRAME_X(296.0, 378.0, 388.0, 30.0, 8.0)),
+                           parts=[("cab", (290, 304, 352, 368, 0, 17), "+x", [("plinth", 2), ("drawers", 7.5, 1), ("drawers", 7.5, 1)]),
+                                  ("cab", (290, 304, 368, 416.5, 0, 34), "+x", [("plinth", 2), ("drawers", 9, 3), ("shelf", 21, 2)]),
+                                  ("box", (298.0, 306.0, 404.0, 411.0, 34.0, 40.0))] + VASE(301.0, 400.0, 34.0) + OVAL(300.4, 388.9, 34.0)),
     # 687 / 688 (cells 13 x 13..17, 48): a brick HEARTH (y 240..288, top 32 with a cloth, a box and a frame; fire opening to the east) and a GLASS CABINET
     # (y 208..240, front x 223: its front corner on the drawn outline column, lightedges 2026-11-24; 48) open to the east
-    "merc_hearth_687": dict(rooms=[687, 688], cells=[13, 13, 13, 17], floor=0,
+    "merc_hearth_687": dict(rooms=[687, 688], cells=[13, 13, 13, 17], floor=0, carrier={"r": 4, "axis": [230, 269], "z": 12},
                             parts=[("hearth", (208, 224, 240, 288, 0, 30), "+x", dict(open_u=(0.34, 0.86), open_h=0.85, depth=1.0)),
                                    ("rbox", (208.0, 225.0, 240.0, 288.0, 30.0, 32.0, 0.5)),
                                    ("cab", (208, 223, 208, 240, 0, 48), "+x", [("plinth", 2), ("glassflat", 22, 2), ("glassflat", 22, 2)]),
-                                   ("box", (212.0, 220.0, 274.0, 281.0, 32.0, 38.0))] + FRAME_X(214.0, 254.0, 264.0, 32.0, 8.0)),
+                                   ("box", (211.5, 218.5, 259.5, 266.5, 32.0, 38.0))] + OVAL(214.4, 278.9, 32.0)),
     # 687 / 688 (cells 13 x 19..20, 32): a low BOOKCASE open to the east with a vase and a small box
     "merc_books_687": dict(rooms=[687, 688], cells=[13, 19, 13, 20], floor=0,
-                           parts=[("cab", (208, 222, 304, 336, 0, 28), "+x", [("plinth", 2), ("drawers", 7, 2), ("shelf", 19)]),
-                                  ("box", (212.0, 218.0, 308.0, 314.0, 28.0, 32.0))] + VASE(214.0, 326.0, 28.0)),
+                           parts=[("cab", (208, 222, 304, 336, 0, 31.5), "+x", [("plinth", 2), ("drawers", 8, 2), ("shelf", 21.5)]),
+                                  ("box", (213.75, 219.75, 309.75, 315.75, 31.5, 35.5))] + VASE(215.75, 327.75, 31.5)),
     # 689 / 690 (cells 17..19 x 13, 64): the house corner of house_shelf.py on the north wall: a clay jar (x ~280), a low GLASS CABINET (x 291.5..318.5, 17 deep, top 33.5) with a
     # box, AIR, and the WALL SHELF (top 47, 14.5 deep: re-read pixel by pixel on the drawn corner points; lower than in 691) with plates, a bottle and a flask
     "merc_shelf_689": dict(rooms=[689, 690], cells=[17, 13, 19, 13], floor=0,
                            parts=[("cab", (291.5, 318.5, 208, 225, 0, 33.5), "+y", [("plinth", 2), ("glassflat", 29.5, 2)]), ("box", (299.0, 304.0, 217.0, 222.0, 33.5, 36.5))]
                                  + JARFIT(285.0, 221.0) + SHELF_Y(208.0, 14.5, 272.0, 320.0, 47.0) + PLATES(288.0, 215.0, 47.0, 8.0) + BOTTLE(300.0, 215.0, 47.0) + FLASK(312.0, 216.0, 47.0)),
-    # 689 / 690 (cells 13 x 17..19, 48): a BOOKCASE (y 304..320, 36) with a vase and a CHEST OF DRAWERS (y 272..304, 32, two columns) with a frame, open to the east
+    # 689 / 690 (cells 13 x 17..19, 48): a BOOKCASE (y 304..320, 48: drawn top corner, user 2026-11-24 'geht deutlich hoeher') with a vase and a CHEST OF DRAWERS (y 272..304, 32, two columns) with a frame, open to the east
     "merc_chest_689": dict(rooms=[689, 690], cells=[13, 17, 13, 19], floor=0,
-                           parts=[("cab", (208, 222, 304, 320, 0, 36), "+x", [("plinth", 2), ("drawers", 8, 1), ("shelf", 13), ("shelf", 13)]),
+                           parts=[("cab", (208, 222, 304, 320, 0, 48), "+x", [("plinth", 2), ("drawers", 8, 1), ("shelf", 19), ("shelf", 18)]),
                                   ("cab", (208, 223, 272, 304, 0, 32), "+x", [("plinth", 3), ("drawers", 9, 2), ("drawers", 9, 2), ("drawers", 9, 2)])]
-                                 + VASE(213.0, 312.0, 36.0) + FRAME_X(214.0, 284.0, 294.0, 32.0, 8.0)),
+                                 + VASE(212.0, 312.0, 48.0) + OVAL(218.4, 290.9, 32.0)),
     # 717 / 718 (cells 13 x 12..18, 48): a CHEST OF DRAWERS (y 192..240, top 36, three columns) with a frame and a flask, a tall BOOKCASE (y 240..272, 48)
     # with a flask and a vase, and two clay jars at the south end; open to the east (corners read on the drawing)
     "merc_chest_717": dict(rooms=[717, 718], cells=[13, 12, 13, 18], floor=0,
                            parts=[("cab", (208, 224, 192, 240, 0, 36), "+x", [("plinth", 3), ("drawers", 8, 3), ("drawers", 8, 3), ("drawers", 8, 3), ("drawers", 8, 3)]),
                                   ("cab", (208, 223, 240, 272, 0, 48), "+x", [("plinth", 2), ("drawers", 9, 2), ("shelf", 18), ("shelf", 17)])]
-                                 + FRAME_X(216.0, 220.0, 230.0, 36.0, 8.0) + FLASK(218.0, 207.0, 36.0) + FLASK(212.5, 262.0, 48.0) + VASE(218.0, 255.0, 48.0)
+                                 + OVAL(222.4, 230.9, 36.0) + FLASK(218.0, 207.0, 36.0) + FLASK(212.5, 262.0, 48.0) + VASE(218.0, 255.0, 48.0)
                                  + JARFIT(221.0, 285.0) + JARFIT(221.0, 301.0)),
     # 722 / 723 (cells 18..20 x 16..21, 48): a GLASS CABINET (x 288..304, y 320..352, 48, open to the east), a CHEST OF DRAWERS (y 290..320, top 33: re-read on its drawn right top corner) with a vase and
     # a box, a clay jar, a brick HEARTH along the north wall (x 288..336, 12 deep, top 30 with a cloth, two flasks + a box; fire opening to the south at x 300..316 = where the fire is DRAWN: the game puts the flame light on the drawn fire's view ray, a solid jamb there threw the light out in front = a hard shadow edge on the cloth, user 2026-11-24) and the
     # WALL SHELF over it (x 288..336, top 61 read on its drawn left top corner, above the collision) with two plate stacks and a bottle
-    "merc_corner_722": dict(rooms=[722, 723], cells=[18, 16, 20, 21], floor=0,
+    "merc_corner_722": dict(rooms=[722, 723], cells=[18, 16, 20, 21], floor=0, carrier={"r": 4, "axis": [308, 274], "z": 12},
                             parts=[("cab", (288, 304, 320, 352, 0, 48), "+x", [("plinth", 2), ("glassflat", 22, 2), ("glassflat", 22, 2)]),
                                    ("cab", (288, 303, 290, 320, 0, 33), "+x", [("plinth", 3), ("drawers", 7.5, 2), ("drawers", 7.5, 2), ("drawers", 7.5, 2), ("drawers", 7.5, 2)]),
                                    ("hearth", (288, 336, 256, 268, 0, 28), "+y", dict(open_u=(0.25, 0.58), open_h=0.88, depth=1.0)),
@@ -158,10 +181,10 @@ SPECS = {
                            parts=[("cab", (352, 368, 256, 304, 0, 48), "+x", [("plinth", 2), ("drawers", 9, 3), ("shelf", 18), ("shelf", 17)])]),
     # 698 (cells 14 x 14..17, 32): a brick HEARTH (y 240..288, top 30 + cloth to 32, a box and a frame; fire opening to the east, read on the drawing u 0.34..0.79);
     # the armour heap on cell 14, 14 (y 224..240) is not modelled yet
-    "merc_hearth_698": dict(rooms=[698], cells=[14, 15, 14, 17], floor=0,
+    "merc_hearth_698": dict(rooms=[698], cells=[14, 15, 14, 17], floor=0, carrier={"r": 4, "axis": [246, 267], "z": 12},
                             parts=[("hearth", (224, 240, 240, 288, 0, 30), "+x", dict(open_u=(0.34, 0.79), open_h=0.85, depth=1.0)),
                                    ("rbox", (224.0, 241.0, 240.0, 288.0, 30.0, 32.0, 0.5)),
-                                   ("box", (222.0 + 2.0, 230.0, 270.0, 277.0, 32.0, 38.0))] + FRAME_X(229.0, 249.0, 259.0, 32.0, 8.0)),
+                                   ("box", (222.0 + 2.0, 230.0, 270.0, 277.0, 32.0, 38.0))] + OVAL(234.4, 258.9, 32.0)),
     # 704 (cell 32 x 25 on the floor 32, between the beds): a NIGHTSTAND (top 48 with a cloth, two drawers) open to the south
     "merc_night_704": dict(rooms=[704], cells=[32, 25, 32, 25], floor=32,
                            parts=[("cab", (512, 528, 400, 416, 32, 48), "+y", [("plinth", 2), ("drawers", 7, 1), ("drawers", 6, 1)])]),
@@ -185,6 +208,7 @@ def build(spec):
         elif p[0] == "box": out.append(rbox(*p[1], 0.3, n=1))
         elif p[0] == "rbox": out.append(rbox(*p[1][:6], p[1][6], n=2))
         elif p[0] == "lathe": out.append(lathe(*p[1]))
+        elif p[0] == "raw": out += p[1]
         elif p[0] == "hearth": out += cabinet.hearth(*p[1], p[2], **(p[3] if len(p) > 3 else {}))
         elif p[0] == "tray":   # open box: floor slab + four rounded rim walls (thickness p[2]), the inside p[3] deep
             x0, x1, y0, y1, z0, z1 = p[1]; t, dp = p[2], p[3]
@@ -204,8 +228,9 @@ def write_ops(names):
             fn = "proxies/%s_%d.obj" % (base, r)
             write_obj(os.path.join(root, "landstalker", "data", fn), build(sp), "%s, room %d" % (name, r))
             ops = [e for e in data["rooms"].get(str(r), []) if e.get("file") != fn]
-            ops.append(collections.OrderedDict([("op", "mesh"), ("cells", sp["cells"]), ("file", fn), ("surface", True), ("air", True), ("floor", sp["floor"]),
-                ("why", "case furniture '%s' as a real model (remake/recipes/case/case.py spec %s, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture %d by projection overlay (indoor furniture survey 2026-11-24)" % (base, name, ref))]))
+            ops.append(collections.OrderedDict([("op", "mesh"), ("cells", sp["cells"]), ("file", fn), ("surface", True), ("air", True), ("floor", sp["floor"])]
+                + ([("carrier", collections.OrderedDict(sorted(sp["carrier"].items(), key=lambda t: "raz".index(t[0][0]))))] if sp.get("carrier") else []) + [
+                ("why", "case furniture '%s' as a real model (remake/recipes/case/case.py spec %s, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture %d by projection overlay (indoor furniture survey 2026-11-24)%s" % (base, name, ref, "; carrier = the fire's flame light fixed 6 in front of the opening (the game's wall flame offset), below the hearth top (it streaked the top from just above = hard item shadows, user marks 2026-11-24)" if sp.get("carrier") else ""))]))
             data["rooms"][str(r)] = ops   # a new room goes to the end (the file keeps its order)
     open(jp, "w").write(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
