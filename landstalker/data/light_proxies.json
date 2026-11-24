@@ -258,6 +258,16 @@
         "surface": true,
         "floor": 48,
         "why": "Ryuma CHURCH (rooms 610 / 611 = one map $0A6F20) = the Mercator church drawing (plane A + the 72 cell collision block equal) moved by 1 / -17 cells and 2 steps up: the confirmed Mercator model church_632 moved (+16, -272, +32), with the hall -x wall at the x measured in Ryuma (235.5 instead of the symmetric guess 238, Mercator hides that corner behind the yellow house); remake/recipes/proxy_church_610.py (2026-11-24); ground 48. Was the last building of Ryuma without a model (vertical line at the church wall corner, lightedges 610 / 611 spot 5)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          29,
+          57,
+          29,
+          57
+        ],
+        "why": "automatic lathe L9 (at 479,927): a plant that HAS a plant model (foot in the same picture column); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "610": [
@@ -363,6 +373,16 @@
         "surface": true,
         "floor": 48,
         "why": "Ryuma CHURCH (rooms 610 / 611 = one map $0A6F20) = the Mercator church drawing (plane A + the 72 cell collision block equal) moved by 1 / -17 cells and 2 steps up: the confirmed Mercator model church_632 moved (+16, -272, +32), with the hall -x wall at the x measured in Ryuma (235.5 instead of the symmetric guess 238, Mercator hides that corner behind the yellow house); remake/recipes/proxy_church_610.py (2026-11-24); ground 48. Was the last building of Ryuma without a model (vertical line at the church wall corner, lightedges 610 / 611 spot 5)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          29,
+          57,
+          29,
+          57
+        ],
+        "why": "automatic lathe L9 (at 479,927): a plant that HAS a plant model (foot in the same picture column); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "28": [
@@ -5444,6 +5464,16 @@
           21
         ],
         "why": "automatic hip #0 and lathes #10..#13 over the flat checkerboard floor (height 0) inside the ruin's ring of stacked stone blocks (48) and carved pillars (80): mis-anchored, the height map already holds the blocks (2026-11-21)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          25,
+          51,
+          25,
+          51
+        ],
+        "why": "automatic lathe L7 at 400,816 z32..104: the pine HAS a plant model (plants.py --png: found; the lathe foot was re-anchored lower in the picture than the pine foot, so the picture-column check below the foot missed it); 2026-11-24 full sweep"
       }
     ],
     "664": [
@@ -8054,6 +8084,16 @@
         "surface": true,
         "floor": 96,
         "why": "Gumi LOG HOUSE house W (skull sign) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          48,
+          50,
+          48,
+          50
+        ],
+        "why": "automatic lathe L4 at 768,800 z96..132: the pine HAS a plant model (plants.py --png: found; the lathe foot was re-anchored lower in the picture than the pine foot, so the picture-column check below the foot missed it); 2026-11-24 full sweep"
       }
     ],
     "602": [
@@ -8121,6 +8161,16 @@
         "surface": true,
         "floor": 96,
         "why": "Gumi LOG HOUSE house W (skull sign) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          48,
+          50,
+          48,
+          50
+        ],
+        "why": "automatic lathe L4 at 768,800 z96..132: the pine HAS a plant model (plants.py --png: found; the lathe foot was re-anchored lower in the picture than the pine foot, so the picture-column check below the foot missed it); 2026-11-24 full sweep"
       }
     ],
     "603": [
@@ -8188,6 +8238,16 @@
         "surface": true,
         "floor": 96,
         "why": "Gumi LOG HOUSE house W (skull sign) (rooms 601 / 602 / 603 = one map), ground 96: remake/recipes/proxy_houses_603.py (Massan house tiles, compared pixel by pixel; 2026-11-20), HANDOFF -240"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          48,
+          50,
+          48,
+          50
+        ],
+        "why": "automatic lathe L4 at 768,800 z96..132: the pine HAS a plant model (plants.py --png: found; the lathe foot was re-anchored lower in the picture than the pine foot, so the picture-column check below the foot missed it); 2026-11-24 full sweep"
       }
     ],
     "711": [
@@ -9074,6 +9134,16 @@
           20
         ],
         "why": "automatic lathe #5 at a cliff foot (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          16,
+          49,
+          16,
+          49
+        ],
+        "why": "automatic lathe L7 (at 260,788): a plant that HAS a plant model (foot in the same picture column); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "492": [
@@ -9116,6 +9186,16 @@
           28
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 848..880 y 368..544 z0 176 over the dirt terraces (game heights 10 / 11); the game height map already holds the flat block; it stood up to 25 above the ground over 352 sub columns"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          30,
+          50,
+          30,
+          50
+        ],
+        "why": "automatic hip H5 (x400..576 y784..816): over a pine / bush group or row that has plant models, or a terrace; 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "500": [
@@ -9210,6 +9290,16 @@
           25
         ],
         "why": "automatic lathe #4 at a dirt path edge (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          32,
+          17,
+          32,
+          17
+        ],
+        "why": "automatic lathe L3 (at 520,272): a plant that HAS a plant model (foot in the same picture column); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "560": [
@@ -9492,6 +9582,26 @@
           27
         ],
         "why": "automatic lathe L8 571,435 z48..96 r17 : a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          35,
+          18,
+          35,
+          18
+        ],
+        "why": "automatic dome D5 (at 560,288): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          36,
+          25,
+          36,
+          25
+        ],
+        "why": "automatic dome D7 (at 576,400): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "362": [
@@ -9582,6 +9692,16 @@
           17
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 384..592 y 240..320 z0 32 over the terraces (game heights 1..3); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          37,
+          22,
+          37,
+          22
+        ],
+        "why": "automatic lathe L4 (at 603,363): a plant that HAS a plant model (foot in the same picture column); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "572": [
@@ -9594,6 +9714,16 @@
           17
         ],
         "why": "TERRACE, not a building (2026-11-21, leftover group 2, user: 'Weiter mit den kleinen Platzhaltern, Gruppe 2'): automatic hip x 384..592 y 240..320 z0 32 over the terraces (game heights 1..3); the game height map already holds the flat block; no visible effect today (walkable rule), removed for a clean survey"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          37,
+          22,
+          37,
+          22
+        ],
+        "why": "automatic lathe L4 (at 603,363): a plant that HAS a plant model (foot in the same picture column); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "567": [
@@ -10006,6 +10136,16 @@
         "file": "proxies/pillar_739_1.obj",
         "surface": true,
         "why": "stone pillar (collision = one 3 step block $43): our parts model remake/recipes/pillar_739 (square plinth / abacus, round shaft, rings, echinus; IoU 0.857 on the drawing), placed by place_739.py; 2026-11-21 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          21,
+          17,
+          21,
+          17
+        ],
+        "why": "automatic lathe L4 (at 336,272): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "641": [
@@ -10887,6 +11027,46 @@
         "file": "proxies/pillar_426_1.obj",
         "surface": true,
         "why": "stone pillar (collision = one 3 step block $43): our parts model remake/recipes/pillar_739 (square plinth / abacus, round shaft, rings, echinus; IoU 0.857 on the drawing), placed by place_739.py; room 426 cave mouth: the 739 pillar drawing (same outline, mossy palette), cells blocked 48 on ground 0; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          36,
+          49,
+          36
+        ],
+        "why": "automatic hip H1 (x768..816 y512..656): over a pine / bush group or row that has plant models, or a terrace; 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          48,
+          45,
+          48,
+          45
+        ],
+        "why": "automatic lathe L2 (at 768,720): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          27,
+          54,
+          27,
+          54
+        ],
+        "why": "automatic lathe L4 (at 436,868): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          24,
+          36,
+          24,
+          36
+        ],
+        "why": "automatic lathe L5 (at 399,591): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "468": [
@@ -10917,6 +11097,26 @@
         "surface": true,
         "floor": 0,
         "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          14,
+          49,
+          14
+        ],
+        "why": "automatic lathe L1 (at 791,231): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          45,
+          16,
+          45,
+          16
+        ],
+        "why": "automatic lathe L2 (at 727,263): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "511": [
@@ -10932,6 +11132,26 @@
         "surface": true,
         "floor": 0,
         "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          14,
+          49,
+          14
+        ],
+        "why": "automatic lathe L1 (at 791,231): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          45,
+          16,
+          45,
+          16
+        ],
+        "why": "automatic lathe L2 (at 727,263): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "512": [
@@ -10947,6 +11167,26 @@
         "surface": true,
         "floor": 0,
         "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          14,
+          49,
+          14
+        ],
+        "why": "automatic lathe L1 (at 791,231): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          45,
+          16,
+          45,
+          16
+        ],
+        "why": "automatic lathe L2 (at 727,263): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "513": [
@@ -10962,6 +11202,26 @@
         "surface": true,
         "floor": 0,
         "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          14,
+          49,
+          14
+        ],
+        "why": "automatic lathe L1 (at 791,231): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          45,
+          16,
+          45,
+          16
+        ],
+        "why": "automatic lathe L2 (at 727,263): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "533": [
@@ -10977,6 +11237,26 @@
         "surface": true,
         "floor": 0,
         "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          14,
+          49,
+          14
+        ],
+        "why": "automatic lathe L1 (at 791,231): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          45,
+          16,
+          45,
+          16
+        ],
+        "why": "automatic lathe L2 (at 727,263): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "534": [
@@ -10992,6 +11272,26 @@
         "surface": true,
         "floor": 0,
         "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          14,
+          49,
+          14
+        ],
+        "why": "automatic lathe L1 (at 791,231): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          45,
+          16,
+          45,
+          16
+        ],
+        "why": "automatic lathe L2 (at 727,263): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "535": [
@@ -11007,6 +11307,26 @@
         "surface": true,
         "floor": 0,
         "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          14,
+          49,
+          14
+        ],
+        "why": "automatic lathe L1 (at 791,231): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          45,
+          16,
+          45,
+          16
+        ],
+        "why": "automatic lathe L2 (at 727,263): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "536": [
@@ -11022,6 +11342,26 @@
         "surface": true,
         "floor": 0,
         "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          14,
+          49,
+          14
+        ],
+        "why": "automatic lathe L1 (at 791,231): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          45,
+          16,
+          45,
+          16
+        ],
+        "why": "automatic lathe L2 (at 727,263): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "537": [
@@ -11037,6 +11377,26 @@
         "surface": true,
         "floor": 0,
         "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          14,
+          49,
+          14
+        ],
+        "why": "automatic lathe L1 (at 791,231): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          45,
+          16,
+          45,
+          16
+        ],
+        "why": "automatic lathe L2 (at 727,263): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "538": [
@@ -11052,6 +11412,26 @@
         "surface": true,
         "floor": 0,
         "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          14,
+          49,
+          14
+        ],
+        "why": "automatic lathe L1 (at 791,231): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          45,
+          16,
+          45,
+          16
+        ],
+        "why": "automatic lathe L2 (at 727,263): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "539": [
@@ -11067,6 +11447,26 @@
         "surface": true,
         "floor": 0,
         "why": "BIG APPLE TREE of the tree-warp map $11759C (rooms 510..513, 533..539 = one map): our model remake/recipes/warp_tree_510 (round trunk r 21 with root flare + 6 buttress roots on the 160 high trunk collision; canopy = ellipsoid around the trunk axis, z 47..167, its outline per screen direction scaled to the drawn, smoothed crown; replaces the automatic hip #0 on the trunk and the two tiny lathes are left as they are); floor 0 = the island; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          14,
+          49,
+          14
+        ],
+        "why": "automatic lathe L1 (at 791,231): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          45,
+          16,
+          45,
+          16
+        ],
+        "why": "automatic lathe L2 (at 727,263): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ],
     "427": [
@@ -11595,6 +11995,132 @@
         "surface": true,
         "floor": 16,
         "why": "Ryuma lighthouse LANTERN ROOM close-up (627 / 628 = one map, 628 only a darker palette): floor 16 inside a 16 rim, four square corner posts 15 wide with concave arch brackets, eave band 158..167 + tile pyramid to 253 (its apex projects onto the drawn back roof corner), two hanging glass cylinders r 8 + lamp base, curb, tower body below the floor; remake/recipes/lantern_627/lantern.py; replaces the automatic hips #0 (a solid block over the whole room up to 215) and #1; the lamp mechanism collision (208) gets floor 16; 2026-11-24 built while the user was away, to be checked | room 629 REPAIRED shows the same closed drawing (GPU shot 2026-11-24), same op"
+      }
+    ],
+    "34": [
+      {
+        "op": "remove",
+        "cells": [
+          33,
+          29,
+          33,
+          29
+        ],
+        "why": "automatic lathe L0 (at 535,471): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      }
+    ],
+    "425": [
+      {
+        "op": "remove",
+        "cells": [
+          46,
+          44,
+          46,
+          44
+        ],
+        "why": "automatic hip H1 (x720..768 y688..736): over a pine / bush group or row that has plant models, or a terrace; 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          26,
+          50,
+          26,
+          50
+        ],
+        "why": "automatic lathe L5 (at 431,815): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      }
+    ],
+    "481": [
+      {
+        "op": "remove",
+        "cells": [
+          38,
+          49,
+          38,
+          49
+        ],
+        "why": "automatic lathe L1 (at 619,795): a plant that HAS a plant model (foot in the same picture column); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      }
+    ],
+    "490": [
+      {
+        "op": "remove",
+        "cells": [
+          49,
+          20,
+          49,
+          20
+        ],
+        "why": "automatic hip H1 (x688..880 y288..368): over a pine / bush group or row that has plant models, or a terrace; 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      }
+    ],
+    "529": [
+      {
+        "op": "remove",
+        "cells": [
+          25,
+          28,
+          25,
+          28
+        ],
+        "why": "automatic hip H4 (x336..480 y352..560): over a pine / bush group or row that has plant models, or a terrace; 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      }
+    ],
+    "558": [
+      {
+        "op": "remove",
+        "cells": [
+          26,
+          32,
+          26,
+          32
+        ],
+        "why": "automatic hip H4 (x400..448 y496..544): over a pine / bush group or row that has plant models, or a terrace; 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          16,
+          41,
+          16,
+          41
+        ],
+        "why": "automatic lathe L5 (at 267,667): a plant that HAS a plant model (foot in the same picture column); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      }
+    ],
+    "562": [
+      {
+        "op": "remove",
+        "cells": [
+          41,
+          21,
+          41,
+          21
+        ],
+        "why": "automatic lathe L2 (at 660,340): a plant that HAS a plant model (foot in the same picture column); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      }
+    ],
+    "568": [
+      {
+        "op": "remove",
+        "cells": [
+          22,
+          57,
+          22,
+          57
+        ],
+        "why": "automatic hip H2 (x304..400 y896..944): over a pine / bush group or row that has plant models, or a terrace; 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "remove",
+        "cells": [
+          27,
+          57,
+          27,
+          57
+        ],
+        "why": "automatic lathe L4 (at 435,923): on a cliff / wall / water / beside an existing model, or a tiny shape outside the drawn island (warp tree animation frames); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
       }
     ]
   },
