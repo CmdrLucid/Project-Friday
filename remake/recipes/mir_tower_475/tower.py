@@ -8,12 +8,16 @@ ground behind. Measured 2026-11-24 on the room picture (U = x - y + 1184, V = (x
   y 221.5..413.5 (first built on the collision 256..432 / 256..416: corner 13 px off, corrected), z 16..440 (above the picture everywhere),
   the vertical corner edges slightly chamfered (1.5);
   doorway in the +y wall: dark opening U 1110..1132 -> x 339.5..361.5, from the threshold 32 to the arch top ~92 (arched: the top 11 a half circle),
-  one cell deep (the blocked 32 cells (21,25) / (22,25)); a carved panel over it (U 1095..1145, V 270..300 -> x 324.5..374.5, z ~84..110, 2 out);
+  one cell deep (the blocked 32 cells (21,25) / (22,25)); a GRIFFIN head over it (drawn U 1104..1132, V 271..296; sculpt of griffin.py, see GRIFFIN HEAD);
   a STEP slab in front (walkable 32 cells (21,26) / (22,26); drawn as a block with rounded front corners, first read as a half circle): x 334.5..366.5, y 413.5..432, z 16..32;
   two wall LANTERNS (drawn centres U 1079 and ~1161 -> x 308.5 and 390.5 on the +y wall, z 38..90) IN NICHES of the wall (user 2026-11-24: 'die sind
   in der Wand und stehen nur ein bisschen vor'; first built standing 7 in front): niche 14 wide 6 deep; the glass (z 56..72) inside the wall face, the gold holder (72..94) and the round gold knob (34..56) stand out ~3 (user marked
   exactly these two parts).
-Pure Python, no ROM.  Run: python3 remake/recipes/mir_tower_475/tower.py"""
+  v2 (user: 'hast du es als echte 3D-Form gemacht?'): the walls carry the drawn SCALE RELIEF (16 x 16 stone shingles, flush at the top, 1.5 out
+  at the rounded lower edge), the step got a rounded top band, the panel over the door is a STATUE HEAD (user: 'das ist eigentlich ein Statuenkopf'), a GRIFFIN ('eher der Kopf eines Vogel Greifs', no round
+  nose): mane disc, skull, an EAGLE beak (broad root, rounded top, narrow cutting edge, hooked tip; a round
+  tube first looked like a water tap), heavy brows, two feather tufts swept back.
+Pure Python, no ROM (the griffin head comes from griffin.py).  Run: python3 remake/recipes/mir_tower_475/griffin.py, then python3 remake/recipes/mir_tower_475/tower.py"""
 import math, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "..", "..", "landstalker", "data", "proxies", "mir_tower_475.obj")
@@ -56,11 +60,13 @@ for side in (-1, 1):
     for i in range(n):
         q = (o + i, o + (i + 1) % n, o + n + (i + 1) % n, o + n + i); F.append(q[::-1] if flip else q)
     capA, capB = tuple(o + i for i in range(n)), tuple(o + n + i for i in range(n)); F.append(capA if flip else capA[::-1]); F.append(capB[::-1] if flip else capB)
-cbox(324.5, Y1, 84.0, 374.5, Y1 + 2.0, 110.0, 0.8)                             # carved panel over the door
 rs = 4.0; sx0, sx1, sy1 = 334.5, 366.5, 432.0                                   # step: a slab before the door with rounded front corners
 step = [(sx1, Y1)] + [(sx1 - rs + rs * math.cos(math.pi / 2 * i / 4), sy1 - rs + rs * math.sin(math.pi / 2 * i / 4)) for i in range(5)] \
        + [(sx0 + rs - rs * math.sin(math.pi / 2 * i / 4), sy1 - rs + rs * math.cos(math.pi / 2 * i / 4)) for i in range(5)] + [(sx0, Y1)]
-poly_prism(step, ZG, 32.0)
+poly_prism(step, ZG, 29.5)
+step_top = [(x + (0 if abs(y - Y1) < 0.1 else 0), y) for x, y in step]                # rounded top edge: a 2.5 high inset band on top
+cx_, cy_ = (sx0 + sx1) / 2, (Y1 + sy1) / 2
+poly_prism([(cx_ + (x - cx_) * 0.88, Y1 + (y - Y1) * 0.88) for x, y in step], 29.5, 32.0)
 for lx in LX:                                                                  # lanterns (user marks 2026-11-24: the two GOLD parts stand out a little,
                                                                                # the glass between them sits in the wall); measured on the right lantern:
                                                                                # gold holder V 308..330 -> z 72..94, glass V 330..346 -> z 56..72, round knob z 34..56, ~14 wide
@@ -70,6 +76,30 @@ for lx in LX:                                                                  #
     cbox(lx - 6.5, Y1 - ND, 72.0, lx + 6.5, Y1 + 3.0, 90.0, 1.2)               # gold holder, 3 out
     cbox(lx - 4.0, Y1 - 1.0, 90.0, lx + 4.0, Y1 + 2.5, 94.0, 1.0)              # its top finial
     cbox(lx - NW, Y1 - ND, 90.0, lx + NW, Y1 - 1.0, 92.0, 0.0)                 # close the niche top behind the finial
+# SCALE RELIEF of the walls (user 2026-11-24 'als echte 3D-Form'): the drawing repeats every 16 along the wall and every 16 up (autocorrelation
+# of the rectified +y face: peaks 16 / 32 both ways), one stone shingle per tile: flush with the wall at its top, standing out 1.5 at its rounded
+# lower edge (corner radius 4); only where the picture shows the wall (z up to the picture top V 88 + 16)
+def shingle(face, a0, z0):
+    # face 'y' = the +y wall (a = x), 'x' = the +x wall (a = y); tile a0..a0+16, z0..z0+16; outline in (a, z) with rounded lower corners
+    r = 4.0; w = 15.0; h = 15.0; pts = [(a0 + 0.5, z0 + h)]
+    for k in range(5): t = math.pi / 2 * k / 4; pts.append((a0 + 0.5 + r - r * math.cos(t), z0 + 0.5 + r - r * math.sin(t)))
+    for k in range(5): t = math.pi / 2 * k / 4; pts.append((a0 + 0.5 + w - r + r * math.sin(t), z0 + 0.5 + r - r * math.cos(t)))
+    pts.append((a0 + 0.5 + w, z0 + h))
+    n = len(pts); o = len(V)
+    def P3(a, z, d): return (a, Y1 + d, z) if face == 'y' else (X1 + d, a, z)
+    for a, z in pts: V.append(P3(a, z, -0.2))
+    for a, z in pts: V.append(P3(a, z, 1.5 * (z0 + h - z) / h + 0.05))
+    for i in range(n): F.append((o + i, o + (i + 1) % n, o + n + (i + 1) % n, o + n + i))
+    F.append(tuple(o + i for i in range(n))); F.append(tuple(o + n + i for i in reversed(range(n))))
+skip = lambda a0, z0: (D0 - 8 <= a0 + 8 <= D1 + 8 and z0 < DZT + 4) or any(abs(a0 + 8 - lx) < 12 and z0 < 96 for lx in LX) or (322 < a0 + 8 < 384 and 80 < z0 + 8 < 116)
+for a0 in range(int(X0) + 1, int(X1) - 15, 16):                                # +y wall
+    ztop = (a0 + 8 + Y1) / 2 - 88 + 16
+    for z0 in range(int(ZG), int(min(ztop, ZT - 16)), 16):
+        if not skip(a0, z0): shingle('y', float(a0), float(z0))
+for a0 in range(int(Y0) + 1, int(Y1) - 15, 16):                                # +x wall
+    ztop = (X1 + a0 + 8) / 2 - 88 + 16
+    for z0 in range(int(ZG), int(min(ztop, ZT - 16)), 16):
+        shingle('x', float(a0), float(z0))
 # every closed part with outward normals: parts are disjoint vertex ranges; a part with a negative signed volume is turned
 par = list(range(len(V)))
 def fd(a):
@@ -84,6 +114,17 @@ for fc in F:
         a, b, d = V[fc[0]], V[fc[i]], V[fc[i + 1]]
         vol[c] = vol.get(c, 0.0) + a[0] * (b[1] * d[2] - b[2] * d[1]) - a[1] * (b[0] * d[2] - b[2] * d[0]) + a[2] * (b[0] * d[1] - b[1] * d[0])
 F = [fc[::-1] if vol[fd(fc[0])] < 0 else fc for fc in F]
+# GRIFFIN HEAD over the door (user 2026-11-24, several rounds: 'Statuenkopf', 'Kopf eines Vogel Greifs', looking straight out of the wall, a
+# curved feathered neck, 'mach es so, dass es fuer die Lichtform passt und auf der Zeichnung liegt'): the metaball sculpt of griffin.py (light
+# version, local frame x right / y out of the wall / z up) placed by a silhouette fit on the drawn carving (IoU 0.73 over a 0.5 px search:
+# scale 0.85, width x 2.0 (the drawn head is broad), centre x 353 z 100 on the wall). Appended after the outward fix (its own winding is right).
+GH = os.path.expanduser("~/.landstalker_remake/assets/griffin_475/griffin_head_light.obj"); GS, GSX, GX, GZ = 0.85, 2.0, 353.0, 100.0
+if not os.path.exists(GH): sys.exit("run remake/recipes/mir_tower_475/griffin.py first (makes %s)" % GH)
+go = len(V)
+for l in open(GH):
+    if l.startswith("v "):
+        lx, ly, lz = map(float, l.split()[1:4]); V.append((GX + GS * GSX * lx, Y1 + GS * ly, GZ + GS * lz))
+    elif l.startswith("f "): F.append(tuple(go + int(t) - 1 for t in l.split()[1:]))
 with open(OUT, "w") as f:
     f.write("# light proxy: base of Mir's tower, room 475 (remake/recipes/mir_tower_475/tower.py). GAME coordinates x east, y south, z up.\n")
     for v in V: f.write("v %.3f %.3f %.3f\n" % v)
