@@ -245,6 +245,19 @@
         "file": "proxies/lighthouse_611.obj",
         "surface": true,
         "why": "the Ryuma LIGHTHOUSE (collision x 15..17 y 56..58 blocked 192 = up to the eave): remake/recipes/lighthouse_611 (stone body to 150, parapet 159, four corner posts with arch brackets, tile pyramid roof 192 -> 214, beacon with flame, east door niche); replaces the automatic hip #8; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          32,
+          25,
+          40
+        ],
+        "file": "proxies/church_610.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "Ryuma CHURCH (rooms 610 / 611 = one map $0A6F20) = the Mercator church drawing (plane A + the 72 cell collision block equal) moved by 1 / -17 cells and 2 steps up: the confirmed Mercator model church_632 moved (+16, -272, +32), with the hall -x wall at the x measured in Ryuma (235.5 instead of the symmetric guess 238, Mercator hides that corner behind the yellow house); remake/recipes/proxy_church_610.py (2026-11-24); ground 48. Was the last building of Ryuma without a model (vertical line at the church wall corner, lightedges 610 / 611 spot 5)"
       }
     ],
     "610": [
@@ -337,6 +350,19 @@
         "file": "proxies/lighthouse_610.obj",
         "surface": true,
         "why": "the Ryuma LIGHTHOUSE (collision x 15..17 y 56..58 blocked 192 = up to the eave): remake/recipes/lighthouse_611 (stone body to 150, parapet 159, four corner posts with arch brackets, tile pyramid roof 192 -> 214, beacon with flame, east door niche); replaces the automatic hip #8; 2026-11-21, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          15,
+          32,
+          25,
+          40
+        ],
+        "file": "proxies/church_610.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "Ryuma CHURCH (rooms 610 / 611 = one map $0A6F20) = the Mercator church drawing (plane A + the 72 cell collision block equal) moved by 1 / -17 cells and 2 steps up: the confirmed Mercator model church_632 moved (+16, -272, +32), with the hall -x wall at the x measured in Ryuma (235.5 instead of the symmetric guess 238, Mercator hides that corner behind the yellow house); remake/recipes/proxy_church_610.py (2026-11-24); ground 48. Was the last building of Ryuma without a model (vertical line at the church wall corner, lightedges 610 / 611 spot 5)"
       }
     ],
     "28": [
@@ -10272,6 +10298,45 @@
           27
         ],
         "why": "automatic hips #1 / #2 over the stone flower planter and the low block beside the house (room 442 planter; 2026-11-21)"
+      }
+    ],
+    "426": [
+      {
+        "op": "mesh",
+        "cells": [
+          46,
+          43,
+          46,
+          43
+        ],
+        "file": "proxies/pillar_426_0.obj",
+        "surface": true,
+        "why": "stone pillar (collision = one 3 step block $43): our parts model remake/recipes/pillar_739 (square plinth / abacus, round shaft, rings, echinus; IoU 0.857 on the drawing), placed by place_739.py; room 426 cave mouth: the 739 pillar drawing (same outline, mossy palette), cells blocked 48 on ground 0; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          46,
+          48,
+          46,
+          48
+        ],
+        "file": "proxies/pillar_426_1.obj",
+        "surface": true,
+        "why": "stone pillar (collision = one 3 step block $43): our parts model remake/recipes/pillar_739 (square plinth / abacus, round shaft, rings, echinus; IoU 0.857 on the drawing), placed by place_739.py; room 426 cave mouth: the 739 pillar drawing (same outline, mossy palette), cells blocked 48 on ground 0; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          33,
+          29,
+          38
+        ],
+        "file": "proxies/fence_426.obj",
+        "surface": true,
+        "floor": 0,
+        "why": "rustic LOG FENCE by the waterfall (collision: 8 blocked cells height 48 on ground 0, L shape x 27..28 y 34..38): our model remake/recipes/fence_426 (6 round tapered posts with worn tops, 14 rail logs lifted from the drawing onto the planes of the three fence runs, ends hidden behind a post continued to it); floor 0 = the walk way / basin around it; 2026-11-24 built while the user was away, clay preview ~/Project-Friday-Test/Mockups/gelaender_426_clay.png, to be checked"
       }
     ]
   },
