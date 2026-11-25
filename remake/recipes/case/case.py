@@ -225,6 +225,25 @@ SPECS = {
                                  + [("rbox", (228.0, 237.0, 252.0, 261.0, 48.0, 51.0, 0.6)), ("rbox", (228.5, 236.5, 252.5, 260.5, 51.0, 53.0, 0.6))]                          # book stack
                                  + [("lathe", (230.5, 243.0, 48.0, 12.0, [(0.0, 2.3), (0.85, 2.3), (0.9, 1.2), (1.0, 1.2)], 12))]                                             # bottle
                                  + [("lathe", (233.5, 237.5, 48.0, 10.0, [(0.0, 2.0), (0.3, 3.2), (0.6, 2.4), (0.75, 0.9), (1.0, 1.0)], 12))]),                              # round flask
+    # 491 / 735: the small BOOKCASE right of the bed (cells 18..19 x 14, collision 32): open to the south, two book shelves, plain east side; on top a lying book
+    # stack, a vase with a flower (body 10 + flower 8) and a small ball at the front corner
+    "boat_cab_491": dict(rooms=[491, 735], cells=[18, 14, 19, 14], floor=0,
+                         parts=[("cab", (288, 320, 224, 240, 0, 32), "+y", [("plinth", 2), ("shelf", 14), ("shelf", 14)])]
+                               + [("rbox", (299.5, 308.5, 227.5, 236.0, 32.0, 34.5, 0.6)), ("rbox", (300.0, 308.0, 228.0, 235.5, 34.5, 36.5, 0.6))]   # book stack
+                               + [("lathe", (312.0, 228.0, 32.0, 10.0, [(0.0, 1.5), (0.35, 2.3), (0.75, 1.2), (1.0, 1.6)], 12)),           # vase (body 10 + flower 8, read on the drawing)
+                                  ("lathe", (312.0, 228.0, 42.0, 8.0, [(0.0, 0.6), (0.35, 2.4), (0.75, 2.6), (1.0, 0.6)], 12))]
+                               + [("lathe", (315.0, 238.0, 32.0, 4.0, [(0.0, 0.8), (0.15, 1.7), (0.5, 2.0), (0.85, 1.7), (1.0, 0.6)], 12))]),        # small ball
+    # 491 / 735: the TABLE on legs (cells 17..19 x 19..20, collision 16): furniture.mercator_table_mesh (the same build as the approved Mercator table: flat top,
+    # the light rim lines = paint) on the cell box, here with POINTED corners (rc 0.6), a 2.5 top and thin legs (r 1.3, 1.5 in from the corners), all read on the
+    # drawing; on top a candle on a blue holder, an open book, a lantern (base, glass body, cap), a cup and a green bottle
+    "boat_table_491": dict(rooms=[491, 735], cells=[17, 19, 19, 20], floor=0,
+                           parts=[("raw", __import__("furniture").mercator_table_mesh(272.0, 304.0, 320.0, 336.0, 0.0, 16.0, 2.5,
+                                   dict(__import__("furniture").MERCATOR_FINE, rc=0.6, ex0=0.0, ey0=0.0, leg_r=1.3, i0=1.5, i1=1.5)))]
+                                 + [("lathe", (282.0, 327.0, 16.0, 7.5, [(0.0, 1.8), (0.2, 1.8), (0.22, 0.9), (1.0, 0.9)], 12))]                           # candle on a holder
+                                 + [("rbox", (283.0, 293.0, 314.0, 324.0, 16.0, 17.5, 0.4)), ("rbox", (283.5, 292.5, 314.5, 323.5, 17.5, 19.0, 0.7))]       # open book (drawn 20 x 13.6 px: raised pages)
+                                 + [("lathe", (310.5, 324.5, 16.0, 12.0, [(0.0, 3.0), (0.15, 3.0), (0.18, 3.3), (0.75, 3.3), (0.8, 2.2), (1.0, 1.2)], 16))]   # lantern
+                                 + [("lathe", (301.5, 329.0, 16.0, 3.0, [(0.0, 1.6), (1.0, 2.2)], 12))]                                                   # cup
+                                 + [("lathe", (312.5, 316.5, 16.0, 10.0, [(0.0, 1.6), (0.6, 1.6), (0.75, 0.7), (1.0, 0.7)], 12))]),                        # green bottle
     # 704 (cell 32 x 25 on the floor 32, between the beds): a NIGHTSTAND (top 48 with a cloth, two drawers) open to the south
     "merc_night_704": dict(rooms=[704], cells=[32, 25, 32, 25], floor=32,
                            parts=[("cab", (512, 528, 400, 416, 32, 48), "+y", [("plinth", 2), ("drawers", 7, 1), ("drawers", 6, 1)])]),
