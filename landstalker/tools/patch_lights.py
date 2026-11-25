@@ -30,7 +30,7 @@ licht3.html, 'ja, bau es als Option ein').  In rooms with flame tiles the own ma
    rooms without flames keep the original brightness apart from that.  Test aids LANDSTALKER_LT_AO=0 (off), LANDSTALKER_LIGHTING_DBG=8 (share as grey).
 Option: Options > Graphics > Lighting Off / On (id 47, ~/.landstalker_lighting, env LANDSTALKER_LIGHTING=0|1), default On since v1.9 (LK_LTDEFON v1, user 2026-11-13; was Off).
 Test aid: LANDSTALKER_LIGHTING_DBG=1 prints the lights of every new room; =2 shows the geometry colours instead of the picture;
-LANDSTALKER_LIGHTING_SWORD=1..4 = sword glow of that sword (Magic / Ice / Thunder / Gaia) whatever is equipped.
+LANDSTALKER_LIGHTING_SWORD=1..4 = sword glow of that sword (Magic / Ice / Thunder / Gaia) whatever is equipped; -1 = no sword glow (test aid).
 =3 also prints the height map rows 18..33 / columns 18..43; =6 (v7) shows the sun share as grey, tinted by the outdoor object of the hit cell; =7 the light proxies as colours; LANDSTALKER_LIGHTING_PROBE=x0,line[,x1[,frame]] prints face / z / world position / light terms of
 every 4th picture pixel x0..x1 on that line at frame 1260 or the given frame (v3 church fixes; v4: 4th value = frame).
 v7 + LIGHT PROXIES (docs/LIGHT_PROXY_PLAN.md, 2026-11-03): outdoors the sun works on invisible shapes per object, proposed at room entry:
@@ -1807,7 +1807,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
   lk_am_setup();   /* v8 ambient particles */
   if (lk_lt_dbg) { printf("lighting: room %%d, %%d lights\n", lk_o_room, lk_lt_nl); for (k = 0; k < lk_lt_nl; k++) printf("  light %%d at (%%.0f, %%.0f, %%.0f) flame $%%06X half width %%.0f half height %%.0f along %%s%%s\n", k, lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z, (unsigned)lk_lt_l[k].base, lk_lt_l[k].hw, lk_lt_l[k].hv, lk_lt_l[k].tan == 1 ? "x" : lk_lt_l[k].tan == 2 ? "y" : "-", lk_lt_solid(lk_lt_l[k].x, lk_lt_l[k].y, lk_lt_l[k].z) ? " INSIDE A SOLID" : ""); }
 }
-static int lk_lt_swtest(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LIGHTING_SWORD"); v = e ? atoi(e) : 0; if (v < 0 || v > 4) v = 0; } return v; }   /* test aid: sword glow colour 1..4 without that sword */
+static int lk_lt_swtest(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LIGHTING_SWORD"); v = e ? atoi(e) : 0; if (v < -1 || v > 4) v = 0; } return v; }   /* test aid: sword glow colour 1..4 without that sword; -1 = no sword glow at all (2026-11-25 bug sweep: same picture with / without the glow) */
 /* ---- LK_DAYNIGHT v1 (+ v2 colours 2026-11-06): the day / night cycle (sun path, moon, light colours by the time of day, time-lapse) ---- */
 static double lk_dn_t = -1.0; static volatile int lk_dn_fast = -1; static float lk_dn_naz, lk_dn_nel; static int lk_dn_dbg = -1; static double lk_dn_len = 24.0;
 static float lk_dn_ss(float a, float b, float x) { float t = (x - a) / (b - a); if (t < 0.0f) t = 0.0f; if (t > 1.0f) t = 1.0f; return t * t * (3.0f - 2.0f * t); }
@@ -2165,7 +2165,7 @@ static void lk_lt_step(void) {   /* once per frame: room / height map change, fl
   {   /* v3 sword glow (user 2026-11-03: all swords except the basic one, in the sword's colour): only where the room is lit; stronger while swinging */
     static const float swc[5][3] = { { 0, 0, 0 }, { 1.0f, 0.50f, 0.15f }, { 0.45f, 0.75f, 1.0f }, { 0.95f, 0.85f, 0.35f }, { 0.35f, 1.0f, 0.45f } };   /* Magic, Ice, Thunder, Gaia (lk_sfx_tint) */
     int sw = SB(0xFF114E) & 0xFF, swt = lk_lt_swtest(), act = SB(0xFF542C) & 0x0F, swing = act >= 1 && act <= 4; float want;
-    if (swt) sw = swt;
+    if (swt) sw = swt < 0 ? 0 : swt;
     lk_lt_swon = lk_lt_on && (lk_lt_nfl > 0 || (lk_dn_on && lk_dn_sunk < 0.7f)) && sw >= 1 && sw <= 4;   /* v5: not in rooms lit only by the sun; LK_DAYNIGHT v2: outdoors at dusk / night too (user 2026-11-06: 'nachts sollten die Schwerteffekte auch draussen Licht abgeben') */
     want = swing ? 1.0f : 0.0f;   /* user 2026-11-03: no light while walking, only while swinging */ lk_lt_swk += (want - lk_lt_swk) * (want > lk_lt_swk ? 0.6f : 0.15f);
     if (lk_lt_swk < 0.02f) lk_lt_swon = 0;

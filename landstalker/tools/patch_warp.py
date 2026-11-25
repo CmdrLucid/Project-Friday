@@ -3,7 +3,7 @@
 (CSA_010D: write the room number to g_RmNum1 $FF1204 / $FF1206, the player position to $FF5400.., then WarpToRoom $00620E).
 Room and X.sub,Y.sub exactly as the coordinate overlay (R4 / F5) prints them (tile . sub-tile in hex); optional third number Z as the overlay's 'Z xxxx' (hex word,
 default: keep the current Z). LANDSTALKER_WARP_AT=frame (default 880, after the load replay prefix of docs/replays/massan.txt): the warp is done the first time the game
-loop runs at or after that frame. Several warps: "610:12.08,20.04;603:37.02,36.02" with LANDSTALKER_WARP_AT="880,1500".
+loop runs at or after that frame. Several warps: "610:12.08,20.04;603:37.02,36.02" with LANDSTALKER_WARP_AT="880,1500". At most 64 warps.
 Hook: wrapper of the game loop step $001788 (plain function, called once per game loop pass); the original runs afterwards.
 Console: `warp: frame F -> room R X x.xx Y y.yy Z zzzz`. No effect without the env var. Idempotent.  usage: patch_warp.py path/to/genrecomp"""
 import os, sys
@@ -18,7 +18,7 @@ module = r'''/* ---- LANDSTALKER_WARP: put Nigel into a room at a spot (tools/pa
 extern long platform_frame_number(void);
 extern int lk_wide_refill;
 static gen_func_t lk_w_orig;
-static int lk_w_n, lk_w_next, lk_w_room[16], lk_w_x[16], lk_w_y[16], lk_w_z[16]; static long lk_w_at[16];
+static int lk_w_n, lk_w_next, lk_w_room[64], lk_w_x[64], lk_w_y[64], lk_w_z[64]; static long lk_w_at[64];   /* 64 warps (2026-11-25, was 16: the lightedges sweep with 40 per run silently lost 24) */
 static long lk_refill_at = -1;   /* LANDSTALKER_REFILL_AT=frame: reload the margin / full-height strips once (test: do holes at rest vanish?) */
 /* LANDSTALKER_POKE="frame:addr:orbits[:andmask][,...]" (hex addr / bits): ANDs the byte with andmask (default FF), then ORs orbits, at that RAM address once when the game loop first runs at or after that frame (test aid, e.g. the lantern flag of room 389: 1000:FF103E:10) */
 static void lk_poke_step(void) {
@@ -110,9 +110,9 @@ static void lk_warp_install(void) {
     { const char *r = getenv("LANDSTALKER_REFILL_AT"); if (r && *r && !getenv("LANDSTALKER_WARP")) { lk_refill_at = atol(r); lk_w_orig = func_table_lookup(0x001788); if (lk_w_orig) { func_table_register(0x001788, lk_h_warp); printf("refill: armed at frame %ld\n", lk_refill_at); } return; } else if (r && *r) lk_refill_at = atol(r); }
     e = getenv("LANDSTALKER_WARP");
     if (!e || !*e) return;
-    { char buf[512]; char *tok, *sv; long first = 880; snprintf(buf, sizeof(buf), "%s", e);
+    { char buf[4096]; char *tok, *sv; long first = 880; snprintf(buf, sizeof(buf), "%s", e);
       at = getenv("LANDSTALKER_WARP_AT"); if (at && *at) first = atol(at);
-      for (tok = strtok_r(buf, ";", &sv); tok && lk_w_n < 16; tok = strtok_r(NULL, ";", &sv)) {
+      for (tok = strtok_r(buf, ";", &sv); tok && lk_w_n < 64; tok = strtok_r(NULL, ";", &sv)) {
           int rm = 0, xt = 0, xs = 0, yt = 0, ys = 0, z = -1; const char *c = strchr(tok, ':');
           if (!c) continue;
           rm = atoi(tok);
