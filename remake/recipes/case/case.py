@@ -251,8 +251,9 @@ def write_ops(names):
         for r in sp["rooms"]:
             fn = "proxies/%s_%d.obj" % (base, r)
             write_split(os.path.join(root, "landstalker", "data", fn), sp, "%s, room %d" % (name, r))
-            ops = [e for e in data["rooms"].get(str(r), []) if e.get("file") != fn]
-            ops.append(collections.OrderedDict([("op", "mesh"), ("cells", sp["cells"]), ("file", fn), ("surface", True), ("air", True), ("floor", sp["floor"])]
+            ops = list(data["rooms"].get(str(r), [])); at = next((i for i, e in enumerate(ops) if e.get("file") == fn), None)   # replace IN PLACE: the op order decides who owns a sub column
+            ops = [e for e in ops if e.get("file") != fn]
+            ops.insert(len(ops) if at is None else at, collections.OrderedDict([("op", "mesh"), ("cells", sp["cells"]), ("file", fn), ("surface", True), ("air", True), ("floor", sp["floor"])]
                 + ([("carrier", collections.OrderedDict(sorted(sp["carrier"].items(), key=lambda t: "raz".index(t[0][0]))))] if sp.get("carrier") else []) + [
                 ("why", "case furniture '%s' as a real model (remake/recipes/case/case.py spec %s, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture %d by projection overlay (indoor furniture survey 2026-11-24)%s" % (base, name, ref, "; carrier = the fire's flame light fixed 6 in front of the opening (the game's wall flame offset), below the hearth top (it streaked the top from just above = hard item shadows, user marks 2026-11-24)" if sp.get("carrier") else ""))]))
             data["rooms"][str(r)] = ops   # a new room goes to the end (the file keeps its order)
