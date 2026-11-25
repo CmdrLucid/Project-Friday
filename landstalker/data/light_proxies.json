@@ -12859,6 +12859,20 @@
         "air": true,
         "floor": 0,
         "why": "case furniture 'boat_bed' as a real model (remake/recipes/case/case.py spec boat_bed_491, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 491 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          14,
+          14,
+          20
+        ],
+        "file": "proxies/boat_books_491.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'boat_books' as a real model (remake/recipes/case/case.py spec boat_books_491, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 491 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "735": [
@@ -12875,6 +12889,20 @@
         "air": true,
         "floor": 0,
         "why": "case furniture 'boat_bed' as a real model (remake/recipes/case/case.py spec boat_bed_491, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 491 by projection overlay (indoor furniture survey 2026-11-24)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          14,
+          14,
+          20
+        ],
+        "file": "proxies/boat_books_735.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'boat_books' as a real model (remake/recipes/case/case.py spec boat_books_491, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 491 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "517": [

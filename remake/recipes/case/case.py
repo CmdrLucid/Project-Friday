@@ -42,6 +42,10 @@ def BOATBED(x0, y0, z=0.0):
             R(3.5, 11.5, 11.5, 23.5, 16.0, 18.8, 1.2)]       # pillow (cloth)
 def BOATBED_Y(x0, y0, z=0.0):   # the same bed mirrored at the diagonal: head at the NORTH wall (y0), running south (2 x 3 cells), back at the west wall (x0)
     return [("rbox", (x0 + b[2], x0 + b[3], y0 + b[0], y0 + b[1], b[4], b[5], b[6])) for b in (q[1] for q in BOATBED(0.0, 0.0, z))]
+# the CLAY JAR of tileset 8 (furniture.JAR, fitted on 597; axis 3 in front of its cell centre in +x / +y) as a case part: x / y = its axis
+def TS8JAR(x, y, z=0.0):
+    import furniture
+    return [("lathe", (x, y, z, 23.0, [(zz / 23.0, r) for zz, r in furniture.JAR["prof"]], 24))]
 def obox(o, a, b, c):
     """a closed box from corner o spanned by the vectors a, b, c (any directions) -> (vertices, outward faces)"""
     P = lambda i, j, k: tuple(o[q] + i * a[q] + j * b[q] + k * c[q] for q in range(3))
@@ -208,6 +212,19 @@ SPECS = {
     "boat_bed_517": dict(rooms=[517], cells=[25, 17, 27, 18], floor=0, parts=BOATBED(400.0, 272.0)),
     "boat_bed_732": dict(rooms=[732], cells=[14, 14, 16, 18], floor=0, parts=BOATBED(224.0, 224.0) + BOATBED(224.0, 272.0)),
     "boat_bed_728": dict(rooms=[728], cells=[14, 14, 15, 16], floor=0, parts=BOATBED_Y(224.0, 224.0)),   # mirrored: head at the north wall (overlay checked)
+    # 491 / 735: the WEST BOOKCASE ROW (cells 14 x 14..20, collision 48): three open bookcases of the same height side by side, fronts to the east, three book shelves
+    # each: back y 224..256 (a bottle + a round flask on top), middle 256..304 (a small grey idol + two lying book stacks), front 304..336 (the two tileset 8 clay jars
+    # on top at their usual cell offset); the front end shows its plank side panel (drawn)
+    "boat_books_491": dict(rooms=[491, 735], cells=[14, 14, 14, 20], floor=0,
+                           parts=[("cab", (224, 240, 224, 256, 0, 48), "+x", [("plinth", 2), ("shelf", 15), ("shelf", 15), ("shelf", 15)]),
+                                  ("cab", (224, 240, 256, 304, 0, 48), "+x", [("plinth", 2), ("shelf", 15), ("shelf", 15), ("shelf", 15)]),
+                                  ("cab", (224, 240, 304, 336, 0, 48), "+x", [("plinth", 2), ("shelf", 15), ("shelf", 15), ("shelf", 15)])]
+                                 + TS8JAR(235.0, 315.0, 48.0) + TS8JAR(235.0, 331.0, 48.0)
+                                 + [("rbox", (229.0, 234.0, 284.5, 289.5, 48.0, 58.0, 1.2)), ("lathe", (231.5, 287.0, 58.0, 6.0, [(0.0, 2.2), (0.5, 2.8), (1.0, 1.0)], 12))]   # idol
+                                 + [("rbox", (228.5, 237.5, 268.5, 277.0, 48.0, 51.0, 0.6)), ("rbox", (229.0, 237.0, 269.0, 276.5, 51.0, 53.0, 0.6))]                          # book stack
+                                 + [("rbox", (228.0, 237.0, 252.0, 261.0, 48.0, 51.0, 0.6)), ("rbox", (228.5, 236.5, 252.5, 260.5, 51.0, 53.0, 0.6))]                          # book stack
+                                 + [("lathe", (230.5, 243.0, 48.0, 12.0, [(0.0, 2.3), (0.85, 2.3), (0.9, 1.2), (1.0, 1.2)], 12))]                                             # bottle
+                                 + [("lathe", (233.5, 237.5, 48.0, 10.0, [(0.0, 2.0), (0.3, 3.2), (0.6, 2.4), (0.75, 0.9), (1.0, 1.0)], 12))]),                              # round flask
     # 704 (cell 32 x 25 on the floor 32, between the beds): a NIGHTSTAND (top 48 with a cloth, two drawers) open to the south
     "merc_night_704": dict(rooms=[704], cells=[32, 25, 32, 25], floor=32,
                            parts=[("cab", (512, 528, 400, 416, 32, 48), "+y", [("plinth", 2), ("drawers", 7, 1), ("drawers", 6, 1)])]),
