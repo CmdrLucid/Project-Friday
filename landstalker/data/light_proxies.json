@@ -12912,6 +12912,20 @@
         ],
         "floor": 0,
         "why": "painted shadow tiles under the boatman's table (tileset 8 carpet $26F / $278 / $279 / $288 / $289 -> $0CA, unpaint_tiles '8'; user 2026-11-25 'ja', as the Mercator tables: the table casts only our shadow)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          14,
+          20,
+          14
+        ],
+        "file": "proxies/boat_sack_491.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'boat_sack' as a real model (remake/recipes/case/case.py spec boat_sack_491, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 491 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "735": [
@@ -12981,6 +12995,20 @@
         ],
         "floor": 0,
         "why": "painted shadow tiles under the boatman's table (tileset 8 carpet $26F / $278 / $279 / $288 / $289 -> $0CA, unpaint_tiles '8'; user 2026-11-25 'ja', as the Mercator tables: the table casts only our shadow)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          14,
+          20,
+          14
+        ],
+        "file": "proxies/boat_sack_735.obj",
+        "surface": true,
+        "air": true,
+        "floor": 0,
+        "why": "case furniture 'boat_sack' as a real model (remake/recipes/case/case.py spec boat_sack_491, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 491 by projection overlay (indoor furniture survey 2026-11-24)"
       }
     ],
     "517": [

@@ -46,6 +46,16 @@ def BOATBED_Y(x0, y0, z=0.0):   # the same bed mirrored at the diagonal: head at
 def TS8JAR(x, y, z=0.0):
     import furniture
     return [("lathe", (x, y, z, 23.0, [(zz / 23.0, r) for zz, r in furniture.JAR["prof"]], 24))]
+def TILTLATHE(x, y, z, h, prof, seg, lean):   # a lathe whose axis leans: lean = (dx, dy) offset of the TOP centre against the foot (a tilted sack mouth)
+    import math
+    V, F = lathe(x, y, z, h, prof, seg); L = math.sqrt(lean[0] ** 2 + lean[1] ** 2 + h * h); ux, uy, uz = lean[0] / L, lean[1] / L, h / L
+    def rot(p):   # rotate p about the foot centre so that +z goes to (ux, uy, uz) (Rodrigues, axis = z x u)
+        ax, ay = -uy, ux; sn = math.sqrt(ax * ax + ay * ay); c = uz
+        if sn < 1e-9: return p
+        ax, ay = ax / sn, ay / sn; px, py, pz = p[0] - x, p[1] - y, p[2] - z; d = ax * px + ay * py
+        cx, cy, cz = ay * pz, -ax * pz, ax * py - ay * px   # axis x p (axis z component 0)
+        return (x + px * c + cx * sn + ax * d * (1 - c), y + py * c + cy * sn + ay * d * (1 - c), z + pz * c + cz * sn)
+    return [("raw", [([rot(p) for p in V], F)])]
 def obox(o, a, b, c):
     """a closed box from corner o spanned by the vectors a, b, c (any directions) -> (vertices, outward faces)"""
     P = lambda i, j, k: tuple(o[q] + i * a[q] + j * b[q] + k * c[q] for q in range(3))
@@ -244,6 +254,12 @@ SPECS = {
                                  + [("lathe", (310.5, 324.5, 16.0, 12.0, [(0.0, 3.0), (0.15, 3.0), (0.18, 3.3), (0.75, 3.3), (0.8, 2.2), (1.0, 1.2)], 16))]   # lantern
                                  + [("lathe", (301.5, 329.0, 16.0, 3.0, [(0.0, 1.6), (1.0, 2.2)], 12))]                                                   # cup
                                  + [("lathe", (312.5, 316.5, 16.0, 10.0, [(0.0, 1.6), (0.6, 1.6), (0.75, 0.7), (1.0, 0.7)], 12))]),                        # green bottle
+    # 491 / 735: the grey SACK in the north-east corner (cell 20 x 14, collision 16): a round belly (drawn 25 px wide = r 8.8, flattened on the floor), a neck with the
+    # open mouth on its upper west side (fitted on the drawn sack pixels)
+    "boat_sack_491": dict(rooms=[491, 735], cells=[20, 14, 20, 14], floor=0,
+                          parts=[("lathe", (328.5, 232.5, 0.0, 14.5, [(0.0, 7.0), (0.14, 8.3), (0.34, 8.8), (0.55, 8.6), (0.75, 7.4), (0.9, 5.2), (1.0, 3.0)], 32)),   # belly (1.3 into the void wall behind)
+                                ] + TILTLATHE(324.0, 236.5, 12.5, 8.0, [(0.0, 3.6), (0.3, 3.06), (0.5, 3.6), (0.8, 4.8), (1.0, 4.56)], 24, (1.5, -3.5))),   # tied neck flaring to the open mouth on the belly's upper WEST side, leaning
+                                # back (the drawn dark opening; fitted by IoU on the drawn sack pixels, 0.67 belly alone -> 0.79 with the tied / flared neck; user mark 2026-11-25 'liegt noch nicht ganz drauf')
     # 704 (cell 32 x 25 on the floor 32, between the beds): a NIGHTSTAND (top 48 with a cloth, two drawers) open to the south
     "merc_night_704": dict(rooms=[704], cells=[32, 25, 32, 25], floor=32,
                            parts=[("cab", (512, 528, 400, 416, 32, 48), "+y", [("plinth", 2), ("drawers", 7, 1), ("drawers", 6, 1)])]),
