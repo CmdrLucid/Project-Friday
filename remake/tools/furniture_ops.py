@@ -36,7 +36,8 @@ TYPES = [
 # it (checked on the drawings, ~/Project-Friday-Test/lktest/unsh/try.py): carpet under the Mercator tables $34C / $34D / $35B / $35C / $35D (green index 14 -> olive 2;
 # used NOWHERE else in tileset 2) -> plain carpet $367; stone floor in shadow $04B / $04C / $05C -> plain floor $006 (these three are ALSO the
 # shadows of beds / walls elsewhere, so only on a piece's floor footprint).  The game draws them at runtime (LK_GLUNPAINT v1, GPU light only).
-UNPAINT_TILES = {2: {0x34C: 0x367, 0x34D: 0x367, 0x35B: 0x367, 0x35C: 0x367, 0x35D: 0x367, 0x04B: 0x006, 0x04C: 0x006, 0x05C: 0x006}}
+UNPAINT_TILES = {2: {0x34C: 0x367, 0x34D: 0x367, 0x35B: 0x367, 0x35C: 0x367, 0x35D: 0x367, 0x04B: 0x006, 0x04C: 0x006, 0x05C: 0x006},
+                 8: {0x26F: 0x0CA, 0x278: 0x0CA, 0x279: 0x0CA, 0x288: 0x0CA, 0x289: 0x0CA}}   # tileset 8 (log houses): the carpet under the boatman's table 491 / 735 (full shadow $26F, diagonal edges $278 / $279 / $288 / $289 -> plain carpet $0CA; user 2026-11-25 'ja')
 
 def unpaint_hits(rom, room, ts, cells, floor):
     """number of plane B cells with a painted shadow tile on the floor footprint of the cells (romrender, the same walk as lk_gl_unpaint)"""
