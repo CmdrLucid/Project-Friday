@@ -25,6 +25,23 @@ def SHELF_X(xw, d, y0, y1, z):   # wall shelf on the WEST wall (board xw .. xw +
     return [("rbox", (xw, xw + d, y0, y1, z - 3.0, z, 0.6))] + [("rbox", (xw, xw + d * 0.6, yb - 0.75, yb + 0.75, z - 10.0, z - 2.8, 0.3)) for yb in (y0 + 5.0, y1 - 5.0)]
 def SHELF_Y(yw, d, x0, x1, z):   # on the NORTH wall
     return [("rbox", (x0, x1, yw, yw + d, z - 3.0, z, 0.6))] + [("rbox", (xb - 0.75, xb + 0.75, yw, yw + d * 0.6, z - 10.0, z - 2.8, 0.3)) for xb in (x0 + 5.0, x1 - 5.0)]
+# the LOG HOUSE BED of tileset 8 (reference 491 / 735 cells 15..17 x 14..15, head at the west, back at the north wall; user OK on the clay sheet 2026-11-25):
+# a plank box exactly on the 3 x 2 cell collision box (16): a lower plank (0..8) and an upper course (8..16) with the drawn seam between them; the upper course =
+# a 1 thick front board and foot board up to the top (the drawn front / foot faces are wood up to the top edge in two 8 high bands), bare boards at the head
+# end; the grey mattress lies IN the frame, flush with its top (drawn without thickness: its front corner meets the box corner, head edge 17.5 from the head
+# end), its rounded rim = the drawn dark outline; ONE flat pillow on the head boards, read on its drawn outline in 491 (U 1180..1199, V 221..233: 8 long x 12
+# across x 2.5 high, rounded).  x0 / y0 = the box corner at the head end / back wall.
+def BOATBED(x0, y0, z=0.0):
+    R = lambda a, b, c, d, e, f, r: ("rbox", (x0 + a, x0 + b, y0 + c, y0 + d, z + e, z + f, r))
+    return [R(0.0, 48.0, 0.0, 32.0, 0.0, 8.4, 0.8),          # lower plank
+            R(0.0, 48.0, 31.0, 32.0, 7.6, 16.0, 0.45),       # upper front board (whole length: no joint on the face)
+            R(47.0, 48.0, 0.0, 32.0, 7.6, 16.0, 0.45),       # upper foot board
+            R(0.0, 17.5, 0.0, 31.5, 7.6, 16.0, 0.6),         # head boards
+            R(17.0, 47.5, 0.0, 31.5, 7.6, 12.6, 0.5),        # bed bottom under the mattress
+            R(17.6, 46.9, 0.2, 30.9, 12.2, 16.0, 1.3),       # mattress (cloth), flush with the frame top
+            R(3.5, 11.5, 11.5, 23.5, 16.0, 18.8, 1.2)]       # pillow (cloth)
+def BOATBED_Y(x0, y0, z=0.0):   # the same bed mirrored at the diagonal: head at the NORTH wall (y0), running south (2 x 3 cells), back at the west wall (x0)
+    return [("rbox", (x0 + b[2], x0 + b[3], y0 + b[0], y0 + b[1], b[4], b[5], b[6])) for b in (q[1] for q in BOATBED(0.0, 0.0, z))]
 def obox(o, a, b, c):
     """a closed box from corner o spanned by the vectors a, b, c (any directions) -> (vertices, outward faces)"""
     P = lambda i, j, k: tuple(o[q] + i * a[q] + j * b[q] + k * c[q] for q in range(3))
@@ -185,6 +202,12 @@ SPECS = {
                             parts=[("hearth", (224, 240, 240, 288, 0, 30), "+x", dict(open_u=(0.34, 0.79), open_h=0.85, depth=1.0)),
                                    ("rbox", (224.0, 241.0, 240.0, 288.0, 30.0, 32.0, 0.5)),
                                    ("box", (222.0 + 2.0, 230.0, 270.0, 277.0, 32.0, 38.0))] + OVAL(234.4, 258.9, 32.0)),
+    # 491 / 735 (boatman's house after Destel, tileset 8; cells 15..17 x 14..15, collision 16 walkable): the LOG HOUSE BED (BOATBED above); the same drawing (cell top
+    # blocks $05E..$062) stands in 517 (cells 25..27 x 17..18) and twice in 732 (cells 14..16 x 14..15 and 14..16 x 17..18); 728 has it mirrored (cells 14..15 x 14..16)
+    "boat_bed_491": dict(rooms=[491, 735], cells=[15, 14, 17, 15], floor=0, parts=BOATBED(240.0, 224.0)),
+    "boat_bed_517": dict(rooms=[517], cells=[25, 17, 27, 18], floor=0, parts=BOATBED(400.0, 272.0)),
+    "boat_bed_732": dict(rooms=[732], cells=[14, 14, 16, 18], floor=0, parts=BOATBED(224.0, 224.0) + BOATBED(224.0, 272.0)),
+    "boat_bed_728": dict(rooms=[728], cells=[14, 14, 15, 16], floor=0, parts=BOATBED_Y(224.0, 224.0)),   # mirrored: head at the north wall (overlay checked)
     # 704 (cell 32 x 25 on the floor 32, between the beds): a NIGHTSTAND (top 48 with a cloth, two drawers) open to the south
     "merc_night_704": dict(rooms=[704], cells=[32, 25, 32, 25], floor=32,
                            parts=[("cab", (512, 528, 400, 416, 32, 48), "+y", [("plinth", 2), ("drawers", 7, 1), ("drawers", 6, 1)])]),
