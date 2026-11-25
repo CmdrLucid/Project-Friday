@@ -5,15 +5,15 @@
 - 0. One-paragraph summary: lines 55-60
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 927-938
 - 1. Where we are: lines 939-1117
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1118-1438
-- 3. How the user works (important): lines 1439-1454
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1455-1479
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1480-1488
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1489-1536
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1537-1546
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1547-1548
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1549-1551
-- NEXT STEPS, newest first: -281 1119, -280 1122, -279 1123, -278 1124, -277 1125, -276 1126, -275 1127, -274 1128, -273 1129, -272 1130
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1118-1439
+- 3. How the user works (important): lines 1440-1455
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1456-1480
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1481-1489
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1490-1537
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1538-1547
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1548-1549
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1550-1552
+- NEXT STEPS, newest first: -281 1119, -280 1123, -279 1124, -278 1125, -277 1126, -276 1127, -275 1128, -274 1129, -273 1130, -272 1131
 - Newest entries:
   - 0a525 line 192: 2026-11-25 (Deck, Opus 5.5, no agents; user: 'kuemmere dich um diese Schattenkarte'; GPU headless only): th...
   - 0a524 line 193: 2026-11-24 evening (Deck, Opus 5.5, no agents; user present, effort high for modelling per user wish): INDO...
@@ -1117,6 +1117,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
 -281. **NEXT (2026-11-25): user looks at ~/Project-Friday-Test/Mockups/raumlicht_nischen_vorher_nachher.png and plays with Lighting On: Mercator house 722 (hearth cloth: no bright tip; wall behind the bed: no stripes), 691 / 713 (wall right of the hearth now lit by the fire: too bright?), castle 78 (candle between the two armour stands: the wall slot behind them is darker now; acceptable?), 83. If a room looks worse: LANDSTALKER_LT_DOORMESH=0 shows the old state for comparison. Then the rest of -280 (Mercator houses play test) and the indoor list (store room 667, armour heaps, cello).**
+   INDOOR SURVEY 2026-11-25 (remake/tools/deco_survey.py --todo --max 8, ~/Project-Friday-Test/lktest/survey1125): Mercator tileset 2 is done (only the 668 step left). Of the 40 groups most are steps / platforms / ledges / stairs = boxes, the game's collision IS their shape: no light shape needed. Real objects left (proposal for 2.0, user to decide): (a) churches = save points, visited often: the ALTAR of the stone churches (613/614 Ryuma, 699/700 Mercator, 721 Verla; sig 6) and the golden ANGEL statue + lectern of the log churches (597 Massan, 607 Gumi, 736 Destel; sig 11/12); (b) the boatman's house after Destel 491 / 735 (bookcases, bed, table on legs, hay bed; sig 36/37/39) like the Mercator houses. Optional: castle main hall 59..62 stair balustrade (sig 8), Mir tower 754/765/778 wooden stairs on legs (sig 13). Not needed: dungeon steps, crates, labyrinth decor (373 orb, 418 tentacle eye). Older after-2.0 list unchanged (442 town house, castle court stacks, 454 awning, Tibor's map, crypt objects, ~85 automatic outdoor leftovers, 24 room fill_ground survey, castle tower 34/35).
    ACCEPTED (user 2026-11-25 'bei dem Kasten egal, faellt kaum auf'): the thin vertical light lines on the castle 72 wardrobe doors (lightedges 72 spot 0 / 2: 263 / 302 px; recessed door panels of cabinet.py 'doors', pre-existing) stay; do not chase them.
    IDEA (user 2026-11-25, NOT now - 'scheint jetzt ganz gut zu passen, nicht anruehren'): replace the guessing door niche fill (patched 4 times: LK_LTDOORVOID, LK_LTDOORPIT, LK_LTDOORMESH, door strips) by the game's OWN door list: MAP CONNECTIONS $11CEA2.. (FORMATS 'MAP CONNECTIONS', tools/roomgraph.py: room, cell x / y, NE / NW, stairs) + floor types 01 / 04 (door NE / NW) mark every real exit cell exactly; fill only those, never other niches. Better than recognising door tiles like the plant catalogue (many door drawings per tileset, partly hidden). Do it only if a new door / niche light bug shows up, then check all rooms before / after (door niche counts + lightedges --spots, as 0a525).
 -280. **NEXT (2026-11-24 evening): user plays the Mercator houses with Lighting On (616-619, 622, 668/669, 673/674, 675, 677, 683-690, 698, 704, 717/718, 722/723, 691/692, 713/714): furniture shading, fires bright, no hard edges; previews ~/Project-Friday-Test/Mockups/moebel_mercator_1.png / _2.png, game shots moebel_licht_spiel.png. Open: 722 hearth cloth: a STEP in the room light (AO) at x ~ 325 (shot 722 spot 4, ratio to LANDSTALKER_LT_AO=0: 0.70 left -> 0.9..1.0 right). Ruled out (2026-11-25 tests, ~/Project-Friday-Test/lktest/innen le_*): the small things (now 'g nofield'), the wall shelf (also out of the field: same step), LANDSTALKER_LT_AOCOV=0, LANDSTALKER_LT_AOFLT=0; LANDSTALKER_GL5_MODELDBG=4/6/7/8 (lightedges passes GL5_* since today) leave these cloth pixels unchanged = they are NOT model-surface pixels (gMS 0) - find why (field / model buffer disagree on the cloth?) and which occluder the field AO sees there; delicate code; then the rest of the indoor list (store room 667, armour heaps, cello; other tilesets of the survey).**
