@@ -269,3 +269,4 @@
 - L2116: Session 2026-11-23 night / 2026-11-24: key messages, start screen help bar, centred Start menu bar, release v1.9.13 (dev 399ab82, cd7d1ad, 74c0f4f; main 92437bd)
 - L2123: Session 2026-11-24 day: light shapes while the user was at work, then together (dev fad15f8 .. b98b3cd)
 - L2137: Session 2026-11-24 evening: indoor light shapes, Mercator house furniture (dev, after b98b3cd)
+- L2150: Session 2026-11-25: 722 AO step solved (LK_LTDOORMESH v1), boatman's house light shapes (dev b980c14 .. 6816769)
