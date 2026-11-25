@@ -216,6 +216,30 @@ def build(spec):
             for b in ((x0, x1, y0, y0 + t), (x0, x1, y1 - t, y1), (x0, x0 + t, y0 + t, y1 - t), (x1 - t, x1, y0 + t, y1 - t)): out.append(rbox(*b, z1 - dp - 0.5, z1, 0.5, n=1))
     return out
 
+def small(p, floor):
+    """a part standing ON the furniture (not on the floor and not a case / hearth / shelf board): flasks, vases, bottles, plates, boxes, frames, the crystal ball"""
+    if p[0] == "lathe": return p[1][2] > floor + 1.0
+    if p[0] == "box": return p[1][4] > floor + 1.0
+    if p[0] == "raw": return min(v[2] for V, F in p[1] for v in V) > floor + 1.0
+    return False
+
+def write_split(path, spec, title):
+    """the OBJ with the small things after 'g nofield' (patch_lights.py mesh_cells: GPU surfaces + shadows, but no light field blocks / room light steps)"""
+    big = build(dict(spec, parts=[p for p in spec["parts"] if not small(p, spec["floor"])]))
+    sm = build(dict(spec, parts=[p for p in spec["parts"] if small(p, spec["floor"])]))
+    with open(path, "w") as fo:
+        fo.write("# %s (remake/recipes/case/case.py). GAME coordinates x east, y south, z up, world units.\n" % title)
+        fo.write("# our own geometry fitted to the original picture; read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh'); parts after 'g nofield' do not stamp the light field.\n")
+        b = 0
+        for grp, ps in (("furniture", big), ("nofield", sm)):
+            if not ps: continue
+            fo.write("g %s\n" % grp)
+            for V, F in ps:
+                for v in V: fo.write("v %.3f %.3f %.3f\n" % v)
+                for f in F: fo.write("f " + " ".join(str(i + 1 + b) for i in f) + "\n")
+                b += len(V)
+    print("%s: %d + %d small parts" % (path, len(big), len(sm)))
+
 def write_ops(names):
     """--write NAME..: the OBJ per room (landstalker/data/proxies/NAME_ROOM.obj, NAME = spec name without its room suffix) + the 'mesh' op in
     landstalker/data/light_proxies.json (an op with the same file is replaced). The spec's floor is in world units."""
@@ -226,7 +250,7 @@ def write_ops(names):
         sp = SPECS[name]; base = name.rsplit("_", 1)[0]; ref = sp["rooms"][0]
         for r in sp["rooms"]:
             fn = "proxies/%s_%d.obj" % (base, r)
-            write_obj(os.path.join(root, "landstalker", "data", fn), build(sp), "%s, room %d" % (name, r))
+            write_split(os.path.join(root, "landstalker", "data", fn), sp, "%s, room %d" % (name, r))
             ops = [e for e in data["rooms"].get(str(r), []) if e.get("file") != fn]
             ops.append(collections.OrderedDict([("op", "mesh"), ("cells", sp["cells"]), ("file", fn), ("surface", True), ("air", True), ("floor", sp["floor"])]
                 + ([("carrier", collections.OrderedDict(sorted(sp["carrier"].items(), key=lambda t: "raz".index(t[0][0]))))] if sp.get("carrier") else []) + [

@@ -1,5 +1,6 @@
-# merc_hearth_698, room 698 (remake/recipes/castle_bench/castle_bench.py). GAME coordinates x east, y south, z up, world units.
-# our own geometry fitted to the original picture; read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh').
+# merc_hearth_698, room 698 (remake/recipes/case/case.py). GAME coordinates x east, y south, z up, world units.
+# our own geometry fitted to the original picture; read by landstalker/tools/patch_lights.py via data/light_proxies.json (op 'mesh'); parts after 'g nofield' do not stamp the light field.
+g furniture
 v 224.254 240.254 0.254
 v 224.200 240.400 0.200
 v 224.110 240.355 0.355
@@ -2100,6 +2101,7 @@ f 1053 856 864 1054
 f 1054 864 872 1055
 f 1055 872 880 1056
 f 1056 880 888 984
+g nofield
 v 224.127 270.127 32.127
 v 224.100 270.200 32.100
 v 224.055 270.178 32.178

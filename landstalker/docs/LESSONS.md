@@ -11,8 +11,8 @@
 - 6. Cloud sandbox setup (no ROM, no SDL by default): lines 73-82
 - 7. Merge note: lines 83-85
 - 8. Roadmap after the compat work (user wishes, 2026-10-10): lines 86-93
-- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-613
-  - 334 entries, newest at the END; the last 12: 598 (2026-11-24) Is a drawn plant modelled? Check i...; 599 (2026-11-24) Wall fixtures in an iso drawing (l...; 600 (2026-11-24) Small organic details in the drawi...; 601 (2026-11-24) A blended overlay at 3 x scale HID...; 602 (2026-11-24) A SPHERE in the game projection is...; 603 (2026-11-24) Repeated small things (the Mercato...; 604 (2026-11-24) data/light_proxies.json keeps its...; 605 (2026-11-24) A FIREPLACE light shape: the game...; 606 (2026-11-24) Glass doors with recessed glass be...; 607 (2026-11-24) My check pictures confuse the user...; 608 (2026-11-24) A hearth's own fire must not light...; 609 (2026-11-24) Read tiny drawn objects with the u...
+- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-615
+  - 335 entries, newest at the END; the last 12: 599 (2026-11-24) Wall fixtures in an iso drawing (l...; 600 (2026-11-24) Small organic details in the drawi...; 601 (2026-11-24) A blended overlay at 3 x scale HID...; 602 (2026-11-24) A SPHERE in the game projection is...; 603 (2026-11-24) Repeated small things (the Mercato...; 604 (2026-11-24) data/light_proxies.json keeps its...; 605 (2026-11-24) A FIREPLACE light shape: the game...; 606 (2026-11-24) Glass doors with recessed glass be...; 607 (2026-11-24) My check pictures confuse the user...; 608 (2026-11-24) A hearth's own fire must not light...; 609 (2026-11-24) Read tiny drawn objects with the u...; 610 (2026-11-24) Small things standing on furniture...
 
 <!-- /TOC -->
 
@@ -607,6 +607,8 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 - (2026-11-24) My check pictures confuse the user when they DARKEN parts (plane B shown dark = read as hard shadows, three times): mark with thin outlines only, and show real game shots (lightedges pictures) for light questions. lightedges (runs >= 40 px) missed the 722 cloth wedge the user saw: also compare new / old shots by eye, zoomed (~/Project-Friday-Test/lktest/innen/ratio.py).
 - (2026-11-24) A hearth's own fire must not light the hearth TOP: the wide fire light (LK_LTWIDE, vertical extent hv) reached just over the top and grazed it = long sharp shadows of the things standing there (722 flask / box, 688 frame patch). Fix with data: mesh op "carrier" {r, axis, z} puts the flame 6 in front of the opening (the game's wall offset) and below the top; 2 in front gave a hard floor edge (691).
 - (2026-11-24) Read tiny drawn objects with the user before modelling: the 'oval' frame was a SQUARE plate leaning back with a short leg (two brown pixels); the user's sketch settled it in one round.
+- (2026-11-24) Small things standing on furniture must not enter the 4 unit light FIELD: there they are blocks, and the room light (AO) darkens the top around them in steps (722: dark left of the flask, sharp boundary). Diagnose with LANDSTALKER_LT_AO=0; fix: OBJ group 'g nofield' (LIGHT_PROXY_PLAN 2026-11-24) - they stay real GPU surfaces and shadow casters.
+
 
 
 

@@ -48,12 +48,14 @@ VER = "LK_LIGHTS v8"
 import json
 CORR_OPS = {"flat": (1, 4), "water": (2, 5), "remove": (3, 4), "hip": (4, 7), "mesh": (5, 4), "bushes": (6, 4), "pines": (7, 4), "box": (8, 5), "slab": (9, 6), "carve": (10, 4), "unpaint": (11, 4), "ground": (12, 5), "void": (13, 4), "plantcells": (14, 4)}   # plantcells (LK_LTPLANTCELL v1): forest collision cells the tile catalogue did not recognise (drawn mixed with a building) get their plants' ground like catalogue cells (LK_LTPLANT v2)   # ground (LK_LTGROUND v1): cells x0 y0 x1 y1 + height: VOID cells of the game's height map that are drawn as solid (church statue pedestal) get this height
 def mesh_cells(path):   # an OBJ (game coordinates) -> {(sx, sy): (top, bottom)} on the 4 unit grid of the light field (sub column centres), max / min over all faces (v9: the bottom for slabs)
-    vs, top, bot = [], {}, {}
+    vs, top, bot, skip = [], {}, {}, False
     for line in open(path):
         t = line.split()
         if not t: continue
         if t[0] == "v": vs.append(tuple(float(q) for q in t[1:4]))
-        elif t[0] == "f":
+        elif t[0] == "g": skip = len(t) > 1 and t[1] == "nofield"   # LK_LTNOFIELD (2026-11-24): parts after 'g nofield' (small things standing ON furniture: flasks, vases, boxes, frames, plates) stay real GPU
+            # surfaces + shadow casters (mesh_tris reads every face) but do NOT stamp the 4 unit light field: there they were blocks whose room light (AO) darkened the top around them in steps = hard edges (722 hearth cloth)
+        elif t[0] == "f" and not skip:
             idx = [int(q.split("/")[0]) - 1 for q in t[1:]]
             for k in range(1, len(idx) - 1):
                 a, b, c = vs[idx[0]], vs[idx[k]], vs[idx[k + 1]]
