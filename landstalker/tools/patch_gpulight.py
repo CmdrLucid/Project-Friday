@@ -791,8 +791,10 @@ float aoval(float px, float py, float z, float f) {   /* lk_lt_aoval */
       float t = (h - z) / d, sn = t / sqrt(1.0 + t * t) * fall; if (sn > best) { best = sn; if (sn > gBest) { gBest = sn; gBH = h; gBX = x0 + dv.x * d; gBY = y0 + dv.y * d; } } }
     sum += best; }
   float ao = n > 0.0 ? 1.0 - uAok * sum / n - (uAoflt > 1.5 ? (uAoflt - 2.0 - uAok) * cov / n : 0.0) : 1.0;   /* LK_GLAOFLT v2: the room light comes from above, a part over the point holds it back stronger than a corner: strength uAoflt - 2 (LANDSTALKER_LT_AOCOV, default 0.75; the corner strength uAok is 0.55; user 2026-11-09: 0.55 'duerfte noch etwas kraeftiger sein', 1.0 'zu stark') */
-  if (uMdl > 4.5 && gMS > 0.5) { if (uMdl < 5.5) return clamp((gBH - z) / 255.0, 0.0, 1.0); if (uMdl < 6.5) return mod(gBX, 256.0) / 255.0; if (uMdl < 7.5) return mod(gBY, 256.0) / 255.0; return clamp(z + 64.0, 0.0, 255.0) / 255.0; }   /* test aid 6..9: strongest occluder height above z / its x / y (mod 256) / z + 64 */
-  if (uMdl > 2.5 && gMS > 0.5) return clamp(ao, 0.0, 1.0) * (uMdl > 3.5 ? 0.0 : 1.0) + (uMdl > 3.5 ? n / 16.0 : 0.0);   /* LK_GLMODEL v1 test aid: 3 = horizon part only, 4 = number of directions / 16 */
+  float mD = uMdl > 12.5 ? uMdl - 10.0 : uMdl; bool aA = uMdl > 12.5 || gMS > 0.5;   /* test aid LANDSTALKER_GL5_MODELDBG=14..19: the views 4..9 for EVERY pixel (not only model side faces); 13: surface kind (0.5 model hit + 0.25 side face + 0.125 floor face) */
+  if (uMdl > 11.5 && uMdl < 12.5) return (gMH > 0.5 ? 0.5 : 0.0) + (gMS > 0.5 ? 0.25 : 0.0) + (f == 1.0 ? 0.125 : 0.0);
+  if (mD > 4.5 && aA) { if (mD < 5.5) return clamp((gBH - z) / 255.0, 0.0, 1.0); if (mD < 6.5) return mod(gBX, 256.0) / 255.0; if (mD < 7.5) return mod(gBY, 256.0) / 255.0; return clamp(z + 64.0, 0.0, 255.0) / 255.0; }   /* test aid 6..9: strongest occluder height above z / its x / y (mod 256) / z + 64 */
+  if (mD > 2.5 && aA) return clamp(ao, 0.0, 1.0) * (mD > 3.5 ? 0.0 : 1.0) + (mD > 3.5 ? n / 16.0 : 0.0);   /* LK_GLMODEL v1 test aid: 3 = horizon part only, 4 = number of directions / 16 */
   if (f != 1.0 && uAotop > 0.0) ao *= 1.0 - uAotop;
   if (f != 1.0) { float fl = aoh(x0, y0, 0.0, 0.0); if (fl > -32768.0 && z >= fl) { float c = 1.0 - (z - fl) / 24.0; if (c > 0.0) ao *= 1.0 - 0.30 * c; } }
   { float cx = floor(px / 16.0), cy = floor(py / 16.0); if (f == 1.0 && inr(cx, cy) && mod(B(W(cx, cy, 1.0).g), 2.0) > 0.5) z = 32767.0; }

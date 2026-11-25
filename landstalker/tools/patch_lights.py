@@ -299,6 +299,7 @@ static int lk_lt_doorvoid(void) { static int v = -1; if (v < 0) { const char *e 
 static int lk_lt_watdoor(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_WATDOOR"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTWATDOOR v1 test aid (0 = old) */
 static int lk_lt_isdoorft(int x, int y) { int t = UW(0xFFD192 + 148 * y + 2 * x) & 0x3F; return (t >= 1 && t <= 4) || t == 6; }   /* the game's floor type of height map cell (x, y): 01..04 / 06 = doors (FORMATS) */
 static int lk_lt_doorpit(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_DOORPIT"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTDOORPIT v1 test aid (0 = old door niche fill) */
+static int lk_lt_doormesh(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_DOORMESH"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTDOORMESH v1 test aid (0 = old door niche fill) */
 static int lk_lt_dent(int cx, int cy, int cf) {   /* v4: room cell (cx, cy) is part of a narrow recess (<= 3 cells wide across the wall) = a door niche in the wall (room 5, user 2026-11-03: light stripe at the right door); the wall beside it stays a wall */
   int n = 1, d, ax = cf == 3, ay = cf == 2;
   for (d = 1; d <= 3 && lk_lt_cell(cx - d * ax, cy - d * ay) > -32768; d++) n++;
@@ -1624,6 +1625,12 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
           if (ok && (UW(0xFFD192 + 148 * y + 2 * x) & 0x3F) == 7 && lk_lt_doorpit()) ok = 0;   /* LK_LTDOORPIT v1 (user 2026-11-18, Waterfall Shrine 182: 'als wuerde die Lichtkarte hier einen Boden rendern, wo keiner ist'; 'kann man nicht einfach eine Wand als Wand erklaeren'):
              the game's own FLOOR TYPE (cell word low byte & $3F, ProcessFloorType $00603C) 07 = PIT: a pit is never a door.  182: a 3 cell pit ($0007, height 0) between two walkways at 64 along the back wall looked like a door niche;
              the fill put a floor at 64 over the drawn wall = a lit strip with hard edges.  Offline over all ROM height maps: 49 rooms lose pit cells from the fill (caves / dungeons).  Test aid LANDSTALKER_LT_DOORPIT=0 = old */
+          if (ok && !lk_lt_sun && lk_lt_doormesh()) { int sd, q3;   /* LK_LTDOORMESH v1 (2026-11-25, room 722 / 723: a step in the room light on the hearth cloth): indoors a niche whose SIDE (jamb) cell lies in a
+             hand-made furniture model's rectangle (data op mesh) is a gap between furniture, no door: 722 cell 21,16 (floor 0) between the hearth (cells 18..20,16) and the bookcase (22,16), both 48 in the
+             game's collision with the wall behind, was filled to 48 = a block the drawing does not have; the cloth tip's view rays ended on its top (z 48, open sky AO) instead of the hearth top (30).
+             Test aid LANDSTALKER_LT_DOORMESH=0 = old */
+            for (sd = -1; sd <= 1 && ok; sd += 2) { int cx = x, cy = y; do { cx += sd * sx2; cy += sd * sy2; } while (cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_top[cy][cx] == h);
+              for (q3 = 0; lk_lt_corr[q3].room >= 0; q3++) { const int16_t *a3 = lk_lt_corr[q3].a; if (lk_lt_corr[q3].room == lk_o_room && lk_lt_corr[q3].op == 5 && cx >= a3[0] && cx <= a3[2] && cy >= a3[1] && cy <= a3[3]) { ok = 0; break; } } } }
           if (ok && vw) { dn[y][x] = -32768; nd++; }   /* LK_LTDOORVOID v1 (user 2026-11-15, room 66: 'harte Kante im Schatten' at the big door): indoors the walls are VOID cells; a door slot of 1..3 floor-high cells in such a wall with void behind (room 66 cells 16..17,12: $2000 blocked, height 0) was a slot through the whole wall height = the wall above the door a dark band with hard edges.  The slot becomes void = wall like its sides (test aid LANDSTALKER_LT_DOORVOID=0) */
           else if (ok && lo < 9999) { if (bt != -32768 && bt < lo) lo = bt; if (lo > dn[y][x]) { dn[y][x] = (int16_t)lo; nd++; } } } }
       memcpy(lk_lt_top, dn, sizeof dn);

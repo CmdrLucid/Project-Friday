@@ -11,8 +11,8 @@
 - 6. Cloud sandbox setup (no ROM, no SDL by default): lines 73-82
 - 7. Merge note: lines 83-85
 - 8. Roadmap after the compat work (user wishes, 2026-10-10): lines 86-93
-- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-615
-  - 335 entries, newest at the END; the last 12: 599 (2026-11-24) Wall fixtures in an iso drawing (l...; 600 (2026-11-24) Small organic details in the drawi...; 601 (2026-11-24) A blended overlay at 3 x scale HID...; 602 (2026-11-24) A SPHERE in the game projection is...; 603 (2026-11-24) Repeated small things (the Mercato...; 604 (2026-11-24) data/light_proxies.json keeps its...; 605 (2026-11-24) A FIREPLACE light shape: the game...; 606 (2026-11-24) Glass doors with recessed glass be...; 607 (2026-11-24) My check pictures confuse the user...; 608 (2026-11-24) A hearth's own fire must not light...; 609 (2026-11-24) Read tiny drawn objects with the u...; 610 (2026-11-24) Small things standing on furniture...
+- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-616
+  - 336 entries, newest at the END; the last 12: 600 (2026-11-24) Small organic details in the drawi...; 601 (2026-11-24) A blended overlay at 3 x scale HID...; 602 (2026-11-24) A SPHERE in the game projection is...; 603 (2026-11-24) Repeated small things (the Mercato...; 604 (2026-11-24) data/light_proxies.json keeps its...; 605 (2026-11-24) A FIREPLACE light shape: the game...; 606 (2026-11-24) Glass doors with recessed glass be...; 607 (2026-11-24) My check pictures confuse the user...; 608 (2026-11-24) A hearth's own fire must not light...; 609 (2026-11-24) Read tiny drawn objects with the u...; 610 (2026-11-24) Small things standing on furniture...; 615 (2026-11-25) A light step that no data change m...
 
 <!-- /TOC -->
 
@@ -612,3 +612,4 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 
 
 
+- (2026-11-25) A light step that no data change moves is often a FILL RULE, not the shader: check the light's own height map first (LANDSTALKER_LT_DUMPFILE / DUMPFINE, compare with the game's collision via proxysurvey.heights) and switch the fill rules off one by one (LT_DOORFILL / EDGEFILL / RIMFILL / ARCHFILL). The 722 cloth step was the door niche fill turning a 1 cell gap between two furniture blocks into a 48 high phantom block (LK_LTDOORMESH v1). And a debug view that 'changes nothing' must be checked for WHICH pixels it acts on: the GL5_MODELDBG 4..9 views only touch model SIDE faces (gMS), so 'unchanged = not a model pixel' was a wrong conclusion for top faces (13..19 act on every pixel).
