@@ -9499,6 +9499,10 @@
   "Four items as in the JP original": "일본판 아이템 4개",
   "D-Pad": "방향키",
   "Alternate": "대체",
-  "Up/Down/Left/Right go diagonally": "상하좌우로 대각선 이동"
+  "Up/Down/Left/Right go diagonally": "상하좌우로 대각선 이동",
+  "Jump Sound": "점프 소리",
+  "Landing Sound": "착지 소리",
+  "Nigel's sound when he jumps": "점프할 때 나는 소리",
+  "Nigel's sound when he lands": "착지할 때 나는 소리"
  }
 }

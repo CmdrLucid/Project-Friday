@@ -9525,6 +9525,10 @@
   "Four items as in the JP original": "Чотири речі як в JP",
   "D-Pad": "Хрестовина",
   "Alternate": "Інакше",
-  "Up/Down/Left/Right go diagonally": "Верх/Низ/Вліво/Вправо: косо"
+  "Up/Down/Left/Right go diagonally": "Верх/Низ/Вліво/Вправо: косо",
+  "Jump Sound": "Звук стрибка",
+  "Landing Sound": "Звук приземл.",
+  "Nigel's sound when he jumps": "Звук під час стрибка",
+  "Nigel's sound when he lands": "Звук під час приземлення"
  }
 }

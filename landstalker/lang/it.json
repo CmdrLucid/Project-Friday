@@ -9440,7 +9440,11 @@
   "Four items as in the JP original": "Quattro oggetti come in JP",
   "D-Pad": "Croce dir.",
   "Alternate": "Alterno",
-  "Up/Down/Left/Right go diagonally": "Su/Giu/Sx/Dx: in diagonale"
+  "Up/Down/Left/Right go diagonally": "Su/Giu/Sx/Dx: in diagonale",
+  "Jump Sound": "Suono salto",
+  "Landing Sound": "Suono atterraggio",
+  "Nigel's sound when he jumps": "Suono quando salta",
+  "Nigel's sound when he lands": "Suono quando atterra"
  },
  "items_jp": {
   "names": {

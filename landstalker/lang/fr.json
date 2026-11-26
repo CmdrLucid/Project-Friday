@@ -9350,7 +9350,11 @@
   "Four items as in the JP original": "Quatre objets de la version JP",
   "D-Pad": "Croix dir.",
   "Alternate": "Alternatif",
-  "Up/Down/Left/Right go diagonally": "Haut/Bas/Gauche/Droite: diago."
+  "Up/Down/Left/Right go diagonally": "Haut/Bas/Gauche/Droite: diago.",
+  "Jump Sound": "Son saut",
+  "Landing Sound": "Son atterrissage",
+  "Nigel's sound when he jumps": "Son quand Nigel saute",
+  "Nigel's sound when he lands": "Son quand Nigel atterrit"
  },
  "items_jp": {
   "names": {

@@ -263,6 +263,8 @@ python3 tools/patch_introde.py .deps/genrecomp
 python3 tools/patch_langpage.py .deps/genrecomp
 # Alternate D-pad layout: Up / Down / Left / Right = the diagonal axes (Options > Movement > D-Pad, default Original = bit exact; GitHub #22; tools/patch_altpad.py, needs patch_bath / patch_langpage)
 python3 tools/patch_altpad.py .deps/genrecomp
+# Jump / landing sound on / off: Options > Audio > Jump Sound / Landing Sound (ids 65 / 66, default On = bit exact; tools/patch_jumpsnd.py, needs patch_altpad)
+python3 tools/patch_jumpsnd.py menu .deps/genrecomp
 # a night at the inn ends in the morning: Day / Night clock -> 07:00 at the fade-in after HandleInnStay (GitHub #24; tools/patch_innmorning.py, needs patch_lights / patch_altpad)
 python3 tools/patch_innmorning.py .deps/genrecomp
 # Options menu in Korean / Japanese (escaped UI text + Galmuri 7 glyph table from tools/uiwide.py; tools/patch_uiwide.py, needs patch_lang / patch_options / patch_iteminfo)
@@ -301,6 +303,8 @@ python3 tools/patch_sprcull.py src/recomp
 
 # 1b2. speech blips on/off option: skips the talk-sound trap in $023104 (tools/patch_talk.py; must run before rename_generated)
 python3 tools/patch_talk.py src/recomp
+# jump / landing sound option: guards the jump / landing sound traps ($003FCA jump, $0021A0 landing; tools/patch_jumpsnd.py; before rename_generated)
+python3 tools/patch_jumpsnd.py gen src/recomp
 # Yes / No prompt layout from the language file (tools/patch_yesno.py, docs/TEXT_LAYER.md; must run before rename_generated)
 python3 tools/patch_yesno.py src/recomp
 
