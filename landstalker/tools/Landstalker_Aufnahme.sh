@@ -59,6 +59,9 @@ echo "LANDSTALKER_WIDE=${LANDSTALKER_WIDE:-0} LANDSTALKER_TALL=${LANDSTALKER_TAL
 # Nativ-Tempo: der live benutzte Wert (Datei, sonst Standard An) fuer die Wiedergabe; im Menue waehrend der Aufnahme bitte nicht umschalten
 _np=1; [ -f "$HOME/.landstalker_nativepace" ] && read -r _np < "$HOME/.landstalker_nativepace"
 echo "LANDSTALKER_NATIVEPACE=${_np:-1}" >> "$DIR/rec_$STAMP.cfg"
+# Mittige Ansicht (Centered View, Standard An seit 2026-11-26): der live benutzte Wert fuer die Wiedergabe
+_ce=1; [ -f "$HOME/.landstalker_centre" ] && read -r _ce < "$HOME/.landstalker_centre"
+echo "LANDSTALKER_CENTRE=${_ce:-1}" >> "$DIR/rec_$STAMP.cfg"
 _w=$((320 + 2 * ${LANDSTALKER_WIDE:-0}))
 echo "[Aufnahme] Breitbild/Hoehe fuer diese Aufnahme festgehalten: $(cat "$DIR/rec_$STAMP.cfg")  = Bildbreite $_w px, volle Hoehe ${LANDSTALKER_TALL:-0}  (L2 / R2 wirken jetzt nicht)"
 echo "[Aufnahme] Andere Breite gewuenscht? Spiel beenden, im normalen Spiel mit L2 umschalten (352 / 384 / 416 px), dann die Aufnahme neu starten."

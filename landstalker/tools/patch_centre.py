@@ -13,7 +13,8 @@ extra strips of lk_strip_extend (tools/patch_wide.py) then need more steps at th
 Switching without a room change: InitVDP $008EA0 (run when the Start menu closes: LoadRoom + InitVDPAndFadeIn, also after shops / some
 dialogue actions) rebuilds scroll registers + all blocks from the camera; a wrapper moves the camera words / blocks / sub bytes by the
 difference first.  (Full Height switched by key during play: the offset changes at the next room load / menu close.)
-Option: Options > Display > Centered View (id 67, ~/.landstalker_centre 0|1, default Off = the original camera = bit exact; only with Full
+Option: Options > Display > Centered View (id 67, ~/.landstalker_centre 0|1; default ON since 2026-11-26 (user), Off while GENRECOMP_INPUTSCRIPT is set
+(replays of older recordings; Landstalker_Aufnahme.sh stores the live value as LANDSTALKER_CENTRE in rec_<t>.cfg); Off = the original camera = bit exact; only with Full
 Height on).  Env: LANDSTALKER_CENTRE=0|1 or D (screen px > 1, even), LANDSTALKER_CENTRE_TOP / _BOT = extra strip steps (default 5 / 2),
 LANDSTALKER_CENTRE_DEBUG=1 prints every camera change, LANDSTALKER_CENTRE_AT=frame flips the option once (test aid; the camera follows at the next rebuild).
 Measured (2026-11-26, ~/Project-Friday-Test/lktest/nigelmitte): D = 24 puts Nigel's body on line ~110 of 224; 20000 frames of a user
@@ -43,7 +44,8 @@ if s is not None:
 extern int lk_tall_kv(void) __attribute__((weak));
 static int lk_ctr_d = -1, lk_ctr_t = -1, lk_ctr_b = -1, lk_ctr_opt = -1;
 static void lk_ctr_load(void) { const char *e, *h; char pth[512]; FILE *f; int v = 0; if (lk_ctr_d >= 0) return;
-    h = getenv("HOME"); snprintf(pth, sizeof pth, "%s/.landstalker_centre", h ? h : "."); f = fopen(pth, "r"); if (f) { if (fscanf(f, "%d", &v) != 1) v = 0; fclose(f); }
+    v = getenv("GENRECOMP_INPUTSCRIPT") ? 0 : 1;   /* default On (user 2026-11-26: 'bitte standardmaessig an'); Off in replays of older recordings (like Native Pace) */
+    h = getenv("HOME"); snprintf(pth, sizeof pth, "%s/.landstalker_centre", h ? h : "."); f = fopen(pth, "r"); if (f) { int r; if (fscanf(f, "%d", &r) == 1) v = r != 0; fclose(f); }
     lk_ctr_d = 24; e = getenv("LANDSTALKER_CENTRE"); if (e && *e) { v = atoi(e); if (v > 1) { lk_ctr_d = v & ~1; if (lk_ctr_d > 48) lk_ctr_d = 48; } }
     lk_ctr_opt = v ? 1 : 0;
     e = getenv("LANDSTALKER_CENTRE_TOP"); lk_ctr_t = e && *e ? atoi(e) : 5;
