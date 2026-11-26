@@ -30,7 +30,7 @@ def read_pages():
     """pages + row counts from the generated source (.deps/genrecomp/src/func_table.c, includes patch_altpad / patch_kbdir / patch_lang changes);
     fallback = the table known on 2026-11-23.  -> [(name, rows), ...] for the pages (root excluded), root row count"""
     import re
-    names = ["Display", "Graphics", "Audio", "Movement", "Comfort", "Difficulty / Help", "Keybindings", "Language / Region"]; cnt = [9, 7, 12, 5, 6, 8, 3, 20, 4]
+    names = ["Display", "Graphics", "Audio", "Movement", "Comfort", "Difficulty / Help", "Keybindings", "Language / Region"]; cnt = [9, 8, 12, 5, 6, 8, 3, 20, 4]
     try:
         t = open(os.path.join(LS, ".deps/genrecomp/src/func_table.c")).read()
         cnt = [int(x) for x in re.search(r"lk_pg_cnt\[LK_NPG \+ 1\] = \{([^}]*)\}", t).group(1).split(",")]

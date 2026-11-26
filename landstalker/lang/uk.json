@@ -9528,7 +9528,9 @@
   "Up/Down/Left/Right go diagonally": "Верх/Низ/Вліво/Вправо: косо",
   "Jump Sound": "Звук стрибка",
   "Landing Sound": "Звук приземл.",
-  "Nigel's sound when he jumps": "Звук під час стрибка",
-  "Nigel's sound when he lands": "Звук під час приземлення"
+  "Sound when jumping": "Звук під час стрибка",
+  "Sound when landing": "Звук під час приземлення",
+  "Centered View": "Вид по центру",
+  "Full Height: hero in the middle": "На всю вис.: герой у центрі"
  }
 }

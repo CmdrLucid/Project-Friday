@@ -265,6 +265,8 @@ python3 tools/patch_langpage.py .deps/genrecomp
 python3 tools/patch_altpad.py .deps/genrecomp
 # Jump / landing sound on / off: Options > Audio > Jump Sound / Landing Sound (ids 65 / 66, default On = bit exact; tools/patch_jumpsnd.py, needs patch_altpad)
 python3 tools/patch_jumpsnd.py menu .deps/genrecomp
+# Nigel centred with Full Height: Options > Display > Centered View (id 67, default Off = original camera; camera offset at the room load + strips above; tools/patch_centre.py, needs patch_wide / patch_tall / patch_altpad)
+python3 tools/patch_centre.py .deps/genrecomp
 # a night at the inn ends in the morning: Day / Night clock -> 07:00 at the fade-in after HandleInnStay (GitHub #24; tools/patch_innmorning.py, needs patch_lights / patch_altpad)
 python3 tools/patch_innmorning.py .deps/genrecomp
 # Options menu in Korean / Japanese (escaped UI text + Galmuri 7 glyph table from tools/uiwide.py; tools/patch_uiwide.py, needs patch_lang / patch_options / patch_iteminfo)

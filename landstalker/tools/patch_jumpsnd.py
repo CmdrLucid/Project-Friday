@@ -71,7 +71,7 @@ void lk_jsnd_step(int w) { const char *h = getenv("HOME"); char pth[512]; FILE *
     s = rep(s, "static const char *lk_id_name[65] = {", "static const char *lk_id_name[67] = {", "func_table.c lk_id_name size")
     s = rep(s, '"Bath Scene", "D-Pad" };', '"Bath Scene", "D-Pad", "Jump Sound", "Landing Sound" };   /* 65, 66: ' + VER + ' */', "func_table.c lk_id_name")
     s = rep(s, 'case 64: return "Up/Down/Left/Right go diagonally";',
-            'case 64: return "Up/Down/Left/Right go diagonally"; case 65: return "Nigel\'s sound when he jumps"; case 66: return "Nigel\'s sound when he lands";',
+            'case 64: return "Up/Down/Left/Right go diagonally"; case 65: return "Sound when jumping"; case 66: return "Sound when landing";',
             "func_table.c help")
     s = rep(s, "static const int lk_ids_audio[3] = { 6, 7, 8 };",
             "static const int lk_ids_audio[5] = { 6, 7, 8, 65, 66 };   /* " + VER + ": + Jump Sound, Landing Sound */", "func_table.c lk_ids_audio")

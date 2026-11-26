@@ -9502,7 +9502,9 @@
   "Up/Down/Left/Right go diagonally": "상하좌우로 대각선 이동",
   "Jump Sound": "점프 소리",
   "Landing Sound": "착지 소리",
-  "Nigel's sound when he jumps": "점프할 때 나는 소리",
-  "Nigel's sound when he lands": "착지할 때 나는 소리"
+  "Sound when jumping": "점프할 때 나는 소리",
+  "Sound when landing": "착지할 때 나는 소리",
+  "Centered View": "가운데 화면",
+  "Full Height: hero in the middle": "전체 높이: 주인공을 가운데로"
  }
 }

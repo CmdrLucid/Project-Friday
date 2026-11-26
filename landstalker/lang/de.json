@@ -9357,8 +9357,10 @@
   "Up/Down/Left/Right go diagonally": "Hoch/Runter/Links/Rechts: schräg",
   "Jump Sound": "Sprung-Sound",
   "Landing Sound": "Lande-Sound",
-  "Nigel's sound when he jumps": "Laut beim Springen",
-  "Nigel's sound when he lands": "Laut beim Landen"
+  "Sound when jumping": "Laut beim Springen",
+  "Sound when landing": "Laut beim Landen",
+  "Centered View": "Mittige Ansicht",
+  "Full Height: hero in the middle": "Volle Höhe: Held in der Mitte"
  },
  "items_jp": {
   "names": {
