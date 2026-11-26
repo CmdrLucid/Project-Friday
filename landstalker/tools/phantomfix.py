@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""phantomfix.py ROM CANDIDATES.json OUTDIR [--min-edges N]  -- turns phantomcheck.py candidates into PROPOSED light data ops + test spots (2026-11-26).
+"""phantomfix.py ROM CANDIDATES.json OUTDIR [--min-edges N] [--mode neighbour|bz] [--rooms a,b,..]  -- turns phantomcheck.py candidates into PROPOSED light data ops + test spots (2026-11-26).
 
 CANDIDATES.json: list of {room, kind, c0, c1, z, face, n, bz} (the runs of phantomcheck.py, already filtered: not handled by a data op).
 Per cell of a run the proposed light height is
   - the BACK neighbour's height (the cell behind the face: the walkway / stair step the railing posts stand on) when it is walkable and lower, else
   - the nearest walkable cell within 3 cells that is lower (an invisible barrier: the floor around it), else no proposal.
+--mode bz: instead the height where the drawing shows the edge most clearly (phantomcheck's best z, rounded to 4; only cells where it lies below).
 Writes OUTDIR/ops.json ({room: [ground replace ops]}, one op per row of equal height, "why" names the run) and OUTDIR/cells.txt ('room x y' lines:
 one walkable cell next to the middle of every run = where tools/lightedges.py with LIGHTEDGES_CELLS puts Nigel for the sword glow / daylight pictures).
 Our own data only (room ids and cell coordinates)."""
@@ -15,9 +16,12 @@ import phantomcheck as P
 def main():
     a = [s for s in sys.argv[1:] if not s.startswith('--')]; mine = int(sys.argv[sys.argv.index('--min-edges') + 1]) if '--min-edges' in sys.argv else 2
     rom = open(a[0], 'rb').read(); cand = json.load(open(a[1])); out = a[2]; os.makedirs(out, exist_ok=True)
+    mode = sys.argv[sys.argv.index('--mode') + 1] if '--mode' in sys.argv else 'neighbour'   # 'bz': the height where the DRAWING shows the edge (phantomcheck best z)
+    rooms = set(int(r) for r in sys.argv[sys.argv.index('--rooms') + 1].split(',')) if '--rooms' in sys.argv else None
+    segc = {}
     ops = {}; cells = []; hmc = {}; nprop = 0; nrun = 0
     for r in cand:
-        if r['n'] < mine: continue
+        if r['n'] < mine or (rooms is not None and r['room'] not in rooms): continue
         room = r['room']; hm = hmc.setdefault(room, P.heights(rom, room)); f = r['face']
         (x0, y0), (x1, y1) = r['c0'], r['c1']
         run = [(x0, y) for y in range(y0, y1 + 1)] if f == 'x' else [(x, y0) for x in range(x0, x1 + 1)]
@@ -26,6 +30,12 @@ def main():
         for (X, Y) in run:
             if (X, Y) not in hm: continue
             z = hm[(X, Y)][0]; b = (X - 1, Y) if f == 'x' else (X, Y - 1)
+            if mode == 'bz':
+                if room not in segc:
+                    rgb, mask = P.picture(rom, room); segc[room] = {(x[0], x[1]): x for x in P.segments(rgb, mask, hm, P.plant_cells(room))}
+                x = segc[room].get(((X, Y), f))
+                if x and x[7] < z: prop.append(((X, Y), int(4 * round(x[7] / 4.0))))
+                continue
             if walk(b) and hm[b][0] < z: prop.append(((X, Y), hm[b][0])); continue
             best = None
             for dx in range(-3, 4):
