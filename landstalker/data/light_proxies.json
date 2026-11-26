@@ -13121,6 +13121,18 @@
         "why": "Kazalt stairs to the inner courtyard (user rec_20261126_1827, 'eine harte Kante gibt es noch an der Tanne'): column x 28 beside the stair posts is the stairs' railing COLLISION strip (3 steps above each step: 128 / 112 / 96 / 80); in the drawing the small pines stand there on the terrace (feet 28.9 / 26.9 and 27.9 at 32, 28.9 / 28.9 at 16, data/plants.json) and the ledge row 25 is 96: the strip's corner made a vertical light edge straight through the pine (LK_LTGROUND v2 replace)"
       },
       {
+        "op": "ground",
+        "cells": [
+          26,
+          37,
+          27,
+          39,
+          16
+        ],
+        "replace": true,
+        "why": "Kazalt inner courtyard, corner behind the lower walkway (user rec_20261126_1957, first sword swing: 'harte Schattenkante'): cells x 26..27 rows 37..39 are the game's 128 high COLLISION barrier behind the walkway (not drawn: there the picture shows the mossy west wall); for the light it was a block that hid the left half of that wall = a vertical edge in the sword glow; floor 16 like the courtyard (hidden by the walkway in the picture)"
+      },
+      {
         "op": "mesh",
         "cells": [
           28,
