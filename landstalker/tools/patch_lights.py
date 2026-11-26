@@ -171,6 +171,8 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
                     a = a + [{"sea": 1, "layera": 2}[e.get("bg", "sea")], int(e.get("floor", 0))]; n += 2
                 if op == 11:   # LK_LTUNPAINT v1: + the floor height in units (the painted shadow lies on the floor footprint of the cells)
                     uprows.append("{%d, 11, {%s}}" % (int(room), ", ".join(str(v) for v in a + [int(e.get("floor", 0)), 0, 0]))); continue
+                if op == 12:   # LK_LTGROUND v2: "replace": true = also cells the game fills (collision strips), not only void cells
+                    a = a + [1 if e.get("replace") else 0]; n += 1
                 if op in (6, 7):   # bushes / pines: + top above the base (0 = the game's height of each cell), crown radius (0 = default), base (-999 = automatic)
                     a = a + [int(e.get("h", 0)), int(e.get("r", 0)), int(e.get("base", -999))]; n += 3
                 rows.append("{%d, %d, {%s}}" % (int(room), op, ", ".join(str(v) for v in a + [0] * (7 - n))))
@@ -1315,6 +1317,8 @@ static void lk_lt_omlathe(float cx, float cy, const float *rr, const float *zz, 
    foot in reach is drawn by the plant model instead of its lathe; the plant owns its footprint's sub columns (ground = its foot). LANDSTALKER_LT_PLANTS=0 = the old
    lathes (test aid). */
 static int lk_lt_plantopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_PLANTS"); v = e ? atoi(e) : 1; } return v; }
+static int lk_lt_groundrep(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_GROUNDREP"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTGROUND v2 (user rec_20261126_1827, Kazalt 737: 'eine harte Kante gibt es noch an der Tanne'): data op ground + "replace": true also sets cells the game fills (the stairs' railing collision strip x 28 stood 80..112 high where the small pines stand on the terrace = a wall edge straight through the pine); test aid LANDSTALKER_LT_GROUNDREP=0 = old */
+static int lk_lt_plantlow(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_PLANTLOW"); v = e ? atoi(e) : 1; } return v; }   /* LK_LTPLANTLOW v1 */
 static int lk_lt_pl0, lk_lt_pl1;   /* the current room's rows of lk_lt_plant */
 static int lk_lt_plunder(int cx, int cy) {   /* LK_LTPLANT v4 (bug sweep 2026-11-26, room 490 at night: 236 old catalogue pine lathes stood ON their collision blocks (base 48) in front of the drawn pines
      = dark pine silhouettes over the sand in the sword light): a plant within 32 of the cell centre that stands BELOW the cell's top (its own forest block, the LK_LTPLANT v2 rule for the
@@ -1375,7 +1379,8 @@ static void lk_lt_objbuild(void) {   /* LK_LTOBJ v1: the room's bushes / pines /
     for (sy = (int)((Y - R) / 4.0f); sy <= (int)((Y + R) / 4.0f); sy++) for (sx = (int)((X - R) / 4.0f); sx <= (int)((X + R) / 4.0f); sx++) {
       float dx = 4.0f * sx + 2.0f - X, dy = 4.0f * sy + 2.0f - Y;
       if (sx < 0 || sy < 0 || sx >= LK_LT_FN || sy >= LK_LT_FN || dx * dx + dy * dy > R * R || lk_lt_mown[sy][sx]) continue;
-      { int gh = lk_lt_gh[sy >> 2][sx >> 2], tk = lk_lt_tk[sy >> 2][sx >> 2]; if (gh > Z + 8.0f && tk != 1 && tk != 2 && !lk_lt_plcell(sx >> 2, sy >> 2) && !(m == LK_LT_PBIG && fabsf(dx) < 32.0f && fabsf(dy) < 32.0f)) continue; }   /* v1: only the plant's ground and its own catalogue blocks, never a wall / house / cliff beside it (room 567: a pine at a cliff hollowed the cliff's columns = a straight light edge); v2: the big round tree also owns its own 4 x 4 collision block (foot = the block's centre, plants.py foot_tree; room 458: the block stood as a 48 high box beside the model, 'Nigels Schatten bricht um wie an einer Wand') */
+      { int gh = lk_lt_gh[sy >> 2][sx >> 2], tk = lk_lt_tk[sy >> 2][sx >> 2]; if (gh > Z + 8.0f && tk != 1 && tk != 2 && !lk_lt_plcell(sx >> 2, sy >> 2) && !(m == LK_LT_PBIG && fabsf(dx) < 32.0f && fabsf(dy) < 32.0f)) continue;
+        if (lk_lt_plantlow() && gh != -32768 && gh < Z - 8.0f && tk != 1 && tk != 2 && !lk_lt_plcell(sx >> 2, sy >> 2)) continue; }   /* LK_LTPLANTLOW v1 (user rec_20261126_1827, Kazalt 737: 'bei der kleinen Tanne sind noch Streifen'): nor RAISE a lower floor beside it: the small pine at the 32 terrace's corner (foot 28.9 / 27.9) set the floor-16 sub columns of its circle to 32 = a round bump whose 4 unit staircase rim lit as vertical stripes (+x / +y faces in turn) in the sword glow; test aid LANDSTALKER_LT_PLANTLOW=0 = old */   /* v1: only the plant's ground and its own catalogue blocks, never a wall / house / cliff beside it (room 567: a pine at a cliff hollowed the cliff's columns = a straight light edge); v2: the big round tree also owns its own 4 x 4 collision block (foot = the block's centre, plants.py foot_tree; room 458: the block stood as a 48 high box beside the model, 'Nigels Schatten bricht um wie an einer Wand') */
       lk_lt_mown[sy][sx] = 1; lk_lt_mpg[sy][sx] = 1; lk_lt_mb[sy][sx] = lk_lt_mg[sy][sx] = (int16_t)Z; }
     npl++; nobj++; }
   if (lk_lt_plantopt() && lk_lt_pl1 > lk_lt_pl0) for (cy = 0; cy < 74; cy++) for (cx = 0; cx < 74; cx++) {   /* LK_LTPLANT v2 (2026-11-21, user recording rec_20261120_1940 room 458: a hard
@@ -1619,7 +1624,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
          the church statue's pedestal stands in cells the game leaves VOID (not walkable): the light saw a wall up to the room top there; data op "ground" gives them their drawn height.
          Only void cells change (the game's own cells stay); test aid LANDSTALKER_LT_GROUND=0 = old */
       if (go) for (q = 0; lk_lt_corr[q].room >= 0; q++) if (lk_lt_corr[q].room == lk_o_room && lk_lt_corr[q].op == 12) { const int16_t *a = lk_lt_corr[q].a;
-        for (y = a[1]; y <= a[3]; y++) for (x = a[0]; x <= a[2]; x++) if (x >= 0 && y >= 0 && x < 74 && y < 74 && lk_lt_top[y][x] == -32768) { lk_lt_top[y][x] = a[4]; if (a[4] > lk_lt_zmax) lk_lt_zmax = a[4]; } } }
+        for (y = a[1]; y <= a[3]; y++) for (x = a[0]; x <= a[2]; x++) if (x >= 0 && y >= 0 && x < 74 && y < 74 && (lk_lt_top[y][x] == -32768 || (a[5] && lk_lt_groundrep()))) { lk_lt_top[y][x] = a[4]; if (a[4] > lk_lt_zmax) lk_lt_zmax = a[4]; } } }
     if ((lk_lt_sun || lk_lt_aor) && !(getenv("LANDSTALKER_LT_DOORFILL") && atoi(getenv("LANDSTALKER_LT_DOORFILL")) == 0)) { static int16_t dn[74][74]; int nd = 0, ax;   /* 2026-11-07 DOOR NICHES outdoors (user rec_20261107_1822,
          room 635: 'das Haus hat einen harten Kanten Schatten ueber der Tuere'): a door is a 1..3 cell niche in the height map that runs up the WHOLE wall (cell 23,31 height 16 in a wall of 112),
          so the wall above the door was a deep slot shaded by its sides = a dark band with hard edges.  Our copy: the niche is filled up to the wall (the door sits flush); test aid LANDSTALKER_LT_DOORFILL=0 */
