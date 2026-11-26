@@ -13026,6 +13026,281 @@
         "floor": 0,
         "why": "case furniture 'boat_bed' as a real model (remake/recipes/case/case.py spec boat_bed_517, parts of remake/lib/cabinet.py: plinth, doors / drawers / compartments with contents, hearth, things on top), measured on rom_picture 517 by projection overlay (indoor furniture survey 2026-11-24)"
       }
+    ],
+    "737": [
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          24,
+          39,
+          24
+        ],
+        "file": "proxies/railing_737_a.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "ROPE RAILING 'a': upper walkway, left part (row 24 x 28..39) above the inner courtyard; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          47,
+          24,
+          61,
+          24
+        ],
+        "file": "proxies/railing_737_b.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "ROPE RAILING 'b': upper walkway at the door (row 24 x 47..61), corner post of the descent included; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          47,
+          25,
+          47,
+          44
+        ],
+        "file": "proxies/railing_737_c.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "ROPE RAILING 'c': descent, outer side (x 47, rows 25..44); remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          40,
+          39,
+          40
+        ],
+        "file": "proxies/railing_737_d.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "ROPE RAILING 'd': lower walkway, inner courtyard side (row 40 x 24..39); remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          25,
+          39,
+          39
+        ],
+        "file": "proxies/railing_737_e.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "ROPE RAILING 'e': inner courtyard, east side (x 39, rows 25..39; the posts stand on the walkway's edge); remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          50,
+          47,
+          50
+        ],
+        "file": "proxies/railing_737_f.obj",
+        "surface": true,
+        "floor": 112,
+        "why": "ROPE RAILING 'f': lower walkway, front (row 50 x 20..47); remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          48,
+          49,
+          48,
+          50
+        ],
+        "file": "proxies/railing_737_s24.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "ROPE RAILING 's24': stair post on its step 96; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          28,
+          27,
+          28
+        ],
+        "file": "proxies/railing_737_s25.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "ROPE RAILING 's25': stair post on its step 32; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          49,
+          49,
+          50
+        ],
+        "file": "proxies/railing_737_s26.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "ROPE RAILING 's26': stair post on its step 80; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          27,
+          27,
+          27
+        ],
+        "file": "proxies/railing_737_s27.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "ROPE RAILING 's27': stair post on its step 48; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          50,
+          49,
+          50,
+          50
+        ],
+        "file": "proxies/railing_737_s29.obj",
+        "surface": true,
+        "floor": 64,
+        "why": "ROPE RAILING 's29': stair post on its step 64; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          26,
+          27,
+          26
+        ],
+        "file": "proxies/railing_737_s30.obj",
+        "surface": true,
+        "floor": 64,
+        "why": "ROPE RAILING 's30': stair post on its step 64; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          51,
+          49,
+          51,
+          50
+        ],
+        "file": "proxies/railing_737_s31.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "ROPE RAILING 's31': stair post on its step 48; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          25,
+          27,
+          25
+        ],
+        "file": "proxies/railing_737_s32.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "ROPE RAILING 's32': stair post on its step 80; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          52,
+          49,
+          52,
+          50
+        ],
+        "file": "proxies/railing_737_s35.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "ROPE RAILING 's35': stair post on its step 32; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          24,
+          27,
+          24
+        ],
+        "file": "proxies/railing_737_s36.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "ROPE RAILING 's36': stair post on its step 96; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          48,
+          44,
+          48,
+          44
+        ],
+        "file": "proxies/railing_737_s38.obj",
+        "surface": true,
+        "floor": 96,
+        "why": "ROPE RAILING 's38': stair post on its step 96; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          44,
+          49,
+          44
+        ],
+        "file": "proxies/railing_737_s41.obj",
+        "surface": true,
+        "floor": 80,
+        "why": "ROPE RAILING 's41': stair post on its step 80; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          50,
+          44,
+          50,
+          44
+        ],
+        "file": "proxies/railing_737_s44.obj",
+        "surface": true,
+        "floor": 64,
+        "why": "ROPE RAILING 's44': stair post on its step 64; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          51,
+          44,
+          51,
+          44
+        ],
+        "file": "proxies/railing_737_s46.obj",
+        "surface": true,
+        "floor": 48,
+        "why": "ROPE RAILING 's46': stair post on its step 48; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          52,
+          44,
+          52,
+          44
+        ],
+        "file": "proxies/railing_737_s49.obj",
+        "surface": true,
+        "floor": 32,
+        "why": "ROPE RAILING 's49': stair post on its step 32; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      }
     ]
   },
   "unpaint_tiles": {
