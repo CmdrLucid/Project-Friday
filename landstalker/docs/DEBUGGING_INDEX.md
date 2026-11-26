@@ -270,3 +270,4 @@
 - L2123: Session 2026-11-24 day: light shapes while the user was at work, then together (dev fad15f8 .. b98b3cd)
 - L2137: Session 2026-11-24 evening: indoor light shapes, Mercator house furniture (dev, after b98b3cd)
 - L2150: Session 2026-11-25: 722 AO step solved (LK_LTDOORMESH v1), boatman's house light shapes (dev b980c14 .. 6816769)
+- L2158: Session 2026-11-25 / 26: bug sweep of all rooms, sword glow shadow map, pines, Kazalt railings, stutter test (dev 72acd4f .. 604f232)
