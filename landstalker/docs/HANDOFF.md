@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 55-60
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 934-945
-- 1. Where we are: lines 946-1126
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1127-1454
-- 3. How the user works (important): lines 1455-1470
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1471-1495
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1496-1504
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1505-1552
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1553-1562
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1563-1564
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1565-1567
-- NEXT STEPS, newest first: -287 1128, -286 1129, -285 1130, -284 1131, -283 1132, -282 1133, -281 1134, -280 1138, -279 1139, -278 1140
+- 1. Where we are: lines 946-1127
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1128-1455
+- 3. How the user works (important): lines 1456-1471
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1472-1496
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1497-1505
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1506-1553
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1554-1563
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1564-1565
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1566-1568
+- NEXT STEPS, newest first: -287 1129, -286 1130, -285 1131, -284 1132, -283 1133, -282 1134, -281 1135, -280 1139, -279 1140, -278 1141
 - Newest entries:
   - 0a532 line 192: 2026-11-26 late evening (Deck, Opus 5.5, no agents; headless + 2 short GPU shots, NOT played): CENTERED VIE...
   - 0a531 line 193: 2026-11-26 evening (Deck, Opus 5.5, no agents; headless, NOT played): TWO YOUTUBE COMMENTS (user forwarded...
@@ -944,6 +944,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-26 EVENING SESSION END (Opus 5.5, no agents; `dev` 2a5ff4b+, main = v1.9.13, no release):** two YouTube comments done: (1) Options > Audio > Jump Sound / Landing Sound (LK_JUMPSND v1, default On = original; sound trace verified), (2) Options > Display > Centered View (LK_CENTRE v1, default ON per user: camera 24 px lower with Full Height, live switch at menu close; 20000 replay frames without holes, GPU light follows). HEADLESS / GPU shots only, NOT played: the user checks both (-286 / -287). HANDOFF 0a531 / 0a532.
 - **2026-11-25 / 26 SESSION END (Opus 5.5, no agents; `dev` 604f232+, main = v1.9.13, no release):** BUG SWEEP before 2.0 over all 816 rooms (lightedges --spots --sword, 3 full runs): 0 crashes, 0 interpreter addresses, room light clean; the SWORD GLOW got its own shadow map of the real 3D shapes (LK_SWSM v1 + LK_SWSHAREA / LK_SWMNRM / LK_SWCORNER), pine fixes (plants.py feet in their forest, LK_LTPLANT v4 drops stand-in lathes), the Kazalt 737 rope railings as real 3D light shapes (user OK on the sheet), stutter test (map radius 0.5: no frame over 16.7 ms in 13 runs). HANDOFF 0a527..0a530. HEADLESS / GPU test pictures + frame statistics only; the user saw the railing sheet ('passt'), NOTHING played yet (NEXT -285 / -283). User wish: chat text always German (memory).
 - **2026-11-25 SESSION END (Opus 5.5, no agents; `dev` 6816769+, main = v1.9.13, no release):** (1) 722 hearth cloth AO step SOLVED = LK_LTDOORMESH v1 (door niche fill no longer fills gaps between furniture models indoors; also fixed the 722 bed wall stripes; 26 indoor rooms change, biggest 691/713 wall beside the hearth brighter, castle 78 candle slot dimmer; HANDOFF 0a525). (2) BOATMAN'S HOUSE 491 / 735 light shapes done, every piece with the user's OK on its clay sheet: bed (+ 517, 728, 732), bookcase row with jars, small bookcase, table + painted shadow off, sack (0a526). (3) Indoor survey: no further light shapes needed for 2.0 except the castle tower 34 / 35 (needs a user recording). HEADLESS / GPU shots only, NOT PLAYED: all of it. User decisions today: 72 wardrobe lines accepted, normal maps probably not, door-fill-from-exit-list = idea only.
 - **2026-11-25 SESSION (Opus 5.5, no agents; `dev`, main = v1.9.13, no release):** the 722 hearth cloth AO step solved = LK_LTDOORMESH v1 (door niche fill no longer fills gaps between furniture models indoors; HANDOFF 0a525). HEADLESS / GPU shots only: 722 cloth tip + bed wall fixed; 26 indoor rooms change (biggest: 691/692 + 713/714 wall beside the hearth brighter, castle 78/79 candle slot dimmer, 83/84); lightedges unchanged. NOT PLAYED; the user decides on the look (-281).
