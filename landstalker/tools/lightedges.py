@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """lightedges.py ROM ROOMS --run OUTDIR [--spots] [--sword] (--sword: also night sword-swing pictures with / without the glow; score them with --dir OUTDIR --swordscore) [--headless] [--top N]   (--spots: a grid of positions per room so every part of it is in a picture, not only the centre)   (GPU hidden window by default since 2026-11-12; --headless = unlit, useless for light)   -- finds HARD EDGES in the lighting (user 2026-11-05: 'bei Lichtquellen nach scharfen Kanten als potenziellen Fehler suchen')
    lightedges.py ROM ROOMS --dir OUTDIR             -- re-score the shots of an earlier --run
+LIGHTEDGES_CELLS=file ('room x y' lines): Nigel at exactly these walkable cells instead of the room centre / --spots grid (phantomcheck candidates).
 LIGHTEDGES_BIN=path runs another binary (e.g. a copy of the build before a change, for before / after pictures).
 LIGHTEDGES_JOBS (4) runs in parallel, LIGHTEDGES_BATCH (16) warps per run; LIGHTEDGES_SWORD (1) glow colour, LIGHTEDGES_SWTIME (22) time of day of the --sword passes. Each run writes b??_?/interp.txt (interpreter fallback log, only if something ran there).
 ROOMS: comma list of room numbers, or 'castle' (the Mercator castle interior rooms 51..97).
@@ -65,8 +66,19 @@ def run(rom_path, rooms, out, batch=int(os.environ.get("LIGHTEDGES_BATCH", "16")
     rom = open(rom_path, "rb").read(); procs = []; plan = []
     assert batch <= 64, "LIGHTEDGES_BATCH > 64: LANDSTALKER_WARP takes at most 64 warps per run"
     jobs_all = []
-    for r in rooms:
-        for k, ((x, y), h) in enumerate(spots(ps.heights(rom, r), all_spots)): jobs_all.append((r, k, (x, y), h))
+    cf = os.environ.get("LIGHTEDGES_CELLS")   # 2026-11-26 (phantomcheck candidates): a file of 'room x y' lines = Nigel exactly there (walkable cells), spot numbers in file order per room
+    if cf:
+        hc = {}
+        for l in open(cf):
+            q = l.split()
+            if len(q) < 3 or not q[0].isdigit(): continue
+            r, x, y = int(q[0]), int(q[1]), int(q[2])
+            if r not in rooms: continue
+            if r not in hc: hc[r] = ps.heights(rom, r)
+            jobs_all.append((r, sum(1 for j in jobs_all if j[0] == r), (x, y), hc[r].get((x, y), (0, False))[0]))
+    else:
+        for r in rooms:
+            for k, ((x, y), h) in enumerate(spots(ps.heights(rom, r), all_spots)): jobs_all.append((r, k, (x, y), h))
     print("lightedges: %d rooms, %d pictures" % (len(rooms), len(jobs_all)), flush=True)
     rooms = jobs_all
     qs = next((l.split("=", 1)[1].strip() for l in open(REC + ".cfg") if "QSPLAY" in l), "")

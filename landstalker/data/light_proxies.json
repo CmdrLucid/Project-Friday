@@ -8640,6 +8640,42 @@
           17
         ],
         "why": "Automatic shapes on the raised pine bed (height 2, cells 15..21,15..16) at the foot of the cliff: hip #0 (x 256..336 y 240..272, z 32..78, object 1 part 3: no building there) and the flat lathe #4 (296,272, z 24..25, r 28, 'small object 5' = a rest of that bed): the disc floated over the path and cast a flat trapezoid / oval shadow (user 2026-11-19 rec_20261119_1305, x 16 y 17.0C)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          33,
+          14,
+          36,
+          14,
+          16
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (33, 14)..(40, 14) z 96 face +y (8 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          37,
+          14,
+          40,
+          14,
+          32
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (33, 14)..(40, 14) z 96 face +y (8 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          25,
+          14,
+          28,
+          14,
+          16
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (25, 14)..(28, 14) z 96 face +y (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
       }
     ],
     "452": [
@@ -8652,6 +8688,42 @@
           17
         ],
         "why": "Same map as room 453 (identical height map and automatic shapes): Automatic shapes on the raised pine bed (height 2, cells 15..21,15..16) at the foot of the cliff: hip #0 (x 256..336 y 240..272, z 32..78, object 1 part 3: no building there) and the flat lathe #4 (296,272, z 24..25, r 28, 'small object 5' = a rest of that bed): the disc floated over the path and cast a flat trapezoid / oval shadow (user 2026-11-19 rec_20261119_1305, x 16 y 17.0C); copied (user 2026-11-19: 'In Raum 452 gibt es immer noch diesen rautenfoermigen Kastenschatten')"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          33,
+          14,
+          36,
+          14,
+          16
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (33, 14)..(40, 14) z 96 face +y (8 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          37,
+          14,
+          40,
+          14,
+          32
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (33, 14)..(40, 14) z 96 face +y (8 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          25,
+          14,
+          28,
+          14,
+          16
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (25, 14)..(28, 14) z 96 face +y (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
       }
     ],
     "520": [
@@ -8741,6 +8813,114 @@
           50
         ],
         "why": "automatic lathe L4 at 768,800 z96..132: the pine HAS a plant model (plants.py --png: found; the lathe foot was re-anchored lower in the picture than the pine foot, so the picture-column check below the foot missed it); 2026-11-24 full sweep"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          39,
+          55,
+          39,
+          55,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (39, 55)..(41, 55) z 64 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          37,
+          54,
+          39,
+          54,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (37, 54)..(39, 54) z 80 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          24,
+          53,
+          24,
+          54,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (24, 51)..(24, 54) z 224 face +x (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          44,
+          53,
+          48,
+          53,
+          96
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (44, 53)..(48, 53) z 128 face +y (5 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          36,
+          53,
+          42,
+          53,
+          96
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (36, 53)..(42, 53) z 128 face +y (7 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          26,
+          53,
+          29,
+          53,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (26, 53)..(29, 53) z 128 face +y (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          21,
+          30,
+          21,
+          32,
+          160
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (21, 30)..(21, 32) z 224 face +x (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          32,
+          26,
+          34,
+          26,
+          160
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (32, 26)..(34, 26) z 224 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          27,
+          26,
+          29,
+          26,
+          160
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (27, 26)..(29, 26) z 224 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
       }
     ],
     "602": [
@@ -8818,6 +8998,114 @@
           50
         ],
         "why": "automatic lathe L4 at 768,800 z96..132: the pine HAS a plant model (plants.py --png: found; the lathe foot was re-anchored lower in the picture than the pine foot, so the picture-column check below the foot missed it); 2026-11-24 full sweep"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          39,
+          55,
+          39,
+          55,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (39, 55)..(41, 55) z 64 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          37,
+          54,
+          39,
+          54,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (37, 54)..(39, 54) z 80 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          24,
+          53,
+          24,
+          54,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (24, 51)..(24, 54) z 224 face +x (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          44,
+          53,
+          48,
+          53,
+          96
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (44, 53)..(48, 53) z 128 face +y (5 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          36,
+          53,
+          42,
+          53,
+          96
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (36, 53)..(42, 53) z 128 face +y (7 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          26,
+          53,
+          29,
+          53,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (26, 53)..(29, 53) z 128 face +y (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          21,
+          30,
+          21,
+          32,
+          160
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (21, 30)..(21, 32) z 224 face +x (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          32,
+          26,
+          34,
+          26,
+          160
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (32, 26)..(34, 26) z 224 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          27,
+          26,
+          29,
+          26,
+          160
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (27, 26)..(29, 26) z 224 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
       }
     ],
     "603": [
@@ -8895,6 +9183,114 @@
           50
         ],
         "why": "automatic lathe L4 at 768,800 z96..132: the pine HAS a plant model (plants.py --png: found; the lathe foot was re-anchored lower in the picture than the pine foot, so the picture-column check below the foot missed it); 2026-11-24 full sweep"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          39,
+          55,
+          39,
+          55,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (39, 55)..(41, 55) z 64 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          37,
+          54,
+          39,
+          54,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (37, 54)..(39, 54) z 80 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          24,
+          53,
+          24,
+          54,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (24, 51)..(24, 54) z 224 face +x (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          44,
+          53,
+          48,
+          53,
+          96
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (44, 53)..(48, 53) z 128 face +y (5 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          36,
+          53,
+          42,
+          53,
+          96
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (36, 53)..(42, 53) z 128 face +y (7 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          26,
+          53,
+          29,
+          53,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (26, 53)..(29, 53) z 128 face +y (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          21,
+          30,
+          21,
+          32,
+          160
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (21, 30)..(21, 32) z 224 face +x (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          32,
+          26,
+          34,
+          26,
+          160
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (32, 26)..(34, 26) z 224 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          27,
+          26,
+          29,
+          26,
+          160
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (27, 26)..(29, 26) z 224 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
       }
     ],
     "711": [
@@ -11306,6 +11702,42 @@
           50
         ],
         "why": "automatic hip #0 over the flat platform in front of the gate (walkable 80), not a building (2026-11-21)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          39,
+          20,
+          39,
+          21,
+          96
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (39, 20)..(39, 23) z 160 face +x (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          39,
+          22,
+          39,
+          23,
+          112
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (39, 20)..(39, 23) z 160 face +x (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          37,
+          23,
+          38,
+          23,
+          112
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (36, 23)..(38, 23) z 160 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
       }
     ],
     "525": [
@@ -11330,6 +11762,18 @@
         "file": "proxies/pillar_525_0.obj",
         "surface": true,
         "why": "the fluted column of 524 (pixel-equal drawing, axis = cell (40,25) centre on the floor 32): pillar recipe with params_524.json; replaces lathe #5; 2026-11-21, to be checked"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          45,
+          44,
+          47,
+          44,
+          176
+        ],
+        "replace": true,
+        "why": "phantomcheck lower run (45, 44)..(47, 44) z 240 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
       }
     ],
     "502": [
@@ -13404,6 +13848,154 @@
         "surface": true,
         "floor": 32,
         "why": "ROPE RAILING 's49': stair post on its step 32; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      }
+    ],
+    "428": [
+      {
+        "op": "ground",
+        "cells": [
+          13,
+          39,
+          13,
+          42,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (13, 39)..(13, 42) z 112 face +x (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          15,
+          36,
+          15,
+          39,
+          16
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (15, 36)..(15, 39) z 64 face +x (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          15,
+          22,
+          15,
+          31,
+          32
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (15, 22)..(15, 31) z 64 face +x (10 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          13,
+          25,
+          13,
+          25,
+          32
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (13, 25)..(13, 29) z 112 face +x (5 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          14,
+          26,
+          14,
+          28,
+          32
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (14, 26)..(14, 28) z 96 face +x (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          13,
+          17,
+          13,
+          20,
+          32
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (13, 16)..(13, 20) z 112 face +x (5 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      }
+    ],
+    "437": [
+      {
+        "op": "ground",
+        "cells": [
+          13,
+          39,
+          13,
+          42,
+          48
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (13, 39)..(13, 42) z 112 face +x (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          15,
+          36,
+          15,
+          39,
+          16
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (15, 36)..(15, 39) z 64 face +x (4 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          15,
+          22,
+          15,
+          31,
+          32
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (15, 22)..(15, 31) z 64 face +x (10 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          13,
+          25,
+          13,
+          25,
+          32
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (13, 25)..(13, 29) z 112 face +x (5 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          14,
+          26,
+          14,
+          28,
+          32
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (14, 26)..(14, 28) z 96 face +x (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          13,
+          17,
+          13,
+          20,
+          32
+        ],
+        "replace": true,
+        "why": "phantomcheck none run (13, 16)..(13, 20) z 112 face +x (5 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
       }
     ]
   },
