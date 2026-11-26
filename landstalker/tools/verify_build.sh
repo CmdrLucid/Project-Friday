@@ -213,6 +213,7 @@ chk "Schwert-Schatten durch das feine Feld (LK_SWSHFINE v1)" $G/src/platform_sdl
 chk "Schwert-Schatten als Flaechenlicht (LK_SWSHAREA v1)" $G/src/platform_sdl.c              "LK_SWSHAREA v1"
 chk "Schwertlicht: echte Normalen der 3D-Formen (LK_SWMNRM v1)" $G/src/platform_sdl.c           "LK_SWMNRM v1"
 chk "Schwertlicht: Schattenkarte der 3D-Formen (LK_SWSM v1)" $G/src/platform_sdl.c              "LK_SWSM v1"
+chk "Schwertlicht / Bounce an Kastenkanten (LK_SWCORNER v1)" $G/src/platform_sdl.c              "LK_SWCORNER v1"
 if [ -f build/landstalker ]; then echo "  [ok]  build/landstalker vorhanden ($(date -r build/landstalker '+%d.%m. %H:%M'))"; ok=$((ok+1))
 else echo "  [FEHLT] build/landstalker existiert nicht"; bad=$((bad+1)); fi
 echo

@@ -28,6 +28,8 @@ asymmetric bush. Check overlap / sides (plane A alone, both free sides) before d
    room 561's whole ground). Group floor (`group_floors`): per 4-connected group of blocked cells of one height the LOWEST border floor that is more than a
    stray touch (>= 3 border edges and >= 10 % of the border), plain floors (floor type 0) first (566: pond type $19); never for $4Fxx barriers (height 15)
    or the blocked-0 void around the room (469: the barrier ring touches every floor of the room). Checked with tools/heightview.py --tips.
+   Covered trunk in a forest (2026-11-26, bug sweep room 488): when the first floor on the foot ray is the ground of a blocked forest group, the plant stands there (its own neighbours cover the trunk);
+   before, the covered-trunk rule pushed back-row pines through their forest and past the shore (13 rooms / 88 pines moved).
    Big round tree (`foot_tree`, 2026-11-21): it stands on its OWN 4 x 4 collision block (4 cells at the ground's height = `TREE_TRUNK`); the foot is that block's centre on the ground
    (the plain ray stopped at the block's side, room 458 z 47 instead of 16: the block stayed a box beside the model). Check: room 488 -> 576,656 z 128 = the measured axis. Room 451's second big tree has another block pattern: kept as before (open).
 5. bush cells of the object catalogue (`data/object_blocks.json`) add one bush per cell (dense fields, crowns covering each other), foot one step below the cell top.

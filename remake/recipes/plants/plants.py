@@ -252,6 +252,9 @@ def foot_world(hm, U, V, bushes=(), seen=True, skipvoid=True):
                 first = (X, Y, z, c)
                 if seen and z == f: return first   # the trunk is drawn and the ray meets a floor's TOP: it stands there
                 if seen and pf is not None and pf < z: return X, Y, pf, c   # drawn, but the ray met a wall's SIDE: it stands in front of that wall on the floor it came from (room 458 bush z 18 -> 16)
+                if not seen and c in gf and z == f: return first   # 2026-11-26 (bug sweep, room 488 / 490 at night: a pine's collision cell stayed a BOX in the sword light): the first floor is the ground of a
+                                                       # blocked FOREST group = the plant stands in its own forest, its trunk is covered by the pines in FRONT of it; 'covered -> behind' took it through the forest
+                                                       # and past the shore (488: 863,351 z 112 under the sand ridge instead of 866,403 z 128). A raised path in front (458) is a free floor: not affected
             else: pf = f
         elif z == f and f < first[2]: return X, Y, z, c   # covered trunk / the ray met a wall's side: the next LOWER floor top behind it (user 2026-11-21)
         elif c in gf and gf[c] < first[2] and z < gf[c]: return X, Y, gf[c], c   # ... or it passed below a raised path into a blocked group: that group's ground (458: pines behind the 2 cell wide path, z 48 -> 16)

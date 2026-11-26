@@ -662,7 +662,11 @@ void main() {
   { float cl0 = B(clsAt(floor((tc) * vec2(448.0, 224.0))).r);
     if (uFig > 0.5 && cl0 > 15.5 && fc.x < uW) { if (uPost > 0.5) { vec4 a = texture2D(post, (fc + 0.5) / vec2(448.0, 448.0)), b = texture2D(post, (vec2(fc.x, fc.y + 224.0) + 0.5) / vec2(448.0, 448.0)); if (a.rgb != vec3(0.0) || b.rgb != vec3(1.0)) { gl_FragColor = L4; return; } }
       gl_FragColor = roundFig(fc, cl0, L4); return; } }
-  if (uSwM.z > 9.5 && fc.x < uW) { float fq; vec3 pq = posAt(fc, fq); if (fq < 0.5 || length(uSwP.xyz - pq) >= uSwP.w) { gl_FragColor = vec4(0.1, 0.1, 0.1, 1.0); return; } gl_FragColor = vec4(swrayDbg(pq + nrm(fq) * 3.0, uSwP.xyz), 1.0); return; }
+  if (uSwM.z > 12.5 && fc.x < uW) { float fq; vec3 pq = posAt(fc, fq); gl_FragColor = vec4(fq * 10.0 / 255.0, B(clsAt(floor((tc) * vec2(448.0, 224.0))).r) * 10.0 / 255.0, 0.0, 1.0); return; }   /* test aid LANDSTALKER_SWSH_DBG=13: face code * 10 (red), pixel class * 10 (green) */
+  if (uSwM.z > 11.5 && uSwM.z < 12.5 && fc.x < uW) { float fq; vec3 pq = posAt(fc, fq); gl_FragColor = vec4(mod(floor(pq.x / 16.0), 256.0) / 255.0, mod(floor(pq.y / 16.0), 256.0) / 255.0, clamp((pq.z + 64.0) / 255.0, 0.0, 1.0), 1.0); return; }   /* test aid LANDSTALKER_SWSH_DBG=12: the receiver's cell x / y (red / green bytes) and z + 64 (blue) */
+  if (uSwM.z > 10.5 && uSwM.z < 11.5 && fc.x < uW) { float fq; vec3 pq = posAt(fc, fq); if (fq < 0.5) { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); return; }   /* test aid LANDSTALKER_SWSH_DBG=11: receiver height (red, glow z +-100) and face (green top, blue box side, half blue round code) */
+    gl_FragColor = vec4(clamp((pq.z - uSwP.z + 100.0) / 200.0, 0.0, 1.0), fq == 1.0 ? 1.0 : 0.0, fq == 2.0 || fq == 3.0 ? 1.0 : fq >= 4.0 ? 0.5 : 0.0, 1.0); return; }
+  if (uSwM.z > 9.5 && uSwM.z < 10.5 && fc.x < uW) { float fq; vec3 pq = posAt(fc, fq); if (fq < 0.5 || length(uSwP.xyz - pq) >= uSwP.w) { gl_FragColor = vec4(0.1, 0.1, 0.1, 1.0); return; } gl_FragColor = vec4(swrayDbg(pq + nrm(fq) * 3.0, uSwP.xyz), 1.0); return; }
   if (uSwM.z > 7.5 && uSwM.z < 9.5 && fc.x < uW) { float fq; vec3 pq = posAt(fc, fq); gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); if (fq < 0.5) return;
     vec4 ro = texture2D(rows, vec2((fc.y + 0.5) / 224.0, 0.5)); float mu = S16(B(ro.r), B(ro.g)) + fc.x - uMo.x, mv = S16(B(ro.b), B(ro.a)) - uMo.y; if (!(mu >= 0.0 && mv >= 0.0 && mu < uMo.z && mv < uMo.w)) return;
     vec4 m = texture2D(mdl, (vec2(mu, mv) + 0.5) / vec2(4096.0, 2048.0)); float e = B(m.r) + 256.0 * B(m.g); if (e < 0.5 || e > 45056.0) return; float zmo = (e - (e < 24576.0 ? 16384.0 : 32768.0)) / 8.0; if (abs(zmo - pq.z) > 2.0) return;
@@ -678,7 +682,13 @@ void main() {
   if (uSwM.z > 1.5 && uSwM.z < 2.5 && fc.x < uW) { float cq = B(clsAt(floor((tc) * vec2(448.0, 224.0))).r); gl_FragColor = vec4(cq == 1.0 ? 1.0 : 0.0, cq == 2.0 ? 1.0 : 0.0, cq == 3.0 ? 1.0 : cq > 15.5 ? 0.5 : 0.0, 1.0); return; }   /* test aid LANDSTALKER_SWSH_DBG=2: pixel classes (red 1 scenery, green 2, blue 3, dark blue figures) */
   if (fc.x >= uW || B(clsAt(floor((tc) * vec2(448.0, 224.0))).r) != 1.0) { gl_FragColor = L4; return; }
   if (uPost > 0.5) { vec4 a = texture2D(post, (fc + 0.5) / vec2(448.0, 448.0)), b = texture2D(post, (vec2(fc.x, fc.y + 224.0) + 0.5) / vec2(448.0, 448.0)); if (a.rgb != vec3(0.0) || b.rgb != vec3(1.0)) { gl_FragColor = L4; return; } }   /* emissive / HUD */
-  float f; vec3 p = posAt(fc, f); if (f < 0.5) { gl_FragColor = L4; return; }
+  float f; vec3 p = posAt(fc, f);
+  if (f < 0.5 && uSwM.z > -0.5) { float f2; vec3 p2 = posAt(fc + vec2(1.0, 0.0), f2); if (f2 < 0.5) p2 = posAt(fc - vec2(1.0, 0.0), f2); if (f2 > 0.5) { p = p2; f = f2; } }   /* LK_SWCORNER v1: a pixel without a face
+     takes its left / right neighbour's (test aid LANDSTALKER_SWSH_DBG=-1: both corner rules off) */
+  if (f < 0.5) { gl_FragColor = L4; return; }
+  if ((f == 2.0 || f == 3.0) && uSwM.z > -0.5) { float fa, fb; vec3 pa = posAt(fc - vec2(3.0, 0.0), fa), pb = posAt(fc + vec2(3.0, 0.0), fb);   /* LK_SWCORNER v1 (room 433 cliff: room A gives the 2..3 px at a vertical box line
+       (x - y a multiple of 4) the PERPENDICULAR side (+x on a +y wall) = the test point went into the wall, no glow; the light pass decides these lines itself): a side face between two of the other side 3 px away = the wall's face, position between them */
+    if (fa == fb && (fa == 2.0 || fa == 3.0) && fa != f) { f = fa; p = 0.5 * (pa + pb); } }
   vec3 n = nrm(f), g = vec3(0.0);
   if (uK > 0.0) for (int k = 0; k < 32; k++) { float a = float(k) * 2.39996, r = uR * sqrt((float(k) + 0.5) / 32.0); vec2 sp = floor(fc + vec2(cos(a), sin(a)) * r);
     if (sp.x < 0.0 || sp.y < 0.0 || sp.x >= uW || sp.y > 223.0) continue;
