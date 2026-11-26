@@ -1735,7 +1735,7 @@ static int lk_gb_run(void) {   /* right after the real light pass (lk_glt_out ho
   else { base[0] = base[1] = base[2] = 1.0f; bon = 0; }
   { static int dbg = -1; if (dbg < 0) { const char *e = getenv("LANDSTALKER_BOUNCE_DBG"); dbg = e ? atoi(e) : 0; } if (dbg && platform_frame_number() %% 100 == 0) printf("bounce: frame %%ld sun %%d dn %%d key %%d nl %%d base %%.2f %%.2f %%.2f w %%d\n", platform_frame_number(), iu[0], iu[5], iu[1], iu[2], base[0], base[1], base[2], iu[7]); }
   if (lk_gb_st == 0) { lk_gb_st = lk_gb_init(); if (lk_gb_st < 0) return 0; }
-  { static float mr = -1.0f; if (mr < 0.0f) { const char *e = getenv("LANDSTALKER_SWSH_MAPR"); mr = e ? (float)atof(e) : 0.75f; }   /* LK_SWSM v1: share of the glow radius drawn into the map (beyond 3 / 4 the glow is under 1 / 16 of its centre) */
+  { static float mr = -1.0f; if (mr < 0.0f) { const char *e = getenv("LANDSTALKER_SWSH_MAPR"); mr = e ? (float)atof(e) : 0.5f; }   /* LK_SWSM v1: share of the glow radius drawn into the map; 0.5 since 2026-11-26 (stutter test, user: 'teste selbst ob es ruckelt': with 0.75 the FIRST swing right after entering a dense forest room (561) had one 20..22 ms frame in 3 of 3 runs, the old march 0; 0.5: 0 of 6; trees beyond half the radius shadow only receivers where the glow is under 1 / 4) */
     { int swm = sw ? lk_swsm_render(fu[16], fu[17], fu[18], (fu[19] > 0.0f ? fu[19] : 120.0f) * mr) : 0; lk_swsm_on = swm; } }   /* LK_SWSM v1: before any state of this pass is set */
   lk_glGetIntegerv(0x8069, &unl);   /* unit 0 (active) = the presented unlit picture */
   for (i = 0; i < 14; i++) { lk_glActiveTexture(0x84C0 + i); lk_glGetIntegerv(0x8069, &tb[i]); }   /* (LK_SWSM v1: units 12 / 13 too) */
