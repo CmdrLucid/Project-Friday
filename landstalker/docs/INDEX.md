@@ -6,12 +6,12 @@
   - newest status entries: 26 2026-11-26 night (dev, Opus 5.5, no agents; GPU headless...; 27 2026-11-26 late evening (dev, Opus 5.5, no agents; headle...; 28 2026-11-26 evening (dev, Opus 5.5, no agents; headless, N...; 29 2026-11-26 latest (dev, Opus 5.5): sword glow stutter tes...; 30 2026-11-26 later (dev, Opus 5.5, no agents; GPU headless...; 31 2026-11-26 (dev, Opus 5.5, no agents; GPU headless only,...; 32 2026-11-25/26 night (dev, Opus 5.5, no agents; GPU headle...; 33 2026-11-25 later (dev, Opus 5.5, no agents; effort high;...
 - 2. Environment and working rules (do not ask the user again): lines 641-660
 - 3. Bug catalog (symptom -> root cause -> fix). All fixes are applie...: lines 661-821
-- 4. Tool cheat sheet (all local, none contain ROM data): lines 822-917
-- 5. Debug playbook (what worked): lines 918-933
-  - Interpreter fallback policy (decided with the user: NOT a permanent crutch): line 927
-- 6. Landstalker facts used so far: lines 934-942
-- Symbol rule (keep the code human readable; needed for modding): lines 943-959
-  - Names for all functions (disassembly <-> ROM address), no assembler needed: line 953
+- 4. Tool cheat sheet (all local, none contain ROM data): lines 822-918
+- 5. Debug playbook (what worked): lines 919-934
+  - Interpreter fallback policy (decided with the user: NOT a permanent crutch): line 928
+- 6. Landstalker facts used so far: lines 935-943
+- Symbol rule (keep the code human readable; needed for modding): lines 944-960
+  - Names for all functions (disassembly <-> ROM address), no assembler needed: line 954
 
 <!-- /TOC -->
 
@@ -825,6 +825,7 @@ Generic lesson: every `func_table: no function` / `RTS to ... has no function` l
 
 | Need | Use |
 |---|---|
+| Phantom blocks: collision cells higher / lower than the drawing (railing strips, invisible barriers; 2026-11-26) | `~/Project-Friday-Test/hdvenv/bin/python tools/phantomcheck.py ROM [ROOMS] [--out DIR] [--weak 25]` (no game run: the room picture from the ROM, every visible top edge of a raised cell checked against the drawing; 'none' = no drawn edge at the collision height, 'lower' = the drawn edge lies >= 12 below; 'handled' = already covered by a light data op; ~9 s per room, xargs -P4 for all rooms). Candidates only: check each with sword glow shots before a data op (ground replace / water) |
 | UI texts complete in every language? (2026-11-23) | `python3 tools/uikeys.py` (lists every English UI text the patched code translates -> tools/ui_keys.json; `--write` after adding UI text; check_docs.py fails when a lang/*.json lacks a key, verify_build.sh warns when stale) |
 | Language sweep before a release (2026-11-23) | `python3 tools/langsweep_options.py` (every options page / row + help line per language, ~2 min) and `python3 tools/langsweep_screens.py` (title fades, file select, all OSD messages, map title, ~3.5 min); output + contact sheets ~/Project-Friday-Test/lktest/langsweep/ (screens.html); both use scratch copies of ROM + save + Japanese ROM and a private HOME |
 | Memory errors anywhere (2026-11-18) | `python3 tools/zigbuild.py --cc gcc --extra "-fsanitize=address -fsanitize-recover=address -fno-omit-frame-pointer -g1" --out DIR ...`, copy the exe INTO build/ (lang files next to it), run a replay with `EXTRA="ASAN_OPTIONS=halt_on_error=0:detect_leaks=0:log_path=FILE"` (with the GPU window, so the light code runs too) |
