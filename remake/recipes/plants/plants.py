@@ -233,6 +233,7 @@ def foot_world(hm, U, V, bushes=(), seen=True, skipvoid=True):
     blocked cell's top count (tree-top paths, room 458)"""
     gf = group_floors(hm, bushes); void = void_cells(hm) if skipvoid else ()
     def floor(c):
+        if c in ZFLOOR: return ZFLOOR[c]   # 2026-11-28: a CLASS B zone of the light data (ditch / ledge / deep floor, remake/recipes/proxy_cliff_rooms.py) is the drawn floor there (475 forest ditches at -40, 469 forest ledge)
         h, b = hm.get(c, (None, True))
         if h is None: return None
         if c in bushes: h -= 1   # LK_LTPLANT v3 feet (2026-11-21): a bush top is not ground (room 458: the bush strip of height 2 gave pines z 32 / 34 / 18)
@@ -243,20 +244,22 @@ def foot_world(hm, U, V, bushes=(), seen=True, skipvoid=True):
             nb = [hm[q][0] - (q in bushes) for q in ((c[0] + a, c[1] + e) for a in range(-d, d + 1) for e in range(-d, d + 1) if max(abs(a), abs(e)) == d) if q in hm and not hm[q][1] and (hm[q][0] <= h or h < 1)]   # only floors NOT ABOVE the block's top (2026-11-21, room 458: walkable tree-top paths of height 4 / 5 inside the forest gave pines feet at 64 / 80 above a bed of 48 on ground 16)
             if nb: return 16 * min(nb)
         return 16 * h
-    D = U - 1184; first = None; pf = None
-    for z in range(255, -16, -1):
+    D = U - 1184; first = None; pf = None; pc = None
+    for z in range(255, min([-16] + [v - 1 for v in ZFLOOR.values()]), -1):   # down to the lowest CLASS B zone floor (475 ditches at -40)
         X = V + z + D / 2; Y = V + z - D / 2; c = (int(X // 16), int(Y // 16)); f = floor(c)
         if f is None: continue
         if first is None:
             if z <= f:
                 first = (X, Y, z, c)
                 if seen and z == f: return first   # the trunk is drawn and the ray meets a floor's TOP: it stands there
+                if seen and pf is not None and pf < z and pc in ZDEEP:   # 2026-11-28: ... unless that floor is a CLASS B cliff INTO THE DEEP (475 front): the plant is drawn on the cliff's top edge, it stands on the top
+                    Xf = V + f + D / 2; Yf = V + f - D / 2; return Xf, Yf, f, (int(Xf // 16), int(Yf // 16))
                 if seen and pf is not None and pf < z: return X, Y, pf, c   # drawn, but the ray met a wall's SIDE: it stands in front of that wall on the floor it came from (room 458 bush z 18 -> 16)
                 if not seen and c in gf and z == f: return first   # 2026-11-26 (bug sweep, room 488 / 490 at night: a pine's collision cell stayed a BOX in the sword light): the first floor is the ground of a
                                                        # blocked FOREST group = the plant stands in its own forest, its trunk is covered by the pines in FRONT of it; 'covered -> behind' took it through the forest
                                                        # and past the shore (488: 863,351 z 112 under the sand ridge instead of 866,403 z 128). A raised path in front (458) is a free floor: not affected
-            else: pf = f
-        elif z == f and f < first[2]: return X, Y, z, c   # covered trunk / the ray met a wall's side: the next LOWER floor top behind it (user 2026-11-21)
+            else: pf = f; pc = c
+        elif z == f and f < first[2] and c not in ZFLOOR: return X, Y, z, c   # (2026-11-28: never into a CLASS B zone behind: 475 pit pines landed in the rock wedge across the path) covered trunk / the ray met a wall's side: the next LOWER floor top behind it (user 2026-11-21)
         elif c in gf and gf[c] < first[2] and z < gf[c]: return X, Y, gf[c], c   # ... or it passed below a raised path into a blocked group: that group's ground (458: pines behind the 2 cell wide path, z 48 -> 16)
     return first
 
@@ -294,9 +297,24 @@ def write_models():
         pine.write_obj(os.path.join(ROOT, "landstalker", "data", "proxies", "plant_%s.obj" % name), parts,
                        "%s light model (remake/recipes/plants/plants.py), origin = the drawn foot on the ground" % name)
 
+ZFLOOR = {}; ZDEEP = set()
+def classb_floors(room):
+    """cells of the CLASS B ground ops (zones of proxy_cliff_rooms.py) -> their floor level"""
+    d = json.load(open(os.path.join(ROOT, "landstalker", "data", "light_proxies.json")))["rooms"].get(str(room), [])
+    out = {}
+    for e in d:
+        if e["op"] == "ground" and "CLASS B" in e.get("why", ""):
+            x0, y0, x1, y1, z = e["cells"][:5]
+            for x in range(x0, x1 + 1):
+                for y in range(y0, y1 + 1):
+                    out[(x, y)] = z
+                    if "INTO THE DEEP" in e["why"]: ZDEEP.add((x, y))
+    return out
+
 def work(room):
-    global ROM
+    global ROM, ZFLOOR
     if ROM is None: ROM = open(sys.argv[1], "rb").read()
+    ZDEEP.clear(); ZFLOOR = classb_floors(room)
     T, BIG, SMALL = templates()
     try: res, drop = survey(room, T, BIG, SMALL)
     except Exception as e: return room, None, str(e)
