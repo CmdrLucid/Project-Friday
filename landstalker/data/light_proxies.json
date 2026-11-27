@@ -14605,6 +14605,116 @@
         "surface": true,
         "why": "room 503 ROCK MOUNTAIN piece d (barrier wall pass, user OK 2026-11-27 on the drawing overlay / clay sheet / sword pictures): the mountain is drawn over VOID and invisible BARRIER ($4F) cells, the void painter made them a water floor at 8 = a hole (the sword glow never lit the wall); one closed solid on the barrier lines, top = the drawn outline extruded along the view ray (seen edge-on), remake/recipes/proxy_rock_503.py; four pieces because an outdoor surface model owns its WHOLE rectangle (LK_GLROOM clean-up flattens raised cells in it: the 176 walkway / 128 ledge vanished with one big rectangle)"
       }
+    ],
+    "465": [
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          12,
+          21,
+          62
+        ],
+        "file": "proxies/rock_465_a.obj",
+        "surface": true,
+        "why": "room 465 ROCK WALL / PLATEAU piece a (barrier wall pass, user OK 2026-11-27): the cliff behind the walkway is drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall, a hard lit box by the lamp post); solid on the barrier lines, top = drawn outline seen edge-on, capped by the drawn plateau at 240 (U >= 736; the left peak stays edge-on), remake/recipes/proxy_rock_465.py (remake/lib/rockwall.py); one piece per rectangle of rock cells (outdoor surface models own their rectangle)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          12,
+          22,
+          48
+        ],
+        "file": "proxies/rock_465_b.obj",
+        "surface": true,
+        "why": "room 465 ROCK WALL / PLATEAU piece b (barrier wall pass, user OK 2026-11-27): the cliff behind the walkway is drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall, a hard lit box by the lamp post); solid on the barrier lines, top = drawn outline seen edge-on, capped by the drawn plateau at 240 (U >= 736; the left peak stays edge-on), remake/recipes/proxy_rock_465.py (remake/lib/rockwall.py); one piece per rectangle of rock cells (outdoor surface models own their rectangle)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          55,
+          22,
+          62
+        ],
+        "file": "proxies/rock_465_b2.obj",
+        "surface": true,
+        "why": "room 465 ROCK WALL / PLATEAU piece b2 (barrier wall pass, user OK 2026-11-27): the cliff behind the walkway is drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall, a hard lit box by the lamp post); solid on the barrier lines, top = drawn outline seen edge-on, capped by the drawn plateau at 240 (U >= 736; the left peak stays edge-on), remake/recipes/proxy_rock_465.py (remake/lib/rockwall.py); one piece per rectangle of rock cells (outdoor surface models own their rectangle)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          12,
+          24,
+          45
+        ],
+        "file": "proxies/rock_465_c.obj",
+        "surface": true,
+        "why": "room 465 ROCK WALL / PLATEAU piece c (barrier wall pass, user OK 2026-11-27): the cliff behind the walkway is drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall, a hard lit box by the lamp post); solid on the barrier lines, top = drawn outline seen edge-on, capped by the drawn plateau at 240 (U >= 736; the left peak stays edge-on), remake/recipes/proxy_rock_465.py (remake/lib/rockwall.py); one piece per rectangle of rock cells (outdoor surface models own their rectangle)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          46,
+          23,
+          47
+        ],
+        "file": "proxies/rock_465_c2.obj",
+        "surface": true,
+        "why": "room 465 ROCK WALL / PLATEAU piece c2 (barrier wall pass, user OK 2026-11-27): the cliff behind the walkway is drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall, a hard lit box by the lamp post); solid on the barrier lines, top = drawn outline seen edge-on, capped by the drawn plateau at 240 (U >= 736; the left peak stays edge-on), remake/recipes/proxy_rock_465.py (remake/lib/rockwall.py); one piece per rectangle of rock cells (outdoor surface models own their rectangle)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          12,
+          25,
+          37
+        ],
+        "file": "proxies/rock_465_d.obj",
+        "surface": true,
+        "why": "room 465 ROCK WALL / PLATEAU piece d (barrier wall pass, user OK 2026-11-27): the cliff behind the walkway is drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall, a hard lit box by the lamp post); solid on the barrier lines, top = drawn outline seen edge-on, capped by the drawn plateau at 240 (U >= 736; the left peak stays edge-on), remake/recipes/proxy_rock_465.py (remake/lib/rockwall.py); one piece per rectangle of rock cells (outdoor surface models own their rectangle)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          40,
+          25,
+          44
+        ],
+        "file": "proxies/rock_465_d2.obj",
+        "surface": true,
+        "why": "room 465 ROCK WALL / PLATEAU piece d2 (barrier wall pass, user OK 2026-11-27): the cliff behind the walkway is drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall, a hard lit box by the lamp post); solid on the barrier lines, top = drawn outline seen edge-on, capped by the drawn plateau at 240 (U >= 736; the left peak stays edge-on), remake/recipes/proxy_rock_465.py (remake/lib/rockwall.py); one piece per rectangle of rock cells (outdoor surface models own their rectangle)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          26,
+          12,
+          29,
+          34
+        ],
+        "file": "proxies/rock_465_e.obj",
+        "surface": true,
+        "why": "room 465 ROCK WALL / PLATEAU piece e (barrier wall pass, user OK 2026-11-27): the cliff behind the walkway is drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall, a hard lit box by the lamp post); solid on the barrier lines, top = drawn outline seen edge-on, capped by the drawn plateau at 240 (U >= 736; the left peak stays edge-on), remake/recipes/proxy_rock_465.py (remake/lib/rockwall.py); one piece per rectangle of rock cells (outdoor surface models own their rectangle)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          12,
+          33,
+          27
+        ],
+        "file": "proxies/rock_465_g.obj",
+        "surface": true,
+        "why": "room 465 ROCK WALL / PLATEAU piece g (barrier wall pass, user OK 2026-11-27): the cliff behind the walkway is drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall, a hard lit box by the lamp post); solid on the barrier lines, top = drawn outline seen edge-on, capped by the drawn plateau at 240 (U >= 736; the left peak stays edge-on), remake/recipes/proxy_rock_465.py (remake/lib/rockwall.py); one piece per rectangle of rock cells (outdoor surface models own their rectangle)"
+      }
     ]
   },
   "unpaint_tiles": {
