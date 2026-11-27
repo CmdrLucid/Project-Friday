@@ -28,7 +28,8 @@ sys.path.insert(0, os.path.join(ROOT, "landstalker", "tools"))
 import numpy as np, romrender, romroom, proxysurvey as PS
 
 SPECS = {465: dict(level=-32, note="cliff path above the river: walkways 80..144, the drawn bank lies on their cell edges at -32"),
-         601: dict(level=0, also=[602, 603], note="Gumi village hill in the river (601..603 = one map): the drawn bank lies on the walkway edges at 0 (foot measured 2)")}
+         601: dict(level=0, also=[602, 603], note="Gumi village hill in the river (601..603 = one map): the drawn bank lies on the walkway edges at 0 (foot measured 2)"),
+         226: dict(level=-160, deep=True, note="plateau with the stone door: the cliff below runs off the picture (deep mode; needs LK_RAYZMIN v1: the GPU view ray stopped at -40)")}
 
 def picture(rom, room):
     g, r, pa, pb, getpal = romrender.rom_planes(rom, room)
@@ -71,7 +72,7 @@ def rects(cells):
         out.append((x0, y0, x1, y1))
     return out
 
-def build(rom, room, level, show_map=False, dry=False):
+def build(rom, room, level, show_map=False, dry=False, deep=False):
     hm = PS.heights(rom, room); img = picture(rom, room)
     drawn = img.sum(2) > 30; blue = (img[..., 2] > img[..., 0] + 30) & (img[..., 2] >= img[..., 1])
     lp = json.load(open(os.path.join(ROOT, "landstalker", "data", "light_proxies.json")))["rooms"].get(str(room), [])
@@ -91,14 +92,27 @@ def build(rom, room, level, show_map=False, dry=False):
         x, y = st.pop()
         for n in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
             if n not in water and void(n) and cls(n) == 'water': water.add(n); st.append(n)
+    if deep:   # CLIFF INTO THE DEEP (the drawn cliff runs off the picture, no foot): the void IN FRONT of the edges (forward only: +x / +y, at most 12 cells) becomes a deep
+        # floor at the level (ground op, replace = no water), so the walkway's face reaches below the picture
+        water, rock, st = set(seed), set(), [(c, 0) for c in seed]
+        while st:
+            (x, y), d = st.pop()
+            for n in ((x + 1, y), (x, y + 1)):
+                if n not in water and void(n) and d < 12: water.add(n); st.append((n, d + 1))
     reg = water | rock
     edge = {c for c in hm if walkable(c) and any((c[0] + dx, c[1] + dy) in water for dx, dy in ((1, 0), (0, 1), (1, 1)))}
+    if deep:   # only the walkways AT a detected cliff edge (the forward flood reached an unrelated path at the picture edge in room 226)
+        near = set(cb) | {c for c in hm if walkable(c) and any((c[0] + dx, c[1] + dy) in seed for dx, dy in ((1, 0), (0, 1), (1, 1)))}
+        edge &= near
     if show_map:
         xs = [c[0] for c in reg]; ys = [c[1] for c in reg]
         for y in range(min(ys) - 1, max(ys) + 2):
             print("%2d " % y + "".join("R" if (x, y) in rock else "w" if (x, y) in water else "E" if (x, y) in edge else
                   ("." if (x, y) not in hm else "#" if hm[(x, y)][1] else "%X" % min(hm[(x, y)][0], 15)) for x in range(min(xs) - 3, max(xs) + 2)), file=sys.stderr)
-    ops = [{"op": "water", "cells": list(r) + [level], "why": "room %d CLASS B CLIFF below the walkway (2026-11-27): the void in front of the walkway down to the drawn river bank = water at %d; "
+    if deep: ops = [{"op": "ground", "cells": list(r) + [level], "replace": True, "why": "room %d CLASS B CLIFF INTO THE DEEP below the walkway (2026-11-27): the drawn cliff runs off the picture; the void in front of the walkway "
+            "(forward, 12 cells) = a deep floor at %d so the walkway's own vertical face reaches below the picture (the water rule had painted it 8 below the walkway = the cliff read as a gentle floor); "
+            "remake/recipes/proxy_cliff_rooms.py" % (room, level)} for r in rects(water)]
+    else: ops = [{"op": "water", "cells": list(r) + [level], "why": "room %d CLASS B CLIFF below the walkway (2026-11-27): the void in front of the walkway down to the drawn river bank = water at %d; "
             "the cliff is the walkway's own vertical face reaching down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); "
             "remake/recipes/proxy_cliff_rooms.py" % (room, level)} for r in rects(water)]
     for k, r in enumerate(rects(edge)):
@@ -125,5 +139,5 @@ def build(rom, room, level, show_map=False, dry=False):
 if __name__ == "__main__":
     a = sys.argv[1:]; rom = open(a[0], "rb").read(); room = int(a[1])
     level = int(a[a.index("--level") + 1]) if "--level" in a else SPECS.get(room, {}).get("level", 0)
-    ops, rock = build(rom, room, level, "--map" in a, "--dry" in a)
+    ops, rock = build(rom, room, level, "--map" in a, "--dry" in a, "--deep" in a or SPECS.get(room, {}).get("deep", False))
     print(json.dumps(ops))

@@ -1,0 +1,15 @@
+# room 226 CLASS B cliff EDGE piece 4: walkway cells 16..16 x 30..30 as blocks from the river level -160 up to their walkway height (remake/recipes/proxy_cliff_rooms.py). GAME coordinates x east, y south, z up.
+v 256 480 -160
+v 272 480 -160
+v 272 496 -160
+v 256 496 -160
+v 256 480 64
+v 272 480 64
+v 272 496 64
+v 256 496 64
+f 1 4 3 2
+f 5 6 7 8
+f 1 2 6 5
+f 2 3 7 6
+f 3 4 8 7
+f 4 1 5 8

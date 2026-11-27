@@ -163,8 +163,9 @@ unsigned lk_gl_world(uint32_t *w, uint32_t *w2, uint32_t *fn, uint32_t *px, uint
   sc[14] = lk_lt_sdn[0]; sc[15] = lk_lt_sdn[1]; sc[16] = lk_lt_sdn[2]; sc[17] = (lk_lt_sun && lk_dn_upd && lk_dn_hdok) ? 1.0f : 0.0f;   /* GL5c: sunn for the next sun direction */
   sc[18] = lk_lt_kA; sc[19] = lk_lt_kK; sc[20] = lk_lt_sh[0].cr; sc[21] = lk_lt_sh[0].cg; sc[22] = lk_lt_sh[0].cb; sc[23] = (lk_lt_key && !lk_lt_nl) ? 1.0f : 0.0f;   /* the finished key light km */
   sc[28] = nhand > 0 ? 1.0f : 0.0f;   /* LK_GLROOM v1: the room has hand-made model cells (uHand: every per-sample model test is skipped without them) */
+  sc[29] = (float)lk_lt_zmin;   /* LK_RAYZMIN v1: the view ray goes down to the room's lowest light height - 8 (at least -40 as before; class B cliffs into the deep, user 2026-11-27 room 226) */
   sc[24] = (float)lk_lt_ifine; sc[25] = (float)lk_lt_nslab; sc[26] = (float)lk_lt_pinet(); sc[27] = (float)lk_lt_bushe();   /* v9: fine field indoors / slabs / pine tiers / bush crowns */
-  for (k = 0; k < 29; k++) { union { float f; uint32_t u; } cv; cv.f = sc[k]; LK_GL_H(cv.u); }
+  for (k = 0; k < 30; k++) { union { float f; uint32_t u; } cv; cv.f = sc[k]; LK_GL_H(cv.u); }
   #undef LK_GL_H
   return h | 1u; }
 /* LK_GLMODEL v1 (REAL 3D LIGHT SHAPES stage 1): the triangles of the room's Blender meshes for the GPU model buffer (indoors, LANDSTALKER_LT_MODEL, lk_lt_finebuild marked them) */
@@ -716,7 +717,7 @@ SH5 = r'''
 uniform sampler2D roomA; uniform sampler2D roomB; uniform sampler2D btab; uniform sampler2D bli; uniform sampler2D wld;
 uniform vec4 uLP[96]; uniform vec4 uLC[96]; uniform vec4 uLF[96]; uniform float uSoftR; uniform float uProng; uniform vec2 uBlk; uniform float uSunR; uniform float uAor; uniform float uZref; uniform float uAok; uniform float uAotop; uniform vec2 uDv[16];
 uniform float uIfine; uniform float uObjB; uniform float uNslab; uniform float uPineT; uniform float uBushE;   /* v9 */
-uniform sampler2D wld2; uniform sampler2D fine; uniform sampler2D prx; uniform sampler2D bex; uniform float uSside; uniform float uZtop; uniform vec3 uSd; uniform float uKey; uniform float uKbw; uniform float uKpen; uniform float uNsh; uniform vec4 uSh[9]; uniform sampler2D fine2; uniform float uZmax; uniform float uRayF;
+uniform sampler2D wld2; uniform sampler2D fine; uniform sampler2D prx; uniform sampler2D bex; uniform float uSside; uniform float uZtop; uniform vec3 uSd; uniform float uKey; uniform float uKbw; uniform float uKpen; uniform float uNsh; uniform vec4 uSh[9]; uniform sampler2D fine2; uniform float uZmax; uniform float uZmin; uniform float uRayF;
 uniform sampler2D mdl; uniform vec4 uMo; uniform float uMdl; uniform vec4 uSmo; uniform vec2 uSmSl; uniform float uHand; uniform float uAoflt; uniform vec4 uSm; uniform vec3 uE1; uniform vec3 uE2; uniform vec4 uSm2; uniform vec3 uE12; uniform vec3 uE22;   /* + the next sun step's map (third part) */   /* + stage 2: the key light SHADOW MAP in the right half (uSm = s0, t0, texels per unit, on) */   /* LK_GLMODEL v1: model buffer (z * 8 + 32768 in r / g, octahedral normal in b / a), its room picture origin + size, on */
 float gBest = 0.0, gBH = 0.0, gBX = 0.0, gBY = 0.0; vec3 gN = vec3(0.0, 0.0, 1.0); vec2 gMB = vec2(0.0, 0.0); float gGen = 0.0, gMH = 0.0, gMS = 0.0, gKM = 0.0, gSoft = 0.0;   /* gKM: the key light march of keyShare (the model's own sub columns come from the shadow map) */   /* gMH: the view ray returned the model; gMS: this pixel is a model SIDE face (AO sees the ground below the model) */   /* LK_GLMODEL v1: the real normal of a model pixel (face code 20) / its raw bytes from the model buffer */
 vec3 octdec(vec2 b) { vec2 e = b / 255.0 * 2.0 - 1.0; vec3 n = vec3(e.x, e.y, 1.0 - abs(e.x) - abs(e.y)); if (n.z < 0.0) { vec2 w = (1.0 - abs(n.yx)) * vec2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0); n.x = w.x; n.y = w.y; } return normalize(n); }
@@ -1054,7 +1055,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
       if (e > 0.5) { gGen = e > 45056.0 ? 1.0 : 0.0; float ob = e < 24576.0 ? 1.0 : 0.0; zmo = (e - (gGen > 0.5 ? 49152.0 : ob > 0.5 ? 16384.0 : 32768.0)) / 8.0; gMB = vec2(B(m.b), B(m.a)); if (ob > 0.5 && layA < 0.5 && uObjB < 0.5) zmo = -99999.0;   /* LK_GLOBJB v1 (user 2026-11-21, docks pine at night: a hard VERTICAL line down a pine = an 8 px tile edge between plane A and plane B tiles): forest plants are also drawn in plane B (LESSONS: back rows / mixed tiles), their model now counts there too; LANDSTALKER_GL5_OBJB=0 = old (layer A only) */ } } }   /* LK_GLOBJ v1: a tree / bush surface only for layer A pixels (the drawn crown) */   /* LK_GLMODEL v1 outdoors: both layers (first try layer A only: walls drawn in layer B then lay under their own model = shadowed by it) */
     vec2 gd = zmo > -99998.0 ? gdec(U, V, zmo) : vec2(-1.0, 0.0); if (gd.x > -0.5 && gd.x < 0.5) zmo = -99999.0;   /* LK_GLROOM v1: the generated ground model outdoors (objects stay the field's: kind 3) */
     float z0 = max(uZtop + 2.0 < uZmax ? uZtop + 2.0 : uZmax, ceil(zmo));
-    for (int st = 0; st < 2400; st++) { float z = z0 - float(st); if (z < -40.0) break;
+    for (int st = 0; st < 2400; st++) { float z = z0 - float(st); if (z < uZmin) break;
       if (gd.x > 0.5) { if (z <= gd.y) { gMH = 1.0; float hx2 = fdv(2.0 * V + 2.0 * gd.y + D, 8.0), hy2 = fdv(2.0 * V + 2.0 * gd.y - D, 8.0); if (rob == 0.0 && layA > 0.5) { vec4 f0 = FN(hx2, hy2, 0.0); rob = S16(B(f0.b), B(f0.a)); } return vec3(gd.x, gd.y, rob); } }
       else if (z <= zmo) { vec3 mn = octdec(gMB); gMH = 1.0; return vec3(mfc(mn), floor(zmo + 0.5), rob); }
       float sx = fdv(2.0 * V + 2.0 * z + D, 8.0), sy = fdv(2.0 * V + 2.0 * z - D, 8.0), top = vtAt(sx, sy, layA), inn = top > -32768.0 ? 1.0 : 0.0, fo = 0.0;
@@ -1081,7 +1082,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
       if (e > 0.5) { gGen = e > 45056.0 ? 1.0 : 0.0; float ob = e < 24576.0 ? 1.0 : 0.0; zm = (e - (gGen > 0.5 ? 49152.0 : ob > 0.5 ? 16384.0 : 32768.0)) / 8.0; gMB = vec2(B(m.b), B(m.a)); if (ob > 0.5 && layA < 0.5 && uObjB < 0.5) zm = -99999.0;   /* LK_GLOBJB v1 (user 2026-11-21, docks pine at night: a hard VERTICAL line down a pine = an 8 px tile edge between plane A and plane B tiles): forest plants are also drawn in plane B (LESSONS: back rows / mixed tiles), their model now counts there too; LANDSTALKER_GL5_OBJB=0 = old (layer A only) */ } } }   /* LK_GLMODEL v1: the model's first surface on this view ray */
     vec2 gd = gdec(U, V, zm); float gfc = gd.x, gz = gd.y; if (gfc > -0.5 && gfc < 0.5) zm = -99999.0;   /* LK_GLROOM v1: decided BEFORE the field ray (a fallback must let the field start at its own first z, else it skips the top in front of a wall foot) */
     float zst = max(uZmax, ceil(zm));
-    for (int st = 0; st < 2400; st++) { float z = zst - float(st); if (z < -40.0) break;
+    for (int st = 0; st < 2400; st++) { float z = zst - float(st); if (z < uZmin) break;
       if (gfc > 0.5) { if (z <= gz) { gMH = 1.0; float hx2 = fdv(2.0 * V + 2.0 * gz + D, 8.0), hy2 = fdv(2.0 * V + 2.0 * gz - D, 8.0);
           if (rob == 0.0) { vec4 g2 = W2(floor(hx2 / 4.0), floor(hy2 / 4.0), 2.0); rob = S16(B(g2.b), B(g2.a)); }   /* the cell's object, as the field ray takes it at its hit */
           return vec3(gfc, gz, rob); } }
@@ -1112,7 +1113,7 @@ vec3 viewray(float U, float V, float layA) {   /* lk_lt_ray / lk_lt_rayf: (face,
   vec2 gc = vec2(-1.0, 0.0);   /* LK_GLROOM v1: the cell ray (outdoor rooms without objects) with a generated room model: decided before the march, as in the fine rays */
   if (uMdl > 0.5) { float mu = U - uMo.x, mv = V - uMo.y; if (mu >= 0.0 && mv >= 0.0 && mu < uMo.z && mv < uMo.w) { vec4 m = texture2D(mdl, (vec2(mu, mv) + 0.5) / vec2(4096.0, 2048.0)); float e = B(m.r) + 256.0 * B(m.g);
     if (e > 0.5 && e >= 24576.0) { gMB = vec2(B(m.b), B(m.a)); gGen = e > 45056.0 ? 1.0 : 0.0; gc = gdec(U, V, (e - (gGen > 0.5 ? 49152.0 : 32768.0)) / 8.0); } } }   /* (trees / bushes: the cell ray has no object rooms) */
-  for (int st = 0; st < 2400; st++) { float z = uZmax - float(st); if (z < -40.0) break;
+  for (int st = 0; st < 2400; st++) { float z = uZmax - float(st); if (z < uZmin) break;
     if (gc.x > 0.5 && z <= gc.y) { gMH = 1.0; float hx2 = fdv(2.0 * V + 2.0 * gc.y + D, 8.0), hy2 = fdv(2.0 * V + 2.0 * gc.y - D, 8.0); if (rob == 0.0) { vec4 g2 = W2(floor(hx2 / 4.0), floor(hy2 / 4.0), 2.0); rob = S16(B(g2.b), B(g2.a)); } return vec3(gc.x, gc.y, rob); }
     float cx = fdv(2.0 * V + 2.0 * z + D, 32.0), cy = fdv(2.0 * V + 2.0 * z - D, 32.0), top = cellT(cx, cy), inn = top > -32768.0 ? 1.0 : 0.0;
     if (inn > 0.5 && layA < 0.5 && uSunR < 0.5) { float n = S16(B(W(cx, cy, 0.0).b), B(W(cx, cy, 0.0).a)); if (n > -32768.0) top = n; }
@@ -1266,7 +1267,7 @@ static void lk_g5_pbdrain(void) { int k = lk_g5_pbi ^ 1, j; const uint32_t *m;  
   if (m) { for (j = 0; j < lk_g5_pbn[k]; j++) lk_gl_surfput(lk_g5_pbx[k][j], lk_g5_pby[k][j], m + j * 2048, m + j * 2048 + 1024, lk_g5_pbsg[k]); lk_glUnmapBuffer(0x88EB); }
   lk_glBindBuffer(0x88EB, 0); lk_g5_pbn[k] = 0; } static unsigned lk_g5_wh;
 static const char *lk_g5_fs = "#version 120\n" @SHADER5@;
-static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", "uSside", "uIfine", "uNslab", "uPineT", "uBushE", "mdl", "uMo", "uMdl", "uSm", "uE1", "uE2", "uSm2", "uE12", "uE22", "uSmo", "uSmSl", "uHand", "uAoflt", "uLF", "uSoftR", "uProng", "uObjB", 0 };   /* 54 uLF: LK_GLWIDE v2 */
+static const char *lk_g5_un[] = { "roomA", "roomB", "btab", "bli", "wld", "uLP", "uLC", "uBlk", "uSunR", "uAor", "uZref", "uAok", "uAotop", "uDv", "wld2", "fine", "prx", "bex", "uZtop", "uSd", "uKey", "uKbw", "uKpen", "uNsh", "uSh", "fine2", "uZmax", "uRayF", "geo", "uMode", "uSdN", "uSunN", "uKA", "uKK", "uShc", "uKm", "uSside", "uIfine", "uNslab", "uPineT", "uBushE", "mdl", "uMo", "uMdl", "uSm", "uE1", "uE2", "uSm2", "uE12", "uE22", "uSmo", "uSmSl", "uHand", "uAoflt", "uLF", "uSoftR", "uProng", "uObjB", "uZmin", 0 };   /* 54 uLF: LK_GLWIDE v2 */
 /* ---- LK_GLMODEL v1 (REAL 3D LIGHT SHAPES stage 1, 2026-11-08, user: 'echte 3D-Formen brauchen wir doch fuers Remake ohnehin' + 'GPU-Weg'): at a new room world the room's model
    triangles (lk_gl_mlist: the Blender meshes of data/light_proxies.json) are rasterized once into a MODEL BUFFER in ROOM PICTURE space: orthographic along the view ray (1, 1, 1),
    U = x - y + 1184, V = (x + y) / 2 - z, depth = -z (nearest = highest z on a ray); per texel z * 8 + 32768 (r / g, 0 = no model) and the octahedral smooth normal (b / a).
@@ -1467,7 +1468,7 @@ static int lk_g5_bind(const float *lp, const float *lc, int fresh) {   /* progra
     lk_glUniform4f(lk_g5_u[50], so[0], so[1], so[2], so[3]); }   /* LK_GLROOM v1: shadow map filter tunables (test aid LANDSTALKER_LT_SMO=offset,minwidth,bias) */
   lk_glUniform1i(lk_g5_u[41], 11); lk_glUniform4f(lk_g5_u[42], lk_gm_mo[0], lk_gm_mo[1], lk_gm_mo[2], lk_gm_mo[3]); lk_glUniform1f(lk_g5_u[43], lk_gm_on ? (lk_gm_dbg == 20 ? 1.25f : lk_gm_dbg >= 3 ? (float)(lk_gm_dbg - 1) : 1.0f) : 0.0f);   /* LK_GLMODEL v1 */
   lk_glUniform1i(lk_g5_u[14], 1); lk_glUniform1i(lk_g5_u[15], 2); lk_glUniform1i(lk_g5_u[16], 5); lk_glUniform1i(lk_g5_u[17], 6);
-  lk_glUniform1i(lk_g5_u[25], 8); lk_glUniform1f(lk_g5_u[26], sc[12]); lk_glUniform1f(lk_g5_u[27], sc[13]); lk_glUniform1i(lk_g5_u[28], 10);
+  lk_glUniform1i(lk_g5_u[25], 8); lk_glUniform1f(lk_g5_u[26], sc[12]); lk_glUniform1f(lk_g5_u[58], sc[29]); lk_glUniform1f(lk_g5_u[27], sc[13]); lk_glUniform1i(lk_g5_u[28], 10);
   { int nsh = lk_gl_shafts(shf); lk_glUniform1f(lk_g5_u[23], (float)nsh); lk_glUniform4fv(lk_g5_u[24], 9, shf); sc[31] = (float)nsh; }
   lk_glUniform1f(lk_g5_u[18], sc[5]); lk_glUniform3f(lk_g5_u[19], sc[6], sc[7], sc[8]); lk_glUniform1f(lk_g5_u[20], sc[9]); lk_glUniform1f(lk_g5_u[21], sc[10]); lk_glUniform1f(lk_g5_u[22], sc[11]);
   lk_glUniform3f(lk_g5_u[30], sc[14], sc[15], sc[16]); lk_glUniform1f(lk_g5_u[31], sc[17]); lk_glUniform1f(lk_g5_u[32], sc[18]); lk_glUniform1f(lk_g5_u[33], sc[19]); lk_glUniform3f(lk_g5_u[34], sc[20], sc[21], sc[22]); lk_glUniform1f(lk_g5_u[35], sc[23]);

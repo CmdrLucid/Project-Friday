@@ -218,7 +218,7 @@ void lk_lt_set(int v) { const char *h = getenv("HOME"); char pth[512]; FILE *f; 
 #define LK_LT_RAD 120.0f   /* v2: was 90, the floor under high wall torches stayed dark (room 177) */
 static int lk_lt_gen;   /* generation of the room's light data: bumped by lk_lt_free (the GPU blocks' read-back lk_gs of an older one is stale); the CPU light blocks are gone since 2026-11-12 */
 typedef struct { float x, y, z; float r, g, b; int lava; uint32_t base; float k, rad; float hw; int tan; float hv; float own; } lk_lt_light;   /* own: LK_GLCARRIER v1 radius of the flame's own stand column (no shadow from it), 0 = none */   /* LK_LTWIDE v2: hw = half the width of the drawn fire along its wall (0 = a small flame), tan 1 = along x, 2 = along y */   /* k: strength, rad: reach (LK_LT_RAD; castle torches more, user 2026-11-04) */   /* base: the AnimatedTilesetData entry of the flame (kind of torch) */
-static lk_lt_light lk_lt_l[LK_LT_ML]; static int lk_lt_nfl, lk_lt_nl, lk_lt_room = -2, lk_lt_zmax; static uint32_t lk_lt_hash; static long lk_lt_frame = -1;
+static lk_lt_light lk_lt_l[LK_LT_ML]; static int lk_lt_nfl, lk_lt_nl, lk_lt_room = -2, lk_lt_zmax, lk_lt_zmin = -40; static uint32_t lk_lt_hash; static long lk_lt_frame = -1;
 static int16_t lk_lt_top[74][74];
 static int16_t lk_lt_gh[74][74];   /* v6: the game's heights (lk_lt_top = ours: outdoor objects raised to their drawn height for the view ray); the sun's shadow march uses these + lk_lt_fh */
 #define LK_LT_FN 296                /* v7: fine object height field, 4 units per entry (74 * 16 / 4) */
@@ -354,7 +354,7 @@ static int lk_lt_rfocc(int sx, int sy, int z) { return z <= lk_lt_fcell(sx, sy) 
 static int lk_lt_rayf(int U, int V, int *zo) {   /* v7: outdoors with objects: the view ray through the game's heights + the fine object field (4 units), so drawn roofs / crowns
      are where the sun's march sees them (v6 raised whole cells: a church cell stood as a column over the path); faces from the sub column steps; lk_lt_rob = owner of the hit */
   int D = U - 1184, z, psx = -999, psy = -999, ptop = -32768, pin = 0, cf = 0, cz = 0;
-  for (z = lk_lt_ztop + 2 < lk_lt_zmax ? lk_lt_ztop + 2 : lk_lt_zmax; z >= -40; z--) {   /* v9: down to -40 (the drawn sea of the ship rooms lies at -22; no game height is below 0: rooms without such data unchanged) */   /* v7 speed: nothing stands above lk_lt_ztop */
+  for (z = lk_lt_ztop + 2 < lk_lt_zmax ? lk_lt_ztop + 2 : lk_lt_zmax; z >= lk_lt_zmin; z--) {   /* v9: down to -40 (the drawn sea of the ship rooms lies at -22; no game height is below 0: rooms without such data unchanged) */   /* v7 speed: nothing stands above lk_lt_ztop */
     int sx = lk_lt_fdiv(2 * V + 2 * z + D, 8), sy = lk_lt_fdiv(2 * V + 2 * z - D, 8), top = sx >= 0 && sy >= 0 && sx < LK_LT_FN && sy < LK_LT_FN ? (lk_lt_rayA ? lk_lt_vt[sy][sx] : lk_lt_vg[sy][sx]) : -32768, in = top > -32768;
     if (cf && in && z > top && !lk_lt_dent(sx >> 2, sy >> 2, cf)) cf = 0;
     if (in && !lk_lt_rob && lk_lt_fo[sy][sx] && lk_lt_rayA) lk_lt_rob = lk_lt_fo[sy][sx];
@@ -386,7 +386,7 @@ static int lk_lt_idiag(int sx, int sy, int z, int f) {   /* v9: the normal of a 
 static int lk_lt_rayi(int U, int V, int *zo) {   /* v9: lk_lt_ray with the fine field indoors (data heights per sub column) and the slabs; a step where neither the current nor the
      previous sub column holds such data decides exactly as lk_lt_ray (cells; LANDSTALKER_LT_IFORCE=1 checks that) */
   int D = U - 1184, z, pcx = -999, pcy = -999, psx = -999, psy = -999, ptop = -32768, pin = 0, pfn = 0, cf = 0, cz = 0;
-  for (z = lk_lt_zmax; z >= -40; z--) {   /* v9: down to -40 (the drawn sea of the ship rooms lies at -22; no game height is below 0: rooms without such data unchanged) */
+  for (z = lk_lt_zmax; z >= lk_lt_zmin; z--) {   /* v9: down to -40 (the drawn sea of the ship rooms lies at -22; no game height is below 0: rooms without such data unchanged) */
     int sx = lk_lt_fdiv(2 * V + 2 * z + D, 8), sy = lk_lt_fdiv(2 * V + 2 * z - D, 8), cx = lk_lt_fdiv(sx, 4), cy = lk_lt_fdiv(sy, 4);
     int ins = sx >= 0 && sy >= 0 && sx < LK_LT_FN && sy < LK_LT_FN, sl = ins && lk_lt_rayA && lk_lt_st[sy][sx] > lk_lt_sb[sy][sx], fn = sl || (ins && lk_lt_fo[sy][sx] == LK_LT_IFO);
     int top = lk_lt_ifh(sx, sy, !lk_lt_rayA), in = top > -32768;
@@ -411,7 +411,7 @@ static int lk_lt_ray(int U, int V, int *zo) {   /* geometry of one picture pixel
   int D = U - 1184, z, pcx = -999, pcy = -999, ptop = -32768, pin = 0, cf = 0, cz = 0;
   if (lk_lt_sun && lk_lt_fhmax > -32768) return lk_lt_rayf(U, V, zo);   /* v7 */
   if (lk_lt_ifine) return lk_lt_rayi(U, V, zo);   /* v9 */
-  for (z = lk_lt_zmax; z >= -40; z--) {   /* v9: down to -40 (the drawn sea of the ship rooms lies at -22; no game height is below 0: rooms without such data unchanged) */
+  for (z = lk_lt_zmax; z >= lk_lt_zmin; z--) {   /* v9: down to -40 (the drawn sea of the ship rooms lies at -22; no game height is below 0: rooms without such data unchanged) */
     int cx = lk_lt_fdiv(2 * V + 2 * z + D, 32), cy = lk_lt_fdiv(2 * V + 2 * z - D, 32), top = lk_lt_cell(cx, cy), in = top > -32768;
     if (in && !lk_lt_rayA && !lk_lt_sun && cx >= 0 && cy >= 0 && cx < 74 && cy < 74 && lk_lt_thin[cy][cx] > -32768) top = lk_lt_thin[cy][cx];
     if (in && !lk_lt_rob && lk_lt_obj[cy][cx]) lk_lt_rob = lk_lt_obj[cy][cx];
@@ -1675,6 +1675,7 @@ static void lk_lt_newroom(void) {   /* (v8 MT: waits for the light worker first:
       for (y = y0; y < y0 + 8 && y < 74; y++) { printf("lighttop %%2d:", y); for (x = x0; x < x0 + 12 && x < 74; x++) printf(" %%6d%%s", lk_lt_top[y][x], lk_lt_wat[y][x] ? "w" : " "); printf("\n"); } } }
   { struct timespec t0; clock_gettime(CLOCK_MONOTONIC, &t0);
     if (lk_lt_sun && lk_lt_extrude()) for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (lk_lt_top[y][x] > lk_lt_zmax) lk_lt_zmax = lk_lt_top[y][x];
+    lk_lt_zmin = -40; for (y = 0; y < 74; y++) for (x = 0; x < 74; x++) if (lk_lt_top[y][x] > -32768 && lk_lt_top[y][x] - 8 < lk_lt_zmin) lk_lt_zmin = lk_lt_top[y][x] - 8;   /* LK_RAYZMIN v1: the view rays reach the lowest light height (class B 'cliff into the deep' floors, user 2026-11-27 room 226: below -40 the GPU ray stopped = unlit picture) */
     lk_lt_finebuild();   /* v9 (before the side penumbra data: it reads the carved field) */
     { const char *e = getenv("LANDSTALKER_LT_DUMPFINE"); if (e && *e && lk_lt_ifine) { char pth[600]; FILE *f; int sx, sy; snprintf(pth, sizeof pth, "%%s_%%d.txt", e, lk_o_room); f = fopen(pth, "w");   /* 2026-11-08 test aid (remake/tools/proxy_bgtest.py): the light's fine heights indoors after all ops, one line per sub column row: 'height' or 'height/slab bottom/slab top' */
         if (f) { for (sy = 0; sy < LK_LT_FN; sy++) { for (sx = 0; sx < LK_LT_FN; sx++) { int h = lk_lt_ifh(sx, sy, 0); if (lk_lt_hasslab(sx, sy)) fprintf(f, "%%d/%%d/%%d ", h, lk_lt_sb[sy][sx], lk_lt_st[sy][sx]); else fprintf(f, "%%d ", h); } fprintf(f, "\n"); } fclose(f); } } }
