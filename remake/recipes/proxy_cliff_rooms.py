@@ -52,7 +52,8 @@ SPECS = {465: dict(level=-32, note="cliff path above the river: walkways 80..144
              dict(kind="deep", level=-160, rect=(48, 28, 54, 40), outside=True, note="the cliff below the last steps (48..51, 26..27); the void behind the steps (rows 23..25) is drawn rock wall, not cliff: left out")]),
          501: dict(level=0, bulge=-48, note="shore below the round-tree hill: the faces reach the water exactly 80 px below the 80 walkway edges (22..23, 25)y, (36..37, 29)y = water 0; "
                    "the bank's bulges (floor point at 0 drawn rock) at -48 (the level where no cell in front of the faces is drawn rock)"),
-         523: dict(level=0, bulge=-48, note="cave-door ledge above the water: faces 80 px from the 80 walkways (47..49, 19)y down to the water = 0; bulges at -48"),
+         523: dict(level=0, bulge=-48, add_water=[(46, 20, 55, 23)], note="cave-door ledge above the water: faces 80 px from the 80 walkways (47..49, 19)y down to the water = 0; bulges at -48; "
+                   "the water right of the ledge reaches the wall at y 320 (drawn water edge V - U / 2 = y - 592: U 1590..1700 -> 327), the flood stopped short of it"),
          470: dict(zones=[   # rock bowl with the cave door (2026-11-28): the forest plateau (80) drops off the picture at the front; a small drawn LEDGE with two pines on that face (like 469)
              dict(kind="ledge", level=-23, rect=(28, 41, 29, 41), note="the drawn ledge with two pines on the front cliff: pine feet U 976 / 992 V 583 / 591 moved along the view ray onto the first cells in front "
                   "of the +y face of the 112 rim (28..29, 40): feet at the centres of (28, 41) / (29, 41), ground 80 - 103 = -23; its front corner then lies at U 992 V 599 = the drawn corner"),
@@ -142,6 +143,9 @@ def build(rom, room, level, show_map=False, dry=False, deep=False, bulge=None):
             for n in ((x + 1, y), (x, y + 1)):
                 if n not in water and void(n) and d < 12 and not wet(n): water.add(n); st.append((n, d + 1))
         water = {c for c in water if not wet(c)}
+    reg = water | rock
+    for r in SPECS.get(room, {}).get("add_water", []):   # 2026-11-28 (523): measured water cells the flood did not reach (floor point on the drawn water edge)
+        water |= {(x, y) for x in range(r[0], r[2] + 1) for y in range(r[1], r[3] + 1) if void((x, y))}
     reg = water | rock
     if bulge is not None and not deep:   # 2026-11-28 (501 / 523): the river at its MEASURED surface L (faces reach the water F = z - L px below straight edges); the cells in front of
         # the bank's drawn BULGES (floor point at L drawn as rock) become ground at the bulge level instead, so the drawn bank there is the walkway's face, not a floor

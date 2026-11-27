@@ -26,6 +26,68 @@
     "     carve {\"cells\": [x0,y0,x1,y1], \"bg\": \"sea\" | \"layera\", \"floor\": f} - at room load the shapes in these cells follow the DRAWN picture: every sub column is lowered until its top and its front edge land on drawn object pixels (sea = nothing drawn or a water tile), slabs keep the heights drawn in layer A, then a 3 x 3 median (LANDSTALKER_LT_CARVEMED). Outdoors every building shape / mesh is carved automatically to layer A (LANDSTALKER_LT_CARVEOUT=0 = off)."
   ],
   "rooms": {
+    "482": [
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          12,
+          29,
+          18
+        ],
+        "file": "proxies/rock_482_a.obj",
+        "surface": true,
+        "why": "room 482 ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 19 rows 31..47); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          19,
+          29,
+          21
+        ],
+        "file": "proxies/rock_482_b.obj",
+        "surface": true,
+        "why": "room 482 ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 19 rows 31..47); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          22,
+          15,
+          26
+        ],
+        "file": "proxies/rock_482_c.obj",
+        "surface": true,
+        "why": "room 482 ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 19 rows 31..47); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          27,
+          19,
+          30
+        ],
+        "file": "proxies/rock_482_d.obj",
+        "surface": true,
+        "why": "room 482 ROCK WALL piece d (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 19 rows 31..47); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          31,
+          18,
+          47
+        ],
+        "file": "proxies/rock_482_e.obj",
+        "surface": true,
+        "why": "room 482 ROCK WALL piece e (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 19 rows 31..47); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
+      }
+    ],
     "523": [
       {
         "op": "water",
@@ -50,30 +112,6 @@
         "why": "room 523 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
       },
       {
-        "op": "ground",
-        "cells": [
-          50,
-          17,
-          50,
-          18,
-          -48
-        ],
-        "replace": true,
-        "why": "room 523 CLASS B CLIFF: a drawn BULGE of the bank in front of the walkway (its floor point at the river level 0 is drawn rock) = floor at -48 below the face, no floor in the drawn rock; remake/recipes/proxy_cliff_rooms.py"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          49,
-          17,
-          49,
-          18
-        ],
-        "file": "proxies/cliffedge_523_0.obj",
-        "surface": true,
-        "why": "room 523 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from -48 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
-      },
-      {
         "op": "mesh",
         "cells": [
           46,
@@ -81,7 +119,7 @@
           49,
           19
         ],
-        "file": "proxies/cliffedge_523_1.obj",
+        "file": "proxies/cliffedge_523_0.obj",
         "surface": true,
         "why": "room 523 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
       },
@@ -93,7 +131,7 @@
           45,
           23
         ],
-        "file": "proxies/cliffedge_523_2.obj",
+        "file": "proxies/cliffedge_523_1.obj",
         "surface": true,
         "why": "room 523 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
       },
@@ -105,7 +143,7 @@
           44,
           23
         ],
-        "file": "proxies/cliffedge_523_3.obj",
+        "file": "proxies/cliffedge_523_2.obj",
         "surface": true,
         "why": "room 523 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
       },
@@ -124,14 +162,86 @@
       {
         "op": "mesh",
         "cells": [
+          35,
+          12,
+          55,
+          16
+        ],
+        "file": "proxies/rock_523_a.obj",
+        "surface": true,
+        "why": "room 523 ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: cave-door ledge above the water (rock behind the walkways, 2026-11-28): one rock wall facing +y, its foot on the water at y 384 (drawn water edge V - U / 2 = y - 592 at z 0), left end x 560 (drawn vertical edge U 1360); the ledge (40..45, 20..23) and the door path (46..49, 17..19) are NICHES in it, the wall right of the ledge stands back at y 320 (the drawn water edge jogs back there); lintel over the door path from 176 (drawn arch top V 360 at U 1632 on that face); the dark CREVICE behind the ledge (42, 17..19, drawn slot U 1545) open up to 160"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          17,
+          41,
+          19
+        ],
+        "file": "proxies/rock_523_b.obj",
+        "surface": true,
+        "why": "room 523 ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: cave-door ledge above the water (rock behind the walkways, 2026-11-28): one rock wall facing +y, its foot on the water at y 384 (drawn water edge V - U / 2 = y - 592 at z 0), left end x 560 (drawn vertical edge U 1360); the ledge (40..45, 20..23) and the door path (46..49, 17..19) are NICHES in it, the wall right of the ledge stands back at y 320 (the drawn water edge jogs back there); lintel over the door path from 176 (drawn arch top V 360 at U 1632 on that face); the dark CREVICE behind the ledge (42, 17..19, drawn slot U 1545) open up to 160"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          17,
+          45,
+          19
+        ],
+        "file": "proxies/rock_523_c.obj",
+        "surface": true,
+        "why": "room 523 ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: cave-door ledge above the water (rock behind the walkways, 2026-11-28): one rock wall facing +y, its foot on the water at y 384 (drawn water edge V - U / 2 = y - 592 at z 0), left end x 560 (drawn vertical edge U 1360); the ledge (40..45, 20..23) and the door path (46..49, 17..19) are NICHES in it, the wall right of the ledge stands back at y 320 (the drawn water edge jogs back there); lintel over the door path from 176 (drawn arch top V 360 at U 1632 on that face); the dark CREVICE behind the ledge (42, 17..19, drawn slot U 1545) open up to 160"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          42,
+          17,
+          42,
+          19
+        ],
+        "file": "proxies/rock_523_d.obj",
+        "surface": true,
+        "why": "room 523 ROCK WALL piece d (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: cave-door ledge above the water (rock behind the walkways, 2026-11-28): one rock wall facing +y, its foot on the water at y 384 (drawn water edge V - U / 2 = y - 592 at z 0), left end x 560 (drawn vertical edge U 1360); the ledge (40..45, 20..23) and the door path (46..49, 17..19) are NICHES in it, the wall right of the ledge stands back at y 320 (the drawn water edge jogs back there); lintel over the door path from 176 (drawn arch top V 360 at U 1632 on that face); the dark CREVICE behind the ledge (42, 17..19, drawn slot U 1545) open up to 160"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          20,
+          39,
+          23
+        ],
+        "file": "proxies/rock_523_e.obj",
+        "surface": true,
+        "why": "room 523 ROCK WALL piece e (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: cave-door ledge above the water (rock behind the walkways, 2026-11-28): one rock wall facing +y, its foot on the water at y 384 (drawn water edge V - U / 2 = y - 592 at z 0), left end x 560 (drawn vertical edge U 1360); the ledge (40..45, 20..23) and the door path (46..49, 17..19) are NICHES in it, the wall right of the ledge stands back at y 320 (the drawn water edge jogs back there); lintel over the door path from 176 (drawn arch top V 360 at U 1632 on that face); the dark CREVICE behind the ledge (42, 17..19, drawn slot U 1545) open up to 160"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           50,
           17,
-          50,
-          17
+          55,
+          19
         ],
-        "file": "proxies/cliffnotch_523_50_17.obj",
+        "file": "proxies/rock_523_f.obj",
         "surface": true,
-        "why": "room 523 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+        "why": "room 523 ROCK WALL piece f (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: cave-door ledge above the water (rock behind the walkways, 2026-11-28): one rock wall facing +y, its foot on the water at y 384 (drawn water edge V - U / 2 = y - 592 at z 0), left end x 560 (drawn vertical edge U 1360); the ledge (40..45, 20..23) and the door path (46..49, 17..19) are NICHES in it, the wall right of the ledge stands back at y 320 (the drawn water edge jogs back there); lintel over the door path from 176 (drawn arch top V 360 at U 1632 on that face); the dark CREVICE behind the ledge (42, 17..19, drawn slot U 1545) open up to 160"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          46,
+          17,
+          49,
+          19
+        ],
+        "file": "proxies/rock_523_g.obj",
+        "surface": true,
+        "why": "room 523 ROCK WALL piece g (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: cave-door ledge above the water (rock behind the walkways, 2026-11-28): one rock wall facing +y, its foot on the water at y 384 (drawn water edge V - U / 2 = y - 592 at z 0), left end x 560 (drawn vertical edge U 1360); the ledge (40..45, 20..23) and the door path (46..49, 17..19) are NICHES in it, the wall right of the ledge stands back at y 320 (the drawn water edge jogs back there); lintel over the door path from 176 (drawn arch top V 360 at U 1632 on that face); the dark CREVICE behind the ledge (42, 17..19, drawn slot U 1545) open up to 160"
       }
     ],
     "501": [
@@ -514,6 +624,54 @@
         "file": "proxies/cliffnotch_478_41_47.obj",
         "surface": true,
         "why": "room 478 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          12,
+          26,
+          24
+        ],
+        "file": "proxies/rock_478_a.obj",
+        "surface": true,
+        "why": "room 478 ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: waterfall room with the cave door (rock behind the walkways, 2026-11-28): the big left mountain is a 224 block in the game (x 21..26) but drawn up to its peak (outline V 112 at U 1168); footprint = the 224 block cells + the void left / behind it, its FRONT on the drawn straight face foot along the river (U + 2V = 1760 = x - z = 288: x 432 where the river is 144 (rows 25..32), x 416 where it is 128 (rows 33..49; the 128 cells x 25 rows 38..42 lie under the drawn face); the river and the waterfall (x 24..27 rows 47..53) stay out; bottom -160 (the mountain runs off the picture at the lower left, like the class B deep cliffs)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          25,
+          26,
+          32
+        ],
+        "file": "proxies/rock_478_b.obj",
+        "surface": true,
+        "why": "room 478 ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: waterfall room with the cave door (rock behind the walkways, 2026-11-28): the big left mountain is a 224 block in the game (x 21..26) but drawn up to its peak (outline V 112 at U 1168); footprint = the 224 block cells + the void left / behind it, its FRONT on the drawn straight face foot along the river (U + 2V = 1760 = x - z = 288: x 432 where the river is 144 (rows 25..32), x 416 where it is 128 (rows 33..49; the 128 cells x 25 rows 38..42 lie under the drawn face); the river and the waterfall (x 24..27 rows 47..53) stay out; bottom -160 (the mountain runs off the picture at the lower left, like the class B deep cliffs)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          33,
+          25,
+          49
+        ],
+        "file": "proxies/rock_478_c.obj",
+        "surface": true,
+        "why": "room 478 ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: waterfall room with the cave door (rock behind the walkways, 2026-11-28): the big left mountain is a 224 block in the game (x 21..26) but drawn up to its peak (outline V 112 at U 1168); footprint = the 224 block cells + the void left / behind it, its FRONT on the drawn straight face foot along the river (U + 2V = 1760 = x - z = 288: x 432 where the river is 144 (rows 25..32), x 416 where it is 128 (rows 33..49; the 128 cells x 25 rows 38..42 lie under the drawn face); the river and the waterfall (x 24..27 rows 47..53) stay out; bottom -160 (the mountain runs off the picture at the lower left, like the class B deep cliffs)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          50,
+          25,
+          53
+        ],
+        "file": "proxies/rock_478_d.obj",
+        "surface": true,
+        "why": "room 478 ROCK WALL piece d (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: waterfall room with the cave door (rock behind the walkways, 2026-11-28): the big left mountain is a 224 block in the game (x 21..26) but drawn up to its peak (outline V 112 at U 1168); footprint = the 224 block cells + the void left / behind it, its FRONT on the drawn straight face foot along the river (U + 2V = 1760 = x - z = 288: x 432 where the river is 144 (rows 25..32), x 416 where it is 128 (rows 33..49; the 128 cells x 25 rows 38..42 lie under the drawn face); the river and the waterfall (x 24..27 rows 47..53) stay out; bottom -160 (the mountain runs off the picture at the lower left, like the class B deep cliffs)"
       }
     ],
     "592": [
@@ -759,6 +917,54 @@
           57
         ],
         "why": "automatic lathe L9 (at 479,927): a plant that HAS a plant model (foot in the same picture column); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          12,
+          52,
+          23
+        ],
+        "file": "proxies/rock_610_a.obj",
+        "surface": true,
+        "why": "room 611 (same map / picture as 610) ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: Ryuma (rock behind the walkways, 2026-11-28): the big RIGHT cliff is a staircase of blocked cells in the game (x 36..57 rows 20..28, 48 .. 208) but drawn as one rock face up to its outline (U 1380..1770): the light saw terraces (stripes); solids over its blocked cells rows <= 23 and x 53..57 rows 24..28 (the town house 'right' x 40..46 and its garden in front keep their own shapes); the narrow cliff BEHIND-LEFT (above the upper house, U 860..1080): the void left of the town; room 611 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          53,
+          12,
+          57,
+          28
+        ],
+        "file": "proxies/rock_610_b.obj",
+        "surface": true,
+        "why": "room 611 (same map / picture as 610) ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: Ryuma (rock behind the walkways, 2026-11-28): the big RIGHT cliff is a staircase of blocked cells in the game (x 36..57 rows 20..28, 48 .. 208) but drawn as one rock face up to its outline (U 1380..1770): the light saw terraces (stripes); solids over its blocked cells rows <= 23 and x 53..57 rows 24..28 (the town house 'right' x 40..46 and its garden in front keep their own shapes); the narrow cliff BEHIND-LEFT (above the upper house, U 860..1080): the void left of the town; room 611 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          12,
+          15,
+          20
+        ],
+        "file": "proxies/rock_610_c.obj",
+        "surface": true,
+        "why": "room 611 (same map / picture as 610) ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: Ryuma (rock behind the walkways, 2026-11-28): the big RIGHT cliff is a staircase of blocked cells in the game (x 36..57 rows 20..28, 48 .. 208) but drawn as one rock face up to its outline (U 1380..1770): the light saw terraces (stripes); solids over its blocked cells rows <= 23 and x 53..57 rows 24..28 (the town house 'right' x 40..46 and its garden in front keep their own shapes); the narrow cliff BEHIND-LEFT (above the upper house, U 860..1080): the void left of the town; room 611 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          21,
+          14,
+          40
+        ],
+        "file": "proxies/rock_610_d.obj",
+        "surface": true,
+        "why": "room 611 (same map / picture as 610) ROCK WALL piece d (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: Ryuma (rock behind the walkways, 2026-11-28): the big RIGHT cliff is a staircase of blocked cells in the game (x 36..57 rows 20..28, 48 .. 208) but drawn as one rock face up to its outline (U 1380..1770): the light saw terraces (stripes); solids over its blocked cells rows <= 23 and x 53..57 rows 24..28 (the town house 'right' x 40..46 and its garden in front keep their own shapes); the narrow cliff BEHIND-LEFT (above the upper house, U 860..1080): the void left of the town; room 611 = the same map and picture"
       }
     ],
     "610": [
@@ -874,6 +1080,54 @@
           57
         ],
         "why": "automatic lathe L9 (at 479,927): a plant that HAS a plant model (foot in the same picture column); 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          12,
+          52,
+          23
+        ],
+        "file": "proxies/rock_610_a.obj",
+        "surface": true,
+        "why": "room 610 ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: Ryuma (rock behind the walkways, 2026-11-28): the big RIGHT cliff is a staircase of blocked cells in the game (x 36..57 rows 20..28, 48 .. 208) but drawn as one rock face up to its outline (U 1380..1770): the light saw terraces (stripes); solids over its blocked cells rows <= 23 and x 53..57 rows 24..28 (the town house 'right' x 40..46 and its garden in front keep their own shapes); the narrow cliff BEHIND-LEFT (above the upper house, U 860..1080): the void left of the town; room 611 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          53,
+          12,
+          57,
+          28
+        ],
+        "file": "proxies/rock_610_b.obj",
+        "surface": true,
+        "why": "room 610 ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: Ryuma (rock behind the walkways, 2026-11-28): the big RIGHT cliff is a staircase of blocked cells in the game (x 36..57 rows 20..28, 48 .. 208) but drawn as one rock face up to its outline (U 1380..1770): the light saw terraces (stripes); solids over its blocked cells rows <= 23 and x 53..57 rows 24..28 (the town house 'right' x 40..46 and its garden in front keep their own shapes); the narrow cliff BEHIND-LEFT (above the upper house, U 860..1080): the void left of the town; room 611 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          12,
+          15,
+          20
+        ],
+        "file": "proxies/rock_610_c.obj",
+        "surface": true,
+        "why": "room 610 ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: Ryuma (rock behind the walkways, 2026-11-28): the big RIGHT cliff is a staircase of blocked cells in the game (x 36..57 rows 20..28, 48 .. 208) but drawn as one rock face up to its outline (U 1380..1770): the light saw terraces (stripes); solids over its blocked cells rows <= 23 and x 53..57 rows 24..28 (the town house 'right' x 40..46 and its garden in front keep their own shapes); the narrow cliff BEHIND-LEFT (above the upper house, U 860..1080): the void left of the town; room 611 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          21,
+          14,
+          40
+        ],
+        "file": "proxies/rock_610_d.obj",
+        "surface": true,
+        "why": "room 610 ROCK WALL piece d (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: Ryuma (rock behind the walkways, 2026-11-28): the big RIGHT cliff is a staircase of blocked cells in the game (x 36..57 rows 20..28, 48 .. 208) but drawn as one rock face up to its outline (U 1380..1770): the light saw terraces (stripes); solids over its blocked cells rows <= 23 and x 53..57 rows 24..28 (the town house 'right' x 40..46 and its garden in front keep their own shapes); the narrow cliff BEHIND-LEFT (above the upper house, U 860..1080): the void left of the town; room 611 = the same map and picture"
       }
     ],
     "28": [
@@ -17032,6 +17286,30 @@
         "surface": true,
         "floor": 32,
         "why": "ROPE RAILING 's49': stair post on its step 32; remake/recipes/railing_737 (posts with cap / ring / shaft measured on the drawing, ropes sagging as drawn); the game's 2 step collision strip goes (bug sweep 2026-11-26, sword glow edge on the path)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          24,
+          47,
+          44
+        ],
+        "file": "proxies/bridge_737.obj",
+        "surface": true,
+        "why": "Kazalt 737 stone ARCH BRIDGE (2026-11-28, user: 'unter der Bruecke ist noch Wasser und keine Wand'): the walkway over the channel between the courtyard pond and the outer water; piers, deck top 112 with the arch (soffit 96, haunches r 26), water floor 8 under it, measured on the drawing; remake/recipes/bridge_737.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          48,
+          26,
+          49,
+          29
+        ],
+        "file": "proxies/bridge_737_pier.obj",
+        "surface": true,
+        "why": "Kazalt 737 arch bridge: the right pier's BUTTRESS in front of the deck face (x 768..794, y 423..440; user mark 2026-11-28 'das ist alles noch Pfeiler'; drawn corner U 1538, front face to U 1555) with the arch haunch + band running on to its front and the water floor 8 around it; remake/recipes/bridge_737.py"
       }
     ],
     "428": [
@@ -17639,7 +17917,7 @@
         ],
         "file": "proxies/rock_505_a.obj",
         "surface": true,
-        "why": "room 505 ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: path descending along x in front of a wall: barrier row 22 (face y 368), barrier x 27 rows 22..25"
+        "why": "room 505 ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: path descending along x in front of a wall: barrier row 22 (face y 368), barrier x 27 rows 22..25; behind the last steps (48..51, 26..27) the wall stands at y 416 (piece d, 2026-11-28: the light had a strip of floor there, the drawing shows rock right behind the steps)"
       },
       {
         "op": "mesh",
@@ -17651,7 +17929,7 @@
         ],
         "file": "proxies/rock_505_b.obj",
         "surface": true,
-        "why": "room 505 ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: path descending along x in front of a wall: barrier row 22 (face y 368), barrier x 27 rows 22..25"
+        "why": "room 505 ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: path descending along x in front of a wall: barrier row 22 (face y 368), barrier x 27 rows 22..25; behind the last steps (48..51, 26..27) the wall stands at y 416 (piece d, 2026-11-28: the light had a strip of floor there, the drawing shows rock right behind the steps)"
       },
       {
         "op": "mesh",
@@ -17663,7 +17941,19 @@
         ],
         "file": "proxies/rock_505_c.obj",
         "surface": true,
-        "why": "room 505 ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: path descending along x in front of a wall: barrier row 22 (face y 368), barrier x 27 rows 22..25"
+        "why": "room 505 ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: path descending along x in front of a wall: barrier row 22 (face y 368), barrier x 27 rows 22..25; behind the last steps (48..51, 26..27) the wall stands at y 416 (piece d, 2026-11-28: the light had a strip of floor there, the drawing shows rock right behind the steps)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          48,
+          23,
+          53,
+          25
+        ],
+        "file": "proxies/rock_505_d.obj",
+        "surface": true,
+        "why": "room 505 ROCK WALL piece d (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: path descending along x in front of a wall: barrier row 22 (face y 368), barrier x 27 rows 22..25; behind the last steps (48..51, 26..27) the wall stands at y 416 (piece d, 2026-11-28: the light had a strip of floor there, the drawing shows rock right behind the steps)"
       }
     ],
     "485": [
