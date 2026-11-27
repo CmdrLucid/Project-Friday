@@ -11984,6 +11984,66 @@
       {
         "op": "mesh",
         "cells": [
+          23,
+          12,
+          45,
+          19
+        ],
+        "file": "proxies/rock_524_a.obj",
+        "surface": true,
+        "why": "room 524 ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: lake shrine room: the big sand rock face behind the walkway / lava path (barrier row 19, face y 320) with the cave door (42, 18..19) and the back passage x 46..49 rows 17..20 left open; LEFT of the pines it stands forward to row 22 (the game's 160 box x 35..39 rows 19..23: at floor height the drawing there shows rock face, no floor); one front edge only (a second step at row 23 lit as a box); the small void x 54..55 rows 20..21 stays out (a piece there made a hard lit band on the lava path); the pines x 40 rows 20..22 and the phantom-fixed floor (39, 20..23) / (37..38, 23) stay; user 2026-11-27 marked the hard sword-glow box + shadow of the 160 box"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          46,
+          12,
+          49,
+          16
+        ],
+        "file": "proxies/rock_524_b.obj",
+        "surface": true,
+        "why": "room 524 ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: lake shrine room: the big sand rock face behind the walkway / lava path (barrier row 19, face y 320) with the cave door (42, 18..19) and the back passage x 46..49 rows 17..20 left open; LEFT of the pines it stands forward to row 22 (the game's 160 box x 35..39 rows 19..23: at floor height the drawing there shows rock face, no floor); one front edge only (a second step at row 23 lit as a box); the small void x 54..55 rows 20..21 stays out (a piece there made a hard lit band on the lava path); the pines x 40 rows 20..22 and the phantom-fixed floor (39, 20..23) / (37..38, 23) stay; user 2026-11-27 marked the hard sword-glow box + shadow of the 160 box"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          50,
+          12,
+          55,
+          19
+        ],
+        "file": "proxies/rock_524_c.obj",
+        "surface": true,
+        "why": "room 524 ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: lake shrine room: the big sand rock face behind the walkway / lava path (barrier row 19, face y 320) with the cave door (42, 18..19) and the back passage x 46..49 rows 17..20 left open; LEFT of the pines it stands forward to row 22 (the game's 160 box x 35..39 rows 19..23: at floor height the drawing there shows rock face, no floor); one front edge only (a second step at row 23 lit as a box); the small void x 54..55 rows 20..21 stays out (a piece there made a hard lit band on the lava path); the pines x 40 rows 20..22 and the phantom-fixed floor (39, 20..23) / (37..38, 23) stay; user 2026-11-27 marked the hard sword-glow box + shadow of the 160 box"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          20,
+          38,
+          22
+        ],
+        "file": "proxies/rock_524_d.obj",
+        "surface": true,
+        "why": "room 524 ROCK WALL piece d (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: lake shrine room: the big sand rock face behind the walkway / lava path (barrier row 19, face y 320) with the cave door (42, 18..19) and the back passage x 46..49 rows 17..20 left open; LEFT of the pines it stands forward to row 22 (the game's 160 box x 35..39 rows 19..23: at floor height the drawing there shows rock face, no floor); one front edge only (a second step at row 23 lit as a box); the small void x 54..55 rows 20..21 stays out (a piece there made a hard lit band on the lava path); the pines x 40 rows 20..22 and the phantom-fixed floor (39, 20..23) / (37..38, 23) stay; user 2026-11-27 marked the hard sword-glow box + shadow of the 160 box"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          35,
+          23,
+          36,
+          23,
+          112
+        ],
+        "replace": true,
+        "why": "room 524: the rest of the game's 160 rock box in front of the rock piece d (rows 20..22) gets the floor of its neighbours (37..38, 23) = 112 (one front edge for the rock: the first try with a second step at row 23 lit as a box beside the pines, GPU 2026-11-27)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           27,
           37,
           40,

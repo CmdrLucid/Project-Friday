@@ -39,6 +39,11 @@ SPECS = {
                    "the back above the exit (29..30 x 24..26) stays open; the void left of the lower terraces is no wall (left out); the solid starts at the peak's left flank U 1281 (left of it the outline is the terrace trees)"),
     # class A tested 2026-11-27 and NOT kept: 426 (the light already lit the waterfall wall: no change), 492 (diagonal cliff on a one-row cell staircase:
     # a lit band with hard sides), 498 (a fall / climb room: no test spot holds Nigel); 737 (the light paints its void at walkway level: the wall mesh made the glow dimmer)
+    524: dict(pieces=[(23, 12, 45, 19), (46, 12, 49, 16), (50, 12, 55, 19), (27, 20, 38, 22)], u=(1232, 1887),
+              extra=[{"op": "ground", "cells": [35, 23, 36, 23, 112], "replace": True, "why": "room 524: the rest of the game's 160 rock box in front of the rock piece d (rows 20..22) gets the floor of its neighbours (37..38, 23) = 112 (one front edge for the rock: the first try with a second step at row 23 lit as a box beside the pines, GPU 2026-11-27)"}],
+              note="lake shrine room: the big sand rock face behind the walkway / lava path (barrier row 19, face y 320) with the cave door (42, 18..19) and the back passage x 46..49 rows 17..20 left open; "
+                   "LEFT of the pines it stands forward to row 22 (the game's 160 box x 35..39 rows 19..23: at floor height the drawing there shows rock face, no floor); one front edge only (a second step at row 23 lit as a box); the small void x 54..55 rows 20..21 stays out (a piece there made a hard lit band on the lava path); "
+                   "the pines x 40 rows 20..22 and the phantom-fixed floor (39, 20..23) / (37..38, 23) stay; user 2026-11-27 marked the hard sword-glow box + shadow of the 160 box"),
     514: dict(pieces=[(36, 12, 41, 12), (44, 12, 44, 19), (38, 13, 43, 13), (45, 13, 45, 20), (39, 14, 43, 14), (46, 14, 47, 21), (40, 15, 43, 15), (48, 15, 48, 22), (41, 16, 43, 16), (49, 16, 50, 22), (42, 17, 43, 17), (51, 17, 51, 22), (43, 18, 43, 18), (52, 18, 52, 22)], u=(848, 1743),
               note="the right back cliff (class A, deep hole)"),
 }
