@@ -11,8 +11,8 @@
 - 6. Cloud sandbox setup (no ROM, no SDL by default): lines 73-82
 - 7. Merge note: lines 83-85
 - 8. Roadmap after the compat work (user wishes, 2026-10-10): lines 86-93
-- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-636
-  - 356 entries, newest at the END; the last 12: 624 (2026-11-26) Hard edges in the sword glow that...; 625 (2026-11-26) Automatic light data fixes need a...; 626 (2026-11-27) The edge score can say 'better' wh...; 627 (2026-11-27) Barrier / void cells drawn as a bi...; 628 (2026-11-27) Drawn rock walls over void / barri...; 629 (2026-11-27) A void cell drawn as rock is only...; 630 (2026-11-27) The GPU model buffer took at most...; 631 (2026-11-27) The GPU view ray stopped at a FIXE...; 632 (2026-11-27) Class B cliffs (void in front of a...; 633 (2026-11-27) Water detection by colour must inc...; 634 (2026-11-27) A flood through ALL void cells cat...; 635 (2026-11-27) The jump-aid ground shadow skipped...
+- 9. Fragile spots (things that may bite later) -- keep this list cur...: lines 94-637
+  - 357 entries, newest at the END; the last 12: 625 (2026-11-26) Automatic light data fixes need a...; 626 (2026-11-27) The edge score can say 'better' wh...; 627 (2026-11-27) Barrier / void cells drawn as a bi...; 628 (2026-11-27) Drawn rock walls over void / barri...; 629 (2026-11-27) A void cell drawn as rock is only...; 630 (2026-11-27) The GPU model buffer took at most...; 631 (2026-11-27) The GPU view ray stopped at a FIXE...; 632 (2026-11-27) Class B cliffs (void in front of a...; 633 (2026-11-27) Water detection by colour must inc...; 634 (2026-11-27) A flood through ALL void cells cat...; 635 (2026-11-27) The jump-aid ground shadow skipped...; 636 (2026-11-27) Verify a water / floor level with...
 
 <!-- /TOC -->
 
@@ -633,3 +633,4 @@ Also open: optional CPU overclock (more cycles per frame) for sprite-heavy rooms
 - (2026-11-27) Water detection by colour must include teal: Gumi's water pixel (0, 72, 72) has b == g (b > g + 10 called it rock). Use b > r + 30 and b >= g.
 - (2026-11-27) A flood through ALL void cells catches the space behind the drawing (hundreds of fake cells); grow a river only through cells drawn as water, a deep cliff only forward (+x / +y, limited), and give edge models only to walkways at a detected edge.
 - (2026-11-27) The jump-aid ground shadow skipped every sprite pixel, so it vanished on platforms drawn as SPRITES (room 430 stumps). LK_SHPLAT v1: the shadow may darken the sprite pixels of the platform it lies on (entity per pixel = lk_lt_spre), clipped to its top face.
+- (2026-11-27) Verify a water / floor level with the RECEIVER MAP, not by eye: LANDSTALKER_SWSH_DBG=12 on a lightedges --sword run colours every pixel with the cell x / y and z + 64 it is lit as; count the drawn water pixels that do not hit the river level (226: steps 24 / 56 / 96 inside one drawn water plane made box shadows and a lit rectangle; after the fix 95 % at 24).
