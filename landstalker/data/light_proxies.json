@@ -11984,6 +11984,32 @@
       {
         "op": "mesh",
         "cells": [
+          27,
+          37,
+          40,
+          47
+        ],
+        "file": "proxies/shrine_524_body.obj",
+        "surface": true,
+        "why": "LAKE SHRINE building (user OK 2026-11-27 on the drawing overlay / clay sheets, knobs re-measured): body x 432..656 y 592..768 to the flat roof 240, door panel recessed 4 with pilasters + lintel, two wall ornaments, the right knob row (egg knobs on console stones, as drawn; the remake variant has knobs all round: --remake, local); remake/recipes/proxy_shrine_524.py. Was the game's blocked box (height 15) for the light"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          48,
+          40,
+          49
+        ],
+        "file": "proxies/shrine_524_porch.obj",
+        "surface": true,
+        "air": true,
+        "floor": 80,
+        "why": "LAKE SHRINE porch: the flat roof slab runs 32 in front of the wall (y 768..800, z 226..240) over the two fluted columns on the blocked cells (27, 49) / (40, 49), front knob row; 'air' = the slab floats over the walkable porch rows 48..49 (80), 'floor' 80 = the ground under the model (the column cells are blocked 240 in the collision); remake/recipes/proxy_shrine_524.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           28,
           53,
           29,
