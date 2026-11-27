@@ -104,6 +104,8 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 
 - **An outdoor surface model owns its WHOLE op rectangle** (2026-11-27, room 503): LK_GLROOM clean-up sets every raised collision cell in the rectangle that no model covers to the ground, so a big rectangle around an L-shaped model flattened the 176 walkway and the 128 ledge (hard glow edge, user marked it). Split such a model into pieces whose rectangles hold only the model's own (void / barrier) cells; the cut faces lie inside the solid.
 
+- **No mesh / height-map seam inside ONE drawn wall plane** (2026-11-27, room 486, user: 'immer noch ein schwarzer Streifen'): where a rock mesh piece and a height-map column (a walkable / blocked cell) meet in the same wall plane, the mesh's unlit side face peeks through the seam (GPU model buffer finer than the field) = a dark 3 px vertical line beside the light; also a door cell left open as a full-cell niche is wider than the drawn arch (dark jamb). Make the whole plane one kind: there the door wall became height-map columns at the drawn top (ground replace), doors stay closed for the light (the drawn opening stays black), lintel pieces only where the wall plane is all mesh. Measure such stripes with a luminance profile across the wall (old / new), not by eye.
+
 ## 5. Tools and paths
 - Blender (Flatpak) needs `--filesystem=home` for scripts / files outside the sandbox; an ortho camera at distance > 100 needs `clip_end` raised; point the
   camera with a TRACK_TO constraint.
