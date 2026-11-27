@@ -274,3 +274,4 @@
 - L2165: Session 2026-11-26 evening: two YouTube comments, jump / landing sound option, Centered View (dev b5e82c6 .. 2a5ff4b)
 - L2170: Session 2026-11-26 night / 27: Kazalt sword glow edges, phantom blocks tool + 2 rounds, room 485 barrier wall, EU ROM re-check (dev 1e95af2 .. 5364925)
 - L2177: Session 2026-11-27 day: barrier rock walls as 3D light meshes, LK_GMNMAX, hole class survey (dev 86e7124 .. 0821957)
+- L2185: Session 2026-11-27 afternoon: 524 shrine + rock face, jump shadow on sprite platforms, class B cliffs, LK_RAYZMIN (dev fccbe87 .. 279bfcb)

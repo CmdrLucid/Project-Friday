@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 55-60
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 937-948
-- 1. Where we are: lines 949-1132
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1133-1463
-- 3. How the user works (important): lines 1464-1479
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1480-1504
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1505-1513
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1514-1561
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1562-1571
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1572-1573
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1574-1576
-- NEXT STEPS, newest first: -290 1134, -289 1135, -288 1136, -287 1137, -286 1138, -285 1139, -284 1140, -283 1141, -282 1142, -281 1143
+- 1. Where we are: lines 949-1133
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1134-1464
+- 3. How the user works (important): lines 1465-1480
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1481-1505
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1506-1514
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1515-1562
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1563-1572
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1573-1574
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1575-1577
+- NEXT STEPS, newest first: -290 1135, -289 1136, -288 1137, -287 1138, -286 1139, -285 1140, -284 1141, -283 1142, -282 1143, -281 1144
 - Newest entries:
   - 0a535 line 192: 2026-11-27 afternoon (Deck, Opus 5.5, no agents; GPU headless only, NOT played; user present, marked the li...
   - 0a534 line 193: 2026-11-27 day (Deck, Opus 5.5, no agents; effort high from room 503 on, user present; GPU headless only, N...
@@ -947,6 +947,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-27 AFTERNOON SESSION END (Opus 5.5, no agents; `dev` 279bfcb, main = v1.9.13, no release):** user saw light views / GPU sheets and marked faces (465 cliff directions, 226 door niche and water boxes); NOT played: 524 shrine + rock face, LK_SHPLAT (room 430 stumps), class B cliffs 465 / 601..603 / 226, LK_RAYZMIN, 226 river level. HANDOFF 0a535, NEXT -290.
 - **2026-11-27 DAY SESSION END (Opus 5.5, no agents; `dev` 0821957+, main = v1.9.13, no release):** user CONFIRMED by playing: Centered View, Kazalt 737 night fixes, Gumi 601..603. GPU headless pictures only, NOT played: rock wall meshes in 503 465 469 504 505 470 502 508 483 486 518 514 (sword glow lights the walls, daylight checked), LK_GMNMAX v1 (432 433 436 737 now draw all their meshes: 433 dead-twig shadows on the wall). The user saw the 503 / 465 sheets and OK'd them, marked the 486 seam (fixed). Open: 524 shrine model, castle 32 / 33 / 35, class B cliffs, the 465 / 470 / 469 cliffs below walkways. HANDOFF 0a534.
 - **2026-11-27 NIGHT SESSION END (Opus 5.5, no agents; `dev` 5364925+, main = v1.9.13, no release):** user CONFIRMED by playing: jump / landing sound option ('funktioniert'), the Kazalt 737 fixes of rec_20261126_1827 ('passt jetzt'). Headless / GPU-tested only, NOT played: the 737 courtyard barrier fix (rec_20261126_1957), LK_LTPLANTLOW v1, phantom block ops in 15 outdoor rooms (rounds 1 + 2), room 485 barrier wall, EU ROM re-check. New tools: phantomcheck.py, phantomfix.py, lightedges LIGHTEDGES_CELLS. Open: Centered View user check (-287), the $4F barrier wall rooms by hand, indoor phantom candidates, user checks of -288. HANDOFF 0a533.
 - **2026-11-26 EVENING SESSION END (Opus 5.5, no agents; `dev` 2a5ff4b+, main = v1.9.13, no release):** two YouTube comments done: (1) Options > Audio > Jump Sound / Landing Sound (LK_JUMPSND v1, default On = original; sound trace verified), (2) Options > Display > Centered View (LK_CENTRE v1, default ON per user: camera 24 px lower with Full Height, live switch at menu close; 20000 replay frames without holes, GPU light follows). HEADLESS / GPU shots only, NOT played: the user checks both (-286 / -287). HANDOFF 0a531 / 0a532.
