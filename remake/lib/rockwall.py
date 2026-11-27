@@ -31,8 +31,13 @@ class Rock:
         hi = min(2 * x1 - u, 2 * y1 + u)
         return lo, hi
 
-    def piece(self, r, step=2, zb=0.0):
-        """one closed piece over cell rectangle r; zb > 0 = a LINTEL that starts at that height (a door below it stays open)"""
+    def piece(self, r, step=2, zb=0.0, zcap=None):
+        """one closed piece over cell rectangle r; zb > 0 = a LINTEL that starts at that height (a door below it stays open);
+        zcap = a flat top for this piece (rock BETWEEN a lower walkway and a higher terrace reaches the terrace height, not the room outline)"""
+        if zcap is not None:
+            old = self.cap; self.cap = lambda U: zcap
+            try: return self.piece(r, step, zb)
+            finally: self.cap = old
         x0, y0, x1, y1 = 16 * r[0], 16 * r[1], 16 * r[2] + 16, 16 * r[3] + 16
         ua, ub = max(self.ul, x0 - y1), min(self.ur, x1 - y0)
         if ua >= ub: return [], []
