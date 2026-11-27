@@ -10894,6 +10894,39 @@
         "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
       },
       {
+        "op": "water",
+        "cells": [
+          18,
+          15,
+          24,
+          15,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river at ONE level 24 (2): the cells behind the plateau's back corner were still painted 96 / 56 / 64 (steps inside the drawn water = the lit rectangle above Nigel at night, user mark); at 24 their rays fall on the drawn water (pixel map LANDSTALKER_SWSH_DBG=12: 95 % of the water pixels at 24, a 1..8 px strip along the plateau / pine edge maps to their faces)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          24,
+          16,
+          29,
+          17,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river at ONE level 24 (2): the cells behind the plateau's back corner were still painted 96 / 56 / 64 (steps inside the drawn water = the lit rectangle above Nigel at night, user mark); at 24 their rays fall on the drawn water (pixel map LANDSTALKER_SWSH_DBG=12: 95 % of the water pixels at 24, a 1..8 px strip along the plateau / pine edge maps to their faces)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          28,
+          18,
+          31,
+          18,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river at ONE level 24 (2): the cells behind the plateau's back corner were still painted 96 / 56 / 64 (steps inside the drawn water = the lit rectangle above Nigel at night, user mark); at 24 their rays fall on the drawn water (pixel map LANDSTALKER_SWSH_DBG=12: 95 % of the water pixels at 24, a 1..8 px strip along the plateau / pine edge maps to their faces)"
+      },
+      {
         "op": "remove",
         "cells": [
           14,
