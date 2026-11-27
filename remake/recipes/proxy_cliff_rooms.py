@@ -92,13 +92,20 @@ def build(rom, room, level, show_map=False, dry=False, deep=False):
         x, y = st.pop()
         for n in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
             if n not in water and void(n) and cls(n) == 'water': water.add(n); st.append(n)
+    def wet(c):   # deep mode: a cell whose floor point is drawn as WATER at a usual water height (0..48) stays the painted river (room 226: the river beside the plateau was pulled down to the deep floor at first)
+        X, Y = 16 * c[0] + 8, 16 * c[1] + 8
+        for zz in (0, 16, 24, 32, 48):
+            U, V = int(round(X - Y + 1184)), int(round((X + Y) / 2 - zz))
+            if 0 <= U < 2400 and 0 <= V < 1300 and blue[V, U]: return True
+        return False
     if deep:   # CLIFF INTO THE DEEP (the drawn cliff runs off the picture, no foot): the void IN FRONT of the edges (forward only: +x / +y, at most 12 cells) becomes a deep
         # floor at the level (ground op, replace = no water), so the walkway's face reaches below the picture
         water, rock, st = set(seed), set(), [(c, 0) for c in seed]
         while st:
             (x, y), d = st.pop()
             for n in ((x + 1, y), (x, y + 1)):
-                if n not in water and void(n) and d < 12: water.add(n); st.append((n, d + 1))
+                if n not in water and void(n) and d < 12 and not wet(n): water.add(n); st.append((n, d + 1))
+        water = {c for c in water if not wet(c)}
     reg = water | rock
     edge = {c for c in hm if walkable(c) and any((c[0] + dx, c[1] + dy) in water for dx, dy in ((1, 0), (0, 1), (1, 1)))}
     if deep:   # only the walkways AT a detected cliff edge (the forward flood reached an unrelated path at the picture edge in room 226)

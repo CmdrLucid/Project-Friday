@@ -10608,6 +10608,292 @@
         "why": "room 226 CLASS B pass (user 2026-11-27: 'keine blaue Wand und kein Versatz nach hinten, das ist alles ein Block'): the stone door is drawn FLUSH in the 160 rock wall, the game's door niche (16, 22..24, walkable 64) made a setback with side faces for the light -> closed for the light at the wall height (as the 486 door wall)"
       },
       {
+        "op": "water",
+        "cells": [
+          8,
+          5,
+          26,
+          5,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          7,
+          6,
+          8,
+          6,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          10,
+          6,
+          27,
+          6,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          14,
+          7,
+          28,
+          7,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          15,
+          8,
+          29,
+          8,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          16,
+          9,
+          30,
+          9,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          17,
+          10,
+          31,
+          10,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          19,
+          11,
+          32,
+          11,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          20,
+          12,
+          33,
+          12,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          21,
+          13,
+          34,
+          13,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          22,
+          14,
+          35,
+          14,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          25,
+          15,
+          36,
+          15,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          30,
+          16,
+          37,
+          16,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          31,
+          17,
+          38,
+          17,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          32,
+          18,
+          39,
+          18,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          33,
+          19,
+          40,
+          19,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          34,
+          20,
+          41,
+          20,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          35,
+          21,
+          42,
+          21,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          36,
+          22,
+          42,
+          22,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          37,
+          23,
+          42,
+          23,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          38,
+          24,
+          42,
+          24,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          39,
+          25,
+          42,
+          25,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          9,
+          26,
+          11,
+          26,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          26,
+          42,
+          26,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          27,
+          42,
+          27,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
+        "op": "water",
+        "cells": [
+          42,
+          28,
+          42,
+          28,
+          24
+        ],
+        "why": "room 226 CLASS B pass, the river beside the plateau at ONE level 24 (user 2026-11-27, night shot: 'eckige Schatten im Wasser'): the water rule had painted its upper part 56 and the rest 24 = a 32 unit step inside the drawn water plane (box shadows, a lit box in the sword glow); cells = those whose floor at 24 is drawn as water; remake/recipes/proxy_cliff_rooms.py notes"
+      },
+      {
         "op": "remove",
         "cells": [
           14,
