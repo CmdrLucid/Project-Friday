@@ -13,6 +13,11 @@ RECTILINEAR = {   # objects DRAWN as straight boxes whose model is made of axis-
     "counter_island.obj": "shop counter: plank top + boards with 1 x 1 grooves + cloth 1 thick (user OK 2026-11-13: 'das passt')",
     "counter_wall.obj": "shop wall counter: as the island (user OK 2026-11-13: 'das passt')",
 }
+RECTILINEAR_PREFIX = {   # whole families of such OBJs (same rule: user OK only)
+    "cliffedge_": "CLASS B cliff edge blocks (remake/recipes/proxy_cliff_rooms.py): the walkway cells along a cliff from the river level up to their height = the game's own "
+                  "cells; the drawn cliff lies exactly on their edges, the faces follow the walkway edge (user rule); a model only to avoid the height field's corner seams "
+                  "(user OK 2026-11-27: 'Aufnahme in die Pruefung eintragen, ja')",
+}
 def boxy(path):
     V = []; faces = 0
     for line in open(path):
@@ -28,7 +33,7 @@ def boxy(path):
 bad = []; legacy = []
 for p in sorted(glob.glob(os.path.join(PROX, "*.obj"))):
     n = os.path.basename(p)
-    if boxy(p) and n not in RECTILINEAR: (legacy if n in LEGACY else bad).append(n)
+    if boxy(p) and n not in RECTILINEAR and not any(n.startswith(k) for k in RECTILINEAR_PREFIX): (legacy if n in LEGACY else bad).append(n)
 if "-v" in sys.argv: print("check_proxies: legacy box proxies still to replace: %s" % (", ".join(legacy) or "none"))
 if bad:
     print("check_proxies: BOX-ONLY light shape(s): %s\n  -> build a real near-final 3D model (CLAUDE.md 'LIGHT SHAPES = REAL 3D MODELS', LESSONS top)" % ", ".join(bad)); sys.exit(1)

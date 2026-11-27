@@ -15090,6 +15090,134 @@
     ],
     "465": [
       {
+        "op": "water",
+        "cells": [
+          36,
+          18,
+          39,
+          58,
+          -32
+        ],
+        "why": "room 465 CLASS B CLIFF below the walkway (2026-11-27): the void in front of the walkway down to the drawn river bank = water at -32; the cliff is the walkway's own vertical face reaching down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          32,
+          30,
+          35,
+          58,
+          -32
+        ],
+        "why": "room 465 CLASS B CLIFF below the walkway (2026-11-27): the void in front of the walkway down to the drawn river bank = water at -32; the cliff is the walkway's own vertical face reaching down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          30,
+          37,
+          31,
+          58,
+          -32
+        ],
+        "why": "room 465 CLASS B CLIFF below the walkway (2026-11-27): the void in front of the walkway down to the drawn river bank = water at -32; the cliff is the walkway's own vertical face reaching down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          53,
+          29,
+          58,
+          -32
+        ],
+        "why": "room 465 CLASS B CLIFF below the walkway (2026-11-27): the void in front of the walkway down to the drawn river bank = water at -32; the cliff is the walkway's own vertical face reaching down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          20,
+          35,
+          29
+        ],
+        "file": "proxies/cliffedge_465_0.obj",
+        "surface": true,
+        "why": "room 465 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the river level -32 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          29,
+          34,
+          29
+        ],
+        "file": "proxies/cliffedge_465_1.obj",
+        "surface": true,
+        "why": "room 465 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the river level -32 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          30,
+          31,
+          36
+        ],
+        "file": "proxies/cliffedge_465_2.obj",
+        "surface": true,
+        "why": "room 465 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the river level -32 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          29,
+          36,
+          30,
+          36
+        ],
+        "file": "proxies/cliffedge_465_3.obj",
+        "surface": true,
+        "why": "room 465 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the river level -32 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          29,
+          37,
+          29,
+          52
+        ],
+        "file": "proxies/cliffedge_465_4.obj",
+        "surface": true,
+        "why": "room 465 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the river level -32 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          52,
+          28,
+          52
+        ],
+        "file": "proxies/cliffedge_465_5.obj",
+        "surface": true,
+        "why": "room 465 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the river level -32 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          55,
+          28,
+          58
+        ],
+        "file": "proxies/cliffedge_465_6.obj",
+        "surface": true,
+        "why": "room 465 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the river level -32 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
         "op": "mesh",
         "cells": [
           12,
