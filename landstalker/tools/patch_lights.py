@@ -2355,6 +2355,11 @@ rep("      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src ==
     "      { static long pf = -2; static int pl; if (pf == -2) { const char *e = getenv(\"LANDSTALKER_DN_PIXDBG\"); pf = -1; if (e) sscanf(e, \"%ld:%d\", &pf, &pl); } if (pf >= 0 && platform_frame_number() == pf && line == pl) { int U_ = ubase + x - lk_sm_sxn, V_ = vbase - lk_sm_syn; printf(\"dnpix: i %d x %d U %d V %d src %d pick %d col %06X black %d margin %d win %d ln %d pi %d\\n\", i, x, U_, V_, src, pick, col & 0xFFFFFF, black, margin, lk_dn_win, lk_lt_ln, (U_ >= 0 && V_ >= 0 && U_ < 2432 && V_ < 1216) ? lk_dn_pi[V_][U_] : -1); } }   /* test aid (2026-11-18): LANDSTALKER_DN_PIXDBG=FRAME:LINE prints the door light inputs of every pixel of that line */\n" +
     "      if (lk_lt_ln && lk_dn_win && !black && (src == 2 || src == 3 || (src == 0 && lk_dn_inopen(ubase + x - lk_sm_sxn, vbase - lk_sm_syn)))) col = lk_dn_winpix(src == 2 ? &afi : src == 3 ? &bfi : 0, pick, col, ubase + x - lk_sm_sxn, vbase - lk_sm_syn);   /* LK_DAYNIGHT v3 lit windows */\n" +
     "      if (lk_sfx_ln && !black && src != 4) col = lk_sfx_pix(line, i, src == 1 ? sp : 0, col);   /* LK_SWORDFX v1 */\n")
+# LK_SHPLAT v1 (tools/patch_shadow.py, user 2026-11-27 room 430): the jump-aid ground shadow may lie on a platform drawn as a SPRITE: export, per pixel of the own renderer's
+# line, the entity (slot + 1, = lk_lt_spre) of the sprite pixel that is SHOWN there (0 = none / a tile in front); patch_shadow's lk_sh_ontop compares it with the platform under Nigel
+rep("static uint8 lk_lt_spre[224][LK_OSW]; static int lk_lt_ecur; /*LK_LT_ENT*/\n", "static uint8 lk_lt_spre[224][LK_OSW]; static int lk_lt_ecur; /*LK_LT_ENT*/\nuint8 lk_o_shent[0x400];   /* LK_SHPLAT v1 */\n")
+assert s.count("      lk_o_shok[i] = (") == 1
+s = s.replace("      lk_o_shok[i] = (", "      lk_o_shent[i] = (!black && src == 1 && sl >= 0 && sl < 224 && si >= 0 && si < LK_OSW) ? lk_lt_spre[sl][si] : 0;   /* LK_SHPLAT v1 */\n      lk_o_shok[i] = (", 1)
 open(p, "w").write(s)
 print("vdp_render.c patched:", VER)
 
