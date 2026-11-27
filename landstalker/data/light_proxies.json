@@ -14481,6 +14481,80 @@
         "replace": true,
         "why": "phantomcheck lower run (28, 22)..(32, 22) z 240 face +y (5 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py drawn edge height; tested 2026-11-26 round 2: sword glow / daylight not worse at any spot, room better)"
       }
+    ],
+    "485": [
+      {
+        "op": "ground",
+        "cells": [
+          28,
+          50,
+          35,
+          56,
+          208
+        ],
+        "replace": true,
+        "why": "room 485 (user 2026-11-27: 'das ist eigentlich eine flache Wand'): the drawn rock wall left of / above the cave door is made of the game's invisible BARRIER cells ($4F, void for the light); the void painter filled them as water at 0 = a hole in the wall: the view rays went through it to a floor far behind, a vertical edge in the sword glow where the wall-top path (x 34, 208) begins; for the light the wall is solid up to the drawn top 208 (its neighbours x 27 / 34 / 40)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          28,
+          57,
+          33,
+          60,
+          208
+        ],
+        "replace": true,
+        "why": "room 485 (user 2026-11-27: 'das ist eigentlich eine flache Wand'): the drawn rock wall left of / above the cave door is made of the game's invisible BARRIER cells ($4F, void for the light); the void painter filled them as water at 0 = a hole in the wall: the view rays went through it to a floor far behind, a vertical edge in the sword glow where the wall-top path (x 34, 208) begins; for the light the wall is solid up to the drawn top 208 (its neighbours x 27 / 34 / 40)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          35,
+          58,
+          38,
+          59,
+          208
+        ],
+        "replace": true,
+        "why": "room 485 (user 2026-11-27: 'das ist eigentlich eine flache Wand'): the drawn rock wall left of / above the cave door is made of the game's invisible BARRIER cells ($4F, void for the light); the void painter filled them as water at 0 = a hole in the wall: the view rays went through it to a floor far behind, a vertical edge in the sword glow where the wall-top path (x 34, 208) begins; for the light the wall is solid up to the drawn top 208 (its neighbours x 27 / 34 / 40)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          35,
+          60,
+          35,
+          60,
+          208
+        ],
+        "replace": true,
+        "why": "room 485 (user 2026-11-27: 'das ist eigentlich eine flache Wand'): the drawn rock wall left of / above the cave door is made of the game's invisible BARRIER cells ($4F, void for the light); the void painter filled them as water at 0 = a hole in the wall: the view rays went through it to a floor far behind, a vertical edge in the sword glow where the wall-top path (x 34, 208) begins; for the light the wall is solid up to the drawn top 208 (its neighbours x 27 / 34 / 40)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          38,
+          60,
+          38,
+          60,
+          208
+        ],
+        "replace": true,
+        "why": "room 485 (user 2026-11-27: 'das ist eigentlich eine flache Wand'): the drawn rock wall left of / above the cave door is made of the game's invisible BARRIER cells ($4F, void for the light); the void painter filled them as water at 0 = a hole in the wall: the view rays went through it to a floor far behind, a vertical edge in the sword glow where the wall-top path (x 34, 208) begins; for the light the wall is solid up to the drawn top 208 (its neighbours x 27 / 34 / 40)"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          36,
+          52,
+          39,
+          56,
+          208
+        ],
+        "replace": true,
+        "why": "room 485 (user 2026-11-27: 'das ist eigentlich eine flache Wand'): the drawn rock wall left of / above the cave door is made of the game's invisible BARRIER cells ($4F, void for the light); the void painter filled them as water at 0 = a hole in the wall: the view rays went through it to a floor far behind, a vertical edge in the sword glow where the wall-top path (x 34, 208) begins; for the light the wall is solid up to the drawn top 208 (its neighbours x 27 / 34 / 40)"
+      }
     ]
   },
   "unpaint_tiles": {
