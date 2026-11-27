@@ -8748,6 +8748,174 @@
           30
         ],
         "why": "automatic lathe L11 507,483 z144..184 r12 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          12,
+          41,
+          12
+        ],
+        "file": "proxies/rock_514_a.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          12,
+          44,
+          19
+        ],
+        "file": "proxies/rock_514_b.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          38,
+          13,
+          43,
+          13
+        ],
+        "file": "proxies/rock_514_c.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          45,
+          13,
+          45,
+          20
+        ],
+        "file": "proxies/rock_514_d.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece d (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          39,
+          14,
+          43,
+          14
+        ],
+        "file": "proxies/rock_514_e.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece e (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          46,
+          14,
+          47,
+          21
+        ],
+        "file": "proxies/rock_514_f.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece f (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          15,
+          43,
+          15
+        ],
+        "file": "proxies/rock_514_g.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece g (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          48,
+          15,
+          48,
+          22
+        ],
+        "file": "proxies/rock_514_h.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece h (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          16,
+          43,
+          16
+        ],
+        "file": "proxies/rock_514_i.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece i (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          16,
+          50,
+          22
+        ],
+        "file": "proxies/rock_514_j.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece j (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          42,
+          17,
+          43,
+          17
+        ],
+        "file": "proxies/rock_514_k.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece k (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          51,
+          17,
+          51,
+          22
+        ],
+        "file": "proxies/rock_514_l.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece l (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          18,
+          43,
+          18
+        ],
+        "file": "proxies/rock_514_m.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece m (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          52,
+          18,
+          52,
+          22
+        ],
+        "file": "proxies/rock_514_n.obj",
+        "surface": true,
+        "why": "room 514 ROCK WALL piece n (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: the right back cliff (class A, deep hole)"
       }
     ],
     "19": [

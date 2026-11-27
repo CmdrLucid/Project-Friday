@@ -37,6 +37,14 @@ SPECS = {
     518: dict(pieces=[(12, 12, 61, 23), (31, 24, 61, 26), (33, 27, 61, 32)], u=(1281, 1647),
               note="terraced mountain with forest: the big rock peak behind the terraces (rows <= 32, x >= 33), the barrier strip x 31..34 between the 208 terraces lies left of the peak (trees above it: not done), "
                    "the back above the exit (29..30 x 24..26) stays open; the void left of the lower terraces is no wall (left out); the solid starts at the peak's left flank U 1281 (left of it the outline is the terrace trees)"),
+    426: dict(pieces=[(15, 13, 25, 35), (14, 24, 14, 38), (15, 36, 23, 38), (25, 36, 25, 38), (24, 37, 24, 38)], u=(704, 1582),
+              note="waterfall room: the left cliff with the waterfall (class A: blocked VOID cells the light painted as a DEEP hole, 0 below the paths); only rock with nothing walkable behind it on screen"),
+    492: dict(pieces=[(45, 12, 49, 12), (47, 13, 51, 13), (48, 14, 52, 14), (49, 15, 54, 15), (50, 16, 55, 16), (51, 17, 55, 17), (52, 18, 55, 18), (53, 19, 55, 19), (55, 20, 55, 20)], u=(625, 1839),
+              note="the right cliff (class A, deep hole)"),
+    514: dict(pieces=[(36, 12, 41, 12), (44, 12, 44, 19), (38, 13, 43, 13), (45, 13, 45, 20), (39, 14, 43, 14), (46, 14, 47, 21), (40, 15, 43, 15), (48, 15, 48, 22), (41, 16, 43, 16), (49, 16, 50, 22), (42, 17, 43, 17), (51, 17, 51, 22), (43, 18, 43, 18), (52, 18, 52, 22)], u=(848, 1743),
+              note="the right back cliff (class A, deep hole)"),
+    498: dict(pieces=[(17, 22, 26, 38), (16, 24, 16, 38), (15, 25, 15, 37)], u=(832, 1343),
+              note="the tall cliff face with the waterfall and the small ledge pines (class A, deep hole)"),
 }
 
 def rock(room):
