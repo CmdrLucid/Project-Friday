@@ -31,7 +31,8 @@ class Rock:
         hi = min(2 * x1 - u, 2 * y1 + u)
         return lo, hi
 
-    def piece(self, r, step=2):
+    def piece(self, r, step=2, zb=0.0):
+        """one closed piece over cell rectangle r; zb > 0 = a LINTEL that starts at that height (a door below it stays open)"""
         x0, y0, x1, y1 = 16 * r[0], 16 * r[1], 16 * r[2] + 16, 16 * r[3] + 16
         ua, ub = max(self.ul, x0 - y1), min(self.ur, x1 - y0)
         if ua >= ub: return [], []
@@ -53,8 +54,11 @@ class Rock:
                 continue
             xy = lambda s: ((s + u) / 2.0, (s - u) / 2.0)
             (xf, yf), (xb, yb) = xy(hi), xy(lo)
-            zf, zb = self.ztop(u, hi), self.ztop(u, lo)
-            cur.append((vid((xf, yf, zf)), vid((xb, yb, zb)), vid((xf, yf, 0.0)), vid((xb, yb, 0.0)), u, hi, lo))
+            zf, zbk = self.ztop(u, hi), self.ztop(u, lo)
+            if min(zf, zbk) <= zb + 0.5:   # the top falls to the lintel bottom: no lintel here
+                if cur: runs.append(cur); cur = []
+                continue
+            cur.append((vid((xf, yf, zf)), vid((xb, yb, zbk)), vid((xf, yf, float(zb))), vid((xb, yb, float(zb))), u, hi, lo))
         if cur: runs.append(cur)
         for col in runs:
             ms = [self._mid(c, vid) for c in col]   # kink vertex on the top of every strip end (edge-on behind, cap in front), or the front / back point

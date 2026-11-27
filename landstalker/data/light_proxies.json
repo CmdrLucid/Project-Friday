@@ -3721,6 +3721,138 @@
           47
         ],
         "why": "automatic hips #0 / #1 over the stepped green stone dais (flat steps, the height map holds them) (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          12,
+          63,
+          26
+        ],
+        "file": "proxies/rock_486_a.obj",
+        "surface": true,
+        "why": "room 486 ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: walled garden with the arcade: ivy rock back wall (rows <= 29) with the 240 passage (43..44 x 27..29) and the two doors (49, 29) / (57, 29) behind the 160 walkway on the stone block (user marked it), left wall (barrier x 30..31 rows 30..34, door (31, 33)); the doors are closed for the light from their floor up (128 / 160; user 2026-11-27: a black stripe beside the door = a cell-wide niche beside the narrower drawn arch; the drawn opening stays black anyway); the 240 passage stays open"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          27,
+          42,
+          29
+        ],
+        "file": "proxies/rock_486_b.obj",
+        "surface": true,
+        "why": "room 486 ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: walled garden with the arcade: ivy rock back wall (rows <= 29) with the 240 passage (43..44 x 27..29) and the two doors (49, 29) / (57, 29) behind the 160 walkway on the stone block (user marked it), left wall (barrier x 30..31 rows 30..34, door (31, 33)); the doors are closed for the light from their floor up (128 / 160; user 2026-11-27: a black stripe beside the door = a cell-wide niche beside the narrower drawn arch; the drawn opening stays black anyway); the 240 passage stays open"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          45,
+          27,
+          48,
+          29
+        ],
+        "file": "proxies/rock_486_c.obj",
+        "surface": true,
+        "why": "room 486 ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: walled garden with the arcade: ivy rock back wall (rows <= 29) with the 240 passage (43..44 x 27..29) and the two doors (49, 29) / (57, 29) behind the 160 walkway on the stone block (user marked it), left wall (barrier x 30..31 rows 30..34, door (31, 33)); the doors are closed for the light from their floor up (128 / 160; user 2026-11-27: a black stripe beside the door = a cell-wide niche beside the narrower drawn arch; the drawn opening stays black anyway); the 240 passage stays open"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          27,
+          49,
+          28
+        ],
+        "file": "proxies/rock_486_d.obj",
+        "surface": true,
+        "why": "room 486 ROCK WALL piece d (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: walled garden with the arcade: ivy rock back wall (rows <= 29) with the 240 passage (43..44 x 27..29) and the two doors (49, 29) / (57, 29) behind the 160 walkway on the stone block (user marked it), left wall (barrier x 30..31 rows 30..34, door (31, 33)); the doors are closed for the light from their floor up (128 / 160; user 2026-11-27: a black stripe beside the door = a cell-wide niche beside the narrower drawn arch; the drawn opening stays black anyway); the 240 passage stays open"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          50,
+          27,
+          56,
+          29
+        ],
+        "file": "proxies/rock_486_e.obj",
+        "surface": true,
+        "why": "room 486 ROCK WALL piece e (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: walled garden with the arcade: ivy rock back wall (rows <= 29) with the 240 passage (43..44 x 27..29) and the two doors (49, 29) / (57, 29) behind the 160 walkway on the stone block (user marked it), left wall (barrier x 30..31 rows 30..34, door (31, 33)); the doors are closed for the light from their floor up (128 / 160; user 2026-11-27: a black stripe beside the door = a cell-wide niche beside the narrower drawn arch; the drawn opening stays black anyway); the 240 passage stays open"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          27,
+          57,
+          28
+        ],
+        "file": "proxies/rock_486_f.obj",
+        "surface": true,
+        "why": "room 486 ROCK WALL piece f (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: walled garden with the arcade: ivy rock back wall (rows <= 29) with the 240 passage (43..44 x 27..29) and the two doors (49, 29) / (57, 29) behind the 160 walkway on the stone block (user marked it), left wall (barrier x 30..31 rows 30..34, door (31, 33)); the doors are closed for the light from their floor up (128 / 160; user 2026-11-27: a black stripe beside the door = a cell-wide niche beside the narrower drawn arch; the drawn opening stays black anyway); the 240 passage stays open"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          58,
+          27,
+          63,
+          29
+        ],
+        "file": "proxies/rock_486_g.obj",
+        "surface": true,
+        "why": "room 486 ROCK WALL piece g (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: walled garden with the arcade: ivy rock back wall (rows <= 29) with the 240 passage (43..44 x 27..29) and the two doors (49, 29) / (57, 29) behind the 160 walkway on the stone block (user marked it), left wall (barrier x 30..31 rows 30..34, door (31, 33)); the doors are closed for the light from their floor up (128 / 160; user 2026-11-27: a black stripe beside the door = a cell-wide niche beside the narrower drawn arch; the drawn opening stays black anyway); the 240 passage stays open"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          30,
+          29,
+          63
+        ],
+        "file": "proxies/rock_486_h.obj",
+        "surface": true,
+        "why": "room 486 ROCK WALL piece h (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: walled garden with the arcade: ivy rock back wall (rows <= 29) with the 240 passage (43..44 x 27..29) and the two doors (49, 29) / (57, 29) behind the 160 walkway on the stone block (user marked it), left wall (barrier x 30..31 rows 30..34, door (31, 33)); the doors are closed for the light from their floor up (128 / 160; user 2026-11-27: a black stripe beside the door = a cell-wide niche beside the narrower drawn arch; the drawn opening stays black anyway); the 240 passage stays open"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          29,
+          49,
+          29
+        ],
+        "file": "proxies/rock_486_i.obj",
+        "surface": true,
+        "why": "room 486 ROCK WALL piece i (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: walled garden with the arcade: ivy rock back wall (rows <= 29) with the 240 passage (43..44 x 27..29) and the two doors (49, 29) / (57, 29) behind the 160 walkway on the stone block (user marked it), left wall (barrier x 30..31 rows 30..34, door (31, 33)); the doors are closed for the light from their floor up (128 / 160; user 2026-11-27: a black stripe beside the door = a cell-wide niche beside the narrower drawn arch; the drawn opening stays black anyway); the 240 passage stays open"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          57,
+          29,
+          57,
+          29
+        ],
+        "file": "proxies/rock_486_j.obj",
+        "surface": true,
+        "why": "room 486 ROCK WALL piece j (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: walled garden with the arcade: ivy rock back wall (rows <= 29) with the 240 passage (43..44 x 27..29) and the two doors (49, 29) / (57, 29) behind the 160 walkway on the stone block (user marked it), left wall (barrier x 30..31 rows 30..34, door (31, 33)); the doors are closed for the light from their floor up (128 / 160; user 2026-11-27: a black stripe beside the door = a cell-wide niche beside the narrower drawn arch; the drawn opening stays black anyway); the 240 passage stays open"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          30,
+          30,
+          31,
+          34,
+          336
+        ],
+        "replace": true,
+        "why": "room 486 left wall around the door (31, 33) and the tower side above the 240 wall walk (cells 30..31 x 30..34) as HEIGHT-MAP columns at the drawn top 336 (outline: 337 all along), not a mesh: a mesh piece next to the 240 wall-walk columns (31, 35+) in the same wall plane x 512 left a dark seam (user 2026-11-27: 'immer noch ein schwarzer Streifen'); the door is closed for the light (its drawn opening stays black)"
       }
     ],
     "488": [
@@ -12886,126 +13018,6 @@
       {
         "op": "ground",
         "cells": [
-          23,
-          58,
-          23,
-          58,
-          204
-        ],
-        "replace": true,
-        "why": "phantomcheck lower run (23, 58)..(23, 60) z 240 face +x (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py drawn edge height; tested 2026-11-26 round 2: sword glow / daylight not worse at any spot, room better)"
-      },
-      {
-        "op": "ground",
-        "cells": [
-          23,
-          59,
-          23,
-          59,
-          224
-        ],
-        "replace": true,
-        "why": "phantomcheck lower run (23, 58)..(23, 60) z 240 face +x (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py drawn edge height; tested 2026-11-26 round 2: sword glow / daylight not worse at any spot, room better)"
-      },
-      {
-        "op": "ground",
-        "cells": [
-          23,
-          60,
-          23,
-          60,
-          204
-        ],
-        "replace": true,
-        "why": "phantomcheck lower run (23, 58)..(23, 60) z 240 face +x (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py drawn edge height; tested 2026-11-26 round 2: sword glow / daylight not worse at any spot, room better)"
-      },
-      {
-        "op": "ground",
-        "cells": [
-          23,
-          55,
-          23,
-          56,
-          176
-        ],
-        "replace": true,
-        "why": "phantomcheck lower run (23, 55)..(23, 56) z 240 face +x (2 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py drawn edge height; tested 2026-11-26 round 2: sword glow / daylight not worse at any spot, room better)"
-      },
-      {
-        "op": "ground",
-        "cells": [
-          23,
-          53,
-          23,
-          53,
-          208
-        ],
-        "replace": true,
-        "why": "phantomcheck none run (23, 53)..(23, 54) z 240 face +x (2 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py drawn edge height; tested 2026-11-26 round 2: sword glow / daylight not worse at any spot, room better)"
-      },
-      {
-        "op": "ground",
-        "cells": [
-          23,
-          54,
-          23,
-          54,
-          188
-        ],
-        "replace": true,
-        "why": "phantomcheck none run (23, 53)..(23, 54) z 240 face +x (2 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py drawn edge height; tested 2026-11-26 round 2: sword glow / daylight not worse at any spot, room better)"
-      },
-      {
-        "op": "ground",
-        "cells": [
-          23,
-          25,
-          23,
-          25,
-          216
-        ],
-        "replace": true,
-        "why": "phantomcheck none run (23, 25)..(23, 27) z 240 face +x (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py drawn edge height; tested 2026-11-26 round 2: sword glow / daylight not worse at any spot, room better)"
-      },
-      {
-        "op": "ground",
-        "cells": [
-          23,
-          27,
-          23,
-          27,
-          200
-        ],
-        "replace": true,
-        "why": "phantomcheck none run (23, 25)..(23, 27) z 240 face +x (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py drawn edge height; tested 2026-11-26 round 2: sword glow / daylight not worse at any spot, room better)"
-      },
-      {
-        "op": "ground",
-        "cells": [
-          23,
-          23,
-          23,
-          23,
-          220
-        ],
-        "replace": true,
-        "why": "phantomcheck lower run (23, 23)..(23, 24) z 240 face +x (2 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py drawn edge height; tested 2026-11-26 round 2: sword glow / daylight not worse at any spot, room better)"
-      },
-      {
-        "op": "ground",
-        "cells": [
-          23,
-          24,
-          23,
-          24,
-          204
-        ],
-        "replace": true,
-        "why": "phantomcheck lower run (23, 23)..(23, 24) z 240 face +x (2 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py drawn edge height; tested 2026-11-26 round 2: sword glow / daylight not worse at any spot, room better)"
-      },
-      {
-        "op": "ground",
-        "cells": [
           25,
           16,
           26,
@@ -13014,6 +13026,66 @@
         ],
         "replace": true,
         "why": "phantomcheck none run (25, 16)..(26, 16) z 32 face +y (2 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py drawn edge height; tested 2026-11-26 round 2: sword glow / daylight not worse at any spot, room better)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          12,
+          32,
+          15
+        ],
+        "file": "proxies/rock_508_a.obj",
+        "surface": true,
+        "why": "room 483 (same map / picture as 508) ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: long left rock wall (x <= 20, barrier x 21..23 rows 16..28 / 50..60 beside the terraces) and the back wall (rows <= 15) with the gap of the back exit (33..34 x 13..15); room 483 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          12,
+          39,
+          15
+        ],
+        "file": "proxies/rock_508_b.obj",
+        "surface": true,
+        "why": "room 483 (same map / picture as 508) ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: long left rock wall (x <= 20, barrier x 21..23 rows 16..28 / 50..60 beside the terraces) and the back wall (rows <= 15) with the gap of the back exit (33..34 x 13..15); room 483 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          16,
+          20,
+          60
+        ],
+        "file": "proxies/rock_508_c.obj",
+        "surface": true,
+        "why": "room 483 (same map / picture as 508) ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: long left rock wall (x <= 20, barrier x 21..23 rows 16..28 / 50..60 beside the terraces) and the back wall (rows <= 15) with the gap of the back exit (33..34 x 13..15); room 483 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          16,
+          23,
+          28
+        ],
+        "file": "proxies/rock_508_d.obj",
+        "surface": true,
+        "why": "room 483 (same map / picture as 508) ROCK WALL piece d (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: long left rock wall (x <= 20, barrier x 21..23 rows 16..28 / 50..60 beside the terraces) and the back wall (rows <= 15) with the gap of the back exit (33..34 x 13..15); room 483 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          50,
+          23,
+          60
+        ],
+        "file": "proxies/rock_508_e.obj",
+        "surface": true,
+        "why": "room 483 (same map / picture as 508) ROCK WALL piece e (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: long left rock wall (x <= 20, barrier x 21..23 rows 16..28 / 50..60 beside the terraces) and the back wall (rows <= 15) with the gap of the back exit (33..34 x 13..15); room 483 = the same map and picture"
       }
     ],
     "508": [
@@ -13036,6 +13108,66 @@
           44
         ],
         "why": "automatic lathe L8 555,715 z16..43 r17 (stood on WALKABLE cells: Nigel walked inside it): a duplicate next to plant models (28..36 from the modelled pines / bushes, just outside the 24 drop radius) or on a terrace / cliff top / path / water by modelled crates and stone buildings (2026-11-24 leftover sweep 3, sheet ~/Project-Friday-Test/lktest/lf3/lathesheet.png)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          12,
+          32,
+          15
+        ],
+        "file": "proxies/rock_508_a.obj",
+        "surface": true,
+        "why": "room 508 ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: long left rock wall (x <= 20, barrier x 21..23 rows 16..28 / 50..60 beside the terraces) and the back wall (rows <= 15) with the gap of the back exit (33..34 x 13..15); room 483 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          12,
+          39,
+          15
+        ],
+        "file": "proxies/rock_508_b.obj",
+        "surface": true,
+        "why": "room 508 ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: long left rock wall (x <= 20, barrier x 21..23 rows 16..28 / 50..60 beside the terraces) and the back wall (rows <= 15) with the gap of the back exit (33..34 x 13..15); room 483 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          16,
+          20,
+          60
+        ],
+        "file": "proxies/rock_508_c.obj",
+        "surface": true,
+        "why": "room 508 ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: long left rock wall (x <= 20, barrier x 21..23 rows 16..28 / 50..60 beside the terraces) and the back wall (rows <= 15) with the gap of the back exit (33..34 x 13..15); room 483 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          16,
+          23,
+          28
+        ],
+        "file": "proxies/rock_508_d.obj",
+        "surface": true,
+        "why": "room 508 ROCK WALL piece d (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: long left rock wall (x <= 20, barrier x 21..23 rows 16..28 / 50..60 beside the terraces) and the back wall (rows <= 15) with the gap of the back exit (33..34 x 13..15); room 483 = the same map and picture"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          21,
+          50,
+          23,
+          60
+        ],
+        "file": "proxies/rock_508_e.obj",
+        "surface": true,
+        "why": "room 508 ROCK WALL piece e (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: long left rock wall (x <= 20, barrier x 21..23 rows 16..28 / 50..60 beside the terraces) and the back wall (rows <= 15) with the gap of the back exit (33..34 x 13..15); room 483 = the same map and picture"
       }
     ],
     "563": [
@@ -15020,6 +15152,44 @@
         "file": "proxies/rock_470_j.obj",
         "surface": true,
         "why": "room 470 ROCK WALL piece j (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock bowl with the cave door (25, 26): barrier rows 25..26 and the left wall x 18..23 stepping down to the stairs"
+      }
+    ],
+    "518": [
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          12,
+          61,
+          23
+        ],
+        "file": "proxies/rock_518_a.obj",
+        "surface": true,
+        "why": "room 518 ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: terraced mountain with forest: the big rock peak behind the terraces (rows <= 32, x >= 33), the barrier strip x 31..34 between the 208 terraces lies left of the peak (trees above it: not done), the back above the exit (29..30 x 24..26) stays open; the void left of the lower terraces is no wall (left out); the solid starts at the peak's left flank U 1281 (left of it the outline is the terrace trees)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          24,
+          61,
+          26
+        ],
+        "file": "proxies/rock_518_b.obj",
+        "surface": true,
+        "why": "room 518 ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: terraced mountain with forest: the big rock peak behind the terraces (rows <= 32, x >= 33), the barrier strip x 31..34 between the 208 terraces lies left of the peak (trees above it: not done), the back above the exit (29..30 x 24..26) stays open; the void left of the lower terraces is no wall (left out); the solid starts at the peak's left flank U 1281 (left of it the outline is the terrace trees)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          27,
+          61,
+          32
+        ],
+        "file": "proxies/rock_518_c.obj",
+        "surface": true,
+        "why": "room 518 ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: terraced mountain with forest: the big rock peak behind the terraces (rows <= 32, x >= 33), the barrier strip x 31..34 between the 208 terraces lies left of the peak (trees above it: not done), the back above the exit (29..30 x 24..26) stays open; the void left of the lower terraces is no wall (left out); the solid starts at the peak's left flank U 1281 (left of it the outline is the terrace trees)"
       }
     ]
   },

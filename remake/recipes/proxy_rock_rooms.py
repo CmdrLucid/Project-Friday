@@ -29,9 +29,14 @@ SPECS = {
     508: dict(pieces=[(12, 12, 32, 15), (35, 12, 39, 15), (12, 16, 20, 60), (21, 16, 23, 28), (21, 50, 23, 60)], u=(496, 1566), also=[483],
               note="long left rock wall (x <= 20, barrier x 21..23 rows 16..28 / 50..60 beside the terraces) and the back wall (rows <= 15) with the gap of the back exit (33..34 x 13..15); room 483 = the same map and picture"),
     486: dict(pieces=[(12, 12, 63, 26), (12, 27, 42, 29), (45, 27, 48, 29), (49, 27, 49, 28), (50, 27, 56, 29), (57, 27, 57, 28), (58, 27, 63, 29),
-                      (12, 30, 29, 63), (30, 30, 30, 34), (31, 30, 31, 32), (31, 34, 31, 34)], u=(641, 1695),
+                      (12, 30, 29, 63),
+                      (49, 29, 49, 29, 160), (57, 29, 57, 29, 160)],
+              extra=[{"op": "ground", "cells": [30, 30, 31, 34, 336], "replace": True, "why": "room 486 left wall around the door (31, 33) and the tower side above the 240 wall walk (cells 30..31 x 30..34) as HEIGHT-MAP columns at the drawn top 336 (outline: 337 all along), not a mesh: a mesh piece next to the 240 wall-walk columns (31, 35+) in the same wall plane x 512 left a dark seam (user 2026-11-27: 'immer noch ein schwarzer Streifen'); the door is closed for the light (its drawn opening stays black)"}], u=(641, 1695),
               note="walled garden with the arcade: ivy rock back wall (rows <= 29) with the 240 passage (43..44 x 27..29) and the two doors (49, 29) / (57, 29) "
-                   "behind the 160 walkway on the stone block (user marked it), left wall (barrier x 30..31 rows 30..34, door (31, 33)); every gap stays open"),
+                   "behind the 160 walkway on the stone block (user marked it), left wall (barrier x 30..31 rows 30..34, door (31, 33)); the doors are closed for the light from their floor up (128 / 160; user 2026-11-27: a black stripe beside the door = a cell-wide niche beside the narrower drawn arch; the drawn opening stays black anyway); the 240 passage stays open"),
+    518: dict(pieces=[(12, 12, 61, 23), (31, 24, 61, 26), (33, 27, 61, 32)], u=(1281, 1647),
+              note="terraced mountain with forest: the big rock peak behind the terraces (rows <= 32, x >= 33), the barrier strip x 31..34 between the 208 terraces lies left of the peak (trees above it: not done), "
+                   "the back above the exit (29..30 x 24..26) stays open; the void left of the lower terraces is no wall (left out); the solid starts at the peak's left flank U 1281 (left of it the outline is the terrace trees)"),
 }
 
 def rock(room):
@@ -52,19 +57,19 @@ def names(room):
 def build(room):
     R = rock(room); out = []
     for k, r in zip(names(room), SPECS[room]["pieces"]):
-        V, F = R.piece(r, step=4)
+        V, F = R.piece(r[:4], step=4, zb=r[4] if len(r) > 4 else 0.0)   # a 5th number = lintel bottom (door below)
         if not F: print("proxy_rock_rooms %d %s: EMPTY piece %s" % (room, k, r)); continue
         p = os.path.join(HERE, "..", "..", "landstalker", "data", "proxies", "rock_%d_%s.obj" % (room, k))
-        RW.write_obj(p, V, F, "room %d rock piece %s (cells %d..%d x %d..%d), light proxy (remake/recipes/proxy_rock_rooms.py), game coordinates" % (room, k, r[0], r[2], r[1], r[3]))
+        RW.write_obj(p, V, F, "room %d rock piece %s (cells %d..%d x %d..%d)" % (room, k, r[0], r[2], r[1], r[3]) + (", lintel from z %d" % r[4] if len(r) > 4 else "") + ", light proxy (remake/recipes/proxy_rock_rooms.py), game coordinates")
         zs = [v[2] for v in V]
-        print("proxy_rock_rooms %d %s: %d triangles, z %.0f..%.0f, inward %d" % (room, k, len(F), min(zs), max(zs), R.orient_bad(V, F, r)))
-        out.append((k, r))
+        print("proxy_rock_rooms %d %s: %d triangles, z %.0f..%.0f, inward %d" % (room, k, len(F), min(zs), max(zs), R.orient_bad(V, F, r[:4])))
+        out.append((k, r[:4]))
     return out
 
 def ops(room, built, for_room=None):
     why = ("room %d ROCK WALL piece %%s (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); "
            "solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: %s") % (room, SPECS[room]["note"])
-    return [{"op": "mesh", "cells": list(r), "file": "proxies/rock_%d_%s.obj" % (room, k), "surface": True, "why": why % k} for k, r in built]
+    return [{"op": "mesh", "cells": list(r), "file": "proxies/rock_%d_%s.obj" % (room, k), "surface": True, "why": why % k} for k, r in built] + SPECS[room].get("extra", [])
 
 if __name__ == "__main__":
     rooms = [int(a) for a in sys.argv[1:] if a.isdigit()] or sorted(SPECS)
