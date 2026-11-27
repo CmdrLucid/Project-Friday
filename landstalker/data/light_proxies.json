@@ -14555,6 +14555,56 @@
         "replace": true,
         "why": "room 485 (user 2026-11-27: 'das ist eigentlich eine flache Wand'): the drawn rock wall left of / above the cave door is made of the game's invisible BARRIER cells ($4F, void for the light); the void painter filled them as water at 0 = a hole in the wall: the view rays went through it to a floor far behind, a vertical edge in the sword glow where the wall-top path (x 34, 208) begins; for the light the wall is solid up to the drawn top 208 (its neighbours x 27 / 34 / 40)"
       }
+    ],
+    "503": [
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          12,
+          21,
+          46
+        ],
+        "file": "proxies/rock_503_a.obj",
+        "surface": true,
+        "why": "room 503 ROCK MOUNTAIN piece a (barrier wall pass, user OK 2026-11-27 on the drawing overlay / clay sheet / sword pictures): the mountain is drawn over VOID and invisible BARRIER ($4F) cells, the void painter made them a water floor at 8 = a hole (the sword glow never lit the wall); one closed solid on the barrier lines, top = the drawn outline extruded along the view ray (seen edge-on), remake/recipes/proxy_rock_503.py; four pieces because an outdoor surface model owns its WHOLE rectangle (LK_GLROOM clean-up flattens raised cells in it: the 176 walkway / 128 ledge vanished with one big rectangle)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          12,
+          22,
+          35
+        ],
+        "file": "proxies/rock_503_b.obj",
+        "surface": true,
+        "why": "room 503 ROCK MOUNTAIN piece b (barrier wall pass, user OK 2026-11-27 on the drawing overlay / clay sheet / sword pictures): the mountain is drawn over VOID and invisible BARRIER ($4F) cells, the void painter made them a water floor at 8 = a hole (the sword glow never lit the wall); one closed solid on the barrier lines, top = the drawn outline extruded along the view ray (seen edge-on), remake/recipes/proxy_rock_503.py; four pieces because an outdoor surface model owns its WHOLE rectangle (LK_GLROOM clean-up flattens raised cells in it: the 176 walkway / 128 ledge vanished with one big rectangle)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          12,
+          29,
+          30
+        ],
+        "file": "proxies/rock_503_c.obj",
+        "surface": true,
+        "why": "room 503 ROCK MOUNTAIN piece c (barrier wall pass, user OK 2026-11-27 on the drawing overlay / clay sheet / sword pictures): the mountain is drawn over VOID and invisible BARRIER ($4F) cells, the void painter made them a water floor at 8 = a hole (the sword glow never lit the wall); one closed solid on the barrier lines, top = the drawn outline extruded along the view ray (seen edge-on), remake/recipes/proxy_rock_503.py; four pieces because an outdoor surface model owns its WHOLE rectangle (LK_GLROOM clean-up flattens raised cells in it: the 176 walkway / 128 ledge vanished with one big rectangle)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          12,
+          30,
+          26
+        ],
+        "file": "proxies/rock_503_d.obj",
+        "surface": true,
+        "why": "room 503 ROCK MOUNTAIN piece d (barrier wall pass, user OK 2026-11-27 on the drawing overlay / clay sheet / sword pictures): the mountain is drawn over VOID and invisible BARRIER ($4F) cells, the void painter made them a water floor at 8 = a hole (the sword glow never lit the wall); one closed solid on the barrier lines, top = the drawn outline extruded along the view ray (seen edge-on), remake/recipes/proxy_rock_503.py; four pieces because an outdoor surface model owns its WHOLE rectangle (LK_GLROOM clean-up flattens raised cells in it: the 176 walkway / 128 ledge vanished with one big rectangle)"
+      }
     ]
   },
   "unpaint_tiles": {

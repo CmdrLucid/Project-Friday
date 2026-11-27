@@ -84,6 +84,8 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
 
 - **FIGURES (statues) are not 'a few primitives fitted to the silhouette'** (2026-11-21, user on the Massan statue and the knight / Duke statue of room 31: 'das schaut nicht mal ansatzweise nach einer Baerensilhouette aus', 'der Herzog mit Schwert an der Huefte ... wie ein groesseres, schlankeres Nigel-Modell, Idle-Pose ... Scheitel'). A ring stack gave a lumpy column, ellipsoids / capsules gave a snowman and a jointed doll; the IoU (0.78 / 0.82) said nothing about whether it LOOKS like the figure, and an unbounded fit collapsed into discs and sticks. Before showing a figure: (1) identify WHAT it is (the Duke = Nigel's idle pose, not a striding knight; ask the user if unsure), (2) look at the clay preview next to the drawing at the same size and judge it honestly by eye, (3) a figure needs a sculpt approach like the church angel (own head, hair, limbs in the pose of a known character), not primitives. IoU is a check for the outline only.
 
+- **Big drawn rock faces / mountains over void (2026-11-27, room 503):** the wall FOOT is the game's barrier ($4F) line, the TOP is the drawn outline: extrude the outline along the view ray (1, 1, 1), z = (x + y) / 2 - Vsil(U), so every top point projects onto the silhouette (seen edge-on, no visible top face) and each front face ends exactly at the drawn top edge. Measure Vsil per picture column (topmost drawn pixel); straight stretches are exact lines (503: V = 623 - U / 2 = a face top at z 336). Per-cell heights cannot do this (jagged fronts = daylight bands).
+
 ## 4. Light side effects (every model is also a light shape)
 - A shape under or next to a FLAME moves the flame light (its position comes from the view ray of the flame's picture centre): check the light list
   (LANDSTALKER_LIGHTING_DBG=1) before / after. Stands carry their flame (`carrier` data: light on the axis above the bowl, no self shadow).
@@ -99,6 +101,8 @@ General project lessons stay in `landstalker/docs/LESSONS.md`.
   (it counts pixel centres): look at the in-game zoom.
 
 - **After placing a model, check for OLD automatic shapes beside it** (2026-11-21): a mesh op only drops automatic shapes whose CENTRE lies in its cells; the catalogue lathe of a drawn object often sits one cell FORWARD (486 stone blocks: the 37 high lathe stayed next to the new block) or off the twig's foot cell. Count with lktest/placeholders.py or list the survey shapes within 2 cells of the new op; cover them with the op's cells or a 'remove' op.
+
+- **An outdoor surface model owns its WHOLE op rectangle** (2026-11-27, room 503): LK_GLROOM clean-up sets every raised collision cell in the rectangle that no model covers to the ground, so a big rectangle around an L-shaped model flattened the 176 walkway and the 128 ledge (hard glow edge, user marked it). Split such a model into pieces whose rectangles hold only the model's own (void / barrier) cells; the cut faces lie inside the solid.
 
 ## 5. Tools and paths
 - Blender (Flatpak) needs `--filesystem=home` for scripts / files outside the sandbox; an ortho camera at distance > 100 needs `clip_end` raised; point the
