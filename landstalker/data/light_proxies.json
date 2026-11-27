@@ -26,6 +26,398 @@
     "     carve {\"cells\": [x0,y0,x1,y1], \"bg\": \"sea\" | \"layera\", \"floor\": f} - at room load the shapes in these cells follow the DRAWN picture: every sub column is lowered until its top and its front edge land on drawn object pixels (sea = nothing drawn or a water tile), slabs keep the heights drawn in layer A, then a 3 x 3 median (LANDSTALKER_LT_CARVEMED). Outdoors every building shape / mesh is carved automatically to layer A (LANDSTALKER_LT_CARVEOUT=0 = off)."
   ],
   "rooms": {
+    "523": [
+      {
+        "op": "water",
+        "cells": [
+          46,
+          20,
+          55,
+          28,
+          0
+        ],
+        "why": "room 523 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          35,
+          24,
+          45,
+          28,
+          0
+        ],
+        "why": "room 523 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          50,
+          17,
+          50,
+          18,
+          -48
+        ],
+        "replace": true,
+        "why": "room 523 CLASS B CLIFF: a drawn BULGE of the bank in front of the walkway (its floor point at the river level 0 is drawn rock) = floor at -48 below the face, no floor in the drawn rock; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          49,
+          17,
+          49,
+          18
+        ],
+        "file": "proxies/cliffedge_523_0.obj",
+        "surface": true,
+        "why": "room 523 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from -48 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          46,
+          19,
+          49,
+          19
+        ],
+        "file": "proxies/cliffedge_523_1.obj",
+        "surface": true,
+        "why": "room 523 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          45,
+          20,
+          45,
+          23
+        ],
+        "file": "proxies/cliffedge_523_2.obj",
+        "surface": true,
+        "why": "room 523 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          40,
+          23,
+          44,
+          23
+        ],
+        "file": "proxies/cliffedge_523_3.obj",
+        "surface": true,
+        "why": "room 523 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          46,
+          20,
+          46,
+          20
+        ],
+        "file": "proxies/cliffnotch_523_46_20.obj",
+        "surface": true,
+        "why": "room 523 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          50,
+          17,
+          50,
+          17
+        ],
+        "file": "proxies/cliffnotch_523_50_17.obj",
+        "surface": true,
+        "why": "room 523 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      }
+    ],
+    "501": [
+      {
+        "op": "water",
+        "cells": [
+          22,
+          26,
+          26,
+          34,
+          0
+        ],
+        "why": "room 501 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          19,
+          27,
+          21,
+          34,
+          0
+        ],
+        "why": "room 501 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          27,
+          27,
+          30,
+          34,
+          0
+        ],
+        "why": "room 501 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          31,
+          28,
+          32,
+          34,
+          0
+        ],
+        "why": "room 501 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          33,
+          29,
+          33,
+          34,
+          0
+        ],
+        "why": "room 501 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          34,
+          30,
+          37,
+          34,
+          0
+        ],
+        "why": "room 501 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          20,
+          25,
+          21,
+          25,
+          -48
+        ],
+        "replace": true,
+        "why": "room 501 CLASS B CLIFF: a drawn BULGE of the bank in front of the walkway (its floor point at the river level 0 is drawn rock) = floor at -48 below the face, no floor in the drawn rock; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          28,
+          26,
+          28,
+          26,
+          -48
+        ],
+        "replace": true,
+        "why": "room 501 CLASS B CLIFF: a drawn BULGE of the bank in front of the walkway (its floor point at the river level 0 is drawn rock) = floor at -48 below the face, no floor in the drawn rock; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          32,
+          27,
+          32,
+          27,
+          -48
+        ],
+        "replace": true,
+        "why": "room 501 CLASS B CLIFF: a drawn BULGE of the bank in front of the walkway (its floor point at the river level 0 is drawn rock) = floor at -48 below the face, no floor in the drawn rock; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          34,
+          28,
+          34,
+          28,
+          -48
+        ],
+        "replace": true,
+        "why": "room 501 CLASS B CLIFF: a drawn BULGE of the bank in front of the walkway (its floor point at the river level 0 is drawn rock) = floor at -48 below the face, no floor in the drawn rock; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          35,
+          29,
+          35,
+          29,
+          -48
+        ],
+        "replace": true,
+        "why": "room 501 CLASS B CLIFF: a drawn BULGE of the bank in front of the walkway (its floor point at the river level 0 is drawn rock) = floor at -48 below the face, no floor in the drawn rock; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          24,
+          21,
+          24
+        ],
+        "file": "proxies/cliffedge_501_0.obj",
+        "surface": true,
+        "why": "room 501 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from -48 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          27,
+          25,
+          28,
+          25
+        ],
+        "file": "proxies/cliffedge_501_1.obj",
+        "surface": true,
+        "why": "room 501 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from -48 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          26,
+          32,
+          26
+        ],
+        "file": "proxies/cliffedge_501_2.obj",
+        "surface": true,
+        "why": "room 501 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from -48 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          27,
+          34,
+          27
+        ],
+        "file": "proxies/cliffedge_501_3.obj",
+        "surface": true,
+        "why": "room 501 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from -48 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          28,
+          35,
+          28
+        ],
+        "file": "proxies/cliffedge_501_4.obj",
+        "surface": true,
+        "why": "room 501 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from -48 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          25,
+          26,
+          25
+        ],
+        "file": "proxies/cliffedge_501_5.obj",
+        "surface": true,
+        "why": "room 501 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          29,
+          26,
+          30,
+          26
+        ],
+        "file": "proxies/cliffedge_501_6.obj",
+        "surface": true,
+        "why": "room 501 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          36,
+          29,
+          37,
+          29
+        ],
+        "file": "proxies/cliffedge_501_7.obj",
+        "surface": true,
+        "why": "room 501 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          25,
+          20,
+          25
+        ],
+        "file": "proxies/cliffnotch_501_20_25.obj",
+        "surface": true,
+        "why": "room 501 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          26,
+          28,
+          26
+        ],
+        "file": "proxies/cliffnotch_501_28_26.obj",
+        "surface": true,
+        "why": "room 501 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          27,
+          32,
+          27
+        ],
+        "file": "proxies/cliffnotch_501_32_27.obj",
+        "surface": true,
+        "why": "room 501 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          28,
+          34,
+          28
+        ],
+        "file": "proxies/cliffnotch_501_34_28.obj",
+        "surface": true,
+        "why": "room 501 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          29,
+          35,
+          29
+        ],
+        "file": "proxies/cliffnotch_501_35_29.obj",
+        "surface": true,
+        "why": "room 501 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      }
+    ],
     "478": [
       {
         "op": "ground",
@@ -98,6 +490,30 @@
         "file": "proxies/cliffedge_478_1.obj",
         "surface": true,
         "why": "room 478 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor -160 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          51,
+          28,
+          51
+        ],
+        "file": "proxies/cliffnotch_478_28_51.obj",
+        "surface": true,
+        "why": "room 478 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          47,
+          41,
+          47
+        ],
+        "file": "proxies/cliffnotch_478_41_47.obj",
+        "surface": true,
+        "why": "room 478 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
       }
     ],
     "592": [
@@ -12119,6 +12535,42 @@
     ],
     "461": [
       {
+        "op": "ground",
+        "cells": [
+          19,
+          37,
+          30,
+          44,
+          -160
+        ],
+        "replace": true,
+        "why": "room 461 CLASS B CLIFF INTO THE DEEP (2026-11-28): the face below the row-36 walkways runs to the picture's bottom edge; the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          36,
+          30,
+          36
+        ],
+        "file": "proxies/cliffedge_461_0.obj",
+        "surface": true,
+        "why": "room 461 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor -160 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          19,
+          37,
+          19,
+          37
+        ],
+        "file": "proxies/cliffnotch_461_19_37.obj",
+        "surface": true,
+        "why": "room 461 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
         "op": "remove",
         "cells": [
           30,
@@ -14421,6 +14873,174 @@
         "file": "proxies/cliffedge_475_25.obj",
         "surface": true,
         "why": "room 475 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor -40 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          14,
+          36,
+          14,
+          36
+        ],
+        "file": "proxies/cliffnotch_475_14_36.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          37,
+          20,
+          37
+        ],
+        "file": "proxies/cliffnotch_475_20_37.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          55,
+          25,
+          55
+        ],
+        "file": "proxies/cliffnotch_475_25_55.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          34,
+          32,
+          34
+        ],
+        "file": "proxies/cliffnotch_475_32_34.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          31,
+          33,
+          31
+        ],
+        "file": "proxies/cliffnotch_475_33_31.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          25,
+          34,
+          25
+        ],
+        "file": "proxies/cliffnotch_475_34_25.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          14,
+          35,
+          14
+        ],
+        "file": "proxies/cliffnotch_475_35_14.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          62,
+          35,
+          62
+        ],
+        "file": "proxies/cliffnotch_475_35_62.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          38,
+          61,
+          38,
+          61
+        ],
+        "file": "proxies/cliffnotch_475_38_61.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          41,
+          56,
+          41,
+          56
+        ],
+        "file": "proxies/cliffnotch_475_41_56.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          55,
+          43,
+          55
+        ],
+        "file": "proxies/cliffnotch_475_43_55.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          44,
+          49,
+          44,
+          49
+        ],
+        "file": "proxies/cliffnotch_475_44_49.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          45,
+          14,
+          45,
+          14
+        ],
+        "file": "proxies/cliffnotch_475_45_14.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          45,
+          36,
+          45,
+          36
+        ],
+        "file": "proxies/cliffnotch_475_45_36.obj",
+        "surface": true,
+        "why": "room 475 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
       },
       {
         "op": "remove",
@@ -16772,6 +17392,174 @@
       {
         "op": "ground",
         "cells": [
+          33,
+          25,
+          42,
+          40,
+          -160
+        ],
+        "replace": true,
+        "why": "room 505 CLASS B CLIFF INTO THE DEEP (2026-11-28): the cliff below the descending path runs off the picture; the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          32,
+          26,
+          32,
+          40,
+          -160
+        ],
+        "replace": true,
+        "why": "room 505 CLASS B CLIFF INTO THE DEEP (2026-11-28): the cliff below the descending path runs off the picture; the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          31,
+          27,
+          31,
+          40,
+          -160
+        ],
+        "replace": true,
+        "why": "room 505 CLASS B CLIFF INTO THE DEEP (2026-11-28): the cliff below the descending path runs off the picture; the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          28,
+          28,
+          30,
+          40,
+          -160
+        ],
+        "replace": true,
+        "why": "room 505 CLASS B CLIFF INTO THE DEEP (2026-11-28): the cliff below the descending path runs off the picture; the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          43,
+          28,
+          47,
+          40,
+          -160
+        ],
+        "replace": true,
+        "why": "room 505 CLASS B CLIFF INTO THE DEEP (2026-11-28): the cliff below the descending path runs off the picture; the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          48,
+          28,
+          54,
+          40,
+          -160
+        ],
+        "replace": true,
+        "why": "room 505 CLASS B CLIFF INTO THE DEEP (2026-11-28): the cliff below the last steps (48..51, 26..27); the void behind the steps (rows 23..25) is drawn rock wall, not cliff: left out; the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          24,
+          42,
+          24
+        ],
+        "file": "proxies/cliffedge_505_0.obj",
+        "surface": true,
+        "why": "room 505 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor -160 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          25,
+          32,
+          25
+        ],
+        "file": "proxies/cliffedge_505_1.obj",
+        "surface": true,
+        "why": "room 505 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor -160 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          26,
+          31,
+          26
+        ],
+        "file": "proxies/cliffedge_505_2.obj",
+        "surface": true,
+        "why": "room 505 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor -160 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          28,
+          27,
+          30,
+          27
+        ],
+        "file": "proxies/cliffedge_505_3.obj",
+        "surface": true,
+        "why": "room 505 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor -160 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          43,
+          27,
+          51,
+          27
+        ],
+        "file": "proxies/cliffedge_505_4.obj",
+        "surface": true,
+        "why": "room 505 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor -160 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          27,
+          31,
+          27
+        ],
+        "file": "proxies/cliffnotch_505_31_27.obj",
+        "surface": true,
+        "why": "room 505 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          32,
+          26,
+          32,
+          26
+        ],
+        "file": "proxies/cliffnotch_505_32_26.obj",
+        "surface": true,
+        "why": "room 505 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          25,
+          33,
+          25
+        ],
+        "file": "proxies/cliffnotch_505_33_25.obj",
+        "surface": true,
+        "why": "room 505 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "ground",
+        "cells": [
           41,
           22,
           41,
@@ -17352,6 +18140,30 @@
       {
         "op": "mesh",
         "cells": [
+          22,
+          58,
+          22,
+          58
+        ],
+        "file": "proxies/cliffnotch_469_22_58.obj",
+        "surface": true,
+        "why": "room 469 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          34,
+          24,
+          34
+        ],
+        "file": "proxies/cliffnotch_469_24_34.obj",
+        "surface": true,
+        "why": "room 469 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           12,
           25,
           26,
@@ -17437,6 +18249,246 @@
       }
     ],
     "470": [
+      {
+        "op": "ground",
+        "cells": [
+          28,
+          41,
+          29,
+          41,
+          -23
+        ],
+        "replace": true,
+        "why": "room 470 CLASS B LEDGE (2026-11-28): the drawn ledge with two pines on the front cliff: pine feet U 976 / 992 V 583 / 591 moved along the view ray onto the first cells in front of the +y face of the 112 rim (28..29, 40): feet at the centres of (28, 41) / (29, 41), ground 80 - 103 = -23; its front corner then lies at U 992 V 599 = the drawn corner; the void in front of the walkways = floor at -23 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          24,
+          41,
+          27,
+          56,
+          -160
+        ],
+        "replace": true,
+        "why": "room 470 CLASS B CLIFF INTO THE DEEP (2026-11-28): the cliff below the forest plateau and the stairs runs off the picture (the light painted it as water 8 / 72 / 112); the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          30,
+          41,
+          40,
+          56,
+          -160
+        ],
+        "replace": true,
+        "why": "room 470 CLASS B CLIFF INTO THE DEEP (2026-11-28): the cliff below the forest plateau and the stairs runs off the picture (the light painted it as water 8 / 72 / 112); the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          23,
+          42,
+          23,
+          56,
+          -160
+        ],
+        "replace": true,
+        "why": "room 470 CLASS B CLIFF INTO THE DEEP (2026-11-28): the cliff below the forest plateau and the stairs runs off the picture (the light painted it as water 8 / 72 / 112); the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          28,
+          42,
+          29,
+          56,
+          -160
+        ],
+        "replace": true,
+        "why": "room 470 CLASS B CLIFF INTO THE DEEP (2026-11-28): the cliff below the forest plateau and the stairs runs off the picture (the light painted it as water 8 / 72 / 112); the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          35,
+          37,
+          40,
+          40,
+          -160
+        ],
+        "replace": true,
+        "why": "room 470 CLASS B CLIFF INTO THE DEEP (2026-11-28): the same cliff in front of the plateau's stepped right front (rows 37..40); the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          33,
+          38,
+          34,
+          40,
+          -160
+        ],
+        "replace": true,
+        "why": "room 470 CLASS B CLIFF INTO THE DEEP (2026-11-28): the same cliff in front of the plateau's stepped right front (rows 37..40); the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          31,
+          39,
+          32,
+          40,
+          -160
+        ],
+        "replace": true,
+        "why": "room 470 CLASS B CLIFF INTO THE DEEP (2026-11-28): the same cliff in front of the plateau's stepped right front (rows 37..40); the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          30,
+          40,
+          30,
+          40,
+          -160
+        ],
+        "replace": true,
+        "why": "room 470 CLASS B CLIFF INTO THE DEEP (2026-11-28): the same cliff in front of the plateau's stepped right front (rows 37..40); the void in front of the walkways = floor at -160 so the walkway's own vertical face reaches down to it (the water rule had painted it 8 below the walkway = the drawn cliff read as a gentle floor); remake/recipes/proxy_cliff_rooms.py zones"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          34,
+          36,
+          35,
+          36
+        ],
+        "file": "proxies/cliffedge_470_0.obj",
+        "surface": true,
+        "why": "room 470 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor -160 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          38,
+          32,
+          38
+        ],
+        "file": "proxies/cliffedge_470_1.obj",
+        "surface": true,
+        "why": "room 470 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor -160 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          40,
+          25,
+          40
+        ],
+        "file": "proxies/cliffedge_470_2.obj",
+        "surface": true,
+        "why": "room 470 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor -160 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          41,
+          23,
+          41
+        ],
+        "file": "proxies/cliffedge_470_3.obj",
+        "surface": true,
+        "why": "room 470 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor -160 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          42,
+          22,
+          45
+        ],
+        "file": "proxies/cliffedge_470_4.obj",
+        "surface": true,
+        "why": "room 470 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor -160 up to their walkway height (the cliff = their own vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          42,
+          23,
+          42
+        ],
+        "file": "proxies/cliffnotch_470_23_42.obj",
+        "surface": true,
+        "why": "room 470 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          41,
+          24,
+          41
+        ],
+        "file": "proxies/cliffnotch_470_24_41.obj",
+        "surface": true,
+        "why": "room 470 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          40,
+          30,
+          40
+        ],
+        "file": "proxies/cliffnotch_470_30_40.obj",
+        "surface": true,
+        "why": "room 470 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          31,
+          39,
+          31,
+          39
+        ],
+        "file": "proxies/cliffnotch_470_31_39.obj",
+        "surface": true,
+        "why": "room 470 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          33,
+          38,
+          33,
+          38
+        ],
+        "file": "proxies/cliffnotch_470_33_38.obj",
+        "surface": true,
+        "why": "room 470 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          35,
+          37,
+          35,
+          37
+        ],
+        "file": "proxies/cliffnotch_470_35_37.obj",
+        "surface": true,
+        "why": "room 470 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
       {
         "op": "mesh",
         "cells": [

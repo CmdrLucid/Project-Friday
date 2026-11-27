@@ -1,0 +1,12 @@
+# room 470 CLASS B cliff NOTCH (35, 37): triangular prism zone floor .. 96 behind the diagonal between the edge cells (34, 37) and (35, 36) (remake/recipes/proxy_cliff_rooms.py). GAME coordinates x east, y south, z up.
+v 560 592 -160
+v 560 608 -160
+v 576 592 -160
+v 560 592 96
+v 560 608 96
+v 576 592 96
+f 1 3 2
+f 4 5 6
+f 2 3 6 5
+f 1 2 5 4
+f 3 1 4 6

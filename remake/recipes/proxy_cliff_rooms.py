@@ -53,6 +53,14 @@ SPECS = {465: dict(level=-32, note="cliff path above the river: walkways 80..144
          501: dict(level=0, bulge=-48, note="shore below the round-tree hill: the faces reach the water exactly 80 px below the 80 walkway edges (22..23, 25)y, (36..37, 29)y = water 0; "
                    "the bank's bulges (floor point at 0 drawn rock) at -48 (the level where no cell in front of the faces is drawn rock)"),
          523: dict(level=0, bulge=-48, note="cave-door ledge above the water: faces 80 px from the 80 walkways (47..49, 19)y down to the water = 0; bulges at -48"),
+         470: dict(zones=[   # rock bowl with the cave door (2026-11-28): the forest plateau (80) drops off the picture at the front; a small drawn LEDGE with two pines on that face (like 469)
+             dict(kind="ledge", level=-23, rect=(28, 41, 29, 41), note="the drawn ledge with two pines on the front cliff: pine feet U 976 / 992 V 583 / 591 moved along the view ray onto the first cells in front "
+                  "of the +y face of the 112 rim (28..29, 40): feet at the centres of (28, 41) / (29, 41), ground 80 - 103 = -23; its front corner then lies at U 992 V 599 = the drawn corner"),
+             dict(kind="deep", level=-160, rect=(23, 41, 40, 56), outside=True, note="the cliff below the forest plateau and the stairs runs off the picture (the light painted it as water 8 / 72 / 112)"),
+             dict(kind="deep", level=-160, rect=(30, 37, 40, 40), outside=True, note="the same cliff in front of the plateau's stepped right front (rows 37..40)")]),
+         461: dict(zones=[   # forest maze (2026-11-28): the rock face below the 80..112 walkways of row 36 (x 19..23, 27..30) runs down to the drawing's bottom edge (z 16 at its foot, measured);
+             # the light painted the void in front 72..88 (a face only 8..24 high)
+             dict(kind="deep", level=-160, rect=(19, 37, 30, 44), note="the face below the row-36 walkways runs to the picture's bottom edge")]),
          469: dict(zones=[   # the stair path across the rock wall (2026-11-28): the face below the path's +x edge runs to the picture edge (127..231 px, foot below -110); the light had a floor at 0
              dict(kind="ledge", level=107, rect=(28, 34, 31, 36), note="the drawn FOREST LEDGE on the rock face (user mark 2026-11-28): 4 x 3 bushes (+ 3 pines behind) on a cell grid, "
                   "trunk feet front corner U 1102 V 433; moved along the view ray onto the first cells in front of the walkway's +y face (row 33): bush feet at cell centres x 28..31 y 34..36, ground 107"),
@@ -155,6 +163,7 @@ def build(rom, room, level, show_map=False, dry=False, deep=False, bulge=None):
                 ops.append({"op": "mesh", "cells": list(r), "file": "proxies/" + name, "surface": True,
                             "why": "room %d CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from %d up to their walkway height (the cliff = their own vertical faces, user "
                                    "2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py" % (room, lv)})
+        ops += notch_ops(room, hm, low, {**{c: level for c in water}, **{c: bulge for c in rock}}, dry, "river / bulge level")
         print("proxy_cliff_rooms %d: river %d, %d water cells, %d bulge cells at %d, %d edge cells, %d ops" % (room, level, len(water), len(rock), bulge, len(low), len(ops)), file=sys.stderr)
         return ops, set()
     edge = {c for c in hm if walkable(c) and any((c[0] + dx, c[1] + dy) in water for dx, dy in ((1, 0), (0, 1), (1, 1)))}
@@ -193,14 +202,54 @@ def build(rom, room, level, show_map=False, dry=False, deep=False, bulge=None):
           % (room, level, len(reg), len(water), len(rock), len(edge), len(ops)), file=sys.stderr)
     return ops, rock
 
+def notch_ops(room, hm, low, zlevel, dry, tag):
+    """2026-11-28 (505: the sword glow lit the 1-cell +x faces of a diagonal staircase edge as hard vertical stripes, LESSONS 9 'jagged cell front of a diagonal face'):
+    a zone cell whose -x AND -y neighbours are edge cells is a NOTCH of a diagonal cliff edge; a triangular prism fills its back half, so the cliff below the diagonal
+    is one plane facing (+1, +1) instead of a saw-tooth of +x / +y faces. One small mesh op per notch (an outdoor surface model owns its op cell)."""
+    ops = []
+    for (nx, ny), lv in sorted(zlevel.items()):
+        a, b = (nx - 1, ny), (nx, ny - 1)
+        # both back neighbours stand above the zone floor: edge cells (walkways) or other solid cells outside the zones (470: the blocked tree rim of a
+        # stepped plateau front gave the same 1-cell +x stripes)
+        solid = lambda c: c in hm and c not in zlevel and (c in low or hm[c][1]) and 16 * hm[c][0] > lv
+        if not (solid(a) and solid(b)): continue
+        top = min(16 * hm[a][0], 16 * hm[b][0])
+        if top <= lv: continue
+        X, Y = 16 * nx, 16 * ny
+        P = [(X, Y), (X, Y + 16), (X + 16, Y)]
+        V = [(x, y, lv) for x, y in P] + [(x, y, top) for x, y in P]
+        F = [(0, 2, 1), (3, 4, 5), (1, 2, 5, 4), (0, 1, 4, 3), (2, 0, 3, 5)]
+        name = "cliffnotch_%d_%d_%d.obj" % (room, nx, ny)
+        if not dry:
+            with open(os.path.join(ROOT, "landstalker", "data", "proxies", name), "w") as f:
+                f.write("# room %d CLASS B cliff NOTCH (%d, %d): triangular prism %s .. %d behind the diagonal between the edge cells (%d, %d) and (%d, %d) "
+                        "(remake/recipes/proxy_cliff_rooms.py). GAME coordinates x east, y south, z up.\n" % (room, nx, ny, tag, top, a[0], a[1], b[0], b[1]))
+                for v in V: f.write("v %g %g %g\n" % v)
+                for q in F: f.write("f " + " ".join(str(i + 1) for i in q) + "\n")
+        ops.append({"op": "mesh", "cells": [nx, ny, nx, ny], "file": "proxies/" + name, "surface": True,
+                    "why": "room %d CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane "
+                           "(no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py" % room})
+    return ops
+
 def edge_obj(room, k, r, hm, low, tag, dry):
-    """one mesh per rectangle of edge cells: each cell a block from low(cell) up to its walkway height"""
+    """one mesh per rectangle of edge cells: each cell a block from low(cell) up to its walkway height. v2 2026-11-28 (505: a bright vertical line in the sword glow
+    at the joint of two edge blocks in one wall plane): ONE closed solid per rectangle, no inner faces: a side face between two cells of the rectangle is only
+    built where this cell stands higher than its neighbour (the step), from max(low, neighbour top) up"""
     V, F = [], []
+    def quad(a, b, c, d): n = len(V); V.extend([a, b, c, d]); F.append((n, n + 1, n + 2, n + 3))
+    inr = lambda c: r[0] <= c[0] <= r[2] and r[1] <= c[1] <= r[3]
     for x in range(r[0], r[2] + 1):
         for y in range(r[1], r[3] + 1):
-            z = 16 * hm[(x, y)][0]; lv = low[(x, y)]; x0, y0, x1, y1 = 16 * x, 16 * y, 16 * x + 16, 16 * y + 16; n = len(V)
-            V += [(x0, y0, lv), (x1, y0, lv), (x1, y1, lv), (x0, y1, lv), (x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z)]
-            F += [tuple(n + i for i in f) for f in [(0, 3, 2, 1), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]]
+            z = 16 * hm[(x, y)][0]; lv = low[(x, y)]; x0, y0, x1, y1 = 16 * x, 16 * y, 16 * x + 16, 16 * y + 16
+            quad((x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z))      # top
+            quad((x0, y0, lv), (x0, y1, lv), (x1, y1, lv), (x1, y0, lv))  # bottom
+            for (nx, ny), pts in (((x + 1, y), ((x1, y0), (x1, y1))), ((x, y + 1), ((x1, y1), (x0, y1))), ((x - 1, y), ((x0, y1), (x0, y0))), ((x, y - 1), ((x0, y0), (x1, y0)))):
+                zb = lv
+                if inr((nx, ny)):
+                    zb = max(lv, 16 * hm[(nx, ny)][0])
+                    if zb >= z: continue
+                (ax, ay), (bx, by) = pts
+                quad((ax, ay, zb), (bx, by, zb), (bx, by, z), (ax, ay, z))
     name = "cliffedge_%d_%d.obj" % (room, k)
     if not dry:
         with open(os.path.join(ROOT, "landstalker", "data", "proxies", name), "w") as f:
@@ -254,7 +303,8 @@ def build_zones(rom, room, zones, show_map=False, dry=False):
             ops.append({"op": "mesh", "cells": list(r), "file": "proxies/" + name, "surface": True,
                         "why": "room %d CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from the zone floor %d up to their walkway height (the cliff = their own "
                                "vertical faces, following the walkway edge, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py" % (room, lv)})
-    print("proxy_cliff_rooms %d zones: %d zone cells, %d edge cells, %d ops" % (room, len(level), len(low), len(ops)), file=sys.stderr)
+    ops += notch_ops(room, hm, low, {c: lv for c, (lv, kd) in level.items()}, dry, "zone floor")
+    print("proxy_cliff_rooms %d zones: %d zone cells, %d edge cells, %d ops (%d meshes)" % (room, len(level), len(low), len(ops), sum(1 for o in ops if o["op"] == "mesh")), file=sys.stderr)
     return ops
 
 if __name__ == "__main__":
