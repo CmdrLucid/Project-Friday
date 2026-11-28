@@ -276,11 +276,12 @@ static uint32 lk_o_pkey(const lk_o_ent_t *e, int pc, int *xxo) {
   int xx = (((e->ts >> 11) & 1) ? (-e->pxs[pc] - 8 * e->pws[pc]) : e->pxs[pc]); if (xxo) *xxo = xx;
   return (uint32)(((e->ax + xx) & 0x1FF) << 20 | ((e->ay + e->pys[pc]) & 0x3FF) << 8 | (e->pws[pc] - 1) << 2 | (e->phs[pc] - 1));
 }
+static int lk_o_satn_all;   /* LK_OWNEFF v3: forward (tentative definition) */
 static int lk_o_escore(const lk_o_ent_t *e) {                        /* how well does this entity (in this pass state) agree with the real sprite table: key AND first tile graphic of every piece */
   int pc, j, i, cum = 0, sc = 0;
   for (pc = 0; pc < e->np; pc++) {
     uint32 k = lk_o_pkey(e, pc, 0);
-    for (j = 0; j < lk_o_satn; j++) if (lk_o_satk[j] == k) {
+    for (j = 0; j < lk_o_satn_all; j++) if (lk_o_satk[j] == k) {   /* LK_OWNEFF v3 (2026-11-28): the FULL table; No Sprite Limit's lk_o_satn = 0 had made every score 0, so the one check simple mode keeps (Nigel's pose vs the graphic the VDP holds, rec_20261019_2044 turn flicker) never found anything and searched 16 x 24 poses every frame */
       int t = lk_o_satt[j], same = 1, nb = 32 * e->pws[pc] * e->phs[pc];   /* ALL tiles of the piece: poses of one figure share their first tile (Nigel's walk frame vs the one-frame turn pose), only the whole piece tells which graphic the VDP really holds */
       if (nb > 0x4000 - cum * 32) nb = 0x4000 - cum * 32; if (t * 32 + nb > 0x10000) nb = 0x10000 - t * 32;
       for (i = 0; i < nb && same; i++) if ((lk_o_vmirror ? lk_vm[t * 32 + i] : vram[(t * 32 + i) ^ 1]) != e->tiles[cum * 32 + i]) same = 0;
@@ -500,7 +501,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
         lk_o_ovr_anim = an; lk_o_ovr_frm = fr; lk_o_entload(src, offs[k], &pose, lk_o_sprtiles_p, 1, 0); lk_o_ovr_anim = -1;
         if (pose.vis && pose.np == e->np && lk_o_escore(&pose) == 2 * pose.np) found = 1;
       }
-      if (found) e = &pose;
+      if (found) { if (getenv("LANDSTALKER_OWN_ENTS")) printf("ownpose: frame %ld Nigel anim %X frm %X -> pose anim %X frm %X\n", platform_frame_number(), e->anim, e->frm, pose.anim, pose.frm); e = &pose; }
     }
     if (!e || !e->vis) continue;
     if (draw && e->np && lk_of_out(offs[k])) { int q3; for (q3 = 0; q3 < e->np && lk_o_dn < 96; q3++) lk_o_dk[lk_o_dn++] = lk_o_pkey(e, q3, 0); continue; }   /* LK_OFFFIG v1: not drawn, but its sprite table entries count as covered (else pass 2 drew them as 'extras') */
