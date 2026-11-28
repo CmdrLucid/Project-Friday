@@ -15893,6 +15893,490 @@
           0
         ],
         "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 72 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          23,
+          57,
+          23,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          24,
+          57,
+          24,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          25,
+          57,
+          25,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          26,
+          57,
+          26,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          27,
+          57,
+          27,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          28,
+          57,
+          28,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          29,
+          57,
+          29,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          30,
+          57,
+          30,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          31,
+          58,
+          31,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          56,
+          32,
+          59,
+          32,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          57,
+          33,
+          60,
+          33,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          58,
+          34,
+          61,
+          34,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          59,
+          35,
+          62,
+          35,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          60,
+          36,
+          63,
+          36,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          60,
+          37,
+          63,
+          37,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          61,
+          38,
+          64,
+          38,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          62,
+          39,
+          65,
+          39,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          62,
+          40,
+          65,
+          40,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          61,
+          41,
+          64,
+          41,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          61,
+          42,
+          64,
+          42,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          62,
+          43,
+          65,
+          43,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          63,
+          44,
+          66,
+          44,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          45,
+          67,
+          45,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          46,
+          67,
+          46,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          47,
+          67,
+          47,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          48,
+          67,
+          48,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          49,
+          67,
+          49,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          50,
+          67,
+          50,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          51,
+          67,
+          51,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          52,
+          67,
+          52,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          53,
+          67,
+          53,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          54,
+          67,
+          54,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          55,
+          67,
+          55,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          56,
+          67,
+          56,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          57,
+          67,
+          57,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          58,
+          67,
+          58,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          59,
+          67,
+          59,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          60,
+          67,
+          60,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          61,
+          67,
+          61,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          62,
+          67,
+          62,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          64,
+          63,
+          67,
+          63,
+          0
+        ],
+        "why": "room 525 LAKE EDGE (2026-11-28, user: dark triangle on the water near the temple): the lake's east edge bordered empty light cells (-32768), whose edge cast a thin dark wedge on the water; the lake goes on 3 cells into the black margin at 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          32,
+          30,
+          37,
+          30,
+          0
+        ],
+        "why": "room 525 INVISIBLE BARRIER IN THE LAKE (2026-11-28, user: dark triangle on the water west of the temple terrace, at night): height map $4200 (blocked, height 2 = 32) cells where the picture shows only water; the light built a 32 block whose shadow lay as a triangle on the lake -> water 0 (the game's collision is untouched)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          32,
+          31,
+          36,
+          31,
+          0
+        ],
+        "why": "room 525 INVISIBLE BARRIER IN THE LAKE (2026-11-28, user: dark triangle on the water west of the temple terrace, at night): height map $4200 (blocked, height 2 = 32) cells where the picture shows only water; the light built a 32 block whose shadow lay as a triangle on the lake -> water 0 (the game's collision is untouched)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          32,
+          32,
+          32,
+          32,
+          0
+        ],
+        "why": "room 525 INVISIBLE BARRIER IN THE LAKE (2026-11-28, user: dark triangle on the water west of the temple terrace, at night): height map $4200 (blocked, height 2 = 32) cells where the picture shows only water; the light built a 32 block whose shadow lay as a triangle on the lake -> water 0 (the game's collision is untouched)"
       }
     ],
     "502": [
