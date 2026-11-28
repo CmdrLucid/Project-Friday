@@ -164,6 +164,9 @@ class Ui:
 
     def ask_rom(self, why):
         self.say(why)
+        if self.gui:   # user 2026-11-28 (AppImage test): after the folder choice the bare file window looked like 'the folder was not taken'
+            self._box("Build folder: " + DATA + "\n\n" + why + "\nIn the file window that opens now, select your Landstalker ROM file "
+                      "(a 2 MB .md / .bin / .gen dump).", "Information")
         if self.gui and WIN:
             try:
                 return win_open_dialog("Select your Landstalker ROM (.md / .bin / .gen)")
