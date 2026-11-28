@@ -276,12 +276,11 @@ static uint32 lk_o_pkey(const lk_o_ent_t *e, int pc, int *xxo) {
   int xx = (((e->ts >> 11) & 1) ? (-e->pxs[pc] - 8 * e->pws[pc]) : e->pxs[pc]); if (xxo) *xxo = xx;
   return (uint32)(((e->ax + xx) & 0x1FF) << 20 | ((e->ay + e->pys[pc]) & 0x3FF) << 8 | (e->pws[pc] - 1) << 2 | (e->phs[pc] - 1));
 }
-static int lk_o_satn_all;   /* LK_OWNEFF v3: forward (tentative definition) */
 static int lk_o_escore(const lk_o_ent_t *e) {                        /* how well does this entity (in this pass state) agree with the real sprite table: key AND first tile graphic of every piece */
   int pc, j, i, cum = 0, sc = 0;
   for (pc = 0; pc < e->np; pc++) {
     uint32 k = lk_o_pkey(e, pc, 0);
-    for (j = 0; j < lk_o_satn_all; j++) if (lk_o_satk[j] == k) {   /* LK_OWNEFF v3 (2026-11-28): the FULL table; No Sprite Limit's lk_o_satn = 0 had made every score 0, so the one check simple mode keeps (Nigel's pose vs the graphic the VDP holds, rec_20261019_2044 turn flicker) never found anything and searched 16 x 24 poses every frame */
+    for (j = 0; j < lk_o_satn; j++) if (lk_o_satk[j] == k) {   /* (2026-11-28: LK_OWNEFF v3 tried lk_o_satn_all here = Nigel's VRAM pose check alive again under No Sprite Limit; REVERTED: the poses it picked looked wrong (arms out, grey legs) and the chip picture could not be shot to prove them; HANDOFF 0a540) */
       int t = lk_o_satt[j], same = 1, nb = 32 * e->pws[pc] * e->phs[pc];   /* ALL tiles of the piece: poses of one figure share their first tile (Nigel's walk frame vs the one-frame turn pose), only the whole piece tells which graphic the VDP really holds */
       if (nb > 0x4000 - cum * 32) nb = 0x4000 - cum * 32; if (t * 32 + nb > 0x10000) nb = 0x10000 - t * 32;
       for (i = 0; i < nb && same; i++) if ((lk_o_vmirror ? lk_vm[t * 32 + i] : vram[(t * 32 + i) ^ 1]) != e->tiles[cum * 32 + i]) same = 0;
