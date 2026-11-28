@@ -22,7 +22,17 @@ Measured on the room picture (U = x - y + 1184, V = (x + y) / 2 - z; scratch ~/P
     right edge U 912 = 112 px wide, the front corner's top at V 456 = 240), a closed RING of 10 cube blocks (one cell each, 224..240, fine seams, no
     crenels) around the 1 x 2 recess (cells 31, 51..52) at 224; the body's vertical edges are drawn ROUNDED (front edge: bright curved bricks
     U 832 .. 848 -> radius 12), the cube blocks on top keep square corners (they overhang the rounding a little, as drawn).
-Run: python3 remake/recipes/proxy_castle_32.py -> landstalker/data/proxies/castle_32_keep.obj, castle_32_tower_ll.obj (our own geometry)."""
+  * GREEN-ROOFED HOUSE right of the keep (height map: only row 26 x 40..46 at 192 with the door $2100 at x 43..44; void behind = painted water 0):
+    front wall y 432 from x 640 (left edge U 1393, behind it the keep's right face) to the room edge x 752 (U 1504), 0..160 (the pale wall top);
+    a STEPPED roof of two tiers seen in the drawing, each a cornice band with brackets and a row of round green tiles (rounded front):
+    cornice 1 y .. 437 (left end U 1388), 160..176; tile row 1 from 437 / 176 rising back to 420 / 200; cornice 2 front y 416, 192..208 (its top
+    line fits the drawn upper band, its bottom the top of tile row 1); tile row 2 from 416 / 208 to 400 / 224 (fits the drawn top edge of the upper
+    tiles). Above the upper tiles the drawing shows KEEP bricks again (U 1460 .. 1504, V 250 .. 290 = a face y 400 at z 250 .. 290): the house is a
+    shallow annex (back y 392: a dark green roof top strip ~8 deep behind the upper tiles) in front of the keep, which goes on to the right
+    behind it (keep part x 640 .. 752, y 224 .. 392, up to 440).
+    The single tiles / brackets are drawn detail (not modelled).
+Run: python3 remake/recipes/proxy_castle_32.py -> landstalker/data/proxies/castle_32_keep.obj, castle_32_tower_ll.obj, castle_32_house.obj
+(our own geometry)."""
 import math, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROX = os.path.join(HERE, "..", "..", "landstalker", "data", "proxies")
@@ -94,10 +104,31 @@ def wall_tower(cx0, cy0, w=3, d=4, inner=((1, 1), (1, 2)), body=224.0, top=240.0
             frustum(m, poly, inset, top - bevel, top)
     return m
 
+def extrude_x(m, x0, x1, prof):
+    """closed solid: a CONVEX profile [(y, z), ...] (order: going around so that +x is on the right hand of the screen order) extruded from x0 to x1"""
+    n = len(prof); a = [m.v((x0, y, z)) for y, z in prof]; b = [m.v((x1, y, z)) for y, z in prof]
+    # orientation: make the x0 cap face -x
+    area = sum(prof[i][0] * prof[(i + 1) % n][1] - prof[(i + 1) % n][0] * prof[i][1] for i in range(n))
+    if area > 0: a.reverse(); b.reverse()
+    m.f(*a); m.f(*reversed(b))
+    for i in range(n):
+        j = (i + 1) % n; m.f(a[i], b[i], b[j], a[j])
+
+HX0, HX1, HY0, HY1 = 640.0, 752.0, 392.0, 432.0   # back y 392: the dark green roof top strip behind the upper tiles (~8 deep) before the keep face
+def house():
+    m = Mesh()
+    extrude_x(m, HX0, HX1, [(HY0, 0.0), (HY1, 0.0), (HY1, 160.0), (HY0, 160.0)])                     # walls
+    extrude_x(m, HX0, HX1, [(HY0, 160.0), (437.0, 160.0), (437.0, 176.0), (HY0, 176.0)])             # cornice 1
+    extrude_x(m, HX0, HX1, [(HY0, 176.0), (437.0, 176.0), (437.0, 184.0), (434.0, 192.0), (428.0, 198.0), (420.0, 200.0), (HY0, 200.0)])   # tile row 1
+    extrude_x(m, HX0, HX1, [(HY0, 192.0), (416.0, 192.0), (416.0, 208.0), (HY0, 208.0)])             # cornice 2
+    extrude_x(m, HX0, HX1, [(HY0, 208.0), (416.0, 208.0), (416.0, 214.0), (413.0, 220.0), (407.0, 224.0), (400.0, 225.0), (HY0, 225.0)])   # tile row 2 + flat top
+    return m
+
 def keep():
     m = Mesh()
     # the notched footprint as two convex prisms (back part full width, front strip up to the notch)
     m.prism([(KX0, KY0), (KX1, KY0), (KX1, NY), (KX0, NY)], 0.0, KTOP)
+    m.prism([(KX1, KY0), (HX1, KY0), (HX1, HY0), (KX1, HY0)], 0.0, KTOP)   # behind the green-roofed annex (its face y 400 shows above the roof)
     m.prism([(KX0, NY), (NX, NY), (NX, KY1), (KX0, KY1)], 0.0, KTOP)
     circ = [(TCX + TR * math.cos(2 * math.pi * i / TSEG), TCY + TR * math.sin(2 * math.pi * i / TSEG)) for i in range(TSEG)]
     m.prism(circ, 0.0, TTOP)
@@ -112,4 +143,7 @@ if __name__ == "__main__":
     print(p)
     p = os.path.join(PROX, "castle_32_tower_ll.obj")
     wall_tower(30, 50).write(p, "castle court 32 / 33: lower left curtain wall tower (twin of the upper one); remake/recipes/proxy_castle_32.py")
+    print(p)
+    p = os.path.join(PROX, "castle_32_house.obj")
+    house().write(p, "castle court 32 / 33: green-roofed house (walls + stepped roof: 2 cornices + 2 round tile rows); remake/recipes/proxy_castle_32.py")
     print(p)
