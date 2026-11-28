@@ -114,6 +114,25 @@ static void lk_lg_h_psd(void) {   /* LK_LGWNAME v1 (user 2026-11-22, GitHub #18 
     g_m68k.a[2] = a2; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | 0xFFFFu;
     func_table_rts();
 }
+static void (*lk_lg_o_imt)(void);
+static void lk_lg_h_imt(void) {   /* LK_LGWNAME v3 (2026-11-28, GitHub #18 paul-met: Russian island map label 'Д е с'): IslandMap_InitTextBuffer $03EB0E has its own copy of the
+     PrintStringDirect loop (move.b (a2)+,d0 / jsr j_PrintCharDirect): the same half name with blanks as the file select before v1.  Here the routine in C, one 16-bit code per character in wide mode */
+    int i, n; uint32_t a2; int16_t d6;
+    if (!lk_lg_wide) { lk_lg_o_imt(); return; }
+    bus_write16(0xFF1194u, 1); bus_write8(0xFF1129u, 0); bus_write8(0xFF112Au, 1);   /* g_TextXPos = 1, text state bytes as the original */
+    for (i = 0; i < 0x280; i++) bus_write32(0xFF3900u + 4u * (uint32_t)i, 0);          /* g_ScreenBuffer cleared */
+    g_m68k.d[1] = 0; g_m68k.a[1] = 0xFF3900u + 0xA00u; g_m68k.d[7] |= 0xFFFFu;
+    func_table_jsr(0x022F10u, 0x03EB3Cu);                                              /* jsr j_GetIslandMapLocation (a2 = name, d7 = count - 1, d6 = location) */
+    d6 = (int16_t)(int8_t)(g_m68k.d[6] & 0xFF); g_m68k.d[6] = (g_m68k.d[6] & 0xFFFF0000u) | (uint16_t)d6;
+    bus_write16(g_m68k.a[6] - 0x84u, (uint16_t)d6);
+    if (d6 < 0) { func_table_rts(); return; }
+    a2 = g_m68k.a[2]; n = (int)(int16_t)(g_m68k.d[7] & 0xFFFF) + 1;
+    { const int wide = a2 >= 0x808000u && a2 < 0x810000u;
+      for (i = 0; i < n; i++) { uint16_t c; if (wide) { c = bus_read16(a2); a2 += 2; } else { c = bus_read8(a2); a2 += 1; }
+          g_m68k.d[0] = (g_m68k.d[0] & 0xFFFF0000u) | c; func_table_jsr(0x022EFCu, 0x03EB54u); } }   /* jsr j_PrintCharDirect with the original loop's return address */
+    g_m68k.a[2] = a2; g_m68k.d[7] = (g_m68k.d[7] & 0xFFFF0000u) | 0xFFFFu;
+    func_table_rts();
+}
 static void (*lk_lg_o_jls)(void);
 static void lk_lg_h_jls(void) {   /* LK_LGWNAME v2 (2026-11-22, file select prompt bar 'К у' / 'Д' / 'Н', Japanese 'ど れ に う' / '07'): j_j_LoadUncompressedString $00F618 = jsr j_LoadUncompressedString
      (a2 / d7 of the menu string d1) and then FALLS THROUGH into PrintStringDirect $00F61E (no call: the entry hook above did not see it; GameSelectDrawBarText $00F958 and the Yes / No /
@@ -451,7 +470,7 @@ static void lk_lang_install(void) {
     lk_lang_map();
     lk_lg_o_ics = func_table_lookup(0x022FCC); lk_lg_o_dc = func_table_lookup(0x0246B2); lk_lg_o_gnc = func_table_lookup(0x023044); lk_lg_o_skip = func_table_lookup(0x0294B6); lk_lg_o_dma = func_table_lookup(0x000DD6); lk_lg_o_pc = func_table_lookup(0x0231E2);
     if (lk_lg_o_ics && lk_lg_o_dc && lk_lg_o_gnc && lk_lg_o_skip && lk_lg_o_dma) {
-        func_table_register(0x022FCC, lk_lg_h_ics); func_table_register(0x0246B2, lk_lg_h_dc); func_table_register(0x023044, lk_lg_h_gnc); func_table_register(0x0294B6, lk_lg_h_skip); func_table_register(0x000DD6, lk_lg_h_dma); if (lk_lg_o_pc) func_table_register(0x0231E2, lk_lg_h_pc); lk_lg_o_cpy = func_table_lookup(0x02335C); if (lk_lg_o_cpy) func_table_register(0x02335C, lk_lg_h_cpy); lk_lg_o_psd = func_table_lookup(0x00F61E); if (lk_lg_o_psd) func_table_register(0x00F61E, lk_lg_h_psd); else fprintf(stderr, "lang: PrintStringDirect $00F61E not found (LK_LGWNAME v1)\n"); lk_lg_o_jls = func_table_lookup(0x00F618); if (lk_lg_o_jls && lk_lg_o_psd) func_table_register(0x00F618, lk_lg_h_jls); else fprintf(stderr, "lang: j_j_LoadUncompressedString $00F618 not found (LK_LGWNAME v2)\n"); lk_vt_o_wn = func_table_lookup(0x00D5E4); if (lk_vt_o_wn) func_table_register(0x00D5E4, lk_vt_h_wn); lk_lg_hooked = 1;
+        func_table_register(0x022FCC, lk_lg_h_ics); func_table_register(0x0246B2, lk_lg_h_dc); func_table_register(0x023044, lk_lg_h_gnc); func_table_register(0x0294B6, lk_lg_h_skip); func_table_register(0x000DD6, lk_lg_h_dma); if (lk_lg_o_pc) func_table_register(0x0231E2, lk_lg_h_pc); lk_lg_o_cpy = func_table_lookup(0x02335C); if (lk_lg_o_cpy) func_table_register(0x02335C, lk_lg_h_cpy); lk_lg_o_psd = func_table_lookup(0x00F61E); if (lk_lg_o_psd) { func_table_register(0x00F61E, lk_lg_h_psd); lk_lg_o_imt = func_table_lookup(0x03EB0E); if (lk_lg_o_imt) func_table_register(0x03EB0E, lk_lg_h_imt); } else fprintf(stderr, "lang: PrintStringDirect $00F61E not found (LK_LGWNAME v1)\n"); lk_lg_o_jls = func_table_lookup(0x00F618); if (lk_lg_o_jls && lk_lg_o_psd) func_table_register(0x00F618, lk_lg_h_jls); else fprintf(stderr, "lang: j_j_LoadUncompressedString $00F618 not found (LK_LGWNAME v2)\n"); lk_vt_o_wn = func_table_lookup(0x00D5E4); if (lk_vt_o_wn) func_table_register(0x00D5E4, lk_vt_h_wn); lk_lg_hooked = 1;
     } else { fprintf(stderr, "lang: InitCompString / DecodeChar / GetNextChar / SkipToStringIndex not all found (%p %p %p %p)\n", (void *)lk_lg_o_ics, (void *)lk_lg_o_dc, (void *)lk_lg_o_gnc, (void *)lk_lg_o_skip); lk_lg_nlang = 1; return; }
     if (!want) {                                                            /* LANDSTALKER_LANG=<code> overrides the saved ~/.landstalker_lang */
         char code[16] = "";
