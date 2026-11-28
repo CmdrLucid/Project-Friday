@@ -33,9 +33,31 @@ NAME = "Project-Friday"
 # SHA-1 of the ROM version this project is built and tested for (2 MB Genesis dump, as used on the Steam Deck)
 KNOWN_ROMS = {"24345e29427b000b90df778965dd8834300a9dde": "Landstalker (Mega Drive, USA)",
               "9fbadc86319936855831ecd096d82d716b304215": "Landstalker (Mega Drive, Europe)"}   # Europe = US code with 50 Hz timing constants (HANDOFF 0a120)
-DATA = os.environ.get("LANDSTALKER_DATA") or (
+DEFAULT_DATA = (
     os.path.join(os.environ.get("LOCALAPPDATA") or os.path.join(os.path.expanduser("~"), "AppData", "Local"), "Project-Friday") if WIN else
     os.path.join(os.environ.get("XDG_DATA_HOME") or os.path.join(os.path.expanduser("~"), ".local", "share"), "project-friday"))
+# BUILD FOLDER CHOICE (GitHub #26, paul-met 2026-11-28: the ~1 GB build should not have to sit on the system drive): the chosen folder is remembered in a
+# small text file in the program's own folder (next to the AppImage file for an AppImage, whose own folder is a read-only mount), never elsewhere.
+# The build always goes into our own sub folder BUILD_SUB of the chosen folder, so removing it (uninstaller, change of folder) never touches the player's files.
+BUILD_SUB = "Project-Friday-Build"
+LOCFILE = (os.path.join(os.path.dirname(os.path.abspath(os.environ["APPIMAGE"])), "Project-Friday build folder.txt") if os.environ.get("APPIMAGE")
+           else os.path.join(HERE, "build_folder.txt"))
+
+
+def read_locfile():
+    try:
+        raw = open(LOCFILE, "rb").read()
+        txt = raw.decode("utf-16") if raw[:2] in (b"\xff\xfe", b"\xfe\xff") else raw.decode("utf-8-sig")   # Windows: UTF-16LE + BOM (the uninstaller reads it with FileReadUTF16LE)
+        for ln in txt.splitlines():
+            ln = ln.strip()
+            if ln and os.path.isabs(ln):
+                return ln
+    except Exception:
+        pass
+    return None
+
+
+DATA = os.environ.get("LANDSTALKER_DATA") or read_locfile() or DEFAULT_DATA
 CONFIG = os.path.join(DATA, "config.json")
 NOTICE = ("Project-Friday builds the game on your computer from your own Landstalker ROM.\n"
           "The built game is derived from that ROM: do not give it (or the ROM) to anyone else.")
@@ -109,6 +131,36 @@ class Ui:
         print(text, flush=True)
         if self.gui:
             self._box(text, "Information")
+
+    def yesno(self, text):
+        """True = yes.  Windows: MessageBox (ctypes); Linux: zenity --question; console: y / n (no input = yes)"""
+        print(text, flush=True)
+        if self.gui and WIN:
+            try:
+                import ctypes
+                return ctypes.windll.user32.MessageBoxW(0, text, NAME, 0x4 | 0x20) == 6   # MB_YESNO | MB_ICONQUESTION -> IDYES
+            except Exception:
+                r = self._ps("$r = [System.Windows.Forms.MessageBox]::Show($env:PF_MSG, 'Project-Friday', 'YesNo', 'Question'); [Console]::Out.Write($r)", PF_MSG=text)
+                return r.stdout.strip() != "No"
+        if self.gui:
+            return subprocess.run(["zenity", "--question", "--no-markup", "--width=520", "--title=" + NAME, "--text=" + text]).returncode == 0
+        try:
+            return input("[Y/n] ").strip().lower() not in ("n", "no")
+        except EOFError:
+            return True
+
+    def ask_folder(self, title):
+        if self.gui and WIN:
+            r = self._ps("$f = New-Object System.Windows.Forms.FolderBrowserDialog; $f.Description = $env:PF_MSG; $f.ShowNewFolderButton = $true; "
+                         "if ($f.ShowDialog() -eq 'OK') { [Console]::Out.Write($f.SelectedPath) }", PF_MSG=title)
+            return r.stdout.strip() or None
+        if self.gui:
+            r = subprocess.run(["zenity", "--file-selection", "--directory", "--title=" + title], capture_output=True, text=True)
+            return r.stdout.strip() if r.returncode == 0 and r.stdout.strip() else None
+        try:
+            return input(title + ": ").strip() or None
+        except EOFError:
+            return None
 
     def ask_rom(self, why):
         self.say(why)
@@ -196,6 +248,81 @@ def check_rom(path):
     if h not in KNOWN_ROMS:
         return None, "This ROM is not the version Project-Friday supports (SHA-1 %s)." % h
     return h, None
+
+
+def set_data(path):
+    global DATA, CONFIG
+    DATA = path
+    CONFIG = os.path.join(DATA, "config.json")
+
+
+def writable_dir(path):
+    try:
+        os.makedirs(path, exist_ok=True)
+        t = os.path.join(path, "pf_write_test.tmp")
+        open(t, "w").write("x")
+        os.remove(t)
+        return True
+    except Exception:
+        return False
+
+
+def use_build_folder(ui, target):
+    """switch to the build folder `target` (None = the standard folder): remember it in LOCFILE, take the settings (ROM path) along,
+    offer to delete the old built game.  -> True when switched."""
+    old = DATA
+    new = target or DEFAULT_DATA
+    if os.path.normcase(os.path.abspath(new)) == os.path.normcase(os.path.abspath(old)):
+        if target is None and os.path.isfile(LOCFILE):
+            try: os.remove(LOCFILE)
+            except Exception: pass
+        return True
+    if not writable_dir(new):
+        ui.error("Cannot write to this folder:\n" + new + "\n\nPlease pick another one.")
+        return False
+    try:
+        if target is None:
+            if os.path.isfile(LOCFILE):
+                os.remove(LOCFILE)
+        else:
+            open(LOCFILE, "w", encoding="utf-16" if WIN else "utf-8").write(new + "\n")   # "utf-16" writes the BOM (little endian on Windows)
+    except Exception as e:
+        ui.error("Cannot remember the build folder (no write access to %s: %s).\nStart the program once with --build-folder DIR "
+                 "or set LANDSTALKER_DATA instead." % (LOCFILE, e))
+        return False
+    cfg = load_config()                    # settings of the old folder (ROM path, notice shown) come along
+    set_data(new)
+    if cfg and not os.path.isfile(CONFIG):
+        save_config(cfg)
+    oldb = os.path.join(old, "builds")
+    if os.path.isdir(oldb) and ui.yesno("The game will be built again in:\n" + new + "\n\nDelete the old built game (about 1 GB) in:\n" + old + " ?"):
+        for sub in ("builds", "selftest-build"):
+            if os.path.isdir(os.path.join(old, sub)):
+                rmtree(os.path.join(old, sub))
+        for f in ("config.json",):
+            try: os.remove(os.path.join(old, f))
+            except Exception: pass
+        try: os.rmdir(old)                     # only if nothing else is left in it
+        except Exception: pass
+    return True
+
+
+def choose_build_folder(ui):
+    """the question at the first start (and with --choose-build-folder)"""
+    for _ in range(3):
+        if ui.yesno("Project-Friday builds the game from your ROM on this computer. The built game needs about 1 GB.\n\n"
+                    "Use the standard folder?\n" + DEFAULT_DATA + "\n\nYes = standard folder\nNo = choose another folder (a sub folder '"
+                    + BUILD_SUB + "' is made in it)"):
+            return use_build_folder(ui, None)
+        p = ui.ask_folder("Choose the folder for the built game (about 1 GB)")
+        if not p:
+            continue
+        p = os.path.abspath(p)
+        if os.path.basename(os.path.normpath(p)) != BUILD_SUB:
+            p = os.path.join(p, BUILD_SUB)
+        if use_build_folder(ui, p):
+            return True
+    return use_build_folder(ui, None)
 
 
 def find_rom(ui, args, cfg):
@@ -550,6 +677,8 @@ def main():
     ap.add_argument("--cc")
     ap.add_argument("--no-gui", action="store_true")
     ap.add_argument("--build-only", action="store_true")
+    ap.add_argument("--choose-build-folder", action="store_true", help="ask again where the built game goes (GitHub #26)")
+    ap.add_argument("--build-folder", help="put the built game into DIR/%s and remember it" % BUILD_SUB)
     ap.add_argument("--selftest", action="store_true", help="check compiler + SDL2 headers / library without a ROM (used by CI)")
     ap.add_argument("--selftest-run", action="store_true", help="CI: after --selftest-build, start genrecomp with a dummy ROM twice (second time with a save file)")
     ap.add_argument("--selftest-build", action="store_true", help="CI: run the ROM-free patch steps and compile genrecomp + Genesis Plus GX (no ROM, no game)")
@@ -573,6 +702,16 @@ def main():
         print("\nselftest-build ok: patch steps and compile of genrecomp + Genesis Plus GX work on this machine")
         return 0
     ui = Ui(not args.no_gui)
+    if not os.environ.get("LANDSTALKER_DATA"):   # GitHub #26: where the ~1 GB build goes
+        if args.build_folder:
+            p = os.path.abspath(args.build_folder)
+            if os.path.basename(os.path.normpath(p)) != BUILD_SUB:
+                p = os.path.join(p, BUILD_SUB)
+            if not use_build_folder(ui, p):
+                return 1
+        elif args.choose_build_folder or (not os.path.isfile(LOCFILE) and not os.path.isfile(os.path.join(DEFAULT_DATA, "config.json"))
+                                          and not os.path.isdir(os.path.join(DEFAULT_DATA, "builds"))):
+            choose_build_folder(ui)
     cfg = load_config()
     if not cfg.get("notice_shown"):
         ui.info(NOTICE)

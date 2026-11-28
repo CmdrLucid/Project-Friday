@@ -13,6 +13,7 @@ SetCompressor /SOLID lzma
   !define VERSION "dev"
 !endif
 !define REGKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\Project-Friday"
+Var BuildDir   ; GitHub #26: the build folder the player chose (firstrun.py writes $INSTDIR\build_folder.txt, UTF-16LE with BOM)
 
 Name "Project-Friday ${VERSION}"
 OutFile "${OUTFILE}"
@@ -52,8 +53,8 @@ LangString SecMain ${LANG_ENGLISH} "Project-Friday (required)"
 LangString SecMain ${LANG_GERMAN} "Project-Friday (benötigt)"
 LangString SecDesk ${LANG_ENGLISH} "Desktop shortcut"
 LangString SecDesk ${LANG_GERMAN} "Verknüpfung auf dem Desktop"
-LangString SecUnData ${LANG_ENGLISH} "Also delete the built game and the settings (save files next to your ROM are kept)"
-LangString SecUnData ${LANG_GERMAN} "Auch das gebaute Spiel und die Einstellungen löschen (Spielstände neben deiner ROM bleiben)"
+LangString SecUnData ${LANG_ENGLISH} "Also delete the built game (also in a build folder you chose) and the settings (save files next to your ROM are kept)"
+LangString SecUnData ${LANG_GERMAN} "Auch das gebaute Spiel (auch in einem selbst gewählten Build-Ordner) und die Einstellungen löschen (Spielstände neben deiner ROM bleiben)"
 
 Function .onInit
   !insertmacro MUI_LANGDLL_DISPLAY
@@ -101,6 +102,7 @@ Section "$(SecMain)" SecMainId
   CreateDirectory "$SMPROGRAMS\Project-Friday"
   CreateShortcut "$SMPROGRAMS\Project-Friday\Project-Friday.lnk" "$INSTDIR\Project-Friday.exe"
   CreateShortcut "$SMPROGRAMS\Project-Friday\Uninstall Project-Friday.lnk" "$INSTDIR\Uninstall.exe"
+  CreateShortcut "$SMPROGRAMS\Project-Friday\Change build folder.lnk" "$INSTDIR\Project-Friday.exe" "--choose-build-folder"   ; GitHub #26
   WriteRegStr HKCU "Software\Project-Friday" "InstallDir" "$INSTDIR"
   WriteRegStr HKCU "${REGKEY}" "DisplayName" "Project-Friday"
   WriteRegStr HKCU "${REGKEY}" "DisplayVersion" "${VERSION}"
@@ -122,6 +124,23 @@ SectionEnd
 ; ---------------------------------------------------------------- uninstaller
 Function un.onInit
   !insertmacro MUI_UNGETLANGUAGE
+  ; GitHub #26: remember the chosen build folder before the program files (with build_folder.txt) are removed
+  StrCpy $BuildDir ""
+  ClearErrors
+  FileOpen $3 "$INSTDIR\build_folder.txt" r
+  IfErrors bf_done
+  FileSeek $3 2          ; skip the BOM
+  FileReadUTF16LE $3 $BuildDir
+  FileClose $3
+bf_trim:
+  StrCpy $4 $BuildDir 1 -1
+  StrCmp $4 "$\r" bf_cut
+  StrCmp $4 "$\n" bf_cut
+  Goto bf_done
+bf_cut:
+  StrCpy $BuildDir $BuildDir -1
+  Goto bf_trim
+bf_done:
   ; installed into a protected folder (Program Files): restart the uninstaller with admin rights (once)
   ClearErrors
   FileOpen $1 "$INSTDIR\pf_write_test.tmp" w
@@ -154,10 +173,13 @@ Section "un.$(SecUnProg)" SecUnProgId
   Delete "$INSTDIR\build.sh"
   Delete "$INSTDIR\recomp.json"
   Delete "$INSTDIR\README.txt"
+  Delete "$INSTDIR\build_folder.txt"
+  Delete "$INSTDIR\Change build folder.bat"
   Delete "$INSTDIR\Uninstall.exe"
   RMDir "$INSTDIR"
   Delete "$SMPROGRAMS\Project-Friday\Project-Friday.lnk"
   Delete "$SMPROGRAMS\Project-Friday\Uninstall Project-Friday.lnk"
+  Delete "$SMPROGRAMS\Project-Friday\Change build folder.lnk"
   RMDir "$SMPROGRAMS\Project-Friday"
   Delete "$DESKTOP\Project-Friday.lnk"
   DeleteRegKey HKCU "${REGKEY}"
@@ -167,5 +189,11 @@ SectionEnd
 Section /o "un.$(SecUnData)" SecUnDataId
   ; built game + remembered ROM path (firstrun.py DATA) and the game's settings files (%USERPROFILE%\.landstalker_*)
   RMDir /r "$LOCALAPPDATA\Project-Friday"
+  ; GitHub #26: a build folder the player chose elsewhere; only our own sub folder (its name is checked: never a folder of the player's)
+  StrCmp $BuildDir "" bd_skip
+  StrCpy $4 $BuildDir "" -20
+  StrCmp $4 "Project-Friday-Build" 0 bd_skip
+  RMDir /r "$BuildDir"
+bd_skip:
   Delete "$PROFILE\.landstalker_*"
 SectionEnd

@@ -136,10 +136,13 @@ def main():
         "Complete source of everything in this package: this folder (launcher, patches, tools, vendor\\genrecomp = genrecomp + Genesis Plus GX\n"
         "unmodified; our changes are the tools\\patch_*.py files, applied on your machine) and https://github.com/cmdrlucid/Project-Friday\n"
         "Bundled: Python (embeddable, PSF licence), zig (MIT, C compiler), SDL2 (zlib), capstone (BSD).\n\n"
-        "Start: double-click Project-Friday.exe. Built game, settings and the remembered ROM path live in %LOCALAPPDATA%\\Project-Friday\n"
-        "(delete that folder to start fresh).\n")
+        "Start: double-click Project-Friday.exe. On the first start it asks where the built game (about 1 GB) should go: the standard folder\n"
+        "%LOCALAPPDATA%\\Project-Friday or a folder you choose (a sub folder Project-Friday-Build is made there; the choice is kept in\n"
+        "build_folder.txt in this folder). Change it later with 'Change build folder.bat' (or Project-Friday.exe --choose-build-folder).\n"
+        "Built game, settings and the remembered ROM path live in that folder (delete it to start fresh).\n")
     open(os.path.join(lic, "NOTICE.txt"), "w", newline="\r\n").write(notice)
     open(os.path.join(pkg, "README.txt"), "w", newline="\r\n").write(notice)
+    open(os.path.join(pkg, "Change build folder.bat"), "w", newline="\r\n").write('@echo off\n"%~dp0Project-Friday.exe" --choose-build-folder\n')   # GitHub #26
     for need in ("genrecomp-LICENSE-MIT.txt", "Genesis-Plus-GX-LICENSE.txt", "Musashi-header-with-licence.h.txt", "zig-LICENSE-MIT.txt",
                  "SDL2-LICENSE-zlib.txt", "capstone-LICENSE-BSD.txt", "Project-Friday-LICENSE-MIT.txt", "Galmuri-font-LICENSE-OFL.txt", "NOTICE.txt"):
         if not os.path.isfile(os.path.join(lic, need)):

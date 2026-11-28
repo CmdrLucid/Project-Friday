@@ -16,3 +16,4 @@ landstalker/docs/symbols_seq.json
 
 # room box model dumps written by test runs (LK_LTROOM, ROM-derived)
 landstalker/0_*.obj
+landstalker/build_folder.txt
