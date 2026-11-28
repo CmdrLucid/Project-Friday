@@ -5,7 +5,7 @@ both at its light height and at that water level: the light's void painter copie
 (482, 2026-11-28 survey: 183 465 468 475 489 490 501 523 525 737).  Such blocks are invisible but cast box shadows / sword-glow edges on the water.
 Prints 'room R: N cells (x,y)H->L[G] ...' (G = a height map cell, not filled void: usually a waterfall or a blue wall, check by eye).
 False hits: waterfalls (blue at every height: 426 478 481 568) and blue walls (475 Mir's tower).  Make the dumps with
-  LANDSTALKER_LT_DUMPFILE=DIR/lt python3 tools/proxysurvey.py ROM [ROOMS] --run OUTDIR   (proxysurvey passes LANDSTALKER_LT_DUMP* through)
+  LANDSTALKER_LT_DUMPFILE=DIR/lt python3 tools/proxysurvey.py ROM [ROOMS] --run OUTDIR   (proxysurvey passes the LANDSTALKER_LT_* test aids through)
 and fix the cells with data/light_proxies.json 'water' ops [x, y, x, y, L]; re-dump and repeat until 0 (a block can be wider than the first pass shows).
 Local test aid: reads the ROM, writes nothing."""
 import sys, os, re; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
