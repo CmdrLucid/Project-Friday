@@ -61,6 +61,7 @@ static void lk_h_warp(void) {
 /* LANDSTALKER_LITHO_AT=frame: shows the lithograph picture the way the game does after 'Found Lithograph.' (CSA_0068 $0136BE: CSA_015A, text $26, DisplayLithograph $03860C, text $27;
    the room transition at its end is left out) from INSIDE UpdateSprites ($0178C8), where cutscene actions run - to test the picture with the widescreen / full-height code without the story trigger */
 static gen_func_t lk_l_orig; static long lk_l_at = -1, lk_cr_at = -1;
+static long lk_imap_at = -1;   /* LANDSTALKER_IMAP_AT=frame: the inn's island map (HandleMap $0250B2: DisplayIslandMap mode 3 via $038610, then LoadRoom $000494 + InitVDPAndFadeIn $0003E0; it waits for a button press) = test of the place name label (GitHub #18, LK_LGWNAME v3) */
 static long lk_vfx_at = -1; static int lk_vfx_n[8], lk_vfx_cnt;   /* LANDSTALKER_VFX_AT=frame LANDSTALKER_VFX="7,8": DoVisualEffect $00E110 with those numbers in a row (7 / 8 = Nole warp out / in, 9 / 10 = Kazalt cutscene warps, 4 / 5 / 6 = black / white / red flash), test aid for the own renderer */
 static void lk_h_litho(void) {
     if (lk_cr_at >= 0 && platform_frame_number() >= lk_cr_at) {   /* LANDSTALKER_CREDITS_AT: the ending script from FadeToBlack on (CSA_0154 $0156F8) */
@@ -80,6 +81,14 @@ static void lk_h_litho(void) {
             g_m68k.d[0] = (uint32_t)lk_vfx_n[k]; func_table_jsr(0x00E110u, 0x0178CEu);
         }
         printf("vfx: frame %ld done\n", platform_frame_number());
+        g_m68k = sv;
+    }
+    if (lk_imap_at >= 0 && platform_frame_number() >= lk_imap_at) {
+        M68kContext sv = g_m68k; lk_imap_at = -1;
+        printf("imap: frame %ld showing the island map\n", platform_frame_number());
+        g_m68k.d[0] = 3; func_table_jsr(0x038610u, 0x0178CEu);
+        func_table_jsr(0x000494u, 0x0178CEu); func_table_jsr(0x0003E0u, 0x0178CEu);
+        printf("imap: frame %ld island map closed\n", platform_frame_number());
         g_m68k = sv;
     }
     if (lk_l_at >= 0 && platform_frame_number() >= lk_l_at) {
@@ -105,7 +114,8 @@ static void lk_warp_install(void) {
           for (t = strtok_r(vb, ",", &sv2); t && lk_vfx_cnt < 8; t = strtok_r(NULL, ",", &sv2)) lk_vfx_n[lk_vfx_cnt++] = atoi(t);
           lk_vfx_at = (va && *va) ? atol(va) : 880; } }
     { const char *l = getenv("LANDSTALKER_LITHO_AT"); lk_l_orig = func_table_lookup(0x0178C8);
-      if ((lk_cr_at >= 0 || lk_vfx_at >= 0) && !(l && *l)) l = "999999999";
+      { const char *im = getenv("LANDSTALKER_IMAP_AT"); if (im && *im) lk_imap_at = atol(im); }
+      if ((lk_cr_at >= 0 || lk_vfx_at >= 0 || lk_imap_at >= 0) && !(l && *l)) l = "999999999";
       if (l && *l && lk_l_orig) { lk_l_at = atol(l); func_table_register(0x0178C8, lk_h_litho); printf("litho: armed at frame %ld\n", lk_l_at); } }
     { const char *r = getenv("LANDSTALKER_REFILL_AT"); if (r && *r && !getenv("LANDSTALKER_WARP")) { lk_refill_at = atol(r); lk_w_orig = func_table_lookup(0x001788); if (lk_w_orig) { func_table_register(0x001788, lk_h_warp); printf("refill: armed at frame %ld\n", lk_refill_at); } return; } else if (r && *r) lk_refill_at = atol(r); }
     e = getenv("LANDSTALKER_WARP");
