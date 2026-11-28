@@ -62,6 +62,8 @@ def main():
     for s in GPGX_SRC:
         jobs.append((os.path.join(GPGX, s + ".c"), "gpgx_" + s.replace("/", "_"),
                      O + ["-std=gnu17", "-w"] + shlex.split(a.extra_gpgx) + DEFS + inc_gpgx + ["-I" + os.path.join(GR, "include"), "-I" + os.path.join(GR, "src")] + sdl_c))
+    if os.path.isfile(os.path.join(GPGX, "lk_lightdata.c")):   # LK_LTDATAFILE v1 (tools/patch_lights.py): the light shape tables, split off vdp_render.c
+        jobs.append((os.path.join(GPGX, "lk_lightdata.c"), "gpgx_lk_lightdata", O + ["-std=gnu17", "-w"]))
     jobs.append((os.path.join(GR, "src", "osd.c"), "gpgx_osd",
                  O + ["-std=gnu17", "-w"] + DEFS + inc_gpgx + ["-I" + os.path.join(GR, "include"), "-I" + os.path.join(GR, "src")] + sdl_c))
     for s in GR_SRC:
