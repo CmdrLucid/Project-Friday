@@ -1777,6 +1777,18 @@
         "file": "proxies/castle_32_keep.obj",
         "surface": true,
         "why": "room 32 castle court KEEP (2026-11-28): the keep is only BARRIER ($4F00) / void cells in the height map (rows 28..30, x 31..39) = the void painter made it water 0 (its wall read as floor); notched block front y 496 / right x 640 + round corner tower (615, 471) r 22.5 + slim left corner tower (471.5, 496) r 16.5, up to 440..460 (off the picture top); remake/recipes/proxy_castle_32.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          50,
+          32,
+          53
+        ],
+        "file": "proxies/castle_32_tower_ll.obj",
+        "surface": true,
+        "why": "room 32 castle court LOWER LEFT TOWER (2026-11-28): only BARRIER ($4F00) cells x 31..32 rows 50..53 in the height map = painted water 0 for the light (no tower); the twin of the upper left tower (exact in the height map): body 48 x 64 cells 30..32 x 50..53 with rounded vertical edges (r 12), a ring of 10 cube blocks 224..240 around the recess at 224; remake/recipes/proxy_castle_32.py"
       }
     ],
     "33": [
@@ -1886,6 +1898,18 @@
         "file": "proxies/castle_32_keep.obj",
         "surface": true,
         "why": "room 33 castle court KEEP (2026-11-28): the keep is only BARRIER ($4F00) / void cells in the height map (rows 28..30, x 31..39) = the void painter made it water 0 (its wall read as floor); notched block front y 496 / right x 640 + round corner tower (615, 471) r 22.5 + slim left corner tower (471.5, 496) r 16.5, up to 440..460 (off the picture top); remake/recipes/proxy_castle_32.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          30,
+          50,
+          32,
+          53
+        ],
+        "file": "proxies/castle_32_tower_ll.obj",
+        "surface": true,
+        "why": "room 33 castle court LOWER LEFT TOWER (2026-11-28): only BARRIER ($4F00) cells x 31..32 rows 50..53 in the height map = painted water 0 for the light (no tower); the twin of the upper left tower (exact in the height map): body 48 x 64 cells 30..32 x 50..53 with rounded vertical edges (r 12), a ring of 10 cube blocks 224..240 around the recess at 224; remake/recipes/proxy_castle_32.py"
       }
     ],
     "51": [
