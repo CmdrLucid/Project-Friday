@@ -508,6 +508,83 @@
         "file": "proxies/rock_523_g.obj",
         "surface": true,
         "why": "room 523 ROCK WALL piece g (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: cave-door ledge above the water (rock behind the walkways, 2026-11-28): one rock wall facing +y, its foot on the water at y 384 (drawn water edge V - U / 2 = y - 592 at z 0), left end x 560 (drawn vertical edge U 1360); the ledge (40..45, 20..23) and the door path (46..49, 17..19) are NICHES in it, the wall right of the ledge stands back at y 320 (the drawn water edge jogs back there); lintel over the door path from 176 (drawn arch top V 360 at U 1632 on that face); the dark CREVICE behind the ledge (42, 17..19, drawn slot U 1545) open up to 160"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          29,
+          55,
+          29,
+          0
+        ],
+        "why": "room 523 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          30,
+          55,
+          30,
+          0
+        ],
+        "why": "room 523 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          31,
+          55,
+          31,
+          0
+        ],
+        "why": "room 523 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          32,
+          55,
+          32,
+          0
+        ],
+        "why": "room 523 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          33,
+          55,
+          33,
+          0
+        ],
+        "why": "room 523 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          34,
+          55,
+          34,
+          0
+        ],
+        "why": "room 523 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          35,
+          55,
+          35,
+          0
+        ],
+        "why": "room 523 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
       }
     ],
     "501": [
@@ -792,6 +869,83 @@
         "file": "proxies/cliffnotch_501_35_29.obj",
         "surface": true,
         "why": "room 501 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          23,
+          35,
+          37,
+          35,
+          0
+        ],
+        "why": "room 501 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          23,
+          36,
+          37,
+          36,
+          0
+        ],
+        "why": "room 501 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          23,
+          37,
+          37,
+          37,
+          0
+        ],
+        "why": "room 501 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          23,
+          38,
+          37,
+          38,
+          0
+        ],
+        "why": "room 501 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          23,
+          39,
+          37,
+          39,
+          0
+        ],
+        "why": "room 501 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          23,
+          40,
+          37,
+          40,
+          0
+        ],
+        "why": "room 501 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          24,
+          41,
+          37,
+          41,
+          0
+        ],
+        "why": "room 501 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
       }
     ],
     "478": [
@@ -9622,6 +9776,182 @@
           41
         ],
         "why": "automatic lathe #7 at the brook with a flower bed (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          32,
+          20,
+          32,
+          20,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          31,
+          21,
+          32,
+          21,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          30,
+          22,
+          32,
+          22,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          30,
+          23,
+          32,
+          23,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          30,
+          24,
+          32,
+          24,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          30,
+          25,
+          31,
+          25,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          30,
+          26,
+          30,
+          26,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          32,
+          30,
+          32,
+          30,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          32,
+          31,
+          32,
+          31,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          26,
+          22,
+          29,
+          22,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          26,
+          23,
+          29,
+          23,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          26,
+          24,
+          29,
+          24,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          26,
+          25,
+          29,
+          25,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          27,
+          26,
+          29,
+          26,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          28,
+          27,
+          29,
+          27,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          27,
+          21,
+          27,
+          21,
+          0
+        ],
+        "why": "room 183 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
       }
     ],
     "474": [
@@ -14290,6 +14620,182 @@
         ],
         "replace": true,
         "why": "phantomcheck lower run (45, 44)..(47, 44) z 240 face +y (3 edges): collision above the drawing -> the walkable neighbour's height (tools/phantomfix.py; tested 2026-11-26: sword glow / daylight edges at the run not worse, room better)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          38,
+          30,
+          38,
+          30,
+          0
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          47,
+          36,
+          58,
+          36,
+          0
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          48,
+          37,
+          59,
+          37,
+          0
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          50,
+          38,
+          60,
+          38,
+          0
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          30,
+          44,
+          31,
+          44,
+          0
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          57,
+          39,
+          60,
+          39,
+          8
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          56,
+          40,
+          59,
+          40,
+          8
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          41,
+          58,
+          41,
+          8
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          42,
+          57,
+          42,
+          8
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          39,
+          56,
+          39,
+          24
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          40,
+          55,
+          40,
+          24
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          53,
+          41,
+          54,
+          41,
+          24
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          50,
+          39,
+          54,
+          39,
+          32
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          52,
+          40,
+          53,
+          40,
+          32
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          51,
+          39,
+          54,
+          39,
+          0
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          53,
+          40,
+          53,
+          40,
+          0
+        ],
+        "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
       }
     ],
     "502": [
@@ -14563,6 +15069,39 @@
         "surface": true,
         "floor": 16,
         "why": "LOG HUT of room 489 (collision x 18..22 y 22..26 height 64 on ground 16, door cell (22,25)) = the room 468 hut mirrored x <-> y (door / shutter E, round window S); remake/recipes/proxy_house_489.py; silhouette 96 % on the drawing; replaces the automatic hip #1; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "water",
+        "cells": [
+          15,
+          15,
+          20,
+          15,
+          8
+        ],
+        "why": "room 489 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          17,
+          16,
+          19,
+          16,
+          8
+        ],
+        "why": "room 489 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          18,
+          17,
+          18,
+          17,
+          8
+        ],
+        "why": "room 489 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
       }
     ],
     "441": [
@@ -15603,6 +16142,17 @@
         "file": "proxies/mir_tower_475.obj",
         "surface": true,
         "why": "base of MIR'S TOWER (the collision is only an 80 high block x 16..27 y 16..25; the drawn blue walls are wider, x 97..442.5 y 221.5..413.5, and run beyond the picture top): tall body to 440, arched doorway one cell deep with threshold, carved panel, step slab, two wall lanterns; remake/recipes/mir_tower_475/tower.py; cells clipped to the map (x >= 12), the model reaches further as drawn; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "water",
+        "cells": [
+          13,
+          36,
+          13,
+          36,
+          8
+        ],
+        "why": "room 475 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
       }
     ],
     "442": [
@@ -15721,6 +16271,215 @@
         "surface": true,
         "floor": 16,
         "why": "LOG HUT of room 468 (collision x 35..39 y 27..31 height 64 on ground 16) = Massan house B's wall tiles (green palette) on a 5 x 5 square: B's S five rows moved (+16, -64, +16), square thatch with one stick crossing; remake/recipes/proxy_house_468.py (lib/log_house.py); silhouette 96 % on the drawing; 2026-11-24 built while the user was away, to be checked"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          52,
+          29,
+          52,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          28,
+          53,
+          30,
+          53,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          28,
+          54,
+          31,
+          54,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          27,
+          55,
+          32,
+          55,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          28,
+          56,
+          33,
+          56,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          57,
+          34,
+          57,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          30,
+          58,
+          35,
+          58,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          31,
+          59,
+          36,
+          59,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          32,
+          60,
+          36,
+          60,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          33,
+          61,
+          35,
+          61,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          27,
+          55,
+          27,
+          55,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          26,
+          56,
+          26,
+          56,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          24,
+          57,
+          28,
+          57,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          24,
+          58,
+          29,
+          58,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          24,
+          59,
+          30,
+          59,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          24,
+          60,
+          31,
+          60,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          24,
+          61,
+          32,
+          61,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          27,
+          55,
+          27,
+          55,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          26,
+          56,
+          26,
+          56,
+          8
+        ],
+        "why": "room 468 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
       }
     ],
     "510": [
@@ -16860,6 +17619,545 @@
           20
         ],
         "why": "automatic hip H1 (x688..880 y288..368): over a pine / bush group or row that has plant models, or a terrace; 2026-11-24 full sweep of all outdoor rooms (picture sheet ~/Project-Friday-Test/lktest/lf6/sheet.png, plant check in the picture)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          24,
+          6,
+          25,
+          6,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          22,
+          7,
+          26,
+          7,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          22,
+          8,
+          27,
+          8,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          23,
+          9,
+          28,
+          9,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          24,
+          10,
+          29,
+          10,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          25,
+          11,
+          30,
+          11,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          26,
+          12,
+          31,
+          12,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          27,
+          13,
+          32,
+          13,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          28,
+          14,
+          33,
+          14,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          15,
+          34,
+          15,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          30,
+          16,
+          33,
+          16,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          31,
+          17,
+          31,
+          17,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          35,
+          7,
+          40,
+          7,
+          48
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          36,
+          8,
+          41,
+          8,
+          48
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          37,
+          9,
+          42,
+          9,
+          48
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          38,
+          10,
+          43,
+          10,
+          48
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          39,
+          11,
+          43,
+          11,
+          48
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          12,
+          43,
+          12,
+          48
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          13,
+          42,
+          13,
+          48
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          52,
+          11,
+          55,
+          11,
+          56
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          53,
+          12,
+          55,
+          12,
+          56
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          13,
+          55,
+          13,
+          56
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          26,
+          6,
+          35,
+          6,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          27,
+          7,
+          40,
+          7,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          28,
+          8,
+          41,
+          8,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          9,
+          41,
+          9,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          30,
+          10,
+          41,
+          10,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          31,
+          11,
+          40,
+          11,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          32,
+          12,
+          39,
+          12,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          33,
+          13,
+          37,
+          13,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          34,
+          14,
+          37,
+          14,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          35,
+          15,
+          37,
+          15,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          7,
+          48,
+          7,
+          48
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          42,
+          8,
+          48,
+          8,
+          48
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          43,
+          9,
+          45,
+          9,
+          48
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          44,
+          10,
+          44,
+          10,
+          48
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          49,
+          7,
+          55,
+          7,
+          56
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          49,
+          8,
+          55,
+          8,
+          56
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          49,
+          9,
+          55,
+          9,
+          56
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          51,
+          10,
+          55,
+          10,
+          56
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          52,
+          11,
+          52,
+          11,
+          56
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          53,
+          12,
+          53,
+          12,
+          56
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          7,
+          43,
+          7,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          48,
+          7,
+          52,
+          7,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          42,
+          8,
+          42,
+          8,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          49,
+          8,
+          52,
+          8,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          50,
+          9,
+          52,
+          9,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          51,
+          10,
+          52,
+          10,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          52,
+          11,
+          52,
+          11,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
       }
     ],
     "529": [
@@ -17564,6 +18862,28 @@
         "file": "proxies/bridge_737.obj",
         "surface": true,
         "why": "Kazalt 737 stone ARCH BRIDGE (2026-11-28, user: 'unter der Bruecke ist noch Wasser und keine Wand'): the walkway over the channel between the courtyard pond and the outer water; piers (the right one flush with the deck face, user 2026-11-28), deck top 112 with the arch (soffit 96, haunches r 26), water floor 8 under it, measured on the drawing; remake/recipes/bridge_737.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          51,
+          36,
+          51,
+          36,
+          8
+        ],
+        "why": "room 737 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          51,
+          37,
+          51,
+          37,
+          8
+        ],
+        "why": "room 737 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
       }
     ],
     "428": [
@@ -18570,6 +19890,380 @@
         "file": "proxies/rock_465_g.obj",
         "surface": true,
         "why": "room 465 ROCK WALL / PLATEAU piece g (barrier wall pass, user OK 2026-11-27): the cliff behind the walkway is drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall, a hard lit box by the lamp post); solid on the barrier lines, top = drawn outline seen edge-on, capped by the drawn plateau at 240 (U >= 736; the left peak stays edge-on), remake/recipes/proxy_rock_465.py (remake/lib/rockwall.py); one piece per rectangle of rock cells (outdoor surface models own their rectangle)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          25,
+          41,
+          25,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          26,
+          41,
+          26,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          27,
+          41,
+          27,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          28,
+          41,
+          28,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          29,
+          41,
+          29,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          30,
+          41,
+          30,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          31,
+          41,
+          31,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          32,
+          41,
+          32,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          33,
+          41,
+          33,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          34,
+          41,
+          34,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          35,
+          41,
+          35,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          36,
+          41,
+          36,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          37,
+          41,
+          37,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          38,
+          41,
+          38,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          39,
+          41,
+          39,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          40,
+          41,
+          40,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          41,
+          41,
+          41,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          42,
+          41,
+          42,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          43,
+          41,
+          43,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          44,
+          41,
+          44,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          45,
+          41,
+          45,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          46,
+          41,
+          46,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          47,
+          41,
+          47,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          48,
+          41,
+          48,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          49,
+          41,
+          49,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          50,
+          41,
+          50,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          51,
+          41,
+          51,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          52,
+          41,
+          52,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          53,
+          41,
+          53,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          54,
+          41,
+          54,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          55,
+          41,
+          55,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          56,
+          41,
+          56,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          57,
+          41,
+          57,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          40,
+          58,
+          41,
+          58,
+          -32
+        ],
+        "why": "room 465 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the neighbouring drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
       }
     ],
     "469": [

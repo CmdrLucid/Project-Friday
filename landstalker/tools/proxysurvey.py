@@ -53,6 +53,7 @@ def run(rom, rooms, out, batch=16, jobs=4):
                    LANDSTALKER_WARP=";".join(warps), LANDSTALKER_WARP_AT=",".join(ats), LANDSTALKER_LIGHTING_DBG="5",
                    LANDSTALKER_HIDDEN="1", LANDSTALKER_NOFOCUSPAUSE="1", SDL_AUDIODRIVER="dummy")   # 2026-11-15: GPU only light (no light at all with --headless since 2026-11-12) -> a hidden window
         env.update({k: os.environ[k] for k in ("DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR") if k in os.environ})
+        env.update({k: v for k, v in os.environ.items() if k.startswith("LANDSTALKER_LT_DUMP")})   # test aid passthrough (e.g. LANDSTALKER_LT_DUMPFILE=prefix: light heights per room)
         log = os.path.join(d, "survey.log"); logs.append(log)
         while len([p for p in procs if p.poll() is None]) >= jobs: procs[0].wait(); procs = [p for p in procs if p.poll() is None]
         print("proxysurvey: batch %d: %d warps -> %s" % (b // batch, len(warps), log), flush=True)
