@@ -465,7 +465,9 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
     def run(cmd, label, cwd=work, env=None):
         log.write("\n$ %s\n" % " ".join(cmd))
         log.flush()
+        t0 = time.time()
         r = subprocess.run(cmd, cwd=cwd, stdout=log, stderr=subprocess.STDOUT, env=env)
+        log.write("## step %s: %.1f s\n" % (label, time.time() - t0))   # timing per step (build speed work 2026-11-28)
         if r.returncode:
             log.close()
             tail = open(os.path.join(work, "build.log")).read()[-1500:]
@@ -557,6 +559,7 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
     cmd = [sys.executable, os.path.join(work, "tools", "zigbuild.py"), "--cc", cc, "--out", os.path.join(work, "out")] + (["--no-game", "--smoke"] if test else [])
     log.write("\n$ %s\n" % " ".join(cmd))
     log.flush()
+    tc0 = time.time()
     pr = subprocess.Popen(cmd, cwd=work, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env)
     for line in pr.stdout:
         log.write(line)
@@ -577,6 +580,7 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
         log.close()
         tail = open(os.path.join(work, "build.log")).read()[-1500:]
         raise RuntimeError("Compiling failed.\n\n%s\n\nFull log: %s" % (tail, os.path.join(work, "build.log")))
+    log.write("## step compile: %.1f s\n" % (time.time() - tc0))
     log.close()
     if WIN:   # the game needs SDL2.dll next to it
         shutil.copy2(os.path.join(HERE, "vendor", "sdl2", "bin", "SDL2.dll"), os.path.join(work, "out", "SDL2.dll"))

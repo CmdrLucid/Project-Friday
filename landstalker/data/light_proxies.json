@@ -14892,6 +14892,1007 @@
           0
         ],
         "why": "room 525 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          12,
+          38,
+          12,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          13,
+          39,
+          13,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          14,
+          40,
+          14,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          15,
+          41,
+          15,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          16,
+          42,
+          16,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          17,
+          43,
+          17,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          45,
+          17,
+          45,
+          17,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          18,
+          46,
+          18,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          19,
+          47,
+          19,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          30,
+          20,
+          48,
+          20,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          31,
+          21,
+          49,
+          21,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          32,
+          22,
+          34,
+          22,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          33,
+          23,
+          34,
+          23,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          53,
+          23,
+          53,
+          23,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          34,
+          24,
+          36,
+          24,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          36,
+          25,
+          36,
+          25,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          53,
+          25,
+          53,
+          25,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          37,
+          31,
+          38,
+          31,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          33,
+          32,
+          39,
+          32,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          33,
+          33,
+          40,
+          33,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          36,
+          34,
+          41,
+          34,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          37,
+          35,
+          42,
+          35,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          38,
+          36,
+          43,
+          36,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          45,
+          36,
+          46,
+          36,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          39,
+          37,
+          47,
+          37,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          37,
+          38,
+          49,
+          38,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          37,
+          39,
+          48,
+          39,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          50,
+          39,
+          50,
+          39,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          39,
+          61,
+          39,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          37,
+          40,
+          47,
+          40,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          52,
+          40,
+          52,
+          40,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          40,
+          61,
+          40,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          37,
+          41,
+          46,
+          41,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          53,
+          41,
+          60,
+          41,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          37,
+          42,
+          46,
+          42,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          42,
+          60,
+          42,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          36,
+          43,
+          41,
+          43,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          57,
+          43,
+          61,
+          43,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          44,
+          29,
+          44,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          32,
+          44,
+          41,
+          44,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          56,
+          44,
+          62,
+          44,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          45,
+          41,
+          45,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          45,
+          63,
+          45,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          29,
+          46,
+          41,
+          46,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          46,
+          63,
+          46,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          47,
+          63,
+          47,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          48,
+          63,
+          48,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          49,
+          63,
+          49,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          50,
+          63,
+          50,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          51,
+          63,
+          51,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          52,
+          63,
+          52,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          53,
+          63,
+          53,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          54,
+          63,
+          54,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          55,
+          63,
+          55,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          56,
+          63,
+          56,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          57,
+          63,
+          57,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          30,
+          58,
+          34,
+          58,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          41,
+          58,
+          42,
+          58,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          50,
+          58,
+          63,
+          58,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          59,
+          63,
+          59,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          56,
+          60,
+          63,
+          60,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          57,
+          61,
+          63,
+          61,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          58,
+          62,
+          63,
+          62,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          59,
+          63,
+          63,
+          63,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28, user: dark spots on the water, clouds off): the void painter gave the filled lake cells ($4000) the heights of their banks (0 / 8 / 24 / 32) = steps in one drawn water plane, their faces cast box shadows / lit edges on the lake; all filled lake cells 8..32 -> 0 (the level of most of the lake)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          59,
+          36,
+          59,
+          36,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 120 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          49,
+          39,
+          49,
+          39,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 120 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          48,
+          40,
+          48,
+          40,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 152 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          49,
+          40,
+          49,
+          40,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 120 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          50,
+          40,
+          50,
+          40,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 120 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          51,
+          40,
+          51,
+          40,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 120 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          47,
+          41,
+          47,
+          41,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 200 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          48,
+          41,
+          48,
+          41,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 168 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          49,
+          41,
+          49,
+          41,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 152 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          50,
+          41,
+          50,
+          41,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 120 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          51,
+          41,
+          51,
+          41,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 120 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          52,
+          41,
+          52,
+          41,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 120 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          47,
+          42,
+          47,
+          42,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 168 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          48,
+          42,
+          48,
+          42,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 232 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          49,
+          42,
+          49,
+          42,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 200 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          50,
+          42,
+          50,
+          42,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 168 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          51,
+          42,
+          51,
+          42,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 168 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          52,
+          42,
+          52,
+          42,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 136 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          53,
+          42,
+          53,
+          42,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 136 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          42,
+          54,
+          42,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 136 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          43,
+          54,
+          43,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 120 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          43,
+          55,
+          43,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 72 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          56,
+          43,
+          56,
+          43,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 72 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          44,
+          54,
+          44,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 72 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          44,
+          55,
+          44,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 72 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          45,
+          54,
+          45,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 72 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          46,
+          54,
+          46,
+          0
+        ],
+        "why": "room 525 LAKE AT ONE LEVEL (2026-11-28): a filled lake cell ($4000) the void painter raised to 72 beside the rock = an invisible pillar in the water whose shadow lay as a detached box on the lake; -> 0"
       }
     ],
     "502": [
@@ -18254,6 +19255,160 @@
           8
         ],
         "why": "room 490 PHANTOM WATER (2026-11-28 survey): the light painted these cells far above the drawn water (void painter copied a rock / walkway / barrier height); the picture shows water at both heights -> water at the nearest drawn level (~/Project-Friday-Test/lktest/phwater/blue.py)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          7,
+          58,
+          7,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          8,
+          58,
+          8,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          49,
+          9,
+          49,
+          9,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          9,
+          58,
+          9,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          49,
+          10,
+          50,
+          10,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          10,
+          58,
+          10,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          49,
+          11,
+          51,
+          11,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          11,
+          58,
+          11,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          54,
+          12,
+          58,
+          12,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          55,
+          13,
+          55,
+          13,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          57,
+          13,
+          58,
+          13,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          57,
+          14,
+          58,
+          14,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          57,
+          15,
+          58,
+          15,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
+      },
+      {
+        "op": "water",
+        "cells": [
+          58,
+          16,
+          58,
+          16,
+          8
+        ],
+        "why": "room 490 PHANTOM WATER over the sea (2026-11-28, user: dark spots on the water): filled cells at 56 / 96 whose diamond shows drawn sea at that height but nothing (void) at sea level 8 = invisible blocks beyond the sea edge casting a box shadow on it; -> 8 (phantomwater.py misses them: it needs drawn water at the low level too)"
       }
     ],
     "529": [
