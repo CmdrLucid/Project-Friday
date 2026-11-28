@@ -521,11 +521,12 @@ static uint32_t lk_lt_rng;
 static float lk_lt_rnd(void) { lk_lt_rng = lk_lt_rng * 1664525u + 1013904223u; return (float)(lk_lt_rng >> 8) * (1.0f / 16777216.0f); }
 static int lk_lt_shopt(void) { static int v = -1; if (v < 0) { const char *e = getenv("LANDSTALKER_LT_SHAFT"); v = e ? atoi(e) : 1; } return v; }   /* test aid: 0 none, 1 some rooms (default), 2 every key light room, 3 = 2 + shaft #0 beside Nigel (pictures), 4 = on Nigel */
 static int lk_lt_shwait; static void lk_lt_free(void);
+static int lk_lt_shskipped;   /* LK_LTSHSKIP v1: shafts of this room left out so far (the numbers in the skip table count them too) */
 static void lk_lt_shsetup(void) {
   static int16_t cand[5476][2]; int n = 0, x, y, k, want, tries;
   lk_lt_nsh = 0; if (!lk_lt_key || lk_lt_shopt() <= 0 || lk_lt_zref == -32768) return;
   { int ts = OB(OL(0xA0A00) + 8u * (uint32_t)lk_o_room + 4u) & 0x1F; if (ts == 2 || ts == 8 || ts == 1 || ts == 15 || ts == 3) return; }   /* user 2026-11-05: no shafts in houses (tileset 2: town houses / shops / inns, 8: huts / churches / Kazalt; room table $0A0A00 byte 4); user 2026-11-12 (castle bedroom 67: 'Lichtstrahl von oben wie in einem Dungeon? das ist kein Dungeon-Raum'): neither in the castle (1: halls 51..62, 15: rooms 63..72) nor church / ship (3) = ceiling shafts only in dungeons, caves, ruins */
-  lk_lt_rng = (uint32_t)(lk_o_room + 1) * 2654435761u ^ 0x9E3779B9u; lk_lt_rnd(); lk_lt_rnd();
+  lk_lt_rng = (uint32_t)(lk_o_room + 1) * 2654435761u ^ 0x9E3779B9u; lk_lt_rnd(); lk_lt_rnd(); lk_lt_shskipped = 0;
   if (lk_lt_shopt() >= 3) lk_lt_shwait = 4;   /* test aid: placed beside Nigel once he stands in the room (lk_lt_shstep) */
   if (lk_lt_shopt() == 1 && lk_lt_rnd() < 0.35f) return;   /* about two rooms in three */
   for (y = 1; y < 73; y++) for (x = 1; x < 73; x++) { int a, b2, ok = lk_lt_top[y][x] == lk_lt_zref;   /* open floor: the cell and its 8 neighbours at the main height */
@@ -542,6 +543,9 @@ static void lk_lt_shsetup(void) {
     { float az = (lk_lt_kaz + (lk_lt_rnd() - 0.5f) * 50.0f) * 3.14159265f / 180.0f, el = (74.0f + lk_lt_rnd() * 12.0f) * 3.14159265f / 180.0f;   /* user 2026-11-05: 'viel zu steil ... als wuerden die links aus der Wand kommen, nicht von der Decke': nearly vertical, 74..86 degrees, leaning roughly like the key light */
       S->d[0] = cosf(az) * cosf(el); S->d[1] = sinf(az) * cosf(el); S->d[2] = sinf(el); }
     w = lk_lt_rnd(); S->cr = 0.84f + 0.08f * w; S->cg = 0.88f + 0.04f * w; S->cb = 0.92f - 0.02f * w;   /* user 2026-11-05: 'weniger hell, fahles Licht': pale grey white, a hint warmer or cooler per room */
+    { static const int16_t skip[][2] = { {236, 0}, {-1, -1} }; int q, gone = 0;   /* LK_LTSHSKIP v1 (user 2026-11-28, rec_20261128_2013: Verla mine lava cave 236, the shaft right behind Nigel ends at the top of the back wall; the room keeps its other one): {room, shaft number as generated} */
+      for (q = 0; skip[q][0] >= 0; q++) if (skip[q][0] == lk_o_room && skip[q][1] == lk_lt_nsh - 1 + lk_lt_shskipped) gone = 1;
+      if (gone) { int m2; for (m2 = 0; m2 < 6 * S->nd; m2++) lk_lt_rnd(); lk_lt_nsh--; lk_lt_shskipped++; want--; continue; } }   /* the motes' random numbers are drawn anyway: the room's other shafts stay exactly as before */
     for (k = 0; k < S->nd; k++) { lk_lt_mote_t *M = &lk_lt_mo[lk_lt_nsh - 1][k]; M->t = lk_lt_rnd() * LK_LT_MOTEH; M->ang = lk_lt_rnd() * 6.2831853f; M->rad = sqrtf(lk_lt_rnd()) * 0.85f;
       M->ph = lk_lt_rnd() * 6.2831853f; M->sp = 0.04f + lk_lt_rnd() * 0.10f; M->tw = 0.02f + lk_lt_rnd() * 0.05f; } }
   if (lk_lt_dbg == 1) for (k = 0; k < lk_lt_nsh; k++) printf("shaft: room %%d #%%d at (%%.0f, %%.0f, %%.0f) r %%.0f k %%.2f h %%.0f motes %%d\n", lk_o_room, k, lk_lt_sh[k].x, lk_lt_sh[k].y, lk_lt_sh[k].z, lk_lt_sh[k].r, lk_lt_sh[k].k, lk_lt_sh[k].h, lk_lt_sh[k].nd);
