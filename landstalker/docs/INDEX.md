@@ -5,13 +5,13 @@
 - 1. Status (update this block every session): lines 25-647
   - newest status entries: 26 2026-11-28 night (dev, Opus 5.5; GPU headless only, NOT p...; 27 2026-11-28 evening (dev, Opus 5.5): ORCHESTRAL SOUNDTRACK...; 28 2026-11-28 later (dev, Opus 5.5; GPU headless only, NOT p...; 29 2026-11-28 (dev, Opus 5.5; GPU headless only, NOT played)...; 30 2026-11-27 night (dev, Opus 5.5; GPU headless only, NOT p...; 31 2026-11-27 afternoon (dev, Opus 5.5, no agents; GPU headl...; 32 2026-11-27 day (dev, Opus 5.5, no agents; effort high fro...; 33 2026-11-26 night (dev, Opus 5.5, no agents; GPU headless...
 - 2. Environment and working rules (do not ask the user again): lines 648-667
-- 3. Bug catalog (symptom -> root cause -> fix). All fixes are applie...: lines 668-836
-- 4. Tool cheat sheet (all local, none contain ROM data): lines 837-933
-- 5. Debug playbook (what worked): lines 934-949
-  - Interpreter fallback policy (decided with the user: NOT a permanent crutch): line 943
-- 6. Landstalker facts used so far: lines 950-958
-- Symbol rule (keep the code human readable; needed for modding): lines 959-975
-  - Names for all functions (disassembly <-> ROM address), no assembler needed: line 969
+- 3. Bug catalog (symptom -> root cause -> fix). All fixes are applie...: lines 668-837
+- 4. Tool cheat sheet (all local, none contain ROM data): lines 838-934
+- 5. Debug playbook (what worked): lines 935-950
+  - Interpreter fallback policy (decided with the user: NOT a permanent crutch): line 944
+- 6. Landstalker facts used so far: lines 951-959
+- Symbol rule (keep the code human readable; needed for modding): lines 960-976
+  - Names for all functions (disassembly <-> ROM address), no assembler needed: line 970
 
 <!-- /TOC -->
 
@@ -23,7 +23,7 @@ runtime). `lordmir/landstalker_disasm` = documentation only (labels), `lordmir/l
 Details/evidence for every item below: [DEBUGGING.md](DEBUGGING.md) (chronological log, sections referenced as "DBG §").
 
 ## 1. Status (update this block every session)
-- **2026-11-28 night (dev, Opus 5.5; GPU headless only, NOT played): SPRINT TEAR LINE IN THE BOTTOM ~50 ROWS FIXED = LK_SSCLS v1** (tools/patch_gpu.py, user recording rec_20261128_1023 room 458): the present shader read the 288-row light class texture (LK_LTTOPSIL v1) as 224 rows, so the sharp smooth-scroll shift skipped rows >= ~174. Not caused by Centered View (same with it off). Magic sword burn sprite 'too high' = original game look. HANDOFF 0a540.
+- **2026-11-28 night (dev, Opus 5.5; GPU headless only, NOT played): SPRINT TEAR LINE IN THE BOTTOM ~50 ROWS FIXED = LK_SSCLS v1** (tools/patch_gpu.py, user recording rec_20261128_1023 room 458): the present shader read the 288-row light class texture (LK_LTTOPSIL v1) as 224 rows, so the sharp smooth-scroll shift skipped rows >= ~174. Not caused by Centered View (same with it off). ALSO: Fire sword burn showed the mushroom's foot under the flames + flames cut at the bottom = LK_OWNEFF v2 (patch_own.py lk_o_effrep: the 10-22 'replaced by effect sprites' test was off under No Sprite Limit (lk_o_satn = 0); now full table + tile check). HANDOFF 0a540.
 - **2026-11-28 evening (dev, Opus 5.5): ORCHESTRAL SOUNDTRACK EXPERIMENT** (not in the game): capture via LANDSTALKER_SNDTRACE, `tools/music/` (trace2notes / arrange / render / mix / check), Massan v1..v5 by ear of the user; learnings + release plan in `docs/MUSIC_ORCHESTRA.md`. HANDOFF 0a539.
 - **2026-11-28 later (dev, Opus 5.5; GPU headless only, NOT played): CASTLE LEFT COURT 32 / 33** keep (notched block + round corner tower + slim left tower), lower left tower, green-roofed house as real 3D light shapes (`remake/recipes/proxy_castle_32.py`; before: barrier $4F00 / void = painted water 0, walls lit as floor); user OK on the clay sheets. HANDOFF 0a538.
 - **2026-11-28 (dev, Opus 5.5; GPU headless only, NOT played): PHANTOM WATER SURVEY.** All 146 outdoor rooms dumped (LANDSTALKER_LT_DUMPFILE through tools/proxysurvey.py), new `tools/phantomwater.py` (light cell >= 32 above the nearest lower water with drawn water at both heights); water ops in 183 465 468 475 489 490 501 523 525 737 (data/light_proxies.json); night sword pictures lose the box shadows in the water. False hits: waterfalls, blue walls. `LK_LTDWATDOOR v1`: the outdoor door niche fill no longer refills data water cells (465 / 468 rock corners, also 183 / 226 / 482 / 601..603 / 737 op cells; test aid `LANDSTALKER_LT_DWATDOOR=0`). HANDOFF 0a537.
@@ -668,6 +668,7 @@ _Last update (2026-10-10, evening): dev merged into main (code_ranges, seeds for
 ## 3. Bug catalog (symptom -> root cause -> fix). All fixes are applied by `build.sh`.
 
 | Symptom | Root cause | Fix | DBG § |
+| Fire sword burn: enemy's foot visible under the flames, flames cut at the bottom (user rec_20261128_1023 room 458) | No Sprite Limit (default On) sets lk_o_satn = 0, which switched off the 10-22 'figure replaced by effect sprites' test; the burn's 4 x 2 entry lies exactly on the mushroom's foot piece (box test = present, entry marked covered) | LK_OWNEFF v2 (patch_own.py lk_o_effrep: full table, by tiles) | HANDOFF 0a540 |
 | Picture tears at the bottom ~50 rows while walking / sprinting (GPU light on), user rec_20261128_1023 | present shader okAt sampled the light class texture (288 rows since LK_LTTOPSIL v1) as 224 rows: rows >= ~174 never took the sharp smooth-scroll shift | LK_SSCLS v1 (patch_gpu.py: row (ry+0.5)/288) | HANDOFF 0a540 |
 |---|---|---|---|
 | Sword glow hard vertical stripes on cliffs below diagonal / stepped walkway edges; bright line at the joint of two blocks in one wall plane | 1-cell +x faces of a saw-tooth of edge blocks; two separate solids meeting in one plane | notch wedges (proxy_cliff_rooms.py notch_ops); closed solids without inner faces / one piece per plane | HANDOFF 0a536 (2026-11-27 night) |

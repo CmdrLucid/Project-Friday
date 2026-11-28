@@ -328,6 +328,23 @@ static int lk_o_loose4e(const lk_o_ent_t *e) {                        /* the sam
   t.ax = SW(b + 0x4E); t.ay = SW(b + 0x50);
   return lk_o_loose(&t);
 }
+static int lk_o_effrep(const lk_o_ent_t *e) {                        /* LK_OWNEFF v2 (2026-11-28, rec_20261128_1023 room 458: burning mushroom showed its stem under the flames): the game replaced this figure by effect sprites (Fire sword burn); judged against the FULL sprite table: No Sprite Limit (default On) sets lk_o_satn = 0, which had switched this test off */
+  /* v2: by TILES, not by boxes: the mushroom's 4 x 2 foot piece sits within 2 px of the burn's 4 x 2 entry, so the box test (lk_o_loose) called the figure present.
+     Replaced = no table entry shows the figure's OWN tiles (base .. base + all its pieces) and an entry with foreign tiles sits on one of its pieces (same column +-8, +-16 lines). */
+  int pc, j, tot = 0, base = e->ts & 0x7FF, foreign = 0;
+  if (lk_o_satn_all <= 0) return 0;
+  for (pc = 0; pc < e->np; pc++) tot += e->pws[pc] * e->phs[pc];
+  for (j = 0; j < lk_o_satn_all; j++) if (lk_o_satt[j] >= base && lk_o_satt[j] < base + tot) return 0;
+  { int cum = 0, i; for (pc = 0; pc < e->np; pc++) { uint32 k = lk_o_pkey(e, pc, 0); int nb = 32 * e->pws[pc] * e->phs[pc];
+      for (j = 0; j < lk_o_satn_all; j++) if (lk_o_satk[j] == k) { int t = lk_o_satt[j], same = 1, n2 = nb; if (n2 > 0x4000 - cum * 32) n2 = 0x4000 - cum * 32; if (t * 32 + n2 > 0x10000) n2 = 0x10000 - t * 32;
+        for (i = 0; i < n2 && same; i++) if ((lk_o_vmirror ? lk_vm[t * 32 + i] : vram[(t * 32 + i) ^ 1]) != e->tiles[cum * 32 + i]) same = 0;
+        if (same) return 0; }
+      cum += e->pws[pc] * e->phs[pc]; } }   /* an entry exactly on a piece WITH the piece's graphic = the figure itself (figures whose tiles are not at their base); the burn's 4 x 2 entry sits exactly on the mushroom's foot but holds flames */
+  for (pc = 0; pc < e->np && !foreign; pc++) { uint32 k = lk_o_pkey(e, pc, 0);
+    for (j = 0; j < lk_o_satn_all; j++) { int dx = (int)((k >> 20) & 0x1FF) - (int)((lk_o_satk[j] >> 20) & 0x1FF), dy = (int)((k >> 8) & 0x3FF) - (int)((lk_o_satk[j] >> 8) & 0x3FF);
+      if (dx >= -8 && dx <= 8 && dy >= -16 && dy <= 16) { foreign = 1; break; } } }
+  return foreign;
+}
 static int lk_o_list(const uint8 *src, int *offs) {                  /* visible entity list $FF11DE of a pass state; when the game is in the middle of a pass at the top of the frame the list is empty (terminator first): the last complete list is used (the entity structs are fresh anyway) */
   int a = 0xFF11DE, n = 0; const uint8 *keep = lk_o_sp; lk_o_sp = (((src[(0xFF11DE & 0xFFFF) ^ 1] << 8) | src[(0xFF11DF & 0xFFFF) ^ 1]) == 0xFFFF && lk_o_goodok && !lk_o_fade) ? lk_o_good : src;
   for (;;) { int off = SW(a); a += 2; if ((off & 0x8000) || a > 0xFF11DE + 40 || n >= 24) break; offs[n++] = off; }
@@ -488,7 +505,7 @@ static int lk_o_sprites(const uint8 *src, int draw, uint32 *keys, const uint8 *a
     if (!e || !e->vis) continue;
     if (draw && e->np && lk_of_out(offs[k])) { int q3; for (q3 = 0; q3 < e->np && lk_o_dn < 96; q3++) lk_o_dk[lk_o_dn++] = lk_o_pkey(e, q3, 0); continue; }   /* LK_OFFFIG v1: not drawn, but its sprite table entries count as covered (else pass 2 drew them as 'extras') */
     if (draw && lk_o_hide0 && offs[k] == 0 && e->np && lk_o_nigelalt(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) printf("ownlie: frame %ld Nigel drawn from the sprite table only\n", platform_frame_number()); continue; }   /* LK_OWNLIE v1: Nigel in a cutscene shape (lying) = only the real sprite table */
-    if (draw && lk_o_hide0 && offs[k] != 0 && e->np && lk_o_satn > 0 && !lk_o_loose(e) && !lk_o_loose4e(e) && lk_o_near(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) { int q; printf("ownhide: frame %ld off %02X type %02X at (%d,%d) 4e (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), e->ax, e->ay, SW(0xFF5400 + offs[k] + 0x4E), SW(0xFF5400 + offs[k] + 0x50)); for (q = 0; q < e->np; q++) { uint32 kk = lk_o_pkey(e, q, 0); printf("   piece %d: x %d y %d size %X\n", q, (int)((kk >> 20) & 0x1FF), (int)((kk >> 8) & 0x3FF), (int)(kk & 15)); } } continue; }   /* the real sprite table holds none of this entity's pieces: the game draws something else in its place (a burning enemy of the Fire sword is replaced by flame sprites that are written into the table, they come as EXTRA entries) */
+    if (draw && lk_o_hide0 && offs[k] != 0 && e->np && lk_o_effrep(e)) { if (getenv("LANDSTALKER_OWN_ENTS")) { int q; printf("ownhide: frame %ld off %02X type %02X at (%d,%d) 4e (%d,%d)\n", platform_frame_number(), offs[k], SB(0xFF5400 + offs[k] + 0x3B), e->ax, e->ay, SW(0xFF5400 + offs[k] + 0x4E), SW(0xFF5400 + offs[k] + 0x50)); for (q = 0; q < e->np; q++) { uint32 kk = lk_o_pkey(e, q, 0); printf("   piece %d: x %d y %d size %X\n", q, (int)((kk >> 20) & 0x1FF), (int)((kk >> 8) & 0x3FF), (int)(kk & 15)); } } continue; }   /* the real sprite table holds none of this entity's pieces: the game draws something else in its place (a burning enemy of the Fire sword is replaced by flame sprites that are written into the table, they come as EXTRA entries) */
     if (draw && lk_o_exon) lk_o_extras_upto(sord[k]);
     lk_o_nspr++;
     if (draw && (lk_hd_n || lk_hd_fxany() || lk_r3d_on())) { int q2, lo = -9999; for (q2 = 0; q2 < e->np; q2++) { int yb = e->ay + e->pys[q2] - 128 + 8 * e->phs[q2]; if (yb > lo) lo = yb; } lk_o_curd = lo + SW(0xFF5400 + offs[k] + 0x12); if (offs[k] == 0) lk_hd_focus = lk_o_curd; }   /* depth blur: the figure's ground contact row (lowest pixel row + its height above the floor) */
