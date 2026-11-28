@@ -101,7 +101,34 @@ def mesh_tris(path):   # REAL 3D LIGHT SHAPES stage 1 (LK_LTMODEL v1, 2026-11-08
                 if g[0] * f[0] + g[1] * f[1] + g[2] * f[2] > 0.819: sn = [sn[i] + fn[tj][i] for i in range(3)]   # area weighted
             n = unit(sn); k = 2.0 * flip if flip < 0 else 1.0; out += [vs[v][0], vs[v][1], vs[v][2], k * n[0], k * n[1], k * n[2]]   # a flipped (camera-averted) triangle carries its normal at length 2 (LK_GLROOM v1: the model buffer can leave such back faces out)
     return out
-MTRI = {}; MSURF = {}; CARRIER = []   # CARRIER: LK_GLCARRIER v1 rows {room, cells x0 y0 x1 y1, radius} of mesh ops with "carrier": radius   # mesh number -> triangle list (only meshes from an OBJ file) / "surface": true
+# BUILD CACHE (2026-11-28, build speed plan A: the meshes took 245 of the build's 712 s): the result of mesh_cells / mesh_tris (+ the C text of the triangles) per OBJ is
+# kept on disk, keyed by the OBJ's bytes + the function's own source, so only new / changed shapes are computed again.  Folder: LANDSTALKER_BUILD_CACHE (firstrun.py: <build folder>/cache)
+# or ~/.cache/project-friday-build/cache; LANDSTALKER_BUILD_CACHE=off = no cache.  The output is byte-identical either way.
+def _mcache(fn, path, post=None):
+    import hashlib, inspect, pickle
+    d = os.environ.get("LANDSTALKER_BUILD_CACHE") or os.path.join(os.path.expanduser("~"), ".cache", "project-friday-build", "cache")
+    def calc():
+        r = fn(path)
+        return post(r) if post else r
+    if d == "off": return calc()
+    src = inspect.getsource(fn) + (inspect.getsource(post) if post else "")
+    key = hashlib.sha1(src.encode() + b"\0" + open(path, "rb").read()).hexdigest()
+    f = os.path.join(d, "lightmesh", fn.__name__ + "-" + key + ".pickle")
+    try:
+        with open(f, "rb") as fh: return pickle.load(fh)
+    except Exception:
+        pass
+    r = calc()
+    try:
+        os.makedirs(os.path.dirname(f), exist_ok=True); tmp = f + ".%d.tmp" % os.getpid()
+        with open(tmp, "wb") as fh: pickle.dump(r, fh, protocol=4)
+        os.replace(tmp, f)
+    except Exception:
+        pass
+    return r
+def _tri_text(out):   # mesh_tris result -> (number of floats, C text of the float list)
+    return (len(out), ", ".join("%.3ff" % v for v in out))
+MTRI = {}; MTXT = {}; MSURF = {}; CARRIER = []   # CARRIER: LK_GLCARRIER v1 rows {room, cells x0 y0 x1 y1, radius} of mesh ops with "carrier": radius   # mesh number -> triangle list (only meshes from an OBJ file) / "surface": true
 def prism_cells(poly, top, bot):   # v9 "prism" op: a polygon footprint (world units) -> {(sx, sy): (top, bottom)} at the sub column centres (4 sx + 2, 4 sy + 2)
     out = {}; xs = [p[0] for p in poly]; ys = [p[1] for p in poly]
     for sy in range(int(min(ys)) // 4, int(max(ys)) // 4 + 1):
@@ -163,7 +190,7 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
                 if op == 5 and e.get("fill_ground"):   # LK_LTFILLMESH v1: the painted water around this model inherits the rectangle's ground, not its collision (opt-in per op; survey of the other rooms: HANDOFF 0a514)
                     FILLG.append("{%d, %d, %d, %d, %d, %d}" % (int(room), a[0], a[1], a[2], a[3], int(e.get("floor", -999))))
                 if op == 5:   # mesh: the rectangle's automatic shapes go, the mesh is stamped (a[4] = mesh number)
-                    top = mesh_cells(os.path.join(os.path.dirname(path), e["file"])); mi = len(MESHES); MTRI[mi] = mesh_tris(os.path.join(os.path.dirname(path), e["file"])); MSURF[mi] = 1 if e.get("surface") else 0   # LK_LTMODEL v1: only VERIFIED models are real 3D light shapes ("surface": true; the older outdoor proxies lean on the carve; LANDSTALKER_LT_MODELALL=1 = all, test aid)
+                    top = _mcache(mesh_cells, os.path.join(os.path.dirname(path), e["file"])); mi = len(MESHES); MTRI[mi], MTXT[mi] = _mcache(mesh_tris, os.path.join(os.path.dirname(path), e["file"]), _tri_text); MSURF[mi] = 1 if e.get("surface") else 0   # LK_LTMODEL v1: only VERIFIED models are real 3D light shapes ("surface": true; the older outdoor proxies lean on the carve; LANDSTALKER_LT_MODELALL=1 = all, test aid)
                     MESHES.append(", ".join("{%d, %d, %d, %d}" % (sx, sy, int(round(h[0])), int(round(h[1]))) for (sx, sy), h in sorted(top.items()) if 0 <= sx < 296 and 0 <= sy < 296))
                     if e.get("carrier"): CARRIER.append("{%d, %d, %d, %d, %d, %d, %d, %d, %d}" % (int(room), a[0], a[1], a[2], a[3], int(e["carrier"]["r"]), int(e["carrier"]["axis"][0]), int(e["carrier"]["axis"][1]), int(e["carrier"]["z"])))   # LK_GLCARRIER v1
                     a = a + [mi, 1 if e.get("air") else 0, int(e.get("floor", -999))]; n += 3   # v9: "air": parts whose bottom floats above the ground become slabs; "floor": indoors the rectangle's sub columns the mesh does not cover get this height
@@ -181,11 +208,11 @@ def corr_table():   # data/light_proxies.json (our own data, LIGHT_PROXY_PLAN st
     mesh = "".join("static const int16_t lk_lt_mesh%d[][4] = { %s{-1, -1, -1, -1} };\n" % (i, m + ", " if m else "") for i, m in enumerate(MESHES))   # 2026-11-21: a thin model (dead twig) can cover no sub column centre at all -> only the end mark
     mesh += "static const int16_t (*const lk_lt_meshes[])[4] = { " + ", ".join(["lk_lt_mesh%d" % i for i in range(len(MESHES))] + ["0"]) + " };\n"
     print("patch_lights: %d light proxy meshes (%s cells)" % (len(MESHES), ", ".join(str(m.count("{")) for m in MESHES)))
-    mesh += "".join("static const float lk_lt_mtri%d[] = { %s };\n" % (i, ", ".join("%.3ff" % v for v in MTRI[i])) for i in sorted(MTRI))
+    mesh += "".join("static const float lk_lt_mtri%d[] = { %s };\n" % (i, MTXT[i]) for i in sorted(MTRI))
     mesh += "static const float *const lk_lt_mtris[] = { " + ", ".join(["lk_lt_mtri%d" % i if i in MTRI else "0" for i in range(len(MESHES))] + ["0"]) + " };\n"
     mesh += "static const unsigned char lk_lt_msurf[] = { " + ", ".join([str(MSURF.get(i, 0)) for i in range(len(MESHES))] + ["0"]) + " };\n"
-    mesh += "static const int lk_lt_mtrin[] = { " + ", ".join([str(len(MTRI[i]) // 18) if i in MTRI else "0" for i in range(len(MESHES))] + ["0"]) + " };   /* LK_LTMODEL v1: triangles per mesh */\n"
-    print("patch_lights: model triangles for the GPU: %s" % ", ".join("%d%s" % (len(MTRI[i]) // 18, "" if MSURF.get(i) else "(test)") for i in sorted(MTRI)))
+    mesh += "static const int lk_lt_mtrin[] = { " + ", ".join([str(MTRI[i] // 18) if i in MTRI else "0" for i in range(len(MESHES))] + ["0"]) + " };   /* LK_LTMODEL v1: triangles per mesh */\n"
+    print("patch_lights: model triangles for the GPU: %s" % ", ".join("%d%s" % (MTRI[i] // 18, "" if MSURF.get(i) else "(test)") for i in sorted(MTRI)))
     mesh += "static const int16_t lk_lt_carrier[][9] = { " + ", ".join(CARRIER + ["{-1, 0, 0, 0, 0, 0, 0, 0, 0}"]) + " };   /* LK_GLCARRIER v1: {room, cells x0 y0 x1 y1, radius, axis x y, flame z}: a flame standing in these cells sits on the stand's axis and is not shadowed by its own stand within radius (data/light_proxies.json \"carrier\") */\n"
     mesh += "static const int16_t lk_lt_uptile[][3] = { " + ", ".join(uptile + ["{-1, 0, 0}"]) + " };   /* LK_LTUNPAINT v1: tileset, painted shadow tile -> the same tile without the shadow (data/light_proxies.json unpaint_tiles) */\n"
     print("patch_lights: %d statues lit as figures (LK_STATFIG v1), %d models whose water fill takes their ground (LK_LTFILLMESH v1)" % (len(STATFIG), len(FILLG)))

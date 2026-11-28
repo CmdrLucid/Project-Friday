@@ -98,8 +98,42 @@ def main():
     total, done, lock, errors = len(todo), [0], threading.Lock(), []
     print("zigbuild: %d of %d files to compile with: %s" % (total, len(jobs), a.cc), flush=True)
 
+    # BUILD CACHE (2026-11-28, build speed plan A: the compile took 275 of the build's 712 s, mostly files that did not change since the last build):
+    # key = compiler identity + flags + the PREPROCESSED source (-E -P: every header included, no line markers, so the build folder's path does not matter);
+    # a hit copies the stored object.  Folder: LANDSTALKER_BUILD_CACHE/obj (firstrun.py: <build folder>/cache) or ~/.cache/project-friday-build/cache/obj;
+    # LANDSTALKER_BUILD_CACHE=off = no cache.  Pruned to LANDSTALKER_BUILD_CACHE_MB (default 3000) after the build, oldest first.
+    cdir = os.environ.get("LANDSTALKER_BUILD_CACHE") or os.path.join(os.path.expanduser("~"), ".cache", "project-friday-build", "cache")
+    ocache = None if cdir == "off" else os.path.join(cdir, "obj")
+    ccid = ""
+    if ocache:
+        try:
+            ccid = subprocess.run(cc + ["--version"], capture_output=True, text=True).stdout
+        except Exception:
+            ocache = None
+    hits = [0]
+
+    def ckey(src, fl):
+        import hashlib
+        nfl = [f.replace(ROOT, "<ROOT>") for f in fl]   # the flags carry the build folder in their -I paths (a new folder per version in firstrun.py): not part of the key
+        h = hashlib.sha256((a.cc + "\0" + ccid + "\0" + "\0".join(nfl)).encode())
+        pr = subprocess.Popen(cc + fl + ["-E", "-P", src], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        for chunk in iter(lambda: pr.stdout.read(1 << 20), b""):
+            h.update(chunk)
+        return h.hexdigest() if pr.wait() == 0 else None
+
     def comp(j):
         src, obj, fl = j
+        key = ckey(src, fl) if ocache else None
+        cobj = os.path.join(ocache, key[:2], key + ".o") if key else None
+        if cobj and os.path.isfile(cobj):
+            try:
+                shutil.copyfile(cobj, obj); os.utime(cobj)
+                with lock:
+                    done[0] += 1; hits[0] += 1
+                    print("PROGRESS %d %d %s (cached)" % (done[0], total, os.path.basename(src)), flush=True)
+                return
+            except Exception:
+                pass
         for attempt in range(4):   # zig's compile cache can fail (seen under Wine: CacheCheckFailed, no file locking): retry, the last time with a private cache
             env = None
             if attempt == 3 and "CacheCheckFailed" in (r.stderr or ""):
@@ -111,6 +145,12 @@ def main():
                 shutil.rmtree(env["ZIG_LOCAL_CACHE_DIR"], ignore_errors=True)
             if r.returncode == 0:
                 break
+        if r.returncode == 0 and cobj:
+            try:
+                os.makedirs(os.path.dirname(cobj), exist_ok=True); tmp = cobj + ".%d.tmp" % threading.get_ident()
+                shutil.copyfile(obj, tmp); os.replace(tmp, cobj)
+            except Exception:
+                pass
         with lock:
             done[0] += 1
             if r.returncode:
@@ -132,6 +172,17 @@ def main():
         done[0] -= len(again)
         for j in again:
             comp(j)
+    if ocache:
+        print("zigbuild: %d of %d compiles taken from the build cache %s" % (hits[0], total, ocache), flush=True)
+        try:   # prune, oldest (last use) first
+            lim = int(os.environ.get("LANDSTALKER_BUILD_CACHE_MB", "3000")) << 20
+            fs = [(os.path.getmtime(f), os.path.getsize(f), f) for f in glob.glob(os.path.join(ocache, "*", "*.o"))]
+            tot = sum(f[1] for f in fs)
+            for mt, sz, f in sorted(fs):
+                if tot <= lim: break
+                os.remove(f); tot -= sz
+        except Exception:
+            pass
     if errors:
         for s, e in errors[:3]:
             print("ERROR compiling %s:\n%s" % (s, e[-1500:]), file=sys.stderr)

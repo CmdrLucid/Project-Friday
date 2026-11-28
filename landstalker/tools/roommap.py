@@ -484,8 +484,30 @@ def main():
     stamp = os.path.join(outd, "stamp.txt")
     if "--force" not in a and os.path.exists(stamp) and open(stamp).read().strip() == key:
         print("roommap: up to date (%s)" % outd); return
+    # BUILD CACHE (2026-11-28, build speed plan A: 70 s of every build): layout.txt by ROM + this file + its helpers + ROOMS.md, in LANDSTALKER_BUILD_CACHE/roommap
+    # (firstrun.py: <build folder>/cache; else ~/.cache/project-friday-build/cache; =off: none), so a new build folder after an update takes it over
+    cd = os.environ.get("LANDSTALKER_BUILD_CACHE") or os.path.join(os.path.expanduser("~"), ".cache", "project-friday-build", "cache")
+    cf = None
+    if cd != "off" and "--thumbs" not in a:
+        hh = hashlib.sha256(key.encode())
+        for f in ("roomgraph.py", "romroom.py", os.path.join("..", "docs", "ROOMS.md")):
+            try: hh.update(open(os.path.join(HERE, f), "rb").read())
+            except OSError: hh.update(b"-")
+        cf = os.path.join(cd, "roommap", hh.hexdigest() + ".layout.txt")
+        if "--force" not in a and os.path.isfile(cf):
+            import shutil
+            shutil.copyfile(cf, os.path.join(outd, "layout.txt"))
+            tb = os.path.join(outd, "thumbs.bin")
+            if os.path.exists(tb): os.remove(tb)
+            open(stamp, "w").write(key + "\n"); print("roommap: layout taken from the build cache %s" % cf); return
     lines, rooms, areas, pos = build(rom)
     open(os.path.join(outd, "layout.txt"), "w").write("\n".join(lines) + "\n")
+    if cf:
+        try:
+            os.makedirs(os.path.dirname(cf), exist_ok=True); tmp = cf + ".%d.tmp" % os.getpid()
+            open(tmp, "w").write("\n".join(lines) + "\n"); os.replace(tmp, cf)
+        except OSError:
+            pass
     print("roommap: %d areas, %d rooms" % (len(areas), len(rooms)), flush=True)
     if "--thumbs" not in a:   # v7: the map is schematic (user: the room pictures looked pixelated), no pictures needed; --thumbs still makes them
         tb = os.path.join(outd, "thumbs.bin")

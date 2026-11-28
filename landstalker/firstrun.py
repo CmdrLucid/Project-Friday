@@ -515,6 +515,7 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
     pylib = os.path.join(DATA, "pylib")
     penv = dict(os.environ)
     penv["PYTHONPATH"] = pylib + (os.pathsep + penv["PYTHONPATH"] if penv.get("PYTHONPATH") else "")
+    penv.setdefault("LANDSTALKER_BUILD_CACHE", os.path.join(DATA, "cache"))   # build cache (patch_lights meshes, zigbuild objects): reused by the next build after an update
     if subprocess.run([sys.executable, "-c", "import capstone"], capture_output=True, env=penv).returncode:
         ui.progress(2, "Installing the python module 'capstone' ...")
         wheels = os.path.join(HERE, "vendor", "wheels")
@@ -555,6 +556,7 @@ def build(ui, rom, rom_sha, bid, cc, test=False):
     env["CC"] = cc
     env["SDL2_CFLAGS"], env["SDL2_LIBS"] = sdl_flags()
     env.setdefault("ZIG_GLOBAL_CACHE_DIR", os.path.join(DATA, "zigcache"))
+    env.setdefault("LANDSTALKER_BUILD_CACHE", os.path.join(DATA, "cache"))
     ui.progress(60, "Compiling ...")
     cmd = [sys.executable, os.path.join(work, "tools", "zigbuild.py"), "--cc", cc, "--out", os.path.join(work, "out")] + (["--no-game", "--smoke"] if test else [])
     log.write("\n$ %s\n" % " ".join(cmd))
@@ -734,6 +736,8 @@ def main():
     try:
         if args.rebuild:
             rmtree(os.path.join(DATA, "builds"))
+            if os.path.isdir(os.path.join(DATA, "cache")):
+                rmtree(os.path.join(DATA, "cache"))   # a clean rebuild does not reuse cached results
         if cc is None and not os.path.isfile(os.path.join(DATA, "builds", bid + "-" + rom_sha[:8], "DONE")):
             ui.error("No C compiler found (the release package brings its own; for a source checkout install gcc or zig).")
             return 1
