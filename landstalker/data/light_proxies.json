@@ -28,6 +28,157 @@
   "rooms": {
     "482": [
       {
+        "op": "water",
+        "cells": [
+          24,
+          25,
+          25,
+          26,
+          0
+        ],
+        "why": "room 482 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          25,
+          27,
+          25,
+          32,
+          0
+        ],
+        "why": "room 482 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          26,
+          31,
+          26,
+          37,
+          0
+        ],
+        "why": "room 482 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          25,
+          37,
+          25,
+          39,
+          0
+        ],
+        "why": "room 482 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          24,
+          38,
+          24,
+          39,
+          0
+        ],
+        "why": "room 482 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "ground",
+        "cells": [
+          20,
+          38,
+          21,
+          38,
+          -48
+        ],
+        "replace": true,
+        "why": "room 482 CLASS B CLIFF: a drawn BULGE of the bank in front of the walkway (its floor point at the river level 0 is drawn rock) = floor at -48 below the face, no floor in the drawn rock; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          37,
+          21,
+          37
+        ],
+        "file": "proxies/cliffedge_482_0.obj",
+        "surface": true,
+        "why": "room 482 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from -48 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          24,
+          23,
+          24
+        ],
+        "file": "proxies/cliffedge_482_1.obj",
+        "surface": true,
+        "why": "room 482 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          24,
+          25,
+          24
+        ],
+        "file": "proxies/cliffedge_482_2.obj",
+        "surface": true,
+        "why": "room 482 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          27,
+          24,
+          32
+        ],
+        "file": "proxies/cliffedge_482_3.obj",
+        "surface": true,
+        "why": "room 482 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          24,
+          36,
+          24,
+          37
+        ],
+        "file": "proxies/cliffedge_482_4.obj",
+        "surface": true,
+        "why": "room 482 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          38,
+          20,
+          38
+        ],
+        "file": "proxies/cliffnotch_482_20_38.obj",
+        "surface": true,
+        "why": "room 482 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          25,
+          37,
+          25,
+          37
+        ],
+        "file": "proxies/cliffnotch_482_25_37.obj",
+        "surface": true,
+        "why": "room 482 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
         "op": "mesh",
         "cells": [
           12,
@@ -86,6 +237,30 @@
         "file": "proxies/rock_482_e.obj",
         "surface": true,
         "why": "room 482 ROCK WALL piece e (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 19 rows 31..47); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          25,
+          23,
+          27
+        ],
+        "file": "proxies/tunnel_482_upper.obj",
+        "surface": true,
+        "why": "room 482 river TUNNEL under the 112 terrace path (2026-11-28): the drawn arched cave mouth in the path's +x face (y 408..446, crown 46) with the water running in; path block + vault + water floor 0; remake/recipes/tunnel_482.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          22,
+          37,
+          23,
+          40
+        ],
+        "file": "proxies/tunnel_482_lower.obj",
+        "surface": true,
+        "why": "room 482 river TUNNEL under the 64 terrace path (2026-11-28): the drawn arched cave mouth in the path's +x face (y 601..639, crown 32) with the water running in; path block + vault + water floor 0; remake/recipes/tunnel_482.py"
       }
     ],
     "523": [
@@ -17297,19 +17472,7 @@
         ],
         "file": "proxies/bridge_737.obj",
         "surface": true,
-        "why": "Kazalt 737 stone ARCH BRIDGE (2026-11-28, user: 'unter der Bruecke ist noch Wasser und keine Wand'): the walkway over the channel between the courtyard pond and the outer water; piers, deck top 112 with the arch (soffit 96, haunches r 26), water floor 8 under it, measured on the drawing; remake/recipes/bridge_737.py"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          48,
-          26,
-          49,
-          29
-        ],
-        "file": "proxies/bridge_737_pier.obj",
-        "surface": true,
-        "why": "Kazalt 737 arch bridge: the right pier's BUTTRESS in front of the deck face (x 768..794, y 423..440; user mark 2026-11-28 'das ist alles noch Pfeiler'; drawn corner U 1538, front face to U 1555) with the arch haunch + band running on to its front and the water floor 8 around it; remake/recipes/bridge_737.py"
+        "why": "Kazalt 737 stone ARCH BRIDGE (2026-11-28, user: 'unter der Bruecke ist noch Wasser und keine Wand'): the walkway over the channel between the courtyard pond and the outer water; piers (the right one flush with the deck face, user 2026-11-28), deck top 112 with the arch (soffit 96, haunches r 26), water floor 8 under it, measured on the drawing; remake/recipes/bridge_737.py"
       }
     ],
     "428": [

@@ -62,6 +62,8 @@ SPECS = {465: dict(level=-32, note="cliff path above the river: walkways 80..144
          461: dict(zones=[   # forest maze (2026-11-28): the rock face below the 80..112 walkways of row 36 (x 19..23, 27..30) runs down to the drawing's bottom edge (z 16 at its foot, measured);
              # the light painted the void in front 72..88 (a face only 8..24 high)
              dict(kind="deep", level=-160, rect=(19, 37, 30, 44), note="the face below the row-36 walkways runs to the picture's bottom edge")]),
+         482: dict(level=0, bulge=-48, note="terrace mountain (2026-11-28): the river at the foot of the terrace path (x 22..24) was painted 56..160 (a face only 8..24 high); "
+                   "the faces reach the water at 0..8 (96 -> 3, 80 -> 3 measured); the two river TUNNELS under the path are own models (remake/recipes/tunnel_482.py)"),
          469: dict(zones=[   # the stair path across the rock wall (2026-11-28): the face below the path's +x edge runs to the picture edge (127..231 px, foot below -110); the light had a floor at 0
              dict(kind="ledge", level=107, rect=(28, 34, 31, 36), note="the drawn FOREST LEDGE on the rock face (user mark 2026-11-28): 4 x 3 bushes (+ 3 pines behind) on a cell grid, "
                   "trunk feet front corner U 1102 V 433; moved along the view ray onto the first cells in front of the walkway's +y face (row 33): bush feet at cell centres x 28..31 y 34..36, ground 107"),
@@ -151,7 +153,7 @@ def build(rom, room, level, show_map=False, dry=False, deep=False, bulge=None):
         # the bank's drawn BULGES (floor point at L drawn as rock) become ground at the bulge level instead, so the drawn bank there is the walkway's face, not a floor
         low = {}
         for c in hm:
-            if not walkable(c): continue
+            if not walkable(c) or skip(c): continue   # 2026-11-28: walkway cells owned by another model (482 tunnels) get no edge block
             ls = [level if n in water else bulge for n in ((c[0] + 1, c[1]), (c[0], c[1] + 1), (c[0] + 1, c[1] + 1)) if n in reg]
             if ls and min(ls) < 16 * hm[c][0]: low[c] = min(ls)
         ops = [{"op": "water", "cells": list(r) + [level], "why": "room %d CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface %d (the faces reach the water %d below "
@@ -282,7 +284,7 @@ def build_zones(rom, room, zones, show_map=False, dry=False):
     walkable = lambda c: c in hm and not hm[c][1]
     low = {}
     for c in hm:
-        if not walkable(c): continue
+        if not walkable(c) or skip(c): continue
         ls = [level[n][0] for n in ((c[0] + 1, c[1]), (c[0], c[1] + 1), (c[0] + 1, c[1] + 1)) if n in level]
         if ls and min(ls) < 16 * hm[c][0]: low[c] = min(ls)
     if show_map:
