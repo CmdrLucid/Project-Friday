@@ -74,10 +74,65 @@
       {
         "op": "water",
         "cells": [
+          20,
+          38,
+          21,
+          63,
+          0
+        ],
+        "why": "room 482 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
           24,
           38,
           24,
           39,
+          0
+        ],
+        "why": "room 482 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          12,
+          48,
+          19,
+          52,
+          0
+        ],
+        "why": "room 482 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          24,
+          51,
+          31,
+          63,
+          0
+        ],
+        "why": "room 482 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          18,
+          53,
+          19,
+          63,
+          0
+        ],
+        "why": "room 482 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "water",
+        "cells": [
+          22,
+          53,
+          23,
+          63,
           0
         ],
         "why": "room 482 CLASS B CLIFF below the walkway (2026-11-28): the river at its drawn surface 0 (the faces reach the water 0 below straight walkway edges); the cliff is the walkway's own vertical face; remake/recipes/proxy_cliff_rooms.py"
@@ -97,24 +152,12 @@
       {
         "op": "mesh",
         "cells": [
-          20,
-          37,
-          21,
-          37
-        ],
-        "file": "proxies/cliffedge_482_0.obj",
-        "surface": true,
-        "why": "room 482 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from -48 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
-      },
-      {
-        "op": "mesh",
-        "cells": [
           23,
           24,
           23,
           24
         ],
-        "file": "proxies/cliffedge_482_1.obj",
+        "file": "proxies/cliffedge_482_0.obj",
         "surface": true,
         "why": "room 482 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
       },
@@ -126,7 +169,7 @@
           25,
           24
         ],
-        "file": "proxies/cliffedge_482_2.obj",
+        "file": "proxies/cliffedge_482_1.obj",
         "surface": true,
         "why": "room 482 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
       },
@@ -138,7 +181,7 @@
           24,
           32
         ],
-        "file": "proxies/cliffedge_482_3.obj",
+        "file": "proxies/cliffedge_482_2.obj",
         "surface": true,
         "why": "room 482 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
       },
@@ -150,7 +193,43 @@
           24,
           37
         ],
+        "file": "proxies/cliffedge_482_3.obj",
+        "surface": true,
+        "why": "room 482 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          20,
+          37,
+          21,
+          37
+        ],
         "file": "proxies/cliffedge_482_4.obj",
+        "surface": true,
+        "why": "room 482 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          23,
+          50,
+          26,
+          50
+        ],
+        "file": "proxies/cliffedge_482_5.obj",
+        "surface": true,
+        "why": "room 482 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          29,
+          50,
+          29,
+          50
+        ],
+        "file": "proxies/cliffedge_482_6.obj",
         "surface": true,
         "why": "room 482 CLASS B cliff EDGE: the walkway cells along the cliff as real blocks from 0 up to their walkway height (the cliff = their own vertical faces, user 2026-11-27; as a model its corners have no height-field seam); remake/recipes/proxy_cliff_rooms.py"
       },
@@ -169,6 +248,18 @@
       {
         "op": "mesh",
         "cells": [
+          24,
+          51,
+          24,
+          51
+        ],
+        "file": "proxies/cliffnotch_482_24_51.obj",
+        "surface": true,
+        "why": "room 482 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
           25,
           37,
           25,
@@ -177,66 +268,6 @@
         "file": "proxies/cliffnotch_482_25_37.obj",
         "surface": true,
         "why": "room 482 CLASS B cliff NOTCH: the back half of the cell between two edge cells of a diagonal cliff edge, so the cliff below it is one diagonal plane (no saw-tooth of 1-cell faces = no hard light stripes); remake/recipes/proxy_cliff_rooms.py"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          12,
-          12,
-          29,
-          18
-        ],
-        "file": "proxies/rock_482_a.obj",
-        "surface": true,
-        "why": "room 482 ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 19 rows 31..47); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          12,
-          19,
-          29,
-          21
-        ],
-        "file": "proxies/rock_482_b.obj",
-        "surface": true,
-        "why": "room 482 ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 19 rows 31..47); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          12,
-          22,
-          15,
-          26
-        ],
-        "file": "proxies/rock_482_c.obj",
-        "surface": true,
-        "why": "room 482 ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 19 rows 31..47); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          12,
-          27,
-          19,
-          30
-        ],
-        "file": "proxies/rock_482_d.obj",
-        "surface": true,
-        "why": "room 482 ROCK WALL piece d (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 19 rows 31..47); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
-      },
-      {
-        "op": "mesh",
-        "cells": [
-          12,
-          31,
-          18,
-          47
-        ],
-        "file": "proxies/rock_482_e.obj",
-        "surface": true,
-        "why": "room 482 ROCK WALL piece e (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 19 rows 31..47); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
       },
       {
         "op": "mesh",
@@ -261,6 +292,66 @@
         "file": "proxies/tunnel_482_lower.obj",
         "surface": true,
         "why": "room 482 river TUNNEL under the 64 terrace path (2026-11-28): the drawn arched cave mouth in the path's +x face (y 601..639, crown 32) with the water running in; path block + vault + water floor 0; remake/recipes/tunnel_482.py"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          12,
+          29,
+          18
+        ],
+        "file": "proxies/rock_482_a.obj",
+        "surface": true,
+        "why": "room 482 ROCK WALL piece a (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 20 rows 31..47 (piece e takes the column x 19: the drawn rock corner lies at U 735 = x 320 / y 768, 2026-11-28; the 160 barrier cells in front, rows 48..50, are the river into the small cave = water, proxy_cliff_rooms.py SPECS 482)); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          19,
+          29,
+          21
+        ],
+        "file": "proxies/rock_482_b.obj",
+        "surface": true,
+        "why": "room 482 ROCK WALL piece b (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 20 rows 31..47 (piece e takes the column x 19: the drawn rock corner lies at U 735 = x 320 / y 768, 2026-11-28; the 160 barrier cells in front, rows 48..50, are the river into the small cave = water, proxy_cliff_rooms.py SPECS 482)); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          22,
+          15,
+          26
+        ],
+        "file": "proxies/rock_482_c.obj",
+        "surface": true,
+        "why": "room 482 ROCK WALL piece c (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 20 rows 31..47 (piece e takes the column x 19: the drawn rock corner lies at U 735 = x 320 / y 768, 2026-11-28; the 160 barrier cells in front, rows 48..50, are the river into the small cave = water, proxy_cliff_rooms.py SPECS 482)); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          27,
+          19,
+          30
+        ],
+        "file": "proxies/rock_482_d.obj",
+        "surface": true,
+        "why": "room 482 ROCK WALL piece d (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 20 rows 31..47 (piece e takes the column x 19: the drawn rock corner lies at U 735 = x 320 / y 768, 2026-11-28; the 160 barrier cells in front, rows 48..50, are the river into the small cave = water, proxy_cliff_rooms.py SPECS 482)); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          12,
+          31,
+          19,
+          47
+        ],
+        "file": "proxies/rock_482_e.obj",
+        "surface": true,
+        "why": "room 482 ROCK WALL piece e (barrier wall pass 2026-11-27): rock drawn over VOID / BARRIER ($4F) cells (void painter: a water hole, no sword glow on the wall); solid behind the walkway up to the barrier lines, top = drawn outline seen edge-on; remake/recipes/proxy_rock_rooms.py: rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 20 rows 31..47 (piece e takes the column x 19: the drawn rock corner lies at U 735 = x 320 / y 768, 2026-11-28; the 160 barrier cells in front, rows 48..50, are the river into the small cave = water, proxy_cliff_rooms.py SPECS 482)); the two river ARCHES under the lower paths are overhangs (not done: real models like the 737 bridge)"
       }
     ],
     "523": [

@@ -53,9 +53,9 @@ SPECS = {
               note="cave-door ledge above the water (rock behind the walkways, 2026-11-28): one rock wall facing +y, its foot on the water at y 384 (drawn water edge V - U / 2 = "
                    "y - 592 at z 0), left end x 560 (drawn vertical edge U 1360); the ledge (40..45, 20..23) and the door path (46..49, 17..19) are NICHES in it, the wall right of the "
                    "ledge stands back at y 320 (the drawn water edge jogs back there); lintel over the door path from 176 (drawn arch top V 360 at U 1632 on that face); the dark CREVICE behind the ledge (42, 17..19, drawn slot U 1545) open up to 160"),
-    482: dict(pieces=[(12, 12, 29, 18), (12, 19, 29, 21), (12, 22, 15, 26), (12, 27, 19, 30), (12, 31, 18, 47)], u=(760, 1276),
+    482: dict(pieces=[(12, 12, 29, 18), (12, 19, 29, 21), (12, 22, 15, 26), (12, 27, 19, 30), (12, 31, 19, 47)], u=(760, 1276),
               note="rock mountain with terrace paths and the river at its foot (rock behind the walkways, 2026-11-28): the mass behind / above the terraces (void rows <= 21, the 160 "
-                   "barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 19 rows 31..47); the two river ARCHES "
+                   "barrier columns x 15..19) up to the drawn outline; its front follows the 160 columns (x 16 rows 22..26, x 20 rows 27..30, x 20 rows 31..47 (piece e takes the column x 19: the drawn rock corner lies at U 735 = x 320 / y 768, 2026-11-28; the 160 barrier cells in front, rows 48..50, are the river into the small cave = water, proxy_cliff_rooms.py SPECS 482)); the two river ARCHES "
                    "under the lower paths are overhangs (not done: real models like the 737 bridge)"),
     610: dict(pieces=[(36, 12, 52, 23), (53, 12, 57, 28), (12, 12, 15, 20, 0, (860, 1080)), (12, 21, 14, 40, 0, (860, 1080))], u=(1380, 1770), also=[611],
               note="Ryuma (rock behind the walkways, 2026-11-28): the big RIGHT cliff is a staircase of blocked cells in the game (x 36..57 rows 20..28, 48 .. 208) but drawn as one rock "

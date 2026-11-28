@@ -62,7 +62,11 @@ SPECS = {465: dict(level=-32, note="cliff path above the river: walkways 80..144
          461: dict(zones=[   # forest maze (2026-11-28): the rock face below the 80..112 walkways of row 36 (x 19..23, 27..30) runs down to the drawing's bottom edge (z 16 at its foot, measured);
              # the light painted the void in front 72..88 (a face only 8..24 high)
              dict(kind="deep", level=-160, rect=(19, 37, 30, 44), note="the face below the row-36 walkways runs to the picture's bottom edge")]),
-         482: dict(level=0, bulge=-48, note="terrace mountain (2026-11-28): the river at the foot of the terrace path (x 22..24) was painted 56..160 (a face only 8..24 high); "
+         482: dict(level=0, bulge=-48, add_water=[(20, 38, 21, 52), (12, 51, 21, 52), (18, 51, 31, 63, "outside"), (12, 48, 19, 50, "blocked")],
+                   note="terrace mountain (2026-11-28): the river at the foot of the terrace path (x 22..24) was painted 56..160 (a face only 8..24 high); west of the lower tunnel and "
+                   "south of the map the void painter copied the 160 rock barrier as WATER 160 (a phantom block: the sword glow left of Nigel at (22, 48) hit it, receiver map (27, 54) z 86..133; "
+                   "user mark 2026-11-28) -> the river level 0 there too; the 160 barrier cells x 16..19 rows 48..50 are the river running into the small cave at the foot of the rock "
+                   "(the drawn rock corner lies at U 735 = x 320 / y 768: the rock (x <= 19, rock piece e) ends at row 47; as 160 columns they stood as a lit block with a hard glow edge, user mark) -> water 0; "
                    "the faces reach the water at 0..8 (96 -> 3, 80 -> 3 measured); the two river TUNNELS under the path are own models (remake/recipes/tunnel_482.py)"),
          469: dict(zones=[   # the stair path across the rock wall (2026-11-28): the face below the path's +x edge runs to the picture edge (127..231 px, foot below -110); the light had a floor at 0
              dict(kind="ledge", level=107, rect=(28, 34, 31, 36), note="the drawn FOREST LEDGE on the rock face (user mark 2026-11-28): 4 x 3 bushes (+ 3 pines behind) on a cell grid, "
@@ -147,7 +151,7 @@ def build(rom, room, level, show_map=False, dry=False, deep=False, bulge=None):
         water = {c for c in water if not wet(c)}
     reg = water | rock
     for r in SPECS.get(room, {}).get("add_water", []):   # 2026-11-28 (523): measured water cells the flood did not reach (floor point on the drawn water edge)
-        water |= {(x, y) for x in range(r[0], r[2] + 1) for y in range(r[1], r[3] + 1) if void((x, y))}
+        water |= {(x, y) for x in range(r[0], r[2] + 1) for y in range(r[1], r[3] + 1) if void((x, y)) or (len(r) > 4 and r[4] == "outside" and (x, y) not in hm) or (len(r) > 4 and r[4] == "blocked" and (x, y) in hm and hm[(x, y)][1])}   # 482: also outside the map / blocked cells drawn as water
     reg = water | rock
     if bulge is not None and not deep:   # 2026-11-28 (501 / 523): the river at its MEASURED surface L (faces reach the water F = z - L px below straight edges); the cells in front of
         # the bank's drawn BULGES (floor point at L drawn as rock) become ground at the bulge level instead, so the drawn bank there is the walkway's face, not a floor
