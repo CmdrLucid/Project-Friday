@@ -4,16 +4,16 @@
 
 - 0. One-paragraph summary: lines 56-61
 - 0b. USER TEST CHECKLIST (2026-10-15 session). CONFIRMED b...: lines 956-967
-- 1. Where we are: lines 968-1156
-- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1157-1496
-- 3. How the user works (important): lines 1497-1512
-- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1513-1537
-- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1538-1546
-- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1547-1594
-- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1595-1604
-- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1605-1606
-- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1607-1609
-- NEXT STEPS, newest first: -299 1158, -298 1159, -297 1160, -296 1161, -295 1162, -294 1163, -293 1164, -292 1165, -291 1166, -290 1167
+- 1. Where we are: lines 968-1157
+- 2. NEXT STEPS (in this order; the user decides, ask if un...: lines 1158-1497
+- 3. How the user works (important): lines 1498-1513
+- 3a. Working DIRECTLY ON THE DECK (Claude Code CLI in Kons...: lines 1514-1538
+- 3b. END-OF-SESSION CHECKLIST (do this before the last pus...: lines 1539-1547
+- 4. Tool cheat sheet (details: INDEX section 4, tools/*/RE...: lines 1548-1595
+- 5. Root causes found (do not re-learn). Older ones: DEBUG...: lines 1596-1605
+- 6. Entity/NPC/map facts -> moved to docs/FORMATS.md (sing...: lines 1606-1607
+- 7. FRAGILE: widescreen map-frame detection (added 2026-10...: lines 1608-1610
+- NEXT STEPS, newest first: -299 1159, -298 1160, -297 1161, -296 1162, -295 1163, -294 1164, -293 1165, -292 1166, -291 1167, -290 1168
 - Newest entries:
   - 0a544 line 193: 2026-11-28 night (Deck, Opus 5.5, no agents; GPU headless, NOT played): user recording rec_20261128_2013 (n...
   - 0a543 line 195: 2026-11-28 evening (Deck, Opus 5.5, no agents): BUILD CACHE = build speed plan A (user: only A; no -O2, no...
@@ -966,6 +966,7 @@ Setup: new ZIP of `dev`, `build.sh`, `bash tools/verify_build.sh`, start `~/Land
 Next ideas the user agreed to (in this order): skip title logos, room name popup on entering a room, rumble on damage; later equipment swap on a quick button.
 
 ## 1. Where we are
+- **2026-11-28 (long session, Opus 5.5, no agents; dev pushed, NOT released):** USER CONFIRMED on the Deck: charged hits with all swords (LK_OWNEFF), #26 build folder question via a local AppImage (+ the ROM message before the file window). Headless only (not played): tear line fix LK_SSCLS v1, Nigel pose check LK_OWNEFF v3 (chip-proven), GitHub #18 island map label LK_LGWNAME v3 (IMAP_AT-proven), #21 = already fixed phantom water, build cache + LK_LTDATAFILE v1 (update build 649 -> 151 s, build.sh 75 / 81 s), water 490 / 525 fixes, 236 shaft removed (LK_LTSHSKIP v1). Open list: NEXT -299.
 - **2026-11-28 EVENING SESSION END (Opus 5.5, no agents; `dev`, main = v1.9.13, no release):** phantom water survey + LK_LTDWATDOOR v1, castle left court 32 / 33 light shapes (user OK on the clay sheets), orchestral soundtrack experiment (docs/MUSIC_ORCHESTRA.md, Massan v1..v5, v5 unheard). Nothing played in the game yet. HANDOFF 0a537..0a539, NEXT -294.
 - **2026-11-28 LATER (Opus 5.5, no agents):** castle left court 32 / 33 light shapes (keep + 2 round towers, lower left tower, green-roofed house; user OK on the clay sheets), LK_LTDWATDOOR v1; NOT played. HANDOFF 0a538, NEXT -293.
 - **2026-11-28 SESSION (Opus 5.5, no agents; `dev`, main = v1.9.13, no release):** PHANTOM WATER survey of 146 outdoor rooms (tools/phantomwater.py): water ops in 183 465 468 475 489 490 501 523 525 737; night sword pictures: box shadows in the water gone (525 / 523); NOT played. HANDOFF 0a537, NEXT -292.
@@ -1155,7 +1156,7 @@ Next ideas the user agreed to (in this order): skip title logos, room name popup
 - **2026-11-06 later (Opus 5.5, `dev` pushed, `main` = v1.8.0):** GPU step 2 measured and dropped (clouds 0.07 ms, water 0.2, haze ~1 of ~10 ms per frame); GPU LIGHTING GL1..GL4 built (`tools/patch_gpulight.py`, `LK_GPULT v4`): the GPU lights the game when GPU Filters are On (`LANDSTALKER_GPULT=0` = CPU, `=2` = compare harness). Verified HEADLESS / windowed-hidden: compare harness 0 worse pixels over ~2 G pixels (rooms 177, 610, 171, 403, 425, 630 incl. time-lapse), presented pictures GPU vs CPU near identical, Ryuma -21 % user CPU cycles, headless + GPU Filters Off identical to before, Windows compiles (not run). USER CONFIRMED by playing: GL4 'sieht gut aus und ist flüssiger'; earlier the same day fade at room changes, no stutter, fireflies, GPU filter look. NOT tested: Windows GPU path, a release. NEXT: GL5 in a new session (RENDERER_IDEAS 'GL5').
 
 ## 2. NEXT STEPS (in this order; the user decides, ask if unsure)
--299. **NEXT (2026-11-28 night): (a) user: lava cave 236 shaft gone? (b) Claude: sword glow on cliffs 478 / 470 / 473 / 712 (class B, real 3D shapes); 481 dark water at some times of day. HANDOFF 0a544.**
+-299. **NEXT (2026-11-28 night, END OF SESSION; user: 'vermerke diese Stellen alle fuers Handoff, naechste Sitzung weiter'): OPEN, from rec_20261128_2013 (night, sword; replays chk-identical; GPU shots at every swing: ~/Project-Friday-Test/lktest/rec2013 sheet_ROOM_*.png, scripts rep.sh / grep.sh): (1) SWORD GLOW at night hard / striped on cliff faces: 478 (bright diagonal stripes on the cliff below the walkway by the waterfall), 470 and 473 (rectangular glow patch on the cliff wall), 712 Ryuma near the well (angular patch on the grass) = class B cliffs: real 3D light shapes (Blender clay sheet first, CLAUDE.md rule); also 'some odd sword lights in Ryuma and on the way to 481' the user did not name exactly: ask for rooms. (2) 481: black patches in the water at certain times of day (user screenshot area; earlier listed as a waterfall false hit in phantomwater) -> light dump + overlay like 490 / 525 (new class: filled lake levels, invisible $42xx barriers, empty edges beside drawn water). (3) A survey for that new class over all outdoor rooms (lakesteps list in ~/Project-Friday-Test/lktest/w490/lakesteps.txt: 486 was NOT it, it has no visible water). (4) User checks: 525 / 490 water (day + night), 236 shaft gone, tearing at the bottom, castle court 32 / 33, music v5 (-294 / -293). (5) Release later: Windows installer (#26) compiles only in Actions (no makensis on the Deck). HANDOFF 0a544.**
 -298. **NEXT (2026-11-28 evening): build cache done (HANDOFF 0a543): firstrun update 649 s -> 151 s. Light tables split off vdp_render.c (LK_LTDATAFILE v1): build.sh 75 s without change, 81 s after a light op change. HANDOFF 0a543.**
 -297. **NEXT (2026-11-28 evening): (a) user: walk 490 / 525 (clouds off): dark spots on the water gone? (b) Claude: build cache (plan A: object cache for the compile + cached patch_lights / roommap results, user OK; NOT -O2, NOT generator work). HANDOFF 0a542.**
 -296. **NEXT (2026-11-28 night, later): (a) user: the -295 list (island map label verified headless: LK_LGWNAME v3). (b) #26 build folder choice DONE in dev (firstrun.py, installer); check the Windows installer compiles in the next release run (makensis) + try it under Proton if possible. HANDOFF 0a541.**

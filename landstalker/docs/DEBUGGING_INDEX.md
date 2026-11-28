@@ -276,3 +276,4 @@
 - L2177: Session 2026-11-27 day: barrier rock walls as 3D light meshes, LK_GMNMAX, hole class survey (dev 86e7124 .. 0821957)
 - L2185: Session 2026-11-27 afternoon: 524 shrine + rock face, jump shadow on sprite platforms, class B cliffs, LK_RAYZMIN (dev fccbe87 .. 279bfcb)
 - L2193: Session 2026-11-27 night: class B cliffs (8 rooms), rock walls (5 rooms), Kazalt 737 arch bridge (dev aeaa962 .. a63de7c)
+- L2207: Session 2026-11-28 (day / evening / night, Opus 5.5, no agents)

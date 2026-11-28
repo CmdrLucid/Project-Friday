@@ -387,3 +387,13 @@ Pad -> world: UP=(-X,-Y), LEFT=(-X,+Y), RIGHT=(+X,-Y), DOWN=(+X,+Y). Room 603 ob
 - V: block cell (x, y) of the RAM map -> picture tiles: FG column 2(x - y) + 146, BG 2(x - y) + 148, row x + y (2 x 2 tiles per block; one cell per tile position per layer).
 - V: church bench books = item entities type +3B 209 / 225 / 226 / 227 (rooms 699 / 700 at x 488..560, y 392, z 16; 227 is also the carried book).
 - V: the release AppImage keeps the RUNTIME languages in `<data>/builds/<id>/out/lang` (`build/lang` is the build's own copy); `<code>.modded` = mod path + sha1 of the mod file (line 2), `modlayer sync` rebuilds when the sha1 differs.
+
+## Session 2026-11-28 (Opus 5.5; V = read in code / ROM and tested headless)
+| Item | Fact | Status |
+|---|---|---|
+| Light height dump (`LANDSTALKER_LT_DUMPFILE=PFX` -> `PFX_ROOM.txt`, 74 x 74 cells) | each cell `height[w]:WORD`: height in units (-32768 = no light geometry, the black margin), `w` = water flag, WORD = the game's height map word ($4000 = empty / filled by the light's void painter, $42xx = blocked at height 2 = an invisible barrier, $4Fxx = barrier) | V |
+| Void painter heights | filled cells ($4000) take the height of their neighbours: one drawn lake can get several levels (525: 0 / 8 / 24 / 32) = step faces that cast box shadows on the water | V |
+| RAM sprite table `g_VDPSpriteAttrTable` $FF0550 | 80 entries x 8 bytes: word Y, byte size (bits 2-3 width - 1, bits 0-1 height - 1), byte link, word tile attr (bit 15 priority, 13-14 palette, 0-10 tile), word X; the burn effect of the Fire sword uses tiles $78C.. / $7A4.. (effect slot), also Dexter's dark silhouette in the dungeon | V |
+| Island map label | `IslandMap_InitTextBuffer` $03EB0E prints the location name one BYTE per character (own copy of the PrintStringDirect loop) | V |
+| Light shaft placement | `lk_lt_shsetup`: per room seeded RNG ((room + 1) * 2654435761 ^ 0x9E3779B9), want = 1..3, 6 random numbers per mote; skip table LK_LTSHSKIP v1 {room, shaft number} | V |
+| Build cache keys | patch_lights: OBJ bytes + function source; zigbuild: cc + --version + flags (build folder -> `<ROOT>`) + `-E -P` output; roommap: ROM + roommap/roomgraph/romroom + ROOMS.md | V |
