@@ -1765,6 +1765,18 @@
           57
         ],
         "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          29,
+          14,
+          39,
+          30
+        ],
+        "file": "proxies/castle_32_keep.obj",
+        "surface": true,
+        "why": "room 32 castle court KEEP (2026-11-28): the keep is only BARRIER ($4F00) / void cells in the height map (rows 28..30, x 31..39) = the void painter made it water 0 (its wall read as floor); notched block front y 496 / right x 640 + round corner tower (615, 471) r 22.5 + slim left corner tower (471.5, 496) r 16.5, up to 440..460 (off the picture top); remake/recipes/proxy_castle_32.py"
       }
     ],
     "33": [
@@ -1862,6 +1874,18 @@
           57
         ],
         "why": "castle court: automatic lathe on the floor (z 0) beside the drawn stone stacks / flower bed, mis-anchored; the height map holds the raised blocks (2026-11-21, leftover sweep)"
+      },
+      {
+        "op": "mesh",
+        "cells": [
+          29,
+          14,
+          39,
+          30
+        ],
+        "file": "proxies/castle_32_keep.obj",
+        "surface": true,
+        "why": "room 33 castle court KEEP (2026-11-28): the keep is only BARRIER ($4F00) / void cells in the height map (rows 28..30, x 31..39) = the void painter made it water 0 (its wall read as floor); notched block front y 496 / right x 640 + round corner tower (615, 471) r 22.5 + slim left corner tower (471.5, 496) r 16.5, up to 440..460 (off the picture top); remake/recipes/proxy_castle_32.py"
       }
     ],
     "51": [
